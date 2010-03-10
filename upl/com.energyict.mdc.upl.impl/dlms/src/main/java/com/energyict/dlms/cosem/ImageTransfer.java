@@ -228,8 +228,31 @@ public class ImageTransfer extends AbstractCosemObject{
 			imageBlockTransfer = new Structure();
 			imageBlockTransfer.addDataType(new Unsigned32(i));
 			imageBlockTransfer.addDataType(os);
-//			fos.write(octetStringData);
-			imageBlockTransfer(imageBlockTransfer);
+			
+			//***** Temporary implementation of retrying 'Temporary failures' *****//
+			int tempRetry = 0;
+			while(tempRetry < 5){
+				try {
+					imageBlockTransfer(imageBlockTransfer);
+					tempRetry = 5;
+				} catch (IOException e) {
+					if(e.getMessage().indexOf("Cosem Data-Access-Result exception Temporary failure ") > -1){
+						tempRetry++;
+						if(tempRetry == 5){
+							throw new IOException("Max. retries (3) exceeded. " + e.getMessage());
+						}
+						this.protocolLink.getLogger().log(Level.INFO, "Transfering image block resulted in temporary failure, retry " + tempRetry);
+						try {
+							Thread.sleep(2000);
+						} catch (InterruptedException e1) {
+							this.protocolLink.getLogger().log(Level.INFO, e1.getLocalizedMessage());
+						}
+					} else {
+						throw e;
+					}
+				}
+			}
+			//******************************************************************//
 
 			if(i % 50 == 0){ // i is multiple of 50
 				this.protocolLink.getLogger().log(Level.INFO, "ImageTransfer: " + i + " of " + blockCount + " blocks are sent to the device");
@@ -465,15 +488,15 @@ public class ImageTransfer extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public void imageBlockTransfer(Structure imageData) throws IOException {
-	    if(getObjectReference().isLNReference()){
 		try{
-		    invoke(IMAGE_BLOCK_TRANSFER, imageData.getBEREncodedByteArray());
+			if (getObjectReference().isLNReference()) {
+				invoke(IMAGE_BLOCK_TRANSFER, imageData.getBEREncodedByteArray());
+			} else {
+				write(IMAGE_BLOCK_TRANSFER_SN, imageData.getBEREncodedByteArray());
+			}
 		} catch (IOException e) {
 		    throw new IOException("Could not write the current imageData block" + e.getMessage());
 		}
-	    } else {
-		write(IMAGE_BLOCK_TRANSFER_SN, imageData.getBEREncodedByteArray());
-	    }
 	}
 
 	/**
