@@ -206,7 +206,7 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
         iConfigProgramChange = -1;
 
         cosemObjectFactory = new CosemObjectFactory(this);
-        storedValuesImpl = new AS220StoredValues(AS220StoredValues.MONTHLY_OBISCODE, getCosemObjectFactory());
+        storedValuesImpl = new AS220StoredValues(AS220StoredValues.DAILY_OBISCODE, getCosemObjectFactory());
 
         initDLMSConnection(inputStream, outputStream);
         iInterval=-1;

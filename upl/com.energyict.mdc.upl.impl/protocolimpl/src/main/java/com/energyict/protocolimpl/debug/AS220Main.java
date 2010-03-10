@@ -269,9 +269,13 @@ public class AS220Main {
 
 			readRegister("1.0.1.8.1.255");
 			readRegister("1.0.1.8.1.VZ");
-			readRegister("1.0.1.8.1.0");
-			readRegister("1.0.1.8.1.1");
 			readRegister("1.0.1.8.1.VZ-1");
+			readRegister("1.0.1.8.1.VZ-2");
+			log("");
+			readRegister("1.0.1.8.1.255");
+			readRegister("1.0.1.8.1.3");
+			readRegister("1.0.1.8.1.2");
+			readRegister("1.0.1.8.1.1");
 
 		} catch (Exception e) {
 			e.printStackTrace();

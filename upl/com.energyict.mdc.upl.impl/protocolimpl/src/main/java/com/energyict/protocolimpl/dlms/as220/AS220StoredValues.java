@@ -90,13 +90,12 @@ public class AS220StoredValues implements StoredValues {
 
 	public HistoricalValue getHistoricalValue(ObisCode obisCode) throws IOException {
 		ObisCode baseObisCode = ProtocolTools.setObisCodeField(obisCode, 5, (byte) 255);
-		if (!getCapturedCodes().contains(baseObisCode)) {
-			throw new UnsupportedException(baseObisCode + " has no historical values.");
-		}
 
 		int billingPoint = obisCode.getF();
-		if (billingPoint < 0) {
-			billingPoint = getBillingPointCounter() + billingPoint + 1;
+		if (billingPoint > 0) {
+			billingPoint--;
+		} else if (billingPoint <= 0) {
+			billingPoint = (getBillingPointCounter() - 1) + billingPoint;
 		}
 
 		if (!isValidBillingPoint(billingPoint)) {
@@ -115,16 +114,28 @@ public class AS220StoredValues implements StoredValues {
 		historicalRegister.setQuantityValue(value, unit);
 		historicalRegister.setScalerUnit(scalerUnit);
 
-		return new HistoricalValue(historicalRegister, billingPointTimeDate, 0);
+		return new HistoricalValue(historicalRegister, billingPointTimeDate, getProfileGeneric().getResetCounter());
 	}
 
 	private BigDecimal getValue(ObisCode baseObisCode, int billingPoint) throws IOException {
-		int index = getCapturedCodes().indexOf(baseObisCode);
+		ObisCode capturedCode = ProtocolTools.setObisCodeField(baseObisCode, 0, (byte) 0);
+		capturedCode = ProtocolTools.setObisCodeField(capturedCode, 0, (byte) 0);
+
+		int index = getCapturedCodes().indexOf(capturedCode);
 		if (index == -1) {
 			throw new UnsupportedException(baseObisCode + " has no historical values.");
 		}
+
+		if (isDaily()) {
+			index--;
+		}
+
 		Unsigned32 value = getDataArray().getDataType(billingPoint).getStructure().getDataType(1).getArray().getDataType(index).getUnsigned32();
 		return new BigDecimal(value.getValue());
+	}
+
+	private boolean isDaily() {
+		return getObisCode().equals(DAILY_OBISCODE);
 	}
 
 	public ProfileGeneric getProfileGeneric() {
