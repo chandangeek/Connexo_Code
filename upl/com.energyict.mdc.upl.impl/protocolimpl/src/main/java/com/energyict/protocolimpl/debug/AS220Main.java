@@ -267,12 +267,11 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			log(getAs220().getRegistersInfo());
-
-//			log(getAs220().getCosemObjectFactory().getMbusClient(ObisCode.fromString("0.1.96.1.0.255")));
-//			log(getAs220().getCosemObjectFactory().getMbusClient(ObisCode.fromString("0.2.96.1.0.255")));
-//			log(getAs220().getCosemObjectFactory().getMbusClient(ObisCode.fromString("0.3.96.1.0.255")));
-//			log(getAs220().getCosemObjectFactory().getMbusClient(ObisCode.fromString("0.4.96.1.0.255")));
+			readRegister("1.0.1.8.1.255");
+			readRegister("1.0.1.8.1.VZ");
+			readRegister("1.0.1.8.1.0");
+			readRegister("1.0.1.8.1.1");
+			readRegister("1.0.1.8.1.VZ-1");
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -283,6 +282,14 @@ public class AS220Main {
 			getDialer().disConnect();
 		}
 
+	}
+
+	public static void readRegister(String obisCodeAsString) {
+		try {
+			log(getAs220().readRegister(ObisCode.fromString(obisCodeAsString)));
+		} catch (IOException e) {
+			log(obisCodeAsString + ", " + e.getMessage());
+		}
 	}
 
 	/**

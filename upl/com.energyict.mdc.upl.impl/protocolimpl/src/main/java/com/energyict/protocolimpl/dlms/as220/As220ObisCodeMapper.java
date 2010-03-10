@@ -183,6 +183,10 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
         // *********************************************************************************
         CosemObject cosemObject = getCosemObjectFactory().getCosemObject(obisCode);
 
+        if ((cosemObject == null) && (obisCode.getF() != 255)){
+        	cosemObject = getCosemObjectFactory().getStoredValues().getHistoricalValue(obisCode);
+        }
+
         if (cosemObject==null) {
 			throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 		}

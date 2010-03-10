@@ -64,7 +64,6 @@ import com.energyict.protocolimpl.dlms.DLMSCache;
 import com.energyict.protocolimpl.dlms.HDLC2Connection;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
-import com.energyict.protocolimpl.dlms.siemenszmd.StoredValuesImpl;
 
 public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, FirmwareUpdateMessaging {
 
@@ -133,7 +132,7 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     private ApplicationServiceObject aso = null;
 
     private CosemObjectFactory cosemObjectFactory=null;
-    private StoredValuesImpl storedValuesImpl=null;
+    private AS220StoredValues storedValuesImpl=null;
 
     // lazy initializing
     private int iMeterTimeZoneOffset=255;
@@ -207,7 +206,7 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
         iConfigProgramChange = -1;
 
         cosemObjectFactory = new CosemObjectFactory(this);
-        storedValuesImpl = new StoredValuesImpl(cosemObjectFactory);
+        storedValuesImpl = new AS220StoredValues(AS220StoredValues.MONTHLY_OBISCODE, getCosemObjectFactory());
 
         initDLMSConnection(inputStream, outputStream);
         iInterval=-1;
