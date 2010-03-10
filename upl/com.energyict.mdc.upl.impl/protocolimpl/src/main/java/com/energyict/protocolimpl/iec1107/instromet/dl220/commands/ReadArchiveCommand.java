@@ -14,16 +14,13 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
  * @since 5-mrt-2010
  *
  */
-public class ReadArchiveCommand extends AbstractCommand {
+public class ReadArchiveCommand extends ReadCommand {
 
-	/** Used for reading a simple object */
-	private static String SIMPLE_READ_COMMAND = "R1";
 	/** Used for reading large chunks of data (LoadProfile) */
 	private static String BLOCK_READ_COMMAND = "R3";
 	
 	private String readCommand;
 	private byte[] readData;
-	private String address;
 	
 	/**
 	 * Super constructor
@@ -35,16 +32,6 @@ public class ReadArchiveCommand extends AbstractCommand {
 	}
 
 	/**
-	 * Setter for the startAddress
-	 * 
-	 * @param address
-	 *            - the address to start reading
-	 */
-	public void setStartAddress(String address) {
-		this.address = address;
-	}
-
-	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -53,20 +40,6 @@ public class ReadArchiveCommand extends AbstractCommand {
 		command.setStartAddress(address);
 		command.setData(readData);
 		return command;
-	}
-	
-	/**
-	 * Invoke the command
-	 * 
-	 * @return the response
-	 * 
-	 * @throws IOException
-	 *             when a logical exception occurred
-	 */
-	public String invoke() throws IOException {
-		Command command = prepareBuild();
-		getConnection().sendRawCommandFrame(command.getCommand(), command.getConstructedData());
-		return getConnection().receiveString();
 	}
 
 	/**

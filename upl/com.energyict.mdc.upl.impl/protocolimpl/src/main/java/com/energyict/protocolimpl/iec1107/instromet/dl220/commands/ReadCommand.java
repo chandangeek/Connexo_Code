@@ -16,9 +16,10 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
  */
 public class ReadCommand extends AbstractCommand {
 
-	private static String SIMPLE_READ_COMMAND = "R1";
+	/** Used for reading a simple object */
+	protected static String SIMPLE_READ_COMMAND = "R1";
+	protected String address;
 	private static byte readData = 0x31;
-	private String address;
 
 	/**
 	 * Default constructor

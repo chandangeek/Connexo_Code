@@ -39,6 +39,12 @@ public abstract class AbstractObject {
 	 */
 	protected abstract String getInitialAddress();
 
+	/**
+	 * Initial Constructor
+	 * 
+	 * @param link
+	 * 			- the {@link ProtocolLink}
+	 */
 	public AbstractObject(ProtocolLink link) {
 		this.link = link;
 	}

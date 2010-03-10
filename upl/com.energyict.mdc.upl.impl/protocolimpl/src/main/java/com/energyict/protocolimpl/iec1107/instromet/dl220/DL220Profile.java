@@ -34,13 +34,17 @@ public class DL220Profile {
 
 	/** The used {@link GenericArchiveObject} */
 	private GenericArchiveObject archiveObject;
+
+	/** The used {@link DL200MeterEventList} */
+	private DL220MeterEventList meterEventList;
 	
 	/** The {@link DL220IntervalRecordConfig} from the meter*/
 	private DL220IntervalRecordConfig dirc;
 	
 	private int numberOfChannels = -1;
+	private int interval = -1;
 	private int profileRequestBlockSize;
-	private int numberOfAvailableIntervals = 0;
+	private int numberOfAvailableIntervals = 0;		// TODO why do you need this??
 	
 	/**
 	 * Default constructor
@@ -84,9 +88,22 @@ public class DL220Profile {
 	 * @throws IOException when something happens during the read 
 	 */
 	public int getInterval() throws IOException {
-		DLObject measurementPeriod = DLObject.constructObject(link, DLObject.SA_PROFILEMEASUREMENT_PERIOD);
-		String[] quantity = (measurementPeriod.getValue((index==0)?5:6)).split("[*]");
-		return DL220Utils.convertQuantityToSeconds(quantity);
+		if(this.interval == -1){
+			DLObject measurementPeriod = DLObject.constructObject(link, DLObject.SA_PROFILEMEASUREMENT_PERIOD);
+			String[] quantity = (measurementPeriod.getValue((index==0)?5:6)).split("[*]");
+			this.interval = DL220Utils.convertQuantityToSeconds(quantity);
+		}
+		return this.interval;
+	}
+	
+	/**
+	 * Setter for the interval
+	 * 
+	 * @param interval
+	 * 			- the interval to set
+	 */
+	protected void setInterval(int interval){
+		this.interval = interval;
 	}
 
 	/**
@@ -154,23 +171,23 @@ public class DL220Profile {
 	}
 
 	/**
+	 * Get interval data within the request period
+	 * 
 	 * @param from
+	 * 			- the initial date for the intervaldata
+	 * 
 	 * @param to
-	 * @return
-	 * @throws IOException 
-	 * @throws NumberFormatException 
+	 * 			- the end date for the intervaldata
+	 * 
+	 * @return the requested intervaldata
+	 * 
+	 * @throws IOException when reading of the data failed 
+	 * 
+	 * @throws NumberFormatException when the returned number of intervals ins't a number
 	 */
-	public List getIntervalData(Date from, Date to) throws NumberFormatException, IOException {
-		// TODO Auto-generated method stub
+	public List<IntervalData> getIntervalData(Date from, Date to) throws NumberFormatException, IOException {
 		this.numberOfAvailableIntervals = Integer.parseInt(getArchive().getNumberOfIntervals(from));
-//		int numbOfRequests = numbOfInts/profileRequestBlockSize + ((numbOfInts%profileRequestBlockSize)>0?1:0);
-		StringBuilder intervalsString = new StringBuilder();
-//		File file = new File("C:\\DL220Profile.bin");
-//		FileOutputStream fos = new FileOutputStream(file);
-//		fos.write(getArchive().getIntervals(from, profileRequestBlockSize).getBytes());
-		System.out.println(intervalsString.append(getArchive().getIntervals(from, profileRequestBlockSize)));
-//		fos.close();
-		return null;
+		return buildIntervalData(getArchive().getIntervals(from, profileRequestBlockSize));
 	}
 	
 	/**
@@ -194,24 +211,66 @@ public class DL220Profile {
 		do{
 			recordX = DL220Utils.getNextRecord(rawData, offset);
 			offset = rawData.indexOf(recordX) + recordX.length();
-			dir = new DL220IntervalRecord(recordX, this.dirc);
+			dir = new DL220IntervalRecord(recordX, getIntervalRecordConfig(), link.getTimeZone());
 			id = new IntervalData(dir.getEndTime());
 			id.addValue(Integer.parseInt(dir.getValue()));
+			String status = dir.getStatus();
 			//TODO add the status
-			
-			intervalList.add(id);
+			id.addEiStatus(DL220IntervalStateBits.intervalStateBits(status));
+			if("0x8105".equalsIgnoreCase(dir.getEvent())){
+				intervalList.add(id);
+			} else {
+				
+				getMeterEventList().addRawEvent(dir);
+				
+				System.out.println("This interval isn't added : " + id);
+				System.out.println("This is because his eventcode was : " + dir.getEvent());
+			}
 		}while(offset < rawData.length());
 		
-		return intervalList;
+		return sortOutIntervalList(intervalList);
+	}
+	
+	/**
+	 * Remove intervals that are not on the interval boundary. <br>
+	 * We check if the interval-endTime is a multiple of the interval in seconds, if not delete it.
+	 * (They are all cumulative values so deletion is allowed)
+	 * 
+	 * @param intervalList
+	 * 				- the list to shift
+	 * 
+	 * @throws IOException can occur when the interval needs to be read
+	 */
+	protected List<IntervalData> sortOutIntervalList(List<IntervalData> intervalList) throws IOException{
+		List<IntervalData> newList = new ArrayList<IntervalData>();
+		for(IntervalData intervalData : intervalList){
+			long endTime = intervalData.getEndTime().getTime();
+			if(endTime%(getInterval()*1000) == 0){
+				newList.add(intervalData);
+			}
+		}
+		return newList;
 	}
 
+//	/**
+//	 * @param from
+//	 * @return
+//	 */
+//	public List<MeterEvent> getMeterEventList(Date from) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//	
 	/**
-	 * @param from
-	 * @return
+	 * Getter for the {@link DL200MeterEventList}
+	 * 
+	 * @return the MeterEventList
 	 */
-	public List getMeterEventList(Date from) {
-		// TODO Auto-generated method stub
-		return null;
+	protected DL220MeterEventList getMeterEventList(){
+		if(this.meterEventList == null) {
+			this.meterEventList = new DL220MeterEventList();
+		}
+		return this.meterEventList;
 	}
 	
 	/**

@@ -32,6 +32,9 @@ public class DL220UtilsTest {
 	public void tearDown() throws Exception {
 	}
 
+	/**
+	 * Test to conversion from minutes and hours to seconds
+	 */
 	@Test
 	public final void convertQuantityToSecondsTest(){
 		String[] quantity = {"60", "Minuten"};
@@ -66,6 +69,10 @@ public class DL220UtilsTest {
 		
 	}
 	
+	/**
+	 * Test to see if you get the desired value from a bracket-string.<br>
+	 * Intervals are returned in this format from the DL220
+	 */
 	@Test
 	public final void getTextBetweenBracketsStartingFromTest(){
 		String text = "(one)(two)(three)(four)(five)";

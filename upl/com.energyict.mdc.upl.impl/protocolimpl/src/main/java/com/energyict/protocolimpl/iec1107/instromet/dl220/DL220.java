@@ -214,16 +214,15 @@ public class DL220 extends AbstractIEC1107Protocol {
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
 		ProfileData profileData = new ProfileData();
 
-		//TODO set channelInfos
 		profileData.setChannelInfos(getProfileObject().buildChannelInfos());
 		
 		//TODO set intervalData
 		profileData.setIntervalDatas(getProfileObject().getIntervalData(from, to));
 		
 		//TODO set events
-		if(includeEvents){
-			profileData.setMeterEvents(getProfileObject().getMeterEventList(from));
-		}
+//		if(includeEvents){
+//			profileData.setMeterEvents(getProfileObject().getMeterEventList(from));
+//		}
 		
 		return profileData;
 	}

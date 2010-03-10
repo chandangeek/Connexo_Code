@@ -6,7 +6,6 @@ package com.energyict.protocolimpl.iec1107.instromet.dl220.objects;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.UnsupportedException;
@@ -16,8 +15,6 @@ import com.energyict.protocolimpl.iec1107.instromet.dl220.commands.ReadArchiveCo
 
 /**
  * Implementation of a generic archive (LoadProfile)
- * 
- * TODO TOCOMPLETE!
  * 
  * @author gna
  * @since 4-mrt-2010
@@ -39,9 +36,6 @@ public class GenericArchiveObject extends AbstractObject {
 	/** The letter V */
 	private static final String VIE = "V";
 	
-	/** A static string used for the request, it contains a colon ':', the capital 'V' and a dot '.' */
-	private static final String COLLON_VIE_DOT = ":V.";
-
 	/** A static string representing the format of an empty request (3 SEMI-COLONS) */
 	private static final String EMPTY_REQUEST = ";;;";
 	
@@ -55,8 +49,13 @@ public class GenericArchiveObject extends AbstractObject {
 	private final Archives archive;
 	
 	/**
+	 * Initial constructor
+	 * 
 	 * @param link
+	 * 			- the {@link ProtocolLink}
+	 * 
 	 * @param archive 
+	 * 			- the referred {@link Archives}
 	 */
 	public GenericArchiveObject(ProtocolLink link, Archives archive) {
 		super(link);
@@ -166,8 +165,6 @@ public class GenericArchiveObject extends AbstractObject {
 	/**
 	 * Request the number of intervals 
 	 * 
-	 * TODO check the timeZone, it's possible that you need to get it from the Rtu
-	 * 
 	 * @param from 
 	 * 			- the date from where to start reading
 	 * 
@@ -177,7 +174,7 @@ public class GenericArchiveObject extends AbstractObject {
 	 * @throws IOException if something freaky happened during the read 
 	 */
 	public String getNumberOfIntervals(Date from) throws IOException {
-		String rawFrom = getRawDate(from);
+		String rawFrom = getDLFormatDate(from);
 		String requestString = buildRequestString(3, rawFrom, null, -1);
 		this.startAddress = constructStartAddress(ATTRB_NR_OF_ENTR);
 		ReadArchiveCommand rac = new ReadArchiveCommand(link);
@@ -186,15 +183,20 @@ public class GenericArchiveObject extends AbstractObject {
 	}
 	
 	/**
-	 * Request the raw intervals
+	 * Request the raw intervals from the device
 	 * 
 	 * @param from
+	 * 			- the date to start reading from
+	 * 
 	 * @param blockSize
-	 * @return
-	 * @throws IOException 
+	 * 			- the size of the blocks to read
+	 * 
+	 * @return a string containing one or multiple interval records
+	 * 
+	 * @throws IOException when an error occurred during the read 
 	 */
 	public String getIntervals(Date from, int blockSize) throws IOException {
-		String rawFrom = getRawDate(from);
+		String rawFrom = getDLFormatDate(from);
 		String requestString = buildRequestString(3, rawFrom, null, blockSize);
 		this.startAddress = constructStartAddress(ATTRB_VALUE);
 		ReadArchiveCommand rac = new ReadArchiveCommand(link);
@@ -214,8 +216,8 @@ public class GenericArchiveObject extends AbstractObject {
 	 * 
 	 * @return raw date
 	 */
-	private String getRawDate(Date date){
-		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+	private String getDLFormatDate(Date date){
+		Calendar cal = Calendar.getInstance(link.getTimeZone());
 		cal.setTime(date);
 		return ClockObject.getRawData(cal);
 	}

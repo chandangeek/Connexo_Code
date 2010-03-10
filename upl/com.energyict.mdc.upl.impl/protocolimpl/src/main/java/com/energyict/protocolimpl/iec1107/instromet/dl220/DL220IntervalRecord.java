@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.iec1107.instromet.dl220;
 
 import java.util.Date;
+import java.util.TimeZone;
 
 import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.ClockObject;
 
@@ -15,6 +16,8 @@ public class DL220IntervalRecord {
 
 	private final String record;
 	private final DL220IntervalRecordConfig dirc;
+	private final TimeZone timeZone;
+	
 	/**
 	 * Default constructor
 	 * 
@@ -24,22 +27,37 @@ public class DL220IntervalRecord {
 	 * @param dirc
 	 * 			- the record configuration
 	 */
-	public DL220IntervalRecord(String record, DL220IntervalRecordConfig dirc){
+	public DL220IntervalRecord(String record, DL220IntervalRecordConfig dirc, TimeZone timeZone){
 		this.record = record;
 		this.dirc = dirc;
+		this.timeZone = timeZone;
 	}
 	
 	/**
-	 * @return the Interval time
+	 * @return the Interval TIME
 	 */
 	public Date getEndTime(){
-		return ClockObject.parseCalendar(DL220Utils.getTextBetweenBracketsStartingFrom(this.record, dirc.getTimeIndex())).getTime();
+		return ClockObject.parseCalendar(DL220Utils.getTextBetweenBracketsStartingFrom(this.record, dirc.getTimeIndex()), timeZone).getTime();
 	}
 	
 	/**
-	 * @return the Interval value
+	 * @return the Interval VALUE
 	 */
 	public String getValue(){
 		return DL220Utils.getTextBetweenBracketsStartingFrom(this.record, dirc.getValueIndex());
 	}
-}
+	
+	/**
+	 * @return the Interval STATUS
+	 */
+	public String getStatus(){
+		return DL220Utils.getTextBetweenBracketsStartingFrom(this.record, dirc.getStatusIndex());
+	}
+	
+	/**
+	 * @return the Interval ERROR
+	 */
+	public String getEvent(){
+		return DL220Utils.getTextBetweenBracketsStartingFrom(this.record, dirc.getEventIndex());
+	}
+}	

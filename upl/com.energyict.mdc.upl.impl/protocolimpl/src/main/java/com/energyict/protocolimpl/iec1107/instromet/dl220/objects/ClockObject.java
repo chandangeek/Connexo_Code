@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 /**
@@ -89,7 +87,7 @@ public class ClockObject extends AbstractObject {
 	 */
 	public Calendar getDateTime() throws IOException {
 		startAddressIndex = startAddressDateTime;
-		return parseCalendar(getValue());
+		return parseCalendar(getValue(), link.getTimeZone());
 	}
 
 	public void getSecondsSince() throws IOException {
@@ -140,15 +138,33 @@ public class ClockObject extends AbstractObject {
 	private static final String DATE_TIME_SEPARATOR = ",";
 
 	/**
-	 * Construct a {@link Calendar} based on the raw input data
+	 * Construct a {@link Calendar} based on the raw input data.
+	 * The used timeZone is GMT
 	 * 
 	 * @param rawDateTime
 	 *            - the raw Date and Time
 	 * 
 	 * @return a Calender with the metertime
+	 * 
+	 * @deprecated since 08/03/10, use the {@link #parseCalendar(String, TimeZone)} instead
 	 */
+	@Deprecated
 	public static Calendar parseCalendar(String rawDateTime) {
-		Calendar meterCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+		return parseCalendar(rawDateTime, TimeZone.getTimeZone("GMT"));
+	}
+	
+	/**
+	 * Construct a {@link Calendar} based on the raw input data and the given {@link TimeZone}
+	 * 
+	 * @param rawDateTime
+	 *          - the raw Date and Time
+	 * @param timeZone
+	 * 			- the timeZone the rawDateTime is written in
+	 * 
+	 * @return a Calender with the metertime
+	 */
+	public static Calendar parseCalendar(String rawDateTime, TimeZone timeZone){
+		Calendar meterCal = Calendar.getInstance(timeZone);
 		String[] dateTime = rawDateTime.split(DATE_TIME_SEPARATOR);
 		String[] date = dateTime[DATE].split(DATE_SEPARATOR);
 		String[] time = dateTime[TIME].split(TIME_SEPARATOR);
@@ -207,13 +223,10 @@ public class ClockObject extends AbstractObject {
 	/**
 	 * Write the current time to the meter
 	 * 
-	 * @throws IOException
-	 * @throws ConnectionException
-	 * @throws FlagIEC1107ConnectionException
-	 * 
+	 * @throws IOException when the write failed
 	 */
-	public void writeClock() throws FlagIEC1107ConnectionException, ConnectionException, IOException {
-		Calendar currentCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+	public void writeClock() throws IOException {
+		Calendar currentCalendar = Calendar.getInstance(link.getTimeZone());
 		setValue(getRawData(currentCalendar).getBytes());
 	}
 }

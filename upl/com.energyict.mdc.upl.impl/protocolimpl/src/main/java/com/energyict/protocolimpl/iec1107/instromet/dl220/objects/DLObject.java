@@ -24,7 +24,6 @@ public class DLObject extends AbstractObject {
 	
 	/** The StartAddress of the profile measurement period*/
 	public static final String SA_PROFILEMEASUREMENT_PERIOD = "150.0";
-
 	/** The StartAddress of the SerialNumber */
 	public static String SA_SERIALNUMBER = "180.0";
 	
