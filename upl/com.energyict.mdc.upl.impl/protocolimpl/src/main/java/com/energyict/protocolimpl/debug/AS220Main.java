@@ -21,6 +21,7 @@ import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.GenericRead;
 import com.energyict.dlms.cosem.Register;
@@ -30,10 +31,15 @@ import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 import com.energyict.protocolimpl.dlms.as220.AS220;
+import com.energyict.protocolimpl.dlms.as220.EventNumber;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
 import com.energyict.protocolimpl.dlms.as220.plc.PLCMessaging;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
+/**
+ * @author jme
+ *
+ */
 public class AS220Main {
 
 	private static final ObisCode	DEVICE_ID1_OBISCODE		= ObisCode.fromString("0.0.96.0.0.255");
@@ -129,9 +135,9 @@ public class AS220Main {
 
 		properties.setProperty("Retries", "5");
 		properties.setProperty("Timeout", "20000");
-		properties.setProperty("ForcedDelay", "100");
+		properties.setProperty("ForcedDelay", "200");
 
-		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_BOTH);
+		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
 		properties.setProperty("ProfileInterval", "900");
 		properties.setProperty("Password", "00000000");
 		properties.setProperty("SerialNumber", "35021373");
@@ -165,7 +171,7 @@ public class AS220Main {
 
 	public static ProfileData readProfile(boolean incluideEvents) throws IOException {
 		Calendar from = Calendar.getInstance(DEFAULT_TIMEZONE);
-		from.add(Calendar.DAY_OF_YEAR, -10);
+		from.add(Calendar.DAY_OF_YEAR, -100);
 		ProfileData pd = getAs220().getProfileData(from.getTime(), incluideEvents);
 		log(pd);
 		return pd;
@@ -267,15 +273,7 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			readRegister("1.0.1.8.1.255");
-			readRegister("1.0.1.8.1.VZ");
-			readRegister("1.0.1.8.1.VZ-1");
-			readRegister("1.0.1.8.1.VZ-2");
-			log("");
-			readRegister("1.0.1.8.1.255");
-			readRegister("1.0.1.8.1.3");
-			readRegister("1.0.1.8.1.2");
-			readRegister("1.0.1.8.1.1");
+			readEnergyRegisters();
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -286,6 +284,43 @@ public class AS220Main {
 			getDialer().disConnect();
 		}
 
+	}
+
+	/**
+	 * @throws IOException
+	 */
+	private static void dumpEvents() throws IOException {
+		Array a = new Array(getAs220().getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.99.98.0.255")).getBufferData(), 0, 0);
+		for (int i = 0; i < a.nrOfDataTypes(); i++) {
+			Date date = a.getDataType(i).getStructure().getDataType(0).getOctetString().getDateTime(DEFAULT_TIMEZONE).getValue().getTime();
+			int value = a.getDataType(i).getStructure().getDataType(1).getTypeEnum().getValue();
+
+			System.out.println(date + " = " + value + ",  " + EventNumber.toMeterEvent(value, date));
+		}
+	}
+
+	public static void readEnergyRegisters() {
+		String[] registers = new String[] {
+				"1.0.1.8.0.",
+				"1.0.1.8.1.",
+				"1.0.1.8.2.",
+				"1.0.1.8.3.",
+				"1.0.1.8.4.",
+				"1.0.2.8.0.",
+				"1.0.2.8.1.",
+				"1.0.2.8.2.",
+				"1.0.2.8.3.",
+				"1.0.2.8.4."
+			};
+
+			for (int i = 0; i < registers.length; i++) {
+				readRegister(registers[i] + "255");
+				readRegister(registers[i] + "VZ");
+				readRegister(registers[i] + "VZ-1");
+				readRegister(registers[i] + "VZ-2");
+				readRegister(registers[i] + "VZ-3");
+				readRegister(registers[i] + "VZ-4");
+			}
 	}
 
 	public static void readRegister(String obisCodeAsString) {

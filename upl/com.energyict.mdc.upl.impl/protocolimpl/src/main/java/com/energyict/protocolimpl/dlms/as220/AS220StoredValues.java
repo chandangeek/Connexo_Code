@@ -33,6 +33,7 @@ public class AS220StoredValues implements StoredValues {
 	private final ObisCode				obisCode;
 	private final CosemObjectFactory	cosemObjectFactory;
 
+	private List<UnitInfo>				unitInfos			= new ArrayList<UnitInfo>();
 	private ProfileGeneric				profileGeneric		= null;
 	private List<ObisCode>				capturedCodes		= null;
 	private Array						dataArray			= null;
@@ -42,15 +43,15 @@ public class AS220StoredValues implements StoredValues {
 		this.cosemObjectFactory = cosemObjectFactory;
 	}
 
-	public ObisCode getObisCode() {
+	private ObisCode getObisCode() {
 		return obisCode;
 	}
 
-	public CosemObjectFactory getCosemObjectFactory() {
+	private CosemObjectFactory getCosemObjectFactory() {
 		return cosemObjectFactory;
 	}
 
-	public List<ObisCode> getCapturedCodes() {
+	private List<ObisCode> getCapturedCodes() {
 		if (capturedCodes == null) {
 			this.capturedCodes = new ArrayList<ObisCode>();
 			try {
@@ -66,7 +67,7 @@ public class AS220StoredValues implements StoredValues {
 		return capturedCodes;
 	}
 
-	public Array getDataArray() {
+	private Array getDataArray() {
 		if (dataArray == null) {
 			try {
 				dataArray = new Array(getProfileGeneric().getBufferData(), 0, 0);
@@ -104,9 +105,8 @@ public class AS220StoredValues implements StoredValues {
 
 		BigDecimal value = getValue(baseObisCode, billingPoint);
 		Date billingPointTimeDate = getBillingPointTimeDate(billingPoint);
-		Register reg = getCosemObjectFactory().getRegister(baseObisCode);
-		Unit unit = reg.getQuantityValue().getUnit();
-		ScalerUnit scalerUnit = reg.getScalerUnit();
+		Unit unit = getUnit(baseObisCode);
+		ScalerUnit scalerUnit = getScalerUnit(baseObisCode);
 
 		HistoricalRegister historicalRegister = new HistoricalRegister();
 		historicalRegister.setBillingDate(billingPointTimeDate);
@@ -115,6 +115,33 @@ public class AS220StoredValues implements StoredValues {
 		historicalRegister.setScalerUnit(scalerUnit);
 
 		return new HistoricalValue(historicalRegister, billingPointTimeDate, getProfileGeneric().getResetCounter());
+	}
+
+	private ScalerUnit getScalerUnit(ObisCode baseObisCode) throws IOException {
+		return getUnitInfo(baseObisCode).scalerUnit;
+	}
+
+	private Unit getUnit(ObisCode baseObisCode) throws IOException {
+		return getUnitInfo(baseObisCode).unit;
+	}
+
+	private List<UnitInfo> getUnitInfos() {
+		return unitInfos;
+	}
+
+	private UnitInfo getUnitInfo(ObisCode baseObisCode) throws IOException {
+		for (UnitInfo info : getUnitInfos()) {
+			if (info.obis.equals(baseObisCode)) {
+				return info;
+			}
+		}
+
+		Register reg = getCosemObjectFactory().getRegister(baseObisCode);
+		Unit unit = reg.getQuantityValue().getUnit();
+		ScalerUnit scalerUnit = reg.getScalerUnit();
+		UnitInfo unitInfo = new UnitInfo(baseObisCode, unit, scalerUnit);
+		getUnitInfos().add(unitInfo);
+		return unitInfo;
 	}
 
 	private BigDecimal getValue(ObisCode baseObisCode, int billingPoint) throws IOException {
@@ -159,6 +186,24 @@ public class AS220StoredValues implements StoredValues {
 		} catch (IOException e) {
 			return false;
 		}
+	}
+
+	/**
+	 * This inner class is just a data container to cache the {@link Unit} and
+	 * {@link ScalerUnit} of a register.
+	 * @author jme
+	 */
+	private class UnitInfo {
+		private final ObisCode obis;
+		private final Unit unit;
+		private final ScalerUnit scalerUnit;
+
+		public UnitInfo(ObisCode obisCode, Unit unit, ScalerUnit scalerUnit) {
+			this.obis = obisCode;
+			this.unit = unit;
+			this.scalerUnit = scalerUnit;
+		}
+
 	}
 
 	@Override
