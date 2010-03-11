@@ -11,6 +11,8 @@
 package com.energyict.protocolimpl.edf.trimarancje.core;
 
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 /**
  *
@@ -26,12 +28,22 @@ abstract public class AbstractTable {
     private int pointer;
     
     private DataFactory dataFactory;
+    
+    /**
+     * This is a shiftable years table. The meter will not contain more then ten years of data,
+     * but because the ProfileTimestamp has only a unit from the year in it, we have to be able to
+     * loop over a decennium.
+     */
+    private int[] decenniumYears = new int[10];
+    private long currentMillis;
             
     /** Creates a new instance of AbstractTable */
     public AbstractTable(DataFactory dataFactory) {
         this.setDataFactory(dataFactory);
         setLength(0);
         setPointer(0);
+		setCurrentTime(Calendar.getInstance(getTimeZone()).getTimeInMillis());
+		constructDecenniumTable();
     }
 
     public DataFactory getDataFactory() { 
@@ -104,6 +116,60 @@ abstract public class AbstractTable {
 	 */
 	public void setPointer(int pointer) {
 		this.pointer = pointer;
+	}
+	
+	/**
+	 * Constructs a table of the last TEN years.
+	 */
+	protected void constructDecenniumTable(){
+		Calendar cal = Calendar.getInstance(getTimeZone());
+		cal.setTimeInMillis(getCurrentMillis());
+		int year = cal.get(Calendar.YEAR);
+		int yearUnit = year%10;
+		for(int i = 0; i < 10; i++){
+			this.decenniumYears[yearUnit] = year--;
+			if(yearUnit == 0){
+				yearUnit = 9;
+			} else {
+				yearUnit--;
+			}
+		}
+	}
+	
+	/**
+	 * Getter for the decenniumYear table
+	 * @return the current decenniumYears table
+	 */
+	protected int[] getDecenniumYearTable(){
+		return this.decenniumYears;
+	}
+	
+	/**
+	 * Setter for the currentMillis
+	 * 
+	 * @param currentTimeInMillis
+	 */
+	protected void setCurrentTime(long currentTimeInMillis) {
+		this.currentMillis = currentTimeInMillis;
+	}
+
+	/**
+	 * Getter for the currentMillis
+	 * @return the current millis
+	 */
+	private long getCurrentMillis(){
+		return this.currentMillis;
+	}
+	
+	/**
+	 * @return the meter his {@link TimeZone}
+	 */
+    private TimeZone getTimeZone() {
+		if (getDataFactory() == null) {
+			return TimeZone.getDefault();
+		} else {
+			return getDataFactory().getTrimaran().getTimeZone();
+		}
 	}
     
 }

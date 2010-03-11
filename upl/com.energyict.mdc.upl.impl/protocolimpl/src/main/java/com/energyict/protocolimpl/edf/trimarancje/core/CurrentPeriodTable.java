@@ -5,7 +5,6 @@ package com.energyict.protocolimpl.edf.trimarancje.core;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -101,34 +100,62 @@ public class CurrentPeriodTable extends AbstractTable{
 
 	protected void parse(byte[] data) throws IOException {
 //      System.out.println("KV_DEBUG> write to file");
-//      File file = new File("c://TEST_FILES/CPTCJE9205.bin");
-//      FileOutputStream fos = new FileOutputStream(file);
-//      fos.write(data);
-//      fos.close();
+		
+//		File file = new File("c://TEST_FILES/CurrentPeriodTable_" + counter++ + ".bin");
+//		FileOutputStream fos = new FileOutputStream(file);
+//		fos.write(data);
+//		fos.close();
 		
 		if((data[0]!=-1)&&(data[1]!=-1)&&(data[2]!=-1)&&(data[3]!=-1)&&(data[4]!=-1)){
 			
 			int offset = 0;
 			Calendar cal = Calendar.getInstance();
-			int jour = ProtocolUtils.BCD2hex(data[offset++]);cal.set(Calendar.DAY_OF_MONTH, jour);
-			int mois = ProtocolUtils.BCD2hex(data[offset++]);cal.set(Calendar.MONTH, mois - 1);
-			int an = ProtocolUtils.BCD2hex(data[offset++]);cal.set(Calendar.YEAR, (cal.get(Calendar.YEAR)/10)*10 + an);
-			int heure = ProtocolUtils.BCD2hex(data[offset++]);cal.set(Calendar.HOUR_OF_DAY, heure);
-			int minute = ProtocolUtils.BCD2hex(data[offset++]);cal.set(Calendar.MINUTE, minute);
-			cal.set(Calendar.SECOND, 0); cal.set(Calendar.MILLISECOND, 0);
+			int jour = ProtocolUtils.BCD2hex(data[offset++]);
+			cal.set(Calendar.DAY_OF_MONTH, jour);
+			int mois = ProtocolUtils.BCD2hex(data[offset++]);
+			cal.set(Calendar.MONTH, mois - 1);
+			int an = ProtocolUtils.BCD2hex(data[offset++]) % 10;	// we only need the unit (eenheid in dutch)
+//			cal.set(Calendar.YEAR, (cal.get(Calendar.YEAR) / 10) * 10 + an);
+			cal.set(Calendar.YEAR, getDecenniumYearTable()[an]);
+			int heure = ProtocolUtils.BCD2hex(data[offset++]);
+			cal.set(Calendar.HOUR_OF_DAY, heure);
+			int minute = ProtocolUtils.BCD2hex(data[offset++]);
+			cal.set(Calendar.MINUTE, minute);
+			cal.set(Calendar.SECOND, 0);
+			cal.set(Calendar.MILLISECOND, 0);
 			setTimeStamp(cal.getTime());
-			
-			setTarif(ProtocolUtils.getIntLE(data, offset, 1)); offset+=1;
-			
-			for(int i = 0; i < 6; i++){setActiveEnergy(ProtocolUtils.getIntLE(data,offset,3), i);offset+=3;}
-			for(int i = 0; i < 4; i++){setDurationExceedingPower(ProtocolUtils.getIntLE(data, offset, 2), i); offset+=2;}
-			for(int i = 0; i < 4; i++){setMaxDemand(ProtocolUtils.getIntLE(data, offset, 2), i);offset+=2;}
-			for(int i = 0; i < 4; i++){setExceedingPower(ProtocolUtils.getIntLE(data, offset, 2), i);offset+=2;}
-			for(int i = 0; i < 4; i++){setCoefficient(ProtocolUtils.getIntLE(data, offset, 1), i);offset+=1;}
-			
-			setTarifVersionNextPeriod(ProtocolUtils.getIntLE(data, offset, 1));offset+=1;
-			
-			for(int i = 0; i < 4; i++){setTarifDuration(ProtocolUtils.getIntLE(data, offset, 2), i);offset+=2;}
+
+			setTarif(ProtocolUtils.getIntLE(data, offset, 1));
+			offset += 1;
+
+			for (int i = 0; i < 6; i++) {
+				setActiveEnergy(ProtocolUtils.getIntLE(data, offset, 3), i);
+				offset += 3;
+			}
+			for (int i = 0; i < 4; i++) {
+				setDurationExceedingPower(ProtocolUtils.getIntLE(data, offset, 2), i);
+				offset += 2;
+			}
+			for (int i = 0; i < 4; i++) {
+				setMaxDemand(ProtocolUtils.getIntLE(data, offset, 2), i);
+				offset += 2;
+			}
+			for (int i = 0; i < 4; i++) {
+				setExceedingPower(ProtocolUtils.getIntLE(data, offset, 2), i);
+				offset += 2;
+			}
+			for (int i = 0; i < 4; i++) {
+				setCoefficient(ProtocolUtils.getIntLE(data, offset, 1), i);
+				offset += 1;
+			}
+
+			setTarifVersionNextPeriod(ProtocolUtils.getIntLE(data, offset, 1));
+			offset += 1;
+
+			for (int i = 0; i < 4; i++) {
+				setTarifDuration(ProtocolUtils.getIntLE(data, offset, 2), i);
+				offset += 2;
+			}
 		}
 		
 	}

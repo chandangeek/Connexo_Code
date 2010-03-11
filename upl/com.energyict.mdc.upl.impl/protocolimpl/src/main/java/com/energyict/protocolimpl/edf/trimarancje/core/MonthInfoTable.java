@@ -115,8 +115,8 @@ public class MonthInfoTable extends AbstractTable {
         Calendar cal = ProtocolUtils.getCleanCalendar(getDataFactory().getTrimaran().getTimeZone());
         cal.set(Calendar.DAY_OF_MONTH,ProtocolUtils.BCD2hex(data[offset++]));
         cal.set(Calendar.MONTH,ProtocolUtils.BCD2hex(data[offset++])-1);
-        int year = ProtocolUtils.BCD2hex(data[offset++]);
-        cal.set(Calendar.YEAR,year>50?1900+year:2000+year);
+		int year = ProtocolUtils.BCD2hex(data[offset++]) % 10;	// we only need the unit (eenheid in dutch)
+		cal.set(Calendar.YEAR, getDecenniumYearTable()[year]);
         cal.set(Calendar.HOUR_OF_DAY,ProtocolUtils.BCD2hex(data[offset++]));
         cal.set(Calendar.MINUTE,ProtocolUtils.BCD2hex(data[offset++]));
         setTimestampCalendar(cal);
