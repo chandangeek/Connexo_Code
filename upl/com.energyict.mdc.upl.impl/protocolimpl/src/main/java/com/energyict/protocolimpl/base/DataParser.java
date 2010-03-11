@@ -52,7 +52,7 @@ public class DataParser {
 			bd = new BigDecimal(strData);
 			unit = Unit.get("");
 		}
-		return new Quantity(bd,unit);
+		return new Quantity(bd,unit == null ? Unit.getUndefined() : unit);
 
 	}
 	public String parseBetweenBrackets(byte[] data, int offset, int pos) throws IOException {

@@ -59,6 +59,7 @@ import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
  * 				Changed register date fields (eventTime, toTime, fromTime) to show the correct billing timestamps.
  * 				The protocol can only read these values if the are configured to be in the datadump of the device.
  * 				The registers with the billing timestamps are 0.1.2*01, 0.1.2*02, ... 0.1.2*xx
+ * JM|11032010| Added new registermappings JIRA: COMMUNICATION-28
  * @endchanges
  */
 public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol {
@@ -387,10 +388,10 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 					throw new NestedIOException(e);
 				}
 			}
-			
+
 //			flagIEC1107Connection.getHhuSignOn().setMode(HHUSignOn.MODE_READOUT);
 //			flagIEC1107Connection.getHhuSignOn().setProtocol(HHUSignOn.PROTOCOL_NORMAL);
-			
+
 			flagIEC1107Connection.connectMAC(strID,strPassword,iSecurityLevel,nodeId);
 
 			if ((getFlagIEC1107Connection().getHhuSignOn()!=null)  && (isDataReadout())) {
@@ -607,7 +608,7 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 	}
 
 	private byte[] readRegisterData(ObisCode obisCode) throws IOException {
-		String edisNotation = obisCode.getC()+"."+obisCode.getD()+"."+obisCode.getE()+(obisCode.getF()==255?"":"*"+ProtocolUtils.buildStringDecimal(Math.abs(obisCode.getF()),2));
+		String edisNotation = EdisObisMapper.getEdisCodeFromObisCode(obisCode);
 		byte[] data = null;
 		if (!isDataReadout()) {
 			String name = edisNotation+"(;)";
@@ -618,14 +619,11 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 		}
 		else {
 			DataDumpParser ddp = new DataDumpParser(getDataReadout());
-			if (edisNotation.indexOf("97.97.0") >=0){
-				data = ddp.getRegisterFFStrValue("F.F").getBytes();
-			}
-			else if(edisNotation.indexOf("0.1.0") >= 0){
-				String name = edisNotation+"(;)";
+			if (edisNotation.indexOf("0.1.0") >= 0) {
+				String name = edisNotation + "(;)";
 				ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 				byteArrayOutputStream.write(name.getBytes());
-				flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5,byteArrayOutputStream.toByteArray());
+				flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5, byteArrayOutputStream.toByteArray());
 				data = flagIEC1107Connection.receiveRawData();
 			} else {
 				data = ddp.getRegisterStrValue(edisNotation).getBytes();
@@ -817,7 +815,7 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 		lzqjProfile = new LZQJProfile(this, this, lzqjRegistry);
 		return lzqjProfile;
 	}
-	
+
 	/**
 	 * Setter for the TimeZone
 	 * @param timeZone - the TimeZone to set
@@ -825,7 +823,7 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 	public void setTimeZone(TimeZone timeZone){
 		this.timeZone = timeZone;
 	}
-	
+
 	/**
 	 * Setter for the ProfileHelper
 	 * @param value
