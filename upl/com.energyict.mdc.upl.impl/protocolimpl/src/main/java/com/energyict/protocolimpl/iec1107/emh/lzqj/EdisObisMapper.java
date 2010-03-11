@@ -70,7 +70,8 @@ public final class EdisObisMapper {
 	}
 
 	public static String getEdisCodeFromObisCode(ObisCode obisCode) {
-		for (EdisObisPair pair : MAPPING) {
+		for (int i = 0; i < MAPPING.size(); i++) {
+			EdisObisPair pair = (EdisObisPair) MAPPING.get(i);
 			if (pair.getObisCode().equals(obisCode)) {
 				return pair.getEdisCode();
 			}
@@ -83,7 +84,7 @@ public final class EdisObisMapper {
 	 * @return
 	 */
 	private static String buildEdisCode(ObisCode obisCode) {
-		StringBuilder sb = new StringBuilder();
+		StringBuffer sb = new StringBuffer();
 		sb.append(obisCode.getC()).append(".");
 		sb.append(obisCode.getD()).append(".");
 		sb.append(obisCode.getE());
