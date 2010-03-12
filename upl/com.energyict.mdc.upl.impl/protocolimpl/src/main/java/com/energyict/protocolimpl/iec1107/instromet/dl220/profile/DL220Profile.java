@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.energyict.protocolimpl.iec1107.instromet.dl220;
+package com.energyict.protocolimpl.iec1107.instromet.dl220.profile;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,6 +17,8 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.instromet.dl220.Archives;
+import com.energyict.protocolimpl.iec1107.instromet.dl220.DL220Utils;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.DLObject;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.GenericArchiveObject;
 
@@ -235,8 +237,7 @@ public class DL220Profile {
 		DL220IntervalRecord dir;
 		String recordX;
 		IntervalData id;
-		String capturedObjects = getCapturedObjects();
-		int numberOfCapturedObjects = DL220Utils.getNumberOfObjects(capturedObjects);
+		int numberOfCapturedObjects = getIntervalRecordConfig().getNumberOfObjectsPerRecord();
 		
 		do{
 			recordX = DL220Utils.getNextRecord(rawData, offset, numberOfCapturedObjects);
@@ -307,34 +308,43 @@ public class DL220Profile {
 	 * 			- the date to start reading from
 	 * 
 	 * @return
+	 * @throws IOException 
 	 */
-	public List<MeterEvent> getMeterEvents(Date from) {
-		// TODO Auto-generated method stub
+	public List<MeterEvent> getMeterEvents(Date from) throws IOException {
 		
-		try {
-			GenericArchiveObject gaoEvents = new GenericArchiveObject(link, Archives.LOGBOOK);
-			String capturedObjects = gaoEvents.getCapturedObjects();
-			DL220EventRecordConfig derc = new DL220EventRecordConfig(capturedObjects);
-			String rawEvents = gaoEvents.getIntervals(from, profileRequestBlockSize);
-			int numberOfCapturedObjects = DL220Utils.getNumberOfObjects(capturedObjects);
-			int offset = 0;
-			DL220EventRecord der;
-			String recordX;
+		GenericArchiveObject gaoEvents = new GenericArchiveObject(link, Archives.LOGBOOK);
+		String capturedObjects = gaoEvents.getCapturedObjects();
+		String rawEvents = gaoEvents.getIntervals(from, profileRequestBlockSize);
+		buildMeterEventList(rawEvents, capturedObjects);
 			
-			do{
-				recordX = DL220Utils.getNextRecord(rawEvents, offset, numberOfCapturedObjects);
-				offset = rawEvents.indexOf(recordX) + recordX.length();
-				der = new DL220EventRecord(recordX, derc, link.getTimeZone());
-				getMeterEventList().addRawEvent(der);
-			}while(offset < rawEvents.length());			
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		return getMeterEventList().getEventList();
 	}
 	
+	/**
+	 * Build the list of {@link MeterEvent}s
+	 * 
+	 * @param rawEvents
+	 * 			- the raw data from the meter
+	 * 
+	 * @param capturedObjects
+	 * 			- the raw capturedObjects from the meter
+	 * 
+	 * @throws IOException if the captured objects aren't correct
+	 */
+	protected void buildMeterEventList(String rawEvents, String capturedObjects) throws IOException{
+		DL220EventRecordConfig derc = new DL220EventRecordConfig(capturedObjects);
+		int numberOfCapturedObjects = derc.getNumberOfObjectsPerRecord();
+		int offset = 0;
+		DL220EventRecord der;
+		String recordX;
+		
+		do{
+			recordX = DL220Utils.getNextRecord(rawEvents, offset, numberOfCapturedObjects);
+			offset = rawEvents.indexOf(recordX) + recordX.length();
+			der = new DL220EventRecord(recordX, derc, link.getTimeZone());
+			getMeterEventList().addRawEvent(der);
+		}while(offset < rawEvents.length());
+	}
 	
     /** 
      * Set the interval status based on the {@link MeterEvent}s form the meter.

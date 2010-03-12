@@ -1,8 +1,10 @@
-package com.energyict.protocolimpl.iec1107.instromet.dl220;
+package com.energyict.protocolimpl.iec1107.instromet.dl220.profile;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.TimeZone;
 
+import com.energyict.protocolimpl.iec1107.instromet.dl220.DL220Utils;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.ClockObject;
 
 /**
@@ -35,29 +37,33 @@ public class DL220IntervalRecord implements DL220Record {
 	
 	/**
 	 * {@inheritDoc}
+	 * @throws IOException if parsing the raw object configuration failed
 	 */
-	public Date getEndTime(){
+	public Date getEndTime() throws IOException{
 		return ClockObject.parseCalendar(DL220Utils.getTextBetweenBracketsStartingFrom(this.record, dirc.getTimeIndex()), timeZone).getTime();
 	}
 	
 	/**
 	 * {@inheritDoc}
+	 * @throws IOException if parsing the raw object configuration failed
 	 */
-	public String getValue(){
+	public String getValue() throws IOException{
 		return DL220Utils.getTextBetweenBracketsStartingFrom(this.record, dirc.getValueIndex());
 	}
 	
 	/**
 	 * {@inheritDoc}
+	 * @throws IOException if parsing the raw object configuration failed
 	 */
-	public String getStatus(){
+	public String getStatus() throws IOException{
 		return DL220Utils.getTextBetweenBracketsStartingFrom(this.record, dirc.getStatusIndex());
 	}
 	
 	/**
 	 * {@inheritDoc}
+	 * @throws IOException if parsing the raw object configuration failed
 	 */
-	public String getEvent(){
+	public String getEvent() throws IOException{
 		return DL220Utils.getTextBetweenBracketsStartingFrom(this.record, dirc.getEventIndex());
 	}
 }	

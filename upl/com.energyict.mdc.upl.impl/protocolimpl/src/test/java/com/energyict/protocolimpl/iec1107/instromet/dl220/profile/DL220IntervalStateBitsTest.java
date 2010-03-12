@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.energyict.protocolimpl.iec1107.instromet.dl220;
+package com.energyict.protocolimpl.iec1107.instromet.dl220.profile;
 
 
 import static org.junit.Assert.assertEquals;
@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocolimpl.iec1107.instromet.dl220.profile.DL220IntervalStateBits;
 
 /**
  * @author gna

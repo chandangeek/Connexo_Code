@@ -1,9 +1,12 @@
 /**
  * 
  */
-package com.energyict.protocolimpl.iec1107.instromet.dl220;
+package com.energyict.protocolimpl.iec1107.instromet.dl220.profile;
+
+import java.io.IOException;
 
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.iec1107.instromet.dl220.DL220Utils;
 
 /**
  * Defines the indexes of the different objects in a {@link DL220IntervalRecord}
@@ -26,15 +29,21 @@ public class DL220IntervalRecordConfig implements DL220RecordConfig {
 	private int statusIndex = -1;
 	private int eventIndex = -1;
 	
-	
+	/**
+	 * Default constructor
+	 * 
+	 * @param recordConfig
+	 * 				- the raw record configuration
+	 */
 	public DL220IntervalRecordConfig(String recordConfig){
 		this.recordConfig = recordConfig;
 	}
 	
 	/**
 	 * Parse the configuration string with the representing indexes
+	 * @throws IOException 
 	 */
-	protected void parse(){
+	protected void parse() throws IOException{
 		int index = 0;
 		int beginIndex = 0;
 		int endIndex = 0;
@@ -54,13 +63,14 @@ public class DL220IntervalRecordConfig implements DL220RecordConfig {
 			}
 			
 			index++;
-		} while(index < 9);
+		} while(index < getNumberOfObjectsPerRecord());
 	}
 	
 	/**
 	 * {@inheritDoc}
+	 * @throws IOException if parsing the raw object configuration failed
 	 */
-	public int getTimeIndex() {
+	public int getTimeIndex() throws IOException {
 		if(this.timeIndex == -1){
 			parse();
 		}
@@ -69,8 +79,9 @@ public class DL220IntervalRecordConfig implements DL220RecordConfig {
 
 	/**
 	 * {@inheritDoc}
+	 * @throws IOException if parsing the raw object configuration failed
 	 */
-	public int getValueIndex() {
+	public int getValueIndex() throws IOException {
 		if(this.valueIndex == -1){
 			parse();
 		}
@@ -79,8 +90,9 @@ public class DL220IntervalRecordConfig implements DL220RecordConfig {
 	
 	/**
 	 * {@inheritDoc}
+	 * @throws IOException if parsing the raw object configuration failed
 	 */
-	public int getStatusIndex(){
+	public int getStatusIndex() throws IOException{
 		if(this.statusIndex == -1){
 			parse();
 		}
@@ -91,7 +103,7 @@ public class DL220IntervalRecordConfig implements DL220RecordConfig {
 	/**
 	 * {@inheritDoc}
 	 */
-	public int getEventIndex() {
+	public int getEventIndex() throws IOException{
 		if(this.eventIndex == -1){
 			parse();
 		}
@@ -129,5 +141,13 @@ public class DL220IntervalRecordConfig implements DL220RecordConfig {
 	 */
 	protected void setErrorIndex(int errorIndex) {
 		this.eventIndex = errorIndex;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @throws IOException if parsing the raw object configuration failed 
+	 */
+	public int getNumberOfObjectsPerRecord() throws IOException {
+		return DL220Utils.getNumberOfObjects(this.recordConfig);
 	}
 }

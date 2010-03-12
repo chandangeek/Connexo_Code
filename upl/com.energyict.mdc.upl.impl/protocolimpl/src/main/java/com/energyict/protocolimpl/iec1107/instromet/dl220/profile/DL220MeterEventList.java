@@ -1,8 +1,9 @@
 /**
  * 
  */
-package com.energyict.protocolimpl.iec1107.instromet.dl220;
+package com.energyict.protocolimpl.iec1107.instromet.dl220.profile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -134,8 +135,9 @@ public class DL220MeterEventList {
 	 * 
 	 * @param dir
 	 *            - the {@link DL220Record}
+	 * @throws IOException 
 	 */
-	public void addRawEvent(DL220Record dir) {
+	public void addRawEvent(DL220Record dir) throws IOException {
 		if (VALUE_ARCHIVE1_CHANGED_BEFORE.equalsIgnoreCase(dir.getEvent())) {
 			measurementChangeEvents = new ArrayList<DL220Record>();
 			measurementChangeEvents.add(dir);
@@ -353,8 +355,9 @@ public class DL220MeterEventList {
 	 * There is no specific clock event, only an indication that the record has been changed.
 	 * 
 	 * Check what type of measurement change event occurred. It can either be a value change or a clock change.
+	 * @throws IOException 
 	 */
-	protected void checkMeasurementChangeEvents() {
+	protected void checkMeasurementChangeEvents() throws IOException {
 		if (this.measurementChangeEvents.get(BEFORE_EVENT_INDEX).getEndTime().compareTo(
 				this.measurementChangeEvents.get(AFTER_EVENT_INDEX).getEndTime()) == 0) { // if you have the same date,
 			// then normally the value

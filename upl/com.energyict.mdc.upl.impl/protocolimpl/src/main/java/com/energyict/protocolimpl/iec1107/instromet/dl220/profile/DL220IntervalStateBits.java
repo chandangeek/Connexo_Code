@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.energyict.protocolimpl.iec1107.instromet.dl220;
+package com.energyict.protocolimpl.iec1107.instromet.dl220.profile;
 
 import com.energyict.protocol.IntervalStateBits;
 

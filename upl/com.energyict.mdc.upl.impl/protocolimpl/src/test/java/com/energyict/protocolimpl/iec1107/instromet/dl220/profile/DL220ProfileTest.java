@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.energyict.protocolimpl.iec1107.instromet.dl220;
+package com.energyict.protocolimpl.iec1107.instromet.dl220.profile;
 
 
 import static org.junit.Assert.assertEquals;
@@ -25,6 +25,11 @@ import org.junit.Test;
 
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;
+import com.energyict.protocolimpl.iec1107.instromet.dl220.Archives;
+import com.energyict.protocolimpl.iec1107.instromet.dl220.DL220;
+import com.energyict.protocolimpl.iec1107.instromet.dl220.profile.DL220IntervalRecordConfig;
+import com.energyict.protocolimpl.iec1107.instromet.dl220.profile.DL220Profile;
+import com.energyict.protocolimpl.iec1107.instromet.dl220.profile.DL220RecordConfig;
 
 /**
  * @author gna
@@ -130,6 +135,42 @@ public class DL220ProfileTest {
 			assertEquals(2, idList.size());
 			assertEquals(100, ((IntervalValue)idList.get(0).getIntervalValues().get(0)).getNumber());
 			assertEquals(150, ((IntervalValue)idList.get(1).getIntervalValues().get(0)).getNumber());
+		} catch (IOException e) {
+			e.printStackTrace();
+			fail();
+		}
+	}
+	
+	@Test
+	public final void buildMeterEventListTest(){
+		try {
+			String capturedObjects = "(GONr)(AONr)(Zeit)(Er)(Check)";
+			DL220 link = new DL220();
+			link.init(null, null, TimeZone.getTimeZone("GMT"), Logger.getAnonymousLogger());
+			File file = new File(DL220Profile.class.getClassLoader().getResource(
+			"com/energyict/protocolimpl/iec1107/instromet/dl220/DL220EventProfile.bin").getFile());
+			FileInputStream fis = new FileInputStream(file);
+			byte[] content = new byte[(int) file.length()];
+			fis.read(content);
+			fis.close();
+			
+			DL220Profile dlProfile = new DL220Profile(link, 0, Archives.MEASUREMENT1, 10);
+			
+			dlProfile.buildMeterEventList(new String(content), capturedObjects);
+			dlProfile.getMeterEventList().getEventList().get(172);
+			
+			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+			cal.setTimeInMillis(Long.valueOf("1268399564000"));
+			assertEquals(cal.getTime(), dlProfile.getMeterEventList().getEventList().get(172).getTime());
+			assertEquals(11523, dlProfile.getMeterEventList().getEventList().get(172).getProtocolCode());
+			
+			cal.setTimeInMillis(Long.valueOf("1268233668000"));
+			assertEquals(cal.getTime(), dlProfile.getMeterEventList().getEventList().get(170).getTime());
+			assertEquals(7170, dlProfile.getMeterEventList().getEventList().get(170).getProtocolCode());
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			fail();
 		} catch (IOException e) {
 			e.printStackTrace();
 			fail();

@@ -1,12 +1,17 @@
 /**
  * 
  */
-package com.energyict.protocolimpl.iec1107.instromet.dl220;
+package com.energyict.protocolimpl.iec1107.instromet.dl220.profile;
+
+import java.io.IOException;
 
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.iec1107.instromet.dl220.DL220Utils;
 
 
 /**
+ * Defines an Event Record configuration
+ * 
  * @author gna
  * @since 10-mrt-2010
  *
@@ -21,14 +26,22 @@ public class DL220EventRecordConfig {
 	private int timeIndex = -1;
 	private int eventIndex = -1;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param recordConfig
+	 * 			- the raw config string from the device
+	 */
 	public DL220EventRecordConfig(String recordConfig){
 		this.recordConfig = recordConfig;
 	}
 	
 	/**
 	 * Parse the configuration string with the representing indexes
+	 * 
+	 * @throws IOException if the number of open- and closed brackets doesn't match
 	 */
-	protected void parse(){
+	protected void parse() throws IOException{
 		int index = 0;
 		int beginIndex = 0;
 		int endIndex = 0;
@@ -44,7 +57,16 @@ public class DL220EventRecordConfig {
 			}
 			
 			index++;
-		} while(index < 9);
+		} while(index < getNumberOfObjectsPerRecord());
+	}
+	
+	/**
+	 * @return the number of objects in a record
+	 * 
+	 * @throws IOException if the number of open- and closed brackets doesn't match
+	 */
+	public int getNumberOfObjectsPerRecord() throws IOException{
+		return DL220Utils.getNumberOfObjects(this.recordConfig);
 	}
 	
 	/**
@@ -62,9 +84,11 @@ public class DL220EventRecordConfig {
 	}
 
 	/**
-	 * @return
+	 * @return the timeIndex
+	 * 
+	 * @throws IOException if parsing the raw object configuration failed
 	 */
-	public int getTimeIndex() {
+	public int getTimeIndex() throws IOException {
 		if(this.timeIndex == -1){
 			parse();
 		}
@@ -72,9 +96,11 @@ public class DL220EventRecordConfig {
 	}
 
 	/**
-	 * @return
+	 * @return the eventIndex
+	 * 
+	 * @throws IOException if parsing the raw object configuration failed
 	 */
-	public int getEventIndex() {
+	public int getEventIndex() throws IOException {
 		if(this.eventIndex == -1){
 			parse();
 		}

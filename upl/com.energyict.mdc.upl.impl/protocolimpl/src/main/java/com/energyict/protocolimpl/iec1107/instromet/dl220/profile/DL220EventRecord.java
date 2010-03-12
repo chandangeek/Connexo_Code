@@ -1,11 +1,13 @@
 /**
  * 
  */
-package com.energyict.protocolimpl.iec1107.instromet.dl220;
+package com.energyict.protocolimpl.iec1107.instromet.dl220.profile;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.TimeZone;
 
+import com.energyict.protocolimpl.iec1107.instromet.dl220.DL220Utils;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.ClockObject;
 
 /**
@@ -38,15 +40,17 @@ public class DL220EventRecord implements DL220Record {
 	
 	/**
 	 * {@inheritDoc}
+	 * @throws IOException 
 	 */
-	public Date getEndTime(){
+	public Date getEndTime() throws IOException{
 		return ClockObject.parseCalendar(DL220Utils.getTextBetweenBracketsStartingFrom(this.record, derc.getTimeIndex()), timeZone).getTime();
 	}
 
 	/**
 	 * {@inheritDoc}
+	 * @throws IOException 
 	 */
-	public String getEvent(){
+	public String getEvent() throws IOException{
 		return DL220Utils.getTextBetweenBracketsStartingFrom(this.record, derc.getEventIndex());
 	}
 

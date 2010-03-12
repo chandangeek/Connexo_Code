@@ -24,6 +24,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.AbstractObject;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.DLObject;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.SoftwareVersionObject;
+import com.energyict.protocolimpl.iec1107.instromet.dl220.profile.DL220Profile;
 
 /**
  * ProtocolImplementation for the Elster DL220 meter. <br>
@@ -62,6 +63,9 @@ public class DL220 extends AbstractIEC1107Protocol {
 		super();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger)
 			throws IOException {
 		setTimeZone(timeZone);
@@ -218,12 +222,11 @@ public class DL220 extends AbstractIEC1107Protocol {
 		
 		profileData.setIntervalDatas(getProfileObject().getIntervalData(from, to));
 		
-		//TODO set events
 		if(includeEvents){
 			profileData.setMeterEvents(getProfileObject().getMeterEvents(from));
 			/* 
 			 * Not all statuses are always mapped, therefore we use the events to create additional
-			 * intervalStateBits
+			 * intervalStateBits (especially the clock statuses)
 			 */
 			getProfileObject().applyEvents(profileData);
 		}

@@ -82,10 +82,9 @@ public class GenericArchiveObject extends AbstractObject {
 	}
 	
 	/**
-	 * Getter for the default value of this object
+	 * Unsupported getter for the default value
 	 * 
-	 * @return the value from the readCommand of this object
-	 * @throws IOException
+	 * @throws IOException because it is not supported
 	 */
 	@Override
 	public String getValue() throws IOException {
@@ -107,7 +106,7 @@ public class GenericArchiveObject extends AbstractObject {
 	 * Get the Units from the device
 	 * 
 	 * @return a String of units
-	 * @throws IOException 
+	 * @throws IOException if something happened during the read
 	 */
 	public String getUnits() throws IOException {
 		return getEmptyRequest(constructStartAddress(ATTRB_UNITS_TEXT));

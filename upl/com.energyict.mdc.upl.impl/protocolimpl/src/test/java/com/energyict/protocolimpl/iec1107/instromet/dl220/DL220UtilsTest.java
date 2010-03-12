@@ -115,8 +115,19 @@ public class DL220UtilsTest {
 		try {
 			String capturedObjects = "(GONr)(AONr)(Zeit)(V1.G)(V1.P)(St.1)(StSy)(Er)(Check)";
 			assertEquals(9, DL220Utils.getNumberOfObjects(capturedObjects));
+			
+			try {
+				capturedObjects = "(GONr)(AONr)(Zeit)(V1.G)(V1.P)(St.1)(StSy)(Er)(Check";
+				DL220Utils.getNumberOfObjects(capturedObjects);
+			} catch (Exception e) {
+				if(!(e.getLocalizedMessage().indexOf("Number of open brackets does not match the number of closed brackets (9 - 8)") > -1)){
+					e.printStackTrace();
+					fail();
+				}
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
+			fail();
 		}
 	}
 }
