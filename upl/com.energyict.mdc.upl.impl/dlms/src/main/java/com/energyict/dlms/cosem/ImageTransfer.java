@@ -1,6 +1,7 @@
 package com.energyict.dlms.cosem;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.logging.Level;
 
 import com.energyict.dlms.ProtocolLink;
@@ -157,9 +158,7 @@ public class ImageTransfer extends AbstractCosemObject{
 
 			// Step3: Transfer image blocks
 			transferImageBlocks(additionalZeros);
-			if(DEBUG) {
-				System.out.println("ImageTrans: Transfered " + this.blockCount + " blocks.");
-			}
+			this.protocolLink.getLogger().log(Level.INFO, "All blocks are sent at : " + new Date(System.currentTimeMillis()));
 
 			// Step4: Check completeness of the image and transfer missing blocks
 			//TODO - Checking for missings is not necessary at the moment because we have a guaranteed connection,
@@ -168,11 +167,8 @@ public class ImageTransfer extends AbstractCosemObject{
 
 			// Step5: Verify image
 			verifyAndRetryImage();
-			if(DEBUG) {
-				System.out.println("ImageTrans: Verification successfull.");
-			}
+			this.protocolLink.getLogger().log(Level.INFO, "Verification of the image was succesfull at : " + new Date(System.currentTimeMillis()));
 
-			this.protocolLink.getLogger().log(Level.INFO, "Start : " + System.currentTimeMillis());
 			// Step6: Check image before activation
 			// Skip this step
 
@@ -239,7 +235,7 @@ public class ImageTransfer extends AbstractCosemObject{
 					if(e.getMessage().indexOf("Cosem Data-Access-Result exception Temporary failure ") > -1){
 						tempRetry++;
 						if(tempRetry == 5){
-							throw new IOException("Max. retries (3) exceeded. " + e.getMessage());
+							throw new IOException("Max. retries (5) exceeded. " + e.getMessage());
 						}
 						this.protocolLink.getLogger().log(Level.INFO, "Transfering image block resulted in temporary failure, retry " + tempRetry);
 						try {
@@ -257,16 +253,6 @@ public class ImageTransfer extends AbstractCosemObject{
 			if(i % 50 == 0){ // i is multiple of 50
 				this.protocolLink.getLogger().log(Level.INFO, "ImageTransfer: " + i + " of " + blockCount + " blocks are sent to the device");
 			}
-
-			if(DEBUG) {
-				System.out.println("ImageTrans: Write block " + i + " success.");
-			}
-//			try {
-//				Thread.sleep(100);
-//			} catch (InterruptedException e) {
-//				this.protocolLink.getLogger().log(Level.INFO, "Interrupted while sleeping");
-//			}
-			
 		}
 //		fos.close();
 	}
@@ -279,14 +265,15 @@ public class ImageTransfer extends AbstractCosemObject{
 	public void verifyAndRetryImage() throws IOException, InterruptedException{
 		try{
 			int retry = 3;
-			while(retry > 0){
+			while(retry >= 0){
 				try{
 					imageVerification();
-					retry = 0;
+					retry = -1;
 				} catch (DataAccessResultException e) {
-					if(e.getDataAccessResult() == 2){ //"Temporary failure"
+					if((e.getDataAccessResult() == 2) && retry >= 1){ //"Temporary failure"
+						this.protocolLink.getLogger().log(Level.INFO, "Received a temporary failure during verification, will retry.");
 						retry--;
-						Thread.sleep(this.delay);
+						Thread.sleep(delay);
 					} else {
 						throw new IOException("Could not verify the image." + e.getMessage());
 					}
@@ -532,14 +519,14 @@ public class ImageTransfer extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public void imageActivation() throws IOException {
-	    if(getObjectReference().isLNReference()){
 		try{
-		    invoke(IMAGE_ACTIVATION, new Integer8(0).getBEREncodedByteArray());
+			if (getObjectReference().isLNReference()) {
+				invoke(IMAGE_ACTIVATION, new Integer8(0).getBEREncodedByteArray());
+			} else {
+				write(IMAGE_ACTIVATION_SN, new Integer8(0).getBEREncodedByteArray());
+			}
 		} catch (IOException e) {
 		    throw new IOException("Could not activate the image." + e.getMessage());
 		}
-	    } else {
-		write(IMAGE_ACTIVATION_SN, new Integer8(0).getBEREncodedByteArray());
-	    }
 	}
 }
