@@ -88,7 +88,7 @@ public class RegisterFactory {
         	registers.add(new Register(registerValue));
         	quantity = previousPeriodTable.getActiveQuantityP1(eField);
         	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.8."+ activeEnergyMatrix[eField] +".0"), quantity, 
-        			null, previousPeriodTable.getTimeStamp(), currentPeriodTable.getTimeStamp());
+        			null, currentPeriodTable.getTimeStamp());
         	registers.add(new Register(registerValue));
         	quantity = previousPeriodTable.getActiveQuantityP2(eField);
         	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.8."+ activeEnergyMatrix[eField] +".1"), quantity,
