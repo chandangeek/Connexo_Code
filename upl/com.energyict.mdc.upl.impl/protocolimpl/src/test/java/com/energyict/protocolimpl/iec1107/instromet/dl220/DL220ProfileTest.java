@@ -63,8 +63,9 @@ public class DL220ProfileTest {
 			fis.close();
 			String recordConfig = "(GONr)(AONr)(Zeit)(V1.G)(V1.P)(St.1)(StSy)(Er)(Check)";
 			DL220Profile dlProfile = new DL220Profile(link, 0, Archives.MEASUREMENT1, 10);
+			dlProfile.setCapturedObjects(recordConfig);
 			dlProfile.setInterval(300);
-			DL220IntervalRecordConfig dirc = new DL220IntervalRecordConfig(recordConfig);
+			DL220RecordConfig dirc = new DL220IntervalRecordConfig(recordConfig);
 			dlProfile.setDirc(dirc);
 			List<IntervalData> intervalData = dlProfile.buildIntervalData(new String(content));
 			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));

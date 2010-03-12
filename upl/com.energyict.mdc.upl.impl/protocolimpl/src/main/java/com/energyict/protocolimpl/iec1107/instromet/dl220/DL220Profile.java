@@ -6,12 +6,16 @@ package com.energyict.protocolimpl.iec1107.instromet.dl220;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.DLObject;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.GenericArchiveObject;
@@ -24,6 +28,8 @@ import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.GenericArchive
  *
  */
 public class DL220Profile {
+	
+	private final static String[] archiveEntryEvents = new String[]{"0x8105", "0x8106"};
 	
 	/** The index of the measurement */
 	private final int index;
@@ -39,12 +45,13 @@ public class DL220Profile {
 	private DL220MeterEventList meterEventList;
 	
 	/** The {@link DL220IntervalRecordConfig} from the meter*/
-	private DL220IntervalRecordConfig dirc;
+	private DL220RecordConfig dirc;
 	
 	private int numberOfChannels = -1;
 	private int interval = -1;
 	private int profileRequestBlockSize;
-	private int numberOfAvailableIntervals = 0;		// TODO why do you need this??
+
+	private String capturedObjects = "";
 	
 	/**
 	 * Default constructor
@@ -128,9 +135,9 @@ public class DL220Profile {
 	 * 
 	 * @throws IOException if something happened during the read
 	 */
-	public DL220IntervalRecordConfig getIntervalRecordConfig() throws IOException{
+	public DL220RecordConfig getIntervalRecordConfig() throws IOException{
 		if(this.dirc == null){
-			this.dirc = new DL220IntervalRecordConfig(getArchive().getCapturedObjects());
+			this.dirc = new DL220IntervalRecordConfig(getCapturedObjects());
 		}
 		return this.dirc;
 	}
@@ -141,8 +148,30 @@ public class DL220Profile {
 	 * @param dirc
 	 * 			- the {@link DL220IntervalRecordConfig} to set
 	 */
-	protected void setDirc(DL220IntervalRecordConfig dirc){
+	protected void setDirc(DL220RecordConfig dirc){
 		this.dirc = dirc;
+	}
+	
+	/**
+	 * @return the capturedObject String
+	 * 
+	 * @throws IOException if we could not read the objects from the meter
+	 */
+	private String getCapturedObjects() throws IOException{
+		if(this.capturedObjects.equalsIgnoreCase("")){
+			this.capturedObjects = getArchive().getCapturedObjects();
+		}
+		return this.capturedObjects;
+	}
+	
+	/**
+	 * Setter for the capturedObjects
+	 * 
+	 * @param capturedObjects
+	 * 				- the capturedObjects to set
+	 */
+	protected void setCapturedObjects(String capturedObjects) {
+		this.capturedObjects = capturedObjects;
 	}
 	
 	/**
@@ -186,8 +215,7 @@ public class DL220Profile {
 	 * @throws NumberFormatException when the returned number of intervals ins't a number
 	 */
 	public List<IntervalData> getIntervalData(Date from, Date to) throws NumberFormatException, IOException {
-		this.numberOfAvailableIntervals = Integer.parseInt(getArchive().getNumberOfIntervals(from));
-		return buildIntervalData(getArchive().getIntervals(from, profileRequestBlockSize));
+		return buildIntervalData(getArchive().getIntervals(from, to, profileRequestBlockSize));
 	}
 	
 	/**
@@ -207,25 +235,21 @@ public class DL220Profile {
 		DL220IntervalRecord dir;
 		String recordX;
 		IntervalData id;
+		String capturedObjects = getCapturedObjects();
+		int numberOfCapturedObjects = DL220Utils.getNumberOfObjects(capturedObjects);
 		
 		do{
-			recordX = DL220Utils.getNextRecord(rawData, offset);
+			recordX = DL220Utils.getNextRecord(rawData, offset, numberOfCapturedObjects);
 			offset = rawData.indexOf(recordX) + recordX.length();
 			dir = new DL220IntervalRecord(recordX, getIntervalRecordConfig(), link.getTimeZone());
 			id = new IntervalData(dir.getEndTime());
 			id.addValue(Integer.parseInt(dir.getValue()));
 			String status = dir.getStatus();
-			//TODO add the status
 			id.addEiStatus(DL220IntervalStateBits.intervalStateBits(status));
-			if("0x8105".equalsIgnoreCase(dir.getEvent())){
-				intervalList.add(id);
-			} else {
-				
+			if(!archiveEntryEvents[this.index].equalsIgnoreCase(dir.getEvent())){	// if it is more then a normal entry
 				getMeterEventList().addRawEvent(dir);
-				
-				System.out.println("This interval isn't added : " + id);
-				System.out.println("This is because his eventcode was : " + dir.getEvent());
 			}
+			intervalList.add(id);
 		}while(offset < rawData.length());
 		
 		return sortOutIntervalList(intervalList);
@@ -252,21 +276,12 @@ public class DL220Profile {
 		return newList;
 	}
 
-//	/**
-//	 * @param from
-//	 * @return
-//	 */
-//	public List<MeterEvent> getMeterEventList(Date from) {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-//	
 	/**
 	 * Getter for the {@link DL200MeterEventList}
 	 * 
 	 * @return the MeterEventList
 	 */
-	protected DL220MeterEventList getMeterEventList(){
+	public DL220MeterEventList getMeterEventList(){
 		if(this.meterEventList == null) {
 			this.meterEventList = new DL220MeterEventList();
 		}
@@ -284,5 +299,77 @@ public class DL220Profile {
 		}
 		return this.archiveObject;
 	}
+
+	/**
+	 * Get a list of meterEvents starting from the given fromDate
+	 * 
+	 * @param from
+	 * 			- the date to start reading from
+	 * 
+	 * @return
+	 */
+	public List<MeterEvent> getMeterEvents(Date from) {
+		// TODO Auto-generated method stub
+		
+		try {
+			GenericArchiveObject gaoEvents = new GenericArchiveObject(link, Archives.LOGBOOK);
+			String capturedObjects = gaoEvents.getCapturedObjects();
+			DL220EventRecordConfig derc = new DL220EventRecordConfig(capturedObjects);
+			String rawEvents = gaoEvents.getIntervals(from, profileRequestBlockSize);
+			int numberOfCapturedObjects = DL220Utils.getNumberOfObjects(capturedObjects);
+			int offset = 0;
+			DL220EventRecord der;
+			String recordX;
+			
+			do{
+				recordX = DL220Utils.getNextRecord(rawEvents, offset, numberOfCapturedObjects);
+				offset = rawEvents.indexOf(recordX) + recordX.length();
+				der = new DL220EventRecord(recordX, derc, link.getTimeZone());
+				getMeterEventList().addRawEvent(der);
+			}while(offset < rawEvents.length());			
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return getMeterEventList().getEventList();
+	}
+	
+	
+    /** 
+     * Set the interval status based on the {@link MeterEvent}s form the meter.
+     * 
+     * @param list
+     * 			- the list of meterEvents
+     * 
+     * @throws IOException 
+     * @throws UnsupportedException 
+     */    
+    @SuppressWarnings("unchecked")
+	public void applyEvents(ProfileData profileData) throws UnsupportedException, IOException {
+        Iterator<MeterEvent> eventIterator = profileData.getEventIterator();
+        while (eventIterator.hasNext()) {
+            applyEvent(eventIterator.next(), profileData.getIntervalDatas());
+        }
+    }
+    
+    /** 
+     * Updates the interval status based on the information of a single event.
+     * 
+     * @param event 
+     * 			- the event to convert to intervalStatus
+     * 
+     * @param list
+     * 			- the list of intervalDatas
+     *  
+     * @throws IOException 
+     * @throws UnsupportedException 
+     */    
+    private void applyEvent(MeterEvent event, List<IntervalData> list) throws UnsupportedException, IOException {
+        Iterator<IntervalData> intervalIterator = list.iterator();
+        while (intervalIterator.hasNext()) {
+             intervalIterator.next().apply(event, getInterval()/60);
+        }
+    }
 
 }

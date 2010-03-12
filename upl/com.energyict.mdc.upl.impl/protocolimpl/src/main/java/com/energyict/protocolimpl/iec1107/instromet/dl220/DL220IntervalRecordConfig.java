@@ -12,7 +12,7 @@ import com.energyict.protocol.ProtocolUtils;
  * @since 8-mrt-2010
  *
  */
-public class DL220IntervalRecordConfig {
+public class DL220IntervalRecordConfig implements DL220RecordConfig {
 
 	private static final String STR_TIME = "Zeit";
 	private static final String STR_VALUE = "V1";
@@ -58,7 +58,7 @@ public class DL220IntervalRecordConfig {
 	}
 	
 	/**
-	 * @return the timeIndex
+	 * {@inheritDoc}
 	 */
 	public int getTimeIndex() {
 		if(this.timeIndex == -1){
@@ -68,7 +68,7 @@ public class DL220IntervalRecordConfig {
 	}
 
 	/**
-	 * @return the valueIndex
+	 * {@inheritDoc}
 	 */
 	public int getValueIndex() {
 		if(this.valueIndex == -1){
@@ -78,7 +78,7 @@ public class DL220IntervalRecordConfig {
 	}
 	
 	/**
-	 * @return the statusIndex
+	 * {@inheritDoc}
 	 */
 	public int getStatusIndex(){
 		if(this.statusIndex == -1){
@@ -89,7 +89,7 @@ public class DL220IntervalRecordConfig {
 	
 
 	/**
-	 * @return the errorIndex
+	 * {@inheritDoc}
 	 */
 	public int getEventIndex() {
 		if(this.eventIndex == -1){

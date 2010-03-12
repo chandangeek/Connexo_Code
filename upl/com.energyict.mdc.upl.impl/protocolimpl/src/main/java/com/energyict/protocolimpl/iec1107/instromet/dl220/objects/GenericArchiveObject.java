@@ -196,8 +196,27 @@ public class GenericArchiveObject extends AbstractObject {
 	 * @throws IOException when an error occurred during the read 
 	 */
 	public String getIntervals(Date from, int blockSize) throws IOException {
-		String rawFrom = getDLFormatDate(from);
-		String requestString = buildRequestString(3, rawFrom, null, blockSize);
+		return getIntervals(from, null, blockSize);
+	}
+	
+	/**
+	 * Request the raw intervals from the device
+	 * 
+	 * @param from
+	 * 			- the date to start reading from
+	 * 
+	 * @param to
+	 * 			- the date to read to 
+	 *  
+	 * @param blockSize
+	 * 			- the size of the blocks to read
+	 * 
+	 * @return a string containing one or multiple interval records
+	 * 
+	 * @throws IOException when an error occurred during the read 
+	 */
+	public String getIntervals(Date from, Date to, int blockSize) throws IOException {
+		String requestString = buildRequestString(3, getDLFormatDate(from),(to==null)?null:getDLFormatDate(to), blockSize);
 		this.startAddress = constructStartAddress(ATTRB_VALUE);
 		ReadArchiveCommand rac = new ReadArchiveCommand(link);
 		rac.setStartAddress(getStartAddress());

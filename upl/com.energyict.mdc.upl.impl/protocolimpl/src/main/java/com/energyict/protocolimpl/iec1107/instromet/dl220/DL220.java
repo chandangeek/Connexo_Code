@@ -216,17 +216,21 @@ public class DL220 extends AbstractIEC1107Protocol {
 
 		profileData.setChannelInfos(getProfileObject().buildChannelInfos());
 		
-		//TODO set intervalData
 		profileData.setIntervalDatas(getProfileObject().getIntervalData(from, to));
 		
 		//TODO set events
-//		if(includeEvents){
-//			profileData.setMeterEvents(getProfileObject().getMeterEventList(from));
-//		}
+		if(includeEvents){
+			profileData.setMeterEvents(getProfileObject().getMeterEvents(from));
+			/* 
+			 * Not all statuses are always mapped, therefore we use the events to create additional
+			 * intervalStateBits
+			 */
+			getProfileObject().applyEvents(profileData);
+		}
 		
 		return profileData;
 	}
-    
+	
     /**
      * @return	the {@link DL220Profile}
      */

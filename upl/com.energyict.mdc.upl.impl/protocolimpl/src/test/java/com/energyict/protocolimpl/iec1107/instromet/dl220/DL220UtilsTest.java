@@ -7,6 +7,8 @@ package com.energyict.protocolimpl.iec1107.instromet.dl220;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,7 +65,7 @@ public class DL220UtilsTest {
 				"(8492)(508)(2010-03-07,09:35:00)(130)(130)(0)(15)(0x8105)(CRC Ok)\r\n";
 		int offset = 0;
 		for(int i = 0; i < 5; i++){
-			assertEquals(expectedIntervals[i], DL220Utils.getNextRecord(rawData, offset));
+			assertEquals(expectedIntervals[i], DL220Utils.getNextRecord(rawData, offset, 9));
 			offset += expectedIntervals[i].length();
 		}
 		
@@ -89,6 +91,32 @@ public class DL220UtilsTest {
 			if(!e.getLocalizedMessage().equalsIgnoreCase("Could not return the request text, index to large(7).")){
 				fail("Received a not-excpected exception: " + e);
 			}
+		}
+	}
+	
+	/**
+	 * Test to count the number of the same expression in one string
+	 */
+	@Test
+	public final void countNumberOfSameChars(){
+		String text = "FFAABCDFFESFF";
+		String regex1 = "F";
+		String regex2 = "FF";
+		assertEquals(6, DL220Utils.countNumberOfSameChars(text, regex1, regex1.length()));
+		assertEquals(3, DL220Utils.countNumberOfSameChars(text, regex2, regex2.length()));
+			
+	}
+	
+	/**
+	 * Test to calculate the number of objects in the capturedObject String
+	 */
+	@Test
+	public final void getNumberOfObjectsTest(){
+		try {
+			String capturedObjects = "(GONr)(AONr)(Zeit)(V1.G)(V1.P)(St.1)(StSy)(Er)(Check)";
+			assertEquals(9, DL220Utils.getNumberOfObjects(capturedObjects));
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 }

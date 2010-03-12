@@ -12,10 +12,10 @@ import org.junit.Test;
 
 /**
  * @author gna
- * @since 8-mrt-2010
+ * @since 10-mrt-2010
  *
  */
-public class DL220IntervalRecordConfigTest {
+public class DL220MeterEventListTest {
 
 	/**
 	 * @throws java.lang.Exception
@@ -30,16 +30,10 @@ public class DL220IntervalRecordConfigTest {
 	@After
 	public void tearDown() throws Exception {
 	}
-	
-	/**
-	 * Test the parsing
-	 */
-	@Test
-	public final void parseTest(){
-		String recordConfig = "(GONr)(AONr)(Zeit)(V1.G)(V1.P)(St.1)(StSy)(Er)(Check)";
-		DL220RecordConfig dirc = new DL220IntervalRecordConfig(recordConfig);
-		assertEquals(2, dirc.getTimeIndex());
-		assertEquals(3, dirc.getValueIndex());
-	}
 
+	@Test
+	public final void convertStringEventIdToIntegerTest(){
+		String strEventId = "0x8302";
+		assertEquals(33538, DL220MeterEventList.convertStringEventIdToInteger(strEventId));
+	}
 }
