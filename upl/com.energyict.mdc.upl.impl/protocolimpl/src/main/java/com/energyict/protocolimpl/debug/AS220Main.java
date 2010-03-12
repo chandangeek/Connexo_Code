@@ -273,7 +273,7 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			readEnergyRegisters();
+			readContactorStatus();
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -284,6 +284,16 @@ public class AS220Main {
 			getDialer().disConnect();
 		}
 
+	}
+
+	/**
+	 * @throws IOException
+	 */
+	private static void readContactorStatus() throws IOException {
+		log(getAs220().readRegister(ObisCode.fromString("0.0.96.3.10.1")));
+		log(getAs220().readRegister(ObisCode.fromString("0.0.96.3.10.2")));
+		log(getAs220().readRegister(ObisCode.fromString("0.0.96.3.10.3")));
+		log(getAs220().readRegister(ObisCode.fromString("0.0.96.3.10.4")));
 	}
 
 	/**
