@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -23,13 +24,19 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 public class ProfileBuilder {
 
 	private final DLMSSNAS220	as220;
+	private final ObisCode energyObisCode;
 
-	public ProfileBuilder(DLMSSNAS220 as220) {
+	public ProfileBuilder(DLMSSNAS220 as220, ObisCode obisCode) {
 		this.as220 = as220;
+		this.energyObisCode = obisCode;
 	}
 
 	private DLMSSNAS220 getAs220() {
 		return as220;
+	}
+
+	private ObisCode getEnergyObisCode() {
+		return energyObisCode;
 	}
 
 	/**
@@ -39,12 +46,21 @@ public class ProfileBuilder {
 	 */
 	public ScalerUnit[] buildScalerUnits(byte nrOfChannels) throws IOException {
 		ScalerUnit[] scalerUnits = new ScalerUnit[nrOfChannels];
-		ObisCode obisCode[] = new ObisCode[] { ObisCode.fromString("1.0.1.8.0.255"), ObisCode.fromString("1.0.2.8.0.255") };
-		for (int i = 0; i < nrOfChannels; i++) {
-			scalerUnits[i] = getAs220().getCosemObjectFactory().getCosemObject(obisCode[i]).getScalerUnit();
-			//	       ObisCode obisCode = getAs220().getMeterConfig().getMeterDemandObject(i).getObisCode();
-			//	       scalerUnits[i] = getAs220().getCosemObjectFactory().getCosemObject(obisCode).getScalerUnit();
+
+		List<CapturedObject> co = getAs220().getCosemObjectFactory().getProfileGeneric(getEnergyObisCode()).getCaptureObjects();
+		int index = 0;
+		for (CapturedObject capturedObject : co) {
+			ObisCode obis = capturedObject.getLogicalName().getObisCode();
+			if (obis.getA() != 0) {
+				if (index <= nrOfChannels) {
+					scalerUnits[index] = getAs220().getCosemObjectFactory().getCosemObject(obis).getScalerUnit();
+					index++;
+				} else {
+					throw new IOException("There are more channels in the captured objects [" + getEnergyObisCode() + "] than needed [" + nrOfChannels + "].");
+				}
+			}
 		}
+
 		return scalerUnits;
 	}
 

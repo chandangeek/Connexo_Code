@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
@@ -74,7 +75,7 @@ public class EMeter {
 		fromCalendar.setTime(from);
 		toCalendar.setTime(to);
 
-    	ProfileBuilder profileBuilder = new ProfileBuilder(getAs220());
+    	ProfileBuilder profileBuilder = new ProfileBuilder(getAs220(), ENERGY_PROFILE_OBISCODE);
 		ProfileData profileData = new ProfileData();
 		ScalerUnit[] scalerunit = profileBuilder.buildScalerUnits((byte) getNrOfChannels());
 
@@ -108,7 +109,14 @@ public class EMeter {
      * @throws IOException
      */
     public int getNrOfChannels() throws IOException {
-    	return getAs220().getCosemObjectFactory().getProfileGeneric(ENERGY_PROFILE_OBISCODE).getNumberOfProfileChannels();
+    	int nrOfChannels = 0;
+    	List<CapturedObject> co = getAs220().getCosemObjectFactory().getProfileGeneric(ENERGY_PROFILE_OBISCODE).getCaptureObjects();
+    	for (CapturedObject capturedObject : co) {
+			if (capturedObject.getLogicalName().getObisCode().getA() != 0) {
+				nrOfChannels++;
+			}
+		}
+    	return nrOfChannels;
     }
 
 }

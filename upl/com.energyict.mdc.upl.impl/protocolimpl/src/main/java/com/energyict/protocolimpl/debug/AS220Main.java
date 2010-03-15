@@ -148,7 +148,7 @@ public class AS220Main {
 		properties.setProperty("ServerLowerMacAddress", "1");
 		properties.setProperty("ServerUpperMacAddress", "1");
 
-		properties.setProperty("ProfileType", "1");
+		properties.setProperty("ProfileType", "0");
 
 		properties.setProperty(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY, "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF");
 		properties.setProperty(LocalSecurityProvider.DATATRANSPORTKEY, "000102030405060708090A0B0C0D0E0F");
@@ -173,7 +173,6 @@ public class AS220Main {
 		Calendar from = Calendar.getInstance(DEFAULT_TIMEZONE);
 		from.add(Calendar.DAY_OF_YEAR, -100);
 		ProfileData pd = getAs220().getProfileData(from.getTime(), incluideEvents);
-		log(pd);
 		return pd;
 	}
 
@@ -230,7 +229,7 @@ public class AS220Main {
 		getAs220().queryMessage(new MessageEntry(FORCE_SET_CLOCK, ""));
 	}
 
-	public static void readObiscodes() throws IOException {
+	public static void readObjectList() throws IOException {
 		UniversalObject[] uo = getAs220().getMeterConfig().getInstantiatedObjectList();
 		for (UniversalObject universalObject : uo) {
 			log(universalObject.getObisCode() + " = " + DLMSClassId.findById(universalObject.getClassID()) + " ["+universalObject.getBaseName()+"] " + universalObject.getObisCode().getDescription());
@@ -273,7 +272,7 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			readContactorStatus();
+			readProfile(true);
 
 		} catch (Exception e) {
 			e.printStackTrace();
