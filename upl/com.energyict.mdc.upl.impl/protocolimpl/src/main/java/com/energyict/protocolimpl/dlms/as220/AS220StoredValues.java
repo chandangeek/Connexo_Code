@@ -145,24 +145,13 @@ public class AS220StoredValues implements StoredValues {
 	}
 
 	private BigDecimal getValue(ObisCode baseObisCode, int billingPoint) throws IOException {
-		ObisCode capturedCode = ProtocolTools.setObisCodeField(baseObisCode, 0, (byte) 0);
-		capturedCode = ProtocolTools.setObisCodeField(capturedCode, 0, (byte) 0);
-
-		int index = getCapturedCodes().indexOf(capturedCode);
+		int index = getCapturedCodes().indexOf(baseObisCode);
 		if (index == -1) {
 			throw new UnsupportedException(baseObisCode + " has no historical values.");
 		}
 
-		if (isDaily()) {
-			index--;
-		}
-
 		Unsigned32 value = getDataArray().getDataType(billingPoint).getStructure().getDataType(1).getArray().getDataType(index).getUnsigned32();
 		return new BigDecimal(value.getValue());
-	}
-
-	private boolean isDaily() {
-		return getObisCode().equals(DAILY_OBISCODE);
 	}
 
 	public ProfileGeneric getProfileGeneric() {

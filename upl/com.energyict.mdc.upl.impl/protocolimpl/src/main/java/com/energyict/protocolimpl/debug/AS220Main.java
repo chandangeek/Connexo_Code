@@ -272,7 +272,7 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			readProfile(true);
+			readEnergyRegisters();
 
 		} catch (Exception e) {
 			e.printStackTrace();
