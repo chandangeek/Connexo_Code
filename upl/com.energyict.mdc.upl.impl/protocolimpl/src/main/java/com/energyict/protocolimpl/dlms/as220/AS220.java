@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.DataAccessResultException.DataAccessResultCode;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
@@ -114,13 +116,22 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
         return sb.toString();
     }
 
-    public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        try {
-			return getAs220ObisCodeMapper().getRegisterValue(obisCode);
-		} catch (IOException e) {
-			throw new NoSuchRegisterException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());
-		}
-    }
+	public RegisterValue readRegister(ObisCode obisCode) throws IOException {
+		RetryHandler retry = new RetryHandler();
+		do {
+			try {
+				try {
+					return getAs220ObisCodeMapper().getRegisterValue(obisCode);
+				} catch (DataAccessResultException e) {
+					if (e.getCode().equals(DataAccessResultCode.TEMPORARY_FAILURE)) {
+						retry.logFailure();
+					}
+				}
+			} catch (IOException e) {
+				throw new NoSuchRegisterException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());
+			}
+		} while (true);
+	}
 
 	public int getNumberOfChannels() throws IOException {
 		switch (getProfileType()) {

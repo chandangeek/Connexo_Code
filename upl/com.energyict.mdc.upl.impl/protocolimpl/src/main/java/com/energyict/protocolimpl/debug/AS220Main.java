@@ -76,7 +76,7 @@ public class AS220Main {
 
 	private static final String		OBSERVER_FILENAME		= "c:\\logging\\AS220Main\\communications.log";
 	private static final Level		LOG_LEVEL				= Level.ALL;
-	protected static final TimeZone	DEFAULT_TIMEZONE		= TimeZone.getTimeZone("GMT+01");
+	protected static final TimeZone	DEFAULT_TIMEZONE		= TimeZone.getDefault();
 
 	protected static final String	COMPORT					= "COM5";
 	protected static final int		BAUDRATE				= 115200;
@@ -137,7 +137,7 @@ public class AS220Main {
 		properties.setProperty("Timeout", "20000");
 		properties.setProperty("ForcedDelay", "200");
 
-		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
+		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_BOTH);
 		properties.setProperty("ProfileInterval", "900");
 		properties.setProperty("Password", "00000000");
 		properties.setProperty("SerialNumber", "35021373");
@@ -241,7 +241,7 @@ public class AS220Main {
 		for (UniversalObject universalObject : uo) {
 			if (universalObject.getClassID() == DLMSClassId.DATA.getClassId()) {
 				try {
-					logger.log(Level.INFO, universalObject.getObisCode() + " = " + getAs220().getCosemObjectFactory().getData(universalObject.getObisCode()).getDataContainer().doPrintDataContainer());
+					logger.log(Level.INFO, universalObject.getObisCode() + " = " + getAs220().getCosemObjectFactory().getData(universalObject.getObisCode()));
 				} catch (IOException e) {}
 			}
 		}
@@ -253,36 +253,6 @@ public class AS220Main {
 		getAs220().setTime();
 		date = getAs220().getTime();
 		log(date);
-	}
-
-	public static void main(String[] args) throws LinkException, IOException, InterruptedException {
-
-		getDialer().init(COMPORT);
-		getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
-		getDialer().connect();
-
-//		getDialer().init("10.0.2.127:10010");
-//		getDialer().connect("10.0.2.127:10010", 10010);
-
-//		getDialer().init("linux2:10010");
-//		getDialer().connect("linux2:10010", 10010);
-
-		try {
-			getAs220().setProperties(getCommonProperties());
-			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
-			getAs220().connect();
-
-			readEnergyRegisters();
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			ProtocolTools.delay(DELAY_BEFORE_DISCONNECT);
-			log("Done. Closing connections. \n");
-			getAs220().disconnect();
-			getDialer().disConnect();
-		}
-
 	}
 
 	/**
@@ -409,5 +379,38 @@ public class AS220Main {
         	return content;
         }
 
+	public static void main(String[] args) throws LinkException, IOException, InterruptedException {
+
+		getDialer().init(COMPORT);
+		getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
+		getDialer().connect();
+
+//		getDialer().init("10.0.2.127:10010");
+//		getDialer().connect("10.0.2.127:10010", 10010);
+
+//		getDialer().init("linux2:10010");
+//		getDialer().connect("linux2:10010", 10010);
+
+		try {
+			getAs220().setProperties(getCommonProperties());
+			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
+			getAs220().connect();
+
+			for (int i = 0; i < 100; i++) {
+				getAs220().getTime();
+				readEnergyRegisters();
+				readSFSKObjects();
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			ProtocolTools.delay(DELAY_BEFORE_DISCONNECT);
+			log("Done. Closing connections. \n");
+			getAs220().disconnect();
+			getDialer().disConnect();
+		}
+
+	}
 
 }
