@@ -14,6 +14,7 @@ import sun.misc.BASE64Decoder;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
@@ -177,7 +178,15 @@ public class AS220ImageTransfer {
 			imageBlockTransfer.addDataType(new Unsigned32(i));
 			imageBlockTransfer.addDataType(os);
 			
-			this.imageTransfer.imageBlockTransfer(imageBlockTransfer);
+			try {
+				this.imageTransfer.imageBlockTransfer(imageBlockTransfer);
+			} catch (DataAccessResultException e) {
+				if(e.getDataAccessResult() == 2){ //"Temporary failure"
+					getAs220().getLogger().log(Level.INFO, "Received a temporary failure during verification, will send next block.");
+				} else {
+					throw e;
+				}
+			}
 
 			if(i % 50 == 0){ // i is multiple of 50
 				getAs220().getLogger().log(Level.INFO, "ImageTransfer: " + i + " of " + blockCount + " blocks are sent to the device");
@@ -224,7 +233,15 @@ public class AS220ImageTransfer {
 			imageBlockTransfer = new Structure();
 			imageBlockTransfer.addDataType(new Unsigned32((int)this.imageTransfer.getImageFirstNotTransferedBlockNumber().getValue()));
 			imageBlockTransfer.addDataType(os);
-			this.imageTransfer.imageBlockTransfer(imageBlockTransfer);
+			try {
+				this.imageTransfer.imageBlockTransfer(imageBlockTransfer);
+			} catch (DataAccessResultException e) {
+				if(e.getDataAccessResult() == 2){ //"Temporary failure"
+					getAs220().getLogger().log(Level.INFO, "Received a temporary failure during verification, will send next block.");
+				} else {
+					throw e;
+				}
+			}
 			
 		}
 	}
