@@ -190,7 +190,7 @@ public class ImageTransfer extends AbstractCosemObject{
 	 *  
 	 * @throws IOException if something went wrong during the upgrade
 	 */
-	private void transferImageBlocks(boolean additionalZeros) throws IOException {
+	public void transferImageBlocks(boolean additionalZeros) throws IOException {
 	    
 //	    File file = new File("C:\\testDebugFile.txt");
 //	    FileOutputStream fos = new FileOutputStream(file);
@@ -225,36 +225,83 @@ public class ImageTransfer extends AbstractCosemObject{
 			imageBlockTransfer.addDataType(new Unsigned32(i));
 			imageBlockTransfer.addDataType(os);
 			
-			//***** Temporary implementation of retrying 'Temporary failures' *****//
-			int tempRetry = 0;
-			while(tempRetry < 5){
-				try {
-					imageBlockTransfer(imageBlockTransfer);
-					tempRetry = 5;
-				} catch (IOException e) {
-					if(e.getMessage().indexOf("Cosem Data-Access-Result exception Temporary failure ") > -1){
-						tempRetry++;
-						if(tempRetry == 5){
-							throw new IOException("Max. retries (5) exceeded. " + e.getMessage());
-						}
-						this.protocolLink.getLogger().log(Level.INFO, "Transfering image block resulted in temporary failure, retry " + tempRetry);
-						try {
-							Thread.sleep(2000);
-						} catch (InterruptedException e1) {
-							this.protocolLink.getLogger().log(Level.INFO, e1.getLocalizedMessage());
-						}
-					} else {
-						throw e;
-					}
-				}
-			}
-			//******************************************************************//
+//			//***** Temporary implementation of retrying 'Temporary failures' *****//
+//			int tempRetry = 0;
+//			while(tempRetry < 5){
+//				try {
+//					imageBlockTransfer(imageBlockTransfer);
+//					tempRetry = 5;
+//				} catch (IOException e) {
+//					if(e.getMessage().indexOf("Cosem Data-Access-Result exception Temporary failure ") > -1){
+//						tempRetry++;
+//						if(tempRetry == 5){
+//							throw new IOException("Max. retries (5) exceeded. " + e.getMessage());
+//						}
+//						this.protocolLink.getLogger().log(Level.INFO, "Transfering image block resulted in temporary failure, retry " + tempRetry);
+//						try {
+//							Thread.sleep(2000);
+//						} catch (InterruptedException e1) {
+//							this.protocolLink.getLogger().log(Level.INFO, e1.getLocalizedMessage());
+//						}
+//					} else {
+//						throw e;
+//					}
+//				}
+//			}
+//			//******************************************************************//
+			
+			// without retries
+			imageBlockTransfer(imageBlockTransfer);
 
 			if(i % 50 == 0){ // i is multiple of 50
 				this.protocolLink.getLogger().log(Level.INFO, "ImageTransfer: " + i + " of " + blockCount + " blocks are sent to the device");
 			}
 		}
 //		fos.close();
+	}
+	
+	/**
+	 * Check if there are missing blocks, if so, resent them
+	 * @throws IOException
+	 */
+	public void checkAndSendMissingBlocks() throws IOException{
+		Structure imageBlockTransfer;
+		byte[] octetStringData = null;
+		OctetString os = null;
+		long previousMissingBlock = -1;
+		int retryBlock = 0;
+		int totalRetry = 0;
+		while(readFirstNotTransferedBlockNumber().getValue() < this.blockCount){
+			
+			if(previousMissingBlock == this.getImageFirstNotTransferedBlockNumber().getValue()){
+				if(retryBlock++ == this.maxBlockRetryCount){
+					throw new IOException("Exceeding the maximum retry for block " + this.getImageFirstNotTransferedBlockNumber().getValue() + ", Image transfer is canceled.");
+				} else if(totalRetry++ == this.maxTotalRetryCount){
+					throw new IOException("Exceeding the total maximum retry count, Image transfer is canceled.");
+				}
+			} else {
+				previousMissingBlock = this.getImageFirstNotTransferedBlockNumber().getValue();
+				retryBlock = 0;
+			}
+			
+			if (this.getImageFirstNotTransferedBlockNumber().getValue() < this.blockCount -1) {
+				octetStringData = new byte[(int)readImageBlockSize().getValue()];
+				System.arraycopy(this.data, (int)(this.getImageFirstNotTransferedBlockNumber().getValue()*readImageBlockSize().getValue()), octetStringData, 0, 
+						(int)readImageBlockSize().getValue());
+			} else {
+				long blockSize = this.size.getValue() - (this.getImageFirstNotTransferedBlockNumber().getValue()*readImageBlockSize().getValue());
+				octetStringData = new byte[(int)blockSize];
+				System.arraycopy(this.data, (int)(this.getImageFirstNotTransferedBlockNumber().getValue()*readImageBlockSize().getValue()), octetStringData, 0, 
+						(int)blockSize);
+			}
+			
+			os = new OctetString(octetStringData);
+			imageBlockTransfer = new Structure();
+			imageBlockTransfer.addDataType(new Unsigned32((int)this.getImageFirstNotTransferedBlockNumber().getValue()));
+			imageBlockTransfer.addDataType(os);
+			imageBlockTransfer(imageBlockTransfer);
+			
+		}
 	}
 
 	/**
@@ -330,8 +377,8 @@ public class ImageTransfer extends AbstractCosemObject{
 	 */
 	public Unsigned32 readFirstNotTransferedBlockNumber() throws IOException {
 		try{
-			this.imageFirstNotTransferedBlockNumber = new Unsigned32(getLNResponseData(ATTRB_IMAGE_FIRST_NOT_TRANSFERED_BLOCK), 0);
-			return this.imageFirstNotTransferedBlockNumber;
+			this.setImageFirstNotTransferedBlockNumber(new Unsigned32(getLNResponseData(ATTRB_IMAGE_FIRST_NOT_TRANSFERED_BLOCK), 0));
+			return this.getImageFirstNotTransferedBlockNumber();
 		} catch (IOException e){
 			e.printStackTrace();
 			throw new IOException("Could not retrieve the first not transfered block number." + e.getMessage());
@@ -449,15 +496,15 @@ public class ImageTransfer extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public void imageTransferInitiate(Structure imageInfo) throws IOException {
-	    if(getObjectReference().isLNReference()){
 		try {
-		    invoke(IMAGE_TRANSFER_INITIATE, imageInfo.getBEREncodedByteArray());
-		} catch (IOException e){
-		    throw new IOException("Could not initiate the imageTransfer" + e.getMessage());
+			if (getObjectReference().isLNReference()) {
+				invoke(IMAGE_TRANSFER_INITIATE, imageInfo.getBEREncodedByteArray());
+			} else { // SN referencing
+				write(IMAGE_TRANSFER_INITIATE_SN, imageInfo.getBEREncodedByteArray());
+			}
+		} catch (IOException e) {
+			throw new IOException("Could not initiate the imageTransfer" + e.getMessage());
 		}
-	    } else { // SN referencing
-		write(IMAGE_TRANSFER_INITIATE_SN, imageInfo.getBEREncodedByteArray());
-	    }
 	}
 
 	/**
@@ -528,5 +575,19 @@ public class ImageTransfer extends AbstractCosemObject{
 		} catch (IOException e) {
 		    throw new IOException("Could not activate the image." + e.getMessage());
 		}
+	}
+
+	/**
+	 * @param imageFirstNotTransferedBlockNumber the imageFirstNotTransferedBlockNumber to set
+	 */
+	public void setImageFirstNotTransferedBlockNumber(Unsigned32 imageFirstNotTransferedBlockNumber) {
+		this.imageFirstNotTransferedBlockNumber = imageFirstNotTransferedBlockNumber;
+	}
+
+	/**
+	 * @return the imageFirstNotTransferedBlockNumber
+	 */
+	public Unsigned32 getImageFirstNotTransferedBlockNumber() {
+		return imageFirstNotTransferedBlockNumber;
 	}
 }

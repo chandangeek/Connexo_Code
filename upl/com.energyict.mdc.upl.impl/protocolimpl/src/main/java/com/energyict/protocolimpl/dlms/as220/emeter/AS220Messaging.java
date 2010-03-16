@@ -102,7 +102,11 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
 				getAs220().getLogger().info("FORCE_SET_CLOCK message received");
 				getAs220().geteMeter().getClockController().setTime();
 			} else if (isMessageTag(FIRMWARE_UPDATE, messageEntry)) {
-				upgradeFirmware(messageEntry);
+				AS220ImageTransfer imageTransfer = new AS220ImageTransfer(this, messageEntry);
+				imageTransfer.initiate();
+				imageTransfer.upgrade();
+				imageTransfer.activate();
+//				upgradeFirmware(messageEntry);
 			} else {
 				throw new IOException("Received unknown message: " + messageEntry);
 			}
