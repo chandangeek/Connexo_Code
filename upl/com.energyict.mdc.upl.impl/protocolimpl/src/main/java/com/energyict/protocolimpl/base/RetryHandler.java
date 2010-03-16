@@ -1,4 +1,4 @@
-package com.energyict.protocolimpl.dlms.as220;
+package com.energyict.protocolimpl.base;
 
 import java.io.IOException;
 

@@ -26,6 +26,7 @@ import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.base.ObiscodeMapper;
+import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.base.SubMessageProtocol;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
 import com.energyict.protocolimpl.dlms.as220.emeter.EMeter;
