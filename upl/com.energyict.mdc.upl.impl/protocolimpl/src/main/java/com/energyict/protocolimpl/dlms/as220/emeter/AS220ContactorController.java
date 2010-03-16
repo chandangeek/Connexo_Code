@@ -35,17 +35,17 @@ public class AS220ContactorController extends AbstractContactorController {
 
 	public void doArm() throws IOException {
 		getAs220().getLogger().info("ARM message received");
-		getAs220().getCosemObjectFactory().getDisconnector(DISCONNECTOR_OBISCODE).writeControlState(new TypeEnum(ARM));
+		getAs220().getCosemObjectFactory().getDisconnector(DISCONNECTOR_OBISCODE).remoteReconnect();
 	}
 
 	public void doConnect() throws IOException {
 		getAs220().getLogger().info("CONNECT message received");
-		getAs220().getCosemObjectFactory().getDisconnector(DISCONNECTOR_OBISCODE).writeControlState(new TypeEnum(CONNECT));
+		getAs220().getCosemObjectFactory().getDisconnector(DISCONNECTOR_OBISCODE).remoteReconnect();
 	}
 
 	public void doDisconnect() throws IOException {
 		getAs220().getLogger().info("DISCONNECT message received");
-		getAs220().getCosemObjectFactory().getDisconnector(DISCONNECTOR_OBISCODE).writeControlState(new TypeEnum(DISCONNECT));
+		getAs220().getCosemObjectFactory().getDisconnector(DISCONNECTOR_OBISCODE).remoteDisconnect();
 	}
 
 	public ContactorState getContactorState() throws IOException {

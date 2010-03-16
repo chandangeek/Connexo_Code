@@ -396,11 +396,7 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			for (int i = 0; i < 100; i++) {
-				getAs220().getTime();
-				readEnergyRegisters();
-				readSFSKObjects();
-			}
+			getAs220().geteMeter().getContactorController().doArm();
 
 		} catch (Exception e) {
 			e.printStackTrace();
