@@ -162,8 +162,14 @@ public class GasDevice extends AS220 implements MessageProtocol{
 
 	}
 
+	@Override
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
-		return getgMeter().getProfileData(from, to, includeEvents);
+		Date fromDate = cleanFromDate(from);
+		Date toDate = cleanToDate(to);
+		if (validateFromToDates(fromDate, toDate)) {
+			return new ProfileData();
+		}
+		return getgMeter().getProfileData(fromDate, toDate, includeEvents);
 	}
 
 	/**

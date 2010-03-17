@@ -190,48 +190,44 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
 
-		if (from == null) {
-			Calendar fromCalendar = ProtocolUtils.getCalendar(getTimeZone());
-			fromCalendar.add(Calendar.MINUTE, (-1) * getNROfIntervals() * (getProfileInterval() / SEC_PER_MIN));
-			from = fromCalendar.getTime();
-		}
-
-		if (to == null) {
-			to = ProtocolUtils.getCalendar(getTimeZone()).getTime();
-		}
-
-		if(validateFromToDates(from, to)) {
+		Date fromDate = cleanFromDate(from);
+		Date toDate = cleanToDate(to);
+		if (validateFromToDates(fromDate, toDate)) {
 			return new ProfileData();
 		}
 
-		System.out.println(from.getTime());
-		System.out.println(to.getTime());
-
-
-		ProfileData eMeterProfile;
-		ProfileData plcStatistics;
-
 		switch (getProfileType()) {
 			case PROFILETYPE_EMETER_PLC:
-				eMeterProfile = geteMeter().getProfileData(from, to, includeEvents);
-				plcStatistics = getPlc().getStatistics(from, to);
+				ProfileData eMeterProfile = geteMeter().getProfileData(fromDate, toDate, includeEvents);
+				ProfileData plcStatistics = getPlc().getStatistics(fromDate, toDate);
 				return ProfileAppender.appendProfiles(eMeterProfile, plcStatistics);
 			case PROFILETYPE_EMETER_ONLY:
-				eMeterProfile = geteMeter().getProfileData(from, to, includeEvents);
-				return eMeterProfile;
+				return geteMeter().getProfileData(fromDate, toDate, includeEvents);
 			case PROFILETYPE_PLC_ONLY:
-				plcStatistics = getPlc().getStatistics(from, to);
-				return plcStatistics;
-			default : return new ProfileData();
+				return getPlc().getStatistics(fromDate, toDate);
+			default:
+				return new ProfileData();
 		}
 
 	}
 
-	/**
-	 * @param from
-	 * @param to
-	 */
-	private boolean validateFromToDates(Date from, Date to) {
+	protected Date cleanToDate(Date to) {
+		if (to == null) {
+			return ProtocolUtils.getCalendar(getTimeZone()).getTime();
+		}
+		return to;
+	}
+
+	protected Date cleanFromDate(Date from) throws IOException {
+		if (from == null) {
+			Calendar fromCalendar = ProtocolUtils.getCalendar(getTimeZone());
+			fromCalendar.add(Calendar.MINUTE, (-1) * getNROfIntervals() * (getProfileInterval() / SEC_PER_MIN));
+			return fromCalendar.getTime();
+		}
+		return from;
+	}
+
+	protected boolean validateFromToDates(Date from, Date to) {
 		long diff = to.getTime() - from.getTime();
 		final int minimumDiff = 1 * 60 * 1000;
 		if (diff <= minimumDiff) {
