@@ -38,9 +38,9 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
 	/**
 	 * Message descriptions
 	 */
-	private static final String	CONNECT_EMETER_DISPLAY			= "Connect E-Meter Load";
-	private static final String	DISCONNECT_EMETER_DISPLAY		= "Disconnect E-Meter Load";
-	private static final String	ARM_EMETER_DISPLAY				= "Arm E-Meter";
+	private static final String	CONNECT_EMETER_DISPLAY			= "Remote connect";
+	private static final String	DISCONNECT_EMETER_DISPLAY		= "Remote disconnect";
+	//private static final String	ARM_EMETER_DISPLAY				= "Arm E-Meter";
 
 	private static final String	TOPT_SWITCH_BASE_DISPLAY		= "Switch tariff option BASE";
 	private static final String	TOPT_SWITCH_DAYNIGHT_DISPLAY	= "Switch tariff option DAY/NIGHT";
@@ -69,7 +69,7 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
         MessageCategorySpec otherMeterCat = new MessageCategorySpec("[03] Other");
 
         eMeterCat.addMessageSpec(createMessageSpec(DISCONNECT_EMETER_DISPLAY, DISCONNECT_EMETER, false));
-        eMeterCat.addMessageSpec(createMessageSpec(ARM_EMETER_DISPLAY, ARM_EMETER, false));
+        //eMeterCat.addMessageSpec(createMessageSpec(ARM_EMETER_DISPLAY, ARM_EMETER, false));
         eMeterCat.addMessageSpec(createMessageSpec(CONNECT_EMETER_DISPLAY, CONNECT_EMETER, false));
 
         otherMeterCat.addMessageSpec(createMessageSpec(FORCE_SET_CLOCK_DISPLAY, FORCE_SET_CLOCK, false));
