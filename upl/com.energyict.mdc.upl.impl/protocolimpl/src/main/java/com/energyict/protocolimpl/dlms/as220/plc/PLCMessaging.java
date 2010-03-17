@@ -7,6 +7,7 @@ import java.util.List;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.attributeobjects.ElectricalPhase;
 import com.energyict.dlms.cosem.attributeobjects.Frequencies;
+import com.energyict.dlms.cosem.attributeobjects.MacAddress;
 import com.energyict.dlms.cosem.attributeobjects.Repeater;
 import com.energyict.dlms.cosem.attributes.SFSKIec61334LLCSetupAttribute;
 import com.energyict.dlms.cosem.attributes.SFSKPhyMacSetupAttribute;
@@ -355,6 +356,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		if ((channel < 0) || (channel > NR_OF_CHANNELS)) {
 			throw new IOException("Channel can only be 0-6, but was " + channel);
 		}
+
 		String attributeName = SFSKPhyMacSetupAttribute.ACTIVE_CHANNEL.name();
 		if (channel != -1) {
 			getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().setActiveChannel(new Unsigned8(channel));
@@ -363,6 +365,8 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		} else {
 			getAs220().getLogger().info("Skipping write to " + attributeName + ".");
 		}
+
+		getAs220().getCosemObjectFactory().getSFSKActiveInitiator().doResetNewNotSynchronized(new MacAddress(0));
 	}
 
 	/**

@@ -78,8 +78,8 @@ public class AS220Main {
 	private static final Level		LOG_LEVEL				= Level.ALL;
 	protected static final TimeZone	DEFAULT_TIMEZONE		= TimeZone.getTimeZone("GMT");
 
-	protected static final String	COMPORT					= "COM5";
-	protected static final int		BAUDRATE				= 115200;
+	protected static final String	COMPORT					= "COM1";
+	protected static final int		BAUDRATE				= 9600;
 	protected static final int		DATABITS				= SerialCommunicationChannel.DATABITS_8;
 	protected static final int		PARITY					= SerialCommunicationChannel.PARITY_NONE;
 	protected static final int		STOPBITS				= SerialCommunicationChannel.STOPBITS_1;
@@ -102,7 +102,7 @@ public class AS220Main {
 		if (dialer == null) {
 			//dialer = DialerFactory.get("IPDIALER").newDialer();
 			dialer = DialerFactory.getDirectDialer().newDialer();
-			dialer.setStreamObservers(new DebuggingObserver(OBSERVER_FILENAME, false));
+			dialer.setStreamObservers(new DebuggingObserver(OBSERVER_FILENAME, false, false));
 		}
 		return dialer;
 	}
@@ -143,7 +143,7 @@ public class AS220Main {
 		properties.setProperty("SerialNumber", "35021373");
 
 		properties.setProperty("AddressingMode", "-1");
-		properties.setProperty("Connection", "3");
+		properties.setProperty("Connection", "0");
 		properties.setProperty("ClientMacAddress", "2");
 		properties.setProperty("ServerLowerMacAddress", "1");
 		properties.setProperty("ServerUpperMacAddress", "1");
@@ -392,11 +392,11 @@ public class AS220Main {
 //		getDialer().connect("linux2:10010", 10010);
 
 		try {
-			getAs220().setProperties(getCommonProperties());
+			getAs220().setProperties(getOpticalProperties());
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			readProfile(true);
+			rescanPLCBus();
 
 		} catch (Exception e) {
 			e.printStackTrace();
