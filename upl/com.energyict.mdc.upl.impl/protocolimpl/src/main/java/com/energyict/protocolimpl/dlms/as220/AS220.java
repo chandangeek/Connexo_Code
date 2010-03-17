@@ -125,7 +125,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 					return getAs220ObisCodeMapper().getRegisterValue(obisCode);
 				} catch (DataAccessResultException e) {
 					if (e.getCode().equals(DataAccessResultCode.TEMPORARY_FAILURE)) {
-						retry.logFailure();
+						retry.logFailure(e);
 					}
 				}
 			} catch (IOException e) {
@@ -181,16 +181,32 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     }
 
 	public ProfileData getProfileData(boolean includeEvents) throws IOException {
-		Calendar fromCalendar = ProtocolUtils.getCalendar(getTimeZone());
-		fromCalendar.add(Calendar.MINUTE, (-1) * getNROfIntervals() * (getProfileInterval() / SEC_PER_MIN));
-		return getProfileData(fromCalendar.getTime(), includeEvents);
+		return getProfileData(null, includeEvents);
 	}
 
 	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-		return getProfileData(lastReading, new Date(), includeEvents);
+		return getProfileData(lastReading, null, includeEvents);
 	}
 
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
+
+		if (from == null) {
+			Calendar fromCalendar = ProtocolUtils.getCalendar(getTimeZone());
+			fromCalendar.add(Calendar.MINUTE, (-1) * getNROfIntervals() * (getProfileInterval() / SEC_PER_MIN));
+			from = fromCalendar.getTime();
+		}
+
+		if (to == null) {
+			to = ProtocolUtils.getCalendar(getTimeZone()).getTime();
+		}
+
+		if(validateFromToDates(from, to)) {
+			return new ProfileData();
+		}
+
+		System.out.println(from.getTime());
+		System.out.println(to.getTime());
+
 
 		ProfileData eMeterProfile;
 		ProfileData plcStatistics;
@@ -209,6 +225,25 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 			default : return new ProfileData();
 		}
 
+	}
+
+	/**
+	 * @param from
+	 * @param to
+	 */
+	private boolean validateFromToDates(Date from, Date to) {
+		long diff = to.getTime() - from.getTime();
+		final int minimumDiff = 1 * 60 * 1000;
+		if (diff <= minimumDiff) {
+			StringBuffer sb = new StringBuffer();
+			sb.append("Unable to read profile data, from date is after or to short to the to date! ");
+			sb.append("[from=").append(from);
+			sb.append(", to=").append(to);
+			sb.append(", diff=").append(diff).append(" ms]");
+			getLogger().warning(sb.toString());
+			return true;
+		}
+		return false;
 	}
 
 	public List<MessageCategorySpec> getMessageCategories() {

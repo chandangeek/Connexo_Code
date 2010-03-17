@@ -2,6 +2,8 @@ package com.energyict.protocolimpl.base;
 
 import java.io.IOException;
 
+import com.energyict.cbo.NestedIOException;
+
 /**
  * @author jme
  *
@@ -14,7 +16,7 @@ public class RetryHandler {
 	private int nrOfRetries;
 
 	public RetryHandler(int maxRetries) {
-		this.maxRetries = maxRetries;
+		setMaxRetries(maxRetries);
 		this.nrOfRetries = 0;
 	}
 
@@ -27,15 +29,38 @@ public class RetryHandler {
 	}
 
 	public void reset(int maxRetries) {
-		this.maxRetries = maxRetries;
+		setMaxRetries(maxRetries);
 		nrOfRetries = 0;
 	}
 
-	public void logFailure() throws IOException {
+	private void setMaxRetries(int maxRetries) {
+		this.maxRetries = maxRetries;
+	}
+
+	public void logFailure(Exception e, String message) throws IOException {
 		nrOfRetries++;
 		if (nrOfRetries >= maxRetries) {
-			throw new IOException("Exceeded maximum number of retries: [" + nrOfRetries + "/" + maxRetries + "]");
+			StringBuffer sb = new StringBuffer();
+			sb.append("Exceeded maximum number of retries: [");
+			sb.append(nrOfRetries);
+			sb.append("/");
+			sb.append(maxRetries);
+			sb.append("] ");
+			sb.append(message == null ? "" : message);
+			throw (e == null) ? new IOException(sb.toString()) : new NestedIOException(e, sb.toString());
 		}
+	}
+
+	public void logFailure(String message) throws IOException {
+		logFailure(null, message);
+	}
+
+	public void logFailure(Exception e) throws IOException {
+		logFailure(e, null);
+	}
+
+	public void logFailure() throws IOException {
+		logFailure(null, null);
 	}
 
 	@Override

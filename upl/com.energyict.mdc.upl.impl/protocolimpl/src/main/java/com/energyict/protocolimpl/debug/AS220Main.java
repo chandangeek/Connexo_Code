@@ -76,7 +76,7 @@ public class AS220Main {
 
 	private static final String		OBSERVER_FILENAME		= "c:\\logging\\AS220Main\\communications.log";
 	private static final Level		LOG_LEVEL				= Level.ALL;
-	protected static final TimeZone	DEFAULT_TIMEZONE		= TimeZone.getDefault();
+	protected static final TimeZone	DEFAULT_TIMEZONE		= TimeZone.getTimeZone("GMT");
 
 	protected static final String	COMPORT					= "COM5";
 	protected static final int		BAUDRATE				= 115200;
@@ -137,7 +137,7 @@ public class AS220Main {
 		properties.setProperty("Timeout", "20000");
 		properties.setProperty("ForcedDelay", "200");
 
-		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_BOTH);
+		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
 		properties.setProperty("ProfileInterval", "900");
 		properties.setProperty("Password", "00000000");
 		properties.setProperty("SerialNumber", "35021373");
@@ -171,7 +171,7 @@ public class AS220Main {
 
 	public static ProfileData readProfile(boolean incluideEvents) throws IOException {
 		Calendar from = Calendar.getInstance(DEFAULT_TIMEZONE);
-		from.add(Calendar.DAY_OF_YEAR, -100);
+		from.add(Calendar.SECOND, -1);
 		ProfileData pd = getAs220().getProfileData(from.getTime(), incluideEvents);
 		return pd;
 	}
@@ -396,7 +396,7 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			getAs220().geteMeter().getContactorController().doArm();
+			readProfile(true);
 
 		} catch (Exception e) {
 			e.printStackTrace();

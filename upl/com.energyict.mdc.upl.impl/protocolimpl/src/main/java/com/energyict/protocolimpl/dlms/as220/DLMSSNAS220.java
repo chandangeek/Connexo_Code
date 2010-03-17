@@ -50,6 +50,7 @@ import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.protocol.CacheMechanism;
@@ -60,6 +61,7 @@ import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
+import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.dlms.DLMSCache;
 import com.energyict.protocolimpl.dlms.HDLC2Connection;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
@@ -448,9 +450,16 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 	 * @throws IOException
 	 */
 	public String getSerialNumber() throws IOException {
-		UniversalObject uo = getMeterConfig().getSerialNumberObject();
-		byte[] responsedata = getCosemObjectFactory().getGenericRead(uo.getBaseName(), uo.getValueAttributeOffset()).getResponseData();
-		return AXDRDecoder.decode(responsedata).getOctetString().stringValue();
+		RetryHandler rh = new RetryHandler();
+		do {
+			try {
+				UniversalObject uo = getMeterConfig().getSerialNumberObject();
+				byte[] responsedata = getCosemObjectFactory().getGenericRead(uo.getBaseName(), uo.getValueAttributeOffset()).getResponseData();
+				return AXDRDecoder.decode(responsedata).getOctetString().stringValue();
+			} catch (DataAccessResultException e) {
+				rh.logFailure(e);
+			}
+		} while (true);
 	}
 
     /** this implementation calls <code> validateProperties </code>
