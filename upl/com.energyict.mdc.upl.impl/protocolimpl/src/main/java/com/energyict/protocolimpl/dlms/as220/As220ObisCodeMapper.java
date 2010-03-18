@@ -51,8 +51,6 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 	private static final ObisCode		DISCONNECTOR_OBISCODE		= AS220ContactorController.DISCONNECTOR_OBISCODE;
 
 	private static final ObisCode		TARIFF_OBISCODE				= ObisCode.fromString("0.0.96.14.0.255");
-	private static final ObisCode		TARIF_DEVICE_REG			= ObisCode.fromString("0.0.96.50.0.255");
-
 	private static final ObisCode		METER_ID_OBISCODE			= ObisCode.fromString("0.0.96.1.0.255");
 
 	private static final ObisCode[] SIMPLE_DATA_REGISTERS = new ObisCode[] {
@@ -175,7 +173,7 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 		} else if( obisCode.equals(FIRMWARE_VERSION)) {
 		    return new RegisterValue(FIRMWARE_VERSION, getAs220().getFirmwareVersion());
 		} else if ( obisCode.equals(TARIFF_OBISCODE)) {
-			return readDataAsRegisterValue(TARIF_DEVICE_REG, TARIFF_OBISCODE);
+			return readDataAsRegisterValue(TARIFF_OBISCODE, TARIFF_OBISCODE);
 		} else if ( obisCode.equals(METER_ID_OBISCODE)) {
 			return new RegisterValue(METER_ID_OBISCODE, getAs220().getSerialNumber());
 		}
