@@ -110,10 +110,6 @@ public final class EventNumber {
 		EVENTS.add(new EventNumber(236, "Fatal device error", MeterEvent.OTHER));
 		EVENTS.add(new EventNumber(237, "Running reserve exhausted", MeterEvent.OTHER));
 
-		for (int i = 0; i <= 255; i++) {
-			EVENTS.add(new EventNumber(i, "reserved for future use ", MeterEvent.OTHER));
-		}
-
 	}
 
 	private int id;
