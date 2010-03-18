@@ -341,18 +341,20 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 	}
 
 	/**
+	 * <b>Also used by the MeterTool </b>
 	 * @throws IOException
 	 */
-	private void rescanPLCBus() throws IOException {
+	public void rescanPLCBus() throws IOException {
 		getAs220().getLogger().info("RESCAN_PLCBUS message received");
 		setActivePLCChannel(0);
 	}
 
 	/**
+	 * <b>Also used by the MeterTool </b>
 	 * @param channel
 	 * @throws IOException
 	 */
-	private void setActivePLCChannel(int channel) throws IOException {
+	public void setActivePLCChannel(int channel) throws IOException {
 		if ((channel < 0) || (channel > NR_OF_CHANNELS)) {
 			throw new IOException("Channel can only be 0-6, but was " + channel);
 		}
