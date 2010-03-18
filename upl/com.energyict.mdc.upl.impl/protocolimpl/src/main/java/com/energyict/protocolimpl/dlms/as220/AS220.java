@@ -180,9 +180,11 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
         return iNROfIntervals;
     }
 
-	public ProfileData getProfileData(boolean includeEvents) throws IOException {
-		return getProfileData(null, includeEvents);
-	}
+    public ProfileData getProfileData(boolean includeEvents) throws IOException {
+        Calendar calendar = Calendar.getInstance(getTimeZone());
+        calendar.add(Calendar.MONTH,-2);
+        return getProfileData(calendar.getTime(),includeEvents);
+    }
 
 	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
 		return getProfileData(lastReading, null, includeEvents);
@@ -190,41 +192,29 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
 
-		Date fromDate = cleanFromDate(from);
-		Date toDate = cleanToDate(to);
-		if (validateFromToDates(fromDate, toDate)) {
+		if (to == null) {
+			to = ProtocolUtils.getCalendar(getTimeZone()).getTime();
+			getLogger().info("getProfileData: toDate was 'null'. Reading profildate up to: " + to);
+		}
+		if (validateFromToDates(from, to)) {
 			return new ProfileData();
 		}
 
+		getLogger().info("Starting to read profileData [from=" + from + ", to=" + to + ", includeEvents=" + includeEvents + "]");
 		switch (getProfileType()) {
 			case PROFILETYPE_EMETER_PLC:
-				ProfileData eMeterProfile = geteMeter().getProfileData(fromDate, toDate, includeEvents);
-				ProfileData plcStatistics = getPlc().getStatistics(fromDate, toDate);
+				ProfileData eMeterProfile = geteMeter().getProfileData(from, to, includeEvents);
+				ProfileData plcStatistics = getPlc().getStatistics(from, to);
 				return ProfileAppender.appendProfiles(eMeterProfile, plcStatistics);
 			case PROFILETYPE_EMETER_ONLY:
-				return geteMeter().getProfileData(fromDate, toDate, includeEvents);
+				return geteMeter().getProfileData(from, to, includeEvents);
 			case PROFILETYPE_PLC_ONLY:
-				return getPlc().getStatistics(fromDate, toDate);
+				return getPlc().getStatistics(from, to);
 			default:
+				getLogger().warning("Unknown value for ProfileType! [" + getProfileType() + "]");
 				return new ProfileData();
 		}
 
-	}
-
-	protected Date cleanToDate(Date to) {
-		if (to == null) {
-			return ProtocolUtils.getCalendar(getTimeZone()).getTime();
-		}
-		return to;
-	}
-
-	protected Date cleanFromDate(Date from) throws IOException {
-		if (from == null) {
-			Calendar fromCalendar = ProtocolUtils.getCalendar(getTimeZone());
-			fromCalendar.add(Calendar.MINUTE, (-1) * getNROfIntervals() * (getProfileInterval() / SEC_PER_MIN));
-			return fromCalendar.getTime();
-		}
-		return from;
 	}
 
 	protected boolean validateFromToDates(Date from, Date to) {

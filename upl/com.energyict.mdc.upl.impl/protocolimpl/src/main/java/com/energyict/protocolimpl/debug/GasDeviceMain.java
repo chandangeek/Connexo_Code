@@ -1,11 +1,10 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.debug;
 
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.Properties;
 import java.util.TimeZone;
 
@@ -21,9 +20,9 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
  *
  */
 public class GasDeviceMain extends AS220Main {
-	
+
 	private static GasDevice gasDevice;
-	
+
 	public static GasDevice getGasDevice() {
 		if (gasDevice == null) {
 			gasDevice = new GasDevice();
@@ -31,7 +30,7 @@ public class GasDeviceMain extends AS220Main {
 		}
 		return gasDevice;
 	}
-	
+
 	private static Properties getProperties() {
 		Properties properties = new Properties();
 
@@ -46,7 +45,7 @@ public class GasDeviceMain extends AS220Main {
 		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
 		properties.setProperty("ProfileInterval", "900");
 		properties.setProperty("Password", "00000000");
-		properties.setProperty("SerialNumber", "00000000091827013");
+		properties.setProperty("SerialNumber", "00000000012345758");
 		properties.setProperty("NodeAddress", "35016036:1");
 
 		properties.setProperty("AddressingMode", "-1");
@@ -66,68 +65,68 @@ public class GasDeviceMain extends AS220Main {
 		getDialer().init(COMPORT);
 		getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
 		getDialer().connect();
-		
+
 		try {
 			getGasDevice().setProperties(getProperties());
-			getGasDevice().init(getDialer().getInputStream(), getDialer().getOutputStream(), TimeZone.getTimeZone("GMT+01"), getLogger());
+			getGasDevice().init(getDialer().getInputStream(), getDialer().getOutputStream(), TimeZone.getTimeZone("GMT"), getLogger());
 			getGasDevice().connect();
-			
+
 			log(getGasDevice().getSerialNumber());
-			
-			
+
+
 //			getGasDevice().getgMeter().getGasValveController().doDisconnect();
-			
+
 //			getGasDevice().getgMeter().getGasInstallController().deinstall();
-			
+
 //			log(getGasDevice().getCosemObjectFactory().getGenericRead(ObisCode.fromString("0.0.96.1.0.255"), 0x08, 1).getValue());
 //			log(getGasDevice().getCosemObjectFactory().getGenericRead(ObisCode.fromString("0.1.96.1.0.255"), 0x08, 1).getValue());
 //			log(getGasDevice().getCosemObjectFactory().getGenericRead(ObisCode.fromString("0.2.96.1.0.255"), 0x08, 1).getValue());
 //			log(getGasDevice().getCosemObjectFactory().getGenericRead(ObisCode.fromString("0.3.96.1.0.255"), 0x08, 1).getValue());
 //			log(getGasDevice().getCosemObjectFactory().getGenericRead(ObisCode.fromString("0.4.24.2.0.255"), 0x08, 4));
-			
+
 //			getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(getGasDevice().getGasSlotId()-1).getObisCode()).getIdentificationNumber();
-			
-			getGasDevice().getMeterConfig();
-			
-			log(getGasDevice().getSerialNumber());
+
+//			getGasDevice().getMeterConfig();
+
+//			log(getGasDevice().getSerialNumber());
 //			getGasDevice().getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.4.24.3.0.255")).getCapturePeriod();
-			
+
 //			getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(0).getObisCode()).deinstallSlave();
-			
+
 //			log(getGasDevice().getProfileInterval());
-			
+
 //	    	getGasDevice().getgMeter().getGasInstallController().
 //    		setEncryptionKey(DLMSUtils.hexStringToByteArray("11223344556677889900AABBCCDDEEFF"));
 //    		Structure rawDataStruct = new Structure();
 //    		rawDataStruct.addDataType(new OctetString(DLMSUtils.hexStringToByteArray("11223344556677889900AABBCCDDEEFF")));
 //    		rawDataStruct.addDataType(new OctetString(DLMSUtils.hexStringToByteArray("8f2b9d68640418dc392d6634c8fc0367")));
-//			
-//    		getGasDevice().getgMeter().getGasInstallController().setBothKeysAtOnce(rawDataStruct.getBEREncodedByteArray());			
-			
+//
+//    		getGasDevice().getgMeter().getGasInstallController().setBothKeysAtOnce(rawDataStruct.getBEREncodedByteArray());
+
 //			log(getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(0).getObisCode()).getIdentificationNumber());
 //			getGasDevice().getgMeter().getGasValveController().getContactorState();
 //			getGasDevice().getgMeter().getGasValveController().doConnect();
 //			getGasDevice().getgMeter().getGasValveController().getContactorState();
 //			getGasDevice().getgMeter().getGasValveController().doDisconnect();
-			
+
 //			log(getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(0).getObisCode()).getCapturePeriod());
 //			log(getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(0).getObisCode()).getIdentificationNumber());
-//			
+//
 //			log(getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(1).getObisCode()).getCapturePeriod());
 //			log(getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(1).getObisCode()).getIdentificationNumber());
 //			log(getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(0).getObisCode()).getCapturePeriod());
 //			getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(0).getObisCode()).setCapturePeriod(900);
 //			log(getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(0).getObisCode()).getCapturePeriod());
-			
+
 //			getGasDevice().getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.4.24.3.0.255")).writeCapturePeriodAttr(new Unsigned32(900));
 //			getGasDevice().getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.1.24.3.0.255"), 4).
 //			write(new byte[]{DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED, 0x00, 0x00, 0x03, (byte)0x84});
-			
+
 //			getGasDevice().getgMeter().GetMbusEventProfile().getBuffer();
-			getGasDevice().getgMeter().getProfileData(new Date(0), new Date(), true);
-			
+			log(getGasDevice().getProfileData(true));
+
 //			getGasDevice().getgMeter().getGasInstallController().install();
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

@@ -18,6 +18,7 @@ import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageCategorySpec;
@@ -32,8 +33,6 @@ import com.energyict.protocolimpl.dlms.as220.gmeter.GMeterMessaging;
  */
 public class GasDevice extends AS220 implements MessageProtocol{
 
-	private static final int EMETERSERIAL = 0;
-	private static final int SLOTID = 1;
 	private static final int MAX_MBUS_CHANNELS = 4;
 
 	private String 	emeterSerialnumber;
@@ -164,20 +163,21 @@ public class GasDevice extends AS220 implements MessageProtocol{
 
 	@Override
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
-		Date fromDate = cleanFromDate(from);
-		Date toDate = cleanToDate(to);
-		if (validateFromToDates(fromDate, toDate)) {
+		if (to == null) {
+			to = ProtocolUtils.getCalendar(getTimeZone()).getTime();
+			getLogger().info("getProfileData: toDate was 'null'. Reading profildate up to: " + to);
+		}
+		if (validateFromToDates(from, to)) {
 			return new ProfileData();
 		}
-		return getgMeter().getProfileData(fromDate, toDate, includeEvents);
+
+		getLogger().info("Starting to read profileData [from=" + from + ", to=" + to + ", includeEvents=" + includeEvents + "]");
+		return getgMeter().getProfileData(from, to, includeEvents);
 	}
 
 	/**
 	 * Construct the ObisCode with the correct channelField filled in
-	 *
-	 * @param oc
-	 * 			- the ObisCode to change the B field
-	 *
+	 * @param oc - the ObisCode to change the B field
 	 * @return the corrected ObisCode
 	 */
 	public ObisCode getCorrectedChannelObisCode(ObisCode oc){
