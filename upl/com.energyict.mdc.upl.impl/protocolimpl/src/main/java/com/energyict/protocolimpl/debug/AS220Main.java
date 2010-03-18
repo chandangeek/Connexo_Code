@@ -396,7 +396,8 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			log(getAs220().getProfileData(true));
+			getAs220().geteMeter().getContactorController().doDisconnect();
+			getAs220().geteMeter().getContactorController().doConnect();
 
 
 		} catch (Exception e) {

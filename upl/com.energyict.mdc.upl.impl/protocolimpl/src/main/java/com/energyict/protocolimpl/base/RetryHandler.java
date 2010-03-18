@@ -10,7 +10,7 @@ import com.energyict.cbo.NestedIOException;
  */
 public class RetryHandler {
 
-	private static final int	DEFAULT_RETRIES	= 3;
+	private static final int	DEFAULT_RETRIES	= 5;
 
 	private int maxRetries;
 	private int nrOfRetries;

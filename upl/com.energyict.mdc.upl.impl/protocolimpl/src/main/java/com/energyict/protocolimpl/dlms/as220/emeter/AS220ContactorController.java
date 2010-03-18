@@ -3,8 +3,10 @@ package com.energyict.protocolimpl.dlms.as220.emeter;
 import java.io.IOException;
 
 import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.AbstractContactorController;
+import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 
 /**
@@ -35,17 +37,41 @@ public class AS220ContactorController extends AbstractContactorController {
 
 	public void doArm() throws IOException {
 		getAs220().getLogger().info("ARM message received");
-		getAs220().getCosemObjectFactory().getDisconnector(DISCONNECTOR_OBISCODE).remoteReconnect();
+		RetryHandler rh = new RetryHandler();
+		do {
+			try {
+				getAs220().getCosemObjectFactory().getDisconnector(DISCONNECTOR_OBISCODE).remoteReconnect();
+				return;
+			} catch (DataAccessResultException e) {
+				rh.logFailure(e, "Error while trying to perform a remote remoteReconnect on the eMeter.");
+			}
+		} while (true);
 	}
 
 	public void doConnect() throws IOException {
 		getAs220().getLogger().info("CONNECT message received");
-		getAs220().getCosemObjectFactory().getDisconnector(DISCONNECTOR_OBISCODE).remoteReconnect();
+		RetryHandler rh = new RetryHandler();
+		do {
+			try {
+				getAs220().getCosemObjectFactory().getDisconnector(DISCONNECTOR_OBISCODE).remoteReconnect();
+				return;
+			} catch (DataAccessResultException e) {
+				rh.logFailure(e, "Error while trying to perform a remote remoteReconnect on the eMeter.");
+			}
+		} while (true);
 	}
 
 	public void doDisconnect() throws IOException {
 		getAs220().getLogger().info("DISCONNECT message received");
-		getAs220().getCosemObjectFactory().getDisconnector(DISCONNECTOR_OBISCODE).remoteDisconnect();
+		RetryHandler rh = new RetryHandler();
+		do {
+			try {
+				getAs220().getCosemObjectFactory().getDisconnector(DISCONNECTOR_OBISCODE).remoteDisconnect();
+				return;
+			} catch (DataAccessResultException e) {
+				rh.logFailure(e, "Error while trying to perform a remote remoteDisconnect on the eMeter.");
+			}
+		} while (true);
 	}
 
 	public ContactorState getContactorState() throws IOException {
