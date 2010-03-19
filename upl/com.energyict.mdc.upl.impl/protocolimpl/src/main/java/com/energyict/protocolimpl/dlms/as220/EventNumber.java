@@ -103,6 +103,7 @@ public final class EventNumber {
 		EVENTS.add(new EventNumber(194, "Valve alarm M-Bus channel 4", MeterEvent.METER_ALARM));
 
 		EVENTS.add(new EventNumber(230, "Change of impulse constant", MeterEvent.CONFIGURATIONCHANGE));
+		EVENTS.add(new EventNumber(231, "Meter cover removed", MeterEvent.COVER_OPENED));
 		EVENTS.add(new EventNumber(232, "Parameter changed", MeterEvent.CONFIGURATIONCHANGE));
 		EVENTS.add(new EventNumber(233, "Error conditions fnfe", MeterEvent.APPLICATION_ALERT_START));
 		EVENTS.add(new EventNumber(234, "End of error conditions", MeterEvent.APPLICATION_ALERT_STOP));
