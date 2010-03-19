@@ -17,11 +17,14 @@ import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
 
+/**
+ * Functional implementation of a GasMeter
+ * 
+ * @author gna
+ * @since 19-mrt-2010
+ *
+ */
 public class GMeter {
-
-	/** TODO to set correct*/
-//	private static final ObisCode GAS_PROFILE_OBISCODE = ObisCode.fromString("0.2.24.3.0.255");
-	private static final int SEC_PER_MIN = 60;
 
 	private final GasValveController	gasValveController;
 	private final AS220 				as220;
@@ -58,6 +61,7 @@ public class GMeter {
      * @return the {@link ProfileData}
 	 * @throws IOException
 	 */
+	@SuppressWarnings("unchecked")
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
 		Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getAs220().getTimeZone());
 		Calendar toCalendar = ProtocolUtils.getCleanCalendar(getAs220().getTimeZone());
@@ -71,7 +75,7 @@ public class GMeter {
 
 		List<ChannelInfo> channelInfos = profileBuilder.buildChannelInfos(scalerunit);
 		profileData.setChannelInfos(channelInfos);
-		DataContainer dc = pg.getBuffer(fromCalendar, toCalendar);
+ 		DataContainer dc = pg.getBuffer(fromCalendar, toCalendar);
 		profileData.setIntervalDatas(profileBuilder.buildIntervalData(scalerunit, dc));
 
         if (includeEvents) {

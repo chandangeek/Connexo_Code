@@ -19,6 +19,7 @@ import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageCategorySpec;
@@ -28,6 +29,8 @@ import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GMeterMessaging;
 
 /**
+ * Basic implementation of a GasDevice
+ * 
  * @author jeroen.meulemeester
  *
  */
@@ -43,6 +46,9 @@ public class GasDevice extends AS220 implements MessageProtocol{
 	private final GMeter	gMeter	= new GMeter(this);
 	private GMeterMessaging messaging;
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int getNumberOfChannels() throws IOException {
 		return getgMeter().getNrOfChannels();
@@ -161,6 +167,9 @@ public class GasDevice extends AS220 implements MessageProtocol{
 
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
 		if (to == null) {
@@ -173,6 +182,16 @@ public class GasDevice extends AS220 implements MessageProtocol{
 
 		getLogger().info("Starting to read profileData [from=" + from + ", to=" + to + ", includeEvents=" + includeEvents + "]");
 		return getgMeter().getProfileData(from, to, includeEvents);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * The gasMeter has normally one register ( 0.x.24.2.0.255 )
+	 */
+	@Override
+	public RegisterValue readRegister(ObisCode obisCode) throws IOException {
+		return super.readRegister(getCorrectedChannelObisCode(obisCode));
 	}
 
 	/**
@@ -238,6 +257,7 @@ public class GasDevice extends AS220 implements MessageProtocol{
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void applyMessages(List messageEntries) throws IOException {
 		getMessaging().applyMessages(messageEntries);

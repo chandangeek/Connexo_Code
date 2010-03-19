@@ -16,7 +16,6 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.CapturedObjectsHelper;
-import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
@@ -45,14 +44,18 @@ public class GProfileBuilder {
 	}
 
 	/**
-	 * @param coh
-	 * @return
+	 * Builder for the scalerUnits.
+	 * 
+	 * Currently we hardcoded the scalerUnit as a Liter
+	 * 
+	 * @return a ScalerUnit array of 1 element, being Liter
+	 * 
 	 * @throws IOException
 	 */
 	public ScalerUnit[] buildScalerUnits() throws IOException {
 		ScalerUnit[] scalerUnits = new ScalerUnit[coh.getNrOfchannels()];
 		for (int i = 0; i < scalerUnits.length; i++) {
-	        ObisCode obisCode = coh.getProfileDataChannelObisCode(i);
+//	        ObisCode obisCode = coh.getProfileDataChannelObisCode(i);
 //	        scalerUnits[i] = getGasDevice().getCosemObjectFactory().getGenericRead(getGasDevice().getCorrectedChannelObisCode(obisCode), (byte)0x08, 4).getScalerUnit();
 	        scalerUnits[i] = new ScalerUnit(Unit.get(BaseUnit.LITER));
 
@@ -70,6 +73,7 @@ public class GProfileBuilder {
 	 *
 	 * @throws IOException
 	 */
+	@SuppressWarnings("deprecation")
 	public List<ChannelInfo> buildChannelInfos(ScalerUnit[] scalerunit){
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
 		for (int i = 0; i < scalerunit.length; i++) {
@@ -99,7 +103,6 @@ public class GProfileBuilder {
 
 		List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
 		Calendar cal = null;
-		IntervalData currentInterval = null;
 		int profileStatus = 0;
 		if(dc.getRoot().getElements().length != 0){
 
@@ -114,7 +117,7 @@ public class GProfileBuilder {
 					cal = new DateTime(new OctetString(dc.getRoot().getStructure(i).getOctetString(0).getArray()), getGasDevice().getTimeZone()).getValue();
 				} else {
 					if(cal != null){
-						cal.add(Calendar.SECOND, getGasDevice().getgMeter().getMbusProfile().getCapturePeriod());	// TODO
+						cal.add(Calendar.SECOND, getGasDevice().getgMeter().getMbusProfile().getCapturePeriod());
 					}
 				}
 
