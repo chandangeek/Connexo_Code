@@ -66,7 +66,7 @@ public class GasDevice extends AS220 implements MessageProtocol{
      */
     @Override
     public String getProtocolVersion() {
-		String rev = "$Revision: 33703 $" + " - " + "$Date$";
+		String rev = "$Revision$" + " - " + "$Date$";
 		String manipulated = "Revision " + rev.substring(rev.indexOf("$Revision: ") + "$Revision: ".length(), rev.indexOf("$ -")) + "at "
 				+ rev.substring(rev.indexOf("$Date: ") + "$Date: ".length(), rev.indexOf("$Date: ") + "$Date: ".length() + 19);
     	return manipulated;
