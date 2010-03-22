@@ -55,14 +55,6 @@ public class StatisticsInterval extends Structure {
 		return getDataType(6).getUnsigned32().getValue();
 	}
 
-	public long getFramesCorrected() {
-		return getDataType(7).getUnsigned32().getValue();
-	}
-
-	public long getBadFramesIndicator() {
-		return getDataType(8).getUnsigned32().getValue();
-	}
-
 	private TimeZone getTimeZone() {
 		return timeZone;
 	}
@@ -76,9 +68,7 @@ public class StatisticsInterval extends Structure {
 		sb.append("CRC_OK=").append(getFramesCRCOk()).append(", ");
 		sb.append("CRC_NOK=").append(getFramesCRCNotOk()).append(", ");
 		sb.append("TX=").append(getFramesTransmitted()).append(", ");
-		sb.append("REP=").append(getFramesRepeated()).append(", ");
-		sb.append("COR=").append(getFramesCorrected()).append(", ");
-		sb.append("BAD=").append(getBadFramesIndicator());
+		sb.append("REP=").append(getFramesRepeated());
 		return sb.toString();
 	}
 

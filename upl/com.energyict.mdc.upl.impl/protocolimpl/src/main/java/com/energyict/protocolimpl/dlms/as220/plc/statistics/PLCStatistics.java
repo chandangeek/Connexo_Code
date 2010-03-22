@@ -58,14 +58,14 @@ public class PLCStatistics extends Array {
 			Date correctedTimeStamp = ProtocolTools.roundUpToNearestInterval(timeStamp, statsInterval.getIntervalLength());
 
 			IntervalData id = new IntervalData(correctedTimeStamp);
-			id.addValue(statsInterval.getPlcSNR().getSnr0());
-			id.addValue(statsInterval.getPlcSNR().getSnr1());
+			id.addValue(statsInterval.getPlcSNR().getS0());
+			id.addValue(statsInterval.getPlcSNR().getN0());
+			id.addValue(statsInterval.getPlcSNR().getS1());
+			id.addValue(statsInterval.getPlcSNR().getN1());
 			id.addValue(statsInterval.getFramesCRCOk());
 			id.addValue(statsInterval.getFramesCRCNotOk());
 			id.addValue(statsInterval.getFramesTransmitted());
 			id.addValue(statsInterval.getFramesRepeated());
-			id.addValue(statsInterval.getFramesCorrected());
-			id.addValue(statsInterval.getBadFramesIndicator());
 
 			intervals.add(id);
 		}
@@ -79,24 +79,24 @@ public class PLCStatistics extends Array {
 		final Unit countUnit = Unit.get(BaseUnit.COUNT);
 		final Unit ratioUnit = Unit.get(BaseUnit.RATIO);
 
-		ChannelInfo snr0 = new ChannelInfo(1, "SNR0", ratioUnit);
-		ChannelInfo snr1 = new ChannelInfo(2, "SNR1", ratioUnit);
-		ChannelInfo crcOk = new ChannelInfo(3, "CRC_OK", countUnit);
-		ChannelInfo crcNotOk = new ChannelInfo(4, "CRC_NOK", countUnit);
-		ChannelInfo fTx = new ChannelInfo(5, "Frames TX", countUnit);
-		ChannelInfo fRep = new ChannelInfo(6, "Frames repeated", countUnit);
-		ChannelInfo fCor = new ChannelInfo(7, "Frames corrected", countUnit);
-		ChannelInfo fBad = new ChannelInfo(8, "Bad frames", countUnit);
+		ChannelInfo s0 = new ChannelInfo(1, "S0", ratioUnit);
+		ChannelInfo n0 = new ChannelInfo(2, "N0", ratioUnit);
+		ChannelInfo s1 = new ChannelInfo(3, "S1", countUnit);
+		ChannelInfo n1 = new ChannelInfo(4, "N1", countUnit);
+		ChannelInfo crcOk = new ChannelInfo(5, "CRC OK", countUnit);
+		ChannelInfo crcNOk = new ChannelInfo(6, "CRC NOT OK", countUnit);
+		ChannelInfo fTx = new ChannelInfo(7, "Frames TX", countUnit);
+		ChannelInfo fRep = new ChannelInfo(8, "Frames repeated", countUnit);
 
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
-		channelInfos.add(snr0);
-		channelInfos.add(snr1);
+		channelInfos.add(s0);
+		channelInfos.add(n0);
+		channelInfos.add(s1);
+		channelInfos.add(n1);
 		channelInfos.add(crcOk);
-		channelInfos.add(crcNotOk);
+		channelInfos.add(crcNOk);
 		channelInfos.add(fTx);
 		channelInfos.add(fRep);
-		channelInfos.add(fCor);
-		channelInfos.add(fBad);
 		return channelInfos;
 	}
 
