@@ -17,6 +17,7 @@ import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
@@ -27,10 +28,12 @@ import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GMeterMessaging;
+import com.energyict.protocolimpl.dlms.as220.gmeter.GasRegister;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
  * Basic implementation of a GasDevice
- * 
+ *
  * @author jeroen.meulemeester
  *
  */
@@ -183,15 +186,22 @@ public class GasDevice extends AS220 implements MessageProtocol{
 		getLogger().info("Starting to read profileData [from=" + from + ", to=" + to + ", includeEvents=" + includeEvents + "]");
 		return getgMeter().getProfileData(from, to, includeEvents);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * The gasMeter has normally one register ( 0.x.24.2.0.255 )
 	 */
 	@Override
 	public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-		return super.readRegister(getCorrectedChannelObisCode(obisCode));
+		if (obisCode.equals(ObisCode.fromString("0.0.24.2.0.255"))) {
+			ObisCode oc = getCorrectedChannelObisCode(obisCode);
+			GasRegister gasRegister = new GasRegister(this);
+			RegisterValue registerValue = gasRegister.getRegisterValue(oc);
+			return ProtocolTools.setRegisterValueObisCode(registerValue, obisCode);
+		} else {
+			throw new NoSuchRegisterException(obisCode.toString() + " is not supported.");
+		}
 	}
 
 	/**
@@ -200,8 +210,7 @@ public class GasDevice extends AS220 implements MessageProtocol{
 	 * @return the corrected ObisCode
 	 */
 	public ObisCode getCorrectedChannelObisCode(ObisCode oc){
-		ObisCode obisCode = new ObisCode(oc.getA(), getGasSlotId(), oc.getC(), oc.getD(), oc.getE(), oc.getF());
-		return obisCode;
+		return ProtocolTools.setObisCodeField(oc, 1, (byte) getGasSlotId());
 	}
 
 	/**
