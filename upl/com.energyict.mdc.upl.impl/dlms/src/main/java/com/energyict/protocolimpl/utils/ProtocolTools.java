@@ -18,6 +18,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterValue;
 
 /**
  * Utility class with static methods used for protocols
@@ -418,6 +419,24 @@ public final class ProtocolTools {
 		byte[] ln = obis.getLN();
 		ln[fieldNr] = value;
 		return ObisCode.fromByteArray(ln);
+	}
+
+	/**
+	 * @param registerValue
+	 * @param obisCode
+	 * @return
+	 */
+	public static RegisterValue setRegisterValueObisCode(RegisterValue registerValue, ObisCode obisCode) {
+		return new RegisterValue(
+			obisCode,
+			registerValue.getQuantity(),
+			registerValue.getEventTime(),
+			registerValue.getFromTime(),
+			registerValue.getToTime(),
+			registerValue.getReadTime(),
+			registerValue.getRtuRegisterId(),
+			registerValue.getText()
+		);
 	}
 
 }
