@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.TimeZone;
 
+import com.energyict.protocolimpl.iec1107.instromet.dl220.DL220Record;
+import com.energyict.protocolimpl.iec1107.instromet.dl220.DL220RecordConfig;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.DL220Utils;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.ClockObject;
 
@@ -45,10 +47,11 @@ public class DL220IntervalRecord implements DL220Record {
 	
 	/**
 	 * {@inheritDoc}
+	 * @param index 
 	 * @throws IOException if parsing the raw object configuration failed
 	 */
-	public String getValue() throws IOException{
-		return DL220Utils.getTextBetweenBracketsStartingFrom(this.record, dirc.getValueIndex());
+	public String getValue(int index) throws IOException{
+		return DL220Utils.getTextBetweenBracketsStartingFrom(this.record, dirc.getValueIndex(index));
 	}
 	
 	/**

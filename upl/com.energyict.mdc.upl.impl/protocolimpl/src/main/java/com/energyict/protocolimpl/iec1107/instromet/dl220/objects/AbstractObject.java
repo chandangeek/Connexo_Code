@@ -48,6 +48,19 @@ public abstract class AbstractObject {
 	public AbstractObject(ProtocolLink link) {
 		this.link = link;
 	}
+	
+	/**
+	 * Read the raw Value from the device (including the brackets)
+	 * 
+	 * @return the raw value
+	 * 
+	 * @throws IOException if an error occurred during the read
+	 */
+	public String readRawValue() throws IOException {
+		ReadCommand rc = new ReadCommand(link);
+		rc.setStartAddress(getStartAddress());
+		return rc.invoke();
+	}
 
 	/**
 	 * Getter for the default value of this object

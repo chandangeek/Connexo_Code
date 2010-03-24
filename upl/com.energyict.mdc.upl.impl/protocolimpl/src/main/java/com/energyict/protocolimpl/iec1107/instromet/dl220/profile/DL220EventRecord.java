@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.TimeZone;
 
+import com.energyict.protocolimpl.iec1107.instromet.dl220.DL220Record;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.DL220Utils;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.ClockObject;
 
@@ -65,7 +66,7 @@ public class DL220EventRecord implements DL220Record {
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getValue() {
+	public String getValue(int index) {
 		// TODO Auto-generated method stub
 		return null;
 	}

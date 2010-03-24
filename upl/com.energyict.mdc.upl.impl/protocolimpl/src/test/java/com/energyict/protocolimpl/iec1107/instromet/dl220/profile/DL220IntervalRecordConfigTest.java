@@ -13,9 +13,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.energyict.protocolimpl.iec1107.instromet.dl220.profile.DL220IntervalRecordConfig;
-import com.energyict.protocolimpl.iec1107.instromet.dl220.profile.DL220RecordConfig;
-
 /**
  * @author gna
  * @since 8-mrt-2010
@@ -44,9 +41,10 @@ public class DL220IntervalRecordConfigTest {
 	public final void parseTest(){
 		try {
 			String recordConfig = "(GONr)(AONr)(Zeit)(V1.G)(V1.P)(St.1)(StSy)(Er)(Check)";
-			DL220RecordConfig dirc = new DL220IntervalRecordConfig(recordConfig);
+			DL220IntervalRecordConfig dirc = new DL220IntervalRecordConfig(recordConfig);
 			assertEquals(2, dirc.getTimeIndex());
-			assertEquals(3, dirc.getValueIndex());
+			assertEquals(3, dirc.getValueIndex(0));
+			assertEquals(2, dirc.getNumberOfChannels());
 		} catch (IOException e) {
 			e.printStackTrace();
 			fail();

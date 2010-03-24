@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.energyict.protocolimpl.iec1107.instromet.dl220.profile;
+package com.energyict.protocolimpl.iec1107.instromet.dl220;
 
 import java.io.IOException;
 
@@ -21,9 +21,11 @@ public interface DL220RecordConfig {
 	public abstract int getTimeIndex() throws IOException;
 
 	/**
+	 * @param index
+	 * 			- the index of the value to return (if more then one channel is configured) 		
 	 * @return the valueIndex
 	 */
-	public abstract int getValueIndex() throws IOException;
+	public abstract int getValueIndex(int index) throws IOException;
 
 	/**
 	 * @return the statusIndex

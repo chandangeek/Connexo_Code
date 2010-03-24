@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.energyict.protocolimpl.iec1107.instromet.dl220.profile;
+package com.energyict.protocolimpl.iec1107.instromet.dl220;
 
 import java.io.IOException;
 import java.util.Date;
@@ -21,9 +21,11 @@ public interface DL220Record {
 	public abstract Date getEndTime() throws IOException;
 
 	/**
+	 * @param index
+	 * 			- the number of value
 	 * @return the Interval VALUE
 	 */
-	public abstract String getValue() throws IOException;
+	public abstract String getValue(int index) throws IOException;
 
 	/**
 	 * @return the Interval STATUS

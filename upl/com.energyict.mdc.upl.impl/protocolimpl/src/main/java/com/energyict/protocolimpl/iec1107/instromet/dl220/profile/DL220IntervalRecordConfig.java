@@ -4,8 +4,11 @@
 package com.energyict.protocolimpl.iec1107.instromet.dl220.profile;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.iec1107.instromet.dl220.DL220RecordConfig;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.DL220Utils;
 
 /**
@@ -18,16 +21,17 @@ import com.energyict.protocolimpl.iec1107.instromet.dl220.DL220Utils;
 public class DL220IntervalRecordConfig implements DL220RecordConfig {
 
 	private static final String STR_TIME = "Zeit";
-	private static final String STR_VALUE = "V1";
+	private static final String STR_VALUE = "V";
 	private static final String STR_STATUS = "StSy";
 	private static final String STR_EVENT = "Er";	// Error or Event ...
 	
 	private String recordConfig;
 
 	private int timeIndex = -1;
-	private int valueIndex = -1;
 	private int statusIndex = -1;
 	private int eventIndex = -1;
+	/** Contains a list of the indexes of the values*/
+	private List<Integer> valueIndexes;
 	
 	/**
 	 * Default constructor
@@ -54,8 +58,8 @@ public class DL220IntervalRecordConfig implements DL220RecordConfig {
 			str = ProtocolUtils.stripBrackets(this.recordConfig.substring(beginIndex, endIndex));
 			if(STR_TIME.equalsIgnoreCase(str)){
 				setTimeIndex(index);
-			} else if ((str.indexOf(STR_VALUE) > -1) && this.valueIndex == -1){
-				setValueIndex(index);
+			} else if (str.indexOf(STR_VALUE) > -1){
+				addConfigValue(index);
 			} else if ((str.indexOf(STR_STATUS) > -1) && this.statusIndex == -1){
 				setStatusIndex(index);
 			} else if ((str.indexOf(STR_EVENT) > -1) && this.eventIndex ==-1){
@@ -67,8 +71,28 @@ public class DL220IntervalRecordConfig implements DL220RecordConfig {
 	}
 	
 	/**
+	 * Add an index to the {@link #valueIndexes}
+	 * @param index
+	 */
+	private void addConfigValue(int index){
+		if(this.valueIndexes == null){
+			this.valueIndexes = new ArrayList<Integer>();
+		}
+		valueIndexes.add(index);
+	}
+	
+	/**
+	 * @return the number of channels 
+	 */
+	public int getNumberOfChannels() throws IOException{
+		if(this.valueIndexes == null){
+			parse();
+		}
+		return this.valueIndexes.size();
+	}
+	
+	/**
 	 * {@inheritDoc}
-	 * @throws IOException if parsing the raw object configuration failed
 	 */
 	public int getTimeIndex() throws IOException {
 		if(this.timeIndex == -1){
@@ -79,18 +103,16 @@ public class DL220IntervalRecordConfig implements DL220RecordConfig {
 
 	/**
 	 * {@inheritDoc}
-	 * @throws IOException if parsing the raw object configuration failed
 	 */
-	public int getValueIndex() throws IOException {
-		if(this.valueIndex == -1){
+	public int getValueIndex(int index) throws IOException {
+		if(this.valueIndexes == null){
 			parse();
 		}
-		return valueIndex;
+		return this.valueIndexes.get(index);
 	}
 	
 	/**
 	 * {@inheritDoc}
-	 * @throws IOException if parsing the raw object configuration failed
 	 */
 	public int getStatusIndex() throws IOException{
 		if(this.statusIndex == -1){
@@ -128,14 +150,6 @@ public class DL220IntervalRecordConfig implements DL220RecordConfig {
 	}
 
 	/**
-	 * @param valueIndex 
-	 * 				- the valueIndex to set
-	 */
-	protected void setValueIndex(int valueIndex) {
-		this.valueIndex = valueIndex;
-	}
-	
-	/**
 	 * @param errorIndex
 	 * 				- the errorIndex to set
 	 */
@@ -145,7 +159,6 @@ public class DL220IntervalRecordConfig implements DL220RecordConfig {
 
 	/**
 	 * {@inheritDoc}
-	 * @throws IOException if parsing the raw object configuration failed 
 	 */
 	public int getNumberOfObjectsPerRecord() throws IOException {
 		return DL220Utils.getNumberOfObjects(this.recordConfig);

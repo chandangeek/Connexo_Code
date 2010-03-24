@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.energyict.protocol.MeterEvent;
+import com.energyict.protocolimpl.iec1107.instromet.dl220.DL220Record;
 
 /**
  * Functionality to create and maintain {@link MeterEvent}s for the DL220
@@ -365,12 +366,12 @@ public class DL220MeterEventList {
 			eventList.add(new MeterEvent(this.measurementChangeEvents.get(BEFORE_EVENT_INDEX).getEndTime(),
 					MeterEvent.OTHER, convertStringEventIdToInteger(this.measurementChangeEvents
 							.get(BEFORE_EVENT_INDEX).getEvent()), "IntervalValue has been changed, this "
-							+ this.measurementChangeEvents.get(BEFORE_EVENT_INDEX).getValue()
+							+ this.measurementChangeEvents.get(BEFORE_EVENT_INDEX).getValue(0)
 							+ " is the original value."));
 			eventList.add(new MeterEvent(this.measurementChangeEvents.get(BEFORE_EVENT_INDEX).getEndTime(),
 					MeterEvent.OTHER, convertStringEventIdToInteger(this.measurementChangeEvents
 							.get(BEFORE_EVENT_INDEX).getEvent()), "IntervalValue has been changed, this "
-							+ this.measurementChangeEvents.get(BEFORE_EVENT_INDEX).getValue() + " is the new value."));
+							+ this.measurementChangeEvents.get(BEFORE_EVENT_INDEX).getValue(0) + " is the new value."));
 
 		} else { // the dates are different so the clock must be adjusted
 			eventList.add(new MeterEvent(this.measurementChangeEvents.get(BEFORE_EVENT_INDEX).getEndTime(),

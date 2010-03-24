@@ -16,7 +16,7 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
  */
 public class DLObject extends AbstractObject {
 	
-	public static final String ASTERISK = "*";
+	public static final String ASTERISK = "[*]";
 	public static final int valueIndex = 0;
 	public static final int unitIndex = 1;
 	
@@ -95,6 +95,21 @@ public class DLObject extends AbstractObject {
 	public String getValue(int instanceNumber) throws IOException {
 		this.instance = instanceNumber;
 		return getValue();
+	}
+	
+	/**
+	 * Read the raw value form the device
+	 * 
+	 * @param instanceNumber
+	 * 			- the number of the objects' instance which you want to rawread
+	 * 
+	 * @return the raw value as a string
+	 * 
+	 * @throws IOException if a read exception occurred
+	 */
+	public String readRawValue(int instanceNumber) throws IOException {
+		this.instance = instanceNumber;
+		return readRawValue();
 	}
 	
 	/**

@@ -15,10 +15,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.energyict.protocolimpl.iec1107.instromet.dl220.profile.DL220IntervalRecord;
-import com.energyict.protocolimpl.iec1107.instromet.dl220.profile.DL220IntervalRecordConfig;
-import com.energyict.protocolimpl.iec1107.instromet.dl220.profile.DL220Record;
-import com.energyict.protocolimpl.iec1107.instromet.dl220.profile.DL220RecordConfig;
+import com.energyict.protocolimpl.iec1107.instromet.dl220.DL220Record;
+import com.energyict.protocolimpl.iec1107.instromet.dl220.DL220RecordConfig;
 
 /**
  * @author gna
@@ -54,7 +52,7 @@ public class DL220IntervalRecordTest {
 			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 			cal.setTimeInMillis(Long.valueOf("1267953300000"));
 			assertEquals(cal.getTime(), dir.getEndTime());
-			assertEquals("130", dir.getValue());
+			assertEquals("130", dir.getValue(0));
 			assertEquals("15", dir.getStatus());
 			assertEquals("0x8105", dir.getEvent());
 		} catch (NumberFormatException e) {

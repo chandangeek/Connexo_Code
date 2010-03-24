@@ -5,6 +5,8 @@ package com.energyict.protocolimpl.iec1107.instromet.dl220;
 
 import java.io.IOException;
 
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.DLObject;
 
@@ -17,15 +19,17 @@ import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.DLObject;
  */
 public class DL220Utils {
 	
+	/** <i>Minuten</i> unit */
 	public static final String MINUTEN_STR = "Minuten";
+	/** <i>Stunden</i> unit */
 	public static final String HOURES_STR = "Stunden";
 	
 	private static final String OPEN_BRACKET = "[(]";
 	private static final String CLOSE_BRACKET = "[)]";
 	
 	/**
-	 * Convert the given quantity(String[]) to the amount of seconds. If the unit part is different from {@value #MINUTEN_STR}
-	 * or {@value #HOURES_STR}, then we assume the unit is in seconds.
+	 * Convert the given quantity(String[]) to the amount of seconds. If the unit part is different from {@link #MINUTEN_STR}
+	 * or {@link #HOURES_STR}, then we assume the unit is in seconds.
 	 * 
 	 * @param quantity 
 	 * 			- the quantity containing a value and unit
@@ -131,5 +135,36 @@ public class DL220Utils {
 	public static int countNumberOfSameChars(String text, String regex, int sizeOfRegex){
 		int numberOfOccurences = (text.length() - text.replaceAll(regex, "").length()) / sizeOfRegex;
 		return numberOfOccurences;
+	}
+	
+	/**
+	 * Convert the given String to the respective {@link Unit}.<br>
+	 * Implemented units:<br>
+	 * <li> {@link BaseUnit#CUBICMETER}
+	 * <li> {@link BaseUnit#WATTHOUR}
+	 * <li> {@link BaseUnit#WATT}
+	 * <br><br>
+	 * The last two can have a scaler of 3 when 'k' is added in the string
+	 *  
+	 * @param strUnit
+	 * 			- the given strUnit
+	 * 
+	 * @return the Unit
+	 */
+	public static Unit getUnitFromString(String strUnit){
+		int scaler = 0;
+		if(strUnit.equalsIgnoreCase("m3")){
+			return Unit.get(BaseUnit.CUBICMETER);
+		} else if (strUnit.indexOf("Wh") > -1){
+			scaler = (strUnit.indexOf("k") > -1)?3:0;
+			return Unit.get(BaseUnit.WATTHOUR, scaler);
+		} else if (strUnit.indexOf("W") > -1){
+			scaler = (strUnit.indexOf("k") > -1)?3:0;
+			return Unit.get(BaseUnit.WATT, scaler);
+		} else if (strUnit.indexOf("m3|h") > -1) {
+			return Unit.get(BaseUnit.CUBICMETERPERHOUR);
+		} else {
+			return Unit.getUndefined();
+		}
 	}
 }

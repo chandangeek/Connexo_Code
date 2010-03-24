@@ -27,9 +27,6 @@ import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.Archives;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.DL220;
-import com.energyict.protocolimpl.iec1107.instromet.dl220.profile.DL220IntervalRecordConfig;
-import com.energyict.protocolimpl.iec1107.instromet.dl220.profile.DL220Profile;
-import com.energyict.protocolimpl.iec1107.instromet.dl220.profile.DL220RecordConfig;
 
 /**
  * @author gna
@@ -70,7 +67,7 @@ public class DL220ProfileTest {
 			DL220Profile dlProfile = new DL220Profile(link, 0, Archives.MEASUREMENT1, 10);
 			dlProfile.setCapturedObjects(recordConfig);
 			dlProfile.setInterval(300);
-			DL220RecordConfig dirc = new DL220IntervalRecordConfig(recordConfig);
+			DL220IntervalRecordConfig dirc = new DL220IntervalRecordConfig(recordConfig);
 			dlProfile.setDirc(dirc);
 			List<IntervalData> intervalData = dlProfile.buildIntervalData(new String(content));
 			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));

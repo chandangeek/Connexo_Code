@@ -4,12 +4,13 @@
 package com.energyict.protocolimpl.iec1107.instromet.dl220.profile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -23,11 +24,13 @@ import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.DLObject;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.GenericArchiveObject;
 
 /**
- * Implementation of the general functionality of a LoadProfile 
+ * Implementation of the general functionality of a LoadProfile.<br>
+ * It is possible to configure <b>TWO</b> channels in the loadProfile. The meter can have a HighTarrif and a LowTarrif.
+ * It is also possible to put the total and the adjustable value(which will most likely be the same value)
  * 
  * @author gna
  * @since 4-mrt-2010
- *
+ * 
  */
 public class DL220Profile {
 	
@@ -47,9 +50,14 @@ public class DL220Profile {
 	private DL220MeterEventList meterEventList;
 	
 	/** The {@link DL220IntervalRecordConfig} from the meter*/
-	private DL220RecordConfig dirc;
+	private DL220IntervalRecordConfig dirc;
+
+	/** The List containing all {@link IntervalData}s */
+	private List<IntervalData> intervalList = new ArrayList<IntervalData>();
 	
-	private int numberOfChannels = -1;
+	/** The used {@link Unit} (the unit is the same for each channel) */
+	private Unit unit;
+	
 	private int interval = -1;
 	private int profileRequestBlockSize;
 
@@ -82,13 +90,7 @@ public class DL220Profile {
 	 * @throws IOException 
 	 */
 	public int getNumberOfChannels() throws IOException {
-		// TODO Auto-generated method stub
-		
-		if(numberOfChannels == -1){
-			numberOfChannels = 1;
-		}
-		
-		return numberOfChannels;
+		return getIntervalRecordConfig().getNumberOfChannels();
 	}
 
 	/**
@@ -122,11 +124,16 @@ public class DL220Profile {
 	 * 
 	 * @throws IOException if an error occurred during the read of the {@link ChannelInfo}s 
 	 */
+	@SuppressWarnings("deprecation")
 	public List<ChannelInfo> buildChannelInfos() throws IOException{
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
-		ChannelInfo ci = new ChannelInfo(0, "Consumption", getValueUnit());
-		ci.setCumulative();
-		channelInfos.add(ci);
+		for(int i = 0; i < getNumberOfChannels(); i++){
+			ChannelInfo ci = new ChannelInfo(i, "Channel " + i, getValueUnit());
+			ci.setCumulative();
+			/* We also use the deprecated method for 8.3 versions */
+			ci.setCumulativeWrapValue(new BigDecimal("1000000000"));
+			channelInfos.add(ci);
+		}
 		return channelInfos;
 	}
 	
@@ -137,7 +144,7 @@ public class DL220Profile {
 	 * 
 	 * @throws IOException if something happened during the read
 	 */
-	public DL220RecordConfig getIntervalRecordConfig() throws IOException{
+	public DL220IntervalRecordConfig getIntervalRecordConfig() throws IOException{
 		if(this.dirc == null){
 			this.dirc = new DL220IntervalRecordConfig(getCapturedObjects());
 		}
@@ -150,7 +157,7 @@ public class DL220Profile {
 	 * @param dirc
 	 * 			- the {@link DL220IntervalRecordConfig} to set
 	 */
-	protected void setDirc(DL220RecordConfig dirc){
+	protected void setDirc(DL220IntervalRecordConfig dirc){
 		this.dirc = dirc;
 	}
 	
@@ -180,25 +187,17 @@ public class DL220Profile {
 	 * Get the Unit list from the device and return the {@link Unit}
 	 * 
 	 * @return the {@link Unit} for the channel
-	 * @throws IOException 
+	 * 
+	 * @throws IOException when reading the unit failed
 	 */
-	private Unit getValueUnit() throws IOException{
-		String units = getArchive().getUnits();
-		String[] splittedUnits = units.split("[(]");
-		String correctUnit = splittedUnits[4].substring(0, splittedUnits[4].indexOf(")"));
-		int scaler = 0;
-		if(correctUnit.equalsIgnoreCase("m3")){
-			return Unit.get(BaseUnit.CUBICMETER);
-		} else if (correctUnit.indexOf("Wh") > -1){
-			scaler = (correctUnit.indexOf("k") > -1)?3:0;
-			return Unit.get(BaseUnit.WATTHOUR, scaler);
-		} else if (correctUnit.indexOf("W") > -1){
-			scaler = (correctUnit.indexOf("k") > -1)?3:0;
-			return Unit.get(BaseUnit.WATTHOUR, scaler);
-		} else {
-			return Unit.getUndefined();
+	public Unit getValueUnit() throws IOException{
+		if(this.unit ==null){
+			String units = getArchive().getUnits();
+			String[] splittedUnits = units.split("[(]");
+			String correctUnit = splittedUnits[4].substring(0, splittedUnits[4].indexOf(")"));
+			this.unit = DL220Utils.getUnitFromString(correctUnit); 
 		}
-		
+		return this.unit;
 	}
 
 	/**
@@ -213,10 +212,8 @@ public class DL220Profile {
 	 * @return the requested intervaldata
 	 * 
 	 * @throws IOException when reading of the data failed 
-	 * 
-	 * @throws NumberFormatException when the returned number of intervals ins't a number
 	 */
-	public List<IntervalData> getIntervalData(Date from, Date to) throws NumberFormatException, IOException {
+	public List<IntervalData> getIntervalData(Date from, Date to) throws IOException {
 		return buildIntervalData(getArchive().getIntervals(from, to, profileRequestBlockSize));
 	}
 	
@@ -231,8 +228,7 @@ public class DL220Profile {
 	 * @throws IOException if an exception occurred during on of the read requests
 	 */
 	protected List<IntervalData> buildIntervalData(String rawData) throws IOException{
-		List<IntervalData> intervalList = new ArrayList<IntervalData>();
-		
+		List<IntervalData> iList = new ArrayList<IntervalData>();
 		int offset = 0;
 		DL220IntervalRecord dir;
 		String recordX;
@@ -244,37 +240,65 @@ public class DL220Profile {
 			offset = rawData.indexOf(recordX) + recordX.length();
 			dir = new DL220IntervalRecord(recordX, getIntervalRecordConfig(), link.getTimeZone());
 			id = new IntervalData(dir.getEndTime());
-			id.addValue(Integer.parseInt(dir.getValue()));
+			for(int i = 0 ; i < getNumberOfChannels(); i++){
+				id.addValue(Integer.parseInt(dir.getValue(i)));
+			}
 			String status = dir.getStatus();
 			id.addEiStatus(DL220IntervalStateBits.intervalStateBits(status));
 			if(!archiveEntryEvents[this.index].equalsIgnoreCase(dir.getEvent())){	// if it is more then a normal entry
 				getMeterEventList().addRawEvent(dir);
 			}
-			intervalList.add(id);
+			iList.add(id);
 		}while(offset < rawData.length());
 		
-		return sortOutIntervalList(intervalList);
+		return sortOutIntervalList(iList);
 	}
 	
 	/**
 	 * Remove intervals that are not on the interval boundary. <br>
 	 * We check if the interval-endTime is a multiple of the interval in seconds, if not delete it.
-	 * (They are all cumulative values so deletion is allowed)
+	 * (They are all cumulative values so deletion, or not adding to the new list, is allowed)
 	 * 
 	 * @param intervalList
 	 * 				- the list to shift
 	 * 
 	 * @throws IOException can occur when the interval needs to be read
 	 */
+	@SuppressWarnings("unchecked")
 	protected List<IntervalData> sortOutIntervalList(List<IntervalData> intervalList) throws IOException{
-		List<IntervalData> newList = new ArrayList<IntervalData>();
 		for(IntervalData intervalData : intervalList){
 			long endTime = intervalData.getEndTime().getTime();
 			if(endTime%(getInterval()*1000) == 0){
-				newList.add(intervalData);
+				this.intervalList.add(intervalData);
 			}
 		}
-		return newList;
+		Collections.sort(this.intervalList);
+		removeDubbles();
+		return this.intervalList;
+	}
+	
+	/**
+	 * Removes duplicate intervals from the list.
+	 */
+	private void removeDubbles(){
+		IntervalData previous = null;
+		List<IntervalData> templist = new ArrayList<IntervalData>();
+		for(IntervalData id : this.intervalList){
+			if( (previous == null) || (previous.getEndTime().compareTo(id.getEndTime()) != 0)){
+				templist.add(id);
+			}
+			previous = id;
+		}
+		this.intervalList.clear();
+		this.intervalList.addAll(templist);
+	}
+	
+	/**
+	 * Getter for the {@link #intervalList}
+	 * @return the {@link #intervalList}
+	 */
+	public List<IntervalData> getIntervalList(){
+		return this.intervalList;
 	}
 
 	/**

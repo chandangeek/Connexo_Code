@@ -15,9 +15,12 @@ import java.util.logging.Logger;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
@@ -25,6 +28,7 @@ import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.AbstractObject
 import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.DLObject;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.SoftwareVersionObject;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.profile.DL220Profile;
+import com.energyict.protocolimpl.iec1107.instromet.dl220.registers.DL220ObisCodeMapper;
 
 /**
  * ProtocolImplementation for the Elster DL220 meter. <br>
@@ -35,8 +39,8 @@ import com.energyict.protocolimpl.iec1107.instromet.dl220.profile.DL220Profile;
  * metering pulses and / or level changes for various types of energy. <br>
  * <br>
  * <b>Data interface:</b><br>
- * <li>Optical interface according to IEC1107 <li>Internal GSM modem
- * <br><br>
+ * <li>Optical interface according to IEC1107 <li>Internal GSM modem <br>
+ * <br>
  * <b>Additional information:</b><br>
  * Before getting or setting some values in the meter, it is required to enable a lock (suppliers, customers, ...)
  * 
@@ -48,14 +52,18 @@ public class DL220 extends AbstractIEC1107Protocol {
 
 	/** The used {@link DL220Profile} */
 	private DL220Profile profile;
-	
+
 	/** The used {@link ObjectFactory} */
 	private ObjectFactory objectFactory;
+
+	/** The used {@link DL220ObisCodeMapper} */
+	private DL220ObisCodeMapper obisCodeMapper;
 
 	/** The index of the measurement. This is a zero based value of the two indexes */
 	private int meterIndex;
 	/** The size of the profileRequestBlocks */
 	private int profileRequestBlockSize;
+
 	/**
 	 * Default constructor
 	 */
@@ -118,7 +126,10 @@ public class DL220 extends AbstractIEC1107Protocol {
 	@SuppressWarnings(value = { "unchecked" })
 	protected List doGetOptionalKeys() {
 		List keys = new ArrayList();
+		/* Define the Records in one requestBlock, default this is 10 */
 		keys.add("ProfileRequestBlockSize");
+		/* Normally we should use NodeAddress or DeviceId, but the framework uses these for the IEC1107Connection */
+		keys.add("MeterIndex");
 		return keys;
 	}
 
@@ -126,18 +137,18 @@ public class DL220 extends AbstractIEC1107Protocol {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void doValidateProperties(Properties properties) throws MissingPropertyException,	InvalidPropertyException {
-		
+	protected void doValidateProperties(Properties properties) throws MissingPropertyException,
+			InvalidPropertyException {
+
 		/* The NodeAddress is used to indicate which input is connected */
-		if(nodeId.equalsIgnoreCase("")){
-			meterIndex = 0;
-		} else if ((Integer.parseInt(nodeId) > 2) && ((Integer.parseInt(nodeId) < 1))){
-			throw new InvalidPropertyException("Incorrect NodeAddress property. If the value is not empty, then only 1 or 2 is allowed. " +
-					"If NodeAddress is empty, then default 1 will be used.");
-		} else {
-			meterIndex = Integer.parseInt(nodeId) - 1;
+
+		meterIndex = Integer.parseInt(properties.getProperty("MeterIndex", "1")) - 1;
+		if (meterIndex > 1 || meterIndex < 0) {
+			throw new InvalidPropertyException(
+					"Incorrect MeterIndex property. If the value is not empty, then only 1 or 2 is allowed. "
+							+ "If MeterIndex is empty, then default 1 will be used.");
 		}
-		
+
 		this.profileRequestBlockSize = Integer.parseInt(properties.getProperty("ProfileRequestBlockSize", "10"));
 	}
 
@@ -145,7 +156,6 @@ public class DL220 extends AbstractIEC1107Protocol {
 	 * {@inheritDoc}
 	 */
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
-
 		AbstractObject mo = getObjectFactory().getManufacturerObject();
 		AbstractObject mt = getObjectFactory().getMeterTypeObject();
 		SoftwareVersionObject sv = getObjectFactory().getSoftwareVersionObject();
@@ -172,7 +182,8 @@ public class DL220 extends AbstractIEC1107Protocol {
 		DLObject serialNubmer = DLObject.constructObject(this, DLObject.SA_SERIALNUMBER);
 		String meterSerialNumber = serialNubmer.getValue(1);
 		if (this.serialNumber != null && !this.serialNumber.equals(meterSerialNumber)) {
-			throw new IOException("Wrong serialnumber, EIServer settings: " + this.serialNumber + " - Meter settings: " + meterSerialNumber);
+			throw new IOException("Wrong serialnumber, EIServer settings: " + this.serialNumber + " - Meter settings: "
+					+ meterSerialNumber);
 		}
 	}
 
@@ -193,21 +204,21 @@ public class DL220 extends AbstractIEC1107Protocol {
 	/**
 	 * {@inheritDoc}
 	 */
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
-        return getProfileObject().getNumberOfChannels();
-     }
-    
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    public int getProfileInterval() throws UnsupportedException, IOException {
-        return getProfileObject().getInterval();
-    }
-	
-    /**
-     * {@inheritDoc}
-     */
+	public int getNumberOfChannels() throws UnsupportedException, IOException {
+		return getProfileObject().getNumberOfChannels();
+	}
+
+	/**
+	 * 
+	 * {@inheritDoc}
+	 */
+	public int getProfileInterval() throws UnsupportedException, IOException {
+		return getProfileObject().getInterval();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
 		return getProfileData(lastReading, new Date(), includeEvents);
 	}
@@ -215,36 +226,42 @@ public class DL220 extends AbstractIEC1107Protocol {
 	/**
 	 * {@inheritDoc}
 	 */
-	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException,
+			UnsupportedException {
 		ProfileData profileData = new ProfileData();
 
 		profileData.setChannelInfos(getProfileObject().buildChannelInfos());
-		
+
 		profileData.setIntervalDatas(getProfileObject().getIntervalData(from, to));
-		
-		if(includeEvents){
+
+		if (includeEvents) {
 			profileData.setMeterEvents(getProfileObject().getMeterEvents(from));
-			/* 
-			 * Not all statuses are always mapped, therefore we use the events to create additional
-			 * intervalStateBits (especially the clock statuses)
+
+			// TODO
+			// // TODO check why you don't use this method!!!
+			// profileData.applyEvents(interval);
+			/*
+			 * Not all statuses are always mapped, therefore we use the events to create additional intervalStateBits
+			 * (especially the clock statuses)
 			 */
 			getProfileObject().applyEvents(profileData);
 		}
-		
+
 		return profileData;
 	}
-	
-    /**
-     * @return	the {@link DL220Profile}
-     */
-    protected DL220Profile getProfileObject(){
-    	if(this.profile == null){
-    		//TODO measurement1 should be adjustable according to the meterindex
-    		this.profile = new DL220Profile(this, meterIndex, Archives.MEASUREMENT1, profileRequestBlockSize);
-    	}
-    	return this.profile;
-    }
-    
+
+	/**
+	 * @return the {@link DL220Profile}
+	 */
+	protected DL220Profile getProfileObject() {
+		if (this.profile == null) {
+			// TODO measurement1 should be adjustable according to the meterindex
+			this.profile = new DL220Profile(this, this.meterIndex, (this.meterIndex == 0) ? Archives.MEASUREMENT1
+					: Archives.MEASUREMENT2, profileRequestBlockSize);
+		}
+		return this.profile;
+	}
+
 	/**
 	 * Getter for the {@link ObjectFactory}
 	 * 
@@ -255,5 +272,47 @@ public class DL220 extends AbstractIEC1107Protocol {
 			this.objectFactory = new ObjectFactory(this);
 		}
 		return this.objectFactory;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
+		return new RegisterInfo("");
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public RegisterValue readRegister(ObisCode obisCode) throws IOException {
+		return getObisCodeMapper().getRegisterValue(obisCode);
+	}
+
+	/**
+	 * Getter for the {@link DL220ObisCodeMapper}
+	 * 
+	 * @return the used {@link DL220ObisCodeMapper}
+	 */
+	protected DL220ObisCodeMapper getObisCodeMapper() {
+		if (this.obisCodeMapper == null) {
+			this.obisCodeMapper = new DL220ObisCodeMapper(this);
+		}
+		return this.obisCodeMapper;
+	}
+
+	/**
+	 * Getter for the meterIndex
+	 * 
+	 * @return the meterIndex
+	 */
+	public int getMeterIndex() {
+		return this.meterIndex;
+	}
+
+	/**
+	 * @return the profileRequestBlockSize
+	 */
+	public int getProfileRequestBlockSize() {
+		return this.profileRequestBlockSize;
 	}
 }

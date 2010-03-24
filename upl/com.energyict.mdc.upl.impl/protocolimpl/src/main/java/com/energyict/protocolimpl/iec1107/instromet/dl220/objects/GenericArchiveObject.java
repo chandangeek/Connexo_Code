@@ -58,8 +58,10 @@ public class GenericArchiveObject extends AbstractObject {
 	 * 			- the referred {@link Archives}
 	 */
 	public GenericArchiveObject(ProtocolLink link, Archives archive) {
+
 		super(link);
 		this.archive = archive;
+		this.instance = archive.getValue();
 	}
 
 	/**
@@ -124,7 +126,6 @@ public class GenericArchiveObject extends AbstractObject {
 	 */
 	private String getEmptyRequest(String startAddress) throws IOException{
 		this.startAddress = startAddress;
-		this.instance = archive.getValue();
 		ReadArchiveCommand rac = new ReadArchiveCommand(link);
 		rac.setStartAddress(getStartAddress());
 		return rac.invokeForOneTransaction(EMPTY_REQUEST);

@@ -13,6 +13,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
+
 /**
  * @author gna
  * @since 5-mrt-2010
@@ -129,5 +132,17 @@ public class DL220UtilsTest {
 			e.printStackTrace();
 			fail();
 		}
+	}
+	
+	/**
+	 * Test the Unit conversion
+	 */
+	@Test
+	public final void getUnitFromStringTest(){
+		assertEquals(Unit.get(BaseUnit.CUBICMETER, 0), DL220Utils.getUnitFromString("m3"));
+		assertEquals(Unit.get(BaseUnit.WATT), DL220Utils.getUnitFromString("W"));
+		assertEquals(Unit.get(BaseUnit.WATTHOUR), DL220Utils.getUnitFromString("Wh"));
+		assertEquals(Unit.get(BaseUnit.WATT, 3), DL220Utils.getUnitFromString("kW"));
+		assertEquals(Unit.get(BaseUnit.WATTHOUR, 3), DL220Utils.getUnitFromString("kWh"));
 	}
 }
