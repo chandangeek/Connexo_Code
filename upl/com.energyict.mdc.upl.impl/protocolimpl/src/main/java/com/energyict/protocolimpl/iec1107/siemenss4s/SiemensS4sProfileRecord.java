@@ -41,7 +41,9 @@ public class SiemensS4sProfileRecord {
 	 * @param numberOfChannels - the number of values to retrieve from the byteArray
 	 */
 	public SiemensS4sProfileRecord(byte[] rawData, Calendar timeStamp, int numberOfChannels){
-		this.rawData = rawData;
+		if(rawData != null){
+			this.rawData = rawData.clone();
+		}
 		this.timeStamp = timeStamp;
 		this.numberOfChannels = numberOfChannels;
 		this.possibleDelete = false;
