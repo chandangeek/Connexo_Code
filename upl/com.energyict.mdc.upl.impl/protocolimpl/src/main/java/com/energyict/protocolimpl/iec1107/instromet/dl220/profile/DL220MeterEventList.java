@@ -22,20 +22,16 @@ public class DL220MeterEventList {
 
 	private static final String EVENT_PREFIX = "0x";
 
-	/* Events used to determine a timeShift */
-	private static final String VALUE_ARCHIVE1_CHANGED_AFTER = "0x8202"; 
-	private static final String VALUE_ARCHIVE1_CHANGED_BEFORE = "0x8302"; 
-	private static final String VALUE_MONTH1_CHANGED_AFTER = "0x8201"; 
-	private static final String VALUE_MONTH1_CHANGED_BEFORE = "0x8301";
-	private static final String VALUE_DAY1_CHANGED_AFTER = "0x820D";
-	private static final String VALUE_DAY1_CHANGED_BEFORE = "0x830D";
 	
+	/* Events used to determine a timeShift */
+	private static final String VALUE_ARCHIVE1_CHANGED_AFTER = "0x8202";
 	private static final String VALUE_ARCHIVE2_CHANGED_AFTER = "0x8204";
+	
+	private static final String VALUE_ARCHIVE1_CHANGED_BEFORE = "0x8302";
 	private static final String VALUE_ARCHIVE2_CHANGED_BEFORE = "0x8304";
-	private static final String VALUE_MONTH2_CHANGED_AFTER = "0x8203";
-	private static final String VALUE_MONTH2_CHANGED_BEFORE = "0x8303";
-	private static final String VALUE_DAY2_CHANGED_AFTER = "0x820E";
-	private static final String VALUE_DAY2_CHANGED_BEFORE = "0x830E";
+	
+	private static final String[] VALUE_ARCHIVE_X_CHANGED_AFTER = {VALUE_ARCHIVE1_CHANGED_AFTER, VALUE_ARCHIVE2_CHANGED_AFTER};
+	private static final String[] VALUE_ARCHIVE_X_CHANGED_BEFORE = {VALUE_ARCHIVE1_CHANGED_BEFORE, VALUE_ARCHIVE2_CHANGED_BEFORE};
 	
 	/* Other events */
 	private static final String VALUE_OUTPUT1_OVERLOAD_START = "0x0301";
@@ -130,6 +126,18 @@ public class DL220MeterEventList {
 	private List<DL220Record> measurementChangeEvents = new ArrayList<DL220Record>();
 
 	private List<MeterEvent> eventList = new ArrayList<MeterEvent>();
+	
+	private final int meterIndex;
+
+	/**
+	 * Constructor with a given meterIndex
+	 * 
+	 * @param index
+	 * 			- the index of the meter
+	 */
+	public DL220MeterEventList(int index) {
+		this.meterIndex = index;
+	}	
 
 	/**
 	 * Create an event entry with from the given intervalrecord
@@ -139,16 +147,15 @@ public class DL220MeterEventList {
 	 * @throws IOException 
 	 */
 	public void addRawEvent(DL220Record dir) throws IOException {
-		if (VALUE_ARCHIVE1_CHANGED_BEFORE.equalsIgnoreCase(dir.getEvent())) {
+		if (VALUE_ARCHIVE_X_CHANGED_BEFORE[this.meterIndex].equalsIgnoreCase(dir.getEvent())) {
 			measurementChangeEvents = new ArrayList<DL220Record>();
 			measurementChangeEvents.add(dir);
-		} else if (VALUE_ARCHIVE1_CHANGED_AFTER.equalsIgnoreCase(dir.getEvent())) {
+		} else if (VALUE_ARCHIVE_X_CHANGED_AFTER[this.meterIndex].equalsIgnoreCase(dir.getEvent())) {
 			measurementChangeEvents.add(dir);
 			checkMeasurementChangeEvents();
 		} else {
 			addMeterEventToList(dir.getEndTime(), dir.getEvent());
 		}
-
 	}
 
 	/**

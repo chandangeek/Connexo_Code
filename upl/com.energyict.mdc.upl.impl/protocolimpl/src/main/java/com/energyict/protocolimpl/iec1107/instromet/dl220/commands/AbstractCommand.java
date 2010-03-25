@@ -13,6 +13,9 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
  * 
  */
 public abstract class AbstractCommand {
+	
+	/** Error indication string */
+	public static String ERROR_INDICATION = "#";
 
 	/**
 	 * Default constructor
@@ -53,5 +56,24 @@ public abstract class AbstractCommand {
 	 */
 	protected FlagIEC1107Connection getConnection() {
 		return this.link.getFlagIEC1107Connection();
+	}
+
+	/**
+	 * Check if an error was returned in the response (indicated by an '#')
+	 * 
+	 * @param response
+	 * 			- the response to check
+	 * 
+	 * @return the given String if it contains no error
+	 * 
+	 * @throws IOException with the proper message if an error was returned
+	 */
+	protected String checkResponseForErrors(String response) throws IOException {
+		if(response.indexOf(ERROR_INDICATION) > -1){
+			int errorCode = Integer.parseInt(response.substring(response.indexOf(ERROR_INDICATION) + 1, response.indexOf(")")));
+			throw new IOException("Error received during read : " + ErrorCodes.getMessageForCode(errorCode));
+		} else {
+			return response;
+		}
 	}
 }

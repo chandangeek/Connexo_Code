@@ -58,8 +58,7 @@ public class WriteCommand extends AbstractCommand {
 	 */
 	public String invoke() throws IOException {
 		Command command = prepareBuild();
-		getConnection().sendRawCommandFrame(command.getCommand(), command.getConstructedData());
-		return "";
+		return checkResponseForErrors(getConnection().sendRawCommandFrameAndReturn(command.getCommand(), command.getConstructedData()));
 	}
 
 	/**

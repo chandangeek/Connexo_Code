@@ -308,7 +308,7 @@ public class DL220Profile {
 	 */
 	public DL220MeterEventList getMeterEventList(){
 		if(this.meterEventList == null) {
-			this.meterEventList = new DL220MeterEventList();
+			this.meterEventList = new DL220MeterEventList(this.index);
 		}
 		return this.meterEventList;
 	}

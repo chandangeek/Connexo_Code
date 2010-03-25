@@ -61,7 +61,7 @@ public class GenericArchiveObject extends AbstractObject {
 
 		super(link);
 		this.archive = archive;
-		this.instance = archive.getValue();
+		this.instance = this.archive.getValue();
 	}
 
 	/**

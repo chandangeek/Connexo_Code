@@ -24,8 +24,8 @@ public enum DL220Registers {
 	FLOWRATEINPUT1(ObisCode.fromString("8.1.2.0.0.255"), "210.0", 1),
 	
 	MAINVALUETOTAL2(ObisCode.fromString("8.2.1.0.0.255"), "202.0", 2),
-	MAINVALUEHT2(ObisCode.fromString("8.2.1.0.0.255"), "200.0", 2),
-	MAINVALUELT2(ObisCode.fromString("8.2.1.0.0.255"), "201.0", 2),
+	MAINVALUEHT2(ObisCode.fromString("8.2.1.0.1.255"), "200.0", 2),
+	MAINVALUELT2(ObisCode.fromString("8.2.1.0.2.255"), "201.0", 2),
 	FLOWRATEINPUT2(ObisCode.fromString("8.2.2.0.0.255"), "210.0", 2);
 	
 	/** The address in the meter */

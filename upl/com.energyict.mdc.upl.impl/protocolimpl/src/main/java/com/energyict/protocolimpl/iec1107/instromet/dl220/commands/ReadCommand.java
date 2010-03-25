@@ -18,6 +18,7 @@ public class ReadCommand extends AbstractCommand {
 
 	/** Used for reading a simple object */
 	protected static String SIMPLE_READ_COMMAND = "R1";
+	
 	protected String address;
 	private static byte readData = 0x31;
 
@@ -60,7 +61,7 @@ public class ReadCommand extends AbstractCommand {
 	public String invoke() throws IOException {
 		Command command = prepareBuild();
 		getConnection().sendRawCommandFrame(command.getCommand(), command.getConstructedData());
-		return getConnection().receiveString();
+		return checkResponseForErrors(getConnection().receiveString());
 	}
 
 }

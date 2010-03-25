@@ -24,6 +24,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.iec1107.instromet.dl220.commands.AbstractCommand;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.AbstractObject;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.DLObject;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.SoftwareVersionObject;
@@ -81,8 +82,9 @@ public class DL220 extends AbstractIEC1107Protocol {
 		try {
 			flagIEC1107Connection = new DL220Connection(inputStream, outputStream, iec1107TimeoutProperty,
 					protocolRetriesProperty, forcedDelay, echoCancelling, iec1107Compatible, software7E1);
+			flagIEC1107Connection.setErrorSignature(AbstractCommand.ERROR_INDICATION);
 		} catch (ConnectionException e) {
-			logger.severe("IndigoPlus, init, " + e.getMessage());
+			logger.severe("DL220W, init, " + e.getMessage());
 		}
 	}
 
