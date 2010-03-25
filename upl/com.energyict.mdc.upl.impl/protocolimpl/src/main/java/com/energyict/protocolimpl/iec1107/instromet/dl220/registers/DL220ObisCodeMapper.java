@@ -19,6 +19,7 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.Archives;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.DL220;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.DL220Utils;
+import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.ClockObject;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.DLObject;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.profile.DL220Profile;
 
@@ -78,7 +79,20 @@ public class DL220ObisCodeMapper {
 
 		if(billingPoint == -1){
 			
-			if (DL220Registers.contains(adjustedOC)) {
+			if(DL220Registers.containsMaxDemandRegister(adjustedOC)){
+				try {
+					DL220Registers dlRegister = DL220Registers.forObisCode(adjustedOC);
+					DLObject object = DLObject.constructObject(dl220, dlRegister.getAddress());
+					String rawValue = object.readRawValue(dlRegister.getInstanceID());
+					String valueAndUnit = DL220Utils.getTextBetweenBracketsFromIndex(rawValue, 0);
+					Date eventTime = ClockObject.parseCalendar(DL220Utils.getTextBetweenBracketsFromIndex(rawValue, 1), dl220.getTimeZone()).getTime();
+					BigDecimal bd = new BigDecimal(valueAndUnit.split(DLObject.ASTERISK)[DLObject.valueIndex]);
+					rv = new RegisterValue(original, new Quantity(bd, DL220Utils.getUnitFromString(valueAndUnit.split(DLObject.ASTERISK)[DLObject.unitIndex])), eventTime);
+				} catch (IOException e) {
+					e.printStackTrace();
+					throw new IOException("Failed while reading register with ObisCode " + obisCode);
+				}
+			} else if (DL220Registers.contains(adjustedOC)) {
 				try {
 					DL220Registers dlRegister = DL220Registers.forObisCode(adjustedOC);
 					DLObject object = DLObject.constructObject(dl220, dlRegister.getAddress());
@@ -86,7 +100,6 @@ public class DL220ObisCodeMapper {
 					BigDecimal bd = new BigDecimal(valueWithUnit.split(DLObject.ASTERISK)[DLObject.valueIndex]);
 					rv = new RegisterValue(original, new Quantity(bd, DL220Utils.getUnitFromString(valueWithUnit
 							.split(DLObject.ASTERISK)[DLObject.unitIndex])), new Date());
-					return rv;
 				} catch (IOException e) {
 					e.printStackTrace();
 					throw new IOException("Failed while reading register with ObisCode " + obisCode);
@@ -100,7 +113,9 @@ public class DL220ObisCodeMapper {
 			 * The BillingPoints are daily values
 			 */
 
-			if((adjustedOC.getA() == 8 || adjustedOC.getA() == 9) && (adjustedOC.getB() == 1 || adjustedOC.getB() == 2) && adjustedOC.getC() == 1 && adjustedOC.getD() == 0 && adjustedOC.getE() == 0){
+			if ((adjustedOC.getA() == 8 || adjustedOC.getA() == 9)
+					&& (adjustedOC.getB() == 1 || adjustedOC.getB() == 2) && adjustedOC.getC() == 1
+					&& adjustedOC.getD() == 0 && adjustedOC.getE() == 0){
 				Calendar cal = Calendar.getInstance(this.dl220.getTimeZone());
 				cal.add(Calendar.DAY_OF_MONTH, -(billingPoint + 1));	// normally the last billingpoint comes first
 				Date fromDate = cal.getTime();
@@ -108,11 +123,12 @@ public class DL220ObisCodeMapper {
 				Date toDate = cal.getTime();
 				IntervalData id = getBillingInterval(fromDate, toDate, billingPoint, original);
 				IntervalValue iv = (IntervalValue)id.getIntervalValues().get(0);			// we take the first value, we assume it is the one you want
-				return new RegisterValue(original, new Quantity(iv.getNumber(), getProfileObject().getValueUnit()), id.getEndTime());
+				rv = new RegisterValue(original, new Quantity(iv.getNumber(), getProfileObject().getValueUnit()), id.getEndTime());
 			} else {
 				throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported by the protocol.");
 			}
 		}
+		return rv;
 	}
 	
 	/**

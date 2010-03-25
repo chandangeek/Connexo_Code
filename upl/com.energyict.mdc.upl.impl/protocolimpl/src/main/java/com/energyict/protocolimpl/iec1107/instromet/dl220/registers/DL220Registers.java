@@ -18,15 +18,19 @@ import com.energyict.obis.ObisCode;
  */
 public enum DL220Registers {
 	
-	MAINVALUETOTAL1(ObisCode.fromString("8.1.1.0.0.255"), "202.0", 1),
-	MAINVALUEHT1(ObisCode.fromString("8.1.1.0.1.255"), "200.0", 1),
-	MAINVALUELT1(ObisCode.fromString("8.1.1.0.2.255"), "201.0", 1),
-	FLOWRATEINPUT1(ObisCode.fromString("8.1.2.0.0.255"), "210.0", 1),
+	MAINVALUETOTAL1(ObisCode.fromString("8.1.1.0.0.255"), "202.0", 1, false),
+	MAINVALUEHT1(ObisCode.fromString("8.1.1.0.1.255"), "200.0", 1, false),
+	MAINVALUELT1(ObisCode.fromString("8.1.1.0.2.255"), "201.0", 1, false),
+	FLOWRATEINPUT1(ObisCode.fromString("8.1.2.0.0.255"), "210.0", 1, false),
+	MAXMESPERIOD1(ObisCode.fromString("8.1.5.0.1.255"), "160.0", 3, true),
+	MAXMESDAY1(ObisCode.fromString("8.1.5.0.2.255"), "160.0", 4, true),
 	
-	MAINVALUETOTAL2(ObisCode.fromString("8.2.1.0.0.255"), "202.0", 2),
-	MAINVALUEHT2(ObisCode.fromString("8.2.1.0.1.255"), "200.0", 2),
-	MAINVALUELT2(ObisCode.fromString("8.2.1.0.2.255"), "201.0", 2),
-	FLOWRATEINPUT2(ObisCode.fromString("8.2.2.0.0.255"), "210.0", 2);
+	MAINVALUETOTAL2(ObisCode.fromString("8.2.1.0.0.255"), "202.0", 2, false),
+	MAINVALUEHT2(ObisCode.fromString("8.2.1.0.1.255"), "200.0", 2, false),
+	MAINVALUELT2(ObisCode.fromString("8.2.1.0.2.255"), "201.0", 2, false),
+	FLOWRATEINPUT2(ObisCode.fromString("8.2.2.0.0.255"), "210.0", 2, false),
+	MAXMESPERIOD2(ObisCode.fromString("8.2.5.0.1.255"), "160.0", 7, true),
+	MAXMESDAY2(ObisCode.fromString("8.2.5.0.2.255"), "160.0", 8, true);
 	
 	/** The address in the meter */
 	private final String address;
@@ -34,6 +38,8 @@ public enum DL220Registers {
 	private final ObisCode obiscode;
 	/** The ObjectInstance in the meter */
 	private final int instanceID;
+	/** Indication if it is a MaximumDemand register */
+	private final boolean maxDemand;
 	
 	/** Contains a list of possible {@link DL220Registers} */
 	private static Map<ObisCode, DL220Registers> instances;
@@ -65,10 +71,11 @@ public enum DL220Registers {
 	 * 				- the index of the meter (1 or 2)
 	 * 
 	 */
-	private DL220Registers(ObisCode obisCode, String address, int instance){
+	private DL220Registers(ObisCode obisCode, String address, int instance, boolean maxDemand){
 		this.obiscode = obisCode;
 		this.address = address;
 		this.instanceID = instance;
+		this.maxDemand = maxDemand;
 		getInstances().put(obisCode, this);
 	}
 	
@@ -93,6 +100,24 @@ public enum DL220Registers {
 	public static boolean contains(ObisCode oc){
 		return instances.containsKey(oc);
 	}
+	
+	/**
+	 * @param oc
+	 * 			- the {@link ObisCode} to check
+	 * 
+	 * @return true if the given ObisCode is in the list AND is a maximum Demand Register 
+	 */
+	public static boolean containsMaxDemandRegister(ObisCode oc){
+		if(instances.containsKey(oc)){
+			if(forObisCode(oc).isMaxDemand()){
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
 
 	/**
 	 * @return the address
@@ -113,5 +138,12 @@ public enum DL220Registers {
 	 */
 	public int getInstanceID() {
 		return instanceID;
+	}
+	
+	/**
+	 * @return true if it is a maximum demand register
+	 */
+	public boolean isMaxDemand(){
+		return maxDemand;
 	}
 }

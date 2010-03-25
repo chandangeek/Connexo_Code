@@ -44,7 +44,7 @@ public class DL220EventRecord implements DL220Record {
 	 * @throws IOException 
 	 */
 	public Date getEndTime() throws IOException{
-		return ClockObject.parseCalendar(DL220Utils.getTextBetweenBracketsStartingFrom(this.record, derc.getTimeIndex()), timeZone).getTime();
+		return ClockObject.parseCalendar(DL220Utils.getTextBetweenBracketsFromIndex(this.record, derc.getTimeIndex()), timeZone).getTime();
 	}
 
 	/**
@@ -52,7 +52,7 @@ public class DL220EventRecord implements DL220Record {
 	 * @throws IOException 
 	 */
 	public String getEvent() throws IOException{
-		return DL220Utils.getTextBetweenBracketsStartingFrom(this.record, derc.getEventIndex());
+		return DL220Utils.getTextBetweenBracketsFromIndex(this.record, derc.getEventIndex());
 	}
 
 	/**

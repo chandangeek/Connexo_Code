@@ -85,7 +85,7 @@ public class DL220Utils {
 	 * @return
 	 * 			- the text between the brackets
 	 */
-	public static String getTextBetweenBracketsStartingFrom(String text, int index){
+	public static String getTextBetweenBracketsFromIndex(String text, int index){
 		int beginIndex = 0;
 		int endIndex = 0;
 		for(int i = 0; i <= index; i++){

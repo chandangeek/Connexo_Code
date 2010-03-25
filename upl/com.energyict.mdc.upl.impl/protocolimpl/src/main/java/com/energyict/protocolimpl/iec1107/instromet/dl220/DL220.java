@@ -257,7 +257,6 @@ public class DL220 extends AbstractIEC1107Protocol {
 	 */
 	protected DL220Profile getProfileObject() {
 		if (this.profile == null) {
-			// TODO measurement1 should be adjustable according to the meterindex
 			this.profile = new DL220Profile(this, this.meterIndex, (this.meterIndex == 0) ? Archives.MEASUREMENT1
 					: Archives.MEASUREMENT2, profileRequestBlockSize);
 		}

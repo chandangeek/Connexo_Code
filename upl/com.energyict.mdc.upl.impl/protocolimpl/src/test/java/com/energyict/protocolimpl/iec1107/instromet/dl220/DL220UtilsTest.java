@@ -82,14 +82,14 @@ public class DL220UtilsTest {
 	public final void getTextBetweenBracketsStartingFromTest(){
 		String text = "(one)(two)(three)(four)(five)";
 		int index = 2;
-		assertEquals("three", DL220Utils.getTextBetweenBracketsStartingFrom(text, index));
+		assertEquals("three", DL220Utils.getTextBetweenBracketsFromIndex(text, index));
 		index = 0;
-		assertEquals("one", DL220Utils.getTextBetweenBracketsStartingFrom(text, index));
+		assertEquals("one", DL220Utils.getTextBetweenBracketsFromIndex(text, index));
 		index = 4;
-		assertEquals("five", DL220Utils.getTextBetweenBracketsStartingFrom(text, index));
+		assertEquals("five", DL220Utils.getTextBetweenBracketsFromIndex(text, index));
 		try {
 			index = 7;
-			DL220Utils.getTextBetweenBracketsStartingFrom(text, index);
+			DL220Utils.getTextBetweenBracketsFromIndex(text, index);
 		} catch (IllegalArgumentException e) {
 			if(!e.getLocalizedMessage().equalsIgnoreCase("Could not return the request text, index to large(7).")){
 				fail("Received a not-excpected exception: " + e);

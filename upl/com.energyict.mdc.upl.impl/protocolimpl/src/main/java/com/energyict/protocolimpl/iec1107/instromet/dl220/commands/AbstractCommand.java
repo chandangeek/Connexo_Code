@@ -69,7 +69,7 @@ public abstract class AbstractCommand {
 	 * @throws IOException with the proper message if an error was returned
 	 */
 	protected String checkResponseForErrors(String response) throws IOException {
-		if(response.indexOf(ERROR_INDICATION) > -1){
+		if(response != null && response.indexOf(ERROR_INDICATION) > -1){
 			int errorCode = Integer.parseInt(response.substring(response.indexOf(ERROR_INDICATION) + 1, response.indexOf(")")));
 			throw new IOException("Error received during read : " + ErrorCodes.getMessageForCode(errorCode));
 		} else {
