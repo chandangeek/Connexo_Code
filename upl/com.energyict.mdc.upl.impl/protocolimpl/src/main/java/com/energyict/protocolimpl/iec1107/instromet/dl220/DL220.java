@@ -92,7 +92,10 @@ public class DL220 extends AbstractIEC1107Protocol {
 	 * {@inheritDoc}
 	 */
 	public String getProtocolVersion() {
-		return "$Date$";
+		String rev = "$Revision$" + " - " + "$Date$";
+		String manipulated = "Revision " + rev.substring(rev.indexOf("$Revision: ") + "$Revision: ".length(), rev.indexOf("$ -")) + "at "
+				+ rev.substring(rev.indexOf("$Date: ") + "$Date: ".length(), rev.indexOf("$Date: ") + "$Date: ".length() + 19);
+    	return manipulated;
 	}
 
 	/**
