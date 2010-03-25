@@ -113,7 +113,9 @@ public class AssociationControlServiceElement {
 	}
 
 	public void setCallingAPTitle(byte[] callingAPTitle) {
-		this.callingAPTitle = callingAPTitle;
+		if(callingAPTitle != null){
+			this.callingAPTitle = callingAPTitle.clone();
+		}
 	}
 
 	/**
@@ -714,7 +716,9 @@ public class AssociationControlServiceElement {
 	 * @param respondingAuthenticationValue - the challenge from the server
 	 */
 	protected void setRespondingAuthenticationValue(byte[] respondingAuthenticationValue){
-		this.respondingAuthenticationValue = respondingAuthenticationValue;
+		if(respondingAuthenticationValue != null){
+			this.respondingAuthenticationValue = respondingAuthenticationValue.clone();
+		}
 	}
 
 	/**
@@ -725,7 +729,9 @@ public class AssociationControlServiceElement {
 	}
 
 	protected void setRespondingAPTitle(byte[] respondingAPTitle){
-		this.respondingAPTitle = respondingAPTitle;
+		if(respondingAPTitle != null){
+			this.respondingAPTitle = respondingAPTitle.clone();
+		}
 	}
 
 	public byte[] getRespondingAPTtitle(){
