@@ -30,8 +30,8 @@ public final class DL220IntervalStateBits {
 //	private static final int RESTART = 12;
 	private static final int DATA_TRANSFER_RUNNING = 13;
 	private static final int CLOCK_SYNC = 14;
-	private static final int BATTERY_MODE = 15;
-	private static final int TIME_IN_SUMMERTIME = 16;
+//	private static final int BATTERY_MODE = 15;
+//	private static final int TIME_IN_SUMMERTIME = 16;
 	
 	/**
 	 * Create the EICode for the given statuscode
@@ -75,13 +75,13 @@ public final class DL220IntervalStateBits {
         	if (CLOCK_SYNC == Integer.valueOf(code)) {	// it seems like this one is not always set ...
         		eiCode |= IntervalStateBits.SHORTLONG;
         	}
-        	if(BATTERY_MODE == Integer.valueOf(code)) {
-        		// just leave it like this, it's almost always in this mode ...
-        	}
-        	if(TIME_IN_SUMMERTIME == Integer.valueOf(code)) {
-        		// Just leave it like this, it's have of the year in summertime, just change it if 
-        		// the customer wants it.
-        	}
+//        	if(BATTERY_MODE == Integer.valueOf(code)) {
+//        		// just leave it like this, it's almost always in this mode ...
+//        	}
+//        	if(TIME_IN_SUMMERTIME == Integer.valueOf(code)) {
+//        		// Just leave it like this, it's have of the year in summertime, just change it if 
+//        		// the customer wants it.
+//        	}
         	
         }
         return eiCode;

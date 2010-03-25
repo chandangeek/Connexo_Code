@@ -342,7 +342,6 @@ public class DL220MeterEventList {
 			eventList.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, convertStringEventIdToInteger(eventId), "Measurement2 saving the values"));
 		} else {
 			eventList.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, convertStringEventIdToInteger(eventId), "Unknown event " + eventId));
-			//TODO unknown event
 		}
 	}
 
