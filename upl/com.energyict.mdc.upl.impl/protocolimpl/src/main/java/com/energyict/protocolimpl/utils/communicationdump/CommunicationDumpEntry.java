@@ -20,15 +20,21 @@ public class CommunicationDumpEntry implements Comparable<CommunicationDumpEntry
 	private final Direction direction;
 	private final Date timeStamp;
 	private final byte[] data;
+	private final int sequenceNumber;
 
 	public enum Direction {
 		TX, RX
 	}
 
-	public CommunicationDumpEntry(byte[] data, Date timeStamp, Direction direction) {
+	public CommunicationDumpEntry(byte[] data, Date timeStamp, Direction direction, int sequenceNumber) {
 		this.data = data.clone();
 		this.direction = direction;
 		this.timeStamp = timeStamp;
+		this.sequenceNumber = sequenceNumber;
+	}
+
+	public int getSequenceNumber() {
+		return sequenceNumber;
 	}
 
 	public byte[] getData() {
@@ -59,7 +65,7 @@ public class CommunicationDumpEntry implements Comparable<CommunicationDumpEntry
 		return getData().length;
 	}
 
-	public static CommunicationDumpEntry getEntryFromString(String entryLine) {
+	public static CommunicationDumpEntry getEntryFromString(String entryLine, int sequenceNumber) {
 		byte[] data;
 		Date timeStamp;
 		Direction direction;
@@ -85,7 +91,11 @@ public class CommunicationDumpEntry implements Comparable<CommunicationDumpEntry
 
 		data = ProtocolTools.getBytesFromHexString(entryLine.substring(DATA_OFFSET).trim());
 
-		return new CommunicationDumpEntry(data, timeStamp, direction);
+		return new CommunicationDumpEntry(data, timeStamp, direction, sequenceNumber);
+	}
+
+	public static CommunicationDumpEntry getEntryFromString(String entryLine) {
+		return getEntryFromString(entryLine, -1);
 	}
 
 	public boolean isTx() {

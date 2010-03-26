@@ -25,10 +25,11 @@ public class CommunicationDumpFile {
 		BufferedReader reader = null;
 		try {
 			reader = new BufferedReader(new FileReader(file));
+			int sequenceNumber = 0;
 			while (reader.ready()) {
 				String entryLine = reader.readLine();
 				if (entryLine != null) {
-					CommunicationDumpEntry entry = CommunicationDumpEntry.getEntryFromString(entryLine);
+					CommunicationDumpEntry entry = CommunicationDumpEntry.getEntryFromString(entryLine, sequenceNumber++);
 					if (entry != null) {
 						entries.add(entry);
 					}
