@@ -74,15 +74,15 @@ public class DL220ProfileTest {
 			cal.setTimeInMillis(Long.valueOf("1268041200000"));
 			
 			assertEquals(cal.getTime(), intervalData.get(299).getEndTime());
-			assertEquals(new Integer(172), ((IntervalValue)intervalData.get(299).getIntervalValues().get(0)).getNumber());
+			assertEquals(new BigDecimal(172), ((IntervalValue)intervalData.get(299).getIntervalValues().get(0)).getNumber());
 			
 			cal.setTimeInMillis(Long.valueOf("1268039700000"));
 			assertEquals(cal.getTime(), intervalData.get(294).getEndTime());
-			assertEquals(new Integer(164), ((IntervalValue)intervalData.get(294).getIntervalValues().get(0)).getNumber());
+			assertEquals(new BigDecimal(164), ((IntervalValue)intervalData.get(294).getIntervalValues().get(0)).getNumber());
 			
 			cal.setTimeInMillis(Long.valueOf("1268039100000"));
 			assertEquals(cal.getTime(), intervalData.get(292).getEndTime());
-			assertEquals(new Integer(159), ((IntervalValue)intervalData.get(292).getIntervalValues().get(0)).getNumber());			
+			assertEquals(new BigDecimal(159), ((IntervalValue)intervalData.get(292).getIntervalValues().get(0)).getNumber());			
 			
 			
 		} catch (FileNotFoundException e) {
