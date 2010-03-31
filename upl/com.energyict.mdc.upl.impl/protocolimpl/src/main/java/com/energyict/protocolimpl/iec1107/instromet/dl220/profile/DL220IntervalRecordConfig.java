@@ -14,6 +14,8 @@ import com.energyict.protocolimpl.iec1107.instromet.dl220.DL220Utils;
 /**
  * Defines the indexes of the different objects in a {@link DL220IntervalRecord}
  * 
+ * TODO check the addresses instead of the namings
+ * 
  * @author gna
  * @since 8-mrt-2010
  *

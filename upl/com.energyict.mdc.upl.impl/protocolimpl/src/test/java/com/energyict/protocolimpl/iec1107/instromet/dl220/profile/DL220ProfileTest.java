@@ -173,4 +173,42 @@ public class DL220ProfileTest {
 			fail();
 		}
 	}
+	
+	/**
+	 * Test intervals with a float value (I call it float values because they have a comma or dot in the value)
+	 */
+	@Test
+	public final void buildFloatProfileTest(){
+		try {
+			DL220 link = new DL220();
+			link.init(null, null, TimeZone.getTimeZone("GMT"), Logger.getAnonymousLogger());
+			File file = new File(DL220Profile.class.getClassLoader().getResource(
+			"com/energyict/protocolimpl/iec1107/instromet/dl220/DL220FloatProfile.bin").getFile());
+			FileInputStream fis = new FileInputStream(file);
+			byte[] content = new byte[(int) file.length()];
+			fis.read(content);
+			fis.close();
+			String recordConfig = "(GONr)(AONr)(Zeit)(V1.G)(V1.P)(St.1)(StSy)(Er)(Check)";
+			DL220Profile dlProfile = new DL220Profile(link, 0, Archives.MEASUREMENT1, 10);
+			dlProfile.setCapturedObjects(recordConfig);
+			dlProfile.setInterval(300);
+			DL220IntervalRecordConfig dirc = new DL220IntervalRecordConfig(recordConfig);
+			dlProfile.setDirc(dirc);
+			List<IntervalData> intervalData = dlProfile.buildIntervalData(new String(content));
+			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+			cal.setTimeInMillis(Long.valueOf("1268041200000"));
+			
+			assertEquals(new BigDecimal(new BigInteger("1301"), 1), ((IntervalValue)intervalData.get(0).getIntervalValues().get(0)).getNumber());
+			
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			fail();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			fail();
+		} catch (IOException e) {
+			e.printStackTrace();
+			fail();
+		}
+	}
 }

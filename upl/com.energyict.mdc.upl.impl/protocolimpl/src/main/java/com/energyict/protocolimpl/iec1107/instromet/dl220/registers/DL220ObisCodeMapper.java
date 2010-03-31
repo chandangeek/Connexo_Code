@@ -89,8 +89,7 @@ public class DL220ObisCodeMapper {
 					BigDecimal bd = new BigDecimal(valueAndUnit.split(DLObject.ASTERISK)[DLObject.valueIndex]);
 					rv = new RegisterValue(original, new Quantity(bd, DL220Utils.getUnitFromString(valueAndUnit.split(DLObject.ASTERISK)[DLObject.unitIndex])), eventTime);
 				} catch (IOException e) {
-					e.printStackTrace();
-					throw new IOException("Failed while reading register with ObisCode " + obisCode);
+					throw new NoSuchRegisterException("Failed while reading register with ObisCode " + obisCode);
 				}
 			} else if (DL220Registers.contains(adjustedOC)) {
 				try {
@@ -101,10 +100,10 @@ public class DL220ObisCodeMapper {
 					rv = new RegisterValue(original, new Quantity(bd, DL220Utils.getUnitFromString(valueWithUnit
 							.split(DLObject.ASTERISK)[DLObject.unitIndex])), new Date());
 				} catch (IOException e) {
-					e.printStackTrace();
-					throw new IOException("Failed while reading register with ObisCode " + obisCode);
+					throw new NoSuchRegisterException("Failed while reading register with ObisCode " + obisCode);
 				}
 			} else {
+				dl220.getLogger().info("ObisCode " + obisCode.toString() + " is not supported by the PROTOCOL.");
 				throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported by the protocol.");
 			}
 			
@@ -115,7 +114,7 @@ public class DL220ObisCodeMapper {
 
 			if ((adjustedOC.getA() == 8 || adjustedOC.getA() == 9)
 					&& (adjustedOC.getB() == 1 || adjustedOC.getB() == 2) && adjustedOC.getC() == 1
-					&& adjustedOC.getD() == 0 && adjustedOC.getE() == 0){
+					&& adjustedOC.getD() == 1 && adjustedOC.getE() == 0){
 				Calendar cal = Calendar.getInstance(this.dl220.getTimeZone());
 				cal.add(Calendar.DAY_OF_MONTH, -(billingPoint + 1));	// normally the last billingpoint comes first
 				Date fromDate = cal.getTime();
@@ -125,6 +124,7 @@ public class DL220ObisCodeMapper {
 				IntervalValue iv = (IntervalValue)id.getIntervalValues().get(0);			// we take the first value, we assume it is the one you want
 				rv = new RegisterValue(original, new Quantity(iv.getNumber(), getProfileObject().getValueUnit()), id.getEndTime());
 			} else {
+				dl220.getLogger().info("ObisCode " + obisCode.toString() + " is not supported by the PROTOCOL.");
 				throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported by the protocol.");
 			}
 		}
@@ -160,10 +160,12 @@ public class DL220ObisCodeMapper {
 			
 			if(intervalList.size() != 0){
 				if(billingPoint > intervalList.size()){
+					dl220.getLogger().info("Register with ObisCode " + obisCode + " is not yet available in the meter.(Billingpoint does not exist yet)");
 					throw new NoSuchRegisterException("Register with ObisCode " + obisCode + " is not yet available in the meter.(Billingpoint does not exist yet)");
 				}
 				return intervalList.get(intervalList.size() - 1 - billingPoint);	// we take the last value, which is normally the last updated value
 			} else {
+				dl220.getLogger().info("Register with ObisCode " + obisCode + " is not available in the device(possibly billing point doesn't exist)");
 				throw new NoSuchRegisterException("Register with ObisCode " + obisCode + " is not available in the device(possibly billing point doesn't exist)");
 			}
 		}
@@ -206,6 +208,7 @@ public class DL220ObisCodeMapper {
 					.getF());
 			return obisCode;
 		} else {
+			dl220.getLogger().info("ObisCode " + oc.toString() + " is not supported by the PROTOCOL.");
 			throw new NoSuchRegisterException("ObisCode " + oc + " is not supported by the protocol.");
 		}
 	}

@@ -130,7 +130,7 @@ public class DL220Profile {
 		for(int i = 0; i < getNumberOfChannels(); i++){
 			ChannelInfo ci = new ChannelInfo(i, "Channel " + i, getValueUnit());
 			ci.setCumulative();
-			/* We also use the deprecated method for 8.3 versions */
+			/* We also use the @deprecated method for 8.3 versions */
 			ci.setCumulativeWrapValue(new BigDecimal("1000000000"));
 			channelInfos.add(ci);
 		}
@@ -241,7 +241,7 @@ public class DL220Profile {
 			dir = new DL220IntervalRecord(recordX, getIntervalRecordConfig(), link.getTimeZone());
 			id = new IntervalData(dir.getEndTime());
 			for(int i = 0 ; i < getNumberOfChannels(); i++){
-				id.addValue(Integer.parseInt(dir.getValue(i)));
+				id.addValue(new BigDecimal(dir.getValue(i)));
 			}
 			String status = dir.getStatus();
 			id.addEiStatus(DL220IntervalStateBits.intervalStateBits(status));

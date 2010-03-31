@@ -18,19 +18,21 @@ import com.energyict.obis.ObisCode;
  */
 public enum DL220Registers {
 	
-	MAINVALUETOTAL1(ObisCode.fromString("8.1.1.0.0.255"), "202.0", 1, false),
+	//TODO add the minimum values
+	
+	MAINVALUETOTAL1(ObisCode.fromString("8.1.1.0.0.255"), "203.0", 1, false),
 	MAINVALUEHT1(ObisCode.fromString("8.1.1.0.1.255"), "200.0", 1, false),
 	MAINVALUELT1(ObisCode.fromString("8.1.1.0.2.255"), "201.0", 1, false),
 	FLOWRATEINPUT1(ObisCode.fromString("8.1.2.0.0.255"), "210.0", 1, false),
-	MAXMESPERIOD1(ObisCode.fromString("8.1.5.0.1.255"), "160.0", 3, true),
-	MAXMESDAY1(ObisCode.fromString("8.1.5.0.2.255"), "160.0", 4, true),
+	MAXMESPERIOD1(ObisCode.fromString("8.1.1.5.1.255"), "160.0", 3, true),
+	MAXMESDAY1(ObisCode.fromString("8.1.1.5.2.255"), "160.0", 4, true),
 	
-	MAINVALUETOTAL2(ObisCode.fromString("8.2.1.0.0.255"), "202.0", 2, false),
+	MAINVALUETOTAL2(ObisCode.fromString("8.2.1.0.0.255"), "203.0", 2, false),
 	MAINVALUEHT2(ObisCode.fromString("8.2.1.0.1.255"), "200.0", 2, false),
 	MAINVALUELT2(ObisCode.fromString("8.2.1.0.2.255"), "201.0", 2, false),
 	FLOWRATEINPUT2(ObisCode.fromString("8.2.2.0.0.255"), "210.0", 2, false),
-	MAXMESPERIOD2(ObisCode.fromString("8.2.5.0.1.255"), "160.0", 7, true),
-	MAXMESDAY2(ObisCode.fromString("8.2.5.0.2.255"), "160.0", 8, true);
+	MAXMESPERIOD2(ObisCode.fromString("8.2.1.5.1.255"), "160.0", 7, true),
+	MAXMESDAY2(ObisCode.fromString("8.2.1.5.2.255"), "160.0", 8, true);
 	
 	/** The address in the meter */
 	private final String address;
