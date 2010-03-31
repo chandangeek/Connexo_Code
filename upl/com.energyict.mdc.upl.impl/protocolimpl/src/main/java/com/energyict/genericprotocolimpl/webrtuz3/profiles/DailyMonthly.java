@@ -326,7 +326,8 @@ public class DailyMonthly {
 		try {
 			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
 				if(index < channelInfos.size()){
-					if(com.energyict.dlms.ParseUtils.isElectricityObisCode(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode())){
+					if(com.energyict.dlms.ParseUtils.isElectricityObisCode(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode()) ||
+							isValidChannelObisCode(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode())){
 						id.addValue(new Integer(ds.getInteger(i)));
 						index++;
 					}
@@ -338,6 +339,29 @@ public class DailyMonthly {
 		}
 		
 		return id;
+	}
+	
+	/**
+	 * Check if it is a valid channel Obiscode
+	 * TODO it is the same method as the one from the {@link ElectricityProfile}, maybe extract an abstract profile class for both ...
+	 * 
+	 * @param obisCode
+	 * 				- the {@link ObisCode} to check
+	 * 
+	 * @return true if you know it is a valid channelData obisCode, false otherwise
+	 */
+	private boolean isValidChannelObisCode(final ObisCode obisCode){
+		if ((obisCode.getA() == 1) && (((obisCode.getB() >= 0) && (obisCode.getB() <= 64)) || (obisCode.getB() == 128)) ) {	// Energy channels - Pulse channels (C == 82)
+			return true;
+		} else if(obisCode.getC() == 96){	// Temperature and Humidity
+			if((obisCode.getA() == 0) && ((obisCode.getB() == 0) || (obisCode.getB() == 1)) && (obisCode.getD() == 9) && ((obisCode.getE() == 0) || (obisCode.getE() == 2))){
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
 	}
 	
 	private int getProfileClockChannelIndex(final ProfileGeneric pg) throws IOException{
