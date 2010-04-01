@@ -1,6 +1,5 @@
 package com.energyict.dlms.cosem.attributeobjects;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import com.energyict.dlms.axrdencoding.Array;
@@ -8,10 +7,10 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 
 public class DayProfiles extends Structure {
-	
+
 	private Unsigned8 dayId = null;
 	private Array dayProfileActions = null;
-	
+
 	public DayProfiles(){
 		super();
 		this.dayProfileActions = new Array();
@@ -19,11 +18,10 @@ public class DayProfiles extends Structure {
 
 	/**
 	 * @return the BER encoded structure.
-	 * @throws IOException when parsing of the structure fails
 	 * @throws IllegalArgumentException when not all necessary dayProfile fields are written
 	 */
-	protected byte[] doGetBEREncodedByteArray() throws IOException {
-		if((getDayProfileActions() == null) || getDayId() == null){
+	protected byte[] doGetBEREncodedByteArray() {
+		if ((getDayProfileActions() == null) || (getDayId() == null)) {
 			throw new IllegalArgumentException("Some of the dayProfile fields are empty.");
 		}
 		this.dataTypes = new ArrayList();
@@ -31,11 +29,11 @@ public class DayProfiles extends Structure {
 		addDataType(getDayProfileActions());
 		return super.doGetBEREncodedByteArray();
 	}
-	 
+
 	public void addDayProfileAction(DayProfileActions dpa){
 		this.dayProfileActions.addDataType(dpa);
 	}
-	
+
 	/**
 	 * @return the dayId
 	 */
@@ -63,7 +61,7 @@ public class DayProfiles extends Structure {
 	public void setDayProfileActions(Array dayProfileActions) {
 		this.dayProfileActions = dayProfileActions;
 	}
-	
-	
+
+
 
 }

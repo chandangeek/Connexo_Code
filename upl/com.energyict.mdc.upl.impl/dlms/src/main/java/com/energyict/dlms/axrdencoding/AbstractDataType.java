@@ -8,8 +8,9 @@
 
 package com.energyict.dlms.axrdencoding;
 
-import java.io.IOException;
 import java.math.BigDecimal;
+
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
  * @author kvds
@@ -18,7 +19,8 @@ abstract public class AbstractDataType {
 
 	private int	level;
 
-	protected abstract byte[] doGetBEREncodedByteArray() throws IOException;
+	protected abstract byte[] doGetBEREncodedByteArray();
+
 	protected abstract int size();
 	public abstract int intValue();
 	public abstract BigDecimal toBigDecimal();
@@ -28,8 +30,13 @@ abstract public class AbstractDataType {
 		return isArray() ? (Array) this : null;
 	}
 
-	public byte[] getBEREncodedByteArray() throws IOException {
+	public byte[] getBEREncodedByteArray() {
 		return doGetBEREncodedByteArray();
+	}
+
+	public byte[] getContentByteArray() {
+		byte[] berEncoded = getBEREncodedByteArray();
+		return ProtocolTools.getSubArray(berEncoded, 1);
 	}
 
 	public BitString getBitString() {

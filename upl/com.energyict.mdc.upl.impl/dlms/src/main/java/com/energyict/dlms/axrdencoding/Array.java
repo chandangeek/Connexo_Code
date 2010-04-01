@@ -74,16 +74,21 @@ public class Array extends AbstractDataType {
 		return offsetEnd - offsetBegin;
 	}
 
-	protected byte[] doGetBEREncodedByteArray() throws IOException {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		baos.write(DLMSCOSEMGlobals.TYPEDESC_ARRAY);
-		baos.write(DLMSUtils.getAXDRLengthEncoding(dataTypes.size()));
-		Iterator<AbstractDataType> it = dataTypes.iterator();
-		while (it.hasNext()) {
-			AbstractDataType dt = it.next();
-			baos.write(dt.getBEREncodedByteArray());
+	protected byte[] doGetBEREncodedByteArray() {
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			baos.write(DLMSCOSEMGlobals.TYPEDESC_ARRAY);
+			baos.write(DLMSUtils.getAXDRLengthEncoding(dataTypes.size()));
+			Iterator<AbstractDataType> it = dataTypes.iterator();
+			while (it.hasNext()) {
+				AbstractDataType dt = it.next();
+				baos.write(dt.getBEREncodedByteArray());
+			}
+			return baos.toByteArray();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		return baos.toByteArray();
+		return null;
 	}
 
 	public Array addDataType(AbstractDataType dataType) {

@@ -150,7 +150,7 @@ public class DateTime extends AbstractDataType {
         return status;
     }
 
-    protected byte[] doGetBEREncodedByteArray() throws IOException {
+    protected byte[] doGetBEREncodedByteArray() {
 
         Calendar v = getValue();
 
@@ -230,11 +230,7 @@ public class DateTime extends AbstractDataType {
 
     @Override
 	public String toString() {
-		String rawData = "?";
-		try {
-			rawData = ProtocolUtils.getResponseData(getBEREncodedByteArray());
-		} catch (IOException e) {
-		}
+		String rawData = ProtocolUtils.getResponseData(getBEREncodedByteArray());
 		return getValue().getTime().toString() + " [" + rawData + "]";
 	}
 

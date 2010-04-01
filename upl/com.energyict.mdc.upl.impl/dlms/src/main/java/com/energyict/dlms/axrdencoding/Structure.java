@@ -95,20 +95,25 @@ public class Structure extends AbstractDataType {
 		return strBuff.toString();
 	}
 
-	protected byte[] doGetBEREncodedByteArray() throws IOException {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		baos.write(DLMSCOSEMGlobals.TYPEDESC_STRUCTURE);
-		baos.write(DLMSUtils.getAXDRLengthEncoding(dataTypes.size()));
-		Iterator<AbstractDataType> it = dataTypes.iterator();
-		while (it.hasNext()) {
-			AbstractDataType dt = it.next();
-			if (dt == null) {
-				baos.write(0);
-			} else {
-				baos.write(dt.getBEREncodedByteArray());
+	protected byte[] doGetBEREncodedByteArray() {
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			baos.write(DLMSCOSEMGlobals.TYPEDESC_STRUCTURE);
+			baos.write(DLMSUtils.getAXDRLengthEncoding(dataTypes.size()));
+			Iterator<AbstractDataType> it = dataTypes.iterator();
+			while (it.hasNext()) {
+				AbstractDataType dt = it.next();
+				if (dt == null) {
+					baos.write(0);
+				} else {
+					baos.write(dt.getBEREncodedByteArray());
+				}
 			}
+			return baos.toByteArray();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		return baos.toByteArray();
+		return null;
 	}
 
 	public Structure addDataType(AbstractDataType dataType) {

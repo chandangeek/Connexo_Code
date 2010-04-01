@@ -12,18 +12,18 @@ public class DayProfileActions extends Structure {
 	private OctetString startTime = null;
 	private OctetString scriptLogicalName = null;
 	private Unsigned16 scriptSelector = null;
-	
+
 	public DayProfileActions(){
 		super();
 	}
-	
+
 	/**
 	 * @return the BER encoded structure.
 	 * @throws IOException when parsing of the structure fails
 	 * @throws IllegalArgumentException when not all necessary dayProfileAction fields are written
 	 */
-	protected byte[] doGetBEREncodedByteArray() throws IOException{ 
-		if((getStartTime() == null) || (getScriptSelector() == null) || (getScriptLogicalName() == null)){
+	protected byte[] doGetBEREncodedByteArray() {
+		if ((getStartTime() == null) || (getScriptSelector() == null) || (getScriptLogicalName() == null)) {
 			throw new IllegalArgumentException("Some of the dayProfileAction fields are empty.");
 		}
 		this.dataTypes = new ArrayList();
@@ -32,8 +32,7 @@ public class DayProfileActions extends Structure {
 		addDataType(getScriptSelector());
 		return super.doGetBEREncodedByteArray();
 	}
-	
-	
+
 	/**
 	 * @return the startTime
 	 */
@@ -75,6 +74,6 @@ public class DayProfileActions extends Structure {
 	public void setScriptSelector(Unsigned16 scriptSelector) {
 		this.scriptSelector = scriptSelector;
 	}
-	
-	
+
+
 }

@@ -39,7 +39,7 @@ public class BooleanObject extends AbstractDataType {
 		this.state = state;
 	}
 
-	protected byte[] doGetBEREncodedByteArray() throws IOException {
+	protected byte[] doGetBEREncodedByteArray() {
 		byte[] data = new byte[2];
 		data[0] = DLMSCOSEMGlobals.TYPEDESC_BOOLEAN;
 		data[1] = (byte) (state ? 0xff : 0x00);

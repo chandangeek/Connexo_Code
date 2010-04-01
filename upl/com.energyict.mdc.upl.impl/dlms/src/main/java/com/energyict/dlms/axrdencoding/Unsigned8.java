@@ -46,7 +46,7 @@ public class Unsigned8 extends AbstractDataType {
         this.value=value;
     }
 
-    protected byte[] doGetBEREncodedByteArray() throws IOException {
+    protected byte[] doGetBEREncodedByteArray() {
         byte[] data = new byte[2];
         data[0] = DLMSCOSEMGlobals.TYPEDESC_UNSIGNED;
         data[1] = (byte)getValue();

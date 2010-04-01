@@ -1,16 +1,15 @@
 /**
- * 
+ *
  */
 package com.energyict.dlms.cosem.attributeobjects;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 
 public class SeasonProfiles extends Structure{
-	
+
 	private OctetString seasonProfileName = null;
 	private OctetString seasonStart = null;
 	private OctetString weekName = null;
@@ -21,21 +20,18 @@ public class SeasonProfiles extends Structure{
 
 	/**
 	 * @return the BER encoded structure.
-	 * @throws IOException when parsing of the structure fails
 	 * @throws IllegalArgumentException when not all necessary seasonProfile fields are written
 	 */
-	 protected byte[] doGetBEREncodedByteArray() throws IOException {
-		 if((getSeasonProfileName() == null) ||
-				 (getSeasonStart() == null) ||
-				 (getWeekName() == null)){
-			 throw new IllegalArgumentException("Some of the seasonProfile fields are empty.");
-		 }
-		 dataTypes = new ArrayList();
-		 addDataType(getSeasonProfileName());
-		 addDataType(getSeasonStart());
-		 addDataType(getWeekName());
-		 return super.doGetBEREncodedByteArray();
-	 }
+	protected byte[] doGetBEREncodedByteArray() {
+		if ((getSeasonProfileName() == null) || (getSeasonStart() == null) || (getWeekName() == null)) {
+			throw new IllegalArgumentException("Some of the seasonProfile fields are empty.");
+		}
+		dataTypes = new ArrayList();
+		addDataType(getSeasonProfileName());
+		addDataType(getSeasonStart());
+		addDataType(getWeekName());
+		return super.doGetBEREncodedByteArray();
+	}
 
 	/**
 	 * @return the seasonProfileName
@@ -43,7 +39,7 @@ public class SeasonProfiles extends Structure{
 	public OctetString getSeasonProfileName() {
 		return seasonProfileName;
 	}
-	
+
 	public int getSeasonId(){
 		return Integer.parseInt(new String(getSeasonProfileName().getOctetStr()));
 	}
@@ -82,7 +78,7 @@ public class SeasonProfiles extends Structure{
 	public void setWeekName(OctetString weekName) {
 		this.weekName = weekName;
 	}
-	
-	
+
+
 
 }

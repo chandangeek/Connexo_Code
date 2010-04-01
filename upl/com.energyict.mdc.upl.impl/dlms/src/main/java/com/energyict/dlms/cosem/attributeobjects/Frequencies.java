@@ -120,16 +120,8 @@ public class Frequencies extends Array implements Comparable<Frequencies> {
 	 */
 	public int compareTo(Frequencies frequencies) {
 		if (frequencies != null) {
-			byte[] other = null;
-			byte[] me = null;
-
-			try {
-				other = frequencies.getBEREncodedByteArray();
-				me = getBEREncodedByteArray();
-			} catch (IOException e) {
-				return -1;
-			}
-
+			byte[] other = frequencies.getBEREncodedByteArray();
+			byte[] me = getBEREncodedByteArray();
 			return Arrays.equals(me, other) ? 0 : 1;
 		} else {
 			return -1;

@@ -1,6 +1,5 @@
 package com.energyict.dlms.cosem.attributeobjects;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,33 +18,33 @@ public class WeekProfiles extends Structure {
 	private Unsigned8 saterday;
 	private Unsigned8 sunday;
 	private List dayIds;
-	
+
 	public WeekProfiles(){
 		super();
 		dayIds = new ArrayList();
 	}
-	
+
 	/**
 	 * @return the BER encoded structure.
 	 */
-	protected byte[] doGetBEREncodedByteArray() throws IOException {
-		 addDataType(getWeekProfileName());
-		 if(dayIds.size() != 0){
-			 for(int i = 0; i < dayIds.size(); i++){
-				 addDataType(new Unsigned8((Integer)dayIds.get(i)));
-			 }
-		 } else {
-			 addDataType(getMonday());
-			 addDataType(getTuesday());
-			 addDataType(getWednesday());
-			 addDataType(getThursday());
-			 addDataType(getFriday());
-			 addDataType(getSaterday());
-			 addDataType(getSunday());
-		 }
-		 return super.doGetBEREncodedByteArray();
-	 }
-	
+	protected byte[] doGetBEREncodedByteArray() {
+		addDataType(getWeekProfileName());
+		if (dayIds.size() != 0) {
+			for (int i = 0; i < dayIds.size(); i++) {
+				addDataType(new Unsigned8((Integer) dayIds.get(i)));
+			}
+		} else {
+			addDataType(getMonday());
+			addDataType(getTuesday());
+			addDataType(getWednesday());
+			addDataType(getThursday());
+			addDataType(getFriday());
+			addDataType(getSaterday());
+			addDataType(getSunday());
+		}
+		return super.doGetBEREncodedByteArray();
+	}
+
 	/**
 	 * Add all dayIds in order of appearance (starting Monday to Sunday)
 	 * @param dayId
@@ -165,7 +164,7 @@ public class WeekProfiles extends Structure {
 	public void setSunday(Unsigned8 sunday) {
 		this.sunday = sunday;
 	}
-	
-	
-	
+
+
+
 }

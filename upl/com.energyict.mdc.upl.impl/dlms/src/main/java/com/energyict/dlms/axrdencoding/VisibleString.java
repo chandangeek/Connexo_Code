@@ -59,7 +59,7 @@ public class VisibleString extends AbstractDataType {
 		this.size = size;
 	}
 
-	protected byte[] doGetBEREncodedByteArray() throws IOException {
+	protected byte[] doGetBEREncodedByteArray() {
 		byte[] encodedLength = DLMSUtils.getAXDRLengthEncoding(size);
 		byte[] data = new byte[size + 1 + encodedLength.length];
 		data[0] = DLMSCOSEMGlobals.TYPEDESC_VISIBLE_STRING;
