@@ -138,6 +138,16 @@ public final class ProtocolTools {
 	}
 
 	/**
+	 * @param bytes
+	 * @param from
+	 * @return
+	 */
+	public static byte[] getSubArray(final byte[] bytes, final int from) {
+		int to = (bytes != null) ? (bytes.length - 1) : -1;
+		return getSubArray(bytes, from, to);
+	}
+
+	/**
 	 * @param firstArray
 	 * @param secondArray
 	 * @return
