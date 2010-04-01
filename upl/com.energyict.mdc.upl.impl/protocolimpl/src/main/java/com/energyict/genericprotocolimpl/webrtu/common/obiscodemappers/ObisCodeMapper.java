@@ -9,6 +9,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.GenericRead;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.obis.ObisCode;
@@ -88,6 +89,12 @@ public class ObisCodeMapper {
         			new Quantity(BigDecimal.valueOf(state), Unit.getUndefined()),
         			null, null, null, new Date(), 0,
         			new String("ConnectControl state: " + possibleConnectStates[state]));
+        	return rv;
+        } else if (obisCode.toString().indexOf("0.0.97.98.1.255") != -1){
+        	GenericRead gr = cof.getGenericRead(obisCode, DLMSUtils.attrLN2SN(2), 1);
+        	rv = new RegisterValue(obisCode,
+        			new Quantity(new BigDecimal(gr.getValue()), Unit.getUndefined()),
+        			null, null, null, new Date(), 0);
         	return rv;
         }
 		
