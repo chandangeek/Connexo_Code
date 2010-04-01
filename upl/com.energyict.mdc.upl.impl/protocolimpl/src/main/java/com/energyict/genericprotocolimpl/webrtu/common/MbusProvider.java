@@ -18,18 +18,33 @@ import com.energyict.obis.ObisCode;
 public class MbusProvider {
 
 	private CosemObjectFactory cosemObjectFactory;
+	private final boolean fixMbusHexShortId;
 	
-	public MbusProvider(CosemObjectFactory cof){
+	
+	/**
+	 * Constructor
+	 * 
+	 * @param cof
+	 *            - the {@link CosemObjectFactory} to use
+	 * 
+	 * @param fixMbusHexShortId
+	 *            - boolean indicating we need to convert the Identification number from hex or from BCD (true is
+	 *            converting from hex)
+	 */
+	public MbusProvider(CosemObjectFactory cof, boolean fixMbusHexShortId){
 		this.cosemObjectFactory = cof;
+		this.fixMbusHexShortId = fixMbusHexShortId;
 	}
 	
 	/**
-	 * Construct the serialNumber for the given Mbus channel
-	 * The serialNumber is constructed according to:
+	 * Construct the serialNumber for the given Mbus channel The serialNumber is constructed according to:
 	 * "RFC13 of Enexis’ NTA 2009 meter project and RFC037 of Enexis’ Gridfield II project"
-	 * @param mbusChannel - the given Mbus channel
+	 * 
+	 * @param mbusChannel
+	 *            - the given Mbus channel
 	 * @return - the constructed serialNumber of the Mbus device
-	 * @throws IOException if some MBus attributes could not be retrieved
+	 * @throws IOException
+	 *             if some MBus attributes could not be retrieved
 	 */
 	public String getMbusSerialNumber(ObisCode obisCode) throws IOException{
 		MBusClient mClient = this.cosemObjectFactory.getMbusClient(obisCode);
@@ -55,7 +70,7 @@ public class MbusProvider {
 		strBuilder.append((char)(((manufacturer.getValue()&0x03E0)/32)+64));
 		strBuilder.append((char)((manufacturer.getValue()&0x001F)+64));
 		
-		strBuilder.append(String.format("%08x", identification.getValue()));	// 8 Hex digits with leading zeros
+		strBuilder.append(String.format((this.fixMbusHexShortId)?"%08d":"%08x", identification.getValue()));	// 8 Hex digits with leading zeros
 		strBuilder.append(String.format("%03d", version.getValue()));			// 3 Dec digits with leading zeros
 		strBuilder.append(String.format("%02d", deviceType.getValue()));		// 2 Dec digits with leading zeros
 		

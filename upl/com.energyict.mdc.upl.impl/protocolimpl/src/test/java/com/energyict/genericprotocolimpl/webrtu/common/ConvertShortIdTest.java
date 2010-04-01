@@ -33,10 +33,12 @@ public class ConvertShortIdTest {
 	@Test
 	public void constructShortIdTest(){
 		
-		MbusProvider mp = new MbusProvider(null);
+		MbusProvider mp = new MbusProvider(null, false);
 		
 		String expectedShortIdLandisGyr = "FML1000013500003";
 		String expectedShortIdFlonidan = "FLO1234567806303";
+		
+		String anotherExpectedShortId = "FLO1001650100603";
 		
 		try {
 			Unsigned8 version = new Unsigned8(DLMSUtils.hexStringToByteArray("1100"),0);
@@ -52,6 +54,14 @@ public class ConvertShortIdTest {
 			manufacturerId = new Unsigned16(DLMSUtils.hexStringToByteArray("12198F"),0);
 			
 			assertEquals(expectedShortIdFlonidan, mp.constructShortId(manufacturerId, identificationNumber, version, deviceType));
+			
+			mp = new MbusProvider(null, true);
+			version = new Unsigned8(DLMSUtils.hexStringToByteArray("1106"),0);
+			deviceType = new Unsigned8(DLMSUtils.hexStringToByteArray("1103"),0);
+			identificationNumber = new Unsigned32(DLMSUtils.hexStringToByteArray("060098d6f5"),0);
+			manufacturerId = new Unsigned16(DLMSUtils.hexStringToByteArray("12198F"),0);
+			
+			assertEquals(anotherExpectedShortId, mp.constructShortId(manufacturerId, identificationNumber, version, deviceType));
 			
 		} catch (IOException e) {
 			// should not come here, the given data is in the correct format
