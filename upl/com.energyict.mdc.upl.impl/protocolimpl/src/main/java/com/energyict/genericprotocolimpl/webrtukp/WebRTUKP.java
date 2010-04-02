@@ -44,6 +44,7 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.GenericRead;
 import com.energyict.dlms.cosem.IPv4Setup;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
@@ -171,6 +172,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	private int iiapInvokeId;
 	private int wakeup;
 	private int oldMbusDiscovery;
+	private boolean fixMbusHexShortId;
 
 	/**
 	 * <pre>
@@ -195,7 +197,6 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		this.link = link;
 
 		validateProperties();
-		
 		try {
 
 			if (this.wakeup == 1) {
@@ -230,7 +231,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 			// Check if the time is greater then allowed, if so then no data can be stored...
 			// Don't do this when a forceClock is scheduled
 			if(!this.scheduler.getCommunicationProfile().getForceClock() && !this.scheduler.getCommunicationProfile().getAdHoc()){
-				badTime = verifyMaxTimeDifference();
+				badTime = verifyMaxTimeDifference()	;
 			}
 			
 			/**
@@ -490,12 +491,12 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		ConformanceBlock cb = new ConformanceBlock(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK);
 		XdlmsAse xDlmsAse = new XdlmsAse(null, true, -1, 6, cb, 1200);
 		//TODO the dataTransport encryptionType should be a property (although currently only 0 is described by DLMS)
-		SecurityContext sc = new SecurityContext(this.datatransportSecurityLevel, this.authenticationSecurityLevel, 0, getSecurityProvider());
+		SecurityContext sc = new SecurityContext(this.datatransportSecurityLevel, this.authenticationSecurityLevel, 0, "EIT12345".getBytes(), getSecurityProvider());
 		
 		this.aso = new ApplicationServiceObject(xDlmsAse, this, sc, 
 					(this.datatransportSecurityLevel == 0)?AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING:
 					AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_WITH_CIPHERING);
-
+		
 		this.dlmsConnection = new SecureConnection(this.aso, getTransportDLMSConnection());
 
 		InvokeIdAndPriority iiap = buildInvokeIdAndPriority();
@@ -1172,7 +1173,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	private Map<String, Integer> getMbusMapper(){
 		String mbusSerial;
 		Map<String, Integer> mbusMap = new HashMap<String, Integer>();
-		MbusProvider mp = new MbusProvider(getCosemObjectFactory());
+		MbusProvider mp = new MbusProvider(getCosemObjectFactory(), this.fixMbusHexShortId);
 		for (int i = 0; i < this.maxMbusDevices; i++) {
 			mbusSerial = "";
 			try {
@@ -1355,6 +1356,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
         this.wakeup = Integer.parseInt(properties.getProperty("WakeUp", "0"));
         
         this.oldMbusDiscovery = Integer.parseInt(properties.getProperty("OldMbusDiscovery", "0"));
+        this.fixMbusHexShortId = Integer.parseInt(properties.getProperty("FixMbusHexShortId", "0")) != 0;
 	}
 
 	public void addProperties(Properties properties) {
@@ -1402,6 +1404,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		result.add(LocalSecurityProvider.NEW_AUTHENTICATION_KEY);
 		result.add(LocalSecurityProvider.NEW_HLS_SECRET);
 		result.add("OldMbusDiscovery");
+		result.add("FixMbusHexShortId");
 		return result;
 	}
 
