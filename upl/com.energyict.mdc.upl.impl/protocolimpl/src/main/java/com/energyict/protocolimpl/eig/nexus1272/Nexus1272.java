@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -13,12 +14,15 @@ import java.util.Properties;
 
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
@@ -202,7 +206,7 @@ public class Nexus1272 extends AbstractProtocol  {
 
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		//		byte[] startingAddress = new byte[] {(byte) 0xFF, 0x20};
 		//		int ii = 0;
 		//		int i = ProtocolUtils.getShort(startingAddress, 0);
@@ -219,30 +223,89 @@ public class Nexus1272 extends AbstractProtocol  {
 		//		int y = clazz.xxx(clazz.bais);
 		//		int z = clazz.xxx(clazz.bais);
 		Calendar cal = Calendar.getInstance();
-		int century = cal.get(Calendar.YEAR)/100;
-		int year = cal.get(Calendar.YEAR)%100;
-		int month = cal.get(Calendar.MONTH+1);
-		int day = cal.get(Calendar.DAY_OF_MONTH);
-		int hour = cal.get(Calendar.HOUR_OF_DAY);
-		int minute = cal.get(Calendar.MINUTE);
-		int second = cal.get(Calendar.SECOND);
-		int tenMilli = cal.get(Calendar.MILLISECOND)/10;
-		int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+//		int century = cal.get(Calendar.YEAR)/100;
+//		int year = cal.get(Calendar.YEAR)%100;
+//		int month = cal.get(Calendar.MONTH+1);
+//		int day = cal.get(Calendar.DAY_OF_MONTH);
+//		int hour = cal.get(Calendar.HOUR_OF_DAY);
+//		int minute = cal.get(Calendar.MINUTE);
+//		int second = cal.get(Calendar.SECOND);
+//		int tenMilli = cal.get(Calendar.MILLISECOND)/10;
+//		int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+//		
+//		
+//		byte century2 = (byte) (cal.get(Calendar.YEAR)/100);
+//		byte year2 = (byte) (cal.get(Calendar.YEAR)%100);
+//		byte month2 = (byte) cal.get(Calendar.MONTH+1);
+//		byte day2 = (byte) cal.get(Calendar.DAY_OF_MONTH);
+//		byte hour2 = (byte) cal.get(Calendar.HOUR_OF_DAY);
+//		byte minute2 = (byte) cal.get(Calendar.MINUTE);
+//		byte second2 = (byte) cal.get(Calendar.SECOND);
+//		byte tenMilli2 = (byte) (cal.get(Calendar.MILLISECOND)/10);
+//		byte dayOfWeek2 = (byte) cal.get(Calendar.DAY_OF_WEEK);
 		
+		ByteArrayInputStream bais = new ByteArrayInputStream(new byte []{(byte) 0x0f, (byte) 0x9f});
+		System.out.println((int)ProtocolUtils.getLong(bais, 2));
 		
-		byte century2 = (byte) (cal.get(Calendar.YEAR)/100);
-		byte year2 = (byte) (cal.get(Calendar.YEAR)%100);
-		byte month2 = (byte) cal.get(Calendar.MONTH+1);
-		byte day2 = (byte) cal.get(Calendar.DAY_OF_MONTH);
-		byte hour2 = (byte) cal.get(Calendar.HOUR_OF_DAY);
-		byte minute2 = (byte) cal.get(Calendar.MINUTE);
-		byte second2 = (byte) cal.get(Calendar.SECOND);
-		byte tenMilli2 = (byte) (cal.get(Calendar.MILLISECOND)/10);
-		byte dayOfWeek2 = (byte) cal.get(Calendar.DAY_OF_WEEK);
 		"".toString();
 	}
 
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+		authenticate();
+		RegisterValue rv;
+		rv = readRegister(new ObisCode(1,1,1,8,1,255));
+		rv = readRegister(new ObisCode(1,1,2,8,1,255));
+		rv = readRegister(new ObisCode(1,1,1,8,2,255));
+		rv = readRegister(new ObisCode(1,1,2,8,2,255));
+		rv = readRegister(new ObisCode(1,1,1,8,3,255));
+		rv = readRegister(new ObisCode(1,1,2,8,3,255));
+		rv = readRegister(new ObisCode(1,1,1,8,0,255));
+		rv = readRegister(new ObisCode(1,1,2,8,0,255));
+		rv = readRegister(new ObisCode(1,1,3,8,1,255));
+		rv = readRegister(new ObisCode(1,1,4,8,1,255));
+		rv = readRegister(new ObisCode(1,1,3,8,2,255));
+		rv = readRegister(new ObisCode(1,1,4,8,2,255));
+		rv = readRegister(new ObisCode(1,1,3,8,3,255));
+		rv = readRegister(new ObisCode(1,1,4,8,3,255));
+		rv = readRegister(new ObisCode(1,1,1,2,1,255));
+		rv = readRegister(new ObisCode(1,1,2,2,1,255));
+		rv = readRegister(new ObisCode(1,1,1,2,2,255));
+		rv = readRegister(new ObisCode(1,1,2,2,2,255));
+		rv = readRegister(new ObisCode(1,1,1,2,3,255));
+		rv = readRegister(new ObisCode(1,1,2,2,3,255));
+		rv = readRegister(new ObisCode(1,1,1,6,1,255));
+		rv = readRegister(new ObisCode(1,1,2,6,1,255));
+		rv = readRegister(new ObisCode(1,1,1,6,2,255));
+		rv = readRegister(new ObisCode(1,1,2,6,2,255));
+		rv = readRegister(new ObisCode(1,1,1,6,3,255));
+		rv = readRegister(new ObisCode(1,1,2,6,3,255));
+		rv = readRegister(new ObisCode(1,1,13,4,0,255));
+		rv = readRegister(new ObisCode(1,1,32,7,124,255));
+		rv = readRegister(new ObisCode(1,1,52,7,124,255));
+		rv = readRegister(new ObisCode(1,1,72,7,124,255));
+		rv = readRegister(new ObisCode(1,1,31,7,124,255));
+		rv = readRegister(new ObisCode(1,1,51,7,124,255));
+		rv = readRegister(new ObisCode(1,1,71,7,124,255));
+		rv = readRegister(new ObisCode(1,1,83,8,50,255));
+		rv = readRegister(new ObisCode(1,1,83,8,70,255));
+		rv = readRegister(new ObisCode(1,1,83,8,90,255));
+		rv = readRegister(new ObisCode(1,1,83,8,49,255));
+		rv = readRegister(new ObisCode(1,1,83,8,69,255));
+		rv = readRegister(new ObisCode(1,1,83,8,89,255));
+		rv = readRegister(new ObisCode(1,1,32,7,0,255));
+		rv = readRegister(new ObisCode(1,1,52,7,0,255));
+		rv = readRegister(new ObisCode(1,1,72,7,0,255));
+		rv = readRegister(new ObisCode(1,1,81,7,10,255));
+		rv = readRegister(new ObisCode(1,1,81,7,21,255));
+		rv = readRegister(new ObisCode(1,1,81,7,2,255));
+		rv = readRegister(new ObisCode(1,1,31,7,0,255));
+		rv = readRegister(new ObisCode(1,1,51,7,0,255));
+		rv = readRegister(new ObisCode(1,1,71,7,0,255));
+		rv = readRegister(new ObisCode(1,1,81,7,4,255));
+		rv = readRegister(new ObisCode(1,1,81,7,15,255));
+		rv = readRegister(new ObisCode(1,1,81,7,26,255));
+
+		
 		if (channelMapping.equals(""))
 			throw new IOException("NexusChannelMapping custom property must be set to read profile data");
 
@@ -331,6 +394,17 @@ public class Nexus1272 extends AbstractProtocol  {
 //		return null;
 	}
 
+	 /*******************************************************************************************
+    R e g i s t e r P r o t o c o l  i n t e r f a c e 
+    *******************************************************************************************/
+   public RegisterValue readRegister(ObisCode obisCode) throws IOException {
+       ObisCodeMapper ocm = new ObisCodeMapper(NexusCommandFactory.getFactory(), connection, outputStream);
+       return ocm.getRegisterValue(obisCode);
+   }
+   
+   public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
+       return ObisCodeMapper.getRegisterInfo(obisCode);
+   }
 	
 
 	private void buildEventLog(ProfileData profileData, Date from, Date to) throws IOException {

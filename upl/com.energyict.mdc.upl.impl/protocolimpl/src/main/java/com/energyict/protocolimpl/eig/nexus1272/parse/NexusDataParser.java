@@ -58,27 +58,41 @@ public class NexusDataParser {
 	}
 	
 	public BigDecimal parseF7() {
-		return null;
+		byte[] b = new byte[4];
+		bais.read(b, 0, 4);
+		int i = ProtocolUtils.getInt(b);
+		BigDecimal bd = new BigDecimal(i).divide(new BigDecimal(65536));
+		return bd;
 	}
 	
-	public BigDecimal parseF8() {
-		return null;
+	public BigDecimal parseF8() throws IOException {
+		int val = (int) ProtocolUtils.getLong(bais, 2);
+		if (val < 1000) 
+			return new BigDecimal(val).divide(new BigDecimal(1000));
+		else if (val < 2000)
+			return new BigDecimal(2).subtract(new BigDecimal(val).divide(new BigDecimal(1000)));
+		else if (val < 3000)
+			return new BigDecimal(val).divide(new BigDecimal(1000)).add(new BigDecimal(-2));
+		else if (val < 4000)
+			return new BigDecimal(4).subtract(new BigDecimal(val).divide(new BigDecimal(1000)));
+		else 
+			throw new IOException("Illegal value for average power factor, must be less than 4000, got " + val);
 	}
 	
-	public BigDecimal parseF9() {
-		return null;
+	public BigDecimal parseF9() throws IOException {
+		return new BigDecimal(ProtocolUtils.getShort(bais)).divide(new BigDecimal(100));
 	}
 	
-	public BigDecimal parseF10() {
-		return null;
+	public BigDecimal parseF10() throws IOException {
+		return new BigDecimal(ProtocolUtils.getShort(bais)).divide(new BigDecimal(100));
 	}
 	
 	public long parseF18() throws IOException {
 		return ProtocolUtils.getLong(bais, 4);
 	}
 	
-	public long parseF20() {
-		return 0;
+	public long parseF20() throws IOException {
+		return ProtocolUtils.getLong(bais, 8);
 	}
 	
 	public int parseF43() {
@@ -93,8 +107,8 @@ public class NexusDataParser {
 		return 0;
 	}
 	
-	public BigDecimal parseF64() {
-		return null;
+	public BigDecimal parseF64() throws IOException {
+		return new BigDecimal(ProtocolUtils.getLong(bais, 4));
 	}
 	
 	

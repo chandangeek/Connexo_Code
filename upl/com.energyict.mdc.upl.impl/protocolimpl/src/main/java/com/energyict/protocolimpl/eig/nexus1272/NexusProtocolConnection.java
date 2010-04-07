@@ -82,7 +82,7 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 		return receiveResponse(-1);
 	}
 
-	private final long TIMEOUT = 4000;//protocol timeout
+	private final long TIMEOUT = 8000;//protocol timeout
 	private final int WAIT_FOR_START = 0;
 	private final int WAIT_FOR_START2 = 1;
 	private final int WAIT_FOR_DATA = 2;
