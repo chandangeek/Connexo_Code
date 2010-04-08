@@ -222,7 +222,7 @@ public class Historical2LogReader extends AbstractLogReader {
 				Date recDate = parseF3(byteArray, offset);
 				String event = recDate + "";
 				offset+= length;
-				System.out.println(recDate);
+//				System.out.println(recDate);
 				 IntervalData intervalData = new IntervalData(recDate,0,0);
 				for (LinePoint lp : meterlpMap) {
 					for (LinePoint lp2 : masterlpMap) {
@@ -238,7 +238,7 @@ public class Historical2LogReader extends AbstractLogReader {
 							}
 							val = val.divide(divisor);
 							intervalData.addValue(val, 0, 0);
-							System.out.println("\t"+ lp.getLine() + "." + lp.getPoint() + " - " + lp.getDescription() + "\t" + val);
+//							System.out.println("\t"+ lp.getLine() + "." + lp.getPoint() + " - " + lp.getDescription() + "\t" + val);
 							break;
 						}
 						

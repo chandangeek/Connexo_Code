@@ -182,7 +182,7 @@ public class LimitSnapshotLogReader extends AbstractLogReader {
 //				Date recDate2 = parseF3(limitSnapshotLogData, offset1);
 				String event = recDate + "";// + "\t" + recDate2;
 				offset+= length;
-				System.out.println(event);
+//				System.out.println(event);
 				//			for (LinePointMap lp : lpMap) {
 				//				int val = parseF64(ba, offset);
 				//				offset+=4;

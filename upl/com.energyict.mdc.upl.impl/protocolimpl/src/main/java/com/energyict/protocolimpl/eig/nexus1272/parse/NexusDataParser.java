@@ -140,7 +140,7 @@ public class NexusDataParser {
 				Date recDate2 = parseF3(limitSnapshotLogData, offset1);
 				String event = recDate + "\t" + recDate2;
 				offset+= length;
-				System.out.println(event);
+//				System.out.println(event);
 				//			for (LinePointMap lp : lpMap) {
 				//				int val = parseF64(ba, offset);
 				//				offset+=4;
@@ -258,11 +258,11 @@ public class NexusDataParser {
 			Date recDate = parseF3(ba, offset);
 			String event = recDate + "";
 			offset+= length;
-			System.out.println(recDate);
+//			System.out.println(recDate);
 			for (LinePoint lp : lpMap) {
 				int val = parseF64(ba, offset);
 				offset+=4;
-				System.out.println("\t"+ lp.getLine() + "." + lp.getPoint() + " - " + lp.getDescription() + "\t" + val);
+//				System.out.println("\t"+ lp.getLine() + "." + lp.getPoint() + " - " + lp.getDescription() + "\t" + val);
 			}
 
 			recNum++;
@@ -712,7 +712,7 @@ public class NexusDataParser {
 				break;
 			}
 
-			System.out.println(event);
+//			System.out.println(event);
 			recNum++;
 			offset = recNum * recSize;
 		}

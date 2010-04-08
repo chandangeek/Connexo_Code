@@ -562,7 +562,7 @@ public class SystemLogReader extends AbstractLogReader {
 				break;
 			}
 
-			System.out.println(event);
+//			System.out.println(event);
 			recNum++;
 			offset = recNum * recSize;
 		}

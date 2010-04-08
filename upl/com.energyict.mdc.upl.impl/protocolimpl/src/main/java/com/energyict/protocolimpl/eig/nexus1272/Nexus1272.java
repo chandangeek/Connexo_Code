@@ -98,10 +98,10 @@ public class Nexus1272 extends AbstractProtocol  {
 			chnlpMap = processChannelMapping(channelMapping);
 		
 		
-		for (LinePoint mylp : chnlpMap) {
-			System.out.println(mylp.toString());
-		}
-		System.out.println(channelMapping);
+//		for (LinePoint mylp : chnlpMap) {
+//			System.out.println(mylp.toString());
+//		}
+//		System.out.println(channelMapping);
 	}
 
 	@Override
@@ -703,8 +703,8 @@ public class Nexus1272 extends AbstractProtocol  {
 		int endWindowIndex = ( recordSize * (lastIndex + 1) ) / 128;
 		int endWindowOffset = ( recordSize * (lastIndex + 1) ) % 128;
 
-		System.out.println("Reading from start window index " + startWindowIndex + " offset " + startWindowOffset + " to end window index" +
-				endWindowIndex + " offset " + endWindowOffset);
+//		System.out.println("Reading from start window index " + startWindowIndex + " offset " + startWindowOffset + " to end window index" +
+//				endWindowIndex + " offset " + endWindowOffset);
 
 
 		//	7. Set the Window Mode to Download Mode.
@@ -1333,7 +1333,7 @@ public class Nexus1272 extends AbstractProtocol  {
 				break;
 			}
 
-			System.out.println(event);
+//			System.out.println(event);
 			recNum++;
 			offset = recNum * recSize;
 		}

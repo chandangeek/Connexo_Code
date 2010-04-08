@@ -94,8 +94,8 @@ public abstract class AbstractLogReader implements LogReader{
 		endWindowIndex = ( recordSize * (lastIndex + 1) ) / 128;
 		endWindowOffset = ( recordSize * (lastIndex + 1) ) % 128;
 
-		System.out.println("Reading from start window index " + startWindowIndex + " offset " + startWindowOffset + " to end window index" +
-				endWindowIndex + " offset " + endWindowOffset);
+//		System.out.println("Reading from start window index " + startWindowIndex + " offset " + startWindowOffset + " to end window index" +
+//				endWindowIndex + " offset " + endWindowOffset);
 
 	}
 
@@ -162,9 +162,9 @@ public abstract class AbstractLogReader implements LogReader{
 
 		//set to the end address as we are going to read backwards...
 
-		System.out.println("SI: " + startWindowIndex + " SO: " + startWindowOffset);
-		System.out.println("EI: " + endWindowIndex + " EO: " + endWindowOffset);
-		System.out.println("LI: " + largestWindowIndex + " LO: " + largestWindowOffset);
+//		System.out.println("SI: " + startWindowIndex + " SO: " + startWindowOffset);
+//		System.out.println("EI: " + endWindowIndex + " EO: " + endWindowOffset);
+//		System.out.println("LI: " + largestWindowIndex + " LO: " + largestWindowOffset);
 
 
 		ByteArrayOutputStream baos2 = new ByteArrayOutputStream();
@@ -180,9 +180,9 @@ public abstract class AbstractLogReader implements LogReader{
 		System.out.print("ba: " + ba.length + " ");
 		if (ba.length >7){
 			checkDate = parseF3(ba, 0);
-			System.out.println(checkDate + "\tWI: " + windowIndex);
+//			System.out.println(checkDate + "\tWI: " + windowIndex);
 		}
-		else	System.out.println();
+//		else	System.out.println();
 		baos2.write(ba);
 		if (checkDate!=null && checkDate.before(lastReadDate)) {
 			doneReading  = true;
@@ -205,9 +205,9 @@ public abstract class AbstractLogReader implements LogReader{
 				System.out.print("ba: " + ba.length + " ");
 				if (ba.length >7){
 					checkDate = parseF3(ba, 0);
-					System.out.println(checkDate + "\tWI: " + windowIndex);
+//					System.out.println(checkDate + "\tWI: " + windowIndex);
 				}
-				else	System.out.println();
+//				else	System.out.println();
 				baos2.write(ba);
 				//				baos2.write(readLargestLogWindow());
 				//				windowIndex = 0; //we're about to increment, yikes!
@@ -224,9 +224,9 @@ public abstract class AbstractLogReader implements LogReader{
 			System.out.print("ba: " + ba.length + " ");
 			if (ba.length >7){
 				checkDate = parseF3(ba, 0);
-				System.out.println(checkDate + "\tWI: " + windowIndex);
+//				System.out.println(checkDate + "\tWI: " + windowIndex);
 			}
-			else	System.out.println();
+//			else	System.out.println();
 			baos2.write(ba);
 			if (checkDate!=null && checkDate.before(lastReadDate)) {
 				doneReading  = true;
@@ -244,8 +244,9 @@ public abstract class AbstractLogReader implements LogReader{
 		if (!doneReading) {
 			ba = readFirstLogWindow();
 			System.out.print("ba: " + ba.length + " ");
-			if (ba.length >7)				 System.out.println(parseF3(ba, 0) + "\tWI: " + windowIndex);
-			else	System.out.println();
+//			if (ba.length >7)				
+//				System.out.println(parseF3(ba, 0) + "\tWI: " + windowIndex);
+//			else	System.out.println();
 			baos2.write(ba);
 		}
 		//		baos2.write(ba);
@@ -269,7 +270,7 @@ public abstract class AbstractLogReader implements LogReader{
 
 	//most recent log entry
 	protected byte[] readLastLogWindow() throws IOException {
-		System.out.println("READ LAST WINDOW");
+//		System.out.println("READ LAST WINDOW");
 		//	15. Read Window from the beginning up to (but not including) the ending offset.
 		setWindowIndex(AbstractCommand.intToByteArray(endWindowIndex));
 		//FIXME CHECK  -1 for not including
@@ -289,7 +290,7 @@ public abstract class AbstractLogReader implements LogReader{
 	protected abstract Command getHeaderCommand();
 
 	protected byte[] readLargestLogWindow() throws IOException {
-		System.out.println("ReadLargest WINDOW");
+//		System.out.println("ReadLargest WINDOW");
 		//FIXME CHECK  -1 for not including
 		setWindowIndex(AbstractCommand.intToByteArray(largestWindowIndex));
 		int len = largestWindowOffset/2;
@@ -313,7 +314,7 @@ public abstract class AbstractLogReader implements LogReader{
 
 	protected byte[] readFirstLogWindow() throws IOException {
 
-		System.out.println("READ FIRST WINDOW");
+//		System.out.println("READ FIRST WINDOW");
 		//	9. Read the Window from starting offset to the end of the Window.
 		setWindowIndex(AbstractCommand.intToByteArray(startWindowIndex));
 
