@@ -247,7 +247,11 @@ public class AssociationControlServiceElement {
 					else if(responseData[i] == DLMSCOSEMGlobals.AARE_RESPONING_AP_TITLE){
 						i++; // skip tag
 						if (responseData[i] > 0) { // length of octet string
-							this.respondingAPTitle = ProtocolUtils.getSubArray2(responseData, i+3, responseData[i+2]);
+							if ((responseData[i] - responseData[i+2]) != 2) {
+								this.respondingAPTitle = ProtocolUtils.getSubArray2(responseData, i+1, responseData[i]);
+							} else {
+								this.respondingAPTitle = ProtocolUtils.getSubArray2(responseData, i+3, responseData[i+2]);
+							}
 						}
 						i += responseData[i];
 					}
