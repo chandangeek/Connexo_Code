@@ -15,6 +15,7 @@ import java.util.logging.Level;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.InvokeIdAndPriority;
@@ -22,6 +23,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.IPv4Setup;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.CommonUtils;
@@ -51,89 +53,89 @@ import com.energyict.protocol.messaging.MessageSpec;
 
 /**
  * <p>
- * Implements the WebRTUZ3 protocol. Initially it's a copy of the {@link WebRTUKP} protocol, 
+ * Implements the WebRTUZ3 protocol. Initially it's a copy of the {@link WebRTUKP} protocol,
  * but with more extensions to it.
  * </p>
- * 
+ *
  * @author gna
  *
  */
 public class WebRTUZ3 extends DLMSProtocol{
-	
+
 	/** The serialNumber of the Rtu */
 	private String serialNumber;
-	
+
 	/** The password of the Rtu */
 	private String password;
-	
+
 	/** The prototype {@link RtuType} of the mbus devices */
 	private String mbusRtuType;
-	
+
 	/** The external name of the folder where to place the autodiscovered MbusMeters */
 	private String folderExtName;
-	
+
 	/** Property to indicate to read the timeZone from the device or use the one configured on the Rtu */
 	private int requestTimeZone;
-	
+
 	/** The Maximum allowed mbus meters */
 	private int maxMbusDevices;
-	
+
 	/** Property to indicate the timedifference between System and device is larger then the maximum configured */
 	private boolean badTime = false;
-	
+
 	/** Property to allow reading the daily values */
 	private boolean readDaily = true;
-	
+
 	/** Property to allow reading the monthly values */
 	private boolean readMonthly = true;
-	
+
 	/** An array of 'slave' MbusDevices */
 	private MbusDevice[] mbusDevices;
-	
+
 	/** GhostMbusDevices are Mbus meters that are connected with their gateway in EIServer, but not on the physical device anymore */
-	private Map<String, Integer> ghostMbusDevices = new HashMap<String, Integer>();	
-	
-	/** The used TicDevice */ 
+	private Map<String, Integer> ghostMbusDevices = new HashMap<String, Integer>();
+
+	/** The used TicDevice */
 	private TicDevice ticDevice;
-	
-	/** The {@link StoreObject} used */ 
+
+	/** The {@link StoreObject} used */
 	private StoreObject storeObject;
-	
+
 	/** The {@link ObisCodeMapper} used */
 	private ObisCodeMapper ocm;
-	
+
 	/** The obisCode for the RF-FirmwareVersion */
 	public final static ObisCode RF_FIRMWAREVERSION = ObisCode.fromString("1.129.0.2.0.255");
-	
+
 	/** The obisCode for the RF firmware Object */
 	public final static ObisCode RF_FIRMWARE_OBISCODE = ObisCode.fromString("0.0.44.0.128.255");
-	
+
 	@Override
 	protected void doExecute() throws BusinessException, SQLException, IOException {
-		
+
 		try {
 			if(getMeter() != null){
 				updateIPAddress();
 			}
-			
+
 			// Check if the time is greater then allowed, if so then no data can be stored...
 			// Don't do this when a forceClock is scheduled
 			if(!getCommunicationScheduler().getCommunicationProfile().getForceClock() && !getCommunicationScheduler().getCommunicationProfile().getAdHoc()){
 				badTime = verifyMaxTimeDifference();
 			}
-			
+
 			// Read the loadProfile
 			if (getCommunicationProfile().getReadDemandValues()) {
-				
+
 				ElectricityProfile ep = new ElectricityProfile(this);
 				ProfileData eProfileData = ep.getProfile(getMeterConfig().getProfileObject().getObisCode());
 				if(badTime){	// if a timedifference exceeds boundary
 					eProfileData.markIntervalsAsBadTime();
 				}
 				storeObject.add(eProfileData, getMeter());
-				
+
 			}
-			
+
 			// Read the events
 			if (getCommunicationProfile().getReadMeterEvents()) {
 				getLogger().log(Level.INFO, "Getting events for meter with serialnumber: " + this.serialNumber);
@@ -141,14 +143,14 @@ public class WebRTUZ3 extends DLMSProtocol{
 				ProfileData pd = evp.getEvents();
 				storeObject.add(pd, getMeter());
 			}
-			
+
 			/*
 			 * Here we are assuming that the daily and monthly values should be read. In future it can be that this doesn't work for all customers, then we should implement a SmartMeterProperty to
 			 * indicate whether you want to read the actual registers or the daily/monthly registers ...
 			 */
 			if (getCommunicationProfile().getReadMeterReadings()) {
 				DailyMonthly dm = new DailyMonthly(this);
-				
+
 				if (readDaily) {
 					if(doesObisCodeExistInObjectList(getMeterConfig().getDailyProfileObject().getObisCode())){
 						ProfileData dailyPd = dm.getDailyValues(getMeterConfig().getDailyProfileObject().getObisCode());
@@ -176,25 +178,25 @@ public class WebRTUZ3 extends DLMSProtocol{
 				Map<RtuRegister, RegisterValue> registerMap = doReadRegisters();
 				storeObject.addAll(registerMap);
 			}
-			
+
 			//Send the meter messages
 			if (getCommunicationProfile().getSendRtuMessage()) {
 				sendMeterMessages();
 			}
-			
+
 			// Discover and handle MbusMeters
 			discoverMbusDevices();
 			if (getValidMbusDevices() != 0) {
 				getLogger().log(Level.INFO, "Starting to handle the MBus meters.");
 				handleMbusMeters();
 			}
-			
+
 			// Check for TIC devices and if there is one handle it
 			if(hasTicDevices()){
 				getLogger().log(Level.INFO, "Starting to handle the Tic device.");
 				handleTicDevice();
 			}
-			
+
 			// Set clock or Force clock... if necessary
 			if (getCommunicationProfile().getForceClock()) {
 				Date meterTime = getTime();
@@ -205,13 +207,31 @@ public class WebRTUZ3 extends DLMSProtocol{
 			} else {
 				verifyAndWriteClock();
 			}
-			
+
+			try {
+				test();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+
 		} finally {
 			if (storeObject != null) {
 				Environment.getDefault().execute(storeObject);
 			}
 		}
-		
+
+	}
+
+	private void test() throws IOException {
+
+		List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
+		dlmsAttributes.add(new DLMSAttribute("0.0.96.1.0.255", 1, DLMSClassId.DATA));
+		dlmsAttributes.add(new DLMSAttribute("0.0.96.1.0.255", 2, DLMSClassId.DATA));
+		dlmsAttributes.add(new DLMSAttribute("0.0.96.1.0.255", 7, DLMSClassId.DATA));
+		dlmsAttributes.add(new DLMSAttribute("0.0.96.1.0.255", 1, DLMSClassId.DATA));
+		getCosemObjectFactory().getGenericRead(dlmsAttributes);
+
 	}
 
 	@Override
@@ -256,9 +276,9 @@ public class WebRTUZ3 extends DLMSProtocol{
 		this.mbusDevices = new MbusDevice[this.maxMbusDevices];
 		this.storeObject = new StoreObject();
 		this.ocm = new ObisCodeMapper(getCosemObjectFactory());
-		
+
 	}
-	
+
 	/**
 	 * Read the firmwareVersion from the device
 	 * @return the firmwareVersion
@@ -272,7 +292,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 			throw new IOException("Could not fetch the firmwareVersion." + e);
 		}
 	}
-	
+
 	/**
 	 * Read the Z3/R2 RF-Firmwareversion
 	 * @return the firmwareversion, if it's not available then return an empty string
@@ -296,7 +316,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 			throw new IOException("Wrong serialnumber, EIServer settings: " + this.serialNumber + " - Meter settings: " + serial);
 		}
 	}
-	
+
 	/**
 	 * Get the serialNumber from the device
 	 * @return the serialnumber from the device
@@ -310,7 +330,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 			throw new IOException("Could not retrieve the serialnumber of the meter." + e);
 		}
 	}
-	
+
 	@Override
 	protected void doDisconnect() {
 	}
@@ -343,19 +363,19 @@ public class WebRTUZ3 extends DLMSProtocol{
 
 	@Override
 	protected void doValidateProperties() {
-		
-		if (getMeter() != null && getMeter().getSerialNumber() != "") {
+
+		if ((getMeter() != null) && (getMeter().getSerialNumber() != "")) {
 			this.serialNumber = getMeter().getSerialNumber();
 		} else {
 			this.serialNumber = "";
 		}
-		
-		if (getMeter() != null && getMeter().getPassword() != "") {
+
+		if ((getMeter() != null) && (getMeter().getPassword() != "")) {
 			this.password = getMeter().getPassword();
 		} else if(getMeter() == null){
 			this.password = getProperties().getProperty("Password","");
 		}
-		
+
 		this.requestTimeZone = Integer.parseInt(getProperties().getProperty("RequestTimeZone", "0"));
 		this.maxMbusDevices = Integer.parseInt(getProperties().getProperty("MaxMbusDevices","4"));
 		this.readDaily = (Integer.parseInt(getProperties().getProperty("ReadDailyValues", "1")) == 1)?true:false;
@@ -363,14 +383,14 @@ public class WebRTUZ3 extends DLMSProtocol{
 		this.mbusRtuType = getProperties().getProperty("RtuType");
 		this.folderExtName = getProperties().getProperty("FolderExtName");
 	}
-	
+
 	/**
 	 * @return true if it's allowed to read the daily values
 	 */
 	boolean isReadDaily(){
 		return this.readDaily;
 	}
-	
+
 	/**
 	 * @return true if it's allowed to read the monthly values
 	 */
@@ -419,31 +439,31 @@ public class WebRTUZ3 extends DLMSProtocol{
 	public boolean isRequestTimeZone() {
 		return (this.requestTimeZone == 1) ? true : false;
 	}
-	
+
 	/**
 	 * @return the connectionMode
 	 */
 	public int getConnectionMode() {
 		return super.getConnectionMode();
 	}
-	
+
 	/**
 	 * @return the storeObject from the Z3
 	 */
 	public StoreObject getStoreObject(){
 		return this.storeObject;
 	}
-	
+
 	/**
 	 * @return the badTime parameter. It's true if the timedifference exceeds the configured boundaries
 	 */
 	public boolean isBadTime(){
 		return badTime;
 	}
-	
+
 	/**
 	 * Collect the IP address of the meter and update this value on the RTU
-	 * 
+	 *
 	 * @throws SQLException if a database exception occurred during the upgrade of the IP-address
 	 * @throws BusinessException if a businessexception occurred during the upgrade of the IP-address
 	 * @throws IOException caused by an invalid reference type or invalid datatype
@@ -479,7 +499,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 
 	/**
 	 * Messages
-	 * 
+	 *
 	 * @throws SQLException if a database access error occurs
 	 * @throws BusinessException if a business error occurs
 	 */
@@ -494,23 +514,23 @@ public class WebRTUZ3 extends DLMSProtocol{
 			messageExecutor.doMessage(rm);
 		}
 	}
-	
+
 	/**
-	 * Discover Mbus devices 
+	 * Discover Mbus devices
 	 * @throws SQLException
 	 * @throws BusinessException
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void discoverMbusDevices() throws SQLException, BusinessException, IOException{
-		
-		// get an MbusDeviceMap 
+
+		// get an MbusDeviceMap
 		Map<String, Integer> mbusMap = getMbusMapper();
 		// check if the current mbus slaves are still on the meter disappeared
 		checkForDisappearedMbusMeters(mbusMap);
 		// check if all the mbus devices are configured in EIServer
 		checkToUpdateMbusMeters(mbusMap);
 	}
-	
+
 	/**
 	 * Constructs a map containing the serialNumber and the physical address of the mbusdevice.
 	 * If the serialNumber can't be retrieved from the device then we just log and try the next one.
@@ -538,7 +558,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 		}
 		return mbusMap;
 	}
-	
+
 	/**
 	 * Check to see if you find MbusDevices as slaves for the current Z3 in the DataBase, but NOT on the physical device
 	 * @param mbusMap - a map of serialNumbers read from the Z3
@@ -569,10 +589,10 @@ public class WebRTUZ3 extends DLMSProtocol{
 				getLogger().log(Level.INFO, "Could not check if the mbusDevice " + mbus.getSerialNumber() + " exists.");
 			}
 		}
-		
+
 	}
-	
-	
+
+
 	/**
 	 * Check the ghostMbusDevices and create the mbusDevices
 	 * @param mbusMap
@@ -593,7 +613,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 			}
 		}
 	}
-	
+
 	/**
 	 * Check to see if there are mbusDevices
 	 * @return the number of MbusDevices
@@ -607,7 +627,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 		}
 		return count;
 	}
-	
+
 	/**
 	 * Handles all the MBus devices like a separate device
 	 */
@@ -649,7 +669,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 			}
 		}
 	}
-	
+
 	/**
 	 * Checks whether there is a TicDevice configured in EIServer
 	 * @return true if there is a TicDevice configured as a slave of the WebRTU
@@ -661,7 +681,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 		while (it.hasNext()) {
 			tic = it.next();
 			Class ticDevice = null;
-			
+
 			try {
 				ticDevice = Class.forName(tic.getRtuType().getShadow().getCommunicationProtocolShadow().getJavaClassName());
 				if((ticDevice != null) && (ticDevice.newInstance() instanceof TicDevice)){
@@ -681,7 +701,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Handle the TIC device.
 	 * Only profileData and events can be read
@@ -709,7 +729,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 		MessageCategorySpec catGlobalDisc = getGlobalResetCategory();
 		MessageCategorySpec catAuthEncrypt = getAuthEncryptCategory();
 		MessageCategorySpec catConnectivity = getConnectivityCategory();
-		
+
 		categories.add(catXMLConfig);
 		categories.add(catFirmware);
 		categories.add(catP1Messages);
@@ -721,7 +741,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 		categories.add(catTestMessage);
 		categories.add(catGlobalDisc);
 		categories.add(catConnectivity);
-		
+
 		categories.add(catAuthEncrypt);
 
 		return categories;
@@ -745,7 +765,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 		catFirmware.addMessageSpec(msgSpec);
 		return catFirmware;
 	}
-	
+
 	/**
 	 * @return the messages for the ConnectivityCategory
 	 */
