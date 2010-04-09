@@ -80,4 +80,12 @@ public enum DLMSClassId {
 		throw new IOException("No DLMSClassId found for id = " + id);
 	}
 
+	public static String getDescription(int dlmsClassId) {
+		try {
+			return findById(dlmsClassId).toString();
+		} catch (IOException e) {
+			return "UNKNOWN["+dlmsClassId+"]";
+		}
+	}
+
 }

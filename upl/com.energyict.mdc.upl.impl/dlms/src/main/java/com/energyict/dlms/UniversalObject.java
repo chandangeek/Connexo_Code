@@ -347,6 +347,17 @@ public class UniversalObject implements DLMSCOSEMGlobals,Serializable {
 		}
 	}
 
+	public String getDescription() {
+		StringBuffer sb = new StringBuffer();
+		if (getBaseName() != -1) {
+			sb.append("[").append(getBaseName()).append("], ");
+		}
+		sb.append(getObisCode()).append(", ");
+		sb.append(DLMSClassId.getDescription(getClassID())).append(", ");
+		sb.append(getObisCode().getDescription());
+		return  sb.toString();
+	}
+
 	@Override
 	public String toString() {
 		return this.getLNA()+"."+
