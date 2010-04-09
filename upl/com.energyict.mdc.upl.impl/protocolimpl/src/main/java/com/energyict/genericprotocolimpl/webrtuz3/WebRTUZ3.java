@@ -20,6 +20,7 @@ import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.InvokeIdAndPriority;
 import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.aso.XdlmsAse;
@@ -62,6 +63,29 @@ import com.energyict.protocol.messaging.MessageSpec;
  */
 public class WebRTUZ3 extends DLMSProtocol{
 
+	/** Property names */
+	private static final String			PROPERTY_PASSWORD				= "Password";
+	private static final String			PROPERTY_DELAY_AFTER_FAIL		= "DelayAfterFail";
+	private static final String			PROPERTY_REQUEST_TIME_ZONE		= "RequestTimeZone";
+	private static final String			PROPERTY_FIRMWARE_VERSION		= "FirmwareVersion";
+	private static final String			PROPERTY_EXTENDED_LOGGING		= "ExtendedLogging";
+	private static final String			PROPERTY_TEST_LOGGING			= "TestLogging";
+	private static final String			PROPERTY_READ_DAILY_VALUES		= "ReadDailyValues";
+	private static final String			PROPERTY_READ_MONTHLY_VALUES	= "ReadMonthlyValues";
+	private static final String			PROPERTY_FOLDER_EXT_NAME		= "FolderExtName";
+	private static final String			PROPERTY_EMETER_RTUTYPE			= "EMeterRtuType";
+	private static final String			PROPERTY_MBUS_RTUTYPE			= "MBusRtuType";
+
+	/** Property default values */
+	private static final String			DEFAULT_READ_DAILY_VALUES		= "1";
+	private static final String			DEFAULT_READ_MONTHLY_VALUES		= "1";
+	private static final String			DEFAULT_REQUEST_TIMEZONE		= "0";
+	private static final String			DEFAULT_PASSWORD				= "";
+
+	/** Device channel mappings */
+	private static final DeviceMapping MBUS_DEVICES = new DeviceMapping(0x01, 0x20);
+	private static final DeviceMapping EMETER_DEVICES = new DeviceMapping(0x21, 0x40);
+
 	/** The serialNumber of the Rtu */
 	private String serialNumber;
 
@@ -71,14 +95,14 @@ public class WebRTUZ3 extends DLMSProtocol{
 	/** The prototype {@link RtuType} of the mbus devices */
 	private String mbusRtuType;
 
+	/** The prototype {@link RtuType} of the eMeter */
+	private String eMeterRtuType;
+
 	/** The external name of the folder where to place the autodiscovered MbusMeters */
 	private String folderExtName;
 
 	/** Property to indicate to read the timeZone from the device or use the one configured on the Rtu */
 	private int requestTimeZone;
-
-	/** The Maximum allowed mbus meters */
-	private int maxMbusDevices;
 
 	/** Property to indicate the timedifference between System and device is larger then the maximum configured */
 	private boolean badTime = false;
@@ -225,11 +249,25 @@ public class WebRTUZ3 extends DLMSProtocol{
 
 	private void test() throws IOException {
 
+		UniversalObject[] uo = getMeterConfig().getInstantiatedObjectList();
+		for (UniversalObject universalObject : uo) {
+			if (universalObject.getObisCode().getB() == 33) {
+				System.out.println(universalObject.getDescription());
+			}
+		}
+
+		System.out.println();
+
+		for (UniversalObject universalObject : uo) {
+			if (universalObject.getObisCode().getB() == 0) {
+				System.out.println(universalObject.getDescription());
+			}
+		}
+
 		List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
-		dlmsAttributes.add(new DLMSAttribute("0.0.96.1.0.255", 1, DLMSClassId.DATA));
-		dlmsAttributes.add(new DLMSAttribute("0.0.96.1.0.255", 2, DLMSClassId.DATA));
-		dlmsAttributes.add(new DLMSAttribute("0.0.96.1.0.255", 7, DLMSClassId.DATA));
-		dlmsAttributes.add(new DLMSAttribute("0.0.96.1.0.255", 1, DLMSClassId.DATA));
+		for (int i = 0; i < 16; i++) {
+			dlmsAttributes.add(new DLMSAttribute("0." + i + ".96.1.0.255", 2, DLMSClassId.DATA));
+		}
 		getCosemObjectFactory().getGenericRead(dlmsAttributes);
 
 	}
@@ -273,10 +311,9 @@ public class WebRTUZ3 extends DLMSProtocol{
 	 */
 	@Override
 	protected void doInit() throws SQLException, BusinessException, IOException{
-		this.mbusDevices = new MbusDevice[this.maxMbusDevices];
+		this.mbusDevices = new MbusDevice[MBUS_DEVICES.getNumberOfDevices()];
 		this.storeObject = new StoreObject();
 		this.ocm = new ObisCodeMapper(getCosemObjectFactory());
-
 	}
 
 	/**
@@ -338,15 +375,15 @@ public class WebRTUZ3 extends DLMSProtocol{
 	@Override
 	protected List<String> doGetOptionalKeys() {
 		List<String> result = new ArrayList<String>(30);
-		result.add("DelayAfterFail");
-		result.add("RequestTimeZone");
-		result.add("FirmwareVersion");
-		result.add("ExtendedLogging");
-		result.add("TestLogging");
-		result.add("ReadDailyValues");
-		result.add("ReadMonthlyValues");
-		result.add("FolderExtName");
-		result.add("RtuType");
+		result.add(PROPERTY_DELAY_AFTER_FAIL);
+		result.add(PROPERTY_REQUEST_TIME_ZONE);
+		result.add(PROPERTY_FIRMWARE_VERSION);
+		result.add(PROPERTY_EXTENDED_LOGGING);
+		result.add(PROPERTY_TEST_LOGGING);
+		result.add(PROPERTY_READ_DAILY_VALUES);
+		result.add(PROPERTY_READ_MONTHLY_VALUES);
+		result.add(PROPERTY_FOLDER_EXT_NAME);
+		result.add(PROPERTY_MBUS_RTUTYPE);
 		result.add(LocalSecurityProvider.DATATRANSPORTKEY);
 		result.add(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
 		result.add(LocalSecurityProvider.MASTERKEY);
@@ -373,15 +410,15 @@ public class WebRTUZ3 extends DLMSProtocol{
 		if ((getMeter() != null) && (getMeter().getPassword() != "")) {
 			this.password = getMeter().getPassword();
 		} else if(getMeter() == null){
-			this.password = getProperties().getProperty("Password","");
+			this.password = getProperties().getProperty(PROPERTY_PASSWORD,DEFAULT_PASSWORD);
 		}
 
-		this.requestTimeZone = Integer.parseInt(getProperties().getProperty("RequestTimeZone", "0"));
-		this.maxMbusDevices = Integer.parseInt(getProperties().getProperty("MaxMbusDevices","4"));
-		this.readDaily = (Integer.parseInt(getProperties().getProperty("ReadDailyValues", "1")) == 1)?true:false;
-		this.readMonthly = (Integer.parseInt(getProperties().getProperty("ReadMonthlyValues", "1")) == 1)?true:false;
-		this.mbusRtuType = getProperties().getProperty("RtuType");
-		this.folderExtName = getProperties().getProperty("FolderExtName");
+		this.requestTimeZone = Integer.parseInt(getProperties().getProperty(PROPERTY_REQUEST_TIME_ZONE, DEFAULT_REQUEST_TIMEZONE));
+		this.readDaily = (Integer.parseInt(getProperties().getProperty(PROPERTY_READ_DAILY_VALUES, DEFAULT_READ_DAILY_VALUES)) == 1) ? true : false;
+		this.readMonthly = (Integer.parseInt(getProperties().getProperty(PROPERTY_READ_MONTHLY_VALUES, DEFAULT_READ_MONTHLY_VALUES)) == 1) ? true : false;
+		this.mbusRtuType = getProperties().getProperty(PROPERTY_MBUS_RTUTYPE);
+		this.eMeterRtuType = getProperties().getProperty(PROPERTY_EMETER_RTUTYPE);
+		this.folderExtName = getProperties().getProperty(PROPERTY_FOLDER_EXT_NAME);
 	}
 
 	/**
@@ -541,10 +578,10 @@ public class WebRTUZ3 extends DLMSProtocol{
 	private Map<String, Integer> getMbusMapper() throws ConnectionException{
 		String mbusSerial;
 		HashMap<String, Integer> mbusMap = new HashMap<String, Integer>();
-		for (int i = 0; i < this.maxMbusDevices; i++) {
+		for (int i = MBUS_DEVICES.getFrom(); i <= MBUS_DEVICES.getTo(); i++) {
 			mbusSerial = "";
 			try {
-				mbusSerial = getCosemObjectFactory().getGenericRead(getMeterConfig().getMbusSerialNumber(i)).getString();
+				mbusSerial = getCosemObjectFactory().getGenericRead(getMeterConfig().getMbusSerialNumber(i)).getString(); // FIXME
 				if(!mbusSerial.equalsIgnoreCase("")){
 					mbusMap.put(mbusSerial, i);
 				}
@@ -620,7 +657,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 	 */
 	private int getValidMbusDevices(){
 		int count = 0;
-		for(int i = 0; i < maxMbusDevices; i++){
+		for(int i = 0; i < MBUS_DEVICES.getNumberOfDevices(); i++){
 			if(this.mbusDevices[i] != null){
 				count++;
 			}
@@ -632,7 +669,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 	 * Handles all the MBus devices like a separate device
 	 */
 	private void handleMbusMeters() {
-		for (int i = 0; i < this.maxMbusDevices; i++) {
+		for (int i = 0; i < MBUS_DEVICES.getNumberOfDevices(); i++) {
 			try {
 				if (mbusDevices[i] != null) {
 					mbusDevices[i].setWebRtu(this);
