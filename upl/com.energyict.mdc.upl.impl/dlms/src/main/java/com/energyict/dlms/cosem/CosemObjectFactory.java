@@ -6,12 +6,17 @@
 
 package com.energyict.dlms.cosem;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 
+import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.cosem.requests.RequestFactory;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 /**
  *
  * @author  Koen
@@ -345,6 +350,23 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 			return new ObjectReference(sn);
 		}
 		throw new IOException("CosemObjectFactory, getObjectReference, invalid reference type " + protocolLink.getReference());
+	}
+
+	public void getGenericRead(List<DLMSAttribute> objects) throws IOException {
+		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+		bytes.write(new byte[3]);
+
+		RequestFactory requestFactory = new RequestFactory(getProtocolLink());
+		byte[] requestWithList = requestFactory.createGetWithListRequest(objects).toByteArray();
+		bytes.write(requestWithList);
+
+		byte[] request = bytes.toByteArray();
+		//request[4] = 1;
+
+		System.out.println(ProtocolTools.getHexStringFromBytes(request));
+
+		byte[] response = getProtocolLink().getDLMSConnection().sendRequest(request);
+		System.out.println(ProtocolTools.getHexStringFromBytes(response));
 	}
 
 }
