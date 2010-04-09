@@ -143,7 +143,7 @@ public final class ProtocolTools {
 	 * @return
 	 */
 	public static byte[] getSubArray(final byte[] bytes, final int from) {
-		int to = (bytes != null) ? (bytes.length - 1) : -1;
+		int to = (bytes != null) ? (bytes.length) : -1;
 		return getSubArray(bytes, from, to);
 	}
 
