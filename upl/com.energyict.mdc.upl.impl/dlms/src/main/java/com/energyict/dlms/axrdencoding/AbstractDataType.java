@@ -10,12 +10,13 @@ package com.energyict.dlms.axrdencoding;
 
 import java.math.BigDecimal;
 
+import com.energyict.dlms.cosem.requests.Field;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
  * @author kvds
  */
-abstract public class AbstractDataType {
+abstract public class AbstractDataType implements Field {
 
 	private int	level;
 
@@ -34,9 +35,17 @@ abstract public class AbstractDataType {
 		return doGetBEREncodedByteArray();
 	}
 
+	public byte[] toByteArray() {
+		return getContentByteArray();
+	}
+
 	public byte[] getContentByteArray() {
 		byte[] berEncoded = getBEREncodedByteArray();
-		return ProtocolTools.getSubArray(berEncoded, 1);
+		if (isBitString()) {
+			return ProtocolTools.getSubArray(berEncoded, 2);
+		} else {
+			return ProtocolTools.getSubArray(berEncoded, 1);
+		}
 	}
 
 	public BitString getBitString() {
