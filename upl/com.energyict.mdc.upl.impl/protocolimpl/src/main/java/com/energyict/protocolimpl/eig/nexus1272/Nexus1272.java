@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -29,6 +28,7 @@ import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.eig.nexus1272.command.AbstractCommand;
+import com.energyict.protocolimpl.eig.nexus1272.command.AuthenticationCommand;
 import com.energyict.protocolimpl.eig.nexus1272.command.Command;
 import com.energyict.protocolimpl.eig.nexus1272.command.NexusCommandFactory;
 import com.energyict.protocolimpl.eig.nexus1272.parse.LinePoint;
@@ -49,6 +49,7 @@ public class Nexus1272 extends AbstractProtocol  {
 	private int numChannels;
 	private ScaledEnergySettingFactory sesf;
 	private String channelMapping;
+	private String password;
 
 
 	public Nexus1272() {
@@ -96,7 +97,21 @@ public class Nexus1272 extends AbstractProtocol  {
 		
 		if (!channelMapping.equals(""))
 			chnlpMap = processChannelMapping(channelMapping);
+		if ((getInfoTypePassword()==null) || (getInfoTypePassword().compareTo("")==0)) {
+			throw new MissingPropertyException("Password must be set");
+		}
 		
+		String str = getInfoTypePassword();
+		StringBuffer strbuff = new StringBuffer();
+        strbuff.append(str);
+        int length = 10;
+        if (length >= str.length()) {
+			for (int i=0;i<(length-str.length());i++) {
+				strbuff.append(' ');
+			}
+		}
+		password = strbuff.toString();
+				
 		
 //		for (LinePoint mylp : chnlpMap) {
 //			System.out.println(mylp.toString());
@@ -245,8 +260,18 @@ public class Nexus1272 extends AbstractProtocol  {
 //		byte tenMilli2 = (byte) (cal.get(Calendar.MILLISECOND)/10);
 //		byte dayOfWeek2 = (byte) cal.get(Calendar.DAY_OF_WEEK);
 		
-		ByteArrayInputStream bais = new ByteArrayInputStream(new byte []{(byte) 0x0f, (byte) 0x9f});
-		System.out.println((int)ProtocolUtils.getLong(bais, 2));
+//		ByteArrayInputStream bais = new ByteArrayInputStream(new byte []{(byte) 0x0f, (byte) 0x9f});
+//		System.out.println((int)ProtocolUtils.getLong(bais, 2));
+		byte b = 0x05;
+		int limitNumber = 8;
+		for (int j = 0; j<8; j++) {
+//			System.out.println("BM: " + ProtocolUtils.buildStringHex(ProtocolUtils.byte2int(b), 2));
+			if ((b & 0x01) == 1) {
+				System.out.println("comparison state changed since last record for limit " + limitNumber );
+			}
+			b = (byte) (b >> 1);
+			limitNumber--;
+		}
 		
 		"".toString();
 	}
@@ -415,9 +440,11 @@ public class Nexus1272 extends AbstractProtocol  {
 		//FIXME Read Event registers (low batt, etc)
 		
 		lr = new LimitTriggerLogReader(outputStream, connection);
-		lr.readLog(from);
+		byteArray = lr.readLog(from);
+		lr.parseLog(byteArray, profileData);
 		lr = new LimitSnapshotLogReader(outputStream, connection);
-		lr.readLog(from);
+		byteArray = lr.readLog(from);
+		lr.parseLog(byteArray, profileData);
 	}
 
 	private void buildIntervalData(ProfileData profileData, Date from, Date to) throws IOException {
@@ -563,6 +590,7 @@ public class Nexus1272 extends AbstractProtocol  {
 	private boolean authenticate() throws IOException {
 
 		Command command = NexusCommandFactory.getFactory().getAuthenticationCommand();
+		((AuthenticationCommand)command).setPassword(password.getBytes());
 		outputStream.write(command.build());
 		connection.receiveWriteResponse(command);
 
