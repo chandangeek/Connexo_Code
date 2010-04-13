@@ -30,14 +30,15 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProfileData;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 public class MbusProfile {
-	
+
 	private MbusDevice mbusDevice;
-	
+
 	public MbusProfile(){
 	}
-	
+
 	public MbusProfile(MbusDevice mbusDevice){
 		this.mbusDevice = mbusDevice;
 	}
@@ -45,29 +46,29 @@ public class MbusProfile {
 	public ProfileData getProfile(ObisCode obisCode) throws IOException, SQLException, BusinessException {
 		return getProfile(obisCode, false);
 	}
-	
+
 	public ProfileData getProfile(ObisCode mbusProfile, boolean events) throws IOException, SQLException, BusinessException{
 		ProfileData profileData = new ProfileData( );
 		ProfileGeneric genericProfile;
-		
-		
+
+
 		try {
-			genericProfile = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusProfile(this.mbusDevice.getPhysicalAddress()).getObisCode());
+			genericProfile = getCosemObjectFactory().getProfileGeneric(mbusDevice.getProfileObisCode());
 			List<ChannelInfo> channelInfos = getMbusChannelInfos(genericProfile);
-			
+
 			if(channelInfos.size() != 0){
-				
+
 				profileData.setChannelInfos(channelInfos);
 				Calendar fromCalendar = null;
 				Calendar channelCalendar = null;
 				Calendar toCalendar = getToCalendar();
-				
+
 				for (int i = 0; i < getMeter().getChannels().size(); i++) {
 					Channel chn = getMeter().getChannel(i);
-					
+
 					// TODO does not work with the 7.5
-					
-					if(!(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
+
+					if(!(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS) &&
 							!(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
 						channelCalendar = getFromCalendar(getMeter().getChannel(i));
 						if((fromCalendar == null) || (channelCalendar.before(fromCalendar))){
@@ -80,8 +81,8 @@ public class MbusProfile {
 				buildProfileData(dc, profileData, genericProfile);
 				ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 				profileData.sort();
-				
-				
+
+
 //				if(mbusDevice.getWebRTU().getMarkedAsBadTime()){
 //					profileData.markIntervalsAsBadTime();
 //				}
@@ -89,7 +90,7 @@ public class MbusProfile {
 //				mbusDevice.getWebRTU().getStoreObject().add(getMeter(), profileData);
 				return profileData;
 			}
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException(e.getMessage());
@@ -104,10 +105,10 @@ public class MbusProfile {
 		int channelIndex = -1;
 		try{
 			for(int i = 0; i < profile.getCaptureObjects().size(); i++){
-				
+
 				// Normally the mbusData is in a separate profile
 				if(isMbusRegisterObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode())){
-					
+
 					channelIndex = getProfileChannelNumber(index+1);
 					if(channelIndex != -1){
 						CapturedObject co = ((CapturedObject)profile.getCaptureObjects().get(i));
@@ -117,7 +118,7 @@ public class MbusProfile {
 						} else {
 							ci = new ChannelInfo(index, channelIndex, "WebRtuKP_MBus_"+index, Unit.get(BaseUnit.UNITLESS));
 						}
-						
+
 						index++;
 						// We do not do the check because we know it is a cumulative value
 						//TODO need to check the wrapValue
@@ -125,7 +126,7 @@ public class MbusProfile {
 						channelInfos.add(ci);
 					}
 				}
-				
+
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -133,7 +134,7 @@ public class MbusProfile {
 		}
 		return channelInfos;
 	}
-	
+
 	private boolean isMbusRegisterObisCode(ObisCode oc){
 		if((oc.getC() == 24) && (oc.getD() == 2) && (oc.getB() >=1) && (oc.getB() <= 4) && (oc.getE() >= 1) && (oc.getE() <= 4) ){
 			return true;
@@ -142,7 +143,7 @@ public class MbusProfile {
 		}
 	}
 
-	
+
 	/**
 	 * Read the given object and return the scalerUnit.
 	 * If the unit is 0(not a valid value) then return a unitLess scalerUnit.
@@ -158,7 +159,7 @@ public class MbusProfile {
 				if(su.getUnitCode() == 0){
 					su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
 				}
-				
+
 			} else {
 				su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
 			}
@@ -169,14 +170,14 @@ public class MbusProfile {
 		}
 		return new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
 	}
-	
+
 	private int getProfileChannelNumber(int index){
 		int channelIndex = 0;
 		for(int i = 0; i < getMeter().getChannels().size(); i++){
-			
+
 			//TODO does not work with the 7.5, only in the 8.X
-			
-		if(!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
+
+		if(!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.DAYS) &&
 				!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
 			channelIndex++;
 			if(channelIndex == index){
@@ -186,14 +187,14 @@ public class MbusProfile {
 	}
 		return -1;
 	}
-	
+
 	private void buildProfileData(DataContainer dc, ProfileData pd, ProfileGeneric pg) throws IOException{
-		
+
 		Calendar cal = null;
 		IntervalData currentInterval = null;
 		int profileStatus = 0;
 		if(dc.getRoot().getElements().length != 0){
-		
+
 			for(int i = 0; i < dc.getRoot().getElements().length; i++){
 				if(dc.getRoot().getStructure(i).isOctetString(0)){
 //					cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getTimeZone());
@@ -203,14 +204,14 @@ public class MbusProfile {
 						cal.add(Calendar.SECOND, mbusDevice.getMbus().getIntervalInSeconds());
 					}
 				}
-				if(cal != null){		
-					
+				if(cal != null){
+
 					if(getProfileStatusChannelIndex(pg) != -1){
 						profileStatus = dc.getRoot().getStructure(i).getInteger(getProfileStatusChannelIndex(pg));
 					} else {
 						profileStatus = 0;
 					}
-					
+
 					currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus, pg, pd.getChannelInfos());
 					if(currentInterval != null){
 						pd.addInterval(currentInterval);
@@ -221,12 +222,12 @@ public class MbusProfile {
 			mbusDevice.getLogger().info("No entries in MbusLoadProfile");
 		}
 	}
-	
+
 	private IntervalData getIntervalData(DataStructure ds, Calendar cal, int status, ProfileGeneric pg, List channelInfos)throws IOException{
-		
+
 		IntervalData id = new IntervalData(cal.getTime(), StatusCodeProfile.intervalStateBits(status));
 		int index = 0;
-		
+
 		try {
 			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
 				if(index < channelInfos.size()){
@@ -240,10 +241,10 @@ public class MbusProfile {
 			e.printStackTrace();
 			throw new IOException("Failed to parse the intervalData objects form the datacontainer.");
 		}
-		
+
 		return id;
 	}
-	
+
 	private int getProfileClockChannelIndex(ProfileGeneric pg) throws IOException{
 		try {
 			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
@@ -261,7 +262,9 @@ public class MbusProfile {
 	private int getProfileStatusChannelIndex(ProfileGeneric pg) throws IOException{
 		try {
 			for(int i = 0; i < pg.getCaptureObjectsAsUniversalObjects().length; i++){
-				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(getMeterConfig().getMbusStatusObject(this.mbusDevice.getPhysicalAddress()).getObisCode())){
+				//ObisCode mbusStatOC = getMeterConfig().getMbusStatusObject(this.mbusDevice.getPhysicalAddress()).getObisCode();
+				ObisCode mbusStatOC = ProtocolTools.setObisCodeField(ObisCode.fromString("0.0.96.10.3.255"), 1, (byte) this.mbusDevice.getPhysicalAddress());
+				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(mbusStatOC)){
 					return i;
 				}
 			}
@@ -271,23 +274,23 @@ public class MbusProfile {
 		}
 		return -1;
 	}
-	
+
 	private CosemObjectFactory getCosemObjectFactory(){
 		return this.mbusDevice.getWebRTU().getCosemObjectFactory();
 	}
-	
+
 	private Rtu getMeter(){
 		return this.mbusDevice.getMbus();
 	}
-	
+
 	private Calendar getToCalendar(){
 		return this.mbusDevice.getWebRTU().getToCalendar();
 	}
-	
+
 	private Calendar getFromCalendar(Channel channel){
 		return this.mbusDevice.getWebRTU().getFromCalendar(channel);
 	}
-	
+
 	private DLMSMeterConfig getMeterConfig(){
 		return this.mbusDevice.getWebRTU().getMeterConfig();
 	}

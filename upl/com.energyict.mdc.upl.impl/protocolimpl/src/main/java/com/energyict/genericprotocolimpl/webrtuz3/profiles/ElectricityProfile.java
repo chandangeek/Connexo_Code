@@ -24,7 +24,6 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
-import com.energyict.genericprotocolimpl.webrtuz3.WebRTUZ3;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
@@ -33,45 +32,43 @@ import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProfileData;
 
 public class ElectricityProfile {
-	
-	private final boolean DEBUG = false;
-	
-	private WebRTUZ3 webrtu;
-	
+
+	private EDevice eDevice;
+
 	public ElectricityProfile(){
 	}
-	
-	public ElectricityProfile(final WebRTUZ3 webrtu){
-		this.webrtu = webrtu;
+
+	public ElectricityProfile(final EDevice eDevice){
+		this.eDevice = eDevice;
 	}
-	
+
 	public ProfileData getProfile(final ObisCode obisCode) throws IOException, SQLException, BusinessException {
 		return getProfile(obisCode, false);
 	}
-	
+
 	public ProfileData getProfile(final ObisCode electricityProfile, final boolean events) throws IOException, SQLException, BusinessException{
 		final ProfileData profileData = new ProfileData( );
 		ProfileGeneric genericProfile;
-		
+
 		try {
 			genericProfile = getCosemObjectFactory().getProfileGeneric(electricityProfile);
 			final List<ChannelInfo> channelInfos = getChannelInfos(genericProfile);
-			
+
 			if(channelInfos.size() != 0){
-				webrtu.getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + getMeter().getSerialNumber());
+				eDevice.getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + getMeter().getSerialNumber());
 				verifyProfileInterval(genericProfile, channelInfos);
-				
+
 				profileData.setChannelInfos(channelInfos);
 				Calendar fromCalendar = null;
 				Calendar channelCalendar = null;
 				final Calendar toCalendar = getToCalendar();
-				
+
 				for (int i = 0; i < getMeter().getChannels().size(); i++) {
 					final Channel chn = getMeter().getChannel(i);
-					
+
 					//TODO this does not work with the 7.5 version
-					
-					if(!(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
+
+					if(!(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS) &&
 							!(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
 						channelCalendar = getFromCalendar(getMeter().getChannel(i));
 						if((fromCalendar == null) || (channelCalendar.before(fromCalendar))){
@@ -79,22 +76,22 @@ public class ElectricityProfile {
 						}
 					}
 				}
-				
-				webrtu.getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
+
+				eDevice.getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 				final DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 				buildProfileData(dc, profileData, genericProfile);
 				ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 				profileData.sort();
-				
+
 //				if(webrtu.getMarkedAsBadTime()){
 //					profileData.markIntervalsAsBadTime();
 //				}
 				// We save the profileData to a tempObject so we can store everything at the end of the communication
 //				webrtu.getStoreObject().add(getMeter(), profileData);
 				return profileData;
-				
+
 			}
-			
+
 		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IOException(e.getMessage());
@@ -111,7 +108,7 @@ public class ElectricityProfile {
 			}
 		}
 	}
-	
+
 	private List<ChannelInfo> getChannelInfos(final ProfileGeneric profile) throws IOException {
 		final List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
 		ChannelInfo ci = null;
@@ -119,8 +116,8 @@ public class ElectricityProfile {
 		int channelIndex = -1;
 		try{
 			for(int i = 0; i < profile.getCaptureObjects().size(); i++){
-				
-				if(isValidChannelObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode()) 
+
+				if(isValidChannelObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode())
 						&& !isProfileStatusObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode())){ // make a channel out of it
 					final CapturedObject co = ((CapturedObject)profile.getCaptureObjects().get(i));
 					final ScalerUnit su = getMeterDemandRegisterScalerUnit(co.getLogicalName().getObisCode());
@@ -131,7 +128,7 @@ public class ElectricityProfile {
 						} else {
 							ci = new ChannelInfo(index, channelIndex, "WebRtuKP_"+index, Unit.get(BaseUnit.UNITLESS));
 						}
-						
+
 						index++;
 						if(com.energyict.dlms.ParseUtils.isObisCodeCumulative(co.getLogicalName().getObisCode())){
 							//TODO need to check the wrapValue
@@ -140,7 +137,7 @@ public class ElectricityProfile {
 						channelInfos.add(ci);
 					}
 				}
-				
+
 			}
 		} catch (final IOException e) {
 			e.printStackTrace();
@@ -164,25 +161,25 @@ public class ElectricityProfile {
 				if(su.getUnitCode() == 0){
 					su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
 				}
-				
+
 			} else {
 				su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
 			}
 			return su;
 		} catch (final IOException e) {
 			e.printStackTrace();
-			webrtu.getLogger().log(Level.INFO, "Could not get the scalerunit from object '" + oc + "'.");
+			eDevice.getLogger().log(Level.INFO, "Could not get the scalerunit from object '" + oc + "'.");
 		}
 		return new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
 	}
-	
+
 	private int getProfileChannelNumber(final int index){
 		int channelIndex = 0;
 		for(int i = 0; i < getMeter().getChannels().size(); i++){
-			
+
 			//TODO does not work with the 7.5 version, only in the 8.X
-			
-		if(!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
+
+		if(!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.DAYS) &&
 				!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
 			channelIndex++;
 			if(channelIndex == index){
@@ -192,39 +189,39 @@ public class ElectricityProfile {
 	}
 		return -1;
 	}
-	
+
 	private void buildProfileData(final DataContainer dc, final ProfileData pd, final ProfileGeneric pg) throws IOException{
-		
-		
+
+
 		Calendar cal = null;
 		IntervalData currentInterval = null;
 		int profileStatus = 0;
 		if(dc.getRoot().getElements().length != 0){
-		
+
 			for(int i = 0; i < dc.getRoot().getElements().length; i++){
-				
+
 				//Test
 				if(dc.getRoot().getStructure(i) == null){
 					dc.printDataContainer();
 					System.out.println("Element: " + i);
 				}
-				
+
 				if(dc.getRoot().getStructure(i).isOctetString(0)){
 //					cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getTimeZone());
 					cal = new AXDRDateTime(new OctetString(dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).getArray())).getValue();
 				} else {
 					if(cal != null){
-						cal.add(Calendar.SECOND, webrtu.getMeter().getIntervalInSeconds());
+						cal.add(Calendar.SECOND, eDevice.getMeter().getIntervalInSeconds());
 					}
 				}
-				if(cal != null){		
-					
+				if(cal != null){
+
 					if(getProfileStatusChannelIndex(pg) != -1){
 						profileStatus = dc.getRoot().getStructure(i).getInteger(getProfileStatusChannelIndex(pg));
 					} else {
 						profileStatus = 0;
 					}
-					
+
 					currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus, pg, pd.getChannelInfos());
 					if(currentInterval != null){
 						pd.addInterval(currentInterval);
@@ -232,19 +229,19 @@ public class ElectricityProfile {
 				}
 			}
 		} else {
-			webrtu.getLogger().info("No entries in LoadProfile");
+			eDevice.getLogger().info("No entries in LoadProfile");
 		}
 	}
-	
+
 	private boolean isProfileStatusObisCode(final ObisCode oc) throws IOException{
 		return oc.equals(getMeterConfig().getStatusObject().getObisCode());
 	}
-	
+
 	private IntervalData getIntervalData(final DataStructure ds, final Calendar cal, final int status, final ProfileGeneric pg, final List channelInfos)throws IOException{
-		
+
 		final IntervalData id = new IntervalData(cal.getTime(), StatusCodeProfile.intervalStateBits(status));
 		int index = 0;
-		
+
 		try {
 			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
 				if(index < channelInfos.size()){
@@ -253,26 +250,26 @@ public class ElectricityProfile {
 						id.addValue(new Integer(ds.getInteger(i)));
 						index++;
 					}
-					
+
 				}
 			}
 		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IOException("Failed to parse the intervalData objects form the datacontainer.");
 		}
-		
+
 		return id;
 	}
-	
+
 	/**
 	 * Check if it is a valid channel Obiscode
 	 * TODO it is the same method as the one from the {@link ElectricityProfile}, maybe extract an abstract profile class for both ...
-	 * 
+	 *
 	 * @param obisCode
 	 * 				- the {@link ObisCode} to check
-	 * 
+	 *
 	 * @return true if you know it is a valid channelData obisCode, false otherwise
-	 */	
+	 */
 	private boolean isValidChannelObisCode(final ObisCode obisCode){
 		if ((obisCode.getA() == 1) && (((obisCode.getB() >= 0) && (obisCode.getB() <= 64)) || (obisCode.getB() == 128)) ) {	// Energy channels - Pulse channels (C == 82)
 			return true;
@@ -286,7 +283,7 @@ public class ElectricityProfile {
 			return false;
 		}
 	}
-	
+
 	private int getProfileStatusChannelIndex(final ProfileGeneric pg) throws IOException{
 		try {
 			for(int i = 0; i < pg.getCaptureObjectsAsUniversalObjects().length; i++){
@@ -300,7 +297,7 @@ public class ElectricityProfile {
 		}
 		return -1;
 	}
-	
+
 	private int getProfileClockChannelIndex(final ProfileGeneric pg) throws IOException{
 		try {
 			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
@@ -316,23 +313,23 @@ public class ElectricityProfile {
 	}
 
 	private CosemObjectFactory getCosemObjectFactory(){
-		return this.webrtu.getCosemObjectFactory();
+		return this.eDevice.getCosemObjectFactory();
 	}
-	
+
 	private Rtu getMeter(){
-		return this.webrtu.getMeter();
+		return this.eDevice.getMeter();
 	}
-	
+
 	private Calendar getToCalendar(){
-		return this.webrtu.getToCalendar();
+		return this.eDevice.getToCalendar();
 	}
-	
+
 	private Calendar getFromCalendar(final Channel channel){
-		return this.webrtu.getFromCalendar(channel);
+		return this.eDevice.getFromCalendar(channel);
 	}
-	
+
 	private DLMSMeterConfig getMeterConfig(){
-		return this.webrtu.getMeterConfig();
+		return this.eDevice.getMeterConfig();
 	}
 
 }

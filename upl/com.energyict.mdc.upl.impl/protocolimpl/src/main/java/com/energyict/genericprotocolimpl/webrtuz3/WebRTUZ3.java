@@ -18,13 +18,16 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.InvokeIdAndPriority;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.IPv4Setup;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.CommonUtils;
@@ -38,9 +41,11 @@ import com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers.ObisCodeM
 import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.MessageExecutor;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.DailyMonthly;
+import com.energyict.genericprotocolimpl.webrtuz3.profiles.EDevice;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.ElectricityProfile;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.EventProfile;
 import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.mdw.core.RtuType;
@@ -51,6 +56,7 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
  * <p>
@@ -61,7 +67,7 @@ import com.energyict.protocol.messaging.MessageSpec;
  * @author gna
  *
  */
-public class WebRTUZ3 extends DLMSProtocol{
+public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 
 	/** Property names */
 	private static final String			PROPERTY_PASSWORD				= "Password";
@@ -83,8 +89,13 @@ public class WebRTUZ3 extends DLMSProtocol{
 	private static final String			DEFAULT_PASSWORD				= "";
 
 	/** Device channel mappings */
-	private static final DeviceMapping MBUS_DEVICES = new DeviceMapping(0x01, 0x20);
-	private static final DeviceMapping EMETER_DEVICES = new DeviceMapping(0x21, 0x40);
+	private static final DeviceMapping	MBUS_DEVICES					= new DeviceMapping(0x01, 0x20);
+	private static final DeviceMapping	EMETER_DEVICES					= new DeviceMapping(0x21, 0x40);
+
+	/** The device obisCodes */
+	public final static ObisCode		RF_FIRMWAREVERSION				= ObisCode.fromString("1.129.0.2.0.255");
+	public final static ObisCode		RF_FIRMWARE_OBISCODE			= ObisCode.fromString("0.0.44.0.128.255");
+	public static final ObisCode		SERIALNR_OBISCODE				= ObisCode.fromString("0.0.96.1.0.255");
 
 	/** The serialNumber of the Rtu */
 	private String serialNumber;
@@ -116,8 +127,14 @@ public class WebRTUZ3 extends DLMSProtocol{
 	/** An array of 'slave' MbusDevices */
 	private MbusDevice[] mbusDevices;
 
+	/** An array of 'slave' EMeters */
+	private EMeter[] eMeters;
+
 	/** GhostMbusDevices are Mbus meters that are connected with their gateway in EIServer, but not on the physical device anymore */
 	private Map<String, Integer> ghostMbusDevices = new HashMap<String, Integer>();
+
+	/** GhostEMeters are e-meters that are connected with their gateway in EIServer, but not on the physical device anymore */
+	private Map<String, Integer> ghostEMeters = new HashMap<String, Integer>();
 
 	/** The used TicDevice */
 	private TicDevice ticDevice;
@@ -127,12 +144,6 @@ public class WebRTUZ3 extends DLMSProtocol{
 
 	/** The {@link ObisCodeMapper} used */
 	private ObisCodeMapper ocm;
-
-	/** The obisCode for the RF-FirmwareVersion */
-	public final static ObisCode RF_FIRMWAREVERSION = ObisCode.fromString("1.129.0.2.0.255");
-
-	/** The obisCode for the RF firmware Object */
-	public final static ObisCode RF_FIRMWARE_OBISCODE = ObisCode.fromString("0.0.44.0.128.255");
 
 	@Override
 	protected void doExecute() throws BusinessException, SQLException, IOException {
@@ -152,7 +163,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 			if (getCommunicationProfile().getReadDemandValues()) {
 
 				ElectricityProfile ep = new ElectricityProfile(this);
-				ProfileData eProfileData = ep.getProfile(getMeterConfig().getProfileObject().getObisCode());
+				ProfileData eProfileData = ep.getProfile(EMeter.PROFILE_OBISCODE);
 				if(badTime){	// if a timedifference exceeds boundary
 					eProfileData.markIntervalsAsBadTime();
 				}
@@ -215,6 +226,13 @@ public class WebRTUZ3 extends DLMSProtocol{
 				handleMbusMeters();
 			}
 
+			// Discover and handle MbusMeters
+			discoverEMeters();
+			if (getValidEMeters() != 0) {
+				getLogger().log(Level.INFO, "Starting to handle the Emeters.");
+				handleEmeters();
+			}
+
 			// Check for TIC devices and if there is one handle it
 			if(hasTicDevices()){
 				getLogger().log(Level.INFO, "Starting to handle the Tic device.");
@@ -251,24 +269,22 @@ public class WebRTUZ3 extends DLMSProtocol{
 
 		UniversalObject[] uo = getMeterConfig().getInstantiatedObjectList();
 		for (UniversalObject universalObject : uo) {
-			if (universalObject.getObisCode().getB() == 33) {
-				System.out.println(universalObject.getDescription());
-			}
-		}
-
-		System.out.println();
-
-		for (UniversalObject universalObject : uo) {
-			if (universalObject.getObisCode().getB() == 0) {
-				System.out.println(universalObject.getDescription());
+			if (SERIALNR_OBISCODE.equals(ProtocolTools.setObisCodeField(universalObject.getObisCode(), 1, (byte) 0))){
+				//System.out.println(universalObject);
+				try {
+					DataStructure ds = getCosemObjectFactory().getGenericRead(universalObject).getDataContainer().getRoot();
+					System.out.println(universalObject.getObisCode() + " = " + ds.getElement(0).toString());
+				} catch (IOException e) {
+					//
+				}
 			}
 		}
 
 		List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
-		for (int i = 0; i < 16; i++) {
-			dlmsAttributes.add(new DLMSAttribute("0." + i + ".96.1.0.255", 2, DLMSClassId.DATA));
+		for (byte i = 0; i < 16; i++) {
+			dlmsAttributes.add(new DLMSAttribute(ProtocolTools.setObisCodeField(SERIALNR_OBISCODE, 1, i), 2, DLMSClassId.DATA));
 		}
-		getCosemObjectFactory().getGenericRead(dlmsAttributes);
+		getCosemObjectFactory().getGenericReadWithList(dlmsAttributes);
 
 	}
 
@@ -312,6 +328,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 	@Override
 	protected void doInit() throws SQLException, BusinessException, IOException{
 		this.mbusDevices = new MbusDevice[MBUS_DEVICES.getNumberOfDevices()];
+		this.eMeters = new EMeter[EMETER_DEVICES.getNumberOfDevices()];
 		this.storeObject = new StoreObject();
 		this.ocm = new ObisCodeMapper(getCosemObjectFactory());
 	}
@@ -325,8 +342,9 @@ public class WebRTUZ3 extends DLMSProtocol{
 		try {
 			return getCosemObjectFactory().getGenericRead(getMeterConfig().getVersionObject()).getString();
 		} catch (IOException e) {
-			log(Level.FINEST, e.getMessage());
-			throw new IOException("Could not fetch the firmwareVersion." + e);
+			String message = "Could not fetch the firmwareVersion." + e.getMessage();
+			log(Level.FINEST, message);
+			throw new IOException(message);
 		}
 	}
 
@@ -338,7 +356,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 		try {
 			return getCosemObjectFactory().getGenericRead(RF_FIRMWAREVERSION,DLMSUtils.attrLN2SN(2),1).getString();
 		} catch (IOException e) {
-			log(Level.FINEST, e.getMessage());
+			log(Level.FINEST, "Unable to read the RFFirmwareVersion: " + e.getMessage());
 			return "";
 		}
 	}
@@ -559,7 +577,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 	 * @throws IOException
 	 */
 	public void discoverMbusDevices() throws SQLException, BusinessException, IOException{
-
+		log(Level.FINE, "Starting discovery of MBusDevices");
 		// get an MbusDeviceMap
 		Map<String, Integer> mbusMap = getMbusMapper();
 		// check if the current mbus slaves are still on the meter disappeared
@@ -569,9 +587,24 @@ public class WebRTUZ3 extends DLMSProtocol{
 	}
 
 	/**
+	 * Discover Mbus devices
+	 * @throws SQLException
+	 * @throws BusinessException
+	 * @throws IOException
+	 */
+	public void discoverEMeters() throws SQLException, BusinessException, IOException{
+		log(Level.FINE, "Starting discovery of eMeters");
+		// get an MbusDeviceMap
+		Map<String, Integer> eMeterMap = getEmeterMapper();
+		// check if the current mbus slaves are still on the meter disappeared
+		checkForDisappearedEMeters(eMeterMap);
+		// check if all the mbus devices are configured in EIServer
+		checkToUpdateEMeters(eMeterMap);
+	}
+
+	/**
 	 * Constructs a map containing the serialNumber and the physical address of the mbusdevice.
 	 * If the serialNumber can't be retrieved from the device then we just log and try the next one.
-	 * The number of Mbus devices to loop over is defined with the {@link #maxMbusDevices} property
 	 * @return a map containing SerailNumber - Physical mbus address
 	 * @throws ConnectionException if interframeTimeout has passed and maximum retries have been reached
 	 */
@@ -581,19 +614,48 @@ public class WebRTUZ3 extends DLMSProtocol{
 		for (int i = MBUS_DEVICES.getFrom(); i <= MBUS_DEVICES.getTo(); i++) {
 			mbusSerial = "";
 			try {
-				mbusSerial = getCosemObjectFactory().getGenericRead(getMeterConfig().getMbusSerialNumber(i)).getString(); // FIXME
-				if(!mbusSerial.equalsIgnoreCase("")){
+				Data serialDataObject = getCosemObjectFactory().getData(ProtocolTools.setObisCodeField(SERIALNR_OBISCODE, 1, (byte) i));
+				OctetString serialOctetString = serialDataObject.getAttrbAbstractDataType(2).getOctetString();
+				mbusSerial = serialOctetString != null ? serialOctetString.stringValue() : null;
+				if ((mbusSerial != null) && (!mbusSerial.equalsIgnoreCase(""))) {
 					mbusMap.put(mbusSerial, i);
 				}
 			} catch (IOException e) {
 				if(e.getMessage().indexOf("com.energyict.dialer.connection.ConnectionException: receiveResponse() interframe timeout error") > -1){
 					throw new ConnectionException("InterframeTimeout occurred. Meter probably not accessible anymore." + e);
 				}
-				log(Level.FINEST, e.getMessage()); // catch and go to next
-				log(Level.FINE, "Could not retrieve the mbusSerialNumber for channel " + (i + 1));
+				log(Level.FINE, "Could not retrieve the mbus serialNumber for channel " + i + ": " + e.getMessage());
 			}
 		}
 		return mbusMap;
+	}
+
+	/**
+	 * Constructs a map containing the serialNumber and the physical address of the e-meter.
+	 * If the serialNumber can't be retrieved from the device then we just log and try the next one.
+	 * @return a map containing SerailNumber - Physical address
+	 * @throws ConnectionException if interframeTimeout has passed and maximum retries have been reached
+	 */
+	private Map<String, Integer> getEmeterMapper() throws ConnectionException{
+		String eMeterSerial;
+		HashMap<String, Integer> eMeterMap = new HashMap<String, Integer>();
+		for (int i = EMETER_DEVICES.getFrom(); i <= EMETER_DEVICES.getTo(); i++) {
+			eMeterSerial = "";
+			try {
+				Data serialDataObject = getCosemObjectFactory().getData(ProtocolTools.setObisCodeField(SERIALNR_OBISCODE, 1, (byte) i));
+				OctetString serialOctetString = serialDataObject.getAttrbAbstractDataType(2).getOctetString();
+				eMeterSerial = serialOctetString != null ? serialOctetString.stringValue() : null;
+				if ((eMeterSerial != null) && (!eMeterSerial.equalsIgnoreCase(""))) {
+					eMeterMap.put(eMeterSerial, i);
+				}
+			} catch (IOException e) {
+				if(e.getMessage().indexOf("com.energyict.dialer.connection.ConnectionException: receiveResponse() interframe timeout error") > -1){
+					throw new ConnectionException("InterframeTimeout occurred. Meter probably not accessible anymore." + e);
+				}
+				log(Level.FINE, "Could not retrieve the eMeter serialNumber for channel " + i + ": " + e.getMessage());
+			}
+		}
+		return eMeterMap;
 	}
 
 	/**
@@ -611,7 +673,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 				device = Class.forName(mbus.getRtuType().getShadow().getCommunicationProtocolShadow().getJavaClassName());
 				if((device != null) && (device.newInstance() instanceof MbusDevice)){		// we check to see if it's an Mbus device and no TIC device
 					if(!mbusMap.containsKey(mbus.getSerialNumber())){
-						getLogger().log(Level.INFO, "MbusDevice " + mbus.getSerialNumber() + " is not installed on the physical device.");
+						getLogger().log(Level.INFO, "MbusDevice [" + mbus + "] is not installed on the physical device.");
 						ghostMbusDevices.put(mbus.getSerialNumber(), mbusMap.get(mbus.getSerialNumber()));
 					}
 				}
@@ -624,6 +686,39 @@ public class WebRTUZ3 extends DLMSProtocol{
 			} catch (IllegalAccessException e) {
 				log(Level.FINEST, e.getMessage());
 				getLogger().log(Level.INFO, "Could not check if the mbusDevice " + mbus.getSerialNumber() + " exists.");
+			}
+		}
+
+	}
+
+	/**
+	 * Check to see if you find MbusDevices as slaves for the current Z3 in the DataBase, but NOT on the physical device
+	 * @param eMeterMap - a map of serialNumbers read from the Z3
+	 */
+	private void checkForDisappearedEMeters(Map<String, Integer> eMeterMap){
+
+		List<Rtu> eMeterSlaves = getMeter().getDownstreamRtus();
+		Iterator<Rtu> it = eMeterSlaves.iterator();
+		while(it.hasNext()){
+			Rtu eMeter = it.next();
+			Class device = null;
+			try {
+				device = Class.forName(eMeter.getRtuType().getShadow().getCommunicationProtocolShadow().getJavaClassName());
+				if((device != null) && (device.newInstance() instanceof EMeter)){		// we check to see if it's an Mbus device and no TIC device
+					if(!eMeterMap.containsKey(eMeter.getSerialNumber())){
+						getLogger().log(Level.INFO, "EMeter [" + eMeter + "] is not installed on the physical device.");
+						ghostEMeters.put(eMeter.getSerialNumber(), eMeterMap.get(eMeter.getSerialNumber()));
+					}
+				}
+			} catch (ClassNotFoundException e) {
+				log(Level.FINEST, e.getMessage());
+				// should never come here because if the rtuType has the className, then you should be able to create a class for it...
+			} catch (InstantiationException e) {
+				log(Level.FINEST, e.getMessage());
+				getLogger().log(Level.INFO, "Could not check if the eMeter " + eMeter.getSerialNumber() + " exists.");
+			} catch (IllegalAccessException e) {
+				log(Level.FINEST, e.getMessage());
+				getLogger().log(Level.INFO, "Could not check if the eMeter " + eMeter.getSerialNumber() + " exists.");
 			}
 		}
 
@@ -645,11 +740,35 @@ public class WebRTUZ3 extends DLMSProtocol{
 			if(!ghostMbusDevices.containsKey(entry.getKey())){ // ghostMeters don't need to be read because they are not on the meter anymore
 				Rtu mbus = CommonUtils.findOrCreateDeviceBySerialNumber(entry.getKey(), mbusRtuType, folderExtName);
 				if(mbus != null){
+					mbus.updateGateway(getMeter());
 					this.mbusDevices[count++] = new MbusDevice(entry.getKey(), entry.getValue(), mbus, getLogger());
 				}
 			}
 		}
 	}
+
+	/**
+	 * Check the ghostMbusDevices and create the mbusDevices
+	 * @param eMeterMap
+	 * @throws BusinessException if a business error occurred
+	 * @throws SQLException if database exception occurred
+	 * @throws IOException if multiple meters were found in the database
+	 */
+	private void checkToUpdateEMeters(Map<String, Integer> eMeterMap) throws SQLException, BusinessException, IOException{
+		Iterator<Entry<String, Integer>>  eMeterIt = eMeterMap.entrySet().iterator();
+		int count = 0;
+		while(eMeterIt.hasNext()){
+			Map.Entry<String, Integer> entry = eMeterIt.next();
+			if(!ghostEMeters.containsKey(entry.getKey())){ // ghostMeters don't need to be read because they are not on the meter anymore
+				Rtu eMeter = CommonUtils.findOrCreateDeviceBySerialNumber(entry.getKey(), eMeterRtuType, folderExtName);
+				if(eMeter != null){
+					eMeter.updateGateway(getMeter());
+					this.eMeters[count++] = new EMeter(entry.getKey(), entry.getValue(), eMeter, getLogger());
+				}
+			}
+		}
+	}
+
 
 	/**
 	 * Check to see if there are mbusDevices
@@ -666,15 +785,32 @@ public class WebRTUZ3 extends DLMSProtocol{
 	}
 
 	/**
+	 * Check to see if there are eMeters
+	 * @return the number of {@link EMeter}
+	 */
+	private int getValidEMeters(){
+		int count = 0;
+		for(int i = 0; i < EMETER_DEVICES.getNumberOfDevices(); i++){
+			if(this.eMeters[i] != null){
+				count++;
+			}
+		}
+		return count;
+	}
+
+	/**
 	 * Handles all the MBus devices like a separate device
 	 */
 	private void handleMbusMeters() {
 		for (int i = 0; i < MBUS_DEVICES.getNumberOfDevices(); i++) {
 			try {
 				if (mbusDevices[i] != null) {
-					mbusDevices[i].setWebRtu(this);
-					mbusDevices[i].execute(getCommunicationScheduler(), null, null);
-					getLogger().info("MbusDevice " + (i+1) + " has finished.");
+					List<CommunicationScheduler> commSchedulers = mbusDevices[i].getMbus().getCommunicationSchedulers();
+					for (CommunicationScheduler commSchedule : commSchedulers) {
+						mbusDevices[i].setWebRtu(this);
+						mbusDevices[i].execute(commSchedule, null, null);
+						getLogger().info("MbusDevice " + mbusDevices[i] + " has finished.");
+					}
 				}
 			} catch (BusinessException e) {
 
@@ -751,6 +887,52 @@ public class WebRTUZ3 extends DLMSProtocol{
 		this.ticDevice.execute(getCommunicationScheduler(), null, getLogger());
 	}
 
+	/**
+	 *
+	 */
+	private void handleEmeters() throws BusinessException, SQLException, IOException {
+		for (EMeter eMeter : eMeters) {
+			try {
+				if (eMeter != null) {
+					List<CommunicationScheduler> commSchedulers = eMeter.geteMeterRtu().getCommunicationSchedulers();
+					for (CommunicationScheduler commSchedule : commSchedulers) {
+						eMeter.setWebRtu(this);
+						eMeter.execute(commSchedule, null, null);
+						getLogger().info("Emeter " + eMeter + " has finished.");
+					}
+				}
+			} catch (BusinessException e) {
+
+				/*
+				 * A single MBusMeter failed: log and try next MBusMeter.
+				 */
+				log(Level.FINEST, e.getMessage());
+				getLogger().log(Level.SEVERE, "Emeter with serial: " + eMeter.getSerialNumber() + " has failed.");
+
+			} catch (SQLException e) {
+
+				/** Close the connection after an SQL exception, connection will startup again if requested */
+				Environment.getDefault().closeConnection();
+
+				/*
+				 * A single MBusMeter failed: log and try next MBusMeter.
+				 */
+				log(Level.FINEST, e.getMessage());
+				getLogger().log(Level.SEVERE, "Emeter with serial: " + eMeter.getSerialNumber() + " has failed.");
+
+			} catch (IOException e) {
+
+				/*
+				 * A single MBusMeter failed: log and try next MBusMeter.
+				 */
+				log(Level.FINEST, e.getMessage());
+				getLogger().log(Level.SEVERE, "Emeter with serial: " + eMeter.getSerialNumber() + " has failed. [" + e.getMessage() + "]");
+
+			}
+
+		}
+	}
+
 	@Override
 	public List getMessageCategories() {
 		List<MessageCategorySpec> categories = new ArrayList();
@@ -823,5 +1005,12 @@ public class WebRTUZ3 extends DLMSProtocol{
 				RtuMessageConstant.WAKEUP_DEACTIVATE, false);
 		catGPRSModemSetup.addMessageSpec(msgSpec);
 		return catGPRSModemSetup;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.energyict.genericprotocolimpl.webrtuz3.profiles.EDevice#getPhysicalAddress()
+	 */
+	public int getPhysicalAddress() {
+		return 0;
 	}
 }
