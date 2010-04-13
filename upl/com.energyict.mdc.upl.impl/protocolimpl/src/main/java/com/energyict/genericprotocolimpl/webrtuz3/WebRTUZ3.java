@@ -251,7 +251,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 			}
 
 			try {
-				test();
+				//test();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
