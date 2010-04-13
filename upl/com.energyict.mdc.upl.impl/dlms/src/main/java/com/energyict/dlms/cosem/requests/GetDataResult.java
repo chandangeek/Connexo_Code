@@ -12,6 +12,14 @@ public class GetDataResult extends AbstractChoice {
 	private static final int	DATA_ACCES_RESULT_ID	= 1;
 	private static final int	DATA_ID					= 0;
 
+	public boolean isData() {
+		return getChoiceNumber() == DATA_ID;
+	}
+
+	public boolean isDataAccessResult() {
+		return getChoiceNumber() == DATA_ACCES_RESULT_ID;
+	}
+
 	public byte getChoiceNumber() {
 		if (getChoiceObject() instanceof AbstractDataType) {
 			return DATA_ID;

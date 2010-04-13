@@ -8,12 +8,14 @@ package com.energyict.dlms.cosem;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.cosem.requests.GetDataResult;
 import com.energyict.dlms.cosem.requests.RequestFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -352,7 +354,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 		throw new IOException("CosemObjectFactory, getObjectReference, invalid reference type " + protocolLink.getReference());
 	}
 
-	public void getGenericRead(List<DLMSAttribute> objects) throws IOException {
+	public List<GetDataResult> getGenericReadWithList(List<DLMSAttribute> objects) throws IOException {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		bytes.write(new byte[3]);
 
@@ -367,6 +369,8 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 
 		byte[] response = getProtocolLink().getDLMSConnection().sendRequest(request);
 		System.out.println(ProtocolTools.getHexStringFromBytes(response));
+
+		return new ArrayList<GetDataResult>();
 	}
 
 }

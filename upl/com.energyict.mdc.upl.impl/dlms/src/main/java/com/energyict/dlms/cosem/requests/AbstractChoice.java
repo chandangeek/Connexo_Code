@@ -32,4 +32,8 @@ public abstract class AbstractChoice implements Choice {
 		this.choiceObject = choiceObject;
 	}
 
+	public boolean isInvalidChoiceNumber() {
+		return getChoiceNumber() == INVALID_CHOICE_NUMBER;
+	}
+
 }
