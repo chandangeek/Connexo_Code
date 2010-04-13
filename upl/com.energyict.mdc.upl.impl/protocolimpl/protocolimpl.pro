@@ -348,3 +348,5 @@
 -keepnames class com.energyict.protocolimpl.iec1107.indigo.pxar.IndigoPXAR
 
 -keepnames class com.energyict.protocolimpl.iec1107.instromet.dl220.DL220
+
+-keepnames class com.energyict.genericprotocolimpl.webrtuz3.EMeter
