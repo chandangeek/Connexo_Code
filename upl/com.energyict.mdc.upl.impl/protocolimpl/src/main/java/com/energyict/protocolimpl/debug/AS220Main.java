@@ -102,7 +102,7 @@ public class AS220Main {
 		if (dialer == null) {
 			//dialer = DialerFactory.get("IPDIALER").newDialer();
 			dialer = DialerFactory.getDirectDialer().newDialer();
-			dialer.setStreamObservers(new DebuggingObserver(OBSERVER_FILENAME, false, false));
+			dialer.setStreamObservers(new DebuggingObserver(OBSERVER_FILENAME, true, false));
 		}
 		return dialer;
 	}
@@ -139,7 +139,7 @@ public class AS220Main {
 
 		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
 		properties.setProperty("ProfileInterval", "900");
-		properties.setProperty("Password", "00000000");
+		properties.setProperty("Password", "20100401");
 		properties.setProperty("SerialNumber", "35021373");
 
 		properties.setProperty("AddressingMode", "-1");
@@ -385,19 +385,15 @@ public class AS220Main {
 		getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
 		getDialer().connect();
 
-//		getDialer().init("10.0.2.127:10010");
-//		getDialer().connect("10.0.2.127:10010", 10010);
-
-//		getDialer().init("linux2:10010");
-//		getDialer().connect("linux2:10010", 10010);
-
 		try {
 			getAs220().setProperties(getCommonProperties());
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			getAs220().geteMeter().getContactorController().doDisconnect();
-			getAs220().geteMeter().getContactorController().doConnect();
+			String messageContent = "<SetSinglePlcChannelFrequency CHANNEL1_FM=\"11001\" CHANNEL1_FS=\"12002\"> </SetSinglePlcChannelFrequency>";
+			MessageEntry messageEntry = new MessageEntry(messageContent , "");
+			getAs220().queryMessage(messageEntry );
+
 
 
 		} catch (Exception e) {
