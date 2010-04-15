@@ -390,10 +390,6 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			String messageContent = "<SetSinglePlcChannelFrequency CHANNEL1_FM=\"11001\" CHANNEL1_FS=\"12002\"> </SetSinglePlcChannelFrequency>";
-			MessageEntry messageEntry = new MessageEntry(messageContent , "");
-			getAs220().queryMessage(messageEntry );
-
 
 
 		} catch (Exception e) {
