@@ -4,7 +4,9 @@
 package com.energyict.dlms.cosem.attributeobjects;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -27,25 +29,57 @@ public class Frequencies extends Array implements Comparable<Frequencies> {
 	 * @throws IOException
 	 */
 	public static Frequencies fromLongArray(long[][] frequencies) throws IOException {
+		long[][] cleanedFrequencies = removeInvalidFrequencies(frequencies);
+		Array array = new Array();
+		for (int channelNr = 0; channelNr < cleanedFrequencies.length; channelNr++) {
+			Structure frequencyPair = new Structure();
+			for (int frequencyType = 0; frequencyType < cleanedFrequencies[channelNr].length; frequencyType++) {
+				frequencyPair.addDataType(new Unsigned32(cleanedFrequencies[channelNr][frequencyType]));
+			}
+			array.addDataType(frequencyPair);
+		}
+		byte[] berEncodedByteArray = array.getBEREncodedByteArray();
+		return new Frequencies(berEncodedByteArray);
+	}
+
+	/**
+	 * @return
+	 */
+	private static long[][] removeInvalidFrequencies(final long[][] frequencies) {
+		List<long[]> validFrequenciesList = new ArrayList<long[]>();
 		if (frequencies == null) {
 			throw new IllegalArgumentException("Frequencies.fromLongArray(long[][] frequencies): Argument frequencies cannot be null!");
-		} else if (frequencies.length == 0) {
-			byte[] berEncodedByteArray = new Array().getBEREncodedByteArray();
-			return new Frequencies(berEncodedByteArray);
 		} else if (frequencies[0].length != 2) {
 			throw new IllegalArgumentException("Frequencies.fromLongArray(long[][] frequencies): Argument frequencies should contain a mark & space field!");
 		} else {
-			Array array = new Array();
-			for (int channelNr = 0; channelNr < frequencies.length; channelNr++) {
-				Structure frequencyPair = new Structure();
-				for (int frequencyType = 0; frequencyType < frequencies[channelNr].length; frequencyType++) {
-					frequencyPair.addDataType(new Unsigned32(frequencies[channelNr][frequencyType]));
+			for (int i = 0; i < frequencies.length; i++) {
+				if (!containsInvalidFrequency(frequencies[i])) {
+					validFrequenciesList.add(frequencies[i]);
 				}
-				array.addDataType(frequencyPair);
 			}
-			byte[] berEncodedByteArray = array.getBEREncodedByteArray();
-			return new Frequencies(berEncodedByteArray);
 		}
+
+		long[][] returnValue = new long[validFrequenciesList.size()][validFrequenciesList.size() > 0 ? validFrequenciesList.get(0).length : 0];
+		for (int i = 0; i < validFrequenciesList.size(); i++) {
+			for (int j = 0; j < validFrequenciesList.get(i).length; j++) {
+				returnValue[i][j] = validFrequenciesList.get(i)[j];
+			}
+		}
+
+		return returnValue;
+	}
+
+	/**
+	 * @param frequencyGroup
+	 * @return
+	 */
+	private static boolean containsInvalidFrequency(long[] frequencyGroup) {
+		for (int i = 0; i < frequencyGroup.length; i++) {
+			if (frequencyGroup[i] == -1) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
