@@ -31,7 +31,7 @@ import com.energyict.protocolimpl.utils.DummyDLMSConnection;
 import com.energyict.protocolimpl.utils.Utilities;
 
 public class MessageExecutorTest {
-	
+
 	private static WebRTUKP webRtu;
 	private static Logger logger;
 	private static DummyDLMSConnection connection;
@@ -42,7 +42,7 @@ public class MessageExecutorTest {
 	private static RtuType rtuType;
 	private static String rtuName = "";
 	private static String rtuTypeName = "";
-	
+
 	private RtuMessage rtuMessage;
 	private String changeLLSContent = "<Change_LLS_Secret/>";
 	private String okResponse = "100042c4014200";
@@ -51,17 +51,17 @@ public class MessageExecutorTest {
 
 	@BeforeClass
 	public static void setUpOnce() throws Exception {
-		
+
 		Utilities.createEnvironment();
 		MeteringWarehouse.createBatchContext(false);
-		
+
 		logger = Logger.getLogger("global");
 		webRtu = new WebRTUKP();
 		connection = new DummyDLMSConnection();
 		webRtu.setLogger(logger);
 		webRtu.setDLMSConnection(connection);
 		webRtu.setCosemObjectFactory(new CosemObjectFactory(webRtu));
-		
+
 		rtuTypeName = "RtuTypeName" + System.currentTimeMillis();
 		rtuName = "RtuName" + System.currentTimeMillis();
 		rtuType = RtuTypeCRUD.findOrCreateRtuType(rtuTypeName, 0);
@@ -90,35 +90,36 @@ public class MessageExecutorTest {
 	public void changeLLSSecretTest(){
 		try {
 			RtuMessageShadow rms = new RtuMessageShadow();
+			rms.setUserId(0);
 			rms.setId(rtuMessageID);
 			rms.setContents(changeLLSContent);
 			rms.setRtuId(rtu.getId());
 			rms.setTrackingId(trackingId);
 
 			rtuMessage = MeteringWarehouse.getCurrent().getRtuMessageFactory().create(rms);
-			
+
 			Properties props = new Properties();
 			props.put("NewLLSSecret", "NewLLSSecret");
 			webRtu.addProperties(props);
 			connection.setResponseByte(DLMSUtils.hexStringToByteArray(okResponse));
-			
+
 			MessageExecutor me = new MessageExecutor(webRtu);
 			me.doMessage(rtuMessage);
 			assertArrayEquals(expectedRequest, connection.getSentBytes());
 			assertEquals(rtuMessage.getState(), RtuMessageState.CONFIRMED);
-			
-			
-			
-			
+
+
+
+
 			props = new Properties();
 			props.put("NewLLSSecret", "12345678");
 			webRtu.addProperties(props);
 			rtuMessage.setPending();	// change it so it's not confirmed anymore
-			
+
 			me.doMessage(rtuMessage);
 			assertArrayEquals(expectedRequest2, connection.getSentBytes());
 			assertEquals(rtuMessage.getState(), RtuMessageState.CONFIRMED);
-			
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 			fail();
