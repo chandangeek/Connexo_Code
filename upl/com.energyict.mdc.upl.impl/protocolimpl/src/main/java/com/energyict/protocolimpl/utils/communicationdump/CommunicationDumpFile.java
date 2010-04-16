@@ -63,7 +63,20 @@ public class CommunicationDumpFile {
 		for (Iterator iterator = entryList.iterator(); iterator.hasNext();) {
 			CommunicationDumpEntry entry = (CommunicationDumpEntry) iterator.next();
 			if (entry != null) {
-				sb.append(entry);
+				sb.append(entry.toString());
+				sb.append("\n");
+			}
+		}
+		return sb.toString();
+	}
+
+	public String toStringAscii() {
+		StringBuilder sb = new StringBuilder();
+		List entryList = getEntries();
+		for (Iterator iterator = entryList.iterator(); iterator.hasNext();) {
+			CommunicationDumpEntry entry = (CommunicationDumpEntry) iterator.next();
+			if (entry != null) {
+				sb.append(entry.toStringAscii());
 				sb.append("\n");
 			}
 		}

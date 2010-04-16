@@ -42,7 +42,7 @@ public class CommunicationDumpEntry implements Comparable<CommunicationDumpEntry
 	}
 
 	public String getDataAsString() {
-		return new String(getData());
+		return ProtocolTools.getAsciiFromBytes(getData());
 	}
 
 	public String getDataAsHexString() {
@@ -117,10 +117,15 @@ public class CommunicationDumpEntry implements Comparable<CommunicationDumpEntry
 		return builder.toString();
 	}
 
-	public static void main(String[] args) {
-		String stringIn = "08/12/09 14:52:16.757 TX $04$0D$01$30$30$31";
-		System.out.println(stringIn);
-		System.out.println(CommunicationDumpEntry.getEntryFromString(stringIn));
+	public String toStringAscii() {
+		DateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
+		StringBuilder builder = new StringBuilder();
+		builder.append(sdf.format(getTimeStamp()));
+		builder.append(" ");
+		builder.append(getDirection());
+		builder.append(" ");
+		builder.append(getDataAsString());
+		return builder.toString();
 	}
 
 	public int compareTo(CommunicationDumpEntry o) {
