@@ -6,17 +6,16 @@
 
 package com.energyict.protocolimpl.pact.core.common;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.protocolimpl.pact.core.common.*;
-import com.energyict.protocolimpl.pact.core.meterreading.*;
-import com.energyict.protocolimpl.pact.core.survey.*;
-import com.energyict.protocolimpl.pact.core.log.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocol.*;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocolimpl.pact.core.log.LogInterpreter;
+import com.energyict.protocolimpl.pact.core.survey.LoadSurveyInterpreter;
 /**
  *
  * @author  Koen
@@ -46,7 +45,9 @@ public class PACTProfile {
             nrOfBlocks = pactRegisterFactory.getMeterReadingsInterpreter().getSurveyInfo().getBlocks()*
                          pactRegisterFactory.getMeterReadingsInterpreter().getSurveyInfo().getNrOfChannels();
             nrOfDays = 1;
-            if (DEBUG >= 1) System.out.println("initChannelInfo, nrOfBlocks = "+nrOfBlocks);
+            if (DEBUG >= 1) {
+				System.out.println("initChannelInfo, nrOfBlocks = "+nrOfBlocks);
+			}
             setLoadSurveyData(getLoadSurveyRawData());
             authenticateData();
             getLoadSurveyInterpreter().parse(getLoadSurveyData(), protocolLink.getChannelMap(), protocolLink.isStatusFlagChannel());
@@ -55,10 +56,11 @@ public class PACTProfile {
     
     private byte[] getLoadSurveyRawData() throws NestedIOException,ConnectionException {
         byte[] data=null;
-        if (protocolLink.getPACTMode().isPACTStandard())
-            data = protocolLink.getPactConnection().getLoadSurveyData(nrOfBlocks);
-        else if (protocolLink.getPACTMode().isPAKNET())
-            data = protocolLink.getPactConnection().getLoadSurveyDataStream(nrOfBlocks, nrOfDays);
+        if (protocolLink.getPACTMode().isPACTStandard()) {
+			data = protocolLink.getPactConnection().getLoadSurveyData(nrOfBlocks);
+		} else if (protocolLink.getPACTMode().isPAKNET()) {
+			data = protocolLink.getPactConnection().getLoadSurveyDataStream(nrOfBlocks, nrOfDays);
+		}
         return data;
     }
     
@@ -79,7 +81,9 @@ public class PACTProfile {
         //int tempNrOfBlocks = getLoadSurveyInterpreter().getNrOfBlocks(from,to);
         int tempNrOfBlocks = nrOfDays*pactRegisterFactory.getMeterReadingsInterpreter().getSurveyInfo().getBlocks()*
                         pactRegisterFactory.getMeterReadingsInterpreter().getSurveyInfo().getNrOfChannels();
-        if (nrOfDays > maxNrOfDaysToRetrieve) nrOfDays = maxNrOfDaysToRetrieve;
+        if (nrOfDays > maxNrOfDaysToRetrieve) {
+			nrOfDays = maxNrOfDaysToRetrieve;
+		}
         protocolLink.getLogger().info("Retrieving "+nrOfDays+" days, "+tempNrOfBlocks+" blocks");
         ProfileData profileData = doGetProfileData(tempNrOfBlocks,includeEvents);
         
@@ -94,7 +98,9 @@ public class PACTProfile {
                if (oldestTimestamp.after(from)) {
                     int nrOfDaysRetrieved = getLoadSurveyInterpreter().getNrOfDays(oldestTimestamp, to);
                     nrOfDays = ((nrOfDays*nrOfDays)/nrOfDaysRetrieved)+5; // calc new nr of days to retrieve based on the already retrieved days...
-                    if (nrOfDays > maxNrOfDaysToRetrieve) nrOfDays = maxNrOfDaysToRetrieve;
+                    if (nrOfDays > maxNrOfDaysToRetrieve) {
+						nrOfDays = maxNrOfDaysToRetrieve;
+					}
                     tempNrOfBlocks = nrOfDays*pactRegisterFactory.getMeterReadingsInterpreter().getSurveyInfo().getBlocks()*
                                     pactRegisterFactory.getMeterReadingsInterpreter().getSurveyInfo().getNrOfChannels();
                     protocolLink.getLogger().info("Oldest timestamp = "+oldestTimestamp+" is still after "+from+", "+nrOfDaysRetrieved+" days retrieved, retrieve again for "+nrOfDays+" days, "+tempNrOfBlocks+" blocks");
@@ -110,7 +116,9 @@ public class PACTProfile {
         if (tempNrOfBlocks > nrOfBlocks) {
            nrOfBlocks=tempNrOfBlocks; 
            loadSurveyInterpreter=null;
-           if (DEBUG >= 1) System.out.println("KV_DEBUG>  getProfileData, nrOfBlocks = "+nrOfBlocks);
+           if (DEBUG >= 1) {
+			System.out.println("KV_DEBUG>  getProfileData, nrOfBlocks = "+nrOfBlocks);
+		}
            setLoadSurveyData(getLoadSurveyRawData());
            authenticateData();
            getLoadSurveyInterpreter().parse(getLoadSurveyData(), protocolLink.getChannelMap(),protocolLink.isStatusFlagChannel());
@@ -150,10 +158,14 @@ public class PACTProfile {
               LogInterpreter li = new LogInterpreter(data,protocolLink.getTimeZone());
               meterEvents = li.getMeterEvents();
            }
-           else if (DEBUG>=1) System.out.println("KV_DEBUG> Logbook not supported");
+           else if (DEBUG>=1) {
+			System.out.println("KV_DEBUG> Logbook not supported");
+		}
         }
         catch(NestedIOException e) {
-            if (DEBUG>=1) System.out.println("KV_DEBUG> Logbook not supported");
+            if (DEBUG>=1) {
+				System.out.println("KV_DEBUG> Logbook not supported");
+			}
         }
         return meterEvents;
     }
@@ -178,7 +190,9 @@ public class PACTProfile {
      *
      */
     private void setLoadSurveyData(byte[] loadSurveyData) {
-        this.loadSurveyData = loadSurveyData;
+    	if(loadSurveyData != null){
+    		this.loadSurveyData = loadSurveyData;
+    	}
     }
     
 } // public class PACTProfile

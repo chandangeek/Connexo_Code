@@ -6,21 +6,15 @@
 
 package com.energyict.protocolimpl.pact.core.common;
 
-import java.io.*;
-import java.math.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
+
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
  * @author  Koen
  */
 public class MeterIdentitySerialNumber {
-    
-    
-    
-    
-    
-    
     
     int io;
     int rangeAndClass;
@@ -41,7 +35,9 @@ public class MeterIdentitySerialNumber {
     
     /** Creates a new instance of MeterIdentitySerialNumber */
     public MeterIdentitySerialNumber(byte[] data) {
-        this.data=data;
+    	if(data != null){
+    		this.data=data;
+    	}
         parse();
     }
     
@@ -64,13 +60,16 @@ public class MeterIdentitySerialNumber {
             setCurrent(getIPrimary());
             setVoltage(getVPrimary());
             // process voltage
-            if (getVPrimary() == 0) setVoltage(getMeterType().getMeasuredVoltage());
+            if (getVPrimary() == 0) {
+				setVoltage(getMeterType().getMeasuredVoltage());
+			}
             int exp = (getVPrimary() / 1000) - 11;
             if (exp >= -1) {
                 double multiplier = Math.pow(10,exp);
                 setVoltage((int)((getVPrimary()%1000) * multiplier)); 
-            }
-            else setVoltage(getVPrimary());
+            } else {
+				setVoltage(getVPrimary());
+			}
             
             double maxPower = getMeterType().getMultiplier() * getVoltage() * getCurrent();
             if (maxPower > 1000000) {

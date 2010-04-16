@@ -6,9 +6,12 @@
 
 package com.energyict.protocolimpl.pact.core.common;
 
-import java.util.*;
-import java.io.*;
-import com.energyict.cbo.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 
 /**
  *
@@ -16,17 +19,17 @@ import com.energyict.cbo.*;
  */
 public class EnergyTypeCode {
     
-    static final int ACTIVE=0;
-    static final int REACTIVE=1;
-    static final int APPARENT=2;
-    static final int NONELECTRICAL=3;
+	private static final int ACTIVE=0;
+	private static final int REACTIVE=1;
+	private static final int APPARENT=2;
+	private static final int NONELECTRICAL=3;
     
-    static final String[] types = {"Active","Reactive","Apparent","Non Electrical"};
+	private static final String[] types = {"Active","Reactive","Apparent","Non Electrical"};
     
     
     // See PRI PACT protocol document 0060-0105 (Energy Type Codes) 
     // for the description of the energy type codes
-    static List list = new ArrayList();
+	private static List list = new ArrayList();
     static {
        list.add(new EnergyTypeCode(128,0x80,ACTIVE,"Non-specific"));
        
@@ -94,10 +97,10 @@ public class EnergyTypeCode {
        
     }
     
-    int obisCCode;
-    int pacsEtypeCode;
-    int energyType;
-    String info;
+    private int obisCCode;
+    private int pacsEtypeCode;
+    private int energyType;
+    private String info;
     
     /** Creates a new instance of EnergyTypeCodes */
     public EnergyTypeCode(int obisCCode, int pacsEtypeCode, int energyType, String info) {
@@ -112,8 +115,9 @@ public class EnergyTypeCode {
         Iterator it = list.iterator();
         while(it.hasNext()) {
             EnergyTypeCode energyTypeCode = (EnergyTypeCode)it.next(); 
-            if (energyTypeCode.getPacsEtypeCode()==etype)
-                return energyTypeCode.getObisCCode();
+            if (energyTypeCode.getPacsEtypeCode()==etype) {
+				return energyTypeCode.getObisCCode();
+			}
         }
         return -1;
     }
@@ -122,8 +126,9 @@ public class EnergyTypeCode {
         Iterator it = list.iterator();
         while(it.hasNext()) {
             EnergyTypeCode energyTypeCode = (EnergyTypeCode)it.next(); 
-            if (energyTypeCode.getObisCCode()==obisCCode)
-                return energyTypeCode.getPacsEtypeCode();
+            if (energyTypeCode.getObisCCode()==obisCCode) {
+				return energyTypeCode.getPacsEtypeCode();
+			}
         }
         return -1;
     }
@@ -133,10 +138,11 @@ public class EnergyTypeCode {
         while(it.hasNext()) {
             EnergyTypeCode energyTypeCode = (EnergyTypeCode)it.next(); 
             if (energyTypeCode.getObisCCode()==obisCCode) {
-                if (energy)
-                    return types[energyTypeCode.getEnergyType()]+" energy, "+energyTypeCode.getInfo();
-                else
-                    return types[energyTypeCode.getEnergyType()]+" power, "+energyTypeCode.getInfo();
+                if (energy) {
+					return types[energyTypeCode.getEnergyType()]+" energy, "+energyTypeCode.getInfo();
+				} else {
+					return types[energyTypeCode.getEnergyType()]+" power, "+energyTypeCode.getInfo();
+				}
             }
         }
         return null;        
@@ -145,62 +151,113 @@ public class EnergyTypeCode {
     // energy = true energy values, else demand (power) units
     static public Unit getUnit(int etype, boolean energy ) {
         if (energy) {
-            if ((etype == 0x80) || (etype == 0x90) || (etype == 0xA6) || (etype == 0xA7)) return Unit.get(255);
-            else if ((etype >= 0x81) && (etype <=0x8A)) return Unit.get("kWh");
-            else if ((etype >= 0x91) && (etype <=0x9f)) return Unit.get("kvarh");
-            else if ((etype >= 0xA0) && (etype <=0xA5)) return Unit.get("kVAh");
-            else if ((etype >= 0xB0) && (etype <=0xB2)) return Unit.get(255);
-            else if (etype == 0xB3) return Unit.get("kWh");
-            else if (etype == 0xB4) return Unit.get("m3");
-            else if (etype == 0xB5) return Unit.get("m3");
-            else if (etype == 0xB6) return Unit.get(BaseUnit.CUBICFEET,100);
-            else if ((etype >= 0xBD) && (etype <=0xBF)) return Unit.get(255);
-            else if ((etype >= 0xC0) && (etype <=0xCF)) return Unit.get(255);
-            else if (etype == 0xD0) return Unit.get("kWh");
-            else if (etype == 0xD1) return Unit.get("kvarh");
-            else if (etype == 0xD2) return Unit.get("kvarh");
-            else if (etype == 0xD3) return Unit.get("kVAh");
-            else if ((etype >= 0xD4) && (etype <=0xD7)) return Unit.get("kWh");
-            else if (etype == 0xD8) return Unit.get("kVAh");
-            else if ((etype >= 0xD9) && (etype <=0xDA)) return Unit.get("kvarh");
-            else if ((etype >= 0xDB) && (etype <=0xDF)) return Unit.get(255);
-            else if (etype == 0xE0) return Unit.get("Vh");
-            else if (etype == 0xE1) return Unit.get("kWh");
-            else if ((etype >= 0xE2) && (etype <=0xE4)) return Unit.get("kvarh");
-            else if (etype == 0xFF) return Unit.get(255);
+            if ((etype == 0x80) || (etype == 0x90) || (etype == 0xA6) || (etype == 0xA7)) {
+				return Unit.get(255);
+			} else if ((etype >= 0x81) && (etype <=0x8A)) {
+				return Unit.get("kWh");
+			} else if ((etype >= 0x91) && (etype <=0x9f)) {
+				return Unit.get("kvarh");
+			} else if ((etype >= 0xA0) && (etype <=0xA5)) {
+				return Unit.get("kVAh");
+			} else if ((etype >= 0xB0) && (etype <=0xB2)) {
+				return Unit.get(255);
+			} else if (etype == 0xB3) {
+				return Unit.get("kWh");
+			} else if (etype == 0xB4) {
+				return Unit.get("m3");
+			} else if (etype == 0xB5) {
+				return Unit.get("m3");
+			} else if (etype == 0xB6) {
+				return Unit.get(BaseUnit.CUBICFEET,100);
+			} else if ((etype >= 0xBD) && (etype <=0xBF)) {
+				return Unit.get(255);
+			} else if ((etype >= 0xC0) && (etype <=0xCF)) {
+				return Unit.get(255);
+			} else if (etype == 0xD0) {
+				return Unit.get("kWh");
+			} else if (etype == 0xD1) {
+				return Unit.get("kvarh");
+			} else if (etype == 0xD2) {
+				return Unit.get("kvarh");
+			} else if (etype == 0xD3) {
+				return Unit.get("kVAh");
+			} else if ((etype >= 0xD4) && (etype <=0xD7)) {
+				return Unit.get("kWh");
+			} else if (etype == 0xD8) {
+				return Unit.get("kVAh");
+			} else if ((etype >= 0xD9) && (etype <=0xDA)) {
+				return Unit.get("kvarh");
+			} else if ((etype >= 0xDB) && (etype <=0xDF)) {
+				return Unit.get(255);
+			} else if (etype == 0xE0) {
+				return Unit.get("Vh");
+			} else if (etype == 0xE1) {
+				return Unit.get("kWh");
+			} else if ((etype >= 0xE2) && (etype <=0xE4)) {
+				return Unit.get("kvarh");
+			} else if (etype == 0xFF) {
+				return Unit.get(255);
+			}
         }
         else {
-            if ((etype == 0x80) || (etype == 0x90) || (etype == 0xA6) || (etype == 0xA7)) return Unit.get(255);
-            else if ((etype >= 0x81) && (etype <=0x8A)) return Unit.get("kW");
-            else if ((etype >= 0x91) && (etype <=0x9f)) return Unit.get("kvar");
-            else if ((etype >= 0xA0) && (etype <=0xA5)) return Unit.get("kVA");
-            else if ((etype >= 0xB0) && (etype <=0xB2)) return Unit.get(255);
-            else if (etype == 0xB3) return Unit.get("kW");
-            else if (etype == 0xB4) return Unit.get("m3/h");
-            else if (etype == 0xB5) return Unit.get("m3/h");
-            else if (etype == 0xB6) return Unit.get(BaseUnit.CUBICFEETPERHOUR,100);
-            else if ((etype >= 0xBD) && (etype <=0xBF)) return Unit.get(255);
-            else if ((etype >= 0xC0) && (etype <=0xCF)) return Unit.get(255);
-            else if (etype == 0xD0) return Unit.get("kW");
-            else if (etype == 0xD1) return Unit.get("kvar");
-            else if (etype == 0xD2) return Unit.get("kvar");
-            else if (etype == 0xD3) return Unit.get("kVA");
-            else if ((etype >= 0xD4) && (etype <=0xD7)) return Unit.get("kW");
-            else if (etype == 0xD8) return Unit.get("kVA");
-            else if ((etype >= 0xD9) && (etype <=0xDA)) return Unit.get("kvar");
-            else if ((etype >= 0xDB) && (etype <=0xDF)) return Unit.get(255);
-            else if (etype == 0xE0) return Unit.get("V");
-            else if (etype == 0xE1) return Unit.get("kW");
-            else if ((etype >= 0xE2) && (etype <=0xE4)) return Unit.get("kvar");
-            else if (etype == 0xFF) return Unit.get(255);
+            if ((etype == 0x80) || (etype == 0x90) || (etype == 0xA6) || (etype == 0xA7)) {
+				return Unit.get(255);
+			} else if ((etype >= 0x81) && (etype <=0x8A)) {
+				return Unit.get("kW");
+			} else if ((etype >= 0x91) && (etype <=0x9f)) {
+				return Unit.get("kvar");
+			} else if ((etype >= 0xA0) && (etype <=0xA5)) {
+				return Unit.get("kVA");
+			} else if ((etype >= 0xB0) && (etype <=0xB2)) {
+				return Unit.get(255);
+			} else if (etype == 0xB3) {
+				return Unit.get("kW");
+			} else if (etype == 0xB4) {
+				return Unit.get("m3/h");
+			} else if (etype == 0xB5) {
+				return Unit.get("m3/h");
+			} else if (etype == 0xB6) {
+				return Unit.get(BaseUnit.CUBICFEETPERHOUR,100);
+			} else if ((etype >= 0xBD) && (etype <=0xBF)) {
+				return Unit.get(255);
+			} else if ((etype >= 0xC0) && (etype <=0xCF)) {
+				return Unit.get(255);
+			} else if (etype == 0xD0) {
+				return Unit.get("kW");
+			} else if (etype == 0xD1) {
+				return Unit.get("kvar");
+			} else if (etype == 0xD2) {
+				return Unit.get("kvar");
+			} else if (etype == 0xD3) {
+				return Unit.get("kVA");
+			} else if ((etype >= 0xD4) && (etype <=0xD7)) {
+				return Unit.get("kW");
+			} else if (etype == 0xD8) {
+				return Unit.get("kVA");
+			} else if ((etype >= 0xD9) && (etype <=0xDA)) {
+				return Unit.get("kvar");
+			} else if ((etype >= 0xDB) && (etype <=0xDF)) {
+				return Unit.get(255);
+			} else if (etype == 0xE0) {
+				return Unit.get("V");
+			} else if (etype == 0xE1) {
+				return Unit.get("kW");
+			} else if ((etype >= 0xE2) && (etype <=0xE4)) {
+				return Unit.get("kvar");
+			} else if (etype == 0xFF) {
+				return Unit.get(255);
+			}
         }
         return null;
         
     } // static public Unit getUnit(int etype, boolean energy ) 
 
     static public boolean isStatusFlagsChannel(int etype) {
-         if ((etype >= 0xC0) && (etype <=0xCF)) return true;
-         else return false;
+         if ((etype >= 0xC0) && (etype <=0xCF)) {
+			return true;
+		} else {
+			return false;
+		}
     }
     
     /**

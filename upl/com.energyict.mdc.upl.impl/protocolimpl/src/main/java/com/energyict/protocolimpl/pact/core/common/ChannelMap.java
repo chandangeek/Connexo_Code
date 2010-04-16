@@ -8,8 +8,8 @@
 
 package com.energyict.protocolimpl.pact.core.common;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.StringTokenizer;
 
 /**
  *
@@ -34,8 +34,9 @@ public class ChannelMap {
      *
      */
     public ChannelMap(String channelMapProperty) throws IOException {
-        if (channelMapProperty != null)
-            parse(channelMapProperty);
+        if (channelMapProperty != null) {
+			parse(channelMapProperty);
+		}
     }
     
     public void reverse() {
@@ -49,8 +50,9 @@ public class ChannelMap {
     }
     
     public int getChannelFunction(int index) {
-       if (channelFunctions == null) 
-           return FUNCTION_DEMAND; 
+       if (channelFunctions == null) {
+		return FUNCTION_DEMAND;
+	} 
        try {
           return channelFunctions[index];    
        }
@@ -101,7 +103,9 @@ public class ChannelMap {
      *
      */
     public void setChannelFunctions(int[] channelFunctions) {
-        this.channelFunctions = channelFunctions;
+    	if(channelFunctions != null){
+    		this.channelFunctions = channelFunctions;
+    	}
     }
     
  // private void parse(String str) throws IOException

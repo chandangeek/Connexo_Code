@@ -6,10 +6,12 @@
 
 package com.energyict.protocolimpl.pact.core.common;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocolimpl.pact.core.common.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
+import com.energyict.protocol.ProtocolUtils;
 /**
  *
  * @author  Koen
@@ -21,7 +23,9 @@ public class DateTime {
     
     /** Creates a new instance of DateTime */
     public DateTime(byte[] data, TimeZone timeZone) throws IOException {
-        this.data=data;
+    	if(data != null){
+    		this.data=data.clone();
+    	}
         int timePacs5Sec = ProtocolUtils.getIntLE(data,2,2);
         int datePacs = ProtocolUtils.getIntLE(data,4,2);
         setDate(PactUtils.getCalendar(datePacs,timePacs5Sec,timeZone).getTime());
@@ -86,7 +90,9 @@ public class DateTime {
      *
      */
     public void setData(byte[] data) {
-        this.data = data;
+    	if(data != null){
+    		this.data = data;
+    	}
     }
     
 }
