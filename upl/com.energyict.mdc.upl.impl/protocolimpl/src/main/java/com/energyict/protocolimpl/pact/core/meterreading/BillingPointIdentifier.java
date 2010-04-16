@@ -6,10 +6,11 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.*;
-import java.util.*;
+import java.util.Date;
+import java.util.TimeZone;
+
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.pact.core.common.*;
+import com.energyict.protocolimpl.pact.core.common.PactUtils;
 
 /**
  *
@@ -17,11 +18,11 @@ import com.energyict.protocolimpl.pact.core.common.*;
  */
 public class BillingPointIdentifier extends MeterReadingsBlockImpl {
     
-    int channelId;
-    int bpIndex;
+	private int channelId;
+	private int bpIndex;
     
-    Date dateTime;
-    int cause;
+	private Date dateTime;
+	private int cause;
     
     /** Creates a new instance of BillingPointIdentifier */
     public BillingPointIdentifier(byte[] data,TimeZone timeZone) {
@@ -37,10 +38,11 @@ public class BillingPointIdentifier extends MeterReadingsBlockImpl {
        setChannelId(ProtocolUtils.byte2int(getData()[1]));
        setBpIndex(getChannelId()>>4);
        int iDate = ProtocolUtils.getIntLE(getData(),2,2);
-       if (iDate == 0xFFFF) 
-           setDateTime(null);
-       else
-           setDateTime(PactUtils.getCalendar(ProtocolUtils.getIntLE(getData(),2,2),ProtocolUtils.getIntLE(getData(),4,2),getTimeZone()).getTime());
+       if (iDate == 0xFFFF) {
+		setDateTime(null);
+	} else {
+		setDateTime(PactUtils.getCalendar(ProtocolUtils.getIntLE(getData(),2,2),ProtocolUtils.getIntLE(getData(),4,2),getTimeZone()).getTime());
+	}
        setCause(ProtocolUtils.byte2int(getData()[6]));
        
     }

@@ -6,19 +6,20 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.*;
-import java.util.*;
+import java.util.Date;
+import java.util.TimeZone;
+
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.pact.core.common.*;
+import com.energyict.protocolimpl.pact.core.common.PactUtils;
 /**
  *
  * @author  Koen
  */
 public class BillingPoint extends MeterReadingsBlockImpl {
     
-    Date billingDate;
-    int register;
-    int tariffFlags;
+    private Date billingDate;
+    private int register;
+    private int tariffFlags;
     
     /** Creates a new instance of BillingPoint */
     public BillingPoint(byte[] data,TimeZone timeZone) {

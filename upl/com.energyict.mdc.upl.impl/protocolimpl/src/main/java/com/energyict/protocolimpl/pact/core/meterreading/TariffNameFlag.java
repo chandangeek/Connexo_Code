@@ -6,7 +6,8 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.*;
+import java.io.IOException;
+
 import com.energyict.protocol.ProtocolUtils;
 /**
  *
@@ -17,12 +18,12 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class TariffNameFlag extends MeterReadingsBlockImpl {
 
-    int channelId;
-    int bpIndex;
-    String tariffName;
-    int options;
-    byte[] data86=null;
-    byte[] data87=null;
+	private int channelId;
+	private int bpIndex;
+	private String tariffName;
+	private int options;
+	private byte[] data86=null;
+	private byte[] data87=null;
     
     /** Creates a new instance of TariffNameFlags */
     public TariffNameFlag() {
@@ -43,14 +44,18 @@ public class TariffNameFlag extends MeterReadingsBlockImpl {
     }
     
     public void parse86(byte[] data) { 
-       data86=data;
+    	if(data != null){
+    		this.data86=data.clone();
+    	}
        setChannelId(ProtocolUtils.byte2int(data86[1]));
        setBpIndex(getChannelId()>>4);
     }
     
     public void parse87(byte[] data) {
         try {
-            data87=data;
+        	if(data != null){
+        		data87=data.clone();
+        	}
             setTariffName((new String(ProtocolUtils.getSubArray2(data86,2,6)))+
                           (new String(ProtocolUtils.getSubArray2(data87,2,2))));
             setOptions(ProtocolUtils.getIntLE(data87,4,2));

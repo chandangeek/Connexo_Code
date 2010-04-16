@@ -6,23 +6,17 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.*;
-import java.util.*;
 import java.math.BigDecimal;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocolimpl.pact.core.survey.*;
-import com.energyict.protocolimpl.pact.core.survey.absolute.*;
-import com.energyict.protocolimpl.pact.core.survey.discrete.*;
-import com.energyict.protocolimpl.pact.core.survey.binary.*;
-import com.energyict.protocolimpl.pact.core.survey.ascii.*;
-import com.energyict.protocolimpl.pact.core.survey.link.*;
-import com.energyict.protocolimpl.pact.core.common.PACTProtocolException;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
+import com.energyict.protocolimpl.pact.core.common.PACTProtocolException;
 import com.energyict.protocolimpl.pact.core.common.PactUtils;
 
 /**
@@ -31,8 +25,8 @@ import com.energyict.protocolimpl.pact.core.common.PactUtils;
  */
 public class MeterReadingProcessor {
     
-    MeterReadingsInterpreter mri;
-    MeterReadingIdentifier mrid;
+	private MeterReadingsInterpreter mri;
+	private MeterReadingIdentifier mrid;
     
     /** Creates a new instance of MeterReadingProcessor */
     public MeterReadingProcessor(MeterReadingsInterpreter mri, MeterReadingIdentifier mrid) {
@@ -40,15 +34,13 @@ public class MeterReadingProcessor {
         this.mrid=mrid;
     }
     
-    private int getNrOfChannelDefinitions() {
-        return mri.getChannelDefinitionRegisters().size();
-    }
+//    private int getNrOfChannelDefinitions() {
+//        return mri.getChannelDefinitionRegisters().size();
+//    }
     
     private boolean isMultipleSet() {
         return (mri.getTotalRegisters() == null);
     }
-    
-    
     
     /*
      * For multiple set or single set of history data, get the energytype code into a unit!
@@ -79,29 +71,36 @@ public class MeterReadingProcessor {
                 return unit;
             }
             else if (mrid.isRate()) {
-                if (getRateRegister().getRegIdEnergyIndex() != 0)
-                    return EnergyTypeCode.getUnit(mri.getEnergyTypeList().getEType(getRateRegister().getRegIdEnergyIndex()-1),energy);
-                else
-                    return unit;
+                if (getRateRegister().getRegIdEnergyIndex() != 0) {
+					return EnergyTypeCode.getUnit(mri.getEnergyTypeList().getEType(getRateRegister().getRegIdEnergyIndex()-1),energy);
+				} else {
+					return unit;
+				}
             }
             else if (mrid.isMaximumDemand()) {
                 // demand
-                if (getMaximumDemand().getRegIdEnergyIndex() != 0)
-                    return EnergyTypeCode.getUnit(mri.getEnergyTypeList().getEType(getMaximumDemand().getRegIdEnergyIndex()-1),energy);
-                else
-                    return unit;
+                if (getMaximumDemand().getRegIdEnergyIndex() != 0) {
+					return EnergyTypeCode.getUnit(mri.getEnergyTypeList().getEType(getMaximumDemand().getRegIdEnergyIndex()-1),energy);
+				} else {
+					return unit;
+				}
             }
             else if (mrid.isCumulativeMaximumDemand()) {
                 // demand
-                if (getCumulativeMaximumDemand().getRegIdEnergyIndex() != 0)
-                    return EnergyTypeCode.getUnit(mri.getEnergyTypeList().getEType(getCumulativeMaximumDemand().getRegIdEnergyIndex()-1),energy);
-                else {
+                if (getCumulativeMaximumDemand().getRegIdEnergyIndex() != 0) {
+					return EnergyTypeCode.getUnit(mri.getEnergyTypeList().getEType(getCumulativeMaximumDemand().getRegIdEnergyIndex()-1),energy);
+				} else {
                     if (mri.isCode5SeriesCLEM()) {
-                        if (getChannelNumber() == 0) return EnergyTypeCode.getUnit(0x82, energy);
-                        else if (getChannelNumber() == 1) return EnergyTypeCode.getUnit(0xA0, energy);
-                        else return unit;
-                    }
-                    else return unit;
+                        if (getChannelNumber() == 0) {
+							return EnergyTypeCode.getUnit(0x82, energy);
+						} else if (getChannelNumber() == 1) {
+							return EnergyTypeCode.getUnit(0xA0, energy);
+						} else {
+							return unit;
+						}
+                    } else {
+						return unit;
+					}
                 }
             }
         }
@@ -147,10 +146,11 @@ public class MeterReadingProcessor {
             return BigDecimal.valueOf(ds.getMdDivisor());
         }
         else {
-            if (mdType == 'm')
-               return BigDecimal.valueOf(10);
-            else if (mdType == 'q')
-               return BigDecimal.valueOf(mri.getAdditionalInformation().getMdDivisor());
+            if (mdType == 'm') {
+				return BigDecimal.valueOf(10);
+			} else if (mdType == 'q') {
+				return BigDecimal.valueOf(mri.getAdditionalInformation().getMdDivisor());
+			}
             throw new PACTProtocolException("MeterReadingProcessor, getMDDivisor, wrong MaximumDemand reading block type ("+mdType+")");
         }
     }
@@ -161,13 +161,14 @@ public class MeterReadingProcessor {
             return BigDecimal.valueOf(ds.getCmdDivisor());
         }
         else {
-            if (cmdType == 'Q')
-                return BigDecimal.valueOf(mri.getAdditionalInformation().getCmdDivisor());
-            else if (cmdType == 'd') {
-                if (getMeterFactor().intValue() == 1)
-                   return BigDecimal.valueOf(1);
-                else
-                   return BigDecimal.valueOf(10);
+            if (cmdType == 'Q') {
+				return BigDecimal.valueOf(mri.getAdditionalInformation().getCmdDivisor());
+			} else if (cmdType == 'd') {
+                if (getMeterFactor().intValue() == 1) {
+					return BigDecimal.valueOf(1);
+				} else {
+					return BigDecimal.valueOf(10);
+				}
             }
             throw new PACTProtocolException("MeterReadingProcessor, getCMDDivisor, wrong CumulativeMaximumDemand reading block type ("+cmdType+")");
         }
@@ -180,49 +181,56 @@ public class MeterReadingProcessor {
     // bpIndex 0=current value, <>0=billing point value
     //**************************************************************************************************************
     private TotalRegister getTotalRegister() throws PACTProtocolException,NoSuchRegisterException {
-        if ((mri.getTotalRegisters() == null) || (getChannelNumber() >= mri.getTotalRegisters().size()))
-            throw new NoSuchRegisterException("MeterReadingProcessor, getTotalRegister(), No meter reading for "+mrid.toString());
+        if ((mri.getTotalRegisters() == null) || (getChannelNumber() >= mri.getTotalRegisters().size())) {
+			throw new NoSuchRegisterException("MeterReadingProcessor, getTotalRegister(), No meter reading for "+mrid.toString());
+		}
         return (TotalRegister)mri.getTotalRegisters().get(getChannelNumber());
     } // private TotalRegister getTotalRegister()
     
     private RateRegister getRateRegister() throws PACTProtocolException,NoSuchRegisterException {
-        if ((mri.getRateRegisters() == null) || (getChannelNumber() >= mri.getRateRegisters().size()))
-            throw new NoSuchRegisterException("MeterReadingProcessor, getRateRegister(), No meter reading for "+mrid.toString());
+        if ((mri.getRateRegisters() == null) || (getChannelNumber() >= mri.getRateRegisters().size())) {
+			throw new NoSuchRegisterException("MeterReadingProcessor, getRateRegister(), No meter reading for "+mrid.toString());
+		}
         return (RateRegister)mri.getRateRegisters().get(getChannelNumber());
     }
     
     private MaximumDemand getMaximumDemand() throws PACTProtocolException,NoSuchRegisterException {
-        if (getChannelNumber() >= getMaximumDemands().size())
-            throw new NoSuchRegisterException("MeterReadingProcessor, getMaximumDemand(), No meter reading for "+mrid.toString());
+        if (getChannelNumber() >= getMaximumDemands().size()) {
+			throw new NoSuchRegisterException("MeterReadingProcessor, getMaximumDemand(), No meter reading for "+mrid.toString());
+		}
         return (MaximumDemand)getMaximumDemands().get(getChannelNumber());
     }
     
     private TimeDateMD getTimeDateMD() throws PACTProtocolException,NoSuchRegisterException {
-        if ((mri.getTimeDateMDs() == null) || (getChannelNumber() >= mri.getTimeDateMDs().size()))
-            throw new NoSuchRegisterException("MeterReadingProcessor, getTimeDateMD(), No meter reading for "+mrid.toString());
+        if ((mri.getTimeDateMDs() == null) || (getChannelNumber() >= mri.getTimeDateMDs().size())) {
+			throw new NoSuchRegisterException("MeterReadingProcessor, getTimeDateMD(), No meter reading for "+mrid.toString());
+		}
         return (TimeDateMD)mri.getTimeDateMDs().get(getChannelNumber());
     }
     
     private CumulativeMaximumDemand getCumulativeMaximumDemand() throws PACTProtocolException,NoSuchRegisterException {
-        if (getChannelNumber() >= getCumulativeMaximumDemands().size())
-            throw new NoSuchRegisterException("MeterReadingProcessor, getCumulativeMaximumDemand(), No meter reading for "+mrid.toString());
+        if (getChannelNumber() >= getCumulativeMaximumDemands().size()) {
+			throw new NoSuchRegisterException("MeterReadingProcessor, getCumulativeMaximumDemand(), No meter reading for "+mrid.toString());
+		}
         return (CumulativeMaximumDemand)getCumulativeMaximumDemands().get(getChannelNumber());
     }
     
     
     private List getMaximumDemands() throws PACTProtocolException,NoSuchRegisterException {
-        if (mri.getMaximumDemand_ms() != null)
-            return mri.getMaximumDemand_ms();
-        else if (mri.getMaximumDemand_qs() != null)
-            return mri.getMaximumDemand_qs();
+        if (mri.getMaximumDemand_ms() != null) {
+			return mri.getMaximumDemand_ms();
+		} else if (mri.getMaximumDemand_qs() != null) {
+			return mri.getMaximumDemand_qs();
+		}
         throw new NoSuchRegisterException("MeterReadingProcessor, getMaximumDemands(), No meter reading for "+mrid.toString());
     }
     
     private List getCumulativeMaximumDemands() throws PACTProtocolException,NoSuchRegisterException {
-        if (mri.getCumulativeMaximumDemand_Qs() != null)
-            return mri.getCumulativeMaximumDemand_Qs();
-        else if (mri.getCumulativeMaximumDemand_ds() != null)
-            return mri.getCumulativeMaximumDemand_ds();
+        if (mri.getCumulativeMaximumDemand_Qs() != null) {
+			return mri.getCumulativeMaximumDemand_Qs();
+		} else if (mri.getCumulativeMaximumDemand_ds() != null) {
+			return mri.getCumulativeMaximumDemand_ds();
+		}
         throw new NoSuchRegisterException("MeterReadingProcessor, getCumulativeMaximumDemands(), No meter reading for "+mrid.toString());
     }
     
@@ -232,8 +240,9 @@ public class MeterReadingProcessor {
             if (mrid.isIdETyped()) {
                 for (int i=0;i<mri.getTotalRegisters().size();i++) {
                     TotalRegister tr = (TotalRegister)mri.getTotalRegisters().get(i);
-                    if (tr.getEType() == mrid.getId())
-                        return i;
+                    if (tr.getEType() == mrid.getId()) {
+						return i;
+					}
                 }
             }
             else {
@@ -247,13 +256,15 @@ public class MeterReadingProcessor {
                     if (rr.getRegIdEnergyIndex() != 0) {
                         int eType = mri.getEnergyTypeList().getEType(rr.getRegIdEnergyIndex()-1);
                         // KV 30082006 Also add dependency on the E-field mrid.getRegisterNumber()
-                        if ((eType == mrid.getId()) && ((rr.getRegIdRegisterNumber()+1) == mrid.getRegisterNumber()))
-                            return i;
+                        if ((eType == mrid.getId()) && ((rr.getRegIdRegisterNumber()+1) == mrid.getRegisterNumber())) {
+							return i;
+						}
                     }
                 }
                 else {
-                    if (rr.getRegIdRegisterNumber() == mrid.getId())
-                        return i;
+                    if (rr.getRegIdRegisterNumber() == mrid.getId()) {
+						return i;
+					}
                 }
             }
         }
@@ -263,19 +274,22 @@ public class MeterReadingProcessor {
                 if (mrid.isIdETyped()) {
                     if (md.getRegIdEnergyIndex() != 0) {
                         int eType = mri.getEnergyTypeList().getEType(md.getRegIdEnergyIndex()-1);
-                        if ((eType == mrid.getId()) && (md.getRegIdRegisterNumber()==mrid.getRegisterNumber()))
-                            return i;
+                        if ((eType == mrid.getId()) && (md.getRegIdRegisterNumber()==mrid.getRegisterNumber())) {
+							return i;
+						}
                     }
                     else {
                         // KV 07062004 getRegIdEnergyIndex() == 0, energy type index is defined
                         // by the tariff configuration. So, only use the register ID
-                        if (md.getRegIdRegisterNumber()==mrid.getRegisterNumber())
-                            return i;
+                        if (md.getRegIdRegisterNumber()==mrid.getRegisterNumber()) {
+							return i;
+						}
                     }
                 }
                 else {
-                    if (md.getRegIdRegisterNumber() == mrid.getId())
-                        return i;
+                    if (md.getRegIdRegisterNumber() == mrid.getId()) {
+						return i;
+					}
                 }
             }
         }
@@ -285,19 +299,22 @@ public class MeterReadingProcessor {
                 if (mrid.isIdETyped()) {
                     if (cmd.getRegIdEnergyIndex() != 0) {
                         int eType = mri.getEnergyTypeList().getEType(cmd.getRegIdEnergyIndex()-1);
-                        if ((eType == mrid.getId()) && (cmd.getRegIdRegisterNumber()==mrid.getRegisterNumber()))
-                            return i;
+                        if ((eType == mrid.getId()) && (cmd.getRegIdRegisterNumber()==mrid.getRegisterNumber())) {
+							return i;
+						}
                     }
                     else {
                         // KV 07062004 getRegIdEnergyIndex() == 0, energy type index is defined
                         // by the tariff configuration. So, only use the register ID
-                        if (cmd.getRegIdRegisterNumber()==mrid.getRegisterNumber())
-                            return i;
+                        if (cmd.getRegIdRegisterNumber()==mrid.getRegisterNumber()) {
+							return i;
+						}
                     }
                 }
                 else {
-                    if (cmd.getRegIdRegisterNumber() == mrid.getId())
-                        return i;
+                    if (cmd.getRegIdRegisterNumber() == mrid.getId()) {
+						return i;
+					}
                 }
             }
         }
@@ -316,13 +333,15 @@ public class MeterReadingProcessor {
             ChannelDefinitionRegister chdr = (ChannelDefinitionRegister)mri.getChannelDefinitionRegisters().get(i);
             if (mrid.isIdETyped()) {
                 if ((chdr.getEType() == mrid.getId()) &&
-                    (chdr.getBpIndex() == mrid.getBpIndex()))
-                    return chdr;
+                    (chdr.getBpIndex() == mrid.getBpIndex())) {
+					return chdr;
+				}
             }
             else {
                 if ((chdr.getChannelNumber() == mrid.getId()) &&
-                    (chdr.getBpIndex() == mrid.getBpIndex()))
-                    return chdr;
+                    (chdr.getBpIndex() == mrid.getBpIndex())) {
+					return chdr;
+				}
             }
         }
         throw new NoSuchRegisterException("MeterReadingProcessor, getChannelDefinitionRegister(), No meter reading for "+mrid.toString());
@@ -411,14 +430,15 @@ public class MeterReadingProcessor {
             if (isMultipleSet()) {
                 ChannelDefinitionRegister chdr = getChannelDefinitionRegister();
                 rawValue = BigDecimal.valueOf(chdr.getRegisterValue()%getModulo());
-                if (mrid.getBpIndex() > 0)
-                    billingTimestamp=getBillingPointIdentifier().getDateTime();
+                if (mrid.getBpIndex() > 0) {
+					billingTimestamp=getBillingPointIdentifier().getDateTime();
+				}
             }
             else {
                 TotalRegister tr = getTotalRegister();
-                if (mrid.getBpIndex() == 0)
-                   rawValue = BigDecimal.valueOf(tr.getRegister()%getModulo());
-                else {
+                if (mrid.getBpIndex() == 0) {
+					rawValue = BigDecimal.valueOf(tr.getRegister()%getModulo());
+				} else {
                    rawValue = BigDecimal.valueOf(tr.getBillingRegister()%getModulo());
                    billingTimestamp=mri.getBillingPoint().getBillingDate();
                 }
@@ -458,10 +478,11 @@ public class MeterReadingProcessor {
             if (mrid.isModeCalculate()) {
                 rawValue = rawValue.multiply(getMeterFactorMultiplier());
                 rawValue = rawValue.setScale(PactUtils.FRACTIONAL_DIGITS,BigDecimal.ROUND_HALF_UP);
-                if (mri.getCumulativeMaximumDemand_Qs() != null)
-                   rawValue = rawValue.divide(getCMDDivisor('Q'),BigDecimal.ROUND_HALF_UP);
-                else if (mri.getCumulativeMaximumDemand_ds() != null)
-                   rawValue = rawValue.divide(getCMDDivisor('d'),BigDecimal.ROUND_HALF_UP);
+                if (mri.getCumulativeMaximumDemand_Qs() != null) {
+					rawValue = rawValue.divide(getCMDDivisor('Q'),BigDecimal.ROUND_HALF_UP);
+				} else if (mri.getCumulativeMaximumDemand_ds() != null) {
+					rawValue = rawValue.divide(getCMDDivisor('d'),BigDecimal.ROUND_HALF_UP);
+				}
                 return new RegisterValue(mrid.getObisCode(),new Quantity(rawValue,getUnit(false)),mdTimestamp,billingTimestamp);
             }
             else {
@@ -520,14 +541,15 @@ public class MeterReadingProcessor {
             if (isMultipleSet()) {
                 RateRegisterValue rate = getRateRegisterValue();
                 rawValue = BigDecimal.valueOf(rate.getRegisterValue()%getModulo());
-                if (mrid.getBpIndex() > 0)
-                    billingTimestamp=getBillingPointIdentifier().getDateTime();
+                if (mrid.getBpIndex() > 0) {
+					billingTimestamp=getBillingPointIdentifier().getDateTime();
+				}
             }
             else {
                 RateRegister rr = (RateRegister)getRateRegister();
-                if (mrid.getBpIndex() == 0)
-                    rawValue = BigDecimal.valueOf(rr.getCurrentValue()%getModulo());
-                else {
+                if (mrid.getBpIndex() == 0) {
+					rawValue = BigDecimal.valueOf(rr.getCurrentValue()%getModulo());
+				} else {
                     rawValue = BigDecimal.valueOf(rr.getBillingValue()%getModulo());
                     billingTimestamp = mri.getBillingPoint().getBillingDate();
                 }

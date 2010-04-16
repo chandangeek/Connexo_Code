@@ -6,15 +6,14 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.*;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.pact.core.common.*;
+import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
 /**
  * @author  Koen
  */
 public class EnergyTypeList extends MeterReadingsBlockImpl {
     
-    int[] eType;
+	private int[] eType;
     
     /** Creates a new instance of EnergyTypeList */
     public EnergyTypeList(byte[] data) {

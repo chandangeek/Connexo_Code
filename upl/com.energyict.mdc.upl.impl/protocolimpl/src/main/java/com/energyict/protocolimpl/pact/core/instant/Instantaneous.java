@@ -6,20 +6,16 @@
 
 package com.energyict.protocolimpl.pact.core.instant;
 
-import java.io.*;
-import java.text.*;
-import java.util.*;
-import com.energyict.protocolimpl.pact.core.common.*;
-import com.energyict.cbo.*;
+import com.energyict.cbo.Unit;
 /**
  *
  * @author  Koen
  */
 public class Instantaneous {
     
-    String description;
-    Unit unit;
-    int type;
+    private String description;
+    private Unit unit;
+    private int type;
     
     /** Creates a new instance of instantaneous */
     public Instantaneous(String description,Unit unit,int type) {

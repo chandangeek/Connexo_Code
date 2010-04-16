@@ -6,18 +6,17 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.*;
 import com.energyict.protocol.ProtocolUtils;
 /**
  *
  * @author  Koen
  */
 public class DemandScaling extends MeterReadingsBlockImpl {
-    int channelId;
-    int bpIndex;
-    int channelNumber;
-    int mdDivisor;
-    int cmdDivisor;
+	private int channelId;
+	private int bpIndex;
+	private int channelNumber;
+	private int mdDivisor;
+	private int cmdDivisor;
     
     /** Creates a new instance of DemandScaling */
     public DemandScaling(byte[] data) {

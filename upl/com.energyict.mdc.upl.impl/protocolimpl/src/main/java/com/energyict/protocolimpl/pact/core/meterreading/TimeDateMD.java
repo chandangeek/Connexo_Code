@@ -6,21 +6,22 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.*;
-import java.util.*;
+import java.util.Date;
+import java.util.TimeZone;
+
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.pact.core.common.*;
+import com.energyict.protocolimpl.pact.core.common.PactUtils;
 /**
  *
  * @author  Koen
  */
 public class TimeDateMD extends MeterReadingsBlockImpl {
     
-    int regId;
-    int regIdEnergyIndex;
-    int regIdRegisterNumber;
-    Date currentTime;
-    Date billingTime;
+	private int regId;
+	private int regIdEnergyIndex;
+	private int regIdRegisterNumber;
+	private Date currentTime;
+	private Date billingTime;
     
     /** Creates a new instance of TimeDateMD
      * @param data data to construct object
@@ -42,11 +43,17 @@ public class TimeDateMD extends MeterReadingsBlockImpl {
         setRegIdEnergyIndex(getRegId()>>5);
         setRegIdRegisterNumber(getRegId()&0x1F);
         long val = (long)ProtocolUtils.getLongLE(getData(),2,3);
-        if (val == 0xFFFFFF) setCurrentTime(null);
-        else setCurrentTime(PactUtils.getCalendar(val,5,getTimeZone()).getTime());
+        if (val == 0xFFFFFF) {
+			setCurrentTime(null);
+		} else {
+			setCurrentTime(PactUtils.getCalendar(val,5,getTimeZone()).getTime());
+		}
         val = ProtocolUtils.getLongLE(getData(),5,3);
-        if (val == 0xFFFFFF) setBillingTime(null);
-        else setBillingTime(PactUtils.getCalendar(val,5,getTimeZone()).getTime()); 
+        if (val == 0xFFFFFF) {
+			setBillingTime(null);
+		} else {
+			setBillingTime(PactUtils.getCalendar(val,5,getTimeZone()).getTime());
+		} 
     }
     
     /** Getter for property regId.

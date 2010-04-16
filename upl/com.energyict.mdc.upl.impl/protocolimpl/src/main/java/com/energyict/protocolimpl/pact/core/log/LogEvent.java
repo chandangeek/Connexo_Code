@@ -6,11 +6,12 @@
 
 package com.energyict.protocolimpl.pact.core.log;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.Date;
+import java.util.TimeZone;
 
-import com.energyict.protocolimpl.pact.core.common.*;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.pact.core.common.PactUtils;
 
 /**
  *
@@ -18,10 +19,10 @@ import com.energyict.protocol.*;
  */
 public class LogEvent {
     
-    int main;
-    int sub;
-    int more;
-    Date date;
+	private int main;
+	private int sub;
+	private int more;
+	private Date date;
     private Date futureDate;
     
     /** Creates a new instance of LogHeader */

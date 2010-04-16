@@ -6,9 +6,10 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.*;
-import com.energyict.protocol.ProtocolUtils; 
-import java.math.*;
+import java.io.IOException;
+import java.math.BigDecimal;
+
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
@@ -16,12 +17,12 @@ import java.math.*;
  */
 public class SurveyFlagsInfo extends MeterReadingsBlockImpl {
     
-    int flags;
-    int fac;
-    int surfac;
-    int surtyp;
+	private int flags;
+	private int fac;
+	private int surfac;
+	private int surtyp;
     //int blocks;
-    int meterFactorExp;
+	private int meterFactorExp;
     
     
     /** Creates a new instance of surveyFlagsInfo */

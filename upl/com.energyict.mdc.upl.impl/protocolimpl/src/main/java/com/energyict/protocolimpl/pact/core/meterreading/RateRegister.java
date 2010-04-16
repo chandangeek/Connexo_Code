@@ -6,7 +6,6 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.*;
 import com.energyict.protocol.ProtocolUtils;
 /**
  *
@@ -14,11 +13,11 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class RateRegister extends MeterReadingsBlockImpl {
     
-    int regId;
-    int regIdEnergyIndex;
-    int regIdRegisterNumber;
-    int currentValue;
-    int billingValue;
+    private int regId;
+    private int regIdEnergyIndex;
+    private int regIdRegisterNumber;
+    private int currentValue;
+    private int billingValue;
     
     /** Creates a new instance of RateRegister */
     public RateRegister(byte[] data) {

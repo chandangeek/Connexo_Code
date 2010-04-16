@@ -6,9 +6,7 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.math.BigDecimal;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
@@ -19,24 +17,24 @@ import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
  */
 public class MeterReadingIdentifier {
     
-    static public final String TOTAL="TOTAL";
-    static public final String RATE="RATE";
-    static public final String MAXIMUM_DEMAND="MD";
-    static public final String CUMULATIVE_MAXIMUM_DEMAND="CMD";
-    static public final String BILLING_COUNTER="BPCOUNT";
-    static public final String BILLING_TIMESTAMP="BPTIMESTAMP";
-    String strReg;
+    public static final String TOTAL="TOTAL";
+    public static final String RATE="RATE";
+    public static final String MAXIMUM_DEMAND="MD";
+    public static final String CUMULATIVE_MAXIMUM_DEMAND="CMD";
+    public static final String BILLING_COUNTER="BPCOUNT";
+    public static final String BILLING_TIMESTAMP="BPTIMESTAMP";
+	private String strReg;
     
-    int id=0; // 0 based
-    int registerNumber=0; // 0 based
-    int bpIndex=0; // 0 based
-    int triggerChannel=0; // 0 based, 0 = current value
-    String strMRId;
-    int mode=0;
-    boolean idETyped=false;
+	private int id=0; // 0 based
+	private int registerNumber=0; // 0 based
+	private int bpIndex=0; // 0 based
+	private int triggerChannel=0; // 0 based, 0 = current value
+	private String strMRId;
+	private int mode=0;
+	private boolean idETyped=false;
     
-    StringBuffer obisTranslation=new StringBuffer();
-    ObisCode obisCode;
+	private StringBuffer obisTranslation=new StringBuffer();
+	private ObisCode obisCode;
     
     /** Creates a new instance of MeterReadingIdentifier
      *
@@ -73,10 +71,11 @@ public class MeterReadingIdentifier {
     
     public MeterReadingIdentifier(int id, boolean idETyped) throws IOException {
         setIdETyped(idETyped);
-        if (isIdETyped())
-            strMRId=TOTAL+".1:et"+id;
-        else
-            strMRId=TOTAL+".1:ch"+id;
+        if (isIdETyped()) {
+			strMRId=TOTAL+".1:et"+id;
+		} else {
+			strMRId=TOTAL+".1:ch"+id;
+		}
         parse();
     }
     
@@ -111,7 +110,7 @@ public class MeterReadingIdentifier {
         return (getMode() == 1);
     }
 
-    static public final String GENERAL_PURPOSE_CODES = "1.1.0.1.0.255 (billing counter)\n1.1.0.1.2.x (billing point timestamp, x=billingpoint with 0 = VZ, 1 = VZ-1...)\n";
+    public static final String GENERAL_PURPOSE_CODES = "1.1.0.1.0.255 (billing counter)\n1.1.0.1.2.x (billing point timestamp, x=billingpoint with 0 = VZ, 1 = VZ-1...)\n";
     
     private void parse(ObisCode obisCode) throws IOException {
         
@@ -133,8 +132,9 @@ public class MeterReadingIdentifier {
                 setBpIndex(obisCode.getF()*-1+1);
                 obisTranslation.append("billing point "+(obisCode.getF()*-1)+" timestamp"); 
                 return;
-            }
-            else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+            } else {
+				throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+			}
         } // // billing point timestamp
 
         
@@ -145,14 +145,17 @@ public class MeterReadingIdentifier {
         setMode(1);
         
         // verify a & b
-        if ((obisCode.getA() != 1) || (obisCode.getB() == 0))
-            throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-        else setTriggerChannel(obisCode.getB()-1);
+        if ((obisCode.getA() != 1) || (obisCode.getB() == 0)) {
+			throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+		} else {
+			setTriggerChannel(obisCode.getB()-1);
+		}
         
         
         // verify c
-        if (EnergyTypeCode.getPacsEtypeCode(obisCode.getC()) == -1)
-            throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+        if (EnergyTypeCode.getPacsEtypeCode(obisCode.getC()) == -1) {
+			throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+		}
         setIdETyped(true);
         setId(EnergyTypeCode.getPacsEtypeCode(obisCode.getC()));
         
@@ -170,13 +173,15 @@ public class MeterReadingIdentifier {
            obisTranslation.append(", maximum demand"); 
         }
         else if (obisCode.getD() == 8) {// time integral 1         TOTAL & RATE 
-           if (obisCode.getE() == 0)
-              setStrReg(TOTAL);
-           else
-              setStrReg(RATE);
+           if (obisCode.getE() == 0) {
+			setStrReg(TOTAL);
+		} else {
+			setStrReg(RATE);
+		}
            obisTranslation.append(EnergyTypeCode.getCompountInfoFromObisC(obisCode.getC(),true));
-        }
-        else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+        } else {
+			throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+		}
         
         // verify e
         // 0 : total registers (single set) or 0x81 (multiple set)
@@ -192,13 +197,15 @@ public class MeterReadingIdentifier {
         }
         
         int billingPoint;
-        if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99))
-            billingPoint = obisCode.getF();
-        else if ((obisCode.getF()  <=0) && (obisCode.getF() >= -99))
-            billingPoint = obisCode.getF()*-1;
-        else if (obisCode.getF() == 255)
-            billingPoint = -1;
-        else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+        if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99)) {
+			billingPoint = obisCode.getF();
+		} else if ((obisCode.getF()  <=0) && (obisCode.getF() >= -99)) {
+			billingPoint = obisCode.getF()*-1;
+		} else if (obisCode.getF() == 255) {
+			billingPoint = -1;
+		} else {
+			throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+		}
         
         if (billingPoint == -1) {
             setBpIndex(0);
@@ -218,12 +225,14 @@ public class MeterReadingIdentifier {
     private void parse() throws IOException {
         try {
             int valuesIndex = strMRId.indexOf(":");
-            if (valuesIndex == -1)
-                throw new IOException("Invalid meter readings identifier "+strMRId);
+            if (valuesIndex == -1) {
+				throw new IOException("Invalid meter readings identifier "+strMRId);
+			}
             
             setStrReg(strMRId.substring(0,valuesIndex));
-            if (!(isTotal() || isCumulativeMaximumDemand() || isMaximumDemand() || isRate()))
-                throw new IOException("Invalid meter readings identifier "+strMRId);
+            if (!(isTotal() || isCumulativeMaximumDemand() || isMaximumDemand() || isRate())) {
+				throw new IOException("Invalid meter readings identifier "+strMRId);
+			}
             
             int modeIndex = getStrReg().indexOf(".");
             String strMode = modeIndex == -1 ? "0":getStrReg().substring(modeIndex+1);
@@ -262,13 +271,16 @@ public class MeterReadingIdentifier {
     
     private int getParameter(String param) {
         int index = strMRId.indexOf(param);
-        if (index == -1) return -1;
+        if (index == -1) {
+			return -1;
+		}
         String sub = strMRId.substring(index+2);
         index = sub.indexOf(",");
-        if (index != -1)
-            return Integer.parseInt(sub.substring(0,index));
-        else
-            return Integer.parseInt(sub);
+        if (index != -1) {
+			return Integer.parseInt(sub.substring(0,index));
+		} else {
+			return Integer.parseInt(sub);
+		}
     }
     
     static public void main(String[] args) {

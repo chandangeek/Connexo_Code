@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.TimeZone;
 
 /**
@@ -88,7 +88,9 @@ public abstract class MeterReadingsBlockImpl implements MeterReadingsBlock {
      *
      */
     public void setData(byte[] data) {
-        this.data = data;
+    	if(data != null){
+    		this.data = data.clone();
+    	}
         process();
     }
     

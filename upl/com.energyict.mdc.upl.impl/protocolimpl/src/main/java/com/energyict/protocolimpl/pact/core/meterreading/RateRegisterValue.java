@@ -6,19 +6,18 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.*;
 import com.energyict.protocol.ProtocolUtils;
 /**
  *
  * @author  Koen
  */
 public class RateRegisterValue extends MeterReadingsBlockImpl {
-    int channelId;
-    int bpIndex;
-    int channelNumber;
-    int tReg;
-    int registerNumber;
-    int registerValue;
+	private int channelId;
+	private int bpIndex;
+	private int channelNumber;
+	private int tReg;
+	private int registerNumber;
+	private int registerValue;
     
     
     /** Creates a new instance of RateRegisterValue */

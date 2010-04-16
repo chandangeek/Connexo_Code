@@ -6,7 +6,6 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.*;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
 /**
@@ -15,9 +14,9 @@ import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
  */
 public class TotalRegister extends MeterReadingsBlockImpl {
     
-    int eType;
-    int register;
-    int billingRegister;
+	private int eType;
+	private int register;
+	private int billingRegister;
     
     /** Creates a new instance of TotalRegister */
     public TotalRegister(byte[] data) {

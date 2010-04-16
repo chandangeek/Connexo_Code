@@ -6,13 +6,17 @@
 
 package com.energyict.protocolimpl.pact.core.survey.discrete;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.TimeZone;
 
-import com.energyict.protocol.*;
-import com.energyict.cbo.LittleEndianInputStream;
-import com.energyict.protocolimpl.pact.core.meterreading.*;
-import com.energyict.protocolimpl.pact.core.common.*;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
+import com.energyict.protocolimpl.pact.core.meterreading.MeterReadingsInterpreter;
 /**
  *
  * @author  Koen
@@ -24,33 +28,33 @@ public class SurveyDay {
     private List intervalDatas = new ArrayList(); // of type IntervalData
     
     // profile status flags
-    static public final int PHASE_FAILURE = 0x8000;
-    static public final int REVERSE_RUNNING = 0x4000;
-    static public final int DATA_CHANGED = 0x2000;
-    static public final int TIME_SET = 0x1000;
+    public static final int PHASE_FAILURE = 0x8000;
+    public static final int REVERSE_RUNNING = 0x4000;
+    public static final int DATA_CHANGED = 0x2000;
+    public static final int TIME_SET = 0x1000;
     
     // statusflags channel (eType from 0xC0 to 0xCF)
     
     // KV 29082006 We have added two new flags for compliance with UK Codes of Practice 2, 3 and 5.  
     //             The flags are ‘battery monitoring/clock fail’ and ‘outstation error’.  
     //             These will be supported in Premier CLEM C5G8GR08 and any subsequent variants.
-    static public final int OUTSTATION_ERROR = 0x0010;
-    static public final int BATTERY_FAIL = 0x0008;
+    public static final int OUTSTATION_ERROR = 0x0010;
+    public static final int BATTERY_FAIL = 0x0008;
     
-    static public final int OTHERDATA_CHANGED = 0x0004;
-    static public final int TIMEDATE_CHANGED = 0x0002;
-    static public final int DATA_INVALID = 0x0001;
-    
-    
+    public static final int OTHERDATA_CHANGED = 0x0004;
+    public static final int TIMEDATE_CHANGED = 0x0002;
+    public static final int DATA_INVALID = 0x0001;
     
     
-    EndOfDayBlock[] eods;
-    int nrOfIntervals;
-    int mask;
-    MeterReadingsInterpreter mri;
-    int profileInterval;
-    TimeZone timeZone;
-    boolean statusFlagChannel;
+    
+    
+    private EndOfDayBlock[] eods;
+    private int nrOfIntervals;
+    private int mask;
+    private MeterReadingsInterpreter mri;
+    private int profileInterval;
+    private TimeZone timeZone;
+    private boolean statusFlagChannel;
     
     /** Creates a new instance of ParameterDay */
     public SurveyDay(MeterReadingsInterpreter mri, TimeZone timeZone, boolean statusFlagChannel) {
@@ -107,8 +111,9 @@ public class SurveyDay {
      */
     public void parseData(byte[] data, int day) throws IOException {
         getEndOfDayBlocks(data,day);
-        if (channelValid())
-            getRawIndexes(data,day);
+        if (channelValid()) {
+			getRawIndexes(data,day);
+		}
     } // public void parseData(byte[] data)
     
     /*
@@ -119,8 +124,9 @@ public class SurveyDay {
         int nrOfChannels = mri.getSurveyInfo().getNrOfChannels();
         for (int channel = 0; channel < nrOfChannels; channel++) {
             // if one of the channels is invalid
-            if (!eods[channel].isValid())
-                return false;
+            if (!eods[channel].isValid()) {
+				return false;
+			}
         }
         return true;
     } // private boolean channelValid()
@@ -139,7 +145,9 @@ public class SurveyDay {
             eodIndex += (day*(-1))*(mri.getSurveyInfo().getBlocks()*8*nrOfChannels); // in the right day
             try {
                 eods[channel] = new EndOfDayBlock(ProtocolUtils.getSubArray2(data,eodIndex,8),timeZone);
-                if (DEBUG >= 1) System.out.println("KV_DEBUG (SurveyDay)>"+eods[channel].toString());
+                if (DEBUG >= 1) {
+					System.out.println("KV_DEBUG (SurveyDay)>"+eods[channel].toString());
+				}
             }
             catch(ArrayIndexOutOfBoundsException e) {
                 throw new IOException("Invalid eodIndex ("+eodIndex+"), day is invalid!, "+e.toString());
@@ -155,12 +163,20 @@ public class SurveyDay {
     private void getRawIndexes(byte[] data, int day) throws IOException {
         int nrOfChannels = mri.getSurveyInfo().getNrOfChannels();
         Calendar calendar = (Calendar)eods[0].getDate().clone(); // get date of first channel
-        if (DEBUG >= 1) System.out.println("KV_DEBUG (SurveyDay)> EOD time = "+calendar.getTime());
+        if (DEBUG >= 1) {
+			System.out.println("KV_DEBUG (SurveyDay)> EOD time = "+calendar.getTime());
+		}
         // get raw index from 00:00 to end of the day
         for (int interval=0; interval < nrOfIntervals ; interval++) {
             IntervalData intervalData = new IntervalData(((Calendar)(calendar.clone())).getTime());
-            if (DEBUG >= 2) if (interval > 0) System.out.println();
-            if (DEBUG >= 2) System.out.print("KV_DEBUG (SurveyDay)> "+intervalData.getEndTime());
+            if (DEBUG >= 2) {
+				if (interval > 0) {
+					System.out.println();
+				}
+			}
+            if (DEBUG >= 2) {
+				System.out.print("KV_DEBUG (SurveyDay)> "+intervalData.getEndTime());
+			}
             
             int intervalIndex = interval*2;
             for (int channel = 0; channel < mri.getSurveyInfo().getNrOfChannels(); channel++) {
@@ -204,7 +220,9 @@ public class SurveyDay {
                     }
                     
                     if (statusFlagChannel || ((!(EnergyTypeCode.isStatusFlagsChannel(eods[channel].getEtype()))) && (!statusFlagChannel))) {
-                       if (DEBUG >= 2) System.out.print(" "+channel+":"+value);
+                       if (DEBUG >= 2) {
+						System.out.print(" "+channel+":"+value);
+					}
                        intervalData.addValue(new Integer(value));
                     }
                 }
@@ -215,8 +233,10 @@ public class SurveyDay {
             
             if (intervalData != null) {
                 intervalDatas.add(intervalData);
-                if (DEBUG >= 2) System.out.println("KV_DEBUG (SurveyDay)> "+intervalData);
-                //System.out.println(intervalData.toString());
+                if (DEBUG >= 2) {
+					System.out.println("KV_DEBUG (SurveyDay)> "+intervalData);
+					//System.out.println(intervalData.toString());
+				}
             }
             //else
               //  System.out.println("KV_DEBUG> missing value");
@@ -257,7 +277,9 @@ public class SurveyDay {
      *
      */
     public void setEods(com.energyict.protocolimpl.pact.core.survey.discrete.EndOfDayBlock[] eods) {
-        this.eods = eods;
+    	if(eods != null){
+    		this.eods = eods.clone();
+    	}
     }
     
 } // public class ParameterDay

@@ -6,7 +6,8 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.*;
+import java.io.IOException;
+
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -15,12 +16,11 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class CumulativeMaximumDemand extends MeterReadingsBlockImpl {
    
-    
-    int regId;
-    int regIdEnergyIndex;
-    int regIdRegisterNumber;
-    int currentCMD;
-    int billingCMD;
+	private int regId;
+	private int regIdEnergyIndex;
+	private int regIdRegisterNumber;
+	private int currentCMD;
+	private int billingCMD;
     
     /** Creates a new instance of GeneralInformation */
     public CumulativeMaximumDemand(byte[] data) {

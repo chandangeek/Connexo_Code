@@ -6,7 +6,8 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.*;
+import java.io.IOException;
+
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -15,11 +16,9 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class GeneralInformation extends MeterReadingsBlockImpl {
     
-    
-    
-    int readCount;
-    int kwhRegister;
-    int tariffFlags;
+	private int readCount;
+	private int kwhRegister;
+	private int tariffFlags;
     
     /** Creates a new instance of GeneralInformation */
     public GeneralInformation(byte[] data) {

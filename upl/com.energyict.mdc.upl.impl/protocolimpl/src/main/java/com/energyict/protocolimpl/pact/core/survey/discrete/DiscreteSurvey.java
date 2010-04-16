@@ -6,16 +6,21 @@
 
 package com.energyict.protocolimpl.pact.core.survey.discrete;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
-import com.energyict.protocol.*;
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.pact.core.common.*;
-import com.energyict.protocolimpl.pact.core.survey.*;
-import com.energyict.protocolimpl.pact.core.meterreading.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.ProfileDataReverser;
+import com.energyict.protocolimpl.pact.core.common.ChannelMap;
+import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
+import com.energyict.protocolimpl.pact.core.common.PACTProtocolException;
+import com.energyict.protocolimpl.pact.core.meterreading.MeterReadingsInterpreter;
+import com.energyict.protocolimpl.pact.core.survey.LoadSurveyInterpreterImpl;
 
 
 /**
@@ -27,11 +32,11 @@ public class DiscreteSurvey extends LoadSurveyInterpreterImpl {
     private static final int DEBUG=0;
     
     // 3 load survey types type 38, 39 and 40
-    static final int[] MODULO={8000,64000,4000};
-    static final int[] VALUEMASK={0x1FFF,0xFFFF,0xFFF};
+    public static final int[] MODULO={8000,64000,4000};
+    public static final int[] VALUEMASK={0x1FFF,0xFFFF,0xFFF};
     
     
-    List surveyDays; // type SurveyDay;
+    private List surveyDays; // type SurveyDay;
     /** Creates a new instance of DiscreteSurvey */
     /** Creates a new instance of MeterReadingBlocks */
     public DiscreteSurvey(MeterReadingsInterpreter mri,TimeZone timeZone) {
@@ -83,13 +88,14 @@ public class DiscreteSurvey extends LoadSurveyInterpreterImpl {
     private void buildSurveyDays(byte[] loadSurveyData) throws IOException {
         // get interval values and convert if necessary
         // get status flags and build intervalstatus
-        int nrOfChannels = getMri().getSurveyInfo().getParms()+1;
         int day=0;
         int processed=0;
         do {
             SurveyDay surveyDay = new SurveyDay(getMri(),getTimeZone(),isStatusFlagChannel());
             surveyDay.parseData(loadSurveyData,day);
-            if (DEBUG>=1) printSurveyDay(surveyDay);
+            if (DEBUG>=1) {
+				printSurveyDay(surveyDay);
+			}
             surveyDays.add(surveyDay);
             processed += (getMri().getSurveyInfo().getBlocks()*8*getMri().getSurveyInfo().getNrOfChannels());
             day--; // try if there's data for another day...
@@ -120,14 +126,16 @@ public class DiscreteSurvey extends LoadSurveyInterpreterImpl {
         for (int channel = 0; channel < surveyDay.getEods().length ; channel++) {
 
            // if !statusflagchannel, continue
-           if (!(isStatusFlagChannel() || ((!(EnergyTypeCode.isStatusFlagsChannel(surveyDay.getEods()[channel].getEtype()))) && (!isStatusFlagChannel()))))
-              continue;    
+           if (!(isStatusFlagChannel() || ((!(EnergyTypeCode.isStatusFlagsChannel(surveyDay.getEods()[channel].getEtype()))) && (!isStatusFlagChannel())))) {
+			continue;
+		}    
            
            ChannelInfo channelInfo = null;
-           if (getChannelMap().getChannelFunction(channelId)==ChannelMap.FUNCTION_DEMAND)
-              channelInfo = new ChannelInfo(channelId,"PACS_CHANNEL_"+(channel+1),EnergyTypeCode.getUnit(surveyDay.getEods()[channel].getEtype(),false));
-           else
-              channelInfo = new ChannelInfo(channelId,"PACS_CHANNEL_"+(channel+1),EnergyTypeCode.getUnit(surveyDay.getEods()[channel].getEtype(),true));
+           if (getChannelMap().getChannelFunction(channelId)==ChannelMap.FUNCTION_DEMAND) {
+			channelInfo = new ChannelInfo(channelId,"PACS_CHANNEL_"+(channel+1),EnergyTypeCode.getUnit(surveyDay.getEods()[channel].getEtype(),false));
+		} else {
+			channelInfo = new ChannelInfo(channelId,"PACS_CHANNEL_"+(channel+1),EnergyTypeCode.getUnit(surveyDay.getEods()[channel].getEtype(),true));
+		}
 
            if (getChannelMap().getChannelFunction(channelId)==ChannelMap.FUNCTION_CUMULATIVE) {
               int modulo = DiscreteSurvey.MODULO[getMri().getSurveyFlagsInfo().getSurtyp()-38];
@@ -160,10 +168,11 @@ public class DiscreteSurvey extends LoadSurveyInterpreterImpl {
              // KV 07082006
              // If a calmu, sprint or premier meter have E4 starting their CLEM program, we still have the possibility to overrule by
              // setting MeterType to 2
-             if (!((getMri().getClemProgramName().startsWith("E4")) || getMri().getProtocolLink().isMeterTypeICM200()))
-                 profileDataReverser.reverse();
-             else if (getMri().getProtocolLink().isMeterTypeCSP())
-                 profileDataReverser.reverse();
+             if (!((getMri().getClemProgramName().startsWith("E4")) || getMri().getProtocolLink().isMeterTypeICM200())) {
+				profileDataReverser.reverse();
+			} else if (getMri().getProtocolLink().isMeterTypeCSP()) {
+				profileDataReverser.reverse();
+			}
              
              // create ProfileData again, otherwise, the XML serializer have problems serializing ProfileDataReverser
              ProfileData pd = new ProfileData();
@@ -176,7 +185,9 @@ public class DiscreteSurvey extends LoadSurveyInterpreterImpl {
     } // private void buildProfileData()
     
     protected int[] doGetEnergyTypeCodes() {
-        if ((surveyDays == null) || (surveyDays.size() == 0)) return null;
+        if ((surveyDays == null) || (surveyDays.size() == 0)) {
+			return null;
+		}
         SurveyDay surveyDay = getMostRecentSurveyDay();
         int[] energyTypeCodes = new int[surveyDay.getEods().length];
         for (int i=0;i<energyTypeCodes.length;i++) {
@@ -186,8 +197,9 @@ public class DiscreteSurvey extends LoadSurveyInterpreterImpl {
     }
     
     protected int doGetNrOfDays(Date from, Date to) throws IOException {
-        if (to.getTime() < from.getTime()) throw new IOException("DiscreteSurvey, doGetNrOfBlocks, error ("+from+") > ("+to+")");
-        long offset = to.getTime() - from.getTime();
+        if (to.getTime() < from.getTime()) {
+			throw new IOException("DiscreteSurvey, doGetNrOfBlocks, error ("+from+") > ("+to+")");
+		}
         final long ONEDAY=24*60*60*1000;    
         long tostd = to.getTime() + (long)getMri().getTimeZone().getOffset(to.getTime());
         long fromstd = from.getTime() + (long)getMri().getTimeZone().getOffset(from.getTime());

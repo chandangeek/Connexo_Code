@@ -6,7 +6,8 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.*;
+import java.io.IOException;
+
 import com.energyict.protocol.ProtocolUtils;
 /**
  *
@@ -14,12 +15,12 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class SurveyInfo extends MeterReadingsBlockImpl { 
     
-    int blocks;
-    int days;
-    int parms;
-    int hist;
-    int nrOfChannels;
-    int profileInterval;
+	private int blocks;
+	private int days;
+	private int parms;
+	private int hist;
+	private int nrOfChannels;
+	private int profileInterval;
     
     /** Creates a new instance of surveyInfo */
     public SurveyInfo(byte[] data) {
@@ -36,10 +37,11 @@ public class SurveyInfo extends MeterReadingsBlockImpl {
         setProfileInterval((24*60*60)/((getBlocks()-1)*4));
         setDays(ProtocolUtils.byte2int(getData()[2])+ProtocolUtils.byte2int(getData()[4])*256);
         setParms(ProtocolUtils.byte2int(getData()[3]));
-        if (getParms() == 255)
-            setNrOfChannels(0);
-        else
-            setNrOfChannels(getParms()+1);
+        if (getParms() == 255) {
+			setNrOfChannels(0);
+		} else {
+			setNrOfChannels(getParms()+1);
+		}
         setHist(ProtocolUtils.byte2int(getData()[5]));
     }
     

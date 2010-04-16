@@ -6,11 +6,13 @@
 
 package com.energyict.protocolimpl.pact.core.log;
 
-import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TimeZone;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.pact.core.common.*;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
@@ -18,7 +20,7 @@ import com.energyict.protocolimpl.pact.core.common.*;
  */
 public class LogInterpreter {
     
-    List meterEvents; // of type MeterEvent
+	private List meterEvents; // of type MeterEvent
     
     /** Creates a new instance of LogInterpreter */
     public LogInterpreter(byte[] data, TimeZone timeZone) {
@@ -47,8 +49,9 @@ public class LogInterpreter {
                default: {
                    if (lh != null) {
                       MeterEvent me = LogMessage.getMeterEvent(lh, new LogEvent(ProtocolUtils.getSubArray2(data,count,8),timeZone)); 
-                      if (me != null)
-                          meterEvents.add(me);
+                      if (me != null) {
+						meterEvents.add(me);
+					}
                    }
                    
                } break; // events

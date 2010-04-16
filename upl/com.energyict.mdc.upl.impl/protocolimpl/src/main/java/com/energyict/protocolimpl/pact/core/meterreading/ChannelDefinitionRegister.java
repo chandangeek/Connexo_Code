@@ -6,34 +6,33 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.*;
-import com.energyict.protocol.ProtocolUtils;
+import java.math.BigDecimal;
 
-import com.energyict.protocolimpl.pact.core.common.*;
-import java.math.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
 /**
  *
  * @author  Koen
  */
 public class ChannelDefinitionRegister extends MeterReadingsBlockImpl {
 
-    static public final int INTERNAL_UNIT_REGISTER=0;
-    static public final int PHASE_1=1;
-    static public final int PHASE_2=2;
-    static public final int PHASE_3=3;
-    static public final int EXTERNAL_REGISTER=4;
-    static public final int FORWARDED_ACTIVE_ENERGY=5;
-    static public final int EXCESS_POWER_INTEGRATION=6;
-    static public final int NOT_SPECIFIED=255;
+    public static final int INTERNAL_UNIT_REGISTER=0;
+    public static final int PHASE_1=1;
+    public static final int PHASE_2=2;
+    public static final int PHASE_3=3;
+    public static final int EXTERNAL_REGISTER=4;
+    public static final int FORWARDED_ACTIVE_ENERGY=5;
+    public static final int EXCESS_POWER_INTEGRATION=6;
+    public static final int NOT_SPECIFIED=255;
     
-    int channelId;
-    int bpIndex;
-    int channelNumber;
-    int channelType;
-    int registerValue;
-    int eType;
-    int fac;
-    int meterFactorExp;
+    private int channelId;
+    private int bpIndex;
+    private int channelNumber;
+    private int channelType;
+    private int registerValue;
+    private int eType;
+    private int fac;
+    private int meterFactorExp;
     
     /** Creates a new instance of ChannelDefinitionRegister */
     public ChannelDefinitionRegister(byte[] data) {

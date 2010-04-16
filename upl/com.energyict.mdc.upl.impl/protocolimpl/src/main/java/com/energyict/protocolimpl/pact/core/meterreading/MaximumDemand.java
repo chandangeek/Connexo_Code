@@ -6,7 +6,6 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.*;
 import com.energyict.protocol.ProtocolUtils;
 /**
  *
@@ -14,17 +13,15 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class MaximumDemand extends MeterReadingsBlockImpl {
     
+	private int regId;
+	private int regIdEnergyIndex;
+	private int regIdRegisterNumber;
+	private int currentMD;
+	private int billingMD;
+	private int trg;
+	private int bTrg;
     
-    
-    int regId;
-    int regIdEnergyIndex;
-    int regIdRegisterNumber;
-    int currentMD;
-    int billingMD;
-    int trg;
-    int bTrg;
-    
-    char type;
+	private char type;
     
     /** Creates a new instance of MaximumDemand */
     public MaximumDemand(byte[] data,char type) {

@@ -6,39 +6,39 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.Date;
+import java.util.TimeZone;
+
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.pact.core.common.*;
+import com.energyict.protocolimpl.pact.core.common.PactUtils;
 /**
  *
  * @author  Koen
  */
 public class Counters extends MeterReadingsBlockImpl {
     
-    Date meterDateTime;
-    int encryptedLoadSurveyAttempts;
-    int nonEncryptedLoadSurveyAttempts;
-    int mDResetsComm;
-    int mDResetsButton;
-    int hoursOnPower;
-    int hoursOffPower;
-    int readsOnPrioPort;
-    int readsOnNonPrioPort;
-    int successTariffDownLoads;
-    int failedPasswordClearAttempts;
-    int successTimeSet;
-    int billingActionsFromAllSources;
-    int hoursOnOverCurrent;
-    int hoursOnImbalance;
-    int minutesOnPowerSinceManuf;
-    int minutesOffPowerSinceManuf;
-    int cumulativeTransactions;
-    int cumulativeTransactionsAtLastBillingPoint;
+	private Date meterDateTime;
+	private int encryptedLoadSurveyAttempts;
+	private int nonEncryptedLoadSurveyAttempts;
+	private int mDResetsComm;
+	private int mDResetsButton;
+	private int hoursOnPower;
+	private int hoursOffPower;
+	private int readsOnPrioPort;
+	private int readsOnNonPrioPort;
+	private int successTariffDownLoads;
+	private int failedPasswordClearAttempts;
+	private int successTimeSet;
+	private int billingActionsFromAllSources;
+	private int hoursOnOverCurrent;
+	private int hoursOnImbalance;
+	private int minutesOnPowerSinceManuf;
+	private int minutesOffPowerSinceManuf;
+	private int cumulativeTransactions;
+	private int cumulativeTransactionsAtLastBillingPoint;
     
-    
-    
-    int mask;
+	private int mask;
     
     /** Creates a new instance of Counters */
     public Counters(byte[] data, TimeZone timeZone) {
@@ -108,52 +108,72 @@ public class Counters extends MeterReadingsBlockImpl {
            pre = true;
        }
        if ((mask & 0x0002) == 0x0002) {
-           if (pre) strBuff.append(", ");
+           if (pre) {
+			strBuff.append(", ");
+		}
            strBuff.append("Encrypted Load Survey read attempts="+getEncryptedLoadSurveyAttempts()+", Unencrypted Load Survey read attempts="+getNonEncryptedLoadSurveyAttempts());
            pre = true;
        }
        if ((mask & 0x0004) == 0x0004) {
-           if (pre) strBuff.append(", ");
+           if (pre) {
+			strBuff.append(", ");
+		}
            strBuff.append("MD resets triggered by communication="+getMDResetsComm()+", MD resets triggered by push button="+getMDResetsButton());
            pre = true;
        }
        if ((mask & 0x0008) == 0x0008) {
-           if (pre) strBuff.append(", ");
+           if (pre) {
+			strBuff.append(", ");
+		}
            strBuff.append("Hours on power since 1/1/1988 00:00="+getHoursOnPower()+", Hours not on power since 1/1/1988 00:00="+getHoursOffPower());
            pre = true;
        }
        if ((mask & 0x0010) == 0x0010) {
-           if (pre) strBuff.append(", ");
+           if (pre) {
+			strBuff.append(", ");
+		}
            strBuff.append("Reads on the priority (remote comm) port="+getReadsOnPrioPort()+", Reads on the non-priority (local comms) port="+getReadsOnNonPrioPort());
            pre = true;
        }
        if ((mask & 0x0020) == 0x0020) {
-           if (pre) strBuff.append(", ");
+           if (pre) {
+			strBuff.append(", ");
+		}
            strBuff.append("Successful tariff downloads="+getSuccessTariffDownLoads()+", Failed password clearance attempts="+getFailedPasswordClearAttempts());
            pre = true;
        }
        if ((mask & 0x0040) == 0x0040) {
-           if (pre) strBuff.append(", ");
+           if (pre) {
+			strBuff.append(", ");
+		}
            strBuff.append("Successful time setting attempts="+getSuccessTimeSet());
            pre = true;
        }
        if ((mask & 0x0080) == 0x0080) {
-           if (pre) strBuff.append(", ");
+           if (pre) {
+			strBuff.append(", ");
+		}
            strBuff.append("Billing actions from all sources="+getBillingActionsFromAllSources());
            pre = true;
        }
        if ((mask & 0x0100) == 0x0100) {
-           if (pre) strBuff.append(", ");
+           if (pre) {
+			strBuff.append(", ");
+		}
            strBuff.append("Hours on over-current="+getHoursOnOverCurrent()+", Hours on imbalance="+getHoursOnImbalance());
            pre = true;
        }
        if ((mask & 0x0400) == 0x0400) {
-           if (pre) strBuff.append(", ");
+           if (pre) {
+			strBuff.append(", ");
+		}
            strBuff.append("Minutes on power since manufacture="+getMinutesOnPowerSinceManuf()+", Minutes off power since manufacture="+getMinutesOffPowerSinceManuf());
            pre = true;
        }
        if ((mask & 0x0800) == 0x0800) {
-           if (pre) strBuff.append(", ");
+           if (pre) {
+			strBuff.append(", ");
+		}
            strBuff.append("Cumulative transactions="+getCumulativeTransactions()+", Cumulative transactions at last billing point="+getCumulativeTransactionsAtLastBillingPoint());
            pre = true;
        }

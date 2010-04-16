@@ -6,10 +6,12 @@
 
 package com.energyict.protocolimpl.pact.core.survey.discrete;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.pact.core.common.*;
+import java.util.Calendar;
+import java.util.TimeZone;
+
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
+import com.energyict.protocolimpl.pact.core.common.PactUtils;
 /**
  *
  * @author  Koen
@@ -18,28 +20,30 @@ public class EndOfDayBlock {
     
     private static final int DEBUG=0;
     
-    Calendar date; // always in GMT
-    int flags;
-    int flagsExp;
-    int flagsDi;
-    boolean flagsSGN;
-    int register;
-    int etype;
-    int authentification;
-    boolean valid;
-    boolean closed;
-    int meterFactorExp;
-    int valueType;
-    int divisor;
+    private Calendar date; // always in GMT
+    private int flags;
+    private int flagsExp;
+    private int flagsDi;
+    private boolean flagsSGN;
+    private int register;
+    private int etype;
+    private int authentification;
+    private boolean valid;
+    private boolean closed;
+    private int meterFactorExp;
+    private int valueType;
+    private int divisor;
     
-    byte[] data;
-    final int[] DI = {2,5,10,1}; 
-    TimeZone timeZone;
+    private byte[] data;
+    private final int[] DI = {2,5,10,1}; 
+    private TimeZone timeZone;
     
     /** Creates a new instance of DiscreteEOD */
     public EndOfDayBlock(byte[] data,TimeZone timeZone) {
+    	if(data != null){
+    		this.data=data.clone();
+    	}
         this.timeZone=timeZone;
-        this.data=data;
         setValid(true);
         parse();
     }
@@ -53,19 +57,27 @@ public class EndOfDayBlock {
         // common
         // parse DATE and check if invalid 
         int iDate = ProtocolUtils.byte2int(data[0])+ProtocolUtils.byte2int(data[1])*256;
-        if (((iDate & 0xFE00) == 0xFE00) || ((iDate & 0x01FF) == 0x01FF)) setValid(false);
+        if (((iDate & 0xFE00) == 0xFE00) || ((iDate & 0x01FF) == 0x01FF)) {
+			setValid(false);
+		}
         
-        if (DEBUG >= 1)
-            System.out.println("KV_DEBUG> EndOfDayblock, iDate="+iDate);
+        if (DEBUG >= 1) {
+			System.out.println("KV_DEBUG> EndOfDayblock, iDate="+iDate);
+		}
         setDate(PactUtils.getCalendar(iDate,0,timeZone));
 
         setFlags(ProtocolUtils.byte2int(data[2]));
         
         // parse REGISTER and check if invalid
         setRegister(ProtocolUtils.byte2int(data[3])+ProtocolUtils.byte2int(data[4])*256); 
-        if (getRegister() == 0xFFFF) setValid(false);
-        if (getRegister() == 0xFFFE) setClosed(false);
-        else setClosed(true);
+        if (getRegister() == 0xFFFF) {
+			setValid(false);
+		}
+        if (getRegister() == 0xFFFE) {
+			setClosed(false);
+		} else {
+			setClosed(true);
+		}
         
         setEtype(ProtocolUtils.byte2int(data[5]));
         setAuthentification(ProtocolUtils.byte2int(data[6])+ProtocolUtils.byte2int(data[7])*256);         
@@ -73,8 +85,12 @@ public class EndOfDayBlock {
         //**********************************************************************************
         // in case of ETYPE for electrical, non elektrical and flag parameters
         setFlagsExp((getFlags()>>4)&0x0F);
-        if (getFlagsExp() <= 5) setMeterFactorExp(getFlagsExp());
-        if (getFlagsExp() >= 13) setMeterFactorExp(getFlagsExp()-16);
+        if (getFlagsExp() <= 5) {
+			setMeterFactorExp(getFlagsExp());
+		}
+        if (getFlagsExp() >= 13) {
+			setMeterFactorExp(getFlagsExp()-16);
+		}
         setFlagsDi(DI[(getFlags()>>2)&0x03]);
         setFlagsSGN((getFlags() & 0x1) == 0x1);      
         

@@ -6,7 +6,8 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.*;
+import java.io.IOException;
+
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -15,10 +16,10 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class Seeds extends MeterReadingsBlockImpl {
     
-    int protcl;
-    int mdSeed;
-    int timeSeed;
-    int dstSeed;
+	private int protcl;
+	private int mdSeed;
+	private int timeSeed;
+	private int dstSeed;
     
     /** Creates a new instance of Seeds */
     public Seeds(byte[] data) {

@@ -6,39 +6,37 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.*;
-import java.util.*;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.pact.core.common.*;
+import com.energyict.protocolimpl.pact.core.common.MeterType;
 /**
  *
  * @author  Koen
  */
 public class CommissioningInformation extends MeterReadingsBlockImpl {
     
-    int iPrimary;
-    int vPrimary;
+	private int iPrimary;
+	private int vPrimary;
     
-    int redCTAdj,yelCTAdj,blueCTAdj;
+	private int redCTAdj,yelCTAdj,blueCTAdj;
     
-    int redVTAdj,yelVTAdj,blueVTAdj;
+	private int redVTAdj,yelVTAdj,blueVTAdj;
     
-    int hware;
-    int io;
-    int owner;
-    int rangeAndClass;
-    int range;
-    int meterClass;
-    MeterType meterType;
-    int diAndFac;
-    int di;
-    int meterFactor;
+	private int hware;
+	private int io;
+	private int owner;
+	private int rangeAndClass;
+	private int range;
+	private int meterClass;
+	private MeterType meterType;
+	private int diAndFac;
+	private int di;
+	private int meterFactor;
     
-    int mask;
+	private int mask;
     
-    boolean mw=false;
-    double voltage;
-    int current;
+	private boolean mw=false;
+	private double voltage;
+	private int current;
 
     /** Creates a new instance of CommissioningInformation */
     public CommissioningInformation(byte[] data) {
@@ -81,13 +79,16 @@ public class CommissioningInformation extends MeterReadingsBlockImpl {
             setCurrent(getIPrimary());
             setVoltage(getVPrimary());
             // process voltage
-            if (getVPrimary() == 0) setVoltage(getMeterType().getMeasuredVoltage());
+            if (getVPrimary() == 0) {
+				setVoltage(getMeterType().getMeasuredVoltage());
+			}
             int exp = (getVPrimary() / 1000) - 11;
             if (exp >= -1) {
                 double multiplier = Math.pow(10,exp);
                 setVoltage((int)((getVPrimary()%1000) * multiplier)); 
-            }
-            else setVoltage(getVPrimary());
+            } else {
+				setVoltage(getVPrimary());
+			}
             
             double maxPower = getMeterType().getMultiplier() * getVoltage() * getCurrent();
             if (maxPower > 1000000) {
@@ -109,24 +110,32 @@ public class CommissioningInformation extends MeterReadingsBlockImpl {
            pre = true;
        }
        if ((mask & 0x0002) == 0x0002) {
-           if (pre) strBuff.append(", ");
+           if (pre) {
+			strBuff.append(", ");
+		}
            strBuff.append("REDCTADJ="+getRedCTAdj()+", YELCTADJ="+getYelCTAdj()+", BLUECTADJ="+getBlueCTAdj());
            pre = true;
        }
        if ((mask & 0x0004) == 0x0004) {
-           if (pre) strBuff.append(", ");
+           if (pre) {
+			strBuff.append(", ");
+		}
            strBuff.append("REDVTADJ="+getRedVTAdj()+", YELVTADJ="+getYelVTAdj()+", BLUEVTADJ="+getBlueVTAdj());
            pre = true;
        }
        if ((mask & 0x0008) == 0x0008) {
-           if (pre) strBuff.append(", ");
+           if (pre) {
+			strBuff.append(", ");
+		}
            strBuff.append("HWARE="+getHware()+", OWNER="+getOwner()+", IO=0x"+Integer.toHexString(getIo())+", R&C=0x"+Integer.toHexString(getRangeAndClass())+", (RANGE="+getRange()+", CLASS="+getMeterClass()+"),MT="+getMeterType().getType()+"("+getMeterType()+"), D&F=0x"+Integer.toHexString(getDiAndFac())+", (DI="+getDi()+", METERFACTOR="+getMeterFactor()+")");
            pre = true;
        }
        
        // if we got iprimary, vprimary and metertype
        if ((mask & 0x0009) == 0x0009) {
-           if (pre) strBuff.append(", ");
+           if (pre) {
+			strBuff.append(", ");
+		}
            strBuff.append("current="+getCurrent()+", voltage="+getVoltage()+", mW commissioned="+isMw());
            pre = true;
        }

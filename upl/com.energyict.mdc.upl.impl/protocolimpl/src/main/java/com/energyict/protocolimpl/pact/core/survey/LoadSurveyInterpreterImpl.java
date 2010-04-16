@@ -6,31 +6,33 @@
 
 package com.energyict.protocolimpl.pact.core.survey;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.pact.core.meterreading.*;
-import com.energyict.protocolimpl.pact.core.common.*;  
+import java.io.IOException;
+import java.util.Date;
+import java.util.TimeZone;
+
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocolimpl.pact.core.common.ChannelMap;
+import com.energyict.protocolimpl.pact.core.meterreading.MeterReadingsInterpreter;
 /**
  *
  * @author  Koen
  */
 public abstract class LoadSurveyInterpreterImpl implements LoadSurveyInterpreter {
     
-    protected final int DEBUG=0;
+    protected static final int DEBUG=0;
     
-    abstract protected void parseData(byte[] data) throws IOException;
-    abstract protected int[] doGetEnergyTypeCodes();
-    abstract protected int doGetNrOfBlocks(Date from, Date to) throws IOException;
-    abstract protected int doGetNrOfDays(Date from, Date to) throws IOException;
+    protected abstract void parseData(byte[] data) throws IOException;
+    protected abstract int[] doGetEnergyTypeCodes();
+    protected abstract int doGetNrOfBlocks(Date from, Date to) throws IOException;
+    protected abstract int doGetNrOfDays(Date from, Date to) throws IOException;
     
     private int[] energyTypeCodes=null;
     private byte[] loadSurveyData;
-    MeterReadingsInterpreter mri;
-    ProfileData profileData=null;
-    ChannelMap channelMap=null;
-    TimeZone timeZone=null;
-    boolean statusFlagChannel=true;
+    private MeterReadingsInterpreter mri;
+    private ProfileData profileData=null;
+    private ChannelMap channelMap=null;
+    private TimeZone timeZone=null;
+    private boolean statusFlagChannel=true;
     /** Creates a new instance of MeterReadingBlocks */
     public LoadSurveyInterpreterImpl(MeterReadingsInterpreter mri,TimeZone timeZone) {
         this.timeZone=timeZone;
@@ -39,10 +41,14 @@ public abstract class LoadSurveyInterpreterImpl implements LoadSurveyInterpreter
     }
     
     public void parse(byte[] loadSurveyData, ChannelMap channelMap, boolean statusFlagChannel) throws IOException {
-        this.loadSurveyData=loadSurveyData;
+    	if(loadSurveyData != null){
+    		this.loadSurveyData=loadSurveyData.clone();
+    	}
         this.channelMap=channelMap;
         this.statusFlagChannel=statusFlagChannel;
-        if ((loadSurveyData==null) || (loadSurveyData.length == 0)) return;
+        if ((loadSurveyData==null) || (loadSurveyData.length == 0)) {
+			return;
+		}
         parseData(loadSurveyData);
     }
     
@@ -121,8 +127,9 @@ public abstract class LoadSurveyInterpreterImpl implements LoadSurveyInterpreter
     
     
     public int[] getEnergyTypeCodes() {
-        if (energyTypeCodes == null)
-            energyTypeCodes = doGetEnergyTypeCodes();
+        if (energyTypeCodes == null) {
+			energyTypeCodes = doGetEnergyTypeCodes();
+		}
         return energyTypeCodes;   
     }
     
@@ -131,10 +138,11 @@ public abstract class LoadSurveyInterpreterImpl implements LoadSurveyInterpreter
     }
     
     public int getNrOfSurveyChannels() {
-        if (getEnergyTypeCodes() == null)
-            return 0;
-        else
-            return getEnergyTypeCodes().length;
+        if (getEnergyTypeCodes() == null) {
+			return 0;
+		} else {
+			return getEnergyTypeCodes().length;
+		}
     }
     
     public int getNrOfBlocks(Date from, Date to) throws IOException {

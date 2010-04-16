@@ -6,11 +6,9 @@
 
 package com.energyict.protocolimpl.pact.core.log;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
 
-import com.energyict.protocolimpl.pact.core.common.*;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
@@ -18,10 +16,10 @@ import com.energyict.protocol.*;
  */
 public class LogHeader {
     
-    int logId;
-    int flags;
-    int eventCounter;
-    int logSize;
+	private int logId;
+	private int flags;
+	private int eventCounter;
+	private int logSize;
     
     /** Creates a new instance of LogHeader */
     public LogHeader(byte[] data) {

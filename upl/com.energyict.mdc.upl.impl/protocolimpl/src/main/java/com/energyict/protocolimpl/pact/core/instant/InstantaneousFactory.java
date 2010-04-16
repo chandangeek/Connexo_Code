@@ -6,22 +6,25 @@
 
 package com.energyict.protocolimpl.pact.core.instant;
 
-import java.io.*;
-import java.text.*;
-import java.util.*;
+import java.io.IOException;
 import java.math.BigDecimal;
-import com.energyict.protocolimpl.pact.core.common.*;
-import com.energyict.cbo.*;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocolimpl.pact.core.common.PACTConnection;
+import com.energyict.protocolimpl.pact.core.common.ProtocolLink;
 /**
  *
  * @author  Koen
  */
 public class InstantaneousFactory {
     
-    final static public int INSTANTANEOUS_QUANTITY=0;
+	public static final int INSTANTANEOUS_QUANTITY=0;
     
-    static Map map = new HashMap();
+    private static Map map = new HashMap();
     static {
         // Voltage and Current
         map.put("V1",new Instantaneous("Voltage, phase 1",Unit.get("V"),INSTANTANEOUS_QUANTITY));
@@ -88,7 +91,7 @@ public class InstantaneousFactory {
         map.put("UF",new Instantaneous("Fraud (see below)",Unit.get("kVAh"),INSTANTANEOUS_QUANTITY));
     }
     
-    ProtocolLink protocolLink;
+    private ProtocolLink protocolLink;
     
     /** Creates a new instance of InstantaneousFactory */
     public InstantaneousFactory(ProtocolLink protocolLink) {
@@ -97,8 +100,9 @@ public class InstantaneousFactory {
     
     public Quantity getRegisterValue(String name) throws IOException {
         Instantaneous instantaneous = (Instantaneous)map.get(name);
-        if (instantaneous == null)
-            throw new NoSuchRegisterException("InstantaneousFactory, getRegisterValue, instantaneous register "+name+" not supported!");
+        if (instantaneous == null) {
+			throw new NoSuchRegisterException("InstantaneousFactory, getRegisterValue, instantaneous register "+name+" not supported!");
+		}
         
         ProcessorType pt = new ProcessorType(getProtocolLink().getPactConnection().sendRequest(PACTConnection.BUILDTYPE));
         String value = getProtocolLink().getPactConnection().getIntantaneousValue(name); 
@@ -121,15 +125,17 @@ public class InstantaneousFactory {
                }
            }
            else {
-               if (!((data[i] == '+') || (data[i] == '-') || (data[i] == '.') || ((data[i] >= '0') &&  (data[i] <= '9'))))
-                   break;
+               if (!((data[i] == '+') || (data[i] == '-') || (data[i] == '.') || ((data[i] >= '0') &&  (data[i] <= '9')))) {
+				break;
+			}
            }
        }
        if (start != -1) {
            netValue=value.substring(start,i);
            return new Quantity(new BigDecimal(netValue),instantaneous.getUnit());
-       }
-       else throw new NoSuchRegisterException("InstantaneousFactory, getRegisterValue, instantaneous register "+value+" not supported!");
+       } else {
+		throw new NoSuchRegisterException("InstantaneousFactory, getRegisterValue, instantaneous register "+value+" not supported!");
+	}
        
     } // private Quantity parseForQuantity(String value,Instantaneous instantaneous)
     

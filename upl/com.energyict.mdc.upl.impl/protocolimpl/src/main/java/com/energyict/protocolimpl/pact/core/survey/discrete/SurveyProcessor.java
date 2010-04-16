@@ -8,14 +8,20 @@
 
 package com.energyict.protocolimpl.pact.core.survey.discrete;
 
-import java.io.*;
-import java.util.*;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
-import com.energyict.protocol.*;
-import com.energyict.cbo.LittleEndianInputStream;
-import com.energyict.protocolimpl.pact.core.meterreading.*;
-import com.energyict.protocolimpl.pact.core.common.*;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalValue;
+import com.energyict.protocolimpl.pact.core.common.ChannelMap;
+import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
+import com.energyict.protocolimpl.pact.core.common.PACTProtocolException;
+import com.energyict.protocolimpl.pact.core.common.PactUtils;
+import com.energyict.protocolimpl.pact.core.meterreading.MeterReadingsInterpreter;
 /**
  *
  * @author  Koen
@@ -24,16 +30,16 @@ public class SurveyProcessor {
     
     private static final int DEBUG=0;
     
-    List surveyDays;
-    ChannelMap channelMap;
-    MeterReadingsInterpreter mri;
-    List intervalDatas;
-    int modulo;
-    SurveyDay surveyRecentDay;
-    int nrOfChannels;
-    int nrOfIntervals=0;
-    int profileInterval;
-    boolean statusFlagChannel;
+    private List surveyDays;
+    private ChannelMap channelMap;
+    private MeterReadingsInterpreter mri;
+    private List intervalDatas;
+    private int modulo;
+    private SurveyDay surveyRecentDay;
+    private int nrOfChannels;
+    private int nrOfIntervals=0;
+    private int profileInterval;
+    private boolean statusFlagChannel;
     
     /** Creates a new instance of DiscreteProcessor */
     public SurveyProcessor(List surveyDays, ChannelMap channelMap, MeterReadingsInterpreter mri, boolean statusFlagChannel) {
@@ -101,20 +107,24 @@ if (DEBUG>=1) {
             IntervalData start,end=null,check;
             check = (IntervalData)intervalDatas.get(intervalDatas.size()-1);
             for (int i=intervalDatas.size()-2;i>=0;i--) {
-                if (DEBUG>=2)
-                    System.out.println(check);                
+                if (DEBUG>=2) {
+					System.out.println(check);
+				}                
                 start = (IntervalData)intervalDatas.get(i);
                 if (start.getEndTime().compareTo(check.getEndTime()) == 0) {
-                    if (mri.getProtocolLink().getPACTMode().isPAKNET())
-                       intervalDatas.remove(i+1);
-                    else
-                       intervalDatas.remove(i);
-                    if (end != null)
-                       end.copyStatus(start);
+                    if (mri.getProtocolLink().getPACTMode().isPAKNET()) {
+						intervalDatas.remove(i+1);
+					} else {
+						intervalDatas.remove(i);
+					}
+                    if (end != null) {
+						end.copyStatus(start);
+					}
                 }
                 else {
-                    if (end != null)
-                       end.copyStatus(check);
+                    if (end != null) {
+						end.copyStatus(check);
+					}
                     end = check;
                 }
                 check = start;
@@ -162,8 +172,9 @@ if (DEBUG>=1) {
         if (!statusFlagChannel) {
            for(int i=0;i<surveyRecentDay.getEods().length;i++) {
                if (!(EnergyTypeCode.isStatusFlagsChannel(surveyRecentDay.getEods()[i].getEtype()))) {
-                  if (index == channel) 
-                      return surveyRecentDay.getEods()[i];
+                  if (index == channel) {
+					return surveyRecentDay.getEods()[i];
+				}
                   index++;
                }
            }
@@ -177,11 +188,14 @@ if (DEBUG>=1) {
     private int getNrOfChannels() {
         int count=0;
         if (!statusFlagChannel) {
-            for(int i=0;i<surveyRecentDay.getEods().length;i++)
-                if (!(EnergyTypeCode.isStatusFlagsChannel(surveyRecentDay.getEods()[i].getEtype())))
-                    count++;
-        }
-        else count=surveyRecentDay.getEods().length;
+            for(int i=0;i<surveyRecentDay.getEods().length;i++) {
+				if (!(EnergyTypeCode.isStatusFlagsChannel(surveyRecentDay.getEods()[i].getEtype()))) {
+					count++;
+				}
+			}
+        } else {
+			count=surveyRecentDay.getEods().length;
+		}
         return count;
     }
     
@@ -194,7 +208,9 @@ if (DEBUG>=1) {
         BigDecimal processedValue;
         for (int channel=0; channel<nrOfChannels; channel++) {
             EndOfDayBlock eod = getEndOfDayBlock(channel);  // use EOD of most recent day
-            if (DEBUG>=1) System.out.println("most recent day's EOD block="+eod);
+            if (DEBUG>=1) {
+				System.out.println("most recent day's EOD block="+eod);
+			}
             
                 int[] values = getValues(channel); // copy all integer raw values to array
                 int start = values[0]; // get first value;
@@ -206,37 +222,39 @@ if (DEBUG>=1) {
                             // leave intervaldatas as is!
                             if ((eod.getEtype() >= 0xC0) && (eod.getEtype() <= 0xCF)) { // flags parameter 
                                 processedValue = BigDecimal.valueOf(end);
-                            }
-                            else
-                                processedValue = BigDecimal.valueOf(end);
+                            } else {
+								processedValue = BigDecimal.valueOf(end);
+							}
                         } break; // FUNCTION_DEFAULT
 
                         case ChannelMap.FUNCTION_SURVEY_ADVANCE: {
                             if ((eod.getEtype() >= 0xC0) && (eod.getEtype() <= 0xCF)) { // flags parameter 
                                 processedValue = BigDecimal.valueOf(end);
-                            }
-                            else
-                                processedValue = PactUtils.convert2BigDecimal(getSurveyAdvance(start, end, modulo, eod));
+                            } else {
+								processedValue = PactUtils.convert2BigDecimal(getSurveyAdvance(start, end, modulo, eod));
+							}
                         } break; // FUNCTION_SURVEY_ADVANCE
 
                         case ChannelMap.FUNCTION_ACTUAL_ADVANCE: {
                             if ((eod.getEtype() >= 0xC0) && (eod.getEtype() <= 0xCF)) { // flags parameter 
                                 processedValue = BigDecimal.valueOf(end);
                             }
-                            else if ((eod.getEtype() >= 0x00) && (eod.getEtype() <= 0x25)) // instantaneous parameters
-                               processedValue = PactUtils.convert2BigDecimal(getSurveyAdvance(start, end, modulo, eod));
-                            else
-                               processedValue = PactUtils.convert2BigDecimal(getActualAdvance(start, end, modulo, eod));
+                            else if ((eod.getEtype() >= 0x00) && (eod.getEtype() <= 0x25)) {
+								processedValue = PactUtils.convert2BigDecimal(getSurveyAdvance(start, end, modulo, eod));
+							} else {
+								processedValue = PactUtils.convert2BigDecimal(getActualAdvance(start, end, modulo, eod));
+							}
                         } break; // FUNCTION_ACTUAL_ADVANCE
 
                         case ChannelMap.FUNCTION_DEMAND: {
                             if ((eod.getEtype() >= 0xC0) && (eod.getEtype() <= 0xCF)) { // flags parameter 
                                 processedValue = BigDecimal.valueOf(end);
                             }
-                            else if ((eod.getEtype() >= 0x00) && (eod.getEtype() <= 0x25)) // instantaneous parameters
-                               processedValue = PactUtils.convert2BigDecimal(getSurveyAdvance(start, end, modulo, eod));
-                            else 
-                               processedValue = PactUtils.convert2BigDecimal(getDemand(start, end, modulo, profileInterval, eod));
+                            else if ((eod.getEtype() >= 0x00) && (eod.getEtype() <= 0x25)) {
+								processedValue = PactUtils.convert2BigDecimal(getSurveyAdvance(start, end, modulo, eod));
+							} else {
+								processedValue = PactUtils.convert2BigDecimal(getDemand(start, end, modulo, profileInterval, eod));
+							}
                         } break; // FUNCTION_DEMAND
 
                         default:
@@ -278,17 +296,21 @@ if (DEBUG>=1) {
            OFFSET = (double)modulo/(double)2;
         }
         else {
-           if (eod.isFlagsSGN()) OFFSET = (double)modulo/(double)2;
-           else OFFSET = 0;
+           if (eod.isFlagsSGN()) {
+			OFFSET = (double)modulo/(double)2;
+		} else {
+			OFFSET = 0;
+		}
         }
         
         // Calculate delta
         double delta;
         // instantaneous parameters
-        if ((eod.getEtype() >= 0x00) && (eod.getEtype() <= 0x25))
-           delta = (double)endVal;
-        else        
-           delta = ((double)endVal-(double)startVal);
+        if ((eod.getEtype() >= 0x00) && (eod.getEtype() <= 0x25)) {
+			delta = (double)endVal;
+		} else {
+			delta = ((double)endVal-(double)startVal);
+		}
         return ((delta + (double)modulo + OFFSET) % (double)modulo) - OFFSET;
     } //  private double getSurveyAdvance(int startVal, int endVal)
     

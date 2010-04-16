@@ -6,24 +6,25 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.*;
-import java.util.*;
-import java.math.BigDecimal;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TimeZone;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.pact.core.survey.*;
-import com.energyict.protocolimpl.pact.core.survey.absolute.*;
-import com.energyict.protocolimpl.pact.core.survey.discrete.*;
-import com.energyict.protocolimpl.pact.core.survey.binary.*;
-import com.energyict.protocolimpl.pact.core.survey.ascii.*;
-import com.energyict.protocolimpl.pact.core.survey.link.*;
-import com.energyict.protocolimpl.pact.core.common.PACTProtocolException;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
 import com.energyict.protocolimpl.pact.core.common.ProtocolLink;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.pact.core.survey.LoadSurveyInterpreter;
+import com.energyict.protocolimpl.pact.core.survey.absolute.AbsoluteSurvey;
+import com.energyict.protocolimpl.pact.core.survey.ascii.AsciiSurvey;
+import com.energyict.protocolimpl.pact.core.survey.binary.BinarySurvey;
+import com.energyict.protocolimpl.pact.core.survey.discrete.DiscreteSurvey;
+import com.energyict.protocolimpl.pact.core.survey.link.LinkSurvey;
 /**
  *
  * @author  Koen
@@ -33,50 +34,50 @@ public class MeterReadingsInterpreter {
     private static final int DEBUG=0;
     
     // General information
-    SurveyInfo surveyInfo=null;
-    SurveyFlagsInfo surveyFlagsInfo=null;
-    GeneralInformation generalInformation=null;
+    private SurveyInfo surveyInfo=null;
+    private SurveyFlagsInfo surveyFlagsInfo=null;
+    private GeneralInformation generalInformation=null;
     
     // One set of historical data
-    List totalRegisters=null; // of type TotalRegister
-    List cumulativeMaximumDemand_Qs=null; // of type CumulativeMaximumDemand
-    List cumulativeMaximumDemand_ds=null; // of type CumulativeMaximumDemand
-    List maximumDemand_ms=null; // of type MaximumDemand
-    List maximumDemand_qs=null; // of type MaximumDemand
-    List rateRegisters=null; // of type RateRegister
+    private List totalRegisters=null; // of type TotalRegister
+    private List cumulativeMaximumDemand_Qs=null; // of type CumulativeMaximumDemand
+    private List cumulativeMaximumDemand_ds=null; // of type CumulativeMaximumDemand
+    private List maximumDemand_ms=null; // of type MaximumDemand
+    private List maximumDemand_qs=null; // of type MaximumDemand
+    private List rateRegisters=null; // of type RateRegister
     //List billingPoints=null; // of type BillingPoint
     
     
-    List timeDateMDs=null; // of type TimeDateMD 
+    private List timeDateMDs=null; // of type TimeDateMD 
     //TimeDateMD timeDateMD=null;
-    AdditionalInformation additionalInformation=null;
-    CommissioningInformation commissioningInformation=null;
-    EnergyTypeList energyTypeList=null;
-    Seeds seeds=null;
-    Counters counters=null; 
-    BillingPoint billingPoint=null;
+    private AdditionalInformation additionalInformation=null;
+    private CommissioningInformation commissioningInformation=null;
+    private EnergyTypeList energyTypeList=null;
+    private Seeds seeds=null;
+    private Counters counters=null; 
+    private BillingPoint billingPoint=null;
     
     // Many sets of historical data
-    List billingPointIdentifiers = null; // of type BillingPointIdentifier
-    List channelDefinitionRegisters = null; // of type ChannelDefinitionRegister
-    List rateRegisterValues = null; // of type RateRegisterValue
-    List maximumDemandRegisters = null; // of type MaximumDemandRegister
-    List cumulativeMaximumDemandRegisters = null; // of type CumulativeMaximumDemandRegister
-    List demandScalings = null; // of type DemandScaling
-    List tariffNameFlags = null; // of type TariffNameFlag
+    private List billingPointIdentifiers = null; // of type BillingPointIdentifier
+    private List channelDefinitionRegisters = null; // of type ChannelDefinitionRegister
+    private List rateRegisterValues = null; // of type RateRegisterValue
+    private List maximumDemandRegisters = null; // of type MaximumDemandRegister
+    private List cumulativeMaximumDemandRegisters = null; // of type CumulativeMaximumDemandRegister
+    private List demandScalings = null; // of type DemandScaling
+    private List tariffNameFlags = null; // of type TariffNameFlag
     
-    boolean registersRead=false;
+    private boolean registersRead=false;
     
-    TariffNameFlag tariffNameFlag=null;
+    private TariffNameFlag tariffNameFlag=null;
     
-    String serialId=null;
-    String clemProgramName=null;
-    String currentTariffName=null;
+    private String serialId=null;
+    private String clemProgramName=null;
+    private String currentTariffName=null;
     
-    byte[] data;
-    byte[] loadSurveyData;
-    int dataPtr=0;
-    ProtocolLink protocolLink;
+    private byte[] data;
+    private byte[] loadSurveyData;
+    private int dataPtr=0;
+    private ProtocolLink protocolLink;
     
     
     /** Creates a new instance of MeterReadingBlocks */
@@ -86,7 +87,9 @@ public class MeterReadingsInterpreter {
     
     /** Creates a new instance of MeterReadingBlocks */
     public MeterReadingsInterpreter(byte[] data, int dataPtr,ProtocolLink protocolLink) {
-        this.data=data;
+    	if(data != null){
+    		this.data=data.clone();
+    	}
         this.dataPtr=dataPtr;
         this.protocolLink=protocolLink;
     }
@@ -106,12 +109,15 @@ public class MeterReadingsInterpreter {
     private TimeZone getMeterTypeDependentTimeZone() {
         if (protocolLink.getRegisterTimeZone() == null) {
             if (isCode5SeriesCLEM()) {
-                if (protocolLink.getTimeZone().getRawOffset() == 0)
-                    return TimeZone.getTimeZone("WET");
-                if (protocolLink.getTimeZone().getRawOffset() == 3600000)
-                    return TimeZone.getTimeZone("ECT");
-                if (protocolLink.getTimeZone().getRawOffset() == 7200000)
-                    return TimeZone.getTimeZone("EET");
+                if (protocolLink.getTimeZone().getRawOffset() == 0) {
+					return TimeZone.getTimeZone("WET");
+				}
+                if (protocolLink.getTimeZone().getRawOffset() == 3600000) {
+					return TimeZone.getTimeZone("ECT");
+				}
+                if (protocolLink.getTimeZone().getRawOffset() == 7200000) {
+					return TimeZone.getTimeZone("EET");
+				}
             }
             return protocolLink.getTimeZone();
         }
@@ -125,19 +131,23 @@ public class MeterReadingsInterpreter {
     }
     
     private List getMaximumDemands() {
-        if (getMaximumDemand_ms() != null)
-            return getMaximumDemand_ms();
-        else if (getMaximumDemand_qs() != null)
-            return getMaximumDemand_qs();
-        else return null;
+        if (getMaximumDemand_ms() != null) {
+			return getMaximumDemand_ms();
+		} else if (getMaximumDemand_qs() != null) {
+			return getMaximumDemand_qs();
+		} else {
+			return null;
+		}
     }
     
     private List getCumulativeMaximumDemands() {
-        if (getCumulativeMaximumDemand_Qs() != null)
-            return getCumulativeMaximumDemand_Qs();
-        else if (getCumulativeMaximumDemand_ds() != null)
-            return getCumulativeMaximumDemand_ds();
-        else return null;                                
+        if (getCumulativeMaximumDemand_Qs() != null) {
+			return getCumulativeMaximumDemand_Qs();
+		} else if (getCumulativeMaximumDemand_ds() != null) {
+			return getCumulativeMaximumDemand_ds();
+		} else {
+			return null;
+		}                                
     }
     
     public String getObisCodeDescriptions() {
@@ -169,18 +179,20 @@ public class MeterReadingsInterpreter {
     
      
     private String getMultipleSetObisCodeDescriptions() {
-        if (!registersRead)
-            return "No registers available for reading!\n";
+        if (!registersRead) {
+			return "No registers available for reading!\n";
+		}
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("Total registers (Multiple Set):\n");
         Iterator it = getChannelDefinitionRegisters().iterator();
         while(it.hasNext()) {
             ChannelDefinitionRegister chdr = (ChannelDefinitionRegister)it.next();
             int obisCCode = EnergyTypeCode.getObisCCode(chdr.getEType());
-            if (chdr.getBpIndex() == 0)
-                strBuff.append("1.1."+Integer.toString(obisCCode)+".8.0.255 (current value) "+EnergyTypeCode.getCompountInfoFromObisC(obisCCode,true)+"\n");
-            else
-                strBuff.append("1.1."+Integer.toString(obisCCode)+".8.0."+(chdr.getBpIndex()-1)+" (billing value "+chdr.getBpIndex()+") "+EnergyTypeCode.getCompountInfoFromObisC(obisCCode,true)+"\n");
+            if (chdr.getBpIndex() == 0) {
+				strBuff.append("1.1."+Integer.toString(obisCCode)+".8.0.255 (current value) "+EnergyTypeCode.getCompountInfoFromObisC(obisCCode,true)+"\n");
+			} else {
+				strBuff.append("1.1."+Integer.toString(obisCCode)+".8.0."+(chdr.getBpIndex()-1)+" (billing value "+chdr.getBpIndex()+") "+EnergyTypeCode.getCompountInfoFromObisC(obisCCode,true)+"\n");
+			}
         }
         strBuff.append("Rate registers:\n");
         if (getRateRegisterValues() != null) {
@@ -367,41 +379,55 @@ public class MeterReadingsInterpreter {
                 
                 //************************* General information **************************
                 case 'F': {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Flags and survey information");
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Flags and survey information");
+					}
                     setSurveyFlagsInfo(new SurveyFlagsInfo(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
                 } break; // F, Flags and survey information 
                 
                 case 'H': {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> General purpose counters");
-                    if (counters == null)
-                        setCounters(new Counters(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7),protocolLink.getTimeZone()));
-                    else {
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> General purpose counters");
+					}
+                    if (counters == null) {
+						setCounters(new Counters(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7),protocolLink.getTimeZone()));
+					} else {
                         getCounters().setData(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7));
                     }
                 } break; // H, General purpose counters
                 
                 case 'S': {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Seeds");
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Seeds");
+					}
                     setSeeds(new Seeds(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
                 } break; // S, Seeds
 
                 case 'i': {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> General information");
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> General information");
+					}
                     setGeneralInformation(new GeneralInformation(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
                 } break; // i, General information
                 
                 case 's': {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Survey information");
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Survey information");
+					}
                     setSurveyInfo(new SurveyInfo(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
                 } break; // s, Survey information
                 
                 case 't': {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Current tariff name");
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Current tariff name");
+					}
                     setCurrentTariffName(new String(ProtocolUtils.getSubArray(data,dataPtr+1,dataPtr+7)));
                 } break; // t, Current tariff name
                 
                 case '#': {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Authenticator (end block)");
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Authenticator (end block)");
+					}
                     endMarker=true;
                     byte[] authent = ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7);
                     try {
@@ -418,136 +444,204 @@ public class MeterReadingsInterpreter {
 
                 //************************* One set of history data **************************
                 case 'I': {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Additional flags information");
-                    if (additionalInformation == null)
-                        setAdditionalInformation(new AdditionalInformation(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
-                    else {
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Additional flags information");
+					}
+                    if (additionalInformation == null) {
+						setAdditionalInformation(new AdditionalInformation(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
+					} else {
                         getAdditionalInformation().setData(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7));
                     }
                 } break; // I, Additional flags information 
 
                 case 'J': {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Energy type list");
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Energy type list");
+					}
                     setEnergyTypeList(new EnergyTypeList(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
                     
                 } break; // J, Energy type list  
                 
                 case 'K': {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Comissioning information");
-                    if (commissioningInformation == null)
-                        setCommissioningInformation(new CommissioningInformation(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
-                    else {
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Comissioning information");
+					}
+                    if (commissioningInformation == null) {
+						setCommissioningInformation(new CommissioningInformation(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
+					} else {
                         getCommissioningInformation().setData(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7));
                     }
                 } break; // K, Comissioning information
                 
                 case 'Q': {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Cumulative maximum demand register");
-                    if (cumulativeMaximumDemand_Qs == null) cumulativeMaximumDemand_Qs = new ArrayList();
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Cumulative maximum demand register");
+					}
+                    if (cumulativeMaximumDemand_Qs == null) {
+						cumulativeMaximumDemand_Qs = new ArrayList();
+					}
                     cumulativeMaximumDemand_Qs.add(new CumulativeMaximumDemand(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
                     registersRead=true;
                     
                 } break; // Q, Cumulative maximum demand register
                 
                 case 'T': {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Total (unit) register");
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Total (unit) register");
+					}
                     //setTotalRegister(new TotalRegister(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
-                    if (totalRegisters == null) totalRegisters = new ArrayList();
+                    if (totalRegisters == null) {
+						totalRegisters = new ArrayList();
+					}
                     totalRegisters.add(new TotalRegister(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
                     registersRead=true;
                     
                 } break; // T, Total (unit) register
                 
                 case 'c': {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Rate register");
-                    if (rateRegisters == null) rateRegisters = new ArrayList();
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Rate register");
+					}
+                    if (rateRegisters == null) {
+						rateRegisters = new ArrayList();
+					}
                     rateRegisters.add(new RateRegister(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
                     registersRead=true;
                     
                 } break; // c, Rate register
                 
                 case 'd': {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Cumulative MD register");
-                    if (cumulativeMaximumDemand_ds == null) cumulativeMaximumDemand_ds = new ArrayList();
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Cumulative MD register");
+					}
+                    if (cumulativeMaximumDemand_ds == null) {
+						cumulativeMaximumDemand_ds = new ArrayList();
+					}
                     cumulativeMaximumDemand_ds.add(new CumulativeMaximumDemand(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
                     registersRead=true;
                 } break; // d, Cumulative MD register
                 
                 case 'h': {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Time and date of MD");
-                    if (timeDateMDs == null) timeDateMDs = new ArrayList();
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Time and date of MD");
+					}
+                    if (timeDateMDs == null) {
+						timeDateMDs = new ArrayList();
+					}
                     timeDateMDs.add(new TimeDateMD(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7),getMeterTypeDependentTimeZone()));
                 } break; // h, Time and date of MD
                 
                 case 'm': {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Maximum demand register (m)");
-                    if (maximumDemand_ms == null) maximumDemand_ms = new ArrayList();
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Maximum demand register (m)");
+					}
+                    if (maximumDemand_ms == null) {
+						maximumDemand_ms = new ArrayList();
+					}
                     maximumDemand_ms.add(new MaximumDemand(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7),'m'));
                     registersRead=true;
                     
                 } break; // m, Maximum demand register 
                 
                 case 'o': {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Old tariff name");
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Old tariff name");
+					}
                 } break; // o, Old tariff name
                 
                 case 'p': {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Billing point and billing kWh register");
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Billing point and billing kWh register");
+					}
                     setBillingPoint(new BillingPoint(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7),protocolLink.getTimeZone()));
                 } break; // p, Billing point and billing kWh register
                 
                 case 'q': {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Maximum demand register (q)");
-                    if (maximumDemand_qs == null) maximumDemand_qs = new ArrayList();
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Maximum demand register (q)");
+					}
+                    if (maximumDemand_qs == null) {
+						maximumDemand_qs = new ArrayList();
+					}
                     maximumDemand_qs.add(new MaximumDemand(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7),'q'));
                     registersRead=true;
                 } break; // q, Maximum demand register (q)
                 
                 //************************* Many sets of history data **************************
                 case (byte)0x80: {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Billing point identifier");
-                    if (billingPointIdentifiers == null) billingPointIdentifiers = new ArrayList();
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Billing point identifier");
+					}
+                    if (billingPointIdentifiers == null) {
+						billingPointIdentifiers = new ArrayList();
+					}
                     billingPointIdentifiers.add(new BillingPointIdentifier(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7),protocolLink.getTimeZone()));
                 } break; // 0x80, Billing point identifier 
                 
                 case (byte)0x81: {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Channel definition and register value");
-                    if (channelDefinitionRegisters == null) channelDefinitionRegisters = new ArrayList();
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Channel definition and register value");
+					}
+                    if (channelDefinitionRegisters == null) {
+						channelDefinitionRegisters = new ArrayList();
+					}
                     channelDefinitionRegisters.add(new ChannelDefinitionRegister(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
                     registersRead=true;
                 } break; // 0x81, Channel definition and register value 
                 
                 case (byte)0x82: {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Rate register");
-                    if (rateRegisterValues == null) rateRegisterValues = new ArrayList();
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Rate register");
+					}
+                    if (rateRegisterValues == null) {
+						rateRegisterValues = new ArrayList();
+					}
                     rateRegisterValues.add(new RateRegisterValue(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
                     registersRead=true;
                 } break; // 0x82, Rate register 
                 
                 case (byte)0x83: {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Maximum demand register");
-                    if (maximumDemandRegisters == null) maximumDemandRegisters = new ArrayList();
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Maximum demand register");
+					}
+                    if (maximumDemandRegisters == null) {
+						maximumDemandRegisters = new ArrayList();
+					}
                     maximumDemandRegisters.add(new MaximumDemandRegister(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7),getMeterTypeDependentTimeZone()));
                     registersRead=true;
                 } break; // 0x83, Maximum demand register
                 
                 case (byte)0x84: {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Cumulative MD register");
-                    if (cumulativeMaximumDemandRegisters == null) cumulativeMaximumDemandRegisters = new ArrayList();
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Cumulative MD register");
+					}
+                    if (cumulativeMaximumDemandRegisters == null) {
+						cumulativeMaximumDemandRegisters = new ArrayList();
+					}
                     cumulativeMaximumDemandRegisters.add(new CumulativeMaximumDemandRegister(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
                     registersRead=true;
                 } break; // 0x84, Cumulative MD register
                 
                 case (byte)0x85: {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Demand scaling");
-                    if (demandScalings == null) demandScalings = new ArrayList();
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Demand scaling");
+					}
+                    if (demandScalings == null) {
+						demandScalings = new ArrayList();
+					}
                     demandScalings.add(new DemandScaling(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7))); 
                 } break; // 0x85, Demand scaling
                 
                 case (byte)0x86: {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Tariff name");
-                    if (tariffNameFlags == null) tariffNameFlags = new ArrayList();
-                    if (tariffNameFlag == null) tariffNameFlag = new TariffNameFlag();
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Tariff name");
+					}
+                    if (tariffNameFlags == null) {
+						tariffNameFlags = new ArrayList();
+					}
+                    if (tariffNameFlag == null) {
+						tariffNameFlag = new TariffNameFlag();
+					}
                     tariffNameFlag.parse86(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7));
                     if (tariffNameFlag.is86Set() && tariffNameFlag.is87Set()) {
                         tariffNameFlags.add(tariffNameFlag);
@@ -556,9 +650,15 @@ public class MeterReadingsInterpreter {
                 } break; // 0x86, Tariff name
                 
                 case (byte)0x87: {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Tariff name and flags");
-                    if (tariffNameFlags == null) tariffNameFlags = new ArrayList();
-                    if (tariffNameFlag == null) tariffNameFlag = new TariffNameFlag();
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Tariff name and flags");
+					}
+                    if (tariffNameFlags == null) {
+						tariffNameFlags = new ArrayList();
+					}
+                    if (tariffNameFlag == null) {
+						tariffNameFlag = new TariffNameFlag();
+					}
                     tariffNameFlag.parse87(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7));
                     if (tariffNameFlag.is86Set() && tariffNameFlag.is87Set()) {
                         tariffNameFlags.add(tariffNameFlag);
@@ -567,31 +667,45 @@ public class MeterReadingsInterpreter {
                 } break; // 0x87, Tariff name and flags
                 
                 case (byte)0x88: {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Download tariff transaction seed");
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Download tariff transaction seed");
+					}
                 } break; // 0x88, Download tariff transaction seed
                 
                 case (byte)0x89: {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Multi-level maximum demands");
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Multi-level maximum demands");
+					}
                 } break; // 0x89, Multi-level maximum demands
                 
                 case (byte)0x8A: {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Time on and off power");
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Time on and off power");
+					}
                 } break; // 0x8A, Time on and off power
                 
                 case (byte)0x8C: {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Register snapshot block");
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Register snapshot block");
+					}
                 } break; // 0x8C, Register snapshot block
                 
                 case (byte)0x8D: {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Miscellaneous channel data");
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Miscellaneous channel data");
+					}
                 } break; // 0x8D, Miscellaneous channel data
                 
                 case (byte)0x8E: {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> Miscellaneous non-channel data");
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> Miscellaneous non-channel data");
+					}
                 } break; // 0x8E, Miscellaneous non-channel data
                 
                 default: {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> !!! unknown block identifier 0x"+Integer.toHexString(ProtocolUtils.byte2int(data[dataPtr])));
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> !!! unknown block identifier 0x"+Integer.toHexString(ProtocolUtils.byte2int(data[dataPtr])));
+					}
                 } break; // default
             } // switch (data[dataPtr])
             
@@ -601,36 +715,46 @@ public class MeterReadingsInterpreter {
     } // private void parseNextBlocks()
    
     public RegisterValue getValue(ObisCode obisCode) throws IOException {
-        if (!registersRead) throw new IOException("MeterReadingsInterpreter, getValue, No registers to read!");
+        if (!registersRead) {
+			throw new IOException("MeterReadingsInterpreter, getValue, No registers to read!");
+		}
         MeterReadingProcessor mrp = new MeterReadingProcessor(this, new MeterReadingIdentifier(obisCode));
         return mrp.getValue();
     }
     
     public Quantity getValue(MeterReadingIdentifier mrid) throws IOException {
-        if (!registersRead) throw new IOException("MeterReadingsInterpreter, getValue, No registers to read!");
+        if (!registersRead) {
+			throw new IOException("MeterReadingsInterpreter, getValue, No registers to read!");
+		}
         MeterReadingProcessor mrp = new MeterReadingProcessor(this, mrid);
         return mrp.getValue().getQuantity();
     }
     
     public Quantity getValue(int channelNumber) throws IOException {
-        if (!registersRead) throw new IOException("MeterReadingsInterpreter, getValue, No registers to read!");
+        if (!registersRead) {
+			throw new IOException("MeterReadingsInterpreter, getValue, No registers to read!");
+		}
         MeterReadingProcessor mrp = new MeterReadingProcessor(this, new MeterReadingIdentifier(channelNumber));
         return mrp.getValue().getQuantity();
     }
     
     public Quantity getValueEType(int eType) throws IOException {
-        if (!registersRead) throw new IOException("MeterReadingsInterpreter, getValue, No registers to read!");
-        if (EnergyTypeCode.isStatusFlagsChannel(eType))
-            return new Quantity("0",Unit.get(255));
+        if (!registersRead) {
+			throw new IOException("MeterReadingsInterpreter, getValue, No registers to read!");
+		}
+        if (EnergyTypeCode.isStatusFlagsChannel(eType)) {
+			return new Quantity("0",Unit.get(255));
+		}
         MeterReadingProcessor mrp = new MeterReadingProcessor(this, new MeterReadingIdentifier(eType,true));
         return mrp.getValue().getQuantity();
     }
     
     public int getNrOfReadingChannels() {
-        if (getTotalRegisters()!= null)
-            return getTotalRegisters().size();
-        else
-            return getChannelDefinitionRegisters().size();
+        if (getTotalRegisters()!= null) {
+			return getTotalRegisters().size();
+		} else {
+			return getChannelDefinitionRegisters().size();
+		}
     }
     
     /** Getter for property surveyInfo.
@@ -730,16 +854,21 @@ public class MeterReadingsInterpreter {
     }
 
     public LoadSurveyInterpreter getLoadSurveyInterpreter() {
-        if (getSurveyFlagsInfo().isAbsoluteSurvey())
-            return new AbsoluteSurvey(this,protocolLink.getTimeZone());
-        if (getSurveyFlagsInfo().isDiscreteSurvey())
-            return new DiscreteSurvey(this,protocolLink.getTimeZone());
-        if (getSurveyFlagsInfo().isBinarySurvey())
-            return new BinarySurvey(this,protocolLink.getTimeZone());
-        if (getSurveyFlagsInfo().isAsciiSurvey())
-            return new AsciiSurvey(this,protocolLink.getTimeZone());
-        if (getSurveyFlagsInfo().isLinkSurvey())
-            return new LinkSurvey(this,protocolLink.getTimeZone());
+        if (getSurveyFlagsInfo().isAbsoluteSurvey()) {
+			return new AbsoluteSurvey(this,protocolLink.getTimeZone());
+		}
+        if (getSurveyFlagsInfo().isDiscreteSurvey()) {
+			return new DiscreteSurvey(this,protocolLink.getTimeZone());
+		}
+        if (getSurveyFlagsInfo().isBinarySurvey()) {
+			return new BinarySurvey(this,protocolLink.getTimeZone());
+		}
+        if (getSurveyFlagsInfo().isAsciiSurvey()) {
+			return new AsciiSurvey(this,protocolLink.getTimeZone());
+		}
+        if (getSurveyFlagsInfo().isLinkSurvey()) {
+			return new LinkSurvey(this,protocolLink.getTimeZone());
+		}
         return null;
     }
     

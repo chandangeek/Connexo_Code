@@ -6,24 +6,25 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.*;
-import java.util.*;
+import java.util.Date;
+import java.util.TimeZone;
+
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.pact.core.common.*;
+import com.energyict.protocolimpl.pact.core.common.PactUtils;
 /**
  *
  * @author  Koen
  */
 public class MaximumDemandRegister extends MeterReadingsBlockImpl {
     
-    int channelId;
-    int bpIndex;
-    int channelNumber;
-    int tReg;
-    int triggerChannel;
-    int registerNumber;
-    int registerValue;
-    Date dateTime;
+	private int channelId;
+	private int bpIndex;
+	private int channelNumber;
+	private int tReg;
+	private int triggerChannel;
+	private int registerNumber;
+	private int registerValue;
+	private Date dateTime;
     
     /** Creates a new instance of MaximumDemandRegister */
     public MaximumDemandRegister(byte[] data, TimeZone timeZone) {

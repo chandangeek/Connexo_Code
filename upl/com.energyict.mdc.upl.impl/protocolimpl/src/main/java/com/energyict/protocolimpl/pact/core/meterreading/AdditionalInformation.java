@@ -6,7 +6,6 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.*;
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -14,12 +13,12 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class AdditionalInformation extends MeterReadingsBlockImpl {
     
-    int mdDivisor;
-    int cmdDivisor; 
-    int tariffFlags;
-    int oldTariffFlags;
+	private int mdDivisor;
+	private int cmdDivisor; 
+	private int tariffFlags;
+	private int oldTariffFlags;
     
-    int mask;
+	private int mask;
     
     /** Creates a new instance of AdditionalInformation */
     public AdditionalInformation(byte[] data) {
@@ -52,7 +51,9 @@ public class AdditionalInformation extends MeterReadingsBlockImpl {
            pre=true;
         }
         if ((mask & 0x0001) == 0x0001) {
-           if (pre) strBuff.append(", ");
+           if (pre) {
+			strBuff.append(", ");
+		}
            strBuff.append("TARIFFFLAGS="+getTariffFlags()+", OLDTARFLAGS="+getOldTariffFlags()); 
         }
         return strBuff.toString();

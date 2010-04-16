@@ -6,10 +6,11 @@
 
 package com.energyict.protocolimpl.pact.core.log;
 
-import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.MeterEvent;
 
 /**
  *
@@ -17,9 +18,9 @@ import com.energyict.protocol.*;
  */
 public class LogMessage {
     
-    static private int DEBUG=0;
+    private static int DEBUG=0;
     
-    static List list = new ArrayList();
+    private static List list = new ArrayList();
     static {
         list.add(new LogMessage(254, "Not an event", -1, -1, "", -1));
         list.add(new LogMessage(1, "NVM failure", 1, -1, "On an E200 meter: MS byte of NF", MeterEvent.ROM_MEMORY_ERROR));
@@ -120,12 +121,12 @@ public class LogMessage {
         list.add(new LogMessage(31, "Non zero current sum", 2, 0x80, "End", MeterEvent.METER_ALARM));
     }
     
-    int mainCode;
-    String description;
-    int logId;
-    int subCode;
-    String MeaningOfSubcode;
-    int eiMeterEventCode;
+    private int mainCode;
+    private String description;
+    private int logId;
+    private int subCode;
+    private String MeaningOfSubcode;
+    private int eiMeterEventCode;
     
     /** Creates a new instance of LogEvent */
     private LogMessage(int mainCode, String description, int logId, int subCode, String MeaningOfSubcode, int eiMeterEventCode) {
@@ -137,9 +138,11 @@ public class LogMessage {
         this.eiMeterEventCode=eiMeterEventCode;
     }
     
-    static public MeterEvent getMeterEvent(LogHeader lh, LogEvent le) {
+    public static MeterEvent getMeterEvent(LogHeader lh, LogEvent le) {
         if (le.getMain() == 0xFE) {
-            if (DEBUG>=1) System.out.println("KV_DEBUG> No MeterEvent");   
+            if (DEBUG>=1) {
+				System.out.println("KV_DEBUG> No MeterEvent");
+			}   
             return null;
         }
         else {
@@ -149,11 +152,14 @@ public class LogMessage {
                 if ((lm.getLogId() == lh.getLogId()) &&
                 (lm.getSubCode() == le.getSub()) &&
                 (lm.getMainCode() == le.getMain())) {
-                    if (DEBUG>=1)System.out.println("KV_DEBUG> MeterEvent "+lm.getDescription()+", "+lm.getMeaningOfSubcode());   
-                    if (le.getFutureDate() != null)
-                        return new MeterEvent(le.getDate(),lm.getEiMeterEventCode(),lm.getDescription()+", "+lm.getMeaningOfSubcode()+", "+le.getMore()+", future event at "+le.getFutureDate());
-                    else
-                        return new MeterEvent(le.getDate(),lm.getEiMeterEventCode(),lm.getDescription()+", "+lm.getMeaningOfSubcode()+", "+le.getMore());
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> MeterEvent "+lm.getDescription()+", "+lm.getMeaningOfSubcode());
+					}   
+                    if (le.getFutureDate() != null) {
+						return new MeterEvent(le.getDate(),lm.getEiMeterEventCode(),lm.getDescription()+", "+lm.getMeaningOfSubcode()+", "+le.getMore()+", future event at "+le.getFutureDate());
+					} else {
+						return new MeterEvent(le.getDate(),lm.getEiMeterEventCode(),lm.getDescription()+", "+lm.getMeaningOfSubcode()+", "+le.getMore());
+					}
                 }
             }
         }
