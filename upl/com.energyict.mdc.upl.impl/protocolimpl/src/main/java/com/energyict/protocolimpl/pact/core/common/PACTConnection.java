@@ -26,7 +26,7 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class PACTConnection extends Connection {
 
-	public final int DEBUG = 1;
+	public final int DEBUG = 0;
 
 	private int maxRetries;
 	private long forceDelay;

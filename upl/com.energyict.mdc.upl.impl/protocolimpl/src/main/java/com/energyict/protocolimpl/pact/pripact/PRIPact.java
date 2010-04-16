@@ -63,7 +63,7 @@ import com.energyict.protocolimpl.pact.core.meterreading.MeterReadingIdentifier;
  */
 public class PRIPact implements MeterProtocol, ProtocolLink, RegisterProtocol {
 
-	private int DEBUG = 2;
+	private int DEBUG = 0;
 
 	private TimeZone timeZone;
 	private TimeZone registerTimeZone;
