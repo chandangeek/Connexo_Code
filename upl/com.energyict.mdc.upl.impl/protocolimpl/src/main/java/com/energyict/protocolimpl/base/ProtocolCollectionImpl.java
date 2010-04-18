@@ -36,6 +36,7 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
 		//        protocolclasses.add("com.energyict.protocolimpl.sdksample.SDKSampleProtocol");protocolnames.add("SDK Sample Protocol");
 
 		// EIServer
+		
 		this.protocolclasses.add("com.energyict.protocolimpl.metcom.Metcom3");this.protocolnames.add("SCTM L&G Metcom3 datalogger");
 		this.protocolclasses.add("com.energyict.protocolimpl.metcom.Metcom2");this.protocolnames.add("SCTM L&G Metcom2 datalogger");
 		this.protocolclasses.add("com.energyict.protocolimpl.rtuplusbus.rtuplusbus");this.protocolnames.add("RTU+ bus EnergyICT V4");
@@ -148,6 +149,8 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
 		this.protocolclasses.add("com.energyict.protocolimpl.modbus.socomec.countis.ci.Ci");this.protocolnames.add("Socomec Countis Ci meter Modbus");
 		this.protocolclasses.add("com.energyict.protocolimpl.dlms.as220.GasDevice");this.protocolnames.add("Elster AS220 Gas meter slave");
 		this.protocolclasses.add("com.energyict.protocolimpl.iec1107.instromet.dl220.DL220");this.protocolnames.add("Elster DL220");
+		this.protocolclasses.add("com.energyict.protocolimpl.eig.nexus1272.Nexus1272");this.protocolnames.add("Nexus 1272");
+		this.protocolclasses.add("com.energyict.protocolimpl.landisgyr.us.maxsys2510.MaxSys");this.protocolnames.add("L&G MAXsys 2510 (US)");
 	}
 
 	public String getProtocolName(int index) throws IOException {
