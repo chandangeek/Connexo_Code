@@ -277,61 +277,69 @@ public class Nexus1272 extends AbstractProtocol  {
 	}
 
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
-//		authenticate();
-//		RegisterValue rv;
-//		rv = readRegister(new ObisCode(1,1,1,8,1,255));
-//		rv = readRegister(new ObisCode(1,1,2,8,1,255));
-//		rv = readRegister(new ObisCode(1,1,1,8,2,255));
-//		rv = readRegister(new ObisCode(1,1,2,8,2,255));
-//		rv = readRegister(new ObisCode(1,1,1,8,3,255));
-//		rv = readRegister(new ObisCode(1,1,2,8,3,255));
-//		rv = readRegister(new ObisCode(1,1,1,8,0,255));
-//		rv = readRegister(new ObisCode(1,1,2,8,0,255));
-//		rv = readRegister(new ObisCode(1,1,3,8,1,255));
-//		rv = readRegister(new ObisCode(1,1,4,8,1,255));
-//		rv = readRegister(new ObisCode(1,1,3,8,2,255));
-//		rv = readRegister(new ObisCode(1,1,4,8,2,255));
-//		rv = readRegister(new ObisCode(1,1,3,8,3,255));
-//		rv = readRegister(new ObisCode(1,1,4,8,3,255));
-//		rv = readRegister(new ObisCode(1,1,1,2,1,255));
-//		rv = readRegister(new ObisCode(1,1,2,2,1,255));
-//		rv = readRegister(new ObisCode(1,1,1,2,2,255));
-//		rv = readRegister(new ObisCode(1,1,2,2,2,255));
-//		rv = readRegister(new ObisCode(1,1,1,2,3,255));
-//		rv = readRegister(new ObisCode(1,1,2,2,3,255));
-//		rv = readRegister(new ObisCode(1,1,1,6,1,255));
-//		rv = readRegister(new ObisCode(1,1,2,6,1,255));
-//		rv = readRegister(new ObisCode(1,1,1,6,2,255));
-//		rv = readRegister(new ObisCode(1,1,2,6,2,255));
-//		rv = readRegister(new ObisCode(1,1,1,6,3,255));
-//		rv = readRegister(new ObisCode(1,1,2,6,3,255));
-//		rv = readRegister(new ObisCode(1,1,13,4,0,255));
-//		rv = readRegister(new ObisCode(1,1,32,7,124,255));
-//		rv = readRegister(new ObisCode(1,1,52,7,124,255));
-//		rv = readRegister(new ObisCode(1,1,72,7,124,255));
-//		rv = readRegister(new ObisCode(1,1,31,7,124,255));
-//		rv = readRegister(new ObisCode(1,1,51,7,124,255));
-//		rv = readRegister(new ObisCode(1,1,71,7,124,255));
-//		rv = readRegister(new ObisCode(1,1,83,8,50,255));
-//		rv = readRegister(new ObisCode(1,1,83,8,70,255));
-//		rv = readRegister(new ObisCode(1,1,83,8,90,255));
-//		rv = readRegister(new ObisCode(1,1,83,8,49,255));
-//		rv = readRegister(new ObisCode(1,1,83,8,69,255));
-//		rv = readRegister(new ObisCode(1,1,83,8,89,255));
-//		rv = readRegister(new ObisCode(1,1,32,7,0,255));
-//		rv = readRegister(new ObisCode(1,1,52,7,0,255));
-//		rv = readRegister(new ObisCode(1,1,72,7,0,255));
-//		rv = readRegister(new ObisCode(1,1,81,7,10,255));
-//		rv = readRegister(new ObisCode(1,1,81,7,21,255));
-//		rv = readRegister(new ObisCode(1,1,81,7,2,255));
-//		rv = readRegister(new ObisCode(1,1,31,7,0,255));
-//		rv = readRegister(new ObisCode(1,1,51,7,0,255));
-//		rv = readRegister(new ObisCode(1,1,71,7,0,255));
-//		rv = readRegister(new ObisCode(1,1,81,7,4,255));
-//		rv = readRegister(new ObisCode(1,1,81,7,15,255));
-//		rv = readRegister(new ObisCode(1,1,81,7,26,255));
-
 		
+		for (int i = 0; i<5; i++) {
+		authenticate();
+		RegisterValue rv;
+		rv = readRegister(new ObisCode(1,1,1,8,1,255));
+		rv = readRegister(new ObisCode(1,1,2,8,1,255));
+		rv = readRegister(new ObisCode(1,1,1,8,2,255));
+		rv = readRegister(new ObisCode(1,1,2,8,2,255));
+		rv = readRegister(new ObisCode(1,1,1,8,3,255));
+		rv = readRegister(new ObisCode(1,1,2,8,3,255));
+		rv = readRegister(new ObisCode(1,1,1,8,0,255));
+		rv = readRegister(new ObisCode(1,1,2,8,0,255));
+		rv = readRegister(new ObisCode(1,1,3,8,1,255));
+		rv = readRegister(new ObisCode(1,1,4,8,1,255));
+		rv = readRegister(new ObisCode(1,1,3,8,2,255));
+		rv = readRegister(new ObisCode(1,1,4,8,2,255));
+		rv = readRegister(new ObisCode(1,1,3,8,3,255));
+		rv = readRegister(new ObisCode(1,1,4,8,3,255));
+		rv = readRegister(new ObisCode(1,1,1,2,1,255));
+		rv = readRegister(new ObisCode(1,1,2,2,1,255));
+		rv = readRegister(new ObisCode(1,1,1,2,2,255));
+		rv = readRegister(new ObisCode(1,1,2,2,2,255));
+		rv = readRegister(new ObisCode(1,1,1,2,3,255));
+		rv = readRegister(new ObisCode(1,1,2,2,3,255));
+		rv = readRegister(new ObisCode(1,1,1,6,1,255));
+		rv = readRegister(new ObisCode(1,1,2,6,1,255));
+		rv = readRegister(new ObisCode(1,1,1,6,2,255));
+		rv = readRegister(new ObisCode(1,1,2,6,2,255));
+		rv = readRegister(new ObisCode(1,1,1,6,3,255));
+		rv = readRegister(new ObisCode(1,1,2,6,3,255));
+		rv = readRegister(new ObisCode(1,1,13,4,0,255));
+		rv = readRegister(new ObisCode(1,1,32,7,124,255));
+		rv = readRegister(new ObisCode(1,1,52,7,124,255));
+		rv = readRegister(new ObisCode(1,1,72,7,124,255));
+		rv = readRegister(new ObisCode(1,1,31,7,124,255));
+		rv = readRegister(new ObisCode(1,1,51,7,124,255));
+		rv = readRegister(new ObisCode(1,1,71,7,124,255));
+		rv = readRegister(new ObisCode(1,1,83,8,50,255));
+		rv = readRegister(new ObisCode(1,1,83,8,70,255));
+		rv = readRegister(new ObisCode(1,1,83,8,90,255));
+		rv = readRegister(new ObisCode(1,1,83,8,49,255));
+		rv = readRegister(new ObisCode(1,1,83,8,69,255));
+		rv = readRegister(new ObisCode(1,1,83,8,89,255));
+		rv = readRegister(new ObisCode(1,1,32,7,0,255));
+		rv = readRegister(new ObisCode(1,1,52,7,0,255));
+		rv = readRegister(new ObisCode(1,1,72,7,0,255));
+		rv = readRegister(new ObisCode(1,1,81,7,10,255));
+		rv = readRegister(new ObisCode(1,1,81,7,21,255));
+		rv = readRegister(new ObisCode(1,1,81,7,2,255));
+		rv = readRegister(new ObisCode(1,1,31,7,0,255));
+		rv = readRegister(new ObisCode(1,1,51,7,0,255));
+		rv = readRegister(new ObisCode(1,1,71,7,0,255));
+		rv = readRegister(new ObisCode(1,1,81,7,4,255));
+		rv = readRegister(new ObisCode(1,1,81,7,15,255));
+		rv = readRegister(new ObisCode(1,1,81,7,26,255));
+		try {
+			Thread.sleep(60000l);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("\n\n*********************************************************************\n");
+		}
 		if (channelMapping.equals(""))
 			throw new IOException("NexusChannelMapping custom property must be set to read profile data");
 
@@ -421,8 +429,13 @@ public class Nexus1272 extends AbstractProtocol  {
     R e g i s t e r P r o t o c o l  i n t e r f a c e 
     *******************************************************************************************/
    public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-       ObisCodeMapper ocm = new ObisCodeMapper(NexusCommandFactory.getFactory(), connection, outputStream);
-       return ocm.getRegisterValue(obisCode);
+	   if (sesf == null) {
+		   sesf = new ScaledEnergySettingFactory(outputStream, connection);
+	   }
+       ObisCodeMapper ocm = new ObisCodeMapper(NexusCommandFactory.getFactory(), connection, outputStream, sesf);
+       RegisterValue rv = ocm.getRegisterValue(obisCode); 
+       System.out.println(rv);
+       return rv;
    }
    
    public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
@@ -436,15 +449,19 @@ public class Nexus1272 extends AbstractProtocol  {
 		byte[] byteArray = lr.readLog(from);
 		lr.parseLog(byteArray, profileData);
 		List<MeterEvent> meterEvents = ((SystemLogReader)lr).getMeterEvents();
-		profileData.setMeterEvents(meterEvents);
+		
 		//FIXME Read Event registers (low batt, etc)
 		
 		lr = new LimitTriggerLogReader(outputStream, connection);
 		byteArray = lr.readLog(from);
 		lr.parseLog(byteArray, profileData);
-		lr = new LimitSnapshotLogReader(outputStream, connection);
-		byteArray = lr.readLog(from);
-		lr.parseLog(byteArray, profileData);
+		meterEvents.addAll(((LimitTriggerLogReader)lr).getMeterEvents());
+//		lr = new LimitSnapshotLogReader(outputStream, connection);
+//		byteArray = lr.readLog(from);
+//		lr.parseLog(byteArray, profileData);
+		
+		
+		profileData.setMeterEvents(meterEvents);
 	}
 
 	private void buildIntervalData(ProfileData profileData, Date from, Date to) throws IOException {

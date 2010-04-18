@@ -2,16 +2,20 @@ package com.energyict.protocolimpl.eig.nexus1272;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.eig.nexus1272.command.Command;
 import com.energyict.protocolimpl.eig.nexus1272.command.NexusCommandFactory;
 
 public class LimitTriggerLogReader extends AbstractLogReader {
 
 	 
-
+	List <MeterEvent> meterEvents = new ArrayList <MeterEvent>();
 	
 
 	public LimitTriggerLogReader(OutputStream os ,NexusProtocolConnection npc) {
@@ -157,6 +161,7 @@ public class LimitTriggerLogReader extends AbstractLogReader {
 
 
 	private int recSize = 32;
+private Date recDate;
 	@Override
 	public void parseLog(byte[] limitTriggerLogData, ProfileData profileData) throws IOException {
 		int offset = 0;
@@ -180,17 +185,41 @@ public class LimitTriggerLogReader extends AbstractLogReader {
 		//		List <LinePointMap> lpMap = processPointers(ba2);
 		try {
 			while (offset < limitTriggerLogData.length) {
-				Date recDate = parseF3(limitTriggerLogData, offset);
+				//FIXME make sure MSB flag on seconds isn't set
+				recDate = parseF3(limitTriggerLogData, offset);
 //				Date recDate2 = parseF3(limitSnapshotLogData, offset1);
+//				System.out.println(recDate);
 				String event = recDate + "";// + "\t" + recDate2;
 				offset+= length;
-//				System.out.println(event);
-				//			for (LinePointMap lp : lpMap) {
-				//				int val = parseF64(ba, offset);
-				//				offset+=4;
-				//				System.out.println("\t"+ lp.line + "." + lp.point + " - " + lp.getDescription() + "\t" + val);
-				//			}
-
+				
+//				System.out.println("Value 1");
+				//Value 1 bitmap
+				processComparisonBitmap(limitTriggerLogData, offset);
+				offset +=4;
+//				System.out.println("Value 2");
+				//value 2 bitmap
+//				processComparisonBitmap(limitTriggerLogData, offset);
+				offset +=4;
+				
+//				System.out.println("Value 1 delta");
+				//value 1
+//				processDeltaBitmap(limitTriggerLogData, offset);
+				offset +=4;
+//				System.out.println("Value 2 delta");
+				//value 2
+//				processDeltaBitmap(limitTriggerLogData, offset);
+				offset +=4;
+				
+//				System.out.println("combination");
+				//combination
+//				processComparisonBitmap(limitTriggerLogData, offset);
+				offset +=4;
+				
+//				System.out.println("combination delta");
+				//combination
+//				processDeltaBitmap(limitTriggerLogData, offset);
+				offset +=4;
+				
 				recNum++;
 				offset = recNum * recSize;
 			}
@@ -199,6 +228,74 @@ public class LimitTriggerLogReader extends AbstractLogReader {
 		}
 	}
 
+	private void processDeltaBitmap(byte[] limitTriggerLogData, int offset) {
+		//read bakcwards for easier parsing
 	
+		int limitNumber = 32;
+		for (int i=offset+3; i>=offset; i--) {
+			byte value1 = limitTriggerLogData[i];
+			byte value2 = limitTriggerLogData[i+4];
+			byte combination = limitTriggerLogData[i+16];
+			for (int j = 0; j<8; j++) {
+//				System.out.println("BM: " + ProtocolUtils.buildStringHex(ProtocolUtils.byte2int(b), 2));
+				if ((combination & 0x01) == 1) {
+					System.out.println("comparison state changed since last record for limit " + limitNumber );
+				}
+				combination = (byte) (combination >> 1);
+				limitNumber--;
+			}
+		}
+		
+	}
+
+	private void processComparisonBitmap(byte[] limitTriggerLogData, int offset) {
+		//read bakcwards for easier parsing
+		
+		int limitNumber = 32;
+		for (int i=offset+3; i>=offset; i--) {
+			byte value1 = limitTriggerLogData[i];
+			byte value2 = limitTriggerLogData[i+4];
+			byte combination = limitTriggerLogData[i+16];
+			for (int j = 0; j<8; j++) {
+//				System.out.println("BM: " + ProtocolUtils.buildStringHex(ProtocolUtils.byte2int(b), 2));
+				if ((combination & 0x01) == 1) {
+					//here the combination is triggered, so we see which values (1 or 2) are violated
+					//TODO clean up the offset jumping
+					String val1Str = "";
+					String val2Str = "";
+					if ((value1 & 0x01) == 1) {
+						//val 1 triggered
+						val1Str = "[value 1 limit violated]";
+					}
+					if ((value2 & 0x01) == 1) {
+						//val 2 triggered
+						val2Str = "[value 2 limit violated]";
+					}
+					
+					String detail = "";
+					if (!val1Str.equals("") && !val2Str.equals("")) {
+						detail = val1Str + ", " + val2Str;
+					}
+					else if (!val1Str.equals("")) {
+						detail = val1Str;
+					}
+					else if (!val2Str.equals("")) {
+						detail = val2Str;
+					}
+					meterEvents.add(new MeterEvent(recDate, MeterEvent.LIMITER_THRESHOLD_EXCEEDED, "Limit threshold exceeded for limit " + limitNumber + " : " + detail));
+//					System.out.println("limit " + limitNumber + " triggered");
+				}
+				combination = (byte) (combination >> 1);
+				value1 = (byte) (value1 >> 1);
+				value2 = (byte) (value2 >> 1);
+				limitNumber--;
+			}
+		}
+		
+	}
+
+	public List<MeterEvent> getMeterEvents() {
+		return meterEvents;
+	}
 	
 }

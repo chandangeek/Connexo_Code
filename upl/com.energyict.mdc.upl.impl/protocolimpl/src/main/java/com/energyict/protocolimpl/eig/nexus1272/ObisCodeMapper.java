@@ -15,7 +15,10 @@ import com.energyict.protocolimpl.base.ObisUtils;
 import com.energyict.protocolimpl.eig.nexus1272.command.AbstractCommand;
 import com.energyict.protocolimpl.eig.nexus1272.command.NexusCommandFactory;
 import com.energyict.protocolimpl.eig.nexus1272.command.ReadCommand;
+import com.energyict.protocolimpl.eig.nexus1272.parse.LinePoint;
 import com.energyict.protocolimpl.eig.nexus1272.parse.NexusDataParser;
+import com.energyict.protocolimpl.eig.nexus1272.parse.ScaledEnergySetting;
+import com.energyict.protocolimpl.eig.nexus1272.parse.ScaledEnergySettingFactory;
 
 public class ObisCodeMapper {
     
@@ -25,18 +28,21 @@ public class ObisCodeMapper {
     NexusCommandFactory nexusCommandFactory;
     NexusProtocolConnection connection;
     OutputStream outputStream;
+	private ScaledEnergySettingFactory sesf;
+	private BigDecimal multiplier = null;
     
     /** Creates a new instance of ObisCodeMapper 
      * @param connection 
      * @param outputStream */
-    public ObisCodeMapper(NexusCommandFactory nexusCommandFactory, NexusProtocolConnection connection, OutputStream outputStream) {
+    public ObisCodeMapper(NexusCommandFactory nexusCommandFactory, NexusProtocolConnection connection, OutputStream outputStream, ScaledEnergySettingFactory sesf) {
         this.nexusCommandFactory=nexusCommandFactory;
         this.connection = connection;
         this.outputStream = outputStream;
+        this.sesf = sesf;
     }
     
     static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-        ObisCodeMapper ocm = new ObisCodeMapper(null, null, null);
+        ObisCodeMapper ocm = new ObisCodeMapper(null,null, null, null);
         return (RegisterInfo)ocm.doGetRegister(obisCode,false);
     }
 
@@ -97,6 +103,7 @@ public class ObisCodeMapper {
 //            				System.out.println("0*** " + ndp.parseF18());
 //                       	System.out.println(obisCode);  
                        	BigDecimal bd = new BigDecimal(ndp.parseF18());
+                       	bd = applyPTCTRatio(bd);
                         	Quantity q = new Quantity(bd, Unit.getUndefined()); 
                        	 
                        	registerValue = new RegisterValue(obisCode,q,new Date());
@@ -115,6 +122,7 @@ public class ObisCodeMapper {
 //            				System.out.println("1*** " + ndp.parseF18());
 //                       	System.out.println(obisCode);  
                        	BigDecimal bd = new BigDecimal(ndp.parseF18());
+                       	bd = applyPTCTRatio(bd);
                         	Quantity q = new Quantity(bd, Unit.getUndefined()); 
                        	 
                        	registerValue = new RegisterValue(obisCode,q,new Date());
@@ -133,6 +141,7 @@ public class ObisCodeMapper {
 //            				System.out.println("2*** " + ndp.parseF18());
 //                       	System.out.println(obisCode); 
             				BigDecimal bd = new BigDecimal(ndp.parseF18());
+            				bd = applyPTCTRatio(bd);
                         	Quantity q = new Quantity(bd, Unit.getUndefined()); 
                        	 
                        	registerValue = new RegisterValue(obisCode,q,new Date());
@@ -159,6 +168,7 @@ public class ObisCodeMapper {
 //            				System.out.println("00*** " + ndp.parseF7());
 //                        	System.out.println(obisCode); 
                         	BigDecimal bd = ndp.parseF7();
+                        	bd = applyPTCTRatio(bd);
                         	Quantity q = new Quantity(bd, Unit.getUndefined());  
                        	registerValue = new RegisterValue(obisCode,q,new Date());
                                 return registerValue;
@@ -173,6 +183,7 @@ public class ObisCodeMapper {
             				outputStream.write(c.build());
             				NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
             				BigDecimal bd = ndp.parseF7();
+            				bd = applyPTCTRatio(bd);
 //            				System.out.println("11*** " + bd);
 //                        	System.out.println(obisCode);  
                            Quantity q = new Quantity(bd, Unit.getUndefined());//nexusCommandFactory.getAllMaximumDemand().getQuantity(obisCode.getB()-1, obisCode.getE()-1);
@@ -191,6 +202,7 @@ public class ObisCodeMapper {
 //            				System.out.println("22*** " + ndp.parseF7());
 //                        	System.out.println(obisCode);  
                         	BigDecimal bd = ndp.parseF7();
+                        	bd = applyPTCTRatio(bd);
                         	Quantity q = new Quantity(bd, Unit.getUndefined());  
                        	registerValue = new RegisterValue(obisCode,q,new Date());
                                 return registerValue;
@@ -214,6 +226,15 @@ public class ObisCodeMapper {
 //            				System.out.println("22*** " + ndp.parseF64());
 //                       	System.out.println(obisCode);  
                        	BigDecimal bd = ndp.parseF64();
+                       	BigDecimal divisor = new BigDecimal(1);
+						LinePoint lp = new LinePoint(563,0);
+						if (lp.isScaled()) {
+							ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
+							int numDecimals = ses.getNumDecimalPlaces();
+							if (numDecimals!=0)
+							divisor = new BigDecimal(Math.pow(10, numDecimals));
+						}
+						bd = bd.divide(divisor);
                         	Quantity q = new Quantity(bd, Unit.getUndefined());  
                        	registerValue = new RegisterValue(obisCode,q,new Date());
                                 return registerValue;
@@ -230,6 +251,15 @@ public class ObisCodeMapper {
 //            				System.out.println("22*** " + ndp.parseF64());
 //                       	System.out.println(obisCode);  
             				BigDecimal bd = ndp.parseF64();
+            				BigDecimal divisor = new BigDecimal(1);
+    						LinePoint lp = new LinePoint(563,0);
+    						if (lp.isScaled()) {
+    							ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
+    							int numDecimals = ses.getNumDecimalPlaces();
+    							if (numDecimals!=0)
+    							divisor = new BigDecimal(Math.pow(10, numDecimals));
+    						}
+    						bd = bd.divide(divisor);
                         	Quantity q = new Quantity(bd, Unit.getUndefined());  
                        	registerValue = new RegisterValue(obisCode,q,new Date());
                                 return registerValue;
@@ -248,6 +278,15 @@ public class ObisCodeMapper {
 //            				System.out.println("22*** " + ndp.parseF64());
 //                       	System.out.println(obisCode);  
             				BigDecimal bd = ndp.parseF64();
+            				BigDecimal divisor = new BigDecimal(1);
+    						LinePoint lp = new LinePoint(563,0);
+    						if (lp.isScaled()) {
+    							ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
+    							int numDecimals = ses.getNumDecimalPlaces();
+    							if (numDecimals!=0)
+    							divisor = new BigDecimal(Math.pow(10, numDecimals));
+    						}
+    						bd = bd.divide(divisor);
                         	Quantity q = new Quantity(bd, Unit.getUndefined());  
                        	registerValue = new RegisterValue(obisCode,q,new Date());
                                 return registerValue;
@@ -266,6 +305,15 @@ public class ObisCodeMapper {
 //            				System.out.println("22*** " + ndp.parseF64());
 //                       	System.out.println(obisCode);  
             				BigDecimal bd = ndp.parseF64();
+            				BigDecimal divisor = new BigDecimal(1);
+    						LinePoint lp = new LinePoint(563,0);
+    						if (lp.isScaled()) {
+    							ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
+    							int numDecimals = ses.getNumDecimalPlaces();
+    							if (numDecimals!=0)
+    							divisor = new BigDecimal(Math.pow(10, numDecimals));
+    						}
+    						bd = bd.divide(divisor);
                         	Quantity q = new Quantity(bd, Unit.getUndefined());  
                        	registerValue = new RegisterValue(obisCode,q,new Date());
                                 return registerValue;
@@ -296,6 +344,7 @@ public class ObisCodeMapper {
 //            				System.out.println("000*** " + ndp.parseF18());
 //                        	System.out.println(obisCode);  
             				BigDecimal bd = new BigDecimal(ndp.parseF18());
+            				bd = applyPTCTRatio(bd);
                         	Quantity q = new Quantity(bd, Unit.getUndefined());
                        	registerValue = new RegisterValue(obisCode,q,new Date());
                                 return registerValue;
@@ -312,6 +361,7 @@ public class ObisCodeMapper {
 //                				System.out.println("111*** " + ndp.parseF18());
 //                        	System.out.println(obisCode);  
                         	BigDecimal bd = new BigDecimal(ndp.parseF18());
+                        	bd = applyPTCTRatio(bd);
                         	Quantity q = new Quantity(bd, Unit.getUndefined());  
                        	registerValue = new RegisterValue(obisCode,q,new Date());
                                 return registerValue;
@@ -328,6 +378,7 @@ public class ObisCodeMapper {
 //                				System.out.println("222*** " + ndp.parseF18());
 //                        	System.out.println(obisCode);  
                 				BigDecimal bd = new BigDecimal(ndp.parseF18());
+                				bd = applyPTCTRatio(bd);
                         	Quantity q = new Quantity(bd, Unit.getUndefined());  
                        	registerValue = new RegisterValue(obisCode,q,new Date());
                                 return registerValue;
@@ -349,6 +400,7 @@ public class ObisCodeMapper {
 //            				System.out.println("*** " + ndp.parseF7());
 //                        	System.out.println(obisCode);  
             				BigDecimal bd = ndp.parseF7();
+            				bd = applyPTCTRatio(bd);
                         	Quantity q = new Quantity(bd, Unit.getUndefined());  
                        	registerValue = new RegisterValue(obisCode,q,new Date());
                                 return registerValue;
@@ -365,6 +417,7 @@ public class ObisCodeMapper {
 //            				System.out.println("*** " + ndp.parseF7());
 //                        	System.out.println(obisCode);  
             				BigDecimal bd = ndp.parseF7();
+            				bd = applyPTCTRatio(bd);
                         	Quantity q = new Quantity(bd, Unit.getUndefined());  
                        	registerValue = new RegisterValue(obisCode,q,new Date());
                                 return registerValue;
@@ -381,6 +434,7 @@ public class ObisCodeMapper {
 //            				System.out.println("*** " + ndp.parseF7());
 //                        	System.out.println(obisCode);  
             				BigDecimal bd = ndp.parseF7();
+            				bd = applyPTCTRatio(bd);
                         	Quantity q = new Quantity(bd, Unit.getUndefined());  
                        	registerValue = new RegisterValue(obisCode,q,new Date());
                                 return registerValue;
@@ -402,6 +456,16 @@ public class ObisCodeMapper {
 //            				System.out.println("22*** " + ndp.parseF64());
 //                        	System.out.println(obisCode);  
             				BigDecimal bd = ndp.parseF64();
+            				BigDecimal divisor = new BigDecimal(1);
+            				//TODO Get correct line and point numbers
+    						LinePoint lp = new LinePoint(565,0);
+    						if (lp.isScaled()) {
+    							ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
+    							int numDecimals = ses.getNumDecimalPlaces();
+    							if (numDecimals!=0)
+    							divisor = new BigDecimal(Math.pow(10, numDecimals));
+    						}
+    						bd = bd.divide(divisor);
                         	Quantity q = new Quantity(bd, Unit.getUndefined());  
                        	registerValue = new RegisterValue(obisCode,q,new Date());
                                 return registerValue;
@@ -418,6 +482,16 @@ public class ObisCodeMapper {
 //            				System.out.println("22*** " + ndp.parseF64());
 //                        	System.out.println(obisCode);  
             				BigDecimal bd = ndp.parseF64();
+            				BigDecimal divisor = new BigDecimal(1);
+            				//TODO Get correct line and point numbers
+    						LinePoint lp = new LinePoint(565,0);
+    						if (lp.isScaled()) {
+    							ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
+    							int numDecimals = ses.getNumDecimalPlaces();
+    							if (numDecimals!=0)
+    							divisor = new BigDecimal(Math.pow(10, numDecimals));
+    						}
+    						bd = bd.divide(divisor);
                         	Quantity q = new Quantity(bd, Unit.getUndefined());  
                        	registerValue = new RegisterValue(obisCode,q,new Date());
                                 return registerValue;
@@ -434,6 +508,16 @@ public class ObisCodeMapper {
 //            				System.out.println("22*** " + ndp.parseF64());
 //                        	System.out.println(obisCode);  
                         	BigDecimal bd = ndp.parseF64();
+                        	BigDecimal divisor = new BigDecimal(1);
+            				//TODO Get correct line and point numbers
+    						LinePoint lp = new LinePoint(565,0);
+    						if (lp.isScaled()) {
+    							ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
+    							int numDecimals = ses.getNumDecimalPlaces();
+    							if (numDecimals!=0)
+    							divisor = new BigDecimal(Math.pow(10, numDecimals));
+    						}
+    						bd = bd.divide(divisor);
                         	Quantity q = new Quantity(bd, Unit.getUndefined());  
                        	registerValue = new RegisterValue(obisCode,q,new Date());
                                 return registerValue;
@@ -450,6 +534,16 @@ public class ObisCodeMapper {
 //            				System.out.println("22*** " + ndp.parseF64());
 //                        	System.out.println(obisCode);
             				BigDecimal bd = ndp.parseF64();
+            				BigDecimal divisor = new BigDecimal(1);
+            				//TODO Get correct line and point numbers
+    						LinePoint lp = new LinePoint(565,0);
+    						if (lp.isScaled()) {
+    							ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
+    							int numDecimals = ses.getNumDecimalPlaces();
+    							if (numDecimals!=0)
+    							divisor = new BigDecimal(Math.pow(10, numDecimals));
+    						}
+    						bd = bd.divide(divisor);
                         	Quantity q = new Quantity(bd, Unit.getUndefined());  
                        	registerValue = new RegisterValue(obisCode,q,new Date());
                                 return registerValue;
@@ -483,6 +577,17 @@ public class ObisCodeMapper {
             				outputStream.write(c.build());
             				ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
             				BigDecimal bd2 = ndp.parseF64();
+            				BigDecimal divisor = new BigDecimal(1);
+            				//TODO Get correct line and point numbers
+    						LinePoint lp = new LinePoint(567,0);
+    						if (lp.isScaled()) {
+    							ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
+    							int numDecimals = ses.getNumDecimalPlaces();
+    							if (numDecimals!=0)
+    							divisor = new BigDecimal(Math.pow(10, numDecimals));
+    						}
+    						bd = bd.divide(divisor);
+    						bd2 = bd2.divide(divisor);
 //            				System.out.println("381-b*** " + bd2);
 //            				System.out.println("381-t***" + bd2.add(bd));
 //                        	System.out.println(obisCode );  
@@ -509,6 +614,18 @@ public class ObisCodeMapper {
             				outputStream.write(c.build());
             				ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
             				BigDecimal bd2 = ndp.parseF64();
+            				
+            				BigDecimal divisor = new BigDecimal(1);
+            				//TODO Get correct line and point numbers
+    						LinePoint lp = new LinePoint(567,0);
+    						if (lp.isScaled()) {
+    							ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
+    							int numDecimals = ses.getNumDecimalPlaces();
+    							if (numDecimals!=0)
+    							divisor = new BigDecimal(Math.pow(10, numDecimals));
+    						}
+    						bd = bd.divide(divisor);
+    						bd2 = bd2.divide(divisor);
 //            				System.out.println("382-b*** " + bd2);
 //            				System.out.println("382-t***" + bd2.add(bd));
 //                        	System.out.println(obisCode );
@@ -535,6 +652,18 @@ public class ObisCodeMapper {
             				outputStream.write(c.build());
             				ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
             				BigDecimal bd2 = ndp.parseF64();
+            				
+            				BigDecimal divisor = new BigDecimal(1);
+            				//TODO Get correct line and point numbers
+    						LinePoint lp = new LinePoint(567,0);
+    						if (lp.isScaled()) {
+    							ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
+    							int numDecimals = ses.getNumDecimalPlaces();
+    							if (numDecimals!=0)
+    							divisor = new BigDecimal(Math.pow(10, numDecimals));
+    						}
+    						bd = bd.divide(divisor);
+    						bd2 = bd2.divide(divisor);
 //            				System.out.println("383-b*** " + bd2);
 //            				System.out.println("383-t***" + bd2.add(bd));
 //                        	System.out.println(obisCode );  
@@ -572,6 +701,18 @@ public class ObisCodeMapper {
             				outputStream.write(c.build());
             				ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
             				BigDecimal bd2 = ndp.parseF64();
+            				
+            				BigDecimal divisor = new BigDecimal(1);
+            				//TODO Get correct line and point numbers
+    						LinePoint lp = new LinePoint(569,0);
+    						if (lp.isScaled()) {
+    							ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
+    							int numDecimals = ses.getNumDecimalPlaces();
+    							if (numDecimals!=0)
+    							divisor = new BigDecimal(Math.pow(10, numDecimals));
+    						}
+    						bd = bd.divide(divisor);
+    						bd2 = bd2.divide(divisor);
 //            				System.out.println("481-b*** " + bd2);
 //            				System.out.println("481-t***" + bd2.add(bd));
 //                        	System.out.println(obisCode );  
@@ -598,6 +739,18 @@ public class ObisCodeMapper {
             				outputStream.write(c.build());
             				ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
             				BigDecimal bd2 = ndp.parseF64();
+            				
+            				BigDecimal divisor = new BigDecimal(1);
+            				//TODO Get correct line and point numbers
+    						LinePoint lp = new LinePoint(569,0);
+    						if (lp.isScaled()) {
+    							ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
+    							int numDecimals = ses.getNumDecimalPlaces();
+    							if (numDecimals!=0)
+    							divisor = new BigDecimal(Math.pow(10, numDecimals));
+    						}
+    						bd = bd.divide(divisor);
+    						bd2 = bd2.divide(divisor);
 //            				System.out.println("482-b*** " + bd2);
 //            				System.out.println("482-t***" + bd2.add(bd));
 //                        	System.out.println(obisCode );  
@@ -624,6 +777,18 @@ public class ObisCodeMapper {
             				outputStream.write(c.build());
             				ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
             				BigDecimal bd2 = ndp.parseF64();
+            				
+            				BigDecimal divisor = new BigDecimal(1);
+            				//TODO Get correct line and point numbers
+    						LinePoint lp = new LinePoint(569,0);
+    						if (lp.isScaled()) {
+    							ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
+    							int numDecimals = ses.getNumDecimalPlaces();
+    							if (numDecimals!=0)
+    							divisor = new BigDecimal(Math.pow(10, numDecimals));
+    						}
+    						bd = bd.divide(divisor);
+    						bd2 = bd2.divide(divisor);
 //            				System.out.println("483-b*** " + bd2);
 //            				System.out.println("483-t***" + bd2.add(bd));
 //                        	System.out.println(obisCode);  
@@ -682,6 +847,7 @@ public class ObisCodeMapper {
 //            				System.out.println("IA*** " + ndp.parseF7());
 //                        	System.out.println(obisCode);  
             				BigDecimal bd = ndp.parseF7();
+            				bd = applyPTCTRatio(bd);
                         	Quantity q = new Quantity(bd, Unit.getUndefined());  
                        	registerValue = new RegisterValue(obisCode,q,new Date());
                                 return registerValue;
@@ -725,6 +891,7 @@ public class ObisCodeMapper {
 //            				System.out.println("VA*** " + ndp.parseF7());
 //                        	System.out.println(obisCode);  
             				BigDecimal bd = ndp.parseF7();
+            				bd = applyPTCTRatio(bd);
                         	Quantity q = new Quantity(bd, Unit.getUndefined());  
                        	registerValue = new RegisterValue(obisCode,q,new Date());
                                 return registerValue;
@@ -768,6 +935,7 @@ public class ObisCodeMapper {
 //            				System.out.println("IB*** " + ndp.parseF7());
 //                        	System.out.println(obisCode);  
             				BigDecimal bd = ndp.parseF7();
+            				bd = applyPTCTRatio(bd);
                         	Quantity q = new Quantity(bd, Unit.getUndefined());  
                        	registerValue = new RegisterValue(obisCode,q,new Date());
                                 return registerValue;
@@ -811,6 +979,7 @@ public class ObisCodeMapper {
 //            				System.out.println("VB*** " + ndp.parseF7());
 //                        	System.out.println(obisCode);  
             				BigDecimal bd = ndp.parseF7();
+            				bd = applyPTCTRatio(bd);
                         	Quantity q = new Quantity(bd, Unit.getUndefined());  
                        	registerValue = new RegisterValue(obisCode,q,new Date());
                                 return registerValue;
@@ -854,6 +1023,7 @@ public class ObisCodeMapper {
 //            				System.out.println("IC*** " + ndp.parseF7());
 //                        	System.out.println(obisCode);  
             				BigDecimal bd = ndp.parseF7();
+            				bd = applyPTCTRatio(bd);
                         	Quantity q = new Quantity(bd, Unit.getUndefined());  
                        	registerValue = new RegisterValue(obisCode,q,new Date());
                                 return registerValue;
@@ -897,6 +1067,7 @@ public class ObisCodeMapper {
 //            				System.out.println("VC*** " + ndp.parseF7());
 //                        	System.out.println(obisCode);  
             				BigDecimal bd = ndp.parseF7();
+            				bd = applyPTCTRatio(bd);
                         	Quantity q = new Quantity(bd, Unit.getUndefined());  
                        	registerValue = new RegisterValue(obisCode,q,new Date());
                                 return registerValue;
@@ -1040,7 +1211,7 @@ public class ObisCodeMapper {
         				if (read) {
         					//0B85H-0B88H
         					ReadCommand c = (ReadCommand) nexusCommandFactory.getReadSingleRegisterCommand();
-            				c.setStartAddress(AbstractCommand.intToByteArray(0x0B85));
+        					c.setStartAddress(AbstractCommand.intToByteArray(0x0B85));
             				c.setNumRegisters(AbstractCommand.intToByteArray(4));
             				outputStream.write(c.build());
             				NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
@@ -1196,6 +1367,38 @@ public class ObisCodeMapper {
         	return null;
 //            throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
     }
+
+	private BigDecimal applyPTCTRatio(BigDecimal bd) throws IOException {
+		if (multiplier == null) {
+			ReadCommand c = (ReadCommand) nexusCommandFactory.getReadSingleRegisterCommand();
+			c.setStartAddress(AbstractCommand.intToByteArray(0xB354));
+			c.setNumRegisters(AbstractCommand.intToByteArray(16));
+			//		c.setNumRegisters(AbstractCommand.intToByteArray(4));
+			outputStream.write(c.build());
+			NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
+			int ctNum = ndp.parseFourByteInt();
+//			System.out.println(ctNum);
+			int ctDen = ndp.parseFourByteInt();
+//			System.out.println(ctDen);
+			ndp.parseFourByteInt();
+			ndp.parseFourByteInt();
+//			System.out.println(ndp.parseFourByteInt());
+//			System.out.println(ndp.parseFourByteInt());
+			int ptNum = ndp.parseFourByteInt();
+//			System.out.println(ptNum);
+			int ptDen = ndp.parseFourByteInt();
+//			System.out.println(ptDen);
+//			System.out.println(ndp.parseFourByteInt());
+//			System.out.println(ndp.parseFourByteInt());
+
+			multiplier = new BigDecimal(ctNum).divide(new BigDecimal(ctDen)).multiply(new BigDecimal(ptNum).divide(new BigDecimal(ptDen)));
+		}
+//		double multiplier = ((ctNum+0.0)/(ctDen+0.0)) * ((ptNum+0.0)/(ptDen+0.0));
+//		System.out.println(multiplier);
+		
+		return bd.multiply((multiplier));
+//		return bd;
+	}
     
    
  

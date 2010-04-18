@@ -111,6 +111,10 @@ public class NexusDataParser {
 		return new BigDecimal(ProtocolUtils.getLong(bais, 4));
 	}
 	
+	public int parseFourByteInt() throws IOException {
+		return (int) ProtocolUtils.getLong(bais, 4);
+	}
+	
 	
 	int recSize;
 	private void parseLimitLog(byte[] limitTriggerLogData, byte[] limitSnapshotLogData) throws IOException {

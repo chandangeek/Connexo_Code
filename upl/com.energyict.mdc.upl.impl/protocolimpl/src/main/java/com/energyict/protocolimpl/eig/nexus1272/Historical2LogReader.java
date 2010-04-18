@@ -187,7 +187,7 @@ public class Historical2LogReader extends AbstractLogReader {
 		int length = 4;
 		int recNum = 0;
 		//FIXME FIND THIS SIZE
-		int recSize = 32;
+		int recSize = 32*2;
 //		get Scaled Energy Setting
 //		Command getSES = NexusCommandFactory.getFactory().getReadSingleRegisterCommand();
 //		((ReadCommand)getSES).setStartAddress(new byte[] {(byte) 0xCA, 0x01});
@@ -225,8 +225,11 @@ public class Historical2LogReader extends AbstractLogReader {
 //				System.out.println(recDate);
 				 IntervalData intervalData = new IntervalData(recDate,0,0);
 				for (LinePoint lp : meterlpMap) {
+//					System.out.println("Searching for " + lp);
 					for (LinePoint lp2 : masterlpMap) {
+						
 						if (lp.getLine() == lp2.getLine() && lp.getPoint() == lp2.getPoint()) {
+//							System.out.println("Found " +lp2 + "\n\n");
 							BigDecimal val =new BigDecimal( parseF64(byteArray, offset));
 							offset+=4;
 							BigDecimal divisor = new BigDecimal(1);
@@ -250,7 +253,7 @@ public class Historical2LogReader extends AbstractLogReader {
 				}
 
 				recNum++;
-				offset = recNum * recSize;
+				offset = recNum * meterlpMap.size()*8;//recSize;
 				intervalDatas.add(intervalData);
 			}
 		}catch (Exception e) {

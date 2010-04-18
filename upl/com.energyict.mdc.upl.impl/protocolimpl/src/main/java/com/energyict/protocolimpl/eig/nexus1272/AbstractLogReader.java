@@ -177,7 +177,7 @@ public abstract class AbstractLogReader implements LogReader{
 
 		boolean doneReading = false;
 		byte[] ba = readLastLogWindow();
-		System.out.print("ba: " + ba.length + " ");
+//		System.out.print("ba: " + ba.length + " ");
 		if (ba.length >7){
 			checkDate = parseF3(ba, 0);
 //			System.out.println(checkDate + "\tWI: " + windowIndex);
@@ -202,7 +202,7 @@ public abstract class AbstractLogReader implements LogReader{
 			if (windowIndex <= 0) { //wrap awound
 				windowIndex = largestWindowIndex;
 				ba = readLargestLogWindow();
-				System.out.print("ba: " + ba.length + " ");
+//				System.out.print("ba: " + ba.length + " ");
 				if (ba.length >7){
 					checkDate = parseF3(ba, 0);
 //					System.out.println(checkDate + "\tWI: " + windowIndex);
@@ -221,7 +221,7 @@ public abstract class AbstractLogReader implements LogReader{
 			setWindowIndex(AbstractCommand.intToByteArray(windowIndex));
 
 			ba = readLogWindow();
-			System.out.print("ba: " + ba.length + " ");
+//			System.out.print("ba: " + ba.length + " ");
 			if (ba.length >7){
 				checkDate = parseF3(ba, 0);
 //				System.out.println(checkDate + "\tWI: " + windowIndex);
@@ -243,7 +243,7 @@ public abstract class AbstractLogReader implements LogReader{
 
 		if (!doneReading) {
 			ba = readFirstLogWindow();
-			System.out.print("ba: " + ba.length + " ");
+//			System.out.print("ba: " + ba.length + " ");
 //			if (ba.length >7)				
 //				System.out.println(parseF3(ba, 0) + "\tWI: " + windowIndex);
 //			else	System.out.println();
