@@ -247,6 +247,8 @@
 
 -keepnames class  com.energyict.protocolimpl.ametek.JemStar
 
+-keepnames class  com.energyict.protocolimpl.eig.nexus1272.Nexus1272
+
 -keepnames class com.energyict.protocolimpl.modbus.flonidan.uniflo1200.UNIFLO1200
 
 -keepnames class com.energyict.genericprotocolimpl.Z3.DLMSZ3Messaging
