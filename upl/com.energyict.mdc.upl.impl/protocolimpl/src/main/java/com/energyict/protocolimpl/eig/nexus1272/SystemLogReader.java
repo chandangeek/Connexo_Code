@@ -498,7 +498,7 @@ public class SystemLogReader extends AbstractLogReader {
 					event += " : Historical Log 2 Reset";
 					break;
 				case 0x00A:
-					meterEvents.add(new MeterEvent(recDate, MeterEvent.EVENT_LOG_CLEARED, subcode1, "Sequence of Events Log Reset " + port));
+					meterEvents.add(new MeterEvent(recDate, MeterEvent.CLEAR_DATA, subcode1, "Sequence of Events Log Reset " + port));
 					event += " : Sequence of Events Log Reset";
 					break;
 				case 0x00B:
@@ -522,7 +522,7 @@ public class SystemLogReader extends AbstractLogReader {
 					event += " : PQ Log Reset";
 					break;
 				case 0x010:
-					meterEvents.add(new MeterEvent(recDate, MeterEvent.EVENT_LOG_CLEARED, subcode1, "System Event Log Reset " + port));
+					meterEvents.add(new MeterEvent(recDate, MeterEvent.CLEAR_DATA, subcode1, "System Event Log Reset " + port));
 					event += " : System Event Log Reset";
 					break;
 				case 0x011:

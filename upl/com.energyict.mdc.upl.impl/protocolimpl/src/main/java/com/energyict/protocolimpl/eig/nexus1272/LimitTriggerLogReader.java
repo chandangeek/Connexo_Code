@@ -282,7 +282,7 @@ private Date recDate;
 					else if (!val2Str.equals("")) {
 						detail = val2Str;
 					}
-					meterEvents.add(new MeterEvent(recDate, MeterEvent.LIMITER_THRESHOLD_EXCEEDED, "Limit threshold exceeded for limit " + limitNumber + " : " + detail));
+					meterEvents.add(new MeterEvent(recDate, MeterEvent.METER_ALARM, "Limit threshold exceeded for limit " + limitNumber + " : " + detail));
 //					System.out.println("limit " + limitNumber + " triggered");
 				}
 				combination = (byte) (combination >> 1);
