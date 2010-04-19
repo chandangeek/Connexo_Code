@@ -54,22 +54,24 @@ public class Historical2LogReader extends AbstractLogReader {
 
 
 	@Override
-	public void parseLog(byte[] byteArray, ProfileData profileData) throws IOException {
+	public void parseLog(byte[] byteArray, ProfileData profileData, Date from) throws IOException {
 		List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
 		int offset = 0;
 		int length = 4;
 		int recNum = 0;
 
 		try{
-			
+
 			while (offset < byteArray.length) {
 				length=8;
 				Date recDate = parseF3(byteArray, offset);
+				if (recDate.before(from))
+					continue;
 				offset+= length;
-				 IntervalData intervalData = new IntervalData(recDate,0,0);
+				IntervalData intervalData = new IntervalData(recDate,0,0);
 				for (LinePoint lp : meterlpMap) {
 					for (LinePoint lp2 : masterlpMap) {
-						
+
 						if (lp.getLine() == lp2.getLine() && lp.getPoint() == lp2.getPoint()) {
 							BigDecimal val =new BigDecimal( parseF64(byteArray, offset));
 							offset+=4;
@@ -78,7 +80,7 @@ public class Historical2LogReader extends AbstractLogReader {
 								ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
 								int numDecimals = ses.getNumDecimalPlaces();
 								if (numDecimals!=0)
-								divisor = new BigDecimal(Math.pow(10, numDecimals));
+									divisor = new BigDecimal(Math.pow(10, numDecimals));
 							}
 							val = val.divide(divisor);
 							intervalData.addValue(val, 0, 0);

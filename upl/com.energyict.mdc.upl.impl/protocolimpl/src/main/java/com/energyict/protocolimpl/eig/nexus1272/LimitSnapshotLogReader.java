@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.eig.nexus1272;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Date;
 
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.UnsupportedException;
@@ -37,7 +38,7 @@ public class LimitSnapshotLogReader extends AbstractLogReader {
 	}
 
 	@Override
-	public void parseLog(byte[] LimitSnapshotLogData, ProfileData profileData) throws IOException {
+	public void parseLog(byte[] LimitSnapshotLogData, ProfileData profileData, Date from) throws IOException {
 		throw new UnsupportedException();
 
 	}

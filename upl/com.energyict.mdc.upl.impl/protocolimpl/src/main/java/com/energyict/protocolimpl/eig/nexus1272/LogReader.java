@@ -8,7 +8,7 @@ import com.energyict.protocol.ProfileData;
 public interface LogReader {
 
 	public byte[] readLog(Date lastReadDate) throws IOException;
-	public void parseLog(byte[] byteArray, ProfileData profileData)
+	public void parseLog(byte[] byteArray, ProfileData profileData, Date from)
 			throws IOException;
 	
 }

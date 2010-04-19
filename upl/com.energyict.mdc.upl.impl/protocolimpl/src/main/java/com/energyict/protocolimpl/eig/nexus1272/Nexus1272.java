@@ -4,13 +4,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.interval.TimeSeriesGenerator;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.InvalidPropertyException;
@@ -183,6 +187,36 @@ public class Nexus1272 extends AbstractProtocol  {
 	}
 
 	public static void main(String[] args) throws IOException {
+		Calendar c = Calendar.getInstance();
+		TimeZone tz = TimeZone.getTimeZone("America/Chicago");
+		c.setTimeZone(tz);
+		c.set(Calendar.MONTH, Calendar.NOVEMBER);
+		c.set(Calendar.DAY_OF_MONTH, 6);
+		c.set(Calendar.HOUR_OF_DAY, 20);
+		c.set(Calendar.MINUTE, 0);
+		c.set(Calendar.SECOND, 0);
+		c.set(Calendar.MILLISECOND, 0);
+		Date from = c.getTime();
+		c.add(Calendar.DAY_OF_MONTH, 1);
+		Date to = c.getTime();
+		
+		SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+		timeFormat.setTimeZone(tz);
+		
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); 
+		dateFormat.setTimeZone(tz);
+		
+		SimpleDateFormat tzFormat = new SimpleDateFormat("Z");
+		tzFormat.setTimeZone(tz);
+		
+		TimeSeriesGenerator tsg = new TimeSeriesGenerator(900, from, to);
+		System.out.println("From " + from + " to " + to);
+		while (tsg.hasNext()) {
+			Date d = tsg.next();
+			System.out.println(dateFormat.format(d) + "T" + timeFormat.format(d) + tzFormat.format(d).substring(0, 3)+":"+tzFormat.format(d).substring(3));
+		}
+		 
+		
 	}
 
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
@@ -226,13 +260,13 @@ public class Nexus1272 extends AbstractProtocol  {
 		LogReader 
 		lr = new SystemLogReader(outputStream, connection);
 		byte[] byteArray = lr.readLog(from);
-		lr.parseLog(byteArray, profileData);
+		lr.parseLog(byteArray, profileData, from);
 		List<MeterEvent> meterEvents = ((SystemLogReader)lr).getMeterEvents();
 		
 		
 		lr = new LimitTriggerLogReader(outputStream, connection);
 		byteArray = lr.readLog(from);
-		lr.parseLog(byteArray, profileData);
+		lr.parseLog(byteArray, profileData, from);
 		meterEvents.addAll(((LimitTriggerLogReader)lr).getMeterEvents());
 //		lr = new LimitSnapshotLogReader(outputStream, connection);
 //		byteArray = lr.readLog(from);
@@ -263,7 +297,7 @@ public class Nexus1272 extends AbstractProtocol  {
 	private void buildIntervalData(ProfileData profileData, Date from, Date to) throws IOException {
 		LogReader lr = new Historical2LogReader(outputStream, connection, mtrlpMap, masterlpMap, sesf);
 		byte[] ba = lr.readLog(from);
-		lr.parseLog(ba, profileData);
+		lr.parseLog(ba, profileData, from);
 		
 	}
 
