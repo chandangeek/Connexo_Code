@@ -31,6 +31,7 @@ import com.energyict.protocolimpl.eig.nexus1272.command.AbstractCommand;
 import com.energyict.protocolimpl.eig.nexus1272.command.AuthenticationCommand;
 import com.energyict.protocolimpl.eig.nexus1272.command.Command;
 import com.energyict.protocolimpl.eig.nexus1272.command.NexusCommandFactory;
+import com.energyict.protocolimpl.eig.nexus1272.command.ReadCommand;
 import com.energyict.protocolimpl.eig.nexus1272.parse.LinePoint;
 import com.energyict.protocolimpl.eig.nexus1272.parse.NexusDataParser;
 import com.energyict.protocolimpl.eig.nexus1272.parse.ScaledEnergySetting;
@@ -60,7 +61,15 @@ public class Nexus1272 extends AbstractProtocol  {
 	protected void doConnect() throws IOException {
 		// TODO Auto-generated method stub
 		start = System.currentTimeMillis();
-		authenticate();
+		try {
+			authenticate(2);
+		} catch (IOException ioe) {
+			try {
+				authenticate(1);
+			} catch (IOException ioe2) {
+				throw new IOException("Could not authenticate with meter, check password");
+			}
+		}
 	}
 
 	@Override
@@ -204,7 +213,7 @@ public class Nexus1272 extends AbstractProtocol  {
 
 	@Override
 	public void setTime() throws IOException {
-		authenticate();
+		authenticate(2);
 		Command command = NexusCommandFactory.getFactory().getSetTimeCommand();
 		outputStream.write(command.build());
 		connection.receiveWriteResponse(command);
@@ -278,68 +287,68 @@ public class Nexus1272 extends AbstractProtocol  {
 
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
 		
-		for (int i = 0; i<1; i++) {
-		authenticate();
-		RegisterValue rv;
-		rv = readRegister(new ObisCode(1,1,1,8,1,255));
-		rv = readRegister(new ObisCode(1,1,2,8,1,255));
-		rv = readRegister(new ObisCode(1,1,1,8,2,255));
-		rv = readRegister(new ObisCode(1,1,2,8,2,255));
-		rv = readRegister(new ObisCode(1,1,1,8,3,255));
-		rv = readRegister(new ObisCode(1,1,2,8,3,255));
-		rv = readRegister(new ObisCode(1,1,1,8,0,255));
-		rv = readRegister(new ObisCode(1,1,2,8,0,255));
-		rv = readRegister(new ObisCode(1,1,3,8,1,255));
-		rv = readRegister(new ObisCode(1,1,4,8,1,255));
-		rv = readRegister(new ObisCode(1,1,3,8,2,255));
-		rv = readRegister(new ObisCode(1,1,4,8,2,255));
-		rv = readRegister(new ObisCode(1,1,3,8,3,255));
-		rv = readRegister(new ObisCode(1,1,4,8,3,255));
-		rv = readRegister(new ObisCode(1,1,1,2,1,255));
-		rv = readRegister(new ObisCode(1,1,2,2,1,255));
-		rv = readRegister(new ObisCode(1,1,1,2,2,255));
-		rv = readRegister(new ObisCode(1,1,2,2,2,255));
-		rv = readRegister(new ObisCode(1,1,1,2,3,255));
-		rv = readRegister(new ObisCode(1,1,2,2,3,255));
-		rv = readRegister(new ObisCode(1,1,1,6,1,255));
-		rv = readRegister(new ObisCode(1,1,2,6,1,255));
-		rv = readRegister(new ObisCode(1,1,1,6,2,255));
-		rv = readRegister(new ObisCode(1,1,2,6,2,255));
-		rv = readRegister(new ObisCode(1,1,1,6,3,255));
-		rv = readRegister(new ObisCode(1,1,2,6,3,255));
-		rv = readRegister(new ObisCode(1,1,13,4,0,255));
-		rv = readRegister(new ObisCode(1,1,32,7,124,255));
-		rv = readRegister(new ObisCode(1,1,52,7,124,255));
-		rv = readRegister(new ObisCode(1,1,72,7,124,255));
-		rv = readRegister(new ObisCode(1,1,31,7,124,255));
-		rv = readRegister(new ObisCode(1,1,51,7,124,255));
-		rv = readRegister(new ObisCode(1,1,71,7,124,255));
-		rv = readRegister(new ObisCode(1,1,83,8,50,255));
-		rv = readRegister(new ObisCode(1,1,83,8,70,255));
-		rv = readRegister(new ObisCode(1,1,83,8,90,255));
-		rv = readRegister(new ObisCode(1,1,83,8,49,255));
-		rv = readRegister(new ObisCode(1,1,83,8,69,255));
-		rv = readRegister(new ObisCode(1,1,83,8,89,255));
-		rv = readRegister(new ObisCode(1,1,32,7,0,255));
-		rv = readRegister(new ObisCode(1,1,52,7,0,255));
-		rv = readRegister(new ObisCode(1,1,72,7,0,255));
-		rv = readRegister(new ObisCode(1,1,81,7,10,255));
-		rv = readRegister(new ObisCode(1,1,81,7,21,255));
-		rv = readRegister(new ObisCode(1,1,81,7,2,255));
-		rv = readRegister(new ObisCode(1,1,31,7,0,255));
-		rv = readRegister(new ObisCode(1,1,51,7,0,255));
-		rv = readRegister(new ObisCode(1,1,71,7,0,255));
-		rv = readRegister(new ObisCode(1,1,81,7,4,255));
-		rv = readRegister(new ObisCode(1,1,81,7,15,255));
-		rv = readRegister(new ObisCode(1,1,81,7,26,255));
-		try {
-			Thread.sleep(10000l);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		System.out.println("\n\n*********************************************************************\n");
-		}
+//		for (int i = 0; i<1; i++) {
+//		authenticate();
+//		RegisterValue rv;
+//		rv = readRegister(new ObisCode(1,1,1,8,1,255));
+//		rv = readRegister(new ObisCode(1,1,2,8,1,255));
+//		rv = readRegister(new ObisCode(1,1,1,8,2,255));
+//		rv = readRegister(new ObisCode(1,1,2,8,2,255));
+//		rv = readRegister(new ObisCode(1,1,1,8,3,255));
+//		rv = readRegister(new ObisCode(1,1,2,8,3,255));
+//		rv = readRegister(new ObisCode(1,1,1,8,0,255));
+//		rv = readRegister(new ObisCode(1,1,2,8,0,255));
+//		rv = readRegister(new ObisCode(1,1,3,8,1,255));
+//		rv = readRegister(new ObisCode(1,1,4,8,1,255));
+//		rv = readRegister(new ObisCode(1,1,3,8,2,255));
+//		rv = readRegister(new ObisCode(1,1,4,8,2,255));
+//		rv = readRegister(new ObisCode(1,1,3,8,3,255));
+//		rv = readRegister(new ObisCode(1,1,4,8,3,255));
+//		rv = readRegister(new ObisCode(1,1,1,2,1,255));
+//		rv = readRegister(new ObisCode(1,1,2,2,1,255));
+//		rv = readRegister(new ObisCode(1,1,1,2,2,255));
+//		rv = readRegister(new ObisCode(1,1,2,2,2,255));
+//		rv = readRegister(new ObisCode(1,1,1,2,3,255));
+//		rv = readRegister(new ObisCode(1,1,2,2,3,255));
+//		rv = readRegister(new ObisCode(1,1,1,6,1,255));
+//		rv = readRegister(new ObisCode(1,1,2,6,1,255));
+//		rv = readRegister(new ObisCode(1,1,1,6,2,255));
+//		rv = readRegister(new ObisCode(1,1,2,6,2,255));
+//		rv = readRegister(new ObisCode(1,1,1,6,3,255));
+//		rv = readRegister(new ObisCode(1,1,2,6,3,255));
+//		rv = readRegister(new ObisCode(1,1,13,4,0,255));
+//		rv = readRegister(new ObisCode(1,1,32,7,124,255));
+//		rv = readRegister(new ObisCode(1,1,52,7,124,255));
+//		rv = readRegister(new ObisCode(1,1,72,7,124,255));
+//		rv = readRegister(new ObisCode(1,1,31,7,124,255));
+//		rv = readRegister(new ObisCode(1,1,51,7,124,255));
+//		rv = readRegister(new ObisCode(1,1,71,7,124,255));
+//		rv = readRegister(new ObisCode(1,1,83,8,50,255));
+//		rv = readRegister(new ObisCode(1,1,83,8,70,255));
+//		rv = readRegister(new ObisCode(1,1,83,8,90,255));
+//		rv = readRegister(new ObisCode(1,1,83,8,49,255));
+//		rv = readRegister(new ObisCode(1,1,83,8,69,255));
+//		rv = readRegister(new ObisCode(1,1,83,8,89,255));
+//		rv = readRegister(new ObisCode(1,1,32,7,0,255));
+//		rv = readRegister(new ObisCode(1,1,52,7,0,255));
+//		rv = readRegister(new ObisCode(1,1,72,7,0,255));
+//		rv = readRegister(new ObisCode(1,1,81,7,10,255));
+//		rv = readRegister(new ObisCode(1,1,81,7,21,255));
+//		rv = readRegister(new ObisCode(1,1,81,7,2,255));
+//		rv = readRegister(new ObisCode(1,1,31,7,0,255));
+//		rv = readRegister(new ObisCode(1,1,51,7,0,255));
+//		rv = readRegister(new ObisCode(1,1,71,7,0,255));
+//		rv = readRegister(new ObisCode(1,1,81,7,4,255));
+//		rv = readRegister(new ObisCode(1,1,81,7,15,255));
+//		rv = readRegister(new ObisCode(1,1,81,7,26,255));
+//		try {
+//			Thread.sleep(10000l);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		System.out.println("\n\n*********************************************************************\n");
+//		}
 		if (channelMapping.equals(""))
 			throw new IOException("NexusChannelMapping custom property must be set to read profile data");
 
@@ -450,7 +459,6 @@ public class Nexus1272 extends AbstractProtocol  {
 		lr.parseLog(byteArray, profileData);
 		List<MeterEvent> meterEvents = ((SystemLogReader)lr).getMeterEvents();
 		
-		//FIXME Read Event registers (low batt, etc)
 		
 		lr = new LimitTriggerLogReader(outputStream, connection);
 		byteArray = lr.readLog(from);
@@ -459,6 +467,24 @@ public class Nexus1272 extends AbstractProtocol  {
 //		lr = new LimitSnapshotLogReader(outputStream, connection);
 //		byteArray = lr.readLog(from);
 //		lr.parseLog(byteArray, profileData);
+		
+		//check sanity register
+		ReadCommand c = (ReadCommand) NexusCommandFactory.getFactory().getReadSingleRegisterCommand();
+		c.setStartAddress(AbstractCommand.intToByteArray(0xD000));
+		c.setNumRegisters(AbstractCommand.intToByteArray(1));
+		outputStream.write(c.build());
+		NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
+		if (ndp.parseF51() != 0)
+			meterEvents.add(new MeterEvent(new Date(), MeterEvent.METER_ALARM, "Sanity Register not 0"));
+		
+		//check low battery register
+		c = (ReadCommand) NexusCommandFactory.getFactory().getReadSingleRegisterCommand();
+		c.setStartAddress(AbstractCommand.intToByteArray(0x6039));
+		c.setNumRegisters(AbstractCommand.intToByteArray(1));
+		outputStream.write(c.build());
+		ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
+		if ((ndp.parseF51() & 0x8000) == 0x8000)
+			meterEvents.add(new MeterEvent(new Date(), MeterEvent.METER_ALARM, "Battery Low"));
 		
 		
 		profileData.setMeterEvents(meterEvents);
@@ -604,7 +630,7 @@ public class Nexus1272 extends AbstractProtocol  {
 
 	
 
-	private boolean authenticate() throws IOException {
+	private boolean authenticate(int level) throws IOException {
 
 		Command command = NexusCommandFactory.getFactory().getAuthenticationCommand();
 		((AuthenticationCommand)command).setPassword(password.getBytes());
@@ -616,8 +642,8 @@ public class Nexus1272 extends AbstractProtocol  {
 		byte[] data = connection.receiveWriteResponse(command).toByteArray();
 		//		NexusDataParser ndp = new NexusDataParser(payload);
 
-		byte[] send;
-		byte[] byteArray;
+//		byte[] send;
+//		byte[] byteArray;
 
 		//		send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x03,(byte) 0xff,0x28,0x00,0x01};
 		//		outputStream.write(send);
@@ -631,8 +657,20 @@ public class Nexus1272 extends AbstractProtocol  {
 		//		outputStream.write(send);
 		//		byteArray = connection.receiveResponse().toByteArray();
 		//
-		//		if (byteArray[byteArray.length-1] != 0x04 )
-		//			return false;
+		switch (level) {
+		case 1:
+			if (data[data.length-1] != 0x04 && data[data.length-1] != 0x03)
+				throw new IOException("Level 1 authentication failed");
+			break;
+		case 2:
+			if (data[data.length-1] != 0x04)
+				throw new IOException("Level 2 authentication failed");
+			break;
+		default:
+			if (data[data.length-1] != 0x04)
+				throw new IOException("Level 2 authentication failed (level requested invalid)");
+		}
+				
 
 		//FIXME confirm authentication
 		return true;
@@ -642,772 +680,772 @@ public class Nexus1272 extends AbstractProtocol  {
 
 	int recSize;
 
-	private byte[] downloadLog(int windowIndexAddress, int windowModeAddress, int headerStartAddress, int headerEndAddress, int windowStartAddress, int windowEndAddress) throws IOException {
+//	private byte[] downloadLog(int windowIndexAddress, int windowModeAddress, int headerStartAddress, int headerEndAddress, int windowStartAddress, int windowEndAddress) throws IOException {
+//
+//		byte[] test;
+//		byte addrHigh;
+//		byte addrLow;
+//		byte[] send;
+//		int len;
+//		byte[] byteArray;
+//		int address;
+//		int toRead;
+//		byte dataHigh;
+//		byte dataLow;
+//		byte[] data;
+//
+//		//	1. Read the Nexus® meter's Programmable Settings Block (Registers 45057–53248). This information will
+//		//	   be used to interpret the data retrieved from the log.
+//		//		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//		//		toRead = 53248-45056;
+//		//		while (toRead > 0) {
+//		//			address = 45056;
+//		//			test = intToByteArray(address);
+//		//			addrHigh = test[0];
+//		//			addrLow = test[1];
+//		//			len = (byte) (toRead > 125 ? 0x7d : toRead);
+//		//			send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x03,addrHigh,addrLow, 0x00, (byte) len};
+//		//			outputStream.write(send);
+//		//			byteArray = connection.receiveResponse().toByteArray();
+//		//			byte [] ba2 = new byte[byteArray.length - 9]; 
+//		//			System.arraycopy(byteArray, 8, ba2, 0, ba2.length);
+//		//			baos.write(ba2);
+//		//			toRead -= 125;
+//		//			address+= 125;
+//		//
+//		//		}
+//
+//
+//		//	2. Pause the log by writing an initial, non-FFFFH value to the Log Window Index Register.
+////		if (authenticate()) {
+//			test = AbstractCommand.intToByteArray(windowIndexAddress);
+//			addrHigh = test[0];
+//			addrLow = test[1];
+//			data = AbstractCommand.intToByteArray(0);
+//			dataHigh = data[0];
+//			dataLow = data[1];
+//			send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x06,addrHigh,addrLow,dataHigh,dataLow};
+//			outputStream.write(send);
+//			byteArray = connection.receiveResponse().toByteArray();
+////		}
+//
+//
+//
+//		//	3. Read and store the Log Header information.
+//		ByteArrayOutputStream baos2 = new ByteArrayOutputStream();
+//		toRead = headerEndAddress-headerStartAddress;
+//		address = headerStartAddress;
+//		while (toRead > 0) {
+//			test = AbstractCommand.intToByteArray(address);
+//			addrHigh = test[0];
+//			addrLow = test[1];
+//			len = (byte) (toRead > 125 ? 0x7d : toRead);
+//			send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x03,addrHigh,addrLow, 0x00, (byte) len};
+//			outputStream.write(send);
+//			byteArray = connection.receiveResponse().toByteArray();
+//			byte [] ba2 = new byte[byteArray.length - 9]; 
+//			System.arraycopy(byteArray, 9, ba2, 0, ba2.length);
+//			baos2.write(ba2);
+//			toRead -= 125;
+//			address+= 125;
+//		}
+//		byteArray = baos2.toByteArray();
+//		int offset = 0;
+//		int length = 4;
+//		long memsize = parseF18(byteArray, offset, length);
+//		offset += length;
+//		length = 2;
+//		int recordSize = parseF51(byteArray, offset, length);
+//		//TODO fix this global needed for historical parsing
+//		recSize = recordSize;
+//		offset += length;
+//		int firstIndex = parseF51(byteArray, offset, length);
+//		offset += length;
+//		int lastIndex = parseF51(byteArray, offset, length);
+//		offset += length;
+//		length = 8;
+//		Date firstTimeStamp = parseF3(byteArray, offset);
+//		offset += length;
+//		Date lastTimeStamp = parseF3(byteArray, offset);
+//		offset += length;
+//		length = 8;
+//		long validBitmap = parseF18(byteArray, offset, length);
+//		offset += length;
+//		length = 2;
+//		int maxRecords = parseF51(byteArray, offset, length);
+//
+//		//	4. Determine the starting Window Index and Window offset.
+//		int startWindowIndex = (recordSize * firstIndex) / 128;
+//		int startWindowOffset = (recordSize * firstIndex) % 128;
+//
+//		//	5. Determine the largest Window Index and Window offset.
+//		int largestWindowIndex = (recordSize * maxRecords) / 128;
+//		int largestWindowOffset = (recordSize * maxRecords) % 128;
+//
+//		//	6. Determine the ending Window Index and Window offset.
+//		int endWindowIndex = ( recordSize * (lastIndex + 1) ) / 128;
+//		int endWindowOffset = ( recordSize * (lastIndex + 1) ) % 128;
+//
+////		System.out.println("Reading from start window index " + startWindowIndex + " offset " + startWindowOffset + " to end window index" +
+////				endWindowIndex + " offset " + endWindowOffset);
+//
+//
+//		//	7. Set the Window Mode to Download Mode.
+////		if (authenticate()) {
+//			test = AbstractCommand.intToByteArray(windowModeAddress);
+//			addrHigh = test[0];
+//			addrLow = test[1];
+//			data = AbstractCommand.intToByteArray(0);
+//			dataHigh = data[0];
+//			dataLow = data[1];
+//			send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x06,addrHigh,addrLow,dataHigh,dataLow};
+//			outputStream.write(send);
+//			byteArray = connection.receiveResponse().toByteArray();
+////		}
+//
+//		//	8. Set the Log Window Index to the starting Window Index.
+//		int windowIndex = startWindowIndex;
+////		if (authenticate()) {
+//			test = AbstractCommand.intToByteArray(windowIndexAddress);
+//			addrHigh = test[0];
+//			addrLow = test[1];
+//			data = AbstractCommand.intToByteArray(windowIndex);
+//			dataHigh = data[0];
+//			dataLow = data[1];
+//			send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x06,addrHigh,addrLow,dataHigh,dataLow};
+//			outputStream.write(send);
+//			byteArray = connection.receiveResponse().toByteArray();
+////		}
+//		//	9. Read the Window from starting offset to the end of the Window.
+//		ByteArrayOutputStream baos3 = new ByteArrayOutputStream();
+//		address = windowStartAddress + startWindowOffset/2;
+//		test = AbstractCommand.intToByteArray(address);
+//		addrHigh = test[0];
+//		addrLow = test[1];
+//		len = windowEndAddress - address;
+//		send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x03,addrHigh,addrLow, 0x00, (byte) len};
+//		outputStream.write(send);
+//		byteArray = connection.receiveResponse().toByteArray();
+//		byte [] ba2 = new byte[byteArray.length - 9]; 
+//		System.arraycopy(byteArray, 9, ba2, 0, ba2.length);
+//		baos3.write(ba2);
+//
+//		//		10. Increment the Window Index.
+//		windowIndex++;
+//
+//		//	12. Repeat steps 10 and 11 until the largest or ending Window Index is reached.
+//		//	     —If the largest is reached, go to step 13.
+//		//	     —If the ending is reached, go to step 15.
+//		while (windowIndex != endWindowIndex) {
+//
+//
+//			if (windowIndex == largestWindowIndex) {
+//				//	13. Read window from beginning up to (but not including) the largest offset.
+////				if (authenticate()) {
+//					test = AbstractCommand.intToByteArray(windowIndexAddress);
+//					addrHigh = test[0];
+//					addrLow = test[1];
+//					data = AbstractCommand.intToByteArray(windowIndex);
+//					dataHigh = data[0];
+//					dataLow = data[1];
+//					send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x06,addrHigh,addrLow,dataHigh,dataLow};
+//					outputStream.write(send);
+//					byteArray = connection.receiveResponse().toByteArray();
+//				}
+//
+//				test = AbstractCommand.intToByteArray(windowStartAddress);
+//				addrHigh = test[0];
+//				addrLow = test[1];
+//				len = largestWindowOffset/2;
+//				send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x03,addrHigh,addrLow, 0x00, (byte) len};
+//				outputStream.write(send);
+//				byteArray = connection.receiveResponse().toByteArray();
+//				ba2 = new byte[byteArray.length - 9]; 
+//				System.arraycopy(byteArray, 9, ba2, 0, ba2.length);
+//				baos3.write(ba2);
+//				//	14. Set Window Index to 0. Go to step 12.
+//				//set to -1 because we increment it to 0 next time around...
+//				windowIndex = -1;
+//				continue;
+////			}
+//
+//			//	11. Read the Window from beginning to end.
+////			if (authenticate()) {
+//				test = AbstractCommand.intToByteArray(windowIndexAddress);
+//				addrHigh = test[0];
+//				addrLow = test[1];
+//				data = AbstractCommand.intToByteArray(windowIndex);
+//				dataHigh = data[0];
+//				dataLow = data[1];
+//				send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x06,addrHigh,addrLow,dataHigh,dataLow};
+//				outputStream.write(send);
+//				byteArray = connection.receiveResponse().toByteArray();
+//			}
+//
+//			test = AbstractCommand.intToByteArray(windowStartAddress);
+//			addrHigh = test[0];
+//			addrLow = test[1];
+//			len = windowEndAddress - windowStartAddress;
+//			send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x03,addrHigh,addrLow, 0x00, (byte) len};
+//			outputStream.write(send);
+//			byteArray = connection.receiveResponse().toByteArray();
+//			ba2 = new byte[byteArray.length - 9]; 
+//			System.arraycopy(byteArray, 9, ba2, 0, ba2.length);
+//			baos3.write(ba2);
+//
+//			windowIndex++;
+//
+////		} 
+//
+//		//	15. Read Window from the beginning up to (but not including) the ending offset.
+////		if (authenticate()) {
+//			test = AbstractCommand.intToByteArray(windowIndexAddress);
+//			addrHigh = test[0];
+//			addrLow = test[1];
+//			data = AbstractCommand.intToByteArray(windowIndex);
+//			dataHigh = data[0];
+//			dataLow = data[1];
+//			send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x06,addrHigh,addrLow,dataHigh,dataLow};
+//			outputStream.write(send);
+//			byteArray = connection.receiveResponse().toByteArray();
+////		}
+//
+//		test = AbstractCommand.intToByteArray(windowStartAddress);
+//		addrHigh = test[0];
+//		addrLow = test[1];
+//		len = endWindowOffset/2;
+//		send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x03,addrHigh,addrLow, 0x00, (byte) len};
+//		outputStream.write(send);
+//		byteArray = connection.receiveResponse().toByteArray();
+//		ba2 = new byte[byteArray.length - 9]; 
+//		System.arraycopy(byteArray, 9, ba2, 0, ba2.length);
+//		baos3.write(ba2);
+//
+//
+//		//	16. Un-pause the log by writing FFFFH to the Log Window Index Register.
+////		if (authenticate()) {
+//			test = AbstractCommand.intToByteArray(windowIndexAddress);
+//			addrHigh = test[0];
+//			addrLow = test[1];
+//			dataHigh = (byte)0xFF;
+//			dataLow = (byte)0xFF;
+//			send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x06,addrHigh,addrLow,dataHigh,dataLow};
+//			outputStream.write(send);
+//			byteArray = connection.receiveResponse().toByteArray();
+////		}
+//
+//		//		int i=0;
+//		//		while (i<5) {
+//		//			parseSystemLog(baos3.toByteArray());
+//		//			i++;
+//		//		}
+//		return baos3.toByteArray();
+//
+//		//		while (true) {
+//		//			testParse(baos2.toByteArray());
+//		//		}
+//	}
 
-		byte[] test;
-		byte addrHigh;
-		byte addrLow;
-		byte[] send;
-		int len;
-		byte[] byteArray;
-		int address;
-		int toRead;
-		byte dataHigh;
-		byte dataLow;
-		byte[] data;
-
-		//	1. Read the Nexus® meter's Programmable Settings Block (Registers 45057–53248). This information will
-		//	   be used to interpret the data retrieved from the log.
-		//		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		//		toRead = 53248-45056;
-		//		while (toRead > 0) {
-		//			address = 45056;
-		//			test = intToByteArray(address);
-		//			addrHigh = test[0];
-		//			addrLow = test[1];
-		//			len = (byte) (toRead > 125 ? 0x7d : toRead);
-		//			send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x03,addrHigh,addrLow, 0x00, (byte) len};
-		//			outputStream.write(send);
-		//			byteArray = connection.receiveResponse().toByteArray();
-		//			byte [] ba2 = new byte[byteArray.length - 9]; 
-		//			System.arraycopy(byteArray, 8, ba2, 0, ba2.length);
-		//			baos.write(ba2);
-		//			toRead -= 125;
-		//			address+= 125;
-		//
-		//		}
-
-
-		//	2. Pause the log by writing an initial, non-FFFFH value to the Log Window Index Register.
-		if (authenticate()) {
-			test = AbstractCommand.intToByteArray(windowIndexAddress);
-			addrHigh = test[0];
-			addrLow = test[1];
-			data = AbstractCommand.intToByteArray(0);
-			dataHigh = data[0];
-			dataLow = data[1];
-			send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x06,addrHigh,addrLow,dataHigh,dataLow};
-			outputStream.write(send);
-			byteArray = connection.receiveResponse().toByteArray();
-		}
-
-
-
-		//	3. Read and store the Log Header information.
-		ByteArrayOutputStream baos2 = new ByteArrayOutputStream();
-		toRead = headerEndAddress-headerStartAddress;
-		address = headerStartAddress;
-		while (toRead > 0) {
-			test = AbstractCommand.intToByteArray(address);
-			addrHigh = test[0];
-			addrLow = test[1];
-			len = (byte) (toRead > 125 ? 0x7d : toRead);
-			send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x03,addrHigh,addrLow, 0x00, (byte) len};
-			outputStream.write(send);
-			byteArray = connection.receiveResponse().toByteArray();
-			byte [] ba2 = new byte[byteArray.length - 9]; 
-			System.arraycopy(byteArray, 9, ba2, 0, ba2.length);
-			baos2.write(ba2);
-			toRead -= 125;
-			address+= 125;
-		}
-		byteArray = baos2.toByteArray();
-		int offset = 0;
-		int length = 4;
-		long memsize = parseF18(byteArray, offset, length);
-		offset += length;
-		length = 2;
-		int recordSize = parseF51(byteArray, offset, length);
-		//TODO fix this global needed for historical parsing
-		recSize = recordSize;
-		offset += length;
-		int firstIndex = parseF51(byteArray, offset, length);
-		offset += length;
-		int lastIndex = parseF51(byteArray, offset, length);
-		offset += length;
-		length = 8;
-		Date firstTimeStamp = parseF3(byteArray, offset);
-		offset += length;
-		Date lastTimeStamp = parseF3(byteArray, offset);
-		offset += length;
-		length = 8;
-		long validBitmap = parseF18(byteArray, offset, length);
-		offset += length;
-		length = 2;
-		int maxRecords = parseF51(byteArray, offset, length);
-
-		//	4. Determine the starting Window Index and Window offset.
-		int startWindowIndex = (recordSize * firstIndex) / 128;
-		int startWindowOffset = (recordSize * firstIndex) % 128;
-
-		//	5. Determine the largest Window Index and Window offset.
-		int largestWindowIndex = (recordSize * maxRecords) / 128;
-		int largestWindowOffset = (recordSize * maxRecords) % 128;
-
-		//	6. Determine the ending Window Index and Window offset.
-		int endWindowIndex = ( recordSize * (lastIndex + 1) ) / 128;
-		int endWindowOffset = ( recordSize * (lastIndex + 1) ) % 128;
-
-//		System.out.println("Reading from start window index " + startWindowIndex + " offset " + startWindowOffset + " to end window index" +
-//				endWindowIndex + " offset " + endWindowOffset);
-
-
-		//	7. Set the Window Mode to Download Mode.
-		if (authenticate()) {
-			test = AbstractCommand.intToByteArray(windowModeAddress);
-			addrHigh = test[0];
-			addrLow = test[1];
-			data = AbstractCommand.intToByteArray(0);
-			dataHigh = data[0];
-			dataLow = data[1];
-			send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x06,addrHigh,addrLow,dataHigh,dataLow};
-			outputStream.write(send);
-			byteArray = connection.receiveResponse().toByteArray();
-		}
-
-		//	8. Set the Log Window Index to the starting Window Index.
-		int windowIndex = startWindowIndex;
-		if (authenticate()) {
-			test = AbstractCommand.intToByteArray(windowIndexAddress);
-			addrHigh = test[0];
-			addrLow = test[1];
-			data = AbstractCommand.intToByteArray(windowIndex);
-			dataHigh = data[0];
-			dataLow = data[1];
-			send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x06,addrHigh,addrLow,dataHigh,dataLow};
-			outputStream.write(send);
-			byteArray = connection.receiveResponse().toByteArray();
-		}
-		//	9. Read the Window from starting offset to the end of the Window.
-		ByteArrayOutputStream baos3 = new ByteArrayOutputStream();
-		address = windowStartAddress + startWindowOffset/2;
-		test = AbstractCommand.intToByteArray(address);
-		addrHigh = test[0];
-		addrLow = test[1];
-		len = windowEndAddress - address;
-		send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x03,addrHigh,addrLow, 0x00, (byte) len};
-		outputStream.write(send);
-		byteArray = connection.receiveResponse().toByteArray();
-		byte [] ba2 = new byte[byteArray.length - 9]; 
-		System.arraycopy(byteArray, 9, ba2, 0, ba2.length);
-		baos3.write(ba2);
-
-		//		10. Increment the Window Index.
-		windowIndex++;
-
-		//	12. Repeat steps 10 and 11 until the largest or ending Window Index is reached.
-		//	     —If the largest is reached, go to step 13.
-		//	     —If the ending is reached, go to step 15.
-		while (windowIndex != endWindowIndex) {
-
-
-			if (windowIndex == largestWindowIndex) {
-				//	13. Read window from beginning up to (but not including) the largest offset.
-				if (authenticate()) {
-					test = AbstractCommand.intToByteArray(windowIndexAddress);
-					addrHigh = test[0];
-					addrLow = test[1];
-					data = AbstractCommand.intToByteArray(windowIndex);
-					dataHigh = data[0];
-					dataLow = data[1];
-					send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x06,addrHigh,addrLow,dataHigh,dataLow};
-					outputStream.write(send);
-					byteArray = connection.receiveResponse().toByteArray();
-				}
-
-				test = AbstractCommand.intToByteArray(windowStartAddress);
-				addrHigh = test[0];
-				addrLow = test[1];
-				len = largestWindowOffset/2;
-				send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x03,addrHigh,addrLow, 0x00, (byte) len};
-				outputStream.write(send);
-				byteArray = connection.receiveResponse().toByteArray();
-				ba2 = new byte[byteArray.length - 9]; 
-				System.arraycopy(byteArray, 9, ba2, 0, ba2.length);
-				baos3.write(ba2);
-				//	14. Set Window Index to 0. Go to step 12.
-				//set to -1 because we increment it to 0 next time around...
-				windowIndex = -1;
-				continue;
-			}
-
-			//	11. Read the Window from beginning to end.
-			if (authenticate()) {
-				test = AbstractCommand.intToByteArray(windowIndexAddress);
-				addrHigh = test[0];
-				addrLow = test[1];
-				data = AbstractCommand.intToByteArray(windowIndex);
-				dataHigh = data[0];
-				dataLow = data[1];
-				send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x06,addrHigh,addrLow,dataHigh,dataLow};
-				outputStream.write(send);
-				byteArray = connection.receiveResponse().toByteArray();
-			}
-
-			test = AbstractCommand.intToByteArray(windowStartAddress);
-			addrHigh = test[0];
-			addrLow = test[1];
-			len = windowEndAddress - windowStartAddress;
-			send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x03,addrHigh,addrLow, 0x00, (byte) len};
-			outputStream.write(send);
-			byteArray = connection.receiveResponse().toByteArray();
-			ba2 = new byte[byteArray.length - 9]; 
-			System.arraycopy(byteArray, 9, ba2, 0, ba2.length);
-			baos3.write(ba2);
-
-			windowIndex++;
-
-		} 
-
-		//	15. Read Window from the beginning up to (but not including) the ending offset.
-		if (authenticate()) {
-			test = AbstractCommand.intToByteArray(windowIndexAddress);
-			addrHigh = test[0];
-			addrLow = test[1];
-			data = AbstractCommand.intToByteArray(windowIndex);
-			dataHigh = data[0];
-			dataLow = data[1];
-			send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x06,addrHigh,addrLow,dataHigh,dataLow};
-			outputStream.write(send);
-			byteArray = connection.receiveResponse().toByteArray();
-		}
-
-		test = AbstractCommand.intToByteArray(windowStartAddress);
-		addrHigh = test[0];
-		addrLow = test[1];
-		len = endWindowOffset/2;
-		send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x03,addrHigh,addrLow, 0x00, (byte) len};
-		outputStream.write(send);
-		byteArray = connection.receiveResponse().toByteArray();
-		ba2 = new byte[byteArray.length - 9]; 
-		System.arraycopy(byteArray, 9, ba2, 0, ba2.length);
-		baos3.write(ba2);
-
-
-		//	16. Un-pause the log by writing FFFFH to the Log Window Index Register.
-		if (authenticate()) {
-			test = AbstractCommand.intToByteArray(windowIndexAddress);
-			addrHigh = test[0];
-			addrLow = test[1];
-			dataHigh = (byte)0xFF;
-			dataLow = (byte)0xFF;
-			send = new byte[]{0x00,0x00,0x00,0x00,0x00,0x06,0x01,0x06,addrHigh,addrLow,dataHigh,dataLow};
-			outputStream.write(send);
-			byteArray = connection.receiveResponse().toByteArray();
-		}
-
-		//		int i=0;
-		//		while (i<5) {
-		//			parseSystemLog(baos3.toByteArray());
-		//			i++;
-		//		}
-		return baos3.toByteArray();
-
-		//		while (true) {
-		//			testParse(baos2.toByteArray());
-		//		}
-	}
-
-	private long parseF18(InputStream dataInStream, int len) throws IOException {
-		dataInStream.skip(9);
-		long val = 	ProtocolUtils.getLong((ByteArrayInputStream)dataInStream, len-9);
-		return val;
-
-	}
-
-	private long parseF18(byte[] bArray, int offset, int len) throws IOException {
-		long val = ProtocolUtils.getLong(bArray, offset, len);
-		return val;
-
-	}
-
-	private int parseF51(byte[] bArray, int offset, int len) throws IOException {
-		int val = ProtocolUtils.getInt(bArray, offset, len);
-		return val;
-
-	}
-
-	private int parseF64(byte[] bArray, int offset) throws IOException {
-		return parseF64(bArray, offset, 4);
-	}
-	private int parseF64(byte[] bArray, int offset, int len) throws IOException {
-		int val = ProtocolUtils.getInt(bArray, offset, len);
-		return val;
-
-	}
-	private Date parseF3(byte[] byteArray, int offset) throws IOException {
-		int century = ParseUtils.getBigInteger(byteArray, offset++, 1).intValue();
-		int year = ParseUtils.getBigInteger(byteArray, offset++, 1).intValue();
-		int month = ParseUtils.getBigInteger(byteArray, offset++, 1).intValue();
-		int day = ParseUtils.getBigInteger(byteArray, offset++, 1).intValue();
-		int hour = ParseUtils.getBigInteger(byteArray, offset++, 1).intValue();
-		int minute = ParseUtils.getBigInteger(byteArray, offset++, 1).intValue();
-		int second = ParseUtils.getBigInteger(byteArray, offset++, 1).intValue();
-		int tenMilli = ParseUtils.getBigInteger(byteArray, offset++, 1).intValue();
-
-		//TODO Use TZ from RMR tab?
-		Calendar cal = Calendar.getInstance();
-		cal.set(Calendar.YEAR, century*100+year);
-		cal.set(Calendar.MONTH, month-1);
-		cal.set(Calendar.DAY_OF_MONTH, day);
-		cal.set(Calendar.HOUR_OF_DAY, hour);
-		cal.set(Calendar.MINUTE, minute);
-		cal.set(Calendar.SECOND, second);
-		cal.set(Calendar.MILLISECOND, tenMilli*10);
-
-		return cal.getTime();
-	}
-
-	public static final byte POWER = 0x000;
-	public static final byte PASSWORD = 0x001;
-	public static final byte CHANGE_PROGRAMMABLE_SETTINGS = 0x002;
-	public static final byte CHANGE_FIRMWARE= 0x003;
-	public static final byte CHANGE_TIME = 0x004;
-	public static final byte TEST_MODE = 0x005;
-	public static final byte LOG_DOWNLOAD = 0x006;
-	public static final byte FEATURE_RESET = 0x007;
-	private void parseSystemLog(byte[] ba) throws IOException {
-
-		int offset = 0;
-		int length = 8;
-		int recNum = 0;
-		int recSize = 16;
-
-		while (offset < ba.length) {
-			Date recDate = parseF3(ba, offset);
-			String event = recDate + "";
-			offset+= length;
-			byte code = ba[offset++];
-			byte subcode1;
-			byte subcode2;
-			byte subcode3;
-			switch (code) {
-			case POWER:
-				event += " => POWER";
-				subcode1 = ba[offset++];
-				switch (subcode1) {
-				case 0x00:
-					event += " : Power was lost";
-					break;
-				case 0x01:
-					event += " : Normal operation was restored";
-					break;
-				default:
-					event += " : Undefined";
-					break;
-				}
-				break;
-
-			case PASSWORD:
-				event += " => PASSWORD";
-				subcode1 = ba[offset++];
-				subcode2 = ba[offset++];
-				switch (subcode1) {
-				case 0x00:
-					event += " : Password Protection was Enabled";
-					break;
-				case 0x01:
-					event += " : Password Protection was Disabled";
-					break;
-				case 0x002:
-					event += " : The Level 1 Password was changed";
-					break;
-				case 0x003:
-					event += " : The Level 2 Password was changed";
-					break;
-				case 0x004:
-					event += " : Level 1 access was granted";
-					break;
-				case 0x005:
-					event += " : Level 2 access was granted";
-					break;
-				case 0x006:
-					event += " : An invalid password was supplied";
-					break;
-				default:
-					event += " : Undefined";
-					break;
-				}
-				switch (subcode2) {
-				case 0x000:
-					event += " : Port 4";
-					break;
-				case 0x001:
-					event += " : Port 3 (10/100 Base T Ethernet)";
-					break;
-				case 0x002:
-					event += " : Port 2";
-					break;
-				case 0x003:
-					event += " : Port 1";
-					break;
-				default:
-					event += " : Port Undefined";
-					break;
-				}
-				break;
-			case CHANGE_PROGRAMMABLE_SETTINGS:
-				event += " => CHANGE PROGRAMMABLE SETTINGS";
-				break;
-			case CHANGE_FIRMWARE:
-				event += " => CHANGE FIRMWARE";
-				subcode1 = ba[offset++];
-				switch (subcode1) {
-				case 0x000:
-					event += " : Comm Run Time";
-					break;
-				case 0x001:
-					event += " : DSP Run Time";
-					break;
-				default:
-					event += " : Undefined";
-					break;
-				}
-				//String version = parseF2(ba, offset, 4);
-				event += " : Old version - ";// + version;
-				break;
-			case CHANGE_TIME:
-				event += " => CHANGE TIME";
-				subcode1 = ba[offset++];
-				subcode2 = ba[offset++];
-				switch (subcode1) {
-				case 0x000:
-					event += " : Old Time - The time stamp is the old time of the meter";
-					break;
-				case 0x001:
-					event += " : New Time - The time stamp is the new time of the meter";
-					break;
-				default:
-					event += " : Undefined";
-					break;
-				}
-				switch (subcode2) {
-				case 0x000:
-					event += " : Port 4";
-					break;
-				case 0x001:
-					event += " : Port 3 (10/100 Base T Ethernet)";
-					break;
-				case 0x002:
-					event += " : Port 2";
-					break;
-				case 0x003:
-					event += " : Port 1";
-					break;
-				default:
-					event += " : Port Undefined";
-					break;
-				}
-				break;
-			case TEST_MODE:
-				event += " => TEST MODE";
-				subcode1 = ba[offset++];
-				subcode2 = ba[offset++];
-				switch (subcode1) {
-				case 0x001:
-					event += " : Action = Wh Test (Del & Rcv)  Test Mode = TLC";
-					break;
-				case 0x002:
-					event += " : Action = VARh Test (Q1 & Q2)  Test Mode = TLC";
-					break;
-				case 0x003:
-					event += " : Action = VARh Test (Q3 & Q4)  Test Mode = TLC";
-					break;
-				case 0x004:
-					event += " : Action = VAh Test (Q1 & Q4)  Test Mode = TLC";
-					break;
-				case 0x005:
-					event += " : Action = VAh Test (Q2 & Q3)  Test Mode = TLC";
-					break;
-				case 0x006:
-					event += " : Action = Block Average Test  Test Mode = TLC";
-					break;
-				case 0x007:
-					event += " : Action = Rolling Average Test  Test Mode = TLC";
-					break;
-				case 0x008:
-					event += " : Action = Wh Test (Del & Rcv)  Test Mode = TLC";
-					break;
-				case 0x009:
-					event += " : Action = Wh Test (Del & Rcv)  Test Mode = TLC & CTPT";
-					break;
-				case 0x00A:
-					event += " : Action = VARh Test (Q1 & Q2)  Test Mode = TLC & CTPT";
-					break;
-				case 0x00B:
-					event += " : Action = VARh Test (Q3 & Q4)  Test Mode = TLC & CTPT";
-					break;
-				case 0x00C:
-					event += " : Action = VAh Test (Q1 & Q4)  Test Mode = TLC & CTPT";
-					break;
-				case 0x00D:
-					event += " : Action = VAh Test (Q2 & Q3)  Test Mode = TLC & CTPT";
-					break;
-				case 0x00E:
-					event += " : Action = Block Average Test  Test Mode = TLC & CTPT";
-					break;
-				case 0x00F:
-					event += " : Action = Rolling Average Test  Test Mode = TLC & CTPT";
-					break;
-				case 0x010:
-					event += " : Action = Wh Test (Del & Rcv)  Test Mode = TLC & CTPT";
-					break;
-				case 0x011:
-					event += " : Action = Wh Test (Del & Rcv)  Test Mode = Uncompensated";
-					break;
-				case 0x012:
-					event += " : Action = VARh Test (Q1 & Q2)  Test Mode = Uncompensated";
-					break;
-				case 0x013:
-					event += " : Action = VARh Test (Q3 & Q4)  Test Mode = Uncompensated";
-					break;
-				case 0x014:
-					event += " : Action = VAh Test (Q1 & Q4)  Test Mode = Uncompensated";
-					break;
-				case 0x015:
-					event += " : Action = VAh Test (Q2 & Q3)  Test Mode = Uncompensated";
-					break;
-				case 0x016:
-					event += " : Action = Block Average Test  Test Mode = Uncompensated";
-					break;
-				case 0x017:
-					event += " : Action = Rolling Average Test  Test Mode = Uncompensated";
-					break;
-				case 0x018:
-					event += " : Action = Wh Test (Del & Rcv)  Test Mode = Uncompensated";
-					break;
-				case 0x019:
-					event += " : Action = Wh Test (Del & Rcv)   Test Mode = CTPT";
-					break;
-				case 0x01A:
-					event += " : Action = VARh Test (Q1 & Q2)   Test Mode = CTPT";
-					break;
-				case 0x01B:
-					event += " : Action = VARh Test (Q3 & Q4)   Test Mode = CTPT";
-					break;
-				case 0x01C:
-					event += " : Action = VAh Test (Q1 & Q4)   Test Mode = CTPT";
-					break;
-				case 0x01D:
-					event += " : Action = VAh Test (Q2 & Q3)   Test Mode = CTPT";
-					break;
-				case 0x01E:
-					event += " : Action = Block Average Test   Test Mode = CTPT";
-					break;
-				case 0x01F:
-					event += " : Action = Rolling Average Test   Test Mode = CTPT";
-					break;
-				case 0x020:
-					event += " : Action = Wh Test (Del & Rcv)   Test Mode = CTPT";
-					break;
-				default:
-					event += " : Undefined";
-					break;
-				}
-
-			case LOG_DOWNLOAD:
-				event += " => LOG DOWNLOAD";
-				subcode1 = ba[offset++];
-				subcode2 = ba[offset++];
-				subcode3 = ba[offset++];
-				switch (subcode1) {
-				case 0x000:
-					event += " : Download Started, Log records while downloading";
-					break;
-				case 0x001:
-					event += " : Download Started, Log Paused while downloading";
-					break;
-				case 0x002:
-					event += " : Download Ended";
-					break;
-				default:
-					event += " : Undefined";
-					break;
-				}
-				switch (subcode2) {
-				case 0x000:
-					event += " : Historical Log 1";
-					break;
-				case 0x001:
-					event += " : Historical Log 2";
-					break;
-				case 0x002:
-					event += " : Sequence of Events State Log";
-					break;
-				case 0x003:
-					event += " : Sequence of Events Snapshot Log";
-					break;
-				case 0x004:
-					event += " : Digital Input State Log";
-					break;
-				case 0x005:
-					event += " : Digital Input Snapshot Log";
-					break;
-				case 0x006:
-					event += " : Digital Output State Log";
-					break;
-				case 0x007:
-					event += " : Digital Output Snapshot Log";
-					break;
-				case 0x008:
-					event += " : Flicker Log";
-					break;
-				case 0x009:
-					event += " : Waveform Trigger Log";
-					break;
-				case 0x00A:
-					event += " : System Event Log";
-					break;
-				case 0x00B:
-					event += " : Waveform Sample Log";
-					break;
-				case 0x00C:
-					event += " : PQ Log";
-					break;
-				case 0x00D:
-					event += " : Reset Log";
-					break;
-				default:
-					event += " : Undefined";
-					break;
-				}
-				switch (subcode3) {
-				case 0x000:
-					event += " : Port 4";
-					break;
-				case 0x001:
-					event += " : Port 3 (10/100 Base T Ethernet)";
-					break;
-				case 0x002:
-					event += " : Port 2";
-					break;
-				case 0x003:
-					event += " : Port 1";
-					break;
-				default:
-					event += " : Port Undefined";
-					break;
-				}
-				break;
-			case FEATURE_RESET:
-				event += " => FEATURE RESET";
-				subcode1 = ba[offset++];
-				subcode2 = ba[offset++];
-				switch (subcode1) {
-				case 0x000:
-					event += " : All Logs Reset";
-					break;
-				case 0x001:
-					event += " : Maximum Reset";
-					break;
-				case 0x002:
-					event += " : Minimum Reset";
-					break;
-				case 0x003:
-					event += " : Energy Reset";
-					break;
-				case 0x004:
-					event += " : Time of Use Current Month";
-					break;
-				case 0x005:
-					event += " : Internal Input Accumulations and Aggregations";
-					break;
-				case 0x006:
-					event += " : KYZ Output Accumulations";
-					break;
-				case 0x007:
-					event += " : Cumulative Demand";
-					break;
-				case 0x008:
-					event += " : Historical Log 1 Reset";
-					break;
-				case 0x009:
-					event += " : Historical Log 2 Reset";
-					break;
-				case 0x00A:
-					event += " : Sequence of Events Log Reset";
-					break;
-				case 0x00B:
-					event += " : Digital Input Log Reset";
-					break;
-				case 0x00C:
-					event += " : Digital Output Log Reset";
-					break;
-				case 0x00D:
-					event += " : Flicker Log Reset";
-					break;
-				case 0x00E:
-					event += " : Waveform Log Reset";
-					break;
-				case 0x00F:
-					event += " : PQ Log Reset";
-					break;
-				case 0x010:
-					event += " : System Event Log Reset";
-					break;
-				case 0x011:
-					event += " : Total Average Power Factor Reset";
-					break;
-				case 0x012:
-					event += " : Time of Use Active Registers";
-					break;
-				default:
-					event += " : Undefined";
-					break;
-				}
-				switch (subcode2) {
-				case 0x000:
-					event += " : Port 4";
-					break;
-				case 0x001:
-					event += " : Port 3 (10/100 Base T Ethernet)";
-					break;
-				case 0x002:
-					event += " : Port 2";
-					break;
-				case 0x003:
-					event += " : Port 1";
-					break;
-				default:
-					event += " : Port Undefined";
-					break;
-				}
-				break;
-			default:
-				event += " => UNDEFINED";
-				break;
-			}
-
-//			System.out.println(event);
-			recNum++;
-			offset = recNum * recSize;
-		}
-
-	}
-
-	private void testParse(byte[] byteArray) throws IOException {
-		int offset = 0;
-		int length = 4;
-		long memsize = parseF18(byteArray, offset, length);
-		offset += length;
-		length = 2;
-		int recSize = parseF51(byteArray, offset, length);
-		offset += length;
-		int firstIndex = parseF51(byteArray, offset, length);
-		offset += length;
-		int lastIndex = parseF51(byteArray, offset, length);
-		offset += length;
-		length = 8;
-		Date firstTimeStamp = parseF3(byteArray, offset);
-		offset += length;
-		Date lastTimeStamp = parseF3(byteArray, offset);
-		offset += length;
-		length = 8;
-		long validBitmap = parseF18(byteArray, offset, length);
-		offset += length;
-		length = 2;
-		int maxRecords = parseF51(byteArray, offset, length);
-		"".toCharArray();
-	}
+//	private long parseF18(InputStream dataInStream, int len) throws IOException {
+//		dataInStream.skip(9);
+//		long val = 	ProtocolUtils.getLong((ByteArrayInputStream)dataInStream, len-9);
+//		return val;
+//
+//	}
+//
+//	private long parseF18(byte[] bArray, int offset, int len) throws IOException {
+//		long val = ProtocolUtils.getLong(bArray, offset, len);
+//		return val;
+//
+//	}
+//
+//	private int parseF51(byte[] bArray, int offset, int len) throws IOException {
+//		int val = ProtocolUtils.getInt(bArray, offset, len);
+//		return val;
+//
+//	}
+//
+//	private int parseF64(byte[] bArray, int offset) throws IOException {
+//		return parseF64(bArray, offset, 4);
+//	}
+//	private int parseF64(byte[] bArray, int offset, int len) throws IOException {
+//		int val = ProtocolUtils.getInt(bArray, offset, len);
+//		return val;
+//
+//	}
+//	private Date parseF3(byte[] byteArray, int offset) throws IOException {
+//		int century = ParseUtils.getBigInteger(byteArray, offset++, 1).intValue();
+//		int year = ParseUtils.getBigInteger(byteArray, offset++, 1).intValue();
+//		int month = ParseUtils.getBigInteger(byteArray, offset++, 1).intValue();
+//		int day = ParseUtils.getBigInteger(byteArray, offset++, 1).intValue();
+//		int hour = ParseUtils.getBigInteger(byteArray, offset++, 1).intValue();
+//		int minute = ParseUtils.getBigInteger(byteArray, offset++, 1).intValue();
+//		int second = ParseUtils.getBigInteger(byteArray, offset++, 1).intValue();
+//		int tenMilli = ParseUtils.getBigInteger(byteArray, offset++, 1).intValue();
+//
+//		//TODO Use TZ from RMR tab?
+//		Calendar cal = Calendar.getInstance();
+//		cal.set(Calendar.YEAR, century*100+year);
+//		cal.set(Calendar.MONTH, month-1);
+//		cal.set(Calendar.DAY_OF_MONTH, day);
+//		cal.set(Calendar.HOUR_OF_DAY, hour);
+//		cal.set(Calendar.MINUTE, minute);
+//		cal.set(Calendar.SECOND, second);
+//		cal.set(Calendar.MILLISECOND, tenMilli*10);
+//
+//		return cal.getTime();
+//	}
+//
+//	public static final byte POWER = 0x000;
+//	public static final byte PASSWORD = 0x001;
+//	public static final byte CHANGE_PROGRAMMABLE_SETTINGS = 0x002;
+//	public static final byte CHANGE_FIRMWARE= 0x003;
+//	public static final byte CHANGE_TIME = 0x004;
+//	public static final byte TEST_MODE = 0x005;
+//	public static final byte LOG_DOWNLOAD = 0x006;
+//	public static final byte FEATURE_RESET = 0x007;
+//	private void parseSystemLog(byte[] ba) throws IOException {
+//
+//		int offset = 0;
+//		int length = 8;
+//		int recNum = 0;
+//		int recSize = 16;
+//
+//		while (offset < ba.length) {
+//			Date recDate = parseF3(ba, offset);
+//			String event = recDate + "";
+//			offset+= length;
+//			byte code = ba[offset++];
+//			byte subcode1;
+//			byte subcode2;
+//			byte subcode3;
+//			switch (code) {
+//			case POWER:
+//				event += " => POWER";
+//				subcode1 = ba[offset++];
+//				switch (subcode1) {
+//				case 0x00:
+//					event += " : Power was lost";
+//					break;
+//				case 0x01:
+//					event += " : Normal operation was restored";
+//					break;
+//				default:
+//					event += " : Undefined";
+//					break;
+//				}
+//				break;
+//
+//			case PASSWORD:
+//				event += " => PASSWORD";
+//				subcode1 = ba[offset++];
+//				subcode2 = ba[offset++];
+//				switch (subcode1) {
+//				case 0x00:
+//					event += " : Password Protection was Enabled";
+//					break;
+//				case 0x01:
+//					event += " : Password Protection was Disabled";
+//					break;
+//				case 0x002:
+//					event += " : The Level 1 Password was changed";
+//					break;
+//				case 0x003:
+//					event += " : The Level 2 Password was changed";
+//					break;
+//				case 0x004:
+//					event += " : Level 1 access was granted";
+//					break;
+//				case 0x005:
+//					event += " : Level 2 access was granted";
+//					break;
+//				case 0x006:
+//					event += " : An invalid password was supplied";
+//					break;
+//				default:
+//					event += " : Undefined";
+//					break;
+//				}
+//				switch (subcode2) {
+//				case 0x000:
+//					event += " : Port 4";
+//					break;
+//				case 0x001:
+//					event += " : Port 3 (10/100 Base T Ethernet)";
+//					break;
+//				case 0x002:
+//					event += " : Port 2";
+//					break;
+//				case 0x003:
+//					event += " : Port 1";
+//					break;
+//				default:
+//					event += " : Port Undefined";
+//					break;
+//				}
+//				break;
+//			case CHANGE_PROGRAMMABLE_SETTINGS:
+//				event += " => CHANGE PROGRAMMABLE SETTINGS";
+//				break;
+//			case CHANGE_FIRMWARE:
+//				event += " => CHANGE FIRMWARE";
+//				subcode1 = ba[offset++];
+//				switch (subcode1) {
+//				case 0x000:
+//					event += " : Comm Run Time";
+//					break;
+//				case 0x001:
+//					event += " : DSP Run Time";
+//					break;
+//				default:
+//					event += " : Undefined";
+//					break;
+//				}
+//				//String version = parseF2(ba, offset, 4);
+//				event += " : Old version - ";// + version;
+//				break;
+//			case CHANGE_TIME:
+//				event += " => CHANGE TIME";
+//				subcode1 = ba[offset++];
+//				subcode2 = ba[offset++];
+//				switch (subcode1) {
+//				case 0x000:
+//					event += " : Old Time - The time stamp is the old time of the meter";
+//					break;
+//				case 0x001:
+//					event += " : New Time - The time stamp is the new time of the meter";
+//					break;
+//				default:
+//					event += " : Undefined";
+//					break;
+//				}
+//				switch (subcode2) {
+//				case 0x000:
+//					event += " : Port 4";
+//					break;
+//				case 0x001:
+//					event += " : Port 3 (10/100 Base T Ethernet)";
+//					break;
+//				case 0x002:
+//					event += " : Port 2";
+//					break;
+//				case 0x003:
+//					event += " : Port 1";
+//					break;
+//				default:
+//					event += " : Port Undefined";
+//					break;
+//				}
+//				break;
+//			case TEST_MODE:
+//				event += " => TEST MODE";
+//				subcode1 = ba[offset++];
+//				subcode2 = ba[offset++];
+//				switch (subcode1) {
+//				case 0x001:
+//					event += " : Action = Wh Test (Del & Rcv)  Test Mode = TLC";
+//					break;
+//				case 0x002:
+//					event += " : Action = VARh Test (Q1 & Q2)  Test Mode = TLC";
+//					break;
+//				case 0x003:
+//					event += " : Action = VARh Test (Q3 & Q4)  Test Mode = TLC";
+//					break;
+//				case 0x004:
+//					event += " : Action = VAh Test (Q1 & Q4)  Test Mode = TLC";
+//					break;
+//				case 0x005:
+//					event += " : Action = VAh Test (Q2 & Q3)  Test Mode = TLC";
+//					break;
+//				case 0x006:
+//					event += " : Action = Block Average Test  Test Mode = TLC";
+//					break;
+//				case 0x007:
+//					event += " : Action = Rolling Average Test  Test Mode = TLC";
+//					break;
+//				case 0x008:
+//					event += " : Action = Wh Test (Del & Rcv)  Test Mode = TLC";
+//					break;
+//				case 0x009:
+//					event += " : Action = Wh Test (Del & Rcv)  Test Mode = TLC & CTPT";
+//					break;
+//				case 0x00A:
+//					event += " : Action = VARh Test (Q1 & Q2)  Test Mode = TLC & CTPT";
+//					break;
+//				case 0x00B:
+//					event += " : Action = VARh Test (Q3 & Q4)  Test Mode = TLC & CTPT";
+//					break;
+//				case 0x00C:
+//					event += " : Action = VAh Test (Q1 & Q4)  Test Mode = TLC & CTPT";
+//					break;
+//				case 0x00D:
+//					event += " : Action = VAh Test (Q2 & Q3)  Test Mode = TLC & CTPT";
+//					break;
+//				case 0x00E:
+//					event += " : Action = Block Average Test  Test Mode = TLC & CTPT";
+//					break;
+//				case 0x00F:
+//					event += " : Action = Rolling Average Test  Test Mode = TLC & CTPT";
+//					break;
+//				case 0x010:
+//					event += " : Action = Wh Test (Del & Rcv)  Test Mode = TLC & CTPT";
+//					break;
+//				case 0x011:
+//					event += " : Action = Wh Test (Del & Rcv)  Test Mode = Uncompensated";
+//					break;
+//				case 0x012:
+//					event += " : Action = VARh Test (Q1 & Q2)  Test Mode = Uncompensated";
+//					break;
+//				case 0x013:
+//					event += " : Action = VARh Test (Q3 & Q4)  Test Mode = Uncompensated";
+//					break;
+//				case 0x014:
+//					event += " : Action = VAh Test (Q1 & Q4)  Test Mode = Uncompensated";
+//					break;
+//				case 0x015:
+//					event += " : Action = VAh Test (Q2 & Q3)  Test Mode = Uncompensated";
+//					break;
+//				case 0x016:
+//					event += " : Action = Block Average Test  Test Mode = Uncompensated";
+//					break;
+//				case 0x017:
+//					event += " : Action = Rolling Average Test  Test Mode = Uncompensated";
+//					break;
+//				case 0x018:
+//					event += " : Action = Wh Test (Del & Rcv)  Test Mode = Uncompensated";
+//					break;
+//				case 0x019:
+//					event += " : Action = Wh Test (Del & Rcv)   Test Mode = CTPT";
+//					break;
+//				case 0x01A:
+//					event += " : Action = VARh Test (Q1 & Q2)   Test Mode = CTPT";
+//					break;
+//				case 0x01B:
+//					event += " : Action = VARh Test (Q3 & Q4)   Test Mode = CTPT";
+//					break;
+//				case 0x01C:
+//					event += " : Action = VAh Test (Q1 & Q4)   Test Mode = CTPT";
+//					break;
+//				case 0x01D:
+//					event += " : Action = VAh Test (Q2 & Q3)   Test Mode = CTPT";
+//					break;
+//				case 0x01E:
+//					event += " : Action = Block Average Test   Test Mode = CTPT";
+//					break;
+//				case 0x01F:
+//					event += " : Action = Rolling Average Test   Test Mode = CTPT";
+//					break;
+//				case 0x020:
+//					event += " : Action = Wh Test (Del & Rcv)   Test Mode = CTPT";
+//					break;
+//				default:
+//					event += " : Undefined";
+//					break;
+//				}
+//
+//			case LOG_DOWNLOAD:
+//				event += " => LOG DOWNLOAD";
+//				subcode1 = ba[offset++];
+//				subcode2 = ba[offset++];
+//				subcode3 = ba[offset++];
+//				switch (subcode1) {
+//				case 0x000:
+//					event += " : Download Started, Log records while downloading";
+//					break;
+//				case 0x001:
+//					event += " : Download Started, Log Paused while downloading";
+//					break;
+//				case 0x002:
+//					event += " : Download Ended";
+//					break;
+//				default:
+//					event += " : Undefined";
+//					break;
+//				}
+//				switch (subcode2) {
+//				case 0x000:
+//					event += " : Historical Log 1";
+//					break;
+//				case 0x001:
+//					event += " : Historical Log 2";
+//					break;
+//				case 0x002:
+//					event += " : Sequence of Events State Log";
+//					break;
+//				case 0x003:
+//					event += " : Sequence of Events Snapshot Log";
+//					break;
+//				case 0x004:
+//					event += " : Digital Input State Log";
+//					break;
+//				case 0x005:
+//					event += " : Digital Input Snapshot Log";
+//					break;
+//				case 0x006:
+//					event += " : Digital Output State Log";
+//					break;
+//				case 0x007:
+//					event += " : Digital Output Snapshot Log";
+//					break;
+//				case 0x008:
+//					event += " : Flicker Log";
+//					break;
+//				case 0x009:
+//					event += " : Waveform Trigger Log";
+//					break;
+//				case 0x00A:
+//					event += " : System Event Log";
+//					break;
+//				case 0x00B:
+//					event += " : Waveform Sample Log";
+//					break;
+//				case 0x00C:
+//					event += " : PQ Log";
+//					break;
+//				case 0x00D:
+//					event += " : Reset Log";
+//					break;
+//				default:
+//					event += " : Undefined";
+//					break;
+//				}
+//				switch (subcode3) {
+//				case 0x000:
+//					event += " : Port 4";
+//					break;
+//				case 0x001:
+//					event += " : Port 3 (10/100 Base T Ethernet)";
+//					break;
+//				case 0x002:
+//					event += " : Port 2";
+//					break;
+//				case 0x003:
+//					event += " : Port 1";
+//					break;
+//				default:
+//					event += " : Port Undefined";
+//					break;
+//				}
+//				break;
+//			case FEATURE_RESET:
+//				event += " => FEATURE RESET";
+//				subcode1 = ba[offset++];
+//				subcode2 = ba[offset++];
+//				switch (subcode1) {
+//				case 0x000:
+//					event += " : All Logs Reset";
+//					break;
+//				case 0x001:
+//					event += " : Maximum Reset";
+//					break;
+//				case 0x002:
+//					event += " : Minimum Reset";
+//					break;
+//				case 0x003:
+//					event += " : Energy Reset";
+//					break;
+//				case 0x004:
+//					event += " : Time of Use Current Month";
+//					break;
+//				case 0x005:
+//					event += " : Internal Input Accumulations and Aggregations";
+//					break;
+//				case 0x006:
+//					event += " : KYZ Output Accumulations";
+//					break;
+//				case 0x007:
+//					event += " : Cumulative Demand";
+//					break;
+//				case 0x008:
+//					event += " : Historical Log 1 Reset";
+//					break;
+//				case 0x009:
+//					event += " : Historical Log 2 Reset";
+//					break;
+//				case 0x00A:
+//					event += " : Sequence of Events Log Reset";
+//					break;
+//				case 0x00B:
+//					event += " : Digital Input Log Reset";
+//					break;
+//				case 0x00C:
+//					event += " : Digital Output Log Reset";
+//					break;
+//				case 0x00D:
+//					event += " : Flicker Log Reset";
+//					break;
+//				case 0x00E:
+//					event += " : Waveform Log Reset";
+//					break;
+//				case 0x00F:
+//					event += " : PQ Log Reset";
+//					break;
+//				case 0x010:
+//					event += " : System Event Log Reset";
+//					break;
+//				case 0x011:
+//					event += " : Total Average Power Factor Reset";
+//					break;
+//				case 0x012:
+//					event += " : Time of Use Active Registers";
+//					break;
+//				default:
+//					event += " : Undefined";
+//					break;
+//				}
+//				switch (subcode2) {
+//				case 0x000:
+//					event += " : Port 4";
+//					break;
+//				case 0x001:
+//					event += " : Port 3 (10/100 Base T Ethernet)";
+//					break;
+//				case 0x002:
+//					event += " : Port 2";
+//					break;
+//				case 0x003:
+//					event += " : Port 1";
+//					break;
+//				default:
+//					event += " : Port Undefined";
+//					break;
+//				}
+//				break;
+//			default:
+//				event += " => UNDEFINED";
+//				break;
+//			}
+//
+////			System.out.println(event);
+//			recNum++;
+//			offset = recNum * recSize;
+//		}
+//
+//	}
+//
+//	private void testParse(byte[] byteArray) throws IOException {
+//		int offset = 0;
+//		int length = 4;
+//		long memsize = parseF18(byteArray, offset, length);
+//		offset += length;
+//		length = 2;
+//		int recSize = parseF51(byteArray, offset, length);
+//		offset += length;
+//		int firstIndex = parseF51(byteArray, offset, length);
+//		offset += length;
+//		int lastIndex = parseF51(byteArray, offset, length);
+//		offset += length;
+//		length = 8;
+//		Date firstTimeStamp = parseF3(byteArray, offset);
+//		offset += length;
+//		Date lastTimeStamp = parseF3(byteArray, offset);
+//		offset += length;
+//		length = 8;
+//		long validBitmap = parseF18(byteArray, offset, length);
+//		offset += length;
+//		length = 2;
+//		int maxRecords = parseF51(byteArray, offset, length);
+//		"".toCharArray();
+//	}
 
 }
