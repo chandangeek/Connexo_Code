@@ -234,6 +234,8 @@ public abstract class AbstractLogReader implements LogReader{
 		int hour = ParseUtils.getBigInteger(byteArray, offset++, 1).intValue();
 		int minute = ParseUtils.getBigInteger(byteArray, offset++, 1).intValue();
 		int second = ParseUtils.getBigInteger(byteArray, offset++, 1).intValue();
+		if ((byteArray[offset] & 0x80) == 0x80)
+			byteArray[offset] = (byte) (byteArray[offset] ^ 0x80);
 		int tenMilli = ParseUtils.getBigInteger(byteArray, offset++, 1).intValue();
 
 		//TODO Use TZ from RMR tab?

@@ -52,7 +52,6 @@ public class LimitTriggerLogReader extends AbstractLogReader {
 
 		try {
 			while (offset < limitTriggerLogData.length) {
-				//FIXME make sure MSB flag on seconds isn't set
 				recDate = parseF3(limitTriggerLogData, offset);
 				offset+= length;
 

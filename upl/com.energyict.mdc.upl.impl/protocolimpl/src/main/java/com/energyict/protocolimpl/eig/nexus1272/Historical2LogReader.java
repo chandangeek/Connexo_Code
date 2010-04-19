@@ -59,7 +59,6 @@ public class Historical2LogReader extends AbstractLogReader {
 		int offset = 0;
 		int length = 4;
 		int recNum = 0;
-		//FIXME FIND THIS SIZE
 
 		try{
 			
