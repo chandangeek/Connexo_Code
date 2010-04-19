@@ -5,7 +5,6 @@ import java.io.OutputStream;
 
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.eig.nexus1272.NexusProtocolConnection;
 import com.energyict.protocolimpl.eig.nexus1272.command.Command;
 import com.energyict.protocolimpl.eig.nexus1272.command.NexusCommandFactory;

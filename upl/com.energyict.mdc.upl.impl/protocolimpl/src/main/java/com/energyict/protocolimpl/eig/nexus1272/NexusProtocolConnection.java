@@ -82,14 +82,7 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 		return receiveResponse(-1);
 	}
 
-	private final long TIMEOUT = 8000;//protocol timeout
-	private final int WAIT_FOR_START = 0;
-	private final int WAIT_FOR_START2 = 1;
-	private final int WAIT_FOR_DATA = 2;
-	private final int CHECK_FOR_DOUBLE_DLE = 3;
-	private final int WAIT_FOR_CRC = 4;
-	private final int DEBUG =0;
-
+	private final long TIMEOUT = 8000;
 	
 	public enum RESPONSE_STATES {BUILD_TID, BUILD_PID, BUILD_LEN, BUILD_UID, BUILD_FC, HANDLE_READ_RESPONSE, HANDLE_WRITE_RESPONSE, CHECK_COMPLETE};
 	public enum READ_RESPONSE_STATES {BUILD_BC, BUILD_DATA};
@@ -99,11 +92,9 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 		byte[] transId = new byte[2];
 		byte[] protocolId = new byte[2];
 		byte[] len = new byte [2];
-		byte unitId;
 		byte functionCode;
 		byte[] startAddress = new byte[2];
 		byte[] data = new byte[2];
-		int length;
 		int byteCount = 0;
 		
 		//Initial States
@@ -116,7 +107,6 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 		long protocolTimeout = System.currentTimeMillis() + TIMEOUT;
 		
 		copyEchoBuffer();
-		boolean doneReading = false;
 		int count = 0;
 		while(true) {
 			
@@ -124,11 +114,6 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 			if ((kar2 = readIn()) != -1) {
 				kar = (byte) kar2;
 				protocolTimeout = System.currentTimeMillis() + TIMEOUT;
-//				resultArrayOutputStream.write(kar);
-				if (DEBUG >= 2) {
-					System.out.print(",");
-					System.out.print(ProtocolUtils.outputHexString(kar));
-				}
 				switch(state) {
 
 				case BUILD_TID: {
@@ -161,7 +146,6 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 
 				} break; // BUILD_LEN
 				case BUILD_UID: {
-					unitId = kar;
 					count++;
 					state = RESPONSE_STATES.BUILD_FC;
 
@@ -226,7 +210,6 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 			} // if ((kar = readIn()) != -1)
 
 			if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
-//				return resultArrayOutputStream;
 				throw new ProtocolConnectionException("receiveWriteResponse() response timeout error",TIMEOUT_ERROR);
 			}
 			if (state == RESPONSE_STATES.CHECK_COMPLETE && kar2 == -1) {
@@ -242,13 +225,6 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 		byte[] transId = new byte[2];
 		byte[] protocolId = new byte[2];
 		byte[] len = new byte [2];
-		byte unitId;
-		byte functionCode;
-		byte[] startAddress = new byte[2];
-		byte[] data = new byte[2];
-		int length;
-		
-		
 		byte kar = -2;
 		state = RESPONSE_STATES.BUILD_TID;
 		ByteArrayOutputStream resultArrayOutputStream = new ByteArrayOutputStream();
@@ -256,7 +232,6 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 		
 		
 		copyEchoBuffer();
-		boolean doneReading = false;
 		int count = 0;
 		while(true) {
 			
@@ -265,10 +240,6 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 				kar = (byte) kar2;
 				protocolTimeout = System.currentTimeMillis() + TIMEOUT;
 				resultArrayOutputStream.write(kar);
-				if (DEBUG >= 2) {
-					System.out.print(",");
-					System.out.print(ProtocolUtils.outputHexString(kar));
-				}
 				switch(state) {
 
 				case BUILD_TID: {
@@ -300,30 +271,10 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 
 				} break; // BUILD_LEN
 				case BUILD_UID: {
-					unitId = kar;
 					count++;
 					state = RESPONSE_STATES.BUILD_FC;
 
 				} break; // BUILD_UID
-//				case BUILD_FC: {
-//					functionCode = kar;
-//					count++;
-//					state = RESPONSE_STATES.BUILD_SA;
-//				} break; // BUILD_FC
-//				case BUILD_SA: {
-//					startAddress[count-8] = kar;
-//					count++;
-//					if (count == 10) {
-//						state = RESPONSE_STATES.BUILD_SP;
-//					}
-//				} break; // BUILD_SA
-//				case BUILD_SP: {
-//					data[count-10] = kar;
-//					count++;
-//					if (count == 12) {
-//						state = RESPONSE_STATES.CHECK_COMPLETE;
-//					}
-//				} break; // BUILD_SP
 				case CHECK_COMPLETE: {
 					throw new IOException("Response is longer than expected, revieved " + ProtocolUtils.outputHexString(kar) + " when expecting nothing");
 				}
@@ -332,11 +283,9 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 			} // if ((kar = readIn()) != -1)
 
 			if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
-//				return resultArrayOutputStream;
 				throw new ProtocolConnectionException("receiveWriteResponse() response timeout error",TIMEOUT_ERROR);
 			}
 			if (state == RESPONSE_STATES.CHECK_COMPLETE && kar2 == -1) {
-				//nothing in the payload of a write command
 				return;
 			}
 			
@@ -346,39 +295,26 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 	public ByteArrayOutputStream receiveResponse(long timeoutEnq) throws IOException {
 		long protocolTimeout,interFrameTimeout;
 		int kar;
-		int count=0;
-		int state = WAIT_FOR_START;
 		ByteArrayOutputStream resultArrayOutputStream = new ByteArrayOutputStream();
-		ByteArrayOutputStream inStream = new ByteArrayOutputStream();
-
 		interFrameTimeout = System.currentTimeMillis() + (timeoutEnq==-1?iProtocolTimeout:timeoutEnq);
 		protocolTimeout = System.currentTimeMillis() + TIMEOUT;
 
 
-		if (DEBUG>=1) System.out.println("KV_DEBUG> timeout="+iProtocolTimeout);
 
 		resultArrayOutputStream.reset();
 		copyEchoBuffer();
-		boolean doneReading = false;
 		while(true) {
 
 			if ((kar = readIn()) != -1) {
 				resultArrayOutputStream.write(kar);
-				if (DEBUG >= 2) {
-					System.out.print(",0x");
-					System.out.print(ProtocolUtils.buildStringDecimal(kar,2));
-				}
-				 // switch(state)
 				protocolTimeout = System.currentTimeMillis() + TIMEOUT;
 			} // if ((kar = readIn()) != -1)
 
 			if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
 				return resultArrayOutputStream;
-//				throw new ProtocolConnectionException("receiveResponse() response timeout error",TIMEOUT_ERROR);
 			}
 
 			if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
-//				throw new ProtocolConnectionException("receiveResponse() interframe timeout error",TIMEOUT_ERROR);
 			}
 
 		} // while(true)
