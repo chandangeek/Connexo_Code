@@ -29,6 +29,7 @@ import com.energyict.protocolimpl.eig.nexus1272.command.AuthenticationCommand;
 import com.energyict.protocolimpl.eig.nexus1272.command.Command;
 import com.energyict.protocolimpl.eig.nexus1272.command.NexusCommandFactory;
 import com.energyict.protocolimpl.eig.nexus1272.command.ReadCommand;
+import com.energyict.protocolimpl.eig.nexus1272.command.SetTimeCommand;
 import com.energyict.protocolimpl.eig.nexus1272.parse.LinePoint;
 import com.energyict.protocolimpl.eig.nexus1272.parse.NexusDataParser;
 import com.energyict.protocolimpl.eig.nexus1272.parse.ScaledEnergySetting;
@@ -164,6 +165,7 @@ public class Nexus1272 extends AbstractProtocol  {
 	public void setTime() throws IOException {
 		authenticate(2);
 		Command command = NexusCommandFactory.getFactory().getSetTimeCommand();
+		((SetTimeCommand)command).setTimeZone(getTimeZone());
 		outputStream.write(command.build());
 		connection.receiveWriteResponse(command);
 	}
@@ -327,8 +329,6 @@ public class Nexus1272 extends AbstractProtocol  {
 	}
 
 	private List<LinePoint> processPointers(byte[] ba) throws IOException {
-		//TODO This is in Historical2LogReader as well
-		
 		int offset = 0;
 		List <LinePoint> lpMap = new ArrayList <LinePoint> ();
 		while (offset <= ba.length-4) {	

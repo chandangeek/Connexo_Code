@@ -1,9 +1,12 @@
 package com.energyict.protocolimpl.eig.nexus1272.command;
 
 import java.util.Calendar;
+import java.util.TimeZone;
 
 
 public class SetTimeCommand extends AbstractWriteMultipleRegistersCommand {
+
+	private TimeZone tz;
 
 	public SetTimeCommand(int transID) {
 		super(transID);
@@ -12,10 +15,15 @@ public class SetTimeCommand extends AbstractWriteMultipleRegistersCommand {
 		payloadByteCount = 0x0A;
 		length = 0x11;
 	}
+	
+	public void setTimeZone(TimeZone tz) {
+		this.tz = tz;
+	}
 
 	@Override
 	protected byte[] getPayload() {
 		Calendar cal = Calendar.getInstance();
+		cal.setTimeZone(tz);
 		byte century = (byte) (cal.get(Calendar.YEAR)/100);
 		byte year = (byte) (cal.get(Calendar.YEAR)%100);
 		byte month = (byte) (cal.get(Calendar.MONTH)+1);
