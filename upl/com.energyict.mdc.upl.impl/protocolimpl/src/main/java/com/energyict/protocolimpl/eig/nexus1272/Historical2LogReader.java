@@ -65,8 +65,11 @@ public class Historical2LogReader extends AbstractLogReader {
 			while (offset < byteArray.length) {
 				length=8;
 				Date recDate = parseF3(byteArray, offset);
-				if (recDate.before(from))
+				if (recDate.before(from)) {
+					recNum++;
+					offset = recNum * meterlpMap.size()*8;
 					continue;
+				}
 				offset+= length;
 				IntervalData intervalData = new IntervalData(recDate,0,0);
 				for (LinePoint lp : meterlpMap) {

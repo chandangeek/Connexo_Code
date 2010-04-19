@@ -53,8 +53,11 @@ public class LimitTriggerLogReader extends AbstractLogReader {
 		try {
 			while (offset < limitTriggerLogData.length) {
 				recDate = parseF3(limitTriggerLogData, offset);
-				if (recDate.before(from))
+				if (recDate.before(from)) {
+					recNum++;
+					offset = recNum * recSize;
 					continue;
+				}
 				offset+= length;
 
 				processComparisonBitmap(limitTriggerLogData, offset);
