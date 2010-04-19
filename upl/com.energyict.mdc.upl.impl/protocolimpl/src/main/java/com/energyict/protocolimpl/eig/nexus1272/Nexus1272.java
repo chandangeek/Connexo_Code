@@ -278,7 +278,7 @@ public class Nexus1272 extends AbstractProtocol  {
 
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
 		
-		for (int i = 0; i<5; i++) {
+		for (int i = 0; i<1; i++) {
 		authenticate();
 		RegisterValue rv;
 		rv = readRegister(new ObisCode(1,1,1,8,1,255));
@@ -333,7 +333,7 @@ public class Nexus1272 extends AbstractProtocol  {
 		rv = readRegister(new ObisCode(1,1,81,7,15,255));
 		rv = readRegister(new ObisCode(1,1,81,7,26,255));
 		try {
-			Thread.sleep(60000l);
+			Thread.sleep(10000l);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
