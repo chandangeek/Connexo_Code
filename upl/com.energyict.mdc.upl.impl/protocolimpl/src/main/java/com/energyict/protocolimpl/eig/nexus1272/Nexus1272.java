@@ -443,7 +443,7 @@ public class Nexus1272 extends AbstractProtocol  {
 	   }
        ObisCodeMapper ocm = new ObisCodeMapper(NexusCommandFactory.getFactory(), connection, outputStream, sesf);
        RegisterValue rv = ocm.getRegisterValue(obisCode); 
-       System.out.println(rv);
+//       System.out.println(rv);
        return rv;
    }
    
