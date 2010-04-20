@@ -51,12 +51,12 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 	private static final String		SET_SFSK_MAX_FRAME_LENGTH_DISPLAY	= "Set the S-FSK maximum frame length property";
 
 	private static final String[][]	FREQUENCIES_NAME = new String[][] {
-		{"CHANNEL1_FM", "CHANNEL1_FS"},
-		{"CHANNEL2_FM", "CHANNEL2_FS"},
-		{"CHANNEL3_FM", "CHANNEL3_FS"},
-		{"CHANNEL4_FM", "CHANNEL4_FS"},
-		{"CHANNEL5_FM", "CHANNEL5_FS"},
-		{"CHANNEL6_FM", "CHANNEL6_FS"}
+		{"CHANNEL1_FS", "CHANNEL1_FM"},
+		{"CHANNEL2_FS", "CHANNEL2_FM"},
+		{"CHANNEL3_FS", "CHANNEL3_FM"},
+		{"CHANNEL4_FS", "CHANNEL4_FM"},
+		{"CHANNEL5_FS", "CHANNEL5_FM"},
+		{"CHANNEL6_FS", "CHANNEL6_FM"}
 	};
 
 	private final AS220 as220;
@@ -329,11 +329,14 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 
 	}
 
-	/**
-	 * @param attributeName
-	 * @param newValue
-	 * @throws IOException
-	 */
+    /**
+     * Check if a attribute read after a write is the same as a given expected value
+     *
+     * @param deviceValue
+     * @param writeValue
+     * @param attributeName
+     * @throws IOException
+     */
 	private void readAfterWriteCheck(int deviceValue, int writeValue, String attributeName) throws IOException {
 		if (writeValue != deviceValue) {
 			throw new IOException("Read after write check failed for attribute " + attributeName + ": '" + deviceValue + "'!='" + writeValue + "'");
