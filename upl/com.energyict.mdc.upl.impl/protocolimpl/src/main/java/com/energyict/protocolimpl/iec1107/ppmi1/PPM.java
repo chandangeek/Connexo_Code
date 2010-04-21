@@ -6,41 +6,23 @@
 
 package com.energyict.protocolimpl.iec1107.ppmi1;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ppmi1.opus.OpusConnection;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileDefinition;
+
+import java.io.*;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @beginchanges
@@ -462,14 +444,13 @@ public class PPM extends AbstractPPM {
 	 */
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
 		ProfileData profileData = profile.getProfileData(from, to, includeEvents);
-		logger.log(Level.INFO, profileData.toString());
 		return profileData;
 	}
 
 	/* (non-Javadoc)
 	 * @see com.energyict.protocol.MeterProtocol#getMeterReading(int)
 	 */
-	public Quantity getMeterReading(int channelId) throws IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
 		LoadProfileDefinition lpd = rFactory.getLoadProfileDefinition();
 		List l = lpd.toChannelInfoList();
 		ChannelInfo ci = (ChannelInfo) l.get(channelId);
