@@ -3,21 +3,16 @@
  */
 package com.energyict.protocolimpl.debug;
 
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.LinkException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.dialer.core.*;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 import com.energyict.protocolimpl.iec1107.ppmi1.PPM;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class can be used to test the PPM1 protocol without the need of the
@@ -33,7 +28,7 @@ public class PPM1Main {
 	private static final long	DELAY_BEFORE_DISCONNECT	= 100;
 
 	private static final TimeZone	DEFAULT_TIMEZONE		= TimeZone.getTimeZone("GMT+01");
-	private static final String		COMPORT					= "COM1";
+	private static final String		COMPORT					= "COM4";
 	private static final int		BAUDRATE				= 300;
 	private static final int		DATABITS				= SerialCommunicationChannel.DATABITS_7;
 	private static final int		PARITY					= SerialCommunicationChannel.PARITY_EVEN;
@@ -54,7 +49,7 @@ public class PPM1Main {
 	public static Dialer getDialer() {
 		if (dialer == null) {
 			dialer = DialerFactory.getOpticalDialer().newDialer();
-			dialer.setStreamObservers(new DebuggingObserver(OBSERVER_FILENAME, false));
+			dialer.setStreamObservers(new DebuggingObserver(OBSERVER_FILENAME, true, true));
 		}
 		return dialer;
 	}
@@ -103,12 +98,9 @@ public class PPM1Main {
 			getPPM().enableHHUSignOn(getDialer().getSerialCommunicationChannel());
 			getPPM().connect();
 
-			Calendar from = Calendar.getInstance();
-			Calendar to = Calendar.getInstance();
+			Calendar from = ProtocolTools.createCalendar(2010, 4, 18, 0, 0, 0, 0);
 
-			from.set(2009, Calendar.JANUARY, 1, 0, 0, 0);
-			//to.set(2012, Calendar.JANUARY, 15, 0, 0, 0);
-			System.out.println(ProtocolTools.getProfileInfo(getPPM().getProfileData(from.getTime(), to.getTime(), false)));
+			System.out.println(ProtocolTools.getProfileInfo(getPPM().getProfileData(from.getTime(), false)));
 
 			System.out.println();
 

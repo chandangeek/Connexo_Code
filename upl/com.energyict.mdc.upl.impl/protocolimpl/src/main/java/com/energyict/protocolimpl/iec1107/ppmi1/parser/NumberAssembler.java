@@ -3,87 +3,93 @@
  */
 package com.energyict.protocolimpl.iec1107.ppmi1.parser;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-
 import com.energyict.protocolimpl.iec1107.ppmi1.PPMUtils;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileStatus;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+
 class NumberAssembler implements Assembler {
 
-	private static final int	BYTES_PER_VALUE		= 2;
-	private static final int	BYTES_PER_STATUS	= 1;
+    private static final int BYTES_PER_CHANNEL = 3;
 
-	private int byteNr;
-	private int[] val = null;
+    private int byteNr;
+    private int[] val = null;
 
-	private ProfileParser profileParser;
+    private ProfileParser profileParser;
 
-	public NumberAssembler(ProfileParser profileParser) {
-		this.profileParser = profileParser;
-	}
+    public NumberAssembler(ProfileParser profileParser) {
+        this.profileParser = profileParser;
+    }
 
-	public void workOn(Assembly ta) throws IOException {
+    public void workOn(Assembly ta) throws IOException {
 
-		Day day = (Day) ta.getTarget();
-		byte bte = ((Byte)ta.pop()).byteValue();
+        Day day = (Day) ta.getTarget();
+        byte bte = ((Byte) ta.pop()).byteValue();
 
-		if (day == null) {
-			return;
-		}
+        if (day == null) {
+            return;
+        }
 
-		getVal()[this.byteNr] = bte;
-		this.byteNr++;
+        getVal()[this.byteNr] = bte;
+        this.byteNr++;
 
-		if (this.byteNr != (getProfileParser().getNrOfChannels() * BYTES_PER_VALUE + BYTES_PER_STATUS)) {
-			return;
-		}
+        if (this.byteNr != (getProfileParser().getNrOfChannels() * BYTES_PER_CHANNEL)) {
+            return;
+        }
 
-		// TODO can be 49 too ... // sh*t!
-		if ((day.getReadIndex() < 48) && day.getReading()[day.getReadIndex()].getDate().before(getProfileParser().getMeterTime())) {
+        Interval interval = day.getReading()[day.getReadIndex()];
 
-			/* 1) create a status object */
-			day.setStatus(new LoadProfileStatus((byte) ((getVal()[0] >> 4) & 0x0F)), day.getReadIndex());
+        // TODO can be 49 too ... // sh*t!
+        if ((day.getReadIndex() < 48) && interval.getDate().before(getProfileParser().getMeterTime())) {
 
-			/* 2) create a reading */
-			for (int vi = 0; vi < getProfileParser().getNrOfChannels(); vi++) {
-				day.getReading()[day.getReadIndex()].setValue(constructValue(getVal(), vi * (BYTES_PER_VALUE + BYTES_PER_STATUS)), vi);
-			}
+            /* 1) create a status object */
+            day.setStatus(new LoadProfileStatus((byte) ((getVal()[0] >> 4) & 0x0F)), day.getReadIndex());
 
-			/* 3) some debugging info */
-			day.setReadingString(
-					" ->" + getVal()[0] +
-					" " + getVal()[1] +
-					" " + getVal()[2],
-					day.getReadIndex()
-			);
+            /* 2) create a reading */
+            for (int channelNr = 0; channelNr < getProfileParser().getNrOfChannels(); channelNr++) {
+                BigDecimal value = constructValue(getVal(), channelNr * BYTES_PER_CHANNEL);
+                interval.setValue(value, channelNr);
+            }
 
-		}
-		this.byteNr = 0;
-		day.incReadIndex();
+            /* 3) some debugging info */
+            day.setReadingString(
+                    " ->" + getVal()[0] +
+                            " " + getVal()[1] +
+                            " " + getVal()[2],
+                    day.getReadIndex()
+            );
 
-	}
+        }
+        this.byteNr = 0;
+        day.incReadIndex();
 
-	public void setByteNr(int byteNr) {
-		this.byteNr = byteNr;
-	}
+    }
 
-	int[] getVal() {
-		if (this.val == null) {
-			this.val = new int[(getProfileParser().getNrOfChannels() * BYTES_PER_VALUE) + BYTES_PER_STATUS];
-		}
-		return this.val;
-	}
+    public void setByteNr(int byteNr) {
+        this.byteNr = byteNr;
+    }
 
-	private BigDecimal constructValue(int[] iArray, int i) throws IOException {
-		long v = PPMUtils.hex2dec((byte) (iArray[i] & 0x0F)) * 10000;
-		v += PPMUtils.hex2dec((byte) ((iArray[i + 1]))) * 100;
-		v += PPMUtils.hex2dec((byte) iArray[i + 2]);
-		return getProfileParser().getScalingFactor().toProfileNumber(v);
-	}
+    private int[] getVal() {
+        if (this.val == null) {
+            this.val = new int[getProfileParser().getNrOfChannels() * BYTES_PER_CHANNEL];
+        }
+        return this.val;
+    }
 
-	public ProfileParser getProfileParser() {
-		return profileParser;
-	}
+    private BigDecimal constructValue(int[] iArray, int i) throws IOException {
+        long v = PPMUtils.hex2dec((byte) (iArray[i] & 0x0F)) * 10000;
+        v += PPMUtils.hex2dec((byte) ((iArray[i + 1]))) * 100;
+        v += PPMUtils.hex2dec((byte) iArray[i + 2]);
+        return getProfileParser().getScalingFactor().toProfileNumber(v);
+    }
+
+    /**
+     * Getter for the profileParser
+     * @return
+     */
+    public ProfileParser getProfileParser() {
+        return profileParser;
+    }
 
 }
