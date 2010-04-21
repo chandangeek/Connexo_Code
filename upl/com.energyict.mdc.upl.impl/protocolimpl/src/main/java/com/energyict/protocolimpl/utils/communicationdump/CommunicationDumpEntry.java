@@ -1,11 +1,9 @@
 package com.energyict.protocolimpl.utils.communicationdump;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import com.energyict.protocolimpl.utils.ProtocolTools;
+
+import java.text.*;
+import java.util.Date;
 
 /**
  * @author jme
@@ -26,7 +24,23 @@ public class CommunicationDumpEntry implements Comparable<CommunicationDumpEntry
 		TX, RX
 	}
 
-	public CommunicationDumpEntry(byte[] data, Date timeStamp, Direction direction, int sequenceNumber) {
+	public static CommunicationDumpEntry createTxEntry(byte[] data) {
+        return createTxEntry(data, -1);
+    }
+
+    public static CommunicationDumpEntry createTxEntry(byte[] data, int sequenceNumber) {
+        return new CommunicationDumpEntry(data, new Date(), Direction.TX, sequenceNumber);
+    }
+
+    public static CommunicationDumpEntry createRxEntry(byte[] data) {
+        return createRxEntry(data, -1);
+    }
+
+    public static CommunicationDumpEntry createRxEntry(byte[] data, int sequenceNumber) {
+        return new CommunicationDumpEntry(data, new Date(), Direction.RX, sequenceNumber);
+    }
+
+    public CommunicationDumpEntry(byte[] data, Date timeStamp, Direction direction, int sequenceNumber) {
 		this.data = data.clone();
 		this.direction = direction;
 		this.timeStamp = timeStamp;

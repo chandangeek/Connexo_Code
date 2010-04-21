@@ -1,20 +1,13 @@
 package com.energyict.protocolimpl.utils;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
 import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.communicationdump.CommunicationDumpEntry;
 import com.energyict.protocolimpl.utils.communicationdump.CommunicationDumpFile;
+
+import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * @author jme
@@ -22,35 +15,40 @@ import com.energyict.protocolimpl.utils.communicationdump.CommunicationDumpFile;
  */
 public class VirtualDevice {
 
-	private ByteArrayInputStream bais = new ByteArrayInputStream(new byte[0]);
-	private CommunicationDumpFile dumpFile = new CommunicationDumpFile("c:\\dump_edited.log");
+	private ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(new byte[0]);
+	private final CommunicationDumpFile dumpFile;
 	private int seqPointer = -1;
+    private boolean showCommunication = false;
 
-	private InputStream inputStream = new InputStream() {
+    public VirtualDevice(CommunicationDumpFile dumpFile) {
+        this.dumpFile = dumpFile;
+    }
 
+    public void reset() {
+        seqPointer = -1;
+    }
+
+    public boolean isShowCommunication() {
+        return showCommunication;
+    }
+
+    public void setShowCommunication(boolean showCommunication) {
+        this.showCommunication = showCommunication;
+    }
+
+    private InputStream inputStream = new InputStream() {
 		@Override
-		public int read() throws IOException {return bais.read();}
-		public int read(byte[] b) throws IOException {return bais.read(b);};
-		public int read(byte[] b, int off, int len) throws IOException {return bais.read(b, off, len);};
-		public int available() throws IOException {return bais.available();};
-
+		public int read() throws IOException {return byteArrayInputStream.read();}
+		public int read(byte[] b) throws IOException {return byteArrayInputStream.read(b);};
+		public int read(byte[] b, int off, int len) throws IOException {return byteArrayInputStream.read(b, off, len);};
+		public int available() throws IOException {return byteArrayInputStream.available();};
 	};
 
 	private OutputStream outputStream = new OutputStream() {
-
 		@Override
-		public void write(int b) throws IOException {
-			throw new UnsupportedException();
-		}
-
-		public void write(byte[] b) throws IOException {
-			throw new UnsupportedException();
-		};
-
-		public void write(byte[] b, int off, int len) throws IOException {
-			//System.out.println(ProtocolTools.getHexStringFromBytes(b));
-			writeToProtocol(getResponseTo(b));
-		}
+		public void write(int b) throws IOException {throw new UnsupportedException();}
+		public void write(byte[] b) throws IOException {throw new UnsupportedException();};
+		public void write(byte[] b, int off, int len) throws IOException {writeToProtocol(getResponseTo(b));}
 
 	};
 
@@ -63,25 +61,30 @@ public class VirtualDevice {
 	}
 
 	private void writeToProtocol(byte[] bytes) {
-		//System.out.println("TX: " + ProtocolTools.getHexStringFromBytes(bytes));
-		bais = new ByteArrayInputStream(bytes);
+        if (isShowCommunication()) {
+            System.out.println(CommunicationDumpEntry.createRxEntry(bytes));
+        }
+        byteArrayInputStream = new ByteArrayInputStream(bytes);
 	}
 
-	private byte[] getResponseTo(byte[] b) {
-		List<CommunicationDumpEntry> tx = dumpFile.getTxEntries();
-		for (CommunicationDumpEntry txEntry : tx) {
-			if (seqPointer < txEntry.getSequenceNumber()) {
-				if (Arrays.equals(txEntry.getData(), b)) {
-					seqPointer = txEntry.getSequenceNumber();
-					List<CommunicationDumpEntry> rx = dumpFile.getRxEntries();
-					for (CommunicationDumpEntry rxEntry : rx) {
-						if (seqPointer < rxEntry.getSequenceNumber()) {
-							seqPointer = rxEntry.getSequenceNumber();
-							return rxEntry.getData();
-						}
-					}
-				}
-			}
+    private byte[] getResponseTo(byte[] data) {
+        if (isShowCommunication()) {
+            System.out.println(CommunicationDumpEntry.createTxEntry(data));
+        }
+        List<CommunicationDumpEntry> tx = dumpFile.getTxEntries();
+        for (CommunicationDumpEntry txEntry : tx) {
+            if (seqPointer < txEntry.getSequenceNumber()) {
+                if (Arrays.equals(txEntry.getData(), data)) {
+                    seqPointer = txEntry.getSequenceNumber();
+                    List<CommunicationDumpEntry> rx = dumpFile.getRxEntries();
+                    for (CommunicationDumpEntry rxEntry : rx) {
+                        if (seqPointer < rxEntry.getSequenceNumber()) {
+                            seqPointer = rxEntry.getSequenceNumber();
+                            return rxEntry.getData().clone();
+                        }
+                    }
+                }
+            }
 		}
 		return new byte[0];
 	};
@@ -113,8 +116,6 @@ public class VirtualDevice {
 				e.printStackTrace();
 			}
 		}
-
-		//ProtocolTools.writeBytesToFile("c:\\dump_edited.log", baos.toByteArray(), false);
 
 		for (String string : content) {
 			System.out.print(string);
