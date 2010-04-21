@@ -1,24 +1,10 @@
 package com.energyict.protocolimpl.utils;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
+
+import java.io.*;
+import java.util.*;
 
 /**
  * Utility class with static methods used for protocols
@@ -448,5 +434,28 @@ public final class ProtocolTools {
 			registerValue.getText()
 		);
 	}
+
+    /**
+     * Create a new instance of the Calendar with a given timestamp
+     * @param year
+     * @param month
+     * @param dayOfMonth
+     * @param hourOfDay
+     * @param minutes
+     * @param seconds
+     * @param millis
+     * @return the new Calendar
+     */
+    public static Calendar createCalendar(int year, int month, int dayOfMonth, int hourOfDay, int minutes, int seconds, int millis) {
+        Calendar returnValue = Calendar.getInstance();
+        returnValue.set(Calendar.YEAR, year);
+        returnValue.set(Calendar.MONTH, month-1);
+        returnValue.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+        returnValue.set(Calendar.HOUR_OF_DAY, hourOfDay);
+        returnValue.set(Calendar.MINUTE, minutes);
+        returnValue.set(Calendar.SECOND, seconds);
+        returnValue.set(Calendar.MILLISECOND, millis);
+        return returnValue;
+    }
 
 }
