@@ -399,14 +399,6 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
      * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date, boolean)
      */
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-        System.out.println(lastReading + "***");
-        Calendar c = Calendar.getInstance();
-        c.set(Calendar.HOUR_OF_DAY, 10);
-        c.set(Calendar.MINUTE, 05);
-        c.set(Calendar.SECOND, 00);
-        c.set(Calendar.MILLISECOND, 0);
-        lastReading = c.getTime();
-        System.out.println(lastReading + "***");
         ProfileData pd = getTable12(lastReading, includeEvents).getProfile();
         return pd;
         
