@@ -34,7 +34,7 @@ class Table12 {
     ProfileData profileData;
     TimeZone timeZone;
     
-    static Table12 parse( Assembly assembly, boolean includeEvents, int nrOfIntervals, boolean readProfileDataBeforeConfigChange) throws IOException{
+    static Table12 parse( Assembly assembly, boolean includeEvents, int nrOfIntervals, boolean readProfileDataBeforeConfigChange, Date lastReadDate) throws IOException{
         Table12 t = new Table12();
 
         MaxSys max = assembly.getMaxSys();
@@ -59,8 +59,8 @@ class Table12 {
         //returned to the Central Computer.
 
         t.lastIntlTime  = TypeDateTimeRcd.parse( assembly ).toDate();
-        
-        t.parseProfileData(assembly, readProfileDataBeforeConfigChange, max.getBeginningOfRecording());
+        Date clipDate = max.getBeginningOfRecording();
+        t.parseProfileData(assembly, readProfileDataBeforeConfigChange, clipDate, lastReadDate);
         
         if( includeEvents ) {
             Iterator i = assembly.getMaxSys().getTable4().getMeterEvents().iterator();
@@ -113,7 +113,7 @@ class Table12 {
     }
     
     
-    void parseProfileData(Assembly assembly, boolean readProfileDataBeforeConfigChange, Date clipDate) throws IOException{
+    void parseProfileData(Assembly assembly, boolean readProfileDataBeforeConfigChange, Date clipDate, Date lastReadDate) throws IOException{
         profileData = new ProfileData();
         Iterator ci = channelInfo.iterator();
         while( ci.hasNext() ){
@@ -133,10 +133,11 @@ class Table12 {
             iCalendar.add( Calendar.MINUTE, (-1*intervalMinutes) ); 
             parseInterval(ba, id);
             
-            if (readProfileDataBeforeConfigChange) 
+            if (readProfileDataBeforeConfigChange && id.getEndTime().after(lastReadDate)) {
             	profileData.addInterval(id);
+            }
             else {
-            	if (id.getEndTime().after(clipDate))
+            	if (id.getEndTime().after(clipDate) && id.getEndTime().after(lastReadDate))
             		profileData.addInterval(id);
             }
             
