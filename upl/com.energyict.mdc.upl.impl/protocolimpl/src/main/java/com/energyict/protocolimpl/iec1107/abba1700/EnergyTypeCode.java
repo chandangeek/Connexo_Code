@@ -6,13 +6,11 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.NoSuchRegisterException;
+
+import java.util.*;
 /**
  *
  * @author  Koen
@@ -21,21 +19,22 @@ public class EnergyTypeCode {
     static List list = new ArrayList();
     static {
         // data identity 507
-        list.add(new EnergyTypeCode(1,Unit.get(BaseUnit.WATTHOUR,-3),1,"active import"));
-        list.add(new EnergyTypeCode(2,Unit.get(BaseUnit.WATTHOUR,-3),2,"active export"));
-        list.add(new EnergyTypeCode(3,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),5,"reactive Q1"));
-        list.add(new EnergyTypeCode(4,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),6,"reactive Q2"));
-        list.add(new EnergyTypeCode(5,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),7,"reactive Q3"));
-        list.add(new EnergyTypeCode(6,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),8,"reactive Q4"));
-        list.add(new EnergyTypeCode(7,Unit.get(BaseUnit.VOLTAMPEREHOUR,-3),9,"apparent"));
-        list.add(new EnergyTypeCode(8,Unit.get(BaseUnit.COUNT,0),128,"customer defined 1"));
-        list.add(new EnergyTypeCode(9,Unit.get(BaseUnit.COUNT,0),129,"customer defined 2"));
-        list.add(new EnergyTypeCode(10,Unit.get(BaseUnit.COUNT,0),130,"customer defined 3"));
+        list.add(new EnergyTypeCode(0, Unit.getUndefined(), 0, "no source"));
+        list.add(new EnergyTypeCode(1, Unit.get(BaseUnit.WATTHOUR, -3), 1, "active import"));
+        list.add(new EnergyTypeCode(2, Unit.get(BaseUnit.WATTHOUR, -3), 2, "active export"));
+        list.add(new EnergyTypeCode(3, Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, -3), 5, "reactive Q1"));
+        list.add(new EnergyTypeCode(4, Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, -3), 6, "reactive Q2"));
+        list.add(new EnergyTypeCode(5, Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, -3), 7, "reactive Q3"));
+        list.add(new EnergyTypeCode(6, Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, -3), 8, "reactive Q4"));
+        list.add(new EnergyTypeCode(7, Unit.get(BaseUnit.VOLTAMPEREHOUR, -3), 9, "apparent"));
+        list.add(new EnergyTypeCode(8, Unit.get(BaseUnit.COUNT, 0), 128, "customer defined 1"));
+        list.add(new EnergyTypeCode(9, Unit.get(BaseUnit.COUNT, 0), 129, "customer defined 2"));
+        list.add(new EnergyTypeCode(10, Unit.get(BaseUnit.COUNT, 0), 130, "customer defined 3"));
         // data identity 516
-        list.add(new EnergyTypeCode(11,Unit.get(BaseUnit.COUNT,0),131,"external input 1"));
-        list.add(new EnergyTypeCode(12,Unit.get(BaseUnit.COUNT,0),132,"external input 2"));
-        list.add(new EnergyTypeCode(13,Unit.get(BaseUnit.COUNT,0),133,"external input 3"));
-        list.add(new EnergyTypeCode(14,Unit.get(BaseUnit.COUNT,0),134,"external input 4"));
+        list.add(new EnergyTypeCode(11, Unit.get(BaseUnit.COUNT, 0), 131, "external input 1"));
+        list.add(new EnergyTypeCode(12, Unit.get(BaseUnit.COUNT, 0), 132, "external input 2"));
+        list.add(new EnergyTypeCode(13, Unit.get(BaseUnit.COUNT, 0), 133, "external input 3"));
+        list.add(new EnergyTypeCode(14, Unit.get(BaseUnit.COUNT, 0), 134, "external input 4"));
     }
     int regSource;
     Unit unit;

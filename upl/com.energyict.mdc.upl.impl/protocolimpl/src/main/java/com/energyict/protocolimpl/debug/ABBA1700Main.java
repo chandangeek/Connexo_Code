@@ -6,6 +6,7 @@ package com.energyict.protocolimpl.debug;
 import com.energyict.dialer.core.*;
 import com.energyict.dialer.coreimpl.OpticalDialer;
 import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 import com.energyict.protocolimpl.iec1107.abba1700.ABBA1700;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -34,7 +35,7 @@ public class ABBA1700Main {
     private static final int DATABITS = SerialCommunicationChannel.DATABITS_8;
     private static final int PARITY = SerialCommunicationChannel.PARITY_NONE;
     private static final int STOPBITS = SerialCommunicationChannel.STOPBITS_1;
-    private static final long PROFILE_LENGTH = 1000 * 60 * 60 * 24 * 7;
+    private static final long PROFILE_LENGTH = 1000 * 60 * 60 * 24 * 1;
 
     private static ABBA1700 abba1700 = null;
     private static Dialer dialer = null;
@@ -51,7 +52,7 @@ public class ABBA1700Main {
     public static Dialer getDialer() {
         if (dialer == null) {
             dialer = DialerFactory.getStandardModemDialer().newDialer();
-            dialer.setStreamObservers(new DebuggingObserver(OBSERVER_FILENAME, true, true));
+            dialer.setStreamObservers(new DebuggingObserver(OBSERVER_FILENAME, false, false));
         }
         return dialer;
     }
@@ -90,42 +91,41 @@ public class ABBA1700Main {
      */
     public static void main(String[] args) throws IOException, LinkException {
 
-        do {
+        try {
+            getDialer().init(COMPORT, "ATM0");
+            getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
+            getDialer().connect("000447975171697", 60 * 1000);
 
             try {
-                getDialer().init(COMPORT, "ATM0");
-                getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
-                getDialer().connect("000447975171697", 60 * 1000);
 
-                try {
-
-                    getABBA1700().setProperties(getProperties());
-                    getABBA1700().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
-                    if (getDialer() instanceof OpticalDialer) {
-                        getABBA1700().enableHHUSignOn(getDialer().getSerialCommunicationChannel());
-                    }
-                    getABBA1700().connect();
-
-                    getABBA1700().getProfileData(new Date(System.currentTimeMillis() - PROFILE_LENGTH), false);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    ProtocolTools.delay(DELAY_BEFORE_DISCONNECT);
+                getABBA1700().setProperties(getProperties());
+                getABBA1700().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
+                if (getDialer() instanceof OpticalDialer) {
+                    getABBA1700().enableHHUSignOn(getDialer().getSerialCommunicationChannel());
                 }
+                getABBA1700().connect();
+
+                ProfileData pd = getABBA1700().getProfileData(new Date(System.currentTimeMillis() - PROFILE_LENGTH), false);
+                System.out.println(pd.toString());
 
             } catch (Exception e) {
-                log("Error: " + e.getMessage() + ". \n");
+                e.printStackTrace();
             } finally {
-                log("Closing connections. \n");
-                if (getDialer().getStreamConnection().isOpen()) {
-                    getDialer().disConnect();
-                }
+                ProtocolTools.delay(DELAY_BEFORE_DISCONNECT);
             }
 
-            System.out.println("\r\n");
+            getABBA1700().disconnect();
 
-        } while (true);
+        } catch (Exception e) {
+            log("Error: " + e.getMessage() + ". \n");
+        } finally {
+            log("Closing connections. \n");
+            if (getDialer().getStreamConnection().isOpen()) {
+                getDialer().disConnect();
+            }
+        }
+
+        System.out.println("\r\n");
 
     }
 
