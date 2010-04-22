@@ -397,7 +397,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 	public void setTime() throws IOException {
 		//getLogger().info("call setTime() (this method is called automatically when needed)");
 		//getLogger().info("--> sync the metertime with the systemtime here");
-		Calendar cal = Calendar.getInstance();
+		Calendar cal = Calendar.getInstance(getTimeZone());
 		int yy = cal.get(Calendar.YEAR)%100;
 		//Month starts with 1 on meter, 0 in java (for Jan)
 		int mm = cal.get(Calendar.MONTH)+1;
