@@ -24,6 +24,7 @@ public class JIRA_COMMUNICATION_60 {
 
     private static final String FULL_DEBUG_1 = "jira_communication-60_01.log";
     private static final String FULL_DEBUG_2 = "jira_communication-60_02.log";
+    private static final String FULL_DEBUG_3 = "jira_communication-60_03.log";
     private static final TimeZone TIME_ZONE = TimeZone.getTimeZone("GMT");
 
     @Test
@@ -32,8 +33,20 @@ public class JIRA_COMMUNICATION_60 {
         Date from = ProtocolTools.createCalendar(2010, 2, 27, 0, 0, 0, 0).getTime();
         Date to = ProtocolTools.createCalendar(2010, 3, 10, 0, 0, 0, 0).getTime();
 
+        Properties properties = new Properties();
+        properties.setProperty(MeterProtocol.MAXTIMEDIFF, "300");
+        properties.setProperty(MeterProtocol.MINTIMEDIFF, "1");
+        properties.setProperty(MeterProtocol.CORRECTTIME, "0");
+        properties.setProperty("Retries", "10");
+        properties.setProperty("Timeout", "50");
+        properties.setProperty("OPUS", "0");
+        properties.setProperty("ForcedDelay", "0");
+        properties.setProperty(MeterProtocol.PROFILEINTERVAL, "1800");
+        properties.setProperty(MeterProtocol.PASSWORD, "--------");
+        properties.setProperty(MeterProtocol.SERIALNUMBER, "K94DS02874");
+
         try {
-            PPM ppm = getPreparedPPMProtocol(getVirtualDeviceDialer(FULL_DEBUG_1, false), TIME_ZONE);
+            PPM ppm = getPreparedPPMProtocol(getVirtualDeviceDialer(FULL_DEBUG_1, false), TIME_ZONE, properties);
             pd = ppm.getProfileData(from, to, true);
         } catch (Exception e) {
             log(e);
@@ -61,8 +74,20 @@ public class JIRA_COMMUNICATION_60 {
         Date from = ProtocolTools.createCalendar(2010, 3, 4, 0, 0, 0, 0).getTime();
         Date to = ProtocolTools.createCalendar(2010, 3, 10, 0, 0, 0, 0).getTime();
 
+        Properties properties = new Properties();
+        properties.setProperty(MeterProtocol.MAXTIMEDIFF, "300");
+        properties.setProperty(MeterProtocol.MINTIMEDIFF, "1");
+        properties.setProperty(MeterProtocol.CORRECTTIME, "0");
+        properties.setProperty("Retries", "10");
+        properties.setProperty("Timeout", "50");
+        properties.setProperty("OPUS", "0");
+        properties.setProperty("ForcedDelay", "0");
+        properties.setProperty(MeterProtocol.PROFILEINTERVAL, "1800");
+        properties.setProperty(MeterProtocol.PASSWORD, "--------");
+        properties.setProperty(MeterProtocol.SERIALNUMBER, "K94DS02874");
+
         try {
-            PPM ppm = getPreparedPPMProtocol(getVirtualDeviceDialer(FULL_DEBUG_2, false), TIME_ZONE);
+            PPM ppm = getPreparedPPMProtocol(getVirtualDeviceDialer(FULL_DEBUG_2, false), TIME_ZONE, properties);
             pd = ppm.getProfileData(from, to, true);
         } catch (Exception e) {
             log(e);
@@ -83,6 +108,41 @@ public class JIRA_COMMUNICATION_60 {
 
     }
 
+    @Test
+    public void profileTest_JIRA_COMMUNICATION60_3() {
+        ProfileData pd = null;
+        Date from = ProtocolTools.createCalendar(2010, 2, 1, 0, 0, 0, 0).getTime();
+        Date to = ProtocolTools.createCalendar(2010, 4, 22, 12, 0, 0, 0).getTime();
+
+        Properties properties = new Properties();
+        properties.setProperty(MeterProtocol.CORRECTTIME, "0");
+        properties.setProperty("Retries", "3");
+        properties.setProperty("Timeout", "50");
+        properties.setProperty("OPUS", "0");
+        properties.setProperty("ForcedDelay", "0");
+        properties.setProperty(MeterProtocol.PROFILEINTERVAL, "1800");
+        properties.setProperty(MeterProtocol.PASSWORD, "--------");
+        properties.setProperty(MeterProtocol.SERIALNUMBER, "--------K9302433");
+
+        try {
+            PPM ppm = getPreparedPPMProtocol(getVirtualDeviceDialer(FULL_DEBUG_3, false), TIME_ZONE, properties);
+            ppm.getNumberOfChannels();
+            pd = ppm.getProfileData(from, to, true);
+        } catch (Exception e) {
+            log(e);
+            fail("An unexpected error occured during the JUnit test");
+        }
+
+        assertNotNull(pd);
+        assertEquals(1, pd.getNumberOfChannels());
+        assertEquals(1, pd.getChannelInfos().size());
+        assertEquals(Unit.get("kW"), pd.getChannel(0).getUnit());
+        assertEquals(from, pd.getIntervalData(0).getEndTime());
+        assertEquals(1133, pd.getNumberOfEvents());
+        assertEquals(3580, pd.getNumberOfIntervals());
+
+    }
+
     /**
      * Create an instantation of the PPM issue 1 protocol, do the initialisation and connect to the device
      *
@@ -91,9 +151,9 @@ public class JIRA_COMMUNICATION_60 {
      * @return
      * @throws IOException
      */
-    private PPM getPreparedPPMProtocol(Dialer dialer, TimeZone timeZone) throws IOException {
+    private PPM getPreparedPPMProtocol(Dialer dialer, TimeZone timeZone, Properties properties) throws IOException {
         PPM ppm = new PPM();
-        ppm.setProperties(getProperties());
+        ppm.setProperties(properties);
         ppm.init(dialer.getInputStream(), dialer.getOutputStream(), timeZone, getLogger());
         ppm.enableHHUSignOn(dialer.getSerialCommunicationChannel(), false);
         ppm.connect();
@@ -112,26 +172,6 @@ public class JIRA_COMMUNICATION_60 {
         VirtualDeviceDialer virtualDeviceDialer = new VirtualDeviceDialer(debugFile);
         virtualDeviceDialer.setShowCommunication(showCommunication);
         return virtualDeviceDialer;
-    }
-
-    /**
-     * Getter for the default properties used in this particular case
-     *
-     * @return
-     */
-    private Properties getProperties() {
-        Properties properties = new Properties();
-        properties.setProperty(MeterProtocol.MAXTIMEDIFF, "300");
-        properties.setProperty(MeterProtocol.MINTIMEDIFF, "1");
-        properties.setProperty(MeterProtocol.CORRECTTIME, "0");
-        properties.setProperty("Retries", "10");
-        properties.setProperty("Timeout", "50");
-        properties.setProperty("OPUS", "0");
-        properties.setProperty("ForcedDelay", "0");
-        properties.setProperty(MeterProtocol.PROFILEINTERVAL, "1800");
-        properties.setProperty(MeterProtocol.PASSWORD, "--------");
-        properties.setProperty(MeterProtocol.SERIALNUMBER, "K94DS02874");
-        return properties;
     }
 
     /**
