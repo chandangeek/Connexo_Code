@@ -736,7 +736,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
             fCal.add( Calendar.MINUTE, intervalMinutes );
             nrIntervals = nrIntervals + 1;
         }    
-        nrIntervals+=5;
+        nrIntervals+=2;
         int totalSize = (( headerSize + ( nrIntervals * intervalSize ) ) / 256)+1; // KV_CHANGED, add +1 to avoid 0, that is what the doc tells...
                                                                                    // If bytes 7 and 8 are both
                                                                                    // zero then the SMD will transmit the number of bytes
