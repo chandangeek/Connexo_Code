@@ -399,7 +399,14 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
      * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date, boolean)
      */
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-        
+        System.out.println(lastReading + "***");
+        Calendar c = Calendar.getInstance();
+        c.set(Calendar.HOUR_OF_DAY, 10);
+        c.set(Calendar.MINUTE, 05);
+        c.set(Calendar.SECOND, 00);
+        c.set(Calendar.MILLISECOND, 0);
+        lastReading = c.getTime();
+        System.out.println(lastReading + "***");
         ProfileData pd = getTable12(lastReading, includeEvents).getProfile();
         return pd;
         
@@ -720,6 +727,9 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         //fact that when the before comparisone happens, the
         //calendars would have non-zero seconds/milliseconds
         
+        //Here we want to round the to calendar to the next interval in case
+        //we jump the interval boundary while reading
+        
         Calendar tCal = Calendar.getInstance(timeZone);
         tCal.setTime( getTime() );
         ParseUtils.roundDown2nearestInterval(tCal, intervalMinutes*60);
@@ -728,11 +738,13 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         fCal.set(Calendar.MILLISECOND, 0);
         fCal.set(Calendar.SECOND, 0);
         int nrIntervals = 0;
+//        System.out.println("From: " + fCal.getTime() + " to: " + tCal.getTime());
+        Date lastReadDate = fCal.getTime();
         while( fCal.before(tCal) ) {
             fCal.add( Calendar.MINUTE, intervalMinutes );
             nrIntervals = nrIntervals + 1;
         }    
-        
+        nrIntervals+=5;
         int totalSize = (( headerSize + ( nrIntervals * intervalSize ) ) / 256)+1; // KV_CHANGED, add +1 to avoid 0, that is what the doc tells...
                                                                                    // If bytes 7 and 8 are both
                                                                                    // zero then the SMD will transmit the number of bytes
@@ -750,7 +762,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         command.setNbls( totalSize & 0x000000FF );
         command.setNbms( totalSize & 0x0000FF00 );
         ByteArray ba = linkLayer.send( command );
-        return Table12.parse( new Assembly( this, ba ), includeEvents, nrIntervals, readProfileDataBeforeConfigChange );
+        return Table12.parse( new Assembly( this, ba ), includeEvents, nrIntervals, readProfileDataBeforeConfigChange, lastReadDate );
     }
     
     Table13 getTable13() throws IOException {
