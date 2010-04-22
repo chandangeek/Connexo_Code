@@ -1,15 +1,15 @@
 package com.energyict.protocolimpl.iec1107.ppmi1;
 
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocolimpl.iec1107.ppmi1.opus.OpusProfile;
+import com.energyict.protocolimpl.iec1107.ppmi1.parser.ProfileParser;
+import com.energyict.protocolimpl.iec1107.ppmi1.parser.ProfileReverseParser;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocolimpl.iec1107.ppmi1.opus.OpusProfile;
-import com.energyict.protocolimpl.iec1107.ppmi1.parser.ProfileParser;
-import com.energyict.protocolimpl.iec1107.ppmi1.parser.ProfileReverseParser;
 
 /**
  * <strong>Profile responsibilities: </strong>
@@ -35,8 +35,7 @@ public class Profile {
 	private static final int		MS_PER_SECOND			= 1000;
 
 	/** Some profile statics */
-	private static final int		CHANNEL_BYTE_SIZE		= 5;
-	private static final int		STATUS_BYTE_SIZE		= 1;
+	private static final int		CHANNEL_BYTE_SIZE		= 6;
 	private static final int		E4_BYTE_SIZE			= 2;
 	private static final int		DATE_BYTE_SIZE			= 4;
 
@@ -176,10 +175,9 @@ public class Profile {
 	 * @return the number of days in the given timeframe
 	 */
 	private static long nrDaysInPeriodIEC(Date start, Date end) {
-		// day index since start of count
-		long sd = start.getTime() / MS_PER_SECOND / SECONDS_PER_MINUTE / MINUTES_PER_HOUR / HOURS_PER_DAY;
-		long ed = end.getTime() / MS_PER_SECOND / SECONDS_PER_MINUTE / MINUTES_PER_HOUR / HOURS_PER_DAY;
-		return ed - sd + 1;
+		long diff = end.getTime() - start.getTime();
+        long numberOfDays = (diff / (MS_PER_SECOND * SECONDS_PER_MINUTE * MINUTES_PER_HOUR * HOURS_PER_DAY)) + 1;
+        return numberOfDays;
 	}
 
 	/**
@@ -187,7 +185,7 @@ public class Profile {
 	 * @return
 	 */
 	private static int nrBytesPerIntegrationPeriod(int nrChannels) {
-		return STATUS_BYTE_SIZE + (CHANNEL_BYTE_SIZE * nrChannels);
+		return CHANNEL_BYTE_SIZE * nrChannels;
 	}
 
 	/**

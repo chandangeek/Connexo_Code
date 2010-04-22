@@ -18,6 +18,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ppmi1.opus.OpusConnection;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileDefinition;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.*;
 import java.util.*;
@@ -444,7 +445,7 @@ public class PPM extends AbstractPPM {
 	 */
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
 		ProfileData profileData = profile.getProfileData(from, to, includeEvents);
-		return profileData;
+		return ProtocolTools.clipProfileData(from, to, profileData);
 	}
 
 	/* (non-Javadoc)

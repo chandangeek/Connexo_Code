@@ -1,11 +1,11 @@
 package com.energyict.protocolimpl.iec1107.ppmi1.parser;
 
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileStatus;
+
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileStatus;
 
 /**
  * This class is mainly meant for debugging purposes, it can display itself in
@@ -35,6 +35,7 @@ public class Day {
 		this.profileParser = profileParser;
 		Calendar c = ProtocolUtils.getCalendar(getProfileParser().getPpm().getTimeZone());
 		c.set(c.get(Calendar.YEAR), month - 1, day, 0, 0, 0);
+        c.set(Calendar.MILLISECOND, 0);
 
 		/*
 		 * The meter only uses the month and the day, so the year is never

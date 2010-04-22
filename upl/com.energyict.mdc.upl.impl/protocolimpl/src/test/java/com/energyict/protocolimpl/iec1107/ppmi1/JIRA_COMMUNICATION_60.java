@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.iec1107.ppmi1;
 
+import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.Dialer;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.ProfileData;
@@ -28,12 +29,12 @@ public class JIRA_COMMUNICATION_60 {
     @Test
     public void profileTest_JIRA_COMMUNICATION60_1() {
         ProfileData pd = null;
+        Date from = ProtocolTools.createCalendar(2010, 2, 27, 0, 0, 0, 0).getTime();
+        Date to = ProtocolTools.createCalendar(2010, 3, 10, 0, 0, 0, 0).getTime();
 
         try {
             PPM ppm = getPreparedPPMProtocol(getVirtualDeviceDialer(FULL_DEBUG_1, false), TIME_ZONE);
-            Calendar from = ProtocolTools.createCalendar(2010, 2, 22, 0, 0, 0, 0);
-            Calendar to = ProtocolTools.createCalendar(2010, 3, 8, 10, 19, 14, 0);
-            pd = ppm.getProfileData(from.getTime(), to.getTime(), true);
+            pd = ppm.getProfileData(from, to, true);
         } catch (Exception e) {
             log(e);
             fail("An unexpected error occured during the JUnit test");
@@ -41,27 +42,45 @@ public class JIRA_COMMUNICATION_60 {
 
         assertNotNull(pd);
         assertEquals(4, pd.getNumberOfChannels());
-        //TODO: Add more asserts here to check the profileData object
+        assertEquals(4, pd.getChannelInfos().size());
+
+        assertEquals(Unit.get("kW"), pd.getChannel(0).getUnit());
+        assertEquals(Unit.get("kW"), pd.getChannel(1).getUnit());
+        assertEquals(Unit.get("kvar"), pd.getChannel(2).getUnit());
+        assertEquals(Unit.get("kvar"), pd.getChannel(3).getUnit());
+
+        assertEquals(502, pd.getNumberOfEvents());
+        assertEquals(503, pd.getNumberOfIntervals());
+        assertEquals(from, pd.getIntervalData(0).getEndTime());
 
     }
 
     @Test
     public void profileTest_JIRA_COMMUNICATION60_2() {
         ProfileData pd = null;
+        Date from = ProtocolTools.createCalendar(2010, 3, 4, 0, 0, 0, 0).getTime();
+        Date to = ProtocolTools.createCalendar(2010, 3, 10, 0, 0, 0, 0).getTime();
 
         try {
             PPM ppm = getPreparedPPMProtocol(getVirtualDeviceDialer(FULL_DEBUG_2, false), TIME_ZONE);
-            Calendar from = ProtocolTools.createCalendar(2010, 3, 1, 0, 0, 0, 0);
-            Calendar to = ProtocolTools.createCalendar(2010, 3, 8, 10, 31, 29, 0);
-            pd = ppm.getProfileData(from.getTime(), to.getTime(), true);
+            pd = ppm.getProfileData(from, to, true);
         } catch (Exception e) {
             log(e);
         }
 
         assertNotNull(pd);
         assertEquals(4, pd.getNumberOfChannels());
-        //TODO: Add more asserts here to check the profileData object
-        
+        assertEquals(4, pd.getChannelInfos().size());
+
+        assertEquals(Unit.get("kW"), pd.getChannel(0).getUnit());
+        assertEquals(Unit.get("kW"), pd.getChannel(1).getUnit());
+        assertEquals(Unit.get("kvar"), pd.getChannel(2).getUnit());
+        assertEquals(Unit.get("kvar"), pd.getChannel(3).getUnit());
+
+        assertEquals(from, pd.getIntervalData(0).getEndTime());
+        assertEquals(263, pd.getNumberOfEvents());
+        assertEquals(264, pd.getNumberOfIntervals());
+
     }
 
     /**
