@@ -75,7 +75,7 @@ class TypeDateTimeRcd {
         c.set( Calendar.HOUR_OF_DAY, hour);
         c.set( Calendar.MINUTE, minute);
         c.set( Calendar.SECOND, second);
-        
+        c.set( Calendar.MILLISECOND, 0);
         return c.getTime();
         
     }
