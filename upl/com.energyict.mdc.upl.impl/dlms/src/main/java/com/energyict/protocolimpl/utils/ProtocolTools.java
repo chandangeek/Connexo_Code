@@ -458,4 +458,59 @@ public final class ProtocolTools {
         return returnValue;
     }
 
+    /**
+     * 
+     * @param from
+     * @param to
+     * @param profileData
+     * @return
+     */
+    public static ProfileData clipProfileData(Date from, Date to, ProfileData profileData) {
+        ProfileData clippedProfileData = new ProfileData();
+        clippedProfileData.setLoadProfileId(profileData.getLoadProfileId());
+        clippedProfileData.setChannelInfos(profileData.getChannelInfos());
+        clippedProfileData.setIntervalDatas(clipIntervalDatas(from, to, profileData.getIntervalDatas()));
+        clippedProfileData.setMeterEvents(clipMeterEvents(from, to, profileData.getMeterEvents()));
+        return clippedProfileData;
+    }
+
+    /**
+     * @param from
+     * @param to
+     * @param meterEvents
+     * @return
+     */
+    public static List<MeterEvent> clipMeterEvents(Date from, Date to, List<MeterEvent> meterEvents) {
+        List<MeterEvent> clippedMeterEvents = new ArrayList<MeterEvent>();
+        if (meterEvents != null) {
+            for (int i = 0; i < meterEvents.size(); i++) {
+                MeterEvent meterEvent = meterEvents.get(i);
+                if ((!from.after(meterEvent.getTime())) && (to.after(meterEvent.getTime()))) {
+                    clippedMeterEvents.add(meterEvent);
+                }
+            }
+        }
+        return clippedMeterEvents;
+    }
+
+    /**
+     * 
+     * @param from
+     * @param to
+     * @param intervalDatas
+     * @return
+     */
+    public static List<IntervalData> clipIntervalDatas(Date from, Date to, List<IntervalData> intervalDatas) {
+        List<IntervalData> clippedIntervalDatas = new ArrayList<IntervalData>();
+        if (intervalDatas != null) {
+            for (int i = 0; i < intervalDatas.size(); i++) {
+                IntervalData intervalData = intervalDatas.get(i);
+                if ((!from.after(intervalData.getEndTime())) && (to.after(intervalData.getEndTime()))) {
+                    clippedIntervalDatas.add(intervalData);
+                }
+            }
+        }
+        return clippedIntervalDatas;
+    }
+
 }
