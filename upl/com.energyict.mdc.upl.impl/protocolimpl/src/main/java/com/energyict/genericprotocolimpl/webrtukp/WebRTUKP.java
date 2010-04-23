@@ -1332,7 +1332,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 			this.datatransportSecurityLevel = 0;
 		}
         this.connectionMode = Integer.parseInt(properties.getProperty("Connection", "1"));
-        this.clientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "16"));
+        this.clientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "1"));
         this.serverLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "1"));
         this.serverUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "17"));
         this.requestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0"));

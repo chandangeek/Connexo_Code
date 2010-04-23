@@ -18,6 +18,9 @@ import com.energyict.protocol.NoSuchRegisterException;
  */
 public class DLMSMeterConfig {
 
+    public static final String OLD2 = "OLD2";
+    public static final String OLD = "OLD";
+
 	private static String splitter = "::";
 
     private UniversalObject[] IOL=null;

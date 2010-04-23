@@ -92,9 +92,10 @@ public class ObisCodeMapper {
         	return rv;
         } else if (obisCode.toString().indexOf("0.0.97.98.1.255") != -1){
         	GenericRead gr = cof.getGenericRead(obisCode, DLMSUtils.attrLN2SN(2), 1);
+        	String text = getEncryptionText(gr.getValue());
         	rv = new RegisterValue(obisCode,
         			new Quantity(new BigDecimal(gr.getValue()), Unit.getUndefined()),
-        			null, null, null, new Date(), 0);
+        			null, null, null, new Date(), 0, text);
         	return rv;
         }
 		
@@ -149,6 +150,29 @@ public class ObisCodeMapper {
     	}
     	
     	throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+	}
+
+	/**
+	 * Convert the received value to a readeable text
+	 * 
+	 * @param value
+	 * 		- the value from the alarm register
+	 * @return UserFriendly text saying which Mbus decryption failed
+	 */
+	protected String getEncryptionText(long value) {
+	    StringBuilder strBuilder = new StringBuilder();
+	    long mask = 134217728;
+	    for (int i = 0; i < 4; i++) {
+		if((value&mask) == mask){
+		    strBuilder.append("Decryption error on Mbus " + (i+1) + "\r\n");
+		}
+		mask = mask<<1;
+	    }
+	    if("".equalsIgnoreCase(strBuilder.toString())){
+		return "No encryption errors on Mbus channels";
+	    } else {
+		return strBuilder.toString();
+	    }
 	}
 
 }
