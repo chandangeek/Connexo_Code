@@ -349,7 +349,9 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
         byte[] byteTimeBuffer = new byte[15];
         int i;
         
-        byteTimeBuffer[0]=1;
+//        byteTimeBuffer[0]=1;  This caused an extra 0x01 in the requestBuffer
+//      DLMS code has changed (read -> corrected) which causes this to be obsolete
+
         byteTimeBuffer[1]=TYPEDESC_OCTET_STRING;
         byteTimeBuffer[2]=12; // length
         byteTimeBuffer[3]=(byte)(calendar.get(calendar.YEAR) >> 8);
@@ -559,7 +561,7 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
     
     /**
      * This method can be used to set a specific attribute in anremote meter object.
-     * @param sLNOBIS Index to the Long name OBIS reference.
+     * @param str Index to the Long name OBIS reference.
      * @param sOffset Offset to the attribute.
      * @param data Byte array to send.
      * @exception IOException
@@ -842,7 +844,7 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
      * @param properties <br>
      * @throws MissingPropertyException <br>
      * @throws InvalidPropertyException <br>
-     * @see AbstractMeterProtocol#validateProperties
+     * @see #validateProperties(java.util.Properties)
      */
     public void setProperties(Properties properties) throws MissingPropertyException , InvalidPropertyException {
         validateProperties(properties);
