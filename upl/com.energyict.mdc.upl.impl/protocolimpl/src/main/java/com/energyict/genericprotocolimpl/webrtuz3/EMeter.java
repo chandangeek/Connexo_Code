@@ -165,12 +165,13 @@ public class EMeter implements GenericProtocol, EDevice {
 	}
 
 
-
-	/**
-	 * @param setObisCodeField
-	 * @param oc
-	 * @return
-	 */
+    /**
+     * 
+     * @param obisCode
+     * @param originalObisCode
+     * @return
+     * @throws IOException
+     */
 	private RegisterValue readRegister(ObisCode obisCode, ObisCode originalObisCode) throws IOException {
 		try {
 			Register register = getCosemObjectFactory().getRegister(obisCode);
@@ -189,7 +190,11 @@ public class EMeter implements GenericProtocol, EDevice {
 
 	}
 
-	public ObisCode getProfileObisCode() {
+    /**
+     *
+     * @return
+     */
+    public ObisCode getProfileObisCode() {
 		return ProtocolTools.setObisCodeField(PROFILE_OBISCODE, 1, (byte) physicalAddress);
 	}
 
@@ -209,15 +214,27 @@ public class EMeter implements GenericProtocol, EDevice {
 		}
 	}
 
-	public long getTimeDifference() {
+    /**
+     *
+     * @return
+     */
+    public long getTimeDifference() {
 		return 0;
 	}
 
-	public void addProperties(Properties properties) {
+    /**
+     *
+     * @param properties
+     */
+    public void addProperties(Properties properties) {
 
 	}
 
-	public String getVersion() {
+    /**
+     *
+     * @return
+     */
+    public String getVersion() {
 		return "$Date$";
 	}
 
