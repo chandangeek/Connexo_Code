@@ -346,40 +346,40 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
     
     private void doSetTime(Calendar calendar) throws IOException {
         //byte[] responseData;
-        byte[] byteTimeBuffer = new byte[15];
+        byte[] byteTimeBuffer = new byte[14];
         int i;
         
 //        byteTimeBuffer[0]=1;  This caused an extra 0x01 in the requestBuffer
 //      DLMS code has changed (read -> corrected) which causes this to be obsolete
 
-        byteTimeBuffer[1]=TYPEDESC_OCTET_STRING;
-        byteTimeBuffer[2]=12; // length
-        byteTimeBuffer[3]=(byte)(calendar.get(calendar.YEAR) >> 8);
-        byteTimeBuffer[4]=(byte)calendar.get(calendar.YEAR);
-        byteTimeBuffer[5]=(byte)(calendar.get(calendar.MONTH)+1);
-        byteTimeBuffer[6]=(byte)calendar.get(calendar.DAY_OF_MONTH);
+        byteTimeBuffer[0]=TYPEDESC_OCTET_STRING;
+        byteTimeBuffer[1]=12; // length
+        byteTimeBuffer[2]=(byte)(calendar.get(calendar.YEAR) >> 8);
+        byteTimeBuffer[3]=(byte)calendar.get(calendar.YEAR);
+        byteTimeBuffer[4]=(byte)(calendar.get(calendar.MONTH)+1);
+        byteTimeBuffer[5]=(byte)calendar.get(calendar.DAY_OF_MONTH);
         byte bDOW = (byte)calendar.get(calendar.DAY_OF_WEEK);
-        byteTimeBuffer[7]=bDOW--==1?(byte)7:bDOW;
-        byteTimeBuffer[8]=(byte)calendar.get(calendar.HOUR_OF_DAY);
-        byteTimeBuffer[9]=(byte)calendar.get(calendar.MINUTE);
-        byteTimeBuffer[10]=(byte)calendar.get(calendar.SECOND);
-        byteTimeBuffer[11]=(byte)0xFF;
-        byteTimeBuffer[12]=(byte)0x80;
-        byteTimeBuffer[13]=0x00;
+        byteTimeBuffer[6]=bDOW--==1?(byte)7:bDOW;
+        byteTimeBuffer[7]=(byte)calendar.get(calendar.HOUR_OF_DAY);
+        byteTimeBuffer[8]=(byte)calendar.get(calendar.MINUTE);
+        byteTimeBuffer[9]=(byte)calendar.get(calendar.SECOND);
+        byteTimeBuffer[10]=(byte)0xFF;
+        byteTimeBuffer[11]=(byte)0x80;
+        byteTimeBuffer[12]=0x00;
         
         if (isRequestTimeZone()) { 
             if (dstFlag == 0)
-               byteTimeBuffer[14]=0x00;
+               byteTimeBuffer[13]=0x00;
             else if (dstFlag == 1)
-               byteTimeBuffer[14]=(byte)0x80;
+               byteTimeBuffer[13]=(byte)0x80;
             else 
                throw new IOException("doSetTime(), dst flag is unknown! setTime() before getTime()!");
         }
         else {
             if (getTimeZone().inDaylightTime(calendar.getTime()))
-                byteTimeBuffer[14]=(byte)0x80;
+                byteTimeBuffer[13]=(byte)0x80;
             else
-                byteTimeBuffer[14]=0x00;
+                byteTimeBuffer[13]=0x00;
         }
         
         getCosemObjectFactory().getGenericWrite((short)meterConfig.getClockSN(),TIME_TIME).write(byteTimeBuffer);
