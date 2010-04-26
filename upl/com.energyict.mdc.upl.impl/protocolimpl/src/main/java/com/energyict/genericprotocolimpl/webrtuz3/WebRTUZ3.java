@@ -402,6 +402,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 		result.add(PROPERTY_READ_MONTHLY_VALUES);
 		result.add(PROPERTY_FOLDER_EXT_NAME);
 		result.add(PROPERTY_MBUS_RTUTYPE);
+        result.add(PROPERTY_EMETER_RTUTYPE);
 		result.add(LocalSecurityProvider.DATATRANSPORTKEY);
 		result.add(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
 		result.add(LocalSecurityProvider.MASTERKEY);
@@ -413,7 +414,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 
 	@Override
 	protected List<String> doGetRequiredKeys() {
-		return null;
+		return new ArrayList<String>();
 	}
 
 	@Override
