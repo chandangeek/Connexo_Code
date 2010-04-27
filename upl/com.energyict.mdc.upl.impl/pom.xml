@@ -365,7 +365,7 @@
         <repository>
             <id>eict-public-snapshots</id>
             <name>EnergyICT snapshots repository group</name>
-            <url>http://linux2.eict.local:8081/nexus/content/groups/public-snapshots/
+            <url>http://linux2.eict.local/nexus/content/groups/public-snapshots/
             </url>
             <releases>
                 <enabled>false</enabled>
@@ -378,7 +378,7 @@
         <repository>
             <id>eict-public</id>
             <name>EnergyICT public repository group</name>
-            <url>http://linux2.eict.local:8081/nexus/content/groups/public/</url>
+            <url>http://linux2.eict.local/nexus/content/groups/public/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -392,13 +392,13 @@
         <repository>
             <id>eict-releases</id>
             <name>EnergyICT releases repository</name>
-            <url>http://linux2.eict.local:8081/nexus/content/repositories/releases/</url>
+            <url>http://linux2.eict.local/nexus/content/repositories/releases/</url>
     	</repository>
     	
     	<snapshotRepository>
             <id>eict-snapshots</id>
             <name>EnergyICT snapshots repository</name>
-            <url>http://linux2.eict.local:8081/nexus/content/repositories/snapshots/</url>
+            <url>http://linux2.eict.local/nexus/content/repositories/snapshots/</url>
             <uniqueVersion>false</uniqueVersion>
     	</snapshotRepository>
 	</distributionManagement>
