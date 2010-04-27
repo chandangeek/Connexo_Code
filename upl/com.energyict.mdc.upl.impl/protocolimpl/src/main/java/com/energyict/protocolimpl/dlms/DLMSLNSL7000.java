@@ -1,3 +1,4 @@
+
 /**
  * @version  2.0
  * @author   Koenraad Vanderschaeve
@@ -1356,7 +1357,6 @@ public class DLMSLNSL7000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
      * @param properties <br>
      * @throws MissingPropertyException <br>
      * @throws InvalidPropertyException <br>
-     * @see AbstractMeterProtocol#validateProperties
      */
     public void setProperties(Properties properties) throws MissingPropertyException , InvalidPropertyException {
         validateProperties(properties);
