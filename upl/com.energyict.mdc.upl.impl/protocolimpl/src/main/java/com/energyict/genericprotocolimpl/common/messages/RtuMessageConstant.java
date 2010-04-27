@@ -133,6 +133,8 @@ public class RtuMessageConstant {
 	public static final String WAKEUP_GENERAL_RESTRICTION = "General_restriction";
 	public static final String WAKEUP_ACTIVATE = "Activate_the_wakeup_mechanism";
 	public static final String WAKEUP_DEACTIVATE = "Deactive_the_wakeup_mechanism";
+    public static final String WAKEUP_NR = "Phonenumber";
+    public static final String WAKEUP_MANAGED_NR = "ManagedPhoneNumber";
 	public static final String WAKEUP_NR1 = "Phonenumber1";
 	public static final String WAKEUP_NR2 = "Phonenumber2";
 	public static final String WAKEUP_NR3 = "Phonenumber3";

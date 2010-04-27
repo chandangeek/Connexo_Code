@@ -100,8 +100,8 @@ public class ObisCodeMapper {
 				}
             } // // billing point timestamp
             
-            // *********************************************************************************
             
+            // Activity Calendar name
             if(obisCode.toString().indexOf("0.0.13.0.0.255") != -1){
             	registerValue = new RegisterValue(obisCode,
             			null,
