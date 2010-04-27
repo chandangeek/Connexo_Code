@@ -65,7 +65,7 @@ public class AssociationControlServiceElementTest {
     									(byte)0x01}; // context name ID 1
 
     	MockSecurityProvider sp = new MockSecurityProvider();
-    	SecurityContext sc = new SecurityContext(0, 0, 0, sp);
+    	SecurityContext sc = new SecurityContext(0, 0, 0, sp, SecurityContext.CIPHERING_TYPE_GLOBAL);
 
     	AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
 
@@ -95,7 +95,7 @@ public class AssociationControlServiceElementTest {
     		XdlmsAse ase = new XdlmsAse(null, true, -1, 6, conformanceBlock, 1200);
 
         	MockSecurityProvider sp = new MockSecurityProvider();
-        	SecurityContext sc = new SecurityContext(0, 0, 0, sp);
+        	SecurityContext sc = new SecurityContext(0, 0, 0, sp, SecurityContext.CIPHERING_TYPE_GLOBAL);
 
     		AssociationControlServiceElement acse = new AssociationControlServiceElement(ase, 1, sc);
 			acse.setUserInformation(ase.getInitiatRequestByteArray());
@@ -135,7 +135,7 @@ public class AssociationControlServiceElementTest {
     	try {
 
         	MockSecurityProvider sp = new MockSecurityProvider();
-        	SecurityContext sc = new SecurityContext(2, 2, 2, sp);
+        	SecurityContext sc = new SecurityContext(2, 2, 2, sp, SecurityContext.CIPHERING_TYPE_GLOBAL);
 
     		AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
 

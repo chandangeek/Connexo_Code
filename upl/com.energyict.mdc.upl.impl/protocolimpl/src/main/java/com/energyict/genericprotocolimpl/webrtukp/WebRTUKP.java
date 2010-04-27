@@ -44,7 +44,6 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.GenericRead;
 import com.energyict.dlms.cosem.IPv4Setup;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
@@ -255,7 +254,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 			if (this.commProfile.getReadMeterReadings()) {
 
 				DailyMonthly dm = new DailyMonthly(this);
-				
+
 				if (readDaily) {
 					if(doesObisCodeExistInObjectList(getMeterConfig().getDailyProfileObject().getObisCode())){
 						dm.getDailyValues(getMeterConfig().getDailyProfileObject().getObisCode());
@@ -491,7 +490,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		ConformanceBlock cb = new ConformanceBlock(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK);
 		XdlmsAse xDlmsAse = new XdlmsAse(null, true, -1, 6, cb, 1200);
 		//TODO the dataTransport encryptionType should be a property (although currently only 0 is described by DLMS)
-		SecurityContext sc = new SecurityContext(this.datatransportSecurityLevel, this.authenticationSecurityLevel, 0, "EIT12345".getBytes(), getSecurityProvider());
+		SecurityContext sc = new SecurityContext(this.datatransportSecurityLevel, this.authenticationSecurityLevel, 0, "EIT12345".getBytes(), getSecurityProvider(), SecurityContext.CIPHERING_TYPE_GLOBAL);
 		
 		this.aso = new ApplicationServiceObject(xDlmsAse, this, sc, 
 					(this.datatransportSecurityLevel == 0)?AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING:

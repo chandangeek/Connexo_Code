@@ -59,7 +59,7 @@ public class XDlmsDecryption {
 	}
 
 	/**
-	 * @param plainText
+	 * @param cipheredText
 	 */
 	public void setCipheredText(byte[] cipheredText) {
 		checkArgument(cipheredText, -1);

@@ -35,28 +35,36 @@ public class SecurityContext {
 	private static final int	CB_LENGTH						= 1;
 	private static final int	FC_LENGTH						= 4;
 
+    public static final int     CIPHERING_TYPE_GLOBAL           = 0;
+    public static final int     CIPHERING_TYPE_DEDICATED        = 1;
+
 	/**
 	 * Holds the securityLevel for the DataTransport.
 	 */
-	private int securityPolicy;
+	private final int securityPolicy;
 
 	/**
 	 * Points to the encryption Method that has to be used for dataTransport.
 	 * Currently only 0 (meaning AES-GCM-128) is allowed
 	 */
-	private int securitySuite;
+	private final int securitySuite;
 
 	/**
 	 * Holds the securityLevel for the Authentication mechanism used during
 	 * Association Establishment
 	 */
-	private int authenticationLevel;
+	private final int authenticationLevel;
 
 	/**
 	 * The provider containing all the keys that may be used during an
 	 * Authenticated/Encrypted communication
 	 */
-	private SecurityProvider securityProvider;
+	private final SecurityProvider securityProvider;
+
+    /**
+     * Indicating whether global[0] or dedicated[1] ciphering is used
+     */
+    private final int cipheringType;
 
 	private long frameCounter;
 	private long responseFrameCounter;
@@ -75,20 +83,22 @@ public class SecurityContext {
 	 * initializationVector and this one should be unique.
 	 *
 	 * @param dataTransportSecurityLevel - SecurityLevel during data transport
-	 * @param associationAuthenticationLevel - SecurityLevel during associationEstablishment
-	 * @param dataTransportEncryptionType - Which type of security to use during data transport
-	 * @param systemIdentifier - the server his logicalDeviceName, used for the construction of the initializationVector (ex. KAMM1436321499)
-	 * @param securityProvider - The securityProvider holding the keys
-	 */
+     * @param associationAuthenticationLevel - SecurityLevel during associationEstablishment
+     * @param dataTransportEncryptionType - Which type of security to use during data transport
+     * @param systemIdentifier - the server his logicalDeviceName, used for the construction of the initializationVector (ex. KAMM1436321499)
+     * @param securityProvider - The securityProvider holding the keys
+     * @param cipheringType - the cipheringType to use (global [0] or dedicated [1])
+     */
 	public SecurityContext(int dataTransportSecurityLevel,
-			int associationAuthenticationLevel,
-			int dataTransportEncryptionType, byte[] systemIdentifier,
-			SecurityProvider securityProvider) {
+                           int associationAuthenticationLevel,
+                           int dataTransportEncryptionType, byte[] systemIdentifier,
+                           SecurityProvider securityProvider, int cipheringType) {
 		this.securityPolicy = dataTransportSecurityLevel;
 		this.authenticationLevel = associationAuthenticationLevel;
 		this.securitySuite = dataTransportEncryptionType;
 		this.securityProvider = securityProvider;
-		this.authenticationAlgorithm = authenticationEncryptions[this.authenticationLevel];
+        this.cipheringType = cipheringType;
+        this.authenticationAlgorithm = authenticationEncryptions[this.authenticationLevel];
 		this.frameCounter = getRandomFrameCounter();
 		this.systemTitle = systemIdentifier != null ? systemIdentifier.clone() : null;
 		this.responseFrameCounter = 0;
@@ -104,9 +114,9 @@ public class SecurityContext {
 	}
 
 	public SecurityContext(int datatransportSecurityLevel,
-			int authenticationSecurityLevel, int dataTransportEncryptionType,
-			SecurityProvider securityProvider) {
-		this(datatransportSecurityLevel, authenticationSecurityLevel, dataTransportEncryptionType, null, securityProvider);
+                           int authenticationSecurityLevel, int dataTransportEncryptionType,
+                           SecurityProvider securityProvider, int cipheringType) {
+		this(datatransportSecurityLevel, authenticationSecurityLevel, dataTransportEncryptionType, null, securityProvider, cipheringType);
 	}
 
 	/**
@@ -191,7 +201,8 @@ public class SecurityContext {
 					return plainText;
 				} // no encryption/authentication
 				case SECURITYPOLICY_AUTHENTICATION: {
-					AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getGlobalKey(), DLMS_AUTH_TAG_SIZE);
+//					AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getGlobalKey(), DLMS_AUTH_TAG_SIZE);
+                    AesGcm128 ag128 = new AesGcm128(isGlobalCiphering()?getSecurityProvider().getGlobalKey():getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
 
 					/*
 					 * the associatedData is a concatenation of:
@@ -230,7 +241,8 @@ public class SecurityContext {
 					return securedApdu;
 				} // authenticated
 				case SECURITYPOLICY_ENCRYPTION: {
-					AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
+//					AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
+                    AesGcm128 ag128 = new AesGcm128(isGlobalCiphering()?getSecurityProvider().getGlobalKey():getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
 
 					ag128.setInitializationVector(new BitVector(getInitializationVector()));
 					ag128.setPlainText(new BitVector(plainText));
@@ -252,7 +264,8 @@ public class SecurityContext {
 					return securedApdu;
 				} // encrypted
 				case SECURITYPOLICY_BOTH: {
-					AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
+//					AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
+                    AesGcm128 ag128 = new AesGcm128(isGlobalCiphering()?getSecurityProvider().getGlobalKey():getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
 
 					/*
 					 * the associatedData is a concatenation of:
@@ -308,7 +321,8 @@ public class SecurityContext {
 			return cipherFrame;
 		}
 		case 1: {
-			AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getGlobalKey(), DLMS_AUTH_TAG_SIZE);
+//			AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getGlobalKey(), DLMS_AUTH_TAG_SIZE);
+            AesGcm128 ag128 = new AesGcm128(isGlobalCiphering()?getSecurityProvider().getGlobalKey():getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
 
 			byte[] aTag = ProtocolUtils.getSubArray(cipherFrame, cipherFrame.length-DLMS_AUTH_TAG_SIZE);
 			int lengthOffset = DLMSUtils.getAXDRLengthOffset(cipherFrame, LENGTH_INDEX);
@@ -336,15 +350,16 @@ public class SecurityContext {
 			}
 		}
 		case 2: {
-			AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
+//			AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
+            AesGcm128 ag128 = new AesGcm128(isGlobalCiphering()?getSecurityProvider().getGlobalKey():getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
 
 			int lengthOffset = DLMSUtils.getAXDRLengthOffset(cipherFrame, LENGTH_INDEX);
 			byte[] fc = ProtocolUtils.getSubArray2(cipherFrame, FRAMECOUNTER_INDEX+lengthOffset, FRAME_COUNTER_SIZE);
 			setResponseFrameCounter(ProtocolUtils.getInt(fc));
-			byte[] cipherdAPDU = ProtocolUtils.getSubArray(cipherFrame, FRAMECOUNTER_INDEX+lengthOffset+FRAME_COUNTER_SIZE);
+			byte[] cipheredAPDU = ProtocolUtils.getSubArray(cipherFrame, FRAMECOUNTER_INDEX+lengthOffset+FRAME_COUNTER_SIZE);
 
 			ag128.setInitializationVector(new BitVector(getRespondingInitializationVector()));
-			ag128.setCipherText(new BitVector(cipherdAPDU));
+			ag128.setCipherText(new BitVector(cipheredAPDU));
 
 			if(ag128.decrypt()){
 				return ag128.getPlainText().getValue();
@@ -353,13 +368,14 @@ public class SecurityContext {
 			}
 		}
 		case 3: {
-			AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
-
+//			AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
+            AesGcm128 ag128 = new AesGcm128(isGlobalCiphering()?getSecurityProvider().getGlobalKey():getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
+            
 			byte[] aTag = ProtocolUtils.getSubArray(cipherFrame, cipherFrame.length-DLMS_AUTH_TAG_SIZE);
 			int lengthOffset = DLMSUtils.getAXDRLengthOffset(cipherFrame, LENGTH_INDEX);
 			byte[] fc = ProtocolUtils.getSubArray2(cipherFrame, FRAMECOUNTER_INDEX+lengthOffset, FRAME_COUNTER_SIZE);
 			setResponseFrameCounter(ProtocolUtils.getInt(fc));
-			byte[] cipherdAPDU = ProtocolUtils.getSubArray(cipherFrame, FRAMECOUNTER_INDEX+lengthOffset+FRAME_COUNTER_SIZE, cipherFrame.length-DLMS_AUTH_TAG_SIZE-1);
+			byte[] cipheredAPDU = ProtocolUtils.getSubArray(cipherFrame, FRAMECOUNTER_INDEX+lengthOffset+FRAME_COUNTER_SIZE, cipherFrame.length-DLMS_AUTH_TAG_SIZE-1);
 			/* the associatedData is a concatenation of:
 			 * - the securityControlByte
 			 * - the authenticationKey */
@@ -370,7 +386,7 @@ public class SecurityContext {
 			ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
 			ag128.setInitializationVector(new BitVector(getRespondingInitializationVector()));
 			ag128.setTag(new BitVector(aTag));
-			ag128.setCipherText(new BitVector(cipherdAPDU));
+			ag128.setCipherText(new BitVector(cipheredAPDU));
 
 			if(ag128.decrypt()){
 				return ag128.getPlainText().getValue();
@@ -539,5 +555,26 @@ public class SecurityContext {
 		sb.append("SecurityContext:").append(crlf);
 		return sb.toString();
 	}
+
+    /**
+     * Getter for the {@link #cipheringType}
+     * @return the cipheringType
+     */
+    public int getCipheringType() {
+        return cipheringType;
+    }
+
+    /**
+     * Checks whether global ciphering is used (#cipheringType equals 0)
+     *
+     * @return true if it is, false otherwise
+     */
+    public boolean isGlobalCiphering(){
+        if(cipheringType == CIPHERING_TYPE_GLOBAL){
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 }

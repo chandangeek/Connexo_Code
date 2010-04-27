@@ -206,6 +206,7 @@ public interface DLMSCOSEMGlobals {
 	byte COSEM_GETRESPONSE_WITH_DATABLOCK=2;
 	byte COSEM_SETRESPONSE=(byte)0xC5;
 	byte COSEM_SETRESPONSE_NORMAL=1;
+    byte COSEM_EVENTNOTIFICATIONRESUEST = (byte)0xC2;
 	byte COSEM_ACTIONREQUEST=(byte)0xC3;
 	byte COSEM_ACTIONREQUEST_NORMAL=1;
 	byte COSEM_ACTIONRESPONSE=(byte)0xC7;
@@ -239,7 +240,7 @@ public interface DLMSCOSEMGlobals {
 	byte DED_EVENTNOTIFICATION_REQUEST= (byte)0xD2;
 	byte DED_ACTIOREQUEST = (byte)0xD3;
 	byte DED_GETRESPONSE = (byte)0xD4;
-	byte DED_SEETRESPONSE = (byte)0xD5;
+	byte DED_SETRESPONSE = (byte)0xD5;
 	byte DED_ACTIONRESPONSE = (byte)0xD7;
 	// Dedicated-ciphering tags (ShortName)
 	byte DED_INITIATEREQUEST = (byte)0x41;

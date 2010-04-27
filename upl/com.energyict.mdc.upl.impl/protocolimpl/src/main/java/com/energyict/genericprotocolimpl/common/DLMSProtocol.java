@@ -346,7 +346,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 		
 		this.cosemObjectFactory	= new CosemObjectFactory((ProtocolLink)this);
 		
-		SecurityContext sc = new SecurityContext(this.datatransportSecurityLevel, this.authenticationSecurityLevel, 0, this.securityProvider);
+		SecurityContext sc = new SecurityContext(this.datatransportSecurityLevel, this.authenticationSecurityLevel, 0, this.securityProvider, SecurityContext.CIPHERING_TYPE_GLOBAL);
 		
 		this.aso = new ApplicationServiceObject(this.xdlmsAse, this, sc, getContextId());
 

@@ -46,10 +46,9 @@ public class AssociationControlServiceElement {
 
 	/**
 	 * Create a new instance of the AssociationControlServiceElement
-	 * @param dlmsAse - the xDLMS_ASE
+	 * @param xDlmsAse - the xDLMS_ASE
 	 * @param contextId - the applicationContextId which indicates which type of reference(LN/SN) and the use of ciphering
-	 * @param mechanismId - the associationAuthenticationMechanism id
-	 * @param callingAuthenticationValue - the secret or challenge used for the authenticated association establishment
+     * @param securityContext - the used {@link com.energyict.dlms.aso.SecurityContext}
 	 */
 	public AssociationControlServiceElement(XdlmsAse xDlmsAse, int contextId, SecurityContext securityContext) {
 		this.xdlmsAse = xDlmsAse;
@@ -160,15 +159,10 @@ public class AssociationControlServiceElement {
 		t += getApplicationContextName().length;
 
 		/**
-		 * called-AP-title [2] AP-title OPTIONAL,
 		 * called-AE-qualifier [3]
 		 * AE-qualifier OPTIONAL, called-AP-invocation-id [4]
 		 * AP-invocation-identifier OPTIONAL, called-AE-invocation-id [5]
 		 * AE-invocation-identifier OPTIONAL,
-		 *
-		 * TODO for application contexts using ciphering, the calling-AP-title field shall carry the CLIENT-SYSTEM-TITLE
-		 * calling-AP-title [6] AP-title
-		 *
 		 *
 		 * OPTIONAL, calling-AE-qualifier [7] AE-qualifier OPTIONAL,
 		 * calling-AP-invocation-id [8] AP-invocation-identifier OPTIONAL,
@@ -361,7 +355,7 @@ public class AssociationControlServiceElement {
 							/*
 							 * Check if the userinformation field is encrypted,
 							 * and if so, replace the encrypted part with the
-							 * plain text for furter parsing
+							 * plain text for further parsing
 							 */
 							if (DLMSCOSEMGlobals.AARE_GLOBAL_INITIATE_RESPONSE_TAG == responseData[i + 3]) {
 								byte[] encryptedUserInformation = new byte[responseData.length - (i + 4)];
@@ -452,7 +446,6 @@ public class AssociationControlServiceElement {
 
 	/**
 	 * @param encryptedUserInformation
-	 * @param offset
 	 * @throws IOException
 	 */
 	private byte[] decryptUserInformation(byte[] encryptedUserInformation) throws IOException {

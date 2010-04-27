@@ -30,7 +30,7 @@ public class ApplicationServiceObjectTest {
 		
 		try {
 			dsp.setAlgorithm("MD5");
-			sc = new SecurityContext(0,3,0,null,dsp);
+			sc = new SecurityContext(0,3,0,null,dsp, SecurityContext.CIPHERING_TYPE_GLOBAL);
 			dConnection.setResponseByte(DLMSUtils.hexStringToByteArray("640007C701810009108dd44b47c06b0d86cea4a09ecbf156b9"));
 			aso = new ApplicationServiceObject(null, dpl, sc, 1);
 			aso.acse.setRespondingAuthenticationValue(DLMSUtils.hexStringToByteArray("9999")); // This value doesn't matter
@@ -44,7 +44,7 @@ public class ApplicationServiceObjectTest {
 		
 		try {
 			dsp.setAlgorithm("SHA-1");
-			sc = new SecurityContext(0,4,0,null,dsp);
+			sc = new SecurityContext(0,4,0,null,dsp, SecurityContext.CIPHERING_TYPE_GLOBAL);
 			dConnection.setResponseByte(DLMSUtils.hexStringToByteArray("640007C70181000914fbcadd395d8edd8b7b53006cdf1367fbf370e780"));
 			aso = new ApplicationServiceObject(null, dpl, sc, 1);
 			aso.acse.setRespondingAuthenticationValue(DLMSUtils.hexStringToByteArray("9999")); // This value doesn't matter

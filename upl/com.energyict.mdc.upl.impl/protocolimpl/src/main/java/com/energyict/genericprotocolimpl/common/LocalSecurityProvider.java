@@ -28,7 +28,7 @@ public class LocalSecurityProvider implements SecurityProvider {
 	private String hlsSecret;
 	private Properties properties;
 
-	/** Property name of the new AutenticationKey */
+	/** Property name of the new AuthenticationKey */
 	public static final String NEW_AUTHENTICATION_KEY = "NewAuthenticationKey";
 	/** Property name of the new Global encryption Key */
 	public static final String NEW_GLOBAL_KEY = "NewGlobalKey";

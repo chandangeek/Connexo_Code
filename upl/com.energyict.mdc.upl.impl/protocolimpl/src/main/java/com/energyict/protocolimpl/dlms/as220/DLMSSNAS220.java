@@ -253,7 +253,7 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
         }
 
 		LocalSecurityProvider localSecurityProvider = new LocalSecurityProvider(this.properties);
-		securityContext = new SecurityContext(datatransportSecurityLevel, authenticationSecurityLevel, 0, getSystemIdentifier(), localSecurityProvider);
+		securityContext = new SecurityContext(datatransportSecurityLevel, authenticationSecurityLevel, 0, getSystemIdentifier(), localSecurityProvider, SecurityContext.CIPHERING_TYPE_DEDICATED);
 		ConformanceBlock cb = new ConformanceBlock(ConformanceBlock.DEFAULT_SN_CONFORMANCE_BLOCK);
 		XdlmsAse xdlmsAse = new XdlmsAse(isCiphered() ? localSecurityProvider.getDedicatedKey() : null, true, PROPOSED_QOS, PROPOSED_DLMS_VERSION, cb, MAX_PDU_SIZE);
 		aso = new ApplicationServiceObject(xdlmsAse, this, securityContext, getContextId());
@@ -467,7 +467,6 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
      * @param properties <br>
      * @throws MissingPropertyException <br>
      * @throws InvalidPropertyException <br>
-     * @see AbstractMeterProtocol#validateProperties
      */
     public void setProperties(Properties properties) throws MissingPropertyException , InvalidPropertyException {
         validateProperties(properties);

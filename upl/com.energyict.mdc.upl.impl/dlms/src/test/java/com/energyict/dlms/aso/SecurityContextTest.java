@@ -19,7 +19,7 @@ public class SecurityContextTest {
 	@Test
 	public void getInitializationVectorTest(){
 
-		SecurityContext sc = new SecurityContext(0, 1,0, systemTitle, null);
+		SecurityContext sc = new SecurityContext(0, 1,0, systemTitle, null, SecurityContext.CIPHERING_TYPE_GLOBAL);
 		sc.setFrameCounter(0);
 		byte[] iv = sc.getInitializationVector();
 
@@ -49,19 +49,19 @@ public class SecurityContextTest {
 			msp.setDedicatedKey(DLMSUtils.hexStringToByteArray(dedicatedKey));
 
 			// Only authentication
-			SecurityContext sc = new SecurityContext(SecurityContext.SECURITYPOLICY_AUTHENTICATION, 0,0,systemTitle, msp);
+			SecurityContext sc = new SecurityContext(SecurityContext.SECURITYPOLICY_AUTHENTICATION, 0,0,systemTitle, msp, SecurityContext.CIPHERING_TYPE_GLOBAL);
 			sc.setResponseSystemTitle(systemTitle);
 			byte[] unCipherResponse = sc.dataTransportDecryption(DLMSUtils.hexStringToByteArray(testDecryptA));
 			assertArrayEquals(DLMSUtils.hexStringToByteArray("C0010000080000010000FF0200"), unCipherResponse);
 
 			// Only encryption
-			sc = new SecurityContext(SecurityContext.SECURITYPOLICY_ENCRYPTION, 0, 0, systemTitle, msp);
+			sc = new SecurityContext(SecurityContext.SECURITYPOLICY_ENCRYPTION, 0, 0, systemTitle, msp, SecurityContext.CIPHERING_TYPE_GLOBAL);
 			sc.setResponseSystemTitle(systemTitle);
 			unCipherResponse = sc.dataTransportDecryption(DLMSUtils.hexStringToByteArray(testDecryptE));
 			assertArrayEquals(DLMSUtils.hexStringToByteArray("C0010000080000010000FF0200"), unCipherResponse);
 
 			// Both encryption/authentication
-			sc = new SecurityContext(SecurityContext.SECURITYPOLICY_BOTH, 0, 0, systemTitle, msp);
+			sc = new SecurityContext(SecurityContext.SECURITYPOLICY_BOTH, 0, 0, systemTitle, msp, SecurityContext.CIPHERING_TYPE_GLOBAL);
 			sc.setResponseSystemTitle(systemTitle);
 			unCipherResponse = sc.dataTransportDecryption(DLMSUtils.hexStringToByteArray(testDecryptAE));
 			assertArrayEquals(DLMSUtils.hexStringToByteArray("C0010000080000010000FF0200"), unCipherResponse);
@@ -121,7 +121,7 @@ public class SecurityContextTest {
 			msp.setGlobalkey(DLMSUtils.hexStringToByteArray(key));
 			msp.setDedicatedKey(DLMSUtils.hexStringToByteArray(key));
 
-			SecurityContext sc = new SecurityContext(SecurityContext.SECURITYPOLICY_ENCRYPTION, 0, 0, systemIdentifier, msp);
+			SecurityContext sc = new SecurityContext(SecurityContext.SECURITYPOLICY_ENCRYPTION, 0, 0, systemIdentifier, msp, SecurityContext.CIPHERING_TYPE_GLOBAL);
 			sc.setResponseSystemTitle(systemIdentifier);
 			byte[] unCipherResponse = sc.dataTransportDecryption(DLMSUtils.hexStringToByteArray(hugeFrame));
 
@@ -149,7 +149,7 @@ public class SecurityContextTest {
 			msp.setDedicatedKey(DLMSUtils.hexStringToByteArray(dedicatedKey));
 
 			// Both authentication and encryption
-			SecurityContext sc = new SecurityContext(SecurityContext.SECURITYPOLICY_BOTH, 0,0,sysTitle, msp);
+			SecurityContext sc = new SecurityContext(SecurityContext.SECURITYPOLICY_BOTH, 0,0,sysTitle, msp, SecurityContext.CIPHERING_TYPE_GLOBAL);
 			sc.setFrameCounter(frameCounter);
 			sc.setResponseSystemTitle(sysTitle);
 			byte[] cipheredResponse = sc.dataTransportEncryption(DLMSUtils.hexStringToByteArray(frame));
@@ -178,19 +178,19 @@ public class SecurityContextTest {
 			msp.setDedicatedKey(DLMSUtils.hexStringToByteArray(dedicatedKey));
 
 			// Only authentication
-			SecurityContext sc = new SecurityContext(SecurityContext.SECURITYPOLICY_AUTHENTICATION, 0,0,systemTitle, msp);
+			SecurityContext sc = new SecurityContext(SecurityContext.SECURITYPOLICY_AUTHENTICATION, 0,0,systemTitle, msp, SecurityContext.CIPHERING_TYPE_GLOBAL);
 			sc.setFrameCounter(19088743); 		// this is '0x01234567'
 			byte[] cipheredResponse = sc.dataTransportEncryption(DLMSUtils.hexStringToByteArray(unSecuredRequest));
 			assertArrayEquals(DLMSUtils.hexStringToByteArray(testDecryptA), cipheredResponse);
 
 			// Only encryption
-			sc = new SecurityContext(SecurityContext.SECURITYPOLICY_ENCRYPTION, 0,0,systemTitle, msp);
+			sc = new SecurityContext(SecurityContext.SECURITYPOLICY_ENCRYPTION, 0,0,systemTitle, msp, SecurityContext.CIPHERING_TYPE_GLOBAL);
 			sc.setFrameCounter(19088743); 		// this is '0x01234567'
 			cipheredResponse = sc.dataTransportEncryption(DLMSUtils.hexStringToByteArray(unSecuredRequest));
 			assertArrayEquals(DLMSUtils.hexStringToByteArray(testDecryptE), cipheredResponse);
 
 			// Both authentication and encryption
-			sc = new SecurityContext(SecurityContext.SECURITYPOLICY_BOTH, 0,0,systemTitle, msp);
+			sc = new SecurityContext(SecurityContext.SECURITYPOLICY_BOTH, 0,0,systemTitle, msp, SecurityContext.CIPHERING_TYPE_GLOBAL);
 			sc.setFrameCounter(19088743); 		// this is '0x01234567'
 			cipheredResponse = sc.dataTransportEncryption(DLMSUtils.hexStringToByteArray(unSecuredRequest));
 			assertArrayEquals(DLMSUtils.hexStringToByteArray(testDecryptAE), cipheredResponse);
@@ -217,7 +217,7 @@ public class SecurityContextTest {
 
 			byte[] temp = new byte[]{(byte)0x4B, (byte)0x41, (byte)0x4D, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x51};
 			// Only authentication
-			SecurityContext sc = new SecurityContext(SecurityContext.SECURITYPOLICY_AUTHENTICATION, 0,0,temp, msp);
+			SecurityContext sc = new SecurityContext(SecurityContext.SECURITYPOLICY_AUTHENTICATION, 0,0,temp, msp, SecurityContext.CIPHERING_TYPE_GLOBAL);
 			sc.setFrameCounter(Long.valueOf("3709216955")); 		// this is '0x01234567'
 			byte[] cipheredResponse = sc.dataTransportEncryption(DLMSUtils.hexStringToByteArray(unSecuredRequest));
 			assertArrayEquals(DLMSUtils.hexStringToByteArray(testDecryptA), cipheredResponse);
@@ -235,7 +235,7 @@ public class SecurityContextTest {
 		String digest = "3F2E2FA23A4CFCD40B0CD7091300673D";
 
 		try {
-			AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, new SecurityContext(3, 3, 3, new MockSecurityProvider()));
+			AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, new SecurityContext(3, 3, 3, new MockSecurityProvider(), SecurityContext.CIPHERING_TYPE_GLOBAL));
 			String hlSecurityResponse = "614AA109060760857405080101A203020100A305A10302010E88020780890760857405080203AA1280104C332F6263564447365070506C556455BE10040E0800065F1F040000FC1F04000007";
 			acse.analyzeAARE(DLMSUtils.hexStringToByteArray(hlSecurityResponse));
 			MockSecurityProvider msp = new MockSecurityProvider();
@@ -244,7 +244,7 @@ public class SecurityContextTest {
 //			msp.setHLSSecretByteArray(new byte[]{0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte)0x88, (byte)0x99, (byte)0xAA, (byte)0xBB, (byte)0xCC, (byte)0xDD, (byte)0xEE, (byte)0xFF});
 			msp.setHLSSecretByteArray(DLMSUtils.hexStringToByteArray("00112233445566778899AABBCCDDEEFF"));
 			msp.setCallingAuthenticationValue(acse.getRespondingAuthenticationValue());
-			SecurityContext sc = new SecurityContext(SecurityContext.SECURITYPOLICY_NONE, 3,0,null, msp);
+			SecurityContext sc = new SecurityContext(SecurityContext.SECURITYPOLICY_NONE, 3,0,null, msp, SecurityContext.CIPHERING_TYPE_GLOBAL);
 
 			byte[] plainText = ProtocolUtils.concatByteArrays(sc.getSecurityProvider().getCallingAuthenticationValue(), sc.getSecurityProvider().getHLSSecret());
 

@@ -32,13 +32,26 @@ public class ApplicationServiceObject {
 	public static int ASSOCIATION_DISCONNECTED = 0;
 	public static int ASSOCIATION_PENDING = 1;
 	public static int ASSOCIATION_CONNECTED = 2;
-	public static int ASSOCIATION_READY_FOR_DSICONNECTION = 3;
+	public static int ASSOCIATION_READY_FOR_DISCONNECTION = 3;
 
-	public ApplicationServiceObject(XdlmsAse xDlmsAse, ProtocolLink protocolLink, SecurityContext securityContext, int contextId) throws IOException{
+    /**
+     * Default constructor
+     *
+     * @param xDlmsAse
+     *          - the used {@link com.energyict.dlms.aso.XdlmsAse}
+     * @param protocolLink
+     *          - the used {@link com.energyict.dlms.ProtocolLink}
+     * @param securityContext
+     *          - the used {@link com.energyict.dlms.aso.SecurityContext}
+     * @param contextId
+     *          - the contextId which indicates longName or shortName communication
+     * @throws IOException
+     */
+    public ApplicationServiceObject(XdlmsAse xDlmsAse, ProtocolLink protocolLink, SecurityContext securityContext, int contextId) throws IOException{
 		this.xDlmsAse = xDlmsAse;
 		this.protocolLink = protocolLink;
 		this.securityContext = securityContext;
-		this.acse = new AssociationControlServiceElement(this.xDlmsAse, contextId, securityContext);
+        this.acse = new AssociationControlServiceElement(this.xDlmsAse, contextId, securityContext);
 		this.acse.setCallingAPTitle(securityContext.getSystemTitle());
 		this.associationStatus = ASSOCIATION_DISCONNECTED;
 	}
@@ -167,7 +180,7 @@ public class ApplicationServiceObject {
 	 * @throws IOException
 	 */
 	public void releaseAssociation() throws IOException{
-		this.associationStatus = ASSOCIATION_READY_FOR_DSICONNECTION;
+		this.associationStatus = ASSOCIATION_READY_FOR_DISCONNECTION;
 		byte[] request = this.acse.releaseAssociationRequest();
 		byte[] response = this.protocolLink.getDLMSConnection().sendRequest(request);
 		this.acse.analyzeRLRE(response);
