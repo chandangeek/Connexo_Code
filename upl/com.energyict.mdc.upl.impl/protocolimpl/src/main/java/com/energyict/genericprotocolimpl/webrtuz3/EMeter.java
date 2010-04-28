@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Data;
@@ -45,7 +46,10 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
  */
 public class EMeter implements GenericProtocol, EDevice {
 
-	public static final ObisCode PROFILE_OBISCODE = ObisCode.fromString("0.0.99.1.0.255");
+    public static final ObisCode FIRMWARE_OBISCODE = ObisCode.fromString("0.0.0.2.0.255");
+    public static final ObisCode SERIAL_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
+    public static final ObisCode PROFILE_OBISCODE = ObisCode.fromString("0.0.99.1.0.255");
+    public static final ObisCode EVENTS_OBISCODE = ObisCode.fromString("0.0.99.98.0.255");
 
 	private CommunicationProfile	commProfile;
 	private WebRTUZ3				webRtu;
@@ -74,7 +78,9 @@ public class EMeter implements GenericProtocol, EDevice {
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
 		this.commProfile = scheduler.getCommunicationProfile();
 
-		try {
+        //testMethod();
+
+        try {
 			// Before reading data, check the serialnumber
 			verifySerialNumber();
 		} catch (IOException e) {
@@ -86,7 +92,7 @@ public class EMeter implements GenericProtocol, EDevice {
 		if(commProfile.getReadDemandValues()){
 			getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + geteMeterRtu().getSerialNumber());
 			ElectricityProfile mp = new ElectricityProfile(this);
-			ProfileData pd = mp.getProfile(getProfileObisCode());
+			ProfileData pd = mp.getProfile(getCorrectedObisCode(PROFILE_OBISCODE));
 			if(this.webRtu.isBadTime()){
 				pd.markIntervalsAsBadTime();
 			}
@@ -125,6 +131,38 @@ public class EMeter implements GenericProtocol, EDevice {
 			sendMeterMessages();
 		}
 	}
+
+    private void testMethod() {
+        try {
+            UniversalObject[] objects = getMeterConfig().getInstantiatedObjectList();
+            for (int i = 0; i < objects.length; i++) {
+                UniversalObject object = objects[i];
+                if (object.getObisCode().getB() == physicalAddress) {
+                    System.out.println(object.getDescription());
+                }
+            }
+
+            System.out.println(doReadFirmwareVersion());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 
+     * @return
+     */
+    private String doReadFirmwareVersion() {
+        String firmware = null;
+        try{
+            Data firmwareObject = getCosemObjectFactory().getData(getCorrectedObisCode(FIRMWARE_OBISCODE));
+            firmware = firmwareObject.getString();
+        } catch (IOException e) {
+            firmware = null;
+        }
+        return firmware == null ? "Unknown" : firmware;
+    }
 
 	/**
 	 *
@@ -191,11 +229,12 @@ public class EMeter implements GenericProtocol, EDevice {
 	}
 
     /**
-     *
+     * 
+      * @param baseObisCode
      * @return
      */
-    public ObisCode getProfileObisCode() {
-		return ProtocolTools.setObisCodeField(PROFILE_OBISCODE, 1, (byte) physicalAddress);
+    public ObisCode getCorrectedObisCode(ObisCode baseObisCode) {
+		return ProtocolTools.setObisCodeField(baseObisCode, 1, (byte) physicalAddress);
 	}
 
 	private void verifySerialNumber() throws IOException{
