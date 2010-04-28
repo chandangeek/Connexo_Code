@@ -18,9 +18,12 @@ import com.energyict.protocol.NoSuchRegisterException;
  */
 public class DLMSMeterConfig {
 
-    public static final String OLD2 = "OLD2";
-    public static final String OLD = "OLD";
+    /** String indicator for the ActionResponse Fix */
+    public final static String OLD = "OLD";
+    /** String indicator for the encrypted HLS step 3 and 4 Fix */
+    public final static String OLD2  = "OLD2";
 
+    /** A regular Expression for the splitting of the {@link #manuf} string*/
 	private static String splitter = "::";
 
     private UniversalObject[] IOL=null;
@@ -35,7 +38,15 @@ public class DLMSMeterConfig {
     /** A Manufacturer identification String */
     private String manuf;
 
-	/** Extra info from the Manufacturer String */
+    /** 
+     * Extra info from the Manufacturer String.<br>
+     * This value was added because originally there were errors in our DLMS implementation. By using the <i>extra</i> parameter, it is possible to still use the
+     * incorrect DLMS implementation for older meters (specifically older NTA meters).
+     * <br> <br>
+     * Currently there are 2 values defined:
+     * <li> <b>{@link #OLD}</b> 	: this is used for parsing the ActionResponse. Originally we skipped one byte 
+     * <li> <b>{@link #OLD2}</b> 	: this is used in the HLS association. Originally step 3 and 4 of the authentication were not encrypted if an encrypted session was proposed.
+     */
     private String extra;
 
     private static DLMSConfig config = DLMSConfig.getInstance();
@@ -45,7 +56,8 @@ public class DLMSMeterConfig {
     }
 
     /**
-     * @param manuf - a Manufacturer specific identification code
+     * @param manuf
+     *            - a Manufacturer specific identification code
      * @return a static DLMSMeterConfig
      */
     public static DLMSMeterConfig getInstance(String manuf) {
@@ -444,14 +456,15 @@ public class DLMSMeterConfig {
 	}
 
 	/**
-	 * @return the extra
+     * @return the {@link #extra}
 	 */
 	public String getExtra() {
 		return extra;
 	}
 
 	/**
-	 * @param extra the extra to set
+     * @param extra
+     *            the extra to set
 	 */
 	protected void setExtra(String extra) {
 		this.extra = extra;

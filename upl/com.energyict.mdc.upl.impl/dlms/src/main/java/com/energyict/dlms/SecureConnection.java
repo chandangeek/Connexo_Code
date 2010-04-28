@@ -20,26 +20,6 @@ public class SecureConnection implements DLMSConnection {
 	private final ApplicationServiceObject aso;
 	private final DLMSConnection connection;
 
-/*	private static Map encryptionTagMap =  new HashMap();
-	static{
-		encryptionTagMap.put(DLMSCOSEMGlobals.COSEM_GETREQUEST, DLMSCOSEMGlobals.GLO_GETREQUEST);
-		encryptionTagMap.put(DLMSCOSEMGlobals.COSEM_ACTIONREQUEST, DLMSCOSEMGlobals.GLO_ACTIOREQUEST);
-		encryptionTagMap.put(DLMSCOSEMGlobals.COSEM_SETREQUEST, DLMSCOSEMGlobals.GLO_SETREQUEST);
-		encryptionTagMap.put(DLMSCOSEMGlobals.GLO_GETRESPONSE, DLMSCOSEMGlobals.COSEM_GETRESPONSE);
-		encryptionTagMap.put(DLMSCOSEMGlobals.GLO_SETRESPONSE, DLMSCOSEMGlobals.COSEM_SETRESPONSE);
-		encryptionTagMap.put(DLMSCOSEMGlobals.GLO_ACTIONRESPONSE, DLMSCOSEMGlobals.COSEM_ACTIONRESPONSE);
-
-		encryptionTagMap.put(DLMSCOSEMGlobals.COSEM_READREQUEST, DLMSCOSEMGlobals.GLO_READREQUEST);
-		encryptionTagMap.put(DLMSCOSEMGlobals.COSEM_WRITEREQUEST, DLMSCOSEMGlobals.GLO_WRITEREQUEST);
-		encryptionTagMap.put(DLMSCOSEMGlobals.GLO_READRESPONSE, DLMSCOSEMGlobals.COSEM_READRESPONSE);
-		encryptionTagMap.put(DLMSCOSEMGlobals.GLO_WRITERESPONSE, DLMSCOSEMGlobals.COSEM_WRITERESPONSE);
-		encryptionTagMap.put(DLMSCOSEMGlobals.GLO_CONFIRMEDSERVICEERROR, DLMSCOSEMGlobals.COSEM_CONFIRMEDSERVICEERROR);
-		encryptionTagMap.put(DLMSCOSEMGlobals.DED_READRESPONSE, DLMSCOSEMGlobals.COSEM_READRESPONSE);
-		encryptionTagMap.put(DLMSCOSEMGlobals.DED_WRITERESPONSE, DLMSCOSEMGlobals.COSEM_WRITERESPONSE);
-		encryptionTagMap.put(DLMSCOSEMGlobals.DED_CONFIRMEDSERVICEERROR, DLMSCOSEMGlobals.COSEM_CONFIRMEDSERVICEERROR);
-
-	}*/
-
 	public SecureConnection(final ApplicationServiceObject aso, final DLMSConnection transportConnection){
 		this.aso = aso;
 		this.connection = transportConnection;
@@ -91,7 +71,6 @@ public class SecureConnection implements DLMSConnection {
 				// FIXME: Strip the 3 leading bytes before encrypting -> due to old HDLC code
 				final byte[] leading = ProtocolUtils.getSubArray(byteRequestBuffer, 0, 2);
 				byte[] securedRequest = ProtocolUtils.getSubArray(byteRequestBuffer, 3);
-//				final byte tag = ((Byte) encryptionTagMap.get(securedRequest[0])).byteValue();
 
                 final byte tag = XdlmsApduTags.getEncryptedTag(securedRequest[0], this.aso.getSecurityContext().isGlobalCiphering());
 
@@ -105,7 +84,6 @@ public class SecureConnection implements DLMSConnection {
 				final byte[] securedResponse = getTransportConnection().sendRequest(securedRequest);
 
 				// check if the response tag is know and decrypt the data if necessary
-//				if(encryptionTagMap.containsKey(securedResponse[3])){
                 if(XdlmsApduTags.contains(securedResponse[3])){
 					// FIXME: Strip the 3 leading bytes before decryption -> due to old HDLC code
 					// Strip the 3 leading bytes before encrypting
