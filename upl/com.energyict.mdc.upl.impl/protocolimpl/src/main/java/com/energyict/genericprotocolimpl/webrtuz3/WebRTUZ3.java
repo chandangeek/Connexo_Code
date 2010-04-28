@@ -392,7 +392,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 
 	@Override
 	protected List<String> doGetOptionalKeys() {
-		List<String> result = new ArrayList<String>(30);
+		List<String> result = new ArrayList<String>();
 		result.add(PROPERTY_DELAY_AFTER_FAIL);
 		result.add(PROPERTY_REQUEST_TIME_ZONE);
 		result.add(PROPERTY_FIRMWARE_VERSION);
@@ -401,8 +401,6 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 		result.add(PROPERTY_READ_DAILY_VALUES);
 		result.add(PROPERTY_READ_MONTHLY_VALUES);
 		result.add(PROPERTY_FOLDER_EXT_NAME);
-		result.add(PROPERTY_MBUS_RTUTYPE);
-        result.add(PROPERTY_EMETER_RTUTYPE);
 		result.add(LocalSecurityProvider.DATATRANSPORTKEY);
 		result.add(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
 		result.add(LocalSecurityProvider.MASTERKEY);
@@ -414,7 +412,10 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 
 	@Override
 	protected List<String> doGetRequiredKeys() {
-		return new ArrayList<String>();
+		List<String> result = new ArrayList<String>();
+        result.add(PROPERTY_MBUS_RTUTYPE);
+        result.add(PROPERTY_EMETER_RTUTYPE);
+        return result;
 	}
 
 	@Override
