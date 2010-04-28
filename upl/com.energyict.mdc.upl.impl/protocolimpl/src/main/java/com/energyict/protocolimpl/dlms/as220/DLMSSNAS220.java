@@ -89,6 +89,7 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 	private static final String			PR_RETRIES					= "Retries";
 	private static final String			PR_FORCED_DELAY				= "ForcedDelay";
 	private static final String			PR_TIMEOUT					= "Timeout";
+    private static final String         PR_CIPHERING_TYPE           = "CipheringType";
 
 	private static final int			MAX_PDU_SIZE				= 200;
 	private static final int			PROPOSED_QOS				= -1;
@@ -125,6 +126,7 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     private int extendedLogging;
     private int opticalBaudrate;
     private int profileType = 0;
+    private int cipheringType;
 
     private int authenticationSecurityLevel;
 	private int	datatransportSecurityLevel;
@@ -253,7 +255,7 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
         }
 
 		LocalSecurityProvider localSecurityProvider = new LocalSecurityProvider(this.properties);
-		securityContext = new SecurityContext(datatransportSecurityLevel, authenticationSecurityLevel, 0, getSystemIdentifier(), localSecurityProvider, SecurityContext.CIPHERING_TYPE_DEDICATED);
+		securityContext = new SecurityContext(datatransportSecurityLevel, authenticationSecurityLevel, 0, getSystemIdentifier(), localSecurityProvider, this.cipheringType);
 		ConformanceBlock cb = new ConformanceBlock(ConformanceBlock.DEFAULT_SN_CONFORMANCE_BLOCK);
 		XdlmsAse xdlmsAse = new XdlmsAse(isCiphered() ? localSecurityProvider.getDedicatedKey() : null, true, PROPOSED_QOS, PROPOSED_DLMS_VERSION, cb, MAX_PDU_SIZE);
 		aso = new ApplicationServiceObject(xdlmsAse, this, securityContext, getContextId());
@@ -531,6 +533,11 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 
 			opticalBaudrate = Integer.parseInt(properties.getProperty(PR_OPTICAL_BAUDRATE, "-1"));
 
+            this.cipheringType = Integer.parseInt(properties.getProperty("CipheringType", Integer.toString(SecurityContext.CIPHERING_TYPE_DEDICATED)));
+            if (cipheringType != SecurityContext.CIPHERING_TYPE_GLOBAL && cipheringType != SecurityContext.CIPHERING_TYPE_DEDICATED) {
+                throw new InvalidPropertyException("Only 0 or 1 is allowed for the CipheringType property");
+            }
+
 		} catch (NumberFormatException e) {
 			throw new InvalidPropertyException(" validateProperties, NumberFormatException, " + e.getMessage());
 		}
@@ -596,6 +603,7 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
         result.add(PR_TRANSP_PARITY);
         result.add(PR_PROFILE_TYPE);
         result.add(PR_OPTICAL_BAUDRATE);
+        result.add(PR_CIPHERING_TYPE);
         return result;
     }
 

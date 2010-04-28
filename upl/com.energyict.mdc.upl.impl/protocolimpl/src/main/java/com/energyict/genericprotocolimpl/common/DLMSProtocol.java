@@ -86,7 +86,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 	
 	/** The {@link SecurityProvider} used for DLMS communication */
 	private SecurityProvider securityProvider;
-	
+
 	/** The {@link Logger} provided by the ComServer */
 	private Logger logger;
 	
@@ -129,10 +129,11 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 	private int informationFieldSize;
 	private int roundTripCorrection;
 	private int wakeup;
-	private String ipPortNumber;
-	private String manufacturer;
-	
-	/**
+    private int cipheringType;
+    private String ipPortNumber;
+    private String manufacturer;
+
+    /**
 	 * Handle the protocol tasks
 	 * 
 	 * @throws BusinessException
@@ -285,7 +286,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 	 * 
 	 * @throws MissingPropertyException if one of the required keys is missing in {@link #properties}
 	 */
-	protected void validateProperties() throws MissingPropertyException{
+	protected void validateProperties() throws MissingPropertyException, InvalidPropertyException {
 		
 		Iterator<String> iterator = getRequiredKeys().iterator();
 		while (iterator.hasNext()) {
@@ -330,6 +331,11 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
         this.wakeup = Integer.parseInt(properties.getProperty("WakeUp","0"));
         
         this.ipPortNumber = properties.getProperty("IpPortNumber", "4059");
+
+        this.cipheringType = Integer.parseInt(properties.getProperty("CipheringType",Integer.toString(SecurityContext.CIPHERING_TYPE_GLOBAL)));
+        if(cipheringType != SecurityContext.CIPHERING_TYPE_GLOBAL && cipheringType != SecurityContext.CIPHERING_TYPE_DEDICATED){
+            throw new InvalidPropertyException("Only 0 or 1 is allowed for the CipheringType property");
+        }
         
         doValidateProperties();
 	}
@@ -346,7 +352,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 		
 		this.cosemObjectFactory	= new CosemObjectFactory((ProtocolLink)this);
 		
-		SecurityContext sc = new SecurityContext(this.datatransportSecurityLevel, this.authenticationSecurityLevel, 0, this.securityProvider, SecurityContext.CIPHERING_TYPE_GLOBAL);
+		SecurityContext sc = new SecurityContext(this.datatransportSecurityLevel, this.authenticationSecurityLevel, 0, this.securityProvider, this.cipheringType);
 		
 		this.aso = new ApplicationServiceObject(this.xdlmsAse, this, sc, getContextId());
 
@@ -651,6 +657,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 		optionalKeys.add("RoundTripCorrection");
 		optionalKeys.add("IpPortNumber");
 		optionalKeys.add("WakeUp");
+        optionalKeys.add("CipheringType");
 		List<String> protocolKeys = doGetOptionalKeys();
 		if(protocolKeys != null){
 			optionalKeys.addAll(protocolKeys);

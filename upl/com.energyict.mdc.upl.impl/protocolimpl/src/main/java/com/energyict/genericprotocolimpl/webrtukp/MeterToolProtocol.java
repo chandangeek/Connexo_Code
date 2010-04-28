@@ -10,6 +10,7 @@ import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
 
 /**
@@ -101,7 +102,7 @@ public interface MeterToolProtocol {
 	 * 
 	 * @throws MissingPropertyException
 	 */
-	void validateProperties() throws MissingPropertyException;
+	void validateProperties() throws MissingPropertyException, InvalidPropertyException;
 
 	/**
 	 * @return a CosemObjectFactory that can be used to read data from the

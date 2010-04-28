@@ -69,12 +69,7 @@ import com.energyict.mdw.core.RtuMessage;
 import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.MagicNumberConstants;
 import com.energyict.protocolimpl.dlms.DLMSCache;
 import com.energyict.protocolimpl.dlms.HDLC2Connection;
@@ -172,6 +167,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	private int wakeup;
 	private int oldMbusDiscovery;
 	private boolean fixMbusHexShortId;
+    private int cipheringType;
 
 	/**
 	 * <pre>
@@ -490,7 +486,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		ConformanceBlock cb = new ConformanceBlock(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK);
 		XdlmsAse xDlmsAse = new XdlmsAse(null, true, -1, 6, cb, 1200);
 		//TODO the dataTransport encryptionType should be a property (although currently only 0 is described by DLMS)
-		SecurityContext sc = new SecurityContext(this.datatransportSecurityLevel, this.authenticationSecurityLevel, 0, "EIT12345".getBytes(), getSecurityProvider(), SecurityContext.CIPHERING_TYPE_GLOBAL);
+		SecurityContext sc = new SecurityContext(this.datatransportSecurityLevel, this.authenticationSecurityLevel, 0, "EIT12345".getBytes(), getSecurityProvider(), this.cipheringType);
 		
 		this.aso = new ApplicationServiceObject(xDlmsAse, this, sc, 
 					(this.datatransportSecurityLevel == 0)?AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING:
@@ -1296,7 +1292,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		return this.serialNumber;
 	}
 
-	public void validateProperties() throws MissingPropertyException {
+	public void validateProperties() throws MissingPropertyException, InvalidPropertyException {
 		Iterator<String> iterator = getRequiredKeys().iterator();
 		while (iterator.hasNext()) {
 			String key = iterator.next();
@@ -1356,6 +1352,12 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
         
         this.oldMbusDiscovery = Integer.parseInt(properties.getProperty("OldMbusDiscovery", "0"));
         this.fixMbusHexShortId = Integer.parseInt(properties.getProperty("FixMbusHexShortId", "0")) != 0;
+
+        // the NTA meters normally use the global keys to encrypt
+        this.cipheringType = Integer.parseInt(properties.getProperty("CipheringType",Integer.toString(SecurityContext.CIPHERING_TYPE_GLOBAL)));
+        if(cipheringType != SecurityContext.CIPHERING_TYPE_GLOBAL && cipheringType != SecurityContext.CIPHERING_TYPE_DEDICATED){
+            throw new InvalidPropertyException("Only 0 or 1 is allowed for the CipheringType property");
+        }
 	}
 
 	public void addProperties(Properties properties) {
@@ -1404,6 +1406,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		result.add(LocalSecurityProvider.NEW_HLS_SECRET);
 		result.add("OldMbusDiscovery");
 		result.add("FixMbusHexShortId");
+        result.add("CipheringType");
 		return result;
 	}
 
