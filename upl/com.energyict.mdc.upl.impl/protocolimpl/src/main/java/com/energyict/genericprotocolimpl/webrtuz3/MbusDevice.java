@@ -158,13 +158,15 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
 
 			if(getWebRTU().isReadDaily()){
 				getLogger().log(Level.INFO, "Getting Daily values for meter with serialnumber: " + getMbus().getSerialNumber());
-				ProfileData dailyPd = mdm.getDailyProfile(getMeterConfig().getDailyProfileObject().getObisCode());
+                ObisCode dailyObisCode = getCorrectedObisCode(getMeterConfig().getDailyProfileObject().getObisCode());
+                ProfileData dailyPd = mdm.getDailyProfile(dailyObisCode);
 				this.webRtu.getStoreObject().add(dailyPd, getMbus());
 			}
 
 			if(getWebRTU().isReadMonthly()){
 				getLogger().log(Level.INFO, "Getting Monthly values for meter with serialnumber: " + getMbus().getSerialNumber());
-				ProfileData montProfileData = mdm.getMonthlyProfile(getMeterConfig().getMonthlyProfileObject().getObisCode());
+                ObisCode MonthlyObisCode = getCorrectedObisCode(getMeterConfig().getMonthlyProfileObject().getObisCode());
+                ProfileData montProfileData = mdm.getMonthlyProfile(MonthlyObisCode);
 				this.webRtu.getStoreObject().add(montProfileData, getMbus());
 
 			}
@@ -194,7 +196,7 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
 				if (CommonUtils.isInRegisterGroup(groups, rr)) {
 					oc = rr.getRtuRegisterSpec().getObisCode();
 					try{
-						rv = readRegister(adjustToMbusChannelObisCode(oc));
+						rv = readRegister(getCorrectedObisCode(oc));
 						if(rv != null){
 							rv.setRtuRegisterId(rr.getId());
 
@@ -226,11 +228,6 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
 			rm = it.next();
 			messageExecutor.doMessage(rm);
 		}
-	}
-
-	private ObisCode adjustToMbusChannelObisCode(ObisCode oc) {
-		return ProtocolTools.setObisCodeField(oc, 1, (byte)getPhysicalAddress()); 
-        //return new ObisCode(oc.getA(), getPhysicalAddress()+1, oc.getC(), oc.getD(), oc.getE(), oc.getF());
 	}
 
 	private RegisterValue readRegister(ObisCode oc) throws IOException{
@@ -283,5 +280,15 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
 	public String toString() {
 		return "[" + physicalAddress + "] " + customerID;
 	}
+
+    /**
+     *
+      * @param baseObisCode
+     * @return
+     */
+    public ObisCode getCorrectedObisCode(ObisCode baseObisCode) {
+		return ProtocolTools.setObisCodeField(baseObisCode, 1, (byte) physicalAddress);
+	}
+    
 
 }
