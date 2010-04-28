@@ -77,9 +77,14 @@ public class ElectricityProfile {
 					}
 				}
 
-				eDevice.getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
-				final DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
-				buildProfileData(dc, profileData, genericProfile);
+                /*
+                eDevice.getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
+                final DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
+                 */
+                eDevice.getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime());
+                final DataContainer dc = genericProfile.getBuffer(fromCalendar);
+
+                buildProfileData(dc, profileData, genericProfile);
 				ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 				profileData.sort();
 
@@ -199,12 +204,6 @@ public class ElectricityProfile {
 		if(dc.getRoot().getElements().length != 0){
 
 			for(int i = 0; i < dc.getRoot().getElements().length; i++){
-
-				//Test
-				if(dc.getRoot().getStructure(i) == null){
-					dc.printDataContainer();
-					System.out.println("Element: " + i);
-				}
 
 				if(dc.getRoot().getStructure(i).isOctetString(0)){
 //					cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getTimeZone());
