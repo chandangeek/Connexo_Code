@@ -669,10 +669,8 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 	 * @see com.energyict.cbo.ConfigurationSupport#getRequiredKeys()
 	 */
 	public List<String> getRequiredKeys() {
-		if(doGetRequiredKeys() != null){
-			return doGetOptionalKeys();
-		}	
-		return new ArrayList<String>();
+		List<String> requiredKeys = doGetRequiredKeys();
+		return requiredKeys == null ? new ArrayList<String>() : requiredKeys;
 	}
 
 	/* (non-Javadoc)
