@@ -2,39 +2,105 @@ package com.energyict.genericprotocolimpl.webrtuz3;
 
 /**
  * Copyrights EnergyICT
- *
- * @since 9-apr-2010 16:40:52
- * @author jme
+ * Date: 28-apr-2010
+ * Time: 15:49:10
  */
 public class DeviceMapping {
 
-	private final int from;
-	private final int to;
+    private final String serialNumber;
+    private final int physicalAddress;
+    private boolean ghostDevice = false;
 
-	/**
-	 *
-	 */
-	public DeviceMapping(int from, int to) {
-		this.from = from;
-		this.to = to;
-	}
 
-	/**
-	 * @return the from
-	 */
-	public int getFrom() {
-		return from;
-	}
+    public DeviceMapping(String serialNumber, int physicalAddress, boolean ghostDevice) {
+        this.serialNumber = serialNumber;
+        this.physicalAddress = physicalAddress;
+        this.ghostDevice = ghostDevice;
+    }
 
-	/**
-	 * @return the to
-	 */
-	public int getTo() {
-		return to;
-	}
+    /**
+     * 
+     * @param serialNumber
+     * @param physicalAddress
+     */
+    public DeviceMapping(String serialNumber, int physicalAddress) {
+        this(serialNumber, physicalAddress, false);
+    }
 
-	public int getNumberOfDevices() {
-		return to - from;
-	}
+    /**
+     *
+     * @param serialNumber
+     */
+    public DeviceMapping(String serialNumber) {
+        this(serialNumber, -1, true);
+    }
+
+    public DeviceMapping(String serialNumber, boolean ghostDevice) {
+        this(serialNumber, -1, ghostDevice);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getSerialNumber() {
+        return serialNumber;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public int getPhysicalAddress() {
+        return physicalAddress;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean isGhostDevice() {
+        return ghostDevice;
+    }
+
+    /**
+     * 
+     * @param ghostDevice
+     */
+    public void setGhostDevice(boolean ghostDevice) {
+        this.ghostDevice = ghostDevice;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        DeviceMapping that = (DeviceMapping) o;
+        if (serialNumber != null ? !serialNumber.equals(that.serialNumber) : that.serialNumber != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return  getSerialNumber().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("[").append(physicalAddress != -1 ? physicalAddress : "?").append("] = ").append(getSerialNumber());
+        if (isGhostDevice()) {
+            sb.append(" [GHOST]");
+        }
+        return sb.toString();
+    }
 
 }

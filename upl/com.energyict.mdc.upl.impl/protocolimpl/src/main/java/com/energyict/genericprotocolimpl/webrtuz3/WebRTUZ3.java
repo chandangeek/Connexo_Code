@@ -2,13 +2,7 @@ package com.energyict.genericprotocolimpl.webrtuz3;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 
@@ -51,9 +45,7 @@ import com.energyict.mdw.core.RtuMessage;
 import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -89,8 +81,8 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 	private static final String			DEFAULT_PASSWORD				= "";
 
 	/** Device channel mappings */
-	private static final DeviceMapping	MBUS_DEVICES					= new DeviceMapping(0x01, 0x20);
-	private static final DeviceMapping	EMETER_DEVICES					= new DeviceMapping(0x21, 0x40);
+	private static final DeviceMappingRange MBUS_DEVICES					= new DeviceMappingRange(0x01, 0x20);
+	private static final DeviceMappingRange EMETER_DEVICES					= new DeviceMappingRange(0x21, 0x40);
 
 	/** The device obisCodes */
 	public final static ObisCode		RF_FIRMWAREVERSION				= ObisCode.fromString("1.129.0.2.0.255");
@@ -129,12 +121,6 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 
 	/** An array of 'slave' EMeters */
 	private EMeter[] eMeters;
-
-	/** GhostMbusDevices are Mbus meters that are connected with their gateway in EIServer, but not on the physical device anymore */
-	private Map<String, Integer> ghostMbusDevices = new HashMap<String, Integer>();
-
-	/** GhostEMeters are e-meters that are connected with their gateway in EIServer, but not on the physical device anymore */
-	private Map<String, Integer> ghostEMeters = new HashMap<String, Integer>();
 
 	/** The used TicDevice */
 	private TicDevice ticDevice;
@@ -187,8 +173,9 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 				DailyMonthly dm = new DailyMonthly(this);
 
 				if (readDaily) {
-					if(doesObisCodeExistInObjectList(getMeterConfig().getDailyProfileObject().getObisCode())){
-						ProfileData dailyPd = dm.getDailyValues(getMeterConfig().getDailyProfileObject().getObisCode());
+                    ObisCode dailyProfileObisCode = getMeterConfig().getDailyProfileObject().getObisCode();
+                    if(doesObisCodeExistInObjectList(dailyProfileObisCode)){
+						ProfileData dailyPd = dm.getDailyValues(dailyProfileObisCode);
 						if(badTime){
 							dailyPd.markIntervalsAsBadTime();
 						}
@@ -554,7 +541,12 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 		return ocm.getRegisterValue(obisCode);
 	}
 
-	/**
+    @Override
+    protected void validateProperties() throws MissingPropertyException, InvalidPropertyException {
+        super.validateProperties();    //To change body of overridden methods use File | Settings | File Templates.
+    }
+
+    /**
 	 * Messages
 	 *
 	 * @throws SQLException if a database access error occurs
@@ -581,11 +573,20 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 	public void discoverMbusDevices() throws SQLException, BusinessException, IOException{
 		log(Level.FINE, "Starting discovery of MBusDevices");
 		// get an MbusDeviceMap
-		Map<String, Integer> mbusMap = getMbusMapper();
+		List<DeviceMapping> mbusMap = getMbusMapper();
 		// check if the current mbus slaves are still on the meter disappeared
 		checkForDisappearedMbusMeters(mbusMap);
 		// check if all the mbus devices are configured in EIServer
 		checkToUpdateMbusMeters(mbusMap);
+
+        StringBuffer sb = new StringBuffer();
+        sb.append("Found ").append(mbusMap.size()).append(" MBus devices: ").append("\r\n");
+        for (int i = 0; i < mbusMap.size(); i++) {
+            DeviceMapping deviceMapping =  mbusMap.get(i);
+            sb.append(deviceMapping).append("\r\n");
+        }
+        getLogger().log(Level.INFO, sb.toString());
+
 	}
 
 	/**
@@ -597,11 +598,20 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 	public void discoverEMeters() throws SQLException, BusinessException, IOException{
 		log(Level.FINE, "Starting discovery of eMeters");
 		// get an MbusDeviceMap
-		Map<String, Integer> eMeterMap = getEmeterMapper();
+		List<DeviceMapping> eMeterMap = getEmeterMapper();
 		// check if the current mbus slaves are still on the meter disappeared
 		checkForDisappearedEMeters(eMeterMap);
 		// check if all the mbus devices are configured in EIServer
 		checkToUpdateEMeters(eMeterMap);
+
+        StringBuffer sb = new StringBuffer();
+        sb.append("Found ").append(eMeterMap.size()).append(" eMeter devices: ").append("\r\n");
+        for (int i = 0; i < eMeterMap.size(); i++) {
+            DeviceMapping deviceMapping =  eMeterMap.get(i);
+            sb.append(deviceMapping).append("\r\n");
+        }
+        getLogger().log(Level.INFO, sb.toString());
+
 	}
 
 	/**
@@ -610,9 +620,9 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 	 * @return a map containing SerailNumber - Physical mbus address
 	 * @throws ConnectionException if interframeTimeout has passed and maximum retries have been reached
 	 */
-	private Map<String, Integer> getMbusMapper() throws ConnectionException{
+	private List<DeviceMapping> getMbusMapper() throws ConnectionException{
 		String mbusSerial;
-		HashMap<String, Integer> mbusMap = new HashMap<String, Integer>();
+		List<DeviceMapping> mbusMap = new ArrayList<DeviceMapping>();
 		for (int i = MBUS_DEVICES.getFrom(); i <= MBUS_DEVICES.getTo(); i++) {
 			mbusSerial = "";
 			try {
@@ -620,13 +630,13 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 				OctetString serialOctetString = serialDataObject.getAttrbAbstractDataType(2).getOctetString();
 				mbusSerial = serialOctetString != null ? serialOctetString.stringValue() : null;
 				if ((mbusSerial != null) && (!mbusSerial.equalsIgnoreCase(""))) {
-					mbusMap.put(mbusSerial, i);
+					mbusMap.add(new DeviceMapping(mbusSerial, i));
 				}
 			} catch (IOException e) {
 				if(e.getMessage().indexOf("com.energyict.dialer.connection.ConnectionException: receiveResponse() interframe timeout error") > -1){
 					throw new ConnectionException("InterframeTimeout occurred. Meter probably not accessible anymore." + e);
 				}
-				log(Level.FINE, "Could not retrieve the mbus serialNumber for channel " + i + ": " + e.getMessage());
+				//log(Level.FINE, "Could not retrieve the mbus serialNumber for channel " + i + ": " + e.getMessage());
 			}
 		}
 		return mbusMap;
@@ -638,9 +648,9 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 	 * @return a map containing SerailNumber - Physical address
 	 * @throws ConnectionException if interframeTimeout has passed and maximum retries have been reached
 	 */
-	private Map<String, Integer> getEmeterMapper() throws ConnectionException{
+	private List<DeviceMapping> getEmeterMapper() throws ConnectionException{
 		String eMeterSerial;
-		HashMap<String, Integer> eMeterMap = new HashMap<String, Integer>();
+		List<DeviceMapping> eMeterMap = new ArrayList<DeviceMapping>();
 		for (int i = EMETER_DEVICES.getFrom(); i <= EMETER_DEVICES.getTo(); i++) {
 			eMeterSerial = "";
 			try {
@@ -648,13 +658,13 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 				OctetString serialOctetString = serialDataObject.getAttrbAbstractDataType(2).getOctetString();
 				eMeterSerial = serialOctetString != null ? serialOctetString.stringValue() : null;
 				if ((eMeterSerial != null) && (!eMeterSerial.equalsIgnoreCase(""))) {
-					eMeterMap.put(eMeterSerial, i);
+					eMeterMap.add(new DeviceMapping(eMeterSerial, i));
 				}
 			} catch (IOException e) {
 				if(e.getMessage().indexOf("com.energyict.dialer.connection.ConnectionException: receiveResponse() interframe timeout error") > -1){
 					throw new ConnectionException("InterframeTimeout occurred. Meter probably not accessible anymore." + e);
 				}
-				log(Level.FINE, "Could not retrieve the eMeter serialNumber for channel " + i + ": " + e.getMessage());
+				//log(Level.FINE, "Could not retrieve the eMeter serialNumber for channel " + i + ": " + e.getMessage());
 			}
 		}
 		return eMeterMap;
@@ -664,7 +674,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 	 * Check to see if you find MbusDevices as slaves for the current Z3 in the DataBase, but NOT on the physical device
 	 * @param mbusMap - a map of serialNumbers read from the Z3
 	 */
-	private void checkForDisappearedMbusMeters(Map<String, Integer> mbusMap){
+	private void checkForDisappearedMbusMeters(List<DeviceMapping> mbusMap){
 
 		List<Rtu> mbusSlaves = getMeter().getDownstreamRtus();
 		Iterator<Rtu> it = mbusSlaves.iterator();
@@ -674,9 +684,9 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 			try {
 				device = Class.forName(mbus.getRtuType().getShadow().getCommunicationProtocolShadow().getJavaClassName());
 				if((device != null) && (device.newInstance() instanceof MbusDevice)){		// we check to see if it's an Mbus device and no TIC device
-					if(!mbusMap.containsKey(mbus.getSerialNumber())){
+					if(!mbusMap.contains(new DeviceMapping(mbus.getSerialNumber()))) {
 						getLogger().log(Level.INFO, "MbusDevice [" + mbus + "] is not installed on the physical device.");
-						ghostMbusDevices.put(mbus.getSerialNumber(), mbusMap.get(mbus.getSerialNumber()));
+						mbusMap.add(new DeviceMapping(mbus.getSerialNumber(), true));
 					}
 				}
 			} catch (ClassNotFoundException e) {
@@ -697,7 +707,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 	 * Check to see if you find MbusDevices as slaves for the current Z3 in the DataBase, but NOT on the physical device
 	 * @param eMeterMap - a map of serialNumbers read from the Z3
 	 */
-	private void checkForDisappearedEMeters(Map<String, Integer> eMeterMap){
+	private void checkForDisappearedEMeters(List<DeviceMapping> eMeterMap){
 
 		List<Rtu> eMeterSlaves = getMeter().getDownstreamRtus();
 		Iterator<Rtu> it = eMeterSlaves.iterator();
@@ -706,10 +716,11 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 			Class device = null;
 			try {
 				device = Class.forName(eMeter.getRtuType().getShadow().getCommunicationProtocolShadow().getJavaClassName());
-				if((device != null) && (device.newInstance() instanceof EMeter)){		// we check to see if it's an Mbus device and no TIC device
-					if(!eMeterMap.containsKey(eMeter.getSerialNumber())){
+				System.out.println(device);
+                if((device != null) && (device.newInstance() instanceof EMeter)){		// we check to see if it's an Mbus device and no TIC device
+					if(!eMeterMap.contains(new DeviceMapping(eMeter.getSerialNumber()))) {
 						getLogger().log(Level.INFO, "EMeter [" + eMeter + "] is not installed on the physical device.");
-						ghostEMeters.put(eMeter.getSerialNumber(), eMeterMap.get(eMeter.getSerialNumber()));
+						eMeterMap.add(new DeviceMapping(eMeter.getSerialNumber(), true));
 					}
 				}
 			} catch (ClassNotFoundException e) {
@@ -734,41 +745,39 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 	 * @throws SQLException if database exception occurred
 	 * @throws IOException if multiple meters were found in the database
 	 */
-	private void checkToUpdateMbusMeters(Map<String, Integer> mbusMap) throws SQLException, BusinessException, IOException{
-		Iterator<Entry<String, Integer>>  mbusIt = mbusMap.entrySet().iterator();
-		int count = 0;
-		while(mbusIt.hasNext()){
-			Map.Entry<String, Integer> entry = mbusIt.next();
-			if(!ghostMbusDevices.containsKey(entry.getKey())){ // ghostMeters don't need to be read because they are not on the meter anymore
-				Rtu mbus = CommonUtils.findOrCreateDeviceBySerialNumber(entry.getKey(), mbusRtuType, folderExtName);
-				if(mbus != null){
-					mbus.updateGateway(getMeter());
-					this.mbusDevices[count++] = new MbusDevice(entry.getKey(), entry.getValue(), mbus, getLogger());
-				}
-			}
-		}
-	}
+    private void checkToUpdateMbusMeters(List<DeviceMapping> mbusMap) throws SQLException, BusinessException, IOException {
+        int count = 0;
+        for (int i = 0; i < mbusMap.size(); i++) {
+            DeviceMapping deviceMapping = mbusMap.get(i);
+            if (!deviceMapping.isGhostDevice()) {
+                Rtu mbus = CommonUtils.findOrCreateDeviceBySerialNumber(deviceMapping.getSerialNumber(), mbusRtuType, folderExtName);
+                if (mbus != null) {
+                    mbus.updateGateway(getMeter());
+                    this.mbusDevices[count++] = new MbusDevice(deviceMapping.getSerialNumber(), deviceMapping.getPhysicalAddress(), mbus, getLogger());
+                }
+            }
+        }
+    }
 
-	/**
+    /**
 	 * Check the ghostMbusDevices and create the mbusDevices
 	 * @param eMeterMap
 	 * @throws BusinessException if a business error occurred
 	 * @throws SQLException if database exception occurred
 	 * @throws IOException if multiple meters were found in the database
 	 */
-	private void checkToUpdateEMeters(Map<String, Integer> eMeterMap) throws SQLException, BusinessException, IOException{
-		Iterator<Entry<String, Integer>>  eMeterIt = eMeterMap.entrySet().iterator();
-		int count = 0;
-		while(eMeterIt.hasNext()){
-			Map.Entry<String, Integer> entry = eMeterIt.next();
-			if(!ghostEMeters.containsKey(entry.getKey())){ // ghostMeters don't need to be read because they are not on the meter anymore
-				Rtu eMeter = CommonUtils.findOrCreateDeviceBySerialNumber(entry.getKey(), eMeterRtuType, folderExtName);
-				if(eMeter != null){
-					eMeter.updateGateway(getMeter());
-					this.eMeters[count++] = new EMeter(entry.getKey(), entry.getValue(), eMeter, getLogger());
-				}
-			}
-		}
+	private void checkToUpdateEMeters(List<DeviceMapping> eMeterMap) throws SQLException, BusinessException, IOException{
+        int count = 0;
+        for (int i = 0; i < eMeterMap.size(); i++) {
+            DeviceMapping deviceMapping = eMeterMap.get(i);
+            if (!deviceMapping.isGhostDevice()) {
+                Rtu eMeter = CommonUtils.findOrCreateDeviceBySerialNumber(deviceMapping.getSerialNumber(), eMeterRtuType, folderExtName);
+                if (eMeter != null) {
+                    eMeter.updateGateway(getMeter());
+                    this.eMeters[count++] = new EMeter(deviceMapping.getSerialNumber(), deviceMapping.getPhysicalAddress(), eMeter, getLogger());
+                }
+            }
+        }
 	}
 
 

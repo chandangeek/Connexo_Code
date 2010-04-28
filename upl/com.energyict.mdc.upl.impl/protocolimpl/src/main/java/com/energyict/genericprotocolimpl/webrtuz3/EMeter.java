@@ -112,17 +112,19 @@ public class EMeter implements GenericProtocol, EDevice {
 
 			if(getWebRTU().isReadDaily()){
 				getLogger().log(Level.INFO, "Getting Daily values for meter with serialnumber: " + geteMeterRtu().getSerialNumber());
-				ProfileData dailyPd = mdm.getDailyValues(getMeterConfig().getDailyProfileObject().getObisCode());
+                ObisCode dailyObisCode = getCorrectedObisCode(getMeterConfig().getDailyProfileObject().getObisCode());
+                ProfileData dailyPd = mdm.getDailyValues(dailyObisCode);
 				this.webRtu.getStoreObject().add(dailyPd, geteMeterRtu());
 			}
 
 			if(getWebRTU().isReadMonthly()){
 				getLogger().log(Level.INFO, "Getting Monthly values for meter with serialnumber: " + geteMeterRtu().getSerialNumber());
-				ProfileData montProfileData = mdm.getMonthlyValues(getMeterConfig().getMonthlyProfileObject().getObisCode());
+                ObisCode monthlyObisCode = getCorrectedObisCode(getMeterConfig().getMonthlyProfileObject().getObisCode());
+                ProfileData montProfileData = mdm.getMonthlyValues(monthlyObisCode);
 				this.webRtu.getStoreObject().add(montProfileData, geteMeterRtu());
 
 			}
-			getLogger().log(Level.INFO, "Getting registers from Mbus meter " + (getPhysicalAddress()+1));
+            getLogger().log(Level.INFO, "Getting register values for meter with serialnumber: " + geteMeterRtu().getSerialNumber());
 			doReadRegisters();
 		}
 
@@ -179,7 +181,7 @@ public class EMeter implements GenericProtocol, EDevice {
 				if (CommonUtils.isInRegisterGroup(groups, rr)) {
 					oc = rr.getRtuRegisterSpec().getObisCode();
 					try{
-						rv = readRegister(ProtocolTools.setObisCodeField(oc, 1, (byte) getPhysicalAddress()), oc);
+						rv = readRegister(oc);
 						if(rv != null){
 							rv.setRtuRegisterId(rr.getId());
 
@@ -206,14 +208,14 @@ public class EMeter implements GenericProtocol, EDevice {
     /**
      * 
      * @param obisCode
-     * @param originalObisCode
      * @return
      * @throws IOException
      */
-	private RegisterValue readRegister(ObisCode obisCode, ObisCode originalObisCode) throws IOException {
+	private RegisterValue readRegister(ObisCode obisCode) throws IOException {
 		try {
-			Register register = getCosemObjectFactory().getRegister(obisCode);
-			return new RegisterValue(originalObisCode, register.getQuantityValue());
+            ObisCode physicalObisCode = ProtocolTools.setObisCodeField(obisCode, 1, (byte) getPhysicalAddress());
+            Register register = getCosemObjectFactory().getRegister(physicalObisCode);
+			return new RegisterValue(obisCode, register.getQuantityValue());
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new NoSuchRegisterException(e.getMessage());

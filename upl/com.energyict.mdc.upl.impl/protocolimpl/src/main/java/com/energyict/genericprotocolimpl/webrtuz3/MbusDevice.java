@@ -229,7 +229,8 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
 	}
 
 	private ObisCode adjustToMbusChannelObisCode(ObisCode oc) {
-		return new ObisCode(oc.getA(), getPhysicalAddress()+1, oc.getC(), oc.getD(), oc.getE(), oc.getF());
+		return ProtocolTools.setObisCodeField(oc, 1, (byte)getPhysicalAddress()); 
+        //return new ObisCode(oc.getA(), getPhysicalAddress()+1, oc.getC(), oc.getD(), oc.getE(), oc.getF());
 	}
 
 	private RegisterValue readRegister(ObisCode oc) throws IOException{
