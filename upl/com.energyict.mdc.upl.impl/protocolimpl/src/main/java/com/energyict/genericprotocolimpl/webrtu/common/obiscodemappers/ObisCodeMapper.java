@@ -7,6 +7,7 @@ import java.util.Date;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.GenericRead;
@@ -62,16 +63,18 @@ public class ObisCodeMapper {
         			new String(cof.getGenericRead(obisCode, DLMSUtils.attrLN2SN(2), 1).getString()));
         	return rv;
         } else if (obisCode.toString().indexOf("1.0.0.2.8.255") != -1){	// Core firmware signature (not upgradeable)
+            OctetString os = new OctetString(cof.getGenericRead(obisCode, DLMSUtils.attrLN2SN(2), 1).getResponseData(), 0);
         	rv = new RegisterValue(obisCode,
         			null,
         			null, null, null, new Date(), 0,
-        			ParseUtils.decimalByteToString(cof.getGenericRead(obisCode, DLMSUtils.attrLN2SN(2), 1).getResponseData()));
+        			ParseUtils.decimalByteToString(os.getOctetStr()));
         	return rv;
         } else if (obisCode.toString().indexOf("1.1.0.2.8.255") != -1){	// Module firmware signature (upgradeable)
+            OctetString os = new OctetString(cof.getGenericRead(obisCode, DLMSUtils.attrLN2SN(2), 1).getResponseData(), 0);
         	rv = new RegisterValue(obisCode,
         			null,
         			null, null, null, new Date(), 0,
-        			ParseUtils.decimalByteToString(cof.getGenericRead(obisCode, DLMSUtils.attrLN2SN(2), 1).getResponseData()));
+        			ParseUtils.decimalByteToString(os.getOctetStr()));
         	return rv;
         } else if (obisCode.toString().indexOf("0.0.96.3.128.255") != -1){	// E-meter connect control mode	- Use the E field as '128' to indicate the controlMode
         	int mode = cof.getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).getControlMode().getValue();
