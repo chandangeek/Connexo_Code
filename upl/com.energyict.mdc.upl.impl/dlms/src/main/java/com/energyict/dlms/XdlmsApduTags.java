@@ -35,6 +35,10 @@ public enum XdlmsApduTags {
     /* Shortname responses */
     READ_RESPONSE(DLMSCOSEMGlobals.COSEM_READRESPONSE, DLMSCOSEMGlobals.GLO_READRESPONSE, DLMSCOSEMGlobals.DED_READRESPONSE),
     WRITE_RESPONSE(DLMSCOSEMGlobals.COSEM_WRITERESPONSE, DLMSCOSEMGlobals.GLO_WRITERESPONSE, DLMSCOSEMGlobals.DED_WRITERESPONSE),
+
+    /* Service errors */
+    CONFIRMED_SERVICE_ERROR(DLMSCOSEMGlobals.COSEM_CONFIRMEDSERVICEERROR, DLMSCOSEMGlobals.GLO_CONFIRMEDSERVICEERROR, DLMSCOSEMGlobals.DED_CONFIRMEDSERVICEERROR),
+
     ;
 
     private byte unciphered;
@@ -56,7 +60,7 @@ public enum XdlmsApduTags {
 	 */
 	private static Map<Byte, XdlmsApduTags> getInstances() {
 		if (instances == null) {
-			instances = new HashMap<Byte, XdlmsApduTags>(11);
+			instances = new HashMap<Byte, XdlmsApduTags>();
 		}
 		return instances;
 	}
@@ -67,7 +71,7 @@ public enum XdlmsApduTags {
      */
     private static Map<Byte, XdlmsApduTags> getGlobalInstances() {
         if(globalInstances == null){
-            globalInstances = new HashMap<Byte, XdlmsApduTags>(11);
+            globalInstances = new HashMap<Byte, XdlmsApduTags>();
         }
         return globalInstances;
     }
@@ -78,7 +82,7 @@ public enum XdlmsApduTags {
      */
     private static Map<Byte, XdlmsApduTags> getDedicatedInstances() {
         if(dedicatedInstances == null){
-            dedicatedInstances = new HashMap<Byte, XdlmsApduTags>(11);
+            dedicatedInstances = new HashMap<Byte, XdlmsApduTags>();
         }
         return dedicatedInstances;
     }
@@ -146,6 +150,6 @@ public enum XdlmsApduTags {
         } else if (getGlobalInstances().containsKey(cipheredTag)) {
             return true;
         }
-        return false;  //To change body of created methods use File | Settings | File Templates.
+        return false;
     }
 }
