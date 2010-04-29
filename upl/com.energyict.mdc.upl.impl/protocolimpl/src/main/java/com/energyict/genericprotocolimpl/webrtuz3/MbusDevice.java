@@ -14,6 +14,7 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Data;
@@ -50,8 +51,11 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 public class MbusDevice extends MbusMessages implements GenericProtocol {
 
-	private static final ObisCode	PROFILE_OBISCODE	= ObisCode.fromString("0.0.24.3.0.255");
-	private long mbusAddress	= -1;		// this is the address that was given by the E-meter or a hardcoded MBusAddress in the MBusMeter itself
+    private static final ObisCode PROFILE_OBISCODE = ObisCode.fromString("0.0.24.3.0.255");
+    public static final ObisCode MONTHLY_PROFILE_OBIS = ObisCode.fromString("0.0.98.1.0.255");
+    public static final ObisCode DAILY_PROFILE_OBIS = ObisCode.fromString("0.0.99.2.0.255");
+
+    private long mbusAddress	= -1;		// this is the address that was given by the E-meter or a hardcoded MBusAddress in the MBusMeter itself
 	private int physicalAddress = -1;		// this is the orderNumber of the MBus meters on the E-meter, we need this to compute the ObisRegisterValues
 	private int medium = 15;				// value of an unknown medium
 	private String customerID;
@@ -126,6 +130,8 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
 		this.commProfile = scheduler.getCommunicationProfile();
 
+        //testMethod();
+
 		try {
 			// Before reading data, check the serialnumber
 			verifySerialNumber();
@@ -158,15 +164,13 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
 
 			if(getWebRTU().isReadDaily()){
 				getLogger().log(Level.INFO, "Getting Daily values for meter with serialnumber: " + getMbus().getSerialNumber());
-                ObisCode dailyObisCode = getCorrectedObisCode(getMeterConfig().getDailyProfileObject().getObisCode());
-                ProfileData dailyPd = mdm.getDailyProfile(dailyObisCode);
+                ProfileData dailyPd = mdm.getDailyProfile(getCorrectedObisCode(DAILY_PROFILE_OBIS));
 				this.webRtu.getStoreObject().add(dailyPd, getMbus());
 			}
 
 			if(getWebRTU().isReadMonthly()){
 				getLogger().log(Level.INFO, "Getting Monthly values for meter with serialnumber: " + getMbus().getSerialNumber());
-                ObisCode MonthlyObisCode = getCorrectedObisCode(getMeterConfig().getMonthlyProfileObject().getObisCode());
-                ProfileData montProfileData = mdm.getMonthlyProfile(MonthlyObisCode);
+                ProfileData montProfileData = mdm.getMonthlyProfile(getCorrectedObisCode(MONTHLY_PROFILE_OBIS));
 				this.webRtu.getStoreObject().add(montProfileData, getMbus());
 
 			}
@@ -179,6 +183,22 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
 			sendMeterMessages();
 		}
 	}
+
+    private void testMethod() {
+        try {
+            UniversalObject[] objects = getMeterConfig().getInstantiatedObjectList();
+            for (int i = 0; i < objects.length; i++) {
+                UniversalObject object = objects[i];
+                if (object.getObisCode().getB() == physicalAddress) {
+                    System.out.println(object.getDescription());
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
 	/**
 	 * We don't use the {@link DLMSProtocol#doReadRegisters()} method because we need to adjust the mbusChannel

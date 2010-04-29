@@ -25,6 +25,8 @@ import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.webrtuz3.MbusDevice;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.mdw.shadow.RtuShadow;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
  * 
@@ -34,9 +36,15 @@ import com.energyict.mdw.shadow.RtuShadow;
  */
 public class MbusMessageExecutor extends GenericMessageExecutor{
 	
-	private MbusDevice mbusDevice;
-	
-	public MbusMessageExecutor(MbusDevice mbusDevice){
+    public static final ObisCode MBUS_CLIENT_OBIS = ObisCode.fromString("0.0.24.1.0.255");
+    public static final ObisCode MBUS_DISCONNECT_CONTROL_OBIS = ObisCode.fromString("0.0.24.4.0.255");
+    public static final ObisCode MBUS_DISCONNECT_CONTROL_SCHEDULE_OBIS = ObisCode.fromString("0.0.24.6.0.255");
+    public static final ObisCode MBUS_DISCONNECT_SCRIPT_TABLE_OBIS = ObisCode.fromString("0.0.24.7.0.255");
+
+
+    private MbusDevice mbusDevice;
+
+    public MbusMessageExecutor(MbusDevice mbusDevice){
 		this.mbusDevice = mbusDevice;
 	}
 
@@ -63,9 +71,9 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 				if(!messageHandler.getConnectDate().equals("")){	// use the disconnectControlScheduler
 					
 					Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getConnectDate());
-					SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(getPhysicalAddress()).getObisCode());
+					SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getCorrectedObisCode(MBUS_DISCONNECT_CONTROL_SCHEDULE_OBIS));
 					
-					ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getPhysicalAddress()).getObisCode());
+					ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getCorrectedObisCode(MBUS_DISCONNECT_SCRIPT_TABLE_OBIS));
 					byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn(); 
 					Structure scriptStruct = new Structure();
 					scriptStruct.addDataType(new OctetString(scriptLogicalName));
@@ -75,7 +83,7 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 					sasConnect.writeExecutionTime(executionTimeArray);
 					
 				} else { // immediate connect
-					Disconnector connector = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getPhysicalAddress()).getObisCode());
+					Disconnector connector = getCosemObjectFactory().getDisconnector(getCorrectedObisCode(MBUS_DISCONNECT_CONTROL_OBIS));
 					connector.remoteReconnect();
 				}
 				
@@ -88,9 +96,9 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 				if(!messageHandler.getDisconnectDate().equals("")){	// use the disconnectControlScheduler
 					
 					Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getDisconnectDate());
-					SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(getPhysicalAddress()).getObisCode());
+					SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getCorrectedObisCode(MBUS_DISCONNECT_CONTROL_SCHEDULE_OBIS));
 					
-					ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getPhysicalAddress()).getObisCode());
+					ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getCorrectedObisCode(MBUS_DISCONNECT_SCRIPT_TABLE_OBIS));
 					byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn(); 
 					Structure scriptStruct = new Structure();
 					scriptStruct.addDataType(new OctetString(scriptLogicalName));
@@ -100,7 +108,7 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 					sasDisconnect.writeExecutionTime(executionTimeArray);
 					
 				} else { // immediate disconnect
-					Disconnector connector = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getPhysicalAddress()).getObisCode());
+					Disconnector connector = getCosemObjectFactory().getDisconnector(getCorrectedObisCode(MBUS_DISCONNECT_CONTROL_OBIS));
 					connector.remoteDisconnect();
 				}
 				
@@ -115,7 +123,7 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 						int modeInt = Integer.parseInt(mode);
 						
 						if((modeInt >=0) && (modeInt <=6)){
-							Disconnector connectorMode = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getPhysicalAddress()).getObisCode());
+							Disconnector connectorMode = getCosemObjectFactory().getDisconnector(getCorrectedObisCode(MBUS_DISCONNECT_CONTROL_OBIS));
 							connectorMode.writeControlMode(new TypeEnum(modeInt));
 							
 						} else {
@@ -136,7 +144,7 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 				
 				getLogger().log(Level.INFO, "Handling MbusMessage " + rtuMessage.displayString() + ": Decommission MBus device");
 				
-				MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getPhysicalAddress()).getObisCode());
+				MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getCorrectedObisCode(MBUS_CLIENT_OBIS));
 				mbusClient.deinstallSlave();
 				
 				//Need to clear the gateWay
@@ -152,7 +160,7 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 				String openKey = messageHandler.getOpenKey();
 				String transferKey = messageHandler.getTransferKey();
 				
-				MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getPhysicalAddress()).getObisCode());
+				MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getCorrectedObisCode(MBUS_CLIENT_OBIS));
 				
 				if(openKey == null){
 					mbusClient.setEncryptionKey("");
@@ -174,7 +182,7 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 //				corrSwitch.setValueAttr(bo);
 				
 				getLogger().log(Level.INFO, "Handling MbusMessage " + rtuMessage.displayString() + ": Set loadprofile to corrected values");
-				MBusClient mc = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getPhysicalAddress()).getObisCode());
+				MBusClient mc = getCosemObjectFactory().getMbusClient(getCorrectedObisCode(MBUS_CLIENT_OBIS));
 				Array capDef = new Array();
 				Structure struct = new Structure();
 				OctetString dib = new OctetString(new byte[]{0x0C});
@@ -189,7 +197,7 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 			} else if(mbusUnCorrected){
 				
 				getLogger().log(Level.INFO, "Handling MbusMessage " + rtuMessage.displayString() + ": Set loadprofile to unCorrected values");
-				MBusClient mc = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getPhysicalAddress()).getObisCode());
+				MBusClient mc = getCosemObjectFactory().getMbusClient(getCorrectedObisCode(MBUS_CLIENT_OBIS));
 				Array capDef = new Array();
 				Structure struct = new Structure();
 				OctetString dib = new OctetString(new byte[]{(byte)0x0C});
@@ -251,16 +259,37 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 		return getMbusDevice().getWebRTU().getMeterConfig();
 	}
 
-	protected TimeZone getTimeZone() {
+    /**
+     * Getter for the TimeZone
+     * @return
+     */
+    protected TimeZone getTimeZone() {
 		return getMbusDevice().getWebRTU().getTimeZone();
 	}
-	
-	private MbusDevice getMbusDevice(){
+
+    /**
+     * Getter for the MBusDevice
+     * @return
+     */
+    private MbusDevice getMbusDevice(){
 		return this.mbusDevice;
 	}
-	
-	private Logger getLogger(){
+
+    /**
+     * Getter for the logger
+     * @return
+     */
+    private Logger getLogger(){
 		return getMbusDevice().getLogger();
 	}
+
+    /**
+     * Get the correct obisCode, with the B-field set to the physicalAddress 
+     * @param obisCode
+     * @return
+     */
+    private ObisCode getCorrectedObisCode(ObisCode obisCode) {
+        return ProtocolTools.setObisCodeField(obisCode, 1, (byte) getPhysicalAddress());
+    }
 
 }

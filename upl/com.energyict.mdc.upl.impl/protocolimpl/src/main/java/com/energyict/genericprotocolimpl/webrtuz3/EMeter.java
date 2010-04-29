@@ -50,8 +50,10 @@ public class EMeter implements GenericProtocol, EDevice {
     public static final ObisCode SERIAL_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
     public static final ObisCode PROFILE_OBISCODE = ObisCode.fromString("0.0.99.1.0.255");
     public static final ObisCode EVENTS_OBISCODE = ObisCode.fromString("0.0.99.98.0.255");
+    public static final ObisCode MONTHLY_PROFILE_OBIS = ObisCode.fromString("0.0.98.1.0.255");
+    public static final ObisCode DAILY_PROFILE_OBIS = ObisCode.fromString("0.0.99.2.0.255");
 
-	private CommunicationProfile	commProfile;
+    private CommunicationProfile	commProfile;
 	private WebRTUZ3				webRtu;
 	private String					serialNumber;
 	private int						physicalAddress;
@@ -112,15 +114,13 @@ public class EMeter implements GenericProtocol, EDevice {
 
 			if(getWebRTU().isReadDaily()){
 				getLogger().log(Level.INFO, "Getting Daily values for meter with serialnumber: " + geteMeterRtu().getSerialNumber());
-                ObisCode dailyObisCode = getCorrectedObisCode(getMeterConfig().getDailyProfileObject().getObisCode());
-                ProfileData dailyPd = mdm.getDailyValues(dailyObisCode);
+                ProfileData dailyPd = mdm.getDailyValues(getCorrectedObisCode(DAILY_PROFILE_OBIS));
 				this.webRtu.getStoreObject().add(dailyPd, geteMeterRtu());
 			}
 
 			if(getWebRTU().isReadMonthly()){
 				getLogger().log(Level.INFO, "Getting Monthly values for meter with serialnumber: " + geteMeterRtu().getSerialNumber());
-                ObisCode monthlyObisCode = getCorrectedObisCode(getMeterConfig().getMonthlyProfileObject().getObisCode());
-                ProfileData montProfileData = mdm.getMonthlyValues(monthlyObisCode);
+                ProfileData montProfileData = mdm.getMonthlyValues(getCorrectedObisCode(MONTHLY_PROFILE_OBIS));
 				this.webRtu.getStoreObject().add(montProfileData, geteMeterRtu());
 
 			}

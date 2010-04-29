@@ -9,11 +9,14 @@ import java.util.logging.Level;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.genericprotocolimpl.webrtuz3.MbusDevice;
 import com.energyict.genericprotocolimpl.webrtuz3.eventhandling.MbusControlLog;
 import com.energyict.mdw.core.Rtu;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
  * 
@@ -22,15 +25,17 @@ import com.energyict.protocol.ProtocolUtils;
 
 public class MbusEventProfile {
 	
+        private static final ObisCode EVENT_LOG_OBISCODE = ObisCode.fromString("0.0.99.98.0.255");
+
 	private MbusDevice mbusDevice;
-	
+
 	public MbusEventProfile(MbusDevice mbusDevice) {
 		this.mbusDevice = mbusDevice;
 	}
 
 	public ProfileData getEvents() throws IOException{
 		
-		ProfileData profileData = new ProfileData();
+        ProfileData profileData = new ProfileData();
 		
 		Date lastLogReading = getMeter().getLastLogbook();
 		if(lastLogReading == null){
@@ -39,7 +44,9 @@ public class MbusEventProfile {
 		Calendar fromCal = ProtocolUtils.getCleanCalendar(getTimeZone());
 		fromCal.setTime(lastLogReading);
 		mbusDevice.getLogger().log(Level.INFO, "Reading EVENTS from Mbus meter with serialnumber " + mbusDevice.getCustomerID() + ".");
-		DataContainer mbusLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusControlLog(mbusDevice.getPhysicalAddress()).getObisCode()).getBuffer(fromCal, mbusDevice.getWebRTU().getToCalendar());
+
+        ProfileGeneric eventProfile = getCosemObjectFactory().getProfileGeneric(getCorrectedObisCode(EVENT_LOG_OBISCODE));
+        DataContainer mbusLog = eventProfile.getBuffer(fromCal, mbusDevice.getWebRTU().getToCalendar());
 		
 		MbusControlLog mbusControlLog = new MbusControlLog(mbusLog);
 		profileData.getMeterEvents().addAll(mbusControlLog.getMeterEvents());
@@ -66,4 +73,8 @@ public class MbusEventProfile {
 	private TimeZone getTimeZone(){
 		return this.mbusDevice.getWebRTU().getTimeZone();
 	}
+
+    private ObisCode getCorrectedObisCode(ObisCode obisCode) {
+        return ProtocolTools.setObisCodeField(obisCode, 1, (byte)this.mbusDevice.getPhysicalAddress());
+    }
 }
