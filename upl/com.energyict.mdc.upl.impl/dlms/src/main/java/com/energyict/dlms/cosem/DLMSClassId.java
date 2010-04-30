@@ -9,7 +9,8 @@ import java.io.IOException;
  */
 public enum DLMSClassId {
 
-	DATA(1),
+	UNKNOWN(-1),
+    DATA(1),
 	REGISTER(3),
 	EXTENDED_REGISTER(4),
 	DEMAND_REGISTER(5),
@@ -59,33 +60,48 @@ public enum DLMSClassId {
 
 	private int classId;
 
-	private DLMSClassId(int classId) {
+    /**
+     * Provate constructor to create
+     * @param classId
+     */
+    private DLMSClassId(int classId) {
 		this.classId = classId;
 	}
 
-	/**
-	 * Getter for the class number (classId)
-	 * @return the class id as int
-	 */
-	public int getClassId() {
-		return classId;
-	}
+    /**
+     * Getter for the class number (classId)
+     *
+     * @return the class id as int
+     */
+    public int getClassId() {
+        return classId;
+    }
 
-	public static DLMSClassId findById(int id) throws IOException {
-		for (DLMSClassId classId : DLMSClassId.values()) {
-			if (classId.getClassId() == id) {
-				return classId;
-			}
-		}
-		throw new IOException("No DLMSClassId found for id = " + id);
-	}
+    private void setClassId(int classId) {
+        this.classId = classId;
+    }
 
-	public static String getDescription(int dlmsClassId) {
-		try {
-			return findById(dlmsClassId).toString();
-		} catch (IOException e) {
-			return "UNKNOWN["+dlmsClassId+"]";
-		}
+    /**
+     * Get a DLMSClassId by a given classId. If the classId doesn't exist, return the UNKNOWN DLMSClassId
+     * @param id
+     * @return
+     */
+    public static DLMSClassId findById(int id) {
+        for (DLMSClassId classId : DLMSClassId.values()) {
+            if (classId.getClassId() == id) {
+                return classId;
+            }
+        }
+        return UNKNOWN;
+    }
+
+    /**
+     * Get a desctiption based on the classId as int
+     * @param dlmsClassId
+     * @return
+     */
+    public static String getDescription(int dlmsClassId) {
+        return findById(dlmsClassId).toString();
 	}
 
 }
