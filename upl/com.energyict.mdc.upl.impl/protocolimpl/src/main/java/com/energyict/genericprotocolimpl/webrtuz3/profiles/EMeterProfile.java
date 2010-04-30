@@ -31,14 +31,14 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProfileData;
 
-public class ElectricityProfile {
+public class EMeterProfile {
 
 	private EDevice eDevice;
 
-	public ElectricityProfile(){
+	public EMeterProfile(){
 	}
 
-	public ElectricityProfile(final EDevice eDevice){
+	public EMeterProfile(final EDevice eDevice){
 		this.eDevice = eDevice;
 	}
 
@@ -262,7 +262,7 @@ public class ElectricityProfile {
 
 	/**
 	 * Check if it is a valid channel Obiscode
-	 * TODO it is the same method as the one from the {@link ElectricityProfile}, maybe extract an abstract profile class for both ...
+	 * TODO it is the same method as the one from the {@link EMeterProfile}, maybe extract an abstract profile class for both ...
 	 *
 	 * @param obisCode
 	 * 				- the {@link ObisCode} to check

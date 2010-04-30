@@ -3,16 +3,13 @@ package com.energyict.genericprotocolimpl.webrtuz3;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.InvokeIdAndPriority;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
@@ -20,7 +17,6 @@ import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.IPv4Setup;
 import com.energyict.dlms.cosem.StoredValues;
@@ -34,10 +30,8 @@ import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstant
 import com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers.ObisCodeMapper;
 import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.MessageExecutor;
-import com.energyict.genericprotocolimpl.webrtuz3.profiles.DailyMonthly;
-import com.energyict.genericprotocolimpl.webrtuz3.profiles.EDevice;
-import com.energyict.genericprotocolimpl.webrtuz3.profiles.ElectricityProfile;
-import com.energyict.genericprotocolimpl.webrtuz3.profiles.EventProfile;
+import com.energyict.genericprotocolimpl.webrtuz3.profiles.*;
+import com.energyict.genericprotocolimpl.webrtuz3.profiles.EMeterEventProfilee;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Rtu;
@@ -140,7 +134,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 			}
 
             try {
-                test();
+                testMethod();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -154,7 +148,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 			// Read the loadProfile
 			if (getCommunicationProfile().getReadDemandValues()) {
 
-				ElectricityProfile ep = new ElectricityProfile(this);
+				EMeterProfile ep = new EMeterProfile(this);
 				ProfileData eProfileData = ep.getProfile(EMeter.PROFILE_OBISCODE);
 				if(badTime){	// if a timedifference exceeds boundary
 					eProfileData.markIntervalsAsBadTime();
@@ -166,7 +160,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 			// Read the events
 			if (getCommunicationProfile().getReadMeterEvents()) {
 				getLogger().log(Level.INFO, "Getting events for meter with serialnumber: " + this.serialNumber);
-				EventProfile evp = new EventProfile(this);
+				EMeterEventProfilee evp = new EMeterEventProfilee(this);
 				ProfileData pd = evp.getEvents();
 				storeObject.add(pd, getMeter());
 			}
@@ -251,23 +245,22 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 
 	}
 
-	private void test() throws IOException {
-
-		UniversalObject[] uo = getMeterConfig().getInstantiatedObjectList();
-		for (UniversalObject universalObject : uo) {
-            if (universalObject.isClassType(DLMSClassId.DISCONNECT_CONTROL)) {
-                System.out.println(universalObject.getDescription());
+    private void testMethod() {
+        String crlfcrlf = "\r\n\r\n";
+        System.out.println(crlfcrlf + "WebRtuZ3 testMethod(): ");
+        try {
+            UniversalObject[] objects = getMeterConfig().getInstantiatedObjectList();
+            for (int i = 0; i < objects.length; i++) {
+                UniversalObject object = objects[i];
+                if (object.getObisCode().getB() == 0) {
+                    System.out.println(object.getDescription());
+                }
             }
-		}
-
-
-		List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
-		for (byte i = 0; i < 16; i++) {
-			dlmsAttributes.add(new DLMSAttribute(ProtocolTools.setObisCodeField(SERIALNR_OBISCODE, 1, i), 2, DLMSClassId.DATA));
-		}
-		//getCosemObjectFactory().getGenericReadWithList(dlmsAttributes);
-
-	}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println(crlfcrlf);
+    }
 
 	@Override
 	protected ConformanceBlock configureConformanceBlock() {

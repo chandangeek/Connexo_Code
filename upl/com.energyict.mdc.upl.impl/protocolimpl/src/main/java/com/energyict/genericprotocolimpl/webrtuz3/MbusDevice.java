@@ -130,7 +130,7 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
 		this.commProfile = scheduler.getCommunicationProfile();
 
-        //testMethod();
+        testMethod();
 
 		try {
 			// Before reading data, check the serialnumber
@@ -185,6 +185,8 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
 	}
 
     private void testMethod() {
+        String crlfcrlf = "\r\n\r\n";
+        System.out.println(crlfcrlf + "MBus testMethod(): ");
         try {
             UniversalObject[] objects = getMeterConfig().getInstantiatedObjectList();
             for (int i = 0; i < objects.length; i++) {
@@ -193,12 +195,11 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
                     System.out.println(object.getDescription());
                 }
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
+        System.out.println(crlfcrlf);
     }
-
 
 	/**
 	 * We don't use the {@link DLMSProtocol#doReadRegisters()} method because we need to adjust the mbusChannel

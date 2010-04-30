@@ -36,24 +36,30 @@ public class MbusEventProfile {
 	public ProfileData getEvents() throws IOException{
 		
         ProfileData profileData = new ProfileData();
-		
-		Date lastLogReading = getMeter().getLastLogbook();
-		if(lastLogReading == null){
-			lastLogReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(getMeter());
-		}
-		Calendar fromCal = ProtocolUtils.getCleanCalendar(getTimeZone());
-		fromCal.setTime(lastLogReading);
-		mbusDevice.getLogger().log(Level.INFO, "Reading EVENTS from Mbus meter with serialnumber " + mbusDevice.getCustomerID() + ".");
 
-        ProfileGeneric eventProfile = getCosemObjectFactory().getProfileGeneric(getCorrectedObisCode(EVENT_LOG_OBISCODE));
-        DataContainer mbusLog = eventProfile.getBuffer(fromCal, mbusDevice.getWebRTU().getToCalendar());
-		
-		MbusControlLog mbusControlLog = new MbusControlLog(mbusLog);
-		profileData.getMeterEvents().addAll(mbusControlLog.getMeterEvents());
-		
+        try {
+            Date lastLogReading = getMeter().getLastLogbook();
+            if (lastLogReading == null) {
+                lastLogReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(getMeter());
+            }
+            Calendar fromCal = ProtocolUtils.getCleanCalendar(getTimeZone());
+            fromCal.setTime(lastLogReading);
+            mbusDevice.getLogger().log(Level.INFO, "Reading EVENTS from Mbus meter with serialnumber " + mbusDevice.getCustomerID() + ".");
+
+            ProfileGeneric eventProfile = getCosemObjectFactory().getProfileGeneric(getCorrectedObisCode(EVENT_LOG_OBISCODE));
+            DataContainer mbusLog = eventProfile.getBuffer(fromCal, mbusDevice.getWebRTU().getToCalendar());
+
+            MbusControlLog mbusControlLog = new MbusControlLog(mbusLog);
+            profileData.getMeterEvents().addAll(mbusControlLog.getMeterEvents());
+
 //		mbusDevice.getWebRTU().getStoreObject().add(profileData, getMeter());
-		
-		return profileData;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            mbusDevice.getLogger().log(Level.INFO, "An error occured while reading the EVENTS from Mbus meter with serialnumber " + mbusDevice.getCustomerID() + ": " + e.getMessage());
+        }
+
+        return profileData;
 		// Don't create statusbits from the events
 //		profileData.applyEvents(mbusDevice.getMbus().getIntervalInSeconds()/60);
 	}
@@ -75,6 +81,8 @@ public class MbusEventProfile {
 	}
 
     private ObisCode getCorrectedObisCode(ObisCode obisCode) {
-        return ProtocolTools.setObisCodeField(obisCode, 1, (byte)this.mbusDevice.getPhysicalAddress());
+        ObisCode oc = ProtocolTools.setObisCodeField(obisCode, 1, (byte) this.mbusDevice.getPhysicalAddress());
+        System.out.println("Changed " + obisCode + " to " + oc);
+        return oc;
     }
 }

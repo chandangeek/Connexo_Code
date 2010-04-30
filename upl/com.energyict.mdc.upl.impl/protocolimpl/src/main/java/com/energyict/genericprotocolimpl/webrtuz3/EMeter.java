@@ -21,10 +21,8 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.genericprotocolimpl.common.CommonUtils;
-import com.energyict.genericprotocolimpl.webrtuz3.profiles.DailyMonthly;
-import com.energyict.genericprotocolimpl.webrtuz3.profiles.EDevice;
-import com.energyict.genericprotocolimpl.webrtuz3.profiles.ElectricityProfile;
-import com.energyict.genericprotocolimpl.webrtuz3.profiles.EventProfile;
+import com.energyict.genericprotocolimpl.webrtuz3.profiles.*;
+import com.energyict.genericprotocolimpl.webrtuz3.profiles.EMeterEventProfilee;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.Channel;
@@ -80,7 +78,7 @@ public class EMeter implements GenericProtocol, EDevice {
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
 		this.commProfile = scheduler.getCommunicationProfile();
 
-        //testMethod();
+        testMethod();
 
         try {
 			// Before reading data, check the serialnumber
@@ -93,7 +91,7 @@ public class EMeter implements GenericProtocol, EDevice {
 		// import profile
 		if(commProfile.getReadDemandValues()){
 			getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + geteMeterRtu().getSerialNumber());
-			ElectricityProfile mp = new ElectricityProfile(this);
+			EMeterProfile mp = new EMeterProfile(this);
 			ProfileData pd = mp.getProfile(getCorrectedObisCode(PROFILE_OBISCODE));
 			if(this.webRtu.isBadTime()){
 				pd.markIntervalsAsBadTime();
@@ -103,7 +101,7 @@ public class EMeter implements GenericProtocol, EDevice {
 
 		if(commProfile.getReadMeterEvents()){
 			getLogger().log(Level.INFO, "Getting events for meter with serialnumber: " + geteMeterRtu().getSerialNumber());
-			EventProfile mep = new EventProfile(this);
+			EMeterEventProfilee mep = new EMeterEventProfilee(this);
 			ProfileData eventPd = mep.getEvents();
 			this.webRtu.getStoreObject().add(eventPd, geteMeterRtu());
 		}
@@ -135,6 +133,8 @@ public class EMeter implements GenericProtocol, EDevice {
 	}
 
     private void testMethod() {
+        String crlfcrlf = "\r\n\r\n";
+        System.out.println(crlfcrlf + "EMeter testMethod(): ");
         try {
             UniversalObject[] objects = getMeterConfig().getInstantiatedObjectList();
             for (int i = 0; i < objects.length; i++) {
@@ -143,12 +143,10 @@ public class EMeter implements GenericProtocol, EDevice {
                     System.out.println(object.getDescription());
                 }
             }
-
-            System.out.println(doReadFirmwareVersion());
-
         } catch (Exception e) {
             e.printStackTrace();
         }
+        System.out.println(crlfcrlf);
     }
 
     /**

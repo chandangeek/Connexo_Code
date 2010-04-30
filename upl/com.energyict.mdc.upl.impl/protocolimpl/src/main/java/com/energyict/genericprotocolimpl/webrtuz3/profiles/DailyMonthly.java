@@ -342,7 +342,7 @@ public class DailyMonthly {
 
 	/**
 	 * Check if it is a valid channel Obiscode
-	 * TODO it is the same method as the one from the {@link ElectricityProfile}, maybe extract an abstract profile class for both ...
+	 * TODO it is the same method as the one from the {@link EMeterProfile}, maybe extract an abstract profile class for both ...
 	 *
 	 * @param obisCode
 	 * 				- the {@link ObisCode} to check
