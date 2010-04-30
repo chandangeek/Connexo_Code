@@ -716,7 +716,6 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 			Class device = null;
 			try {
 				device = Class.forName(eMeter.getRtuType().getShadow().getCommunicationProtocolShadow().getJavaClassName());
-				System.out.println(device);
                 if((device != null) && (device.newInstance() instanceof EMeter)){		// we check to see if it's an Mbus device and no TIC device
 					if(!eMeterMap.contains(new DeviceMapping(eMeter.getSerialNumber()))) {
 						getLogger().log(Level.INFO, "EMeter [" + eMeter + "] is not installed on the physical device.");
