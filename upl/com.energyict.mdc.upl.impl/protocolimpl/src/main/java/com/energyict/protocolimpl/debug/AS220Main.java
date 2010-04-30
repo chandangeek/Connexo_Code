@@ -137,7 +137,7 @@ public class AS220Main {
 		properties.setProperty("Timeout", "20000");
 		properties.setProperty("ForcedDelay", "200");
 
-		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
+		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_BOTH);
 		properties.setProperty("ProfileInterval", "900");
 		properties.setProperty("Password", "20100401");
 		properties.setProperty("SerialNumber", "35021373");
