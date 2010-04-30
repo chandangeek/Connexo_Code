@@ -172,29 +172,29 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 			if (getCommunicationProfile().getReadMeterReadings()) {
 				DailyMonthly dm = new DailyMonthly(this);
 
-				if (readDaily) {
-                    ObisCode dailyProfileObisCode = getMeterConfig().getDailyProfileObject().getObisCode();
-                    if(doesObisCodeExistInObjectList(dailyProfileObisCode)){
-						ProfileData dailyPd = dm.getDailyValues(dailyProfileObisCode);
-						if(badTime){
-							dailyPd.markIntervalsAsBadTime();
-						}
-						storeObject.add(dailyPd, getMeter());
-					} else {
-						getLogger().log(Level.INFO, "The dailyProfile object doesn't exist in the device.");
-					}
-				}
-				if (readMonthly) {
-					if(doesObisCodeExistInObjectList(getMeterConfig().getMonthlyProfileObject().getObisCode())){
-						ProfileData monthlyPd = dm.getMonthlyValues(getMeterConfig().getMonthlyProfileObject().getObisCode());
-						if(badTime){
-							monthlyPd.markIntervalsAsBadTime();
-						}
-						storeObject.add(monthlyPd, getMeter());
-					} else {
-						getLogger().log(Level.INFO, "The monthlyProfile object doesn't exist in the device.");
-					}
-				}
+//				if (readDaily) {
+//                    ObisCode dailyProfileObisCode = getMeterConfig().getDailyProfileObject().getObisCode();
+//                    if(doesObisCodeExistInObjectList(dailyProfileObisCode)){
+//						ProfileData dailyPd = dm.getDailyValues(dailyProfileObisCode);
+//						if(badTime){
+//							dailyPd.markIntervalsAsBadTime();
+//						}
+//						storeObject.add(dailyPd, getMeter());
+//					} else {
+//						getLogger().log(Level.INFO, "The dailyProfile object doesn't exist in the device.");
+//					}
+//				}
+//				if (readMonthly) {
+//					if(doesObisCodeExistInObjectList(getMeterConfig().getMonthlyProfileObject().getObisCode())){
+//						ProfileData monthlyPd = dm.getMonthlyValues(getMeterConfig().getMonthlyProfileObject().getObisCode());
+//						if(badTime){
+//							monthlyPd.markIntervalsAsBadTime();
+//						}
+//						storeObject.add(monthlyPd, getMeter());
+//					} else {
+//						getLogger().log(Level.INFO, "The monthlyProfile object doesn't exist in the device.");
+//					}
+//				}
 
 				getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + this.serialNumber);
 				Map<RtuRegister, RegisterValue> registerMap = doReadRegisters();
