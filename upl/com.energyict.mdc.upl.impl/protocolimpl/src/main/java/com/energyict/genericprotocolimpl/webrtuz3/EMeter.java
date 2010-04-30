@@ -22,7 +22,7 @@ import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.genericprotocolimpl.common.CommonUtils;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.*;
-import com.energyict.genericprotocolimpl.webrtuz3.profiles.EMeterEventProfilee;
+import com.energyict.genericprotocolimpl.webrtuz3.profiles.EMeterEventProfile;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.Channel;
@@ -101,7 +101,7 @@ public class EMeter implements GenericProtocol, EDevice {
 
 		if(commProfile.getReadMeterEvents()){
 			getLogger().log(Level.INFO, "Getting events for meter with serialnumber: " + geteMeterRtu().getSerialNumber());
-			EMeterEventProfilee mep = new EMeterEventProfilee(this);
+			EMeterEventProfile mep = new EMeterEventProfile(this);
 			ProfileData eventPd = mep.getEvents();
 			this.webRtu.getStoreObject().add(eventPd, geteMeterRtu());
 		}

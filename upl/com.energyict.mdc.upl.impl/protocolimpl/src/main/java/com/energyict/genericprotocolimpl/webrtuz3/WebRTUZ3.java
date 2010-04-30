@@ -31,7 +31,7 @@ import com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers.ObisCodeM
 import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.MessageExecutor;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.*;
-import com.energyict.genericprotocolimpl.webrtuz3.profiles.EMeterEventProfilee;
+import com.energyict.genericprotocolimpl.webrtuz3.profiles.EMeterEventProfile;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Rtu;
@@ -160,7 +160,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 			// Read the events
 			if (getCommunicationProfile().getReadMeterEvents()) {
 				getLogger().log(Level.INFO, "Getting events for meter with serialnumber: " + this.serialNumber);
-				EMeterEventProfilee evp = new EMeterEventProfilee(this);
+				EMeterEventProfile evp = new EMeterEventProfile(this);
 				ProfileData pd = evp.getEvents();
 				storeObject.add(pd, getMeter());
 			}
