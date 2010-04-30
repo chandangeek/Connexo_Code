@@ -139,6 +139,12 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 				updateIPAddress();
 			}
 
+            try {
+                test();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
 			// Check if the time is greater then allowed, if so then no data can be stored...
 			// Don't do this when a forceClock is scheduled
 			if(!getCommunicationScheduler().getCommunicationProfile().getForceClock() && !getCommunicationScheduler().getCommunicationProfile().getAdHoc()){
@@ -237,13 +243,6 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 				verifyAndWriteClock();
 			}
 
-			try {
-				//test();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
-
 		} finally {
 			if (storeObject != null) {
 				Environment.getDefault().execute(storeObject);
@@ -256,22 +255,17 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 
 		UniversalObject[] uo = getMeterConfig().getInstantiatedObjectList();
 		for (UniversalObject universalObject : uo) {
-			if (SERIALNR_OBISCODE.equals(ProtocolTools.setObisCodeField(universalObject.getObisCode(), 1, (byte) 0))){
-				//System.out.println(universalObject);
-				try {
-					DataStructure ds = getCosemObjectFactory().getGenericRead(universalObject).getDataContainer().getRoot();
-					System.out.println(universalObject.getObisCode() + " = " + ds.getElement(0).toString());
-				} catch (IOException e) {
-					//
-				}
-			}
+            if (universalObject.isClassType(DLMSClassId.DISCONNECT_CONTROL)) {
+                System.out.println(universalObject.getDescription());
+            }
 		}
+
 
 		List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
 		for (byte i = 0; i < 16; i++) {
 			dlmsAttributes.add(new DLMSAttribute(ProtocolTools.setObisCodeField(SERIALNR_OBISCODE, 1, i), 2, DLMSClassId.DATA));
 		}
-		getCosemObjectFactory().getGenericReadWithList(dlmsAttributes);
+		//getCosemObjectFactory().getGenericReadWithList(dlmsAttributes);
 
 	}
 
@@ -624,15 +618,18 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 		String mbusSerial;
 		List<DeviceMapping> mbusMap = new ArrayList<DeviceMapping>();
 		for (int i = MBUS_DEVICES.getFrom(); i <= MBUS_DEVICES.getTo(); i++) {
-			mbusSerial = "";
-			try {
-				Data serialDataObject = getCosemObjectFactory().getData(ProtocolTools.setObisCodeField(SERIALNR_OBISCODE, 1, (byte) i));
-				OctetString serialOctetString = serialDataObject.getAttrbAbstractDataType(2).getOctetString();
-				mbusSerial = serialOctetString != null ? serialOctetString.stringValue() : null;
-				if ((mbusSerial != null) && (!mbusSerial.equalsIgnoreCase(""))) {
-					mbusMap.add(new DeviceMapping(mbusSerial, i));
-				}
-			} catch (IOException e) {
+            mbusSerial = "";
+            try {
+                ObisCode serialObisCode = ProtocolTools.setObisCodeField(SERIALNR_OBISCODE, 1, (byte) i);
+                if (getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
+                    Data serialDataObject = getCosemObjectFactory().getData(serialObisCode);
+                    OctetString serialOctetString = serialDataObject.getAttrbAbstractDataType(2).getOctetString();
+                    mbusSerial = serialOctetString != null ? serialOctetString.stringValue() : null;
+                    if ((mbusSerial != null) && (!mbusSerial.equalsIgnoreCase(""))) {
+                        mbusMap.add(new DeviceMapping(mbusSerial, i));
+                    }
+                }
+            } catch (IOException e) {
 				if(e.getMessage().indexOf("com.energyict.dialer.connection.ConnectionException: receiveResponse() interframe timeout error") > -1){
 					throw new ConnectionException("InterframeTimeout occurred. Meter probably not accessible anymore." + e);
 				}
@@ -648,27 +645,30 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 	 * @return a map containing SerailNumber - Physical address
 	 * @throws ConnectionException if interframeTimeout has passed and maximum retries have been reached
 	 */
-	private List<DeviceMapping> getEmeterMapper() throws ConnectionException{
-		String eMeterSerial;
-		List<DeviceMapping> eMeterMap = new ArrayList<DeviceMapping>();
-		for (int i = EMETER_DEVICES.getFrom(); i <= EMETER_DEVICES.getTo(); i++) {
-			eMeterSerial = "";
-			try {
-				Data serialDataObject = getCosemObjectFactory().getData(ProtocolTools.setObisCodeField(SERIALNR_OBISCODE, 1, (byte) i));
-				OctetString serialOctetString = serialDataObject.getAttrbAbstractDataType(2).getOctetString();
-				eMeterSerial = serialOctetString != null ? serialOctetString.stringValue() : null;
-				if ((eMeterSerial != null) && (!eMeterSerial.equalsIgnoreCase(""))) {
-					eMeterMap.add(new DeviceMapping(eMeterSerial, i));
-				}
-			} catch (IOException e) {
-				if(e.getMessage().indexOf("com.energyict.dialer.connection.ConnectionException: receiveResponse() interframe timeout error") > -1){
-					throw new ConnectionException("InterframeTimeout occurred. Meter probably not accessible anymore." + e);
-				}
-				//log(Level.FINE, "Could not retrieve the eMeter serialNumber for channel " + i + ": " + e.getMessage());
-			}
-		}
-		return eMeterMap;
-	}
+    private List<DeviceMapping> getEmeterMapper() throws ConnectionException {
+        String eMeterSerial;
+        List<DeviceMapping> eMeterMap = new ArrayList<DeviceMapping>();
+        for (int i = EMETER_DEVICES.getFrom(); i <= EMETER_DEVICES.getTo(); i++) {
+            eMeterSerial = "";
+            try {
+                ObisCode serialObisCode = ProtocolTools.setObisCodeField(SERIALNR_OBISCODE, 1, (byte) i);
+                if (getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
+                    Data serialDataObject = getCosemObjectFactory().getData(serialObisCode);
+                    OctetString serialOctetString = serialDataObject.getAttrbAbstractDataType(2).getOctetString();
+                    eMeterSerial = serialOctetString != null ? serialOctetString.stringValue() : null;
+                    if ((eMeterSerial != null) && (!eMeterSerial.equalsIgnoreCase(""))) {
+                        eMeterMap.add(new DeviceMapping(eMeterSerial, i));
+                    }
+                }
+            } catch (IOException e) {
+                if (e.getMessage().indexOf("com.energyict.dialer.connection.ConnectionException: receiveResponse() interframe timeout error") > -1) {
+                    throw new ConnectionException("InterframeTimeout occurred. Meter probably not accessible anymore." + e);
+                }
+                //log(Level.FINE, "Could not retrieve the eMeter serialNumber for channel " + i + ": " + e.getMessage());
+            }
+        }
+        return eMeterMap;
+    }
 
 	/**
 	 * Check to see if you find MbusDevices as slaves for the current Z3 in the DataBase, but NOT on the physical device
@@ -827,7 +827,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 				/*
 				 * A single MBusMeter failed: log and try next MBusMeter.
 				 */
-				log(Level.FINEST, e.getMessage());
+                log(Level.FINEST, e.getMessage());
 				getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed.");
 
 			} catch (SQLException e) {

@@ -449,6 +449,24 @@ public class DLMSMeterConfig {
 	}
 
     /**
+     * Check if a given obisCode exists in the object list of the device
+     * @param obisCode
+     * @return
+     */
+    public boolean isObisCodeInObjectList(ObisCode obisCode) {
+        UniversalObject[] objectList = getInstantiatedObjectList();
+        if (objectList != null) {
+            for (int i = 0; i < objectList.length; i++) {
+                UniversalObject universalObject = objectList[i];
+                if (universalObject.getObisCode().equals(obisCode)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
 	 * @param manuf the manuf to set
 	 */
 	protected void setManufacturer(String manuf) {
