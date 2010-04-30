@@ -353,7 +353,7 @@ public class UniversalObject implements DLMSCOSEMGlobals,Serializable {
 			sb.append("[").append(getBaseName()).append("], ");
 		}
 		sb.append(getObisCode()).append(", ");
-		sb.append(DLMSClassId.getDescription(getClassID())).append(", ");
+		sb.append(getDLMClassId()).append(", ");
 		sb.append(getObisCode().getDescription());
 		return  sb.toString();
 	}
@@ -393,5 +393,22 @@ public class UniversalObject implements DLMSCOSEMGlobals,Serializable {
 	public void setIFields(long[] fields) {
 		this.fields = fields;
 	}
+
+    /**
+     * Check if this universalObject has the same class type as the given DLMSClassId
+     * @param dlmsClassId
+     * @return
+     */
+    public boolean isClassType(DLMSClassId dlmsClassId) {
+        return ((dlmsClassId != null) && (dlmsClassId.getClassId() == getClassID()));
+    }
+
+    /**
+     * Get the DLMSClassId from the given id value
+     * @return
+     */
+    public DLMSClassId getDLMClassId() {
+        return DLMSClassId.findById(getClassID());
+    }
 
 } // class UniversalObjectList
