@@ -133,17 +133,12 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 				
 				success = true;
 			} else if(decommission){
-				
+
 				getLogger().log(Level.INFO, "Handling MbusMessage " + rtuMessage.displayString() + ": Decommission MBus device");
-				
+
 				MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getCorrectedObisCode(MBUS_CLIENT_OBIS));
 				mbusClient.deinstallSlave();
-				
-				//Need to clear the gateWay
-				RtuShadow shadow = mbusDevice.getMbus().getShadow();
-				shadow.setGatewayId(0);
-				mbusDevice.getMbus().update(shadow);
-				
+
 				success = true;
 			} else if(mbusEncryption){
 				
