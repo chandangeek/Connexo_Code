@@ -1,14 +1,11 @@
 package com.energyict.genericprotocolimpl.webrtuz3.messagehandling;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageCategoryConstants;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
+import com.energyict.genericprotocolimpl.common.messages.*;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Protocol implementation of which messages should be used.

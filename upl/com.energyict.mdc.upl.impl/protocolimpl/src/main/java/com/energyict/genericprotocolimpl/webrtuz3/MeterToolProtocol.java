@@ -1,16 +1,16 @@
 package com.energyict.genericprotocolimpl.webrtuz3;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Properties;
-import java.util.logging.Logger;
-
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.protocol.MissingPropertyException;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Properties;
+import java.util.logging.Logger;
 
 /**
  * Protocols that have to be accessible to the MeterTool should implement this

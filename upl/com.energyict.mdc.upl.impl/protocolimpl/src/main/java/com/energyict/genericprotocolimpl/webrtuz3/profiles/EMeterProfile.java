@@ -1,52 +1,67 @@
 package com.energyict.genericprotocolimpl.webrtuz3.profiles;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.List;
-import java.util.logging.Level;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.ScalerUnit;
+import com.energyict.cbo.*;
+import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.utils.ProtocolTools;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.logging.Level;
 
 public class EMeterProfile {
 
-	private EDevice eDevice;
+	private static final ObisCode STATUS_OBISCODE = ObisCode.fromString("0.0.96.10.1.255");
 
-	public EMeterProfile(){
+    private EDevice eDevice;
+
+    /**
+     * Default constructor
+     */
+    public EMeterProfile(){
+
 	}
 
-	public EMeterProfile(final EDevice eDevice){
+    /**
+     * Constructor to pass an EDevice
+     * @param eDevice
+     */
+    public EMeterProfile(final EDevice eDevice){
 		this.eDevice = eDevice;
 	}
 
-	public ProfileData getProfile(final ObisCode obisCode) throws IOException, SQLException, BusinessException {
+    /**
+     * Read and parse the profileData from the eMeter, do not read the events
+     * @param obisCode
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     * @throws BusinessException
+     */
+    public ProfileData getProfile(final ObisCode obisCode) throws IOException, SQLException, BusinessException {
 		return getProfile(obisCode, false);
 	}
 
-	public ProfileData getProfile(final ObisCode electricityProfile, final boolean events) throws IOException, SQLException, BusinessException{
+    /**
+     * Read and parse the profileData from the eMeter
+     * @param electricityProfile
+     * @param events
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     * @throws BusinessException
+     */
+    public ProfileData getProfile(final ObisCode electricityProfile, final boolean events) throws IOException, SQLException, BusinessException{
 		final ProfileData profileData = new ProfileData( );
 		ProfileGeneric genericProfile;
 
@@ -104,52 +119,68 @@ public class EMeterProfile {
 		return profileData;
 	}
 
-	private void verifyProfileInterval(final ProfileGeneric genericProfile, final List<ChannelInfo> channelInfos) throws IOException{
+    /**
+     * Check if the profileInterval from the meter matches the profileInterval configured in EiServer
+     * @param genericProfile
+     * @param channelInfos
+     * @throws IOException
+     */
+    private void verifyProfileInterval(final ProfileGeneric genericProfile, final List<ChannelInfo> channelInfos) throws IOException{
 		final Iterator<ChannelInfo> it = channelInfos.iterator();
 		while(it.hasNext()){
 			final ChannelInfo ci = it.next();
-			if(getMeter().getChannel(ci.getId()).getIntervalInSeconds() != genericProfile.getCapturePeriod()){
+            Channel eMeterChannel = getMeter().getChannel(ci.getId());
+            if(eMeterChannel.getIntervalInSeconds() != genericProfile.getCapturePeriod()){
 				throw new IOException("Interval mismatch, EIServer: " + getMeter().getIntervalInSeconds() + "s - Meter: " + genericProfile.getCapturePeriod() + "s.");
 			}
 		}
 	}
 
-	private List<ChannelInfo> getChannelInfos(final ProfileGeneric profile) throws IOException {
-		final List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
-		ChannelInfo ci = null;
-		int index = 0;
-		int channelIndex = -1;
-		try{
-			for(int i = 0; i < profile.getCaptureObjects().size(); i++){
+    /**
+     * Build a List of ChannelInfo's from the capturedObjectList from a given ProfileGeneric
+     * @param profile
+     * @return
+     * @throws IOException
+     */
+    private List<ChannelInfo> getChannelInfos(final ProfileGeneric profile) throws IOException {
+        final List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+        ChannelInfo ci = null;
+        int index = 0;
+        int channelIndex = -1;
+        try {
+            List<CapturedObject> captureObjects = profile.getCaptureObjects();
+            for (int i = 0; i < captureObjects.size(); i++) {
 
-				if(isValidChannelObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode())
-						&& !isProfileStatusObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode())){ // make a channel out of it
-					final CapturedObject co = ((CapturedObject)profile.getCaptureObjects().get(i));
-					final ScalerUnit su = getMeterDemandRegisterScalerUnit(co.getLogicalName().getObisCode());
-					channelIndex = getProfileChannelNumber(index+1);
-					if(channelIndex != -1){
-						if((su != null) && (su.getUnitCode() != 0)){
-							ci = new ChannelInfo(index, channelIndex, "WebRtuKP_"+index, su.getUnit());
-						} else {
-							ci = new ChannelInfo(index, channelIndex, "WebRtuKP_"+index, Unit.get(BaseUnit.UNITLESS));
-						}
+                CapturedObject capturedObject = captureObjects.get(i);
+                ObisCode obisCode = capturedObject.getLogicalName().getObisCode();
 
-						index++;
-						if(com.energyict.dlms.ParseUtils.isObisCodeCumulative(co.getLogicalName().getObisCode())){
-							//TODO need to check the wrapValue
-							ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
-						}
-						channelInfos.add(ci);
-					}
-				}
+                if (isValidChannelObisCode(obisCode) && !isProfileStatusObisCode(obisCode)) { // make a channel out of it
+                    final CapturedObject co = ((CapturedObject) captureObjects.get(i));
+                    final ScalerUnit su = getMeterDemandRegisterScalerUnit(co.getLogicalName().getObisCode());
+                    channelIndex = getProfileChannelNumber(index + 1);
+                    if (channelIndex != -1) {
+                        if ((su != null) && (su.getUnitCode() != 0)) {
+                            ci = new ChannelInfo(index, channelIndex, "WebRtuKP_" + index, su.getUnit());
+                        } else {
+                            ci = new ChannelInfo(index, channelIndex, "WebRtuKP_" + index, Unit.get(BaseUnit.UNITLESS));
+                        }
 
-			}
-		} catch (final IOException e) {
-			e.printStackTrace();
-			throw new IOException("Failed to build the channelInfos." + e);
-		}
-		return channelInfos;
-	}
+                        index++;
+                        if (com.energyict.dlms.ParseUtils.isObisCodeCumulative(co.getLogicalName().getObisCode())) {
+                            //TODO need to check the wrapValue
+                            ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
+                        }
+                        channelInfos.add(ci);
+                    }
+                }
+
+            }
+        } catch (final IOException e) {
+            e.printStackTrace();
+            throw new IOException("Failed to build the channelInfos." + e);
+        }
+        return channelInfos;
+    }
 
 	/**
 	 * Read the given object and return the scalerUnit.
@@ -159,45 +190,56 @@ public class EMeterProfile {
 	 * @return
 	 * @throws IOException
 	 */
-	private ScalerUnit getMeterDemandRegisterScalerUnit(final ObisCode oc) throws IOException{
-		try {
-			ScalerUnit su = getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
-			if(su != null){
-				if(su.getUnitCode() == 0){
-					su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
-				}
+    private ScalerUnit getMeterDemandRegisterScalerUnit(final ObisCode oc) throws IOException {
+        try {
+            ScalerUnit su = getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
+            if (su != null) {
+                if (su.getUnitCode() == 0) {
+                    su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
+                }
 
-			} else {
-				su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
-			}
-			return su;
-		} catch (final IOException e) {
-			e.printStackTrace();
-			eDevice.getLogger().log(Level.INFO, "Could not get the scalerunit from object '" + oc + "'.");
-		}
-		return new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
-	}
+            } else {
+                su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
+            }
+            return su;
+        } catch (final IOException e) {
+            e.printStackTrace();
+            eDevice.getLogger().log(Level.INFO, "Could not get the scalerunit from object '" + oc + "'.");
+        }
+        return new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
+    }
 
-	private int getProfileChannelNumber(final int index){
-		int channelIndex = 0;
-		for(int i = 0; i < getMeter().getChannels().size(); i++){
+    /**
+     * Search the correct channel (with a matching channelInterval) 
+     * @param index
+     * @return
+     */
+    private int getProfileChannelNumber(final int index) {
+        int channelIndex = 0;
+        for (int i = 0; i < getMeter().getChannels().size(); i++) {
 
-			//TODO does not work with the 7.5 version, only in the 8.X
+            //TODO does not work with the 7.5 version, only in the 8.X
 
-		if(!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.DAYS) &&
-				!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
-			channelIndex++;
-			if(channelIndex == index){
-				return getMeter().getChannel(i).getLoadProfileIndex() -1;
-			}
-		}
-	}
-		return -1;
-	}
+            Channel meterChannel = getMeter().getChannel(i);
+            int intervalTimeUnitCode = meterChannel.getInterval().getTimeUnitCode();
+            if (!(intervalTimeUnitCode == TimeDuration.DAYS) && !(intervalTimeUnitCode == TimeDuration.MONTHS)) {
+                channelIndex++;
+                if (channelIndex == index) {
+                    return meterChannel.getLoadProfileIndex() - 1;
+                }
+            }
+        }
+        return -1;
+    }
 
-	private void buildProfileData(final DataContainer dc, final ProfileData pd, final ProfileGeneric pg) throws IOException{
-
-
+    /**
+     * Build up the real profileData from the data given in a DataContainer
+     * @param dc
+     * @param pd
+     * @param pg
+     * @throws IOException
+     */
+    private void buildProfileData(final DataContainer dc, final ProfileData pd, final ProfileGeneric pg) throws IOException{
 		Calendar cal = null;
 		IntervalData currentInterval = null;
 		int profileStatus = 0;
@@ -215,7 +257,8 @@ public class EMeterProfile {
 				}
 				if(cal != null){
 
-					if(getProfileStatusChannelIndex(pg) != -1){
+					System.out.println(getProfileStatusChannelIndex(pg));
+                    if(getProfileStatusChannelIndex(pg) != -1){
 						profileStatus = dc.getRoot().getStructure(i).getInteger(getProfileStatusChannelIndex(pg));
 					} else {
 						profileStatus = 0;
@@ -226,6 +269,7 @@ public class EMeterProfile {
                      the profile in EiServer is messed up with 'OTHER' events.
                      We filter this flag out here.
                     */
+
                     profileStatus &= 0xFFFFFFF7;
 
 					currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus, pg, pd.getChannelInfos());
@@ -239,48 +283,64 @@ public class EMeterProfile {
 		}
 	}
 
-	private boolean isProfileStatusObisCode(final ObisCode oc) throws IOException{
-		return oc.equals(getMeterConfig().getStatusObject().getObisCode());
+    /**
+     * Check if a given obisCode is a status obisCode
+     * @param oc
+     * @return
+     * @throws IOException
+     */
+    private boolean isProfileStatusObisCode(final ObisCode oc) throws IOException{
+        return getCorrectedObisCode(oc).equals(getCorrectedObisCode(STATUS_OBISCODE));
 	}
 
-	private IntervalData getIntervalData(final DataStructure ds, final Calendar cal, final int status, final ProfileGeneric pg, final List channelInfos)throws IOException{
+    /**
+     * Read the intervalData elements from a given DataContainer, including the EiStatus flags
+     * @param ds
+     * @param cal
+     * @param status
+     * @param pg
+     * @param channelInfos
+     * @return
+     * @throws IOException
+     */
+    private IntervalData getIntervalData(final DataStructure ds, final Calendar cal, final int status, final ProfileGeneric pg, final List channelInfos) throws IOException {
 
-		final IntervalData id = new IntervalData(cal.getTime(), StatusCodeProfile.intervalStateBits(status));
-		int index = 0;
+        final IntervalData id = new IntervalData(cal.getTime(), StatusCodeProfile.intervalStateBits(status));
+        int index = 0;
 
-		try {
-			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
-				if(index < channelInfos.size()){
-					if(isValidChannelObisCode(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode())
-							&& !isProfileStatusObisCode(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode())){
-						id.addValue(new Integer(ds.getInteger(i)));
-						index++;
-					}
+        try {
+            List<CapturedObject> captureObjects = pg.getCaptureObjects();
+            for (int i = 0; i < captureObjects.size(); i++) {
+                if (index < channelInfos.size()) {
+                    CapturedObject capturedObject = captureObjects.get(i);
+                    ObisCode obisCode = capturedObject.getLogicalName().getObisCode();
+                    if (isValidChannelObisCode(obisCode) && !isProfileStatusObisCode(obisCode)) {
+                        id.addValue(new Integer(ds.getInteger(i)));
+                        index++;
+                    }
+                }
+            }
+        } catch (final IOException e) {
+            e.printStackTrace();
+            throw new IOException("Failed to parse the intervalData objects form the datacontainer.");
+        }
 
-				}
-			}
-		} catch (final IOException e) {
-			e.printStackTrace();
-			throw new IOException("Failed to parse the intervalData objects form the datacontainer.");
-		}
+        return id;
+    }
 
-		return id;
-	}
-
-	/**
-	 * Check if it is a valid channel Obiscode
-	 * TODO it is the same method as the one from the {@link EMeterProfile}, maybe extract an abstract profile class for both ...
-	 *
-	 * @param obisCode
-	 * 				- the {@link ObisCode} to check
-	 *
-	 * @return true if you know it is a valid channelData obisCode, false otherwise
-	 */
-	private boolean isValidChannelObisCode(final ObisCode obisCode){
-		if ((obisCode.getA() == 1) && (((obisCode.getB() >= 0) && (obisCode.getB() <= 64)) || (obisCode.getB() == 128)) ) {	// Energy channels - Pulse channels (C == 82)
+    /**
+     * Check if it is a valid channel Obiscode
+     * TODO it is the same method as the one from the {@link EMeterProfile}, maybe extract an abstract profile class for both ...
+     *
+     * @param obisCode - the {@link ObisCode} to check
+     * @return true if you know it is a valid channelData oc, false otherwise
+     */
+    private boolean isValidChannelObisCode(final ObisCode obisCode){
+		ObisCode oc = getCorrectedObisCode(obisCode);
+        if ((oc.getA() == 1) && (((oc.getB() >= 0) && (oc.getB() <= 64)) || (oc.getB() == 128)) ) {	// Energy channels - Pulse channels (C == 82)
 			return true;
-		} else if(obisCode.getC() == 96){	// Temperature and Humidity
-			if((obisCode.getA() == 0) && ((obisCode.getB() == 0) || (obisCode.getB() == 1)) && (obisCode.getD() == 9) && ((obisCode.getE() == 0) || (obisCode.getE() == 2))){
+		} else if(oc.getC() == 96){	// Temperature and Humidity
+			if((oc.getA() == 0) && ((oc.getB() == 0) || (oc.getB() == 1)) && (oc.getD() == 9) && ((oc.getE() == 0) || (oc.getE() == 2))){
 				return true;
 			} else {
 				return false;
@@ -290,11 +350,20 @@ public class EMeterProfile {
 		}
 	}
 
-	private int getProfileStatusChannelIndex(final ProfileGeneric pg) throws IOException{
+    /**
+     * 
+     * @param pg
+     * @return
+     * @throws IOException
+     */
+    private int getProfileStatusChannelIndex(final ProfileGeneric pg) throws IOException{
 		try {
 			for(int i = 0; i < pg.getCaptureObjectsAsUniversalObjects().length; i++){
-				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(getMeterConfig().getStatusObject().getObisCode())){
-					return i;
+                CapturedObject capturedObject = pg.getCaptureObjects().get(i);
+                ObisCode obisCode = getCorrectedObisCode(capturedObject.getLogicalName().getObisCode());
+                ObisCode statusObisCode = getCorrectedObisCode(STATUS_OBISCODE);
+                if (obisCode.equals(statusObisCode)) {
+                    return i;
 				}
 			}
 		} catch (final IOException e) {
@@ -304,10 +373,22 @@ public class EMeterProfile {
 		return -1;
 	}
 
-	private int getProfileClockChannelIndex(final ProfileGeneric pg) throws IOException{
+    /**
+     * Get from an given ProfileGeneric the index of the clockChannel by comparing the obisCodes in the
+     * capturedObjectList with the obisCode of the ClockObject friomo the Meter objectList
+     * 
+     * @param pg
+     * @return
+     * @throws IOException
+     */
+    private int getProfileClockChannelIndex(final ProfileGeneric pg) throws IOException{
 		try {
-			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
-				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(getMeterConfig().getClockObject().getObisCode())){
+            List<CapturedObject> captureObjects = pg.getCaptureObjects();
+            for(int i = 0; i < captureObjects.size(); i++){
+                CapturedObject capturedObject = captureObjects.get(i);
+                ObisCode obisCode = getCorrectedObisCode(capturedObject.getLogicalName().getObisCode());
+                ObisCode clockObjectObisCode = getCorrectedObisCode(getMeterConfig().getClockObject().getObisCode());
+                if(obisCode.equals(clockObjectObisCode)){
 					return i;
 				}
 			}
@@ -318,24 +399,54 @@ public class EMeterProfile {
 		return -1;
 	}
 
-	private CosemObjectFactory getCosemObjectFactory(){
+    /**
+     * Getter for the cosemObjectFactory of the eMeter
+     * @return
+     */
+    private CosemObjectFactory getCosemObjectFactory(){
 		return this.eDevice.getCosemObjectFactory();
 	}
 
-	private Rtu getMeter(){
+    /**
+     * Get the webRTUZ3 from the eDevice
+     * @return
+     */
+    private Rtu getMeter(){
 		return this.eDevice.getMeter();
 	}
 
-	private Calendar getToCalendar(){
+    /**
+     * Get the toCalendar from the EDevice
+     * @return
+     */
+    private Calendar getToCalendar(){
 		return this.eDevice.getToCalendar();
 	}
 
-	private Calendar getFromCalendar(final Channel channel){
+    /**
+     * Get the fromCalendar from the EDevice
+     * @param channel
+     * @return
+     */
+    private Calendar getFromCalendar(final Channel channel){
 		return this.eDevice.getFromCalendar(channel);
 	}
 
-	private DLMSMeterConfig getMeterConfig(){
+    /**
+     * Get the DLMSMeterConfig from the EDevice
+     * @return
+     */
+    private DLMSMeterConfig getMeterConfig(){
 		return this.eDevice.getMeterConfig();
+	}
+
+    /**
+     *
+      * @param baseObisCode
+     * @return
+     */
+    private ObisCode getCorrectedObisCode(ObisCode baseObisCode) {
+		return ProtocolTools.setObisCodeField(baseObisCode, 1, (byte) eDevice.getPhysicalAddress());
 	}
 
 }

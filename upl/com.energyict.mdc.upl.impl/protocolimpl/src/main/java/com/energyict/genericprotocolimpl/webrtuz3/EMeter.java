@@ -1,40 +1,25 @@
 package com.energyict.genericprotocolimpl.webrtuz3;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.CommonUtils;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.*;
-import com.energyict.genericprotocolimpl.webrtuz3.profiles.EMeterEventProfile;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
-import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.CommunicationProfile;
-import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -48,8 +33,8 @@ public class EMeter implements GenericProtocol, EDevice {
     public static final ObisCode SERIAL_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
     public static final ObisCode PROFILE_OBISCODE = ObisCode.fromString("0.0.99.1.0.255");
     public static final ObisCode EVENTS_OBISCODE = ObisCode.fromString("0.0.99.98.0.255");
-    public static final ObisCode MONTHLY_PROFILE_OBIS = ObisCode.fromString("0.0.98.1.0.255");
-    public static final ObisCode DAILY_PROFILE_OBIS = ObisCode.fromString("0.0.99.2.0.255");
+    public static final ObisCode MONTHLY_PROFILE_OBIS = ObisCode.fromString("1.0.99.3.0.255");
+    public static final ObisCode DAILY_PROFILE_OBIS = ObisCode.fromString("1.0.99.2.0.255");
 
     private CommunicationProfile	commProfile;
 	private WebRTUZ3				webRtu;
@@ -78,7 +63,7 @@ public class EMeter implements GenericProtocol, EDevice {
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
 		this.commProfile = scheduler.getCommunicationProfile();
 
-        testMethod();
+        //testMethod();
 
         try {
 			// Before reading data, check the serialnumber
@@ -147,6 +132,16 @@ public class EMeter implements GenericProtocol, EDevice {
             e.printStackTrace();
         }
         System.out.println(crlfcrlf);
+
+
+//        try {
+//            byte[] response = getCosemObjectFactory().getProfileGeneric(getCorrectedObisCode(PROFILE_OBISCODE)).getBufferData();
+//            Array profileArray = new Array(response, 0, 0);
+//            System.out.println(profileArray.toString());
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
     }
 
     /**

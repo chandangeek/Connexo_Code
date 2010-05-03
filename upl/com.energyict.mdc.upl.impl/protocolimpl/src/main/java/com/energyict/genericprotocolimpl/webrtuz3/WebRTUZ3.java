@@ -1,48 +1,31 @@
 package com.energyict.genericprotocolimpl.webrtuz3;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.logging.Level;
-
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.InvokeIdAndPriority;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.*;
+import com.energyict.dlms.aso.*;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.IPv4Setup;
-import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.genericprotocolimpl.common.CommonUtils;
-import com.energyict.genericprotocolimpl.common.DLMSProtocol;
-import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
-import com.energyict.genericprotocolimpl.common.StoreObject;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageCategoryConstants;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
+import com.energyict.dlms.cosem.*;
+import com.energyict.genericprotocolimpl.common.*;
+import com.energyict.genericprotocolimpl.common.messages.*;
 import com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers.ObisCodeMapper;
 import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.MessageExecutor;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.*;
-import com.energyict.genericprotocolimpl.webrtuz3.profiles.EMeterEventProfile;
 import com.energyict.mdw.amr.RtuRegister;
-import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.core.RtuMessage;
-import com.energyict.mdw.core.RtuType;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.logging.Level;
 
 /**
  * <p>
@@ -134,7 +117,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 			}
 
             try {
-                testMethod();
+                //testMethod();
             } catch (Exception e) {
                 e.printStackTrace();
             }

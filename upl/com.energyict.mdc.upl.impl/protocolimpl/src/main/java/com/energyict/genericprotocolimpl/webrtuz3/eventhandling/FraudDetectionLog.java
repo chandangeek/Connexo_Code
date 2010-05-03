@@ -1,14 +1,12 @@
 package com.energyict.genericprotocolimpl.webrtuz3.eventhandling;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.protocol.MeterEvent;
+
+import java.io.IOException;
+import java.util.*;
 
 public class FraudDetectionLog {
 	

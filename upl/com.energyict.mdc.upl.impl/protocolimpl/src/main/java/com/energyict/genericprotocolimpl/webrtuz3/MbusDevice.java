@@ -1,17 +1,6 @@
 package com.energyict.genericprotocolimpl.webrtuz3;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.Unit;
+import com.energyict.cbo.*;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.UniversalObject;
@@ -23,20 +12,19 @@ import com.energyict.genericprotocolimpl.common.DLMSProtocol;
 import com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers.MbusObisCodeMapper;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.MbusMessageExecutor;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.MbusMessages;
-import com.energyict.genericprotocolimpl.webrtuz3.profiles.MbusDailyMonthly;
-import com.energyict.genericprotocolimpl.webrtuz3.profiles.MbusEventProfile;
-import com.energyict.genericprotocolimpl.webrtuz3.profiles.MbusProfile;
+import com.energyict.genericprotocolimpl.webrtuz3.profiles.*;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
-import com.energyict.mdw.core.CommunicationProfile;
-import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author gna
@@ -130,7 +118,7 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
 		this.commProfile = scheduler.getCommunicationProfile();
 
-        testMethod();
+        //testMethod();
 
 		try {
 			// Before reading data, check the serialnumber

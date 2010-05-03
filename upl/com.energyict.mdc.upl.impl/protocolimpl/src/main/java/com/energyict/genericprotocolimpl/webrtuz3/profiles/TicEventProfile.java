@@ -1,16 +1,16 @@
 package com.energyict.genericprotocolimpl.webrtuz3.profiles;
 
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.logging.Level;
-
 import com.energyict.dlms.DataContainer;
 import com.energyict.genericprotocolimpl.webrtuz3.TicDevice;
 import com.energyict.genericprotocolimpl.webrtuz3.eventhandling.TicLog;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.logging.Level;
 
 public class TicEventProfile {
 

@@ -1,9 +1,9 @@
 package com.energyict.genericprotocolimpl.webrtuz3.eventhandling;
 
+import com.energyict.protocol.MeterEvent;
+
 import java.util.Date;
 import java.util.HashMap;
-
-import com.energyict.protocol.MeterEvent;
 
 /**
  * Configuration of extra events that are defined after NTA implementation
