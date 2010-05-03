@@ -47,53 +47,24 @@ public class MbusControlLog {
 		List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
 		int size = this.dcEvents.getRoot().getNrOfElements();
 		Date eventTimeStamp = null;
-		for(int i = 0; i <= (size-1); i++){
+		for(int i = 0; i < size; i++){
 			int eventId = (int)this.dcEvents.getRoot().getStructure(i).getValue(1)&0xFF; // To prevent negative values
 			if(isOctetString(this.dcEvents.getRoot().getStructure(i).getElement(0))){
 				eventTimeStamp = new AXDRDateTime(new OctetString(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray())).getValue().getTime();
 			}
 			if(eventTimeStamp != null){
-				buildMeterEvent(meterEvents, eventTimeStamp, eventId);
+                MeterEvent event;
+                if (ExtraEvents.contains(eventId)) {
+                    event = ExtraEvents.getExtraEvent(eventTimeStamp, eventId);
+                } else {
+                    event = new MeterEvent(eventTimeStamp, eventId, eventId);
+                }
+                // Create a new meter Event using the toString method of the previous event
+                // to work around the missing resources problem in EiServer ([JIRA] EISERVER-583)
+                meterEvents.add(new MeterEvent(eventTimeStamp, eventId, eventId, event.toString()));
 			}
 		}
 		return meterEvents;
-	}
-
-	private void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
-		
-		if( !ExtraEvents.extraEvents.containsKey(new Integer(eventId)) ){
-			switch(eventId){
-			case EVENT_EVENT_LOG_CLEARED : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.CLEAR_DATA, eventId, "Mbus control event log profile cleared."));}break;
-			
-			case EVENT_MANUAL_DISCONNECTION_MBUS1 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been manually disconnected (MBus1)"));}break;
-			case EVENT_MANUAL_CONNECTION_MBUS1 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been manually connected (MBus1)" ));}break;
-			case EVENT_REMOTE_DISCONNECTION_MBUS1 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been remotely disconnected (MBus1)" ));}break;
-			case EVENT_REMOTE_CONNECTION_MBUS1 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been remotely connected (MBus1)" ));}break;
-			case EVENT_VALVE_ALARM_MBUS1 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.METER_ALARM, eventId, "Valve alarm has been registerd (MBus1)" ));}break;
-			
-			case EVENT_MANUAL_DISCONNECTION_MBUS2 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been manually disconnected (MBus2)"));}break;
-			case EVENT_MANUAL_CONNECTION_MBUS2 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been manually connected (MBus2)" ));}break;
-			case EVENT_REMOTE_DISCONNECTION_MBUS2 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been remotely disconnected (MBus2)" ));}break;
-			case EVENT_REMOTE_CONNECTION_MBUS2 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been remotely connected (MBus2)" ));}break;
-			case EVENT_VALVE_ALARM_MBUS2 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.METER_ALARM, eventId, "Valve alarm has been registerd (MBus2)" ));}break;
-			
-			case EVENT_MANUAL_DISCONNECTION_MBUS3 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been manually disconnected (Mbus3)"));}break;
-			case EVENT_MANUAL_CONNECTION_MBUS3 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been manually connected (Mbus3)" ));}break;
-			case EVENT_REMOTE_DISCONNECTION_MBUS3 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been remotely disconnected (Mbus3)" ));}break;
-			case EVENT_REMOTE_CONNECTION_MBUS3 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been remotely connected (Mbus3)" ));}break;
-			case EVENT_VALVE_ALARM_MBUS3 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.METER_ALARM, eventId, "Valve alarm has been registerd (Mbus3)" ));}break;
-			
-			case EVENT_MANUAL_DISCONNECTION_MBUS4 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been manually disconnected (Mbus4)"));}break;
-			case EVENT_MANUAL_CONNECTION_MBUS4 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been manually connected (Mbus4)" ));}break;
-			case EVENT_REMOTE_DISCONNECTION_MBUS4 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been remotely disconnected (Mbus4)" ));}break;
-			case EVENT_REMOTE_CONNECTION_MBUS4 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been remotely connected (Mbus4)" ));}break;
-			case EVENT_VALVE_ALARM_MBUS4 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.METER_ALARM, eventId, "Valve alarm has been registerd (Mbus4)" ));}break;
-			
-			default : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Unknown eventcode: " + eventId));}break;
-			}
-		} else {
-			meterEvents.add(ExtraEvents.getExtraEvent(eventTimeStamp, eventId));
-		}
 	}
 
 	private boolean isOctetString(Object element) {
