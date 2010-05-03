@@ -61,7 +61,6 @@ public class MbusDailyMonthly {
 				}
 			}
 			
-			this.mbusDevice.getLogger().log(Level.INFO, "Reading Monthly values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 			buildProfileData(dc, profileData, genericProfile, TimeDuration.MONTHS);
 			ParseUtils.validateProfileData(profileData, toCalendar.getTime());
@@ -306,7 +305,7 @@ public class MbusDailyMonthly {
 
 	/**
 	 * Get the dailyValues by reading the complete intervalProfile(hourly)
-	 * @param obisCode - the hourly-interval obisCode
+	 * @param dailyObisCode - the hourly-interval obisCode
 	 * @throws IOException 
 	 */
 	public ProfileData getDailyProfile(ObisCode dailyObisCode) throws IOException {
