@@ -15,67 +15,86 @@ import java.util.Date;
 import java.util.logging.Level;
 
 /**
- *
  * @author gna
  */
 public class EMeterEventProfile {
 
-	private EDevice eDevice;
+    private static final ObisCode EVENT_LOG_OBISCODE = ObisCode.fromString("0.0.99.98.0.255");
 
-	public EMeterEventProfile(EDevice webrtu){
-		this.eDevice = webrtu;
-	}
+    private EDevice eDevice;
 
-	public ProfileData getEvents() throws IOException{
+    /**
+     * Constructor to initialize the eDevice
+     *
+     * @param eDevice
+     */
+    public EMeterEventProfile(EDevice eDevice) {
+        this.eDevice = eDevice;
+    }
 
-		try {
+    /**
+     * Read the events from the eMeter
+     *
+     * @return
+     * @throws IOException
+     */
+    public ProfileData getEvents() throws IOException {
 
-		ProfileData profileData = new ProfileData( );
+        try {
 
-		Date lastLogReading = eDevice.getMeter().getLastLogbook();
-		if(lastLogReading == null){
-			lastLogReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(eDevice.getMeter());
-		}
-		Calendar fromCal = ProtocolUtils.getCleanCalendar(this.eDevice.getTimeZone());
-		fromCal.setTime(lastLogReading);
-		eDevice.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + eDevice.getSerialNumber() + ".");
+            ProfileData profileData = new ProfileData();
 
-		ObisCode eventLogObisCode = ProtocolTools.setObisCodeField(ObisCode.fromString("0.0.99.98.0.255"), 1, (byte) eDevice.getPhysicalAddress());
-//		ObisCode controlLogbookObisCode = ProtocolTools.setObisCodeField(ObisCode.fromString("0.0.96.3.10.255"), 1, (byte) eDevice.getPhysicalAddress());
-//		ObisCode powerFailureObisCode = ProtocolTools.setObisCodeField(ObisCode.fromString("0.0.99.1.0.255"), 1, (byte) eDevice.getPhysicalAddress());
-//		ObisCode fraudeDetectObisCode = ProtocolTools.setObisCodeField(ObisCode.fromString("0.0.99.2.0.255"), 1, (byte) eDevice.getPhysicalAddress());
-//		ObisCode mbusLogsObisCode = ProtocolTools.setObisCodeField(ObisCode.fromString("0.0.99.3.0.255"), 1, (byte) eDevice.getPhysicalAddress());
+            Date lastLogReading = eDevice.getMeter().getLastLogbook();
+            if (lastLogReading == null) {
+                lastLogReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(eDevice.getMeter());
+            }
+            Calendar fromCal = ProtocolUtils.getCleanCalendar(this.eDevice.getTimeZone());
+            fromCal.setTime(lastLogReading);
+            eDevice.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + eDevice.getSerialNumber() + ".");
 
-		EventsLog standardEvents = new EventsLog(getLogAsDataContainer(eventLogObisCode, fromCal));
-//		FraudDetectionLog fraudDetectionEvents = new FraudDetectionLog(getLogAsDataContainer(fraudeDetectObisCode, fromCal));
-//		DisconnectControlLog disconnectControl = new DisconnectControlLog(getLogAsDataContainer(controlLogbookObisCode, fromCal));
-//		MbusLog mbusLogs = new MbusLog(getLogAsDataContainer(mbusLogsObisCode, fromCal));
-//		PowerFailureLog powerFailure = new PowerFailureLog(getLogAsDataContainer(powerFailureObisCode, fromCal));
+            ObisCode eventLogObisCode = getCorrectedObisCode(EVENT_LOG_OBISCODE);
+            DataContainer eventsLogDataContainer = getLogAsDataContainer(eventLogObisCode, fromCal);
+            EventsLog standardEvents = new EventsLog(eventsLogDataContainer);
 
-		profileData.getMeterEvents().addAll(standardEvents.getMeterEvents());
-//		profileData.getMeterEvents().addAll(fraudDetectionEvents.getMeterEvents());
-//		profileData.getMeterEvents().addAll(disconnectControl.getMeterEvents());
-//		profileData.getMeterEvents().addAll(mbusLogs.getMeterEvents());
-//		profileData.getMeterEvents().addAll(powerFailure.getMeterEvents());
+            profileData.getMeterEvents().addAll(standardEvents.getMeterEvents());
+            return profileData;
 
-		// Don't create statusbits from the events
-//			profileData.applyEvents(webrtu.getMeter().getIntervalInSeconds()/60);
-//		webrtu.getStoreObject().add(profileData, getMeter());
-		return profileData;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new NestedIOException(e);
+        }
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new NestedIOException(e);
-		}
+    }
 
-	}
+    /**
+     * Get the corrected obisCode field to match the physical address of the eMeter
+     *
+     * @param obisCode
+     * @return
+     */
+    private ObisCode getCorrectedObisCode(ObisCode obisCode) {
+        return ProtocolTools.setObisCodeField(obisCode, 1, (byte) eDevice.getPhysicalAddress());
+    }
 
-	private DataContainer getLogAsDataContainer(ObisCode obisCode, Calendar from) throws IOException {
-		return getCosemObjectFactory().getProfileGeneric(obisCode).getBuffer(from, eDevice.getToCalendar());
-	}
+    /**
+     * Read the logbook as DataContainer
+     *
+     * @param obisCode
+     * @param from
+     * @return
+     * @throws IOException
+     */
+    private DataContainer getLogAsDataContainer(ObisCode obisCode, Calendar from) throws IOException {
+        return getCosemObjectFactory().getProfileGeneric(obisCode).getBuffer(from, eDevice.getToCalendar());
+    }
 
-	private CosemObjectFactory getCosemObjectFactory(){
-		return this.eDevice.getCosemObjectFactory();
-	}
+    /**
+     * Getter for the CosemObjectFactory
+     *
+     * @return
+     */
+    private CosemObjectFactory getCosemObjectFactory() {
+        return this.eDevice.getCosemObjectFactory();
+    }
 
 }

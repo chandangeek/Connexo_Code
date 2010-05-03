@@ -257,7 +257,6 @@ public class EMeterProfile {
 				}
 				if(cal != null){
 
-					System.out.println(getProfileStatusChannelIndex(pg));
                     if(getProfileStatusChannelIndex(pg) != -1){
 						profileStatus = dc.getRoot().getStructure(i).getInteger(getProfileStatusChannelIndex(pg));
 					} else {
@@ -442,7 +441,7 @@ public class EMeterProfile {
 
     /**
      *
-      * @param baseObisCode
+     * @param baseObisCode
      * @return
      */
     private ObisCode getCorrectedObisCode(ObisCode baseObisCode) {

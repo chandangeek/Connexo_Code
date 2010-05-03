@@ -23,7 +23,7 @@ import java.util.logging.Level;
 
 public class MbusEventProfile {
 	
-        private static final ObisCode EVENT_LOG_OBISCODE = ObisCode.fromString("0.0.99.98.0.255");
+        private static final ObisCode EVENT_LOG_OBISCODE = ObisCode.fromString("0.0.24.5.0.255");
 
 	private MbusDevice mbusDevice;
 
@@ -31,7 +31,7 @@ public class MbusEventProfile {
 		this.mbusDevice = mbusDevice;
 	}
 
-	public ProfileData getEvents() throws IOException{
+	public ProfileData getEvents() {
 		
         ProfileData profileData = new ProfileData();
 
@@ -45,7 +45,7 @@ public class MbusEventProfile {
             mbusDevice.getLogger().log(Level.INFO, "Reading EVENTS from Mbus meter with serialnumber " + mbusDevice.getCustomerID() + ".");
 
             ProfileGeneric eventProfile = getCosemObjectFactory().getProfileGeneric(getCorrectedObisCode(EVENT_LOG_OBISCODE));
-            DataContainer mbusLog = eventProfile.getBuffer(fromCal, mbusDevice.getWebRTU().getToCalendar());
+            DataContainer mbusLog = eventProfile.getBuffer(fromCal);
 
             MbusControlLog mbusControlLog = new MbusControlLog(mbusLog);
             profileData.getMeterEvents().addAll(mbusControlLog.getMeterEvents());
@@ -53,7 +53,6 @@ public class MbusEventProfile {
 //		mbusDevice.getWebRTU().getStoreObject().add(profileData, getMeter());
 
         } catch (IOException e) {
-            e.printStackTrace();
             mbusDevice.getLogger().log(Level.INFO, "An error occured while reading the EVENTS from Mbus meter with serialnumber " + mbusDevice.getCustomerID() + ": " + e.getMessage());
         }
 
@@ -65,22 +64,29 @@ public class MbusEventProfile {
 	private CosemObjectFactory getCosemObjectFactory(){
 		return this.mbusDevice.getWebRTU().getCosemObjectFactory();
 	}
-	
-	private Rtu getMeter(){
+
+    /**
+     * 
+     * @return
+     */
+    private Rtu getMeter(){
 		return this.mbusDevice.getMbus();
 	}
-	
-	private DLMSMeterConfig getMeterConfig(){
-		return this.mbusDevice.getWebRTU().getMeterConfig();
-	}
-	
-	private TimeZone getTimeZone(){
+
+    /**
+     *
+     * @return
+     */
+    private TimeZone getTimeZone(){
 		return this.mbusDevice.getWebRTU().getTimeZone();
 	}
 
+    /**
+     *
+     * @param obisCode
+     * @return
+     */
     private ObisCode getCorrectedObisCode(ObisCode obisCode) {
-        ObisCode oc = ProtocolTools.setObisCodeField(obisCode, 1, (byte) this.mbusDevice.getPhysicalAddress());
-        System.out.println("Changed " + obisCode + " to " + oc);
-        return oc;
+        return ProtocolTools.setObisCodeField(obisCode, 1, (byte) this.mbusDevice.getPhysicalAddress());
     }
 }

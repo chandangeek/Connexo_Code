@@ -4,9 +4,8 @@ import com.energyict.cbo.*;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.CommonUtils;
 import com.energyict.genericprotocolimpl.common.DLMSProtocol;
 import com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers.MbusObisCodeMapper;
@@ -118,7 +117,7 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
 		this.commProfile = scheduler.getCommunicationProfile();
 
-        //testMethod();
+        testMethod();
 
 		try {
 			// Before reading data, check the serialnumber
@@ -128,46 +127,51 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
 			throw new IOException(e.getMessage());
 		}
 
-		// import profile
-		if(commProfile.getReadDemandValues()){
-			getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + getMbus().getSerialNumber());
-			MbusProfile mp = new MbusProfile(this);
-			ProfileData pd = mp.getProfile(getProfileObisCode());
-			if(this.webRtu.isBadTime()){
-				pd.markIntervalsAsBadTime();
-			}
-			this.webRtu.getStoreObject().add(pd, getMbus());
-		}
+        // import profile
+        if (commProfile.getReadDemandValues()) {
+            getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + getMbus().getSerialNumber());
+            MbusProfile mp = new MbusProfile(this);
+            ProfileData pd = mp.getProfile(getProfileObisCode());
+            if (this.webRtu.isBadTime()) {
+                pd.markIntervalsAsBadTime();
+            }
+            this.webRtu.getStoreObject().add(pd, getMbus());
+        }
 
-		if(commProfile.getReadMeterEvents()){
+        if(commProfile.getReadMeterEvents()){
 			getLogger().log(Level.INFO, "Getting events for meter with serialnumber: " + getMbus().getSerialNumber());
 			MbusEventProfile mep = new MbusEventProfile(this);
 			ProfileData eventPd = mep.getEvents();
 			this.webRtu.getStoreObject().add(eventPd, getMbus());
 		}
 
-		// import daily/monthly
-		if(commProfile.getReadMeterReadings()){
-			MbusDailyMonthly mdm = new MbusDailyMonthly(this);
+        // import daily/monthly
+        if (commProfile.getReadMeterReadings()) {
+            MbusDailyMonthly mdm = new MbusDailyMonthly(this);
 
-			if(getWebRTU().isReadDaily()){
-				getLogger().log(Level.INFO, "Getting Daily values for meter with serialnumber: " + getMbus().getSerialNumber());
+/*
+            if (getWebRTU().isReadDaily()) {
+                getLogger().log(Level.INFO, "Getting Daily values for meter with serialnumber: " + getMbus().getSerialNumber());
                 ProfileData dailyPd = mdm.getDailyProfile(getCorrectedObisCode(DAILY_PROFILE_OBIS));
-				this.webRtu.getStoreObject().add(dailyPd, getMbus());
-			}
+                this.webRtu.getStoreObject().add(dailyPd, getMbus());
+            }
+*/
 
-			if(getWebRTU().isReadMonthly()){
-				getLogger().log(Level.INFO, "Getting Monthly values for meter with serialnumber: " + getMbus().getSerialNumber());
+/*
+            if (getWebRTU().isReadMonthly()) {
+                getLogger().log(Level.INFO, "Getting Monthly values for meter with serialnumber: " + getMbus().getSerialNumber());
                 ProfileData montProfileData = mdm.getMonthlyProfile(getCorrectedObisCode(MONTHLY_PROFILE_OBIS));
-				this.webRtu.getStoreObject().add(montProfileData, getMbus());
+                this.webRtu.getStoreObject().add(montProfileData, getMbus());
 
-			}
-			getLogger().log(Level.INFO, "Getting registers from Mbus meter " + (getPhysicalAddress()+1));
-			doReadRegisters();
-		}
+            }
+*/
 
-		// send rtuMessages
-		if(commProfile.getSendRtuMessage()){
+            getLogger().log(Level.INFO, "Getting registers from Mbus meter " + (getPhysicalAddress() + 1));
+            doReadRegisters();
+        }
+
+        //send rtuMessages
+        if(commProfile.getSendRtuMessage()){
 			sendMeterMessages();
 		}
 	}

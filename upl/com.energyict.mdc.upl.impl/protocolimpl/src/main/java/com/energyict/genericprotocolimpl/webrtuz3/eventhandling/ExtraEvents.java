@@ -62,4 +62,14 @@ public class ExtraEvents {
 				.get(new Integer(eventId))[CODE]), eventId, (extraEvents
 				.get(new Integer(eventId))[TEXT]));
 	}
+
+    /**
+     * Method to check if a given eventCode is mapped by these extra events
+     * @param eventId
+     * @return
+     */
+    public static final boolean contains(int eventId) {
+        return extraEvents.containsKey(new Integer(eventId));
+    }
+
 }

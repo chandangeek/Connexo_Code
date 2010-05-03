@@ -128,20 +128,22 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 				badTime = verifyMaxTimeDifference();
 			}
 
-			// Read the loadProfile
-			if (getCommunicationProfile().getReadDemandValues()) {
+/*
+// Read the loadProfile
+if (getCommunicationProfile().getReadDemandValues()) {
 
-				EMeterProfile ep = new EMeterProfile(this);
-				ProfileData eProfileData = ep.getProfile(EMeter.PROFILE_OBISCODE);
-				if(badTime){	// if a timedifference exceeds boundary
-					eProfileData.markIntervalsAsBadTime();
-				}
-				storeObject.add(eProfileData, getMeter());
+EMeterProfile ep = new EMeterProfile(this);
+ProfileData eProfileData = ep.getProfile(EMeter.PROFILE_OBISCODE);
+if(badTime){	// if a timedifference exceeds boundary
+eProfileData.markIntervalsAsBadTime();
+}
+storeObject.add(eProfileData, getMeter());
 
-			}
+}
+*/
 
 			// Read the events
-			if (getCommunicationProfile().getReadMeterEvents()) {
+            if (getCommunicationProfile().getReadMeterEvents()) {
 				getLogger().log(Level.INFO, "Getting events for meter with serialnumber: " + this.serialNumber);
 				EMeterEventProfile evp = new EMeterEventProfile(this);
 				ProfileData pd = evp.getEvents();
@@ -228,7 +230,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 
 	}
 
-    private void testMethod() {
+    private void testMethod() throws IOException {
         String crlfcrlf = "\r\n\r\n";
         System.out.println(crlfcrlf + "WebRtuZ3 testMethod(): ");
         try {
@@ -243,7 +245,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
             e.printStackTrace();
         }
         System.out.println(crlfcrlf);
-    }
+        }
 
 	@Override
 	protected ConformanceBlock configureConformanceBlock() {
