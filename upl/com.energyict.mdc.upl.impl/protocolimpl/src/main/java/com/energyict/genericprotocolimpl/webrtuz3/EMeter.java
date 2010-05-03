@@ -7,6 +7,8 @@ import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.CommonUtils;
+import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.EMeterMessageExecutor;
+import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.EmeterMessages;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.*;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
@@ -27,7 +29,7 @@ import java.util.logging.Logger;
  * @since 9-apr-2010 13:51:14
  * @author jme
  */
-public class EMeter implements GenericProtocol, EDevice {
+public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
 
     public static final ObisCode FIRMWARE_OBISCODE = ObisCode.fromString("0.0.0.2.0.255");
     public static final ObisCode SERIAL_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
@@ -63,7 +65,7 @@ public class EMeter implements GenericProtocol, EDevice {
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
 		this.commProfile = scheduler.getCommunicationProfile();
 
-        //testMethod();
+        testMethod();
 
         try {
 			// Before reading data, check the serialnumber
@@ -132,16 +134,6 @@ public class EMeter implements GenericProtocol, EDevice {
             e.printStackTrace();
         }
         System.out.println(crlfcrlf);
-
-
-//        try {
-//            byte[] response = getCosemObjectFactory().getProfileGeneric(getCorrectedObisCode(PROFILE_OBISCODE)).getBufferData();
-//            Array profileArray = new Array(response, 0, 0);
-//            System.out.println(profileArray.toString());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
     }
 
     /**
@@ -216,11 +208,15 @@ public class EMeter implements GenericProtocol, EDevice {
 	}
 
 	/**
-	 *
+	 * Execute the pending device messages
 	 */
-	private void sendMeterMessages() {
-		// TODO Auto-generated method stub
-
+	private void sendMeterMessages() throws BusinessException, SQLException {
+		EMeterMessageExecutor messageExecutor = new EMeterMessageExecutor(this);
+        List<RtuMessage> pendingMessages = geteMeterRtu().getPendingMessages();
+        for (int i = 0; i < pendingMessages.size(); i++) {
+            RtuMessage rtuMessage =  pendingMessages.get(i);
+            messageExecutor.doMessage(rtuMessage);
+        }
 	}
 
     /**
