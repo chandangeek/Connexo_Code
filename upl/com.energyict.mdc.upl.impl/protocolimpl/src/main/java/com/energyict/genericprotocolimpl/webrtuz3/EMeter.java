@@ -65,7 +65,7 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
 		this.commProfile = scheduler.getCommunicationProfile();
 
-        testMethod();
+        //testMethod();
 
         try {
 			// Before reading data, check the serialnumber
