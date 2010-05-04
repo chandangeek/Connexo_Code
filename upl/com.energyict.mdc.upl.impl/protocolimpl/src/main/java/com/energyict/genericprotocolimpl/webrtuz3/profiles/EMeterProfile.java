@@ -76,7 +76,6 @@ public class EMeterProfile {
 				profileData.setChannelInfos(channelInfos);
 				Calendar fromCalendar = null;
 				Calendar channelCalendar = null;
-				final Calendar toCalendar = getToCalendar();
 
 				for (int i = 0; i < getMeter().getChannels().size(); i++) {
 					final Channel chn = getMeter().getChannel(i);
@@ -100,7 +99,7 @@ public class EMeterProfile {
                 final DataContainer dc = genericProfile.getBuffer(fromCalendar);
 
                 buildProfileData(dc, profileData, genericProfile);
-				ParseUtils.validateProfileData(profileData, toCalendar.getTime());
+				ParseUtils.validateProfileData(profileData, getToCalendar().getTime());
 				profileData.sort();
 
 //				if(webrtu.getMarkedAsBadTime()){
