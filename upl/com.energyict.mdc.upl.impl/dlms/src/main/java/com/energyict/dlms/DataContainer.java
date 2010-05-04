@@ -7,6 +7,7 @@
 package com.energyict.dlms;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 import com.energyict.cbo.Utils;
@@ -163,8 +164,9 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
 					strout.append("OctetString: ");
 					int val;
 					boolean readable=true;
-					for (int t=0; t<dataStructure.getOctetString(iCount[iparseLevel]).getArray().length;t++) {
-						val = dataStructure.getOctetString(iCount[iparseLevel]).getArray()[t]&0xFF;
+                    OctetString octetString = dataStructure.getOctetString(iCount[iparseLevel]);
+                    for (int t=0; t< octetString.getArray().length;t++) {
+						val = octetString.getArray()[t]&0xFF;
 						if ((val < 0x20) || (val > 0x7E)) {
 							readable = false;
 						}
@@ -173,14 +175,17 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
 					}
 
 					if (readable) {
-						String str = new String(dataStructure.getOctetString(iCount[iparseLevel]).getArray());
+						String str = new String(octetString.getArray());
 						strout.append(str);
 					}
 
-					if (dataStructure.getOctetString(iCount[iparseLevel]).getArray().length == 6) {
-						strout.append(" "+DLMSUtils.getInfoLN(dataStructure.getOctetString(iCount[iparseLevel]).getArray()));
+					if (octetString.getArray().length == 6) {
+						strout.append(" "+DLMSUtils.getInfoLN(octetString.getArray()));
 					}
 
+                    if (octetString.getArray().length == 12) {
+                        strout.append(" Date="+octetString.toDate());
+                    }
 
 					strout.append("\n");
 

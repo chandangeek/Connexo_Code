@@ -82,6 +82,17 @@ public class DLMSMeterConfig {
     }
 
     /**
+     * @return true if the Manufacturer is SL7000
+     */
+    public boolean isSL7000() {
+        if (manuf==null) {
+			return false;
+		} else {
+			return "SLB".compareTo(manuf)==0;
+		}
+    }
+
+    /**
      * @return true if the Manufacturer is ISK (or WKP)
      */
     public boolean isIskra() {

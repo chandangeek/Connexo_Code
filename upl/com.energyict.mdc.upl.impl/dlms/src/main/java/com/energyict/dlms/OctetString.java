@@ -52,6 +52,10 @@ public class OctetString implements Serializable {
 		return toCalendar(timeZone).getTime();
 	}
 
+    public Date toDate() {
+        return toCalendar(TimeZone.getDefault()).getTime();
+    }
+
 	public Calendar toCalendar(TimeZone timeZone) {
 		Calendar calendar = Calendar.getInstance(timeZone);
 		calendar.clear();

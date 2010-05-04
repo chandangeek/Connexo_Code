@@ -1022,7 +1022,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	 * @return
 	 */
 	private byte[] getBufferRangeDescriptor(Calendar fromCalendar, Calendar toCalendar) {
-		if (toCalendar == null) {
+		if ((toCalendar == null) && this.protocolLink.getMeterConfig().isSL7000()) {
 			return getBufferRangeDescriptorSL7000(fromCalendar);
 		} else if (this.protocolLink.getMeterConfig().isActarisPLCC()) {
 			return getBufferRangeDescriptorActarisPLCC(fromCalendar, toCalendar);
@@ -1074,13 +1074,13 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 		intreq[CAPTURE_TO_OFFSET] = TYPEDESC_OCTET_STRING;
 		intreq[CAPTURE_TO_OFFSET + 1] = 12; // length
-		intreq[CAPTURE_TO_OFFSET + 2] = (byte) (toCalendar.get(Calendar.YEAR) >> 8);
-		intreq[CAPTURE_TO_OFFSET + 3] = (byte) (toCalendar.get(Calendar.YEAR));
-		intreq[CAPTURE_TO_OFFSET + 4] = (byte) (toCalendar.get(Calendar.MONTH) + 1);
-		intreq[CAPTURE_TO_OFFSET + 5] = (byte) (toCalendar.get(Calendar.DAY_OF_MONTH));
+		intreq[CAPTURE_TO_OFFSET + 2] = toCalendar != null ? (byte) (toCalendar.get(Calendar.YEAR) >> 8) : (byte) 0xFF;
+		intreq[CAPTURE_TO_OFFSET + 3] = toCalendar != null ? (byte) (toCalendar.get(Calendar.YEAR)) : (byte) 0xFF;
+		intreq[CAPTURE_TO_OFFSET + 4] = toCalendar != null ? (byte) (toCalendar.get(Calendar.MONTH) + 1) : (byte) 0xFF;
+		intreq[CAPTURE_TO_OFFSET + 5] = toCalendar != null ? (byte) (toCalendar.get(Calendar.DAY_OF_MONTH)) : (byte) 0xFF;
 		intreq[CAPTURE_TO_OFFSET + 6] = (byte) 0xFF;
-		intreq[CAPTURE_TO_OFFSET + 7] = (byte) toCalendar.get(Calendar.HOUR_OF_DAY);
-		intreq[CAPTURE_TO_OFFSET + 8] = (byte) toCalendar.get(Calendar.MINUTE);
+		intreq[CAPTURE_TO_OFFSET + 7] = toCalendar != null ? (byte) toCalendar.get(Calendar.HOUR_OF_DAY) : (byte) 0xFF;
+		intreq[CAPTURE_TO_OFFSET + 8] = toCalendar != null ? (byte) toCalendar.get(Calendar.MINUTE) : (byte) 0xFF;
 		intreq[CAPTURE_TO_OFFSET + 9] = (byte) 0x00;
 		intreq[CAPTURE_TO_OFFSET + 10] = (byte) 0xFF;
 		intreq[CAPTURE_TO_OFFSET + 11] = (byte) 0x80;
@@ -1206,28 +1206,25 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 		intreq[CAPTURE_TO_OFFSET] = TYPEDESC_OCTET_STRING;
 		intreq[CAPTURE_TO_OFFSET + 1] = 12; // length
-		intreq[CAPTURE_TO_OFFSET + 2] = (byte) (toCalendar.get(Calendar.YEAR) >> 8);
-		intreq[CAPTURE_TO_OFFSET + 3] = (byte) toCalendar.get(Calendar.YEAR);
-		intreq[CAPTURE_TO_OFFSET + 4] = (byte) (toCalendar.get(Calendar.MONTH) + 1);
-		intreq[CAPTURE_TO_OFFSET + 5] = (byte) toCalendar.get(Calendar.DAY_OF_MONTH);
-		//             bDOW = (byte)toCalendar.get(Calendar.DAY_OF_WEEK);
-		//             intreq[CAPTURE_TO_OFFSET+6]=bDOW--==1?(byte)7:bDOW;
+		intreq[CAPTURE_TO_OFFSET + 2] = toCalendar != null ? (byte) (toCalendar.get(Calendar.YEAR) >> 8) : (byte) 0xFF;
+		intreq[CAPTURE_TO_OFFSET + 3] = toCalendar != null ? (byte) toCalendar.get(Calendar.YEAR) : (byte) 0xFF;
+		intreq[CAPTURE_TO_OFFSET + 4] = toCalendar != null ? (byte) (toCalendar.get(Calendar.MONTH) + 1) : (byte) 0xFF;
+		intreq[CAPTURE_TO_OFFSET + 5] = toCalendar != null ? (byte) toCalendar.get(Calendar.DAY_OF_MONTH) : (byte) 0xFF;
 		intreq[CAPTURE_TO_OFFSET + 6] = (byte) 0xFF;
-		intreq[CAPTURE_TO_OFFSET + 7] = (byte) toCalendar.get(Calendar.HOUR_OF_DAY);
-		intreq[CAPTURE_TO_OFFSET + 8] = (byte) toCalendar.get(Calendar.MINUTE);
-		//             intreq[CAPTURE_TO_OFFSET+9]=(byte)toCalendar.get(Calendar.SECOND);
+		intreq[CAPTURE_TO_OFFSET + 7] = toCalendar != null ? (byte) toCalendar.get(Calendar.HOUR_OF_DAY) : (byte) 0xFF;
+		intreq[CAPTURE_TO_OFFSET + 8] = toCalendar != null ? (byte) toCalendar.get(Calendar.MINUTE) : (byte) 0xFF;
 		intreq[CAPTURE_TO_OFFSET + 9] = 0x00;
 		intreq[CAPTURE_TO_OFFSET + 10] = (byte) 0xFF;
 		intreq[CAPTURE_TO_OFFSET + 11] = (byte) 0x80;
 		intreq[CAPTURE_TO_OFFSET + 12] = 0x00;
 
-		if (this.protocolLink.getTimeZone().inDaylightTime(toCalendar.getTime())) {
-			intreq[CAPTURE_TO_OFFSET + 13] = (byte) 0x80;
-		} else {
-			intreq[CAPTURE_TO_OFFSET + 13] = 0x00;
-		}
+        if ((toCalendar != null) && this.protocolLink.getTimeZone().inDaylightTime(toCalendar.getTime())) {
+            intreq[CAPTURE_TO_OFFSET + 13] = (byte) 0x80;
+        } else {
+            intreq[CAPTURE_TO_OFFSET + 13] = 0x00;
+        }
 
-		return intreq;
+        return intreq;
 	}
 
 	/**
