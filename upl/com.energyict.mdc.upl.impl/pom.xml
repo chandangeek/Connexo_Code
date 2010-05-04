@@ -325,7 +325,15 @@
 				<configuration>
 					<source>1.5</source>
 					<target>1.5</target>
+                    <!--
                     <verbose>true</verbose>
+                    -->
+                    <properties>
+						<property>
+							<name>maven.compile.verbose</name>
+							<value>true</value>
+						</property>
+					</properties>
 				</configuration>
 			</plugin>
 			
