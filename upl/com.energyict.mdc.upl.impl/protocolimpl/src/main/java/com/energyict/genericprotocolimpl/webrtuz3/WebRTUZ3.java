@@ -928,32 +928,22 @@ storeObject.add(eProfileData, getMeter());
 	@Override
 	public List getMessageCategories() {
 		List<MessageCategorySpec> categories = new ArrayList();
-		MessageCategorySpec catXMLConfig = getXmlConfigCategory();
-		MessageCategorySpec catFirmware = getFirmwareCategory();
-		MessageCategorySpec catP1Messages = getP1Category();
-		MessageCategorySpec catDisconnect = getConnectControlCategory();
-		MessageCategorySpec catLoadLimit = getLoadLimitCategory();
-		MessageCategorySpec catActivityCal = getActivityCalendarCategory();
-		MessageCategorySpec catTime = getTimeCategory();
-		MessageCategorySpec catMakeEntries = getDataBaseEntriesCategory();
-		MessageCategorySpec catTestMessage = getTestCategory();
-		MessageCategorySpec catGlobalDisc = getGlobalResetCategory();
-		MessageCategorySpec catAuthEncrypt = getAuthEncryptCategory();
-		MessageCategorySpec catConnectivity = getConnectivityCategory();
 
-		categories.add(catXMLConfig);
-		categories.add(catFirmware);
-		categories.add(catP1Messages);
-		categories.add(catDisconnect);
-		categories.add(catLoadLimit);
-		categories.add(catActivityCal);
-		categories.add(catTime);
-		categories.add(catMakeEntries);
-		categories.add(catTestMessage);
-		categories.add(catGlobalDisc);
-		categories.add(catConnectivity);
+        categories.add(getAuthEncryptCategory());
+        categories.add(getFirmwareCategory());
+        categories.add(getActivityCalendarCategory());
+        categories.add(getTimeCategory());
+        categories.add(getConnectivityCategory());
+        categories.add(getGlobalResetCategory());
 
-		categories.add(catAuthEncrypt);
+/*
+        categories.add(getXmlConfigCategory());
+		categories.add(getP1Category());
+		categories.add(getConnectControlCategory());
+		categories.add(getLoadLimitCategory());
+		categories.add(getDataBaseEntriesCategory());
+		categories.add(getTestCategory());
+*/
 
 		return categories;
 	}
