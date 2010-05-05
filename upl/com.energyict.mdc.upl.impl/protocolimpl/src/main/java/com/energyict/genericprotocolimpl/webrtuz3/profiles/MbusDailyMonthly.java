@@ -42,7 +42,7 @@ public class MbusDailyMonthly {
 		
 		genericProfile = getCosemObjectFactory().getProfileGeneric(mbusProfile);
 		List<ChannelInfo> channelInfos = getDailyMonthlyChannelInfos(genericProfile, TimeDuration.MONTHS);
-		
+
 		if(channelInfos.size() != 0){
 			
 			profileData.setChannelInfos(channelInfos);
@@ -152,10 +152,12 @@ public class MbusDailyMonthly {
 		int index = 0;
 		int channelIndex = -1;
 		try{
-			for(int i = 0; i < profile.getCaptureObjects().size(); i++){
-				
-				if(isMbusRegisterObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode())){ // make a channel out of it
-					CapturedObject co = ((CapturedObject)profile.getCaptureObjects().get(i));
+            List<CapturedObject> captureObjects = profile.getCaptureObjects();
+            for(int i = 0; i < captureObjects.size(); i++){
+
+                CapturedObject co = captureObjects.get(i);
+
+                if(isMbusRegisterObisCode(co.getLogicalName().getObisCode())){ // make a channel out of it
 					ScalerUnit su = getMeterDemandRegisterScalerUnit(co.getLogicalName().getObisCode());
 					
 					channelIndex = getDMChannelNumber(index+1, timeDuration);
@@ -276,7 +278,7 @@ public class MbusDailyMonthly {
 	
 	private boolean isMbusRegisterObisCode(ObisCode oc){
 //		if((oc.getC() == 24) && (oc.getD() == 2) && (oc.getB() >=1) && (oc.getB() <= 4) && (oc.getE() >= 1) && (oc.getE() <= 4) ){
-		if((oc.getC() == 24) && (oc.getD() == 2) && (oc.getB() == (mbusDevice.getPhysicalAddress()+1)) && (oc.getE() >= 1) && (oc.getE() <= 4) ){
+		if((oc.getC() == 24) && (oc.getD() == 2) && (oc.getB() == mbusDevice.getPhysicalAddress()) && (oc.getE() >= 1) && (oc.getE() <= 4) ){
 			return true;
 		} else {
 			return false;
