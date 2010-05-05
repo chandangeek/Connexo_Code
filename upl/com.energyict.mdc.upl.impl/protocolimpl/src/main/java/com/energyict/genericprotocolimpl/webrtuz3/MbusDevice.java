@@ -39,8 +39,8 @@ import java.util.logging.Logger;
 public class MbusDevice extends MbusMessages implements GenericProtocol {
 
     private static final ObisCode PROFILE_OBISCODE = ObisCode.fromString("0.0.24.3.0.255");
-    public static final ObisCode MONTHLY_PROFILE_OBIS = ObisCode.fromString("0.0.98.1.0.255");
-    public static final ObisCode DAILY_PROFILE_OBIS = ObisCode.fromString("0.0.99.2.0.255");
+    public static final ObisCode DAILY_PROFILE_OBIS = ObisCode.fromString("0.0.24.3.1.255");
+    public static final ObisCode MONTHLY_PROFILE_OBIS = ObisCode.fromString("0.0.24.3.2.255");
 
     private long mbusAddress	= -1;		// this is the address that was given by the E-meter or a hardcoded MBusAddress in the MBusMeter itself
 	private int physicalAddress = -1;		// this is the orderNumber of the MBus meters on the E-meter, we need this to compute the ObisRegisterValues
@@ -149,22 +149,18 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
         if (commProfile.getReadMeterReadings()) {
             MbusDailyMonthly mdm = new MbusDailyMonthly(this);
 
-/*
             if (getWebRTU().isReadDaily()) {
                 getLogger().log(Level.INFO, "Getting Daily values for meter with serialnumber: " + getMbus().getSerialNumber());
                 ProfileData dailyPd = mdm.getDailyProfile(getCorrectedObisCode(DAILY_PROFILE_OBIS));
                 this.webRtu.getStoreObject().add(dailyPd, getMbus());
             }
-*/
 
-/*
             if (getWebRTU().isReadMonthly()) {
                 getLogger().log(Level.INFO, "Getting Monthly values for meter with serialnumber: " + getMbus().getSerialNumber());
                 ProfileData montProfileData = mdm.getMonthlyProfile(getCorrectedObisCode(MONTHLY_PROFILE_OBIS));
                 this.webRtu.getStoreObject().add(montProfileData, getMbus());
 
             }
-*/
 
             getLogger().log(Level.INFO, "Getting registers from Mbus meter " + (getPhysicalAddress() + 1));
             doReadRegisters();
