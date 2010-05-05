@@ -4,6 +4,7 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.CommonUtils;
@@ -134,6 +135,18 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
             e.printStackTrace();
         }
         System.out.println(crlfcrlf);
+
+        try {
+            ProfileGeneric pg = getCosemObjectFactory().getProfileGeneric(getCorrectedObisCode(EVENTS_OBISCODE));
+            byte[] bytes = pg.getBufferData();
+            Array events = new Array(bytes, 0, 0);
+            System.out.println(ProtocolTools.getHexStringFromBytes(bytes));
+            System.out.println(pg);
+            System.out.println(events);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**

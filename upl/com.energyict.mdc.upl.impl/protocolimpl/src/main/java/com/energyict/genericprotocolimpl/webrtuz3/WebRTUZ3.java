@@ -245,7 +245,11 @@ storeObject.add(eProfileData, getMeter());
             e.printStackTrace();
         }
         System.out.println(crlfcrlf);
-        }
+
+        System.out.println(getCosemObjectFactory().getActivityCalendar(ObisCode.fromString("0.0.13.0.0.255")).readCalendarNameActive().stringValue());
+        System.out.println(getCosemObjectFactory().getActivityCalendar(ObisCode.fromString("0.0.13.0.0.255")).readCalendarNamePassive().stringValue());
+
+    }
 
 	@Override
 	protected ConformanceBlock configureConformanceBlock() {
