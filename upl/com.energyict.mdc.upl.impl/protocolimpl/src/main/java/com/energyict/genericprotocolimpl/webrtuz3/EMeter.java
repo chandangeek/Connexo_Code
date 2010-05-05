@@ -36,8 +36,8 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
     public static final ObisCode SERIAL_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
     public static final ObisCode PROFILE_OBISCODE = ObisCode.fromString("0.0.99.1.0.255");
     public static final ObisCode EVENTS_OBISCODE = ObisCode.fromString("0.0.99.98.0.255");
-    public static final ObisCode MONTHLY_PROFILE_OBIS = ObisCode.fromString("1.0.99.3.0.255");
-    public static final ObisCode DAILY_PROFILE_OBIS = ObisCode.fromString("1.0.99.2.0.255");
+    public static final ObisCode MONTHLY_PROFILE_OBIS = ObisCode.fromString("0.0.99.3.0.255");
+    public static final ObisCode DAILY_PROFILE_OBIS = ObisCode.fromString("0.0.99.2.0.255");
 
     private CommunicationProfile	commProfile;
 	private WebRTUZ3				webRtu;
