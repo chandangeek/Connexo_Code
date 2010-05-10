@@ -3,24 +3,6 @@
  */
 package com.energyict.genericprotocolimpl.iskragprs;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.text.MessageFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Unit;
@@ -33,31 +15,13 @@ import com.energyict.dialer.core.DialerMarker;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.TCPIPConnection;
-import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.ActivityCalendar;
-import com.energyict.dlms.cosem.AutoConnect;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.PPPSetup;
-import com.energyict.dlms.cosem.SpecialDaysTable;
-import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.dlms.cosem.TCPUDPSetup;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.PPPSetup.PPPAuthenticationType;
 import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.genericprotocolimpl.common.GenericCache;
@@ -73,38 +37,25 @@ import com.energyict.genericprotocolimpl.iskragprs.imagetransfer.ImageTransfer;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterSpec;
-import com.energyict.mdw.core.AmrJournalEntry;
-import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.CommunicationProfile;
-import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.Folder;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.core.RtuMessage;
-import com.energyict.mdw.core.RtuType;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterReadingData;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
-import com.energyict.protocol.messaging.Messaging;
+import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.HDLCConnection;
 import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.text.MessageFormat;
+import java.text.ParseException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author gna
@@ -662,6 +613,17 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		}
 	}
 
+    /**
+     * Protected setter for the DLMSConnection.
+     * Mostly used in test-cases
+     *
+     * @param connection
+     *              - the {@link com.energyict.dlms.DLMSConnection} to set
+     */
+    protected void setDlmsConnection(DLMSConnection connection){
+        this.dlmsConnection = connection;
+    }
+
 	private void connect() throws IOException, DLMSConnectionException, SQLException, BusinessException {
 			getDLMSConnection().connectMAC();
 			
@@ -1171,12 +1133,21 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		this.dlmsCache=(Cache)cacheObject;
 	}
 	
-    /*******************************************************************************************
-    M e s s a g e P r o t o c o l  i n t e r f a c e 
-     * @throws IOException 
-     * @throws SQLException 
-     * @throws BusinessException 
-    *******************************************************************************************/
+    //*******************************************************************************************
+    //    M e s s a g e P r o t o c o l  i n t e r f a c e
+    //     * @throws IOException
+    //     * @throws SQLException
+    //     * @throws BusinessException
+    //*******************************************************************************************/
+
+    /**
+     * Handle the messages.
+     * TODO first in line to refactor
+     *
+     * @throws IOException
+     * @throws BusinessException
+     * @throws SQLException
+     */
 	private void sendMeterMessages() throws IOException, BusinessException, SQLException {
 		
 		Iterator mi = rtu.getPendingMessages().iterator();
@@ -1317,9 +1288,21 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             	msg.confirm();
             }
             else if(wuAddWhiteList){
+                String description = "Adding numbers to whitelist for meter with serialnumber: " + rtu.getSerialNumber();
+                getLogger().log(Level.INFO, description);
+                try {
             	addPhoneToWhiteList(msg);
+                } catch (BusinessException e) {
+                    e.printStackTrace();
+                    fail(e, msg, description);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    fail(e, msg, description);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    fail(e, msg, description);
             }
-            else if(wuAddManagedWhiteList){
+            } else if(wuAddManagedWhiteList){
                 addPhoneToManagedList(msg);
             }
 
@@ -1330,9 +1313,11 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             else if(wuActivate){
             	activateWakeUp(msg);
             } 
+
             else if(firmware){
             	upgradeFirmware(msg);
             } 
+
             else {
             	msg.setFailed();
             }
@@ -1539,11 +1524,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
      * @throws BusinessException if we failed to create an AMR journal entry
      * @throws SQLException if we failed to create an AMR journal entry
      */
-	private void addPhoneToWhiteList(RtuMessage msg) throws BusinessException, SQLException {
-		String description = "Adding numbers to whitelist for meter with serialnumber: " + rtu.getSerialNumber();
-		
-		try {
-			getLogger().log(Level.INFO, description);
+    protected void addPhoneToWhiteList(RtuMessage msg) throws BusinessException, SQLException, IOException {
 			AutoConnect autoConnect = getCosemObjectFactory().getAutoConnect();
             byte[] restrictions = getCosemObjectFactory().getData(ObisCode.fromString("0.0.128.20.20.255")).getValueAttr().getOctetString().getOctetStr();
             Array list = getCosemObjectFactory().getAutoConnect().readDestinationList();    // the list from the meter
@@ -1559,18 +1540,16 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             }
 
             for(int i = 0; i < maxNumbersManagedWhiteList; i++){
+            if((i + maxNumbersCSDWhiteList) <= list.nrOfDataTypes()){
                 newList.addDataType(list.getDataType(i+maxNumbersCSDWhiteList));
             }
+        }
 
             autoConnect.writeDestinationList(newList);
             getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.0.128.20.20.255"), 2, 1).write(new OctetString(restrictions).getBEREncodedByteArray());
 			
 			msg.confirm();
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail(e, msg, description);
 		}
-	}
 
 	private void changeApnUserNamePassword(RtuMessage msg) throws BusinessException, SQLException {
 		String description = "Changing apn/username/password for meter with serialnumber: " + rtu.getSerialNumber();
