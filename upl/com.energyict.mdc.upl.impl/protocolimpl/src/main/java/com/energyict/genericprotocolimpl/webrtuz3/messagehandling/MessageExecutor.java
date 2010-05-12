@@ -18,6 +18,7 @@ import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
 import com.energyict.genericprotocolimpl.webrtuz3.WebRTUZ3;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.RtuMessageShadow;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -968,13 +969,10 @@ public class MessageExecutor extends GenericMessageExecutor{
 	private void waitForCrossingBoundry() throws IOException{
 		try {
 			for(int i = 0; i < 3; i++){
-				Thread.sleep(15000);
+				ProtocolTools.delay(15000);
 				log(Level.INFO, "Keeping connection alive");
 				getWebRtu().getTime();
 			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			throw new IOException("Interrupted while waiting." + e.getMessage());
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not keep connection alive." + e.getMessage());
@@ -1015,16 +1013,13 @@ public class MessageExecutor extends GenericMessageExecutor{
 			int nrOfPolls = (delay/((getConnectionMode()==0)?10:20)) + (delay%((getConnectionMode()==0)?10:20)==0?0:1);
 			for(int i = 0; i < nrOfPolls; i++){
 				if(i < nrOfPolls-1){
-					Thread.sleep((getConnectionMode()==0)?10000:20000);
+                    ProtocolTools.delay((getConnectionMode()==0)?10000:20000);
 				} else {
-					Thread.sleep((delay-(i*((getConnectionMode()==0)?10:20)))*1000);
+                    ProtocolTools.delay((delay-(i*((getConnectionMode()==0)?10:20)))*1000);
 				}
 				log(Level.INFO, "Keeping connection alive");
 				getWebRtu().getTime();
 			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			throw new IOException("Interrupted while waiting." + e.getMessage());
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not keep connection alive." + e.getMessage());

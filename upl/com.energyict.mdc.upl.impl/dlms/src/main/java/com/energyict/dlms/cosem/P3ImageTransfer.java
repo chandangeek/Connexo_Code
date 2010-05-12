@@ -1,15 +1,11 @@
 package com.energyict.dlms.cosem;
 
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.protocolimpl.utils.ProtocolTools;
+
 import java.io.IOException;
 import java.util.logging.Level;
-
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.BitString;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
 
 /**
  * 
@@ -308,7 +304,7 @@ public class P3ImageTransfer extends AbstractCosemObject{
 	 * @throws IOException
 	 * @throws InterruptedException 
 	 */
-	public void verifyAndRetryImage() throws IOException, InterruptedException{
+	public void verifyAndRetryImage() throws IOException {
 		try{
 			int retry = 3;
 			while(retry > 0){
@@ -318,7 +314,7 @@ public class P3ImageTransfer extends AbstractCosemObject{
 				} catch (DataAccessResultException e) {
 					if(e.getDataAccessResult() == 2){ //"Temporary failure"
 						retry--;
-						Thread.sleep(this.delay);
+						ProtocolTools.delay(delay);
 					} else {
 						throw new IOException("Could not verify the image." + e.getMessage());
 					}
@@ -348,7 +344,7 @@ public class P3ImageTransfer extends AbstractCosemObject{
 	 * @throws IOException
 	 * @throws InterruptedException 
 	 */
-	public void activateAndRetryImage() throws IOException, InterruptedException{
+	public void activateAndRetryImage() throws IOException {
 		try{
 			int retry = 3;
 			while(retry > 0){
@@ -358,7 +354,7 @@ public class P3ImageTransfer extends AbstractCosemObject{
 				} catch (DataAccessResultException e) {
 					if(e.getDataAccessResult() == 2){ //"Temporary failure"
 						retry--;
-						Thread.sleep(this.delay);
+						ProtocolTools.delay(delay);
 					} else {
 						throw new IOException("Could not verify the image." + e.getMessage());
 					}
@@ -390,9 +386,10 @@ public class P3ImageTransfer extends AbstractCosemObject{
 	
 	/**
 	 * Write one image block 'imageData' with offset 'blockOffset' to the meter
-	 * @param blockOffset
-	 * @param imageData
-	 * @throws IOException 
+     *
+     * @param imageStruct
+     *              The given imageStructure to write
+     *
 	 * @throws IOException
 	 */
 	public void writeImageBlock(Structure imageStruct) throws IOException{

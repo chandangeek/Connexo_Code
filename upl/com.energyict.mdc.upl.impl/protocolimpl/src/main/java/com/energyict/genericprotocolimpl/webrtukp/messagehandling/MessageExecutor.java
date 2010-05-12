@@ -1,19 +1,5 @@
 package com.energyict.genericprotocolimpl.webrtukp.messagehandling;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
@@ -21,43 +7,9 @@ import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.BitString;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.Integer16;
-import com.energyict.dlms.axrdencoding.Integer32;
-import com.energyict.dlms.axrdencoding.Integer64;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.NullData;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.axrdencoding.VisibleString;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.ActivityCalendar;
-import com.energyict.dlms.cosem.AssociationLN;
-import com.energyict.dlms.cosem.AssociationSN;
-import com.energyict.dlms.cosem.AutoConnect;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.dlms.cosem.GenericInvoke;
-import com.energyict.dlms.cosem.GenericRead;
-import com.energyict.dlms.cosem.GenericWrite;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.Limiter;
-import com.energyict.dlms.cosem.PPPSetup;
-import com.energyict.dlms.cosem.Register;
-import com.energyict.dlms.cosem.ScriptTable;
-import com.energyict.dlms.cosem.SecuritySetup;
-import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.dlms.cosem.SpecialDaysTable;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.Limiter.ValueDefinitionType;
 import com.energyict.dlms.cosem.PPPSetup.PPPAuthenticationType;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
@@ -68,14 +20,15 @@ import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
 import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.CodeCalendar;
-import com.energyict.mdw.core.Lookup;
-import com.energyict.mdw.core.LookupEntry;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.RtuMessage;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.RtuMessageShadow;
+import com.energyict.protocolimpl.utils.ProtocolTools;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 
@@ -1005,13 +958,10 @@ public class MessageExecutor extends GenericMessageExecutor{
 	private void waitForCrossingBoundry() throws IOException{
 		try {
 			for(int i = 0; i < 3; i++){
-				Thread.sleep(15000);
+				ProtocolTools.delay(15000);
 				log(Level.INFO, "Keeping connection alive");
 				getWebRtu().getTime();
 			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			throw new IOException("Interrupted while waiting." + e.getMessage());
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not keep connection alive." + e.getMessage());
@@ -1052,16 +1002,13 @@ public class MessageExecutor extends GenericMessageExecutor{
 			int nrOfPolls = (delay/((getConnectionMode()==0)?10:20)) + (delay%((getConnectionMode()==0)?10:20)==0?0:1);
 			for(int i = 0; i < nrOfPolls; i++){
 				if(i < nrOfPolls-1){
-					Thread.sleep((getConnectionMode()==0)?10000:20000);
+                    ProtocolTools.delay((getConnectionMode()==0)?10000:20000);
 				} else {
-					Thread.sleep((delay-(i*((getConnectionMode()==0)?10:20)))*1000);
+                    ProtocolTools.delay((delay-(i*((getConnectionMode()==0)?10:20)))*1000);
 				}
 				log(Level.INFO, "Keeping connection alive");
 				getWebRtu().getTime();
 			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			throw new IOException("Interrupted while waiting." + e.getMessage());
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not keep connection alive." + e.getMessage());

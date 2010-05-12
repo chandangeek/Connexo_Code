@@ -257,7 +257,7 @@ public final class ProtocolTools {
 		try {
 			Thread.sleep(millis);
 		} catch (InterruptedException e) {
-			// Absorb
+            throw new ProtocolInterruptedException(e);
 		}
 	}
 

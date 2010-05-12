@@ -1,26 +1,21 @@
 package com.energyict.genericprotocolimpl.common.wakeup;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.util.logging.Logger;
-
-import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
-
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Utils;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.sun.xml.ws.client.ClientTransportException;
-import com.vodafone.gdsp.ws.GdspCredentials;
-import com.vodafone.gdsp.ws.GdspHeader;
-import com.vodafone.gdsp.ws.SubmitWUTrigger;
-import com.vodafone.gdsp.ws.SubmitWUTriggerResponse;
-import com.vodafone.gdsp.ws.WUTrigger;
-import com.vodafone.gdsp.ws.WUTriggerService;
+import com.vodafone.gdsp.ws.*;
+
+import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.util.logging.Logger;
 
 /**
  * <pre>
@@ -221,12 +216,15 @@ public class SmsWakeup {
 	 * @throws IOException when we get interrupted while sleeping
 	 */
 	private void sleep(long sleepTime) throws IOException{
+
+        ProtocolTools.delay(sleepTime);
+        /*
 		try {
 			Thread.sleep(sleepTime);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			throw new IOException("Interrupted while sleeping." +  e.getMessage());
-		}
+		}*/
 	}
 
 	/**
