@@ -39,6 +39,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
 
     SDKSampleProtocolConnection connection;
     private int sDKSampleProperty;
+    private boolean simulateRealCommunication = false;
     ObisCode loadProfileObisCode;
 
     /** Creates a new instance of SDKSampleProtocol */
@@ -58,8 +59,8 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     }
 
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
-
     	getLogger().info("MessageEntry: "+messageEntry.getContent());
+        doGenerateCommunication();
 
         return MessageResult.createSuccess(messageEntry);
         //messageEntry.setTrackingId("tracking ID for "+messageEntry.);
@@ -165,6 +166,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
 
         getLogger().info("call overrided method getProfileData("+lastReading+","+includeEvents+")");
         getLogger().info("--> here we read the profiledata for "+getLoadProfileObisCode().toString()+" from the meter and construct a profiledata object");
+        doGenerateCommunication();
 
         ProfileData pd = new ProfileData();
         if (getLoadProfileObisCode().getD() == 1) {
@@ -186,6 +188,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
 		}
         ParseUtils.roundDown2nearestInterval(cal,getProfileInterval());
         Date now = new Date();
+        int i = 0;
         while(cal.getTime().before(now)) {
            IntervalData id = new IntervalData(cal.getTime());
 
@@ -193,6 +196,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
            id.addValue(new BigDecimal(1000+Math.round(Math.random()*10)));
            pd.addInterval(id);
            cal.add(Calendar.SECOND, getProfileInterval());
+           doGenerateCommunication(1, String.valueOf(i++).substring(0, 1));
         }
 
         pd.addEvent(new MeterEvent(now,MeterEvent.APPLICATION_ALERT_START, "SDK Sample"));
@@ -216,6 +220,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
     	getLogger().info("call overrided method readRegister("+obisCode+")");
         getLogger().info("--> request the register from the meter here");
+        doGenerateCommunication();
 
        	Calendar now = Calendar.getInstance();
         Date toTime = now.getTime();
@@ -271,13 +276,15 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         // Override or add new properties here e.g. below
         setSDKSampleProperty(Integer.parseInt(properties.getProperty("SDKSampleProperty", "123")));
-       	setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", "0.0.99.1.0.255")));
+       	this.simulateRealCommunication = properties.getProperty("SimulateRealCommunication", "0").trim().equalsIgnoreCase("1");
+        setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", "0.0.99.1.0.255")));
     }
 
     protected List doGetOptionalKeys() {
         List list = new ArrayList();
         //add new properties here, e.g. below
         list.add("SDKSampleProperty");
+        list.add("SimulateRealCommunication");
         return list;
     }
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
@@ -291,18 +298,22 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     public int getNumberOfChannels() throws UnsupportedException, IOException {
         getLogger().info("call overrided method getNumberOfChannels() (return 2 as sample)");
         getLogger().info("--> report the nr of load profile channels in the meter here");
+        doGenerateCommunication();
         return 2;
     }
 
     public Date getTime() throws IOException {
         getLogger().info("call getTime() (if time is different from system time taken into account the properties, setTime will be called) ");
         getLogger().info("--> request the metertime here");
+        doGenerateCommunication();
+
         long currenttime = new Date().getTime();
         return new Date(currenttime-(1000*30));
     }
     public void setTime() throws IOException {
         getLogger().info("call setTime() (this method is called automatically when needed)");
         getLogger().info("--> sync the metertime with the systemtime here");
+        doGenerateCommunication();
     }
     public String getProtocolVersion() {
         //getLogger().info("call getProtocolVersion()");
@@ -312,7 +323,26 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         getLogger().info("call getFirmwareVersion()");
         getLogger().info("--> report the firmware version and other important meterinfo here");
+        doGenerateCommunication();
         return "SDK Sample firmware version";
+    }
+
+    private void doGenerateCommunication(long delay, String value) {
+        if (isSimulateRealCommunication()) {
+            ProtocolTools.delay(delay);
+            byte[] bytes;
+            if (value == null) {
+                StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+                bytes = stackTrace[3].getMethodName().getBytes();
+            } else {
+                bytes = value.getBytes();
+            }
+            getConnection().write(bytes);
+        }
+    }
+
+    private void doGenerateCommunication() {
+        doGenerateCommunication(1000, null);
     }
 
     public int getSDKSampleProperty() {

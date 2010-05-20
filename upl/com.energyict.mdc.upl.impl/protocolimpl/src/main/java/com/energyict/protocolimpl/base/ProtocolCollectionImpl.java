@@ -32,11 +32,8 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
 		this.protocolclasses = new ArrayList();
 		this.protocolnames = new ArrayList();
 
-		// Protocol SDK
-		//        protocolclasses.add("com.energyict.protocolimpl.sdksample.SDKSampleProtocol");protocolnames.add("SDK Sample Protocol");
 
-		// EIServer
-		
+        this.protocolclasses.add("com.energyict.protocolimpl.sdksample.SDKSampleProtocol");this.protocolnames.add("SDK Sample Protocol");
 		this.protocolclasses.add("com.energyict.protocolimpl.metcom.Metcom3");this.protocolnames.add("SCTM L&G Metcom3 datalogger");
 		this.protocolclasses.add("com.energyict.protocolimpl.metcom.Metcom2");this.protocolnames.add("SCTM L&G Metcom2 datalogger");
 		this.protocolclasses.add("com.energyict.protocolimpl.rtuplusbus.rtuplusbus");this.protocolnames.add("RTU+ bus EnergyICT V4");

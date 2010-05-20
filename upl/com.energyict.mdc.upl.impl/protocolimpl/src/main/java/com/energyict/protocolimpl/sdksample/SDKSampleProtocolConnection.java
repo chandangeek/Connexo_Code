@@ -10,12 +10,14 @@
 
 package com.energyict.protocolimpl.sdksample;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.*;
-import com.energyict.protocol.meteridentification.*;
+import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.utils.ProtocolTools;
+
 import java.io.*;
-import java.util.logging.*;
+import java.util.logging.Logger;
 
 /**
  *
@@ -52,6 +54,7 @@ public class SDKSampleProtocolConnection extends Connection implements ProtocolC
         iProtocolTimeout=iTimeout;
         boolFlagIEC1107Connected=false;
         this.logger=logger;
+        this.outputStream = outputStream;
     }
     
     public void setHHUSignOn(HHUSignOn hhuSignOn) {
@@ -70,5 +73,17 @@ public class SDKSampleProtocolConnection extends Connection implements ProtocolC
     public byte[] dataReadout(String strID,String nodeId) throws NestedIOException, ProtocolConnectionException {
         return null;   
     }
-    
+
+    public void write(byte[] bytes) {
+        if (outputStream != null) {
+            try {
+                System.out.println("Writing: " + ProtocolTools.getHexStringFromBytes(bytes));
+                outputStream.write(bytes);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("Unable to write: outputstream == null.");
+        }
+    }
 }
