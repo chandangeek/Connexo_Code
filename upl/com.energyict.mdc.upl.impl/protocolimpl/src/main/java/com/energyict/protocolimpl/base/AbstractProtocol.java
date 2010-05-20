@@ -6,43 +6,19 @@
 
 package com.energyict.protocolimpl.base;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
-
 import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.DemandResetProtocol;
-import com.energyict.protocol.DialinScheduleProtocol;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.HalfDuplexEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.SerialNumber;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Abstract base class to create a new protocol
@@ -567,7 +543,7 @@ public abstract class AbstractProtocol implements MeterProtocol, HHUEnabler, Ser
     /**
      * Setter for setting the meters phoneNr to dialin to 
      * at which the meter will perform an inbound call into the server.
-     * @param String phonrNr
+     * @param phoneNr, the phone number as string
      * @throws IOException in case of communication or other errors
      */    
     public void setPhoneNr(String phoneNr) throws IOException {
