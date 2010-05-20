@@ -17,10 +17,9 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -341,6 +340,10 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
         }
     }
 
+    private SDKSampleProtocolConnection getConnection() {
+        return connection;
+    }
+
     private void doGenerateCommunication() {
         doGenerateCommunication(1000, null);
     }
@@ -403,5 +406,9 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
      */
     public Object getCache() {
         return this.cache;
+    }
+
+    public boolean isSimulateRealCommunication() {
+        return simulateRealCommunication;
     }
 }
