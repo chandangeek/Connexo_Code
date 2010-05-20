@@ -221,6 +221,8 @@
 
 -keepnames class com.energyict.protocolimpl.sdksample.SDKSampleProtocol
 
+-keepnames class com.energyict.protocolimpl.eicttest.EICTTestProtocol
+
 -keepnames class com.energyict.genericprotocolimpl.webrtukp.WebRTUKP
 
 -keepnames class com.energyict.genericprotocolimpl.webrtukp.MbusDevice
