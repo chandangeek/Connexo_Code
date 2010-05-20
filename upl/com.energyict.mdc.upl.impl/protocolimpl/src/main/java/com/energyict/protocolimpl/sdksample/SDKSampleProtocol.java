@@ -10,47 +10,19 @@
 
 package com.energyict.protocolimpl.sdksample;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
-import com.energyict.protocolimpl.base.AbstractProtocol;
-import com.energyict.protocolimpl.base.Encryptor;
-import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.base.*;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  *
@@ -62,6 +34,8 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     private static final Date	Date	= null;
 	private static String FIRMWAREPROGRAM 	= "UpgradeMeterFirmware";
     private static String FIRMWAREPROGRAM_DISPLAY 	= "Upgrade Meter Firmware";
+
+    private CacheObject cache;
 
     SDKSampleProtocolConnection connection;
     private int sDKSampleProperty;
@@ -170,12 +144,21 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
         getLogger().info("call abstract method doConnect()");
         getLogger().info("--> at that point, we have a communicationlink with the meter (modem, direct, optical, ip, ...)");
         getLogger().info("--> here the login and other authentication and setup should be done");
+
+        if(this.cache != null){
+            getLogger().info("Text from cache : " + this.cache.getText());
+        } else {
+            getLogger().info("Empty cache, will create one.");
+            this.cache = new CacheObject("");
+        }
+
     }
 
     protected void doDisConnect() throws IOException {
         getLogger().info("call abstract method doDisConnect()");
         getLogger().info("--> here the logoff should be done");
         getLogger().info("--> after that point, we will close the communicationlink with the meter");
+        this.cache.setText("Hi I'm cached data -> " + Long.toString(Calendar.getInstance().getTimeInMillis()));
     }
 
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
@@ -315,7 +298,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
         getLogger().info("call getTime() (if time is different from system time taken into account the properties, setTime will be called) ");
         getLogger().info("--> request the metertime here");
         long currenttime = new Date().getTime();
-        return new Date(currenttime-(1000*15));
+        return new Date(currenttime-(1000*30));
     }
     public void setTime() throws IOException {
         getLogger().info("call setTime() (this method is called automatically when needed)");
@@ -347,4 +330,48 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
 	public void setLoadProfileObisCode(ObisCode loadProfileObisCode) {
 		this.loadProfileObisCode = loadProfileObisCode;
 	}
+
+    /* Implementation of the Cache interface */
+    /**
+     * {@inheritDoc}
+     */
+    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+        if(rtuid != 0){
+            /* Use the RTUCache to set the blob (cache) to the database */
+            RTUCache rtu = new RTUCache(rtuid);
+            rtu.setBlob(cacheObject);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setCache(Object cacheObject) {
+        this.cache = (CacheObject)cacheObject;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+        if(rtuid != 0){
+
+            /* Use the RTUCache to get the blob from the database */
+            RTUCache rtu = new RTUCache(rtuid);
+            try {
+                return rtu.getCacheObject();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Object getCache() {
+        return this.cache;
+    }
 }
