@@ -144,6 +144,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
         getLogger().info("call abstract method doConnect()");
         getLogger().info("--> at that point, we have a communicationlink with the meter (modem, direct, optical, ip, ...)");
         getLogger().info("--> here the login and other authentication and setup should be done");
+        doGenerateCommunication();
 
         if(this.cache != null){
             getLogger().info("Text from cache : " + this.cache.getText());
@@ -158,47 +159,57 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
         getLogger().info("call abstract method doDisConnect()");
         getLogger().info("--> here the logoff should be done");
         getLogger().info("--> after that point, we will close the communicationlink with the meter");
+        doGenerateCommunication();
+
         this.cache.setText("Hi I'm cached data -> " + Long.toString(Calendar.getInstance().getTimeInMillis()));
     }
 
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
 
-        getLogger().info("call overrided method getProfileData("+lastReading+","+includeEvents+")");
-        getLogger().info("--> here we read the profiledata for "+getLoadProfileObisCode().toString()+" from the meter and construct a profiledata object");
+        getLogger().info("call overrided method getProfileData(" + lastReading + "," + includeEvents + ")");
+        getLogger().info("--> here we read the profiledata for " + getLoadProfileObisCode().toString() + " from the meter and construct a profiledata object");
         doGenerateCommunication();
 
         ProfileData pd = new ProfileData();
         if (getLoadProfileObisCode().getD() == 1) {
-	        pd.addChannel(new ChannelInfo(0,0, "SDK sample profile "+getLoadProfileObisCode().toString()+" channel 1", Unit.get("kWh")));
-	        pd.addChannel(new ChannelInfo(1,1, "SDK sample profile "+getLoadProfileObisCode().toString()+" channel 2", Unit.get("kvarh")));
-        }
-        else if (getLoadProfileObisCode().getD() == 2) {
-	        pd.addChannel(new ChannelInfo(0,0, "SDK sample profile "+getLoadProfileObisCode().toString()+" channel 1", Unit.get("kWh")));
-	        pd.addChannel(new ChannelInfo(1,1, "SDK sample profile "+getLoadProfileObisCode().toString()+" channel 2", Unit.get("kvarh")));
-        }
-        else  {
-        	throw new NoSuchRegisterException("Invalid load profile request "+getLoadProfileObisCode().toString());
+            pd.addChannel(new ChannelInfo(0, 0, "SDK sample profile " + getLoadProfileObisCode().toString() + " channel 1", Unit.get("kWh")));
+            pd.addChannel(new ChannelInfo(1, 1, "SDK sample profile " + getLoadProfileObisCode().toString() + " channel 2", Unit.get("kvarh")));
+        } else if (getLoadProfileObisCode().getD() == 2) {
+            pd.addChannel(new ChannelInfo(0, 0, "SDK sample profile " + getLoadProfileObisCode().toString() + " channel 1", Unit.get("kWh")));
+            pd.addChannel(new ChannelInfo(1, 1, "SDK sample profile " + getLoadProfileObisCode().toString() + " channel 2", Unit.get("kvarh")));
+        } else {
+            throw new NoSuchRegisterException("Invalid load profile request " + getLoadProfileObisCode().toString());
         }
 
         Calendar cal = Calendar.getInstance(getTimeZone());
         cal.setTime(lastReading);
-        if (getProfileInterval()<=0) {
-			throw new IOException("load profile interval must be > 0 sec. (is "+getProfileInterval()+")");
-		}
-        ParseUtils.roundDown2nearestInterval(cal,getProfileInterval());
+        if (getProfileInterval() <= 0) {
+            throw new IOException("load profile interval must be > 0 sec. (is " + getProfileInterval() + ")");
+        }
+        ParseUtils.roundDown2nearestInterval(cal, getProfileInterval());
         Date now = new Date();
-        int i = 0;
-        while(cal.getTime().before(now)) {
-           IntervalData id = new IntervalData(cal.getTime());
 
-           id.addValue(new BigDecimal(10000+Math.round(Math.random()*100)));
-           id.addValue(new BigDecimal(1000+Math.round(Math.random()*10)));
-           pd.addInterval(id);
-           cal.add(Calendar.SECOND, getProfileInterval());
-           doGenerateCommunication(1, String.valueOf(i++).substring(0, 1));
+        String outputData = "";
+        while (cal.getTime().before(now)) {
+            IntervalData id = new IntervalData(cal.getTime());
+
+            id.addValue(new BigDecimal(10000 + Math.round(Math.random() * 100)));
+            id.addValue(new BigDecimal(1000 + Math.round(Math.random() * 10)));
+            pd.addInterval(id);
+            cal.add(Calendar.SECOND, getProfileInterval());
+
+            if (isSimulateRealCommunication()) {
+                ProtocolTools.delay(1);
+                String second = String.valueOf(System.currentTimeMillis() / 500);
+                second = second.substring(second.length() - 1);
+                if (!outputData.equalsIgnoreCase(second)) {
+                    outputData = second;
+                    doGenerateCommunication(1, outputData);
+                }
+            }
         }
 
-        pd.addEvent(new MeterEvent(now,MeterEvent.APPLICATION_ALERT_START, "SDK Sample"));
+        pd.addEvent(new MeterEvent(now, MeterEvent.APPLICATION_ALERT_START, "SDK Sample"));
         return pd;
     }
 
@@ -332,7 +343,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
             byte[] bytes;
             if (value == null) {
                 StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-                bytes = stackTrace[3].getMethodName().getBytes();
+                bytes = stackTrace[4].getMethodName().getBytes();
             } else {
                 bytes = value.getBytes();
             }
