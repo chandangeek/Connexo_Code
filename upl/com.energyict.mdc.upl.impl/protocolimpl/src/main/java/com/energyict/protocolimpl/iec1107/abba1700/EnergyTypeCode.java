@@ -19,7 +19,7 @@ public class EnergyTypeCode {
     static List list = new ArrayList();
     static {
         // data identity 507
-        list.add(new EnergyTypeCode(0, Unit.get(BaseUnit.COUNT, 0), 0, "no source"));
+        list.add(new EnergyTypeCode(0, Unit.get(BaseUnit.UNITLESS, 0), 0, "no source"));
         list.add(new EnergyTypeCode(1, Unit.get(BaseUnit.WATTHOUR, -3), 1, "active import"));
         list.add(new EnergyTypeCode(2, Unit.get(BaseUnit.WATTHOUR, -3), 2, "active export"));
         list.add(new EnergyTypeCode(3, Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, -3), 5, "reactive Q1"));
