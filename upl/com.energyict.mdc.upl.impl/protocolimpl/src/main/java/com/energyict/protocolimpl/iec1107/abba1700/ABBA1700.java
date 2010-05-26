@@ -1,47 +1,19 @@
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
-
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.DemandResetProtocol;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.SerialNumber;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import com.energyict.protocolimpl.iec1107.ChannelMap;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
-import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.*;
+
+import java.io.*;
+import java.util.*;
+import java.util.logging.Logger;
 /**
  *
  * @author  Koen
@@ -115,7 +87,6 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException,UnsupportedException {
         throw new UnsupportedException("getProfileData(from,to) is not supported by this meter");
     }
-
 
 	public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
 		String regName = name;
@@ -200,11 +171,19 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
         }
     }
 
+    /**
+     * Get the required keys
+     * @return a list of strings
+     */
     public List getRequiredKeys() {
         List result = new ArrayList(0);
         return result;
     }
 
+    /**
+     * Get the optional keys
+     * @return a list of strings
+     */
     public List getOptionalKeys() {
         List<String> result = new ArrayList<String>();
         result.add("Timeout");
@@ -236,6 +215,12 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
 		throw new UnsupportedException();
 	}
 
+    /** initializes the receiver
+     * @param inputStream <br>
+     * @param outputStream <br>
+     * @param timeZone <br>
+     * @param logger <br>
+     */
 	public void init(InputStream in, OutputStream out, TimeZone tz, Logger log) {
 		this.timeZone = tz;
 		this.logger = log;
@@ -343,16 +328,16 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
                        // We suppose that the rate 1 mostly covers the continue schedule (=total). So, we map rate 1 also to 0 to
                        // be backwards compatible with previous implementation
                        if (i==0) {
-                           code = "1."+bField+"."+EnergyTypeCode.getObisCFromRegSource(md.getRegSource(),false)+".6.0."+(billingPoint==-1?255:billingPoint);
+                           code = "1."+bField+"."+EnergyTypeCode.getObisCFromRegSource(md.getRegSource())+".6.0."+(billingPoint==-1?255:billingPoint);
                            // KV_DEBUG
                            strBuff.append(code+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))+", "+md+"\n");
 
-                           code = "1."+bField+"."+EnergyTypeCode.getObisCFromRegSource(md.getRegSource(),false)+".6.1."+(billingPoint==-1?255:billingPoint);
+                           code = "1."+bField+"."+EnergyTypeCode.getObisCFromRegSource(md.getRegSource())+".6.1."+(billingPoint==-1?255:billingPoint);
                            // KV_DEBUG
                            strBuff.append(code+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))+", "+md+"\n");
                        }
                        else {
-                           code = "1."+bField+"."+EnergyTypeCode.getObisCFromRegSource(md.getRegSource(),false)+".6."+((i/3)+1)+"."+(billingPoint==-1?255:billingPoint);
+                           code = "1."+bField+"."+EnergyTypeCode.getObisCFromRegSource(md.getRegSource())+".6."+((i/3)+1)+"."+(billingPoint==-1?255:billingPoint);
                            // KV_DEBUG
                            strBuff.append(code+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))+", "+md+"\n");
                        }
@@ -386,14 +371,14 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
                try {
                    CumulativeMaximumDemand cmd = (CumulativeMaximumDemand)getABBA1700RegisterFactory().getRegister("CumulativeMaximumDemand"+i,billingPoint);
                    if (i==0) {
-                       code = "1.1."+EnergyTypeCode.getObisCFromRegSource(cmd.getRegSource(),false)+".2.0."+(billingPoint==-1?255:billingPoint);
+                       code = "1.1."+EnergyTypeCode.getObisCFromRegSource(cmd.getRegSource())+".2.0."+(billingPoint==-1?255:billingPoint);
                        strBuff.append(code+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))+", "+cmd+"\n");
 
-                       code = "1.1."+EnergyTypeCode.getObisCFromRegSource(cmd.getRegSource(),false)+".2.1."+(billingPoint==-1?255:billingPoint);
+                       code = "1.1."+EnergyTypeCode.getObisCFromRegSource(cmd.getRegSource())+".2.1."+(billingPoint==-1?255:billingPoint);
                        strBuff.append(code+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))+", "+cmd+"\n");
                    }
                    else {
-                       code = "1.1."+EnergyTypeCode.getObisCFromRegSource(cmd.getRegSource(),false)+".2."+(i+1)+"."+(billingPoint==-1?255:billingPoint);
+                       code = "1.1."+EnergyTypeCode.getObisCFromRegSource(cmd.getRegSource())+".2."+(i+1)+"."+(billingPoint==-1?255:billingPoint);
                        strBuff.append(code+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))+", "+cmd+"\n");
                    }
                }

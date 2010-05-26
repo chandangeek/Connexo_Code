@@ -6,10 +6,10 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
@@ -32,7 +32,7 @@ public class TariffSources {
         StringBuffer strBuff = new StringBuffer();
         for (int i=0;i<meterType.getNrOfTariffRegisters();i++) {
             try {
-               strBuff.append("Tariff register "+(i+1)+", "+EnergyTypeCode.getDescriptionfromRegSource(getRegSource()[i],true)+"\n");    
+               strBuff.append("Tariff register "+(i+1)+", "+EnergyTypeCode.getDescriptionfromRegSource(getRegSource()[i])+"\n");    
             }
             catch(NoSuchRegisterException e) {
                strBuff.append("Tariff register "+(i+1)+", no source for "+getRegSource()[i]+"\n"); 

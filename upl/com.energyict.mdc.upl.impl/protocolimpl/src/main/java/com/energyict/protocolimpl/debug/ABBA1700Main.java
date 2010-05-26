@@ -35,7 +35,7 @@ public class ABBA1700Main {
     private static final int DATABITS = SerialCommunicationChannel.DATABITS_8;
     private static final int PARITY = SerialCommunicationChannel.PARITY_NONE;
     private static final int STOPBITS = SerialCommunicationChannel.STOPBITS_1;
-    private static final long PROFILE_LENGTH = 1000 * 60 * 60 * 24 * 1;
+    private static final long PROFILE_LENGTH = 1000 * 60 * 60 * 3;
 
     private static ABBA1700 abba1700 = null;
     private static Dialer dialer = null;
@@ -52,7 +52,7 @@ public class ABBA1700Main {
     public static Dialer getDialer() {
         if (dialer == null) {
             dialer = DialerFactory.getStandardModemDialer().newDialer();
-            dialer.setStreamObservers(new DebuggingObserver(OBSERVER_FILENAME, false, false));
+            dialer.setStreamObservers(new DebuggingObserver(OBSERVER_FILENAME, true, true));
         }
         return dialer;
     }
@@ -91,41 +91,46 @@ public class ABBA1700Main {
      */
     public static void main(String[] args) throws IOException, LinkException {
 
-        try {
-            getDialer().init(COMPORT, "ATM0");
-            getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
-            getDialer().connect("000447975171697", 60 * 1000);
+        do {
 
             try {
+                getDialer().init(COMPORT, "ATM0");
+                getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
+                getDialer().connect("000447975171697", 60 * 1000);
 
-                getABBA1700().setProperties(getProperties());
-                getABBA1700().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
-                if (getDialer() instanceof OpticalDialer) {
-                    getABBA1700().enableHHUSignOn(getDialer().getSerialCommunicationChannel());
+                try {
+
+                    getABBA1700().setProperties(getProperties());
+                    getABBA1700().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
+                    if (getDialer() instanceof OpticalDialer) {
+                        getABBA1700().enableHHUSignOn(getDialer().getSerialCommunicationChannel());
+                    }
+                    getABBA1700().connect();
+
+                    ProfileData pd = getABBA1700().getProfileData(new Date(System.currentTimeMillis() - PROFILE_LENGTH), false);
+                    System.out.println(pd.toString());
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    ProtocolTools.delay(DELAY_BEFORE_DISCONNECT);
                 }
-                getABBA1700().connect();
 
-                ProfileData pd = getABBA1700().getProfileData(new Date(System.currentTimeMillis() - PROFILE_LENGTH), false);
-                System.out.println(pd.toString());
+                getABBA1700().disconnect();
+                System.exit(0);
 
             } catch (Exception e) {
-                e.printStackTrace();
+                log("Error: " + e.getMessage() + ". \n");
             } finally {
-                ProtocolTools.delay(DELAY_BEFORE_DISCONNECT);
+                log("Closing connections. \n");
+                if (getDialer().getStreamConnection().isOpen()) {
+                    getDialer().disConnect();
+                }
             }
 
-            getABBA1700().disconnect();
+            System.out.println("\r\n");
 
-        } catch (Exception e) {
-            log("Error: " + e.getMessage() + ". \n");
-        } finally {
-            log("Closing connections. \n");
-            if (getDialer().getStreamConnection().isOpen()) {
-                getDialer().disConnect();
-            }
-        }
-
-        System.out.println("\r\n");
+        } while (true);
 
     }
 

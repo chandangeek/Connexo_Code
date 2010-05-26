@@ -13,12 +13,12 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
+
 import java.io.*;
 import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec1107.*;
 
 /**
  *
@@ -171,11 +171,17 @@ public class ABBA1700Profile {
         else if (channelId == 13) {
             registerName = "ExternalInput4";
         }
+
         if (unit == null) {
-            unit = abba1700RegisterFactory.getABBA1700Register(registerName).getUnit();    
+            if (registerName == null) {
+                unit = Unit.getUndefined();
+            } else {
+                unit = abba1700RegisterFactory.getABBA1700Register(registerName).getUnit();
+            }
         }
-        
-        return unit.getFlowUnit();
+
+        unit = unit.isUndefined() ? unit : unit.getFlowUnit();
+        return unit == null ? Unit.getUndefined() : unit;
         
     } // public Unit getUnitInfo(int channelId)
     

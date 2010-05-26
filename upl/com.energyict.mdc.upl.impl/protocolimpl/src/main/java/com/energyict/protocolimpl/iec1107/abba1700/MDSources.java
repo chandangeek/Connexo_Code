@@ -5,10 +5,10 @@
  */
 
 package com.energyict.protocolimpl.iec1107.abba1700;
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 /**
  *
  * @author  Koen
@@ -25,7 +25,7 @@ public class MDSources {
         StringBuffer strBuff = new StringBuffer();
         for (int i=0;i<MD_REGISTERS;i++) {
             try {
-               strBuff.append("(C)MD register "+(i+1)+", "+EnergyTypeCode.getDescriptionfromRegSource(getRegSource()[i],false)+"\n");    
+               strBuff.append("(C)MD register "+(i+1)+", "+EnergyTypeCode.getDescriptionfromRegSource(getRegSource()[i])+"\n");    
             }
             catch(NoSuchRegisterException e) {
                strBuff.append("(C)MD register "+(i+1)+", no source for "+getRegSource()[i]+"\n"); 

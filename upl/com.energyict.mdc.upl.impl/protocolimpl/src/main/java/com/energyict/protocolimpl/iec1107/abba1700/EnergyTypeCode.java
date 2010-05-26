@@ -19,7 +19,7 @@ public class EnergyTypeCode {
     static List list = new ArrayList();
     static {
         // data identity 507
-        list.add(new EnergyTypeCode(0, Unit.get(BaseUnit.UNITLESS, 0), 0, "no source"));
+        list.add(new EnergyTypeCode(0, Unit.getUndefined(), 0, "no source"));
         list.add(new EnergyTypeCode(1, Unit.get(BaseUnit.WATTHOUR, -3), 1, "active import"));
         list.add(new EnergyTypeCode(2, Unit.get(BaseUnit.WATTHOUR, -3), 2, "active export"));
         list.add(new EnergyTypeCode(3, Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, -3), 5, "reactive Q1"));
@@ -62,17 +62,21 @@ public class EnergyTypeCode {
             EnergyTypeCode etc = (EnergyTypeCode)it.next();
             if (etc.getRegSource()==regSource) {
                 Unit unit = etc.getUnit();
-                if (energy) {
-					return unit.getVolumeUnit();
-				} else {
-					return unit.getFlowUnit();
-				}
+                if (unit.isUndefined()) {
+                    return unit;
+                } else {
+                    if (energy) {
+                        return unit.getVolumeUnit();
+                    } else {
+                        return unit.getFlowUnit();
+                    }
+                }
             }
         }
         throw new NoSuchRegisterException("EnergyTypeCode, getUnitFromRegSource, invalid register source code, "+regSource);
     }
 
-    static public String getDescriptionfromRegSource(int regSource, boolean energy) throws NoSuchRegisterException {
+    static public String getDescriptionfromRegSource(int regSource) throws NoSuchRegisterException {
         Iterator it = list.iterator();
         while(it.hasNext()) {
             EnergyTypeCode etc = (EnergyTypeCode)it.next();
@@ -83,7 +87,7 @@ public class EnergyTypeCode {
         throw new NoSuchRegisterException("EnergyTypeCode, getDescriptionfromRegSource, invalid register source code, "+regSource);
     }
 
-    static public int getObisCFromRegSource(int regSource, boolean energy) throws NoSuchRegisterException {
+    static public int getObisCFromRegSource(int regSource) throws NoSuchRegisterException {
         Iterator it = list.iterator();
         while(it.hasNext()) {
             EnergyTypeCode etc = (EnergyTypeCode)it.next();
@@ -104,11 +108,15 @@ public class EnergyTypeCode {
             EnergyTypeCode etc = (EnergyTypeCode)it.next();
             if (etc.getObisC()==obisC) {
                 Unit unit = etc.getUnit();
-                if (energy) {
-					return unit.getVolumeUnit();
-				} else {
-					return unit.getFlowUnit();
-				}
+                if (unit.isUndefined()) {
+                    return unit;
+                } else {
+                    if (energy) {
+                        return unit.getVolumeUnit();
+                    } else {
+                        return unit.getFlowUnit();
+                    }
+                }
             }
         }
         throw new NoSuchRegisterException("EnergyTypeCode, getUnitFromObisCCode, invalid obis C code, "+obisC);
