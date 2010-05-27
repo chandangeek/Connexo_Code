@@ -125,7 +125,8 @@ public class SmsWakeup {
 	 * Afterwards, check the response to see if the SMS will be sent to the device so we can start polling the IP-Address
 	 * @throws IOException when the wsdl is not found, or when certain attributes are not correctly filled in
 	 */
-	private void createWakeupCall() throws IOException{
+	private void
+    createWakeupCall() throws IOException{
 		log(5, "In createWakeupCall");
 		WUTrigger wuTrigger = getWUTrigger();
 		log(5, "Got wuTriggerPort");

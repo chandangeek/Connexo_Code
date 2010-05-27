@@ -1,6 +1,5 @@
 package com.energyict.genericprotocolimpl.webrtuz3.profiles;
 
-import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;

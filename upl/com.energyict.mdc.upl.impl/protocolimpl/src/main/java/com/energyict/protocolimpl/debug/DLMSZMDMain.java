@@ -1,11 +1,7 @@
 package com.energyict.protocolimpl.debug;
 
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.LinkException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocolimpl.base.DebuggingObserver;
 import com.energyict.protocolimpl.dlms.DLMSZMD;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.VirtualDeviceDialer;

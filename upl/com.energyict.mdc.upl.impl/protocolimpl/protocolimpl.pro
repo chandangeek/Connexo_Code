@@ -219,7 +219,8 @@
 
 -keepnames class com.energyict.genericprotocolimpl.actarisace4000.ActarisACE4000
 
--keepnames class com.energyict.protocolimpl.sdksample.SDKSampleProtocol
+# Moved it to the commons package
+#-keepnames class SDKSampleProtocol
 
 -keepnames class com.energyict.protocolimpl.eicttest.EICTTestProtocol
 
@@ -351,8 +352,27 @@
 
 -keepnames class com.energyict.protocolimpl.iec1107.indigo.pxar.IndigoPXAR
 
--keepnames class com.energyict.protocolimpl.iec1107.instromet.dl220.DL220
+#-keepnames class DL220
+-keep public class com.energyict.protocolimpl.iec1107.instromet.dl220.*{
+	*;
+}
+
+-keep public class com.energyict.protocolimpl.iec1107.instromet.dl220.commands.*{
+	*;
+}
+
+-keep public class com.energyict.protocolimpl.iec1107.instromet.dl220.objects.*{
+	*;
+}
+
+-keep public class com.energyict.protocolimpl.iec1107.instromet.dl220.profile.*{
+	*;
+}
+-keep public class com.energyict.protocolimpl.iec1107.instromet.dl220.registers.*{
+	*;
+}
 
 -keepnames class com.energyict.genericprotocolimpl.webrtuz3.EMeter
 
 -keepnames class com.energyict.genericprotocolimpl.webrtuz3.MbusDevice
+

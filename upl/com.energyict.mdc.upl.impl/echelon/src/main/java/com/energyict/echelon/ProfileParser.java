@@ -3,7 +3,6 @@ package com.energyict.echelon;
 import com.energyict.cbo.Unit;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Rtu;
-import com.energyict.protocol.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -202,8 +201,8 @@ public class ProfileParser {
     private int mapChannelStatus(int status) {
         /*
                 1 (overflow)
-                2 (partial interval due to common state)
-                3 (long interval due to common state)
+                2 (partial interval due to protocolcommon state)
+                3 (long interval due to protocolcommon state)
                 8 (MEP security failure)
                 15 (M-Bus channel placeholder in effect)
          */

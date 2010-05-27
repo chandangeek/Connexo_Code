@@ -10,12 +10,10 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
@@ -34,9 +32,9 @@ public class IntervalSet {
     // channel nibble status value 0..15
     // bit 0 no status flag
     // bit 1 overflow
-    // bit 2 partial interval due to common state
-    // bit 3 long interval due to common state
-    // bit 4 skipped interval due to common state
+    // bit 2 partial interval due to protocolcommon state
+    // bit 3 long interval due to protocolcommon state
+    // bit 4 skipped interval due to protocolcommon state
     // bit 5 interval contains test mode data
     // bit 6..15 undefined
     
@@ -140,11 +138,11 @@ public class IntervalSet {
                 return 0;
             case 1: // overflow
                 return IntervalStateBits.OVERFLOW;
-            case 2: // partial interval due to common state
+            case 2: // partial interval due to protocolcommon state
                 return IntervalStateBits.SHORTLONG;
-            case 3: // long interval due to common state
+            case 3: // long interval due to protocolcommon state
                 return IntervalStateBits.SHORTLONG;
-            case 4: // skipped interval due to common state
+            case 4: // skipped interval due to protocolcommon state
                 return IntervalStateBits.MISSING;
             case 5: // interval contains test mode data
                 return IntervalStateBits.OTHER;
