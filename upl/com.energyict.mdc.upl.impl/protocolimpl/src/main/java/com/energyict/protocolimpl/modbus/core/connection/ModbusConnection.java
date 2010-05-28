@@ -95,7 +95,7 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
      * @throws NestedIOException
      * @throws ConnectionException
      */
-    private void assembleAndSend(RequestData requestData) throws NestedIOException, ConnectionException {
+    protected void assembleAndSend(RequestData requestData) throws NestedIOException, ConnectionException {
         byte[] data = ProtocolUtils.concatByteArrays(new byte[]{(byte) getAddress()}, requestData.getFrameData());
         int crc = CRCGenerator.calcCRCModbus(data);
         sendRawData(ProtocolUtils.concatByteArrays(data, new byte[]{(byte) (crc % 256), (byte) (crc / 256)}));

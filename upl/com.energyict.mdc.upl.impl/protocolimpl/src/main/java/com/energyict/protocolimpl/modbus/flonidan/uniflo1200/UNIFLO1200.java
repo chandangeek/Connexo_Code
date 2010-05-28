@@ -7,17 +7,22 @@
 
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200;
 
-import java.io.IOException;
-import java.util.*;
-
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocol.discover.*;
-import com.energyict.protocolimpl.modbus.core.*;
+import com.energyict.protocol.discover.DiscoverResult;
+import com.energyict.protocol.discover.DiscoverTools;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.connection.UNIFLO1200Connection;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200Parsers;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.UNIFLO1200Profile;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200RegisterFactory;
-import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200Registers;
+
+import java.io.*;
+import java.util.*;
 
 /**
  * @author jme
@@ -34,8 +39,14 @@ public class UNIFLO1200 extends Modbus {
 	private int secLvl = 0;
 	private UNIFLO1200Profile loadProfile; 
 	private int loadProfileNumber;
-	
-	public String getProtocolVersion() {
+
+    @Override
+    protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeout, int retries, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
+        modbusConnection = new UNIFLO1200Connection(inputStream, outputStream, timeout, getInterframeTimeout(), retries, forcedDelay, echoCancelling, halfDuplexController, getLogger());
+        return getModbusConnection();
+    }
+
+    public String getProtocolVersion() {
         return "$Revision: 1.2 $";
     }
 

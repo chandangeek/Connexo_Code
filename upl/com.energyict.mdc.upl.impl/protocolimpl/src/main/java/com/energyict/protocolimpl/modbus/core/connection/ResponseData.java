@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.modbus.core.connection;
 
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 
 /**
@@ -52,13 +53,23 @@ public class ResponseData {
     }
 
     public String toString() {
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("ResponseData: address="+address+", functionCode="+functionCode+"\n");
-        for (int i=0;i<data.length;i++)
-            strBuff.append("0x"+Integer.toHexString((int)data[i]&0xff)+" ");
-        strBuff.append("\n");
-        strBuff.append(new String(data)+"\n");
-        return strBuff.toString();
+        StringBuffer sb = new StringBuffer();
+/*
+        sb.append("ResponseData: address="+address+", functionCode="+functionCode+"\n");
+        for (int i=0;i<data.length;i++) {
+            sb.append("0x"+Integer.toHexString((int)data[i]&0xff)+" ");
+        }
+        sb.append("\n");
+        sb.append(new String(data)+"\n");
+*/
+
+        sb.append("ResponseData=[");
+        sb.append("functionCode=").append(getFunctionCode()).append(", ");
+        sb.append("address=").append(getAddress()).append(", ");
+        sb.append("data=").append(getData() != null ? ProtocolTools.getHexStringFromBytes(getData()) : "null").append(", ");
+        sb.append("]");
+
+        return sb.toString();
     }
     
     public byte[] getData() {

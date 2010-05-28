@@ -3,21 +3,16 @@
  */
 package com.energyict.protocolimpl.debug;
 
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.LinkException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.dialer.core.*;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.UNIFLO1200;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class can be used to test the UNIFLO12001 protocol without the need of the
@@ -34,7 +29,7 @@ public class UNIFLO1200Main {
 
 	private static final TimeZone	DEFAULT_TIMEZONE		= TimeZone.getTimeZone("GMT+01");
 	private static final String		COMPORT					= "COM1";
-	private static final int		BAUDRATE				= 9600;
+	private static final int		BAUDRATE				= 2400;
 	private static final int		DATABITS				= SerialCommunicationChannel.DATABITS_8;
 	private static final int		PARITY					= SerialCommunicationChannel.PARITY_NONE;
 	private static final int		STOPBITS				= SerialCommunicationChannel.STOPBITS_1;
@@ -51,10 +46,22 @@ public class UNIFLO1200Main {
 		return uniflo1200;
 	}
 
-	public static Dialer getDialer() {
+    public static Dialer getDirectDialer() {
+        if (dialer == null) {
+            dialer = DialerFactory.getDirectDialer().newDialer();
+            dialer.setStreamObservers(new DebuggingObserver(OBSERVER_FILENAME, true));
+        }
+        return dialer;
+    }
+
+    public static Dialer getDialer() {
+        return getDirectDialer();
+    }
+
+    public static Dialer getATDialer() {
 		if (dialer == null) {
 			dialer = DialerFactory.getStandardModemDialer().newDialer();
-			dialer.setStreamObservers(new DebuggingObserver(OBSERVER_FILENAME, false));
+			dialer.setStreamObservers(new DebuggingObserver(OBSERVER_FILENAME, true));
 		}
 		return dialer;
 	}
@@ -69,14 +76,14 @@ public class UNIFLO1200Main {
 
 	private static Properties getProperties() {
 		Properties properties = new Properties();
-		properties.setProperty("Retries", "10");
-		properties.setProperty("Timeout", "10000");
+		properties.setProperty("Retries", "5");
+		properties.setProperty("Timeout", "4000");
+        properties.setProperty("InterframeTimeout", "100");
+        properties.setProperty("ForcedDelay", "0");
 		properties.setProperty("ProfileInterval", "3600");
 		properties.setProperty("Password", "789");
 		properties.setProperty("DevideId", "1");
-		properties.setProperty("InterframeTimeout", "100");
 		properties.setProperty("SecurityLevel", "3");
-		properties.setProperty("PhysicalLayer", "1");
 		properties.setProperty("LoadProfileNumber", "1");
 		return properties;
 	}
@@ -88,20 +95,33 @@ public class UNIFLO1200Main {
 	 */
 	public static void main(String[] args) throws IOException, LinkException {
 
-		getDialer().init(COMPORT, "ATM0");
+		getATDialer().init(COMPORT, "ATM0");
 		getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
 		getDialer().connect("00031621813118", 60 * 1000);
 
-		try {
+/*
+        getDirectDialer().init(COMPORT);
+        getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
+        getDialer().connect();
+*/
+
+
+		try {               
 			getUniflo1200().setProperties(getProperties());
 			getUniflo1200().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getUniflo1200().enableHHUSignOn(getDialer().getSerialCommunicationChannel());
 			getUniflo1200().connect();
 
-			System.out.println(getUniflo1200().getTime());
-			ProfileData pd = readProfile(true);
-			System.out.println(pd);
-			ProtocolTools.writeBytesToFile("c:\\profiel_" + System.currentTimeMillis() + ".txt", pd.toString().getBytes(), false);
+            Date timeDate = getUniflo1200().getTime();
+            String fw = getUniflo1200().getFirmwareVersion();
+            ProfileData pd = readProfile(true);
+
+            System.out.println("\r\n");
+            System.out.println(pd);
+            System.out.println("\r\n");
+            System.out.println(timeDate);
+            System.out.println(fw);
+            System.out.println("\r\n");
 
 		} finally {
 			ProtocolTools.delay(DELAY_BEFORE_DISCONNECT);
@@ -114,13 +134,7 @@ public class UNIFLO1200Main {
 
 	private static ProfileData readProfile(boolean incluideEvents) throws IOException {
 		Calendar fromTime = Calendar.getInstance();
-		fromTime.set(2010, Calendar.JANUARY, 1, 0, 0);
-
-		Calendar toTime = Calendar.getInstance();
-		toTime.set(2010, Calendar.FEBRUARY, 1, 0, 0);
-		toTime.setTimeInMillis(fromTime.getTimeInMillis());
-		toTime.add(Calendar.HOUR_OF_DAY, 1);
-
+		fromTime.set(2010, Calendar.MAY, 28, 0, 0);
 		return getUniflo1200().getProfileData(fromTime.getTime(), incluideEvents);
 	}
 
