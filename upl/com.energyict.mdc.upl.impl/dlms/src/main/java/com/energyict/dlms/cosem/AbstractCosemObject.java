@@ -5,22 +5,16 @@
 
 package com.energyict.dlms.cosem;
 
+import com.energyict.cbo.NestedIOException;
+import com.energyict.dlms.*;
+import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
+import com.energyict.protocol.ProtocolUtils;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-
-import org.apache.commons.logging.LogFactory;
-
-import com.energyict.cbo.NestedIOException;
-import com.energyict.dlms.AdaptorConnection;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.ReceiveBuffer;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
-import com.energyict.protocol.ProtocolUtils;
 
 /**
  * @author Koen
@@ -592,25 +586,85 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 					//                        responseData[DL_COSEMPDU_OFFSET+3]);
 					//                    }
 
-					switch (responseData[DL_COSEMPDU_OFFSET + 1]) {
-						case CONFIRMEDSERVICEERROR_INITIATEERROR_TAG: {
-							throw new IOException("Confirmed Service Error - 'Initiate error' - Reason: "
-									+ getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
-						}
-						case CONFIRMEDSERVICEERROR_READ_TAG: {
-							throw new IOException("Confirmed Service Error - 'Read error' - Reason: "
-									+ getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
-						}
-						case CONFIRMEDSERVICEERROR_WRITE_TAG: {
-							throw new IOException("Confirmed Service Error - 'Write error' - Reason: "
-									+ getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
-						}
-						default: {
-							throw new IOException("Unknown service error, " + responseData[DL_COSEMPDU_OFFSET + 1] + responseData[DL_COSEMPDU_OFFSET + 2]
-									+ responseData[DL_COSEMPDU_OFFSET + 3]);
-						}
-					}
-				} // !!! break !!! COSEM_CONFIRMEDSERVICEERROR
+                    switch (responseData[DL_COSEMPDU_OFFSET + 1]) {
+                        case CONFIRMEDSERVICEERROR_INITIATEERROR_TAG: {
+                            throw new IOException("Confirmed Service Error - 'Initiate error' - Reason: "
+                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                        }
+                        case CONFIRMEDSERVICEERROR_GETSTATUS_TAG: {
+                            throw new IOException("Confirmed Sercie Error - 'GetStatus error' - Reason: "
+                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                        }
+                        case CONFIRMEDSERVICEERROR_GETNAMELIST_TAG: {
+                            throw new IOException("Confirmed Service Error - 'GetNameList error' - Reason: "
+                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                        }
+                        case CONFIRMEDSERVICEERROR_GETVARIABLEATTRIBUTE_TAG: {
+                            throw new IOException("Confirmed Service Error - 'GetVariableAttribute error' - Reason: "
+                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                        }
+                        case CONFIRMEDSERVICEERROR_READ_TAG: {
+                            throw new IOException("Confirmed Service Error - 'Read error' - Reason: "
+                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                        }
+                        case CONFIRMEDSERVICEERROR_WRITE_TAG: {
+                            throw new IOException("Confirmed Service Error - 'Write error' - Reason: "
+                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                        }
+                        case CONFIRMEDSERVICEERROR_GETDATASETATTRIBUTE_TAG: {
+                            throw new IOException("Confirmed Service Error - 'GetDataSetAttribute' - Reason: "
+                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                        }
+                        case CONFIRMEDSERVICEERROR_GETTIATTRIBUTE_TAG: {
+                            throw new IOException("Confirmed Service Error - 'GetTIAttribute error' - Reason: "
+                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                        }
+                        case CONFIRMEDSERVICEERROR_CHANGESCOPE_TAG: {
+                            throw new IOException("Confirmed Service Error - 'ChangeScope error' - Reason: "
+                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                        }
+                        case CONFIRMEDSERVICEERROR_START_TAG: {
+                            throw new IOException("Confirmed Service Error - 'Start error' - Reason: "
+                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                        }
+                        case CONFIRMEDSERVICEERROR_RESUME_TAG: {
+                            throw new IOException("Confirmed Service Error - 'Resume error' - Reason: "
+                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                        }
+                        case CONFIRMEDSERVICEERROR_MAKEUSABLE_TAG: {
+                            throw new IOException("Confirmed Service Error - 'MakeUsable error' - Reason: "
+                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                        }
+                        case CONFIRMEDSERVICEERROR_INITIATELOAD_TAG: {
+                            throw new IOException("Confirmed Service Error - 'InitiateLoad error' - Reason: "
+                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                        }
+                        case CONFIRMEDSERVICEERROR_LOADSEGMENT_TAG: {
+                            throw new IOException("Confirmed Service Error - 'LoadSegment error' - Reason: "
+                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                        }
+                        case CONFIRMEDSERVICEERROR_TERMINATELOAD_TAG: {
+                            throw new IOException("Confirmed Service Error - 'TerminateLoad error' - Reason: "
+                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                        }
+                        case CONFIRMEDSERVICEERROR_INITIATEUPLOAD_TAG: {
+                            throw new IOException("Confirmed Service Error - 'InitiateUpload error' - Reason: "
+                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                        }
+                        case CONFIRMEDSERVICEERROR_UPLOADSEGMENT_TAG: {
+                            throw new IOException("Confirmed Service Error - 'UploadSegment error' - Reason: "
+                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                        }
+                        case CONFIRMEDSERVICEERROR_TERMINATEUPLOAD_TAG: {
+                            throw new IOException("Confirmed Service Error - 'TerminateUpload error' - Reason: "
+                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                        }
+                        default: {
+                            throw new IOException("Unknown service error, " + responseData[DL_COSEMPDU_OFFSET + 1] + responseData[DL_COSEMPDU_OFFSET + 2]
+                                    + responseData[DL_COSEMPDU_OFFSET + 3]);
+                        }
+                    }
+                } // !!! break !!! COSEM_CONFIRMEDSERVICEERROR
 
 				case COSEM_GETRESPONSE: {
 					i++; // skip tag

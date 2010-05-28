@@ -1,17 +1,16 @@
 package com.energyict.dlms.cosem;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.fail;
-
-import java.io.IOException;
-
-import org.junit.Test;
-
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.mocks.MockDLMSConnection;
 import com.energyict.dlms.mocks.MockProtocolLink;
+import org.junit.Test;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.fail;
 
 public class AbstractCosemObjectTest {
 
@@ -59,4 +58,25 @@ public class AbstractCosemObjectTest {
 			fail();
 		}
 	}
+
+    @Test
+    public final void ConfirmedServiceErrorTest(){
+
+        String confirmedServiceErrorResponseEncryptionFailed = "1000050E060006";
+
+        Data data = new Data(null, null);
+
+        DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("WKP");
+        ProtocolLink protocolLink = new MockProtocolLink(new MockDLMSConnection(), meterConfig);
+        data = new Data(protocolLink, null);
+        try {
+            data.CheckCosemPDUResponseHeader(DLMSUtils.hexStringToByteArray(confirmedServiceErrorResponseEncryptionFailed));
+        } catch (Exception e) {
+            if (!e.getMessage().equalsIgnoreCase("Confirmed Service Error - 'Write error' - Reason: Application-reference - Error detected by the deciphering function")) {
+                e.printStackTrace();
+                fail();
+            }
+        }
+
+    }
 }
