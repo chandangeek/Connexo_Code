@@ -42,7 +42,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
     private int eICTTestProperty;
     ObisCode loadProfileObisCode;
 
-    /** Creates a new instance of SDKSampleProtocol */
+    /** Creates a new instance of EICTTestProtocol */
     public EICTTestProtocol() {
     }
 
@@ -171,28 +171,28 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 
         ProfileData pd = new ProfileData();
         if (getLoadProfileObisCode().getD() == 1) {
-	        pd.addChannel(new ChannelInfo(0, 0, "SDK sample profile " + getLoadProfileObisCode().toString() + " channel 1", Unit.get("kWh")));
-	        pd.addChannel(new ChannelInfo(1, 1, "SDK sample profile " + getLoadProfileObisCode().toString() + " channel 2", Unit.get("kvarh")));
-	        pd.addChannel(new ChannelInfo(2, 2, "SDK sample profile " + getLoadProfileObisCode().toString() + " channel 3", Unit.get("°C")));
-	        pd.addChannel(new ChannelInfo(3, 3, "SDK sample profile " + getLoadProfileObisCode().toString() + " channel 4", Unit.get("kWh")));
-	        pd.addChannel(new ChannelInfo(4, 4, "SDK sample profile " + getLoadProfileObisCode().toString() + " channel 5", Unit.get("kvarh")));
-	        pd.addChannel(new ChannelInfo(5, 5, "SDK sample profile " + getLoadProfileObisCode().toString() + " channel 6", Unit.get("°C")));
-	        pd.addChannel(new ChannelInfo(6, 6, "SDK sample profile " + getLoadProfileObisCode().toString() + " channel 7", Unit.get("kWh")));
-	        pd.addChannel(new ChannelInfo(7, 7, "SDK sample profile " + getLoadProfileObisCode().toString() + " channel 8", Unit.get("kvarh")));
-	        pd.addChannel(new ChannelInfo(8, 8, "SDK sample profile " + getLoadProfileObisCode().toString() + " channel 9", Unit.get("°C")));
-	        pd.addChannel(new ChannelInfo(9, 9, "SDK sample profile " + getLoadProfileObisCode().toString() + " channel 10", Unit.get("kWh")));
+	        pd.addChannel(new ChannelInfo(0, 0, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 1", Unit.get("kWh")));
+	        pd.addChannel(new ChannelInfo(1, 1, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 2", Unit.get("kvarh")));
+	        pd.addChannel(new ChannelInfo(2, 2, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 3", Unit.get("°C")));
+	        pd.addChannel(new ChannelInfo(3, 3, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 4", Unit.get("kWh")));
+	        pd.addChannel(new ChannelInfo(4, 4, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 5", Unit.get("kvarh")));
+	        pd.addChannel(new ChannelInfo(5, 5, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 6", Unit.get("°C")));
+	        pd.addChannel(new ChannelInfo(6, 6, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 7", Unit.get("kWh")));
+	        pd.addChannel(new ChannelInfo(7, 7, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 8", Unit.get("kvarh")));
+	        pd.addChannel(new ChannelInfo(8, 8, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 9", Unit.get("°C")));
+	        pd.addChannel(new ChannelInfo(9, 9, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 10", Unit.get("kWh")));
         }
         else if (getLoadProfileObisCode().getD() == 2) {
-	        pd.addChannel(new ChannelInfo(0, 0, "SDK sample profile " + getLoadProfileObisCode().toString() + " channel 1", Unit.get("kWh")));
-	        pd.addChannel(new ChannelInfo(1, 1, "SDK sample profile " + getLoadProfileObisCode().toString() + " channel 2", Unit.get("kvarh")));
-	        pd.addChannel(new ChannelInfo(2, 2, "SDK sample profile " + getLoadProfileObisCode().toString() + " channel 3", Unit.get("°C")));
-	        pd.addChannel(new ChannelInfo(3, 3, "SDK sample profile " + getLoadProfileObisCode().toString() + " channel 4", Unit.get("kWh")));
-	        pd.addChannel(new ChannelInfo(4, 4, "SDK sample profile " + getLoadProfileObisCode().toString() + " channel 5", Unit.get("kvarh")));
-	        pd.addChannel(new ChannelInfo(5, 5, "SDK sample profile " + getLoadProfileObisCode().toString() + " channel 6", Unit.get("°C")));
-	        pd.addChannel(new ChannelInfo(6, 6, "SDK sample profile " + getLoadProfileObisCode().toString() + " channel 7", Unit.get("kWh")));
-	        pd.addChannel(new ChannelInfo(7, 7, "SDK sample profile " + getLoadProfileObisCode().toString() + " channel 8", Unit.get("kvarh")));
-	        pd.addChannel(new ChannelInfo(8, 8, "SDK sample profile " + getLoadProfileObisCode().toString() + " channel 9", Unit.get("°C")));
-	        pd.addChannel(new ChannelInfo(9, 9, "SDK sample profile " + getLoadProfileObisCode().toString() + " channel 10", Unit.get("kWh")));
+	        pd.addChannel(new ChannelInfo(0, 0, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 1", Unit.get("kWh")));
+	        pd.addChannel(new ChannelInfo(1, 1, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 2", Unit.get("kvarh")));
+	        pd.addChannel(new ChannelInfo(2, 2, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 3", Unit.get("°C")));
+	        pd.addChannel(new ChannelInfo(3, 3, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 4", Unit.get("kWh")));
+	        pd.addChannel(new ChannelInfo(4, 4, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 5", Unit.get("kvarh")));
+	        pd.addChannel(new ChannelInfo(5, 5, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 6", Unit.get("°C")));
+	        pd.addChannel(new ChannelInfo(6, 6, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 7", Unit.get("kWh")));
+	        pd.addChannel(new ChannelInfo(7, 7, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 8", Unit.get("kvarh")));
+	        pd.addChannel(new ChannelInfo(8, 8, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 9", Unit.get("°C")));
+	        pd.addChannel(new ChannelInfo(9, 9, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 10", Unit.get("kWh")));
         }
         else  {
         	throw new NoSuchRegisterException("Invalid load profile request "+getLoadProfileObisCode().toString());
@@ -201,7 +201,6 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         // getTimeZone() returns the time zone that has been selected
         // in the RMR-tab of the device properties is EIServer
         Calendar cal = Calendar.getInstance(getTimeZone());
-        //Calendar cal = Calendar.getInstance(TimeZone.getDefault());
         cal.setTime(lastReading);
         if (getProfileInterval()<=0) {
 			throw new IOException("load profile interval must be > 0 sec. (is "+getProfileInterval()+")");
@@ -225,10 +224,8 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
            cal.add(Calendar.SECOND, getProfileInterval());
         }
 
-        //String id1 = getTimeZone().getID();
-        //String id2 = TimeZone.getDefault().getID();
-        //pd.addEvent(new MeterEvent(now,MeterEvent.APPLICATION_ALERT_START, "SDK Sample 4 " + id1 + " " + id2));
-        pd.addEvent(new MeterEvent(now,MeterEvent.APPLICATION_ALERT_START, "SDK Sample " + getProtocolVersion()));
+		String version = getProtocolVersion().substring(1, getProtocolVersion().length()-1);
+		pd.addEvent(new MeterEvent(now, MeterEvent.APPLICATION_ALERT_START, "EICT Test (" + version + ")"));
         return pd;
     }
     
@@ -390,14 +387,14 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 	
     public String getProtocolVersion() {
         //getLogger().info("call getProtocolVersion()");
-        return "$Revision: 1.0.0$";
-        //return "SDK Sample protocol version";
+        return "$Revision: 1.0.1$";
+        //return "EICT Test protocol version";
     }
 	
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         getLogger().info("call getFirmwareVersion()");
         getLogger().info("--> report the firmware version and other important meterinfo here");
-        return "SDK Sample firmware version";
+        return "EICT Test firmware version";
     }
 
     public int getEICTTestProperty() {
