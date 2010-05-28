@@ -25,7 +25,22 @@ import java.util.logging.Logger;
  * @author Koen
  */
 public abstract class AbstractProtocol implements MeterProtocol, HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol, HalfDuplexEnabler, DialinScheduleProtocol, DemandResetProtocol {
-    
+
+    public static final String PROP_TIMEOUT = "Timeout";
+    public static final String PROP_RETRIES = "Retries";
+    public static final String PROP_SECURITY_LEVEL = "SecurityLevel";
+    public static final String PROP_ECHO_CANCELING = "EchoCancelling";
+    public static final String PROP_PROTOCOL_COMPATIBLE = "ProtocolCompatible";
+    public static final String PROP_EXTENDED_LOGGING = "ExtendedLogging";
+    public static final String PROP_CHANNEL_MAP = "ChannelMap";
+    public static final String PROP_FORCED_DELAY = "ForcedDelay";
+    public static final String PROP_HALF_DUPLEX = "HalfDuplex";
+    public static final String PROP_DTR_BEHAVIOUR = "DTRBehaviour";
+    public static final String PROP_ADJUST_CHANNEL_MULTIPLIER = "AdjustChannelMultiplier";
+    public static final String PROP_ADJUST_REGISTER_MULTIPLIER = "AdjustRegisterMultiplier";
+    public static final String PROP_REQUEST_HEADER = "RequestHeader";
+    public static final String PROP_SCALER = "Scaler";
+
     /**
      * Abstract method to implement the logon and authentication.
      * @throws IOException Exception thrown when the logon fails.
@@ -278,18 +293,18 @@ public abstract class AbstractProtocol implements MeterProtocol, HHUEnabler, Ser
      */
     public List getOptionalKeys() {
         List result = new ArrayList();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("SecurityLevel");
-        result.add("EchoCancelling");
-        result.add("ProtocolCompatible");
-        result.add("ExtendedLogging");
-        result.add("ChannelMap");
-        result.add("ForcedDelay");
-        result.add("HalfDuplex");
-        result.add("DTRBehaviour");
-        result.add("AdjustChannelMultiplier");
-        result.add("AdjustRegisterMultiplier");
+        result.add(PROP_TIMEOUT);
+        result.add(PROP_RETRIES);
+        result.add(PROP_SECURITY_LEVEL);
+        result.add(PROP_ECHO_CANCELING);
+        result.add(PROP_PROTOCOL_COMPATIBLE);
+        result.add(PROP_EXTENDED_LOGGING);
+        result.add(PROP_CHANNEL_MAP);
+        result.add(PROP_FORCED_DELAY);
+        result.add(PROP_HALF_DUPLEX);
+        result.add(PROP_DTR_BEHAVIOUR);
+        result.add(PROP_ADJUST_CHANNEL_MULTIPLIER);
+        result.add(PROP_ADJUST_REGISTER_MULTIPLIER);
         
 // if needed, add following codelines into the overridden doGetOptionalKeys() method        
 //        result.add("RequestHeader"));
@@ -896,51 +911,51 @@ public abstract class AbstractProtocol implements MeterProtocol, HHUEnabler, Ser
      *******************************************************************************************/
     private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-            Iterator iterator= getRequiredKeys().iterator();
+            Iterator iterator = getRequiredKeys().iterator();
             while (iterator.hasNext()) {
                 String key = (String) iterator.next();
                 if (properties.getProperty(key) == null) {
-					throw new MissingPropertyException(key + " key missing");
-				}
+                    throw new MissingPropertyException(key + " key missing");
+                }
             }
             strID = properties.getProperty(MeterProtocol.ADDRESS);
             strPassword = properties.getProperty(MeterProtocol.PASSWORD);
-            setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout","10000").trim()));
-            setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty("Retries","5").trim()));
-            roundtripCorrection=Integer.parseInt(properties.getProperty("RoundtripCorrection","0").trim());
-            securityLevel=Integer.parseInt(properties.getProperty("SecurityLevel","1").trim());
-            nodeId=properties.getProperty(MeterProtocol.NODEID,"");
-            echoCancelling=Integer.parseInt(properties.getProperty("EchoCancelling","0").trim());
-            protocolCompatible=Integer.parseInt(properties.getProperty("ProtocolCompatible","1").trim());
-            extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0").trim());
-            serialNumber=properties.getProperty(MeterProtocol.SERIALNUMBER);
-            channelMap = properties.getProperty("ChannelMap");
+            setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, "10000").trim()));
+            setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty(PROP_RETRIES, "5").trim()));
+            roundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORR, "0").trim());
+            securityLevel = Integer.parseInt(properties.getProperty(PROP_SECURITY_LEVEL, "1").trim());
+            nodeId = properties.getProperty(MeterProtocol.NODEID, "");
+            echoCancelling = Integer.parseInt(properties.getProperty(PROP_ECHO_CANCELING, "0").trim());
+            protocolCompatible = Integer.parseInt(properties.getProperty(PROP_PROTOCOL_COMPATIBLE, "1").trim());
+            extendedLogging = Integer.parseInt(properties.getProperty(PROP_EXTENDED_LOGGING, "0").trim());
+            serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
+            channelMap = properties.getProperty(PROP_CHANNEL_MAP);
             if (channelMap != null) {
-				protocolChannelMap = new ProtocolChannelMap(channelMap);
-			}
-            profileInterval=Integer.parseInt(properties.getProperty("ProfileInterval","900").trim());
-            requestHeader = Integer.parseInt(properties.getProperty("RequestHeader","0").trim());
-            scaler = Integer.parseInt(properties.getProperty("Scaler","0").trim());
-            setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","300").trim()));
-            halfDuplex=Integer.parseInt(properties.getProperty("HalfDuplex","0").trim());
-            setDtrBehaviour(Integer.parseInt(properties.getProperty("DTRBehaviour","2").trim()));
-            
-            adjustChannelMultiplier = new BigDecimal(properties.getProperty("AdjustChannelMultiplier","1").trim());
-            adjustRegisterMultiplier = new BigDecimal(properties.getProperty("AdjustRegisterMultiplier","1").trim());
-            
+                protocolChannelMap = new ProtocolChannelMap(channelMap);
+            }
+            profileInterval = Integer.parseInt(properties.getProperty(PROFILEINTERVAL, "900").trim());
+            requestHeader = Integer.parseInt(properties.getProperty(PROP_REQUEST_HEADER, "0").trim());
+            scaler = Integer.parseInt(properties.getProperty(PROP_SCALER, "0").trim());
+            setForcedDelay(Integer.parseInt(properties.getProperty(PROP_FORCED_DELAY, "300").trim()));
+            halfDuplex = Integer.parseInt(properties.getProperty(PROP_HALF_DUPLEX, "0").trim());
+            setDtrBehaviour(Integer.parseInt(properties.getProperty(PROP_DTR_BEHAVIOUR, "2").trim()));
+
+            adjustChannelMultiplier = new BigDecimal(properties.getProperty(PROP_ADJUST_CHANNEL_MULTIPLIER, "1").trim());
+            adjustRegisterMultiplier = new BigDecimal(properties.getProperty(PROP_ADJUST_REGISTER_MULTIPLIER, "1").trim());
+
             doValidateProperties(properties);
         }
         catch (NumberFormatException e) {
-            throw new InvalidPropertyException(" validateProperties, NumberFormatException, "+e.getMessage());
+            throw new InvalidPropertyException(" validateProperties, NumberFormatException, " + e.getMessage());
         }
     }
-    
+
     /*
-     *  Method must be overridden by the subclass to build a StringBuffer with all 
-     *  possible registers that can be read from the particulart meter. The StringBuffer 
-     *  is then logged as info. 
-     *  This method is called if the 'ExtendedLogging' property is set to 1
-     */
+    *  Method must be overridden by the subclass to build a StringBuffer with all
+    *  possible registers that can be read from the particulart meter. The StringBuffer
+    *  is then logged as info.
+    *  This method is called if the 'ExtendedLogging' property is set to 1
+    */
     /**
      * Override if you want to provide info of the meter setup and registers when the "ExtendedLogging" custom property > 0
      * @param extendedLogging int
