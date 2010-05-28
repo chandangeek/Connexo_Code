@@ -1,30 +1,11 @@
 package com.energyict.protocolimpl.debug;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.LinkException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.dialer.core.*;
 import com.energyict.dialer.coreimpl.OpticalDialer;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.GenericRead;
-import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
@@ -35,6 +16,11 @@ import com.energyict.protocolimpl.dlms.as220.EventNumber;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
 import com.energyict.protocolimpl.dlms.as220.plc.PLCMessaging;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+
+import java.io.*;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author jme
@@ -225,6 +211,10 @@ public class AS220Main {
 		getAs220().queryMessage(new MessageEntry(SET_PLC_GAIN2, ""));
 	}
 
+    public static void setPLCRepeater() throws IOException {
+        getAs220().queryMessage(new MessageEntry("<SetSFSKRepeater REPEATER=\"0\"> </SetSFSKRepeater>", ""));
+    }
+
 	public static void forceSetClock() throws IOException {
 		getAs220().queryMessage(new MessageEntry(FORCE_SET_CLOCK, ""));
 	}
@@ -390,8 +380,11 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-            String content = "<SetPlcChannelFrequencies CHANNEL1_FM=\"72000\" CHANNEL1_FS=\"76800\"> </SetPlcChannelFrequencies>";
-            getAs220().queryMessage(new MessageEntry(content, ""));
+            log(getAs220().getFirmwareVersion());
+
+            readRegister("0.0.96.14.0.255");
+            readRegister("0.1.96.14.0.255");
+            readRegister("255.255.255.255.255.255");
 
 		} catch (Exception e) {
 			e.printStackTrace();
