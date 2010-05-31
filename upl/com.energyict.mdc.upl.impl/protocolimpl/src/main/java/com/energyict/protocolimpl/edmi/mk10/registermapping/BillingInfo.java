@@ -10,10 +10,10 @@
 
 package com.energyict.protocolimpl.edmi.mk10.registermapping;
 
+import com.energyict.protocolimpl.edmi.mk10.command.CommandFactory;
+
 import java.io.IOException;
 import java.util.Date;
-
-import com.energyict.protocolimpl.edmi.mk10.command.CommandFactory;
 
 /**
  * 
@@ -25,8 +25,9 @@ public class BillingInfo {
 
 	private int				nrOfBillingResets;
 	private Date			toDate;
+    private Date            fromDate;
 
-	/** Creates a new instance of BillingInfo */
+    /** Creates a new instance of BillingInfo */
 	public BillingInfo(CommandFactory commandFactory) throws IOException {
 		this.setCommandFactory(commandFactory);
 		init();
@@ -37,8 +38,9 @@ public class BillingInfo {
 	}
 
 	private void init() throws IOException {
-		setNrOfBillingResets(getCommandFactory().getReadCommand(0x6001).getRegister().getBigDecimal().intValue());
-		setToDate(getCommandFactory().getReadCommand(0x6000).getRegister().getDate());
+		setNrOfBillingResets(getCommandFactory().getReadCommand(0xF032).getRegister().getBigDecimal().intValue());
+        setToDate(getCommandFactory().getReadCommand(0x6200).getRegister().getDate());
+        setFromDate(getCommandFactory().getReadCommand(0x6400).getRegister().getDate());
 	}
 
 	public CommandFactory getCommandFactory() {
@@ -65,4 +67,11 @@ public class BillingInfo {
 		this.toDate = toDate;
 	}
 
+    public void setFromDate(Date fromDate) {
+        this.fromDate = fromDate;
+    }
+
+    public Date getFromDate() {
+        return fromDate;
+    }
 }
