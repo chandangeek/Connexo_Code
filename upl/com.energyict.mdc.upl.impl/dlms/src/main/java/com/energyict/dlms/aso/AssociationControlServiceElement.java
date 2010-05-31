@@ -1,13 +1,13 @@
 package com.energyict.dlms.aso;
 
-import java.io.IOException;
-
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.encryption.XDlmsDecryption;
 import com.energyict.encryption.XDlmsEncryption;
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  * The AssociationControlServiceElement is an application layer protocol to establish and release an association between two entities
@@ -520,27 +520,31 @@ public class AssociationControlServiceElement {
 		i = 0;
 		while (true) {
 			if (responseData[i] == DLMSCOSEMGlobals.RLRE_TAG) {
-				i += 2; // skip tag & length
-				while(true){
-					if(responseData[i] == DLMSCOSEMGlobals.RLRE_RELEASE_RESPONSE_REASON){
-						i++; // skip tag
-						if ((responseData[i] == 3)	// length of the response
-								&& (responseData[i + 1] == 2) // encoding of INTEGER?
-								&& (responseData[i + 2] == 1)) { // length of the integer
-							switch(responseData[i + 3]){
-							case 0: return; // normal release
-							case 1: throw new IOException("Release was not finished.");
-							case 30: throw new IOException("Response from the release is userDefined: " + 30);
-							default: throw new IOException("Unknown release response");
-							}
-						}
-					}
+                if(responseData[i + 1] != 0){
+                    i += 2; // skip tag & length
+                    while(true){
+                        if(responseData[i] == DLMSCOSEMGlobals.RLRE_RELEASE_RESPONSE_REASON){
+                            i++; // skip tag
+                            if ((responseData[i] == 3)	// length of the response
+                                    && (responseData[i + 1] == 2) // encoding of INTEGER?
+                                    && (responseData[i + 2] == 1)) { // length of the integer
+                                switch(responseData[i + 3]){
+                                    case 0: return; // normal release
+                                    case 1: throw new IOException("Release was not finished.");
+                                    case 30: throw new IOException("Response from the release is userDefined: " + 30);
+                                    default: throw new IOException("Unknown release response");
+                                }
+                            }
+                        }
 
-					if (i++ >= (responseData.length - 1)) {
-						i = (responseData.length - 1);
-						break;
-					}
-				}
+                        if (i++ >= (responseData.length - 1)) {
+                            i = (responseData.length - 1);
+                            break;
+                        }
+                    }
+                } else {
+                    break;
+                }
 			}
 
 			if (i++ >= (responseData.length - 1)) {
