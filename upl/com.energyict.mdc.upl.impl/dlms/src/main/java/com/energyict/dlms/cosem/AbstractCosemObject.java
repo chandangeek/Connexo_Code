@@ -12,9 +12,7 @@ import com.energyict.protocol.ProtocolUtils;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Koen
@@ -141,6 +139,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 				byte[] request = buildWriteRequest((short) this.objectReference.getSn(), attribute, data);
 				responseData = this.protocolLink.getDLMSConnection().sendRequest(request);
+                System.out.println();
 			}
 			if (this.protocolLink.getDLMSConnection() instanceof AdaptorConnection) {
 				return responseData;

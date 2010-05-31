@@ -1,27 +1,19 @@
 package com.energyict.protocolimpl.dlms.as220.plc;
 
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.attributeobjects.*;
+import com.energyict.dlms.cosem.attributes.*;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.base.AbstractSubMessageProtocol;
+import com.energyict.protocolimpl.dlms.as220.AS220;
+import com.energyict.protocolimpl.dlms.as220.objects.PLCObject;
+import com.energyict.protocolimpl.utils.MessagingTools;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.cosem.attributeobjects.ElectricalPhase;
-import com.energyict.dlms.cosem.attributeobjects.Frequencies;
-import com.energyict.dlms.cosem.attributeobjects.MacAddress;
-import com.energyict.dlms.cosem.attributeobjects.Repeater;
-import com.energyict.dlms.cosem.attributes.SFSKIec61334LLCSetupAttribute;
-import com.energyict.dlms.cosem.attributes.SFSKPhyMacSetupAttribute;
-import com.energyict.dlms.cosem.attributes.SFSKSyncTimeoutsAttribute;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValueSpec;
-import com.energyict.protocolimpl.base.AbstractSubMessageProtocol;
-import com.energyict.protocolimpl.dlms.as220.AS220;
-import com.energyict.protocolimpl.utils.MessagingTools;
 
 /**
  * @author jme
@@ -149,6 +141,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 			getAs220().getCosemObjectFactory().getSFSKIec61334LLCSetup().setMaxFrameLength(maxFrameLength);
 			final int value = getAs220().getCosemObjectFactory().getSFSKIec61334LLCSetup().getMaxFrameLength().getValue();
 			readAfterWriteCheck(value, maxFrameLength, attributeName);
+            resetNewNotSynchronized();
 		} else {
 			getAs220().getLogger().info("SET_SFSK_MAX_FRAME_LENGTH message: skipping write to " + attributeName + ".");
 		}
@@ -169,6 +162,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 			getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().setInitiatorElectricalPhase(new ElectricalPhase(initiatorPhase));
 			final int value = getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().getInitiatorElectricalPhase().getValue();
 			readAfterWriteCheck(value, initiatorPhase, attributeName);
+            resetNewNotSynchronized();
 		} else {
 			getAs220().getLogger().info("SET_SFSK_INITIATOR_PHASE message: skipping write to " + attributeName + ".");
 		}
@@ -196,9 +190,11 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 
 		String attributeName = SFSKPhyMacSetupAttribute.REPEATER.name();
 		if (repeater != -1) {
-			getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().setRepeater(new Repeater(repeater));
-			final int value = getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().getRepeater().getValue();
+            PLCObject plcObject = new PLCObject(getAs220().getCosemObjectFactory());
+            plcObject.setRepeater(new Repeater(repeater));
+			final int value = plcObject.getRepeater().getValue();
 			readAfterWriteCheck(value, repeater, attributeName);
+            resetNewNotSynchronized();
 		} else {
 			getAs220().getLogger().info("SET_SFSK_REPEATER message: skipping write to " + attributeName + ".");
 		}
@@ -245,6 +241,8 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 			getAs220().getLogger().info("SET_SFSK_GAIN message: skipping write to " + attributeName + ".");
 		}
 
+        resetNewNotSynchronized();
+
 	}
 
 	/**
@@ -275,6 +273,8 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 			getAs220().getLogger().info("SET_PLC_CHANNEL_FREQUENCIES message: Write '" + write + "' to FREQUENCIES success.");
 		}
 
+        resetNewNotSynchronized();
+        
 	}
 
 	/**
@@ -327,6 +327,8 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 			getAs220().getLogger().info("SET_SFSK_MAC_TIMEOUTS message: skipping write to " + attributeName + ".");
 		}
 
+        resetNewNotSynchronized();
+        
 	}
 
     /**
@@ -372,10 +374,21 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 			getAs220().getLogger().info("Skipping write to " + attributeName + ".");
 		}
 
-		getAs220().getCosemObjectFactory().getSFSKActiveInitiator().doResetNewNotSynchronized(new MacAddress(0));
-	}
+        resetNewNotSynchronized();
+    }
 
-	/**
+    /**
+     * Allows a client system to “reset” the server system. The submitted value corresponds to a client MAC address. 
+     * The writing is refused if the value does not correspond to a valid client MAC address or the predefined NO-BODY address.
+     * 
+     * @throws IOException
+     */
+    private void resetNewNotSynchronized() throws IOException {
+        getAs220().getLogger().info("Triggering ResetNewNotSynchronized to reinitialize the PLC with the new settings.");
+        getAs220().getCosemObjectFactory().getSFSKActiveInitiator().doResetNewNotSynchronized(new MacAddress(0));
+    }
+
+    /**
 	 * @param messageEntry
 	 * @param attribute
 	 * @return

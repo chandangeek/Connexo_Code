@@ -61,8 +61,9 @@ public class AS220Main {
 	private static final String		SET_PLC_GAIN2			= "<SetSFSKGain MAX_RECEIVING_GAIN=\"0\" MAX_TRANSMITTING_GAIN=\"-\" SEARCH_INITIATOR_GAIN=\"6\"> </SetSFSKGain>";
 
     private static final String     SET_PLC_REPEATER_0      = "<SetSFSKRepeater REPEATER=\"0\"> </SetSFSKRepeater>";
-    private static final String     SET_PLC_REPEATER_2      = "<SetSFSKRepeater REPEATER=\"2\"> </SetSFSKRepeater>";
     private static final String     SET_PLC_REPEATER_1      = "<SetSFSKRepeater REPEATER=\"1\"> </SetSFSKRepeater>";
+    private static final String     SET_PLC_REPEATER_2      = "<SetSFSKRepeater REPEATER=\"2\"> </SetSFSKRepeater>";
+    private static final String     SET_PLC_REPEATER_3      = "<SetSFSKRepeater REPEATER=\"3\"> </SetSFSKRepeater>";
 
 	private static final String		OBSERVER_FILENAME		= "c:\\logging\\AS220Main\\communications.log";
 	private static final Level		LOG_LEVEL				= Level.ALL;
@@ -127,7 +128,8 @@ public class AS220Main {
 		properties.setProperty("Timeout", "20000");
 		properties.setProperty("ForcedDelay", "200");
 
-		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_BOTH);
+        properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
+        //properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_BOTH);
 		properties.setProperty("ProfileInterval", "900");
 		properties.setProperty("Password", "20100401");
 		properties.setProperty("SerialNumber", "35021373");
@@ -217,8 +219,9 @@ public class AS220Main {
 
     public static void setPLCRepeater() throws IOException {
         getAs220().queryMessage(new MessageEntry(SET_PLC_REPEATER_0, ""));
-        getAs220().queryMessage(new MessageEntry(SET_PLC_REPEATER_2, ""));
         getAs220().queryMessage(new MessageEntry(SET_PLC_REPEATER_1, ""));
+        getAs220().queryMessage(new MessageEntry(SET_PLC_REPEATER_2, ""));
+        getAs220().queryMessage(new MessageEntry(SET_PLC_REPEATER_3, ""));
     }
 
 	public static void forceSetClock() throws IOException {
@@ -228,7 +231,7 @@ public class AS220Main {
 	public static void readObjectList() throws IOException {
 		UniversalObject[] uo = getAs220().getMeterConfig().getInstantiatedObjectList();
 		for (UniversalObject universalObject : uo) {
-			log(universalObject.getObisCode() + " = " + DLMSClassId.findById(universalObject.getClassID()) + " ["+universalObject.getBaseName()+"] " + universalObject.getObisCode().getDescription());
+			System.out.println(universalObject.getObisCode() + " = " + DLMSClassId.findById(universalObject.getClassID()) + " ["+universalObject.getBaseName()+"] " + universalObject.getObisCode().getDescription());
 		}
 	}
 
@@ -386,10 +389,10 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-            readRegister("0.0.26.0.0.255");
             setPLCRepeater();
+            readRegister("0.0.26.0.0.10");
 
-		} catch (Exception e) {
+        } catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			ProtocolTools.delay(DELAY_BEFORE_DISCONNECT);
