@@ -60,6 +60,10 @@ public class AS220Main {
 	private static final String		SET_PLC_GAIN1			= "<SetSFSKGain MAX_RECEIVING_GAIN=\"0\" MAX_TRANSMITTING_GAIN=\"0\" SEARCH_INITIATOR_GAIN=\"-\"> </SetSFSKGain>";
 	private static final String		SET_PLC_GAIN2			= "<SetSFSKGain MAX_RECEIVING_GAIN=\"0\" MAX_TRANSMITTING_GAIN=\"-\" SEARCH_INITIATOR_GAIN=\"6\"> </SetSFSKGain>";
 
+    private static final String     SET_PLC_REPEATER_0      = "<SetSFSKRepeater REPEATER=\"0\"> </SetSFSKRepeater>";
+    private static final String     SET_PLC_REPEATER_2      = "<SetSFSKRepeater REPEATER=\"2\"> </SetSFSKRepeater>";
+    private static final String     SET_PLC_REPEATER_1      = "<SetSFSKRepeater REPEATER=\"1\"> </SetSFSKRepeater>";
+
 	private static final String		OBSERVER_FILENAME		= "c:\\logging\\AS220Main\\communications.log";
 	private static final Level		LOG_LEVEL				= Level.ALL;
 	protected static final TimeZone	DEFAULT_TIMEZONE		= TimeZone.getTimeZone("GMT+1");
@@ -76,7 +80,7 @@ public class AS220Main {
 	private static Dialer dialer = null;
 	private static Logger logger = null;
 
-	public static AS220 getAs220() {
+    public static AS220 getAs220() {
 		if (as220 == null) {
 			as220 = new AS220();
 			log("Created new instance of " + as220.getClass().getCanonicalName() + " [" + as220.getProtocolVersion() + "]");
@@ -212,7 +216,9 @@ public class AS220Main {
 	}
 
     public static void setPLCRepeater() throws IOException {
-        getAs220().queryMessage(new MessageEntry("<SetSFSKRepeater REPEATER=\"0\"> </SetSFSKRepeater>", ""));
+        getAs220().queryMessage(new MessageEntry(SET_PLC_REPEATER_0, ""));
+        getAs220().queryMessage(new MessageEntry(SET_PLC_REPEATER_2, ""));
+        getAs220().queryMessage(new MessageEntry(SET_PLC_REPEATER_1, ""));
     }
 
 	public static void forceSetClock() throws IOException {
@@ -380,11 +386,8 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-            log(getAs220().getFirmwareVersion());
-
-            readRegister("0.0.96.14.0.255");
-            readRegister("0.1.96.14.0.255");
-            readRegister("255.255.255.255.255.255");
+            readRegister("0.0.26.0.0.255");
+            setPLCRepeater();
 
 		} catch (Exception e) {
 			e.printStackTrace();
