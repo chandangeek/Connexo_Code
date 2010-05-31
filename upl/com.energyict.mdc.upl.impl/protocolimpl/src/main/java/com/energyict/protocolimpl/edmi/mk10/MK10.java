@@ -1,35 +1,18 @@
 
 package com.energyict.protocolimpl.edmi.mk10;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
-
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.genericprotocolimpl.edmi.mk10.MK10Push;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimpl.base.AbstractProtocol;
-import com.energyict.protocolimpl.base.Encryptor;
-import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.edmi.mk10.command.CommandFactory;
 import com.energyict.protocolimpl.edmi.mk10.command.TimeInfo;
-import com.energyict.protocolimpl.edmi.mk10.registermapping.MK10Register;
-import com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeFactory;
-import com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeMapper;
+import com.energyict.protocolimpl.edmi.mk10.registermapping.*;
+
+import java.io.*;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * @author  jme
@@ -50,6 +33,8 @@ import com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeMapper;
  * jme: 21/01/2009 -> Added custom property to disable log-off after communication to prevent modem disconnect.
  * gna: 24/02/2009 -> Added the units and extra scaler for instantaneous values.
  * jme: 14/01/2010 -> Fixed bug in load profile. Protocol was unable to read all the data from the meter (CRM ticket 12855)
+ * gna: 28/01/2010 -> Changed loadProfileReadout (Mantis 6113)
+ * jme: 31/05/2010 -> COMMUNICATION-14 - EDMI MK10 & MK7 Registers Query (CRM 13712): Fixed register addresses from billing registers
  */
 public class MK10 extends AbstractProtocol {
 
