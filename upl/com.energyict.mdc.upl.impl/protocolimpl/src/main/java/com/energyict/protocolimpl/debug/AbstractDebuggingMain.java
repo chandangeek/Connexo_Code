@@ -1,11 +1,14 @@
 package com.energyict.protocolimpl.debug;
 
-import com.energyict.dialer.core.LinkException;
+import com.energyict.dialer.core.*;
+import com.energyict.dialer.coreimpl.OpticalDialer;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.DebuggingObserver;
 
 import java.io.IOException;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,18 +20,85 @@ import java.util.logging.Logger;
 public abstract class AbstractDebuggingMain<P extends MeterProtocol> {
 
     private static final Level LOG_LEVEL = Level.ALL;
+    private P meterProtocol;
 
     private Logger logger = null;
+    private Dialer dialer = null;
 
-    abstract P getMeterProtocol();
+    private TimeZone timeZone = TimeZone.getTimeZone("GMT+01");
+
+    private String phoneNumber = null;
+    private String commPort = null;
+    private String observerFilename = null;
+    private String modemInit = "ATM0";
+
+    private int baudRate = 9600;
+    private int dataBits = SerialCommunicationChannel.DATABITS_8;
+    private int parity = SerialCommunicationChannel.PARITY_NONE;
+    private int stopBits = SerialCommunicationChannel.STOPBITS_1;
 
     abstract void doDebug() throws LinkException, IOException;
+
+    abstract MeterProtocol getMeterProtocol();
+
+    abstract Properties getProperties();
+
+    public Dialer getDialer() throws LinkException, IOException {
+        if (dialer == null) {
+            DebuggingObserver debuggingObserver = new DebuggingObserver(observerFilename, false);
+            if (phoneNumber != null) {
+                dialer = DebugUtils.getConnectedModemDialer(phoneNumber, commPort, modemInit, debuggingObserver);
+            } else {
+                dialer = DebugUtils.getConnectedDirectDialer(commPort, baudRate, dataBits, parity, stopBits, debuggingObserver);
+            }
+        }
+        return dialer;
+    }
 
     private RegisterProtocol getRegisterProtocol() {
         if (getMeterProtocol() instanceof RegisterProtocol) {
             return (RegisterProtocol) getMeterProtocol();
         } else {
             return null;
+        }
+    }
+
+    public void initAndConnectMeterProtocol() throws LinkException, IOException {
+        getMeterProtocol().setProperties(getProperties());
+        getMeterProtocol().init(getDialer().getInputStream(), getDialer().getOutputStream(), getTimeZone(), getLogger());
+        if (getDialer() instanceof OpticalDialer) {
+            if (getMeterProtocol() instanceof HHUEnabler) {
+                ((HHUEnabler) getMeterProtocol()).enableHHUSignOn(getDialer().getSerialCommunicationChannel());
+            }
+        }
+        getMeterProtocol().connect();
+    }
+
+    public void disconnectDialer() {
+        log("Closing connections. \n");
+        if (dialer != null) {
+            try {
+                if (getDialer().getStreamConnection().isOpen()) {
+                    getDialer().disConnect();
+                }
+            } catch (Exception e) {
+                // Absorb
+            } finally {
+                dialer = null;
+            }
+        }
+    }
+
+    public void run() {
+        try {
+            initAndConnectMeterProtocol();
+            doDebug();
+            getMeterProtocol().disconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
+            log("Error: " + e.getMessage() + ". \n");
+        } finally {
+            disconnectDialer();
         }
     }
 
@@ -56,4 +126,75 @@ public abstract class AbstractDebuggingMain<P extends MeterProtocol> {
         return logger;
     }
 
+    public TimeZone getTimeZone() {
+        return timeZone;
+    }
+
+    public void setTimeZone(TimeZone timeZone) {
+        this.timeZone = timeZone;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getCommPort() {
+        return commPort;
+    }
+
+    public void setCommPort(String commPort) {
+        this.commPort = commPort;
+    }
+
+    public String getObserverFilename() {
+        return observerFilename;
+    }
+
+    public void setObserverFilename(String observerFilename) {
+        this.observerFilename = observerFilename;
+    }
+
+    public String getModemInit() {
+        return modemInit;
+    }
+
+    public void setModemInit(String modemInit) {
+        this.modemInit = modemInit;
+    }
+
+    public int getBaudRate() {
+        return baudRate;
+    }
+
+    public void setBaudRate(int baudRate) {
+        this.baudRate = baudRate;
+    }
+
+    public int getDataBits() {
+        return dataBits;
+    }
+
+    public void setDataBits(int dataBits) {
+        this.dataBits = dataBits;
+    }
+
+    public int getParity() {
+        return parity;
+    }
+
+    public void setParity(int parity) {
+        this.parity = parity;
+    }
+
+    public int getStopBits() {
+        return stopBits;
+    }
+
+    public void setStopBits(int stopBits) {
+        this.stopBits = stopBits;
+    }
 }
