@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import com.energyict.genericprotocolimpl.nta.messagehandling.MessageExecutor;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -18,7 +19,6 @@ import org.junit.Test;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MessageExecutor;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;

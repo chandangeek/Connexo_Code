@@ -1,20 +1,5 @@
 package com.energyict.genericprotocolimpl.webrtukp;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Utils;
@@ -26,47 +11,24 @@ import com.energyict.dialer.core.DialerMarker;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.InvokeIdAndPriority;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.SecureConnection;
-import com.energyict.dlms.TCPIPConnection;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.aso.AssociationControlServiceElement;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.*;
+import com.energyict.dlms.aso.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.IPv4Setup;
-import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.common.wakeup.SmsWakeup;
+import com.energyict.genericprotocolimpl.nta.messagehandling.MeterMessages;
+import com.energyict.genericprotocolimpl.nta.profiles.DailyMonthly;
+import com.energyict.genericprotocolimpl.nta.profiles.ElectricityProfile;
 import com.energyict.genericprotocolimpl.webrtu.common.MbusProvider;
 import com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers.ObisCodeMapper;
-import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MessageExecutor;
-import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MeterMessages;
-import com.energyict.genericprotocolimpl.webrtukp.profiles.DailyMonthly;
-import com.energyict.genericprotocolimpl.webrtukp.profiles.ElectricityProfile;
-import com.energyict.genericprotocolimpl.webrtukp.profiles.EventProfile;
+import com.energyict.genericprotocolimpl.nta.messagehandling.MessageExecutor;
+import com.energyict.genericprotocolimpl.nta.profiles.EventProfile;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterGroup;
-import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.CommunicationProfile;
-import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.Folder;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.core.RtuMessage;
-import com.energyict.mdw.core.RtuType;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -76,7 +38,21 @@ import com.energyict.protocolimpl.dlms.HDLC2Connection;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
+ * <p>
+ * <b><u>IMPORTANT:</u></b><br>
+ * This is the initial implementation of the NTA protocol. As time past by more devices came along who where compliant with the NTA spec.
+ * All of them have there own custom implementation at some points, so for each NTA device-type we should have an own protocol main class
+ * which will extend from this one.
+ * </p>
+ * <br>
  * <pre>
  *  |08012009| First complete implementation of the WebRTUKP protocol containing: 
  *  	- LoadProfile E-meter 

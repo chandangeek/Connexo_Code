@@ -1,5 +1,15 @@
 package com.energyict.genericprotocolimpl.webrtukp;
 
+import com.energyict.cbo.BusinessException;
+import com.energyict.dialer.core.Link;
+import com.energyict.genericprotocolimpl.nta.profiles.TicEventProfile;
+import com.energyict.genericprotocolimpl.nta.profiles.TicProfile;
+import com.energyict.mdw.amr.GenericProtocol;
+import com.energyict.mdw.core.CommunicationScheduler;
+import com.energyict.mdw.core.Rtu;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProfileData;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -7,16 +17,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.energyict.cbo.BusinessException;
-import com.energyict.dialer.core.Link;
-import com.energyict.genericprotocolimpl.webrtukp.profiles.TicEventProfile;
-import com.energyict.genericprotocolimpl.webrtukp.profiles.TicProfile;
-import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProfileData;
 
 public class TicDevice implements GenericProtocol {
 	

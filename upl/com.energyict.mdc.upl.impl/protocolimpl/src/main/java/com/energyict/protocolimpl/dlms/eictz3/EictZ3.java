@@ -21,6 +21,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import com.energyict.genericprotocolimpl.nta.eventhandling.DisconnectControlLog;
+import com.energyict.genericprotocolimpl.nta.eventhandling.FraudDetectionLog;
+import com.energyict.genericprotocolimpl.nta.eventhandling.PowerFailureLog;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -74,11 +77,8 @@ import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
-import com.energyict.genericprotocolimpl.webrtukp.eventhandling.DisconnectControlLog;
-import com.energyict.genericprotocolimpl.webrtukp.eventhandling.EventsLog;
-import com.energyict.genericprotocolimpl.webrtukp.eventhandling.FraudDetectionLog;
-import com.energyict.genericprotocolimpl.webrtukp.eventhandling.MbusLog;
-import com.energyict.genericprotocolimpl.webrtukp.eventhandling.PowerFailureLog;
+import com.energyict.genericprotocolimpl.nta.eventhandling.EventsLog;
+import com.energyict.genericprotocolimpl.nta.eventhandling.MbusLog;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
