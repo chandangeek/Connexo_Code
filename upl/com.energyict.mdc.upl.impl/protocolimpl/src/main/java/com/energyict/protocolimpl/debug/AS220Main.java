@@ -26,7 +26,7 @@ import java.util.logging.Logger;
  * @author jme
  *
  */
-public class AS220Main {
+public class AS220Main extends AbstractDebuggingMain<AS220> {
 
 	private static final ObisCode	DEVICE_ID1_OBISCODE		= ObisCode.fromString("0.0.96.0.0.255");
 	private static final ObisCode	DEVICE_ID2_OBISCODE		= ObisCode.fromString("0.0.96.1.0.255");
@@ -66,7 +66,6 @@ public class AS220Main {
     private static final String     SET_PLC_REPEATER_3      = "<SetSFSKRepeater REPEATER=\"3\"> </SetSFSKRepeater>";
 
 	private static final String		OBSERVER_FILENAME		= "c:\\logging\\AS220Main\\communications.log";
-	private static final Level		LOG_LEVEL				= Level.ALL;
 	protected static final TimeZone	DEFAULT_TIMEZONE		= TimeZone.getTimeZone("GMT+1");
 
 	protected static final String	COMPORT					= "COM5";
@@ -81,7 +80,7 @@ public class AS220Main {
 	private static Dialer dialer = null;
 	private static Logger logger = null;
 
-    public static AS220 getAs220() {
+    public AS220 getAs220() {
 		if (as220 == null) {
 			as220 = new AS220();
 			log("Created new instance of " + as220.getClass().getCanonicalName() + " [" + as220.getProtocolVersion() + "]");
@@ -89,7 +88,7 @@ public class AS220Main {
 		return as220;
 	}
 
-	public static Dialer getDialer() {
+	public Dialer getDialer() {
 		if (dialer == null) {
 			//dialer = DialerFactory.get("IPDIALER").newDialer();
 			dialer = DialerFactory.getDirectDialer().newDialer();
@@ -101,7 +100,7 @@ public class AS220Main {
 	/**
 	 * @return an {@link OpticalDialer}
 	 */
-	public static Dialer getOpticalDialer(){
+	public Dialer getOpticalDialer(){
 		if(dialer == null){
 			dialer = DialerFactory.getOpticalDialer().newDialer();
 			dialer.setStreamObservers(new DebuggingObserver(null, true));
@@ -109,15 +108,7 @@ public class AS220Main {
 		return dialer;
 	}
 
-	public static Logger getLogger() {
-		 if (logger == null) {
-			 logger = Logger.getLogger(AS220Main.class.getCanonicalName());
-			 logger.setLevel(LOG_LEVEL);
-		 }
-		 return logger;
-	}
-
-	private static Properties getCommonProperties() {
+    private Properties getCommonProperties() {
 		Properties properties = new Properties();
 
 		properties.setProperty("MaximumTimeDiff", "300");
@@ -148,7 +139,7 @@ public class AS220Main {
 		return properties;
 	}
 
-	private static Properties getOpticalProperties() {
+	private Properties getOpticalProperties() {
 		Properties properties = getCommonProperties();
 		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
 		properties.setProperty("AddressingMode", "2");
@@ -161,14 +152,14 @@ public class AS220Main {
 	}
 
 
-	public static ProfileData readProfile(boolean incluideEvents) throws IOException {
+	public ProfileData readProfile(boolean incluideEvents) throws IOException {
 		Calendar from = Calendar.getInstance(DEFAULT_TIMEZONE);
 		from.add(Calendar.SECOND, -1);
 		ProfileData pd = getAs220().getProfileData(from.getTime(), incluideEvents);
 		return pd;
 	}
 
-	public static void readRegisters() {
+	public void readRegisters() {
 		UniversalObject[] universalObjects = getAs220().getMeterConfig().getInstantiatedObjectList();
 		for (UniversalObject uo : universalObjects) {
 			if (uo.getClassID() == Register.CLASSID) {
@@ -181,24 +172,24 @@ public class AS220Main {
 		}
 	}
 
-	public static void pulseContactor() throws IOException {
+	public void pulseContactor() throws IOException {
 		getAs220().queryMessage(new MessageEntry(DISCONNECT_EMETER, "1"));
 		getAs220().queryMessage(new MessageEntry(ARM_EMETER, "2"));
 		getAs220().queryMessage(new MessageEntry(CONNECT_EMETER, "3"));
 	}
 
-	public static void rescanPLCBus() throws IOException {
+	public void rescanPLCBus() throws IOException {
 		getAs220().queryMessage(new MessageEntry(RESCAN_PLCBUS, ""));
 	}
 
-	public static void setPLCTimeouts() throws IOException {
+	public void setPLCTimeouts() throws IOException {
 		getAs220().queryMessage(new MessageEntry(SET_PLC_TIMEOUTS1, ""));
 		getAs220().queryMessage(new MessageEntry(SET_PLC_TIMEOUTS2, ""));
 		getAs220().queryMessage(new MessageEntry(SET_PLC_TIMEOUTS3, ""));
 		getAs220().queryMessage(new MessageEntry(SET_PLC_TIMEOUTS4, ""));
 	}
 
-	public static void setPLCFrequencies() throws IOException {
+	public void setPLCFrequencies() throws IOException {
 		getAs220().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES1, ""));
 		getAs220().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES2, ""));
 		getAs220().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES3, ""));
@@ -211,31 +202,31 @@ public class AS220Main {
 		getAs220().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES0, ""));
 	}
 
-	public static void setPLCGain() throws IOException {
+	public void setPLCGain() throws IOException {
 		getAs220().queryMessage(new MessageEntry(SET_PLC_GAIN0, ""));
 		getAs220().queryMessage(new MessageEntry(SET_PLC_GAIN1, ""));
 		getAs220().queryMessage(new MessageEntry(SET_PLC_GAIN2, ""));
 	}
 
-    public static void setPLCRepeater() throws IOException {
+    public void setPLCRepeater() throws IOException {
         getAs220().queryMessage(new MessageEntry(SET_PLC_REPEATER_0, ""));
         getAs220().queryMessage(new MessageEntry(SET_PLC_REPEATER_1, ""));
         getAs220().queryMessage(new MessageEntry(SET_PLC_REPEATER_2, ""));
         getAs220().queryMessage(new MessageEntry(SET_PLC_REPEATER_3, ""));
     }
 
-	public static void forceSetClock() throws IOException {
+	public void forceSetClock() throws IOException {
 		getAs220().queryMessage(new MessageEntry(FORCE_SET_CLOCK, ""));
 	}
 
-	public static void readObjectList() throws IOException {
+	public void readObjectList() throws IOException {
 		UniversalObject[] uo = getAs220().getMeterConfig().getInstantiatedObjectList();
 		for (UniversalObject universalObject : uo) {
 			System.out.println(universalObject.getObisCode() + " = " + DLMSClassId.findById(universalObject.getClassID()) + " ["+universalObject.getBaseName()+"] " + universalObject.getObisCode().getDescription());
 		}
 	}
 
-	public static void readDataObjects() {
+	public void readDataObjects() {
 		UniversalObject[] uo = getAs220().getMeterConfig().getInstantiatedObjectList();
 		for (UniversalObject universalObject : uo) {
 			if (universalObject.getClassID() == DLMSClassId.DATA.getClassId()) {
@@ -246,7 +237,7 @@ public class AS220Main {
 		}
 	}
 
-	public static void getAndSetTime() throws IOException {
+	public void getAndSetTime() throws IOException {
 		Date date = getAs220().getTime();
 		log(date);
 		getAs220().setTime();
@@ -257,7 +248,7 @@ public class AS220Main {
 	/**
 	 * @throws IOException
 	 */
-	private static void readContactorStatus() throws IOException {
+	private void readContactorStatus() throws IOException {
 		log(getAs220().readRegister(ObisCode.fromString("0.0.96.3.10.1")));
 		log(getAs220().readRegister(ObisCode.fromString("0.0.96.3.10.2")));
 		log(getAs220().readRegister(ObisCode.fromString("0.0.96.3.10.3")));
@@ -267,7 +258,7 @@ public class AS220Main {
 	/**
 	 * @throws IOException
 	 */
-	private static void dumpEvents() throws IOException {
+	private void dumpEvents() throws IOException {
 		Array a = new Array(getAs220().getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.99.98.0.255")).getBufferData(), 0, 0);
 		for (int i = 0; i < a.nrOfDataTypes(); i++) {
 			Date date = a.getDataType(i).getStructure().getDataType(0).getOctetString().getDateTime(DEFAULT_TIMEZONE).getValue().getTime();
@@ -277,7 +268,7 @@ public class AS220Main {
 		}
 	}
 
-	public static void readEnergyRegisters() {
+	public void readEnergyRegisters() {
 		String[] registers = new String[] {
 				"1.0.1.8.0.",
 				"1.0.1.8.1.",
@@ -301,18 +292,10 @@ public class AS220Main {
 			}
 	}
 
-	public static void readRegister(String obisCodeAsString) {
-		try {
-			log(getAs220().readRegister(ObisCode.fromString(obisCodeAsString)));
-		} catch (IOException e) {
-			log(obisCodeAsString + ", " + e.getMessage());
-		}
-	}
-
 	/**
 	 *
 	 */
-	private static void readMappedAttributes(List<ObisCode> codes) {
+	private void readMappedAttributes(List<ObisCode> codes) {
 		for (Iterator iterator = codes.iterator(); iterator.hasNext();) {
 			ObisCode code = (ObisCode) iterator.next();
 			for (int i = 0; i <= 20; i++) {
@@ -328,7 +311,7 @@ public class AS220Main {
 	/**
 	 * @throws IOException
 	 */
-	private static void readSFSKObjects() throws IOException {
+	private void readSFSKObjects() throws IOException {
 		log(getAs220().readRegister(ObisCode.fromString("0.0.26.0.0.255")) + "\r\n");
 		log(getAs220().readRegister(ObisCode.fromString("0.0.26.1.0.255")) + "\r\n");
 		log(getAs220().readRegister(ObisCode.fromString("0.0.26.2.0.255")) + "\r\n");
@@ -336,7 +319,7 @@ public class AS220Main {
 		log(getAs220().readRegister(ObisCode.fromString("0.0.26.5.0.255")) + "\r\n");
 	}
 
-	private static void examineObisCode(ObisCode obisCode) {
+	private void examineObisCode(ObisCode obisCode) {
 		log("");
 		log(obisCode + " = " + obisCode.getDescription());
 		for (int i = 0; i < 0x70; i += 8) {
@@ -352,11 +335,12 @@ public class AS220Main {
 		log("");
 	}
 
-	protected static void log(Object message) {
-		getLogger().log(Level.INFO, message == null ? "null" : message.toString());
-	}
+    @Override
+    AS220 getMeterProtocol() {
+        return getAs220();
+    }
 
-	private static byte[] getFirmware18ByteArray() throws IOException {
+	private byte[] getFirmware18ByteArray() throws IOException {
         	File file = new File(AS220Main.class.getClassLoader().getResource("com/energyict/protocolimpl/dlms/as220/debug/firmware18b64.bin").getFile());
         	FileInputStream fis = new FileInputStream(file);
         	byte[] content = new byte[(int) file.length()];
@@ -365,11 +349,11 @@ public class AS220Main {
         	return content;
         }
 
-	public static void printExtendedLogging() throws IOException {
+	public void printExtendedLogging() throws IOException {
 		log(getAs220().getRegistersInfo());
 	}
 
-	private static byte[] getFirmware19ByteArray() throws IOException {
+	private byte[] getFirmware19ByteArray() throws IOException {
         	File file = new File(AS220Main.class.getClassLoader().getResource("com/energyict/protocolimpl/dlms/as220/debug/firmware17022010B64.bin").getFile());
         	FileInputStream fis = new FileInputStream(file);
         	byte[] content = new byte[(int) file.length()];
@@ -379,28 +363,32 @@ public class AS220Main {
         }
 
 	public static void main(String[] args) throws LinkException, IOException, InterruptedException {
+		AS220Main as220Main = new AS220Main();
+		as220Main.doDebug();
+	}
 
-		getDialer().init(COMPORT);
-		getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
-		getDialer().connect();
+    @Override
+    void doDebug() throws LinkException, IOException {
+        getDialer().init(COMPORT);
+        getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
+        getDialer().connect();
 
-		try {
-			getAs220().setProperties(getCommonProperties());
-			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
-			getAs220().connect();
+        try {
+            getAs220().setProperties(getCommonProperties());
+            getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
+            getAs220().connect();
 
             setPLCRepeater();
             readRegister("0.0.26.0.0.10");
 
         } catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			ProtocolTools.delay(DELAY_BEFORE_DISCONNECT);
-			log("Done. Closing connections. \n");
-			getAs220().disconnect();
-			getDialer().disConnect();
-		}
-
-	}
+            e.printStackTrace();
+        } finally {
+            ProtocolTools.delay(DELAY_BEFORE_DISCONNECT);
+            log("Done. Closing connections. \n");
+            getAs220().disconnect();
+            getDialer().disConnect();
+        }
+    }
 
 }

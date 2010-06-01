@@ -4,15 +4,15 @@
 package com.energyict.protocolimpl.debug;
 
 
-import java.io.IOException;
-import java.util.Properties;
-import java.util.TimeZone;
-
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+
+import java.io.IOException;
+import java.util.Properties;
+import java.util.TimeZone;
 
 /**
  * @author gna
@@ -21,9 +21,9 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
  */
 public class GasDeviceMain extends AS220Main {
 
-	private static GasDevice gasDevice;
+	private GasDevice gasDevice;
 
-	public static GasDevice getGasDevice() {
+	public GasDevice getGasDevice() {
 		if (gasDevice == null) {
 			gasDevice = new GasDevice();
 			log("Created new instance of " + gasDevice.getClass().getCanonicalName() + " [" + gasDevice.getProtocolVersion() + "]");
@@ -31,7 +31,7 @@ public class GasDeviceMain extends AS220Main {
 		return gasDevice;
 	}
 
-	private static Properties getProperties() {
+	private Properties getProperties() {
 		Properties properties = new Properties();
 
 		properties.setProperty("MaximumTimeDiff", "300");
@@ -60,18 +60,18 @@ public class GasDeviceMain extends AS220Main {
 		return properties;
 	}
 
-	public static void main(String[] args) throws LinkException, IOException, InterruptedException {
+    @Override
+    void doDebug() throws LinkException, IOException {
+        getDialer().init(COMPORT);
+        getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
+        getDialer().connect();
 
-		getDialer().init(COMPORT);
-		getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
-		getDialer().connect();
+        try {
+            getGasDevice().setProperties(getProperties());
+            getGasDevice().init(getDialer().getInputStream(), getDialer().getOutputStream(), TimeZone.getTimeZone("GMT"), getLogger());
+            getGasDevice().connect();
 
-		try {
-			getGasDevice().setProperties(getProperties());
-			getGasDevice().init(getDialer().getInputStream(), getDialer().getOutputStream(), TimeZone.getTimeZone("GMT"), getLogger());
-			getGasDevice().connect();
-
-			log(getGasDevice().getSerialNumber());
+            log(getGasDevice().getSerialNumber());
 
 
 //			getGasDevice().getgMeter().getGasValveController().doDisconnect();
@@ -123,17 +123,24 @@ public class GasDeviceMain extends AS220Main {
 //			write(new byte[]{DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED, 0x00, 0x00, 0x03, (byte)0x84});
 
 //			getGasDevice().getgMeter().GetMbusEventProfile().getBuffer();
-			log(getGasDevice().getProfileData(true));
+            log(getGasDevice().getProfileData(true));
 
 //			getGasDevice().getgMeter().getGasInstallController().install();
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			ProtocolTools.delay(DELAY_BEFORE_DISCONNECT);
-			log("Done. Closing connections. \n");
-			getGasDevice().disconnect();
-			getDialer().disConnect();
-		}
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            ProtocolTools.delay(DELAY_BEFORE_DISCONNECT);
+            log("Done. Closing connections. \n");
+            getGasDevice().disconnect();
+            getDialer().disConnect();
+        }
+
+    }
+
+    public static void main(String[] args) throws LinkException, IOException, InterruptedException {
+        GasDeviceMain main = new GasDeviceMain();
+        main.doDebug();
+
 	}
 }
