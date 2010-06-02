@@ -32,10 +32,9 @@ public class ABBA230Main extends AbstractDebuggingMain<ABBA230> {
         properties.setProperty(MeterProtocol.MAXTIMEDIFF, "300");
         properties.setProperty(MeterProtocol.MINTIMEDIFF, "1");
         properties.setProperty(MeterProtocol.CORRECTTIME, "0");
-        properties.setProperty(MeterProtocol.NODEID, "101");
         properties.setProperty(MeterProtocol.PROFILEINTERVAL, "1800");
         properties.setProperty(MeterProtocol.PASSWORD, "ABCD0002");
-        properties.setProperty(MeterProtocol.SERIALNUMBER, "07045683");
+        properties.setProperty(MeterProtocol.SERIALNUMBER, "09045210");
         properties.setProperty("IEC1107Compatible", "1");
         properties.setProperty("SecurityLevel", "2");
         properties.setProperty("Retries", "2");
@@ -47,16 +46,27 @@ public class ABBA230Main extends AbstractDebuggingMain<ABBA230> {
 
     public static void main(String[] args) throws IOException, LinkException {
         ABBA230Main main = new ABBA230Main();
-        //main.setPhoneNumber("00447975424955");
-        main.setPhoneNumber("000447918125447");
+        main.setPhoneNumber("00447975424955");
         main.setCommPort("COM1");
         main.setObserverFilename("c:\\logging\\ABBA230\\communications.log");
+        main.setAsciiMode(true);
+        main.setShowCommunication(true);
         main.run();
     }
 
     @Override
     void doDebug() throws LinkException, IOException {
+        readRegister("1.1.0.1.0.255");
         readRegister("1.1.0.1.2.0");
+        readRegister("1.1.0.1.2.1");
+        readRegister("1.1.0.1.2.2");
+        readRegister("1.1.0.1.2.3");
+        readRegister("1.1.0.1.2.4");
+        readRegister("1.1.0.1.2.5");
+        readRegister("1.1.0.1.2.6");
+        readRegister("1.1.0.1.2.7");
+        readRegister("1.1.0.1.2.8");
+        readRegister("1.1.0.1.2.9");
     }
 
 }

@@ -36,6 +36,8 @@ public abstract class AbstractDebuggingMain<P extends MeterProtocol> {
     private int dataBits = SerialCommunicationChannel.DATABITS_8;
     private int parity = SerialCommunicationChannel.PARITY_NONE;
     private int stopBits = SerialCommunicationChannel.STOPBITS_1;
+    private boolean showCommunication = false;
+    private boolean asciiMode = false;
 
     abstract void doDebug() throws LinkException, IOException;
 
@@ -45,7 +47,7 @@ public abstract class AbstractDebuggingMain<P extends MeterProtocol> {
 
     public Dialer getDialer() throws LinkException, IOException {
         if (dialer == null) {
-            DebuggingObserver debuggingObserver = new DebuggingObserver(observerFilename, false);
+            DebuggingObserver debuggingObserver = new DebuggingObserver(observerFilename, showCommunication, asciiMode);
             if (phoneNumber != null) {
                 dialer = DebugUtils.getConnectedModemDialer(phoneNumber, commPort, modemInit, debuggingObserver);
             } else {
@@ -196,5 +198,21 @@ public abstract class AbstractDebuggingMain<P extends MeterProtocol> {
 
     public void setStopBits(int stopBits) {
         this.stopBits = stopBits;
+    }
+
+    public boolean isShowCommunication() {
+        return showCommunication;
+    }
+
+    public void setShowCommunication(boolean showCommunication) {
+        this.showCommunication = showCommunication;
+    }
+
+    public boolean isAsciiMode() {
+        return asciiMode;
+    }
+
+    public void setAsciiMode(boolean asciiMode) {
+        this.asciiMode = asciiMode;
     }
 }
