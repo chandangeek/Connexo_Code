@@ -1,14 +1,10 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
 import com.energyict.protocol.MeterEvent;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.TimeZone;
-
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.*;
 
 /** @author fbo */
 
@@ -209,6 +205,52 @@ public class HistoricalEventRegister {
         
         return rslt.toString();
     }
-    
-    
+
+    public int getReverseRunCount() {
+        return reverseRunCount;
+    }
+
+    public int getPhaseFailureCount() {
+        return phaseFailureCount;
+    }
+
+    public int getPowerFailCount() {
+        return powerFailCount;
+    }
+
+    public int getProgrammingCount() {
+        return programmingCount;
+    }
+
+    public int getCtRatioCount() {
+        return ctRatioCount;
+    }
+
+    public int getBillingCount() {
+        return billingCount;
+    }
+
+    public int getTransientResetCount() {
+        return transientResetCount;
+    }
+
+    public int getMeterErrorCount() {
+        return meterErrorCount;
+    }
+
+    public int getTerminalCoverCount() {
+        return terminalCoverCount;
+    }
+
+    public int getMainCoverCount() {
+        return mainCoverCount;
+    }
+
+    public int getInternalBatteryCount() {
+        return internalBatteryCount;
+    }
+
+    public int getExternalBatteryCount() {
+        return externalBatteryCount;
+    }
 }

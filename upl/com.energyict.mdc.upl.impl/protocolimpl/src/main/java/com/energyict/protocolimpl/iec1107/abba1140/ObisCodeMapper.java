@@ -6,18 +6,14 @@
 
 package com.energyict.protocolimpl.iec1107.abba1140;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -156,6 +152,17 @@ public class ObisCodeMapper {
                 registerValue = new RegisterValue(obisCode,fw);
                 return registerValue;
             } else return new RegisterInfo("Device info and firmware version");
+        } else if (obisCode.toString().indexOf("1.1.0.1.0.255") != -1) { // Billing counter
+            if (read) {
+                Object register = getRFactory().getRegister("HistoricalEvents");
+                if ((register != null) && (register instanceof HistoricalEventRegister)) {
+                    HistoricalEventRegister historicalEventRegister = (HistoricalEventRegister) register;
+                    registerValue = new RegisterValue(obisCode, new Quantity(historicalEventRegister.getBillingCount(), Unit.get("")));
+                }
+                return registerValue;
+            } else {
+                return new RegisterInfo("BillingCounter");
+            }
         }
         
         // *********************************************************************************

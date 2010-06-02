@@ -1,11 +1,11 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
-import java.io.IOException;
-import java.io.ByteArrayOutputStream;
-
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**@author fbo */
 
@@ -71,8 +71,6 @@ public class ABBA1140DataIdentity {
                 for( int i = 0; i < getSets(); i ++ ) 
                     dataBlocks[i] = ProtocolUtils.getSubArray2(r,setLength*i, getLength());
             } else {
-                if( dataId.equals( "543" ) )
-                    System.out.println("read( " + dataLength + " , " + set + " )" );
                 dataBlocks[set] = doReadRawRegister(dataLength,set);
             }
         }

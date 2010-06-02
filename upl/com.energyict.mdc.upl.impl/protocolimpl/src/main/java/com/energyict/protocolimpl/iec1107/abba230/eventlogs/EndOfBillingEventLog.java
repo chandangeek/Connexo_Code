@@ -1,9 +1,10 @@
 package com.energyict.protocolimpl.iec1107.abba230.eventlogs;
 
-import java.io.IOException;
-import java.util.*;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProtocolUtils;
 
-import com.energyict.protocol.*;
+import java.io.IOException;
+import java.util.TimeZone;
 
 public class EndOfBillingEventLog extends AbstractEventLog {
 
@@ -18,7 +19,7 @@ public class EndOfBillingEventLog extends AbstractEventLog {
 	public void parse(byte[] data) throws IOException {
 		int offset=0;
 		mostRecent = ProtocolUtils.getIntLE(data, offset++, 1);
-		count = ProtocolUtils.getIntLE(data, offset, 2); offset+=2;
+		count = ProtocolUtils.getInt(data, offset, 2); offset+=2;
         for( int i = 0; i < 10; i ++ ) {
     		timeStampInfoPairs[i] = new TimeStampInfoPair(data,offset,timeZone);
     		offset+=TimeStampInfoPair.size();
@@ -28,4 +29,7 @@ public class EndOfBillingEventLog extends AbstractEventLog {
 
 	}
 
+    public int getCount() {
+        return count;
+    }
 }

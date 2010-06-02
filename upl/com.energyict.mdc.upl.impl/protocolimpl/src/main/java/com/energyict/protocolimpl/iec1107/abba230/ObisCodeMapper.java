@@ -6,18 +6,17 @@
 
 package com.energyict.protocolimpl.iec1107.abba230;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.EndOfBillingEventLog;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
 
 /** @author Koen */
 
@@ -193,8 +192,19 @@ public class ObisCodeMapper {
             } else {
 				return new RegisterInfo("DSPFWVersion");
 			}
+        } else if (obisCode.toString().indexOf("1.1.0.1.0.255") != -1) { // Billing counter
+            if (read) {
+                Object register = rFactory.getRegister("EndOfBillingEventLog");
+                if ((register != null) && (register instanceof EndOfBillingEventLog)) {
+                    EndOfBillingEventLog historicalEventRegister = (EndOfBillingEventLog) register;
+                    registerValue = new RegisterValue(obisCode, new Quantity(historicalEventRegister.getCount(), Unit.get("")));
+                }
+                return registerValue;
+            } else {
+                return new RegisterInfo("BillingCounter");
+            }
         }
-        
+
         
         // *********************************************************************************
         // Electricity related ObisRegisters
