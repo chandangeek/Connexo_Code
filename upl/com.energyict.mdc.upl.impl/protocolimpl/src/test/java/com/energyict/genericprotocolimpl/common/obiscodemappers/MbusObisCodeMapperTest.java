@@ -1,23 +1,22 @@
 package com.energyict.genericprotocolimpl.common.obiscodemappers;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import com.energyict.cbo.BusinessException;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.genericprotocolimpl.nta.eict.WebRTUKP;
+import com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers.MbusObisCodeMapper;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.utils.DummyDLMSConnection;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import com.energyict.cbo.BusinessException;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers.MbusObisCodeMapper;
-import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.utils.DummyDLMSConnection;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class MbusObisCodeMapperTest {
 

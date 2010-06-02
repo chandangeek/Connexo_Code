@@ -1,34 +1,23 @@
-package com.energyict.genericprotocolimpl.webrtukp;
+package com.energyict.genericprotocolimpl.nta.eict;
 
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import java.sql.SQLException;
-import java.util.Properties;
-import java.util.logging.Logger;
-
-import com.energyict.genericprotocolimpl.nta.messagehandling.MessageExecutor;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.core.RtuMessage;
-import com.energyict.mdw.core.RtuMessageState;
-import com.energyict.mdw.core.RtuType;
+import com.energyict.genericprotocolimpl.nta.messagehandling.MessageExecutor;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.RtuMessageShadow;
 import com.energyict.mdw.testutils.RtuCRUD;
 import com.energyict.mdw.testutils.RtuTypeCRUD;
 import com.energyict.protocolimpl.utils.DummyDLMSConnection;
 import com.energyict.protocolimpl.utils.Utilities;
+import org.junit.*;
+
+import java.sql.SQLException;
+import java.util.Properties;
+import java.util.logging.Logger;
+
+import static org.junit.Assert.*;
 
 public class MessageExecutorTest {
 

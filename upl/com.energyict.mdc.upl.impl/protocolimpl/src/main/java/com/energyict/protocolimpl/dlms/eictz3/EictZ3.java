@@ -76,7 +76,6 @@ import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
-import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.genericprotocolimpl.nta.eventhandling.EventsLog;
 import com.energyict.genericprotocolimpl.nta.eventhandling.MbusLog;
 import com.energyict.mdw.core.UserFile;
@@ -117,7 +116,7 @@ import com.energyict.protocolimpl.dlms.HDLC2Connection;
 import com.energyict.protocolimpl.dlms.Z3.AARQ;
 
 /**
- * DLMS based {@link MeterProtocol} implementation for the Z3 and EpIO R2. There is also a generic protocol implementation {@link WebRTUKP}.
+ * DLMS based {@link MeterProtocol} implementation for the Z3 and EpIO R2. There is also a generic protocol implementation {@link com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol}.
  */
 public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol, FirmwareUpdateMessaging {
 
@@ -317,7 +316,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	private TimeZone timeZone;
 
 	/**
-	 * The meter configuration used here is the one from the {@link WebRTUKP} meter.
+	 * The meter configuration used here is the one from the {@link com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol} meter.
 	 */
 	private final DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("WKP");
 

@@ -22,7 +22,7 @@ import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
-import com.energyict.genericprotocolimpl.webrtukp.MbusDevice;
+import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.mdw.shadow.RtuShadow;
 
@@ -34,9 +34,9 @@ import com.energyict.mdw.shadow.RtuShadow;
  */
 public class MbusMessageExecutor extends GenericMessageExecutor{
 	
-	private MbusDevice mbusDevice;
+	private AbstractMbusDevice mbusDevice;
 	
-	public MbusMessageExecutor(MbusDevice mbusDevice){
+	public MbusMessageExecutor(AbstractMbusDevice mbusDevice){
 		this.mbusDevice = mbusDevice;
 	}
 
@@ -255,7 +255,7 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 		return getMbusDevice().getWebRTU().getTimeZone();
 	}
 	
-	private MbusDevice getMbusDevice(){
+	private AbstractMbusDevice getMbusDevice(){
 		return this.mbusDevice;
 	}
 	

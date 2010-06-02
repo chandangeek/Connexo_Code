@@ -17,9 +17,9 @@ import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.messages.ActivityCalendarMessage;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
+import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
-import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.RtuMessageShadow;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -41,18 +41,18 @@ import java.util.logging.Logger;
  */
 public class MessageExecutor extends GenericMessageExecutor{
 	
-	private WebRTUKP webRtu;
+	private AbstractNTAProtocol webRtu;
 	private boolean DEBUG = true;
 	
 //	private String[] weekNames = {"a", "b", "c", "d"};
 
 	private static final byte[] defaultMonitoredAttribute = new byte[]{1,0,90,7,0,(byte)255};	// Total current, instantaneous value
 	
-	public MessageExecutor(WebRTUKP webRTUKP) {
+	public MessageExecutor(AbstractNTAProtocol webRTUKP) {
 		this.webRtu = webRTUKP;
 	}
 	
-	private WebRTUKP getWebRtu(){
+	private AbstractNTAProtocol getWebRtu(){
 		return this.webRtu;
 	}
 

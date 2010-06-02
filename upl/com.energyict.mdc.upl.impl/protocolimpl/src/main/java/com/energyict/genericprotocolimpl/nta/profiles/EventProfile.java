@@ -9,9 +9,9 @@ import java.util.logging.Level;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol;
 import com.energyict.genericprotocolimpl.nta.eventhandling.DisconnectControlLog;import com.energyict.genericprotocolimpl.nta.eventhandling.FraudDetectionLog;import com.energyict.genericprotocolimpl.nta.eventhandling.MbusLog;import com.energyict.genericprotocolimpl.nta.eventhandling.PowerFailureLog;
 import com.energyict.genericprotocolimpl.nta.eventhandling.EventsLog;
-import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -22,9 +22,9 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class EventProfile {
 
-	private WebRTUKP webrtu;
+	private AbstractNTAProtocol webrtu;
 	
-	public EventProfile(WebRTUKP webrtu){
+	public EventProfile(AbstractNTAProtocol webrtu){
 		this.webrtu = webrtu;
 	}
 	

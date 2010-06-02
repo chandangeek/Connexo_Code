@@ -1,21 +1,6 @@
 package com.energyict.genericprotocolimpl.nta.profiles;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TimeZone;
-import java.util.logging.Level;
-
-import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cbo.Unit;
+import com.energyict.cbo.*;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
@@ -27,7 +12,7 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
-import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
+import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
@@ -35,14 +20,20 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProfileData;
 
-public class DailyMonthly {
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.logging.Level;
+
+public class DailyMonthlyProfile {
 	
-	private WebRTUKP webrtu;
+	private AbstractNTAProtocol webrtu;
 	
-	public DailyMonthly(){
+	public DailyMonthlyProfile(){
 	}
 	
-	public DailyMonthly(final WebRTUKP webrtu){
+	public DailyMonthlyProfile(final AbstractNTAProtocol webrtu){
 		this.webrtu = webrtu;
 	}
 

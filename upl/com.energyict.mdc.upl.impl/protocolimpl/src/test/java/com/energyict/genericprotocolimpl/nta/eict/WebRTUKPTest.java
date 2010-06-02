@@ -1,4 +1,4 @@
-package com.energyict.genericprotocolimpl.webrtukp;
+package com.energyict.genericprotocolimpl.nta.eict;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

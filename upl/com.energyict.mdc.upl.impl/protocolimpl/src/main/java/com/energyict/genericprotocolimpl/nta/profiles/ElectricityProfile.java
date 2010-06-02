@@ -24,7 +24,7 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
-import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
+import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
@@ -36,12 +36,12 @@ public class ElectricityProfile {
 	
 	private final boolean DEBUG = false;
 	
-	private WebRTUKP webrtu;
+	private AbstractNTAProtocol webrtu;
 	
 	public ElectricityProfile(){
 	}
 	
-	public ElectricityProfile(final WebRTUKP webrtu){
+	public ElectricityProfile(final AbstractNTAProtocol webrtu){
 		this.webrtu = webrtu;
 	}
 	

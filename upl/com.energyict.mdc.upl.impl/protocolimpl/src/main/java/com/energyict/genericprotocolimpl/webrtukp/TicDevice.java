@@ -2,6 +2,7 @@ package com.energyict.genericprotocolimpl.webrtukp;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.Link;
+import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol;
 import com.energyict.genericprotocolimpl.nta.profiles.TicEventProfile;
 import com.energyict.genericprotocolimpl.nta.profiles.TicProfile;
 import com.energyict.mdw.amr.GenericProtocol;
@@ -22,7 +23,7 @@ public class TicDevice implements GenericProtocol {
 	
 	private Rtu tic;
 	private Logger logger;
-	private WebRTUKP webRtu;
+	private AbstractNTAProtocol webRtu;
 	
 	public TicDevice(){
 	}
@@ -75,11 +76,11 @@ public class TicDevice implements GenericProtocol {
 		return new ArrayList(0);
 	}
 
-	public void setWebRTU(WebRTUKP webRTUKP) {
+	public void setWebRTU(AbstractNTAProtocol webRTUKP) {
 		this.webRtu = webRTUKP;
 	}
 	
-	public WebRTUKP getWebRTU(){
+	public AbstractNTAProtocol getWebRTU(){
 		return this.webRtu;
 	}
 	

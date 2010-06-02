@@ -1,11 +1,13 @@
 package com.energyict.genericprotocolimpl.nta.iskra;
 
+import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
+
 /**
  * Copyrights EnergyICT
  * Date: 31-mei-2010
  * Time: 12:05:43
  */
-public class MbusDevice extends com.energyict.genericprotocolimpl.webrtukp.MbusDevice {
+public class MbusDevice extends AbstractMbusDevice {
     
     @Override
     public String getVersion() {

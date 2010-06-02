@@ -25,7 +25,7 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
-import com.energyict.genericprotocolimpl.webrtukp.MbusDevice;
+import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
@@ -40,14 +40,14 @@ import com.energyict.protocol.ProfileData;
  * Reminder:
  * The dailyProfile is completely constructed in the protocol. It uses the hourly values to get the midnight intervals.
  */
-public class MbusDailyMonthly {
+public class MbusDailyMonthlyProfile {
 
-	private MbusDevice mbusDevice;
+	private AbstractMbusDevice mbusDevice;
 	
-	public MbusDailyMonthly(){
+	public MbusDailyMonthlyProfile(){
 	}
 	
-	public MbusDailyMonthly(MbusDevice mbusDevice){
+	public MbusDailyMonthlyProfile(AbstractMbusDevice mbusDevice){
 		this.mbusDevice = mbusDevice;
 	}
 	

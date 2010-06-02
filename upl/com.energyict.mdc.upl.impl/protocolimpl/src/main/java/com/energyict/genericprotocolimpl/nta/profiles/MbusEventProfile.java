@@ -10,7 +10,7 @@ import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.nta.eventhandling.MbusControlLog;
-import com.energyict.genericprotocolimpl.webrtukp.MbusDevice;
+import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -22,9 +22,9 @@ import com.energyict.protocol.ProtocolUtils;
 
 public class MbusEventProfile {
 	
-	private MbusDevice mbusDevice;
+	private AbstractMbusDevice mbusDevice;
 	
-	public MbusEventProfile(MbusDevice mbusDevice) {
+	public MbusEventProfile(AbstractMbusDevice mbusDevice) {
 		this.mbusDevice = mbusDevice;
 	}
 
