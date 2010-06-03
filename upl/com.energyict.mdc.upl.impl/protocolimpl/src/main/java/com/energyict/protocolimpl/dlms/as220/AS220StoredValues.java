@@ -1,26 +1,17 @@
 package com.energyict.protocolimpl.dlms.as220;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
-
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.HistoricalValue;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.Register;
-import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  * @author jme
@@ -67,14 +58,10 @@ public class AS220StoredValues implements StoredValues {
 		return capturedCodes;
 	}
 
-	private Array getDataArray() {
+    private Array getDataArray() throws IOException {
 		if (dataArray == null) {
-			try {
 				dataArray = new Array(getProfileGeneric().getBufferData(), 0, 0);
-			} catch (IOException e) {
-				dataArray = null;
 			}
-		}
 		return dataArray;
 	}
 
@@ -180,9 +167,11 @@ public class AS220StoredValues implements StoredValues {
 	/**
 	 * This inner class is just a data container to cache the {@link Unit} and
 	 * {@link ScalerUnit} of a register.
+     *
 	 * @author jme
 	 */
 	private class UnitInfo {
+
 		private final ObisCode obis;
 		private final Unit unit;
 		private final ScalerUnit scalerUnit;
