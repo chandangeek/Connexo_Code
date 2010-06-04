@@ -802,7 +802,7 @@ public final class DLMSConfig {
 
 	protected UniversalObject getMbusEventLog(UniversalObject[] objectList, String manuf) throws IOException{
 		if (objectList == null) {
-			throw new IOException("DLMSConfig, getControlLogObject, objectlist empty!");
+			throw new IOException("DLMSConfig, getMbusEventLog, objectlist empty!");
 		}
 		for(int t = 0; t < mbusEventLog.length; t++){
 			if((manuf != null) && (mbusEventLog[t].getManuf().compareTo(manuf) != 0)) {
@@ -814,7 +814,7 @@ public final class DLMSConfig {
 				}
 			}
 		}
-		throw new IOException("DLMSConfig, getControlLogObject, not found in objectlist (IOL)");
+		throw new IOException("DLMSConfig, getMbusEventLog, not found in objectlist (IOL)");
 	}
 
 	protected UniversalObject getMbusControlLog(UniversalObject[] objectList, String manuf, int channel) throws IOException{

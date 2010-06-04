@@ -28,7 +28,7 @@ import java.util.logging.Level;
 
 public class DailyMonthlyProfile {
 	
-	private AbstractNTAProtocol webrtu;
+	protected AbstractNTAProtocol webrtu;
 	
 	public DailyMonthlyProfile(){
 	}
@@ -255,7 +255,7 @@ public class DailyMonthlyProfile {
 		return -1;
 	}
 	
-	private void buildProfileData(final DataContainer dc, final ProfileData pd, final ProfileGeneric pg, final int timeDuration) throws IOException{
+	protected void buildProfileData(final DataContainer dc, final ProfileData pd, final ProfileGeneric pg, final int timeDuration) throws IOException{
 		
 		try {
 			Calendar cal = null;
@@ -311,7 +311,7 @@ public class DailyMonthlyProfile {
 	 * @return the intervalData
 	 * @throws IOException
 	 */
-	private IntervalData getIntervalData(final DataStructure ds, final Calendar cal, final int status, final ProfileGeneric pg, final List channelInfos)throws IOException{
+    protected IntervalData getIntervalData(final DataStructure ds, final Calendar cal, final int status, final ProfileGeneric pg, final List channelInfos)throws IOException{
 		
 		final IntervalData id = new IntervalData(cal.getTime(), StatusCodeProfile.intervalStateBits(status));
 		int index = 0;
@@ -333,7 +333,7 @@ public class DailyMonthlyProfile {
 		return id;
 	}
 	
-	private int getProfileStatusChannelIndex(final ProfileGeneric pg) throws IOException{
+	protected int getProfileStatusChannelIndex(final ProfileGeneric pg) throws IOException{
 		try {
 			for(int i = 0; i < pg.getCaptureObjectsAsUniversalObjects().length; i++){
 				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(getMeterConfig().getStatusObject().getObisCode())){
@@ -347,7 +347,7 @@ public class DailyMonthlyProfile {
 		return -1;
 	}
 	
-	private int getProfileClockChannelIndex(final ProfileGeneric pg) throws IOException{
+	protected int getProfileClockChannelIndex(final ProfileGeneric pg) throws IOException{
 		try {
 			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
 				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(getMeterConfig().getClockObject().getObisCode())){
@@ -377,7 +377,7 @@ public class DailyMonthlyProfile {
 		return this.webrtu.getFromCalendar(channel);
 	}
 	
-	private DLMSMeterConfig getMeterConfig(){
+	protected DLMSMeterConfig getMeterConfig(){
 		return this.webrtu.getMeterConfig();
 	}
 	

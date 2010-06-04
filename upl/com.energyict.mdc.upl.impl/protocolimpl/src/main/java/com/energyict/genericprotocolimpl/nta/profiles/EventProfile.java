@@ -1,20 +1,19 @@
 package com.energyict.genericprotocolimpl.nta.profiles;
 
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol;
+import com.energyict.genericprotocolimpl.nta.eventhandling.*;
+import com.energyict.mdw.core.Rtu;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.logging.Level;
-
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol;
-import com.energyict.genericprotocolimpl.nta.eventhandling.DisconnectControlLog;import com.energyict.genericprotocolimpl.nta.eventhandling.FraudDetectionLog;import com.energyict.genericprotocolimpl.nta.eventhandling.MbusLog;import com.energyict.genericprotocolimpl.nta.eventhandling.PowerFailureLog;
-import com.energyict.genericprotocolimpl.nta.eventhandling.EventsLog;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 
 /**
  * 
@@ -22,7 +21,7 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class EventProfile {
 
-	private AbstractNTAProtocol webrtu;
+	protected AbstractNTAProtocol webrtu;
 	
 	public EventProfile(AbstractNTAProtocol webrtu){
 		this.webrtu = webrtu;
@@ -62,19 +61,19 @@ public class EventProfile {
 		webrtu.getStoreObject().add(profileData, getMeter());
 	}
 	
-	private Rtu getMeter(){
+	protected Rtu getMeter(){
 		return this.webrtu.getMeter();
 	}
 	
-	private CosemObjectFactory getCosemObjectFactory(){
+	protected CosemObjectFactory getCosemObjectFactory(){
 		return this.webrtu.getCosemObjectFactory();
 	}
 	
-	private DLMSMeterConfig getMeterConfig(){
+	protected DLMSMeterConfig getMeterConfig(){
 		return this.webrtu.getMeterConfig();
 	}
 
-	private TimeZone getTimeZone() throws IOException{
+	protected TimeZone getTimeZone() throws IOException{
 //		return this.webrtu.getTimeZone();
 		return this.webrtu.getMeterTimeZone();
 	}

@@ -1,14 +1,5 @@
 package com.energyict.genericprotocolimpl.nta.profiles;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.List;
-import java.util.logging.Level;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.TimeDuration;
@@ -32,11 +23,20 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProfileData;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Iterator;
+import java.util.List;
+import java.util.logging.Level;
+
 public class ElectricityProfile {
 	
 	private final boolean DEBUG = false;
 	
-	private AbstractNTAProtocol webrtu;
+	protected AbstractNTAProtocol webrtu;
 	
 	public ElectricityProfile(){
 	}
@@ -125,9 +125,9 @@ public class ElectricityProfile {
 					channelIndex = getProfileChannelNumber(index+1);
 					if(channelIndex != -1){
 						if((su != null) && (su.getUnitCode() != 0)){
-							ci = new ChannelInfo(index, channelIndex, "WebRtuKP_"+index, su.getUnit());
+							ci = new ChannelInfo(index, channelIndex, "NTA_"+index, su.getUnit());
 						} else {
-							ci = new ChannelInfo(index, channelIndex, "WebRtuKP_"+index, Unit.get(BaseUnit.UNITLESS));
+							ci = new ChannelInfo(index, channelIndex, "NTA_"+index, Unit.get(BaseUnit.UNITLESS));
 						}
 						
 						index++;
@@ -190,8 +190,22 @@ public class ElectricityProfile {
 	}
 		return -1;
 	}
-	
-	private void buildProfileData(final DataContainer dc, final ProfileData pd, final ProfileGeneric pg) throws IOException{
+
+    /**
+     * Construct the profileData object for the received data
+     *
+     * @param dc
+     *          the datacontainer constructed from the received byteArray
+     *
+     * @param pd
+     *          the {@link ProfileData} object to put in the data
+     *
+     * @param pg
+     *          the {@link com.energyict.dlms.cosem.ProfileGeneric} object that contains profile information
+     *
+     * @throws IOException
+     */
+	protected void buildProfileData(final DataContainer dc, final ProfileData pd, final ProfileGeneric pg) throws IOException{
 		
 		
 		Calendar cal = null;
@@ -234,11 +248,11 @@ public class ElectricityProfile {
 		}
 	}
 	
-	private boolean isProfileStatusObisCode(final ObisCode oc) throws IOException{
+	protected boolean isProfileStatusObisCode(final ObisCode oc) throws IOException{
 		return oc.equals(getMeterConfig().getStatusObject().getObisCode());
 	}
 	
-	private IntervalData getIntervalData(final DataStructure ds, final Calendar cal, final int status, final ProfileGeneric pg, final List channelInfos)throws IOException{
+	protected IntervalData getIntervalData(final DataStructure ds, final Calendar cal, final int status, final ProfileGeneric pg, final List channelInfos)throws IOException{
 		
 		final IntervalData id = new IntervalData(cal.getTime(), StatusCodeProfile.intervalStateBits(status));
 		int index = 0;
@@ -270,7 +284,7 @@ public class ElectricityProfile {
 		}
 	}
 	
-	private int getProfileStatusChannelIndex(final ProfileGeneric pg) throws IOException{
+	protected int getProfileStatusChannelIndex(final ProfileGeneric pg) throws IOException{
 		try {
 			for(int i = 0; i < pg.getCaptureObjectsAsUniversalObjects().length; i++){
 				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(getMeterConfig().getStatusObject().getObisCode())){
@@ -284,7 +298,7 @@ public class ElectricityProfile {
 		return -1;
 	}
 	
-	private int getProfileClockChannelIndex(final ProfileGeneric pg) throws IOException{
+	protected int getProfileClockChannelIndex(final ProfileGeneric pg) throws IOException{
 		try {
 			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
 				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(getMeterConfig().getClockObject().getObisCode())){
@@ -313,8 +327,12 @@ public class ElectricityProfile {
 	private Calendar getFromCalendar(final Channel channel){
 		return this.webrtu.getFromCalendar(channel);
 	}
-	
-	private DLMSMeterConfig getMeterConfig(){
+
+    /**
+     * Protected getter for the {@link com.energyict.dlms.DLMSMeterConfig}
+     * @return the DLMSMeterConfig
+     */
+	protected DLMSMeterConfig getMeterConfig(){
 		return this.webrtu.getMeterConfig();
 	}
 

@@ -62,7 +62,7 @@ public class TicDevice implements GenericProtocol {
 	}
 
 	public String getVersion() {
-		return "$Revision";
+		return "$Date$";
 	}
 
 	public List getOptionalKeys() {

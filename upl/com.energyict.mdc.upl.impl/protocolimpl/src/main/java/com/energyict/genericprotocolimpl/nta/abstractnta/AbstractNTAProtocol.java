@@ -179,7 +179,7 @@ public abstract class AbstractNTAProtocol extends MeterMessages implements Gener
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
 
 		boolean success = false;
-		String ipAddress = "";
+
 
 		this.scheduler = scheduler;
 		this.logger = logger;
@@ -191,17 +191,7 @@ public abstract class AbstractNTAProtocol extends MeterMessages implements Gener
 		try {
 
 			if (this.wakeup == 1) {
-				this.logger.info("In Wakeup");
-				SmsWakeup smsWakeup = new SmsWakeup(this.scheduler, this.logger);
-				smsWakeup.doWakeUp();
-
-				this.webRtuKP = getUpdatedMeter();
-
-				ipAddress = checkIPAddressForPortNumber(smsWakeup.getIpAddress());
-
-				this.link.setStreamConnection(new SocketStreamConnection(ipAddress));
-				this.link.getStreamConnection().open();
-				getLogger().log(Level.INFO, "Connected to " + ipAddress);
+                doWakeUp();
 			} else if((this.scheduler.getDialerFactory().getName() != null)&&(this.scheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer"))){
 				throw new ConnectionException("The NullDialer type is only allowed for the wakeup meter.");
 			}
@@ -328,6 +318,28 @@ public abstract class AbstractNTAProtocol extends MeterMessages implements Gener
 			}
 		}
 	}
+
+    /**
+     * Execute a wakeUp command
+     *
+     * @throws BusinessException if a business error occurred
+     * @throws IOException
+     * @throws SQLException if a database error occurred
+     */
+    protected void doWakeUp() throws BusinessException, IOException, SQLException {
+        String ipAddress = "";
+        this.logger.info("In Wakeup");
+        SmsWakeup smsWakeup = new SmsWakeup(this.scheduler, this.logger);
+        smsWakeup.doWakeUp();
+
+        this.webRtuKP = getUpdatedMeter();
+
+        ipAddress = checkIPAddressForPortNumber(smsWakeup.getIpAddress());
+
+        this.link.setStreamConnection(new SocketStreamConnection(ipAddress));
+        this.link.getStreamConnection().open();
+        getLogger().log(Level.INFO, "Connected to " + ipAddress);
+    }
 	
 	/**
 	 * Check if a given ObisCode is in the objectList
@@ -1288,6 +1300,9 @@ public abstract class AbstractNTAProtocol extends MeterMessages implements Gener
 		return this.serialNumber;
 	}
 
+    /**
+     * {@inheritDoc}
+     */
 	public void validateProperties() throws MissingPropertyException, InvalidPropertyException {
 		Iterator<String> iterator = getRequiredKeys().iterator();
 		while (iterator.hasNext()) {

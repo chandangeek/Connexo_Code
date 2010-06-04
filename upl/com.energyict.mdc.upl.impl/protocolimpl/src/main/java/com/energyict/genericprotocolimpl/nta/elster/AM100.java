@@ -4,11 +4,8 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
-import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.genericprotocolimpl.common.wakeup.SmsWakeup;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol;
-import com.energyict.genericprotocolimpl.nta.profiles.EventProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
 
 import java.io.IOException;
@@ -21,7 +18,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This is the subclass for the AM100.
+ * This is the subclass for the AM100 module.
  * The AM100 implements the NTA spec, but some things were not fully compliant with the original implementation.
  * 
  * Copyrights EnergyICT
@@ -43,13 +40,13 @@ public class AM100 extends AbstractNTAProtocol {
      * 	_Profiles
      * 	_Daily/Monthly readings
      * 	_Registers
-     * 	_Messages
+     * 	_Messages                                                                                         
      * - Then all the MBus meters are handled in the same way as the E-meter
      * </pre>
      */
     @Override
     public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
-        		boolean success = false;
+        boolean success = false;
 		String ipAddress = "";
 
 		this.scheduler = scheduler;
@@ -62,17 +59,7 @@ public class AM100 extends AbstractNTAProtocol {
 		try {
 
 			if (1 == this.wakeup) {
-				this.logger.info("In Wakeup");
-				SmsWakeup smsWakeup = new SmsWakeup(this.scheduler, this.logger);
-				smsWakeup.doWakeUp();
-
-				this.webRtuKP = getUpdatedMeter();
-
-				ipAddress = checkIPAddressForPortNumber(smsWakeup.getIpAddress());
-
-				this.link.setStreamConnection(new SocketStreamConnection(ipAddress));
-				this.link.getStreamConnection().open();
-				getLogger().log(Level.INFO, "Connected to " + ipAddress);
+                doWakeUp();
 			} else if((this.scheduler.getDialerFactory().getName() != null)&&(this.scheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer"))){
 				throw new ConnectionException("The NullDialer type is only allowed for the wakeup meter.");
 			}
@@ -80,7 +67,6 @@ public class AM100 extends AbstractNTAProtocol {
 			init();
 			connect();
 			connected = true;
-
 
 			// Check if the time is greater then allowed, if so then no data can be stored...
 			// Don't do this when a forceClock is scheduled
@@ -137,11 +123,6 @@ public class AM100 extends AbstractNTAProtocol {
 			if (getValidMbusDevices() != 0) {
 				getLogger().log(Level.INFO, "Starting to handle the MBus meters.");
 				handleMbusMeters();
-			}
-
-			if(hasTicDevices()){
-				getLogger().log(Level.INFO, "Starting to handle the Tic device.");
-				handleTicDevice();
 			}
 
 			// Set clock or Force clock... if necessary
@@ -206,7 +187,6 @@ public class AM100 extends AbstractNTAProtocol {
      */
     @Override
     protected void checkCacheObjects() throws IOException {
-//        super.checkCacheObjects();    //To change body of overridden methods use File | Settings | File Templates.
         if ((super.dlmsCache.getObjectList() == null) || forcedToReadCache) {
             log(Level.INFO, forcedToReadCache?"ForcedToReadCache property is true, reading cache!":"Cache does not exist, configuration is forced to be read.");
 			requestConfiguration();
@@ -221,8 +201,8 @@ public class AM100 extends AbstractNTAProtocol {
      */
     @Override
     public void doValidateProperties() {
-        //To change body of implemented methods use File | Settings | File Templates.
         this.forcedToReadCache = !properties.getProperty(PROP_FORCEDTOREADCACHE, "0").equalsIgnoreCase("0");
+         this.readMonthly = !properties.getProperty("ReadMonthlyValues", "0").equalsIgnoreCase("0"); 
     }
 
     /**
@@ -244,7 +224,7 @@ public class AM100 extends AbstractNTAProtocol {
      */
     @Override
     public List<String> doGetRequiredKeys() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     /**

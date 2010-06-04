@@ -1,20 +1,13 @@
 package com.energyict.genericprotocolimpl.nta.eventhandling;
 
-import java.io.IOException;
-import java.util.ArrayList;
+import com.energyict.dlms.DataContainer;
+import com.energyict.protocol.MeterEvent;
+
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.protocol.MeterEvent;
-
-public class MbusLog {
-
-	private TimeZone timeZone;
-	private DataContainer dcEvents;
+public class MbusLog extends AbstractEvent{
 	
 	// Mbus log
 	private static final int EVENT_EVENT_LOG_CLEARED = 255;
@@ -43,27 +36,10 @@ public class MbusLog {
 	private static final int EVENT_CLOCK_ADJUSTED_MBUS4 = 134;
 	
 	public MbusLog(TimeZone timeZone, DataContainer dc){
-		this.timeZone = timeZone;
-		this.dcEvents = dc;
-	}
-	
-	public List<MeterEvent> getMeterEvents() throws IOException{
-		List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
-		int size = this.dcEvents.getRoot().getNrOfElements();
-		Date eventTimeStamp = null;
-		for(int i = 0; i <= (size-1); i++){
-			int eventId = (int)this.dcEvents.getRoot().getStructure(i).getValue(1)&0xFF; // To prevent negative values
-			if(isOctetString(this.dcEvents.getRoot().getStructure(i).getElement(0))){
-				eventTimeStamp = new AXDRDateTime(new OctetString(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray())).getValue().getTime();
-			}
-			if(eventTimeStamp != null){
-				buildMeterEvent(meterEvents, eventTimeStamp, eventId);
-			}
-		}
-		return meterEvents;
+        super(dc, timeZone);
 	}
 
-	private void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
+	protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
 		
 		if( !ExtraEvents.extraEvents.containsKey(new Integer(eventId)) ){
 			switch(eventId){
@@ -100,10 +76,4 @@ public class MbusLog {
 			meterEvents.add(ExtraEvents.getExtraEvent(eventTimeStamp, eventId));
 		}
 	}
-
-	private boolean isOctetString(Object element) {
-		return (element instanceof com.energyict.dlms.OctetString)?true:false;
-	}
-	
-
 }

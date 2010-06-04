@@ -376,5 +376,12 @@
 
 -keepnames class com.energyict.genericprotocolimpl.webrtuz3.MbusDevice
 
+-keepnames class com.energyict.genericprotocolimpl.nta.eict.WebRTUKP
+-keepnames class com.energyict.genericprotocolimpl.nta.eict.MbusDevice
 
+-keepnames class com.energyict.genericprotocolimpl.nta.elster.AM100
+-keepnames class com.energyict.genericprotocolimpl.nta.elster.MbusDevice
+
+-keepnames class com.energyict.genericprotocolimpl.nta.iskra.Mx382
+-keepnames class com.energyict.genericprotocolimpl.nta.iskra.MbusDevice
 
