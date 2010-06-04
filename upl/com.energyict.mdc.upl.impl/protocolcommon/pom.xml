@@ -42,4 +42,56 @@
         </plugins>
     </build>
 
+    <profiles>
+        <profile>
+            <id>deployment-elster</id>
+
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <distributionManagement>
+
+                <repository>
+                    <id>elster-releases</id>
+                    <name>Elster releases repository</name>
+                    <url>http://linux2.eict.local/nexus-elster/content/repositories/releases/</url>
+                </repository>
+
+                <snapshotRepository>
+                    <id>elster-snapshots</id>
+                    <name>Elster snapshots repository</name>
+                    <url>http://linux2.eict.local/nexus-elster/content/repositories/snapshots/</url>
+                    <uniqueVersion>false</uniqueVersion>
+                </snapshotRepository>
+
+            </distributionManagement>
+
+        </profile>
+
+        <profile>
+            <id>deployment-eict</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+
+            <distributionManagement>
+
+                <repository>
+                    <id>eict-releases</id>
+                    <name>EnergyICT releases repository</name>
+                    <url>http://linux2.eict.local/nexus/content/repositories/releases/</url>
+                </repository>
+
+                <snapshotRepository>
+                    <id>eict-snapshots</id>
+                    <name>EnergyICT snapshots repository</name>
+                    <url>http://linux2.eict.local/nexus/content/repositories/snapshots/</url>
+                    <uniqueVersion>false</uniqueVersion>
+                </snapshotRepository>
+
+            </distributionManagement>
+        </profile>
+    </profiles>
+
 </project>
