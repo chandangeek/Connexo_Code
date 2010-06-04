@@ -47,7 +47,7 @@
             <id>deployment-elster</id>
 
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
 
             <distributionManagement>
@@ -71,8 +71,9 @@
 
         <profile>
             <id>deployment-eict</id>
+
             <activation>
-                <activeByDefault>false</activeByDefault>
+                <activeByDefault>true</activeByDefault>
             </activation>
 
             <distributionManagement>
