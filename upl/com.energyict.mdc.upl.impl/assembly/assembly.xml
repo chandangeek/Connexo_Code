@@ -24,6 +24,7 @@
 				<!-- Echelon isn't used anymore, when needed just uncomment this -->				
 				<!-- <include>com.energyict:echelon</include> -->
 				<include>com.energyict:protocolimpl</include>
+                <include>com.energyict:protocolcommon</include>
 			</includes>
 			
 			<binaries>
@@ -38,6 +39,7 @@
 			<includes>
 				<include>com.energyict:dlms</include>
 				<include>com.energyict:protocolimpl</include>
+                <include>com.energyict:protocolcommon</include>
 			</includes>
 			
 			<binaries>
