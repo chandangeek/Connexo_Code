@@ -42,12 +42,21 @@
         </plugins>
     </build>
 
+
+    <!--
+The two profiles define two different repositories.
+The default one will deploy the protocolcommon jar to the local nexus repo.
+By using the command "mvn deploy -Delster.deploy=true", the protocolcommon jar will be deployed to the nexus-elster repo.
+    -->
     <profiles>
         <profile>
             <id>deployment-elster</id>
 
             <activation>
-                <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>elster.deploy</name>
+                    <value>true</value>
+                </property>
             </activation>
 
             <distributionManagement>
