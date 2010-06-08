@@ -3,22 +3,18 @@
  */
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.logging.Level;
-
-import org.xml.sax.SAXException;
-
-import sun.misc.BASE64Decoder;
-
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocolimpl.dlms.as220.AS220;
+import org.xml.sax.SAXException;
+import sun.misc.BASE64Decoder;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.logging.Level;
 
 /**
  * @author gna
@@ -152,7 +148,7 @@ public class AS220ImageTransfer {
 				throw new IOException("Could not perform the upgrade because meter does not allow it.");
 			}
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+            //Absorb exception
 		}
 	}
 	

@@ -42,21 +42,17 @@ public class AS220StoredValues implements StoredValues {
 		return cosemObjectFactory;
 	}
 
-	private List<ObisCode> getCapturedCodes() {
-		if (capturedCodes == null) {
-			this.capturedCodes = new ArrayList<ObisCode>();
-			try {
-				for (CapturedObject co : getProfileGeneric().getCaptureObjects()) {
-					if (co.getClassId() != DLMSClassId.CLOCK.getClassId()) {
-						capturedCodes.add(co.getLogicalName().getObisCode());
-					}
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return capturedCodes;
-	}
+    private List<ObisCode> getCapturedCodes() throws IOException {
+        if (capturedCodes == null) {
+            this.capturedCodes = new ArrayList<ObisCode>();
+            for (CapturedObject co : getProfileGeneric().getCaptureObjects()) {
+                if (co.getClassId() != DLMSClassId.CLOCK.getClassId()) {
+                    capturedCodes.add(co.getLogicalName().getObisCode());
+                }
+            }
+        }
+        return capturedCodes;
+    }
 
     private Array getDataArray() throws IOException {
 		if (dataArray == null) {
@@ -146,7 +142,7 @@ public class AS220StoredValues implements StoredValues {
 			try {
 				profileGeneric = getCosemObjectFactory().getProfileGeneric(getObisCode());
 			} catch (IOException e) {
-				e.printStackTrace();
+                //Absorb exception
 			}
 		}
 		return profileGeneric;
@@ -202,12 +198,16 @@ public class AS220StoredValues implements StoredValues {
 		sb.append(" > getBillingPointCounter = ").append(billingPointCount).append(crlf);
 
 		sb.append(" > obisCodes = ").append(crlf);
-		for (ObisCode oc : getCapturedCodes()) {
-			sb.append("     # ").append(oc).append(" - ");
-			sb.append(oc.getDescription()).append(crlf);
-		}
+        try {
+            for (ObisCode oc : getCapturedCodes()) {
+                sb.append("     # ").append(oc).append(" - ");
+                sb.append(oc.getDescription()).append(crlf);
+            }
+        } catch (IOException e) {
+            sb.append(e.getMessage()).append(crlf);
+        }
 
-		sb.append(" > billingPointDates = ").append(crlf);
+        sb.append(" > billingPointDates = ").append(crlf);
 		for (int i = 0; i < billingPointCount; i++) {
 			sb.append("     # ").append(i).append(" = ");
 			try {

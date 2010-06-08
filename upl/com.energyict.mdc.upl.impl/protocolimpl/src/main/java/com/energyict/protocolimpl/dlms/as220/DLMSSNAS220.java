@@ -17,55 +17,24 @@
 
 package com.energyict.protocolimpl.dlms.as220;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
-
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.NotFoundException;
-import com.energyict.cbo.Quantity;
+import com.energyict.cbo.*;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.CosemPDUConnection;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.LLCConnection;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.SecureConnection;
-import com.energyict.dlms.TCPIPConnection;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.aso.AssociationControlServiceElement;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.*;
+import com.energyict.dlms.aso.*;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
-import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
 import com.energyict.protocolimpl.base.RetryHandler;
-import com.energyict.protocolimpl.dlms.DLMSCache;
-import com.energyict.protocolimpl.dlms.HDLC2Connection;
-import com.energyict.protocolimpl.dlms.RtuDLMS;
-import com.energyict.protocolimpl.dlms.RtuDLMSCache;
+import com.energyict.protocolimpl.dlms.*;
+
+import java.io.*;
+import java.util.*;
+import java.util.logging.Logger;
 
 public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, FirmwareUpdateMessaging {
 
@@ -305,15 +274,14 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 			setObjectList();
 	        doConnect();
 			validateSerialNumber();
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException(e.getMessage());
 		} catch (DLMSConnectionException e) {
-			e.printStackTrace();
-			throw new IOException(e.getMessage());
+			IOException exception = new IOException(e.getMessage());
+            exception.initCause(e);
+            throw exception;
 		} catch (BusinessException e) {
-			e.printStackTrace();
-			throw new IOException(e.getMessage());
+            IOException exception = new IOException(e.getMessage());
+            exception.initCause(e);
+            throw exception;
 		}
 	}
 
@@ -358,7 +326,7 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 		            dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
 		        }
 
-		        if (iConf != dlmsCache.getConfProgChange()) {
+        if (iConf != dlmsCache.getConfProgChange()) {
 		            logger.severe("DLMSSNAS220 Configuration changed, request object list.");
 		            requestObjectList();           // request object list again from rtu
 		            dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
@@ -383,8 +351,9 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 			}
 
 		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException("connect() error, " + e.getMessage());
+            IOException exception = new IOException("connect() error, " + e.getMessage());
+            exception.initCause(e);
+            throw exception;
 		}
 	}
 
