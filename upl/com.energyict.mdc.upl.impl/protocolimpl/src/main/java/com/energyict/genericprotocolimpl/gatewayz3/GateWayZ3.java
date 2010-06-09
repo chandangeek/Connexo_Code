@@ -1,18 +1,5 @@
 package com.energyict.genericprotocolimpl.gatewayz3;
 
-import java.io.IOException;
-import java.net.SocketException;
-import java.sql.SQLException;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.DuplicateException;
 import com.energyict.concentrator.communication.driver.rf.cynet.ManufacturerId;
@@ -27,11 +14,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.aso.XdlmsAse;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.DataAccessResultCode;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.genericprotocolimpl.common.CommonUtils;
 import com.energyict.genericprotocolimpl.common.ConcentratorProtocol;
@@ -52,6 +35,14 @@ import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
+
+import java.io.IOException;
+import java.net.SocketException;
+import java.sql.SQLException;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -97,7 +88,7 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 		failingSlaves = new ArrayList<String>();
 		slaves = getSlaveDevices();
 
-		disconnect();
+		disConnect();
 		log(Level.INFO, "Disconnected from the Z3, now all slaves will be processed.");
 
 		// handle each slave device
@@ -350,7 +341,8 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 			NetworkNode subMaster = getMasterFromNetwork(nn.getParentNetwork());
 				String master = getOriginalManufacturerIdNotation(subMaster);
 				if (master.equalsIgnoreCase(deviceId)){
-					NetworkNode superNetSubMaster = getMasterFromNetwork(subMaster.getParentNetwork().getSupernet());
+                    Network nw = subMaster.getParentNetwork();
+					NetworkNode superNetSubMaster = getMasterFromNetwork(nw.getSupernet());
 					return getOriginalManufacturerIdNotation(superNetSubMaster);
 
 				} else {
@@ -384,7 +376,8 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 	 * @return the networknode or null
 	 */
 	private NetworkNode getNetworkNodeForDeviceId(String deviceId){
-		for(NetworkNode nn:this.networkTopology.getRoot().getAllNodes()){
+        Network nw = this.networkTopology.getRoot();
+		for(NetworkNode nn:nw.getAllNodes()){
 			if(getOriginalManufacturerIdNotation(nn).equalsIgnoreCase(deviceId)){
 				return nn;
 			}
@@ -427,8 +420,8 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 
 		if(nt != null){
 			this.networkTopology = NetworkTopology.parse(new ManufacturerId(0), nt, null);
-
-			for(NetworkNode nn:this.networkTopology.getRoot().getAllNodes()){
+            Network nw = this.networkTopology.getRoot();
+			for(NetworkNode nn:nw.getAllNodes()){
 				allNodes.add(getOriginalManufacturerIdNotation(nn));
 			}
 
@@ -730,4 +723,4 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 	protected RegisterValue readRegister(ObisCode obisCode) throws IOException {
 		return null;
 	}
-}
+    }
