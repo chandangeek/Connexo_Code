@@ -1,9 +1,8 @@
 package com.energyict.dlms.aso;
 
-import java.io.IOException;
-
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertArrayEquals;
 
 
 public class XdlmsAseTest {
@@ -11,7 +10,6 @@ public class XdlmsAseTest {
 	@Test
 	public void initiateRequestTest(){
 		
-		try {
 			/**
 			 * xDLMS context with:
 			 * <pre>
@@ -35,10 +33,7 @@ public class XdlmsAseTest {
 			ase = new XdlmsAse(null, false, -1, 6, null, 1200);
 			ase.getInitiatRequestByteArray();
 			
-		} catch (IOException e) {
-			e.printStackTrace();
-			fail();
-		}
+
 	}
 	
 }

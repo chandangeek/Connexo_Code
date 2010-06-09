@@ -1,30 +1,22 @@
 package com.energyict.genericprotocolimpl.nta.messagehandling;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.MBusClient;
-import com.energyict.dlms.cosem.ScriptTable;
-import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.mdw.shadow.RtuShadow;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.TimeZone;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 
@@ -157,8 +149,8 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 				if(openKey == null){
 					mbusClient.setEncryptionKey("");
 				} else if(transferKey != null){
-					mbusClient.setEncryptionKey(convertStringToByte(openKey));
-					mbusClient.setTransportKey(convertStringToByte(transferKey));
+                    mbusClient.setTransportKey(convertStringToByte(transferKey));
+                    mbusClient.setEncryptionKey(convertStringToByte(openKey));
 				} else {
 					throw new IOException("Transfer key may not be empty when setting the encryption keys.");
 				}

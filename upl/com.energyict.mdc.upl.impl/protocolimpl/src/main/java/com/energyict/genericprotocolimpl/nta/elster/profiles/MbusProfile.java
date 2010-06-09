@@ -1,8 +1,9 @@
-package com.energyict.genericprotocolimpl.nta.elster;
+package com.energyict.genericprotocolimpl.nta.elster.profiles;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.genericprotocolimpl.nta.elster.MbusDevice;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProfileData;
@@ -11,41 +12,29 @@ import java.io.IOException;
 import java.util.Calendar;
 
 /**
- * The electricityProfile is based on the profile NTA version.
- * Only the status-ObisCodes are not in the ObjectList so we needed to hardcoded them
- * <p/>
+ * <p>
  * Copyrights EnergyICT
- * Date: 2-jun-2010
- * Time: 17:07:33
+ * Date: 8-jun-2010
+ * Time: 13:17:28
+ * </p>
  */
-public class ElectricityProfile extends com.energyict.genericprotocolimpl.nta.profiles.ElectricityProfile {
+public class MbusProfile extends com.energyict.genericprotocolimpl.nta.profiles.MbusProfile {
 
     /**
      * Static ObisCode for the Status
      */
-    private final static ObisCode OBISCODE_STATUS = ObisCode.fromString("0.0.96.10.1.255");
+    private final static ObisCode OBISCODE_STATUS = ObisCode.fromString("0.0.96.10.3.255");
+
 
     /**
-     * Constructor with the subclass
+     * Constructor
      */
-    public ElectricityProfile(AM100 am100) {
-        super(am100);
+    public MbusProfile(MbusDevice mbusDevice) {
+        super(mbusDevice);
     }
 
-    /**
-     * <b><u>Note:</u></b><br>
-     * We override this method because the deviation specified in the returned byteArray contains a positive signed amount of minutes.
-     * If we add that to the calculated time then we get an incorrect GMT time. The Iskra meter and the Kamstrup meter return a negative
-     * signed amount of minutes in the deviation...
-     *
-     * @param dc the datacontainer constructed from the received byteArray
-     * @param pd the {@link ProfileData} object to put in the data
-     * @param pg the {@link com.energyict.dlms.cosem.ProfileGeneric} object that contains profile information
-     * @throws IOException
-     */
     @Override
-    protected void buildProfileData(final DataContainer dc, final ProfileData pd, final ProfileGeneric pg) throws IOException {
-
+    protected void buildProfileData(DataContainer dc, ProfileData pd, ProfileGeneric pg) throws IOException {
 
         Calendar cal = null;
         IntervalData currentInterval = null;
@@ -53,19 +42,11 @@ public class ElectricityProfile extends com.energyict.genericprotocolimpl.nta.pr
         if (dc.getRoot().getElements().length != 0) {
 
             for (int i = 0; i < dc.getRoot().getElements().length; i++) {
-
-                //Test
-                if (dc.getRoot().getStructure(i) == null) {
-                    dc.printDataContainer();
-                    System.out.println("Element: " + i);
-                }
-
                 if (dc.getRoot().getStructure(i).isOctetString(0)) {
-					cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(webrtu.getTimeZone());
-//                    cal = new AXDRDateTime(new OctetString(dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).getArray())).getValue();
+                    cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(mbusDevice.getWebRTU().getTimeZone());
                 } else {
                     if (cal != null) {
-                        cal.add(Calendar.SECOND, webrtu.getMeter().getIntervalInSeconds());
+                        cal.add(Calendar.SECOND, mbusDevice.getMbus().getIntervalInSeconds());
                     }
                 }
                 if (cal != null) {
@@ -83,7 +64,7 @@ public class ElectricityProfile extends com.energyict.genericprotocolimpl.nta.pr
                 }
             }
         } else {
-            webrtu.getLogger().info("No entries in LoadProfile");
+            mbusDevice.getLogger().info("No entries in MbusLoadProfile");
         }
     }
 
@@ -108,9 +89,18 @@ public class ElectricityProfile extends com.energyict.genericprotocolimpl.nta.pr
     /**
      * {@inheritDoc}
      */
-    @Override
-    protected boolean isProfileStatusObisCode(final ObisCode oc) throws IOException {
-        return OBISCODE_STATUS.equals(oc);
+    protected boolean isProfileStatusObisCode(final ObisCode oc){
+        return getChannelCorrectedObiscode(OBISCODE_STATUS).equals(oc);
     }
 
+    /**
+     * Change the default obisCode the the Mbus 'channeled' obiscode
+     * @param oc - the obisCode to convert
+     *
+     * @return the converted obisCode
+     */
+    private ObisCode getChannelCorrectedObiscode(ObisCode oc){
+        oc = new ObisCode(oc.getA(), mbusDevice.getPhysicalAddress() + 1, oc.getC(), oc.getD(), oc.getE(), oc.getF());
+        return oc;
+    }
 }

@@ -42,7 +42,7 @@ import java.util.logging.Logger;
 public class MessageExecutor extends GenericMessageExecutor{
 	
 	private AbstractNTAProtocol webRtu;
-	private boolean DEBUG = true;
+	private boolean DEBUG = false;
 	
 //	private String[] weekNames = {"a", "b", "c", "d"};
 

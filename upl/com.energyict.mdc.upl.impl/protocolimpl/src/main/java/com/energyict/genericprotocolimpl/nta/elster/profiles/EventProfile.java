@@ -1,4 +1,4 @@
-package com.energyict.genericprotocolimpl.nta.elster;
+package com.energyict.genericprotocolimpl.nta.elster.profiles;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol;

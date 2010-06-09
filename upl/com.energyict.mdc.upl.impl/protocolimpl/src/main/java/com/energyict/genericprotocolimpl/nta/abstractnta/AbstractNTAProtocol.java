@@ -123,7 +123,7 @@ public abstract class AbstractNTAProtocol extends MeterMessages implements Gener
 
 	protected DLMSCache dlmsCache = new DLMSCache();	// this cache object is supported by 7.5
 
-	private AbstractMbusDevice[] mbusDevices;
+	protected AbstractMbusDevice[] mbusDevices;
 	private Map<String, Integer> ghostMbusDevices = new HashMap<String, Integer>();	// GhostMbusDevices are Mbus meters that are connected with their gateway in EIServer, but not on the physical device anymore
 	private TicDevice ticDevice;
 	private Clock deviceClock;
@@ -161,7 +161,7 @@ public abstract class AbstractNTAProtocol extends MeterMessages implements Gener
 	private int iiapServiceClass;
 	private int iiapInvokeId;
 	protected int wakeup;
-	private int oldMbusDiscovery;
+	protected int oldMbusDiscovery;
 	private boolean fixMbusHexShortId;
     private int cipheringType;
 
@@ -1100,12 +1100,35 @@ public abstract class AbstractNTAProtocol extends MeterMessages implements Gener
 			if(!ghostMbusDevices.containsKey(entry.getKey()) && !ignoreIskraGostMbusDevice.equals(entry.getKey())){ // ghostMeters don't need to be read because they are not on the meter anymore
 				Rtu mbus = findOrCreateMbusDevice(entry.getKey());
 				if(mbus != null){
-					this.mbusDevices[count++] = new AbstractMbusDevice(entry.getKey(), entry.getValue(), mbus, getLogger());
+//					this.mbusDevices[count++] = new AbstractMbusDevice(entry.getKey(), entry.getValue(), mbus, getLogger());
+                    addMbusDevice(count++, entry.getKey(), entry.getValue(), mbus, getLogger());
 				}
 			}
 		}
 	}
-	
+
+    /**
+     * Add a MBusDevice to the mbusDevices list
+     *
+     * @param index
+     *          - the index to put the mbus device
+     *
+     * @param serial
+     *          - the serialnumber for the Mbus device
+     *
+     * @param physicalAddress
+     *          - the physicalAddress of the Mbus device
+     *
+     * @param mbusRtu
+     *          - the Rtu from the database created for the Mbus device
+     *
+     * @param logger
+     *          - the logger that will be used
+     */
+    protected void addMbusDevice(int index, String serial, int physicalAddress, Rtu mbusRtu, Logger logger){
+        this.mbusDevices[index] = new AbstractMbusDevice(serial, physicalAddress, mbusRtu, logger);
+    }
+
 	private Rtu findOrCreateMbusDevice(String key) throws SQLException, BusinessException {
 		List<Rtu> mbusList = mw().getRtuFactory().findBySerialNumber(key);
 		if(mbusList.size() == 1){
@@ -1547,100 +1570,6 @@ public abstract class AbstractNTAProtocol extends MeterMessages implements Gener
 
 	public int getConnectionMode() {
 		return this.connectionMode;
-	}
-
-	public static void main(String args[]) {
-//		WebRTUKP wkp = new WebRTUKP();
-
-		// try {
-		// Utilities.createEnvironment();
-		// MeteringWarehouse.createBatchContext(false);
-		// MeteringWarehouse mw = MeteringWarehouse.getCurrent();
-		// // CommunicationScheduler cs = mw.getCommunicationSchedulerFactory().find(8139);
-		// CommunicationScheduler cs = mw.getCommunicationSchedulerFactory().find(8158);
-		// Rtu rtu = cs.getRtu();
-		// wkp.webRtuKP = rtu;
-		// wkp.scheduler = cs;
-		// wkp.scheduler.getCommunicationProfile().getShadow();
-		// try {
-		// wkp.doReadRegisters();
-		// } catch (IOException e) {
-		// // TODO Auto-generated catch block
-		// log(Level.FINEST, e.getMessage());
-		// }
-
-		// RtuMessageShadow rms = new RtuMessageShadow();
-		// rms.setContents("<Test_Message Test_File='460'> </Test_Message>");
-		// rms.setRtuId(17492);
-		//			
-		// wkp.logger = Logger.getAnonymousLogger();
-		//			
-		// // wkp.handleMessage(wkp.mw().getRtuMessageFactory().create(rms));
-		// } catch (BusinessException e) {
-		// // TODO Auto-generated catch block
-		// log(Level.FINEST, e.getMessage());
-		// } catch (SQLException e) {
-		// // TODO Auto-generated catch block
-		// log(Level.FINEST, e.getMessage());
-		// }
-
-		// try {
-		// AXDRDateTime axdrDateTime = wkp.convertUnixToGMTDateTime("1236761593", TimeZone.getTimeZone("GMT"));
-		// System.out.println(axdrDateTime.getValue().getTime());
-		// System.out.println(wkp.getFirstDate(axdrDateTime.getValue().getTime(), "day", TimeZone.getTimeZone("GMT")));
-		// System.out.println(axdrDateTime.getValue().get(Calendar.HOUR_OF_DAY));
-		// System.out.println(axdrDateTime.getValue().getTimeZone().getRawOffset()/3600000);
-		// System.out.println(axdrDateTime.getValue().getTimeZone().getOffset(Long.parseLong("1236761593")*MagicNumberConstants.thousand.getValue())/3600000);
-		//			
-		// axdrDateTime = wkp.convertUnixToGMTDateTime("1236761593", TimeZone.getTimeZone("Europe/Brussels"));
-		// System.out.println(axdrDateTime.getValue().getTime());
-		// System.out.println(wkp.getFirstDate(axdrDateTime.getValue().getTime(), "day", TimeZone.getTimeZone("Europe/Brussels")));
-		// System.out.println(axdrDateTime.getValue().get(Calendar.HOUR_OF_DAY));
-		// System.out.println(axdrDateTime.getValue().getTimeZone().getRawOffset()/3600000);
-		// System.out.println(axdrDateTime.getValue().getTimeZone().getOffset(Long.parseLong("1236761593")*MagicNumberConstants.thousand.getValue())/3600000);
-		//			
-		// axdrDateTime = wkp.convertUnixToGMTDateTime("1234947193", TimeZone.getTimeZone("GMT"));
-		// System.out.println(axdrDateTime.getValue().getTime());
-		// System.out.println(wkp.getFirstDate(axdrDateTime.getValue().getTime(), "day", TimeZone.getTimeZone("GMT")));
-		// System.out.println(axdrDateTime.getValue().get(Calendar.HOUR_OF_DAY));
-		// System.out.println(axdrDateTime.getValue().getTimeZone().getRawOffset()/3600000);
-		// System.out.println(axdrDateTime.getValue().getTimeZone().getOffset(Long.parseLong("1234947193")*MagicNumberConstants.thousand.getValue())/3600000);
-		//			
-		// axdrDateTime = wkp.convertUnixToGMTDateTime("1234947193", TimeZone.getTimeZone("Europe/Brussels"));
-		// System.out.println(axdrDateTime.getValue().getTime());
-		// System.out.println(wkp.getFirstDate(axdrDateTime.getValue().getTime(), "day", TimeZone.getTimeZone("Europe/Brussels")));
-		// System.out.println(axdrDateTime.getValue().get(Calendar.HOUR_OF_DAY));
-		// System.out.println(axdrDateTime.getValue().getTimeZone().getRawOffset()/3600000);
-		// System.out.println(axdrDateTime.getValue().getTimeZone().getOffset(Long.parseLong("1234947193")*MagicNumberConstants.thousand.getValue())/3600000);
-		//			
-		// Date nextDate = wkp.getFirstDate(axdrDateTime.getValue().getTime(), "month", TimeZone.getTimeZone("Europe/Brussels"));
-		// int days = 0;
-		// while(days < 60){
-		//				
-		// if(days == 36){
-		// System.out.println("timeout");
-		// }
-		//				
-		// System.out.println(nextDate);
-		// nextDate = wkp.setBeforeNextInterval(nextDate, "month", TimeZone.getTimeZone("Europe/Brussels"));
-		// days++;
-		// }
-		//			
-		// } catch (IOException e) {
-		// log(Level.FINEST, e.getMessage());
-		// }
-
-//		String comm = "612aa109060760857405080101a203020100a305a103020100be11040f080100065f1f0400007c1f04000007";
-//		String mvie = "6141A109060760857405080101A203020100A305A10302010E88020780890760857405080205AA0A8008503677524A323146BE10040E0800065F1F040000501F01F40007";
-//
-//		byte[] bComm = DLMSUtils.hexStringToByteArray(comm);
-//		byte[] bmVie = DLMSUtils.hexStringToByteArray(mvie);
-//
-//		for (int i = 0; i < ((bComm.length > bmVie.length) ? bmVie.length : bComm.length); i++) {
-//			if (bComm[i] != bmVie[i])
-//				System.out.println("Difference at: " + i + "; Comm: " + bComm[i] + "(" + comm.charAt(i * 2) + comm.charAt(i * 2 + 1) + ") - MVie: " + bmVie[i] + "(" + mvie.charAt(i * 2)
-//						+ mvie.charAt(i * 2 + 1) + ")");
-//		}
 	}
 
 	public boolean isReadDaily() {

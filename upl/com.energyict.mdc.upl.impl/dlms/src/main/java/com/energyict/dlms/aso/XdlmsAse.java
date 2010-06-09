@@ -1,7 +1,5 @@
 package com.energyict.dlms.aso;
 
-import java.io.IOException;
-
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -65,9 +63,8 @@ public class XdlmsAse {
 	/**
 	 * Construct a byteArray containing an InitiateRequest using the desired parameters
 	 * @return an A-XDR encoded byteArray
-	 * @throws IOException if the encoding of certain objects fail
 	 */
-	public byte[] getInitiatRequestByteArray() throws IOException {
+	public byte[] getInitiatRequestByteArray() {
 		int t = 0;
 		byte[] xDlmsASEReq = new byte[1024];
 

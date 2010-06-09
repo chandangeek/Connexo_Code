@@ -1,13 +1,5 @@
 package com.energyict.genericprotocolimpl.nta.profiles;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.logging.Level;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.TimeDuration;
@@ -31,9 +23,17 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProfileData;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.logging.Level;
+
 public class MbusProfile {
 	
-	private AbstractMbusDevice mbusDevice;
+	protected AbstractMbusDevice mbusDevice;
 	
 	public MbusProfile(){
 	}
@@ -186,7 +186,7 @@ public class MbusProfile {
 		return -1;
 	}
 	
-	private void buildProfileData(DataContainer dc, ProfileData pd, ProfileGeneric pg) throws IOException{
+	protected void buildProfileData(DataContainer dc, ProfileData pd, ProfileGeneric pg) throws IOException{
 		
 		Calendar cal = null;
 		IntervalData currentInterval = null;
@@ -221,7 +221,7 @@ public class MbusProfile {
 		}
 	}
 	
-	private IntervalData getIntervalData(DataStructure ds, Calendar cal, int status, ProfileGeneric pg, List channelInfos)throws IOException{
+	protected IntervalData getIntervalData(DataStructure ds, Calendar cal, int status, ProfileGeneric pg, List channelInfos)throws IOException{
 		
 		IntervalData id = new IntervalData(cal.getTime(), StatusCodeProfile.intervalStateBits(status));
 		int index = 0;
@@ -243,7 +243,7 @@ public class MbusProfile {
 		return id;
 	}
 	
-	private int getProfileClockChannelIndex(ProfileGeneric pg) throws IOException{
+	protected int getProfileClockChannelIndex(ProfileGeneric pg) throws IOException{
 		try {
 			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
 				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(getMeterConfig().getClockObject().getObisCode())){
@@ -257,7 +257,7 @@ public class MbusProfile {
 		return -1;
 	}
 
-	private int getProfileStatusChannelIndex(ProfileGeneric pg) throws IOException{
+	protected int getProfileStatusChannelIndex(ProfileGeneric pg) throws IOException{
 		try {
 			for(int i = 0; i < pg.getCaptureObjectsAsUniversalObjects().length; i++){
 				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(getMeterConfig().getMbusStatusObject(this.mbusDevice.getPhysicalAddress()).getObisCode())){

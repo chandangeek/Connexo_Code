@@ -1,10 +1,11 @@
-package com.energyict.genericprotocolimpl.nta.elster;
+package com.energyict.genericprotocolimpl.nta.elster.profiles;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.genericprotocolimpl.nta.elster.AM100;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProfileData;
@@ -44,8 +45,6 @@ public class DailyMonthlyProfile extends com.energyict.genericprotocolimpl.nta.p
                 for (int i = 0; i < dc.getRoot().getElements().length; i++) {
 
                     if (dc.getRoot().getStructure(i).isOctetString(0)) {
-//						cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getTimeZone());
-//                        cal = new AXDRDateTime(new OctetString(dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).getArray())).getValue();
                         cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(webrtu.getTimeZone());
                     } else {
                         if (cal != null) {

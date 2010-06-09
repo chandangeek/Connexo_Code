@@ -101,7 +101,7 @@ public class AbstractMbusDevice extends MbusMessages implements GenericProtocol{
 		return getWebRTU().getCosemObjectFactory();
 	}
 	
-	private DLMSMeterConfig getMeterConfig(){
+	protected DLMSMeterConfig getMeterConfig(){
 		return getWebRTU().getMeterConfig();
 	}
 	
@@ -170,7 +170,7 @@ public class AbstractMbusDevice extends MbusMessages implements GenericProtocol{
 		}
 	}
 	
-	private void doReadRegisters() throws IOException{
+	protected void doReadRegisters() throws IOException{
 		Iterator<RtuRegister> it = getMbus().getRegisters().iterator();
 		List groups = this.commProfile.getRtuRegisterGroups();
 		ObisCode oc = null;
@@ -205,7 +205,7 @@ public class AbstractMbusDevice extends MbusMessages implements GenericProtocol{
 		}
 	}
 	
-	private void sendMeterMessages() throws BusinessException, SQLException {
+	protected void sendMeterMessages() throws BusinessException, SQLException {
 		MbusMessageExecutor messageExecutor = new MbusMessageExecutor(this);
 
 		Iterator<RtuMessage> it = getMbus().getPendingMessages().iterator();
