@@ -4,17 +4,30 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.*;
-import com.energyict.dlms.aso.*;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.cosem.*;
-import com.energyict.genericprotocolimpl.common.*;
-import com.energyict.genericprotocolimpl.common.messages.*;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.IPv4Setup;
+import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.genericprotocolimpl.common.CommonUtils;
+import com.energyict.genericprotocolimpl.common.DLMSProtocol;
+import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
+import com.energyict.genericprotocolimpl.common.StoreObject;
+import com.energyict.genericprotocolimpl.common.messages.RtuMessageCategoryConstants;
+import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
+import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
 import com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers.ObisCodeMapper;
-import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.MessageExecutor;
-import com.energyict.genericprotocolimpl.webrtuz3.profiles.*;
+import com.energyict.genericprotocolimpl.webrtuz3.profiles.DailyMonthly;
+import com.energyict.genericprotocolimpl.webrtuz3.profiles.EDevice;
+import com.energyict.genericprotocolimpl.webrtuz3.profiles.EMeterEventProfile;
 import com.energyict.mdw.amr.RtuRegister;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.CommunicationScheduler;
+import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -29,7 +42,7 @@ import java.util.logging.Level;
 
 /**
  * <p>
- * Implements the WebRTUZ3 protocol. Initially it's a copy of the {@link WebRTUKP} protocol,
+ * Implements the WebRTUZ3 protocol. Initially it's a copy of the {@link com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol} protocol,
  * but with more extensions to it.
  * </p>
  *
@@ -37,6 +50,9 @@ import java.util.logging.Level;
  *
  */
 public class WebRTUZ3 extends DLMSProtocol implements EDevice {
+
+    /** Indicates whether specific messages are allowed for the firmwareTeam */
+    private static final boolean FIRMWAREBUILD = true;
 
 	/** Property names */
 	private static final String			PROPERTY_PASSWORD				= "Password";
@@ -330,7 +346,7 @@ storeObject.add(eProfileData, getMeter());
 	 */
 	private void verifyMeterSerialNumber() throws IOException {
 		String serial = getSerialNumber();
-		if (!(this.serialNumber.equalsIgnoreCase("")) && (!this.serialNumber.equals(serial))) {
+		if (enforceSerialNumber && !(this.serialNumber.equalsIgnoreCase("")) && (!this.serialNumber.equals(serial))) {
 			throw new IOException("Wrong serialnumber, EIServer settings: " + this.serialNumber + " - Meter settings: " + serial);
 		}
 	}
@@ -517,8 +533,9 @@ storeObject.add(eProfileData, getMeter());
 		return ocm.getRegisterValue(obisCode);
 	}
 
+
     @Override
-    protected void validateProperties() throws MissingPropertyException, InvalidPropertyException {
+    public void validateProperties() throws MissingPropertyException, InvalidPropertyException {
         super.validateProperties();    //To change body of overridden methods use File | Settings | File Templates.
     }
 
@@ -937,13 +954,18 @@ storeObject.add(eProfileData, getMeter());
         categories.add(getGlobalResetCategory());
 
 /*
-        categories.add(getXmlConfigCategory());
+
 		categories.add(getP1Category());
 		categories.add(getConnectControlCategory());
 		categories.add(getLoadLimitCategory());
-		categories.add(getDataBaseEntriesCategory());
-		categories.add(getTestCategory());
+
 */
+        if(FIRMWAREBUILD){
+            categories.add(getTestCategory());
+            categories.add(getXmlConfigCategory());
+            categories.add(getDataBaseEntriesCategory());
+        }
+
 
 		return categories;
 	}
