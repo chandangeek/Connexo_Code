@@ -2,14 +2,21 @@ package com.energyict.genericprotocolimpl.nta.elster;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.Link;
+import com.energyict.genericprotocolimpl.common.messages.RtuMessageCategoryConstants;
+import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
+import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
 import com.energyict.genericprotocolimpl.nta.elster.profiles.MbusProfile;
 import com.energyict.genericprotocolimpl.nta.profiles.MbusDailyMonthlyProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Rtu;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageSpec;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,8 +27,10 @@ import java.util.logging.Logger;
  */
 public class MbusDevice extends AbstractMbusDevice {
 
-    /** Empty constructor */
-    public MbusDevice(){
+    /**
+     * Empty constructor
+     */
+    public MbusDevice() {
         super();
     }
 
@@ -77,7 +86,42 @@ public class MbusDevice extends AbstractMbusDevice {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List getMessageCategories() {
+        List<MessageCategorySpec> categories = new ArrayList();
+        MessageCategorySpec catDisconnect = getConnectControlCategory();
+        MessageCategorySpec catMbusSetup = getAM100MbusSetupCategory();
 
+        categories.add(catDisconnect);
+        categories.add(catMbusSetup);
+        return categories;
+    }
+
+    /**
+	 * Create two messages, one to <b>decommission</b> the mbus device and one to set the
+	 * <b>encryption keys</b>
+	 *
+	 * @return a category with four messages for Mbus functionality
+     */
+    private MessageCategorySpec getAM100MbusSetupCategory() {
+        MessageCategorySpec catMbusSetup = new MessageCategorySpec(
+                RtuMessageCategoryConstants.MBUSSETUP);
+        MessageSpec msgSpec = addNoValueMsg(
+                RtuMessageKeyIdConstants.MBUSDECOMMISSION,
+                RtuMessageConstant.MBUS_DECOMMISSION, false);
+        catMbusSetup.addMessageSpec(msgSpec);
+        msgSpec = addEncryptionkeys(RtuMessageKeyIdConstants.MBUSENCRYPTIONKEY,
+                RtuMessageConstant.MBUS_ENCRYPTION_KEYS, false);
+        catMbusSetup.addMessageSpec(msgSpec);
+        return catMbusSetup;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getVersion() {
 //        return super.getVersion();    //To change body of overridden methods use File | Settings | File Templates.

@@ -12,6 +12,7 @@ import com.energyict.genericprotocolimpl.nta.elster.profiles.EventProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.messaging.MessageCategorySpec;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -31,6 +32,9 @@ import java.util.logging.Logger;
  * Time: 13:56:15
  */
 public class AM100 extends AbstractNTAProtocol {
+
+    /** Only for testing */
+    private static final boolean TESTING = false;
 
     /**
      * Property to indicate whether the cache (objectlist) <b>MUST</b> be read out
@@ -115,7 +119,7 @@ public class AM100 extends AbstractNTAProtocol {
                 if (readMonthly) {
 //                    if (doesObisCodeExistInObjectList(getMeterConfig().getMonthlyProfileObject().getObisCode())) {
 //                    dm.getMonthlyValues(getMeterConfig().getMonthlyProfileObject().getObisCode());
-                    if(true){   // I know it is not a nice thing to do, but I did it anyway :-)
+                    if (true) {   // I know it is not a nice thing to do, but I did it anyway :-)
                         dm.getMonthlyValues(ObisCode.fromString("0.0.98.1.0.255"));
                     } else {
                         getLogger().log(Level.INFO, "The monthlyProfile object doesn't exist in the device.");
@@ -205,6 +209,32 @@ public class AM100 extends AbstractNTAProtocol {
         } else {
             log(Level.INFO, "Cache exist, will not be read!");
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List getMessageCategories() {
+        List<MessageCategorySpec> categories = new ArrayList();
+        MessageCategorySpec catDisconnect = getConnectControlCategory();
+
+        categories.add(catDisconnect);
+
+        // We don't want those messages in the field
+        if(TESTING){
+            MessageCategorySpec catXMLConfig = getXmlConfigCategory();
+            MessageCategorySpec catTime = getTimeCategory();
+            MessageCategorySpec catMakeEntries = getDataBaseEntriesCategory();
+            MessageCategorySpec catTestMessage = getTestCategory();
+
+            categories.add(catXMLConfig);
+            categories.add(catTime);
+            categories.add(catMakeEntries);
+            categories.add(catTestMessage);
+        }
+
+        return categories;
     }
 
     /**
