@@ -31,9 +31,6 @@ public class EventsLog extends com.energyict.genericprotocolimpl.nta.eventhandli
         int size = this.dcEvents.getRoot().getNrOfElements();
         Date eventTimeStamp = null;
         for (int i = 0; i <= (size - 1); i++) {
-            if(i == 99){
-                System.out.println("on 99");
-            }
             int eventId = (int) this.dcEvents.getRoot().getStructure(i).getValue(1) & 0xFF; // To prevent negative values
             if (isOctetString(this.dcEvents.getRoot().getStructure(i).getElement(0))) {
 //                eventTimeStamp = dcEvents.getRoot().getStructure(i).getOctetString(0).toCalendar(timeZone).getTime();
