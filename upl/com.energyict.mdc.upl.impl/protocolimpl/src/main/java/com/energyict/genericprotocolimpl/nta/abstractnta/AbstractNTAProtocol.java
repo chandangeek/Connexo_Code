@@ -162,7 +162,7 @@ public abstract class AbstractNTAProtocol extends MeterMessages implements Gener
 	private int iiapInvokeId;
 	protected int wakeup;
 	protected int oldMbusDiscovery;
-	private boolean fixMbusHexShortId;
+	protected boolean fixMbusHexShortId;
     private int cipheringType;
 
 	/**

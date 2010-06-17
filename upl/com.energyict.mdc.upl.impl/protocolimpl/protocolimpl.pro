@@ -376,6 +376,10 @@
 
 -keepnames class com.energyict.genericprotocolimpl.webrtuz3.MbusDevice
 
+-keepnames class com.energyict.genericprotocolimpl.webrtuz3.DeviceMapping
+
+-keepnames class com.energyict.genericprotocolimpl.webrtuz3.DeviceMappingRange
+
 -keepnames class com.energyict.genericprotocolimpl.nta.eict.WebRTUKP
 -keepnames class com.energyict.genericprotocolimpl.nta.eict.MbusDevice
 

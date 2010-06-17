@@ -5,6 +5,7 @@ import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
 
 import java.io.IOException;
@@ -18,7 +19,7 @@ import java.util.logging.Logger;
  * 
  * @author Tom De Greyt
  */
-public interface MeterToolProtocol {
+public interface Z3MeterToolProtocol {
 
 	/**
 	 * Allows setting whether the protocol should enforce the correct serial
@@ -81,7 +82,7 @@ public interface MeterToolProtocol {
 	 * @throws SQLException
 	 * @throws BusinessException
 	 */
-	void connect() throws IOException, SQLException, BusinessException;
+	void connect() throws IOException, SQLException, BusinessException, DLMSConnectionException;
 
 	/**
 	 * After every communication, we close the connection to the meter.
@@ -101,12 +102,11 @@ public interface MeterToolProtocol {
 	 * 
 	 * @throws MissingPropertyException
 	 */
-	void validateProperties() throws MissingPropertyException;
+	void validateProperties() throws MissingPropertyException, InvalidPropertyException;
 
 	/**
 	 * @return a CosemObjectFactory that can be used to read data from the
 	 * meter.
 	 */
 	CosemObjectFactory getCosemObjectFactory();
-
 }

@@ -12,6 +12,7 @@ import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.genericprotocolimpl.common.wakeup.SmsWakeup;
+import com.energyict.genericprotocolimpl.webrtuz3.Z3MeterToolProtocol;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.Channel;
@@ -36,7 +37,7 @@ import java.util.logging.Logger;
  *
  * @author gna
  */
-public abstract class DLMSProtocol extends GenericMessaging implements GenericProtocol, ProtocolLink {
+public abstract class DLMSProtocol extends GenericMessaging implements GenericProtocol, ProtocolLink, Z3MeterToolProtocol {
 
     /**
      * The {@link ConformanceBlock} used

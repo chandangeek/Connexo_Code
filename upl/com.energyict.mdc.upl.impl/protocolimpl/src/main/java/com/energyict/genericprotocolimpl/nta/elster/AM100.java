@@ -244,7 +244,8 @@ public class AM100 extends AbstractNTAProtocol {
     public void doValidateProperties() {
         this.forcedToReadCache = !properties.getProperty(PROP_FORCEDTOREADCACHE, "0").equalsIgnoreCase("0");
         this.readMonthly = !properties.getProperty("ReadMonthlyValues", "0").equalsIgnoreCase("0");
-        this.oldMbusDiscovery = Integer.parseInt(properties.getProperty("OldMbusDiscovery", "1"));
+        this.oldMbusDiscovery = Integer.parseInt(properties.getProperty("OldMbusDiscovery", "0"));
+        this.fixMbusHexShortId =  Integer.parseInt(properties.getProperty("FixMbusHexShortId", "1")) != 0;
     }
 
 
