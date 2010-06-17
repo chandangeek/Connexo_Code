@@ -380,6 +380,11 @@
 
 -keepnames class com.energyict.genericprotocolimpl.webrtuz3.DeviceMappingRange
 
+# Keep classes for the P3 testTool
+-keep public class com.energyict.genericprotocolimpl.webrtuz3.Z3MeterToolProtocol{
+	public *;
+}
+
 -keepnames class com.energyict.genericprotocolimpl.nta.eict.WebRTUKP
 -keepnames class com.energyict.genericprotocolimpl.nta.eict.MbusDevice
 
