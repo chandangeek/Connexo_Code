@@ -6,14 +6,14 @@
 
 package com.energyict.protocolimpl.base;
 
+import com.energyict.protocol.ProtocolCollection;
+import com.energyict.protocol.ProtocolImplFactory;
+import com.energyict.protocol.ProtocolInstantiator;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import com.energyict.protocol.ProtocolCollection;
-import com.energyict.protocol.ProtocolImplFactory;
-import com.energyict.protocol.ProtocolInstantiator;
 
 /**
  *
@@ -145,7 +145,7 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
 		this.protocolclasses.add("com.energyict.protocolimpl.iec1107.siemenss4s.SiemensS4s");this.protocolnames.add("Siemsens S4s IEC1107 meter");
 		this.protocolclasses.add("com.energyict.protocolimpl.modbus.socomec.countis.ci.Ci");this.protocolnames.add("Socomec Countis Ci meter Modbus");
 		this.protocolclasses.add("com.energyict.protocolimpl.dlms.as220.GasDevice");this.protocolnames.add("Elster AS220 Gas meter slave");
-		this.protocolclasses.add("com.energyict.protocolimpl.iec1107.instromet.dl220.DL220");this.protocolnames.add("Elster DL220");
+		this.protocolclasses.add("com.elster.protocolimpl.iec1107.instromet.dl220.DL220");this.protocolnames.add("Elster DL220");
 		this.protocolclasses.add("com.energyict.protocolimpl.eig.nexus1272.Nexus1272");this.protocolnames.add("Nexus 1272");
 		this.protocolclasses.add("com.energyict.protocolimpl.landisgyr.us.maxsys2510.MaxSys");this.protocolnames.add("L&G MAXsys 2510 (US)");
 	}
