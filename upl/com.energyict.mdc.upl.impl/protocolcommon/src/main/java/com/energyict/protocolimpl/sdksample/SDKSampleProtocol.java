@@ -189,10 +189,11 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
             throw new IOException("load profile interval must be > 0 sec. (is " + getProfileInterval() + ")");
         }
         ParseUtils.roundDown2nearestInterval(cal, getProfileInterval());
-        Date now = new Date();
+
+        Calendar currentCal = Calendar.getInstance();
 
         String outputData = "";
-        while (cal.getTime().before(now)) {
+        while (cal.getTime().before(currentCal.getTime())) {
             IntervalData id = new IntervalData(cal.getTime());
 
             id.addValue(new BigDecimal(10000 + Math.round(Math.random() * 100)));
@@ -211,7 +212,12 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
             }
         }
 
-        pd.addEvent(new MeterEvent(now, MeterEvent.APPLICATION_ALERT_START, "SDK Sample"));
+        currentCal.set(Calendar.MILLISECOND, 0);
+        pd.addEvent(new MeterEvent(currentCal.getTime(), MeterEvent.APPLICATION_ALERT_START, "SDK Sample - First Event"));
+        currentCal.set(Calendar.MILLISECOND, 20);
+        pd.addEvent(new MeterEvent(currentCal.getTime(), MeterEvent.APPLICATION_ALERT_START, "SDK Sample - Second Event"));
+        currentCal.add(Calendar.SECOND, 1);
+        pd.addEvent(new MeterEvent(currentCal.getTime(), MeterEvent.APPLICATION_ALERT_START, "SDK Sample - Third Event"));
         return pd;
     }
 
