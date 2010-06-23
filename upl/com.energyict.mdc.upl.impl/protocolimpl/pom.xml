@@ -183,6 +183,13 @@
             <version>2.1.7</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>3.5-FINAL</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
     <build>
         <plugins>
@@ -262,10 +269,10 @@
                             <groupId>jfree</groupId>
                             <artifactId>libloader</artifactId>
                         </exclusion>
-                        <exclusion>
-                            <groupId>org.apache.poi</groupId>
-                            <artifactId>poi</artifactId>
-                        </exclusion>
+                        <!--<exclusion>-->
+                            <!--<groupId>org.apache.poi</groupId>-->
+                            <!--<artifactId>poi</artifactId>-->
+                        <!--</exclusion>-->
                         <exclusion>
                             <groupId>javax.servlet</groupId>
                             <artifactId>servlet-api</artifactId>
