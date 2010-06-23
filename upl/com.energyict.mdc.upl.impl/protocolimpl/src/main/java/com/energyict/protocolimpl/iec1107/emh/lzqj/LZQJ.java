@@ -1,50 +1,18 @@
 package com.energyict.protocolimpl.iec1107.emh.lzqj;
 
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.NestedIOException;
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.cbo.*;
+import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimpl.base.DataDumpParser;
-import com.energyict.protocolimpl.base.DataParseException;
-import com.energyict.protocolimpl.base.DataParser;
-import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import com.energyict.protocolimpl.iec1107.ChannelMap;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
-import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.iec1107.*;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
+
+import java.io.*;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * @version  1.0
@@ -74,7 +42,6 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 	private int iEchoCancelling;
 	private int iIEC1107Compatible;
 	private int profileInterval;
-	private ChannelMap channelMap;
 	private int requestHeader;
 	private ProtocolChannelMap protocolChannelMap = null;
 	private int dataReadoutRequest;
@@ -176,7 +143,6 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 	 * @param properties <br>
 	 * @throws MissingPropertyException <br>
 	 * @throws InvalidPropertyException <br>
-	 * @see AbstractMeterProtocol#validateProperties
 	 */
 	public void setProperties(Properties properties) throws MissingPropertyException , InvalidPropertyException {
 		validateProperties(properties);
@@ -210,7 +176,6 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 			iEchoCancelling=Integer.parseInt(properties.getProperty("EchoCancelling","0").trim());
 			iIEC1107Compatible=Integer.parseInt(properties.getProperty("IEC1107Compatible","1").trim());
 			profileInterval=Integer.parseInt(properties.getProperty("ProfileInterval","900").trim());
-			channelMap = new ChannelMap("0"); //properties.getProperty("ChannelMap","0"));
 			requestHeader=Integer.parseInt(properties.getProperty("RequestHeader","0").trim());
 			protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap","0,0,0,0"));
 			dataReadoutRequest = Integer.parseInt(properties.getProperty("DataReadout","1").trim());
@@ -480,7 +445,7 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 	}
 
 	public ChannelMap getChannelMap() {
-		return channelMap;
+		return null;
 	}
 	public void release() throws IOException {
 	}

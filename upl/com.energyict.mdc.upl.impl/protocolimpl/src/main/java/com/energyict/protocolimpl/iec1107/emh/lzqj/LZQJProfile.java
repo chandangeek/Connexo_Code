@@ -6,23 +6,17 @@
 
 package com.energyict.protocolimpl.iec1107.emh.lzqj;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.DataParser;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  * 
@@ -68,7 +62,7 @@ public class LZQJProfile extends VDEWProfile {
 	/**
 	 * Fetch the {@link ProfileData} from a certain date in the past to a certain date. Include the events if necessary.
 	 * 
-	 * @param lastReading
+	 * @param fromReading
 	 *            - the date in the past
 	 * @param toReading
 	 *            - the end date to read
