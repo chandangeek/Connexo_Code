@@ -387,7 +387,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 	
     public String getProtocolVersion() {
         //getLogger().info("call getProtocolVersion()");
-        return "$Revision: 1.0.1$";
+        return "$Date$";
         //return "EICT Test protocol version";
     }
 	
