@@ -95,13 +95,13 @@ public abstract class AbstractNTAProtocol extends MeterMessages implements Gener
 
     /**
      * Add extra optional keys
-     * @return a List<String> with optional key parameters
+     * @return a List<String> with optional key parameters, return null if no additionals are required
      */
     public abstract List<String> doGetOptionalKeys();
 
     /**
      * Add extra required keys
-     * @return a List<String> with required key parameters
+     * @return a List<String> with required key parameters, return null if no additionals are required
      */
     public abstract List<String> doGetRequiredKeys();
 

@@ -26,7 +26,7 @@ public class WebRTUKP extends AbstractNTAProtocol {
     /**
      * Add extra optional keys
      *
-     * @return a List<String> with optional key parameters
+     * @return a List<String> with optional key parameters, return null if no additionals are required
      */
     @Override
     public List<String> doGetOptionalKeys() {
@@ -36,7 +36,7 @@ public class WebRTUKP extends AbstractNTAProtocol {
     /**
      * Add extra required keys
      *
-     * @return a List<String> with required key parameters
+     * @return a List<String> with required key parameters, return null if no additionals are required
      */
     @Override
     public List<String> doGetRequiredKeys() {
