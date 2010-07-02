@@ -402,3 +402,5 @@
 -keepnames class com.energyict.genericprotocolimpl.nta.iskra.Mx382
 -keepnames class com.energyict.genericprotocolimpl.nta.iskra.MbusDevice
 
+-keepnames class com.energyict.protocolimpl.dlms.SimpleDLMSProtocol
+
