@@ -51,5 +51,12 @@ public class Command {
                 .append( ", response " ).append( response )
                 .append( " ]" ).toString();
     }
-    
+
+    /**
+     * @return the arguments
+     */
+    public ByteArray getArguments(){
+        return this.arguments;
+    }
+
 }
