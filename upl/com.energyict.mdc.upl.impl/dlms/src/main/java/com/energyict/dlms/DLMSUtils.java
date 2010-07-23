@@ -6,9 +6,9 @@
 
 package com.energyict.dlms;
 
-import java.io.IOException;
-
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 /**
  *
  * @author  Koen
@@ -30,7 +30,14 @@ public final class DLMSUtils implements DLMSCOSEMGlobals {
 		return (lnAttr-1)*8;
 	}
 
-
+    /**
+     * Encode a length value according to the AXDR encoding rules
+     *
+     * @param length
+     *          The length in decimal form
+     *
+     * @return a byteArray containing the AXDR encoded length
+     */
 	public static byte[] getAXDRLengthEncoding(int length) {
 		if (length<128) {
 			return new byte[]{(byte)length};
@@ -75,9 +82,15 @@ public final class DLMSUtils implements DLMSCOSEMGlobals {
 	}
 
 	/**
+     * Decode an AXDR encoded length
+     *
 	 * @param byteBuffer
+     *              The byteArray containing the length
+     *
 	 * @param iOffset
-	 * @return
+     *              The offset in the byteArray from which to start reading the length
+     *
+	 * @return the decimal converted length
 	 */
 	public static long getAXDRLength(byte[] byteBuffer, int iOffset) {
 		long lLength = 0;
