@@ -27,60 +27,25 @@
  */
 package com.energyict.protocolimpl.dlms;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
-
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DLMSObis;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.TCPIPConnection;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.*;
+import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.actarissl7000.Logbook;
 import com.energyict.protocolimpl.dlms.actarissl7000.ObisCodeMapper;
 import com.energyict.protocolimpl.dlms.actarissl7000.StoredValuesImpl;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.*;
+import java.util.logging.Logger;
 
 public class DLMSLNSL7000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol {
     private static final byte DEBUG=0;  // KV 16012004 changed all DEBUG values
@@ -547,6 +512,13 @@ public class DLMSLNSL7000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
         return numberOfChannels;
     } // public int getNumberOfChannels() throws IOException
 
+    /**
+     * Protected setter for the CapturedObjects, mainly for testing
+     * @param co the capturedObjects to set
+     */
+    protected void setCapturedObjects(CapturedObjects co){
+        this.capturedObjects = co;
+    }
 
 /**
  * Method that requests the recorder interval in min.
@@ -561,6 +533,14 @@ public class DLMSLNSL7000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
            iInterval = dataContainer.getRoot().getInteger(0) * 60;
         }
         return iInterval;
+    }
+
+    /**
+     * Protected setter of the profileInterval, used for tests
+     * @param iInterval the interval in seconds
+     */
+    protected void setIinterval(int iInterval){
+        this.iInterval = iInterval;
     }
 
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
@@ -782,7 +762,7 @@ public class DLMSLNSL7000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
            return true;
         }
 
-        if ( (getProfileInterval()*1000) - (endIntervalCal.getTimeInMillis() - calendar.getTimeInMillis()) == 1000 ){
+        if ( (getProfileInterval()*1000) - (endIntervalCal.getTimeInMillis() - calendar.getTimeInMillis()) <= 2000 ){
         	return true;	//GN 25042008 special case ...
         }
 
@@ -830,7 +810,7 @@ public class DLMSLNSL7000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
         return true;
     }
 
-    private void buildProfileData(byte bNROfChannels, DataContainer dataContainer,ProfileData profileData,ScalerUnit[] scalerunit)  throws IOException
+    protected void buildProfileData(byte bNROfChannels, DataContainer dataContainer,ProfileData profileData,ScalerUnit[] scalerunit)  throws IOException
     {
         byte bDOW;
         Calendar calendar=null,calendarEV=null;
