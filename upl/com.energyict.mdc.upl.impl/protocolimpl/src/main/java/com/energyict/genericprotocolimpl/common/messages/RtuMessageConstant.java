@@ -117,6 +117,8 @@ public class RtuMessageConstant {
 	public static final String MBUS_OPEN_KEY = "Open_Key_Value";
 	public static final String MBUS_TRANSFER_KEY = "Transfer_Key_Value";
 	public static final String MBUS_INSTALL = "Mbus_Install";
+    public static final String MBUS_EQUIPMENT_ID = "Mbus_Equipment_Identifier";
+    public static final String MBUS_INSTALL_CHANNEL = "Mbus_channel";
 	public static final String MBUS_REMOVE = "Mbus_Remove";
 	public static final String MBUS_SET_VIF = "Mbus_Set_VIF";
 	public static final String MBUS_INSTALL_DATAREADOUT = "Mbus_DataReadout";

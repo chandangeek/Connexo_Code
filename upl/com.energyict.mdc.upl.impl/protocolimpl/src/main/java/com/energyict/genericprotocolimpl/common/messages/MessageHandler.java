@@ -1,11 +1,11 @@
 
 package com.energyict.genericprotocolimpl.common.messages;
 
-import java.io.IOException;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+
+import java.io.IOException;
 
 
 /**
@@ -107,6 +107,9 @@ public class MessageHandler extends DefaultHandler{
 			setType(RtuMessageConstant.MBUS_CORRECTED_VALUES);
 		} else if(RtuMessageConstant.MBUS_UNCORRECTED_VALUES.equals(qName)){
 			setType(RtuMessageConstant.MBUS_UNCORRECTED_VALUES);
+        } else if(RtuMessageConstant.MBUS_INSTALL.equals(qName)){
+            setType(RtuMessageConstant.MBUS_INSTALL);
+            handleMbusInstall(attrbs);
 		} else {
 			if(!isXmlInContent){ // if its the xmlMessage, then don't fail because it has xml in the content
 				throw new SAXException("Unknown messageContent : " + qName);
@@ -489,4 +492,22 @@ public class MessageHandler extends DefaultHandler{
 	public int getSecurityLevel(){
 		return Integer.parseInt(this.securityLevel);
 	}
+
+    /* Mbus installation related messages
+    */
+    private String mbusEquipmentId = "";
+    private String mbusChannelToInstall = "";
+    private void handleMbusInstall(Attributes attrbs){
+        this.mbusEquipmentId = attrbs.getValue(RtuMessageConstant.MBUS_EQUIPMENT_ID);
+        this.mbusChannelToInstall = attrbs.getValue(RtuMessageConstant.MBUS_INSTALL_CHANNEL);
+    }
+
+    public String getMbusInstallEquipmentId(){
+        return mbusEquipmentId;
+    }
+
+    public int getMbusInstallChannel(){
+        return Integer.parseInt(mbusChannelToInstall);
+    }
+
 }

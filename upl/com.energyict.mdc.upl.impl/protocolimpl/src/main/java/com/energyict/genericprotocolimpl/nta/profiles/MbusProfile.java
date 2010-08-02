@@ -52,7 +52,7 @@ public class MbusProfile {
 		
 		
 		try {
-			genericProfile = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusProfile(this.mbusDevice.getPhysicalAddress()).getObisCode());
+			genericProfile = getCosemObjectFactory().getProfileGeneric(mbusProfile);
 			List<ChannelInfo> channelInfos = getMbusChannelInfos(genericProfile);
 			
 			if(channelInfos.size() != 0){

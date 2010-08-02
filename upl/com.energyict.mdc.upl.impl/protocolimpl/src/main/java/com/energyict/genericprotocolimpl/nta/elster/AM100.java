@@ -5,21 +5,23 @@ import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.genericprotocolimpl.common.messages.RtuMessageCategoryConstants;
+import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
+import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol;
+import com.energyict.genericprotocolimpl.nta.elster.messagehandling.AM100MessageExecutor;
 import com.energyict.genericprotocolimpl.nta.elster.profiles.DailyMonthlyProfile;
 import com.energyict.genericprotocolimpl.nta.elster.profiles.ElectricityProfile;
 import com.energyict.genericprotocolimpl.nta.elster.profiles.EventProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Rtu;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdw.core.RtuMessage;
 import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageSpec;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -117,12 +119,12 @@ public class AM100 extends AbstractNTAProtocol {
                     }
                 }
                 if (readMonthly) {
-//                    if (doesObisCodeExistInObjectList(getMeterConfig().getMonthlyProfileObject().getObisCode())) {
-//                    dm.getMonthlyValues(getMeterConfig().getMonthlyProfileObject().getObisCode());
-                    if (true) {   // I know it is not a nice thing to do, but I did it anyway :-)
-                        dm.getMonthlyValues(ObisCode.fromString("0.0.98.1.0.255"));
-                    } else {
-                        getLogger().log(Level.INFO, "The monthlyProfile object doesn't exist in the device.");
+                    if (doesObisCodeExistInObjectList(getMeterConfig().getMonthlyProfileObject().getObisCode())) {
+                        dm.getMonthlyValues(getMeterConfig().getMonthlyProfileObject().getObisCode());
+//                    if (true) {   // I know it is not a nice thing to do, but I did it anyway :-)
+//                        dm.getMonthlyValues(ObisCode.fromString("0.0.98.1.0.255"));
+//                    } else {
+//                        getLogger().log(Level.INFO, "The monthlyProfile object doesn't exist in the device.");
                     }
                 }
 
@@ -210,6 +212,24 @@ public class AM100 extends AbstractNTAProtocol {
             log(Level.INFO, "Cache exist, will not be read!");
         }
     }
+    
+    /**
+	 * Messages
+	 * 
+	 * @throws SQLException
+	 * @throws BusinessException
+	 */
+    protected void sendMeterMessages() throws BusinessException, SQLException {
+
+		AM100MessageExecutor messageExecutor = new AM100MessageExecutor(this);
+
+		Iterator<RtuMessage> it = getMeter().getPendingMessages().iterator();
+		RtuMessage rm = null;
+		while (it.hasNext()) {
+			rm = it.next();
+			messageExecutor.doMessage(rm);
+		}
+	}
 
     /**
      * {@inheritDoc}
@@ -218,8 +238,10 @@ public class AM100 extends AbstractNTAProtocol {
     public List getMessageCategories() {
         List<MessageCategorySpec> categories = new ArrayList();
         MessageCategorySpec catDisconnect = getConnectControlCategory();
+        MessageCategorySpec catInstallMbus = getInstallMbusCategory();
 
         categories.add(catDisconnect);
+        categories.add(catInstallMbus);
 
         // We don't want those messages in the field
         if(TESTING){
@@ -235,6 +257,19 @@ public class AM100 extends AbstractNTAProtocol {
         }
 
         return categories;
+    }
+
+    /**
+     * Create a message to install an MBus device. The value you need to enter is the equipmentIdentifier of the Mbus device
+     * @return a category with 1 message related to mbus installation
+     */
+    public MessageCategorySpec getInstallMbusCategory() {
+        MessageCategorySpec catTime = new MessageCategorySpec(
+                RtuMessageCategoryConstants.MBUSSETUP);
+        MessageSpec msgSpec = addMbusInstallMessage(RtuMessageKeyIdConstants.MBUSINSTALL,
+                RtuMessageConstant.MBUS_INSTALL, false);
+        catTime.addMessageSpec(msgSpec);
+        return catTime;
     }
 
     /**

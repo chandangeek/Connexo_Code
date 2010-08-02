@@ -22,8 +22,7 @@ public class RtuMessageCategoryConstants {
 	public static final String WAKEUPFUNCTIONALITY = "Wake up functionality";
 	public static final String AUTHENTICATEENCRYPT = "Authentication and encryption";
 	public static final String BASICMESSAGES = "BasicMessages";
-	public static final String MBUSMESSAGES = "MusMessages";
+	public static final String MBUSMESSAGES = "MBusMessages";
 	public static final String MBUSSETUP = "Mbus setup";
 	public static final String CHANGECONNECTIVITY = "Change connectivity setup";
-	
 }

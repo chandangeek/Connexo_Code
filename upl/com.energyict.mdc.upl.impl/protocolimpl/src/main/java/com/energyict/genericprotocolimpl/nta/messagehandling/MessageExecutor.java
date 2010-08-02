@@ -896,26 +896,6 @@ public class MessageExecutor extends GenericMessageExecutor{
 		return new ArrayList(list);
 	}
 
-//	private boolean seasonArrayExists(int seasonProfileNameId, Array seasonArray) {
-//		for(int i = 0; i < seasonArray.nrOfDataTypes(); i++){
-//			Structure struct = (Structure)seasonArray.getDataType(i);
-//			if(new String(((OctetString)struct.getDataType(0)).getOctetStr()).equalsIgnoreCase(Integer.toString(seasonProfileNameId))){
-//				return true;
-//			}
-//		}
-//		return false;
-//	}
-
-//	private boolean weekArrayExists(String weekProfileName, Array weekArray) {
-//		for(int i = 0; i < weekArray.nrOfDataTypes(); i++){
-//			Structure struct = (Structure)weekArray.getDataType(i);
-//			if(new String(((OctetString)struct.getDataType(0)).getOctetStr()).equalsIgnoreCase(weekProfileName)){
-//				return true;
-//			}
-//		}
-//		return false;
-//	}
-	
 	private Date getFirstDate(Date startTime, String type) throws IOException{
 		return getFirstDate(startTime, type, getWebRtu().getMeter().getTimeZone());
 		}
@@ -1019,7 +999,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 		return getWebRtu().getConnectionMode();
 	}
 	
-	private void log(Level level, String msg){
+	protected void log(Level level, String msg){
 		getLogger().log(level, msg);
 	}
 	
@@ -1027,11 +1007,11 @@ public class MessageExecutor extends GenericMessageExecutor{
 		return getWebRtu().getLogger();
 	}
 	
-	private CosemObjectFactory getCosemObjectFactory() {
+	protected CosemObjectFactory getCosemObjectFactory() {
 		return getWebRtu().getCosemObjectFactory();
 	}
 	
-	private DLMSMeterConfig getMeterConfig() {
+	protected DLMSMeterConfig getMeterConfig() {
 		return getWebRtu().getMeterConfig();
 	}
 	

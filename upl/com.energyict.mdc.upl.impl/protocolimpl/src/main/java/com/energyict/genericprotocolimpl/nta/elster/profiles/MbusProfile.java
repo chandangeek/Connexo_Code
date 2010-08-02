@@ -25,7 +25,6 @@ public class MbusProfile extends com.energyict.genericprotocolimpl.nta.profiles.
      */
     private final static ObisCode OBISCODE_STATUS = ObisCode.fromString("0.0.96.10.3.255");
 
-
     /**
      * Constructor
      */

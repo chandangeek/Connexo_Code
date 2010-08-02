@@ -1,19 +1,9 @@
 package com.energyict.genericprotocolimpl.common.messages;
 
+import com.energyict.protocol.messaging.*;
+
 import java.util.Iterator;
 import java.util.List;
-
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
-import com.energyict.protocol.messaging.Messaging;
 
 /**
  * Abstract base class to implement messages in your protocol. Your
@@ -520,6 +510,22 @@ public abstract class GenericMessaging implements Messaging {
 		msgSpec.add(tagSpec);
 		return msgSpec;
 	}
+
+    protected MessageSpec addMbusInstallMessage(String keyId, String tagName, boolean advanced){
+		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+		MessageValueSpec msgVal = new MessageValueSpec();
+		msgVal.setValue(" ");
+		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
+				RtuMessageConstant.MBUS_EQUIPMENT_ID, true);
+		tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(
+				RtuMessageConstant.MBUS_INSTALL_CHANNEL, true);
+        tagSpec.add(msgAttrSpec);
+        tagSpec.add(msgVal);
+		msgSpec.add(tagSpec);
+		return msgSpec;
+    }
 
 	/**
 	 * Creates a MessageSpec to set several(max. 5) numbers in the WhiteList of the meter

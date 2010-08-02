@@ -3,10 +3,6 @@
  */
 package com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Date;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.cosem.CosemObjectFactory;
@@ -17,6 +13,10 @@ import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * @author gna
@@ -73,7 +73,13 @@ public class MbusObisCodeMapper {
     			return rv;
     		}
     		throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-    	} else {
+    	} else if(7 == obisCode.getA()){    // Some OMS related ObisCode
+            if( 3 == obisCode.getC() ){
+    			ExtendedRegister register = cof.getExtendedRegister(obisCode);
+    			return new RegisterValue(obisCode, ParseUtils.registerToQuantity(register));
+            }
+            throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+        } else {
     		throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
     	}
 	}

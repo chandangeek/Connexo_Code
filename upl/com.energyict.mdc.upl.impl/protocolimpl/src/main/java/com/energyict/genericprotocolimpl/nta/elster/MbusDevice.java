@@ -10,6 +10,7 @@ import com.energyict.genericprotocolimpl.nta.elster.profiles.MbusProfile;
 import com.energyict.genericprotocolimpl.nta.profiles.MbusDailyMonthlyProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Rtu;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
 
@@ -28,6 +29,11 @@ import java.util.logging.Logger;
 public class MbusDevice extends AbstractMbusDevice {
 
     /**
+     * The OMS specification meter reading ObisCode
+     */
+    private final static ObisCode OBISCODE_READING_OMS = ObisCode.fromString("7.1.3.0.0.255");
+
+    /**
      * Empty constructor
      */
     public MbusDevice() {
@@ -42,22 +48,17 @@ public class MbusDevice extends AbstractMbusDevice {
     public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
         this.commProfile = scheduler.getCommunicationProfile();
 
-//		try {
-        // Before reading data, check the serialnumber
-//			verifySerialNumber(); //TODO set back!
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//			throw new IOException(e.getMessage());
-//		}
-
-        // import profile
+       // import profile
         if (commProfile.getReadDemandValues()) {
             getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + getMbus().getSerialNumber());
             MbusProfile mp = new MbusProfile(this);
-            mp.getProfile(getWebRTU().getMeterConfig().getMbusProfile(getPhysicalAddress()).getObisCode());
+            mp.getProfile(adjustToMbusChannelObisCode(OBISCODE_READING_OMS));
         }
 
         if (commProfile.getReadMeterEvents()) {
+
+            // Currently no MBus events
+
 //            getLogger().log(Level.INFO, "Getting events for meter with serialnumber: " + getMbus().getSerialNumber());
 //            MbusEventProfile mep = new MbusEventProfile(this);
 //            mep.getEvents();
@@ -124,7 +125,6 @@ public class MbusDevice extends AbstractMbusDevice {
      */
     @Override
     public String getVersion() {
-//        return super.getVersion();    //To change body of overridden methods use File | Settings | File Templates.
         return "$Date$" + " NTAProtocolVersion : " + super.getVersion();
     }
 }

@@ -31,6 +31,7 @@ public class RtuMessageKeyIdConstants {
 	public static final String CHANGEGLOBALKEY = "Change global key";
 	public static final String CHANGEAUTHENTICATIONKEY = "Change authentication key";
 	public static final String READONDEMAND = "ReadOnDemand";
+    public static final String MBUSINSTALL = "Install Mbus device";
 	public static final String MBUSDECOMMISSION = "Decommission";
 	public static final String MBUSENCRYPTIONKEY = "Set Encryption keys";
 //	public static final String MBUSGASCORRECTION = "Correction switch";

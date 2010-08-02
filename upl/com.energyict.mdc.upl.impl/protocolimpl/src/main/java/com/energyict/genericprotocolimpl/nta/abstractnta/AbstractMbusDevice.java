@@ -216,7 +216,7 @@ public class AbstractMbusDevice extends MbusMessages implements GenericProtocol{
 		}
 	}
 
-	private ObisCode adjustToMbusChannelObisCode(ObisCode oc) {
+	protected ObisCode adjustToMbusChannelObisCode(ObisCode oc) {
 		return new ObisCode(oc.getA(), getPhysicalAddress()+1, oc.getC(), oc.getD(), oc.getE(), oc.getF());
 	}
 
