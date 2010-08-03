@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.powermeasurement.ion;
 
-import java.io.IOException;
-
 import com.energyict.dialer.connection.ConnectionException;
+
+import java.io.IOException;
 
 /**
  * The network layer provides services to allow applications to communicate with 
@@ -54,6 +54,9 @@ class NetworkLayer {
         messageId = messageId + 1;
         packet.setMsgId( messageId );
         datalinkLayer.sendTime( packet.toByteArray() );
+//        ByteArray received = datalinkLayer.send(packet.toByteArray());
+//        Packet receivedPacket = Packet.parse(new Assembly(ion, received));
+
     }
     
     /** wrap around at 999.  

@@ -24,28 +24,27 @@ import java.util.logging.Logger;
 
 /**
  * Integrated Object Network (ION) architecture
- *
+ * <p/>
  * DataRecorder Energy and Demand
  *
  * @author fbl
- * 
- * @beginchanges
- * FBL|09032007| 
+ * @beginchanges FBL|09032007|
  * Property NodeId used to be required.  Is no longer required, default 100 is
  * used.
- * FBL|13072007| 
+ * FBL|13072007|
  * Improved error handling and general robustness.
- * FBL|31082007| 
+ * FBL|31082007|
  * Added Channelmap property.
  * Changed default data recorder that is used for ProfileData.
- * 
  * @endchanges
  */
 
 public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
-    HHUEnabler, SerialNumber {
+        HHUEnabler, SerialNumber {
 
-    /** Property keys */
+    /**
+     * Property keys
+     */
     final static String PK_TIMEOUT = "Timeout";
     final static String PK_RETRIES = "Retries";
     final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
@@ -56,7 +55,9 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
     final static String PK_CHANNEL_MAP = "ChannelMap";
 
 
-    /** Property Default values */
+    /**
+     * Property Default values
+     */
     final static int PD_TIMEOUT = 10000;
     final static int PD_RETRIES = 5;
     final static int PD_ROUNDTRIP_CORRECTION = 0;
@@ -70,11 +71,11 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
      * Property values Required properties will have NO default value.
      * Optional properties make use of default value.
      */
-    int pNodeId = PD_NODE_ID;
+    int pNodeId;
     String pSerialNumber = null;
     int pProfileInterval;
     int dtrBehaviour = PD_DTR_BEHAVIOUR;
-    
+
     /* Protocol timeout fail in msec */
     int pTimeout = PD_TIMEOUT;
 
@@ -86,14 +87,14 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
 
     /* Delay in msec between protocol Message Sequences */
     long pForceDelay = PD_FORCE_DELAY;
-    
+
     String pUserId;
     String pPassword;
 
     String pExtendedLogging = PD_EXTENDED_LOGGING;
     String pDataRecorderName = PD_DATA_RECORDER_NAME;
     ProtocolChannelMap pChannelMap = null;
-    
+
     private SerialCommunicationChannel commChannel;
 
     private ObisCodeMapper obisCodeMapper = null;
@@ -115,17 +116,27 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
      *
      * @see com.energyict.protocol.MeterProtocol# setProperties(java.util.Properties)
      */
+
     public void setProperties(Properties p) throws InvalidPropertyException, MissingPropertyException {
 
+        Iterator iterator = getRequiredKeys().iterator();
+        while (iterator.hasNext()) {
+            String key = (String) iterator.next();
+            if (p.getProperty(key) == null) {
+                throw new MissingPropertyException(key + " key missing");
+            }
+        }
+
         try {
-            
+
             String anId = p.getProperty(MeterProtocol.NODEID);
-            if( ! Utils.isNull(anId) )
+            if (!Utils.isNull(anId)) {
                 pNodeId = Integer.parseInt(anId);
-            
-        } catch( NumberFormatException nfe ) {
+            }
+
+        } catch (NumberFormatException nfe) {
             String msg = "NodeId must be a valid number.";
-            throw new InvalidPropertyException( msg );
+            throw new InvalidPropertyException(msg);
         }
 
         if (p.getProperty(PK_USER_ID) != null)
@@ -135,10 +146,10 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
             pPassword = p.getProperty(MeterProtocol.PASSWORD);
 
         try {
-            if( !Utils.isNull( pPassword ) && !Utils.isNull( pUserId ) )
-                this.authentication = new Authentication( pPassword, pUserId );
+            if (!Utils.isNull(pPassword) && !Utils.isNull(pUserId))
+                this.authentication = new Authentication(pPassword, pUserId);
         } catch (InvalidPasswordException e) {
-            throw new InvalidPropertyException( e.getMessage() );
+            throw new InvalidPropertyException(e.getMessage());
         }
 
         if (p.getProperty(MeterProtocol.SERIALNUMBER) != null)
@@ -162,26 +173,27 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
         if (p.getProperty(PK_EXTENDED_LOGGING) != null)
             pExtendedLogging = p.getProperty(PK_EXTENDED_LOGGING);
 
-        if( p.getProperty( PK_DATA_RECORDER_NAME ) != null )
-            pDataRecorderName = p.getProperty( PK_DATA_RECORDER_NAME );
+        if (p.getProperty(PK_DATA_RECORDER_NAME) != null)
+            pDataRecorderName = p.getProperty(PK_DATA_RECORDER_NAME);
 
         if (p.getProperty(PK_DTR_BEHAVIOUR) != null)
             dtrBehaviour = new Integer(p.getProperty(PK_DTR_BEHAVIOUR)).intValue();
-        
+
         if (p.getProperty(PK_FORCE_DELAY) != null)
             pForceDelay = new Integer(p.getProperty(PK_FORCE_DELAY)).intValue();
-        
+
         if (p.getProperty(PK_CHANNEL_MAP) != null)
             pChannelMap = new ProtocolChannelMap(p.getProperty(PK_CHANNEL_MAP));
-        
-        
+
+
     }
 
     /**
      * @return a list of strings
      */
     public List getRequiredKeys() {
-        List result = new ArrayList(0);
+        List result = new ArrayList(1);
+        result.add(MeterProtocol.NODEID);
         return result;
     }
 
@@ -207,6 +219,7 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
      * @see com.energyict.protocol.MeterProtocol#init( InputStream,
      *          OutputStream, TimeZone, Logger)
      */
+
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger)
             throws IOException {
 
@@ -222,16 +235,16 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
 
         if (logger.isLoggable(Level.INFO)) {
             StringBuffer info = new StringBuffer()
-                .append( "Ion protocol init \n" )
-                .append( " NodeId = " + pNodeId + "," )
-                .append( " SerialNr = " + pSerialNumber + "," )
-                .append( " Timeout = " + pTimeout + "," )
-                .append( " Retries = " + pRetries + "," )
-                .append( " Ext. Logging = " + pExtendedLogging + "," )
-                .append( " RoundTripCorr = " + pRountTripCorrection + "," )
-                .append( " ForceDelay = " + pForceDelay + "," )
-                .append( " Correct Time = " + pCorrectTime + "," )
-                .append( " TimeZone = " + timeZone.getID() );
+                    .append("Ion protocol init \n")
+                    .append(" NodeId = " + pNodeId + ",")
+                    .append(" SerialNr = " + pSerialNumber + ",")
+                    .append(" Timeout = " + pTimeout + ",")
+                    .append(" Retries = " + pRetries + ",")
+                    .append(" Ext. Logging = " + pExtendedLogging + ",")
+                    .append(" RoundTripCorr = " + pRountTripCorrection + ",")
+                    .append(" ForceDelay = " + pForceDelay + ",")
+                    .append(" Correct Time = " + pCorrectTime + ",")
+                    .append(" TimeZone = " + timeZone.getID());
             logger.info(info.toString());
         }
 
@@ -242,20 +255,21 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
      *
      * @see com.energyict.protocol.MeterProtocol#connect()
      */
+
     public void connect() throws IOException {
 
-        if( commChannel != null ) {
+        if (commChannel != null) {
             this.inputStream = commChannel.getInputStream();
             this.outputStream = commChannel.getOutputStream();
         }
 
-        this.applicationLayer = new ApplicationLayer( this, authentication );
-        if( commChannel != null ) {
+        this.applicationLayer = new ApplicationLayer(this, authentication);
+        if (commChannel != null) {
             commChannel.setBaudrate(9600);
             if (dtrBehaviour == 0)
-               commChannel.setDTR(false);
+                commChannel.setDTR(false);
             else if (dtrBehaviour == 1)
-               commChannel.setDTR(true);
+                commChannel.setDTR(true);
         }
         connect(0);
     }
@@ -266,8 +280,8 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
             doExtendedLogging();
 
             validateSecurityContext();
-            
-            validateSerialNumber( );
+
+            validateSerialNumber();
 
         } catch (NumberFormatException nex) {
             throw new IOException(nex.getMessage());
@@ -280,13 +294,13 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
      */
     private void validateSecurityContext() throws IOException {
 
-        Command c = toCmd( IonHandle.FAC_1_SERIAL_NUMBER_SR, IonMethod.READ_REGISTER_VALUE );
-        applicationLayer.read( c );
+        Command c = toCmd(IonHandle.FAC_1_SERIAL_NUMBER_SR, IonMethod.READ_REGISTER_VALUE);
+        applicationLayer.read(c);
 
-        if(c.getResponse().isException()){
+        if (c.getResponse().isException()) {
 
-            if(c.getResponse().isStrucure()){
-                if((((IonStructure)c.getResponse()).get("reason").toString()).indexOf("Invalid Password") > 0){
+            if (c.getResponse().isStrucure()) {
+                if ((((IonStructure) c.getResponse()).get("reason").toString()).indexOf("Invalid Password") > 0) {
                     throw new ConnectionException("Incorrect password");
                 }
             }
@@ -297,7 +311,9 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
     public void disconnect() throws IOException {
     }
 
-    /** A DataCollector always has 16 channels */
+    /**
+     * A DataCollector always has 16 channels
+     */
     public int getNumberOfChannels() throws UnsupportedException, IOException {
         return profile.getNumberOfChannels();
     }
@@ -307,6 +323,7 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
      *
      * @see com.energyict.protocol.MeterProtocol#getProfileData(boolean)
      */
+
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         return profile.getProfileData(includeEvents);
     }
@@ -316,6 +333,7 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
      *
      * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date, boolean)
      */
+
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return profile.getProfileData(lastReading, includeEvents);
     }
@@ -325,6 +343,7 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
      *
      * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date, java.util.Date, boolean)
      */
+
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return profile.getProfileData(from, to, includeEvents);
     }
@@ -334,6 +353,7 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
      *
      * @see com.energyict.protocol.MeterProtocol#getProfileInterval()
      */
+
     public int getProfileInterval() throws UnsupportedException, IOException {
         return pProfileInterval;
     }
@@ -345,6 +365,7 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
      *
      * @see com.energyict.protocol.RegisterProtocol#readRegister(com.energyict.obis.ObisCode)
      */
+
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return obisCodeMapper.getRegisterValue(obisCode);
     }
@@ -354,6 +375,7 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
      *
      * @see com.energyict.protocol.RegisterProtocol#translateRegister(com.energyict.obis.ObisCode)
      */
+
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
@@ -370,19 +392,19 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
         }
     }
 
-    private void validateSerialNumber( ) throws IOException {
+    private void validateSerialNumber() throws IOException {
 
-        if( Utils.isNull( pSerialNumber ) )
+        if (Utils.isNull(pSerialNumber))
             return;
 
-        Command c = toCmd( IonHandle.FAC_1_SERIAL_NUMBER_SR, IonMethod.READ_REGISTER_VALUE );
-        applicationLayer.read( c );
+        Command c = toCmd(IonHandle.FAC_1_SERIAL_NUMBER_SR, IonMethod.READ_REGISTER_VALUE);
+        applicationLayer.read(c);
 
-        String sn = (String)((IonObject)c.getResponse()).getValue();
+        String sn = (String) ((IonObject) c.getResponse()).getValue();
 
-        if( pSerialNumber != null && !pSerialNumber.equals(sn) ) {
-            String msg =    "SerialNumber mismatch! meter sn=" + sn +
-                            ", configured sn=" + pSerialNumber;
+        if (pSerialNumber != null && !pSerialNumber.equals(sn)) {
+            String msg = "SerialNumber mismatch! meter sn=" + sn +
+                    ", configured sn=" + pSerialNumber;
             throw new IOException(msg);
         }
 
@@ -395,11 +417,11 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
     public String getFirmwareVersion() throws IOException, UnsupportedException {
 
         Command cRevisionNr =
-            toCmd( IonHandle.FAC_1_REVISION_SR, IonMethod.READ_REGISTER_VALUE );
+                toCmd(IonHandle.FAC_1_REVISION_SR, IonMethod.READ_REGISTER_VALUE);
 
-        applicationLayer.read( cRevisionNr );
+        applicationLayer.read(cRevisionNr);
 
-        return ((IonObject)cRevisionNr.getResponse()).getValue().toString();
+        return ((IonObject) cRevisionNr.getResponse()).getValue().toString();
 
     }
 
@@ -413,29 +435,30 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
 
     public Date getTime() throws IOException {
         Command c =
-            toCmd( IonHandle.CLK_1_UNIVERSAL_TIME_NVR, IonMethod.READ_REGISTER_VALUE );
-        applicationLayer.read( c );
-        int secs = ((Integer)((IonObject)c.getResponse()).getValue()).intValue();
-        return new Date( secs * 1000l );    // must be casted to long
+                toCmd(IonHandle.CLK_1_UNIVERSAL_TIME_NVR, IonMethod.READ_REGISTER_VALUE);
+        applicationLayer.read(c);
+        int secs = ((Integer) ((IonObject) c.getResponse()).getValue()).intValue();
+        return new Date(secs * 1000l);    // must be casted to long
     }
 
     /**
      * (non-Javadoc)
+     *
      * @see com.energyict.protocol.MeterProtocol#setTime()
      */
     public void setTime() throws IOException {
 
         long milli = System.currentTimeMillis() + pRountTripCorrection;
-        int sec = (int)(milli / 1000);
+        int sec = (int) (milli / 1000);
 
         ByteArray time =
-            new ByteArray()
-                .add( (byte) ((sec & 0xff000000) >> 24))
-                .add( (byte) ((sec&0x00ff0000)>>16) )
-                .add( (byte) ((sec&0x0000ff00)>>8) )
-                .add( (byte) ((sec&0x000000ff)) );
+                new ByteArray()
+                        .add((byte) ((sec & 0xff000000) >> 24))
+                        .add((byte) ((sec & 0x00ff0000) >> 16))
+                        .add((byte) ((sec & 0x0000ff00) >> 8))
+                        .add((byte) ((sec & 0x000000ff)));
 
-        applicationLayer.sendTime( new Message().setData( time ) );
+        applicationLayer.sendTime(new Message().setData(time));
 
     }
 
@@ -460,11 +483,14 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
      *
      * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getDataReadout()
      */
+
     public byte[] getDataReadout() {
         return null;
     }
 
-    /** for easy debugging */
+    /**
+     * for easy debugging
+     */
     void setTimeZone(TimeZone timeZone) {
         this.timeZone = timeZone;
     }
@@ -473,20 +499,22 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
         return timeZone;
     }
 
-    /** for easy debugging */
+    /**
+     * for easy debugging
+     */
     void setLogger(Logger logger) {
         this.logger = logger;
     }
 
-    InputStream getInputStream( ) {
+    InputStream getInputStream() {
         return inputStream;
     }
 
-    OutputStream getOutputStream( ){
+    OutputStream getOutputStream() {
         return outputStream;
     }
 
-    int getSource(){
+    int getSource() {
         return source;
     }
 
@@ -494,23 +522,23 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
         return pNodeId;
     }
 
-    int getRetries( ) {
+    int getRetries() {
         return pRetries;
     }
 
-    int getTimeout( ){
+    int getTimeout() {
         return pTimeout;
     }
 
-    IonObject parse( Assembly a ) {
+    IonObject parse(Assembly a) {
         return parser.parse(a);
     }
 
-    IonObject parse( byte [] b ) {
-        return parser.parse( new Assembly( this, new ByteArray( b) ) );
+    IonObject parse(byte[] b) {
+        return parser.parse(new Assembly(this, new ByteArray(b)));
     }
 
-    ApplicationLayer getApplicationLayer( ){
+    ApplicationLayer getApplicationLayer() {
         return applicationLayer;
     }
 
@@ -566,19 +594,18 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
         return false;
     }
 
-    long getForceDelay( ){
+    long getForceDelay() {
         return pForceDelay;
     }
 
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
-        enableHHUSignOn(commChannel,false);
+        enableHHUSignOn(commChannel, false);
     }
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean enableDataReadout) throws ConnectionException {
         this.commChannel = commChannel;
     }
-
 
 
     public byte[] getHHUDataReadout() {
@@ -593,20 +620,20 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
         final int baudrate = discoverInfo.getBaudrate();
 
         Properties p = new Properties();
-        p.setProperty("SecurityLevel","0");
-        p.setProperty(MeterProtocol.NODEID,nodeId==null?"":nodeId);
+        p.setProperty("SecurityLevel", "0");
+        p.setProperty(MeterProtocol.NODEID, nodeId == null ? "" : nodeId);
 
-        setProperties( p );
+        setProperties(p);
 
-        init(cChannel.getInputStream(),cChannel.getOutputStream(),null,null);
+        init(cChannel.getInputStream(), cChannel.getOutputStream(), null, null);
         enableHHUSignOn(cChannel);
         connect(baudrate);
 
         Command c =
-            new Command( IonHandle.FAC_1_SERIAL_NUMBER_SR, IonMethod.READ_REGISTER_VALUE );
-        applicationLayer.read( c );
+                new Command(IonHandle.FAC_1_SERIAL_NUMBER_SR, IonMethod.READ_REGISTER_VALUE);
+        applicationLayer.read(c);
 
-        String sn = (String)((IonObject)c.getResponse()).getValue();
+        String sn = (String) ((IonObject) c.getResponse()).getValue();
         disconnect();
 
         return sn;
@@ -614,41 +641,38 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
     }
 
     /**
-     *
      * @param handles
      * @param method
      * @return
      */
-    List toCmd( List handles, IonMethod method ) {
+    List toCmd(List handles, IonMethod method) {
         ArrayList rslt = new ArrayList();
         Iterator i = handles.iterator();
-        while( i.hasNext() ) {
+        while (i.hasNext()) {
             IonHandle handle = (IonHandle) i.next();
-            rslt.add( new Command( handle, method ) );
+            rslt.add(new Command(handle, method));
         }
         return rslt;
     }
 
     /**
-     *
      * @param handle
      * @param method
      * @return
      */
-    Command toCmd( IonHandle handle, IonMethod method ){
-        return new Command( handle, method );
+    Command toCmd(IonHandle handle, IonMethod method) {
+        return new Command(handle, method);
     }
 
     /**
-     *
      * @param ionIntegers
      * @return
      */
-    List collectHandles( List ionIntegers ) {
+    List collectHandles(List ionIntegers) {
         ArrayList rslt = new ArrayList();
         Iterator i = ionIntegers.iterator();
-        while( i.hasNext() ) {
-            rslt.add( IonHandle.create( ((IonInteger)i.next() ).getIntValue() ) );
+        while (i.hasNext()) {
+            rslt.add(IonHandle.create(((IonInteger) i.next()).getIntValue()));
         }
         return rslt;
     }
