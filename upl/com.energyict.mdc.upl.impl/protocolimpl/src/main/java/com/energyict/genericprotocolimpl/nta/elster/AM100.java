@@ -8,6 +8,7 @@ import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageCategoryConstants;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
+import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol;
 import com.energyict.genericprotocolimpl.nta.elster.messagehandling.AM100MessageExecutor;
 import com.energyict.genericprotocolimpl.nta.elster.profiles.DailyMonthlyProfile;
@@ -318,6 +319,20 @@ public class AM100 extends AbstractNTAProtocol {
     @Override
     public List<String> doGetRequiredKeys() {
         return null;
+    }
+
+    /**
+     * Creates a new Instance of the the used MbusDevice type
+     *
+     * @param serial          the serialnumber of the mbusdevice
+     * @param physicalAddress the physical address of the Mbus device
+     * @param mbusRtu         the rtu in the database representing the mbus device
+     * @param logger          the logger that will be used
+     * @return a new Mbus class instance
+     */
+    @Override
+    protected AbstractMbusDevice getMbusInstance(String serial, int physicalAddress, Rtu mbusRtu, Logger logger) {
+        return new MbusDevice(serial, physicalAddress, mbusRtu, logger);  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     /**

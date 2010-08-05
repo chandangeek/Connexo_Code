@@ -1,8 +1,11 @@
 package com.energyict.genericprotocolimpl.webrtukp;
 
+import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol;
+import com.energyict.mdw.core.Rtu;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  *
@@ -43,6 +46,20 @@ public class WebRTUKP extends AbstractNTAProtocol {
     @Override
     public List<String> doGetRequiredKeys() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    /**
+     * Creates a new Instance of the the used MbusDevice type
+     *
+     * @param serial          the serialnumber of the mbusdevice
+     * @param physicalAddress the physical address of the Mbus device
+     * @param mbusRtu         the rtu in the database representing the mbus device
+     * @param logger          the logger that will be used
+     * @return a new Mbus class instance
+     */
+    @Override
+    protected AbstractMbusDevice getMbusInstance(String serial, int physicalAddress, Rtu mbusRtu, Logger logger) {
+        return new MbusDevice(serial, physicalAddress, mbusRtu, logger);  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override

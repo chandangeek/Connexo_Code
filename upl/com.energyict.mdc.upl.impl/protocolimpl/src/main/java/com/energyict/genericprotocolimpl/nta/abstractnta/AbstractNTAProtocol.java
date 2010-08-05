@@ -91,19 +91,29 @@ public abstract class AbstractNTAProtocol extends MeterMessages implements Gener
      * Extra protocol settings for a <b>subclassed NTA protocol</b>
      * Can be used to override a default custom property or add specific custom properties.
      */
-    public abstract void doValidateProperties();
+    protected abstract void doValidateProperties();
 
     /**
      * Add extra optional keys
      * @return a List<String> with optional key parameters, return null if no additionals are required
      */
-    public abstract List<String> doGetOptionalKeys();
+    protected abstract List<String> doGetOptionalKeys();
 
     /**
      * Add extra required keys
      * @return a List<String> with required key parameters, return null if no additionals are required
      */
-    public abstract List<String> doGetRequiredKeys();
+    protected abstract List<String> doGetRequiredKeys();
+
+    /**
+     * Creates a new Instance of the the used MbusDevice type
+     * @param serial the serialnumber of the mbusdevice
+     * @param physicalAddress the physical address of the Mbus device
+     * @param mbusRtu the rtu in the database representing the mbus device
+     * @param logger the logger that will be used
+     * @return a new Mbus class instance
+     */
+    protected abstract AbstractMbusDevice getMbusInstance(String serial, int physicalAddress, Rtu mbusRtu, Logger logger);
 
 	private static String ignoreIskraGostMbusDevice = "@@@0000000000000";
 	protected boolean connected = false;
@@ -700,6 +710,7 @@ public abstract class AbstractNTAProtocol extends MeterMessages implements Gener
 	public void doReadRegisters() throws IOException {
 		Iterator<RtuRegister> it = getMeter().getRegisters().iterator();
 		List groups = this.scheduler.getCommunicationProfile().getRtuRegisterGroups();
+        MeterReadingData mrd = null;
 		ObisCode oc = null;
 		RegisterValue rv = null;
 		RtuRegister rr;
@@ -711,7 +722,7 @@ public abstract class AbstractNTAProtocol extends MeterMessages implements Gener
 					try {
 						rv = readRegister(oc);
 
-						rv.setRtuRegisterId(rr.getId());
+						rv.setRtuRegisterId(rr.getRtu().getId());
 
 						if (rr.getReadingAt(rv.getReadTime()) == null) {
 							getStoreObject().add(rr, rv);
@@ -1126,10 +1137,10 @@ public abstract class AbstractNTAProtocol extends MeterMessages implements Gener
      *          - the logger that will be used
      */
     protected void addMbusDevice(int index, String serial, int physicalAddress, Rtu mbusRtu, Logger logger){
-        this.mbusDevices[index] = new AbstractMbusDevice(serial, physicalAddress, mbusRtu, logger);
+        this.mbusDevices[index] = getMbusInstance(serial, physicalAddress, mbusRtu, logger);
     }
 
-	private Rtu findOrCreateMbusDevice(String key) throws SQLException, BusinessException {
+    private Rtu findOrCreateMbusDevice(String key) throws SQLException, BusinessException {
 		List<Rtu> mbusList = mw().getRtuFactory().findBySerialNumber(key);
 		if(mbusList.size() == 1){
 			mbusList.get(0).updateGateway(getMeter());
@@ -1253,7 +1264,7 @@ public abstract class AbstractNTAProtocol extends MeterMessages implements Gener
 					mbusChannel = checkSerialForMbusChannel(serialMbus);
 					// this.mbusDevices[count++] = new MbusDevice(serialMbus, mbus, getLogger());
 					if (mbusChannel != -1) {
-						this.mbusDevices[count++] = new AbstractMbusDevice(serialMbus, mbusChannel, mbus, getLogger());
+						this.mbusDevices[count++] = getMbusInstance(serialMbus, mbusChannel, mbus, getLogger());
 					} else {
 						getLogger().log(Level.INFO, "Mbusmeter with serialnumber " + serialMbus + " is not found on E-meter " + this.serialNumber);
 					}

@@ -19,6 +19,8 @@ import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
@@ -43,7 +45,26 @@ import java.util.logging.Logger;
  * 					Changed all messageEntrys in date-form to a UnixTime entry; 
  */
 
-public class AbstractMbusDevice extends MbusMessages implements GenericProtocol{
+public abstract class AbstractMbusDevice extends MbusMessages implements GenericProtocol{
+
+     /**
+     * Extra protocol settings for a <b>subclassed NTA protocol</b>
+     * Can be used to override a default custom property or add specific custom properties.
+      * @param properties
+      */
+    protected abstract void doValidateProperties(Properties properties) throws InvalidPropertyException;
+
+    /**
+     * Add extra optional keys
+     * @return a List<String> with optional key parameters, return null if no additionals are required
+     */
+    protected abstract List<String> doGetOptionalKeys();
+
+    /**
+     * Add extra required keys
+     * @return a List<String> with required key parameters, return null if no additionals are required
+     */
+    protected abstract List<String> doGetRequiredKeys();    
 	
 	private long mbusAddress	= -1;		// this is the address that was given by the E-meter or a hardcoded MBusAddress in the MBusMeter itself
 	private int physicalAddress = -1;		// this is the orderNumber of the MBus meters on the E-meter, we need this to compute the ObisRegisterValues
@@ -58,6 +79,7 @@ public class AbstractMbusDevice extends MbusMessages implements GenericProtocol{
 	private ProtocolChannelMap channelMap = null;
 	private Unit mbusUnit;
 	private MbusObisCodeMapper mocm = null;
+    private Properties properties;
 	
 	
 	public AbstractMbusDevice(){
@@ -119,6 +141,8 @@ public class AbstractMbusDevice extends MbusMessages implements GenericProtocol{
 
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
 		this.commProfile = scheduler.getCommunicationProfile();
+
+        validateProperties();
 		
 //		try {
 			// Before reading data, check the serialnumber
@@ -236,14 +260,25 @@ public class AbstractMbusDevice extends MbusMessages implements GenericProtocol{
 	}
 
 	public void addProperties(Properties properties) {
+        this.properties = properties;
 	}
 
 	public List getOptionalKeys() {
-		return new ArrayList(0);
+		List<String> result = new ArrayList(30);
+   		List<String> protocolKeys = doGetOptionalKeys();
+        if (protocolKeys != null) {
+            result.addAll(protocolKeys);
+        }
+        return result;
 	}
 
 	public List getRequiredKeys() {
-		return new ArrayList(0);
+		List<String> result = new ArrayList(30);
+   		List<String> protocolKeys = doGetRequiredKeys();
+        if (protocolKeys != null) {
+            result.addAll(protocolKeys);
+        }
+        return result;
 	}
 
 	public Logger getLogger() {
@@ -258,15 +293,30 @@ public class AbstractMbusDevice extends MbusMessages implements GenericProtocol{
 		return this.webRtu;
 	}
 
-	public static void main(String args[]){
-		AbstractMbusDevice md = new AbstractMbusDevice();
-		String string = "123456781AFF";
-//		try {
-////			System.out.println(md.convertStringToByte(string));
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
+    /**
+     * {@inheritDoc}
+     */
+	public void validateProperties() throws MissingPropertyException, InvalidPropertyException {
+		Iterator<String> iterator = getRequiredKeys().iterator();
+		while (iterator.hasNext()) {
+			String key = iterator.next();
+			if (getProperties().getProperty(key) == null) {
+				throw new MissingPropertyException(key + " key missing");
+			}
+		}
+        doValidateProperties(getProperties());
 	}
+
+    /**
+     * Getter for the properties. (fetch them ones from the device)
+     * @return the properties
+     */
+    private Properties getProperties(){
+        if(this.properties == null){
+            this.properties = getMbus().getProperties();
+        }
+        return this.properties;
+    }
 
 	public long getTimeDifference() {
 		return 0;
