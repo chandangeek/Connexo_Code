@@ -1,8 +1,12 @@
 package com.energyict.genericprotocolimpl.common;
 
+import com.energyict.dialer.core.Link;
 import com.energyict.mdw.amr.GenericProtocol;
+import com.energyict.mdw.core.CommunicationScheduler;
 
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -18,6 +22,10 @@ public abstract class AbstractGenericProtocol implements GenericProtocol {
 
     private Properties properties = null;
     private long timeDifference = 0;
+
+    private CommunicationScheduler communicationScheduler;
+    private Link link;
+    private Logger logger;
 
     /**
      * Getter for the time difference of the clock in the device
@@ -42,7 +50,7 @@ public abstract class AbstractGenericProtocol implements GenericProtocol {
      *
      * @param properties
      */
-    public void setProperties(Properties properties) {
+    public void addProperties(Properties properties) {
         this.properties = properties;
     }
 
@@ -59,9 +67,69 @@ public abstract class AbstractGenericProtocol implements GenericProtocol {
         return properties;
     }
 
+    /**
+     * Getter for the communicationScheduler field
+     *
+     * @return
+     */
+    public CommunicationScheduler getCommunicationScheduler() {
+        return communicationScheduler;
+    }
+
+    /**
+     * Getter for the link field
+     *
+     * @return
+     */
+    public Link getLink() {
+        return link;
+    }
+
+    /**
+     * Get the current protocol logger. If the logger == null, initialize it with default logger
+     *
+     * @return
+     */
+    public Logger getLogger() {
+        if (logger == null) {
+            logger = Logger.getLogger(getClass().getName());
+        }
+        return logger;
+    }
+
+    /**
+     * Log a message, with a given log level
+     *
+     * @param level
+     * @param message
+     */
+    protected void log(Level level, String message) {
+        getLogger().log(level, message);
+    }
+
+    /**
+     * Log a message as INFO log level
+     * @param message
+     */
+    protected void log(String message) {
+        log(Level.INFO, message);
+    }
+
     public boolean propertyExist(String propertyKey) {
         String value = getProperties().getProperty(propertyKey);
         return (value != null) && (value.length() > 0);
+    }
+
+    /**
+     * Setter for all the attributes of the execute command.
+     * @param communicationScheduler
+     * @param link
+     * @param logger
+     */
+    protected void setExecuteObjects(CommunicationScheduler communicationScheduler, Link link, Logger logger) {
+        this.communicationScheduler = communicationScheduler;
+        this.link = link;
+        this.logger = logger;
     }
 
 }
