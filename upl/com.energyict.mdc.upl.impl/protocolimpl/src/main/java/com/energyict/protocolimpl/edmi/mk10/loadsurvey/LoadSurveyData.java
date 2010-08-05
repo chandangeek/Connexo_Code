@@ -10,15 +10,15 @@
 
 package com.energyict.protocolimpl.edmi.mk10.loadsurvey;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
-
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edmi.mk10.command.FileAccessReadCommand;
 import com.energyict.protocolimpl.edmi.mk10.core.AbstractRegisterType;
 import com.energyict.protocolimpl.edmi.mk10.core.RegisterTypeParser;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  *
@@ -26,16 +26,19 @@ import com.energyict.protocolimpl.edmi.mk10.core.RegisterTypeParser;
  */
 public class LoadSurveyData {
 
-	private final int DEBUG=0;
-	private final int READBUFFER = 0xFF;
+	private static final int DEBUG=0;
+    private static final int MAX_PACKET_SIZE = 1024;
+    private static final int DEFAULT_MAX_ENTRIES = 0x10;
+    private static final int HEADER_OVERHEAD = 30; //Raw assumption
 
 	private LoadSurvey loadSurvey;
 
 	private byte[] data;
 	private Date firstTimeStamp;
 	private int numberOfRecords;
+    private int maxNrOfEntries = -1;
 
-	/** Creates a new instance of LoadSurveyData */
+    /** Creates a new instance of LoadSurveyData */
 	public LoadSurveyData(LoadSurvey loadSurvey,Date from) throws IOException {
 		this.setLoadSurvey(loadSurvey);
 		init(from);
@@ -43,7 +46,7 @@ public class LoadSurveyData {
 
 
 	private void init(Date from) throws IOException {
-		
+
         long beforeUpdatedFirstEntry = 0;
         long afterUpdatedFirstEntry = 0;
         
@@ -108,7 +111,7 @@ public class LoadSurveyData {
 	    			System.out.println("GNA -> getLoadSurvey().getUpdatedFirstEntry() 2 : "+ getLoadSurvey().getUpdatedFirstEntry());
 	    		}
 				
-				farc = getLoadSurvey().getCommandFactory().getFileAccessReadCommand(getLoadSurvey().getLoadSurveyNumber(), startRecord, READBUFFER);
+				farc = getLoadSurvey().getCommandFactory().getFileAccessReadCommand(getLoadSurvey().getLoadSurveyNumber(), startRecord, getMaximumEntries());
 				startRecord += farc.getNumberOfRecords();
 				records += farc.getNumberOfRecords();
 				byteArrayOutputStream.write(farc.getData(),0,farc.getData().length);
@@ -138,7 +141,21 @@ public class LoadSurveyData {
 
 	} // private void init(Date from) throws IOException
 
-	public String toString() {
+    private int getMaximumEntries() {
+        if (maxNrOfEntries == -1) {
+            if (getLoadSurvey().getEntryWidth() == 0) {
+                this.maxNrOfEntries = DEFAULT_MAX_ENTRIES;
+            } else {
+                this.maxNrOfEntries = (MAX_PACKET_SIZE - HEADER_OVERHEAD) / getLoadSurvey().getEntryWidth();
+                if (this.maxNrOfEntries < 0) {
+                    this.maxNrOfEntries = DEFAULT_MAX_ENTRIES;
+                }
+            }
+        }
+        return maxNrOfEntries;
+    }
+
+    public String toString() {
 		try {
 			StringBuffer strBuff = new StringBuffer();
 			strBuff.append("LoadSurveyData:\n");

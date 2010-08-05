@@ -27,7 +27,7 @@ public class BillingInfo {
 	private Date			toDate;
     private Date            fromDate;
 
-    /** Creates a new instance of BillingInfo */
+	/** Creates a new instance of BillingInfo */
 	public BillingInfo(CommandFactory commandFactory) throws IOException {
 		this.setCommandFactory(commandFactory);
 		init();
@@ -69,7 +69,7 @@ public class BillingInfo {
 
     public void setFromDate(Date fromDate) {
         this.fromDate = fromDate;
-    }
+}
 
     public Date getFromDate() {
         return fromDate;

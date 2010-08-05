@@ -35,6 +35,7 @@ import java.util.logging.Logger;
  * jme: 14/01/2010 -> Fixed bug in load profile. Protocol was unable to read all the data from the meter (CRM ticket 12855)
  * gna: 28/01/2010 -> Changed loadProfileReadout (Mantis 6113)
  * jme: 31/05/2010 -> COMMUNICATION-14 - EDMI MK10 & MK7 Registers Query (CRM 13712): Fixed register addresses from billing registers
+ * jme: 09/07/2010 -> COMMUNICATION-59 - Fixed timeouts when udp packets were > 1024 bytes.
  */
 public class MK10 extends AbstractProtocol {
 
@@ -210,7 +211,7 @@ public class MK10 extends AbstractProtocol {
 			str = " [MK10] > " + str;
 			Logger log = getLogger();
 			if (log != null) {
-				getLogger().info(str + "\n");
+				getLogger().info(str);
 			}
 			else {
 				System.out.println(str);

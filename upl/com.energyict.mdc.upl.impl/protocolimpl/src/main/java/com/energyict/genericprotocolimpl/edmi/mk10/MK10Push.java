@@ -6,65 +6,52 @@
  */
 package com.energyict.genericprotocolimpl.edmi.mk10;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.genericprotocolimpl.edmi.mk10.executer.MK10ProtocolExecuter;
 import com.energyict.genericprotocolimpl.edmi.mk10.packets.PushPacket;
-import com.energyict.genericprotocolimpl.edmi.mk10.streamfilters.MK10PushInputStream;
-import com.energyict.genericprotocolimpl.edmi.mk10.streamfilters.MK10PushOutputStream;
 import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.core.AmrJournalEntry;
-import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.MeteringWarehouseFactory;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.CommunicationSchedulerShadow;
-import com.energyict.protocol.MeterReadingData;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.*;
+
+import java.io.*;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author jme
  *
  * JME|14102009|Quick fix for ImServ. They have a meter with a different discovery packet. (See MK10InputStreamParser.java)
+ * JME|09072010|COMMUNICATION-59 Fixed timeouts when udp packets were > 1024 bytes.
+ * JME|15072010|COMMUNICATION-59 Refactored MK10Push input stream
  *
  */
 public class MK10Push implements GenericProtocol {
 
-	private static final int DEBUG 				= 0;
+    private static final int DEBUG = 0;
 
-	private static final int BYTE_MASK			= 0x000000FF;
+    private static final int BYTE_MASK = 0x000000FF;
 
-	private Logger logger 						= null;
-	private long connectTime					= 0;
-	private long disconnectTime					= 0;
-	private Link link							= null;
-	private MK10ProtocolExecuter MK10Executor	= new MK10ProtocolExecuter(this);
-	private String errorString					= "";
+    private Logger logger = null;
+    private long connectTime = 0;
+    private long disconnectTime = 0;
+    private Link link = null;
+    private MK10ProtocolExecuter MK10Executor = new MK10ProtocolExecuter(this);
+    private String errorString = "";
 
-	private InputStream inputStream				= null;
-	private OutputStream outputStream			= null;
-	MK10PushInputStream mk10PushInputStream 	= null;
-	MK10PushOutputStream mk10PushOutputStream	= null;
+    private InputStream inputStream = null;
+    private OutputStream outputStream = null;
 
-	/*
-	 * Constructors
-	 */
+    private boolean fullDebugLogging = false;
+
+    /*
+      * Constructors
+      */
 
 	public MK10Push() {
 	}
@@ -266,8 +253,6 @@ public class MK10Push implements GenericProtocol {
 		this.logger = logger;
 		this.inputStream = getLink().getInputStream();
 		this.outputStream = getLink().getOutputStream();
-		this.mk10PushInputStream = new MK10PushInputStream(getInputStream());
-		this.mk10PushOutputStream = new MK10PushOutputStream(getOutputStream());
 		setConnectTime(System.currentTimeMillis());
 
 		try {
@@ -356,7 +341,10 @@ public class MK10Push implements GenericProtocol {
 	 */
 
 	public Logger getLogger() {
-		return logger;
+		if (logger == null) {
+            logger = Logger.getLogger(getClass().getName());
+        }
+        return logger;
 	}
 
 	public Link getLink() {
@@ -364,7 +352,7 @@ public class MK10Push implements GenericProtocol {
 	}
 
 	public String getVersion() {
-		return "$Revision: 1.4 $";
+		return "$Revision$";
 	}
 
 	public void addProperties(Properties properties) {
@@ -395,6 +383,7 @@ public class MK10Push implements GenericProtocol {
 	public List<String> getOptionalKeys() {
 		List<String> list = new ArrayList<String>();
 		list.addAll(getMK10Executor().getOptionalKeys());
+        list.add("FullDebug");
 		return list;
 	}
 
@@ -409,4 +398,11 @@ public class MK10Push implements GenericProtocol {
 		return 0;
 	}
 
+    public boolean isFullDebugLogging() {
+        return fullDebugLogging;
+    }
+
+    public void setFullDebugLogging(boolean fullDebugLogging) {
+        this.fullDebugLogging = fullDebugLogging;
+    }
 }

@@ -6,32 +6,19 @@
  */
 package com.energyict.genericprotocolimpl.edmi.mk10.executer;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.edmi.mk10.MK10Push;
 import com.energyict.genericprotocolimpl.edmi.mk10.streamfilters.MK10PushInputStream;
 import com.energyict.genericprotocolimpl.edmi.mk10.streamfilters.MK10PushOutputStream;
-import com.energyict.mdw.core.AmrJournalEntry;
-import com.energyict.mdw.core.CommunicationProfile;
-import com.energyict.mdw.core.CommunicationProtocol;
-import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MeterReadingData;
-import com.energyict.protocol.MeterUsageData;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdw.core.*;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.edmi.mk10.MK10;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author jme
@@ -91,7 +78,7 @@ public class MK10ProtocolExecuter {
 	}
 
 	protected void log(Level level, String msg){
-		getLogger().log(level, msg + "\n");
+		getLogger().log(level, msg);
 	}
 
     protected void setAmrJournalOutOfBoundary(long timeDiff) {
@@ -149,6 +136,9 @@ public class MK10ProtocolExecuter {
 		if (String.valueOf(getMeter().getIntervalInSeconds()) != null) {
 			this.properties.put(MeterProtocol.PROFILEINTERVAL, String.valueOf(getMeter().getIntervalInSeconds()));
 		}
+
+            getMk10Push().setFullDebugLogging(this.properties.getProperty("FullDebug", "0").equalsIgnoreCase("1"));
+
 
 		if (DEBUG >= 2) {
 			properties.list(System.out);
@@ -209,8 +199,8 @@ public class MK10ProtocolExecuter {
                 setCompletionCodeConfiguration();
                 throw new IOException("profile interval setting in eiserver configuration (" + iProfileInterval + "sec) is different then requested from the meter (" + meterProfileInterval + "sec)");
             }
-        }
-        catch (UnsupportedException e) {
+        } catch (UnsupportedException e) {
+
         }
     }
 
@@ -232,8 +222,8 @@ public class MK10ProtocolExecuter {
 
 		// Create new streams and pass them to the MK10 protocol
 		getMk10Protocol().init(
-				new MK10PushInputStream(getLink().getInputStream()),
-				new MK10PushOutputStream(getLink().getOutputStream()),
+				new MK10PushInputStream(getLink().getInputStream(), getMk10Push().isFullDebugLogging() ? getLogger() : null),
+				new MK10PushOutputStream(getLink().getOutputStream(), getMk10Push().isFullDebugLogging() ? getLogger() : null),
 				getMeter().getTimeZone(),
 				getLogger()
 		);

@@ -10,15 +10,15 @@
 
 package com.energyict.protocolimpl.edmi.mk10.loadsurvey;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Date;
-
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edmi.mk10.command.CommandFactory;
 import com.energyict.protocolimpl.edmi.mk10.core.SurveyChannelTypeParser;
 import com.energyict.protocolimpl.edmi.mk10.registermapping.MK10Register;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Date;
 /**
  *
  * @author koen
@@ -234,6 +234,21 @@ public class LoadSurvey {
 	public void setStartTime(Date startTime) {
 		this.startTime = startTime;
 	}
+
+    /**
+     * Getter for the total record size.
+     * @return
+     */
+    public int getRecordSize() {
+        int size = 0;
+        if (loadSurveyChannels != null) {
+            for (int i = 0; i < loadSurveyChannels.length; i++) {
+                LoadSurveyChannel loadSurveyChannel = loadSurveyChannels[i];
+                size += loadSurveyChannel.getWidth();
+            }
+        }
+        return size;
+    }
 
     /**
      * Read the storedEntries from the device again
