@@ -40,7 +40,7 @@ public class GenericProtocolCollectionImpl implements ProtocolCollection{
         this.protocolclasses.add("com.energyict.genericprotocolimpl.nta.elster.AM100");this.protocolnames.add("NTA Elster AM100");
         this.protocolclasses.add("com.energyict.genericprotocolimpl.nta.iskra.Mx382");this.protocolnames.add("NTA Iskra Mx382");
         this.protocolclasses.add("com.energyict.genericprotocolimpl.webrtuz3.WebRTUZ3");this.protocolnames.add("WebRTU Z3 / MUC");
-        this.protocolclasses.add("com.energyict.genericprotocolimpl.elster.ctr.MTU155");this.protocolnames.add("Elster MTU155 (CTR)");
+        //this.protocolclasses.add("com.energyict.genericprotocolimpl.elster.ctr.MTU155");this.protocolnames.add("Elster MTU155 (CTR)");
     }
 
     public String getProtocolName(int index) throws IOException {
