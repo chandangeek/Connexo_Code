@@ -126,6 +126,11 @@ public class ABBA1140 implements MeterProtocol, ProtocolLink, HHUEnabler, Serial
 
     /** Indication whether to send a break command before a retry */
     private boolean dontSendBreakCommand;
+    /**
+     * Indicate whether to send a break before the disconnect. The state is dependant on the other break parameter ({@link #dontSendBreakCommand})
+     * Mostly you will send it, just not if the signon failed.
+     */
+    private boolean sendBreakBeforeDisconnect;
 
 	public ABBA1140() { }
 
@@ -209,6 +214,11 @@ public class ABBA1140 implements MeterProtocol, ProtocolLink, HHUEnabler, Serial
 			this.software7E1 = !p.getProperty("Software7E1", "0").equalsIgnoreCase("0");
 
             this.dontSendBreakCommand = !p.getProperty("DisableLogOffCommand", "0").equalsIgnoreCase("0");
+            if(this.dontSendBreakCommand){
+                this.sendBreakBeforeDisconnect = false;
+            } else {
+                this.sendBreakBeforeDisconnect = true;
+            }
 
 		} catch (NumberFormatException e) {
 			throw new InvalidPropertyException("ABBA1140, validateProperties, NumberFormatException, "+e.getMessage());
@@ -296,6 +306,8 @@ public class ABBA1140 implements MeterProtocol, ProtocolLink, HHUEnabler, Serial
 			rFactory.setABBA1140(this);
 			profile=new ABBA1140Profile(this,rFactory);
 
+            this.sendBreakBeforeDisconnect = true;
+
 		} catch(FlagIEC1107ConnectionException e) {
 			throw new IOException(e.getMessage());
 		} catch(IOException e) {
@@ -321,11 +333,19 @@ public class ABBA1140 implements MeterProtocol, ProtocolLink, HHUEnabler, Serial
 	 */
 	public void disconnect() throws NestedIOException {
 		try {
-			getFlagIEC1107Connection().disconnectMAC();
+                if(this.sendBreakBeforeDisconnect){
+                    getFlagIEC1107Connection().disconnectMAC();
+                } else {
+                    getFlagIEC1107Connection().disconnectMACWithoutBreak();
+                }
+
+            // all exceptions are eaten because the communication needs to be terminated
 		} catch(FlagIEC1107ConnectionException e) {
 			logger.severe("disconnect() error, "+e.getMessage());
-		}
-	}
+		} catch (ConnectionException e) {
+            logger.severe("disconnect() error while disconnection without break, " + e.getMessage());
+        }
+    }
 
 	/* (non-Javadoc)
 	 * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getNumberOfChannels()

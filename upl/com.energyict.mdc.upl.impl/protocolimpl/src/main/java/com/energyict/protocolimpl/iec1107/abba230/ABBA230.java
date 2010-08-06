@@ -138,6 +138,11 @@ RegisterProtocol, MessageProtocol, EventMapper {
 
     /** Indication whether to send a break command before a retry */
     private boolean dontSendBreakCommand;
+    /**
+     * Indicate whether to send a break before the disconnect. The state is dependant on the other break parameter ({@link #dontSendBreakCommand}) 
+     * Mostly you will send it, just not if the signon failed.
+     */
+    private boolean sendBreakBeforeDisconnect;
 
 
 	public ABBA230() { }
@@ -235,7 +240,11 @@ RegisterProtocol, MessageProtocol, EventMapper {
 			this.software7E1 = !p.getProperty("Software7E1", "0").equalsIgnoreCase("0");
 
             this.dontSendBreakCommand = !p.getProperty("DisableLogOffCommand", "0").equalsIgnoreCase("0");
-
+            if(this.dontSendBreakCommand){
+                this.sendBreakBeforeDisconnect = false;
+            } else {
+                this.sendBreakBeforeDisconnect = true;
+            }
 		} catch (NumberFormatException e) {
 			throw new InvalidPropertyException("Elster A230, validateProperties, NumberFormatException, "+e.getMessage());
 		}
@@ -341,7 +350,7 @@ RegisterProtocol, MessageProtocol, EventMapper {
 			this.rFactory = new ABBA230RegisterFactory(this,this);
 			this.profile=new ABBA230Profile(this,this.rFactory);
 
-
+            this.sendBreakBeforeDisconnect = true;
 
 		} catch(FlagIEC1107ConnectionException e) {
 			throw new IOException(e.getMessage());
@@ -369,12 +378,18 @@ RegisterProtocol, MessageProtocol, EventMapper {
 	public void disconnect() throws NestedIOException {
 		try {
 			if (!this.firmwareUpgrade) {
-				getFlagIEC1107Connection().disconnectMAC();
+                if(this.sendBreakBeforeDisconnect){
+                    getFlagIEC1107Connection().disconnectMAC();
+                } else {
+                    getFlagIEC1107Connection().disconnectMACWithoutBreak();
+                }
 			}
 		} catch(FlagIEC1107ConnectionException e) {
 			this.logger.severe("disconnect() error, "+e.getMessage());
-		}
-	}
+		} catch (ConnectionException e) {
+            this.logger.severe("disconnect() error while disconnection without break, " + e.getMessage());
+        }
+    }
 
 	/* (non-Javadoc)
 	 * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getNumberOfChannels()
