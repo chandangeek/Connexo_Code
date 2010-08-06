@@ -1,10 +1,5 @@
 package com.energyict.genericprotocolimpl.common;
 
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.Transaction;
 import com.energyict.mdw.amr.RtuRegister;
@@ -13,8 +8,14 @@ import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.coreimpl.ChannelImpl;
 import com.energyict.mdw.coreimpl.RtuImpl;
+import com.energyict.protocol.MeterReadingData;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
+
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 	/**
 	 * <pre>
@@ -53,7 +54,9 @@ public class StoreObject implements Transaction {
 				((RtuRegister) key).store((RegisterValue) entry.getValue());
 			} else if(key instanceof ProfileData){
 				((Rtu)entry.getValue()).store((ProfileData)key, false);
-			}
+			} else if(key instanceof MeterReadingData){
+                ((Rtu)entry.getValue()).store((MeterReadingData)key);
+            }
 		}
 		
 		return null;
