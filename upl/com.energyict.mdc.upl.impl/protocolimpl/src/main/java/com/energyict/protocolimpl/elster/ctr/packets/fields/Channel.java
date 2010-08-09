@@ -9,7 +9,31 @@ import com.energyict.protocolimpl.elster.ctr.packets.PacketField;
  */
 public class Channel implements PacketField {
 
-    public byte[] getBytes() {
-        return new byte[0];
+    private final int channel;
+
+    public Channel(int channel) {
+        this.channel = channel & 0x0F;
     }
+
+    public Channel() {
+        this(0);
+    }
+
+    public byte[] getBytes() {
+        return new byte[] {(byte) channel};
+    }
+
+    public boolean isGenericChannel() {
+        return channel == 0;
+    }
+
+    public boolean isBroadcastChannel() {
+        return channel == 0x0F;
+    }
+
+    @Override
+    public String toString() {
+        return "Channel = " + channel;
+    }
+
 }

@@ -9,7 +9,27 @@ import com.energyict.protocolimpl.elster.ctr.packets.PacketField;
  */
 public class WakeUp implements PacketField {
 
-    public byte[] getBytes() {
-        return new byte[0];
+    private final boolean wakeUpEnabled;
+
+    public WakeUp(boolean wakeUpEnabled) {
+        this.wakeUpEnabled = wakeUpEnabled;
     }
+
+    public WakeUp() {
+        this(false);
+    }
+
+    public boolean isWakeUpEnabled() {
+        return wakeUpEnabled;
+    }
+
+    public byte[] getBytes() {
+        return wakeUpEnabled ? new byte[20] : new byte[0];
+    }
+
+    @Override
+    public String toString() {
+        return "WakeUp = " + wakeUpEnabled;
+    }
+
 }
