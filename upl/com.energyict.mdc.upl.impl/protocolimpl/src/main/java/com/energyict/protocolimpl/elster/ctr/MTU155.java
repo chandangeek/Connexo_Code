@@ -3,7 +3,6 @@ package com.energyict.protocolimpl.elster.ctr;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.elster.ctr.connection.CTRConnection;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.*;
@@ -17,6 +16,7 @@ import java.util.*;
 public class MTU155 extends AbstractProtocol {
 
     private CTRConnection ctrConnection;
+    private final ProtocolProperties protocolProperties = new MTU155Properties();
 
     @Override
     protected void doConnect() throws IOException {
@@ -53,17 +53,24 @@ public class MTU155 extends AbstractProtocol {
 
     @Override
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+        getProtocolProperties().initProperties(properties);
+    }
 
+    @Override
+    public List getRequiredKeys() {
+        return getProtocolProperties().getRequiredKeys();
     }
 
     @Override
     protected List doGetOptionalKeys() {
-        return new ArrayList();
+        return getProtocolProperties().getOptionalKeys();
     }
+
+
 
     @Override
     protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeout, int retries, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
-        this.ctrConnection = new CTRConnection(inputStream, outputStream, forcedDelay, timeout, retries);
+        this.ctrConnection = new CTRConnection(inputStream, outputStream, forcedDelay, timeout, retries, getProtocolProperties().getPassword(), getProtocolProperties().getEncryptionKey());
         return ctrConnection;
     }
 
@@ -89,5 +96,9 @@ public class MTU155 extends AbstractProtocol {
 
     public CTRConnection getCtrConnection() {
         return ctrConnection;
+    }
+
+    public ProtocolProperties getProtocolProperties() {
+        return protocolProperties;
     }
 }

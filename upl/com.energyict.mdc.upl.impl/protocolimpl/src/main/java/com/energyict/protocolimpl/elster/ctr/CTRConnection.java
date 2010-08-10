@@ -1,7 +1,6 @@
-package com.energyict.protocolimpl.elster.ctr.connection;
+package com.energyict.protocolimpl.elster.ctr;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -17,20 +16,26 @@ import java.io.*;
  */
 public class CTRConnection implements ProtocolConnection {
 
-    private HHUSignOn hhuSignOn = null;
-    private final OutputStream outputStream;
     private final InputStream inputStream;
+    private final OutputStream outputStream;
 
     private int forcedDelay;
     private int timeout;
     private int retries;
 
-    public CTRConnection(InputStream inputStream, OutputStream outputStream, int forcedDelay, int timeout, int retries) throws ConnectionException {
+    private String password;
+    private String encryptionKey;
+
+    private HHUSignOn hhuSignOn = null;
+
+    public CTRConnection(InputStream inputStream, OutputStream outputStream, int forcedDelay, int timeout, int retries, String password, String encryptionKey) {
         this.inputStream = inputStream;
         this.outputStream = outputStream;
         this.forcedDelay = forcedDelay;
         this.timeout = timeout;
         this.retries = retries;
+        this.password = password;
+        this.encryptionKey = encryptionKey;
     }
 
     public void setHHUSignOn(HHUSignOn hhuSignOn) {
