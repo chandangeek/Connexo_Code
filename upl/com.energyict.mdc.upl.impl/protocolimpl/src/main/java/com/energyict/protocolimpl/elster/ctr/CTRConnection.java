@@ -1,23 +1,21 @@
 package com.energyict.protocolimpl.elster.ctr;
 
-import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.protocol.meteridentification.MeterType;
-import com.energyict.protocolimpl.base.ProtocolConnection;
-import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.elster.ctr.packets.CTRPacket;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.*;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
  * Date: 9-aug-2010
  * Time: 11:47:09
  */
-public class CTRConnection implements ProtocolConnection {
+public class CTRConnection {
 
     private final InputStream inputStream;
     private final OutputStream outputStream;
+    private Logger logger;
 
     private int forcedDelay;
     private int timeout;
@@ -26,43 +24,22 @@ public class CTRConnection implements ProtocolConnection {
     private String password;
     private String encryptionKey;
 
-    private HHUSignOn hhuSignOn = null;
-
-    public CTRConnection(InputStream inputStream, OutputStream outputStream, int forcedDelay, int timeout, int retries, String password, String encryptionKey) {
+    public CTRConnection(InputStream inputStream, OutputStream outputStream, ProtocolProperties properties, Logger logger) {
         this.inputStream = inputStream;
         this.outputStream = outputStream;
-        this.forcedDelay = forcedDelay;
-        this.timeout = timeout;
-        this.retries = retries;
-        this.password = password;
-        this.encryptionKey = encryptionKey;
-    }
+        this.logger = logger;
 
-    public void setHHUSignOn(HHUSignOn hhuSignOn) {
-        this.hhuSignOn = hhuSignOn;
-    }
+        this.forcedDelay = properties.getForcedDelay();
+        this.timeout = properties.getTimeout();
+        this.retries = properties.getRetries();
+        this.password = properties.getPassword();
+        this.encryptionKey = properties.getEncryptionKey();
 
-    public HHUSignOn getHhuSignOn() {
-        return hhuSignOn;
-    }
-
-    public void disconnectMAC() throws NestedIOException, ProtocolConnectionException {
-        throw new ProtocolConnectionException("Not implemented yet.");
-    }
-
-    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException, ProtocolConnectionException {
-        return null;
-    }
-
-    public byte[] dataReadout(String strID, String nodeId) throws NestedIOException, ProtocolConnectionException {
-        throw new ProtocolConnectionException("Not implemented yet.");
     }
 
     public void writeRawData(byte[] data) throws IOException {
-        if (this.outputStream != null) {
-            doForcedDelay();
-            this.outputStream.write(data);
-        }
+        doForcedDelay();
+        this.outputStream.write(data);
     }
 
     private void doForcedDelay() {
@@ -95,5 +72,23 @@ public class CTRConnection implements ProtocolConnection {
             ProtocolTools.delay(1);
         }
     }
+
+    public CTRPacket sendRequestGetResonse(CTRPacket packet) throws IOException {
+        int attempts = 0;
+        while (attempts++ < retries) {
+/*
+            try {
+                writeRawData(packet.getBytes());
+                byte[] rawData = readRawData();
+
+            } catch (IOException e) {
+
+            }
+*/
+        }
+        return null;
+    }
+
+    ;
 
 }

@@ -33,4 +33,6 @@ public interface CTRPacket {
 
     Crc getCrc();
 
+    byte[] getBytes();
+
 }

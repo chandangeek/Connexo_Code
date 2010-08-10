@@ -1,25 +1,26 @@
 package com.energyict.protocolimpl.elster.ctr;
 
-import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
  * Date: 5-aug-2010
  * Time: 11:12:17
  */
-public class MTU155 extends AbstractProtocol {
+public class MTU155 extends AbstractMTU155 {
 
     private CTRConnection ctrConnection;
     private final ProtocolProperties protocolProperties = new MTU155Properties();
+    private Logger logger;
+    private TimeZone timeZone;
 
-    @Override
-    protected void doConnect() throws IOException {
+    public void connect() throws IOException {
+/*
         byte[] packet = new byte[] {
                 (byte) 0x0A, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xD1, (byte) 0x40, (byte) 0xC0,
                 (byte) 0x26, (byte) 0x9F, (byte) 0x69, (byte) 0x58, (byte) 0xEC, (byte) 0x35, (byte) 0x02, (byte) 0x86,
@@ -40,58 +41,59 @@ public class MTU155 extends AbstractProtocol {
                 (byte) 0x95, (byte) 0xDA, (byte) 0x57, (byte) 0x13, (byte) 0x37, (byte) 0xD1, (byte) 0x7E, (byte) 0x7F,
                 (byte) 0x80, (byte) 0x81, (byte) 0x82, (byte) 0x97, (byte) 0x82, (byte) 0x0D
         };
-        
-        getCtrConnection().writeRawData(packet);
-        byte[] response = getCtrConnection().readRawData();
-        System.out.println(ProtocolTools.getHexStringFromBytes(response));
+*/
+
+        getCtrConnection().sendRequestGetResonse(null);
     }
 
-    @Override
-    protected void doDisConnect() throws IOException {
+    public void disconnect() throws IOException {
 
     }
 
-    @Override
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         getProtocolProperties().initProperties(properties);
     }
 
-    @Override
+    public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
+        this.logger = logger;
+        this.timeZone = timeZone;
+        this.ctrConnection = new CTRConnection(inputStream, outputStream, getProtocolProperties(), getLogger());
+    }
+
     public List getRequiredKeys() {
         return getProtocolProperties().getRequiredKeys();
     }
 
-    @Override
-    protected List doGetOptionalKeys() {
+    public List getOptionalKeys() {
         return getProtocolProperties().getOptionalKeys();
     }
 
-
-
-    @Override
-    protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeout, int retries, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
-        this.ctrConnection = new CTRConnection(inputStream, outputStream, forcedDelay, timeout, retries, getProtocolProperties().getPassword(), getProtocolProperties().getEncryptionKey());
-        return ctrConnection;
-    }
-
-    @Override
-    public Date getTime() throws IOException {
-        throw new IOException("Not implemented yet.");
-    }
-
-    @Override
-    public void setTime() throws IOException {
-        throw new IOException("Not implemented yet.");
-    }
-
-    @Override
     public String getProtocolVersion() {
-        return "$Revision$";  //To change body of implemented methods use File | Settings | File Templates.
+        return "$Revision$";
     }
 
-    @Override
+    public Date getTime() throws IOException {
+        return new Date();
+    }
+
+    public void setTime() throws IOException {
+        throw new UnsupportedException();
+    }
+
     public String getFirmwareVersion() throws IOException, UnsupportedException {
-        throw new IOException("Not implemented yet.");
+        throw new UnsupportedException();
+    }
+
+    public ProfileData getProfileData(Date fromDate, Date toDate, boolean includeEvents) throws IOException, UnsupportedException {
+        throw new UnsupportedException();
+    }
+
+    public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
+        return new RegisterInfo("Unsupported");
+    }
+
+    public RegisterValue readRegister(ObisCode obisCode) throws IOException {
+        throw new NoSuchRegisterException();
     }
 
     public CTRConnection getCtrConnection() {
@@ -101,4 +103,16 @@ public class MTU155 extends AbstractProtocol {
     public ProtocolProperties getProtocolProperties() {
         return protocolProperties;
     }
+
+    public TimeZone getTimeZone() {
+        return timeZone;
+    }
+
+    public Logger getLogger() {
+        if (logger == null) {
+            this.logger = Logger.getLogger(getClass().getName());
+        }
+        return logger;
+    }
+
 }
