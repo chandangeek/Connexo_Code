@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.elster.ctr.packets.fields;
 
+import com.energyict.protocolimpl.base.CRC16DNP;
 import com.energyict.protocolimpl.elster.ctr.packets.PacketField;
 
 /**
@@ -9,8 +10,14 @@ import com.energyict.protocolimpl.elster.ctr.packets.PacketField;
  */
 public class Cpa implements PacketField {
 
+    private final byte[] cpaValue;
+
+    public Cpa(Data dataField) {
+        cpaValue = CRC16DNP.calcCRCAsBytes(dataField.getBytes());
+    }
 
     public byte[] getBytes() {
-        return new byte[0];
+        return cpaValue;
     }
+    
 }

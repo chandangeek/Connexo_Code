@@ -13,6 +13,7 @@ public class MTU155Properties implements ProtocolProperties {
     private static final String DEFAULT_PASSWORD = "";
     private static final String DEFAULT_ENCRYPTIONKEY = "";
     private static final String DEFAULT_SERIALNUMBER = "";
+    private static final String DEFAULT_NODEADDRESS = "1";
 
     private Properties properties = new Properties();
 
@@ -23,6 +24,7 @@ public class MTU155Properties implements ProtocolProperties {
 
     public List<String> getOptionalKeys() {
         List<String> optionalKeys = new ArrayList<String>();
+        optionalKeys.add(ENCRYPTIONKEY);
         return optionalKeys;
     }
 
@@ -56,6 +58,10 @@ public class MTU155Properties implements ProtocolProperties {
 
     public int getForcedDelay() {
         return Integer.valueOf(properties.getProperty(FORCEDDELAY, DEFAULT_INTERVAL)).intValue();
+    }
+
+    public int getNodeAddress() {
+        return Integer.valueOf(properties.getProperty(NODEADDRESS, DEFAULT_NODEADDRESS)).intValue();
     }
 
 }

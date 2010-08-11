@@ -18,7 +18,8 @@ public class MTU155 extends AbstractMTU155 {
     private final ProtocolProperties protocolProperties = new MTU155Properties();
     private Logger logger;
     private TimeZone timeZone;
-
+    
+    
     public void connect() throws IOException {
 /*
         byte[] packet = new byte[] {

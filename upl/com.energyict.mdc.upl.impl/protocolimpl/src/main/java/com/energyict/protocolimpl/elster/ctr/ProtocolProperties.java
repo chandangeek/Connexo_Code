@@ -20,6 +20,7 @@ public interface ProtocolProperties extends ConfigurationSupport {
     String RETRIES = AbstractProtocol.PROP_RETRIES;
     String TIMEOUT = AbstractProtocol.PROP_TIMEOUT;
     String FORCEDDELAY = AbstractProtocol.PROP_FORCED_DELAY;
+    String NODEADDRESS = AbstractProtocol.NODEID;
 
     /**
      * 
@@ -68,5 +69,11 @@ public interface ProtocolProperties extends ConfigurationSupport {
      * @return
      */
     int getForcedDelay();
+
+    /**
+     * Getter for the address of the device
+     * @return
+     */
+    int getNodeAddress();
 
 }

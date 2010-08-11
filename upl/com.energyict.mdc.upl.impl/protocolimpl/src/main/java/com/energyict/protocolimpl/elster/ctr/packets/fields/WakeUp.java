@@ -15,10 +15,6 @@ public class WakeUp implements PacketField {
         this.wakeUpEnabled = wakeUpEnabled;
     }
 
-    public WakeUp() {
-        this(false);
-    }
-
     public boolean isWakeUpEnabled() {
         return wakeUpEnabled;
     }

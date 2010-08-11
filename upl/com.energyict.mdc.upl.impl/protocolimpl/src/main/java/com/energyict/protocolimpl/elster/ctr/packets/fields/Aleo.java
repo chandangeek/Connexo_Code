@@ -14,7 +14,7 @@ public class Aleo implements PacketField {
     private final int value;
 
     public Aleo() {
-        this(new Random().nextInt());
+        this(new Random().nextInt() >> 8);
     }
 
     public Aleo(int value) {

@@ -22,7 +22,7 @@ public class FunctionCode implements PacketField {
     private static final int RESERVED_UPPER = 0x0FF;
 
     public FunctionCode(int functionCode) {
-        this.functionCode = functionCode & RESERVED_UPPER;
+        this.functionCode = functionCode & 0x0FF;
     }
 
     public void setEncrypted(boolean encrypted) {
