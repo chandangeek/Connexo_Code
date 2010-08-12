@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.elster.ctr.packets.fields;
 
-import com.energyict.protocolimpl.elster.ctr.packets.PacketField;
-
 import java.util.Random;
 
 /**
@@ -9,7 +7,9 @@ import java.util.Random;
  * Date: 9-aug-2010
  * Time: 14:42:42
  */
-public class Aleo implements PacketField {
+public class Aleo extends AbstractPacketField {
+
+    public static final int LENGTH = 1;
 
     private final int value;
 
@@ -21,17 +21,16 @@ public class Aleo implements PacketField {
         this.value = value & 0x0FF;
     }
 
+    public Aleo(byte[] rawPacket, int offset) {
+        this(rawPacket[offset] & 0x0FF);
+    }
+
     public int getValue() {
         return value;
     }
 
     public byte[] getBytes() {
         return new byte[]{(byte) (value & 0x0FF)};
-    }
-
-    @Override
-    public String toString() {
-        return "Channel = " + value;
     }
 
 }

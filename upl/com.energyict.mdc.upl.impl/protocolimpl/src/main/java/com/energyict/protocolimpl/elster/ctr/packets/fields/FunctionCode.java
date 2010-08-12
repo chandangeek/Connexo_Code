@@ -1,14 +1,13 @@
 package com.energyict.protocolimpl.elster.ctr.packets.fields;
 
-import com.energyict.protocolimpl.elster.ctr.packets.PacketField;
-
 /**
  * Copyrights EnergyICT
  * Date: 9-aug-2010
  * Time: 14:41:46
  */
-public class FunctionCode implements PacketField {
+public class FunctionCode extends AbstractPacketField {
 
+    public static final int LENGTH = 1;
     public static final int ENCRYPTED_MASK = 0x080;
 
     private int functionCode = 0x00;
@@ -25,12 +24,24 @@ public class FunctionCode implements PacketField {
         this.functionCode = functionCode & 0x0FF;
     }
 
+    public FunctionCode(byte[] rawPacket, int offset) {
+        this(rawPacket[offset] & 0x0FF);
+    }
+
     public void setEncrypted(boolean encrypted) {
         if (encrypted) {
             functionCode |= ENCRYPTED_MASK;
         } else {
             functionCode &= ~ENCRYPTED_MASK;
         }
+    }
+
+    public int getFunctionCode() {
+        return functionCode;
+    }
+
+    public FunctionType getFunctionType() {
+        return FunctionType.getFunctionType(functionCode & 0x07F);
     }
 
     public boolean isNotUsed() {
@@ -56,4 +67,10 @@ public class FunctionCode implements PacketField {
     public byte[] getBytes() {
         return new byte[] {(byte) (functionCode & 0x0FF)};
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + " [char='" + getFunctionType().getFunctionTypeValueAsChar() + "', encrypted="+ isEncrypted()+"]";
+    }
+
 }

@@ -3,6 +3,13 @@ package com.energyict.protocolimpl.elster.ctr.packets;
 import com.energyict.protocolimpl.elster.ctr.packets.fields.*;
 
 /**
+ * This procedure enables the Client to identify the Server. It is a special query on
+ * TABLE structures, which does not require a password to be provided. Generally it is
+ * the first message in a connection with data communication. The response is always required,
+ * whatever the profile. The identification procedure is not mandatory, e.g. if the Client
+ * already knows the Server with which it wishes to interact (such as the active client side caller ID function).
+ * The message is not encrypted
+ * <p/>
  * Copyrights EnergyICT
  * Date: 10-aug-2010
  * Time: 14:32:28
@@ -33,5 +40,5 @@ public class IdentificationRequest extends AbstractCTRPacket {
     public Data getData() {
         return identificationRequestData;
     }
-    
+
 }

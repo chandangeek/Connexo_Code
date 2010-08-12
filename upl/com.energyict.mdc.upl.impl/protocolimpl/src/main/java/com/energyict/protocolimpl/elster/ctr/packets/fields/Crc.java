@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.elster.ctr.packets.fields;
 
 import com.energyict.protocolimpl.base.CRC16DNP;
 import com.energyict.protocolimpl.elster.ctr.packets.CTRPacket;
-import com.energyict.protocolimpl.elster.ctr.packets.PacketField;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -12,7 +11,9 @@ import java.io.IOException;
  * Date: 9-aug-2010
  * Time: 14:46:42
  */
-public class Crc implements PacketField {
+public class Crc extends AbstractPacketField {
+
+    public static final int LENGTH = 2;
 
     private final byte[] crcValue;
 
@@ -31,6 +32,13 @@ public class Crc implements PacketField {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
         crcValue = CRC16DNP.calcCRCAsBytes(crcData.toByteArray());
+    }
+
+    public Crc(byte[] rawPacket, int offset) {
+        crcValue = new byte[LENGTH];
+        for (int i = 0; i < LENGTH; i++) {
+            crcValue[i] = rawPacket[offset + i];
+        }
     }
 
     public byte[] getBytes() {

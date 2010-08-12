@@ -12,8 +12,8 @@ import java.io.IOException;
  */
 public abstract class AbstractCTRPacket implements CTRPacket {
 
-    private static final byte[] STX = new byte[]{0x0A};
-    private static final byte[] ETX = new byte[]{0x0D};
+    public static final byte[] STX = new byte[]{0x0A};
+    public static final byte[] ETX = new byte[]{0x0D};
 
     private final WakeUp wakeUp;
     private final AddressField addressField;

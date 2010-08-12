@@ -1,13 +1,13 @@
 package com.energyict.protocolimpl.elster.ctr.packets.fields;
 
-import com.energyict.protocolimpl.elster.ctr.packets.PacketField;
-
 /**
  * Copyrights EnergyICT
  * Date: 9-aug-2010
  * Time: 14:43:23
  */
-public class StructureCode implements PacketField {
+public class StructureCode extends AbstractPacketField {
+
+    public static final int LENGTH = 1;
 
     private int value;
 
@@ -17,6 +17,10 @@ public class StructureCode implements PacketField {
 
     public StructureCode() {
         this.value = 0x00;
+    }
+
+    public StructureCode(byte[] rawPacket, int offset) {
+        this(rawPacket[offset] & 0x0FF);
     }
 
     public byte[] getBytes() {

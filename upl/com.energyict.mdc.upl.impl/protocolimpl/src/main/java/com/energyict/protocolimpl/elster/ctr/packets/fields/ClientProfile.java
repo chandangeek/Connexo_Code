@@ -1,13 +1,15 @@
 package com.energyict.protocolimpl.elster.ctr.packets.fields;
 
-import com.energyict.protocolimpl.elster.ctr.packets.PacketField;
+import java.io.IOException;
 
 /**
  * Copyrights EnergyICT
  * Date: 9-aug-2010
  * Time: 14:40:38
  */
-public class ClientProfile implements PacketField {
+public class ClientProfile extends AbstractPacketField {
+
+    public static final int LENGTH = 1;
 
     private final boolean longFrame;
     private final int profile;
@@ -29,6 +31,10 @@ public class ClientProfile implements PacketField {
 
     public ClientProfile() {
         this(0, 0, false);
+    }
+
+    public ClientProfile(byte[] rawPacket, int offset) throws IOException {
+        this(rawPacket[offset] & 0x0FF);
     }
 
     public byte[] getBytes() {

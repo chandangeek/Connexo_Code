@@ -79,7 +79,11 @@ public class CTRConnection {
             try {
                 writeRawData(packet.getBytes());
                 byte[] rawData = readRawData();
-                return null;
+                if (rawData == null) {
+                    throw new IOException("readRawData() returned null!");
+                } else {
+                    return PacketFactory.parse(rawData);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }

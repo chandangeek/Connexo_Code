@@ -1,14 +1,15 @@
 package com.energyict.protocolimpl.elster.ctr.packets.fields;
 
-import com.energyict.protocolimpl.elster.ctr.packets.PacketField;
-import com.energyict.protocolimpl.utils.ProtocolTools;
+import java.io.IOException;
 
 /**
  * Copyrights EnergyICT
  * Date: 9-aug-2010
  * Time: 14:41:13
  */
-public class AddressField implements PacketField {
+public class AddressField extends AbstractPacketField {
+
+    public static final int LENGTH = 3;
 
     private final int address;
 
@@ -18,6 +19,16 @@ public class AddressField implements PacketField {
 
     public AddressField() {
         this(0x0FFFFFF);
+    }
+
+    public AddressField(byte[] rawPacket, int offset) throws IOException {
+        if (rawPacket.length < (offset + LENGTH)) {
+            throw new IOException("Unable to extract the address from the raw data at this offset. Packet to short.");
+        }
+        int addr = (rawPacket[offset] << 16) & 0x00FF0000;
+        addr += (rawPacket[offset + 1] << 8) & 0x0000FF00;
+        addr += rawPacket[offset + 2] & 0x000000FF;
+        this.address = addr;
     }
 
     public int getAddress() {
@@ -33,16 +44,11 @@ public class AddressField implements PacketField {
     }
 
     public byte[] getBytes() {
-        byte[] asBytes = new byte[3];
+        byte[] asBytes = new byte[LENGTH];
         asBytes[0] = (byte) ((this.address >> 16) & 0x0FF);
         asBytes[1] = (byte) ((this.address >> 8) & 0x0FF);
         asBytes[2] = (byte) ((this.address >> 0) & 0x0FF);
         return asBytes;
-    }
-
-    @Override
-    public String toString() {
-        return "AddressField = " + ProtocolTools.getHexStringFromBytes(getBytes());
     }
 
 }

@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.elster.ctr.packets.fields;
 
-import com.energyict.protocolimpl.elster.ctr.packets.PacketField;
-
 import java.util.Arrays;
 
 /**
@@ -9,18 +7,23 @@ import java.util.Arrays;
  * Date: 9-aug-2010
  * Time: 14:45:35
  */
-public class Data implements PacketField {
+public class Data extends AbstractPacketField {
 
-    private static final int MAX_DATA_LENGTH = 128;
-    private final byte[] data = new byte[MAX_DATA_LENGTH];
+    public static final int LENGTH = 128;
+
+    private final byte[] data = new byte[LENGTH];
 
     public Data(byte[] data) {
         setData(data);
     }
 
+    public Data(byte[] rawPacket, int offset) {
+        System.arraycopy(rawPacket, offset, data, 0, LENGTH);
+    }
+
     protected void setData(byte[] data) {
         clearData();
-        System.arraycopy(data, 0, this.data, 0, (data.length < MAX_DATA_LENGTH) ? data.length : MAX_DATA_LENGTH);
+        System.arraycopy(data, 0, this.data, 0, (data.length < LENGTH) ? data.length : LENGTH);
     }
 
     public Data() {
