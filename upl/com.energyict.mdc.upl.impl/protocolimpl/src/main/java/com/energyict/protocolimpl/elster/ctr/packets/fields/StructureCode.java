@@ -9,7 +9,17 @@ import com.energyict.protocolimpl.elster.ctr.packets.PacketField;
  */
 public class StructureCode implements PacketField {
 
+    private int value;
+
+    public StructureCode(int value) {
+        this.value = value & 0x0FF;
+    }
+
+    public StructureCode() {
+        this.value = 0x00;
+    }
+
     public byte[] getBytes() {
-        return new byte[0];
+        return new byte[] {(byte) (value & 0x0FF)};
     }
 }

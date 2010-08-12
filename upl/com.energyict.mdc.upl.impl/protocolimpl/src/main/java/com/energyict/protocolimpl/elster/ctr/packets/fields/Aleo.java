@@ -19,9 +19,6 @@ public class Aleo implements PacketField {
 
     public Aleo(int value) {
         this.value = value & 0x0FF;
-        if (value == 0x00) {
-            value = 1;
-        }
     }
 
     public int getValue() {

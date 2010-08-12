@@ -76,19 +76,15 @@ public class CTRConnection {
     public CTRPacket sendRequestGetResonse(CTRPacket packet) throws IOException {
         int attempts = 0;
         while (attempts++ < retries) {
-/*
             try {
                 writeRawData(packet.getBytes());
                 byte[] rawData = readRawData();
-
+                return null;
             } catch (IOException e) {
-
+                e.printStackTrace();
             }
-*/
         }
-        return null;
+        throw new IOException("Number of retries exceeded: [" + attempts + "/" + retries + "]");
     }
-
-    ;
 
 }

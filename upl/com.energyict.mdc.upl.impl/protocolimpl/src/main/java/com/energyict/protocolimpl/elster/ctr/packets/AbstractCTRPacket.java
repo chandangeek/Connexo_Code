@@ -18,6 +18,9 @@ public abstract class AbstractCTRPacket implements CTRPacket {
     private final WakeUp wakeUp;
     private final AddressField addressField;
     private final boolean sms;
+    private final Aleo aleo;
+    private final ClientProfile clientProfile;
+    private final StructureCode structureCode;
 
     protected AbstractCTRPacket(AddressField addressField) {
         this(addressField, false, false);
@@ -31,6 +34,9 @@ public abstract class AbstractCTRPacket implements CTRPacket {
         this.addressField = addressField;
         this.wakeUp = new WakeUp(useWakeUp);
         this.sms = sms;
+        this.aleo = new Aleo();
+        clientProfile = new ClientProfile();
+        structureCode = new StructureCode();
     }
 
     public Channel getChannel() {
@@ -38,7 +44,7 @@ public abstract class AbstractCTRPacket implements CTRPacket {
     }
 
     public StructureCode getStructureCode() {
-        return new StructureCode();
+        return structureCode;
     }
 
     public AddressField getAddress() {
@@ -58,11 +64,11 @@ public abstract class AbstractCTRPacket implements CTRPacket {
     }
 
     public ClientProfile getClientProfile() {
-        return new ClientProfile();
+        return clientProfile;
     }
 
     public Aleo getAleo() {
-        return new Aleo();
+        return aleo;
     }
 
     public Cpa getCpa() {

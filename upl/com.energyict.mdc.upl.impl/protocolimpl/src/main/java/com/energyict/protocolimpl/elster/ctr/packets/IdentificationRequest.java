@@ -9,29 +9,29 @@ import com.energyict.protocolimpl.elster.ctr.packets.fields.*;
  */
 public class IdentificationRequest extends AbstractCTRPacket {
 
+    private final IdentificationRequestData identificationRequestData;
+
     public IdentificationRequest(AddressField addressField) {
         super(addressField);
-    }
-
-
-    public AddressField getAddress() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        identificationRequestData = new IdentificationRequestData();
     }
 
     public FunctionCode getFunctionCode() {
         return new FunctionCode('I');
     }
 
+    @Override
     public StructureCode getStructureCode() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return new StructureCode(0x30);
     }
 
-    public Channel getChannel() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    @Override
+    public Aleo getAleo() {
+        return new Aleo(0);
     }
 
     public Data getData() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return identificationRequestData;
     }
-
+    
 }

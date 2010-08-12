@@ -17,16 +17,8 @@ public class EndOfSessionRequest extends AbstractCTRPacket {
         return new FunctionCode('E');
     }
 
-    public StructureCode getStructureCode() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public Channel getChannel() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public Data getData() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return new Data();  //To change body of implemented methods use File | Settings | File Templates.
     }
 
 }

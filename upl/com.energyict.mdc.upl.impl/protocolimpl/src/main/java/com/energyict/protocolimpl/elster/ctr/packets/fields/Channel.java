@@ -19,10 +19,6 @@ public class Channel implements PacketField {
         this(0);
     }
 
-    public byte[] getBytes() {
-        return new byte[] {(byte) channel};
-    }
-
     public boolean isGenericChannel() {
         return channel == 0;
     }
@@ -31,6 +27,10 @@ public class Channel implements PacketField {
         return channel == 0x0F;
     }
 
+    public byte[] getBytes() {
+        return new byte[] {(byte) channel};
+    }
+    
     @Override
     public String toString() {
         return "Channel = " + channel;

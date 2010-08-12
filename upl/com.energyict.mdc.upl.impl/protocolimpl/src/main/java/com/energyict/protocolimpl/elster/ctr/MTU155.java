@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 public class MTU155 extends AbstractMTU155 {
 
     private CTRConnection ctrConnection;
+    private PacketFactory packetFactory;
     private final ProtocolProperties protocolProperties = new MTU155Properties();
     private Logger logger;
     private TimeZone timeZone;
@@ -44,7 +45,19 @@ public class MTU155 extends AbstractMTU155 {
         };
 */
 
-        getCtrConnection().sendRequestGetResonse(null);
+        try {
+            getCtrConnection().sendRequestGetResonse(getPacketFactory().getEndOfSessionRequest());
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        
+
+        try {
+            getCtrConnection().sendRequestGetResonse(getPacketFactory().getIdentificationRequest());
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
     }
 
     public void disconnect() throws IOException {
@@ -116,4 +129,10 @@ public class MTU155 extends AbstractMTU155 {
         return logger;
     }
 
+    public PacketFactory getPacketFactory() {
+        if (packetFactory == null) {
+            this.packetFactory = new PacketFactory(getProtocolProperties());
+        }
+        return packetFactory;
+    }
 }

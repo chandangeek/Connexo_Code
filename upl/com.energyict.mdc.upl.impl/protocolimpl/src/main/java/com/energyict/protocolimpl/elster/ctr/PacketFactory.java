@@ -10,16 +10,28 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
  * Date: 10-aug-2010
  * Time: 14:29:59
  */
-public class RequestFactory {
+public class PacketFactory {
 
     private final AddressField addressField;
     private final String encryptionKey;
     private final boolean encrypted;
 
-    public RequestFactory(ProtocolProperties properties) {
-        this.addressField = new AddressField(properties.getNodeAddress());
-        this.encryptionKey = properties.getEncryptionKey();
-        this.encrypted = (encryptionKey != null) && (encryptionKey.length() == 16);
+    public PacketFactory(AddressField addressField, String encryptionKey, boolean encrypted) {
+        this.addressField = addressField;
+        this.encryptionKey = encryptionKey;
+        this.encrypted = encrypted;
+    }
+
+    public PacketFactory(ProtocolProperties properties) {
+        this(new AddressField(properties.getNodeAddress()), properties.getEncryptionKey());
+    }
+
+    public PacketFactory(AddressField addressField) {
+        this(addressField, "", false);
+    }
+
+    public PacketFactory(AddressField addressField, String encryptionKey) {
+        this(addressField, encryptionKey, (encryptionKey != null) && (encryptionKey.length() == 16));
     }
 
     public IdentificationRequest getIdentificationRequest() {
@@ -32,12 +44,7 @@ public class RequestFactory {
 
     public EndOfSessionRequest getEndOfSessionRequest() {
         EndOfSessionRequest request = new EndOfSessionRequest(addressField);
-
-
-        System.out.println(ProtocolTools.getHexStringFromBytes(request.getBytes()));
         return request;
     }
-
-
 
 }
