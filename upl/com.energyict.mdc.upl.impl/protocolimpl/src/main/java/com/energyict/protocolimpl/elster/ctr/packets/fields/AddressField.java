@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.elster.ctr.packets.fields;
 
-import java.io.IOException;
-
 /**
  * Copyrights EnergyICT
  * Date: 9-aug-2010
@@ -21,10 +19,7 @@ public class AddressField extends AbstractPacketField {
         this(0x0FFFFFF);
     }
 
-    public AddressField(byte[] rawPacket, int offset) throws IOException {
-        if (rawPacket.length < (offset + LENGTH)) {
-            throw new IOException("Unable to extract the address from the raw data at this offset. Packet to short.");
-        }
+    public AddressField(byte[] rawPacket, int offset) {
         int addr = (rawPacket[offset] << 16) & 0x00FF0000;
         addr += (rawPacket[offset + 1] << 8) & 0x0000FF00;
         addr += rawPacket[offset + 2] & 0x000000FF;

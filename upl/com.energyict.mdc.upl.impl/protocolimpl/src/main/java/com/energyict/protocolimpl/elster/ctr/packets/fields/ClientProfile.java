@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.elster.ctr.packets.fields;
 
-import java.io.IOException;
-
 /**
  * Copyrights EnergyICT
  * Date: 9-aug-2010
@@ -33,7 +31,7 @@ public class ClientProfile extends AbstractPacketField {
         this(0, 0, false);
     }
 
-    public ClientProfile(byte[] rawPacket, int offset) throws IOException {
+    public ClientProfile(byte[] rawPacket, int offset) {
         this(rawPacket[offset] & 0x0FF);
     }
 

@@ -24,8 +24,7 @@ public class MTU155 extends AbstractMTU155 {
     
     public void connect() throws IOException {
         try {
-            CTRPacket response = getCtrConnection().sendRequestGetResonse(getPacketFactory().getIdentificationRequest());
-            System.out.println(response);
+            CTRPacket response = getCtrConnection().sendRequestGetResponse(getPacketFactory().getIdentificationRequest());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -33,8 +32,7 @@ public class MTU155 extends AbstractMTU155 {
 
     public void disconnect() throws IOException {
         try {
-            CTRPacket response = getCtrConnection().sendRequestGetResonse(getPacketFactory().getEndOfSessionRequest());
-            System.out.println(response);
+            CTRPacket response = getCtrConnection().sendRequestGetResponse(getPacketFactory().getEndOfSessionRequest());
         } catch (IOException e) {
             e.printStackTrace(); 
         }

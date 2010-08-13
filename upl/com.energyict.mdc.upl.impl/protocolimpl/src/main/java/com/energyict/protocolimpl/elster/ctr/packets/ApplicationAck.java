@@ -13,16 +13,12 @@ import com.energyict.protocolimpl.elster.ctr.packets.fields.*;
 public class ApplicationAck extends AbstractCTRPacket {
 
     public ApplicationAck(AddressField addressField) {
-        super(addressField);
+        super(FunctionType.ACK, addressField);
     }
 
     public ApplicationAck(byte[] rawPacket) {
         super(rawPacket);
 
-    }
-
-    public FunctionCode getFunctionCode() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public Data getData() {

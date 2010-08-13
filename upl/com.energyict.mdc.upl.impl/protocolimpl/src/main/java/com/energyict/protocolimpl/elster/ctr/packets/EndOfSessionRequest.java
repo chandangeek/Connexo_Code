@@ -15,15 +15,11 @@ public class EndOfSessionRequest extends AbstractCTRPacket {
     private final EndOfSessionRequestData endOfSessionRequestData = new EndOfSessionRequestData();
 
     public EndOfSessionRequest(AddressField addressField) {
-        super(addressField);
+        super(FunctionType.END_OF_SESSION_REQUEST, addressField);
     }
 
     public EndOfSessionRequest(byte[] rawPacket) {
         super(rawPacket);
-    }
-
-    public FunctionCode getFunctionCode() {
-        return new FunctionCode('E');
     }
 
     public Data getData() {

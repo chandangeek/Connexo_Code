@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.elster.ctr.packets.fields;
 
+import com.energyict.protocolimpl.elster.ctr.structures.IdentificationStructure;
+
 /**
  * Copyrights EnergyICT
  * Date: 13-aug-2010
@@ -7,17 +9,14 @@ package com.energyict.protocolimpl.elster.ctr.packets.fields;
  */
 public class IdentificationResponseData extends Data {
 
-    public static final int IDENTIFICATIONCODE_LENGTH = 7;
-
-    private final byte[] identificationCode; //PDR.val
+    private final IdentificationStructure identificationStructure;
 
     public IdentificationResponseData(byte[] rawPacket, int offset) {
-        int ptr = offset;
-        identificationCode = new byte[7];
-        for (int i = 0; i < identificationCode.length; i++) {
-            identificationCode[i] = rawPacket[ptr++];
-        }
-        
+        this.identificationStructure = new IdentificationStructure(rawPacket, offset);
+    }
 
+    @Override
+    public String toString() {
+        return identificationStructure.toString();
     }
 }

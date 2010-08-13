@@ -18,7 +18,7 @@ public interface CTRPacket {
 
     WakeUp getWakeUp();
 
-    AddressField getAddress();
+    AddressField getAddressField();
 
     ClientProfile getClientProfile();
 

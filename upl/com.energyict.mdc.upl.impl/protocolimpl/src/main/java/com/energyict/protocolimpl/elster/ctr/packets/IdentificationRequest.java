@@ -19,7 +19,7 @@ public class IdentificationRequest extends AbstractCTRPacket {
     private final IdentificationRequestData identificationRequestData;
 
     public IdentificationRequest(AddressField addressField) {
-        super(addressField);
+        super(FunctionType.IDENTIFICATION_REQUEST, addressField);
         identificationRequestData = new IdentificationRequestData();
     }
 
@@ -27,10 +27,6 @@ public class IdentificationRequest extends AbstractCTRPacket {
         super(rawPacket);
         int offset = getDataOffset();
         this.identificationRequestData = new IdentificationRequestData(rawPacket, offset);
-    }
-
-    public FunctionCode getFunctionCode() {
-        return new FunctionCode('I');
     }
 
     @Override

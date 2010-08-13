@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.elster.ctr.packets;
 
-import com.energyict.protocolimpl.elster.ctr.packets.fields.*;
+import com.energyict.protocolimpl.elster.ctr.packets.fields.Data;
+import com.energyict.protocolimpl.elster.ctr.packets.fields.IdentificationResponseData;
 
 /**
  * Copyrights EnergyICT
@@ -14,10 +15,6 @@ public class IdentificationResponse extends AbstractCTRPacket {
     public IdentificationResponse(byte[] rawPacket) {
         super(rawPacket);
         identificationResponseData = new IdentificationResponseData(rawPacket, getDataOffset());
-    }
-
-    public FunctionCode getFunctionCode() {
-        return new FunctionCode('J');
     }
 
     public Data getData() {

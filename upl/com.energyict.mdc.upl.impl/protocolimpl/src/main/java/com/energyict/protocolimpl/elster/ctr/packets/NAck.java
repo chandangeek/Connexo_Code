@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.elster.ctr.packets;
 
-import com.energyict.protocolimpl.elster.ctr.packets.fields.*;
+import com.energyict.protocolimpl.elster.ctr.packets.fields.Data;
+import com.energyict.protocolimpl.elster.ctr.packets.fields.NAckData;
 
 /**
  * Copyrights EnergyICT
@@ -14,10 +15,6 @@ public class NAck extends AbstractCTRPacket {
     public NAck(byte[] rawPacket) {
         super(rawPacket);
         this.nAckData = new NAckData(); //TODO: Add parsing of NACKDATA
-    }
-
-    public FunctionCode getFunctionCode() {
-        return FunctionType.NACK.getFunctionCode();
     }
 
     public Data getData() {

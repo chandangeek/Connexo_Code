@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.elster.ctr;
 
 import com.energyict.protocolimpl.elster.ctr.packets.*;
 import com.energyict.protocolimpl.elster.ctr.packets.fields.*;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
@@ -40,7 +39,6 @@ public class PacketFactory {
         IdentificationRequest request = new IdentificationRequest(addressField);
 
 
-        System.out.println(ProtocolTools.getHexStringFromBytes(request.getBytes()));
         return request;
     }
 

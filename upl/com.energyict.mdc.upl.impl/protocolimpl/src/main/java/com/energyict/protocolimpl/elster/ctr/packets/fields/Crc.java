@@ -20,7 +20,7 @@ public class Crc extends AbstractPacketField {
     public Crc(CTRPacket dataField) {
         ByteArrayOutputStream crcData = new ByteArrayOutputStream();
         try {
-            crcData.write(dataField.getAddress().getBytes());
+            crcData.write(dataField.getAddressField().getBytes());
             crcData.write(dataField.getClientProfile().getBytes());
             crcData.write(dataField.getFunctionCode().getBytes());
             crcData.write(dataField.getAleo().getBytes());

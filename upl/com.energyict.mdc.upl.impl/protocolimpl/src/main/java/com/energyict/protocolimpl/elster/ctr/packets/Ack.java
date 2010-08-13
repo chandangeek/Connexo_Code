@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.elster.ctr.packets;
 
-import com.energyict.protocolimpl.elster.ctr.packets.fields.*;
+import com.energyict.protocolimpl.elster.ctr.packets.fields.AckData;
+import com.energyict.protocolimpl.elster.ctr.packets.fields.Data;
 
 /**
  * Copyrights EnergyICT
@@ -14,10 +15,6 @@ public class Ack extends AbstractCTRPacket {
     public Ack(byte[] rawPacket) {
         super(rawPacket);
         ackData = new AckData(); // TODO: pase data
-    }
-
-    public FunctionCode getFunctionCode() {
-        return new FunctionCode('K');
     }
 
     public Data getData() {

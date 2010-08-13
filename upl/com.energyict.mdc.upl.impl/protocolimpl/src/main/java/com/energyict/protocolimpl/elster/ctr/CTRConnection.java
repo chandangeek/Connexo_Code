@@ -73,7 +73,7 @@ public class CTRConnection {
         }
     }
 
-    public CTRPacket sendRequestGetResonse(CTRPacket packet) throws IOException {
+    public CTRPacket sendRequestGetResponse(CTRPacket packet) throws IOException {
         int attempts = 0;
         while (attempts++ < retries) {
             try {
