@@ -16,6 +16,10 @@ public class ApplicationNack extends AbstractCTRPacket {
         super(addressField);
     }
 
+    public ApplicationNack(byte[] rawPacket) {
+        super(rawPacket);
+    }
+
     public FunctionCode getFunctionCode() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }

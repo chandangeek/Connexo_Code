@@ -23,6 +23,12 @@ public class IdentificationRequest extends AbstractCTRPacket {
         identificationRequestData = new IdentificationRequestData();
     }
 
+    public IdentificationRequest(byte[] rawPacket) {
+        super(rawPacket);
+        int offset = getDataOffset();
+        this.identificationRequestData = new IdentificationRequestData(rawPacket, offset);
+    }
+
     public FunctionCode getFunctionCode() {
         return new FunctionCode('I');
     }

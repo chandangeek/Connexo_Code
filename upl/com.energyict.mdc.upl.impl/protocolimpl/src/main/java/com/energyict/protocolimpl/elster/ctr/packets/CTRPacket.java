@@ -9,6 +9,9 @@ import com.energyict.protocolimpl.elster.ctr.packets.fields.*;
  */
 public interface CTRPacket {
 
+    byte STX = 0x0A;
+    byte ETX = 0x0D;
+    
     boolean isSMS();
 
     boolean isWakeUp();

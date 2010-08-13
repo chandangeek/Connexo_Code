@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.elster.ctr;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.elster.ctr.packets.CTRPacket;
 
 import java.io.*;
 import java.util.*;
@@ -23,7 +24,8 @@ public class MTU155 extends AbstractMTU155 {
     
     public void connect() throws IOException {
         try {
-            getCtrConnection().sendRequestGetResonse(getPacketFactory().getIdentificationRequest());
+            CTRPacket response = getCtrConnection().sendRequestGetResonse(getPacketFactory().getIdentificationRequest());
+            System.out.println(response);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -31,7 +33,8 @@ public class MTU155 extends AbstractMTU155 {
 
     public void disconnect() throws IOException {
         try {
-            getCtrConnection().sendRequestGetResonse(getPacketFactory().getEndOfSessionRequest());
+            CTRPacket response = getCtrConnection().sendRequestGetResonse(getPacketFactory().getEndOfSessionRequest());
+            System.out.println(response);
         } catch (IOException e) {
             e.printStackTrace(); 
         }

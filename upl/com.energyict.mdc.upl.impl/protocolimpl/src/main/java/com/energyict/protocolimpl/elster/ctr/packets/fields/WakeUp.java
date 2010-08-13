@@ -7,6 +7,7 @@ package com.energyict.protocolimpl.elster.ctr.packets.fields;
  */
 public class WakeUp extends AbstractPacketField {
 
+    public static final byte WAKE_UP_VALUE = 0x00;
     private final boolean wakeUpEnabled;
 
     public WakeUp(boolean wakeUpEnabled) {

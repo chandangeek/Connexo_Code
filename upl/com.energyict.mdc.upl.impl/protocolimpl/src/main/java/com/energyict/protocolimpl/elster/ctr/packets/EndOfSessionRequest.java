@@ -12,8 +12,14 @@ import com.energyict.protocolimpl.elster.ctr.packets.fields.*;
  */
 public class EndOfSessionRequest extends AbstractCTRPacket {
 
+    private final EndOfSessionRequestData endOfSessionRequestData = new EndOfSessionRequestData();
+
     public EndOfSessionRequest(AddressField addressField) {
         super(addressField);
+    }
+
+    public EndOfSessionRequest(byte[] rawPacket) {
+        super(rawPacket);
     }
 
     public FunctionCode getFunctionCode() {
@@ -21,7 +27,7 @@ public class EndOfSessionRequest extends AbstractCTRPacket {
     }
 
     public Data getData() {
-        return new Data();  //To change body of implemented methods use File | Settings | File Templates.
+        return endOfSessionRequestData;
     }
 
 }

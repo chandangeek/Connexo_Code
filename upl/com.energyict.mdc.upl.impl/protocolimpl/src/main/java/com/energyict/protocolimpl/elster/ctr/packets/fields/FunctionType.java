@@ -16,6 +16,7 @@ public enum FunctionType {
     IDENTIFICATION_REQUEST('I'),
     IDENTIFICATION_RESPONSE('J'),
     WRITE_REQUEST('W'),
+    EXECUTE_REQUEST('F'),
     END_OF_SESSION_REQUEST('E');
 
     private final Integer functionTypeValue;
@@ -41,4 +42,7 @@ public enum FunctionType {
         throw new IllegalArgumentException("FunctionType with functionTypeValue '" + functionTypeValue + "' does not exist!");
     }
 
+    public FunctionCode getFunctionCode() {
+        return new FunctionCode(getFunctionTypeValue());
+    }
 }

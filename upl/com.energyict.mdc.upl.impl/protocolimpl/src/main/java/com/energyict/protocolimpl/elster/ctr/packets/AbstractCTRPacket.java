@@ -12,9 +12,6 @@ import java.io.IOException;
  */
 public abstract class AbstractCTRPacket implements CTRPacket {
 
-    public static final byte[] STX = new byte[]{0x0A};
-    public static final byte[] ETX = new byte[]{0x0D};
-
     private final WakeUp wakeUp;
     private final AddressField addressField;
     private final boolean sms;
@@ -38,6 +35,27 @@ public abstract class AbstractCTRPacket implements CTRPacket {
         clientProfile = new ClientProfile();
         structureCode = new StructureCode();
     }
+
+    protected AbstractCTRPacket(byte[] rawPacket) { //TODO: implement method
+        this.addressField = new AddressField();
+        this.wakeUp = new WakeUp(false);
+        this.sms = false;
+        this.aleo = new Aleo();
+        clientProfile = new ClientProfile();
+        structureCode = new StructureCode();
+    }
+
+    protected int getDataOffset() {
+        int offset = getWakeUp().getBytes().length;
+        offset += isSMS() ? 0 : 1;
+        offset += getClientProfile().getBytes().length;
+        offset += getFunctionCode().getBytes().length;
+        offset += getAleo().getBytes().length;
+        offset += getStructureCode().getBytes().length;
+        offset += getChannel().getBytes().length;
+        offset += getCpa().getBytes().length;
+        return offset;
+    };
 
     public Channel getChannel() {
         return new Channel();

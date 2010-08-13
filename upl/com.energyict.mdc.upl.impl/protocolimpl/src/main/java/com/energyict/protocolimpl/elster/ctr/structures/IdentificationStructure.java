@@ -5,7 +5,7 @@ package com.energyict.protocolimpl.elster.ctr.structures;
  * Date: 12-aug-2010
  * Time: 10:55:59
  */
-public class Identification implements Structure {
+public class IdentificationStructure implements Structure {
 
     
 

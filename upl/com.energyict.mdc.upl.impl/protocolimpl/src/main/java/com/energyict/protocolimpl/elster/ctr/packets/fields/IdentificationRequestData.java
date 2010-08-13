@@ -15,6 +15,8 @@ public class IdentificationRequestData extends Data {
     public static final int ST_SAC = 1;
     public static final int ST_TERMINAL = 2;
 
+    private static final int PUCS_LENGTH = 16;
+
     private final byte[] pucS;
     private final int st;
     private final int stCode;
@@ -23,6 +25,22 @@ public class IdentificationRequestData extends Data {
         this.pucS = generateNewPUC_S();
         this.st = ST_NOT_DEFINED;
         this.stCode = 0x0000;
+        fillData();
+    }
+
+    public IdentificationRequestData(byte[] rawPacket, int offset) {
+        int ptr = offset;
+
+        this.pucS = new byte[PUCS_LENGTH];
+        for (int i = 0; i < pucS.length; i++) {
+            pucS[i] = rawPacket[ptr++];
+        }
+
+        st = rawPacket[ptr++] & 0x0FF;
+
+        int tempStCode = (rawPacket[ptr++] << 8) & 0x0FF00;
+        stCode = tempStCode + (rawPacket[ptr++] & 0x0FF);
+
         fillData();
     }
 
