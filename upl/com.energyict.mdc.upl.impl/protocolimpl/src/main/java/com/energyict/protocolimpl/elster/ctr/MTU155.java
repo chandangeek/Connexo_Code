@@ -25,6 +25,7 @@ public class MTU155 extends AbstractMTU155 {
     public void connect() throws IOException {
         try {
             CTRPacket response = getCtrConnection().sendRequestGetResponse(getPacketFactory().getIdentificationRequest());
+            System.out.println(response);
         } catch (IOException e) {
             e.printStackTrace();
         }
