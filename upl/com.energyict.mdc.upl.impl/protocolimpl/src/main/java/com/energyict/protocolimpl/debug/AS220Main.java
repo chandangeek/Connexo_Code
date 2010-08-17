@@ -64,7 +64,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     private static final String OBSERVER_FILENAME = "c:\\logging\\AS220Main\\communications.log";
     protected static final TimeZone DEFAULT_TIMEZONE = TimeZone.getTimeZone("GMT+1");
 
-    protected static final String COMPORT = "COM5";
+    protected static final String COMPORT = "COM6";
     protected static final int BAUDRATE = 115200;
     protected static final int DATABITS = SerialCommunicationChannel.DATABITS_8;
     protected static final int PARITY = SerialCommunicationChannel.PARITY_NONE;
@@ -340,14 +340,13 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         main.setDataBits(DATABITS);
         main.setParity(PARITY);
         main.setStopBits(STOPBITS);
-        main.setObserverFilename(OBSERVER_FILENAME);
+        //main.setObserverFilename(OBSERVER_FILENAME);
         main.run();
     }
 
     @Override
     void doDebug() throws LinkException, IOException {
-        setPLCRepeater();
-        readRegister("0.0.26.0.0.10");
+        System.out.println(getMeterProtocol().getFirmwareVersion());
     }
 
 }
