@@ -22,7 +22,7 @@ public enum DataAccessResultCode {
 	LONG_SET_ABORTED			(17,  "Long set aborted"),
 	NO_LONG_SET_IN_PROGRESS		(18,  "No long set in progress"),
 	DATA_BLOCK_NUMBER_INVALID	(19,  "Data block number in valid"),
-	OTHER						(255, "Other reason");
+	OTHER						(250, "Other reason");
 
 	/** This is the integer result code returned by the device. */
 	private final int		result;
