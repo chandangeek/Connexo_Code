@@ -6,7 +6,6 @@ package com.energyict.protocolimpl.debug;
 import com.energyict.dialer.core.*;
 import com.energyict.dialer.coreimpl.OpticalDialer;
 import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 import com.energyict.protocolimpl.iec1107.abba1700.ABBA1700;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -35,7 +34,7 @@ public class ABBA1700Main {
     private static final int DATABITS = SerialCommunicationChannel.DATABITS_8;
     private static final int PARITY = SerialCommunicationChannel.PARITY_NONE;
     private static final int STOPBITS = SerialCommunicationChannel.STOPBITS_1;
-    private static final long PROFILE_LENGTH = 1000 * 60 * 60 * 3;
+    private static final long PROFILE_LENGTH = 1000 * 60 * 60 * 24 * 7;
 
     private static ABBA1700 abba1700 = null;
     private static Dialer dialer = null;
@@ -107,17 +106,13 @@ public class ABBA1700Main {
                     }
                     getABBA1700().connect();
 
-                    ProfileData pd = getABBA1700().getProfileData(new Date(System.currentTimeMillis() - PROFILE_LENGTH), false);
-                    System.out.println(pd.toString());
+                    getABBA1700().getProfileData(new Date(System.currentTimeMillis() - PROFILE_LENGTH), false);
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
                     ProtocolTools.delay(DELAY_BEFORE_DISCONNECT);
                 }
-
-                getABBA1700().disconnect();
-                System.exit(0);
 
             } catch (Exception e) {
                 log("Error: " + e.getMessage() + ". \n");

@@ -171,17 +171,11 @@ public class ABBA1700Profile {
         else if (channelId == 13) {
             registerName = "ExternalInput4";
         }
-
         if (unit == null) {
-            if (registerName == null) {
-                unit = Unit.getUndefined();
-            } else {
-                unit = abba1700RegisterFactory.getABBA1700Register(registerName).getUnit();
-            }
+            unit = abba1700RegisterFactory.getABBA1700Register(registerName).getUnit();    
         }
-
-        unit = unit.isUndefined() ? unit : unit.getFlowUnit();
-        return unit == null ? Unit.getUndefined() : unit;
+        
+        return unit.getFlowUnit();
         
     } // public Unit getUnitInfo(int channelId)
     

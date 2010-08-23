@@ -88,6 +88,7 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
         throw new UnsupportedException("getProfileData(from,to) is not supported by this meter");
     }
 
+
 	public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
 		String regName = name;
 		int billingPoint = -1;
@@ -171,19 +172,11 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
         }
     }
 
-    /**
-     * Get the required keys
-     * @return a list of strings
-     */
     public List getRequiredKeys() {
         List result = new ArrayList(0);
         return result;
     }
 
-    /**
-     * Get the optional keys
-     * @return a list of strings
-     */
     public List getOptionalKeys() {
         List<String> result = new ArrayList<String>();
         result.add("Timeout");
@@ -215,12 +208,6 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
 		throw new UnsupportedException();
 	}
 
-    /** initializes the receiver
-     * @param inputStream <br>
-     * @param outputStream <br>
-     * @param timeZone <br>
-     * @param logger <br>
-     */
 	public void init(InputStream in, OutputStream out, TimeZone tz, Logger log) {
 		this.timeZone = tz;
 		this.logger = log;
@@ -328,16 +315,16 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
                        // We suppose that the rate 1 mostly covers the continue schedule (=total). So, we map rate 1 also to 0 to
                        // be backwards compatible with previous implementation
                        if (i==0) {
-                           code = "1."+bField+"."+EnergyTypeCode.getObisCFromRegSource(md.getRegSource())+".6.0."+(billingPoint==-1?255:billingPoint);
+                           code = "1."+bField+"."+EnergyTypeCode.getObisCFromRegSource(md.getRegSource(),false)+".6.0."+(billingPoint==-1?255:billingPoint);
                            // KV_DEBUG
                            strBuff.append(code+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))+", "+md+"\n");
 
-                           code = "1."+bField+"."+EnergyTypeCode.getObisCFromRegSource(md.getRegSource())+".6.1."+(billingPoint==-1?255:billingPoint);
+                           code = "1."+bField+"."+EnergyTypeCode.getObisCFromRegSource(md.getRegSource(),false)+".6.1."+(billingPoint==-1?255:billingPoint);
                            // KV_DEBUG
                            strBuff.append(code+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))+", "+md+"\n");
                        }
                        else {
-                           code = "1."+bField+"."+EnergyTypeCode.getObisCFromRegSource(md.getRegSource())+".6."+((i/3)+1)+"."+(billingPoint==-1?255:billingPoint);
+                           code = "1."+bField+"."+EnergyTypeCode.getObisCFromRegSource(md.getRegSource(),false)+".6."+((i/3)+1)+"."+(billingPoint==-1?255:billingPoint);
                            // KV_DEBUG
                            strBuff.append(code+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))+", "+md+"\n");
                        }
@@ -371,14 +358,14 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
                try {
                    CumulativeMaximumDemand cmd = (CumulativeMaximumDemand)getABBA1700RegisterFactory().getRegister("CumulativeMaximumDemand"+i,billingPoint);
                    if (i==0) {
-                       code = "1.1."+EnergyTypeCode.getObisCFromRegSource(cmd.getRegSource())+".2.0."+(billingPoint==-1?255:billingPoint);
+                       code = "1.1."+EnergyTypeCode.getObisCFromRegSource(cmd.getRegSource(),false)+".2.0."+(billingPoint==-1?255:billingPoint);
                        strBuff.append(code+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))+", "+cmd+"\n");
 
-                       code = "1.1."+EnergyTypeCode.getObisCFromRegSource(cmd.getRegSource())+".2.1."+(billingPoint==-1?255:billingPoint);
+                       code = "1.1."+EnergyTypeCode.getObisCFromRegSource(cmd.getRegSource(),false)+".2.1."+(billingPoint==-1?255:billingPoint);
                        strBuff.append(code+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))+", "+cmd+"\n");
                    }
                    else {
-                       code = "1.1."+EnergyTypeCode.getObisCFromRegSource(cmd.getRegSource())+".2."+(i+1)+"."+(billingPoint==-1?255:billingPoint);
+                       code = "1.1."+EnergyTypeCode.getObisCFromRegSource(cmd.getRegSource(),false)+".2."+(i+1)+"."+(billingPoint==-1?255:billingPoint);
                        strBuff.append(code+", "+ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))+", "+cmd+"\n");
                    }
                }

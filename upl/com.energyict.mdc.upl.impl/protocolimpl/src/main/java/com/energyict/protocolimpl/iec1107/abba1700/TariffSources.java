@@ -32,7 +32,7 @@ public class TariffSources {
         StringBuffer strBuff = new StringBuffer();
         for (int i=0;i<meterType.getNrOfTariffRegisters();i++) {
             try {
-               strBuff.append("Tariff register "+(i+1)+", "+EnergyTypeCode.getDescriptionfromRegSource(getRegSource()[i])+"\n");    
+               strBuff.append("Tariff register "+(i+1)+", "+EnergyTypeCode.getDescriptionfromRegSource(getRegSource()[i],true)+"\n");    
             }
             catch(NoSuchRegisterException e) {
                strBuff.append("Tariff register "+(i+1)+", no source for "+getRegSource()[i]+"\n"); 
