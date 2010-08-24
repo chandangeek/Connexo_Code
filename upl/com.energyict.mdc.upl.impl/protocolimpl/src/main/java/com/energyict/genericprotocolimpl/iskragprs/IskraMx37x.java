@@ -1158,7 +1158,8 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             boolean apnUnPw		= contents.equalsIgnoreCase(RtuMessageConstant.GPRS_APN) ||
             							contents.equalsIgnoreCase(RtuMessageConstant.GPRS_USERNAME) ||
             							contents.equalsIgnoreCase(RtuMessageConstant.GPRS_PASSWORD);
-            boolean gprsCred	= contents.equalsIgnoreCase(RtuMessageConstant.GPRS_MODEM_CREDENTIALS);
+//            boolean gprsCred	= contents.equalsIgnoreCase(RtuMessageConstant.GPRS_MODEM_CREDENTIALS);
+            boolean gprsCred = contents.indexOf(RtuMessageConstant.GPRS_MODEM_CREDENTIALS)==0?true:false;
             boolean mbusInstall = contents.equalsIgnoreCase(RtuMessageConstant.MBUS_INSTALL);
             boolean mbusInstDR	= contents.equalsIgnoreCase(RtuMessageConstant.MBUS_INSTALL_DATAREADOUT);
             boolean mbusRemove 	= contents.equalsIgnoreCase(RtuMessageConstant.MBUS_REMOVE);
