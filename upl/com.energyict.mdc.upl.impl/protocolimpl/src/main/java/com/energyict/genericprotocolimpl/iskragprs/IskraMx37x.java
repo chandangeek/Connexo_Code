@@ -3,40 +3,26 @@
  */
 package com.energyict.genericprotocolimpl.iskragprs;
 
-import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.Unit;
-import com.energyict.cbo.Utils;
+import com.energyict.cbo.*;
 import com.energyict.cpo.Environment;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dialer.core.DialerMarker;
-import com.energyict.dialer.core.Link;
-import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.dialer.connection.*;
+import com.energyict.dialer.core.*;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.PPPSetup.PPPAuthenticationType;
-import com.energyict.genericprotocolimpl.common.AMRJournalManager;
-import com.energyict.genericprotocolimpl.common.GenericCache;
+import com.energyict.genericprotocolimpl.common.*;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageCategoryConstants;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
+import com.energyict.genericprotocolimpl.common.messages.*;
 import com.energyict.genericprotocolimpl.common.tou.ActivityCalendarReader;
 import com.energyict.genericprotocolimpl.common.tou.CosemActivityCalendarBuilder;
 import com.energyict.genericprotocolimpl.iskragprs.csd.CSDCall;
 import com.energyict.genericprotocolimpl.iskragprs.csd.CSDCaller;
 import com.energyict.genericprotocolimpl.iskragprs.imagetransfer.ImageTransfer;
-import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.amr.RtuRegister;
-import com.energyict.mdw.amr.RtuRegisterSpec;
+import com.energyict.mdw.amr.*;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
@@ -45,10 +31,7 @@ import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.HDLCConnection;
 import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.MessageFormat;
@@ -1175,6 +1158,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             boolean apnUnPw		= contents.equalsIgnoreCase(RtuMessageConstant.GPRS_APN) ||
             							contents.equalsIgnoreCase(RtuMessageConstant.GPRS_USERNAME) ||
             							contents.equalsIgnoreCase(RtuMessageConstant.GPRS_PASSWORD);
+            boolean gprsCred	= contents.equalsIgnoreCase(RtuMessageConstant.GPRS_MODEM_CREDENTIALS);
             boolean mbusInstall = contents.equalsIgnoreCase(RtuMessageConstant.MBUS_INSTALL);
             boolean mbusInstDR	= contents.equalsIgnoreCase(RtuMessageConstant.MBUS_INSTALL_DATAREADOUT);
             boolean mbusRemove 	= contents.equalsIgnoreCase(RtuMessageConstant.MBUS_REMOVE);
@@ -1267,7 +1251,11 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             else if(apnUnPw){
             	changeApnUserNamePassword(msg);
             }
-            
+
+            else if(gprsCred){
+            	changeGprsCredentials(msg);
+            }
+
             else if(mbusInstall){
             	getCosemObjectFactory().getGenericInvoke(ObisCode.fromString("0.0.10.50.128.255"), 9, 1).invoke(new Unsigned16(0).getBEREncodedByteArray());
             	
@@ -1580,7 +1568,32 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 			}
 			
 	}
-	
+
+    private void changeGprsCredentials(RtuMessage msg) throws BusinessException, SQLException {
+        String description = "Changing gprs credentials for meter with serialnumber: " + rtu.getSerialNumber();
+
+            try {
+                getLogger().log(Level.INFO, description);
+                String userName = getMessageAttribute(msg.getContents(), RtuMessageConstant.GPRS_USERNAME);
+                String pass = getMessageAttribute(msg.getContents(), RtuMessageConstant.GPRS_PASSWORD);
+
+                PPPAuthenticationType pppat = getCosemObjectFactory().getPPPSetup().new PPPAuthenticationType();
+                pppat.setAuthenticationType(PPPSetup.LCPOptionsType.AUTH_PAP);
+                pppat.setUserName(userName);
+                pppat.setPassWord(pass);
+
+                getCosemObjectFactory().getPPPSetup().writePPPAuthenticationType(pppat);
+
+                msg.confirm();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                fail(e, msg, description);
+            }
+
+    }
+
+
 	private void clearThreshold(RtuMessage msg) throws BusinessException, SQLException {
 		String description = "Clear threshold for meter with serialnumber: " + rtu.getSerialNumber();
 		try{
@@ -1891,6 +1904,24 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		}
 	}
 
+    public String getMessageAttribute(String messageValue, String attributeName) {
+        String result;
+        try {
+            int ptr = messageValue.indexOf(" " + attributeName);
+            if (ptr == -1) throw new IOException("Unable to find the attribute with name '" + attributeName + "'.");
+            result = messageValue.substring(ptr + attributeName.length() + 1);
+            ptr = result.indexOf('"');
+            if (ptr == -1) throw new IOException("Unable to find the opening '\"' for the attribute with name '" + attributeName + "'.");
+            result = result.substring(ptr + 1);
+            ptr = result.indexOf('"');
+            if (ptr == -1) throw new IOException("Unable to find the closing '\"' for the attribute with name '" + attributeName + "'.");
+            result = result.substring(0, ptr);
+        } catch (Exception e) {
+            result = "";
+        }
+        return result;
+    }
+
 	public List getMessageCategories() {
         List theCategories = new ArrayList();
         MessageCategorySpec cat = new MessageCategorySpec(RtuMessageCategoryConstants.BASICMESSAGES);
@@ -1911,7 +1942,9 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         cat.addMessageSpec(msgSpec);
         msgSpec = addGPRSModemSetup("Change GPRS Modem setup", RtuMessageConstant.GPRS_MODEM_SETUP, false);
         cat.addMessageSpec(msgSpec);
-        
+        msgSpec = addGPRSModemCredantials("Change GPRS Modem credentials", RtuMessageConstant.GPRS_MODEM_CREDENTIALS, false);
+        cat.addMessageSpec(msgSpec);
+
         msgSpec = addThresholdParameters(RtuMessageKeyIdConstants.LOADLIMITCONFIG, RtuMessageConstant.THRESHOLD_PARAMETERS, false);
         catLoadLimit.addMessageSpec(msgSpec);
         msgSpec = addThresholdMessage("Apply LoadLimiting", RtuMessageConstant.APPLY_THRESHOLD, false);
@@ -1981,7 +2014,21 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	    return msgSpec;
 	}
 
-	private MessageSpec addThresholdParameters(String keyId, String tagName, boolean advanced){
+    private MessageSpec addGPRSModemCredantials(String keyId, String tagName, boolean advanced) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.GPRS_USERNAME, false);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.GPRS_PASSWORD, false);
+        tagSpec.add(msgAttrSpec);
+        tagSpec.add(msgVal);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
+    private MessageSpec addThresholdParameters(String keyId, String tagName, boolean advanced){
     	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 	    MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.PARAMETER_GROUPID);
 	    tagSpec.add(new MessageValueSpec());
@@ -2144,4 +2191,5 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     public byte[] getHHUDataReadout() {
         return getDLMSConnection().getHhuSignOn().getDataReadout();
     }
+
 }
