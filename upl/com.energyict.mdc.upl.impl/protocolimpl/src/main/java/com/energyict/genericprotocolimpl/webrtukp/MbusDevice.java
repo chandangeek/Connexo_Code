@@ -17,6 +17,22 @@ import java.util.logging.Logger;
  */
 public class MbusDevice extends AbstractMbusDevice {
 
+    /**
+     * Empty constructor for Revision number visualization in EIServer
+     */
+    public MbusDevice(){
+        super();
+    }
+
+    /**
+     * Constructor which is normally called from the {@link com.energyict.genericprotocolimpl.webrtukp.WebRTUKP} protocol
+     * to create an MBus object
+     *
+     * @param serial the serialNumber of the MBus device
+     * @param physicalAddress the physicalAddress of the MBus device
+     * @param mbusRtu the {@link com.energyict.mdw.core.Rtu} in the database
+     * @param logger the used logger
+     */
     public MbusDevice(String serial, int physicalAddress, Rtu mbusRtu, Logger logger) {
         super(serial, physicalAddress, mbusRtu, logger);    //To change body of overridden methods use File | Settings | File Templates.
     }
