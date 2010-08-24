@@ -1,21 +1,18 @@
 package com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Date;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.cosem.CosemObject;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.GenericRead;
-import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * 
@@ -83,7 +80,7 @@ public class ObisCodeMapper {
         			null, null, null, new Date(), 0,
         			new String("ConnectControl mode: " + mode));
         	return rv;
-        } else if (obisCode.toString().indexOf("0.0.96.3.129.255") != -1){	// Current status of the breaker - Use the E field as '129' to indicate the controlState
+        } else if (obisCode.toString().indexOf("0.0.96.3.129.255") != -1){	// Current control status of the breaker - Use the E field as '129' to indicate the controlState
         	int state = cof.getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).getControlState().getValue();
         	if((state < 0) || (state > 2)){
         		throw new IllegalArgumentException("The connectControlState has an invalid value: " + state);
@@ -92,6 +89,13 @@ public class ObisCodeMapper {
         			new Quantity(BigDecimal.valueOf(state), Unit.getUndefined()),
         			null, null, null, new Date(), 0,
         			new String("ConnectControl state: " + possibleConnectStates[state]));
+        	return rv;
+        } else if (obisCode.toString().indexOf("0.0.96.3.130.255") != -1){	// Current status of the breaker as boolean - Use the E field as '130' to indicate the controlState
+        	boolean state = cof.getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).getState();
+        	rv = new RegisterValue(obisCode,
+        			new Quantity(state ? "1" : "0", Unit.getUndefined()),
+        			null, null, null, new Date(), 0,
+        			new String("State: " + state));
         	return rv;
         } else if (obisCode.toString().indexOf("0.0.97.98.1.255") != -1){
         	GenericRead gr = cof.getGenericRead(obisCode, DLMSUtils.attrLN2SN(2), 1);
