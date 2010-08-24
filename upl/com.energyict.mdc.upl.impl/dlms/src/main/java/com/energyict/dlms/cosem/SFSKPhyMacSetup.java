@@ -1,22 +1,14 @@
 package com.energyict.dlms.cosem;
 
-import java.io.IOException;
-
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.RegisterReadable;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.cosem.attributeobjects.DeltaElectricalPhase;
-import com.energyict.dlms.cosem.attributeobjects.ElectricalPhase;
-import com.energyict.dlms.cosem.attributeobjects.Frequencies;
-import com.energyict.dlms.cosem.attributeobjects.MacAddress;
-import com.energyict.dlms.cosem.attributeobjects.MacAddressList;
-import com.energyict.dlms.cosem.attributeobjects.Repeater;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.attributeobjects.*;
 import com.energyict.dlms.cosem.attributes.SFSKPhyMacSetupAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+
+import java.io.IOException;
 
 /**
  * @author jme
@@ -210,11 +202,11 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 	}
 
 	/**
-	 * @param frequencies
+	 * @param frequencyGroups
 	 * @throws IOException
 	 */
-	public void setFrequencies(long[][] frequencies) throws IOException {
-		setFrequencies(Frequencies.fromLongArray(frequencies));
+	public void setFrequencies(FrequencyGroup[] frequencyGroups) throws IOException {
+		setFrequencies(Frequencies.fromFrequencyGroups(frequencyGroups));
 	}
 
 	/**

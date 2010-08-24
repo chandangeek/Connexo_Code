@@ -5,18 +5,14 @@
  */
 
 package com.energyict.dlms.cosem;
-import java.io.IOException;
-import java.util.Date;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.OctetString;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.ScalerUnit;
+import com.energyict.cbo.*;
+import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+
+import java.io.IOException;
+import java.util.Date;
 /**
  *
  * @author  Koen
@@ -71,8 +67,16 @@ public class Data extends AbstractCosemObject implements CosemObject {
         DataContainer dataContainer=getDataContainer();
         if (dataContainer.getRoot().isInteger(0)) {
            return (long)((Integer)dataContainer.getRoot().getElement(0)).intValue();
+        } else if (dataContainer.getRoot().isOctetString(0)) {
+            String value = ((OctetString)dataContainer.getRoot().getElement(0)).toString().trim();
+            try {
+                return Long.valueOf(value).longValue();
+            } catch (NumberFormatException e) {
+                throw new IOException("Data, getValue(), invalid data value type. " + e.getMessage());
         }
+        } else {
         throw new IOException("Data, getValue(), invalid data value type...");
+    }
     }
 
     public String getString() throws IOException {

@@ -6,19 +6,17 @@
 
 package com.energyict.dlms.cosem;
 
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
-
 import com.energyict.dlms.OctetString;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Integer16;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  *
@@ -38,7 +36,6 @@ public class Clock extends AbstractCosemObject {
 
     /** Long name of the clock object as defined in the spec. */
     private static final byte[] LN = new byte[] { 0, 0, 1, 0, 0, (byte)255 };
-
 
     Date dateTime;
     boolean dateTimeCached=false;

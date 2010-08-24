@@ -3,14 +3,10 @@
  */
 package com.energyict.protocolimpl.dlms.as220;
 
+import com.energyict.protocol.*;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalValue;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
 
 /**
  * @author jme
@@ -39,8 +35,10 @@ public final class ProfileAppender {
 	}
 
 	/**
-	 * @param intervalDatas
-	 * @param intervalDatas2
+     *
+     * @param firstIntervalDatas
+     * @param secondIntervalDatas
+     * @param totalChannels
 	 * @return
 	 */
 	public static List<IntervalData> appendIntervalDatas(List<IntervalData> firstIntervalDatas, List<IntervalData> secondIntervalDatas, int totalChannels) {
@@ -99,6 +97,12 @@ public final class ProfileAppender {
 		for (ChannelInfo channelInfo : secondChannelInfos) {
 			ci.add(channelInfo);
 		}
+
+        for (int i = 0; i < ci.size(); i++) {
+            ci.get(i).setChannelId(i);
+            ci.get(i).setId(i);
+        }
+
 		return ci;
 	}
 

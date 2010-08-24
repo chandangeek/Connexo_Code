@@ -1,37 +1,20 @@
 package com.energyict.protocolimpl.dlms.as220;
 
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
 import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocolimpl.base.ObiscodeMapper;
-import com.energyict.protocolimpl.base.RetryHandler;
-import com.energyict.protocolimpl.base.SubMessageProtocol;
+import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
 import com.energyict.protocolimpl.dlms.as220.emeter.EMeter;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
 import com.energyict.protocolimpl.dlms.as220.plc.PLC;
 import com.energyict.protocolimpl.dlms.as220.plc.PLCMessaging;
+
+import java.io.IOException;
+import java.util.*;
 
 /**
  * @author kvds, jme
@@ -56,6 +39,9 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 	private ObiscodeMapper	ocm		= null;
 
 	private final List<SubMessageProtocol> messagingList;
+
+    private FirmwareVersions activeFirmwareVersion;
+    private FirmwareVersions passiveFirmwareVersion;
 
     /**
      * Create a new instance of the {@link AS220} dlms protocol
@@ -111,8 +97,9 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 
     public String getFirmwareVersion() throws IOException {
     	StringBuilder sb = new StringBuilder();
-    	sb.append("active_version=").append(new FirmwareVersions(FW_VERSION_ACTIVE_OBISCODE, this)).append(", ");
-    	sb.append("passive_version=").append(new FirmwareVersions(FW_VERSION_PASSIVE_OBISCODE, this));
+
+    	sb.append("active_version=").append(getActiveFirmwareVersion()).append(", ");
+    	sb.append("passive_version=").append(getPassiveFirmwareVersion());
         return sb.toString();
     }
 
@@ -191,8 +178,13 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 
 		if (to == null) {
 			to = ProtocolUtils.getCalendar(getTimeZone()).getTime();
-			getLogger().info("getProfileData: toDate was 'null'. Reading profildate up to: " + to);
+			getLogger().info("getProfileData: toDate was 'null'. Changing toDate to: " + to);
 		}
+
+        ProfileLimiter limiter = new ProfileLimiter(from, to, getLimitMaxNrOfDays());
+        from = limiter.getFromDate();
+        to = limiter.getToDate();
+
 		if (validateFromToDates(from, to)) {
 			return new ProfileData();
 		}
@@ -286,6 +278,20 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 	protected void doConnect() throws BusinessException {
 
 	}
+
+    public FirmwareVersions getActiveFirmwareVersion() throws IOException {
+        if (activeFirmwareVersion == null) {
+            activeFirmwareVersion = new FirmwareVersions(FW_VERSION_ACTIVE_OBISCODE, this);
+        }
+        return activeFirmwareVersion;
+    }
+
+    public FirmwareVersions getPassiveFirmwareVersion() throws IOException {
+        if (passiveFirmwareVersion == null) {
+            passiveFirmwareVersion = new FirmwareVersions(FW_VERSION_PASSIVE_OBISCODE, this);
+        }
+        return passiveFirmwareVersion;
+    }
 
 	@Override
 	public String getRegistersInfo() throws IOException {

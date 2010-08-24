@@ -42,7 +42,8 @@ public final class RegisterDescription {
 		INFO.put("0.0.97.97.0.255", "Error");
 		INFO.put("0.0.97.98.0.255", "Alarm");
 		INFO.put("0.0.97.98.10.255", "Alarm filter");
-		INFO.put("0.0.96.14.0.255", "Tarif switch");
+        INFO.put("0.0.96.50.0.255", "Tarif switch");
+        INFO.put("0.0.96.14.0.255", "Tarif switch");
 
 	}
 

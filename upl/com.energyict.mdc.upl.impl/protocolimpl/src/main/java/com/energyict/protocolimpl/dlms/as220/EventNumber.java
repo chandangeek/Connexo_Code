@@ -5,12 +5,9 @@
 
 package com.energyict.protocolimpl.dlms.as220;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
 import com.energyict.protocol.MeterEvent;
+
+import java.util.*;
 
 /**
  * @author Koen

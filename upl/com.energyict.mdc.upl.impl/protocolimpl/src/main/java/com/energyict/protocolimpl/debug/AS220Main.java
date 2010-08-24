@@ -8,8 +8,7 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.EventNumber;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
@@ -52,6 +51,13 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     private static final String SET_PLC_FREQUENCIES9 = "<SetPlcChannelFrequencies CHANNEL1_FM=\"rr\" CHANNEL2_FM=\"21\" CHANNEL2_FS=\"22\" CHANNEL3_FM=\"31\" CHANNEL3_FS=\"32\" CHANNEL4_FM=\"41\" CHANNEL4_FS=\"42\" CHANNEL5_FM=\"51\" CHANNEL5_FS=\"52\" CHANNEL6_FM=\"61\" CHANNEL6_FS=\"62\"> </SetPlcChannelFrequencies>";
     private static final String SET_PLC_FREQUENCIES0 = "<SetPlcChannelFrequencies CHANNEL1_FM=\"72000\" CHANNEL1_FS=\"76800\" CHANNEL2_FM=\"81600\" CHANNEL2_FS=\"67200\" CHANNEL3_FM=\"86400\" CHANNEL3_FS=\"62400\" CHANNEL4_FM=\"91200\" CHANNEL4_FS=\"57600\" CHANNEL5_FM=\"52800\" CHANNEL5_FS=\"48000\" CHANNEL6_FM=\"43200\" CHANNEL6_FS=\"38400\"> </SetPlcChannelFrequencies>";
 
+    private static final String SET_PLC_SNR_CREDIT_FREQ0 = "<SetPlcChannelFreqSnrCredits CHANNEL1_FS=\"76800\" CHANNEL1_FM=\"72000\" CHANNEL1_SNR=\"1.7\" CHANNEL1_CREDITWEIGHT=\"0.2\" CHANNEL2_FS=\"81600\" CHANNEL2_FM=\"67200\" CHANNEL2_SNR=\"1.0\" CHANNEL2_CREDITWEIGHT=\"1.0\" CHANNEL3_FS=\"86400\" CHANNEL3_FM=\"62400\" CHANNEL3_SNR=\"1.0\" CHANNEL3_CREDITWEIGHT=\"1.0\" CHANNEL4_FS=\"91200\" CHANNEL4_FM=\"57600\" CHANNEL4_SNR=\"1.0\" CHANNEL4_CREDITWEIGHT=\"1.0\" CHANNEL5_FS=\"52800\" CHANNEL5_FM=\"48000\" CHANNEL5_SNR=\"1.0\" CHANNEL5_CREDITWEIGHT=\"1.0\" CHANNEL6_FS=\"43200\" CHANNEL6_FM=\"38400\" CHANNEL6_SNR=\"1.0\" CHANNEL6_CREDITWEIGHT=\"1.0\"> </SetPlcChannelFrequenciesSnrCredits>";
+    private static final String SET_PLC_SNR_CREDIT_FREQ1 = "<SetPlcChannelFreqSnrCredits CHANNEL1_FS=\"76800\" CHANNEL1_FM=\"72000\" CHANNEL1_SNR=\"2.6\" CHANNEL1_CREDITWEIGHT=\"0.4\" CHANNEL3_FS=\"86400\" CHANNEL3_FM=\"62400\" CHANNEL3_SNR=\"1.0\" CHANNEL3_CREDITWEIGHT=\"1.0\" CHANNEL4_FS=\"91200\" CHANNEL4_FM=\"57600\" CHANNEL4_SNR=\"1.0\" CHANNEL4_CREDITWEIGHT=\"1.0\" CHANNEL5_FS=\"52800\" CHANNEL5_FM=\"48000\" CHANNEL5_SNR=\"1.0\" CHANNEL5_CREDITWEIGHT=\"1.0\" CHANNEL6_FS=\"43200\" CHANNEL6_FM=\"38400\" CHANNEL6_SNR=\"1.0\" CHANNEL6_CREDITWEIGHT=\"1.0\"> </SetPlcChannelFrequenciesSnrCredits>";
+    private static final String SET_PLC_SNR_CREDIT_FREQ2 = "<SetPlcChannelFreqSnrCredits CHANNEL1_FS=\"76800\" CHANNEL1_FM=\"72000\" CHANNEL1_SNR=\"3.5\" CHANNEL1_CREDITWEIGHT=\"0.6\" CHANNEL4_FS=\"91200\" CHANNEL4_FM=\"57600\" CHANNEL4_SNR=\"1.0\" CHANNEL4_CREDITWEIGHT=\"1.0\" CHANNEL5_FS=\"52800\" CHANNEL5_FM=\"48000\" CHANNEL5_SNR=\"1.0\" CHANNEL5_CREDITWEIGHT=\"1.0\" CHANNEL6_FS=\"43200\" CHANNEL6_FM=\"38400\" CHANNEL6_SNR=\"1.0\" CHANNEL6_CREDITWEIGHT=\"1.0\"> </SetPlcChannelFrequenciesSnrCredits>";
+    private static final String SET_PLC_SNR_CREDIT_FREQ3 = "<SetPlcChannelFreqSnrCredits CHANNEL1_FS=\"76800\" CHANNEL1_FM=\"72000\" CHANNEL1_SNR=\"4.4\" CHANNEL1_CREDITWEIGHT=\"0.8\" CHANNEL5_FS=\"52800\" CHANNEL5_FM=\"48000\" CHANNEL5_SNR=\"1.0\" CHANNEL5_CREDITWEIGHT=\"1.0\" CHANNEL6_FS=\"43200\" CHANNEL6_FM=\"38400\" CHANNEL6_SNR=\"1.0\" CHANNEL6_CREDITWEIGHT=\"1.0\"> </SetPlcChannelFrequenciesSnrCredits>";
+    private static final String SET_PLC_SNR_CREDIT_FREQ4 = "<SetPlcChannelFreqSnrCredits CHANNEL1_FS=\"76800\" CHANNEL1_FM=\"72000\" CHANNEL1_SNR=\"5.3\" CHANNEL1_CREDITWEIGHT=\"0.0\" CHANNEL6_FS=\"43200\" CHANNEL6_FM=\"38400\" CHANNEL6_SNR=\"1.0\" CHANNEL6_CREDITWEIGHT=\"1.0\"> </SetPlcChannelFrequenciesSnrCredits>";
+    private static final String SET_PLC_SNR_CREDIT_FREQ5 = "<SetPlcChannelFreqSnrCredits CHANNEL1_FS=\"76800\" CHANNEL1_FM=\"72000\" CHANNEL1_SNR=\"6.2\" CHANNEL1_CREDITWEIGHT=\"0.1\"> </SetPlcChannelFrequenciesSnrCredits>";
+
     private static final String SET_PLC_GAIN0 = "<SetSFSKGain MAX_RECEIVING_GAIN=\"0\" MAX_TRANSMITTING_GAIN=\"-\" SEARCH_INITIATOR_GAIN=\"-\"> </SetSFSKGain>";
     private static final String SET_PLC_GAIN1 = "<SetSFSKGain MAX_RECEIVING_GAIN=\"0\" MAX_TRANSMITTING_GAIN=\"0\" SEARCH_INITIATOR_GAIN=\"-\"> </SetSFSKGain>";
     private static final String SET_PLC_GAIN2 = "<SetSFSKGain MAX_RECEIVING_GAIN=\"0\" MAX_TRANSMITTING_GAIN=\"-\" SEARCH_INITIATOR_GAIN=\"6\"> </SetSFSKGain>";
@@ -61,10 +67,11 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     private static final String SET_PLC_REPEATER_2 = "<SetSFSKRepeater REPEATER=\"2\"> </SetSFSKRepeater>";
     private static final String SET_PLC_REPEATER_3 = "<SetSFSKRepeater REPEATER=\"3\"> </SetSFSKRepeater>";
 
-    private static final String OBSERVER_FILENAME = "c:\\logging\\AS220Main\\communications.log";
+    private static final String OBSERVER_FILENAME = "d:\\logging\\AS220Main\\communications_"+System.currentTimeMillis()+".log";
     protected static final TimeZone DEFAULT_TIMEZONE = TimeZone.getTimeZone("GMT+1");
 
-    protected static final String COMPORT = "COM6";
+    private static final boolean AS1440 = true;
+    protected static final String COMPORT = AS1440 ? "COM7" : "COM6";
     protected static final int BAUDRATE = 115200;
     protected static final int DATABITS = SerialCommunicationChannel.DATABITS_8;
     protected static final int PARITY = SerialCommunicationChannel.PARITY_NONE;
@@ -93,10 +100,9 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         properties.setProperty("ForcedDelay", "200");
 
         properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
-        //properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_BOTH);
         properties.setProperty("ProfileInterval", "900");
         properties.setProperty("Password", "20100401");
-        properties.setProperty("SerialNumber", "35021373");
+        properties.setProperty("SerialNumber", AS1440 ? "03191576" : "35021373");
 
         properties.setProperty("AddressingMode", "-1");
         properties.setProperty("Connection", "3");
@@ -105,6 +111,8 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         properties.setProperty("ServerUpperMacAddress", "1");
 
         properties.setProperty("ProfileType", "0");
+
+        properties.setProperty("LimitMaxNrOfDays", "0");
 
         properties.setProperty(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY, "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF");
         properties.setProperty(LocalSecurityProvider.DATATRANSPORTKEY, "000102030405060708090A0B0C0D0E0F");
@@ -173,6 +181,18 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES8, ""));
         getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES9, ""));
         getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES0, ""));
+    }
+
+    public void setPLCFreqSnrCredits() throws IOException {
+        if (AS1440) {
+            getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_SNR_CREDIT_FREQ0, ""));
+            getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_SNR_CREDIT_FREQ1, ""));
+            getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_SNR_CREDIT_FREQ2, ""));
+            getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_SNR_CREDIT_FREQ3, ""));
+            getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_SNR_CREDIT_FREQ4, ""));
+            getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_SNR_CREDIT_FREQ5, ""));
+            getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_SNR_CREDIT_FREQ0, ""));
+        }
     }
 
     public void setPLCGain() throws IOException {
@@ -333,6 +353,135 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         return content;
     }
 
+    private byte[] getFirmware27ByteArray() throws IOException {
+        File file = new File(AS220Main.class.getClassLoader().getResource("com/energyict/protocolimpl/dlms/as220/debug/firmware27190810B64.bin").getFile());
+        FileInputStream fis = new FileInputStream(file);
+        byte[] content = new byte[(int) file.length()];
+        fis.read(content);
+        fis.close();
+        return content;
+    }
+
+    private byte[] getFirmware22ByteArray() throws IOException {
+        File file = new File(AS220Main.class.getClassLoader().getResource("com/energyict/protocolimpl/dlms/as220/debug/firmware22190810B64.bin").getFile());
+        FileInputStream fis = new FileInputStream(file);
+        byte[] content = new byte[(int) file.length()];
+        fis.read(content);
+        fis.close();
+        return content;
+    }
+
+    private List<String> getFullRegisterList() {
+        List<String> registers = new ArrayList<String>();
+
+        registers.add("0.0.26.0.0.10");
+        registers.add("0.0.26.0.0.11");
+        registers.add("0.0.26.0.0.12");
+        registers.add("0.0.26.0.0.13");
+        registers.add("0.0.26.0.0.14");
+        registers.add("0.0.26.0.0.16");
+
+        registers.add("0.0.26.1.0.1");
+        registers.add("0.0.26.1.0.2");
+
+        registers.add("0.0.26.2.0.1");
+        registers.add("0.0.26.2.0.2");
+        registers.add("0.0.26.2.0.3");
+        registers.add("0.0.26.2.0.4");
+        registers.add("0.0.26.2.0.5");
+
+        registers.add("0.0.26.3.0.1");
+        registers.add("0.0.26.3.0.2");
+        registers.add("0.0.26.3.0.3");
+        registers.add("0.0.26.3.0.4");
+        registers.add("0.0.26.3.0.5");
+        registers.add("0.0.26.3.0.6");
+        registers.add("0.0.26.3.0.7");
+        registers.add("0.0.26.3.0.8");
+
+        registers.add("0.0.26.5.0.1");
+        registers.add("0.0.26.5.0.2");
+        registers.add("0.0.26.5.0.3");
+
+        registers.add("0.0.96.3.10.1");
+        registers.add("0.0.96.3.10.2");
+        registers.add("0.0.96.3.10.3");
+        registers.add("0.0.96.3.10.4");
+
+        registers.add("1.0.31.7.0.255");
+        registers.add("1.0.32.7.0.255");
+        registers.add("1.0.9.7.0.255");
+        registers.add("1.0.29.7.0.255");
+
+        registers.add("1.0.1.8.1.255");
+        registers.add("1.0.1.8.2.255");
+        registers.add("1.0.1.8.3.255");
+        registers.add("1.0.1.8.4.255");
+        registers.add("1.0.1.8.0.255");
+        registers.add("1.0.2.8.0.255");
+
+        registers.add("1.0.1.8.1.255");
+        registers.add("1.0.1.8.2.255");
+        registers.add("1.0.2.8.1.255");
+        registers.add("1.0.2.8.2.255");
+
+        registers.add("1.0.1.8.1.VZ");
+        registers.add("1.0.1.8.2.VZ");
+        registers.add("1.0.2.8.1.VZ");
+        registers.add("1.0.2.8.2.VZ");
+
+        registers.add("1.0.1.8.1.VZ-1");
+        registers.add("1.0.1.8.2.VZ-1");
+        registers.add("1.0.2.8.1.VZ-1");
+        registers.add("1.0.2.8.2.VZ-1");
+
+        registers.add("1.0.1.8.1.VZ-2");
+        registers.add("1.0.1.8.2.VZ-2");
+        registers.add("1.0.2.8.1.VZ-2");
+        registers.add("1.0.2.8.2.VZ-2");
+
+        registers.add("1.0.1.8.1.VZ-3");
+        registers.add("1.0.1.8.2.VZ-3");
+        registers.add("1.0.2.8.1.VZ-3");
+        registers.add("1.0.2.8.2.VZ-3");
+
+        registers.add("1.0.1.8.1.VZ-4");
+        registers.add("1.0.1.8.2.VZ-4");
+        registers.add("1.0.2.8.1.VZ-4");
+        registers.add("1.0.2.8.2.VZ-4");
+
+        registers.add("0.0.96.1.0.255");
+        registers.add("0.0.96.14.0.255");
+
+        registers.add("1.0.0.2.0.255");
+
+        return registers;
+
+    }
+
+    private void readRegisters(List registers) {
+        for (Object register : registers) {
+            ObisCode obis;
+            if (register instanceof String) {
+                obis = ObisCode.fromString((String) register);
+            } else if (register instanceof ObisCode) {
+                obis = (ObisCode) register;
+            } else {
+                obis = null;
+            }
+
+            if (obis != null) {
+                try {
+                    RegisterValue registerValue = getMeterProtocol().readRegister(obis);
+                    System.out.println(registerValue);
+                } catch (IOException e) {
+                    System.out.println("ERROR: [" + register + "]: " + e.getMessage());
+                }
+            }
+
+        }
+    }
+
     public static void main(String[] args) throws LinkException, IOException, InterruptedException {
         AS220Main main = new AS220Main();
         main.setCommPort(COMPORT);
@@ -340,13 +489,14 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         main.setDataBits(DATABITS);
         main.setParity(PARITY);
         main.setStopBits(STOPBITS);
-        //main.setObserverFilename(OBSERVER_FILENAME);
+        main.setObserverFilename(OBSERVER_FILENAME);
+        main.setShowCommunication(false);
         main.run();
     }
 
     @Override
     void doDebug() throws LinkException, IOException {
-        System.out.println(getMeterProtocol().getFirmwareVersion());
+        setPLCFreqSnrCredits();
     }
 
 }

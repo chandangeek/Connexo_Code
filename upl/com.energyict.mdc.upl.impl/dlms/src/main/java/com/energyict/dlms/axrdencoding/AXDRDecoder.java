@@ -10,9 +10,9 @@
 
 package com.energyict.dlms.axrdencoding;
 
-import java.io.IOException;
-
 import com.energyict.dlms.DLMSCOSEMGlobals;
+
+import java.io.IOException;
 
 /**
  * Util class to convert (parse) a byte array to a {@link AbstractDataType}
@@ -84,8 +84,10 @@ public final class AXDRDecoder {
 				return new Unsigned32(data, offset);
 			case DLMSCOSEMGlobals.TYPEDESC_LONG64:
 				return new Integer64(data, offset);
-			case DLMSCOSEMGlobals.TYPEDESC_BOOLEAN:
-				return new BooleanObject(data, offset);
+            case DLMSCOSEMGlobals.TYPEDESC_BOOLEAN:
+                return new BooleanObject(data, offset);
+            case DLMSCOSEMGlobals.TYPEDESC_FLOAT32:
+                return new Float32(data, offset);
 			default:
 				throw new IOException("AXDRDecoder, unknown datatype " + data[offset]);
 		}

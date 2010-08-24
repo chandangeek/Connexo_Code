@@ -3,19 +3,16 @@
  */
 package com.energyict.dlms.cosem.attributeobjects;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned32;
+
+import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * This class extends an {@link Array} to give a fancy toString
  * method when showing PLC channel frequencies.
- *
+ * <p/>
  * structure : {
  *     double-long-unsigned : 76800,   // Fs
  *     double-long-unsigned : 72000    // Fm
@@ -25,67 +22,7 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
  */
 public class Frequencies extends Array implements Comparable<Frequencies> {
 
-	private static final int	FS_INDEX	= 0;
-	private static final int	FM_INDEX	= 1;
-
-	/**
-	 * @param frequencies
-	 * @return
-	 * @throws IOException
-	 */
-	public static Frequencies fromLongArray(long[][] frequencies) throws IOException {
-		long[][] cleanedFrequencies = removeInvalidFrequencies(frequencies);
-		Array array = new Array();
-		for (int channelNr = 0; channelNr < cleanedFrequencies.length; channelNr++) {
-			Structure frequencyPair = new Structure();
-			for (int frequencyType = 0; frequencyType < cleanedFrequencies[channelNr].length; frequencyType++) {
-				frequencyPair.addDataType(new Unsigned32(cleanedFrequencies[channelNr][frequencyType]));
-			}
-			array.addDataType(frequencyPair);
-		}
-		byte[] berEncodedByteArray = array.getBEREncodedByteArray();
-		return new Frequencies(berEncodedByteArray);
-	}
-
-	/**
-	 * @return
-	 */
-	private static long[][] removeInvalidFrequencies(final long[][] frequencies) {
-		List<long[]> validFrequenciesList = new ArrayList<long[]>();
-		if (frequencies == null) {
-			throw new IllegalArgumentException("Frequencies.fromLongArray(long[][] frequencies): Argument frequencies cannot be null!");
-		} else if (frequencies[0].length != 2) {
-			throw new IllegalArgumentException("Frequencies.fromLongArray(long[][] frequencies): Argument frequencies should contain a mark & space field!");
-		} else {
-			for (int i = 0; i < frequencies.length; i++) {
-				if (!containsInvalidFrequency(frequencies[i])) {
-					validFrequenciesList.add(frequencies[i]);
-				}
-			}
-		}
-
-		long[][] returnValue = new long[validFrequenciesList.size()][validFrequenciesList.size() > 0 ? validFrequenciesList.get(0).length : 0];
-		for (int i = 0; i < validFrequenciesList.size(); i++) {
-			for (int j = 0; j < validFrequenciesList.get(i).length; j++) {
-				returnValue[i][j] = validFrequenciesList.get(i)[j];
-			}
-		}
-
-		return returnValue;
-	}
-
-	/**
-	 * @param frequencyGroup
-	 * @return
-	 */
-	private static boolean containsInvalidFrequency(long[] frequencyGroup) {
-		for (int i = 0; i < frequencyGroup.length; i++) {
-			if (frequencyGroup[i] == -1) {
-				return true;
-			}
-		}
-		return false;
-	}
+    private FrequencyGroup[] frequencyGroups = new FrequencyGroup[0];
 
 	/**
 	 * @param berEncodedData
@@ -95,63 +32,42 @@ public class Frequencies extends Array implements Comparable<Frequencies> {
 	 */
 	public Frequencies(byte[] berEncodedData, int offset, int level) throws IOException {
 		super(berEncodedData, offset, level);
+        frequencyGroups = new FrequencyGroup[nrOfDataTypes()];
+        for (int i = 0; i < nrOfDataTypes(); i++) {
+            frequencyGroups[i] = new FrequencyGroup(getDataType(i).getBEREncodedByteArray());
 	}
+    }
 
 	/**
 	 * @param berEncodedData
 	 * @throws IOException
 	 */
 	public Frequencies(byte[] berEncodedData) throws IOException {
-		super(berEncodedData, 0, 0);
+        this(berEncodedData, 0, 0);
 	}
 
-	/**
-	 * @param channel (1 based, so value can be 1-6)
-	 * @return
-	 */
-	public long getMarkFrequency(int channel) {
-		if (!isValidChannel(channel)) {
-			throw new IllegalArgumentException("ChannelNumber " + channel + " is not valid!");
+    public FrequencyGroup[] getFrequencyGroups() {
+        return frequencyGroups;
 		}
-		return getDataType(channel-1).getStructure().getDataType(FM_INDEX).longValue();
-	}
-
-	/**
-	 * @param channel (1 based, so value can be 1-6)
-	 * @return
-	 */
-	public long getSpaceFrequency(int channel) {
-		if (!isValidChannel(channel)) {
-			throw new IllegalArgumentException("ChannelNumber " + channel + " is not valid!");
-		}
-		return getDataType(channel-1).getStructure().getDataType(FS_INDEX).longValue();
-	}
 
 	public int getNumberOfChannels() {
-		return nrOfDataTypes();
-	}
-
-	private boolean isValidChannel(int channel) {
-		return ((channel >= 1) && (channel <= (nrOfDataTypes()+1)));
+        return frequencyGroups.length;
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		for (int channelNr = 0; channelNr < getNumberOfChannels(); channelNr++) {
-			if (getDataType(channelNr).isStructure()) {
-				Structure struct = getDataType(channelNr).getStructure();
-				if (struct.nrOfDataTypes() == 2) {
-					sb.append("[").append(channelNr+1).append("]=(");
-					sb.append(getSpaceFrequency(channelNr+1)).append("Hz");
-					sb.append(",");
-					sb.append(getMarkFrequency(channelNr+1)).append("Hz");
+        for (int channelIndex = 0; channelIndex < frequencyGroups.length; channelIndex++) {
+            sb.append("[").append(channelIndex + 1).append("]=");
+            sb.append(frequencyGroups[channelIndex]);
 					sb.append("); ");
 				}
-			}
-		}
 		return sb.toString();
 	}
+
+    public boolean isOldFormat() {
+        return frequencyGroups[0].isOldFormat();
+    }
 
 	/**
 	 * @param frequencies
@@ -159,13 +75,26 @@ public class Frequencies extends Array implements Comparable<Frequencies> {
 	 */
 	public int compareTo(Frequencies frequencies) {
 		if (frequencies != null) {
-			byte[] other = frequencies.getBEREncodedByteArray();
-			byte[] me = getBEREncodedByteArray();
+            byte[] other = (frequencies.isOldFormat() != isOldFormat()) ? Frequencies.toOldFormat(frequencies).getBEREncodedByteArray() : frequencies.getBEREncodedByteArray();
+            byte[] me = (frequencies.isOldFormat() != isOldFormat()) ? Frequencies.toOldFormat(this).getBEREncodedByteArray() : getBEREncodedByteArray();
 			return Arrays.equals(me, other) ? 0 : 1;
 		} else {
 			return -1;
 		}
 	}
+
+    private static AbstractDataType toOldFormat(Frequencies frequencies) {
+        if (frequencies.isOldFormat()) {
+            return frequencies;
+        } else {
+            FrequencyGroup[] group = new FrequencyGroup[frequencies.getNumberOfChannels()];
+            for (int i = 0; i < group.length; i++) {
+                FrequencyGroup frequencyGroup = frequencies.getFrequencyGroups()[i];
+                group[i] = FrequencyGroup.createFrequencyGroup(frequencyGroup.getFs(), frequencyGroup.getFm());
+            }
+            return Frequencies.fromFrequencyGroups(group);
+        }
+    }
 
 	@Override
 	public boolean equals(Object object) {
@@ -175,5 +104,63 @@ public class Frequencies extends Array implements Comparable<Frequencies> {
 			return false;
 		}
 	}
+
+    public static Frequencies fromFrequencyGroups(FrequencyGroup[] frequencyGroups) {
+        FrequencyGroup[] groups = removeEmptyGroups(frequencyGroups);
+        checkFrequencyGroups(groups);
+        try {
+            Array frequencies = new Array();
+            for (int i = 0; i < groups.length; i++) {
+                frequencies.addDataType(groups[i]);
+}
+            return new Frequencies(frequencies.getBEREncodedByteArray());
+        } catch (IOException e) {
+            // Absorb
+        }
+        return null;
+    }
+
+    private static FrequencyGroup[] removeEmptyGroups(FrequencyGroup[] frequencyGroups) {
+        int correct = 0;
+        for (int i = 0; i < frequencyGroups.length; i++) {
+            FrequencyGroup frequencyGroup = frequencyGroups[i];
+            if (frequencyGroup != null) {
+                correct++;
+            }
+        }
+        FrequencyGroup[] corrected = new FrequencyGroup[correct];
+        int ptr = 0;
+        for (int i = 0; i < frequencyGroups.length; i++) {
+            FrequencyGroup frequencyGroup = frequencyGroups[i];
+            if (frequencyGroup != null) {
+                corrected[ptr++] = frequencyGroup;
+            }
+        }
+        return corrected;
+    }
+
+    private static void checkFrequencyGroups(FrequencyGroup[] frequencyGroups) {
+        if ((frequencyGroups == null) || (frequencyGroups.length == 0)) {
+            throw new IllegalArgumentException("Unable to create Frequencies object. You need to provide at least one FrequencyGroup");
+        }
+        boolean sameFormat = frequencyGroups[0].isOldFormat();
+        for (int i = 0; i < frequencyGroups.length; i++) {
+            if (frequencyGroups[i].isOldFormat() != sameFormat) {
+                throw new IllegalArgumentException("Unable to create Frequencies object. All the FrequencyGroups should have the same format.");
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        FrequencyGroup[] freqs = new FrequencyGroup[]{
+                FrequencyGroup.createFrequencyGroup(0, 1),
+                FrequencyGroup.createFrequencyGroup(2, 3),
+                FrequencyGroup.createFrequencyGroup(4, 5),
+                FrequencyGroup.createFrequencyGroup(6, 7),
+                FrequencyGroup.createFrequencyGroup(8, 9)
+        };
+        Frequencies frequencies = Frequencies.fromFrequencyGroups(freqs);
+        System.out.println(frequencies);
+    }
 
 }

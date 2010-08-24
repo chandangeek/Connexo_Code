@@ -13,7 +13,6 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.util.*;
-
 /**
  * @author Koen
  */
@@ -77,6 +76,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 				byte[] request = buildReadRequest((short) this.objectReference.getSn(), attribute, null);
 				responseData = this.protocolLink.getDLMSConnection().sendRequest(request);
 			}
+
 			return DLMSUtils.parseValue2long(CheckCosemPDUResponseHeader(responseData));
 		} catch (IOException e) {
 			throw new NestedIOException(e);
@@ -139,7 +139,6 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 				byte[] request = buildWriteRequest((short) this.objectReference.getSn(), attribute, data);
 				responseData = this.protocolLink.getDLMSConnection().sendRequest(request);
-                System.out.println();
 			}
 			if (this.protocolLink.getDLMSConnection() instanceof AdaptorConnection) {
 				return responseData;
@@ -173,8 +172,8 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	 * 1 - logical name
 	 * 2..n attribute 2..n
 	 *
-	 * @param attribute
-	 * @return
+	 * @param attribute the attribute to read
+	 * @return the response from the device
 	 * @throws IOException
 	 */
 	protected byte[] getLNResponseData(int attribute) throws IOException {
@@ -246,6 +245,8 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 			throw (e);
 		} catch (IOException e) {
 			throw new NestedIOException(e);
+        } catch (IndexOutOfBoundsException e) {
+            throw new NestedIOException(e, "Received partial response or invalid packet from device!");
 		}
 	}
 
@@ -281,7 +282,6 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		readRequestArray[2] = 0x00; // LLC_Quality
 		readRequestArray[DL_COSEMPDU_OFFSET] = COSEM_READREQUEST;
 		readRequestArray[DL_COSEMPDU_LENGTH_OFFSET] = 0x01; // length of the variable length SEQUENCE OF
-
 		if (byteSelectiveBuffer == null) {
 			readRequestArray[DL_COSEMPDU_TAG_OFFSET] = 0x02; // implicit objectname
 		} else {
@@ -419,7 +419,6 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		writeRequestArray[0] = (byte) 0xE6; // Destination_LSAP
 		writeRequestArray[1] = (byte) 0xE6; // Source_LSAP
 		writeRequestArray[2] = 0x00; // LLC_Quality
-
 		writeRequestArray[DL_COSEMPDU_OFFSET] = COSEM_SETREQUEST;
 		writeRequestArray[DL_COSEMPDU_OFFSET + 1] = COSEM_SETREQUEST_NORMAL; // get request normal
 		writeRequestArray[DL_COSEMPDU_OFFSET + 2] = this.invokeIdAndPriority; //invoke id and priority
@@ -461,7 +460,6 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		writeRequestArray[0] = (byte) 0xE6; // Destination_LSAP
 		writeRequestArray[1] = (byte) 0xE6; // Source_LSAP
 		writeRequestArray[2] = 0x00; // LLC_Quality
-
 		writeRequestArray[DL_COSEMPDU_OFFSET] = COSEM_ACTIONREQUEST;
 		writeRequestArray[DL_COSEMPDU_OFFSET + 1] = COSEM_ACTIONREQUEST_NORMAL; // get request normal
 		writeRequestArray[DL_COSEMPDU_OFFSET + 2] = this.invokeIdAndPriority; //invoke id and priority

@@ -31,6 +31,7 @@ public interface DLMSCOSEMGlobals {
 	byte TYPEDESC_COMPACT_ARRAY=0x13;
 	byte TYPEDESC_LONG64=0x14;
 	byte TYPEDESC_ENUM=0x16;
+    byte TYPEDESC_FLOAT32=0x17;
 
 	byte LN_A=0;
 	byte LN_B=1;

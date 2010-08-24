@@ -76,7 +76,7 @@ public class GProfileBuilder {
 			
 			// Setting the cumulative value is the old way of doing, Eandis has an old way of doing so ...
 			channelInfo.setCumulativeWrapValue(new BigDecimal(100000000));
-			
+            // the setCumulative() is only from 8.5
 			channelInfo.setCumulative();
 			channelInfos.add(channelInfo);
 		}

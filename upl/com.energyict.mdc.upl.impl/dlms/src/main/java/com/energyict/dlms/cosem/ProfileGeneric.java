@@ -6,24 +6,11 @@
 
 package com.energyict.dlms.cosem;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import com.energyict.dlms.*;
+import com.energyict.dlms.axrdencoding.*;
 
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Unsigned32;
+import java.io.*;
+import java.util.*;
 
 /**
  *
@@ -84,8 +71,7 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
 	}
 
 	public byte[] getBufferData(Calendar fromCalendar, Calendar toCalendar) throws IOException {
-		byte[] responseData = getBufferResponseData(fromCalendar, toCalendar);
-		return responseData;
+		return getBufferResponseData(fromCalendar, toCalendar);
 	}
 
 	public UniversalObject[] getBufferAsUniversalObjects() throws IOException {

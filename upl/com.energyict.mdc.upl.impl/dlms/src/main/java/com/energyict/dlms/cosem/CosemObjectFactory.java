@@ -6,19 +6,16 @@
 
 package com.energyict.dlms.cosem;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.requests.GetDataResult;
 import com.energyict.dlms.cosem.requests.RequestFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 /**
  *
  * @author  Koen
@@ -189,6 +186,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 
     public IPv4Setup getIPv4Setup() throws IOException {
     	return new IPv4Setup(protocolLink, getObjectReference(IPV4_SETUP, protocolLink.getMeterConfig().getIPv4SetupSN()));
+    }
+
+    public IPv4Setup getIPv4Setup(ObisCode obisCode) throws IOException {
+    	return new IPv4Setup(protocolLink, getObjectReference(obisCode));
     }
 
     public P3ImageTransfer getP3ImageTransfer() throws IOException {

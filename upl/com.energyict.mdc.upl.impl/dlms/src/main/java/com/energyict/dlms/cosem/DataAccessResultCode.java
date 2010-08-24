@@ -34,7 +34,7 @@ public enum DataAccessResultCode {
 	 * Create a new instance using the result and description.
 	 * @param result
 	 * The result.
-	 * @param rescription
+	 * @param description
 	 * The description.
 	 */
 	private DataAccessResultCode(final int result, final String description) {

@@ -1,12 +1,10 @@
 package com.energyict.dlms.cosem;
 
-import java.io.IOException;
-
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.obis.ObisCode;
+
+import java.io.IOException;
 
 public class SecuritySetup extends AbstractCosemObject{
 
@@ -56,6 +54,20 @@ public class SecuritySetup extends AbstractCosemObject{
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException("Couldn't read the securityPolicy." + e.getMessage());
+		}
+	}
+
+	/**
+	 * Write the given securityPolicy to the device
+	 * @param securityPolicy
+	 * @throws IOException
+	 */
+	public void writeSecurityPolicy(TypeEnum securityPolicy) throws IOException{
+		try {
+			write(ATTRB_SECURITY_POLICY, securityPolicy.getBEREncodedByteArray());
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IOException("Couldn't write the securityPolicy to the device." + e.getMessage());
 		}
 	}
 	/**

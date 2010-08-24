@@ -27,6 +27,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 	public static final String		RESCAN_PLCBUS						= "RescanPlcBus";
 	public static final String		SET_ACTIVE_PLC_CHANNEL				= "SetActivePlcChannel";
 	public static final String		SET_PLC_CHANNEL_FREQUENCIES			= "SetPlcChannelFrequencies";
+    public static final String		SET_PLC_CHANNEL_FREQ_SNR_CREDIT     = "SetPlcChannelFreqSnrCredits";
 	public static final String		SET_SFSK_MAC_TIMEOUTS				= "SetSFSKMacTimeouts";
 	public static final String		SET_SFSK_INITIATOR_PHASE			= "SetSFSKInitiatorPhase";
 	public static final String		SET_SFSK_GAIN						= "SetSFSKGain";
@@ -36,6 +37,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 	private static final String		RESCAN_PLCBUS_DISPLAY				= "Force manual rescan PLC bus";
 	private static final String		SET_ACTIVE_PLC_CHANNEL_DISPLAY		= "Set the S-FSK active channel";
 	private static final String		SET_PLC_FREQUENCIES_DISPLAY			= "Set the S-FSK channels frequencies";
+    private static final String		SET_PLC_FREQ_SNR_CREDIT_DISPLAY		= "Set the S-FSK channels frequencies, snr and credit weight";
 	private static final String		SET_SFSK_MAC_TIMEOUTS_DISPLAY		= "Set the S-FSK Mac timeouts";
 	private static final String		SET_SFSK_INITIATOR_PH_DISPLAY		= "Set the S-FSK initiator phase";
 	private static final String		SET_SFSK_GAIN_DISPLAY				= "Set the S-FSK gain properties";
@@ -51,6 +53,15 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		{"CHANNEL6_FS", "CHANNEL6_FM"}
 	};
 
+    private static final String[][]	FREQUENCIES_SNR_CREDITS_NAME = new String[][] {
+        {"CHANNEL1_FS", "CHANNEL1_FM", "CHANNEL1_SNR", "CHANNEL1_CREDITWEIGHT"},
+        {"CHANNEL2_FS", "CHANNEL2_FM", "CHANNEL2_SNR", "CHANNEL2_CREDITWEIGHT"},
+        {"CHANNEL3_FS", "CHANNEL3_FM", "CHANNEL3_SNR", "CHANNEL3_CREDITWEIGHT"},
+        {"CHANNEL4_FS", "CHANNEL4_FM", "CHANNEL4_SNR", "CHANNEL4_CREDITWEIGHT"},
+        {"CHANNEL5_FS", "CHANNEL5_FM", "CHANNEL5_SNR", "CHANNEL5_CREDITWEIGHT"},
+        {"CHANNEL6_FS", "CHANNEL6_FM", "CHANNEL6_SNR", "CHANNEL6_CREDITWEIGHT"}
+    };
+
 	private final AS220 as220;
 
 	/**
@@ -62,6 +73,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		addSupportedMessageTag(SET_ACTIVE_PLC_CHANNEL);
 		addSupportedMessageTag(SET_SFSK_MAC_TIMEOUTS);
 		addSupportedMessageTag(SET_PLC_CHANNEL_FREQUENCIES);
+        addSupportedMessageTag(SET_PLC_CHANNEL_FREQ_SNR_CREDIT);
 		addSupportedMessageTag(SET_SFSK_INITIATOR_PHASE);
 		addSupportedMessageTag(SET_SFSK_GAIN);
 		addSupportedMessageTag(SET_SFSK_REPEATER);
@@ -83,6 +95,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
         plcMeterCat.addMessageSpec(createActivePLCChannelMessageSpec(SET_ACTIVE_PLC_CHANNEL_DISPLAY, SET_ACTIVE_PLC_CHANNEL, false));
         plcMeterCat.addMessageSpec(createSetMacTimeoutsMessageSpec(SET_SFSK_MAC_TIMEOUTS_DISPLAY, SET_SFSK_MAC_TIMEOUTS, false));
         plcMeterCat.addMessageSpec(createSetFrequenciesMessageSpec(SET_PLC_FREQUENCIES_DISPLAY, SET_PLC_CHANNEL_FREQUENCIES, false));
+        plcMeterCat.addMessageSpec(createSetFreqSnrCreditMessageSpec(SET_PLC_FREQ_SNR_CREDIT_DISPLAY, SET_PLC_CHANNEL_FREQ_SNR_CREDIT, false));
         plcMeterCat.addMessageSpec(createSetInitiatorPhaseMessageSpec(SET_SFSK_INITIATOR_PH_DISPLAY, SET_SFSK_INITIATOR_PHASE, false));
         plcMeterCat.addMessageSpec(createSetGainMessageSpec(SET_SFSK_GAIN_DISPLAY, SET_SFSK_GAIN, false));
         plcMeterCat.addMessageSpec(createSetRepeaterMessageSpec(SET_SFSK_REPEATER_DISPLAY, SET_SFSK_REPEATER, false));
@@ -105,6 +118,8 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 				setPLCTimeouts(messageEntry);
 			} else if (isMessageTag(SET_PLC_CHANNEL_FREQUENCIES, messageEntry)) {
 				setPLCFrequencies(messageEntry);
+            } else if (isMessageTag(SET_PLC_CHANNEL_FREQ_SNR_CREDIT, messageEntry)) {
+                setPLCFrequenciesSNRCredits(messageEntry);
 			} else if (isMessageTag(SET_SFSK_INITIATOR_PHASE, messageEntry)) {
 				setInitiatorPhase(messageEntry);
 			} else if (isMessageTag(SET_SFSK_GAIN, messageEntry)) {
@@ -252,19 +267,19 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 	private void setPLCFrequencies(MessageEntry messageEntry) throws IOException {
 		getAs220().getLogger().info("SET_PLC_CHANNEL_FREQUENCIES message received");
 
-		long[][] frequencies = new long[NR_OF_CHANNELS][FREQUENCIES_PER_PAIR];
+		FrequencyGroup[] group = new FrequencyGroup[NR_OF_CHANNELS];
 		for (int channel = 0; channel < NR_OF_CHANNELS; channel++) {
-			for (int freqType = 0; freqType < FREQUENCIES_PER_PAIR; freqType++) {
-				frequencies[channel][freqType] = getAttributeAsLong(messageEntry, FREQUENCIES_NAME[channel][freqType]);
+			long fs = getAttributeAsLong(messageEntry, FREQUENCIES_NAME[channel][0]);
+            long fm = getAttributeAsLong(messageEntry, FREQUENCIES_NAME[channel][1]);
+            group[channel] = FrequencyGroup.createFrequencyGroup(fs, fm);
 			}
-		}
 
-		Frequencies write = Frequencies.fromLongArray(frequencies);
+		Frequencies write = Frequencies.fromFrequencyGroups(group);
 		if (write.getNumberOfChannels() == 0) {
 			throw new IOException("Unable to write the channel frequencies! Meter needs at least one frequency pair.");
 		}
 
-		getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().setFrequencies(frequencies);
+		getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().setFrequencies(write);
 		Frequencies now = getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().getFrequencies();
 
 		if (!write.equals(now)) {
@@ -276,6 +291,40 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
         resetNewNotSynchronized();
         
 	}
+
+	/**
+	 * @param messageEntry
+	 * @throws IOException
+	 */
+    private void setPLCFrequenciesSNRCredits(MessageEntry messageEntry) throws IOException {
+        getAs220().getLogger().info("SET_PLC_CHANNEL_FREQ_SNR_CREDIT message received");
+
+        FrequencyGroup[] group = new FrequencyGroup[NR_OF_CHANNELS];
+        for (int channel = 0; channel < NR_OF_CHANNELS; channel++) {
+            long fs = getAttributeAsLong(messageEntry, FREQUENCIES_SNR_CREDITS_NAME[channel][0]);
+            long fm = getAttributeAsLong(messageEntry, FREQUENCIES_SNR_CREDITS_NAME[channel][1]);
+            float snr = getAttributeAsFloat(messageEntry, FREQUENCIES_SNR_CREDITS_NAME[channel][2]);
+            float credit = getAttributeAsFloat(messageEntry, FREQUENCIES_SNR_CREDITS_NAME[channel][3]);
+            group[channel] = FrequencyGroup.createFrequencyGroup(fs, fm, snr, credit);
+        }
+
+        Frequencies write = Frequencies.fromFrequencyGroups(group);
+        if (write.getNumberOfChannels() == 0) {
+            throw new IOException("Unable to write the channel frequencies! Meter needs at least one frequency pair.");
+        }
+
+        getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().setFrequencies(write);
+        Frequencies now = getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().getFrequencies();
+
+        if (!write.equals(now)) {
+            throw new IOException("Read after write check failed for attribute FREQUENCIES: '" + now + "'!='" + write + "'");
+        } else {
+            getAs220().getLogger().info("SET_PLC_CHANNEL_FREQ_SNR_CREDIT message: Write '" + write + "' to FREQUENCIES success.");
+        }
+
+        resetNewNotSynchronized();
+
+    }
 
 	/**
 	 * @param messageEntry
@@ -427,6 +476,25 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 	}
 
 	/**
+     * @param messageEntry
+     * @param attribute
+     * @return
+     * @throws IOException
+     */
+    private float getAttributeAsFloat(MessageEntry messageEntry, String attribute) throws IOException {
+        String stringValue = MessagingTools.getContentOfAttribute(messageEntry, attribute);
+        if ((stringValue == null) || (stringValue.length() == 0) || (stringValue.equals("-"))) {
+            return -1;
+        } else {
+            try {
+                return Float.parseFloat(stringValue);
+            } catch (NumberFormatException e) {
+                throw new IOException("Message attribute contains an invalid value: '" + stringValue + "': " + e.getMessage());
+            }
+        }
+    }
+
+    /**
      * @param keyId
      * @param tagName
      * @param advanced
@@ -489,6 +557,26 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		msgSpec.add(tagSpec);
 		return msgSpec;
 	}
+
+    private MessageSpec createSetFreqSnrCreditMessageSpec(String keyId, String tagName, boolean advanced) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+
+        // We should add this messageSpec, otherwise the other attributeSpecs wont show up in eiserver. Bug??
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        tagSpec.add(msgVal);
+
+        for (int channel = 0; channel < NR_OF_CHANNELS; channel++) {
+            for (int field = 0; field < (FREQUENCIES_PER_PAIR + 2); field++) {
+                tagSpec.add(new MessageAttributeSpec(FREQUENCIES_SNR_CREDITS_NAME[channel][field], false));
+            }
+        }
+
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
 
 	private MessageSpec createSetSingleFrequencyMessageSpec(String keyId, String tagName, boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
