@@ -140,6 +140,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
     private int cipheringType;
     private String ipPortNumber;
     private String manufacturer;
+    private String password;
 
     public boolean enforceSerialNumber = true;
 
@@ -333,7 +334,10 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 
         this.securityProvider = getSecurityProvider();
         if (this.securityProvider == null) {
-            this.securityProvider = new LocalSecurityProvider(this.properties);
+            if ((getMeter() != null) && (password != null)) {
+                getProperties().put(MeterProtocol.PASSWORD, password);
+        }
+            this.securityProvider = new LocalSecurityProvider(getProperties());
         }
 
     }
@@ -362,6 +366,8 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
         } else {
             throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + properties.getProperty("SecurityLevel", "0"));
         }
+
+        this.password = getMeter().getPassword();
 
         this.connectionMode = Integer.parseInt(properties.getProperty("Connection", "1"));
 
@@ -543,7 +549,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
     private void checkCacheObjects() throws IOException {
 
         int configNumber;
-        if (dlmsCache.getObjectList() != null) { // the dlmsCache exists
+		if (dlmsCache != null && dlmsCache.getObjectList() != null) { // the dlmsCache exists
             getMeterConfig().setInstantiatedObjectList(this.dlmsCache.getObjectList());
 
             this.logger.info("Checking the configuration parameters.");
