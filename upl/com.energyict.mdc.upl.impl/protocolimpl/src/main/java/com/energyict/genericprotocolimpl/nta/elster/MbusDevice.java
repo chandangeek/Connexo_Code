@@ -6,9 +6,9 @@ import com.energyict.genericprotocolimpl.common.messages.RtuMessageCategoryConst
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
-import com.energyict.genericprotocolimpl.nta.elster.ObisCodeProviders.MbusObisCodeProvider;
-import com.energyict.genericprotocolimpl.nta.elster.ObisCodeProviders.NTAObisCodeProvider;
-import com.energyict.genericprotocolimpl.nta.elster.ObisCodeProviders.OMSGasObisCodeProvider;
+import com.energyict.genericprotocolimpl.nta.elster.obiscodeproviders.MbusObisCodeProvider;
+import com.energyict.genericprotocolimpl.nta.elster.obiscodeproviders.NTAObisCodeProvider;
+import com.energyict.genericprotocolimpl.nta.elster.obiscodeproviders.OMSGasObisCodeProvider;
 import com.energyict.genericprotocolimpl.nta.elster.profiles.MbusProfile;
 import com.energyict.genericprotocolimpl.nta.profiles.MbusDailyMonthlyProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
@@ -190,7 +190,7 @@ public class MbusDevice extends AbstractMbusDevice {
     }
 
     /**
-     * Getter for the {@link com.energyict.genericprotocolimpl.nta.elster.ObisCodeProviders.MbusObisCodeProvider}
+     * Getter for the {@link com.energyict.genericprotocolimpl.nta.elster.obiscodeproviders.MbusObisCodeProvider}
      *
      * @return the implemented MbusObisCodeProvider
      * @throws IOException if the selection property did not match one of the two predefined strings
