@@ -1,4 +1,4 @@
-package com.energyict.genericprotocolimpl.nta.elster.ObisCodeProviders;
+package com.energyict.genericprotocolimpl.nta.elster.obiscodeproviders;
 
 import com.energyict.obis.ObisCode;
 
