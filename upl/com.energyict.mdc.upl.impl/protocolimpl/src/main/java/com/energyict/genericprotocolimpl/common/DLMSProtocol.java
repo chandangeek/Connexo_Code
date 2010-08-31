@@ -413,6 +413,22 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
      */
     protected void initializeGlobals() throws IOException, DLMSConnectionException, SQLException, BusinessException {
 
+        if (this.wakeup == 1) {
+            this.logger.info("In Wakeup");
+            SmsWakeup smsWakeup = new SmsWakeup(communicationScheduler, this.logger);
+            smsWakeup.doWakeUp();
+
+            meter = getUpdatedMeter();
+
+            String ipAddress = checkIPAddressForPortNumber(smsWakeup.getIpAddress());
+
+            this.link.setStreamConnection(new SocketStreamConnection(ipAddress));
+            this.link.getStreamConnection().open();
+            getLogger().log(Level.INFO, "Connected to " + ipAddress);
+        } else if ((communicationScheduler != null) && (communicationScheduler.getDialerFactory().getName() != null) && (communicationScheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer"))) {
+            throw new ConnectionException("The NullDialer type is only allowed for the wakeup meter.");
+        }
+
         this.cosemObjectFactory = new CosemObjectFactory((ProtocolLink) this);
 
         SecurityContext sc = new SecurityContext(this.datatransportSecurityLevel, this.authenticationSecurityLevel, 0, "EICTCOMM".getBytes(), this.securityProvider, this.cipheringType);
@@ -430,21 +446,6 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
             setCache(fetchCache(getMeter().getId()));
         }
 
-        if (this.wakeup == 1) {
-            this.logger.info("In Wakeup");
-            SmsWakeup smsWakeup = new SmsWakeup(communicationScheduler, this.logger);
-            smsWakeup.doWakeUp();
-
-            meter = getUpdatedMeter();
-
-            String ipAddress = checkIPAddressForPortNumber(smsWakeup.getIpAddress());
-
-            this.link.setStreamConnection(new SocketStreamConnection(ipAddress));
-            this.link.getStreamConnection().open();
-            getLogger().log(Level.INFO, "Connected to " + ipAddress);
-        } else if ((communicationScheduler != null) && (communicationScheduler.getDialerFactory().getName() != null) && (communicationScheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer"))) {
-            throw new ConnectionException("The NullDialer type is only allowed for the wakeup meter.");
-        }
 
         doInit();
     }
