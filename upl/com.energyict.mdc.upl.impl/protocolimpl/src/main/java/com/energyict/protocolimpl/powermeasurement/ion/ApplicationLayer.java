@@ -1,11 +1,11 @@
 package com.energyict.protocolimpl.powermeasurement.ion;
 
+import com.energyict.dialer.connection.ConnectionException;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import com.energyict.dialer.connection.ConnectionException;
 
 /**
  * The application layer provides services to allow applications to communicate 
@@ -114,6 +114,7 @@ class ApplicationLayer {
                 .setIsTimeSetMessage( true )
                 .setService( 1 ) 
                 .setMsgType( 17 )
+                .setAuthentication( authentication )
                 .setData( message.getData() ) );
         
     }
