@@ -24,6 +24,8 @@ public class CTRConnection {
     private String password;
     private String encryptionKey;
 
+    private final PacketFactory packetFactory;
+
     public CTRConnection(InputStream inputStream, OutputStream outputStream, ProtocolProperties properties, Logger logger) {
         this.inputStream = inputStream;
         this.outputStream = outputStream;
@@ -34,7 +36,7 @@ public class CTRConnection {
         this.retries = properties.getRetries();
         this.password = properties.getPassword();
         this.encryptionKey = properties.getEncryptionKey();
-
+        this.packetFactory = new PacketFactory(properties);
     }
 
     public void writeRawData(byte[] data) throws IOException {
@@ -91,4 +93,15 @@ public class CTRConnection {
         throw new IOException("Number of retries exceeded: [" + attempts + "/" + retries + "]");
     }
 
+    public void closeSession() {
+        try {
+            sendRequestGetResponse(getPacketFactory().getEndOfSessionRequest());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public PacketFactory getPacketFactory() {
+        return packetFactory;
+    }
 }
