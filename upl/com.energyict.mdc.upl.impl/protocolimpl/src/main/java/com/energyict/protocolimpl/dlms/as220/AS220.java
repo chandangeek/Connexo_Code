@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.dlms.as220;
 
-
 import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.obis.ObisCode;
@@ -33,7 +32,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 
 	private int iNROfIntervals=-1;
 
-	private final EMeter 	eMeter	= new EMeter(this);
+	private final EMeter	eMeter		= new EMeter(this);
 	private final PLC 		plc		= new PLC(this);
 	private GMeter 			gMeter	= new GMeter(this);
 	private ObiscodeMapper	ocm		= null;

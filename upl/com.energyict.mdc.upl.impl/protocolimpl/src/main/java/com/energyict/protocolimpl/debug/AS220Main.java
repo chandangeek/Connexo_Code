@@ -68,7 +68,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     private static final String SET_PLC_REPEATER_3 = "<SetSFSKRepeater REPEATER=\"3\"> </SetSFSKRepeater>";
 
     private static final String OBSERVER_FILENAME = "d:\\logging\\AS220Main\\communications_"+System.currentTimeMillis()+".log";
-    protected static final TimeZone DEFAULT_TIMEZONE = TimeZone.getTimeZone("GMT+1");
+    protected static final TimeZone DEFAULT_TIMEZONE = TimeZone.getTimeZone("Europe/Paris");
 
     private static final boolean AS1440 = true;
     protected static final String COMPORT = AS1440 ? "COM7" : "COM6";
@@ -482,6 +482,14 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         }
     }
 
+    private void readRegisters(String... registers) {
+        List registerList = new ArrayList();
+        for (Object register : registers) {
+            registerList.add(register);
+        }
+        readRegisters(registerList);
+    }
+
     public static void main(String[] args) throws LinkException, IOException, InterruptedException {
         AS220Main main = new AS220Main();
         main.setCommPort(COMPORT);
@@ -491,12 +499,13 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         main.setStopBits(STOPBITS);
         main.setObserverFilename(OBSERVER_FILENAME);
         main.setShowCommunication(false);
+        main.setTimeZone(DEFAULT_TIMEZONE);
         main.run();
     }
 
     @Override
     void doDebug() throws LinkException, IOException {
-        setPLCFreqSnrCredits();
+        readRegisters("1.0.1.8.1.VZ");
     }
 
 }

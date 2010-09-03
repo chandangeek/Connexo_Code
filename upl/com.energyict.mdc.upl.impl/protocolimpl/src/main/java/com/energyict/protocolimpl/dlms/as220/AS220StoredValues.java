@@ -18,16 +18,16 @@ import java.util.*;
  */
 public class AS220StoredValues implements StoredValues {
 
-	public static final ObisCode		MONTHLY_OBISCODE	= ObisCode.fromString("0.0.98.1.0.255");
-	public static final ObisCode		DAILY_OBISCODE		= ObisCode.fromString("1.0.99.2.0.255");
+    public static final ObisCode MONTHLY_OBISCODE = ObisCode.fromString("0.0.98.1.0.255");
+    public static final ObisCode DAILY_OBISCODE = ObisCode.fromString("1.0.99.2.0.255");
 
-	private final ObisCode				obisCode;
-	private final CosemObjectFactory	cosemObjectFactory;
+    private final ObisCode obisCode;
+    private final CosemObjectFactory cosemObjectFactory;
 
-	private List<UnitInfo>				unitInfos			= new ArrayList<UnitInfo>();
-	private ProfileGeneric				profileGeneric		= null;
-	private List<ObisCode>				capturedCodes		= null;
-	private Array						dataArray			= null;
+    private List<UnitInfo> unitInfos = new ArrayList<UnitInfo>();
+    private ProfileGeneric profileGeneric = null;
+    private List<ObisCode> capturedCodes = null;
+    private Array dataArray = null;
 
 	public AS220StoredValues(ObisCode obisCode, CosemObjectFactory cosemObjectFactory) throws IOException {
 		this.obisCode = obisCode;
@@ -69,8 +69,13 @@ public class AS220StoredValues implements StoredValues {
 		if (!isValidBillingPoint(billingPoint)) {
 			throw new UnsupportedException("Billing point [" + billingPoint + "] doesn't exist.");
 		}
-		return getDataArray().getDataType(billingPoint).getStructure().getDataType(0).getOctetString().getDateTime(TimeZone.getDefault()).getValue().getTime();
+        return getDataArray().getDataType(billingPoint).getStructure().getDataType(0).getOctetString().getDateTime(getTimeZone()).getValue().getTime();
 	}
+
+    private TimeZone getTimeZone() {
+        TimeZone timeZone = getCosemObjectFactory().getProtocolLink().getTimeZone();
+        return timeZone;
+    }
 
 	public HistoricalValue getHistoricalValue(ObisCode obisCode) throws IOException {
 		ObisCode baseObisCode = ProtocolTools.setObisCodeField(obisCode, 5, (byte) 255);
