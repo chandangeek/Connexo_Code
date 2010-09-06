@@ -726,7 +726,6 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
         optionalKeys.add("IIAPPriority");
         optionalKeys.add("IIAPServiceClass");
         optionalKeys.add("Manufacturer");
-        optionalKeys.add("InformationFieldSize");
         optionalKeys.add("RoundTripCorrection");
         optionalKeys.add("IpPortNumber");
         optionalKeys.add("WakeUp");
