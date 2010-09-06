@@ -28,8 +28,6 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
 	public static final String	DISCONNECT_EMETER			= "DisconnectEmeter";
 	public static final String	ARM_EMETER					= "ArmEmeter";
 
-	public static final String	TOPT_SWITCH_BASE			= "TariffOptionSwitchBase";
-	public static final String	TOPT_SWITCH_DAYNIGHT		= "TariffOptionSwitchDayNight";
 	public static final String	FORCE_SET_CLOCK				= "ForceSetClock";
 
 	public static final String 	FIRMWARE_UPDATE				= "FirmwareUpdate";
@@ -42,8 +40,6 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
 	private static final String	DISCONNECT_EMETER_DISPLAY		= "Remote disconnect";
 	//private static final String	ARM_EMETER_DISPLAY				= "Arm E-Meter";
 
-	private static final String	TOPT_SWITCH_BASE_DISPLAY		= "Switch tariff option BASE";
-	private static final String	TOPT_SWITCH_DAYNIGHT_DISPLAY	= "Switch tariff option DAY/NIGHT";
 	public static final String	FORCE_SET_CLOCK_DISPLAY			= "Force set clock";
 
 	private final AS220 as220;
@@ -53,8 +49,6 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
 		addSupportedMessageTag(CONNECT_EMETER);
 		addSupportedMessageTag(DISCONNECT_EMETER);
 		addSupportedMessageTag(ARM_EMETER);
-		addSupportedMessageTag(TOPT_SWITCH_BASE);
-		addSupportedMessageTag(TOPT_SWITCH_DAYNIGHT);
 		addSupportedMessageTag(FORCE_SET_CLOCK);
 		addSupportedMessageTag(FIRMWARE_UPDATE);
 	}
@@ -73,8 +67,6 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
         eMeterCat.addMessageSpec(createMessageSpec(CONNECT_EMETER_DISPLAY, CONNECT_EMETER, false));
 
         otherMeterCat.addMessageSpec(createMessageSpec(FORCE_SET_CLOCK_DISPLAY, FORCE_SET_CLOCK, false));
-        otherMeterCat.addMessageSpec(createMessageSpec(TOPT_SWITCH_BASE_DISPLAY, TOPT_SWITCH_BASE, false));
-        otherMeterCat.addMessageSpec(createMessageSpec(TOPT_SWITCH_DAYNIGHT_DISPLAY, TOPT_SWITCH_DAYNIGHT, false));
 
         categories.add(eMeterCat);
         categories.add(otherMeterCat);
@@ -92,12 +84,6 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
 				getAs220().geteMeter().getContactorController().doConnect();
 			} else if (isMessageTag(ARM_EMETER, messageEntry)) {
 				getAs220().geteMeter().getContactorController().doArm();
-			} else if (isMessageTag(TOPT_SWITCH_BASE, messageEntry)) {
-				getAs220().getLogger().info("TARIFF_OPTION_SWITCH_BASE message received");
-				getAs220().getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.0.255")).setValueAttr(new TypeEnum(0));
-			} else if (isMessageTag(TOPT_SWITCH_DAYNIGHT, messageEntry)) {
-				getAs220().getLogger().info("TARIFF_OPTION_SWITCH_DAYNIGHT message received");
-				getAs220().getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.0.255")).setValueAttr(new TypeEnum(1));
 			} else if (isMessageTag(FORCE_SET_CLOCK, messageEntry)) {
 				getAs220().getLogger().info("FORCE_SET_CLOCK message received");
 				getAs220().geteMeter().getClockController().setTime();
