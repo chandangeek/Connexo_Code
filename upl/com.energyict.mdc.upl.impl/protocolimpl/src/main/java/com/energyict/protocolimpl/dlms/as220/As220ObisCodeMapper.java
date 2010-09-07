@@ -3,8 +3,7 @@ package com.energyict.protocolimpl.dlms.as220;
 import java.io.IOException;
 import java.util.Date;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.cbo.*;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -37,9 +36,7 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 
 	private static final ObisCode		NR_CONFIGCHANGES_OBISCODE	= ObisCode.fromString("0.0.96.2.0.255");
 	private static final ObisCode		ALARM_REGISTER_OBISCODE		= ObisCode.fromString("0.0.97.98.0.255");
-	private static final ObisCode		FILTER_REGISTER_OBISCODE	= ObisCode.fromString("0.0.97.98.10.255");
 	private static final ObisCode		ERROR_REGISTER_OBISCODE		= ObisCode.fromString("0.0.97.97.0.255");
-	private static final ObisCode		LOGICAL_DEVICENAME_OBISCODE	= ObisCode.fromString("0.0.42.0.0.255");
 
 	private static final ObisCode		SFSK_PHY_MAC_SETUP			= ObisCode.fromString("0.0.26.0.0.255");
 	private static final ObisCode		SFSK_ACTIVE_INITIATOR		= ObisCode.fromString("0.0.26.1.0.255");
@@ -56,9 +53,7 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 	private static final ObisCode[] SIMPLE_DATA_REGISTERS = new ObisCode[] {
 		NR_CONFIGCHANGES_OBISCODE,
 		ALARM_REGISTER_OBISCODE,
-		FILTER_REGISTER_OBISCODE,
 	    ERROR_REGISTER_OBISCODE,
-	    LOGICAL_DEVICENAME_OBISCODE
 	};
 
 	private final DLMSAttributeMapper[] attributeMappers;
@@ -151,7 +146,8 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
         // *********************************************************************************
         // General purpose ObisRegisters & abstract general service
 		if ((obisCode.toString().indexOf("1.0.0.1.0.255") != -1) || (obisCode.toString().indexOf("1.1.0.1.0.255") != -1)) { // billing counter
-			registerValue = new RegisterValue(obisCode, getCosemObjectFactory().getCosemObject(ObisCode.fromString("1.0.0.1.0.255")).getQuantityValue());
+            Quantity billingQuantity = new Quantity(getCosemObjectFactory().getStoredValues().getBillingPointCounter(), Unit.get(""));
+            registerValue = new RegisterValue(obisCode, billingQuantity);
 			return registerValue;
 		} else if ((obisCode.toString().indexOf("1.0.0.1.2.") != -1) || (obisCode.toString().indexOf("1.1.0.1.2.") != -1)) { // billing point timestamp
 			if ((billingPoint >= 0) && (billingPoint < 99)) {
@@ -235,7 +231,7 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 	 * This method reads a data class from the device, and creates a
 	 * {@link RegisterValue} with a {@link Quantity} of the dlms attribute 8.
 	 * This attribute is expected to be a numerical value (Integer, unsigned, ...)
-	 * or an {@link OctetString}
+	 * or an {@link com.energyict.dlms.axrdencoding.OctetString}
 	 * @return The {@link RegisterValue}
 	 * @throws IOException
 	 */
