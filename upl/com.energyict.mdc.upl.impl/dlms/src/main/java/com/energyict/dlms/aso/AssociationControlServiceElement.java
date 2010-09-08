@@ -6,6 +6,7 @@ import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.encryption.XDlmsDecryption;
 import com.energyict.encryption.XDlmsEncryption;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.UnexpectedEndOfArrayException;
 
 import java.io.IOException;
 
@@ -212,237 +213,239 @@ public class AssociationControlServiceElement {
 	 */
 
 	protected void analyzeAARE(byte[] responseData) throws IOException {
-		int i = 0;
-		String strResultSourceDiagnostics = "";
-		while (true) {
-			if (responseData[i] == DLMSCOSEMGlobals.AARE_TAG) {
-				i += 2; // skip tag & length
-				while (true) {
-					if (responseData[i] == DLMSCOSEMGlobals.AARE_APPLICATION_CONTEXT_NAME) {
-						i++; // skip tag
-						i += responseData[i]; // skip length + data
-					} // if (responseData[i] == AARE_APPLICATION_CONTEXT_NAME)
+        int i = 0;
+        String strResultSourceDiagnostics = "";
+        try {
+            while (true) {
+                if (responseData[i] == DLMSCOSEMGlobals.AARE_TAG) {
+                    i += 2; // skip tag & length
+                    while (true) {
+                        if (responseData[i] == DLMSCOSEMGlobals.AARE_APPLICATION_CONTEXT_NAME) {
+                            i++; // skip tag
+                            i += responseData[i]; // skip length + data
+                        } // if (responseData[i] == AARE_APPLICATION_CONTEXT_NAME)
 
-					else if (responseData[i] == DLMSCOSEMGlobals.AARE_RESULT) {
-						i++; // skip tag
-						if ((responseData[i] == 3)
-								&& (responseData[i + 1] == 2)
-								&& (responseData[i + 2] == 1)
-								&& (responseData[i + 3] == 0)) {
-							// Result OK
+                        else if (responseData[i] == DLMSCOSEMGlobals.AARE_RESULT) {
+                            i++; // skip tag
+                            if ((responseData[i] == 3)
+                                    && (responseData[i + 1] == 2)
+                                    && (responseData[i + 2] == 1)
+                                    && (responseData[i + 3] == 0)) {
+                                // Result OK
 //							return;	 //Don't return otherwise you don't get all info
-							i += responseData[i]; // skip length + data
-						} else {
-							// the result wasn't OK, but we keep going so we get the proper info
-							i += responseData[i]; // skip length + data
-						}
-					} // else if (responseData[i] == AARE_RESULT)
+                                i += responseData[i]; // skip length + data
+                            } else {
+                                // the result wasn't OK, but we keep going so we get the proper info
+                                i += responseData[i]; // skip length + data
+                            }
+                        } // else if (responseData[i] == AARE_RESULT)
 
-					else if(responseData[i] == DLMSCOSEMGlobals.AARE_RESPONING_AP_TITLE){
-						i++; // skip tag
-						if (responseData[i] > 0) { // length of octet string
-							if ((responseData[i] - responseData[i+2]) != 2) {
-								this.respondingAPTitle = ProtocolUtils.getSubArray2(responseData, i+1, responseData[i]);
-							} else {
-								this.respondingAPTitle = ProtocolUtils.getSubArray2(responseData, i+3, responseData[i+2]);
-							}
-						}
-						i += responseData[i];
-					}
+                        else if(responseData[i] == DLMSCOSEMGlobals.AARE_RESPONING_AP_TITLE){
+                            i++; // skip tag
+                            if (responseData[i] > 0) { // length of octet string
+                                if ((responseData[i] - responseData[i+2]) != 2) {
+                                    this.respondingAPTitle = ProtocolUtils.getSubArray2(responseData, i+1, responseData[i]);
+                                } else {
+                                    this.respondingAPTitle = ProtocolUtils.getSubArray2(responseData, i+3, responseData[i+2]);
+                                }
+                            }
+                            i += responseData[i];
+                        }
 
-					else if (responseData[i] == DLMSCOSEMGlobals.AARE_RESULT_SOURCE_DIAGNOSTIC) {
-						i++; // skip tag
-						if (responseData[i] == 5) // check length
-						{
-							if (responseData[i + 1] == DLMSCOSEMGlobals.ACSE_SERVICE_USER) {
-								if ((responseData[i + 2] == 3)
-										&& (responseData[i + 3] == 2)
-										&& (responseData[i + 4] == 1)) {
-									if (responseData[i + 5] == 0x00){
-										strResultSourceDiagnostics += ", ACSE_SERVICE_USER";
-									}
-									else if (responseData[i + 5] == 0x01){
-										strResultSourceDiagnostics += ", ACSE_SERVICE_USER, no reason given";
-										throw new IOException("Application Association Establishment Failed"
-												+ strResultSourceDiagnostics);
-									}
-									else if (responseData[i + 5] == 0x02){
-										strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Application Context Name Not Supported";
-										throw new IOException("Application Association Establishment Failed"
-												+ strResultSourceDiagnostics);
-									}
-									else if (responseData[i + 5] == 0x0B){
-										strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Mechanism Name Not Recognised";
-										throw new IOException("Application Association Establishment Failed"
-												+ strResultSourceDiagnostics);
-									}
-									else if (responseData[i + 5] == 0x0C){
-										strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Mechanism Name Required";
-										throw new IOException("Application Association Establishment Failed"
-												+ strResultSourceDiagnostics);
-									}
-									else if (responseData[i + 5] == 0x0D){
-										strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Failure";
-										throw new IOException("Application Association Establishment Failed"
-												+ strResultSourceDiagnostics);
-									}
-									else if (responseData[i + 5] == 0x0E) {
-										strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Required";
-									} else {
-										throw new IOException(
-												"Application Association Establishment failed, ACSE_SERVICE_USER, unknown result!");
-									}
-								} else {
-									throw new IOException(
-											"Application Association Establishment Failed, result_source_diagnostic, ACSE_SERVICE_USER,  wrong tag");
-								}
-							} // if (responseData[i+1] == ACSE_SERVICE_USER)
-							else if (responseData[i + 1] == DLMSCOSEMGlobals.ACSE_SERVICE_PROVIDER) {
-								if ((responseData[i + 2] == 3)
-										&& (responseData[i + 3] == 2)
-										&& (responseData[i + 4] == 1)) {
-									if (responseData[i + 5] == 0x00) {
-										strResultSourceDiagnostics += ", ACSE_SERVICE_PROVIDER!";
-									} else if (responseData[i + 5] == 0x01) {
-										strResultSourceDiagnostics += ", ACSE_SERVICE_PROVIDER, No Reason Given!";
-									} else if (responseData[i + 5] == 0x02) {
-										strResultSourceDiagnostics += ", ACSE_SERVICE_PROVIDER, No Common ACSE Version!";
-									} else {
-										throw new IOException(
-												"Application Association Establishment Failed, ACSE_SERVICE_PROVIDER, unknown result");
-									}
-								} else {
-									throw new IOException(
-											"Application Association Establishment Failed, result_source_diagnostic, ACSE_SERVICE_PROVIDER,  wrong tag");
-								}
-							} // else if (responseData[i+1] ==
-								// ACSE_SERVICE_PROVIDER)
-							else {
-								throw new IOException(
-										"Application Association Establishment Failed, result_source_diagnostic,  wrong tag");
-							}
-						} else {
-							throw new IOException(
-									"Application Association Establishment Failed, result_source_diagnostic, wrong length");
-						}
+                        else if (responseData[i] == DLMSCOSEMGlobals.AARE_RESULT_SOURCE_DIAGNOSTIC) {
+                            i++; // skip tag
+                            if (responseData[i] == 5) // check length
+                            {
+                                if (responseData[i + 1] == DLMSCOSEMGlobals.ACSE_SERVICE_USER) {
+                                    if ((responseData[i + 2] == 3)
+                                            && (responseData[i + 3] == 2)
+                                            && (responseData[i + 4] == 1)) {
+                                        if (responseData[i + 5] == 0x00){
+                                            strResultSourceDiagnostics += ", ACSE_SERVICE_USER";
+                                        }
+                                        else if (responseData[i + 5] == 0x01){
+                                            strResultSourceDiagnostics += ", ACSE_SERVICE_USER, no reason given";
+                                            throw new IOException("Application Association Establishment Failed"
+                                                    + strResultSourceDiagnostics);
+                                        }
+                                        else if (responseData[i + 5] == 0x02){
+                                            strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Application Context Name Not Supported";
+                                            throw new IOException("Application Association Establishment Failed"
+                                                    + strResultSourceDiagnostics);
+                                        }
+                                        else if (responseData[i + 5] == 0x0B){
+                                            strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Mechanism Name Not Recognised";
+                                            throw new IOException("Application Association Establishment Failed"
+                                                    + strResultSourceDiagnostics);
+                                        }
+                                        else if (responseData[i + 5] == 0x0C){
+                                            strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Mechanism Name Required";
+                                            throw new IOException("Application Association Establishment Failed"
+                                                    + strResultSourceDiagnostics);
+                                        }
+                                        else if (responseData[i + 5] == 0x0D){
+                                            strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Failure";
+                                            throw new IOException("Application Association Establishment Failed"
+                                                    + strResultSourceDiagnostics);
+                                        }
+                                        else if (responseData[i + 5] == 0x0E) {
+                                            strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Required";
+                                        } else {
+                                            throw new IOException(
+                                                    "Application Association Establishment failed, ACSE_SERVICE_USER, unknown result!");
+                                        }
+                                    } else {
+                                        throw new IOException(
+                                                "Application Association Establishment Failed, result_source_diagnostic, ACSE_SERVICE_USER,  wrong tag");
+                                    }
+                                } // if (responseData[i+1] == ACSE_SERVICE_USER)
+                                else if (responseData[i + 1] == DLMSCOSEMGlobals.ACSE_SERVICE_PROVIDER) {
+                                    if ((responseData[i + 2] == 3)
+                                            && (responseData[i + 3] == 2)
+                                            && (responseData[i + 4] == 1)) {
+                                        if (responseData[i + 5] == 0x00) {
+                                            strResultSourceDiagnostics += ", ACSE_SERVICE_PROVIDER!";
+                                        } else if (responseData[i + 5] == 0x01) {
+                                            strResultSourceDiagnostics += ", ACSE_SERVICE_PROVIDER, No Reason Given!";
+                                        } else if (responseData[i + 5] == 0x02) {
+                                            strResultSourceDiagnostics += ", ACSE_SERVICE_PROVIDER, No Common ACSE Version!";
+                                        } else {
+                                            throw new IOException(
+                                                    "Application Association Establishment Failed, ACSE_SERVICE_PROVIDER, unknown result");
+                                        }
+                                    } else {
+                                        throw new IOException(
+                                                "Application Association Establishment Failed, result_source_diagnostic, ACSE_SERVICE_PROVIDER,  wrong tag");
+                                    }
+                                } // else if (responseData[i+1] ==
+                                    // ACSE_SERVICE_PROVIDER)
+                                else {
+                                    throw new IOException(
+                                            "Application Association Establishment Failed, result_source_diagnostic,  wrong tag");
+                                }
+                            } else {
+                                throw new IOException(
+                                        "Application Association Establishment Failed, result_source_diagnostic, wrong length");
+                            }
 
-						i += responseData[i]; // skip length + data
-					} // else if (responseData[i] == AARE_RESULT_SOURCE_DIAGNOSTIC)
+                            i += responseData[i]; // skip length + data
+                        } // else if (responseData[i] == AARE_RESULT_SOURCE_DIAGNOSTIC)
 
-					else if (responseData[i] == DLMSCOSEMGlobals.AARE_MECHANISM_NAME){
-						i++; //skip tag
-						if(responseData[i + 7] != this.mechanismId){
-							throw new IOException("Application Association Establishment Failed, mechanim_id("+ responseData[i+7] +"),  different then proposed(" + this.mechanismId + ")");
-						}
-						i += responseData[i]; // skip length + data
-					}
+                        else if (responseData[i] == DLMSCOSEMGlobals.AARE_MECHANISM_NAME){
+                            i++; //skip tag
+                            if(responseData[i + 7] != this.mechanismId){
+                                throw new IOException("Application Association Establishment Failed, mechanim_id("+ responseData[i+7] +"),  different then proposed(" + this.mechanismId + ")");
+                            }
+                            i += responseData[i]; // skip length + data
+                        }
 
-					else if (responseData[i] == DLMSCOSEMGlobals.AARE_RESPONDING_AUTHENTICATION_VALUE){
-						i++; //skip tag
+                        else if (responseData[i] == DLMSCOSEMGlobals.AARE_RESPONDING_AUTHENTICATION_VALUE){
+                            i++; //skip tag
 
-						if(responseData[i + 1] == (byte)0x80){ // encoding choice for GraphicString
-							setRespondingAuthenticationValue(ProtocolUtils.getSubArray2(responseData, i+3, responseData[i+2]));
-						}
+                            if(responseData[i + 1] == (byte)0x80){ // encoding choice for GraphicString
+                                setRespondingAuthenticationValue(ProtocolUtils.getSubArray2(responseData, i+3, responseData[i+2]));
+                            }
 
-						i += responseData[i]; // skip length + data
-					}
+                            i += responseData[i]; // skip length + data
+                        }
 
-					else if (responseData[i] == DLMSCOSEMGlobals.AARE_USER_INFORMATION) {
-						i++; // skip tag
+                        else if (responseData[i] == DLMSCOSEMGlobals.AARE_USER_INFORMATION) {
+                            i++; // skip tag
 
-						if (responseData[i + 2] > 0) { // length of octet string
+                            if (responseData[i + 2] > 0) { // length of octet string
 
-							/*
-							 * Check if the userinformation field is encrypted,
-							 * and if so, replace the encrypted part with the
-							 * plain text for further parsing
-							 */
-							if (DLMSCOSEMGlobals.AARE_GLOBAL_INITIATE_RESPONSE_TAG == responseData[i + 3]) {
-								byte[] encryptedUserInformation = new byte[responseData.length - (i + 4)];
-								System.arraycopy(responseData, i + 4, encryptedUserInformation, 0, encryptedUserInformation.length);
-								byte[] ui = decryptUserInformation(encryptedUserInformation);
-								System.arraycopy(ui, 0, responseData, i+3, ui.length);
-								responseData = ProtocolUtils.getSubArray(responseData, 0, i + 2 + ui.length);
-							}
+                                /*
+                                 * Check if the userinformation field is encrypted,
+                                 * and if so, replace the encrypted part with the
+                                 * plain text for further parsing
+                                 */
+                                if (DLMSCOSEMGlobals.AARE_GLOBAL_INITIATE_RESPONSE_TAG == responseData[i + 3]) {
+                                    byte[] encryptedUserInformation = new byte[responseData.length - (i + 4)];
+                                    System.arraycopy(responseData, i + 4, encryptedUserInformation, 0, encryptedUserInformation.length);
+                                    byte[] ui = decryptUserInformation(encryptedUserInformation);
+                                    System.arraycopy(ui, 0, responseData, i+3, ui.length);
+                                    responseData = ProtocolUtils.getSubArray(responseData, 0, i + 2 + ui.length);
+                                }
 
-							if (DLMSCOSEMGlobals.DLMS_PDU_INITIATE_RESPONSE == responseData[i + 3]) {
-								getXdlmsAse().setNegotiatedQOS(responseData[i + 4]);
-								getXdlmsAse().setNegotiatedDlmsVersion(responseData[i + 5]);
-								getXdlmsAse().setNegotiatedConformance((ProtocolUtils.getInt(responseData, i + 8) & 0x00FFFFFF)); // conformance has only 3 bytes, 24 bit
-								getXdlmsAse().setMaxRecPDUServerSize(ProtocolUtils.getShort(responseData, i + 12));
-								getXdlmsAse().setVAAName(ProtocolUtils.getShort(responseData, i + 14));
-								return;
+                                if (DLMSCOSEMGlobals.DLMS_PDU_INITIATE_RESPONSE == responseData[i + 3]) {
+                                    getXdlmsAse().setNegotiatedQOS(responseData[i + 4]);
+                                    getXdlmsAse().setNegotiatedDlmsVersion(responseData[i + 5]);
+                                    getXdlmsAse().setNegotiatedConformance((ProtocolUtils.getInt(responseData, i + 8) & 0x00FFFFFF)); // conformance has only 3 bytes, 24 bit
+                                    getXdlmsAse().setMaxRecPDUServerSize(ProtocolUtils.getShort(responseData, i + 12));
+                                    getXdlmsAse().setVAAName(ProtocolUtils.getShort(responseData, i + 14));
+                                    return;
 
-							} else if (DLMSCOSEMGlobals.DLMS_PDU_CONFIRMED_SERVICE_ERROR == responseData[i + 3]) {
-								if (0x01 == responseData[i + 4]) {
-									strResultSourceDiagnostics += ", InitiateError";
-								} else if (0x02 == responseData[i + 4]) {
-									strResultSourceDiagnostics += ", getStatus";
-								} else if (0x03 == responseData[i + 4]) {
-									strResultSourceDiagnostics += ", getNameList";
-								} else if (0x13 == responseData[i + 4]) {
-									strResultSourceDiagnostics += ", terminateUpload";
-								} else {
-									throw new IOException(
-											"Application Association Establishment Failed, AARE_USER_INFORMATION, unknown ConfirmedServiceError choice");
-								}
+                                } else if (DLMSCOSEMGlobals.DLMS_PDU_CONFIRMED_SERVICE_ERROR == responseData[i + 3]) {
+                                    if (0x01 == responseData[i + 4]) {
+                                        strResultSourceDiagnostics += ", InitiateError";
+                                    } else if (0x02 == responseData[i + 4]) {
+                                        strResultSourceDiagnostics += ", getStatus";
+                                    } else if (0x03 == responseData[i + 4]) {
+                                        strResultSourceDiagnostics += ", getNameList";
+                                    } else if (0x13 == responseData[i + 4]) {
+                                        strResultSourceDiagnostics += ", terminateUpload";
+                                    } else {
+                                        throw new IOException(
+                                                "Application Association Establishment Failed, AARE_USER_INFORMATION, unknown ConfirmedServiceError choice");
+                                    }
 
-								if (0x06 != responseData[i + 5]) {
-									strResultSourceDiagnostics += ", No ServiceError tag";
-								}
+                                    if (0x06 != responseData[i + 5]) {
+                                        strResultSourceDiagnostics += ", No ServiceError tag";
+                                    }
 
-								if (0x00 == responseData[i + 6]) {
-									strResultSourceDiagnostics += "";
-								} else if (0x01 == responseData[i + 6]) {
-									strResultSourceDiagnostics += ", DLMS version too low";
-								} else if (0x02 == responseData[i + 6]) {
-									strResultSourceDiagnostics += ", Incompatible conformance";
-								} else if (0x03 == responseData[i + 6]) {
-									strResultSourceDiagnostics = ", pdu size too short";
-								} else if (0x04 == responseData[i + 6]) {
-									strResultSourceDiagnostics = ", refused by the VDE handler";
-								} else {
-									throw new IOException("Application Association Establishment Failed, AARE_USER_INFORMATION, unknown respons ");
-								}
-							} else {
-								throw new IOException("Application Association Establishment Failed, AARE_USER_INFORMATION, unknown respons!");
-							}
+                                    if (0x00 == responseData[i + 6]) {
+                                        strResultSourceDiagnostics += "";
+                                    } else if (0x01 == responseData[i + 6]) {
+                                        strResultSourceDiagnostics += ", DLMS version too low";
+                                    } else if (0x02 == responseData[i + 6]) {
+                                        strResultSourceDiagnostics += ", Incompatible conformance";
+                                    } else if (0x03 == responseData[i + 6]) {
+                                        strResultSourceDiagnostics += ", pdu size too short";
+                                    } else if (0x04 == responseData[i + 6]) {
+                                        strResultSourceDiagnostics += ", refused by the VDE handler";
+                                    } else {
+                                        throw new IOException("Application Association Establishment Failed, AARE_USER_INFORMATION, unknown respons ");
+                                    }
+                                } else {
+                                    throw new IOException("Application Association Establishment Failed, AARE_USER_INFORMATION, unknown respons!");
+                                }
 
-						} // if (responseData[i+2] > 0) --> length of the octet
-							// string
+                            } // if (responseData[i+2] > 0) --> length of the octet
+                                // string
 
-						i += responseData[i]; // skip length + data
-					} // else if (responseData[i] == AARE_USER_INFORMATION)
-					else {
-						i++; // skip tag
-						// Very tricky, suppose we receive a length > 128
-						// because of corrupted data,
-						// then if we keep byte, it is signed and we can enter a
-						// LOOP because length will
-						// be subtracted from i!!!
-						i += (((int) responseData[i]) & 0x000000FF); // skip
-																		// length
-																		// +
-																		// data
-					}
+                            i += responseData[i]; // skip length + data
+                        } // else if (responseData[i] == AARE_USER_INFORMATION)
+                        else {
+                            i++; // skip tag
+                            // Very tricky, suppose we receive a length > 128
+                            // because of corrupted data,
+                            // then if we keep byte, it is signed and we can enter a
+                            // LOOP because length will
+                            // be subtracted from i!!!
+                            i += (((int) responseData[i]) & 0x000000FF); // skip
+                                                                            // length
+                                                                            // +
+                                                                            // data
+                        }
 
-					if (i++ >= (responseData.length - 1)) {
-						i = (responseData.length - 1);
-						break;
-					}
-				} // while(true)
+                        if (i++ >= (responseData.length - 1)) {
+                            i = (responseData.length - 1);
+                            break;
+                        }
+                    } // while(true)
 
-			} // if (responseData[i] == AARE_TAG)
+                } // if (responseData[i] == AARE_TAG)
 
-			if (i++ >= (responseData.length - 1)) {
-				i = (responseData.length - 1);
-				break;
-			}
-		} // while(true)
-
-		throw new IOException("Application Association Establishment Failed"
-				+ strResultSourceDiagnostics);
-	}
+                if (i++ >= (responseData.length - 1)) {
+                    i = (responseData.length - 1);
+                    break;
+                }
+            } // while(true)
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new UnexpectedEndOfArrayException("Unexpected end of AARE response", e, responseData);
+        }
+        throw new IOException("Application Association Establishment Failed" + strResultSourceDiagnostics);
+    }
 
 	/**
 	 * @param encryptedUserInformation
@@ -454,21 +457,26 @@ public class AssociationControlServiceElement {
 		byte scb = encryptedUserInformation[ptr++];
 		byte[] fc = new byte[4];
 		byte[] at = new byte[12];
-		for (int j = 0; j < fc.length; j++) {
-			fc[j] = encryptedUserInformation[ptr++];
-		}
+        byte[] ct = new byte[0];
+        try {
+            for (int j = 0; j < fc.length; j++) {
+                fc[j] = encryptedUserInformation[ptr++];
+            }
 
-		int ctLen = length - fc.length - at.length - 1;
-		byte[] ct = new byte[ctLen];
-		for (int j = 0; j < ct.length; j++) {
-			ct[j] = encryptedUserInformation[ptr++];
-		}
+            int ctLen = length - fc.length - at.length - 1;
+            ct = new byte[ctLen];
+            for (int j = 0; j < ct.length; j++) {
+                ct[j] = encryptedUserInformation[ptr++];
+            }
 
-		for (int j = 0; j < at.length; j++) {
-			at[j] = encryptedUserInformation[ptr++];
-		}
+            for (int j = 0; j < at.length; j++) {
+                at[j] = encryptedUserInformation[ptr++];
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new UnexpectedEndOfArrayException("Unexpected end of encryptedUserInformation", e, encryptedUserInformation);
+        }
 
-		XDlmsDecryption decryption = new XDlmsDecryption();
+        XDlmsDecryption decryption = new XDlmsDecryption();
 		decryption.setAuthenticationKey(getSecurityContext().getSecurityProvider().getAuthenticationKey());
 		decryption.setGlobalKey(getSecurityContext().getSecurityProvider().getGlobalKey());
 		decryption.setAuthenticationTag(at);
@@ -514,47 +522,53 @@ public class AssociationControlServiceElement {
 		return ProtocolUtils.getSubArray(rlrq, 0, t - 1);
 	}
 
-	protected void analyzeRLRE(byte[] responseData) throws IOException {
-		int i;
-
-		i = 0;
-		while (true) {
-			if (responseData[i] == DLMSCOSEMGlobals.RLRE_TAG) {
-                if(responseData[i + 1] != 0){
-                    i += 2; // skip tag & length
-                    while(true){
-                        if(responseData[i] == DLMSCOSEMGlobals.RLRE_RELEASE_RESPONSE_REASON){
-                            i++; // skip tag
-                            if ((responseData[i] == 3)	// length of the response
-                                    && (responseData[i + 1] == 2) // encoding of INTEGER?
-                                    && (responseData[i + 2] == 1)) { // length of the integer
-                                switch(responseData[i + 3]){
-                                    case 0: return; // normal release
-                                    case 1: throw new IOException("Release was not finished.");
-                                    case 30: throw new IOException("Response from the release is userDefined: " + 30);
-                                    default: throw new IOException("Unknown release response");
+    protected void analyzeRLRE(byte[] responseData) throws IOException {
+        int i = 0;
+        try {
+            while (true) {
+                if (responseData[i] == DLMSCOSEMGlobals.RLRE_TAG) {
+                    if (responseData[i + 1] != 0) {
+                        i += 2; // skip tag & length
+                        while (true) {
+                            if (responseData[i] == DLMSCOSEMGlobals.RLRE_RELEASE_RESPONSE_REASON) {
+                                i++; // skip tag
+                                if ((responseData[i] == 3)    // length of the response
+                                        && (responseData[i + 1] == 2) // encoding of INTEGER?
+                                        && (responseData[i + 2] == 1)) { // length of the integer
+                                    switch (responseData[i + 3]) {
+                                        case 0:
+                                            return; // normal release
+                                        case 1:
+                                            throw new IOException("Release was not finished.");
+                                        case 30:
+                                            throw new IOException("Response from the release is userDefined: " + 30);
+                                        default:
+                                            throw new IOException("Unknown release response");
+                                    }
                                 }
                             }
-                        }
 
-                        if (i++ >= (responseData.length - 1)) {
-                            i = (responseData.length - 1);
-                            break;
+                            if (i++ >= (responseData.length - 1)) {
+                                i = (responseData.length - 1);
+                                break;
+                            }
                         }
+                    } else {
+                        break;
                     }
-                } else {
+                }
+
+                if (i++ >= (responseData.length - 1)) {
+                    i = (responseData.length - 1);
                     break;
                 }
-			}
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new UnexpectedEndOfArrayException("Unexpected end of RLRE response", e, responseData);
+        }
+    }
 
-			if (i++ >= (responseData.length - 1)) {
-				i = (responseData.length - 1);
-				break;
-			}
-		}
-	}
-
-	private byte[] getSenderACSERequirements() {
+    private byte[] getSenderACSERequirements() {
 		byte[] senderACSEReq = new byte[4];
 		senderACSEReq[0] = DLMSCOSEMGlobals.AARQ_SENDER_ACSE_REQUIREMENTS;
 		senderACSEReq[1] = (byte) 0x02; // length of the following bitString
