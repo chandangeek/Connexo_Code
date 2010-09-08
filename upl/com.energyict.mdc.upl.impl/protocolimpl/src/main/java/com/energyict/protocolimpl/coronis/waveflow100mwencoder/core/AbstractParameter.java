@@ -6,6 +6,9 @@ import com.energyict.obis.ObisCode;
 
 abstract public class AbstractParameter {
 
+	static final int PARAM_UPDATE_OK=0x00;
+	static final int PARAM_UPDATE_ERROR=0xFF;
+	
 	enum EncoderRadioCommand {
 		
 		READ(0x18),
@@ -95,6 +98,10 @@ abstract public class AbstractParameter {
 	 */
 	private WaveFlow100mW waveFlow100mW;
 	
+	final WaveFlow100mW getWaveFlow100mW() {
+		return waveFlow100mW;
+	}
+
 	AbstractParameter(WaveFlow100mW waveFlow100mW) {
 		this.waveFlow100mW = waveFlow100mW;
 	}
@@ -150,8 +157,21 @@ abstract public class AbstractParameter {
 			else {
 
 				operatingMode = dais.readShort();
+				
+				if (getParameterId()!=null) {
+					int nrOfParameters = Utils.toInt(dais.readByte());
+					if (nrOfParameters != 1) {
+						throw new WaveFlow100mwEncoderException("Writing only 1 parameter at a time allowed, returned ["+nrOfParameters+"] parameters!");
+					}
+	
+					ParameterId pid = ParameterId.fromId(Utils.toInt(dais.readByte()));
+					if (pid != getParameterId()) {
+						throw new WaveFlow100mwEncoderException("Invalid parameter returned expected ["+getParameterId()+"], returned ["+pid+"]");
+					}
+				}
+				
 				int result = Utils.toInt(dais.readByte());
-				if (result != 0) {
+				if (result != PARAM_UPDATE_OK) {
 					throw new WaveFlow100mwEncoderException("Update parameter ["+getParameterId()+"] failed. Result code ["+Utils.toHexString(result)+"]");
 				}
 			}
@@ -173,19 +193,14 @@ abstract public class AbstractParameter {
 		try {	
 			baos = new ByteArrayOutputStream();
 			DataOutputStream daos = new DataOutputStream(baos);
-			daos.writeByte(EncoderRadioCommand.WRITE.commandId);
+			daos.writeByte(EncoderRadioCommand.READ.commandId);
 			if (getParameterId()==null) {
-				daos.writeShort(operatingMode); // update the operating mode
-				daos.writeShort(0xffff); // mask to update the operating mode
 				daos.writeByte(0); // write 0 parameter, only update the operating mode
 			}
 			else {
-				daos.writeShort(0); // don't update the operating mode, value don't care
-				daos.writeShort(0); // don't update the operating mode, mask = 0
 				daos.writeByte(1); // write 1 parameter
 				daos.writeByte(getParameterId().id);
 				daos.writeByte(getParameterId().length);
-				daos.write(prepare());
 			}
 			
 			parseReadResponse(waveFlow100mW.getWaveFlowConnect().sendData(baos.toByteArray()));

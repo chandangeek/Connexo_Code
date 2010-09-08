@@ -8,10 +8,11 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.*;
 
-
 public class WaveFlow100mW extends AbstractProtocol {
 
 	private WaveFlowConnect waveFlowConnect;
+	
+	private ParameterFactory parameterFactory;
 	
 	final public WaveFlowConnect getWaveFlowConnect() {
 		return waveFlowConnect;
@@ -42,9 +43,7 @@ public class WaveFlow100mW extends AbstractProtocol {
 			int protocolCompatible, Encryptor encryptor,
 			HalfDuplexController halfDuplexController) throws IOException {
 		
-		
-		
-		
+		parameterFactory = new ParameterFactory(this);
 		waveFlowConnect = new WaveFlowConnect(inputStream,outputStream,timeoutProperty,getLogger(),forcedDelay);
 		return waveFlowConnect;
 	}
@@ -81,8 +80,41 @@ public class WaveFlow100mW extends AbstractProtocol {
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         //System.out.println(ProtocolUtils.outputHexString(waveFlowConnect.sendData(new byte[]{0x0b})));
         //System.out.println(new String(waveFlowConnect.sendData(new byte[]{0x0b})));
-    	System.out.println(ProtocolUtils.outputHexString(waveFlowConnect.sendData(new byte[]{0x07,0x01,0x00,0x01,0x00,0x00})));
+    	//System.out.println(ProtocolUtils.outputHexString(waveFlowConnect.sendData(new byte[]{0x07,0x01,0x00,0x01,0x00,0x00})));
         //System.out.println(new String(waveFlowConnect.sendData(new byte[]{0x07,0x01,0x00,0x01,0x00,0x00})));
+    	
+//    	System.out.println("write application status with 0x55");
+//    	parameterFactory.writeApplicationStatus(0x55);
+//    	System.out.println("write operating mode with 0x0001");
+//    	parameterFactory.writeOperatingMode(0x1);
+//    	
+//    	System.out.println("read applicationstatus : "+Utils.toHexString(parameterFactory.readApplicationStatus()));
+//    	System.out.println("read operating mode : "+Utils.toHexString(parameterFactory.readOperatingMode()));
+//    	
+//    	System.out.println("write application status with 0x0");
+//    	parameterFactory.writeApplicationStatus(0x0);
+//    	System.out.println("write operating mode with 0x0005");
+//    	parameterFactory.writeOperatingMode(0x5);
+//    	
+//    	System.out.println("read applicationstatus : "+Utils.toHexString(parameterFactory.readApplicationStatus()));
+//    	System.out.println("read operating mode : "+Utils.toHexString(parameterFactory.readOperatingMode()));
+    	
+//    	System.out.println("timedate: "+parameterFactory.readTimeDateRTC());
+//    	Calendar calendar = Calendar.getInstance(getTimeZone());
+//    	calendar.add(Calendar.HOUR,1);
+//    	parameterFactory.writeTimeDateRTC(calendar.getTime());
+//    	
+//    	System.out.println("timedate: "+parameterFactory.readTimeDateRTC());
+//    	parameterFactory.writeTimeDateRTC(new Date());
+//    	System.out.println("timedate: "+parameterFactory.readTimeDateRTC());
+
+    	
+//    	System.out.println("read sampling period: "+parameterFactory.readSamplingPeriod()+" seconds");
+//    	System.out.println("read measurementPeriod: "+parameterFactory.readMeasurementPeriod());
+//    	System.out.println("profileinterval = "+parameterFactory.getProfileIntervalInSeconds());
+    	
+    	System.out.println("read nr of logged records: "+parameterFactory.readNrOfLoggedRecords());
+    	
     	return null;
     }	 
 
