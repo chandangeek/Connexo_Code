@@ -594,10 +594,13 @@ public abstract class GenericMessaging implements Messaging {
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 		MessageValueSpec msgVal = new MessageValueSpec();
 		msgVal.setValue(" ");
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
+        MessageAttributeSpec activationDateAttrSpec = new MessageAttributeSpec(
 				RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE, false);
+        MessageAttributeSpec outputIdAttrSpec = new MessageAttributeSpec(
+                RtuMessageConstant.DISCONNECTOR_OUTPUT_ID, false);
 		tagSpec.add(msgVal);
-		tagSpec.add(msgAttrSpec);
+		tagSpec.add(activationDateAttrSpec);
+        tagSpec.add(outputIdAttrSpec);
 		msgSpec.add(tagSpec);
 		return msgSpec;
 	}
@@ -615,10 +618,13 @@ public abstract class GenericMessaging implements Messaging {
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 		MessageValueSpec msgVal = new MessageValueSpec();
 		msgVal.setValue(" ");
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
+        MessageAttributeSpec connectModeAttrSpec = new MessageAttributeSpec(
 				RtuMessageConstant.CONNECT_MODE, true);
+        MessageAttributeSpec outputIdAttrSpec = new MessageAttributeSpec(
+                RtuMessageConstant.DISCONNECTOR_OUTPUT_ID, false);
 		tagSpec.add(msgVal);
-		tagSpec.add(msgAttrSpec);
+        tagSpec.add(connectModeAttrSpec);
+        tagSpec.add(outputIdAttrSpec);
 		msgSpec.add(tagSpec);
 		return msgSpec;
 	}

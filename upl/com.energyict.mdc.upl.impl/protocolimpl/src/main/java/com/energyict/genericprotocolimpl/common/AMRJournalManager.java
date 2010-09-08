@@ -10,15 +10,11 @@
 
 package com.energyict.genericprotocolimpl.common;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-
 import com.energyict.cbo.BusinessException;
-import com.energyict.mdw.core.AmrJournalEntry;
-import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.*;
+
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  *
@@ -108,4 +104,11 @@ public class AMRJournalManager {
         this.completionErrorString = completionErrorString;
     }
     
+    public CommunicationScheduler getCommunicationScheduler() {
+        return communicationScheduler;
+    }
+
+    public Rtu getDevice() {
+        return device;
+    }
 }

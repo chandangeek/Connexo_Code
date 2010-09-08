@@ -109,4 +109,5 @@ public interface Z3MeterToolProtocol {
 	 * meter.
 	 */
 	CosemObjectFactory getCosemObjectFactory();
+
 }

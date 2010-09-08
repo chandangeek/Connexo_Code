@@ -31,6 +31,8 @@ import java.util.logging.Logger;
 public class EMeterMessageExecutor extends GenericMessageExecutor {
 
     public static final ObisCode DISCONNECTOR_OBIS = ObisCode.fromString("0.0.96.3.10.255");
+    public static final ObisCode DISCONNECTOR_SCRIPT_TABLE_OBIS = ObisCode.fromString("0.0.10.0.106.255");
+    public static final ObisCode DISCONNECTOR_CTR_SCHEDULE_OBIS = ObisCode.fromString("0.0.15.0.1.255");
 
     private EMeter eMeter;
 
@@ -57,15 +59,13 @@ public class EMeterMessageExecutor extends GenericMessageExecutor {
 
                 log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Connect");
 
-                if (!messageHandler.getConnectDate().equals("")) {    // use the disconnectControlScheduler
+                if (!messageHandler.getConnectDate().equals("") && !messageHandler.getConnectDate().equals("0") ) {    // use the disconnectControlScheduler
 
                     Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getConnectDate());
-                    SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getDisconnectControlSchedule().getObisCode());
+                    SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getCorrectedObisCode(DISCONNECTOR_CTR_SCHEDULE_OBIS));
 
-                    ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getDisconnectorScriptTable().getObisCode());
-                    byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn();
                     Structure scriptStruct = new Structure();
-                    scriptStruct.addDataType(new OctetString(scriptLogicalName));
+                    scriptStruct.addDataType(new OctetString(getCorrectedObisCode(DISCONNECTOR_SCRIPT_TABLE_OBIS).getLN()));
                     scriptStruct.addDataType(new Unsigned16(2));     // method '2' is the 'remote_connect' method
 
                     sasConnect.writeExecutedScript(scriptStruct);
@@ -81,15 +81,13 @@ public class EMeterMessageExecutor extends GenericMessageExecutor {
 
                 log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Disconnect");
 
-                if (!messageHandler.getDisconnectDate().equals("")) { // use the disconnectControlScheduler
+                if (!messageHandler.getDisconnectDate().equals("") && !messageHandler.getDisconnectDate().equals("0")) { // use the disconnectControlScheduler
 
                     Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getDisconnectDate());
-                    SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getDisconnectControlSchedule().getObisCode());
+                    SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getCorrectedObisCode(DISCONNECTOR_CTR_SCHEDULE_OBIS));
 
-                    ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getDisconnectorScriptTable().getObisCode());
-                    byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn();
                     Structure scriptStruct = new Structure();
-                    scriptStruct.addDataType(new OctetString(scriptLogicalName));
+                    scriptStruct.addDataType(new OctetString(getCorrectedObisCode(DISCONNECTOR_SCRIPT_TABLE_OBIS).getLN()));
                     scriptStruct.addDataType(new Unsigned16(1));    // method '1' is the 'remote_disconnect' method
 
                     sasDisconnect.writeExecutedScript(scriptStruct);

@@ -5,9 +5,7 @@ package com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.EncryptionStatus;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.obis.ObisCode;
@@ -35,7 +33,7 @@ public class MbusObisCodeMapper {
 		RegisterValue rv = null;
 		
     	//Mbus related ObisRegisters
-    	if ((obisCode.getA() == 0) && ((obisCode.getB() >= 1) && (obisCode.getB() <= 4)) && (obisCode.getC() == 24) ){
+    	if ((obisCode.getA() == 0) && (obisCode.getC() == 24) ){
     		if((obisCode.getD() == 2) && ((obisCode.getE() >= 1) && (obisCode.getE() <= 4))){
     			ExtendedRegister register = cof.getExtendedRegister(obisCode);
     			return new RegisterValue(obisCode, ParseUtils.registerToQuantity(register));
@@ -66,11 +64,10 @@ public class MbusObisCodeMapper {
     			}
     		} else if (obisCode.getD() == 50){ // MBus encryption status
     			Data encryptionState = cof.getData(obisCode);
-    			rv = new RegisterValue(obisCode,
-	        			new Quantity(BigDecimal.valueOf(encryptionState.getValue()), Unit.getUndefined()),
-	        			null, null, null, new Date(), 0,
-	        			EncryptionStatus.forValue((int) encryptionState.getValue()).getLabelKey());
-    			return rv;
+                long encryptionValue = encryptionState.getValue();
+                Quantity quantity = new Quantity(BigDecimal.valueOf(encryptionValue), Unit.getUndefined());
+                String text = EncryptionStatus.forValue((int) encryptionValue).getLabelKey();
+                return new RegisterValue(obisCode, quantity, null, null, null, new Date(), 0, text);
     		}
     		throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
     	} else if(7 == obisCode.getA()){    // Some OMS related ObisCode
@@ -93,4 +90,8 @@ public class MbusObisCodeMapper {
 	private ObisCode adjustToDisconnectOC(ObisCode oc) {
 		return new ObisCode(oc.getA(), oc.getB(), oc.getC(), oc.getD(), 0, oc.getF());
 	}
+
+    public CosemObjectFactory getCof() {
+        return cof;
+}
 }

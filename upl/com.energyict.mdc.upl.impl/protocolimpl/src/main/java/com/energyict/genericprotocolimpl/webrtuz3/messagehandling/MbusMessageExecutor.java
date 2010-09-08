@@ -59,15 +59,13 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 				
 				getLogger().log(Level.INFO, "Handling MbusMessage " + rtuMessage.displayString() + ": Connect");
 
-				if(!messageHandler.getConnectDate().equals("")){	// use the disconnectControlScheduler
+				if(!messageHandler.getConnectDate().equals("") && !messageHandler.getConnectDate().equals("0")){	// use the disconnectControlScheduler
 					
 					Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getConnectDate());
 					SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getCorrectedObisCode(MBUS_DISCONNECT_CONTROL_SCHEDULE_OBIS));
 					
-					ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getCorrectedObisCode(MBUS_DISCONNECT_SCRIPT_TABLE_OBIS));
-					byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn(); 
 					Structure scriptStruct = new Structure();
-					scriptStruct.addDataType(new OctetString(scriptLogicalName));
+                    scriptStruct.addDataType(new OctetString(getCorrectedObisCode(MBUS_DISCONNECT_SCRIPT_TABLE_OBIS).getLN()));
 					scriptStruct.addDataType(new Unsigned16(2)); 	// method '2' is the 'remote_connect' method
 					
 					sasConnect.writeExecutedScript(scriptStruct);
@@ -84,15 +82,13 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 				
 				getLogger().log(Level.INFO, "Handling MbusMessage " + rtuMessage.displayString() + ": Disconnect");
 				
-				if(!messageHandler.getDisconnectDate().equals("")){	// use the disconnectControlScheduler
+				if(!messageHandler.getDisconnectDate().equals("") && !messageHandler.getDisconnectDate().equals("0")){	// use the disconnectControlScheduler
 					
 					Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getDisconnectDate());
 					SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getCorrectedObisCode(MBUS_DISCONNECT_CONTROL_SCHEDULE_OBIS));
 					
-					ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getCorrectedObisCode(MBUS_DISCONNECT_SCRIPT_TABLE_OBIS));
-					byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn(); 
 					Structure scriptStruct = new Structure();
-					scriptStruct.addDataType(new OctetString(scriptLogicalName));
+					scriptStruct.addDataType(new OctetString(getCorrectedObisCode(MBUS_DISCONNECT_SCRIPT_TABLE_OBIS).getLN()));
 					scriptStruct.addDataType(new Unsigned16(1));	// method '1' is the 'remote_disconnect' method
 					
 					sasDisconnect.writeExecutedScript(scriptStruct);
@@ -162,7 +158,7 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 				
 				// Old implementation
 //				getLogger().log(Level.INFO, "Handling MbusMessage " + rtuMessage.displayString() + ": Set loadprofile correction switch");
-//				String corrSwitchOc =  "0."+(getPhysicalAddress()+1)+".24.8.0.255";
+//				String corrSwitchOc =  "0."+getPhysicalAddress()+".24.8.0.255";
 //				Data corrSwitch = getCosemObjectFactory().getData(ObisCode.fromString(corrSwitchOc));
 //				BooleanObject bo = new BooleanObject(messageHandler.useCorrected());
 //				corrSwitch.setValueAttr(bo);

@@ -12,6 +12,11 @@ import java.util.Map;
 public enum EncryptionStatus {
 
 	/**
+     * An unkown encryption state
+     */
+    UNKNOWN_ENCRYPTION(-1, "Unknown encryption state"),
+
+	/**
 	 * No encryption
 	 */
 	NO_ENCRYPTION(0, "No encryption is applied"),
@@ -34,9 +39,10 @@ public enum EncryptionStatus {
 	/**
 	 * AES encryption is applied
 	 */
-	AES_ENCRYPTION(4, "AES encryption is applied on P2");
+	AES_ENCRYPTION(4, "AES encryption is applied on P2"),
 	
-	
+    AES_ENCRYPTION_NO_TIMESTAMP(5, "AES encryption is applied on P2, no timestamp used");
+
 	
 	
 	private String labelKey;
@@ -50,7 +56,8 @@ public enum EncryptionStatus {
 	 * @return the matching EncryptionStatus instance or null if none matched
 	 */
 	public static EncryptionStatus forValue(int value){
-		return getInstances().get(value);
+		EncryptionStatus status = getInstances().get(value);
+        return status != null ? status : UNKNOWN_ENCRYPTION;
 	}
 	
 	private static Map<Integer, EncryptionStatus> getInstances() {

@@ -1,21 +1,15 @@
 package com.energyict.genericprotocolimpl.common;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Iterator;
-import java.util.List;
-
 import com.energyict.cbo.BusinessException;
-import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.amr.RtuRegister;
-import com.energyict.mdw.amr.RtuRegisterGroup;
-import com.energyict.mdw.core.Folder;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.MeteringWarehouseFactory;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.core.RtuType;
+import com.energyict.mdw.amr.*;
+import com.energyict.mdw.core.*;
+import com.energyict.mdw.shadow.CommunicationSchedulerShadow;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.protocol.InvalidPropertyException;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  * Commonly used methods for a {@link GenericProtocol}
@@ -75,6 +69,11 @@ public final class CommonUtils {
 	
 	/**
 	 * Create a new Rtu an place it in the given folder
+     *
+     * After creation we iterate over all the CommunicationSchedulers
+     * of the device and set the next reading date to now, when the
+     * auto reschedule is enabled and the next reading date is NULL.
+     *
 	 * @param rtuType - the {@link RtuType} for the new Rtu
 	 * @param serialNumber - the serialNumber for the new Rtu
 	 * @param folderExtNameProperty - the folder to place the new Rtu
@@ -94,11 +93,18 @@ public final class CommonUtils {
     		} // else the new rtu will be placed in the prototype folder
         }// else the new rtu will be placed in the prototype folder
         
-		return mw().getRtuFactory().create(shadow);
+        Rtu rtu = mw().getRtuFactory().create(shadow);
+        setNextCommunications(rtu);
+        return rtu;
 	}
 	
 	/**
-	 * Create a new Rtu an place it in the given folder
+	 * Create a new Rtu an place it in the given folder.
+     *
+     * After creation we iterate over all the CommunicationSchedulers
+     * of the device and set the next reading date to now, when the
+     * auto reschedule is enabled and the next reading date is NULL.
+     *
 	 * @param rtuType - the {@link RtuType} for the new Rtu
 	 * @param deviceId - the deviceId for the new Rtu
 	 * @param folderExtNameProperty - the folder to place the new Rtu
@@ -118,9 +124,31 @@ public final class CommonUtils {
     		} // else the new rtu will be placed in the prototype folder
         }// else the new rtu will be placed in the prototype folder
         
-		return mw().getRtuFactory().create(shadow);
+        Rtu rtu = mw().getRtuFactory().create(shadow);
+        setNextCommunications(rtu);
+        return rtu;
 	}
 	
+	/**
+     * Iterate over all the CommunicationSchedulers of the slave device and
+     * set the next reading date to now, when the auto reschedule is enabled
+     * and the next reading date is NULL.
+     *
+     * @param slaveDevice
+     * @throws SQLException
+     * @throws BusinessException
+     */
+    private static void setNextCommunications(Rtu slaveDevice) throws SQLException, BusinessException {
+        List<CommunicationScheduler> schedulers = slaveDevice.getCommunicationSchedulers();
+        for (CommunicationScheduler scheduler : schedulers) {
+            if (scheduler.getActive() && (scheduler.getNextCommunication() == null)) {
+                CommunicationSchedulerShadow shadow = scheduler.getShadow();
+                shadow.setNextCommunication(new Date());
+                scheduler.update(shadow);
+            }
+        }
+    }
+
 	/**
 	 * Find the RtuType for the given RtuTypeName
 	 * @param rtuTypeProperty - the name of the RtuType

@@ -24,7 +24,7 @@ public class RtuMessageKeyIdConstants {
 	public static final String CREATEDATABASEENTRIES = "Create entries in the meters database";
 	public static final String GPRSMODEMSETUP = "Change GPRS modem setup parameters";
 	public static final String TESTMESSAGE = "Test Message";
-	public static final String GLOBALRESET = "Global Reset";
+	public static final String GLOBALRESET = "Global Meter Reset";
 	public static final String SETWHITELIST = "Set phonenumbers to whitelist";
 	public static final String CHANGEHLSSECRET = "Change the HLS secret";
 	public static final String CHANGELLSSECRET = "Change the LLS secret";

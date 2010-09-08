@@ -4,6 +4,8 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 
 import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -513,4 +515,35 @@ public final class ProtocolTools {
         return clippedIntervalDatas;
     }
 
+    /**
+     * Get the epoch time as string (seconds after January 1, 1970, 00:00:00 GMT)
+     * The given epochtime should be one of the following formats (Time in UTC):
+     * <pre>
+     * dd/MM/yyyy HH:mm:ss
+     * dd\MM\yyyy HH:mm:ss
+     * dd-MM-yyyy HH:mm:ss
+     * yyyy/MM/dd HH:mm:ss
+     * yyyy\MM\dd HH:mm:ss
+     * yyyy-MM-dd HH:mm:ss
+     * dd/MM/yyyy HH:mm
+     * dd\MM\yyyy HH:mm
+     * dd-MM-yyyy HH:mm
+     * yyyy/MM/dd HH:mm
+     * yyyy\MM\dd HH:mm
+     * yyyy-MM-dd HH:mm
+     * </pre>
+     * @param epochTime
+     * @return
+     */
+    public static String getEpochTimeFromString(String epochTime) {
+        if ((epochTime != null) && (epochTime.contains(":"))) {
+            epochTime = epochTime.replace("\\", "/").replace("-", "/");
+            String pattern = (epochTime.indexOf("/") == 2) ? "dd/MM/yyyy " : "yyyy/MM/dd ";
+            pattern += (epochTime.split(":").length == 2) ? "HH:mm Z" : "HH:mm:ss Z";
+            try {
+                return String.valueOf(new SimpleDateFormat(pattern).parse(epochTime + " UTC").getTime() / 1000);
+            } catch (ParseException e) {}
+        }
+        return epochTime;
+    }
 }

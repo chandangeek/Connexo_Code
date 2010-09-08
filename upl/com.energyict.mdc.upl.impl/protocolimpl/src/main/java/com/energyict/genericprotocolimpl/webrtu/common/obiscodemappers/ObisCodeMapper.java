@@ -31,6 +31,10 @@ public class ObisCodeMapper {
 		cof = cosemObjectFactory;
 	}
 
+    public CosemObjectFactory getCosemObjectFactory() {
+        return cof;
+    }
+
 	public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
 		RegisterValue rv = null;
 		int billingPoint = -1;

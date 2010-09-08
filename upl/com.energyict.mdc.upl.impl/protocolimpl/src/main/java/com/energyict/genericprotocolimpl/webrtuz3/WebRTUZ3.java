@@ -4,30 +4,18 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.*;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.aso.*;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.IPv4Setup;
-import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.genericprotocolimpl.common.CommonUtils;
-import com.energyict.genericprotocolimpl.common.DLMSProtocol;
-import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
-import com.energyict.genericprotocolimpl.common.StoreObject;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageCategoryConstants;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
+import com.energyict.dlms.cosem.*;
+import com.energyict.genericprotocolimpl.common.*;
+import com.energyict.genericprotocolimpl.common.messages.*;
 import com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers.ObisCodeMapper;
+import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.MessageExecutor;
-import com.energyict.genericprotocolimpl.webrtuz3.profiles.DailyMonthly;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.EDevice;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.EMeterEventProfile;
 import com.energyict.mdw.amr.RtuRegister;
-import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.core.RtuMessage;
-import com.energyict.mdw.core.RtuType;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -42,7 +30,7 @@ import java.util.logging.Level;
 
 /**
  * <p>
- * Implements the WebRTUZ3 protocol. Initially it's a copy of the {@link com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol} protocol,
+ * Implements the WebRTUZ3 protocol. Initially it's a copy of the {@link WebRTUKP} protocol,
  * but with more extensions to it.
  * </p>
  *
@@ -52,7 +40,7 @@ import java.util.logging.Level;
 public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 
     /** Indicates whether specific messages are allowed for the firmwareTeam */
-    private static final boolean FIRMWAREBUILD = true;
+    private static final boolean FIRMWAREBUILD = false;
 
 	/** Property names */
 	private static final String			PROPERTY_PASSWORD				= "Password";
@@ -66,12 +54,15 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 	private static final String			PROPERTY_FOLDER_EXT_NAME		= "FolderExtName";
 	private static final String			PROPERTY_EMETER_RTUTYPE			= "EMeterRtuType";
 	private static final String			PROPERTY_MBUS_RTUTYPE			= "MBusRtuType";
+    private static final String         PROPERTY_RUNTESTMETHOD          = "RunTestMethod";
+
 
 	/** Property default values */
 	private static final String			DEFAULT_READ_DAILY_VALUES		= "1";
 	private static final String			DEFAULT_READ_MONTHLY_VALUES		= "1";
 	private static final String			DEFAULT_REQUEST_TIMEZONE		= "0";
 	private static final String			DEFAULT_PASSWORD				= "";
+    private static final String			DEFAULT_RUNTESTMETHOD			= "0";
 
 	/** Device channel mappings */
 	private static final DeviceMappingRange MBUS_DEVICES					= new DeviceMappingRange(0x01, 0x20);
@@ -122,7 +113,9 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 	private StoreObject storeObject;
 
 	/** The {@link ObisCodeMapper} used */
-	private ObisCodeMapper ocm;
+	private WebRtuZ3ObisCodeMapper ocm;
+
+    private boolean runTestMethod = false;
 
 	@Override
 	protected void doExecute() throws BusinessException, SQLException, IOException {
@@ -133,7 +126,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 			}
 
             try {
-                //testMethod();
+                testMethod();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -143,20 +136,6 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 			if(!getCommunicationScheduler().getCommunicationProfile().getForceClock() && !getCommunicationScheduler().getCommunicationProfile().getAdHoc()){
 				badTime = verifyMaxTimeDifference();
 			}
-
-/*
-// Read the loadProfile
-if (getCommunicationProfile().getReadDemandValues()) {
-
-EMeterProfile ep = new EMeterProfile(this);
-ProfileData eProfileData = ep.getProfile(EMeter.PROFILE_OBISCODE);
-if(badTime){	// if a timedifference exceeds boundary
-eProfileData.markIntervalsAsBadTime();
-}
-storeObject.add(eProfileData, getMeter());
-
-}
-*/
 
 			// Read the events
             if (getCommunicationProfile().getReadMeterEvents()) {
@@ -171,31 +150,33 @@ storeObject.add(eProfileData, getMeter());
 			 * indicate whether you want to read the actual registers or the daily/monthly registers ...
 			 */
 			if (getCommunicationProfile().getReadMeterReadings()) {
-				DailyMonthly dm = new DailyMonthly(this);
 
-//				if (readDaily) {
-//                    ObisCode dailyProfileObisCode = getMeterConfig().getDailyProfileObject().getObisCode();
-//                    if(doesObisCodeExistInObjectList(dailyProfileObisCode)){
-//						ProfileData dailyPd = dm.getDailyValues(dailyProfileObisCode);
-//						if(badTime){
-//							dailyPd.markIntervalsAsBadTime();
-//						}
-//						storeObject.add(dailyPd, getMeter());
-//					} else {
-//						getLogger().log(Level.INFO, "The dailyProfile object doesn't exist in the device.");
-//					}
-//				}
-//				if (readMonthly) {
-//					if(doesObisCodeExistInObjectList(getMeterConfig().getMonthlyProfileObject().getObisCode())){
-//						ProfileData monthlyPd = dm.getMonthlyValues(getMeterConfig().getMonthlyProfileObject().getObisCode());
-//						if(badTime){
-//							monthlyPd.markIntervalsAsBadTime();
-//						}
-//						storeObject.add(monthlyPd, getMeter());
-//					} else {
-//						getLogger().log(Level.INFO, "The monthlyProfile object doesn't exist in the device.");
-//					}
-//				}
+/*
+				DailyMonthly dm = new DailyMonthly(this);
+				if (readDaily) {
+                    ObisCode dailyProfileObisCode = getMeterConfig().getDailyProfileObject().getObisCode();
+                    if(doesObisCodeExistInObjectList(dailyProfileObisCode)){
+						ProfileData dailyPd = dm.getDailyValues(dailyProfileObisCode);
+						if(badTime){
+							dailyPd.markIntervalsAsBadTime();
+						}
+						storeObject.add(dailyPd, getMeter());
+					} else {
+						getLogger().log(Level.INFO, "The dailyProfile object doesn't exist in the device.");
+					}
+				}
+				if (readMonthly) {
+					if(doesObisCodeExistInObjectList(getMeterConfig().getMonthlyProfileObject().getObisCode())){
+						ProfileData monthlyPd = dm.getMonthlyValues(getMeterConfig().getMonthlyProfileObject().getObisCode());
+						if(badTime){
+							monthlyPd.markIntervalsAsBadTime();
+						}
+						storeObject.add(monthlyPd, getMeter());
+					} else {
+						getLogger().log(Level.INFO, "The monthlyProfile object doesn't exist in the device.");
+					}
+				}
+*/
 
 				getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + this.serialNumber);
 				Map<RtuRegister, RegisterValue> registerMap = doReadRegisters();
@@ -246,25 +227,28 @@ storeObject.add(eProfileData, getMeter());
 
 	}
 
+    /**
+     * Testmethod for debigging purposes, used to dump some data like the object list of the device.
+     * This method will only run when the property "RunTestMethod" == "1"
+     *
+     * @throws IOException
+     */
     private void testMethod() throws IOException {
-        String crlfcrlf = "\r\n\r\n";
-        System.out.println(crlfcrlf + "WebRtuZ3 testMethod(): ");
+        if (isRunTestMethod()) {
+            StringBuffer sb = new StringBuffer();
+            sb.append("\r\n\r\n").append("ObjectList = ").append("\r\n");
         try {
             UniversalObject[] objects = getMeterConfig().getInstantiatedObjectList();
             for (int i = 0; i < objects.length; i++) {
                 UniversalObject object = objects[i];
-                if (object.getObisCode().getB() == 0) {
-                    System.out.println(object.getDescription());
+                    sb.append(object.getDescription()).append("\r\n");
                 }
-            }
         } catch (Exception e) {
-            e.printStackTrace();
+                sb.append("\r\n");
+                sb.append("An error occured while reading the objectList: ").append(e.getMessage());
         }
-        System.out.println(crlfcrlf);
-
-        System.out.println(getCosemObjectFactory().getActivityCalendar(ObisCode.fromString("0.0.13.0.0.255")).readCalendarNameActive().stringValue());
-        System.out.println(getCosemObjectFactory().getActivityCalendar(ObisCode.fromString("0.0.13.0.0.255")).readCalendarNamePassive().stringValue());
-
+            getLogger().warning(sb.toString());
+    }
     }
 
 	@Override
@@ -309,7 +293,7 @@ storeObject.add(eProfileData, getMeter());
 		this.mbusDevices = new MbusDevice[MBUS_DEVICES.getNumberOfDevices()];
 		this.eMeters = new EMeter[EMETER_DEVICES.getNumberOfDevices()];
 		this.storeObject = new StoreObject();
-		this.ocm = new ObisCodeMapper(getCosemObjectFactory());
+		this.ocm = new WebRtuZ3ObisCodeMapper(getCosemObjectFactory());
 	}
 
 	/**
@@ -346,7 +330,7 @@ storeObject.add(eProfileData, getMeter());
 	 */
 	private void verifyMeterSerialNumber() throws IOException {
 		String serial = getSerialNumber();
-		if (enforceSerialNumber && !(this.serialNumber.equalsIgnoreCase("")) && (!this.serialNumber.equals(serial))) {
+		if (!(this.serialNumber.equalsIgnoreCase("")) && (!this.serialNumber.equals(serial))) {
 			throw new IOException("Wrong serialnumber, EIServer settings: " + this.serialNumber + " - Meter settings: " + serial);
 		}
 	}
@@ -386,6 +370,7 @@ storeObject.add(eProfileData, getMeter());
 		result.add(LocalSecurityProvider.NEW_GLOBAL_KEY);
 		result.add(LocalSecurityProvider.NEW_AUTHENTICATION_KEY);
 		result.add(LocalSecurityProvider.NEW_HLS_SECRET);
+        result.add(PROPERTY_RUNTESTMETHOD);
 		return result;
 	}
 
@@ -418,6 +403,8 @@ storeObject.add(eProfileData, getMeter());
 		this.mbusRtuType = getProperties().getProperty(PROPERTY_MBUS_RTUTYPE);
 		this.eMeterRtuType = getProperties().getProperty(PROPERTY_EMETER_RTUTYPE);
 		this.folderExtName = getProperties().getProperty(PROPERTY_FOLDER_EXT_NAME);
+        this.runTestMethod = (Integer.parseInt(getProperties().getProperty(PROPERTY_RUNTESTMETHOD, DEFAULT_RUNTESTMETHOD)) == 1) ? true : false;
+
 	}
 
 	/**
@@ -528,11 +515,14 @@ storeObject.add(eProfileData, getMeter());
 	@Override
 	protected RegisterValue readRegister(ObisCode obisCode) throws IOException {
 		if (ocm == null) {
-			ocm = new ObisCodeMapper(getCosemObjectFactory());
+			ocm = new WebRtuZ3ObisCodeMapper(getCosemObjectFactory());
 		}
+        try {
 		return ocm.getRegisterValue(obisCode);
+        } catch (IOException e) {
+            throw e;
 	}
-
+    }
 
     @Override
     public void validateProperties() throws MissingPropertyException, InvalidPropertyException {
@@ -808,26 +798,73 @@ storeObject.add(eProfileData, getMeter());
 	}
 
 	/**
+     * Handles all the EMeters like a separate device
+     */
+    private void handleEmeters() throws BusinessException, SQLException, IOException {
+        for (EMeter eMeter : eMeters) {
+            try {
+                if (eMeter != null) {
+                    List<CommunicationScheduler> commSchedulers = eMeter.geteMeterRtu().getCommunicationSchedulers();
+                    for (CommunicationScheduler commSchedule : commSchedulers) {
+                        try {
+                            handleEmeterSingleSchedule(eMeter, commSchedule);
+                        } catch (BusinessException e) {
+                            logFailure(commSchedule, eMeter.getMeterAmrLogging());
+                            throw e;
+                        } catch (SQLException e) {
+                            logFailure(commSchedule, eMeter.getMeterAmrLogging());
+                            throw e;
+                        } catch (IOException e) {
+                            logFailure(commSchedule, eMeter.getMeterAmrLogging());
+                            throw e;
+                        }
+                    }
+                }
+            } catch (BusinessException e) {
+                log(Level.FINEST, e.getMessage());
+                getLogger().log(Level.SEVERE, "Emeter with serial: " + eMeter.getSerialNumber() + " has failed.");
+            } catch (SQLException e) {
+                /** Close the connection after an SQL exception, connection will startup again if requested */
+                Environment.getDefault().closeConnection();
+                log(Level.FINEST, e.getMessage());
+                getLogger().log(Level.SEVERE, "Emeter with serial: " + eMeter.getSerialNumber() + " has failed.");
+            } catch (IOException e) {
+                log(Level.FINEST, e.getMessage());
+                getLogger().log(Level.SEVERE, "Emeter with serial: " + eMeter.getSerialNumber() + " has failed. [" + e.getMessage() + "]");
+            }
+        }
+    }
+
+    /**
 	 * Handles all the MBus devices like a separate device
 	 */
 	private void handleMbusMeters() {
-		for (int i = 0; i < MBUS_DEVICES.getNumberOfDevices(); i++) {
+        for (MbusDevice mbusDevice : mbusDevices) {
 			try {
-				if (mbusDevices[i] != null) {
-					List<CommunicationScheduler> commSchedulers = mbusDevices[i].getMbus().getCommunicationSchedulers();
+                if (mbusDevice != null) {
+                    List<CommunicationScheduler> commSchedulers = mbusDevice.getMbus().getCommunicationSchedulers();
 					for (CommunicationScheduler commSchedule : commSchedulers) {
-						mbusDevices[i].setWebRtu(this);
-						mbusDevices[i].execute(commSchedule, null, null);
-						getLogger().info("MbusDevice " + mbusDevices[i] + " has finished.");
+                        try {
+                            handleMbusSingleSchedule(mbusDevice, commSchedule);
+                        } catch (SQLException e) {
+                            commSchedule.logFailure(getNow(), e.getMessage());
+                            throw e;
+                        } catch (BusinessException e) {
+                            commSchedule.logFailure(getNow(), e.getMessage());
+                            throw e;
+                        } catch (IOException e) {
+                            commSchedule.logFailure(getNow(), e.getMessage());
+                            throw e;
 					}
 				}
+                }
 			} catch (BusinessException e) {
 
 				/*
 				 * A single MBusMeter failed: log and try next MBusMeter.
 				 */
                 log(Level.FINEST, e.getMessage());
-				getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed.");
+				getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevice.getCustomerID() + " has failed.");
 
 			} catch (SQLException e) {
 
@@ -838,7 +875,7 @@ storeObject.add(eProfileData, getMeter());
 				 * A single MBusMeter failed: log and try next MBusMeter.
 				 */
 				log(Level.FINEST, e.getMessage());
-				getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed.");
+				getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevice.getCustomerID() + " has failed.");
 
 			} catch (IOException e) {
 
@@ -846,7 +883,7 @@ storeObject.add(eProfileData, getMeter());
 				 * A single MBusMeter failed: log and try next MBusMeter.
 				 */
 				log(Level.FINEST, e.getMessage());
-				getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed. [" + e.getMessage() + "]");
+				getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevice.getCustomerID() + " has failed. [" + e.getMessage() + "]");
 
 			}
 		}
@@ -896,51 +933,95 @@ storeObject.add(eProfileData, getMeter());
 		this.ticDevice.execute(getCommunicationScheduler(), null, getLogger());
 	}
 
-	/**
-	 *
-	 */
-	private void handleEmeters() throws BusinessException, SQLException, IOException {
-		for (EMeter eMeter : eMeters) {
-			try {
-				if (eMeter != null) {
-					List<CommunicationScheduler> commSchedulers = eMeter.geteMeterRtu().getCommunicationSchedulers();
-					for (CommunicationScheduler commSchedule : commSchedulers) {
+    private void handleEmeterSingleSchedule(EMeter eMeter, CommunicationScheduler commSchedule) throws BusinessException, SQLException, IOException {
+        String commSchedName = commSchedule.displayString();
+        Date nextCommunicationDate = commSchedule.getNextCommunication();
+
+        if (nextCommunicationDate != null) {
+            if (nextCommunicationDate.getTime() <= getNow().getTime()) {
+                getLogger().fine("Next communication date [" + nextCommunicationDate + "] for [" + commSchedName + "] reached. Executing schedule now.");
+                commSchedule.startCommunication();
+                commSchedule.startReadingNow();
 						eMeter.setWebRtu(this);
 						eMeter.execute(commSchedule, null, null);
+                logSuccess(commSchedule, eMeter.getMeterAmrLogging());
 						getLogger().info("Emeter " + eMeter + " has finished.");
+            } else {
+                getLogger().fine("Next communication date for Communication schedule [" + commSchedName + "] not reached yet. Skipping.");
 					}
+        } else {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Communication schedule [").append(commSchedName).append("] is not active.");
+            sb.append(" Next communication date is 'null'. ");
+            sb.append(" Skipping.");
+            getLogger().fine(sb.toString());
 				}
-			} catch (BusinessException e) {
+    }
 
-				/*
-				 * A single MBusMeter failed: log and try next MBusMeter.
-				 */
-				log(Level.FINEST, e.getMessage());
-				getLogger().log(Level.SEVERE, "Emeter with serial: " + eMeter.getSerialNumber() + " has failed.");
+    private void handleMbusSingleSchedule(MbusDevice mbusDevice, CommunicationScheduler commSchedule) throws SQLException, BusinessException, IOException {
+        String commSchedName = commSchedule.displayString();
+        Date nextCommunicationDate = commSchedule.getNextCommunication();
 
+        if (nextCommunicationDate != null) {
+            if (nextCommunicationDate.getTime() <= getNow().getTime()) {
+                getLogger().fine("Next communication date [" + nextCommunicationDate + "] for [" + commSchedName + "] reached. Executing schedule now.");
+                commSchedule.startCommunication(getCommunicationScheduler().getComPortId());
+                commSchedule.startReadingNow();
+                mbusDevice.setWebRtu(this);
+                mbusDevice.execute(commSchedule, null, null);
+                logSuccess(commSchedule, mbusDevice.getMeterAmrLogging());
+                getLogger().info("MbusDevice " + mbusDevice + " has finished.");
+            } else {
+                getLogger().fine("Next communication date for Communication schedule [" + commSchedName + "] not reached yet. Skipping.");
+            }
+        } else {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Communication schedule [").append(commSchedName).append("] is not active: ");
+            sb.append(" Next communication date is 'null'. ");
+            sb.append(" Skipping.");
+            getLogger().fine(sb.toString());
+        }
+    }
+
+    private void logSuccess(CommunicationScheduler commSchedule, MeterAmrLogging meterAmrLogging) {
+        List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
+        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, "0"));
+        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
+        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + getMeter().toString() + "]"));
+        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
+        journal.add(new AmrJournalEntry(AmrJournalEntry.CC_OK));
+        journal.addAll(meterAmrLogging.getJournalEntries());
+        try {
+            commSchedule.journal(journal);
+            commSchedule.logSuccess(getNow());
 			} catch (SQLException e) {
-
-				/** Close the connection after an SQL exception, connection will startup again if requested */
-				Environment.getDefault().closeConnection();
-
-				/*
-				 * A single MBusMeter failed: log and try next MBusMeter.
-				 */
-				log(Level.FINEST, e.getMessage());
-				getLogger().log(Level.SEVERE, "Emeter with serial: " + eMeter.getSerialNumber() + " has failed.");
-
-			} catch (IOException e) {
-
-				/*
-				 * A single MBusMeter failed: log and try next MBusMeter.
-				 */
-				log(Level.FINEST, e.getMessage());
-				getLogger().log(Level.SEVERE, "Emeter with serial: " + eMeter.getSerialNumber() + " has failed. [" + e.getMessage() + "]");
-
+            e.printStackTrace();
+        } catch (BusinessException e) {
+            e.printStackTrace();
 			}
+    }
 
+    private void logFailure(CommunicationScheduler commSchedule, MeterAmrLogging meterAmrLogging) {
+        List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
+        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, "0"));
+        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
+        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + getMeter().toString() + "]"));
+        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
+        journal.add(new AmrJournalEntry(AmrJournalEntry.CC_PROTOCOLERROR));
+        journal.addAll(meterAmrLogging.getJournalEntries());
+        try {
+            commSchedule.journal(journal);
+            commSchedule.logFailure(getNow(), "");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (BusinessException e) {
+            e.printStackTrace();
 		}
 	}
+
+    private Date getNow() {
+        return new Date();
+    }
 
 	@Override
 	public List getMessageCategories() {
@@ -952,6 +1033,7 @@ storeObject.add(eProfileData, getMeter());
         categories.add(getTimeCategory());
         categories.add(getConnectivityCategory());
         categories.add(getGlobalResetCategory());
+        categories.add(getXmlConfigCategory());
 
 /*
 
@@ -962,10 +1044,8 @@ storeObject.add(eProfileData, getMeter());
 */
         if(FIRMWAREBUILD){
             categories.add(getTestCategory());
-            categories.add(getXmlConfigCategory());
             categories.add(getDataBaseEntriesCategory());
         }
-
 
 		return categories;
 	}
@@ -1017,4 +1097,9 @@ storeObject.add(eProfileData, getMeter());
 	public int getPhysicalAddress() {
 		return 0;
 	}
+
+    public boolean isRunTestMethod() {
+        return runTestMethod;
+}
+
 }

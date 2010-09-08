@@ -451,6 +451,8 @@ public class MessageExecutor extends GenericMessageExecutor{
 				String codeTable = messageHandler.getTOUCodeTable();
 				String userFile = messageHandler.getTOUUserFile();
 				
+                boolean activateNow = (activateDate != null) && (activateDate.equalsIgnoreCase("0"));
+
 				if((codeTable == null) &&(userFile == null)){
 					throw new IOException("CodeTable-ID AND UserFile-ID can not be both empty.");
 				} else if((codeTable != null) &&(userFile != null)){
@@ -478,8 +480,10 @@ public class MessageExecutor extends GenericMessageExecutor{
 							}
 							ac.writeCalendarNamePassive(OctetString.fromString(name));
 						} 
-						if(activateDate != null){
-//							ac.writeActivatePassiveCalendarTime(new OctetString(convertStringToDateTimeOctetString(activateDate).getBEREncodedByteArray(), 0, true));
+
+                        if (activateNow) {
+                            ac.activateNow();
+                        } else if (activateDate != null) {
 							ac.writeActivatePassiveCalendarTime(new OctetString(convertUnixToGMTDateTime(activateDate).getBEREncodedByteArray(), 0));
 						}
 						

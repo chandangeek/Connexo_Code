@@ -11,6 +11,9 @@ public class RtuMessageConstant {
     public static final String DIGITAL_OUTPUT = "Digital_output";
     /** RtuMessage tag to indicate the date of the connect/disconnect */
 	public static final String DISCONNECT_CONTROL_ACTIVATE_DATE = "Activation_date";
+    /** RtuMessage tag to indicate the id of the disconnector object.
+     * Use this field when there is more than 1 disconnect control object*/
+    public static final String DISCONNECTOR_OUTPUT_ID = "Output_ID";
 	/** RtuMessage tag to indicate the connect control mode */
 	public static final String CONNECT_CONTROL_MODE = "Connect_control_mode";
 	public static final String CONNECT_MODE = "Mode";
@@ -137,7 +140,7 @@ public class RtuMessageConstant {
 	public static final String WAKEUP_ACTIVATE = "Activate_the_wakeup_mechanism";
 	public static final String WAKEUP_DEACTIVATE = "Deactive_the_wakeup_mechanism";
     public static final String WAKEUP_NR = "Phonenumber";
-    public static final String WAKEUP_MANAGED_NR = "ManagedPhoneNumber";
+    public static final String WAKEUP_MANAGED_NR = "ManagedPhonenumber";
 	public static final String WAKEUP_NR1 = "Phonenumber1";
 	public static final String WAKEUP_NR2 = "Phonenumber2";
 	public static final String WAKEUP_NR3 = "Phonenumber3";

@@ -1,6 +1,7 @@
 
 package com.energyict.genericprotocolimpl.common.messages;
 
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -141,7 +142,7 @@ public class MessageHandler extends DefaultHandler{
 	
     private void handleFirmWareUpgrade(Attributes attrbs) {
     	this.userfileId = attrbs.getValue(RtuMessageConstant.FIRMWARE);
-    	this.activationDate = attrbs.getValue(RtuMessageConstant.FIRMWARE_ACTIVATE_DATE);
+    	this.activationDate = ProtocolTools.getEpochTimeFromString(attrbs.getValue(RtuMessageConstant.FIRMWARE_ACTIVATE_DATE));
 	}
 	
 	public String getUserFileId(){
@@ -182,23 +183,34 @@ public class MessageHandler extends DefaultHandler{
 	private String connectDate;
 	private String disconnectDate;
 	private String mode;
-	
+    private String outputId;
+
 	private void handleConnectLoad(Attributes attrbs){
-		this.connectDate = attrbs.getValue(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE);
+		this.connectDate = ProtocolTools.getEpochTimeFromString(attrbs.getValue(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE));
+        this.outputId = attrbs.getValue(RtuMessageConstant.DISCONNECTOR_OUTPUT_ID);
 	}
 	
 	private void handleDisconnectLoad(Attributes attrbs){
-		this.disconnectDate = attrbs.getValue(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE);
+		this.disconnectDate = ProtocolTools.getEpochTimeFromString(attrbs.getValue(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE));
+        this.outputId = attrbs.getValue(RtuMessageConstant.DISCONNECTOR_OUTPUT_ID);
 	}
 	
 	private void handleConnectControlMode(Attributes attrbs){
 		this.mode = attrbs.getValue(RtuMessageConstant.CONNECT_MODE);
+        this.outputId = attrbs.getValue(RtuMessageConstant.DISCONNECTOR_OUTPUT_ID);
 	}
 	
 	public String getConnectControlMode(){
 		return this.mode;
 	}
 	
+    public String getOutputId() {
+        if (this.outputId == null) {
+            outputId = "";
+        }
+        return outputId;
+    }
+
 	public String getConnectDate(){
 		if(this.connectDate == null){
 			this.connectDate = "";
@@ -237,7 +249,7 @@ public class MessageHandler extends DefaultHandler{
 	
 	private void handleLoadLimitEmergencyProfile(Attributes attrbs) {
 		this.epProfileId = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_EP_PROFILE_ID);
-		this.epActivationTime = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_EP_ACTIVATION_TIME);
+		this.epActivationTime = ProtocolTools.getEpochTimeFromString(attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_EP_ACTIVATION_TIME));
 		this.epDuration = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_EP_DURATION);
 	}
 	
@@ -280,7 +292,7 @@ public class MessageHandler extends DefaultHandler{
 	private String deleteEntry = "";
 	
 	private void handleTOUMessage(Attributes attrbs){
-		this.touActivationDate = attrbs.getValue(RtuMessageConstant.TOU_ACTIVITY_DATE);
+		this.touActivationDate = ProtocolTools.getEpochTimeFromString(attrbs.getValue(RtuMessageConstant.TOU_ACTIVITY_DATE));
 		this.touCalendarName = attrbs.getValue(RtuMessageConstant.TOU_ACTIVITY_NAME);
 		this.touCodeTable = attrbs.getValue(RtuMessageConstant.TOU_ACTIVITY_CODE_TABLE);
 		this.touUserFile = attrbs.getValue(RtuMessageConstant.TOU_ACTIVITY_USER_FILE);
@@ -343,7 +355,7 @@ public class MessageHandler extends DefaultHandler{
 	private String epochTime = "";
 	
 	private void handleSetTime(Attributes attrbs){
-		this.epochTime = attrbs.getValue(RtuMessageConstant.SET_TIME_VALUE);
+		this.epochTime = ProtocolTools.getEpochTimeFromString(attrbs.getValue(RtuMessageConstant.SET_TIME_VALUE));
 	}
 	
 	public String getEpochTime(){
@@ -359,7 +371,7 @@ public class MessageHandler extends DefaultHandler{
 	private String syncClock = "";
 	
 	private void handleMakingEntries(Attributes attrbs){
-		this.startDate = attrbs.getValue(RtuMessageConstant.ME_START_DATE);
+		this.startDate = ProtocolTools.getEpochTimeFromString(attrbs.getValue(RtuMessageConstant.ME_START_DATE));
 		this.entries = attrbs.getValue(RtuMessageConstant.ME_NUMBER_OF_ENTRIES);
 		this.interval = attrbs.getValue(RtuMessageConstant.ME_INTERVAL);
 		this.syncClock = attrbs.getValue(RtuMessageConstant.ME_SET_CLOCK_BACK);

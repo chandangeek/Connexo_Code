@@ -105,6 +105,7 @@ public class AXDRDateTime extends AbstractDataType {
 
     public AXDRDateTime(byte[] berEncodedData, int offset) throws IOException {
     	int ptr = offset;
+
     	if (berEncodedData[ptr] != DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING){
             throw new IOException("AXDRDateTime, invalid identifier "+berEncodedData[ptr]);
     	}

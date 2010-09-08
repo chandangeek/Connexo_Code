@@ -2,6 +2,7 @@ package com.energyict.genericprotocolimpl.common;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
+import com.energyict.cpo.Transaction;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
@@ -15,16 +16,10 @@ import com.energyict.genericprotocolimpl.common.wakeup.SmsWakeup;
 import com.energyict.genericprotocolimpl.webrtuz3.Z3MeterToolProtocol;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
-import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.CommunicationProfile;
-import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.dlms.DLMSCache;
-import com.energyict.protocolimpl.dlms.HDLC2Connection;
-import com.energyict.protocolimpl.dlms.RtuDLMS;
-import com.energyict.protocolimpl.dlms.RtuDLMSCache;
+import com.energyict.protocolimpl.dlms.*;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -244,6 +239,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
             this.communicationScheduler = scheduler;
             this.link = link;
             setLogger(logger);
+
             validateProperties();
 //            configureDLMSProperties();
 //
@@ -829,8 +825,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
      * @param rtuid - the RTU database id
      * @return a DLMS cache object
      * @throws java.sql.SQLException if a database access error occurs
-     * @throws com.energyict.cbo.BusinessException
-     *                               if multiple records were found
+	 * @throws com.energyict.cbo.BusinessException if multiple records were found
      */
     public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
         if (rtuid != 0) {
@@ -848,22 +843,23 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 
     /**
      * Write the DLMSCache back to the database
-     *
      * @param rtuid       - the RTU database id
      * @param cacheObject - the DLMSCache
      * @throws java.sql.SQLException if a database access error occurs
-     * @throws com.energyict.cbo.BusinessException
-     *                               if multiple records were found
+	 * @throws com.energyict.cbo.BusinessException if multiple records were found
      */
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public void updateCache(final int rtuid, final Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
         if (rtuid != 0) {
+            Transaction tr = new Transaction() {
+                public Object doExecute() throws BusinessException, SQLException {
             DLMSCache dc = (DLMSCache) cacheObject;
             if (dc.isChanged()) {
-                RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-                RtuDLMS rtu = new RtuDLMS(rtuid);
-                rtuCache.saveObjectList(dc.getObjectList());
-                rtu.setConfProgChange(dc.getConfProgChange());
+                        new RtuDLMS(rtuid).saveObjectList(dc.getConfProgChange(), dc.getObjectList());
             }
+                    return null;
+                }
+            };
+            MeteringWarehouse.getCurrent().execute(tr);
         } else {
             throw new com.energyict.cbo.BusinessException("invalid RtuId!");
         }
@@ -909,42 +905,36 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
         return false;
     }
 
-
     /**
      * Read all the register from the device
-     *
      * @return a HashMap containing the RtuRegister and the RegisterValue
      * @throws IOException
      */
     public Map<RtuRegister, RegisterValue> doReadRegisters() throws IOException {
         HashMap<RtuRegister, RegisterValue> regValueMap = new HashMap<RtuRegister, RegisterValue>();
-        Iterator<RtuRegister> it = getMeter().getRegisters().iterator();
+        Iterator<RtuRegister> rtuRegisterIterator = getMeter().getRegisters().iterator();
         List groups = getCommunicationProfile().getRtuRegisterGroups();
-        ObisCode oc = null;
-        RegisterValue rv = null;
-        RtuRegister rr;
-        while (it.hasNext()) {
+        while (rtuRegisterIterator.hasNext()) {
+            ObisCode obisCode = null;
             try {
-                rr = it.next();
-                if (CommonUtils.isInRegisterGroup(groups, rr)) {
-                    oc = rr.getRtuRegisterSpec().getObisCode();
+                RtuRegister rtuRegister = rtuRegisterIterator.next();
+                if (CommonUtils.isInRegisterGroup(groups, rtuRegister)) {
+                    obisCode = rtuRegister.getRtuRegisterSpec().getObisCode();
                     try {
-                        rv = readRegister(oc);
-
-                        rv.setRtuRegisterId(rr.getId());
-
-                        if (rr.getReadingAt(rv.getReadTime()) == null) {
-                            regValueMap.put(rr, rv);
+                        RegisterValue registerValue = readRegister(obisCode);
+                        registerValue.setRtuRegisterId(rtuRegister.getId());
+                        if (rtuRegister.getReadingAt(registerValue.getReadTime()) == null) {
+                            regValueMap.put(rtuRegister, registerValue);
                         }
                     } catch (NoSuchRegisterException e) {
                         log(Level.FINEST, e.getMessage());
-                        getLogger().log(Level.INFO, "ObisCode " + oc + " is not supported by the meter.");
+                        getLogger().log(Level.INFO, "ObisCode " + obisCode + " is not supported by the meter.");
                     }
                 }
             } catch (IOException e) {
                 // TODO if the connection is out you should not try and read the others as well...
                 log(Level.FINEST, e.getMessage());
-                getLogger().log(Level.INFO, "Reading register with obisCode " + oc + " FAILED.");
+                getLogger().log(Level.INFO, "Reading register with obisCode " + obisCode + " FAILED.");
             }
         }
         return regValueMap;

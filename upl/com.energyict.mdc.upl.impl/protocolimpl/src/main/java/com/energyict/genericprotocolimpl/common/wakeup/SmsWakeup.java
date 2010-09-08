@@ -65,7 +65,7 @@ public class SmsWakeup {
     public SmsWakeup(CommunicationScheduler scheduler, Logger logger) {
         this.scheduler = scheduler;
         this.logger = logger;
-        if (this.scheduler != null) {
+		if(this.scheduler != null){
             this.meter = this.scheduler.getRtu();
             updateProperties();
         }
@@ -90,11 +90,11 @@ public class SmsWakeup {
     /**
      * Set some polling properties
      */
-    private void updateProperties() {
+	private void updateProperties(){
         this.pollTimeout = Integer.parseInt(this.meter.getProperties().getProperty("PollTimeOut", "900000"));
         this.pollFreq = Integer.parseInt(this.meter.getProperties().getProperty("PollFrequency", "15000"));
         String host = mw().getSystemProperty("vfEndpointAddress");
-        if (host == null) {
+		if(host == null){
             endpointAddress = "http://localhost:4423/SharedResources/COMM_DEVICE/WUTriggerService.serviceagent/WUTriggerPort";
         } else {
             endpointAddress = host;
@@ -134,8 +134,7 @@ public class SmsWakeup {
      *
      * @throws IOException when the wsdl is not found, or when certain attributes are not correctly filled in
      */
-    private void
-    createWakeupCall() throws IOException {
+	private void createWakeupCall() throws IOException{
         log(5, "In createWakeupCall");
         WUTrigger wuTrigger = getWUTrigger();
         log(5, "Got wuTriggerPort");

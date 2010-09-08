@@ -1,10 +1,13 @@
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.cpo.*;
-import com.energyict.cbo.*;
-import java.util.*;
+import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.NotFoundException;
+import com.energyict.cpo.Environment;
+import com.energyict.cpo.Transaction;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.mdw.core.MeteringWarehouse;
+
 import java.sql.*;
-import java.io.*;
 
 public class RtuDLMS {
     
@@ -113,4 +116,18 @@ public class RtuDLMS {
        return Environment.getDefault().getConnection();
     }
 
+
+    public void saveObjectList(final int confProgChange, final UniversalObject[] universalObject) throws BusinessException, SQLException    {
+        Transaction tr = new Transaction() {
+            public Object doExecute() throws SQLException, BusinessException {
+
+                RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
+                rtuCache.saveObjectList(universalObject);
+                RtuDLMS.this.setConfProgChange(confProgChange);
+
+                return null;
+            }
+        };
+        MeteringWarehouse.getCurrent().execute(tr);
+    }
 } // public class RtuDLMS

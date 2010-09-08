@@ -8,6 +8,7 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.CommonUtils;
+import com.energyict.genericprotocolimpl.webrtuz3.historical.HistoricalRegisterReadings;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.EMeterMessageExecutor;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.EmeterMessages;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.*;
@@ -38,6 +39,7 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
     public static final ObisCode EVENTS_OBISCODE = ObisCode.fromString("0.0.99.98.0.255");
     public static final ObisCode MONTHLY_PROFILE_OBIS = ObisCode.fromString("0.0.99.3.0.255");
     public static final ObisCode DAILY_PROFILE_OBIS = ObisCode.fromString("0.0.99.2.0.255");
+    public static final ObisCode DISCONNECTOR_OBIS = ObisCode.fromString("0.0.96.3.10.255");
 
     private CommunicationProfile	commProfile;
 	private WebRTUZ3				webRtu;
@@ -45,6 +47,9 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
 	private int						physicalAddress;
 	private Rtu						eMeterRtu;
 	private Logger					logger;
+
+    private HistoricalRegisterReadings historicalRegisters;
+    private MeterAmrLogging meterAmrLogging;
 
 	public EMeter() {
 
@@ -68,13 +73,8 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
 
         //testMethod();
 
-        try {
 			// Before reading data, check the serialnumber
 			verifySerialNumber();
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException(e.getMessage());
-		}
 
 		// import profile
 		if(commProfile.getReadDemandValues()){
@@ -168,36 +168,33 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
 	 *
 	 */
 	private void doReadRegisters() {
-		Iterator it = geteMeterRtu().getRegisters().iterator();
-		List groups = this.commProfile.getRtuRegisterGroups();
-		ObisCode oc = null;
-		RegisterValue rv;
-		RtuRegister rr;
-		while(it.hasNext()){
-			try {
-				rr = (RtuRegister)it.next();
-				if (CommonUtils.isInRegisterGroup(groups, rr)) {
-					oc = rr.getRtuRegisterSpec().getObisCode();
-					try{
-						rv = readRegister(oc);
-						if(rv != null){
-							rv.setRtuRegisterId(rr.getId());
+        Iterator registerIterator = geteMeterRtu().getRegisters().iterator();
+        List rtuRegisterGroups = this.commProfile.getRtuRegisterGroups();
 
-							if(rr.getReadingAt(rv.getReadTime()) == null){
-								getWebRTU().getStoreObject().add(rr, rv);
+        while (registerIterator.hasNext()) {
+            ObisCode obisCode = null;
+			try {
+                RtuRegister rtuRegister = (RtuRegister) registerIterator.next();
+                if (CommonUtils.isInRegisterGroup(rtuRegisterGroups, rtuRegister)) {
+                    obisCode = rtuRegister.getRtuRegisterSpec().getObisCode();
+					try{
+                        RegisterValue registerValue = readRegister(obisCode);
+                        if (registerValue != null) {
+                            registerValue.setRtuRegisterId(rtuRegister.getId());
+                            if (rtuRegister.getReadingAt(registerValue.getReadTime()) == null) {
+                                getWebRTU().getStoreObject().add(rtuRegister, registerValue);
 							}
 						} else {
-							getLogger().log(Level.INFO, "Obiscode " + oc + " is not supported.");
+                            throw new NoSuchRegisterException("Register returned null");
 						}
-
 					} catch (NoSuchRegisterException e) {
-						e.printStackTrace();
-						getLogger().log(Level.INFO, "ObisCode " + oc + " is not supported by the meter.");
+                        getMeterAmrLogging().logRegisterFailure(e, obisCode);
+                        getLogger().log(Level.INFO, "ObisCode " + obisCode + " is not supported by the meter. [" + e.getMessage() + "]");
 					}
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
-				getLogger().log(Level.INFO, "Reading register with obisCode " + oc + " FAILED.");
+                getMeterAmrLogging().logRegisterFailure(e, obisCode);
+                getLogger().log(Level.INFO, "Reading register with obisCode " + obisCode + " FAILED. [" + e.getMessage() + "]");
 			}
 		}
 	}
@@ -210,15 +207,32 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
      * @throws IOException
      */
 	private RegisterValue readRegister(ObisCode obisCode) throws IOException {
+        RegisterValue registerValue = null;
+
 		try {
             ObisCode physicalObisCode = ProtocolTools.setObisCodeField(obisCode, 1, (byte) getPhysicalAddress());
+            if ((physicalObisCode.getF() >= 0) && (physicalObisCode.getF() <= 11)) { // Monthly billing value
+                registerValue = getHistoricalRegisters().readHistoricalMonthlyRegister(physicalObisCode);
+            } else if ((physicalObisCode.getF() >= 12) && (physicalObisCode.getF() <= 90)) { // Daily billing value
+                physicalObisCode = ProtocolTools.setObisCodeField(physicalObisCode, 5, (byte) (physicalObisCode.getF() - 12));
+                registerValue = getHistoricalRegisters().readHistoricalDailyRegister(physicalObisCode);
+            } else if (obisCode.equals(ObisCode.fromString("1.0.96.3.10.255"))) { //Another register
+                Disconnector register = getCosemObjectFactory().getDisconnector(ProtocolTools.setObisCodeField(DISCONNECTOR_OBIS, 1, (byte) getPhysicalAddress()));
+                registerValue = register != null ? register.asRegisterValue(2) : null;
+            } else { //Another register
             Register register = getCosemObjectFactory().getRegister(physicalObisCode);
-			return new RegisterValue(obisCode, register.getQuantityValue());
+                registerValue = (register != null) ? new RegisterValue(obisCode, register.getQuantityValue()) : null;
+            }
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new NoSuchRegisterException(e.getMessage());
 		}
+
+        if (registerValue == null) {
+            throw new NoSuchRegisterException("Register " + obisCode.toString() + " returned 'null'!");
 	}
+
+        return ProtocolTools.setRegisterValueObisCode(registerValue, obisCode);
+    }
 
 	/**
 	 * Execute the pending device messages
@@ -249,7 +263,6 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
 			OctetString serialOctetString = serialDataObject.getAttrbAbstractDataType(2).getOctetString();
 			serial = serialOctetString != null ? serialOctetString.stringValue() : null;
 		} catch (IOException e) {
-			e.printStackTrace();
 			throw new IOException("Could not retrieve the serialnumber of meter " + eiSerial + e);
 		}
 		if(!eiSerial.equals(serial)){
@@ -365,5 +378,27 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
 	public DLMSMeterConfig getMeterConfig() {
 		return getWebRTU().getMeterConfig();
 	}
+
+    /**
+     *
+     * @return
+     */
+    public HistoricalRegisterReadings getHistoricalRegisters() {
+        if (historicalRegisters == null) {
+            historicalRegisters = new HistoricalRegisterReadings(getCosemObjectFactory(), getCorrectedObisCode(DAILY_PROFILE_OBIS), getCorrectedObisCode(MONTHLY_PROFILE_OBIS), getLogger());
+}
+        return historicalRegisters;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public MeterAmrLogging getMeterAmrLogging() {
+        if (meterAmrLogging == null) {
+            meterAmrLogging = new MeterAmrLogging();
+        }
+        return meterAmrLogging;
+    }
 
 }
