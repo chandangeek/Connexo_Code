@@ -15,6 +15,13 @@ import java.util.logging.Logger;
  */
 public class MbusDevice extends AbstractMbusDevice {
 
+    /**
+     * Default constructor for revision number support
+     */    
+    public MbusDevice() {
+        super();
+    }
+
     public MbusDevice(String serial, int physicalAddress, Rtu mbusRtu, Logger logger) {
         super(serial, physicalAddress, mbusRtu, logger);    //To change body of overridden methods use File | Settings | File Templates.
     }
@@ -22,6 +29,7 @@ public class MbusDevice extends AbstractMbusDevice {
     /**
      * Extra protocol settings for a <b>subclassed NTA protocol</b>
      * Can be used to override a default custom property or add specific custom properties.
+     *
      * @param properties
      */
     @Override
