@@ -263,14 +263,6 @@ public class EMeterProfile {
 						profileStatus = 0;
 					}
 
-                    /*
-                     Because the WebRTUZ3 is reporting an 'I am in DST' flag,
-                     the profile in EiServer is messed up with 'OTHER' events.
-                     We filter this flag out here.
-                    */
-
-                    profileStatus &= 0xFFFFFFF7;
-
 					currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus, pg, pd.getChannelInfos());
 					if(currentInterval != null){
 						pd.addInterval(currentInterval);
@@ -304,7 +296,7 @@ public class EMeterProfile {
      */
     private IntervalData getIntervalData(final DataStructure ds, final Calendar cal, final int status, final ProfileGeneric pg, final List channelInfos) throws IOException {
 
-        final IntervalData id = new IntervalData(cal.getTime(), StatusCodeProfile.intervalStateBits(status));
+        final IntervalData id = new IntervalData(cal.getTime(), status);
         int index = 0;
 
         try {

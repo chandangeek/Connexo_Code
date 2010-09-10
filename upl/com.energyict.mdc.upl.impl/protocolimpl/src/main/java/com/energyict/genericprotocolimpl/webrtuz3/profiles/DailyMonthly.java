@@ -55,6 +55,11 @@ public class DailyMonthly {
      */
     public ProfileData getDailyValues(final ObisCode dailyObisCode) throws IOException, SQLException, BusinessException {
 		final ProfileData profileData = new ProfileData( );
+        if (!getMeterConfig().isObisCodeInObjectList(dailyObisCode)) {
+            getEDevice().getLogger().warning("No daily values found in device. [" + getEDevice().getMeter() + "]");
+            return profileData;
+        }
+
 		try {
 			final ProfileGeneric genericProfile = getCosemObjectFactory().getProfileGeneric(dailyObisCode);
 			final List<ChannelInfo> channelInfos = getDailyMonthlyChannelInfos(genericProfile, TimeDuration.DAYS);
@@ -147,6 +152,12 @@ public class DailyMonthly {
      */
     public ProfileData getMonthlyValues(final ObisCode monthlyObisCode) throws IOException, SQLException, BusinessException {
 		final ProfileData profileData = new ProfileData( );
+
+        if (!getMeterConfig().isObisCodeInObjectList(monthlyObisCode)) {
+            getEDevice().getLogger().warning("No monthly values found in device. [" + getEDevice().getMeter() + "]");
+            return profileData;
+        }
+
 		try {
 			final ProfileGeneric genericProfile = getCosemObjectFactory().getProfileGeneric(monthlyObisCode);
 			final List<ChannelInfo> channelInfos = getDailyMonthlyChannelInfos(genericProfile, TimeDuration.MONTHS);

@@ -200,14 +200,6 @@ public class MbusProfile {
 						profileStatus = 0;
 					}
 
-                    /*
-                     Because the WebRTUZ3 is reporting an 'I am in DST' flag,
-                     the profile in EiServer is messed up with 'OTHER' events.
-                     We filter this flag out here.
-                    */
-
-                    profileStatus &= 0xFFFFFFF7;
-                    
 					currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus, pg, pd.getChannelInfos());
 					if(currentInterval != null){
 						pd.addInterval(currentInterval);
@@ -221,7 +213,7 @@ public class MbusProfile {
 
 	private IntervalData getIntervalData(DataStructure ds, Calendar cal, int status, ProfileGeneric pg, List channelInfos)throws IOException{
 
-		IntervalData id = new IntervalData(cal.getTime(), StatusCodeProfile.intervalStateBits(status));
+		IntervalData id = new IntervalData(cal.getTime(), status);
 		int index = 0;
 
 		try {

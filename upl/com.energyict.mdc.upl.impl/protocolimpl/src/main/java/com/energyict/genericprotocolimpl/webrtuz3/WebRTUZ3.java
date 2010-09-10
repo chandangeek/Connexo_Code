@@ -5,6 +5,7 @@ import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
+import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.*;
@@ -12,8 +13,7 @@ import com.energyict.genericprotocolimpl.common.messages.*;
 import com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers.ObisCodeMapper;
 import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.MessageExecutor;
-import com.energyict.genericprotocolimpl.webrtuz3.profiles.EDevice;
-import com.energyict.genericprotocolimpl.webrtuz3.profiles.EMeterEventProfile;
+import com.energyict.genericprotocolimpl.webrtuz3.profiles.*;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.RtuShadow;
@@ -69,9 +69,10 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 	private static final DeviceMappingRange EMETER_DEVICES					= new DeviceMappingRange(0x21, 0x40);
 
 	/** The device obisCodes */
-	public final static ObisCode		RF_FIRMWAREVERSION				= ObisCode.fromString("1.129.0.2.0.255");
-	public final static ObisCode		RF_FIRMWARE_OBISCODE			= ObisCode.fromString("0.0.44.0.128.255");
+	public static final ObisCode		RF_FIRMWAREVERSION				= ObisCode.fromString("1.129.0.2.0.255");
+	public static final ObisCode		RF_FIRMWARE_OBISCODE			= ObisCode.fromString("0.0.44.0.128.255");
 	public static final ObisCode		SERIALNR_OBISCODE				= ObisCode.fromString("0.0.96.1.0.255");
+    public static final ObisCode        LOGGER_PROFILE_BASE_OBISCODE    = ObisCode.fromString("0.0.99.1.0.255");
 
 	/** The serialNumber of the Rtu */
 	private String serialNumber;
@@ -145,43 +146,26 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 				storeObject.add(pd, getMeter());
 			}
 
-			/*
-			 * Here we are assuming that the daily and monthly values should be read. In future it can be that this doesn't work for all customers, then we should implement a SmartMeterProperty to
-			 * indicate whether you want to read the actual registers or the daily/monthly registers ...
-			 */
+			// Read the register values
 			if (getCommunicationProfile().getReadMeterReadings()) {
-
-/*
-				DailyMonthly dm = new DailyMonthly(this);
-				if (readDaily) {
-                    ObisCode dailyProfileObisCode = getMeterConfig().getDailyProfileObject().getObisCode();
-                    if(doesObisCodeExistInObjectList(dailyProfileObisCode)){
-						ProfileData dailyPd = dm.getDailyValues(dailyProfileObisCode);
-						if(badTime){
-							dailyPd.markIntervalsAsBadTime();
-						}
-						storeObject.add(dailyPd, getMeter());
-					} else {
-						getLogger().log(Level.INFO, "The dailyProfile object doesn't exist in the device.");
-					}
-				}
-				if (readMonthly) {
-					if(doesObisCodeExistInObjectList(getMeterConfig().getMonthlyProfileObject().getObisCode())){
-						ProfileData monthlyPd = dm.getMonthlyValues(getMeterConfig().getMonthlyProfileObject().getObisCode());
-						if(badTime){
-							monthlyPd.markIntervalsAsBadTime();
-						}
-						storeObject.add(monthlyPd, getMeter());
-					} else {
-						getLogger().log(Level.INFO, "The monthlyProfile object doesn't exist in the device.");
-					}
-				}
-*/
-
-				getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + this.serialNumber);
+                getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + this.serialNumber);
 				Map<RtuRegister, RegisterValue> registerMap = doReadRegisters();
 				storeObject.addAll(registerMap);
 			}
+
+            // Read the muc/z3 profiles (temp, DI/DO, ...)
+            if (getCommunicationProfile().getReadDemandValues()) {
+                getLogger().log(Level.INFO, "Getting profile data for meter with serialnumber: " + this.serialNumber);
+                int profileIndex = 0;
+                for (int i = 0; i <= 255; i++) {
+                    ObisCode profileObisCode = ProtocolTools.setObisCodeField(LOGGER_PROFILE_BASE_OBISCODE, 4, (byte) i);
+                    if (getMeterConfig().isObisCodeInObjectList(profileObisCode)) {
+                        ProfileData profileData = readChannels(profileIndex, profileObisCode);
+                        storeObject.add(profileData, getMeter());
+                        profileIndex += profileData.getNumberOfChannels();
+						}
+					}
+				}
 
 			//Send the meter messages
 			if (getCommunicationProfile().getSendRtuMessage()) {
@@ -226,6 +210,42 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 		}
 
 	}
+
+    private ProfileData readChannels(int firstChannelIndex, ObisCode profileObisCode) {
+        Calendar fromCalendar = getChannelFromCalendar(firstChannelIndex);
+        try {
+            if (fromCalendar == null) {
+                getLogger().log(Level.WARNING, "Unable to get lastReading for channel with index ["+firstChannelIndex+"]! Skipping channel.");
+            } else if (!getMeterConfig().isObisCodeInObjectList(profileObisCode)) {
+                getLogger().log(Level.WARNING, "Profile with obisCode ["+profileObisCode.toString()+"] does not exist in device.");
+            } else {
+                getLogger().log(Level.WARNING, "Reading profile with obisCode ["+profileObisCode.toString()+"]");
+                LoggerProfile loggerProfile = new LoggerProfile(firstChannelIndex, profileObisCode, getCosemObjectFactory());
+                return loggerProfile.getProfileData(fromCalendar);
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            getLogger().log(Level.WARNING, "Unable to read profile with obisCode ["+profileObisCode.toString()+"]: " + e.getMessage());
+        }
+        return new ProfileData();
+    }
+
+    private Calendar getChannelFromCalendar(int channelIndex) {
+        List<Channel> channels = getMeter().getChannels();
+        for (Channel channel : channels) {
+            if (channel.getLoadProfileIndex() == channelIndex+1) {
+                Date lastReading = channel.getLastReading();
+                if (lastReading == null) {
+                    lastReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(channel.getRtu());
+                }
+                Calendar cal = ProtocolUtils.getCleanCalendar(getTimeZone());
+                cal.setTime(lastReading);
+                return cal;
+            }
+        }
+        return null;
+    }
 
     /**
      * Testmethod for debigging purposes, used to dump some data like the object list of the device.

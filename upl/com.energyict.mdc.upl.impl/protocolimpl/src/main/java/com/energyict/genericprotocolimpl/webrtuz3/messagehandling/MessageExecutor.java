@@ -474,8 +474,8 @@ public class MessageExecutor extends GenericMessageExecutor{
 						ac.writeWeekProfileTablePassive(acm.getWeekProfile());
 						ac.writeDayProfileTablePassive(acm.getDayProfile());
 						
-						if(name != null){
-							if(name.length() > 8){
+                        if (name != null) {
+                            if (name.length() > 8) {
 								name = name.substring(0, 8);
 							}
 							ac.writeCalendarNamePassive(OctetString.fromString(name));

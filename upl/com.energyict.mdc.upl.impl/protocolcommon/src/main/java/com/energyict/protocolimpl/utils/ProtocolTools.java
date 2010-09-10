@@ -332,7 +332,19 @@ public final class ProtocolTools {
 		sb.append("Intervals:  ").append(profileData.getNumberOfIntervals()).append(CRLF);
 		sb.append("Events:     ").append(profileData.getNumberOfEvents()).append(CRLF);
 		sb.append("First data: ").append(oldest).append(CRLF);
-		sb.append("Lates data: ").append(newest).append(CRLF).append(CRLF);
+		sb.append("Lates data: ").append(newest).append(CRLF);
+
+        for (Object channelObject : profileData.getChannelInfos()) {
+            ChannelInfo channelInfo = (ChannelInfo) channelObject;
+            sb.append("[").append(channelInfo.getId()).append("]");
+            sb.append("[").append(channelInfo.getChannelId()).append("] ");
+            sb.append(channelInfo.getName()).append(", ");
+            sb.append(channelInfo.getUnit()).append(", ");
+            sb.append(channelInfo.getMultiplier()).append(", ");
+            sb.append(channelInfo.getCumulativeWrapValue()).append(CRLF);
+        }
+
+        sb.append(CRLF);
 
 		return sb.toString();
 	}
