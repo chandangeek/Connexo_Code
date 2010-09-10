@@ -36,11 +36,17 @@ public class MbusDailyMonthly {
 		this.mbusDevice = mbusDevice;
 	}
 	
-	public ProfileData getMonthlyProfile(ObisCode mbusProfile) throws IOException{
+	public ProfileData getMonthlyProfile(ObisCode monthlyObiscode) throws IOException{
 		ProfileData profileData = new ProfileData( );
+
+        if (!getMeterConfig().isObisCodeInObjectList(monthlyObiscode)) {
+            mbusDevice.getLogger().warning("No monthly values found in device. [" + getMeter() + "]");
+            return profileData;
+        }
+
 		ProfileGeneric genericProfile;
 		
-		genericProfile = getCosemObjectFactory().getProfileGeneric(mbusProfile);
+		genericProfile = getCosemObjectFactory().getProfileGeneric(monthlyObiscode);
 		List<ChannelInfo> channelInfos = getDailyMonthlyChannelInfos(genericProfile, TimeDuration.MONTHS);
 
 		if(channelInfos.size() != 0){
@@ -311,8 +317,13 @@ public class MbusDailyMonthly {
 	 * @throws IOException 
 	 */
 	public ProfileData getDailyProfile(ObisCode dailyObisCode) throws IOException {
-//		getDailyProfile(null, obisCode);
 		ProfileData profileData = new ProfileData();
+
+        if (!getMeterConfig().isObisCodeInObjectList(dailyObisCode)) {
+            mbusDevice.getLogger().warning("No daily values found in device. [" + getMeter() + "]");
+            return profileData;
+        }
+
 		ProfileGeneric genericProfile;
 		
 		genericProfile = getCosemObjectFactory().getProfileGeneric(dailyObisCode);
