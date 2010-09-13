@@ -8,6 +8,10 @@ class Utils {
 		return ((int)val & 0xff);
 	}
 	
+	static int toInt(final short val) {
+		return ((int)val & 0xffff);
+	}
+	
 	static String toHexString(final byte val) {
 		return toHexString(toInt(val));
 	}

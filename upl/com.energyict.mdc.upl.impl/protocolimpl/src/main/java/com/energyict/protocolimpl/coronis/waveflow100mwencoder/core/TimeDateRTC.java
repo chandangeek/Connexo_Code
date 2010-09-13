@@ -7,14 +7,14 @@ import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.TimeDatePars
 
 public class TimeDateRTC extends AbstractParameter {
 
-	Calendar calendar;
+	private Calendar calendar;
 	
 	final Calendar getCalendar() {
 		return calendar;
 	}
 
 
-	final void setCalendar(Calendar calendar) {
+	final void setCalendar(final Calendar calendar) {
 		this.calendar = calendar;
 	}
 

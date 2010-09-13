@@ -7,12 +7,15 @@ import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.EncoderUnitInfo.EncoderUnitType;
+
 
 public class WaveFlow100mW extends AbstractProtocol {
 
 	private WaveFlowConnect waveFlowConnect;
 	
 	private ParameterFactory parameterFactory;
+	private RadioCommandFactory radioCommandFactory;
 	
 	final public WaveFlowConnect getWaveFlowConnect() {
 		return waveFlowConnect;
@@ -44,6 +47,7 @@ public class WaveFlow100mW extends AbstractProtocol {
 			HalfDuplexController halfDuplexController) throws IOException {
 		
 		parameterFactory = new ParameterFactory(this);
+		radioCommandFactory = new RadioCommandFactory(this);
 		waveFlowConnect = new WaveFlowConnect(inputStream,outputStream,timeoutProperty,getLogger(),forcedDelay);
 		return waveFlowConnect;
 	}
@@ -113,7 +117,29 @@ public class WaveFlow100mW extends AbstractProtocol {
 //    	System.out.println("read measurementPeriod: "+parameterFactory.readMeasurementPeriod());
 //    	System.out.println("profileinterval = "+parameterFactory.getProfileIntervalInSeconds());
     	
-    	System.out.println("read nr of logged records: "+parameterFactory.readNrOfLoggedRecords());
+    	//System.out.println("read nr of logged records: "+parameterFactory.readNrOfLoggedRecords());
+    	
+//    	System.out.println("A encodermodel: "+parameterFactory.readEncoderModel(0).getEncoderModelInfo().getEncoderModelType()+", "+parameterFactory.readEncoderModel(0).getEncoderModelInfo().getManufacturerId());
+//    	System.out.println("B encodermodel: "+parameterFactory.readEncoderModel(1).getEncoderModelInfo().getEncoderModelType()+", "+parameterFactory.readEncoderModel(1).getEncoderModelInfo().getManufacturerId());
+//    	
+//    	System.out.println("A encoderunit: "+parameterFactory.readEncoderUnit(0).getEncoderUnitInfo().getEncoderUnitType()+", "+parameterFactory.readEncoderUnit(0).getEncoderUnitInfo().getNrOfDigitsBeforeDecimalPoint());
+//    	System.out.println("B encoderunit: "+parameterFactory.readEncoderUnit(1).getEncoderUnitInfo().getEncoderUnitType()+", "+parameterFactory.readEncoderUnit(1).getEncoderUnitInfo().getNrOfDigitsBeforeDecimalPoint());
+//    	
+//    	
+//    	System.out.println("set unit port A");
+//    	parameterFactory.writeEncoderUnit(0, EncoderUnitType.CubicMeters,4);
+//    	System.out.println("set unit port B");
+//    	parameterFactory.writeEncoderUnit(1, EncoderUnitType.Unknown,0);
+//    	
+//    	System.out.println("A encoderunit: "+parameterFactory.readEncoderUnit(0).getEncoderUnitInfo().getEncoderUnitType()+", "+parameterFactory.readEncoderUnit(0).getEncoderUnitInfo().getNrOfDigitsBeforeDecimalPoint());
+//    	System.out.println("B encoderunit: "+parameterFactory.readEncoderUnit(1).getEncoderUnitInfo().getEncoderUnitType()+", "+parameterFactory.readEncoderUnit(1).getEncoderUnitInfo().getNrOfDigitsBeforeDecimalPoint());
+//    	
+//    	
+//    	System.out.println("Remaining battery life: "+parameterFactory.readBatteryLifeDurationCounter().remainingBatteryLife());
+//    	System.out.println("Battery life end time: "+parameterFactory.readBatteryLifeDateEnd());
+    	
+    	
+    	System.out.println("encoder current reading: "+radioCommandFactory.readEncoderCurrentReading());
     	
     	return null;
     }	 

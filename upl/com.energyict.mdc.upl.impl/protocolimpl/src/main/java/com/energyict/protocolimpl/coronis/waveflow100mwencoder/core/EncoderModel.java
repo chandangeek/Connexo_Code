@@ -2,19 +2,11 @@ package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
 import java.io.IOException;
 
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.EncoderModelInfo.EncoderModelType;
+
 public class EncoderModel extends AbstractParameter {
 
-	enum EncoderModelType {
-		ServenTrent(0x02,"Severn Trent water meter absolute encoder");
-		
-		int id;
-		String description;
-		
-		EncoderModelType(final int id, final String description) {
-			
-		}
-		
-	}
 	
 	EncoderModel(WaveFlow100mW waveFlow100mW, final int portId) {
 		super(waveFlow100mW);
@@ -22,10 +14,19 @@ public class EncoderModel extends AbstractParameter {
 	}
 
 	/**
+	 * contains the encoder model isd and manufacturer code
+	 */
+	EncoderModelInfo encoderModelInfo;
+	
+	final EncoderModelInfo getEncoderModelInfo() {
+		return encoderModelInfo;
+	}
+
+	/**
 	 * Port A -> portId=0, port B -> portId=1,2,...
 	 */
 	int portId;
-
+	
 	@Override
 	ParameterId getParameterId() {
 		if (portId==0) {
@@ -38,16 +39,18 @@ public class EncoderModel extends AbstractParameter {
 
 	@Override
 	void parse(byte[] data) throws IOException {
-		// TODO Auto-generated method stub
+		EncoderModelType encoderModelType = EncoderModelType.fromId(Utils.toInt(data[0]));
 		
+		int manufacturerId=0xff;
+		if (Utils.toInt(data[1]) != 0xff) {
+			manufacturerId = ProtocolUtils.BCD2hex(data[1]);
+		}
+		
+		encoderModelInfo = new EncoderModelInfo(encoderModelType,manufacturerId);
 	}
 
 	@Override
 	byte[] prepare() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedException();
 	}
-	
-	
-	
 }

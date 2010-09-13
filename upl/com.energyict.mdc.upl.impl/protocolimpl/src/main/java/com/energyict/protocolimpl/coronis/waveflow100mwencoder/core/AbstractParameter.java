@@ -3,23 +3,12 @@ package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 import java.io.*;
 
 import com.energyict.obis.ObisCode;
+import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.AbstractRadioCommand.EncoderRadioCommandId;
 
-abstract public class AbstractParameter {
+abstract public class AbstractParameter extends AbstractRadioCommand {
 
 	static final int PARAM_UPDATE_OK=0x00;
 	static final int PARAM_UPDATE_ERROR=0xFF;
-	
-	enum EncoderRadioCommand {
-		
-		READ(0x18),
-		WRITE(0x19);
-		
-		private int commandId;
-		
-		EncoderRadioCommand(final int commandId) {
-			this.commandId=commandId;
-		}
-	} // enum EncoderRadioCommand
 	
 	enum ParameterId {
 		
@@ -93,21 +82,11 @@ abstract public class AbstractParameter {
 		this.operatingMode = operatingMode;
 	}
 
-	/**
-	 * The reference to the Waveflow100mW protocol implementation class
-	 */
-	private WaveFlow100mW waveFlow100mW;
-	
-	final WaveFlow100mW getWaveFlow100mW() {
-		return waveFlow100mW;
-	}
 
 	AbstractParameter(WaveFlow100mW waveFlow100mW) {
-		this.waveFlow100mW = waveFlow100mW;
+		super(waveFlow100mW);
 	}
 	
-	abstract void parse(byte[] data) throws IOException;
-	abstract byte[] prepare() throws IOException;
 	abstract ParameterId getParameterId();
 	
 	void write() throws IOException {
@@ -115,7 +94,7 @@ abstract public class AbstractParameter {
 		try {	
 			baos = new ByteArrayOutputStream();
 			DataOutputStream daos = new DataOutputStream(baos);
-			daos.writeByte(EncoderRadioCommand.WRITE.commandId);
+			daos.writeByte(EncoderRadioCommandId.WriteParameter.getCommandId());
 			if (getParameterId()==null) {
 				daos.writeShort(operatingMode); // update the operating mode
 				daos.writeShort(0xffff); // mask to update the operating mode
@@ -130,7 +109,7 @@ abstract public class AbstractParameter {
 				daos.write(prepare());
 			}
 			
-			parseWriteResponse(waveFlow100mW.getWaveFlowConnect().sendData(baos.toByteArray()));
+			parseWriteResponse(getWaveFlow100mW().getWaveFlowConnect().sendData(baos.toByteArray()));
 						
 		}
 		finally {
@@ -139,7 +118,7 @@ abstract public class AbstractParameter {
 					baos.close();
 				}
 				catch(IOException e) {
-					waveFlow100mW.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					getWaveFlow100mW().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
 				}
 			}
 		}				
@@ -151,7 +130,7 @@ abstract public class AbstractParameter {
 			dais = new DataInputStream(new ByteArrayInputStream(data));
 			
 			int commandIdAck = Utils.toInt(dais.readByte());
-			if (commandIdAck != (0x80 | EncoderRadioCommand.WRITE.commandId)) {
+			if (commandIdAck != (0x80 | EncoderRadioCommandId.WriteParameter.getCommandId())) {
 				throw new WaveFlow100mwEncoderException("Invalid response tag ["+Utils.toHexString(commandIdAck)+"]");
 			}
 			else {
@@ -182,7 +161,7 @@ abstract public class AbstractParameter {
 					dais.close();
 				}
 				catch(IOException e) {
-					waveFlow100mW.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					getWaveFlow100mW().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
 				}
 			}
 		}		
@@ -193,7 +172,7 @@ abstract public class AbstractParameter {
 		try {	
 			baos = new ByteArrayOutputStream();
 			DataOutputStream daos = new DataOutputStream(baos);
-			daos.writeByte(EncoderRadioCommand.READ.commandId);
+			daos.writeByte(EncoderRadioCommandId.ReadParameter.getCommandId());
 			if (getParameterId()==null) {
 				daos.writeByte(0); // write 0 parameter, only update the operating mode
 			}
@@ -203,7 +182,7 @@ abstract public class AbstractParameter {
 				daos.writeByte(getParameterId().length);
 			}
 			
-			parseReadResponse(waveFlow100mW.getWaveFlowConnect().sendData(baos.toByteArray()));
+			parseReadResponse(getWaveFlow100mW().getWaveFlowConnect().sendData(baos.toByteArray()));
 						
 		}
 		finally {
@@ -212,7 +191,7 @@ abstract public class AbstractParameter {
 					baos.close();
 				}
 				catch(IOException e) {
-					waveFlow100mW.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					getWaveFlow100mW().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
 				}
 			}
 		}				
@@ -225,7 +204,7 @@ abstract public class AbstractParameter {
 			dais = new DataInputStream(new ByteArrayInputStream(data));
 			
 			int commandIdAck = Utils.toInt(dais.readByte());
-			if (commandIdAck != (0x80 | EncoderRadioCommand.READ.commandId)) {
+			if (commandIdAck != (0x80 | EncoderRadioCommandId.ReadParameter.getCommandId())) {
 				throw new WaveFlow100mwEncoderException("Invalid response tag ["+Utils.toHexString(commandIdAck)+"]");
 			}
 			else {
@@ -244,6 +223,9 @@ abstract public class AbstractParameter {
 					}
 					
 					int length = Utils.toInt(dais.readByte());
+					if (length != getParameterId().length) {
+						throw new WaveFlow100mwEncoderException("Invalid length returned expected ["+getParameterId().length+"], returned ["+length+"]");
+					}
 					
 					byte[] resultData = new byte[dais.available()];
 					dais.read(resultData);
@@ -257,11 +239,17 @@ abstract public class AbstractParameter {
 					dais.close();
 				}
 				catch(IOException e) {
-					waveFlow100mW.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					getWaveFlow100mW().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
 				}
 			}
 		}		
 	}
 
+	/**
+	 * Because we have implement a abstract parameter read/write class, we don't use this method... 
+	 */
+	EncoderRadioCommandId getEncoderRadioCommandId() {
+		return null;
+	}
 	
 } // abstract public class AbstractParameter
