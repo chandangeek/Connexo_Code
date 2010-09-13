@@ -1,16 +1,13 @@
 package com.energyict.dlms.aso;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import java.io.IOException;
-
-import org.junit.Test;
-
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.mocks.MockSecurityProvider;
+import org.junit.Test;
+
+import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 
 public class AssociationControlServiceElementTest {
@@ -131,7 +128,7 @@ public class AssociationControlServiceElementTest {
     }
 
     @Test
-    public void analyzeResponsTest(){
+    public void analyzeResponseTest(){
     	try {
 
         	MockSecurityProvider sp = new MockSecurityProvider();
@@ -156,4 +153,5 @@ public class AssociationControlServiceElementTest {
 			fail();
 		}
     }
+
 }

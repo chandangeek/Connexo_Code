@@ -159,6 +159,20 @@ public final class ProtocolTools {
 		return bytes;
 	}
 
+    /**
+     * Construct a concatenated byteArray for the given ArrayList of byteArrays
+     *
+     * @param byteArrays the <code>byte[]</code> to concatenate
+     * @return 1 <code>byte[]</code> with all given arrays after each other
+     */
+    public static byte[] concatListOfByteArrays(ArrayList<byte[]> byteArrays) {
+        byte[] concatenatedArray = null;
+        for (byte[] byteArray : byteArrays) {
+            concatenatedArray = concatByteArrays(concatenatedArray, byteArray);
+        }
+        return concatenatedArray;
+    }
+
 	/**
 	 * @param buffer
 	 * @param value

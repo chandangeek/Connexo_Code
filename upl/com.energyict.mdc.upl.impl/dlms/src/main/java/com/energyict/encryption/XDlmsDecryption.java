@@ -1,5 +1,6 @@
 package com.energyict.encryption;
 
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.ProtocolUtils;
 
 
@@ -84,7 +85,7 @@ public class XDlmsDecryption {
 	/**
 	 * @return
 	 */
-	public byte[] generatePlainText() {
+	public byte[] generatePlainText() throws ConnectionException {
 		if (containsNull(getGlobalKey(), getCipherText(), generateInitialisationVector(), generateAssociatedData(), getAuthenticationTag())) {
 			return null;
 		} else {
@@ -95,8 +96,11 @@ public class XDlmsDecryption {
 			aes.setAdditionalAuthenticationData(new BitVector(generateAssociatedData()));
 			aes.setTag(new BitVector(getAuthenticationTag()));
 			aes.setTagSize(AUTHENTICATION_TAG_LENGTH);
-			aes.decrypt();
-			return aes.getPlainText().getValue();
+			if(aes.decrypt()){
+                return aes.getPlainText().getValue();
+            } else {
+                throw new ConnectionException("Received an invalid cipher frame.");
+            }
 		}
 	}
 
@@ -234,8 +238,12 @@ public class XDlmsDecryption {
 		sb.append(" > IV = ").append(generateInitialisationVector() != null ? ProtocolUtils.getResponseData(generateInitialisationVector()) : null).append(crlf);
 		sb.append(" > SH = ").append(generateSecurityHeader() != null ? ProtocolUtils.getResponseData(generateSecurityHeader()) : null).append(crlf);
 		sb.append(" > A  = ").append(generateAssociatedData() != null ? ProtocolUtils.getResponseData(generateAssociatedData()) : null).append(crlf);
-		sb.append(" > PT = ").append(generatePlainText() != null ? ProtocolUtils.getResponseData(generatePlainText()) : null).append(crlf);
-		return sb.toString();
+        try {
+            sb.append(" > PT = ").append(generatePlainText() != null ? ProtocolUtils.getResponseData(generatePlainText()) : null).append(crlf);
+        } catch (ConnectionException e) {
+            sb.append(" > PT = ").append("Could NOT generate plainText with invalid keys.");
+        }
+        return sb.toString();
 	}
 
 }

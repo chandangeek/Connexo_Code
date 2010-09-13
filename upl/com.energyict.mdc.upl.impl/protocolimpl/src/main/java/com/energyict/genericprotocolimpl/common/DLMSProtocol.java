@@ -231,6 +231,19 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
       * @see com.energyict.mdw.amr.GenericProtocol#execute(com.energyict.mdw.core.CommunicationScheduler, com.energyict.dialer.core.Link, java.util.logging.Logger)
       */
 
+    /**
+     *
+     * @param scheduler Task to execute
+     * @param link Link created by the comserver, can be null if a NullDialer is
+     * configured
+     * @param logger Loggger object - when using a level of warning or higher
+     * message will be stored in the communication session's database log,
+     * messages with a level lower than warning will only be logged in the file
+     * log if active.
+     * @throws BusinessException
+     * @throws SQLException
+     * @throws IOException
+     */
     public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
 
         try {

@@ -3,6 +3,7 @@
  */
 package com.energyict.encryption;
 
+import com.energyict.dialer.connection.ConnectionException;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -272,15 +273,20 @@ public class XDlmsDecryptionTest {
      */
     @Test
     public final void testGeneratePlainText() {
-        XDlmsDecryption xdlms = new XDlmsDecryption();
-        xdlms.setCipheredText(CIPHERED);
-        xdlms.setSystemTitle(SYSTEMTITLE);
-        xdlms.setFrameCounter(FRAME_COUNTER);
-        xdlms.setGlobalKey(GLOBALKEY);
-        xdlms.setAuthenticationKey(AUTHKEY);
-        xdlms.setSecurityControlByte(CONTROL_BYTE);
-        xdlms.setAuthenticationTag(TAG);
-        assertArrayEquals(PLAINTEXT, xdlms.generatePlainText());
+        try {
+            XDlmsDecryption xdlms = new XDlmsDecryption();
+            xdlms.setCipheredText(CIPHERED);
+            xdlms.setSystemTitle(SYSTEMTITLE);
+            xdlms.setFrameCounter(FRAME_COUNTER);
+            xdlms.setGlobalKey(GLOBALKEY);
+            xdlms.setAuthenticationKey(AUTHKEY);
+            xdlms.setSecurityControlByte(CONTROL_BYTE);
+            xdlms.setAuthenticationTag(TAG);
+            assertArrayEquals(PLAINTEXT, xdlms.generatePlainText());
+        } catch (ConnectionException e) {
+            e.printStackTrace();
+            fail();
+        }
     }
 
     /**

@@ -9,6 +9,8 @@ package com.energyict.dlms;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
+import java.util.List;
+
 /**
  *
  * @author  Koen
@@ -578,5 +580,43 @@ public final class DLMSUtils implements DLMSCOSEMGlobals {
 		}
 		return data;
 	}
+
+	/**
+	 * @param firstArray
+	 * @param secondArray
+	 * @return
+	 */
+	public static byte[] concatByteArrays(final byte[] firstArray, final byte[] secondArray) {
+		if (firstArray == null) {
+			if (secondArray == null) {
+				return new byte[0];
+			} else {
+				return (byte[]) secondArray.clone();
+			}
+		} else {
+			if (secondArray == null) {
+				return (byte[]) firstArray.clone();
+			}
+		}
+
+		byte[] bytes = new byte[firstArray.length + secondArray.length];
+		System.arraycopy(firstArray, 0, bytes, 0, firstArray.length);
+		System.arraycopy(secondArray, 0, bytes, firstArray.length, secondArray.length);
+		return bytes;
+	}
+
+    /**
+     * Construct a concatenated byteArray for the given ArrayList of byteArrays
+     *
+     * @param byteArrays the <code>byte[]</code> to concatenate
+     * @return 1 <code>byte[]</code> with all given arrays after each other
+     */
+    public static byte[] concatListOfByteArrays(List<byte[]> byteArrays) {
+        byte[] concatenatedArray = null;
+        for (byte[] byteArray : byteArrays) {
+            concatenatedArray = concatByteArrays(concatenatedArray, byteArray);
+        }
+        return concatenatedArray;
+    }
 
 }
