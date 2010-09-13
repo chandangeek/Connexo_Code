@@ -33,7 +33,7 @@ import java.util.logging.Level;
  * Implements the WebRTUZ3 protocol. Initially it's a copy of the {@link WebRTUKP} protocol,
  * but with more extensions to it.
  * </p>
- *
+ * 
  * @author gna
  *
  */

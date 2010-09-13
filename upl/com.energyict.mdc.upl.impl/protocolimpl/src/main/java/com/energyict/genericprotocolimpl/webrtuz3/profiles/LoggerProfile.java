@@ -2,6 +2,7 @@ package com.energyict.genericprotocolimpl.webrtuz3.profiles;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.Unit;
+import com.energyict.dlms.ParseUtils;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
@@ -80,6 +81,9 @@ public class LoggerProfile {
                     Unit unit = getUnit(capturedObisCode);
                     String name = capturedObisCode.toString();
                     ChannelInfo channelInfo = new ChannelInfo(cis.size(), firstChannelIndex + cis.size(), name, unit);
+                    if (ParseUtils.isObisCodeCumulative(capturedObisCode)) {
+                        channelInfo.setCumulative();
+                    }
                     capturedObisCode.anyChannel();
                     cis.add(channelInfo);
                 }

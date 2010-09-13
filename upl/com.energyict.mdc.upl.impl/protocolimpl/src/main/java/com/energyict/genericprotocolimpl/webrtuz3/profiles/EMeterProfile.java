@@ -167,8 +167,7 @@ public class EMeterProfile {
 
                         index++;
                         if (com.energyict.dlms.ParseUtils.isObisCodeCumulative(co.getLogicalName().getObisCode())) {
-                            //TODO need to check the wrapValue
-                            ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
+                            ci.setCumulative();
                         }
                         channelInfos.add(ci);
                     }
