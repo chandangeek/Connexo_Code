@@ -3,8 +3,17 @@ package com.energyict.dlms.aso;
 import com.energyict.protocol.ProtocolUtils;
 
 
-
-
+/**
+ * Information from GreenBook:
+ * <pre>
+ * The conformance block allows clients and servers using the same DLMS/COSEM protocol, but
+ * supporting different capabilities to negotiate a compatible set of capabilities so that they can
+ * communicate.</pre>
+ * Use this object ot change these settings.
+ * <p>
+ * Copyrights EnergyICT
+ * </p>
+ */
 public class ConformanceBlock{
 	/**
 	 * Default conformance block with LongName referencing:

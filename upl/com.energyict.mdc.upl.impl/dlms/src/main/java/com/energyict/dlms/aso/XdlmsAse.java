@@ -10,10 +10,12 @@ import com.energyict.protocol.ProtocolUtils;
 public class XdlmsAse {
 
 	private static final Object	CRLF	= "\r\n";
+    /** Contains the dedicatedKey (sessionkey) to use in this association */
 	private byte[] dedicatedKey;
 	private boolean responseAllowed = true; // default
 	private int proposedQOS = -1;
 	private int proposedDLMSversion = 6;	// default
+    /** The used {@link com.energyict.dlms.aso.ConformanceBlock}*/
 	private ConformanceBlock cb;
 	private int maxRecPDUClientSize = -1;
 
@@ -38,12 +40,12 @@ public class XdlmsAse {
 	 * @param maxRecPDUSize - the proposed maximum PDU size of the client
 	 */
 	public XdlmsAse(byte[] dedicatedKey, boolean responseAllowed, int proposedQOS, int proposedDLMSVersion, ConformanceBlock conformanceBlock, int maxRecPDUSize){
-		setConformanceBlock(conformanceBlock);
-		setDedicatedKey(dedicatedKey);
-		setProposedDLMSVersion(proposedDLMSVersion);
-		setProposedQOS(proposedQOS);
-		setResponseAllowed(responseAllowed);
-		setMaxRecPDUClientSize(maxRecPDUSize);
+		this.cb = conformanceBlock;
+		this.dedicatedKey = dedicatedKey != null ? dedicatedKey.clone() : null;
+		this.proposedDLMSversion = proposedDLMSVersion;
+		this.proposedQOS = proposedQOS;
+		this.responseAllowed = responseAllowed;
+		this.maxRecPDUClientSize = maxRecPDUSize;
 	}
 
 	@Override

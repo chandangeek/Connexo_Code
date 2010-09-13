@@ -27,13 +27,13 @@ public class AssociationControlServiceElement {
 	 *  - the transfer syntax is A-XDR
 	 * </pre>
 	 */
-	private static byte[] DEFAULT_OBJECT_IDENTIFIER = new byte[] { (byte) 0x60,
+	private static final byte[] DEFAULT_OBJECT_IDENTIFIER = new byte[] { (byte) 0x60,
 			(byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08 };
 
-	public static int LOGICAL_NAME_REFERENCING_NO_CIPHERING = 1;
-	public static int LOGICAL_NAME_REFERENCING_WITH_CIPHERING = 3;
-	public static int SHORT_NAME_REFERENCING_NO_CIPHERING = 2;
-	public static int SHORT_NAME_REFERENCING_WITH_CIPHERING = 4;
+	public static final int LOGICAL_NAME_REFERENCING_NO_CIPHERING = 1;
+	public static final int LOGICAL_NAME_REFERENCING_WITH_CIPHERING = 3;
+	public static final int SHORT_NAME_REFERENCING_NO_CIPHERING = 2;
+	public static final int SHORT_NAME_REFERENCING_WITH_CIPHERING = 4;
 
 	private int ACSE_protocolVersion = 0; // default version1
 	private int contextId = 1;
@@ -58,6 +58,9 @@ public class AssociationControlServiceElement {
 		this.sc = securityContext;
 	}
 
+    /**
+     * @return the CallingAuthenticationValue from the {@link com.energyict.dlms.aso.SecurityProvider}
+     */
 	private byte[] getCallingAuthenticationValue() {
 		try {
 			return sc.getSecurityProvider().getCallingAuthenticationValue();
@@ -66,6 +69,10 @@ public class AssociationControlServiceElement {
 		}
 	}
 
+    /**
+     * Getter for the {@link com.energyict.dlms.aso.SecurityContext}
+     * @return the used SecurityContext
+     */
 	public SecurityContext getSecurityContext() {
 		return sc;
 	}
@@ -108,10 +115,18 @@ public class AssociationControlServiceElement {
 		return addUnusedPrefixBytesForCompliancyWithOldCode(buildAARQApdu());
 	}
 
+    /**
+     * Getter for the CallingApplicationTitle
+     * @return the title
+     */
 	public byte[] getCallingAPTitle() {
 		return callingAPTitle;
 	}
 
+    /**
+     * Setter for the CallingApplicationTitle
+     * @param callingAPTitle the title to set
+     */
 	public void setCallingAPTitle(byte[] callingAPTitle) {
 		if(callingAPTitle != null){
 			this.callingAPTitle = callingAPTitle.clone();
@@ -139,6 +154,8 @@ public class AssociationControlServiceElement {
 	}
 
 	/**
+     * Build up the ApplicationAssociationRequest
+     *
 	 * @return the generated AARQ to establish an ApplicationAssociation
 	 * @throws IOException
 	 */
@@ -448,7 +465,8 @@ public class AssociationControlServiceElement {
     }
 
 	/**
-	 * @param encryptedUserInformation
+     * Decrypt the UserInformation field
+	 * @param encryptedUserInformation the encrypted userInformationField from the Device
 	 * @throws IOException
 	 */
 	private byte[] decryptUserInformation(byte[] encryptedUserInformation) throws IOException {
@@ -522,6 +540,12 @@ public class AssociationControlServiceElement {
 		return ProtocolUtils.getSubArray(rlrq, 0, t - 1);
 	}
 
+    /**
+     * Analyze the ReleaseResponse
+     *
+     * @param responseData the response from the device
+     * @throws IOException
+     */
     protected void analyzeRLRE(byte[] responseData) throws IOException {
         int i = 0;
         try {
@@ -568,6 +592,11 @@ public class AssociationControlServiceElement {
         }
     }
 
+    /**
+     * Getter for the ApplicationControlServiceElement Requirements
+     *
+     * @return the ACSE req.
+     */
     private byte[] getSenderACSERequirements() {
 		byte[] senderACSEReq = new byte[4];
 		senderACSEReq[0] = DLMSCOSEMGlobals.AARQ_SENDER_ACSE_REQUIREMENTS;
@@ -577,6 +606,10 @@ public class AssociationControlServiceElement {
 		return senderACSEReq;
 	}
 
+    /**
+     * Getter for the UserInformationField <i>(encryption must already be applied)</i>
+     * @return the UserInformation byteArray
+     */
 	protected byte[] getUserInformation() {
 		if (this.userInformationData != null) {
 			byte[] uiData = new byte[this.userInformationData.length + 4];
@@ -609,7 +642,8 @@ public class AssociationControlServiceElement {
 	}
 
 	/**
-	 * @return
+     * Generate the Calling ApplicationTitle byteArray
+	 * @return the byteArray containing the our AP title
 	 */
 	private byte[] generateCallingAPTitleField() {
 		if (getCallingAPTitle() != null) {
@@ -749,6 +783,10 @@ public class AssociationControlServiceElement {
 		}
 	}
 
+    /**
+     * Getter for the Responding ApplicatonTitle
+     * @return the Responding AP title
+     */
 	public byte[] getRespondingAPTtitle(){
 		return this.respondingAPTitle;
 	}

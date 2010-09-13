@@ -194,7 +194,6 @@ public class SecurityContext {
             digest = md.digest(plainText);
             return digest;
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
             throw new IOException(this.authenticationAlgorithm + " algorithm isn't a valid algorithm type." + e.getMessage());
         }
     }
@@ -222,7 +221,6 @@ public class SecurityContext {
                     return plainText;
                 } // no encryption/authentication
                 case SECURITYPOLICY_AUTHENTICATION: {
-//					AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getGlobalKey(), DLMS_AUTH_TAG_SIZE);
                     AesGcm128 ag128 = new AesGcm128(isGlobalCiphering() ? getSecurityProvider().getGlobalKey() : getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
 
                     /*
@@ -262,7 +260,6 @@ public class SecurityContext {
                     return securedApdu;
                 } // authenticated
                 case SECURITYPOLICY_ENCRYPTION: {
-//					AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
                     AesGcm128 ag128 = new AesGcm128(isGlobalCiphering() ? getSecurityProvider().getGlobalKey() : getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
 
                     ag128.setInitializationVector(new BitVector(getInitializationVector()));
@@ -285,7 +282,6 @@ public class SecurityContext {
                     return securedApdu;
                 } // encrypted
                 case SECURITYPOLICY_BOTH: {
-//					AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
                     AesGcm128 ag128 = new AesGcm128(isGlobalCiphering() ? getSecurityProvider().getGlobalKey() : getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
 
                     /*
@@ -331,10 +327,10 @@ public class SecurityContext {
     /**
      * Construct the encrypted packet to use as part of the HLS authentication 5 (encryption with GMAC).
      * The authenticationTag is constructed with the associatedData = SecurityControl byte || AuthenticationKey || StoC.
-     * The secured packet is constructed as : SecurityControl byte || FrameCounter || f(StoC)
+     * The secured packet is constructed as : SecurityControl byte || FrameCounter || (T)
      *
      * @param plainText to encrypt using GMAC
-     * @return the authenticationtag (T)
+     * @return the secured APDU
      */
     public byte[] highLevelAuthenticationGMAC(byte[] plainText) throws IOException {
         int offset = 0;
@@ -547,36 +543,49 @@ public class SecurityContext {
      * - the hex representation of the frameCounter
      * </pre>
      *
-     * @return a byteArray containing the frameCounter
+     * @return a byteArray containing the IV of the client
      */
     protected byte[] getInitializationVector() {
         if (getSystemTitle() == null) {
-            throw new IllegalArgumentException("The AssociationResponse did NOT have a server SystemTitle - Encryption can not be applied!");
+            throw new IllegalArgumentException("The AssociationRequest did NOT have a client SystemTitle - Encryption can not be applied!");
         }
-        byte[] iv = new byte[INITIALIZATION_VECTOR_SIZE];
         byte[] fc = getFrameCounterInBytes();
-        iv = ProtocolUtils.concatByteArrays(getSystemTitle(), fc);
+        byte[] iv = ProtocolUtils.concatByteArrays(getSystemTitle(), fc);
         return iv;
     }
 
-    protected byte[] getRespondingInitializationVector() {
+    /**
+     * Getter for the responding InitializationVector
+     *
+     * @return a byteArray containing the IV of the server
+     */
+    private byte[] getRespondingInitializationVector() {
         if (getResponseSystemTitle() == null) {
             throw new IllegalArgumentException("The AssociationResponse did NOT have a server SystemTitle - Encryption can not be applied!");
         }
-
         byte[] fc = getRespondingFrameCounterInBytes();
         byte[] iv = ProtocolUtils.concatByteArrays(getResponseSystemTitle(), fc);
         return iv;
     }
 
+    /**
+     * @return the clients' SystemTitle
+     */
     public byte[] getSystemTitle() {
         return systemTitle;
     }
 
+    /**
+     * @return the servers' SystemTitle
+     */
     public byte[] getResponseSystemTitle() {
         return responseSystemTitle;
     }
 
+    /**
+     * Setter for the servers' responding SystemTitle
+     * @param title the server his SystemTitle
+     */
     public void setResponseSystemTitle(byte[] title) {
         if (title != null) {
             this.responseSystemTitle = new byte[SYSTEM_TITLE_LENGTH];
@@ -624,6 +633,10 @@ public class SecurityContext {
         return calculateFrameCounterInBytes(getResponseFrameCounter());
     }
 
+    /**
+     * Setter for the responding FrameCounter
+     * @param frameCounter the frameCounter to set from the server
+     */
     public void setResponseFrameCounter(long frameCounter) {
         this.responseFrameCounter = frameCounter;
     }
@@ -694,11 +707,7 @@ public class SecurityContext {
      * @return true if it is, false otherwise
      */
     public boolean isGlobalCiphering() {
-        if (cipheringType == CIPHERING_TYPE_GLOBAL) {
-            return true;
-        } else {
-            return false;
-        }
+       return cipheringType == CIPHERING_TYPE_GLOBAL;
     }
 
 }

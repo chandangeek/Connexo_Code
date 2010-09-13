@@ -57,7 +57,7 @@ public class ApplicationServiceObjectTest {
     }
 
     /**
-     * Test for the HLS5 encryption response method. (We tested the implementation with the help of an Iskra device...)
+     * Test for the HLS5_GMAC encryption response method. (We tested the implementation with the help of an Iskra device...)
      */
     @Test
     public void analyzeIskraHLS5EncryptedResponse() {

@@ -29,10 +29,10 @@ public class ApplicationServiceObject {
     protected ProtocolLink protocolLink;
 
     private int associationStatus;
-    public static int ASSOCIATION_DISCONNECTED = 0;
-    public static int ASSOCIATION_PENDING = 1;
-    public static int ASSOCIATION_CONNECTED = 2;
-    public static int ASSOCIATION_READY_FOR_DISCONNECTION = 3;
+    public static final int ASSOCIATION_DISCONNECTED = 0;
+    public static final int ASSOCIATION_PENDING = 1;
+    public static final int ASSOCIATION_CONNECTED = 2;
+    public static final int ASSOCIATION_READY_FOR_DISCONNECTION = 3;
 
     /**
      * Default constructor
@@ -103,19 +103,13 @@ public class ApplicationServiceObject {
         }
 
         switch (this.securityContext.getAuthenticationType()) {
-            case LOWEST_LEVEL: {
+            case LOWEST_LEVEL:
+            case LOW_LEVEL:
                 this.associationStatus = ASSOCIATION_CONNECTED;
-            }
-            ;
-            break;
-            case LOW_LEVEL: {
-                this.associationStatus = ASSOCIATION_CONNECTED;
-            }
-            ;
-            break;
+                break;
             case MAN_SPECIFIC_LEVEL:
                 throw new IOException("High level security 2 is not supported.");
-            case HLS3: {
+            case HLS3_MD5: {
                 if (this.acse.getRespondingAuthenticationValue() != null) {
                     plainText = ProtocolUtils.concatByteArrays(this.acse.getRespondingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
                     encryptedResponse = replyToHLSAuthentication(this.securityContext.associationEncryption(plainText));
@@ -125,9 +119,9 @@ public class ApplicationServiceObject {
                             ") requires the server to respond with a challenge.");
                 }
             }
-            ;
+
             break;
-            case HLS4: {
+            case HLS4_SHA1: {
                 if (this.acse.getRespondingAuthenticationValue() != null) {
                     plainText = ProtocolUtils.concatByteArrays(this.acse.getRespondingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
                     encryptedResponse = replyToHLSAuthentication(this.securityContext.associationEncryption(plainText));
@@ -137,9 +131,9 @@ public class ApplicationServiceObject {
                             ") requires the server to respond with a challenge.");
                 }
             }
-            ;
+
             break;
-            case HLS5: {
+            case HLS5_GMAC: {
 
                 if (this.acse.getRespondingAuthenticationValue() != null) {
                     encryptedResponse = replyToHLSAuthentication(this.securityContext.highLevelAuthenticationGMAC(this.acse.getRespondingAuthenticationValue()));
@@ -148,7 +142,7 @@ public class ApplicationServiceObject {
                     throw new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
                             ") requires the server to respond with a challenge.");
                 }
-            };break;
+            }break;
             default: {
                 // should never get here
                 throw new ConnectionException("Unknown authenticationLevel: " + this.securityContext.getAuthenticationLevel());
@@ -166,8 +160,8 @@ public class ApplicationServiceObject {
         byte[] plainText = ProtocolUtils.concatByteArrays(this.securityContext.getSecurityProvider().getCallingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
         
         byte[] cToSEncrypted;
-        // We have to make a distinction between the response from HLS5 or one of the below ones.
-        if(this.securityContext.getAuthenticationType() != AuthenticationTypes.HLS5){
+        // We have to make a distinction between the response from HLS5_GMAC or one of the below ones.
+        if(this.securityContext.getAuthenticationType() != AuthenticationTypes.HLS5_GMAC){
             cToSEncrypted = this.securityContext.associationEncryption(plainText);
         } else {
             cToSEncrypted = this.securityContext.createHighLevelAuthenticationGMACResponse(this.securityContext.getSecurityProvider().getCallingAuthenticationValue(), encryptedResponse);
