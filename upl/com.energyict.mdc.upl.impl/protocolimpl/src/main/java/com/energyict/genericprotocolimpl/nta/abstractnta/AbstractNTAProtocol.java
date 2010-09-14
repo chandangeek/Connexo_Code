@@ -1143,8 +1143,12 @@ public abstract class AbstractNTAProtocol extends MeterMessages implements Gener
     private Rtu findOrCreateMbusDevice(String key) throws SQLException, BusinessException {
 		List<Rtu> mbusList = mw().getRtuFactory().findBySerialNumber(key);
 		if(mbusList.size() == 1){
-			mbusList.get(0).updateGateway(getMeter());
-			return mbusList.get(0);
+            Rtu mbusRtu = (Rtu) mbusList.get(0);
+            // Check if gateway has changed, and update if it has
+            if ((mbusRtu.getGateway() == null) || (mbusRtu.getGateway().getId() != getMeter().getId())) {
+                mbusRtu.updateGateway(getMeter());
+            }
+			return mbusRtu;
 		} else if(mbusList.size() > 1){
 			getLogger().log(Level.SEVERE, "Multiple meters where found with serial: " + key + ". Meter will not be handled.");
 			return null;

@@ -494,8 +494,12 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	private Rtu findOrCreateNewMbusDevice(String customerID) throws SQLException, BusinessException, IOException {
 		List mbusList = mw().getRtuFactory().findBySerialNumber(customerID);
 		if( mbusList.size() == 1 ) {
-			((Rtu)mbusList.get(0)).updateGateway(rtu);
-			return (Rtu)mbusList.get(0);
+            Rtu mbusRtu = (Rtu) mbusList.get(0);
+            // Check if gateway has changed, and update if it has
+            if ((mbusRtu.getGateway() == null) || (mbusRtu.getGateway().getId() != rtu.getId())) {
+                mbusRtu.updateGateway(rtu);
+            }
+			return mbusRtu;
 		}
         if( mbusList.size() > 1 ) {
             getLogger().severe( toDuplicateSerialsErrorMsg(customerID) );

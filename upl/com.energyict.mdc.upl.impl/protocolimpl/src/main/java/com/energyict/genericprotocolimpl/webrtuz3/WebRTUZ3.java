@@ -5,7 +5,6 @@ import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
-import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.*;
@@ -760,7 +759,10 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
             if (!deviceMapping.isGhostDevice()) {
                 Rtu mbus = CommonUtils.findOrCreateDeviceBySerialNumber(deviceMapping.getSerialNumber(), mbusRtuType, folderExtName);
                 if (mbus != null) {
-                    mbus.updateGateway(getMeter());
+                    // Check if gateway has changed, and update if it has
+                    if ((mbus.getGateway() == null) || (mbus.getGateway().getId() != getMeter().getId())) {
+                        mbus.updateGateway(getMeter());
+                    }
                     this.mbusDevices[count++] = new MbusDevice(deviceMapping.getSerialNumber(), deviceMapping.getPhysicalAddress(), mbus, getLogger());
                 }
             }
@@ -781,7 +783,10 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
             if (!deviceMapping.isGhostDevice()) {
                 Rtu eMeter = CommonUtils.findOrCreateDeviceBySerialNumber(deviceMapping.getSerialNumber(), eMeterRtuType, folderExtName);
                 if (eMeter != null) {
-                    eMeter.updateGateway(getMeter());
+                    // Check if gateway has changed, and update if it has
+                    if ((eMeter.getGateway() == null) || (eMeter.getGateway().getId() != getMeter().getId())) {
+                        eMeter.updateGateway(getMeter());
+                    }
                     this.eMeters[count++] = new EMeter(deviceMapping.getSerialNumber(), deviceMapping.getPhysicalAddress(), eMeter, getLogger());
                 }
             }

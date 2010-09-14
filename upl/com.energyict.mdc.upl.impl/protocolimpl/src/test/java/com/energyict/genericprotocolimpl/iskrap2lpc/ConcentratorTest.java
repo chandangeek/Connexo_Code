@@ -1,45 +1,25 @@
 package com.energyict.genericprotocolimpl.iskrap2lpc;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import com.energyict.cbo.*;
+import com.energyict.cpo.Environment;
+import com.energyict.interval.RawIntervalRecord;
+import com.energyict.mdw.core.*;
+import com.energyict.mdw.coreimpl.CommunicationProtocolImpl;
+import com.energyict.mdw.coreimpl.RtuTypeImpl;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.utils.Utilities;
+import org.junit.*;
 
+import javax.xml.rpc.ServiceException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
-import javax.xml.rpc.ServiceException;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cbo.Unit;
-import com.energyict.cpo.Environment;
-import com.energyict.interval.RawIntervalRecord;
-import com.energyict.mdw.core.CommunicationProtocol;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.core.RtuType;
-import com.energyict.mdw.coreimpl.CommunicationProtocolImpl;
-import com.energyict.mdw.coreimpl.RtuTypeImpl;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalValue;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocolimpl.utils.Utilities;
+import static org.junit.Assert.*;
 
 /**
  * 
@@ -654,7 +634,11 @@ public class ConcentratorTest{
 				}
 				mbusRtu[i] = Utilities.addChannel(mbusRtu[i], TimeDuration.DAYS, 5);
 				mbusRtu[i] = Utilities.addPropertyToRtu(mbusRtu[i], "ChannelMap", "1:1:1:1:0."+(i+1)+".128.50.0d");
-				mbusRtu[i].updateGateway(meter);
+
+                // Check if gateway has changed and update if it has
+                if ((mbusRtu[i].getGateway() == null) || (mbusRtu[i].getGateway().getId() != meter.getId())){
+                    mbusRtu[i].updateGateway(meter);
+                }
 			}
 			
 			assertTrue(meterReadTransaction.mbusCheck());

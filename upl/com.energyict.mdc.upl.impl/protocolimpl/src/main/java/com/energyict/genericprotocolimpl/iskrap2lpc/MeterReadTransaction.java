@@ -1,61 +1,36 @@
 package com.energyict.genericprotocolimpl.iskrap2lpc;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.rmi.RemoteException;
-import java.sql.SQLException;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.xml.rpc.ServiceException;
-
-import org.apache.axis.types.UnsignedByte;
-import org.apache.axis.types.UnsignedInt;
-import org.apache.axis.types.UnsignedShort;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cbo.Unit;
+import com.energyict.cbo.*;
 import com.energyict.cpo.Environment;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.genericprotocolimpl.common.GenericCache;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.iskrap2lpc.Concentrator.XmlException;
-import com.energyict.genericprotocolimpl.iskrap2lpc.stub.CosemDateTime;
-import com.energyict.genericprotocolimpl.iskrap2lpc.stub.ObjectDef;
-import com.energyict.genericprotocolimpl.iskrap2lpc.stub.PeriodicProfileType;
-import com.energyict.genericprotocolimpl.iskrap2lpc.stub.ProfileType;
+import com.energyict.genericprotocolimpl.iskrap2lpc.stub.*;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterSpec;
 import com.energyict.mdw.amrimpl.RtuRegisterReadingImpl;
-import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.CommunicationProfile;
-import com.energyict.mdw.core.Folder;
-import com.energyict.mdw.core.Lookup;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.core.RtuMessage;
-import com.energyict.mdw.core.RtuType;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ProtocolChannel;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
+import org.apache.axis.types.*;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import javax.xml.rpc.ServiceException;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.rmi.RemoteException;
+import java.sql.SQLException;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Meter handling: 
@@ -723,7 +698,7 @@ public class MeterReadTransaction implements CacheMechanism {
 	
 	/**
 	 * Read the meterTime
-	 * @param meterID
+     * 
 	 * @return the current time of the meter
 	 * @throws NumberFormatException
 	 * @throws RemoteException
@@ -830,10 +805,12 @@ public class MeterReadTransaction implements CacheMechanism {
         List meterList = getConcentrator().mw().getRtuFactory().findBySerialNumber(serial);
 
         if( meterList.size() == 1 ) {
-    		
-        	((Rtu)meterList.get(0)).updateGateway(concentrator);
-        	
-      	    return (Rtu) meterList.get(0);
+            Rtu rtu = (Rtu) meterList.get(0);
+            // Check if gateway has changed, and update if it has
+            if ((rtu.getGateway() == null) || (rtu.getGateway().getId() != concentrator.getId())) {
+                rtu.updateGateway(concentrator);
+            }
+      	    return rtu;
         }
         
         else if( meterList.size() > 1 ) {
@@ -864,10 +841,12 @@ public class MeterReadTransaction implements CacheMechanism {
         List meterList = getConcentrator().mw().getRtuFactory().findBySerialNumber(serial);
 
         if( meterList.size() == 1 ) {
-    		
-        	((Rtu)meterList.get(0)).updateGateway(concentrator);
-        	
-      	    return (Rtu) meterList.get(0);
+            Rtu rtu = (Rtu) meterList.get(0);
+            // Check if gateway has changed, and update if it has
+            if ((rtu.getGateway() == null) || (rtu.getGateway().getId() != concentrator.getId())) {
+                rtu.updateGateway(concentrator);
+            }
+      	    return rtu;
         }
         
         else if( meterList.size() > 1 ) {
