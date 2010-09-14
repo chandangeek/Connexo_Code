@@ -67,6 +67,8 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     private static final String SET_PLC_REPEATER_2 = "<SetSFSKRepeater REPEATER=\"2\"> </SetSFSKRepeater>";
     private static final String SET_PLC_REPEATER_3 = "<SetSFSKRepeater REPEATER=\"3\"> </SetSFSKRepeater>";
 
+    private static final String FIRMWARE_UPGRADE = "<FirmwareUpdate><IncludedFile>$CONTENT$</IncludedFile></FirmwareUpdate>";
+
     private static final String OBSERVER_FILENAME = "d:\\logging\\AS220Main\\communications_"+System.currentTimeMillis()+".log";
     protected static final TimeZone DEFAULT_TIMEZONE = TimeZone.getTimeZone("Europe/Paris");
 
@@ -99,7 +101,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         properties.setProperty("Timeout", "20000");
         properties.setProperty("ForcedDelay", "200");
 
-        properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
+        properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_BOTH);
         properties.setProperty("ProfileInterval", "900");
         properties.setProperty("Password", "20100401");
         properties.setProperty("SerialNumber", AS1440 ? "03191576" : "35021373");
@@ -331,44 +333,8 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         log("");
     }
 
-    private byte[] getFirmware18ByteArray() throws IOException {
-        File file = new File(AS220Main.class.getClassLoader().getResource("com/energyict/protocolimpl/dlms/as220/debug/firmware18b64.bin").getFile());
-        FileInputStream fis = new FileInputStream(file);
-        byte[] content = new byte[(int) file.length()];
-        fis.read(content);
-        fis.close();
-        return content;
-    }
-
     public void printExtendedLogging() throws IOException {
         log(getMeterProtocol().getRegistersInfo());
-    }
-
-    private byte[] getFirmware19ByteArray() throws IOException {
-        File file = new File(AS220Main.class.getClassLoader().getResource("com/energyict/protocolimpl/dlms/as220/debug/firmware17022010B64.bin").getFile());
-        FileInputStream fis = new FileInputStream(file);
-        byte[] content = new byte[(int) file.length()];
-        fis.read(content);
-        fis.close();
-        return content;
-    }
-
-    private byte[] getFirmware27ByteArray() throws IOException {
-        File file = new File(AS220Main.class.getClassLoader().getResource("com/energyict/protocolimpl/dlms/as220/debug/firmware27190810B64.bin").getFile());
-        FileInputStream fis = new FileInputStream(file);
-        byte[] content = new byte[(int) file.length()];
-        fis.read(content);
-        fis.close();
-        return content;
-    }
-
-    private byte[] getFirmware22ByteArray() throws IOException {
-        File file = new File(AS220Main.class.getClassLoader().getResource("com/energyict/protocolimpl/dlms/as220/debug/firmware22190810B64.bin").getFile());
-        FileInputStream fis = new FileInputStream(file);
-        byte[] content = new byte[(int) file.length()];
-        fis.read(content);
-        fis.close();
-        return content;
     }
 
     private List<String> getFullRegisterList() {
@@ -490,6 +456,14 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         readRegisters(registerList);
     }
 
+    public void firmwareUpgrade(byte[] base64Firmware) throws IOException {
+        System.out.println("Firmware before upgrade: " + getMeterProtocol().getFirmwareVersion());
+        String message = FIRMWARE_UPGRADE.replace("$CONTENT$", new String(base64Firmware));
+        MessageResult result = getMeterProtocol().queryMessage(new MessageEntry(message, ""));
+        System.out.println("Firmware upgrade " + (result.isSuccess() ? "SUCCESS" : "FAILED"));
+        System.out.println("Firmware after upgrade: " + getMeterProtocol().getFirmwareVersion());
+    }
+
     public static void main(String[] args) throws LinkException, IOException, InterruptedException {
         AS220Main main = new AS220Main();
         main.setCommPort(COMPORT);
@@ -505,7 +479,12 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
 
     @Override
     void doDebug() throws LinkException, IOException {
-        readRegisters("1.0.1.8.1.VZ");
+        try {
+            byte[] fwBytes = ProtocolTools.readBytesFromFile("c:\\firmware28140910B64.bin");
+            firmwareUpgrade(fwBytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

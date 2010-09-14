@@ -252,7 +252,9 @@ public class AS220ImageTransfer {
 	 * @throws IOException 
 	 */
 	public void activate() throws IOException {
+        getAs220().getLogger().log(Level.INFO, "Activating image ...");
 		this.imageTransfer.imageActivation();
+        getAs220().getLogger().log(Level.INFO, "Activation of the image was succesfull at : " + new Date());
 	}
 	
 }
