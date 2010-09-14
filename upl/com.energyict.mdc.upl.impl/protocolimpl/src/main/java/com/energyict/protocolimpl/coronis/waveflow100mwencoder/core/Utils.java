@@ -19,6 +19,11 @@ class Utils {
 	static String toHexString(final int val) {
 		return "0x"+Integer.toHexString(val);
 	}
+
+	static String toHexString(final long val) {
+		return "0x"+Long.toHexString(val);
+	}
+	
 	
     /**
      * returns a sub array from index to end

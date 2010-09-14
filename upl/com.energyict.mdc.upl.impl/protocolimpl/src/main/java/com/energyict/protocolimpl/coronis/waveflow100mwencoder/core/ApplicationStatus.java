@@ -34,5 +34,4 @@ public class ApplicationStatus extends AbstractParameter {
 	byte[] prepare() throws IOException {
 		return new byte[]{(byte)status};
 	}
-
 }

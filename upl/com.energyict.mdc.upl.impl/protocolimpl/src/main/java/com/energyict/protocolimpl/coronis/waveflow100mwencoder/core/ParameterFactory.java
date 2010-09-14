@@ -12,6 +12,7 @@ class ParameterFactory {
 	// cached
 	private MeasurementPeriod measurementPeriod=null;
 	private SamplingPeriod samplingPeriod=null;
+	private SamplingActivationType samplingActivationType=null;
 	private ApplicationStatus applicationStatus=null;
 	private OperatingMode operatingMode=null;
 	private EncoderModel[] encoderModels = new EncoderModel[2];
@@ -42,6 +43,13 @@ class ParameterFactory {
 			operatingMode.read();
 		}
 		return operatingMode.getOperatingMode();
+	}
+
+	final void writeOperatingMode(final int operatingModeVal, final int mask) throws IOException {
+		operatingMode = new OperatingMode(waveFlow100mW);
+		operatingMode.setOperatingMode(operatingModeVal);
+		operatingMode.setMask(mask);
+		operatingMode.write();
 	}
 	
 	final void writeOperatingMode(final int operatingModeVal) throws IOException {
@@ -78,6 +86,29 @@ class ParameterFactory {
 		samplingPeriod.write();
 	}
 
+	final int readSamplingActivationType() throws IOException {
+		if (samplingActivationType == null) {
+			samplingActivationType = new SamplingActivationType(waveFlow100mW);
+			samplingActivationType.read();
+		}
+		return samplingActivationType.getType();
+	}
+	
+	final void writeSamplingActivationImmediate() throws IOException {
+		writeSamplingActivationType(SamplingActivationType.START_IMMEDIATE);
+	}
+	
+	final void writeSamplingActivationNextHour() throws IOException {
+		writeSamplingActivationType(SamplingActivationType.START_NEXT_HOUR);
+	}
+	
+	final void writeSamplingActivationType(final int type) throws IOException {
+		samplingActivationType = new SamplingActivationType(waveFlow100mW);
+		samplingActivationType.setType(type);
+		samplingActivationType.write();
+	}
+	
+	
 	final int readMeasurementPeriod() throws IOException {
 		if (measurementPeriod == null) {
 			measurementPeriod = new MeasurementPeriod(waveFlow100mW);

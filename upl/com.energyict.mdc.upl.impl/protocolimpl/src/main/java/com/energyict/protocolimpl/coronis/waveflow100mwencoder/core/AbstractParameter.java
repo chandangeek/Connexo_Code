@@ -74,6 +74,15 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 	 */
 	private int operatingMode;
 	
+	/**
+	 * Operating mode write mask
+	 */
+	private int mask=0xffff;
+	
+	final void setMask(int mask) {
+		this.mask = mask;
+	}
+
 	final int getOperatingMode() {
 		return operatingMode;
 	}
@@ -97,7 +106,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 			daos.writeByte(EncoderRadioCommandId.WriteParameter.getCommandId());
 			if (getParameterId()==null) {
 				daos.writeShort(operatingMode); // update the operating mode
-				daos.writeShort(0xffff); // mask to update the operating mode
+				daos.writeShort(mask); // mask to update the operating mode
 				daos.writeByte(0); // write 0 parameter, only update the operating mode
 			}
 			else {

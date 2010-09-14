@@ -38,5 +38,4 @@ public class EncoderCurrentReading extends AbstractRadioCommand {
 	byte[] prepare() throws IOException {
 		return new byte[0];
 	}
-
 }

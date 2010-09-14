@@ -10,18 +10,28 @@ abstract public class AbstractRadioCommand {
 		
 		ReadParameter(0x18),
 		WriteParameter(0x19),
-		EncoderCurrentReading(0x01),
-		EncoderDataloggingTable(0x07),
-		EncoderReadLeakageEventTable(0x04);
+		EncoderCurrentReading(0x01,true),
+		EncoderDataloggingTable(0x07,true),
+		EncoderReadLeakageEventTable(0x04,true),
+		FirmwareVersion(0x28);
 		
 		private int commandId;
+		private boolean readGenericHeader;
 		
+		final boolean isReadGenericHeader() {
+			return readGenericHeader;
+		}
+
 		final int getCommandId() {
 			return commandId;
 		}
 
 		EncoderRadioCommandId(final int commandId) {
+			this(commandId,false);
+		}
+		EncoderRadioCommandId(final int commandId, final boolean readGenericHeader) {
 			this.commandId=commandId;
+			this.readGenericHeader=readGenericHeader;
 		}
 	} // enum EncoderRadioCommandId
 	
@@ -80,8 +90,19 @@ abstract public class AbstractRadioCommand {
 				throw new WaveFlow100mwEncoderException("Invalid response tag ["+Utils.toHexString(commandIdAck)+"]");
 			}
 			else {
-				encoderGenericHeader = new EncoderGenericHeader(dais, getWaveFlow100mW().getLogger(), getWaveFlow100mW().getTimeZone());
-				parse(Utils.getSubArray(data, encoderGenericHeader.size()));
+				
+				if ((commandIdAck == (0x80 | EncoderRadioCommandId.EncoderDataloggingTable.getCommandId())) && 
+					(data.length == 2) && 
+					(Utils.toInt(data[1]) == 0xff)) {
+					throw new WaveFlow100mwEncoderException("Datalogging not yet available...");
+				}
+				
+				if (getEncoderRadioCommandId().isReadGenericHeader()) {
+					encoderGenericHeader = new EncoderGenericHeader(dais, getWaveFlow100mW().getLogger(), getWaveFlow100mW().getTimeZone());
+				}
+				byte[] temp = new byte[dais.available()];
+				dais.read(temp);
+				parse(temp);
 			}
 		}
 		finally {

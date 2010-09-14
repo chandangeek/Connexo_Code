@@ -81,6 +81,14 @@ public class WaveFlow100mW extends AbstractProtocol {
 		
 	}
 
+	void restartDataLogging() throws IOException {
+		int om = parameterFactory.readOperatingMode();
+		parameterFactory.writeOperatingMode(om & 0xFFF3,0x000C);
+		parameterFactory.writeSamplingActivationNextHour();
+		parameterFactory.writeOperatingMode(om);
+	}
+	
+	
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         //System.out.println(ProtocolUtils.outputHexString(waveFlowConnect.sendData(new byte[]{0x0b})));
         //System.out.println(new String(waveFlowConnect.sendData(new byte[]{0x0b})));
@@ -139,7 +147,15 @@ public class WaveFlow100mW extends AbstractProtocol {
 //    	System.out.println("Battery life end time: "+parameterFactory.readBatteryLifeDateEnd());
     	
     	
-    	System.out.println("encoder current reading: "+radioCommandFactory.readEncoderCurrentReading());
+//    	System.out.println("encoder current reading: "+radioCommandFactory.readEncoderCurrentReading());
+//    	System.out.println();
+//    	System.out.println("encoder datalogging table readings: "+radioCommandFactory.readEncoderDataloggingTable(true,true,30,0));
+    	
+    	//restartDataLogging();
+    	
+    	System.out.println("encoder datalogging table readings: "+radioCommandFactory.readEncoderDataloggingTable(true,true,50,0));
+    	
+    	System.out.println("firmware version = "+Utils.toHexString(radioCommandFactory.readFirmwareVersion().getFirmwareVersion()));
     	
     	return null;
     }	 
