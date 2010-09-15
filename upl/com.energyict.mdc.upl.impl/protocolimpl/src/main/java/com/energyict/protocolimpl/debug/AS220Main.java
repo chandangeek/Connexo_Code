@@ -9,25 +9,18 @@ import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.dlms.as220.AS220;
-import com.energyict.protocolimpl.dlms.as220.EventNumber;
+import com.energyict.protocolimpl.dlms.as220.*;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
 import com.energyict.protocolimpl.dlms.as220.plc.PLCMessaging;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.*;
 
 /**
  * @author jme
  */
 public class AS220Main extends AbstractDebuggingMain<AS220> {
-
-    private static final ObisCode DEVICE_ID1_OBISCODE = ObisCode.fromString("0.0.96.0.0.255");
-    private static final ObisCode DEVICE_ID2_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
-    private static final ObisCode DEVICE_ID3_OBISCODE = ObisCode.fromString("0.0.96.2.0.255");
-    private static final ObisCode DEVICE_ID4_OBISCODE = ObisCode.fromString("0.0.96.3.0.255");
-    private static final ObisCode DEVICE_ID5_OBISCODE = ObisCode.fromString("0.0.96.4.0.255");
 
     private static final String DISCONNECT_EMETER = "<" + AS220Messaging.DISCONNECT_EMETER + ">1</" + AS220Messaging.DISCONNECT_EMETER + ">";
     private static final String CONNECT_EMETER = "<" + AS220Messaging.CONNECT_EMETER + ">1</" + AS220Messaging.CONNECT_EMETER + ">";
@@ -456,6 +449,14 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         readRegisters(registerList);
     }
 
+    private void readRegisters(ObisCode... registers) {
+        List registerList = new ArrayList();
+        for (Object register : registers) {
+            registerList.add(register);
+        }
+        readRegisters(registerList);
+    }
+
     public void firmwareUpgrade(byte[] base64Firmware) throws IOException {
         System.out.println("Firmware before upgrade: " + getMeterProtocol().getFirmwareVersion());
         String message = FIRMWARE_UPGRADE.replace("$CONTENT$", new String(base64Firmware));
@@ -479,12 +480,22 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
 
     @Override
     void doDebug() throws LinkException, IOException {
-        try {
-            byte[] fwBytes = ProtocolTools.readBytesFromFile("c:\\firmware28140910B64.bin");
-            firmwareUpgrade(fwBytes);
-        } catch (Exception e) {
-            e.printStackTrace();
+        readRegisters(
+                As220ObisCodeMapper.NR_CONFIGCHANGES_OBISCODE,
+                As220ObisCodeMapper.ALARM_REGISTER_OBISCODE,
+                As220ObisCodeMapper.ERROR_REGISTER_OBISCODE,
+                As220ObisCodeMapper.V1_UNDER_LIMIT_CTR,
+                As220ObisCodeMapper.V2_UNDER_LIMIT_CTR,
+                As220ObisCodeMapper.V3_UNDER_LIMIT_CTR,
+                As220ObisCodeMapper.V1_OVER_LIMIT_CTR,
+                As220ObisCodeMapper.V2_OVER_LIMIT_CTR,
+                As220ObisCodeMapper.V3_OVER_LIMIT_CTR,
+                As220ObisCodeMapper.DEVICE_ID1_OBISCODE,
+                As220ObisCodeMapper.DEVICE_ID2_OBISCODE,
+                As220ObisCodeMapper.DEVICE_ID3_OBISCODE,
+                As220ObisCodeMapper.DEVICE_ID4_OBISCODE,
+                As220ObisCodeMapper.DEVICE_ID5_OBISCODE
+        );
         }
-    }
 
 }

@@ -1,30 +1,21 @@
 package com.energyict.protocolimpl.dlms.as220;
 
-import java.io.IOException;
-import java.util.Date;
-
-import com.energyict.cbo.*;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.cosem.CosemObject;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.GenericRead;
-import com.energyict.dlms.cosem.SFSKPhyMacSetup;
+import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.DLMSAttributeMapper;
 import com.energyict.protocolimpl.base.ObiscodeMapper;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220ContactorController;
 import com.energyict.protocolimpl.dlms.as220.emeter.DisconnectControlMapper;
-import com.energyict.protocolimpl.dlms.as220.plc.SFSKActiveInitiatorMapper;
-import com.energyict.protocolimpl.dlms.as220.plc.SFSKIec61334LLCSetupMapper;
-import com.energyict.protocolimpl.dlms.as220.plc.SFSKMacCountersMapper;
-import com.energyict.protocolimpl.dlms.as220.plc.SFSKPhyMacSetupMapper;
-import com.energyict.protocolimpl.dlms.as220.plc.SFSKSyncTimeoutsMapper;
+import com.energyict.protocolimpl.dlms.as220.plc.*;
+
+import java.io.IOException;
+import java.util.Date;
 
 /**
  *
@@ -34,26 +25,50 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 
 	private static final int			VALUE_OFFSET				= 8;
 
-	private static final ObisCode		NR_CONFIGCHANGES_OBISCODE	= ObisCode.fromString("0.0.96.2.0.255");
-	private static final ObisCode		ALARM_REGISTER_OBISCODE		= ObisCode.fromString("0.0.97.98.0.255");
-	private static final ObisCode		ERROR_REGISTER_OBISCODE		= ObisCode.fromString("0.0.97.97.0.255");
+	public static final ObisCode		NR_CONFIGCHANGES_OBISCODE	= ObisCode.fromString("0.0.96.2.0.255");
+	public static final ObisCode		ALARM_REGISTER_OBISCODE		= ObisCode.fromString("0.0.97.98.0.255");
+	public static final ObisCode		ERROR_REGISTER_OBISCODE		= ObisCode.fromString("0.0.97.97.0.255");
 
-	private static final ObisCode		SFSK_PHY_MAC_SETUP			= ObisCode.fromString("0.0.26.0.0.255");
-	private static final ObisCode		SFSK_ACTIVE_INITIATOR		= ObisCode.fromString("0.0.26.1.0.255");
-	private static final ObisCode		SFSK_SYNC_TIMEOUTS			= ObisCode.fromString("0.0.26.2.0.255");
-	private static final ObisCode		SFSK_MAC_COUNTERS			= ObisCode.fromString("0.0.26.3.0.255");
-	private static final ObisCode		SFSK_IEC_LLC_SETIP			= ObisCode.fromString("0.0.26.5.0.255");
+	public static final ObisCode		SFSK_PHY_MAC_SETUP			= ObisCode.fromString("0.0.26.0.0.255");
+	public static final ObisCode		SFSK_ACTIVE_INITIATOR		= ObisCode.fromString("0.0.26.1.0.255");
+	public static final ObisCode		SFSK_SYNC_TIMEOUTS			= ObisCode.fromString("0.0.26.2.0.255");
+	public static final ObisCode		SFSK_MAC_COUNTERS			= ObisCode.fromString("0.0.26.3.0.255");
+	public static final ObisCode		SFSK_IEC_LLC_SETIP			= ObisCode.fromString("0.0.26.5.0.255");
 
-	private static final ObisCode		FIRMWARE_VERSION			= ObisCode.fromString("1.0.0.2.0.255");
-	private static final ObisCode		DISCONNECTOR_OBISCODE		= AS220ContactorController.DISCONNECTOR_OBISCODE;
+	public static final ObisCode		FIRMWARE_VERSION			= ObisCode.fromString("1.0.0.2.0.255");
+	public static final ObisCode		DISCONNECTOR_OBISCODE		= AS220ContactorController.DISCONNECTOR_OBISCODE;
 
-	private static final ObisCode		TARIFF_OBISCODE				= ObisCode.fromString("0.0.96.14.0.255");
-	private static final ObisCode		METER_ID_OBISCODE			= ObisCode.fromString("0.0.96.1.0.255");
+	public static final ObisCode		TARIFF_OBISCODE				= ObisCode.fromString("0.0.96.14.0.255");
+	public static final ObisCode	    METER_ID_OBISCODE			= ObisCode.fromString("0.0.96.1.0.255");
+
+    public static final ObisCode        V1_UNDER_LIMIT_CTR          = ObisCode.fromString("1.0.32.32.0.255");
+    public static final ObisCode        V2_UNDER_LIMIT_CTR          = ObisCode.fromString("1.0.52.32.0.255");
+    public static final ObisCode        V3_UNDER_LIMIT_CTR          = ObisCode.fromString("1.0.72.32.0.255");
+    public static final ObisCode        V1_OVER_LIMIT_CTR           = ObisCode.fromString("1.0.32.36.0.255");
+    public static final ObisCode        V2_OVER_LIMIT_CTR           = ObisCode.fromString("1.0.52.36.0.255");
+    public static final ObisCode        V3_OVER_LIMIT_CTR           = ObisCode.fromString("1.0.72.36.0.255");
+
+    public static final ObisCode        DEVICE_ID1_OBISCODE         = ObisCode.fromString("0.0.96.1.0.255");
+    public static final ObisCode        DEVICE_ID2_OBISCODE         = ObisCode.fromString("0.1.96.1.0.255");
+    public static final ObisCode        DEVICE_ID3_OBISCODE         = ObisCode.fromString("0.2.96.1.0.255");
+    public static final ObisCode        DEVICE_ID4_OBISCODE         = ObisCode.fromString("0.3.96.1.0.255");
+    public static final ObisCode        DEVICE_ID5_OBISCODE         = ObisCode.fromString("0.4.96.1.0.255");
 
 	private static final ObisCode[] SIMPLE_DATA_REGISTERS = new ObisCode[] {
 		NR_CONFIGCHANGES_OBISCODE,
 		ALARM_REGISTER_OBISCODE,
 	    ERROR_REGISTER_OBISCODE,
+        V1_UNDER_LIMIT_CTR,
+        V2_UNDER_LIMIT_CTR,
+        V3_UNDER_LIMIT_CTR,
+        V1_OVER_LIMIT_CTR,
+        V2_OVER_LIMIT_CTR,
+        V3_OVER_LIMIT_CTR,
+        DEVICE_ID1_OBISCODE,
+        DEVICE_ID2_OBISCODE,
+        DEVICE_ID3_OBISCODE,
+        DEVICE_ID4_OBISCODE,
+        DEVICE_ID5_OBISCODE
 	};
 
 	private final DLMSAttributeMapper[] attributeMappers;
