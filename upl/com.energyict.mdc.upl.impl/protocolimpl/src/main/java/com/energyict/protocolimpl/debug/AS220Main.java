@@ -480,22 +480,10 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
 
     @Override
     void doDebug() throws LinkException, IOException {
-        readRegisters(
-                As220ObisCodeMapper.NR_CONFIGCHANGES_OBISCODE,
-                As220ObisCodeMapper.ALARM_REGISTER_OBISCODE,
-                As220ObisCodeMapper.ERROR_REGISTER_OBISCODE,
-                As220ObisCodeMapper.V1_UNDER_LIMIT_CTR,
-                As220ObisCodeMapper.V2_UNDER_LIMIT_CTR,
-                As220ObisCodeMapper.V3_UNDER_LIMIT_CTR,
-                As220ObisCodeMapper.V1_OVER_LIMIT_CTR,
-                As220ObisCodeMapper.V2_OVER_LIMIT_CTR,
-                As220ObisCodeMapper.V3_OVER_LIMIT_CTR,
-                As220ObisCodeMapper.DEVICE_ID1_OBISCODE,
-                As220ObisCodeMapper.DEVICE_ID2_OBISCODE,
-                As220ObisCodeMapper.DEVICE_ID3_OBISCODE,
-                As220ObisCodeMapper.DEVICE_ID4_OBISCODE,
-                As220ObisCodeMapper.DEVICE_ID5_OBISCODE
-        );
+        String epoch = ProtocolTools.getEpochTimeFromString("14-09-2010 20:00:00");
+        Date fromDate = new Date(Long.valueOf(epoch) * 1000);
+        ProfileData profileData = getMeterProtocol().getProfileData(fromDate, true);
+        System.out.println(profileData);
         }
 
 }

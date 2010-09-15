@@ -16,7 +16,6 @@ public final class EventNumber {
 
 	private static final List<EventNumber>	EVENTS	= new ArrayList<EventNumber>();
 	static {
-		EVENTS.add(new EventNumber(255, "Event log cleared", MeterEvent.CLEAR_DATA));
 		EVENTS.add(new EventNumber(1, "Power Down", MeterEvent.POWERDOWN));
 		EVENTS.add(new EventNumber(2, "Power Up", MeterEvent.POWERUP));
 		EVENTS.add(new EventNumber(3, "Daylight saving time enabled or disabled", MeterEvent.SETCLOCK));
@@ -56,24 +55,28 @@ public final class EventNumber {
 		EVENTS.add(new EventNumber(102, "Replace Battery M-Bus channel 1", MeterEvent.OTHER));
 		EVENTS.add(new EventNumber(103, "Fraud attempt M-Bus channel 1", MeterEvent.TAMPER));
 		EVENTS.add(new EventNumber(104, "Clock adjusted M-Bus channel 1", MeterEvent.SETCLOCK));
+        EVENTS.add(new EventNumber(105, "Permanent Error M-Bus channel 1", MeterEvent.OTHER));
 
 		EVENTS.add(new EventNumber(110, "Communication error M-Bus channel 2", MeterEvent.OTHER));
 		EVENTS.add(new EventNumber(111, "Communication ok M-Bus channel 2", MeterEvent.OTHER));
 		EVENTS.add(new EventNumber(112, "Replace Battery M-Bus channel 2", MeterEvent.OTHER));
 		EVENTS.add(new EventNumber(113, "Fraud attempt M-Bus channel 2", MeterEvent.TAMPER));
 		EVENTS.add(new EventNumber(114, "Clock adjusted M-Bus channel 2", MeterEvent.SETCLOCK));
+        EVENTS.add(new EventNumber(115, "Permanent Error M-Bus channel 2", MeterEvent.OTHER));
 
 		EVENTS.add(new EventNumber(120, "Communication error M-Bus channel 3", MeterEvent.OTHER));
 		EVENTS.add(new EventNumber(121, "Communication ok M-Bus channel 3", MeterEvent.OTHER));
 		EVENTS.add(new EventNumber(122, "Replace Battery M-Bus channel 3", MeterEvent.OTHER));
 		EVENTS.add(new EventNumber(123, "Fraud attempt M-Bus channel 3", MeterEvent.TAMPER));
 		EVENTS.add(new EventNumber(124, "Clock adjusted M-Bus channel 3", MeterEvent.SETCLOCK));
+        EVENTS.add(new EventNumber(125, "Permanent Error M-Bus channel 3", MeterEvent.OTHER));
 
 		EVENTS.add(new EventNumber(130, "Communication error M-Bus channel 4", MeterEvent.OTHER));
 		EVENTS.add(new EventNumber(131, "Communication ok M-Bus channel 4", MeterEvent.OTHER));
 		EVENTS.add(new EventNumber(132, "Replace Battery M-Bus channel 4", MeterEvent.OTHER));
 		EVENTS.add(new EventNumber(133, "Fraud attempt M-Bus channel 4", MeterEvent.TAMPER));
 		EVENTS.add(new EventNumber(134, "Clock adjusted M-Bus channel 4", MeterEvent.SETCLOCK));
+        EVENTS.add(new EventNumber(135, "Permanent Error M-Bus channel 4", MeterEvent.OTHER));
 
 		EVENTS.add(new EventNumber(160, "Manual disconnection M-Bus channel 1", MeterEvent.OTHER));
 		EVENTS.add(new EventNumber(161, "Manual connection M-Bus channel 1", MeterEvent.OTHER));
@@ -108,6 +111,16 @@ public final class EventNumber {
 		EVENTS.add(new EventNumber(236, "Fatal device error", MeterEvent.FATAL_ERROR));
 		EVENTS.add(new EventNumber(237, "Running reserve exhausted", MeterEvent.OTHER));
 
+
+        EVENTS.add(new EventNumber(238, "Limiter threshold over L1", MeterEvent.OTHER));
+        EVENTS.add(new EventNumber(239, "Limiter threshold under L1", MeterEvent.OTHER));
+        EVENTS.add(new EventNumber(240, "Limiter threshold over L2", MeterEvent.OTHER));
+        EVENTS.add(new EventNumber(241, "Limiter threshold under L2", MeterEvent.OTHER));
+        EVENTS.add(new EventNumber(242, "Limiter threshold over L3", MeterEvent.OTHER));
+        EVENTS.add(new EventNumber(243, "Limiter threshold under L3", MeterEvent.OTHER));
+
+        EVENTS.add(new EventNumber(255, "Event log cleared", MeterEvent.CLEAR_DATA));
+
 	}
 
 	private int id;
@@ -119,7 +132,6 @@ public final class EventNumber {
 	 *
 	 * @param id
 	 * @param idDescription
-	 * @param type
 	 * @param meterEventCode
 	 */
 	private EventNumber(int id, String idDescription, int meterEventCode) {

@@ -1,14 +1,11 @@
 package com.energyict.protocolimpl.dlms.as220;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
 import com.energyict.dlms.DataContainer;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
+
+import java.io.IOException;
+import java.util.*;
 
 /**
  * @author jme
@@ -16,6 +13,7 @@ import com.energyict.protocol.MeterEvent;
 public class EventLogs {
 
 	private static final ObisCode	STANDARD_EVENTLOG_OBISCODE	= ObisCode.fromString("0.0.99.98.0.255");
+    private static final ObisCode	DISCONNEC_EVENTLOG_OBISCODE	= ObisCode.fromString("0.0.99.98.2.255");
 
 	private final DLMSSNAS220 as220;
 
@@ -40,6 +38,7 @@ public class EventLogs {
 	public List<MeterEvent> getEventLog(Calendar fromCalendar, Calendar toCalendar) throws IOException {
 		List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
 		meterEvents.addAll(readLogbook(STANDARD_EVENTLOG_OBISCODE, fromCalendar, toCalendar));
+        meterEvents.addAll(readLogbook(DISCONNEC_EVENTLOG_OBISCODE, fromCalendar, toCalendar));
 		return meterEvents;
 	}
 
