@@ -350,7 +350,7 @@ public abstract class GenericMessaging implements Messaging {
 		msgVal.setValue(" ");
 		tagSpec.add(msgVal);
 		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-				RtuMessageConstant.TOU_SPECIAL_DAYS_CODE_TABLE, false);
+				RtuMessageConstant.TOU_SPECIAL_DAYS_CODE_TABLE, true);
 		tagSpec.add(msgAttrSpec);
 		msgSpec.add(tagSpec);
 		return msgSpec;
