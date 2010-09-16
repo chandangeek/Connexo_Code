@@ -153,7 +153,7 @@ public class WaveFlow100mW extends AbstractProtocol {
     	
     	//restartDataLogging();
     	
-    	System.out.println("encoder datalogging table readings: "+radioCommandFactory.readEncoderDataloggingTable(true,true,50,0));
+    	System.out.println("encoder datalogging table readings: "+radioCommandFactory.readEncoderDataloggingTable(false,true,60,0));
     	
     	System.out.println("firmware version = "+Utils.toHexString(radioCommandFactory.readFirmwareVersion().getFirmwareVersion()));
     	

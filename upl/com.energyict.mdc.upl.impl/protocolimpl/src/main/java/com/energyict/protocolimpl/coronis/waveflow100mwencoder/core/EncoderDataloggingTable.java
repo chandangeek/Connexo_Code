@@ -1,9 +1,7 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
 import java.io.*;
-import java.util.Date;
-
-import com.energyict.protocol.ProtocolUtils;
+import java.util.*;
 
 public class EncoderDataloggingTable extends AbstractRadioCommand {
 
@@ -203,6 +201,8 @@ public class EncoderDataloggingTable extends AbstractRadioCommand {
 		try {
 			
 			dais = new DataInputStream(new ByteArrayInputStream(data));
+			List<Long> encoderReadingsPortAList = new ArrayList<Long>();
+			List<Long> encoderReadingsPortBList = new ArrayList<Long>();
 			do {
 				if (frameCounter==0) {
 					
@@ -218,10 +218,6 @@ public class EncoderDataloggingTable extends AbstractRadioCommand {
 					byte[] temp = new byte[7];
 					dais.read(temp);
 					lastLoggingRTC = TimeDateRTCParser.parse(temp, getWaveFlow100mW().getTimeZone()).getTime();
-					
-					// create reading arrays with initial nr of values request
-					encoderReadingsPortA = new long[nrOfValues>nrOfRecordsInDatalogging?nrOfRecordsInDatalogging:nrOfValues];
-					encoderReadingsPortB = new long[nrOfValues>nrOfRecordsInDatalogging?nrOfRecordsInDatalogging:nrOfValues];
 				}
 				else {
 					// in case of a multiple frame, the first byte of the following data is the commmandId acknowledge
@@ -231,24 +227,33 @@ public class EncoderDataloggingTable extends AbstractRadioCommand {
 					}
 				}
 				
-				
 				frameCounter = Utils.toInt(dais.readByte());
 				int nrOfReadingsPortA = Utils.toInt(dais.readByte());
 				int nrOfReadingsPortB = Utils.toInt(dais.readByte());
 				dais.readShort(); // skip 2 bytes unused 0x0000 value
 				
 				for (int i=0;i<nrOfReadingsPortA;i++) {
-					encoderReadingsPortA[readingPortAIndex++] = (long)dais.readInt() & 0xFFFFFFFF; 
+					encoderReadingsPortAList.add((long)dais.readInt() & 0xFFFFFFFF);
 				}
 				
 				for (int i=0;i<nrOfReadingsPortB;i++) {
-					encoderReadingsPortB[readingPortBIndex++] = (long)dais.readInt() & 0xFFFFFFFF;
+					encoderReadingsPortBList.add((long)dais.readInt() & 0xFFFFFFFF);
 				}
 				
 				this.nrOfReadingsPortA += nrOfReadingsPortA;
 				this.nrOfReadingsPortB += nrOfReadingsPortB;
 			
 			} while(frameCounter>1);
+			
+			encoderReadingsPortA = new long[encoderReadingsPortAList.size()];
+			for (int index=0;index<encoderReadingsPortAList.size();index++) {
+				encoderReadingsPortA[index]=encoderReadingsPortAList.get(index);
+			}
+			
+			encoderReadingsPortB = new long[encoderReadingsPortBList.size()];
+			for (int index=0;index<encoderReadingsPortBList.size();index++) {
+				encoderReadingsPortB[index]=encoderReadingsPortBList.get(index);
+			}
 		}
 		finally {
 			if (dais != null) {
