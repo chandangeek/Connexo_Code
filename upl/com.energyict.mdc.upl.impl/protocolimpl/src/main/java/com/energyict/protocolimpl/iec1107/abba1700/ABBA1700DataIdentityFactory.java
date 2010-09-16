@@ -6,13 +6,12 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
 import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
+
+import java.io.IOException;
+import java.util.*;
 
 /**
  *
@@ -72,9 +71,9 @@ public class ABBA1700DataIdentityFactory {
        // (C)MD register sources  KV_TO_DO not used for the moment. We extract the registersource from the (C)MD register itself
        rawRegisters.put("668", new ABBA1700DataIdentity(8,ABBA1700DataIdentity.NOT_STREAMEABLE)); 
        // Customer defined register 1,2 & 3 configuration
-       rawRegisters.put("601", new ABBA1700DataIdentity(6,ABBA1700DataIdentity.NOT_STREAMEABLE)); 
-       
-       // TOU register source
+       rawRegisters.put("601", new ABBA1700DataIdentity(meterType.hasExtendedCustomerRegisters() ? 15 : 6, ABBA1700DataIdentity.NOT_STREAMEABLE));
+
+        // TOU register source
        rawRegisters.put("667", new ABBA1700DataIdentity(meterType.getNrOfTariffRegisters(),ABBA1700DataIdentity.NOT_STREAMEABLE)); 
        // Historic display scalings (billing point TOU and (C)MD register sources. Protocoldescription seems to be wrong!
        rawRegisters.put("548", new ABBA1700DataIdentity(22+meterType.getNrOfTariffRegisters()+8+meterType.getExtraOffsetHistoricDisplayScaling(),12,ABBA1700DataIdentity.NOT_STREAMEABLE)); 

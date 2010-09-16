@@ -25,7 +25,7 @@ import java.util.logging.Logger;
 public class ABBA1700Main {
 
     private static final Level LOG_LEVEL = Level.SEVERE;
-    private static final String OBSERVER_FILENAME = "c:\\logging\\ABBA1700Main\\communications.log";
+    private static final String OBSERVER_FILENAME = "d:\\logging\\ABBA1700Main\\communications.log";
     private static final long DELAY_BEFORE_DISCONNECT = 100;
 
     private static final TimeZone DEFAULT_TIMEZONE = TimeZone.getTimeZone("GMT+01");
@@ -34,7 +34,7 @@ public class ABBA1700Main {
     private static final int DATABITS = SerialCommunicationChannel.DATABITS_8;
     private static final int PARITY = SerialCommunicationChannel.PARITY_NONE;
     private static final int STOPBITS = SerialCommunicationChannel.STOPBITS_1;
-    private static final long PROFILE_LENGTH = 1000 * 60 * 60 * 24 * 7;
+    private static final long PROFILE_LENGTH = 1000 * 60 * 60 * 2;
 
     private static ABBA1700 abba1700 = null;
     private static Dialer dialer = null;
@@ -106,7 +106,7 @@ public class ABBA1700Main {
                     }
                     getABBA1700().connect();
 
-                    getABBA1700().getProfileData(new Date(System.currentTimeMillis() - PROFILE_LENGTH), false);
+                    System.out.println(getABBA1700().getProfileData(new Date(System.currentTimeMillis() - PROFILE_LENGTH), false));
 
                 } catch (Exception e) {
                     e.printStackTrace();

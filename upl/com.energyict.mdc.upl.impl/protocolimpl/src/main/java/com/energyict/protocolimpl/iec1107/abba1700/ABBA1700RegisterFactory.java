@@ -7,13 +7,16 @@
  */
 
 package com.energyict.protocolimpl.iec1107.abba1700;
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
+
+import java.io.IOException;
+import java.util.*;
 
 /**
  *
@@ -110,7 +113,7 @@ public class ABBA1700RegisterFactory {
        registers.put("HistoricalEvents", new ABBA1700Register("544",ABBA1700RegisterData.ABBA_HISTORICALEVENTS,0,792, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
 
        registers.put("MDSources", new ABBA1700Register("668",ABBA1700RegisterData.ABBA_MDSOURCES,0,8, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("CustDefRegConfig", new ABBA1700Register("601",ABBA1700RegisterData.ABBA_CUSTDEFREGCONFIG,0,6, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
+       registers.put("CustDefRegConfig", new ABBA1700Register("601",ABBA1700RegisterData.ABBA_CUSTDEFREGCONFIG,0,meterType.hasExtendedCustomerRegisters() ? 15 : 6, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED));
 
        
        registers.put("HistoricalDisplayScalings", new ABBA1700Register("548",ABBA1700RegisterData.ABBA_HISTORICALDISPLAYSCALINGS,0,(22+getMeterType().getNrOfTariffRegisters()+8+getMeterType().getExtraOffsetHistoricDisplayScaling())*12, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
