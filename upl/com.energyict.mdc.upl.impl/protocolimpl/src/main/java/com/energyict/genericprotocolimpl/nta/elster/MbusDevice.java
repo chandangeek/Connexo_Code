@@ -181,7 +181,7 @@ public class MbusDevice extends AbstractMbusDevice {
         return catMbusSetup;
     }
 
-    /**
+    /**  
      * {@inheritDoc}
      */
     @Override

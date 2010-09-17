@@ -40,28 +40,17 @@ public class MbusObisCodeMapper {
     		} else if(obisCode.getD() == 4){
     			if(obisCode.getE() == 128){
     	        	int mode = cof.getDisconnector(adjustToDisconnectOC(obisCode)).getControlMode().getValue();
-    	        	rv = new RegisterValue(obisCode,
-    	        			new Quantity(BigDecimal.valueOf(mode), Unit.getUndefined()),
-    	        			null, null, null, new Date(), 0,
-    	        			new String("ConnectControl mode: " + mode));
-    	        	return rv;
-    			} else if(obisCode.getE() == 129){
-    	        	int state = cof.getDisconnector(adjustToDisconnectOC(obisCode)).getControlState().getValue();
-    	        	if((state < 0) || (state > 2)){
-    	        		rv = new RegisterValue(obisCode,
-    	        				new Quantity(BigDecimal.valueOf(state), Unit.getUndefined()),
-    	        				null, null, null, new Date(), 0,
-    	        				new String("ConnectControl state has an invalid state: " + state));
-
-//    	        		throw new IllegalArgumentException("The connectControlState has an invalid value: " + state);
-    	        	} else {
-    	        		rv = new RegisterValue(obisCode,
-    	        				new Quantity(BigDecimal.valueOf(state), Unit.getUndefined()),
-    	        				null, null, null, new Date(), 0,
-    	        				new String("ConnectControl state: " + possibleConnectStates[state]));
-    	        	}
-    	        	return rv;
-    			}
+                    Quantity quantity = new Quantity(BigDecimal.valueOf(mode), Unit.getUndefined());
+                    return rv = new RegisterValue(obisCode, quantity, null, null, null, new Date(), 0, "ConnectControl mode: " + mode);
+                } else if (obisCode.getE() == 129) {
+                    int state = cof.getDisconnector(adjustToDisconnectOC(obisCode)).getControlState().getValue();
+                    Quantity quantity = new Quantity(BigDecimal.valueOf(state), Unit.getUndefined());
+                    return rv = new RegisterValue(obisCode, quantity, null, null, null, new Date(), 0, getConnectControlStateDescription(state));
+                } else if (obisCode.getE() == 130) {
+                    boolean state = cof.getDisconnector(adjustToDisconnectOC(obisCode)).getState();
+                    Quantity quantity = new Quantity(state ? "1" : "0", Unit.getUndefined());
+                    rv = new RegisterValue(obisCode, quantity, null, null, null, new Date(), 0, "State: " + state);
+                }
     		} else if (obisCode.getD() == 50){ // MBus encryption status
     			Data encryptionState = cof.getData(obisCode);
                 long encryptionValue = encryptionState.getValue();
@@ -80,8 +69,16 @@ public class MbusObisCodeMapper {
     		throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
     	}
 	}
-	
-	/**
+
+    private String getConnectControlStateDescription(int state) {
+        if ((state >= 0) && (state < (possibleConnectStates.length))) {
+            return "ConnectControl state: " + possibleConnectStates[state];
+        } else {
+            return "ConnectControl state has an invalid state: " + state;
+        }
+    }
+
+    /**
 	 * The given obisCode is not a valid one. We use it to make a distiction between two arguments of the same object.
 	 * This function will return the original obisCode from the Disconnector object, without the E-value
 	 * @param oc -  the manipulated ObisCode of the Disconnector object
