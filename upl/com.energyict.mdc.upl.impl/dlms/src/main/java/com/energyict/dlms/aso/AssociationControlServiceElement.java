@@ -556,22 +556,21 @@ public class AssociationControlServiceElement {
                         while (true) {
                             if (responseData[i] == DLMSCOSEMGlobals.RLRE_RELEASE_RESPONSE_REASON) {
                                 i++; // skip tag
-                                if ((responseData[i] == 3)    // length of the response
-                                        && (responseData[i + 1] == 2) // encoding of INTEGER?
-                                        && (responseData[i + 2] == 1)) { // length of the integer
-                                    switch (responseData[i + 3]) {
-                                        case 0:
+                                if (responseData[i++] != 0) { // length of the integer
+                                    switch (responseData[i++]) {
+                                        case 0x00:
                                             return; // normal release
-                                        case 1:
+                                        case 0x01:
                                             throw new IOException("Release was not finished.");
-                                        case 30:
+                                        case 0x30:
                                             throw new IOException("Response from the release is userDefined: " + 30);
                                         default:
                                             throw new IOException("Unknown release response");
                                     }
+                                } else {
+                                    break;
                                 }
                             }
-
                             if (i++ >= (responseData.length - 1)) {
                                 i = (responseData.length - 1);
                                 break;
