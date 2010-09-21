@@ -95,7 +95,10 @@ public class WaveFlow100mW extends AbstractProtocol {
 
 	@Override
 	public String getProtocolVersion() {
-		return "$Revision: 1.17 $";
+		String rev = "$Revision: 40323 $" + " - " + "$Date: 2010-03-19 17:31:34 +0100 (vr, 19 mrt 2010) $";
+		String manipulated = "Revision " + rev.substring(rev.indexOf("$Revision: ") + "$Revision: ".length(), rev.indexOf("$ -")) + "at "
+				+ rev.substring(rev.indexOf("$Date: ") + "$Date: ".length(), rev.indexOf("$Date: ") + "$Date: ".length() + 19);
+    	return manipulated;
 	}
 
 	@Override
