@@ -41,4 +41,10 @@ public class RadioCommandFactory {
 		return firmwareVersion;
 	}
 	
+	final EncoderInternalDataCommand readEncoderInternalData() throws IOException {
+		EncoderInternalDataCommand encoderInternalDataCommand = new EncoderInternalDataCommand(waveFlow100mW);
+		encoderInternalDataCommand.invoke();
+		return encoderInternalDataCommand;
+	}
+	
 }

@@ -167,7 +167,7 @@ public class EncoderDataloggingTable extends AbstractRadioCommand {
 		if (nrOfReadingsPortA > 0) {
 			strBuilder.append("nrOfReadingsPortA: "+nrOfReadingsPortA+"\n");
 			for(int i=0;i<encoderReadingsPortA.length;i++) {
-				strBuilder.append("encoderReadingsPortA["+i+"]: "+Utils.toHexString(encoderReadingsPortA[i])+"\n");
+				strBuilder.append("encoderReadingsPortA["+i+"]: "+encoderReadingsPortA[i]+"\n");
 			}
 		}
 		else {

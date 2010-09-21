@@ -13,6 +13,7 @@ abstract public class AbstractRadioCommand {
 		EncoderCurrentReading(0x01,true),
 		EncoderDataloggingTable(0x07,true),
 		EncoderReadLeakageEventTable(0x04,true),
+		EncoderInternalData(0x0B,true),
 		FirmwareVersion(0x28);
 		
 		private int commandId;

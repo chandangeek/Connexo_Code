@@ -25,23 +25,17 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 		EncoderModelPortB(0x1E,2,"Encoder model on port B"), // page 18
 		EncoderUnitPortA(0x1F,2,"Encoder unit on port A"), // page 19
 		EncoderUnitPortB(0x20,2,"Encoder unit on port B"), // page 19
-		BatteryLifeDurationCounter(0x50,3,"Battery life duration counter",ObisCode.fromString("0.0.96.6.0.255")),
-		BatteryLifeDateEnd(0x51,7,"Battery life end date",ObisCode.fromString("0.0.96.6.2.255"));
+		BatteryLifeDurationCounter(0x50,3,"Battery life duration counter"),
+		BatteryLifeDateEnd(0x51,7,"Battery life end date");
 		
 		private int id;
 		private int length;
 		private String description;
-		ObisCode obisCode;
 		
 		ParameterId(final int id, final int length, final String description) {
-			this(id,length,description,null);
-		}
-		
-		ParameterId(final int id, final int length, final String description, final ObisCode obisCode) {
 			this.id=id;
 			this.length=length;
 			this.description=description;
-			this.obisCode=obisCode;
 		}
 		
 		public String toString() {
@@ -56,16 +50,6 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 			}
 			return null;
 		}
-		
-		static ParameterId fromObisCode(final ObisCode obisCode) {
-			for (ParameterId pid : values()) {
-				if ((pid.obisCode != null) && (pid.obisCode.equals(obisCode))) {
-					return pid;
-				}
-			}
-			return null;
-		}
-		
 		
 	} // enum ParameterId
 

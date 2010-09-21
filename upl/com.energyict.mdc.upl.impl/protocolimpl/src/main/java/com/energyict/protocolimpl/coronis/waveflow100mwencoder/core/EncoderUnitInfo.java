@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
+import com.energyict.cbo.*;
+
 class EncoderUnitInfo {
 	
 	enum EncoderUnitType {
@@ -35,6 +37,32 @@ class EncoderUnitInfo {
 		
 		final int getId() {
 			return id;
+		}
+		
+		Unit toUnit() {
+			
+			switch(this) {
+				case CubicMeters:
+					return Unit.get(BaseUnit.CUBICMETER);
+				case Liters:
+					return Unit.get(BaseUnit.LITER);
+				case CubicFeet:	
+					return Unit.get(BaseUnit.CUBICFEET);
+				case ImperialGallons:
+					return Unit.get(BaseUnit.GALLON);
+				case USGallons:
+					return Unit.get(BaseUnit.GALLON);
+					
+				default:	
+					return Unit.get("");
+			}
+/*					CubicMeters(0x01,"Cubic meters"),
+					Liters(0x02,"Liters"),
+					CubicFeet(0x03,"cubic feet"),
+					ImperialGallons(0x05,"Imperial gallons"),
+					USGallons(0x06,"US Gallons"),
+					Unknown(0xFF,"No encoder connected");*/
+			
 		}
 		
 	}
