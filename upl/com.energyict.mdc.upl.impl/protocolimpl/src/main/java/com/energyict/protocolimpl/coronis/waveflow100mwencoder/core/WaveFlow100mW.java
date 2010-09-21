@@ -12,10 +12,35 @@ import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.EncoderUnitI
 
 public class WaveFlow100mW extends AbstractProtocol {
 
+	/**
+	 * reference to the lower connect latyers of the wavenis stack
+	 */
 	private WaveFlowConnect waveFlowConnect;
 	
+	/**
+	 * reference to the parameter factory
+	 */
 	private ParameterFactory parameterFactory;
+
+	/**
+	 * reference to the radio commands factory
+	 */
 	private RadioCommandFactory radioCommandFactory;
+
+	/**
+	 * read and build the profiledata
+	 */
+	private ProfileDataReader profileDataReader;
+	
+	private ObisCodeMapper obisCodeMapper;
+	
+	final ParameterFactory getParameterFactory() {
+		return parameterFactory;
+	}
+
+	final RadioCommandFactory getRadioCommandFactory() {
+		return radioCommandFactory;
+	}
 	
 	final public WaveFlowConnect getWaveFlowConnect() {
 		return waveFlowConnect;
@@ -49,6 +74,8 @@ public class WaveFlow100mW extends AbstractProtocol {
 		parameterFactory = new ParameterFactory(this);
 		radioCommandFactory = new RadioCommandFactory(this);
 		waveFlowConnect = new WaveFlowConnect(inputStream,outputStream,timeoutProperty,getLogger(),forcedDelay);
+		obisCodeMapper = new ObisCodeMapper(this);
+		profileDataReader = new ProfileDataReader(this);
 		return waveFlowConnect;
 	}
 
@@ -59,33 +86,33 @@ public class WaveFlow100mW extends AbstractProtocol {
 
 	@Override
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			return "V"+getRadioCommandFactory().readFirmwareVersion().getFirmwareVersion();
+		} catch (IOException e) {
+			return "Error requesting firmware version";
+		}
 	}
 
 	@Override
 	public String getProtocolVersion() {
-		// TODO Auto-generated method stub
-		return null;
+		return "$Revision: 1.17 $";
 	}
 
 	@Override
 	public Date getTime() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return parameterFactory.readTimeDateRTC();
 	}
 
 	@Override
 	public void setTime() throws IOException {
-		// TODO Auto-generated method stub
-		
+		parameterFactory.writeTimeDateRTC(new Date());
 	}
 
-	void restartDataLogging() throws IOException {
+	private void restartDataLogging() throws IOException {
 		int om = parameterFactory.readOperatingMode();
 		parameterFactory.writeOperatingMode(om & 0xFFF3,0x000C);
 		parameterFactory.writeSamplingActivationNextHour();
-		parameterFactory.writeOperatingMode(om);
+		parameterFactory.writeOperatingMode(om|0x0004);
 	}
 	
 	
@@ -143,22 +170,46 @@ public class WaveFlow100mW extends AbstractProtocol {
 //    	System.out.println("B encoderunit: "+parameterFactory.readEncoderUnit(1).getEncoderUnitInfo().getEncoderUnitType()+", "+parameterFactory.readEncoderUnit(1).getEncoderUnitInfo().getNrOfDigitsBeforeDecimalPoint());
 //    	
 //    	
-//    	System.out.println("Remaining battery life: "+parameterFactory.readBatteryLifeDurationCounter().remainingBatteryLife());
+    	//System.out.println("Remaining battery life: "+parameterFactory.readBatteryLifeDurationCounter().remainingBatteryLife());
 //    	System.out.println("Battery life end time: "+parameterFactory.readBatteryLifeDateEnd());
     	
     	
 //    	System.out.println("encoder current reading: "+radioCommandFactory.readEncoderCurrentReading());
 //    	System.out.println();
-//    	System.out.println("encoder datalogging table readings: "+radioCommandFactory.readEncoderDataloggingTable(true,true,30,0));
+    	//System.out.println("encoder datalogging table readings: "+radioCommandFactory.readEncoderDataloggingTable(true,false,10,0));
+    	
+//    	System.out.println("encoder internal data: "+radioCommandFactory.readEncoderInternalData());
     	
     	//restartDataLogging();
+//    	System.out.println("read operating mode : "+Utils.toHexString(parameterFactory.readOperatingMode()));
+//    	System.out.println("encoder datalogging table readings: "+radioCommandFactory.readEncoderDataloggingTable(true,false,60,0));
     	
-    	System.out.println("encoder datalogging table readings: "+radioCommandFactory.readEncoderDataloggingTable(false,true,60,0));
-    	
-    	System.out.println("firmware version = "+Utils.toHexString(radioCommandFactory.readFirmwareVersion().getFirmwareVersion()));
+//    	System.out.println("firmware version = "+Utils.toHexString(radioCommandFactory.readFirmwareVersion().getFirmwareVersion()));
+  
+    	Calendar calendar = Calendar.getInstance(getTimeZone());
+    	calendar.add(Calendar.DATE,-1);
+    	System.out.println(profileDataReader.getProfileData(calendar.getTime(), 0));
     	
     	return null;
     }	 
 
-
+    /**
+     * Override this method to provide meter specific info for an obiscode mapped register. This method is called outside the communication session. So the info provided is static info in the protocol.
+     * @param obisCode obiscode of the register to lookup
+     * @throws java.io.IOException thrown when somethiong goes wrong
+     * @return RegisterInfo object
+     */
+    public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
+        return ObisCodeMapper.getRegisterInfo(obisCode);
+    }
+    
+    /**
+     * Override this method to requesting the load profile integration time
+     * @throws com.energyict.protocol.UnsupportedException thrown when not supported
+     * @throws java.io.IOException Thrown when something goes wrong
+     * @return integration time in seconds
+     */
+    public int getProfileInterval() throws UnsupportedException, IOException {
+        return getParameterFactory().getProfileIntervalInSeconds();
+    }    
 }
