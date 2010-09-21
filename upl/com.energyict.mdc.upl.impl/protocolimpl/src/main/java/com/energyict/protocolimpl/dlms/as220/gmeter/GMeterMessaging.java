@@ -1,28 +1,15 @@
 package com.energyict.protocolimpl.dlms.as220.gmeter;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
+import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
+
+import java.io.IOException;
+import java.util.*;
 
 public class GMeterMessaging implements MessageProtocol {
 
@@ -31,20 +18,18 @@ public class GMeterMessaging implements MessageProtocol {
 	 */
 	public static final String	CONNECT_GMETER					= "ConnectGmeter";
 	public static final String	DISCONNECT_GMETER				= "DisconnectGmeter";
-	public static final String	ARM_GMETER						= "ArmGmeter";
-	public static final String 	COMMISSION						= "Commission";
 	public static final String 	DECOMISSION						= "Decommission";
 	public static final String  ENABLE_ENCRYPTION				= "EnableEncryption";
+    public static final String 	DUMMY_MESSAGE				    = "DummyMessage";
 
 	/*
 	 * Message descriptions
 	 */
 	private static final String	CONNECT_GMETER_DISPLAY			= "Connect G-Meter Load";
 	private static final String	DISCONNECT_GMETER_DISPLAY		= "Disconnect G-Meter Load";
-	private static final String	ARM_GMETER_DISPLAY				= "Arm G-Meter";
-	private static final String COMMISSION_DISPLAY				= "Commission meter";
 	private static final String DECOMMISSION_DISPLAY			= "Decommission meter";
 	private static final String ENABLE_ENCRYPTION_DISPLAY		= "Enable encryption";
+    private static final String	DUMMY_MESSAGE_DISPLAY		    = "Dummy message";
 
 	private final GasDevice gasDevice;
 
@@ -61,9 +46,9 @@ public class GMeterMessaging implements MessageProtocol {
         MessageCategorySpec gMeterCat = new MessageCategorySpec("G-Meter");
 
         gMeterCat.addMessageSpec(createMessageSpec(DISCONNECT_GMETER_DISPLAY, DISCONNECT_GMETER, false));
-//        gMeterCat.addMessageSpec(createMessageSpec(ARM_GMETER_DISPLAY, ARM_GMETER, false));
         gMeterCat.addMessageSpec(createMessageSpec(CONNECT_GMETER_DISPLAY, CONNECT_GMETER, false));
         gMeterCat.addMessageSpec(createMessageSpec(DECOMMISSION_DISPLAY, DECOMISSION, true));
+        gMeterCat.addMessageSpec(createMessageSpec(DUMMY_MESSAGE_DISPLAY, DUMMY_MESSAGE, false));
         gMeterCat.addMessageSpec(createEncryptionMessageSpec(ENABLE_ENCRYPTION_DISPLAY, ENABLE_ENCRYPTION, false));
 
         theCategories.add(gMeterCat);
@@ -81,12 +66,12 @@ public class GMeterMessaging implements MessageProtocol {
 				getGasDevice().getgMeter().getGasValveController().doDisconnect();
 			} else if (isMessageTag(CONNECT_GMETER, messageEntry)) {
 				getGasDevice().getgMeter().getGasValveController().doConnect();
-//			} else if (isMessageTag(ARM_GMETER, messageEntry)) {
-//				getGasDevice().getgMeter().getGasValveController().doArm();
 			} else if (isMessageTag(DECOMISSION, messageEntry)){
 				getGasDevice().getgMeter().getGasInstallController().deinstall();
-			} else if (isMessageTag(ENABLE_ENCRYPTION, messageEntry)){
-				enableEncryption(messageEntry);
+            } else if (isMessageTag(ENABLE_ENCRYPTION, messageEntry)){
+                enableEncryption(messageEntry);
+            } else if (isMessageTag(DUMMY_MESSAGE, messageEntry)){
+                getGasDevice().getLogger().info("DUMMY_MESSAGE message received");
 			} else {
 				getGasDevice().getLogger().severe("Received unknown message: " + messageEntry);
 				return MessageResult.createFailed(messageEntry);

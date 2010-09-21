@@ -1,23 +1,19 @@
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-
-import org.xml.sax.SAXException;
-
-import sun.misc.BASE64Decoder;
-
-import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocolimpl.base.AbstractSubMessageProtocol;
 import com.energyict.protocolimpl.dlms.as220.AS220;
+import org.xml.sax.SAXException;
+import sun.misc.BASE64Decoder;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
 
 public class AS220Messaging extends AbstractSubMessageProtocol {
 
@@ -31,6 +27,7 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
 	public static final String	FORCE_SET_CLOCK				= "ForceSetClock";
 
 	public static final String 	FIRMWARE_UPDATE				= "FirmwareUpdate";
+    public static final String 	DUMMY_MESSAGE				= "DummyMessage";
 
 
 	/**
@@ -38,9 +35,9 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
 	 */
 	private static final String	CONNECT_EMETER_DISPLAY			= "Remote connect";
 	private static final String	DISCONNECT_EMETER_DISPLAY		= "Remote disconnect";
-	//private static final String	ARM_EMETER_DISPLAY				= "Arm E-Meter";
-
+    private static final String	DUMMY_MESSAGE_DISPLAY		    = "Dummy message";
 	public static final String	FORCE_SET_CLOCK_DISPLAY			= "Force set clock";
+    //private static final String	ARM_EMETER_DISPLAY				= "Arm E-Meter";
 
 	private final AS220 as220;
 
@@ -50,7 +47,8 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
 		addSupportedMessageTag(DISCONNECT_EMETER);
 		addSupportedMessageTag(ARM_EMETER);
 		addSupportedMessageTag(FORCE_SET_CLOCK);
-		addSupportedMessageTag(FIRMWARE_UPDATE);
+        addSupportedMessageTag(FIRMWARE_UPDATE);
+        addSupportedMessageTag(DUMMY_MESSAGE);
 	}
 
 	public AS220 getAs220() {
@@ -65,6 +63,7 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
         eMeterCat.addMessageSpec(createMessageSpec(DISCONNECT_EMETER_DISPLAY, DISCONNECT_EMETER, false));
         //eMeterCat.addMessageSpec(createMessageSpec(ARM_EMETER_DISPLAY, ARM_EMETER, false));
         eMeterCat.addMessageSpec(createMessageSpec(CONNECT_EMETER_DISPLAY, CONNECT_EMETER, false));
+        eMeterCat.addMessageSpec(createMessageSpec(DUMMY_MESSAGE_DISPLAY, DUMMY_MESSAGE, false));
 
         otherMeterCat.addMessageSpec(createMessageSpec(FORCE_SET_CLOCK_DISPLAY, FORCE_SET_CLOCK, false));
 
@@ -88,12 +87,15 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
 				getAs220().getLogger().info("FORCE_SET_CLOCK message received");
 				getAs220().geteMeter().getClockController().setTime();
 			} else if (isMessageTag(FIRMWARE_UPDATE, messageEntry)) {
+                getAs220().getLogger().info("FIRMWARE_UPDATE message received");
 				AS220ImageTransfer imageTransfer = new AS220ImageTransfer(this, messageEntry);
 				imageTransfer.initiate();
 				imageTransfer.upgrade();
 				imageTransfer.activate();
 //				upgradeFirmware(messageEntry);
-			} else {
+			} else if (isMessageTag(DUMMY_MESSAGE, messageEntry)) {
+                getAs220().getLogger().info("DUMMY_MESSAGE message received");
+            } else {
 				throw new IOException("Received unknown message: " + messageEntry);
 			}
 
