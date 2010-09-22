@@ -26,7 +26,17 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 		EncoderUnitPortA(0x1F,2,"Encoder unit on port A"), // page 19
 		EncoderUnitPortB(0x20,2,"Encoder unit on port B"), // page 19
 		BatteryLifeDurationCounter(0x50,3,"Battery life duration counter"),
-		BatteryLifeDateEnd(0x51,7,"Battery life end date");
+		BatteryLifeDateEnd(0x51,7,"Battery life end date"),
+		BackflowDetectionDatePortA(0x3E,7,"Backflow detection date port A"),
+		BackflowDetectionDatePortB(0x3F,7,"Backflow detection date port B"),
+		BackflowDetectionFlagsPortA(0x43,2,"Backflow detection flags port A"),
+		BackflowDetectionFlagsPortB(0x47,2,"Backflow detection flags port B"),
+		CommunicationErrorDetectionDatePortA(0x4C,7,"communication error detection date port A"),
+		CommunicationErrorDetectionDatePortB(0x4D,7,"communication error detection date port B"),
+		CommunicationErrorReadingDatePortA(0x4E,7,"communication error reading date port A"),
+		CommunicationErrorReadingDatePortB(0x4F,7,"communication error reading date port B");
+		
+		
 		
 		private int id;
 		private int length;

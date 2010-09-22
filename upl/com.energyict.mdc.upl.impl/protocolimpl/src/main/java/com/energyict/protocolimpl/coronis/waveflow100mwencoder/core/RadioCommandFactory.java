@@ -9,7 +9,8 @@ public class RadioCommandFactory {
 
 	// cached
 	private FirmwareVersion firmwareVersion=null;
-	
+
+
 	RadioCommandFactory(WaveFlow100mW waveFlow100mW) {
 		this.waveFlow100mW = waveFlow100mW;
 	}
@@ -45,6 +46,12 @@ public class RadioCommandFactory {
 		EncoderInternalDataCommand encoderInternalDataCommand = new EncoderInternalDataCommand(waveFlow100mW);
 		encoderInternalDataCommand.invoke();
 		return encoderInternalDataCommand;
+	}
+	
+	final LeakageEventTable readLeakageEventTable() throws IOException {
+		LeakageEventTable leakageEventTable = new LeakageEventTable(waveFlow100mW);
+		leakageEventTable.invoke();
+		return leakageEventTable;
 	}
 	
 }

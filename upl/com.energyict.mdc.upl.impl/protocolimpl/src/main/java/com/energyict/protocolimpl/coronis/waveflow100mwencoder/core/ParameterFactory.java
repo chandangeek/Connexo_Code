@@ -193,5 +193,29 @@ class ParameterFactory {
 		o.read();
 		return (o.getCalendar()==null?null:o.getCalendar().getTime());
 	}
+
+	final Date readBackflowDetectionDate(int portId) throws IOException {
+		BackflowDetectionDate backflowDetectionDate = new BackflowDetectionDate(waveFlow100mW, portId);
+		backflowDetectionDate.read();
+		return backflowDetectionDate.getDate();
+	}
+	
+	final int readBackflowDetectionFlags(int portId) throws IOException {
+		BackflowDetectionFlags backflowDetectionflags = new BackflowDetectionFlags(waveFlow100mW, portId);
+		backflowDetectionflags.read();
+		return backflowDetectionflags.getFlags();
+	}
+	
+	final Date readCommunicationErrorDetectionDate(int portId) throws IOException {
+		CommunicationErrorDetectionDate communicationErrorDetectionDate = new CommunicationErrorDetectionDate(waveFlow100mW, portId);
+		communicationErrorDetectionDate.read();
+		return communicationErrorDetectionDate.getDate();
+	}
+	
+	final Date readCommunicationErrorReadingDate(int portId) throws IOException {
+		CommunicationErrorReadingDate communicationErrorReadingDate = new CommunicationErrorReadingDate(waveFlow100mW, portId);
+		communicationErrorReadingDate.read();
+		return communicationErrorReadingDate.getDate();
+	}
 	
 }

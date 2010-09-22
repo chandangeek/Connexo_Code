@@ -57,7 +57,7 @@ public class EncoderGenericHeader {
 	 * This control byte is used to detect leakage in real time. Indeed, each bit is set to one when a leakage is
 	 * detected and reset to zero automatically when it ended. This information can be read by the standard read
 	 * parameter command. This parameter is in read access only.
-	 * bit3 high reshold (extreme leak)	Port B
+	 * bit3 high threshold (extreme leak)	Port B
 	 * bit2 Low	threshold (residual	leak) Port B
 	 * bit1 High threshold (extreme	leak) Port A
 	 * bit0 Low	threshold (residual	leak) Port A	

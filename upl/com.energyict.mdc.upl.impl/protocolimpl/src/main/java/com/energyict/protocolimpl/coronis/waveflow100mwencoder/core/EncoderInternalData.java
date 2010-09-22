@@ -155,9 +155,6 @@ public class EncoderInternalData {
 			throw new WaveFlow100mwEncoderException("Invalid encoder internal data length. Expected length ["+ENCODER_INTERNAL_DATA_LENGTH+"], received length ["+data.length+"]");
 		}
 		
-		System.out.println("Port B encoder internal data:\n"+new String(data));
-
-		
 		DataInputStream dais = null;
 		try {
 			byte[] temp;
@@ -266,30 +263,4 @@ public class EncoderInternalData {
 			}
 		}		
 	}
-
-/*	
-	public static void main(String[] args) {
-		
-		String string = "2010519632";
-		String string2 = "00130469000100000248FF02040039010490001200";
-
-		int checksum=0;
-		
-		byte[] data = string.getBytes();
-		for (int i=0;i<data.length;i++) {
-			checksum+=Utils.toInt(data[i]);
-		}
-		
-		
-		
-		byte[] data2 = string2.getBytes();
-		for (int i=0;i<data2.length;i+=2) {
-			int temp = Integer.parseInt(new String(new byte[]{data2[i],data2[i+1]}),16);
-			checksum+=temp;
-		}
-		
-		System.out.println(Utils.toHexString(checksum));
-	}
-*/	
-	
 }

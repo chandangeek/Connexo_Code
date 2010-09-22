@@ -14,6 +14,7 @@ abstract public class AbstractRadioCommand {
 		EncoderDataloggingTable(0x07,true),
 		EncoderReadLeakageEventTable(0x04,true),
 		EncoderInternalData(0x0B,true),
+		LeakageEventTable(0x04,true),
 		FirmwareVersion(0x28);
 		
 		private int commandId;
@@ -100,6 +101,7 @@ abstract public class AbstractRadioCommand {
 				
 				if (getEncoderRadioCommandId().isReadGenericHeader()) {
 					encoderGenericHeader = new EncoderGenericHeader(dais, getWaveFlow100mW().getLogger(), getWaveFlow100mW().getTimeZone());
+					waveFlow100mW.setCachedEncoderGenericHeader(encoderGenericHeader);
 				}
 				byte[] temp = new byte[dais.available()];
 				dais.read(temp);
