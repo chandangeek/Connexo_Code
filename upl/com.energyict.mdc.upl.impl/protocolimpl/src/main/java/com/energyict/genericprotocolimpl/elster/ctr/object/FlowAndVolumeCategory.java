@@ -16,7 +16,7 @@ public class FlowAndVolumeCategory extends AbstractSimpleBINObject{
 
     //Parse the raw data & fill in the object's properties
     @Override
-    public void parse(byte[] rawData, int offset, int[] valueLength) {
+    public void parse(byte[] rawData, int offset) {
 
         CTRPrimitiveParser parser = new CTRPrimitiveParser();   //Not static
         CTRObjectID id = this.getId();
@@ -24,6 +24,8 @@ public class FlowAndVolumeCategory extends AbstractSimpleBINObject{
 
         this.setQlf(parser.parseQlf(rawData, offset));
         offset +=1;
+        
+        int[] valueLength = this.parseValueLengths(id);
 
         this.setValue(parser.parseBINValue(id, rawData, offset, valueLength));
         offset += sum(valueLength);  //There might be multiple value fields
@@ -34,6 +36,24 @@ public class FlowAndVolumeCategory extends AbstractSimpleBINObject{
         this.setDefault(null);
 
         this.setSymbol(parser.parseSymbol(id));
+    }
+
+    private int[] parseValueLengths(CTRObjectID id) {
+        int[] valueLength;
+        switch(id.getY()) {
+                default: valueLength = new int[]{3}; break;
+                case 6:
+                case 7:
+                case 9:
+                case 0x0A:
+                    valueLength = new int[]{3,1,1};
+                    switch (id.getZ()) {
+                        case 4: valueLength = new int[]{3,1,1,1}; break;
+                        case 5:
+                        case 6: valueLength = new int[]{3,1,1,1,1}; break;
+                    }
+            }
+        return valueLength;  //To change body of created methods use File | Settings | File Templates.
     }
 
     private int sum(int[] valueLength) {
