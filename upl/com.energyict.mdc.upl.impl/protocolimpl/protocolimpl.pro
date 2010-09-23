@@ -404,5 +404,3 @@
 
 -keepnames class com.energyict.protocolimpl.dlms.SimpleDLMSProtocol
 
--keepnames class com.energyict.genericprotocolimpl.elster.ctr.MTU155
-
