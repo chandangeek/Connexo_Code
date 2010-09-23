@@ -1,7 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.Sms;
 import com.energyict.mdw.messaging.MessageHandler;
 
 import javax.jms.JMSException;
@@ -26,8 +25,10 @@ public class SmsHandler implements MessageHandler {
     public void processMessage(Message message, Logger logger) throws JMSException, BusinessException, SQLException {
 
         ObjectMessage om = (ObjectMessage) message;
+/*
         Sms sms1 = (Sms) om.getObject();
         System.out.println(sms1.toString());
+*/
     }
 
     public String getVersion() {
