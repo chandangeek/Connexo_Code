@@ -233,7 +233,7 @@ public class P2LPCTest {
 				dummyUserFile.deleteOnExit();
 				uf = Utilities.createDummyNotEmptyUserFile(dummyUserFile);
 
-				Folder folder = Utilities.mw().getFolderFactory().find(2);
+				Folder folder = Utilities.mw().getFolderFactory().find(0);
 				Group group2 = Utilities.createNotEmptyGroup();
 				group2.moveToFolder(folder);
 				concentrator.moveToFolder(folder);
