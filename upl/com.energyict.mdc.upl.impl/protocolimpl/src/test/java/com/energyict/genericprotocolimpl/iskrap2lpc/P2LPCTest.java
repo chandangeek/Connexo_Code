@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.energyict.mdw.core.*;
+import com.energyict.mdw.testutils.FolderCRUD;
+import com.energyict.mdw.testutils.FolderTypeCRUD;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -23,17 +26,6 @@ import org.junit.Test;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.PersistentObject;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
-import com.energyict.mdw.core.CommunicationProfile;
-import com.energyict.mdw.core.CommunicationProtocol;
-import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.Folder;
-import com.energyict.mdw.core.Group;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.core.RtuMessage;
-import com.energyict.mdw.core.RtuMessageState;
-import com.energyict.mdw.core.RtuType;
-import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.RtuMessageShadow;
 import com.energyict.protocolimpl.utils.Utilities;
 
@@ -121,14 +113,23 @@ public class P2LPCTest {
 		result.addAll(Utilities.mw().getUserFileFactory().findByName(Utilities.emptyUserFile));
 		result.addAll(Utilities.mw().getUserFileFactory().findByName(Utilities.notEmptyUserFile));
 		result.addAll(Utilities.mw().getModemPoolFactory().findByName(Utilities.dummyModemPool));
+//        result.addAll(Utilities.mw().getFolderFactory().findByName(folderName));
+//        result.addAll(Utilities.mw().getFolderTypeFactory().findByName(folderTypeName));
 
-		if(result.size() > 0){
-			for(int i = 0; i < result.size(); i++){
-				((PersistentObject) result.get(i)).delete();
-			}
-		}
 
-	}
+        if(result.size() > 0){
+            for(int i = 0; i < result.size(); i++){
+                try {
+                    ((PersistentObject) result.get(i)).delete();
+                } catch (SQLException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                } catch (BusinessException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+            }
+        }
+
+    }
 
 	@Test
 	public void firmwareUpgradeConcentratorMessageTest(){
@@ -233,7 +234,7 @@ public class P2LPCTest {
 				dummyUserFile.deleteOnExit();
 				uf = Utilities.createDummyNotEmptyUserFile(dummyUserFile);
 
-				Folder folder = Utilities.mw().getFolderFactory().find(0);
+				Folder folder = (Folder)Utilities.mw().getFolderFactory().findAll().get(1); 
 				Group group2 = Utilities.createNotEmptyGroup();
 				group2.moveToFolder(folder);
 				concentrator.moveToFolder(folder);
