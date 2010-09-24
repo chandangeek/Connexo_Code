@@ -18,7 +18,7 @@ public class CTRPrimitiveParser {
 
     //Parses BIN bytearrays into BigDecimals
     //also parses single byte fields (e.g. hours, minutes,...)
-    public CTRObjectValue[] parseBINValue(CTRObjectID id, byte[] rawData, int offset, int[] valueLength) {
+    public CTRObjectValue[] parseBINValue(AbstractSimpleBINObject object, CTRObjectID id, byte[] rawData, int offset, int[] valueLength) {
 
         int i = 0;
         CTRObjectValue[] result = new CTRObjectValue[valueLength.length];
@@ -27,7 +27,7 @@ public class CTRPrimitiveParser {
         for(int valueLength1: valueLength) {
             byte[] value = ProtocolUtils.getSubArray(rawData, offset, offset + valueLength1 - 1);
             value = removeTrailingZeroes(value, valueLength1);
-            result[i] = new CTRObjectValue(parseOverflowValue(id, i), parseUnit(id, i), convertByteArrayToBigDecimal(value));
+            result[i] = new CTRObjectValue(object.parseOverflowValue(), object.parseUnit(id, i), convertByteArrayToBigDecimal(value));
             i++;
             offset += valueLength1;
         }
@@ -64,37 +64,6 @@ public class CTRPrimitiveParser {
         int x = id.getX();
         int y = id.getY();
         int z = id.getZ();
-
-        // Category: flow or volume
-        if (x == 0x01) {
-            if ((y == 0x01) || (y == 0x03) || (y >= 0x0D)) {
-                unit = Unit.get("m3");
-            } else {
-                unit = Unit.get("m3/h");
-                if (y == 0x06 || y == 0x07 || y == 0x09 || y == 0x0A) {
-                    if (z == 0x04) {
-                        if (valueNumber == 1) {unit = Unit.get(BaseUnit.DAY);}
-                        if (valueNumber == 2) {unit = Unit.get(BaseUnit.HOUR);}
-                        if (valueNumber == 3) {unit = Unit.get(BaseUnit.MINUTE);}
-                    }
-                    if (z <= 0x04) {
-                        if (valueNumber == 1) {unit = Unit.get(BaseUnit.HOUR);}
-                        if (valueNumber == 2) {unit = Unit.get(BaseUnit.MINUTE);}
-                    }
-                    if (z > 0x04) {
-                        if (valueNumber == 1) {unit = Unit.get(BaseUnit.MONTH);}
-                        if (valueNumber == 2) {unit = Unit.get(BaseUnit.DAY);}
-                        if (valueNumber == 3) {unit = Unit.get(BaseUnit.HOUR);}
-                        if (valueNumber == 4) {unit = Unit.get(BaseUnit.MINUTE);}
-                    }
-                }
-            }
-        }
-
-        //Category: Totalizers
-        if (x == 0x02) {
-            unit = Unit.get("m3");
-        }
 
         //Category: Energy
         if (x == 0x03) {
@@ -201,21 +170,8 @@ public class CTRPrimitiveParser {
         int z = id.getZ();
 
         switch (x) {
-            case 1: switch(y) {
-                default: valueLength = new int[]{3}; break;
-                case 6:
-                case 7:
-                case 9:
-                case 0x0A:
-                    valueLength = new int[]{3,1,1};
-                    switch (z) {
-                        case 4: valueLength = new int[]{3,1,1,1}; break;
-                        case 5:
-                        case 6: valueLength = new int[]{3,1,1,1,1}; break;
-                    }
-            }
 
-            case 2: valueLength = new int[]{4}; break;
+            
 
             case 3: switch(y) {
                 default: valueLength = new int[]{4};

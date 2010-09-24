@@ -13,24 +13,34 @@ public class CTRObjectFactory {
     public AbstractCTRObject parse(byte[] rawData, int offset) {
         CTRPrimitiveParser parser = new CTRPrimitiveParser();
         CTRObjectID id = parser.parseId(rawData, offset);
-        int[] valueLength = parser.parseValueLength(id);
-        return this.createObject(id, rawData, offset, valueLength);
+        return this.createObject(id, rawData, offset);
     }
     
-    private AbstractCTRObject createObject(CTRObjectID id, byte[] rawData, int offset, int[] valueLength) {
+    private AbstractCTRObject createObject(CTRObjectID id, byte[] rawData, int offset) {
  
         AbstractCTRObject obj = null;
+        int x = id.getX();
+        switch (x) {
+            case 1: obj = createFlowAndVolumeObject(id, rawData, offset, obj);
+            case 2: obj = createTotalizerObject(id, rawData, offset, obj);
+            case 3: //....
 
-        if (id.getX() == 0x01) {       //Category is Flow/Volume
-            obj = createFlowAndVolumeObject(id, rawData, offset, valueLength, obj);
         }
-        
+
         return obj;
     }
 
-    private AbstractCTRObject createFlowAndVolumeObject(CTRObjectID id, byte[] rawData, int offset, int[] valueLength, AbstractCTRObject obj) {
+    private AbstractCTRObject createFlowAndVolumeObject(CTRObjectID id, byte[] rawData, int offset, AbstractCTRObject obj) {
         obj = new FlowAndVolumeCategory(id);
-        obj.parse(rawData, offset, valueLength);
+        obj.parse(rawData, offset);
         return obj;
     }
+
+    private AbstractCTRObject createTotalizerObject(CTRObjectID id, byte[] rawData, int offset, AbstractCTRObject obj) {
+        obj = new TotalizersCategory(id);
+        obj.parse(rawData, offset);
+        return obj;
+    }
+
+
 }

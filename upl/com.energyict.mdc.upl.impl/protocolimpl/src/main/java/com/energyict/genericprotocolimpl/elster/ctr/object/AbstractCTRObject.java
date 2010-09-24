@@ -18,9 +18,18 @@ public abstract class AbstractCTRObject {
     private int qlf;
     private String symbol;
     private BigDecimal overflowValue;
-    private Unit unit;
 
-    public abstract void parse(byte[] rawData, int offset, int[] len);
+    protected int sum(int[] valueLength) {
+        int sum = 0;
+        for(int i:valueLength) {sum +=i;}
+        return sum;
+    }
+
+    protected abstract int[] parseValueLengths();
+
+    public abstract void parse(byte[] rawData, int offset);
+
+    public abstract BigDecimal parseOverflowValue();
 
     public CTRObjectID getId() {
         return id;

@@ -16,6 +16,7 @@ public abstract class AbstractSimpleBINObject extends AbstractCTRObject {
 
     private CTRObjectValue[] value; //Binary value, with its unit & an overflowValue. 
     private BigDecimal def;
+    public abstract Unit parseUnit(CTRObjectID id, int valueNumber);
 
     public CTRObjectValue[] getValue() {
             return value;
