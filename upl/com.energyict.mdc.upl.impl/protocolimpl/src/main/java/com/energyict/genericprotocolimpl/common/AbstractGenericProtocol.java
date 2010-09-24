@@ -1,9 +1,12 @@
 package com.energyict.genericprotocolimpl.common;
 
+import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.Link;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.core.CommunicationScheduler;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,6 +29,15 @@ public abstract class AbstractGenericProtocol implements GenericProtocol {
     private CommunicationScheduler communicationScheduler;
     private Link link;
     private Logger logger;
+
+    protected abstract void doExecute();
+    
+    public void execute(CommunicationScheduler communicationScheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
+        this.communicationScheduler = communicationScheduler;
+        this.link = link;
+        this.logger = logger;
+        doExecute();
+    }
 
     /**
      * Getter for the time difference of the clock in the device
@@ -118,18 +130,6 @@ public abstract class AbstractGenericProtocol implements GenericProtocol {
     public boolean propertyExist(String propertyKey) {
         String value = getProperties().getProperty(propertyKey);
         return (value != null) && (value.length() > 0);
-    }
-
-    /**
-     * Setter for all the attributes of the execute command.
-     * @param communicationScheduler
-     * @param link
-     * @param logger
-     */
-    protected void setExecuteObjects(CommunicationScheduler communicationScheduler, Link link, Logger logger) {
-        this.communicationScheduler = communicationScheduler;
-        this.link = link;
-        this.logger = logger;
     }
 
 }
