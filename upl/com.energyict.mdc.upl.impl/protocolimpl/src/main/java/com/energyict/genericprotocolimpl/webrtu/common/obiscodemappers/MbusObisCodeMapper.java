@@ -49,7 +49,7 @@ public class MbusObisCodeMapper {
                 } else if (obisCode.getE() == 130) {
                     boolean state = cof.getDisconnector(adjustToDisconnectOC(obisCode)).getState();
                     Quantity quantity = new Quantity(state ? "1" : "0", Unit.getUndefined());
-                    rv = new RegisterValue(obisCode, quantity, null, null, null, new Date(), 0, "State: " + state);
+                    return rv = new RegisterValue(obisCode, quantity, null, null, null, new Date(), 0, "State: " + state);
                 }
     		} else if (obisCode.getD() == 50){ // MBus encryption status
     			Data encryptionState = cof.getData(obisCode);
