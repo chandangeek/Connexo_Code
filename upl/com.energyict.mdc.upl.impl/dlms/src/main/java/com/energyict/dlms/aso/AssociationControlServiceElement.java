@@ -556,7 +556,14 @@ public class AssociationControlServiceElement {
                         while (true) {
                             if (responseData[i] == DLMSCOSEMGlobals.RLRE_RELEASE_RESPONSE_REASON) {
                                 i++; // skip tag
-                                if (responseData[i++] != 0) { // length of the integer
+
+                                /* Contains the length of the tagged component. Normally this is '1', but some code this
+                                as an Integer (0x02) with length 1 (0x01) which causes the tagged length to be 3(0x03)
+                                 */
+                                int lenghtOfTaggedComponent = responseData[i];
+
+                                i += lenghtOfTaggedComponent;
+                                if (lenghtOfTaggedComponent != 0) {
                                     switch (responseData[i++]) {
                                         case 0x00:
                                             return; // normal release

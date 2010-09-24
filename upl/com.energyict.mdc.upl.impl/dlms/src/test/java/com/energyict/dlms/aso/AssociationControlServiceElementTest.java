@@ -128,6 +128,9 @@ public class AssociationControlServiceElementTest {
 		}
     }
 
+    /**
+     * Test to analyze the AARE
+     */
     @Test
     public void analyzeResponseTest(){
     	try {
@@ -169,12 +172,25 @@ public class AssociationControlServiceElementTest {
 
     @Test
     public void analyzeCorrectNoReasonRLRE() {
-        byte[] rlre = ProtocolTools.getBytesFromHexString("$00$00$00$63$28$80$00$BE$23$04$21$28$1F$30$00$00$10$24$8E$6B$96$CA$25$EA$66$DC$3C$5A$F0$65$FD$57$5B$19$FC$42$B8$36$68$AA$7F$B7$D1$80");
+        byte[] rlre = ProtocolTools.getBytesFromHexString("$00$00$00$63$28$80$01$00$BE$23$04$21$28$1F$30$00$00$10$24$8E$6B$96$CA$25$EA$66$DC$3C$5A$F0$65$FD$57$5B$19$FC$42$B8$36$68$AA$7F$B7$D1$80");
         try {
             SecurityContext sc = new SecurityContext(2, 2, 2, new MockSecurityProvider(), SecurityContext.CIPHERING_TYPE_GLOBAL);
             AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
             acse.analyzeRLRE(rlre);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
+            fail("Unexpexted Exception: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void analyzeOldIskraRLRE() {
+        byte[] rlre = DLMSUtils.hexStringToByteArray("000100010001000763058003020100");
+        SecurityContext sc = new SecurityContext(0, 1, 0, new MockSecurityProvider(), 0);
+        AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
+        try {
+            acse.analyzeRLRE(rlre);
+        } catch (IOException e) {
             System.out.println(e.getMessage());
             fail("Unexpexted Exception: " + e.getMessage());
         }
