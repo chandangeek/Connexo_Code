@@ -4,6 +4,8 @@ import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser;
 
+import java.math.BigDecimal;
+
 /**
  * Created by IntelliJ IDEA.
  * User: khe
@@ -17,6 +19,12 @@ public class FlowAndVolumeCategory extends AbstractSimpleBINObject{
     }
 
     //Parse the raw data & fill in the object's properties
+
+    @Override
+    protected int[] parseValueLengths() {
+        return new int[0];  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     @Override
     public void parse(byte[] rawData, int offset) {
 
@@ -38,6 +46,11 @@ public class FlowAndVolumeCategory extends AbstractSimpleBINObject{
         this.setDefault(null);
 
         this.setSymbol(parser.parseSymbol(id));
+    }
+
+    @Override
+    public BigDecimal parseOverflowValue() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     protected int[] parseValueLengths(CTRObjectID id) {
