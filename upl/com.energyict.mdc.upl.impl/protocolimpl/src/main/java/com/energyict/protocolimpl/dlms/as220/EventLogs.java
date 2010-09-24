@@ -6,6 +6,7 @@ import com.energyict.protocol.MeterEvent;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
 
 /**
  * @author jme
@@ -17,6 +18,9 @@ public class EventLogs {
 
     private final DLMSSNAS220 as220;
 
+    /**
+     * @param as220
+     */
     public EventLogs(DLMSSNAS220 as220) {
         this.as220 = as220;
     }
@@ -31,6 +35,9 @@ public class EventLogs {
     }
 
     /**
+     * Read all the events between the given fromCalendar and toCalendar from
+     * all the logbooks available in the AM500. Returns a list of MeterEvents
+     *
      * @param fromCalendar
      * @param toCalendar
      * @return
@@ -44,6 +51,9 @@ public class EventLogs {
     }
 
     /**
+     * Read the logbook from the meter, and return them as a list of meterEvents.
+     * If an error occures, or the logbook does not exist, an empty list will be returned
+     *
      * @param obisCode
      * @param fromCalendar
      * @param toCalendar
@@ -55,19 +65,35 @@ public class EventLogs {
         if (getAs220().getMeterConfig().isObisCodeInObjectList(obisCode)) {
             try {
                 DataContainer dc = getAs220().getCosemObjectFactory().getProfileGeneric(obisCode).getBuffer(fromCalendar, toCalendar);
-                for (int i = 0; i < dc.getRoot().getNrOfElements(); i++) {
-                    Date dateTime = dc.getRoot().getStructure(i).getOctetString(0).toDate(getAs220().getTimeZone());
-                    int id = dc.getRoot().getStructure(i).getInteger(1);
-                    MeterEvent meterEvent = EventNumber.toMeterEvent(id, dateTime);
-                    if (meterEvent != null) {
-                        meterEvents.add(meterEvent);
+                if ((dc != null) && (dc.getRoot() != null)) {
+                    for (int i = 0; i < dc.getRoot().getNrOfElements(); i++) {
+                        Date dateTime = dc.getRoot().getStructure(i).getOctetString(0).toDate(getAs220().getTimeZone());
+                        if (dateTime != null) {
+                            int id = dc.getRoot().getStructure(i).getInteger(1);
+                            MeterEvent meterEvent = EventNumber.toMeterEvent(id, dateTime);
+                            if (meterEvent != null) {
+                                meterEvents.add(meterEvent);
+                            }
+                        } else {
+                            StringBuilder sb = new StringBuilder();
+                            sb.append("Skipping event from logbook [").append(obisCode.toString()).append("]. Timestamp was null!");
+                            getAs220().getLogger().log(Level.WARNING, sb.toString());
+                        }
                     }
+                } else {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("DataContainer was null while reading logbook [").append(obisCode.toString()).append("] ");
+                    sb.append("from [").append(fromCalendar != null ? fromCalendar.getTime() : "null").append("] ");
+                    sb.append("to [").append(toCalendar != null ? toCalendar.getTime() : "null").append("].");
+                    getAs220().getLogger().log(Level.WARNING, sb.toString());
                 }
             } catch (IOException e) {
-                // Absorb
+                StringBuilder sb = new StringBuilder();
+                sb.append("IOException while reading the logbook [").append(obisCode.toString()).append("]: ").append(e.getMessage());
+                getAs220().getLogger().log(Level.SEVERE, sb.toString());
             }
         }
         return meterEvents;
-	}
+    }
 
 }
