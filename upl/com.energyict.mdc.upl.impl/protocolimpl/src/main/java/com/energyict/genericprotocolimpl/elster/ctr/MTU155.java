@@ -2,6 +2,7 @@ package com.energyict.genericprotocolimpl.elster.ctr;
 
 import com.energyict.genericprotocolimpl.common.AbstractGenericProtocol;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,20 +13,25 @@ import java.util.List;
 public class MTU155 extends AbstractGenericProtocol {
 
     public String getVersion() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return "$Date$";
     }
 
-    public List getRequiredKeys() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public List<String> getRequiredKeys() {
+        List<String> requiredKeys = new ArrayList<String>();
+        // Add required keys
+        return requiredKeys;
     }
 
-    public List getOptionalKeys() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public List<String> getOptionalKeys() {
+        List<String> optionalKeys = new ArrayList<String>();
+        // Add optional keys
+        return optionalKeys;
     }
 
     @Override
     protected void doExecute() {
-        
-
+        // Hmmm, still work to do :)
     }
+
+
 }

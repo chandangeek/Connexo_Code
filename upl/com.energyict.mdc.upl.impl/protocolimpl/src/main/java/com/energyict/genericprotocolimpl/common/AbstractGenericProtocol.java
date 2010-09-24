@@ -30,8 +30,11 @@ public abstract class AbstractGenericProtocol implements GenericProtocol {
     private Link link;
     private Logger logger;
 
+    /**
+     * This is the method where the implementing protocol does all his stuff.
+     */
     protected abstract void doExecute();
-    
+
     public void execute(CommunicationScheduler communicationScheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
         this.communicationScheduler = communicationScheduler;
         this.link = link;
