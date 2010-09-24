@@ -10,7 +10,7 @@
     <groupId>com.energyict</groupId>
     <artifactId>protocols</artifactId>
     <packaging>pom</packaging>
-    <version>8.5.15</version>
+    <version>8.5.16-SNAPSHOT</version>
     <name>protocols</name>
     <dependencies>
         <dependency>
@@ -308,7 +308,7 @@
     </dependencyManagement>
 
     <scm>
-        <developerConnection>scm:svn:http://linux2/svn/labo/protocols/tags/8.5.15</developerConnection>
+        <developerConnection>scm:svn:http://linux2/svn/labo/protocols/trunk</developerConnection>
     </scm>
 
     <modules>
