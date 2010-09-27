@@ -1,26 +1,15 @@
 package com.energyict.protocolimpl.utils;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import antlr.Utils;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.IntervalData;
+import org.junit.*;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import antlr.Utils;
-
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.IntervalData;
+import static org.junit.Assert.*;
 
 /**
  * @author jme
@@ -347,4 +336,28 @@ public class ProtocolToolsTest {
 
 	}
 
+    /**
+     * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#concatByteArrays(byte[], byte[])}.
+     */
+    @Test
+    public void testConcatByteArraysByteArray() throws Exception {
+        byte[] array1 = ProtocolTools.getBytesFromHexString("$01$02$03");
+        byte[] array2 = ProtocolTools.getBytesFromHexString("");
+        byte[] array3 = ProtocolTools.getBytesFromHexString("$04$05$06");
+        byte[] array4 = ProtocolTools.getBytesFromHexString("$11$22$33");
+        byte[] array5 = ProtocolTools.getBytesFromHexString("");
+        byte[] array6 = ProtocolTools.getBytesFromHexString("$55$88$FF");
+
+        byte[] total123456 = ProtocolTools.getBytesFromHexString("$01$02$03$04$05$06$11$22$33$55$88$FF");
+        byte[] total25 = ProtocolTools.getBytesFromHexString("");
+        byte[] total234 = ProtocolTools.getBytesFromHexString("$04$05$06$11$22$33");
+
+        assertArrayEquals(total123456, ProtocolTools.concatByteArrays(array1, array2, array3, array4, array5, array6));
+        assertArrayEquals(total25, ProtocolTools.concatByteArrays(array2, array5));
+        assertArrayEquals(total234, ProtocolTools.concatByteArrays(array2, array3, array4));
+        assertArrayEquals(total234, ProtocolTools.concatByteArrays(array2, null, null, array3, array4));
+        assertArrayEquals(array6, ProtocolTools.concatByteArrays(array6));
+        assertArrayEquals(array6, ProtocolTools.concatByteArrays(null, null, array6, null, null));
+        
+    }
 }

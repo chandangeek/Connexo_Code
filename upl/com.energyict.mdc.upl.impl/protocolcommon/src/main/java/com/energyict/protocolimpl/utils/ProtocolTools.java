@@ -572,4 +572,29 @@ public final class ProtocolTools {
         }
         return epochTime;
     }
+
+    /**
+     * Construct a concatenated byteArray for the given byteArrays
+     *
+     * @param byteArrays the <code>byte[]</code> to concatenate
+     * @return 1 <code>byte[]</code> with all given arrays after each other
+     */
+    public static byte[] concatByteArrays(byte[]... byteArrays) {
+        int length = 0;
+        for (byte[] byteArray : byteArrays) {
+            if (byteArray != null) {
+                length += byteArray.length;
+            }
+        }
+        int offset = 0;
+        byte [] concatenatedArray = new byte[length];
+        for (byte[] byteArray : byteArrays) {
+            if (byteArray != null) {
+                System.arraycopy(byteArray, 0, concatenatedArray, offset, byteArray.length);
+                offset += byteArray.length;
+            }
+        }
+        return concatenatedArray;
+    }
+
 }
