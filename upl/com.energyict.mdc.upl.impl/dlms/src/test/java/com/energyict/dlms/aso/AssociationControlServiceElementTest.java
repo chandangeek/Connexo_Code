@@ -158,6 +158,9 @@ public class AssociationControlServiceElementTest {
 		}
     }
 
+    /**
+     * Test if successful RLRE "$80$01$00" can be parsed (length = 1)
+     */
     @Test
     public void analyzeCorrectRLRE() {
         byte[] rlre = ProtocolTools.getBytesFromHexString("$00$00$00$63$28$80$01$00$BE$23$04$21$28$1F$30$00$00$10$24$8E$6B$96$CA$25$EA$66$DC$3C$5A$F0$65$FD$57$5B$19$FC$42$B8$36$68$AA$7F$B7$D1$80");
@@ -170,9 +173,12 @@ public class AssociationControlServiceElementTest {
         }
     }
 
+    /**
+     * Test if RLRE with no reason "$80$00" can be parsed (length = 0)
+     */
     @Test
     public void analyzeCorrectNoReasonRLRE() {
-        byte[] rlre = ProtocolTools.getBytesFromHexString("$00$00$00$63$28$80$01$00$BE$23$04$21$28$1F$30$00$00$10$24$8E$6B$96$CA$25$EA$66$DC$3C$5A$F0$65$FD$57$5B$19$FC$42$B8$36$68$AA$7F$B7$D1$80");
+        byte[] rlre = ProtocolTools.getBytesFromHexString("$00$00$00$63$28$80$00$BE$23$04$21$28$1F$30$00$00$10$24$8E$6B$96$CA$25$EA$66$DC$3C$5A$F0$65$FD$57$5B$19$FC$42$B8$36$68$AA$7F$B7$D1$80");
         try {
             SecurityContext sc = new SecurityContext(2, 2, 2, new MockSecurityProvider(), SecurityContext.CIPHERING_TYPE_GLOBAL);
             AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
@@ -183,6 +189,9 @@ public class AssociationControlServiceElementTest {
         }
     }
 
+    /**
+     * Test if RLRE from iskra devices can be parsed "$80$03$02$01$00" can be parsed (length = 3, reason = INT8("$02$01$00") )
+     */
     @Test
     public void analyzeOldIskraRLRE() {
         byte[] rlre = DLMSUtils.hexStringToByteArray("000100010001000763058003020100");
@@ -196,6 +205,9 @@ public class AssociationControlServiceElementTest {
         }
     }
 
+    /**
+     * Test if a 'User defined' RLRE "$80$01$30" can be parsed (length = 1)
+     */
     @Test
     public void analyzeUserDefinedRLRE() {
         byte[] rlre = ProtocolTools.getBytesFromHexString("$00$00$00$63$28$80$01$30$BE$23$04$21$28$1F$30$00$00$10$24$8E$6B$96$CA$25$EA$66$DC$3C$5A$F0$65$FD$57$5B$19$FC$42$B8$36$68$AA$7F$B7$D1$80");
@@ -208,6 +220,9 @@ public class AssociationControlServiceElementTest {
         }
     }
 
+    /**
+     * Test if a 'Not finished' RLRE "$80$01$01" can be parsed (length = 1)
+     */
     @Test
     public void analyzeNotFinishedRLRE() {
         byte[] rlre = ProtocolTools.getBytesFromHexString("$00$00$00$63$28$80$01$01$BE$23$04$21$28$1F$30$00$00$10$24$8E$6B$96$CA$25$EA$66$DC$3C$5A$F0$65$FD$57$5B$19$FC$42$B8$36$68$AA$7F$B7$D1$80");
@@ -220,6 +235,9 @@ public class AssociationControlServiceElementTest {
         }
     }
 
+    /**
+     * Test if a 'Unknown' RLRE "$80$01$22" can be parsed (length = 1)
+     */
     @Test
     public void analyzeUnknownRLRE() {
         byte[] rlre = ProtocolTools.getBytesFromHexString("$00$00$00$63$28$80$01$22$BE$23$04$21$28$1F$30$00$00$10$24$8E$6B$96$CA$25$EA$66$DC$3C$5A$F0$65$FD$57$5B$19$FC$42$B8$36$68$AA$7F$B7$D1$80");
