@@ -39,7 +39,16 @@ public abstract class AbstractGenericProtocol implements GenericProtocol {
         this.communicationScheduler = communicationScheduler;
         this.link = link;
         this.logger = logger;
+        initProperties();
         doExecute();
+    }
+
+    /**
+     * Override this method to initiate the properties object in the implementing protocol
+     * This method is called just before the to the doExecute() method.
+     */
+    public void initProperties() {
+        // initialize the properties here
     }
 
     /**
@@ -124,6 +133,7 @@ public abstract class AbstractGenericProtocol implements GenericProtocol {
 
     /**
      * Log a message as INFO log level
+     *
      * @param message
      */
     protected void log(String message) {

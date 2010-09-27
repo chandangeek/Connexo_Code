@@ -1,8 +1,8 @@
 package com.energyict.genericprotocolimpl.elster.ctr;
 
 import com.energyict.genericprotocolimpl.common.AbstractGenericProtocol;
+import com.energyict.protocolimpl.elster.ctr.MTU155Properties;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,20 +12,23 @@ import java.util.List;
  */
 public class MTU155 extends AbstractGenericProtocol {
 
+    private MTU155Properties properties = new MTU155Properties();
+
     public String getVersion() {
         return "$Date$";
     }
 
     public List<String> getRequiredKeys() {
-        List<String> requiredKeys = new ArrayList<String>();
-        // Add required keys
-        return requiredKeys;
+        return properties.getRequiredKeys();
     }
 
     public List<String> getOptionalKeys() {
-        List<String> optionalKeys = new ArrayList<String>();
-        // Add optional keys
-        return optionalKeys;
+        return properties.getOptionalKeys();
+    }
+
+    @Override
+    public void initProperties() {
+        properties.initProperties(getProperties());
     }
 
     @Override
