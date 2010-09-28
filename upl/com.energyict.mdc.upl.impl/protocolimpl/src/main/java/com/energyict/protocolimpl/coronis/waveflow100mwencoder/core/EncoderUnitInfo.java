@@ -51,6 +51,8 @@ class EncoderUnitInfo {
 				case ImperialGallons:
 					return Unit.get(BaseUnit.GALLON);
 				case USGallons:
+					// FIXME change this with the one that Jeroen has added to mdw...
+					System.out.println("WARNING: change this to use the specific cbo.BaseUnit US GALLONS");
 					return Unit.get(BaseUnit.GALLON);
 					
 				default:	
