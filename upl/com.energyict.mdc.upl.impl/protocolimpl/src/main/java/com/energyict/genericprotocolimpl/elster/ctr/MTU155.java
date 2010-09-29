@@ -1,7 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr;
 
 import com.energyict.genericprotocolimpl.common.AbstractGenericProtocol;
-import com.energyict.protocolimpl.elster.ctr.MTU155Properties;
+import com.energyict.protocolimpl.base.ProtocolProperties;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class MTU155 extends AbstractGenericProtocol {
 
-    private MTU155Properties properties = new MTU155Properties();
+    private ProtocolProperties properties = new MTU155Properties();
 
     public String getVersion() {
         return "$Date$";
