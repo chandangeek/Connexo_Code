@@ -1,0 +1,89 @@
+package com.energyict.genericprotocolimpl.elster.ctr.object;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
+
+import java.math.BigDecimal;
+
+/**
+ * Created by IntelliJ IDEA.
+ * User: khe
+ * Date: 21-sep-2010
+ * Time: 14:29:16
+ */
+public class TemperatureCategory extends AbstractUnsignedBINObject {
+
+    public TemperatureCategory(CTRObjectID id) {
+        this.setId(id);
+    }
+
+    protected String parseSymbol(CTRObjectID id) {
+        String symbol = "";
+
+        switch (id.getY()) {
+                case 0: symbol = "T";
+                case 3: symbol = "T_min";
+                case 6: symbol = "T_max";
+                case 9: symbol = "GG";
+                case 0x0B: switch(id.getZ()) {
+                    case 0: symbol = "Tref_all";
+                    case 1: symbol = "Tb";
+                    case 2: symbol = "Tpcs";
+                    case 3: symbol = "Tcb";
+                    case 4: symbol = "Trho";
+                    case 5: symbol = "Tris";
+                    case 6: symbol = "Tpre";
+                }
+                case 0x0C: symbol = "Tamb_fun";
+        }
+        return symbol;
+    }
+
+
+    public BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
+        int overflow = 500;
+        if (unit == Unit.get(BaseUnit.DEGREE_CELSIUS)) {
+            overflow = 10000;
+        }
+        return new BigDecimal(overflow);
+    }
+
+    protected int[] parseValueLengths(CTRObjectID id) {
+        int[] valueLength = new int[]{4};
+        int z = id.getZ();
+        switch(id.getY()) {
+            case 0: valueLength = new int[]{3}; break;
+            case 6:
+            case 3: valueLength = new int[]{3,1,1}; break;
+            
+            case 9: switch(z) {
+                default: valueLength = new int[]{3};
+                case 0x0A: valueLength = new int[]{2,2}; break;
+            }
+            case 0x0B: switch(z) {
+                default: valueLength = new int[]{3};
+                case 0: valueLength = new int[]{3,3,3,3,3,3}; break;
+            }
+
+            case 0x0C: valueLength = new int[]{3,3}; break;
+
+        }
+        return valueLength;
+    }
+
+    public Unit parseUnit(CTRObjectID id, int valueNumber) {
+        Unit unit;
+        int y = id.getY();
+        unit = Unit.get(BaseUnit.KELVIN);
+        if (valueNumber == 1) {unit = Unit.get(BaseUnit.HOUR);}
+        if (valueNumber == 2) {unit = Unit.get(BaseUnit.MINUTE);}
+
+        //Special case
+        if (y == 0x09) {
+            unit = null;
+            if (id.getZ() < 7) {unit = Unit.get(BaseUnit.DEGREE_CELSIUS);}
+        }
+        return unit;
+    }
+
+}
