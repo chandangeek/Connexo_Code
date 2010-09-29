@@ -1,8 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr.object;
 
-import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
-import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser;
 
 import java.math.BigDecimal;
 
@@ -12,43 +10,33 @@ import java.math.BigDecimal;
  * Date: 21-sep-2010
  * Time: 14:29:16
  */
-public class TotalizersCategory extends AbstractSimpleBINObject{
+public class TotalizersCategory extends AbstractUnsignedBINObject {
 
     public TotalizersCategory(CTRObjectID id) {
         this.setId(id);
     }
 
-    //Parse the raw data & fill in the object's properties
-    @Override
-    public void parse(byte[] rawData, int offset) {
-        CTRPrimitiveParser parser = new CTRPrimitiveParser();   //Not static
-        CTRObjectID id = this.getId();
-        offset +=2; //Skip the Id bytes
+    protected String parseSymbol(CTRObjectID id) {
+        String symbol = "";
 
-        this.setQlf(parser.parseQlf(rawData, offset));
-        offset +=1;
+        switch (id.getY()) {
+                case 0: symbol = "Tot_Vm";
+                case 1: symbol = "Tot_Vb";
+                case 3: symbol = "Tot_Vme";
+                case 4: symbol = "Tot_Vbe";
+                case 5: symbol = "Tot_Vx_fx";
+        }
 
-        int[] valueLength = this.parseValueLengths();
 
-        this.setValue(parser.parseBINValue(this, id, rawData, offset, valueLength));
-        offset += sum(valueLength);  //There might be multiple value fields
+        return symbol;
+    }
+    
 
-        this.setAccess(parser.parseAccess(rawData, offset));
-        offset +=1;
-
-        this.setDefault(null);
-
-        this.setSymbol(parser.parseSymbol(id));
-
+    public BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
+        return new BigDecimal(999999999); //Always the same value in this category
     }
 
-    @Override
-    public BigDecimal parseOverflowValue() {
-        return null;
-
-    }
-
-    protected int[] parseValueLengths() {
+    protected int[] parseValueLengths(CTRObjectID id) {
         int[] valueLength;
         valueLength = new int[]{4};
         return valueLength;
@@ -56,17 +44,9 @@ public class TotalizersCategory extends AbstractSimpleBINObject{
 
 
     public Unit parseUnit(CTRObjectID id, int valueNumber) {
-        Unit unit = null;
-        int x = id.getX();
-        int y = id.getY();
-        int z = id.getZ();
-
-        //Category: Totalizers
-        if (x == 0x02) {
-            unit = Unit.get("m3");
-        }
-
-        return unit;
+        return Unit.get("m3");
     }
+
+
 
 }
