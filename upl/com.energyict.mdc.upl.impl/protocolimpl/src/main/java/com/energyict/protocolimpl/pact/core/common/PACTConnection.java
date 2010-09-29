@@ -476,7 +476,9 @@ public class PACTConnection extends Connection {
 								break;
 							}
 						}
-					}
+					} else {
+                        throw new IOException("getLoadSurveyData() -> An NULL dataBlock was returned, which causes the communication to stop. (received "+count+" blocks)");
+                    }
 				}
 			}
 		} catch (IOException e) {
@@ -498,7 +500,9 @@ public class PACTConnection extends Connection {
 								break;
 							}
 						}
-					}
+					} else {
+                        throw new IOException("getMeterReadingData() -> An NULL dataBlock was returned, which causes the communication to stop.");
+                    }
 				}
 			}
 		} catch (IOException e) {
@@ -637,8 +641,8 @@ public class PACTConnection extends Connection {
 					if (retries++ >= maxRetries) {
 						throw new NestedIOException(e);
 					}
-					// code = NXT;
-					code = PRE;
+					code = NXT;
+//					code = PRE;
 				} else if (e.getReason() == CRC_ERROR) {
 					if (DEBUG >= 1) {
 						System.out.println("Exception caused by CRCError.");
@@ -651,7 +655,7 @@ public class PACTConnection extends Connection {
 				} else {
 					throw new NestedIOException(e);
 				}
-				delayAndFlush(TO1);
+//				delayAndFlush(TO1);
 			}
 		} // while(true)
 	} // private int sendControlCode(int code)
