@@ -131,7 +131,7 @@ public class HistoricalRegisterReadings {
         Unit unit = getChannelUnit(obisCode);
         BigDecimal value = getChannelValue(profileEntry, valueIndex);
         Quantity quantity = new Quantity(value, unit);
-        RegisterValue registerValue = new RegisterValue(obisCode, quantity, eventDate.getTime());
+        RegisterValue registerValue = new RegisterValue(obisCode, quantity, eventDate.getTime(), eventDate.getTime());
 
         return registerValue;
     }
