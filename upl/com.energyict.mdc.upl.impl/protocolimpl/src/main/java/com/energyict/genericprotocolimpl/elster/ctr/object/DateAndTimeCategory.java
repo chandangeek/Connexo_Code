@@ -22,9 +22,9 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
 
         switch (id.getY()) {
                 case 0: switch (id.getZ()) {
-                    case 0: symbol = "Data&OraL";
-                    case 1: symbol = "Data&OraS";
-                    case 2: symbol = "Data&OraP";
+                    case 0: symbol = "Date&TimeL";
+                    case 1: symbol = "Date&TimeS";
+                    case 2: symbol = "Date&TimeP";
                 }
                 case 1:switch (id.getZ()) {
                     case 2: symbol = "Shift";
