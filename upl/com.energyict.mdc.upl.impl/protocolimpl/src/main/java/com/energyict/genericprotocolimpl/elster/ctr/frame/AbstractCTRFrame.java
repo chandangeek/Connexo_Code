@@ -15,9 +15,22 @@ public abstract class AbstractCTRFrame implements Frame {
     private Field functionCode;
     private Field structureCode;
     private Field channel;
-
+    private Field data;
     private Field cpa;
     private Field crc;
+
+    public byte[] getBytes() {
+        return ProtocolTools.concatByteArrays(
+                address.getBytes(),
+                profi.getBytes(),
+                functionCode.getBytes(),
+                structureCode.getBytes(),
+                channel.getBytes(),
+                data.getBytes(),
+                cpa.getBytes(),
+                crc.getBytes()
+        );
+    }
 
     @Override
     public String toString() {
