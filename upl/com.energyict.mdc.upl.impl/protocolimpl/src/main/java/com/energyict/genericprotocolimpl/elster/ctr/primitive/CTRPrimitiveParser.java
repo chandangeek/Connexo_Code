@@ -14,7 +14,7 @@ import java.math.BigDecimal;
  */
 public class CTRPrimitiveParser {
 
-    public CTRPrimitiveParser(){}
+    public CTRPrimitiveParser() {}
 
     //Parses BIN byte arrays into BigDecimals
     //also parses single byte fields (e.g. hours, minutes,...)
@@ -28,7 +28,7 @@ public class CTRPrimitiveParser {
             byte[] value = ProtocolUtils.getSubArray(rawData, offset, offset + valueLength1 - 1);
             value = removeTrailingZeroes(value, valueLength1);
             Unit unit = object.parseUnit(id, i);
-            result[i] = new CTRBINValue(unit, object.parseOverflowValue(id, i,unit), convertByteArrayToBigDecimal(value));
+            result[i] = new CTRBINValue(unit, object.parseOverflowValue(id, i,unit), convertByteArrayToBigDecimal(value),"BIN");
             i++;
             offset += valueLength1;
         }
@@ -59,9 +59,9 @@ public class CTRPrimitiveParser {
             if (x == 0x0E && y == 0x0C) {signed = true;}
 
             if (signed) {
-                result[i] = new CTRBINValue(unit, object.parseOverflowValue(id, i,unit), convertSignedByteArrayToBigDecimal(value));
+                result[i] = new CTRBINValue(unit, object.parseOverflowValue(id, i,unit), convertSignedByteArrayToBigDecimal(value), "SignedBIN");
             } else {
-                result[i] = new CTRBINValue(unit, object.parseOverflowValue(id, i, unit), convertByteArrayToBigDecimal(value));
+                result[i] = new CTRBINValue(unit, object.parseOverflowValue(id, i, unit), convertByteArrayToBigDecimal(value), "BIN");
             }
 
             i++;
@@ -95,9 +95,9 @@ public class CTRPrimitiveParser {
             if (x == 0x0D && y == 7) {stringValue = true;}
 
             if (stringValue) {
-                result[i] = new CTRStringValue(unit, object.parseOverflowValue(id, i,unit), convertByteArrayToString(value));
+                result[i] = new CTRStringValue(unit, object.parseOverflowValue(id, i,unit), convertByteArrayToString(value), "String");
             } else {
-                result[i] = new CTRBINValue(unit, object.parseOverflowValue(id, i, unit), convertByteArrayToBigDecimal(value));
+                result[i] = new CTRBINValue(unit, object.parseOverflowValue(id, i, unit), convertByteArrayToBigDecimal(value), "BIN");
             }
 
             i++;
@@ -143,13 +143,13 @@ public class CTRPrimitiveParser {
 
 
             if (signedValue) {
-                result[i] = new CTRBINValue(unit, object.parseOverflowValue(id, i,unit), convertSignedByteArrayToBigDecimal(value));
+                result[i] = new CTRBINValue(unit, object.parseOverflowValue(id, i,unit), convertSignedByteArrayToBigDecimal(value), "SignedBIN");
             } else if (stringValue) {
-                result[i] = new CTRStringValue(unit, object.parseOverflowValue(id, i, unit), convertByteArrayToString(value));
+                result[i] = new CTRStringValue(unit, object.parseOverflowValue(id, i, unit), convertByteArrayToString(value), "String");
             } else if (bcdValue) {
-                result[i] = new CTRBCDValue(unit, object.parseOverflowValue(id, i, unit), convertByteArrayToBCD(value));
+                result[i] = new CTRBCDValue(unit, object.parseOverflowValue(id, i, unit), convertByteArrayToBCD(value), "BCD");
             } else {
-                result[i] = new CTRBINValue(unit, object.parseOverflowValue(id, i,unit), convertByteArrayToBigDecimal(value));
+                result[i] = new CTRBINValue(unit, object.parseOverflowValue(id, i,unit), convertByteArrayToBigDecimal(value), "BIN" );
             }
 
             i++;
@@ -183,13 +183,12 @@ public class CTRPrimitiveParser {
             byte Byte = value[i / 2];
             if (firstHalf) {
                 Byte = (byte) ((byte) (Byte & 0xFF) >> 4 & 0xFF);
-                Byte = (byte) (Byte & 0x0F);
-            } else {
-                Byte = (byte) (Byte & 0x0F);
             }
+            Byte = (byte) (Byte & 0x0F);
             convertedValue += Math.pow(10, (2 * len - i - 1)) * Byte;
             firstHalf = !firstHalf;
         }
+
         return new BigDecimal(convertedValue);
     }
 
@@ -197,7 +196,7 @@ public class CTRPrimitiveParser {
         long convertedValue = 0;
         int len = value.length;
         for (int i = 0; i <= len - 1; i++) {
-            byte Byte = value[i];
+            byte Byte = value[i];                                   
             convertedValue += (int) ((Byte & 0xFF) << (len - 1 - i)*8) & 0xFF;
         }
         BigDecimal result = BigDecimal.valueOf(convertedValue);
@@ -251,7 +250,8 @@ public class CTRPrimitiveParser {
         if (x == 4 && y == 2 && z == 6) {def = new double[]{0.01325};}
         if (x == 4 && y == 9 && z > 0) {def = new double[]{0.01325};}
         if (x == 4 && y == 0x0A) {def = new double[]{0};}
-        if (x == 7 && y == 0x0B) {def = new double[]{288.15,288.15,288.15,288.15,288.15,288.15};}
+        if (x == 7 && y == 0x0B && z == 0) {def = new double[]{288.15,288.15,288.15,288.15,288.15,288.15};}
+        if (x == 7 && y == 0x0B && z > 0) {def = new double[]{288.15};}
         if (x == 8 && y == 0 && z == 0) {def = new double[]{5,1,1,6,0,0,0,1,0};}
         if (x == 8 && y == 0 && z == 1) {def = new double[]{5,1,1,0,0};}
         if (x == 8 && y == 1 && z == 3) {def = new double[]{6};}

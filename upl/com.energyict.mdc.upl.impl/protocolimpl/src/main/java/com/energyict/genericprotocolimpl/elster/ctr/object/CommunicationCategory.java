@@ -14,7 +14,6 @@ import java.math.BigDecimal;
  */
 public class CommunicationCategory extends AbstractStringObject {
 
-
     @Override
     public void parse(byte[] rawData, int offset) {
         CTRPrimitiveParser parser = new CTRPrimitiveParser();   //Not static

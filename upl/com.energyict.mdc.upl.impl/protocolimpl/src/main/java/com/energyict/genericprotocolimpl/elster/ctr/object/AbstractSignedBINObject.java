@@ -50,7 +50,6 @@ public abstract class AbstractSignedBINObject extends AbstractCTRObject {
         int[] valueLengths = parseValueLengths(id);
         byte[] idBytes = converter.convertId(id);
 
-
         return null;
     }
 

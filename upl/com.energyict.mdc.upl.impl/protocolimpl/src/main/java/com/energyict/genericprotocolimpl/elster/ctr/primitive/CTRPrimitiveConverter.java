@@ -1,8 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr.primitive;
 
-import com.energyict.cbo.Unit;
 import com.energyict.genericprotocolimpl.elster.ctr.object.*;
-import com.energyict.protocol.ProtocolUtils;
 
 import java.math.BigDecimal;
 
@@ -25,6 +23,74 @@ public class CTRPrimitiveConverter {
         byte Byte2 = (byte) ((((byte) y & 0xFF) << 4) & 0xF0);
         byte Byte3 = (byte) ((byte) z & 0xFF);
 
-        return new byte[]{Byte1, (byte) (Byte2+Byte3)};  //To change body of created methods use File | Settings | File Templates.
+        return new byte[]{Byte1, (byte) (Byte2+Byte3)};
     }
+
+    public byte[] convertQlf(int qlf) {
+        return new byte[]{(byte) qlf};
+    }
+
+    public byte[] convertStringValue(String value) {
+        return value.getBytes();
+    }
+
+    public byte[] convertBINValue(BigDecimal value, int valueLength) {
+        byte[] result = new byte[valueLength];
+        for (int i = (valueLength - 1); i >= 0; i--) {
+            BigDecimal divider = new BigDecimal(Math.pow(256, i));
+            result[valueLength - 1 - i] =  (byte) ((value.divide(divider)).intValue() & 0xFF);
+        }
+        return result;
+    }
+
+    public byte[] convertBCDValue(BigDecimal value) {
+        String hex = value.toString();
+        byte[] bts = new byte[hex.length() / 2];
+
+        for (int i = 0; i < bts.length; i++) {
+            bts[i] = (byte) Integer.parseInt(hex.substring(2*i, 2*i+2), 16);
+        }
+        return null;
+    }
+
+    public byte[] convertUnsignedBINValue(BigDecimal value, int valueLength) {
+        byte[] result = new byte[valueLength];
+        for (int i = (valueLength - 1); i >= 0; i--) {
+            BigDecimal divider = new BigDecimal(Math.pow(256, i));
+            result[valueLength - 1 - i] =  (byte) ((value.divide(divider)).intValue() & 0xFF);
+
+            //Only the first byte is parsed as a negative value
+            if (i == (valueLength - 1)) {
+                value = value.multiply(new BigDecimal(-1));
+            }
+        }
+        return result;
+    }
+
+    public byte[] convertAccess(int access) {
+        return new byte[]{(byte) access};
+    }
+
+    public byte[] convertDefaults(double[] defaults, int[] length) {
+        /*
+
+        if (defaults != null) {
+            byte[] defaultBytes = new byte[2];
+            int i = 0;
+            for (double def: defaults) {
+                defaultBytes[i] = def.byteValue();
+                i++;
+                
+            }
+        }
+        return new byte[0];
+
+        */
+        return null;
+    }
+
+
+
+
+
 }

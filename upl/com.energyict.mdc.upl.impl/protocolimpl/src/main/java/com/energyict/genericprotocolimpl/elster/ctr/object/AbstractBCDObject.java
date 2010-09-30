@@ -3,6 +3,8 @@ package com.energyict.genericprotocolimpl.elster.ctr.object;
 import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser;
 import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveConverter;
 
+import java.math.BigDecimal;
+
 /**
  * Created by IntelliJ IDEA.
  * User: khe
@@ -42,14 +44,55 @@ public abstract class AbstractBCDObject extends AbstractCTRObject {
         this.value = value;
     }
 
-    @Override
     public byte[] getBytes() {
-        CTRObjectID id = getId();
         CTRPrimitiveConverter converter = new CTRPrimitiveConverter();
-        int[] valueLengths = parseValueLengths(id);
-        byte[] idBytes = converter.convertId(id);
+        byte[] id = converter.convertId(getId());
+        byte[] qlf = converter.convertQlf(getQlf());
+
+        int j = 0;
+        byte[] valueBytes = null;
+        byte[] valueBytesPrevious = null;
+        byte[] valueResult = null;
+        
+        for(int valueLength: parseValueLengths(getId())) {
+
+            if (value[j].getType() == "String") {
+                valueBytes = converter.convertStringValue((String) value[j].getValue());
+            }
+            if (value[j].getType() == "BIN") {
+                valueBytes = converter.convertBINValue((BigDecimal) value[j].getValue(), valueLength);
+            }
+            if (value[j].getType() == "UnsignedBIN") {
+                valueBytes = converter.convertUnsignedBINValue((BigDecimal) value[j].getValue(), valueLength);
+            }
+            if (value[j].getType() == "BCD") {
+                valueBytes = converter.convertBCDValue((BigDecimal) value[j].getValue());
+            }
+            if (j > 0) {
+                valueResult = concat(valueResult, valueBytes);
+            } else {
+                valueResult = valueBytes;
+            }
+            j++;
+        }
+        byte[] access = converter.convertAccess(getAccess());
+        //byte[] def = converter.convertDefaults(getDefault()); 
+
+
+        
+
         return null;
     }
 
+
+
+
+
+    private byte[] concat(byte[] valueBytesPrevious, byte[] valueBytes) {
+        byte[] result = new byte[valueBytesPrevious.length + valueBytes.length];
+        System.arraycopy(valueBytesPrevious, 0, result, 0, valueBytesPrevious.length);
+        System.arraycopy(valueBytes, 0, result, valueBytesPrevious.length, valueBytes.length);
+        return result;
+    }
 
 }

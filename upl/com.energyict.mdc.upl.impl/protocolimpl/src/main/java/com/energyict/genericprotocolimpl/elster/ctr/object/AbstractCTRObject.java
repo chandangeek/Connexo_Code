@@ -89,8 +89,7 @@ public abstract class AbstractCTRObject {
         this.def = def;
     }
 
-    public byte[] getBytes(){
-        return new byte[0];
-    };
+    public abstract byte[] getBytes(); 
+
 
 }

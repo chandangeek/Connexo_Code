@@ -14,16 +14,17 @@ import java.math.BigDecimal;
 public class CTRBINValue extends CTRAbstractValue{
     private BigDecimal value;
 
-    public CTRBINValue(Unit unit, BigDecimal overflowValue, BigDecimal value) {
+    public CTRBINValue(Unit unit, BigDecimal overflowValue, BigDecimal value, String type) {
         this.overflowValue = overflowValue;
         this.unit = unit;
         this.value = value;
+        this.type = type;
     }
 
     public BigDecimal getValue() {
         return value;
     }
-    public void setValue(BigDecimal value) {
-        this.value = value;
+    public void setValue(Object value) {
+        this.value = (BigDecimal) value;
     }
 }

@@ -36,6 +36,7 @@ public class CTRObjectFactory {
             case 16: obj = new EventCategory(id);                   //BIN
             case 17: obj = new ExecuteCategory(id);                 //BIN 
             case 18: obj = new StatusCategory(id);                  //BIN
+            case 19: obj = new InputOutputCategory(id);             //BIN
             case 21: obj = new TracesCategory(id);                  //BIN
             case 24: obj = new BandTotalizerCategory(id);           //BIN
         }
