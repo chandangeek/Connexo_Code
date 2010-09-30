@@ -1,15 +1,9 @@
 package com.energyict.dlms.cosem;
 
-import java.io.IOException;
-
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.NullData;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.*;
+
+import java.io.IOException;
 
 /**
  *
@@ -147,7 +141,7 @@ public class MBusClient extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public void setEncryptionKey(String openKey) throws IOException {
-		if(openKey == ""){
+		if(openKey.equals("")){
 			setEncryptionKey(new NullData().getBEREncodedByteArray());
 		} else {
 			setEncryptionKey(OctetString.fromString(openKey).getBEREncodedByteArray());

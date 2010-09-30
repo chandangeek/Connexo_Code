@@ -3,43 +3,24 @@
  */
 package com.energyict.genericprotocolimpl.actarisace4000;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.naming.ConfigurationException;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
-
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.Environment;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.Link;
-import com.energyict.dialer.core.LinkException;
+import com.energyict.dialer.core.*;
 import com.energyict.genericprotocolimpl.actarisace4000.objects.ObjectFactory;
 import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.core.AmrJournalEntry;
-import com.energyict.mdw.core.CommunicationProfile;
-import com.energyict.mdw.core.CommunicationProtocol;
-import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.MeteringWarehouseFactory;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.core.RtuType;
-import com.energyict.mdw.shadow.CommunicationProtocolShadow;
-import com.energyict.mdw.shadow.RtuShadow;
-import com.energyict.mdw.shadow.RtuTypeShadow;
+import com.energyict.mdw.core.*;
+import com.energyict.mdw.shadow.*;
+import org.xml.sax.SAXException;
+
+import javax.naming.ConfigurationException;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author gna
@@ -135,7 +116,7 @@ public class ActarisACE4000 implements GenericProtocol{
 							}
 						}
 						
-						if(msg != ""){
+						if(!msg.equals("")){
 							getObjectFactory().parseXML(msg);
 						}
 						if (((long) (System.currentTimeMillis() - interMessageTimeout)) > 0) {

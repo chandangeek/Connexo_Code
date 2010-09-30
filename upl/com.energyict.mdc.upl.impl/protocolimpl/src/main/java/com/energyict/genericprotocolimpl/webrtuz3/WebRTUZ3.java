@@ -404,13 +404,13 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 	@Override
 	protected void doValidateProperties() {
 
-		if ((getMeter() != null) && (getMeter().getSerialNumber() != "")) {
+		if ((getMeter() != null) && (!getMeter().getSerialNumber().equals(""))) {
 			this.serialNumber = getMeter().getSerialNumber();
 		} else {
 			this.serialNumber = "";
 		}
 
-		if ((getMeter() != null) && (getMeter().getPassword() != "")) {
+		if ((getMeter() != null) && (!getMeter().getPassword().equals(""))) {
 			this.password = getMeter().getPassword();
 		} else if(getMeter() == null){
 			this.password = getProperties().getProperty(PROPERTY_PASSWORD,DEFAULT_PASSWORD);

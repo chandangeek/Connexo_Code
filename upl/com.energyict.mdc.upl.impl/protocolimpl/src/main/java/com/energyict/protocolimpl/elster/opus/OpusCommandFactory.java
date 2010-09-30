@@ -1,15 +1,11 @@
 package com.energyict.protocolimpl.elster.opus;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.TimeZone;
-
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+
+import java.io.*;
+import java.util.*;
 
 public class OpusCommandFactory {
 	/**
@@ -779,7 +775,7 @@ public class OpusCommandFactory {
 	 */
 	private int detectUnstable(String[] data, boolean temp, int i, int j, int k) throws IOException {
 		int state=1;
-		if((data[2].equals("00") && data[3].equals("00") && data[4].equals("00") || (data[0]=="000"))){
+		if((data[2].equals("00") && data[3].equals("00") && data[4].equals("00") || (data[0].equals("000")))){
 			// data unstable or date wrong
 			outputStream.write(EOT);
 			// introduce timeout pause

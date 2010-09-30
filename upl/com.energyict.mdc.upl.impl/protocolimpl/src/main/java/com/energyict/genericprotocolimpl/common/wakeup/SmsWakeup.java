@@ -211,7 +211,7 @@ public class SmsWakeup {
      */
     private void waitForIpUpdate() throws BusinessException, IOException {
         long protocolTimeout = System.currentTimeMillis() + this.pollTimeout;
-        while (updatedIpAddress == "") {
+        while (updatedIpAddress.equals("")) {
             if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
                 throw new BusinessException("Could not update the meters IP-address");
             }
