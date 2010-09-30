@@ -21,43 +21,44 @@ public class CTRObjectFactory {
     private AbstractCTRObject createObject(CTRObjectID id, byte[] rawData, int offset) {
 
         AbstractCTRObject obj = null;
+
         switch (id.getX()) {
             case 1:
-                obj = new FlowAndVolumeCategory(id);            //BIN value
+                obj = new FlowAndVolumeCategory(id); break;            //BIN value
             case 2:
-                obj = new TotalizersCategory(id);               //BIN value
+                obj = new TotalizersCategory(id); break;               //BIN value
             case 3:
-                obj = new EnergyCategory(id);                   //BIN value
+                obj = new EnergyCategory(id); break;                   //BIN value
             case 4:
-                obj = new PressureCategory(id);                 //BIN value
+                obj = new PressureCategory(id); break;                 //BIN value
             case 7:
-                obj = new TemperatureCategory(id);              //BIN value -- 7.9.A ??
+                obj = new TemperatureCategory(id); break;              //BIN value -- 7.9.A ??
             case 8:
-                obj = new DateAndTimeCategory(id);              //BIN value & Signed BIN
+                obj = new DateAndTimeCategory(id); break;              //BIN value & Signed BIN
             case 9:
-                obj = new EquipmentParametersCategory(id);      //String & BIN values
+                obj = new EquipmentParametersCategory(id); break;      //String & BIN values
             case 10:
-                obj = new VolumeConverterCategory(id);         //BIN
+                obj = new VolumeConverterCategory(id); break;          //BIN
             case 12:
-                obj = new SystemMasterRecordCategory(id);      //BCD & BIN & String & Signed BIN
+                obj = new SystemMasterRecordCategory(id); break;       //BCD & BIN & String & Signed BIN
             case 13:
-                obj = new SecurityCategory(id);                //String & BIN values
+                obj = new SecurityCategory(id); break;                 //String & BIN values
             case 14:
-                obj = new CommunicationCategory(id);           //Signed BIN & String
+                obj = new CommunicationCategory(id); break;            //Signed BIN & String
             case 15:
-                obj = new MaintenanceCategory(id);             //BIN
+                obj = new MaintenanceCategory(id); break;              //BIN
             case 16:
-                obj = new EventCategory(id);                   //BIN
+                obj = new EventCategory(id); break;                    //BIN
             case 17:
-                obj = new ExecuteCategory(id);                 //BIN
+                obj = new ExecuteCategory(id); break;                  //BIN
             case 18:
-                obj = new StatusCategory(id);                  //BIN
+                obj = new StatusCategory(id); break;                   //BIN
             case 19:
-                obj = new InputOutputCategory(id);             //BIN
+                obj = new InputOutputCategory(id); break;              //BIN
             case 21:
-                obj = new TracesCategory(id);                  //BIN
+                obj = new TracesCategory(id); break;                   //BIN
             case 24:
-                obj = new BandTotalizerCategory(id);           //BIN
+                obj = new BandTotalizerCategory(id); break;            //BIN
         }
 
         if (obj != null) {

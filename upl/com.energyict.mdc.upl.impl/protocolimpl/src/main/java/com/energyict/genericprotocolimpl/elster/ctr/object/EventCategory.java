@@ -22,11 +22,11 @@ public class EventCategory extends AbstractUnsignedBINObject {
 
         switch(id.getY()) {
             case 0: switch(id.getZ()) {
-                case 1: symbol = "EventiS";
-                case 2: symbol = "EventsA";
-                case 3: symbol = "EventsT";
-            }
-            case 1: symbol = "NEM";
+                case 1: symbol = "EventiS"; break;
+                case 2: symbol = "EventsA"; break;
+                case 3: symbol = "EventsT"; break;
+            } break;
+            case 1: symbol = "NEM";  break;
         }
         return symbol;
     }
@@ -55,9 +55,9 @@ public class EventCategory extends AbstractUnsignedBINObject {
 
         switch(id.getY()) {
             case 0: switch(z) {
-                default: valueLength = new int[]{1,1,1,1,1,2,1,1,4,4};
                 case 3: valueLength = new int[]{1,1,1,1,1,1,1,1,2,1,4,1,4,1,4,1,4,1,4,1,4}; break;
-            }
+                default: {valueLength = new int[]{1,1,1,1,1,2,1,1,4,4};}
+            }  break;
             case 1: valueLength = new int[]{2}; break;
             case 2: valueLength = new int[]{2}; break;
             case 3: valueLength = new int[]{1}; break;

@@ -21,9 +21,9 @@ public class TracesCategory extends AbstractUnsignedBINObject<TracesCategory> {
 
         switch (id.getY()) {
             case 0:
-                symbol = "Trace";
+                symbol = "Trace"; break;
             case 1:
-                symbol = "TraceA";
+                symbol = "TraceA"; break;
         }
         return symbol;
     }
@@ -40,7 +40,6 @@ public class TracesCategory extends AbstractUnsignedBINObject<TracesCategory> {
     protected int[] parseValueLengths(CTRObjectID id) {
         return new int[]{1, 32};
     }
-
 
     public Unit parseUnit(CTRObjectID id, int valueNumber) {
         return null;        //There's no units in this category

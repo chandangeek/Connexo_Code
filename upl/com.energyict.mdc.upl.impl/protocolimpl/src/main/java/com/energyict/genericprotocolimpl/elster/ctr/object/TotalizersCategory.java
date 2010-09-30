@@ -21,15 +21,15 @@ public class TotalizersCategory extends AbstractUnsignedBINObject<TotalizersCate
 
         switch (id.getY()) {
             case 0:
-                symbol = "Tot_Vm";
+                symbol = "Tot_Vm"; break;
             case 1:
-                symbol = "Tot_Vb";
+                symbol = "Tot_Vb"; break;
             case 3:
-                symbol = "Tot_Vme";
+                symbol = "Tot_Vme"; break;
             case 4:
-                symbol = "Tot_Vbe";
+                symbol = "Tot_Vbe"; break;
             case 5:
-                symbol = "Tot_Vx_fx";
+                symbol = "Tot_Vx_fx"; break;
         }
 
 

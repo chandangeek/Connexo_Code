@@ -22,34 +22,34 @@ public class EquipmentParametersCategory extends AbstractStringObject {
 
         switch(id.getY()) {
             case 0: switch(z) {
-                case 0: symbol = "ALL_PA";
-                case 1: symbol = "CCODE";
-                case 2: symbol = "CIA";
-                case 3: symbol = "CCA";
-                case 4: symbol = "VF";
-                case 5: symbol = "CAP";
-                case 7: symbol = "VS_PRO";
+                case 0: symbol = "ALL_PA"; break;
+                case 1: symbol = "CCODE"; break;
+                case 2: symbol = "CIA";   break;
+                case 3: symbol = "CCA";  break;
+                case 4: symbol = "VF";   break;
+                case 5: symbol = "CAP"; break;
+                case 7: symbol = "VS_PRO"; break;
 
-            }
+            }  break;
             case 1: switch(z) {
-                case 1: symbol = "Emsize";
-                case 2: symbol = "EAsize";
-                case 3: symbol = "ETsize";
-            }
+                case 1: symbol = "Emsize"; break;
+                case 2: symbol = "EAsize"; break;
+                case 3: symbol = "ETsize"; break;
+            } break;
             case 2: switch(z) {
-                case 0: symbol = "NSA";
-                case 2: symbol = "VHA";
-                case 3: symbol = "NC";
-                case 4: symbol = "NOOG";
-                case 5: symbol = "ID-SFTW";
-            }
+                case 0: symbol = "NSA";  break;
+                case 2: symbol = "VHA"; break;
+                case 3: symbol = "NC";  break;
+                case 4: symbol = "NOOG"; break;
+                case 5: symbol = "ID-SFTW"; break;
+            }   break;
             case 3: switch (z) {
-                case 0: symbol = "VFM";
-                case 1: symbol = "VFA";
-            }
+                case 0: symbol = "VFM"; break;
+                case 1: symbol = "VFA"; break;
+            }     break;
             case 4: switch(z) {
-                case 0: symbol = "Add";
-                case 1: symbol = "MAC_Add";
+                case 0: symbol = "Add"; break;
+                case 1: symbol = "MAC_Add"; break;
             }
         }
         return symbol;
@@ -59,15 +59,15 @@ public class EquipmentParametersCategory extends AbstractStringObject {
         int overflow = 0;
         int z = id.getZ();
         switch(id.getY()) {
-            case 0: if (z == 9) {overflow = 8;}
+            case 0: if (z == 9) {overflow = 8;}  break;
             case 1: switch(z) {
 
                 case 3:
-                case 2: if(valueNumber == 0) {overflow = 127;}
-                case 1: if(valueNumber == 0) {overflow = 2;}
-            }
-            case 2: if (z==3) {overflow = 15;}
-            
+                case 2: if(valueNumber == 0) {overflow = 127;} break;
+                case 1: if(valueNumber == 0) {overflow = 2;} break;
+            } break;
+            case 2: if (z==3) {overflow = 15;} break;
+
         }
 
         return new BigDecimal(overflow);
@@ -87,24 +87,24 @@ public class EquipmentParametersCategory extends AbstractStringObject {
                 case 7: valueLength = new int[]{4}; break;
                 case 9: valueLength = new int[]{1}; break;
 
-            }
+            }  break;
             case 1: switch(z) {
                 case 1:
                 case 2: valueLength = new int[]{1,2}; break;
                 case 3: valueLength = new int[]{1,1}; break;
-            }
+            } break;
             case 2: switch(z) {
                 case 0: valueLength = new int[]{16}; break;
                 case 2: valueLength = new int[]{4}; break;
                 case 3: valueLength = new int[]{1}; break;
                 case 4: valueLength = new int[]{2}; break;
                 case 5: valueLength = new int[]{4,4,3}; break;
-            }
+            } break;
             case 3: valueLength = new int[]{10}; break;
             case 4: switch(z) {
                 case 0: valueLength = new int[]{2}; break;
                 case 1: valueLength = new int[]{6}; break;
-            }
+            }  break;
         }
         return valueLength;
     }

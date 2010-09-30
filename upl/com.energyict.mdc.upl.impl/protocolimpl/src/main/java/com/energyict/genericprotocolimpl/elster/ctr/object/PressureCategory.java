@@ -22,36 +22,36 @@ public class PressureCategory extends AbstractUnsignedBINObject<PressureCategory
 
         switch (id.getY()) {
             case 0:
-                symbol = "P";
+                symbol = "P";  break;
             case 1:
-                symbol = "P_in";
+                symbol = "P_in"; break;
             case 2:
-                symbol = "Pam";
+                symbol = "Pam"; break;
             case 3:
-                symbol = "P_min";
+                symbol = "P_min"; break;
             case 4:
-                symbol = "P_in_min";
+                symbol = "P_in_min"; break;
             case 6:
-                symbol = "P_max";
+                symbol = "P_max"; break;
             case 7:
-                symbol = "P_in_max";
+                symbol = "P_in_max"; break;
             case 9:
                 switch (id.getZ()) {
                     case 0:
-                        symbol = "Pref_all";
+                        symbol = "Pref_all"; break;
                     case 1:
-                        symbol = "Pb";
+                        symbol = "Pb"; break;
                     case 2:
-                        symbol = "Pp";
+                        symbol = "Pp"; break;
                     case 3:
-                        symbol = "Prho";
+                        symbol = "Prho"; break;
                     case 4:
-                        symbol = "Pris";
+                        symbol = "Pris"; break;
                     case 5:
-                        symbol = "Ppre";
-                }
+                        symbol = "Ppre"; break;
+                }  break;
             case 0x0A:
-                symbol = "Pnom";
+                symbol = "Pnom"; break;
         }
         return symbol;
     }
@@ -73,8 +73,6 @@ public class PressureCategory extends AbstractUnsignedBINObject<PressureCategory
         int[] valueLength;
 
         switch (y) {
-            default:
-                valueLength = new int[]{3};
             case 4:
             case 6:
             case 7:
@@ -89,7 +87,9 @@ public class PressureCategory extends AbstractUnsignedBINObject<PressureCategory
                     default:
                         valueLength = new int[]{3};
                         break;
-                }
+                }  break;  
+            default:
+                valueLength = new int[]{3};
         }
         return valueLength;
     }

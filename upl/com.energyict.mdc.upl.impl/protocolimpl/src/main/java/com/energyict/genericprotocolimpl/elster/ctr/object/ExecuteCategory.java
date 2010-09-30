@@ -22,8 +22,8 @@ public class ExecuteCategory extends AbstractUnsignedBINObject {
 
         switch(id.getY()) {
             case 0: switch(id.getZ()) {
-                case 1: symbol = "F_SYNC";
-                case 8: symbol = "F_Reset";
+                case 1: symbol = "F_SYNC"; break;
+                case 8: symbol = "F_Reset"; break;
             }
         }
         return symbol;
@@ -36,7 +36,7 @@ public class ExecuteCategory extends AbstractUnsignedBINObject {
             case 1:
                 if (valueNumber == 4) {overflow = 8;}
                 if (valueNumber == 8) {overflow = 100;}
-                if (valueNumber == 9) {overflow = 2;}
+                if (valueNumber == 9) {overflow = 2;}  break;
         }
         return new BigDecimal(overflow);
     }
@@ -47,7 +47,7 @@ public class ExecuteCategory extends AbstractUnsignedBINObject {
             case 0: switch(id.getZ()) {
                 case 1: valueLength = new int[]{1,1,1,1,1,1,1,1,1,1}; break;
                 case 8: valueLength = new int[]{1}; break;
-            }
+            }  break;
         }
         return valueLength;
     }
@@ -62,7 +62,7 @@ public class ExecuteCategory extends AbstractUnsignedBINObject {
                 if (valueNumber == 3) {unit = Unit.get(BaseUnit.DAY);}
                 if (valueNumber == 5) {unit = Unit.get(BaseUnit.HOUR);}
                 if (valueNumber == 6) {unit = Unit.get(BaseUnit.MINUTE);}
-                if (valueNumber == 7) {unit = Unit.get(BaseUnit.SECOND);}
+                if (valueNumber == 7) {unit = Unit.get(BaseUnit.SECOND);} break;
         }
         return unit;
     }

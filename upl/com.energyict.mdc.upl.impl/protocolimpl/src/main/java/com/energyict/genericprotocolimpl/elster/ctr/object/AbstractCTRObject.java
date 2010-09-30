@@ -3,6 +3,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.object;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
+import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveConverter;
 
 import java.math.BigDecimal;
 
@@ -19,7 +20,8 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> extends Abs
     private int access;
     private int qlf;
     private String symbol;
-    private double[] def;
+    private int[] def;
+    private CTRAbstractValue[] value; //Abstract = BIN or String or BCD
 
     public abstract Unit parseUnit(CTRObjectID id, int valueNumber);
 
@@ -36,7 +38,7 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> extends Abs
         }
         return sum;
     }
-
+   
     protected int getCommonOverflow(Unit unit) {
         int overflow = 0;
         if (unit == Unit.get(BaseUnit.HOUR)) {
@@ -92,12 +94,69 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> extends Abs
         this.symbol = symbol;
     }
 
-    public double[] getDefault() {
+    public int[] getDefault() {
         return def;
     }
 
-    protected void setDefault(double[] def) {
+    protected void setDefault(int[] def) {
         this.def = def;
     }
+
+    public CTRAbstractValue[] getValue() {
+        return value;
+    }
+
+    protected void setValue(CTRAbstractValue[] value) {
+        this.value = value;
+    }
+
+    public byte[] getBytes() {
+        CTRPrimitiveConverter converter = new CTRPrimitiveConverter();
+        byte[] id = converter.convertId(getId());
+        byte[] qlf = converter.convertQlf(getQlf());
+
+        int j = 0;
+        byte[] valueBytes = null;
+        byte[] valueResult = null;
+
+        for (int valueLength : parseValueLengths(getId())) {
+
+            if ("String".equals(value[j].getType())) {
+                valueBytes = converter.convertStringValue((String) value[j].getValue());
+            }
+            if ("BIN".equals(value[j].getType())) {
+                valueBytes = converter.convertBINValue((BigDecimal) value[j].getValue(), valueLength);
+            }
+            if ("UnsignedBIN".equals(value[j].getType())) {
+                valueBytes = converter.convertUnsignedBINValue((BigDecimal) value[j].getValue(), valueLength);
+            }
+            if ("BCD".equals(value[j].getType())) {
+                valueBytes = converter.convertBCDValue((BigDecimal) value[j].getValue());
+            }
+            if (j > 0) {
+                valueResult = concat(valueResult, valueBytes);
+            } else {
+                valueResult = valueBytes;
+            }
+            j++;
+        }
+        byte[] access = converter.convertAccess(getAccess());
+        byte[] def = converter.convertDefaults(getDefault(), parseValueLengths(getId()));
+
+        byte[] bytes = concat(id, qlf);
+        bytes = concat(bytes,valueResult);
+        bytes = concat(bytes,access);
+        bytes = concat(bytes,def);
+
+        return bytes;
+    }
+
+    private byte[] concat(byte[] valueBytesPrevious, byte[] valueBytes) {
+        byte[] result = new byte[valueBytesPrevious.length + valueBytes.length];
+        System.arraycopy(valueBytesPrevious, 0, result, 0, valueBytesPrevious.length);
+        System.arraycopy(valueBytes, 0, result, valueBytesPrevious.length, valueBytes.length);
+        return result;
+    }
+
 
 }

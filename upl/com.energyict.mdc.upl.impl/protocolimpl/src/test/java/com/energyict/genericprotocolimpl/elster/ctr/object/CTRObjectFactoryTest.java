@@ -16,13 +16,14 @@ public class CTRObjectFactoryTest {
             bytes[i] = 0x05;
         }
 
-        bytes[0] = 0x01;
-        bytes[1] = 0x03;
-
+        bytes[0] = 0x04;
+        bytes[1] = 0x60;
 
         CTRObjectFactory factory = new CTRObjectFactory();
         AbstractCTRObject ctrObject = factory.parse(bytes, 0);
-        System.out.println(ctrObject.getClass().getName());
+
+        byte[] bytes2 = ctrObject.getBytes();
+        //System.out.println(ctrObject.getClass().getName());
 
 
     }

@@ -11,7 +11,7 @@ import java.math.BigDecimal;
  * Date: 21-sep-2010
  * Time: 14:29:16
  */
-public class SystemMasterRecordCategory extends AbstractUnsignedBINObject<SystemMasterRecordCategory> {
+public class SystemMasterRecordCategory extends AbstractBCDObject<SystemMasterRecordCategory> {
 
     public SystemMasterRecordCategory(CTRObjectID id) {
         this.setId(id);
@@ -24,30 +24,30 @@ public class SystemMasterRecordCategory extends AbstractUnsignedBINObject<System
             case 0:
                 switch (z) {
                     case 0:
-                        symbol = "PDR";
+                        symbol = "PDR"; break;
                     case 1:
-                        symbol = "NCG";
+                        symbol = "NCG"; break;
                     case 3:
-                        symbol = "TypeMis";
+                        symbol = "TypeMis"; break;
                     case 2:
-                        symbol = "TypeImp";
+                        symbol = "TypeImp"; break;
                     case 4:
-                        symbol = "Local";
+                        symbol = "Local"; break;
                     case 5:
-                        symbol = "GEO";
+                        symbol = "GEO"; break;
                     case 6:
-                        symbol = "RagSoc";
+                        symbol = "RagSoc"; break;
                     case 7:
-                        symbol = "CodUte";
+                        symbol = "CodUte"; break;
 
-                }
+                } break;
             case 2:
                 switch (z) {
                     case 0:
-                        symbol = "An_CONT";
+                        symbol = "An_CONT"; break;
                     case 1:
-                        symbol = "An_CORR";
-                }
+                        symbol = "An_CORR"; break;
+                } break;
         }
         return symbol;
     }
@@ -81,7 +81,7 @@ public class SystemMasterRecordCategory extends AbstractUnsignedBINObject<System
                     case 7:
                         valueLength = new int[]{30};
                         break;
-                }
+                } break;
             case 1:
                 valueLength = new int[]{10, 10, 16};
                 break;
@@ -93,7 +93,7 @@ public class SystemMasterRecordCategory extends AbstractUnsignedBINObject<System
                     case 1:
                         valueLength = new int[]{4, 16};
                         break;
-                }
+                } break;
         }
         return valueLength;
     }

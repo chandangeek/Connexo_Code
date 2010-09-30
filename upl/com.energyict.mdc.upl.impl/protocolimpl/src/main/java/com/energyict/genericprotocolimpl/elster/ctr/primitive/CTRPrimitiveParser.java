@@ -239,41 +239,41 @@ public class CTRPrimitiveParser {
         return value;
     }
 
-    public double[] parseDefault(CTRObjectID id) {
+    public int[] parseDefault(CTRObjectID id) {
         int x = id.getX();
         int y = id.getY();
         int z = id.getZ();
-        double[] def = null;
+        int[] def = null;
 
         //Doesn't contain the manufacturer specific default values yet.
-        if (x == 1 && y == 0x0C && z == 3) {def = new double[]{0};}
-        if (x == 4 && y == 2 && z == 6) {def = new double[]{0.01325};}
-        if (x == 4 && y == 9 && z > 0) {def = new double[]{0.01325};}
-        if (x == 4 && y == 0x0A) {def = new double[]{0};}
-        if (x == 7 && y == 0x0B && z == 0) {def = new double[]{288.15,288.15,288.15,288.15,288.15,288.15};}
-        if (x == 7 && y == 0x0B && z > 0) {def = new double[]{288.15};}
-        if (x == 8 && y == 0 && z == 0) {def = new double[]{5,1,1,6,0,0,0,1,0};}
-        if (x == 8 && y == 0 && z == 1) {def = new double[]{5,1,1,0,0};}
-        if (x == 8 && y == 1 && z == 3) {def = new double[]{6};}
-        if (x == 8 && y == 1 && z == 4) {def = new double[]{0,0,0,0,0,0,0};}
-        if (x == 8 && y == 2 && z == 0) {def = new double[]{1,0,0,0,0};}
-        if (x == 9 && y == 4 && z == 0) {def = new double[]{0};}
-        if (x == 0x0A && y == 3 && z == 6) {def = new double[]{0.7252};}
-        if (x == 0x0A && y == 3 && z == 7) {def = new double[]{0};}
-        if (x == 0x0A && y == 4 && z == 6) {def = new double[]{1.22541};}
-        if (x == 0x0A && y == 4 && z == 7) {def = new double[]{0};}
-        if (x == 0x0A && y == 5 && z == 6) {def = new double[]{0.59175};}
-        if (x == 0x0C && y == 0 && z == 1) {def = new double[]{1};}
-        if (x == 0x0C && y == 0 && z == 2) {def = new double[]{0x20};}
-        if (x == 0x0C && y == 0 && z == 3) {def = new double[]{0};}
-        if (x == 0x0C && y == 0 && z == 4) {def = new double[]{0};}
-        if (x == 0x0C && y == 0 && z == 6) {def = new double[]{0};}
-        if (x == 0x0C && y == 0 && z == 7) {def = new double[]{0};}
-        if (x == 0x0E && y == 9) {def = new double[]{300};}
-        if (x == 0x13 && y == 7) {def = new double[]{1};}
-        if (x == 0x0E && y == 0x0A && x == 0) {def = new double[]{0};}
-        if (x == 0x0C && y == 1) {def = new double[]{0};}
-        if (x == 0x0C && y == 0 && z == 5) {def = new double[]{0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,};}
+        if (x == 1 && y == 0x0C && z == 3) {def = new int[]{0};}
+        if (x == 4 && y == 2 && z == 6) {def = new int[]{1325};}    //combined with the Kmolt multiplier: 0.01325
+        if (x == 4 && y == 9 && z > 0) {def = new int[]{1325};}
+        if (x == 4 && y == 0x0A) {def = new int[]{0};}
+        if (x == 7 && y == 0x0B && z == 0) {def = new int[]{28815,28815,28815,28815,28815,28815};}
+        if (x == 7 && y == 0x0B && z > 0) {def = new int[]{28815};}
+        if (x == 8 && y == 0 && z == 0) {def = new int[]{5,1,1,6,0,0,0,1,0};}
+        if (x == 8 && y == 0 && z == 1) {def = new int[]{5,1,1,0,0};}
+        if (x == 8 && y == 1 && z == 3) {def = new int[]{6};}
+        if (x == 8 && y == 1 && z == 4) {def = new int[]{0,0,0,0,0,0,0};}
+        if (x == 8 && y == 2 && z == 0) {def = new int[]{1,0,0,0,0};}
+        if (x == 9 && y == 4 && z == 0) {def = new int[]{0};}
+        if (x == 0x0A && y == 3 && z == 6) {def = new int[]{7252};}
+        if (x == 0x0A && y == 3 && z == 7) {def = new int[]{0};}
+        if (x == 0x0A && y == 4 && z == 6) {def = new int[]{122541};}
+        if (x == 0x0A && y == 4 && z == 7) {def = new int[]{0};}
+        if (x == 0x0A && y == 5 && z == 6) {def = new int[]{59175};}
+        if (x == 0x0C && y == 0 && z == 1) {def = new int[]{1};}
+        if (x == 0x0C && y == 0 && z == 2) {def = new int[]{0x20};}
+        if (x == 0x0C && y == 0 && z == 3) {def = new int[]{0};}
+        if (x == 0x0C && y == 0 && z == 4) {def = new int[]{0};}
+        if (x == 0x0C && y == 0 && z == 6) {def = new int[]{0};}
+        if (x == 0x0C && y == 0 && z == 7) {def = new int[]{0};}
+        if (x == 0x0E && y == 9) {def = new int[]{300};}
+        if (x == 0x13 && y == 7) {def = new int[]{1};}
+        if (x == 0x0E && y == 0x0A && x == 0) {def = new int[]{0};}
+        if (x == 0x0C && y == 1) {def = new int[]{0};}
+        if (x == 0x0C && y == 0 && z == 5) {def = new int[]{0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,};}
 
         return def;
     }

@@ -34,29 +34,29 @@ public class BandTotalizerCategory extends AbstractUnsignedBINObject<BandTotaliz
 
         switch (id.getY()) {
             case 0:
-                symbol = "Tot_Vm_F1";
+                symbol = "Tot_Vm_F1"; break;
             case 1:
-                symbol = "Tot_Vm_F2";
+                symbol = "Tot_Vm_F2"; break;
             case 2:
-                symbol = "Tot_Vm_F3";
+                symbol = "Tot_Vm_F3"; break;
             case 3:
-                symbol = "Tot_Vb_F1";
+                symbol = "Tot_Vb_F1"; break;
             case 4:
-                symbol = "Tot_Vb_F2";
+                symbol = "Tot_Vb_F2"; break;
             case 5:
-                symbol = "Tot_Vb_F3";
+                symbol = "Tot_Vb_F3"; break;
             case 6:
-                symbol = "Tot_Vme_F1";
+                symbol = "Tot_Vme_F1"; break;
             case 7:
-                symbol = "Tot_Vme_F2";
+                symbol = "Tot_Vme_F2"; break;
             case 8:
-                symbol = "Tot_Vme_F3";
+                symbol = "Tot_Vme_F3"; break;
             case 9:
-                symbol = "Tot_Vbe_F1";
+                symbol = "Tot_Vbe_F1"; break;
             case 0x0A:
-                symbol = "Tot_Vbe_F2";
+                symbol = "Tot_Vbe_F2"; break;
             case 0x0B:
-                symbol = "Tot_Vbe_F3";
+                symbol = "Tot_Vbe_F3"; break;
 
         }
         return symbol;

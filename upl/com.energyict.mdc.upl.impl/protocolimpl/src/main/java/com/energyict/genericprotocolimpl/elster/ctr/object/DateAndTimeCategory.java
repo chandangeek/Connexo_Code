@@ -22,19 +22,19 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
 
         switch (id.getY()) {
                 case 0: switch (id.getZ()) {
-                    case 0: symbol = "Date&TimeL";
-                    case 1: symbol = "Date&TimeS";
-                    case 2: symbol = "Date&TimeP";
-                }
+                    case 0: symbol = "Date&TimeL"; break;
+                    case 1: symbol = "Date&TimeS"; break;
+                    case 2: symbol = "Date&TimeP"; break;
+                }  break;
                 case 1:switch (id.getZ()) {
-                    case 2: symbol = "Shift";
-                    case 3: symbol = "OFG";
-                    case 4: symbol = "Ygas";
-                }
-                case 2: symbol = "OL";
-                case 3: symbol = "Data";
-                case 4: symbol = "InS";
-                case 5: symbol = "DSO";
+                    case 2: symbol = "Shift"; break;
+                    case 3: symbol = "OFG";  break;
+                    case 4: symbol = "Ygas"; break;
+                } break;
+                case 2: symbol = "OL"; break;
+                case 3: symbol = "Data"; break;
+                case 4: symbol = "InS"; break;
+                case 5: symbol = "DSO"; break;
 
         }
         return symbol;
@@ -49,18 +49,18 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
                 case 0:
                     if (valueNumber == 3) {overflow = 8;}
                     if (valueNumber == 7) {overflow = 14;}
-                    if (valueNumber == 8) {overflow = 2;}
-                case 2: if (valueNumber == 0) {overflow = 0xFF;}
-            }
+                    if (valueNumber == 8) {overflow = 2;}  break;
+                case 2: if (valueNumber == 0) {overflow = 0xFF;}  break;
+            } break;
             case 1: switch(z) {
-                case 2: if (valueNumber == 0) {overflow = 0xFFFF;}
-                case 4: if (valueNumber == 0) {overflow = 2;}
-            }
-            case 2: if (valueNumber == 0) {overflow = 2;}
-            case 3: if (valueNumber == 5) {overflow = 0xFF;}
+                case 2: if (valueNumber == 0) {overflow = 0xFFFF;} break;
+                case 4: if (valueNumber == 0) {overflow = 2;} break;
+            } break;
+            case 2: if (valueNumber == 0) {overflow = 2;} break;
+            case 3: if (valueNumber == 5) {overflow = 0xFF;} break;
             case 4: switch(z) {
-                case 0: if (valueNumber == 0) {overflow = 360;}
-            }
+                case 0: if (valueNumber == 0) {overflow = 360;} break;
+            } break;
         }
 
         return new BigDecimal(overflow);
@@ -74,18 +74,18 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
                 case 0: valueLength = new int[]{1,1,1,1,1,1,1,1,1}; break;
                 case 1: valueLength = new int[]{1,1,1,1,1}; break;
                 case 2: valueLength = new int[]{1,1,1,1,1,1}; break;
-            }
+            } break;
             case 1: switch(z) {
                 case 2: valueLength = new int[]{2}; break;
                 case 3: valueLength = new int[]{1}; break;
                 case 4: valueLength = new int[]{1,1,1,1,1,1,1}; break;
-            }
+            } break;
             case 2: valueLength = new int[]{1,1,1,1,1}; break;
             case 3: valueLength = new int[]{1,1,1,1,1,1}; break;
             case 4: switch(z) {
                 case 0: valueLength = new int[]{2}; break;
                 case 1: valueLength = new int[]{2,2,2,2,2,2,2,2}; break;
-            }
+            } break;
             case 5: valueLength = new int[]{3,4,4}; break;
         }
         return valueLength;

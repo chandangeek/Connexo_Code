@@ -22,32 +22,32 @@ public class TemperatureCategory extends AbstractUnsignedBINObject<TemperatureCa
 
         switch (id.getY()) {
             case 0:
-                symbol = "T";
+                symbol = "T"; break;
             case 3:
-                symbol = "T_min";
+                symbol = "T_min"; break;
             case 6:
-                symbol = "T_max";
+                symbol = "T_max"; break;
             case 9:
-                symbol = "GG";
+                symbol = "GG"; break;
             case 0x0B:
                 switch (id.getZ()) {
                     case 0:
-                        symbol = "Tref_all";
+                        symbol = "Tref_all"; break;
                     case 1:
-                        symbol = "Tb";
+                        symbol = "Tb"; break;
                     case 2:
-                        symbol = "Tpcs";
+                        symbol = "Tpcs"; break;
                     case 3:
-                        symbol = "Tcb";
+                        symbol = "Tcb"; break;
                     case 4:
-                        symbol = "Trho";
+                        symbol = "Trho"; break;
                     case 5:
-                        symbol = "Tris";
+                        symbol = "Tris"; break;
                     case 6:
-                        symbol = "Tpre";
-                }
+                        symbol = "Tpre";  break;
+                } break;
             case 0x0C:
-                symbol = "Tamb_fun";
+                symbol = "Tamb_fun"; break;
         }
         return symbol;
     }
@@ -75,20 +75,20 @@ public class TemperatureCategory extends AbstractUnsignedBINObject<TemperatureCa
 
             case 9:
                 switch (z) {
-                    default:
-                        valueLength = new int[]{3};
                     case 0x0A:
                         valueLength = new int[]{2, 2};
                         break;
-                }
+                    default:
+                        valueLength = new int[]{3}; break;
+                }  break;
             case 0x0B:
                 switch (z) {
-                    default:
-                        valueLength = new int[]{3};
                     case 0:
                         valueLength = new int[]{3, 3, 3, 3, 3, 3};
                         break;
-                }
+                    default:
+                        valueLength = new int[]{3}; break;
+                }  break;
 
             case 0x0C:
                 valueLength = new int[]{3, 3};

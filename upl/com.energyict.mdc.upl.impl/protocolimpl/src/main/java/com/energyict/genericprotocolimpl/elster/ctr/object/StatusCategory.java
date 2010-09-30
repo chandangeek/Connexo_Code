@@ -22,15 +22,15 @@ public class StatusCategory extends AbstractUnsignedBINObject<StatusCategory> {
 
         switch (id.getY()) {
             case 0:
-                symbol = "SD";
+                symbol = "SD"; break;
             case 1:
-                symbol = "Diagn";
+                symbol = "Diagn"; break;
             case 2:
-                symbol = "DiagnR";
+                symbol = "DiagnR"; break;
             case 4:
-                symbol = "Imp_power";
+                symbol = "Imp_power"; break;
             case 5:
-                symbol = "PWF";
+                symbol = "PWF"; break;
         }
         return symbol;
     }

@@ -64,7 +64,7 @@ public class CommunicationCategory extends AbstractStringObject<CommunicationCat
         Unit unit = null;
         switch (id.getY()) {
             case 0x0C:
-                unit = Unit.get(BaseUnit.UNITLESS); //TODO: decibell;
+                unit = Unit.get(BaseUnit.UNITLESS); break; //TODO: decibell;
         }
         return unit;
 
@@ -76,9 +76,9 @@ public class CommunicationCategory extends AbstractStringObject<CommunicationCat
 
         switch (id.getY()) {
             case 0x0C:
-                symbol = "GSM";
+                symbol = "GSM"; break;
             case 0x0E:
-                symbol = "GPRS_S";
+                symbol = "GPRS_S"; break;
         }
         return symbol;
     }

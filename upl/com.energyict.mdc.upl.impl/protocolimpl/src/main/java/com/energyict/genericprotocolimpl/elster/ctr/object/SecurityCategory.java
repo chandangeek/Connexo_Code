@@ -21,22 +21,22 @@ public class SecurityCategory extends AbstractStringObject<SecurityCategory> {
 
         switch (id.getY()) {
             case 6:
-                symbol = "PUK_S";
+                symbol = "PUK_S"; break;
             case 7:
-                symbol = "PIN";
+                symbol = "PIN"; break;
             case 8:
                 switch (id.getZ()) {
-                    default:
-                        symbol = "KEYC";
                     case 6:
-                        symbol = "KEYF";
+                        symbol = "KEYF"; break;
                     case 0x0A:
-                        symbol = "KEYT";
-                }
+                        symbol = "KEYT"; break;
+                    default:
+                        symbol = "KEYC"; break;
+                }  break;
             case 9:
-                symbol = "S_Stat";
+                symbol = "S_Stat"; break;
             case 10:
-                symbol = "T_antf";
+                symbol = "T_antf"; break;
         }
         return symbol;
     }
@@ -46,7 +46,7 @@ public class SecurityCategory extends AbstractStringObject<SecurityCategory> {
         int overflow = 0;
         switch (id.getY()) {
             case 9:
-                overflow = 0xFF;
+                overflow = 0xFF;  break;
         }
         return new BigDecimal(overflow);
     }

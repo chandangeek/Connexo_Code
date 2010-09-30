@@ -21,22 +21,22 @@ public class FlowAndVolumeCategory extends AbstractUnsignedBINObject {
         String symbol = "";
 
         switch (id.getY()) {
-                case 0: symbol = "Qm";
-                case 1: symbol = "Vm";
-                case 2: symbol = "Qb";
-                case 3: symbol = "Vb";
-                case 7: symbol = "Qcb_min";
-                case 6: symbol = "Qcm_min";
-                case 9: symbol = "Qcm_max";
-                case 0x0A: symbol = "Qcb_max";
-                case 0x0F: symbol = "Ve";
-                case 0x0D: symbol = "Vcontr";
-                case 0x0E: symbol = "Vpre";
+                case 0: symbol = "Qm"; break;
+                case 1: symbol = "Vm"; break;
+                case 2: symbol = "Qb"; break;
+                case 3: symbol = "Vb"; break;
+                case 7: symbol = "Qcb_min"; break;
+                case 6: symbol = "Qcm_min"; break;
+                case 9: symbol = "Qcm_max"; break;
+                case 0x0A: symbol = "Qcb_max"; break;
+                case 0x0F: symbol = "Ve"; break;
+                case 0x0D: symbol = "Vcontr"; break;
+                case 0x0E: symbol = "Vpre"; break;
                 case 0x0C: switch (id.getZ()) {
-                    case 2: symbol = "Qcontr";
+                    case 2: symbol = "Qcontr"; break;
                     case 4:
-                    case 3: symbol = "Qnom";
-                }
+                    case 3: symbol = "Qnom"; break;
+                } break;
         }
         return symbol;
     }
@@ -53,7 +53,7 @@ public class FlowAndVolumeCategory extends AbstractUnsignedBINObject {
             switch (id.getY()) {
                 case 0:
                 case 6:
-                case 9: scale = 0.1;
+                case 9: scale = 0.1; break;
             }
         }
         return new BigDecimal(overflow*scale);

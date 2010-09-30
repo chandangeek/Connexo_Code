@@ -24,8 +24,8 @@ public class InputOutputCategory extends AbstractUnsignedBINObject<InputOutputCa
             case 6:
                 switch (id.getZ()) {
                     case 2:
-                        symbol = "Conf_T";
-                }
+                        symbol = "Conf_T"; break;
+                } break;
         }
         return symbol;
     }

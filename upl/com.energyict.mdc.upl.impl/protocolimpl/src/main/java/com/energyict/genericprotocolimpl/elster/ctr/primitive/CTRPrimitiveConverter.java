@@ -1,5 +1,8 @@
 package com.energyict.genericprotocolimpl.elster.ctr.primitive;
 
+import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
+import com.energyict.genericprotocolimpl.elster.ctr.common.CTRParsingException;
+import com.energyict.genericprotocolimpl.elster.ctr.common.Field;
 import com.energyict.genericprotocolimpl.elster.ctr.object.*;
 
 import java.math.BigDecimal;
@@ -10,7 +13,7 @@ import java.math.BigDecimal;
  * Date: 21-sep-2010
  * Time: 11:10:27
  */
-public class CTRPrimitiveConverter {
+public class CTRPrimitiveConverter extends AbstractField {
 
     public CTRPrimitiveConverter() {}
 
@@ -50,7 +53,7 @@ public class CTRPrimitiveConverter {
         for (int i = 0; i < bts.length; i++) {
             bts[i] = (byte) Integer.parseInt(hex.substring(2*i, 2*i+2), 16);
         }
-        return null;
+        return bts;
     }
 
     public byte[] convertUnsignedBINValue(BigDecimal value, int valueLength) {
@@ -71,26 +74,55 @@ public class CTRPrimitiveConverter {
         return new byte[]{(byte) access};
     }
 
-    public byte[] convertDefaults(double[] defaults, int[] length) {
-        /*
+    public byte[] convertDefaults(int[] defaults, int[] valueLength) {
 
-        if (defaults != null) {
-            byte[] defaultBytes = new byte[2];
-            int i = 0;
-            for (double def: defaults) {
-                defaultBytes[i] = def.byteValue();
-                i++;
-                
+        if (defaults == null) {
+            byte[] result = new byte[sum(valueLength)];
+            for (int i = 0; i < result.length; i++) {
+                result[i] = 0x00;
             }
+            return result;
         }
-        return new byte[0];
 
-        */
-        return null;
+        int k = 0;
+        byte[] bytes;
+        byte[] result = null;
+        
+        for (int def : defaults) {
+            bytes = getBytesFromInt(def, valueLength[k]);
+            if (k == 0) {
+                result = bytes;
+            } else {
+                result = concat(result,bytes);
+            }
+            k++;
+        }
+        return result;
+    }
+
+    public int sum(int[] valueLength) {
+         int sum = 0;
+         for (int i : valueLength) {
+             sum += i;
+         }
+         return sum;
     }
 
 
 
+    public byte[] getBytes() {
+        return null;
+    }
 
+    public Field parse(byte[] rawData, int offset) throws CTRParsingException {
+        return null;
+    }
+
+    private byte[] concat(byte[] valueBytesPrevious, byte[] valueBytes) {
+        byte[] result = new byte[valueBytesPrevious.length + valueBytes.length];
+        System.arraycopy(valueBytesPrevious, 0, result, 0, valueBytesPrevious.length);
+        System.arraycopy(valueBytes, 0, result, valueBytesPrevious.length, valueBytes.length);
+        return result;
+    }
 
 }

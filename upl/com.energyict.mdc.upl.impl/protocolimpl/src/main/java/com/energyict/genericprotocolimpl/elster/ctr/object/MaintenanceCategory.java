@@ -58,11 +58,11 @@ public class MaintenanceCategory extends AbstractUnsignedBINObject<MaintenanceCa
     protected int[] parseValueLengths(CTRObjectID id) {
         int[] valueLength;
         switch (id.getY()) {
-            default:
-                valueLength = new int[]{1, 1, 1, 1, 1};
             case 5:
                 valueLength = new int[]{3, 3, 3, 3};
                 break;  //def value = 6 ipv 12  !!?
+            default:
+                valueLength = new int[]{1, 1, 1, 1, 1};
         }
         return valueLength;
     }
