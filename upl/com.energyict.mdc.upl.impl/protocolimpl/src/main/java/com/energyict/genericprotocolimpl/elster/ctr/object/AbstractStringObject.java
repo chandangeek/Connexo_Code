@@ -9,18 +9,19 @@ import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser
  * Date: 21-sep-2010
  * Time: 11:00:24
  */
-public abstract class AbstractStringObject extends AbstractCTRObject {
+public abstract class AbstractStringObject<T extends AbstractStringObject> extends AbstractCTRObject<T> {
 
     private CTRAbstractValue[] value; //Binary value, with its unit & an overflowValue.
 
     //Parse the raw data & fill in the object's properties
-    public void parse(byte[] rawData, int offset) {
+
+    public T parse(byte[] rawData, int offset) {
         CTRPrimitiveParser parser = new CTRPrimitiveParser();   //Not static
         CTRObjectID id = this.getId();
-        offset +=2; //Skip the Id bytes
+        offset += 2; //Skip the Id bytes
 
         this.setQlf(parser.parseQlf(rawData, offset));
-        offset +=1;
+        offset += 1;
 
         int[] valueLength = this.parseValueLengths(id);
 
@@ -28,21 +29,23 @@ public abstract class AbstractStringObject extends AbstractCTRObject {
         offset += sum(valueLength);  //There might be multiple value fields
 
         this.setAccess(parser.parseAccess(rawData, offset));
-        offset +=1;
+        offset += 1;
 
         this.setDefault(parser.parseDefault(id));
 
         this.setSymbol(parseSymbol(id));
+
+        return (T) this;
     }
 
     public CTRAbstractValue[] getValue() {
-            return value;
+        return value;
     }
+
     protected void setValue(CTRAbstractValue[] value) {
         this.value = value;
     }
 
-    @Override
     public byte[] getBytes() {
         CTRObjectID id = getId();
         CTRPrimitiveConverter converter = new CTRPrimitiveConverter();

@@ -10,7 +10,7 @@ import java.math.BigDecimal;
  * Date: 21-sep-2010
  * Time: 14:29:16
  */
-public class VolumeConverterCategory extends AbstractUnsignedBINObject {
+public class VolumeConverterCategory extends AbstractUnsignedBINObject<VolumeConverterCategory> {
 
     public VolumeConverterCategory(CTRObjectID id) {
         this.setId(id);
@@ -20,13 +20,19 @@ public class VolumeConverterCategory extends AbstractUnsignedBINObject {
         String symbol = "";
 
         switch (id.getY()) {
-            case 0: symbol = "C";
-            case 1: switch(id.getZ()) {
-                default: symbol = "Z1";
-                case 6: symbol = "Z_i";
-                case 7: symbol = "Zb";
-            }
-            case 2: symbol = "Z";
+            case 0:
+                symbol = "C";
+            case 1:
+                switch (id.getZ()) {
+                    default:
+                        symbol = "Z1";
+                    case 6:
+                        symbol = "Z_i";
+                    case 7:
+                        symbol = "Zb";
+                }
+            case 2:
+                symbol = "Z";
         }
         return symbol;
     }

@@ -2,6 +2,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.object;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
+import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
 
 import java.math.BigDecimal;
 
@@ -12,7 +13,8 @@ import java.math.BigDecimal;
  * Time: 10:51:36
  * To change this template use File | Settings | File Templates.
  */
-public abstract class AbstractCTRObject {
+public abstract class AbstractCTRObject<T extends AbstractCTRObject> extends AbstractField<T> {
+
     private CTRObjectID id;
     private int access;
     private int qlf;
@@ -20,14 +22,18 @@ public abstract class AbstractCTRObject {
     private double[] def;
 
     public abstract Unit parseUnit(CTRObjectID id, int valueNumber);
+
     protected abstract String parseSymbol(CTRObjectID id);
+
     protected abstract int[] parseValueLengths(CTRObjectID id);
+
     public abstract BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit);
-    public abstract void parse(byte[] rawData, int offset);
-    
+
     protected int sum(int[] valueLength) {
         int sum = 0;
-        for(int i:valueLength) {sum +=i;}
+        for (int i : valueLength) {
+            sum += i;
+        }
         return sum;
     }
 
@@ -57,6 +63,7 @@ public abstract class AbstractCTRObject {
     public CTRObjectID getId() {
         return id;
     }
+
     protected void setId(CTRObjectID id) {
         this.id = id;
     }
@@ -64,6 +71,7 @@ public abstract class AbstractCTRObject {
     public int getQlf() {
         return qlf;
     }
+
     protected void setQlf(int qlf) {
         this.qlf = qlf;
     }
@@ -71,6 +79,7 @@ public abstract class AbstractCTRObject {
     public int getAccess() {
         return access;
     }
+
     protected void setAccess(int access) {
         this.access = access;
     }
@@ -78,6 +87,7 @@ public abstract class AbstractCTRObject {
     public String getSymbol() {
         return symbol;
     }
+
     protected void setSymbol(String symbol) {
         this.symbol = symbol;
     }
@@ -85,11 +95,9 @@ public abstract class AbstractCTRObject {
     public double[] getDefault() {
         return def;
     }
+
     protected void setDefault(double[] def) {
         this.def = def;
     }
-
-    public abstract byte[] getBytes(); 
-
 
 }

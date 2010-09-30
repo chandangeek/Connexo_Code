@@ -12,16 +12,16 @@ import java.math.BigDecimal;
  * Date: 21-sep-2010
  * Time: 14:29:16
  */
-public class CommunicationCategory extends AbstractStringObject {
+public class CommunicationCategory extends AbstractStringObject<CommunicationCategory> {
 
     @Override
-    public void parse(byte[] rawData, int offset) {
+    public CommunicationCategory parse(byte[] rawData, int offset) {
         CTRPrimitiveParser parser = new CTRPrimitiveParser();   //Not static
         CTRObjectID id = this.getId();
-        offset +=2; //Skip the Id bytes
+        offset += 2; //Skip the Id bytes
 
         this.setQlf(parser.parseQlf(rawData, offset));
-        offset +=1;
+        offset += 1;
 
         int[] valueLength = this.parseValueLengths(id);
 
@@ -29,11 +29,13 @@ public class CommunicationCategory extends AbstractStringObject {
         offset += sum(valueLength);  //There might be multiple value fields
 
         this.setAccess(parser.parseAccess(rawData, offset));
-        offset +=1;
+        offset += 1;
 
         this.setDefault(parser.parseDefault(id));
 
         this.setSymbol(parseSymbol(id));
+
+        return this;
     }
 
     public CommunicationCategory(CTRObjectID id) {
@@ -46,9 +48,13 @@ public class CommunicationCategory extends AbstractStringObject {
 
     protected int[] parseValueLengths(CTRObjectID id) {
         int[] valueLength = null;
-        switch(id.getY()) {
-            case 0x0C: valueLength = new int[]{1}; break;
-            case 0x0E: valueLength = new int[]{112}; break;
+        switch (id.getY()) {
+            case 0x0C:
+                valueLength = new int[]{1};
+                break;
+            case 0x0E:
+                valueLength = new int[]{112};
+                break;
         }
         return valueLength;
     }
@@ -56,8 +62,9 @@ public class CommunicationCategory extends AbstractStringObject {
 
     public Unit parseUnit(CTRObjectID id, int valueNumber) {
         Unit unit = null;
-        switch(id.getY()) {
-            case 0x0C: unit = Unit.get(BaseUnit.UNITLESS); //TODO: decibell;
+        switch (id.getY()) {
+            case 0x0C:
+                unit = Unit.get(BaseUnit.UNITLESS); //TODO: decibell;
         }
         return unit;
 
@@ -67,9 +74,11 @@ public class CommunicationCategory extends AbstractStringObject {
     protected String parseSymbol(CTRObjectID id) {
         String symbol = "";
 
-        switch(id.getY()) {
-            case 0x0C: symbol = "GSM";
-            case 0x0E: symbol = "GPRS_S";
+        switch (id.getY()) {
+            case 0x0C:
+                symbol = "GSM";
+            case 0x0E:
+                symbol = "GPRS_S";
         }
         return symbol;
     }

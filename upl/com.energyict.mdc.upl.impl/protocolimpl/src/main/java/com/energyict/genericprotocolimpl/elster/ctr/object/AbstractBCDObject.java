@@ -1,7 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.object;
 
-import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser;
 import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveConverter;
+import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser;
 
 import java.math.BigDecimal;
 
@@ -11,18 +11,19 @@ import java.math.BigDecimal;
  * Date: 21-sep-2010
  * Time: 11:00:24
  */
-public abstract class AbstractBCDObject extends AbstractCTRObject {
+public abstract class AbstractBCDObject<T extends AbstractBCDObject> extends AbstractCTRObject<T> {
 
     private CTRAbstractValue[] value; //Binary value, with its unit & an overflowValue.
 
     //Parse the raw data & fill in the object's properties
-    public void parse(byte[] rawData, int offset) {
+
+    public T parse(byte[] rawData, int offset) {
         CTRPrimitiveParser parser = new CTRPrimitiveParser();   //Not static
         CTRObjectID id = this.getId();
-        offset +=2; //Skip the Id bytes
+        offset += 2; //Skip the Id bytes
 
         this.setQlf(parser.parseQlf(rawData, offset));
-        offset +=1;
+        offset += 1;
 
         int[] valueLength = this.parseValueLengths(id);
 
@@ -30,16 +31,19 @@ public abstract class AbstractBCDObject extends AbstractCTRObject {
         offset += sum(valueLength);  //There might be multiple value fields
 
         this.setAccess(parser.parseAccess(rawData, offset));
-        offset +=1;
+        offset += 1;
 
         this.setDefault(parser.parseDefault(id));
 
         this.setSymbol(parseSymbol(id));
+
+        return (T) this;
     }
 
     public CTRAbstractValue[] getValue() {
-            return value;
+        return value;
     }
+
     protected void setValue(CTRAbstractValue[] value) {
         this.value = value;
     }
@@ -53,8 +57,8 @@ public abstract class AbstractBCDObject extends AbstractCTRObject {
         byte[] valueBytes = null;
         byte[] valueBytesPrevious = null;
         byte[] valueResult = null;
-        
-        for(int valueLength: parseValueLengths(getId())) {
+
+        for (int valueLength : parseValueLengths(getId())) {
 
             if (value[j].getType() == "String") {
                 valueBytes = converter.convertStringValue((String) value[j].getValue());
@@ -79,13 +83,8 @@ public abstract class AbstractBCDObject extends AbstractCTRObject {
         //byte[] def = converter.convertDefaults(getDefault()); 
 
 
-        
-
         return null;
     }
-
-
-
 
 
     private byte[] concat(byte[] valueBytesPrevious, byte[] valueBytes) {

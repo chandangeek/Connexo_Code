@@ -10,7 +10,7 @@ import java.math.BigDecimal;
  * Date: 21-sep-2010
  * Time: 14:29:16
  */
-public class SecurityCategory extends AbstractStringObject {
+public class SecurityCategory extends AbstractStringObject<SecurityCategory> {
 
     public SecurityCategory(CTRObjectID id) {
         this.setId(id);
@@ -19,16 +19,24 @@ public class SecurityCategory extends AbstractStringObject {
     protected String parseSymbol(CTRObjectID id) {
         String symbol = "";
 
-        switch(id.getY()) {
-            case 6: symbol = "PUK_S";
-            case 7: symbol = "PIN";
-            case 8: switch(id.getZ()) {
-                default: symbol = "KEYC";
-                case 6: symbol = "KEYF";
-                case 0x0A: symbol = "KEYT";
-            }
-            case 9: symbol = "S_Stat";
-            case 10: symbol = "T_antf";
+        switch (id.getY()) {
+            case 6:
+                symbol = "PUK_S";
+            case 7:
+                symbol = "PIN";
+            case 8:
+                switch (id.getZ()) {
+                    default:
+                        symbol = "KEYC";
+                    case 6:
+                        symbol = "KEYF";
+                    case 0x0A:
+                        symbol = "KEYT";
+                }
+            case 9:
+                symbol = "S_Stat";
+            case 10:
+                symbol = "T_antf";
         }
         return symbol;
     }
@@ -36,20 +44,31 @@ public class SecurityCategory extends AbstractStringObject {
 
     public BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
         int overflow = 0;
-        switch(id.getY()) {
-            case 9: overflow = 0xFF;
+        switch (id.getY()) {
+            case 9:
+                overflow = 0xFF;
         }
         return new BigDecimal(overflow);
     }
 
     protected int[] parseValueLengths(CTRObjectID id) {
         int[] valueLength = null;
-        switch(id.getY()) {
-            case 6: valueLength = new int[]{8}; break;
-            case 7: valueLength = new int[]{6}; break;
-            case 8: valueLength = new int[]{16}; break;
-            case 9: valueLength = new int[]{2}; break;
-            case 10: valueLength = new int[]{4}; break;
+        switch (id.getY()) {
+            case 6:
+                valueLength = new int[]{8};
+                break;
+            case 7:
+                valueLength = new int[]{6};
+                break;
+            case 8:
+                valueLength = new int[]{16};
+                break;
+            case 9:
+                valueLength = new int[]{2};
+                break;
+            case 10:
+                valueLength = new int[]{4};
+                break;
         }
         return valueLength;
     }
