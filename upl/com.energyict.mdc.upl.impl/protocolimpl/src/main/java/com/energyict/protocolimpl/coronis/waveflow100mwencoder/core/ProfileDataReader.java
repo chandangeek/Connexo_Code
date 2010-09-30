@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.EncoderUnitInfo.EncoderUnitType;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.LeakageEventTable.LeakageEvent;
 
 public class ProfileDataReader {
@@ -80,8 +81,15 @@ public class ProfileDataReader {
 			for (int index = 0;index < smallestNrOfReadings; index++) {
 				BigDecimal bdA = new BigDecimal(encoderDataloggingTable.getEncoderReadingsPortA()[index]);
 				bdA = bdA.movePointLeft(8-encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[0].getNrOfDigitsBeforeDecimalPoint());
-				BigDecimal bdB = new BigDecimal(encoderDataloggingTable.getEncoderReadingsPortB()[index]);
-				bdB = bdB.movePointLeft(8-encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[1].getNrOfDigitsBeforeDecimalPoint());
+				
+				BigDecimal bdB=null;
+				if (encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[1].encoderUnitType != EncoderUnitType.Unknown) {
+					bdB = new BigDecimal(encoderDataloggingTable.getEncoderReadingsPortB()[index]);
+					bdB = bdB.movePointLeft(8-encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[1].getNrOfDigitsBeforeDecimalPoint());
+				}
+				else {
+					bdB = new BigDecimal(0);
+				}
 				List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
 				intervalValues.add(new IntervalValue(bdA, 0, 0));
 				intervalValues.add(new IntervalValue(bdB, 0, 0));

@@ -58,14 +58,29 @@ public class WaveFlowConnect extends Connection implements ProtocolConnection {
 	}
 
 	public byte[] sendData(byte[] bs) throws NestedIOException, ConnectionException {
-		
-		
+
+		int retry=0;
 		delay(forceDelay);
 		
+		while(true) {
+			try {
+				sendOut(bs);
+				break;
+			}
+			catch(ConnectionException e) {
+				if (e.getMessage().indexOf("error Timeout ")>=0) {
+					if (retry++ >= 3) {
+						throw new ConnectionException("After 3 retries, "+e.getMessage());
+					}
+					logger.warning("Waveflow connect, sendData() retry ["+retry+"]"); 
+				}
+				else {
+					throw e;
+				}
+			}
+		}
+		
 		long timeoutInterFrame = System.currentTimeMillis()+timeout;
-		
-		
-		sendOut(bs);
 		copyEchoBuffer();
 		byte[] data=null;
 		do {

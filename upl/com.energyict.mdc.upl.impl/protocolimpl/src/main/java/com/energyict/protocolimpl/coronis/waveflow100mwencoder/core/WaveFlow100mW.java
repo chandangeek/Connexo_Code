@@ -41,7 +41,7 @@ public class WaveFlow100mW extends AbstractProtocol implements MessageProtocol {
 	/**
 	 * reference to the message protocol parser
 	 */
-	private WaveFlow100mWMessages waveFlow100mWMessages;
+	private WaveFlow100mWMessages waveFlow100mWMessages = new WaveFlow100mWMessages(this);
 	
 	/**
 	 * the correcttime property. this property is set from the protocolreader in order to allow to sync the time...
@@ -103,7 +103,7 @@ public class WaveFlow100mW extends AbstractProtocol implements MessageProtocol {
 		waveFlowConnect = new WaveFlowConnect(inputStream,outputStream,timeoutProperty,getLogger(),forcedDelay);
 		obisCodeMapper = new ObisCodeMapper(this);
 		profileDataReader = new ProfileDataReader(this);
-		waveFlow100mWMessages = new WaveFlow100mWMessages(this);
+		
 		return waveFlowConnect;
 	}
 
@@ -276,7 +276,13 @@ public class WaveFlow100mW extends AbstractProtocol implements MessageProtocol {
     	else {
     		portId=2; // port A & B
     	}
-        return profileDataReader.getProfileData(lastReading,portId,includeEvents);
+    	try {
+    		return profileDataReader.getProfileData(lastReading,portId,includeEvents);
+    	}
+    	catch(WaveFlow100mwEncoderException e) {
+    		getLogger().warning("No profile data available. Probably datalogging restarted...");
+    		return null;
+    	}
     }    
    
 	public void applyMessages(List messageEntries) throws IOException {
@@ -315,5 +321,9 @@ public class WaveFlow100mW extends AbstractProtocol implements MessageProtocol {
     protected List doGetOptionalKeys() {
         List result = new ArrayList();
         return result;
+    }
+	
+    public void setHalfDuplexController(HalfDuplexController halfDuplexController) {
+    	// absorb
     }
 }

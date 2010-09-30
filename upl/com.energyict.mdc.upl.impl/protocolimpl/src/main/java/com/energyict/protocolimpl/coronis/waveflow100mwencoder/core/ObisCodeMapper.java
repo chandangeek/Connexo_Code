@@ -57,7 +57,13 @@ public class ObisCodeMapper {
     }
     
     public static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-    	return new RegisterInfo(registerMaps.get(obisCode));
+    	String info = registerMaps.get(obisCode);
+    	if (info !=null) {
+    		return new RegisterInfo(info);
+    	}
+    	else {
+    		throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] does not exist!");
+    	}
     }
     
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
@@ -137,7 +143,8 @@ public class ObisCodeMapper {
     		return new RegisterValue(obisCode,new Quantity(bd, unit),new Date());
     	}
     	
-    	return null;
+		throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] does not exist!");
+
     }
 	
 }
