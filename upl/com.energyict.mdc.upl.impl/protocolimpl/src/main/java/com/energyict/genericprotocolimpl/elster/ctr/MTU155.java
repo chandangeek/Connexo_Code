@@ -36,5 +36,4 @@ public class MTU155 extends AbstractGenericProtocol {
         // Hmmm, still work to do :)
     }
 
-
 }

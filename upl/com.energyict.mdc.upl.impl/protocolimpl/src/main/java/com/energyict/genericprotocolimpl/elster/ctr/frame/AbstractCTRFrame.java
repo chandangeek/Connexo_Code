@@ -38,31 +38,36 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
     public T parse(byte[] rawData, int offset) {
         int ptr = offset;
 
-        address = new Address().parse(rawData, offset);
+        address = new Address().parse(rawData, ptr);
         ptr += Address.LENGTH;
 
-        profi = new Profi().parse(rawData, offset);
+        profi = new Profi().parse(rawData, ptr);
         ptr += Profi.LENGTH;
 
-        functionCode = new FunctionCode().parse(rawData, offset);
+        functionCode = new FunctionCode().parse(rawData, ptr);
         ptr += FunctionCode.LENGTH;
 
-        structureCode = new StructureCode().parse(rawData, offset);
+        structureCode = new StructureCode().parse(rawData, ptr);
         ptr += StructureCode.LENGTH;
 
-        channel = new Channel().parse(rawData, offset);
+        channel = new Channel().parse(rawData, ptr);
         ptr += Channel.LENGTH;
 
-        data = new Data().parse(rawData, offset);
+        data = new Data().parse(rawData, ptr);
         ptr += Data.LENGTH;
 
-        cpa = new Cpa().parse(rawData, offset);
+        cpa = new Cpa().parse(rawData, ptr);
         ptr += Cpa.LENGTH;
 
-        crc = new Crc().parse(rawData, offset);
+        crc = new Crc().parse(rawData, ptr);
         ptr += Crc.LENGTH;
 
         return (T) this;
+    }
+
+
+    public void setCrc() {
+        crc = generateCrc();
     }
 
     public Crc generateCrc() {
@@ -74,11 +79,75 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
                 channel.getBytes(),
                 data.getBytes()
         );
-        return new Crc().calculateAndSetCrc(crcData);
+        return new Crc().generateAndSetCrc(crcData);
     }
 
     public boolean isValidCrc() {
         return generateCrc().getCrc() == crc.getCrc();
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public Channel getChannel() {
+        return channel;
+    }
+
+    public void setChannel(Channel channel) {
+        this.channel = channel;
+    }
+
+    public Cpa getCpa() {
+        return cpa;
+    }
+
+    public void setCpa(Cpa cpa) {
+        this.cpa = cpa;
+    }
+
+    public Crc getCrc() {
+        return crc;
+    }
+
+    public void setCrc(Crc crc) {
+        this.crc = crc;
+    }
+
+    public Data getData() {
+        return data;
+    }
+
+    public void setData(Data data) {
+        this.data = data;
+    }
+
+    public FunctionCode getFunctionCode() {
+        return functionCode;
+    }
+
+    public void setFunctionCode(FunctionCode functionCode) {
+        this.functionCode = functionCode;
+    }
+
+    public Profi getProfi() {
+        return profi;
+    }
+
+    public void setProfi(Profi profi) {
+        this.profi = profi;
+    }
+
+    public StructureCode getStructureCode() {
+        return structureCode;
+    }
+
+    public void setStructureCode(StructureCode structureCode) {
+        this.structureCode = structureCode;
     }
 
     @Override

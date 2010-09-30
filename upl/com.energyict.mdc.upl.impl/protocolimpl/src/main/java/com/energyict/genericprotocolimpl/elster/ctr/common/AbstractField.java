@@ -23,7 +23,7 @@ public abstract class AbstractField<T extends Field> implements Field<T> {
         byte[] bytes = new byte[length];
         for (int i = 0; i < bytes.length; i++) {
             int ptr = (bytes.length - (i + 1));
-            bytes[ptr] = (i < 4) ? (byte) ((value >> i) & 0x0FF) : 0x00;
+            bytes[ptr] = (i < 4) ? (byte) ((value >> (i * 8))) : 0x00;
         }
         return bytes;
     }
