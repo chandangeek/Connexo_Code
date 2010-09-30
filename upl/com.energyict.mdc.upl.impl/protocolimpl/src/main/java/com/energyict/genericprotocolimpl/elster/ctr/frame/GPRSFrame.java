@@ -29,4 +29,5 @@ public class GPRSFrame extends AbstractCTRFrame<GPRSFrame> {
         etx = getIntFromBytes(rawPacket, ptr++, 1);
         return this;
     }
+
 }

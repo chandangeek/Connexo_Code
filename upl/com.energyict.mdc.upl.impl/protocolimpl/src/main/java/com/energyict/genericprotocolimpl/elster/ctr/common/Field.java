@@ -9,6 +9,6 @@ public interface Field<T extends Field> {
 
     byte[] getBytes();
 
-    T parse(byte[] rawData, int offset);
+    T parse(byte[] rawData, int offset) throws CTRParsingException;
 
 }
