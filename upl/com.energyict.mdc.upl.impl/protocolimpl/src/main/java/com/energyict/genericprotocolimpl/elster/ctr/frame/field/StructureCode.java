@@ -16,6 +16,18 @@ public class StructureCode extends AbstractField<StructureCode> {
         return getBytesFromInt(structureCode, LENGTH);
     }
 
+    public StructureType getStructureType() {
+        return StructureType.fromStructureCode(structureCode);
+    };
+
+    public int getStructureCode() {
+        return structureCode;
+    }
+
+    public void setStructureCode(int structureCode) {
+        this.structureCode = structureCode;
+    }
+
     public StructureCode parse(byte[] rawData, int offset) {
         structureCode = getIntFromBytes(rawData, offset, LENGTH);
         return this;

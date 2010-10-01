@@ -28,6 +28,15 @@ public abstract class AbstractField<T extends Field> implements Field<T> {
         return bytes;
     }
 
+    protected boolean isBitSet(int value, int bitNr) {
+        return (0 != (value & (0x01 << bitNr)));
+    }
+
+    protected int setBit(int value, boolean bit, int bitNr) {
+        int mask = 0x01 << bitNr;
+        return bit ? (value | mask) : (value & (~mask));
+    }
+
     @Override
     public String toString() {
         return getClass().getSimpleName() + " = " + ProtocolTools.getHexStringFromBytes(getBytes());
