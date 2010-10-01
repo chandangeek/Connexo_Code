@@ -31,6 +31,10 @@ public class Crc extends AbstractField<Crc> {
         return crc;
     }
 
+    public void setCrc(int crc) {
+        this.crc = crc;
+    }
+
     public Crc generateAndSetCrc(byte[] data) {
         crc = CRC16DNP.calcCRC(data);
         return this;

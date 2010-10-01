@@ -25,4 +25,12 @@ public class Address extends AbstractField<Address> {
         return LENGTH;
     }
 
+    public int getAddress() {
+        return address;
+    }
+
+    public void setAddress(int address) {
+        this.address = address;
+    }
+
 }

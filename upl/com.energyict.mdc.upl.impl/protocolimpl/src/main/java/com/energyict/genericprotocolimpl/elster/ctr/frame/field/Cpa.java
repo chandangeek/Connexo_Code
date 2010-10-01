@@ -26,4 +26,11 @@ public class Cpa extends AbstractField<Cpa> {
         return LENGTH;
     }
 
+    public int getCpa() {
+        return cpa;
+    }
+
+    public void setCpa(int cpa) {
+        this.cpa = cpa;
+    }
 }

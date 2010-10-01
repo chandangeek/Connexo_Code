@@ -21,4 +21,12 @@ public class Channel extends AbstractField<Channel> {
         return this;
     }
 
+    public int getChannel() {
+        return channel;
+    }
+
+    public void setChannel(int channel) {
+        this.channel = channel;
+    }
+    
 }

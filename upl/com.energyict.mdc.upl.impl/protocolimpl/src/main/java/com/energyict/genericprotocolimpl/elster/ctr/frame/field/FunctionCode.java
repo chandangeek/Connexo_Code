@@ -21,4 +21,26 @@ public class FunctionCode extends AbstractField<FunctionCode> {
         return this;
     }
 
+    public EncryptionStatus getEncryptionStatus() {
+        int bits = (functionCode >> 6) & 0x03;
+        return EncryptionStatus.fromEncryptionBits(bits);
+    }
+
+    public void setEncryptionStatus(EncryptionStatus encryptionStatus) {
+        if (encryptionStatus == EncryptionStatus.UNKNOWN_ENCRYPTION) {
+            throw new IllegalArgumentException("Could not set encryption status to " + encryptionStatus);
+        }
+        int statusBits = (encryptionStatus.getEncryptionStateBits() << 6) & 0x0C0;
+        functionCode &= 0x03F;
+        functionCode |= statusBits;
+    }
+
+    public int getFunctionCode() {
+        return functionCode;
+    }
+
+    public void setFunctionCode(int functionCode) {
+        this.functionCode = functionCode;
+    }
+    
 }
