@@ -27,7 +27,7 @@ public class FunctionCode extends AbstractField<FunctionCode> {
     }
 
     public void setEncryptionStatus(EncryptionStatus encryptionStatus) {
-        if (encryptionStatus == EncryptionStatus.UNKNOWN_ENCRYPTION) {
+        if (encryptionStatus == EncryptionStatus.INVALID_ENCRYPTION) {
             throw new IllegalArgumentException("Could not set encryption status to " + encryptionStatus);
         }
         int statusBits = (encryptionStatus.getEncryptionStateBits() << 6) & 0x0C0;

@@ -50,7 +50,7 @@ public class FunctionCodeTest {
         for (int i = 0; i <= 0x3F; i++) {
             functionCode.setFunctionCode(i);
             for (EncryptionStatus status : EncryptionStatus.values()) {
-                if (status != EncryptionStatus.UNKNOWN_ENCRYPTION) {
+                if (status != EncryptionStatus.INVALID_ENCRYPTION) {
                     functionCode.setEncryptionStatus(status);
                     assertEquals(status, functionCode.getEncryptionStatus());
                     assertEquals(i, functionCode.getFunctionCode() & 0x3F);
@@ -62,7 +62,7 @@ public class FunctionCodeTest {
     @Test(expected = IllegalArgumentException.class)
     public void testSetEncryptionStatusUnknown() throws Exception {
         FunctionCode functionCode = new FunctionCode();
-        functionCode.setEncryptionStatus(EncryptionStatus.UNKNOWN_ENCRYPTION);
+        functionCode.setEncryptionStatus(EncryptionStatus.INVALID_ENCRYPTION);
     }
 
     @Test
@@ -71,7 +71,7 @@ public class FunctionCodeTest {
         for (int i = 0; i < 255; i++) {
             functionCode.setFunctionCode(i);
             assertEquals(i, functionCode.getFunctionCode());
-            assertTrue(EncryptionStatus.UNKNOWN_ENCRYPTION != functionCode.getEncryptionStatus());
+            assertTrue(EncryptionStatus.INVALID_ENCRYPTION != functionCode.getEncryptionStatus());
         }
     }
 

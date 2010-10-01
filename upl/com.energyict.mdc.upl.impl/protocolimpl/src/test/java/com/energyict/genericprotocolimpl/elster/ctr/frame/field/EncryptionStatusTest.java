@@ -18,7 +18,7 @@ public class EncryptionStatusTest {
         assertNotNull(EncryptionStatus.KEYC_ENCRYPTION.getDescription());
         assertNotNull(EncryptionStatus.KEYF_ENCRYPTION.getDescription());
         assertNotNull(EncryptionStatus.KEYT_ENCRYPTION.getDescription());
-        assertNotNull(EncryptionStatus.UNKNOWN_ENCRYPTION.getDescription());
+        assertNotNull(EncryptionStatus.INVALID_ENCRYPTION.getDescription());
     }
 
     @Test
@@ -27,7 +27,7 @@ public class EncryptionStatusTest {
         assertEquals(0x01, EncryptionStatus.KEYC_ENCRYPTION.getEncryptionStateBits());
         assertEquals(0x02, EncryptionStatus.KEYT_ENCRYPTION.getEncryptionStateBits());
         assertEquals(0x03, EncryptionStatus.KEYF_ENCRYPTION.getEncryptionStateBits());
-        assertEquals(-1, EncryptionStatus.UNKNOWN_ENCRYPTION.getEncryptionStateBits());
+        assertEquals(-1, EncryptionStatus.INVALID_ENCRYPTION.getEncryptionStateBits());
     }
 
     @Test

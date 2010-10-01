@@ -11,7 +11,7 @@ public enum EncryptionStatus {
     KEYC_ENCRYPTION(1, "Encrypted and authenticated using KEYC"),
     KEYT_ENCRYPTION(2, "Encrypted and authenticated using Temporary Key [KEYT]"),
     KEYF_ENCRYPTION(3, "Encrypted and authenticated using Factory Key [KEYF]"),
-    UNKNOWN_ENCRYPTION(-1, "Invalid encryption key");
+    INVALID_ENCRYPTION(-1, "Invalid encryption key");
 
     private final int encryptionStateBits;
     private final String description;
@@ -35,7 +35,7 @@ public enum EncryptionStatus {
                 return status;
             }
         }
-        return UNKNOWN_ENCRYPTION;
+        return INVALID_ENCRYPTION;
     }
 
 }
