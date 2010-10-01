@@ -1,4 +1,4 @@
-package com.energyict.genericprotocolimpl.elster.ctr.frame.field;
+package com.energyict.genericprotocolimpl.elster.ctr.structure;
 
 /**
  * Copyrights EnergyICT

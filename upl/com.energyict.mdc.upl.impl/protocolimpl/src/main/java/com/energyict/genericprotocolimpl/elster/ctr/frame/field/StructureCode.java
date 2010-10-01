@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.frame.field;
 
 import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
+import com.energyict.genericprotocolimpl.elster.ctr.structure.StructureType;
 
 /**
  * Copyrights EnergyICT
