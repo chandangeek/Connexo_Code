@@ -54,8 +54,12 @@ public class TemperatureCategory extends AbstractUnsignedBINObject<TemperatureCa
 
 
     public BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
-        int overflow = 500;
-        if (unit == Unit.get(BaseUnit.DEGREE_CELSIUS)) {
+        int overflow = getCommonOverflow(unit);
+        if (overflow == 0) {
+            overflow = 500;
+        }
+
+        if (Unit.get(BaseUnit.DEGREE_CELSIUS).equals(unit)) {
             overflow = 10000;
         }
         return new BigDecimal(overflow);

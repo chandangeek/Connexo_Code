@@ -41,22 +41,22 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> extends Abs
    
     protected int getCommonOverflow(Unit unit) {
         int overflow = 0;
-        if (unit == Unit.get(BaseUnit.HOUR)) {
+        if (Unit.get(BaseUnit.HOUR).equals(unit)) {
             overflow = 24;
         }
-        if (unit == Unit.get(BaseUnit.MINUTE)) {
+        if (Unit.get(BaseUnit.MINUTE).equals(unit)) {
             overflow = 60;
         }
-        if (unit == Unit.get(BaseUnit.SECOND)) {
+        if (Unit.get(BaseUnit.SECOND).equals(unit)) {
             overflow = 60;
         }
-        if (unit == Unit.get(BaseUnit.DAY)) {
+        if (Unit.get(BaseUnit.DAY).equals(unit)) {
             overflow = 32;
         }
-        if (unit == Unit.get(BaseUnit.MONTH)) {
+        if (Unit.get(BaseUnit.MONTH).equals(unit)) {
             overflow = 12;
         }
-        if (unit == Unit.get(BaseUnit.YEAR)) {
+        if (Unit.get(BaseUnit.YEAR).equals(unit)) {
             overflow = 99;
         }
         return overflow;
@@ -99,7 +99,11 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> extends Abs
     }
 
     protected void setDefault(int[] def) {
-        this.def = def;
+        if (def != null) {
+            this.def = def.clone();
+        } else {
+            this.def = null;
+        }
     }
 
     public CTRAbstractValue[] getValue() {
@@ -107,7 +111,11 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> extends Abs
     }
 
     protected void setValue(CTRAbstractValue[] value) {
-        this.value = value;
+        if (value != null) {
+            this.value = value.clone();
+        } else {
+            this.value = null;
+        }
     }
 
     public byte[] getBytes() {
@@ -157,6 +165,4 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> extends Abs
         System.arraycopy(valueBytes, 0, result, valueBytesPrevious.length, valueBytes.length);
         return result;
     }
-
-
 }

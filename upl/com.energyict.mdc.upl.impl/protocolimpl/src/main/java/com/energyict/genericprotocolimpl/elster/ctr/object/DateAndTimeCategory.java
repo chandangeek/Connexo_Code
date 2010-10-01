@@ -105,49 +105,49 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
                     if (valueNumber == 3) {unit = Unit.get(BaseUnit.DAY);}
                     if (valueNumber == 4) {unit = Unit.get(BaseUnit.HOUR);}
                     if (valueNumber == 5) {unit = Unit.get(BaseUnit.MINUTE);}
-                    if (valueNumber == 6) {unit = Unit.get(BaseUnit.SECOND);}
+                    if (valueNumber == 6) {unit = Unit.get(BaseUnit.SECOND);} break;
                 case 1:
                     if (valueNumber == 0) {unit = Unit.get(BaseUnit.YEAR);}
                     if (valueNumber == 1) {unit = Unit.get(BaseUnit.MONTH);}
                     if (valueNumber == 2) {unit = Unit.get(BaseUnit.DAY);}
                     if (valueNumber == 3) {unit = Unit.get(BaseUnit.HOUR);}
-                    if (valueNumber == 4) {unit = Unit.get(BaseUnit.MINUTE);}
+                    if (valueNumber == 4) {unit = Unit.get(BaseUnit.MINUTE);} break;
                 case 2:
                     if (valueNumber == 1) {unit = Unit.get(BaseUnit.YEAR);}
                     if (valueNumber == 2) {unit = Unit.get(BaseUnit.MONTH);}
                     if (valueNumber == 3) {unit = Unit.get(BaseUnit.DAY);}
                     if (valueNumber == 4) {unit = Unit.get(BaseUnit.HOUR);}
-                    if (valueNumber == 5) {unit = Unit.get(BaseUnit.MINUTE);}
-            }
+                    if (valueNumber == 5) {unit = Unit.get(BaseUnit.MINUTE);} break;
+            }   break;
 
             case 1: switch(z) {
-                case 2: unit = Unit.get(BaseUnit.SECOND);
-                case 3: unit = Unit.get(BaseUnit.HOUR);
+                case 2: unit = Unit.get(BaseUnit.SECOND); break;
+                case 3: unit = Unit.get(BaseUnit.HOUR); break;
                 case 4:
                     if (valueNumber == 1) {unit = Unit.get(BaseUnit.MONTH);}
                     if (valueNumber == 2) {unit = Unit.get(BaseUnit.DAY);}
                     if (valueNumber == 3) {unit = Unit.get(BaseUnit.MONTH);}
                     if (valueNumber == 4) {unit = Unit.get(BaseUnit.DAY);}
                     if (valueNumber == 5) {unit = Unit.get(BaseUnit.MONTH);}
-                    if (valueNumber == 6) {unit = Unit.get(BaseUnit.DAY);}
-            }
+                    if (valueNumber == 6) {unit = Unit.get(BaseUnit.DAY);} break;
+            } break;
 
             case 2:
                     if (valueNumber == 1) {unit = Unit.get(BaseUnit.MONTH);}
                     if (valueNumber == 2) {unit = Unit.get(BaseUnit.DAY);}
                     if (valueNumber == 3) {unit = Unit.get(BaseUnit.MONTH);}
-                    if (valueNumber == 4) {unit = Unit.get(BaseUnit.DAY);}
+                    if (valueNumber == 4) {unit = Unit.get(BaseUnit.DAY);} break;
             case 3:
                     if (valueNumber == 0) {unit = Unit.get(BaseUnit.YEAR);}
                     if (valueNumber == 1) {unit = Unit.get(BaseUnit.MONTH);}
                     if (valueNumber == 2) {unit = Unit.get(BaseUnit.DAY);}
                     if (valueNumber == 3) {unit = Unit.get(BaseUnit.HOUR);}
-                    if (valueNumber == 4) {unit = Unit.get(BaseUnit.MINUTE);}
+                    if (valueNumber == 4) {unit = Unit.get(BaseUnit.MINUTE);} break;
             case 4:
-                    unit = Unit.get(BaseUnit.MINUTE);
+                    unit = Unit.get(BaseUnit.MINUTE); break;
             case 5:
                     if (valueNumber == 1) {unit = Unit.get(BaseUnit.SECOND);}
-                    if (valueNumber == 2) {unit = Unit.get(BaseUnit.SECOND);}
+                    if (valueNumber == 2) {unit = Unit.get(BaseUnit.SECOND);} break;
         }
 
         

@@ -36,8 +36,7 @@ public class InputOutputCategory extends AbstractUnsignedBINObject<InputOutputCa
     }
 
     protected int[] parseValueLengths(CTRObjectID id) {
-        int[] valueLength = new int[]{1, 3, 3, 3, 3};
-        return valueLength;
+        return new int[]{1, 3, 3, 3, 3};
     }
 
     public Unit parseUnit(CTRObjectID id, int valueNumber) {

@@ -46,8 +46,8 @@ public class FlowAndVolumeCategory extends AbstractUnsignedBINObject {
         double scale = 1.0;
         double overflow = getCommonOverflow(unit);
 
-        if (unit == Unit.get(BaseUnit.CUBICMETER)) {overflow = 9999999.0;}
-        if (unit == Unit.get(BaseUnit.CUBICMETERPERHOUR)) {overflow = 999999.0;}
+        if (Unit.get(BaseUnit.CUBICMETER).equals(unit)) {overflow = 9999999.0;}
+        if (Unit.get(BaseUnit.CUBICMETERPERHOUR).equals(unit)) {overflow = 999999.0;}
 
         if (valueNumber == 0) {
             switch (id.getY()) {

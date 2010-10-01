@@ -30,7 +30,7 @@ public class EnergyCategory extends AbstractUnsignedBINObject {
     
     public BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
         int overflow = 999999999;
-        if (unit == Unit.get(BaseUnit.JOULEPERHOUR,6)) {overflow = 99999999;}
+        if (Unit.get(BaseUnit.JOULEPERHOUR, 6).equals(unit)) {overflow = 99999999;}
         return new BigDecimal(overflow);
     }
 

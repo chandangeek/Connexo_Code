@@ -197,7 +197,7 @@ public class CTRPrimitiveParser {
         int len = value.length;
         for (int i = 0; i <= len - 1; i++) {
             byte Byte = value[i];                                   
-            convertedValue += (int) ((Byte & 0xFF) << (len - 1 - i)*8) & 0xFF;
+            convertedValue += ((Byte & 0xFF) << (len - 1 - i)*8);
         }
         BigDecimal result = BigDecimal.valueOf(convertedValue);
         return result;

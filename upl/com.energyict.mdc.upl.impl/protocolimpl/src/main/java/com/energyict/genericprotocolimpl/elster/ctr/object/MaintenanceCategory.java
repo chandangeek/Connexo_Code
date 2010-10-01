@@ -22,24 +22,24 @@ public class MaintenanceCategory extends AbstractUnsignedBINObject<MaintenanceCa
 
         switch (id.getY()) {
             case 0:
-                symbol = "Data";
+                symbol = "Data"; break;
             case 1:
-                symbol = "Data_CV";
+                symbol = "Data_CV"; break;
             case 2:
-                symbol = "Data_DS";
+                symbol = "Data_DS"; break;
             case 4:
-                symbol = "Data_CN";
+                symbol = "Data_CN"; break;
             case 5:
                 switch (id.getZ()) {
                     case 0:
-                        symbol = "TresBatt";
+                        symbol = "TresBatt"; break;
                     case 1:
-                        symbol = "OuBatt";
+                        symbol = "OuBatt"; break;
                     case 2:
-                        symbol = "VoltBatt";
-                }
+                        symbol = "VoltBatt"; break;
+                }  break;
             case 6:
-                symbol = "Data_MC";
+                symbol = "Data_MC"; break;
         }
         return symbol;
     }
@@ -50,7 +50,7 @@ public class MaintenanceCategory extends AbstractUnsignedBINObject<MaintenanceCa
 
         switch (id.getY()) {
             case 5:
-                overflow = 0xFFFFFF;
+                overflow = 0xFFFFFF; break;
         }
         return new BigDecimal(overflow);
     }
@@ -90,12 +90,12 @@ public class MaintenanceCategory extends AbstractUnsignedBINObject<MaintenanceCa
                 }
                 if (valueNumber == 4) {
                     unit = Unit.get(BaseUnit.MINUTE);
-                }
+                }  break;
             case 5:
                 unit = Unit.get(BaseUnit.HOUR);
                 if (z == 2) {
                     unit = Unit.get(BaseUnit.VOLT);
-                }
+                } break;
         }
         return unit;
 
