@@ -1,5 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr.object;
 
+import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.common.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser;
 
@@ -12,13 +13,13 @@ import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser
  */
 public class CTRObjectFactory {
 
-    public AbstractCTRObject parse(byte[] rawData, int offset) {
+    public AbstractCTRObject parse(byte[] rawData, int offset, AttributeType type) throws CTRParsingException {
         CTRPrimitiveParser parser = new CTRPrimitiveParser();
         CTRObjectID id = parser.parseId(rawData, offset);
-        return this.createObject(id, rawData, offset);
+        return this.createObject(id, rawData, offset, type);
     }
 
-    private AbstractCTRObject createObject(CTRObjectID id, byte[] rawData, int offset) {
+private AbstractCTRObject createObject(CTRObjectID id, byte[] rawData, int offset, AttributeType type) throws CTRParsingException {
 
         AbstractCTRObject obj = null;
 
@@ -62,11 +63,11 @@ public class CTRObjectFactory {
         }
 
         if (obj != null) {
-            try {
-                obj.parse(rawData, offset);
-            } catch (CTRParsingException e) {
-                e.printStackTrace();
-            }
+
+            obj.parse(rawData, offset, type);
+
+        } else {
+            throw new CTRParsingException("Wrong Id:" + id.toString());
         }
 
         return obj;

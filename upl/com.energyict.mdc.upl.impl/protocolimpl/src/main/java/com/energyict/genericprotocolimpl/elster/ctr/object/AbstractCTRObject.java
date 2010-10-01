@@ -3,6 +3,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.object;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
+import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveConverter;
 
 import java.math.BigDecimal;
@@ -12,9 +13,8 @@ import java.math.BigDecimal;
  * User: khe
  * Date: 21-sep-2010
  * Time: 10:51:36
- * To change this template use File | Settings | File Templates.
  */
-public abstract class AbstractCTRObject<T extends AbstractCTRObject> extends AbstractField<T> {
+public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
 
     private CTRObjectID id;
     private int access;
@@ -24,12 +24,11 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> extends Abs
     private CTRAbstractValue[] value; //Abstract = BIN or String or BCD
 
     public abstract Unit parseUnit(CTRObjectID id, int valueNumber);
-
+    protected abstract T parse(byte[] rawData, int offset, AttributeType type);
     protected abstract String parseSymbol(CTRObjectID id);
-
     protected abstract int[] parseValueLengths(CTRObjectID id);
-
     public abstract BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit);
+
 
     protected int sum(int[] valueLength) {
         int sum = 0;
@@ -118,43 +117,55 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> extends Abs
         }
     }
 
-    public byte[] getBytes() {
+    public byte[] getBytes(AttributeType type) {
         CTRPrimitiveConverter converter = new CTRPrimitiveConverter();
         byte[] id = converter.convertId(getId());
-        byte[] qlf = converter.convertQlf(getQlf());
+        byte[] bytes = id;
 
-        int j = 0;
-        byte[] valueBytes = null;
-        byte[] valueResult = null;
-
-        for (int valueLength : parseValueLengths(getId())) {
-
-            if ("String".equals(value[j].getType())) {
-                valueBytes = converter.convertStringValue((String) value[j].getValue());
-            }
-            if ("BIN".equals(value[j].getType())) {
-                valueBytes = converter.convertBINValue((BigDecimal) value[j].getValue(), valueLength);
-            }
-            if ("UnsignedBIN".equals(value[j].getType())) {
-                valueBytes = converter.convertUnsignedBINValue((BigDecimal) value[j].getValue(), valueLength);
-            }
-            if ("BCD".equals(value[j].getType())) {
-                valueBytes = converter.convertBCDValue((BigDecimal) value[j].getValue());
-            }
-            if (j > 0) {
-                valueResult = concat(valueResult, valueBytes);
-            } else {
-                valueResult = valueBytes;
-            }
-            j++;
+        if (type.hasQualifier()) {
+            byte[] qlf = converter.convertQlf(getQlf());
+            bytes = concat(id, qlf);
         }
-        byte[] access = converter.convertAccess(getAccess());
-        byte[] def = converter.convertDefaults(getDefault(), parseValueLengths(getId()));
 
-        byte[] bytes = concat(id, qlf);
-        bytes = concat(bytes,valueResult);
-        bytes = concat(bytes,access);
-        bytes = concat(bytes,def);
+        if (type.hasValueFields()) {
+            int j = 0;
+            byte[] valueBytes = null;
+            byte[] valueResult = null;
+
+            for (int valueLength : parseValueLengths(getId())) {
+
+                if ("String".equals(value[j].getType())) {
+                    valueBytes = converter.convertStringValue((String) value[j].getValue());
+                }
+                if ("BIN".equals(value[j].getType())) {
+                    valueBytes = converter.convertBINValue((BigDecimal) value[j].getValue(), valueLength);
+                }
+                if ("UnsignedBIN".equals(value[j].getType())) {
+                    valueBytes = converter.convertUnsignedBINValue((BigDecimal) value[j].getValue(), valueLength);
+                }
+                if ("BCD".equals(value[j].getType())) {
+                    valueBytes = converter.convertBCDValue((BigDecimal) value[j].getValue());
+                }
+                if (j > 0) {
+                    valueResult = concat(valueResult, valueBytes);
+                } else {
+                    valueResult = valueBytes;
+                }
+                j++;
+            }
+            bytes = concat(bytes, valueResult);
+        }
+
+        if (type.hasAccessDescriptor()) {
+            byte[] access = converter.convertAccess(getAccess());
+            bytes = concat(bytes, access);
+
+        }
+
+        if (type.hasDefaultValue()) {
+            byte[] def = converter.convertDefaults(getDefault(), parseValueLengths(getId()));
+            bytes = concat(bytes,def);
+        }
 
         return bytes;
     }

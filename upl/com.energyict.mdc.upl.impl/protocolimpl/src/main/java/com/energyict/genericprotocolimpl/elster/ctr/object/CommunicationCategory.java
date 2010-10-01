@@ -2,6 +2,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.object;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
+import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser;
 
 import java.math.BigDecimal;
@@ -15,7 +16,7 @@ import java.math.BigDecimal;
 public class CommunicationCategory extends AbstractStringObject<CommunicationCategory> {
 
     @Override
-    public CommunicationCategory parse(byte[] rawData, int offset) {
+    public CommunicationCategory parse(byte[] rawData, int offset, AttributeType type) {
         CTRPrimitiveParser parser = new CTRPrimitiveParser();   //Not static
         CTRObjectID id = this.getId();
         offset += 2; //Skip the Id bytes

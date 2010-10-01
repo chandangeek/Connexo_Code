@@ -1,5 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr.primitive;
 
+
 import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
 import com.energyict.genericprotocolimpl.elster.ctr.common.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.common.Field;
@@ -13,7 +14,7 @@ import java.math.BigDecimal;
  * Date: 21-sep-2010
  * Time: 11:10:27
  */
-public class CTRPrimitiveConverter extends AbstractField {
+public class CTRPrimitiveConverter {
 
     public CTRPrimitiveConverter() {}
 
@@ -87,9 +88,10 @@ public class CTRPrimitiveConverter extends AbstractField {
         int k = 0;
         byte[] bytes;
         byte[] result = null;
-        
+        CTRPrimitiveParser parser = new CTRPrimitiveParser();
+
         for (int def : defaults) {
-            bytes = getBytesFromInt(def, valueLength[k]);
+            bytes = parser.getBytesFromInt(def, valueLength[k]);
             if (k == 0) {
                 result = bytes;
             } else {
@@ -106,16 +108,6 @@ public class CTRPrimitiveConverter extends AbstractField {
              sum += i;
          }
          return sum;
-    }
-
-
-
-    public byte[] getBytes() {
-        return null;
-    }
-
-    public Field parse(byte[] rawData, int offset) throws CTRParsingException {
-        return null;
     }
 
     private byte[] concat(byte[] valueBytesPrevious, byte[] valueBytes) {

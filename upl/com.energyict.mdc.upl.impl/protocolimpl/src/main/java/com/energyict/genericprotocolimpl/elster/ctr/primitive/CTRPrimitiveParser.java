@@ -3,6 +3,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.primitive;
 import com.energyict.cbo.Unit;
 import com.energyict.genericprotocolimpl.elster.ctr.object.*;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.math.BigDecimal;
 
@@ -16,6 +17,27 @@ public class CTRPrimitiveParser {
 
     public CTRPrimitiveParser() {}
 
+
+    public int getIntFromBytes(byte[] rawData, int offset, int length) {
+        byte[] intBytes = ProtocolTools.getSubArray(rawData, offset, offset + length);
+        int value = 0;
+        for (int i = 0; i < intBytes.length; i++) {
+            int intByte = intBytes[i] & 0x0FF;
+            value += intByte << ((intBytes.length - (i + 1)) * 8);
+        }
+        return value;
+    }
+
+    public byte[] getBytesFromInt(int value, int length) {
+        byte[] bytes = new byte[length];
+        for (int i = 0; i < bytes.length; i++) {
+            int ptr = (bytes.length - (i + 1));
+            bytes[ptr] = (i < 4) ? (byte) ((value >> (i * 8))) : 0x00;
+        }
+        return bytes;
+    }
+
+    
     //Parses BIN byte arrays into BigDecimals
     //also parses single byte fields (e.g. hours, minutes,...)
     public CTRAbstractValue[] parseUnsignedBINValue(AbstractCTRObject object, CTRObjectID id, byte[] rawData, int offset, int[] valueLength) {
