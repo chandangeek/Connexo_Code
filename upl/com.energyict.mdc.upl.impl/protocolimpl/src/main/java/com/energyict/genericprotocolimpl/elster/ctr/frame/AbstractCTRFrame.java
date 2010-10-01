@@ -150,9 +150,4 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
         this.structureCode = structureCode;
     }
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + " = " + ProtocolTools.getHexStringFromBytes(getBytes());
-    }
-
 }
