@@ -140,8 +140,8 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
                 if ("BIN".equals(value[j].getType())) {
                     valueBytes = converter.convertBINValue((BigDecimal) value[j].getValue(), valueLength);
                 }
-                if ("UnsignedBIN".equals(value[j].getType())) {
-                    valueBytes = converter.convertUnsignedBINValue((BigDecimal) value[j].getValue(), valueLength);
+                if ("SignedBIN".equals(value[j].getType())) {
+                    valueBytes = converter.convertSignedBINValue((BigDecimal) value[j].getValue(), valueLength);
                 }
                 if ("BCD".equals(value[j].getType())) {
                     valueBytes = converter.convertBCDValue((BigDecimal) value[j].getValue());

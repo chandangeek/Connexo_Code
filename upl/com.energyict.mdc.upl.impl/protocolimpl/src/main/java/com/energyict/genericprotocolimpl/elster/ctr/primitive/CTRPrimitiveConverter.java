@@ -38,6 +38,7 @@ public class CTRPrimitiveConverter {
         return value.getBytes();
     }
 
+    //Converts unsigned BIN values to a byte[]
     public byte[] convertBINValue(BigDecimal value, int valueLength) {
         byte[] result = new byte[valueLength];
         for (int i = (valueLength - 1); i >= 0; i--) {
@@ -57,7 +58,7 @@ public class CTRPrimitiveConverter {
         return bts;
     }
 
-    public byte[] convertUnsignedBINValue(BigDecimal value, int valueLength) {
+    public byte[] convertSignedBINValue(BigDecimal value, int valueLength) {
         byte[] result = new byte[valueLength];
         for (int i = (valueLength - 1); i >= 0; i--) {
             BigDecimal divider = new BigDecimal(Math.pow(256, i));
