@@ -35,6 +35,15 @@ public class FunctionCode extends AbstractField<FunctionCode> {
         functionCode |= statusBits;
     }
 
+    public Function getFunction() {
+        return Function.fromFunctionCode(functionCode);
+    }
+
+    public void setFunction(Function function) {
+        functionCode &= 0xC0;
+        functionCode |= function.getFunctionCode() & 0x3F;
+    }
+
     public int getFunctionCode() {
         return functionCode;
     }
@@ -42,5 +51,5 @@ public class FunctionCode extends AbstractField<FunctionCode> {
     public void setFunctionCode(int functionCode) {
         this.functionCode = functionCode;
     }
-    
+
 }

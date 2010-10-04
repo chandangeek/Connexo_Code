@@ -7,6 +7,9 @@ package com.energyict.genericprotocolimpl.elster.ctr.structure;
  */
 public enum StructureType {
 
+    
+    IDENTIFICATION(0x30, "Identification structure"),
+    IDENTIFICATION2(0x31, "Identification structure 2"),
     INVALID_STRUCTURECODE(0xFF, "Invalid structure code");
 
     private final int structureCode;
