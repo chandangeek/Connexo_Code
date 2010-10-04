@@ -505,10 +505,10 @@ public class Concentrator implements Messaging, GenericProtocol {
 
     private Date getClearMidnightDate(Rtu rtu){
    		Calendar tempCalendar = Calendar.getInstance(rtu.getDeviceTimeZone());
-		tempCalendar.add(Calendar.HOUR_OF_DAY, 0 );
-		tempCalendar.add(Calendar.MINUTE, 0 );
-		tempCalendar.add(Calendar.SECOND, 0 );
-		tempCalendar.add(Calendar.MILLISECOND, 0 );
+		tempCalendar.set(Calendar.HOUR_OF_DAY, 0 );
+		tempCalendar.set(Calendar.MINUTE, 0 );
+		tempCalendar.set(Calendar.SECOND, 0 );
+		tempCalendar.set(Calendar.MILLISECOND, 0 );
 		return tempCalendar.getTime();
     }
     
