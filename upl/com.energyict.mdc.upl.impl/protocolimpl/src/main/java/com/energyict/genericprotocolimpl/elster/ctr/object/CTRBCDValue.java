@@ -12,19 +12,19 @@ import java.math.BigDecimal;
  * Contains a value field of type BIN
  */
 public class CTRBCDValue extends CTRAbstractValue{
-    private BigDecimal value;
+    private String value;
 
-    public CTRBCDValue(Unit unit, BigDecimal overflowValue, BigDecimal value, String type) {
+    public CTRBCDValue(Unit unit, BigDecimal overflowValue, String value, String type) {
         this.overflowValue = overflowValue;
         this.unit = unit;
         this.value = value;
         this.type = type;
     }
 
-    public BigDecimal getValue() {
+    public String getValue() {
         return value;
     }
     public void setValue(Object value) {
-        this.value = (BigDecimal) value;
+        this.value = (String) value;
     }
 }

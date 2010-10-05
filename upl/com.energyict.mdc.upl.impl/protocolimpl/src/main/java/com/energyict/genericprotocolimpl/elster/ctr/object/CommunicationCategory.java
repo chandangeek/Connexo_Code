@@ -13,30 +13,38 @@ import java.math.BigDecimal;
  * Date: 21-sep-2010
  * Time: 14:29:16
  */
-public class CommunicationCategory extends AbstractStringObject<CommunicationCategory> {
+public class CommunicationCategory<T extends CommunicationCategory> extends AbstractCTRObject<T> {
 
-    @Override
-    public CommunicationCategory parse(byte[] rawData, int offset, AttributeType type) {
+    //Parse the raw data & fill in the object's properties
+    public T parse(byte[] rawData, int offset, AttributeType type) {
         CTRPrimitiveParser parser = new CTRPrimitiveParser();   //Not static
+
         CTRObjectID id = this.getId();
         offset += 2; //Skip the Id bytes
 
-        this.setQlf(parser.parseQlf(rawData, offset));
-        offset += 1;
+        if (type.hasQualifier()) {
+            this.setQlf(parser.parseQlf(rawData, offset));
+            offset += 1;
+        }
 
-        int[] valueLength = this.parseValueLengths(id);
+        if (type.hasValueFields()) {
+            int[] valueLength = this.parseValueLengths(id);
+            this.setValue(parser.parseBCDValue(this, id, rawData, offset, valueLength));
+            offset += sum(valueLength);  //There might be multiple value fields
+        }
 
-        this.setValue(parser.parseBCDValue(this, id, rawData, offset, valueLength));
-        offset += sum(valueLength);  //There might be multiple value fields
+        if (type.hasAccessDescriptor()) {
+            this.setAccess(parser.parseAccess(rawData, offset));
+            offset += 1;
+        }
 
-        this.setAccess(parser.parseAccess(rawData, offset));
-        offset += 1;
-
-        this.setDefault(parser.parseDefault(id));
+        if (type.hasDefaultValue()) {
+            this.setDefault(parser.parseDefault(id));
+        }
 
         this.setSymbol(parseSymbol(id));
 
-        return this;
+        return (T) this;
     }
 
     public CommunicationCategory(CTRObjectID id) {

@@ -61,10 +61,7 @@ public class EquipmentParametersCategory extends AbstractStringObject {
         switch(id.getY()) {
             case 0: if (z == 9) {overflow = 8;}  break;
             case 1: switch(z) {
-
-                case 3:
-                case 2: if(valueNumber == 0) {overflow = 127;} break;
-                case 1: if(valueNumber == 0) {overflow = 2;} break;
+                case 3: if(valueNumber == 1) {overflow = 127;} break;
             } break;
             case 2: if (z==3) {overflow = 15;} break;
 

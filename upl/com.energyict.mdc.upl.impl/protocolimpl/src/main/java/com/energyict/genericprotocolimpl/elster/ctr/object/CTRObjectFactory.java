@@ -63,11 +63,9 @@ private AbstractCTRObject createObject(CTRObjectID id, byte[] rawData, int offse
         }
 
         if (obj != null) {
-
             obj.parse(rawData, offset, type);
-
         } else {
-            throw new CTRParsingException("Wrong Id:" + id.toString());
+            throw new CTRParsingException("Invalid Id: " + id.toString());
         }
 
         return obj;

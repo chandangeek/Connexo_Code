@@ -78,13 +78,12 @@ public class StatusCategory extends AbstractUnsignedBINObject<StatusCategory> {
                     if (valueNumber == 1) {
                         unit = Unit.get(BaseUnit.MINUTE);
                     }
-                }
+                } break;
             case 5:
                 if (valueNumber == 1) {
-                    unit = Unit.get(BaseUnit.MINUTE, 30);
-                }
+                    unit = Unit.get(BaseUnit.HOUR);
+                } break;
         }
         return unit;
     }
-
 }

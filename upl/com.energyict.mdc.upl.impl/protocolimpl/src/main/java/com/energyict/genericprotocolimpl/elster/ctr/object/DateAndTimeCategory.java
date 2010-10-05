@@ -33,7 +33,10 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
                 } break;
                 case 2: symbol = "OL"; break;
                 case 3: symbol = "Data"; break;
-                case 4: symbol = "InS"; break;
+                case 4: switch (id.getZ()) {
+                    case 0: symbol = "InS"; break;
+                    case 1: symbol = "Og_InS"; break;
+                } break;
                 case 5: symbol = "DSO"; break;
 
         }
@@ -61,6 +64,7 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
             case 4: switch(z) {
                 case 0: if (valueNumber == 0) {overflow = 360;} break;
             } break;
+            case 5: overflow = 0xFFFFFFFF; break;
         }
 
         return new BigDecimal(overflow);
@@ -144,14 +148,12 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
                     if (valueNumber == 3) {unit = Unit.get(BaseUnit.HOUR);}
                     if (valueNumber == 4) {unit = Unit.get(BaseUnit.MINUTE);} break;
             case 4:
-                    unit = Unit.get(BaseUnit.MINUTE); break;
+                    if (z == 0) {unit = Unit.get(BaseUnit.MINUTE);} break;
             case 5:
                     if (valueNumber == 1) {unit = Unit.get(BaseUnit.SECOND);}
                     if (valueNumber == 2) {unit = Unit.get(BaseUnit.SECOND);} break;
         }
 
-        
         return unit;
     }
-
 }

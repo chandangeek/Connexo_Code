@@ -56,7 +56,7 @@ public class FlowAndVolumeCategory extends AbstractUnsignedBINObject {
                 case 9: scale = 0.1; break;
             }
         }
-        return new BigDecimal(overflow*scale);
+        return new BigDecimal((int) (overflow*scale));
     }
 
     protected int[] parseValueLengths(CTRObjectID id) {
@@ -95,7 +95,7 @@ public class FlowAndVolumeCategory extends AbstractUnsignedBINObject {
                         if (valueNumber == 2) {unit = Unit.get(BaseUnit.HOUR);}
                         if (valueNumber == 3) {unit = Unit.get(BaseUnit.MINUTE);}
                     }
-                    if (z <= 0x04) {
+                    if (z < 0x04) {
                         if (valueNumber == 1) {unit = Unit.get(BaseUnit.HOUR);}
                         if (valueNumber == 2) {unit = Unit.get(BaseUnit.MINUTE);}
                     }

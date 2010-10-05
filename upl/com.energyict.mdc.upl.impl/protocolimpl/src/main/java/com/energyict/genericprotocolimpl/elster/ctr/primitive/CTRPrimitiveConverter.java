@@ -5,8 +5,10 @@ import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
 import com.energyict.genericprotocolimpl.elster.ctr.common.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.common.Field;
 import com.energyict.genericprotocolimpl.elster.ctr.object.*;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * Created by IntelliJ IDEA.
@@ -48,8 +50,7 @@ public class CTRPrimitiveConverter {
         return result;
     }
 
-    public byte[] convertBCDValue(BigDecimal value) {
-        String hex = value.toString();
+    public byte[] convertBCDValue(String hex) {
         byte[] bts = new byte[hex.length() / 2];
 
         for (int i = 0; i < bts.length; i++) {
@@ -58,18 +59,19 @@ public class CTRPrimitiveConverter {
         return bts;
     }
 
-    public byte[] convertSignedBINValue(BigDecimal value, int valueLength) {
-        byte[] result = new byte[valueLength];
-        for (int i = (valueLength - 1); i >= 0; i--) {
-            BigDecimal divider = new BigDecimal(Math.pow(256, i));
-            result[valueLength - 1 - i] =  (byte) ((value.divide(divider)).intValue() & 0xFF);
-
-            //Only the first byte is parsed as a negative value
-            if (i == (valueLength - 1)) {
-                value = value.multiply(new BigDecimal(-1));
-            }
+    public byte[] getBytesFromInt(int value, int length) {
+        byte[] bytes = new byte[length];
+        for (int i = 0; i < bytes.length; i++) {
+            int ptr = (bytes.length - (i + 1));
+            bytes[ptr] = (i < 4) ? (byte) ((value >> (i * 8))) : 0x00;
         }
-        return result;
+        return bytes;
+    }
+
+
+
+    public byte[] convertSignedBINValue(BigDecimal value, int valueLength) {
+        return getBytesFromInt(value.intValue(), valueLength);
     }
 
     public byte[] convertAccess(int access) {

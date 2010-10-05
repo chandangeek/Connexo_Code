@@ -144,7 +144,7 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
                     valueBytes = converter.convertSignedBINValue((BigDecimal) value[j].getValue(), valueLength);
                 }
                 if ("BCD".equals(value[j].getType())) {
-                    valueBytes = converter.convertBCDValue((BigDecimal) value[j].getValue());
+                    valueBytes = converter.convertBCDValue((String) value[j].getValue());
                 }
                 if (j > 0) {
                     valueResult = concat(valueResult, valueBytes);

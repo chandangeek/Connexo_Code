@@ -106,11 +106,17 @@ public class TemperatureCategory extends AbstractUnsignedBINObject<TemperatureCa
         Unit unit;
         int y = id.getY();
         unit = Unit.get(BaseUnit.KELVIN);
-        if (valueNumber == 1) {
-            unit = Unit.get(BaseUnit.HOUR);
-        }
-        if (valueNumber == 2) {
-            unit = Unit.get(BaseUnit.MINUTE);
+
+        if (y < 0xB) {
+            if (valueNumber == 1) {
+                unit = Unit.get(BaseUnit.HOUR);
+            }
+            if (valueNumber == 2) {
+                unit = Unit.get(BaseUnit.MINUTE);
+            }
+            if (id.getZ() == 0x0A) {
+                unit = null;
+            }
         }
 
         //Special case

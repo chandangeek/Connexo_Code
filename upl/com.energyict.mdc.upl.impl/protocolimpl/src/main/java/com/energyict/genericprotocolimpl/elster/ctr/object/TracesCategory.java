@@ -38,7 +38,7 @@ public class TracesCategory extends AbstractUnsignedBINObject<TracesCategory> {
     }
 
     protected int[] parseValueLengths(CTRObjectID id) {
-        return new int[]{1, 32};
+        return new int[]{1, 2,2,2,2, 2,2,2,2, 2,2,2,2, 2,2,2,2};
     }
 
     public Unit parseUnit(CTRObjectID id, int valueNumber) {

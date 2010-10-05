@@ -72,6 +72,7 @@ public class MaintenanceCategory extends AbstractUnsignedBINObject<MaintenanceCa
         Unit unit = null;
         int z = id.getZ();
         switch (id.getY()) {
+            case 0:
             case 1:
             case 2:
             case 4:
