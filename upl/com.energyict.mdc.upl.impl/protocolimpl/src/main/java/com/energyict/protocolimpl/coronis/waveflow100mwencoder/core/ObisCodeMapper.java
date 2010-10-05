@@ -37,10 +37,35 @@ public class ObisCodeMapper {
 		
 		
 		// specific severntrent registers
-		registerMaps.put(ObisCode.fromString("0.0.96.6.50.255"), "Port B communication error reading date");
+		registerMaps.put(ObisCode.fromString("0.0.96.6.50.255"), "Port A encoder internal data status");
+		registerMaps.put(ObisCode.fromString("0.0.96.6.51.255"), "Port B encoder internal data status");
 		
+		registerMaps.put(ObisCode.fromString("0.0.96.6.52.255"), "Port A encoder internal data dry count");
+		registerMaps.put(ObisCode.fromString("0.0.96.6.53.255"), "Port B encoder internal data dry count");
 		
+		registerMaps.put(ObisCode.fromString("0.0.96.6.54.255"), "Port A encoder internal data leak count");
+		registerMaps.put(ObisCode.fromString("0.0.96.6.55.255"), "Port B encoder internal data leak count");
 		
+		registerMaps.put(ObisCode.fromString("0.0.96.6.56.255"), "Port A encoder internal data no flow count");
+		registerMaps.put(ObisCode.fromString("0.0.96.6.57.255"), "Port B encoder internal data no flow count");
+		
+		registerMaps.put(ObisCode.fromString("0.0.96.6.58.255"), "Port A encoder internal data tamper count");
+		registerMaps.put(ObisCode.fromString("0.0.96.6.59.255"), "Port B encoder internal data tamper count");
+		
+		registerMaps.put(ObisCode.fromString("0.0.96.6.60.255"), "Port A encoder internal data totalizer serial");
+		registerMaps.put(ObisCode.fromString("0.0.96.6.61.255"), "Port B encoder internal data totalizer serial");
+		
+		registerMaps.put(ObisCode.fromString("0.0.96.6.62.255"), "Port A encoder internal data transducer serial");
+		registerMaps.put(ObisCode.fromString("0.0.96.6.63.255"), "Port B encoder internal data transducer serial");
+		
+		registerMaps.put(ObisCode.fromString("0.0.96.6.64.255"), "Port A encoder internal data user id");
+		registerMaps.put(ObisCode.fromString("0.0.96.6.65.255"), "Port B encoder internal data user id");
+		
+		registerMaps.put(ObisCode.fromString("0.0.96.6.66.255"), "Port A encoder internal data version");
+		registerMaps.put(ObisCode.fromString("0.0.96.6.67.255"), "Port B encoder internal data version");
+		
+		registerMaps.put(ObisCode.fromString("0.0.96.6.68.255"), "Port A encoder internal data raw string");
+		registerMaps.put(ObisCode.fromString("0.0.96.6.69.255"), "Port B encoder internal data raw string");
 	}
 	
 	private WaveFlow100mW waveFlow100mW;
