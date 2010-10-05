@@ -14,6 +14,6 @@ public interface ProtocolProperties {
 
     List<String> getRequiredKeys();
 
-    void initProperties(Properties properties);
+    void addProperties(Properties properties);
 
 }

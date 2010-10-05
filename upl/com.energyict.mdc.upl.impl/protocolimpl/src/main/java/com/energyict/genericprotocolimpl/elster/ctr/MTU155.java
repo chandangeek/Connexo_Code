@@ -28,7 +28,7 @@ public class MTU155 extends AbstractGenericProtocol {
 
     @Override
     public void initProperties() {
-        properties.initProperties(getProperties());
+        properties.addProperties(getProperties());
     }
 
     @Override

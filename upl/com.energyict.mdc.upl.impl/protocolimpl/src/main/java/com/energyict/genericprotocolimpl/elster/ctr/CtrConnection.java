@@ -16,6 +16,12 @@ public class CtrConnection {
     private InputStream in = new ByteArrayInputStream(new byte[0]);
     private int retries;
 
+    public CtrConnection(InputStream in, OutputStream out, MTU155Properties properties) {
+        this.in = in;
+        this.out = out;
+        retries = properties.getRetries();
+    }
+
     public GPRSFrame sendFrameGetResponse(GPRSFrame frame) {
         int attempts = 0;
         do {
