@@ -250,5 +250,16 @@ public class AssociationControlServiceElementTest {
         }
     }
 
+    @Test
+    public void analyzeAS1440RLRE() {
+        byte[] rlre = ProtocolTools.getBytesFromHexString("$00$00$00$63$28$80$01$00$BE$23$04$21$28$1F$30$00$00$00$62$AE$4B$17$8A$8C$55$31$DC$A7$46$1C$F8$B6$4C$BB$9F$7A$0F$7D$9B$3C$1C$E2$A6$4B$80");
+        SecurityContext sc = new SecurityContext(2, 2, 2, new MockSecurityProvider(), SecurityContext.CIPHERING_TYPE_GLOBAL);
+        AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
+        try {
+            acse.analyzeRLRE(rlre);
+        } catch (IOException e) {
+            assertTrue(e.getMessage().contains("Unknown"));
+        }
+    }
 
 }
