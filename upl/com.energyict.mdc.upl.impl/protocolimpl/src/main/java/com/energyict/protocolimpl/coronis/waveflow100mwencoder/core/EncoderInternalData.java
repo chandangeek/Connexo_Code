@@ -77,6 +77,15 @@ public class EncoderInternalData {
 	 */
 	private int noflowCount;
 
+	/**
+	 * raw string of the internal data
+	 */
+	private String encoderInternalData;
+	
+	final String getEncoderInternalData() {
+		return encoderInternalData;
+	}
+
 	final String getUserId() {
 		return userId;
 	}
@@ -154,6 +163,8 @@ public class EncoderInternalData {
 		if (data.length != ENCODER_INTERNAL_DATA_LENGTH) {
 			throw new WaveFlow100mwEncoderException("Invalid encoder internal data length. Expected length ["+ENCODER_INTERNAL_DATA_LENGTH+"], received length ["+data.length+"]");
 		}
+		
+		encoderInternalData = new String(data);
 		
 		DataInputStream dais = null;
 		try {

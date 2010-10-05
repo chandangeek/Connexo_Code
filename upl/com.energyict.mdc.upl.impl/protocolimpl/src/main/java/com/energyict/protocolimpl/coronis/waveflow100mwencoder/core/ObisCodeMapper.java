@@ -34,6 +34,13 @@ public class ObisCodeMapper {
 		
 		registerMaps.put(ObisCode.fromString("8.1.1.0.0.255"), "Port A encoder current index");
 		registerMaps.put(ObisCode.fromString("8.2.1.0.0.255"), "Port B encoder current index");
+		
+		
+		// specific severntrent registers
+		registerMaps.put(ObisCode.fromString("0.0.96.6.50.255"), "Port B communication error reading date");
+		
+		
+		
 	}
 	
 	private WaveFlow100mW waveFlow100mW;
@@ -141,6 +148,116 @@ public class ObisCodeMapper {
     		BigDecimal bd = new BigDecimal(encoderInternalData.getCurrentIndex()*100+encoderInternalData.getLastPart());
     		bd = bd.movePointLeft(10-encoderInternalData.getDecimalPosition()); 
     		return new RegisterValue(obisCode,new Quantity(bd, unit),new Date());
+    	}
+    	else if ((obisCode.equals(ObisCode.fromString("0.0.96.6.50.255"))) || (obisCode.equals(ObisCode.fromString("0.0.96.6.51.255")))) {
+    		// read status
+    		int portId = obisCode.getE()-50;
+    		EncoderInternalData o = waveFlow100mW.getRadioCommandFactory().readEncoderInternalData().getEncoderInternalDatas()[portId];
+    		if (o==null) {
+    			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, "No encoder connected to port "+(portId==0?"A":"B"));
+    		}
+    		else {
+    			return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(o.getStatus()), Unit.get("")),new Date());
+    		}
+    	}
+    	else if ((obisCode.equals(ObisCode.fromString("0.0.96.6.52.255"))) || (obisCode.equals(ObisCode.fromString("0.0.96.6.53.255")))) {
+    		// dry count
+    		int portId = obisCode.getE()-52;
+    		EncoderInternalData o = waveFlow100mW.getRadioCommandFactory().readEncoderInternalData().getEncoderInternalDatas()[portId];
+    		if (o==null) {
+    			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, "No encoder connected to port "+(portId==0?"A":"B"));
+    		}
+    		else {
+    			return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(o.getDryCount()), Unit.get("")),new Date());
+    		}
+    	}
+    	else if ((obisCode.equals(ObisCode.fromString("0.0.96.6.54.255"))) || (obisCode.equals(ObisCode.fromString("0.0.96.6.55.255")))) {
+    		// leak count
+    		int portId = obisCode.getE()-54;
+    		EncoderInternalData o = waveFlow100mW.getRadioCommandFactory().readEncoderInternalData().getEncoderInternalDatas()[portId];
+    		if (o==null) {
+    			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, "No encoder connected to port "+(portId==0?"A":"B"));
+    		}
+    		else {
+    			return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(o.getLeakCount()), Unit.get("")),new Date());
+    		}
+    	}
+    	else if ((obisCode.equals(ObisCode.fromString("0.0.96.6.56.255"))) || (obisCode.equals(ObisCode.fromString("0.0.96.6.57.255")))) {
+    		// no flow count
+    		int portId = obisCode.getE()-56;
+    		EncoderInternalData o = waveFlow100mW.getRadioCommandFactory().readEncoderInternalData().getEncoderInternalDatas()[portId];
+    		if (o==null) {
+    			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, "No encoder connected to port "+(portId==0?"A":"B"));
+    		}
+    		else {
+    			return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(o.getNoflowCount()), Unit.get("")),new Date());
+    		}
+    	}
+    	else if ((obisCode.equals(ObisCode.fromString("0.0.96.6.58.255"))) || (obisCode.equals(ObisCode.fromString("0.0.96.6.59.255")))) {
+    		// no tamper count
+    		int portId = obisCode.getE()-58;
+    		EncoderInternalData o = waveFlow100mW.getRadioCommandFactory().readEncoderInternalData().getEncoderInternalDatas()[portId];
+    		if (o==null) {
+    			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, "No encoder connected to port "+(portId==0?"A":"B"));
+    		}
+    		else {
+    			return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(o.getTamperCount()), Unit.get("")),new Date());
+    		}
+    	}
+    	else if ((obisCode.equals(ObisCode.fromString("0.0.96.6.60.255"))) || (obisCode.equals(ObisCode.fromString("0.0.96.6.61.255")))) {
+    		// totalizer serial 
+    		int portId = obisCode.getE()-60;
+    		EncoderInternalData o = waveFlow100mW.getRadioCommandFactory().readEncoderInternalData().getEncoderInternalDatas()[portId];
+    		if (o==null) {
+    			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, "No encoder connected to port "+(portId==0?"A":"B"));
+    		}
+    		else {
+    			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, "Totalizer serial="+o.getTotalizerSerial());
+    		}
+    	}
+    	else if ((obisCode.equals(ObisCode.fromString("0.0.96.6.62.255"))) || (obisCode.equals(ObisCode.fromString("0.0.96.6.63.255")))) {
+    		// transducer serial 
+    		int portId = obisCode.getE()-62;
+    		EncoderInternalData o = waveFlow100mW.getRadioCommandFactory().readEncoderInternalData().getEncoderInternalDatas()[portId];
+    		if (o==null) {
+    			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, "No encoder connected to port "+(portId==0?"A":"B"));
+    		}
+    		else {
+    			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, "Tranducer serial="+o.getTransducerSerial());
+    		}
+    	}
+    	else if ((obisCode.equals(ObisCode.fromString("0.0.96.6.64.255"))) || (obisCode.equals(ObisCode.fromString("0.0.96.6.65.255")))) {
+    		// user id
+    		int portId = obisCode.getE()-64;
+    		EncoderInternalData o = waveFlow100mW.getRadioCommandFactory().readEncoderInternalData().getEncoderInternalDatas()[portId];
+    		if (o==null) {
+    			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, "No encoder connected to port "+(portId==0?"A":"B"));
+    		}
+    		else {
+    			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, "User id="+o.getUserId());
+    		}
+    	}
+    	else if ((obisCode.equals(ObisCode.fromString("0.0.96.6.66.255"))) || (obisCode.equals(ObisCode.fromString("0.0.96.6.67.255")))) {
+    		// version
+    		int portId = obisCode.getE()-66;
+    		EncoderInternalData o = waveFlow100mW.getRadioCommandFactory().readEncoderInternalData().getEncoderInternalDatas()[portId];
+    		if (o==null) {
+    			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, "No encoder connected to port "+(portId==0?"A":"B"));
+    		}
+    		else {
+    			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, "Version="+Utils.toHexString(o.getVersion()));
+    		}
+    	}
+    	else if ((obisCode.equals(ObisCode.fromString("0.0.96.6.68.255"))) || (obisCode.equals(ObisCode.fromString("0.0.96.6.69.255")))) {
+    		// encoder internal data
+    		int portId = obisCode.getE()-68;
+    		EncoderInternalData o = waveFlow100mW.getRadioCommandFactory().readEncoderInternalData().getEncoderInternalDatas()[portId];
+    		if (o==null) {
+    			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, "No encoder connected to port "+(portId==0?"A":"B"));
+    		}
+    		else {
+    			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, o.getEncoderInternalData());
+    		}
     	}
     	
 		throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] does not exist!");
