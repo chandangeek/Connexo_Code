@@ -7,17 +7,19 @@ package com.energyict.genericprotocolimpl.elster.ctr.frame.field;
  */
 public enum EncryptionStatus {
 
-    NO_ENCRYPTION(0, "No encryption used"),
-    KEYC_ENCRYPTION(1, "Encrypted and authenticated using KEYC"),
-    KEYT_ENCRYPTION(2, "Encrypted and authenticated using Temporary Key [KEYT]"),
-    KEYF_ENCRYPTION(3, "Encrypted and authenticated using Factory Key [KEYF]"),
-    INVALID_ENCRYPTION(-1, "Invalid encryption key");
+    NO_ENCRYPTION(0, false, "No encryption used"),
+    KEYC_ENCRYPTION(1, true, "Encrypted and authenticated using KEYC"),
+    KEYT_ENCRYPTION(2, true, "Encrypted and authenticated using Temporary Key [KEYT]"),
+    KEYF_ENCRYPTION(3, true, "Encrypted and authenticated using Factory Key [KEYF]"),
+    INVALID_ENCRYPTION(-1, false, "Invalid encryption key");
 
     private final int encryptionStateBits;
     private final String description;
+    private final boolean isEncrypted;
 
-    private EncryptionStatus(int encryptionBits, String description) {
+    private EncryptionStatus(int encryptionBits, boolean encrypted, String description) {
         this.encryptionStateBits = encryptionBits;
+        this.isEncrypted = encrypted;
         this.description = description;
     }
 
@@ -27,6 +29,10 @@ public enum EncryptionStatus {
 
     public int getEncryptionStateBits() {
         return encryptionStateBits;
+    }
+
+    public boolean isEncrypted() {
+        return isEncrypted;
     }
 
     public static EncryptionStatus fromEncryptionBits(int bits) {
