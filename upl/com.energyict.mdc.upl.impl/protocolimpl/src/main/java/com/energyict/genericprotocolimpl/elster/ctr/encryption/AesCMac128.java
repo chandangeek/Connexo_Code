@@ -25,18 +25,18 @@ public class AesCMac128 {
         setKey(encryptionKey);
     }
 
-    public void setKey(byte[] key) {
-        this.encryptionKey = key;
+    public final void setKey(byte[] key) {
+        this.encryptionKey = key.clone();
         generateSubKeys();
     }
 
     private void generateSubKeys() {
-        byte[] L = encryptAES128(ZERO_KEY);
+        byte[] keyL = encryptAES128(ZERO_KEY);
 
-        if ((L[0] & 0x80) == 0) {
-            k1 = shiftLeft(L);
+        if ((keyL[0] & 0x80) == 0) {
+            k1 = shiftLeft(keyL);
         } else {
-            byte[] tmp = shiftLeft(L);
+            byte[] tmp = shiftLeft(keyL);
             k1 = xor(tmp, RB);
         }
 
@@ -61,12 +61,11 @@ public class AesCMac128 {
     }
 
     private byte[] encryptAES128(byte[] input) {
-        SecretKey AESKey = new SecretKeySpec(encryptionKey, 0, 16, "AES");
+        SecretKey aeskey = new SecretKeySpec(encryptionKey, 0, 16, "AES");
         try {
             Cipher aesCipher = Cipher.getInstance("AES/ECB/NOPADDING");
-            aesCipher.init(Cipher.ENCRYPT_MODE, AESKey);
-            byte[] result = aesCipher.doFinal(input);
-            return result;
+            aesCipher.init(Cipher.ENCRYPT_MODE, aeskey);
+            return aesCipher.doFinal(input);
         } catch (GeneralSecurityException e) {
             e.printStackTrace();
         }
@@ -95,38 +94,38 @@ public class AesCMac128 {
             }
         }
 
-        byte[] M_last;
+        byte[] mLast;
         int srcPos = 16 * (rounds - 1);
 
         if (lastBlockComplete) {
             byte[] partInput = new byte[16];
 
             System.arraycopy(input, srcPos, partInput, 0, 16);
-            M_last = xor(partInput, k1);
+            mLast = xor(partInput, k1);
         } else {
             byte[] partInput = new byte[input.length % 16];
 
             System.arraycopy(input, srcPos, partInput, 0, input.length % 16);
             byte[] padded = padding(partInput);
-            M_last = xor(padded, k2);
+            mLast = xor(padded, k2);
         }
 
-        byte[] X = ZERO_KEY.clone();
+        byte[] x = ZERO_KEY.clone();
         byte[] partInput = new byte[16];
-        byte[] Y;
+        byte[] y;
 
         for (int i = 0; i < rounds - 1; i++) {
             srcPos = 16 * i;
             System.arraycopy(input, srcPos, partInput, 0, 16);
 
-            Y = xor(partInput, X); /* Y := Mi (+) X */
-            X = encryptAES128(Y);
+            y = xor(partInput, x); /* Y := Mi (+) X */
+            x = encryptAES128(y);
         }
 
-        Y = xor(X, M_last);
-        X = encryptAES128(Y);
+        y = xor(x, mLast);
+        x = encryptAES128(y);
 
-        return X;
+        return x;
     }
 
     /**
