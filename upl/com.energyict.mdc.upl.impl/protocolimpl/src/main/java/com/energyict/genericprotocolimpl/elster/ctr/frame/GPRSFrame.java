@@ -9,12 +9,17 @@ public class GPRSFrame extends AbstractCTRFrame<GPRSFrame> {
 
     public static final int LENGTH = AbstractCTRFrame.LENGTH + 2;
 
-    public static final int STX = 0x00;
-    public static final int ETX = 0x00;
+    public static final int STX = 0x0A;
+    public static final int ETX = 0x0D;
 
 
     private int stx;
     private int etx;
+
+    public GPRSFrame() {
+        this.stx  = STX;
+        this.etx = ETX;
+    }
 
     public byte[] getBytes() {
         byte[] bytes = new byte[LENGTH];

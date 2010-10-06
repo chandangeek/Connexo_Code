@@ -2,6 +2,7 @@ package com.energyict.genericprotocolimpl.elster.ctr;
 
 import com.energyict.genericprotocolimpl.elster.ctr.common.CTRConnectionException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.*;
 
@@ -15,11 +16,15 @@ public class CtrConnection {
     private OutputStream out = new ByteArrayOutputStream();
     private InputStream in = new ByteArrayInputStream(new byte[0]);
     private int retries;
+    private int timeOut;
+    private int delayAfterError;
 
     public CtrConnection(InputStream in, OutputStream out, MTU155Properties properties) {
         this.in = in;
         this.out = out;
-        retries = properties.getRetries();
+        this.retries = properties.getRetries();
+        this.timeOut = properties.getTimeout(); 
+        this.delayAfterError = properties.getDelayAfterError();
     }
 
     public GPRSFrame sendFrameGetResponse(GPRSFrame frame) {
@@ -30,15 +35,27 @@ public class CtrConnection {
                 return readFrame();
             } catch (CTRConnectionException e) {
                 e.printStackTrace();
+                delayAndFlushConnection();
                 attempts++;
             }
         } while (attempts <= retries);
         return null;
     }
 
+    private void delayAndFlushConnection() {
+        ProtocolTools.delay(delayAfterError);
+        try {
+            do {
+                ProtocolTools.delay(delayAfterError);
+            } while (in.read(new byte[1024]) > 0);
+        } catch (IOException e) {
+            //Absorb
+        }
+    }
+
     private GPRSFrame readFrame() throws CTRConnectionException {
         byte[] rawFrame = readRawFrame();
-        return null;
+        return new GPRSFrame().parse(rawFrame, 0);
     }
 
     private byte[] readRawFrame() throws CTRConnectionException {
@@ -55,15 +72,27 @@ public class CtrConnection {
                         }
                         break;
                     case READ_MIN_LENGTH:
+                        rawBytes.write(readByte);
+                        if (rawBytes.size() >= GPRSFrame.LENGTH) {
+                            GPRSFrame gprsFrame = new GPRSFrame().parse(rawBytes.toByteArray(), 0);
+                            if (gprsFrame.getProfi().isLongFrame()) {
+                                state = CtrConnectionState.READ_EXTENDED_LENGTH;
+                            } else {
+                                if (readByte != GPRSFrame.ETX) {
+                                    String fromBytes = ProtocolTools.getHexStringFromBytes(new byte[]{(byte) (readByte & 0x0FF)});
+                                    throw new CTRConnectionException("Expected ETX, but received " + fromBytes);
+                                } else {
+                                    state = CtrConnectionState.FRAME_RECEIVED;
+                                }
+                            }
+                        }
                         break;
                     case READ_EXTENDED_LENGTH:
-                        break;
+                        throw new CTRConnectionException("Long frames not supported yet!");
                 }
-
-
             } while (state != CtrConnectionState.FRAME_RECEIVED);
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            throw new CTRConnectionException("An error occured while reading the raw CtrFrame.", e);
         }
         return rawBytes.toByteArray();
     }

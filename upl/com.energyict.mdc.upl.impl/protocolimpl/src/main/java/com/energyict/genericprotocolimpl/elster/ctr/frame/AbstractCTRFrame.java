@@ -22,6 +22,17 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
     private Cpa cpa;
     private Crc crc;
 
+    public AbstractCTRFrame() {
+        this.address = new Address();
+        this.profi = new Profi();
+        this.functionCode = new FunctionCode();
+        this.structureCode = new StructureCode();
+        this.channel = new Channel();
+        this.data = new Data();
+        this.cpa = new Cpa();
+        this.crc = new Crc();
+    }
+
     public byte[] getBytes() {
         return ProtocolTools.concatByteArrays(
                 address.getBytes(),
@@ -77,6 +88,7 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
                 functionCode.getBytes(),
                 structureCode.getBytes(),
                 channel.getBytes(),
+                cpa.getBytes(),
                 data.getBytes()
         );
         return new Crc().generateAndSetCrc(crcData);

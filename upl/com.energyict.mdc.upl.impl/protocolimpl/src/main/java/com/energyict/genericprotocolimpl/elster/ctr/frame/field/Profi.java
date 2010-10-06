@@ -20,5 +20,24 @@ public class Profi extends AbstractField<Profi> {
         profi = getIntFromBytes(rawData, offset, LENGTH);
         return this;
     }
-    
+
+    public boolean isLongFrame() {
+        return (getProfi() & 0x080) != 0x00;
+    }
+
+    public void setLongFrame(boolean longFrame) {
+        if (longFrame) {
+            profi |= 0x080;
+        } else {
+            profi &= 0x07F;
+        }
+    }
+
+    public int getProfi() {
+        return profi;
+    }
+
+    public void setProfi(int profi) {
+        this.profi = profi;
+    }
 }

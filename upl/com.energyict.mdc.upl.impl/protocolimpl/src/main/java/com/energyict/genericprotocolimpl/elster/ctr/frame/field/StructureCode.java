@@ -1,7 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr.frame.field;
 
 import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
-import com.energyict.genericprotocolimpl.elster.ctr.structure.StructureType;
 
 /**
  * Copyrights EnergyICT
@@ -10,16 +9,14 @@ import com.energyict.genericprotocolimpl.elster.ctr.structure.StructureType;
  */
 public class StructureCode extends AbstractField<StructureCode> {
 
+    public static final int IDENTIFICATION = 0x30;
+
     public static final int LENGTH = 1;
     private int structureCode;
 
     public byte[] getBytes() {
         return getBytesFromInt(structureCode, LENGTH);
     }
-
-    public StructureType getStructureType() {
-        return StructureType.fromStructureCode(structureCode);
-    };
 
     public int getStructureCode() {
         return structureCode;

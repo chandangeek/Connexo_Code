@@ -13,6 +13,14 @@ public class Cpa extends AbstractField<Cpa> {
 
     private int cpa;
 
+    public Cpa() {
+        this(0);
+    }
+
+    public Cpa(int cpa) {
+        this.cpa = cpa;
+    }
+
     public byte[] getBytes() {
         return getBytesFromInt(cpa, LENGTH);
     }

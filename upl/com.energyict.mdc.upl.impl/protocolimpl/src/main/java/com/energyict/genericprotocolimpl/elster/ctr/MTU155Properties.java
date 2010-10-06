@@ -13,12 +13,14 @@ public class MTU155Properties extends AbstractProtocolProperties {
 
     private static final String TIMEOUT = "Timeout";
     private static final String RETRIES = "Retries";
+    private static final String DELAY_AFTER_ERROR = "DelayAfterError";
     private static final String KEYC = "KeyC";
     private static final String KEYF = "KeyF";
     private static final String KEYT = "KeyT";
 
     private static final String DEFAULT_TIMEOUT = "10000";
     private static final String DEFAULT_RETRIES = "3";
+    private static final String DEFAULT_DELAY_AFTER_ERROR = "500";
 
     private static final String DEFAULT_KEYC = "00000000000000000000000000000000";
     private static final String DEFAULT_KEYT = "00000000000000000000000000000000";
@@ -49,6 +51,10 @@ public class MTU155Properties extends AbstractProtocolProperties {
 
     public int getTimeout() {
         return getIntPropery(TIMEOUT, DEFAULT_TIMEOUT);
+    }
+
+    public int getDelayAfterError() {
+        return getIntPropery(DELAY_AFTER_ERROR, DEFAULT_DELAY_AFTER_ERROR);
     }
 
     public String getKeyC() {
