@@ -404,3 +404,6 @@
 
 -keepnames class com.energyict.protocolimpl.dlms.SimpleDLMSProtocol
 
+-keepnames class com.energyict.protocolimpl.coronis.waveflow100mwencoder.severntrent.SM150E
+
+
