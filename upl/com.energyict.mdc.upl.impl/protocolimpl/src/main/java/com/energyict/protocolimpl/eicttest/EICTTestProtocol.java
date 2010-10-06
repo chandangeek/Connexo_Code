@@ -173,25 +173,25 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         if (getLoadProfileObisCode().getD() == 1) {
 	        pd.addChannel(new ChannelInfo(0, 0, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 1", Unit.get("kWh")));
 	        pd.addChannel(new ChannelInfo(1, 1, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 2", Unit.get("kvarh")));
-	        pd.addChannel(new ChannelInfo(2, 2, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 3", Unit.get("°C")));
+	        pd.addChannel(new ChannelInfo(2, 2, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 3", Unit.get("\u00B0C")));
 	        pd.addChannel(new ChannelInfo(3, 3, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 4", Unit.get("kWh")));
 	        pd.addChannel(new ChannelInfo(4, 4, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 5", Unit.get("kvarh")));
-	        pd.addChannel(new ChannelInfo(5, 5, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 6", Unit.get("°C")));
+	        pd.addChannel(new ChannelInfo(5, 5, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 6", Unit.get("\u00B0C")));
 	        pd.addChannel(new ChannelInfo(6, 6, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 7", Unit.get("kWh")));
 	        pd.addChannel(new ChannelInfo(7, 7, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 8", Unit.get("kvarh")));
-	        pd.addChannel(new ChannelInfo(8, 8, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 9", Unit.get("°C")));
+	        pd.addChannel(new ChannelInfo(8, 8, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 9", Unit.get("\u00B0C")));
 	        pd.addChannel(new ChannelInfo(9, 9, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 10", Unit.get("kWh")));
         }
         else if (getLoadProfileObisCode().getD() == 2) {
 	        pd.addChannel(new ChannelInfo(0, 0, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 1", Unit.get("kWh")));
 	        pd.addChannel(new ChannelInfo(1, 1, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 2", Unit.get("kvarh")));
-	        pd.addChannel(new ChannelInfo(2, 2, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 3", Unit.get("°C")));
+	        pd.addChannel(new ChannelInfo(2, 2, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 3", Unit.get("\u00B0C")));
 	        pd.addChannel(new ChannelInfo(3, 3, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 4", Unit.get("kWh")));
 	        pd.addChannel(new ChannelInfo(4, 4, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 5", Unit.get("kvarh")));
-	        pd.addChannel(new ChannelInfo(5, 5, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 6", Unit.get("°C")));
+	        pd.addChannel(new ChannelInfo(5, 5, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 6", Unit.get("\u00B0C")));
 	        pd.addChannel(new ChannelInfo(6, 6, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 7", Unit.get("kWh")));
 	        pd.addChannel(new ChannelInfo(7, 7, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 8", Unit.get("kvarh")));
-	        pd.addChannel(new ChannelInfo(8, 8, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 9", Unit.get("°C")));
+	        pd.addChannel(new ChannelInfo(8, 8, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 9", Unit.get("\u00B0C")));
 	        pd.addChannel(new ChannelInfo(9, 9, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 10", Unit.get("kWh")));
         }
         else  {
