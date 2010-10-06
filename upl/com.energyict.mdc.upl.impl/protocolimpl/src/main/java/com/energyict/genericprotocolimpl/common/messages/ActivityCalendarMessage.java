@@ -121,9 +121,9 @@ public class ActivityCalendarMessage {
 					wp.setWeekProfileName(OctetString.fromString(weekProfileName));
 					for(int i = 0; i < dayTypes.length; i++){
 						if(dayTypes[i] != null){
-							wp.addWeekDay(dayTypes[i].getId());
+							wp.addWeekDay(dayTypes[i].getId(), i);
 						} else if(any != null){
-							wp.addWeekDay(any.getId());
+							wp.addWeekDay(any.getId(), i);
 						} else {
 							throw new IOException("Not all dayId's are correctly filled in.");
 						}
@@ -150,7 +150,11 @@ public class ActivityCalendarMessage {
 				OctetString tstampOs = new OctetString(new byte[]{(byte)hour, (byte)min, (byte)sec, 0});
 				Unsigned16 selector = new Unsigned16(cdtd.getCodeValue());
 				dpa.setStartTime(tstampOs);
-				dpa.setScriptLogicalName(new OctetString(this.meterConfig.getTariffScriptTable().getLNArray()));
+                if(this.meterConfig == null){
+                    dpa.setScriptLogicalName(OctetString.fromString("0.0.10.0.100.255"));
+                } else {
+                    dpa.setScriptLogicalName(new OctetString(this.meterConfig.getTariffScriptTable().getLNArray()));
+                }
 				dpa.setScriptSelector(selector);
 				daySchedules.addDataType(dpa);
 			}

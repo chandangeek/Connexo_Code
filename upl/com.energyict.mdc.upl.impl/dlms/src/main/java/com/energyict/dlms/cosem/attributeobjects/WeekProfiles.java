@@ -1,5 +1,6 @@
 package com.energyict.dlms.cosem.attributeobjects;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,25 +10,72 @@ import com.energyict.dlms.axrdencoding.Unsigned8;
 
 public class WeekProfiles extends Structure {
 
+    /** The dataType index of the {@link #weekProfileName} */
+    private static final int indexWeekProfileName = 0;
+    /** The dataType index of the {@link #monday} */
+    private static final int indexMonday = 1;
+    /** The dataType index of the {@link #tuesday} */
+    private static final int indexTuesday = 2;
+    /** The dataType index of the {@link #wednesday} */
+    private static final int indexWednesday = 3;
+    /** The dataType index of the {@link #thursday} */
+    private static final int indexThursday = 4;
+    /** The dataType index of the {@link #friday} */
+    private static final int indexFriday = 5;
+    /** The dataType index of the {@link #saturday} */
+    private static final int indexSaturday = 6;
+    /** The dataType index of the {@link #sunday} */
+    private static final int indexSunday = 7;
+
+    /** The WeekProfileName of the current {@link com.energyict.dlms.cosem.attributeobjects.WeekProfiles} */
 	private OctetString weekProfileName;
+    /** The Monday dayId of the current {@link com.energyict.dlms.cosem.attributeobjects.WeekProfiles} */
 	private Unsigned8 monday;
+    /** The Tuesday dayId of the current {@link com.energyict.dlms.cosem.attributeobjects.WeekProfiles} */
 	private Unsigned8 tuesday;
+    /** The Wednesday dayId of the current {@link com.energyict.dlms.cosem.attributeobjects.WeekProfiles} */
 	private Unsigned8 wednesday;
+    /** The Thursday dayId of the current {@link com.energyict.dlms.cosem.attributeobjects.WeekProfiles} */
 	private Unsigned8 thursday;
+    /** The Friday dayId of the current {@link com.energyict.dlms.cosem.attributeobjects.WeekProfiles} */
 	private Unsigned8 friday;
-	private Unsigned8 saterday;
+    /** The Saturday dayId of the current {@link com.energyict.dlms.cosem.attributeobjects.WeekProfiles} */
+	private Unsigned8 saturday;
+    /** The Sunday dayId of the current {@link com.energyict.dlms.cosem.attributeobjects.WeekProfiles} */
 	private Unsigned8 sunday;
+
 	private List dayIds;
 
 	public WeekProfiles(){
 		super();
 		dayIds = new ArrayList();
+        addDataType(weekProfileName);
+        addDataType(monday);
+        addDataType(tuesday);
+        addDataType(wednesday);
+        addDataType(thursday);
+        addDataType(friday);
+        addDataType(saturday);
+        addDataType(sunday);
 	}
 
-	/**
+    public WeekProfiles(byte[] berEncodedData, int offset, int level) throws IOException {
+        super(berEncodedData, offset, level);
+        this.weekProfileName = (OctetString) getDataType(indexWeekProfileName);
+        this.monday = (Unsigned8) getDataType(indexMonday);
+        this.tuesday = (Unsigned8) getDataType(indexTuesday);
+        this.wednesday = (Unsigned8) getDataType(indexWednesday);
+        this.thursday = (Unsigned8) getDataType(indexThursday);
+        this.friday = (Unsigned8) getDataType(indexFriday);
+        this.saturday = (Unsigned8) getDataType(indexSaturday);
+        this.sunday = (Unsigned8) getDataType(indexSunday);
+    }
+
+    /**
 	 * @return the BER encoded structure.
 	 */
 	protected byte[] doGetBEREncodedByteArray() {
+        dataTypes = new ArrayList();
 		addDataType(getWeekProfileName());
 		if (dayIds.size() != 0) {
 			for (int i = 0; i < dayIds.size(); i++) {
@@ -39,7 +87,7 @@ public class WeekProfiles extends Structure {
 			addDataType(getWednesday());
 			addDataType(getThursday());
 			addDataType(getFriday());
-			addDataType(getSaterday());
+			addDataType(getSaturday());
 			addDataType(getSunday());
 		}
 		return super.doGetBEREncodedByteArray();
@@ -49,8 +97,10 @@ public class WeekProfiles extends Structure {
 	 * Add all dayIds in order of appearance (starting Monday to Sunday)
 	 * @param dayId
 	 */
-	public void addWeekDay(int dayId){
+	public void addWeekDay(int dayId, int dayIndex){
 		dayIds.add(dayId);
+        // have to increase the index with one because the weekprofileName is the first item
+        setDataType(dayIndex + 1, new Unsigned8(dayId));
 	}
 
 	/**
@@ -96,10 +146,10 @@ public class WeekProfiles extends Structure {
 	}
 
 	/**
-	 * @return the saterday
+	 * @return the saturday
 	 */
-	public Unsigned8 getSaterday() {
-		return saterday;
+	public Unsigned8 getSaturday() {
+		return saturday;
 	}
 
 	/**
@@ -114,6 +164,7 @@ public class WeekProfiles extends Structure {
 	 */
 	public void setWeekProfileName(OctetString weekProfileName) {
 		this.weekProfileName = weekProfileName;
+        setDataType(indexWeekProfileName, weekProfileName);
 	}
 
 	/**
@@ -121,6 +172,7 @@ public class WeekProfiles extends Structure {
 	 */
 	public void setMonday(Unsigned8 monday) {
 		this.monday = monday;
+        setDataType(indexMonday, monday);
 	}
 
 	/**
@@ -128,6 +180,7 @@ public class WeekProfiles extends Structure {
 	 */
 	public void setTuesday(Unsigned8 tuesday) {
 		this.tuesday = tuesday;
+        setDataType(indexTuesday, tuesday);
 	}
 
 	/**
@@ -135,6 +188,7 @@ public class WeekProfiles extends Structure {
 	 */
 	public void setWednesday(Unsigned8 wednesday) {
 		this.wednesday = wednesday;
+        setDataType(indexWednesday, wednesday);
 	}
 
 	/**
@@ -142,6 +196,7 @@ public class WeekProfiles extends Structure {
 	 */
 	public void setThursday(Unsigned8 thursday) {
 		this.thursday = thursday;
+        setDataType(indexThursday, thursday);
 	}
 
 	/**
@@ -149,13 +204,15 @@ public class WeekProfiles extends Structure {
 	 */
 	public void setFriday(Unsigned8 friday) {
 		this.friday = friday;
+        setDataType(indexFriday, friday);
 	}
 
 	/**
-	 * @param saterday the saterday to set
+	 * @param saturday the saturday to set
 	 */
-	public void setSaterday(Unsigned8 saterday) {
-		this.saterday = saterday;
+	public void setSaturday(Unsigned8 saturday) {
+		this.saturday = saturday;
+        setDataType(indexSaturday, saturday);
 	}
 
 	/**
@@ -163,8 +220,6 @@ public class WeekProfiles extends Structure {
 	 */
 	public void setSunday(Unsigned8 sunday) {
 		this.sunday = sunday;
+        setDataType(indexSaturday, saturday);
 	}
-
-
-
 }

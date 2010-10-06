@@ -100,6 +100,15 @@ public class Array extends AbstractDataType {
 		return dataTypes.get(index);
 	}
 
+    /**
+     * Getter for a list of all the {@link com.energyict.dlms.axrdencoding.AbstractDataType}s
+     *
+     * @return all the dataTypes
+     */
+    public List<AbstractDataType> getAllDataTypes(){
+        return this.dataTypes;
+    }
+
 	public int nrOfDataTypes() {
 		return dataTypes.size();
 	}

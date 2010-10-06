@@ -7,17 +7,41 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 
+/**
+ * Object to describe a DayProfileAction in an ActivityCalendar
+ */
 public class DayProfileActions extends Structure {
 
+    /** The dataType index of the {@link #startTime} */
+    private static final int indexStartTime = 0;
+    /** The dataType index of the {@link #scriptLogicalName} */
+    private static final int indexScriptLogicalName = 1;
+    /** The dataType index of the {@link #scriptSelector} */
+    private static final int indexScriptSelector = 2;
+
+    /** The startTime of the current {@link com.energyict.dlms.cosem.attributeobjects.DayProfileActions} */
 	private OctetString startTime = null;
+    /** The scriptLogicalName of the current {@link com.energyict.dlms.cosem.attributeobjects.DayProfileActions} */
 	private OctetString scriptLogicalName = null;
+    /** The scriptSelector of the current {@link com.energyict.dlms.cosem.attributeobjects.DayProfileActions} */
 	private Unsigned16 scriptSelector = null;
 
 	public DayProfileActions(){
 		super();
+        addDataType(startTime);
+        addDataType(scriptLogicalName);
+        addDataType(scriptSelector);
 	}
 
-	/**
+    public DayProfileActions(byte[] berEncodedData, int offset, int level) throws IOException {
+        super(berEncodedData, offset, level);
+        this.startTime = (OctetString) getDataType(indexStartTime);
+        this.scriptLogicalName = (OctetString) getDataType(indexScriptLogicalName);
+        this.scriptSelector = (Unsigned16) getDataType(indexScriptSelector);
+    }
+
+
+    /**
 	 * @return the BER encoded structure.
 	 * @throws IOException when parsing of the structure fails
 	 * @throws IllegalArgumentException when not all necessary dayProfileAction fields are written
@@ -59,6 +83,7 @@ public class DayProfileActions extends Structure {
 	 */
 	public void setStartTime(OctetString startTime) {
 		this.startTime = startTime;
+        setDataType(indexStartTime, startTime);
 	}
 
 	/**
@@ -66,6 +91,7 @@ public class DayProfileActions extends Structure {
 	 */
 	public void setScriptLogicalName(OctetString scriptLogicalName) {
 		this.scriptLogicalName = scriptLogicalName;
+        setDataType(indexScriptLogicalName, scriptLogicalName);
 	}
 
 	/**
@@ -73,6 +99,7 @@ public class DayProfileActions extends Structure {
 	 */
 	public void setScriptSelector(Unsigned16 scriptSelector) {
 		this.scriptSelector = scriptSelector;
+        setDataType(indexScriptSelector, scriptSelector);
 	}
 
 

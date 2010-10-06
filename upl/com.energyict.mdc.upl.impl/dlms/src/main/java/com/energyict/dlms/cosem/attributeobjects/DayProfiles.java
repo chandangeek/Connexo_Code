@@ -1,22 +1,43 @@
 package com.energyict.dlms.cosem.attributeobjects;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 
+/**
+ * Object to describe a dayProfile in the Activity Calendar.
+ * Each dayProfile has an ID and an Array of {@link com.energyict.dlms.cosem.attributeobjects.DayProfileActions}.
+ * The profileActions contains 1 or more structures indicating the current tarrif.
+ */
 public class DayProfiles extends Structure {
 
+    /** The dataType index of the {@link #dayId} */
+    private static final int indexDayId = 0;
+    /** The dataType index of the {@link #dayProfileActions} */
+    private static final int indexDayProfileactions = 1;
+
+    /** The id of the current {@link com.energyict.dlms.cosem.attributeobjects.DayProfiles}*/
 	private Unsigned8 dayId = null;
+    /** The profileActions for the current {@link com.energyict.dlms.cosem.attributeobjects.DayProfiles}*/
 	private Array dayProfileActions = null;
 
 	public DayProfiles(){
 		super();
-		this.dayProfileActions = new Array();
+        this.dayProfileActions = new Array();
+        addDataType(dayId);
+        addDataType(dayProfileActions);
 	}
 
-	/**
+    public DayProfiles(byte[] berEncodedData, int offset, int level) throws IOException {
+        super(berEncodedData, offset, level);
+        this.dayId = (Unsigned8) getDataType(indexDayId);
+        this.dayProfileActions = (Array) getDataType(indexDayProfileactions);
+    }
+
+    /**
 	 * @return the BER encoded structure.
 	 * @throws IllegalArgumentException when not all necessary dayProfile fields are written
 	 */
@@ -53,6 +74,7 @@ public class DayProfiles extends Structure {
 	 */
 	public void setDayId(Unsigned8 dayId) {
 		this.dayId = dayId;
+        setDataType(indexDayId, dayId);
 	}
 
 	/**
@@ -60,6 +82,7 @@ public class DayProfiles extends Structure {
 	 */
 	public void setDayProfileActions(Array dayProfileActions) {
 		this.dayProfileActions = dayProfileActions;
+        setDataType(indexDayProfileactions, dayProfileActions);
 	}
 
 

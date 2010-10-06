@@ -121,6 +121,16 @@ public class Structure extends AbstractDataType {
 		return this;
 	}
 
+    /**
+     * Sets the given {@link com.energyict.dlms.axrdencoding.AbstractDataType} to the given index in the dataType list
+     *
+     * @param index     the index of the list to update the datatype
+     * @param dataType  the dataType to add
+     */
+    public void setDataType(int index, AbstractDataType dataType){
+        dataTypes.set(index, dataType);
+    }
+
 	protected int size() {
 		return offsetEnd - offsetBegin;
 	}
