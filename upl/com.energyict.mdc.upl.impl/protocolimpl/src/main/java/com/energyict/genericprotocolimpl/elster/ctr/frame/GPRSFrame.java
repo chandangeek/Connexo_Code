@@ -9,6 +9,10 @@ public class GPRSFrame extends AbstractCTRFrame<GPRSFrame> {
 
     public static final int LENGTH = AbstractCTRFrame.LENGTH + 2;
 
+    public static final int STX = 0x00;
+    public static final int ETX = 0x00;
+
+
     private int stx;
     private int etx;
 

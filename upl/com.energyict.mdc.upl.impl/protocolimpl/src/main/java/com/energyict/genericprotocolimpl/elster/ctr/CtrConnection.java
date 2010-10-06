@@ -37,7 +37,35 @@ public class CtrConnection {
     }
 
     private GPRSFrame readFrame() throws CTRConnectionException {
+        byte[] rawFrame = readRawFrame();
         return null;
+    }
+
+    private byte[] readRawFrame() throws CTRConnectionException {
+        ByteArrayOutputStream rawBytes = new ByteArrayOutputStream();
+        try {
+            CtrConnectionState state = CtrConnectionState.WAIT_FOR_STX;
+            do {
+                int readByte = in.read() & 0x0FF;
+                switch (state) {
+                    case WAIT_FOR_STX:
+                        if (readByte == GPRSFrame.STX) {
+                            rawBytes.write(readByte);
+                            state = CtrConnectionState.READ_MIN_LENGTH;
+                        }
+                        break;
+                    case READ_MIN_LENGTH:
+                        break;
+                    case READ_EXTENDED_LENGTH:
+                        break;
+                }
+
+
+            } while (state != CtrConnectionState.FRAME_RECEIVED);
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        return rawBytes.toByteArray();
     }
 
     private void sendFrame(GPRSFrame frame) throws CTRConnectionException {
