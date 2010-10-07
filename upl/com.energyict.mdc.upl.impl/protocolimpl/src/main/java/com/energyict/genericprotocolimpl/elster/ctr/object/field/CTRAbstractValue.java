@@ -39,10 +39,10 @@ public abstract class CTRAbstractValue<T extends Object> {
     @Override
     public String toString() {
         return "CTRAbstractValue{" +
-                "overflowValue=" + overflowValue +
-                ", unit=" + unit +
-                ", type='" + type + '\'' +
-                ", value='" + getValue() + '\'' +
+                "overflowValue= " + overflowValue +
+                ", unit= " + unit +
+                ", type= '" + type + '\'' +
+                ", value= '" + getValue() + '\'' +
                 '}';
     }
 }

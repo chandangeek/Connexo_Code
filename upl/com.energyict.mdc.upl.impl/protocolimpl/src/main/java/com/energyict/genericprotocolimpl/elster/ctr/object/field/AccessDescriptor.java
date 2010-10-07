@@ -23,12 +23,20 @@ public class AccessDescriptor {
     public String getWritePermissions() {
         String permissions = "";
         for (int i = 0; i < 4; i++) {
-            if (  (((access & 0x0F0) >> (7 - i)) & 0x01) == 1) {
+            if ((((access & 0x0F0) >> (7 - i)) & 0x01) == 1) {
                 switch (i) {
-                    case 0: permissions += "A"; break;
-                    case 1: permissions += "B"; break;
-                    case 2: permissions += "C"; break;
-                    case 3: permissions += "D"; break;
+                    case 0:
+                        permissions += "A";
+                        break;
+                    case 1:
+                        permissions += "B";
+                        break;
+                    case 2:
+                        permissions += "C";
+                        break;
+                    case 3:
+                        permissions += "D";
+                        break;
                 }
             }
         }
@@ -39,12 +47,20 @@ public class AccessDescriptor {
     public String getReadPermissions() {
         String permissions = "";
         for (int i = 0; i < 4; i++) {
-            if (  (((access & 0x0F) >> (3 - i)) & 0x01) == 1) {
+            if ((((access & 0x0F) >> (3 - i)) & 0x01) == 1) {
                 switch (i) {
-                    case 0: permissions += "A"; break;
-                    case 1: permissions += "B"; break;
-                    case 2: permissions += "C"; break;
-                    case 3: permissions += "D"; break;
+                    case 0:
+                        permissions += "A";
+                        break;
+                    case 1:
+                        permissions += "B";
+                        break;
+                    case 2:
+                        permissions += "C";
+                        break;
+                    case 3:
+                        permissions += "D";
+                        break;
                 }
             }
         }

@@ -45,7 +45,6 @@ public class CTREncryption {
         EncryptionStatus eStatus = frame.getFunctionCode().getEncryptionStatus();
         if (eStatus.isEncrypted()) {
             frame = setData(frame, decryptStream(frame));
-            frame = setCpa(frame);
             frame = setDecryptionStatus(frame);
             frame = setCpa(frame);
             frame.setCrc();
