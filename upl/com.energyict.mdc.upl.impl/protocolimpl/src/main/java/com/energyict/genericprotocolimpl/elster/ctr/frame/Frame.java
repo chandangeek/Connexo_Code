@@ -10,38 +10,38 @@ import com.energyict.genericprotocolimpl.elster.ctr.frame.field.*;
  */
 public interface Frame<T extends Frame> extends Field<T> {
 
-    public Address getAddress();
+    Address getAddress();
 
-    public void setAddress(Address address);
+    void setAddress(Address address);
 
-    public Channel getChannel();
+    Channel getChannel();
 
-    public void setChannel(Channel channel);
+    void setChannel(Channel channel);
 
-    public Cpa getCpa();
+    Cpa getCpa();
 
-    public void setCpa(Cpa cpa);
+    void setCpa(Cpa cpa);
 
-    public Crc getCrc();
+    Crc getCrc();
 
-    public void setCrc(Crc crc);
+    void setCrc(Crc crc);
 
-    public void setCrc();
+    void setCrc();
 
-    public Data getData();
+    Data getData();
 
-    public void setData(Data data);
+    void setData(Data data);
 
-    public FunctionCode getFunctionCode();
+    FunctionCode getFunctionCode();
 
-    public void setFunctionCode(FunctionCode functionCode);
+    void setFunctionCode(FunctionCode functionCode);
 
-    public Profi getProfi();
+    Profi getProfi();
 
-    public void setProfi(Profi profi);
+    void setProfi(Profi profi);
 
-    public StructureCode getStructureCode();
+    StructureCode getStructureCode();
 
-    public void setStructureCode(StructureCode structureCode);
+    void setStructureCode(StructureCode structureCode);
 
 }
