@@ -3,6 +3,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.primitive;
 import com.energyict.cbo.Unit;
 import com.energyict.genericprotocolimpl.elster.ctr.object.*;
 import com.energyict.protocol.ProtocolUtils;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -201,9 +202,8 @@ public class CTRPrimitiveParser {
         byte byte2 = data[offset + 1];
         int x,y,z;
         x = (byte1 & 0xFF) & 0xFF;
-        y = ((byte2 & 0xFF) >> 4) & 0xFF;
-        z = ((byte2 & 0xFF) << 4) & 0xFF;
-        z = ((z  & 0xFF) >> 4) & 0xFF;
+        y = ((byte2 & 0xF0) >> 4) & 0x0F;
+        z = byte2 & 0x0F;
         return new CTRObjectID(x,y,z);
     }
 

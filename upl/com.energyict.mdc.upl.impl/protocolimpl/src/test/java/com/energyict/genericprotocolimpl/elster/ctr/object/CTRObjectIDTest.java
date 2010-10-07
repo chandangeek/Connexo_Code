@@ -2,6 +2,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.object;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -48,7 +49,22 @@ public class CTRObjectIDTest {
         assertEquals("1.2.3", new CTRObjectID("1.2.3").toString());
         assertEquals("3.1.2", new CTRObjectID("3.1.2").toString());
         assertEquals("A.B.C", new CTRObjectID("A.B.C").toString());
-        assertEquals("10.1.11", new CTRObjectID("10.1.11").toString());
+        assertEquals("10.1.1", new CTRObjectID("10.1.11").toString());
+        assertEquals("FF.F.F", new CTRObjectID("FF.F.F").toString());
+    }
+
+    @Test
+    public void testParseToBytes() throws Exception {
+        byte[] bytes = new byte[2];
+        for (int i = 0; i < 0x0FFFF; i++) {
+            bytes[0] = (byte) (i & 0x0FF);
+            bytes[1] = (byte) ((i >> 8) & 0x0FF);
+            CTRObjectID objectID = new CTRObjectID().parse(bytes, 0);
+            assertArrayEquals(bytes, objectID.getBytes());
+            assertEquals(bytes[0] & 0x0FF, objectID.getX());
+            assertEquals((bytes[1] >> 4) & 0x00F, objectID.getY());
+            assertEquals(bytes[1] & 0x00F, objectID.getZ());
+        }
     }
 
 }

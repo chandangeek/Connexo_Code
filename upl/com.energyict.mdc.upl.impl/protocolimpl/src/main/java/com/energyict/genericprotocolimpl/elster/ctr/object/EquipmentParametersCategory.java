@@ -75,7 +75,7 @@ public class EquipmentParametersCategory extends AbstractStringObject {
         int z = id.getZ();
         switch(id.getY()) {
             case 0: switch(z) {
-                case 0: valueLength = new int[]{12,5,4,6,3,4,1}; break;
+                case 0: valueLength = new int[]{12,5,4,6,3,5,1}; break;
                 case 1: valueLength = new int[]{12}; break;
                 case 2: valueLength = new int[]{5}; break;
                 case 3: valueLength = new int[]{4}; break;

@@ -1,7 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr.object;
 
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
-import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveConverter;
 import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser;
 
 /**
@@ -14,25 +13,26 @@ public abstract class AbstractStringObject<T extends AbstractStringObject> exten
 
     //Parse the raw data & fill in the object's properties
     public T parse(byte[] rawData, int offset, AttributeType type) {
+        int ptr = offset;
         CTRPrimitiveParser parser = new CTRPrimitiveParser();   //Not static
 
         CTRObjectID id = this.getId();
-        offset += 2; //Skip the Id bytes
+        ptr += 2; //Skip the Id bytes
 
         if (type.hasQualifier()) {
-            this.setQlf(parser.parseQlf(rawData, offset));
-            offset += 1;
+            this.setQlf(parser.parseQlf(rawData, ptr));
+            ptr += 1;
         }
 
         if (type.hasValueFields()) {
             int[] valueLength = this.parseValueLengths(id);
-            this.setValue(parser.parseStringValue(this, id, rawData, offset, valueLength));
-            offset += sum(valueLength);  //There might be multiple value fields
+            this.setValue(parser.parseStringValue(this, id, rawData, ptr, valueLength));
+            ptr += sum(valueLength);  //There might be multiple value fields
         }
 
         if (type.hasAccessDescriptor()) {
-            this.setAccess(parser.parseAccess(rawData, offset));
-            offset += 1;
+            this.setAccess(parser.parseAccess(rawData, ptr));
+            ptr += 1;
         }
 
         if (type.hasDefaultValue()) {

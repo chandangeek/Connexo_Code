@@ -2,6 +2,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.object;
 
 import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
 import com.energyict.genericprotocolimpl.elster.ctr.common.CTRParsingException;
+import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser;
 
 /**
  * Copyrights EnergyICT
@@ -16,6 +17,11 @@ public class CTRObjectID extends AbstractField<CTRObjectID> {
     private int y;
     private int z;
 
+    public CTRObjectID() {
+        this(0, 0, 0);
+    }
+
+
     public CTRObjectID(int x, int y, int z) {
         this.x = x;
         this.y = y;
@@ -28,9 +34,9 @@ public class CTRObjectID extends AbstractField<CTRObjectID> {
             throw new IllegalArgumentException("Invalid objectId: [" + objectId + "]. ObjectId should be formatted as: 'x.y.z'");
         }
         try {
-            this.x = Integer.valueOf(id[0], 16).intValue();
-            this.y = Integer.valueOf(id[1], 16).intValue();
-            this.z = Integer.valueOf(id[2], 16).intValue();
+            this.x = Integer.valueOf(id[0], 16).intValue() & 0x0FF;
+            this.y = Integer.valueOf(id[1], 16).intValue() & 0x00F;
+            this.z = Integer.valueOf(id[2], 16).intValue() & 0x00F;
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Invalid objectId: [" + objectId + "]. Format should be 'X.Y.Z', where X, Y and Z are 0-9 or A-F");
         }
@@ -55,14 +61,18 @@ public class CTRObjectID extends AbstractField<CTRObjectID> {
     }
 
     public byte[] getBytes() {
-        return getBytesFromInt(x + (y * 16) + (z * 256), LENGTH);
+        int idValue = z & 0x0F;
+        idValue += (y * 16) & 0x000F0;
+        idValue += (x * 256) & 0x0FF00;
+        return getBytesFromInt(idValue, LENGTH);
     }
 
     public CTRObjectID parse(byte[] rawData, int offset) throws CTRParsingException {
-        int id = getIntFromBytes(rawData, offset, LENGTH);
-        this.x = (id & 0x0FF00) >> 8;
-        this.y = (id & 0x00F0) >> 4;
-        this.z = (id & 0x000F);
+        CTRPrimitiveParser parser = new CTRPrimitiveParser();
+        CTRObjectID id = parser.parseId(rawData, offset);
+        this.x = id.getX();
+        this.y = id.getY();
+        this.z = id.getZ();
         return this;
     }
 }

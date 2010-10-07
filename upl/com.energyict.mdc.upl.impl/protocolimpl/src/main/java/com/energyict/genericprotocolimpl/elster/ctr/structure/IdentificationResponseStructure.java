@@ -12,7 +12,9 @@ import com.energyict.genericprotocolimpl.elster.ctr.object.*;
  */
 public class IdentificationResponseStructure extends Data<IdentificationResponseStructure> {
 
-    
+    private CTRAbstractValue<String> pdrValue;
+    private CTRAbstractValue<String>[] allPA;
+    private CTRAbstractValue ncg;
 
     @Override
     public byte[] getBytes() {
@@ -21,14 +23,26 @@ public class IdentificationResponseStructure extends Data<IdentificationResponse
 
     @Override
     public IdentificationResponseStructure parse(byte[] rawData, int offset) {
+        int ptr = offset;
 
         try {
             CTRObjectFactory factory = new CTRObjectFactory();
             AttributeType valueAttributeType = new AttributeType();
             valueAttributeType.setHasValueFields(true);
 
-            CTRAbstractValue<String> pdrValue = factory.parse(rawData, offset, valueAttributeType, new CTRObjectID("C.0.0")).getValue()[0];
-            System.out.println(pdrValue.getValue());
+            this.pdrValue = factory.parse(rawData, ptr, valueAttributeType, new CTRObjectID("C.0.0")).getValue()[0];
+            ptr += 7; 
+
+            // Unknown object???
+            ptr += 4;
+
+            this.allPA = factory.parse(rawData, ptr, valueAttributeType, new CTRObjectID("9.0.0")).getValue();
+            ptr += 36;
+
+            // Unknown object???
+            ptr += 1;
+
+            ptr += 1;
 
         } catch (CTRParsingException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
@@ -36,5 +50,9 @@ public class IdentificationResponseStructure extends Data<IdentificationResponse
 
 
         return super.parse(rawData, offset);    //To change body of overridden methods use File | Settings | File Templates.
+    }
+
+    public CTRAbstractValue getPdrValue() {
+        return pdrValue;
     }
 }

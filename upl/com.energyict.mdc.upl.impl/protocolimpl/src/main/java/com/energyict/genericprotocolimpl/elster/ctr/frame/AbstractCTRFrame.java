@@ -144,7 +144,6 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
     }
 
     public void setData(Data data) {
-        System.out.println(data);
         this.data = data;
     }
 
