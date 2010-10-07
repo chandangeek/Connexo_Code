@@ -108,8 +108,6 @@ public class FlowAndVolumeCategory extends AbstractUnsignedBINObject {
                 }
             }
         }
-
         return unit;
     }
-
 }

@@ -1,6 +1,8 @@
 package com.energyict.genericprotocolimpl.elster.ctr.object;
 
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.Qualifier;
+import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveConverter;
 import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser;
 
 /**
@@ -12,16 +14,16 @@ import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser
 public abstract class AbstractStringObject<T extends AbstractStringObject> extends AbstractCTRObject<T> {
 
     //Parse the raw data & fill in the object's properties
-    public T parse(byte[] rawData, int offset, AttributeType type) {
-        int ptr = offset;
+    public T parse(byte[] rawData, int ptr, AttributeType type) {
         CTRPrimitiveParser parser = new CTRPrimitiveParser();   //Not static
 
         CTRObjectID id = this.getId();
         ptr += 2; //Skip the Id bytes
 
         if (type.hasQualifier()) {
-            this.setQlf(parser.parseQlf(rawData, ptr));
-            ptr += 1;
+            Qualifier qlf = new Qualifier(parser.parseQlf(rawData, ptr));
+            this.setQlf(qlf);
+            ptr += qlf.LENGTH;
         }
 
         if (type.hasValueFields()) {

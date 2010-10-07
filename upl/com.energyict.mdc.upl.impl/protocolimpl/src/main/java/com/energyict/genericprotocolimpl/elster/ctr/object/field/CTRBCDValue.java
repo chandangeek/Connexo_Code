@@ -1,4 +1,4 @@
-package com.energyict.genericprotocolimpl.elster.ctr.object;
+package com.energyict.genericprotocolimpl.elster.ctr.object.field;
 
 import com.energyict.cbo.Unit;
 

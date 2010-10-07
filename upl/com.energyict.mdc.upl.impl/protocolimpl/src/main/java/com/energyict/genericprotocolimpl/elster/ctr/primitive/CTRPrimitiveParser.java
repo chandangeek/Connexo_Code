@@ -2,6 +2,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.primitive;
 
 import com.energyict.cbo.Unit;
 import com.energyict.genericprotocolimpl.elster.ctr.object.*;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.*;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.math.BigDecimal;

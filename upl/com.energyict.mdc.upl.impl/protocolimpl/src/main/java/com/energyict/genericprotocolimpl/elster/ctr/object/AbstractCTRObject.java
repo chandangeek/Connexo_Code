@@ -2,8 +2,9 @@ package com.energyict.genericprotocolimpl.elster.ctr.object;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
-import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.Qualifier;
 import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveConverter;
 
 import java.math.BigDecimal;
@@ -18,7 +19,7 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
 
     private CTRObjectID id;
     private int access;
-    private int qlf;
+    private Qualifier qlf;
     private String symbol;
     private int[] def;
     private CTRAbstractValue[] value; //Abstract = BIN or String or BCD
@@ -69,11 +70,11 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
         this.id = id;
     }
 
-    public int getQlf() {
+    public Qualifier getQlf() {
         return qlf;
     }
 
-    protected void setQlf(int qlf) {
+    protected void setQlf(Qualifier qlf) {
         this.qlf = qlf;
     }
 
@@ -123,7 +124,7 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
         byte[] bytes = id;
 
         if (type.hasQualifier()) {
-            byte[] qlf = converter.convertQlf(getQlf());
+            byte[] qlf = converter.convertQlf(getQlf().getQlf());
             bytes = concat(id, qlf);
         }
 

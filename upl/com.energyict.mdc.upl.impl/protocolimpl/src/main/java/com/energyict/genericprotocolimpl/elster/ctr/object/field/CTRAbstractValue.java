@@ -1,4 +1,4 @@
-package com.energyict.genericprotocolimpl.elster.ctr.object;
+package com.energyict.genericprotocolimpl.elster.ctr.object.field;
 
 import com.energyict.cbo.Unit;
 
@@ -35,7 +35,6 @@ public abstract class CTRAbstractValue<T extends Object> {
     }
     public abstract T getValue();
     public abstract void setValue(T value);
-
 
     @Override
     public String toString() {

@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.object;
 
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.Qualifier;
 import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveConverter;
 import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser;
 
@@ -21,8 +22,9 @@ public abstract class AbstractBCDObject<T extends AbstractBCDObject> extends Abs
         offset += 2; //Skip the Id bytes
 
         if (type.hasQualifier()) {
-            this.setQlf(parser.parseQlf(rawData, offset));
-            offset += 1;
+            Qualifier qlf = new Qualifier(parser.parseQlf(rawData, offset));
+            this.setQlf(qlf);
+            offset += qlf.LENGTH;
         }
 
         if (type.hasValueFields()) {
