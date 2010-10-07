@@ -1,12 +1,13 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.actarismbusechodis;
 
 import java.io.IOException;
+import java.math.*;
 import java.util.*;
 
+import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.*;
-import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.WaveFlow100mW.MeterProtocolType;
 import com.energyict.protocolimpl.mbus.core.CIField72h;
 import com.energyict.protocolimpl.mbus.generic.RegisterFactory;
 
@@ -91,7 +92,17 @@ public class Echodis extends WaveFlow100mW {
     		throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] does not exist!");
     	}
     	else {
-    		return registerFactories[portId].findRegisterValue(obisCode);
+    		RegisterValue rv = registerFactories[portId].findRegisterValue(obisCode);
+    		// truncate the quantity!
+    		Quantity q = rv.getQuantity();
+    		if (q != null) {
+    			BigDecimal bd = q.getAmount();
+    			//bd = bd.round(new MathContext(10));
+    			bd = new BigDecimal(bd.floatValue());
+    			q = new Quantity(bd, q.getUnit());
+    			rv.setQuantity(q);
+    		}
+   			return rv;
     	}
     }
 
