@@ -964,6 +964,12 @@ public class SimpleDLMSProtocol implements MeterProtocol, ProtocolLink, HHUEnabl
         optionalKeys.add("IpPortNumber");
         optionalKeys.add("WakeUp");
         optionalKeys.add("CipheringType");
+		optionalKeys.add(LocalSecurityProvider.DATATRANSPORTKEY);
+		optionalKeys.add(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
+		optionalKeys.add(LocalSecurityProvider.MASTERKEY);
+		optionalKeys.add(LocalSecurityProvider.NEW_GLOBAL_KEY);
+		optionalKeys.add(LocalSecurityProvider.NEW_AUTHENTICATION_KEY);
+		optionalKeys.add(LocalSecurityProvider.NEW_HLS_SECRET);
         return optionalKeys;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
