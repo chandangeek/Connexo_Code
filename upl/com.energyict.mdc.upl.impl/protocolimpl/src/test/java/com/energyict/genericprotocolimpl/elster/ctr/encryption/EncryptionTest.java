@@ -1,13 +1,10 @@
 package com.energyict.genericprotocolimpl.elster.ctr.encryption;
 
-import com.energyict.genericprotocolimpl.elster.ctr.common.CTRParsingException;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CtrCipheringException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.Frame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
 import junit.framework.TestCase;
 import org.junit.Test;
-
-import javax.crypto.*;
-import java.security.*;
 
 import static org.junit.Assert.assertArrayEquals;
 
@@ -28,48 +25,22 @@ public class EncryptionTest extends TestCase {
 
         CTREncryption ctrEncryption = new CTREncryption("c34c052cc0da8d73451afe5f03be297f", "c34c052cc0da8d73451afe5f03be297f", "c34c052cc0da8d73451afe5f03be297f");
 
-        frame = (GPRSFrame) ctrEncryption.setCpa((Frame)frame);
+        frame = (GPRSFrame) ctrEncryption.setCpa((Frame) frame);
         frame.setCrc();
 
-        framex = (GPRSFrame) ctrEncryption.setCpa((Frame)framex);
+        framex = (GPRSFrame) ctrEncryption.setCpa((Frame) framex);
         framex.setCrc();
 
 
         try {
-
             frame2 = (GPRSFrame) ctrEncryption.encryptFrame((Frame) frame);
-
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
-        } catch (CTRParsingException e) {
+        } catch (CtrCipheringException e) {
             e.printStackTrace();
         }
 
         try {
             frame3 = (GPRSFrame) ctrEncryption.decryptFrame((Frame) frame2);
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
-        } catch (CTRParsingException e) {
+        } catch (CtrCipheringException e) {
             e.printStackTrace();
         }
 

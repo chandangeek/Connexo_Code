@@ -1,6 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr.frame;
 
-import com.energyict.genericprotocolimpl.elster.ctr.common.CTRParsingException;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 
 /**
  * Copyrights EnergyICT

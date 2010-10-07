@@ -1,6 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr.structure;
 
-import com.energyict.genericprotocolimpl.elster.ctr.common.CTRParsingException;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.FunctionCode;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.AdditionalData;

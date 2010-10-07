@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.encryption;
 
-import com.energyict.genericprotocolimpl.elster.ctr.common.CTRParsingException;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CtrCipheringException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.Frame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -41,10 +42,16 @@ public class CTREncryption {
     }
 
 
-    public Frame decryptFrame(Frame frame) throws IllegalBlockSizeException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException, CTRParsingException {
+    public Frame decryptFrame(Frame frame) throws CtrCipheringException {
         EncryptionStatus eStatus = frame.getFunctionCode().getEncryptionStatus();
         if (eStatus.isEncrypted()) {
-            frame = setData(frame, decryptStream(frame));
+            try {
+                frame = setData(frame, decryptStream(frame));
+            } catch (GeneralSecurityException e) {
+                throw new CtrCipheringException("An error occured while using the ciphering!", e);
+            } catch (CTRParsingException e) {
+                throw new CtrCipheringException("An error occured while using the ciphering!", e);
+            }
             frame = setDecryptionStatus(frame);
             frame = setCpa(frame);
             frame.setCrc();
@@ -60,7 +67,7 @@ public class CTREncryption {
 
         int offset = 0;
         while (offset < (bytes.length - 16)) {
-            byte[] input = ProtocolTools.getSubArray(bytes, offset, offset + 16 );
+            byte[] input = ProtocolTools.getSubArray(bytes, offset, offset + 16);
             input = decryptAES128(input, iv);
             iv = addOneToByteArray(iv);
             result = ProtocolTools.concatByteArrays(result, input);
@@ -68,11 +75,11 @@ public class CTREncryption {
         }
 
         //Concatenate the remainder (length < 16 bytes) to the result
-        result = ProtocolTools.concatByteArrays(result, ProtocolTools.getSubArray(bytes, offset, bytes.length) );
+        result = ProtocolTools.concatByteArrays(result, ProtocolTools.getSubArray(bytes, offset, bytes.length));
         return result;
     }
 
-    public Frame encryptFrame(Frame frame) throws IllegalBlockSizeException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException, CTRParsingException {
+    public Frame encryptFrame(Frame frame) throws CtrCipheringException {
 
         EncryptionStatus eStatus = frame.getFunctionCode().getEncryptionStatus();
 
@@ -81,13 +88,20 @@ public class CTREncryption {
             case END_OF_SESSION:
             case IDENTIFICATION_REPLY:
             case IDENTIFICATION_REQUEST:
-            case ACK: return frame;
+            case ACK:
+                return frame;
         }
 
         if (!eStatus.isEncrypted()) {
             frame = setEncryptionStatus(frame);
             frame = setCpa(frame);
-            frame = setData(frame, encryptStream(frame));
+            try {
+                frame = setData(frame, encryptStream(frame));
+            } catch (GeneralSecurityException e) {
+                throw new CtrCipheringException("An error occured while using the ciphering!", e);
+            } catch (CTRParsingException e) {
+                throw new CtrCipheringException("An error occured while using the ciphering!", e);
+            }
             frame.setCrc();
         }
         return frame;
@@ -125,7 +139,7 @@ public class CTREncryption {
         }
 
         //Concatenate the remainder (length < 16 bytes) to the result
-        result = ProtocolTools.concatByteArrays(result, ProtocolTools.getSubArray(bytes, offset, bytes.length) );
+        result = ProtocolTools.concatByteArrays(result, ProtocolTools.getSubArray(bytes, offset, bytes.length));
         return result;
     }
 

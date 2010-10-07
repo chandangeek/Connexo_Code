@@ -1,9 +1,10 @@
 package com.energyict.genericprotocolimpl.elster.ctr.structure;
 
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
-import com.energyict.genericprotocolimpl.elster.ctr.common.CTRParsingException;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
-import com.energyict.genericprotocolimpl.elster.ctr.object.*;
+import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
+import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 
 /**

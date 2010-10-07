@@ -1,5 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.common;
 
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
+
 /**
  * Copyrights EnergyICT
  * Date: 1-okt-2010

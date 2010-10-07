@@ -1,14 +1,9 @@
 package com.energyict.genericprotocolimpl.elster.ctr.primitive;
 
 
-import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
-import com.energyict.genericprotocolimpl.elster.ctr.common.CTRParsingException;
-import com.energyict.genericprotocolimpl.elster.ctr.common.Field;
-import com.energyict.genericprotocolimpl.elster.ctr.object.*;
-import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 /**
  * Created by IntelliJ IDEA.

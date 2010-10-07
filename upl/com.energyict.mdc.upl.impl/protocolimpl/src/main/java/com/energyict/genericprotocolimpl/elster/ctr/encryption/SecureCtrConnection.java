@@ -2,14 +2,13 @@ package com.energyict.genericprotocolimpl.elster.ctr.encryption;
 
 import com.energyict.genericprotocolimpl.elster.ctr.CtrConnection;
 import com.energyict.genericprotocolimpl.elster.ctr.MTU155Properties;
-import com.energyict.genericprotocolimpl.elster.ctr.common.CTRParsingException;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRConnectionException;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CtrCipheringException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.Frame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
 
-import javax.crypto.*;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.*;
 
 /**
  * Copyrights EnergyICT
@@ -27,17 +26,15 @@ public class SecureCtrConnection extends CtrConnection {
     }
 
     @Override
-    public GPRSFrame sendFrameGetResponse(GPRSFrame frame) throws IllegalBlockSizeException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException, CTRParsingException {
-
-        //Encryption
-        frame = (GPRSFrame) ctrEncryption.encryptFrame((Frame) frame);
-
-        GPRSFrame gprsFrame = super.sendFrameGetResponse(frame);
-
-        //Decrypt response
-        gprsFrame = (GPRSFrame) ctrEncryption.decryptFrame((Frame) frame);
-
-        return gprsFrame;
+    public GPRSFrame sendFrameGetResponse(GPRSFrame frame) throws CTRConnectionException {
+        try {
+            frame = (GPRSFrame) ctrEncryption.encryptFrame((Frame) frame);
+            GPRSFrame gprsFrame = super.sendFrameGetResponse(frame);
+            gprsFrame = (GPRSFrame) ctrEncryption.decryptFrame((Frame) frame);
+            return gprsFrame;
+        } catch (CtrCipheringException e) {
+            throw new CTRConnectionException("An error occured in the secure connection!", e);
+        }
     }
 
 

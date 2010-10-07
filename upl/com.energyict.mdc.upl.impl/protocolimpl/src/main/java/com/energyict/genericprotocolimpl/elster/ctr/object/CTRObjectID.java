@@ -1,7 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.object;
 
 import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
-import com.energyict.genericprotocolimpl.elster.ctr.common.CTRParsingException;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser;
 
 /**

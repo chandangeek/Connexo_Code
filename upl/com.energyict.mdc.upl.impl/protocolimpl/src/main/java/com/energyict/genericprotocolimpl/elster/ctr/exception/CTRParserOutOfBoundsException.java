@@ -1,4 +1,4 @@
-package com.energyict.genericprotocolimpl.elster.ctr.common;
+package com.energyict.genericprotocolimpl.elster.ctr.exception;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
