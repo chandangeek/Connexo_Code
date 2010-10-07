@@ -12,6 +12,15 @@ public class Profi extends AbstractField<Profi> {
     public static final int LENGTH = 1;
     private int profi;
 
+
+    public Profi() {
+        this(0);
+    }
+
+    public Profi(int profi) {
+        this.profi = profi;
+    }
+
     public byte[] getBytes() {
         return getBytesFromInt(profi, LENGTH);
     }
