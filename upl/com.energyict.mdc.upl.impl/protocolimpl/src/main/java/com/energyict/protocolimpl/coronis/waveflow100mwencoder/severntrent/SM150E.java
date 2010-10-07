@@ -1,13 +1,11 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.severntrent;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.*;
 
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.*;
+import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.WaveFlow100mW;
 
 public class SM150E extends WaveFlow100mW {
 
@@ -25,7 +23,7 @@ public class SM150E extends WaveFlow100mW {
 	@Override
 	protected void doTheConnect() throws IOException {
 		if (getExtendedLogging() >= 1) {
-			obisCodeMapper.getRegisterExtendedLogging();
+			getLogger().info(obisCodeMapper.getRegisterExtendedLogging());
 		}
 	}
 
@@ -66,6 +64,12 @@ public class SM150E extends WaveFlow100mW {
 	@Override
 	protected ProfileData getTheProfileData(Date lastReading, int portId,boolean includeEvents) throws UnsupportedException, IOException {
 		return profileDataReader.getProfileData(lastReading, portId, includeEvents);
+	}
+
+
+	@Override
+	protected MeterProtocolType getMeterProtocolType() {
+		return MeterProtocolType.SM150E;
 	}
 
 	

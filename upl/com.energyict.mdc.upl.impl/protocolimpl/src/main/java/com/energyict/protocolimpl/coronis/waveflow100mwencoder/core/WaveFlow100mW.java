@@ -18,7 +18,19 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
     abstract protected void doTheDisConnect() throws IOException;
     abstract protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
 	abstract protected ProfileData getTheProfileData(Date lastReading, int portId, boolean includeEvents) throws UnsupportedException, IOException;
+    abstract protected MeterProtocolType getMeterProtocolType();
 	
+    public enum MeterProtocolType {
+    	SM150E(0),
+    	ECHODIS(1);
+    	
+    	int type;
+    	
+    	MeterProtocolType(int type) {
+    		this.type=type;
+    	}
+    }
+    
 	/**
 	 * reference to the lower connect latyers of the wavenis stack
 	 */

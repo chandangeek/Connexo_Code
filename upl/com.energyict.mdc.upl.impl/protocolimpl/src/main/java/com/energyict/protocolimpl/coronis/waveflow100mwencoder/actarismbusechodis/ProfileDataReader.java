@@ -117,18 +117,10 @@ public class ProfileDataReader {
 			
 		List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
 		
-		for (LeakageEvent o : waveFlow100mW.getRadioCommandFactory().readLeakageEventTable().getLeakageEvents()) {
-			if (o.isValid()) {
-				meterEvents.add(new MeterEvent(o.getDate(),MeterEvent.OTHER,"Leakage event: status="+WaveflowProtocolUtils.toHexString(o.getStatus())+", consumptionRate="+WaveflowProtocolUtils.toHexString(o.getConsumptionRate())));
-			}
-		}
-		
 		for (int portId=0;portId<2;portId++) {
 			Date date = waveFlow100mW.getParameterFactory().readBackflowDetectionDate(portId);
 			if (date != null) {
-				meterEvents.add(new MeterEvent(date,MeterEvent.OTHER,"Backflow detection date ["+date+"] for port "+(portId==0?"A":"B")));
-				int flags = waveFlow100mW.getParameterFactory().readBackflowDetectionFlags(portId);
-				meterEvents.add(new MeterEvent(date,MeterEvent.OTHER,"Backflow detection flags ["+WaveflowProtocolUtils.toHexString(flags)+"] for port "+(portId==0?"A":"B")));
+				meterEvents.add(new MeterEvent(date,MeterEvent.OTHER,"Data internal meter alarm date ["+date+"] for port "+(portId==0?"A":"B")));
 			}
 		}
 		
@@ -153,18 +145,19 @@ public class ProfileDataReader {
 		
 		if (waveFlow100mW.getCachedEncoderGenericHeader() != null) {
 			
+			// FIXME create superclass generic data from where the severntrent and mbus generic extend and so the applicationstatus can be modelled with 1 or 2 bytes 
 			int leakageDetectionStatus = waveFlow100mW.getCachedEncoderGenericHeader().getLeakageDetectionStatus();
 			if ((leakageDetectionStatus & 0x01) == 0x01) {
-				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Leakage det status: Low	threshold (residual	leak) Port A"));
+				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Meter internal alarm. Hydrolic sensor out of order Port A"));
 			}
 			if ((leakageDetectionStatus & 0x02) == 0x02) {
-				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Leakage det status: High threshold (extreme	leak) Port A"));
+				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Meter internal alarm. Manipulation at hydrolic sensor Port A"));
 			}
 			if ((leakageDetectionStatus & 0x04) == 0x04) {
-				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Leakage det status: Low	threshold (residual	leak) Port B"));
+				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Meter internal alarm. Hydrolic sensor out of order Port B"));
 			}
 			if ((leakageDetectionStatus & 0x08) == 0x08) {
-				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Leakage det status: High threshold (extreme leak) Port B"));
+				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Meter internal alarm. Manipulation at hydrolic sensor Port B"));
 			}
 			
 			int applicationStatus = waveFlow100mW.getCachedEncoderGenericHeader().getApplicationStatus();
@@ -172,25 +165,16 @@ public class ProfileDataReader {
 				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Appl status: Low battery warning"));
 			}
 			if ((applicationStatus & 0x02) == 0x02) {
-				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Appl status: Encoder	communication fault detection on Port A"));
+				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Appl status: Meter communication fault detection on Port A"));
 			}
 			if ((applicationStatus & 0x04) == 0x04) {
-				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Appl status: Encoder	communication fault detection on Port B"));
+				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Appl status: Meter communication fault detection on Port B"));
 			}
 			if ((applicationStatus & 0x08) == 0x08) {
-				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Appl status: Encoder misread	detection on Port A"));
+				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Appl status: Meter misread	detection on Port A"));
 			}
 			if ((applicationStatus & 0x10) == 0x10) {
-				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Appl status: Encoder misread	detection on Port B"));
-			}
-			if ((applicationStatus & 0x20) == 0x20) {
-				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Appl status: Back flow detection	on Port A"));
-			}
-			if ((applicationStatus & 0x40) == 0x40) {
-				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Appl status: Back flow detection	on Port B"));
-			}
-			if ((applicationStatus & 0x80) == 0x80) {
-				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Appl status: Leak detection (extreme or residual)"));
+				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Appl status: Meter misread	detection on Port B"));
 			}
 		}
 	

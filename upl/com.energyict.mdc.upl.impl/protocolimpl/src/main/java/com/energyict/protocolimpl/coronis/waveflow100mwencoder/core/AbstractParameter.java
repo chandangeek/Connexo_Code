@@ -14,7 +14,8 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 		
 		// referenced doc "Waveflow 100mw encoder applicative specifications (CS-FW-SFW-WF_100mW_Encoder-E08)"
 		
-		ApplicationStatus(0x01,1,"Application Status"), // page 12
+		ApplicationStatusEncoder(0x01,1,"Application Status"), // page 12
+		ApplicationStatusMbus(0x01,2,"Application Status"), // page 12
 		LeakageDetectionStatus(0x02,1,"Leakage Detection Status"), // page 12
 		CurrentRTC(0x04,7,"Current time and date"), // page 13
 		SamplingPeriod(0x07,1,"Reading the sampling period"), // page 14

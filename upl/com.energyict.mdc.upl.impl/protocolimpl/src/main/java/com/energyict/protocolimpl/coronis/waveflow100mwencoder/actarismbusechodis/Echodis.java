@@ -6,6 +6,7 @@ import java.util.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.*;
+import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.WaveFlow100mW.MeterProtocolType;
 import com.energyict.protocolimpl.mbus.core.CIField72h;
 import com.energyict.protocolimpl.mbus.generic.RegisterFactory;
 
@@ -29,7 +30,7 @@ public class Echodis extends WaveFlow100mW {
 	@Override
 	protected void doTheConnect() throws IOException {
 		if (getExtendedLogging() >= 1) {
-			obisCodeMapper.getRegisterExtendedLogging();
+			getLogger().info(obisCodeMapper.getRegisterExtendedLogging());
 		}
 	}
 
@@ -98,5 +99,10 @@ public class Echodis extends WaveFlow100mW {
 	protected ProfileData getTheProfileData(Date lastReading, int portId,boolean includeEvents) throws UnsupportedException, IOException {
 		return profileDataReader.getProfileData(lastReading, portId, includeEvents);
 	}    
-    
+
+	@Override
+	protected MeterProtocolType getMeterProtocolType() {
+		return MeterProtocolType.ECHODIS;
+	}
+	
 }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.*;
 
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.EncoderUnitInfo.EncoderUnitType;
+import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.WaveFlow100mW.MeterProtocolType;
 
 public class ParameterFactory {
 	
@@ -25,14 +26,16 @@ public class ParameterFactory {
 	
 	final public int readApplicationStatus() throws IOException {
 		if (applicationStatus == null) {
-			applicationStatus = new ApplicationStatus(waveFlow100mW);
+			if (waveFlow100mW.getMeterProtocolType()==MeterProtocolType.SM150E)	applicationStatus = new ApplicationStatusSevernTrent(waveFlow100mW);
+			else if (waveFlow100mW.getMeterProtocolType()==MeterProtocolType.SM150E)	applicationStatus = new ApplicationStatusSevernTrent(waveFlow100mW);
 			applicationStatus.read();
 		}
 		return applicationStatus.getStatus();
 	}
 
 	final public void writeApplicationStatus(final int status) throws IOException {
-		applicationStatus = new ApplicationStatus(waveFlow100mW);
+		if (waveFlow100mW.getMeterProtocolType()==MeterProtocolType.SM150E)	applicationStatus = new ApplicationStatusSevernTrent(waveFlow100mW);
+		else if (waveFlow100mW.getMeterProtocolType()==MeterProtocolType.SM150E)	applicationStatus = new ApplicationStatusSevernTrent(waveFlow100mW);
 		applicationStatus.setStatus(status);
 		applicationStatus.write();
 	}
