@@ -39,7 +39,7 @@ abstract public class AbstractRadioCommand {
 	
 	private EncoderGenericHeader encoderGenericHeader;
 	
-	final EncoderGenericHeader getEncoderGenericHeader() {
+	final public EncoderGenericHeader getEncoderGenericHeader() {
 		return encoderGenericHeader;
 	}
 

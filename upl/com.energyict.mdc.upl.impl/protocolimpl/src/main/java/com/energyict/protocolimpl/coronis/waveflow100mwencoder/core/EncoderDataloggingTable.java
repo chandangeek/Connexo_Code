@@ -111,23 +111,23 @@ public class EncoderDataloggingTable extends AbstractRadioCommand {
 	
 	
 	
-	final Date getLastLoggingRTC() {
+	final public Date getLastLoggingRTC() {
 		return lastLoggingRTC;
 	}
 
-	final int getNrOfReadingsPortA() {
+	final public int getNrOfReadingsPortA() {
 		return nrOfReadingsPortA;
 	}
 
-	final int getNrOfReadingsPortB() {
+	final public int getNrOfReadingsPortB() {
 		return nrOfReadingsPortB;
 	}
 
-	final long[] getEncoderReadingsPortA() {
+	final public long[] getEncoderReadingsPortA() {
 		return encoderReadingsPortA;
 	}
 
-	final long[] getEncoderReadingsPortB() {
+	final public long[] getEncoderReadingsPortB() {
 		return encoderReadingsPortB;
 	}
 

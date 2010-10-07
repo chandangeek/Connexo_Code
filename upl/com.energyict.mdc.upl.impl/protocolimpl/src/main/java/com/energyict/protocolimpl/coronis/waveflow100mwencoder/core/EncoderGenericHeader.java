@@ -160,12 +160,12 @@ public class EncoderGenericHeader {
 	}
 
 
-	final int getApplicationStatus() {
+	final public int getApplicationStatus() {
 		return applicationStatus;
 	}
 
 
-	final int getLeakageDetectionStatus() {
+	final public int getLeakageDetectionStatus() {
 		return leakageDetectionStatus;
 	}
 
@@ -190,7 +190,7 @@ public class EncoderGenericHeader {
 	}
 
 
-	final EncoderUnitInfo[] getEncoderUnitInfos() {
+	final public EncoderUnitInfo[] getEncoderUnitInfos() {
 		return encoderUnitInfos;
 	}
 	

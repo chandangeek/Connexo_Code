@@ -5,7 +5,7 @@ import java.util.Date;
 
 public class LeakageEventTable extends AbstractRadioCommand {
 
-	class LeakageEvent {
+	public class LeakageEvent {
 		
 
 		/**
@@ -35,7 +35,7 @@ public class LeakageEventTable extends AbstractRadioCommand {
 		boolean valid=false;
 		
 		
-		final boolean isValid() {
+		final public boolean isValid() {
 			return valid;
 		}
 
@@ -52,17 +52,17 @@ public class LeakageEventTable extends AbstractRadioCommand {
 			}
 		}
 
-		final int getStatus() {
+		final public int getStatus() {
 			return status;
 		}
 
 
-		final int getConsumptionRate() {
+		final public int getConsumptionRate() {
 			return consumptionRate;
 		}
 
 
-		final Date getDate() {
+		final public Date getDate() {
 			return date;
 		}		
 		
@@ -71,6 +71,10 @@ public class LeakageEventTable extends AbstractRadioCommand {
 	
 	LeakageEvent[] leakageEvents = new LeakageEvent[5];
 	
+	final public LeakageEvent[] getLeakageEvents() {
+		return leakageEvents;
+	}
+
 	LeakageEventTable(WaveFlow100mW waveFlow100mW) {
 		super(waveFlow100mW);
 		// TODO Auto-generated constructor stub

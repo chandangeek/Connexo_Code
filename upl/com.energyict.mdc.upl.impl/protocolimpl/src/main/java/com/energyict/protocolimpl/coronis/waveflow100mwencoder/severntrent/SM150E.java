@@ -11,8 +11,16 @@ import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.*;
 
 public class SM150E extends WaveFlow100mW {
 
+
+	/**
+	 * specific severntrent obis code mapper
+	 */
+	private ObisCodeMapper obisCodeMapper;
 	
-	ObisCodeMapper obisCodeMapper;
+	/**
+	 * read and build the profiledata
+	 */
+	private ProfileDataReader profileDataReader;
 	
 	@Override
 	protected void doTheConnect() throws IOException {
@@ -31,7 +39,7 @@ public class SM150E extends WaveFlow100mW {
 	@Override
 	protected void doTheInit() throws IOException {
 		obisCodeMapper = new ObisCodeMapper(this);
-		
+		profileDataReader = new ProfileDataReader(this);
 	}
 	
 	@Override
@@ -53,6 +61,12 @@ public class SM150E extends WaveFlow100mW {
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return obisCodeMapper.getRegisterInfo(obisCode);
     }
+
+
+	@Override
+	protected ProfileData getTheProfileData(Date lastReading, int portId,boolean includeEvents) throws UnsupportedException, IOException {
+		return profileDataReader.getProfileData(lastReading, portId, includeEvents);
+	}
 
 	
 }

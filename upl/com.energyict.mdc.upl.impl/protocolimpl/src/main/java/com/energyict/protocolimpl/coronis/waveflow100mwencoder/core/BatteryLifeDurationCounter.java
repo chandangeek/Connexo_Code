@@ -34,7 +34,7 @@ public class BatteryLifeDurationCounter extends AbstractParameter {
 	 * The remaining battery life in 0..100 % knowing that the initial battery life count is 100 % and the getBatteryLifeCounter() is the remaining
 	 * @return the remaining battery life in percentage
 	 */
-	final int remainingBatteryLife() {
+	final public int remainingBatteryLife() {
 		return 100-(((INITIAL_BATTERY_LIFE_COUNT*100)-(getBatteryLifeCounter()*100))/INITIAL_BATTERY_LIFE_COUNT);
 	}
 	

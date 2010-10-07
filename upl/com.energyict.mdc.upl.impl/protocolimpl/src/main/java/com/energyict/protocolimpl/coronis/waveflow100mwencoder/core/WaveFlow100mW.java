@@ -17,7 +17,7 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
     abstract protected void doTheInit() throws IOException;
     abstract protected void doTheDisConnect() throws IOException;
     abstract protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
-	
+	abstract protected ProfileData getTheProfileData(Date lastReading, int portId, boolean includeEvents) throws UnsupportedException, IOException;
 	
 	/**
 	 * reference to the lower connect latyers of the wavenis stack
@@ -34,10 +34,6 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
 	 */
 	private RadioCommandFactory radioCommandFactory;
 
-	/**
-	 * read and build the profiledata
-	 */
-	private ProfileDataReader profileDataReader;
 	
 	/**
 	 * reference to the obiscode mapper.
@@ -63,7 +59,7 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
 	 */
 	private EncoderGenericHeader cachedEncoderGenericHeader=null;
 	
-	final EncoderGenericHeader getCachedEncoderGenericHeader() {
+	final public EncoderGenericHeader getCachedEncoderGenericHeader() {
 		return cachedEncoderGenericHeader;
 	}
 
@@ -80,7 +76,7 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
 		return parameterFactory;
 	}
 
-	final RadioCommandFactory getRadioCommandFactory() {
+	final public RadioCommandFactory getRadioCommandFactory() {
 		return radioCommandFactory;
 	}
 	
@@ -114,7 +110,7 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
 		radioCommandFactory = new RadioCommandFactory(this);
 		waveFlowConnect = new WaveFlowConnect(inputStream,outputStream,timeoutProperty,getLogger(),forcedDelay);
 		commonObisCodeMapper = new CommonObisCodeMapper(this);
-		profileDataReader = new ProfileDataReader(this);
+		
 		
 		
 		doTheInit();
@@ -211,7 +207,7 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
     		portId=2; // port A & B
     	}
     	try {
-    		return profileDataReader.getProfileData(lastReading,portId,includeEvents);
+    		return getTheProfileData(lastReading,portId,includeEvents);
     	}
     	catch(WaveFlow100mwEncoderException e) {
     		getLogger().warning("No profile data available. Probably datalogging restarted...");

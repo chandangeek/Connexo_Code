@@ -2,9 +2,9 @@ package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
 import com.energyict.cbo.*;
 
-class EncoderUnitInfo {
+public class EncoderUnitInfo {
 	
-	enum EncoderUnitType {
+	public enum EncoderUnitType {
 		
 		CubicMeters(0x01,"Cubic meters"),
 		Liters(0x02,"Liters"),
@@ -39,7 +39,7 @@ class EncoderUnitInfo {
 			return id;
 		}
 		
-		Unit toUnit() {
+		final public Unit toUnit() {
 			
 			switch(this) {
 				case CubicMeters:
@@ -93,11 +93,11 @@ class EncoderUnitInfo {
 		this.nrOfDigitsBeforeDecimalPoint = nrOfDigitsBeforeDecimalPoint;
 	}
 	
-	final EncoderUnitType getEncoderUnitType() {
+	final public EncoderUnitType getEncoderUnitType() {
 		return encoderUnitType;
 	}
 
-	final int getNrOfDigitsBeforeDecimalPoint() {
+	final public int getNrOfDigitsBeforeDecimalPoint() {
 		return nrOfDigitsBeforeDecimalPoint;
 	}
 	

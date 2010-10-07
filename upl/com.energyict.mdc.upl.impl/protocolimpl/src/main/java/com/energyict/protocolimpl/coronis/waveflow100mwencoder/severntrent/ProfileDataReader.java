@@ -1,10 +1,11 @@
-package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
+package com.energyict.protocolimpl.coronis.waveflow100mwencoder.severntrent;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.*;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.EncoderUnitInfo.EncoderUnitType;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.LeakageEventTable.LeakageEvent;
 
@@ -83,7 +84,7 @@ public class ProfileDataReader {
 				bdA = bdA.movePointLeft(8-encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[0].getNrOfDigitsBeforeDecimalPoint());
 				
 				BigDecimal bdB=null;
-				if (encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[1].encoderUnitType != EncoderUnitType.Unknown) {
+				if (encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[1].getEncoderUnitType() != EncoderUnitType.Unknown) {
 					bdB = new BigDecimal(encoderDataloggingTable.getEncoderReadingsPortB()[index]);
 					bdB = bdB.movePointLeft(8-encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[1].getNrOfDigitsBeforeDecimalPoint());
 				}
@@ -111,7 +112,7 @@ public class ProfileDataReader {
 			
 		List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
 		
-		for (LeakageEvent o : waveFlow100mW.getRadioCommandFactory().readLeakageEventTable().leakageEvents) {
+		for (LeakageEvent o : waveFlow100mW.getRadioCommandFactory().readLeakageEventTable().getLeakageEvents()) {
 			if (o.isValid()) {
 				meterEvents.add(new MeterEvent(o.getDate(),MeterEvent.OTHER,"Leakage event: status="+WaveflowProtocolUtils.toHexString(o.getStatus())+", consumptionRate="+WaveflowProtocolUtils.toHexString(o.getConsumptionRate())));
 			}

@@ -20,6 +20,47 @@ public class ObisCodeMapper {
 		// specific Actaris mbus meters registers
 		registerMaps.put(ObisCode.fromString("0.0.96.6.68.255"), "Port A encoder internal data raw string");
 		registerMaps.put(ObisCode.fromString("0.0.96.6.69.255"), "Port B encoder internal data raw string");
+		
+		
+		// MBus data parsed registers
+		registerMaps.put(ObisCode.fromString("0.0.96.99.0.0"), "Fabrication Number");
+		registerMaps.put(ObisCode.fromString("0.0.96.99.0.1"), "Volume");
+		registerMaps.put(ObisCode.fromString("0.0.96.99.0.2"), "Volume Flow");
+		registerMaps.put(ObisCode.fromString("0.0.96.99.0.3"), "Date and Time (actual or associated with a storage number/function)");
+		registerMaps.put(ObisCode.fromString("0.0.96.99.0.4"), "Duration of meter accumulation");
+		registerMaps.put(ObisCode.fromString("0.0.96.99.0.5"), "Duration of meter accumulation");
+		registerMaps.put(ObisCode.fromString("0.0.96.99.0.6"), "Metrology Firmware Version");
+		registerMaps.put(ObisCode.fromString("0.0.96.99.0.7"), "Other software version");
+		registerMaps.put(ObisCode.fromString("0.0.96.99.0.8"), "Volume Flow, End date/time of last upper linit exceed");
+		registerMaps.put(ObisCode.fromString("0.0.96.99.0.9"), "Volume Flow");
+		registerMaps.put(ObisCode.fromString("0.0.96.99.255.248"), "MBUS header meter ID ACW (477)");
+		registerMaps.put(ObisCode.fromString("0.0.96.99.255.249"), "MBUS header manufacturer identification (477)");
+		registerMaps.put(ObisCode.fromString("0.0.96.99.255.250"), "MBUS header version (c)");
+		registerMaps.put(ObisCode.fromString("0.0.96.99.255.251"), "MBUS header devicetype DeviceType: Water (7)");
+		registerMaps.put(ObisCode.fromString("0.0.96.99.255.252"), "MBUS header access number");
+		registerMaps.put(ObisCode.fromString("0.0.96.99.255.253"), "MBUS header identification number");
+		registerMaps.put(ObisCode.fromString("0.0.96.99.255.254"), "MBUS header status byte");
+		registerMaps.put(ObisCode.fromString("0.0.96.99.255.255"), "MBUS header signature field");
+		
+		registerMaps.put(ObisCode.fromString("0.1.96.99.0.0"), "Fabrication Number");
+		registerMaps.put(ObisCode.fromString("0.1.96.99.0.1"), "Volume");
+		registerMaps.put(ObisCode.fromString("0.1.96.99.0.2"), "Volume Flow");
+		registerMaps.put(ObisCode.fromString("0.1.96.99.0.3"), "Date and Time (actual or associated with a storage number/function)");
+		registerMaps.put(ObisCode.fromString("0.1.96.99.0.4"), "Duration of meter accumulation");
+		registerMaps.put(ObisCode.fromString("0.1.96.99.0.5"), "Duration of meter accumulation");
+		registerMaps.put(ObisCode.fromString("0.1.96.99.0.6"), "Metrology Firmware Version");
+		registerMaps.put(ObisCode.fromString("0.1.96.99.0.7"), "Other software version");
+		registerMaps.put(ObisCode.fromString("0.1.96.99.0.8"), "Volume Flow, End date/time of last upper linit exceed");
+		registerMaps.put(ObisCode.fromString("0.1.96.99.0.9"), "Volume Flow");
+		registerMaps.put(ObisCode.fromString("0.1.96.99.255.248"), "MBUS header meter ID ACW (477)");
+		registerMaps.put(ObisCode.fromString("0.1.96.99.255.249"), "MBUS header manufacturer identification (477)");
+		registerMaps.put(ObisCode.fromString("0.1.96.99.255.250"), "MBUS header version (c)");
+		registerMaps.put(ObisCode.fromString("0.1.96.99.255.251"), "MBUS header devicetype DeviceType: Water (7)");
+		registerMaps.put(ObisCode.fromString("0.1.96.99.255.252"), "MBUS header access number");
+		registerMaps.put(ObisCode.fromString("0.1.96.99.255.253"), "MBUS header identification number");
+		registerMaps.put(ObisCode.fromString("0.1.96.99.255.254"), "MBUS header status byte");
+		registerMaps.put(ObisCode.fromString("0.1.96.99.255.255"), "MBUS header signature field");
+		
 	}
 	
 	private Echodis echodis;

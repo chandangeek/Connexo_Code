@@ -22,13 +22,13 @@ public class RadioCommandFactory {
 		return o;
 	}
 	
-	final EncoderDataloggingTable readEncoderDataloggingTable() throws IOException {
+	final public EncoderDataloggingTable readEncoderDataloggingTable() throws IOException {
 		EncoderDataloggingTable o = new EncoderDataloggingTable(waveFlow100mW);
 		o.invoke();
 		return o;
 	}
 	
-	final EncoderDataloggingTable readEncoderDataloggingTable(final boolean portA, final boolean portB, final int nrOfValues, final int offsetFromMostRecentValue) throws IOException {
+	final public EncoderDataloggingTable readEncoderDataloggingTable(final boolean portA, final boolean portB, final int nrOfValues, final int offsetFromMostRecentValue) throws IOException {
 		EncoderDataloggingTable o = new EncoderDataloggingTable(waveFlow100mW,portA,portB,nrOfValues,offsetFromMostRecentValue);
 		o.invoke();
 		return o;
@@ -50,7 +50,7 @@ public class RadioCommandFactory {
 		return internalDataCommand;
 	}
 	
-	final LeakageEventTable readLeakageEventTable() throws IOException {
+	final public LeakageEventTable readLeakageEventTable() throws IOException {
 		LeakageEventTable leakageEventTable = new LeakageEventTable(waveFlow100mW);
 		leakageEventTable.invoke();
 		return leakageEventTable;

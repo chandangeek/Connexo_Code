@@ -11,12 +11,15 @@ import com.energyict.protocolimpl.mbus.generic.RegisterFactory;
 
 public class Echodis extends WaveFlow100mW {
 
-	
-	
 	/** 
 	 * Actaris specific obis code mapper
 	 */
 	private ObisCodeMapper obisCodeMapper;
+	
+	/**
+	 * read and build the profiledata
+	 */
+	private ProfileDataReader profileDataReader;	
 	
 	/**
 	 * MBus register factory. This contains the parsed data read from the waveflow represeiting MBus CI72 data
@@ -40,7 +43,7 @@ public class Echodis extends WaveFlow100mW {
 	@Override
 	protected void doTheInit() throws IOException {
 		obisCodeMapper = new ObisCodeMapper(this);
-		
+		profileDataReader = new ProfileDataReader(this);
 	}
 	
 	@Override
@@ -73,7 +76,7 @@ public class Echodis extends WaveFlow100mW {
     		if (internalData != null) {
 		        CIField72h ciField72h = new CIField72h(getTimeZone());
 		        try {
-					ciField72h.parse(internalData.getEncoderInternalData());
+					ciField72h.parse(WaveflowProtocolUtils.getSubArray(internalData.getEncoderInternalData(),3));
 				} catch (IOException e) {
 					getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
 				}
@@ -90,5 +93,10 @@ public class Echodis extends WaveFlow100mW {
     		return registerFactories[portId].findRegisterValue(obisCode);
     	}
     }
+
+	@Override
+	protected ProfileData getTheProfileData(Date lastReading, int portId,boolean includeEvents) throws UnsupportedException, IOException {
+		return profileDataReader.getProfileData(lastReading, portId, includeEvents);
+	}    
     
 }
