@@ -1,15 +1,20 @@
 package com.energyict.genericprotocolimpl.elster.ctr.object;
 
+import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
+import com.energyict.genericprotocolimpl.elster.ctr.common.CTRParsingException;
+
 /**
  * Copyrights EnergyICT
  * Date: 21-sep-2010
  * Time: 10:52:48
  */
-public class CTRObjectID {
+public class CTRObjectID extends AbstractField<CTRObjectID> {
 
-    private final int x;
-    private final int y;
-    private final int z;
+    public static final int LENGTH = 2;
+
+    private int x;
+    private int y;
+    private int z;
 
     public CTRObjectID(int x, int y, int z) {
         this.x = x;
@@ -49,5 +54,15 @@ public class CTRObjectID {
         return z;
     }
 
+    public byte[] getBytes() {
+        return getBytesFromInt(x + (y * 16) + (z * 256), LENGTH);
+    }
 
+    public CTRObjectID parse(byte[] rawData, int offset) throws CTRParsingException {
+        int id = getIntFromBytes(rawData, offset, LENGTH);
+        this.x = (id & 0x000F);
+        this.y = (id & 0x00F0) >> 4;
+        this.z = (id & 0x0F00) >> 8;
+        return this;
+    }
 }

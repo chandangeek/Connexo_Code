@@ -31,4 +31,8 @@ public class StructureCode extends AbstractField<StructureCode> {
         return this;
     }
 
+    public boolean isIdentification() {
+        return getStructureCode() == IDENTIFICATION;
+    }
+
 }

@@ -1,9 +1,11 @@
 package com.energyict.genericprotocolimpl.elster.ctr.frame;
 
+import com.energyict.genericprotocolimpl.elster.ctr.structure.IdentificationResponseStructure;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Copyrights EnergyICT
@@ -13,6 +15,7 @@ import static org.junit.Assert.assertArrayEquals;
 public class GPRSFrameTest {
 
     private static final byte[] correctFrame;
+
     static {
         StringBuilder sb = new StringBuilder();
         sb.append("0A000000004A323000B300123456789000000000090044264420456C65747472");
@@ -25,6 +28,7 @@ public class GPRSFrameTest {
 
 
     private static final byte[] identificationResponse;
+
     static {
         StringBuilder sb = new StringBuilder();
         sb.append("0A000000293000123456789000007819090044264420456C657474726F20494D");
@@ -45,4 +49,12 @@ public class GPRSFrameTest {
         assertArrayEquals(correctFrame, new GPRSFrame().parse(correctFrame, 0).getBytes());
         assertArrayEquals(identificationResponse, new GPRSFrame().parse(identificationResponse, 0).getBytes());
     }
+
+    @Test
+    public void testIdentificationResponse() {
+        GPRSFrame response = new GPRSFrame().parse(identificationResponse, 0);
+        assertTrue("Data field should be 'IdentificationResponseStructure'", response.getData() instanceof IdentificationResponseStructure);
+
+    }
+
 }

@@ -11,7 +11,7 @@ import java.math.BigDecimal;
  * Time: 11:54:19
  * The value field can be string, bin, bcd, ...
  */
-public abstract class CTRAbstractValue {
+public abstract class CTRAbstractValue<T extends Object> {
     protected Unit unit;
     protected BigDecimal overflowValue;
     protected String type;
@@ -33,8 +33,17 @@ public abstract class CTRAbstractValue {
     public String getType() {
         return type;
     }
-    public abstract Object getValue();
-    public abstract void setValue(Object value);
+    public abstract T getValue();
+    public abstract void setValue(T value);
 
-    
+
+    @Override
+    public String toString() {
+        return "CTRAbstractValue{" +
+                "overflowValue=" + overflowValue +
+                ", unit=" + unit +
+                ", type='" + type + '\'' +
+                ", value='" + getValue() + '\'' +
+                '}';
+    }
 }

@@ -2,6 +2,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.frame;
 
 import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.*;
+import com.energyict.genericprotocolimpl.elster.ctr.structure.IdentificationResponseStructure;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
@@ -64,7 +65,7 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
         channel = new Channel().parse(rawData, ptr);
         ptr += Channel.LENGTH;
 
-        data = new Data().parse(rawData, ptr);
+        parseDataField(rawData, ptr);
         ptr += Data.LENGTH;
 
         cpa = new Cpa().parse(rawData, ptr);
@@ -74,6 +75,14 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
         ptr += Crc.LENGTH;
 
         return (T) this;
+    }
+
+    private void parseDataField(byte[] rawData, int offset) {
+        if (structureCode.isIdentification() && functionCode.isIdentificationReply()) {
+            data = new IdentificationResponseStructure().parse(rawData, offset);
+        } else {
+            data = new Data().parse(rawData, offset);
+        }
     }
 
 

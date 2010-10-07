@@ -52,4 +52,12 @@ public class FunctionCode extends AbstractField<FunctionCode> {
         this.functionCode = functionCode;
     }
 
+    public boolean isIdentificationReply() {
+        return getFunction().equals(Function.IDENTIFICATION_REPLY);
+    }
+
+    public boolean isIdentificationRequest() {
+        return getFunction().equals(Function.IDENTIFICATION_REQUEST);
+    }
+
 }
