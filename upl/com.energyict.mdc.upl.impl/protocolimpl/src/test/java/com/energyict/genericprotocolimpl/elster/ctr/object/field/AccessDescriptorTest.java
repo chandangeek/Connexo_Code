@@ -19,5 +19,9 @@ public class AccessDescriptorTest extends TestCase {
         AccessDescriptor ac2 = new AccessDescriptor(0xE1);
         assertEquals("ABC", ac2.getWritePermissions());
         assertEquals("D", ac2.getReadPermissions());
+
+        AccessDescriptor ac3 = new AccessDescriptor(0x01);
+        assertEquals("", ac3.getWritePermissions());
+        assertEquals("D", ac3.getReadPermissions());
     }
 }
