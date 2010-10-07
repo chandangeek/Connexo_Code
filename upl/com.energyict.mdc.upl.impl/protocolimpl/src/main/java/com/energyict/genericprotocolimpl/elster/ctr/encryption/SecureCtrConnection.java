@@ -32,10 +32,9 @@ public class SecureCtrConnection extends CtrConnection {
         //Encryption
         frame = (GPRSFrame) ctrEncryption.encryptFrame((Frame) frame);
 
-
         GPRSFrame gprsFrame = super.sendFrameGetResponse(frame);
 
-        //Decrypt and return response
+        //Decrypt response
         gprsFrame = (GPRSFrame) ctrEncryption.decryptFrame((Frame) frame);
 
         return gprsFrame;

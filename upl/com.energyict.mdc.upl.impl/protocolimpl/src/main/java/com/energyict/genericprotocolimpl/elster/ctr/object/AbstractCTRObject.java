@@ -3,8 +3,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.object;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
-import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
-import com.energyict.genericprotocolimpl.elster.ctr.object.field.Qualifier;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.*;
 import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveConverter;
 
 import java.math.BigDecimal;
@@ -18,7 +17,7 @@ import java.math.BigDecimal;
 public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
 
     private CTRObjectID id;
-    private int access;
+    private AccessDescriptor access;
     private Qualifier qlf;
     private String symbol;
     private int[] def;
@@ -78,11 +77,11 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
         this.qlf = qlf;
     }
 
-    public int getAccess() {
+    public AccessDescriptor getAccess() {
         return access;
     }
 
-    protected void setAccess(int access) {
+    protected void setAccess(AccessDescriptor access) {
         this.access = access;
     }
 
@@ -158,9 +157,8 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
         }
 
         if (type.hasAccessDescriptor()) {
-            byte[] access = converter.convertAccess(getAccess());
+            byte[] access = converter.convertAccess(getAccess().getAccess());
             bytes = concat(bytes, access);
-
         }
 
         if (type.hasDefaultValue()) {

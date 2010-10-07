@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.object;
 
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.AccessDescriptor;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.Qualifier;
 import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser;
 
@@ -32,8 +33,9 @@ public abstract class AbstractStringObject<T extends AbstractStringObject> exten
         }
 
         if (type.hasAccessDescriptor()) {
-            this.setAccess(parser.parseAccess(rawData, ptr));
-            ptr += 1;
+            AccessDescriptor access = new AccessDescriptor(parser.parseAccess(rawData, ptr));
+            this.setAccess(access);
+            ptr += access.LENGTH;
         }
 
         if (type.hasDefaultValue()) {
