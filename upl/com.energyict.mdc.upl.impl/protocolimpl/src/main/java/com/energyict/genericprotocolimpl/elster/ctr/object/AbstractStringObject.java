@@ -2,7 +2,6 @@ package com.energyict.genericprotocolimpl.elster.ctr.object;
 
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.Qualifier;
-import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveConverter;
 import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser;
 
 /**
