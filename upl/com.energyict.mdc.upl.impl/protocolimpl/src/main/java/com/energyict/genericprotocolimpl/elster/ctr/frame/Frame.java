@@ -26,6 +26,8 @@ public interface Frame<T extends Frame> extends Field<T> {
 
     public void setCrc(Crc crc);
 
+    public void setCrc();
+
     public Data getData();
 
     public void setData(Data data);

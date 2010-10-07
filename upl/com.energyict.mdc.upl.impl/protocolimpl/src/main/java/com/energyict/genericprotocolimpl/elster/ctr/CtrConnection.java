@@ -4,7 +4,13 @@ import com.energyict.genericprotocolimpl.elster.ctr.common.CTRConnectionExceptio
 import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.*;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Copyrights EnergyICT
@@ -27,7 +33,7 @@ public class CtrConnection {
         this.delayAfterError = properties.getDelayAfterError();
     }
 
-    public GPRSFrame sendFrameGetResponse(GPRSFrame frame) {
+    public GPRSFrame sendFrameGetResponse(GPRSFrame frame) throws IllegalBlockSizeException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException {
         int attempts = 0;
         do {
             try {

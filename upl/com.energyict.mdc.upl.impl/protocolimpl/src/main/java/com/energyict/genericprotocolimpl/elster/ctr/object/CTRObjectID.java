@@ -60,9 +60,9 @@ public class CTRObjectID extends AbstractField<CTRObjectID> {
 
     public CTRObjectID parse(byte[] rawData, int offset) throws CTRParsingException {
         int id = getIntFromBytes(rawData, offset, LENGTH);
-        this.x = (id & 0x000F);
+        this.x = (id & 0x0FF00) >> 8;
         this.y = (id & 0x00F0) >> 4;
-        this.z = (id & 0x0F00) >> 8;
+        this.z = (id & 0x000F);
         return this;
     }
 }

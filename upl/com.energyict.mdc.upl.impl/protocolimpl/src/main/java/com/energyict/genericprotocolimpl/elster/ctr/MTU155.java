@@ -9,7 +9,13 @@ import com.energyict.genericprotocolimpl.elster.ctr.structure.IdentificationRequ
 import com.energyict.protocolimpl.base.ProtocolProperties;
 import com.energyict.protocolimpl.debug.DebugUtils;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Logger;
@@ -45,7 +51,7 @@ public class MTU155 extends AbstractGenericProtocol {
         // Hmmm, still work to do :)
     }
 
-    public static void main(String[] args) throws IOException, LinkException, BusinessException, SQLException {
+    public static void main(String[] args) throws IOException, LinkException, BusinessException, SQLException, IllegalBlockSizeException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException {
        int baudRate = 9600;
        int dataBits = SerialCommunicationChannel.DATABITS_8;
        int parity = SerialCommunicationChannel.PARITY_NONE;

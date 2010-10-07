@@ -43,5 +43,4 @@ public class AesCMac128Test {
         assertArrayEquals(T40, aesCmac128.getAesCMac128(M40));
         assertArrayEquals(T64, aesCmac128.getAesCMac128(M64));
     }
-
 }
