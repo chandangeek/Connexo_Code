@@ -1,0 +1,174 @@
+package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.Map.Entry;
+
+import com.energyict.cbo.*;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.*;
+
+public class CommonObisCodeMapper {
+	
+	static Map<ObisCode,String> registerMaps = new HashMap<ObisCode, String>();
+	
+	static {
+		registerMaps.put(ObisCode.fromString("0.0.96.6.0.255"), "Available battery power in %");
+		registerMaps.put(ObisCode.fromString("0.0.96.6.1.255"), "Port A encoder info");
+		registerMaps.put(ObisCode.fromString("0.0.96.6.2.255"), "Port B encoder info");
+		registerMaps.put(ObisCode.fromString("0.0.96.6.3.255"), "Application status");
+		registerMaps.put(ObisCode.fromString("0.0.96.6.4.255"), "Leakage detection status");
+
+		registerMaps.put(ObisCode.fromString("0.0.96.6.5.255"), "Port A backflow detection date");
+		registerMaps.put(ObisCode.fromString("0.0.96.6.6.255"), "Port B backflow detection date");
+		registerMaps.put(ObisCode.fromString("0.0.96.6.7.255"), "Port A backflow detection flags");
+		registerMaps.put(ObisCode.fromString("0.0.96.6.8.255"), "Port B backflow detection flags");
+		
+		registerMaps.put(ObisCode.fromString("0.0.96.6.9.255"), "Port A communication error detection date");
+		registerMaps.put(ObisCode.fromString("0.0.96.6.10.255"), "Port B communication error detection date");
+		registerMaps.put(ObisCode.fromString("0.0.96.6.11.255"), "Port A communication error reading date");
+		registerMaps.put(ObisCode.fromString("0.0.96.6.12.255"), "Port B communication error reading date");
+
+		registerMaps.put(ObisCode.fromString("0.0.96.6.13.255"), "Battery life end date");
+		
+		registerMaps.put(ObisCode.fromString("0.0.96.6.14.255"), "Operation mode");
+		
+		
+		registerMaps.put(ObisCode.fromString("8.1.1.0.0.255"), "Port A encoder current index");
+		
+		registerMaps.put(ObisCode.fromString("8.2.1.0.0.255"), "Port B encoder current index");
+		
+		
+		// specific watermeter registers start with E-field 50
+		
+		
+		
+		
+		registerMaps.put(ObisCode.fromString("0.0.96.6.100.255"), "Generic header info");
+
+	}
+	
+	private WaveFlow100mW waveFlow100mW;
+	
+    /** Creates a new instance of ObisCodeMapper */
+    public CommonObisCodeMapper(final WaveFlow100mW waveFlow100mW) {
+        this.waveFlow100mW=waveFlow100mW;
+    }
+    
+    final public String getRegisterExtendedLogging() {
+    	
+    	StringBuilder strBuilder=new StringBuilder();
+    	
+    	Iterator<Entry<ObisCode,String>> it = registerMaps.entrySet().iterator();
+    	while(it.hasNext()) {
+    		Entry<ObisCode,String> o = it.next();
+    		waveFlow100mW.getLogger().info(o.getKey().toString()+", "+o.getValue());
+    	}
+    	
+    	return strBuilder.toString();
+    }
+    
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
+    	String info = registerMaps.get(obisCode);
+    	if (info !=null) {
+    		return new RegisterInfo(info);
+    	}
+    	else {
+    		throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] does not exist!");
+    	}
+    }
+    
+    public RegisterValue getRegisterValue(ObisCode obisCode) throws NoSuchRegisterException {
+		try {
+	    	if (obisCode.equals(ObisCode.fromString("0.0.96.6.0.255"))) {
+	    		// battery counter
+				return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(waveFlow100mW.getParameterFactory().readBatteryLifeDurationCounter().remainingBatteryLife()), Unit.get(BaseUnit.PERCENT)),new Date());
+	   		}
+	    	else if (obisCode.equals(ObisCode.fromString("0.0.96.6.1.255"))) {
+	    		// port A encoder info
+	    		return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, waveFlow100mW.getParameterFactory().readEncoderModel(0).getEncoderModelInfo().toString());
+	    	}
+	    	else if (obisCode.equals(ObisCode.fromString("0.0.96.6.2.255"))) {
+	    		// port B encoder info
+	    		return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, waveFlow100mW.getParameterFactory().readEncoderModel(1).getEncoderModelInfo().toString());
+	    	}
+	    	else if (obisCode.equals(ObisCode.fromString("0.0.96.6.3.255"))) {
+	    		// application status
+	    		return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(waveFlow100mW.getParameterFactory().readApplicationStatus()), Unit.get("")),new Date());
+	    	}
+	    	else if (obisCode.equals(ObisCode.fromString("0.0.96.6.4.255"))) {
+	    		// leakage detection status
+	    		return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(waveFlow100mW.getCachedEncoderGenericHeader().getLeakageDetectionStatus()), Unit.get("")),new Date());
+	    	}
+	    	else if ((obisCode.equals(ObisCode.fromString("0.0.96.6.5.255"))) || (obisCode.equals(ObisCode.fromString("0.0.96.6.6.255")))) {
+	    		// Backflow detection date
+	    		int portId = obisCode.getE()-5;
+	    		Date date = waveFlow100mW.getParameterFactory().readBackflowDetectionDate(portId);
+	    		if (date==null) {
+	    			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, "No backflow detection date for port "+(portId==0?"A":"B"));
+	    		}
+	    		else {
+	    			return new RegisterValue(obisCode, null, date, null, null, new Date(), 0, "Backflow detection date for port "+(portId==0?"A":"B")+", "+date);
+	    		}
+	    	}
+	    	else if ((obisCode.equals(ObisCode.fromString("0.0.96.6.7.255"))) || (obisCode.equals(ObisCode.fromString("0.0.96.6.8.255")))) {
+	    		// Backflow detection flags
+	    		int portId = obisCode.getE()-7;
+	    		return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(waveFlow100mW.getParameterFactory().readBackflowDetectionFlags(portId)), Unit.get("")),new Date());
+	    	}
+	    	else if ((obisCode.equals(ObisCode.fromString("0.0.96.6.9.255"))) || (obisCode.equals(ObisCode.fromString("0.0.96.6.10.255")))) {
+	    		// Communication error detection date
+	    		int portId = obisCode.getE()-9;
+	    		Date date = waveFlow100mW.getParameterFactory().readCommunicationErrorDetectionDate(portId);
+	    		if (date==null) {
+	    			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, "No communication error detection date for port "+(portId==0?"A":"B"));
+	    		}
+	    		else {
+	    			return new RegisterValue(obisCode, null, date, null, null, new Date(), 0, "Communication error detection date for port "+(portId==0?"A":"B")+", "+date);
+	    		}
+	    	}
+	    	else if ((obisCode.equals(ObisCode.fromString("0.0.96.6.11.255"))) || (obisCode.equals(ObisCode.fromString("0.0.96.6.12.255")))) {
+	    		// Communication error detection date
+	    		int portId = obisCode.getE()-11;
+	    		Date date = waveFlow100mW.getParameterFactory().readCommunicationErrorReadingDate(portId);
+	    		if (date==null) {
+	    			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, "No communication error reading date for port "+(portId==0?"A":"B"));
+	    		}
+	    		else {
+	    			return new RegisterValue(obisCode, null, date, null, null, new Date(), 0, "Communication error reading date for port "+(portId==0?"A":"B")+", "+date);
+	    		}
+	    	}
+	    	else if (obisCode.equals(ObisCode.fromString("0.0.96.6.13.255"))) {
+	    		// Battery life end date
+	    		Date date = waveFlow100mW.getParameterFactory().readBatteryLifeDateEnd();
+	    		if (date==null) {
+	    			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, "No battery life end date");
+	    		}
+	    		else {
+	    			return new RegisterValue(obisCode, null, date, null, null, new Date(), 0, "Battery life end date");
+	    		}
+	    	}
+	    	else if (obisCode.equals(ObisCode.fromString("0.0.96.6.14.255"))) {
+	    		// Operation mode
+	   			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, "Operating mode: "+WaveflowProtocolUtils.toHexString(waveFlow100mW.getParameterFactory().readOperatingMode()));
+	    	}
+	    	else if (obisCode.equals(ObisCode.fromString("0.0.96.6.100.255"))) {
+	    		// encoder internal data
+	    		if (waveFlow100mW.getCachedEncoderGenericHeader()==null) {
+	    			waveFlow100mW.getRadioCommandFactory().readEncoderCurrentReading();
+	    		}
+	   			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, waveFlow100mW.getCachedEncoderGenericHeader().toString());
+	    	}
+	    	
+			throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] does not exist!");
+			
+		} catch (IOException e) {
+			
+			throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] has an error ["+e.getMessage()+"]!");
+			
+		}
+
+    }
+	
+}

@@ -113,7 +113,7 @@ public class ProfileDataReader {
 		
 		for (LeakageEvent o : waveFlow100mW.getRadioCommandFactory().readLeakageEventTable().leakageEvents) {
 			if (o.isValid()) {
-				meterEvents.add(new MeterEvent(o.getDate(),MeterEvent.OTHER,"Leakage event: status="+Utils.toHexString(o.getStatus())+", consumptionRate="+Utils.toHexString(o.getConsumptionRate())));
+				meterEvents.add(new MeterEvent(o.getDate(),MeterEvent.OTHER,"Leakage event: status="+WaveflowProtocolUtils.toHexString(o.getStatus())+", consumptionRate="+WaveflowProtocolUtils.toHexString(o.getConsumptionRate())));
 			}
 		}
 		
@@ -122,7 +122,7 @@ public class ProfileDataReader {
 			if (date != null) {
 				meterEvents.add(new MeterEvent(date,MeterEvent.OTHER,"Backflow detection date ["+date+"] for port "+(portId==0?"A":"B")));
 				int flags = waveFlow100mW.getParameterFactory().readBackflowDetectionFlags(portId);
-				meterEvents.add(new MeterEvent(date,MeterEvent.OTHER,"Backflow detection flags ["+Utils.toHexString(flags)+"] for port "+(portId==0?"A":"B")));
+				meterEvents.add(new MeterEvent(date,MeterEvent.OTHER,"Backflow detection flags ["+WaveflowProtocolUtils.toHexString(flags)+"] for port "+(portId==0?"A":"B")));
 			}
 		}
 		

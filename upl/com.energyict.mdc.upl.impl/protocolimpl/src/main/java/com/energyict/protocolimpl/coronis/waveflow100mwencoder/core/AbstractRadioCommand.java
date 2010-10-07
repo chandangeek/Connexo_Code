@@ -87,15 +87,15 @@ abstract public class AbstractRadioCommand {
 		try {
 			dais = new DataInputStream(new ByteArrayInputStream(data));
 			
-			int commandIdAck = Utils.toInt(dais.readByte());
+			int commandIdAck = WaveflowProtocolUtils.toInt(dais.readByte());
 			if (commandIdAck != (0x80 | getEncoderRadioCommandId().getCommandId())) {
-				throw new WaveFlow100mwEncoderException("Invalid response tag ["+Utils.toHexString(commandIdAck)+"]");
+				throw new WaveFlow100mwEncoderException("Invalid response tag ["+WaveflowProtocolUtils.toHexString(commandIdAck)+"]");
 			}
 			else {
 				
 				if ((commandIdAck == (0x80 | EncoderRadioCommandId.EncoderDataloggingTable.getCommandId())) && 
 					(data.length == 2) && 
-					(Utils.toInt(data[1]) == 0xff)) {
+					(WaveflowProtocolUtils.toInt(data[1]) == 0xff)) {
 					throw new WaveFlow100mwEncoderException("Datalogging not yet available...");
 				}
 				

@@ -4,19 +4,25 @@ package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 public class EncoderModelInfo {
 
 	enum EncoderModelType {
-		ServenTrent(0x02,"Severn Trent water meter absolute encoder"),
-		Unknown(0xFF,"No encoder connected");
+		ServenTrent(0x02,EncoderInternalData.ENCODER_INTERNAL_DATA_LENGTH,"Severn Trent water meter absolute encoder"),
+		ActarisMBusWater(0x01,ActarisMBusInternalData.MBUS_INTERNAL_DATA_LENGTH,"Actaris Static utrasonic mbus water meter"),
+		Unknown(0xFF,-1,"No encoder connected");
 		
 		int id;
 		String description;
+		int internalDataBlockSize;
 		
+		final int getInternalDataBlockSize() {
+			return internalDataBlockSize;
+		}
 		
-		EncoderModelType(final int id, final String description) {
+		EncoderModelType(final int id, final int internalDataBlockSize, final String description) {
 			this.id=id;
+			this.internalDataBlockSize=internalDataBlockSize;
 			this.description=description;
 		}
 		public String toString() {
-			return "EncoderModelType: "+description+", id "+Utils.toHexString(id);
+			return "EncoderModelType: "+description+", id "+WaveflowProtocolUtils.toHexString(id);
 		}
 		
 		static EncoderModelType fromId(final int id) throws WaveFlow100mwEncoderException {
@@ -25,7 +31,7 @@ public class EncoderModelInfo {
 					return o;
 				}
 			}
-			throw new WaveFlow100mwEncoderException("Unknown encoder model type ["+Utils.toHexString(id)+"]");
+			throw new WaveFlow100mwEncoderException("Unknown encoder model type ["+WaveflowProtocolUtils.toHexString(id)+"]");
 		}
 	}	
 	
@@ -49,7 +55,7 @@ public class EncoderModelInfo {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("EncoderModelInfo:\n");
         strBuff.append("   encoderModelType="+getEncoderModelType()+"\n");
-        strBuff.append("   manufacturerId="+Utils.toHexString(getManufacturerId())+"\n");
+        strBuff.append("   manufacturerId="+WaveflowProtocolUtils.toHexString(getManufacturerId())+"\n");
         return strBuff.toString();
     }	 
 	 

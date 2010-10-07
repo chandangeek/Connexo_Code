@@ -39,10 +39,10 @@ public class EncoderModel extends AbstractParameter {
 
 	@Override
 	void parse(byte[] data) throws IOException {
-		EncoderModelType encoderModelType = EncoderModelType.fromId(Utils.toInt(data[0]));
+		EncoderModelType encoderModelType = EncoderModelType.fromId(WaveflowProtocolUtils.toInt(data[0]));
 		
 		int manufacturerId=0xff;
-		if (Utils.toInt(data[1]) != 0xff) {
+		if (WaveflowProtocolUtils.toInt(data[1]) != 0xff) {
 			manufacturerId = ProtocolUtils.BCD2hex(data[1]);
 		}
 		

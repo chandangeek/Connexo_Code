@@ -35,8 +35,8 @@ public class EncoderUnit extends AbstractParameter {
 	
 	@Override
 	void parse(byte[] data) throws IOException {
-		EncoderUnitType encoderUnitType = EncoderUnitType.fromId(Utils.toInt(data[0]));
-		int nrOfDigitsBeforeDecimalPoint = Utils.toInt(data[1]);
+		EncoderUnitType encoderUnitType = EncoderUnitType.fromId(WaveflowProtocolUtils.toInt(data[0]));
+		int nrOfDigitsBeforeDecimalPoint = WaveflowProtocolUtils.toInt(data[1]);
 		encoderUnitInfo = new EncoderUnitInfo(encoderUnitType,nrOfDigitsBeforeDecimalPoint);
 	}
 

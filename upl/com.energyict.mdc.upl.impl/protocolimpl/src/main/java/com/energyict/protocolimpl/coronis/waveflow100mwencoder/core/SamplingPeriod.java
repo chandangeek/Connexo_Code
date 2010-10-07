@@ -30,7 +30,7 @@ public class SamplingPeriod extends AbstractParameter {
 					return o;
 				}
 			}
-			throw new WaveFlow100mwEncoderException("Invalid timeUnit id ["+Utils.toHexString(id)+"]");
+			throw new WaveFlow100mwEncoderException("Invalid timeUnit id ["+WaveflowProtocolUtils.toHexString(id)+"]");
 		}
 		
 		/**
@@ -69,7 +69,7 @@ public class SamplingPeriod extends AbstractParameter {
 	
 	@Override
 	void parse(byte[] data) throws IOException {
-		int temp = Utils.toInt(data[0]);
+		int temp = WaveflowProtocolUtils.toInt(data[0]);
 		int multiplier = temp >> 2;
 		
 		if (multiplier == 0) {

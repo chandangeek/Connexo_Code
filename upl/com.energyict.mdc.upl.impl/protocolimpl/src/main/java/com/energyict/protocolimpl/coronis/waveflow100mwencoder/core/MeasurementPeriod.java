@@ -26,7 +26,7 @@ public class MeasurementPeriod extends AbstractParameter {
 
 	@Override
 	void parse(byte[] data) throws IOException {
-		measurementPeriod = Utils.toInt(data[0]);
+		measurementPeriod = WaveflowProtocolUtils.toInt(data[0]);
 	}
 
 	@Override

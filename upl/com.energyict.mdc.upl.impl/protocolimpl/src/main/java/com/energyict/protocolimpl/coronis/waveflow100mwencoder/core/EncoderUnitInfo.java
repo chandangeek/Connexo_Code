@@ -23,7 +23,7 @@ class EncoderUnitInfo {
 		}
 		
 		public String toString() {
-			return "EncoderUnitType: "+description+", id "+Utils.toHexString(id);
+			return "EncoderUnitType: "+description+", id "+WaveflowProtocolUtils.toHexString(id);
 		}
 		
 		static EncoderUnitType fromId(final int id) throws WaveFlow100mwEncoderException {
@@ -32,7 +32,7 @@ class EncoderUnitInfo {
 					return o;
 				}
 			}
-			throw new WaveFlow100mwEncoderException("Unknown encoder unit type ["+Utils.toHexString(id)+"]");
+			throw new WaveFlow100mwEncoderException("Unknown encoder unit type ["+WaveflowProtocolUtils.toHexString(id)+"]");
 		}
 		
 		final int getId() {

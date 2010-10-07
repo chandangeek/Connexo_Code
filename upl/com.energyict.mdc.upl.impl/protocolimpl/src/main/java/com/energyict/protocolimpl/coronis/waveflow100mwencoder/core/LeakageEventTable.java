@@ -87,8 +87,8 @@ public class LeakageEventTable extends AbstractRadioCommand {
 		try {
 			dais = new DataInputStream(new ByteArrayInputStream(data));
 			for (int i=0;i<leakageEvents.length;i++) {
-				int status = Utils.toInt(dais.readByte());
-				int consumptionRate = Utils.toInt(dais.readShort());
+				int status = WaveflowProtocolUtils.toInt(dais.readByte());
+				int consumptionRate = WaveflowProtocolUtils.toInt(dais.readShort());
 				byte[] timestamp = new byte[7];
 				dais.read(timestamp);
 				leakageEvents[i] = new LeakageEvent(status, consumptionRate, timestamp);

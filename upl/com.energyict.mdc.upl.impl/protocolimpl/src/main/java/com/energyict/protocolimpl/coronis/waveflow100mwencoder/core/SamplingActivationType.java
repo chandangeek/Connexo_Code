@@ -33,7 +33,7 @@ public class SamplingActivationType extends AbstractParameter {
 	
 	@Override
 	void parse(byte[] data) throws IOException {
-		type = Utils.toInt(data[0]);
+		type = WaveflowProtocolUtils.toInt(data[0]);
 	}
 
 	@Override

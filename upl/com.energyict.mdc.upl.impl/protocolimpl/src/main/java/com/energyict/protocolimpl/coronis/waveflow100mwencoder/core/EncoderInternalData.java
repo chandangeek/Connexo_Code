@@ -3,11 +3,12 @@ package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 import java.io.*;
 import java.util.logging.Logger;
 
+import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.EncoderModelInfo.EncoderModelType;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.EncoderUnitInfo.EncoderUnitType;
 
-public class EncoderInternalData {
+public class EncoderInternalData extends InternalData {
 
-	private static final int ENCODER_INTERNAL_DATA_LENGTH = 58;
+	static public final int ENCODER_INTERNAL_DATA_LENGTH = 58;
 	
 	/**
 	 * 10 characters identifying the meter.
@@ -82,59 +83,59 @@ public class EncoderInternalData {
 	 */
 	private String encoderInternalData;
 	
-	final String getEncoderInternalData() {
+	final public String getEncoderInternalData() {
 		return encoderInternalData;
 	}
 
-	final String getUserId() {
+	final public String getUserId() {
 		return userId;
 	}
 
-	final long getCurrentIndex() {
+	final public long getCurrentIndex() {
 		return currentIndex;
 	}
 
-	final int getStatus() {
+	final public int getStatus() {
 		return status;
 	}
 
-	final int getVersion() {
+	final public int getVersion() {
 		return version;
 	}
 
-	final String getTotalizerSerial() {
+	final public String getTotalizerSerial() {
 		return totalizerSerial;
 	}
 
-	final String getTransducerSerial() {
+	final public String getTransducerSerial() {
 		return transducerSerial;
 	}
 
-	final int getLastPart() {
+	final public int getLastPart() {
 		return lastPart;
 	}
 
-	final EncoderUnitType getEncoderUnitType() {
+	final public EncoderUnitType getEncoderUnitType() {
 		return encoderUnitType;
 	}
 
-	final int getDecimalPosition() {
+	final public int getDecimalPosition() {
 		return decimalPosition;
 	}
 
-	final int getDryCount() {
+	final public int getDryCount() {
 		return dryCount;
 	}
 
-	final int getLeakCount() {
+	final public int getLeakCount() {
 		return leakCount;
 	}
 
-	final int getTamperCount() {
+	final public int getTamperCount() {
 		return tamperCount;
 	}
 
-	final int getNoflowCount() {
+	final public int getNoflowCount() {
 		return noflowCount;
 	}
 
@@ -146,7 +147,7 @@ public class EncoderInternalData {
         strBuff.append("   totalizerSerial="+getTotalizerSerial()+"\n");
         strBuff.append("   transducerSerial="+getTransducerSerial()+"\n");
         strBuff.append("   version="+getVersion()+"\n");
-        strBuff.append("   status="+Utils.toHexString(getStatus())+"\n");
+        strBuff.append("   status="+WaveflowProtocolUtils.toHexString(getStatus())+"\n");
         strBuff.append("   currentIndex="+getCurrentIndex()+"\n");
         strBuff.append("   decimalPosition="+getDecimalPosition()+"\n");
         strBuff.append("   unit="+getEncoderUnitType()+"\n");
@@ -158,11 +159,12 @@ public class EncoderInternalData {
         return strBuff.toString();
     }
 
-	EncoderInternalData(byte[] data, Logger logger) throws IOException {
+	EncoderInternalData(final byte[] data, final Logger logger) throws IOException {
 		
 		if (data.length != ENCODER_INTERNAL_DATA_LENGTH) {
 			throw new WaveFlow100mwEncoderException("Invalid encoder internal data length. Expected length ["+ENCODER_INTERNAL_DATA_LENGTH+"], received length ["+data.length+"]");
 		}
+		
 		
 		encoderInternalData = new String(data);
 		
@@ -191,9 +193,9 @@ public class EncoderInternalData {
 			dais.read(temp);
 			status = Integer.parseInt(new String(temp));
 			
-			i = Utils.toInt(dais.readByte());
+			i = WaveflowProtocolUtils.toInt(dais.readByte());
 			if (i!= 0x0d) {
-				throw new WaveFlow100mwEncoderException("Invalid encoder internal data. Expected [0x0D], read ["+Utils.toHexString(i)+"]");
+				throw new WaveFlow100mwEncoderException("Invalid encoder internal data. Expected [0x0D], read ["+WaveflowProtocolUtils.toHexString(i)+"]");
 			}
 			
 			c = (char)dais.readByte();
@@ -248,7 +250,7 @@ public class EncoderInternalData {
 			// calc checksum
 			int calculatedChecksum=0;
 			for (int j=1; j<=10 ; j++) {
-				calculatedChecksum+=Utils.toInt(data[j]);
+				calculatedChecksum+=WaveflowProtocolUtils.toInt(data[j]);
 			}
 			for (int j=11; j<=20 ; j+=2) {
 				int v = Integer.parseInt(new String(new byte[]{data[j],data[j+1]}),16);
@@ -260,7 +262,7 @@ public class EncoderInternalData {
 			}
 			
 			if (receivedChecksum != (calculatedChecksum&0xff)) {
-				throw new WaveFlow100mwEncoderException("Invalid encoder internal data checksum. Calculated ["+Utils.toHexString(calculatedChecksum)+"], read ["+Utils.toHexString(receivedChecksum)+"]");
+				throw new WaveFlow100mwEncoderException("Invalid encoder internal data checksum. Calculated ["+WaveflowProtocolUtils.toHexString(calculatedChecksum)+"], read ["+WaveflowProtocolUtils.toHexString(receivedChecksum)+"]");
 			}
 		}
 		finally {

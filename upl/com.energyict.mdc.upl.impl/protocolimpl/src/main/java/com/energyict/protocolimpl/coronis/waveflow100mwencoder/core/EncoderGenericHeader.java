@@ -93,12 +93,12 @@ public class EncoderGenericHeader {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("EncoderGenericHeader:\n");
-        strBuff.append("   operatingMode="+Utils.toHexString(getOperatingMode())+"\n");
-        strBuff.append("   applicationStatus="+Utils.toHexString(getApplicationStatus())+"\n");
-        strBuff.append("   leakageDetectionStatus="+Utils.toHexString(getLeakageDetectionStatus())+"\n");
+        strBuff.append("   operatingMode="+WaveflowProtocolUtils.toHexString(getOperatingMode())+"\n");
+        strBuff.append("   applicationStatus="+WaveflowProtocolUtils.toHexString(getApplicationStatus())+"\n");
+        strBuff.append("   leakageDetectionStatus="+WaveflowProtocolUtils.toHexString(getLeakageDetectionStatus())+"\n");
         strBuff.append("   currentRTC="+getCurrentRTC()+"\n");
-        strBuff.append("   qos="+Utils.toHexString(getQos())+"\n");
-        strBuff.append("   shortLiftCounter="+Utils.toHexString(getShortLiftCounter())+"\n");
+        strBuff.append("   qos="+WaveflowProtocolUtils.toHexString(getQos())+"\n");
+        strBuff.append("   shortLiftCounter="+WaveflowProtocolUtils.toHexString(getShortLiftCounter())+"\n");
         for (int i=0;i<getEncoderModelInfos().length;i++) {
             strBuff.append("       encoderModelInfos["+i+"]="+getEncoderModelInfos()[i]+"\n");
         }
@@ -111,17 +111,17 @@ public class EncoderGenericHeader {
 	EncoderGenericHeader(DataInputStream dais, Logger logger, TimeZone timeZone) throws IOException {
 			
 		dais.readByte(); // skip unused byte (value 0)
-		operatingMode = Utils.toInt(dais.readShort());
-		applicationStatus = Utils.toInt(dais.readByte());
-		leakageDetectionStatus = Utils.toInt(dais.readByte());
+		operatingMode = WaveflowProtocolUtils.toInt(dais.readShort());
+		applicationStatus = WaveflowProtocolUtils.toInt(dais.readByte());
+		leakageDetectionStatus = WaveflowProtocolUtils.toInt(dais.readByte());
 
 		byte[] temp = new byte[7];
 		dais.read(temp);
 		currentRTC = TimeDateRTCParser.parse(temp, timeZone).getTime();
 		
-		qos = Utils.toInt(dais.readByte());
+		qos = WaveflowProtocolUtils.toInt(dais.readByte());
 		
-		shortLiftCounter = Utils.toInt(dais.readShort());
+		shortLiftCounter = WaveflowProtocolUtils.toInt(dais.readShort());
 		
 		/*
 		Encoder unit on Port A
@@ -139,14 +139,14 @@ public class EncoderGenericHeader {
 		*/
 
 		for (int port = 0;port<2;port++) {
-			int nrOfDigitsBeforeDecimalPoint = Utils.toInt(dais.readByte());
-			int id = Utils.toInt(dais.readByte());
+			int nrOfDigitsBeforeDecimalPoint = WaveflowProtocolUtils.toInt(dais.readByte());
+			int id = WaveflowProtocolUtils.toInt(dais.readByte());
 			encoderUnitInfos[port] = new EncoderUnitInfo(EncoderUnitType.fromId(id),nrOfDigitsBeforeDecimalPoint);
 		}
 		
 		for (int port = 0;port<2;port++) {
-			int id = Utils.toInt(dais.readByte());
-			int manufacturerId = Utils.toInt(dais.readByte());
+			int id = WaveflowProtocolUtils.toInt(dais.readByte());
+			int manufacturerId = WaveflowProtocolUtils.toInt(dais.readByte());
 			encoderModelInfos[port] = new EncoderModelInfo(EncoderModelType.fromId(id),manufacturerId);
 		}
 	}

@@ -153,14 +153,14 @@ public class EncoderDataloggingTable extends AbstractRadioCommand {
 		
 		strBuilder.append("EncoderDataloggingTable (datalogging parameters):\n");
 		
-		strBuilder.append("samplingPeriod: "+Utils.toHexString(samplingPeriod)+"\n");
-		strBuilder.append("SamplingActivationType: "+Utils.toHexString(SamplingActivationType)+"\n");
-		strBuilder.append("measurementPeriod: "+Utils.toHexString(measurementPeriod)+"\n");
-		strBuilder.append("dayOfTheWeek: "+Utils.toHexString(dayOfTheWeek)+"\n");
-		strBuilder.append("dayOfTheWeek: "+Utils.toHexString(hourOfManagement)+"\n");
+		strBuilder.append("samplingPeriod: "+WaveflowProtocolUtils.toHexString(samplingPeriod)+"\n");
+		strBuilder.append("SamplingActivationType: "+WaveflowProtocolUtils.toHexString(SamplingActivationType)+"\n");
+		strBuilder.append("measurementPeriod: "+WaveflowProtocolUtils.toHexString(measurementPeriod)+"\n");
+		strBuilder.append("dayOfTheWeek: "+WaveflowProtocolUtils.toHexString(dayOfTheWeek)+"\n");
+		strBuilder.append("dayOfTheWeek: "+WaveflowProtocolUtils.toHexString(hourOfManagement)+"\n");
 		strBuilder.append("nrOfRecordsInDatalogging: "+nrOfRecordsInDatalogging+"\n");
 		
-		strBuilder.append("EncoderDataloggingTable (datalogging data [portmask "+Utils.toHexString(portMask)+"], [nr of values "+nrOfValues+"], [offset "+offsetFromMostRecentValue+"]\n");
+		strBuilder.append("EncoderDataloggingTable (datalogging data [portmask "+WaveflowProtocolUtils.toHexString(portMask)+"], [nr of values "+nrOfValues+"], [offset "+offsetFromMostRecentValue+"]\n");
 		
 		strBuilder.append("lastLoggingRTC: "+lastLoggingRTC+"\n");
 		
@@ -177,7 +177,7 @@ public class EncoderDataloggingTable extends AbstractRadioCommand {
 		if (nrOfReadingsPortB > 0) {
 			strBuilder.append("nrOfReadingsPortB: "+nrOfReadingsPortB+"\n");
 			for(int i=0;i<encoderReadingsPortB.length;i++) {
-				strBuilder.append("encoderReadingsPortB["+i+"]: "+Utils.toHexString(encoderReadingsPortB[i])+"\n");
+				strBuilder.append("encoderReadingsPortB["+i+"]: "+WaveflowProtocolUtils.toHexString(encoderReadingsPortB[i])+"\n");
 			}
 		}
 		else {
@@ -207,12 +207,12 @@ public class EncoderDataloggingTable extends AbstractRadioCommand {
 				if (frameCounter==0) {
 					
 					// read the datalogging parameters
-					samplingPeriod = Utils.toInt(dais.readByte());
-					SamplingActivationType = Utils.toInt(dais.readByte());
-					measurementPeriod = Utils.toInt(dais.readByte());
-					dayOfTheWeek = Utils.toInt(dais.readByte());
-					hourOfManagement = Utils.toInt(dais.readByte());
-					nrOfRecordsInDatalogging = Utils.toInt(dais.readShort());		
+					samplingPeriod = WaveflowProtocolUtils.toInt(dais.readByte());
+					SamplingActivationType = WaveflowProtocolUtils.toInt(dais.readByte());
+					measurementPeriod = WaveflowProtocolUtils.toInt(dais.readByte());
+					dayOfTheWeek = WaveflowProtocolUtils.toInt(dais.readByte());
+					hourOfManagement = WaveflowProtocolUtils.toInt(dais.readByte());
+					nrOfRecordsInDatalogging = WaveflowProtocolUtils.toInt(dais.readShort());		
 					
 					// read the datalogging
 					byte[] temp = new byte[7];
@@ -221,15 +221,15 @@ public class EncoderDataloggingTable extends AbstractRadioCommand {
 				}
 				else {
 					// in case of a multiple frame, the first byte of the following data is the commmandId acknowledge
-					int commandIdAck = Utils.toInt(dais.readByte());
+					int commandIdAck = WaveflowProtocolUtils.toInt(dais.readByte());
 					if (commandIdAck != (0x80 | getEncoderRadioCommandId().getCommandId())) {
-						throw new WaveFlow100mwEncoderException("Invalid response tag ["+Utils.toHexString(commandIdAck)+"]");
+						throw new WaveFlow100mwEncoderException("Invalid response tag ["+WaveflowProtocolUtils.toHexString(commandIdAck)+"]");
 					}
 				}
 				
-				frameCounter = Utils.toInt(dais.readByte());
-				int nrOfReadingsPortA = Utils.toInt(dais.readByte());
-				int nrOfReadingsPortB = Utils.toInt(dais.readByte());
+				frameCounter = WaveflowProtocolUtils.toInt(dais.readByte());
+				int nrOfReadingsPortA = WaveflowProtocolUtils.toInt(dais.readByte());
+				int nrOfReadingsPortB = WaveflowProtocolUtils.toInt(dais.readByte());
 				dais.readShort(); // skip 2 bytes unused 0x0000 value
 				
 				for (int i=0;i<nrOfReadingsPortA;i++) {

@@ -36,8 +36,8 @@ public class FirmwareVersion extends AbstractRadioCommand {
 			
 			dais = new DataInputStream(new ByteArrayInputStream(data));
 			dais.readByte(); // skip character 'V' 0x56
-			modeOfTransmission = Utils.toInt(dais.readShort());
-			firmwareVersion = Utils.toInt(dais.readShort());
+			modeOfTransmission = WaveflowProtocolUtils.toInt(dais.readShort());
+			firmwareVersion = WaveflowProtocolUtils.toInt(dais.readShort());
 		}
 		finally {
 			if (dais != null) {

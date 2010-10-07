@@ -49,7 +49,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 		}
 		
 		public String toString() {
-			return Utils.toHexString(id)+", "+description;
+			return WaveflowProtocolUtils.toHexString(id)+", "+description;
 		}
 		
 		static ParameterId fromId(final int id) {
@@ -132,29 +132,29 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 		try {
 			dais = new DataInputStream(new ByteArrayInputStream(data));
 			
-			int commandIdAck = Utils.toInt(dais.readByte());
+			int commandIdAck = WaveflowProtocolUtils.toInt(dais.readByte());
 			if (commandIdAck != (0x80 | EncoderRadioCommandId.WriteParameter.getCommandId())) {
-				throw new WaveFlow100mwEncoderException("Invalid response tag ["+Utils.toHexString(commandIdAck)+"]");
+				throw new WaveFlow100mwEncoderException("Invalid response tag ["+WaveflowProtocolUtils.toHexString(commandIdAck)+"]");
 			}
 			else {
 
 				operatingMode = dais.readShort();
 				
 				if (getParameterId()!=null) {
-					int nrOfParameters = Utils.toInt(dais.readByte());
+					int nrOfParameters = WaveflowProtocolUtils.toInt(dais.readByte());
 					if (nrOfParameters != 1) {
 						throw new WaveFlow100mwEncoderException("Writing only 1 parameter at a time allowed, returned ["+nrOfParameters+"] parameters!");
 					}
 	
-					ParameterId pid = ParameterId.fromId(Utils.toInt(dais.readByte()));
+					ParameterId pid = ParameterId.fromId(WaveflowProtocolUtils.toInt(dais.readByte()));
 					if (pid != getParameterId()) {
 						throw new WaveFlow100mwEncoderException("Invalid parameter returned expected ["+getParameterId()+"], returned ["+pid+"]");
 					}
 				}
 				
-				int result = Utils.toInt(dais.readByte());
+				int result = WaveflowProtocolUtils.toInt(dais.readByte());
 				if (result != PARAM_UPDATE_OK) {
-					throw new WaveFlow100mwEncoderException("Update parameter ["+getParameterId()+"] failed. Result code ["+Utils.toHexString(result)+"]");
+					throw new WaveFlow100mwEncoderException("Update parameter ["+getParameterId()+"] failed. Result code ["+WaveflowProtocolUtils.toHexString(result)+"]");
 				}
 			}
 		}
@@ -206,26 +206,26 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 		try {
 			dais = new DataInputStream(new ByteArrayInputStream(data));
 			
-			int commandIdAck = Utils.toInt(dais.readByte());
+			int commandIdAck = WaveflowProtocolUtils.toInt(dais.readByte());
 			if (commandIdAck != (0x80 | EncoderRadioCommandId.ReadParameter.getCommandId())) {
-				throw new WaveFlow100mwEncoderException("Invalid response tag ["+Utils.toHexString(commandIdAck)+"]");
+				throw new WaveFlow100mwEncoderException("Invalid response tag ["+WaveflowProtocolUtils.toHexString(commandIdAck)+"]");
 			}
 			else {
 
 				operatingMode = dais.readShort();
 				
 				if (getParameterId()!=null) {
-					int nrOfParameters = Utils.toInt(dais.readByte());
+					int nrOfParameters = WaveflowProtocolUtils.toInt(dais.readByte());
 					if (nrOfParameters != 1) {
 						throw new WaveFlow100mwEncoderException("Reading only 1 parameter at a time allowed, returned ["+nrOfParameters+"] parameters!");
 					}
 
-					ParameterId pid = ParameterId.fromId(Utils.toInt(dais.readByte()));
+					ParameterId pid = ParameterId.fromId(WaveflowProtocolUtils.toInt(dais.readByte()));
 					if (pid != getParameterId()) {
 						throw new WaveFlow100mwEncoderException("Invalid parameter returned expected ["+getParameterId()+"], returned ["+pid+"]");
 					}
 					
-					int length = Utils.toInt(dais.readByte());
+					int length = WaveflowProtocolUtils.toInt(dais.readByte());
 					if (length != getParameterId().length) {
 						throw new WaveFlow100mwEncoderException("Invalid length returned expected ["+getParameterId().length+"], returned ["+length+"]");
 					}
