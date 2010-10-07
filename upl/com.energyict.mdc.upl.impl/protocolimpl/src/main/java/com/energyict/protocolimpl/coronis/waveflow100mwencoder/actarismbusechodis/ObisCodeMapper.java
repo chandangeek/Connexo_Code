@@ -109,6 +109,12 @@ public class ObisCodeMapper {
 	    			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, ProtocolUtils.outputHexString(o.getEncoderInternalData()));
 	    		}
 	    	}
+	    	else if ((obisCode.equals(ObisCode.fromString("8.1.1.0.0.255")))) { // port A
+	    		return echodis.getMbusRegisterValue(ObisCode.fromString("0.0.96.99.0.1"));
+	    	}
+	    	else if (obisCode.equals(ObisCode.fromString("8.2.1.0.0.255"))) { // Port B
+	    		return echodis.getMbusRegisterValue(ObisCode.fromString("0.1.96.99.0.1"));
+	    	}	    	
 	    	else {
 	    		try {
 	    			return echodis.getCommonObisCodeMapper().getRegisterValue(obisCode);

@@ -196,6 +196,15 @@ public class ObisCodeMapper {
 	    			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, o.getEncoderInternalData());
 	    		}
 	    	}
+	    	else if ((obisCode.equals(ObisCode.fromString("8.1.1.0.0.255"))) || (obisCode.equals(ObisCode.fromString("8.2.1.0.0.255")))) { // Port A or B
+	    		int portId = obisCode.getB()<=1?0:1;
+	    		EncoderInternalData encoderInternalData = (EncoderInternalData)waveFlow100mW.readInternalDatas()[portId];
+	    		Unit unit = encoderInternalData.getEncoderUnitType().toUnit();
+	    		BigDecimal bd = new BigDecimal(encoderInternalData.getCurrentIndex()*100+encoderInternalData.getLastPart());
+	    		bd = bd.movePointLeft(10-encoderInternalData.getDecimalPosition()); 
+	    		return new RegisterValue(obisCode,new Quantity(bd, unit),new Date());
+	    	}	    	
+	    	
 	    	else {
 	    		return waveFlow100mW.getCommonObisCodeMapper().getRegisterValue(obisCode);
 	    	}

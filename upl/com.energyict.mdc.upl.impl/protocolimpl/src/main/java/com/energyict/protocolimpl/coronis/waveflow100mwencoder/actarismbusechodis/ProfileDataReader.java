@@ -65,8 +65,6 @@ public class ProfileDataReader {
 		// Build intervaldatas list
 		List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
 		if ((portId==0) || (portId==1)) {
-			System.out.println(encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[portId]);
-			
 			
 			int nrOfReadings = portId==0?encoderDataloggingTable.getNrOfReadingsPortA():encoderDataloggingTable.getNrOfReadingsPortB();
 			long[] readings = portId==0?encoderDataloggingTable.getEncoderReadingsPortA():encoderDataloggingTable.getEncoderReadingsPortB();
