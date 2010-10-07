@@ -1,17 +1,15 @@
 package com.energyict.genericprotocolimpl.elster.ctr.encryption;
 
+import com.energyict.genericprotocolimpl.elster.ctr.common.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.Frame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
 import junit.framework.TestCase;
 import org.junit.Test;
-import static org.junit.Assert.assertArrayEquals;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+import javax.crypto.*;
+import java.security.*;
+
+import static org.junit.Assert.assertArrayEquals;
 
 /**
  * Copyrights EnergyICT
@@ -53,6 +51,8 @@ public class EncryptionTest extends TestCase {
             e.printStackTrace();
         } catch (InvalidAlgorithmParameterException e) {
             e.printStackTrace();
+        } catch (CTRParsingException e) {
+            e.printStackTrace();
         }
 
         try {
@@ -68,6 +68,8 @@ public class EncryptionTest extends TestCase {
         } catch (BadPaddingException e) {
             e.printStackTrace();
         } catch (InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+        } catch (CTRParsingException e) {
             e.printStackTrace();
         }
 

@@ -12,9 +12,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.object.*;
  */
 public class IdentificationResponseStructure extends Data<IdentificationResponseStructure> {
 
-    private CTRAbstractValue<String> pdrValue;
-    private CTRAbstractValue<String>[] allPA;
-    private CTRAbstractValue ncg;
+    private CTRAbstractValue<String> pdr;
 
     @Override
     public byte[] getBytes() {
@@ -22,37 +20,22 @@ public class IdentificationResponseStructure extends Data<IdentificationResponse
     }
 
     @Override
-    public IdentificationResponseStructure parse(byte[] rawData, int offset) {
+    public IdentificationResponseStructure parse(byte[] rawData, int offset) throws CTRParsingException {
         int ptr = offset;
 
-        try {
-            CTRObjectFactory factory = new CTRObjectFactory();
-            AttributeType valueAttributeType = new AttributeType();
-            valueAttributeType.setHasValueFields(true);
+        CTRObjectFactory factory = new CTRObjectFactory();
+        AttributeType valueAttributeType = new AttributeType();
+        valueAttributeType.setHasValueFields(true);
 
-            this.pdrValue = factory.parse(rawData, ptr, valueAttributeType, new CTRObjectID("C.0.0")).getValue()[0];
-            ptr += 7; 
-
-            // Unknown object???
-            ptr += 4;
-
-            this.allPA = factory.parse(rawData, ptr, valueAttributeType, new CTRObjectID("9.0.0")).getValue();
-            ptr += 36;
-
-            // Unknown object???
-            ptr += 1;
-
-            ptr += 1;
-
-        } catch (CTRParsingException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-
+        this.pdr = factory.parse(rawData, ptr, valueAttributeType, new CTRObjectID("C.0.0")).getValue()[0];
+        ptr += 7;
 
         return super.parse(rawData, offset);    //To change body of overridden methods use File | Settings | File Templates.
     }
 
-    public CTRAbstractValue getPdrValue() {
-        return pdrValue;
+    public CTRAbstractValue<String> getPdr() {
+        return pdr;
     }
+
+
 }

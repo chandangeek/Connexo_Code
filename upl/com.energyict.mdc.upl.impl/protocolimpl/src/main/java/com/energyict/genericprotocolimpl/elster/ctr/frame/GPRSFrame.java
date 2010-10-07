@@ -1,5 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.frame;
 
+import com.energyict.genericprotocolimpl.elster.ctr.common.CTRParsingException;
+
 /**
  * Copyrights EnergyICT
  * Date: 27-sep-2010
@@ -11,7 +13,6 @@ public class GPRSFrame extends AbstractCTRFrame<GPRSFrame> {
 
     public static final int STX = 0x0A;
     public static final int ETX = 0x0D;
-
 
     private int stx;
     private int etx;
@@ -30,7 +31,7 @@ public class GPRSFrame extends AbstractCTRFrame<GPRSFrame> {
         return bytes;
     }
 
-    public GPRSFrame parse(byte[] rawPacket, int offset) {
+    public GPRSFrame parse(byte[] rawPacket, int offset) throws CTRParsingException {
         int ptr = offset;
         stx = getIntFromBytes(rawPacket, ptr++, 1);
         super.parse(rawPacket, ptr);

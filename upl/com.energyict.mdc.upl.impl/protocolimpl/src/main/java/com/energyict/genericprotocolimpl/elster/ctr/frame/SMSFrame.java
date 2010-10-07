@@ -1,5 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.frame;
 
+import com.energyict.genericprotocolimpl.elster.ctr.common.CTRParsingException;
+
 /**
  * Copyrights EnergyICT
  * Date: 27-sep-2010
@@ -8,7 +10,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.frame;
 public class SMSFrame extends AbstractCTRFrame<SMSFrame> {
 
     @Override
-    public SMSFrame parse(byte[] rawData, int offset) {
+    public SMSFrame parse(byte[] rawData, int offset) throws CTRParsingException {
         super.parse(rawData, offset);
         return this;
     }

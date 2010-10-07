@@ -1,16 +1,13 @@
 package com.energyict.genericprotocolimpl.elster.ctr;
 
 import com.energyict.genericprotocolimpl.elster.ctr.common.CTRConnectionException;
+import com.energyict.genericprotocolimpl.elster.ctr.common.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
+import javax.crypto.*;
 import java.io.*;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 
 /**
  * Copyrights EnergyICT
@@ -33,7 +30,7 @@ public class CtrConnection {
         this.delayAfterError = properties.getDelayAfterError();
     }
 
-    public GPRSFrame sendFrameGetResponse(GPRSFrame frame) throws IllegalBlockSizeException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException {
+    public GPRSFrame sendFrameGetResponse(GPRSFrame frame) throws IllegalBlockSizeException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException, CTRParsingException {
         int attempts = 0;
         do {
             try {
@@ -61,7 +58,11 @@ public class CtrConnection {
 
     private GPRSFrame readFrame() throws CTRConnectionException {
         byte[] rawFrame = readRawFrame();
-        return new GPRSFrame().parse(rawFrame, 0);
+        try {
+            return new GPRSFrame().parse(rawFrame, 0);
+        } catch (CTRParsingException e) {
+            throw new CTRConnectionException("Invalid frame received!", e);
+        }
     }
 
     private byte[] readRawFrame() throws CTRConnectionException {

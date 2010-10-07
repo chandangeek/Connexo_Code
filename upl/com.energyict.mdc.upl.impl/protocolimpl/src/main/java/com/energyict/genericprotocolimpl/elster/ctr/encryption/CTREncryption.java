@@ -1,8 +1,8 @@
 package com.energyict.genericprotocolimpl.elster.ctr.encryption;
 
+import com.energyict.genericprotocolimpl.elster.ctr.common.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.Frame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.*;
-import com.energyict.protocolimpl.base.CRC16DNP;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import javax.crypto.*;
@@ -41,7 +41,7 @@ public class CTREncryption {
     }
 
 
-    public Frame decryptFrame(Frame frame) throws IllegalBlockSizeException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException {
+    public Frame decryptFrame(Frame frame) throws IllegalBlockSizeException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException, CTRParsingException {
         EncryptionStatus eStatus = frame.getFunctionCode().getEncryptionStatus();
         if (eStatus.isEncrypted()) {
             frame = setData(frame, decryptStream(frame));
@@ -73,7 +73,7 @@ public class CTREncryption {
         return result;
     }
 
-    public Frame encryptFrame(Frame frame) throws IllegalBlockSizeException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException {
+    public Frame encryptFrame(Frame frame) throws IllegalBlockSizeException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException, CTRParsingException {
 
         EncryptionStatus eStatus = frame.getFunctionCode().getEncryptionStatus();
         if (!eStatus.isEncrypted()) {
@@ -85,7 +85,7 @@ public class CTREncryption {
         return frame;
     }
 
-    private Frame setData(Frame frame, byte[] stream) {
+    private Frame setData(Frame frame, byte[] stream) throws CTRParsingException {
         int offset = 0;
         byte[] struct = ProtocolTools.getSubArray(stream, offset, offset + frame.getStructureCode().getBytes().length);
         offset += struct.length;

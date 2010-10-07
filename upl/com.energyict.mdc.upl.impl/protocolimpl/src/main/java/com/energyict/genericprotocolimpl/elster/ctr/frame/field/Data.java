@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.frame.field;
 
 import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
+import com.energyict.genericprotocolimpl.elster.ctr.common.CTRParsingException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
@@ -21,7 +22,7 @@ public class Data<T extends Data> extends AbstractField<T> {
         return data;
     }
 
-    public T parse(byte[] rawData, int offset) {
+    public T parse(byte[] rawData, int offset) throws CTRParsingException {
         data = ProtocolTools.getSubArray(rawData, offset, offset + LENGTH);
         return (T) this;
     }
