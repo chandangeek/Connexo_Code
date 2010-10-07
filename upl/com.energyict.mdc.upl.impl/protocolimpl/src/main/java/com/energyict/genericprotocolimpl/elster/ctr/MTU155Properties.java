@@ -22,9 +22,9 @@ public class MTU155Properties extends AbstractProtocolProperties {
     private static final String DEFAULT_RETRIES = "3";
     private static final String DEFAULT_DELAY_AFTER_ERROR = "500";
 
-    private static final String DEFAULT_KEYC = "00000000000000000000000000000000";
-    private static final String DEFAULT_KEYT = "00000000000000000000000000000000";
-    private static final String DEFAULT_KEYF = "00000000000000000000000000000000";
+    private static final String DEFAULT_KEYC = "22222222222222222222222222222222";
+    private static final String DEFAULT_KEYT = "22222222222222222222222222222222";
+    private static final String DEFAULT_KEYF = "22222222222222222222222222222222";
 
     public MTU155Properties() {
         super(new Properties());

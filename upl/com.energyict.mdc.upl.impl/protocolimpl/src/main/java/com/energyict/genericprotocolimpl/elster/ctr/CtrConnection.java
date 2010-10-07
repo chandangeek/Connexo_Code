@@ -31,6 +31,7 @@ public class CtrConnection {
     }
 
     public GPRSFrame sendFrameGetResponse(GPRSFrame frame) throws IllegalBlockSizeException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException, CTRParsingException {
+        frame.setCrc();
         int attempts = 0;
         do {
             try {

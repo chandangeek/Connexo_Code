@@ -23,14 +23,11 @@ public class IdentificationRequestStructure extends Data<IdentificationRequestSt
 
     @Override
     public byte[] getBytes() {
-        byte[] fieldData = ProtocolTools.concatByteArrays(puks.getBytes(), st.getBytes(), stCode.getBytes());
-        int paddingLength = LENGTH - fieldData.length;
-        if (paddingLength > 0) {
-            fieldData = ProtocolTools.concatByteArrays(fieldData, new byte[paddingLength]);
-        } else if (paddingLength < 0) {
-            fieldData = ProtocolTools.getSubArray(fieldData, 0, LENGTH);
-        }
-        return fieldData;
+        return padData(ProtocolTools.concatByteArrays(
+                puks.getBytes(),
+                st.getBytes(),
+                stCode.getBytes()
+        ));
     }
 
     @Override

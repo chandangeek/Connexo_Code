@@ -18,6 +18,16 @@ public class Data<T extends Data> extends AbstractField<T> {
         data = new byte[LENGTH];
     }
 
+    protected byte[] padData(byte[] fieldData) {
+        int paddingLength = LENGTH - fieldData.length;
+        if (paddingLength > 0) {
+            fieldData = ProtocolTools.concatByteArrays(fieldData, new byte[paddingLength]);
+        } else if (paddingLength < 0) {
+            fieldData = ProtocolTools.getSubArray(fieldData, 0, LENGTH);
+        }
+        return fieldData;
+    }
+
     public byte[] getBytes() {
         return data;
     }

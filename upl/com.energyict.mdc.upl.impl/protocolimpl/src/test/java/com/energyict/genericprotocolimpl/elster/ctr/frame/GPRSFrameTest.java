@@ -24,14 +24,28 @@ public class GPRSFrameTest {
         correctFrame = ProtocolTools.getBytesFromHexString(sb.toString(), "");
     }
 
+    private static final byte[] nackFrame;
+
+    static {
+        StringBuilder sb = new StringBuilder();
+        sb.append("0A0000002D00004C680000000000000000000000000000000000000000000000");
+        sb.append("0000000000000000000000000000000000000000000000000000000000000000");
+        sb.append("0000000000000000000000000000000000000000000000000000000000000000");
+        sb.append("0000000000000000000000000000000000000000000000000000000000000000");
+        sb.append("0000000000000000000000418B0D");
+        nackFrame = ProtocolTools.getBytesFromHexString(sb.toString(), "");
+    }
+
     @Test
     public void testGetBytes() throws Exception {
         assertArrayEquals(correctFrame, new GPRSFrame().parse(correctFrame, 0).getBytes());
+        assertArrayEquals(nackFrame, new GPRSFrame().parse(nackFrame, 0).getBytes());
     }
 
     @Test
     public void testParse() throws Exception {
         assertArrayEquals(correctFrame, new GPRSFrame().parse(correctFrame, 0).getBytes());
+        assertArrayEquals(nackFrame, new GPRSFrame().parse(nackFrame, 0).getBytes());
     }
 
 }

@@ -4,6 +4,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
 import com.energyict.genericprotocolimpl.elster.ctr.common.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.*;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.IdentificationResponseStructure;
+import com.energyict.genericprotocolimpl.elster.ctr.structure.NackStructure;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
@@ -79,13 +80,20 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
     }
 
     private void parseDataField(byte[] rawData, int offset) throws CTRParsingException {
-        if (structureCode.isIdentification() && functionCode.isIdentificationReply()) {
+        if (isIdentificationReply()) {
             data = new IdentificationResponseStructure().parse(rawData, offset);
+        } else if (functionCode.isNack()) {
+            data = new NackStructure().parse(rawData, offset);
+        } else if (functionCode.isAck()) {
+            data = new AckStructure().parse(rawData, offset);
         } else {
             data = new Data().parse(rawData, offset);
         }
     }
 
+    private boolean isIdentificationReply() {
+        return structureCode.isIdentification() && functionCode.isIdentificationReply();
+    }
 
     public void setCrc() {
         crc = generateCrc();

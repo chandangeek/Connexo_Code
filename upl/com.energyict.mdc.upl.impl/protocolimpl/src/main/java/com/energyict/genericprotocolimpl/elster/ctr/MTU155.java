@@ -3,19 +3,16 @@ package com.energyict.genericprotocolimpl.elster.ctr;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.*;
 import com.energyict.genericprotocolimpl.common.AbstractGenericProtocol;
+import com.energyict.genericprotocolimpl.elster.ctr.encryption.SecureCtrConnection;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.*;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.IdentificationRequestStructure;
 import com.energyict.protocolimpl.base.ProtocolProperties;
 import com.energyict.protocolimpl.debug.DebugUtils;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
+import javax.crypto.*;
 import java.io.IOException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Logger;
@@ -61,7 +58,7 @@ public class MTU155 extends AbstractGenericProtocol {
 
         MTU155 mtu155 = new MTU155();
         mtu155.execute(null, dialer, Logger.getAnonymousLogger());
-        CtrConnection connection = new CtrConnection(dialer.getInputStream(), dialer.getOutputStream(), new MTU155Properties());
+        CtrConnection connection = new SecureCtrConnection(dialer.getInputStream(), dialer.getOutputStream(), new MTU155Properties());
 
         GPRSFrame request = new GPRSFrame();
         request.getFunctionCode().setEncryptionStatus(EncryptionStatus.NO_ENCRYPTION);
