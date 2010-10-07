@@ -1,0 +1,45 @@
+package com.energyict.genericprotocolimpl.elster.ctr.structure.field;
+
+import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
+
+/**
+ * Copyrights EnergyICT
+ * Date: 7-okt-2010
+ * Time: 8:41:06
+ */
+public class STCode extends AbstractField<STCode> {
+
+    public static final int LENGTH = 2;
+
+    public static final int UNDEFINED = 0;
+    public static final int REMOTE_CLIENT = 1;
+    public static final int TERMINAL = 2;
+
+    private int stCode;
+
+    public STCode() {
+        this(0);
+    }
+
+    public STCode(int stCode) {
+        this.stCode = stCode;
+    }
+
+    public byte[] getBytes() {
+        return getBytesFromInt(stCode, LENGTH);
+    }
+
+    public STCode parse(byte[] rawData, int offset) {
+        this.stCode = getIntFromBytes(rawData, offset, LENGTH);
+        return this;
+    }
+
+    public int getStCode() {
+        return stCode;
+    }
+
+    public void setStCode(int stCode) {
+        this.stCode = stCode;
+    }
+
+}

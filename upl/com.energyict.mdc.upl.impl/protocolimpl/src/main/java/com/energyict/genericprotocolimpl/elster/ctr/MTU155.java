@@ -5,6 +5,7 @@ import com.energyict.dialer.core.*;
 import com.energyict.genericprotocolimpl.common.AbstractGenericProtocol;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.*;
+import com.energyict.genericprotocolimpl.elster.ctr.structure.IdentificationRequestStructure;
 import com.energyict.protocolimpl.base.ProtocolProperties;
 import com.energyict.protocolimpl.debug.DebugUtils;
 
@@ -61,6 +62,7 @@ public class MTU155 extends AbstractGenericProtocol {
         request.getFunctionCode().setFunction(Function.IDENTIFICATION_REQUEST);
         request.getProfi().setLongFrame(false);
         request.getStructureCode().setStructureCode(StructureCode.IDENTIFICATION);
+        request.setData(new IdentificationRequestStructure());
         request.setCpa(new Cpa(0x00));
         request.setCrc();
         System.out.println(request);

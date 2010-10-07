@@ -88,8 +88,8 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
                 functionCode.getBytes(),
                 structureCode.getBytes(),
                 channel.getBytes(),
-                cpa.getBytes(),
-                data.getBytes()
+                data.getBytes(),
+                cpa.getBytes()
         );
         return new Crc().generateAndSetCrc(crcData);
     }
@@ -135,6 +135,7 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
     }
 
     public void setData(Data data) {
+        System.out.println(data);
         this.data = data;
     }
 
