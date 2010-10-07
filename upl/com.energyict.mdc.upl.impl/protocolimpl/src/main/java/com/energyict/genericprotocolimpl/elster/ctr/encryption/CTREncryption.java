@@ -76,6 +76,15 @@ public class CTREncryption {
     public Frame encryptFrame(Frame frame) throws IllegalBlockSizeException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException, CTRParsingException {
 
         EncryptionStatus eStatus = frame.getFunctionCode().getEncryptionStatus();
+
+        switch (frame.getFunctionCode().getFunction()) {
+            case NACK:
+            case END_OF_SESSION:
+            case IDENTIFICATION_REPLY:
+            case IDENTIFICATION_REQUEST:
+            case ACK: return frame;
+        }
+
         if (!eStatus.isEncrypted()) {
             frame = setEncryptionStatus(frame);
             frame = setCpa(frame);
