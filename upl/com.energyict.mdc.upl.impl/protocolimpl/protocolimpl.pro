@@ -406,4 +406,7 @@
 
 -keepnames class com.energyict.protocolimpl.coronis.waveflow100mwencoder.severntrent.SM150E
 
+-keepnames class com.energyict.protocolimpl.coronis.waveflow100mwencoder.actarismbusechodis.Echodis
+
+
 
