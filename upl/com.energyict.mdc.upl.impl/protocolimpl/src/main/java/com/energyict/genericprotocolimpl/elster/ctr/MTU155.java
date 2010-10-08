@@ -9,7 +9,6 @@ import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.*;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.IdentificationRequestStructure;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.IdentificationResponseStructure;
-import com.energyict.protocolimpl.base.ProtocolProperties;
 import com.energyict.protocolimpl.debug.DebugUtils;
 
 import javax.crypto.*;
@@ -26,7 +25,7 @@ import java.util.logging.Logger;
  */
 public class MTU155 extends AbstractGenericProtocol {
 
-    private ProtocolProperties properties = new MTU155Properties();
+    private MTU155Properties properties = new MTU155Properties();
     private IdentificationResponseStructure identification;
     private CtrConnection connection;
 
@@ -49,7 +48,12 @@ public class MTU155 extends AbstractGenericProtocol {
 
     @Override
     protected void doExecute() {
+        this.connection = new SecureCtrConnection(getLink().getInputStream(), getLink().getOutputStream(), getProtocolProperties());
         // Hmmm, still work to do :)
+    }
+
+    private MTU155Properties getProtocolProperties() {
+        return properties;
     }
 
     public static void main(String[] args) throws IOException, LinkException, BusinessException, SQLException, IllegalBlockSizeException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException {
@@ -62,13 +66,11 @@ public class MTU155 extends AbstractGenericProtocol {
 
         MTU155 mtu155 = new MTU155();
         mtu155.execute(null, dialer, Logger.getAnonymousLogger());
-        CtrConnection connection = new SecureCtrConnection(dialer.getInputStream(), dialer.getOutputStream(), new MTU155Properties());
-
-
+        mtu155.getIdentification();
 
     }
 
-    private IdentificationResponseStructure getIdentification() throws CTRConnectionException {
+    public IdentificationResponseStructure getIdentification() throws CTRConnectionException {
         if (identification == null) {
             GPRSFrame request = new GPRSFrame();
             request.getFunctionCode().setEncryptionStatus(EncryptionStatus.NO_ENCRYPTION);
@@ -77,7 +79,10 @@ public class MTU155 extends AbstractGenericProtocol {
             request.getStructureCode().setStructureCode(StructureCode.IDENTIFICATION);
             request.setData(new IdentificationRequestStructure());
             request.setCpa(new Cpa(0x00));
-            getConnection().sendFrameGetResponse(request);
+            GPRSFrame response = getConnection().sendFrameGetResponse(request);
+            if (response.getData() instanceof IdentificationResponseStructure) {
+                this.identification = (IdentificationResponseStructure) response.getData();
+            }
         }
         return this.identification;
     }

@@ -18,9 +18,9 @@ public class MTU155Properties extends AbstractProtocolProperties {
     private static final String KEYF = "KeyF";
     private static final String KEYT = "KeyT";
 
-    private static final String DEFAULT_TIMEOUT = "10000";
+    private static final String DEFAULT_TIMEOUT = "2000";
     private static final String DEFAULT_RETRIES = "3";
-    private static final String DEFAULT_DELAY_AFTER_ERROR = "500";
+    private static final String DEFAULT_DELAY_AFTER_ERROR = "100";
 
     private static final String DEFAULT_KEYC = "22222222222222222222222222222222";
     private static final String DEFAULT_KEYT = "22222222222222222222222222222222";

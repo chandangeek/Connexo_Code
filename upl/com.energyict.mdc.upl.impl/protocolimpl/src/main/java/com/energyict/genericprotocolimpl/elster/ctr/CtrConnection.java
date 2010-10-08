@@ -24,10 +24,20 @@ public class CtrConnection {
         this.in = in;
         this.out = out;
         this.retries = properties.getRetries();
-        this.timeOut = properties.getTimeout(); 
+        this.timeOut = properties.getTimeout();
         this.delayAfterError = properties.getDelayAfterError();
     }
 
+    /**
+     * Send a GPRS frame, and wait for the response from the meter.
+     * This is the place where the retry mechanism is implemented.
+     * After every error, we clear the input buffer and try again
+     * for the number of retries.
+     *
+     * @param frame
+     * @return
+     * @throws CTRConnectionException
+     */
     public GPRSFrame sendFrameGetResponse(GPRSFrame frame) throws CTRConnectionException {
         frame.setCrc();
         int attempts = 0;
@@ -36,20 +46,25 @@ public class CtrConnection {
                 sendFrame(frame);
                 return readFrame();
             } catch (CTRConnectionException e) {
-                e.printStackTrace();
                 delayAndFlushConnection();
                 attempts++;
             }
         } while (attempts <= retries);
-        return null;
+        throw new CTRConnectionException();
     }
 
+    /**
+     * Sleep for 'delayAfterError' millis, and remove al the pending bytes from
+     * the input buffer. If there ae still bytes on the stream, repeat this,
+     * until the buffer is empty.
+     */
     private void delayAndFlushConnection() {
         ProtocolTools.delay(delayAfterError);
         try {
-            do {
+            while (in.available() > 0) {
                 ProtocolTools.delay(delayAfterError);
-            } while (in.read(new byte[1024]) > 0);
+                in.read(new byte[1024]);
+            }
         } catch (IOException e) {
             //Absorb
         }
@@ -68,39 +83,68 @@ public class CtrConnection {
         ByteArrayOutputStream rawBytes = new ByteArrayOutputStream();
         try {
             CtrConnectionState state = CtrConnectionState.WAIT_FOR_STX;
+            long timeOutMoment = System.currentTimeMillis() + timeOut;
             do {
-                int readByte = in.read() & 0x0FF;
-                switch (state) {
-                    case WAIT_FOR_STX:
-                        if (readByte == GPRSFrame.STX) {
-                            rawBytes.write(readByte);
-                            state = CtrConnectionState.READ_MIN_LENGTH;
+                if (System.currentTimeMillis() > timeOutMoment) {
+                    String message = "Timed out while receiving data. State='" + state + "', timeout='" + timeOut + "'.";
+                    throw new CTRConnectionException(message);
+                }
+                if (in.available() <= 0) {
+                    ProtocolTools.delay(1);
+                } else {
+                    byte[] buffer = new byte[32];
+                    int len = in.read(buffer);
+                    for (int ptr = 0; ptr < len; ptr++) {
+                        int readByte = buffer[ptr];
+                        readByte &= 0x0FF;
+                        switch (state) {
+                            case WAIT_FOR_STX:
+                                state = waitForSTX(rawBytes, state, readByte);
+                                break;
+                            case READ_MIN_LENGTH:
+                                state = readMinLength(rawBytes, state, readByte);
+                                break;
+                            case READ_EXTENDED_LENGTH:
+                                state = waitExtendedLength(rawBytes, state, readByte);
+                                break;
                         }
-                        break;
-                    case READ_MIN_LENGTH:
-                        rawBytes.write(readByte);
-                        if (rawBytes.size() >= GPRSFrame.LENGTH) {
-                            GPRSFrame gprsFrame = new GPRSFrame().parse(rawBytes.toByteArray(), 0);
-                            if (gprsFrame.getProfi().isLongFrame()) {
-                                state = CtrConnectionState.READ_EXTENDED_LENGTH;
-                            } else {
-                                if (readByte != GPRSFrame.ETX) {
-                                    String fromBytes = ProtocolTools.getHexStringFromBytes(new byte[]{(byte) (readByte & 0x0FF)});
-                                    throw new CTRConnectionException("Expected ETX, but received " + fromBytes);
-                                } else {
-                                    state = CtrConnectionState.FRAME_RECEIVED;
-                                }
-                            }
-                        }
-                        break;
-                    case READ_EXTENDED_LENGTH:
-                        throw new CTRConnectionException("Long frames not supported yet!");
+                    }
                 }
             } while (state != CtrConnectionState.FRAME_RECEIVED);
         } catch (IOException e) {
             throw new CTRConnectionException("An error occured while reading the raw CtrFrame.", e);
         }
         return rawBytes.toByteArray();
+    }
+
+    private CtrConnectionState waitExtendedLength(ByteArrayOutputStream rawBytes, CtrConnectionState state, int readByte) throws CTRConnectionException {
+        throw new CTRConnectionException("Long frames not supported yet!");
+    }
+
+    private CtrConnectionState readMinLength(ByteArrayOutputStream rawBytes, CtrConnectionState state, int readByte) throws CTRParsingException, CTRConnectionException {
+        rawBytes.write(readByte);
+        if (rawBytes.size() >= GPRSFrame.LENGTH) {
+            GPRSFrame gprsFrame = new GPRSFrame().parse(rawBytes.toByteArray(), 0);
+            if (gprsFrame.getProfi().isLongFrame()) {
+                state = CtrConnectionState.READ_EXTENDED_LENGTH;
+            } else {
+                if (readByte != GPRSFrame.ETX) {
+                    String fromBytes = ProtocolTools.getHexStringFromBytes(new byte[]{(byte) (readByte & 0x0FF)});
+                    throw new CTRConnectionException("Expected ETX, but received " + fromBytes);
+                } else {
+                    state = CtrConnectionState.FRAME_RECEIVED;
+                }
+            }
+        }
+        return state;
+    }
+
+    private CtrConnectionState waitForSTX(ByteArrayOutputStream rawBytes, CtrConnectionState state, int readByte) {
+        if (readByte == GPRSFrame.STX) {
+            rawBytes.write(readByte);
+            state = CtrConnectionState.READ_MIN_LENGTH;
+        }
+        return state;
     }
 
     private void sendFrame(GPRSFrame frame) throws CTRConnectionException {

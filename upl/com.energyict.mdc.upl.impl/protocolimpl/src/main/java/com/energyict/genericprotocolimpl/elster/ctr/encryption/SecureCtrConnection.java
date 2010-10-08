@@ -26,12 +26,11 @@ public class SecureCtrConnection extends CtrConnection {
     }
 
     @Override
-    public GPRSFrame sendFrameGetResponse(GPRSFrame frame) throws CTRConnectionException {
+    public GPRSFrame sendFrameGetResponse(GPRSFrame requestFrame) throws CTRConnectionException {
         try {
-            frame = (GPRSFrame) ctrEncryption.encryptFrame((Frame) frame);
-            GPRSFrame gprsFrame = super.sendFrameGetResponse(frame);
-            gprsFrame = (GPRSFrame) ctrEncryption.decryptFrame((Frame) frame);
-            return gprsFrame;
+            GPRSFrame encryptedFrame = (GPRSFrame) ctrEncryption.encryptFrame(requestFrame);
+            GPRSFrame responseFrame = super.sendFrameGetResponse(encryptedFrame);
+            return (GPRSFrame) ctrEncryption.decryptFrame((Frame) responseFrame);
         } catch (CtrCipheringException e) {
             throw new CTRConnectionException("An error occured in the secure connection!", e);
         }
