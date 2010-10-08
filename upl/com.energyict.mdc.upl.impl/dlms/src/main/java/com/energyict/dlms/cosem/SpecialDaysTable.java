@@ -10,6 +10,11 @@ import com.energyict.dlms.axrdencoding.Unsigned16;
 
 public class SpecialDaysTable extends AbstractCosemObject {
 
+    	/* Method writes SN */
+	private static final int INSERT_SPECIAL_DAY_SN = 0x10;
+	private static final int DELETE_SPECIAL_DAY_SN = 0x18;
+
+
 	private Array specialDays = null;
 
 	public SpecialDaysTable(ProtocolLink protocolLink,ObjectReference objectReference) {
@@ -33,7 +38,11 @@ public class SpecialDaysTable extends AbstractCosemObject {
     }
 
     public void insert(Structure structure) throws IOException {
-        invoke(1,structure.getBEREncodedByteArray());
+        if (getObjectReference().isLNReference()) {
+            invoke(1, structure.getBEREncodedByteArray());
+        } else {
+            write(INSERT_SPECIAL_DAY_SN, structure.getBEREncodedByteArray());
+        }
     }
 
     public void delete(int index) throws IOException {

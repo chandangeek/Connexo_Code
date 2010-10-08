@@ -32,7 +32,34 @@ public class ActivityCalendar extends AbstractCosemObject {
     private Array dayProfileTablePassive=null;
 
     private OctetString activatePassiveCalendarTime=null;
+
+    /* LongName Attribute numbers */
+    private static final int CALENDAR_NAME_ACTIVE = 2;
+    private static final int SEASON_PROFILE_ACTIVE = 3;
+    private static final int WEEK_PROFILE_ACTIVE = 4;
+    private static final int DAY_PROFILE_ACTIVE = 5;
+    private static final int CALENDAR_NAME_PASSIVE = 6;
+    private static final int SEASON_PROFILE_PASSIVE = 7;
+    private static final int WEEK_PROFILE_PASSIVE = 8;
+    private static final int DAY_PROFILE_PASSIVE = 9;
+    private static final int ACTIVATE_PASSIVE_CALENDAR_TIME = 10;
+
+    /* ShortName Attribute values */
+    private static final int CALENDAR_NAME_ACTIVE_SN = 0x08;
+    private static final int SEASON_PROFILE_ACTIVE_SN = 0x10;
+    private static final int WEEK_PROFILE_ACTIVE_SN = 0x18;
+    private static final int DAY_PROFILE_ACTIVE_SN = 0x20;
+    private static final int CALENDAR_NAME_PASSIVE_SN = 0x28;
+    private static final int SEASON_PROFILE_PASSIVE_SN = 0x30;
+    private static final int WEEK_PROFILE_PASSIVE_SN = 0x38;
+    private static final int DAY_PROFILE_PASSIVE_SN = 0x40;
+    private static final int ACTIVATE_PASSIVE_CALENDAR_TIME_SN = 0x48;
+
+    /* Method numbers */
     private static int ACTIVATE_PASSIVE_CALENDAR = 1;
+
+    /* ShortName Method numbers */
+    private static int ACTIVATE_PASSIVE_CALENDAR_SN = 0x50;
 
     /** Creates a new instance of Data */
     public ActivityCalendar(ProtocolLink protocolLink,ObjectReference objectReference) {
@@ -109,8 +136,18 @@ public class ActivityCalendar extends AbstractCosemObject {
         return seasonProfilePassive;
     }
 
+    /**
+     * Write the given WeekProfileTablePassive Array to the Device
+     *
+     * @param weekProfileTablePassive the weekProfile to write
+     * @throws IOException if an error occurred during the write
+     */
     public void writeWeekProfileTablePassive(Array weekProfileTablePassive) throws IOException {
-        write(8, weekProfileTablePassive.getBEREncodedByteArray());
+        if(getObjectReference().isLNReference()){
+            write(WEEK_PROFILE_PASSIVE, weekProfileTablePassive.getBEREncodedByteArray());
+        } else {
+            write(WEEK_PROFILE_PASSIVE_SN, weekProfileTablePassive.getBEREncodedByteArray());
+        }
         this.weekProfileTablePassive=weekProfileTablePassive;
     }
     public Array readWeekProfileTablePassive() throws IOException {
@@ -147,6 +184,10 @@ public class ActivityCalendar extends AbstractCosemObject {
      * @throws IOException
      */
 	public void activateNow() throws IOException {
-		invoke(ACTIVATE_PASSIVE_CALENDAR, new Integer8(0).getBEREncodedByteArray());
+        if(getObjectReference().isLNReference()){
+            invoke(ACTIVATE_PASSIVE_CALENDAR, new Integer8(0).getBEREncodedByteArray());
+        } else {
+            write(ACTIVATE_PASSIVE_CALENDAR_SN, new Integer8(0).getBEREncodedByteArray());
+        }
 	}
 }

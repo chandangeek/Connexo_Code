@@ -1,9 +1,15 @@
 package com.energyict.protocolimpl.debug;
 
+import com.energyict.cbo.ApplicationException;
+import com.energyict.cbo.Utils;
+import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.*;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Properties;
 
 /**
  * Copyrights EnergyICT
@@ -96,5 +102,21 @@ public class DebugUtils {
     public static Dialer getConnectedDirectDialer(String commPort, int baudRate, int dataBits, int parity, int stopBits) throws IOException, LinkException {
         return getConnectedDirectDialer(commPort, baudRate, dataBits, parity, stopBits, null);
     }
+
+    /**
+	 * Create a new default {@link com.energyict.cpo.Environment}
+	 */
+	public static void createEnvironment() {
+		try {
+            File propertiesFile = new File(System.getProperty("user.dir") + "\\eiserver.properties");
+            FileInputStream fis = new FileInputStream(propertiesFile);
+			Properties properties = new Properties();
+			properties.load(fis);
+            fis.close();
+			Environment.setDefault(properties);
+		} catch (IOException e) {
+			throw new ApplicationException(e);
+		}
+	}
 
 }

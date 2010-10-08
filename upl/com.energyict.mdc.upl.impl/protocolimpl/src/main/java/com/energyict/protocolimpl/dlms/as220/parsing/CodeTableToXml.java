@@ -4,10 +4,8 @@ import com.energyict.cbo.ApplicationException;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.genericprotocolimpl.common.messages.ActivityCalendarMessage;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.CodeCalendar;
-import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.*;
+import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -21,6 +19,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -33,49 +32,54 @@ import java.util.List;
  */
 public class CodeTableToXml {
 
+    // RTUMessageTag
+    public static final String rootTOUMessage = AS220Messaging.ACTIVITY_CALENDAR;
+    public static final String rootActCalendarName = AS220Messaging.CALENDAR_NAME;
+    public static final String rootPassiveCalendarActivationTime = AS220Messaging.ACTIVATION_DATE;
+
     // XML Tags
-    protected static final String rootActCodeTable = "CodeTableActCalendar";
-    protected static final String rootSpDCodeTable = "CodeTableSpecialDay";
+    public static final String rootActCodeTable = "CodeTableActCalendar";
+    public static final String rootSpDCodeTable = "CodeTableSpecialDay";
 
     // SeasonTags
-    protected static final String seasonProfiles = "SeasonProfiles";
-    protected static final String seasonProfile = "SeasonProfile";
-    protected static final String seasonProfileName = "SeasonProfileName";
-    protected static final String seasonStart = "SeasonStart";
-    protected static final String seasonWeekName = "SeasonWeekName";
-    protected static final String[] seasonProfileElements = new String[]{seasonProfileName, seasonStart, seasonWeekName};
+    public static final String seasonProfiles = "SeasonProfiles";
+    public static final String seasonProfile = "SeasonProfile";
+    public static final String seasonProfileName = "SeasonProfileName";
+    public static final String seasonStart = "SeasonStart";
+    public static final String seasonWeekName = "SeasonWeekName";
+    public static final String[] seasonProfileElements = new String[]{seasonProfileName, seasonStart, seasonWeekName};
 
     // WeekTags
-    protected static final String weekProfiles = "WeekProfiles";
-    protected static final String weekProfile = "WeekProfile";
-    protected static final String weekProfileName = "WeekProfileName";
-    protected static final String wkMonday = "wkMonday";
-    protected static final String wkTuesday = "wkTuesday";
-    protected static final String wkWednesDay = "wkWednesday";
-    protected static final String wkThursday = "wkThursday";
-    protected static final String wkFriday = "wkFriday";
-    protected static final String wkSaturday = "wkSaturday";
-    protected static final String wkSunday = "wkSunday";
-    protected static final String[] weekProfileElements = new String[]{weekProfileName, wkMonday, wkTuesday, wkWednesDay, wkThursday, wkFriday, wkSaturday, wkSunday};
+    public static final String weekProfiles = "WeekProfiles";
+    public static final String weekProfile = "WeekProfile";
+    public static final String weekProfileName = "WeekProfileName";
+    public static final String wkMonday = "wkMonday";
+    public static final String wkTuesday = "wkTuesday";
+    public static final String wkWednesDay = "wkWednesday";
+    public static final String wkThursday = "wkThursday";
+    public static final String wkFriday = "wkFriday";
+    public static final String wkSaturday = "wkSaturday";
+    public static final String wkSunday = "wkSunday";
+    public static final String[] weekProfileElements = new String[]{weekProfileName, wkMonday, wkTuesday, wkWednesDay, wkThursday, wkFriday, wkSaturday, wkSunday};
 
     // DayTags
-    protected static final String dayProfiles = "DayProfiles";
-    protected static final String dayProfile = "DayProfile";
-    protected static final String dayId = "DayProfileId";
-    protected static final String daySchedules = "DayProfileSchedules";
-    protected static final String daySchedule = "DayProfileSchedule";
-    protected static final String daySchStartTime = "DayScheduleStartTime";
-    protected static final String daySchScriptLN = "DayScheduleScriptLN";
-    protected static final String daySchScriptSL = "DayScheduleScriptSL";
-    protected static final String[] dayScheduleElements = new String[]{daySchStartTime, daySchScriptLN, daySchScriptSL};
+    public static final String dayProfiles = "DayProfiles";
+    public static final String dayProfile = "DayProfile";
+    public static final String dayId = "DayProfileId";
+    public static final String daySchedules = "DayProfileSchedules";
+    public static final String daySchedule = "DayProfileSchedule";
+    public static final String daySchStartTime = "DayScheduleStartTime";
+    public static final String daySchScriptLN = "DayScheduleScriptLN";
+    public static final String daySchScriptSL = "DayScheduleScriptSL";
+    public static final String[] dayScheduleElements = new String[]{daySchStartTime, daySchScriptLN, daySchScriptSL};
 
     // SpecialDayTags
-    protected static final String specialDayProfiles = "SpecialDayProfiles";
-    protected static final String specialDayProfile = "SpecialDayProfile";
-    protected static final String specialDayEntryIndex = "SpecialDayEntryIndex";
-    protected static final String specialDayEntryDate = "SpecialDayEntryDate";
-    protected static final String specialDayEntryDayId = "SpecialDayEntryDayId";
-    protected static final String[] specialDayEntryElements = new String[]{specialDayEntryIndex, specialDayEntryDate, specialDayEntryDayId};
+    public static final String specialDayProfiles = "SpecialDayProfiles";
+    public static final String specialDayProfile = "SpecialDayProfile";
+    public static final String specialDayEntryIndex = "SpecialDayEntryIndex";
+    public static final String specialDayEntryDate = "SpecialDayEntryDate";
+    public static final String specialDayEntryDayId = "SpecialDayEntryDayId";
+    public static final String[] specialDayEntryElements = new String[]{specialDayEntryIndex, specialDayEntryDate, specialDayEntryDayId};
 
     /**
      * The ID of the used {@link com.energyict.mdw.core.Code}
@@ -103,15 +107,104 @@ public class CodeTableToXml {
     }
 
     /**
+     * Parse the given CodeTable to a proper xml format for the ActivityCalendar AND SpecialDayTable.
+     *
+     * @param id             the id of the {@link com.energyict.mdw.core.Code}
+     * @param calendarName   the new <i>PASSIVE</i> calendar name
+     * @param activationTime the time to activate the new calendar(epoch time) Possible values:
+     *                       <ul>
+     *                       <li> <code>null</code> : calendar isn't activated
+     *                       <li> correct epoch time : time is written
+     *                       <li> 0 : passive calendar will be switched to active calendar immediately
+     *                       </ul>
+     * @return the complete xml for the RTUMessage
+     */
+    public static String parseActivityCalendarAndSpecialDayTable(int id, String calendarName, long activationTime) throws IOException, ParserConfigurationException {
+        Code codeTable = getCode(id);
+
+        AS220ActivityCalendar acm = new AS220ActivityCalendar(codeTable, null);
+        try {
+            acm.parse();
+
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.newDocument();
+            Element root = document.createElement(rootTOUMessage);
+            root.setAttribute(rootActCalendarName, calendarName);
+            root.setAttribute(rootPassiveCalendarActivationTime, String.valueOf(activationTime));
+
+            Element rootActCalendar = document.createElement(rootActCodeTable);
+            rootActCalendar.appendChild(convertSeasonArrayToXml(acm.getSeasonProfile(), document));
+            rootActCalendar.appendChild(convertWeekArrayToXml(acm.getWeekProfile(), document));
+            rootActCalendar.appendChild(convertDayArrayToXml(acm.getDayProfile(), document));
+            root.appendChild(rootActCalendar);
+
+            Element rootSpdCalendar = document.createElement(rootSpDCodeTable);
+            rootSpdCalendar.appendChild(convertSpecialDayArrayToXml(getSpecialDayArray(codeTable.getCalendars(), acm.getTempDayProfileMap()), document));
+            root.appendChild(rootSpdCalendar);
+
+            document.appendChild(root);
+            return documentToString(document);
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            throw e;
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    /**
+     * Parse the given CodeTable to a proper xml format.
+     *
+     * @param id             the id of the {@link com.energyict.mdw.core.Code}
+     * @param calendarName   the new <i>PASSIVE</i> calendar name
+     * @param activationTime the time to activate the new calendar
+     * @return the xml for the RTUMessage
+     */
+    public static String parseActivityCalendar(int id, String calendarName, long activationTime) throws IOException, ParserConfigurationException {
+        Code codeTable = getCode(id);
+
+        AS220ActivityCalendar acm = new AS220ActivityCalendar(codeTable, null);
+        try {
+            acm.parse();
+
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.newDocument();
+            Element root = document.createElement(rootTOUMessage);
+            root.setAttribute(rootActCalendarName, calendarName);
+            root.setAttribute(rootPassiveCalendarActivationTime, String.valueOf(activationTime));
+
+            Element rootActCalendar = document.createElement(rootActCodeTable);
+            rootActCalendar.appendChild(convertSeasonArrayToXml(acm.getSeasonProfile(), document));
+            rootActCalendar.appendChild(convertWeekArrayToXml(acm.getWeekProfile(), document));
+            rootActCalendar.appendChild(convertDayArrayToXml(acm.getDayProfile(), document));
+            root.appendChild(rootActCalendar);
+
+            document.appendChild(root);
+            return documentToString(document);
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            throw e;
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    /**
      * The fabulous parse method for the ActivityCalendar
      *
      * @param id the ID of the {@link com.energyict.mdw.core.Code}
      * @return the XML for the RTUMessage
      */
-    public static String parseActivityCalendar(int id) throws ParserConfigurationException, IOException {
+    protected static String parseActivityCalendar(int id) throws ParserConfigurationException, IOException {
         Code codeTable = getCode(id);
 
-        ActivityCalendarMessage acm = new ActivityCalendarMessage(codeTable, null);
+        AS220ActivityCalendar acm = new AS220ActivityCalendar(codeTable, null);
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
@@ -275,34 +368,34 @@ public class CodeTableToXml {
         return sProfiles;
     }
 
-    /**
-     * The fabulous parse method for the ActivityCalendar
-     *
-     * @param id the ID of the {@link com.energyict.mdw.core.Code}
-     * @return the XML for the RTUMessage
-     * @throws IOException when a logical error occurred
-     * @throws ParserConfigurationException if the XML parsing order is not correct
-     */
-    public static String parseSpecialDaysTable(int id) throws IOException, ParserConfigurationException {
-        Code codeTable = getCode(id);
-
-        Array specialDayArray = getSpecialDayArray(codeTable.getCalendars());
-
-        try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.newDocument();
-            Element root = document.createElement(rootActCodeTable);
-
-            root.appendChild(convertSpecialDayArrayToXml(specialDayArray, document));
-            document.appendChild(root);
-            return documentToString(document);
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-            throw e;
-        }
-    }
+//    /**
+//     * The fabulous parse method for the ActivityCalendar
+//     *
+//     * @param id the ID of the {@link com.energyict.mdw.core.Code}
+//     * @return the XML for the RTUMessage
+//     * @throws IOException                  when a logical error occurred
+//     * @throws ParserConfigurationException if the XML parsing order is not correct
+//     */
+//    public static String parseSpecialDaysTable(int id) throws IOException, ParserConfigurationException {
+//        Code codeTable = getCode(id);
+//
+//        Array specialDayArray = getSpecialDayArray(codeTable.getCalendars(), acm.getTempDayProfileMap());
+//
+//        try {
+//            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+//
+//            DocumentBuilder builder = factory.newDocumentBuilder();
+//            Document document = builder.newDocument();
+//            Element root = document.createElement(rootActCodeTable);
+//
+//            root.appendChild(convertSpecialDayArrayToXml(specialDayArray, document));
+//            document.appendChild(root);
+//            return documentToString(document);
+//        } catch (ParserConfigurationException e) {
+//            e.printStackTrace();
+//            throw e;
+//        }
+//    }
 
     /**
      * Convert the given (DLMS) SpecialDayArray to an XML format. One SpecialDay Structure contains:<br>
@@ -313,8 +406,9 @@ public class CodeTableToXml {
      * - day_id          :   unsigned<br>
      * }
      * </code>
+     *
      * @param specialDayArray the specialDayArray from the codeTable (actually from the DLMS objects)
-     * @param document the document to create an Element for
+     * @param document        the document to create an Element for
      * @return The specialDay {@link org.w3c.dom.Element} to put in the {@link org.w3c.dom.Document}
      */
     protected static Element convertSpecialDayArrayToXml(Array specialDayArray, Document document) {
@@ -345,11 +439,14 @@ public class CodeTableToXml {
      * Converts a List of {@link com.energyict.mdw.core.CodeCalendar}s to a DLMS {@link com.energyict.dlms.axrdencoding.Array} object
      *
      * @param calendars the list of {@link com.energyict.mdw.core.CodeCalendar}s from the {@link com.energyict.mdw.core.Code}
+     * @param tempDayProfileMap
      * @return an {@link com.energyict.dlms.axrdencoding.Array} containing 1 or more {@link com.energyict.dlms.axrdencoding.Structure}s of SpecialDayEntries
      * @throws IOException if an invalid identifier occurred in the {@link com.energyict.dlms.axrdencoding.util.AXDRDateTime} parsing
      */
-    protected static Array getSpecialDayArray(List<CodeCalendar> calendars) throws IOException {
+    protected static Array getSpecialDayArray(List<CodeCalendar> calendars, HashMap<CodeDayType, Integer> tempDayProfileMap) throws IOException {
         Array sdArray = new Array();
+
+        int count = 0;
 
         for (int i = 0; i < calendars.size(); i++) {
             CodeCalendar cc = calendars.get(i);
@@ -357,7 +454,7 @@ public class CodeTableToXml {
                 OctetString os = new OctetString(new byte[]{(byte) ((cc.getYear() == -1) ? 0xff : ((cc.getYear() >> 8) & 0xFF)), (byte) ((cc.getYear() == -1) ? 0xff : (cc.getYear()) & 0xFF),
                         (byte) ((cc.getMonth() == -1) ? 0xFF : cc.getMonth()), (byte) ((cc.getDay() == -1) ? 0xFF : cc.getDay()),
                         (byte) ((cc.getDayOfWeek() == -1) ? 0xFF : cc.getDayOfWeek())});
-                Unsigned8 dayType = new Unsigned8(cc.getDayType().getId());
+                Unsigned8 dayType = new Unsigned8(tempDayProfileMap.get(cc.getDayType()));
                 Structure struct = new Structure();
                 AXDRDateTime dt = new AXDRDateTime(new byte[]{(byte) 0x09, (byte) 0x0C, (byte) ((cc.getYear() == -1) ? 0x07 : ((cc.getYear() >> 8) & 0xFF)), (byte) ((cc.getYear() == -1) ? 0xB2 : (cc.getYear()) & 0xFF),
                         (byte) ((cc.getMonth() == -1) ? 0xFF : cc.getMonth()), (byte) ((cc.getDay() == -1) ? 0xFF : cc.getDay()),
@@ -365,7 +462,7 @@ public class CodeTableToXml {
 
                 long days = dt.getValue().getTimeInMillis() / 1000 / 60 / 60 / 24; //creates a unique ID for each specialDayEntry
 
-                struct.addDataType(new Unsigned16((int) days));
+                struct.addDataType(new Unsigned16(count++));
                 struct.addDataType(os);
                 struct.addDataType(dayType);
                 sdArray.addDataType(struct);
@@ -390,7 +487,7 @@ public class CodeTableToXml {
      * @param doc the {@link org.w3c.dom.Document} to converted
      * @return the XML String from the Document
      */
-    protected static String documentToString(Document doc) {
+    public static String documentToString(Document doc) {
         try {
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
             try {

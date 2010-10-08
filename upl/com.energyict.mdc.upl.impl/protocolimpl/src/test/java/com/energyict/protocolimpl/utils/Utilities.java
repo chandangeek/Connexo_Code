@@ -1,10 +1,6 @@
 package com.energyict.protocolimpl.utils;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
+import java.io.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,6 +35,7 @@ import com.energyict.mdw.shadow.ModemPoolShadow;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.mdw.shadow.RtuTypeShadow;
 import com.energyict.mdw.shadow.UserFileShadow;
+import com.energyict.protocolimpl.siemens7ED62.SCTMDumpData;
 
 public class Utilities {
 
@@ -425,4 +422,19 @@ public class Utilities {
 		}
     }
 
+    /**
+     * Read the resourceFile
+     *
+     * @param resourceUrl the URL to the resourceFile
+     * @return the byteArray content of the resourceFile
+     * @throws IOException if something fishy happened during the reading of the resource
+     */
+    public static byte[] readResource(String resourceUrl) throws IOException {
+        File file = new File(SCTMDumpData.class.getClassLoader().getResource(resourceUrl).getFile());
+        FileInputStream fis = new FileInputStream(file);
+        byte[] content = new byte[(int) file.length()];
+        fis.read(content);
+        fis.close();
+        return content;
+    }
 }

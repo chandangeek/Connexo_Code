@@ -75,21 +75,21 @@ public class WeekProfiles extends Structure {
 	 * @return the BER encoded structure.
 	 */
 	protected byte[] doGetBEREncodedByteArray() {
-        dataTypes = new ArrayList();
-		addDataType(getWeekProfileName());
-		if (dayIds.size() != 0) {
-			for (int i = 0; i < dayIds.size(); i++) {
-				addDataType(new Unsigned8((Integer) dayIds.get(i)));
-			}
-		} else {
-			addDataType(getMonday());
-			addDataType(getTuesday());
-			addDataType(getWednesday());
-			addDataType(getThursday());
-			addDataType(getFriday());
-			addDataType(getSaturday());
-			addDataType(getSunday());
-		}
+//        dataTypes = new ArrayList();
+//		addDataType(getWeekProfileName());
+//		if (dayIds.size() != 0) {
+//			for (int i = 0; i < dayIds.size(); i++) {
+//				addDataType(new Unsigned8((Integer) dayIds.get(i)));
+//			}
+//		} else {
+//			addDataType(getMonday());
+//			addDataType(getTuesday());
+//			addDataType(getWednesday());
+//			addDataType(getThursday());
+//			addDataType(getFriday());
+//			addDataType(getSaturday());
+//			addDataType(getSunday());
+//		}
 		return super.doGetBEREncodedByteArray();
 	}
 
@@ -220,6 +220,6 @@ public class WeekProfiles extends Structure {
 	 */
 	public void setSunday(Unsigned8 sunday) {
 		this.sunday = sunday;
-        setDataType(indexSaturday, saturday);
+        setDataType(indexSunday, sunday);
 	}
 }

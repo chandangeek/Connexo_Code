@@ -408,5 +408,7 @@
 
 -keepnames class com.energyict.protocolimpl.coronis.waveflow100mwencoder.actarismbusechodis.Echodis
 
-
-
+# Keep the parsingClass for generating RtuMessages with the content of a Codetable
+-keep public class com.energyict.protocolimpl.dlms.as220.parsing.CodeTableToXml{
+    public *;
+}

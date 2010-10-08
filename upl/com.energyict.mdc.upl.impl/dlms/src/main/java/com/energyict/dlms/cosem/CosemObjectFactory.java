@@ -290,7 +290,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 	 * Getter for the ShortName ImageTransfer Object
 	 */
 	public ImageTransfer getImageTransferSN() throws IOException {
-	    return new ImageTransfer(protocolLink, new ObjectReference(IMAGE_TRANSFER_SN));
+	    return new ImageTransfer(protocolLink, new ObjectReference(protocolLink.getMeterConfig().getImageTransferSN()));
 	}
 
 	/**

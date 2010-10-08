@@ -35,7 +35,7 @@ public class CodeTableToXmlTest {
     public void testParse() throws Exception {
         Utilities.createEnvironment();
         MeteringWarehouse.createBatchContext(false);
-        System.out.println(CodeTableToXml.parseSpecialDaysTable(1));
+        System.out.println(CodeTableToXml.parseActivityCalendarAndSpecialDayTable(1, "CalGNA1", 0));
     }
 
     /**
@@ -44,13 +44,10 @@ public class CodeTableToXmlTest {
     @Test
     public final void convertSeasonArrayToXmlTest() {
 
-        String expectedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><CodeTableActCalendar><SeasonProfiles><SeasonProfile>" +
-                "<SeasonProfileName>090131</SeasonProfileName><SeasonStart>090cffffff01ff00000000800000</SeasonStart>" +
-                "<SeasonWeekName>090130</SeasonWeekName></SeasonProfile></SeasonProfiles></CodeTableActCalendar>";
-
         // an Array we copied from a converted codeTable
         byte[] berArray = new byte[]{1, 1, 2, 3, 9, 1, 49, 9, 12, -1, -1, -1, 1, -1, 0, 0, 0, 0, -128, 0, 0, 9, 1, 48};
         try {
+            String expectedXml = new String(Utilities.readResource("com/energyict/protocolimpl/dlms/as220/parsing/SeasonXml.xml"));
             Array seasonArray = new Array(berArray, 0, 0);
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

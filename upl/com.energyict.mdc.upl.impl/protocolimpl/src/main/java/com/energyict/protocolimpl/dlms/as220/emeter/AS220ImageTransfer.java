@@ -43,7 +43,8 @@ public class AS220ImageTransfer {
 	public AS220ImageTransfer(AS220Messaging messaging, MessageEntry messageEntry) throws IOException {
 		this.messaging = messaging;
 		this.messageEntry = messageEntry;
-		this.imageTransfer = getAs220().getCosemObjectFactory().getImageTransferSN();
+//		this.imageTransfer = getAs220().getCosemObjectFactory().getImageTransferSN();
+        this.imageTransfer = getAs220().getCosemObjectFactory().getImageTransferSN();
 	}
 
 

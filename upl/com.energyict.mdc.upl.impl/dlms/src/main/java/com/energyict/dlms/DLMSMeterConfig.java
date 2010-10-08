@@ -499,4 +499,7 @@ public class DLMSMeterConfig {
 		this.extra = extra;
 	}
 
+    public int getImageTransferSN() throws IOException {
+       return config.getImageTransferSN(IOL);
+    }
 }

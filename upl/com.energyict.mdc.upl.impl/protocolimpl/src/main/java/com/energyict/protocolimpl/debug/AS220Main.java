@@ -7,14 +7,19 @@ import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
+import com.energyict.genericprotocolimpl.common.ParseUtils;
+import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.as220.*;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
+import com.energyict.protocolimpl.dlms.as220.parsing.CodeTableToXml;
 import com.energyict.protocolimpl.dlms.as220.plc.PLCMessaging;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import sun.misc.BASE64Encoder;
 
-import java.io.IOException;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -62,11 +67,13 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
 
     private static final String FIRMWARE_UPGRADE = "<FirmwareUpdate><IncludedFile>$CONTENT$</IncludedFile></FirmwareUpdate>";
 
-    private static final String OBSERVER_FILENAME = "d:\\logging\\AS220Main\\communications_"+System.currentTimeMillis()+".log";
+    private static final String ACTIVITY_CALENDAR = "<TimeOfUse name=$ACT_NAME$ activationDate=$ACT_DATE$>$CONTENT$</TimeOfUse>";
+
+    private static final String OBSERVER_FILENAME = "c:\\logging\\AS220Main\\communications_"+System.currentTimeMillis()+".log";
     protected static final TimeZone DEFAULT_TIMEZONE = TimeZone.getTimeZone("Europe/Paris");
 
     private static final boolean AS1440 = true;
-    protected static final String COMPORT = AS1440 ? "COM7" : "COM6";
+    protected static final String COMPORT = AS1440 ? "COM6" : "COM5";
     protected static final int BAUDRATE = 115200;
     protected static final int DATABITS = SerialCommunicationChannel.DATABITS_8;
     protected static final int PARITY = SerialCommunicationChannel.PARITY_NONE;
@@ -465,6 +472,66 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         System.out.println("Firmware after upgrade: " + getMeterProtocol().getFirmwareVersion());
     }
 
+    private String getB64EncodedFirmareString() throws IOException {
+        File file = new File("C:\\energyict\\protocols\\meterprotocols\\AS220\\Firmware\\AM500_20101006_V2.02\\AM500_20101006_V2.02\\MeterEandis.v2.02_Serial_Release_ImageTransfer.bin");
+        FileInputStream fis = null;
+        byte[] content = new byte[(int) file.length()];
+
+        try {
+            fis = new FileInputStream(file);
+            fis.read(content);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            fis.close();
+        }
+
+        BASE64Encoder base64Encoder = new BASE64Encoder();
+        return base64Encoder.encode(content);
+    }
+    
+    public void activityCalendarUpgrade(String xmlContent) throws IOException {
+
+        MessageResult result = getMeterProtocol().queryMessage(new MessageEntry(xmlContent, "trackGna"));
+        System.out.println("ActivityCalender upgrade " + (result.isSuccess() ? "SUCCESS" : "FAILED"));
+
+    }
+
+    public void readAllCalendarObjects(ActivityCalendar ac) throws IOException {
+        log("Active Calendar Name : ");
+       log(ac.readCalendarNameActive().stringValue());
+
+        log("Passive Calendar Name : ");
+        log(ac.readCalendarNamePassive().stringValue());
+
+        log("ActivatePassiveCalendar at : ");
+        log(ParseUtils.decimalByteToString(ac.readActivatePassiveCalendarTime().getBEREncodedByteArray()));
+
+        log("SeasonProfileActive : ");
+        log(ac.readSeasonProfileActive());
+
+        log("SeasonProfilePassive : ");
+        log(ac.readSeasonProfilePassive());
+
+        log("WeekProfileActive : ");
+        log(ac.readWeekProfileTableActive());
+
+        log("WeekProfilePassive : ");
+        log(ac.readWeekProfileTablePassive());
+
+        log("DayProfileActive : ");
+        log(ac.readDayProfileTableActive());
+
+        log("DayProfilePassive : ");
+        log(ac.readDayProfileTablePassive());
+
+        log("SpecialDays : ");
+        SpecialDaysTable sdt = getMeterProtocol().getCosemObjectFactory().getSpecialDaysTable(getMeterProtocol().getMeterConfig().getSpecialDaysTable().getObisCode());
+        log(sdt.readSpecialDays());
+    }
+
     public static void main(String[] args) throws LinkException, IOException, InterruptedException {
         AS220Main main = new AS220Main();
         main.setCommPort(COMPORT);
@@ -480,10 +547,28 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
 
     @Override
     void doDebug() throws LinkException, IOException {
-        String epoch = ProtocolTools.getEpochTimeFromString("14-09-2010 20:00:00");
-        Date fromDate = new Date(Long.valueOf(epoch) * 1000);
-        ProfileData profileData = getMeterProtocol().getProfileData(fromDate, true);
-        System.out.println(profileData);
-        }
 
+        log("FirmwareVersion : " + getMeterProtocol().getFirmwareVersion());
+
+        // Need an Environment to get the CodeTable
+//        DebugUtils.createEnvironment();
+//        MeteringWarehouse.createBatchContext(false);
+        
+        ActivityCalendar ac = getMeterProtocol().getCosemObjectFactory().getActivityCalendar(getMeterProtocol().getMeterConfig().getActivityCalendar().getObisCode());
+        readAllCalendarObjects(ac);
+
+//          firmwareUpgrade(getB64EncodedFirmareString().getBytes());
+
+
+//        String epoch = ProtocolTools.getEpochTimeFromString("11-10-2010 16:00:00");
+//
+//        try {
+//            String codeTableXml = CodeTableToXml.parseActivityCalendarAndSpecialDayTable(1, "ActGna1", Long.valueOf(1));
+//
+//            activityCalendarUpgrade(codeTableXml);
+//        } catch (ParserConfigurationException e) {
+//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+//        }
+
+    }
 }

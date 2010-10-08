@@ -1380,4 +1380,15 @@ public final class DLMSConfig {
 		return 0;
 	}
 
+    public int getImageTransferSN(UniversalObject[] objectList) throws IOException {
+        		if (objectList == null) {
+			throw new IOException("DLMSConfig, ImageTransfer, objectlist empty!");
+		}
+		for (int i=0;i<objectList.length;i++) {
+			if (objectList[i].equals(P3IMAGETRANSFER)) {
+				return objectList[i].getBaseName();
+			}
+		}
+		return 0;
+    }
 }

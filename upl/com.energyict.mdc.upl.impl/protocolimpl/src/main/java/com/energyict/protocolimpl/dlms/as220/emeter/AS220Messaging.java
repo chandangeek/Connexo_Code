@@ -29,6 +29,10 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
 	public static final String 	FIRMWARE_UPDATE				= "FirmwareUpdate";
     public static final String 	DUMMY_MESSAGE				= "DummyMessage";
 
+    public static final String  ACTIVITY_CALENDAR           = "TimeOfUse";
+    public static final String ACTIVATION_DATE              = "activationDate";
+    public static final String CALENDAR_NAME                = "name";
+
 
 	/**
 	 * Message descriptions
@@ -49,6 +53,7 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
 		addSupportedMessageTag(FORCE_SET_CLOCK);
         addSupportedMessageTag(FIRMWARE_UPDATE);
         addSupportedMessageTag(DUMMY_MESSAGE);
+        addSupportedMessageTag(ACTIVITY_CALENDAR);
 	}
 
 	public AS220 getAs220() {
@@ -95,6 +100,10 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
 //				upgradeFirmware(messageEntry);
 			} else if (isMessageTag(DUMMY_MESSAGE, messageEntry)) {
                 getAs220().getLogger().info("DUMMY_MESSAGE message received");
+            } else if (isMessageTag(ACTIVITY_CALENDAR, messageEntry)){
+                getAs220().getLogger().info("Update Activity calendar received");
+                getAs220().geteMeter().getActivityCalendarController().parseContent(messageEntry.getContent());
+                getAs220().geteMeter().getActivityCalendarController().writeCalendar();
             } else {
 				throw new IOException("Received unknown message: " + messageEntry);
 			}
@@ -108,94 +117,4 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
 
 		return result;
 	}
-
-	/**
-	 * @param messageEntry
-	 * @throws IOException
-	 */
-	protected void upgradeFirmware(MessageEntry messageEntry) throws IOException {
-		getAs220().getLogger().info("Received a firmware upgrade message, using firmware message builder...");
-		String errorMessage = "";
-		final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder();
-
-		try {
-		    builder.initFromXml(messageEntry.getContent());
-		} catch (final IOException e) {
-		    errorMessage = "Got an IO error when loading firmware message content [" + e.getMessage() + "]";
-			if (getAs220().getLogger().isLoggable(Level.SEVERE)) {
-			    getAs220().getLogger().log(Level.SEVERE, errorMessage, e);
-			}
-			 throw new IOException(errorMessage + e.getMessage());
-		} catch (SAXException e) {
-		    errorMessage = "Cannot process firmware upgrade message due to an XML parsing error [" + e.getMessage() + "]";
-		    getAs220().getLogger().log(Level.SEVERE, errorMessage, e);
-		    throw new IOException(errorMessage + e.getMessage());
-		}
-
-		// We requested an inlined file...
-		if (builder.getUserFile() != null) {
-			getAs220().getLogger().info("Pulling out user file and dispatching to the device...");
-
-			final byte[] upgradeFileData = builder.getUserFile().loadFileInByteArray();
-
-			if (upgradeFileData.length > 0) {
-				try {
-					this.upgradeDevice(builder.getUserFile().loadFileInByteArray());
-				} catch (final IOException e) {
-				    errorMessage = "Caught an IO error when trying upgrade [" + e.getMessage() + "]";
-					if (getAs220().getLogger().isLoggable(Level.SEVERE)) {
-					    getAs220().getLogger().log(Level.SEVERE, errorMessage, e);
-					}
-					throw new IOException(errorMessage);
-				}
-			} else {
-			    errorMessage = "Length of the upgrade file is not valid [" + upgradeFileData + " bytes], failing message.";
-				if (getAs220().getLogger().isLoggable(Level.WARNING)) {
-				    getAs220().getLogger().log(Level.WARNING, errorMessage);
-				}
-				throw new IOException(errorMessage);
-
-			}
-		} else {
-		    errorMessage = "The message did not contain a user file to use for the upgrade, message fails...";
-		    getAs220().getLogger().log(Level.WARNING, errorMessage);
-
-		    throw new IOException(errorMessage);
-		}
-	}
-
-	/**
-	 * Upgrades the remote device using the image specified.
-	 *
-	 * @param 	image			The new image to push to the remote device.
-	 *
-	 * @throws	IOException		If an IO error occurs during the upgrade.
-	 */
-	public final void upgradeDevice(final byte[] image) throws IOException {
-	    getAs220().getLogger().info("Upgrading AM500 module with new firmware image of size [" + image.length + "] bytes");
-
-		final ImageTransfer imageTransfer = getAs220().getCosemObjectFactory().getImageTransferSN();
-
-		try {
-			getAs220().getLogger().info("Converting received image to binary using a Base64 decoder...");
-
-			final BASE64Decoder decoder = new BASE64Decoder();
-			final byte[] binaryImage = decoder.decodeBuffer(new String(image));
-
-			getAs220().getLogger().info("Commencing upgrade...");
-
-			imageTransfer.upgrade(binaryImage, false);
-			imageTransfer.imageActivation();
-
-			getAs220().getLogger().info("Upgrade has finished successfully...");
-		} catch (final InterruptedException e) {
-		    getAs220().getLogger().log(Level.SEVERE, "Interrupted while uploading firmware image [" + e.getMessage() + "]", e);
-
-			final IOException ioException = new IOException(e.getMessage());
-			ioException.initCause(e);
-
-			throw ioException;
-		}
-	}
-
 }

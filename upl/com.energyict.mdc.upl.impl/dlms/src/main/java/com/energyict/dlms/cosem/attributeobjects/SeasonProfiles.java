@@ -51,10 +51,10 @@ public class SeasonProfiles extends Structure{
 		if ((getSeasonProfileName() == null) || (getSeasonStart() == null) || (getWeekName() == null)) {
 			throw new IllegalArgumentException("Some of the seasonProfile fields are empty.");
 		}
-		dataTypes = new ArrayList();
-		addDataType(getSeasonProfileName());
-		addDataType(getSeasonStart());
-		addDataType(getWeekName());
+//		dataTypes = new ArrayList();
+//		addDataType(getSeasonProfileName());
+//		addDataType(getSeasonStart());
+//		addDataType(getWeekName());
 		return super.doGetBEREncodedByteArray();
 	}
 
