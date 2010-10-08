@@ -19,8 +19,9 @@ public class CTRObjectFactory {
         return this.createObject(id, rawData, offset, type);
     }
 
-    public AbstractCTRObject parse(byte[] rawData, int offset, AttributeType type, CTRObjectID id) throws CTRParsingException {
+    public AbstractCTRObject parse(byte[] rawData, int offset, AttributeType type, String objectId) throws CTRParsingException {
         byte[] objectData = new byte[(rawData.length - offset) + CTRObjectID.LENGTH];
+        CTRObjectID id = new CTRObjectID(objectId);
         System.arraycopy(id.getBytes(), 0, objectData, 0, CTRObjectID.LENGTH);
         System.arraycopy(rawData, offset, objectData, CTRObjectID.LENGTH, rawData.length - offset);
         return this.createObject(id, objectData, 0, type);

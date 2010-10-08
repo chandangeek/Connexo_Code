@@ -9,6 +9,8 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingExceptio
  */
 public class AttributeType extends AbstractField<AttributeType> {
 
+    public static final int LENGTH = 1;
+
     private static final int QUALIFIER_BIT = 0;
     private static final int VALUEFIELDS_BIT = 1;
     private static final int ACCESSDESCRIPTOR_BIT = 2;
@@ -26,7 +28,7 @@ public class AttributeType extends AbstractField<AttributeType> {
     }
 
     public byte[] getBytes() {
-        return new byte[]{(byte) attributeType};
+        return getBytesFromInt(attributeType, LENGTH);
     }
 
     public AttributeType parse(byte[] rawData, int offset) throws CTRParsingException {

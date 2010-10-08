@@ -64,16 +64,13 @@ public class CTREncryption {
         byte[] result = null;
 
         int offset = 0;
-        while (offset < (bytes.length - 16)) {
-            byte[] input = ProtocolTools.getSubArray(bytes, offset, offset + 16);
+        while (offset < bytes.length) {
+            byte[] input = ProtocolTools.getSubArray(bytes, offset, ((offset + 16) < bytes.length) ? offset + 16 : offset + (bytes.length % 16));
             input = decryptAES128(input, iv);
             iv = addOneToByteArray(iv);
             result = ProtocolTools.concatByteArrays(result, input);
             offset += 16;
         }
-
-        //Concatenate the remainder (length < 16 bytes) to the result
-        result = ProtocolTools.concatByteArrays(result, ProtocolTools.getSubArray(bytes, offset, bytes.length));
         return result;
     }
 
@@ -100,7 +97,6 @@ public class CTREncryption {
             } catch (CTRParsingException e) {
                 throw new CtrCipheringException("An error occured while using the ciphering!", e);
             }
-            frame.setCrc();
         }
         return frame;
     }

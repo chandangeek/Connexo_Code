@@ -4,7 +4,6 @@ import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
-import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 
 /**
@@ -29,7 +28,7 @@ public class IdentificationResponseStructure extends Data<IdentificationResponse
         AttributeType valueAttributeType = new AttributeType();
         valueAttributeType.setHasValueFields(true);
 
-        this.pdr = factory.parse(rawData, ptr, valueAttributeType, new CTRObjectID("C.0.0")).getValue()[0];
+        this.pdr = factory.parse(rawData, ptr, valueAttributeType, "C.0.0").getValue()[0];
         ptr += 7;
 
         return super.parse(rawData, offset);    //To change body of overridden methods use File | Settings | File Templates.

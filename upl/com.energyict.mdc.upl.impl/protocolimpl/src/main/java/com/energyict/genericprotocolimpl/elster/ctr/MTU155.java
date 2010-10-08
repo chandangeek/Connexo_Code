@@ -53,9 +53,17 @@ public class MTU155 extends AbstractGenericProtocol {
     @Override
     protected void doExecute() {
         this.connection = new SecureCtrConnection(getLink().getInputStream(), getLink().getOutputStream(), getProtocolProperties());
-
         try {
+            getIdentification();
+        } catch (CTRConnectionException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
 
+
+    }
+
+    private void testEncryption() {
+        try {
 
             GPRSFrame readRequest = new GPRSFrame();
             readRequest.getFunctionCode().setFunction(Function.QUERY);
@@ -88,7 +96,6 @@ public class MTU155 extends AbstractGenericProtocol {
         } catch (CTRException e) {
             e.printStackTrace();
         }
-
     }
 
     private MTU155Properties getProtocolProperties() {
