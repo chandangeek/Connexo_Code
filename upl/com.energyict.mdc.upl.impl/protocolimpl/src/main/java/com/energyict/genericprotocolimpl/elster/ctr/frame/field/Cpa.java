@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.frame.field;
 
 import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
+import com.energyict.genericprotocolimpl.elster.ctr.encryption.AesCMac128;
 
 /**
  * Copyrights EnergyICT
@@ -32,6 +33,11 @@ public class Cpa extends AbstractField<Cpa> {
 
     public int getLength() {
         return LENGTH;
+    }
+
+    public Cpa generateCpa(byte[] data, byte[] key) {
+        AesCMac128 cmac = new AesCMac128(key);
+        return parse(cmac.getAesCMac128(data), 0);
     }
 
     public int getCpa() {

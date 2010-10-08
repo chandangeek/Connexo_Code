@@ -140,6 +140,18 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
         this.cpa = cpa;
     }
 
+    public void calcCpa(byte[] key) {
+        byte[] cpaInput = ProtocolTools.concatByteArrays(
+                getAddress().getBytes(),
+                getProfi().getBytes(),
+                getFunctionCode().getBytes(),
+                getStructureCode().getBytes(),
+                getChannel().getBytes(),
+                getData().getBytes()
+        );
+        this.cpa = new Cpa().generateCpa(cpaInput, key);
+    }
+
     public Crc getCrc() {
         return crc;
     }

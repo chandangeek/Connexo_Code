@@ -10,6 +10,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
 public class StructureCode extends AbstractField<StructureCode> {
 
     public static final int IDENTIFICATION = 0x30;
+    public static final int REGISTER = 0x50;
 
     public static final int LENGTH = 1;
     private int structureCode;

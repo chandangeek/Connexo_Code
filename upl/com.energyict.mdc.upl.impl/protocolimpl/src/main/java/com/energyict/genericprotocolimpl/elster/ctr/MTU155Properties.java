@@ -22,9 +22,9 @@ public class MTU155Properties extends AbstractProtocolProperties {
     private static final String DEFAULT_RETRIES = "3";
     private static final String DEFAULT_DELAY_AFTER_ERROR = "100";
 
-    private static final String DEFAULT_KEYC = "22222222222222222222222222222222";
-    private static final String DEFAULT_KEYT = "22222222222222222222222222222222";
-    private static final String DEFAULT_KEYF = "22222222222222222222222222222222";
+    private static final String DEFAULT_KEYC = "32323232323232323232323232323232";
+    private static final String DEFAULT_KEYT = "32323232323232323232323232323232";
+    private static final String DEFAULT_KEYF = "32323232323232323232323232323232";
 
     public MTU155Properties() {
         super(new Properties());
@@ -67,6 +67,18 @@ public class MTU155Properties extends AbstractProtocolProperties {
 
     public String getKeyF() {
         return getStringValue(KEYF, DEFAULT_KEYF);
+    }
+
+    public byte[] getKeyCBytes() {
+        return getByteValue(KEYC, DEFAULT_KEYC);
+    }
+
+    public byte[] getKeyTBytes() {
+        return getByteValue(KEYT, DEFAULT_KEYT);
+    }
+
+    public byte[] getKeyFBytes() {
+        return getByteValue(KEYF, DEFAULT_KEYF);
     }
 
 }

@@ -3,13 +3,17 @@ package com.energyict.genericprotocolimpl.elster.ctr;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.*;
 import com.energyict.genericprotocolimpl.common.AbstractGenericProtocol;
+import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.encryption.SecureCtrConnection;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRConnectionException;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.*;
+import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.IdentificationRequestStructure;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.IdentificationResponseStructure;
 import com.energyict.protocolimpl.debug.DebugUtils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import javax.crypto.*;
 import java.io.IOException;
@@ -49,7 +53,42 @@ public class MTU155 extends AbstractGenericProtocol {
     @Override
     protected void doExecute() {
         this.connection = new SecureCtrConnection(getLink().getInputStream(), getLink().getOutputStream(), getProtocolProperties());
-        // Hmmm, still work to do :)
+
+        try {
+
+
+            GPRSFrame readRequest = new GPRSFrame();
+            readRequest.getFunctionCode().setFunction(Function.QUERY);
+            readRequest.getFunctionCode().setEncryptionStatus(EncryptionStatus.NO_ENCRYPTION);
+            readRequest.getStructureCode().setStructureCode(StructureCode.REGISTER);
+            readRequest.setChannel(new Channel(0));
+            readRequest.getProfi().setProfi(0x00);
+            readRequest.getProfi().setLongFrame(false);
+
+            Data data = new Data();
+            byte[] pssw = ProtocolTools.getBytesFromHexString("$30$30$30$30$30$31");
+            byte[] nrObjects = ProtocolTools.getBytesFromHexString("$01");
+            AttributeType type = new AttributeType(0);
+            type.setHasValueFields(true);
+            byte[] attributeType = type.getBytes();
+            byte[] id1 = new CTRObjectID("C.0.0").getBytes();
+
+            byte[] rawData = ProtocolTools.concatByteArrays(pssw, nrObjects, attributeType, id1, new byte[128]);
+            data.parse(rawData, 0);
+            data.parse(ProtocolTools.getBytesFromHexString("$30$30$30$30$30$31$01$02$0C$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00"), 0);
+            readRequest.setData(data);
+            readRequest.calcCpa(getProtocolProperties().getKeyCBytes());
+
+            System.out.println(readRequest);
+
+            GPRSFrame response = null;
+            response = getConnection().sendFrameGetResponse(readRequest);
+            System.out.println(response);
+
+        } catch (CTRException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private MTU155Properties getProtocolProperties() {
@@ -66,7 +105,6 @@ public class MTU155 extends AbstractGenericProtocol {
 
         MTU155 mtu155 = new MTU155();
         mtu155.execute(null, dialer, Logger.getAnonymousLogger());
-        mtu155.getIdentification();
 
     }
 

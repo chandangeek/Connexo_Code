@@ -53,8 +53,6 @@ public class CTREncryption {
                 throw new CtrCipheringException("An error occured while using the ciphering!", e);
             }
             frame = setDecryptionStatus(frame);
-            frame = setCpa(frame);
-            frame.setCrc();
         }
         return frame;
     }
@@ -130,16 +128,14 @@ public class CTREncryption {
         byte[] result = null;
 
         int offset = 0;
-        while (offset < (bytes.length - 16)) {
-            byte[] input = ProtocolTools.getSubArray(bytes, offset, offset + 16);
+        while (offset < bytes.length) {
+            byte[] input = ProtocolTools.getSubArray(bytes, offset, ((offset + 16) < bytes.length) ? offset + 16 : offset + (bytes.length % 16));
             input = encryptAES128(input, iv);
             iv = addOneToByteArray(iv);
             result = ProtocolTools.concatByteArrays(result, input);
             offset += 16;
         }
 
-        //Concatenate the remainder (length < 16 bytes) to the result
-        result = ProtocolTools.concatByteArrays(result, ProtocolTools.getSubArray(bytes, offset, bytes.length));
         return result;
     }
 
@@ -160,8 +156,14 @@ public class CTREncryption {
     public Frame setCpa(Frame frame) {
         AesCMac128 aesCmac128 = new AesCMac128();
         aesCmac128.setKey(keyC);
-        byte[] spare = ProtocolTools.getBytesFromHexString("$00$00$00$00$00$00$00$00$00$00");
-        byte[] cpaInput = ProtocolTools.concatByteArrays(frame.getAddress().getBytes(), frame.getProfi().getBytes(), frame.getFunctionCode().getBytes(), frame.getStructureCode().getBytes(), frame.getChannel().getBytes(), frame.getData().getBytes(), spare);
+        byte[] cpaInput = ProtocolTools.concatByteArrays(
+                frame.getAddress().getBytes(),
+                frame.getProfi().getBytes(),
+                frame.getFunctionCode().getBytes(),
+                frame.getStructureCode().getBytes(),
+                frame.getChannel().getBytes(),
+                frame.getData().getBytes()
+        );
         byte[] cpa = ProtocolTools.getSubArray(aesCmac128.getAesCMac128(cpaInput), 0, 4);
         frame.setCpa(new Cpa().parse(cpa, 0));
         return frame;

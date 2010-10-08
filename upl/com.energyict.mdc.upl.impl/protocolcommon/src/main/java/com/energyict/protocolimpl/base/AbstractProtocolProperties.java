@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.base;
 
+import com.energyict.protocolimpl.utils.ProtocolTools;
+
 import java.util.Properties;
 
 /**
@@ -21,6 +23,10 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
 
     protected String getStringValue(String propertyName, String defaultValue) {
         return getProtocolProperties().getProperty(propertyName, defaultValue);
+    }
+
+    protected byte[] getByteValue(String propertyName, String defaultValue) {
+        return ProtocolTools.getBytesFromHexString(getStringValue(propertyName, defaultValue), "");
     }
 
     public Properties getProtocolProperties() {

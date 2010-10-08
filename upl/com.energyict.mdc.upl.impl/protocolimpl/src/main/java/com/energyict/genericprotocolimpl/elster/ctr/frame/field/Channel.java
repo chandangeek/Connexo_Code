@@ -12,6 +12,13 @@ public class Channel extends AbstractField<Channel> {
     public static final int LENGTH = 1;
     private int channel;
 
+    public Channel() {
+    }
+
+    public Channel(int channel) {
+        this.channel = channel;
+    }
+
     public byte[] getBytes() {
         return getBytesFromInt(channel, LENGTH);
     }
