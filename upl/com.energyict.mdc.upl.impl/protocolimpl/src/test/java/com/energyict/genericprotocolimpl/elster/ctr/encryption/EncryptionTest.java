@@ -4,7 +4,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CtrCipheringExcept
 import com.energyict.genericprotocolimpl.elster.ctr.frame.Frame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import junit.framework.TestCase;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -14,9 +14,10 @@ import static org.junit.Assert.assertArrayEquals;
  * Date: 6-okt-2010
  * Time: 16:36:31
  */
-public class EncryptionTest extends TestCase {
+public class EncryptionTest {
 
     @Test
+    @Ignore
     public void testEncryption() {
         GPRSFrame frame = new GPRSFrame();
         GPRSFrame framex = new GPRSFrame();
