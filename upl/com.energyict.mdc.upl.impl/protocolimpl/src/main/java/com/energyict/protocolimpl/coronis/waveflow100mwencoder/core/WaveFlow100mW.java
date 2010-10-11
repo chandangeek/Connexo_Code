@@ -20,7 +20,7 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
 	abstract protected ProfileData getTheProfileData(Date lastReading, int portId, boolean includeEvents) throws UnsupportedException, IOException;
     abstract protected MeterProtocolType getMeterProtocolType();
 	
-    public enum MeterProtocolType {
+    public enum MeterProtocolType { 
     	SM150E(0),
     	ECHODIS(1);
     	
@@ -46,7 +46,16 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
 	 */
 	private RadioCommandFactory radioCommandFactory;
 
+	/**
+	 * Reference to the escape command factory. this factory allows calling
+	 * wavenis protocolstack specific commands if implemented...  
+	 */
+	private EscapeCommandFactory escapeCommandFactory;
 	
+	final public EscapeCommandFactory getEscapeCommandFactory() {
+		return escapeCommandFactory;
+	}
+
 	/**
 	 * reference to the obiscode mapper.
 	 */
@@ -122,6 +131,7 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
 		radioCommandFactory = new RadioCommandFactory(this);
 		waveFlowConnect = new WaveFlowConnect(inputStream,outputStream,timeoutProperty,getLogger(),forcedDelay);
 		commonObisCodeMapper = new CommonObisCodeMapper(this);
+		escapeCommandFactory = new EscapeCommandFactory(this);
 		
 		
 		
@@ -171,6 +181,10 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
 		
 	}
 
+	final void forceSetTime() throws IOException {
+		parameterFactory.writeTimeDateRTC(new Date());
+	}
+	
 	@Override
 	public void setTime() throws IOException {
 		if (correctTime>0) {

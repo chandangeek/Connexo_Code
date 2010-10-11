@@ -116,4 +116,13 @@ public class Echodis extends WaveFlow100mW {
 		return MeterProtocolType.ECHODIS;
 	}
 	
+	
+	public void setAndVerifyWavecardRadiotimeout(int timeout) throws IOException {
+		getEscapeCommandFactory().setAndVerifyWavecardRadiotimeout(timeout);
+	}
+	
+	public void startMeterDetection() throws IOException {
+		getRadioCommandFactory().startMeterDetection();	
+	}
+	
 }

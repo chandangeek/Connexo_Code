@@ -9,6 +9,7 @@ import com.energyict.cbo.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.*;
+import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.MBusInternalLogs.HistoricalValue;
 
 public class ObisCodeMapper {
 	
@@ -60,6 +61,8 @@ public class ObisCodeMapper {
 		registerMaps.put(ObisCode.fromString("0.1.96.99.255.253"), "MBUS header identification number");
 		registerMaps.put(ObisCode.fromString("0.1.96.99.255.254"), "MBUS header status byte");
 		registerMaps.put(ObisCode.fromString("0.1.96.99.255.255"), "MBUS header signature field");
+		
+		
 		
 	}
 	
@@ -115,14 +118,30 @@ public class ObisCodeMapper {
 	    	else if (obisCode.equals(ObisCode.fromString("8.2.1.0.0.255"))) { // Port B
 	    		return echodis.getMbusRegisterValue(ObisCode.fromString("0.1.96.99.0.1"));
 	    	}	    	
-	    	else {
-	    		try {
-	    			return echodis.getCommonObisCodeMapper().getRegisterValue(obisCode);
-	    		}
-	    		catch(NoSuchRegisterException e) {
-	    			return echodis.getMbusRegisterValue(obisCode);
+	    	else if ((obisCode.getA()==8) && (obisCode.getC()==1) && (obisCode.getD()==0) && (obisCode.getE()==0)) { // port A
+	    		
+	    		int portId = obisCode.getB()-1;
+	    		if ((portId==0) || (portId==1)) {
+	    			int historicalId=obisCode.getF();
+	    			
+	    			if (historicalId<0) {
+	    				historicalId = Math.abs(obisCode.getF());
+	    			}
+	    			if ((historicalId>=0) && (historicalId<=12)) {
+	    	    		if (historicalId < echodis.getRadioCommandFactory().readMBusInternalLogs(portId).getHistoricalValues().size()) {
+	    	    			HistoricalValue o = echodis.getRadioCommandFactory().readMBusInternalLogs(portId).getHistoricalValues().get(historicalId);
+	    	    			return new RegisterValue(obisCode, o.getValue(), o.getCal().getTime());
+	    	    		}
+	    			}
 	    		}
 	    	}
+	    	
+    		try {
+    			return echodis.getCommonObisCodeMapper().getRegisterValue(obisCode);
+    		}
+    		catch(NoSuchRegisterException e) {
+    			return echodis.getMbusRegisterValue(obisCode);
+    		}
 	    	
 		} catch (IOException e) {
 			

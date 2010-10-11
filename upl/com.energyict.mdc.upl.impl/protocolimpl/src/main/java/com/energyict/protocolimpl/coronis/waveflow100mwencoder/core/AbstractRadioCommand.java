@@ -14,7 +14,9 @@ abstract public class AbstractRadioCommand {
 		EncoderDataloggingTable(0x07,true),
 		EncoderReadLeakageEventTable(0x04,true),
 		EncoderInternalData(0x0B,true),
+		MBusInternalLogs(0x0D,true),
 		LeakageEventTable(0x04,true),
+		MeterDetection(0x0C),
 		FirmwareVersion(0x28);
 		
 		private int commandId;

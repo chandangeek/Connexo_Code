@@ -11,6 +11,8 @@ public class RadioCommandFactory {
 	private FirmwareVersion firmwareVersion=null;
 	private InternalDataCommand internalDataCommand=null;
 
+	private MBusInternalLogs[] mBusInternalLogs=new MBusInternalLogs[2];
+	
 	RadioCommandFactory(WaveFlow100mW waveFlow100mW) {
 		this.waveFlow100mW = waveFlow100mW;
 	}
@@ -49,11 +51,26 @@ public class RadioCommandFactory {
 		}
 		return internalDataCommand;
 	}
+
+	final public MBusInternalLogs readMBusInternalLogs(int portId) throws IOException {
+		int pId = portId<=0?0:1;
+		if (mBusInternalLogs[pId] == null) {
+			mBusInternalLogs[pId] = new MBusInternalLogs(waveFlow100mW,portId);
+			mBusInternalLogs[pId].invoke();
+		}
+		return mBusInternalLogs[pId];
+	}
+	
 	
 	final public LeakageEventTable readLeakageEventTable() throws IOException {
 		LeakageEventTable leakageEventTable = new LeakageEventTable(waveFlow100mW);
 		leakageEventTable.invoke();
 		return leakageEventTable;
+	}
+	
+	final public void startMeterDetection() throws IOException {
+		MeterDetection o = new MeterDetection(waveFlow100mW);
+		o.invoke();
 	}
 	
 }

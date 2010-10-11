@@ -72,5 +72,12 @@ public class SM150E extends WaveFlow100mW {
 		return MeterProtocolType.SM150E;
 	}
 
+	public void setAndVerifyWavecardRadiotimeout(int timeout) throws IOException {
+		getEscapeCommandFactory().setAndVerifyWavecardRadiotimeout(timeout);
+	}
+	
+	public void startMeterDetection() throws IOException {
+		getRadioCommandFactory().startMeterDetection();	
+	}
 	
 }

@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.*;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.EncoderUnitInfo.EncoderUnitType;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.LeakageEventTable.LeakageEvent;
@@ -61,16 +62,26 @@ public class ProfileDataReader {
 		// initialize calendar
 		Calendar calendar = Calendar.getInstance(waveFlow100mW.getTimeZone());
 		calendar.setTime(encoderDataloggingTable.getLastLoggingRTC());
+		
+		if (!ParseUtils.isOnIntervalBoundary(calendar, waveFlow100mW.getProfileInterval())) {
+			ParseUtils.roundDown2nearestInterval(calendar, waveFlow100mW.getProfileInterval());
+		}
+		
 
 		// Build intervaldatas list
 		List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
 		if ((portId==0) || (portId==1)) {
-			
 			int nrOfReadings = portId==0?encoderDataloggingTable.getNrOfReadingsPortA():encoderDataloggingTable.getNrOfReadingsPortB();
 			long[] readings = portId==0?encoderDataloggingTable.getEncoderReadingsPortA():encoderDataloggingTable.getEncoderReadingsPortB();
 			for (int index = 0;index < nrOfReadings; index++) {
-				BigDecimal bd = new BigDecimal(readings[index]);
-				bd = bd.movePointLeft(encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[portId].getNrOfDigitsBeforeDecimalPoint());
+				BigDecimal bd = null;
+				if (encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[portId].getEncoderUnitType() != EncoderUnitType.Unknown) {
+					bd = new BigDecimal(readings[index]);
+					bd = bd.movePointLeft(encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[portId].getNrOfDigitsBeforeDecimalPoint());
+				}
+				else {
+					bd = new BigDecimal(0);
+				}
 				List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
 				intervalValues.add(new IntervalValue(bd, 0, 0));
 				intervalDatas.add(new IntervalData(calendar.getTime(),0,0,0,intervalValues));
@@ -83,8 +94,14 @@ public class ProfileDataReader {
 			// get the smallest nr of readings
 			int smallestNrOfReadings = encoderDataloggingTable.getNrOfReadingsPortA()<encoderDataloggingTable.getNrOfReadingsPortB()?encoderDataloggingTable.getNrOfReadingsPortA():encoderDataloggingTable.getNrOfReadingsPortB();
 			for (int index = 0;index < smallestNrOfReadings; index++) {
-				BigDecimal bdA = new BigDecimal(encoderDataloggingTable.getEncoderReadingsPortA()[index]);
-				bdA = bdA.movePointLeft(encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[0].getNrOfDigitsBeforeDecimalPoint());
+				BigDecimal bdA=null;
+				if (encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[0].getEncoderUnitType() != EncoderUnitType.Unknown) {
+					bdA = new BigDecimal(encoderDataloggingTable.getEncoderReadingsPortA()[index]);
+					bdA = bdA.movePointLeft(encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[0].getNrOfDigitsBeforeDecimalPoint());
+				}
+				else {
+					bdA = new BigDecimal(0);
+				}
 				
 				BigDecimal bdB=null;
 				if (encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[1].getEncoderUnitType() != EncoderUnitType.Unknown) {

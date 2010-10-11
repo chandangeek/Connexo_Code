@@ -26,6 +26,22 @@ public class WaveFlow100mWMessages implements MessageProtocol {
 				waveFlow100mW.restartDataLogging();
 				return MessageResult.createSuccess(messageEntry);
 			}
+			else if (messageEntry.getContent().indexOf("<ForceTimeSync")>=0) {
+				waveFlow100mW.getLogger().info("************************* ForceTimeSync *************************");
+				waveFlow100mW.forceSetTime();
+				return MessageResult.createSuccess(messageEntry);
+			}
+			else if (messageEntry.getContent().indexOf("<DetectMeter")>=0) {
+				waveFlow100mW.getLogger().info("************************* DetectMeter *************************");
+				try {
+					waveFlow100mW.getEscapeCommandFactory().setAndVerifyWavecardRadiotimeout(20); // See the waveflow manuazl. We need to set the timeout to at least 20 seconds if we want to do a meterdetect
+					waveFlow100mW.getRadioCommandFactory().startMeterDetection();
+				}
+				finally {
+					waveFlow100mW.getEscapeCommandFactory().setAndVerifyWavecardRadiotimeout(2); // be sure to set back to the default!
+				}
+				return MessageResult.createSuccess(messageEntry);
+			}
 			else if (messageEntry.getContent().indexOf("<SetProfileInterval")>=0) {
 				waveFlow100mW.getLogger().info("************************* Set sampling interval *************************");
 				int profileInterval = Integer.parseInt(stripOffTag(messageEntry.getContent()));
@@ -57,6 +73,8 @@ public class WaveFlow100mWMessages implements MessageProtocol {
        
        MessageCategorySpec cat2 = new MessageCategorySpec("Waveflow100mw advanced messages");
        cat2.addMessageSpec(addBasicMsgWithValue("Set sampling period in seconds", "SetProfileInterval", true));
+       cat2.addMessageSpec(addBasicMsg("Force to sync the time", "ForceTimeSync", true));
+       cat2.addMessageSpec(addBasicMsg("Detect meter", "DetectMeter", true));
        theCategories.add(cat2);
        
        return theCategories;
