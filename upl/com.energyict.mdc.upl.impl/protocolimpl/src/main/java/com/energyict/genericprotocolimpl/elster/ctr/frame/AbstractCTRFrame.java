@@ -3,8 +3,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.frame;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.*;
-import com.energyict.genericprotocolimpl.elster.ctr.structure.IdentificationResponseStructure;
-import com.energyict.genericprotocolimpl.elster.ctr.structure.NackStructure;
+import com.energyict.genericprotocolimpl.elster.ctr.structure.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**

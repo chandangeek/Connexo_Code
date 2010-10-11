@@ -8,7 +8,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingExceptio
  * Date: 7-okt-2010
  * Time: 16:19:20
  */
-public class AdditionalData extends AbstractField<AdditionalData> {
+public class NackAdditionalData extends AbstractField<NackAdditionalData> {
 
     public static final int LENGTH = 20;
 
@@ -18,7 +18,7 @@ public class AdditionalData extends AbstractField<AdditionalData> {
         return data;
     }
 
-    public AdditionalData parse(byte[] rawData, int offset) throws CTRParsingException {
+    public NackAdditionalData parse(byte[] rawData, int offset) throws CTRParsingException {
         this.data = new byte[LENGTH];
         System.arraycopy(rawData, offset, data, 0, LENGTH);
         return this;
