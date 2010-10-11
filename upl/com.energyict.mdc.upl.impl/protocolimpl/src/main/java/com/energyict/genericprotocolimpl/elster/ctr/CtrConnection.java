@@ -14,18 +14,26 @@ import java.io.*;
  */
 public class CtrConnection {
 
-    private OutputStream out = new ByteArrayOutputStream();
-    private InputStream in = new ByteArrayInputStream(new byte[0]);
-    private int retries;
-    private int timeOut;
-    private int delayAfterError;
+    private final OutputStream out;
+    private final InputStream in;
 
+    private final int retries;
+    private final int timeOut;
+    private final int delayAfterError;
+    private final int forcedDelay;
+
+    /**
+     * @param in
+     * @param out
+     * @param properties
+     */
     public CtrConnection(InputStream in, OutputStream out, MTU155Properties properties) {
         this.in = in;
         this.out = out;
         this.retries = properties.getRetries();
         this.timeOut = properties.getTimeout();
         this.delayAfterError = properties.getDelayAfterError();
+        this.forcedDelay = properties.getForcedDelay();
     }
 
     /**
@@ -61,7 +69,7 @@ public class CtrConnection {
     private void delayAndFlushConnection() {
         ProtocolTools.delay(delayAfterError);
         try {
-            while (in.available() > 0) {
+            while (bytesFromDeviceAvailable()) {
                 ProtocolTools.delay(delayAfterError);
                 in.read(new byte[1024]);
             }
@@ -70,6 +78,10 @@ public class CtrConnection {
         }
     }
 
+    /**
+     * @return
+     * @throws CTRConnectionException
+     */
     private GPRSFrame readFrame() throws CTRConnectionException {
         byte[] rawFrame = readRawFrame();
         try {
@@ -79,6 +91,10 @@ public class CtrConnection {
         }
     }
 
+    /**
+     * @return
+     * @throws CTRConnectionException
+     */
     private byte[] readRawFrame() throws CTRConnectionException {
         ByteArrayOutputStream rawBytes = new ByteArrayOutputStream();
         try {
@@ -89,7 +105,7 @@ public class CtrConnection {
                     String message = "Timed out while receiving data. State='" + state + "', timeout='" + timeOut + "'.";
                     throw new CTRConnectionException(message);
                 }
-                if (in.available() <= 0) {
+                if (!bytesFromDeviceAvailable()) {
                     ProtocolTools.delay(1);
                 } else {
                     byte[] buffer = new byte[32];
@@ -117,10 +133,33 @@ public class CtrConnection {
         return rawBytes.toByteArray();
     }
 
+    /**
+     * @return
+     * @throws IOException
+     */
+    private boolean bytesFromDeviceAvailable() throws IOException {
+        return in.available() > 0;
+    }
+
+    /**
+     * @param rawBytes
+     * @param state
+     * @param readByte
+     * @return
+     * @throws CTRConnectionException
+     */
     private CtrConnectionState waitExtendedLength(ByteArrayOutputStream rawBytes, CtrConnectionState state, int readByte) throws CTRConnectionException {
         throw new CTRConnectionException("Long frames not supported yet!");
     }
 
+    /**
+     * @param rawBytes
+     * @param state
+     * @param readByte
+     * @return
+     * @throws CTRParsingException
+     * @throws CTRConnectionException
+     */
     private CtrConnectionState readMinLength(ByteArrayOutputStream rawBytes, CtrConnectionState state, int readByte) throws CTRParsingException, CTRConnectionException {
         rawBytes.write(readByte);
         if (rawBytes.size() >= GPRSFrame.LENGTH) {
@@ -139,6 +178,12 @@ public class CtrConnection {
         return state;
     }
 
+    /**
+     * @param rawBytes
+     * @param state
+     * @param readByte
+     * @return
+     */
     private CtrConnectionState waitForSTX(ByteArrayOutputStream rawBytes, CtrConnectionState state, int readByte) {
         if (readByte == GPRSFrame.STX) {
             rawBytes.write(readByte);
@@ -147,12 +192,26 @@ public class CtrConnection {
         return state;
     }
 
+    /**
+     * @param frame
+     * @throws CTRConnectionException
+     */
     private void sendFrame(GPRSFrame frame) throws CTRConnectionException {
         try {
+            doForcedDelay();
             out.write(frame.getBytes());
             out.flush();
         } catch (IOException e) {
-            throw new CTRConnectionException("Unable to send frame: " + e);
+            throw new CTRConnectionException("Unable to send frame.", e);
+        }
+    }
+
+    /**
+     * 
+     */
+    private void doForcedDelay() {
+        if (forcedDelay > 0) {
+            ProtocolTools.delay(forcedDelay);
         }
     }
 
