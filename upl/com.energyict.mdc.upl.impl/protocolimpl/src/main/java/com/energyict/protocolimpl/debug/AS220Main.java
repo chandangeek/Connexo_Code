@@ -113,7 +113,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         properties.setProperty("ServerLowerMacAddress", "1");
         properties.setProperty("ServerUpperMacAddress", "1");
 
-        properties.setProperty("ProfileType", "0");
+        properties.setProperty("ProfileType", "4");
 
         properties.setProperty("LimitMaxNrOfDays", "0");
 
@@ -138,7 +138,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
 
     public ProfileData readProfile(boolean incluideEvents) throws IOException {
         Calendar from = Calendar.getInstance(DEFAULT_TIMEZONE);
-        from.add(Calendar.SECOND, -1);
+        from.add(Calendar.MONTH, -1);
         ProfileData pd = getMeterProtocol().getProfileData(from.getTime(), incluideEvents);
         return pd;
     }
@@ -501,36 +501,36 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     }
 
     public void readAllCalendarObjects(ActivityCalendar ac) throws IOException {
-//        log("Active Calendar Name : ");
-//       log(ac.readCalendarNameActive().stringValue());
-//
-//        log("Passive Calendar Name : ");
-//        log(ac.readCalendarNamePassive().stringValue());
+        log("Active Calendar Name : ");
+       log(ac.readCalendarNameActive().stringValue());
+
+        log("Passive Calendar Name : ");
+        log(ac.readCalendarNamePassive().stringValue());
 
         log("ActivatePassiveCalendar at : ");
         log(ParseUtils.decimalByteToString(ac.readActivatePassiveCalendarTime().getBEREncodedByteArray()));
 
-//        log("SeasonProfileActive : ");
-//        log(ac.readSeasonProfileActive());
-//
-//        log("SeasonProfilePassive : ");
-//        log(ac.readSeasonProfilePassive());
-//
-//        log("WeekProfileActive : ");
-//        log(ac.readWeekProfileTableActive());
-//
-//        log("WeekProfilePassive : ");
-//        log(ac.readWeekProfileTablePassive());
-//
-//        log("DayProfileActive : ");
-//        log(ac.readDayProfileTableActive());
-//
-//        log("DayProfilePassive : ");
-//        log(ac.readDayProfileTablePassive());
-//
-//        log("SpecialDays : ");
-//        SpecialDaysTable sdt = getMeterProtocol().getCosemObjectFactory().getSpecialDaysTable(getMeterProtocol().getMeterConfig().getSpecialDaysTable().getObisCode());
-//        log(sdt.readSpecialDays());
+        log("SeasonProfileActive : ");
+        log(ac.readSeasonProfileActive());
+
+        log("SeasonProfilePassive : ");
+        log(ac.readSeasonProfilePassive());
+
+        log("WeekProfileActive : ");
+        log(ac.readWeekProfileTableActive());
+
+        log("WeekProfilePassive : ");
+        log(ac.readWeekProfileTablePassive());
+
+        log("DayProfileActive : ");
+        log(ac.readDayProfileTableActive());
+
+        log("DayProfilePassive : ");
+        log(ac.readDayProfileTablePassive());
+
+        log("SpecialDays : ");
+        SpecialDaysTable sdt = getMeterProtocol().getCosemObjectFactory().getSpecialDaysTable(getMeterProtocol().getMeterConfig().getSpecialDaysTable().getObisCode());
+        log(sdt.readSpecialDays());
     }
 
     public void writePassiveActivityCalendarTime(String gmtTime) throws IOException {
@@ -555,14 +555,20 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     @Override
     void doDebug() throws LinkException, IOException {
 
-        log("FirmwareVersion : " + getMeterProtocol().getFirmwareVersion());
+        log(getMeterProtocol().getNumberOfChannels());
+        
+        readProfile(false);
+
+//        readRegisters();
+
+//        log("FirmwareVersion : " + getMeterProtocol().getFirmwareVersion());
 
         // Need an Environment to get the CodeTable
 //        DebugUtils.createEnvironment();
 //        MeteringWarehouse.createBatchContext(false);
         
-        ActivityCalendar ac = getMeterProtocol().getCosemObjectFactory().getActivityCalendar(getMeterProtocol().getMeterConfig().getActivityCalendar().getObisCode());
-        readAllCalendarObjects(ac);
+//        ActivityCalendar ac = getMeterProtocol().getCosemObjectFactory().getActivityCalendar(getMeterProtocol().getMeterConfig().getActivityCalendar().getObisCode());
+//        readAllCalendarObjects(ac);
 
 //        writePassiveActivityCalendarTime("21-10-2010 16:00:00");
 

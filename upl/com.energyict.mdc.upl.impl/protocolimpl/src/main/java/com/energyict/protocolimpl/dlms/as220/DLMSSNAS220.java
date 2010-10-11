@@ -502,7 +502,7 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 			transparentDatabits = Integer.parseInt(properties.getProperty(PR_TRANSP_DATABITS, "8"));
 			transparentStopbits = Integer.parseInt(properties.getProperty(PR_TRANSP_STOPBITS, "1"));
 			transparentParity = Integer.parseInt(properties.getProperty(PR_TRANSP_PARITY, "0"));
-			profileType = Integer.parseInt(properties.getProperty(PR_PROFILE_TYPE, "0"));
+			profileType = Integer.parseInt(properties.getProperty(PR_PROFILE_TYPE, "1"));
 
 			opticalBaudrate = Integer.parseInt(properties.getProperty(PR_OPTICAL_BAUDRATE, "-1"));
 

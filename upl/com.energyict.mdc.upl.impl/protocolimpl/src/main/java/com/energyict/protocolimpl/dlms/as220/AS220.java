@@ -11,6 +11,7 @@ import com.energyict.protocolimpl.dlms.as220.emeter.EMeter;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
 import com.energyict.protocolimpl.dlms.as220.plc.PLC;
 import com.energyict.protocolimpl.dlms.as220.plc.PLCMessaging;
+import com.energyict.protocolimpl.dlms.as220.powerquality.PowerQuality;
 
 import java.io.IOException;
 import java.util.*;
@@ -21,9 +22,10 @@ import java.util.*;
  */
 public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProtocol {
 
-	private static final int	PROFILETYPE_PLC_ONLY	= 2;
-	private static final int	PROFILETYPE_EMETER_ONLY	= 1;
-	private static final int	PROFILETYPE_EMETER_PLC	= 0;
+//    private static final int	PROFILETYPE_EMETER_PLC_PQ	= 0;
+    private static final int	PROFILETYPE_EMETER_ONLY	    = 1;
+    private static final int	PROFILETYPE_PLC_ONLY	    = 2;
+    private static final int    PROFILETYPE_PQ_ONLY         = 4;
 
 	private static final int SEC_PER_MIN = 60;
 
@@ -34,6 +36,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 
 	private final EMeter	eMeter		= new EMeter(this);
 	private final PLC 		plc		= new PLC(this);
+    private final PowerQuality powerQuality = new PowerQuality(this);
 	private GMeter 			gMeter	= new GMeter(this);
 	private ObiscodeMapper	ocm		= null;
 
@@ -79,6 +82,14 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 		return plc;
 	}
 
+    /**
+     * Getter for the currently used PowerQuality object
+     * @return the PowerQuality object
+     */
+    public PowerQuality getPowerQuality(){
+        return powerQuality;
+    }
+
     public void setTime() throws IOException {
     	geteMeter().getClockController().shiftTime();
     }
@@ -119,12 +130,27 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 
 	public int getNumberOfChannels() throws IOException {
 		switch (getProfileType()) {
-			case PROFILETYPE_EMETER_PLC:
-				return geteMeter().getNrOfChannels() + getPlc().getNrOfChannels();
-			case PROFILETYPE_EMETER_ONLY:
+
+            // three separate Profiles
+            case PROFILETYPE_EMETER_ONLY:
 				return geteMeter().getNrOfChannels();
 			case PROFILETYPE_PLC_ONLY:
 				return getPlc().getNrOfChannels();
+            case PROFILETYPE_PQ_ONLY:
+                return getPowerQuality().getNrOfChannels();
+
+            // combination of two
+            case PROFILETYPE_EMETER_ONLY + PROFILETYPE_PLC_ONLY: //Emeter and PLC meter
+                return geteMeter().getNrOfChannels() + getPlc().getNrOfChannels();
+            case PROFILETYPE_EMETER_ONLY + PROFILETYPE_PQ_ONLY: // Emeter and PQ
+                return geteMeter().getNrOfChannels() + getPowerQuality().getNrOfChannels();
+            case PROFILETYPE_PLC_ONLY + PROFILETYPE_PQ_ONLY: // PLC and PQ
+                return getPlc().getNrOfChannels() + getPowerQuality().getNrOfChannels();
+
+            // combination of three
+            case PROFILETYPE_EMETER_ONLY + PROFILETYPE_PLC_ONLY + PROFILETYPE_PQ_ONLY: // Eprofile + PLC profile + PQ profile
+                return geteMeter().getNrOfChannels() + getPlc().getNrOfChannels() + getPowerQuality().getNrOfChannels();
+
 			default:
 				return 0;
 		}
@@ -189,15 +215,41 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 		}
 
 		getLogger().info("Starting to read profileData [from=" + from + ", to=" + to + ", includeEvents=" + includeEvents + "]");
+        ProfileData eMeterProfile;
+        ProfileData plcStatistics;
+        ProfileData powerQualitiesProfile;
 		switch (getProfileType()) {
-			case PROFILETYPE_EMETER_PLC:
-				ProfileData eMeterProfile = geteMeter().getProfileData(from, to, includeEvents);
-				ProfileData plcStatistics = getPlc().getStatistics(from, to);
-				return ProfileAppender.appendProfiles(eMeterProfile, plcStatistics);
-			case PROFILETYPE_EMETER_ONLY:
+
+            // three separate Profiles
+            case PROFILETYPE_EMETER_ONLY:
 				return geteMeter().getProfileData(from, to, includeEvents);
 			case PROFILETYPE_PLC_ONLY:
 				return getPlc().getStatistics(from, to);
+            case PROFILETYPE_PQ_ONLY:
+                return getPowerQuality().getPowerQualities(from, to);
+
+            // combination of two
+            case PROFILETYPE_EMETER_ONLY + PROFILETYPE_PLC_ONLY: //Emeter and PLC meter
+				eMeterProfile = geteMeter().getProfileData(from, to, includeEvents);
+				plcStatistics = getPlc().getStatistics(from, to);
+				return ProfileAppender.appendProfiles(eMeterProfile, plcStatistics);
+            case PROFILETYPE_EMETER_ONLY + PROFILETYPE_PQ_ONLY: // Emeter and PQ
+				eMeterProfile = geteMeter().getProfileData(from, to, includeEvents);
+				powerQualitiesProfile = getPowerQuality().getPowerQualities(from, to);
+				return ProfileAppender.appendProfiles(eMeterProfile, powerQualitiesProfile);
+            case PROFILETYPE_PLC_ONLY + PROFILETYPE_PQ_ONLY: // PLC and PQ
+				plcStatistics = getPlc().getStatistics(from, to);
+                powerQualitiesProfile = getPowerQuality().getPowerQualities(from, to);
+				return ProfileAppender.appendProfiles(plcStatistics, powerQualitiesProfile);
+
+            // combination of three
+            case PROFILETYPE_EMETER_ONLY + PROFILETYPE_PLC_ONLY + PROFILETYPE_PQ_ONLY: // Eprofile + PLC profile + PQ profile
+				eMeterProfile = geteMeter().getProfileData(from, to, includeEvents);
+				plcStatistics = getPlc().getStatistics(from, to);
+                powerQualitiesProfile = getPowerQuality().getPowerQualities(from, to);
+                ProfileData tempProfile = ProfileAppender.appendProfiles(eMeterProfile, plcStatistics);
+				return ProfileAppender.appendProfiles(tempProfile, powerQualitiesProfile);
+
 			default:
 				getLogger().warning("Unknown value for ProfileType! [" + getProfileType() + "]");
 				return new ProfileData();
