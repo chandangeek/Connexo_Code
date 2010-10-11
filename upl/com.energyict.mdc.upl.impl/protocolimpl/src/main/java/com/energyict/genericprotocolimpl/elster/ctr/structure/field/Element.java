@@ -12,22 +12,22 @@ public class Element extends AbstractField<Element> {
 
     public static final int LENGTH = 1;
 
-    private int element;
+    private int numberOfElements;
 
     public byte[] getBytes() {
-        return getBytesFromInt(element, LENGTH);
+        return getBytesFromInt(numberOfElements, LENGTH);
     }
 
     public Element parse(byte[] rawData, int offset) throws CTRParsingException {
-        this.element = getIntFromBytes(rawData, offset, LENGTH);
+        this.numberOfElements = getIntFromBytes(rawData, offset, LENGTH);
         return this;
     }
 
-    public int getElement() {
-        return element;
+    public int getNumberOfElements() {
+        return numberOfElements;
     }
 
-    public void setElement(int element) {
-        this.element = element;
+    public void setNumberOfElements(int element) {
+        this.numberOfElements = element;
     }
 }

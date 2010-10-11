@@ -31,8 +31,6 @@ public class TotalizersCategory extends AbstractUnsignedBINObject<TotalizersCate
             case 5:
                 symbol = "Tot_Vx_fx"; break;
         }
-
-
         return symbol;
     }
 
@@ -42,9 +40,7 @@ public class TotalizersCategory extends AbstractUnsignedBINObject<TotalizersCate
     }
 
     public int[] parseValueLengths(CTRObjectID id) {
-        int[] valueLength;
-        valueLength = new int[]{4};
-        return valueLength;
+        return new int[]{4};
     }
 
 

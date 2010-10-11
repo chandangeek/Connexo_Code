@@ -3,6 +3,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.structure;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
+import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.*;
@@ -13,43 +14,43 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
  * Date: 8-okt-2010
  * Time: 16:26:00
  */
-public class ArrayQueryResponseStructure extends Data<ArrayQueryResponseStructure> {
+public class Trace_CQueryRequestStructure extends Data<Trace_CQueryRequestStructure> {
 
-    private Index_Q index_A;
-    private Counter_Q counter_A;
+    private CTRAbstractValue<String> pssw;
     private CTRObjectID id;
-    private Type type;
-    private Coda coda;
-    private DataArray data;
-               
+    private PeriodTrace_C period;
+    private ReferenceDate date;
+
     @Override
     public byte[] getBytes() {
         return super.getBytes();
     }
 
     @Override
-    public ArrayQueryResponseStructure parse(byte[] rawData, int offset) throws CTRParsingException {
+    public Trace_CQueryRequestStructure parse(byte[] rawData, int offset) throws CTRParsingException {
+
+        CTRObjectFactory factory = new CTRObjectFactory();
+        AttributeType type = new AttributeType(0x00);
+        type.setHasValueFields(true);
 
         int ptr = offset;
+
+        pssw = factory.parse(rawData, ptr, type, "D.0.1").getValue()[0];
+        ptr += 6;
 
         byte[] b = ProtocolTools.getSubArray(rawData, ptr, ptr + CTRObjectID.LENGTH);
         id = new CTRObjectID(new String(b));
         ptr += CTRObjectID.LENGTH;
 
-        type = new Type().parse(rawData, ptr);
-        ptr += AttributeType.LENGTH;
+        period = new PeriodTrace_C().parse(rawData, ptr);
+        ptr += PeriodTrace_C.LENGTH;
 
-        index_A = new Index_Q().parse(rawData, ptr);
-        ptr += Index_Q.LENGTH;
+        date = new ReferenceDate().parse(rawData, ptr);
+        ptr += ReferenceDate.LENGTH;
 
-        counter_A = new Counter_Q().parse(rawData, ptr);
-        ptr += Counter_Q.LENGTH;
+        
 
-        coda = new Coda().parse(rawData, ptr);
-        ptr += Coda.LENGTH;
-
-        data = new DataArray().parse(rawData, ptr);
-
+        
         return super.parse(rawData, offset);
     }
 }

@@ -17,7 +17,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 public class TraceQueryRequestStructure extends Data<TraceQueryRequestStructure> {
 
     private CTRAbstractValue<String> pssw;
-    private Period period;
+    private PeriodTrace period;
     private StartDate startDate;
     private CTRObjectID id;
     private Element elements;
@@ -43,8 +43,8 @@ public class TraceQueryRequestStructure extends Data<TraceQueryRequestStructure>
         id = new CTRObjectID(new String(b));
         ptr += CTRObjectID.LENGTH;
 
-        period = new Period().parse(rawData, ptr);
-        ptr += Period.LENGTH;
+        period = new PeriodTrace().parse(rawData, ptr);
+        ptr += PeriodTrace.LENGTH;
 
         startDate = new StartDate().parse(rawData, ptr);
         ptr += StartDate.LENGTH;

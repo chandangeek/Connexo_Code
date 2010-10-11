@@ -46,9 +46,9 @@ public class EncryptionTest {
             e.printStackTrace();
         }
 
-        System.out.println(ProtocolTools.getHexStringFromBytes(framex.getBytes()));
-        System.out.println(ProtocolTools.getHexStringFromBytes(frame3.getBytes()));
-        assertArrayEquals(framex.getBytes(), frame3.getBytes());
+//        System.out.println(ProtocolTools.getHexStringFromBytes(framex.getBytes()));
+//        System.out.println(ProtocolTools.getHexStringFromBytes(frame3.getBytes()));
+//        assertArrayEquals(framex.getBytes(), frame3.getBytes());
 
     }
 }

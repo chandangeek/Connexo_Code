@@ -11,9 +11,9 @@ import java.util.Date;
  * Date: 8-okt-2010
  * Time: 16:39:27
  */
-public class StartDate extends AbstractField<StartDate> {
+public class ReferenceDate extends AbstractField<ReferenceDate> {
 
-    public static final int LENGTH = 4;
+    public static final int LENGTH = 3;
 
     private byte[] date;
     private String sDate = "";
@@ -26,7 +26,7 @@ public class StartDate extends AbstractField<StartDate> {
         return date;
     }
 
-    public StartDate parse(byte[] rawData, int offset) throws CTRParsingException {
+    public ReferenceDate parse(byte[] rawData, int offset) throws CTRParsingException {
         date = ProtocolTools.getSubArray(rawData, offset, offset + LENGTH);
         sDate = "";
         String prefix = "";

@@ -13,23 +13,22 @@ import java.math.BigInteger;
  */
 public class DataArray extends AbstractField<DataArray> {
 
-    private BigInteger data;
+    private byte[] data;
 
     public byte[] getBytes() {
-        return data.toByteArray();
+        return data;
     }
 
     public DataArray parse(byte[] rawData, int offset) throws CTRParsingException {
         byte[] b = ProtocolTools.getSubArray(rawData, offset);
-        data = new BigInteger(b);
         return this;
     }
 
-    public BigInteger getData() {
+    public byte[] getData() {
         return data;
     }
 
-    public void setData(BigInteger data) {
+    public void setData(byte[] data) {
         this.data = data;
     }
 }

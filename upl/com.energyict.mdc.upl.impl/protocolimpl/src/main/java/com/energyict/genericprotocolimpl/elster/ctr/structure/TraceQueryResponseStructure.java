@@ -13,7 +13,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
  */
 public class TraceQueryResponseStructure extends Data<TraceQueryResponseStructure> {
 
-    private Period period;
+    private PeriodTrace period;
     private StartDate startDate;
     private CTRObjectID id;
     private Element elements;
@@ -33,8 +33,8 @@ public class TraceQueryResponseStructure extends Data<TraceQueryResponseStructur
         id = new CTRObjectID(new String(b));
         ptr += CTRObjectID.LENGTH;
 
-        period = new Period().parse(rawData, ptr);
-        ptr += Period.LENGTH;
+        period = new PeriodTrace().parse(rawData, ptr);
+        ptr += PeriodTrace.LENGTH;
 
         startDate = new StartDate().parse(rawData, ptr);
         ptr += StartDate.LENGTH;
@@ -43,7 +43,6 @@ public class TraceQueryResponseStructure extends Data<TraceQueryResponseStructur
         ptr += Element.LENGTH;
 
         traceData = new DataArray().parse(rawData, ptr);
-
 
         return super.parse(rawData, offset);
     }
