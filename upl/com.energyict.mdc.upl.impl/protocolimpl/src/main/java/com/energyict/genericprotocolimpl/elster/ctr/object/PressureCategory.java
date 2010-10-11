@@ -67,7 +67,7 @@ public class PressureCategory extends AbstractUnsignedBINObject<PressureCategory
         return new BigDecimal(overflow);
     }
 
-    protected int[] parseValueLengths(CTRObjectID id) {
+    public int[] parseValueLengths(CTRObjectID id) {
         int y = id.getY();
         int z = id.getZ();
         int[] valueLength;

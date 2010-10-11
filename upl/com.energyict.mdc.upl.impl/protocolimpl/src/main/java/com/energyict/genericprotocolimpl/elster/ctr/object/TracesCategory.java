@@ -37,7 +37,7 @@ public class TracesCategory extends AbstractUnsignedBINObject<TracesCategory> {
         return new BigDecimal(overflow);
     }
 
-    protected int[] parseValueLengths(CTRObjectID id) {
+    public int[] parseValueLengths(CTRObjectID id) {
         return new int[]{1, 2,2,2,2, 2,2,2,2, 2,2,2,2, 2,2,2,2};
     }
 

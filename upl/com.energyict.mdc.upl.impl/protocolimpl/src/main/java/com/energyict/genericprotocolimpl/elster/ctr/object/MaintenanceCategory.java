@@ -55,7 +55,7 @@ public class MaintenanceCategory extends AbstractUnsignedBINObject<MaintenanceCa
         return new BigDecimal(overflow);
     }
 
-    protected int[] parseValueLengths(CTRObjectID id) {
+    public int[] parseValueLengths(CTRObjectID id) {
         int[] valueLength;
         switch (id.getY()) {
             case 5:

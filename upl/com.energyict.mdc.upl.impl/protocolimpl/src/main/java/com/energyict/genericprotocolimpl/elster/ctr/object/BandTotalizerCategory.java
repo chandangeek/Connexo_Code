@@ -20,7 +20,7 @@ public class BandTotalizerCategory extends AbstractUnsignedBINObject<BandTotaliz
         return new BigDecimal(999999999);
     }
 
-    protected int[] parseValueLengths(CTRObjectID id) {
+    public int[] parseValueLengths(CTRObjectID id) {
         return new int[]{4};
     }
 

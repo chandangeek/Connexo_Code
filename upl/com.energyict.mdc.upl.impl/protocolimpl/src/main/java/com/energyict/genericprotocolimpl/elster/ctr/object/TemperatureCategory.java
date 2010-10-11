@@ -65,7 +65,7 @@ public class TemperatureCategory extends AbstractUnsignedBINObject<TemperatureCa
         return new BigDecimal(overflow);
     }
 
-    protected int[] parseValueLengths(CTRObjectID id) {
+    public int[] parseValueLengths(CTRObjectID id) {
         int[] valueLength = new int[]{4};
         int z = id.getZ();
         switch (id.getY()) {

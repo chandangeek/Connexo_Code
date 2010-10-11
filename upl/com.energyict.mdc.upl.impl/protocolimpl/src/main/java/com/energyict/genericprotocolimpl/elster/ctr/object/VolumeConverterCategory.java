@@ -42,7 +42,7 @@ public class VolumeConverterCategory extends AbstractUnsignedBINObject<VolumeCon
         return new BigDecimal(0);  //There's no overflow values in this category
     }
 
-    protected int[] parseValueLengths(CTRObjectID id) {
+    public int[] parseValueLengths(CTRObjectID id) {
         return new int[]{3};       //There's only one type of value in this category
     }
 

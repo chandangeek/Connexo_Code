@@ -41,7 +41,7 @@ public class TotalizersCategory extends AbstractUnsignedBINObject<TotalizersCate
         return new BigDecimal(999999999); //Always the same value in this category
     }
 
-    protected int[] parseValueLengths(CTRObjectID id) {
+    public int[] parseValueLengths(CTRObjectID id) {
         int[] valueLength;
         valueLength = new int[]{4};
         return valueLength;
@@ -51,6 +51,4 @@ public class TotalizersCategory extends AbstractUnsignedBINObject<TotalizersCate
     public Unit parseUnit(CTRObjectID id, int valueNumber) {
         return Unit.get("m3");
     }
-
-
 }

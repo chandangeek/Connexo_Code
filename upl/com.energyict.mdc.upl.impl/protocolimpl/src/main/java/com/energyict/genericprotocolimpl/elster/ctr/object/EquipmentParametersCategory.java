@@ -70,7 +70,7 @@ public class EquipmentParametersCategory extends AbstractStringObject {
         return new BigDecimal(overflow);
     }
 
-    protected int[] parseValueLengths(CTRObjectID id) {
+    public int[] parseValueLengths(CTRObjectID id) {
         int[] valueLength = null;
         int z = id.getZ();
         switch(id.getY()) {

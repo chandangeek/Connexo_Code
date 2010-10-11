@@ -57,7 +57,7 @@ public class SystemMasterRecordCategory extends AbstractBCDObject<SystemMasterRe
         return null; //There's no overflow values available in this category.
     }
 
-    protected int[] parseValueLengths(CTRObjectID id) {
+    public int[] parseValueLengths(CTRObjectID id) {
         int[] valueLength = null;
         int z = id.getZ();
         switch (id.getY()) {

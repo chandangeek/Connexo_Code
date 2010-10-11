@@ -41,7 +41,7 @@ public class ExecuteCategory extends AbstractUnsignedBINObject {
         return new BigDecimal(overflow);
     }
 
-    protected int[] parseValueLengths(CTRObjectID id) {
+    public int[] parseValueLengths(CTRObjectID id) {
         int[] valueLength = new int[]{};
         switch(id.getY()) {
             case 0: switch(id.getZ()) {

@@ -51,7 +51,7 @@ public class SecurityCategory extends AbstractStringObject<SecurityCategory> {
         return new BigDecimal(overflow);
     }
 
-    protected int[] parseValueLengths(CTRObjectID id) {
+    public int[] parseValueLengths(CTRObjectID id) {
         int[] valueLength = null;
         switch (id.getY()) {
             case 6:

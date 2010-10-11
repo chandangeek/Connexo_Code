@@ -47,7 +47,7 @@ public class StatusCategory extends AbstractUnsignedBINObject<StatusCategory> {
         return new BigDecimal(overflow);
     }
 
-    protected int[] parseValueLengths(CTRObjectID id) {
+    public int[] parseValueLengths(CTRObjectID id) {
         int[] valueLength = new int[]{};
 
         switch (id.getY()) {

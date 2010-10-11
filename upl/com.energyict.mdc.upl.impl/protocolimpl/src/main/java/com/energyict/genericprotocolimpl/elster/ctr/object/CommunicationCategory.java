@@ -59,7 +59,7 @@ public class CommunicationCategory<T extends CommunicationCategory> extends Abst
         return null;
     }
 
-    protected int[] parseValueLengths(CTRObjectID id) {
+    public int[] parseValueLengths(CTRObjectID id) {
         int[] valueLength = null;
         switch (id.getY()) {
             case 0x0C:

@@ -59,7 +59,7 @@ public class FlowAndVolumeCategory extends AbstractUnsignedBINObject {
         return new BigDecimal((int) (overflow*scale));
     }
 
-    protected int[] parseValueLengths(CTRObjectID id) {
+    public int[] parseValueLengths(CTRObjectID id) {
         int[] valueLength;
         switch(id.getY()) {
                 default: valueLength = new int[]{3}; break;

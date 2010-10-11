@@ -26,7 +26,7 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
     public abstract Unit parseUnit(CTRObjectID id, int valueNumber);
     protected abstract T parse(byte[] rawData, int offset, AttributeType type);
     protected abstract String parseSymbol(CTRObjectID id);
-    protected abstract int[] parseValueLengths(CTRObjectID id);
+    public abstract int[] parseValueLengths(CTRObjectID id);
     public abstract BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit);
 
 

@@ -34,7 +34,7 @@ public class EnergyCategory extends AbstractUnsignedBINObject {
         return new BigDecimal(overflow);
     }
 
-    protected int[] parseValueLengths(CTRObjectID id) {
+    public int[] parseValueLengths(CTRObjectID id) {
         int y = id.getY();
         int[] valueLength;
             switch(y) {

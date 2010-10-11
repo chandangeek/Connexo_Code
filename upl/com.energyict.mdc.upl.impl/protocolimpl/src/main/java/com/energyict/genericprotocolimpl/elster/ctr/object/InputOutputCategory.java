@@ -35,7 +35,7 @@ public class InputOutputCategory extends AbstractUnsignedBINObject<InputOutputCa
         return new BigDecimal(0);
     }
 
-    protected int[] parseValueLengths(CTRObjectID id) {
+    public int[] parseValueLengths(CTRObjectID id) {
         return new int[]{1, 3, 3, 3, 3};
     }
 
