@@ -4,8 +4,10 @@ import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
+import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.NumberOfObjects;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
  * Copyrights EnergyICT
@@ -17,6 +19,7 @@ public class RegisterQueryRequestStructure extends Data<RegisterQueryRequestStru
     private CTRAbstractValue<String> pssw;
     private NumberOfObjects numberOfObjects;
     private AttributeType attributeType;
+    private CTRObjectID[] id;
 
     @Override
     public byte[] getBytes() {
@@ -38,8 +41,15 @@ public class RegisterQueryRequestStructure extends Data<RegisterQueryRequestStru
         numberOfObjects = new NumberOfObjects().parse(rawData, ptr);
         ptr += NumberOfObjects.LENGTH;
 
-        this.attributeType = new AttributeType().parse(rawData, ptr);
+        attributeType = new AttributeType().parse(rawData, ptr);
         ptr += AttributeType.LENGTH;
+
+        id = new CTRObjectID[numberOfObjects.getNumberOfObjects()];
+        for (int i = 0; i < numberOfObjects.getNumberOfObjects(); i++) {
+            byte[] b = ProtocolTools.getSubArray(rawData, ptr, ptr + CTRObjectID.LENGTH);
+            id[i] = new CTRObjectID(new String(b));
+        }
+        ptr += CTRObjectID.LENGTH * id.length;
 
         return super.parse(rawData, offset);
     }
