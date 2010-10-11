@@ -6,14 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageElementSpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.*;
 
 /**
  * @author jme
@@ -155,4 +148,27 @@ public abstract class AbstractSubMessageProtocol implements SubMessageProtocol {
 	}
 
 
+    /**
+     * Create a MessageSpec with an EMPTY value-field but with one or several attributes added
+     *
+     * @param keyId the KeyId of the message
+     * @param tagName the xml tag name for this message
+     * @param advanced an indication whether this is an advanced message
+     * @param attributes a list of attributes which will be applied to the xml message
+     * @return a messageSpecification
+     */
+    protected MessageSpec createValueMessage(String keyId, String tagName, boolean advanced, String... attributes){
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+
+        // We should add this messageSpec, otherwise the other attributeSpecs wont show up in eiserver. Bug??
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        tagSpec.add(msgVal);
+        for(String attribute : attributes){
+            tagSpec.add(new MessageAttributeSpec(attribute, true));
+        }
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
 }

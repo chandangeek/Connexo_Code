@@ -14,9 +14,7 @@ import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.base.ActivityCalendarController;
-import com.energyict.protocolimpl.base.ClockController;
-import com.energyict.protocolimpl.base.ContactorController;
+import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.EventLogs;
 
@@ -34,6 +32,8 @@ public class EMeter {
 	private final ContactorController contactorController;
     private final ActivityCalendarController activityCalendarController;
 
+    private final LoadLimitController loadLimitController;
+
 	/**
 	 * @param as220
 	 */
@@ -42,6 +42,7 @@ public class EMeter {
 		this.clockController = new AS220ClockController(as220);
 		this.contactorController = new AS220ContactorController(as220);
         this.activityCalendarController = new AS220ActivityCalendarController(as220);
+        this.loadLimitController = new AS220LoadLimitController(as220);
 	}
 
 	/**
@@ -64,6 +65,14 @@ public class EMeter {
      */
     public ActivityCalendarController getActivityCalendarController() {
         return this.activityCalendarController;
+    }
+
+    /**
+     * Getter for the {@link com.energyict.protocolimpl.dlms.as220.emeter.AS220LoadLimitController}
+     * @return the current LoadLimitController
+     */
+    public LoadLimitController getLoadLimitController() {
+        return loadLimitController;
     }
 
 	public AS220 getAs220() {

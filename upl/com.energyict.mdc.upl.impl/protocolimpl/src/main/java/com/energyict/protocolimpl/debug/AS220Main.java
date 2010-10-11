@@ -70,6 +70,9 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     private static final String ACTIVITY_CALENDAR = "<TimeOfUse name=$ACT_NAME$ activationDate=$ACT_DATE$>$CONTENT$</TimeOfUse>";
     private static final String ACTIVATE_PASSIVE_CALENDAR = "<ActivatePassiveCalendar ActivationTime=\"$ACT_DATE$\"> </ActivatePassiveCalendar>";
 
+    private static final String LOADLIMIT_DURATION_MSG = "<SetLoadLimitDuration LoadLimitDuration=\"$DURATION$\"> </SetLoadLimitDuration>";
+    private static final String LOADLIMIT_THRESHOLD_MSG = "<SetLoadLimitThreshold LoadLimitThreshold=\"$THRESHOLD$\"> </SetLoadLimitThreshold>";
+
     private static final String OBSERVER_FILENAME = "c:\\logging\\AS220Main\\communications_"+System.currentTimeMillis()+".log";
     protected static final TimeZone DEFAULT_TIMEZONE = TimeZone.getTimeZone("Europe/Paris");
 
@@ -534,9 +537,27 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     }
 
     public void writePassiveActivityCalendarTime(String gmtTime) throws IOException {
-        String message = ACTIVATE_PASSIVE_CALENDAR.replace("$ACT_DATE$", new String(gmtTime));
+        String message = ACTIVATE_PASSIVE_CALENDAR.replace("$ACT_DATE$", gmtTime);
         MessageResult result = getMeterProtocol().queryMessage(new MessageEntry(message, ""));
         System.out.println("Activate passive Calendar : " + (result.isSuccess() ? "SUCCESS" : "FAILED"));
+    }
+
+    public void readLoadLimitParameters(Limiter loadLimiter) throws IOException {
+        log("Monitored value : " + loadLimiter.readMonitoredValue().getLogicalName());
+        log("Threshold normal : " + loadLimiter.readThresholdNormal());
+        log("Threshold duration : " + loadLimiter.readMinOverThresholdDuration());
+    }
+
+    public void writeLoadLimitThreshold(String threshold) throws IOException {
+        String message = LOADLIMIT_THRESHOLD_MSG.replace("$THRESHOLD$", threshold);
+        MessageResult result = getMeterProtocol().queryMessage(new MessageEntry(message, ""));
+        System.out.println("Write LoadLimit threshold : " + (result.isSuccess() ? "SUCCESS" : "FAILED"));
+    }
+
+    public void writeLoadLimitDuration(String duration) throws IOException {
+        String message = LOADLIMIT_DURATION_MSG.replace("$DURATION$", duration);
+        MessageResult result = getMeterProtocol().queryMessage(new MessageEntry(message, ""));
+        System.out.println("Write LoadLimit duration : " + (result.isSuccess() ? "SUCCESS" : "FAILED"));
     }
 
     public static void main(String[] args) throws LinkException, IOException, InterruptedException {
@@ -555,9 +576,22 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     @Override
     void doDebug() throws LinkException, IOException {
 
-        log(getMeterProtocol().getNumberOfChannels());
-        
-        readProfile(false);
+        Limiter loadLimiter = getMeterProtocol().getCosemObjectFactory().getLimiter();
+        readLoadLimitParameters(loadLimiter);
+
+        writeLoadLimitDuration("5");
+
+        log("After writing 5 for the duration");
+        readLoadLimitParameters(loadLimiter);
+
+        writeLoadLimitThreshold("10");
+
+        log("After writing 10 for the threshold");
+        readLoadLimitParameters(loadLimiter);
+
+//        log(getMeterProtocol().getNumberOfChannels());
+//
+//        readProfile(false);
 
 //        readRegisters();
 
