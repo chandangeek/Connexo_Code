@@ -1,19 +1,16 @@
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
-import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
-import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.AbstractSubMessageProtocol;
 import com.energyict.protocolimpl.dlms.as220.AS220;
-import org.xml.sax.SAXException;
-import sun.misc.BASE64Decoder;
+import com.energyict.protocolimpl.utils.MessagingTools;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
+import java.util.*;
 
 public class AS220Messaging extends AbstractSubMessageProtocol {
 
@@ -32,6 +29,8 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
     public static final String  ACTIVITY_CALENDAR           = "TimeOfUse";
     public static final String ACTIVATION_DATE              = "activationDate";
     public static final String CALENDAR_NAME                = "name";
+    public static final String ACTIVATE_ACTIVITY_CALENDAR   = "ActivatePassiveCalendar";
+    public static final String ACTIVITY_CALENDAR_ACTIVATION_TIME = "ActivationTime";
 
 
 	/**
@@ -41,6 +40,7 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
 	private static final String	DISCONNECT_EMETER_DISPLAY		= "Remote disconnect";
     private static final String	DUMMY_MESSAGE_DISPLAY		    = "Dummy message";
 	public static final String	FORCE_SET_CLOCK_DISPLAY			= "Force set clock";
+    public static final String ACTIVATE_CALENDAR_DISPLAY        = "Activate Activity Calendar";
     //private static final String	ARM_EMETER_DISPLAY				= "Arm E-Meter";
 
 	private final AS220 as220;
@@ -54,6 +54,7 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
         addSupportedMessageTag(FIRMWARE_UPDATE);
         addSupportedMessageTag(DUMMY_MESSAGE);
         addSupportedMessageTag(ACTIVITY_CALENDAR);
+        addSupportedMessageTag(ACTIVATE_ACTIVITY_CALENDAR);
 	}
 
 	public AS220 getAs220() {
@@ -69,6 +70,7 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
         //eMeterCat.addMessageSpec(createMessageSpec(ARM_EMETER_DISPLAY, ARM_EMETER, false));
         eMeterCat.addMessageSpec(createMessageSpec(CONNECT_EMETER_DISPLAY, CONNECT_EMETER, false));
         eMeterCat.addMessageSpec(createMessageSpec(DUMMY_MESSAGE_DISPLAY, DUMMY_MESSAGE, false));
+        eMeterCat.addMessageSpec(createActivateCalendarMsg(ACTIVATE_CALENDAR_DISPLAY, ACTIVATE_ACTIVITY_CALENDAR, false));
 
         otherMeterCat.addMessageSpec(createMessageSpec(FORCE_SET_CLOCK_DISPLAY, FORCE_SET_CLOCK, false));
 
@@ -104,6 +106,9 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
                 getAs220().getLogger().info("Update Activity calendar received");
                 getAs220().geteMeter().getActivityCalendarController().parseContent(messageEntry.getContent());
                 getAs220().geteMeter().getActivityCalendarController().writeCalendar();
+            } else if (isMessageTag(ACTIVATE_ACTIVITY_CALENDAR, messageEntry)){
+                Calendar cal = getActivationCalendar(messageEntry);
+                getAs220().geteMeter().getActivityCalendarController().writeCalendarActivationTime(cal);
             } else {
 				throw new IOException("Received unknown message: " + messageEntry);
 			}
@@ -117,4 +122,27 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
 
 		return result;
 	}
+
+    	private MessageSpec createActivateCalendarMsg(String keyId, String tagName, boolean advanced) {
+		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+
+		// We should add this messageSpec, otherwise the other attributeSpecs wont show up in eiserver. Bug??
+		MessageValueSpec msgVal = new MessageValueSpec();
+		msgVal.setValue(" ");
+		tagSpec.add(msgVal);
+
+		tagSpec.add(new MessageAttributeSpec(ACTIVITY_CALENDAR_ACTIVATION_TIME, true));
+
+		msgSpec.add(tagSpec);
+		return msgSpec;
+	}
+
+    private Calendar getActivationCalendar(MessageEntry msgEntry){
+        String timeInSeconds = ProtocolTools.getEpochTimeFromString(MessagingTools.getContentOfAttribute(msgEntry, ACTIVITY_CALENDAR_ACTIVATION_TIME));
+        Calendar calendar = Calendar.getInstance(this.as220.getTimeZone());
+        calendar.setTimeInMillis(Long.valueOf(timeInSeconds)*1000);
+        return calendar;
+    }
+
 }

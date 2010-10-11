@@ -38,7 +38,7 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
 
-public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, FirmwareUpdateMessaging, TimeOfUseMessaging {
+public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, FirmwareUpdateMessaging {
 
 	private static final String			PR_OPTICAL_BAUDRATE			= "OpticalBaudrate";
 	private static final String			PR_PROFILE_TYPE				= "ProfileType";
@@ -765,44 +765,6 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
      */
     public int getLimitMaxNrOfDays() {
         return limitMaxNrOfDays;
-}
-
-    /**
-     * Indicates whether the protocol needs a 'name' for the tarif calendar or not.
-     * For some meter a name needs to be sent to the meter.  If this is necessary the protocol must
-     * return true for this method.
-     *
-     * @return    <code>true</code> a 'name' is needed for the tarif calendar, <code>false</code> if not.
-     */
-    public boolean needsName() {
-        return true;
-    }
-
-    /**
-     * Indicates whether the tarif calendar data is saved in code table or not.
-     *
-     * @return    <code>true</code> the tarif calendar data is saved in code table, <code>false</code> if not.
-     */
-    public boolean supportsCodeTables() {
-        return true;
-    }
-
-    /**
-     * Indicates whether the tarif calendar data is saved in a userfile or not.
-     *
-     * @return    <code>true</code> the tarif calendar data is saved in a userfile, <code>false</code> if not.
-     */
-    public boolean supportsUserFiles() {
-        return false;
-    }
-
-    /**
-     * Returns the message builder capable of generating and parsing 'time of use' messages.
-     *
-     * @return The {@link com.energyict.protocol.messaging.MessageBuilder} capable of generating and parsing 'time of use' messages.
-     */
-    public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
-        return new TimeOfUseMessageBuilder();
     }
 }
 

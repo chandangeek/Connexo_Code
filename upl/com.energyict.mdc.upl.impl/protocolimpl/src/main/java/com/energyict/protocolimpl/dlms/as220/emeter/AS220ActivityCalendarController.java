@@ -107,7 +107,7 @@ public class AS220ActivityCalendarController implements ActivityCalendarControll
         return dayArray;
     }
 
-    protected Array getSpecialDayArray(){
+    protected Array getSpecialDayArray() {
         return specialDayArray;
     }
 
@@ -118,11 +118,11 @@ public class AS220ActivityCalendarController implements ActivityCalendarControll
      * @throws IOException if a parsing exception occurred
      */
     public void parseContent(String content) throws IOException {
-        String activationDate =       getAttributeValue(content, AS220Messaging.ACTIVATION_DATE);
-        if("0".equalsIgnoreCase(activationDate) || "1".equalsIgnoreCase(activationDate)){
-            activatePassiveCalendarTime = OctetString.fromString(activationDate);
+        Long activationDate = Long.valueOf(getAttributeValue(content, AS220Messaging.ACTIVATION_DATE));
+        if (0 == activationDate || 1 == activationDate) {
+            activatePassiveCalendarTime = OctetString.fromString(Long.toString(activationDate));
         } else {
-            activatePassiveCalendarTime = new OctetString(convertUnixToGMTDateTime(activationDate).getBEREncodedByteArray(),0);
+            activatePassiveCalendarTime = new OctetString(convertUnixToGMTDateTime(activationDate).getBEREncodedByteArray(), 0);
         }
         passiveCalendarName = OctetString.fromString(getAttributeValue(content, AS220Messaging.CALENDAR_NAME));
 
@@ -191,25 +191,29 @@ public class AS220ActivityCalendarController implements ActivityCalendarControll
 //            logger.debug("No PassiveCalendarName will be written.");
 //        }
 
-        if("1".equalsIgnoreCase(this.activatePassiveCalendarTime.stringValue())){
+        if ("1".equalsIgnoreCase(this.activatePassiveCalendarTime.stringValue())) {
             // TODO do an immediate activation
             ac.activateNow();
-        } else if("0".equalsIgnoreCase(this.activatePassiveCalendarTime.stringValue())){
+        } else if ("0".equalsIgnoreCase(this.activatePassiveCalendarTime.stringValue())) {
             ac.writeActivatePassiveCalendarTime(this.activatePassiveCalendarTime);
         } else {
             logger.trace("No passiveCalendar activation date was given.");
         }
 
-        for(AbstractDataType specialDay : getSpecialDayArray().getAllDataTypes()){
+
+        /*
+        Writing all special days separately seems to work
+         */
+        for (AbstractDataType specialDay : getSpecialDayArray().getAllDataTypes()) {
             int retry = 0;
-            while(retry  < 3){
+            while (retry < 3) {
                 try {
                     getSpecialDayTable().insert((Structure) specialDay);
                     break;
                 } catch (DataAccessResultException e) {
-                    if(retry == 3){
+                    if (retry == 3) {
                         throw e;
-                    } else if(e.getDataAccessResult() == 2){ // Temporary Failure
+                    } else if (e.getDataAccessResult() == 2) { // Temporary Failure
                         logger.trace("Received failure, will retry");
                         retry++;
                     }
@@ -232,8 +236,8 @@ public class AS220ActivityCalendarController implements ActivityCalendarControll
      *
      * @param activationDate the given time
      */
-    public void writeCalendarActivationTime(Calendar activationDate) {
-        // Currently not used
+    public void writeCalendarActivationTime(Calendar activationDate) throws IOException {
+        getActivityCalendar().writeActivatePassiveCalendarTime(new OctetString(convertUnixToGMTDateTime(activationDate.getTimeInMillis()).getBEREncodedByteArray(), 0));
     }
 
     /**
@@ -435,13 +439,13 @@ public class AS220ActivityCalendarController implements ActivityCalendarControll
                     sds.addDataType(new OctetString(ParseUtils.hexStringToByteArray(specialDayNode.getTextContent()), 0));
                 } else if (specialDayNode.getNodeName().equalsIgnoreCase(CodeTableToXml.specialDayEntryDayId)) {
                     System.out.println("SpecialDayEntryDayId : " + specialDayNode.getTextContent());
-                   sds.addDataType(new Unsigned8(ParseUtils.hexStringToByteArray(specialDayNode.getTextContent()), 0));
+                    sds.addDataType(new Unsigned8(ParseUtils.hexStringToByteArray(specialDayNode.getTextContent()), 0));
                 }
             }
             specialDayArray.addDataType(sds);
         }
     }
-    
+
 
     /**
      * Get the specific attribute from the XML String
@@ -492,22 +496,19 @@ public class AS220ActivityCalendarController implements ActivityCalendarControll
     }
 
     /**
-     * Convert a given epoch timestamp in SECONDS to an {@link com.energyict.dlms.axrdencoding.util.AXDRDateTime} object
+     * Convert a given epoch timestamp in MILLISECONDS to an {@link com.energyict.dlms.axrdencoding.util.AXDRDateTime} object
      *
-     * @param time - the time in seconds sins 1th jan 1970 00:00:00 GMT
+     * @param time - the time in milliSeconds sins 1th jan 1970 00:00:00 GMT
      * @return the AXDRDateTime of the given time
      * @throws IOException when the entered time could not be parsed to a long value
      */
-    public AXDRDateTime convertUnixToGMTDateTime(String time) throws IOException {
-        try {
-            AXDRDateTime dateTime = null;
-            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-            cal.setTimeInMillis(Long.parseLong(time) * 1000);
-            dateTime = new AXDRDateTime(cal);
-            return dateTime;
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-            throw new IOException("Could not parse " + time + " to a long value");
-		}
-	}
+    public AXDRDateTime convertUnixToGMTDateTime(Long time) throws IOException {
+
+        AXDRDateTime dateTime = null;
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        cal.setTimeInMillis(time);
+        dateTime = new AXDRDateTime(cal);
+        return dateTime;
+
+    }
 }

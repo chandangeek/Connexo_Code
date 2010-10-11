@@ -46,7 +46,7 @@ public interface ActivityCalendarController {
      *
      * @param activationDate the given time
      */
-    void writeCalendarActivationTime(Calendar activationDate);
+    void writeCalendarActivationTime(Calendar activationDate) throws IOException;
 
     /**
      * Get the name of the current <u>Active</u> Calendar

@@ -68,6 +68,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     private static final String FIRMWARE_UPGRADE = "<FirmwareUpdate><IncludedFile>$CONTENT$</IncludedFile></FirmwareUpdate>";
 
     private static final String ACTIVITY_CALENDAR = "<TimeOfUse name=$ACT_NAME$ activationDate=$ACT_DATE$>$CONTENT$</TimeOfUse>";
+    private static final String ACTIVATE_PASSIVE_CALENDAR = "<ActivatePassiveCalendar ActivationTime=\"$ACT_DATE$\"> </ActivatePassiveCalendar>";
 
     private static final String OBSERVER_FILENAME = "c:\\logging\\AS220Main\\communications_"+System.currentTimeMillis()+".log";
     protected static final TimeZone DEFAULT_TIMEZONE = TimeZone.getTimeZone("Europe/Paris");
@@ -500,36 +501,42 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     }
 
     public void readAllCalendarObjects(ActivityCalendar ac) throws IOException {
-        log("Active Calendar Name : ");
-       log(ac.readCalendarNameActive().stringValue());
-
-        log("Passive Calendar Name : ");
-        log(ac.readCalendarNamePassive().stringValue());
+//        log("Active Calendar Name : ");
+//       log(ac.readCalendarNameActive().stringValue());
+//
+//        log("Passive Calendar Name : ");
+//        log(ac.readCalendarNamePassive().stringValue());
 
         log("ActivatePassiveCalendar at : ");
         log(ParseUtils.decimalByteToString(ac.readActivatePassiveCalendarTime().getBEREncodedByteArray()));
 
-        log("SeasonProfileActive : ");
-        log(ac.readSeasonProfileActive());
+//        log("SeasonProfileActive : ");
+//        log(ac.readSeasonProfileActive());
+//
+//        log("SeasonProfilePassive : ");
+//        log(ac.readSeasonProfilePassive());
+//
+//        log("WeekProfileActive : ");
+//        log(ac.readWeekProfileTableActive());
+//
+//        log("WeekProfilePassive : ");
+//        log(ac.readWeekProfileTablePassive());
+//
+//        log("DayProfileActive : ");
+//        log(ac.readDayProfileTableActive());
+//
+//        log("DayProfilePassive : ");
+//        log(ac.readDayProfileTablePassive());
+//
+//        log("SpecialDays : ");
+//        SpecialDaysTable sdt = getMeterProtocol().getCosemObjectFactory().getSpecialDaysTable(getMeterProtocol().getMeterConfig().getSpecialDaysTable().getObisCode());
+//        log(sdt.readSpecialDays());
+    }
 
-        log("SeasonProfilePassive : ");
-        log(ac.readSeasonProfilePassive());
-
-        log("WeekProfileActive : ");
-        log(ac.readWeekProfileTableActive());
-
-        log("WeekProfilePassive : ");
-        log(ac.readWeekProfileTablePassive());
-
-        log("DayProfileActive : ");
-        log(ac.readDayProfileTableActive());
-
-        log("DayProfilePassive : ");
-        log(ac.readDayProfileTablePassive());
-
-        log("SpecialDays : ");
-        SpecialDaysTable sdt = getMeterProtocol().getCosemObjectFactory().getSpecialDaysTable(getMeterProtocol().getMeterConfig().getSpecialDaysTable().getObisCode());
-        log(sdt.readSpecialDays());
+    public void writePassiveActivityCalendarTime(String gmtTime) throws IOException {
+        String message = ACTIVATE_PASSIVE_CALENDAR.replace("$ACT_DATE$", new String(gmtTime));
+        MessageResult result = getMeterProtocol().queryMessage(new MessageEntry(message, ""));
+        System.out.println("Activate passive Calendar : " + (result.isSuccess() ? "SUCCESS" : "FAILED"));
     }
 
     public static void main(String[] args) throws LinkException, IOException, InterruptedException {
@@ -556,6 +563,8 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         
         ActivityCalendar ac = getMeterProtocol().getCosemObjectFactory().getActivityCalendar(getMeterProtocol().getMeterConfig().getActivityCalendar().getObisCode());
         readAllCalendarObjects(ac);
+
+//        writePassiveActivityCalendarTime("21-10-2010 16:00:00");
 
 //          firmwareUpgrade(getB64EncodedFirmareString().getBytes());
 
