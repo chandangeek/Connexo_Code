@@ -33,7 +33,7 @@ public abstract class AbstractGenericProtocol implements GenericProtocol {
     /**
      * This is the method where the implementing protocol does all his stuff.
      */
-    protected abstract void doExecute();
+    protected abstract void doExecute() throws IOException;
 
     public void execute(CommunicationScheduler communicationScheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
         this.communicationScheduler = communicationScheduler;

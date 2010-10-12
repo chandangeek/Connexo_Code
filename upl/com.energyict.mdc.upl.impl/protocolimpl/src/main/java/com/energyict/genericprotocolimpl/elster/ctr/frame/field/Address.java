@@ -12,6 +12,14 @@ public class Address extends AbstractField<Address> {
     private int address;
     public static final int LENGTH = 2;
 
+    public Address() {
+        this.address = 0;
+    }
+
+    public Address(int address) {
+        this.address = address;
+    }
+
     public byte[] getBytes() {
         return getBytesFromInt(address, LENGTH);
     }

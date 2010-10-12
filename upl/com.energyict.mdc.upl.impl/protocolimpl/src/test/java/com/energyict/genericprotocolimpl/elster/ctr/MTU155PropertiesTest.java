@@ -101,4 +101,31 @@ public class MTU155PropertiesTest {
         }
     }
 
+    @Test
+    public void testGetPassword() throws Exception {
+        MTU155Properties properties = new MTU155Properties();
+        for (int i = 0; i < TEST_ROUNDS; i++) {
+            byte[] randomValue = new byte[8];
+            new Random().nextBytes(randomValue);
+            String randomPassword = ProtocolTools.getHexStringFromBytes(randomValue, "");
+            properties.addProperty(MTU155Properties.PASSWORD, randomPassword);
+            assertEquals(randomPassword, properties.getPassword());
+        }
+    }
+
+    @Test
+    public void testGetAddress() throws Exception {
+        MTU155Properties properties = new MTU155Properties();
+        for (int i = 0; i < TEST_ROUNDS; i++) {
+            properties.addProperty(MTU155Properties.FORCED_DELAY, String.valueOf(i));
+            assertEquals(i, properties.getForcedDelay());
+        }
+    }
+
+    @Test
+    public void testToString() throws Exception {
+        assertNotNull(new MTU155Properties().toString());
+        assertTrue(new MTU155Properties().toString().length() > 0);
+    }
+
 }

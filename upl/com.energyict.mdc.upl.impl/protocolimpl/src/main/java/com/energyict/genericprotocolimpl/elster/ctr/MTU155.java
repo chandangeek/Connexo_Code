@@ -2,16 +2,15 @@ package com.energyict.genericprotocolimpl.elster.ctr;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.*;
-import com.energyict.genericprotocolimpl.common.AbstractGenericProtocol;
+import com.energyict.genericprotocolimpl.common.*;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
-import com.energyict.genericprotocolimpl.elster.ctr.encryption.SecureCtrConnection;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRConnectionException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.*;
+import com.energyict.genericprotocolimpl.elster.ctr.frame.field.EncryptionStatus;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
-import com.energyict.genericprotocolimpl.elster.ctr.structure.IdentificationRequestStructure;
-import com.energyict.genericprotocolimpl.elster.ctr.structure.IdentificationResponseStructure;
+import com.energyict.mdw.core.Rtu;
 import com.energyict.protocolimpl.debug.DebugUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -29,9 +28,10 @@ import java.util.logging.Logger;
  */
 public class MTU155 extends AbstractGenericProtocol {
 
-    private MTU155Properties properties = new MTU155Properties();
-    private IdentificationResponseStructure identification;
-    private CtrConnection connection;
+    private final StoreObject storeObject = new StoreObject();
+    private final MTU155Properties properties = new MTU155Properties();
+    private GprsRequestFactory requestFactory;
+    private Rtu rtu;
 
     public String getVersion() {
         return "$Date$";
@@ -51,9 +51,42 @@ public class MTU155 extends AbstractGenericProtocol {
     }
 
     @Override
-    protected void doExecute() {
-        this.connection = new SecureCtrConnection(getLink().getInputStream(), getLink().getOutputStream(), getProtocolProperties());
-        testEncryption();
+    protected void doExecute() throws IOException {
+        this.requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties());
+        this.rtu = identifyRtu();
+        log("Rtu with name '" + getRtu().getName() + "' connected successfully.");
+        getProtocolProperties().addProperties(rtu.getProtocol().getProperties());
+        getProtocolProperties().addProperties(rtu.getProperties());
+        System.out.println(getProtocolProperties());
+    }
+
+    private Rtu identifyRtu() throws CTRException {
+        String pdr = readPdr();
+        log("MTU155 with pdr='" + pdr + "' connected.");
+
+        List<Rtu> rtus = CommonUtils.mw().getRtuFactory().findByDialHomeId(pdr);
+        switch (rtus.size()) {
+            case 0:
+                throw new CTRConnectionException("No rtu found in EiServer with callhomeId='" + pdr + "'");
+            case 1:
+                return rtus.get(0);
+            default:
+                throw new CTRConnectionException("Found " + rtus.size() + " rtu's in EiServer with callhomeId='" + pdr + "', but only one allowed. Skipping communication until fixed.");
+        }
+
+    }
+
+    /**
+     * @return the pdr value as String
+     * @throws CTRException
+     */
+    private String readPdr() throws CTRException {
+        log("Requesting IDENTIFICATION structure from device");
+        String pdr = getRequestFactory().readIdentificationStructure().getPdr().getValue();
+        if (pdr == null) {
+            throw new CTRException("Unable to detect meter. PDR value was 'null'!");
+        }
+        return pdr;
     }
 
     private void testEncryption() {
@@ -83,8 +116,7 @@ public class MTU155 extends AbstractGenericProtocol {
 
             System.out.println(readRequest);
 
-            GPRSFrame response = null;
-            response = getConnection().sendFrameGetResponse(readRequest);
+            GPRSFrame response = getRequestFactory().getConnection().sendFrameGetResponse(readRequest);
             System.out.println(response);
 
         } catch (CTRException e) {
@@ -109,24 +141,15 @@ public class MTU155 extends AbstractGenericProtocol {
 
     }
 
-    public IdentificationResponseStructure getIdentification() throws CTRConnectionException {
-        if (identification == null) {
-            GPRSFrame request = new GPRSFrame();
-            request.getFunctionCode().setEncryptionStatus(EncryptionStatus.NO_ENCRYPTION);
-            request.getFunctionCode().setFunction(Function.IDENTIFICATION_REQUEST);
-            request.getProfi().setLongFrame(false);
-            request.getStructureCode().setStructureCode(StructureCode.IDENTIFICATION);
-            request.setData(new IdentificationRequestStructure());
-            request.setCpa(new Cpa(0x00));
-            GPRSFrame response = getConnection().sendFrameGetResponse(request);
-            if (response.getData() instanceof IdentificationResponseStructure) {
-                this.identification = (IdentificationResponseStructure) response.getData();
-            }
-        }
-        return this.identification;
+    public GprsRequestFactory getRequestFactory() {
+        return requestFactory;
     }
 
-    public CtrConnection getConnection() {
-        return connection;
+    public Rtu getRtu() {
+        return rtu;
+    }
+
+    public StoreObject getStoreObject() {
+        return storeObject;
     }
 }

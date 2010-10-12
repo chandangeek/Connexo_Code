@@ -28,10 +28,8 @@ public class CTREncryption {
     public CTREncryption() {
         try {
             cipher = Cipher.getInstance("AES/CTR/NOPADDING");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
         }
     }
 
