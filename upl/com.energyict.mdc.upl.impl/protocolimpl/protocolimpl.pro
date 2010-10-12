@@ -410,4 +410,5 @@
 
 -keepnames class com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.WaveFlow100mW
 
+-keepnames class com.energyict.genericprotocolimpl.elster.ctr.MTU155
 
