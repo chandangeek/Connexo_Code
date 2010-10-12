@@ -3,11 +3,10 @@ package com.energyict.genericprotocolimpl.elster.ctr.encryption;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CtrCipheringException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.Frame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
-import com.energyict.protocolimpl.utils.ProtocolTools;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Copyrights EnergyICT
@@ -16,39 +15,22 @@ import static org.junit.Assert.assertArrayEquals;
  */
 public class EncryptionTest {
 
+    private static final String KEYC = "c34c052cc0da8d73451afe5f03be297f";
+    private static final String KEYT = "c34c052cc0da8d73451afe5f03be297f";
+    private static final String KEYF = "c34c052cc0da8d73451afe5f03be297f";
+
     @Test
-    @Ignore
     public void testEncryption() {
-        GPRSFrame frame = new GPRSFrame();
-        GPRSFrame framex = new GPRSFrame();
-
-        GPRSFrame frame2 = new GPRSFrame();
-        GPRSFrame frame3 = new GPRSFrame();
-
-        CTREncryption ctrEncryption = new CTREncryption("c34c052cc0da8d73451afe5f03be297f", "c34c052cc0da8d73451afe5f03be297f", "c34c052cc0da8d73451afe5f03be297f");
-
-        frame = (GPRSFrame) ctrEncryption.setCpa((Frame) frame);
-        frame.setCrc();
-
-        framex = (GPRSFrame) ctrEncryption.setCpa((Frame) framex);
-        framex.setCrc();
-
-
+        CTREncryption ctrEncryption = new CTREncryption(KEYC, KEYT, KEYF);
+        Frame request = new GPRSFrame();
+        Frame unencryptedFrame = new GPRSFrame();
         try {
-            frame2 = (GPRSFrame) ctrEncryption.encryptFrame((Frame) frame);
+            Frame encrypted = ctrEncryption.encryptFrame(request);
+            unencryptedFrame = (GPRSFrame) ctrEncryption.decryptFrame(encrypted);
         } catch (CtrCipheringException e) {
-            e.printStackTrace();
+            fail(e.getMessage());
         }
-
-        try {
-            frame3 = (GPRSFrame) ctrEncryption.decryptFrame((Frame) frame2);
-        } catch (CtrCipheringException e) {
-            e.printStackTrace();
-        }
-
-//        System.out.println(ProtocolTools.getHexStringFromBytes(framex.getBytes()));
-//        System.out.println(ProtocolTools.getHexStringFromBytes(frame3.getBytes()));
-//        assertArrayEquals(framex.getBytes(), frame3.getBytes());
-
+        assertArrayEquals(request.getBytes(), unencryptedFrame.getBytes());
     }
+
 }
