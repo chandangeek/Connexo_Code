@@ -67,14 +67,20 @@ public class CtrConnection {
      * until the buffer is empty.
      */
     private void delayAndFlushConnection() {
-        ProtocolTools.delay(delayAfterError);
+        delayAfterError();
         try {
             while (bytesFromDeviceAvailable()) {
-                ProtocolTools.delay(delayAfterError);
+                delayAfterError();
                 in.read(new byte[1024]);
             }
         } catch (IOException e) {
             //Absorb
+        }
+    }
+
+    private void delayAfterError() {
+        if (delayAfterError > 0) {
+            ProtocolTools.delay(delayAfterError);
         }
     }
 
@@ -207,7 +213,7 @@ public class CtrConnection {
     }
 
     /**
-     * 
+     *
      */
     private void doForcedDelay() {
         if (forcedDelay > 0) {

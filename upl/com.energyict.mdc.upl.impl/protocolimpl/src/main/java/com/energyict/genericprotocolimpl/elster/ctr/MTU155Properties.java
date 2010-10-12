@@ -11,22 +11,22 @@ import java.util.*;
  */
 public class MTU155Properties extends AbstractProtocolProperties {
 
-    private static final String TIMEOUT = "Timeout";
-    private static final String RETRIES = "Retries";
-    private static final String DELAY_AFTER_ERROR = "DelayAfterError";
-    private static final String FORCED_DELAY = "ForcedDelay";
-    private static final String KEYC = "KeyC";
-    private static final String KEYF = "KeyF";
-    private static final String KEYT = "KeyT";
+    public static final String TIMEOUT = "Timeout";
+    public static final String RETRIES = "Retries";
+    public static final String DELAY_AFTER_ERROR = "DelayAfterError";
+    public static final String FORCED_DELAY = "ForcedDelay";
+    public static final String KEYC = "KeyC";
+    public static final String KEYF = "KeyF";
+    public static final String KEYT = "KeyT";
 
-    private static final String DEFAULT_TIMEOUT = "2000";
-    private static final String DEFAULT_RETRIES = "3";
-    private static final String DEFAULT_DELAY_AFTER_ERROR = "100";
-    private static final String DEFAULT_FORCED_DELAY = "0";
+    public static final String DEFAULT_TIMEOUT = "2000";
+    public static final String DEFAULT_RETRIES = "3";
+    public static final String DEFAULT_DELAY_AFTER_ERROR = "100";
+    public static final String DEFAULT_FORCED_DELAY = "0";
 
-    private static final String DEFAULT_KEYC = "32323232323232323232323232323232";
-    private static final String DEFAULT_KEYT = "32323232323232323232323232323232";
-    private static final String DEFAULT_KEYF = "32323232323232323232323232323232";
+    public static final String DEFAULT_KEYC = "32323232323232323232323232323232";
+    public static final String DEFAULT_KEYT = "32323232323232323232323232323232";
+    public static final String DEFAULT_KEYF = "32323232323232323232323232323232";
 
     public MTU155Properties() {
         super(new Properties());
@@ -87,4 +87,7 @@ public class MTU155Properties extends AbstractProtocolProperties {
         return getByteValue(KEYF, DEFAULT_KEYF);
     }
 
+    public void addProperty(String key, String value) {
+        getProtocolProperties().setProperty(key, value);
+    }
 }

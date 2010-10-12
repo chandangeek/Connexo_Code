@@ -53,13 +53,7 @@ public class MTU155 extends AbstractGenericProtocol {
     @Override
     protected void doExecute() {
         this.connection = new SecureCtrConnection(getLink().getInputStream(), getLink().getOutputStream(), getProtocolProperties());
-        try {
-            getIdentification();
-        } catch (CTRConnectionException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-
-
+        testEncryption();
     }
 
     private void testEncryption() {
