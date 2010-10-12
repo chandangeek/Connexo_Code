@@ -23,6 +23,7 @@ public class RtuMessageKeyIdConstants {
 	public static final String SETTIME = "Set the meterTime to a specific time";
 	public static final String CREATEDATABASEENTRIES = "Create entries in the meters database";
 	public static final String GPRSMODEMSETUP = "Change GPRS modem setup parameters";
+    public static final String GPRSCREDENTIALS = "Change GPRS Modem credentials"; 
 	public static final String TESTMESSAGE = "Test Message";
 	public static final String GLOBALRESET = "Global Meter Reset";
 	public static final String SETWHITELIST = "Set phonenumbers to whitelist";

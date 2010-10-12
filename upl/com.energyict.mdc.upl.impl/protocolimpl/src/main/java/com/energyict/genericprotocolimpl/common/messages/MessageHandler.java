@@ -85,6 +85,9 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.GPRS_MODEM_SETUP.equals(qName)){
 			setType(RtuMessageConstant.GPRS_MODEM_SETUP);
 			handleGrpsModemSetup(attrbs);
+        } else if(RtuMessageConstant.GPRS_MODEM_CREDENTIALS.equals(qName)){
+            setType(RtuMessageConstant.GPRS_MODEM_CREDENTIALS);
+            handleGprsModemCredentials(attrbs);
 		} else if(RtuMessageConstant.TEST_MESSAGE.equals(qName)){
 			setType(RtuMessageConstant.TEST_MESSAGE);
 			handleTestMessage(attrbs);
@@ -417,8 +420,13 @@ public class MessageHandler extends DefaultHandler{
 		this.gprsUsername = attrbs.getValue(RtuMessageConstant.GPRS_USERNAME);
 		this.gprsPassword = attrbs.getValue(RtuMessageConstant.GPRS_PASSWORD);
 	}
-	
-	public String getGprsApn(){
+
+    private void handleGprsModemCredentials(Attributes attrbs) {
+        this.gprsUsername = attrbs.getValue(RtuMessageConstant.GPRS_USERNAME);
+        this.gprsPassword = attrbs.getValue(RtuMessageConstant.GPRS_PASSWORD);
+    }
+
+    public String getGprsApn(){
 		if(this.gprsApn != null){
 			return this.gprsApn;
 		} else{

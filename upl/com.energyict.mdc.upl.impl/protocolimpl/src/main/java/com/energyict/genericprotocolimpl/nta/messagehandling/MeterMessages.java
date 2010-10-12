@@ -66,6 +66,9 @@ public class MeterMessages extends GenericMessaging {
 				RtuMessageKeyIdConstants.GPRSMODEMSETUP,
 				RtuMessageConstant.GPRS_MODEM_SETUP, false);
 		catGPRSModemSetup.addMessageSpec(msgSpec);
+        msgSpec = addGPRSModemCredantials(RtuMessageKeyIdConstants.GPRSCREDENTIALS,
+                RtuMessageConstant.GPRS_MODEM_CREDENTIALS, false);
+        catGPRSModemSetup.addMessageSpec(msgSpec);
 		msgSpec = addPhoneListMsg(RtuMessageKeyIdConstants.SETWHITELIST,
 				RtuMessageConstant.WAKEUP_ADD_WHITELIST, false);
 		catGPRSModemSetup.addMessageSpec(msgSpec);

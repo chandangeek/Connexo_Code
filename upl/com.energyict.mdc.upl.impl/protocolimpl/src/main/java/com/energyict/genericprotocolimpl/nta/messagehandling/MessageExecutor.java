@@ -80,6 +80,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 			boolean setTime			= messageHandler.getType().equals(RtuMessageConstant.SET_TIME);
 			boolean fillUpDB		= messageHandler.getType().equals(RtuMessageConstant.ME_MAKING_ENTRIES);
 			boolean gprsParameters 	= messageHandler.getType().equals(RtuMessageConstant.GPRS_MODEM_SETUP);
+            boolean gprsCredentials = messageHandler.getType().equals(RtuMessageConstant.GPRS_MODEM_CREDENTIALS);
 			boolean testMessage 	= messageHandler.getType().equals(RtuMessageConstant.TEST_MESSAGE);
 			boolean globalReset		= messageHandler.getType().equals(RtuMessageConstant.GLOBAL_METER_RESET);
 			boolean wakeUpWhiteList = messageHandler.getType().equals(RtuMessageConstant.WAKEUP_ADD_WHITELIST);
@@ -558,9 +559,25 @@ public class MessageExecutor extends GenericMessageExecutor{
 				if(messageHandler.getGprsApn() != null){
 					getCosemObjectFactory().getGPRSModemSetup().writeAPN(messageHandler.getGprsApn());
 				}
-				
-				success = true;
-			} else if(testMessage){
+
+                success = true;
+            } else if (gprsCredentials) {
+                log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Changing gprs modem credentials");
+
+                PPPAuthenticationType pppat = getCosemObjectFactory().getPPPSetup().new PPPAuthenticationType();
+                pppat.setAuthenticationType(PPPSetup.LCPOptionsType.AUTH_PAP);
+                if (messageHandler.getGprsUsername() != null) {
+                    pppat.setUserName(messageHandler.getGprsUsername());
+                }
+                if (messageHandler.getGprsPassword() != null) {
+                    pppat.setPassWord(messageHandler.getGprsPassword());
+                }
+                if ((messageHandler.getGprsUsername() != null) || (messageHandler.getGprsPassword() != null)) {
+                    getCosemObjectFactory().getPPPSetup().writePPPAuthenticationType(pppat);
+                }
+
+                success = true;
+            } else if(testMessage){
 				
 				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": TestMessage");
 				int failures = 0;

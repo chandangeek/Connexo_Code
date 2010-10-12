@@ -460,6 +460,27 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
+    /**
+     * Creates a MessageSpec with the credential fields for the GPRS Sim card (only UserName and PassWord)
+	 * @param keyId - id for the MessageSpec
+	 * @param tagName - name for the MessageSpec
+	 * @param advanced - indicates whether it's an advanced message or not
+     * @return
+     */
+    protected MessageSpec addGPRSModemCredantials(String keyId, String tagName, boolean advanced) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.GPRS_USERNAME, false);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.GPRS_PASSWORD, false);
+        tagSpec.add(msgAttrSpec);
+        tagSpec.add(msgVal);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
 	/**
 	 * Creates a MessageSpec to add entries in the Loadprofiles of the meter
 	 * @param keyId - id for the MessageSpec
