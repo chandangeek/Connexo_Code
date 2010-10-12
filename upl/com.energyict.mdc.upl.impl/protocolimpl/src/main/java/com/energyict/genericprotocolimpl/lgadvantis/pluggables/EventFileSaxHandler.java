@@ -72,7 +72,7 @@ public class EventFileSaxHandler extends DefaultHandler {
 			//Check is other special actions need to be taken
 			performActionsBasedOnAlarmId();
 
-			//Check whether we are in a device Element, i.e. the meter is known
+			//Check whether we are in a device NumberOfElements, i.e. the meter is known
 			if (deviceSerial != null){
 				//Create and store the device Event
 				//Get the RTUs with this serialNumber, cannot differentiate should be only one

@@ -22,15 +22,20 @@ public class StatusCategory extends AbstractUnsignedBINObject<StatusCategory> {
 
         switch (id.getY()) {
             case 0:
-                symbol = "SD"; break;
+                symbol = "SD";
+                break;
             case 1:
-                symbol = "Diagn"; break;
+                symbol = "Diagn";
+                break;
             case 2:
-                symbol = "DiagnR"; break;
+                symbol = "DiagnR";
+                break;
             case 4:
-                symbol = "Imp_power"; break;
+                symbol = "Imp_power";
+                break;
             case 5:
-                symbol = "PWF"; break;
+                symbol = "PWF";
+                break;
         }
         return symbol;
     }
@@ -66,6 +71,9 @@ public class StatusCategory extends AbstractUnsignedBINObject<StatusCategory> {
             case 5:
                 valueLength = new int[]{2, 2};
                 break;
+            case 6:
+                valueLength = new int[]{2};
+                break;
         }
         return valueLength;
     }
@@ -78,11 +86,13 @@ public class StatusCategory extends AbstractUnsignedBINObject<StatusCategory> {
                     if (valueNumber == 1) {
                         unit = Unit.get(BaseUnit.MINUTE);
                     }
-                } break;
+                }
+                break;
             case 5:
                 if (valueNumber == 1) {
                     unit = Unit.get(BaseUnit.HOUR);
-                } break;
+                }
+                break;
         }
         return unit;
     }

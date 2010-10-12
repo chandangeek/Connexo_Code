@@ -14,11 +14,22 @@ import java.math.BigDecimal;
 public class CTRBINValue extends CTRAbstractValue{
     private BigDecimal value;
 
-    public CTRBINValue(Unit unit, BigDecimal overflowValue, BigDecimal value, String type) {
+    public CTRBINValue(Unit unit, BigDecimal overflowValue, BigDecimal value, String type, int valueLenght) {
         this.overflowValue = overflowValue;
         this.unit = unit;
         this.value = value;
         this.type = type;
+        this.valueLength = valueLenght;
+    }
+
+    @Override
+    public byte[] getBytes() {
+        byte[] result = new byte[valueLength];
+        for (int i = (valueLength - 1); i >= 0; i--) {
+            BigDecimal divider = new BigDecimal(Math.pow(256, i));
+            result[valueLength - 1 - i] =  (byte) ((value.divide(divider)).intValue() & 0xFF);
+        }
+        return result;
     }
 
     public BigDecimal getValue() {

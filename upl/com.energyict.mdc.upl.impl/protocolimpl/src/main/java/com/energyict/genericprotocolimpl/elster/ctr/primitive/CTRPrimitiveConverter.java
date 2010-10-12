@@ -35,7 +35,7 @@ public class CTRPrimitiveConverter {
         return value.getBytes();
     }
 
-    //Converts unsigned BIN values to a byte[]
+    //Converts unsigned BIN values to a byte[] with a specific length (valueLength)
     public byte[] convertBINValue(BigDecimal value, int valueLength) {
         byte[] result = new byte[valueLength];
         for (int i = (valueLength - 1); i >= 0; i--) {

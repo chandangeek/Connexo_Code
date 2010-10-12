@@ -18,6 +18,10 @@ public class Qualifier {
         return qlf;
     }
 
+    public byte[] getBytes() {
+        return new byte[]{(byte) qlf};
+    }
+
     public void setQlf(int qlf) {
         this.qlf = qlf;
     }

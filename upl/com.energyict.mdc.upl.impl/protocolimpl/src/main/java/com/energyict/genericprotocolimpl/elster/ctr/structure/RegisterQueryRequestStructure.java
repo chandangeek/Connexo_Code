@@ -23,7 +23,16 @@ public class RegisterQueryRequestStructure extends Data<RegisterQueryRequestStru
 
     @Override
     public byte[] getBytes() {
-        return super.getBytes();    //To change body of overridden methods use File | Settings | File Templates.
+        byte[] idBytes = null;
+        for (CTRObjectID singleId : id) {
+            idBytes = ProtocolTools.concatByteArrays(idBytes, singleId.getBytes());
+        }
+        return padData(ProtocolTools.concatByteArrays(
+                pssw.getBytes(),
+                numberOfObjects.getBytes(),
+                attributeType.getBytes(),
+                idBytes
+        ));
     }
 
     @Override
@@ -36,7 +45,7 @@ public class RegisterQueryRequestStructure extends Data<RegisterQueryRequestStru
         int ptr = offset;
 
         pssw = factory.parse(rawData, ptr, type, "D.0.1").getValue()[0];
-        ptr += 6;
+        ptr += pssw.getValueLength();
 
         numberOfObjects = new NumberOfObjects().parse(rawData, ptr);
         ptr += NumberOfObjects.LENGTH;
@@ -47,10 +56,42 @@ public class RegisterQueryRequestStructure extends Data<RegisterQueryRequestStru
         id = new CTRObjectID[numberOfObjects.getNumberOfObjects()];
         for (int i = 0; i < numberOfObjects.getNumberOfObjects(); i++) {
             byte[] b = ProtocolTools.getSubArray(rawData, ptr, ptr + CTRObjectID.LENGTH);
-            id[i] = new CTRObjectID(new String(b));
+            id[i] = new CTRObjectID().parse(b, 0);
+            ptr += CTRObjectID.LENGTH;
         }
-        ptr += CTRObjectID.LENGTH * id.length;
 
-        return super.parse(rawData, offset);
+        return this;
+    }
+
+    public CTRAbstractValue<String> getPssw() {
+        return pssw;
+    }
+
+    public void setPssw(CTRAbstractValue<String> pssw) {
+        this.pssw = pssw;
+    }
+
+    public NumberOfObjects getNumberOfObjects() {
+        return numberOfObjects;
+    }
+
+    public void setNumberOfObjects(NumberOfObjects numberOfObjects) {
+        this.numberOfObjects = numberOfObjects;
+    }
+
+    public AttributeType getAttributeType() {
+        return attributeType;
+    }
+
+    public void setAttributeType(AttributeType attributeType) {
+        this.attributeType = attributeType;
+    }
+
+    public CTRObjectID[] getId() {
+        return id;
+    }
+
+    public void setId(CTRObjectID[] id) {
+        this.id = id;
     }
 }

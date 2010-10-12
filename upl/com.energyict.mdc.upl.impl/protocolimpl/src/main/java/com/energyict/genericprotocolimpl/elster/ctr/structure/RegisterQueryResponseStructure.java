@@ -22,7 +22,15 @@ public class RegisterQueryResponseStructure extends Data<RegisterQueryResponseSt
 
     @Override
     public byte[] getBytes() {
-        return super.getBytes();
+        byte[] objectBytes = null;
+        for (AbstractCTRObject obj : objects) {
+            objectBytes = ProtocolTools.concatByteArrays(objectBytes, obj.getBytes(attributeType));
+        }
+        return padData(ProtocolTools.concatByteArrays(
+                numberOfObjects.getBytes(),
+                attributeType.getBytes(),
+                objectBytes
+        ));
     }
 
     @Override
@@ -38,13 +46,36 @@ public class RegisterQueryResponseStructure extends Data<RegisterQueryResponseSt
         attributeType = new AttributeType().parse(rawData, ptr);
         ptr += AttributeType.LENGTH;
 
+        objects = new AbstractCTRObject[numberOfObjects.getNumberOfObjects()];
         for (int i = 0; i < numberOfObjects.getNumberOfObjects(); i++) {
             objects[i] = factory.parse(rawData, ptr, attributeType);
-            ptr += 2 * objects[i].parseValueLengths(objects[i].getId())[0];
-            ptr += 4;  //The length of the id, the qlf and the access bytes
+            ptr += objects[i].getBytes(attributeType).length;
         }
 
-        return super.parse(rawData, offset);
+        return this;
     }
 
+    public AbstractCTRObject[] getObjects() {
+        return objects;
+    }
+
+    public void setObjects(AbstractCTRObject[] objects) {
+        this.objects = objects;
+    }
+
+    public NumberOfObjects getNumberOfObjects() {
+        return numberOfObjects;
+    }
+
+    public void setNumberOfObjects(NumberOfObjects numberOfObjects) {
+        this.numberOfObjects = numberOfObjects;
+    }
+
+    public AttributeType getAttributeType() {
+        return attributeType;
+    }
+
+    public void setAttributeType(AttributeType attributeType) {
+        this.attributeType = attributeType;
+    }
 }

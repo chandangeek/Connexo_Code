@@ -5,6 +5,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.*;
 import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveConverter;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.math.BigDecimal;
 
@@ -124,7 +125,7 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
 
         if (type.hasQualifier()) {
             byte[] qlf = converter.convertQlf(getQlf().getQlf());
-            bytes = concat(id, qlf);
+            bytes = ProtocolTools.concatByteArrays(id, qlf);
         }
 
         if (type.hasValueFields()) {
@@ -147,32 +148,25 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
                     valueBytes = converter.convertBCDValue((String) value[j].getValue());
                 }
                 if (j > 0) {
-                    valueResult = concat(valueResult, valueBytes);
+                    valueResult = ProtocolTools.concatByteArrays(valueResult, valueBytes);
                 } else {
                     valueResult = valueBytes;
                 }
                 j++;
             }
-            bytes = concat(bytes, valueResult);
+            bytes = ProtocolTools.concatByteArrays(bytes, valueResult);
         }
 
         if (type.hasAccessDescriptor()) {
             byte[] access = converter.convertAccess(getAccess().getAccess());
-            bytes = concat(bytes, access);
+            bytes = ProtocolTools.concatByteArrays(bytes, access);
         }
 
         if (type.hasDefaultValue()) {
             byte[] def = converter.convertDefaults(getDefault(), parseValueLengths(getId()));
-            bytes = concat(bytes,def);
+            bytes = ProtocolTools.concatByteArrays(bytes,def);
         }
 
         return bytes;
-    }
-
-    private byte[] concat(byte[] valueBytesPrevious, byte[] valueBytes) {
-        byte[] result = new byte[valueBytesPrevious.length + valueBytes.length];
-        System.arraycopy(valueBytesPrevious, 0, result, 0, valueBytesPrevious.length);
-        System.arraycopy(valueBytes, 0, result, valueBytesPrevious.length, valueBytes.length);
-        return result;
     }
 }

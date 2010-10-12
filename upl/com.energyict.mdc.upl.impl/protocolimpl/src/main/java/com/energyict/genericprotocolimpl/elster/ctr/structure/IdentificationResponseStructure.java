@@ -5,6 +5,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingExceptio
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
  * Copyrights EnergyICT
@@ -17,9 +18,10 @@ public class IdentificationResponseStructure extends Data<IdentificationResponse
 
     @Override
     public byte[] getBytes() {
-        return super.getBytes();    //To change body of overridden methods use File | Settings | File Templates.
+        return padData(ProtocolTools.concatByteArrays(
+                pdr.getBytes()
+        ));
     }
-
     @Override
     public IdentificationResponseStructure parse(byte[] rawData, int offset) throws CTRParsingException {
         int ptr = offset;
@@ -29,14 +31,12 @@ public class IdentificationResponseStructure extends Data<IdentificationResponse
         valueAttributeType.setHasValueFields(true);
 
         this.pdr = factory.parse(rawData, ptr, valueAttributeType, "C.0.0").getValue()[0];
-        ptr += 7;
+        ptr += pdr.getValueLength();
 
-        return super.parse(rawData, offset);    //To change body of overridden methods use File | Settings | File Templates.
+        return this;
     }
 
     public CTRAbstractValue<String> getPdr() {
         return pdr;
     }
-
-
 }

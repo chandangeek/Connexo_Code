@@ -20,23 +20,39 @@ public class SecurityCategory extends AbstractStringObject<SecurityCategory> {
         String symbol = "";
 
         switch (id.getY()) {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                symbol = "PSSW" + Integer.toString(id.getY());
+                break;
+
             case 6:
-                symbol = "PUK_S"; break;
+                symbol = "PUK_S";
+                break;
             case 7:
-                symbol = "PIN"; break;
+                symbol = "PIN";
+                break;
             case 8:
                 switch (id.getZ()) {
                     case 6:
-                        symbol = "KEYF"; break;
+                        symbol = "KEYF";
+                        break;
                     case 0x0A:
-                        symbol = "KEYT"; break;
+                        symbol = "KEYT";
+                        break;
                     default:
-                        symbol = "KEYC"; break;
-                }  break;
+                        symbol = "KEYC";
+                        break;
+                }
+                break;
             case 9:
-                symbol = "S_Stat"; break;
+                symbol = "S_Stat";
+                break;
             case 10:
-                symbol = "T_antf"; break;
+                symbol = "T_antf";
+                break;
         }
         return symbol;
     }
@@ -46,7 +62,8 @@ public class SecurityCategory extends AbstractStringObject<SecurityCategory> {
         int overflow = 0;
         switch (id.getY()) {
             case 9:
-                overflow = 0xFF;  break;
+                overflow = 0xFF;
+                break;
         }
         return new BigDecimal(overflow);
     }
@@ -54,11 +71,18 @@ public class SecurityCategory extends AbstractStringObject<SecurityCategory> {
     public int[] parseValueLengths(CTRObjectID id) {
         int[] valueLength = null;
         switch (id.getY()) {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                valueLength = new int[]{6};
+                break;
             case 6:
                 valueLength = new int[]{8};
                 break;
             case 7:
-                valueLength = new int[]{6};
+                valueLength = new int[]{4};
                 break;
             case 8:
                 valueLength = new int[]{16};

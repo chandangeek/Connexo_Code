@@ -4,7 +4,6 @@ import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
-import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -14,25 +13,21 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
  * Date: 8-okt-2010
  * Time: 16:26:00
  */
-public class Trace_CQueryRequestStructure extends Data<Trace_CQueryRequestStructure> {
+public class ArrayEventsQueryRequestStructure extends Data<ArrayEventsQueryRequestStructure> {
 
     private CTRAbstractValue<String> pssw;
-    private CTRObjectID id;
-    private PeriodTrace_C period;
-    private ReferenceDate date;
+    private Index_Q index_Q;
 
     @Override
     public byte[] getBytes() {
         return padData(ProtocolTools.concatByteArrays(
                 pssw.getBytes(),
-                id.getBytes(),
-                period.getBytes(),
-                date.getBytes()
+                index_Q.getBytes()   
         ));
     }
 
     @Override
-    public Trace_CQueryRequestStructure parse(byte[] rawData, int offset) throws CTRParsingException {
+    public ArrayEventsQueryRequestStructure parse(byte[] rawData, int offset) throws CTRParsingException {
 
         CTRObjectFactory factory = new CTRObjectFactory();
         AttributeType type = new AttributeType(0x00);
@@ -43,16 +38,9 @@ public class Trace_CQueryRequestStructure extends Data<Trace_CQueryRequestStruct
         pssw = factory.parse(rawData, ptr, type, "D.0.1").getValue()[0];
         ptr += pssw.getValueLength();
 
-        byte[] b = ProtocolTools.getSubArray(rawData, ptr, ptr + CTRObjectID.LENGTH);
-        id = new CTRObjectID().parse(b, 0);
-        ptr += CTRObjectID.LENGTH;
+        index_Q = new Index_Q().parse(rawData, ptr);
+        ptr += Index_Q.LENGTH;
 
-        period = new PeriodTrace_C().parse(rawData, ptr);
-        ptr += PeriodTrace_C.LENGTH;
-
-        date = new ReferenceDate().parse(rawData, ptr);
-        ptr += ReferenceDate.LENGTH;
-        
         return this;
     }
 
@@ -64,27 +52,11 @@ public class Trace_CQueryRequestStructure extends Data<Trace_CQueryRequestStruct
         this.pssw = pssw;
     }
 
-    public CTRObjectID getId() {
-        return id;
+    public Index_Q getIndex_Q() {
+        return index_Q;
     }
 
-    public void setId(CTRObjectID id) {
-        this.id = id;
-    }
-
-    public PeriodTrace_C getPeriod() {
-        return period;
-    }
-
-    public void setPeriod(PeriodTrace_C period) {
-        this.period = period;
-    }
-
-    public ReferenceDate getDate() {
-        return date;
-    }
-
-    public void setDate(ReferenceDate date) {
-        this.date = date;
+    public void setIndex_Q(Index_Q index_Q) {
+        this.index_Q = index_Q;
     }
 }

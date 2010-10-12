@@ -21,10 +21,17 @@ public class ArrayQueryResponseStructure extends Data<ArrayQueryResponseStructur
     private Type type;
     private Coda coda;
     private DataArray data;
-               
+
     @Override
     public byte[] getBytes() {
-        return super.getBytes();
+        return padData(ProtocolTools.concatByteArrays(
+                id.getBytes(),
+                type.getBytes(),
+                index_A.getBytes(),
+                counter_A.getBytes(),
+                coda.getBytes(),
+                data.getBytes()
+        ));
     }
 
     @Override
@@ -33,7 +40,7 @@ public class ArrayQueryResponseStructure extends Data<ArrayQueryResponseStructur
         int ptr = offset;
 
         byte[] b = ProtocolTools.getSubArray(rawData, ptr, ptr + CTRObjectID.LENGTH);
-        id = new CTRObjectID(new String(b));
+        id = new CTRObjectID().parse(b, 0);
         ptr += CTRObjectID.LENGTH;
 
         type = new Type().parse(rawData, ptr);
@@ -48,8 +55,56 @@ public class ArrayQueryResponseStructure extends Data<ArrayQueryResponseStructur
         coda = new Coda().parse(rawData, ptr);
         ptr += Coda.LENGTH;
 
-        data = new DataArray().parse(rawData, ptr);
+        data = new DataArray(rawData.length - ptr).parse(rawData, ptr);
 
-        return super.parse(rawData, offset);
+        return this;
+    }
+
+    public Index_Q getIndex_A() {
+        return index_A;
+    }
+
+    public void setIndex_A(Index_Q index_A) {
+        this.index_A = index_A;
+    }
+
+    public Counter_Q getCounter_A() {
+        return counter_A;
+    }
+
+    public void setCounter_A(Counter_Q counter_A) {
+        this.counter_A = counter_A;
+    }
+
+    public CTRObjectID getId() {
+        return id;
+    }
+
+    public void setId(CTRObjectID id) {
+        this.id = id;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+
+    public Coda getCoda() {
+        return coda;
+    }
+
+    public void setCoda(Coda coda) {
+        this.coda = coda;
+    }
+
+    public DataArray getData() {
+        return data;
+    }
+
+    public void setData(DataArray data) {
+        this.data = data;
     }
 }

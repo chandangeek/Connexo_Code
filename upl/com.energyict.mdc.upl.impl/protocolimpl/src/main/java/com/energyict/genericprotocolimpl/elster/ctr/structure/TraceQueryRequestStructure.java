@@ -20,11 +20,17 @@ public class TraceQueryRequestStructure extends Data<TraceQueryRequestStructure>
     private PeriodTrace period;
     private StartDate startDate;
     private CTRObjectID id;
-    private Element elements;
+    private NumberOfElements numberOfElements;
 
     @Override
     public byte[] getBytes() {
-        return super.getBytes();
+        return padData(ProtocolTools.concatByteArrays(
+                pssw.getBytes(),
+                id.getBytes(),
+                period.getBytes(),
+                startDate.getBytes(),
+                numberOfElements.getBytes()
+        ));
     }
 
     @Override
@@ -37,10 +43,10 @@ public class TraceQueryRequestStructure extends Data<TraceQueryRequestStructure>
         int ptr = offset;
 
         pssw = factory.parse(rawData, ptr, type, "D.0.1").getValue()[0];
-        ptr += 6;
+        ptr += pssw.getValueLength();
 
         byte[] b = ProtocolTools.getSubArray(rawData, ptr, ptr + CTRObjectID.LENGTH);
-        id = new CTRObjectID(new String(b));
+        id = new CTRObjectID().parse(b, 0);
         ptr += CTRObjectID.LENGTH;
 
         period = new PeriodTrace().parse(rawData, ptr);
@@ -49,9 +55,49 @@ public class TraceQueryRequestStructure extends Data<TraceQueryRequestStructure>
         startDate = new StartDate().parse(rawData, ptr);
         ptr += StartDate.LENGTH;
 
-        elements = new Element().parse(rawData, ptr);
-        ptr += Element.LENGTH;
+        numberOfElements = new NumberOfElements().parse(rawData, ptr);
+        ptr += NumberOfElements.LENGTH;
 
-        return super.parse(rawData, offset);
+        return this;
+    }
+
+    public CTRAbstractValue<String> getPssw() {
+        return pssw;
+    }
+
+    public void setPssw(CTRAbstractValue<String> pssw) {
+        this.pssw = pssw;
+    }
+
+    public PeriodTrace getPeriod() {
+        return period;
+    }
+
+    public void setPeriod(PeriodTrace period) {
+        this.period = period;
+    }
+
+    public StartDate getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(StartDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public CTRObjectID getId() {
+        return id;
+    }
+
+    public void setId(CTRObjectID id) {
+        this.id = id;
+    }
+
+    public NumberOfElements getNumberOfElements() {
+        return numberOfElements;
+    }
+
+    public void setNumberOfElements(NumberOfElements numberOfElements) {
+        this.numberOfElements = numberOfElements;
     }
 }

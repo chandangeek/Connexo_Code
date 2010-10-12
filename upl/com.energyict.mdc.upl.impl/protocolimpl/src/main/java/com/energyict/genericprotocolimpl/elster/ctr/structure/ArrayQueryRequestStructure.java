@@ -23,7 +23,12 @@ public class ArrayQueryRequestStructure extends Data<ArrayQueryRequestStructure>
 
     @Override
     public byte[] getBytes() {
-        return super.getBytes();
+        return padData(ProtocolTools.concatByteArrays(
+                pssw.getBytes(),
+                id.getBytes(),
+                index_Q.getBytes(),
+                counter_Q.getBytes()
+        ));
     }
 
     @Override
@@ -36,10 +41,10 @@ public class ArrayQueryRequestStructure extends Data<ArrayQueryRequestStructure>
         int ptr = offset;
 
         pssw = factory.parse(rawData, ptr, type, "D.0.1").getValue()[0];
-        ptr += 6;
+        ptr += pssw.getValueLength();
 
         byte[] b = ProtocolTools.getSubArray(rawData, ptr, ptr + CTRObjectID.LENGTH);
-        id = new CTRObjectID(new String(b));
+        id = new CTRObjectID().parse(b, 0);
         ptr += CTRObjectID.LENGTH;
 
         index_Q = new Index_Q().parse(rawData, ptr);
@@ -48,6 +53,38 @@ public class ArrayQueryRequestStructure extends Data<ArrayQueryRequestStructure>
         counter_Q = new Counter_Q().parse(rawData, ptr);
         ptr += Counter_Q.LENGTH;
 
-        return super.parse(rawData, offset);
+        return this;
+    }
+
+    public CTRAbstractValue<String> getPssw() {
+        return pssw;
+    }
+
+    public void setPssw(CTRAbstractValue<String> pssw) {
+        this.pssw = pssw;
+    }
+
+    public Index_Q getIndex_Q() {
+        return index_Q;
+    }
+
+    public void setIndex_Q(Index_Q index_Q) {
+        this.index_Q = index_Q;
+    }
+
+    public Counter_Q getCounter_Q() {
+        return counter_Q;
+    }
+
+    public void setCounter_Q(Counter_Q counter_Q) {
+        this.counter_Q = counter_Q;
+    }
+
+    public CTRObjectID getId() {
+        return id;
+    }
+
+    public void setId(CTRObjectID id) {
+        this.id = id;
     }
 }

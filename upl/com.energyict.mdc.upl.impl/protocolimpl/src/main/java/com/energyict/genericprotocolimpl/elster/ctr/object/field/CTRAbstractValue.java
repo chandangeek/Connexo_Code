@@ -15,13 +15,25 @@ public abstract class CTRAbstractValue<T extends Object> {
     protected Unit unit;
     protected BigDecimal overflowValue;
     protected String type;
-    
+    protected int valueLength;
+
+    public abstract byte[] getBytes();
+
     public BigDecimal getOverflowValue() {
         return overflowValue;
     }
     public void setOverflowValue(BigDecimal overflowValue)  {
         this.overflowValue = overflowValue;
     }
+
+    public int getValueLength() {
+        return valueLength;
+    }
+
+    public void setValueLength(int valueLength) {
+        this.valueLength = valueLength;
+    }
+
      
     public Unit getUnit() {
         return unit;

@@ -14,11 +14,17 @@ import java.math.BigDecimal;
 public class CTRStringValue extends CTRAbstractValue{
     private String value;
 
-    public CTRStringValue(Unit unit, BigDecimal overflowValue, String value, String type) {
+    public CTRStringValue(Unit unit, BigDecimal overflowValue, String value, String type, int valueLenght) {
         this.overflowValue = overflowValue;
         this.unit = unit;
         this.value = value;
         this.type = type;
+        this.valueLength = valueLenght;
+    }
+
+    @Override
+    public byte[] getBytes() {
+        return value.getBytes();
     }
 
     public String getValue() {
