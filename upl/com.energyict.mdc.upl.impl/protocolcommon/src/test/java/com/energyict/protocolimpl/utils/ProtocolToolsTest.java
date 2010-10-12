@@ -143,6 +143,16 @@ public class ProtocolToolsTest {
     }
 
     /**
+     * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#getHexStringFromBytes(byte[], String)}.
+     */
+    @Test
+    public final void testGetHexStringFromBytesPrefix() {
+        assertEquals(BYTE_ARRAY_AS_STRING, ProtocolTools.getHexStringFromBytes(BYTE_ARRAY, EMPTY_PREFIX));
+        assertEquals(BYTE_ARRAY_AS_STRING_0x, ProtocolTools.getHexStringFromBytes(BYTE_ARRAY, CUSTOM_PREFIX));
+        assertEquals(BYTE_ARRAY_AS_STRING_$, ProtocolTools.getHexStringFromBytes(BYTE_ARRAY, DEFAULT_PREFIX));
+    }
+
+    /**
      * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#concatByteArrays(byte[], byte[])}.
      */
     @Test
