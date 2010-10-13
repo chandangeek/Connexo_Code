@@ -1,13 +1,18 @@
 package com.energyict.genericprotocolimpl.elster.ctr;
 
 import com.energyict.dialer.core.Link;
+import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.encryption.SecureCtrConnection;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.*;
+import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
+import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.IdentificationRequestStructure;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.IdentificationResponseStructure;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -56,6 +61,18 @@ public class GprsRequestFactory {
         }
         return properties;
     }
+
+    public List<AbstractCTRObject> queryRegisters(AttributeType attributeType, CTRObjectID... objectId) {
+        List<AbstractCTRObject> registerList = new ArrayList<AbstractCTRObject>();
+
+        // request
+
+        for (CTRObjectID objectID : objectId) {
+
+        }
+        return registerList;
+    }
+
 
     /**
      * @return

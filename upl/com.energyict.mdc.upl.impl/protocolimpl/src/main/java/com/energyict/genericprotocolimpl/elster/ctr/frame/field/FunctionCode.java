@@ -60,6 +60,14 @@ public class FunctionCode extends AbstractField<FunctionCode> {
         return getFunction().equals(Function.IDENTIFICATION_REQUEST);
     }
 
+    public boolean isQuery() {
+        return getFunction().equals(Function.QUERY);
+    }
+
+    public boolean isAnswer() {
+        return getFunction().equals(Function.ANSWER);
+    }
+
     public boolean isNack() {
         return getFunction().equals(Function.NACK);
     }

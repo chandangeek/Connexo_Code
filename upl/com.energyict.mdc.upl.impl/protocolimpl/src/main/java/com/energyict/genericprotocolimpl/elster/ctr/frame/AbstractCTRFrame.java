@@ -85,6 +85,8 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
             data = new NackStructure().parse(rawData, offset);
         } else if (functionCode.isAck()) {
             data = new AckStructure().parse(rawData, offset);
+        } else if (isRegisterQueryReply()) {
+            data = new RegisterQueryResponseStructure().parse(rawData, offset);
         } else {
             data = new Data().parse(rawData, offset);
         }
@@ -92,6 +94,10 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
 
     private boolean isIdentificationReply() {
         return structureCode.isIdentification() && functionCode.isIdentificationReply();
+    }
+
+    private boolean isRegisterQueryReply() {
+        return structureCode.isRegister() && functionCode.isAnswer();
     }
 
     public Address getAddress() {
