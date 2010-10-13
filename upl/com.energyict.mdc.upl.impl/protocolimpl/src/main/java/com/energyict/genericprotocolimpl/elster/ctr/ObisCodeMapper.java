@@ -16,4 +16,7 @@ public class ObisCodeMapper {
     public GprsRequestFactory getRequestFactory() {
         return requestFactory;
     }
+
+    
+
 }

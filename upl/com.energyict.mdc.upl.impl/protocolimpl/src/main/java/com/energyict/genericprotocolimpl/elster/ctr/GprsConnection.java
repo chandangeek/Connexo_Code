@@ -12,7 +12,7 @@ import java.io.*;
  * Date: 4-okt-2010
  * Time: 11:17:33
  */
-public class GprsConnection {
+public class GprsConnection implements CtrConnection<GPRSFrame> {
 
     private final OutputStream out;
     private final InputStream in;

@@ -128,7 +128,7 @@ public class MTU155 extends AbstractGenericProtocol {
         // Read the register values
         if (communicationProfile.getReadMeterReadings()) {
             getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + getRtuSerialNumber());
-            getObisCodeMapper();
+
         }
 
         // Read the profiles
@@ -170,15 +170,15 @@ public class MTU155 extends AbstractGenericProtocol {
      * @throws CTRException
      */
     private String readPdr() throws CTRException {
-        return "12345678900000";
 /*
+        return "12345678900000";
+*/
         log("Requesting IDENTIFICATION structure from device");
         String pdr = getRequestFactory().readIdentificationStructure().getPdr().getValue();
         if (pdr == null) {
             throw new CTRException("Unable to detect meter. PDR value was 'null'!");
         }
         return pdr;
-*/
     }
 
     private void testEncryption() {
