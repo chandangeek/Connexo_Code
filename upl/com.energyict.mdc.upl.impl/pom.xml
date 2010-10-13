@@ -308,7 +308,7 @@
     </dependencyManagement>
 
     <scm>
-        <developerConnection>scm:svn:https://linux2/svn/labo/protocols/trunk</developerConnection>
+        <developerConnection>scm:svn:https://linux2/svn/labo/protocols/branches/8.5</developerConnection>
     </scm>
 
     <modules>
