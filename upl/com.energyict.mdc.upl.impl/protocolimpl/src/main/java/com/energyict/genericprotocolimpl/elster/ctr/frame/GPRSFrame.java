@@ -46,5 +46,4 @@ public class GPRSFrame extends AbstractCTRFrame<GPRSFrame> {
         return connection.sendFrameGetResponse(this);
     }
 
-
 }

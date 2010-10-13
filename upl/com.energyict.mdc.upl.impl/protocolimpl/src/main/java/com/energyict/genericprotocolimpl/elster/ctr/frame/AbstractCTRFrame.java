@@ -94,27 +94,6 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
         return structureCode.isIdentification() && functionCode.isIdentificationReply();
     }
 
-    public void setCrc() {
-        crc = generateCrc();
-    }
-
-    public Crc generateCrc() {
-        byte[] crcData = ProtocolTools.concatByteArrays(
-                address.getBytes(),
-                profi.getBytes(),
-                functionCode.getBytes(),
-                structureCode.getBytes(),
-                channel.getBytes(),
-                data.getBytes(),
-                cpa.getBytes()
-        );
-        return new Crc().generateAndSetCrc(crcData);
-    }
-
-    public boolean isValidCrc() {
-        return generateCrc().getCrc() == crc.getCrc();
-    }
-
     public Address getAddress() {
         return address;
     }
@@ -139,20 +118,50 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
         this.cpa = cpa;
     }
 
-    public void calcCpa(byte[] key) {
-        byte[] cpaInput = ProtocolTools.concatByteArrays(
-                getAddress().getBytes(),
-                getProfi().getBytes(),
-                getFunctionCode().getBytes(),
-                getStructureCode().getBytes(),
-                getChannel().getBytes(),
-                getData().getBytes()
+    public void generateAndSetCpa(byte[] key) {
+        this.cpa = generateCpa(key);
+    }
+
+    private Cpa generateCpa(byte[] key) {
+        byte[] cpaData = ProtocolTools.concatByteArrays(
+                address.getBytes(),
+                profi.getBytes(),
+                functionCode.getBytes(),
+                structureCode.getBytes(),
+                channel.getBytes(),
+                data.getBytes(),
+                cpa.getBytes()
         );
-        this.cpa = new Cpa().generateCpa(cpaInput, key);
+        return new Cpa().generateCpa(cpaData, key);
+    }
+
+    public boolean validCpa(byte[] key) {
+        return (getCpa().getCpa() == 0) || (generateCpa(key).getCpa() == cpa.getCpa());
     }
 
     public Crc getCrc() {
         return crc;
+    }
+
+    public void setCrc() {
+        crc = generateCrc();
+    }
+
+    public Crc generateCrc() {
+        byte[] crcData = ProtocolTools.concatByteArrays(
+                address.getBytes(),
+                profi.getBytes(),
+                functionCode.getBytes(),
+                structureCode.getBytes(),
+                channel.getBytes(),
+                data.getBytes(),
+                cpa.getBytes()
+        );
+        return new Crc().generateAndSetCrc(crcData);
+    }
+
+    public boolean isValidCrc() {
+        return generateCrc().getCrc() == crc.getCrc();
     }
 
     public void setCrc(Crc crc) {

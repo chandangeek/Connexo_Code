@@ -202,7 +202,7 @@ public class MTU155 extends AbstractGenericProtocol {
             data.parse(rawData, 0);
             data.parse(ProtocolTools.getBytesFromHexString("$30$30$30$30$30$31$01$02$0C$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00"), 0);
             readRequest.setData(data);
-            readRequest.calcCpa(getProtocolProperties().getKeyCBytes());
+            readRequest.generateAndSetCpa(getProtocolProperties().getKeyCBytes());
 
             System.out.println(readRequest);
 

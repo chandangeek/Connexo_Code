@@ -1,9 +1,11 @@
 package com.energyict.genericprotocolimpl.elster.ctr.frame;
 
+import com.energyict.genericprotocolimpl.elster.ctr.MTU155Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Copyrights EnergyICT
@@ -48,4 +50,15 @@ public class GPRSFrameTest {
         assertArrayEquals(nackFrame, new GPRSFrame().parse(nackFrame, 0).getBytes());
     }
 
+
+    @Test
+    public void testNackCpa() throws Exception {
+        GPRSFrame frame = new GPRSFrame().parse(nackFrame, 0);
+        assertTrue(frame.validCpa(new MTU155Properties().getKeyCBytes()));
+    }
+
+    @Test
+    public void testCHeckCRC() throws Exception {
+        assertTrue(new GPRSFrame().parse(nackFrame, 0).isValidCrc());
+    }
 }

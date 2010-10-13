@@ -47,4 +47,5 @@ public class Cpa extends AbstractField<Cpa> {
     public void setCpa(int cpa) {
         this.cpa = cpa;
     }
+
 }
