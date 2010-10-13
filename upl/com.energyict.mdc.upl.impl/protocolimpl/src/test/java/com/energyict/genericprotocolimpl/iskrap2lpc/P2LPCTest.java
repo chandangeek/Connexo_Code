@@ -164,7 +164,7 @@ public class P2LPCTest {
 				RtuMessageShadow rms = new RtuMessageShadow();
 				RtuMessageState rmt = RtuMessageState.PENDING;
 				String contents = "<"+ RtuMessageConstant.FIRMWARE +">220TEXT</"+RtuMessageConstant.FIRMWARE + "><GroupID of meters to receive new firmware>178TEXT</GroupID of meters to receive new firmware>";
-				rms.setUserId(0);
+//				rms.setUserId(0);
 				rms.setContents(contents);
 				rms.setRtuId(concentrator.getId());
 				rms.setState(rmt);
@@ -295,7 +295,7 @@ public class P2LPCTest {
 				RtuMessageShadow rms = new RtuMessageShadow();
 				RtuMessageState rmt = RtuMessageState.PENDING;
 				String contents = "<changePLCFreq>4</changePLCFreq>";
-				rms.setUserId(0);
+//				rms.setUserId(0);
 				rms.setContents(contents);
 				rms.setState(rmt);
 				rms.setRtuId(meter.getId());
@@ -356,7 +356,7 @@ public class P2LPCTest {
 				RtuMessageShadow rms = new RtuMessageShadow();
 				RtuMessageState rmt = RtuMessageState.PENDING;
 				String contents = "<Frequency mark>66</Frequency mark><Frequency space>75</Frequency space>";
-				rms.setUserId(0);
+//				rms.setUserId(0);
 				rms.setContents(contents);
 				rms.setRtuId(concentrator.getId());
 				rms.setState(rmt);
