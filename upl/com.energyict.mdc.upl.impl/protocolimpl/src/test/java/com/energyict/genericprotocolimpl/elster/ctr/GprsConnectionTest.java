@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
  * Date: 11-okt-2010
  * Time: 16:24:06
  */
-public class CtrConnectionTest {
+public class GprsConnectionTest {
 
     private static final byte[] NACK_FRAME;
 
@@ -38,7 +38,7 @@ public class CtrConnectionTest {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         GPRSFrame request = new GPRSFrame();
-        CtrConnection connection = new CtrConnection(in, out, new MTU155Properties());
+        GprsConnection connection = new GprsConnection(in, out, new MTU155Properties());
         GPRSFrame response = connection.sendFrameGetResponse(request);
         assertArrayEquals(NACK_FRAME, response.getBytes());
 
@@ -54,7 +54,7 @@ public class CtrConnectionTest {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ByteArrayInputStream in = new ByteArrayInputStream(new byte[0]);
-        CtrConnection connection = new CtrConnection(in, out, properties);
+        GprsConnection connection = new GprsConnection(in, out, properties);
         connection.sendFrameGetResponse(new GPRSFrame());
     }
 
@@ -68,7 +68,7 @@ public class CtrConnectionTest {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ByteArrayInputStream in = new ByteArrayInputStream(new byte[0]);
-        CtrConnection connection = new CtrConnection(in, out, properties);
+        GprsConnection connection = new GprsConnection(in, out, properties);
         GPRSFrame request = new GPRSFrame();
         try {
             connection.sendFrameGetResponse(request);
