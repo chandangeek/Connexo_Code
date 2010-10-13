@@ -120,12 +120,16 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
 
     public byte[] getBytes(AttributeType type) {
         CTRPrimitiveConverter converter = new CTRPrimitiveConverter();
+        byte[] bytes = null;
         byte[] id = converter.convertId(getId());
-        byte[] bytes = id;
+
+        if (type.hasIdentifier()) {
+            bytes = id;
+        }
 
         if (type.hasQualifier()) {
             byte[] qlf = converter.convertQlf(getQlf().getQlf());
-            bytes = ProtocolTools.concatByteArrays(id, qlf);
+            bytes = ProtocolTools.concatByteArrays(bytes, qlf);
         }
 
         if (type.hasValueFields()) {

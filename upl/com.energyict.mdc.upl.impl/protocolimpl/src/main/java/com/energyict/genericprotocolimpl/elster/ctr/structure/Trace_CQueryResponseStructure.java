@@ -10,6 +10,8 @@ import com.energyict.genericprotocolimpl.elster.ctr.structure.field.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -28,7 +30,7 @@ public class Trace_CQueryResponseStructure extends Data<Trace_CQueryResponseStru
     private CTRObjectID id;
     private PeriodTrace_C period;
     private ReferenceDate date;
-    private DataArray traceData;
+    private List<AbstractCTRObject> traceData;
 
     @Override
     public byte[] getBytes() {
@@ -36,6 +38,17 @@ public class Trace_CQueryResponseStructure extends Data<Trace_CQueryResponseStru
         for (CTRAbstractValue<BigDecimal> value : dateAndhourS) {
             values = ProtocolTools.concatByteArrays(values, value.getBytes());
         }
+
+        //Parse the bytes of the traces
+        AttributeType type = new AttributeType(0x00);
+        type.setHasIdentifier(false);
+        type.setHasQualifier(true);
+        type.setHasValueFields(true);
+        byte[] traces = new byte[0];
+        for (AbstractCTRObject ctrObject : traceData) {
+            traces = ProtocolTools.concatByteArrays(traces, ctrObject.getBytes(type));
+        }
+
 
         return padData(ProtocolTools.concatByteArrays(
                 pdr.getBytes(),
@@ -48,7 +61,7 @@ public class Trace_CQueryResponseStructure extends Data<Trace_CQueryResponseStru
                 date.getBytes(),
                 totalizerQlf.getBytes(),
                 totalizerValue.getBytes(),
-                traceData.getBytes()
+                traces
         ));
     }
 
@@ -92,8 +105,22 @@ public class Trace_CQueryResponseStructure extends Data<Trace_CQueryResponseStru
         ptr += totalizerQlf.LENGTH;
         ptr += totalizerValue.getValueLength();
 
-        traceData = new DataArray(100).parse(rawData, ptr);
-        
+        //Objects only have qlf and value fields, no ID.
+        type.setHasIdentifier(false);
+
+        //Check the length of the objects by parsing the first object
+        traceData = new ArrayList<AbstractCTRObject>();
+        AbstractCTRObject obj = factory.parse(rawData, ptr, type, id.toString());
+        traceData.add(obj);
+        ptr += obj.getBytes(type).length;
+
+        //Parse the remaining objects
+        while (ptr <= rawData.length - traceData.get(0).getBytes(type).length) {
+            obj = factory.parse(rawData, ptr, type, id.toString());
+            traceData.add(obj);
+            ptr += obj.getBytes(type).length;
+        }
+
         return this;
     }
 
@@ -186,11 +213,11 @@ public class Trace_CQueryResponseStructure extends Data<Trace_CQueryResponseStru
         this.date = date;
     }
 
-    public DataArray getTraceData() {
+    public List<AbstractCTRObject> getTraceData() {
         return traceData;
     }
 
-    public void setTraceData(DataArray traceData) {
+    public void setTraceData(List<AbstractCTRObject> traceData) {
         this.traceData = traceData;
     }
 

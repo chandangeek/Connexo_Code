@@ -22,8 +22,10 @@ public class CommunicationCategory<T extends CommunicationCategory> extends Abst
         CTRPrimitiveParser parser = new CTRPrimitiveParser();   //Not static
 
         CTRObjectID id = this.getId();
-        ptr += 2; //Skip the Id bytes
-
+        
+        if (type.hasIdentifier()) {
+            ptr += 2; //Skip the Id bytes
+        }
         if (type.hasQualifier()) {
             Qualifier qlf = new Qualifier(parser.parseQlf(rawData, ptr));
             this.setQlf(qlf);

@@ -10,21 +10,31 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingExceptio
 public class AttributeType extends AbstractField<AttributeType> {
 
     public static final int LENGTH = 1;
-
     private static final int QUALIFIER_BIT = 0;
     private static final int VALUEFIELDS_BIT = 1;
     private static final int ACCESSDESCRIPTOR_BIT = 2;
     private static final int DEFAULTVALUE_BIT = 3;
     private static final int MASK = 0x0F;
+    private boolean hasIdentifier = true;
+            
+    public boolean hasIdentifier() {
+        return hasIdentifier;
+    }
+
+    public void setHasIdentifier(boolean hasIdentifier) {
+        this.hasIdentifier = hasIdentifier;
+    }
 
     private int attributeType;
 
     public AttributeType() {
         this(0);
+        setHasIdentifier(true);
     }
 
     public AttributeType(int attributeType) {
         this.attributeType = attributeType & MASK;
+        setHasIdentifier(true);
     }
 
     public byte[] getBytes() {

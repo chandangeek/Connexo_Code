@@ -1,10 +1,14 @@
 package com.energyict.genericprotocolimpl.elster.ctr.structure;
 
+import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
-import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
+import com.energyict.genericprotocolimpl.elster.ctr.object.*;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -17,22 +21,33 @@ public class TraceQueryResponseStructure extends Data<TraceQueryResponseStructur
     private StartDate startDate;
     private CTRObjectID id;
     private NumberOfElements numberOfElements;
-    private DataArray traceData;
+    private List<AbstractCTRObject> traceData;
 
     @Override
     public byte[] getBytes() {
+
+        AttributeType type = new AttributeType(0x00);
+        type.setHasIdentifier(false);
+        type.setHasQualifier(true);
+        type.setHasValueFields(true);
+        byte[] records = new byte[0];
+        for (AbstractCTRObject ctrObject : traceData) {
+            records = ProtocolTools.concatByteArrays(records, ctrObject.getBytes(type));
+        }
+
         return padData(ProtocolTools.concatByteArrays(
                 id.getBytes(),
                 period.getBytes(),
                 startDate.getBytes(),
                 numberOfElements.getBytes(),
-                traceData.getBytes()
+                records
         ));
     }
 
     @Override
     public TraceQueryResponseStructure parse(byte[] rawData, int offset) throws CTRParsingException {
 
+        CTRObjectFactory factory = new CTRObjectFactory();
         int ptr = offset;
 
         byte[] b = ProtocolTools.getSubArray(rawData, ptr, ptr + CTRObjectID.LENGTH);
@@ -48,7 +63,24 @@ public class TraceQueryResponseStructure extends Data<TraceQueryResponseStructur
         numberOfElements = new NumberOfElements().parse(rawData, ptr);
         ptr += NumberOfElements.LENGTH;
 
-        traceData = new DataArray(rawData.length - ptr).parse(rawData, ptr);
+        //Objects only have qlf and value fields, no ID.
+        AttributeType type = new AttributeType(0x00);
+        type.setHasQualifier(true);
+        type.setHasValueFields(true);
+        type.setHasIdentifier(false);
+
+        //Check the length of the objects by parsing the first object
+        traceData = new ArrayList<AbstractCTRObject>();
+        AbstractCTRObject obj = factory.parse(rawData, ptr, type, id.toString());
+        traceData.add(obj);
+        ptr += obj.getBytes(type).length;
+
+        //Parse the remaining objects
+        while (ptr <= rawData.length - traceData.get(0).getBytes(type).length) {
+            obj = factory.parse(rawData, ptr, type, id.toString());
+            traceData.add(obj);
+            ptr += obj.getBytes(type).length;
+        }
 
         return this;
     }
@@ -85,11 +117,11 @@ public class TraceQueryResponseStructure extends Data<TraceQueryResponseStructur
         this.numberOfElements = numberOfElements;
     }
 
-    public DataArray getTraceData() {
+    public List<AbstractCTRObject> getTraceData() {
         return traceData;
     }
 
-    public void setTraceData(DataArray traceData) {
+    public void setTraceData(List<AbstractCTRObject> traceData) {
         this.traceData = traceData;
     }
 }

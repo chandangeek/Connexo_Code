@@ -27,7 +27,7 @@ public class StructureTest extends TestCase {
         byte[] bytes7 = padData(ProtocolTools.getBytesFromHexString("$51$52$53$54$55$56$03$03$02$00$02$01$02$02"));
         byte[] bytes8 = padData(ProtocolTools.getBytesFromHexString("$03$03$01$00$0F$00$00$01$01$01$0F$00$00$01$01$02$0F$00$00$01"));
         byte[] bytes9 = padData(ProtocolTools.getBytesFromHexString("$51$52$53$54$55$56$01$00$02$0A$0A$0A$00$03"));
-        byte[] bytes10 = padData(ProtocolTools.getBytesFromHexString("$01$00$02$0A$0A$0A$00$03$00$01"));
+        byte[] bytes10 = padData(ProtocolTools.getBytesFromHexString("$01$00$02$0A$0A$0A$00$03$00$00$00$01$00$00$00$02$00$00$00$03$00$00$00$04"));
         byte[] bytes11 = padData(ProtocolTools.getBytesFromHexString("$01$02$01$02$01$02$01$02$01$00$02$00"));
 
         ArrayEventsQueryRequestStructure aeqrs = new ArrayEventsQueryRequestStructure().parse(bytes, 0);

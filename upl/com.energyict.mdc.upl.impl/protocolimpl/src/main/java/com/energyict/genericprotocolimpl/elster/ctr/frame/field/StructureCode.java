@@ -11,6 +11,10 @@ public class StructureCode extends AbstractField<StructureCode> {
 
     public static final int IDENTIFICATION = 0x30;
     public static final int REGISTER = 0x50;
+    public static final int ARRAY = 0x51;
+    public static final int TRACE = 0x52;
+    public static final int TRACE_C = 0x53;
+    public static final int EVENT_ARRAY = 0x56;
 
     public static final int LENGTH = 1;
     private int structureCode;
@@ -38,6 +42,22 @@ public class StructureCode extends AbstractField<StructureCode> {
 
     public boolean isRegister() {
         return getStructureCode() == REGISTER;
+    }
+
+    public boolean isArray() {
+        return getStructureCode() == ARRAY;
+    }
+
+    public boolean isTrace() {
+        return getStructureCode() == TRACE;
+    }
+
+    public boolean isTrace_C() {
+        return getStructureCode() == TRACE_C;
+    }
+
+    public boolean isEvent_Array() {
+        return getStructureCode() == EVENT_ARRAY;
     }
 
 }

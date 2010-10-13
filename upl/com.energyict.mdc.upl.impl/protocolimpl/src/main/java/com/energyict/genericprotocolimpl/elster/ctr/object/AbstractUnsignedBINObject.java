@@ -17,9 +17,11 @@ public abstract class AbstractUnsignedBINObject<T extends AbstractUnsignedBINObj
     //Parse the raw data & fill in the object's properties
     public T parse(byte[] rawData, int ptr, AttributeType type) {
         CTRPrimitiveParser parser = new CTRPrimitiveParser();   //Not static
-
         CTRObjectID id = this.getId();
-        ptr += 2; //Skip the Id bytes
+
+        if (type.hasIdentifier()) {
+            ptr += 2; //Skip the Id bytes
+        }
 
         if (type.hasQualifier()) {
             Qualifier qlf = new Qualifier(parser.parseQlf(rawData, ptr));
