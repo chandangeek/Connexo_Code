@@ -80,9 +80,11 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
         //eMeterCat.addMessageSpec(createMessageSpec(ARM_EMETER_DISPLAY, ARM_EMETER, false));
         eMeterCat.addMessageSpec(createMessageSpec(CONNECT_EMETER_DISPLAY, CONNECT_EMETER, false));
         eMeterCat.addMessageSpec(createMessageSpec(DUMMY_MESSAGE_DISPLAY, DUMMY_MESSAGE, false));
-        eMeterCat.addMessageSpec(createValueMessage(ACTIVATE_CALENDAR_DISPLAY, ACTIVATE_ACTIVITY_CALENDAR, false, ACTIVITY_CALENDAR_ACTIVATION_TIME));
-        eMeterCat.addMessageSpec(createValueMessage(LOAD_LIMIT_THRESHOLD_DISPLAY, SET_LOADLIMIT_THRESHOLD, false, LOADLIMIT_THRESHOLD));
-        eMeterCat.addMessageSpec(createValueMessage(LOAD_LIMIT_DURATION_DISPLAY, SET_LOADLIMIT_DURATION, false, LOADLIMIT_DURATION));
+
+        //TODO set it back, just for this release you don't need it!
+//        eMeterCat.addMessageSpec(createValueMessage(ACTIVATE_CALENDAR_DISPLAY, ACTIVATE_ACTIVITY_CALENDAR, false, ACTIVITY_CALENDAR_ACTIVATION_TIME));
+//        eMeterCat.addMessageSpec(createValueMessage(LOAD_LIMIT_THRESHOLD_DISPLAY, SET_LOADLIMIT_THRESHOLD, false, LOADLIMIT_THRESHOLD));
+//        eMeterCat.addMessageSpec(createValueMessage(LOAD_LIMIT_DURATION_DISPLAY, SET_LOADLIMIT_DURATION, false, LOADLIMIT_DURATION));
 
         otherMeterCat.addMessageSpec(createMessageSpec(FORCE_SET_CLOCK_DISPLAY, FORCE_SET_CLOCK, false));
 
