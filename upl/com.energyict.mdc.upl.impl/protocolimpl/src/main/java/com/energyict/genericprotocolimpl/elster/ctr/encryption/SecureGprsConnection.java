@@ -1,6 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr.encryption;
 
-import com.energyict.genericprotocolimpl.elster.ctr.CtrConnection;
+import com.energyict.genericprotocolimpl.elster.ctr.GprsConnection;
 import com.energyict.genericprotocolimpl.elster.ctr.MTU155Properties;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRConnectionException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CtrCipheringException;
@@ -15,12 +15,12 @@ import java.io.OutputStream;
  * Date: 5-okt-2010
  * Time: 15:02:43
  */
-public class SecureCtrConnection extends CtrConnection {
+public class SecureGprsConnection extends GprsConnection {
 
     private CTREncryption ctrEncryption;
 
 
-    public SecureCtrConnection(InputStream in, OutputStream out, MTU155Properties properties) {
+    public SecureGprsConnection(InputStream in, OutputStream out, MTU155Properties properties) {
         super(in, out, properties);
         ctrEncryption = new CTREncryption(properties.getKeyC(), properties.getKeyT(), properties.getKeyF());
     }

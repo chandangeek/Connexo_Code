@@ -36,6 +36,7 @@ public class MTU155 extends AbstractGenericProtocol {
     private final StoreObject storeObject = new StoreObject();
     private final MTU155Properties properties = new MTU155Properties();
     private GprsRequestFactory requestFactory;
+    private ObisCodeMapper obisCodeMapper;
     private Rtu rtu;
     private MeterAmrLogging meterAmrLogging;
 
@@ -59,6 +60,7 @@ public class MTU155 extends AbstractGenericProtocol {
     @Override
     protected void doExecute() throws IOException, BusinessException, SQLException {
         this.requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties());
+        this.obisCodeMapper = new ObisCodeMapper(getRequestFactory());
         this.rtu = identifyRtu();
         log("Rtu with name '" + getRtu().getName() + "' connected successfully.");
         getProtocolProperties().addProperties(rtu.getProtocol().getProperties());
@@ -126,10 +128,10 @@ public class MTU155 extends AbstractGenericProtocol {
         // Read the register values
         if (communicationProfile.getReadMeterReadings()) {
             getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + getRtuSerialNumber());
-            // TODO: implement method
+            getObisCodeMapper();
         }
 
-        // Read the muc/z3 profiles (temp, DI/DO, ...)
+        // Read the profiles
         if (communicationProfile.getReadDemandValues()) {
             getLogger().log(Level.INFO, "Getting profile data for meter with serialnumber: " + getRtuSerialNumber());
             // TODO: implement method
@@ -289,5 +291,8 @@ public class MTU155 extends AbstractGenericProtocol {
             e.printStackTrace();
         }
     }
-    
+
+    public ObisCodeMapper getObisCodeMapper() {
+        return obisCodeMapper;
+    }
 }

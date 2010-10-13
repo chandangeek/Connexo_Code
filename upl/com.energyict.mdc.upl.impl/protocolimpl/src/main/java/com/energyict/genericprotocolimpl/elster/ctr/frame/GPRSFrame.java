@@ -1,6 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr.frame;
 
-import com.energyict.genericprotocolimpl.elster.ctr.CtrConnection;
+import com.energyict.genericprotocolimpl.elster.ctr.GprsConnection;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRConnectionException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 
@@ -42,7 +42,7 @@ public class GPRSFrame extends AbstractCTRFrame<GPRSFrame> {
         return this;
     }
 
-    public GPRSFrame sendAndGetResponse(CtrConnection connection) throws CTRConnectionException {
+    public GPRSFrame sendAndGetResponse(GprsConnection connection) throws CTRConnectionException {
         return connection.sendFrameGetResponse(this);
     }
 

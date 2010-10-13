@@ -12,7 +12,7 @@ import java.io.*;
  * Date: 4-okt-2010
  * Time: 11:17:33
  */
-public class CtrConnection {
+public class GprsConnection {
 
     private final OutputStream out;
     private final InputStream in;
@@ -27,7 +27,7 @@ public class CtrConnection {
      * @param out
      * @param properties
      */
-    public CtrConnection(InputStream in, OutputStream out, MTU155Properties properties) {
+    public GprsConnection(InputStream in, OutputStream out, MTU155Properties properties) {
         this.in = in;
         this.out = out;
         this.retries = properties.getRetries();

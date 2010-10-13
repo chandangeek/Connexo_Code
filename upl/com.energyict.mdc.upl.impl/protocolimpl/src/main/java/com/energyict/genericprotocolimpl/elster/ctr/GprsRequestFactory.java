@@ -2,7 +2,7 @@ package com.energyict.genericprotocolimpl.elster.ctr;
 
 import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
-import com.energyict.genericprotocolimpl.elster.ctr.encryption.SecureCtrConnection;
+import com.energyict.genericprotocolimpl.elster.ctr.encryption.SecureGprsConnection;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.*;
@@ -22,7 +22,7 @@ import java.util.logging.Logger;
  */
 public class GprsRequestFactory {
 
-    private final CtrConnection connection;
+    private final GprsConnection connection;
     private MTU155Properties properties;
     private Logger logger;
 
@@ -33,7 +33,7 @@ public class GprsRequestFactory {
      * @param properties
      */
     public GprsRequestFactory(Link link, Logger logger, MTU155Properties properties) {
-        this.connection = new SecureCtrConnection(link.getInputStream(), link.getOutputStream(), properties);
+        this.connection = new SecureGprsConnection(link.getInputStream(), link.getOutputStream(), properties);
         this.logger = logger;
         this.properties = properties;
     }
@@ -42,7 +42,7 @@ public class GprsRequestFactory {
      * Getter for the connection
      * @return
      */
-    public CtrConnection getConnection() {
+    public GprsConnection getConnection() {
         return connection;
     }
 
