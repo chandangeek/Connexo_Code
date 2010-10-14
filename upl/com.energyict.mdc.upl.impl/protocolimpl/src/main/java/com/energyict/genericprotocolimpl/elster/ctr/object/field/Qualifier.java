@@ -1,5 +1,8 @@
 package com.energyict.genericprotocolimpl.elster.ctr.object.field;
 
+import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
+
 import java.util.Arrays;
 
 
@@ -8,7 +11,7 @@ import java.util.Arrays;
  * Date: 7-okt-2010
  * Time: 13:12:44
  */
-public class Qualifier {
+public class Qualifier extends AbstractField<Qualifier>{
 
     private int qlf;
     public final int LENGTH = 1;
@@ -24,6 +27,11 @@ public class Qualifier {
 
     public byte[] getBytes() {
         return new byte[]{(byte) qlf};
+    }
+
+    public Qualifier parse(byte[] rawData, int offset) throws CTRParsingException {
+        qlf = getIntFromBytes(rawData, offset, LENGTH);
+        return this;    
     }
 
     public void setQlf(int qlf) {
