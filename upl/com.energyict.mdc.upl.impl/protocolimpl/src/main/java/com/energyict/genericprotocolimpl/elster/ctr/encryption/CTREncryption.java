@@ -129,16 +129,7 @@ public class CTREncryption {
             byte[] input = ProtocolTools.getSubArray(bytes, offset, ((offset + 16) < bytes.length) ? offset + 16 : offset + (bytes.length % 16));
             input = encryptAES128(input, iv);
             iv = addOneToByteArray(iv);
-
-            System.out.println();
-            System.out.println("P = " + ProtocolTools.getHexStringFromBytes(input));
-            System.out.println("K = " + ProtocolTools.getHexStringFromBytes(keyC));
-            System.out.println("IV = " + ProtocolTools.getHexStringFromBytes(iv));
-
             result = ProtocolTools.concatByteArrays(result, input);
-            System.out.println("E = " + ProtocolTools.getHexStringFromBytes(result));
-            System.out.println();
-
             offset += 16;
         }
 
