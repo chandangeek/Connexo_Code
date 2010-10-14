@@ -61,7 +61,7 @@ public class OnlyForTesting {
             while(true) {
                 int temp = ProtocolUtils.getIntLE(data,offset, 2); offset+=2;
                 if (temp == 0xFFFF){
-                	break; // Element piontage...                if (temp == 0xFFFF) break; // Element piontage...
+                	break; // NumberOfElements piontage...                if (temp == 0xFFFF) break; // NumberOfElements piontage...
                 }
                 //System.out.println("offset="+offset);
                 //offset+=4;

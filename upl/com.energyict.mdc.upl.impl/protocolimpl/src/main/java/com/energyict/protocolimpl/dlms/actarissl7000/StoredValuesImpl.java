@@ -12,7 +12,6 @@ import java.util.*;
 import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.obis.*;
-import com.energyict.protocol.NoSuchRegisterException;
 
 /**
  *
@@ -234,11 +233,11 @@ if (DEBUG>=1) System.out.println("**********************************************
 //                }
 //                else {
 //                    if (root.isOctetString(i)) {
-//                        System.out.print("Element "+i+" = ");
+//                        System.out.print("NumberOfElements "+i+" = ");
 //                        ProtocolUtils.printResponseDataFormatted(root.getOctetString(i).getArray());
 //                    }
 //                    else
-//                        System.out.println("Element "+i+" = "+root.getElement(i));
+//                        System.out.println("NumberOfElements "+i+" = "+root.getElement(i));
 //                }
 //            } // for (i=count[level];i<root.getNrOfElements();i++)
 //            

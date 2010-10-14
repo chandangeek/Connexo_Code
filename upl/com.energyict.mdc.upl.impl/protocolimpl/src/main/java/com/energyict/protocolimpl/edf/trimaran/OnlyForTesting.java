@@ -10,7 +10,6 @@
 
 package com.energyict.protocolimpl.edf.trimaran;
 
-import com.energyict.cbo.LittleEndianInputStream;
 import com.energyict.protocol.*;
 import java.io.*;
 import java.util.*;
@@ -55,7 +54,7 @@ public class OnlyForTesting {
             int offset=0;
             while(true) {
                 int temp = ProtocolUtils.getIntLE(data,offset, 2); offset+=2;
-                if (temp == 0xFFFF) break; // Element piontage...                if (temp == 0xFFFF) break; // Element piontage...
+                if (temp == 0xFFFF) break; // NumberOfElements piontage...                if (temp == 0xFFFF) break; // NumberOfElements piontage...
                 //System.out.println("offset="+offset);
                 //offset+=4;
                 if ((temp&0x8000)==0) {

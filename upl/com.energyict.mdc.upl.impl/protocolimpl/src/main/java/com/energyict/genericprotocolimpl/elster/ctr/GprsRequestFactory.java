@@ -174,6 +174,23 @@ public class GprsRequestFactory {
         return request;
     }
 
+    private GPRSFrame getEventArrayRequest(Index_Q index_Q) throws CTRParsingException {
+        byte[] pssw = getProperties().getPassword().getBytes();
+        byte[] eventArrayRequest = ProtocolTools.concatByteArrays(
+                pssw,
+                index_Q.getBytes()
+        );
+
+        GPRSFrame request = new GPRSFrame();
+        request.setAddress(getAddress());
+        request.getFunctionCode().setEncryptionStatus(EncryptionStatus.NO_ENCRYPTION);
+        request.getFunctionCode().setFunction(Function.QUERY);
+        request.getProfi().setLongFrame(false);
+        request.getStructureCode().setStructureCode(StructureCode.EVENT_ARRAY);
+        request.setData(new ArrayEventsQueryRequestStructure(false).parse(eventArrayRequest, 0));
+        request.generateAndSetCpa(getProperties().getKeyCBytes());
+        return request;
+    }
 
     /**
      * Returns a list of requested objects
@@ -209,12 +226,27 @@ public class GprsRequestFactory {
         if (response.getData() instanceof TraceQueryResponseStructure) {
             traceResponse = (TraceQueryResponseStructure) response.getData();
         } else {
-            throw new CTRException("Expected RegisterResponseStructure but was " + response.getData().getClass().getSimpleName());
+            throw new CTRException("Expected TraceResponseStructure but was " + response.getData().getClass().getSimpleName());
         }
 
         return traceResponse.getTraceData();
     }
 
+    public ArrayEventsQueryResponseStructure queryEventArray(Index_Q index_Q) throws CTRException {
+
+        //Send the id, the period (15min, 1h, 1day, ...), and the start date.
+        GPRSFrame response = getConnection().sendFrameGetResponse(getEventArrayRequest(index_Q));
+
+        //Parse the records in the response into objects.
+        ArrayEventsQueryResponseStructure arrayResponse;
+        if (response.getData() instanceof TraceQueryResponseStructure) {
+            arrayResponse = (ArrayEventsQueryResponseStructure) response.getData();
+        } else {
+            throw new CTRException("Expected ArrayEventsResponseStructure but was " + response.getData().getClass().getSimpleName());
+        }
+
+        return arrayResponse;
+    }
 
     public Trace_CQueryResponseStructure queryTrace_C(CTRObjectID id, PeriodTrace period, StartDate startDate) throws CTRException {
 
@@ -226,7 +258,7 @@ public class GprsRequestFactory {
         if (response.getData() instanceof TraceQueryResponseStructure) {
             trace_CResponse = (Trace_CQueryResponseStructure) response.getData();
         } else {
-            throw new CTRException("Expected RegisterResponseStructure but was " + response.getData().getClass().getSimpleName());
+            throw new CTRException("Expected Trace_CResponseStructure but was " + response.getData().getClass().getSimpleName());
         }
 
         return trace_CResponse;

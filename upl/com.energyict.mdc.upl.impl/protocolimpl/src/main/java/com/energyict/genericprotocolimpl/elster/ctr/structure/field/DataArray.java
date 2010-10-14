@@ -13,11 +13,11 @@ import java.math.BigInteger;
  */
 public class DataArray extends AbstractField<DataArray> {
 
+    private byte[] data;
+    
     public DataArray(int arrayLength) {
         this.arrayLength = arrayLength;
     }
-
-    private byte[] data;
 
     private int arrayLength;
 

@@ -239,7 +239,7 @@ public class CodeTableToXml {
      * </code>
      *
      * @param seasonArray the seasonArray from the codeTable
-     * @param document    the document to create an Element for
+     * @param document    the document to create an NumberOfElements for
      */
     protected static Element convertSeasonArrayToXml(Array seasonArray, Document document) {
 
@@ -282,7 +282,7 @@ public class CodeTableToXml {
      * </code>
      *
      * @param weekArray the weekArray from the codeTable (actually from the DLMS objects)
-     * @param document  the document to create an Element for
+     * @param document  the document to create an NumberOfElements for
      */
     protected static Element convertWeekArrayToXml(Array weekArray, Document document) {
         Element sProfiles = document.createElement(weekProfiles);
@@ -325,7 +325,7 @@ public class CodeTableToXml {
      * </code>
      *
      * @param dayArray the dayArray from the codeTable (actually from the DLMS objects)
-     * @param document the document to create an Element for
+     * @param document the document to create an NumberOfElements for
      */
     protected static Element convertDayArrayToXml(Array dayArray, Document document) {
         Element sProfiles = document.createElement(dayProfiles);
@@ -386,7 +386,7 @@ public class CodeTableToXml {
 //
 //            DocumentBuilder builder = factory.newDocumentBuilder();
 //            Document document = builder.newDocument();
-//            Element root = document.createElement(rootActCodeTable);
+//            NumberOfElements root = document.createElement(rootActCodeTable);
 //
 //            root.appendChild(convertSpecialDayArrayToXml(specialDayArray, document));
 //            document.appendChild(root);
@@ -408,7 +408,7 @@ public class CodeTableToXml {
      * </code>
      *
      * @param specialDayArray the specialDayArray from the codeTable (actually from the DLMS objects)
-     * @param document        the document to create an Element for
+     * @param document        the document to create an NumberOfElements for
      * @return The specialDay {@link org.w3c.dom.Element} to put in the {@link org.w3c.dom.Document}
      */
     protected static Element convertSpecialDayArrayToXml(Array specialDayArray, Document document) {

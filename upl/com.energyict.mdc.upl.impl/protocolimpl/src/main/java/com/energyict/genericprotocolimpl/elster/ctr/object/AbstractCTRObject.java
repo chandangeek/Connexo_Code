@@ -131,6 +131,9 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
         if (type.hasQualifier()) {
             byte[] qlf = converter.convertQlf(getQlf().getQlf());
             bytes = ProtocolTools.concatByteArrays(bytes, qlf);
+            if (!getQlf().isValid()) {
+                return bytes;       //Stop here if the qlf indicates the object is invalid
+            }
         }
 
         if (type.hasValueFields()) {
@@ -152,6 +155,9 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
                 if ("BCD".equals(value[j].getType())) {
                     valueBytes = converter.convertBCDValue((String) value[j].getValue());
                 }
+
+                //also possible? --> valueBytes = value[j].getBytes();
+
                 if (j > 0) {
                     valueResult = ProtocolTools.concatByteArrays(valueResult, valueBytes);
                 } else {

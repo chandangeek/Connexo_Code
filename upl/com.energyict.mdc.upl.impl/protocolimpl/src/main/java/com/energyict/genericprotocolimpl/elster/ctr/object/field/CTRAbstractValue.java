@@ -34,7 +34,6 @@ public abstract class CTRAbstractValue<T extends Object> {
         this.valueLength = valueLength;
     }
 
-     
     public Unit getUnit() {
         return unit;
     }

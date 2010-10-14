@@ -26,6 +26,9 @@ public abstract class AbstractUnsignedBINObject<T extends AbstractUnsignedBINObj
         if (type.hasQualifier()) {
             Qualifier qlf = new Qualifier(parser.parseQlf(rawData, ptr));
             this.setQlf(qlf);
+            if (!qlf.isValid()) {
+                return (T) this;   //If the QLF is 0xFF (invalid), return an empty object
+            }
             ptr += qlf.LENGTH;
         }
 

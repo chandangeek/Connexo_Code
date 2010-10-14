@@ -24,9 +24,30 @@ public class ObisCodeMapper {
     }
 
     private void initRegisterMapping() {
-/*
-        registerMapping.add(new CTRRegisterMapping("1.0.0.0.0.255", "C.0.0"));
-*/
+
+        //Daily readings = register values
+        registerMapping.add(new CTRRegisterMapping("7.0.13.29.0.255", "1.3.3"));    //Vb
+        registerMapping.add(new CTRRegisterMapping("7.0.13.30.0.255", "1.1.3"));    //Vm
+        registerMapping.add(new CTRRegisterMapping("7.0.13.0.0.255", "2.0.3"));     //Tot_Vm
+        registerMapping.add(new CTRRegisterMapping("7.0.13.2.0.255", "2.1.3"));     //Tot_Vb
+        registerMapping.add(new CTRRegisterMapping("7.0.43.25.0.255", "1.A.3"));    //Qcb_max
+
+        registerMapping.add(new CTRRegisterMapping("7.0.128.0.0.255", "12.6.3"));   //DiagnRS       = Manufacturer specific code!!  TODO: add in release notes
+        registerMapping.add(new CTRRegisterMapping("7.0.128.1.0.255", "12.2.0"));   //DiagnR        = Manufacturer specific code!!
+        registerMapping.add(new CTRRegisterMapping("7.0.128.2.0.255", "12.1.0"));   //Diagn         = Manufacturer specific code!!
+        registerMapping.add(new CTRRegisterMapping("7.0.128.3.0.255", "2.3.3"));    //Tot_Vme_g     = Manufacturer specific code!!
+        registerMapping.add(new CTRRegisterMapping("7.0.128.4.0.255", "2.3.7"));    //Tot_Vme_f1    = Manufacturer specific code!!
+        registerMapping.add(new CTRRegisterMapping("7.0.128.5.0.255", "2.3.8"));    //Tot_Vme_f2    = Manufacturer specific code!!
+        registerMapping.add(new CTRRegisterMapping("7.0.128.6.0.255", "2.3.9"));    //Tot_Vme_f3    = Manufacturer specific code!!
+        registerMapping.add(new CTRRegisterMapping("7.0.128.7.0.255", "18.6.3"));   //Tot_Vme_f1_g  = Manufacturer specific code!!
+        registerMapping.add(new CTRRegisterMapping("7.0.128.8.0.255", "18.7.3"));   //Tot_Vme_f2_g  = Manufacturer specific code!!
+        registerMapping.add(new CTRRegisterMapping("7.0.128.9.0.255", "18.8.3"));   //Tot_Vme_f3_g  = Manufacturer specific code!!
+
+
+        registerMapping.add(new CTRRegisterMapping("7.0.13.0.1.255", "2.5.0"));     //Tot_Vcor_f1
+        registerMapping.add(new CTRRegisterMapping("7.0.13.0.2.255", "2.5.1"));     //Tot_Vcor_f2
+        registerMapping.add(new CTRRegisterMapping("7.0.13.0.3.255", "2.5.2"));     //Tot_Vcor_f3
+
     }
 
     public GprsRequestFactory getRequestFactory() {
@@ -34,7 +55,7 @@ public class ObisCodeMapper {
     }
 
     public RegisterValue readRegister(ObisCode obisCode) throws CTRException, NoSuchRegisterException {
-        throw new NoSuchRegisterException(obisCode.toString());
+        return new RegisterValue(obisCode);
     }
 
 }

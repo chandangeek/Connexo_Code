@@ -1,17 +1,18 @@
 package com.energyict.genericprotocolimpl.elster.ctr.object.field;
 
-import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
-import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
+import java.util.Arrays;
+
 
 /**
  * Copyrights EnergyICT
  * Date: 7-okt-2010
  * Time: 13:12:44
  */
-public class Qualifier extends AbstractField<Qualifier> {
+public class Qualifier {
 
     private int qlf;
     public final int LENGTH = 1;
+    public final int INVALID_MASK = 0xFF;
 
     public Qualifier(int qlf) {
         this.qlf = qlf;
@@ -25,19 +26,14 @@ public class Qualifier extends AbstractField<Qualifier> {
         return new byte[]{(byte) qlf};
     }
 
-    public Qualifier parse(byte[] rawData, int offset) throws CTRParsingException {
-        qlf = getIntFromBytes(rawData, offset, LENGTH);
-        return this;
-    }
-
     public void setQlf(int qlf) {
         this.qlf = qlf;
     }
 
     public String getTarif() {
-        int IF = qlf & (0x0C0) >> 6;
+        int if1 = qlf & (0x0C0) >> 6;
         String tarif = "";
-        switch (IF) {
+        switch (if1) {
             case 0:
                 tarif = "Tariff scheme not active";
                 break;
@@ -55,9 +51,9 @@ public class Qualifier extends AbstractField<Qualifier> {
     }
 
     public String getValueDescription() {
-        int VAL = qlf & (0x018) >> 3;
+        int val = qlf & (0x018) >> 3;
         String tarif = "";
-        switch (VAL) {
+        switch (val) {
             case 0:
                 tarif = "Valid effective value";
                 break;
@@ -84,9 +80,9 @@ public class Qualifier extends AbstractField<Qualifier> {
     }
 
     public String getValueTime() {
-        int SL = qlf & (0x020) >> 5;
+        int sl = qlf & (0x020) >> 5;
         String valueTime = "";
-        switch (SL) {
+        switch (sl) {
             case 0:
                 valueTime = "Value during daylight saving time";
                 break;
@@ -95,5 +91,10 @@ public class Qualifier extends AbstractField<Qualifier> {
                 break;
         }
         return valueTime;
+    }
+
+    public boolean isValid() {
+        byte[] ff = new byte[]{(byte) INVALID_MASK};
+        return !Arrays.equals(getBytes(), ff);
     }
 }

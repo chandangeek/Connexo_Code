@@ -8,11 +8,8 @@ package com.energyict.protocolimpl.dlms.actarisace6000;
 
 import java.io.*;
 import java.util.*;
-import java.math.*;
 
-import com.energyict.protocolimpl.dlms.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.ProfileGeneric;
@@ -237,11 +234,11 @@ if (DEBUG>=1) System.out.println("**********************************************
 //                }
 //                else {
 //                    if (root.isOctetString(i)) {
-//                        System.out.print("Element "+i+" = ");
+//                        System.out.print("NumberOfElements "+i+" = ");
 //                        ProtocolUtils.printResponseDataFormatted(root.getOctetString(i).getArray());
 //                    }
 //                    else
-//                        System.out.println("Element "+i+" = "+root.getElement(i));
+//                        System.out.println("NumberOfElements "+i+" = "+root.getElement(i));
 //                }
 //            } // for (i=count[level];i<root.getNrOfElements();i++)
 //            
