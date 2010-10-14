@@ -23,7 +23,7 @@
 
     <!-- We try to be in sync with the latest EIServer version ... -->
     <properties>
-        <eiserver.version>8.9.1</eiserver.version>
+        <eiserver.version>8.9.2-SNAPSHOT</eiserver.version>
     </properties>
 
     <dependencyManagement>
