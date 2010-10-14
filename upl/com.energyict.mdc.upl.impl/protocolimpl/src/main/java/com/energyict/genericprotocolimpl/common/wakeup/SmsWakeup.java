@@ -7,7 +7,7 @@ import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.sun.xml.ws.client.ClientTransportException;
+
 import com.vodafone.gdsp.ws.*;
 
 import javax.xml.namespace.QName;
@@ -172,14 +172,11 @@ public class SmsWakeup {
 
         log(5, "Ready for takeoff");
         SubmitWUTriggerResponse swuTriggerResponse;
-        try {
-            swuTriggerResponse = wuTrigger.submitWUTrigger(parameters, gdspHeader);
-            log(5, "Took off ...");
-            analyseRespsonse(swuTriggerResponse);
-        } catch (ClientTransportException e) {
-            e.printStackTrace();
-            throw new ConnectionException("Connection refused, please check if the endpointAddress is correct." + e.getMessage());
-        }
+
+        swuTriggerResponse = wuTrigger.submitWUTrigger(parameters, gdspHeader);
+        log(5, "Took off ...");
+        analyseRespsonse(swuTriggerResponse);
+
 
     }
 
