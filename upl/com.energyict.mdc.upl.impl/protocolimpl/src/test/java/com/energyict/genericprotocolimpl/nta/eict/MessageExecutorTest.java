@@ -79,7 +79,7 @@ public class MessageExecutorTest {
 	public void changeLLSSecretTest(){
 		try {
 			RtuMessageShadow rms = new RtuMessageShadow();
-			rms.setUserId(0);
+//			rms.setUserId(0);
 			rms.setId(rtuMessageID);
 			rms.setContents(changeLLSContent);
 			rms.setRtuId(rtu.getId());
