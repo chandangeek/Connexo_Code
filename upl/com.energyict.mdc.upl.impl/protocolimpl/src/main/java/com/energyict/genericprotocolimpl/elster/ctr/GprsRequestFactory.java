@@ -6,12 +6,14 @@ import com.energyict.genericprotocolimpl.elster.ctr.encryption.SecureGprsConnect
 import com.energyict.genericprotocolimpl.elster.ctr.exception.*;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.*;
-import com.energyict.genericprotocolimpl.elster.ctr.object.*;
+import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
+import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.*;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -126,7 +128,7 @@ public class GprsRequestFactory {
         request.getFunctionCode().setFunction(Function.QUERY);
         request.getProfi().setLongFrame(false);
         request.getStructureCode().setStructureCode(StructureCode.REGISTER);
-        request.setData(new RegisterQueryRequestStructure().parse(registerRequest, 0));
+        request.setData(new RegisterQueryRequestStructure(false).parse(registerRequest, 0));
         request.generateAndSetCpa(getProperties().getKeyCBytes());
         return request;
     }
@@ -147,7 +149,7 @@ public class GprsRequestFactory {
         request.getFunctionCode().setFunction(Function.QUERY);
         request.getProfi().setLongFrame(false);
         request.getStructureCode().setStructureCode(StructureCode.TRACE);
-        request.setData(new TraceQueryRequestStructure().parse(traceRequest, 0));
+        request.setData(new TraceQueryRequestStructure(request.getProfi().isLongFrame()).parse(traceRequest, 0));
         request.generateAndSetCpa(getProperties().getKeyCBytes());
         return request;
     }
@@ -167,7 +169,7 @@ public class GprsRequestFactory {
         request.getFunctionCode().setFunction(Function.QUERY);
         request.getProfi().setLongFrame(false);
         request.getStructureCode().setStructureCode(StructureCode.TRACE_C);
-        request.setData(new Trace_CQueryRequestStructure().parse(trace_CRequest, 0));
+        request.setData(new Trace_CQueryRequestStructure(request.getProfi().isLongFrame()).parse(trace_CRequest, 0));
         request.generateAndSetCpa(getProperties().getKeyCBytes());
         return request;
     }

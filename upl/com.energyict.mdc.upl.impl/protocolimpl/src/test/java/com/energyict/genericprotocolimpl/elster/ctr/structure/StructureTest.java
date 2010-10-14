@@ -5,7 +5,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import junit.framework.TestCase;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
 
 /**
  * Copyrights EnergyICT
@@ -30,20 +30,20 @@ public class StructureTest extends TestCase {
         byte[] bytes10 = padData(ProtocolTools.getBytesFromHexString("$01$00$02$0A$0A$0A$00$03$00$00$00$01$00$00$00$02$00$00$00$03$00$00$00$04"));
         byte[] bytes11 = padData(ProtocolTools.getBytesFromHexString("$01$02$01$02$01$02$01$02$01$00$02$00"));
 
-        ArrayEventsQueryRequestStructure aeqrs = new ArrayEventsQueryRequestStructure().parse(bytes, 0);
-        ArrayEventsQueryResponseStructure aeqrspns = new ArrayEventsQueryResponseStructure().parse(bytes2, 0);
+        ArrayEventsQueryRequestStructure aeqrs = new ArrayEventsQueryRequestStructure(false).parse(bytes, 0);
+        ArrayEventsQueryResponseStructure aeqrspns = new ArrayEventsQueryResponseStructure(false).parse(bytes2, 0);
 
-        Trace_CQueryRequestStructure trace_C_req = new Trace_CQueryRequestStructure().parse(bytes3, 0);
-        Trace_CQueryResponseStructure trace_C_resp = new Trace_CQueryResponseStructure().parse(bytes4, 0);
+        Trace_CQueryRequestStructure trace_C_req = new Trace_CQueryRequestStructure(false).parse(bytes3, 0);
+        Trace_CQueryResponseStructure trace_C_resp = new Trace_CQueryResponseStructure(false).parse(bytes4, 0);
 
-        ArrayQueryRequestStructure arrqq = new ArrayQueryRequestStructure().parse(bytes5, 0);
-        ArrayQueryResponseStructure arrsp = new ArrayQueryResponseStructure().parse(bytes6, 0);
+        ArrayQueryRequestStructure arrqq = new ArrayQueryRequestStructure(false).parse(bytes5, 0);
+        ArrayQueryResponseStructure arrsp = new ArrayQueryResponseStructure(false).parse(bytes6, 0);
 
-        RegisterQueryRequestStructure regreq = new RegisterQueryRequestStructure().parse(bytes7, 0);
-        RegisterQueryResponseStructure regrsp = new RegisterQueryResponseStructure().parse(bytes8, 0);
+        RegisterQueryRequestStructure regreq = new RegisterQueryRequestStructure(false).parse(bytes7, 0);
+        RegisterQueryResponseStructure regrsp = new RegisterQueryResponseStructure(false).parse(bytes8, 0);
 
-        TraceQueryRequestStructure trace_rqs = new TraceQueryRequestStructure().parse(bytes9, 0);
-        TraceQueryResponseStructure trace_rsp = new TraceQueryResponseStructure().parse(bytes10, 0);
+        TraceQueryRequestStructure trace_rqs = new TraceQueryRequestStructure(false).parse(bytes9, 0);
+        TraceQueryResponseStructure trace_rsp = new TraceQueryResponseStructure(false).parse(bytes10, 0);
 
         IdentificationRequestStructure idreq = new IdentificationRequestStructure().parse(bytes11, 0);
         

@@ -16,6 +16,10 @@ public class IdentificationResponseStructure extends Data<IdentificationResponse
 
     private CTRAbstractValue<String> pdr;
 
+    public IdentificationResponseStructure(boolean longFrame) {
+        super(longFrame);
+    }
+
     @Override
     public byte[] getBytes() {
         return padData(ProtocolTools.concatByteArrays(

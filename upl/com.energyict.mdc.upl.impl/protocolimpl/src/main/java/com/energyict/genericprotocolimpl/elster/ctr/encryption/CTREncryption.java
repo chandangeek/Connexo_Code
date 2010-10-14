@@ -87,7 +87,10 @@ public class CTREncryption {
 
         if (!eStatus.isEncrypted()) {
             frame = setEncryptionStatus(frame);
+            frame.generateAndSetCpa(keyC);
+/*
             frame = setCpa(frame);
+*/
             try {
                 frame = setData(frame, encryptStream(frame));
             } catch (GeneralSecurityException e) {
@@ -109,7 +112,7 @@ public class CTREncryption {
 
         byte[] data = ProtocolTools.getSubArray(stream, offset, offset + frame.getData().getBytes().length);
 
-        frame.setData(new Data().parse(data, 0));
+        frame.setData(new Data(frame.getProfi().isLongFrame()).parse(data, 0));
         frame.setChannel(new Channel().parse(chan, 0));
         frame.setStructureCode(new StructureCode().parse(struct, 0));
         return frame;
@@ -126,7 +129,16 @@ public class CTREncryption {
             byte[] input = ProtocolTools.getSubArray(bytes, offset, ((offset + 16) < bytes.length) ? offset + 16 : offset + (bytes.length % 16));
             input = encryptAES128(input, iv);
             iv = addOneToByteArray(iv);
+
+            System.out.println();
+            System.out.println("P = " + ProtocolTools.getHexStringFromBytes(input));
+            System.out.println("K = " + ProtocolTools.getHexStringFromBytes(keyC));
+            System.out.println("IV = " + ProtocolTools.getHexStringFromBytes(iv));
+
             result = ProtocolTools.concatByteArrays(result, input);
+            System.out.println("E = " + ProtocolTools.getHexStringFromBytes(result));
+            System.out.println();
+
             offset += 16;
         }
 
@@ -147,6 +159,7 @@ public class CTREncryption {
         return copy;
     }
 
+/*
     public Frame setCpa(Frame frame) {
         AesCMac128 aesCmac128 = new AesCMac128();
         aesCmac128.setKey(keyC);
@@ -162,6 +175,7 @@ public class CTREncryption {
         frame.setCpa(new Cpa().parse(cpa, 0));
         return frame;
     }
+*/
 
     private Frame setEncryptionStatus(Frame frame) {
         frame.getFunctionCode().setEncryptionStatus(EncryptionStatus.KEYC_ENCRYPTION);

@@ -3,9 +3,8 @@ package com.energyict.genericprotocolimpl.elster.ctr.structure;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
-import com.energyict.genericprotocolimpl.elster.ctr.object.*;
-import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
-import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser;
+import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
+import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.NumberOfObjects;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -19,6 +18,10 @@ public class RegisterQueryResponseStructure extends Data<RegisterQueryResponseSt
     private AbstractCTRObject[] objects;
     private NumberOfObjects numberOfObjects;
     private AttributeType attributeType;
+
+    public RegisterQueryResponseStructure(boolean longFrame) {
+        super(longFrame);
+    }
 
     @Override
     public byte[] getBytes() {

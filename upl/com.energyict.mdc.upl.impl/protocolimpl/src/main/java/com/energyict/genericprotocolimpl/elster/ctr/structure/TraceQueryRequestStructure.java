@@ -22,6 +22,10 @@ public class TraceQueryRequestStructure extends Data<TraceQueryRequestStructure>
     private CTRObjectID id;
     private NumberOfElements numberOfElements;
 
+    public TraceQueryRequestStructure(boolean longFrame) {
+        super(longFrame);
+    }
+
     @Override
     public byte[] getBytes() {
         return padData(ProtocolTools.concatByteArrays(

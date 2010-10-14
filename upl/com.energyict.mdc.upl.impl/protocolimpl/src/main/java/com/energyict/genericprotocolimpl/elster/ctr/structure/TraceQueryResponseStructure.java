@@ -23,6 +23,10 @@ public class TraceQueryResponseStructure extends Data<TraceQueryResponseStructur
     private NumberOfElements numberOfElements;
     private List<AbstractCTRObject> traceData;
 
+    public TraceQueryResponseStructure(boolean longFrame) {
+        super(longFrame);
+    }
+
     @Override
     public byte[] getBytes() {
 

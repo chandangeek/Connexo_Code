@@ -30,7 +30,7 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
         this.functionCode = new FunctionCode();
         this.structureCode = new StructureCode();
         this.channel = new Channel();
-        this.data = new Data();
+        this.data = new Data(false);
         this.cpa = new Cpa();
         this.crc = new Crc();
     }
@@ -80,17 +80,17 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
 
     private void parseDataField(byte[] rawData, int offset) throws CTRParsingException {
         if (isIdentificationReply()) {
-            data = new IdentificationResponseStructure().parse(rawData, offset);
+            data = new IdentificationResponseStructure(getProfi().isLongFrame()).parse(rawData, offset);
         } else if (functionCode.isNack()) {
-            data = new NackStructure().parse(rawData, offset);
+            data = new NackStructure(getProfi().isLongFrame()).parse(rawData, offset);
         } else if (functionCode.isAck()) {
             data = new AckStructure().parse(rawData, offset);
         } else if (isRegisterQueryReply()) {
-            data = new RegisterQueryResponseStructure().parse(rawData, offset);
+            data = new RegisterQueryResponseStructure(getProfi().isLongFrame()).parse(rawData, offset);
         } else if (isArrayQueryReply()) {
-            data = new ArrayQueryResponseStructure().parse(rawData, offset);
+            data = new ArrayQueryResponseStructure(getProfi().isLongFrame()).parse(rawData, offset);
         } else {
-            data = new Data().parse(rawData, offset);
+            data = new Data(getProfi().isLongFrame()).parse(rawData, offset);
         }
     }
 
@@ -141,8 +141,7 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
                 functionCode.getBytes(),
                 structureCode.getBytes(),
                 channel.getBytes(),
-                data.getBytes(),
-                cpa.getBytes()
+                data.getBytes()
         );
         return new Cpa().generateCpa(cpaData, key);
     }

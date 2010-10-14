@@ -21,6 +21,10 @@ public class RegisterQueryRequestStructure extends Data<RegisterQueryRequestStru
     private AttributeType attributeType;
     private CTRObjectID[] id;
 
+    public RegisterQueryRequestStructure(boolean longFrame) {
+        super(longFrame);
+    }
+
     @Override
     public byte[] getBytes() {
         byte[] idBytes = null;

@@ -18,6 +18,10 @@ public class NackStructure extends Data<NackStructure> {
     private FunctionCode functionCode;
     private NackAdditionalData additionalData;
 
+    public NackStructure(boolean longFrame) {
+        super(longFrame);
+    }
+
     @Override
     public byte[] getBytes() {
         return padData(ProtocolTools.concatByteArrays(

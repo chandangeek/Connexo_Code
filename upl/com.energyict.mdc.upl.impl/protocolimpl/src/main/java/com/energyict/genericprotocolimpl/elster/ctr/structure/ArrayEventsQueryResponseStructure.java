@@ -28,6 +28,10 @@ public class ArrayEventsQueryResponseStructure extends Data<ArrayEventsQueryResp
     private DataArray evento_Short_2;
     private DataArray evento_Short_3;
 
+    public ArrayEventsQueryResponseStructure(boolean longFrame) {
+        super(longFrame);
+    }
+
 
     @Override
     public byte[] getBytes() {

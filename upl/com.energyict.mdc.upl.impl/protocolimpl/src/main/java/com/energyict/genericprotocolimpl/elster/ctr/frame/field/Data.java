@@ -12,10 +12,13 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 public class Data<T extends Data> extends AbstractField<T> {
 
     private byte[] data;
-    public static final int LENGTH = 128;
 
-    public Data() {
-        data = new byte[LENGTH];
+    public static final int LENGTH = 128;
+    public static final int LENGTH_SHORTFRAME = 128;
+    public static final int LENGTH_LONGFRAME = 1012;
+
+    public Data(boolean longFrame) {
+        data = new byte[longFrame ? LENGTH_LONGFRAME : LENGTH_SHORTFRAME];
     }
 
     /**
@@ -40,6 +43,10 @@ public class Data<T extends Data> extends AbstractField<T> {
     public T parse(byte[] rawData, int offset) throws CTRParsingException {
         data = ProtocolTools.getSubArray(rawData, offset, offset + LENGTH);
         return (T) this;
+    }
+
+    public int getLength() {
+        return data.length;
     }
 
 }

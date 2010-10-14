@@ -10,9 +10,12 @@ import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Channel;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.*;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.EncryptionStatus;
+import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
+import com.energyict.genericprotocolimpl.elster.ctr.structure.RegisterQueryResponseStructure;
 import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
 import com.energyict.mdw.core.*;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.debug.DebugUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -61,12 +64,23 @@ public class MTU155 extends AbstractGenericProtocol {
     protected void doExecute() throws IOException, BusinessException, SQLException {
         this.requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties());
         this.obisCodeMapper = new ObisCodeMapper(getRequestFactory());
+/*
         this.rtu = identifyRtu();
         log("Rtu with name '" + getRtu().getName() + "' connected successfully.");
         getProtocolProperties().addProperties(rtu.getProtocol().getProperties());
         getProtocolProperties().addProperties(rtu.getProperties());
         readDevice();
         getStoreObject().doExecute();
+*/
+
+/*
+        testEncryption();
+*/
+
+
+        ObisCode obisCode = ObisCode.fromString("1.1.1.8.0.255");
+        System.out.println(obisCode.getDescription());
+
     }
 
     private void readDevice() {
@@ -154,6 +168,9 @@ public class MTU155 extends AbstractGenericProtocol {
         log("MTU155 with pdr='" + pdr + "' connected.");
 
         List<Rtu> rtus = CommonUtils.mw().getRtuFactory().findByDialHomeId(pdr);
+
+        
+
         switch (rtus.size()) {
             case 0:
                 throw new CTRConfigurationException("No rtu found in EiServer with callhomeId='" + pdr + "'");
@@ -192,24 +209,39 @@ public class MTU155 extends AbstractGenericProtocol {
             readRequest.getProfi().setProfi(0x00);
             readRequest.getProfi().setLongFrame(false);
 
-            Data data = new Data();
+            Data data = new Data(false);
             byte[] pssw = ProtocolTools.getBytesFromHexString("$30$30$30$30$30$31");
-            byte[] nrObjects = ProtocolTools.getBytesFromHexString("$01");
+            byte[] nrObjects = ProtocolTools.getBytesFromHexString("$02");
             AttributeType type = new AttributeType(0);
             type.setHasValueFields(true);
+            type.setHasQualifier(true);
             byte[] attributeType = type.getBytes();
             byte[] id1 = new CTRObjectID("C.0.0").getBytes();
+            byte[] id2 = new CTRObjectID("1.0.0").getBytes();
 
-            byte[] rawData = ProtocolTools.concatByteArrays(pssw, nrObjects, attributeType, id1, new byte[128]);
+            byte[] rawData = ProtocolTools.concatByteArrays(pssw, nrObjects, attributeType, id1, id2, new byte[128]);
             data.parse(rawData, 0);
-            data.parse(ProtocolTools.getBytesFromHexString("$30$30$30$30$30$31$01$02$0C$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00"), 0);
+            //data.parse(ProtocolTools.getBytesFromHexString("$30$30$30$30$30$31$01$02$0C$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00"), 0);
             readRequest.setData(data);
             readRequest.generateAndSetCpa(getProtocolProperties().getKeyCBytes());
 
             System.out.println(readRequest);
 
+
             GPRSFrame response = getRequestFactory().getConnection().sendFrameGetResponse(readRequest);
+
             System.out.println(response);
+            
+            response.parse(response.getBytes(), 0);
+            System.out.println(response);
+            if (response.getData() instanceof RegisterQueryResponseStructure) {
+                RegisterQueryResponseStructure registerQueryResponseStructure = (RegisterQueryResponseStructure) response.getData();
+                System.out.println(registerQueryResponseStructure);
+                for (AbstractCTRObject ctrObject : registerQueryResponseStructure.getObjects()) {
+                    System.out.println(ctrObject);
+                }
+
+            }
 
         } catch (CTRException e) {
             e.printStackTrace();

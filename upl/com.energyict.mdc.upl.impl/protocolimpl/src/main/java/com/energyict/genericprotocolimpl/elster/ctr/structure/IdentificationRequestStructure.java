@@ -16,6 +16,7 @@ public class IdentificationRequestStructure extends Data<IdentificationRequestSt
     private STCode stCode;
 
     public IdentificationRequestStructure() {
+        super(false);
         this.puks = new Puk_S();
         this.st = new ST();
         this.stCode = new STCode();

@@ -18,6 +18,10 @@ public class AckStructure extends Data<AckStructure> {
     private FunctionCode functionCode;
     private AckAdditionalData additionalData;
 
+    public AckStructure() {
+        super(false);
+    }
+
     @Override
     public byte[] getBytes() {
         return padData(ProtocolTools.concatByteArrays(

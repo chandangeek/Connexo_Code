@@ -8,6 +8,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveConver
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 /**
  * Created by IntelliJ IDEA.
@@ -172,5 +173,22 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
         }
 
         return bytes;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("AbstractCTRObject");
+        sb.append("{access=").append(access);
+        sb.append(", def=").append(def == null ? "null" : "");
+        for (int i = 0; def != null && i < def.length; ++i) {
+            sb.append(i == 0 ? "" : ", ").append(def[i]);
+        }
+        sb.append(", id=").append(id);
+        sb.append(", qlf=").append(qlf);
+        sb.append(", symbol='").append(symbol).append('\'');
+        sb.append(", value=").append(value == null ? "null" : Arrays.asList(value).toString());
+        sb.append('}');
+        return sb.toString();
     }
 }

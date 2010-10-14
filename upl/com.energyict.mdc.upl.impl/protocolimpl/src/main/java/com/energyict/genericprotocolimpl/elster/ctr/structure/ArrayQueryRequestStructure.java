@@ -6,7 +6,8 @@ import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
-import com.energyict.genericprotocolimpl.elster.ctr.structure.field.*;
+import com.energyict.genericprotocolimpl.elster.ctr.structure.field.Counter_Q;
+import com.energyict.genericprotocolimpl.elster.ctr.structure.field.Index_Q;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
@@ -20,6 +21,10 @@ public class ArrayQueryRequestStructure extends Data<ArrayQueryRequestStructure>
     private Index_Q index_Q;
     private Counter_Q counter_Q;
     private CTRObjectID id;
+
+    public ArrayQueryRequestStructure(boolean longFrame) {
+        super(longFrame);
+    }
 
     @Override
     public byte[] getBytes() {

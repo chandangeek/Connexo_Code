@@ -5,7 +5,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingExceptio
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
-import com.energyict.genericprotocolimpl.elster.ctr.structure.field.*;
+import com.energyict.genericprotocolimpl.elster.ctr.structure.field.Index_Q;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
@@ -17,6 +17,10 @@ public class ArrayEventsQueryRequestStructure extends Data<ArrayEventsQueryReque
 
     private CTRAbstractValue<String> pssw;
     private Index_Q index_Q;
+
+    public ArrayEventsQueryRequestStructure(boolean longFrame) {
+        super(longFrame);
+    }
 
     @Override
     public byte[] getBytes() {

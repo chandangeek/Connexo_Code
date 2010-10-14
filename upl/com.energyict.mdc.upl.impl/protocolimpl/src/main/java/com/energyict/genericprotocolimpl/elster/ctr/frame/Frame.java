@@ -44,4 +44,6 @@ public interface Frame<T extends Frame> extends Field<T> {
 
     void setStructureCode(StructureCode structureCode);
 
+    void generateAndSetCpa(byte[] key);
+
 }

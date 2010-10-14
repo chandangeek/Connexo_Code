@@ -6,7 +6,8 @@ import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
 import com.energyict.genericprotocolimpl.elster.ctr.object.*;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.Qualifier;
-import com.energyict.genericprotocolimpl.elster.ctr.structure.field.*;
+import com.energyict.genericprotocolimpl.elster.ctr.structure.field.PeriodTrace_C;
+import com.energyict.genericprotocolimpl.elster.ctr.structure.field.ReferenceDate;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.math.BigDecimal;
@@ -31,6 +32,10 @@ public class Trace_CQueryResponseStructure extends Data<Trace_CQueryResponseStru
     private PeriodTrace_C period;
     private ReferenceDate date;
     private List<AbstractCTRObject> traceData;
+
+    public Trace_CQueryResponseStructure(boolean longFrame) {
+        super(longFrame);
+    }
 
     @Override
     public byte[] getBytes() {

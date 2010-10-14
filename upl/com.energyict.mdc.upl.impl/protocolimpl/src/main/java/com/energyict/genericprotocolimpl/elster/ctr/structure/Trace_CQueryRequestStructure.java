@@ -6,7 +6,8 @@ import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
-import com.energyict.genericprotocolimpl.elster.ctr.structure.field.*;
+import com.energyict.genericprotocolimpl.elster.ctr.structure.field.PeriodTrace_C;
+import com.energyict.genericprotocolimpl.elster.ctr.structure.field.ReferenceDate;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
@@ -20,6 +21,10 @@ public class Trace_CQueryRequestStructure extends Data<Trace_CQueryRequestStruct
     private CTRObjectID id;
     private PeriodTrace_C period;
     private ReferenceDate date;
+
+    public Trace_CQueryRequestStructure(boolean longFrame) {
+        super(longFrame);
+    }
 
     @Override
     public byte[] getBytes() {
