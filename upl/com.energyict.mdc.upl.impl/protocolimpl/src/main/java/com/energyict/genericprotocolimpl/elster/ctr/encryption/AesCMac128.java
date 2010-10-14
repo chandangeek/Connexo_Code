@@ -47,11 +47,6 @@ public class AesCMac128 {
             k2 = xor(tmp, RB);
         }
 
-        System.out.println(ProtocolTools.getHexStringFromBytes(encryptionKey));
-        System.out.println(ProtocolTools.getHexStringFromBytes(k1));
-        System.out.println(ProtocolTools.getHexStringFromBytes(k2));
-        System.out.println();
-
     }
 
     private byte[] shiftLeft(byte[] input) {
