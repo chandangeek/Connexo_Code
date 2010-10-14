@@ -4,17 +4,17 @@
     <artifactId>protocolimpl</artifactId>
     <packaging>jar</packaging>
     <name>protocolimpl</name>
+
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>protocols</artifactId>
         <version>8.9.1-SNAPSHOT</version>
     </parent>
+
     <dependencies>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdw</artifactId>
-            <version>${eiserver.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -27,12 +27,14 @@
             <groupId>serialio</groupId>
             <artifactId>serialio</artifactId>
             <version>1.0.0</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>xmodem</artifactId>
             <version>1.0.0</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -51,6 +53,14 @@
                     <groupId>javax.activation</groupId>
                     <artifactId>activation</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>javax.mail</groupId>
+                    <artifactId>mail</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -64,7 +74,6 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdwdevtools</artifactId>
             <version>${eiserver.version}</version>
-            <!-- <version>8.4.0-SNAPSHOT</version> -->
             <scope>test</scope>
         </dependency>
 
@@ -98,6 +107,7 @@
                     <artifactId>ehcache</artifactId>
                 </exclusion>
             </exclusions>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
@@ -113,6 +123,7 @@
                     <artifactId>hibernate-core</artifactId>
                 </exclusion>
             </exclusions>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -125,38 +136,15 @@
                     <artifactId>xml-apis</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-
-        <!--
-            Needed for hibernate entitymanager
-        -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.4.2</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
             <version>1.6.2</version>
+            <scope>provided</scope>
         </dependency>
-
-
-        <!--
-              If we use the Hibernate dependency from EIServer, then we can't use
-              the C3P0ConnectionProvider anymore To prevent version clashes we
-              deleted the ehcache jar and added the one explicitly form the
-              EIServer version <dependency> <groupId>org.hibernate</groupId>
-              <artifactId>hibernate</artifactId> <version>3.2.1.ga</version>
-              <exclusions> <exclusion> <groupId>ehcache</groupId>
-              <artifactId>ehcache</artifactId> </exclusion> </exclusions>
-              </dependency> <dependency> <groupId>net.sf.ehcache</groupId>
-              <artifactId>ehcache</artifactId> <version>1.6.2</version>
-              </dependency> <dependency> <groupId>c3p0</groupId>
-              <artifactId>c3p0</artifactId> <version>0.9.1.2</version>
-              </dependency>
-          -->
 
         <dependency>
             <groupId>javax.xml.ws</groupId>
@@ -167,6 +155,10 @@
                     <groupId>javax.jws</groupId>
                     <artifactId>jsr181</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>javax.activation</groupId>
+                    <artifactId>activation</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -176,11 +168,11 @@
             <version>1.0-MR1</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.sun.xml.ws</groupId>
-            <artifactId>jaxws-rt</artifactId>
-            <version>2.1.7</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.sun.xml.ws</groupId>-->
+            <!--<artifactId>jaxws-rt</artifactId>-->
+            <!--<version>2.1.7</version>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.poi</groupId>
@@ -190,6 +182,7 @@
         </dependency>
 
     </dependencies>
+
     <build>
         <plugins>
             <plugin>

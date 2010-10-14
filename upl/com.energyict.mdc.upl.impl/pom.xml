@@ -303,6 +303,7 @@
                         <artifactId>xmlParserAPIs</artifactId>
                     </exclusion>
                 </exclusions>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
