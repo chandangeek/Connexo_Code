@@ -2,18 +2,18 @@ package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
 import java.io.IOException;
 
-public class WavecardRadioUserTimeout extends AbstractEscapeCommand {
+public class WavecardWakeupLength extends AbstractEscapeCommand {
 
-	WavecardRadioUserTimeout(ProtocolLink protocolLink, int timeout) {
+	WavecardWakeupLength(ProtocolLink protocolLink, int wakeupLength) {
 		super(protocolLink);
-		this.timeout=timeout;
+		this.wakeupLength=wakeupLength;
 	}
 
-	int timeout;
+	int wakeupLength;
 	
 	@Override
 	EscapeCommandId getEscapeCommandId() {
-		return EscapeCommandId.RADIO_USER_TIMEOUT;
+		return EscapeCommandId.WAKEUP_LENGTH;
 	}
 
 	@Override
@@ -23,7 +23,7 @@ public class WavecardRadioUserTimeout extends AbstractEscapeCommand {
 
 	@Override
 	byte[] prepare() throws IOException {
-		return new byte[]{(byte)timeout};
+		return new byte[]{(byte)(wakeupLength>>8),(byte)wakeupLength};
 	}
 	
 	

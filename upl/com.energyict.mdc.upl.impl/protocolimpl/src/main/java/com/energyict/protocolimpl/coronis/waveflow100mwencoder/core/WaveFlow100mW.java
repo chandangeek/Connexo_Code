@@ -11,7 +11,9 @@ import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.EncoderUnitInfo.EncoderUnitType;
 
 
-abstract public class WaveFlow100mW extends AbstractProtocol implements MessageProtocol {
+abstract public class WaveFlow100mW extends AbstractProtocol implements MessageProtocol,ProtocolLink {
+
+	private static final int WAVEFLOW_NR_OF_CHANNELS = 2;
 
 	abstract protected void doTheConnect() throws IOException;
     abstract protected void doTheInit() throws IOException;
@@ -100,10 +102,6 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
 	final public RadioCommandFactory getRadioCommandFactory() {
 		return radioCommandFactory;
 	}
-	
-	final WaveFlowConnect getWaveFlowConnect() {
-		return waveFlowConnect;
-	}
 
 
 	@Override
@@ -129,7 +127,7 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
 		
 		parameterFactory = new ParameterFactory(this);
 		radioCommandFactory = new RadioCommandFactory(this);
-		waveFlowConnect = new WaveFlowConnect(inputStream,outputStream,timeoutProperty,getLogger(),forcedDelay);
+		waveFlowConnect = new WaveFlowConnect(inputStream,outputStream,timeoutProperty,getLogger(),forcedDelay,getInfoTypeProtocolRetriesProperty());
 		commonObisCodeMapper = new CommonObisCodeMapper(this);
 		escapeCommandFactory = new EscapeCommandFactory(this);
 		
@@ -286,5 +284,13 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
     public InternalData[] readInternalDatas() throws IOException {
       return getRadioCommandFactory().readInternalData().getInternalDatas();	
     }
+
     
+    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    	return WAVEFLOW_NR_OF_CHANNELS;
+    }
+
+    public WaveFlowConnect getWaveFlowConnect() {
+    	return waveFlowConnect;
+    }
 }

@@ -14,7 +14,15 @@ abstract class AbstractEscapeCommand {
 		 * The default is 2 seconds or 0x14 (20 x 100ms = 2000ms or 2s)
 		 * for the Meterdetect 0C command, it is recommended to set the timeout to 20 sec (0xC8)  
 		 */
-		RADIO_USER_TIMEOUT(0x0C,"Radio timeout for the reception of a frame");
+		RADIO_USER_TIMEOUT(0x0C,"Radio timeout for the reception of a frame"),
+		/**
+		 * Duration of the Wake up when long wake up is set up. This value must be set to Awakening period plus 100ms
+		 */
+		WAKEUP_LENGTH(0x02,"Duration of the Wake up when long wake up is set up."),
+		/**
+		 * Polling period for the RF medium. In unities of 100 ms. Default 10 = 1 sec.
+		 */
+		AWAKENING_PERIOD(0x00,"Polling period for the RF medium");		
 		
 		final int id;
 		final String description;
@@ -45,14 +53,14 @@ abstract class AbstractEscapeCommand {
 	/**
 	 * The reference to the Waveflow100mW protocol implementation class
 	 */
-	private WaveFlow100mW waveFlow100mW;
+	private ProtocolLink protocolLink;
 	
-	final WaveFlow100mW getWaveFlow100mW() {
-		return waveFlow100mW;
+	final ProtocolLink getProtocolLink() {
+		return protocolLink;
 	}
 	
-	AbstractEscapeCommand(WaveFlow100mW waveFlow100mW) {
-		this.waveFlow100mW = waveFlow100mW;
+	AbstractEscapeCommand(ProtocolLink protocolLink) {
+		this.protocolLink = protocolLink;
 	}	
 	
 	void invoke() throws IOException {
@@ -64,7 +72,7 @@ abstract class AbstractEscapeCommand {
 			daos.writeByte(0);
 			daos.writeByte(getEscapeCommandId().getId());
 			daos.write(prepare()); // write 1 parameter
-			parse(getWaveFlow100mW().getWaveFlowConnect().sendData(baos.toByteArray()));
+			parse(getProtocolLink().getWaveFlowConnect().sendData(baos.toByteArray()));
 		}
 		finally {
 			if (baos != null) {
@@ -72,7 +80,7 @@ abstract class AbstractEscapeCommand {
 					baos.close();
 				}
 				catch(IOException e) {
-					getWaveFlow100mW().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					getProtocolLink().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
 				}
 			}
 		}			

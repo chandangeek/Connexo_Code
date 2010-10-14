@@ -62,8 +62,12 @@ public class ObisCodeMapper {
 		registerMaps.put(ObisCode.fromString("0.1.96.99.255.254"), "MBUS header status byte");
 		registerMaps.put(ObisCode.fromString("0.1.96.99.255.255"), "MBUS header signature field");
 		
-		
-		
+
+		for (int historicalIndex=0;historicalIndex<13;historicalIndex++) {
+			registerMaps.put(ObisCode.fromString("8.1.1.0.0."+historicalIndex), "Port A encoder current index");
+			registerMaps.put(ObisCode.fromString("8.2.1.0.0."+historicalIndex), "Port B encoder current index");
+		}
+
 	}
 	
 	private Echodis echodis;

@@ -16,15 +16,16 @@ public class WaveFlowConnect extends Connection implements ProtocolConnection {
 	private final int timeout;
 	private final Logger logger;
 	private final long forceDelay;
+	private final int retries;
 	
-	public WaveFlowConnect(final InputStream inputStream, final OutputStream outputStream, final int timeout, final Logger logger, final long forceDelay) throws ConnectionException {
+	public WaveFlowConnect(final InputStream inputStream, final OutputStream outputStream, final int timeout, final Logger logger, final long forceDelay, final int retries) throws ConnectionException {
 		
 		super(inputStream,outputStream,forceDelay,0);
 		
 		this.timeout = timeout;
 		this.logger = logger;
 		this.forceDelay = forceDelay;
-		
+		this.retries=retries;
 				
 	}
 
@@ -69,7 +70,7 @@ public class WaveFlowConnect extends Connection implements ProtocolConnection {
 			}
 			catch(ConnectionException e) {
 				if (e.getMessage().indexOf("error Timeout ")>=0) {
-					if (retry++ >= 3) {
+					if (retry++ >= retries) {
 						throw new ConnectionException("After 3 retries, "+e.getMessage());
 					}
 					logger.warning("Waveflow connect, sendData() retry ["+retry+"]"); 
