@@ -12,6 +12,8 @@ import com.energyict.genericprotocolimpl.elster.ctr.structure.*;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
@@ -33,7 +35,18 @@ public class GprsRequestFactory {
      * @param properties
      */
     public GprsRequestFactory(Link link, Logger logger, MTU155Properties properties) {
-        this.connection = new SecureGprsConnection(link.getInputStream(), link.getOutputStream(), properties);
+        this(link.getInputStream(), link.getOutputStream(), logger, properties);
+    }
+
+    /**
+     * 
+     * @param inputStream
+     * @param outputStream
+     * @param logger
+     * @param properties
+     */
+    public GprsRequestFactory(InputStream inputStream, OutputStream outputStream, Logger logger, MTU155Properties properties) {
+        this.connection = new SecureGprsConnection(inputStream, outputStream, properties);
         this.logger = logger;
         this.properties = properties;
     }
@@ -179,6 +192,14 @@ public class GprsRequestFactory {
         return request;
     }
 
+    public List<AbstractCTRObject> queryRegisters(AttributeType attributeType, String... objectId) throws CTRException {
+        CTRObjectID[] objectIds = new CTRObjectID[objectId.length];
+        for (int i = 0; i < objectId.length; i++) {
+            objectIds[i] = new CTRObjectID(objectId[i]);
+        }
+        return queryRegisters(attributeType, objectIds);
+    }
+
     private GPRSFrame getEventArrayRequest(Index_Q index_Q) throws CTRParsingException {
         byte[] pssw = getPassword();
         byte[] eventArrayRequest = ProtocolTools.concatByteArrays(
@@ -222,7 +243,8 @@ public class GprsRequestFactory {
 
         //Send the request with IDs, get the response containing objects
         GPRSFrame response = getConnection().sendFrameGetResponse(getRegisterRequest(attributeType, objectId));
-
+        response.doParse();
+        
         //Parse the response into a list of objects
         RegisterQueryResponseStructure registerResponse;
         if (response.getData() instanceof RegisterQueryResponseStructure) {

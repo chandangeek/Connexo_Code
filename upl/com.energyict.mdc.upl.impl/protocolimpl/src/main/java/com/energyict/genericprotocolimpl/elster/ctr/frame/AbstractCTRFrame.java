@@ -211,4 +211,8 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
         this.structureCode = structureCode;
     }
 
+    public T doParse() throws CTRParsingException {
+        return parse(getBytes(), 0);
+    }
+
 }
