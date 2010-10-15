@@ -23,6 +23,11 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	 */
 	private int autoPairingRetry;
 	
+	
+    public void setHalfDuplexController(HalfDuplexController halfDuplexController) {
+    	// absorb
+    }
+	
 	/**
 	 * Reference to the escape command factory. this factory allows calling
 	 * wavenis protocolstack specific commands if implemented...  
