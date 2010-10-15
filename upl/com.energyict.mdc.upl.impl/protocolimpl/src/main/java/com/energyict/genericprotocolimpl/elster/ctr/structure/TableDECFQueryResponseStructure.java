@@ -49,8 +49,47 @@ public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponse
 
     @Override
     public byte[] getBytes() {
+
+        byte[] valuesP = null;
+        for (CTRAbstractValue<BigDecimal> value : dataAndOraP) {
+            valuesP = ProtocolTools.concatByteArrays(valuesP, value.getBytes());
+        }
+        
+        byte[] valuesS = null;
+        for (CTRAbstractValue<BigDecimal> value : dataAndOraS) {
+            valuesS = ProtocolTools.concatByteArrays(valuesS, value.getBytes());
+        }
+
+        AttributeType type = new AttributeType(0x00);
+        type.setHasValueFields(true);
+        type.setHasQualifier(true);
+        type.setHasIdentifier(false);
+
         return padData(ProtocolTools.concatByteArrays(
-                pdr.getBytes()
+                pdr.getBytes(),
+                valuesS,
+                diagnR.getBytes(),
+                numberOfElements.getBytes(),
+                id_Pt_Current.getBytes(),
+                id_Pt_Previous.getBytes(),
+                tot_Vb.getBytes(type),
+                tot_Vme.getBytes(type),
+                tot_Vme_f1.getBytes(type),
+                tot_Vme_f2.getBytes(type),
+                tot_Vme_f3.getBytes(type),
+                tot_Vcor_f1.getBytes(type),
+                tot_Vcor_f2.getBytes(type),
+                tot_Vcor_f3.getBytes(type),
+                valuesP,
+                diagnRS_pf.getBytes(),
+                tot_Vb_pf.getBytes(type),
+                tot_Vme_pf.getBytes(type),
+                tot_Vme_pf_f1.getBytes(type),
+                tot_Vme_pf_f2.getBytes(type),
+                tot_Vme_pf_f3.getBytes(type),
+                tot_Vpre_f1.getBytes(type),
+                tot_Vpre_f2.getBytes(type),
+                tot_Vpre_f3.getBytes(type)
         ));
     }
 
@@ -60,7 +99,7 @@ public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponse
         CTRObjectFactory factory = new CTRObjectFactory();
         AttributeType type = new AttributeType(0x00);
         type.setHasValueFields(true);
-        type.setHasQualifier(true);
+        type.setHasQualifier(false);
         type.setHasIdentifier(false);
 
         int ptr = offset;
@@ -82,6 +121,7 @@ public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponse
 
         id_Pt_Previous = factory.parse(rawData, ptr, type, "17.0.4").getValue()[1];
         ptr += id_Pt_Previous.getValueLength();
+        type.setHasQualifier(true);        
 
         tot_Vb = factory.parse(rawData, ptr, type, "2.1.0");
         ptr += tot_Vb.getLength(type);

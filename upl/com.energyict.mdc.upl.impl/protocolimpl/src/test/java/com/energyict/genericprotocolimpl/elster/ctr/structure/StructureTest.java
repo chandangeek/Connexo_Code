@@ -19,9 +19,9 @@ public class StructureTest extends TestCase {
     @Test
     public void testStructures() throws CTRParsingException {
         byte[] bytes = padData(ProtocolTools.getBytesFromHexString("$51$52$53$54$55$56$01$00"));
-        byte[] bytes2 = padData(ProtocolTools.getBytesFromHexString("$11$22$33$55$55$66$77$0F$01$00$00$00$00$01$00$03$00"));
+        byte[] bytes2 = padData(ProtocolTools.getBytesFromHexString("$11$22$33$44$55$66$77$0F$01$00$00$00$00$01$00$03$00"));
         byte[] bytes3 = padData(ProtocolTools.getBytesFromHexString("$51$52$53$54$55$56$02$00$02$0A$0A$0A"));
-        byte[] bytes4 = padData(ProtocolTools.getBytesFromHexString("$11$22$33$55$55$66$77$05$05$05$05$05$01$01$21$00$03$01$02$01$0A$0A$0A$1F$00$00$00$0A$00$10"));
+        byte[] bytes4 = padData(ProtocolTools.getBytesFromHexString("$11$22$33$44$55$66$77$05$05$05$05$05$01$01$21$00$03$01$02$01$0A$0A$0A$1F$00$00$00$0A$00$10"));
         byte[] bytes5 = padData(ProtocolTools.getBytesFromHexString("$51$52$53$54$55$56$01$00$00$04$03"));
         byte[] bytes6 = padData(ProtocolTools.getBytesFromHexString("$01$01$03$00$04$00$00$0B$00$01"));
         byte[] bytes7 = padData(ProtocolTools.getBytesFromHexString("$51$52$53$54$55$56$03$03$02$00$02$01$02$02"));
@@ -29,6 +29,9 @@ public class StructureTest extends TestCase {
         byte[] bytes9 = padData(ProtocolTools.getBytesFromHexString("$51$52$53$54$55$56$01$00$02$0A$0A$0A$00$03"));
         byte[] bytes10 = padData(ProtocolTools.getBytesFromHexString("$01$00$02$0A$0A$0A$00$03$00$00$00$01$00$00$00$02$00$00$00$03$00$00$00$04"));
         byte[] bytes11 = padData(ProtocolTools.getBytesFromHexString("$01$02$01$02$01$02$01$02$01$00$02$00"));
+
+        byte[] bytes13 = padData(ProtocolTools.getBytesFromHexString("$51$52$53$54$55$56"));
+        byte[] bytes14 = padData(ProtocolTools.getBytesFromHexString("$11$22$33$44$55$66$77$05$05$05$05$05"));
 
         ArrayEventsQueryRequestStructure aeqrs = new ArrayEventsQueryRequestStructure(false).parse(bytes, 0);
         ArrayEventsQueryResponseStructure aeqrspns = new ArrayEventsQueryResponseStructure(false).parse(bytes2, 0);
@@ -46,7 +49,10 @@ public class StructureTest extends TestCase {
         TraceQueryResponseStructure trace_rsp = new TraceQueryResponseStructure(false).parse(bytes10, 0);
 
         IdentificationRequestStructure idreq = new IdentificationRequestStructure().parse(bytes11, 0);
-        
+
+        TableQueryRequestStructure tablereq = new TableQueryRequestStructure(true).parse(bytes13, 0);
+        TableDECFQueryResponseStructure tablersp = new TableDECFQueryResponseStructure(true).parse(bytes14, 0);
+
         assertArrayEquals(bytes, aeqrs.getBytes());
         assertArrayEquals(bytes2, aeqrspns.getBytes());
         assertArrayEquals(bytes3, trace_C_req.getBytes());
@@ -58,6 +64,8 @@ public class StructureTest extends TestCase {
         assertArrayEquals(bytes9, trace_rqs.getBytes());
         assertArrayEquals(bytes10, trace_rsp.getBytes());
         assertArrayEquals(bytes11, idreq.getBytes());
+        assertArrayEquals(bytes13, tablereq.getBytes());
+        assertArrayEquals(bytes14, tablersp.getBytes());
     }
 
     private byte[] padData(byte[] fieldData) {
