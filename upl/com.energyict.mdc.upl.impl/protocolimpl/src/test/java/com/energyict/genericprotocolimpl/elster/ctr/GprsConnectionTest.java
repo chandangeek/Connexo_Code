@@ -58,7 +58,7 @@ public class GprsConnectionTest {
         connection.sendFrameGetResponse(new GPRSFrame());
     }
 
-    @Test(timeout = 1000)
+    @Test(timeout = 3000)
     public void testRetries() throws Exception {
         MTU155Properties properties = new MTU155Properties();
         properties.addProperty(MTU155Properties.TIMEOUT, "1");
