@@ -9,7 +9,6 @@ import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
  */
 public class Channel extends AbstractField<Channel> {
 
-    public static final int LENGTH = 1;
     private int channel;
 
     public Channel() {
@@ -19,12 +18,16 @@ public class Channel extends AbstractField<Channel> {
         this.channel = channel;
     }
 
+    public int getLength() {
+        return 1;
+    }
+    
     public byte[] getBytes() {
-        return getBytesFromInt(channel, LENGTH);
+        return getBytesFromInt(channel, getLength());
     }
 
     public Channel parse(byte[] rawData, int offset) {
-        channel = getIntFromBytes(rawData, offset, LENGTH);
+        channel = getIntFromBytes(rawData, offset, getLength());
         return this;
     }
 

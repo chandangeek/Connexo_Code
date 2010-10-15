@@ -29,7 +29,7 @@ public abstract class AbstractUnsignedBINObject<T extends AbstractUnsignedBINObj
             if (!qlf.isValid()) {
                 return (T) this;   //If the QLF is 0xFF (invalid), return an empty object
             }
-            ptr += qlf.LENGTH;
+            ptr += qlf.getLength();
         }
 
         if (type.hasValueFields()) {

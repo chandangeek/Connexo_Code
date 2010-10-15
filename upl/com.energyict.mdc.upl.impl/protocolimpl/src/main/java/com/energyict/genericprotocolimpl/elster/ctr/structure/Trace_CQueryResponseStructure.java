@@ -95,19 +95,18 @@ public class Trace_CQueryResponseStructure extends Data<Trace_CQueryResponseStru
         ptr += numberOfEvents.getValueLength();
 
         period = new PeriodTrace_C().parse(rawData, ptr);
-        ptr += PeriodTrace_C.LENGTH;
+        ptr += period.getLength();
 
-        byte[] b = ProtocolTools.getSubArray(rawData, ptr, ptr + CTRObjectID.LENGTH);
-        id = new CTRObjectID().parse(b, 0);
-        ptr += CTRObjectID.LENGTH;
+        id = new CTRObjectID().parse(rawData, ptr);
+        ptr += id.getLength();
 
         date = new ReferenceDate().parse(rawData, ptr);
-        ptr += ReferenceDate.LENGTH;
+        ptr += date.getLength();
 
         type.setHasQualifier(true);
         totalizerQlf = factory.parse(rawData, ptr, type, "2.0.0").getQlf();
         totalizerValue = factory.parse(rawData, ptr, type, "2.0.0").getValue()[0];
-        ptr += totalizerQlf.LENGTH;
+        ptr += totalizerQlf.getLength();
         ptr += totalizerValue.getValueLength();
 
         //Objects only have qlf and value fields, no ID.

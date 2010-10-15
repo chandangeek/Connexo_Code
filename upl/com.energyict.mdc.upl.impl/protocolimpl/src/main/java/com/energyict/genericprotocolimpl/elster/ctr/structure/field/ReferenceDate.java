@@ -13,8 +13,6 @@ import java.util.Date;
  */
 public class ReferenceDate extends AbstractField<ReferenceDate> {
 
-    public static final int LENGTH = 3;
-
     private byte[] date;
     private String sDate = "";
 
@@ -27,7 +25,7 @@ public class ReferenceDate extends AbstractField<ReferenceDate> {
     }
 
     public ReferenceDate parse(byte[] rawData, int offset) throws CTRParsingException {
-        date = ProtocolTools.getSubArray(rawData, offset, offset + LENGTH);
+        date = ProtocolTools.getSubArray(rawData, offset, offset + getLength());
         sDate = "";
         String prefix = "";
         for (byte byte1 : date) {
@@ -35,6 +33,10 @@ public class ReferenceDate extends AbstractField<ReferenceDate> {
             prefix = ",";
         }
         return this;
+    }
+
+    public int getLength() {
+        return 3;
     }
 
     public Date getDateObject() {

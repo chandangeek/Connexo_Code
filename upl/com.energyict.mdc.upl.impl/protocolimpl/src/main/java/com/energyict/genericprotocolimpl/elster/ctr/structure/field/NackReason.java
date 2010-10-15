@@ -10,16 +10,26 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingExceptio
  */
 public class NackReason extends AbstractField<NackReason> {
 
-    public static final int LENGTH = 1;
-
     private int reason;
 
+    public NackReason() {
+        this(0);
+    }
+
+    public NackReason(int reason) {
+        this.reason = reason;
+    }
+
+    public int getLength() {
+        return 1;
+    }
+
     public byte[] getBytes() {
-        return getBytesFromInt(reason, LENGTH);
+        return getBytesFromInt(reason, getLength());
     }
 
     public NackReason parse(byte[] rawData, int offset) throws CTRParsingException {
-        reason = getIntFromBytes(rawData, offset, LENGTH);
+        reason = getIntFromBytes(rawData, offset, getLength());
         return this;
     }
 

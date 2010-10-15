@@ -62,11 +62,11 @@ public class ArrayEventsQueryResponseStructure extends Data<ArrayEventsQueryResp
         valueAttributeType.setHasQualifier(true);
         t_Antif_qlf = factory.parse(rawData, ptr, valueAttributeType, "D.A.0").getQlf();
         t_Antif_Value = factory.parse(rawData, ptr, valueAttributeType, "D.A.0").getValue()[0];
-        ptr += t_Antif_qlf.LENGTH;
+        ptr += t_Antif_qlf.getLength();
         ptr += t_Antif_Value.getValueLength();
 
         index_A = new Index_Q().parse(rawData, ptr);
-        ptr += Index_Q.LENGTH;
+        ptr += index_A.getLength();
 
         valueAttributeType.setHasQualifier(false);
         numberOfEvents = factory.parse(rawData, ptr, valueAttributeType, "10.1.0").getValue()[0];

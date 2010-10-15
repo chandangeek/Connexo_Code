@@ -11,16 +11,26 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingExceptio
  */
 public class Type extends AbstractField<Type> {
 
-    public static final int LENGTH = 1;
-
     private int type;
 
+    public Type() {
+        this(0);
+    }
+
+    public Type(int type) {
+        this.type = type;
+    }
+
+    public int getLength() {
+        return 1;
+    }
+
     public byte[] getBytes() {
-        return getBytesFromInt(type, LENGTH);
+        return getBytesFromInt(type, getLength());
     }
 
     public Type parse(byte[] rawData, int offset) throws CTRParsingException {
-        this.type = getIntFromBytes(rawData, offset, LENGTH);
+        this.type = getIntFromBytes(rawData, offset, getLength());
         return this;
     }
 

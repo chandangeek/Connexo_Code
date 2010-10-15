@@ -10,16 +10,26 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingExceptio
  */
 public class NumberOfObjects extends AbstractField<NumberOfObjects> {
 
-    public static final int LENGTH = 1;
-
     private int numberOfObjects;
 
+    public NumberOfObjects() {
+        this(0);
+    }
+
+    public NumberOfObjects(int numberOfObjects) {
+        this.numberOfObjects = numberOfObjects;
+    }
+
+    public int getLength() {
+        return 1;
+    }
+
     public byte[] getBytes() {
-        return getBytesFromInt(numberOfObjects, LENGTH);
+        return getBytesFromInt(numberOfObjects, getLength());
     }
 
     public NumberOfObjects parse(byte[] rawData, int offset) throws CTRParsingException {
-        this.numberOfObjects = getIntFromBytes(rawData, offset, LENGTH);
+        this.numberOfObjects = getIntFromBytes(rawData, offset, getLength());
         return this;
     }
 
@@ -30,4 +40,5 @@ public class NumberOfObjects extends AbstractField<NumberOfObjects> {
     public void setNumberOfObjects(int numberOfObjects) {
         this.numberOfObjects = numberOfObjects;
     }
+
 }

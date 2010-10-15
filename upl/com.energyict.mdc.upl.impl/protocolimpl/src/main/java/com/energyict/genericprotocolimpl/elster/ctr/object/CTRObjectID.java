@@ -11,8 +11,6 @@ import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser
  */
 public class CTRObjectID extends AbstractField<CTRObjectID> {
 
-    public static final int LENGTH = 2;
-
     private int x;
     private int y;
     private int z;
@@ -20,7 +18,6 @@ public class CTRObjectID extends AbstractField<CTRObjectID> {
     public CTRObjectID() {
         this(0, 0, 0);
     }
-
 
     public CTRObjectID(int x, int y, int z) {
         this.x = x;
@@ -42,10 +39,24 @@ public class CTRObjectID extends AbstractField<CTRObjectID> {
         }
     }
 
-    @Override
-    public String toString() {
-        String toStringValue = Integer.toHexString(x) + "." + Integer.toHexString(y) + "." + Integer.toHexString(z);
-        return toStringValue.toUpperCase();
+    public int getLength() {
+        return 2;
+    }
+
+    public byte[] getBytes() {
+        int idValue = z & 0x0F;
+        idValue += (y * 16) & 0x000F0;
+        idValue += (x * 256) & 0x0FF00;
+        return getBytesFromInt(idValue, getLength());
+    }
+
+    public CTRObjectID parse(byte[] rawData, int offset) throws CTRParsingException {
+        CTRPrimitiveParser parser = new CTRPrimitiveParser();
+        CTRObjectID id = parser.parseId(rawData, offset);
+        this.x = id.getX();
+        this.y = id.getY();
+        this.z = id.getZ();
+        return this;
     }
 
     public int getX() {
@@ -60,19 +71,10 @@ public class CTRObjectID extends AbstractField<CTRObjectID> {
         return z;
     }
 
-    public byte[] getBytes() {
-        int idValue = z & 0x0F;
-        idValue += (y * 16) & 0x000F0;
-        idValue += (x * 256) & 0x0FF00;
-        return getBytesFromInt(idValue, LENGTH);
+    @Override
+    public String toString() {
+        String toStringValue = Integer.toHexString(x) + "." + Integer.toHexString(y) + "." + Integer.toHexString(z);
+        return toStringValue.toUpperCase();
     }
 
-    public CTRObjectID parse(byte[] rawData, int offset) throws CTRParsingException {
-        CTRPrimitiveParser parser = new CTRPrimitiveParser();
-        CTRObjectID id = parser.parseId(rawData, offset);
-        this.x = id.getX();
-        this.y = id.getY();
-        this.z = id.getZ();
-        return this;
-    }
 }

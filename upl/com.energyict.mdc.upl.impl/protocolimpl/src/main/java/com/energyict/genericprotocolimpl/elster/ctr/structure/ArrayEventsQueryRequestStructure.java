@@ -43,7 +43,7 @@ public class ArrayEventsQueryRequestStructure extends Data<ArrayEventsQueryReque
         ptr += pssw.getValueLength();
 
         index_Q = new Index_Q().parse(rawData, ptr);
-        ptr += Index_Q.LENGTH;
+        ptr += index_Q.getLength();
 
         return this;
     }

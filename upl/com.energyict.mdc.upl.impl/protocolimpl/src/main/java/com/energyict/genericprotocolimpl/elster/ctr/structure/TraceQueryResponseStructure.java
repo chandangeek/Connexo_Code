@@ -54,18 +54,17 @@ public class TraceQueryResponseStructure extends Data<TraceQueryResponseStructur
         CTRObjectFactory factory = new CTRObjectFactory();
         int ptr = offset;
 
-        byte[] b = ProtocolTools.getSubArray(rawData, ptr, ptr + CTRObjectID.LENGTH);
-        id = new CTRObjectID().parse(b, 0);
-        ptr += CTRObjectID.LENGTH;
+        id = new CTRObjectID().parse(rawData, ptr);
+        ptr += id.getLength();
 
         period = new PeriodTrace().parse(rawData, ptr);
-        ptr += PeriodTrace.LENGTH;
+        ptr += period.getLength();
 
         startDate = new StartDate().parse(rawData, ptr);
-        ptr += StartDate.LENGTH;
+        ptr += startDate.getLength();
 
         numberOfElements = new NumberOfElements().parse(rawData, ptr);
-        ptr += NumberOfElements.LENGTH;
+        ptr += numberOfElements.getLength();
 
         //Objects only have qlf and value fields, no ID.
         AttributeType type = new AttributeType(0x00);

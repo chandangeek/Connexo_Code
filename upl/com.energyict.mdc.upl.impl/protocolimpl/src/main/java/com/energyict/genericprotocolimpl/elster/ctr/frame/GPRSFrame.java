@@ -11,13 +11,13 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingExceptio
  */
 public class GPRSFrame extends AbstractCTRFrame<GPRSFrame> {
 
-    public static final int LENGTH = AbstractCTRFrame.LENGTH + 2;
-
     public static final int STX = 0x0A;
     public static final int ETX = 0x0D;
 
     private int stx;
     private int etx;
+
+    public static final int LENGTH_SHORT = 142;
 
     public GPRSFrame() {
         this.stx  = STX;
@@ -25,11 +25,11 @@ public class GPRSFrame extends AbstractCTRFrame<GPRSFrame> {
     }
 
     public byte[] getBytes() {
-        byte[] bytes = new byte[LENGTH];
+        byte[] bytes = new byte[getLength()];
         bytes[0] = (byte) stx;
         byte[] ctrFrameBytes = super.getBytes();
         System.arraycopy(ctrFrameBytes, 0, bytes, 1, ctrFrameBytes.length);
-        bytes[LENGTH - 1] = (byte) etx;
+        bytes[getLength() - 1] = (byte) etx;
         return bytes;
     }
 
@@ -37,7 +37,7 @@ public class GPRSFrame extends AbstractCTRFrame<GPRSFrame> {
         int ptr = offset;
         stx = getIntFromBytes(rawPacket, ptr++, 1);
         super.parse(rawPacket, ptr);
-        ptr += super.LENGTH;
+        ptr += super.getLength();
         etx = getIntFromBytes(rawPacket, ptr++, 1);
         return this;
     }
@@ -46,4 +46,8 @@ public class GPRSFrame extends AbstractCTRFrame<GPRSFrame> {
         return connection.sendFrameGetResponse(this);
     }
 
+    @Override
+    public int getLength() {
+        return super.getLength() + 2;
+    }
 }

@@ -13,4 +13,6 @@ public interface Field<T extends Field> {
 
     T parse(byte[] rawData, int offset) throws CTRParsingException;
 
+    int getLength();
+
 }

@@ -10,13 +10,23 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingExceptio
  */
 public class AckAdditionalData extends AbstractField<AckAdditionalData> {
 
-    public static final int LENGTH = 24;
+    private byte[] additionalData;
+
+    public AckAdditionalData() {
+        additionalData = new byte[getLength()];
+    }
+
+    public int getLength() {
+        return 24;
+    }
 
     public byte[] getBytes() {
-        return new byte[LENGTH];
+        return additionalData;
     }
 
     public AckAdditionalData parse(byte[] rawData, int offset) throws CTRParsingException {
+        additionalData = new byte[getLength()];
+        System.arraycopy(rawData, offset, additionalData, 0, getLength());
         return this;
     }
 }

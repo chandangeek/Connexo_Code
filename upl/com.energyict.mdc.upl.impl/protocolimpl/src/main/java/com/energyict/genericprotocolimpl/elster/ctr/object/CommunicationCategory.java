@@ -32,7 +32,7 @@ public class CommunicationCategory<T extends CommunicationCategory> extends Abst
             if (!qlf.isValid()) {
                 return (T) this;   //If the QLF is 0xFF (invalid), return an empty object
             }
-            ptr += qlf.LENGTH;
+            ptr += qlf.getLength();
         }
 
         if (type.hasValueFields()) {

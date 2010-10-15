@@ -48,15 +48,14 @@ public class ArrayQueryRequestStructure extends Data<ArrayQueryRequestStructure>
         pssw = factory.parse(rawData, ptr, type, "D.0.1").getValue()[0];
         ptr += pssw.getValueLength();
 
-        byte[] b = ProtocolTools.getSubArray(rawData, ptr, ptr + CTRObjectID.LENGTH);
-        id = new CTRObjectID().parse(b, 0);
-        ptr += CTRObjectID.LENGTH;
+        id = new CTRObjectID().parse(rawData, ptr);
+        ptr += id.getLength();
 
         index_Q = new Index_Q().parse(rawData, ptr);
-        ptr += Index_Q.LENGTH;
+        ptr += index_Q.getLength();
 
         counter_Q = new Counter_Q().parse(rawData, ptr);
-        ptr += Counter_Q.LENGTH;
+        ptr += counter_Q.getLength();
 
         return this;
     }

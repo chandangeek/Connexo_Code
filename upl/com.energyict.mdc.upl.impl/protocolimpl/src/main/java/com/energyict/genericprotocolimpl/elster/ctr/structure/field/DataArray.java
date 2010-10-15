@@ -4,8 +4,6 @@ import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import java.math.BigInteger;
-
 /**
  * Copyrights EnergyICT
  * Date: 8-okt-2010
@@ -14,12 +12,12 @@ import java.math.BigInteger;
 public class DataArray extends AbstractField<DataArray> {
 
     private byte[] data;
-    
+    private int arrayLength;
+
     public DataArray(int arrayLength) {
         this.arrayLength = arrayLength;
+        this.data = new byte[arrayLength];
     }
-
-    private int arrayLength;
 
     public int getArrayLength() {
         return arrayLength;
@@ -27,6 +25,7 @@ public class DataArray extends AbstractField<DataArray> {
 
     public void setArrayLength(int arrayLength) {
         this.arrayLength = arrayLength;
+        this.data = new byte[arrayLength];
     }
     
     public byte[] getBytes() {
@@ -38,11 +37,17 @@ public class DataArray extends AbstractField<DataArray> {
         return this;
     }
 
+    public int getLength() {
+        return arrayLength;
+    }
+
     public byte[] getData() {
         return data;
     }
 
     public void setData(byte[] data) {
+        this.arrayLength = data.length;
         this.data = data;
     }
+    
 }

@@ -14,7 +14,6 @@ import java.util.Arrays;
 public class Qualifier extends AbstractField<Qualifier>{
 
     private int qlf;
-    public final int LENGTH = 1;
     public final int INVALID_MASK = 0xFF;
 
     public Qualifier(int qlf) {
@@ -30,8 +29,12 @@ public class Qualifier extends AbstractField<Qualifier>{
     }
 
     public Qualifier parse(byte[] rawData, int offset) throws CTRParsingException {
-        qlf = getIntFromBytes(rawData, offset, LENGTH);
+        qlf = getIntFromBytes(rawData, offset, getLength());
         return this;    
+    }
+
+    public int getLength() {
+        return 1;
     }
 
     public void setQlf(int qlf) {

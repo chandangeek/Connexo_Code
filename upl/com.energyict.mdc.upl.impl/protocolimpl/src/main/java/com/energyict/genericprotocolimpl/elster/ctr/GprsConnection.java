@@ -168,7 +168,7 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
      */
     private CtrConnectionState readMinLength(ByteArrayOutputStream rawBytes, CtrConnectionState state, int readByte) throws CTRParsingException, CTRConnectionException {
         rawBytes.write(readByte);
-        if (rawBytes.size() >= GPRSFrame.LENGTH) {
+        if (rawBytes.size() >= GPRSFrame.LENGTH_SHORT) {
             GPRSFrame gprsFrame = new GPRSFrame().parse(rawBytes.toByteArray(), 0);
             if (gprsFrame.getProfi().isLongFrame()) {
                 state = CtrConnectionState.READ_EXTENDED_LENGTH;

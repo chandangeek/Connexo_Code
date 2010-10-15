@@ -48,15 +48,14 @@ public class Trace_CQueryRequestStructure extends Data<Trace_CQueryRequestStruct
         pssw = factory.parse(rawData, ptr, type, "D.0.1").getValue()[0];
         ptr += pssw.getValueLength();
 
-        byte[] b = ProtocolTools.getSubArray(rawData, ptr, ptr + CTRObjectID.LENGTH);
-        id = new CTRObjectID().parse(b, 0);
-        ptr += CTRObjectID.LENGTH;
+        id = new CTRObjectID().parse(rawData, ptr);
+        ptr += id.getLength();
 
         period = new PeriodTrace_C().parse(rawData, ptr);
-        ptr += PeriodTrace_C.LENGTH;
+        ptr += period.getLength();
 
         date = new ReferenceDate().parse(rawData, ptr);
-        ptr += ReferenceDate.LENGTH;
+        ptr += date.getLength();
         
         return this;
     }

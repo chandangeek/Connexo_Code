@@ -11,8 +11,6 @@ import java.util.Random;
  */
 public class Puk_S extends AbstractField<Puk_S> {
 
-    public static final int LENGTH = 8;
-
     private byte[] puks;
 
     public Puk_S() {
@@ -24,8 +22,12 @@ public class Puk_S extends AbstractField<Puk_S> {
     }
 
     public Puk_S parse(byte[] rawData, int offset) {
-        System.arraycopy(rawData, offset, puks, 0, LENGTH);
+        System.arraycopy(rawData, offset, puks, 0, getLength());
         return this;
+    }
+
+    public int getLength() {
+        return 8;
     }
 
     public byte[] getPuks() {
@@ -37,7 +39,7 @@ public class Puk_S extends AbstractField<Puk_S> {
     }
 
     public final void setPuks() {
-        puks = new byte[LENGTH];
+        puks = new byte[getLength()];
         new Random().nextBytes(puks);
     }
 

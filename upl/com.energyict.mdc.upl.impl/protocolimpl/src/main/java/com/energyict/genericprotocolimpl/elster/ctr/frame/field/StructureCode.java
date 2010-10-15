@@ -17,11 +17,14 @@ public class StructureCode extends AbstractField<StructureCode> {
     public static final int EVENT_ARRAY = 0x56;
     public static final int TABLE_DECF = 0x34;
 
-    public static final int LENGTH = 1;
     private int structureCode;
 
+    public int getLength() {
+        return 1;
+    }
+
     public byte[] getBytes() {
-        return getBytesFromInt(structureCode, LENGTH);
+        return getBytesFromInt(structureCode, getLength());
     }
 
     public int getStructureCode() {
@@ -33,7 +36,7 @@ public class StructureCode extends AbstractField<StructureCode> {
     }
 
     public StructureCode parse(byte[] rawData, int offset) {
-        structureCode = getIntFromBytes(rawData, offset, LENGTH);
+        structureCode = getIntFromBytes(rawData, offset, getLength());
         return this;
     }
 

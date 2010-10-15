@@ -52,16 +52,15 @@ public class RegisterQueryRequestStructure extends Data<RegisterQueryRequestStru
         ptr += pssw.getValueLength();
 
         numberOfObjects = new NumberOfObjects().parse(rawData, ptr);
-        ptr += NumberOfObjects.LENGTH;
+        ptr += numberOfObjects.getLength();
 
         attributeType = new AttributeType().parse(rawData, ptr);
-        ptr += AttributeType.LENGTH;
+        ptr += attributeType.getLength();
 
         id = new CTRObjectID[numberOfObjects.getNumberOfObjects()];
         for (int i = 0; i < numberOfObjects.getNumberOfObjects(); i++) {
-            byte[] b = ProtocolTools.getSubArray(rawData, ptr, ptr + CTRObjectID.LENGTH);
-            id[i] = new CTRObjectID().parse(b, 0);
-            ptr += CTRObjectID.LENGTH;
+            id[i] = new CTRObjectID().parse(rawData, ptr);
+            ptr += id[i].getLength();
         }
 
         return this;

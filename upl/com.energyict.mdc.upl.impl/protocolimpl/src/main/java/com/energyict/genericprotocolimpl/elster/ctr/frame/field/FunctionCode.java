@@ -9,15 +9,14 @@ import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
  */
 public class FunctionCode extends AbstractField<FunctionCode> {
 
-    public static final int LENGTH = 1;
     private int functionCode;
 
     public byte[] getBytes() {
-        return getBytesFromInt(functionCode, LENGTH);
+        return getBytesFromInt(functionCode, getLength());
     }
 
     public FunctionCode parse(byte[] rawData, int offset) {
-        functionCode = getIntFromBytes(rawData, offset, LENGTH);
+        functionCode = getIntFromBytes(rawData, offset, getLength());
         return this;
     }
 
@@ -76,5 +75,8 @@ public class FunctionCode extends AbstractField<FunctionCode> {
         return getFunction().equals(Function.ACK);
     }
 
+    public int getLength() {
+        return 1;
+    }
 }
 

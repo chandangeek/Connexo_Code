@@ -10,16 +10,14 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingExceptio
  */
 public class PeriodTrace extends AbstractField<PeriodTrace> {
 
-    public static final int LENGTH = 1;
-
     private int period;
 
     public byte[] getBytes() {
-        return getBytesFromInt(period, LENGTH);
+        return getBytesFromInt(period, getLength());
     }
 
     public PeriodTrace parse(byte[] rawData, int offset) throws CTRParsingException {
-        this.period = getIntFromBytes(rawData, offset, LENGTH);
+        this.period = getIntFromBytes(rawData, offset, getLength());
         return this;
     }
 
@@ -65,4 +63,7 @@ public class PeriodTrace extends AbstractField<PeriodTrace> {
         }
     }
 
+    public int getLength() {
+        return 1;
+    }
 }

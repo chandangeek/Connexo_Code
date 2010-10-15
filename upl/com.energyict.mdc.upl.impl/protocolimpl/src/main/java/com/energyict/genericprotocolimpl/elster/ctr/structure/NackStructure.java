@@ -36,13 +36,13 @@ public class NackStructure extends Data<NackStructure> {
         int ptr = offset;
 
         this.reason = new NackReason().parse(rawData, ptr);
-        ptr += NackReason.LENGTH;
+        ptr += reason.getLength();
 
         this.functionCode = new FunctionCode().parse(rawData, ptr);
-        ptr += NackReason.LENGTH;
+        ptr += functionCode.getLength();
 
         this.additionalData = new NackAdditionalData().parse(rawData, ptr);
-        ptr += NackAdditionalData.LENGTH;
+        ptr += additionalData.getLength();
 
         return this;
     }

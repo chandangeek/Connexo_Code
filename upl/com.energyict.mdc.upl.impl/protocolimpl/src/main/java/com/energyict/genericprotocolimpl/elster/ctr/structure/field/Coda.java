@@ -10,16 +10,26 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingExceptio
  */
 public class Coda extends AbstractField<Coda> {
 
-    public static final int LENGTH = 2;
-
     private int coda;
 
+    public Coda() {
+        this(0);
+    }
+
+    public Coda(int coda) {
+        this.coda = coda;
+    }
+
+    public int getLength() {
+        return 2;
+    }
+
     public byte[] getBytes() {
-        return getBytesFromInt(coda, LENGTH);
+        return getBytesFromInt(coda, getLength());
     }
 
     public Coda parse(byte[] rawData, int offset) throws CTRParsingException {
-        this.coda = getIntFromBytes(rawData, offset, LENGTH);
+        this.coda = getIntFromBytes(rawData, offset, getLength());
         return this;
     }
 

@@ -3,7 +3,6 @@ package com.energyict.genericprotocolimpl.elster.ctr.object;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.AccessDescriptor;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.Qualifier;
-import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveConverter;
 import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser;
 
 /**
@@ -30,7 +29,7 @@ public abstract class AbstractSignedBINObject<T extends AbstractSignedBINObject>
             if (!qlf.isValid()) {
                 return (T) this;   //If the QLF is 0xFF (invalid), return an empty object
             }
-            ptr += qlf.LENGTH;
+            ptr += qlf.getLength();
         }
 
         if (type.hasValueFields()) {

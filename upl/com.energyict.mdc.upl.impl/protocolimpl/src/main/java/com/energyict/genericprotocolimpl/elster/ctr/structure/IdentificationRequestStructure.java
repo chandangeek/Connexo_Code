@@ -36,13 +36,13 @@ public class IdentificationRequestStructure extends Data<IdentificationRequestSt
         int ptr = offset;
 
         puks = new Puk_S().parse(rawData, ptr);
-        ptr += Puk_S.LENGTH;
+        ptr += puks.getLength();
 
         st = new ST().parse(rawData, ptr);
-        ptr += ST.LENGTH;
+        ptr += st.getLength();
 
         stCode = new STCode().parse(rawData, ptr);
-        ptr += STCode.LENGTH;
+        ptr += stCode.getLength();
 
         return this;
     }

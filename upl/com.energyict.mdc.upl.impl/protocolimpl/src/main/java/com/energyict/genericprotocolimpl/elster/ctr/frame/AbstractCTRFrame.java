@@ -13,8 +13,6 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
  */
 public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<T> implements Frame<T> {
 
-    public static final int LENGTH = 128 + 12;
-
     private Address address;
     private Profi profi;
     private FunctionCode functionCode;
@@ -52,28 +50,28 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
         int ptr = offset;
 
         address = new Address().parse(rawData, ptr);
-        ptr += Address.LENGTH;
+        ptr += address.getLength();
 
         profi = new Profi().parse(rawData, ptr);
-        ptr += Profi.LENGTH;
+        ptr += profi.getLength();
 
         functionCode = new FunctionCode().parse(rawData, ptr);
-        ptr += FunctionCode.LENGTH;
+        ptr += functionCode.getLength();
 
         structureCode = new StructureCode().parse(rawData, ptr);
-        ptr += StructureCode.LENGTH;
+        ptr += structureCode.getLength();
 
         channel = new Channel().parse(rawData, ptr);
-        ptr += Channel.LENGTH;
+        ptr += channel.getLength();
 
         parseDataField(rawData, ptr);
-        ptr += Data.LENGTH;
+        ptr += getData().getLength();
 
         cpa = new Cpa().parse(rawData, ptr);
-        ptr += Cpa.LENGTH;
+        ptr += cpa.getLength();
 
         crc = new Crc().parse(rawData, ptr);
-        ptr += Crc.LENGTH;
+        ptr += crc.getLength();
 
         return (T) this;
     }
@@ -215,4 +213,14 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
         return parse(getBytes(), 0);
     }
 
+    public int getLength() {
+        return address.getLength() +
+                profi.getLength() +
+                functionCode.getLength() +
+                structureCode.getLength() +
+                channel.getLength() +
+                data.getLength() +
+                cpa.getLength() +
+                crc.getLength();
+    }
 }

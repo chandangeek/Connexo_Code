@@ -1,6 +1,5 @@
 package com.energyict.genericprotocolimpl.elster.ctr.structure;
 
-import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
@@ -42,21 +41,20 @@ public class ArrayQueryResponseStructure extends Data<ArrayQueryResponseStructur
 
         int ptr = offset;
 
-        byte[] b = ProtocolTools.getSubArray(rawData, ptr, ptr + CTRObjectID.LENGTH);
-        id = new CTRObjectID().parse(b, 0);
-        ptr += CTRObjectID.LENGTH;
+        id = new CTRObjectID().parse(rawData, ptr);
+        ptr += id.getLength();
 
         type = new Type().parse(rawData, ptr);
-        ptr += AttributeType.LENGTH;
+        ptr += type.getLength();
 
         index_A = new Index_Q().parse(rawData, ptr);
-        ptr += Index_Q.LENGTH;
+        ptr += index_A.getLength();
 
         counter_A = new Counter_Q().parse(rawData, ptr);
-        ptr += Counter_Q.LENGTH;
+        ptr += counter_A.getLength();
 
         coda = new Coda().parse(rawData, ptr);
-        ptr += Coda.LENGTH;
+        ptr += coda.getLength();
 
         data = new DataArray(rawData.length - ptr).parse(rawData, ptr);
         //TODO: parse the data array into objects

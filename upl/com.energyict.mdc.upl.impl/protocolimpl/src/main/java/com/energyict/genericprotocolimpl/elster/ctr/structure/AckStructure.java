@@ -36,13 +36,13 @@ public class AckStructure extends Data<AckStructure> {
         int ptr = offset;
 
         this.ackCode = new AckCode().parse(rawData, ptr);
-        ptr += AckCode.LENGTH;
+        ptr += ackCode.getLength();
 
         this.functionCode = new FunctionCode().parse(rawData, ptr);
-        ptr += FunctionCode.LENGTH;
+        ptr += functionCode.getLength();
 
         this.additionalData = new AckAdditionalData().parse(rawData, ptr);
-        ptr += AckAdditionalData.LENGTH;
+        ptr += additionalData.getLength();
 
         return this;
     }

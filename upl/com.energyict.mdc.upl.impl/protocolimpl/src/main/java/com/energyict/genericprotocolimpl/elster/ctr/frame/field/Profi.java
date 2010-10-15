@@ -9,9 +9,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
  */
 public class Profi extends AbstractField<Profi> {
 
-    public static final int LENGTH = 1;
     private int profi;
-
 
     public Profi() {
         this(0);
@@ -22,11 +20,11 @@ public class Profi extends AbstractField<Profi> {
     }
 
     public byte[] getBytes() {
-        return getBytesFromInt(profi, LENGTH);
+        return getBytesFromInt(profi, getLength());
     }
 
     public Profi parse(byte[] rawData, int offset) {
-        profi = getIntFromBytes(rawData, offset, LENGTH);
+        profi = getIntFromBytes(rawData, offset, getLength());
         return this;
     }
 
@@ -48,5 +46,9 @@ public class Profi extends AbstractField<Profi> {
 
     public void setProfi(int profi) {
         this.profi = profi;
+    }
+
+    public int getLength() {
+        return 1;
     }
 }

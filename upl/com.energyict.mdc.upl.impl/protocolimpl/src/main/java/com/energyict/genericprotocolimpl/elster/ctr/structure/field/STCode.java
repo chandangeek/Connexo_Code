@@ -9,8 +9,6 @@ import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
  */
 public class STCode extends AbstractField<STCode> {
 
-    public static final int LENGTH = 2;
-
     public static final int UNDEFINED = 0;
     public static final int REMOTE_CLIENT = 1;
     public static final int TERMINAL = 2;
@@ -25,12 +23,16 @@ public class STCode extends AbstractField<STCode> {
         this.stCode = stCode;
     }
 
+    public int getLength() {
+        return 2;
+    }
+
     public byte[] getBytes() {
-        return getBytesFromInt(stCode, LENGTH);
+        return getBytesFromInt(stCode, getLength());
     }
 
     public STCode parse(byte[] rawData, int offset) {
-        this.stCode = getIntFromBytes(rawData, offset, LENGTH);
+        this.stCode = getIntFromBytes(rawData, offset, getLength());
         return this;
     }
 

@@ -3,7 +3,6 @@ package com.energyict.genericprotocolimpl.elster.ctr.object;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
  * Created by IntelliJ IDEA.
@@ -21,11 +20,11 @@ public class CTRObjectFactory {
     }
 
     public AbstractCTRObject parse(byte[] rawData, int offset, AttributeType type, String objectId) throws CTRParsingException {
-        byte[] objectData = new byte[(rawData.length - offset) + CTRObjectID.LENGTH];
         CTRObjectID id = new CTRObjectID(objectId);
+        byte[] objectData = new byte[(rawData.length - offset) + id.getLength()];
         if (type.hasIdentifier()) {
-            System.arraycopy(id.getBytes(), 0, objectData, 0, CTRObjectID.LENGTH);
-            System.arraycopy(rawData, offset, objectData, CTRObjectID.LENGTH, rawData.length - offset);
+            System.arraycopy(id.getBytes(), 0, objectData, 0, id.getLength());
+            System.arraycopy(rawData, offset, objectData, id.getLength(), rawData.length - offset);
             return this.createObject(id, objectData, 0, type);
         } else {
             return this.createObject(id, rawData, offset, type);
