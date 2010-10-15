@@ -31,8 +31,10 @@ public class CTRPrimitiveConverter {
         return new byte[]{(byte) qlf};
     }
 
-    public byte[] convertStringValue(String value) {
-        return value.getBytes();
+    public byte[] convertStringValue(String value, int valueLength) {
+        byte[] bytes = new byte[valueLength];
+        System.arraycopy(value.getBytes(), 0, bytes, 0, value.length());
+        return bytes;
     }
 
     //Converts unsigned BIN values to a byte[] with a specific length (valueLength)

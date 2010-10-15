@@ -24,19 +24,13 @@ public class CTRStringValue extends CTRAbstractValue{
 
     @Override
     public byte[] getBytes() {
-/*
         byte[] bytes = new byte[valueLength];
         System.arraycopy(value.getBytes(), 0, bytes, 0, value.length());
         return bytes;
-*/
-        return value.getBytes();
     }
 
     public String getValue() {
-/*
         return value.replace("\0", "");
-*/
-        return value;
     }
 
     public void setValue(Object value) {

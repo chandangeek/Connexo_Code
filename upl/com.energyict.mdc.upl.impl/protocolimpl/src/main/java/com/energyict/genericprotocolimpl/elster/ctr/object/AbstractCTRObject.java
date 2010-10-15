@@ -148,7 +148,7 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
             for (int valueLength : parseValueLengths(getId())) {
 
                 if ("String".equals(value[j].getType())) {
-                    valueBytes = converter.convertStringValue((String) value[j].getValue());
+                    valueBytes = converter.convertStringValue((String) value[j].getValue(), valueLength);
                 }
                 if ("BIN".equals(value[j].getType())) {
                     valueBytes = converter.convertBINValue((BigDecimal) value[j].getValue(), valueLength);

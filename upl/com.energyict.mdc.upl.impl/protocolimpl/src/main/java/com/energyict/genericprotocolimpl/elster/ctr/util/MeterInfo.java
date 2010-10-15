@@ -15,4 +15,6 @@ public class MeterInfo extends AbstractUtilObject {
         super(requestFactory, logger);
     }
 
+    
+
 }
