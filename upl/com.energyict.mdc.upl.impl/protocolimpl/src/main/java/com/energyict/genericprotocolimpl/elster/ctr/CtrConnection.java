@@ -12,4 +12,8 @@ public interface CtrConnection<F extends Frame> {
 
     F sendFrameGetResponse(F frame) throws CTRConnectionException;
 
+/*
+    void setDebug(boolean debug);
+*/
+
 }
