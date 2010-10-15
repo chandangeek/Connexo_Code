@@ -53,7 +53,7 @@ public class RegisterQueryResponseStructure extends Data<RegisterQueryResponseSt
         objects = new AbstractCTRObject[numberOfObjects.getNumberOfObjects()];
         for (int i = 0; i < numberOfObjects.getNumberOfObjects(); i++) {
             objects[i] = factory.parse(rawData, ptr, attributeType);
-            ptr += objects[i].getBytes(attributeType).length;
+            ptr += objects[i].getLength(attributeType);
         }
 
         return this;

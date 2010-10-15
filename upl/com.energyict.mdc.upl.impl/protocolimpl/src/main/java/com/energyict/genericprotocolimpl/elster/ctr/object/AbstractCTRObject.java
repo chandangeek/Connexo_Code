@@ -39,6 +39,10 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
         }
         return sum;
     }
+
+    public int getLength(AttributeType type) {
+        return getBytes(type).length;          
+    }
    
     protected int getCommonOverflow(Unit unit) {
         int overflow = 0;

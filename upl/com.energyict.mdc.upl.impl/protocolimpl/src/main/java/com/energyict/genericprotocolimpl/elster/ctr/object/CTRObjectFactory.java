@@ -88,6 +88,9 @@ public class CTRObjectFactory {
             case 21:
                 obj = new TracesCategory(id);
                 break;            //BIN
+            case 23:
+                obj = new CommercialParametersCategory(id);
+                break;            //BIN
             case 24:
                 obj = new BandTotalizerCategory(id);
                 break;            //BIN

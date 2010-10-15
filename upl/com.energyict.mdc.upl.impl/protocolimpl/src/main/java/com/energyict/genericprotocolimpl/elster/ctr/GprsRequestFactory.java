@@ -59,6 +59,11 @@ public class GprsRequestFactory {
         }
         return logger;
     }
+    
+    private byte[] getPassword() {
+        return getProperties().getPassword().getBytes();
+    }
+
 
     /**
      * Getter for the protocol properties
@@ -107,7 +112,7 @@ public class GprsRequestFactory {
     }
 
     private GPRSFrame getRegisterRequest(AttributeType attributeType, CTRObjectID[] objectId) throws CTRParsingException {
-        byte[] pssw = getProperties().getPassword().getBytes();
+        byte[] pssw = getPassword();
         byte[] numberOfObjects = new byte[]{(byte) objectId.length};
         byte[] type = attributeType.getBytes();
         byte[] ids = new byte[0];
@@ -134,7 +139,7 @@ public class GprsRequestFactory {
     }
 
     private GPRSFrame getTraceRequest(CTRObjectID objectId, PeriodTrace period, StartDate startDate, NumberOfElements numberOfElements) throws CTRParsingException {
-        byte[] pssw = getProperties().getPassword().getBytes();
+        byte[] pssw = getPassword();
         byte[] traceRequest = ProtocolTools.concatByteArrays(
                 pssw,
                 objectId.getBytes(),
@@ -175,7 +180,7 @@ public class GprsRequestFactory {
     }
 
     private GPRSFrame getEventArrayRequest(Index_Q index_Q) throws CTRParsingException {
-        byte[] pssw = getProperties().getPassword().getBytes();
+        byte[] pssw = getPassword();
         byte[] eventArrayRequest = ProtocolTools.concatByteArrays(
                 pssw,
                 index_Q.getBytes()
@@ -188,6 +193,19 @@ public class GprsRequestFactory {
         request.getProfi().setLongFrame(false);
         request.getStructureCode().setStructureCode(StructureCode.EVENT_ARRAY);
         request.setData(new ArrayEventsQueryRequestStructure(false).parse(eventArrayRequest, 0));
+        request.generateAndSetCpa(getProperties().getKeyCBytes());
+        return request;
+    }
+
+    private GPRSFrame getTableDECFRequest() throws CTRParsingException {
+        byte[] tableRequestBytes = getPassword();
+        GPRSFrame request = new GPRSFrame();
+        request.setAddress(getAddress());
+        request.getFunctionCode().setEncryptionStatus(EncryptionStatus.NO_ENCRYPTION);
+        request.getFunctionCode().setFunction(Function.QUERY);
+        request.getProfi().setLongFrame(true);
+        request.getStructureCode().setStructureCode(StructureCode.TABLE_DECF);
+        request.setData(new ArrayEventsQueryRequestStructure(false).parse(tableRequestBytes, 0));
         request.generateAndSetCpa(getProperties().getKeyCBytes());
         return request;
     }
@@ -214,6 +232,19 @@ public class GprsRequestFactory {
         }
 
         return Arrays.asList(registerResponse.getObjects());
+    }
+
+    public TableDECFQueryResponseStructure queryTableDECF() throws CTRException{
+
+        GPRSFrame response = getConnection().sendFrameGetResponse(getTableDECFRequest());
+
+        TableDECFQueryResponseStructure tableDECFresponse;
+        if (response.getData() instanceof TraceQueryResponseStructure) {
+            tableDECFresponse = (TableDECFQueryResponseStructure) response.getData();
+        } else {
+            throw new CTRException("Expected TableDECFResponseStructure but was " + response.getData().getClass().getSimpleName());
+        }
+        return tableDECFresponse;
     }
 
     public List<AbstractCTRObject> queryTrace(CTRObjectID id, PeriodTrace period, StartDate startDate, NumberOfElements numberOfElements) throws CTRException {

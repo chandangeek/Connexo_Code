@@ -59,6 +59,7 @@ public class ArrayQueryResponseStructure extends Data<ArrayQueryResponseStructur
         ptr += Coda.LENGTH;
 
         data = new DataArray(rawData.length - ptr).parse(rawData, ptr);
+        //TODO: parse the data array into objects
 
         return this;
     }

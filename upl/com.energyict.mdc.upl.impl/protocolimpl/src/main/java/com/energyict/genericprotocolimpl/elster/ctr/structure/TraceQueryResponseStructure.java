@@ -77,7 +77,7 @@ public class TraceQueryResponseStructure extends Data<TraceQueryResponseStructur
         traceData = new ArrayList<AbstractCTRObject>();
         AbstractCTRObject obj = factory.parse(rawData, ptr, type, id.toString());
         traceData.add(obj);
-        ptr += obj.getBytes(type).length;
+        ptr += obj.getLength(type);
 
         //Parse the remaining objects
         while (ptr <= rawData.length - traceData.get(0).getBytes(type).length) {
