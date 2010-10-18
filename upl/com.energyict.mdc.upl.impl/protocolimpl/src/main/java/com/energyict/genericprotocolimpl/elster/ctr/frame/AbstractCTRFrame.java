@@ -87,9 +87,16 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
             data = new RegisterQueryResponseStructure(getProfi().isLongFrame()).parse(rawData, offset);
         } else if (isArrayQueryReply()) {
             data = new ArrayQueryResponseStructure(getProfi().isLongFrame()).parse(rawData, offset);
-        } else {
+        } else if (isTableDECFQueryResponseStructure()) {
+            data = new TableDECFQueryResponseStructure(getProfi().isLongFrame()).parse(rawData, offset);
+        }
+        else {
             data = new Data(getProfi().isLongFrame()).parse(rawData, offset);
         }
+    }
+
+    private boolean isTableDECFQueryResponseStructure() {
+        return structureCode.isDECFTable() && functionCode.isAnswer();
     }
 
     private boolean isIdentificationReply() {

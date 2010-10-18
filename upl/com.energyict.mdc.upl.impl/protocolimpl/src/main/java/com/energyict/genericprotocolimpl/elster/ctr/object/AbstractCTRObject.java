@@ -115,6 +115,10 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
         return value;
     }
 
+    public CTRAbstractValue getValue(int index) {
+        return value[index];
+    }
+
     protected void setValue(CTRAbstractValue[] value) {
         if (value != null) {
             this.value = value.clone();
@@ -125,11 +129,10 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
 
     public byte[] getBytes(AttributeType type) {
         CTRPrimitiveConverter converter = new CTRPrimitiveConverter();
-        byte[] bytes = null;
-        byte[] id = converter.convertId(getId());
+        byte[] bytes = new byte[0];
 
         if (type.hasIdentifier()) {
-            bytes = id;
+            bytes = converter.convertId(getId());
         }
 
         if (type.hasQualifier()) {
@@ -140,34 +143,29 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
             }
         }
 
+        int[] lengths = parseValueLengths(getId());
         if (type.hasValueFields()) {
-            int j = 0;
             byte[] valueBytes = null;
             byte[] valueResult = null;
 
-            for (int valueLength : parseValueLengths(getId())) {
+            for (int i = 0; i < lengths.length; i++) {
 
-                if ("String".equals(value[j].getType())) {
-                    valueBytes = converter.convertStringValue((String) value[j].getValue(), valueLength);
+                if ("String".equals(value[i].getType())) {
+                    valueBytes = converter.convertStringValue((String) value[i].getValue(), lengths[i]);
                 }
-                if ("BIN".equals(value[j].getType())) {
-                    valueBytes = converter.convertBINValue((BigDecimal) value[j].getValue(), valueLength);
+                if ("BIN".equals(value[i].getType())) {
+                    valueBytes = converter.convertBINValue((BigDecimal) value[i].getValue(), lengths[i]);
                 }
-                if ("SignedBIN".equals(value[j].getType())) {
-                    valueBytes = converter.convertSignedBINValue((BigDecimal) value[j].getValue(), valueLength);
+                if ("SignedBIN".equals(value[i].getType())) {
+                    valueBytes = converter.convertSignedBINValue((BigDecimal) value[i].getValue(), lengths[i]);
                 }
-                if ("BCD".equals(value[j].getType())) {
-                    valueBytes = converter.convertBCDValue((String) value[j].getValue());
+                if ("BCD".equals(value[i].getType())) {
+                    valueBytes = converter.convertBCDValue((String) value[i].getValue());
                 }
 
                 //also possible? --> valueBytes = value[j].getBytes();
 
-                if (j > 0) {
-                    valueResult = ProtocolTools.concatByteArrays(valueResult, valueBytes);
-                } else {
-                    valueResult = valueBytes;
-                }
-                j++;
+                valueResult = ProtocolTools.concatByteArrays(valueResult, valueBytes);
             }
             bytes = ProtocolTools.concatByteArrays(bytes, valueResult);
         }
@@ -178,7 +176,7 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
         }
 
         if (type.hasDefaultValue()) {
-            byte[] def = converter.convertDefaults(getDefault(), parseValueLengths(getId()));
+            byte[] def = converter.convertDefaults(getDefault(), lengths);
             bytes = ProtocolTools.concatByteArrays(bytes,def);
         }
 

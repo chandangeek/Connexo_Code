@@ -44,6 +44,15 @@ public abstract class CTRAbstractValue<T extends Object> {
     public String getType() {
         return type;
     }
+
+    public int getIntValue() {
+        if (getValue() instanceof Number) {
+            return ((Number) getValue()).intValue();
+        } else {
+            return -1;
+        }
+    }
+
     public abstract T getValue();
     public abstract void setValue(T value);
 

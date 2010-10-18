@@ -224,7 +224,7 @@ public class GprsRequestFactory {
         request.setAddress(getAddress());
         request.getFunctionCode().setEncryptionStatus(EncryptionStatus.NO_ENCRYPTION);
         request.getFunctionCode().setFunction(Function.QUERY);
-        request.getProfi().setLongFrame(true);
+        request.getProfi().setLongFrame(false);
         request.getStructureCode().setStructureCode(StructureCode.TABLE_DECF);
         request.setData(new ArrayEventsQueryRequestStructure(false).parse(tableRequestBytes, 0));
         request.generateAndSetCpa(getProperties().getKeyCBytes());
@@ -257,11 +257,11 @@ public class GprsRequestFactory {
     }
 
     public TableDECFQueryResponseStructure queryTableDECF() throws CTRException{
-
         GPRSFrame response = getConnection().sendFrameGetResponse(getTableDECFRequest());
+        response.doParse();
 
         TableDECFQueryResponseStructure tableDECFresponse;
-        if (response.getData() instanceof TraceQueryResponseStructure) {
+        if (response.getData() instanceof TableDECFQueryResponseStructure) {
             tableDECFresponse = (TableDECFQueryResponseStructure) response.getData();
         } else {
             throw new CTRException("Expected TableDECFResponseStructure but was " + response.getData().getClass().getSimpleName());

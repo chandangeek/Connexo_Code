@@ -1,10 +1,8 @@
 package com.energyict.genericprotocolimpl.elster.ctr.object;
 
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
-import com.energyict.protocolimpl.base.CRC16DNP;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.junit.Test;
-
 
 import static org.junit.Assert.assertArrayEquals;
 
@@ -25,7 +23,8 @@ public class CTRObjectFactoryTest {
         type.setHasDefaultValue(true);
         type.setHasQualifier(true);
         type.setHasValueFields(true);
-        
+        type.setHasIdentifier(true);
+
         AbstractCTRObject ctrObject = factory.parse(bytes, 0, type);
 
         assertArrayEquals(bytes, ctrObject.getBytes(type));

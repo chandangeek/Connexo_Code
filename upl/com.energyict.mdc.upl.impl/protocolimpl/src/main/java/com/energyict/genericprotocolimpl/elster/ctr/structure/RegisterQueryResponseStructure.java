@@ -49,6 +49,7 @@ public class RegisterQueryResponseStructure extends Data<RegisterQueryResponseSt
         attributeType = new AttributeType().parse(rawData, ptr);
         ptr += attributeType.getLength();
         attributeType.setHasQualifier(true);  //The meter always sends a qlf
+        attributeType.setHasIdentifier(true);
 
         objects = new AbstractCTRObject[numberOfObjects.getNumberOfObjects()];
         for (int i = 0; i < numberOfObjects.getNumberOfObjects(); i++) {

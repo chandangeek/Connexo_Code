@@ -56,9 +56,11 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
             } catch (CTRConnectionException e) {
                 delayAndFlushConnection();
                 attempts++;
+                if (attempts > retries) {
+                    throw new CTRConnectionException("Number of retries reached: [" + attempts + "/" + retries + "].", e);
+                }
             }
-        } while (attempts <= retries);
-        throw new CTRConnectionException();
+        } while (true);
     }
 
     /**

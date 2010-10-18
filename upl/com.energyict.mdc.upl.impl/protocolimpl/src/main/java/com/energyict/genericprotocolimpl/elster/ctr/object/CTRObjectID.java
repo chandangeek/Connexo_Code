@@ -77,4 +77,13 @@ public class CTRObjectID extends AbstractField<CTRObjectID> {
         return toStringValue.toUpperCase();
     }
 
+    /**
+     *
+     * @param idAsString
+     * @return
+     */
+    public boolean is(String idAsString) {
+        return idAsString.equalsIgnoreCase(toString());
+    }
+    
 }

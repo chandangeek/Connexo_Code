@@ -15,17 +15,22 @@ public class AttributeType extends AbstractField<AttributeType> {
     private static final int DEFAULTVALUE_BIT = 3;
     private static final int MASK = 0x0F;
 
-    private boolean hasIdentifier = true;
+    private boolean hasIdentifier = false;
     private int attributeType;
 
     public AttributeType() {
         this(0);
-        setHasIdentifier(true);
     }
 
     public AttributeType(int attributeType) {
         this.attributeType = attributeType & MASK;
-        setHasIdentifier(true);
+    }
+
+    public static AttributeType getValueOnly() {
+        AttributeType type = new AttributeType(0);
+        type.setHasValueFields(true);
+        type.setHasIdentifier(false);
+        return type;
     }
 
     public int getLength() {

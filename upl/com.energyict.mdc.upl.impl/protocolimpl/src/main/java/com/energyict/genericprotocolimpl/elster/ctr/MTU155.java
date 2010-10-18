@@ -5,6 +5,7 @@ import com.energyict.dialer.core.*;
 import com.energyict.genericprotocolimpl.common.*;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRConfigurationException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
+import com.energyict.genericprotocolimpl.elster.ctr.structure.TableDECFQueryResponseStructure;
 import com.energyict.genericprotocolimpl.elster.ctr.util.CtrClock;
 import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
 import com.energyict.mdw.core.*;
@@ -57,6 +58,9 @@ public class MTU155 extends AbstractGenericProtocol {
         this.requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties());
         this.obisCodeMapper = new ObisCodeMapper(getRequestFactory());
         System.out.println(getCtrClock().getTime());
+        TableDECFQueryResponseStructure decf = getRequestFactory().queryTableDECF();
+        System.out.println(decf);
+
 /*
         this.rtu = identifyAndGetRtu();
         log("Rtu with name '" + getRtu().getName() + "' connected successfully.");

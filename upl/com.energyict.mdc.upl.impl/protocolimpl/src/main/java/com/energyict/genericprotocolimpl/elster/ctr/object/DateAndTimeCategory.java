@@ -2,8 +2,12 @@ package com.energyict.genericprotocolimpl.elster.ctr.object;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
+import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created by IntelliJ IDEA.
@@ -45,7 +49,7 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
 
     public BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
         int overflow = getCommonOverflow(unit);
-        
+
                 int z = id.getZ();
         switch(id.getY()) {
             case 0: switch(z) {
@@ -156,4 +160,37 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
 
         return unit;
     }
+
+
+    /**
+     *
+     * @return
+     */
+    public Date getDate() {
+        System.out.println(ProtocolTools.getHexStringFromBytes(getBytes(AttributeType.getValueOnly())));
+        if (getId().is("8.0.1")) {
+            Calendar cal = Calendar.getInstance();
+            cal.set(Calendar.YEAR, getValue(0).getIntValue() + 2000);
+            cal.set(Calendar.MONTH, getValue(1).getIntValue() - 1);
+            cal.set(Calendar.DAY_OF_MONTH, getValue(2).getIntValue());
+            cal.set(Calendar.HOUR_OF_DAY, getValue(3).getIntValue());
+            cal.set(Calendar.MINUTE, getValue(4).getIntValue());
+            cal.set(Calendar.SECOND, 0);
+            cal.set(Calendar.MILLISECOND, 0);
+            return cal.getTime();
+        } else if (getId().is("8.0.2")) {
+            Calendar cal = Calendar.getInstance();
+            cal.set(Calendar.YEAR, getValue(1).getIntValue() + 2000);
+            cal.set(Calendar.MONTH, getValue(2).getIntValue() - 1);
+            cal.set(Calendar.DAY_OF_MONTH, getValue(3).getIntValue());
+            cal.set(Calendar.HOUR_OF_DAY, getValue(4).getIntValue());
+            cal.set(Calendar.MINUTE, getValue(5).getIntValue());
+            cal.set(Calendar.SECOND, 0);
+            cal.set(Calendar.MILLISECOND, 0);
+            return cal.getTime();
+        } else {
+            return null;
+        }
+    }
+
 }
