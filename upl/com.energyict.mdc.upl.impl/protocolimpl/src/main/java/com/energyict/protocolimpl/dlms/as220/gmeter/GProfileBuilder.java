@@ -103,11 +103,6 @@ public class GProfileBuilder {
 
 			for(int i = 0; i < dc.getRoot().getElements().length; i++){
 
-				//Test
-				if(dc.getRoot().getStructure(i) == null){
-					dc.printDataContainer();
-				}
-
 				if(dc.getRoot().getStructure(i).isOctetString(0)){	// it is a date
 					cal = new DateTime(new OctetString(dc.getRoot().getStructure(i).getOctetString(0).getArray()), getGasDevice().getTimeZone()).getValue();
 				} else {
