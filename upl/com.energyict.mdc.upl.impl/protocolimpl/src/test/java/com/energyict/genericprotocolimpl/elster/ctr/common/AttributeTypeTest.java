@@ -139,4 +139,16 @@ public class AttributeTypeTest {
         assertFalse(type.hasValueFields());
         assertEquals(0x0D, type.getAttributeType());
     }
+
+    @Test
+    public void testSetHasIdentifier() throws Exception {
+        assertFalse(new AttributeType().hasIdentifier());
+        for (int i = 0; i < 255; i++) {
+            AttributeType type = new AttributeType();
+            type.setAttributeType(i);
+            assertFalse(type.hasIdentifier());
+            assertFalse(new AttributeType(i).hasIdentifier());
+        }
+    }
+
 }
