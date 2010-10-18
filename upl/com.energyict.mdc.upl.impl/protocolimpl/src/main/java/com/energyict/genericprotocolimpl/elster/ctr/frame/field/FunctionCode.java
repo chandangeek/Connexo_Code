@@ -75,6 +75,10 @@ public class FunctionCode extends AbstractField<FunctionCode> {
         return getFunction().equals(Function.ACK);
     }
 
+    public boolean isWrite() {
+        return getFunction().equals(Function.WRITE);
+    }
+
     public int getLength() {
         return 1;
     }

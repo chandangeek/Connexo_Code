@@ -38,8 +38,9 @@ public class CtrClock extends AbstractUtilObject {
     }
 
     public Date getTime() throws CTRException {
-        AttributeType attributeType = new AttributeType(3);
-        List<AbstractCTRObject> ctrObjectList = getRequestFactory().queryRegisters(attributeType, "8.0.0");
+        AttributeType attributeType = new AttributeType(0x03);
+        //List<AbstractCTRObject> ctrObjectList = getRequestFactory().queryRegisters(attributeType, "8.0.0", "9.0.2", "C.2.1");
+        List<AbstractCTRObject> ctrObjectList = getRequestFactory().queryRegisters(attributeType, "8.0.0", "C.2.1", "9.0.2");
         for (AbstractCTRObject ctrObject : ctrObjectList) {
             for (CTRAbstractValue value : ctrObject.getValue()) {
                 System.out.println(ctrObject.getId() + " = " + value.getValue());

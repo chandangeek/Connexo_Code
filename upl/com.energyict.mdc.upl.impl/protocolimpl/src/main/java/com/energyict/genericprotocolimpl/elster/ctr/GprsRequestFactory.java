@@ -8,14 +8,14 @@ import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.*;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.*;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -218,6 +218,55 @@ public class GprsRequestFactory {
         return request;
     }
 
+        private GPRSFrame getRegisterWriteRequest(ReferenceDate validityDate, WriteDataBlock wdb, P_Session p_Session, AttributeType attributeType, AbstractCTRObject... objects) throws CTRParsingException {
+        byte[] pssw = getPassword();
+        byte[] objectBytes = new byte[]{};
+        for (AbstractCTRObject object : objects) {
+            objectBytes = ProtocolTools.concatByteArrays(objectBytes, object.getBytes(attributeType));
+        }
+        byte[] numberOfObjects = new byte[]{(byte) objects.length};
+        byte[] writeRequest = padData(125, ProtocolTools.concatByteArrays(
+                pssw,
+                validityDate.getBytes(),
+                wdb.getBytes(),
+                p_Session.getBytes(),
+                numberOfObjects,
+                attributeType.getBytes(),
+                objectBytes
+        ));
+
+        GPRSFrame request = new GPRSFrame();
+        request.setAddress(getAddress());
+        request.getFunctionCode().setEncryptionStatus(EncryptionStatus.NO_ENCRYPTION);
+        request.getFunctionCode().setFunction(Function.WRITE);
+        request.getProfi().setLongFrame(false);
+        request.getStructureCode().setStructureCode(StructureCode.REGISTER);
+        request.setData(new RegisterWriteRequestStructure(false).parse(writeRequest, 0));
+        request.generateAndSetCpa(getProperties().getKeyCBytes());
+        return request;
+    }
+
+
+    private GPRSFrame getExecuteRequest(ReferenceDate validityDate, WriteDataBlock wdb, CTRObjectID id, byte[] data) throws CTRParsingException {
+        byte[] executeRequest = ProtocolTools.concatByteArrays(
+                getPassword(),
+                validityDate.getBytes(),
+                wdb.getBytes(),
+                id.getBytes(),
+                data
+        );
+
+        GPRSFrame request = new GPRSFrame();
+        request.setAddress(getAddress());
+        request.getFunctionCode().setEncryptionStatus(EncryptionStatus.NO_ENCRYPTION);
+        request.getFunctionCode().setFunction(Function.EXECUTE);
+        request.getProfi().setLongFrame(false);
+        request.getStructureCode().setStructureCode(0);
+        request.setData(new ExecuteRequestStructure(false).parse(executeRequest, 0));
+        request.generateAndSetCpa(getProperties().getKeyCBytes());
+        return request;
+    }
+
     private GPRSFrame getTableDECFRequest() throws CTRParsingException {
         byte[] tableRequestBytes = getPassword();
         GPRSFrame request = new GPRSFrame();
@@ -269,6 +318,38 @@ public class GprsRequestFactory {
         return tableDECFresponse;
     }
 
+    public Data executeRequest(ReferenceDate validityDate, WriteDataBlock wdb, CTRObjectID id, byte[] data) throws CTRException{
+        GPRSFrame response = getConnection().sendFrameGetResponse(getExecuteRequest(validityDate, wdb, id, data));
+
+        //Check the response: should be Ack or Nack
+        Data executeResponse;
+        if (response.getData() instanceof AckStructure) {
+            executeResponse = (AckStructure) response.getData();
+        } else if (response.getData() instanceof NackStructure) {
+            executeResponse = (NackStructure) response.getData();
+        } else {
+            throw new CTRException("Expected Ack or Nack but was " + response.getData().getClass().getSimpleName());
+        }
+
+        return executeResponse;
+    }
+
+    public Data writeRegister(ReferenceDate validityDate, WriteDataBlock wdb, P_Session p_Session, AttributeType attributeType, AbstractCTRObject... objects) throws CTRException{
+        GPRSFrame response = getConnection().sendFrameGetResponse(getRegisterWriteRequest(validityDate, wdb, p_Session, attributeType, objects));
+
+        //Check the response: should be Ack or Nack
+        Data writeRegisterResponse;
+        if (response.getData() instanceof AckStructure) {
+            writeRegisterResponse = (AckStructure) response.getData();
+        } else if (response.getData() instanceof NackStructure) {
+            writeRegisterResponse = (NackStructure) response.getData();
+        } else {
+            throw new CTRException("Expected Ack or Nack but was " + response.getData().getClass().getSimpleName());
+        }
+
+        return writeRegisterResponse;
+    }
+
     public List<AbstractCTRObject> queryTrace(CTRObjectID id, PeriodTrace period, StartDate startDate, NumberOfElements numberOfElements) throws CTRException {
 
         //Send the id, the period (15min, 1h, 1day, ...), and the start date.
@@ -287,7 +368,6 @@ public class GprsRequestFactory {
 
     public ArrayEventsQueryResponseStructure queryEventArray(Index_Q index_Q) throws CTRException {
 
-        //Send the id, the period (15min, 1h, 1day, ...), and the start date.
         GPRSFrame response = getConnection().sendFrameGetResponse(getEventArrayRequest(index_Q));
 
         //Parse the records in the response into objects.
@@ -315,5 +395,16 @@ public class GprsRequestFactory {
         }
 
         return trace_CResponse;
+    }
+
+
+    private byte[] padData(int length, byte[] fieldData) {
+        int paddingLength = length - fieldData.length;
+        if (paddingLength > 0) {
+            fieldData = ProtocolTools.concatByteArrays(fieldData, new byte[paddingLength]);
+        } else if (paddingLength < 0) {
+            fieldData = ProtocolTools.getSubArray(fieldData, 0, length);
+        }
+        return fieldData;
     }
 }

@@ -15,6 +15,7 @@ public class ReferenceDate extends AbstractField<ReferenceDate> {
 
     private byte[] date;
     private String sDate = "";
+    private static final int LENGTH = 3;
 
     public byte[] getBytes() {
         return date;
@@ -36,7 +37,7 @@ public class ReferenceDate extends AbstractField<ReferenceDate> {
     }
 
     public int getLength() {
-        return 3;
+        return LENGTH;
     }
 
     public Date getDateObject() {

@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.object.field;
 
 import com.energyict.cbo.Unit;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.math.BigDecimal;
 
@@ -37,5 +38,9 @@ public class CTRBINValue extends CTRAbstractValue{
     }
     public void setValue(Object value) {
         this.value = (BigDecimal) value;
+    }
+
+    public String toString() {
+        return ProtocolTools.getHexStringFromBytes(getBytes(), "");
     }
 }
