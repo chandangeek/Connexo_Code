@@ -120,9 +120,9 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 					transId[count] = kar;
 					count++;
 					if (count == 2) {
-						short recTID = ProtocolUtils.getShort(transId, 0);
-						if ( recTID != c.getTransactionID())
-							throw new ProtocolConnectionException("Transaction ID mismatch " + recTID + " // " + c.getTransactionID());
+						int recTID = getSmallInt(transId);
+						if ( recTID != (c.getTransactionID()%65536))
+							throw new ProtocolConnectionException("Transaction ID mismatch " + recTID + " // " + c.getTransactionID()%65536);
 						state = RESPONSE_STATES.BUILD_PID;
 					}
 
@@ -246,8 +246,9 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 					transId[count] = kar;
 					count++;
 					if (count == 2) {
-						if (ProtocolUtils.getShort(transId, 0) != c.getTransactionID())
-							throw new ProtocolConnectionException("Transaction ID mismatch");
+						int recTID = getSmallInt(transId);
+						if ( recTID != (c.getTransactionID()%65536))
+							throw new ProtocolConnectionException("Transaction ID mismatch " + recTID + " // " + c.getTransactionID()%65536);
 						state = RESPONSE_STATES.BUILD_PID;
 					}
 
@@ -321,6 +322,11 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 
 	} // public Response receiveResponse()
 	
+	//Get 16 bit integer
+	public static int getSmallInt(byte[] byteBuffer) {
+		return((((int)byteBuffer[0]<<8)& 0x0000FF00) |
+				(((int)byteBuffer[1])&    0x000000FF));
+	}
 	
 }
 
