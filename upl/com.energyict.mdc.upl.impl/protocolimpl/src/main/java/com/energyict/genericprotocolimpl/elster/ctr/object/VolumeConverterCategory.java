@@ -16,7 +16,7 @@ public class VolumeConverterCategory extends AbstractUnsignedBINObject<VolumeCon
         this.setId(id);
     }
 
-    protected String parseSymbol(CTRObjectID id) {
+    protected String getSymbol(CTRObjectID id) {
         String symbol = "";
 
         switch (id.getY()) {
@@ -38,15 +38,15 @@ public class VolumeConverterCategory extends AbstractUnsignedBINObject<VolumeCon
     }
 
 
-    public BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
+    public BigDecimal getOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
         return new BigDecimal(0);  //There's no overflow values in this category
     }
 
-    public int[] parseValueLengths(CTRObjectID id) {
+    public int[] getValueLengths(CTRObjectID id) {
         return new int[]{3};       //There's only one type of value in this category
     }
 
-    public Unit parseUnit(CTRObjectID id, int valueNumber) {
+    public Unit getUnit(CTRObjectID id, int valueNumber) {
         return null;               //There's no units in this category
     }
 

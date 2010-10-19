@@ -8,14 +8,14 @@ import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.*;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
-import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.*;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -275,6 +275,7 @@ public class GprsRequestFactory {
         request.getFunctionCode().setFunction(Function.QUERY);
         request.getProfi().setLongFrame(false);
         request.getStructureCode().setStructureCode(StructureCode.TABLE_DECF);
+        request.setChannel(new Channel(0x01));
         request.setData(new ArrayEventsQueryRequestStructure(false).parse(tableRequestBytes, 0));
         request.generateAndSetCpa(getProperties().getKeyCBytes());
         return request;
@@ -385,13 +386,14 @@ public class GprsRequestFactory {
 
         //Send the id, the period (15min, 1h, 1day, ...), and the start date.
         GPRSFrame response = getConnection().sendFrameGetResponse(getTrace_CRequest(id, period, startDate));
+        response.doParse();
 
         //Parse the records in the response into objects.
         Trace_CQueryResponseStructure trace_CResponse;
-        if (response.getData() instanceof TraceQueryResponseStructure) {
+        if (response.getData() instanceof Trace_CQueryResponseStructure) {
             trace_CResponse = (Trace_CQueryResponseStructure) response.getData();
         } else {
-            throw new CTRException("Expected Trace_CResponseStructure but was " + response.getData().getClass().getSimpleName());
+            throw new CTRException("Expected Trace_CQueryResponseStructure but was " + response.getData().getClass().getSimpleName());
         }
 
         return trace_CResponse;

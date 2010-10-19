@@ -36,7 +36,7 @@ public class CommunicationCategory<T extends CommunicationCategory> extends Abst
         }
 
         if (type.hasValueFields()) {
-            int[] valueLength = this.parseValueLengths(id);
+            int[] valueLength = this.getValueLengths(id);
             this.setValue(parser.parseBCDValue(this, id, rawData, ptr, valueLength));
             ptr += sum(valueLength);  //There might be multiple value fields
         }
@@ -51,7 +51,7 @@ public class CommunicationCategory<T extends CommunicationCategory> extends Abst
             this.setDefault(parser.parseDefault(id));
         }
 
-        this.setSymbol(parseSymbol(id));
+        this.setSymbol(getSymbol(id));
 
         return (T) this;
     }
@@ -60,11 +60,11 @@ public class CommunicationCategory<T extends CommunicationCategory> extends Abst
         this.setId(id);
     }
 
-    public BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
+    public BigDecimal getOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
         return null;
     }
 
-    public int[] parseValueLengths(CTRObjectID id) {
+    public int[] getValueLengths(CTRObjectID id) {
         int[] valueLength = null;
         switch (id.getY()) {
             case 0x0C:
@@ -78,7 +78,7 @@ public class CommunicationCategory<T extends CommunicationCategory> extends Abst
     }
 
 
-    public Unit parseUnit(CTRObjectID id, int valueNumber) {
+    public Unit getUnit(CTRObjectID id, int valueNumber) {
         Unit unit = null;
         switch (id.getY()) {
             case 0x0C:
@@ -89,7 +89,7 @@ public class CommunicationCategory<T extends CommunicationCategory> extends Abst
     }
 
 
-    protected String parseSymbol(CTRObjectID id) {
+    protected String getSymbol(CTRObjectID id) {
         String symbol = "";
 
         switch (id.getY()) {

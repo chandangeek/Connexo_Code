@@ -186,4 +186,125 @@ public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponse
     public DateAndTimeCategory getDataAndOraS() {
         return dataAndOraS;
     }
+
+    public CTRAbstractValue<BigDecimal> getDiagnR() {
+        return diagnR;
+    }
+
+    public CTRAbstractValue getDiagnRS_pf() {
+        return diagnRS_pf;
+    }
+
+    public CTRAbstractValue<BigDecimal> getId_Pt_Current() {
+        return id_Pt_Current;
+    }
+
+    public CTRAbstractValue<BigDecimal> getId_Pt_Previous() {
+        return id_Pt_Previous;
+    }
+
+    public CTRAbstractValue<BigDecimal> getNumberOfElements() {
+        return numberOfElements;
+    }
+
+    public CTRAbstractValue<String> getPdr() {
+        return pdr;
+    }
+
+    public AbstractCTRObject getTot_Vb() {
+        return tot_Vb;
+    }
+
+    public AbstractCTRObject getTot_Vb_pf() {
+        return tot_Vb_pf;
+    }
+
+    public AbstractCTRObject getTot_Vcor_f1() {
+        return tot_Vcor_f1;
+    }
+
+    public AbstractCTRObject getTot_Vcor_f2() {
+        return tot_Vcor_f2;
+    }
+
+    public AbstractCTRObject getTot_Vcor_f3() {
+        return tot_Vcor_f3;
+    }
+
+    public AbstractCTRObject getTot_Vme() {
+        return tot_Vme;
+    }
+
+    public AbstractCTRObject getTot_Vme_f1() {
+        return tot_Vme_f1;
+    }
+
+    public AbstractCTRObject getTot_Vme_f2() {
+        return tot_Vme_f2;
+    }
+
+    public AbstractCTRObject getTot_Vme_f3() {
+        return tot_Vme_f3;
+    }
+
+    public AbstractCTRObject getTot_Vme_pf() {
+        return tot_Vme_pf;
+    }
+
+    public AbstractCTRObject getTot_Vme_pf_f1() {
+        return tot_Vme_pf_f1;
+    }
+
+    public AbstractCTRObject getTot_Vme_pf_f2() {
+        return tot_Vme_pf_f2;
+    }
+
+    public AbstractCTRObject getTot_Vme_pf_f3() {
+        return tot_Vme_pf_f3;
+    }
+
+    public AbstractCTRObject getTot_Vpre_f1() {
+        return tot_Vpre_f1;
+    }
+
+    public AbstractCTRObject getTot_Vpre_f2() {
+        return tot_Vpre_f2;
+    }
+
+    public AbstractCTRObject getTot_Vpre_f3() {
+        return tot_Vpre_f3;
+    }
+
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("TableDECFQueryResponseStructure{").append('\n');
+        sb.append("  dataAndOraP=").append(dataAndOraP).append('\n');
+        sb.append("  pdr=").append(pdr).append('\n');
+        sb.append("  dataAndOraS=").append(dataAndOraS).append('\n');
+        sb.append("  diagnR=").append(diagnR).append('\n');
+        sb.append("  numberOfElements=").append(numberOfElements).append('\n');
+        sb.append("  id_Pt_Current=").append(id_Pt_Current).append('\n');
+        sb.append("  id_Pt_Previous=").append(id_Pt_Previous).append('\n');
+        sb.append("  tot_Vb=").append(tot_Vb).append('\n');
+        sb.append("  tot_Vme=").append(tot_Vme).append('\n');
+        sb.append("  tot_Vme_f1=").append(tot_Vme_f1).append('\n');
+        sb.append("  tot_Vme_f2=").append(tot_Vme_f2).append('\n');
+        sb.append("  tot_Vme_f3=").append(tot_Vme_f3).append('\n');
+        sb.append("  tot_Vcor_f1=").append(tot_Vcor_f1).append('\n');
+        sb.append("  tot_Vcor_f2=").append(tot_Vcor_f2).append('\n');
+        sb.append("  tot_Vcor_f3=").append(tot_Vcor_f3).append('\n');
+        sb.append("  diagnRS_pf=").append(diagnRS_pf).append('\n');
+        sb.append("  tot_Vb_pf=").append(tot_Vb_pf).append('\n');
+        sb.append("  tot_Vme_pf=").append(tot_Vme_pf).append('\n');
+        sb.append("  tot_Vme_pf_f1=").append(tot_Vme_pf_f1).append('\n');
+        sb.append("  tot_Vme_pf_f2=").append(tot_Vme_pf_f2).append('\n');
+        sb.append("  tot_Vme_pf_f3=").append(tot_Vme_pf_f3).append('\n');
+        sb.append("  tot_Vpre_f1=").append(tot_Vpre_f1).append('\n');
+        sb.append("  tot_Vpre_f2=").append(tot_Vpre_f2).append('\n');
+        sb.append("  tot_Vpre_f3=").append(tot_Vpre_f3).append('\n');
+        sb.append('}');
+        return sb.toString();
+    }
 }

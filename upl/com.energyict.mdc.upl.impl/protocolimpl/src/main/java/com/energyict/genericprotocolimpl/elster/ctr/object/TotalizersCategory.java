@@ -16,7 +16,7 @@ public class TotalizersCategory extends AbstractUnsignedBINObject<TotalizersCate
         this.setId(id);
     }
 
-    protected String parseSymbol(CTRObjectID id) {
+    protected String getSymbol(CTRObjectID id) {
         String symbol = "";
 
         switch (id.getY()) {
@@ -35,16 +35,16 @@ public class TotalizersCategory extends AbstractUnsignedBINObject<TotalizersCate
     }
 
 
-    public BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
+    public BigDecimal getOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
         return new BigDecimal(999999999); //Always the same value in this category
     }
 
-    public int[] parseValueLengths(CTRObjectID id) {
+    public int[] getValueLengths(CTRObjectID id) {
         return new int[]{4};
     }
 
 
-    public Unit parseUnit(CTRObjectID id, int valueNumber) {
+    public Unit getUnit(CTRObjectID id, int valueNumber) {
         return Unit.get("m3");
     }
 }

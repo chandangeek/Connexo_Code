@@ -16,7 +16,7 @@ public class SecurityCategory extends AbstractStringObject<SecurityCategory> {
         this.setId(id);
     }
 
-    protected String parseSymbol(CTRObjectID id) {
+    protected String getSymbol(CTRObjectID id) {
         String symbol = "";
 
         switch (id.getY()) {
@@ -58,7 +58,7 @@ public class SecurityCategory extends AbstractStringObject<SecurityCategory> {
     }
 
 
-    public BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
+    public BigDecimal getOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
         int overflow = 0;
         switch (id.getY()) {
             case 9:
@@ -68,7 +68,7 @@ public class SecurityCategory extends AbstractStringObject<SecurityCategory> {
         return new BigDecimal(overflow);
     }
 
-    public int[] parseValueLengths(CTRObjectID id) {
+    public int[] getValueLengths(CTRObjectID id) {
         int[] valueLength = null;
         switch (id.getY()) {
             case 0:
@@ -98,7 +98,7 @@ public class SecurityCategory extends AbstractStringObject<SecurityCategory> {
     }
 
 
-    public Unit parseUnit(CTRObjectID id, int valueNumber) {
+    public Unit getUnit(CTRObjectID id, int valueNumber) {
         return null;
     }
 

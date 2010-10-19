@@ -3,13 +3,11 @@ package com.energyict.genericprotocolimpl.elster.ctr.util;
 import com.energyict.genericprotocolimpl.elster.ctr.GprsRequestFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
-import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
 import com.energyict.genericprotocolimpl.elster.ctr.object.*;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.ReferenceDate;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.WriteDataBlock;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.math.BigDecimal;
 import java.util.*;

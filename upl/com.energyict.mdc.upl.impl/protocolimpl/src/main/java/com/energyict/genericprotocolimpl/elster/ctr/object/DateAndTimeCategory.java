@@ -21,7 +21,7 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
         this.setId(id);
     }
 
-    protected String parseSymbol(CTRObjectID id) {
+    protected String getSymbol(CTRObjectID id) {
         String symbol = "";
 
         switch (id.getY()) {
@@ -47,7 +47,7 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
         return symbol;
     }
 
-    public BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
+    public BigDecimal getOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
         int overflow = getCommonOverflow(unit);
 
                 int z = id.getZ();
@@ -74,7 +74,7 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
         return new BigDecimal(overflow);
     }
 
-    public int[] parseValueLengths(CTRObjectID id) {
+    public int[] getValueLengths(CTRObjectID id) {
         int[] valueLength = new int[]{};
         int z = id.getZ();
         switch(id.getY()) {
@@ -100,7 +100,7 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
     }
 
 
-    public Unit parseUnit(CTRObjectID id, int valueNumber) {
+    public Unit getUnit(CTRObjectID id, int valueNumber) {
         Unit unit = null;
 
         int z = id.getZ();
@@ -193,4 +193,10 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
         }
     }
 
+
+    @Override
+    public String toString() {
+        Date date = getDate();
+        return date != null ? date.toString() : "null";        
+    }
 }

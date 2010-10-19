@@ -17,7 +17,7 @@ public class SystemMasterRecordCategory extends AbstractBCDObject<SystemMasterRe
         this.setId(id);
     }
 
-    protected String parseSymbol(CTRObjectID id) {
+    protected String getSymbol(CTRObjectID id) {
         String symbol = "";
         int z = id.getZ();
         switch (id.getY()) {
@@ -53,11 +53,11 @@ public class SystemMasterRecordCategory extends AbstractBCDObject<SystemMasterRe
     }
 
 
-    public BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
+    public BigDecimal getOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
         return null; //There's no overflow values available in this category.
     }
 
-    public int[] parseValueLengths(CTRObjectID id) {
+    public int[] getValueLengths(CTRObjectID id) {
         int[] valueLength = null;
         int z = id.getZ();
         switch (id.getY()) {
@@ -98,7 +98,7 @@ public class SystemMasterRecordCategory extends AbstractBCDObject<SystemMasterRe
         return valueLength;
     }
 
-    public Unit parseUnit(CTRObjectID id, int valueNumber) {
+    public Unit getUnit(CTRObjectID id, int valueNumber) {
         Unit unit = null;
         switch (id.getY()) {
             case 0:

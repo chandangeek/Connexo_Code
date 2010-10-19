@@ -16,20 +16,22 @@ public class TracesCategory extends AbstractUnsignedBINObject<TracesCategory> {
         this.setId(id);
     }
 
-    protected String parseSymbol(CTRObjectID id) {
+    protected String getSymbol(CTRObjectID id) {
         String symbol = "";
 
         switch (id.getY()) {
             case 0:
-                symbol = "Trace"; break;
+                symbol = "Trace";
+                break;
             case 1:
-                symbol = "TraceA"; break;
+                symbol = "TraceA";
+                break;
         }
         return symbol;
     }
 
 
-    public BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
+    public BigDecimal getOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
         int overflow = 0;
         if (valueNumber == 0) {
             overflow = 6;
@@ -37,11 +39,11 @@ public class TracesCategory extends AbstractUnsignedBINObject<TracesCategory> {
         return new BigDecimal(overflow);
     }
 
-    public int[] parseValueLengths(CTRObjectID id) {
-        return new int[]{1, 2,2,2,2, 2,2,2,2, 2,2,2,2, 2,2,2,2};
+    public int[] getValueLengths(CTRObjectID id) {
+        return new int[]{1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
     }
 
-    public Unit parseUnit(CTRObjectID id, int valueNumber) {
+    public Unit getUnit(CTRObjectID id, int valueNumber) {
         return null;        //There's no units in this category
     }
 

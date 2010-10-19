@@ -33,7 +33,7 @@ public abstract class AbstractStringObject<T extends AbstractStringObject> exten
         }
 
         if (type.hasValueFields()) {
-            int[] valueLength = this.parseValueLengths(id);
+            int[] valueLength = this.getValueLengths(id);
             this.setValue(parser.parseStringValue(this, id, rawData, ptr, valueLength));
             ptr += sum(valueLength);  //There might be multiple value fields
         }
@@ -48,7 +48,7 @@ public abstract class AbstractStringObject<T extends AbstractStringObject> exten
             this.setDefault(parser.parseDefault(id));
         }
 
-        this.setSymbol(parseSymbol(id));
+        this.setSymbol(getSymbol(id));
 
         return (T) this;
     }

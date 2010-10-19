@@ -12,6 +12,14 @@ public class PeriodTrace extends AbstractField<PeriodTrace> {
 
     private int period;
 
+    public PeriodTrace() {
+        this(0);
+    }
+
+    public PeriodTrace(int period) {
+        this.period = period;
+    }
+
     public byte[] getBytes() {
         return getBytesFromInt(period, getLength());
     }

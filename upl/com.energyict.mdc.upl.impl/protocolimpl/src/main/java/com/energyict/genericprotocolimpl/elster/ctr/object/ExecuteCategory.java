@@ -17,7 +17,7 @@ public class ExecuteCategory extends AbstractUnsignedBINObject {
         this.setId(id);
     }
 
-    protected String parseSymbol(CTRObjectID id) {
+    protected String getSymbol(CTRObjectID id) {
         String symbol = "";
 
         switch(id.getY()) {
@@ -30,7 +30,7 @@ public class ExecuteCategory extends AbstractUnsignedBINObject {
     }
 
 
-    public BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
+    public BigDecimal getOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
         int overflow = getCommonOverflow(unit);
         switch(id.getZ()) {
             case 1:
@@ -41,7 +41,7 @@ public class ExecuteCategory extends AbstractUnsignedBINObject {
         return new BigDecimal(overflow);
     }
 
-    public int[] parseValueLengths(CTRObjectID id) {
+    public int[] getValueLengths(CTRObjectID id) {
         int[] valueLength = new int[]{};
         switch(id.getY()) {
             case 0: switch(id.getZ()) {
@@ -53,7 +53,7 @@ public class ExecuteCategory extends AbstractUnsignedBINObject {
     }
 
 
-    public Unit parseUnit(CTRObjectID id, int valueNumber) {
+    public Unit getUnit(CTRObjectID id, int valueNumber) {
         Unit unit = null;
         switch(id.getZ()) {
             case 1:

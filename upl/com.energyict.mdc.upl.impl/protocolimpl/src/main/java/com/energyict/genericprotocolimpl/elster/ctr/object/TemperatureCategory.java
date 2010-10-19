@@ -17,7 +17,7 @@ public class TemperatureCategory extends AbstractUnsignedBINObject<TemperatureCa
         this.setId(id);
     }
 
-    protected String parseSymbol(CTRObjectID id) {
+    protected String getSymbol(CTRObjectID id) {
         String symbol = "";
 
         switch (id.getY()) {
@@ -53,7 +53,7 @@ public class TemperatureCategory extends AbstractUnsignedBINObject<TemperatureCa
     }
 
 
-    public BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
+    public BigDecimal getOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
         int overflow = getCommonOverflow(unit);
         if (overflow == 0) {
             overflow = 500;
@@ -65,7 +65,7 @@ public class TemperatureCategory extends AbstractUnsignedBINObject<TemperatureCa
         return new BigDecimal(overflow);
     }
 
-    public int[] parseValueLengths(CTRObjectID id) {
+    public int[] getValueLengths(CTRObjectID id) {
         int[] valueLength = new int[]{4};
         int z = id.getZ();
         switch (id.getY()) {
@@ -102,7 +102,7 @@ public class TemperatureCategory extends AbstractUnsignedBINObject<TemperatureCa
         return valueLength;
     }
 
-    public Unit parseUnit(CTRObjectID id, int valueNumber) {
+    public Unit getUnit(CTRObjectID id, int valueNumber) {
         Unit unit;
         int y = id.getY();
         unit = Unit.get(BaseUnit.KELVIN);

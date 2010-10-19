@@ -16,7 +16,7 @@ public class EquipmentParametersCategory extends AbstractStringObject {
         this.setId(id);
     }
 
-    protected String parseSymbol(CTRObjectID id) {
+    protected String getSymbol(CTRObjectID id) {
         String symbol = "";
         int z = id.getZ();
 
@@ -55,7 +55,7 @@ public class EquipmentParametersCategory extends AbstractStringObject {
         return symbol;
     }
 
-    public BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
+    public BigDecimal getOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
         int overflow = 0;
         int z = id.getZ();
         switch(id.getY()) {
@@ -70,7 +70,7 @@ public class EquipmentParametersCategory extends AbstractStringObject {
         return new BigDecimal(overflow);
     }
 
-    public int[] parseValueLengths(CTRObjectID id) {
+    public int[] getValueLengths(CTRObjectID id) {
         int[] valueLength = null;
         int z = id.getZ();
         switch(id.getY()) {
@@ -106,7 +106,7 @@ public class EquipmentParametersCategory extends AbstractStringObject {
         return valueLength;
     }
 
-    public Unit parseUnit(CTRObjectID id, int valueNumber) {
+    public Unit getUnit(CTRObjectID id, int valueNumber) {
         return null;        //There's no units in this category
     }
 

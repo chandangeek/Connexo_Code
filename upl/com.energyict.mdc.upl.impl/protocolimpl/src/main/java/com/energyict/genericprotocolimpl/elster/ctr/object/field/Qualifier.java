@@ -108,4 +108,11 @@ public class Qualifier extends AbstractField<Qualifier>{
         byte[] ff = new byte[]{(byte) INVALID_MASK};
         return !Arrays.equals(getBytes(), ff);
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("qlf=").append(qlf);
+        return sb.toString();
+    }
 }

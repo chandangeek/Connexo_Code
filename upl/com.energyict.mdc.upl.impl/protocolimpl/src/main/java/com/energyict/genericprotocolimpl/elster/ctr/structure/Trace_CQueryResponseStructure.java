@@ -11,8 +11,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.structure.field.ReferenceDat
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -225,4 +224,30 @@ public class Trace_CQueryResponseStructure extends Data<Trace_CQueryResponseStru
         this.traceData = traceData;
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("Trace_CQueryResponseStructure {").append('\n');
+        sb.append("  pdr=").append(pdr).append('\n');
+        sb.append("  dateAndhourS=").append(dateAndhourS == null ? "null" : Arrays.asList(dateAndhourS).toString()).append('\n');
+        sb.append("  endOfDayTime=").append(endOfDayTime).append('\n');
+        sb.append("  diagn=").append(diagn).append('\n');
+        sb.append("  numberOfEvents=").append(numberOfEvents).append('\n');
+        sb.append("  totalizerQlf=").append(totalizerQlf).append('\n');
+        sb.append("  totalizerValue=").append(totalizerValue).append('\n');
+        sb.append("  id=").append(id).append('\n');
+        sb.append("  period=").append(period).append('\n');
+        sb.append("  date=").append(date).append('\n');
+        sb.append("  traceData=");
+        if (traceData != null) {
+            sb.append('\n');
+            for (AbstractCTRObject ctrObject : traceData) {
+                sb.append(ctrObject != null ? ctrObject : "null").append('\n');
+            }
+        } else {
+            sb.append("null").append('\n');
+        }
+        sb.append('}').append('\n');
+        return sb.toString();
+    }
 }

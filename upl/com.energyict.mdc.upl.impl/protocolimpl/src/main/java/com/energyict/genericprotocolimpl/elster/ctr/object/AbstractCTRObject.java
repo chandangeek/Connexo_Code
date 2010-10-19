@@ -25,11 +25,11 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
     private int[] def;
     private CTRAbstractValue[] value; //Abstract = BIN or String or BCD
 
-    public abstract Unit parseUnit(CTRObjectID id, int valueNumber);
+    public abstract Unit getUnit(CTRObjectID id, int valueNumber);
     protected abstract T parse(byte[] rawData, int offset, AttributeType type);
-    protected abstract String parseSymbol(CTRObjectID id);
-    public abstract int[] parseValueLengths(CTRObjectID id);
-    public abstract BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit);
+    protected abstract String getSymbol(CTRObjectID id);
+    public abstract int[] getValueLengths(CTRObjectID id);
+    public abstract BigDecimal getOverflowValue(CTRObjectID id, int valueNumber, Unit unit);
 
 
     protected int sum(int[] valueLength) {
@@ -143,7 +143,7 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
             }
         }
 
-        int[] lengths = parseValueLengths(getId());
+        int[] lengths = getValueLengths(getId());
         if (type.hasValueFields()) {
             byte[] valueBytes = null;
             byte[] valueResult = null;

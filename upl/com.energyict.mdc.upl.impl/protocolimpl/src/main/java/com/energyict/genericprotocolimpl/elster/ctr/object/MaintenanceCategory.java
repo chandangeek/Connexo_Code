@@ -17,7 +17,7 @@ public class MaintenanceCategory extends AbstractUnsignedBINObject<MaintenanceCa
         this.setId(id);
     }
 
-    protected String parseSymbol(CTRObjectID id) {
+    protected String getSymbol(CTRObjectID id) {
         String symbol = "";
 
         switch (id.getY()) {
@@ -45,7 +45,7 @@ public class MaintenanceCategory extends AbstractUnsignedBINObject<MaintenanceCa
     }
 
 
-    public BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
+    public BigDecimal getOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
         int overflow = getCommonOverflow(unit);
 
         switch (id.getY()) {
@@ -55,7 +55,7 @@ public class MaintenanceCategory extends AbstractUnsignedBINObject<MaintenanceCa
         return new BigDecimal(overflow);
     }
 
-    public int[] parseValueLengths(CTRObjectID id) {
+    public int[] getValueLengths(CTRObjectID id) {
         int[] valueLength;
         switch (id.getY()) {
             case 5:
@@ -68,7 +68,7 @@ public class MaintenanceCategory extends AbstractUnsignedBINObject<MaintenanceCa
     }
 
 
-    public Unit parseUnit(CTRObjectID id, int valueNumber) {
+    public Unit getUnit(CTRObjectID id, int valueNumber) {
         Unit unit = null;
         int z = id.getZ();
         switch (id.getY()) {

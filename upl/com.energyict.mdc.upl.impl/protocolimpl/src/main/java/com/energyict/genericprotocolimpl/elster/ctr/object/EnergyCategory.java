@@ -17,7 +17,7 @@ public class EnergyCategory extends AbstractUnsignedBINObject {
         this.setId(id);
     }
 
-    protected String parseSymbol(CTRObjectID id) {
+    protected String getSymbol(CTRObjectID id) {
         String symbol = "";
 
         switch (id.getY()) {
@@ -28,13 +28,13 @@ public class EnergyCategory extends AbstractUnsignedBINObject {
         return symbol;
     }
     
-    public BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
+    public BigDecimal getOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
         int overflow = 999999999;
         if (Unit.get(BaseUnit.JOULEPERHOUR, 6).equals(unit)) {overflow = 9999999;}
         return new BigDecimal(overflow);
     }
 
-    public int[] parseValueLengths(CTRObjectID id) {
+    public int[] getValueLengths(CTRObjectID id) {
         int y = id.getY();
         int[] valueLength;
             switch(y) {
@@ -45,7 +45,7 @@ public class EnergyCategory extends AbstractUnsignedBINObject {
     }
 
 
-    public Unit parseUnit(CTRObjectID id, int valueNumber) {
+    public Unit getUnit(CTRObjectID id, int valueNumber) {
         int x = id.getX();
         int y = id.getY();
         Unit unit = null;

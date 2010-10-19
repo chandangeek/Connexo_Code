@@ -17,7 +17,7 @@ public class PressureCategory extends AbstractUnsignedBINObject<PressureCategory
         this.setId(id);
     }
 
-    protected String parseSymbol(CTRObjectID id) {
+    protected String getSymbol(CTRObjectID id) {
         String symbol = "";
 
         switch (id.getY()) {
@@ -56,7 +56,7 @@ public class PressureCategory extends AbstractUnsignedBINObject<PressureCategory
         return symbol;
     }
 
-    public BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
+    public BigDecimal getOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
         int overflow = 300;
         if (valueNumber > 0) {
             overflow = getCommonOverflow(unit);
@@ -67,7 +67,7 @@ public class PressureCategory extends AbstractUnsignedBINObject<PressureCategory
         return new BigDecimal(overflow);
     }
 
-    public int[] parseValueLengths(CTRObjectID id) {
+    public int[] getValueLengths(CTRObjectID id) {
         int y = id.getY();
         int z = id.getZ();
         int[] valueLength;
@@ -95,7 +95,7 @@ public class PressureCategory extends AbstractUnsignedBINObject<PressureCategory
     }
 
 
-    public Unit parseUnit(CTRObjectID id, int valueNumber) {
+    public Unit getUnit(CTRObjectID id, int valueNumber) {
         int x = id.getX();
         int y = id.getY();
         Unit unit = null;

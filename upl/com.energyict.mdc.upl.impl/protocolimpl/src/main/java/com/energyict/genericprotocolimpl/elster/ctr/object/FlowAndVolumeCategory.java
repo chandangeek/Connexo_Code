@@ -17,7 +17,7 @@ public class FlowAndVolumeCategory extends AbstractUnsignedBINObject {
         this.setId(id);
     }
 
-    protected String parseSymbol(CTRObjectID id) {
+    protected String getSymbol(CTRObjectID id) {
         String symbol = "";
 
         switch (id.getY()) {
@@ -42,7 +42,7 @@ public class FlowAndVolumeCategory extends AbstractUnsignedBINObject {
     }
 
 
-    public BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
+    public BigDecimal getOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
         double scale = 1.0;
         double overflow = getCommonOverflow(unit);
 
@@ -59,7 +59,7 @@ public class FlowAndVolumeCategory extends AbstractUnsignedBINObject {
         return new BigDecimal((int) (overflow*scale));
     }
 
-    public int[] parseValueLengths(CTRObjectID id) {
+    public int[] getValueLengths(CTRObjectID id) {
         int[] valueLength;
         switch(id.getY()) {
                 default: valueLength = new int[]{3}; break;
@@ -77,7 +77,7 @@ public class FlowAndVolumeCategory extends AbstractUnsignedBINObject {
         return valueLength;
     }
 
-    public Unit parseUnit(CTRObjectID id, int valueNumber) {
+    public Unit getUnit(CTRObjectID id, int valueNumber) {
         Unit unit = null;
         int x = id.getX();
         int y = id.getY();

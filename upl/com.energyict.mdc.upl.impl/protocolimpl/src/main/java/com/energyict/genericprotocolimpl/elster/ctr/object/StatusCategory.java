@@ -17,7 +17,7 @@ public class StatusCategory extends AbstractUnsignedBINObject<StatusCategory> {
         this.setId(id);
     }
 
-    protected String parseSymbol(CTRObjectID id) {
+    protected String getSymbol(CTRObjectID id) {
         String symbol = "";
 
         switch (id.getY()) {
@@ -41,7 +41,7 @@ public class StatusCategory extends AbstractUnsignedBINObject<StatusCategory> {
     }
 
 
-    public BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
+    public BigDecimal getOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
         int overflow = 0;
         switch (id.getY()) {
             case 4:
@@ -52,7 +52,7 @@ public class StatusCategory extends AbstractUnsignedBINObject<StatusCategory> {
         return new BigDecimal(overflow);
     }
 
-    public int[] parseValueLengths(CTRObjectID id) {
+    public int[] getValueLengths(CTRObjectID id) {
         int[] valueLength = new int[]{};
 
         switch (id.getY()) {
@@ -78,7 +78,7 @@ public class StatusCategory extends AbstractUnsignedBINObject<StatusCategory> {
         return valueLength;
     }
 
-    public Unit parseUnit(CTRObjectID id, int valueNumber) {
+    public Unit getUnit(CTRObjectID id, int valueNumber) {
         Unit unit = null;
         switch (id.getY()) {
             case 4:

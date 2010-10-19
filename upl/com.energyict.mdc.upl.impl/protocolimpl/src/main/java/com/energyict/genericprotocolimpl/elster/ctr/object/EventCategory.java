@@ -17,7 +17,7 @@ public class EventCategory extends AbstractUnsignedBINObject {
         this.setId(id);
     }
 
-    protected String parseSymbol(CTRObjectID id) {
+    protected String getSymbol(CTRObjectID id) {
         String symbol = "";
 
         switch(id.getY()) {
@@ -32,7 +32,7 @@ public class EventCategory extends AbstractUnsignedBINObject {
     }
 
 
-    public BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
+    public BigDecimal getOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
         int overflow = getCommonOverflow(unit);
         switch(id.getY()) {
             case 0: switch(id.getZ()) {
@@ -49,7 +49,7 @@ public class EventCategory extends AbstractUnsignedBINObject {
         return new BigDecimal(overflow);
     }
 
-    public int[] parseValueLengths(CTRObjectID id) {
+    public int[] getValueLengths(CTRObjectID id) {
         int[] valueLength = new int[]{};
         int z = id.getZ();
 
@@ -66,7 +66,7 @@ public class EventCategory extends AbstractUnsignedBINObject {
     }
 
 
-    public Unit parseUnit(CTRObjectID id, int valueNumber) {
+    public Unit getUnit(CTRObjectID id, int valueNumber) {
         Unit unit = null;
         switch(id.getY()) {
             case 0:

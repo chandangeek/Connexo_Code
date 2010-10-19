@@ -32,7 +32,7 @@ public abstract class AbstractBCDObject<T extends AbstractBCDObject> extends Abs
         }
 
         if (type.hasValueFields()) {
-            int[] valueLength = this.parseValueLengths(id);
+            int[] valueLength = this.getValueLengths(id);
             this.setValue(parser.parseBCDValue(this, id, rawData, ptr, valueLength));
             ptr += sum(valueLength);  //There might be multiple value fields
         }
@@ -47,7 +47,7 @@ public abstract class AbstractBCDObject<T extends AbstractBCDObject> extends Abs
             this.setDefault(parser.parseDefault(id));
         }
 
-        this.setSymbol(parseSymbol(id));
+        this.setSymbol(getSymbol(id));
 
         return (T) this;
     }

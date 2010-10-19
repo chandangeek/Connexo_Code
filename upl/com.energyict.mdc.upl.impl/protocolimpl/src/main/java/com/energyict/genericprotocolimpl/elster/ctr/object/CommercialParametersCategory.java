@@ -1,7 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr.object;
 
 import com.energyict.cbo.Unit;
-import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 
 import java.math.BigDecimal;
 
@@ -17,12 +16,12 @@ public class CommercialParametersCategory extends AbstractUnsignedBINObject {
     }
 
     @Override
-    public Unit parseUnit(CTRObjectID id, int valueNumber) {
+    public Unit getUnit(CTRObjectID id, int valueNumber) {
         return null;
     }
 
     @Override
-    protected String parseSymbol(CTRObjectID id) {
+    protected String getSymbol(CTRObjectID id) {
         if (id.getZ() == 4) {
             return "ID-PT";
         } else {
@@ -31,7 +30,7 @@ public class CommercialParametersCategory extends AbstractUnsignedBINObject {
     }
 
     @Override
-    public int[] parseValueLengths(CTRObjectID id) {
+    public int[] getValueLengths(CTRObjectID id) {
         if (id.getZ() == 4) {
             return new int[]{2, 2, 2, 3};
         } else {
@@ -40,7 +39,7 @@ public class CommercialParametersCategory extends AbstractUnsignedBINObject {
     }
 
     @Override
-    public BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
+    public BigDecimal getOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
         return null;
     }
 }

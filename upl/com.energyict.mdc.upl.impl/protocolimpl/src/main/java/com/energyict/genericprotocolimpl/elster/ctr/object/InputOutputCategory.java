@@ -17,7 +17,7 @@ public class InputOutputCategory extends AbstractUnsignedBINObject<InputOutputCa
         this.setId(id);
     }
 
-    protected String parseSymbol(CTRObjectID id) {
+    protected String getSymbol(CTRObjectID id) {
         String symbol = "";
 
         switch (id.getY()) {
@@ -31,15 +31,15 @@ public class InputOutputCategory extends AbstractUnsignedBINObject<InputOutputCa
     }
 
 
-    public BigDecimal parseOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
+    public BigDecimal getOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
         return new BigDecimal(0);
     }
 
-    public int[] parseValueLengths(CTRObjectID id) {
+    public int[] getValueLengths(CTRObjectID id) {
         return new int[]{1, 3, 3, 3, 3};
     }
 
-    public Unit parseUnit(CTRObjectID id, int valueNumber) {
+    public Unit getUnit(CTRObjectID id, int valueNumber) {
         Unit unit;
         unit = Unit.get(BaseUnit.KELVIN);
         if (valueNumber == 0) {
