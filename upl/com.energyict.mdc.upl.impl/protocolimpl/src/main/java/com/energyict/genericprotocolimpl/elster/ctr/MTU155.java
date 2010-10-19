@@ -59,8 +59,6 @@ public class MTU155 extends AbstractGenericProtocol {
 
     @Override
     protected void doExecute() throws IOException, BusinessException, SQLException {
-        this.requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties());
-        this.obisCodeMapper = new ObisCodeMapper(getRequestFactory());
         testMethod();
 
         this.rtu = identifyAndGetRtu();
@@ -115,7 +113,6 @@ public class MTU155 extends AbstractGenericProtocol {
     }
 
     /**
-     *
      * @param communicationScheduler
      * @throws IOException
      */
@@ -170,7 +167,6 @@ public class MTU155 extends AbstractGenericProtocol {
     }
 
     /**
-     *
      * @param cp
      * @return
      */
@@ -205,18 +201,16 @@ public class MTU155 extends AbstractGenericProtocol {
     }
 
     /**
-     *
      * @param obisCode
      * @return
      * @throws NoSuchRegisterException
      * @throws CTRException
      */
     private RegisterValue readRegister(ObisCode obisCode) throws NoSuchRegisterException, CTRException {
-        return new ObisCodeMapper(getRequestFactory()).readRegister(obisCode);
+        return getObisCodeMapper().readRegister(obisCode);
     }
 
     /**
-     *
      * @param communicationProfile
      * @throws IOException
      */
@@ -249,7 +243,7 @@ public class MTU155 extends AbstractGenericProtocol {
 
     private MeterInfo getMeterInfo() {
         if (meterInfo == null) {
-            meterInfo = new MeterInfo(getRequestFactory(), getLogger(), getRtu().getDeviceTimeZone());
+            meterInfo = new MeterInfo(getRequestFactory(), getLogger(), getTimeZone());
         }
         return meterInfo;
     }
@@ -304,10 +298,6 @@ public class MTU155 extends AbstractGenericProtocol {
 
     }
 
-    public GprsRequestFactory getRequestFactory() {
-        return requestFactory;
-    }
-
     public Rtu getRtu() {
         return rtu;
     }
@@ -318,13 +308,6 @@ public class MTU155 extends AbstractGenericProtocol {
 
     public Date getNow() {
         return now;
-    }
-
-    public MeterAmrLogging getMeterAmrLogging() {
-        if (meterAmrLogging == null) {
-            meterAmrLogging = new MeterAmrLogging();
-        }
-        return meterAmrLogging;
     }
 
     private void logSuccess(CommunicationScheduler commSchedule) {
@@ -363,14 +346,45 @@ public class MTU155 extends AbstractGenericProtocol {
         }
     }
 
+    /**
+     * @return
+     */
     public ObisCodeMapper getObisCodeMapper() {
+        if (obisCodeMapper == null) {
+            this.obisCodeMapper = new ObisCodeMapper(getRequestFactory());
+        }
         return obisCodeMapper;
+    }
+
+    /**
+     * @return
+     */
+    public MeterAmrLogging getMeterAmrLogging() {
+        if (meterAmrLogging == null) {
+            meterAmrLogging = new MeterAmrLogging();
+        }
+        return meterAmrLogging;
+    }
+
+    /**
+     * @return
+     */
+    public GprsRequestFactory getRequestFactory() {
+        if (requestFactory == null) {
+            requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties());
+        }
+        return requestFactory;
     }
 
     /**
      * @return the meter's {@link TimeZone}
      */
     public TimeZone getTimeZone() {
+        if (getRtu() == null) {
+            TimeZone tz = TimeZone.getDefault();
+            getLogger().warning("Rtu not available! Using the default timeZone [" + tz.getID() + "] until rtu is available.");
+            return tz;
+        }
         return getRtu().getDeviceTimeZone();
     }
 
