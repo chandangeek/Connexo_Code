@@ -121,7 +121,7 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 					count++;
 					if (count == 2) {
 						int recTID = getSmallInt(transId);
-						if ( recTID != (c.getTransactionID()%65536))
+						if ( recTID != (c.getTransactionID()))
 							throw new ProtocolConnectionException("Transaction ID mismatch " + recTID + " // " + c.getTransactionID()%65536);
 						state = RESPONSE_STATES.BUILD_PID;
 					}
@@ -247,7 +247,7 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 					count++;
 					if (count == 2) {
 						int recTID = getSmallInt(transId);
-						if ( recTID != (c.getTransactionID()%65536))
+						if ( recTID != (c.getTransactionID()))
 							throw new ProtocolConnectionException("Transaction ID mismatch " + recTID + " // " + c.getTransactionID()%65536);
 						state = RESPONSE_STATES.BUILD_PID;
 					}

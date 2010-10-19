@@ -66,7 +66,7 @@ public class Nexus1272 extends AbstractProtocol  {
 			try {
 				authenticate(1);
 			} catch (IOException ioe2) {
-				throw new IOException("Could not authenticate with meter, check password");
+				throw new IOException("Could not authenticate with meter, check password :: " + ioe2.getMessage());
 			}
 		}
 	}

@@ -16,82 +16,89 @@ public class NexusCommandFactory {
 	}
 	
 	public Command getAuthenticationCommand() {
-		return new AuthenticationCommand(transID++);
+		return new AuthenticationCommand(getNextTransId());
 	}
 	
+	private int getNextTransId() {
+		transID++;
+		if (transID==65536)
+			transID = 0;
+		return transID;
+	}
+
 	public Command getVerifyAuthenticationCommand() {
-		return new VerifyAuthenticationCommand(transID++);
+		return new VerifyAuthenticationCommand(getNextTransId());
 	}
 	
 	public Command getSerialNumberCommand() {
-		return new SerialNumberCommand(transID++);
+		return new SerialNumberCommand(getNextTransId());
 	}
 	
 	public Command getCommBootVersionCommand() {
-		return new CommBootVersionCommand(transID++);
+		return new CommBootVersionCommand(getNextTransId());
 	}
 	
 	public Command getCommRunVersionCommand() {
-		return new CommRunVersionCommand(transID++);
+		return new CommRunVersionCommand(getNextTransId());
 	}
 	
 	public Command getDSPBootVersionCommand() {
-		return new DSPBootVersionCommand(transID++);
+		return new DSPBootVersionCommand(getNextTransId());
 	}
 	
 	public Command getDSPRunVersionCommand() {
-		return new DSPRunVersionCommand(transID++);
+		return new DSPRunVersionCommand(getNextTransId());
 	}
 	
 	public Command getGetTimeCommand() {
-		return new GetTimeCommand(transID++);
+		return new GetTimeCommand(getNextTransId());
 	}
 	
 	public Command getSetTimeCommand() {
-		return new SetTimeCommand(transID++);
+		return new SetTimeCommand(getNextTransId());
 	}
 	
 	public Command getSystemLogHeaderCommand() {
-		return new SystemLogHeaderCommand(transID++);
+		return new SystemLogHeaderCommand(getNextTransId());
 	}
 
 	public Command getSystemLogWindowCommand() {
-		return new SystemLogWindowCommand(transID++);
+		return new SystemLogWindowCommand(getNextTransId());
 	}
 	
 	public Command getWriteSingleRegisterCommand() {
-		return new WriteSingleRegisterCommand(transID++);
+		return new WriteSingleRegisterCommand(getNextTransId());
 	}
 	
 	public Command getDataPointersCommand() {
-		return new DataPointersCommand(transID++);
+		return new DataPointersCommand(getNextTransId());
 	}
 
 	public Command getHistorical2LogWindowCommand() {
-		return new Historical2LogWindowCommand(transID++);
+		return new Historical2LogWindowCommand(getNextTransId());
 	}
 
 	public Command getHistorical2LogHeaderCommand() {
-		return new Historical2LogHeaderCommand(transID++);
+		return new Historical2LogHeaderCommand(getNextTransId());
 	}
 
 	public Command getLimitTriggerLogHeaderCommand() {
-		return new LimitTriggerLogHeaderCommand(transID++);
+		return new LimitTriggerLogHeaderCommand(getNextTransId());
 	}
 
 	public Command getLimitTriggerLogWindowCommand() {
-		return new LimitTriggerLogWindowCommand(transID++);
+		return new LimitTriggerLogWindowCommand(getNextTransId());
 	}
 
 	public Command getLimitSnapshotLogWindowCommand() {
-		return new LimitSnapshotLogWindowCommand(transID++);
+		return new LimitSnapshotLogWindowCommand(getNextTransId());
 	}
 
 	public Command getLimitSnapshotLogHeaderCommand() {
-		return new LimitSnapshotLogHeaderCommand(transID++);
+		return new LimitSnapshotLogHeaderCommand(getNextTransId());
 	}
 
 	public Command getReadSingleRegisterCommand() {
-		return new ReadSingleRegisterCommand(transID++);
+		return new ReadSingleRegisterCommand(getNextTransId());
 	}
 }
