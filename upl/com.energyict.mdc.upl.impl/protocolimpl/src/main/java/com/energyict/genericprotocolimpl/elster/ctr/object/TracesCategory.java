@@ -40,7 +40,7 @@ public class TracesCategory extends AbstractUnsignedBINObject<TracesCategory> {
     }
 
     public int[] getValueLengths(CTRObjectID id) {
-        return new int[]{1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+        return new int[]{2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
     }
 
     public Unit getUnit(CTRObjectID id, int valueNumber) {

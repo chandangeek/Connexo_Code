@@ -172,13 +172,13 @@ public class GprsRequestFactory {
         return request;
     }
 
-    private GPRSFrame getTrace_CRequest(CTRObjectID objectId, PeriodTrace period, StartDate startDate) throws CTRParsingException {
+    private GPRSFrame getTrace_CRequest(CTRObjectID objectId, PeriodTrace period, ReferenceDate referenceDate) throws CTRParsingException {
         byte[] pssw = getProperties().getPassword().getBytes();
         byte[] trace_CRequest = ProtocolTools.concatByteArrays(
                 pssw,
                 objectId.getBytes(),
                 period.getBytes(),
-                startDate.getBytes()
+                referenceDate.getBytes()
         );
 
         GPRSFrame request = new GPRSFrame();
@@ -382,10 +382,10 @@ public class GprsRequestFactory {
         return arrayResponse;
     }
 
-    public Trace_CQueryResponseStructure queryTrace_C(CTRObjectID id, PeriodTrace period, StartDate startDate) throws CTRException {
+    public Trace_CQueryResponseStructure queryTrace_C(CTRObjectID id, PeriodTrace period, ReferenceDate referenceDate) throws CTRException {
 
         //Send the id, the period (15min, 1h, 1day, ...), and the start date.
-        GPRSFrame response = getConnection().sendFrameGetResponse(getTrace_CRequest(id, period, startDate));
+        GPRSFrame response = getConnection().sendFrameGetResponse(getTrace_CRequest(id, period, referenceDate));
         response.doParse();
 
         //Parse the records in the response into objects.

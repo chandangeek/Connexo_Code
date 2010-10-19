@@ -3,19 +3,17 @@ package com.energyict.genericprotocolimpl.elster.ctr;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.*;
 import com.energyict.genericprotocolimpl.common.*;
-import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRConfigurationException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
-import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
-import com.energyict.genericprotocolimpl.elster.ctr.object.*;
-import com.energyict.genericprotocolimpl.elster.ctr.structure.TableDECFQueryResponseStructure;
-import com.energyict.genericprotocolimpl.elster.ctr.structure.field.*;
-import com.energyict.genericprotocolimpl.elster.ctr.util.CtrClock;
+import com.energyict.genericprotocolimpl.elster.ctr.profile.HourlyProfile;
 import com.energyict.genericprotocolimpl.elster.ctr.util.MeterInfo;
 import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
+import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.*;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.debug.DebugUtils;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import javax.crypto.*;
 import java.io.IOException;
@@ -40,7 +38,6 @@ public class MTU155 extends AbstractGenericProtocol {
     private ObisCodeMapper obisCodeMapper;
     private Rtu rtu;
     private MeterAmrLogging meterAmrLogging;
-    private CtrClock ctrClock;
     private MeterInfo meterInfo;
 
     public String getVersion() {
@@ -64,22 +61,20 @@ public class MTU155 extends AbstractGenericProtocol {
     protected void doExecute() throws IOException, BusinessException, SQLException {
         this.requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties());
         this.obisCodeMapper = new ObisCodeMapper(getRequestFactory());
+        testMethod();
 
-        Calendar cal = Calendar.getInstance(TimeZone.getDefault());
+        this.rtu = identifyAndGetRtu();
+        log("Rtu with name '" + getRtu().getName() + "' connected successfully.");
+        getProtocolProperties().addProperties(rtu.getProtocol().getProperties());
+        getProtocolProperties().addProperties(rtu.getProperties());
+        readDevice();
+        getStoreObject().doExecute();
 
-        cal.set(Calendar.YEAR, 2010);
-        cal.set(Calendar.MONTH, 10 - 1);
-        cal.set(Calendar.DAY_OF_MONTH, 19);
-        cal.set(Calendar.HOUR_OF_DAY, 11);
-        cal.set(Calendar.MINUTE, 1);
-        cal.set(Calendar.SECOND, 0);
+    }
 
-        Data ackOrNack = getMeterInfo().setTime(cal.getTime());
-
-        System.out.println(getMeterInfo().getConverterSerialNumber());
-        System.out.println(getMeterInfo().getMTUSerialNumber());
-        System.out.println(getMeterInfo().getTime());
-
+    private void testMethod() throws CTRException {
+        HourlyProfile profile = new HourlyProfile(getRequestFactory());
+        profile.read();
     }
 
     private void readDevice() {
@@ -119,6 +114,11 @@ public class MTU155 extends AbstractGenericProtocol {
         }
     }
 
+    /**
+     *
+     * @param communicationScheduler
+     * @throws IOException
+     */
     private void executeCommunicationSchedule(CommunicationScheduler communicationScheduler) throws IOException {
         CommunicationProfile communicationProfile = communicationScheduler.getCommunicationProfile();
         String csName = communicationScheduler.displayString();
@@ -134,11 +134,11 @@ public class MTU155 extends AbstractGenericProtocol {
 
         // Read the clock & set if needed
         if (communicationProfile.getForceClock()) {
-            Date meterTime = getCtrClock().getTime();
+            Date meterTime = getMeterInfo().getTime();
             Date currentTime = Calendar.getInstance(getTimeZone()).getTime();
             setTimeDifference(Math.abs(currentTime.getTime() - meterTime.getTime()));
             getLogger().log(Level.INFO, "Forced to set meterClock to systemTime: " + currentTime);
-            getCtrClock().setTime(currentTime);
+            getMeterInfo().setTime(currentTime);
         } else {
             verifyAndWriteClock(communicationProfile);
         }
@@ -152,7 +152,7 @@ public class MTU155 extends AbstractGenericProtocol {
         // Read the register values
         if (communicationProfile.getReadMeterReadings()) {
             getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + getRtuSerialNumber());
-
+            storeObject.addAll(doReadRegisters(communicationProfile));
         }
 
         // Read the profiles
@@ -169,9 +169,60 @@ public class MTU155 extends AbstractGenericProtocol {
 
     }
 
+    /**
+     *
+     * @param cp
+     * @return
+     */
+    private Map<RtuRegister, RegisterValue> doReadRegisters(CommunicationProfile cp) {
+        HashMap<RtuRegister, RegisterValue> regValueMap = new HashMap<RtuRegister, RegisterValue>();
+        Iterator<RtuRegister> rtuRegisterIterator = getRtu().getRegisters().iterator();
+        List groups = cp.getRtuRegisterGroups();
+        while (rtuRegisterIterator.hasNext()) {
+            ObisCode obisCode = null;
+            try {
+                RtuRegister rtuRegister = rtuRegisterIterator.next();
+                if (CommonUtils.isInRegisterGroup(groups, rtuRegister)) {
+                    obisCode = rtuRegister.getRtuRegisterSpec().getObisCode();
+                    try {
+                        RegisterValue registerValue = readRegister(obisCode);
+                        registerValue.setRtuRegisterId(rtuRegister.getId());
+                        if (rtuRegister.getReadingAt(registerValue.getReadTime()) == null) {
+                            regValueMap.put(rtuRegister, registerValue);
+                        }
+                    } catch (NoSuchRegisterException e) {
+                        log(Level.FINEST, e.getMessage());
+                        getLogger().log(Level.INFO, "ObisCode " + obisCode + " is not supported by the meter.");
+                    }
+                }
+            } catch (IOException e) {
+                // TODO if the connection is out you should not try and read the others as well...
+                log(Level.FINEST, e.getMessage());
+                getLogger().log(Level.INFO, "Reading register with obisCode " + obisCode + " FAILED.");
+            }
+        }
+        return regValueMap;
+    }
+
+    /**
+     *
+     * @param obisCode
+     * @return
+     * @throws NoSuchRegisterException
+     * @throws CTRException
+     */
+    private RegisterValue readRegister(ObisCode obisCode) throws NoSuchRegisterException, CTRException {
+        return new ObisCodeMapper(getRequestFactory()).readRegister(obisCode);
+    }
+
+    /**
+     *
+     * @param communicationProfile
+     * @throws IOException
+     */
     protected void verifyAndWriteClock(CommunicationProfile communicationProfile) throws IOException {
         try {
-            Date meterTime = getCtrClock().getTime();
+            Date meterTime = getMeterInfo().getTime();
             Date now = Calendar.getInstance(getTimeZone()).getTime();
 
             setTimeDifference(Math.abs(now.getTime() - meterTime.getTime()));
@@ -181,7 +232,7 @@ public class MTU155 extends AbstractGenericProtocol {
             if (communicationProfile.getWriteClock()) {
                 if ((diff < communicationProfile.getMaximumClockDifference()) && (diff > communicationProfile.getMinimumClockDifference())) {
                     log(Level.INFO, "Metertime will be set to systemtime: " + now);
-                    getCtrClock().setTime(now);
+                    getMeterInfo().setTime(now);
                 } else if (diff > communicationProfile.getMaximumClockDifference()) {
                     log(Level.INFO, "Metertime will not be set, timeDifference is to large.");
                 }
@@ -196,20 +247,12 @@ public class MTU155 extends AbstractGenericProtocol {
 
     }
 
-    private CtrClock getCtrClock() {
-        if (ctrClock == null) {
-            ctrClock = new CtrClock(getRequestFactory(), getLogger(), null); // TODO: timezone
-        }
-        return ctrClock;
-    }
-
     private MeterInfo getMeterInfo() {
         if (meterInfo == null) {
-            meterInfo = new MeterInfo(getRequestFactory(), getLogger()); // TODO: timezone
+            meterInfo = new MeterInfo(getRequestFactory(), getLogger(), getRtu().getDeviceTimeZone());
         }
         return meterInfo;
     }
-
 
     private String getRtuSerialNumber() {
         return getRtu().getSerialNumber();

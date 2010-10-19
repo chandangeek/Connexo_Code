@@ -55,6 +55,11 @@ public class ObisCodeMapper {
     }
 
     public RegisterValue readRegister(ObisCode obisCode) throws CTRException, NoSuchRegisterException {
+        
+
+
+
+
         return new RegisterValue(obisCode);
     }
 

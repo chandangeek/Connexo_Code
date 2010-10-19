@@ -7,7 +7,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.Trace_CQueryResponseStructure;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.PeriodTrace;
-import com.energyict.genericprotocolimpl.elster.ctr.structure.field.StartDate;
+import com.energyict.genericprotocolimpl.elster.ctr.structure.field.ReferenceDate;
 
 import java.util.List;
 
@@ -26,21 +26,27 @@ public class HourlyProfile {
     }
 
     public void read() throws CTRException {
-        getProfileInfo();
+        getProfileInfo("15.0.2", "15.0.3");
 
-        CTRObjectID objectID = new CTRObjectID("1.2.2");
-        PeriodTrace period = new PeriodTrace(2);
-        StartDate startDate = new StartDate().parse(new byte[] {10, 10, 19}, 0);
-        Trace_CQueryResponseStructure response = getRequestFactory().queryTrace_C(objectID, period, startDate);
-        System.out.println(response);
+        String[] ids = {/*"1.0.2", "1.2.2", "4.0.2",*/ "7.0.2"/*, "1.1.3", "1.3.3", "1.F.2", "2.0.3", "2.1.3", "2.3.3", "1.A.3", "12.6.3"*/};
+        for (String id : ids) {
+            CTRObjectID objectID = new CTRObjectID(id);
+            PeriodTrace period = new PeriodTrace(1);
+            ReferenceDate referenceDate = new ReferenceDate().parse(new byte[]{10, 10, 18}, 0);
+            Trace_CQueryResponseStructure response = getRequestFactory().queryTrace_C(objectID, period, referenceDate);
+            for (AbstractCTRObject object : response.getTraceData()) {
+                if (object.getQlf().isValid()) {
+                    System.out.println(object.getValue()[0].getValue());
+                }
+            }
+        }
     }
 
-    public void getProfileInfo() throws CTRException {
-        List<AbstractCTRObject> ctrObjectList = getRequestFactory().queryRegisters(AttributeType.getValueOnly(), "15.0.2");
+    public void getProfileInfo(String... profiles) throws CTRException {
+        List<AbstractCTRObject> ctrObjectList = getRequestFactory().queryRegisters(AttributeType.getValueOnly(), profiles);
         for (AbstractCTRObject ctrObject : ctrObjectList) {
             System.out.println(ctrObject);
         }
-
     }
 
     public GprsRequestFactory getRequestFactory() {

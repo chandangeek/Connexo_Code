@@ -23,7 +23,7 @@ public class SecureGprsConnection extends GprsConnection {
     public SecureGprsConnection(InputStream in, OutputStream out, MTU155Properties properties) {
         super(in, out, properties);
         ctrEncryption = new CTREncryption(properties.getKeyC(), properties.getKeyT(), properties.getKeyF());
-        debug = true;
+        debug = false;
     }
 
     @Override
