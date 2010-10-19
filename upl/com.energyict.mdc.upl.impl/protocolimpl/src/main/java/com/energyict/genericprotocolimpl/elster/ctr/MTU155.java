@@ -3,13 +3,19 @@ package com.energyict.genericprotocolimpl.elster.ctr;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.*;
 import com.energyict.genericprotocolimpl.common.*;
+import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRConfigurationException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
-import com.energyict.genericprotocolimpl.elster.ctr.profile.HourlyProfile;
+import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
+import com.energyict.genericprotocolimpl.elster.ctr.object.*;
+import com.energyict.genericprotocolimpl.elster.ctr.structure.TableDECFQueryResponseStructure;
+import com.energyict.genericprotocolimpl.elster.ctr.structure.field.*;
 import com.energyict.genericprotocolimpl.elster.ctr.util.CtrClock;
+import com.energyict.genericprotocolimpl.elster.ctr.util.MeterInfo;
 import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
 import com.energyict.mdw.core.*;
 import com.energyict.protocolimpl.debug.DebugUtils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import javax.crypto.*;
 import java.io.IOException;
@@ -35,6 +41,7 @@ public class MTU155 extends AbstractGenericProtocol {
     private Rtu rtu;
     private MeterAmrLogging meterAmrLogging;
     private CtrClock ctrClock;
+    private MeterInfo meterInfo;
 
     public String getVersion() {
         return "$Date$";
@@ -57,19 +64,21 @@ public class MTU155 extends AbstractGenericProtocol {
     protected void doExecute() throws IOException, BusinessException, SQLException {
         this.requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties());
         this.obisCodeMapper = new ObisCodeMapper(getRequestFactory());
-        HourlyProfile profile = new HourlyProfile(getRequestFactory());
-        profile.read();
 
+        Calendar cal = Calendar.getInstance(TimeZone.getDefault());
 
-/*
-        this.rtu = identifyAndGetRtu();
-        log("Rtu with name '" + getRtu().getName() + "' connected successfully.");
-        getProtocolProperties().addProperties(rtu.getProtocol().getProperties());
-        getProtocolProperties().addProperties(rtu.getProperties());
-        readDevice();
-        getStoreObject().doExecute();
-*/
+        cal.set(Calendar.YEAR, 2010);
+        cal.set(Calendar.MONTH, 10 - 1);
+        cal.set(Calendar.DAY_OF_MONTH, 19);
+        cal.set(Calendar.HOUR_OF_DAY, 11);
+        cal.set(Calendar.MINUTE, 1);
+        cal.set(Calendar.SECOND, 0);
 
+        Data ackOrNack = getMeterInfo().setTime(cal.getTime());
+
+        System.out.println(getMeterInfo().getConverterSerialNumber());
+        System.out.println(getMeterInfo().getMTUSerialNumber());
+        System.out.println(getMeterInfo().getTime());
 
     }
 
@@ -193,6 +202,14 @@ public class MTU155 extends AbstractGenericProtocol {
         }
         return ctrClock;
     }
+
+    private MeterInfo getMeterInfo() {
+        if (meterInfo == null) {
+            meterInfo = new MeterInfo(getRequestFactory(), getLogger()); // TODO: timezone
+        }
+        return meterInfo;
+    }
+
 
     private String getRtuSerialNumber() {
         return getRtu().getSerialNumber();

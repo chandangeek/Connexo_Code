@@ -23,7 +23,7 @@ public class MeterInfo extends AbstractUtilObject {
     private TimeZone timeZone;
     private List<AbstractCTRObject> ctrObjectList;
     private long time;
-    private int wdbCounter = 0x92;
+    private int wdbCounter = 0x05;
 
     public MeterInfo(GprsRequestFactory requestFactory, Logger logger, TimeZone timeZone) {
         super(requestFactory, logger);
@@ -51,7 +51,8 @@ public class MeterInfo extends AbstractUtilObject {
         return getDateFromObject(object1);
     }
 
-    public Data setTime(ReferenceDate refDate, int mode, int year, int month, int day, int dayOfWeek, int hour, int minutes, int seconds, int gmtOffset, int period) throws CTRException {
+    public Data setTime(Date referenceDate, int mode, int year, int month, int day, int dayOfWeek, int hour, int minutes, int seconds) throws CTRException {
+
         byte[] data = new byte[10];
         data[0] = (byte) mode;
         data[1] = (byte) year;
@@ -61,32 +62,30 @@ public class MeterInfo extends AbstractUtilObject {
         data[5] = (byte) hour;
         data[6] = (byte) minutes;
         data[7] = (byte) seconds;
-        data[8] = (byte) gmtOffset;
-        data[9] = (byte) period;
+        data[8] = (byte) (timeZone.getRawOffset() / 3600000);
+        data[9] = (byte) (timeZone.inDaylightTime(referenceDate) ? 1 : 0);
         WriteDataBlock wdb = new WriteDataBlock(wdbCounter++);
+        ReferenceDate refDate = new ReferenceDate().parse(referenceDate, timeZone);
+        refDate.setTomorrow();
 
         Data ackOrNack = getRequestFactory().executeRequest(refDate, wdb, new CTRObjectID("11.0.1"), data);
         return ackOrNack;
     }
 
-    public Data setTime(ReferenceDate refDate, int hour, int minutes, int seconds, int gmtOffset, int period) throws CTRException {
-
-        GregorianCalendar calendar = new GregorianCalendar();
-
-        byte[] data = new byte[10];
-        data[0] = (byte) 0;
-        data[1] = (byte) (calendar.get(Calendar.YEAR) - 2000);
-        data[2] = (byte) (calendar.get(Calendar.MONTH) + 1);
-        data[3] = (byte) calendar.get(Calendar.DATE);
-        data[4] = (byte) (calendar.get(Calendar.DAY_OF_WEEK) - 1);
-        data[5] = (byte) hour;
-        data[6] = (byte) minutes;
-        data[7] = (byte) seconds;
-        data[8] = (byte) gmtOffset;
-        data[9] = (byte) period;
-        WriteDataBlock wdb = new WriteDataBlock(wdbCounter++);
-
-        Data ackOrNack = getRequestFactory().executeRequest(refDate, wdb, new CTRObjectID("11.0.1"), data);
+    public Data setTime(Date time) throws CTRException {
+        Calendar cal = Calendar.getInstance(timeZone);
+        cal.setTime(time);
+        Data ackOrNack = setTime(
+                time,
+                0,
+                cal.get(Calendar.YEAR) - 2000,
+                cal.get(Calendar.MONTH) + 1,
+                cal.get(Calendar.DAY_OF_MONTH),
+                cal.get(Calendar.DAY_OF_WEEK),
+                cal.get(Calendar.HOUR_OF_DAY),
+                cal.get(Calendar.MINUTE),
+                cal.get(Calendar.SECOND)
+        );
         return ackOrNack;
     }
 
