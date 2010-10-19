@@ -15,17 +15,17 @@ public class NexusCommandFactory {
 		return ncf;
 	}
 	
-	public Command getAuthenticationCommand() {
-		return new AuthenticationCommand(getNextTransId());
-	}
-	
 	private int getNextTransId() {
 		transID++;
 		if (transID==65536)
 			transID = 0;
 		return transID;
 	}
-
+	
+	public Command getAuthenticationCommand() {
+		return new AuthenticationCommand(getNextTransId());
+	}
+	
 	public Command getVerifyAuthenticationCommand() {
 		return new VerifyAuthenticationCommand(getNextTransId());
 	}
