@@ -14,6 +14,30 @@ public class CTRRegisterMapping {
     private CTRObjectID objectId;
     private String description;
 
+    public ObisCode getObisCode() {
+        return obisCode;
+    }
+
+    public void setObisCode(ObisCode obisCode) {
+        this.obisCode = obisCode;
+    }
+
+    public CTRObjectID getObjectId() {
+        return objectId;
+    }
+
+    public void setObjectId(CTRObjectID objectId) {
+        this.objectId = objectId;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public CTRRegisterMapping(ObisCode obisCode, CTRObjectID objectId, String description) {
         this.description = description;
         this.obisCode = obisCode;
@@ -30,6 +54,10 @@ public class CTRRegisterMapping {
 
     public CTRRegisterMapping(ObisCode obisCode, CTRObjectID objectId) {
         this(obisCode, objectId, obisCode.getDescription());
+    }
+
+    public String getId() {
+        return objectId.toString();
     }
 
 }

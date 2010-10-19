@@ -1,12 +1,19 @@
 package com.energyict.genericprotocolimpl.elster.ctr;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
+import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -15,6 +22,7 @@ import java.util.List;
  */
 public class ObisCodeMapper {
 
+    private Logger logger;
     private List<CTRRegisterMapping> registerMapping = new ArrayList<CTRRegisterMapping>();
     private final GprsRequestFactory requestFactory;
 
@@ -43,7 +51,6 @@ public class ObisCodeMapper {
         registerMapping.add(new CTRRegisterMapping("7.0.128.8.0.255", "18.7.3"));   //Tot_Vme_f2_g  = Manufacturer specific code!!
         registerMapping.add(new CTRRegisterMapping("7.0.128.9.0.255", "18.8.3"));   //Tot_Vme_f3_g  = Manufacturer specific code!!
 
-
         registerMapping.add(new CTRRegisterMapping("7.0.13.0.1.255", "2.5.0"));     //Tot_Vcor_f1
         registerMapping.add(new CTRRegisterMapping("7.0.13.0.2.255", "2.5.1"));     //Tot_Vcor_f2
         registerMapping.add(new CTRRegisterMapping("7.0.13.0.3.255", "2.5.2"));     //Tot_Vcor_f3
@@ -55,12 +62,65 @@ public class ObisCodeMapper {
     }
 
     public RegisterValue readRegister(ObisCode obisCode) throws CTRException, NoSuchRegisterException {
-        
+        AttributeType attributeType = new AttributeType();
+        attributeType.setHasIdentifier(true);
+        attributeType.setHasValueFields(true);
+        attributeType.setHasQualifier(true);
+        String id = null;
+
+        for (CTRRegisterMapping ctrRegisterMapping : registerMapping) {
+            if (obisCode.equals(ctrRegisterMapping.getObisCode())) {
+                id = ctrRegisterMapping.getId();
+                break;
+            }
+        }
 
 
+        if (id == null) {
+            throw new NoSuchRegisterException("Unsupported Obis Code");
+        }
 
+        List<AbstractCTRObject> list = getRequestFactory().queryRegisters(attributeType, id);
+        AbstractCTRObject object = list.get(0);
+        RegisterValue regValue;
+        Quantity quantity;
 
-        return new RegisterValue(obisCode);
+        if (object.getQlf().isInvalid()) {
+            throw new CTRParsingException("Invalid Data: Qualifier was 0xFF at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");
+        } else if (object.getQlf().isInvalidMeasurement()) {
+            throw new CTRParsingException("Invalid Measurement at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");
+        } else if (object.getQlf().isSubjectToMaintenance()) {
+            throw new CTRParsingException("Meter is subject to maintenance  at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");
+        } else {
+            if (object.getValue().length == 1) {
+                CTRAbstractValue value = object.getValue()[0];
+                quantity = new Quantity((BigDecimal) value.getValue(), value.getUnit());
+                regValue = new RegisterValue(obisCode, quantity);
+            } else {
+                Calendar cal = Calendar.getInstance();
+                CTRAbstractValue value1 = object.getValue()[0];
+                CTRAbstractValue value2 = object.getValue()[1];
+                CTRAbstractValue value3 = object.getValue()[2];
+                int hours = value2.getIntValue();
+                int minutes = value3.getIntValue();
+                quantity = new Quantity((BigDecimal) value1.getValue(), value1.getUnit());
+                cal.set(Calendar.HOUR_OF_DAY, hours);
+                cal.set(Calendar.MINUTE, minutes);
+                Date date = cal.getTime();
+                regValue = new RegisterValue(obisCode, quantity, date);
+            }
+        }
+        getLogger().log(Level.INFO, "Succesfully read register with ID: " + id.toString() + " and Obiscode: " + obisCode.toString());
+
+        System.out.println(regValue.toString());
+        return regValue;
+    }
+
+        public Logger getLogger() {
+        if (logger == null) {
+            logger = Logger.getLogger(getClass().getName());
+        }
+        return logger;
     }
 
 }

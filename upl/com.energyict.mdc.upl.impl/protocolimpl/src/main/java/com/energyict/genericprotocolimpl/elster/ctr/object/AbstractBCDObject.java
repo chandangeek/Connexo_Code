@@ -25,7 +25,7 @@ public abstract class AbstractBCDObject<T extends AbstractBCDObject> extends Abs
         if (type.hasQualifier()) {
             Qualifier qlf = new Qualifier(parser.parseQlf(rawData, ptr));
             this.setQlf(qlf);
-            if (!qlf.isValid()) {
+            if (qlf.isInvalid()) {
                 return (T) this;   //If the QLF is 0xFF (invalid), return an empty object
             }
             ptr += qlf.getLength();

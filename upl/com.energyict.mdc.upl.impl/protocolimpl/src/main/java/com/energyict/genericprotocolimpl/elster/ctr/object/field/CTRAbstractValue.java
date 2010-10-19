@@ -17,6 +17,11 @@ public abstract class CTRAbstractValue<T extends Object> {
     protected String type;
     protected int valueLength;
 
+    public static final String STRING = "String";
+    public static final String SIGNEDBIN = "SignedBIN";
+    public static final String BCD = "BCD";
+    public static final String BIN = "BIN";
+
     public abstract byte[] getBytes();
 
     public BigDecimal getOverflowValue() {
@@ -35,6 +40,9 @@ public abstract class CTRAbstractValue<T extends Object> {
     }
 
     public Unit getUnit() {
+        if (unit == null) {
+            return Unit.getUndefined();
+        }
         return unit;
     }
     public void setUnit(Unit unit) {

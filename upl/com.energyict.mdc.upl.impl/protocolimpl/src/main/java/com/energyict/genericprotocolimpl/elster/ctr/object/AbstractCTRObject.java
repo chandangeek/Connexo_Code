@@ -138,7 +138,7 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
         if (type.hasQualifier()) {
             byte[] qlf = converter.convertQlf(getQlf().getQlf());
             bytes = ProtocolTools.concatByteArrays(bytes, qlf);
-            if (!getQlf().isValid()) {
+            if (getQlf().isInvalid()) {
                 return bytes;       //Stop here if the qlf indicates the object is invalid
             }
         }
@@ -150,16 +150,16 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
 
             for (int i = 0; i < lengths.length; i++) {
 
-                if ("String".equals(value[i].getType())) {
+                if (CTRAbstractValue.STRING.equals(value[i].getType())) {
                     valueBytes = converter.convertStringValue((String) value[i].getValue(), lengths[i]);
                 }
-                if ("BIN".equals(value[i].getType())) {
+                if (CTRAbstractValue.BIN.equals(value[i].getType())) {
                     valueBytes = converter.convertBINValue((BigDecimal) value[i].getValue(), lengths[i]);
                 }
-                if ("SignedBIN".equals(value[i].getType())) {
+                if (CTRAbstractValue.SIGNEDBIN.equals(value[i].getType())) {
                     valueBytes = converter.convertSignedBINValue((BigDecimal) value[i].getValue(), lengths[i]);
                 }
-                if ("BCD".equals(value[i].getType())) {
+                if (CTRAbstractValue.BCD.equals(value[i].getType())) {
                     valueBytes = converter.convertBCDValue((String) value[i].getValue());
                 }
 

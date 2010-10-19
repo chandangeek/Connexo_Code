@@ -180,6 +180,10 @@ public class MTU155 extends AbstractGenericProtocol {
                 RtuRegister rtuRegister = rtuRegisterIterator.next();
                 if (CommonUtils.isInRegisterGroup(groups, rtuRegister)) {
                     obisCode = rtuRegister.getRtuRegisterSpec().getObisCode();
+                    System.out.println(obisCode.toString());
+                    System.out.println();
+
+
                     try {
                         RegisterValue registerValue = readRegister(obisCode);
                         registerValue.setRtuRegisterId(rtuRegister.getId());
@@ -195,6 +199,7 @@ public class MTU155 extends AbstractGenericProtocol {
                 // TODO if the connection is out you should not try and read the others as well...
                 log(Level.FINEST, e.getMessage());
                 getLogger().log(Level.INFO, "Reading register with obisCode " + obisCode + " FAILED.");
+                e.printStackTrace();
             }
         }
         return regValueMap;

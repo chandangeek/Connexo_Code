@@ -41,14 +41,20 @@ public class MeterInfo extends AbstractUtilObject {
         getLogger().warning("No timezone given. Using default timeZone: [" + this.timeZone.getID() + "]");
     }
 
-    public String getConverterSerialNumber() {
-        AbstractCTRObject object3 = getCtrObjectList().get(2);
-        return object3.getValue()[1].getValue().toString();
+    public String getConverterSerialNumber() throws CTRException {
+        try {
+            return getCtrObjectList().get(2).getValue()[1].getValue().toString();
+        } catch (CTRException e) {
+            throw new CTRException("Unable to read Converter SerialNumber", e);
+        }
     }
 
     public Date getTime() throws CTRException {
-        AbstractCTRObject object1 = getCtrObjectList().get(0);
-        return getDateFromObject(object1);
+        try {
+            return getDateFromObject(getCtrObjectList().get(0));
+        } catch (CTRException e) {
+            throw new CTRException("Unable to read Clock", e);
+        }
     }
 
     public Data setTime(Date referenceDate, int mode, int year, int month, int day, int dayOfWeek, int hour, int minutes, int seconds) throws CTRException {
@@ -89,9 +95,12 @@ public class MeterInfo extends AbstractUtilObject {
         return ackOrNack;
     }
 
-    public String getMTUSerialNumber() {
-        AbstractCTRObject object2 = getCtrObjectList().get(1);
-        return object2.getValue()[0].getValue().toString();
+    public String getMTUSerialNumber() throws CTRException {
+        try {
+            return getCtrObjectList().get(1).getValue()[0].getValue().toString();
+        } catch (CTRException e) {
+            throw new CTRException("Unable to read MTU SerialNumber", e);
+        }
     }
 
     private Date getDateFromObject(AbstractCTRObject object) throws CTRException {
@@ -123,16 +132,12 @@ public class MeterInfo extends AbstractUtilObject {
         return cal.getTime();
     }
 
-    private List<AbstractCTRObject> getCtrObjectList() {
+    private List<AbstractCTRObject> getCtrObjectList() throws CTRException {
 
         if (ctrObjectList == null) {
             AttributeType attributeType = new AttributeType(0x03);
-            try {
-                ctrObjectList = getRequestFactory().queryRegisters(attributeType, "8.0.0", "9.0.2", "C.2.1");
-                time = System.currentTimeMillis();
-            } catch (CTRException e) {
-                e.printStackTrace();
-            }
+            ctrObjectList = getRequestFactory().queryRegisters(attributeType, "8.0.0", "9.0.2", "C.2.1");
+            time = System.currentTimeMillis();
         }
         return ctrObjectList;
     }

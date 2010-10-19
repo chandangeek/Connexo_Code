@@ -81,6 +81,18 @@ public class Qualifier extends AbstractField<Qualifier>{
         return tarif;
     }
 
+    public boolean isInvalidMeasurement() {
+        return "Invalid measurement".equals(getValueDescription());
+    }
+
+    public boolean isSubjectToMaintenance() {
+        return "Value when subject to maintenance".equals(getValueDescription());
+    }
+
+    public boolean isValid() {
+        return "Valid effective value".equals(getValueDescription());
+    }
+
     public double getKmoltFactor() {
         int kmolt = qlf & (0x07);
         if (kmolt < 7) {
@@ -104,9 +116,9 @@ public class Qualifier extends AbstractField<Qualifier>{
         return valueTime;
     }
 
-    public boolean isValid() {
+    public boolean isInvalid() {
         byte[] ff = new byte[]{(byte) INVALID_MASK};
-        return !Arrays.equals(getBytes(), ff);
+        return Arrays.equals(getBytes(), ff);
     }
 
     @Override

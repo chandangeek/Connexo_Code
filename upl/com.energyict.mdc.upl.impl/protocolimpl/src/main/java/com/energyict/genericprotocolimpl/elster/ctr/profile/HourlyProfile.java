@@ -35,7 +35,7 @@ public class HourlyProfile {
             ReferenceDate referenceDate = new ReferenceDate().parse(new byte[]{10, 10, 18}, 0);
             Trace_CQueryResponseStructure response = getRequestFactory().queryTrace_C(objectID, period, referenceDate);
             for (AbstractCTRObject object : response.getTraceData()) {
-                if (object.getQlf().isValid()) {
+                if (!object.getQlf().isInvalid()) {
                     System.out.println(object.getValue()[0].getValue());
                 }
             }
