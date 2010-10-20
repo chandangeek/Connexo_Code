@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.profile;
 
 import com.energyict.genericprotocolimpl.elster.ctr.GprsRequestFactory;
+import com.energyict.genericprotocolimpl.elster.ctr.MTU155Properties;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
@@ -8,6 +9,8 @@ import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.Trace_CQueryResponseStructure;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.PeriodTrace;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.ReferenceDate;
+import com.energyict.mdw.core.Channel;
+import com.energyict.protocol.ProfileData;
 
 import java.util.List;
 
@@ -16,16 +19,23 @@ import java.util.List;
  * Date: 18-okt-2010
  * Time: 16:14:08
  */
-public class HourlyProfile {
+public class ProfileChannel {
 
     private final GprsRequestFactory requestFactory;
 
 
-    public HourlyProfile(GprsRequestFactory requestFactory) {
+    public ProfileChannel(GprsRequestFactory requestFactory) {
         this.requestFactory = requestFactory;
+        requestFactory.getProperties().getChannelConfig();
     }
 
-    public void read() throws CTRException {
+    public ProfileData getProfileData(Channel meterChannel) throws CTRException {
+        int loadProfileIndex = meterChannel.getLoadProfileIndex(); // 1-based
+
+        String channelId = getProperties().getChannelConfig().getChannelObjectId(loadProfileIndex);
+        System.out.println(channelId);
+
+
         getProfileInfo("15.0.2", "15.0.3");
 
         String[] ids = {/*"1.0.2", "1.2.2", "4.0.2",*/ "7.0.2"/*, "1.1.3", "1.3.3", "1.F.2", "2.0.3", "2.1.3", "2.3.3", "1.A.3", "12.6.3"*/};
@@ -40,6 +50,7 @@ public class HourlyProfile {
                 }
             }
         }
+        return new ProfileData();
     }
 
     public void getProfileInfo(String... profiles) throws CTRException {
@@ -52,4 +63,9 @@ public class HourlyProfile {
     public GprsRequestFactory getRequestFactory() {
         return requestFactory;
     }
+
+    private MTU155Properties getProperties() {
+        return getRequestFactory().getProperties();
+    }
+
 }
