@@ -178,11 +178,11 @@ public class MTU155 extends AbstractGenericProtocol {
     }
 
     private void readChannelData() {
-        ProfileChannel profile = new ProfileChannel(getRequestFactory(), meterChannel);
         List<Channel> channelList = getRtu().getChannels();
         for (Channel channel : channelList) {
             try {
-                ProfileData pd = profile.getProfileData(channel);
+                ProfileChannel profile = new ProfileChannel(getRequestFactory(), channel);
+                ProfileData pd = profile.getProfileData();
                 storeObject.add(channel, pd);
             } catch (CTRException e) {
                 getLogger().warning("Unable to read channelValues for channel [......]" + e.getMessage());
