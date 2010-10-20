@@ -109,7 +109,7 @@ public class MTU155Properties extends AbstractProtocolProperties {
     }
 
     public byte[] getKeyFBytes() {
-        return getByteValue(getKeyT());
+        return getByteValue(getKeyF());
     }
 
     @ProtocolProperty
