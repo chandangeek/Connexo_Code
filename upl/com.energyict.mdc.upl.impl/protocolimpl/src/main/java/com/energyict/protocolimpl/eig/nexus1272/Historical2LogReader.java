@@ -4,12 +4,17 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.IntervalSet;
+import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.eig.nexus1272.command.Command;
 import com.energyict.protocolimpl.eig.nexus1272.command.NexusCommandFactory;
 import com.energyict.protocolimpl.eig.nexus1272.parse.LinePoint;
@@ -54,22 +59,41 @@ public class Historical2LogReader extends AbstractLogReader {
 
 
 	@Override
-	public void parseLog(byte[] byteArray, ProfileData profileData, Date from) throws IOException {
+	public void parseLog(byte[] byteArray, ProfileData profileData, Date from, int intervalSeconds) throws IOException {
 		List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
 		int offset = 0;
 		int length = 4;
 		int recNum = 0;
+		
 
 		try{
 
 			while (offset < byteArray.length) {
+				int eiStatus = 0;
 				length=8;
 				Date recDate = parseF3(byteArray, offset);
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(recDate);
+				ParseUtils.isOnIntervalBoundary(cal, intervalSeconds);
+				int rest = (int)(cal.getTime().getTime()/1000) % intervalSeconds;
+				if (rest!=0) { 
+					if (rest < 450 ) {
+						ParseUtils.roundDown2nearestInterval(cal, intervalSeconds);
+					}
+					else {
+						ParseUtils.roundUp2nearestInterval(cal, intervalSeconds);
+					}
+					recDate = cal.getTime();
+					eiStatus = IntervalStateBits.SHORTLONG;
+				}
+				
+//				System.out.println(recDate + " --- " + cal.getTime());
 				if (recDate.before(from)) {
 					recNum++;
 					offset = recNum * meterlpMap.size()*8;
 					continue;
 				}
+				
 				offset+= length;
 				IntervalData intervalData = new IntervalData(recDate,0,0);
 				for (LinePoint lp : meterlpMap) {
@@ -86,7 +110,7 @@ public class Historical2LogReader extends AbstractLogReader {
 									divisor = new BigDecimal(Math.pow(10, numDecimals));
 							}
 							val = val.divide(divisor);
-							intervalData.addValue(val, 0, 0);
+							intervalData.addValue(val, 0, eiStatus);
 							break;
 						}
 					}

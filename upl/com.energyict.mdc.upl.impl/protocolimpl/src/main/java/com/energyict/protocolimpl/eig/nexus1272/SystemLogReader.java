@@ -34,7 +34,7 @@ public class SystemLogReader extends AbstractLogReader {
 	}
 	
 	@Override
-	public void parseLog(byte[] byteArray, ProfileData profileData, Date from) throws IOException {
+	public void parseLog(byte[] byteArray, ProfileData profileData, Date from, int intervalSeconds) throws IOException {
 		parseSystemLog(byteArray);
 	}
 	

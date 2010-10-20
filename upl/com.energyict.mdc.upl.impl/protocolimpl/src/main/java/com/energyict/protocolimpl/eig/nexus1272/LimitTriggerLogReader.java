@@ -45,7 +45,7 @@ public class LimitTriggerLogReader extends AbstractLogReader {
 	private int recSize = 32;
 	private Date recDate;
 	@Override
-	public void parseLog(byte[] limitTriggerLogData, ProfileData profileData, Date from) throws IOException {
+	public void parseLog(byte[] limitTriggerLogData, ProfileData profileData, Date from, int intervalSeconds) throws IOException {
 		int offset = 0;
 		int length = 8;
 		int recNum = 0;

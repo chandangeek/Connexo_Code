@@ -251,5 +251,5 @@ public abstract class AbstractLogReader implements LogReader{
 		return cal.getTime();
 	}
 
-	public abstract void parseLog(byte[] byteArray, ProfileData profileData, Date from) throws IOException;
+	public abstract void parseLog(byte[] byteArray, ProfileData profileData, Date from, int intervalInSeconds) throws IOException;
 }

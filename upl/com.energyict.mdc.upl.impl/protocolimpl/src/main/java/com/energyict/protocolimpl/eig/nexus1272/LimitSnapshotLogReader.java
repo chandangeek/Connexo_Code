@@ -38,7 +38,7 @@ public class LimitSnapshotLogReader extends AbstractLogReader {
 	}
 
 	@Override
-	public void parseLog(byte[] LimitSnapshotLogData, ProfileData profileData, Date from) throws IOException {
+	public void parseLog(byte[] LimitSnapshotLogData, ProfileData profileData, Date from, int intervalSeconds) throws IOException {
 		throw new UnsupportedException();
 
 	}

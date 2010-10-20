@@ -52,6 +52,7 @@ public class Nexus1272 extends AbstractProtocol  {
 	private ScaledEnergySettingFactory sesf;
 	private String channelMapping;
 	private String password;
+	private int intervalLength;
 
 
 	public Nexus1272() {
@@ -74,7 +75,7 @@ public class Nexus1272 extends AbstractProtocol  {
 	@Override
 	protected void doDisConnect() throws IOException {
 		long duration = System.currentTimeMillis() - start;
-		System.out.println("Took " + duration + " ms");
+//		System.out.println("Took " + duration + " ms");
 
 	}
 
@@ -94,6 +95,7 @@ public class Nexus1272 extends AbstractProtocol  {
 			HalfDuplexController halfDuplexController) throws IOException {
 		connection = new NexusProtocolConnection(inputStream,outputStream,timeoutProperty,protocolRetriesProperty,forcedDelay,echoCancelling,protocolCompatible,encryptor,getLogger());
 		this.outputStream = outputStream;
+		intervalLength = getInfoTypeProfileInterval();
 		return connection;
 	}
 
@@ -260,13 +262,13 @@ public class Nexus1272 extends AbstractProtocol  {
 		LogReader 
 		lr = new SystemLogReader(outputStream, connection);
 		byte[] byteArray = lr.readLog(from);
-		lr.parseLog(byteArray, profileData, from);
+		lr.parseLog(byteArray, profileData, from, intervalLength);
 		List<MeterEvent> meterEvents = ((SystemLogReader)lr).getMeterEvents();
 		
 		
 		lr = new LimitTriggerLogReader(outputStream, connection);
 		byteArray = lr.readLog(from);
-		lr.parseLog(byteArray, profileData, from);
+		lr.parseLog(byteArray, profileData, from, intervalLength);
 		meterEvents.addAll(((LimitTriggerLogReader)lr).getMeterEvents());
 //		lr = new LimitSnapshotLogReader(outputStream, connection);
 //		byteArray = lr.readLog(from);
@@ -297,7 +299,7 @@ public class Nexus1272 extends AbstractProtocol  {
 	private void buildIntervalData(ProfileData profileData, Date from, Date to) throws IOException {
 		LogReader lr = new Historical2LogReader(outputStream, connection, mtrlpMap, masterlpMap, sesf);
 		byte[] ba = lr.readLog(from);
-		lr.parseLog(ba, profileData, from);
+		lr.parseLog(ba, profileData, from, intervalLength);
 		
 	}
 
