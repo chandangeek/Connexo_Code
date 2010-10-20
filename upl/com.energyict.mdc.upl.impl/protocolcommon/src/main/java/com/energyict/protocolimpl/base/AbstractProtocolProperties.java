@@ -31,6 +31,10 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
         return ProtocolTools.getBytesFromHexString(getStringValue(propertyName, defaultValue), "");
     }
 
+    protected byte[] getByteValue(String value) {
+        return ProtocolTools.getBytesFromHexString(value, "");
+    }
+
     public Properties getProtocolProperties() {
         return protocolProperties;
     }

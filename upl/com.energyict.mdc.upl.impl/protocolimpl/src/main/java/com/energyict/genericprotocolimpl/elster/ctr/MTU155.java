@@ -5,14 +5,13 @@ import com.energyict.dialer.core.*;
 import com.energyict.genericprotocolimpl.common.*;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRConfigurationException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
-import com.energyict.genericprotocolimpl.elster.ctr.profile.HourlyProfile;
+import com.energyict.genericprotocolimpl.elster.ctr.profile.ProfileChannel;
 import com.energyict.genericprotocolimpl.elster.ctr.util.MeterInfo;
 import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.debug.DebugUtils;
 
 import javax.crypto.*;
@@ -59,20 +58,24 @@ public class MTU155 extends AbstractGenericProtocol {
 
     @Override
     protected void doExecute() throws IOException, BusinessException, SQLException {
-        testMethod();
-
-        this.rtu = identifyAndGetRtu();
-        log("Rtu with name '" + getRtu().getName() + "' connected successfully.");
-        getProtocolProperties().addProperties(rtu.getProtocol().getProperties());
-        getProtocolProperties().addProperties(rtu.getProperties());
-        readDevice();
-        getStoreObject().doExecute();
-
+        try {
+            this.rtu = identifyAndGetRtu();
+            log("Rtu with name '" + getRtu().getName() + "' connected successfully.");
+            getProtocolProperties().addProperties(rtu.getProtocol().getProperties());
+            getProtocolProperties().addProperties(rtu.getProperties());
+            readDevice();
+            getStoreObject().doExecute();
+        } catch (CTRException e) {
+            getLogger().severe(e.getMessage());
+        } catch (BusinessException e) {
+            getLogger().severe(e.getMessage());
+        } catch (SQLException e) {
+            getLogger().severe(e.getMessage());
+        }
     }
 
     private void testMethod() throws CTRException {
-        HourlyProfile profile = new HourlyProfile(getRequestFactory());
-        profile.read();
+
     }
 
     private void readDevice() {
@@ -155,7 +158,7 @@ public class MTU155 extends AbstractGenericProtocol {
         // Read the profiles
         if (communicationProfile.getReadDemandValues()) {
             getLogger().log(Level.INFO, "Getting profile data for meter with serialnumber: " + getRtuSerialNumber());
-            // TODO: implement method
+            readChannelData();
         }
 
         //Send the meter messages
@@ -164,6 +167,19 @@ public class MTU155 extends AbstractGenericProtocol {
             // TODO: implement method
         }
 
+    }
+
+    private void readChannelData() {
+        ProfileChannel profile = new ProfileChannel(getRequestFactory());
+        List<Channel> channelList = getRtu().getChannels();
+        for (Channel channel : channelList) {
+            try {
+                ProfileData pd = profile.getProfileData(channel);
+                storeObject.add(channel, pd);
+            } catch (CTRException e) {
+                getLogger().warning("Unable to read channelValues for channel [......]" + e.getMessage());
+            }
+        }
     }
 
     /**
