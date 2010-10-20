@@ -10,9 +10,11 @@ import com.energyict.genericprotocolimpl.elster.ctr.structure.Trace_CQueryRespon
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.PeriodTrace;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.ReferenceDate;
 import com.energyict.mdw.core.Channel;
-import com.energyict.protocol.ProfileData;
+import com.energyict.mdw.core.Rtu;
+import com.energyict.protocol.*;
 
-import java.util.List;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -22,50 +24,122 @@ import java.util.List;
 public class ProfileChannel {
 
     private final GprsRequestFactory requestFactory;
+    private final Channel meterChannel;
 
-
-    public ProfileChannel(GprsRequestFactory requestFactory) {
+    public ProfileChannel(GprsRequestFactory requestFactory, Channel meterChannel) {
         this.requestFactory = requestFactory;
-        requestFactory.getProperties().getChannelConfig();
+        this.meterChannel = meterChannel;
     }
 
-    public ProfileData getProfileData(Channel meterChannel) throws CTRException {
-        int loadProfileIndex = meterChannel.getLoadProfileIndex(); // 1-based
+    /**
+     * @return
+     */
+    private GprsRequestFactory getRequestFactory() {
+        return requestFactory;
+    }
 
-        String channelId = getProperties().getChannelConfig().getChannelObjectId(loadProfileIndex);
-        System.out.println(channelId);
+    /**
+     * @return
+     */
+    private MTU155Properties getProperties() {
+        return getRequestFactory().getProperties();
+    }
 
+    /**
+     * @return
+     */
+    private Logger getLogger() {
+        return getRequestFactory().getLogger();
+    }
 
-        getProfileInfo("15.0.2", "15.0.3");
+    /**
+     * @return
+     */
+    private TimeZone getDeviceTimeZone() {
+        return getRtu().getDeviceTimeZone();
+    }
 
-        String[] ids = {/*"1.0.2", "1.2.2", "4.0.2",*/ "7.0.2"/*, "1.1.3", "1.3.3", "1.F.2", "2.0.3", "2.1.3", "2.3.3", "1.A.3", "12.6.3"*/};
-        for (String id : ids) {
-            CTRObjectID objectID = new CTRObjectID(id);
-            PeriodTrace period = new PeriodTrace(1);
-            ReferenceDate referenceDate = new ReferenceDate().parse(new byte[]{10, 10, 18}, 0);
-            Trace_CQueryResponseStructure response = getRequestFactory().queryTrace_C(objectID, period, referenceDate);
-            for (AbstractCTRObject object : response.getTraceData()) {
-                if (!object.getQlf().isInvalid()) {
-                    System.out.println(object.getValue()[0].getValue());
-                }
-            }
+    /**
+     * @return
+     */
+    private Rtu getRtu() {
+        return getMeterChannel().getRtu();
+    }
+
+    /**
+     * @return
+     */
+    public Channel getMeterChannel() {
+        return meterChannel;
+    }
+
+    /**
+     *
+     * @return
+     */
+    private String getChannelObjectId() {
+        return getProperties().getChannelConfig().getChannelObjectId(getChannelIndex() - 1);
+    }
+
+    /**
+     *
+     * @return
+     */
+    private int getChannelIndex() {
+        return getMeterChannel().getLoadProfileIndex();
+    }
+
+    public ProfileData getProfileData() throws CTRException {
+        if (getChannelObjectId() == null) {
+            getLogger().warning("No channel config found for channel with loadProfileIndex [" + getChannelIndex() + "]");
+            return new ProfileData();
         }
+
+        getIntervalData();
+
         return new ProfileData();
     }
 
-    public void getProfileInfo(String... profiles) throws CTRException {
+    private void getIntervalData() throws CTRException {
+        List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
+        Calendar fromCalendar = getFromCalendar();
+        intervalDatas.addAll(getIntervalDataBlock(getChannelObjectId(), fromCalendar));
+    }
+
+    private List<IntervalData> getIntervalDataBlock(String channelId, Calendar fromCalendar) throws CTRException {
+        CTRObjectID objectID = new CTRObjectID(channelId);
+        PeriodTrace period = new PeriodTrace(1);
+        ReferenceDate referenceDate = new ReferenceDate().parse(fromCalendar);
+        Trace_CQueryResponseStructure response = getRequestFactory().queryTrace_C(objectID, period, referenceDate);
+        return getIntervalDatasFromResponse(response);
+    }
+
+    private List<IntervalData> getIntervalDatasFromResponse(Trace_CQueryResponseStructure response) {
+        response.getDate().getCalendar(getDeviceTimeZone());
+
+        for (AbstractCTRObject object : response.getTraceData()) {
+            if (!object.getQlf().isInvalid()) {
+                System.out.println(object.getValue()[0].getValue());
+            }
+        }
+        return new ArrayList<IntervalData>();
+    }
+
+    private Calendar getFromCalendar() {
+        Date lastReading = getMeterChannel().getLastReading();
+        if (lastReading == null) {
+            lastReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(getRtu());
+        }
+        Calendar cal = ProtocolUtils.getCleanCalendar(getDeviceTimeZone());
+        cal.setTime(lastReading);
+        return cal;
+    }
+
+    private void getProfileInfo(String... profiles) throws CTRException {
         List<AbstractCTRObject> ctrObjectList = getRequestFactory().queryRegisters(AttributeType.getValueOnly(), profiles);
         for (AbstractCTRObject ctrObject : ctrObjectList) {
             System.out.println(ctrObject);
         }
-    }
-
-    public GprsRequestFactory getRequestFactory() {
-        return requestFactory;
-    }
-
-    private MTU155Properties getProperties() {
-        return getRequestFactory().getProperties();
     }
 
 }

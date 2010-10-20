@@ -25,7 +25,8 @@ public class MTU155Properties extends AbstractProtocolProperties {
     public static final String ADDRESS = MeterProtocol.NODEID;
     public static final String CHANNEL_CONFIG = "ChannelConfig";
     public static final String SECURITY_LEVEL = "SecurityLevel";
-    
+    public static final String DEBUG = "Debug";
+
     public static final String DEFAULT_TIMEOUT = "2000";
     public static final String DEFAULT_RETRIES = "3";
     public static final String DEFAULT_DELAY_AFTER_ERROR = "100";
@@ -37,6 +38,7 @@ public class MTU155Properties extends AbstractProtocolProperties {
     public static final String DEFAULT_ADDRESS = "0";
     public static final String DEFAULT_CHANNEL_CONFIG = "1.0.2:1.2.2:4.0.2:7.0.2:1.1.3:1.3.3:1.F.2:2.0.3:2.1.3:2.3.3:1.A.3";
     public static final String DEFAULT_SECURITY_LEVEL = "1"; // 0 == KeyT, 1 == KeyC, 2 == KeyF
+    public static final String DEFAULT_DEBUG = "0";
 
     public MTU155Properties() {
         super(new Properties());
@@ -141,6 +143,10 @@ public class MTU155Properties extends AbstractProtocolProperties {
         } else {
             throw new IllegalArgumentException("Invalid key format! Key should be 16 bytes or 32 bytes long.");
         }
+    }
+
+    public boolean isDebug() {
+        return getIntPropery(DEBUG, DEFAULT_DEBUG) == 1;
     }
 
 }

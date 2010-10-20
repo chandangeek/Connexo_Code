@@ -1,5 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr.encryption;
 
+import com.energyict.genericprotocolimpl.elster.ctr.MTU155Properties;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CtrCipheringException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.Frame;
@@ -33,12 +34,40 @@ public class CTREncryption {
         }
     }
 
+    /**
+     * 
+     * @param properties
+     */
+    public CTREncryption(MTU155Properties properties) {
+        this.keyT = properties.getKeyTBytes();
+        this.keyC = properties.getKeyCBytes();
+        this.keyF = properties.getKeyFBytes();
+
+    }
+
+    /**
+     *
+     * @param keyC
+     * @param keyT
+     * @param keyF
+     */
     public CTREncryption(String keyC, String keyT, String keyF) {
         this.keyT = ProtocolTools.getBytesFromHexString(keyT, "");
         this.keyC = ProtocolTools.getBytesFromHexString(keyC, "");
         this.keyF = ProtocolTools.getBytesFromHexString(keyF, "");
     }
 
+    /**
+     *
+     * @param keyC
+     * @param keyT
+     * @param keyF
+     */
+    public CTREncryption(byte[] keyC, byte[] keyT, byte[] keyF) {
+        this.keyT = keyT;
+        this.keyC = keyC;
+        this.keyF = keyF;
+    }
 
     public Frame decryptFrame(Frame frame) throws CtrCipheringException {
         EncryptionStatus eStatus = frame.getFunctionCode().getEncryptionStatus();

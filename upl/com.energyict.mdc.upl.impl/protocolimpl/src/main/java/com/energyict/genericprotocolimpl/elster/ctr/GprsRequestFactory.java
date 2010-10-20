@@ -14,8 +14,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -408,5 +407,9 @@ public class GprsRequestFactory {
             fieldData = ProtocolTools.getSubArray(fieldData, 0, length);
         }
         return fieldData;
+    }
+
+    public TimeZone getTimeZone() {
+        return null;  //To change body of created methods use File | Settings | File Templates.
     }
 }

@@ -30,7 +30,7 @@ public class MTU155ChannelConfig {
         if (getNumberOfChannels() > channelIndex) {
             return channelIds[channelIndex];
         } else {
-            return "INVALID";
+            return null;
         }
     }
 

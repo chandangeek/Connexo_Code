@@ -63,15 +63,23 @@ public class MTU155 extends AbstractGenericProtocol {
             log("Rtu with name '" + getRtu().getName() + "' connected successfully.");
             getProtocolProperties().addProperties(rtu.getProtocol().getProperties());
             getProtocolProperties().addProperties(rtu.getProperties());
+            updateRequestFactory();
             readDevice();
             getStoreObject().doExecute();
         } catch (CTRException e) {
+            e.printStackTrace();
             getLogger().severe(e.getMessage());
         } catch (BusinessException e) {
+            e.printStackTrace();
             getLogger().severe(e.getMessage());
         } catch (SQLException e) {
+            e.printStackTrace();
             getLogger().severe(e.getMessage());
         }
+    }
+
+    private void updateRequestFactory() {
+        this.requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties());
     }
 
     private void testMethod() throws CTRException {
@@ -170,7 +178,7 @@ public class MTU155 extends AbstractGenericProtocol {
     }
 
     private void readChannelData() {
-        ProfileChannel profile = new ProfileChannel(getRequestFactory());
+        ProfileChannel profile = new ProfileChannel(getRequestFactory(), meterChannel);
         List<Channel> channelList = getRtu().getChannels();
         for (Channel channel : channelList) {
             try {

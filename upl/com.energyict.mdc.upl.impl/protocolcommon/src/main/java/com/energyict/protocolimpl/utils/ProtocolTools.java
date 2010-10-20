@@ -498,6 +498,30 @@ public final class ProtocolTools {
     }
 
     /**
+     * 
+     * @param year
+     * @param month
+     * @param dayOfMonth
+     * @param hourOfDay
+     * @param minutes
+     * @param seconds
+     * @param millis
+     * @param timeZone
+     * @return
+     */
+    public static Calendar createCalendar(int year, int month, int dayOfMonth, int hourOfDay, int minutes, int seconds, int millis, TimeZone timeZone) {
+        Calendar returnValue = Calendar.getInstance(timeZone);
+        returnValue.set(Calendar.YEAR, year);
+        returnValue.set(Calendar.MONTH, month - 1);
+        returnValue.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+        returnValue.set(Calendar.HOUR_OF_DAY, hourOfDay);
+        returnValue.set(Calendar.MINUTE, minutes);
+        returnValue.set(Calendar.SECOND, seconds);
+        returnValue.set(Calendar.MILLISECOND, millis);
+        return returnValue;
+    }
+
+    /**
      * @param from
      * @param to
      * @param profileData

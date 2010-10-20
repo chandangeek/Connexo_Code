@@ -4,7 +4,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import java.util.*;import java.util.*;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -33,12 +33,18 @@ public class ReferenceDate extends AbstractField<ReferenceDate> {
         Calendar calendar = Calendar.getInstance(timeZone);
         calendar.setLenient(true);
         calendar.setTime(date);
+        return parse(calendar);
+    }
 
+    public Calendar getCalendar(TimeZone timeZone) {
+        return ProtocolTools.createCalendar(date[0] + 2000, date[1], date[2], 0, 0, 0, 0, timeZone);
+    }
+
+    public ReferenceDate parse(Calendar calendar) {
         this.date = new byte[3];
         this.date[0] = (byte) (calendar.get(Calendar.YEAR) - 2000);
         this.date[1] = (byte) (calendar.get(Calendar.MONTH) + 1);
         this.date[2] = (byte) calendar.get(Calendar.DATE);
-
         return this;
     }
 
