@@ -78,7 +78,7 @@ public class FlowAndVolumeCategory extends AbstractUnsignedBINObject {
     }
 
     public Unit getUnit(CTRObjectID id, int valueNumber) {
-        Unit unit = null;
+        Unit unit = Unit.get(BaseUnit.UNITLESS);
         int x = id.getX();
         int y = id.getY();
         int z = id.getZ();
@@ -86,9 +86,9 @@ public class FlowAndVolumeCategory extends AbstractUnsignedBINObject {
         // Category: flow or volume
         if (x == 0x01) {
             if ((y == 0x01) || (y == 0x03) || (y >= 0x0D)) {
-                unit = Unit.get("m3");
+                unit = Unit.get(BaseUnit.CUBICMETER, getQlf().getKmoltFactor());
             } else {
-                unit = Unit.get("m3/h");
+                unit = Unit.get(BaseUnit.CUBICMETERPERHOUR, getQlf().getKmoltFactor());
                 if (y == 0x06 || y == 0x07 || y == 0x09 || y == 0x0A) {
                     if (z == 0x04) {
                         if (valueNumber == 1) {unit = Unit.get(BaseUnit.DAY);}

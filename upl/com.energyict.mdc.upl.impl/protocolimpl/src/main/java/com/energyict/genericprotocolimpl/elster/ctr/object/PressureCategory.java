@@ -98,10 +98,10 @@ public class PressureCategory extends AbstractUnsignedBINObject<PressureCategory
     public Unit getUnit(CTRObjectID id, int valueNumber) {
         int x = id.getX();
         int y = id.getY();
-        Unit unit = null;
+        Unit unit = Unit.get(BaseUnit.UNITLESS);
 
         if (x == 0x04) {
-            unit = Unit.get(BaseUnit.BAR);
+            unit = Unit.get(BaseUnit.BAR, getQlf().getKmoltFactor());
             if (y == 0x03 || y == 0x04 || y == 0x06 || y == 0x07) {
                 if (valueNumber == 1) {
                     unit = Unit.get(BaseUnit.HOUR);

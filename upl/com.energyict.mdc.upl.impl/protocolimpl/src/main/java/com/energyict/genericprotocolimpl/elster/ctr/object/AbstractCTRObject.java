@@ -22,7 +22,7 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
     private AccessDescriptor access;
     private Qualifier qlf;
     private String symbol;
-    private int[] def;
+    private Default[] def;
     private CTRAbstractValue[] value; //Abstract = BIN or String or BCD
 
     public abstract Unit getUnit(CTRObjectID id, int valueNumber);
@@ -99,11 +99,11 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
         this.symbol = symbol;
     }
 
-    public int[] getDefault() {
+    public Default[] getDefault() {
         return def;
     }
 
-    protected void setDefault(int[] def) {
+    protected void setDefault(Default[] def) {
         if (def != null) {
             this.def = def.clone();
         } else {

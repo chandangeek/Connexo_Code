@@ -7,6 +7,20 @@ package com.energyict.genericprotocolimpl.elster.ctr.common;
  */
 public class Diagnostics {
 
+    public static final String POWER_NOT_AVAILABLE = "Mains power not available";
+    public static final String LOW_BATTERY = "Low Battery";
+    public static final String EVENT_LOG_AT_90_PERCENT = "Event log at 90%";
+    public static final String GENERAL_ALARM = "General alarm";
+    public static final String CONNECTION_BROKEN = "Connection with emitter or converter broken";
+    public static final String EVENT_LOG_FULL = "Event log full";
+    public static final String CLOCK_MISALIGNMENT = "Clock misalignment";
+    public static final String CONVERTER_ALARM = "Converter alarm";
+    public static final String TEMPERATURE_OUT_OF_RANGE = "Temperature out of range";
+    public static final String PRESSURE_OUT_OF_RANGE =  "Pressure out of range";
+    public static final String FLOW_OVER_LIMIT = "Flow over limit";
+    public static final String VALVE_CLOSING_ERROR = "Valve closing error";
+    public static final String VALVE_OPENING_ERROR = "Valve opening error";
+
     public static String getDescriptionFromCode(int code) {
         String description = "";
 
@@ -14,55 +28,55 @@ public class Diagnostics {
             switch (i) {
                 case 0:
                     if (isBitSet(code, i)) {
-                        description = "Mains power not available";
+                        description = POWER_NOT_AVAILABLE;
                     }
                 case 1:
                     if (isBitSet(code, i)) {
-                        description = "Low Battery";
+                        description = LOW_BATTERY;
                     }
                 case 2:
                     if (isBitSet(code, i)) {
-                        description = "Event log at 90%";
+                        description = EVENT_LOG_AT_90_PERCENT;
                     }
                 case 3:
                     if (isBitSet(code, i)) {
-                        description = "General alarm";
+                        description = GENERAL_ALARM;
                     }
                 case 4:
                     if (isBitSet(code, i)) {
-                        description = "Connection with emitter or converter broken";
+                        description = CONNECTION_BROKEN;
                     }
                 case 5:
                     if (isBitSet(code, i)) {
-                        description = "Event log full";
+                        description = EVENT_LOG_FULL;
                     }
                 case 6:
                     if (isBitSet(code, i)) {
-                        description = "Clock misalignment";
+                        description = CLOCK_MISALIGNMENT;
                     }
                 case 7:
                     if (isBitSet(code, i)) {
-                        description = "Converter alarm";
+                        description = CONVERTER_ALARM;
                     }
                 case 8:
                     if (isBitSet(code, i)) {
-                        description = "Temperature out of range";
+                        description = TEMPERATURE_OUT_OF_RANGE;
                     }
                 case 9:
                     if (isBitSet(code, i)) {
-                        description = "Pressure out of range";
+                        description = PRESSURE_OUT_OF_RANGE;
                     }
                 case 10:
                     if (isBitSet(code, i)) {
-                        description = "Flow over limit";
+                        description = FLOW_OVER_LIMIT;
                     }
                 case 11:
                     if (isBitSet(code, i)) {
-                        description = "Valve closing error";
+                        description = VALVE_CLOSING_ERROR;
                     }
                 case 12:
                     if (isBitSet(code, i)) {
-                        description = "Valve opening error";
+                        description = VALVE_OPENING_ERROR;
                     }
             }
         }

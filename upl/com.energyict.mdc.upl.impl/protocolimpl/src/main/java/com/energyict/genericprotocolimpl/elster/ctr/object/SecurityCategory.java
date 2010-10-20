@@ -1,5 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr.object;
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 
 import java.math.BigDecimal;
@@ -99,7 +100,7 @@ public class SecurityCategory extends AbstractStringObject<SecurityCategory> {
 
 
     public Unit getUnit(CTRObjectID id, int valueNumber) {
-        return null;
+        return Unit.get(BaseUnit.UNITLESS);
     }
 
 }

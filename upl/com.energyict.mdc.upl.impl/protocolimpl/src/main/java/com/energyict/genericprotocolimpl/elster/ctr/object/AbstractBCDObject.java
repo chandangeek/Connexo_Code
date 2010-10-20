@@ -44,7 +44,7 @@ public abstract class AbstractBCDObject<T extends AbstractBCDObject> extends Abs
         }
 
         if (type.hasDefaultValue()) {
-            this.setDefault(parser.parseDefault(id));
+            this.setDefault(parser.parseDefault(id, this.getValue()));
         }
 
         this.setSymbol(getSymbol(id));

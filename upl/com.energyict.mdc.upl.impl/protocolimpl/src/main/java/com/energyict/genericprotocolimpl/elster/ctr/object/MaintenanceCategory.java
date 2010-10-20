@@ -69,7 +69,7 @@ public class MaintenanceCategory extends AbstractUnsignedBINObject<MaintenanceCa
 
 
     public Unit getUnit(CTRObjectID id, int valueNumber) {
-        Unit unit = null;
+        Unit unit = Unit.get(BaseUnit.UNITLESS);
         int z = id.getZ();
         switch (id.getY()) {
             case 0:

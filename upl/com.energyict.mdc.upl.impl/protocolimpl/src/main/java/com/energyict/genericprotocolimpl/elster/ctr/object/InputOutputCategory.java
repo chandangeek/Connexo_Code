@@ -43,7 +43,7 @@ public class InputOutputCategory extends AbstractUnsignedBINObject<InputOutputCa
         Unit unit;
         unit = Unit.get(BaseUnit.KELVIN);
         if (valueNumber == 0) {
-            unit = null;
+            unit = Unit.get(BaseUnit.UNITLESS);
         }
 
         return unit;

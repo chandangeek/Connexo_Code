@@ -99,7 +99,7 @@ public class SystemMasterRecordCategory extends AbstractBCDObject<SystemMasterRe
     }
 
     public Unit getUnit(CTRObjectID id, int valueNumber) {
-        Unit unit = null;
+        Unit unit = Unit.get(BaseUnit.UNITLESS);
         switch (id.getY()) {
             case 0:
                 switch (id.getZ()) {

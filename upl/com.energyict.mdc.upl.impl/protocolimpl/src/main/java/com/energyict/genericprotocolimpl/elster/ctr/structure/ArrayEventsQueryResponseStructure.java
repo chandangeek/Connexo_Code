@@ -3,7 +3,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.structure;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
-import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
+import com.energyict.genericprotocolimpl.elster.ctr.object.*;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.Qualifier;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.DataArray;
@@ -19,14 +19,13 @@ import java.math.BigDecimal;
  */
 public class ArrayEventsQueryResponseStructure extends Data<ArrayEventsQueryResponseStructure> {
 
+    public static final int NUMBER_OF_EVENT_RECORDS = 6;
     private CTRAbstractValue<String> pdr;
     private Qualifier t_Antif_qlf;
     private CTRAbstractValue<BigDecimal> t_Antif_Value;
     private Index_Q index_A;
     private CTRAbstractValue<BigDecimal> numberOfEvents;
-    private DataArray evento_Short_1;
-    private DataArray evento_Short_2;
-    private DataArray evento_Short_3;
+    private CTRAbstractValue[][] evento_Short = new CTRAbstractValue[NUMBER_OF_EVENT_RECORDS][];
 
     public ArrayEventsQueryResponseStructure(boolean longFrame) {
         super(longFrame);
@@ -35,15 +34,21 @@ public class ArrayEventsQueryResponseStructure extends Data<ArrayEventsQueryResp
 
     @Override
     public byte[] getBytes() {
+
+        byte[] valueBytes = null;
+        for (CTRAbstractValue[] valueArray : evento_Short) {
+            for (CTRAbstractValue value : valueArray) {
+                valueBytes = ProtocolTools.concatByteArrays(valueBytes, value.getBytes());
+            }
+        }
+
         return padData(ProtocolTools.concatByteArrays(
                 pdr.getBytes(),
                 t_Antif_qlf.getBytes(),
                 t_Antif_Value.getBytes(),
                 index_A.getBytes(),
                 numberOfEvents.getBytes(),
-                evento_Short_1.getBytes(),
-                evento_Short_2.getBytes(),
-                evento_Short_3.getBytes()
+                valueBytes
         ));
     }
 
@@ -72,14 +77,11 @@ public class ArrayEventsQueryResponseStructure extends Data<ArrayEventsQueryResp
         numberOfEvents = factory.parse(rawData, ptr, valueAttributeType, "10.1.0").getValue()[0];
         ptr += numberOfEvents.getValueLength();
 
-        evento_Short_1 = new DataArray(17).parse(rawData, ptr);
-        ptr += evento_Short_1.getArrayLength();
-
-        evento_Short_2 = new DataArray(68).parse(rawData, ptr);
-        ptr += evento_Short_2.getArrayLength();
-
-        evento_Short_3 = new DataArray(17).parse(rawData, ptr);
-        ptr += evento_Short_3.getArrayLength();
+        //Parse the 6 received event records
+        for (int i = 0; i < NUMBER_OF_EVENT_RECORDS; i++) {
+            evento_Short[i] = factory.parse(rawData, ptr, valueAttributeType, "10.0.1").getValue();
+            ptr += EventCategory.EVENT_LENGTH;
+        }
 
         return this;
     }
@@ -125,27 +127,11 @@ public class ArrayEventsQueryResponseStructure extends Data<ArrayEventsQueryResp
         this.numberOfEvents = numberOfEvents;
     }
 
-    public DataArray getEvento_Short_1() {
-        return evento_Short_1;
+    public CTRAbstractValue[][] getEvento_Short() {
+        return evento_Short;
     }
 
-    public void setEvento_Short_1(DataArray evento_Short_1) {
-        this.evento_Short_1 = evento_Short_1;
-    }
-
-    public DataArray getEvento_Short_2() {
-        return evento_Short_2;
-    }
-
-    public void setEvento_Short_2(DataArray evento_Short_2) {
-        this.evento_Short_2 = evento_Short_2;
-    }
-
-    public DataArray getEvento_Short_3() {
-        return evento_Short_3;
-    }
-
-    public void setEvento_Short_3(DataArray evento_Short_3) {
-        this.evento_Short_3 = evento_Short_3;
+    public void setEvento_Short(CTRAbstractValue[][] evento_Short) {
+        this.evento_Short = evento_Short;
     }
 }

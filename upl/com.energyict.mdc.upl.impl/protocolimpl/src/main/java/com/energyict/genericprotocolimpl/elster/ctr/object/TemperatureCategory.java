@@ -115,13 +115,13 @@ public class TemperatureCategory extends AbstractUnsignedBINObject<TemperatureCa
                 unit = Unit.get(BaseUnit.MINUTE);
             }
             if (id.getZ() == 0x0A) {
-                unit = null;
+                unit = Unit.get(BaseUnit.UNITLESS);
             }
         }
 
         //Special case
         if (y == 0x09) {
-            unit = null;
+            unit = Unit.get(BaseUnit.UNITLESS);
             if (id.getZ() < 7) {
                 unit = Unit.get(BaseUnit.DEGREE_CELSIUS);
             }

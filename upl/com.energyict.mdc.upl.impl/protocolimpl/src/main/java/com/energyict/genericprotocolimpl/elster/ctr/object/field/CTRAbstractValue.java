@@ -1,5 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr.object.field;
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 
 import java.math.BigDecimal;
@@ -12,7 +13,7 @@ import java.math.BigDecimal;
  * The value field can be string, bin, bcd, ...
  */
 public abstract class CTRAbstractValue<T extends Object> {
-    protected Unit unit;
+    protected Unit unit = Unit.get(BaseUnit.UNITLESS);
     protected BigDecimal overflowValue;
     protected String type;
     protected int valueLength;

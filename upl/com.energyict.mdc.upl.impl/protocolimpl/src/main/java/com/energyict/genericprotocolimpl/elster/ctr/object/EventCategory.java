@@ -13,6 +13,8 @@ import java.math.BigDecimal;
  */
 public class EventCategory extends AbstractUnsignedBINObject {
 
+    public static final int EVENT_LENGTH = 17;
+
     public EventCategory(CTRObjectID id) {
         this.setId(id);
     }
@@ -67,7 +69,7 @@ public class EventCategory extends AbstractUnsignedBINObject {
 
 
     public Unit getUnit(CTRObjectID id, int valueNumber) {
-        Unit unit = null;
+        Unit unit = Unit.get(BaseUnit.UNITLESS);
         switch(id.getY()) {
             case 0:
                 if (valueNumber == 0) {unit = Unit.get(BaseUnit.YEAR);}

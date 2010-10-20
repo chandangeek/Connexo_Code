@@ -13,9 +13,8 @@ public class QualifierTest extends TestCase {
     @Test
     public void testQlf() {
         Qualifier qlf = new Qualifier(0xFB);
-        assertEquals(0.001, qlf.getKmoltFactor());
-        assertEquals("Data recorded against price band 3", qlf.getTarif());
-        assertEquals("Reserved", qlf.getValueDescription());
-        assertEquals("Standard time", qlf.getValueTime());
+        assertEquals(0.001, qlf.getKmoltAbsoluteFactor());
+        assertEquals(Qualifier.TARIF_PRICE_BAND3, qlf.getTarif());
+        assertEquals(Qualifier.STANDARD_TIME, qlf.getValueTime());
     }
 }

@@ -14,7 +14,17 @@ import java.util.Arrays;
 public class Qualifier extends AbstractField<Qualifier>{
 
     private int qlf;
-    public final int INVALID_MASK = 0xFF;
+    public static final String TARIF_NOT_ACTIVE = "Tariff scheme not active";
+    public static final String TARIF_PRICE_BAND1 = "Data recorded against price band 1";
+    public static final String TARIF_PRICE_BAND2 = "Data recorded against price band 2";
+    public static final String TARIF_PRICE_BAND3 = "Data recorded against price band 3";
+
+    public static final String VALUE_VALID = "Valid effective value";
+    public static final String VALUE_MAINTENANCE = "Value when subject to maintenance";
+    public static final String VALUE_INVALID_MEASURED = "Invalid measurement";
+
+    public static final String DAYLIGHT_SAVING_TIME = "Value during daylight saving time";
+    public static final String STANDARD_TIME = "Standard time";
 
     public Qualifier(int qlf) {
         this.qlf = qlf;
@@ -46,16 +56,16 @@ public class Qualifier extends AbstractField<Qualifier>{
         String tarif = "";
         switch (if1) {
             case 0:
-                tarif = "Tariff scheme not active";
+                tarif = TARIF_NOT_ACTIVE;
                 break;
             case 1:
-                tarif = "Data recorded against price band 1";
+                tarif = TARIF_PRICE_BAND1;
                 break;
             case 2:
-                tarif = "Data recorded against price band 2";
+                tarif = TARIF_PRICE_BAND2;
                 break;
             case 3:
-                tarif = "Data recorded against price band 3";
+                tarif = TARIF_PRICE_BAND3;
                 break;
         }
         return tarif;
@@ -63,40 +73,46 @@ public class Qualifier extends AbstractField<Qualifier>{
 
     public String getValueDescription() {
         int val = qlf & (0x018) >> 3;
-        String tarif = "";
+        String description = "";
         switch (val) {
             case 0:
-                tarif = "Valid effective value";
+                description = VALUE_VALID;
                 break;
             case 1:
-                tarif = "Value when subject to maintenance";
+                description = VALUE_MAINTENANCE;
                 break;
             case 2:
-                tarif = "Invalid measurement";
-                break;
-            case 3:
-                tarif = "Reserved";
+                description = VALUE_INVALID_MEASURED;
                 break;
         }
-        return tarif;
+        return description;
     }
 
     public boolean isInvalidMeasurement() {
-        return "Invalid measurement".equals(getValueDescription());
+        return VALUE_INVALID_MEASURED.equals(getValueDescription());
     }
 
     public boolean isSubjectToMaintenance() {
-        return "Value when subject to maintenance".equals(getValueDescription());
+        return VALUE_MAINTENANCE.equals(getValueDescription());
     }
 
     public boolean isValid() {
-        return "Valid effective value".equals(getValueDescription());
+        return VALUE_VALID.equals(getValueDescription());
     }
 
-    public double getKmoltFactor() {
+    public double getKmoltAbsoluteFactor() {
         int kmolt = qlf & (0x07);
         if (kmolt < 7) {
             return Math.pow(10, (kmolt*(-1)));
+        } else {
+            return 1;
+        }
+    }
+
+    public int getKmoltFactor() {
+        int kmolt = qlf & (0x07);
+        if (kmolt < 7) {
+            return kmolt * -1;
         } else {
             return 1;
         }
@@ -107,18 +123,17 @@ public class Qualifier extends AbstractField<Qualifier>{
         String valueTime = "";
         switch (sl) {
             case 0:
-                valueTime = "Value during daylight saving time";
+                valueTime = DAYLIGHT_SAVING_TIME;
                 break;
             case 1:
-                valueTime = "Standard time";
+                valueTime = STANDARD_TIME;
                 break;
         }
         return valueTime;
     }
 
     public boolean isInvalid() {
-        byte[] ff = new byte[]{(byte) INVALID_MASK};
-        return Arrays.equals(getBytes(), ff);
+        return (getQlf() == 255);
     }
 
     @Override

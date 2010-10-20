@@ -18,7 +18,8 @@ import java.math.BigInteger;
  */
 public class CTRPrimitiveParser {
 
-    public CTRPrimitiveParser() {}
+    public CTRPrimitiveParser() {
+    }
 
     public byte[] getBytesFromInt(int value, int length) {
         byte[] bytes = new byte[length];
@@ -31,24 +32,26 @@ public class CTRPrimitiveParser {
 
     //Parses BIN byte arrays into BigDecimals
     //also parses single byte fields (e.g. hours, minutes,...)
+
     public CTRAbstractValue[] parseUnsignedBINValue(AbstractCTRObject object, CTRObjectID id, byte[] rawData, int offset, int[] valueLength) {
 
         int i = 0;
         CTRAbstractValue[] result = new CTRAbstractValue[valueLength.length];
 
         //Parse all given values. Each has its length.
-        for(int valueLength1: valueLength) {
+        for (int valueLength1 : valueLength) {
             byte[] value = ProtocolUtils.getSubArray(rawData, offset, offset + valueLength1 - 1);
             Unit unit = object.getUnit(id, i);
-            result[i] = new CTRBINValue(unit, object.getOverflowValue(id, i,unit), convertByteArrayToBigDecimal(value),"BIN", valueLength1);
+            result[i] = new CTRBINValue(unit, object.getOverflowValue(id, i, unit), convertByteArrayToBigDecimal(value), "BIN", valueLength1);
             i++;
             offset += valueLength1;
         }
         return result;  //Array of all value objects, each with its unit & domain.
     }
 
-    
+
     //Parses Signed BIN byte arrays, can also parse Unsigned BIN byte arrays.
+
     public CTRAbstractValue[] parseSignedBINValue(AbstractCTRObject object, CTRObjectID id, byte[] rawData, int offset, int[] valueLength) {
 
         int i = 0;
@@ -59,18 +62,26 @@ public class CTRPrimitiveParser {
         boolean signed;
 
         //Parse all given values. Each has its length.
-        for(int valueLength1: valueLength) {
+        for (int valueLength1 : valueLength) {
             byte[] value = ProtocolUtils.getSubArray(rawData, offset, offset + valueLength1 - 1);
             Unit unit = object.getUnit(id, i);
 
             signed = false;
-            if (x == 8 && y == 0 && z == 0 && i ==7) {signed = true;}
-            if (x == 8 && y == 1 && z == 2) {signed = true;}
-            if (x == 0x0C && y == 0 && z == 5) {signed = true;}
-            if (x == 0x0E && y == 0x0C) {signed = true;}
+            if (x == 8 && y == 0 && z == 0 && i == 7) {
+                signed = true;
+            }
+            if (x == 8 && y == 1 && z == 2) {
+                signed = true;
+            }
+            if (x == 0x0C && y == 0 && z == 5) {
+                signed = true;
+            }
+            if (x == 0x0E && y == 0x0C) {
+                signed = true;
+            }
 
             if (signed) {
-                result[i] = new CTRBINValue(unit, object.getOverflowValue(id, i,unit), convertSignedByteArrayToBigDecimal(value), "SignedBIN", valueLength1);
+                result[i] = new CTRBINValue(unit, object.getOverflowValue(id, i, unit), convertSignedByteArrayToBigDecimal(value), "SignedBIN", valueLength1);
             } else {
                 result[i] = new CTRBINValue(unit, object.getOverflowValue(id, i, unit), convertByteArrayToBigDecimal(value), "BIN", valueLength1);
             }
@@ -83,6 +94,7 @@ public class CTRPrimitiveParser {
 
 
     //Parses String values, can also parse Unsigned BIN byte arrays.
+
     public CTRAbstractValue[] parseStringValue(AbstractCTRObject object, CTRObjectID id, byte[] rawData, int offset, int[] valueLength) {
 
         int i = 0;
@@ -93,20 +105,32 @@ public class CTRPrimitiveParser {
         boolean stringValue;
 
         //Parse all given values. Each has its length.
-        for(int valueLength1: valueLength) {
+        for (int valueLength1 : valueLength) {
             byte[] value = ProtocolUtils.getSubArray(rawData, offset, offset + valueLength1 - 1);
             Unit unit = object.getUnit(id, i);
 
             stringValue = false;
-            if (x == 9 && y == 0 && z < 9) {stringValue = true;}
-            if (x == 9 && y == 2 && z < 3) {stringValue = true;}
-            if (x == 9 && y == 2 && z < 3) {stringValue = true;}
-            if (x == 9 && y == 3) {stringValue = true;}
-            if (x == 0x0D && y == 7) {stringValue = true;}
-            if (x == 0x0D && y < 7) {stringValue = true;}
+            if (x == 9 && y == 0 && z < 9) {
+                stringValue = true;
+            }
+            if (x == 9 && y == 2 && z < 3) {
+                stringValue = true;
+            }
+            if (x == 9 && y == 2 && z < 3) {
+                stringValue = true;
+            }
+            if (x == 9 && y == 3) {
+                stringValue = true;
+            }
+            if (x == 0x0D && y == 7) {
+                stringValue = true;
+            }
+            if (x == 0x0D && y < 7) {
+                stringValue = true;
+            }
 
             if (stringValue) {
-                result[i] = new CTRStringValue(unit, object.getOverflowValue(id, i,unit), convertByteArrayToString(value), "String", valueLength1);
+                result[i] = new CTRStringValue(unit, object.getOverflowValue(id, i, unit), convertByteArrayToString(value), "String", valueLength1);
             } else {
                 result[i] = new CTRBINValue(unit, object.getOverflowValue(id, i, unit), convertByteArrayToBigDecimal(value), "BIN", valueLength1);
             }
@@ -119,6 +143,7 @@ public class CTRPrimitiveParser {
 
 
     //Parses BCD values, can also parse other types.
+
     public CTRAbstractValue[] parseBCDValue(AbstractCTRObject object, CTRObjectID id, byte[] rawData, int offset, int[] valueLength) {
 
         CTRAbstractValue[] result = new CTRAbstractValue[valueLength.length];
@@ -131,7 +156,7 @@ public class CTRPrimitiveParser {
         boolean bcdValue;
 
         //Parse all given values. Each has its length.
-        for(int valueLength1: valueLength) {
+        for (int valueLength1 : valueLength) {
             byte[] value = ProtocolUtils.getSubArray(rawData, offset, offset + valueLength1 - 1);
             Unit unit = object.getUnit(id, i);
 
@@ -139,26 +164,48 @@ public class CTRPrimitiveParser {
             stringValue = false;
             bcdValue = false;
 
-            if (x == 0x0C && y == 0 && z == 0) {bcdValue = true;}
-            if (x == 0x0C && y == 0 && z == 4) {stringValue = true;}
-            if (x == 0x0C && y == 0 && z == 5) {signedValue = true;}
-            if (x == 0x0C && y == 0 && z == 6) {stringValue = true;}
-            if (x == 0x0C && y == 0 && z == 7) {stringValue = true;}
-            if (x == 0x0C && y == 2 && z == 0 && i == 0) {stringValue = true;}
-            if (x == 0x0C && y == 2 && z == 0 && i == 2) {stringValue = true;}
-            if (x == 0x0C && y == 2 && z == 1) {stringValue = true;}
-            if (x == 0x0C && y == 1) {stringValue = true;}
-            if (x == 0x0E && y == 0x0C) {signedValue = true;}
-            if (x == 0x0E && y == 0x0E) {stringValue = true;}
+            if (x == 0x0C && y == 0 && z == 0) {
+                bcdValue = true;
+            }
+            if (x == 0x0C && y == 0 && z == 4) {
+                stringValue = true;
+            }
+            if (x == 0x0C && y == 0 && z == 5) {
+                signedValue = true;
+            }
+            if (x == 0x0C && y == 0 && z == 6) {
+                stringValue = true;
+            }
+            if (x == 0x0C && y == 0 && z == 7) {
+                stringValue = true;
+            }
+            if (x == 0x0C && y == 2 && z == 0 && i == 0) {
+                stringValue = true;
+            }
+            if (x == 0x0C && y == 2 && z == 0 && i == 2) {
+                stringValue = true;
+            }
+            if (x == 0x0C && y == 2 && z == 1) {
+                stringValue = true;
+            }
+            if (x == 0x0C && y == 1) {
+                stringValue = true;
+            }
+            if (x == 0x0E && y == 0x0C) {
+                signedValue = true;
+            }
+            if (x == 0x0E && y == 0x0E) {
+                stringValue = true;
+            }
 
             if (signedValue) {
-                result[i] = new CTRBINValue(unit, object.getOverflowValue(id, i,unit), convertSignedByteArrayToBigDecimal(value), "SignedBIN", valueLength1);
+                result[i] = new CTRBINValue(unit, object.getOverflowValue(id, i, unit), convertSignedByteArrayToBigDecimal(value), "SignedBIN", valueLength1);
             } else if (stringValue) {
                 result[i] = new CTRStringValue(unit, object.getOverflowValue(id, i, unit), convertByteArrayToString(value), "String", valueLength1);
             } else if (bcdValue) {
                 result[i] = new CTRBCDValue(unit, object.getOverflowValue(id, i, unit), convertByteArrayToBCD(value), "BCD", valueLength1);
             } else {
-                result[i] = new CTRBINValue(unit, object.getOverflowValue(id, i,unit), convertByteArrayToBigDecimal(value), "BIN", valueLength1);
+                result[i] = new CTRBINValue(unit, object.getOverflowValue(id, i, unit), convertByteArrayToBigDecimal(value), "BIN", valueLength1);
             }
 
             i++;
@@ -192,7 +239,7 @@ public class CTRPrimitiveParser {
 
     private BigDecimal convertByteArrayToBigDecimal(byte[] value) {
         byte[] temp = new byte[]{0x00};    //To bypass the sign bit :P
-        value = ProtocolTools.concatByteArrays(temp,value);
+        value = ProtocolTools.concatByteArrays(temp, value);
         BigInteger convertedValue = new BigInteger(value);
         return new BigDecimal(convertedValue);
     }
@@ -204,59 +251,121 @@ public class CTRPrimitiveParser {
     public CTRObjectID parseId(byte[] data, int offset) {
         byte byte1 = data[offset];
         byte byte2 = data[offset + 1];
-        int x,y,z;
+        int x, y, z;
         x = (byte1 & 0xFF) & 0xFF;
         y = ((byte2 & 0xF0) >> 4) & 0x0F;
         z = byte2 & 0x0F;
-        return new CTRObjectID(x,y,z);
+        return new CTRObjectID(x, y, z);
     }
 
     public int parseQlf(byte[] rawData, int offset) {
-        return ((int)rawData[offset]) & 0xFF;
+        return ((int) rawData[offset]) & 0xFF;
     }
 
     public int parseAccess(byte[] rawData, int offset) {
-        return ((int)rawData[offset]) & 0xFF;
+        return ((int) rawData[offset]) & 0xFF;
     }
 
-    public int[] parseDefault(CTRObjectID id) {
+    public Default[] parseDefault(CTRObjectID id, CTRAbstractValue[] values) {
         int x = id.getX();
         int y = id.getY();
         int z = id.getZ();
-        int[] def = null;
+        Default[] def = null;
 
         //Doesn't contain the manufacturer specific default values yet.
-        if (x == 1 && y == 0x0C && z == 3) {def = new int[]{0};}
-        if (x == 1 && y == 0x0C && z == 2) {def = new int[]{0};}
-        if (x == 4 && y == 2 && z == 6) {def = new int[]{101325};}    //combined with the Kmolt multiplier: 1.01325
-        if (x == 4 && y == 9 && z > 0) {def = new int[]{101325};}
-        if (x == 4 && y == 9 && z == 0) {def = new int[]{101325, 101325, 101325, 101325, 101325};}
-        if (x == 4 && y == 0x0A) {def = new int[]{0};}
-        if (x == 7 && y == 0x0B && z == 0) {def = new int[]{28815,28815,28815,28815,28815,28815};}
-        if (x == 7 && y == 0x0B && z > 0) {def = new int[]{28815};}
-        if (x == 8 && y == 0 && z == 0) {def = new int[]{5,1,1,6,0,0,0,1,0};}
-        if (x == 8 && y == 0 && z == 1) {def = new int[]{5,1,1,0,0};}
-        if (x == 8 && y == 1 && z == 3) {def = new int[]{6};}
-        if (x == 8 && y == 1 && z == 4) {def = new int[]{0,0,0,0,0,0,0};}
-        if (x == 8 && y == 2 && z == 0) {def = new int[]{1,0,0,0,0};}
-        if (x == 9 && y == 4 && z == 0) {def = new int[]{0};}
-        if (x == 0x0A && y == 3 && z == 6) {def = new int[]{7252};}
-        if (x == 0x0A && y == 1 && z == 6) {def = new int[]{0};}
-        if (x == 0x0A && y == 3 && z == 7) {def = new int[]{0};}
-        if (x == 0x0A && y == 4 && z == 6) {def = new int[]{122541};}
-        if (x == 0x0A && y == 4 && z == 7) {def = new int[]{0};}
-        if (x == 0x0A && y == 5 && z == 6) {def = new int[]{59175};}
-        if (x == 0x0C && y == 0 && z == 1) {def = new int[]{1};}
-        if (x == 0x0C && y == 0 && z == 2) {def = new int[]{0x20};}
-        if (x == 0x0C && y == 0 && z == 3) {def = new int[]{0};}
-        if (x == 0x0C && y == 0 && z == 4) {def = new int[]{0};}
-        if (x == 0x0C && y == 0 && z == 5) {def = new int[]{0xFFFFFF,0xFFFFFF,0xFFFF};}
-        if (x == 0x0C && y == 0 && z == 6) {def = new int[]{0};}
-        if (x == 0x0C && y == 0 && z == 7) {def = new int[]{0};}
-        if (x == 0x0E && y == 9) {def = new int[]{300};}
-        if (x == 0x13 && y == 7) {def = new int[]{1};}
-        if (x == 0x0E && y == 0x0A && x == 0) {def = new int[]{0};}
-        if (x == 0x0C && y == 1) {def = new int[]{0};}
+        if (x == 1 && y == 0x0C && z == 3) {
+            def = new Default[]{new Default(0, values[0].getUnit())};
+        }
+        if (x == 1 && y == 0x0C && z == 2) {
+            def = new Default[]{new Default(0, values[0].getUnit())};
+        }
+        if (x == 4 && y == 2 && z == 6) {
+            def = new Default[]{new Default(101325, values[0].getUnit())};         //combined with the Kmolt multiplier (in the unit): 1.01325
+        }
+        if (x == 4 && y == 9 && z > 0) {
+            def = new Default[]{new Default(101325, values[0].getUnit())};
+        }
+        if (x == 4 && y == 9 && z == 0) {
+            def = new Default[]{new Default(101325, values[0].getUnit()), new Default(101325, values[1].getUnit()), new Default(101325, values[2].getUnit()), new Default(101325, values[3].getUnit()), new Default(101325, values[4].getUnit())};
+        }
+        if (x == 4 && y == 0x0A) {
+            def = new Default[]{new Default(0, values[0].getUnit())};
+        }
+        if (x == 7 && y == 0x0B && z == 0) {
+            def = new Default[]{new Default(22815, values[0].getUnit()), new Default(22815, values[1].getUnit()), new Default(22815, values[2].getUnit()), new Default(22815, values[3].getUnit()), new Default(22815, values[4].getUnit()), new Default(22815, values[5].getUnit())};
+        }
+        if (x == 7 && y == 0x0B && z > 0) {
+            def = new Default[]{new Default(22815, values[0].getUnit())};
+        }
+        if (x == 8 && y == 0 && z == 0) {
+            def = new Default[]{new Default(5, values[0].getUnit()), new Default(1, values[1].getUnit()), new Default(1, values[2].getUnit()), new Default(6, values[3].getUnit()), new Default(0, values[4].getUnit()), new Default(0, values[5].getUnit()), new Default(0, values[6].getUnit()), new Default(1, values[7].getUnit()), new Default(0, values[8].getUnit())};
+        }
+        if (x == 8 && y == 0 && z == 1) {
+            def = new Default[]{new Default(5, values[0].getUnit()), new Default(1, values[1].getUnit()), new Default(1, values[2].getUnit()), new Default(0, values[3].getUnit()), new Default(0, values[4].getUnit()),};
+        }
+        if (x == 8 && y == 1 && z == 3) {
+            def = new Default[]{new Default(6, values[0].getUnit())};
+        }
+        if (x == 8 && y == 1 && z == 4) {
+            def = new Default[]{new Default(0, values[0].getUnit()), new Default(0, values[1].getUnit()), new Default(0, values[2].getUnit()), new Default(0, values[3].getUnit()), new Default(0, values[4].getUnit()), new Default(0, values[5].getUnit()), new Default(0, values[6].getUnit())};
+        }
+        if (x == 8 && y == 2 && z == 0) {
+            def = new Default[]{new Default(1, values[0].getUnit()), new Default(0, values[1].getUnit()), new Default(0, values[2].getUnit()), new Default(0, values[3].getUnit()), new Default(0, values[4].getUnit()),};
+        }
+        if (x == 9 && y == 4 && z == 0) {
+            def = new Default[]{new Default(0, values[0].getUnit())};
+        }
+        if (x == 0x0A && y == 3 && z == 6) {
+            def = new Default[]{new Default(7252, values[0].getUnit())};
+        }
+        if (x == 0x0A && y == 1 && z == 6) {
+            def = new Default[]{new Default(0, values[0].getUnit())};
+        }
+        if (x == 0x0A && y == 3 && z == 7) {
+            def = new Default[]{new Default(0, values[0].getUnit())};
+        }
+        if (x == 0x0A && y == 4 && z == 6) {
+            def = new Default[]{new Default(122541, values[0].getUnit())};
+        }
+        if (x == 0x0A && y == 4 && z == 7) {
+            def = new Default[]{new Default(0, values[0].getUnit())};
+        }
+        if (x == 0x0A && y == 5 && z == 6) {
+            def = new Default[]{new Default(59175, values[0].getUnit())};
+        }
+        if (x == 0x0C && y == 0 && z == 1) {
+            def = new Default[]{new Default(1, values[0].getUnit())};
+        }
+        if (x == 0x0C && y == 0 && z == 2) {
+            def = new Default[]{new Default(0x20, values[0].getUnit())};
+        }
+        if (x == 0x0C && y == 0 && z == 3) {
+            def = new Default[]{new Default(0, values[0].getUnit())};
+        }
+        if (x == 0x0C && y == 0 && z == 4) {
+            def = new Default[]{new Default(0, values[0].getUnit())};
+        }
+        if (x == 0x0C && y == 0 && z == 5) {
+            def = new Default[]{new Default(0xFFFFFF, values[0].getUnit()), new Default(0xFFFFFF, values[1].getUnit()), new Default(0xFFFF, values[2].getUnit())};
+        }
+        if (x == 0x0C && y == 0 && z == 6) {
+            def = new Default[]{new Default(0, values[0].getUnit())};
+        }
+        if (x == 0x0C && y == 0 && z == 7) {
+            def = new Default[]{new Default(0, values[0].getUnit())};
+        }
+        if (x == 0x0E && y == 9) {
+            def = new Default[]{new Default(300, values[0].getUnit())};
+        }
+        if (x == 0x13 && y == 7) {
+            def = new Default[]{new Default(1, values[0].getUnit())};
+        }
+        if (x == 0x0E && y == 0x0A && x == 0) {
+            def = new Default[]{new Default(0, values[0].getUnit())};
+        }
+        if (x == 0x0C && y == 1) {
+            def = new Default[]{new Default(0, values[0].getUnit())};
+        }
 
         return def;
     }

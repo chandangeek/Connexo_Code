@@ -1,5 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr.object;
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 
 import java.math.BigDecimal;
@@ -44,7 +45,7 @@ public class TracesCategory extends AbstractUnsignedBINObject<TracesCategory> {
     }
 
     public Unit getUnit(CTRObjectID id, int valueNumber) {
-        return null;        //There's no units in this category
+        return Unit.get(BaseUnit.UNITLESS);        //There's no units in this category
     }
 
 }

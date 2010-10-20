@@ -79,7 +79,7 @@ public class StatusCategory extends AbstractUnsignedBINObject<StatusCategory> {
     }
 
     public Unit getUnit(CTRObjectID id, int valueNumber) {
-        Unit unit = null;
+        Unit unit = Unit.get(BaseUnit.UNITLESS);
         switch (id.getY()) {
             case 4:
                 if (id.getZ() == 1) {

@@ -8,6 +8,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.*;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.*;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -142,6 +143,7 @@ public class GprsRequestFactory {
         GPRSFrame request = new GPRSFrame();
         request.setAddress(getAddress());
         request.getFunctionCode().setEncryptionStatus(EncryptionStatus.NO_ENCRYPTION);
+        request.setChannel(new Channel(1));   //TODO
         request.getFunctionCode().setFunction(Function.QUERY);
         request.getProfi().setLongFrame(false);
         request.getStructureCode().setStructureCode(StructureCode.REGISTER);
@@ -366,7 +368,7 @@ public class GprsRequestFactory {
         return traceResponse.getTraceData();
     }
 
-    public ArrayEventsQueryResponseStructure queryEventArray(Index_Q index_Q) throws CTRException {
+    public CTRAbstractValue[][] queryEventArray(Index_Q index_Q) throws CTRException {
 
         GPRSFrame response = getConnection().sendFrameGetResponse(getEventArrayRequest(index_Q));
 
@@ -378,7 +380,7 @@ public class GprsRequestFactory {
             throw new CTRException("Expected ArrayEventsResponseStructure but was " + response.getData().getClass().getSimpleName());
         }
 
-        return arrayResponse;
+        return arrayResponse.getEvento_Short();
     }
 
     public Trace_CQueryResponseStructure queryTrace_C(CTRObjectID id, PeriodTrace period, ReferenceDate referenceDate) throws CTRException {

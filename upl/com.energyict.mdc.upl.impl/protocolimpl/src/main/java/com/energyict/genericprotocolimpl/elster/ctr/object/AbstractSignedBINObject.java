@@ -45,7 +45,7 @@ public abstract class AbstractSignedBINObject<T extends AbstractSignedBINObject>
         }
 
         if (type.hasDefaultValue()) {
-            this.setDefault(parser.parseDefault(id));
+            this.setDefault(parser.parseDefault(id, this.getValue()));
         }
 
         this.setSymbol(getSymbol(id));

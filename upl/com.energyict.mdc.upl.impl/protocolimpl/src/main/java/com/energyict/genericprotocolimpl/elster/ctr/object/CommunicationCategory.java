@@ -48,7 +48,7 @@ public class CommunicationCategory<T extends CommunicationCategory> extends Abst
         }
 
         if (type.hasDefaultValue()) {
-            this.setDefault(parser.parseDefault(id));
+            this.setDefault(parser.parseDefault(id, this.getValue()));
         }
 
         this.setSymbol(getSymbol(id));
@@ -79,7 +79,7 @@ public class CommunicationCategory<T extends CommunicationCategory> extends Abst
 
 
     public Unit getUnit(CTRObjectID id, int valueNumber) {
-        Unit unit = null;
+        Unit unit = Unit.get(BaseUnit.UNITLESS);
         switch (id.getY()) {
             case 0x0C:
                 unit = Unit.get(BaseUnit.UNITLESS); break; //TODO: decibell;

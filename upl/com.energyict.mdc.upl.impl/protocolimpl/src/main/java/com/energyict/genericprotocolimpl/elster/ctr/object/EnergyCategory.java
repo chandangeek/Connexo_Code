@@ -48,7 +48,7 @@ public class EnergyCategory extends AbstractUnsignedBINObject {
     public Unit getUnit(CTRObjectID id, int valueNumber) {
         int x = id.getX();
         int y = id.getY();
-        Unit unit = null;
+        Unit unit = Unit.get(BaseUnit.UNITLESS);
 
         if (x == 0x03) {
             unit = Unit.get(BaseUnit.JOULE, 6);

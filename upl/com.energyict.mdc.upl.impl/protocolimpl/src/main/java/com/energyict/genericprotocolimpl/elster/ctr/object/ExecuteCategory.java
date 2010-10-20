@@ -54,7 +54,7 @@ public class ExecuteCategory extends AbstractUnsignedBINObject {
 
 
     public Unit getUnit(CTRObjectID id, int valueNumber) {
-        Unit unit = null;
+        Unit unit = Unit.get(BaseUnit.UNITLESS);
         switch(id.getZ()) {
             case 1:
                 if (valueNumber == 1) {unit = Unit.get(BaseUnit.YEAR);}

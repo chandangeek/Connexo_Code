@@ -1,5 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr.object;
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 
 import java.math.BigDecimal;
@@ -26,7 +27,7 @@ public class BandTotalizerCategory extends AbstractUnsignedBINObject<BandTotaliz
 
 
     public Unit getUnit(CTRObjectID id, int valueNumber) {
-        return Unit.get("m3");
+        return Unit.get(BaseUnit.CUBICMETER, getQlf().getKmoltFactor());
     }
 
     protected String getSymbol(CTRObjectID id) {

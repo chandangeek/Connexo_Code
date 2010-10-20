@@ -33,8 +33,9 @@ public class ObisCodeMapper {
 
     private void initRegisterMapping() {
 
-        //Daily readings = register values
+        //Daily readings = register values                            //"1.3.3"
         registerMapping.add(new CTRRegisterMapping("7.0.13.29.0.255", "1.3.3"));    //Vb
+        registerMapping.add(new CTRRegisterMapping("7.0.41.0.0.255", "7.0.2"));    //T
         registerMapping.add(new CTRRegisterMapping("7.0.13.30.0.255", "1.1.3"));    //Vm
         registerMapping.add(new CTRRegisterMapping("7.0.13.0.0.255", "2.0.3"));     //Tot_Vm
         registerMapping.add(new CTRRegisterMapping("7.0.13.2.0.255", "2.1.3"));     //Tot_Vb
@@ -86,11 +87,14 @@ public class ObisCodeMapper {
         Quantity quantity;
 
         if (object.getQlf().isInvalid()) {
-            throw new CTRParsingException("Invalid Data: Qualifier was 0xFF at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");
+            getLogger().log(Level.WARNING, "Invalid Data: Qualifier was 0xFF at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");
+            throw new CTRParsingException();
         } else if (object.getQlf().isInvalidMeasurement()) {
-            throw new CTRParsingException("Invalid Measurement at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");
+            getLogger().log(Level.WARNING, "Invalid Measurement at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");
+            throw new CTRParsingException();
         } else if (object.getQlf().isSubjectToMaintenance()) {
-            throw new CTRParsingException("Meter is subject to maintenance  at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");
+            getLogger().log(Level.WARNING, "Meter is subject to maintenance  at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");
+            throw new CTRParsingException();
         } else {
             if (object.getValue().length == 1) {
                 CTRAbstractValue value = object.getValue()[0];
@@ -113,6 +117,7 @@ public class ObisCodeMapper {
         getLogger().log(Level.INFO, "Succesfully read register with ID: " + id.toString() + " and Obiscode: " + obisCode.toString());
 
         System.out.println(regValue.toString());
+        System.out.println();
         return regValue;
     }
 

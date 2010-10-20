@@ -2,6 +2,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.primitive;
 
 
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.Default;
 
 import java.math.BigDecimal;
 
@@ -75,7 +76,7 @@ public class CTRPrimitiveConverter {
         return new byte[]{(byte) access};
     }
 
-    public byte[] convertDefaults(int[] defaults, int[] valueLength) {
+    public byte[] convertDefaults(Default[] defaults, int[] valueLength) {
 
         if (defaults == null) {
             byte[] result = new byte[sum(valueLength)];
@@ -90,8 +91,8 @@ public class CTRPrimitiveConverter {
         byte[] result = null;
         CTRPrimitiveParser parser = new CTRPrimitiveParser();
 
-        for (int def : defaults) {
-            bytes = parser.getBytesFromInt(def, valueLength[k]);
+        for (Default def : defaults) {
+            bytes = parser.getBytesFromInt(def.getDefaultValue(), valueLength[k]);
             if (k == 0) {
                 result = bytes;
             } else {

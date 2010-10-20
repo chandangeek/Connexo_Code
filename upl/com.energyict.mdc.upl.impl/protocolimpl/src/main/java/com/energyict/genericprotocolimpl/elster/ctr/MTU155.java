@@ -1,8 +1,10 @@
 package com.energyict.genericprotocolimpl.elster.ctr;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.*;
 import com.energyict.genericprotocolimpl.common.*;
+import com.energyict.genericprotocolimpl.elster.ctr.events.CTRMeterEvent;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRConfigurationException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.profile.ProfileChannel;
@@ -154,7 +156,11 @@ public class MTU155 extends AbstractGenericProtocol {
         // Read the events
         if (communicationProfile.getReadMeterEvents()) {
             getLogger().log(Level.INFO, "Getting events for meter with serialnumber: " + getRtuSerialNumber());
-            // TODO: implement method
+            CTRMeterEvent meterEvent = new CTRMeterEvent(getRequestFactory());
+            List<MeterEvent> meterEvents = meterEvent.getMeterEvents(getRtu().getLastLogbook());
+            ProfileData profileData = new ProfileData();
+            profileData.setMeterEvents(meterEvents);
+            storeObject.add(getRtu(), profileData);
         }
 
         // Read the register values
@@ -204,10 +210,6 @@ public class MTU155 extends AbstractGenericProtocol {
                 RtuRegister rtuRegister = rtuRegisterIterator.next();
                 if (CommonUtils.isInRegisterGroup(groups, rtuRegister)) {
                     obisCode = rtuRegister.getRtuRegisterSpec().getObisCode();
-                    System.out.println(obisCode.toString());
-                    System.out.println();
-
-
                     try {
                         RegisterValue registerValue = readRegister(obisCode);
                         registerValue.setRtuRegisterId(rtuRegister.getId());
