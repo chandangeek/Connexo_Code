@@ -369,19 +369,21 @@ public class GprsRequestFactory {
         return traceResponse.getTraceData();
     }
 
-    public CTRAbstractValue[][] queryEventArray(Index_Q index_Q) throws CTRException {
+    public ArrayEventsQueryResponseStructure queryEventArray(Index_Q index_Q) throws CTRException {
 
         GPRSFrame response = getConnection().sendFrameGetResponse(getEventArrayRequest(index_Q));
 
         //Parse the records in the response into objects.
+        response.doParse();
         ArrayEventsQueryResponseStructure arrayResponse;
-        if (response.getData() instanceof TraceQueryResponseStructure) {
+
+        if (response.getData() instanceof ArrayEventsQueryResponseStructure) {
             arrayResponse = (ArrayEventsQueryResponseStructure) response.getData();
         } else {
             throw new CTRException("Expected ArrayEventsResponseStructure but was " + response.getData().getClass().getSimpleName());
         }
 
-        return arrayResponse.getEvento_Short();
+        return arrayResponse;
     }
 
     public Trace_CQueryResponseStructure queryTrace_C(CTRObjectID id, PeriodTrace period, ReferenceDate referenceDate) throws CTRException {

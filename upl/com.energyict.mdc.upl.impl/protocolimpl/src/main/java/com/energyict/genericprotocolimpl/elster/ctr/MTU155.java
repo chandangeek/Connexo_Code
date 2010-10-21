@@ -68,6 +68,8 @@ public class
             updateRequestFactory();
             readDevice();
             getStoreObject().doExecute();
+
+
         } catch (CTRException e) {
             e.printStackTrace();
             getLogger().severe(e.getMessage());

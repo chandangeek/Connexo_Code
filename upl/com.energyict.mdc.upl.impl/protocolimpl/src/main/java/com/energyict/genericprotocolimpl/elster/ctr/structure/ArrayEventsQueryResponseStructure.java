@@ -81,6 +81,7 @@ public class ArrayEventsQueryResponseStructure extends Data<ArrayEventsQueryResp
         for (int i = 0; i < NUMBER_OF_EVENT_RECORDS; i++) {
             evento_Short[i] = factory.parse(rawData, ptr, valueAttributeType, "10.0.1").getValue();
             ptr += EventCategory.EVENT_LENGTH;
+            ptr += 1; //Skip the extra (undocumented) byte sent by the meter.
         }
 
         return this;

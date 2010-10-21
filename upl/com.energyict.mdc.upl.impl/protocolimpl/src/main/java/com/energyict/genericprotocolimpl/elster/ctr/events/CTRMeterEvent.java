@@ -32,51 +32,46 @@ public class CTRMeterEvent {
         boolean notFound = true;
         int requestCounter = 0;
         int eventCounter = 0;
+        int numberOfElements = getRequestFactory().queryEventArray(new Index_Q(0)).getNumberOfEvents().getIntValue();
 
         //Request the latest 6 events
-        while (notFound) {
-            eventRecords = getRequestFactory().queryEventArray(new Index_Q(-5 - (6 * requestCounter)));
+        while (notFound && (allEventRecords.size() < numberOfElements)) {
+            int index_Q = -1 * (-5 - (6 * requestCounter));
+            eventRecords = getRequestFactory().queryEventArray(new Index_Q(index_Q)).getEvento_Short();
+            
+            eventCounter = 0;
             for (CTRAbstractValue[] event : eventRecords) {
                 Date eventDate = getDateFromBytes(event);
-                allEventRecords.add(event);
                 if (fromDate.after(eventDate)) {
                     notFound = false;
                     break;
                 }
+                allEventRecords.add(event);
                 eventCounter++;
             }
-            eventCounter = 0;
+            requestCounter++;
         }
-        int indexOfLastResultingEvent = -1 * ((-5 - (6*requestCounter)) + (5 - eventCounter));
 
-        if (!notFound) {
-            return convertToMeterEvents(allEventRecords, indexOfLastResultingEvent);
-        } else {
-            throw new CTRException("Unable to find requested events");
-        }
+        return convertToMeterEvents(allEventRecords);
     }
 
     private Date getDateFromBytes(CTRAbstractValue[] event) {
         Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.YEAR, event[0].getIntValue());
-        cal.set(Calendar.MONTH, event[1].getIntValue());
+        cal.set(Calendar.YEAR, event[0].getIntValue() + 2000);
+        cal.set(Calendar.MONTH, event[1].getIntValue() - 1);
         cal.set(Calendar.DAY_OF_MONTH, event[2].getIntValue());
         cal.set(Calendar.HOUR_OF_DAY, event[3].getIntValue());
         cal.set(Calendar.MINUTE, event[4].getIntValue());
         return cal.getTime();
     }
 
-    private List<MeterEvent> convertToMeterEvents(List<CTRAbstractValue[]> allEventRecords, int indexOfLastResultingEvent) {
+    private List<MeterEvent> convertToMeterEvents(List<CTRAbstractValue[]> allEventRecords) {
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
-        int index = 0;
         for (CTRAbstractValue[] eventRecord : allEventRecords) {
-            if (index > indexOfLastResultingEvent) {
-                break;
-            }
-            index++;
 
-            int code = eventRecord[8].getIntValue();
+            int code = eventRecord[7].getIntValue();
             Date date = getDateFromBytes(eventRecord);
+            date = fixDate(date);
             MeterEvent meterEvent;
 
             switch (code) {
@@ -168,8 +163,36 @@ public class CTRMeterEvent {
                     meterEvent = new MeterEvent(date, MeterEvent.OTHER);
                     break;
             }
-            meterEvents.add(meterEvent);
+            if (checkDate(date)) {
+                meterEvents.add(meterEvent);
+            }
         }
         return meterEvents;
     }
+
+    private Date fixDate(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        int hour = cal.get(Calendar.HOUR_OF_DAY);
+        int minutes = cal.get(Calendar.MINUTE);
+
+
+        if (hour > 23) {
+            hour -= 30;
+            cal.set(Calendar.HOUR_OF_DAY, hour);
+        }
+        if (minutes > 59) {
+            minutes -= 60;
+            cal.set(Calendar.MINUTE, minutes);
+        }
+
+        return cal.getTime();
+    }
+
+    private boolean checkDate(Date date) {
+        Calendar calCurrent = Calendar.getInstance();
+        Date dateCurrent = calCurrent.getTime();
+        return !date.after(dateCurrent);
+    }
+
 }
