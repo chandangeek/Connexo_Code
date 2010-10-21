@@ -1,7 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.*;
 import com.energyict.genericprotocolimpl.common.*;
 import com.energyict.genericprotocolimpl.elster.ctr.events.CTRMeterEvent;
@@ -29,7 +28,8 @@ import java.util.logging.Logger;
  * Date: 24-sep-2010
  * Time: 11:43:45
  */
-public class MTU155 extends AbstractGenericProtocol {
+public class
+        MTU155 extends AbstractGenericProtocol {
 
     private final Date now = new Date();
 
@@ -189,7 +189,9 @@ public class MTU155 extends AbstractGenericProtocol {
             try {
                 ProfileChannel profile = new ProfileChannel(getRequestFactory(), channel);
                 ProfileData pd = profile.getProfileData();
+/*
                 storeObject.add(channel, pd);
+*/
             } catch (CTRException e) {
                 getLogger().warning("Unable to read channelValues for channel [......]" + e.getMessage());
             }

@@ -9,12 +9,10 @@ public class MTU155ChannelConfig {
 
     private final int numberOfChannels;
     private final String[] channelIds;
+    private static final String IGNORE_CHANNEL = "-";
 
     public MTU155ChannelConfig(String channelConfig) {
         this.channelIds = channelConfig.split(":");
-        for (String id : channelIds) {
-            System.out.println(id);
-        }
         this.numberOfChannels = channelIds.length;
     }
 
@@ -28,7 +26,8 @@ public class MTU155ChannelConfig {
 
     public String getChannelObjectId(int channelIndex) {
         if (getNumberOfChannels() > channelIndex) {
-            return channelIds[channelIndex];
+            String id = channelIds[channelIndex];
+            return IGNORE_CHANNEL.equals(id) ? null : id;
         } else {
             return null;
         }

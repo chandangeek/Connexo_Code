@@ -187,6 +187,7 @@ public class GprsRequestFactory {
         request.getFunctionCode().setEncryptionStatus(EncryptionStatus.NO_ENCRYPTION);
         request.getFunctionCode().setFunction(Function.QUERY);
         request.getProfi().setLongFrame(false);
+        request.setChannel(new Channel(1));
         request.getStructureCode().setStructureCode(StructureCode.TRACE_C);
         request.setData(new Trace_CQueryRequestStructure(request.getProfi().isLongFrame()).parse(trace_CRequest, 0));
         request.generateAndSetCpa(getProperties().getKeyCBytes());

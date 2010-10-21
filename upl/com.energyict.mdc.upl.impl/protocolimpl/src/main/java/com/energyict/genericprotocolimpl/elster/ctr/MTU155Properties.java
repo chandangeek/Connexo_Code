@@ -46,6 +46,7 @@ public class MTU155Properties extends AbstractProtocolProperties {
 
     public List<String> getOptionalKeys() {
         List<String> optional = new ArrayList<String>();
+        optional.add(DEBUG);
         optional.add(TIMEOUT);
         optional.add(RETRIES);
         optional.add(ADDRESS);

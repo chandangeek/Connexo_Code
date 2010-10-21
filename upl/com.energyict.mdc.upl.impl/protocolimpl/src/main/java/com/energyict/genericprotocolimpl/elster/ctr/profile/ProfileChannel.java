@@ -1,17 +1,20 @@
 package com.energyict.genericprotocolimpl.elster.ctr.profile;
 
+import com.energyict.cbo.Unit;
 import com.energyict.genericprotocolimpl.elster.ctr.GprsRequestFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.MTU155Properties;
-import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.Qualifier;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.Trace_CQueryResponseStructure;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.PeriodTrace;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.ReferenceDate;
+import com.energyict.genericprotocolimpl.elster.ctr.util.CTRObjectInfo;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -74,7 +77,6 @@ public class ProfileChannel {
     }
 
     /**
-     *
      * @return
      */
     private String getChannelObjectId() {
@@ -82,49 +84,129 @@ public class ProfileChannel {
     }
 
     /**
-     *
      * @return
      */
     private int getChannelIndex() {
         return getMeterChannel().getLoadProfileIndex();
     }
 
+    /**
+     * @return
+     * @throws CTRException
+     */
     public ProfileData getProfileData() throws CTRException {
         if (getChannelObjectId() == null) {
             getLogger().warning("No channel config found for channel with loadProfileIndex [" + getChannelIndex() + "]");
             return new ProfileData();
         }
 
-        getIntervalData();
-
-        return new ProfileData();
+        ProfileData pd = new ProfileData();
+        pd.setChannelInfos(getChannelInfos());
+        pd.setIntervalDatas(getIntervalData());
+        System.out.println(ProtocolTools.getProfileInfo(pd));
+        return pd;
     }
 
-    private void getIntervalData() throws CTRException {
+    /**
+     * @return
+     */
+    private List<ChannelInfo> getChannelInfos() {
+        List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+        String symbol = CTRObjectInfo.getSymbol(getChannelObjectId());
+        Unit unit = CTRObjectInfo.getUnit(getChannelObjectId());
+        ChannelInfo info = new ChannelInfo(0, symbol, unit);
+        channelInfos.add(info);
+        return channelInfos;
+    }
+
+    /**
+     * @throws CTRException
+     */
+    private List<IntervalData> getIntervalData() throws CTRException {
         List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
         Calendar fromCalendar = getFromCalendar();
-        intervalDatas.addAll(getIntervalDataBlock(getChannelObjectId(), fromCalendar));
+        Calendar toCalendar = Calendar.getInstance(getDeviceTimeZone());
+        while (fromCalendar.before(toCalendar)) {
+            intervalDatas.addAll(getIntervalDataBlock(getChannelObjectId(), fromCalendar));
+            fromCalendar.setTime(getNewestIntervalDate(intervalDatas));
+        }
+        return intervalDatas;
     }
 
+    /**
+     * @param intervalDatas
+     * @return
+     */
+    private Date getNewestIntervalDate(List<IntervalData> intervalDatas) {
+        Date newest = null;
+        for (IntervalData intervalData : intervalDatas) {
+            if (intervalData.getEndTime().after(newest == null ? new Date(0) : newest)) {
+                newest = intervalData.getEndTime();
+            }
+        }
+        return newest;
+    }
+
+    /**
+     * @param channelId
+     * @param fromCalendar
+     * @return
+     * @throws CTRException
+     */
     private List<IntervalData> getIntervalDataBlock(String channelId, Calendar fromCalendar) throws CTRException {
         CTRObjectID objectID = new CTRObjectID(channelId);
-        PeriodTrace period = new PeriodTrace(1);
+        PeriodTrace period = new PeriodTrace(2);
         ReferenceDate referenceDate = new ReferenceDate().parse(fromCalendar);
         Trace_CQueryResponseStructure response = getRequestFactory().queryTrace_C(objectID, period, referenceDate);
         return getIntervalDatasFromResponse(response);
     }
 
+    /**
+     * @param response
+     * @return
+     */
     private List<IntervalData> getIntervalDatasFromResponse(Trace_CQueryResponseStructure response) {
-        response.getDate().getCalendar(getDeviceTimeZone());
 
-        for (AbstractCTRObject object : response.getTraceData()) {
-            if (!object.getQlf().isInvalid()) {
-                System.out.println(object.getValue()[0].getValue());
+        System.out.println("\n\n#############################################################################\n\n");
+        System.out.println(response);
+
+        List<IntervalData> intervals = new ArrayList<IntervalData>();
+        Calendar startDate = response.getDate().getCalendar(getDeviceTimeZone());
+        int startOfDay = response.getEndOfDayTime().getIntValue();
+        startDate.add(Calendar.HOUR, startOfDay);
+        int interval = getMeterChannel().getIntervalInSeconds();
+        for (int i = 0; i < response.getTraceData().size(); i++) {
+            if (i < 24) {
+                AbstractCTRObject object = response.getTraceData().get(i);
+                startDate.add(Calendar.SECOND, interval);
+                Date endDate = new Date(startDate.getTimeInMillis());
+                IntervalData intervalData;
+                List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
+                intervalValues.add(new IntervalValue((Number) object.getValue(0).getValue(), 0, 0));
+                Qualifier qlf = object.getQlf();
+                intervalData = new IntervalData(endDate, getIntervalStateBits(qlf), qlf.getQlf(), 0, intervalValues);
+                System.out.println(intervalData);
+                intervals.add(intervalData);
             }
         }
-        return new ArrayList<IntervalData>();
+        return intervals;
     }
 
+    private int getIntervalStateBits(Qualifier qualifier) {
+        if (qualifier.isInvalidMeasurement()) {
+            return IntervalStateBits.CORRUPTED;
+        } else if (qualifier.isSubjectToMaintenance()) {
+            return IntervalStateBits.CORRUPTED;
+        } else if (qualifier.isReservedVal()) {
+            return IntervalStateBits.OTHER;
+        } else {
+            return IntervalStateBits.OK;
+        }
+    }
+
+    /**
+     * @return
+     */
     private Calendar getFromCalendar() {
         Date lastReading = getMeterChannel().getLastReading();
         if (lastReading == null) {
@@ -133,13 +215,6 @@ public class ProfileChannel {
         Calendar cal = ProtocolUtils.getCleanCalendar(getDeviceTimeZone());
         cal.setTime(lastReading);
         return cal;
-    }
-
-    private void getProfileInfo(String... profiles) throws CTRException {
-        List<AbstractCTRObject> ctrObjectList = getRequestFactory().queryRegisters(AttributeType.getValueOnly(), profiles);
-        for (AbstractCTRObject ctrObject : ctrObjectList) {
-            System.out.println(ctrObject);
-        }
     }
 
 }

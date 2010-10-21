@@ -3,15 +3,13 @@ package com.energyict.genericprotocolimpl.elster.ctr.object.field;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 
-import java.util.Arrays;
-
 
 /**
  * Copyrights EnergyICT
  * Date: 7-okt-2010
  * Time: 13:12:44
  */
-public class Qualifier extends AbstractField<Qualifier>{
+public class Qualifier extends AbstractField<Qualifier> {
 
     private int qlf;
     public static final String TARIF_NOT_ACTIVE = "Tariff scheme not active";
@@ -22,6 +20,11 @@ public class Qualifier extends AbstractField<Qualifier>{
     public static final String VALUE_VALID = "Valid effective value";
     public static final String VALUE_MAINTENANCE = "Value when subject to maintenance";
     public static final String VALUE_INVALID_MEASURED = "Invalid measurement";
+
+    private static final int VAL_VALID = 0;
+    private static final int VAL_MAINTENANCE = 1;
+    private static final int VAL_INVALID = 2;
+    private static final int VAL_RESERVED = 3;
 
     public static final String DAYLIGHT_SAVING_TIME = "Value during daylight saving time";
     public static final String STANDARD_TIME = "Standard time";
@@ -40,7 +43,7 @@ public class Qualifier extends AbstractField<Qualifier>{
 
     public Qualifier parse(byte[] rawData, int offset) throws CTRParsingException {
         qlf = getIntFromBytes(rawData, offset, getLength());
-        return this;    
+        return this;
     }
 
     public int getLength() {
@@ -88,22 +91,26 @@ public class Qualifier extends AbstractField<Qualifier>{
         return description;
     }
 
-    public boolean isInvalidMeasurement() {
-        return VALUE_INVALID_MEASURED.equals(getValueDescription());
+    public boolean isValid() {
+        return getVal() == VAL_VALID;
     }
 
     public boolean isSubjectToMaintenance() {
-        return VALUE_MAINTENANCE.equals(getValueDescription());
+        return getVal() == VAL_MAINTENANCE;
     }
 
-    public boolean isValid() {
-        return VALUE_VALID.equals(getValueDescription());
+    public boolean isInvalidMeasurement() {
+        return getVal() == VAL_INVALID;
+    }
+
+    public boolean isReservedVal() {
+        return getVal() == VAL_RESERVED;
     }
 
     public double getKmoltAbsoluteFactor() {
         int kmolt = qlf & (0x07);
         if (kmolt < 7) {
-            return Math.pow(10, (kmolt*(-1)));
+            return Math.pow(10, (kmolt * (-1)));
         } else {
             return 1;
         }
@@ -142,4 +149,10 @@ public class Qualifier extends AbstractField<Qualifier>{
         sb.append("qlf=").append(qlf);
         return sb.toString();
     }
+
+    public int getVal() {
+        int val = getQlf() >>> 3;
+        return val & 0x03;
+    }
+
 }

@@ -11,6 +11,8 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingExceptio
 public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
 
     private int period;
+    private static final int SEC_PER_MIN = 60;
+    private static final int SEC_PER_HOUR = SEC_PER_MIN * 60;
 
     public PeriodTrace_C() {
         this(0);
@@ -65,5 +67,15 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
             default:
                 return "";
         }
+    }
+
+    public int getIntervalInSeconds() {
+        switch (period) {
+            case 1 : return 15 * SEC_PER_MIN;
+            case 2 : return SEC_PER_HOUR;
+            case 3 : return 24 * SEC_PER_HOUR;
+            default : return 0;
+        }
+
     }
 }
