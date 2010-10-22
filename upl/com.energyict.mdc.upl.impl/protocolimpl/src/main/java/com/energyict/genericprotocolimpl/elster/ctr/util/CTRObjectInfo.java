@@ -27,7 +27,7 @@ public class CTRObjectInfo {
     public static String getSymbol(String objectID) {
         CTRObjectFactory factory = new CTRObjectFactory();
         try {
-            AbstractCTRObject ctrObject = factory.parse(new byte[1024], 0, AttributeType.getValueOnly(), objectID);
+            AbstractCTRObject ctrObject = factory.parse(new byte[1024], 0, AttributeType.getQualifierAndValue(), objectID);
             return ctrObject.getSymbol();
         } catch (CTRParsingException e) {
             return "Unknown";
@@ -42,7 +42,7 @@ public class CTRObjectInfo {
     public static Unit getUnit(String objectID) {
         CTRObjectFactory factory = new CTRObjectFactory();
         try {
-            AbstractCTRObject ctrObject = factory.parse(new byte[1024], 0, AttributeType.getValueOnly(), objectID);
+            AbstractCTRObject ctrObject = factory.parse(new byte[1024], 0, AttributeType.getQualifierAndValue(), objectID);
             return ctrObject.getUnit(new CTRObjectID(objectID), 0);
         } catch (CTRParsingException e) {
             return Unit.getUndefined();

@@ -116,7 +116,7 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
                 if (!bytesFromDeviceAvailable()) {
                     ProtocolTools.delay(1);
                 } else {
-                    byte[] buffer = new byte[32];
+                    byte[] buffer = new byte[1024];
                     int len = in.read(buffer);
                     for (int ptr = 0; ptr < len; ptr++) {
                         int readByte = buffer[ptr];
