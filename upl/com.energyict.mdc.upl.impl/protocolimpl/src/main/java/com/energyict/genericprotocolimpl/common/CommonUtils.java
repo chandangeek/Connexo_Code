@@ -1,10 +1,14 @@
 package com.energyict.genericprotocolimpl.common;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cpo.BusinessObject;
 import com.energyict.mdw.amr.*;
 import com.energyict.mdw.core.*;
+import com.energyict.mdw.coreimpl.RtuFactoryImpl;
 import com.energyict.mdw.shadow.CommunicationSchedulerShadow;
 import com.energyict.mdw.shadow.RtuShadow;
+import com.energyict.metadata.Criterium;
+import com.energyict.metadata.TypeDescriptor;
 import com.energyict.protocol.InvalidPropertyException;
 
 import java.io.IOException;
@@ -13,12 +17,12 @@ import java.util.*;
 
 /**
  * Commonly used methods for a {@link GenericProtocol}
- * 
+ *
  * @author gna
  *
  */
 public final class CommonUtils {
-	
+
 	/**
 	 * Find an Rtu by it's serialNumber in the database. The serialnumber is not unique so if multiples were found, exceptions will be thrown.
 	 * If no rtu was found we will try to create one using the given RtuType. If the folderExtNameProperty is entered, then the new Rtu will be
@@ -34,7 +38,7 @@ public final class CommonUtils {
 	public static Rtu findOrCreateDeviceBySerialNumber(String serialNumber, String rtuTypeProperty, String folderExtNameProperty) throws IOException, SQLException, BusinessException{
 		List result = mw().getRtuFactory().findBySerialNumber(serialNumber);
 		if(result.size() == 1){		// we found the rtu so return it
-			return (Rtu)result.get(0);	
+			return (Rtu)result.get(0);
 		} else if(result.size() > 1){
 			throw new IOException("Multple meters found in database with serialnumber " + serialNumber);
 		} else {					// no results were found, try to create it
@@ -42,7 +46,7 @@ public final class CommonUtils {
 			return createMeterWithSerialNumber(rtuType, serialNumber, folderExtNameProperty);
 		}
 	}
-	
+
 	/**
 	 * Find an Rtu by it's deviceId in the database. The deviceId is not unique so if multiples were found, exceptions will be thrown.
 	 * If no rtu was found we will try to create one using the given RtuType. If the folderExtNameProperty is entered, then the new Rtu will be
@@ -58,7 +62,7 @@ public final class CommonUtils {
 	public static Rtu findOrCreateDeviceByDeviceId(String deviceId, String rtuTypeProperty, String folderExtNameProperty) throws IOException, SQLException, BusinessException{
 		List result = mw().getRtuFactory().findByDeviceId(deviceId);
 		if(result.size() == 1){		// we found the rtu so return it
-			return (Rtu)result.get(0);	
+			return (Rtu)result.get(0);
 		} else if(result.size() > 1){
 			throw new IOException("Multple meters found in database with deviceId " + deviceId);
 		} else {					// no results were found, try to create it
@@ -66,7 +70,7 @@ public final class CommonUtils {
 			return createMeterWithDeviceId(rtuType, deviceId, folderExtNameProperty);
 		}
 	}
-	
+
 	/**
 	 * Create a new Rtu an place it in the given folder
      *
@@ -85,19 +89,19 @@ public final class CommonUtils {
 		RtuShadow shadow = rtuType.newRtuShadow();
     	shadow.setName(serialNumber);
         shadow.setSerialNumber(serialNumber);
-        
+
         if(folderExtNameProperty != null){
         	Folder result = mw().getFolderFactory().findByExternalName(folderExtNameProperty);
     		if(result != null){
     			shadow.setFolderId(result.getId());
     		} // else the new rtu will be placed in the prototype folder
         }// else the new rtu will be placed in the prototype folder
-        
+
         Rtu rtu = mw().getRtuFactory().create(shadow);
         setNextCommunications(rtu);
         return rtu;
 	}
-	
+
 	/**
 	 * Create a new Rtu an place it in the given folder.
      *
@@ -116,19 +120,19 @@ public final class CommonUtils {
 		RtuShadow shadow = rtuType.newRtuShadow();
     	shadow.setName("Device - " + deviceId);
         shadow.setDeviceId(deviceId);
-        
+
         if(folderExtNameProperty != null){
         	Folder result = mw().getFolderFactory().findByExternalName(folderExtNameProperty);
     		if(result != null){
     			shadow.setFolderId(result.getId());
     		} // else the new rtu will be placed in the prototype folder
         }// else the new rtu will be placed in the prototype folder
-        
+
         Rtu rtu = mw().getRtuFactory().create(shadow);
         setNextCommunications(rtu);
         return rtu;
 	}
-	
+
 	/**
      * Iterate over all the CommunicationSchedulers of the slave device and
      * set the next reading date to now, when the auto reschedule is enabled
@@ -176,8 +180,30 @@ public final class CommonUtils {
 		MeteringWarehouse result = MeteringWarehouse.getCurrent();
 		return (result == null) ? new MeteringWarehouseFactory().getBatch() : result;
 	}
-	
-	/**
+
+    /**
+     * Find a Rtu for the given phoneNumber
+     *
+     * @param phoneNumber the device phoneNumber as String
+     * @return one single Rtu
+     * @throws IOException when no device or more then one device was found with the given phoneNumber
+     */
+    public static Rtu findDeviceByPhoneNumber(String phoneNumber) throws IOException {
+        RtuFactoryImpl factory = (RtuFactoryImpl) mw().getRtuFactory();
+        TypeDescriptor type = factory.getTypeDescriptor();
+        com.energyict.metadata.SearchFilter filter = new com.energyict.metadata.SearchFilter(type);
+        filter.addAnd(Criterium.eq(type.getAttributeDescriptor("phoneNumber"), phoneNumber));
+        List<BusinessObject> result = factory.findBySearchFilter(filter);
+        if (result.size() == 1) {
+            return (Rtu) result.get(0);
+        } else if (result.size() > 1) {
+            throw new IOException("Multple meters found in database with phoneNumber " + phoneNumber);
+        } else {
+            throw new IOException("No meter found in database with phoneNumber " + phoneNumber);
+        }
+    }
+
+    /**
 	 * Check whether the {@link RtuRegisterGroup} from the given RtuRegister is in the given RtuRegisterGroup-List
 	 * @param groups - a List of {@link RtuRegisterGroup}s
 	 * @param rr - the {@link RtuRegister} to check
