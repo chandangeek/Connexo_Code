@@ -197,7 +197,7 @@ public final class CommonUtils {
         if (result.size() == 1) {
             return (Rtu) result.get(0);
         } else if (result.size() > 1) {
-            throw new IOException("Multple meters found in database with phoneNumber " + phoneNumber);
+            throw new IOException("Multiple meters found in database with phoneNumber " + phoneNumber);
         } else {
             throw new IOException("No meter found in database with phoneNumber " + phoneNumber);
         }

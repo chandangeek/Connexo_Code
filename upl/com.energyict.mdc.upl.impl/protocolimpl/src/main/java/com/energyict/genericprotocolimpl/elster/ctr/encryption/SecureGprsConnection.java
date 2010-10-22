@@ -40,7 +40,7 @@ public class SecureGprsConnection extends GprsConnection {
             }
             return unencryptedResponseFrame;
         } catch (CtrCipheringException e) {
-            throw new CTRConnectionException("An error occured in the secure connection!", e);
+            throw new CTRConnectionException("An error occurred in the secure connection!", e);
         }
     }
 
@@ -50,13 +50,5 @@ public class SecureGprsConnection extends GprsConnection {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
-    }
-
-    public static void main(String[] args) throws CTRParsingException, CtrCipheringException {
-        String keyC = "32323232323232323232323232323232";
-        byte[] decrypt = ProtocolTools.getBytesFromHexString("0A000000668749C91E0BB8E03A571504DAAA99335E3E8732B5CA85C255BB170A5BB746D1148B15C46CFB077609873BF142E74BC45CDFFBE0C740E3E16021F5DF81BFAD76C804C845E554677E1612BDB1E633FE607D9A26403258A4FEC824AE65AA5F28315B993875E23DB92754A4352C92E906BD2C0FA58B9A7A376C234316EB081BF0FC37B63C99F78EA661CB0D", "");
-        CTREncryption encr = new CTREncryption(keyC, keyC, keyC);
-        Frame frame = encr.decryptFrame(new GPRSFrame().parse(decrypt, 0));
-        System.out.println(ProtocolTools.getHexStringFromBytes(frame.getBytes()));
     }
 }

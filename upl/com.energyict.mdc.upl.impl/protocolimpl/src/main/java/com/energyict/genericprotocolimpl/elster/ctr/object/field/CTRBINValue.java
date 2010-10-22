@@ -15,12 +15,12 @@ import java.math.BigDecimal;
 public class CTRBINValue extends CTRAbstractValue{
     private BigDecimal value;
 
-    public CTRBINValue(Unit unit, BigDecimal overflowValue, BigDecimal value, String type, int valueLenght) {
+    public CTRBINValue(Unit unit, BigDecimal overflowValue, BigDecimal value, String type, int valueLength) {
         this.overflowValue = overflowValue;
         this.unit = unit;
         this.value = value;
         this.type = type;
-        this.valueLength = valueLenght;
+        this.valueLength = valueLength;
     }
 
     @Override

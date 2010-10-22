@@ -28,11 +28,9 @@ import java.util.logging.Logger;
  * Date: 24-sep-2010
  * Time: 11:43:45
  */
-public class
-        MTU155 extends AbstractGenericProtocol {
+public class MTU155 extends AbstractGenericProtocol {
 
     private final Date now = new Date();
-
     private final StoreObject storeObject = new StoreObject();
     private final MTU155Properties properties = new MTU155Properties();
     private GprsRequestFactory requestFactory;
@@ -68,7 +66,6 @@ public class
             updateRequestFactory();
             readDevice();
             getStoreObject().doExecute();
-
 
         } catch (CTRException e) {
             e.printStackTrace();
@@ -242,7 +239,7 @@ public class
      * @throws CTRException
      */
     private RegisterValue readRegister(ObisCode obisCode) throws NoSuchRegisterException, CTRException {
-        return getObisCodeMapper().readRegister(obisCode);
+        return getObisCodeMapper().readRegister(obisCode, null);
     }
 
     /**

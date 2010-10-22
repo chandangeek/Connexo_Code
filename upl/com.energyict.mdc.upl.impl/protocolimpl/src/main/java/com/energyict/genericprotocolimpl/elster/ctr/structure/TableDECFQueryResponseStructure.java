@@ -8,6 +8,8 @@ import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValu
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -18,8 +20,8 @@ public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponse
 
     //See p64, TABLE DECF structure
     private CTRAbstractValue<String> pdr;
-    private DateAndTimeCategory dataAndOraS;
-    private CTRAbstractValue<BigDecimal> diagnR;
+    private AbstractCTRObject dataAndOraS;
+    private AbstractCTRObject diagnR;
     private CTRAbstractValue<BigDecimal> numberOfElements;
     private CTRAbstractValue<BigDecimal> id_Pt_Current;
     private CTRAbstractValue<BigDecimal> id_Pt_Previous;
@@ -31,8 +33,8 @@ public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponse
     private AbstractCTRObject tot_Vcor_f1;
     private AbstractCTRObject tot_Vcor_f2;
     private AbstractCTRObject tot_Vcor_f3;
-    private DateAndTimeCategory dataAndOraP;
-    private CTRAbstractValue diagnRS_pf;
+    private AbstractCTRObject dataAndOraP;
+    private AbstractCTRObject diagnRS_pf;
     private AbstractCTRObject tot_Vb_pf;
     private AbstractCTRObject tot_Vme_pf;
     private AbstractCTRObject tot_Vme_pf_f1;
@@ -41,6 +43,30 @@ public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponse
     private AbstractCTRObject tot_Vpre_f1;
     private AbstractCTRObject tot_Vpre_f2;
     private AbstractCTRObject tot_Vpre_f3;
+
+    public List<AbstractCTRObject> getObjects() {
+        List<AbstractCTRObject> list = new ArrayList();
+        list.add(tot_Vb);
+        list.add(tot_Vme);
+        list.add(tot_Vme_f1);
+        list.add(tot_Vme_f2);
+        list.add(tot_Vme_f3);
+        list.add(tot_Vcor_f1);
+        list.add(tot_Vcor_f2);
+        list.add(tot_Vcor_f3);
+        list.add(dataAndOraP);
+        list.add(diagnRS_pf);
+        list.add(tot_Vb_pf);
+        list.add(tot_Vme_pf);
+        list.add(tot_Vme_pf_f1);
+        list.add(tot_Vme_pf_f2);
+        list.add(tot_Vme_pf_f3);
+        list.add(tot_Vpre_f1);
+        list.add(tot_Vpre_f2);
+        list.add(tot_Vpre_f3);
+
+        return list;
+    }
 
 
     public TableDECFQueryResponseStructure(boolean longFrame) {
@@ -57,7 +83,7 @@ public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponse
         return padData(ProtocolTools.concatByteArrays(
                 pdr.getBytes(),
                 dataAndOraS.getBytes(AttributeType.getValueOnly()),
-                diagnR.getBytes(),
+                diagnR.getBytes(AttributeType.getValueOnly()),
                 numberOfElements.getBytes(),
                 id_Pt_Current.getBytes(),
                 id_Pt_Previous.getBytes(),
@@ -70,7 +96,7 @@ public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponse
                 tot_Vcor_f2.getBytes(type),
                 tot_Vcor_f3.getBytes(type),
                 dataAndOraP.getBytes(AttributeType.getValueOnly()),
-                diagnRS_pf.getBytes(),
+                diagnRS_pf.getBytes(AttributeType.getValueOnly()),
                 tot_Vb_pf.getBytes(type),
                 tot_Vme_pf.getBytes(type),
                 tot_Vme_pf_f1.getBytes(type),
@@ -93,22 +119,22 @@ public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponse
         int ptr = offset;
 
         pdr = factory.parse(rawData, ptr, type, "C.0.0").getValue()[0];
-        ptr += 7;
+        ptr += pdr.getValueLength();
 
-        dataAndOraS = (DateAndTimeCategory) factory.parse(rawData, ptr, type, "8.0.1");
-        ptr += 5;
+        dataAndOraS = factory.parse(rawData, ptr, type, "8.0.1");
+        ptr += dataAndOraS.getLength(type);
 
-        diagnR = factory.parse(rawData, ptr, type, "12.2.0").getValue()[0];
-        ptr += 2;
+        diagnR = factory.parse(rawData, ptr, type, "12.2.0");
+        ptr += diagnR.getLength(type);
 
         numberOfElements = factory.parse(rawData, ptr, type, "10.1.0").getValue()[0];
-        ptr += 2;
+        ptr += numberOfElements.getValueLength();
 
         id_Pt_Current = factory.parse(rawData, ptr, type, "17.0.4").getValue()[0];
-        ptr += 2;
+        ptr += id_Pt_Current.getValueLength();
 
         id_Pt_Previous = factory.parse(rawData, ptr, type, "17.0.4").getValue()[1];
-        ptr += 2;
+        ptr += id_Pt_Previous.getValueLength();
         type.setHasQualifier(true);        
 
         tot_Vb = factory.parse(rawData, ptr, type, "2.1.0");
@@ -135,13 +161,12 @@ public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponse
         tot_Vcor_f3 = factory.parse(rawData, ptr, type, "2.5.2");
         ptr += tot_Vcor_f3.getLength(type);
 
-
         type.setHasQualifier(false);
-        dataAndOraP = (DateAndTimeCategory) factory.parse(rawData, ptr, type, "8.0.2");
-        ptr += dataAndOraP.getLength(AttributeType.getValueOnly());
+        dataAndOraP = factory.parse(rawData, ptr, type, "8.0.2");
+        ptr += dataAndOraP.getLength(type);
 
-        diagnRS_pf = factory.parse(rawData, ptr, type, "12.6.6").getValue()[0];
-        ptr += diagnRS_pf.getValueLength();
+        diagnRS_pf = factory.parse(rawData, ptr, type, "12.6.6");
+        ptr += diagnRS_pf.getLength(type);
 
         type.setHasQualifier(true);
         tot_Vb_pf = factory.parse(rawData, ptr, type, "2.1.6");
@@ -179,19 +204,19 @@ public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponse
         return sum;
     }
 
-    public DateAndTimeCategory getDataAndOraP() {
+    public AbstractCTRObject getDataAndOraP() {
         return dataAndOraP;
     }
 
-    public DateAndTimeCategory getDataAndOraS() {
+    public AbstractCTRObject getDataAndOraS() {
         return dataAndOraS;
     }
 
-    public CTRAbstractValue<BigDecimal> getDiagnR() {
+    public AbstractCTRObject getDiagnR() {
         return diagnR;
     }
 
-    public CTRAbstractValue getDiagnRS_pf() {
+    public AbstractCTRObject getDiagnRS_pf() {
         return diagnRS_pf;
     }
 

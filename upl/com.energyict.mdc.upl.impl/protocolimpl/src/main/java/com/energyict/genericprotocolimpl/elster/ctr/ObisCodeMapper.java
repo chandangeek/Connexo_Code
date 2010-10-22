@@ -33,15 +33,15 @@ public class ObisCodeMapper {
 
     private void initRegisterMapping() {
 
-        //Daily readings = register values                            //"1.3.3"
-        registerMapping.add(new CTRRegisterMapping("7.0.13.29.0.255", "1.3.3"));    //Vb
-        registerMapping.add(new CTRRegisterMapping("7.0.41.0.0.255", "7.0.2"));    //T
-        registerMapping.add(new CTRRegisterMapping("7.0.13.30.0.255", "1.1.3"));    //Vm
-        registerMapping.add(new CTRRegisterMapping("7.0.13.0.0.255", "2.0.3"));     //Tot_Vm
-        registerMapping.add(new CTRRegisterMapping("7.0.13.2.0.255", "2.1.3"));     //Tot_Vb
-        registerMapping.add(new CTRRegisterMapping("7.0.43.25.0.255", "1.A.3"));    //Qcb_max
+        //Daily readings = register values
+        registerMapping.add(new CTRRegisterMapping("7.0.13.29.0.255", "1.3.3"));    //Vb_g
+        registerMapping.add(new CTRRegisterMapping("7.0.41.0.0.255", "7.0.2"));     //T_h
+        registerMapping.add(new CTRRegisterMapping("7.0.13.30.0.255", "1.1.3"));    //Vm_g
+        registerMapping.add(new CTRRegisterMapping("7.0.13.0.0.255", "2.0.3"));     //Tot_Vm_g
+        registerMapping.add(new CTRRegisterMapping("7.0.13.2.0.255", "2.1.3"));     //Tot_Vb_g
+        registerMapping.add(new CTRRegisterMapping("7.0.43.25.0.255", "1.A.3"));    //Qcb_max_g
 
-        registerMapping.add(new CTRRegisterMapping("7.0.128.0.0.255", "12.6.3"));   //DiagnRS       = Manufacturer specific code!!  TODO: add in release notes
+        registerMapping.add(new CTRRegisterMapping("7.0.128.0.0.255", "12.6.3"));   //DiagnRS_g     = Manufacturer specific code!!  TODO: add in release notes
         registerMapping.add(new CTRRegisterMapping("7.0.128.1.0.255", "12.2.0"));   //DiagnR        = Manufacturer specific code!!
         registerMapping.add(new CTRRegisterMapping("7.0.128.2.0.255", "12.1.0"));   //Diagn         = Manufacturer specific code!!
         registerMapping.add(new CTRRegisterMapping("7.0.128.3.0.255", "2.3.3"));    //Tot_Vme_g     = Manufacturer specific code!!
@@ -62,7 +62,7 @@ public class ObisCodeMapper {
         return requestFactory;
     }
 
-    public RegisterValue readRegister(ObisCode obisCode) throws CTRException, NoSuchRegisterException {
+    public RegisterValue readRegister(ObisCode obisCode, List<AbstractCTRObject> list) throws CTRException, NoSuchRegisterException {
         AttributeType attributeType = new AttributeType();
         attributeType.setHasIdentifier(true);
         attributeType.setHasValueFields(true);
@@ -76,25 +76,46 @@ public class ObisCodeMapper {
             }
         }
 
-
         if (id == null) {
             throw new NoSuchRegisterException("Unsupported Obis Code");
         }
 
-        List<AbstractCTRObject> list = getRequestFactory().queryRegisters(attributeType, id);
-        AbstractCTRObject object = list.get(0);
+        AbstractCTRObject object = null;
+                
+        //If there's no pushed registers (SMS case), manually query for register data.
+        if (list == null) {
+            list = getRequestFactory().queryRegisters(attributeType, id);
+            object = list.get(0);
+        }
+
+        //There's a given sms response containing data for several registers, find the right one
+        else {
+            int i = 0;
+            for (AbstractCTRObject ctrObject : list) {
+                if (id.equals(ctrObject.getId().toString())) {
+                    object = list.get(i);
+                }
+                i++;
+            }
+        }
+
+        if (object == null) {
+            getLogger().log(Level.WARNING, "No suitable object available");
+            throw new CTRParsingException("No suitable object available");
+        }
+        
         RegisterValue regValue;
         Quantity quantity;
 
         if (object.getQlf().isInvalid()) {
             getLogger().log(Level.WARNING, "Invalid Data: Qualifier was 0xFF at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");
-            throw new CTRParsingException();
+            throw new CTRParsingException("Invalid Data: Qualifier was 0xFF at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");
         } else if (object.getQlf().isInvalidMeasurement()) {
             getLogger().log(Level.WARNING, "Invalid Measurement at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");
-            throw new CTRParsingException();
+            throw new CTRParsingException("Invalid Measurement at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");
         } else if (object.getQlf().isSubjectToMaintenance()) {
             getLogger().log(Level.WARNING, "Meter is subject to maintenance  at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");
-            throw new CTRParsingException();
+            throw new CTRParsingException("Meter is subject to maintenance  at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");
         } else {
             if (object.getValue().length == 1) {
                 CTRAbstractValue value = object.getValue()[0];
@@ -121,7 +142,7 @@ public class ObisCodeMapper {
         return regValue;
     }
 
-        public Logger getLogger() {
+    public Logger getLogger() {
         if (logger == null) {
             logger = Logger.getLogger(getClass().getName());
         }

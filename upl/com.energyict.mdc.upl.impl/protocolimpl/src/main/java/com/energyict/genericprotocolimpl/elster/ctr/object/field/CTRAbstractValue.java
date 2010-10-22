@@ -65,6 +65,7 @@ public abstract class CTRAbstractValue<T extends Object> {
     public abstract T getValue();
     public abstract void setValue(T value);
 
+
     @Override
     public String toString() {
         return "CTRAbstractValue{" +

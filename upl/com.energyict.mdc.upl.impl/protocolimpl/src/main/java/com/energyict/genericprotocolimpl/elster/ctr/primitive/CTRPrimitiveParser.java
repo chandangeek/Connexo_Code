@@ -42,7 +42,7 @@ public class CTRPrimitiveParser {
         for (int valueLength1 : valueLength) {
             byte[] value = ProtocolUtils.getSubArray(rawData, offset, offset + valueLength1 - 1);
             Unit unit = object.getUnit(id, i);
-            result[i] = new CTRBINValue(unit, object.getOverflowValue(id, i, unit), convertByteArrayToBigDecimal(value), "BIN", valueLength1);
+            result[i] = new CTRBINValue(unit, object.getOverflowValue(id, i, unit), convertByteArrayToBigDecimal(value), CTRAbstractValue.BIN , valueLength1);
             i++;
             offset += valueLength1;
         }
@@ -81,9 +81,9 @@ public class CTRPrimitiveParser {
             }
 
             if (signed) {
-                result[i] = new CTRBINValue(unit, object.getOverflowValue(id, i, unit), convertSignedByteArrayToBigDecimal(value), "SignedBIN", valueLength1);
+                result[i] = new CTRBINValue(unit, object.getOverflowValue(id, i, unit), convertSignedByteArrayToBigDecimal(value), CTRAbstractValue.SIGNEDBIN, valueLength1);
             } else {
-                result[i] = new CTRBINValue(unit, object.getOverflowValue(id, i, unit), convertByteArrayToBigDecimal(value), "BIN", valueLength1);
+                result[i] = new CTRBINValue(unit, object.getOverflowValue(id, i, unit), convertByteArrayToBigDecimal(value), CTRAbstractValue.BIN, valueLength1);
             }
 
             i++;
@@ -130,9 +130,9 @@ public class CTRPrimitiveParser {
             }
 
             if (stringValue) {
-                result[i] = new CTRStringValue(unit, object.getOverflowValue(id, i, unit), convertByteArrayToString(value), "String", valueLength1);
+                result[i] = new CTRStringValue(unit, object.getOverflowValue(id, i, unit), convertByteArrayToString(value), CTRAbstractValue.STRING, valueLength1);
             } else {
-                result[i] = new CTRBINValue(unit, object.getOverflowValue(id, i, unit), convertByteArrayToBigDecimal(value), "BIN", valueLength1);
+                result[i] = new CTRBINValue(unit, object.getOverflowValue(id, i, unit), convertByteArrayToBigDecimal(value), CTRAbstractValue.BIN, valueLength1);
             }
 
             i++;
@@ -199,13 +199,13 @@ public class CTRPrimitiveParser {
             }
 
             if (signedValue) {
-                result[i] = new CTRBINValue(unit, object.getOverflowValue(id, i, unit), convertSignedByteArrayToBigDecimal(value), "SignedBIN", valueLength1);
+                result[i] = new CTRBINValue(unit, object.getOverflowValue(id, i, unit), convertSignedByteArrayToBigDecimal(value), CTRAbstractValue.SIGNEDBIN, valueLength1);
             } else if (stringValue) {
-                result[i] = new CTRStringValue(unit, object.getOverflowValue(id, i, unit), convertByteArrayToString(value), "String", valueLength1);
+                result[i] = new CTRStringValue(unit, object.getOverflowValue(id, i, unit), convertByteArrayToString(value), CTRAbstractValue.STRING, valueLength1);
             } else if (bcdValue) {
-                result[i] = new CTRBCDValue(unit, object.getOverflowValue(id, i, unit), convertByteArrayToBCD(value), "BCD", valueLength1);
+                result[i] = new CTRBCDValue(unit, object.getOverflowValue(id, i, unit), convertByteArrayToBCD(value), CTRAbstractValue.BCD, valueLength1);
             } else {
-                result[i] = new CTRBINValue(unit, object.getOverflowValue(id, i, unit), convertByteArrayToBigDecimal(value), "BIN", valueLength1);
+                result[i] = new CTRBINValue(unit, object.getOverflowValue(id, i, unit), convertByteArrayToBigDecimal(value), CTRAbstractValue.BIN, valueLength1);
             }
 
             i++;

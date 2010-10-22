@@ -323,6 +323,7 @@ public class GprsRequestFactory {
 
     public Data executeRequest(ReferenceDate validityDate, WriteDataBlock wdb, CTRObjectID id, byte[] data) throws CTRException{
         GPRSFrame response = getConnection().sendFrameGetResponse(getExecuteRequest(validityDate, wdb, id, data));
+        response.doParse();
 
         //Check the response: should be Ack or Nack
         Data executeResponse;
@@ -342,6 +343,7 @@ public class GprsRequestFactory {
 
         //Check the response: should be Ack or Nack
         Data writeRegisterResponse;
+        response.doParse();
         if (response.getData() instanceof AckStructure) {
             writeRegisterResponse = (AckStructure) response.getData();
         } else if (response.getData() instanceof NackStructure) {
@@ -357,6 +359,7 @@ public class GprsRequestFactory {
 
         //Send the id, the period (15min, 1h, 1day, ...), and the start date.
         GPRSFrame response = getConnection().sendFrameGetResponse(getTraceRequest(id, period, startDate, numberOfElements ));
+        response.doParse();
 
         //Parse the records in the response into objects.
         TraceQueryResponseStructure traceResponse;

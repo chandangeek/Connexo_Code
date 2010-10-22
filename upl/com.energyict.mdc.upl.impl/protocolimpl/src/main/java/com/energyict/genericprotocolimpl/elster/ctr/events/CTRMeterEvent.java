@@ -65,7 +65,7 @@ public class CTRMeterEvent {
         return cal.getTime();
     }
 
-    private List<MeterEvent> convertToMeterEvents(List<CTRAbstractValue[]> allEventRecords) {
+    public List<MeterEvent> convertToMeterEvents(List<CTRAbstractValue[]> allEventRecords) {
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         for (CTRAbstractValue[] eventRecord : allEventRecords) {
 

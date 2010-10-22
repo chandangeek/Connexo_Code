@@ -40,7 +40,7 @@ public class StructureTest extends TestCase {
         byte[] bytes13 = padData(ProtocolTools.getBytesFromHexString("$51$52$53$54$55$56"));
         byte[] bytes14 = padData(ProtocolTools.getBytesFromHexString("$11$22$33$44$55$66$77$05$05$05$05$05"));
 
-        byte[] bytes16 = padData(ProtocolTools.getBytesFromHexString("$11$22$33$44$55$66$77$0F$00$00$00$02$00$20$00$06$0A$0A$15$0E$0A$00$01$01$40$00$00$00$01$00$00$00$01$01$0A$0A$15$0E$0A$00$01$01$3A$00$00$00$01$00$00$00$01$01$0A$0A$15$0E$0A$00$01$01$46$00$00$00$01$00$00$00$01$01$0A$0A$0A$0E$0A$00$01$01$35$00$00$00$01$00$00$00$01$01$0A$0A$08$0E$0A$00$01$01$35$00$00$00$01$00$00$00$01$01$0A$0A$07$0E$0A$00$01$01$35$00$00$00$01$00$00$00$01"));
+        byte[] bytes16 = padData(ProtocolTools.getBytesFromHexString("$11$22$33$44$55$66$77$0F$00$00$00$02$00$20$00$06$0A$0A$15$0E$0A$00$01$01$40$00$00$00$01$00$00$00$01$00$0A$0A$15$0E$0A$00$01$01$3A$00$00$00$01$00$00$00$01$00$0A$0A$15$0E$0A$00$01$01$46$00$00$00$01$00$00$00$01$00$0A$0A$0A$0E$0A$00$01$01$35$00$00$00$01$00$00$00$01$00$0A$0A$08$0E$0A$00$01$01$35$00$00$00$01$00$00$00$01$00$0A$0A$07$0E$0A$00$01$01$35$00$00$00$01$00$00$00$01"));
 
         ArrayEventsQueryRequestStructure aeqrs = new ArrayEventsQueryRequestStructure(false).parse(bytes, 0);
         ArrayEventsQueryResponseStructure aeqrspns = new ArrayEventsQueryResponseStructure(false).parse(bytes2, 0);
@@ -77,7 +77,6 @@ public class StructureTest extends TestCase {
         assertArrayEquals(bytes11, idreq.getBytes());
         assertArrayEquals(bytes13, tablereq.getBytes());
         assertArrayEquals(bytes14, tablersp.getBytes());
-        //assertArrayEquals(bytes16, eventsresp.getBytes());
     }
 
     private byte[] padData(byte[] fieldData) {
