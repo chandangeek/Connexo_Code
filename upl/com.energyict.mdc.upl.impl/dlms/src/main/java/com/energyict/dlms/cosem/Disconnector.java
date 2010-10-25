@@ -147,7 +147,9 @@ public class Disconnector extends AbstractCosemObject implements RegisterReadabl
 	public TypeEnum readControlState() {
 		try {
 			this.controlState = new TypeEnum(getResponseData(DisconnectControlAttribute.CONTROL_STATE), 0);
-		} catch (IOException e) {}
+		} catch (IOException e) {
+            this.controlState = new TypeEnum(-1);
+        }
 		return this.controlState;
 	}
 

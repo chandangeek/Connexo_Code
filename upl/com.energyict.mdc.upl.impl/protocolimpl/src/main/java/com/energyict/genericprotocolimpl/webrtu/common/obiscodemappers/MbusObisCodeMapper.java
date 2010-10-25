@@ -23,7 +23,7 @@ import java.util.Date;
 public class MbusObisCodeMapper {
 	
 	CosemObjectFactory cof = new CosemObjectFactory(null);
-	private static final String[] possibleConnectStates = {"Disconnected","Connected","Ready for Reconnection"};
+	private static final String[] possibleConnectStates = {"Disconnected","Connected","Ready for Reconnection", "UNKNOWN state"};
 	
 	public MbusObisCodeMapper(CosemObjectFactory cosemObjectFactory) {
 		cof = cosemObjectFactory;
@@ -74,7 +74,7 @@ public class MbusObisCodeMapper {
         if ((state >= 0) && (state < (possibleConnectStates.length))) {
             return "ConnectControl state: " + possibleConnectStates[state];
         } else {
-            return "ConnectControl state has an invalid state: " + state;
+            return "ConnectControl state has an UNKNOWN state";
         }
     }
 
