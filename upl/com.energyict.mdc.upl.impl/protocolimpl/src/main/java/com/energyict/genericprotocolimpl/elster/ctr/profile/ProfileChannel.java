@@ -208,7 +208,7 @@ public class ProfileChannel {
      * @return
      */
     private Calendar getFromCalendar() {
-        return ProtocolTools.createCalendar(2010, 10, 10, 0, 0, 0, 0, getDeviceTimeZone());
+        return ProtocolTools.createCalendar(2010, 10, 24, 0, 0, 0, 0, getDeviceTimeZone());
 /*
         Date lastReading = getMeterChannel().getLastReading();
         if (lastReading == null) {
