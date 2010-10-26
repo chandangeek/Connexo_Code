@@ -64,7 +64,11 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
         channel = new Channel().parse(rawData, ptr);
         ptr += channel.getLength();
 
-        parseDataField(rawData, ptr);
+        if (getFunctionCode().getEncryptionStatus().isEncrypted()) {
+            data = new Data(false).parse(rawData, ptr);
+        } else {
+            parseDataField(rawData, ptr);
+        }
         ptr += getData().getLength();
 
         cpa = new Cpa().parse(rawData, ptr);
@@ -77,25 +81,25 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
     }
 
     private void parseDataField(byte[] rawData, int offset) throws CTRParsingException {
+        int ptr = offset;
         if (isIdentificationReply()) {
-            data = new IdentificationResponseStructure(getProfi().isLongFrame()).parse(rawData, offset);
+            data = new IdentificationResponseStructure(getProfi().isLongFrame()).parse(rawData, ptr);
         } else if (functionCode.isNack()) {
-            data = new NackStructure(getProfi().isLongFrame()).parse(rawData, offset);
+            data = new NackStructure(getProfi().isLongFrame()).parse(rawData, ptr);
         } else if (functionCode.isAck()) {
-            data = new AckStructure().parse(rawData, offset);
+            data = new AckStructure().parse(rawData, ptr);
         } else if (isRegisterQueryReply()) {
-            data = new RegisterQueryResponseStructure(getProfi().isLongFrame()).parse(rawData, offset);
+            data = new RegisterQueryResponseStructure(getProfi().isLongFrame()).parse(rawData, ptr);
         } else if (isArrayQueryReply()) {
-            data = new ArrayQueryResponseStructure(getProfi().isLongFrame()).parse(rawData, offset);
+            data = new ArrayQueryResponseStructure(getProfi().isLongFrame()).parse(rawData, ptr);
         } else if (isTableDECFQueryResponseStructure()) {
-            data = new TableDECFQueryResponseStructure(getProfi().isLongFrame()).parse(rawData, offset);
+            data = new TableDECFQueryResponseStructure(getProfi().isLongFrame()).parse(rawData, ptr);
         } else if (isTrace_CQueryResponseStructure()) {
-            data = new Trace_CQueryResponseStructure(getProfi().isLongFrame()).parse(rawData, offset);
+            data = new Trace_CQueryResponseStructure(getProfi().isLongFrame()).parse(rawData, ptr);
         } else if (isEventTraceQueryReponseStructure()) {
-            data = new ArrayEventsQueryResponseStructure(getProfi().isLongFrame()).parse(rawData, offset);
-        }
-        else {
-            data = new Data(getProfi().isLongFrame()).parse(rawData, offset);
+            data = new ArrayEventsQueryResponseStructure(getProfi().isLongFrame()).parse(rawData, ptr);
+        } else {
+            data = new Data(getProfi().isLongFrame()).parse(rawData, ptr);
         }
     }
 
@@ -165,7 +169,6 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
     }
 
     /**
-     *
      * @param key
      * @return
      */
@@ -174,7 +177,6 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
     }
 
     /**
-     *
      * @return
      */
     public Crc getCrc() {
@@ -189,7 +191,6 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
     }
 
     /**
-     *
      * @return
      */
     public Crc generateCrc() {

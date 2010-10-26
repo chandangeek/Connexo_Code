@@ -4,10 +4,10 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CtrCipheringExcept
 import com.energyict.genericprotocolimpl.elster.ctr.frame.Frame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Copyrights EnergyICT
@@ -38,21 +38,11 @@ public class EncryptionTest {
     }
 
     @Test
-    @Ignore
-    public void testDecryptCPA() throws Exception {
+    public void testDecrypt() throws Exception {
+        byte[] encrypted = ProtocolTools.getBytesFromHexString("0A0000007FBAE7852E9D8527D081D8C9103C05E0F12A71DDD1A5468BFEC584A71D7888D2B755CF01D07749731A8E7BA587C2DEF38C3F1F44EB25497C6B5A8E57309CB6909670AFBA333443E0E3984803FD8A7C40DFAA3EC464253549588D8DB90702EFBD406B70C8C5BD6101D5B2B6072F934A2D8DE16B15CDD8F0901F0F91045D72FEFC8C7C4B5CCAC8DABF9B0D", "");
+        byte[] decrypted = ProtocolTools.getBytesFromHexString("0A0000003F53013030303030310102020A0A1400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005CCAC8DABF9B0D", "");
         String keyC = "32323232323232323232323232323232";
-        byte[] keyCBytes = ProtocolTools.getBytesFromHexString(keyC, "");
-
-        GPRSFrame unencryptedFrame = new GPRSFrame().parse(unencryptedTestFrame, 0);
-        unencryptedFrame.generateAndSetCpa(keyCBytes);
-
-        GPRSFrame encryptedFrame = new GPRSFrame().parse(encryptedTestFrame, 0);
         CTREncryption ctrEncryption = new CTREncryption(keyC, keyC, keyC, 1);
-        GPRSFrame decrypted = (GPRSFrame) ctrEncryption.decryptFrame(encryptedFrame);
-        assertEquals(unencryptedFrame.getCpa(), encryptedFrame.getCpa());
-        assertEquals(unencryptedFrame.getCpa(), decrypted.getCpa());
-
+        assertArrayEquals(decrypted, ctrEncryption.decryptFrame(new GPRSFrame().parse(encrypted, 0)).getBytes());
     }
-
-
 }

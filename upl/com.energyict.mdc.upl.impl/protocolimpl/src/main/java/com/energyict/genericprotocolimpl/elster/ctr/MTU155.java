@@ -90,13 +90,31 @@ public class MTU155 extends AbstractGenericProtocol {
     private void testMethod() throws CTRException {
 
         getProtocolProperties().addProperty(MTU155Properties.KEYC, "32323232323232323232323232323232");
-        getProtocolProperties().addProperty(MTU155Properties.DEBUG, "1");
+        getProtocolProperties().addProperty(MTU155Properties.TIMEOUT, "1000");
+        getProtocolProperties().addProperty(MTU155Properties.RETRIES, "10");
+        getProtocolProperties().addProperty(MTU155Properties.DEBUG, "0");
         getProtocolProperties().addProperty(MTU155Properties.ADDRESS, "0");
         getProtocolProperties().addProperty(MTU155Properties.SECURITY_LEVEL, "1");
         
         this.rtu = new DummyRtu();
-        ProfileChannel profileChannel = new ProfileChannel(getRequestFactory(), new DummyChannel(4, 3600));
-        profileChannel.getProfileData();
+        for (int i = 1; i <= 4; i++) {
+            ProfileData pd = new ProfileChannel(getRequestFactory(), new DummyChannel(i, 3600)).getProfileData();
+            for (Object intervalData : pd.getIntervalDatas()) {
+                if (intervalData instanceof IntervalData) {
+                    System.out.println(intervalData);
+                }
+            }
+            System.out.println();
+        }
+        for (int i = 5; i <= 5; i++) {
+            ProfileData pd = new ProfileChannel(getRequestFactory(), new DummyChannel(i, 3600 * 24)).getProfileData();
+            for (Object intervalData : pd.getIntervalDatas()) {
+                if (intervalData instanceof IntervalData) {
+                    System.out.println(intervalData);
+                }
+            }
+            System.out.println();
+        }
     }
 
     private void readDevice() {

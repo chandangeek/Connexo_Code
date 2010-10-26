@@ -16,6 +16,7 @@ import com.energyict.mdw.core.Rtu;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -103,7 +104,6 @@ public class ProfileChannel {
         ProfileData pd = new ProfileData();
         pd.setChannelInfos(getChannelInfos());
         pd.setIntervalDatas(getIntervalData());
-        System.out.println(ProtocolTools.getProfileInfo(pd));
         return pd;
     }
 
@@ -166,27 +166,31 @@ public class ProfileChannel {
      * @return
      */
     private List<IntervalData> getIntervalDatasFromResponse(Trace_CQueryResponseStructure response) {
-
-        System.out.println("\n\n#############################################################################\n\n");
-        System.out.println(response);
-
         List<IntervalData> intervals = new ArrayList<IntervalData>();
         Calendar startDate = response.getDate().getCalendar(getDeviceTimeZone());
         int startOfDay = response.getEndOfDayTime().getIntValue();
         startDate.add(Calendar.HOUR, startOfDay);
         int interval = getMeterChannel().getIntervalInSeconds();
+        startDate.add(Calendar.SECOND, interval);
         for (int i = 0; i < response.getTraceData().size(); i++) {
             if (i < 24) {
                 AbstractCTRObject object = response.getTraceData().get(i);
                 startDate.add(Calendar.SECOND, interval);
                 Date endDate = new Date(startDate.getTimeInMillis());
-                IntervalData intervalData;
                 List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
-                intervalValues.add(new IntervalValue((Number) object.getValue(0).getValue(), 0, 0));
                 Qualifier qlf = object.getQlf();
-                intervalData = new IntervalData(endDate, getIntervalStateBits(qlf), qlf.getQlf(), 0, intervalValues);
-                System.out.println(intervalData);
-                intervals.add(intervalData);
+                Object objectValue = object.getValue(0).getValue();
+                if (objectValue instanceof Number) {
+                    Number number = (Number) objectValue;
+                    if (number instanceof BigDecimal) {
+                        BigDecimal decimal = (BigDecimal) number;
+                        decimal = decimal.movePointRight(qlf.getKmoltFactor());
+                        intervalValues.add(new IntervalValue(decimal, 0, 0));
+                    } else {
+                        intervalValues.add(new IntervalValue(number, 0, 0));
+                    }
+                }
+                intervals.add(new IntervalData(endDate, getIntervalStateBits(qlf), qlf.getQlf(), 0, intervalValues));
             }
         }
         return intervals;
@@ -208,7 +212,7 @@ public class ProfileChannel {
      * @return
      */
     private Calendar getFromCalendar() {
-        return ProtocolTools.createCalendar(2010, 10, 24, 0, 0, 0, 0, getDeviceTimeZone());
+        return ProtocolTools.createCalendar(2010, 10, 20, 0, 0, 0, 0, getDeviceTimeZone());
 /*
         Date lastReading = getMeterChannel().getLastReading();
         if (lastReading == null) {

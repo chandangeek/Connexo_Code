@@ -4,7 +4,6 @@ import com.energyict.genericprotocolimpl.elster.ctr.MTU155Properties;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CtrCipheringException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.Frame;
-import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -93,11 +92,6 @@ public class CTREncryption {
                 throw new CtrCipheringException("An error occured while using the ciphering!", e);
             }
 
-            if (frame instanceof GPRSFrame) {
-                GPRSFrame gprsFrame = (GPRSFrame) frame;
-                System.out.println(gprsFrame.validCpa(getEncryptionKey()));
-            }
-
             frame = setDecryptionStatus(frame);
         }
         return frame;
@@ -136,11 +130,6 @@ public class CTREncryption {
         if (!eStatus.isEncrypted()) {
             frame = setEncryptionStatus(frame);
             frame.generateAndSetCpa(getEncryptionKey());
-
-            if (frame instanceof GPRSFrame) {
-                GPRSFrame gprsFrame = (GPRSFrame) frame;
-                System.out.println(gprsFrame.validCpa(getEncryptionKey()));
-            }
 
             try {
                 frame = setData(frame, encryptStream(frame));
@@ -213,6 +202,7 @@ public class CTREncryption {
     private byte[] encryptAES128(byte[] input, byte[] iv) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
         SecretKey aeskey = new SecretKeySpec(keyC, 0, 16, "AES");
         AlgorithmParameterSpec paramSpec = new IvParameterSpec(iv);
+        cipher = Cipher.getInstance("AES/CTR/NOPADDING");
         getAesCTRCipher().init(Cipher.ENCRYPT_MODE, aeskey, paramSpec);
         return getAesCTRCipher().doFinal(input);
     }
@@ -220,6 +210,7 @@ public class CTREncryption {
     private byte[] decryptAES128(byte[] input, byte[] iv) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
         SecretKey aeskey = new SecretKeySpec(keyC, 0, 16, "AES");
         AlgorithmParameterSpec paramSpec = new IvParameterSpec(iv);
+        cipher = Cipher.getInstance("AES/CTR/NOPADDING");
         getAesCTRCipher().init(Cipher.DECRYPT_MODE, aeskey, paramSpec);
         return getAesCTRCipher().doFinal(input);
     }
