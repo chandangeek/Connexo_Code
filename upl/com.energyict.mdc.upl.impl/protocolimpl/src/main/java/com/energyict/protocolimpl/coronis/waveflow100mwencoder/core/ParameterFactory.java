@@ -27,7 +27,7 @@ public class ParameterFactory {
 	final public int readApplicationStatus() throws IOException {
 		if (applicationStatus == null) {
 			if (waveFlow100mW.getMeterProtocolType()==MeterProtocolType.SM150E)	applicationStatus = new ApplicationStatusSevernTrent(waveFlow100mW);
-			else if (waveFlow100mW.getMeterProtocolType()==MeterProtocolType.SM150E)	applicationStatus = new ApplicationStatusSevernTrent(waveFlow100mW);
+			else if (waveFlow100mW.getMeterProtocolType()==MeterProtocolType.ECHODIS)	applicationStatus = new ApplicationStatusMbus(waveFlow100mW);
 			applicationStatus.read();
 		}
 		return applicationStatus.getStatus();
@@ -35,7 +35,7 @@ public class ParameterFactory {
 
 	final public void writeApplicationStatus(final int status) throws IOException {
 		if (waveFlow100mW.getMeterProtocolType()==MeterProtocolType.SM150E)	applicationStatus = new ApplicationStatusSevernTrent(waveFlow100mW);
-		else if (waveFlow100mW.getMeterProtocolType()==MeterProtocolType.SM150E)	applicationStatus = new ApplicationStatusSevernTrent(waveFlow100mW);
+		else if (waveFlow100mW.getMeterProtocolType()==MeterProtocolType.ECHODIS)	applicationStatus = new ApplicationStatusMbus(waveFlow100mW);
 		applicationStatus.setStatus(status);
 		applicationStatus.write();
 	}

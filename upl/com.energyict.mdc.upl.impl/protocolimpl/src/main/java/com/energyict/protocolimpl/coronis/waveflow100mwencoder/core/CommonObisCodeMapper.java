@@ -33,7 +33,7 @@ public class CommonObisCodeMapper {
 		registerMaps.put(ObisCode.fromString("0.0.96.6.13.255"), "Battery life end date");
 		
 		registerMaps.put(ObisCode.fromString("0.0.96.6.14.255"), "Operation mode");
-		
+		registerMaps.put(ObisCode.fromString("0.0.96.6.15.255"), "RSSI level end node");
 		
 		registerMaps.put(ObisCode.fromString("8.1.1.0.0.255"), "Port A encoder current index");
 		
@@ -152,6 +152,10 @@ public class CommonObisCodeMapper {
 	    	else if (obisCode.equals(ObisCode.fromString("0.0.96.6.14.255"))) {
 	    		// Operation mode
 	   			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, "Operating mode: "+WaveflowProtocolUtils.toHexString(waveFlow100mW.getParameterFactory().readOperatingMode()));
+	    	}
+	    	else if (obisCode.equals(ObisCode.fromString("0.0.96.6.15.255"))) {
+	    		// QOS (RSSI) level
+	    		return new RegisterValue(obisCode,new Quantity(new BigDecimal(waveFlow100mW.getCachedEncoderGenericHeader().getQos()), Unit.get("")),new Date());
 	    	}
 	    	else if (obisCode.equals(ObisCode.fromString("0.0.96.6.100.255"))) {
 	    		// encoder internal data

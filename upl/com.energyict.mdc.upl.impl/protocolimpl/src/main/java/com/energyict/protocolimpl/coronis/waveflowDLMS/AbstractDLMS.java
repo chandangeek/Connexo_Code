@@ -1,8 +1,10 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.*;
 
+import com.energyict.cbo.*;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -225,14 +227,20 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
     			escapeCommandFactory.setAndVerifyWavecardAwakeningPeriod(10);
     		}
     	}
+
     	
-        RegisterValue registerValue =  simpleDataParser.getRegisterValues().get(obisCode);
-        if (registerValue == null) {
-        	throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] does not exist!");
-        }
-        else {
-        	return registerValue;
-        }
+    	if (obisCode.equals(ObisCode.fromString("0.0.96.6.15.255"))) {
+    		return new RegisterValue(obisCode,new Quantity(new BigDecimal(simpleDataParser.getQos()), Unit.get("")),new Date());
+    	}
+    	else {
+	        RegisterValue registerValue =  simpleDataParser.getRegisterValues().get(obisCode);
+	        if (registerValue == null) {
+	        	throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] does not exist!");
+	        }
+	        else {
+	        	return registerValue;
+	        }
+    	}
     }
 
     public boolean pairWithEMeter() throws IOException {

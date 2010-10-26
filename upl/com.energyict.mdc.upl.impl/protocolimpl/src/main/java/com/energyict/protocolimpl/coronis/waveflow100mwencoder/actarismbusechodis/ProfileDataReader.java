@@ -39,6 +39,7 @@ public class ProfileDataReader {
 			encoderDataloggingTable = waveFlow100mW.getRadioCommandFactory().readEncoderDataloggingTable(portId==0?true:false,portId==1?true:false,nrOfIntervals,0);
 			ChannelInfo channelInfo = new ChannelInfo(0, portId==0?"PortA":"PortB", encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[portId].getEncoderUnitType().toUnit());
 			channelInfo.setCumulative();
+			channelInfo.setCumulativeWrapValue(new BigDecimal(2^32));
 			//channelInfo.setCumulativeWrapValue(new BigDecimal("100000000"));
 			channelInfos.add(channelInfo);
 		}
@@ -47,11 +48,13 @@ public class ProfileDataReader {
 			encoderDataloggingTable = waveFlow100mW.getRadioCommandFactory().readEncoderDataloggingTable(true,true,nrOfIntervals,0);
 			ChannelInfo channelInfo = new ChannelInfo(0, "PortA", encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[0].getEncoderUnitType().toUnit());
 			channelInfo.setCumulative();
+			channelInfo.setCumulativeWrapValue(new BigDecimal(2^32));
 			//channelInfo.setCumulativeWrapValue(new BigDecimal("100000000"));
 			channelInfos.add(channelInfo);
 			
-			channelInfo = new ChannelInfo(0, "PortB", encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[1].getEncoderUnitType().toUnit());
+			channelInfo = new ChannelInfo(1, "PortB", encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[1].getEncoderUnitType().toUnit());
 			channelInfo.setCumulative();
+			channelInfo.setCumulativeWrapValue(new BigDecimal(2^32));
 			//channelInfo.setCumulativeWrapValue(new BigDecimal("100000000"));
 			channelInfos.add(channelInfo);
 			
