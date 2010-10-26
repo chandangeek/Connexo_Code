@@ -6,7 +6,7 @@ import com.energyict.genericprotocolimpl.common.*;
 import com.energyict.genericprotocolimpl.elster.ctr.events.CTRMeterEvent;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRConfigurationException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
-import com.energyict.genericprotocolimpl.elster.ctr.profile.ProfileChannel;
+import com.energyict.genericprotocolimpl.elster.ctr.profile.*;
 import com.energyict.genericprotocolimpl.elster.ctr.util.MeterInfo;
 import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
 import com.energyict.mdw.amr.RtuRegister;
@@ -58,6 +58,9 @@ public class MTU155 extends AbstractGenericProtocol {
 
     @Override
     protected void doExecute() throws IOException, BusinessException, SQLException {
+
+        testMethod();
+/*
         try {
             this.rtu = identifyAndGetRtu();
             log("Rtu with name '" + getRtu().getName() + "' connected successfully.");
@@ -77,6 +80,7 @@ public class MTU155 extends AbstractGenericProtocol {
             e.printStackTrace();
             getLogger().severe(e.getMessage());
         }
+*/
     }
 
     private void updateRequestFactory() {
@@ -85,6 +89,14 @@ public class MTU155 extends AbstractGenericProtocol {
 
     private void testMethod() throws CTRException {
 
+        getProtocolProperties().addProperty(MTU155Properties.KEYC, "32323232323232323232323232323232");
+        getProtocolProperties().addProperty(MTU155Properties.DEBUG, "1");
+        getProtocolProperties().addProperty(MTU155Properties.ADDRESS, "0");
+        getProtocolProperties().addProperty(MTU155Properties.SECURITY_LEVEL, "1");
+        
+        this.rtu = new DummyRtu();
+        ProfileChannel profileChannel = new ProfileChannel(getRequestFactory(), new DummyChannel(4, 3600));
+        profileChannel.getProfileData();
     }
 
     private void readDevice() {
@@ -188,9 +200,7 @@ public class MTU155 extends AbstractGenericProtocol {
             try {
                 ProfileChannel profile = new ProfileChannel(getRequestFactory(), channel);
                 ProfileData pd = profile.getProfileData();
-/*
                 storeObject.add(channel, pd);
-*/
             } catch (CTRException e) {
                 getLogger().warning("Unable to read channelValues for channel [......]" + e.getMessage());
             }

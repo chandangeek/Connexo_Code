@@ -137,8 +137,6 @@ public class ObisCodeMapper {
         }
         getLogger().log(Level.INFO, "Succesfully read register with ID: " + id.toString() + " and Obiscode: " + obisCode.toString());
 
-        System.out.println(regValue.toString());
-        System.out.println();
         return regValue;
     }
 

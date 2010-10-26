@@ -48,6 +48,7 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
      */
     public GPRSFrame sendFrameGetResponse(GPRSFrame frame) throws CTRConnectionException {
         frame.setCrc();
+
         int attempts = 0;
         do {
             try {

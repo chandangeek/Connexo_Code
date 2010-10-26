@@ -27,11 +27,11 @@ public class Data<T extends Data> extends AbstractField<T> {
      * @return
      */
     protected byte[] padData(byte[] fieldData) {
-        int paddingLength = LENGTH - fieldData.length;
+        int paddingLength = LENGTH_SHORTFRAME - fieldData.length;
         if (paddingLength > 0) {
             fieldData = ProtocolTools.concatByteArrays(fieldData, new byte[paddingLength]);
         } else if (paddingLength < 0) {
-            fieldData = ProtocolTools.getSubArray(fieldData, 0, LENGTH);
+            fieldData = ProtocolTools.getSubArray(fieldData, 0, LENGTH_SHORTFRAME);
         }
         return fieldData;
     }
@@ -41,7 +41,7 @@ public class Data<T extends Data> extends AbstractField<T> {
     }
 
     public T parse(byte[] rawData, int offset) throws CTRParsingException {
-        data = ProtocolTools.getSubArray(rawData, offset, offset + LENGTH);
+        data = ProtocolTools.getSubArray(rawData, offset, offset + LENGTH_SHORTFRAME);
         return (T) this;
     }
 

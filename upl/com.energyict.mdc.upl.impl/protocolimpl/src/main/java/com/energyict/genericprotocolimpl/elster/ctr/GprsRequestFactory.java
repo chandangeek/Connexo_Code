@@ -8,7 +8,6 @@ import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.*;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
-import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.*;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -148,7 +147,6 @@ public class GprsRequestFactory {
         request.getProfi().setLongFrame(false);
         request.getStructureCode().setStructureCode(StructureCode.REGISTER);
         request.setData(new RegisterQueryRequestStructure(false).parse(registerRequest, 0));
-        request.generateAndSetCpa(getProperties().getKeyCBytes());
         return request;
     }
 
@@ -169,7 +167,6 @@ public class GprsRequestFactory {
         request.getProfi().setLongFrame(false);
         request.getStructureCode().setStructureCode(StructureCode.TRACE);
         request.setData(new TraceQueryRequestStructure(request.getProfi().isLongFrame()).parse(traceRequest, 0));
-        request.generateAndSetCpa(getProperties().getKeyCBytes());
         return request;
     }
 
@@ -190,7 +187,6 @@ public class GprsRequestFactory {
         request.setChannel(new Channel(1));
         request.getStructureCode().setStructureCode(StructureCode.TRACE_C);
         request.setData(new Trace_CQueryRequestStructure(request.getProfi().isLongFrame()).parse(trace_CRequest, 0));
-        request.generateAndSetCpa(getProperties().getKeyCBytes());
         return request;
     }
 
@@ -216,7 +212,6 @@ public class GprsRequestFactory {
         request.getProfi().setLongFrame(false);
         request.getStructureCode().setStructureCode(StructureCode.EVENT_ARRAY);
         request.setData(new ArrayEventsQueryRequestStructure(false).parse(eventArrayRequest, 0));
-        request.generateAndSetCpa(getProperties().getKeyCBytes());
         return request;
     }
 
@@ -244,7 +239,6 @@ public class GprsRequestFactory {
         request.getProfi().setLongFrame(false);
         request.getStructureCode().setStructureCode(StructureCode.REGISTER);
         request.setData(new RegisterWriteRequestStructure(false).parse(writeRequest, 0));
-        request.generateAndSetCpa(getProperties().getKeyCBytes());
         return request;
     }
 
@@ -265,7 +259,6 @@ public class GprsRequestFactory {
         request.getProfi().setLongFrame(false);
         request.getStructureCode().setStructureCode(0);
         request.setData(new ExecuteRequestStructure(false).parse(executeRequest, 0));
-        request.generateAndSetCpa(getProperties().getKeyCBytes());
         return request;
     }
 
@@ -279,7 +272,6 @@ public class GprsRequestFactory {
         request.getStructureCode().setStructureCode(StructureCode.TABLE_DECF);
         request.setChannel(new Channel(0x01));
         request.setData(new ArrayEventsQueryRequestStructure(false).parse(tableRequestBytes, 0));
-        request.generateAndSetCpa(getProperties().getKeyCBytes());
         return request;
     }
 

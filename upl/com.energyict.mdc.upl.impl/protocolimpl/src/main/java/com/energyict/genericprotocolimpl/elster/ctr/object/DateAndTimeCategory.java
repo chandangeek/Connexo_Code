@@ -2,8 +2,6 @@ package com.energyict.genericprotocolimpl.elster.ctr.object;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
-import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -167,7 +165,6 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
      * @return
      */
     public Date getDate() {
-        System.out.println(ProtocolTools.getHexStringFromBytes(getBytes(AttributeType.getValueOnly())));
         if (getId().is("8.0.1")) {
             Calendar cal = Calendar.getInstance();
             cal.set(Calendar.YEAR, getValue(0).getIntValue() + 2000);

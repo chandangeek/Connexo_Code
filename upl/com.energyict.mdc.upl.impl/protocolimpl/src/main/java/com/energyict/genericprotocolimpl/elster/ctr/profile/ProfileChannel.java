@@ -208,6 +208,8 @@ public class ProfileChannel {
      * @return
      */
     private Calendar getFromCalendar() {
+        return ProtocolTools.createCalendar(2010, 10, 10, 0, 0, 0, 0, getDeviceTimeZone());
+/*
         Date lastReading = getMeterChannel().getLastReading();
         if (lastReading == null) {
             lastReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(getRtu());
@@ -215,6 +217,7 @@ public class ProfileChannel {
         Calendar cal = ProtocolUtils.getCleanCalendar(getDeviceTimeZone());
         cal.setTime(lastReading);
         return cal;
+*/
     }
 
 }

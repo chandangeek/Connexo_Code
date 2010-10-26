@@ -49,6 +49,7 @@ public class MTU155Properties extends AbstractProtocolProperties {
         optional.add(DEBUG);
         optional.add(TIMEOUT);
         optional.add(RETRIES);
+        optional.add(FORCED_DELAY);
         optional.add(ADDRESS);
         optional.add(PASSWORD);
         optional.add(CHANNEL_CONFIG);

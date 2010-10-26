@@ -50,7 +50,6 @@ public class GPRSFrameTest {
         assertArrayEquals(nackFrame, new GPRSFrame().parse(nackFrame, 0).getBytes());
     }
 
-
     @Test
     public void testNackCpa() throws Exception {
         GPRSFrame frame = new GPRSFrame().parse(nackFrame, 0);

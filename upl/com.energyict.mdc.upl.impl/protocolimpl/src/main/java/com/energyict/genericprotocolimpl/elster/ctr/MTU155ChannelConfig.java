@@ -25,7 +25,7 @@ public class MTU155ChannelConfig {
     }
 
     public String getChannelObjectId(int channelIndex) {
-        if (getNumberOfChannels() > channelIndex) {
+        if ((channelIndex >= 0) && (getNumberOfChannels() > channelIndex)) {
             String id = channelIds[channelIndex];
             return IGNORE_CHANNEL.equals(id) ? null : id;
         } else {

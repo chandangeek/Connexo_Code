@@ -148,7 +148,7 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
     }
 
     public void generateAndSetCpa(byte[] key) {
-        this.cpa = generateCpa(key);
+        this.cpa = generateCpa(key.clone());
     }
 
     private Cpa generateCpa(byte[] key) {
@@ -160,21 +160,38 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
                 channel.getBytes(),
                 data.getBytes()
         );
-        return new Cpa().generateCpa(cpaData, key);
+
+        return new Cpa().generateCpa(cpaData, key.clone());
     }
 
+    /**
+     *
+     * @param key
+     * @return
+     */
     public boolean validCpa(byte[] key) {
-        return (getCpa().getCpa() == 0) || (generateCpa(key).getCpa() == cpa.getCpa());
+        return getCpa().isUndefined() || generateCpa(key).equals(getCpa());
     }
 
+    /**
+     *
+     * @return
+     */
     public Crc getCrc() {
         return crc;
     }
 
+    /**
+     *
+     */
     public void setCrc() {
         crc = generateCrc();
     }
 
+    /**
+     *
+     * @return
+     */
     public Crc generateCrc() {
         byte[] crcData = ProtocolTools.concatByteArrays(
                 address.getBytes(),
