@@ -4,6 +4,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.MTU155Properties;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CtrCipheringException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.Frame;
+import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -21,52 +22,64 @@ import java.security.spec.AlgorithmParameterSpec;
  */
 public class CTREncryption {
 
-    Cipher cipher;
-    private byte[] keyT;
-    private byte[] keyC;
-    private byte[] keyF;
-
-    public CTREncryption() {
-        try {
-            cipher = Cipher.getInstance("AES/CTR/NOPADDING");
-        } catch (GeneralSecurityException e) {
-            e.printStackTrace();
-        }
-    }
+    private Cipher cipher = null;
+    private final byte[] keyT;
+    private final byte[] keyC;
+    private final byte[] keyF;
+    private final int securityLevel;
 
     /**
-     * 
      * @param properties
      */
     public CTREncryption(MTU155Properties properties) {
-        this.keyT = properties.getKeyTBytes();
-        this.keyC = properties.getKeyCBytes();
-        this.keyF = properties.getKeyFBytes();
-
+        this(
+                properties.getKeyCBytes(),
+                properties.getKeyTBytes(),
+                properties.getKeyFBytes(),
+                properties.getSecurityLevel()
+        );
     }
 
     /**
-     *
      * @param keyC
      * @param keyT
      * @param keyF
      */
-    public CTREncryption(String keyC, String keyT, String keyF) {
-        this.keyT = ProtocolTools.getBytesFromHexString(keyT, "");
-        this.keyC = ProtocolTools.getBytesFromHexString(keyC, "");
-        this.keyF = ProtocolTools.getBytesFromHexString(keyF, "");
+    public CTREncryption(String keyC, String keyT, String keyF, int securityLevel) {
+        this(
+                ProtocolTools.getBytesFromHexString(keyC, ""),
+                ProtocolTools.getBytesFromHexString(keyT, ""),
+                ProtocolTools.getBytesFromHexString(keyF, ""),
+                securityLevel
+        );
     }
 
     /**
-     *
      * @param keyC
      * @param keyT
      * @param keyF
+     * @param securityLevel
      */
-    public CTREncryption(byte[] keyC, byte[] keyT, byte[] keyF) {
+    public CTREncryption(byte[] keyC, byte[] keyT, byte[] keyF, int securityLevel) {
         this.keyT = keyT;
         this.keyC = keyC;
         this.keyF = keyF;
+        this.securityLevel = securityLevel;
+    }
+
+    /**
+     *
+     * @return
+     */
+    private Cipher getAesCTRCipher() {
+        if (cipher == null) {
+            try {
+                cipher = Cipher.getInstance("AES/CTR/NOPADDING");
+            } catch (GeneralSecurityException e) {
+                cipher = null;// absorb
+            }
+        }
+        return cipher;
     }
 
     public Frame decryptFrame(Frame frame) throws CtrCipheringException {
@@ -79,6 +92,12 @@ public class CTREncryption {
             } catch (CTRParsingException e) {
                 throw new CtrCipheringException("An error occured while using the ciphering!", e);
             }
+
+            if (frame instanceof GPRSFrame) {
+                GPRSFrame gprsFrame = (GPRSFrame) frame;
+                System.out.println(gprsFrame.validCpa(getEncryptionKey()));
+            }
+
             frame = setDecryptionStatus(frame);
         }
         return frame;
@@ -116,10 +135,13 @@ public class CTREncryption {
 
         if (!eStatus.isEncrypted()) {
             frame = setEncryptionStatus(frame);
-            frame.generateAndSetCpa(keyC);
-/*
-            frame = setCpa(frame);
-*/
+            frame.generateAndSetCpa(getEncryptionKey());
+
+            if (frame instanceof GPRSFrame) {
+                GPRSFrame gprsFrame = (GPRSFrame) frame;
+                System.out.println(gprsFrame.validCpa(getEncryptionKey()));
+            }
+
             try {
                 frame = setData(frame, encryptStream(frame));
             } catch (GeneralSecurityException e) {
@@ -165,7 +187,6 @@ public class CTREncryption {
         return result;
     }
 
-
     private byte[] addOneToByteArray(byte[] value) {
         value = ProtocolTools.concatByteArrays(new byte[0], value);
         BigInteger convertedValue = new BigInteger(value);
@@ -179,26 +200,8 @@ public class CTREncryption {
         return copy;
     }
 
-/*
-    public Frame setCpa(Frame frame) {
-        AesCMac128 aesCmac128 = new AesCMac128();
-        aesCmac128.setKey(keyC);
-        byte[] cpaInput = ProtocolTools.concatByteArrays(
-                frame.getAddress().getBytes(),
-                frame.getProfi().getBytes(),
-                frame.getFunctionCode().getBytes(),
-                frame.getStructureCode().getBytes(),
-                frame.getChannel().getBytes(),
-                frame.getData().getBytes()
-        );
-        byte[] cpa = ProtocolTools.getSubArray(aesCmac128.getAesCMac128(cpaInput), 0, 4);
-        frame.setCpa(new Cpa().parse(cpa, 0));
-        return frame;
-    }
-*/
-
-    private Frame setEncryptionStatus(Frame frame) {
-        frame.getFunctionCode().setEncryptionStatus(EncryptionStatus.KEYC_ENCRYPTION);
+    private Frame setEncryptionStatus(Frame frame) throws CtrCipheringException {
+        frame.getFunctionCode().setEncryptionStatus(getEncryptionStatus());
         return frame;
     }
 
@@ -209,17 +212,42 @@ public class CTREncryption {
 
     private byte[] encryptAES128(byte[] input, byte[] iv) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
         SecretKey aeskey = new SecretKeySpec(keyC, 0, 16, "AES");
-        cipher = Cipher.getInstance("AES/CTR/NOPADDING");
         AlgorithmParameterSpec paramSpec = new IvParameterSpec(iv);
-        cipher.init(Cipher.ENCRYPT_MODE, aeskey, paramSpec);
-        return cipher.doFinal(input);
+        getAesCTRCipher().init(Cipher.ENCRYPT_MODE, aeskey, paramSpec);
+        return getAesCTRCipher().doFinal(input);
     }
 
     private byte[] decryptAES128(byte[] input, byte[] iv) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
         SecretKey aeskey = new SecretKeySpec(keyC, 0, 16, "AES");
-        cipher = Cipher.getInstance("AES/CTR/NOPADDING");
         AlgorithmParameterSpec paramSpec = new IvParameterSpec(iv);
-        cipher.init(Cipher.DECRYPT_MODE, aeskey, paramSpec);
-        return cipher.doFinal(input);
+        getAesCTRCipher().init(Cipher.DECRYPT_MODE, aeskey, paramSpec);
+        return getAesCTRCipher().doFinal(input);
     }
+
+    private byte[] getEncryptionKey() throws CtrCipheringException {
+        switch (securityLevel) {
+            case 0:
+                return keyT;
+            case 1:
+                return keyC;
+            case 2:
+                return keyF;
+            default:
+                throw new CtrCipheringException("Invalid security level. Should be [0 = KeyT, 1 = KeyC, 2 = KeyF]");
+        }
+    }
+
+    private EncryptionStatus getEncryptionStatus() throws CtrCipheringException {
+        switch (securityLevel) {
+            case 0:
+                return EncryptionStatus.KEYT_ENCRYPTION;
+            case 1:
+                return EncryptionStatus.KEYC_ENCRYPTION;
+            case 2:
+                return EncryptionStatus.KEYF_ENCRYPTION;
+            default:
+                throw new CtrCipheringException("Invalid security level. Should be [0 = KeyT, 1 = KeyC, 2 = KeyF]");
+        }
+    }
+
 }
