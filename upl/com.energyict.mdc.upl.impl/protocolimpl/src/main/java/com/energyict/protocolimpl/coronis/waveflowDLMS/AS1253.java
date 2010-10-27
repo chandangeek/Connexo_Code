@@ -19,3 +19,4 @@ public class AS1253 extends AbstractDLMS {
 	
 	
 }
+

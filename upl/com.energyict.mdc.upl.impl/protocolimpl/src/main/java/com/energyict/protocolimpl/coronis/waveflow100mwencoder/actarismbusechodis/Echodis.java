@@ -97,8 +97,7 @@ public class Echodis extends WaveFlow100mW {
     		Quantity q = rv.getQuantity();
     		if (q != null) {
     			BigDecimal bd = q.getAmount();
-    			//bd = bd.round(new MathContext(10));
-    			bd = new BigDecimal(bd.floatValue());
+    			bd = bd.round(new MathContext(18,RoundingMode.HALF_UP));
     			q = new Quantity(bd, q.getUnit());
     			rv.setQuantity(q);
     		}
