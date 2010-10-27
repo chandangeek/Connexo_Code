@@ -103,6 +103,7 @@ public class GProfileBuilder {
 
 			for(int i = 0; i < dc.getRoot().getElements().length; i++){
 
+                if(dc.getRoot().getStructure(i) != null){
 				if(dc.getRoot().getStructure(i).isOctetString(0)){	// it is a date
 					cal = new DateTime(new OctetString(dc.getRoot().getStructure(i).getOctetString(0).getArray()), getGasDevice().getTimeZone()).getValue();
 				} else {
@@ -130,6 +131,11 @@ public class GProfileBuilder {
 
 					intervalDatas.add(id);
 				}
+
+                } else {
+                    getGasDevice().getLogger().info("GasProfile contained a 'NULL' structure.");
+			}
+
 			}
 		} else {
 			getGasDevice().getLogger().info("No entries in LoadProfile");
