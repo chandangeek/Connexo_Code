@@ -188,7 +188,7 @@ public class MTU155 extends AbstractGenericProtocol {
         if (communicationProfile.getReadMeterEvents()) {
             getLogger().log(Level.INFO, "Getting events for meter with serialnumber: " + getRtuSerialNumber());
             CTRMeterEvent meterEvent = new CTRMeterEvent(getRequestFactory());
-            List<MeterEvent> meterEvents = meterEvent.getMeterEvents(getRtu().getLastLogbook());
+            List<MeterEvent> meterEvents = meterEvent.getMeterEvents(getEventsFromDate());
             ProfileData profileData = new ProfileData();
             profileData.setMeterEvents(meterEvents);
             storeObject.add(getRtu(), profileData);
@@ -212,6 +212,10 @@ public class MTU155 extends AbstractGenericProtocol {
             // TODO: implement method
         }
 
+    }
+
+    private Date getEventsFromDate() {
+        return getRtu().getLastLogbook() == null ? ParseUtils.getClearLastMonthDate(getRtu().getDeviceTimeZone()) : getRtu().getLastLogbook();
     }
 
     private void readChannelData() {
