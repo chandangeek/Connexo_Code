@@ -99,8 +99,6 @@ public class CTREncryption {
     private byte[] decryptStream(Frame frame) throws IllegalBlockSizeException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException {
         byte[] bytes = ProtocolTools.concatByteArrays(frame.getStructureCode().getBytes(), frame.getChannel().getBytes(), frame.getData().getBytes());
         byte[] cpa = frame.getCpa().getBytes();
-        System.out.println("cpa = " + ProtocolTools.getHexStringFromBytes(cpa));
-
         byte[] iv = ProtocolTools.concatByteArrays(cpa, cpa, cpa, cpa);
         byte[] result = null;
 
@@ -196,20 +194,11 @@ public class CTREncryption {
     }
 
     private byte[] decryptAES128(byte[] input, byte[] iv) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
-
-        System.out.println(" ### " + ProtocolTools.getHexStringFromBytes(iv));
-        System.out.println(" ### " + ProtocolTools.getHexStringFromBytes(input));
-
         SecretKey aeskey = new SecretKeySpec(keyC, 0, 16, "AES");
         AlgorithmParameterSpec paramSpec = new IvParameterSpec(iv);
         cipher = Cipher.getInstance("AES/CTR/NOPADDING");
         getAesCTRCipher().init(Cipher.DECRYPT_MODE, aeskey, paramSpec);
-        byte[] bytes = getAesCTRCipher().doFinal(input);
-
-        System.out.println(" ### " + ProtocolTools.getHexStringFromBytes(bytes));
-        System.out.println();
-        
-        return bytes;
+        return getAesCTRCipher().doFinal(input);
     }
 
     private byte[] getEncryptionKey() throws CtrCipheringException {
