@@ -498,7 +498,7 @@ public final class ProtocolTools {
     }
 
     /**
-     * 
+     *
      * @param year
      * @param month
      * @param dayOfMonth
@@ -630,6 +630,25 @@ public final class ProtocolTools {
             }
         }
         return concatenatedArray;
+    }
+
+    public static byte[] addOneToByteArray(byte[] byteArray) {
+        if ((byteArray != null) && (byteArray.length > 0)) {
+            byte[] bytes = byteArray.clone();
+            int value = (bytes[bytes.length - 1] & 0x0FF) + 1;
+            if (value > 0x0FF) {
+                byte[] zero = {0x00};
+                byte[] subResult = getSubArray(bytes, 0, bytes.length - 1);
+                subResult = addOneToByteArray(subResult);
+                return concatByteArrays(subResult, zero);
+            } else {
+                bytes[bytes.length - 1] = (byte) (value & 0x0FF);
+                return bytes;
+            }
+        } else {
+            return new byte[0];
+        }
+
     }
 
 }

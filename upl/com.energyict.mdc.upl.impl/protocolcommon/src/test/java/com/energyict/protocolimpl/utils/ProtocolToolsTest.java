@@ -509,4 +509,27 @@ public class ProtocolToolsTest {
         assertArrayEquals(array6, ProtocolTools.concatByteArrays(null, null, array6, null, null));
 
     }
+
+    @Test
+    public void testAddOneToByteArray() throws Exception {
+        Map<String, String> tests = new HashMap<String, String>();
+        tests.put("", "");
+        tests.put("00", "01");
+        tests.put("FF", "00");
+        tests.put("00000000", "00000001");
+        tests.put("0000000F", "00000010");
+        tests.put("000000FF", "00000100");
+        tests.put("FFFFFFFF", "00000000");
+        tests.put("0FFFFFFF", "10000000");
+        tests.put("EFFFFFFF", "F0000000");
+        tests.put("FFFFFFFE", "FFFFFFFF");
+
+        for (String s : tests.keySet()) {
+            byte[] input = ProtocolTools.getBytesFromHexString(s, "");
+            byte[] expected = ProtocolTools.getBytesFromHexString(tests.get(s), "");
+            byte[] result = ProtocolTools.addOneToByteArray(input);
+            assertArrayEquals(expected, result);
+        }
+
+    }
 }

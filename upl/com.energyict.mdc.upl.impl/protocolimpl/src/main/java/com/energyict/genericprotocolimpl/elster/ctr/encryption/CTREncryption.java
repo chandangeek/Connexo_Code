@@ -10,7 +10,6 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.math.BigInteger;
 import java.security.*;
 import java.security.spec.AlgorithmParameterSpec;
 
@@ -100,6 +99,8 @@ public class CTREncryption {
     private byte[] decryptStream(Frame frame) throws IllegalBlockSizeException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException {
         byte[] bytes = ProtocolTools.concatByteArrays(frame.getStructureCode().getBytes(), frame.getChannel().getBytes(), frame.getData().getBytes());
         byte[] cpa = frame.getCpa().getBytes();
+        System.out.println("cpa = " + ProtocolTools.getHexStringFromBytes(cpa));
+
         byte[] iv = ProtocolTools.concatByteArrays(cpa, cpa, cpa, cpa);
         byte[] result = null;
 
@@ -107,7 +108,7 @@ public class CTREncryption {
         while (offset < bytes.length) {
             byte[] input = ProtocolTools.getSubArray(bytes, offset, ((offset + 16) < bytes.length) ? offset + 16 : offset + (bytes.length % 16));
             input = decryptAES128(input, iv);
-            iv = addOneToByteArray(iv);
+            iv = ProtocolTools.addOneToByteArray(iv);
             result = ProtocolTools.concatByteArrays(result, input);
             offset += 16;
         }
@@ -168,25 +169,12 @@ public class CTREncryption {
         while (offset < bytes.length) {
             byte[] input = ProtocolTools.getSubArray(bytes, offset, ((offset + 16) < bytes.length) ? offset + 16 : offset + (bytes.length % 16));
             input = encryptAES128(input, iv);
-            iv = addOneToByteArray(iv);
+            iv = ProtocolTools.addOneToByteArray(iv);
             result = ProtocolTools.concatByteArrays(result, input);
             offset += 16;
         }
 
         return result;
-    }
-
-    private byte[] addOneToByteArray(byte[] value) {
-        value = ProtocolTools.concatByteArrays(new byte[0], value);
-        BigInteger convertedValue = new BigInteger(value);
-        convertedValue = convertedValue.add(new BigInteger("1"));
-        byte[] copy = new byte[16];
-
-        byte[] converted = convertedValue.toByteArray();
-        for (int i = 0; i <= converted.length - 1; i++) {
-            copy[15 - i] = converted[converted.length - i - 1];
-        }
-        return copy;
     }
 
     private Frame setEncryptionStatus(Frame frame) throws CtrCipheringException {
@@ -208,11 +196,20 @@ public class CTREncryption {
     }
 
     private byte[] decryptAES128(byte[] input, byte[] iv) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+
+        System.out.println(" ### " + ProtocolTools.getHexStringFromBytes(iv));
+        System.out.println(" ### " + ProtocolTools.getHexStringFromBytes(input));
+
         SecretKey aeskey = new SecretKeySpec(keyC, 0, 16, "AES");
         AlgorithmParameterSpec paramSpec = new IvParameterSpec(iv);
         cipher = Cipher.getInstance("AES/CTR/NOPADDING");
         getAesCTRCipher().init(Cipher.DECRYPT_MODE, aeskey, paramSpec);
-        return getAesCTRCipher().doFinal(input);
+        byte[] bytes = getAesCTRCipher().doFinal(input);
+
+        System.out.println(" ### " + ProtocolTools.getHexStringFromBytes(bytes));
+        System.out.println();
+        
+        return bytes;
     }
 
     private byte[] getEncryptionKey() throws CtrCipheringException {
