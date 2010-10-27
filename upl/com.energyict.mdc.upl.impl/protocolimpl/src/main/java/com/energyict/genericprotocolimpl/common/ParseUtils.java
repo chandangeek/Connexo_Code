@@ -10,23 +10,16 @@
 
 package com.energyict.genericprotocolimpl.common;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.TimeZone;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.cbo.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.mdw.core.Rtu;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.*;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  *
@@ -178,7 +171,16 @@ public class ParseUtils {
      * @return
      */
 	public static Date getClearLastMonthDate(Rtu rtu) {
-   		Calendar tempCalendar = Calendar.getInstance(rtu.getDeviceTimeZone());
+        return getClearLastMonthDate(rtu.getDeviceTimeZone());
+	}
+
+    /**
+     * Create a midnight date from one month ago
+     * @param deviceTimeZone
+     * @return
+     */
+    public static Date getClearLastMonthDate(TimeZone deviceTimeZone) {
+   		Calendar tempCalendar = Calendar.getInstance(deviceTimeZone != null ? deviceTimeZone : TimeZone.getDefault());
    		tempCalendar.add(Calendar.MONTH, -1);
 		tempCalendar.set(Calendar.HOUR_OF_DAY, 0 );
 		tempCalendar.set(Calendar.MINUTE, 0 );
@@ -186,7 +188,7 @@ public class ParseUtils {
 		tempCalendar.set(Calendar.MILLISECOND, 0 );
 		return tempCalendar.getTime();
 	}
-	
+
 	/**
 	 * ex: "1.0.0.8.1.255" has 5 dots '.'
 	 * @param str - the complete string
@@ -230,11 +232,12 @@ public class ParseUtils {
 	
 	/**
 	 * Convert a DLMS object to a quantity
-	 * @param register
-	 * @return the quantity from the register
-	 * @throws IOException
-	 */
-	public static Quantity cosemObjectToQuantity(CosemObject cosemObject) throws IOException{
+     *
+     * @param cosemObject
+     * @return
+     * @throws IOException
+     */
+    public static Quantity cosemObjectToQuantity(CosemObject cosemObject) throws IOException{
 		try {
 			if(cosemObject.getScalerUnit() != null){
 				if(cosemObject.getScalerUnit().getUnitCode() != 0){
