@@ -30,28 +30,24 @@ import java.util.*;
  */
 public class DummyChannel implements Channel {
 
-    private int loadProfileIndex = 0;
-    private int intervalInSeconds = 3600;
-
+    private final int loadProfileIndex;
+    private final int intervalInSeconds;
+    private final Calendar lastReading;
+    private final Rtu rtu;
+    
     public ChannelShadow getShadow() {
         return null;
     }
 
-    public DummyChannel(int loadProfileIndex, int intervalInSeconds) {
+    public DummyChannel(int loadProfileIndex, int intervalInSeconds, Calendar lastReading, Rtu rtu) {
         this.loadProfileIndex = loadProfileIndex;
         this.intervalInSeconds = intervalInSeconds;
-    }
-
-    public void setIntervalInSeconds(int intervalInSeconds) {
-        this.intervalInSeconds = intervalInSeconds;
-    }
-
-    public void setLoadProfileIndex(int loadProfileIndex) {
-        this.loadProfileIndex = loadProfileIndex;
+        this.lastReading = lastReading;
+        this.rtu = rtu;
     }
 
     public Rtu getRtu() {
-        return new DummyRtu();
+        return rtu;
     }
 
     public void update(ChannelShadow shadow) throws SQLException, BusinessException {
@@ -136,7 +132,7 @@ public class DummyChannel implements Channel {
     }
 
     public Date getLastReading() {
-        return null;
+        return lastReading == null ? null : lastReading.getTime();
     }
 
     public void rename(String name) throws BusinessException, SQLException {

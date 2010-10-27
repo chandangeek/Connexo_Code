@@ -14,6 +14,7 @@ import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.debug.DebugUtils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import javax.crypto.*;
 import java.io.IOException;
@@ -59,8 +60,9 @@ public class MTU155 extends AbstractGenericProtocol {
     @Override
     protected void doExecute() throws IOException, BusinessException, SQLException {
 
-        testMethod();
 /*
+        testMethod();
+*/
         try {
             this.rtu = identifyAndGetRtu();
             log("Rtu with name '" + getRtu().getName() + "' connected successfully.");
@@ -73,14 +75,13 @@ public class MTU155 extends AbstractGenericProtocol {
         } catch (CTRException e) {
             e.printStackTrace();
             getLogger().severe(e.getMessage());
-        } catch (BusinessException e) {
+        } /*catch (BusinessException e) {
             e.printStackTrace();
             getLogger().severe(e.getMessage());
         } catch (SQLException e) {
             e.printStackTrace();
             getLogger().severe(e.getMessage());
-        }
-*/
+        }*/
     }
 
     private void updateRequestFactory() {
@@ -96,9 +97,10 @@ public class MTU155 extends AbstractGenericProtocol {
         getProtocolProperties().addProperty(MTU155Properties.ADDRESS, "0");
         getProtocolProperties().addProperty(MTU155Properties.SECURITY_LEVEL, "1");
         
-        this.rtu = new DummyRtu();
+        this.rtu = new DummyRtu(TimeZone.getTimeZone("GMT"));
+        Calendar lastReading = ProtocolTools.createCalendar(2010, 10, 20, 0, 0, 0, 0, getTimeZone());
         for (int i = 1; i <= 4; i++) {
-            ProfileData pd = new ProfileChannel(getRequestFactory(), new DummyChannel(i, 3600)).getProfileData();
+            ProfileData pd = new ProfileChannel(getRequestFactory(), new DummyChannel(i, 3600, lastReading, getRtu())).getProfileData();
             for (Object intervalData : pd.getIntervalDatas()) {
                 if (intervalData instanceof IntervalData) {
                     System.out.println(intervalData);
@@ -106,8 +108,8 @@ public class MTU155 extends AbstractGenericProtocol {
             }
             System.out.println();
         }
-        for (int i = 5; i <= 5; i++) {
-            ProfileData pd = new ProfileChannel(getRequestFactory(), new DummyChannel(i, 3600 * 24)).getProfileData();
+        for (int i = 5; i <= 12; i++) {
+            ProfileData pd = new ProfileChannel(getRequestFactory(), new DummyChannel(i, 3600 * 24, lastReading, getRtu())).getProfileData();
             for (Object intervalData : pd.getIntervalDatas()) {
                 if (intervalData instanceof IntervalData) {
                     System.out.println(intervalData);
@@ -216,11 +218,12 @@ public class MTU155 extends AbstractGenericProtocol {
         List<Channel> channelList = getRtu().getChannels();
         for (Channel channel : channelList) {
             try {
-                ProfileChannel profile = new ProfileChannel(getRequestFactory(), channel);
+                ProfileChannel profile = new ProfileChannel(getRequestFactory(), channel, getMeterInfo().getTime());
+                getLogger().info("Reading profile for channel [" + channel.getName() + "]");
                 ProfileData pd = profile.getProfileData();
                 storeObject.add(channel, pd);
             } catch (CTRException e) {
-                getLogger().warning("Unable to read channelValues for channel [......]" + e.getMessage());
+                getLogger().warning("Unable to read channelValues for channel [" + channel.getName() + "]" + e.getMessage());
             }
         }
     }

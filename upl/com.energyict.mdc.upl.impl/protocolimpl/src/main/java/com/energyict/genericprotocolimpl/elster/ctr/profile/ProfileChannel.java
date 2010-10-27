@@ -14,7 +14,6 @@ import com.energyict.genericprotocolimpl.elster.ctr.util.CTRObjectInfo;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -29,10 +28,17 @@ public class ProfileChannel {
 
     private final GprsRequestFactory requestFactory;
     private final Channel meterChannel;
+    private final Date meterClock;
+    private ReferenceDate lastReferenceDate;
 
     public ProfileChannel(GprsRequestFactory requestFactory, Channel meterChannel) {
+        this(requestFactory, meterChannel, new Date());
+    }
+
+    public ProfileChannel(GprsRequestFactory requestFactory, Channel meterChannel, Date meterClock) {
         this.requestFactory = requestFactory;
         this.meterChannel = meterChannel;
+        this.meterClock = meterClock;
     }
 
     /**
@@ -91,6 +97,14 @@ public class ProfileChannel {
         return getMeterChannel().getLoadProfileIndex();
     }
 
+    public ReferenceDate getLastReferenceDate() {
+        return lastReferenceDate;
+    }
+
+    public Date getMeterClock() {
+        return meterClock;
+    }
+
     /**
      * @return
      * @throws CTRException
@@ -112,9 +126,9 @@ public class ProfileChannel {
      */
     private List<ChannelInfo> getChannelInfos() {
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
-        String symbol = CTRObjectInfo.getSymbol(getChannelObjectId());
+        String symbol = CTRObjectInfo.getSymbol(getChannelObjectId()) + " [" + getChannelObjectId() + "]";
         Unit unit = CTRObjectInfo.getUnit(getChannelObjectId());
-        ChannelInfo info = new ChannelInfo(0, symbol, unit);
+        ChannelInfo info = new ChannelInfo(0, getChannelIndex() - 1, symbol, unit);
         channelInfos.add(info);
         return channelInfos;
     }
@@ -126,9 +140,14 @@ public class ProfileChannel {
         List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
         Calendar fromCalendar = getFromCalendar();
         Calendar toCalendar = Calendar.getInstance(getDeviceTimeZone());
+        lastReferenceDate = null;
         while (fromCalendar.before(toCalendar)) {
-            intervalDatas.addAll(getIntervalDataBlock(getChannelObjectId(), fromCalendar));
-            fromCalendar.setTime(getNewestIntervalDate(intervalDatas));
+            try {
+                intervalDatas.addAll(getIntervalDataBlock(getChannelObjectId(), fromCalendar));
+                fromCalendar.setTime(getNewestIntervalDate(intervalDatas));
+            } catch (CTREndOfProfileException e) {
+                break;
+            }
         }
         return intervalDatas;
     }
@@ -138,9 +157,9 @@ public class ProfileChannel {
      * @return
      */
     private Date getNewestIntervalDate(List<IntervalData> intervalDatas) {
-        Date newest = null;
+        Date newest = new Date(0);
         for (IntervalData intervalData : intervalDatas) {
-            if (intervalData.getEndTime().after(newest == null ? new Date(0) : newest)) {
+            if (intervalData.getEndTime().after(newest)) {
                 newest = intervalData.getEndTime();
             }
         }
@@ -154,9 +173,15 @@ public class ProfileChannel {
      * @throws CTRException
      */
     private List<IntervalData> getIntervalDataBlock(String channelId, Calendar fromCalendar) throws CTRException {
+        ReferenceDate referenceDate = new ReferenceDate().parse(fromCalendar);
+        if (getLastReferenceDate() != null) {
+            if (getLastReferenceDate().getCalendar(getDeviceTimeZone()).getTimeInMillis() >= referenceDate.getCalendar(getDeviceTimeZone()).getTimeInMillis()) {
+                throw new CTREndOfProfileException("Profile loop detected. Requested same date as previous request!");
+            }
+        }
+        lastReferenceDate = new ReferenceDate().parse(referenceDate.getBytes(), 0);
         CTRObjectID objectID = new CTRObjectID(channelId);
         PeriodTrace period = new PeriodTrace(2);
-        ReferenceDate referenceDate = new ReferenceDate().parse(fromCalendar);
         Trace_CQueryResponseStructure response = getRequestFactory().queryTrace_C(objectID, period, referenceDate);
         return getIntervalDatasFromResponse(response);
     }
@@ -171,9 +196,9 @@ public class ProfileChannel {
         int startOfDay = response.getEndOfDayTime().getIntValue();
         startDate.add(Calendar.HOUR, startOfDay);
         int interval = getMeterChannel().getIntervalInSeconds();
-        startDate.add(Calendar.SECOND, interval);
+
         for (int i = 0; i < response.getTraceData().size(); i++) {
-            if (i < 24) {
+            if (i < response.getPeriod().getTraceCIntervalCount()) {
                 AbstractCTRObject object = response.getTraceData().get(i);
                 startDate.add(Calendar.SECOND, interval);
                 Date endDate = new Date(startDate.getTimeInMillis());
@@ -190,7 +215,11 @@ public class ProfileChannel {
                         intervalValues.add(new IntervalValue(number, 0, 0));
                     }
                 }
-                intervals.add(new IntervalData(endDate, getIntervalStateBits(qlf), qlf.getQlf(), 0, intervalValues));
+                if (endDate.before(getMeterClock())) {
+                    intervals.add(new IntervalData(endDate, getIntervalStateBits(qlf), qlf.getQlf(), 0, intervalValues));
+                } else {
+                    break;
+                }
             }
         }
         return intervals;
@@ -200,7 +229,7 @@ public class ProfileChannel {
         if (qualifier.isInvalidMeasurement()) {
             return IntervalStateBits.CORRUPTED;
         } else if (qualifier.isSubjectToMaintenance()) {
-            return IntervalStateBits.CORRUPTED;
+            return IntervalStateBits.OTHER;
         } else if (qualifier.isReservedVal()) {
             return IntervalStateBits.OTHER;
         } else {
@@ -212,8 +241,6 @@ public class ProfileChannel {
      * @return
      */
     private Calendar getFromCalendar() {
-        return ProtocolTools.createCalendar(2010, 10, 1, 0, 0, 0, 0, getDeviceTimeZone());
-/*
         Date lastReading = getMeterChannel().getLastReading();
         if (lastReading == null) {
             lastReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(getRtu());
@@ -221,7 +248,11 @@ public class ProfileChannel {
         Calendar cal = ProtocolUtils.getCleanCalendar(getDeviceTimeZone());
         cal.setTime(lastReading);
         return cal;
-*/
     }
 
+    private class CTREndOfProfileException extends CTRException {
+        public CTREndOfProfileException(String message) {
+            super(message);
+        }
+    }
 }

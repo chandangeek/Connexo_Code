@@ -27,6 +27,10 @@ public class DummyRtu implements Rtu {
 
     private TimeZone timeZone;
 
+    public DummyRtu(TimeZone timeZone) {
+        this.timeZone = timeZone;
+    }
+
     public void setTimeZone(TimeZone timeZone) {
         this.timeZone = timeZone;
     }

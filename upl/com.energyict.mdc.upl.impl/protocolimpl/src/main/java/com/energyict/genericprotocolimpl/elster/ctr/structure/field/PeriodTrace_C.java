@@ -76,6 +76,14 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
             case 3 : return 24 * SEC_PER_HOUR;
             default : return 0;
         }
+    }
 
+    public int getTraceCIntervalCount() {
+        switch (period) {
+            case 1 : return 24; // 24 hours
+            case 2 : return 15; // 15 Days
+            case 3 : return 12; // 12 Months
+            default : return 0;
+        }
     }
 }
