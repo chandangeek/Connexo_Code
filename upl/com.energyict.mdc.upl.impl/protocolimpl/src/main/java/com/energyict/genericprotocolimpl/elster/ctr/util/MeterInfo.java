@@ -57,7 +57,8 @@ public class MeterInfo extends AbstractUtilObject {
         }
     }
 
-    public Data setTime(Date referenceDate, int mode, int year, int month, int day, int dayOfWeek, int hour, int minutes, int seconds) throws CTRException {
+    private Data setTime(Date referenceDate, int mode, int year, int month, int day, int dayOfWeek, int hour, int minutes, int seconds) throws CTRException {
+        TimeZone comServerTimeZone = TimeZone.getDefault();
 
         byte[] data = new byte[10];
         data[0] = (byte) mode;
@@ -68,8 +69,8 @@ public class MeterInfo extends AbstractUtilObject {
         data[5] = (byte) hour;
         data[6] = (byte) minutes;
         data[7] = (byte) seconds;
-        data[8] = (byte) (timeZone.getRawOffset() / 3600000);
-        data[9] = (byte) (timeZone.inDaylightTime(referenceDate) ? 1 : 0);
+        data[8] = (byte) (comServerTimeZone.getRawOffset() / 3600000);
+        data[9] = (byte) (comServerTimeZone.inDaylightTime(referenceDate) ? 1 : 0);
         WriteDataBlock wdb = new WriteDataBlock(wdbCounter++);
         ReferenceDate refDate = new ReferenceDate().parse(referenceDate, timeZone);
         refDate.setTomorrow();
@@ -79,7 +80,7 @@ public class MeterInfo extends AbstractUtilObject {
     }
 
     public Data setTime(Date time) throws CTRException {
-        Calendar cal = Calendar.getInstance(timeZone);
+        Calendar cal = Calendar.getInstance();
         cal.setTime(time);
         Data ackOrNack = setTime(
                 time,

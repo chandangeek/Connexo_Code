@@ -6,7 +6,8 @@ import com.energyict.genericprotocolimpl.common.*;
 import com.energyict.genericprotocolimpl.elster.ctr.encryption.CTREncryption;
 import com.energyict.genericprotocolimpl.elster.ctr.events.CTRMeterEvent;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.*;
-import com.energyict.genericprotocolimpl.elster.ctr.frame.*;
+import com.energyict.genericprotocolimpl.elster.ctr.frame.Frame;
+import com.energyict.genericprotocolimpl.elster.ctr.frame.SMSFrame;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
 import com.energyict.genericprotocolimpl.elster.ctr.profile.ProfileChannelForSms;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.*;
@@ -17,9 +18,7 @@ import com.energyict.mdw.messaging.MessageHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.ObjectMessage;
+import javax.jms.*;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
@@ -290,7 +289,6 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
                 // TODO if the connection is out you should not try and read the others as well...
                 log(Level.FINEST, e.getMessage());
                 getLogger().log(Level.INFO, "Reading register with obisCode " + obisCode + " FAILED.");
-                e.printStackTrace();
             }
         }
         return regValueMap;

@@ -28,7 +28,7 @@ public class DecryptSniffer {
         for (String line : lines) {
             if (line.length() == 284) {
                 try {
-                    sb.append(decrypt(line));
+                    sb.append(format(decrypt(line)));
                 } catch (CTRException e) {
                     sb.append(e.getMessage()).append(" => ").append(line);
                 }
@@ -40,6 +40,19 @@ public class DecryptSniffer {
 
         ProtocolTools.writeBytesToFile("c:\\dump_decrypted.txt", sb.toString().getBytes(), false);
 
+    }
+
+    private static String format(String input) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < input.length(); i += (3 * 16)) {
+            int end = i + (3 * 16);
+            if (end > input.length()) {
+                end = input.length();
+            }
+            sb.append(input.substring(i, end));
+            sb.append("\r\n");
+        }
+        return sb.toString();
     }
 
     private static String decrypt(String packet) throws CTRParsingException, CtrCipheringException {

@@ -73,7 +73,6 @@ public class MTU155 extends AbstractGenericProtocol {
             getStoreObject().doExecute();
 
         } catch (CTRException e) {
-            e.printStackTrace();
             getLogger().severe(e.getMessage());
         } /*catch (BusinessException e) {
             e.printStackTrace();
@@ -261,7 +260,6 @@ public class MTU155 extends AbstractGenericProtocol {
                 // TODO if the connection is out you should not try and read the others as well...
                 log(Level.FINEST, e.getMessage());
                 getLogger().log(Level.INFO, "Reading register with obisCode " + obisCode + " FAILED.");
-                e.printStackTrace();
             }
         }
         return regValueMap;

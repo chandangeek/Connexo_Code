@@ -3,7 +3,6 @@ package com.energyict.genericprotocolimpl.elster.ctr;
 import com.energyict.cbo.Quantity;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
-import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.obis.ObisCode;
@@ -62,7 +61,7 @@ public class ObisCodeMapper {
         return requestFactory;
     }
 
-    public RegisterValue readRegister(ObisCode obisCode, List<AbstractCTRObject> list) throws CTRException, NoSuchRegisterException {
+    public RegisterValue readRegister(ObisCode obisCode, List<AbstractCTRObject> list) throws NoSuchRegisterException, CTRException {
         AttributeType attributeType = new AttributeType();
         attributeType.setHasIdentifier(true);
         attributeType.setHasValueFields(true);
@@ -101,7 +100,7 @@ public class ObisCodeMapper {
 
         if (object == null) {
             getLogger().log(Level.WARNING, "No suitable object available");
-            throw new CTRParsingException("No suitable object available");
+            throw new NoSuchRegisterException("No suitable object available");
         }
         
         RegisterValue regValue;
@@ -109,13 +108,13 @@ public class ObisCodeMapper {
 
         if (object.getQlf().isInvalid()) {
             getLogger().log(Level.WARNING, "Invalid Data: Qualifier was 0xFF at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");
-            throw new CTRParsingException("Invalid Data: Qualifier was 0xFF at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");
+            throw new NoSuchRegisterException("Invalid Data: Qualifier was 0xFF at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");
         } else if (object.getQlf().isInvalidMeasurement()) {
             getLogger().log(Level.WARNING, "Invalid Measurement at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");
-            throw new CTRParsingException("Invalid Measurement at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");
+            throw new NoSuchRegisterException("Invalid Measurement at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");
         } else if (object.getQlf().isSubjectToMaintenance()) {
             getLogger().log(Level.WARNING, "Meter is subject to maintenance  at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");
-            throw new CTRParsingException("Meter is subject to maintenance  at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");
+            throw new NoSuchRegisterException("Meter is subject to maintenance  at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");
         } else {
             if (object.getValue().length == 1) {
                 CTRAbstractValue value = object.getValue()[0];
