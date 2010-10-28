@@ -7,6 +7,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.Qualifier;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.TableDECFQueryResponseStructure;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
@@ -46,7 +47,7 @@ public class ObisCodeMapper {
 
         //Daily readings = register values
         registerMapping.add(new CTRRegisterMapping("7.0.13.29.0.255", "1.3.3"));    //Vb_g
-        registerMapping.add(new CTRRegisterMapping("7.0.41.0.0.255", "7.0.2"));     //T_h
+        registerMapping.add(new CTRRegisterMapping("7.0.41.0.0.255", "7.0.0"));     //T_h
         registerMapping.add(new CTRRegisterMapping("7.0.13.30.0.255", "1.1.3"));    //Vm_g
         registerMapping.add(new CTRRegisterMapping("7.0.13.0.0.255", "2.0.3"));     //Tot_Vm_g
         registerMapping.add(new CTRRegisterMapping("7.0.13.2.0.255", "2.1.3"));     //Tot_Vb_g
@@ -130,6 +131,10 @@ public class ObisCodeMapper {
         
         RegisterValue regValue;
         Quantity quantity;
+
+        if (object.getQlf() == null) {
+            object.setQlf(new Qualifier(0));
+        }
 
         if (object.getQlf().isInvalid()) {
             getLogger().log(Level.WARNING, "Invalid Data: Qualifier was 0xFF at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");

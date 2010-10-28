@@ -88,15 +88,4 @@ public class Diagnostics {
         }
     }
 
-    /**
-     * Checks if a ginven bit is set. Returns true if it is.
-     *
-     * @param value
-     * @param bitNr
-     * @return
-     */
-    private static boolean isBitSet(int value, int bitNr) {
-        return (0 != (value & (0x01 << bitNr)));
-    }
-
 }

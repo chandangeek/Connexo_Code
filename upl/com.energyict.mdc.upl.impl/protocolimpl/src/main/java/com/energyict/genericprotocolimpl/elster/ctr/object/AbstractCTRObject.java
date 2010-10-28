@@ -78,7 +78,7 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
         return qlf;
     }
 
-    protected void setQlf(Qualifier qlf) {
+    public void setQlf(Qualifier qlf) {
         this.qlf = qlf;
     }
 
