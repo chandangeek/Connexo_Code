@@ -29,15 +29,11 @@ public class StructureTest extends TestCase {
         att.setHasValueFields(true);
         att.setHasAccessDescriptor(true);
         att.setHasDefaultValue(true);
-        
 
         byte[] bytes = ProtocolTools.getBytesFromHexString("$07$B0$0F$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$0F$00$59$1F$00$59$1F$00$59$1F$00$59$1F$00$59$1F$00$59$1F");
 
         AbstractCTRObject obj = factory.parse(bytes, 0, att);
         assertArrayEquals(bytes, obj.getBytes());
-
-
-
     }
 
 
@@ -60,6 +56,8 @@ public class StructureTest extends TestCase {
 
         byte[] bytes16 = padData(ProtocolTools.getBytesFromHexString("$11$22$33$44$55$66$77$0F$00$00$00$02$00$20$00$06$0A$0A$15$0E$0A$00$01$01$40$0F$00$00$00$01$00$00$00$01$0A$0A$15$0E$0A$00$01$01$3A$0F$00$00$00$01$00$00$00$01$0A$0A$15$0E$0A$00$01$01$46$0F$00$00$00$01$00$00$00$01$0A$0A$0A$0E$0A$00$01$01$35$0F$00$00$00$01$00$00$00$01$0A$0A$08$0E$0A$00$01$01$35$0F$00$00$00$01$00$00$00$01$0A$0A$07$0E$0A$00$01$01$35$FF$00$00$00$01$00$00$00$01"));
         byte[] bytes17 = padData(ProtocolTools.getBytesFromHexString("$11$22$33$44$55$66$77$00$00$00$00$36$00$26$00$30$0A$0A$12$0E$34$00$0F$00$38$00$0A$0A$12$01$0E$0A$00$01$0A$0A$12$0E$32$00$0E$00$3D$00$00$0A$0A$12$01$0E$0A$00$0A$0A$0F$0D$26$00$0D$03$34$00$00$00$00$20$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF"));
+        
+        byte[] bytes18 = padData(ProtocolTools.getBytesFromHexString("$11$22$33$44$55$66$77$0A$0A$0A$0D$26$00$01$0F$00$00$01$01$01$01$01$01$01$01$02$01$02$01$02$01$02$01$02$03$04$00$0F$01$02$03$04$00$0F$01$02$03$04$00$0F$01$02$03$04$01$02$03$04$00$0F$01$02"));
 
         ArrayEventsQueryRequestStructure aeqrs = new ArrayEventsQueryRequestStructure(false).parse(bytes, 0);
         ArrayEventsQueryResponseStructure aeqrspns = new ArrayEventsQueryResponseStructure(false).parse(bytes2, 0);
@@ -84,6 +82,9 @@ public class StructureTest extends TestCase {
         ArrayEventsQueryResponseStructure eventsresp = new ArrayEventsQueryResponseStructure(false).parse(bytes16, 0);
         ArrayEventsQueryResponseStructure eventsresp2 = new ArrayEventsQueryResponseStructure(false).parse(bytes17, 0);
 
+        TableDECQueryResponseStructure tableDEC = new TableDECQueryResponseStructure(true).parse(bytes18, 0);
+
+
         assertArrayEquals(bytes, aeqrs.getBytes());
         assertArrayEquals(bytes2, aeqrspns.getBytes());
         assertArrayEquals(bytes3, trace_C_req.getBytes());
@@ -99,6 +100,7 @@ public class StructureTest extends TestCase {
         assertArrayEquals(bytes14, tablersp.getBytes());
         assertArrayEquals(bytes16, eventsresp.getBytes());
         assertArrayEquals(bytes17, eventsresp2.getBytes());
+        assertArrayEquals(bytes18, tableDEC.getBytes());
     }
 
     private byte[] padData(byte[] fieldData) {

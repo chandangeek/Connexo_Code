@@ -3,6 +3,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.object;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.*;
 import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveConverter;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -39,7 +40,7 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
         return sum;
     }
 
-    public int getLength() {
+    public int getLength() throws CTRParsingException {
         return getBytes().length;
     }
    

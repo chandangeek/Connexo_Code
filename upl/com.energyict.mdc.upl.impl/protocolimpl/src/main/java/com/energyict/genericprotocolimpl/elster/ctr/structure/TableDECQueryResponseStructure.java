@@ -7,14 +7,13 @@ import com.energyict.genericprotocolimpl.elster.ctr.object.*;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Copyrights EnergyICT
- * Date: 8-okt-2010
- * Time: 16:26:00
+ * Date: 28-okt-2010
+ * Time: 13:26:00
  */
 public class TableDECQueryResponseStructure extends Data<TableDECQueryResponseStructure> {
 
@@ -24,75 +23,65 @@ public class TableDECQueryResponseStructure extends Data<TableDECQueryResponseSt
         CAPTURED_OBJECTS = new ArrayList();
         CAPTURED_OBJECTS.add("8.0.1");
         CAPTURED_OBJECTS.add("12.2.0");
+        CAPTURED_OBJECTS.add("2.0.0");
         CAPTURED_OBJECTS.add("2.1.0");
         CAPTURED_OBJECTS.add("2.3.0");
-        CAPTURED_OBJECTS.add("2.3.7");
-        CAPTURED_OBJECTS.add("2.3.8");
-        CAPTURED_OBJECTS.add("2.3.9");
-        CAPTURED_OBJECTS.add("2.5.0");
-        CAPTURED_OBJECTS.add("2.5.1");
-        CAPTURED_OBJECTS.add("2.5.2");
-        CAPTURED_OBJECTS.add("8.0.2");
-        CAPTURED_OBJECTS.add("12.6.6");
-        CAPTURED_OBJECTS.add("2.1.6");
-        CAPTURED_OBJECTS.add("2.3.6");
-        CAPTURED_OBJECTS.add("2.3.A");
-        CAPTURED_OBJECTS.add("2.3.B");
-        CAPTURED_OBJECTS.add("2.3.C");
-        CAPTURED_OBJECTS.add("2.5.3");
-        CAPTURED_OBJECTS.add("2.5.4");
-        CAPTURED_OBJECTS.add("2.5.5");
+        CAPTURED_OBJECTS.add("1.0.0");
+        CAPTURED_OBJECTS.add("1.2.0");
+        CAPTURED_OBJECTS.add("13.0.0");
+        CAPTURED_OBJECTS.add("13.0.1");
+        CAPTURED_OBJECTS.add("4.0.0");
+        CAPTURED_OBJECTS.add("7.0.0");
+        CAPTURED_OBJECTS.add("A.0.0");
+        CAPTURED_OBJECTS.add("A.1.6");
+        CAPTURED_OBJECTS.add("8.1.2");
+        CAPTURED_OBJECTS.add("10.1.0");
+        CAPTURED_OBJECTS.add("12.0.0");
+        CAPTURED_OBJECTS.add("D.9.0");
+        CAPTURED_OBJECTS.add("E.C.0");
     }
 
-    //See documentation p. 64, TABLE DECF structure
+    //See documentation p. 62, TABLE DEC structure
     private CTRAbstractValue<String> pdr;
     private AbstractCTRObject dataAndOraS;
     private AbstractCTRObject diagnR;
-    private CTRAbstractValue<BigDecimal> numberOfElements;
-    private CTRAbstractValue<BigDecimal> id_Pt_Current;
-    private CTRAbstractValue<BigDecimal> id_Pt_Previous;
+    private AbstractCTRObject tot_Vm;
     private AbstractCTRObject tot_Vb;
     private AbstractCTRObject tot_Vme;
-    private AbstractCTRObject tot_Vme_f1;
-    private AbstractCTRObject tot_Vme_f2;
-    private AbstractCTRObject tot_Vme_f3;
-    private AbstractCTRObject tot_Vcor_f1;
-    private AbstractCTRObject tot_Vcor_f2;
-    private AbstractCTRObject tot_Vcor_f3;
-    private AbstractCTRObject dataAndOraP;
-    private AbstractCTRObject diagnRS_pf;
-    private AbstractCTRObject tot_Vb_pf;
-    private AbstractCTRObject tot_Vme_pf;
-    private AbstractCTRObject tot_Vme_pf_f1;
-    private AbstractCTRObject tot_Vme_pf_f2;
-    private AbstractCTRObject tot_Vme_pf_f3;
-    private AbstractCTRObject tot_Vpre_f1;
-    private AbstractCTRObject tot_Vpre_f2;
-    private AbstractCTRObject tot_Vpre_f3;
+    private AbstractCTRObject Qm;
+    private AbstractCTRObject Qb;
+    private AbstractCTRObject sInput;
+    private AbstractCTRObject sAlarmInput;
+    private AbstractCTRObject pressure;
+    private AbstractCTRObject temperature;
+    private AbstractCTRObject conversionFactor;
+    private AbstractCTRObject compressibility;
+    private AbstractCTRObject shift;
+    private AbstractCTRObject numberOfElements;
+    private AbstractCTRObject deviceStatus;
+    private AbstractCTRObject sealStatus;
+    private AbstractCTRObject gsmField;
 
     public List<AbstractCTRObject> getObjects() {
         List<AbstractCTRObject> list = new ArrayList();
         list.add(dataAndOraS);
         list.add(diagnR);
+        list.add(tot_Vm);
         list.add(tot_Vb);
         list.add(tot_Vme);
-        list.add(tot_Vme_f1);
-        list.add(tot_Vme_f2);
-        list.add(tot_Vme_f3);
-        list.add(tot_Vcor_f1);
-        list.add(tot_Vcor_f2);
-        list.add(tot_Vcor_f3);
-        list.add(dataAndOraP);
-        list.add(diagnRS_pf);
-        list.add(tot_Vb_pf);
-        list.add(tot_Vme_pf);
-        list.add(tot_Vme_pf_f1);
-        list.add(tot_Vme_pf_f2);
-        list.add(tot_Vme_pf_f3);
-        list.add(tot_Vpre_f1);
-        list.add(tot_Vpre_f2);
-        list.add(tot_Vpre_f3);
-
+        list.add(Qm);
+        list.add(Qb);
+        list.add(sInput);
+        list.add(sAlarmInput);
+        list.add(pressure);
+        list.add(temperature);
+        list.add(conversionFactor);
+        list.add(compressibility);
+        list.add(shift);
+        list.add(numberOfElements);
+        list.add(deviceStatus);
+        list.add(sealStatus);
+        list.add(gsmField);
         return list;
     }
 
@@ -122,27 +111,22 @@ public class TableDECQueryResponseStructure extends Data<TableDECQueryResponseSt
                 pdr.getBytes(),
                 dataAndOraS.getBytes(),
                 diagnR.getBytes(),
-                numberOfElements.getBytes(),
-                id_Pt_Current.getBytes(),
-                id_Pt_Previous.getBytes(),
+                tot_Vm.getBytes(),
                 tot_Vb.getBytes(),
                 tot_Vme.getBytes(),
-                tot_Vme_f1.getBytes(),
-                tot_Vme_f2.getBytes(),
-                tot_Vme_f3.getBytes(),
-                tot_Vcor_f1.getBytes(),
-                tot_Vcor_f2.getBytes(),
-                tot_Vcor_f3.getBytes(),
-                dataAndOraP.getBytes(),
-                diagnRS_pf.getBytes(),
-                tot_Vb_pf.getBytes(),
-                tot_Vme_pf.getBytes(),
-                tot_Vme_pf_f1.getBytes(),
-                tot_Vme_pf_f2.getBytes(),
-                tot_Vme_pf_f3.getBytes(),
-                tot_Vpre_f1.getBytes(),
-                tot_Vpre_f2.getBytes(),
-                tot_Vpre_f3.getBytes()
+                Qm.getBytes(),
+                Qb.getBytes(),
+                sInput.getBytes(),
+                sAlarmInput.getBytes(),
+                pressure.getBytes(),
+                temperature.getBytes(),
+                conversionFactor.getBytes(),
+                compressibility.getBytes(),
+                shift.getBytes(),
+                numberOfElements.getBytes(),
+                deviceStatus.getBytes(),
+                sealStatus.getBytes(),
+                gsmField.getBytes()
         ));
     }
 
@@ -165,15 +149,10 @@ public class TableDECQueryResponseStructure extends Data<TableDECQueryResponseSt
         diagnR = factory.parse(rawData, ptr, type, "12.2.0");
         ptr += diagnR.getLength();
 
-        numberOfElements = factory.parse(rawData, ptr, type, "10.1.0").getValue()[0];
-        ptr += numberOfElements.getValueLength();
-
-        id_Pt_Current = factory.parse(rawData, ptr, type, "17.0.4").getValue()[0];
-        ptr += id_Pt_Current.getValueLength();
-
-        id_Pt_Previous = factory.parse(rawData, ptr, type, "17.0.4").getValue()[1];
-        ptr += id_Pt_Previous.getValueLength();
         type.setHasQualifier(true);
+
+        tot_Vm = factory.parse(rawData, ptr, type, "2.0.0");
+        ptr += tot_Vm.getLength();
 
         tot_Vb = factory.parse(rawData, ptr, type, "2.1.0");
         ptr += tot_Vb.getLength();
@@ -181,195 +160,51 @@ public class TableDECQueryResponseStructure extends Data<TableDECQueryResponseSt
         tot_Vme = factory.parse(rawData, ptr, type, "2.3.0");
         ptr += tot_Vme.getLength();
 
-        tot_Vme_f1 = factory.parse(rawData, ptr, type, "2.3.7");
-        ptr += tot_Vme_f1.getLength();
+        Qm = factory.parse(rawData, ptr, type, "1.0.0");
+        ptr += Qm.getLength();
 
-        tot_Vme_f2 = factory.parse(rawData, ptr, type, "2.3.8");
-        ptr += tot_Vme_f2.getLength();
-
-        tot_Vme_f3 = factory.parse(rawData, ptr, type, "2.3.9");
-        ptr += tot_Vme_f3.getLength();
-
-        tot_Vcor_f1 = factory.parse(rawData, ptr, type, "2.5.0");
-        ptr += tot_Vcor_f1.getLength();
-
-        tot_Vcor_f2 = factory.parse(rawData, ptr, type, "2.5.1");
-        ptr += tot_Vcor_f2.getLength();
-
-        tot_Vcor_f3 = factory.parse(rawData, ptr, type, "2.5.2");
-        ptr += tot_Vcor_f3.getLength();
+        Qb = factory.parse(rawData, ptr, type, "1.2.0");
+        ptr += Qb.getLength();
 
         type.setHasQualifier(false);
 
-        dataAndOraP = factory.parse(rawData, ptr, type, "8.0.2");
-        ptr += dataAndOraP.getLength();
+        sInput = factory.parse(rawData, ptr, type, "13.0.0");
+        ptr += sInput.getLength();
 
-        diagnRS_pf = factory.parse(rawData, ptr, type, "12.6.6");
-        ptr += diagnRS_pf.getLength();
+        sAlarmInput = factory.parse(rawData, ptr, type, "13.0.1");
+        ptr += sAlarmInput.getLength();
 
         type.setHasQualifier(true);
 
-        tot_Vb_pf = factory.parse(rawData, ptr, type, "2.1.6");
-        ptr += tot_Vb_pf.getLength();
+        pressure = factory.parse(rawData, ptr, type, "4.0.0");
+        ptr += pressure.getLength();
 
-        tot_Vme_pf = factory.parse(rawData, ptr, type, "2.3.6");
-        ptr += tot_Vme_pf.getLength();
+        temperature = factory.parse(rawData, ptr, type, "7.0.0");
+        ptr += temperature.getLength();
 
-        tot_Vme_pf_f1 = factory.parse(rawData, ptr, type, "2.3.A");
-        ptr += tot_Vme_pf_f1.getLength();
+        conversionFactor = factory.parse(rawData, ptr, type, "A.0.0");
+        ptr += conversionFactor.getLength();
 
-        tot_Vme_pf_f2 = factory.parse(rawData, ptr, type, "2.3.B");
-        ptr += tot_Vme_pf_f2.getLength();
+        compressibility = factory.parse(rawData, ptr, type, "A.1.6");
+        ptr += compressibility.getLength();
 
-        tot_Vme_pf_f3 = factory.parse(rawData, ptr, type, "2.3.C");
-        ptr += tot_Vme_pf_f3.getLength();
+        type.setHasQualifier(false);
 
-        tot_Vpre_f1 = factory.parse(rawData, ptr, type, "2.5.3");
-        ptr += tot_Vpre_f1.getLength();
+        shift = factory.parse(rawData, ptr, type, "8.1.2");
+        ptr += shift.getLength();
 
-        tot_Vpre_f2 = factory.parse(rawData, ptr, type, "2.5.4");
-        ptr += tot_Vpre_f2.getLength();
+        numberOfElements = factory.parse(rawData, ptr, type, "10.1.0");
+        ptr += numberOfElements.getLength();
 
-        tot_Vpre_f3 = factory.parse(rawData, ptr, type, "2.5.5");
-        ptr += tot_Vpre_f3.getLength();
+        deviceStatus = factory.parse(rawData, ptr, type, "12.0.0");
+        ptr += deviceStatus.getLength();
+
+        sealStatus = factory.parse(rawData, ptr, type, "D.9.0");
+        ptr += sealStatus.getLength();
+
+        gsmField = factory.parse(rawData, ptr, type, "E.C.0");
+        ptr += gsmField.getLength();
 
         return this;
-    }
-
-    private int sum(CTRAbstractValue[] values) {
-        int sum = 0;
-        for (CTRAbstractValue value : values) {
-            sum += value.getValueLength();
-        }
-        return sum;
-    }
-
-    public AbstractCTRObject getDataAndOraP() {
-        return dataAndOraP;
-    }
-
-    public AbstractCTRObject getDataAndOraS() {
-        return dataAndOraS;
-    }
-
-    public AbstractCTRObject getDiagnR() {
-        return diagnR;
-    }
-
-    public AbstractCTRObject getDiagnRS_pf() {
-        return diagnRS_pf;
-    }
-
-    public CTRAbstractValue<BigDecimal> getId_Pt_Current() {
-        return id_Pt_Current;
-    }
-
-    public CTRAbstractValue<BigDecimal> getId_Pt_Previous() {
-        return id_Pt_Previous;
-    }
-
-    public CTRAbstractValue<BigDecimal> getNumberOfElements() {
-        return numberOfElements;
-    }
-
-    public CTRAbstractValue<String> getPdr() {
-        return pdr;
-    }
-
-    public AbstractCTRObject getTot_Vb() {
-        return tot_Vb;
-    }
-
-    public AbstractCTRObject getTot_Vb_pf() {
-        return tot_Vb_pf;
-    }
-
-    public AbstractCTRObject getTot_Vcor_f1() {
-        return tot_Vcor_f1;
-    }
-
-    public AbstractCTRObject getTot_Vcor_f2() {
-        return tot_Vcor_f2;
-    }
-
-    public AbstractCTRObject getTot_Vcor_f3() {
-        return tot_Vcor_f3;
-    }
-
-    public AbstractCTRObject getTot_Vme() {
-        return tot_Vme;
-    }
-
-    public AbstractCTRObject getTot_Vme_f1() {
-        return tot_Vme_f1;
-    }
-
-    public AbstractCTRObject getTot_Vme_f2() {
-        return tot_Vme_f2;
-    }
-
-    public AbstractCTRObject getTot_Vme_f3() {
-        return tot_Vme_f3;
-    }
-
-    public AbstractCTRObject getTot_Vme_pf() {
-        return tot_Vme_pf;
-    }
-
-    public AbstractCTRObject getTot_Vme_pf_f1() {
-        return tot_Vme_pf_f1;
-    }
-
-    public AbstractCTRObject getTot_Vme_pf_f2() {
-        return tot_Vme_pf_f2;
-    }
-
-    public AbstractCTRObject getTot_Vme_pf_f3() {
-        return tot_Vme_pf_f3;
-    }
-
-    public AbstractCTRObject getTot_Vpre_f1() {
-        return tot_Vpre_f1;
-    }
-
-    public AbstractCTRObject getTot_Vpre_f2() {
-        return tot_Vpre_f2;
-    }
-
-    public AbstractCTRObject getTot_Vpre_f3() {
-        return tot_Vpre_f3;
-    }
-
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("TableDECFQueryResponseStructure{").append('\n');
-        sb.append("  dataAndOraP=").append(dataAndOraP).append('\n');
-        sb.append("  pdr=").append(pdr).append('\n');
-        sb.append("  dataAndOraS=").append(dataAndOraS).append('\n');
-        sb.append("  diagnR=").append(diagnR).append('\n');
-        sb.append("  numberOfElements=").append(numberOfElements).append('\n');
-        sb.append("  id_Pt_Current=").append(id_Pt_Current).append('\n');
-        sb.append("  id_Pt_Previous=").append(id_Pt_Previous).append('\n');
-        sb.append("  tot_Vb=").append(tot_Vb).append('\n');
-        sb.append("  tot_Vme=").append(tot_Vme).append('\n');
-        sb.append("  tot_Vme_f1=").append(tot_Vme_f1).append('\n');
-        sb.append("  tot_Vme_f2=").append(tot_Vme_f2).append('\n');
-        sb.append("  tot_Vme_f3=").append(tot_Vme_f3).append('\n');
-        sb.append("  tot_Vcor_f1=").append(tot_Vcor_f1).append('\n');
-        sb.append("  tot_Vcor_f2=").append(tot_Vcor_f2).append('\n');
-        sb.append("  tot_Vcor_f3=").append(tot_Vcor_f3).append('\n');
-        sb.append("  diagnRS_pf=").append(diagnRS_pf).append('\n');
-        sb.append("  tot_Vb_pf=").append(tot_Vb_pf).append('\n');
-        sb.append("  tot_Vme_pf=").append(tot_Vme_pf).append('\n');
-        sb.append("  tot_Vme_pf_f1=").append(tot_Vme_pf_f1).append('\n');
-        sb.append("  tot_Vme_pf_f2=").append(tot_Vme_pf_f2).append('\n');
-        sb.append("  tot_Vme_pf_f3=").append(tot_Vme_pf_f3).append('\n');
-        sb.append("  tot_Vpre_f1=").append(tot_Vpre_f1).append('\n');
-        sb.append("  tot_Vpre_f2=").append(tot_Vpre_f2).append('\n');
-        sb.append("  tot_Vpre_f3=").append(tot_Vpre_f3).append('\n');
-        sb.append('}');
-        return sb.toString();
     }
 }

@@ -286,7 +286,7 @@ public class GprsRequestFactory {
         request.getProfi().setLongFrame(false);
         request.getStructureCode().setStructureCode(StructureCode.TABLE_DEC);
         request.setChannel(new Channel(0x01));
-        request.setData(new TableDECQueryResponseStructure(false).parse(tableRequestBytes, 0));
+        request.setData(new TableQueryRequestStructure(false).parse(tableRequestBytes, 0));
         return request;
     }
 

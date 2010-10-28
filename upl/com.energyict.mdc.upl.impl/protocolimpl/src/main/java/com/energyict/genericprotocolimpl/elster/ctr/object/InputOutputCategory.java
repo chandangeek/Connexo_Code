@@ -24,8 +24,20 @@ public class InputOutputCategory extends AbstractUnsignedBINObject<InputOutputCa
             case 6:
                 switch (id.getZ()) {
                     case 2:
-                        symbol = "Conf_T"; break;
-                } break;
+                        symbol = "Conf_T";
+                        break;
+                }
+                break;
+            case 0:
+                switch (id.getZ()) {
+                    case 0:
+                        symbol = "Stat_DI";
+                        break;
+                    case 1:
+                        symbol = "SA_DI";
+                        break;
+                }
+                break;
         }
         return symbol;
     }
@@ -36,7 +48,14 @@ public class InputOutputCategory extends AbstractUnsignedBINObject<InputOutputCa
     }
 
     public int[] getValueLengths(CTRObjectID id) {
-        return new int[]{1, 3, 3, 3, 3};
+        if (id.getY() == 6) {
+            if (id.getZ() == 1) {
+                return new int[]{1, 1, 3, 3, 3, 3};
+            } else {
+                return new int[]{1, 3, 3, 3, 3};
+            }
+        }
+            return new int[]{1};
     }
 
     public Unit getUnit(CTRObjectID id, int valueNumber) {
