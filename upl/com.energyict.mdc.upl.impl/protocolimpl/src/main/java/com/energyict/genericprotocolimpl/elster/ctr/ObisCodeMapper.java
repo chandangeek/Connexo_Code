@@ -56,7 +56,7 @@ public class ObisCodeMapper {
 
         //Daily readings = register values
         registerMapping.add(new CTRRegisterMapping("7.0.13.29.0.255", "1.3.3"));    //Vb_g
-        registerMapping.add(new CTRRegisterMapping("7.0.41.0.0.255", "7.0.0"));     //T_h
+        registerMapping.add(new CTRRegisterMapping("7.0.41.0.0.255", "7.0.2"));     //T_h
         registerMapping.add(new CTRRegisterMapping("7.0.13.30.0.255", "1.1.3"));    //Vm_g
         registerMapping.add(new CTRRegisterMapping("7.0.13.0.0.255", "2.0.3"));     //Tot_Vm_g
         registerMapping.add(new CTRRegisterMapping("7.0.13.2.0.255", "2.1.3"));     //Tot_Vb_g
