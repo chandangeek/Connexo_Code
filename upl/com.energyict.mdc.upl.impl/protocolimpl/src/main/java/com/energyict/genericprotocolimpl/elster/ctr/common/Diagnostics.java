@@ -7,86 +7,96 @@ package com.energyict.genericprotocolimpl.elster.ctr.common;
  */
 public class Diagnostics {
 
-    public static final String POWER_NOT_AVAILABLE = "Mains power not available";
-    public static final String LOW_BATTERY = "Low Battery";
-    public static final String EVENT_LOG_AT_90_PERCENT = "Event log at 90%";
-    public static final String GENERAL_ALARM = "General alarm";
-    public static final String CONNECTION_BROKEN = "Connection with emitter or converter broken";
-    public static final String EVENT_LOG_FULL = "Event log full";
-    public static final String CLOCK_MISALIGNMENT = "Clock misalignment";
-    public static final String CONVERTER_ALARM = "Converter alarm";
-    public static final String TEMPERATURE_OUT_OF_RANGE = "Temperature out of range";
-    public static final String PRESSURE_OUT_OF_RANGE =  "Pressure out of range";
-    public static final String FLOW_OVER_LIMIT = "Flow over limit";
-    public static final String VALVE_CLOSING_ERROR = "Valve closing error";
-    public static final String VALVE_OPENING_ERROR = "Valve opening error";
+    private static final int POWER_NOT_AVAILABLE_BIT = 0x0001;
+    private static final int LOW_BATTERY_BIT = 0x0002;
+    private static final int EVENT_LOG_90P_BIT = 0x0004;
+    private static final int GENERAL_ALARM_BIT = 0x0008;
+    private static final int CONNECTION_BROKEN_BIT = 0x0010;
+    private static final int EVENT_LOG_FULL_BIT = 0x0020;
+    private static final int CLOCK_MISALIGNMENT_BIT = 0x0040;
+    private static final int CONVERTER_ALARM_BIT = 0x0080;
+    private static final int TEMPERATURE_OUT_OF_RANGE_BIT = 0x0100;
+    private static final int PRESSURE_OUT_OF_RANGE_BIT = 0x0200;
+    private static final int FLOW_OVER_LIMIT_BIT = 0x0400;
+    private static final int VALVE_CLOSING_ERROR_BIT = 0x0800;
+    private static final int VALVE_OPENING_ERROR_BIT = 0x1000;
 
+    private static final String POWER_NOT_AVAILABLE = "Mains power not available";
+    private static final String LOW_BATTERY = "Low Battery";
+    private static final String EVENT_LOG_AT_90_PERCENT = "Event log at 90%";
+    private static final String GENERAL_ALARM = "General alarm";
+    private static final String CONNECTION_BROKEN = "Connection with emitter or converter broken";
+    private static final String EVENT_LOG_FULL = "Event log full";
+    private static final String CLOCK_MISALIGNMENT = "Clock misalignment";
+    private static final String CONVERTER_ALARM = "Converter alarm";
+    private static final String TEMPERATURE_OUT_OF_RANGE = "Temperature out of range";
+    private static final String PRESSURE_OUT_OF_RANGE = "Pressure out of range";
+    private static final String FLOW_OVER_LIMIT = "Flow over limit";
+    private static final String VALVE_CLOSING_ERROR = "Valve closing error";
+    private static final String VALVE_OPENING_ERROR = "Valve opening error";
+
+    /**
+     * @param code
+     * @return
+     */
     public static String getDescriptionFromCode(int code) {
-        String description = "";
-
-        for (int i = 0; i < 13; i++) {
-            switch (i) {
-                case 0:
-                    if (isBitSet(code, i)) {
-                        description = POWER_NOT_AVAILABLE;
-                    }
-                case 1:
-                    if (isBitSet(code, i)) {
-                        description = LOW_BATTERY;
-                    }
-                case 2:
-                    if (isBitSet(code, i)) {
-                        description = EVENT_LOG_AT_90_PERCENT;
-                    }
-                case 3:
-                    if (isBitSet(code, i)) {
-                        description = GENERAL_ALARM;
-                    }
-                case 4:
-                    if (isBitSet(code, i)) {
-                        description = CONNECTION_BROKEN;
-                    }
-                case 5:
-                    if (isBitSet(code, i)) {
-                        description = EVENT_LOG_FULL;
-                    }
-                case 6:
-                    if (isBitSet(code, i)) {
-                        description = CLOCK_MISALIGNMENT;
-                    }
-                case 7:
-                    if (isBitSet(code, i)) {
-                        description = CONVERTER_ALARM;
-                    }
-                case 8:
-                    if (isBitSet(code, i)) {
-                        description = TEMPERATURE_OUT_OF_RANGE;
-                    }
-                case 9:
-                    if (isBitSet(code, i)) {
-                        description = PRESSURE_OUT_OF_RANGE;
-                    }
-                case 10:
-                    if (isBitSet(code, i)) {
-                        description = FLOW_OVER_LIMIT;
-                    }
-                case 11:
-                    if (isBitSet(code, i)) {
-                        description = VALVE_CLOSING_ERROR;
-                    }
-                case 12:
-                    if (isBitSet(code, i)) {
-                        description = VALVE_OPENING_ERROR;
-                    }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 16; i++) {
+            String bitMessage = getDescriptionFromSingleCode(code, i);
+            if (bitMessage != null) {
+                sb.append((sb.length() > 0) ? ", " : "").append(bitMessage);
             }
         }
-        return description;
+        return sb.toString();
     }
 
+    /**
+     * @param code
+     * @return
+     */
+    private static String getDescriptionFromSingleCode(int code, int bitNumber) {
+        int singleBitCode = code & (1 << bitNumber);
+        switch (singleBitCode) {
+            case POWER_NOT_AVAILABLE_BIT:
+                return POWER_NOT_AVAILABLE;
+            case LOW_BATTERY_BIT:
+                return LOW_BATTERY;
+            case EVENT_LOG_90P_BIT:
+                return EVENT_LOG_AT_90_PERCENT;
+            case GENERAL_ALARM_BIT:
+                return GENERAL_ALARM;
+            case CONNECTION_BROKEN_BIT:
+                return CONNECTION_BROKEN;
+            case EVENT_LOG_FULL_BIT:
+                return EVENT_LOG_FULL;
+            case CLOCK_MISALIGNMENT_BIT:
+                return CLOCK_MISALIGNMENT;
+            case CONVERTER_ALARM_BIT:
+                return CONVERTER_ALARM;
+            case TEMPERATURE_OUT_OF_RANGE_BIT:
+                return TEMPERATURE_OUT_OF_RANGE;
+            case PRESSURE_OUT_OF_RANGE_BIT:
+                return PRESSURE_OUT_OF_RANGE;
+            case FLOW_OVER_LIMIT_BIT:
+                return FLOW_OVER_LIMIT;
+            case VALVE_CLOSING_ERROR_BIT:
+                return VALVE_CLOSING_ERROR;
+            case VALVE_OPENING_ERROR_BIT:
+                return VALVE_OPENING_ERROR;
+            default:
+                return null;
+        }
+    }
 
+    /**
+     * Checks if a ginven bit is set. Returns true if it is.
+     *
+     * @param value
+     * @param bitNr
+     * @return
+     */
     private static boolean isBitSet(int value, int bitNr) {
         return (0 != (value & (0x01 << bitNr)));
     }
-
 
 }
