@@ -20,6 +20,14 @@ public class StructureCode extends AbstractField<StructureCode> {
 
     private int structureCode;
 
+    public StructureCode(int structureCode) {
+        this.structureCode = structureCode;
+    }
+
+    public StructureCode() {
+        this(0);
+    }
+
     public int getLength() {
         return 1;
     }

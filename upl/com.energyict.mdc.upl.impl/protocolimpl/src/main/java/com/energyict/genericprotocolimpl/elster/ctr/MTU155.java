@@ -64,23 +64,41 @@ public class MTU155 extends AbstractGenericProtocol {
         testMethod();
 */
         try {
+            getProtocolProperties().addProperties(getPropertiesFromProtocolClass());
             this.rtu = identifyAndGetRtu();
             log("Rtu with name '" + getRtu().getName() + "' connected successfully.");
             getProtocolProperties().addProperties(rtu.getProtocol().getProperties());
             getProtocolProperties().addProperties(rtu.getProperties());
             updateRequestFactory();
             readDevice();
+            disconnect();
             getStoreObject().doExecute();
 
         } catch (CTRException e) {
             getLogger().severe(e.getMessage());
-        } /*catch (BusinessException e) {
+        } catch (BusinessException e) {
             e.printStackTrace();
             getLogger().severe(e.getMessage());
         } catch (SQLException e) {
             e.printStackTrace();
             getLogger().severe(e.getMessage());
-        }*/
+        }
+    }
+
+    private Properties getPropertiesFromProtocolClass() {
+        List<CommunicationProtocol> protocols = CommonUtils.mw().getCommunicationProtocolFactory().findAll();
+        for (CommunicationProtocol protocol : protocols) {
+            if (protocol.getJavaClassName().equalsIgnoreCase(getClass().getName())) {
+                getLogger().info("Using properties from protocol only, because RTU is not discovered yet. " + protocol);
+                return protocol.getProperties();
+            }
+        }
+        getLogger().warning("No protocol properties found for this protocol. Using defaults!");
+        return new Properties();
+    }
+
+    private void disconnect() {
+        getRequestFactory().sendEndOfSession();
     }
 
     private void updateRequestFactory() {
@@ -95,7 +113,7 @@ public class MTU155 extends AbstractGenericProtocol {
         getProtocolProperties().addProperty(MTU155Properties.DEBUG, "0");
         getProtocolProperties().addProperty(MTU155Properties.ADDRESS, "0");
         getProtocolProperties().addProperty(MTU155Properties.SECURITY_LEVEL, "1");
-        
+
         this.rtu = new DummyRtu(TimeZone.getTimeZone("GMT"));
         Calendar lastReading = ProtocolTools.createCalendar(2010, 10, 20, 0, 0, 0, 0, getTimeZone());
         for (int i = 1; i <= 4; i++) {

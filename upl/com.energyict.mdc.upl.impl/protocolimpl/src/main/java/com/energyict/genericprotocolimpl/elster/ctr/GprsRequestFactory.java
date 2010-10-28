@@ -440,4 +440,26 @@ public class GprsRequestFactory {
     public TimeZone getTimeZone() {
         return timeZone;
     }
+
+    public void sendEndOfSession() {
+        getLogger().severe("Closing session. Sending End Of Session Request.");
+        try {
+            getConnection().sendFrameGetResponse(getEndOfSessionRequest());
+        } catch (CTRConnectionException e) {
+            getLogger().severe("Failed to close session! " + e.getMessage());
+        }
+    }
+
+    private GPRSFrame getEndOfSessionRequest() {
+        GPRSFrame request = new GPRSFrame();
+        request.setAddress(getAddress());
+        request.getProfi().setLongFrame(false);
+        request.getFunctionCode().setEncryptionStatus(EncryptionStatus.NO_ENCRYPTION);
+        request.getFunctionCode().setFunction(Function.END_OF_SESSION);
+        request.setStructureCode(new StructureCode(0x00));
+        request.setChannel(new Channel(0));
+        request.setData(new EndOfSessionRequestStructure());
+        request.setCpa(new Cpa(0x00));
+        return request;
+    }
 }
