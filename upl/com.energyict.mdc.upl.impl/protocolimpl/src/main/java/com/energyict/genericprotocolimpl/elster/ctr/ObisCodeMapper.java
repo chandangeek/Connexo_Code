@@ -73,6 +73,11 @@ public class ObisCodeMapper {
         registerMapping.add(new CTRRegisterMapping("7.0.128.8.0.255", "18.7.3"));   //Tot_Vme_f2_g  = Manufacturer specific code!!
         registerMapping.add(new CTRRegisterMapping("7.0.128.9.0.255", "18.8.3"));   //Tot_Vme_f3_g  = Manufacturer specific code!!
 
+        registerMapping.add(new CTRRegisterMapping("7.0.128.10.0.255", "C.0.0"));   //Pdr  = Manufacturer specific code!!
+        registerMapping.add(new CTRRegisterMapping("7.0.128.10.0.255", "C.0.0"));   //Pdr  = Manufacturer specific code!!
+
+        //------------------------------------------------------------------------------------------------------------------------------------------------------
+        
         registerMapping.add(new CTRRegisterMapping("7.0.13.0.1.255", "2.5.0"));     //Tot_Vcor_f1
         registerMapping.add(new CTRRegisterMapping("7.0.13.0.2.255", "2.5.1"));     //Tot_Vcor_f2
         registerMapping.add(new CTRRegisterMapping("7.0.13.0.3.255", "2.5.2"));     //Tot_Vcor_f3

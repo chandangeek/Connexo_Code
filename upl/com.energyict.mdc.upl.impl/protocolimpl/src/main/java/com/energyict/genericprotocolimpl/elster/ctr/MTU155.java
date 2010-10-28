@@ -271,6 +271,7 @@ public class MTU155 extends AbstractGenericProtocol {
                         }
                     } catch (NoSuchRegisterException e) {
                         log(Level.FINEST, e.getMessage());
+                        getMeterAmrLogging().logRegisterFailure(e, obisCode);
                         getLogger().log(Level.INFO, "ObisCode " + obisCode + " is not supported by the meter.");
                     }
                 }
