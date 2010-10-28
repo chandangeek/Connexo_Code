@@ -68,4 +68,9 @@ public class StructureCode extends AbstractField<StructureCode> {
     public boolean isDECFTable() {
         return getStructureCode() == TABLE_DECF;
     }
+
+    public boolean isDECTable() {
+        return getStructureCode() == TABLE_DEC;
+    }
+
 }
