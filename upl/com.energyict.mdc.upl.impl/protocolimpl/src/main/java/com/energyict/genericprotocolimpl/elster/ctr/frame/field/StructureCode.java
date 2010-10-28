@@ -15,6 +15,7 @@ public class StructureCode extends AbstractField<StructureCode> {
     public static final int TRACE = 0x52;
     public static final int TRACE_C = 0x53;
     public static final int EVENT_ARRAY = 0x56;
+    public static final int TABLE_DEC = 0x33;
     public static final int TABLE_DECF = 0x34;
 
     private int structureCode;

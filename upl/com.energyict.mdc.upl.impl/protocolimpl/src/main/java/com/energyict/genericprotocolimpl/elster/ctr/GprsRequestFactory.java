@@ -273,7 +273,20 @@ public class GprsRequestFactory {
         request.getProfi().setLongFrame(false);
         request.getStructureCode().setStructureCode(StructureCode.TABLE_DECF);
         request.setChannel(new Channel(0x01));
-        request.setData(new ArrayEventsQueryRequestStructure(false).parse(tableRequestBytes, 0));
+        request.setData(new TableDECFQueryResponseStructure(false).parse(tableRequestBytes, 0));
+        return request;
+    }
+
+    private GPRSFrame getTableDECRequest() throws CTRParsingException {
+        byte[] tableRequestBytes = getPassword();
+        GPRSFrame request = new GPRSFrame();
+        request.setAddress(getAddress());
+        request.getFunctionCode().setEncryptionStatus(EncryptionStatus.NO_ENCRYPTION);
+        request.getFunctionCode().setFunction(Function.QUERY);
+        request.getProfi().setLongFrame(false);
+        request.getStructureCode().setStructureCode(StructureCode.TABLE_DEC);
+        request.setChannel(new Channel(0x01));
+        request.setData(new TableDECQueryResponseStructure(false).parse(tableRequestBytes, 0));
         return request;
     }
 
@@ -313,6 +326,19 @@ public class GprsRequestFactory {
             throw new CTRException("Expected TableDECFResponseStructure but was " + response.getData().getClass().getSimpleName());
         }
         return tableDECFresponse;
+    }
+
+    public TableDECQueryResponseStructure queryTableDEC() throws CTRException{
+        GPRSFrame response = getConnection().sendFrameGetResponse(getTableDECRequest());
+        response.doParse();
+
+        TableDECQueryResponseStructure tableDECresponse;
+        if (response.getData() instanceof TableDECQueryResponseStructure) {
+            tableDECresponse = (TableDECQueryResponseStructure) response.getData();
+        } else {
+            throw new CTRException("Expected TableDECResponseStructure but was " + response.getData().getClass().getSimpleName());
+        }
+        return tableDECresponse;
     }
 
     public Data executeRequest(ReferenceDate validityDate, WriteDataBlock wdb, CTRObjectID id, byte[] data) throws CTRException{
