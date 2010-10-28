@@ -36,7 +36,7 @@ public class TraceQueryResponseStructure extends Data<TraceQueryResponseStructur
         type.setHasValueFields(true);
         byte[] records = new byte[0];
         for (AbstractCTRObject ctrObject : traceData) {
-            records = ProtocolTools.concatByteArrays(records, ctrObject.getBytes(type));
+            records = ProtocolTools.concatByteArrays(records, ctrObject.getBytes());
         }
 
         return padData(ProtocolTools.concatByteArrays(
@@ -76,13 +76,13 @@ public class TraceQueryResponseStructure extends Data<TraceQueryResponseStructur
         traceData = new ArrayList<AbstractCTRObject>();
         AbstractCTRObject obj = factory.parse(rawData, ptr, type, id.toString());
         traceData.add(obj);
-        ptr += obj.getLength(type);
+        ptr += obj.getLength();
 
         //Parse the remaining objects
-        while (ptr <= rawData.length - traceData.get(0).getBytes(type).length) {
+        while (ptr <= rawData.length - traceData.get(0).getBytes().length) {
             obj = factory.parse(rawData, ptr, type, id.toString());
             traceData.add(obj);
-            ptr += obj.getBytes(type).length;
+            ptr += obj.getBytes().length;
         }
 
         return this;

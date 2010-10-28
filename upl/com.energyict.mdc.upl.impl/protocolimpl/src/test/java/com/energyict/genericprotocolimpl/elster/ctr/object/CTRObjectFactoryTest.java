@@ -27,6 +27,6 @@ public class CTRObjectFactoryTest {
 
         AbstractCTRObject ctrObject = factory.parse(bytes, 0, type);
 
-        assertArrayEquals(bytes, ctrObject.getBytes(type));
+        assertArrayEquals(bytes, ctrObject.getBytes());
     }
 }

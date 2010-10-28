@@ -1,8 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr;
 
-import org.junit.Test;
-
 import java.io.*;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -31,7 +30,7 @@ public abstract class CtrTest {
 
     protected GprsRequestFactory getDummyRequestFactory(byte[] rawResponse) {
         ByteArrayInputStream in = new ByteArrayInputStream(rawResponse);
-        return new GprsRequestFactory(in, getNullOut(), getLogger(), new MTU155Properties());
+        return new GprsRequestFactory(in, getNullOut(), getLogger(), new MTU155Properties(), TimeZone.getDefault());
     }
 
 }

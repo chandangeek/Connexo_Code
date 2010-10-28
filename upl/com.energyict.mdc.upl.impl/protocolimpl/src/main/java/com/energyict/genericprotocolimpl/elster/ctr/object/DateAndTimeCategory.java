@@ -170,11 +170,23 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
             cal.set(Calendar.YEAR, getValue(0).getIntValue() + 2000);
             cal.set(Calendar.MONTH, getValue(1).getIntValue() - 1);
             cal.set(Calendar.DAY_OF_MONTH, getValue(2).getIntValue());
-            cal.set(Calendar.HOUR_OF_DAY, getValue(3).getIntValue());
-            cal.set(Calendar.MINUTE, getValue(4).getIntValue());
+
+            int hour = getValue(3).getIntValue();
+            if (hour > 23) {
+                hour -= 30;
+            }
+            cal.set(Calendar.HOUR_OF_DAY, hour);
+
+            int minutes = getValue(4).getIntValue();
+            if (minutes > 59) {
+               minutes -= 60;
+            }
+            cal.set(Calendar.MINUTE, minutes);
+
             cal.set(Calendar.SECOND, 0);
             cal.set(Calendar.MILLISECOND, 0);
             return cal.getTime();
+
         } else if (getId().is("8.0.2")) {
             Calendar cal = Calendar.getInstance();
             cal.set(Calendar.YEAR, getValue(1).getIntValue() + 2000);
@@ -185,11 +197,31 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
             cal.set(Calendar.SECOND, 0);
             cal.set(Calendar.MILLISECOND, 0);
             return cal.getTime();
+            
+        } else if (getId().is("8.0.0")) {
+            Calendar cal = Calendar.getInstance();
+            int ptr = 0;
+            int year = getValue(ptr++).getIntValue() + 2000;
+            int month = getValue(ptr++).getIntValue() - 1;
+            int day = getValue(ptr++).getIntValue();
+            ptr++; // Day of week
+            int hour = getValue(ptr++).getIntValue();
+            int min = getValue(ptr++).getIntValue();
+            int sec = getValue(ptr++).getIntValue();
+
+            cal.set(Calendar.YEAR, year);
+            cal.set(Calendar.MONTH, month);
+            cal.set(Calendar.DAY_OF_MONTH, day);
+            cal.set(Calendar.HOUR_OF_DAY, hour);
+            cal.set(Calendar.MINUTE, min);
+            cal.set(Calendar.SECOND, sec);
+            cal.set(Calendar.MILLISECOND, 0);
+            return cal.getTime();
+
         } else {
             return null;
         }
     }
-
 
     @Override
     public String toString() {

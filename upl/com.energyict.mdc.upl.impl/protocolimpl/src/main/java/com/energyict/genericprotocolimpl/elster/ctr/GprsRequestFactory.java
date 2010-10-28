@@ -27,14 +27,15 @@ public class GprsRequestFactory {
     private final GprsConnection connection;
     private MTU155Properties properties;
     private Logger logger;
+    private TimeZone timeZone;
 
     /**
      * @param link
      * @param logger
      * @param properties
      */
-    public GprsRequestFactory(Link link, Logger logger, MTU155Properties properties) {
-        this(link.getInputStream(), link.getOutputStream(), logger, properties);
+    public GprsRequestFactory(Link link, Logger logger, MTU155Properties properties, TimeZone timeZone) {
+        this(link.getInputStream(), link.getOutputStream(), logger, properties, timeZone);
     }
 
     /**
@@ -44,10 +45,11 @@ public class GprsRequestFactory {
      * @param logger
      * @param properties
      */
-    public GprsRequestFactory(InputStream inputStream, OutputStream outputStream, Logger logger, MTU155Properties properties) {
+    public GprsRequestFactory(InputStream inputStream, OutputStream outputStream, Logger logger, MTU155Properties properties, TimeZone timeZone) {
         this.connection = new SecureGprsConnection(inputStream, outputStream, properties);
         this.logger = logger;
         this.properties = properties;
+        this.timeZone = timeZone;
     }
 
     /**
@@ -219,7 +221,7 @@ public class GprsRequestFactory {
         byte[] pssw = getPassword();
         byte[] objectBytes = new byte[]{};
         for (AbstractCTRObject object : objects) {
-            objectBytes = ProtocolTools.concatByteArrays(objectBytes, object.getBytes(attributeType));
+            objectBytes = ProtocolTools.concatByteArrays(objectBytes, object.getBytes());
         }
         byte[] numberOfObjects = new byte[]{(byte) objects.length};
         byte[] writeRequest = padData(125, ProtocolTools.concatByteArrays(
@@ -410,6 +412,6 @@ public class GprsRequestFactory {
     }
 
     public TimeZone getTimeZone() {
-        return null;  //To change body of created methods use File | Settings | File Templates.
+        return timeZone;
     }
 }

@@ -2,9 +2,12 @@ package com.energyict.genericprotocolimpl.elster.ctr;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
+import com.energyict.genericprotocolimpl.elster.ctr.common.Diagnostics;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
+import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
+import com.energyict.genericprotocolimpl.elster.ctr.structure.TableDECFQueryResponseStructure;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
@@ -24,6 +27,15 @@ public class ObisCodeMapper {
     private Logger logger;
     private List<CTRRegisterMapping> registerMapping = new ArrayList<CTRRegisterMapping>();
     private final GprsRequestFactory requestFactory;
+
+    public TableDECFQueryResponseStructure getTableDECF() throws CTRException {
+        if (tableDECF == null) {
+            tableDECF = getRequestFactory().queryTableDECF();
+        }
+        return tableDECF;
+    }
+
+    private TableDECFQueryResponseStructure tableDECF;
 
     public ObisCodeMapper(GprsRequestFactory requestFactory) {
         this.requestFactory = requestFactory;
@@ -67,10 +79,13 @@ public class ObisCodeMapper {
         attributeType.setHasValueFields(true);
         attributeType.setHasQualifier(true);
         String id = null;
-
+        CTRObjectID idObject = null;
+        AbstractCTRObject object = null;
+                                    
         for (CTRRegisterMapping ctrRegisterMapping : registerMapping) {
             if (obisCode.equals(ctrRegisterMapping.getObisCode())) {
                 id = ctrRegisterMapping.getId();
+                idObject = new CTRObjectID(id);
                 break;
             }
         }
@@ -79,22 +94,32 @@ public class ObisCodeMapper {
             throw new NoSuchRegisterException("Unsupported Obis Code");
         }
 
-        AbstractCTRObject object = null;
-                
-        //If there's no pushed registers (SMS case), manually query for register data.
+        //If there's no pushed registers (SMS case), do a query for register data.
+        //First check if the required register is in the tableDECF response
         if (list == null) {
-            list = getRequestFactory().queryRegisters(attributeType, id);
-            object = list.get(0);
+            for (AbstractCTRObject ctrObject : getTableDECF().getObjects()) {
+                if (ctrObject.getId().toString().equals(id)) {
+                    object = ctrObject;
+                    break;
+                }
+            }
+            if (object == null) {               //If the object was not sent in the tableDECF response, query specifically for it
+                list = getRequestFactory().queryRegisters(attributeType, id);
+                if (list == null || list.size() == 0) {
+                    throw new NoSuchRegisterException("Query for register with id: " + id.toString() + " failed. Meter response was empty");
+                }
+                object = list.get(0);
+            }
+
+
         }
 
         //There's a given sms response containing data for several registers, find the right one
         else {
-            int i = 0;
             for (AbstractCTRObject ctrObject : list) {
-                if (id.equals(ctrObject.getId().toString())) {
-                    object = list.get(i);
+                if (id.equals(ctrObject.getId().toString())) {    //find the object in the sms response, that fits the obiscode
+                    object = ctrObject;
                 }
-                i++;
             }
         }
 
@@ -117,10 +142,19 @@ public class ObisCodeMapper {
             throw new NoSuchRegisterException("Meter is subject to maintenance  at register reading for ID: " + id.toString() + " (Obiscode: " + obisCode.toString() + ")");
         } else {
             if (object.getValue().length == 1) {
-                CTRAbstractValue value = object.getValue()[0];
-                quantity = new Quantity((BigDecimal) value.getValue(), value.getUnit());
-                regValue = new RegisterValue(obisCode, quantity);
-            } else {
+                if (idObject.getX() == 0x12) { //In case of the diagnostics objects, map the justified bit to a description
+                    CTRAbstractValue value = object.getValue()[0];
+                    quantity = new Quantity((BigDecimal) value.getValue(), value.getUnit());
+                    Calendar cal = Calendar.getInstance(TimeZone.getDefault());
+                    String description = Diagnostics.getDescriptionFromCode(value.getIntValue());
+                    regValue = new RegisterValue(obisCode, quantity, cal.getTime(), cal.getTime(), cal.getTime(),cal.getTime(), 0, description);
+                } else {
+                    CTRAbstractValue value = object.getValue()[0];
+                    quantity = new Quantity((BigDecimal) value.getValue(), value.getUnit());
+                    regValue = new RegisterValue(obisCode, quantity);
+                }
+
+            } else {          //When there's multiple value fields: only case is Qcb_max_g
                 Calendar cal = Calendar.getInstance();
                 CTRAbstractValue value1 = object.getValue()[0];
                 CTRAbstractValue value2 = object.getValue()[1];

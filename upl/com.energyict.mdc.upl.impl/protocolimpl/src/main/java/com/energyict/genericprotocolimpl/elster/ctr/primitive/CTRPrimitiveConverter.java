@@ -1,10 +1,8 @@
 package com.energyict.genericprotocolimpl.elster.ctr.primitive;
 
 
-import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.Default;
-
-import java.math.BigDecimal;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
  * Created by IntelliJ IDEA.
@@ -15,66 +13,6 @@ import java.math.BigDecimal;
 public class CTRPrimitiveConverter {
 
     public CTRPrimitiveConverter() {}
-
-    public byte[] convertId(CTRObjectID id) {
-        int x = id.getX();
-        int y = id.getY();
-        int z = id.getZ();
-
-        byte Byte1 = (byte) ((byte) x & 0xFF);
-        byte Byte2 = (byte) ((((byte) y & 0xFF) << 4) & 0xF0);
-        byte Byte3 = (byte) ((byte) z & 0xFF);
-
-        return new byte[]{Byte1, (byte) (Byte2+Byte3)};
-    }
-
-    public byte[] convertQlf(int qlf) {
-        return new byte[]{(byte) qlf};
-    }
-
-    public byte[] convertStringValue(String value, int valueLength) {
-        byte[] bytes = new byte[valueLength];
-        System.arraycopy(value.getBytes(), 0, bytes, 0, value.length());
-        return bytes;
-    }
-
-    //Converts unsigned BIN values to a byte[] with a specific length (valueLength)
-    public byte[] convertBINValue(BigDecimal value, int valueLength) {
-        byte[] result = new byte[valueLength];
-        for (int i = (valueLength - 1); i >= 0; i--) {
-            BigDecimal divider = new BigDecimal(Math.pow(256, i));
-            result[valueLength - 1 - i] =  (byte) ((value.divide(divider)).intValue() & 0xFF);
-        }
-        return result;
-    }
-
-    public byte[] convertBCDValue(String hex) {
-        byte[] bts = new byte[hex.length() / 2];
-
-        for (int i = 0; i < bts.length; i++) {
-            bts[i] = (byte) Integer.parseInt(hex.substring(2*i, 2*i+2), 16);
-        }
-        return bts;
-    }
-
-    public byte[] getBytesFromInt(int value, int length) {
-        byte[] bytes = new byte[length];
-        for (int i = 0; i < bytes.length; i++) {
-            int ptr = (bytes.length - (i + 1));
-            bytes[ptr] = (i < 4) ? (byte) ((value >> (i * 8))) : 0x00;
-        }
-        return bytes;
-    }
-
-
-
-    public byte[] convertSignedBINValue(BigDecimal value, int valueLength) {
-        return getBytesFromInt(value.intValue(), valueLength);
-    }
-
-    public byte[] convertAccess(int access) {
-        return new byte[]{(byte) access};
-    }
 
     public byte[] convertDefaults(Default[] defaults, int[] valueLength) {
 
@@ -96,7 +34,7 @@ public class CTRPrimitiveConverter {
             if (k == 0) {
                 result = bytes;
             } else {
-                result = concat(result,bytes);
+                result = ProtocolTools.concatByteArrays(result,bytes);
             }
             k++;
         }
@@ -109,13 +47,6 @@ public class CTRPrimitiveConverter {
              sum += i;
          }
          return sum;
-    }
-
-    private byte[] concat(byte[] valueBytesPrevious, byte[] valueBytes) {
-        byte[] result = new byte[valueBytesPrevious.length + valueBytes.length];
-        System.arraycopy(valueBytesPrevious, 0, result, 0, valueBytesPrevious.length);
-        System.arraycopy(valueBytes, 0, result, valueBytesPrevious.length, valueBytes.length);
-        return result;
     }
 
 }

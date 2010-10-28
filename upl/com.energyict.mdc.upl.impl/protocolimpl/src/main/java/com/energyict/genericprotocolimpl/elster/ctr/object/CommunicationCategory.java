@@ -19,6 +19,7 @@ public class CommunicationCategory<T extends CommunicationCategory> extends Abst
 
     //Parse the raw data & fill in the object's properties
     public T parse(byte[] rawData, int ptr, AttributeType type) {
+        setType(type);
         CTRPrimitiveParser parser = new CTRPrimitiveParser();   //Not static
 
         CTRObjectID id = this.getId();

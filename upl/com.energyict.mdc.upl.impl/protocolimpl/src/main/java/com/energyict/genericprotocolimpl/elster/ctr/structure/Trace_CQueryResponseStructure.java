@@ -50,7 +50,7 @@ public class Trace_CQueryResponseStructure extends Data<Trace_CQueryResponseStru
         type.setHasValueFields(true);
         byte[] traces = new byte[0];
         for (AbstractCTRObject ctrObject : traceData) {
-            traces = ProtocolTools.concatByteArrays(traces, ctrObject.getBytes(type));
+            traces = ProtocolTools.concatByteArrays(traces, ctrObject.getBytes());
         }
 
 
@@ -115,13 +115,13 @@ public class Trace_CQueryResponseStructure extends Data<Trace_CQueryResponseStru
         traceData = new ArrayList<AbstractCTRObject>();
         AbstractCTRObject obj = factory.parse(rawData, ptr, type, id.toString());
         traceData.add(obj);
-        ptr += obj.getLength(type);
+        ptr += obj.getLength();
 
         //Parse the remaining objects
-        while (ptr <= rawData.length - traceData.get(0).getBytes(type).length) {
+        while (ptr <= rawData.length - traceData.get(0).getBytes().length) {
             obj = factory.parse(rawData, ptr, type, id.toString());
             traceData.add(obj);
-            ptr += obj.getBytes(type).length;
+            ptr += obj.getBytes().length;
         }
 
         return this;

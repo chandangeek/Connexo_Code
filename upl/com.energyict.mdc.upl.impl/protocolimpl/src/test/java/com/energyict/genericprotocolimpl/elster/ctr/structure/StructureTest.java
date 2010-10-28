@@ -1,16 +1,13 @@
 package com.energyict.genericprotocolimpl.elster.ctr.structure;
 
-import com.energyict.genericprotocolimpl.elster.ctr.GprsRequestFactory;
-import com.energyict.genericprotocolimpl.elster.ctr.MTU155Properties;
-import com.energyict.genericprotocolimpl.elster.ctr.events.CTRMeterEvent;
+import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
+import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import junit.framework.TestCase;
 import org.junit.Test;
-
-import java.util.*;
 
 import static org.junit.Assert.assertArrayEquals;
 
@@ -22,6 +19,27 @@ import static org.junit.Assert.assertArrayEquals;
 public class StructureTest extends TestCase {
 
     private final int LENGTH = 128;
+
+    @Test
+    public void testCategories() throws CTRParsingException {
+        CTRObjectFactory factory = new CTRObjectFactory();
+        AttributeType att = new AttributeType(0xFF);
+        att.setHasIdentifier(true);
+        att.setHasQualifier(true);
+        att.setHasValueFields(true);
+        att.setHasAccessDescriptor(true);
+        att.setHasDefaultValue(true);
+        
+
+        byte[] bytes = ProtocolTools.getBytesFromHexString("$07$B0$0F$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$0F$00$59$1F$00$59$1F$00$59$1F$00$59$1F$00$59$1F$00$59$1F");
+
+        AbstractCTRObject obj = factory.parse(bytes, 0, att);
+        assertArrayEquals(bytes, obj.getBytes());
+
+
+
+    }
+
 
     @Test
     public void testStructures() throws CTRException {
@@ -38,9 +56,10 @@ public class StructureTest extends TestCase {
         byte[] bytes11 = padData(ProtocolTools.getBytesFromHexString("$01$02$01$02$01$02$01$02$01$00$02$00"));
 
         byte[] bytes13 = padData(ProtocolTools.getBytesFromHexString("$51$52$53$54$55$56"));
-        byte[] bytes14 = padData(ProtocolTools.getBytesFromHexString("$11$22$33$44$55$66$77$05$05$05$05$05"));
+        byte[] bytes14 = padData(ProtocolTools.getBytesFromHexString("$11$22$33$44$55$66$77$05$05$05$05$05$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01$01"));
 
-        byte[] bytes16 = padData(ProtocolTools.getBytesFromHexString("$11$22$33$44$55$66$77$0F$00$00$00$02$00$20$00$06$0A$0A$15$0E$0A$00$01$01$40$00$00$00$01$00$00$00$01$00$0A$0A$15$0E$0A$00$01$01$3A$00$00$00$01$00$00$00$01$00$0A$0A$15$0E$0A$00$01$01$46$00$00$00$01$00$00$00$01$00$0A$0A$0A$0E$0A$00$01$01$35$00$00$00$01$00$00$00$01$00$0A$0A$08$0E$0A$00$01$01$35$00$00$00$01$00$00$00$01$00$0A$0A$07$0E$0A$00$01$01$35$00$00$00$01$00$00$00$01"));
+        byte[] bytes16 = padData(ProtocolTools.getBytesFromHexString("$11$22$33$44$55$66$77$0F$00$00$00$02$00$20$00$06$0A$0A$15$0E$0A$00$01$01$40$0F$00$00$00$01$00$00$00$01$0A$0A$15$0E$0A$00$01$01$3A$0F$00$00$00$01$00$00$00$01$0A$0A$15$0E$0A$00$01$01$46$0F$00$00$00$01$00$00$00$01$0A$0A$0A$0E$0A$00$01$01$35$0F$00$00$00$01$00$00$00$01$0A$0A$08$0E$0A$00$01$01$35$0F$00$00$00$01$00$00$00$01$0A$0A$07$0E$0A$00$01$01$35$FF$00$00$00$01$00$00$00$01"));
+        byte[] bytes17 = padData(ProtocolTools.getBytesFromHexString("$11$22$33$44$55$66$77$00$00$00$00$36$00$26$00$30$0A$0A$12$0E$34$00$0F$00$38$00$0A$0A$12$01$0E$0A$00$01$0A$0A$12$0E$32$00$0E$00$3D$00$00$0A$0A$12$01$0E$0A$00$0A$0A$0F$0D$26$00$0D$03$34$00$00$00$00$20$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF"));
 
         ArrayEventsQueryRequestStructure aeqrs = new ArrayEventsQueryRequestStructure(false).parse(bytes, 0);
         ArrayEventsQueryResponseStructure aeqrspns = new ArrayEventsQueryResponseStructure(false).parse(bytes2, 0);
@@ -63,6 +82,7 @@ public class StructureTest extends TestCase {
         TableDECFQueryResponseStructure tablersp = new TableDECFQueryResponseStructure(true).parse(bytes14, 0);
 
         ArrayEventsQueryResponseStructure eventsresp = new ArrayEventsQueryResponseStructure(false).parse(bytes16, 0);
+        ArrayEventsQueryResponseStructure eventsresp2 = new ArrayEventsQueryResponseStructure(false).parse(bytes17, 0);
 
         assertArrayEquals(bytes, aeqrs.getBytes());
         assertArrayEquals(bytes2, aeqrspns.getBytes());
@@ -77,6 +97,8 @@ public class StructureTest extends TestCase {
         assertArrayEquals(bytes11, idreq.getBytes());
         assertArrayEquals(bytes13, tablereq.getBytes());
         assertArrayEquals(bytes14, tablersp.getBytes());
+        assertArrayEquals(bytes16, eventsresp.getBytes());
+        assertArrayEquals(bytes17, eventsresp2.getBytes());
     }
 
     private byte[] padData(byte[] fieldData) {

@@ -1,0 +1,48 @@
+package com.energyict.genericprotocolimpl.elster.ctr;
+
+import com.energyict.genericprotocolimpl.elster.ctr.frame.SMSFrame;
+import com.energyict.protocolimpl.utils.ProtocolTools;
+import junit.framework.TestCase;
+import org.junit.Test;
+
+/**
+ * Copyrights EnergyICT
+ * Date: 26-okt-2010
+ * Time: 9:18:40
+ */
+public class SmsHandlerTest extends TestCase {
+
+    @Test
+    public void testProcessSms() throws Exception {
+        byte[] bytes = ProtocolTools.getBytesFromHexString("0000007BB705284A49EA933D5EE5" +
+                "D869E47BD54A187DC5EEB052C3681E1D327D313F1CF9CA37CC9B838F2323BD673FE2B325D1BC28EF3F" +
+                "7612F4C765C24648146F4FB9FDA5E92E394A73A19EBD1F2FAB83034B3900A8168D303D0137F08D8F6D" +
+                "36953FD209E0DFF1D63360DF403CEC0A2374CF93D38103BBBB7FFCD6B8C3BB5CA646EDB364C7921AF8" +
+                "B070A7", "");
+
+        byte[] bytes2 = ProtocolTools.getBytesFromHexString("0000007B9E115602BAC6294C67C0" +
+                "5D72028291CF4288F71567CC311283E572F0804E1E9AFF50AAE30FFD61EC884AA2F60D88CE70748C2C" +
+                "5B84C389A76F1C42778202EDE7892D055BA72BF90A57307F4E910CE003432BEBD400D6FBD30034DF1F" +
+                "6CEB8EFCC3938AD4991525F06B50470B7A58388BA45BA798D9B574AC6CC36FAC664A499CCCF392DA56" +
+                "0B1C95", "");
+
+        byte[] bytes3 = ProtocolTools.getBytesFromHexString("0000007B2388EBF8E017931D62B8" +
+                "4FDAD1718CC1031E249A12D117F85DBD06D8253246625D1F57EE5B83D6A1D4B64A110B688EBEF9389B" +
+                "37BCF90301DC6A2DB119691D5D76B94FA83D8B33C477676AF9B42FA9570D879FCF389FF6BCE5393793" +
+                "E03D480A9215B94C16E73E5CBCA1778FECD01D2CBDFB21E49750CD922F5F3BF6839D5EAA9934EED29F" +
+                "E75E42", "");
+
+        byte[] bytes4 = ProtocolTools.getBytesFromHexString("0000007B2388EBF8E017931D62B8" +
+                "4FDAD1718CC1031E249A12D117F85DBD06D8253246625D1F57EE5B83D6A1D4B64A110B688EBEF9389B" +
+                "37BCF90301DC6A2DB119691D5D76B94FA83D8B33C477676AF9B42FA9570D879FCF389FF6BCE5393793" +
+                "E03D480A9215B94C16E73E5CBCA1778FECD01D2CBDFB21E49750CD922F5F3BF6839D5EAA9934EED29F" +
+                "E75E42", "");
+
+        SmsHandler handler = new SmsHandler();
+        SMSFrame smsFrame = new SMSFrame().parse(bytes4, 0);
+
+        //SMSFrame smsFrame2 = handler.decrypt(smsFrame);
+        //handler.processSms(smsFrame2);
+
+    }
+}

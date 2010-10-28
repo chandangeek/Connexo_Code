@@ -3,7 +3,8 @@ package com.energyict.genericprotocolimpl.elster.ctr.structure;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
-import com.energyict.genericprotocolimpl.elster.ctr.object.*;
+import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
+import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -32,7 +33,7 @@ public class RegisterWriteRequestStructure extends Data<RegisterWriteRequestStru
 
         byte[] objectBytes = new byte[]{};
         for (AbstractCTRObject object : objects) {
-            objectBytes = ProtocolTools.concatByteArrays(objectBytes, object.getBytes(attributeType));
+            objectBytes = ProtocolTools.concatByteArrays(objectBytes, object.getBytes());
         }
 
         return padData(ProtocolTools.concatByteArrays(
@@ -76,7 +77,7 @@ public class RegisterWriteRequestStructure extends Data<RegisterWriteRequestStru
         objects = new AbstractCTRObject[numberOfObjects.getNumberOfObjects()];
         for (int i = 0; i < numberOfObjects.getNumberOfObjects(); i++) {
             objects[i] = factory.parse(rawData, ptr, attributeType);
-            ptr += objects[i].getLength(attributeType);
+            ptr += objects[i].getLength();
         }
 
         return this;

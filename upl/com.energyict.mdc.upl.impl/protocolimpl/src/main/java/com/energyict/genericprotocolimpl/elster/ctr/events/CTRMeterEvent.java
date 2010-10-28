@@ -1,5 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr.events;
 
+import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.elster.ctr.GprsRequestFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
@@ -23,31 +24,35 @@ public class CTRMeterEvent {
         this.requestFactory = requestFactory;
     }
 
+    public CTRMeterEvent() {
+        this.requestFactory = null;
+    }
+
     public GprsRequestFactory getRequestFactory() {
         return requestFactory;
     }
 
     public List<MeterEvent> getMeterEvents(Date fromDate) throws CTRException {
 
+        if (fromDate == null) {
+            fromDate = ParseUtils.getClearLastMonthDate(getRequestFactory().getTimeZone());
+        }
+
         boolean notFound = true;
         int requestCounter = 0;
-        int eventCounter = 0;
         int numberOfElements = getRequestFactory().queryEventArray(new Index_Q(0)).getNumberOfEvents().getIntValue();
 
         //Request the latest 6 events
         while (notFound && (allEventRecords.size() < numberOfElements)) {
-            int index_Q = -1 * (-5 - (6 * requestCounter));
+            int index_Q = ((6 * requestCounter));
             eventRecords = getRequestFactory().queryEventArray(new Index_Q(index_Q)).getEvento_Short();
-            
-            eventCounter = 0;
             for (CTRAbstractValue[] event : eventRecords) {
                 Date eventDate = getDateFromBytes(event);
-                if (fromDate.after(eventDate)) {
+                if (fromDate.after(eventDate) || !isValidDate(eventDate)) {
                     notFound = false;
                     break;
                 }
                 allEventRecords.add(event);
-                eventCounter++;
             }
             requestCounter++;
         }
@@ -56,7 +61,7 @@ public class CTRMeterEvent {
     }
 
     private Date getDateFromBytes(CTRAbstractValue[] event) {
-        Calendar cal = Calendar.getInstance();
+        Calendar cal = Calendar.getInstance(requestFactory.getTimeZone());
         cal.set(Calendar.YEAR, event[0].getIntValue() + 2000);
         cal.set(Calendar.MONTH, event[1].getIntValue() - 1);
         cal.set(Calendar.DAY_OF_MONTH, event[2].getIntValue());
@@ -163,7 +168,7 @@ public class CTRMeterEvent {
                     meterEvent = new MeterEvent(date, MeterEvent.OTHER);
                     break;
             }
-            if (checkDate(date)) {
+            if (isValidDate(date)) {
                 meterEvents.add(meterEvent);
             }
         }
@@ -189,7 +194,7 @@ public class CTRMeterEvent {
         return cal.getTime();
     }
 
-    private boolean checkDate(Date date) {
+    private boolean isValidDate(Date date) {
         Calendar calCurrent = Calendar.getInstance();
         Date dateCurrent = calCurrent.getTime();
         return !date.after(dateCurrent);

@@ -16,11 +16,12 @@ public abstract class AbstractUnsignedBINObject<T extends AbstractUnsignedBINObj
 
     //Parse the raw data & fill in the object's properties
     public T parse(byte[] rawData, int ptr, AttributeType type) {
+        setType(type);
         CTRPrimitiveParser parser = new CTRPrimitiveParser();   //Not static
         CTRObjectID id = this.getId();
 
         if (type.hasIdentifier()) {
-            ptr += 2; //Skip the Id bytes
+            ptr += 2; //Skip the sent ID bytes, ID is already set in constructor
         }
 
         if (type.hasQualifier()) {

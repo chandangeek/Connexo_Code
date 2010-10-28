@@ -3,10 +3,10 @@ package com.energyict.genericprotocolimpl.elster.ctr.structure;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
-import com.energyict.genericprotocolimpl.elster.ctr.object.*;
+import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
+import com.energyict.genericprotocolimpl.elster.ctr.object.EventCategory;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.Qualifier;
-import com.energyict.genericprotocolimpl.elster.ctr.structure.field.DataArray;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.Index_Q;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -81,7 +81,6 @@ public class ArrayEventsQueryResponseStructure extends Data<ArrayEventsQueryResp
         for (int i = 0; i < NUMBER_OF_EVENT_RECORDS; i++) {
             evento_Short[i] = factory.parse(rawData, ptr, valueAttributeType, "10.0.1").getValue();
             ptr += EventCategory.EVENT_LENGTH;
-            ptr += 1; //Skip the extra (undocumented) byte sent by the meter.
         }
 
         return this;

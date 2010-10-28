@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.object.field;
 
 import com.energyict.cbo.Unit;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.math.BigDecimal;
 
@@ -11,33 +12,35 @@ import java.math.BigDecimal;
  * Time: 11:54:19
  * Contains a value field of type BIN
  */
-public class CTRBCDValue extends CTRAbstractValue{
-    private String value;
+public class CTRSignedBINValue extends CTRAbstractValue{
+    private BigDecimal value;
 
-    public CTRBCDValue(Unit unit, BigDecimal overflowValue, String value, String type, int valueLenght) {
+    public CTRSignedBINValue(Unit unit, BigDecimal overflowValue, BigDecimal value, String type, int valueLength) {
         this.overflowValue = overflowValue;
         this.unit = unit;
         this.value = value;
         this.type = type;
-        this.valueLength = valueLenght;
+        this.valueLength = valueLength;
     }
 
+    @Override
     public byte[] getBytes() {
-        byte[] bts = new byte[value.length() / 2];
-        for (int i = 0; i < bts.length; i++) {
-            bts[i] = (byte) Integer.parseInt(value.substring(2*i, 2*i+2), 16);
-        }
-        return bts;
-    }
+        return getBytesFromInt(value.intValue(), valueLength);
 
+    }
+    
     public int getLength() {
         return valueLength;
     }
 
-    public String getValue() {
+    public BigDecimal getValue() {
         return value;
     }
     public void setValue(Object value) {
-        this.value = (String) value;
+        this.value = (BigDecimal) value;
+    }
+
+    public String toString() {
+        return ProtocolTools.getHexStringFromBytes(getBytes(), "");
     }
 }

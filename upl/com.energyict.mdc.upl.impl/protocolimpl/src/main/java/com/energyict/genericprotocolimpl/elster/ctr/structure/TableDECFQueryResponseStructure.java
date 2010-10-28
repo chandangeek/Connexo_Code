@@ -3,7 +3,8 @@ package com.energyict.genericprotocolimpl.elster.ctr.structure;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
-import com.energyict.genericprotocolimpl.elster.ctr.object.*;
+import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
+import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -18,7 +19,7 @@ import java.util.List;
  */
 public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponseStructure> {
 
-    //See p64, TABLE DECF structure
+    //See documentation p. 64, TABLE DECF structure
     private CTRAbstractValue<String> pdr;
     private AbstractCTRObject dataAndOraS;
     private AbstractCTRObject diagnR;
@@ -46,6 +47,8 @@ public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponse
 
     public List<AbstractCTRObject> getObjects() {
         List<AbstractCTRObject> list = new ArrayList();
+        list.add(dataAndOraS);
+        list.add(diagnR);
         list.add(tot_Vb);
         list.add(tot_Vme);
         list.add(tot_Vme_f1);
@@ -76,35 +79,31 @@ public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponse
     @Override
     public byte[] getBytes() {
 
-        AttributeType type = new AttributeType(0x00);
-        type.setHasQualifier(true);
-        type.setHasValueFields(true);
-
         return padData(ProtocolTools.concatByteArrays(
                 pdr.getBytes(),
-                dataAndOraS.getBytes(AttributeType.getValueOnly()),
-                diagnR.getBytes(AttributeType.getValueOnly()),
+                dataAndOraS.getBytes(),
+                diagnR.getBytes(),
                 numberOfElements.getBytes(),
                 id_Pt_Current.getBytes(),
                 id_Pt_Previous.getBytes(),
-                tot_Vb.getBytes(type),
-                tot_Vme.getBytes(type),
-                tot_Vme_f1.getBytes(type),
-                tot_Vme_f2.getBytes(type),
-                tot_Vme_f3.getBytes(type),
-                tot_Vcor_f1.getBytes(type),
-                tot_Vcor_f2.getBytes(type),
-                tot_Vcor_f3.getBytes(type),
-                dataAndOraP.getBytes(AttributeType.getValueOnly()),
-                diagnRS_pf.getBytes(AttributeType.getValueOnly()),
-                tot_Vb_pf.getBytes(type),
-                tot_Vme_pf.getBytes(type),
-                tot_Vme_pf_f1.getBytes(type),
-                tot_Vme_pf_f2.getBytes(type),
-                tot_Vme_pf_f3.getBytes(type),
-                tot_Vpre_f1.getBytes(type),
-                tot_Vpre_f2.getBytes(type),
-                tot_Vpre_f3.getBytes(type)
+                tot_Vb.getBytes(),
+                tot_Vme.getBytes(),
+                tot_Vme_f1.getBytes(),
+                tot_Vme_f2.getBytes(),
+                tot_Vme_f3.getBytes(),
+                tot_Vcor_f1.getBytes(),
+                tot_Vcor_f2.getBytes(),
+                tot_Vcor_f3.getBytes(),
+                dataAndOraP.getBytes(),
+                diagnRS_pf.getBytes(),
+                tot_Vb_pf.getBytes(),
+                tot_Vme_pf.getBytes(),
+                tot_Vme_pf_f1.getBytes(),
+                tot_Vme_pf_f2.getBytes(),
+                tot_Vme_pf_f3.getBytes(),
+                tot_Vpre_f1.getBytes(),
+                tot_Vpre_f2.getBytes(),
+                tot_Vpre_f3.getBytes()
         ));
     }
 
@@ -122,10 +121,10 @@ public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponse
         ptr += pdr.getValueLength();
 
         dataAndOraS = factory.parse(rawData, ptr, type, "8.0.1");
-        ptr += dataAndOraS.getLength(type);
+        ptr += dataAndOraS.getLength();
 
         diagnR = factory.parse(rawData, ptr, type, "12.2.0");
-        ptr += diagnR.getLength(type);
+        ptr += diagnR.getLength();
 
         numberOfElements = factory.parse(rawData, ptr, type, "10.1.0").getValue()[0];
         ptr += numberOfElements.getValueLength();
@@ -138,60 +137,62 @@ public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponse
         type.setHasQualifier(true);        
 
         tot_Vb = factory.parse(rawData, ptr, type, "2.1.0");
-        ptr += tot_Vb.getLength(type);
+        ptr += tot_Vb.getLength();
 
         tot_Vme = factory.parse(rawData, ptr, type, "2.3.0");
-        ptr += tot_Vme.getLength(type);
+        ptr += tot_Vme.getLength();
 
         tot_Vme_f1 = factory.parse(rawData, ptr, type, "2.3.7");
-        ptr += tot_Vme_f1.getLength(type);
+        ptr += tot_Vme_f1.getLength();
 
         tot_Vme_f2 = factory.parse(rawData, ptr, type, "2.3.8");
-        ptr += tot_Vme_f2.getLength(type);
+        ptr += tot_Vme_f2.getLength();
 
         tot_Vme_f3 = factory.parse(rawData, ptr, type, "2.3.9");
-        ptr += tot_Vme_f3.getLength(type);
+        ptr += tot_Vme_f3.getLength();
 
         tot_Vcor_f1 = factory.parse(rawData, ptr, type, "2.5.0");
-        ptr += tot_Vcor_f1.getLength(type);
+        ptr += tot_Vcor_f1.getLength();
 
         tot_Vcor_f2 = factory.parse(rawData, ptr, type, "2.5.1");
-        ptr += tot_Vcor_f2.getLength(type);
+        ptr += tot_Vcor_f2.getLength();
 
         tot_Vcor_f3 = factory.parse(rawData, ptr, type, "2.5.2");
-        ptr += tot_Vcor_f3.getLength(type);
+        ptr += tot_Vcor_f3.getLength();
 
         type.setHasQualifier(false);
+
         dataAndOraP = factory.parse(rawData, ptr, type, "8.0.2");
-        ptr += dataAndOraP.getLength(type);
+        ptr += dataAndOraP.getLength();
 
         diagnRS_pf = factory.parse(rawData, ptr, type, "12.6.6");
-        ptr += diagnRS_pf.getLength(type);
+        ptr += diagnRS_pf.getLength();
 
         type.setHasQualifier(true);
+        
         tot_Vb_pf = factory.parse(rawData, ptr, type, "2.1.6");
-        ptr += tot_Vb_pf.getLength(type);
+        ptr += tot_Vb_pf.getLength();
 
         tot_Vme_pf = factory.parse(rawData, ptr, type, "2.3.6");
-        ptr += tot_Vme_pf.getLength(type);
+        ptr += tot_Vme_pf.getLength();
 
         tot_Vme_pf_f1 = factory.parse(rawData, ptr, type, "2.3.A");
-        ptr += tot_Vme_pf_f1.getLength(type);
+        ptr += tot_Vme_pf_f1.getLength();
 
         tot_Vme_pf_f2 = factory.parse(rawData, ptr, type, "2.3.B");
-        ptr += tot_Vme_pf_f2.getLength(type);
+        ptr += tot_Vme_pf_f2.getLength();
 
         tot_Vme_pf_f3 = factory.parse(rawData, ptr, type, "2.3.C");
-        ptr += tot_Vme_pf_f3.getLength(type);
+        ptr += tot_Vme_pf_f3.getLength();
 
         tot_Vpre_f1 = factory.parse(rawData, ptr, type, "2.5.3");
-        ptr += tot_Vpre_f1.getLength(type);
+        ptr += tot_Vpre_f1.getLength();
 
         tot_Vpre_f2 = factory.parse(rawData, ptr, type, "2.5.4");
-        ptr += tot_Vpre_f2.getLength(type);
+        ptr += tot_Vpre_f2.getLength();
 
         tot_Vpre_f3 = factory.parse(rawData, ptr, type, "2.5.5");
-        ptr += tot_Vpre_f3.getLength(type);
+        ptr += tot_Vpre_f3.getLength();
 
         return this;
     }

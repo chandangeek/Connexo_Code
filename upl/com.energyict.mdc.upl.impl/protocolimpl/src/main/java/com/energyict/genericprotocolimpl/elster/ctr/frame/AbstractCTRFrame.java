@@ -104,15 +104,15 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
     }
 
     private boolean isTrace_CQueryResponseStructure() {
-        return structureCode.isTrace_C() && functionCode.isAnswer();
+        return structureCode.isTrace_C() && functionCode.isMeterResponse();
     }
 
     private boolean isEventTraceQueryReponseStructure() {
-        return structureCode.isEvent_Array() && functionCode.isAnswer();
+        return structureCode.isEvent_Array() && functionCode.isMeterResponse();
     }
 
     private boolean isTableDECFQueryResponseStructure() {
-        return structureCode.isDECFTable() && functionCode.isAnswer();
+        return structureCode.isDECFTable() && functionCode.isMeterResponse();
     }
 
     private boolean isIdentificationReply() {
@@ -120,11 +120,11 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
     }
 
     private boolean isRegisterQueryReply() {
-        return structureCode.isRegister() && functionCode.isAnswer();
+        return structureCode.isRegister() && functionCode.isMeterResponse();
     }
 
     private boolean isArrayQueryReply() {
-        return structureCode.isArray() && functionCode.isAnswer();
+        return structureCode.isArray() && functionCode.isMeterResponse();
     }
 
     public Address getAddress() {

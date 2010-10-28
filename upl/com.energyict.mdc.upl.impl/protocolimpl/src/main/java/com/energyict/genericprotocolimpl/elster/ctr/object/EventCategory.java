@@ -13,7 +13,7 @@ import java.math.BigDecimal;
  */
 public class EventCategory extends AbstractUnsignedBINObject {
 
-    public static final int EVENT_LENGTH = 17;
+    public static final int EVENT_LENGTH = 18;
 
     public EventCategory(CTRObjectID id) {
         this.setId(id);
@@ -58,7 +58,7 @@ public class EventCategory extends AbstractUnsignedBINObject {
         switch(id.getY()) {
             case 0: switch(z) {
                 case 3: valueLength = new int[]{1,1,1,1,1,1,1,1,2,1,4,1,4,1,4,1,4,1,4,1,4}; break;
-                default: {valueLength = new int[]{1,1,1,1,1,2,1,1,4,4};}
+                default: {valueLength = new int[]{1,1,1,1,1,2,1,1,1,4,4};}  //fixed: 18th undocumented byte
             }  break;
             case 1: valueLength = new int[]{2}; break;
             case 2: valueLength = new int[]{2}; break;

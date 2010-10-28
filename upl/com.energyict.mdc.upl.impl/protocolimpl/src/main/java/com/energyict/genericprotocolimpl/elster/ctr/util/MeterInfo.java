@@ -6,6 +6,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
 import com.energyict.genericprotocolimpl.elster.ctr.object.*;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
+import com.energyict.genericprotocolimpl.elster.ctr.structure.NackStructure;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.ReferenceDate;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.WriteDataBlock;
 
@@ -43,7 +44,7 @@ public class MeterInfo extends AbstractUtilObject {
 
     public String getConverterSerialNumber() throws CTRException {
         try {
-            return getCtrObjectList().get(2).getValue()[1].getValue().toString();
+            return getMeterTimeAndSerialNumbers().get(2).getValue()[1].getValue().toString();
         } catch (CTRException e) {
             throw new CTRException("Unable to read Converter SerialNumber", e);
         }
@@ -51,7 +52,7 @@ public class MeterInfo extends AbstractUtilObject {
 
     public Date getTime() throws CTRException {
         try {
-            return getDateFromObject(getCtrObjectList().get(0));
+            return getDateFromObject(getMeterTimeAndSerialNumbers().get(0));
         } catch (CTRException e) {
             throw new CTRException("Unable to read Clock", e);
         }
@@ -76,6 +77,9 @@ public class MeterInfo extends AbstractUtilObject {
         refDate.setTomorrow();
 
         Data ackOrNack = getRequestFactory().executeRequest(refDate, wdb, new CTRObjectID("11.0.1"), data);
+        if (ackOrNack instanceof NackStructure) {
+            throw new CTRException("There was an error setting the time to " + year + "/" + month + "/" + day + "/" + hour + " " + minutes  + ":" + seconds);
+        }
         return ackOrNack;
     }
 
@@ -98,7 +102,7 @@ public class MeterInfo extends AbstractUtilObject {
 
     public String getMTUSerialNumber() throws CTRException {
         try {
-            return getCtrObjectList().get(1).getValue()[0].getValue().toString();
+            return getMeterTimeAndSerialNumbers().get(1).getValue()[0].getValue().toString();
         } catch (CTRException e) {
             throw new CTRException("Unable to read MTU SerialNumber", e);
         }
@@ -133,7 +137,7 @@ public class MeterInfo extends AbstractUtilObject {
         return cal.getTime();
     }
 
-    private List<AbstractCTRObject> getCtrObjectList() throws CTRException {
+    private List<AbstractCTRObject> getMeterTimeAndSerialNumbers() throws CTRException {
 
         if (ctrObjectList == null) {
             AttributeType attributeType = new AttributeType(0x03);

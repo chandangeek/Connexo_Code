@@ -27,7 +27,7 @@ public class RegisterQueryResponseStructure extends Data<RegisterQueryResponseSt
     public byte[] getBytes() {
         byte[] objectBytes = null;
         for (AbstractCTRObject obj : objects) {
-            objectBytes = ProtocolTools.concatByteArrays(objectBytes, obj.getBytes(attributeType));
+            objectBytes = ProtocolTools.concatByteArrays(objectBytes, obj.getBytes());
         }
         return padData(ProtocolTools.concatByteArrays(
                 numberOfObjects.getBytes(),
@@ -54,7 +54,7 @@ public class RegisterQueryResponseStructure extends Data<RegisterQueryResponseSt
         objects = new AbstractCTRObject[numberOfObjects.getNumberOfObjects()];
         for (int i = 0; i < numberOfObjects.getNumberOfObjects(); i++) {
             objects[i] = factory.parse(rawData, ptr, attributeType);
-            ptr += objects[i].getLength(attributeType);
+            ptr += objects[i].getLength();
         }
 
         return this;

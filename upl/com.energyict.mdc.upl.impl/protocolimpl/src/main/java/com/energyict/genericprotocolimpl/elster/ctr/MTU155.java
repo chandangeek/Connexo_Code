@@ -84,7 +84,7 @@ public class MTU155 extends AbstractGenericProtocol {
     }
 
     private void updateRequestFactory() {
-        this.requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties());
+        this.requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties(), getTimeZone());
     }
 
     private void testMethod() throws CTRException {
@@ -436,7 +436,7 @@ public class MTU155 extends AbstractGenericProtocol {
      */
     public GprsRequestFactory getRequestFactory() {
         if (requestFactory == null) {
-            requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties());
+            requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties(), getTimeZone());
         }
         return requestFactory;
     }

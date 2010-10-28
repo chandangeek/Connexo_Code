@@ -29,6 +29,10 @@ public class CTRStringValue extends CTRAbstractValue{
         return bytes;
     }
 
+    public int getLength() {
+        return valueLength;
+    }
+
     public String getValue() {
         return value.replace("\0", "");
     }

@@ -11,8 +11,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 
 /**
- * Created by IntelliJ IDEA.
- * User: khe
+ * Copyrights EnergyICT
  * Date: 21-sep-2010
  * Time: 10:51:36
  */
@@ -24,13 +23,13 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
     private String symbol;
     private Default[] def;
     private CTRAbstractValue[] value; //Abstract = BIN or String or BCD
+    private AttributeType type;
 
     public abstract Unit getUnit(CTRObjectID id, int valueNumber);
     protected abstract T parse(byte[] rawData, int offset, AttributeType type);
     protected abstract String getSymbol(CTRObjectID id);
     public abstract int[] getValueLengths(CTRObjectID id);
     public abstract BigDecimal getOverflowValue(CTRObjectID id, int valueNumber, Unit unit);
-
 
     protected int sum(int[] valueLength) {
         int sum = 0;
@@ -40,8 +39,8 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
         return sum;
     }
 
-    public int getLength(AttributeType type) {
-        return getBytes(type).length;          
+    public int getLength() {
+        return getBytes().length;
     }
    
     protected int getCommonOverflow(Unit unit) {
@@ -116,6 +115,7 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
     }
 
     public CTRAbstractValue getValue(int index) {
+        //TODO: check out of bounds
         return value[index];
     }
 
@@ -127,16 +127,18 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
         }
     }
 
-    public byte[] getBytes(AttributeType type) {
+    public byte[] getBytes() {
         CTRPrimitiveConverter converter = new CTRPrimitiveConverter();
         byte[] bytes = new byte[0];
 
         if (type.hasIdentifier()) {
-            bytes = converter.convertId(getId());
+            bytes = getId().getBytes();
+                    //converter.convertId(getId());
         }
 
         if (type.hasQualifier()) {
-            byte[] qlf = converter.convertQlf(getQlf().getQlf());
+            byte[] qlf = getQlf().getBytes();
+                    //converter.convertQlf(getQlf().getQlf());
             bytes = ProtocolTools.concatByteArrays(bytes, qlf);
             if (getQlf().isInvalid()) {
                 return bytes;       //Stop here if the qlf indicates the object is invalid
@@ -145,33 +147,18 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
 
         int[] lengths = getValueLengths(getId());
         if (type.hasValueFields()) {
-            byte[] valueBytes = null;
+            byte[] valueBytes;
             byte[] valueResult = null;
-
             for (int i = 0; i < lengths.length; i++) {
-
-                if (CTRAbstractValue.STRING.equals(value[i].getType())) {
-                    valueBytes = converter.convertStringValue((String) value[i].getValue(), lengths[i]);
-                }
-                if (CTRAbstractValue.BIN.equals(value[i].getType())) {
-                    valueBytes = converter.convertBINValue((BigDecimal) value[i].getValue(), lengths[i]);
-                }
-                if (CTRAbstractValue.SIGNEDBIN.equals(value[i].getType())) {
-                    valueBytes = converter.convertSignedBINValue((BigDecimal) value[i].getValue(), lengths[i]);
-                }
-                if (CTRAbstractValue.BCD.equals(value[i].getType())) {
-                    valueBytes = converter.convertBCDValue((String) value[i].getValue());
-                }
-
-                //also possible? --> valueBytes = value[j].getBytes();
-
+                valueBytes = value[i].getBytes();
                 valueResult = ProtocolTools.concatByteArrays(valueResult, valueBytes);
             }
             bytes = ProtocolTools.concatByteArrays(bytes, valueResult);
         }
 
         if (type.hasAccessDescriptor()) {
-            byte[] access = converter.convertAccess(getAccess().getAccess());
+            byte[] access = getAccess().getBytes();
+                    //converter.convertAccess(getAccess().getAccess());
             bytes = ProtocolTools.concatByteArrays(bytes, access);
         }
 
@@ -181,6 +168,23 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
         }
 
         return bytes;
+    }
+    
+    public Default[] getDef() {
+        return def;
+    }
+
+    public void setDef(Default[] def) {
+        this.def = def;
+    }
+
+    public AttributeType getType() {
+        return type;
+    }
+
+    public void setType(AttributeType type) {
+        this.type = new AttributeType(type.getAttributeType());
+        this.type.setHasIdentifier(type.hasIdentifier());
     }
 
     @Override

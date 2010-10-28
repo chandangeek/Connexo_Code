@@ -14,6 +14,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser
 public abstract class AbstractBCDObject<T extends AbstractBCDObject> extends AbstractCTRObject<T> {
 
     public T parse(byte[] rawData, int ptr, AttributeType type) {
+        setType(type);
         CTRPrimitiveParser parser = new CTRPrimitiveParser();   //Not static
 
         CTRObjectID id = this.getId();

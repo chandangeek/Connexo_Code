@@ -81,7 +81,7 @@ public class CTRPrimitiveParser {
             }
 
             if (signed) {
-                result[i] = new CTRBINValue(unit, object.getOverflowValue(id, i, unit), convertSignedByteArrayToBigDecimal(value), CTRAbstractValue.SIGNEDBIN, valueLength1);
+                result[i] = new CTRSignedBINValue(unit, object.getOverflowValue(id, i, unit), convertSignedByteArrayToBigDecimal(value), CTRAbstractValue.SIGNEDBIN, valueLength1);
             } else {
                 result[i] = new CTRBINValue(unit, object.getOverflowValue(id, i, unit), convertByteArrayToBigDecimal(value), CTRAbstractValue.BIN, valueLength1);
             }
@@ -199,7 +199,7 @@ public class CTRPrimitiveParser {
             }
 
             if (signedValue) {
-                result[i] = new CTRBINValue(unit, object.getOverflowValue(id, i, unit), convertSignedByteArrayToBigDecimal(value), CTRAbstractValue.SIGNEDBIN, valueLength1);
+                result[i] = new CTRSignedBINValue(unit, object.getOverflowValue(id, i, unit), convertSignedByteArrayToBigDecimal(value), CTRAbstractValue.SIGNEDBIN, valueLength1);
             } else if (stringValue) {
                 result[i] = new CTRStringValue(unit, object.getOverflowValue(id, i, unit), convertByteArrayToString(value), CTRAbstractValue.STRING, valueLength1);
             } else if (bcdValue) {

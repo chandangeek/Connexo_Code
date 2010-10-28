@@ -67,6 +67,14 @@ public class FunctionCode extends AbstractField<FunctionCode> {
         return getFunction().equals(Function.ANSWER);
     }
 
+    public boolean isMeterResponse() {
+        return isAnswer() || isVoluntary() || isNack() || isAck() || isIdentificationReply();
+    }
+
+    private boolean isVoluntary() {
+        return getFunction().equals(Function.VOLUNTARY);
+    }
+
     public boolean isNack() {
         return getFunction().equals(Function.NACK);
     }

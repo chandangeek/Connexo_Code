@@ -1,15 +1,11 @@
 package com.energyict.genericprotocolimpl.elster.ctr.profile;
 
 import com.energyict.cbo.Unit;
-import com.energyict.genericprotocolimpl.elster.ctr.GprsRequestFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.MTU155Properties;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
-import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.Qualifier;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.Trace_CQueryResponseStructure;
-import com.energyict.genericprotocolimpl.elster.ctr.structure.field.PeriodTrace;
-import com.energyict.genericprotocolimpl.elster.ctr.structure.field.ReferenceDate;
 import com.energyict.genericprotocolimpl.elster.ctr.util.CTRObjectInfo;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Rtu;
@@ -124,10 +120,8 @@ public class ProfileChannelForSms {
         List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
         Calendar fromCalendar = getFromCalendar();
         Calendar toCalendar = Calendar.getInstance(getDeviceTimeZone());
-        while (fromCalendar.before(toCalendar)) {
-            intervalDatas.addAll(getIntervalDatasFromResponse(response));
-            fromCalendar.setTime(getNewestIntervalDate(intervalDatas));
-        }
+        intervalDatas.addAll(getIntervalDatasFromResponse(response));
+        fromCalendar.setTime(getNewestIntervalDate(intervalDatas));
         return intervalDatas;
     }
 
@@ -159,7 +153,7 @@ public class ProfileChannelForSms {
         int startOfDay = response.getEndOfDayTime().getIntValue();
         startDate.add(Calendar.HOUR, startOfDay);
         int interval = getMeterChannel().getIntervalInSeconds();
-        for (int i = 0; i < response.getTraceData().size(); i++) {
+        for (int i = 0; i < response.getTraceData().size(); i++) {              //Parse all (hourly) values for 1 day
             if (i < 24) {
                 AbstractCTRObject object = response.getTraceData().get(i);
                 startDate.add(Calendar.SECOND, interval);

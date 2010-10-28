@@ -1,16 +1,23 @@
 package com.energyict.genericprotocolimpl.elster.ctr.object.field;
 
+import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
+import com.energyict.genericprotocolimpl.elster.ctr.common.Field;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
+
 /**
  * Copyrights EnergyICT
  * Date: 7-okt-2010
  * Time: 15:16:41
  */
-public class AccessDescriptor {
+public class AccessDescriptor extends AbstractField {
+
     private int access;
     public final int LENGTH = 1;
+
     public AccessDescriptor(int access) {
         this.access = access;
     }
+
 
     public void setAccess(int access) {
         this.access = access;
@@ -65,5 +72,18 @@ public class AccessDescriptor {
             }
         }
         return permissions;
+    }
+
+    public byte[] getBytes() {
+        return new byte[]{(byte) getAccess()};
+    }
+
+    public Field parse(byte[] rawData, int offset) throws CTRParsingException {
+        setAccess(rawData[offset]);
+        return this;
+    }
+
+    public int getLength() {
+        return LENGTH;
     }
 }

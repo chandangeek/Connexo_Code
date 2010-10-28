@@ -2,6 +2,9 @@ package com.energyict.genericprotocolimpl.elster.ctr.object.field;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
+import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
+import com.energyict.genericprotocolimpl.elster.ctr.common.Field;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 
 import java.math.BigDecimal;
 
@@ -12,7 +15,7 @@ import java.math.BigDecimal;
  * Time: 11:54:19
  * The value field can be string, bin, bcd, ...
  */
-public abstract class CTRAbstractValue<T extends Object> {
+public abstract class CTRAbstractValue<T extends Object> extends AbstractField {
     protected Unit unit = Unit.get(BaseUnit.UNITLESS);
     protected BigDecimal overflowValue;
     protected String type;
@@ -25,9 +28,14 @@ public abstract class CTRAbstractValue<T extends Object> {
 
     public abstract byte[] getBytes();
 
+    public Field parse(byte[] rawData, int offset) throws CTRParsingException {
+        return this;
+    }
+
     public BigDecimal getOverflowValue() {
         return overflowValue;
     }
+    
     public void setOverflowValue(BigDecimal overflowValue)  {
         this.overflowValue = overflowValue;
     }
@@ -64,7 +72,6 @@ public abstract class CTRAbstractValue<T extends Object> {
 
     public abstract T getValue();
     public abstract void setValue(T value);
-
 
     @Override
     public String toString() {

@@ -33,6 +33,11 @@ public class CTRBINValue extends CTRAbstractValue{
         return result;
     }
 
+
+    public int getLength() {
+        return valueLength;
+    }
+
     public BigDecimal getValue() {
         return value;
     }
