@@ -396,9 +396,8 @@ public class MTU155 extends AbstractGenericProtocol {
     private void logSuccess(CommunicationScheduler commSchedule) {
         List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
         journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, "0"));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
         journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + getRtu().toString() + "]"));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
+        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "" + getTimeDifference()));
         journal.add(new AmrJournalEntry(AmrJournalEntry.CC_OK));
         journal.addAll(getMeterAmrLogging().getJournalEntries());
         try {
@@ -414,9 +413,8 @@ public class MTU155 extends AbstractGenericProtocol {
     private void logFailure(CommunicationScheduler commSchedule) {
         List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
         journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, "0"));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
         journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + getRtu().toString() + "]"));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
+        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "" + getTimeDifference()));
         journal.add(new AmrJournalEntry(AmrJournalEntry.CC_PROTOCOLERROR));
         journal.addAll(getMeterAmrLogging().getJournalEntries());
         try {

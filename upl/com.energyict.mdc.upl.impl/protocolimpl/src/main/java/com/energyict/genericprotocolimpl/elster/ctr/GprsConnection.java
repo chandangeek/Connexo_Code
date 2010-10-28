@@ -55,7 +55,7 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
                 sendFrame(frame);
                 return readFrame();
             } catch (CTRConnectionException e) {
-                delayAndFlushConnection();
+                delayAndFlushConnection(-1);
                 attempts++;
                 if (attempts > retries) {
                     throw new CTRConnectionException("Number of retries reached: [" + attempts + "/" + retries + "].", e);
@@ -69,11 +69,11 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
      * the input buffer. If there ae still bytes on the stream, repeat this,
      * until the buffer is empty.
      */
-    private void delayAndFlushConnection() {
-        delayAfterError();
+    private void delayAndFlushConnection(int delay) {
+        delayAfterError(delay);
         try {
             while (bytesFromDeviceAvailable()) {
-                delayAfterError();
+                delayAfterError(delay);
                 in.read(new byte[1024]);
             }
         } catch (IOException e) {
@@ -81,9 +81,13 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
         }
     }
 
-    private void delayAfterError() {
-        if (delayAfterError > 0) {
-            ProtocolTools.delay(delayAfterError);
+    private void delayAfterError(int delay) {
+        if (delay == -1) {
+            if (delayAfterError > 0) {
+                ProtocolTools.delay(delayAfterError);
+            }
+        } else {
+            ProtocolTools.delay(delay);
         }
     }
 
@@ -136,6 +140,7 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
                     }
                 }
             } while (state != CtrConnectionState.FRAME_RECEIVED);
+            delayAndFlushConnection(50);
         } catch (IOException e) {
             throw new CTRConnectionException("An error occured while reading the raw CtrFrame.", e);
         }
