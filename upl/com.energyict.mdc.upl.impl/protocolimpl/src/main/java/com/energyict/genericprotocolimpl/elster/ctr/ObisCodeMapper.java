@@ -157,7 +157,9 @@ public class ObisCodeMapper {
                 regValue = new RegisterValue(obisCode, quantity, date);
             }
         }
+/*
         getLogger().log(Level.INFO, "Succesfully read register with ID: " + idObject.toString() + " and Obiscode: " + obisCode.toString());
+*/
 
         return regValue;
     }
