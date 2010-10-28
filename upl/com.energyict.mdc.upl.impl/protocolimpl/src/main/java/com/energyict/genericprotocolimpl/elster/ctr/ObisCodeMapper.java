@@ -115,13 +115,19 @@ public class ObisCodeMapper {
         }
 
         if (object.getQlf().isInvalid()) {
+/*
             getLogger().log(Level.WARNING, "Invalid Data: Qualifier was 0xFF at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
+*/
             throw new NoSuchRegisterException("Invalid Data: Qualifier was 0xFF at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
         } else if (object.getQlf().isInvalidMeasurement()) {
+/*
             getLogger().log(Level.WARNING, "Invalid Measurement at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
+*/
             throw new NoSuchRegisterException("Invalid Measurement at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
         } else if (object.getQlf().isSubjectToMaintenance()) {
+/*
             getLogger().log(Level.WARNING, "Meter is subject to maintenance  at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
+*/
             throw new NoSuchRegisterException("Meter is subject to maintenance  at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
         } else {
             if (object.getValue().length == 1) {
