@@ -3,8 +3,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.structure;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
-import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
-import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
+import com.energyict.genericprotocolimpl.elster.ctr.object.*;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -18,6 +17,32 @@ import java.util.List;
  * Time: 16:26:00
  */
 public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponseStructure> {
+
+    private static final List<String> CAPTURED_OBJECTS;
+
+    static {
+        CAPTURED_OBJECTS = new ArrayList();
+        CAPTURED_OBJECTS.add("8.0.1");
+        CAPTURED_OBJECTS.add("12.2.0");
+        CAPTURED_OBJECTS.add("2.1.0");
+        CAPTURED_OBJECTS.add("2.3.0");
+        CAPTURED_OBJECTS.add("2.3.7");
+        CAPTURED_OBJECTS.add("2.3.8");
+        CAPTURED_OBJECTS.add("2.3.9");
+        CAPTURED_OBJECTS.add("2.5.0");
+        CAPTURED_OBJECTS.add("2.5.1");
+        CAPTURED_OBJECTS.add("2.5.2");
+        CAPTURED_OBJECTS.add("8.0.2");
+        CAPTURED_OBJECTS.add("12.6.6");
+        CAPTURED_OBJECTS.add("2.1.6");
+        CAPTURED_OBJECTS.add("2.3.6");
+        CAPTURED_OBJECTS.add("2.3.A");
+        CAPTURED_OBJECTS.add("2.3.B");
+        CAPTURED_OBJECTS.add("2.3.C");
+        CAPTURED_OBJECTS.add("2.5.3");
+        CAPTURED_OBJECTS.add("2.5.4");
+        CAPTURED_OBJECTS.add("2.5.5");
+    }
 
     //See documentation p. 64, TABLE DECF structure
     private CTRAbstractValue<String> pdr;
@@ -71,9 +96,23 @@ public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponse
         return list;
     }
 
-
     public TableDECFQueryResponseStructure(boolean longFrame) {
         super(longFrame);
+    }
+
+    /**
+     * Check if the DECF table contains an object with the given ID
+     *
+     * @param id
+     * @return
+     */
+    public static boolean containsObjectId(CTRObjectID id) {
+        for (String capturedId : CAPTURED_OBJECTS) {
+            if (id.is(capturedId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -134,7 +173,7 @@ public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponse
 
         id_Pt_Previous = factory.parse(rawData, ptr, type, "17.0.4").getValue()[1];
         ptr += id_Pt_Previous.getValueLength();
-        type.setHasQualifier(true);        
+        type.setHasQualifier(true);
 
         tot_Vb = factory.parse(rawData, ptr, type, "2.1.0");
         ptr += tot_Vb.getLength();
@@ -169,7 +208,7 @@ public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponse
         ptr += diagnRS_pf.getLength();
 
         type.setHasQualifier(true);
-        
+
         tot_Vb_pf = factory.parse(rawData, ptr, type, "2.1.6");
         ptr += tot_Vb_pf.getLength();
 
