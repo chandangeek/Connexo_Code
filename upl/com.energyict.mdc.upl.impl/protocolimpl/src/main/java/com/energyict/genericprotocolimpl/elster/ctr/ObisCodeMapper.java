@@ -65,7 +65,6 @@ public class ObisCodeMapper {
         registerMapping.add(new CTRRegisterMapping("7.0.43.0.0.255", "1.0.0"));     //Qm
         registerMapping.add(new CTRRegisterMapping("7.0.43.1.0.255", "1.2.0"));     //Qb
         registerMapping.add(new CTRRegisterMapping("7.0.43.25.0.255", "1.A.3"));    //Qcb_max_g
-        registerMapping.add(new CTRRegisterMapping("7.0.41.0.0.255", "7.0.2"));     //T_h        TODO: T_h = T ??
         registerMapping.add(new CTRRegisterMapping("7.0.42.0.0.255", "4.0.0"));     //P
         registerMapping.add(new CTRRegisterMapping("7.0.41.0.0.255", "7.0.0"));     //T
         registerMapping.add(new CTRRegisterMapping("7.0.52.0.0.255", "A.0.0"));     //C, conversion factor
