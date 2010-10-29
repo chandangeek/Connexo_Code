@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr;
 
 import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.common.Diagnostics;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
@@ -93,9 +94,9 @@ public class ObisCodeMapper {
 
         registerMapping.add(new CTRRegisterMapping("0.0.96.12.5.255", "E.C.0"));    //gsm signal strength (deciBell)
         registerMapping.add(new CTRRegisterMapping("7.0.0.9.4.255", "8.1.2"));      //remaining shift in time
-        registerMapping.add(new CTRRegisterMapping("0.0.96.6.6.255", "F.5.0"));     //battery time remaining (hours)
-        registerMapping.add(new CTRRegisterMapping("0.0.96.6.0.255", "F.5.1"));     //battery hours used
-        registerMapping.add(new CTRRegisterMapping("0.0.96.6.3.255", "F.5.2"));     //battery voltage
+        registerMapping.add(new CTRRegisterMapping("0.0.96.6.6.255", "F.5.0", 3));     //battery time remaining (hours)
+        registerMapping.add(new CTRRegisterMapping("0.0.96.6.0.255", "F.5.1", 3));     //battery hours used
+        registerMapping.add(new CTRRegisterMapping("0.0.96.6.3.255", "F.5.2", 3));     //battery voltage
 
     }
 
@@ -107,10 +108,12 @@ public class ObisCodeMapper {
         ObisCode obis = ProtocolTools.setObisCodeField(obisCode, 1, (byte) 0x00);
 
         CTRObjectID idObject = null;
+        int valueIndex = 0;
 
         for (CTRRegisterMapping ctrRegisterMapping : registerMapping) {
             if (obis.equals(ctrRegisterMapping.getObisCode())) {
                 idObject = new CTRObjectID(ctrRegisterMapping.getId());
+                valueIndex = ctrRegisterMapping.getValueIndex();
                 break;
             }
         }
@@ -145,9 +148,12 @@ public class ObisCodeMapper {
         } else if (object.getQlf().isSubjectToMaintenance()) {
             getLogger().log(Level.WARNING, "Meter is subject to maintenance  at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
             throw new NoSuchRegisterException("Meter is subject to maintenance  at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
+        } else if (object.getQlf().isReservedVal()) {
+            getLogger().log(Level.WARNING, "Qualifier is 'Reserved' at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
+            throw new NoSuchRegisterException("Qualifier is 'Reserved' at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
         }
 
-        CTRAbstractValue value = object.getValue()[0];
+        CTRAbstractValue value = object.getValue()[valueIndex];
         if (idObject.getX() == 0x12) { //In case of the diagnostics objects, map the justified bit to a description
             quantity = new Quantity((BigDecimal) value.getValue(), value.getUnit());
             Calendar cal = Calendar.getInstance(TimeZone.getDefault());
@@ -157,7 +163,8 @@ public class ObisCodeMapper {
             Object objectValue = value.getValue();
             if (objectValue instanceof Number) {
                 Number number = (Number) objectValue;
-                quantity = new Quantity((BigDecimal) objectValue, value.getUnit());
+                Unit unit = value.getUnit();
+                quantity = new Quantity((BigDecimal) objectValue, unit.getDlmsCode(), object.getQlf().getKmoltFactor());
                 regValue = new RegisterValue(obisCode, quantity);
             } else {
                 regValue = new RegisterValue(obisCode, objectValue.toString());
@@ -167,11 +174,11 @@ public class ObisCodeMapper {
         getLogger().log(Level.INFO, "Succesfully read register with ID: " + idObject.toString() + " and Obiscode: " + obisCode.toString());
 */
 
+/*
         System.out.println();
         System.out.println(object);
-        System.out.println(value);
-        System.out.println(regValue);
-        System.out.println();
+        System.out.println(value + " - " + regValue);
+*/
         
         return regValue;
     }

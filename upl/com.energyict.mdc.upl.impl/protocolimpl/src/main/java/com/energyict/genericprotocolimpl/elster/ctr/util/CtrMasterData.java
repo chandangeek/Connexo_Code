@@ -71,6 +71,7 @@ public class CtrMasterData {
 
         RtuRegisterMappingFactory factory = CommonUtils.mw().getRtuRegisterMappingFactory();
 
+/*
         for (RegSpec spec : specs) {
             try {
                 factory.create(spec.getRtuRegisterMappingShadow());
@@ -78,6 +79,7 @@ public class CtrMasterData {
                 System.out.println(e.getMessage());
             }
         }
+*/
 
 
         RtuType rtuType = CommonUtils.mw().getRtuTypeFactory().find("MTU155");
@@ -88,7 +90,7 @@ public class CtrMasterData {
             specShadow.setDeviceChannelIndex(0);
             specShadow.setRegisterMappingId(mapping.getId());
             specShadow.setNumberOfDigits(9);
-            specShadow.setNumberOfDigits(3);
+            specShadow.setNumberOfFractionDigits(4);
             specShadow.setIntegral(false);
             rtuTypeShadow.getRegisterSpecShadows().add(specShadow);
         }

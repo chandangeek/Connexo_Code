@@ -10,42 +10,24 @@ import com.energyict.obis.ObisCode;
  */
 public class CTRRegisterMapping {
 
-    private ObisCode obisCode;
-    private CTRObjectID objectId;
-    private String description;
+    private final ObisCode obisCode;
+    private final CTRObjectID objectId;
+    private final String description;
+    private final int valueIndex;
 
-    public ObisCode getObisCode() {
-        return obisCode;
+    public CTRRegisterMapping(String obisCode, String objectId, int valueIndex) {
+        this(ObisCode.fromString(obisCode), new CTRObjectID(objectId), "", valueIndex);
     }
 
-    public void setObisCode(ObisCode obisCode) {
-        this.obisCode = obisCode;
-    }
-
-    public CTRObjectID getObjectId() {
-        return objectId;
-    }
-
-    public void setObjectId(CTRObjectID objectId) {
-        this.objectId = objectId;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public CTRRegisterMapping(ObisCode obisCode, CTRObjectID objectId, String description) {
-        this.description = description;
+    public CTRRegisterMapping(ObisCode obisCode, CTRObjectID objectId, String description, int valueIndex) {
         this.obisCode = obisCode;
         this.objectId = objectId;
+        this.description = description;
+        this.valueIndex = valueIndex;
     }
 
     public CTRRegisterMapping(String obisCode, String objectId, String description) {
-        this(ObisCode.fromString(obisCode), new CTRObjectID(objectId), description);
+        this(ObisCode.fromString(obisCode), new CTRObjectID(objectId), description, 0);
     }
 
     public CTRRegisterMapping(String obisCode, String objectId) {
@@ -53,7 +35,23 @@ public class CTRRegisterMapping {
     }
 
     public CTRRegisterMapping(ObisCode obisCode, CTRObjectID objectId) {
-        this(obisCode, objectId, obisCode.getDescription());
+        this(obisCode, objectId, obisCode.getDescription(), 0);
+    }
+
+    public ObisCode getObisCode() {
+        return obisCode;
+    }
+
+    public int getValueIndex() {
+        return valueIndex;
+    }
+
+    public CTRObjectID getObjectId() {
+        return objectId;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public String getId() {
