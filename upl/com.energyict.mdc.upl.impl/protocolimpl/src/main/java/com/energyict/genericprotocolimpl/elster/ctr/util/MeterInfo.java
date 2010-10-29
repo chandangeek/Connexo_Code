@@ -4,9 +4,10 @@ import com.energyict.genericprotocolimpl.elster.ctr.GprsRequestFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
-import com.energyict.genericprotocolimpl.elster.ctr.object.*;
+import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
+import com.energyict.genericprotocolimpl.elster.ctr.object.DateAndTimeCategory;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
-import com.energyict.genericprotocolimpl.elster.ctr.structure.NackStructure;
+import com.energyict.genericprotocolimpl.elster.ctr.structure.AckStructure;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.ReferenceDate;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.WriteDataBlock;
 
@@ -76,11 +77,15 @@ public class MeterInfo extends AbstractUtilObject {
         ReferenceDate refDate = new ReferenceDate().parse(referenceDate, timeZone);
         refDate.setTomorrow();
 
+/*
         Data ackOrNack = getRequestFactory().executeRequest(refDate, wdb, new CTRObjectID("11.0.1"), data);
         if (ackOrNack instanceof NackStructure) {
             throw new CTRException("There was an error setting the time to " + year + "/" + month + "/" + day + "/" + hour + " " + minutes  + ":" + seconds);
         }
         return ackOrNack;
+*/
+        getLogger().warning("Set time temporary disabled.");
+        return new AckStructure();
     }
 
     public Data setTime(Date time) throws CTRException {

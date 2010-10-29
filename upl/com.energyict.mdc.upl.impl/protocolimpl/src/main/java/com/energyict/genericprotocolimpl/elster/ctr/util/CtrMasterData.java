@@ -6,6 +6,7 @@ import com.energyict.mdw.amrimpl.RtuRegisterMappingImpl;
 import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.shadow.RtuTypeShadow;
 import com.energyict.mdw.shadow.amr.RtuRegisterMappingShadow;
+import com.energyict.mdw.shadow.amr.RtuRegisterSpecShadow;
 import com.energyict.obis.ObisCode;
 
 import java.util.List;
@@ -69,7 +70,6 @@ public class CtrMasterData {
 
 
         RtuRegisterMappingFactory factory = CommonUtils.mw().getRtuRegisterMappingFactory();
-        RtuRegisterMappingShadow shadow = new RtuRegisterMappingShadow();
 
         for (RegSpec spec : specs) {
             try {
@@ -84,11 +84,19 @@ public class CtrMasterData {
         RtuTypeShadow rtuTypeShadow = rtuType.getShadow();
         List<RtuRegisterMappingImpl> mappings = factory.findAll();
         for (RtuRegisterMappingImpl mapping : mappings) {
-/*
-            rtuTypeShadow.getRegisterSpecShadows().add();
-*/
+            RtuRegisterSpecShadow specShadow = new RtuRegisterSpecShadow();
+            specShadow.setDeviceChannelIndex(0);
+            specShadow.setRegisterMappingId(mapping.getId());
+            specShadow.setNumberOfDigits(9);
+            specShadow.setNumberOfDigits(3);
+            specShadow.setIntegral(false);
+            rtuTypeShadow.getRegisterSpecShadows().add(specShadow);
         }
-
+        try {
+            rtuType.update(rtuTypeShadow);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
 
     }
 

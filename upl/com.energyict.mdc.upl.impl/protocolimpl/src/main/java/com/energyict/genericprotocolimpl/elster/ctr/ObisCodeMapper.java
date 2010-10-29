@@ -105,7 +105,7 @@ public class ObisCodeMapper {
 
     public RegisterValue readRegister(ObisCode obisCode, List<AbstractCTRObject> list) throws NoSuchRegisterException, CTRException {
         ObisCode obis = ProtocolTools.setObisCodeField(obisCode, 1, (byte) 0x00);
-        
+
         CTRObjectID idObject = null;
 
         for (CTRRegisterMapping ctrRegisterMapping : registerMapping) {
@@ -145,38 +145,34 @@ public class ObisCodeMapper {
         } else if (object.getQlf().isSubjectToMaintenance()) {
             getLogger().log(Level.WARNING, "Meter is subject to maintenance  at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
             throw new NoSuchRegisterException("Meter is subject to maintenance  at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
-        } else {
-            if (object.getValue().length == 1) {
-                if (idObject.getX() == 0x12) { //In case of the diagnostics objects, map the justified bit to a description
-                    CTRAbstractValue value = object.getValue()[0];
-                    quantity = new Quantity((BigDecimal) value.getValue(), value.getUnit());
-                    Calendar cal = Calendar.getInstance(TimeZone.getDefault());
-                    String description = Diagnostics.getDescriptionFromCode(value.getIntValue());
-                    regValue = new RegisterValue(obisCode, quantity, cal.getTime(), cal.getTime(), cal.getTime(), cal.getTime(), 0, description);
-                } else {
-                    CTRAbstractValue value = object.getValue()[0];
-                    quantity = new Quantity((BigDecimal) value.getValue(), value.getUnit());
-                    regValue = new RegisterValue(obisCode, quantity);
-                }
+        }
 
-            } else {          //When there's multiple value fields: only case is Qcb_max_g
-                Calendar cal = Calendar.getInstance();
-                CTRAbstractValue value1 = object.getValue()[0];
-                CTRAbstractValue value2 = object.getValue()[1];
-                CTRAbstractValue value3 = object.getValue()[2];
-                int hours = value2.getIntValue();
-                int minutes = value3.getIntValue();
-                quantity = new Quantity((BigDecimal) value1.getValue(), value1.getUnit());
-                cal.set(Calendar.HOUR_OF_DAY, hours);
-                cal.set(Calendar.MINUTE, minutes);
-                Date date = cal.getTime();
-                regValue = new RegisterValue(obisCode, quantity, date);
+        CTRAbstractValue value = object.getValue()[0];
+        if (idObject.getX() == 0x12) { //In case of the diagnostics objects, map the justified bit to a description
+            quantity = new Quantity((BigDecimal) value.getValue(), value.getUnit());
+            Calendar cal = Calendar.getInstance(TimeZone.getDefault());
+            String description = Diagnostics.getDescriptionFromCode(value.getIntValue());
+            regValue = new RegisterValue(obisCode, quantity, cal.getTime(), cal.getTime(), cal.getTime(), cal.getTime(), 0, description);
+        } else {
+            Object objectValue = value.getValue();
+            if (objectValue instanceof Number) {
+                Number number = (Number) objectValue;
+                quantity = new Quantity((BigDecimal) objectValue, value.getUnit());
+                regValue = new RegisterValue(obisCode, quantity);
+            } else {
+                regValue = new RegisterValue(obisCode, objectValue.toString());
             }
         }
 /*
         getLogger().log(Level.INFO, "Succesfully read register with ID: " + idObject.toString() + " and Obiscode: " + obisCode.toString());
 */
 
+        System.out.println();
+        System.out.println(object);
+        System.out.println(value);
+        System.out.println(regValue);
+        System.out.println();
+        
         return regValue;
     }
 
