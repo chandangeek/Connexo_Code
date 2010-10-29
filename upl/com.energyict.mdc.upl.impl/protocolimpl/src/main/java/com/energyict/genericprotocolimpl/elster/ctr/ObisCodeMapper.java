@@ -13,6 +13,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.structure.TableDECQueryRespo
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -54,36 +55,29 @@ public class ObisCodeMapper {
 
     private void initRegisterMapping() {
 
-        registerMapping.add(new CTRRegisterMapping("7.0.13.29.0.255", "1.3.3"));    //Vb_g       (index difference)
-        registerMapping.add(new CTRRegisterMapping("7.0.13.30.0.255", "1.1.3"));    //Vm_g
-        registerMapping.add(new CTRRegisterMapping("7.0.13.24.0.255", "2.0.3"));    //Tot_Vm_g   (index value = totalizer)
-        registerMapping.add(new CTRRegisterMapping("7.0.13.26.0.255", "2.1.3"));    //Tot_Vb_g
         registerMapping.add(new CTRRegisterMapping("7.0.13.26.0.0", "2.1.6"));      //Tot_Vb_pf   (end of previous billing period)
         registerMapping.add(new CTRRegisterMapping("7.0.13.0.0.255", "2.0.0"));     //Tot_Vm
-        registerMapping.add(new CTRRegisterMapping("7.0.13.2.0.255", "1.3.0"));     //Tot_Vb
+        registerMapping.add(new CTRRegisterMapping("7.0.13.2.0.255", "2.1.0"));     //Tot_Vb
+        registerMapping.add(new CTRRegisterMapping("7.0.128.1.0.255", "2.3.0"));     //Tot_Vme
 
         registerMapping.add(new CTRRegisterMapping("7.0.43.0.0.255", "1.0.0"));     //Qm
         registerMapping.add(new CTRRegisterMapping("7.0.43.1.0.255", "1.2.0"));     //Qb
-        registerMapping.add(new CTRRegisterMapping("7.0.43.25.0.255", "1.A.3"));    //Qcb_max_g
         registerMapping.add(new CTRRegisterMapping("7.0.42.0.0.255", "4.0.0"));     //P
         registerMapping.add(new CTRRegisterMapping("7.0.41.0.0.255", "7.0.0"));     //T
         registerMapping.add(new CTRRegisterMapping("7.0.52.0.0.255", "A.0.0"));     //C, conversion factor
         registerMapping.add(new CTRRegisterMapping("7.0.53.0.0.255", "A.1.6"));     //Z, compressibility
 
-        registerMapping.add(new CTRRegisterMapping("7.0.128.1.0.255", "2.3.3"));    //Tot_Vme_g     = Manufacturer specific code!!  TODO: add in release notes
-        registerMapping.add(new CTRRegisterMapping("7.0.128.2.1.255", "2.3.7"));    //Tot_Vme_f1    = Manufacturer specific code!!
-        registerMapping.add(new CTRRegisterMapping("7.0.128.2.2.255", "2.3.8"));    //Tot_Vme_f2    = Manufacturer specific code!!
-        registerMapping.add(new CTRRegisterMapping("7.0.128.2.3.255", "2.3.9"));    //Tot_Vme_f3    = Manufacturer specific code!!
-        registerMapping.add(new CTRRegisterMapping("7.0.128.3.1.255", "18.6.3"));   //Tot_Vme_f1_g  = Manufacturer specific code!!
-        registerMapping.add(new CTRRegisterMapping("7.0.128.3.2.255", "18.7.3"));   //Tot_Vme_f2_g  = Manufacturer specific code!!
-        registerMapping.add(new CTRRegisterMapping("7.0.128.3.3.255", "18.8.3"));   //Tot_Vme_f3_g  = Manufacturer specific code!!
-        registerMapping.add(new CTRRegisterMapping("7.0.128.4.0.255", "C.0.0"));    //PDR           = Manufacturer specific code!!
+        registerMapping.add(new CTRRegisterMapping("7.0.128.2.1.255", "2.3.7"));    //Tot_Vme_f1
+        registerMapping.add(new CTRRegisterMapping("7.0.128.2.2.255", "2.3.8"));    //Tot_Vme_f2
+        registerMapping.add(new CTRRegisterMapping("7.0.128.2.3.255", "2.3.9"));    //Tot_Vme_f3
+
+        registerMapping.add(new CTRRegisterMapping("7.0.128.4.0.255", "C.0.0"));    //PDR
         registerMapping.add(new CTRRegisterMapping("7.0.128.5.0.0", "2.3.6"));      //Tot_Vme_pf     (end of previous billing period)
         registerMapping.add(new CTRRegisterMapping("7.0.128.6.1.0", "2.3.A"));      //Tot_Vme_pf_f1  (alarm conditions are not documented in the blue book)
         registerMapping.add(new CTRRegisterMapping("7.0.128.6.2.0", "2.3.B"));      //Tot_Vme_pf_f2
         registerMapping.add(new CTRRegisterMapping("7.0.128.6.3.0", "2.3.C"));      //Tot_Vme_pf_f3
         registerMapping.add(new CTRRegisterMapping("7.0.128.7.0.255", "2.3.0"));    //Tot_Vme
-        registerMapping.add(new CTRRegisterMapping("7.0.128.8.0.255", "10.1.0"));   //number of elements, manufacturer specific
+        registerMapping.add(new CTRRegisterMapping("7.0.128.8.0.255", "10.1.0"));   //number of elements
 
         registerMapping.add(new CTRRegisterMapping("7.0.13.2.1.255", "2.5.0"));     //Tot_Vcor_f1
         registerMapping.add(new CTRRegisterMapping("7.0.13.2.2.255", "2.5.1"));     //Tot_Vcor_f2
@@ -94,9 +88,8 @@ public class ObisCodeMapper {
 
         registerMapping.add(new CTRRegisterMapping("0.0.96.10.1.255", "12.0.0"));   //device status  : status register 1
         registerMapping.add(new CTRRegisterMapping("0.0.96.10.2.255", "D.9.0"));    //seal status    : status register 2
-        registerMapping.add(new CTRRegisterMapping("0.0.96.10.3.255", "12.6.3"));   //DiagnRS_g      : status register 3
+        registerMapping.add(new CTRRegisterMapping("0.0.96.10.3.255", "12.1.0"));   //Diagn          : status register 5
         registerMapping.add(new CTRRegisterMapping("0.0.96.10.4.255", "12.2.0"));   //DiagnR         : status register 4
-        registerMapping.add(new CTRRegisterMapping("0.0.96.10.5.255", "12.1.0"));   //Diagn          : status register 5
 
         registerMapping.add(new CTRRegisterMapping("0.0.96.12.5.255", "E.C.0"));    //gsm signal strength (deciBell)
         registerMapping.add(new CTRRegisterMapping("7.0.0.9.4.255", "8.1.2"));      //remaining shift in time
@@ -111,10 +104,12 @@ public class ObisCodeMapper {
     }
 
     public RegisterValue readRegister(ObisCode obisCode, List<AbstractCTRObject> list) throws NoSuchRegisterException, CTRException {
+        ObisCode obis = ProtocolTools.setObisCodeField(obisCode, 1, (byte) 0x00);
+        
         CTRObjectID idObject = null;
 
         for (CTRRegisterMapping ctrRegisterMapping : registerMapping) {
-            if (obisCode.equals(ctrRegisterMapping.getObisCode())) {
+            if (obis.equals(ctrRegisterMapping.getObisCode())) {
                 idObject = new CTRObjectID(ctrRegisterMapping.getId());
                 break;
             }
@@ -142,19 +137,13 @@ public class ObisCodeMapper {
         }
 
         if (object.getQlf().isInvalid()) {
-/*
             getLogger().log(Level.WARNING, "Invalid Data: Qualifier was 0xFF at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
-*/
             throw new NoSuchRegisterException("Invalid Data: Qualifier was 0xFF at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
         } else if (object.getQlf().isInvalidMeasurement()) {
-/*
             getLogger().log(Level.WARNING, "Invalid Measurement at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
-*/
             throw new NoSuchRegisterException("Invalid Measurement at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
         } else if (object.getQlf().isSubjectToMaintenance()) {
-/*
             getLogger().log(Level.WARNING, "Meter is subject to maintenance  at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
-*/
             throw new NoSuchRegisterException("Meter is subject to maintenance  at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
         } else {
             if (object.getValue().length == 1) {
