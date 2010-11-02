@@ -32,20 +32,6 @@ public class ObisCodeMapper {
     private List<CTRRegisterMapping> registerMapping = new ArrayList<CTRRegisterMapping>();
     private final GprsRequestFactory requestFactory;
 
-    public TableDECFQueryResponseStructure getTableDECF() throws CTRException {
-        if (tableDECF == null) {
-            tableDECF = getRequestFactory().queryTableDECF();
-        }
-        return tableDECF;
-    }
-
-    public TableDECQueryResponseStructure getTableDEC() throws CTRException {
-        if (tableDEC == null) {
-            tableDEC = getRequestFactory().queryTableDEC();
-        }
-        return tableDEC;
-    }
-
     private TableDECFQueryResponseStructure tableDECF;
     private TableDECQueryResponseStructure tableDEC;
 
@@ -100,98 +86,115 @@ public class ObisCodeMapper {
 
     }
 
-    public GprsRequestFactory getRequestFactory() {
-        return requestFactory;
+    /**
+     * Read the register from the device with a given obisCode.
+     *
+     * @param obisCode
+     * @return
+     * @throws NoSuchRegisterException
+     * @throws CTRException
+     */
+    public RegisterValue readRegister(ObisCode obisCode) throws NoSuchRegisterException, CTRException {
+        return readRegister(obisCode, null);
     }
 
-    public RegisterValue readRegister(ObisCode obisCode, List<AbstractCTRObject> list) throws NoSuchRegisterException, CTRException {
+    /**
+     * Read the register from the device with a given obisCode.
+     * Use the list of objects received from sms if smsObjects != null
+     *
+     * @param obisCode
+     * @param smsObjects
+     * @return
+     * @throws NoSuchRegisterException
+     * @throws CTRException
+     */
+    public RegisterValue readRegister(ObisCode obisCode, List<AbstractCTRObject> smsObjects) throws NoSuchRegisterException, CTRException {
         ObisCode obis = ProtocolTools.setObisCodeField(obisCode, 1, (byte) 0x00);
 
-        CTRObjectID idObject = null;
-        int valueIndex = 0;
-
-        for (CTRRegisterMapping ctrRegisterMapping : registerMapping) {
-            if (obis.equals(ctrRegisterMapping.getObisCode())) {
-                idObject = new CTRObjectID(ctrRegisterMapping.getId());
-                valueIndex = ctrRegisterMapping.getValueIndex();
-                break;
-            }
-        }
-
-        if (idObject == null) {
+        CTRRegisterMapping regMap = searchRegisterMapping(obis);
+        if (regMap == null) {
             throw new NoSuchRegisterException("Unsupported Obis Code");
         }
 
-        //If there's no pushed registers (SMS case), do a query for register data.
-        //First check if the required register is in the tableDECF response
-        AbstractCTRObject object = null;
-        object = getObject(idObject, list);
-
+        AbstractCTRObject object = getObject(regMap.getObjectId(), smsObjects);
         if (object == null) {
-            getLogger().log(Level.WARNING, "No suitable object available");
             throw new NoSuchRegisterException("No suitable object available");
         }
-
-        RegisterValue regValue;
-        Quantity quantity;
 
         if (object.getQlf() == null) {
             object.setQlf(new Qualifier(0));
         }
 
         if (object.getQlf().isInvalid()) {
-            getLogger().log(Level.WARNING, "Invalid Data: Qualifier was 0xFF at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
-            throw new NoSuchRegisterException("Invalid Data: Qualifier was 0xFF at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
+            getLogger().log(Level.WARNING, "Invalid Data: Qualifier was 0xFF at register reading for ID: " + regMap.getId() + " (Obiscode: " + obisCode.toString() + ")");
+            throw new NoSuchRegisterException("Invalid Data: Qualifier was 0xFF at register reading for ID: " + regMap.getId() + " (Obiscode: " + obisCode.toString() + ")");
         } else if (object.getQlf().isInvalidMeasurement()) {
-            getLogger().log(Level.WARNING, "Invalid Measurement at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
-            throw new NoSuchRegisterException("Invalid Measurement at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
+            getLogger().log(Level.WARNING, "Invalid Measurement at register reading for ID: " + regMap.getId() + " (Obiscode: " + obisCode.toString() + ")");
+            throw new NoSuchRegisterException("Invalid Measurement at register reading for ID: " + regMap.getId() + " (Obiscode: " + obisCode.toString() + ")");
         } else if (object.getQlf().isSubjectToMaintenance()) {
-            getLogger().log(Level.WARNING, "Meter is subject to maintenance  at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
-            throw new NoSuchRegisterException("Meter is subject to maintenance  at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
+            getLogger().log(Level.WARNING, "Meter is subject to maintenance  at register reading for ID: " + regMap.getId() + " (Obiscode: " + obisCode.toString() + ")");
+            throw new NoSuchRegisterException("Meter is subject to maintenance  at register reading for ID: " + regMap.getId() + " (Obiscode: " + obisCode.toString() + ")");
         } else if (object.getQlf().isReservedVal()) {
-            getLogger().log(Level.WARNING, "Qualifier is 'Reserved' at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
-            throw new NoSuchRegisterException("Qualifier is 'Reserved' at register reading for ID: " + idObject.toString() + " (Obiscode: " + obisCode.toString() + ")");
+            getLogger().log(Level.WARNING, "Qualifier is 'Reserved' at register reading for ID: " + regMap.getId() + " (Obiscode: " + obisCode.toString() + ")");
+            throw new NoSuchRegisterException("Qualifier is 'Reserved' at register reading for ID: " + regMap.getId() + " (Obiscode: " + obisCode.toString() + ")");
         }
 
-        CTRAbstractValue value = object.getValue()[valueIndex];
-        if (idObject.getX() == 0x12) { //In case of the diagnostics objects, map the justified bit to a description
-            quantity = new Quantity((BigDecimal) value.getValue(), value.getUnit());
-            Calendar cal = Calendar.getInstance(TimeZone.getDefault());
-            String description = Diagnostics.getDescriptionFromCode(value.getIntValue());
-            regValue = new RegisterValue(obisCode, quantity, cal.getTime(), cal.getTime(), cal.getTime(), cal.getTime(), 0, description);
-        } else {
-            Object objectValue = value.getValue();
-            if (objectValue instanceof Number) {
-                Number number = (Number) objectValue;
-                Unit unit = value.getUnit();
-                quantity = new Quantity((BigDecimal) objectValue, unit.getDlmsCode(), object.getQlf().getKmoltFactor());
-                regValue = new RegisterValue(obisCode, quantity);
-            } else {
-                regValue = new RegisterValue(obisCode, objectValue.toString());
-            }
-        }
-/*
-        getLogger().log(Level.INFO, "Succesfully read register with ID: " + idObject.toString() + " and Obiscode: " + obisCode.toString());
-*/
+        return getRegisterValue(obisCode, regMap, object);
 
-/*
-        System.out.println();
-        System.out.println(object);
-        System.out.println(value + " - " + regValue);
-*/
-        
-        return regValue;
     }
 
-    private AbstractCTRObject getObjectFromSMSList(CTRObjectID idObject, List<AbstractCTRObject> list) {
-        for (AbstractCTRObject ctrObject : list) {
-            if (idObject.toString().equals(ctrObject.getId().toString())) {    //find the object in the sms response, that fits the obiscode
-                return ctrObject;
+    /**
+     * Create a registerValue from the given value
+     *
+     * @param obisCode
+     * @param regMap
+     * @param object
+     * @return
+     */
+    private RegisterValue getRegisterValue(ObisCode obisCode, CTRRegisterMapping regMap, AbstractCTRObject object) {
+        CTRAbstractValue value = object.getValue()[regMap.getValueIndex()];
+        if (regMap.getObjectId().getX() == 0x12) { //In case of the diagnostics objects, map the justified bit to a description
+            Quantity quantity = new Quantity((BigDecimal) value.getValue(), value.getUnit());
+            Calendar cal = Calendar.getInstance(TimeZone.getDefault());
+            String description = Diagnostics.getDescriptionFromCode(value.getIntValue());
+            return new RegisterValue(obisCode, quantity, cal.getTime(), cal.getTime(), cal.getTime(), cal.getTime(), 0, description);
+        } else {
+            Object objectValue = value.getValue();
+            if (objectValue instanceof BigDecimal) {
+                Unit unit = value.getUnit();
+                Quantity quantity = new Quantity((BigDecimal) objectValue, unit.getDlmsCode(), object.getQlf().getKmoltFactor());
+                return new RegisterValue(obisCode, quantity);
+            } else {
+                return new RegisterValue(obisCode, objectValue.toString());
+            }
+        }
+    }
+
+    /**
+     * Try to get the matching registerMapping for a given obisCode
+     *
+     * @param obis
+     * @return
+     */
+    private CTRRegisterMapping searchRegisterMapping(ObisCode obis) {
+        for (CTRRegisterMapping ctrRegisterMapping : registerMapping) {
+            if (obis.equals(ctrRegisterMapping.getObisCode())) {
+                return ctrRegisterMapping;
             }
         }
         return null;
     }
 
+    /**
+     * Try to get the requested object from different sources
+     * (DEC, DECF, SMS object list or registerQuery).
+     *
+     * @param idObject
+     * @param list
+     * @return
+     * @throws CTRException
+     * @throws NoSuchRegisterException
+     */
     private AbstractCTRObject getObject(CTRObjectID idObject, List<AbstractCTRObject> list) throws CTRException, NoSuchRegisterException {
         AbstractCTRObject object = null;
         if (list == null) {
@@ -211,6 +214,14 @@ public class ObisCodeMapper {
         return object;
     }
 
+    /**
+     * Read the requested object from the device using a registerQuery request
+     *
+     * @param idObject
+     * @return
+     * @throws CTRException
+     * @throws NoSuchRegisterException
+     */
     private AbstractCTRObject getObjectFromRegisterRequest(CTRObjectID idObject) throws CTRException, NoSuchRegisterException {
         List<AbstractCTRObject> list;
         AbstractCTRObject object;
@@ -226,6 +237,13 @@ public class ObisCodeMapper {
         return object;
     }
 
+    /**
+     * Check if the requested object is in the DECF table, and read it if it is
+     *
+     * @param objectId
+     * @return
+     * @throws CTRException
+     */
     private AbstractCTRObject getObjectFromDECFTable(CTRObjectID objectId) throws CTRException {
         if (TableDECFQueryResponseStructure.containsObjectId(objectId)) {
             for (AbstractCTRObject ctrObject : getTableDECF().getObjects()) {
@@ -237,6 +255,13 @@ public class ObisCodeMapper {
         return null;
     }
 
+    /**
+     * Check if the requested object is in the DEC table, and read it if it is
+     *
+     * @param objectId
+     * @return
+     * @throws CTRException
+     */
     private AbstractCTRObject getObjectFromDECTable(CTRObjectID objectId) throws CTRException {
         if (TableDECQueryResponseStructure.containsObjectId(objectId)) {
             for (AbstractCTRObject ctrObject : getTableDEC().getObjects()) {
@@ -248,11 +273,67 @@ public class ObisCodeMapper {
         return null;
     }
 
+    /**
+     * Get the object from a given list of objects, received using SMS
+     *
+     * @param idObject
+     * @param list
+     * @return
+     */
+    private AbstractCTRObject getObjectFromSMSList(CTRObjectID idObject, List<AbstractCTRObject> list) {
+        for (AbstractCTRObject ctrObject : list) {
+            if (idObject.toString().equals(ctrObject.getId().toString())) {    //find the object in the sms response, that fits the obiscode
+                return ctrObject;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Lazy getter for the logger
+     *
+     * @return
+     */
     public Logger getLogger() {
         if (logger == null) {
             logger = Logger.getLogger(getClass().getName());
         }
         return logger;
+    }
+
+    /**
+     * Return the cached DECF table, or read it from the device
+     *
+     * @return
+     * @throws CTRException
+     */
+    public TableDECFQueryResponseStructure getTableDECF() throws CTRException {
+        if (tableDECF == null) {
+            tableDECF = getRequestFactory().queryTableDECF();
+        }
+        return tableDECF;
+    }
+
+    /**
+     * Return the cached DEC table, or read it from the device
+     *
+     * @return
+     * @throws CTRException
+     */
+    public TableDECQueryResponseStructure getTableDEC() throws CTRException {
+        if (tableDEC == null) {
+            tableDEC = getRequestFactory().queryTableDEC();
+        }
+        return tableDEC;
+    }
+
+    /**
+     * Getter for the register factory
+     *
+     * @return
+     */
+    private GprsRequestFactory getRequestFactory() {
+        return requestFactory;
     }
 
 }
