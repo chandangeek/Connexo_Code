@@ -311,10 +311,10 @@ public class MTU155 extends AbstractGenericProtocol {
                 if ((diff < communicationProfile.getMaximumClockDifference()) && (diff > communicationProfile.getMinimumClockDifference())) {
                     String message = "Metertime will be set to systemtime: " + now;
                     log(Level.INFO, message);
-                    getMeterInfo().setTime(now);
                     getMeterAmrLogging().logInfo(message);
+                    getMeterInfo().setTime(now);
                 } else if (diff > communicationProfile.getMaximumClockDifference()) {
-                    String message = "Metertime will not be set, timeDifference is to large.";
+                    String message = "Metertime will not be set, timeDifference is too large.";
                     log(Level.INFO, message);
                     getMeterAmrLogging().logInfo(message);
                 }
