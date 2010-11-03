@@ -21,6 +21,7 @@ public class TableDECFQueryResponseStructure extends AbstractTableQueryResponseS
 
     static {
         CAPTURED_OBJECTS = new ArrayList();
+        CAPTURED_OBJECTS.add("C.0.0");
         CAPTURED_OBJECTS.add("8.0.1");
         CAPTURED_OBJECTS.add("12.2.0");
         CAPTURED_OBJECTS.add("10.1.0");
@@ -45,7 +46,7 @@ public class TableDECFQueryResponseStructure extends AbstractTableQueryResponseS
     }
 
     //See documentation p. 64, TABLE DECF structure
-    private CTRAbstractValue<String> pdr;
+    private AbstractCTRObject pdr;
     private AbstractCTRObject dataAndOraS;
     private AbstractCTRObject diagnR;
     private AbstractCTRObject numberOfElements;
@@ -72,6 +73,7 @@ public class TableDECFQueryResponseStructure extends AbstractTableQueryResponseS
 
     public List<AbstractCTRObject> getObjects() {
         List<AbstractCTRObject> list = new ArrayList();
+        list.add(pdr);
         list.add(dataAndOraS);
         list.add(diagnR);
         list.add(numberOfElements);
@@ -157,8 +159,8 @@ public class TableDECFQueryResponseStructure extends AbstractTableQueryResponseS
 
         int ptr = offset;
 
-        pdr = factory.parse(rawData, ptr, type, "C.0.0").getValue()[0];
-        ptr += pdr.getValueLength();
+        pdr = factory.parse(rawData, ptr, type, "C.0.0");
+        ptr += pdr.getLength();
 
         dataAndOraS = factory.parse(rawData, ptr, type, "8.0.1");
         ptr += dataAndOraS.getLength();
@@ -273,7 +275,7 @@ public class TableDECFQueryResponseStructure extends AbstractTableQueryResponseS
         return numberOfElements;
     }
 
-    public CTRAbstractValue<String> getPdr() {
+    public AbstractCTRObject getPdr() {
         return pdr;
     }
 

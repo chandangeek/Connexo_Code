@@ -239,7 +239,7 @@ public class MTU155 extends AbstractGenericProtocol {
         List<Channel> channelList = getRtu().getChannels();
         for (Channel channel : channelList) {
             try {
-                ProfileChannel profile = new ProfileChannel(getRequestFactory(), channel, getMeterInfo().getTime());
+                ProfileChannel profile = new ProfileChannel(getRequestFactory(), channel, getTimeZone());
                 getLogger().info("Reading profile for channel [" + channel.getName() + "]");
                 ProfileData pd = profile.getProfileData();
                 storeObject.add(channel, pd);
@@ -362,7 +362,7 @@ public class MTU155 extends AbstractGenericProtocol {
      */
     private String readPdr() throws CTRException {
         log("Requesting IDENTIFICATION structure from device");
-        String pdr = getRequestFactory().readIdentificationStructure().getPdr().getValue();
+        String pdr = getRequestFactory().readIdentificationStructure().getPdr().getValue(0).getValue().toString();
         if (pdr == null) {
             throw new CTRException("Unable to detect meter. PDR value was 'null'!");
         }

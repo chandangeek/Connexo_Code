@@ -3,8 +3,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.structure;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
-import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
-import com.energyict.genericprotocolimpl.elster.ctr.object.EventCategory;
+import com.energyict.genericprotocolimpl.elster.ctr.object.*;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.Qualifier;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.Index_Q;
@@ -20,7 +19,7 @@ import java.math.BigDecimal;
 public class ArrayEventsQueryResponseStructure extends Data<ArrayEventsQueryResponseStructure> {
 
     public static final int NUMBER_OF_EVENT_RECORDS = 6;
-    private CTRAbstractValue<String> pdr;
+    private AbstractCTRObject pdr;
     private Qualifier t_Antif_qlf;
     private CTRAbstractValue<BigDecimal> t_Antif_Value;
     private Index_Q index_A;
@@ -61,8 +60,8 @@ public class ArrayEventsQueryResponseStructure extends Data<ArrayEventsQueryResp
         AttributeType valueAttributeType = new AttributeType();
         valueAttributeType.setHasValueFields(true);
 
-        pdr = factory.parse(rawData, ptr, valueAttributeType, "C.0.0").getValue()[0];
-        ptr += pdr.getValueLength();
+        pdr = factory.parse(rawData, ptr, valueAttributeType, "C.0.0");
+        ptr += pdr.getLength();
 
         valueAttributeType.setHasQualifier(true);
         t_Antif_qlf = factory.parse(rawData, ptr, valueAttributeType, "D.A.0").getQlf();
@@ -87,11 +86,11 @@ public class ArrayEventsQueryResponseStructure extends Data<ArrayEventsQueryResp
     }
 
 
-    public CTRAbstractValue<String> getPdr() {
+    public AbstractCTRObject getPdr() {
         return pdr;
     }
 
-    public void setPdr(CTRAbstractValue<String> pdr) {
+    public void setPdr(AbstractCTRObject pdr) {
         this.pdr = pdr;
     }
 

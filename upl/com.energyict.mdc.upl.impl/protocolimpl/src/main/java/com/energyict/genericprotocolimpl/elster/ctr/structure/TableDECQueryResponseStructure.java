@@ -3,7 +3,6 @@ package com.energyict.genericprotocolimpl.elster.ctr.structure;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.object.*;
-import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.util.ArrayList;
@@ -20,6 +19,7 @@ public class TableDECQueryResponseStructure extends AbstractTableQueryResponseSt
 
     static {
         CAPTURED_OBJECTS = new ArrayList();
+        CAPTURED_OBJECTS.add("C.0.0");
         CAPTURED_OBJECTS.add("8.0.1");
         CAPTURED_OBJECTS.add("12.2.0");
         CAPTURED_OBJECTS.add("2.0.0");
@@ -41,7 +41,7 @@ public class TableDECQueryResponseStructure extends AbstractTableQueryResponseSt
     }
 
     //See documentation p. 62, TABLE DEC structure
-    private CTRAbstractValue<String> pdr;
+    private AbstractCTRObject pdr;
     private AbstractCTRObject dataAndOraS;
     private AbstractCTRObject diagnR;
     private AbstractCTRObject tot_Vm;
@@ -61,12 +61,13 @@ public class TableDECQueryResponseStructure extends AbstractTableQueryResponseSt
     private AbstractCTRObject sealStatus;
     private AbstractCTRObject gsmField;
 
-    public CTRAbstractValue<String> getPdr() {
+    public AbstractCTRObject getPdr() {
         return pdr;
     }
 
     public List<AbstractCTRObject> getObjects() {
         List<AbstractCTRObject> list = new ArrayList();
+        list.add(pdr);
         list.add(dataAndOraS);
         list.add(diagnR);
         list.add(tot_Vm);
@@ -143,8 +144,8 @@ public class TableDECQueryResponseStructure extends AbstractTableQueryResponseSt
 
         int ptr = offset;
 
-        pdr = factory.parse(rawData, ptr, type, "C.0.0").getValue()[0];
-        ptr += pdr.getValueLength();
+        pdr = factory.parse(rawData, ptr, type, "C.0.0");
+        ptr += pdr.getLength();
 
         dataAndOraS = factory.parse(rawData, ptr, type, "8.0.1");
         ptr += dataAndOraS.getLength();

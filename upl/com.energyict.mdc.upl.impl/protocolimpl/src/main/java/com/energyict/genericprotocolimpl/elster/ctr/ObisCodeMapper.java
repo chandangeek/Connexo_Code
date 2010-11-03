@@ -11,6 +11,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValu
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.Qualifier;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.TableDECFQueryResponseStructure;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.TableDECQueryResponseStructure;
+import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
@@ -31,7 +32,8 @@ public class ObisCodeMapper {
     private Logger logger;
     private List<CTRRegisterMapping> registerMapping = new ArrayList<CTRRegisterMapping>();
     private final GprsRequestFactory requestFactory;
-
+    private MeterAmrLogging meterAmrLogging;
+                              
     private TableDECFQueryResponseStructure tableDECF;
     private TableDECQueryResponseStructure tableDEC;
     private static final String OBIS_DEVICE_STATUS = "0.0.96.10.1.255";
@@ -89,6 +91,13 @@ public class ObisCodeMapper {
 
     }
 
+    public MeterAmrLogging getMeterAmrLogging() {
+        if (meterAmrLogging == null) {
+            meterAmrLogging = new MeterAmrLogging();
+        }
+        return meterAmrLogging;
+    }
+
     /**
      * Read the register from the device with a given obisCode.
      *
@@ -116,12 +125,18 @@ public class ObisCodeMapper {
 
         CTRRegisterMapping regMap = searchRegisterMapping(obis);
         if (regMap == null) {
-            throw new NoSuchRegisterException("Unsupported Obis Code");
+            String message = "Unsupported Obis Code";
+            getMeterAmrLogging().logRegisterFailure(message, obisCode);
+            getLogger().log(Level.WARNING, message);
+            throw new NoSuchRegisterException(message);
         }
 
         AbstractCTRObject object = getObject(regMap.getObjectId(), smsObjects);
         if (object == null) {
-            throw new NoSuchRegisterException("No suitable object available");
+            String message = "No suitable object available in received data";
+            getMeterAmrLogging().logRegisterFailure(message, obisCode);
+            getLogger().log(Level.WARNING, message);
+            throw new NoSuchRegisterException(message);
         }
 
         if (object.getQlf() == null) {
@@ -129,17 +144,25 @@ public class ObisCodeMapper {
         }
 
         if (object.getQlf().isInvalid()) {
-            getLogger().log(Level.WARNING, "Invalid Data: Qualifier was 0xFF at register reading for ID: " + regMap.getId() + " (Obiscode: " + obisCode.toString() + ")");
-            throw new NoSuchRegisterException("Invalid Data: Qualifier was 0xFF at register reading for ID: " + regMap.getId() + " (Obiscode: " + obisCode.toString() + ")");
+            String message = "Invalid Data: Qualifier was 0xFF at register reading for ID: " + regMap.getId() + " (Obiscode: " + obisCode.toString() + ")";
+            getMeterAmrLogging().logRegisterFailure(message, obisCode);
+            getLogger().log(Level.WARNING, message);
+            throw new NoSuchRegisterException(message);
         } else if (object.getQlf().isInvalidMeasurement()) {
-            getLogger().log(Level.WARNING, "Invalid Measurement at register reading for ID: " + regMap.getId() + " (Obiscode: " + obisCode.toString() + ")");
-            throw new NoSuchRegisterException("Invalid Measurement at register reading for ID: " + regMap.getId() + " (Obiscode: " + obisCode.toString() + ")");
+            String message = "Invalid Measurement at register reading for ID: " + regMap.getId() + " (Obiscode: " + obisCode.toString() + ")";
+            getMeterAmrLogging().logRegisterFailure(message, obisCode);
+            getLogger().log(Level.WARNING, message);
+            throw new NoSuchRegisterException(message);
         } else if (object.getQlf().isSubjectToMaintenance()) {
-            getLogger().log(Level.WARNING, "Meter is subject to maintenance  at register reading for ID: " + regMap.getId() + " (Obiscode: " + obisCode.toString() + ")");
-            throw new NoSuchRegisterException("Meter is subject to maintenance  at register reading for ID: " + regMap.getId() + " (Obiscode: " + obisCode.toString() + ")");
+            String message = "Meter is subject to maintenance at register reading for ID: " + regMap.getId() + " (Obiscode: " + obisCode.toString() + ")";
+            getMeterAmrLogging().logRegisterFailure(message, obisCode);
+            getLogger().log(Level.WARNING, message);
+            throw new NoSuchRegisterException(message);
         } else if (object.getQlf().isReservedVal()) {
-            getLogger().log(Level.WARNING, "Qualifier is 'Reserved' at register reading for ID: " + regMap.getId() + " (Obiscode: " + obisCode.toString() + ")");
-            throw new NoSuchRegisterException("Qualifier is 'Reserved' at register reading for ID: " + regMap.getId() + " (Obiscode: " + obisCode.toString() + ")");
+            String message = "Qualifier is 'Reserved' at register reading for ID: " + regMap.getId() + " (Obiscode: " + obisCode.toString() + ")";
+            getMeterAmrLogging().logRegisterFailure(message, obisCode);
+            getLogger().log(Level.WARNING, message);
+            throw new NoSuchRegisterException(message);
         }
 
         return ProtocolTools.setRegisterValueObisCode(getRegisterValue(obis, regMap, object), obisCode);
@@ -263,7 +286,10 @@ public class ObisCodeMapper {
         attributeType.setHasQualifier(true);
         list = getRequestFactory().queryRegisters(attributeType, idObject);
         if (list == null || list.size() == 0) {
-            throw new NoSuchRegisterException("Query for register with id: " + idObject.toString() + " failed. Meter response was empty");
+            String message = "Query for register with id: " + idObject.toString() + " failed. Meter response was empty";
+            getMeterAmrLogging().logInfo(message);
+            getLogger().log(Level.WARNING, message);
+            throw new NoSuchRegisterException(message);
         }
         object = list.get(0);
         return object;

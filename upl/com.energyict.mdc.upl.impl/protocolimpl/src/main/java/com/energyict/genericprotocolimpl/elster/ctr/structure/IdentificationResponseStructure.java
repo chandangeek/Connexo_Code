@@ -3,8 +3,8 @@ package com.energyict.genericprotocolimpl.elster.ctr.structure;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
+import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
-import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
@@ -14,7 +14,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
  */
 public class IdentificationResponseStructure extends Data<IdentificationResponseStructure> {
 
-    private CTRAbstractValue<String> pdr;
+    private AbstractCTRObject pdr;
 
     public IdentificationResponseStructure(boolean longFrame) {
         super(longFrame);
@@ -34,13 +34,13 @@ public class IdentificationResponseStructure extends Data<IdentificationResponse
         AttributeType valueAttributeType = new AttributeType();
         valueAttributeType.setHasValueFields(true);
 
-        this.pdr = factory.parse(rawData, ptr, valueAttributeType, "C.0.0").getValue()[0];
-        ptr += pdr.getValueLength();
+        this.pdr = factory.parse(rawData, ptr, valueAttributeType, "C.0.0");
+        ptr += pdr.getLength();
 
         return this;
     }
 
-    public CTRAbstractValue<String> getPdr() {
+    public AbstractCTRObject getPdr() {
         return pdr;
     }
 }

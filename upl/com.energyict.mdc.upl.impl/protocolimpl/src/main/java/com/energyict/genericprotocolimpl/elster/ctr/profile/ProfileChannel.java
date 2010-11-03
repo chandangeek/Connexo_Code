@@ -6,6 +6,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.MTU155Properties;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.Qualifier;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.Trace_CQueryResponseStructure;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.PeriodTrace;
@@ -28,18 +29,66 @@ public class ProfileChannel {
 
     private final GprsRequestFactory requestFactory;
     private final Channel meterChannel;
-    private final Date meterClock;
+    private Date meterClock;
     private ReferenceDate lastReferenceDate;
+    private Trace_CQueryResponseStructure response;
+    private TimeZone timeZone;
 
     public ProfileChannel(GprsRequestFactory requestFactory, Channel meterChannel) {
-        this(requestFactory, meterChannel, new Date());
+        this(requestFactory, meterChannel, null);
     }
 
-    public ProfileChannel(GprsRequestFactory requestFactory, Channel meterChannel, Date meterClock) {
+    public ProfileChannel(GprsRequestFactory requestFactory, Channel meterChannel, TimeZone timeZone) {
         this.requestFactory = requestFactory;
         this.meterChannel = meterChannel;
-        this.meterClock = meterClock;
+        if (timeZone == null) {
+            this.meterClock = new Date();
+        } else {
+            this.timeZone = timeZone;
+        }
     }
+
+    private Date getTimeFromTrace_C(CTRAbstractValue<BigDecimal>[] values) {
+
+        Calendar cal = Calendar.getInstance(timeZone);
+
+        int ptr = 0;
+        int year = values[ptr++].getValue().intValue() + 2000;
+        int month = values[ptr++].getValue().intValue() - 1;
+        int day = values[ptr++].getValue().intValue();
+        int hour = values[ptr++].getValue().intValue();
+        int min = values[ptr++].getValue().intValue();
+
+        cal.set(Calendar.YEAR, year);
+        cal.set(Calendar.MONTH, month);
+        cal.set(Calendar.DAY_OF_MONTH, day);
+        cal.set(Calendar.HOUR_OF_DAY, hour);
+        cal.set(Calendar.MINUTE, min);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+
+        return fixDate(cal.getTime());
+    }
+
+    //Checks if min > 60 or hours > 24 (indicates a time shift is in progress)
+    private Date fixDate(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        int hour = cal.get(Calendar.HOUR_OF_DAY);
+        int minutes = cal.get(Calendar.MINUTE);
+
+        if (hour > 23) {
+            hour -= 30;
+            cal.set(Calendar.HOUR_OF_DAY, hour);
+        }
+        if (minutes > 59) {
+            minutes -= 60;
+            cal.set(Calendar.MINUTE, minutes);
+        }
+
+        return cal.getTime();
+    }
+
 
     /**
      * @return
@@ -102,6 +151,9 @@ public class ProfileChannel {
     }
 
     public Date getMeterClock() {
+        if (meterClock == null) {
+            this.meterClock = getTimeFromTrace_C(response.getDateAndhourS());
+        }
         return meterClock;
     }
 
@@ -182,7 +234,7 @@ public class ProfileChannel {
         lastReferenceDate = new ReferenceDate().parse(referenceDate.getBytes(), 0);
         CTRObjectID objectID = new CTRObjectID(channelId);
         PeriodTrace period = new PeriodTrace(2);
-        Trace_CQueryResponseStructure response = getRequestFactory().queryTrace_C(objectID, period, referenceDate);
+        response = getRequestFactory().queryTrace_C(objectID, period, referenceDate);
         return getIntervalDatasFromResponse(response);
     }
 

@@ -20,7 +20,7 @@ import java.util.*;
  */
 public class Trace_CQueryResponseStructure extends Data<Trace_CQueryResponseStructure> {
 
-    private CTRAbstractValue<String> pdr;
+    private AbstractCTRObject pdr;
     private CTRAbstractValue<BigDecimal>[] dateAndhourS;
     private CTRAbstractValue<BigDecimal> endOfDayTime;
     private CTRAbstractValue<BigDecimal> diagn;
@@ -78,8 +78,8 @@ public class Trace_CQueryResponseStructure extends Data<Trace_CQueryResponseStru
 
         int ptr = offset;
 
-        pdr = factory.parse(rawData, ptr, type, "C.0.0").getValue()[0];
-        ptr += pdr.getValueLength();
+        pdr = factory.parse(rawData, ptr, type, "C.0.0");
+        ptr += pdr.getLength();
 
         dateAndhourS = factory.parse(rawData, ptr, type, "8.0.1").getValue();
         ptr += sumLength(dateAndhourS);
@@ -136,11 +136,11 @@ public class Trace_CQueryResponseStructure extends Data<Trace_CQueryResponseStru
     }
 
 
-    public CTRAbstractValue<String> getPdr() {
+    public AbstractCTRObject getPdr() {
         return pdr;
     }
 
-    public void setPdr(CTRAbstractValue<String> pdr) {
+    public void setPdr(AbstractCTRObject pdr) {
         this.pdr = pdr;
     }
 

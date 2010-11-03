@@ -97,12 +97,12 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
         }
     }
 
+
     private void logFailure(CommunicationScheduler commSchedule) {
         List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
         journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, "0"));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
         journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + getRtu().toString() + "]"));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
+        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "" + getTimeDifference()));
         journal.add(new AmrJournalEntry(AmrJournalEntry.CC_PROTOCOLERROR));
         journal.addAll(getMeterAmrLogging().getJournalEntries());
         try {
@@ -126,9 +126,8 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
     private void logSuccess(CommunicationScheduler commSchedule) {
         List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
         journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, "0"));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
         journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + getRtu().toString() + "]"));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
+        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "" + getTimeDifference()));
         journal.add(new AmrJournalEntry(AmrJournalEntry.CC_OK));
         journal.addAll(getMeterAmrLogging().getJournalEntries());
         try {
@@ -209,6 +208,7 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
         try {
             return (SMSFrame) ctrEncryption.decryptFrame((Frame) smsFrame);
         } catch (CtrCipheringException e) {
+            getMeterAmrLogging().logInfo("An error occurred in the secure connection!");
             throw new CTRConnectionException("An error occurred in the secure connection!", e);
         }
 
@@ -232,9 +232,11 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
         if (smsFrame.getData() instanceof ArrayEventsQueryResponseStructure) {
             ArrayEventsQueryResponseStructure data = (ArrayEventsQueryResponseStructure) smsFrame.getData();
 
-            if (!data.getPdr().getValue().equals(pdr)) {
-                logWarning("The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue());
-                //throw new CTRException("The PDR is wrong.");
+            if (!data.getPdr().getValue()[0].getValue().equals(pdr)) {
+                String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
+                logWarning(message);
+                getMeterAmrLogging().logInfo(message);
+                throw new CTRException(message);
             }
 
             if (communicationProfile.getReadMeterEvents()) {
@@ -251,24 +253,30 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
         } else if (smsFrame.getData() instanceof Trace_CQueryResponseStructure) {
             Trace_CQueryResponseStructure data = (Trace_CQueryResponseStructure) smsFrame.getData();
 
-            if (!data.getPdr().getValue().equals(pdr)) {
-                logWarning("The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue());
-                //throw new CTRException("The PDR is wrong.");
+            if (!data.getPdr().getValue()[0].getValue().equals(pdr)) {
+                String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
+                logWarning(message);
+                getMeterAmrLogging().logInfo(message);
+                //throw new CTRException(message);
             }
 
             List<Channel> channelList = getRtu().getChannels();
             for (Channel channel : channelList) {
                 try {
                     if (getProtocolProperties().getChannelConfig().getChannelId(data.getId().toString()) == (channel.getLoadProfileIndex() - 1)) {
-                        ProfileChannelForSms profileForSms = new ProfileChannelForSms(logger, properties, channel, data, getMeterInfo().getTime());
+                        ProfileChannelForSms profileForSms = new ProfileChannelForSms(logger, properties, channel, data, getTimeZone());
                         ProfileData pd = profileForSms.getProfileData();
                         storeObject.add(channel, pd);
                         log("Added profile data for channel " + channel.toString() + ". Data ID is " + data.getId().toString());
                     } else {
-                        log("Found profile data (" + data.getId().toString() + ", " + CTRObjectInfo.getSymbol(data.getId().toString()) + "), but not for channel " + channel.toString());
+                        String message = "Found profile data (" + data.getId().toString() + ", " + CTRObjectInfo.getSymbol(data.getId().toString()) + "), but not for channel " + channel.toString();
+                        log(message);
+                        getMeterAmrLogging().logInfo(message);
                     }
                 } catch (CTRException e) {
-                    logWarning("Unable to read channelValues for channel [......]" + e.getMessage());
+                    String message = "Unable to read channelValues for channel [......]" + e.getMessage();
+                    logWarning(message);
+                    getMeterAmrLogging().logInfo(message);
                 }
             }
 
@@ -276,9 +284,11 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
         } else if (smsFrame.getData() instanceof TableDECFQueryResponseStructure) {
             TableDECFQueryResponseStructure data = (TableDECFQueryResponseStructure) smsFrame.getData();
 
-            if (!data.getPdr().getValue().equals(pdr)) {
-                logWarning("The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue());
-                //throw new CTRException("The PDR is wrong.");
+            if (!data.getPdr().getValue()[0].getValue().equals(pdr)) {
+                String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
+                logWarning(message);
+                getMeterAmrLogging().logInfo(message);
+                throw new CTRException(message);
             }
 
             if (communicationProfile.getReadMeterReadings()) {
@@ -290,9 +300,11 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
         } else if (smsFrame.getData() instanceof TableDECQueryResponseStructure) {
             TableDECQueryResponseStructure data = (TableDECQueryResponseStructure) smsFrame.getData();
 
-            if (!data.getPdr().getValue().equals(pdr)) {
-                log("The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue());
-                //throw new CTRException("The PDR is wrong.");
+            if (!data.getPdr().getValue()[0].getValue().equals(pdr)) {
+                String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
+                logWarning(message);
+                getMeterAmrLogging().logInfo(message);
+                throw new CTRException(message);
             }
 
             if (communicationProfile.getReadMeterReadings()) {
@@ -301,7 +313,10 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
             }
 
         } else {
-            throw new CTRException("Unrecognized data structure: " + smsFrame.getData().getClass().getSimpleName() + "\n" + "Expected: Array of events, Trace_C response or TableDEC(F) response.");
+            String message = "Unrecognized data structure: " + smsFrame.getData().getClass().getSimpleName() + "\n" + "Expected: Array of events, Trace_C response or TableDEC(F) response.";
+            logWarning(message);
+            getMeterAmrLogging().logInfo(message);
+            throw new CTRException(message);
         }
 
         try {
@@ -348,7 +363,7 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
             try {
                 RtuRegister rtuRegister = rtuRegisterIterator.next();
                 if (CommonUtils.isInRegisterGroup(groups, rtuRegister)) {
-                    obisCode = rtuRegister.getRtuRegisterSpec().getObisCode();  //Get the obiscode per register
+                    obisCode = rtuRegister.getRtuRegisterSpec().getObisCode();  //Get the obis code per register
                     try {
                         RegisterValue registerValue = getObisCodeMapper().readRegister(obisCode, list);
                         registerValue.setRtuRegisterId(rtuRegister.getId());
@@ -357,7 +372,8 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
                         }
                     } catch (NoSuchRegisterException e) {
                         log(Level.FINEST, e.getMessage());
-                        log("ObisCode " + obisCode + " is not supported by the meter.");
+                        getMeterAmrLogging().logRegisterFailure(e, obisCode);
+                        getLogger().log(Level.INFO, "ObisCode " + obisCode + " is not supported by the meter.");
                     }
                 }
             } catch (IOException e) {
@@ -392,6 +408,10 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
         return "1.0";
     }
 
+    private void disconnect() {
+        getRequestFactory().sendEndOfSession();
+    }
+
     @Override
     protected void doExecute() throws BusinessException, SQLException, IOException {
         try {
@@ -403,14 +423,21 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
                 logWarning("Failed to find a unique RTU with phone number " + sms.getFrom());
             }
         }
-        properties.addProperties(rtu.getRtuType().getProtocol().getProperties());
-        properties.addProperties(rtu.getProperties());
+
+        getProtocolProperties().addProperties(rtu.getProtocol().getProperties());
+        getProtocolProperties().addProperties(rtu.getProperties());
+        updateRequestFactory();
+
 
         try {
             processSms(decrypt(this.sms));
         } catch (LinkException e) {
             e.printStackTrace();
         }
+    }
+
+    private void updateRequestFactory() {
+        this.requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties(), getTimeZone());
     }
 
     //Replace +XY by 0, e.g. +32 = 0, +39 = 0
