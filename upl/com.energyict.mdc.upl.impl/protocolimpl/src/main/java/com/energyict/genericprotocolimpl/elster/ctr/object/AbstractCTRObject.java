@@ -141,8 +141,8 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
             byte[] qlf = getQlf().getBytes();
                     //converter.convertQlf(getQlf().getQlf());
             bytes = ProtocolTools.concatByteArrays(bytes, qlf);
-            if (getQlf().isInvalid()) {
-                return bytes;       //Stop here if the qlf indicates the object is invalid
+            if (getQlf().isInvalid() && getType().isRegisterQuery()) {
+                return bytes;       //Stop here if the qlf indicates the object is invalid and it's a register reading
             }
         }
 
@@ -184,8 +184,7 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
     }
 
     public void setType(AttributeType type) {
-        this.type = new AttributeType(type.getAttributeType());
-        this.type.setHasIdentifier(type.hasIdentifier());
+        this.type = new AttributeType(type);
     }
 
     @Override

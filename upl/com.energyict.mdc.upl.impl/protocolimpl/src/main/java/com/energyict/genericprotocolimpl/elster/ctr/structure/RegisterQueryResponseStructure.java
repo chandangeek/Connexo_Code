@@ -50,6 +50,7 @@ public class RegisterQueryResponseStructure extends Data<RegisterQueryResponseSt
         ptr += attributeType.getLength();
         attributeType.setHasQualifier(true);  //The meter always sends a qlf
         attributeType.setHasIdentifier(true);
+        attributeType.setRegisterQuery(true); //Skip the value if qlf is 0x0FF
 
         objects = new AbstractCTRObject[numberOfObjects.getNumberOfObjects()];
         for (int i = 0; i < numberOfObjects.getNumberOfObjects(); i++) {

@@ -30,7 +30,7 @@ public class CommunicationCategory<T extends CommunicationCategory> extends Abst
         if (type.hasQualifier()) {
             Qualifier qlf = new Qualifier(parser.parseQlf(rawData, ptr));
             this.setQlf(qlf);
-            if (qlf.isInvalid()) {
+            if (qlf.isInvalid() && type.isRegisterQuery()) {
                 return (T) this;   //If the QLF is 0xFF (invalid), return an empty object
             }
             ptr += qlf.getLength();

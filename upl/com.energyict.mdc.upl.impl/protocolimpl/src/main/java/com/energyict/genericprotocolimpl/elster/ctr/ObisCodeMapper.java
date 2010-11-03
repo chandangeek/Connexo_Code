@@ -2,8 +2,7 @@ package com.energyict.genericprotocolimpl.elster.ctr;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
-import com.energyict.genericprotocolimpl.elster.ctr.common.Diagnostics;
+import com.energyict.genericprotocolimpl.elster.ctr.common.*;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
@@ -34,6 +33,10 @@ public class ObisCodeMapper {
 
     private TableDECFQueryResponseStructure tableDECF;
     private TableDECQueryResponseStructure tableDEC;
+    private static final String OBIS_DEVICE_STATUS = "0.0.96.10.1.255";
+    private static final String OBIS_SEAL_STATUS = "0.0.96.10.2.255";
+    private static final String OBIS_DIAG = "0.0.96.10.3.255";
+    private static final String OBIS_DIAG_REDUCED = "0.0.96.10.4.255";
 
     public ObisCodeMapper(GprsRequestFactory requestFactory) {
         this.requestFactory = requestFactory;
@@ -72,10 +75,10 @@ public class ObisCodeMapper {
         registerMapping.add(new CTRRegisterMapping("7.0.13.2.2.0", "2.5.4"));       //Tot_Vpre_f2
         registerMapping.add(new CTRRegisterMapping("7.0.13.2.3.0", "2.5.5"));       //Tot_Vpre_f3
 
-        registerMapping.add(new CTRRegisterMapping("0.0.96.10.1.255", "12.0.0"));   //device status  : status register 1
-        registerMapping.add(new CTRRegisterMapping("0.0.96.10.2.255", "D.9.0"));    //seal status    : status register 2
-        registerMapping.add(new CTRRegisterMapping("0.0.96.10.3.255", "12.1.0"));   //Diagn          : status register 5
-        registerMapping.add(new CTRRegisterMapping("0.0.96.10.4.255", "12.2.0"));   //DiagnR         : status register 4
+        registerMapping.add(new CTRRegisterMapping(OBIS_DEVICE_STATUS, "12.0.0"));  //device status: status register 1
+        registerMapping.add(new CTRRegisterMapping(OBIS_SEAL_STATUS, "D.9.0"));     //seal status: status register 2
+        registerMapping.add(new CTRRegisterMapping(OBIS_DIAG, "12.1.0"));           //Diagn: status register 5
+        registerMapping.add(new CTRRegisterMapping(OBIS_DIAG_REDUCED, "12.2.0"));   //DiagnR: status register 4
 
         registerMapping.add(new CTRRegisterMapping("0.0.96.12.5.255", "E.C.0"));    //gsm signal strength (deciBell)
         registerMapping.add(new CTRRegisterMapping("7.0.0.9.4.255", "8.1.2"));      //remaining shift in time
@@ -138,34 +141,63 @@ public class ObisCodeMapper {
             throw new NoSuchRegisterException("Qualifier is 'Reserved' at register reading for ID: " + regMap.getId() + " (Obiscode: " + obisCode.toString() + ")");
         }
 
-        return getRegisterValue(obisCode, regMap, object);
+        return ProtocolTools.setRegisterValueObisCode(getRegisterValue(obis, regMap, object), obisCode);
 
     }
 
     /**
      * Create a registerValue from the given value
      *
-     * @param obisCode
+     * @param oc
      * @param regMap
      * @param object
      * @return
      */
-    private RegisterValue getRegisterValue(ObisCode obisCode, CTRRegisterMapping regMap, AbstractCTRObject object) {
+    private RegisterValue getRegisterValue(ObisCode oc, CTRRegisterMapping regMap, AbstractCTRObject object) {
         CTRAbstractValue value = object.getValue()[regMap.getValueIndex()];
-        if (regMap.getObjectId().getX() == 0x12) { //In case of the diagnostics objects, map the justified bit to a description
+
+        if (isObis(oc, OBIS_DEVICE_STATUS)) {
+            String description = DeviceStatus.fromStatusCode(value.getIntValue()).getDescription();
+            Quantity quantity = new Quantity((BigDecimal) value.getValue(), Unit.getUndefined());
+            return new RegisterValue(oc, quantity, new Date(), new Date(), null, new Date(), 0, description);
+        } else if (isObis(oc, OBIS_DIAG)) {
             Quantity quantity = new Quantity((BigDecimal) value.getValue(), value.getUnit());
             Calendar cal = Calendar.getInstance(TimeZone.getDefault());
             String description = Diagnostics.getDescriptionFromCode(value.getIntValue());
-            return new RegisterValue(obisCode, quantity, cal.getTime(), cal.getTime(), cal.getTime(), cal.getTime(), 0, description);
+            return new RegisterValue(oc, quantity, cal.getTime(), cal.getTime(), cal.getTime(), cal.getTime(), 0, description);
+        } else if (isObis(oc, OBIS_DIAG_REDUCED)) {
+            Quantity quantity = new Quantity((BigDecimal) value.getValue(), value.getUnit());
+            Calendar cal = Calendar.getInstance(TimeZone.getDefault());
+            String description = Diagnostics.getDescriptionFromCode(value.getIntValue());
+            return new RegisterValue(oc, quantity, cal.getTime(), cal.getTime(), cal.getTime(), cal.getTime(), 0, description);
+        } else if (isObis(oc, OBIS_SEAL_STATUS)) {
+            Quantity quantity = new Quantity((BigDecimal) value.getValue(), value.getUnit());
+            Calendar cal = Calendar.getInstance(TimeZone.getDefault());
+            String description = SealStatusBit.getBrokenSealsDescription(value.getIntValue());
+            return new RegisterValue(oc, quantity, cal.getTime(), cal.getTime(), cal.getTime(), cal.getTime(), 0, description);
         } else {
-            Object objectValue = value.getValue();
-            if (objectValue instanceof BigDecimal) {
-                Unit unit = value.getUnit();
-                Quantity quantity = new Quantity((BigDecimal) objectValue, unit.getDlmsCode(), object.getQlf().getKmoltFactor());
-                return new RegisterValue(obisCode, quantity);
-            } else {
-                return new RegisterValue(obisCode, objectValue.toString());
-            }
+            return readGenericRegisterValue(oc, object, value);
+        }
+
+    }
+
+    /**
+     * Read a register value with no specific structure or value. Only checks if the value is numeric or not.
+     * If not, the object is stored as text in te registerValue;
+     *
+     * @param obisCode
+     * @param object
+     * @param value
+     * @return
+     */
+    private RegisterValue readGenericRegisterValue(ObisCode obisCode, AbstractCTRObject object, CTRAbstractValue value) {
+        Object objectValue = value.getValue();
+        if (objectValue instanceof BigDecimal) {
+            Unit unit = value.getUnit();
+            Quantity quantity = new Quantity((BigDecimal) objectValue, unit.getDlmsCode(), object.getQlf().getKmoltFactor());
+            return new RegisterValue(obisCode, quantity);
+        } else {
+            return new RegisterValue(obisCode, objectValue.toString());
         }
     }
 
@@ -333,6 +365,16 @@ public class ObisCodeMapper {
      */
     private GprsRequestFactory getRequestFactory() {
         return requestFactory;
+    }
+
+    /**
+     *
+     * @param obisCodeToCheck
+     * @param constantObisCode
+     * @return
+     */
+    private boolean isObis(ObisCode obisCodeToCheck, String constantObisCode) {
+        return ObisCode.fromString(constantObisCode).equals(obisCodeToCheck);
     }
 
 }

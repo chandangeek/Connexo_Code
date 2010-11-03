@@ -16,6 +16,7 @@ public class AttributeType extends AbstractField<AttributeType> {
     private static final int MASK = 0x0F;
 
     private boolean hasIdentifier = false;
+    private boolean registerQuery = false;
     private int attributeType;
 
     public AttributeType() {
@@ -24,6 +25,12 @@ public class AttributeType extends AbstractField<AttributeType> {
 
     public AttributeType(int attributeType) {
         this.attributeType = attributeType & MASK;
+    }
+
+    public AttributeType(AttributeType type) {
+        this.hasIdentifier = type.hasIdentifier();
+        this.registerQuery = type.isRegisterQuery();
+        this.attributeType = type.getAttributeType();
     }
 
     public static AttributeType getValueOnly() {
@@ -102,4 +109,11 @@ public class AttributeType extends AbstractField<AttributeType> {
         return isBitSet(attributeType, DEFAULTVALUE_BIT);
     }
 
+    public boolean isRegisterQuery() {
+        return registerQuery;
+    }
+
+    public void setRegisterQuery(boolean registerQuery) {
+        this.registerQuery = registerQuery;
+    }
 }
