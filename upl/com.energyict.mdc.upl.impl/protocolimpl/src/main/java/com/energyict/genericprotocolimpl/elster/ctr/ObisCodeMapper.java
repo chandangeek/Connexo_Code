@@ -48,7 +48,7 @@ public class ObisCodeMapper {
         registerMapping.add(new CTRRegisterMapping("7.0.13.26.0.0", "2.1.6"));      //Tot_Vb_pf   (end of previous billing period)
         registerMapping.add(new CTRRegisterMapping("7.0.13.0.0.255", "2.0.0"));     //Tot_Vm
         registerMapping.add(new CTRRegisterMapping("7.0.13.2.0.255", "2.1.0"));     //Tot_Vb
-        registerMapping.add(new CTRRegisterMapping("7.0.128.1.0.255", "2.3.0"));     //Tot_Vme
+        registerMapping.add(new CTRRegisterMapping("7.0.128.1.0.255", "2.3.0"));    //Tot_Vme
 
         registerMapping.add(new CTRRegisterMapping("7.0.43.0.0.255", "1.0.0"));     //Qm
         registerMapping.add(new CTRRegisterMapping("7.0.43.1.0.255", "1.2.0"));     //Qb
@@ -82,9 +82,9 @@ public class ObisCodeMapper {
 
         registerMapping.add(new CTRRegisterMapping("0.0.96.12.5.255", "E.C.0"));    //gsm signal strength (deciBell)
         registerMapping.add(new CTRRegisterMapping("7.0.0.9.4.255", "8.1.2"));      //remaining shift in time
-        registerMapping.add(new CTRRegisterMapping("0.0.96.6.6.255", "F.5.0", 3));     //battery time remaining (hours)
-        registerMapping.add(new CTRRegisterMapping("0.0.96.6.0.255", "F.5.1", 3));     //battery hours used
-        registerMapping.add(new CTRRegisterMapping("0.0.96.6.3.255", "F.5.2", 3));     //battery voltage
+        registerMapping.add(new CTRRegisterMapping("0.0.96.6.6.255", "F.5.0", 3));  //battery time remaining (hours)
+        registerMapping.add(new CTRRegisterMapping("0.0.96.6.0.255", "F.5.1", 3));  //battery hours used
+        registerMapping.add(new CTRRegisterMapping("0.0.96.6.3.255", "F.5.2", 3));  //battery voltage
 
     }
 
@@ -368,7 +368,6 @@ public class ObisCodeMapper {
     }
 
     /**
-     *
      * @param obisCodeToCheck
      * @param constantObisCode
      * @return

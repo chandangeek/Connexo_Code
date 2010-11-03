@@ -55,13 +55,20 @@ public class SmsHandlerTest extends TestCase {
         byte[] bytesDECF = ProtocolTools.getBytesFromHexString("0000003B34001234567890000105050505050101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010000000000000000000000000000000000000000000000000000000000", "");
         byte[] bytesEvents = ProtocolTools.getBytesFromHexString("0000003B5600123456789000010F00000002002000060A0A150E0A000101400F00000001000000010A0A150E0A0001013A0F00000001000000010A0A150E0A000101460F00000001000000010A0A0A0E0A000101350F00000001000000010A0A080E0A000101350F00000001000000010A0A070E0A00010135FF0000000100000001", "");
 
+        //For 7bit decoding tests
         byte[] bytesTest7bit = ProtocolTools.getBytesFromHexString("D4F29C0E", "");
         byte[] bytesTest7bit2 = ProtocolTools.getBytesFromHexString("CC309CFE8683C6EF36BC4E2FCB41F331BA2C6F83E87978D90DA2BFCBF479D92D7ECBC92071795D96D3D56510", "");
 
-        Sms sms = new Sms("056356291", "20893210", new Date(), "proximus", "0001", 8, bytes31);
+        Sms sms = new Sms("056356291", "20893210", new Date(), "proximus", "0001", 8, bytesEvents);
         Sms sms2 = new Sms("056356291", "20893210", new Date(), "proximus", "0001", 7, bytesTest7bit);
+        Sms sms3 = new Sms("056356291", "20893210", new Date(), "proximus", "0001", 7, bytesTest7bit2);
 
-        assertEquals("Test", sms2.getText());  //Tests the 7bit decoder
+        //Tests the 7bit decoder
+        assertEquals("Test", sms2.getText());
+        assertEquals("Laptop computer scherm typen toetsenbord bekertje ", sms3.getText());
+
+        SmsHandler handler = new SmsHandler();
+        handler.processMessage(sms);
 
     }
 }

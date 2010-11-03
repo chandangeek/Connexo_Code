@@ -395,8 +395,13 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
     @Override
     protected void doExecute() throws IOException, BusinessException, SQLException {
 
+        String from = sms.getFrom();
 
-        rtu = CommonUtils.findDeviceByPhoneNumber(sms.getFrom());
+        //Replace +XY by 0, e.g. +32 = 0, +39 = 0
+        if ("+".equals(Character.toString(from.charAt(0)))) {
+            from = "0" + from.substring(3);
+        }
+        rtu = CommonUtils.findDeviceByPhoneNumber(from);
         properties.addProperties(rtu.getRtuType().getProtocol().getProperties());
         properties.addProperties(rtu.getProperties());
 
