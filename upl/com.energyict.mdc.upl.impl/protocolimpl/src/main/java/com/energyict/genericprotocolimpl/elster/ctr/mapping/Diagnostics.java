@@ -1,4 +1,4 @@
-package com.energyict.genericprotocolimpl.elster.ctr.common;
+package com.energyict.genericprotocolimpl.elster.ctr.mapping;
 
 /**
  * Copyrights EnergyICT

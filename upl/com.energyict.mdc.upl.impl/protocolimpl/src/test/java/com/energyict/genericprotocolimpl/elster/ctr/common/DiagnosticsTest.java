@@ -1,5 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr.common;
 
+import com.energyict.genericprotocolimpl.elster.ctr.mapping.Diagnostics;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

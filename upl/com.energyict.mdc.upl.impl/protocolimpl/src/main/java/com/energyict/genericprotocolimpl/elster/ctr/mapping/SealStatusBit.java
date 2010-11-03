@@ -1,4 +1,4 @@
-package com.energyict.genericprotocolimpl.elster.ctr.common;
+package com.energyict.genericprotocolimpl.elster.ctr.mapping;
 
 import java.util.ArrayList;
 import java.util.List;
