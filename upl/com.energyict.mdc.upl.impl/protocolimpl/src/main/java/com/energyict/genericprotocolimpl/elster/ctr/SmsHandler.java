@@ -393,15 +393,16 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
     }
 
     @Override
-    protected void doExecute() throws IOException, BusinessException, SQLException {
-
-        String from = sms.getFrom();
-
-        //Replace +XY by 0, e.g. +32 = 0, +39 = 0
-        if ("+".equals(Character.toString(from.charAt(0)))) {
-            from = "0" + from.substring(3);
+    protected void doExecute() throws BusinessException, SQLException, IOException {
+        try {
+            rtu = CommonUtils.findDeviceByPhoneNumber(sms.getFrom());
+        } catch (IOException e) {
+            try {
+                rtu = CommonUtils.findDeviceByPhoneNumber(checkFormat(sms.getFrom()));     //try again, with other phone number format
+            } catch (IOException e1) {
+                logWarning("Failed to find a unique RTU with phone number " + sms.getFrom());
+            }
         }
-        rtu = CommonUtils.findDeviceByPhoneNumber(from);
         properties.addProperties(rtu.getRtuType().getProtocol().getProperties());
         properties.addProperties(rtu.getProperties());
 
@@ -410,6 +411,14 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
         } catch (LinkException e) {
             e.printStackTrace();
         }
+    }
+
+    //Replace +XY by 0, e.g. +32 = 0, +39 = 0
+    private String checkFormat(String from) {
+        if ("+".equals(Character.toString(from.charAt(0)))) {
+            from = "0" + from.substring(3);
+        }
+        return from;
     }
 
     public void addProperties(Properties properties) {
