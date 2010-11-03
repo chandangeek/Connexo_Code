@@ -12,6 +12,7 @@ import com.energyict.mdw.core.Rtu;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -24,14 +25,16 @@ public class ProfileChannelForSms {
 
     private final Channel meterChannel;
     private MTU155Properties properties;
+    private final Date meterClock;
     private Logger logger;
     private Trace_CQueryResponseStructure response;
 
-    public ProfileChannelForSms(Logger logger, MTU155Properties properties, Channel meterChannel, Trace_CQueryResponseStructure response) {
+    public ProfileChannelForSms(Logger logger, MTU155Properties properties, Channel meterChannel, Trace_CQueryResponseStructure response, Date meterClock) {
         this.properties = properties;
         this.meterChannel = meterChannel;
         this.logger = logger;
         this.response = response;
+        this.meterClock = meterClock;
     }
 
     /**
@@ -83,9 +86,13 @@ public class ProfileChannelForSms {
         return getMeterChannel().getLoadProfileIndex();
     }
 
+    public Date getMeterClock() {
+        return meterClock;
+    }
+
     /**
      * @return
-     * @throws com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException
+     * @throws CTRException
      */
     public ProfileData getProfileData() throws CTRException {
         if (getChannelObjectId() == null) {
@@ -105,34 +112,33 @@ public class ProfileChannelForSms {
      */
     private List<ChannelInfo> getChannelInfos() {
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
-        String symbol = CTRObjectInfo.getSymbol(getChannelObjectId());
+        String symbol = CTRObjectInfo.getSymbol(getChannelObjectId()) + " [" + getChannelObjectId() + "]";
         Unit unit = CTRObjectInfo.getUnit(getChannelObjectId());
-        ChannelInfo info = new ChannelInfo(0, symbol, unit);
+        ChannelInfo info = new ChannelInfo(0, getChannelIndex() - 1, symbol, unit);
         channelInfos.add(info);
         return channelInfos;
     }
 
     /**
-     * @throws com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException
-     * @return
+     * @throws CTRException
      */
     private List<IntervalData> getIntervalData() throws CTRException {
         List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
-        Calendar fromCalendar = getFromCalendar();
-        Calendar toCalendar = Calendar.getInstance(getDeviceTimeZone());
+        //Calendar fromCalendar = getFromCalendar();
+        //Calendar toCalendar = Calendar.getInstance(getDeviceTimeZone());
         intervalDatas.addAll(getIntervalDatasFromResponse(response));
-        fromCalendar.setTime(getNewestIntervalDate(intervalDatas));
+        //fromCalendar.setTime(getNewestIntervalDate(intervalDatas));
         return intervalDatas;
     }
 
     /**
      * @param intervalDatas
-     * @return newest
+     * @return
      */
     private Date getNewestIntervalDate(List<IntervalData> intervalDatas) {
-        Date newest = null;
+        Date newest = new Date(0);
         for (IntervalData intervalData : intervalDatas) {
-            if (intervalData.getEndTime().after(newest == null ? new Date(0) : newest)) {
+            if (intervalData.getEndTime().after(newest)) {
                 newest = intervalData.getEndTime();
             }
         }
@@ -144,27 +150,35 @@ public class ProfileChannelForSms {
      * @return
      */
     private List<IntervalData> getIntervalDatasFromResponse(Trace_CQueryResponseStructure response) {
-
-        System.out.println("\n\n#############################################################################\n\n");
-        System.out.println(response);
-
         List<IntervalData> intervals = new ArrayList<IntervalData>();
         Calendar startDate = response.getDate().getCalendar(getDeviceTimeZone());
         int startOfDay = response.getEndOfDayTime().getIntValue();
         startDate.add(Calendar.HOUR, startOfDay);
         int interval = getMeterChannel().getIntervalInSeconds();
-        for (int i = 0; i < response.getTraceData().size(); i++) {              //Parse all (hourly) values for 1 day
-            if (i < 24) {
+
+        for (int i = 0; i < response.getTraceData().size(); i++) {
+            if (i < response.getPeriod().getTraceCIntervalCount()) {
                 AbstractCTRObject object = response.getTraceData().get(i);
                 startDate.add(Calendar.SECOND, interval);
                 Date endDate = new Date(startDate.getTimeInMillis());
-                IntervalData intervalData;
                 List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
-                intervalValues.add(new IntervalValue((Number) object.getValue(0).getValue(), 0, 0));
                 Qualifier qlf = object.getQlf();
-                intervalData = new IntervalData(endDate, getIntervalStateBits(qlf), qlf.getQlf(), 0, intervalValues);
-                System.out.println(intervalData);
-                intervals.add(intervalData);
+                Object objectValue = object.getValue(0).getValue();
+                if (objectValue instanceof Number) {
+                    Number number = (Number) objectValue;
+                    if (number instanceof BigDecimal) {
+                        BigDecimal decimal = (BigDecimal) number;
+                        decimal = decimal.movePointRight(qlf.getKmoltFactor());
+                        intervalValues.add(new IntervalValue(decimal, 0, 0));
+                    } else {
+                        intervalValues.add(new IntervalValue(number, 0, 0));
+                    }
+                }
+                if (endDate.before(getMeterClock())) {
+                    intervals.add(new IntervalData(endDate, getIntervalStateBits(qlf), qlf.getQlf(), 0, intervalValues));
+                } else {
+                    break;
+                }
             }
         }
         return intervals;
@@ -174,7 +188,7 @@ public class ProfileChannelForSms {
         if (qualifier.isInvalidMeasurement()) {
             return IntervalStateBits.CORRUPTED;
         } else if (qualifier.isSubjectToMaintenance()) {
-            return IntervalStateBits.CORRUPTED;
+            return IntervalStateBits.OTHER;
         } else if (qualifier.isReservedVal()) {
             return IntervalStateBits.OTHER;
         } else {

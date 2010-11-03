@@ -2,7 +2,6 @@ package com.energyict.genericprotocolimpl.elster.ctr.structure;
 
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
-import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
 import com.energyict.genericprotocolimpl.elster.ctr.object.*;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -15,7 +14,7 @@ import java.util.List;
  * Date: 28-okt-2010
  * Time: 13:26:00
  */
-public class TableDECQueryResponseStructure extends Data<TableDECQueryResponseStructure> {
+public class TableDECQueryResponseStructure extends AbstractTableQueryResponseStructure {
 
     private static final List<String> CAPTURED_OBJECTS;
 
@@ -61,6 +60,10 @@ public class TableDECQueryResponseStructure extends Data<TableDECQueryResponseSt
     private AbstractCTRObject deviceStatus;
     private AbstractCTRObject sealStatus;
     private AbstractCTRObject gsmField;
+
+    public CTRAbstractValue<String> getPdr() {
+        return pdr;
+    }
 
     public List<AbstractCTRObject> getObjects() {
         List<AbstractCTRObject> list = new ArrayList();

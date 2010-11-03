@@ -134,12 +134,10 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
 
         if (type.hasIdentifier()) {
             bytes = getId().getBytes();
-                    //converter.convertId(getId());
         }
 
         if (type.hasQualifier()) {
             byte[] qlf = getQlf().getBytes();
-                    //converter.convertQlf(getQlf().getQlf());
             bytes = ProtocolTools.concatByteArrays(bytes, qlf);
             if (getQlf().isInvalid() && getType().isRegisterQuery()) {
                 return bytes;       //Stop here if the qlf indicates the object is invalid and it's a register reading
@@ -159,7 +157,6 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
 
         if (type.hasAccessDescriptor()) {
             byte[] access = getAccess().getBytes();
-                    //converter.convertAccess(getAccess().getAccess());
             bytes = ProtocolTools.concatByteArrays(bytes, access);
         }
 

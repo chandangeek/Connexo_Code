@@ -24,10 +24,6 @@ public class CTRMeterEvent {
         this.requestFactory = requestFactory;
     }
 
-    public CTRMeterEvent() {
-        this.requestFactory = null;
-    }
-
     public GprsRequestFactory getRequestFactory() {
         return requestFactory;
     }

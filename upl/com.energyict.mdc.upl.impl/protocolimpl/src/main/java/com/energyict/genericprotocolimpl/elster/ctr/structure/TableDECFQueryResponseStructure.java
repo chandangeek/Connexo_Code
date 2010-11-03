@@ -2,7 +2,6 @@ package com.energyict.genericprotocolimpl.elster.ctr.structure;
 
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
-import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
 import com.energyict.genericprotocolimpl.elster.ctr.object.*;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -16,7 +15,7 @@ import java.util.List;
  * Date: 8-okt-2010
  * Time: 16:26:00
  */
-public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponseStructure> {
+public class TableDECFQueryResponseStructure extends AbstractTableQueryResponseStructure {
 
     private static final List<String> CAPTURED_OBJECTS;
 
@@ -24,6 +23,7 @@ public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponse
         CAPTURED_OBJECTS = new ArrayList();
         CAPTURED_OBJECTS.add("8.0.1");
         CAPTURED_OBJECTS.add("12.2.0");
+        CAPTURED_OBJECTS.add("10.1.0");
         CAPTURED_OBJECTS.add("2.1.0");
         CAPTURED_OBJECTS.add("2.3.0");
         CAPTURED_OBJECTS.add("2.3.7");
@@ -48,7 +48,7 @@ public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponse
     private CTRAbstractValue<String> pdr;
     private AbstractCTRObject dataAndOraS;
     private AbstractCTRObject diagnR;
-    private CTRAbstractValue<BigDecimal> numberOfElements;
+    private AbstractCTRObject numberOfElements;
     private CTRAbstractValue<BigDecimal> id_Pt_Current;
     private CTRAbstractValue<BigDecimal> id_Pt_Previous;
     private AbstractCTRObject tot_Vb;
@@ -74,6 +74,7 @@ public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponse
         List<AbstractCTRObject> list = new ArrayList();
         list.add(dataAndOraS);
         list.add(diagnR);
+        list.add(numberOfElements);
         list.add(tot_Vb);
         list.add(tot_Vme);
         list.add(tot_Vme_f1);
@@ -165,8 +166,8 @@ public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponse
         diagnR = factory.parse(rawData, ptr, type, "12.2.0");
         ptr += diagnR.getLength();
 
-        numberOfElements = factory.parse(rawData, ptr, type, "10.1.0").getValue()[0];
-        ptr += numberOfElements.getValueLength();
+        numberOfElements = factory.parse(rawData, ptr, type, "10.1.0");
+        ptr += numberOfElements.getLength();
 
         id_Pt_Current = factory.parse(rawData, ptr, type, "17.0.4").getValue()[0];
         ptr += id_Pt_Current.getValueLength();
@@ -268,7 +269,7 @@ public class TableDECFQueryResponseStructure extends Data<TableDECFQueryResponse
         return id_Pt_Previous;
     }
 
-    public CTRAbstractValue<BigDecimal> getNumberOfElements() {
+    public AbstractCTRObject getNumberOfElements() {
         return numberOfElements;
     }
 

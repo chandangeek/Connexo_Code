@@ -98,7 +98,7 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
             data = new TableDECQueryResponseStructure(getProfi().isLongFrame()).parse(rawData, ptr);
         } else if (isTrace_CQueryResponseStructure()) {
             data = new Trace_CQueryResponseStructure(getProfi().isLongFrame()).parse(rawData, ptr);
-        } else if (isEventTraceQueryReponseStructure()) {
+        } else if (isEventArrayQueryReponseStructure()) {
             data = new ArrayEventsQueryResponseStructure(getProfi().isLongFrame()).parse(rawData, ptr);
         } else {
             data = new Data(getProfi().isLongFrame()).parse(rawData, ptr);
@@ -109,7 +109,7 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
         return structureCode.isTrace_C() && functionCode.isMeterResponse();
     }
 
-    private boolean isEventTraceQueryReponseStructure() {
+    private boolean isEventArrayQueryReponseStructure() {
         return structureCode.isEvent_Array() && functionCode.isMeterResponse();
     }
 
