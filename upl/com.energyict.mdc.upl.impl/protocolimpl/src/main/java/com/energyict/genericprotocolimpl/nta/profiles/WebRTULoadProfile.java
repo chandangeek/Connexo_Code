@@ -95,7 +95,6 @@ public class WebRTULoadProfile {
 			}
 			
 		} catch (final IOException e) {
-			e.printStackTrace();
 			throw new IOException(e.getMessage());
 		}
 	}
@@ -141,7 +140,6 @@ public class WebRTULoadProfile {
 				
 			}
 		} catch (final IOException e) {
-			e.printStackTrace();
 			throw new IOException("Failed to build the channelInfos." + e);
 		}
 		return channelInfos;
@@ -168,7 +166,6 @@ public class WebRTULoadProfile {
 			}
 			return su;
 		} catch (final IOException e) {
-			e.printStackTrace();
 			webrtu.getLogger().log(Level.INFO, "Could not get the scalerunit from object '" + oc + "'.");
 		}
 		return new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
@@ -255,7 +252,6 @@ public class WebRTULoadProfile {
 				}
 			}
 		} catch (final IOException e) {
-			e.printStackTrace();
 			throw new IOException("Failed to parse the intervalData objects form the datacontainer.");
 		}
 		
@@ -278,7 +274,6 @@ public class WebRTULoadProfile {
 				}
 			}
 		} catch (final IOException e) {
-			e.printStackTrace();
 			throw new IOException("Could not retrieve the index of the profileData's status attribute.");
 		}
 		return -1;
@@ -292,7 +287,6 @@ public class WebRTULoadProfile {
 				}
 			}
 		} catch (final IOException e) {
-			e.printStackTrace();
 			throw new IOException("Could not retrieve the index of the profileData's clock attribute.");
 		}
 		return -1;

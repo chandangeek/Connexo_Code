@@ -19,9 +19,7 @@ import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -30,8 +28,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class MbusProfile {
+public class MbusProfile extends AbstractNTAProfile{
 	
 	protected AbstractMbusDevice mbusDevice;
 	
@@ -91,7 +90,6 @@ public class MbusProfile {
 			}
 			
 		} catch (IOException e) {
-			e.printStackTrace();
 			throw new IOException(e.getMessage());
 		}
 	}
@@ -114,7 +112,7 @@ public class MbusProfile {
 						if((su != null) && (su.getUnitCode() != 0)) {
 							ci = new ChannelInfo(index, channelIndex, "WebRtuKP_MBus_"+index, su.getUnit());
 						} else {
-							ci = new ChannelInfo(index, channelIndex, "WebRtuKP_MBus_"+index, Unit.get(BaseUnit.UNITLESS));
+                            throw new ProtocolException("Meter does not report a proper scalerUnit for all channels of his MBus Hourly LoadProfile, data can not be interpreted correctly.");
 						}
 						
 						index++;
@@ -127,7 +125,6 @@ public class MbusProfile {
 				
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
 			throw new IOException("Failed to build the channelInfos." + e);
 		}
 		return channelInfos;
@@ -142,33 +139,32 @@ public class MbusProfile {
 	}
 
 	
-	/**
-	 * Read the given object and return the scalerUnit.
-	 * If the unit is 0(not a valid value) then return a unitLess scalerUnit.
-	 * If you can not read the scalerUnit, then return a unitLess scalerUnit.
-	 * @param oc
-	 * @return
-	 * @throws IOException
-	 */
-	private ScalerUnit getMeterDemandRegisterScalerUnit(ObisCode oc) throws IOException{
-		try {
-			ScalerUnit su = getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
-			if(su != null){
-				if(su.getUnitCode() == 0){
-					su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
-				}
+//	/**
+//	 * Read the given object and return the scalerUnit.
+//	 * If the unit is 0(not a valid value) then return a unitLess scalerUnit.
+//	 * If you can not read the scalerUnit, then return a unitLess scalerUnit.
+//	 * @param oc
+//	 * @return
+//	 * @throws IOException
+//	 */
+//	private ScalerUnit getMeterDemandRegisterScalerUnit(ObisCode oc) throws IOException{
+//		try {
+//			ScalerUnit su = getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
+//			if(su != null){
+//				if(su.getUnitCode() == 0){
+//					su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
+//				}
+//
+//			} else {
+//				su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
+//			}
+//			return su;
+//		} catch (IOException e) {
+//			mbusDevice.getLogger().log(Level.INFO, "Could not get the scalerunit from object '" + oc + "'.");
+//		}
+//		return new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
+//	}
 				
-			} else {
-				su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
-			}
-			return su;
-		} catch (IOException e) {
-			e.printStackTrace();
-			mbusDevice.getLogger().log(Level.INFO, "Could not get the scalerunit from object '" + oc + "'.");
-		}
-		return new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
-	}
-	
 	private int getProfileChannelNumber(int index){
 		int channelIndex = 0;
 		for(int i = 0; i < getMeter().getChannels().size(); i++){
@@ -236,7 +232,6 @@ public class MbusProfile {
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
 			throw new IOException("Failed to parse the intervalData objects form the datacontainer.");
 		}
 		
@@ -251,7 +246,6 @@ public class MbusProfile {
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
 			throw new IOException("Could not retrieve the index of the profileData's clock attribute.");
 		}
 		return -1;
@@ -265,17 +259,24 @@ public class MbusProfile {
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
 			throw new IOException("Could not retrieve the index of the profileData's status attribute.");
 		}
 		return -1;
 	}
 	
-	private CosemObjectFactory getCosemObjectFactory(){
+    /**
+     * @return the used {@link java.util.logging.Logger}
+     */
+    @Override
+    protected Logger getLogger() {
+        return mbusDevice.getLogger();
+    }
+
+    protected CosemObjectFactory getCosemObjectFactory(){
 		return this.mbusDevice.getWebRTU().getCosemObjectFactory();
 	}
 	
-	private Rtu getMeter(){
+	protected Rtu getMeter(){
 		return this.mbusDevice.getMbus();
 	}
 	

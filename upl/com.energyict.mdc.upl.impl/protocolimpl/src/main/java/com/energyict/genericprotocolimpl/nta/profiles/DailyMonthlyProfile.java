@@ -16,17 +16,16 @@ import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class DailyMonthlyProfile {
+public class DailyMonthlyProfile extends AbstractNTAProfile{
 	
 	protected AbstractNTAProtocol webrtu;
 	
@@ -71,7 +70,6 @@ public class DailyMonthlyProfile {
 			}
 			
 		} catch (final IOException e) {
-			e.printStackTrace();
 			throw new IOException(e.getMessage());
 		}
 		
@@ -95,7 +93,12 @@ public class DailyMonthlyProfile {
 					}
 					
 					if(channelIndex != -1){
+                        if((su != null) && (su.getUnitCode() != 0)){
 						ci = new ChannelInfo(index, channelIndex, "WebRtuKP_DayMonth_"+index, su.getUnit());
+                        } else {
+                            throw new ProtocolException("Meter does not report a proper scalerUnit for all channels of his DailyMonthly LoadProfile, data can not be interpreted correctly.");
+						}
+
 						index++;
 						if(com.energyict.dlms.ParseUtils.isObisCodeCumulative(co.getLogicalName().getObisCode())){
 							//TODO need to check the wrapValue
@@ -108,7 +111,6 @@ public class DailyMonthlyProfile {
 				
 			}
 		} catch (final IOException e) {
-			e.printStackTrace();
 			throw new IOException("Failed to build the channelInfos." + e);
 		}
 		return channelInfos;
@@ -152,32 +154,30 @@ public class DailyMonthlyProfile {
 			}
 			
 		} catch (final IOException e) {
-			e.printStackTrace();
 			throw new IOException(e.getMessage());
 		}
 	}
 	
-	/**
-	 * Read the given object and return the scalerUnit.
-	 * If the unit is 0(not a valid value) then return a unitLess scalerUnit.
-	 * If you can not read the scalerUnit, then return a unitLess scalerUnit.
-	 * @param oc
-	 * @return
-	 * @throws IOException
-	 */
-	private ScalerUnit getMeterDemandRegisterScalerUnit(final ObisCode oc) throws IOException{
-		try {
-			ScalerUnit su = getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
-			if( su.getUnitCode() == 0){
-				su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
-			}
-			return su;
-		} catch (final IOException e) {
-			e.printStackTrace();
-			webrtu.getLogger().log(Level.INFO, "Could not get the scalerunit from object '" + oc + "'.");
-		}
-		return new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
-	}
+//	/**
+//	 * Read the given object and return the scalerUnit.
+//	 * If the unit is 0(not a valid value) then return a unitLess scalerUnit.
+//	 * If you can not read the scalerUnit, then return a unitLess scalerUnit.
+//	 * @param oc
+//	 * @return
+//	 * @throws IOException
+//	 */
+//	private ScalerUnit getMeterDemandRegisterScalerUnit(final ObisCode oc) throws IOException{
+//		try {
+//			ScalerUnit su = getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
+//			if( su.getUnitCode() == 0){
+//				su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
+//			}
+//			return su;
+//		} catch (final IOException e) {
+//			webrtu.getLogger().log(Level.INFO, "Could not get the scalerunit from object '" + oc + "'.");
+//		}
+//		return new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
+//	}
 	
 	private ProfileData sortOutProfiledate(final ProfileData profileData, final int timeDuration) {
 		final ProfileData pd = new ProfileData();
@@ -295,7 +295,6 @@ public class DailyMonthlyProfile {
 				webrtu.getLogger().info("No entries in LoadProfile");
 			}
 		} catch (final ClassCastException e) {
-			e.printStackTrace();
 			throw new ClassCastException("Configuration of the profile probably not correct.");
 		}
 	}
@@ -326,7 +325,6 @@ public class DailyMonthlyProfile {
 				}
 			}
 		} catch (final IOException e) {
-			e.printStackTrace();
 			throw new IOException("Failed to parse the intervalData objects form the datacontainer.");
 		}
 		
@@ -341,7 +339,6 @@ public class DailyMonthlyProfile {
 				}
 			}
 		} catch (final IOException e) {
-			e.printStackTrace();
 			throw new IOException("Could not retrieve the index of the profileData's status attribute.");
 		}
 		return -1;
@@ -355,17 +352,24 @@ public class DailyMonthlyProfile {
 				}
 			}
 		} catch (final IOException e) {
-			e.printStackTrace();
 			throw new IOException("Could not retrieve the index of the profileData's clock attribute.");
 		}
 		return -1;
 	}
 
-	private CosemObjectFactory getCosemObjectFactory(){
+    /**
+     * @return the used {@link java.util.logging.Logger}
+     */
+    @Override
+    protected Logger getLogger() {
+        return this.webrtu.getLogger();
+    }
+
+    protected CosemObjectFactory getCosemObjectFactory(){
 		return this.webrtu.getCosemObjectFactory();
 	}
 	
-	private Rtu getMeter(){
+	protected Rtu getMeter(){
 		return this.webrtu.getMeter();
 	}
 	

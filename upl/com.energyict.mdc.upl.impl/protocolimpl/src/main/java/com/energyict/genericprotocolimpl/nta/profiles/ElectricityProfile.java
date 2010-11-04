@@ -19,9 +19,7 @@ import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -31,8 +29,9 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class ElectricityProfile {
+public class ElectricityProfile extends AbstractNTAProfile{
 	
 	private final boolean DEBUG = false;
 	
@@ -45,11 +44,11 @@ public class ElectricityProfile {
 		this.webrtu = webrtu;
 	}
 	
-	public void getProfile(final ObisCode obisCode) throws IOException, SQLException, BusinessException {
+	public void getProfile(final ObisCode obisCode) throws IOException {
 		getProfile(obisCode, false);
 	}
 	
-	public void getProfile(final ObisCode electricityProfile, final boolean events) throws IOException, SQLException, BusinessException{
+	public void getProfile(final ObisCode electricityProfile, final boolean events) throws IOException {
 		final ProfileData profileData = new ProfileData( );
 		ProfileGeneric genericProfile;
 		
@@ -70,8 +69,7 @@ public class ElectricityProfile {
 					final Channel chn = getMeter().getChannel(i);
 					
 					//TODO this does not work with the 7.5 version
-					
-					if(!(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
+					if(!(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS) &&
 							!(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
 						channelCalendar = getFromCalendar(getMeter().getChannel(i));
 						if((fromCalendar == null) || (channelCalendar.before(fromCalendar))){
@@ -95,10 +93,17 @@ public class ElectricityProfile {
 			}
 			
 		} catch (final IOException e) {
-			e.printStackTrace();
 			throw new IOException(e.getMessage());
 		}
 	}
+
+    /**
+     * @return the used {@link java.util.logging.Logger}
+     */
+    @Override
+    protected Logger getLogger() {
+        return webrtu.getLogger();
+    }
 
 	private void verifyProfileInterval(final ProfileGeneric genericProfile, final List<ChannelInfo> channelInfos) throws IOException{
 		final Iterator<ChannelInfo> it = channelInfos.iterator();
@@ -127,7 +132,7 @@ public class ElectricityProfile {
 						if((su != null) && (su.getUnitCode() != 0)){
 							ci = new ChannelInfo(index, channelIndex, "NTA_"+index, su.getUnit());
 						} else {
-							ci = new ChannelInfo(index, channelIndex, "NTA_"+index, Unit.get(BaseUnit.UNITLESS));
+							throw new ProtocolException("Meter does not report a proper scalerUnit for all channels of his Electricity LoadProfile, data can not be interpreted correctly.");
 						}
 						
 						index++;
@@ -141,50 +146,22 @@ public class ElectricityProfile {
 				
 			}
 		} catch (final IOException e) {
-			e.printStackTrace();
 			throw new IOException("Failed to build the channelInfos." + e);
 		}
 		return channelInfos;
 	}
 
-	/**
-	 * Read the given object and return the scalerUnit.
-	 * If the unit is 0(not a valid value) then return a unitLess scalerUnit.
-	 * If you can not read the scalerUnit, then return a unitLess scalerUnit.
-	 * @param oc
-	 * @return
-	 * @throws IOException
-	 */
-	private ScalerUnit getMeterDemandRegisterScalerUnit(final ObisCode oc) throws IOException{
-		try {
-			ScalerUnit su = getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
-			if(su != null){
-				if(su.getUnitCode() == 0){
-					su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
-				}
-				
-			} else {
-				su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
-			}
-			return su;
-		} catch (final IOException e) {
-			e.printStackTrace();
-			webrtu.getLogger().log(Level.INFO, "Could not get the scalerunit from object '" + oc + "'.");
-		}
-		return new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
-	}
-	
-	private int getProfileChannelNumber(final int index){
+    protected int getProfileChannelNumber(final int index) {
 		int channelIndex = 0;
-		for(int i = 0; i < getMeter().getChannels().size(); i++){
+        for (int i = 0; i < getMeter().getChannels().size(); i++) {
 			
 			//TODO does not work with the 7.5 version, only in the 8.X
 			
-		if(!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
-				!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
+            if (!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.DAYS) &&
+                    !(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.MONTHS)) {
 			channelIndex++;
-			if(channelIndex == index){
-				return getMeter().getChannel(i).getLoadProfileIndex() -1;
+                if (channelIndex == index) {
+                    return getMeter().getChannel(i).getLoadProfileIndex() - 1;
 			}
 		}
 	}
@@ -269,7 +246,6 @@ public class ElectricityProfile {
 				}
 			}
 		} catch (final IOException e) {
-			e.printStackTrace();
 			throw new IOException("Failed to parse the intervalData objects form the datacontainer.");
 		}
 		
@@ -292,7 +268,6 @@ public class ElectricityProfile {
 				}
 			}
 		} catch (final IOException e) {
-			e.printStackTrace();
 			throw new IOException("Could not retrieve the index of the profileData's status attribute.");
 		}
 		return -1;
@@ -306,17 +281,16 @@ public class ElectricityProfile {
 				}
 			}
 		} catch (final IOException e) {
-			e.printStackTrace();
 			throw new IOException("Could not retrieve the index of the profileData's clock attribute.");
 		}
 		return -1;
 	}
 
-	private CosemObjectFactory getCosemObjectFactory(){
+	protected CosemObjectFactory getCosemObjectFactory(){
 		return this.webrtu.getCosemObjectFactory();
 	}
 	
-	private Rtu getMeter(){
+	protected Rtu getMeter(){
 		return this.webrtu.getMeter();
 	}
 	

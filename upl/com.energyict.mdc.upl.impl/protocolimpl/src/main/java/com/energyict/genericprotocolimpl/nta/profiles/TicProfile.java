@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
@@ -22,12 +23,11 @@ import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
 import com.energyict.genericprotocolimpl.webrtukp.TicDevice;
 import com.energyict.mdw.core.Channel;
+import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.*;
 
-public class TicProfile {
+public class TicProfile extends AbstractNTAProfile{
 
 	private final TicDevice ticDevice;
 	
@@ -127,7 +127,6 @@ public class TicProfile {
 				}
 			}
 		} catch (final IOException e) {
-			e.printStackTrace();
 			throw new IOException("Failed to parse the intervalData objects form the datacontainer.");
 		}
 		
@@ -142,7 +141,6 @@ public class TicProfile {
 				}
 			}
 		} catch (final IOException e) {
-			e.printStackTrace();
 			throw new IOException("Could not retrieve the index of the profileData's clock attribute.");
 		}
 		return -1;
@@ -156,7 +154,6 @@ public class TicProfile {
 				}
 			}
 		} catch (final IOException e) {
-			e.printStackTrace();
 			throw new IOException("Could not retrieve the index of the profileData's status attribute.");
 		}
 		return -1;
@@ -200,10 +197,10 @@ public class TicProfile {
 					channelIndex = getProfileChannelNumber(index+1);
 					if(channelIndex != -1){
 						final ScalerUnit su = getScalerUnit(co);
-						if((su != null) && (su.getUnitCode() != 0)){
-							ci = new ChannelInfo(index, channelIndex, "TicDevice_"+index, su.getUnit());
+						if((su != null) && (su.getUnitCode() != 0)) {
+							ci = new ChannelInfo(index, channelIndex, "TicDevice"+index, su.getUnit());
 						} else {
-							ci = new ChannelInfo(index, channelIndex, "TicDevice_"+index, Unit.get(BaseUnit.UNITLESS));
+                            throw new ProtocolException("Meter does not report a proper scalerUnit for all channels of his Tic LoadProfile, data can not be interpreted correctly.");
 						}
 						index++;
 						
@@ -217,7 +214,6 @@ public class TicProfile {
 				}
 			}
 		} catch (final IOException e){
-			e.printStackTrace();
 			throw new IOException("Failed to build the channelInfos." + e);
 		}
 		return channelInfos;
@@ -262,7 +258,6 @@ public class TicProfile {
 			}
 			return su;
 		} catch (final IOException e) {
-			e.printStackTrace();
 			this.ticDevice.getWebRTU().getLogger().log(Level.INFO, "Could not get the scalerunit from object '" + capturedObject.getLogicalName().getObisCode() + "'.");
 		}
 		return new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
@@ -290,7 +285,23 @@ public class TicProfile {
 		return oc.equals(this.ticDevice.getWebRTU().getMeterConfig().getStatusObject().getObisCode());
 	}
 
-	private CosemObjectFactory getCosemObjectFactory(){
+    /**
+     * @return the used {@link java.util.logging.Logger}
+     */
+    @Override
+    protected Logger getLogger() {
+        return ticDevice.getWebRTU().getLogger();
+    }
+
+    protected CosemObjectFactory getCosemObjectFactory(){
 		return this.ticDevice.getWebRTU().getCosemObjectFactory();
 	}
+
+    /**
+     * @return the used {@link com.energyict.mdw.core.Rtu}
+     */
+    @Override
+    protected Rtu getMeter() {
+        return ticDevice.getMeter();
+}
 }
