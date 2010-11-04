@@ -13,7 +13,7 @@ import java.util.List;
  * Date: 28-okt-2010
  * Time: 13:26:00
  */
-public class TableDECQueryResponseStructure extends AbstractTableQueryResponseStructure {
+public class TableDECQueryResponseStructure extends AbstractTableQueryResponseStructure<TableDECQueryResponseStructure> {
 
     private static final List<String> CAPTURED_OBJECTS;
 

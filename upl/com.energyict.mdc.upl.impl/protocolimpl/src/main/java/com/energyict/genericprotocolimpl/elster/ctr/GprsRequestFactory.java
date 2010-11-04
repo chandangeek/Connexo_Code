@@ -28,6 +28,7 @@ public class GprsRequestFactory {
     private MTU155Properties properties;
     private Logger logger;
     private TimeZone timeZone;
+    private IdentificationResponseStructure identificationStructure = null;
 
     /**
      * @param link
@@ -39,17 +40,42 @@ public class GprsRequestFactory {
     }
 
     /**
-     * 
      * @param inputStream
      * @param outputStream
      * @param logger
      * @param properties
      */
     public GprsRequestFactory(InputStream inputStream, OutputStream outputStream, Logger logger, MTU155Properties properties, TimeZone timeZone) {
+        this(inputStream, outputStream, logger, properties, timeZone, null);
+    }
+
+    /**
+     *
+     * @param link
+     * @param logger
+     * @param properties
+     * @param timeZone
+     * @param identificationStructure
+     */
+    public GprsRequestFactory(Link link, Logger logger, MTU155Properties properties, TimeZone timeZone, IdentificationResponseStructure identificationStructure) {
+        this(link.getInputStream(), link.getOutputStream(), logger, properties, timeZone, identificationStructure);
+    }
+
+    /**
+     * 
+     * @param inputStream
+     * @param outputStream
+     * @param logger
+     * @param properties
+     * @param timeZone
+     * @param identificationStructure
+     */
+    public GprsRequestFactory(InputStream inputStream, OutputStream outputStream, Logger logger, MTU155Properties properties, TimeZone timeZone, IdentificationResponseStructure identificationStructure) {
         this.connection = new SecureGprsConnection(inputStream, outputStream, properties);
         this.logger = logger;
         this.properties = properties;
         this.timeZone = timeZone;
+        this.identificationStructure = identificationStructure;
     }
 
     /**
@@ -73,7 +99,7 @@ public class GprsRequestFactory {
         }
         return logger;
     }
-    
+
     private byte[] getPassword() {
         return getProperties().getPassword().getBytes();
     }
@@ -104,7 +130,7 @@ public class GprsRequestFactory {
      * @return
      * @throws CTRException
      */
-    public IdentificationResponseStructure readIdentificationStructure() throws CTRException {
+    private IdentificationResponseStructure readIdentificationStructure() throws CTRException {
         GPRSFrame response = getConnection().sendFrameGetResponse(getIdentificationRequest());
         if (response.getData() instanceof IdentificationResponseStructure) {
             return (IdentificationResponseStructure) response.getData();
@@ -217,7 +243,7 @@ public class GprsRequestFactory {
         return request;
     }
 
-        private GPRSFrame getRegisterWriteRequest(ReferenceDate validityDate, WriteDataBlock wdb, P_Session p_Session, AttributeType attributeType, AbstractCTRObject... objects) throws CTRParsingException {
+    private GPRSFrame getRegisterWriteRequest(ReferenceDate validityDate, WriteDataBlock wdb, P_Session p_Session, AttributeType attributeType, AbstractCTRObject... objects) throws CTRParsingException {
         byte[] pssw = getPassword();
         byte[] objectBytes = new byte[]{};
         for (AbstractCTRObject object : objects) {
@@ -303,7 +329,7 @@ public class GprsRequestFactory {
         //Send the request with IDs, get the response containing objects
         GPRSFrame response = getConnection().sendFrameGetResponse(getRegisterRequest(attributeType, objectId));
         response.doParse();
-        
+
         //Parse the response into a list of objects
         RegisterQueryResponseStructure registerResponse;
         if (response.getData() instanceof RegisterQueryResponseStructure) {
@@ -315,7 +341,7 @@ public class GprsRequestFactory {
         return Arrays.asList(registerResponse.getObjects());
     }
 
-    public TableDECFQueryResponseStructure queryTableDECF() throws CTRException{
+    public TableDECFQueryResponseStructure queryTableDECF() throws CTRException {
         GPRSFrame response = getConnection().sendFrameGetResponse(getTableDECFRequest());
         response.doParse();
 
@@ -328,7 +354,7 @@ public class GprsRequestFactory {
         return tableDECFresponse;
     }
 
-    public TableDECQueryResponseStructure queryTableDEC() throws CTRException{
+    public TableDECQueryResponseStructure queryTableDEC() throws CTRException {
         GPRSFrame response = getConnection().sendFrameGetResponse(getTableDECRequest());
         response.doParse();
 
@@ -341,7 +367,7 @@ public class GprsRequestFactory {
         return tableDECresponse;
     }
 
-    public Data executeRequest(ReferenceDate validityDate, WriteDataBlock wdb, CTRObjectID id, byte[] data) throws CTRException{
+    public Data executeRequest(ReferenceDate validityDate, WriteDataBlock wdb, CTRObjectID id, byte[] data) throws CTRException {
         GPRSFrame response = getConnection().sendFrameGetResponse(getExecuteRequest(validityDate, wdb, id, data));
         response.doParse();
 
@@ -358,7 +384,7 @@ public class GprsRequestFactory {
         return executeResponse;
     }
 
-    public Data writeRegister(ReferenceDate validityDate, WriteDataBlock wdb, P_Session p_Session, AttributeType attributeType, AbstractCTRObject... objects) throws CTRException{
+    public Data writeRegister(ReferenceDate validityDate, WriteDataBlock wdb, P_Session p_Session, AttributeType attributeType, AbstractCTRObject... objects) throws CTRException {
         GPRSFrame response = getConnection().sendFrameGetResponse(getRegisterWriteRequest(validityDate, wdb, p_Session, attributeType, objects));
 
         //Check the response: should be Ack or Nack
@@ -378,7 +404,7 @@ public class GprsRequestFactory {
     public List<AbstractCTRObject> queryTrace(CTRObjectID id, PeriodTrace period, StartDate startDate, NumberOfElements numberOfElements) throws CTRException {
 
         //Send the id, the period (15min, 1h, 1day, ...), and the start date.
-        GPRSFrame response = getConnection().sendFrameGetResponse(getTraceRequest(id, period, startDate, numberOfElements ));
+        GPRSFrame response = getConnection().sendFrameGetResponse(getTraceRequest(id, period, startDate, numberOfElements));
         response.doParse();
 
         //Parse the records in the response into objects.
@@ -437,10 +463,18 @@ public class GprsRequestFactory {
         return fieldData;
     }
 
+    /**
+     * The device timezone
+     *
+     * @return
+     */
     public TimeZone getTimeZone() {
         return timeZone;
     }
 
+    /**
+     * Send an end of session to the device
+     */
     public void sendEndOfSession() {
         getLogger().severe("Closing session. Sending End Of Session Request.");
         try {
@@ -450,6 +484,11 @@ public class GprsRequestFactory {
         }
     }
 
+    /**
+     * Get a new EndOf session request
+     *
+     * @return
+     */
     private GPRSFrame getEndOfSessionRequest() {
         GPRSFrame request = new GPRSFrame();
         request.setAddress(getAddress());
@@ -462,4 +501,22 @@ public class GprsRequestFactory {
         request.setCpa(new Cpa(0x00));
         return request;
     }
+
+    /**
+     * Getter for the cached IdentificationResponseStructure
+     *
+     * @return
+     * @throws CTRException
+     */
+    public IdentificationResponseStructure getIdentificationStructure() {
+        if (identificationStructure == null) {
+            try {
+                identificationStructure = readIdentificationStructure();
+            } catch (CTRException e) {
+                getLogger().severe("Unable to get the IdentificationResponseStructure: " + e.getMessage());
+            }
+        }
+        return identificationStructure;
+    }
+
 }

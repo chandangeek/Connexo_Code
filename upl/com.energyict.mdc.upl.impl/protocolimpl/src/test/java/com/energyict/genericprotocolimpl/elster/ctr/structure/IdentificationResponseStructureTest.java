@@ -31,6 +31,6 @@ public class IdentificationResponseStructureTest {
         GPRSFrame response = new GPRSFrame().parse(identificationResponse, 0);
         assertTrue("Data field should be 'IdentificationResponseStructure'", response.getData() instanceof IdentificationResponseStructure);
         assertNotNull(((IdentificationResponseStructure) response.getData()).getPdr());
-        assertEquals(PDR, ((IdentificationResponseStructure) response.getData()).getPdr().getValue(0).getValue().toString());
+        assertEquals(PDR, ((IdentificationResponseStructure) response.getData()).getPdr().getValue());
     }
 }

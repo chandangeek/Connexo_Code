@@ -9,8 +9,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.Qualifier;
-import com.energyict.genericprotocolimpl.elster.ctr.structure.TableDECFQueryResponseStructure;
-import com.energyict.genericprotocolimpl.elster.ctr.structure.TableDECQueryResponseStructure;
+import com.energyict.genericprotocolimpl.elster.ctr.structure.*;
 import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
@@ -33,13 +32,14 @@ public class ObisCodeMapper {
     private List<CTRRegisterMapping> registerMapping = new ArrayList<CTRRegisterMapping>();
     private final GprsRequestFactory requestFactory;
     private MeterAmrLogging meterAmrLogging;
-                              
+
     private TableDECFQueryResponseStructure tableDECF;
     private TableDECQueryResponseStructure tableDEC;
     private static final String OBIS_DEVICE_STATUS = "0.0.96.10.1.255";
     private static final String OBIS_SEAL_STATUS = "0.0.96.10.2.255";
     private static final String OBIS_DIAG = "0.0.96.10.3.255";
     private static final String OBIS_DIAG_REDUCED = "0.0.96.10.4.255";
+    private static final String OBIS_EQUIPMENT_CLASS = "7.0.0.2.3.255";
 
     public ObisCodeMapper(GprsRequestFactory requestFactory, MeterAmrLogging meterAmrLogging) {
         this.requestFactory = requestFactory;
@@ -83,16 +83,17 @@ public class ObisCodeMapper {
         registerMapping.add(new CTRRegisterMapping(OBIS_SEAL_STATUS, "D.9.0"));     //seal status: status register 2
         registerMapping.add(new CTRRegisterMapping(OBIS_DIAG, "12.1.0"));           //Diagn: status register 3
         registerMapping.add(new CTRRegisterMapping(OBIS_DIAG_REDUCED, "12.2.0"));   //DiagnR: status register 4
-        registerMapping.add(new CTRRegisterMapping("7.0.0.2.0.255", "9.0.3"));      //Equipment configuration code
-        registerMapping.add(new CTRRegisterMapping("7.0.0.2.1.255", "9.0.4"));      //Firmware version
-        registerMapping.add(new CTRRegisterMapping("7.0.0.2.2.255", "9.0.7"));      //Protocol version supported
-        registerMapping.add(new CTRRegisterMapping("7.0.0.2.3.255", "9.0.5"));      //Equipment class
 
         registerMapping.add(new CTRRegisterMapping("0.0.96.12.5.255", "E.C.0"));    //gsm signal strength (deciBell)
         registerMapping.add(new CTRRegisterMapping("7.0.0.9.4.255", "8.1.2"));      //remaining shift in time
         registerMapping.add(new CTRRegisterMapping("0.0.96.6.6.255", "F.5.0", 3));  //battery time remaining (hours)
         registerMapping.add(new CTRRegisterMapping("0.0.96.6.0.255", "F.5.1", 3));  //battery hours used
         registerMapping.add(new CTRRegisterMapping("0.0.96.6.3.255", "F.5.2", 3));  //battery voltage
+
+        registerMapping.add(new CTRRegisterMapping("7.0.0.2.0.255", "9.0.3"));      //Equipment configuration code
+        registerMapping.add(new CTRRegisterMapping("7.0.0.2.1.255", "9.0.4"));      //Firmware version
+        registerMapping.add(new CTRRegisterMapping("7.0.0.2.2.255", "9.0.7"));      //Protocol version supported
+        registerMapping.add(new CTRRegisterMapping(OBIS_EQUIPMENT_CLASS, "9.0.5")); //Equipment class
 
     }
 
@@ -201,6 +202,8 @@ public class ObisCodeMapper {
             Calendar cal = Calendar.getInstance(TimeZone.getDefault());
             String description = SealStatusBit.getBrokenSealsDescription(value.getIntValue());
             return new RegisterValue(oc, quantity, cal.getTime(), cal.getTime(), cal.getTime(), cal.getTime(), 0, description);
+        } else if (isObis(oc, OBIS_EQUIPMENT_CLASS)) {
+            return new RegisterValue(oc, EquipmentClassInfo.getEquipmentClass(value.getValue().toString()));
         } else {
             return readGenericRegisterValue(oc, object, value);
         }
@@ -256,6 +259,9 @@ public class ObisCodeMapper {
         AbstractCTRObject object = null;
         if (list == null) {
             if (object == null) {
+                object = getObjectFromIdentificationTable(idObject);
+            }
+            if (object == null) {
                 object = getObjectFromDECFTable(idObject);
             }
             if (object == null) {
@@ -295,6 +301,24 @@ public class ObisCodeMapper {
         }
         object = list.get(0);
         return object;
+    }
+
+    /**
+     * Check if the requested object is in the Identification table, and read it if it is
+     *
+     * @param objectId
+     * @return
+     * @throws CTRException
+     */
+    private AbstractCTRObject getObjectFromIdentificationTable(CTRObjectID objectId) throws CTRException {
+        if (IdentificationResponseStructure.containsObjectId(objectId)) {
+            for (AbstractCTRObject ctrObject : getIdentificationTable().getObjects()) {
+                if (ctrObject.getId().toString().equals(objectId.toString())) {
+                    return ctrObject;
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -359,6 +383,16 @@ public class ObisCodeMapper {
             logger = Logger.getLogger(getClass().getName());
         }
         return logger;
+    }
+
+    /**
+     * Get the IdentificationResponseStructure from the request factory.
+     * This object is cached in the request factory
+     *
+     * @return
+     */
+    private IdentificationResponseStructure getIdentificationTable() {
+        return getRequestFactory().getIdentificationStructure();
     }
 
     /**

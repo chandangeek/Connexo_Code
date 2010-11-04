@@ -10,7 +10,7 @@ import java.util.List;
  * Date: 2-nov-2010
  * Time: 14:26:00
  */
-public abstract class AbstractTableQueryResponseStructure extends Data<AbstractTableQueryResponseStructure> {
+public abstract class AbstractTableQueryResponseStructure<T extends AbstractTableQueryResponseStructure> extends Data<T> {
 
     public AbstractTableQueryResponseStructure(boolean longFrame) {
         super(longFrame);

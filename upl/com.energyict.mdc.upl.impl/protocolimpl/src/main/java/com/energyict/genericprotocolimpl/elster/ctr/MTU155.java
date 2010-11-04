@@ -31,7 +31,6 @@ import java.util.logging.Logger;
  */
 public class MTU155 extends AbstractGenericProtocol {
 
-    private final Date now = new Date();
     private final StoreObject storeObject = new StoreObject();
     private final MTU155Properties properties = new MTU155Properties();
     private GprsRequestFactory requestFactory;
@@ -102,7 +101,7 @@ public class MTU155 extends AbstractGenericProtocol {
     }
 
     private void updateRequestFactory() {
-        this.requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties(), getTimeZone());
+        this.requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties(), getTimeZone(), getRequestFactory().getIdentificationStructure());
     }
 
     private void testMethod() throws CTRException {
@@ -363,7 +362,7 @@ public class MTU155 extends AbstractGenericProtocol {
      */
     private String readPdr() throws CTRException {
         log("Requesting IDENTIFICATION structure from device");
-        String pdr = getRequestFactory().readIdentificationStructure().getPdr().getValue(0).getValue().toString();
+        String pdr = getRequestFactory().getIdentificationStructure().getPdr().getValue();
         if (pdr == null) {
             throw new CTRException("Unable to detect meter. PDR value was 'null'!");
         }
@@ -396,7 +395,7 @@ public class MTU155 extends AbstractGenericProtocol {
     }
 
     public Date getNow() {
-        return now;
+        return new Date();
     }
 
     private void logSuccess(CommunicationScheduler commSchedule) {
