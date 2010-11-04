@@ -71,6 +71,7 @@ public class ProfileChannel {
     }
 
     //Checks if min > 60 or hours > 24 (indicates a time shift is in progress)
+
     private Date fixDate(Date date) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
@@ -193,6 +194,9 @@ public class ProfileChannel {
         Calendar fromCalendar = getFromCalendar();
         Calendar toCalendar = Calendar.getInstance(getDeviceTimeZone());
         lastReferenceDate = null;
+
+        getLogger().info("Reding profile data from [" + fromCalendar.getTime() + "] to [" + toCalendar.getTime() + "]");
+
         while (fromCalendar.before(toCalendar)) {
             try {
                 intervalDatas.addAll(getIntervalDataBlock(getChannelObjectId(), fromCalendar));
@@ -295,7 +299,8 @@ public class ProfileChannel {
     private Calendar getFromCalendar() {
         Date lastReading = getMeterChannel().getLastReading();
         if (lastReading == null) {
-            lastReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(getRtu());
+            //lastReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(getRtu());
+            lastReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastDayDate(getRtu().getTimeZone());
         }
         Calendar cal = ProtocolUtils.getCleanCalendar(getDeviceTimeZone());
         cal.setTime(lastReading);
@@ -303,6 +308,7 @@ public class ProfileChannel {
     }
 
     private class CTREndOfProfileException extends CTRException {
+
         public CTREndOfProfileException(String message) {
             super(message);
         }

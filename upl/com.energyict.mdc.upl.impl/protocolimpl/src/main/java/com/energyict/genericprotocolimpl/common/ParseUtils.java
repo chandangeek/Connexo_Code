@@ -189,6 +189,21 @@ public class ParseUtils {
 		return tempCalendar.getTime();
 	}
 
+    /**
+     * Create a midnight date from one month ago
+     * @param deviceTimeZone
+     * @return
+     */
+    public static Date getClearLastDayDate(TimeZone deviceTimeZone) {
+   		Calendar tempCalendar = Calendar.getInstance(deviceTimeZone != null ? deviceTimeZone : TimeZone.getDefault());
+   		tempCalendar.add(Calendar.DAY_OF_YEAR, -1);
+		tempCalendar.set(Calendar.HOUR_OF_DAY, 0 );
+		tempCalendar.set(Calendar.MINUTE, 0 );
+		tempCalendar.set(Calendar.SECOND, 0 );
+		tempCalendar.set(Calendar.MILLISECOND, 0 );
+		return tempCalendar.getTime();
+	}
+
 	/**
 	 * ex: "1.0.0.8.1.255" has 5 dots '.'
 	 * @param str - the complete string

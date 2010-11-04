@@ -31,7 +31,7 @@ public class CTRMeterEvent {
     public List<MeterEvent> getMeterEvents(Date fromDate) throws CTRException {
 
         if (fromDate == null) {
-            fromDate = ParseUtils.getClearLastMonthDate(getRequestFactory().getTimeZone());
+            fromDate = ParseUtils.getClearLastDayDate(getRequestFactory().getTimeZone());
         }
 
         boolean notFound = true;
