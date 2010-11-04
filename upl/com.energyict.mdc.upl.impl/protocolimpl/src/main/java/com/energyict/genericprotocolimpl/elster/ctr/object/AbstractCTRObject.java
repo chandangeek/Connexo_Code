@@ -115,8 +115,11 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
         return value;
     }
 
-    public CTRAbstractValue getValue(int index) {
+    public CTRAbstractValue getValue(int index) throws IndexOutOfBoundsException{
         //TODO: check out of bounds
+        if (index >= value.length) {
+            throw new IndexOutOfBoundsException("An error happened accessing a value from an array. \nIndex was " + index + ", but the array contains only " + value.length + " element(s)");
+        }
         return value[index];
     }
 

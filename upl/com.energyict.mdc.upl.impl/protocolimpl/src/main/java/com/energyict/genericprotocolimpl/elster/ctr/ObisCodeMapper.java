@@ -41,8 +41,9 @@ public class ObisCodeMapper {
     private static final String OBIS_DIAG = "0.0.96.10.3.255";
     private static final String OBIS_DIAG_REDUCED = "0.0.96.10.4.255";
 
-    public ObisCodeMapper(GprsRequestFactory requestFactory) {
+    public ObisCodeMapper(GprsRequestFactory requestFactory, MeterAmrLogging meterAmrLogging) {
         this.requestFactory = requestFactory;
+        this.meterAmrLogging = meterAmrLogging;
         initRegisterMapping();
     }
 
@@ -133,10 +134,7 @@ public class ObisCodeMapper {
 
         AbstractCTRObject object = getObject(regMap.getObjectId(), smsObjects);
         if (object == null) {
-            String message = "No suitable object available in received data";
-            getMeterAmrLogging().logRegisterFailure(message, obisCode);
-            getLogger().log(Level.WARNING, message);
-            throw new NoSuchRegisterException(message);
+            throw new NoSuchRegisterException("Received no suitable data for this register");
         }
 
         if (object.getQlf() == null) {

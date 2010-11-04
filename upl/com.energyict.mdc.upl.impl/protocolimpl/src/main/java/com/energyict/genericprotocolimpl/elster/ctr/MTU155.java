@@ -203,7 +203,7 @@ public class MTU155 extends AbstractGenericProtocol {
 
         // Read the events
         if (communicationProfile.getReadMeterEvents()) {
-            getLogger().log(Level.INFO, "Getting events for meter with serialnumber: " + getRtuSerialNumber());
+            getLogger().log(Level.INFO, "Getting events for meter with serial number: " + getRtuSerialNumber());
             CTRMeterEvent meterEvent = new CTRMeterEvent(getRequestFactory());
             List<MeterEvent> meterEvents = meterEvent.getMeterEvents(getEventsFromDate());
             ProfileData profileData = new ProfileData();
@@ -213,19 +213,19 @@ public class MTU155 extends AbstractGenericProtocol {
 
         // Read the register values
         if (communicationProfile.getReadMeterReadings()) {
-            getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + getRtuSerialNumber());
+            getLogger().log(Level.INFO, "Getting registers for meter with serial number: " + getRtuSerialNumber());
             storeObject.addAll(doReadRegisters(communicationProfile));
         }
 
         // Read the profiles
         if (communicationProfile.getReadDemandValues()) {
-            getLogger().log(Level.INFO, "Getting profile data for meter with serialnumber: " + getRtuSerialNumber());
+            getLogger().log(Level.INFO, "Getting profile data for meter with serial number: " + getRtuSerialNumber());
             readChannelData();
         }
 
         //Send the meter messages
         if (communicationProfile.getSendRtuMessage()) {
-            getLogger().log(Level.INFO, "Sending messages to meter with serialnumber: " + getRtuSerialNumber());
+            getLogger().log(Level.INFO, "Sending messages to meter with serial number: " + getRtuSerialNumber());
             // TODO: implement method
         }
 
@@ -359,6 +359,7 @@ public class MTU155 extends AbstractGenericProtocol {
     /**
      * @return the pdr value as String
      * @throws CTRException
+     * @throws IndexOutOfBoundsException
      */
     private String readPdr() throws CTRException {
         log("Requesting IDENTIFICATION structure from device");
@@ -437,7 +438,7 @@ public class MTU155 extends AbstractGenericProtocol {
      */
     public ObisCodeMapper getObisCodeMapper() {
         if (obisCodeMapper == null) {
-            this.obisCodeMapper = new ObisCodeMapper(getRequestFactory());
+            this.obisCodeMapper = new ObisCodeMapper(getRequestFactory(), getMeterAmrLogging());
         }
         return obisCodeMapper;
     }

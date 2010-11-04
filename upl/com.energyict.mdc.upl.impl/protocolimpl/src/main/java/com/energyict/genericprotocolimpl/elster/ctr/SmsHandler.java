@@ -31,11 +31,9 @@ import java.util.logging.Logger;
 
 
 /**
- *
  * Copyrights EnergyICT
  * Date: 20-sep-2010
  * Time: 9:58:20
- *
  */
 public class SmsHandler extends AbstractGenericProtocol implements MessageHandler {
 
@@ -75,12 +73,18 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
         ObjectMessage om = (ObjectMessage) message;
 
         this.sms = (Sms) om.getObject();
-        
+
         try {
             execute(null, setupLink(), Logger.getLogger(SmsHandler.class.getName()));
         } catch (IOException e) {
+            String msg = "An error occurred in the connection!";
+            log(msg);
+            getMeterAmrLogging().logInfo(msg);
             e.printStackTrace();
         } catch (LinkException e) {
+            String msg = "An error occurred in the connection!";
+            log(msg);
+            getMeterAmrLogging().logInfo(msg);
             e.printStackTrace();
         }
     }
@@ -90,10 +94,16 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
         this.sms = sms;
         try {
             execute(null, setupLink(), Logger.getLogger(SmsHandler.class.getName()));
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        } catch (LinkException e1) {
-            e1.printStackTrace();
+        } catch (IOException e) {
+            String msg = "An error occurred in the connection!";
+            log(msg);
+            getMeterAmrLogging().logInfo(msg);
+            e.printStackTrace();
+        } catch (LinkException e) {
+            String msg = "An error occurred in the connection!";
+            log(msg);
+            getMeterAmrLogging().logInfo(msg);
+            e.printStackTrace();
         }
     }
 
@@ -148,7 +158,7 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
     }
 
 
-    public void processSms(SMSFrame smsFrame) throws BusinessException, IOException, SQLException, LinkException {
+    public void processSmsFrame(SMSFrame smsFrame) throws BusinessException, IOException, SQLException, LinkException {
 
         List<CommunicationScheduler> communicationSchedulers = getRtu().getCommunicationSchedulers();
 
@@ -200,7 +210,7 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
         return DebugUtils.getConnectedDirectDialer("COM1", baudRate, dataBits, parity, stopBits);
     }
 
-    public SMSFrame decrypt(Sms sms) throws CTRParsingException, IOException {
+    public SMSFrame parseAndDecryptSms(Sms sms) throws CTRParsingException, IOException {
 
         SMSFrame smsFrame = new SMSFrame().parse(sms.getMessage(), 0);
         CTREncryption ctrEncryption = new CTREncryption(properties);
@@ -208,8 +218,10 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
         try {
             return (SMSFrame) ctrEncryption.decryptFrame((Frame) smsFrame);
         } catch (CtrCipheringException e) {
-            getMeterAmrLogging().logInfo("An error occurred in the secure connection!");
-            throw new CTRConnectionException("An error occurred in the secure connection!", e);
+            String message = "An error occurred in the secure connection!";
+            log(message);
+            getMeterAmrLogging().logInfo(message);
+            throw new CTRConnectionException(message, e);
         }
 
     }
@@ -228,38 +240,89 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
         smsFrame.doParse();
         String pdr = getRtu().getDialHomeId();
 
-        //Store event array
         if (smsFrame.getData() instanceof ArrayEventsQueryResponseStructure) {
             ArrayEventsQueryResponseStructure data = (ArrayEventsQueryResponseStructure) smsFrame.getData();
-
-            if (!data.getPdr().getValue()[0].getValue().equals(pdr)) {
-                String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
-                logWarning(message);
-                getMeterAmrLogging().logInfo(message);
-                throw new CTRException(message);
-            }
-
-            if (communicationProfile.getReadMeterEvents()) {
-                log("Storing events for meter with serial number: " + getRtuSerialNumber());
-                CTRMeterEvent ctrMeterEvent = new CTRMeterEvent(getRequestFactory());
-                List<MeterEvent> meterEvents = ctrMeterEvent.convertToMeterEvents(Arrays.asList(data.getEvento_Short()));
-                ProfileData profileData = new ProfileData();
-                profileData.setMeterEvents(ProtocolUtils.checkOnOverlappingEvents(meterEvents));
-                storeObject.add(getRtu(), profileData);
-            }
-
-
-        //Store Profile data from trace_C response: channel values = profile data
+            parseAndStoreEventArray(communicationProfile, pdr, data);
         } else if (smsFrame.getData() instanceof Trace_CQueryResponseStructure) {
             Trace_CQueryResponseStructure data = (Trace_CQueryResponseStructure) smsFrame.getData();
+            parseAndStoreTrace_C(pdr, data, communicationProfile);
+        } else if (smsFrame.getData() instanceof TableDECFQueryResponseStructure) {
+            TableDECFQueryResponseStructure data = (TableDECFQueryResponseStructure) smsFrame.getData();
+            parseAndStoreDECFTableData(communicationProfile, pdr, data);
+        } else if (smsFrame.getData() instanceof TableDECQueryResponseStructure) {
+            TableDECQueryResponseStructure data = (TableDECQueryResponseStructure) smsFrame.getData();
+            parseAndStoreDECTableData(communicationProfile, pdr, data);
+        } else {
+            String message = "Unrecognized data structure: " + smsFrame.getData().getClass().getSimpleName() + "\n" + "Expected: Array of event records, Trace_C response or TableDEC(F) response.";
+            logWarning(message);
+            getMeterAmrLogging().logInfo(message);
+            throw new CTRException(message);
+        }
 
-            if (!data.getPdr().getValue()[0].getValue().equals(pdr)) {
-                String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
-                logWarning(message);
-                getMeterAmrLogging().logInfo(message);
-                //throw new CTRException(message);
-            }
+        storeDataToEIServer();
+    }
 
+    private void parseAndStoreDECTableData(CommunicationProfile communicationProfile, String pdr, TableDECQueryResponseStructure data) throws CTRException {
+        if (!data.getPdr().getValue(0).getValue().equals(pdr)) {
+            String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
+            logWarning(message);
+            getMeterAmrLogging().logInfo(message);
+            //throw new CTRException(message);
+        }
+
+        if (communicationProfile.getReadMeterReadings()) {
+            log("Getting registers for meter with serial number: " + getRtuSerialNumber());
+            storeObject.addAll(doReadRegisters(communicationProfile, data));
+        } else {
+            String message = "Received SMS with register data, but register readings in EIServer are disabled for this meter ";
+            logWarning(message);
+            getMeterAmrLogging().logInfo(message);
+        }
+    }
+
+    private void parseAndStoreDECFTableData(CommunicationProfile communicationProfile, String pdr, TableDECFQueryResponseStructure data) throws CTRException {
+        if (!data.getPdr().getValue(0).getValue().equals(pdr)) {
+            String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
+            logWarning(message);
+            getMeterAmrLogging().logInfo(message);
+            //throw new CTRException(message);
+        }
+
+        if (communicationProfile.getReadMeterReadings()) {
+            log("Getting registers for meter with serial number: " + getRtuSerialNumber());
+            storeObject.addAll(doReadRegisters(communicationProfile, data));
+        } else {
+            String message = "Received SMS with register data, but register readings in EIServer are disabled for this meter ";
+            logWarning(message);
+            getMeterAmrLogging().logInfo(message);
+        }
+    }
+
+    private void storeDataToEIServer() {
+        try {
+            storeObject.doExecute();
+        } catch (BusinessException e) {
+            String message = "An error happened storing the data to EIServer";
+            logWarning(message);
+            getMeterAmrLogging().logInfo(message);
+            e.printStackTrace();
+        } catch (SQLException e) {
+            String message = "An error happened storing the data to the Oracle Database";
+            logWarning(message);
+            getMeterAmrLogging().logInfo(message);
+            e.printStackTrace();
+        }
+    }
+
+    private void parseAndStoreTrace_C(String pdr, Trace_CQueryResponseStructure data, CommunicationProfile communicationProfile) {
+        if (!data.getPdr().getValue(0).getValue().equals(pdr)) {
+            String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
+            logWarning(message);
+            getMeterAmrLogging().logInfo(message);
+            //throw new CTRException(message);
+        }
+        if (communicationProfile.getReadDemandValues()) {
+            getLogger().log(Level.INFO, "Getting profile data for meter with serialnumber: " + getRtuSerialNumber());
             List<Channel> channelList = getRtu().getChannels();
             for (Channel channel : channelList) {
                 try {
@@ -279,52 +342,33 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
                     getMeterAmrLogging().logInfo(message);
                 }
             }
-
-        //Store register data from DECF table response
-        } else if (smsFrame.getData() instanceof TableDECFQueryResponseStructure) {
-            TableDECFQueryResponseStructure data = (TableDECFQueryResponseStructure) smsFrame.getData();
-
-            if (!data.getPdr().getValue()[0].getValue().equals(pdr)) {
-                String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
-                logWarning(message);
-                getMeterAmrLogging().logInfo(message);
-                throw new CTRException(message);
-            }
-
-            if (communicationProfile.getReadMeterReadings()) {
-                log("Getting registers for meter with serial number: " + getRtuSerialNumber());
-                storeObject.addAll(doReadRegisters(communicationProfile, data));
-            }
-
-        //Store register data from DEC table response
-        } else if (smsFrame.getData() instanceof TableDECQueryResponseStructure) {
-            TableDECQueryResponseStructure data = (TableDECQueryResponseStructure) smsFrame.getData();
-
-            if (!data.getPdr().getValue()[0].getValue().equals(pdr)) {
-                String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
-                logWarning(message);
-                getMeterAmrLogging().logInfo(message);
-                throw new CTRException(message);
-            }
-
-            if (communicationProfile.getReadMeterReadings()) {
-                log("Getting registers for meter with serial number: " + getRtuSerialNumber());
-                storeObject.addAll(doReadRegisters(communicationProfile, data));
-            }
-
         } else {
-            String message = "Unrecognized data structure: " + smsFrame.getData().getClass().getSimpleName() + "\n" + "Expected: Array of events, Trace_C response or TableDEC(F) response.";
+            String message = "Received SMS with profile data, but profile readings in EIServer are disabled for this meter ";
             logWarning(message);
             getMeterAmrLogging().logInfo(message);
-            throw new CTRException(message);
         }
 
-        try {
-            storeObject.doExecute();
-        } catch (BusinessException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
+    }
+
+    private void parseAndStoreEventArray(CommunicationProfile communicationProfile, String pdr, ArrayEventsQueryResponseStructure data) {
+        if (!data.getPdr().getValue(0).getValue().equals(pdr)) {
+            String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
+            logWarning(message);
+            getMeterAmrLogging().logInfo(message);
+            //throw new CTRException(message);
+        }
+
+        if (communicationProfile.getReadMeterEvents()) {
+            log("Storing events for meter with serial number: " + getRtuSerialNumber());
+            CTRMeterEvent ctrMeterEvent = new CTRMeterEvent(getRequestFactory());
+            List<MeterEvent> meterEvents = ctrMeterEvent.convertToMeterEvents(Arrays.asList(data.getEvento_Short()));
+            ProfileData profileData = new ProfileData();
+            profileData.setMeterEvents(ProtocolUtils.checkOnOverlappingEvents(meterEvents));
+            storeObject.add(getRtu(), profileData);
+        } else {
+            String message = "Received SMS with event records, but event readings in EIServer are disabled for this meter ";
+            logWarning(message);
+            getMeterAmrLogging().logInfo(message);
         }
     }
 
@@ -372,22 +416,23 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
                         }
                     } catch (NoSuchRegisterException e) {
                         log(Level.FINEST, e.getMessage());
-                        getMeterAmrLogging().logRegisterFailure(e, obisCode);
-                        getLogger().log(Level.INFO, "ObisCode " + obisCode + " is not supported by the meter.");
+                        getMeterAmrLogging().logInfo("No such register: Unable to read " + rtuRegister.toString() + "(" + obisCode + ") " + e.getMessage());
+                        getLogger().log(Level.INFO, "Received no data for " + rtuRegister.toString() + "(" + obisCode + ") ");
                     }
                 }
             } catch (IOException e) {
                 //TODO if the connection is out you should not try and read the others as well...
+                getMeterAmrLogging().logInfo("An error occurred in the connection!");
                 log(Level.FINEST, e.getMessage());
                 log("Reading register with obisCode " + obisCode + " FAILED.");
             }
         }
         return regValueMap;
     }
-    
+
     public ObisCodeMapper getObisCodeMapper() {
         if (obisCodeMapper == null) {
-            this.obisCodeMapper = new ObisCodeMapper(getRequestFactory());
+            this.obisCodeMapper = new ObisCodeMapper(getRequestFactory(), getMeterAmrLogging());
         }
         return obisCodeMapper;
     }
@@ -420,7 +465,9 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
             try {
                 rtu = CommonUtils.findDeviceByPhoneNumber(checkFormat(sms.getFrom()));     //try again, with other phone number format
             } catch (IOException e1) {
-                logWarning("Failed to find a unique RTU with phone number " + sms.getFrom());
+                String message = "Failed to find a unique RTU with phone number " + sms.getFrom();
+                logWarning(message);
+                getMeterAmrLogging().logInfo(message);
             }
         }
 
@@ -430,8 +477,11 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
 
 
         try {
-            processSms(decrypt(this.sms));
+            processSmsFrame(parseAndDecryptSms(this.sms));
         } catch (LinkException e) {
+            String message = "An error occurred in the connection!";
+            log(message);
+            getMeterAmrLogging().logInfo(message);
             e.printStackTrace();
         }
     }
@@ -441,6 +491,7 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
     }
 
     //Replace +XY by 0, e.g. +32 = 0, +39 = 0
+
     private String checkFormat(String from) {
         if ("+".equals(Character.toString(from.charAt(0)))) {
             from = "0" + from.substring(3);

@@ -164,7 +164,7 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
      *
      * @return
      */
-    public Date getDate() {
+    public Date getDate() throws IndexOutOfBoundsException{
         if (getId().is("8.0.1")) {
             Calendar cal = Calendar.getInstance();
             cal.set(Calendar.YEAR, getValue(0).getIntValue() + 2000);
