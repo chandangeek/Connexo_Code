@@ -70,11 +70,14 @@ public class MTU155 extends AbstractGenericProtocol {
             getProtocolProperties().addProperties(rtu.getProperties());
             updateRequestFactory();
             readDevice();
-            disconnect();
-            getStoreObject().doExecute();
-
         } catch (CTRException e) {
             getLogger().severe(e.getMessage());
+        } finally {
+            disconnect();
+        }
+
+        try {
+            getStoreObject().doExecute();
         } catch (BusinessException e) {
             e.printStackTrace();
             getLogger().severe(e.getMessage());
@@ -82,6 +85,7 @@ public class MTU155 extends AbstractGenericProtocol {
             e.printStackTrace();
             getLogger().severe(e.getMessage());
         }
+
     }
 
     private Properties getPropertiesFromProtocolClass() {
