@@ -40,6 +40,7 @@ public class ProfileChannelForSms {
         this.meterClock = getTimeFromTrace_C(response.getDateAndhourS());
     }
 
+    //Check time sent in trace_c. Use this time instead of querying for the meter clock.
     private Date getTimeFromTrace_C(CTRAbstractValue<BigDecimal>[] values) {
 
         Calendar cal = Calendar.getInstance(timeZone);
