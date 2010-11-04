@@ -327,7 +327,7 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
             for (Channel channel : channelList) {
                 try {
                     if (getProtocolProperties().getChannelConfig().getChannelId(data.getId().toString()) == (channel.getLoadProfileIndex() - 1)) {
-                        ProfileChannelForSms profileForSms = new ProfileChannelForSms(logger, properties, channel, data, getTimeZone());
+                        ProfileChannelForSms profileForSms = new ProfileChannelForSms(logger, properties, channel, data, getTimeZone(), getMeterAmrLogging());
                         ProfileData pd = profileForSms.getProfileData();
                         storeObject.add(channel, pd);
                         log("Added profile data for channel " + channel.toString() + ". Data ID is " + data.getId().toString());

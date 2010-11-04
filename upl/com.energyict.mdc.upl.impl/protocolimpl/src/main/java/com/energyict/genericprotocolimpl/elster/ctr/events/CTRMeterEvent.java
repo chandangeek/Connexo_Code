@@ -77,88 +77,88 @@ public class CTRMeterEvent {
 
             switch (code) {
                 case 0x30:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, "Generic");
+                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, "Generic");
                     break;
                 case 0x31:
-                    meterEvent = new MeterEvent(date, MeterEvent.LIMITER_THRESHOLD_EXCEEDED, "Over Limit");
+                    meterEvent = new MeterEvent(date, MeterEvent.LIMITER_THRESHOLD_EXCEEDED, code, "Over Limit");
                     break;
                 case 0x32:
-                    meterEvent = new MeterEvent(date, MeterEvent.MEASUREMENT_SYSTEM_ERROR, "Out of range");
+                    meterEvent = new MeterEvent(date, MeterEvent.MEASUREMENT_SYSTEM_ERROR, code, "Out of range");
                     break;
                 case 0x33:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, "Programming");
+                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, "Programming");
                     break;
                 case 0x34:
-                    meterEvent = new MeterEvent(date, MeterEvent.CONFIGURATIONCHANGE, "Modification of a relevant parameter");
+                    meterEvent = new MeterEvent(date, MeterEvent.CONFIGURATIONCHANGE, code, "Modification of a relevant parameter");
                     break;
                 case 0x35:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, "General fault");
+                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, "General fault");
                     break;
                 case 0x36:
-                    meterEvent = new MeterEvent(date, MeterEvent.POWERDOWN, "Primary supply OFF");
+                    meterEvent = new MeterEvent(date, MeterEvent.POWERDOWN, code, "Primary supply OFF");
                     break;
                 case 0x37:
-                    meterEvent = new MeterEvent(date, MeterEvent.BATTERY_VOLTAGE_LOW, "Battery low");
+                    meterEvent = new MeterEvent(date, MeterEvent.BATTERY_VOLTAGE_LOW, code, "Battery low");
                     break;
                 case 0x38:
-                    meterEvent = new MeterEvent(date, MeterEvent.SETCLOCK_AFTER, "Modify date & time");
+                    meterEvent = new MeterEvent(date, MeterEvent.SETCLOCK_AFTER, code, "Modify date & time");
                     break;
                 case 0x3A:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, "Calculation error");
+                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, "Calculation error");
                     break;
                 case 0x3B:
-                    meterEvent = new MeterEvent(date, MeterEvent.CLEAR_DATA, "Memories reset");
+                    meterEvent = new MeterEvent(date, MeterEvent.CLEAR_DATA, code, "Memories reset");
                     break;
                 case 0x3C:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, "Relevant seal deactivated");
+                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, "Relevant seal deactivated");
                     break;
                 case 0x3D:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, "Synchronizaztion error");
+                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, "Synchronization error");
                     break;
                 case 0x3E:
-                    meterEvent = new MeterEvent(date, MeterEvent.EVENT_LOG_CLEARED, "Reset event queue");
+                    meterEvent = new MeterEvent(date, MeterEvent.EVENT_LOG_CLEARED, code, "Reset event queue");
                     break;
                 case 0x3F:
-                    meterEvent = new MeterEvent(date, MeterEvent.DAYLIGHT_SAVING_TIME_ENABLED_OR_DISABLED, "Day light saving time programming");
+                    meterEvent = new MeterEvent(date, MeterEvent.DAYLIGHT_SAVING_TIME_ENABLED_OR_DISABLED, code, "Day light saving time programming");
                     break;
                 case 0x40:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, "Event buffer full");
+                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, "Event buffer full");
                     break;
                 case 0x41:
-                    meterEvent = new MeterEvent(date, MeterEvent.CONFIGURATIONCHANGE, "Tariff scheme configuration");
+                    meterEvent = new MeterEvent(date, MeterEvent.CONFIGURATIONCHANGE, code, "Tariff scheme configuration");
                     break;
                 case 0x42:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, "Activation of a new tariff scheme");
+                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, "Activation of a new tariff scheme");
                     break;
                 case 0x43:
-                    meterEvent = new MeterEvent(date, MeterEvent.FIRMWARE_READY_FOR_ACTIVATION, "Download of new software");
+                    meterEvent = new MeterEvent(date, MeterEvent.FIRMWARE_READY_FOR_ACTIVATION, code, "Download of new software");
                     break;
                 case 0x44:
-                    meterEvent = new MeterEvent(date, MeterEvent.FIRMWARE_ACTIVATED, "Activation of new software");
+                    meterEvent = new MeterEvent(date, MeterEvent.FIRMWARE_ACTIVATED, code, "Activation of new software");
                     break;
                 case 0x46:
-                    meterEvent = new MeterEvent(date, MeterEvent.FRAUD_ATTEMPT_MBUS, "Fraud attempt");
+                    meterEvent = new MeterEvent(date, MeterEvent.TAMPER, code, "Fraud attempt");
                     break;
                 case 0x47:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, "Change of status");
+                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, "Change of status");
                     break;
                 case 0x48:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, "Programming failed");
+                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, "Programming failed");
                     break;
                 case 0x49:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, "Flow cut-off");
+                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, "Flow cut-off");
                     break;
                 case 0x4A:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, "Pressure cut-off");
+                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, "Pressure cut-off");
                     break;
                 case 0x4B:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, "Halt volume calculation at standard therm. cond.");
+                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, "Halt volume calculation at standard therm. cond.");
                     break;
                 case 0x4C:
-                    meterEvent = new MeterEvent(date, MeterEvent.CONFIGURATIONCHANGE, "Modification of security parameters");
+                    meterEvent = new MeterEvent(date, MeterEvent.CONFIGURATIONCHANGE, code, "Modification of security parameters");
                     break;
                 case 0x4D:
-                    meterEvent = new MeterEvent(date, MeterEvent.REPLACE_BATTERY_MBUS, "Replace batteries");
+                    meterEvent = new MeterEvent(date, MeterEvent.REPLACE_BATTERY, code, "Replace batteries");
                     break;
                 default:
                     meterEvent = new MeterEvent(date, MeterEvent.OTHER);

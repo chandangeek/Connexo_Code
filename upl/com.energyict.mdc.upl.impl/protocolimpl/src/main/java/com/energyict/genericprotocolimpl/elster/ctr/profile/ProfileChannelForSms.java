@@ -8,6 +8,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValu
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.Qualifier;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.Trace_CQueryResponseStructure;
 import com.energyict.genericprotocolimpl.elster.ctr.util.CTRObjectInfo;
+import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.protocol.*;
@@ -30,14 +31,16 @@ public class ProfileChannelForSms {
     private Logger logger;
     private TimeZone timeZone;
     private Trace_CQueryResponseStructure response;
+    private MeterAmrLogging meterAmrLogging;
 
-    public ProfileChannelForSms(Logger logger, MTU155Properties properties, Channel meterChannel, Trace_CQueryResponseStructure response, TimeZone timeZone) {
+    public ProfileChannelForSms(Logger logger, MTU155Properties properties, Channel meterChannel, Trace_CQueryResponseStructure response, TimeZone timeZone, MeterAmrLogging meterAmrLogging) {
         this.properties = properties;
         this.meterChannel = meterChannel;
         this.logger = logger;
         this.response = response;
         this.timeZone = timeZone;
         this.meterClock = getTimeFromTrace_C(response.getDateAndhourS());
+        this.meterAmrLogging = meterAmrLogging;
     }
 
     //Check time sent in trace_c. Use this time instead of querying for the meter clock.
@@ -147,7 +150,7 @@ public class ProfileChannelForSms {
 
         ProfileData pd = new ProfileData();
         pd.setChannelInfos(getChannelInfos());
-        pd.setIntervalDatas(getIntervalData());
+        pd.setIntervalDatas(getIntervalDatasFromResponse(response));
         System.out.println(ProtocolTools.getProfileInfo(pd));
         return pd;
     }
@@ -162,18 +165,6 @@ public class ProfileChannelForSms {
         ChannelInfo info = new ChannelInfo(0, getChannelIndex() - 1, symbol, unit);
         channelInfos.add(info);
         return channelInfos;
-    }
-
-    /**
-     * @throws CTRException
-     */
-    private List<IntervalData> getIntervalData() throws CTRException {
-        List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
-        //Calendar fromCalendar = getFromCalendar();
-        //Calendar toCalendar = Calendar.getInstance(getDeviceTimeZone());
-        intervalDatas.addAll(getIntervalDatasFromResponse(response));
-        //fromCalendar.setTime(getNewestIntervalDate(intervalDatas));
-        return intervalDatas;
     }
 
     /**
@@ -228,6 +219,15 @@ public class ProfileChannelForSms {
         }
         return intervals;
     }
+
+
+    public MeterAmrLogging getMeterAmrLogging() {
+        if (meterAmrLogging == null) {
+            meterAmrLogging = new MeterAmrLogging();
+        }
+        return meterAmrLogging;
+    }
+
 
     private int getIntervalStateBits(Qualifier qualifier) {
         if (qualifier.isInvalidMeasurement()) {
