@@ -437,7 +437,14 @@ class Profile {
             sb.append( value + ", " );
         }
 
-        String effectValue = ((IonObject)s.get( "effectValue" )).getValue().toString();
+        Object effectObject = s.get( "effectValue" );
+        String effectValue = "";
+        if(((IonObject) effectObject).isException()){
+            effectValue = effectObject.toString();
+        } else if( ((IonObject)effectObject).getValue() != null ){
+            effectValue = ((IonObject)effectObject).getValue().toString();
+        }
+
         if( o!= null ) {
             sb.append( effectValue + ", " );
         }
