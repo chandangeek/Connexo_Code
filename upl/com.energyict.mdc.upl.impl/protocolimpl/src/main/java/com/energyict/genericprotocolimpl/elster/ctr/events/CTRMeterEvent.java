@@ -19,9 +19,16 @@ public class CTRMeterEvent {
     private final GprsRequestFactory requestFactory;
     private CTRAbstractValue[][] eventRecords;
     private List<CTRAbstractValue[]> allEventRecords = new ArrayList();
+    private final TimeZone timeZone;
 
     public CTRMeterEvent(GprsRequestFactory requestFactory) {
         this.requestFactory = requestFactory;
+        this.timeZone = requestFactory.getTimeZone();
+    }
+
+    public CTRMeterEvent(TimeZone timeZone) {
+        this.requestFactory = null;
+        this.timeZone = timeZone;
     }
 
     public GprsRequestFactory getRequestFactory() {
@@ -30,8 +37,12 @@ public class CTRMeterEvent {
 
     public List<MeterEvent> getMeterEvents(Date fromDate) throws CTRException {
 
+        if (getRequestFactory() == null) {
+            throw new CTRException("Error, the request factory was not found");
+        }
+
         if (fromDate == null) {
-            fromDate = ParseUtils.getClearLastDayDate(getRequestFactory().getTimeZone());
+            fromDate = ParseUtils.getClearLastDayDate(getTimeZone());
         }
 
         boolean notFound = true;
@@ -56,8 +67,12 @@ public class CTRMeterEvent {
         return convertToMeterEvents(allEventRecords);
     }
 
+    private TimeZone getTimeZone() {
+        return timeZone;
+    }
+
     private Date getDateFromBytes(CTRAbstractValue[] event) {
-        Calendar cal = Calendar.getInstance(requestFactory.getTimeZone());
+        Calendar cal = Calendar.getInstance(getTimeZone());
         cal.set(Calendar.YEAR, event[0].getIntValue() + 2000);
         cal.set(Calendar.MONTH, event[1].getIntValue() - 1);
         cal.set(Calendar.DAY_OF_MONTH, event[2].getIntValue());

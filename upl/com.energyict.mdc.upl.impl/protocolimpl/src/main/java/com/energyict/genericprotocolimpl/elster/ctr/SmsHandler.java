@@ -2,8 +2,9 @@ package com.energyict.genericprotocolimpl.elster.ctr;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Sms;
-import com.energyict.dialer.core.*;
-import com.energyict.genericprotocolimpl.common.*;
+import com.energyict.dialer.core.LinkException;
+import com.energyict.genericprotocolimpl.common.CommonUtils;
+import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.elster.ctr.encryption.CTREncryption;
 import com.energyict.genericprotocolimpl.elster.ctr.events.CTRMeterEvent;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.*;
@@ -20,7 +21,6 @@ import com.energyict.mdw.core.*;
 import com.energyict.mdw.messaging.MessageHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.debug.DebugUtils;
 
 import javax.jms.*;
 import java.io.IOException;
@@ -35,7 +35,7 @@ import java.util.logging.Logger;
  * Date: 20-sep-2010
  * Time: 9:58:20
  */
-public class SmsHandler extends AbstractGenericProtocol implements MessageHandler {
+public class SmsHandler implements MessageHandler {
 
     private Rtu rtu;
     private MTU155Properties properties = new MTU155Properties();
@@ -44,7 +44,6 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
     private final Date now = new Date();
     private final StoreObject storeObject = new StoreObject();
     private ObisCodeMapper obisCodeMapper;
-    private GprsRequestFactory requestFactory;
     private MeterInfo meterInfo;
     private Sms sms;
 
@@ -68,38 +67,16 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
     }
 
     public void processMessage(Message message, Logger logger) throws JMSException, BusinessException, SQLException {
-
         this.logger = logger;
         ObjectMessage om = (ObjectMessage) message;
-
-        this.sms = (Sms) om.getObject();
-
-        try {
-            execute(null, setupLink(), Logger.getLogger(SmsHandler.class.getName()));
-        } catch (IOException e) {
-            String msg = "An error occurred in the connection!";
-            log(msg);
-            getMeterAmrLogging().logInfo(msg);
-            e.printStackTrace();
-        } catch (LinkException e) {
-            String msg = "An error occurred in the connection!";
-            log(msg);
-            getMeterAmrLogging().logInfo(msg);
-            e.printStackTrace();
-        }
+        processMessage((Sms) om.getObject());
     }
 
     public void processMessage(Sms sms) throws JMSException, BusinessException, SQLException {
-
         this.sms = sms;
         try {
-            execute(null, setupLink(), Logger.getLogger(SmsHandler.class.getName()));
+            doExecute();
         } catch (IOException e) {
-            String msg = "An error occurred in the connection!";
-            log(msg);
-            getMeterAmrLogging().logInfo(msg);
-            e.printStackTrace();
-        } catch (LinkException e) {
             String msg = "An error occurred in the connection!";
             log(msg);
             getMeterAmrLogging().logInfo(msg);
@@ -112,7 +89,7 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
         List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
         journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, "0"));
         journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + getRtu().toString() + "]"));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "" + getTimeDifference()));
+        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
         journal.add(new AmrJournalEntry(AmrJournalEntry.CC_PROTOCOLERROR));
         journal.addAll(getMeterAmrLogging().getJournalEntries());
         try {
@@ -125,19 +102,11 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
         }
     }
 
-    public GprsRequestFactory getRequestFactory() {
-        if (requestFactory == null) {
-            requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties(), TimeZone.getDefault());
-        }
-        return requestFactory;
-    }
-
-
     private void logSuccess(CommunicationScheduler commSchedule) {
         List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
         journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, "0"));
         journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + getRtu().toString() + "]"));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "" + getTimeDifference()));
+        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
         journal.add(new AmrJournalEntry(AmrJournalEntry.CC_OK));
         journal.addAll(getMeterAmrLogging().getJournalEntries());
         try {
@@ -198,16 +167,6 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
                 }
             }
         }
-    }
-
-    private Link setupLink() throws BusinessException, IOException, SQLException, LinkException {
-
-        int baudRate = 9600;
-        int dataBits = SerialCommunicationChannel.DATABITS_8;
-        int parity = SerialCommunicationChannel.PARITY_NONE;
-        int stopBits = SerialCommunicationChannel.STOPBITS_1;
-
-        return DebugUtils.getConnectedDirectDialer("COM1", baudRate, dataBits, parity, stopBits);
     }
 
     public SMSFrame parseAndDecryptSms(Sms sms) throws CTRParsingException, IOException {
@@ -360,7 +319,7 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
 
         if (communicationProfile.getReadMeterEvents()) {
             log("Storing events for meter with serial number: " + getRtuSerialNumber());
-            CTRMeterEvent ctrMeterEvent = new CTRMeterEvent(getRequestFactory());
+            CTRMeterEvent ctrMeterEvent = new CTRMeterEvent(getTimeZone());
             List<MeterEvent> meterEvents = ctrMeterEvent.convertToMeterEvents(Arrays.asList(data.getEvento_Short()));
             ProfileData profileData = new ProfileData();
             profileData.setMeterEvents(ProtocolUtils.checkOnOverlappingEvents(meterEvents));
@@ -371,15 +330,6 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
             getMeterAmrLogging().logInfo(message);
         }
     }
-
-
-    private MeterInfo getMeterInfo() {
-        if (meterInfo == null) {
-            meterInfo = new MeterInfo(getRequestFactory(), getLogger(), getTimeZone());
-        }
-        return meterInfo;
-    }
-
 
     /**
      * @return the meter's {@link TimeZone}
@@ -432,7 +382,7 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
 
     public ObisCodeMapper getObisCodeMapper() {
         if (obisCodeMapper == null) {
-            this.obisCodeMapper = new ObisCodeMapper(getRequestFactory(), getMeterAmrLogging());
+            this.obisCodeMapper = new ObisCodeMapper(null, getMeterAmrLogging());
         }
         return obisCodeMapper;
     }
@@ -453,11 +403,6 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
         return "1.0";
     }
 
-    private void disconnect() {
-        getRequestFactory().sendEndOfSession();
-    }
-
-    @Override
     protected void doExecute() throws BusinessException, SQLException, IOException {
         try {
             rtu = CommonUtils.findDeviceByPhoneNumber(sms.getFrom());
@@ -473,7 +418,6 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
 
         getProtocolProperties().addProperties(rtu.getProtocol().getProperties());
         getProtocolProperties().addProperties(rtu.getProperties());
-        updateRequestFactory();
 
 
         try {
@@ -486,12 +430,7 @@ public class SmsHandler extends AbstractGenericProtocol implements MessageHandle
         }
     }
 
-    private void updateRequestFactory() {
-        this.requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties(), getTimeZone());
-    }
-
     //Replace +XY by 0, e.g. +32 = 0, +39 = 0
-
     private String checkFormat(String from) {
         if ("+".equals(Character.toString(from.charAt(0)))) {
             from = "0" + from.substring(3);
