@@ -418,4 +418,4 @@
 
 -keepnames class com.energyict.genericprotocolimpl.elster.ctr.MTU155
 
-
+-keepnames class com.energyict.genericprotocolimpl.elster.ctr.SmsHandler
