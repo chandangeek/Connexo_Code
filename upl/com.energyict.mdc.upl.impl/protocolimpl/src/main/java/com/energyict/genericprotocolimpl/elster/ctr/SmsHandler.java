@@ -139,8 +139,6 @@ public class SmsHandler implements MessageHandler {
                 meterAmrLogging = null;
                 if (cs.getNextCommunication() == null) {
                     log("CommunicationScheduler '" + csName + "' nextCommunication is 'null'. Skipping.");
-                } else if (cs.getNextCommunication().after(getNow())) {
-                    log("CommunicationScheduler '" + csName + "' nextCommunication not reached yet. Skipping.");
                 } else {
                     log("CommunicationScheduler '" + csName + "' nextCommunication reached. Executing scheduler.");
                     try {
@@ -212,7 +210,7 @@ public class SmsHandler implements MessageHandler {
             TableDECQueryResponseStructure data = (TableDECQueryResponseStructure) smsFrame.getData();
             parseAndStoreDECTableData(communicationProfile, pdr, data);
         } else {
-            String message = "Unrecognized data structure: " + smsFrame.getData().getClass().getSimpleName() + "\n" + "Expected: Array of event records, Trace_C response or TableDEC(F) response.";
+            String message = "Unrecognized data structure in SMS. Expected array of event records, trace_C response or tableDEC(F) response.";
             logWarning(message);
             getMeterAmrLogging().logInfo(message);
             throw new CTRException(message);
@@ -225,8 +223,7 @@ public class SmsHandler implements MessageHandler {
         if (!data.getPdr().getValue(0).getValue().equals(pdr)) {
             String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
             logWarning(message);
-            getMeterAmrLogging().logInfo(message);
-            //throw new CTRException(message);
+            throw new CTRException(message);
         }
 
         if (communicationProfile.getReadMeterReadings()) {
@@ -243,8 +240,7 @@ public class SmsHandler implements MessageHandler {
         if (!data.getPdr().getValue(0).getValue().equals(pdr)) {
             String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
             logWarning(message);
-            getMeterAmrLogging().logInfo(message);
-            //throw new CTRException(message);
+            throw new CTRException(message);
         }
 
         if (communicationProfile.getReadMeterReadings()) {
@@ -273,12 +269,11 @@ public class SmsHandler implements MessageHandler {
         }
     }
 
-    private void parseAndStoreTrace_C(String pdr, Trace_CQueryResponseStructure data, CommunicationProfile communicationProfile) {
+    private void parseAndStoreTrace_C(String pdr, Trace_CQueryResponseStructure data, CommunicationProfile communicationProfile) throws CTRException {
         if (!data.getPdr().getValue(0).getValue().equals(pdr)) {
             String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
             logWarning(message);
-            getMeterAmrLogging().logInfo(message);
-            //throw new CTRException(message);
+            throw new CTRException(message);
         }
         if (communicationProfile.getReadDemandValues()) {
             getLogger().log(Level.INFO, "Getting profile data for meter with serialnumber: " + getRtuSerialNumber());
@@ -309,12 +304,11 @@ public class SmsHandler implements MessageHandler {
 
     }
 
-    private void parseAndStoreEventArray(CommunicationProfile communicationProfile, String pdr, ArrayEventsQueryResponseStructure data) {
+    private void parseAndStoreEventArray(CommunicationProfile communicationProfile, String pdr, ArrayEventsQueryResponseStructure data) throws CTRException {
         if (!data.getPdr().getValue(0).getValue().equals(pdr)) {
             String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
             logWarning(message);
-            getMeterAmrLogging().logInfo(message);
-            //throw new CTRException(message);
+            throw new CTRException(message);
         }
 
         if (communicationProfile.getReadMeterEvents()) {
