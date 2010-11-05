@@ -39,23 +39,45 @@ public class MTU155 extends AbstractGenericProtocol {
     private MeterAmrLogging meterAmrLogging;
     private MeterInfo meterInfo;
 
+    /**
+     *
+     */
+    public MTU155() {
+
+    }
+
+    /**
+     * @return
+     */
     public String getVersion() {
         return "$Date$";
     }
 
+    /**
+     * @return
+     */
     public List<String> getRequiredKeys() {
         return properties.getRequiredKeys();
     }
 
+    /**
+     * @return
+     */
     public List<String> getOptionalKeys() {
         return properties.getOptionalKeys();
     }
 
+    /**
+     *
+     */
     @Override
     public void initProperties() {
         properties.addProperties(getProperties());
     }
 
+    /**
+     *
+     */
     @Override
     protected void doExecute() throws IOException, BusinessException, SQLException {
 
@@ -69,6 +91,7 @@ public class MTU155 extends AbstractGenericProtocol {
             getProtocolProperties().addProperties(rtu.getProtocol().getProperties());
             getProtocolProperties().addProperties(rtu.getProperties());
             updateRequestFactory();
+            checkSerialNumber();
             readDevice();
         } catch (CTRException e) {
             getLogger().severe(e.getMessage());
@@ -86,6 +109,20 @@ public class MTU155 extends AbstractGenericProtocol {
             getLogger().severe(e.getMessage());
         }
 
+    }
+
+    private void checkSerialNumber() throws CTRConfigurationException {
+        String mtuSerial = getRequestFactory().getIdentificationStructure().getMTU155SerialNumber();
+        String rtuSerial = getRtuSerialNumber();
+        if ((mtuSerial == null) || ("".equals(mtuSerial))) {
+            getLogger().warning("Unable to check the serial number of the device! mtuSerial was 'null'");
+        } else if ((rtuSerial == null) || ("".equals(rtuSerial))) {
+            getLogger().warning("Unable to check the serial number of the device! Rtu serialnumer in EiServer was empty");
+        } else if (!mtuSerial.equalsIgnoreCase(rtuSerial)) {
+            throw new CTRConfigurationException("Serialnumber from device [" + mtuSerial + "] does not match the serialnumber in EiServer [" + rtuSerial + "]");
+        } else {
+            getLogger().finest("MTU155 serialnumber [" + mtuSerial + "] matches rtu serial [" + rtuSerial + "] in EiServer.");
+        }
     }
 
     private Properties getPropertiesFromProtocolClass() {
@@ -108,6 +145,9 @@ public class MTU155 extends AbstractGenericProtocol {
         this.requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties(), getTimeZone(), getRequestFactory().getIdentificationStructure());
     }
 
+    /**
+     * @throws CTRException
+     */
     private void testMethod() throws CTRException {
 
         getProtocolProperties().addProperty(MTU155Properties.KEYC, "32323232323232323232323232323232");
@@ -139,6 +179,9 @@ public class MTU155 extends AbstractGenericProtocol {
         }
     }
 
+    /**
+     *
+     */
     private void readDevice() {
         List<CommunicationScheduler> communicationSchedulers = getRtu().getCommunicationSchedulers();
         if (communicationSchedulers.size() == 0) {
@@ -234,10 +277,16 @@ public class MTU155 extends AbstractGenericProtocol {
 
     }
 
+    /**
+     * @return
+     */
     private Date getEventsFromDate() {
         return getRtu().getLastLogbook() == null ? ParseUtils.getClearLastMonthDate(getRtu().getDeviceTimeZone()) : getRtu().getLastLogbook();
     }
 
+    /**
+     *
+     */
     private void readChannelData() {
         List<Channel> channelList = getRtu().getChannels();
         for (Channel channel : channelList) {
@@ -267,7 +316,7 @@ public class MTU155 extends AbstractGenericProtocol {
                 if (CommonUtils.isInRegisterGroup(groups, rtuRegister)) {
                     obisCode = rtuRegister.getRtuRegisterSpec().getObisCode();
                     try {
-                        RegisterValue registerValue = readRegister(obisCode);
+                        RegisterValue registerValue = getObisCodeMapper().readRegister(obisCode);
                         registerValue.setRtuRegisterId(rtuRegister.getId());
                         if (rtuRegister.getReadingAt(registerValue.getReadTime()) == null) {
                             regValueMap.put(rtuRegister, registerValue);
@@ -285,16 +334,6 @@ public class MTU155 extends AbstractGenericProtocol {
             }
         }
         return regValueMap;
-    }
-
-    /**
-     * @param obisCode
-     * @return
-     * @throws NoSuchRegisterException
-     * @throws CTRException
-     */
-    private RegisterValue readRegister(ObisCode obisCode) throws NoSuchRegisterException, CTRException {
-        return getObisCodeMapper().readRegister(obisCode, null);
     }
 
     /**
@@ -332,6 +371,11 @@ public class MTU155 extends AbstractGenericProtocol {
 
     }
 
+    /**
+     * Get the cached meter info object. If not exist yet, create a new one.
+     *
+     * @return
+     */
     private MeterInfo getMeterInfo() {
         if (meterInfo == null) {
             meterInfo = new MeterInfo(getRequestFactory(), getLogger(), getTimeZone());
@@ -339,8 +383,13 @@ public class MTU155 extends AbstractGenericProtocol {
         return meterInfo;
     }
 
+    /**
+     * Get the serial from the rtu in EiServer. If Rtu == null, return null as serial number
+     *
+     * @return
+     */
     private String getRtuSerialNumber() {
-        return getRtu().getSerialNumber();
+        return getRtu() == null ? null : getRtu().getSerialNumber();
     }
 
     private Rtu identifyAndGetRtu() throws CTRException {
@@ -365,7 +414,6 @@ public class MTU155 extends AbstractGenericProtocol {
      * @throws IndexOutOfBoundsException
      */
     private String readPdr() throws CTRException {
-        log("Requesting IDENTIFICATION structure from device");
         String pdr = getRequestFactory().getIdentificationStructure().getPdr().getValue();
         if (pdr == null) {
             throw new CTRException("Unable to detect meter. PDR value was 'null'!");

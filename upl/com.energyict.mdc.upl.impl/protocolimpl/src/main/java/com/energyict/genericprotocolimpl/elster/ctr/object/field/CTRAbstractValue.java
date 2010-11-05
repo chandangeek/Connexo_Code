@@ -16,6 +16,7 @@ import java.math.BigDecimal;
  * The value field can be string, bin, bcd, ...
  */
 public abstract class CTRAbstractValue<T extends Object> extends AbstractField {
+
     protected Unit unit = Unit.get(BaseUnit.UNITLESS);
     protected BigDecimal overflowValue;
     protected String type;
@@ -35,8 +36,8 @@ public abstract class CTRAbstractValue<T extends Object> extends AbstractField {
     public BigDecimal getOverflowValue() {
         return overflowValue;
     }
-    
-    public void setOverflowValue(BigDecimal overflowValue)  {
+
+    public void setOverflowValue(BigDecimal overflowValue) {
         this.overflowValue = overflowValue;
     }
 
@@ -54,6 +55,7 @@ public abstract class CTRAbstractValue<T extends Object> extends AbstractField {
         }
         return unit;
     }
+
     public void setUnit(Unit unit) {
         this.unit = unit;
     }
@@ -70,7 +72,18 @@ public abstract class CTRAbstractValue<T extends Object> extends AbstractField {
         }
     }
 
+    public String getStringValue() {
+        if (getValue() instanceof String) {
+            return (String) getValue();
+        } else if (getValue() instanceof Number) {
+            return String.valueOf(((Number)getValue()).floatValue());
+        } else {
+            return getValue().toString();
+        }
+    }
+
     public abstract T getValue();
+
     public abstract void setValue(T value);
 
     @Override

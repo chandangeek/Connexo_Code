@@ -166,6 +166,70 @@ public class IdentificationResponseStructure extends AbstractTableQueryResponseS
         return pdr.getValue(0);
     }
 
+    public String getMTU155SerialNumber() {
+        return getAnCont().getValue(2).getStringValue();
+    }
+
+    public AbstractCTRObject getCcode() {
+        return ccode;
+    }
+
+    public AbstractCTRObject getCia() {
+        return cia;
+    }
+
+    public AbstractCTRObject getCca() {
+        return cca;
+    }
+
+    public AbstractCTRObject getVf() {
+        return vf;
+    }
+
+    public AbstractCTRObject getCap() {
+        return cap;
+    }
+
+    public AbstractCTRObject getVsPro() {
+        return vsPro;
+    }
+
+    public AbstractCTRObject getSyncT() {
+        return syncT;
+    }
+
+    public AbstractCTRObject getNcg() {
+        return ncg;
+    }
+
+    public AbstractCTRObject getEmSize() {
+        return emSize;
+    }
+
+    public AbstractCTRObject getAnCont() {
+        return anCont;
+    }
+
+    public AbstractCTRObject getNem() {
+        return nem;
+    }
+
+    public AbstractCTRObject getNea() {
+        return nea;
+    }
+
+    public AbstractCTRObject getNet() {
+        return net;
+    }
+
+    public AbstractCTRObject getPukS() {
+        return pukS;
+    }
+
+    public AbstractCTRObject getSd() {
+        return sd;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
