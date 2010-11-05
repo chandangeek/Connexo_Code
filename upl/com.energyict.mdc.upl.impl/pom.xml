@@ -309,7 +309,7 @@
     </dependencyManagement>
 
     <scm>
-        <developerConnection>scm:svn:https://linux2/svn/labo/protocols/tags/8.9.1</developerConnection>
+        <developerConnection>scm:svn:http://linux2/svn/labo/protocols/trunk</developerConnection>
     </scm>
 
     <modules>
