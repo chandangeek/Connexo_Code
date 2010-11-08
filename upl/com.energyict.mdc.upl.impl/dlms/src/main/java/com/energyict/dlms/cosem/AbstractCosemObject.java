@@ -547,7 +547,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 								try {
 									debug("Acknowledge block " + iBlockNumber);
 									responseData = this.protocolLink.getDLMSConnection().sendRequest(buildReadRequestNext(iBlockNumber));
-									debug("next response data = " + ProtocolUtils.outputHexString(responseData));
+//									debug("next response data = " + ProtocolUtils.outputHexString(responseData));
 								} catch (IOException e) {
 									throw new NestedIOException(e, "Error in COSEM_GETRESPONSE_WITH_DATABLOCK");
 								}
@@ -705,7 +705,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 								{
 									i++; // skip tag
 
-									if (iBlockNumber == 1) {
+									if (iBlockNumber == 0) {
 										iBlockSize = (int) DLMSUtils.getAXDRLength(responseData, i);
 										i += DLMSUtils.getAXDRLengthOffset(responseData, i);
 										receiveBuffer.addArray(responseData, i);
@@ -1292,7 +1292,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		int t = 0, iFieldIndex;
 		UniversalObject[] universalObject = null;
 		int level = 0;
-		debug("KV_DEBUG> responseData=" + ProtocolUtils.outputHexString(responseData));
+//		debug("KV_DEBUG> responseData=" + ProtocolUtils.outputHexString(responseData));
 		List values = new ArrayList();
 		try {
 
