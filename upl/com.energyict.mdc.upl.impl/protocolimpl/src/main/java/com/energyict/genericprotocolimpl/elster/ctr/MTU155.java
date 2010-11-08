@@ -117,7 +117,7 @@ public class MTU155 extends AbstractGenericProtocol {
         if ((mtuSerial == null) || ("".equals(mtuSerial))) {
             getLogger().warning("Unable to check the serial number of the device! mtuSerial was 'null'");
         } else if ((rtuSerial == null) || ("".equals(rtuSerial))) {
-            getLogger().warning("Unable to check the serial number of the device! Rtu serialnumer in EiServer was empty");
+            getLogger().warning("Unable to check the serial number of the device! Rtu serialnumer in EiServer was empty. Meter serial was [" + mtuSerial + "]");
         } else if (!mtuSerial.equalsIgnoreCase(rtuSerial)) {
             throw new CTRConfigurationException("Serialnumber from device [" + mtuSerial + "] does not match the serialnumber in EiServer [" + rtuSerial + "]");
         } else {
