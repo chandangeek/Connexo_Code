@@ -1,6 +1,6 @@
 package com.energyict.genericprotocolimpl.common.obiscodemappers;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.*;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.nta.eict.WebRTUKP;
@@ -89,6 +89,7 @@ public class MbusObisCodeMapperTest {
             connection.setResponseByte(DLMSUtils.hexStringToByteArray(expResponse));
             RegisterValue rv = mocm.getRegisterValue(mbusOutputState);
             assertEquals("Could not get a correct state value.", rv.getText());
+            assertEquals(new Quantity("-1", Unit.getUndefined()), rv.getQuantity());
         } catch (NullPointerException e) {
             logger.error(e.getMessage());
             fail();

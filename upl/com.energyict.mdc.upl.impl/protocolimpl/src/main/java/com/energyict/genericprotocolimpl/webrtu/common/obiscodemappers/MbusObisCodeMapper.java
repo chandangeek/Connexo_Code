@@ -54,7 +54,7 @@ public class MbusObisCodeMapper {
                     Quantity quantity = new Quantity(state ? "1" : "0", Unit.getUndefined());
                     return rv = new RegisterValue(obisCode, quantity, null, null, null, new Date(), 0, "State: " + state);
                     } catch (InvalidBooleanStateException e) {
-                        Quantity quantity = new Quantity("0", Unit.getUndefined());
+                        Quantity quantity = new Quantity("-1", Unit.getUndefined());
                         return rv = new RegisterValue(obisCode, quantity, null, null, null, new Date(), 0, e.getMessage());
                 }
                 }
