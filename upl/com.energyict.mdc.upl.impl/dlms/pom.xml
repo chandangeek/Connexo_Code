@@ -17,12 +17,10 @@
     		<groupId>com.energyict</groupId>
     		<artifactId>mdw</artifactId>
     	</dependency>
-    	
+
     	<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
-			<version>1.0.4</version>
-            <scope>provided</scope>
     	</dependency>
 
         <dependency>

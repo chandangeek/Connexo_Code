@@ -305,11 +305,17 @@
                 </exclusions>
                 <scope>provided</scope>
             </dependency>
+    	<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+            <scope>provided</scope>
+    	</dependency>
         </dependencies>
     </dependencyManagement>
 
     <scm>
-        <developerConnection>scm:svn:http://linux2/svn/labo/protocols/trunk</developerConnection>
+        <developerConnection>scm:svn:https://linux2/svn/labo/protocols/trunk</developerConnection>
     </scm>
 
     <modules>

@@ -17,6 +17,11 @@
             <artifactId>mdw</artifactId>
         </dependency>
 
+    	<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+    	</dependency>        
+
         <dependency>
             <groupId>com.energyict.drivers.rf.cynet</groupId>
             <artifactId>support</artifactId>
