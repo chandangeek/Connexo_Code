@@ -3,6 +3,7 @@ package com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.axrdencoding.InvalidBooleanStateException;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
@@ -94,14 +95,17 @@ public class ObisCodeMapper {
         			null, null, null, new Date(), 0,
         			new String("ConnectControl state: " + possibleConnectStates[state]));
         	return rv;
-        } else if (obisCode.toString().indexOf("0.0.96.3.130.255") != -1){	// Current status of the breaker as boolean - Use the E field as '130' to indicate the controlState
-        	boolean state = cof.getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).getState();
-        	rv = new RegisterValue(obisCode,
-        			new Quantity(state ? "1" : "0", Unit.getUndefined()),
-        			null, null, null, new Date(), 0,
-        			new String("State: " + state));
-        	return rv;
-        } else if (obisCode.toString().indexOf("0.0.97.98.1.255") != -1){
+        } else if (obisCode.toString().indexOf("0.0.96.3.130.255") != -1) {    // Current status of the breaker as boolean - Use the E field as '130' to indicate the controlState
+            boolean state = false;
+            try {
+                state = cof.getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).getState();
+                Quantity quantity = new Quantity(state ? "1" : "0", Unit.getUndefined());
+                return rv = new RegisterValue(obisCode, quantity, null, null, null, new Date(), 0, "State: " + state);
+            } catch (InvalidBooleanStateException e) {
+                Quantity quantity = new Quantity("0", Unit.getUndefined());
+                return rv = new RegisterValue(obisCode, quantity, null, null, null, new Date(), 0, e.getMessage());
+            }
+        } else if (obisCode.toString().indexOf("0.0.97.98.1.255") != -1) {
         	GenericRead gr = cof.getGenericRead(obisCode, DLMSUtils.attrLN2SN(2), 1);
         	String text = getEncryptionText(gr.getValue());
         	rv = new RegisterValue(obisCode,

@@ -7,10 +7,7 @@ import java.io.IOException;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.RegisterReadable;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
@@ -100,7 +97,7 @@ public class Disconnector extends AbstractCosemObject implements RegisterReadabl
 	 * @return
 	 * @throws IOException
 	 */
-	public BooleanObject getOutputState() {
+	public BooleanObject getOutputState() throws InvalidBooleanStateException {
 		if(this.outputState == null){
 			readOutputState(); // do a dummy read
 		}
@@ -112,7 +109,7 @@ public class Disconnector extends AbstractCosemObject implements RegisterReadabl
 	 * @return true or false
 	 * @throws IOException
 	 */
-	public boolean getState() {
+	public boolean getState() throws InvalidBooleanStateException {
 		BooleanObject state = getOutputState();
 		return state != null ? state.getState() : false;
 	}
@@ -122,10 +119,12 @@ public class Disconnector extends AbstractCosemObject implements RegisterReadabl
 	 * @return
 	 * @throws IOException
 	 */
-	public BooleanObject readOutputState() {
+	public BooleanObject readOutputState() throws InvalidBooleanStateException {
 		try {
 			this.outputState = new BooleanObject(getResponseData(DisconnectControlAttribute.OUTPUT_STATE),0);
-		} catch (IOException e) {}
+		} catch (IOException e) {
+            throw new InvalidBooleanStateException("Could not get a correct state value.");
+        }
 		return this.outputState;
 	}
 
@@ -256,8 +255,13 @@ public class Disconnector extends AbstractCosemObject implements RegisterReadabl
 					OctetString ln = getLogicalName();
 					return new RegisterValue(getObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
 				case OUTPUT_STATE:
-					BooleanObject output = readOutputState();
+                    BooleanObject output = null;
+                    try {
+                        output = readOutputState();
 					return new RegisterValue(getObisCode(), output != null ? String.valueOf(output.getState()) : "null");
+                    } catch (InvalidBooleanStateException e) {
+                        return new RegisterValue(getObisCode(), output != null ? String.valueOf(output.getState()) : "Unknown state");
+                    }
 				case CONTROL_STATE:
 					TypeEnum ctrlStat = readControlState();
 					return new RegisterValue(getObisCode(), ctrlStat != null ? String.valueOf(ctrlStat.getValue()) : "null");

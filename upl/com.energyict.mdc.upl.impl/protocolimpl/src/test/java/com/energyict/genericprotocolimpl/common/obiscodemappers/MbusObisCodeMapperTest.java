@@ -29,6 +29,7 @@ public class MbusObisCodeMapperTest {
     private static WebRTUKP webRtuKp;
     private static ObisCode mbusEncryptionObisCode = ObisCode.fromString("0.1.24.50.0.255");
     private static ObisCode mbusConnectState = ObisCode.fromString("0.0.24.4.129.255");
+    private static ObisCode mbusOutputState = ObisCode.fromString("0.0.24.4.130.255");
     private static String expectedResponse = "10000AC401C10001010f00";
     private static String expectedResponse2 = "10000AC401C10001010f04";
     private static Log logger = LogFactory.getLog(MbusObisCodeMapperTest.class);
@@ -78,5 +79,22 @@ public class MbusObisCodeMapperTest {
             logger.error(e.getMessage());
             fail();
         }
+    }
+
+    @Test
+    public void getMbusOutputStateTest() {
+        MbusObisCodeMapper mocm = new MbusObisCodeMapper(cof);
+        String expResponse = "010005c401c10102";
+        try {
+            connection.setResponseByte(DLMSUtils.hexStringToByteArray(expResponse));
+            RegisterValue rv = mocm.getRegisterValue(mbusOutputState);
+            assertEquals("Could not get a correct state value.", rv.getText());
+        } catch (NullPointerException e) {
+            logger.error(e.getMessage());
+            fail();
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+            fail();
+}
     }
 }

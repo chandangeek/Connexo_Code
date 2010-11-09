@@ -5,6 +5,7 @@ package com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.dlms.axrdencoding.InvalidBooleanStateException;
 import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.EncryptionStatus;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
@@ -47,9 +48,15 @@ public class MbusObisCodeMapper {
                     Quantity quantity = new Quantity(BigDecimal.valueOf(state), Unit.getUndefined());
                     return rv = new RegisterValue(obisCode, quantity, null, null, null, new Date(), 0, getConnectControlStateDescription(state));
                 } else if (obisCode.getE() == 130) {
-                    boolean state = cof.getDisconnector(adjustToDisconnectOC(obisCode)).getState();
+                    boolean state = false;
+                    try {
+                        state = cof.getDisconnector(adjustToDisconnectOC(obisCode)).getState();
                     Quantity quantity = new Quantity(state ? "1" : "0", Unit.getUndefined());
                     return rv = new RegisterValue(obisCode, quantity, null, null, null, new Date(), 0, "State: " + state);
+                    } catch (InvalidBooleanStateException e) {
+                        Quantity quantity = new Quantity("0", Unit.getUndefined());
+                        return rv = new RegisterValue(obisCode, quantity, null, null, null, new Date(), 0, e.getMessage());
+                }
                 }
     		} else if (obisCode.getD() == 50){ // MBus encryption status
     			Data encryptionState = cof.getData(obisCode);
