@@ -684,71 +684,64 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		}
 		return false;
 	}
-	
-	private void collectCache() throws IOException, SQLException, BusinessException {
-        int iConf;
-        getLogger().log(Level.INFO, "Reading configuration");
-        
-        if (dlmsCache.getObjectList() != null) {
-            meterConfig.setInstantiatedObjectList(dlmsCache.getObjectList());
-            mbusMeterDeletionCheck();
-            
-            try {
-                iConf = requestConfigurationProgramChanges();
-            }
-            catch(IOException e) {
-                e.printStackTrace();
-                iConf=-1;
-                logger.severe("Iskra Mx37x: Configuration change is not accessible, request object list...");
-                requestObjectList();
-                checkMbusDevices();		
-                dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
-                dlmsCache.setConfProgChange(iConf);  // set new configuration program change
-                dlmsCache.setMbusParameters(mbusDevices);
-            }
 
-            if ((iConf != dlmsCache.getConfProgChange())) {
-                
-            	if (DEBUG>=1) {
-					System.out.println("iConf="+iConf+", dlmsCache.getConfProgChange()="+dlmsCache.getConfProgChange());
-				}    
-                
-            	logger.severe("Iskra Mx37x: Configuration changed, request object list...");
-                requestObjectList();	// request object list again from rtu
-                dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
-                dlmsCache.setConfProgChange(iConf);  // set new configuration program change
-                dlmsCache.setMbusParameters(mbusDevices);
-                
-                
-                if (DEBUG>=1) {
-					System.out.println("after requesting objectlist (conf changed)... iConf="+iConf+", dlmsCache.getConfProgChange()="+dlmsCache.getConfProgChange());
-				}  
+    private void collectCache() throws IOException, SQLException, BusinessException {
+        int iConf = -1;
+        getLogger().log(Level.INFO, "Reading configuration");
+
+        try {
+            if (dlmsCache.getObjectList() != null) {
+                meterConfig.setInstantiatedObjectList(dlmsCache.getObjectList());
+                mbusMeterDeletionCheck();
+
+                try {
+                    iConf = requestConfigurationProgramChanges();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                    iConf = -1;
+                    logger.severe("Iskra Mx37x: Configuration change is not accessible, request object list...");
+                    requestObjectList();
+                    checkMbusDevices();
+                }
+
+                if ((iConf != dlmsCache.getConfProgChange())) {
+
+                    if (DEBUG >= 1) {
+                        System.out.println("iConf=" + iConf + ", dlmsCache.getConfProgChange()=" + dlmsCache.getConfProgChange());
+                    }
+
+                    logger.severe("Iskra Mx37x: Configuration changed, request object list...");
+                    requestObjectList();    // request object list again from rtu
+
+                    if (DEBUG >= 1) {
+                        System.out.println("after requesting objectlist (conf changed)... iConf=" + iConf + ", dlmsCache.getConfProgChange()=" + dlmsCache.getConfProgChange());
+                    }
+                }
+                if (forcedMbusCheck) {    // you do not need to read the whole cache if you just changed the mbus meters
+                    checkMbusDevices();
+                }
+            } else { // Cache not exist
+                logger.info("Iskra Mx37x: Cache does not exist, request object list.");
+                requestObjectList();
+                checkMbusDevices();
+                try {
+                    iConf = requestConfigurationProgramChanges();
+
+                    if (DEBUG >= 1) {
+                        System.out.println("after requesting objectlist... iConf=" + iConf + ", dlmsCache.getConfProgChange()=" + dlmsCache.getConfProgChange());
+                    }
+                }
+                catch (IOException e) {
+                    iConf = -1;
+                }
             }
-            if(forcedMbusCheck){	// you do not need to read the whole cache if you just changed the mbus meters
-            	checkMbusDevices();		
-            }
+        } finally {
+            dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
+            dlmsCache.setConfProgChange(iConf);  // set new configuration program change
+            dlmsCache.setMbusParameters(mbusDevices);
         }
-        
-        else { // Cache not exist
-            logger.info("Iskra Mx37x: Cache does not exist, request object list.");
-            requestObjectList();
-            checkMbusDevices();		
-            try {
-                iConf = requestConfigurationProgramChanges();
-              
-                dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
-                dlmsCache.setConfProgChange(iConf);  // set new configuration program change
-                dlmsCache.setMbusParameters(mbusDevices);
-                
-                if (DEBUG>=1) {
-					System.out.println("after requesting objectlist... iConf="+iConf+", dlmsCache.getConfProgChange()="+dlmsCache.getConfProgChange());
-				}  
-            }
-            catch(IOException e) {
-                iConf=-1;
-            }
-        }
-	}
+    }
 	
 	private Clock getClock() throws IOException{
 		if(this.clock == null){
@@ -938,7 +931,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         return configProgramChanges;
     }
     
-    private String getMbusSerial(ObisCode oc) throws IOException{
+    protected String getMbusSerial(ObisCode oc) throws IOException{
     	try {
 			String str = "";
 			byte[] data = getCosemObjectFactory().getData(oc).getData();
