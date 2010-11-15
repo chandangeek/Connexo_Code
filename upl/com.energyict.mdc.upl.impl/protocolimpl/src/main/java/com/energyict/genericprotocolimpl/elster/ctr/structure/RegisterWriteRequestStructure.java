@@ -73,6 +73,7 @@ public class RegisterWriteRequestStructure extends Data<RegisterWriteRequestStru
 
         attributeType = new AttributeType().parse(rawData, ptr);
         ptr += attributeType.getLength();
+        attributeType.setHasIdentifier(true);      //The ID is always sent with the object, in this case 
 
         objects = new AbstractCTRObject[numberOfObjects.getNumberOfObjects()];
         for (int i = 0; i < numberOfObjects.getNumberOfObjects(); i++) {

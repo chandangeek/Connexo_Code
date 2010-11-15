@@ -32,7 +32,6 @@ public class CTRPrimitiveParser {
 
     //Parses BIN byte arrays into BigDecimals
     //also parses single byte fields (e.g. hours, minutes,...)
-
     public CTRAbstractValue[] parseUnsignedBINValue(AbstractCTRObject object, CTRObjectID id, byte[] rawData, int offset, int[] valueLength) {
 
         int i = 0;
@@ -51,7 +50,6 @@ public class CTRPrimitiveParser {
 
 
     //Parses Signed BIN byte arrays, can also parse Unsigned BIN byte arrays.
-
     public CTRAbstractValue[] parseSignedBINValue(AbstractCTRObject object, CTRObjectID id, byte[] rawData, int offset, int[] valueLength) {
 
         int i = 0;
@@ -94,7 +92,6 @@ public class CTRPrimitiveParser {
 
 
     //Parses String values, can also parse Unsigned BIN byte arrays.
-
     public CTRAbstractValue[] parseStringValue(AbstractCTRObject object, CTRObjectID id, byte[] rawData, int offset, int[] valueLength) {
 
         int i = 0;
@@ -143,8 +140,7 @@ public class CTRPrimitiveParser {
 
 
     //Parses BCD values, can also parse other types.
-
-    public CTRAbstractValue[] parseBCDValue(AbstractCTRObject object, CTRObjectID id, byte[] rawData, int offset, int[] valueLength) {
+    public CTRAbstractValue[] parseBCDValue(AbstractCTRObject object, CTRObjectID id, byte[] rawData, int offset, int[] valueLength){
 
         CTRAbstractValue[] result = new CTRAbstractValue[valueLength.length];
         int i = 0;
@@ -220,18 +216,18 @@ public class CTRPrimitiveParser {
         return new BigDecimal(convertedValue);
     }
 
-    private String convertByteArrayToBCD(byte[] value) {
+    private String convertByteArrayToBCD(byte[] value){
         String convertedValue = "";
         int len = value.length;
         boolean firstHalf = true;
 
         for (int i = 0; i <= 2 * len - 1; i++) {
-            byte Byte = value[i / 2];
+            byte byte1 = value[i / 2];
             if (firstHalf) {
-                Byte = (byte) ((byte) (Byte & 0xFF) >> 4 & 0xFF);
+                byte1 = (byte) ((byte) (byte1 & 0xFF) >> 4 & 0xFF);
             }
-            Byte = (byte) (Byte & 0x0F);
-            convertedValue += ((int) Byte);
+            byte1 = (byte) (byte1 & 0x0F);
+            convertedValue += ((int) byte1);
             firstHalf = !firstHalf;
         }
         return convertedValue;

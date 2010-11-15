@@ -56,8 +56,13 @@ public class StructureTest extends TestCase {
 
         byte[] bytes16 = padData(ProtocolTools.getBytesFromHexString("$11$22$33$44$55$66$77$0F$00$00$00$02$00$20$00$06$0A$0A$15$0E$0A$00$01$01$40$0F$00$00$00$01$00$00$00$01$0A$0A$15$0E$0A$00$01$01$3A$0F$00$00$00$01$00$00$00$01$0A$0A$15$0E$0A$00$01$01$46$0F$00$00$00$01$00$00$00$01$0A$0A$0A$0E$0A$00$01$01$35$0F$00$00$00$01$00$00$00$01$0A$0A$08$0E$0A$00$01$01$35$0F$00$00$00$01$00$00$00$01$0A$0A$07$0E$0A$00$01$01$35$FF$00$00$00$01$00$00$00$01"));
         byte[] bytes17 = padData(ProtocolTools.getBytesFromHexString("$11$22$33$44$55$66$77$00$00$00$00$36$00$26$00$30$0A$0A$12$0E$34$00$0F$00$38$00$0A$0A$12$01$0E$0A$00$01$0A$0A$12$0E$32$00$0E$00$3D$00$00$0A$0A$12$01$0E$0A$00$0A$0A$0F$0D$26$00$0D$03$34$00$00$00$00$20$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF"));
-        
+
         byte[] bytes18 = padData(ProtocolTools.getBytesFromHexString("$11$22$33$44$55$66$77$0A$0A$0A$0D$26$00$01$0F$00$00$01$01$01$01$01$01$01$01$02$01$02$01$02$01$02$01$02$03$04$00$0F$01$02$03$04$00$0F$01$02$03$04$00$0F$01$02$03$04$01$02$03$04$00$0F$01$02"));
+
+        byte[] bytes19 = padData(ProtocolTools.getBytesFromHexString("$30$00$01$01$02$02$01$02$01$01$02$02$01$02$01$01$02$02$01$02$01$01$02$02$01$02"));
+        byte[] bytes20 = padData(ProtocolTools.getBytesFromHexString("$00"));
+        byte[] bytes21 = padData(ProtocolTools.getBytesFromHexString("$30$30$30$30$30$31$0A$0A$0A$05$01$12$11$00$12$34$00$23$23"));
+        byte[] bytes22 = padData(ProtocolTools.getBytesFromHexString("$30$30$30$30$30$31$0A$0A$0A$23$03$02$01$01$01$0F$01$02$0F"));
 
         ArrayEventsQueryRequestStructure aeqrs = new ArrayEventsQueryRequestStructure(false).parse(bytes, 0);
         ArrayEventsQueryResponseStructure aeqrspns = new ArrayEventsQueryResponseStructure(false).parse(bytes2, 0);
@@ -84,6 +89,21 @@ public class StructureTest extends TestCase {
 
         TableDECQueryResponseStructure tableDEC = new TableDECQueryResponseStructure(true).parse(bytes18, 0);
 
+        AckStructure ack = new AckStructure().parse(bytes19, 0);
+        EndOfSessionRequestStructure end = new EndOfSessionRequestStructure().parse(bytes20, 0);
+        ExecuteRequestStructure execute = new ExecuteRequestStructure(true).parse(bytes21, 0);
+        RegisterWriteRequestStructure registerwrite = new RegisterWriteRequestStructure(true).parse(bytes22, 0);
+
+        StructureType decfStructure = StructureType.DECF;
+        StructureType idStructure = StructureType.IDENTIFICATION;
+        StructureType id2Structure = StructureType.IDENTIFICATION2;
+        StructureType invalidStructure = StructureType.INVALID_STRUCTURECODE;
+
+
+        assertEquals(0xFF, invalidStructure.getStructureCode());
+        assertEquals(0x35, decfStructure.getStructureCode());
+        assertEquals(0x30, idStructure.getStructureCode());
+        assertEquals(0x31, id2Structure.getStructureCode());
 
         assertArrayEquals(bytes, aeqrs.getBytes());
         assertArrayEquals(bytes2, aeqrspns.getBytes());
@@ -101,6 +121,10 @@ public class StructureTest extends TestCase {
         assertArrayEquals(bytes16, eventsresp.getBytes());
         assertArrayEquals(bytes17, eventsresp2.getBytes());
         assertArrayEquals(bytes18, tableDEC.getBytes());
+        assertArrayEquals(bytes19, ack.getBytes());
+        assertArrayEquals(bytes20, end.getBytes());
+        assertArrayEquals(bytes21, execute.getBytes());
+        assertArrayEquals(bytes22, registerwrite.getBytes());
     }
 
     private byte[] padData(byte[] fieldData) {

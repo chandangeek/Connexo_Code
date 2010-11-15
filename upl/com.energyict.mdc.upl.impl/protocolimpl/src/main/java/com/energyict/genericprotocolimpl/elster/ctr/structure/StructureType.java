@@ -7,7 +7,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.structure;
  */
 public enum StructureType {
 
-    
+
     IDENTIFICATION(0x30, "Identification structure"),
     IDENTIFICATION2(0x31, "Identification structure 2"),
     DECF(0x35, "Table DECF"),

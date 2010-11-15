@@ -74,14 +74,7 @@ public class SmsHandler implements MessageHandler {
 
     public void processMessage(Sms sms) throws JMSException, BusinessException, SQLException {
         this.sms = sms;
-        try {
-            doExecute();
-        } catch (IOException e) {
-            String msg = "An error occurred in the connection!";
-            log(msg);
-            getMeterAmrLogging().logInfo(msg);
-            e.printStackTrace();
-        }
+        doExecute();
     }
 
 
@@ -127,7 +120,7 @@ public class SmsHandler implements MessageHandler {
     }
 
 
-    public void processSmsFrame(SMSFrame smsFrame) throws BusinessException, IOException, SQLException, LinkException {
+    public void processSmsFrame(SMSFrame smsFrame) throws BusinessException, SQLException, LinkException {
 
         List<CommunicationScheduler> communicationSchedulers = getRtu().getCommunicationSchedulers();
 
@@ -140,7 +133,7 @@ public class SmsHandler implements MessageHandler {
                 if (cs.getNextCommunication() == null) {
                     log("CommunicationScheduler '" + csName + "' nextCommunication is 'null'. Skipping.");
                 } else {
-                    log("CommunicationScheduler '" + csName + "' nextCommunication reached. Executing scheduler.");
+                    log("Executing communicationScheduler '" + csName + "'.");
                     try {
                         cs.startCommunication();
                         cs.startReadingNow();
@@ -167,20 +160,10 @@ public class SmsHandler implements MessageHandler {
         }
     }
 
-    public SMSFrame parseAndDecryptSms(Sms sms) throws CTRParsingException, IOException {
-
+    public SMSFrame parseAndDecryptSms(Sms sms) throws CTRParsingException, CtrCipheringException {
         SMSFrame smsFrame = new SMSFrame().parse(sms.getMessage(), 0);
         CTREncryption ctrEncryption = new CTREncryption(properties);
-
-        try {
-            return (SMSFrame) ctrEncryption.decryptFrame((Frame) smsFrame);
-        } catch (CtrCipheringException e) {
-            String message = "An error occurred in the secure connection!";
-            log(message);
-            getMeterAmrLogging().logInfo(message);
-            throw new CTRConnectionException(message, e);
-        }
-
+        return (SMSFrame) ctrEncryption.decryptFrame((Frame) smsFrame);
     }
 
     private String getRtuSerialNumber() {
@@ -260,12 +243,10 @@ public class SmsHandler implements MessageHandler {
             String message = "An error happened storing the data to EIServer";
             logWarning(message);
             getMeterAmrLogging().logInfo(message);
-            e.printStackTrace();
         } catch (SQLException e) {
             String message = "An error happened storing the data to the Oracle Database";
             logWarning(message);
             getMeterAmrLogging().logInfo(message);
-            e.printStackTrace();
         }
     }
 
@@ -291,7 +272,7 @@ public class SmsHandler implements MessageHandler {
                         getMeterAmrLogging().logInfo(message);
                     }
                 } catch (CTRException e) {
-                    String message = "Unable to read channelValues for channel [......]" + e.getMessage();
+                    String message = "Unable to read channelValues for channel [" + channel.getName() + "] " + e.getMessage();
                     logWarning(message);
                     getMeterAmrLogging().logInfo(message);
                 }
@@ -359,9 +340,9 @@ public class SmsHandler implements MessageHandler {
                             regValueMap.put(rtuRegister, registerValue);
                         }
                     } catch (NoSuchRegisterException e) {
-                        log(Level.FINEST, e.getMessage());
-                        getMeterAmrLogging().logInfo("No such register: Unable to read " + rtuRegister.toString() + "(" + obisCode + ") " + e.getMessage());
-                        getLogger().log(Level.INFO, "Received no data for " + rtuRegister.toString() + "(" + obisCode + ") ");
+                        String message = "Received no data for " + rtuRegister.toString() + "(" + obisCode + ") " + e.getMessage();
+                        getMeterAmrLogging().logInfo(message);
+                        log(message);
                     }
                 }
             } catch (IOException e) {
@@ -397,35 +378,48 @@ public class SmsHandler implements MessageHandler {
         return "1.0";
     }
 
-    protected void doExecute() throws BusinessException, SQLException, IOException {
+    protected void doExecute() throws BusinessException, SQLException {
         try {
             rtu = CommonUtils.findDeviceByPhoneNumber(sms.getFrom());
         } catch (IOException e) {
             try {
                 rtu = CommonUtils.findDeviceByPhoneNumber(checkFormat(sms.getFrom()));     //try again, with other phone number format
             } catch (IOException e1) {
-                String message = "Failed to find a unique RTU with phone number " + sms.getFrom();
+                String message = "Failed to find a unique RTU with phone number " + sms.getFrom() + ". Process stopped.";
                 logWarning(message);
                 getMeterAmrLogging().logInfo(message);
+                rtu = null;
             }
         }
 
-        getProtocolProperties().addProperties(rtu.getProtocol().getProperties());
-        getProtocolProperties().addProperties(rtu.getProperties());
+        if (rtu != null) {
+            getProtocolProperties().addProperties(rtu.getProtocol().getProperties());
+            getProtocolProperties().addProperties(rtu.getProperties());
 
-
-        try {
-            processSmsFrame(parseAndDecryptSms(this.sms));
-        } catch (LinkException e) {
-            String message = "An error occurred in the connection!";
-            log(message);
-            getMeterAmrLogging().logInfo(message);
-            e.printStackTrace();
+            try {
+                processSmsFrame(parseAndDecryptSms(this.sms));
+            } catch (LinkException e) {
+                String message = "An error occurred in the connection!";
+                log(message);
+                getMeterAmrLogging().logInfo(message);
+            } catch (CTRParsingException e) {
+                String message = "An error occurred while parsing the data";
+                log(message);
+                getMeterAmrLogging().logInfo(message);
+            } catch (CtrCipheringException e) {
+                String message = "An error occurred while decrypting the data";
+                log(message);
+                getMeterAmrLogging().logInfo(message);
+            }
         }
     }
 
     //Replace +XY by 0, e.g. +32 = 0, +39 = 0
-    private String checkFormat(String from) {
+    private String checkFormat(String from) throws IOException {
+
+        if ("".equals(sms.getFrom())){
+            throw new IOException();
+        }
         if ("+".equals(Character.toString(from.charAt(0)))) {
             from = "0" + from.substring(3);
         }
