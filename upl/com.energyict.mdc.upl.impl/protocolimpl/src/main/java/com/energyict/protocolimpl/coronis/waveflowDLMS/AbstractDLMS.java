@@ -10,7 +10,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.*;
+import com.energyict.protocolimpl.coronis.core.*;
 
 abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolLink,MessageProtocol  {
 	

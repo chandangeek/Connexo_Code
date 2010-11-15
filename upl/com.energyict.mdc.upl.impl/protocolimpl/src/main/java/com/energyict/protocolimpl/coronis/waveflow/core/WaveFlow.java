@@ -1,4 +1,4 @@
-package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
+package com.energyict.protocolimpl.coronis.waveflow.core;
 
 import java.io.*;
 import java.util.*;
@@ -10,8 +10,7 @@ import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.coronis.core.*;
 
-
-abstract public class WaveFlow100mW extends AbstractProtocol implements MessageProtocol,ProtocolLink {
+abstract public class WaveFlow extends AbstractProtocol implements MessageProtocol,ProtocolLink {
 
 	private static final int WAVEFLOW_NR_OF_CHANNELS = 2;
 
@@ -70,28 +69,15 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
 	/**
 	 * reference to the message protocol parser
 	 */
-	private WaveFlow100mWMessages waveFlow100mWMessages = new WaveFlow100mWMessages(this);
+	private WaveFlowMessages waveFlowMessages = new WaveFlowMessages(this);
 	
 	/**
 	 * the correcttime property. this property is set from the protocolreader in order to allow to sync the time...
 	 */
 	private int correctTime;
-	
-	/**
-	 * cached encoder generic header...
-	 */
-	private EncoderGenericHeader cachedEncoderGenericHeader=null;
-	
-	final public EncoderGenericHeader getCachedEncoderGenericHeader() {
-		return cachedEncoderGenericHeader;
-	}
-
-	final void setCachedEncoderGenericHeader(EncoderGenericHeader cachedEncoderGenericHeader) {
-		this.cachedEncoderGenericHeader = cachedEncoderGenericHeader;
-	}
 
 	/**
-	 * The obiscode for the load profile. Since the Waveflow100mw can connect 2 watermeters, there are 2 independent load profiles.
+	 * The obiscode for the load profile.
 	 */
 	ObisCode loadProfileObisCode;
 	
@@ -168,10 +154,10 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
 	@Override
 	public Date getTime() throws IOException {
 		// If we need to sync the time, then we need to request the RTC in the waveflow device in order to determine the shift.
-		// However, if no timesync needs to be done, we're ok with the current RTC from the cached generic header.
+		// However, if no timesync needs to be done, we're ok with a dummy Date() from the RTU+Server.
 		// we do this because we want to limit the roudtrips to the RF device
-		if ((correctTime==0) &&  (cachedEncoderGenericHeader != null)) {
-			return cachedEncoderGenericHeader.getCurrentRTC();
+		if (correctTime==0) {
+			return new Date();
 		}
 		else {
 			return parameterFactory.readTimeDateRTC();
@@ -233,34 +219,34 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
     	try {
     		return getTheProfileData(lastReading,portId,includeEvents);
     	}
-    	catch(WaveFlow100mwEncoderException e) {
+    	catch(WaveFlowException e) {
     		getLogger().warning("No profile data available. Probably datalogging restarted...");
     		return null;
     	}
     }    
    
 	public void applyMessages(List messageEntries) throws IOException {
-		waveFlow100mWMessages.applyMessages(messageEntries);
+		waveFlowMessages.applyMessages(messageEntries);
 	}
 
 	public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
-		return waveFlow100mWMessages.queryMessage(messageEntry);
+		return waveFlowMessages.queryMessage(messageEntry);
 	}
 
 	public List getMessageCategories() {
-		return waveFlow100mWMessages.getMessageCategories();
+		return waveFlowMessages.getMessageCategories();
 	}
 
 	public String writeMessage(Message msg) {
-		return waveFlow100mWMessages.writeMessage(msg);
+		return waveFlowMessages.writeMessage(msg);
 	}
 
 	public String writeTag(MessageTag tag) {
-		return waveFlow100mWMessages.writeTag(tag);
+		return waveFlowMessages.writeTag(tag);
 	}
 
 	public String writeValue(MessageValue value) {
-		return waveFlow100mWMessages.writeValue(value);
+		return waveFlowMessages.writeValue(value);
 	}
     
 	public ObisCode getLoadProfileObisCode() {
@@ -280,11 +266,6 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
     public void setHalfDuplexController(HalfDuplexController halfDuplexController) {
     	// absorb
     }
-    
-    public InternalData[] readInternalDatas() throws IOException {
-      return getRadioCommandFactory().readInternalData().getInternalDatas();	
-    }
-
     
     public int getNumberOfChannels() throws UnsupportedException, IOException {
     	return WAVEFLOW_NR_OF_CHANNELS;

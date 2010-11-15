@@ -1,4 +1,4 @@
-package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
+package com.energyict.protocolimpl.coronis.core;
 
 import java.io.IOException;
 

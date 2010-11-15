@@ -1,8 +1,6 @@
-package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
+package com.energyict.protocolimpl.coronis.core;
 
 import java.io.*;
-
-import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.AbstractRadioCommand.EncoderRadioCommandId;
 
 abstract class AbstractEscapeCommand {
 
