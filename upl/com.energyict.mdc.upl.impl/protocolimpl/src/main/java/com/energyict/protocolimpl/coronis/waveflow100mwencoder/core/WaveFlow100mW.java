@@ -169,7 +169,7 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
 	public Date getTime() throws IOException {
 		// If we need to sync the time, then we need to request the RTC in the waveflow device in order to determine the shift.
 		// However, if no timesync needs to be done, we're ok with the current RTC from the cached generic header.
-		// we do this because we want to limit the roudtrips to eiserver
+		// we do this because we want to limit the roudtrips to the RF device
 		if ((correctTime==0) &&  (cachedEncoderGenericHeader != null)) {
 			return cachedEncoderGenericHeader.getCurrentRTC();
 		}
