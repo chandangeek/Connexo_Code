@@ -14,7 +14,6 @@ import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
 import com.energyict.genericprotocolimpl.elster.ctr.profile.ProfileChannelForSms;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.*;
 import com.energyict.genericprotocolimpl.elster.ctr.util.CTRObjectInfo;
-import com.energyict.genericprotocolimpl.elster.ctr.util.MeterInfo;
 import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.*;
@@ -44,7 +43,6 @@ public class SmsHandler implements MessageHandler {
     private final Date now = new Date();
     private final StoreObject storeObject = new StoreObject();
     private ObisCodeMapper obisCodeMapper;
-    private MeterInfo meterInfo;
     private Sms sms;
 
     public Date getNow() {
@@ -171,7 +169,7 @@ public class SmsHandler implements MessageHandler {
     }
 
 
-    private void processSchedule(SMSFrame smsFrame, CommunicationProfile communicationProfile) throws CTRException, CTRParsingException {
+    private void processSchedule(SMSFrame smsFrame, CommunicationProfile communicationProfile) throws CTRException {
 
         if (communicationProfile == null) {
             throw new CTRConfigurationException("There was no communication profile.");

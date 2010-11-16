@@ -12,7 +12,6 @@ import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -151,7 +150,6 @@ public class ProfileChannelForSms {
         ProfileData pd = new ProfileData();
         pd.setChannelInfos(getChannelInfos());
         pd.setIntervalDatas(getIntervalDatasFromResponse(response));
-        System.out.println(ProtocolTools.getProfileInfo(pd));
         return pd;
     }
 
@@ -165,20 +163,6 @@ public class ProfileChannelForSms {
         ChannelInfo info = new ChannelInfo(0, getChannelIndex() - 1, symbol, unit);
         channelInfos.add(info);
         return channelInfos;
-    }
-
-    /**
-     * @param intervalDatas
-     * @return
-     */
-    private Date getNewestIntervalDate(List<IntervalData> intervalDatas) {
-        Date newest = new Date(0);
-        for (IntervalData intervalData : intervalDatas) {
-            if (intervalData.getEndTime().after(newest)) {
-                newest = intervalData.getEndTime();
-            }
-        }
-        return newest;
     }
 
     /**
@@ -240,18 +224,4 @@ public class ProfileChannelForSms {
             return IntervalStateBits.OK;
         }
     }
-
-    /**
-     * @return
-     */
-    private Calendar getFromCalendar() {
-        Date lastReading = getMeterChannel().getLastReading();
-        if (lastReading == null) {
-            lastReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(getRtu());
-        }
-        Calendar cal = ProtocolUtils.getCleanCalendar(getDeviceTimeZone());
-        cal.setTime(lastReading);
-        return cal;
-    }
-
 }

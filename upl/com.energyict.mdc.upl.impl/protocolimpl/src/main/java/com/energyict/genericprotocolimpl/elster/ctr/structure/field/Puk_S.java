@@ -35,7 +35,7 @@ public class Puk_S extends AbstractField<Puk_S> {
     }
 
     public void setPuks(byte[] puks) {
-        this.puks = puks;
+        this.puks = puks.clone();
     }
 
     public final void setPuks() {

@@ -24,9 +24,6 @@ public class EndOfSessionRequestStructure extends Data<EndOfSessionRequestStruct
 
     @Override
     public EndOfSessionRequestStructure parse(byte[] rawData, int offset) throws CTRParsingException {
-        int ptr = offset;
-
-
         return this;
     }
 

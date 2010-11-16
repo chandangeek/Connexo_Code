@@ -20,7 +20,7 @@ public abstract class AbstractBCDObject<T extends AbstractBCDObject> extends Abs
         CTRObjectID id = this.getId();
 
         if (type.hasIdentifier()) {
-            ptr += 2; //Skip the Id bytes
+            ptr += CTRObjectID.LENGTH; //Skip the Id bytes
         }
 
         if (type.hasQualifier()) {
@@ -41,7 +41,7 @@ public abstract class AbstractBCDObject<T extends AbstractBCDObject> extends Abs
         if (type.hasAccessDescriptor()) {
             AccessDescriptor access = new AccessDescriptor(parser.parseAccess(rawData, ptr));
             this.setAccess(access);
-            ptr += access.LENGTH;
+            ptr += access.getLength();
         }
 
         if (type.hasDefaultValue()) {

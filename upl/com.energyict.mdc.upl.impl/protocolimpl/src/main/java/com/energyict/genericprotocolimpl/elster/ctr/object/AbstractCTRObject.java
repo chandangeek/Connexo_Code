@@ -27,9 +27,13 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
     private AttributeType type;
 
     public abstract Unit getUnit(CTRObjectID id, int valueNumber);
+
     protected abstract T parse(byte[] rawData, int offset, AttributeType type);
+
     protected abstract String getSymbol(CTRObjectID id);
+
     public abstract int[] getValueLengths(CTRObjectID id);
+
     public abstract BigDecimal getOverflowValue(CTRObjectID id, int valueNumber, Unit unit);
 
     protected int sum(int[] valueLength) {
@@ -43,7 +47,7 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
     public int getLength() throws CTRParsingException {
         return getBytes().length;
     }
-   
+
     protected int getCommonOverflow(Unit unit) {
         int overflow = 0;
         if (Unit.get(BaseUnit.HOUR).equals(unit)) {
@@ -115,8 +119,7 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
         return value;
     }
 
-    public CTRAbstractValue getValue(int index) throws IndexOutOfBoundsException{
-        //TODO: check out of bounds
+    public CTRAbstractValue getValue(int index) throws IndexOutOfBoundsException {
         if (index >= value.length) {
             throw new IndexOutOfBoundsException("An error happened accessing a value from an array. \nIndex was " + index + ", but the array contains only " + value.length + " element(s)");
         }
@@ -140,8 +143,7 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
         }
 
         if (type.hasQualifier()) {
-            byte[] qlf = getQlf().getBytes();
-            bytes = ProtocolTools.concatByteArrays(bytes, qlf);
+            bytes = ProtocolTools.concatByteArrays(bytes, getQlf().getBytes());
             if (getQlf().isInvalid() && getType().isRegisterQuery()) {
                 return bytes;       //Stop here if the qlf indicates the object is invalid and it's a register reading
             }
@@ -159,24 +161,14 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
         }
 
         if (type.hasAccessDescriptor()) {
-            byte[] access = getAccess().getBytes();
-            bytes = ProtocolTools.concatByteArrays(bytes, access);
+            bytes = ProtocolTools.concatByteArrays(bytes, getAccess().getBytes());
         }
 
         if (type.hasDefaultValue()) {
-            byte[] def = converter.convertDefaults(getDefault(), lengths);
-            bytes = ProtocolTools.concatByteArrays(bytes,def);
+            bytes = ProtocolTools.concatByteArrays(bytes, converter.convertDefaults(getDefault(), lengths));
         }
 
         return bytes;
-    }
-    
-    public Default[] getDef() {
-        return def;
-    }
-
-    public void setDef(Default[] def) {
-        this.def = def;
     }
 
     public AttributeType getType() {

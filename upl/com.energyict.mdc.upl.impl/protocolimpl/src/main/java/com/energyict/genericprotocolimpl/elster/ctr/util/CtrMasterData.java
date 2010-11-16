@@ -104,13 +104,11 @@ public class CtrMasterData {
 
     private static class RegSpec {
 
-        private final String obis, id, source, digits, description;
+        private final String obis, id, description;
 
         public RegSpec(String obis, String id, String source, String digits, String description) {
             this.obis = obis;
             this.id = id;
-            this.source = source;
-            this.digits = digits;
             this.description = description;
         }
 

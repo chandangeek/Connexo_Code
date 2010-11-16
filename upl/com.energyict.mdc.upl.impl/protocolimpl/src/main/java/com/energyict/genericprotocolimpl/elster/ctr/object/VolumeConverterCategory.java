@@ -25,12 +25,12 @@ public class VolumeConverterCategory extends AbstractUnsignedBINObject<VolumeCon
                 symbol = "C"; break;
             case 1:
                 switch (id.getZ()) {
-                    default:
-                        symbol = "Z1"; break;
                     case 6:
                         symbol = "Z_i"; break;
                     case 7:
                         symbol = "Zb";  break;
+                    default:
+                        symbol = "Z1"; break;
                 }  break;
             case 2:
                 symbol = "Z"; break;

@@ -21,7 +21,7 @@ public abstract class AbstractStringObject<T extends AbstractStringObject> exten
         CTRObjectID id = this.getId();
 
         if (type.hasIdentifier()) {
-            ptr += 2; //Skip the Id bytes
+            ptr += CTRObjectID.LENGTH; //Skip the Id bytes
         }
         
         if (type.hasQualifier()) {
@@ -42,7 +42,7 @@ public abstract class AbstractStringObject<T extends AbstractStringObject> exten
         if (type.hasAccessDescriptor()) {
             AccessDescriptor access = new AccessDescriptor(parser.parseAccess(rawData, ptr));
             this.setAccess(access);
-            ptr += access.LENGTH;
+            ptr += access.getLength();
         }
 
         if (type.hasDefaultValue()) {

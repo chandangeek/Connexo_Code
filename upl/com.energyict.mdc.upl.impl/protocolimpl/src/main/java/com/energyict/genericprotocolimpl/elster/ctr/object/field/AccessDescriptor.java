@@ -12,12 +12,10 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingExceptio
 public class AccessDescriptor extends AbstractField {
 
     private int access;
-    public final int LENGTH = 1;
 
     public AccessDescriptor(int access) {
         this.access = access;
     }
-
 
     public void setAccess(int access) {
         this.access = access;
@@ -84,6 +82,6 @@ public class AccessDescriptor extends AbstractField {
     }
 
     public int getLength() {
-        return LENGTH;
+        return 1;
     }
 }

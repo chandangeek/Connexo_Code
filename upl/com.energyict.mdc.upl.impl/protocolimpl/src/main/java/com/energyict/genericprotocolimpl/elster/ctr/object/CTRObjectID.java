@@ -14,6 +14,7 @@ public class CTRObjectID extends AbstractField<CTRObjectID> {
     private int x;
     private int y;
     private int z;
+    public static final int LENGTH = 2;
 
     public CTRObjectID() {
         this(0, 0, 0);

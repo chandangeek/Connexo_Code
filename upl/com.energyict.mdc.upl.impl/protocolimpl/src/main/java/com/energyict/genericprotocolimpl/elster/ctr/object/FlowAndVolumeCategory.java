@@ -62,7 +62,6 @@ public class FlowAndVolumeCategory extends AbstractUnsignedBINObject {
     public int[] getValueLengths(CTRObjectID id) {
         int[] valueLength;
         switch(id.getY()) {
-                default: valueLength = new int[]{3}; break;
                 case 6:
                 case 7:
                 case 9:
@@ -73,7 +72,8 @@ public class FlowAndVolumeCategory extends AbstractUnsignedBINObject {
                         case 5:
                         case 6: valueLength = new int[]{3,1,1,1,1}; break;
                     }
-            }
+                default: valueLength = new int[]{3}; break;
+        }
         return valueLength;
     }
 

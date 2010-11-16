@@ -53,7 +53,7 @@ public class ReferenceDate extends AbstractField<ReferenceDate> {
     }
 
     public void setDate(byte[] date) {
-        this.date = date;
+        this.date = date.clone();
     }
 
     public void setTomorrow() throws CTRParsingException {

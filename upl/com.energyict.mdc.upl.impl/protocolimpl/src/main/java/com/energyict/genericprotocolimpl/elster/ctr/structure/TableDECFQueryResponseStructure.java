@@ -239,14 +239,6 @@ public class TableDECFQueryResponseStructure extends AbstractTableQueryResponseS
         return this;
     }
 
-    private int sum(CTRAbstractValue[] values) {
-        int sum = 0;
-        for (CTRAbstractValue value : values) {
-            sum += value.getValueLength();
-        }
-        return sum;
-    }
-
     public AbstractCTRObject getDataAndOraP() {
         return dataAndOraP;
     }

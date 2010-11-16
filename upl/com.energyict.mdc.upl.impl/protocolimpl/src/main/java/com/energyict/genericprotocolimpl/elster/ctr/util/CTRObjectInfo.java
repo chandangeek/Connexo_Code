@@ -10,7 +10,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.object.*;
  * Date: 20-okt-2010
  * Time: 17:23:00
  */
-public class CTRObjectInfo {
+public final class CTRObjectInfo {
 
     /**
      * Private constructor te prevent instantiation of util class

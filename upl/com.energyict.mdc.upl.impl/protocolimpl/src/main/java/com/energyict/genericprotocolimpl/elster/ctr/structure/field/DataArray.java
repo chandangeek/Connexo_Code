@@ -46,8 +46,8 @@ public class DataArray extends AbstractField<DataArray> {
     }
 
     public void setData(byte[] data) {
+        this.data = data.clone();
         this.arrayLength = data.length;
-        this.data = data;
     }
     
 }

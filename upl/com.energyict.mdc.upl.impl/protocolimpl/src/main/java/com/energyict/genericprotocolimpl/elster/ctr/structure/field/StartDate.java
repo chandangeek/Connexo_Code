@@ -31,7 +31,7 @@ public class StartDate extends AbstractField<StartDate> {
     }
 
     public void setDate(byte[] date) {
-        this.date = date;
+        this.date = date.clone();
     }
 
 }

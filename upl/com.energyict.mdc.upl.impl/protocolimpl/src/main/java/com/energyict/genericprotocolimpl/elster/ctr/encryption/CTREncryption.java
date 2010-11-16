@@ -25,6 +25,7 @@ public class CTREncryption {
     private final byte[] keyC;
     private final byte[] keyF;
     private final int securityLevel;
+    private final static String CTRENCRYPTIONERROR = "An error occured while using the ciphering!";
 
     /**
      * @param properties
@@ -59,9 +60,9 @@ public class CTREncryption {
      * @param securityLevel
      */
     public CTREncryption(byte[] keyC, byte[] keyT, byte[] keyF, int securityLevel) {
-        this.keyT = keyT;
-        this.keyC = keyC;
-        this.keyF = keyF;
+        this.keyT = keyT.clone();
+        this.keyC = keyC.clone();
+        this.keyF = keyF.clone();
         this.securityLevel = securityLevel;
     }
 
@@ -86,9 +87,9 @@ public class CTREncryption {
             try {
                 frame = setData(frame, decryptStream(frame));
             } catch (GeneralSecurityException e) {
-                throw new CtrCipheringException("An error occured while using the ciphering!", e);
+                throw new CtrCipheringException(CTRENCRYPTIONERROR, e);
             } catch (CTRParsingException e) {
-                throw new CtrCipheringException("An error occured while using the ciphering!", e);
+                throw new CtrCipheringException(CTRENCRYPTIONERROR, e);
             }
 
             frame = setDecryptionStatus(frame);
@@ -133,9 +134,9 @@ public class CTREncryption {
             try {
                 frame = setData(frame, encryptStream(frame));
             } catch (GeneralSecurityException e) {
-                throw new CtrCipheringException("An error occured while using the ciphering!", e);
+                throw new CtrCipheringException(CTRENCRYPTIONERROR, e);
             } catch (CTRParsingException e) {
-                throw new CtrCipheringException("An error occured while using the ciphering!", e);
+                throw new CtrCipheringException(CTRENCRYPTIONERROR, e);
             }
         }
         return frame;

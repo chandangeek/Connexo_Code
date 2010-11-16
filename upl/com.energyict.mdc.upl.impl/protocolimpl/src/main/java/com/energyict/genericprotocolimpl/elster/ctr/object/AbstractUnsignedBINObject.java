@@ -21,7 +21,7 @@ public abstract class AbstractUnsignedBINObject<T extends AbstractUnsignedBINObj
         CTRObjectID id = this.getId();
 
         if (type.hasIdentifier()) {
-            ptr += 2; //Skip the sent ID bytes, ID is already set in constructor
+            ptr += CTRObjectID.LENGTH; //Skip the sent ID bytes, ID is already set in constructor
         }
 
         if (type.hasQualifier()) {
@@ -42,7 +42,7 @@ public abstract class AbstractUnsignedBINObject<T extends AbstractUnsignedBINObj
         if (type.hasAccessDescriptor()) {
             AccessDescriptor access = new AccessDescriptor(parser.parseAccess(rawData, ptr));
             this.setAccess(access);
-            ptr += access.LENGTH;
+            ptr += access.getLength();
         }
 
         if (type.hasDefaultValue()) {
