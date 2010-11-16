@@ -41,6 +41,10 @@ public class ObisCodeMapper {
     private static final String OBIS_DIAG_REDUCED = "0.0.96.10.4.255";
     private static final String OBIS_EQUIPMENT_CLASS = "7.0.0.2.3.255";
 
+    public List<CTRRegisterMapping> getRegisterMapping() {
+        return registerMapping;
+    }
+
     public ObisCodeMapper(GprsRequestFactory requestFactory, MeterAmrLogging meterAmrLogging) {
         this.requestFactory = requestFactory;
         this.meterAmrLogging = meterAmrLogging;
@@ -236,7 +240,7 @@ public class ObisCodeMapper {
      * @param obis
      * @return
      */
-    private CTRRegisterMapping searchRegisterMapping(ObisCode obis) {
+    public CTRRegisterMapping searchRegisterMapping(ObisCode obis) {
         for (CTRRegisterMapping ctrRegisterMapping : registerMapping) {
             if (obis.equals(ctrRegisterMapping.getObisCode())) {
                 return ctrRegisterMapping;
