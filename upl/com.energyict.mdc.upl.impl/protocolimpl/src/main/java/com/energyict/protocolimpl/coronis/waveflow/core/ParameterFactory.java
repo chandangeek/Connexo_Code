@@ -41,6 +41,25 @@ public class ParameterFactory {
 		return operatingMode.getOperatingMode();
 	}
 
+	final public void disableDataLogging() throws IOException {
+		operatingMode = new OperatingMode(waveFlow);
+		operatingMode.disableDataLogging();
+		operatingMode.write();
+	}
+	
+	final public void enableDataLoggingPeriodic() throws IOException {
+		operatingMode = new OperatingMode(waveFlow);
+		operatingMode.enableDataLoggingPeriodic();
+		operatingMode.write();
+	}
+
+	final public void manageDataloggingInputs(int nrOfInputs2Enable) throws IOException {
+		operatingMode = new OperatingMode(waveFlow);
+		operatingMode.manageInputs(nrOfInputs2Enable);
+		operatingMode.write();
+	}
+	
+	
 	final public void writeOperatingMode(final int operatingModeVal, final int mask) throws IOException {
 		operatingMode = new OperatingMode(waveFlow);
 		operatingMode.setOperatingMode(operatingModeVal);
@@ -56,7 +75,7 @@ public class ParameterFactory {
 	
 	final public Date readTimeDateRTC() throws IOException {
 		TimeDateRTC o = new TimeDateRTC(waveFlow);
-		o.read();
+		o.invoke();
 		return o.getCalendar().getTime();
 	}
 	
@@ -65,7 +84,7 @@ public class ParameterFactory {
 		Calendar calendar = Calendar.getInstance(waveFlow.getTimeZone());
 		calendar.setTime(date);
 		o.setCalendar(calendar);
-		o.write();
+		o.set();
 	}
 	
 	final public int readSamplingPeriod() throws IOException {

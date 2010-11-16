@@ -9,7 +9,7 @@ import com.energyict.cbo.*;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.WaveflowProtocolUtils;
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
 public class SimpleDataParser {
 

@@ -2,8 +2,7 @@ package com.energyict.protocolimpl.coronis.waveflow.core;
 
 import java.io.*;
 
-import com.energyict.obis.ObisCode;
-import com.energyict.protocolimpl.coronis.waveflow.core.AbstractRadioCommand.RadioCommandId;
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
 abstract public class AbstractParameter extends AbstractRadioCommand {
 
@@ -15,7 +14,6 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 		MeasurementPeriod(0x80,1,"Measurement period (in multiples of sampling periods)"), // page 16
 		BatteryLifeDurationCounter(0xA2,2,"Battery life duration counter"),
 		BatteryLifeDateEnd(0x90,6,"Battery life end date"),
-		CurrentRTC(0x14,7,"Current time and date"), // page 13
 		ApplicationStatus(0x20,1,"Application Status"), // page 12
 		SamplingPeriod(0x80,1,"Reading the sampling period"), // page 14
 		SamplingActivationStartHour(0x81,1,"Sampling activation start hour (00=00:00, 01=01:00,... , 0x17=23:00)"), 

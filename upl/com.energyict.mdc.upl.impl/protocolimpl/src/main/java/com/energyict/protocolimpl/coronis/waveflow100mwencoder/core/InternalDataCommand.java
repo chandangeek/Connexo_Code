@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
 import java.io.IOException;
 
-import org.hibernate.id.IdentityGenerator.GetGeneratedKeysDelegate;
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
 public class InternalDataCommand extends AbstractRadioCommand {
 

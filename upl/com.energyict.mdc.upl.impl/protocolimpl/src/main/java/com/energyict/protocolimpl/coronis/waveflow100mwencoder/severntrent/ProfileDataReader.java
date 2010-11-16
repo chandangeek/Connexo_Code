@@ -6,6 +6,7 @@ import java.util.*;
 
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.*;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.EncoderUnitInfo.EncoderUnitType;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.LeakageEventTable.LeakageEvent;

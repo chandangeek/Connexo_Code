@@ -2,6 +2,8 @@ package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
 import java.io.IOException;
 
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+
 public class SamplingActivationType extends AbstractParameter {
 	
 	SamplingActivationType(WaveFlow100mW waveFlow100mW) {

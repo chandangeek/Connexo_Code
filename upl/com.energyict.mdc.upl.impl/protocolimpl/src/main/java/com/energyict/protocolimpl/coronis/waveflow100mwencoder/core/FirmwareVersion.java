@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
 import java.io.*;
 
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
 public class FirmwareVersion extends AbstractRadioCommand {
 

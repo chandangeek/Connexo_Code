@@ -2,8 +2,7 @@ package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
 import java.io.*;
 
-import com.energyict.obis.ObisCode;
-import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.AbstractRadioCommand.EncoderRadioCommandId;
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
 abstract public class AbstractParameter extends AbstractRadioCommand {
 

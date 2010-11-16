@@ -45,4 +45,18 @@ public class TimeDateRTCParser {
 	static int size() {
 		return 7;
 	}
+	
+	static public void main(String[] args) {
+		//byte[] data = new byte[]{0x10,0x0B,0x10,0x02,0x13,0x00};
+		//byte[] data = new byte[]{0x21,0x14,0x02,0x10,0x0b,0x10};//0x10,0x0B,0x10,0x02,0x14,0x21};
+		byte[] data = new byte[]{0x10,0x0B,0x10,0x02,0x14,0x38,0x00};
+		try {
+			System.out.println(TimeDateRTCParser.parse(data,TimeZone.getDefault()).getTime());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
 }

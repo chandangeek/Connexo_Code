@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import com.energyict.cbo.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.*;
 
 public class ObisCodeMapper {

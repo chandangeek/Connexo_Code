@@ -6,6 +6,7 @@ import java.util.*;
 
 import com.energyict.cbo.*;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.mbus.core.DataRecordTypeG_CP16;
 
 public class MBusInternalLogs extends AbstractRadioCommand {

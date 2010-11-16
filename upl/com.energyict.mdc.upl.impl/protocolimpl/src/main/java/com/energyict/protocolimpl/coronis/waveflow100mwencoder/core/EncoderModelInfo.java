@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+
 
 public class EncoderModelInfo {
 

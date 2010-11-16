@@ -1,4 +1,4 @@
-package com.energyict.protocolimpl.coronis.waveflow.core;
+package com.energyict.protocolimpl.coronis.core;
 
 public class WaveflowProtocolUtils {
 

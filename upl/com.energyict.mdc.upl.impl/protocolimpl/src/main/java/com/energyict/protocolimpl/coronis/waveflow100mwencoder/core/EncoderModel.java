@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 import java.io.IOException;
 
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.EncoderModelInfo.EncoderModelType;
 
 public class EncoderModel extends AbstractParameter {

@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.coronis.waveflow.core;
 
 import java.io.*;
 
-import com.energyict.protocolimpl.coronis.waveflow.core.AbstractParameter.ParameterId;
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
 abstract public class AbstractRadioCommand {
 	
@@ -12,7 +12,9 @@ abstract public class AbstractRadioCommand {
 		WriteParameterLegacy(0x11),
 		ReadParameter(0x18),
 		WriteParameter(0x19),
-		DataloggingTable(0x09),
+		ExtendedDataloggingTable(0x09),
+		ReadCurrentRTC(0x14), // page 38 waveflow V2 document
+		WriteCurrentRTC(0x15), // page 38 waveflow V2 document
 		
 //		EncoderCurrentReading(0x01,true),
 //		EncoderReadLeakageEventTable(0x04,true),
@@ -58,7 +60,33 @@ abstract public class AbstractRadioCommand {
 			DataOutputStream daos = new DataOutputStream(baos);
 			daos.writeByte(getRadioCommandId().getCommandId());
 			daos.write(prepare()); // write 1 parameter
-			parseRead(getWaveFlow().getWaveFlowConnect().sendData(baos.toByteArray()));
+			parseResponse(getWaveFlow().getWaveFlowConnect().sendData(baos.toByteArray()));
+		}
+		finally {
+			if (baos != null) {
+				try {
+					baos.close();
+				}
+				catch(IOException e) {
+					getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+				}
+			}
+		}			
+	}
+
+	/**
+	 * Set the Radio parameter initiated value.
+	 * @throws IOException
+	 */
+	void set() throws IOException {
+		
+		ByteArrayOutputStream baos = null;
+		try {	
+			baos = new ByteArrayOutputStream();
+			DataOutputStream daos = new DataOutputStream(baos);
+			daos.writeByte(getRadioCommandId().getCommandId());
+			daos.write(prepare()); // write 1 parameter
+			parseResponse(getWaveFlow().getWaveFlowConnect().sendData(baos.toByteArray()));
 		}
 		finally {
 			if (baos != null) {
@@ -72,7 +100,8 @@ abstract public class AbstractRadioCommand {
 		}			
 	}
 	
-	private final void parseRead(byte[] data) throws IOException {
+	
+	private final void parseResponse(byte[] data) throws IOException {
 		DataInputStream dais = null;
 		try {
 			dais = new DataInputStream(new ByteArrayInputStream(data));
@@ -83,7 +112,7 @@ abstract public class AbstractRadioCommand {
 			}
 			else {
 				
-				if ((commandIdAck == (0x80 | RadioCommandId.DataloggingTable.getCommandId())) && 
+				if ((commandIdAck == (0x80 | RadioCommandId.ExtendedDataloggingTable.getCommandId())) && 
 					(data.length == 2) && 
 					(WaveflowProtocolUtils.toInt(data[1]) == 0xff)) {
 					throw new WaveFlowException("Datalogging not yet available...");
@@ -105,4 +134,7 @@ abstract public class AbstractRadioCommand {
 			}
 		}		
 	}
+	
+
+	
 }

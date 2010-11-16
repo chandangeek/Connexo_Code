@@ -3,7 +3,7 @@ package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 import java.io.*;
 import java.util.logging.Logger;
 
-import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.EncoderModelInfo.EncoderModelType;
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.EncoderUnitInfo.EncoderUnitType;
 
 public class EncoderInternalData extends InternalData {

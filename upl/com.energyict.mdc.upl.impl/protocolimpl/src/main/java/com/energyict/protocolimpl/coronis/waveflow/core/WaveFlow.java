@@ -178,9 +178,9 @@ abstract public class WaveFlow extends AbstractProtocol implements MessageProtoc
 
 	final public void restartDataLogging() throws IOException {
 		int om = parameterFactory.readOperatingMode();
-		parameterFactory.writeOperatingMode(om & 0xFFF3,0x000C);
+		parameterFactory.manageDataloggingInputs(4); // enable All 4 inputs... ABCD
 		parameterFactory.writeSamplingActivationNextHour();
-		parameterFactory.writeOperatingMode(om|0x0004);
+		parameterFactory.enableDataLoggingPeriodic();
 	}
 	
 	final public void writeSamplingRate() throws IOException {

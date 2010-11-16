@@ -1,11 +1,11 @@
-package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
+package com.energyict.protocolimpl.coronis.waveflow.core;
 
 import java.io.*;
 import java.util.*;
 
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
-public class EncoderDataloggingTable extends AbstractRadioCommand {
+public class ExtendedDataloggingTable extends AbstractRadioCommand {
 
 	// ********************************************************************************************
 	// Request specific parameters
@@ -133,12 +133,12 @@ public class EncoderDataloggingTable extends AbstractRadioCommand {
 		return encoderReadingsPortB;
 	}
 
-	EncoderDataloggingTable(final WaveFlow100mW waveFlow100mW) {
-		super(waveFlow100mW);
+	ExtendedDataloggingTable(final WaveFlow waveFlow) {
+		super(waveFlow);
 	}
 	
-	EncoderDataloggingTable(final WaveFlow100mW waveFlow100mW, final boolean portA, final boolean portB, final int nrOfValues, final int offsetFromMostRecentValue) {
-		super(waveFlow100mW);
+	ExtendedDataloggingTable(final WaveFlow waveFlow, final boolean portA, final boolean portB, final int nrOfValues, final int offsetFromMostRecentValue) {
+		super(waveFlow);
 		this.nrOfValues=nrOfValues;
 		this.offsetFromMostRecentValue=offsetFromMostRecentValue;
 		portMask=0x00;
@@ -150,10 +150,7 @@ public class EncoderDataloggingTable extends AbstractRadioCommand {
 		
 		StringBuilder strBuilder = new StringBuilder();
 		
-		strBuilder.append("EncoderDataloggingTable (generic header):\n"+getEncoderGenericHeader()+"\n");
-		
-		
-		strBuilder.append("EncoderDataloggingTable (datalogging parameters):\n");
+		strBuilder.append("DataloggingTable (datalogging parameters):\n");
 		
 		strBuilder.append("samplingPeriod: "+WaveflowProtocolUtils.toHexString(samplingPeriod)+"\n");
 		strBuilder.append("SamplingActivationType: "+WaveflowProtocolUtils.toHexString(SamplingActivationType)+"\n");
@@ -192,8 +189,8 @@ public class EncoderDataloggingTable extends AbstractRadioCommand {
 	
 	
 	@Override
-	EncoderRadioCommandId getEncoderRadioCommandId() {
-		return EncoderRadioCommandId.EncoderDataloggingTable;
+	RadioCommandId getRadioCommandId() {
+		return RadioCommandId.ExtendedDataloggingTable;
 	}
 
 	@Override
@@ -219,13 +216,13 @@ public class EncoderDataloggingTable extends AbstractRadioCommand {
 					// read the datalogging
 					byte[] temp = new byte[7];
 					dais.read(temp);
-					lastLoggingRTC = TimeDateRTCParser.parse(temp, getWaveFlow100mW().getTimeZone()).getTime();
+					lastLoggingRTC = TimeDateRTCParser.parse(temp, getWaveFlow().getTimeZone()).getTime();
 				}
 				else {
 					// in case of a multiple frame, the first byte of the following data is the commmandId acknowledge
 					int commandIdAck = WaveflowProtocolUtils.toInt(dais.readByte());
-					if (commandIdAck != (0x80 | getEncoderRadioCommandId().getCommandId())) {
-						throw new WaveFlow100mwEncoderException("Invalid response tag ["+WaveflowProtocolUtils.toHexString(commandIdAck)+"]");
+					if (commandIdAck != (0x80 | getRadioCommandId().getCommandId())) {
+						throw new WaveFlowException("Invalid response tag ["+WaveflowProtocolUtils.toHexString(commandIdAck)+"]");
 					}
 				}
 				
@@ -263,7 +260,7 @@ public class EncoderDataloggingTable extends AbstractRadioCommand {
 					dais.close();
 				}
 				catch(IOException e) {
-					getWaveFlow100mW().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
 				}
 			}
 		}			
@@ -286,7 +283,7 @@ public class EncoderDataloggingTable extends AbstractRadioCommand {
 					baos.close();
 				}
 				catch(IOException e) {
-					getWaveFlow100mW().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
 				}
 			}
 		}

@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
 import java.io.*;
 
-import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.AbstractParameter.ParameterId;
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
 abstract public class AbstractRadioCommand {
 	
