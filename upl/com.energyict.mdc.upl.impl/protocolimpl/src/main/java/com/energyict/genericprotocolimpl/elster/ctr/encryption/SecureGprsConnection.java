@@ -2,13 +2,15 @@ package com.energyict.genericprotocolimpl.elster.ctr.encryption;
 
 import com.energyict.genericprotocolimpl.elster.ctr.GprsConnection;
 import com.energyict.genericprotocolimpl.elster.ctr.MTU155Properties;
-import com.energyict.genericprotocolimpl.elster.ctr.exception.*;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRConnectionException;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CtrCipheringException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.Frame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -17,26 +19,45 @@ import java.io.OutputStream;
  */
 public class SecureGprsConnection extends GprsConnection {
 
+    private Logger logger = null;
     private CTREncryption ctrEncryption;
     private boolean debug;
 
-    public SecureGprsConnection(InputStream in, OutputStream out, MTU155Properties properties) {
+    /**
+     * 
+     * @param in
+     * @param out
+     * @param properties
+     * @param logger
+     */
+    public SecureGprsConnection(InputStream in, OutputStream out, MTU155Properties properties, Logger logger) {
         super(in, out, properties);
-        ctrEncryption = new CTREncryption(properties);
-        debug = properties.isDebug();
+        this.ctrEncryption = new CTREncryption(properties);
+        this.debug = properties.isDebug();
+        this.logger = logger;
+    }
+
+    /**
+     *
+     * @param in
+     * @param out
+     * @param properties
+     */
+    public SecureGprsConnection(InputStream in, OutputStream out, MTU155Properties properties) {
+        this(in, out, properties, null);
     }
 
     @Override
     public GPRSFrame sendFrameGetResponse(GPRSFrame requestFrame) throws CTRConnectionException {
         try {
             if (isDebug()) {
-                System.out.println("TX[" + System.currentTimeMillis() +  "] " + ProtocolTools.getHexStringFromBytes(requestFrame.getBytes()));
+                getLogger().finest("TX[" + System.currentTimeMillis() +  "] " + ProtocolTools.getHexStringFromBytes(requestFrame.getBytes()));
             }
             GPRSFrame encryptedFrame = (GPRSFrame) ctrEncryption.encryptFrame(requestFrame);
             GPRSFrame responseFrame = super.sendFrameGetResponse(encryptedFrame);
             GPRSFrame unencryptedResponseFrame = (GPRSFrame) ctrEncryption.decryptFrame((Frame) responseFrame);
             if (isDebug()) {
-                System.out.println("RX[" + System.currentTimeMillis() +  "] " + ProtocolTools.getHexStringFromBytes(unencryptedResponseFrame.getBytes()));
+                getLogger().finest("RX[" + System.currentTimeMillis() +  "] " + ProtocolTools.getHexStringFromBytes(unencryptedResponseFrame.getBytes()));
             }
             return unencryptedResponseFrame;
         } catch (CtrCipheringException e) {
@@ -51,4 +72,16 @@ public class SecureGprsConnection extends GprsConnection {
     public void setDebug(boolean debug) {
         this.debug = debug;
     }
+
+    /**
+     * 
+     * @return
+     */
+    private Logger getLogger() {
+        if (this.logger == null) {
+            this.logger = Logger.getLogger(getClass().getCanonicalName());
+        }
+        return this.logger;
+    }
+
 }

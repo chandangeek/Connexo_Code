@@ -21,6 +21,7 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
     private final int timeOut;
     private final int delayAfterError;
     private final int forcedDelay;
+    private final boolean debug;
 
     /**
      * @param in
@@ -34,6 +35,7 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
         this.timeOut = properties.getTimeout();
         this.delayAfterError = properties.getDelayAfterError();
         this.forcedDelay = properties.getForcedDelay();
+        this.debug = properties.isDebug();
     }
 
     /**

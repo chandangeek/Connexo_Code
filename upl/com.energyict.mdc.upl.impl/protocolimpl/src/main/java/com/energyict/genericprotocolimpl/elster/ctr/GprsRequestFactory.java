@@ -71,7 +71,7 @@ public class GprsRequestFactory {
      * @param identificationStructure
      */
     public GprsRequestFactory(InputStream inputStream, OutputStream outputStream, Logger logger, MTU155Properties properties, TimeZone timeZone, IdentificationResponseStructure identificationStructure) {
-        this.connection = new SecureGprsConnection(inputStream, outputStream, properties);
+        this.connection = new SecureGprsConnection(inputStream, outputStream, properties, logger);
         this.logger = logger;
         this.properties = properties;
         this.timeZone = timeZone;
