@@ -6,16 +6,21 @@ import java.util.*;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 
-public class WaveLog extends WaveFlow {
+public class WaveLogV2 extends WaveFlow {
 
-	@Override
-	protected void doTheConnect() throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
+	/**
+	 * read and build the profiledata
+	 */
+	private ProfileDataReader profileDataReader;
 
+	
 	@Override
 	protected void doTheInit() throws IOException {
+		profileDataReader = new ProfileDataReader(this);
+	}	
+	
+	@Override
+	protected void doTheConnect() throws IOException {
 		// TODO Auto-generated method stub
 		
 	}
@@ -34,16 +39,14 @@ public class WaveLog extends WaveFlow {
 	}
 
 	@Override
-	protected ProfileData getTheProfileData(Date lastReading, int portId,
-			boolean includeEvents) throws UnsupportedException, IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	protected MeterProtocolType getMeterProtocolType() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
+	protected ProfileData getTheProfileData(Date lastReading, int portId,boolean includeEvents) throws UnsupportedException, IOException {
+		return profileDataReader.getProfileData(lastReading, portId, includeEvents);
+	}
+	
 }

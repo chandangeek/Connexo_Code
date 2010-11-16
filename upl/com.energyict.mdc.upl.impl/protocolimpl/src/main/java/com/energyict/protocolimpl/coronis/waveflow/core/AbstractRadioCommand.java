@@ -12,33 +12,78 @@ abstract public class AbstractRadioCommand {
 		WriteParameterLegacy(0x11),
 		ReadParameter(0x18),
 		WriteParameter(0x19),
-		ExtendedDataloggingTable(0x09),
+		ExtendedDataloggingTable(0x09), // page 62 waveflow V2 document
 		ReadCurrentRTC(0x14), // page 38 waveflow V2 document
 		WriteCurrentRTC(0x15), // page 38 waveflow V2 document
+		GlobalIndexReading(0x05,true), // page 42 waveflow V2 document
 		
-//		EncoderCurrentReading(0x01,true),
 //		EncoderReadLeakageEventTable(0x04,true),
-//		EncoderInternalData(0x0B,true),
-//		MBusInternalLogs(0x0D,true),
 //		LeakageEventTable(0x04,true),
-//		MeterDetection(0x0C),
 		FirmwareVersion(0x28);
 		
 		private int commandId;
+		/**
+		 * Some of th eradio commands return the 1 byte operation moder and 1 byte application status
+		 */
+		private boolean status;
+		/**
+		 * some of the radio commands return a 23 bytes generic header, explained at page 22 of the waveflow V2
+		 */
+		private boolean genericHeader;
 
+		final boolean isStatus() {
+			return status;
+		}
+
+
+		final boolean isGenericHeader() {
+			return genericHeader;
+		}
+		
+		
 		final int getCommandId() {
 			return commandId;
 		}
 
+		
 		RadioCommandId(final int commandId) {
-			this.commandId=commandId;
+			this(commandId,false);
 		}
+		
+		RadioCommandId(final int commandId, final boolean status) {
+			this(commandId,status,false);
+		}
+		
+		RadioCommandId(final int commandId, final boolean status, final boolean genericHeader) {
+			this.commandId=commandId;
+			this.status=status;
+			this.genericHeader=genericHeader;
+		}
+		
 	} // enum RadioCommandId
 
 	/**
 	 * The reference to the Waveflow protocol implementation class
 	 */
 	private WaveFlow waveFlow;
+	
+	/**
+	 * the 1 byte operation mode send together with some of the radio command responses 
+	 */
+	private int operationMode=-1;
+	
+	/**
+	 * the 1 byte application status send together with some of the radio command responses
+	 */
+	private int applicationStatus=-1;
+	
+	final int getOperationMode() {
+		return operationMode;
+	}
+
+	final int getApplicationStatus() {
+		return applicationStatus;
+	}
 	
 	final WaveFlow getWaveFlow() {
 		return waveFlow;
@@ -116,6 +161,15 @@ abstract public class AbstractRadioCommand {
 					(data.length == 2) && 
 					(WaveflowProtocolUtils.toInt(data[1]) == 0xff)) {
 					throw new WaveFlowException("Datalogging not yet available...");
+				}
+				
+				if (getRadioCommandId().isGenericHeader()) {
+					byte[] temp = new byte[23];
+					dais.read(temp);
+				}
+				else if (getRadioCommandId().isStatus()) {
+					operationMode = WaveflowProtocolUtils.toInt(dais.readByte());
+					applicationStatus = WaveflowProtocolUtils.toInt(dais.readByte());
 				}
 				
 				byte[] temp = new byte[dais.available()];

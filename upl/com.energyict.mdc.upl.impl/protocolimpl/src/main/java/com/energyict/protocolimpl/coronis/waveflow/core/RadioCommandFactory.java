@@ -15,23 +15,23 @@ public class RadioCommandFactory {
 	}
 
 
-//	final EncoderCurrentReading readEncoderCurrentReading() throws IOException {
-//		EncoderCurrentReading o = new EncoderCurrentReading(waveFlow);
-//		o.invoke();
-//		return o;
-//	}
-//	
-//	final public EncoderDataloggingTable readEncoderDataloggingTable() throws IOException {
-//		EncoderDataloggingTable o = new EncoderDataloggingTable(waveFlow);
-//		o.invoke();
-//		return o;
-//	}
-//	
-//	final public EncoderDataloggingTable readEncoderDataloggingTable(final boolean portA, final boolean portB, final int nrOfValues, final int offsetFromMostRecentValue) throws IOException {
-//		EncoderDataloggingTable o = new EncoderDataloggingTable(waveFlow,portA,portB,nrOfValues,offsetFromMostRecentValue);
-//		o.invoke();
-//		return o;
-//	}
+	final public CurrentReading readCurrentReading() throws IOException {
+		CurrentReading o = new CurrentReading(waveFlow);
+		o.invoke();
+		return o;
+	}
+
+	final public ExtendedDataloggingTable readExtendedDataloggingTable() throws IOException {
+		ExtendedDataloggingTable o = new ExtendedDataloggingTable(waveFlow);
+		o.invoke();
+		return o;
+	}
+	
+	final public ExtendedDataloggingTable readExtendedDataloggingTable(final boolean inputA, final boolean inputB, final boolean inputC, final boolean inputD, final int nrOfValues, final int offsetFromMostRecentValue) throws IOException {
+		ExtendedDataloggingTable o = new ExtendedDataloggingTable(waveFlow,inputA,inputB,inputC,inputD,nrOfValues,offsetFromMostRecentValue);
+		o.invoke();
+		return o;
+	}
 	
 	final FirmwareVersion readFirmwareVersion() throws IOException {
 		if (firmwareVersion == null) {

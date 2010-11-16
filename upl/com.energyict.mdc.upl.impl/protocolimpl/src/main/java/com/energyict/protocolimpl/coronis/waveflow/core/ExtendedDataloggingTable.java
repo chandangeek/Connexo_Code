@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.coronis.waveflow.core;
 import java.io.*;
 import java.util.*;
 
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
 public class ExtendedDataloggingTable extends AbstractRadioCommand {
@@ -11,10 +12,13 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
 	// Request specific parameters
 	
 	/**
-	 * bit0: read port A
-	 * bit1: read port B
+	 * bit0: input A
+	 * bit1: input B
+	 * bit2: input C
+	 * bit3: input D
 	 */
-	int portMask=0x03;
+	int inputMask=0x0F;
+	
 	/**
 	 * nr of logged values to expect
 	 */
@@ -24,8 +28,8 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
 	 */
 	int offsetFromMostRecentValue=0;
 
-	final void setPortMask(int portMask) {
-		this.portMask = portMask;
+	final void setInputMask(int inputMask) {
+		this.inputMask = inputMask;
 	}
 
 	final void setNrOfValues(int nrOfValues) {
@@ -108,8 +112,8 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
 	private int readingPortAIndex=0;
 	private int readingPortBIndex=0;
 
-	private long[] encoderReadingsPortA;
-	private long[] encoderReadingsPortB;
+	private long[] encoderReadingsInputA;
+	private long[] encoderReadingsInputB;
 	
 	
 	
@@ -126,24 +130,27 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
 	}
 
 	final public long[] getEncoderReadingsPortA() {
-		return encoderReadingsPortA;
+		return encoderReadingsInputA;
 	}
 
 	final public long[] getEncoderReadingsPortB() {
-		return encoderReadingsPortB;
+		return encoderReadingsInputB;
 	}
 
 	ExtendedDataloggingTable(final WaveFlow waveFlow) {
 		super(waveFlow);
 	}
 	
-	ExtendedDataloggingTable(final WaveFlow waveFlow, final boolean portA, final boolean portB, final int nrOfValues, final int offsetFromMostRecentValue) {
+	ExtendedDataloggingTable(final WaveFlow waveFlow, final boolean inputA, final boolean inputB, final boolean inputC, final boolean inputD, final int nrOfValues, final int offsetFromMostRecentValue) {
 		super(waveFlow);
 		this.nrOfValues=nrOfValues;
 		this.offsetFromMostRecentValue=offsetFromMostRecentValue;
-		portMask=0x00;
-		if (portA) portMask |= 0x01;
-		if (portB) portMask |= 0x02;
+		inputMask=0x00;
+		if (inputA) inputMask |= 0x01;
+		if (inputB) inputMask |= 0x02;
+		if (inputC) inputMask |= 0x04;
+		if (inputD) inputMask |= 0x08;
+		
 	}
 
 	public String toString() {
@@ -159,14 +166,14 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
 		strBuilder.append("dayOfTheWeek: "+WaveflowProtocolUtils.toHexString(hourOfManagement)+"\n");
 		strBuilder.append("nrOfRecordsInDatalogging: "+nrOfRecordsInDatalogging+"\n");
 		
-		strBuilder.append("EncoderDataloggingTable (datalogging data [portmask "+WaveflowProtocolUtils.toHexString(portMask)+"], [nr of values "+nrOfValues+"], [offset "+offsetFromMostRecentValue+"]\n");
+		strBuilder.append("EncoderDataloggingTable (datalogging data [portmask "+WaveflowProtocolUtils.toHexString(inputMask)+"], [nr of values "+nrOfValues+"], [offset "+offsetFromMostRecentValue+"]\n");
 		
 		strBuilder.append("lastLoggingRTC: "+lastLoggingRTC+"\n");
 		
 		if (nrOfReadingsPortA > 0) {
 			strBuilder.append("nrOfReadingsPortA: "+nrOfReadingsPortA+"\n");
-			for(int i=0;i<encoderReadingsPortA.length;i++) {
-				strBuilder.append("encoderReadingsPortA["+i+"]: "+encoderReadingsPortA[i]+"\n");
+			for(int i=0;i<encoderReadingsInputA.length;i++) {
+				strBuilder.append("encoderReadingsPortA["+i+"]: "+encoderReadingsInputA[i]+"\n");
 			}
 		}
 		else {
@@ -175,8 +182,8 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
 		
 		if (nrOfReadingsPortB > 0) {
 			strBuilder.append("nrOfReadingsPortB: "+nrOfReadingsPortB+"\n");
-			for(int i=0;i<encoderReadingsPortB.length;i++) {
-				strBuilder.append("encoderReadingsPortB["+i+"]: "+WaveflowProtocolUtils.toHexString(encoderReadingsPortB[i])+"\n");
+			for(int i=0;i<encoderReadingsInputB.length;i++) {
+				strBuilder.append("encoderReadingsPortB["+i+"]: "+WaveflowProtocolUtils.toHexString(encoderReadingsInputB[i])+"\n");
 			}
 		}
 		else {
@@ -196,14 +203,24 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
 	@Override
 	void parse(byte[] data) throws IOException {
 		
+		System.out.println("KV_DEBUG> "+ProtocolUtils.outputHexString(data));
+		
+		if (WaveflowProtocolUtils.toInt(data[0]) == 0xFF) {
+			throw new WaveFlowException("Error requesting load profile, returned [FF]");
+		}
+		
 		DataInputStream dais = null;
 		try {
 			
 			dais = new DataInputStream(new ByteArrayInputStream(data));
-			List<Long> encoderReadingsPortAList = new ArrayList<Long>();
-			List<Long> encoderReadingsPortBList = new ArrayList<Long>();
+			List<Long> encoderReadingsInputAList = new ArrayList<Long>();
+			List<Long> encoderReadingsInputBList = new ArrayList<Long>();
+			List<Long> encoderReadingsInputCList = new ArrayList<Long>();
+			List<Long> encoderReadingsInputDList = new ArrayList<Long>();
 			do {
 				if (frameCounter==0) {
+					
+					
 					
 					// read the datalogging parameters
 					samplingPeriod = WaveflowProtocolUtils.toInt(dais.readByte());
@@ -232,11 +249,11 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
 				dais.readShort(); // skip 2 bytes unused 0x0000 value
 				
 				for (int i=0;i<nrOfReadingsPortA;i++) {
-					encoderReadingsPortAList.add((long)dais.readInt() & 0xFFFFFFFF);
+					encoderReadingsInputAList.add((long)dais.readInt() & 0xFFFFFFFF);
 				}
 				
 				for (int i=0;i<nrOfReadingsPortB;i++) {
-					encoderReadingsPortBList.add((long)dais.readInt() & 0xFFFFFFFF);
+					encoderReadingsInputAList.add((long)dais.readInt() & 0xFFFFFFFF);
 				}
 				
 				this.nrOfReadingsPortA += nrOfReadingsPortA;
@@ -244,14 +261,14 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
 			
 			} while(frameCounter>1);
 			
-			encoderReadingsPortA = new long[encoderReadingsPortAList.size()];
-			for (int index=0;index<encoderReadingsPortAList.size();index++) {
-				encoderReadingsPortA[index]=encoderReadingsPortAList.get(index);
+			encoderReadingsInputA = new long[encoderReadingsInputAList.size()];
+			for (int index=0;index<encoderReadingsInputAList.size();index++) {
+				encoderReadingsInputA[index]=encoderReadingsInputAList.get(index);
 			}
 			
-			encoderReadingsPortB = new long[encoderReadingsPortBList.size()];
-			for (int index=0;index<encoderReadingsPortBList.size();index++) {
-				encoderReadingsPortB[index]=encoderReadingsPortBList.get(index);
+			encoderReadingsInputB = new long[encoderReadingsInputBList.size()];
+			for (int index=0;index<encoderReadingsInputBList.size();index++) {
+				encoderReadingsInputB[index]=encoderReadingsInputBList.get(index);
 			}
 		}
 		finally {
@@ -272,7 +289,7 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
 		try {	
 			baos = new ByteArrayOutputStream();
 			DataOutputStream daos = new DataOutputStream(baos);
-			daos.writeByte(portMask);
+			daos.writeByte(inputMask);
 			daos.writeShort(nrOfValues);
 			daos.writeShort(offsetFromMostRecentValue);
 			return baos.toByteArray();
