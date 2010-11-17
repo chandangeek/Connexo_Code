@@ -176,9 +176,10 @@ abstract public class WaveFlow extends AbstractProtocol implements MessageProtoc
 		}
 	}
 
-	final public void restartDataLogging() throws IOException {
+	final public void restartDataLogging(int nrOfInputs2Enable) throws IOException {
 		int om = parameterFactory.readOperatingMode();
-		parameterFactory.manageDataloggingInputs(4); // enable All 4 inputs... ABCD
+		parameterFactory.manageDataloggingInputs(nrOfInputs2Enable); // enable All 4 inputs... ABCD
+		writeSamplingRate();
 		parameterFactory.writeSamplingActivationNextHour();
 		parameterFactory.enableDataLoggingPeriodic();
 	}
@@ -206,18 +207,8 @@ abstract public class WaveFlow extends AbstractProtocol implements MessageProtoc
      */
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
     	
-    	int portId;
-    	if (getLoadProfileObisCode().getD() == 1) {
-    		portId=0; // port A
-    	}
-    	else if (getLoadProfileObisCode().getD() == 2) {
-    		portId=1; // port B
-    	}
-    	else {
-    		portId=2; // port A & B
-    	}
     	try {
-    		return getTheProfileData(lastReading,portId,includeEvents);
+    		return getTheProfileData(lastReading,getLoadProfileObisCode().getD(),includeEvents);
     	}
     	catch(WaveFlowException e) {
     		getLogger().warning("No profile data available. Probably datalogging restarted...");

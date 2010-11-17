@@ -12,6 +12,8 @@ import com.energyict.protocolimpl.coronis.waveflow.core.*;
 
 public class ProfileDataReader {
 
+	private final int MAX_NR_OF_INPUTS=4;
+	
 	/**
 	 * reference to the implementation class of the waveflow protocol
 	 */
@@ -21,7 +23,20 @@ public class ProfileDataReader {
 		this.waveLogV2 = waveLogV2;
 	}
 	
-	final ProfileData getProfileData(Date lastReading, int portId, boolean includeEvents) throws UnsupportedException, IOException {
+	/**
+	 * Validate if the mask has inputId true or false
+	 * @param inputId
+	 * @return true or false for the input
+	 */
+	private final boolean validateMask(int inputMask,int inputId) {
+		int inputIdMask = 0x01 << inputId;
+		return (inputMask&inputIdMask) == inputIdMask; 
+	}
+	
+	final ProfileData getProfileData(Date lastReading, int inputMask, boolean includeEvents) throws UnsupportedException, IOException {
+		
+		// portmask bit 3..0 = input D..A
+		
 		
         ProfileData profileData = new ProfileData();
 		
@@ -33,75 +48,49 @@ public class ProfileDataReader {
 		//??? sampling rate		
 		
 		// read all intervals for the period lastreading .. now
-		ExtendedDataloggingTable encoderDataloggingTable; 
+		ExtendedDataloggingTable extendedDataloggingTable; 
 		
 		// create channelinfos
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
-		if ((portId==0) || (portId==1)) {
-			// only 1 channel
-			encoderDataloggingTable = waveLogV2.getRadioCommandFactory().readExtendedDataloggingTable(portId==0?true:false,portId==1?true:false,false,false,nrOfIntervals,0);
-			ChannelInfo channelInfo = new ChannelInfo(0, portId==0?"InputA":"InputA", Unit.get(""));
-			channelInfo.setCumulative();
-			channelInfo.setCumulativeWrapValue(new BigDecimal(2^32));
-			//channelInfo.setCumulativeWrapValue(new BigDecimal("100000000"));
-			channelInfos.add(channelInfo);
+		extendedDataloggingTable = waveLogV2.getRadioCommandFactory().readExtendedDataloggingTable(validateMask(inputMask,0),validateMask(inputMask,1),validateMask(inputMask,2),validateMask(inputMask,3),nrOfIntervals,0);
+		int channelId=0;
+		for (int inputId=0;inputId<MAX_NR_OF_INPUTS;inputId++) {
+			if (validateMask(inputMask,inputId)) {
+				ChannelInfo channelInfo = new ChannelInfo(channelId++,"channel_"+inputId , Unit.get(""));
+				channelInfo.setCumulative();
+				channelInfo.setCumulativeWrapValue(new BigDecimal(2^32));
+				//channelInfo.setCumulativeWrapValue(new BigDecimal("100000000"));
+				channelInfos.add(channelInfo);
+			}
 		}
-		else {
-			// both channels
-			encoderDataloggingTable = waveLogV2.getRadioCommandFactory().readExtendedDataloggingTable(true,true,false,false,nrOfIntervals,0);
-			ChannelInfo channelInfo = new ChannelInfo(0, "InputA", Unit.get(""));
-			channelInfo.setCumulative();
-			channelInfo.setCumulativeWrapValue(new BigDecimal(2^32));
-			//channelInfo.setCumulativeWrapValue(new BigDecimal("100000000"));
-			channelInfos.add(channelInfo);
-			
-			channelInfo = new ChannelInfo(1, "InputB", Unit.get(""));
-			channelInfo.setCumulative();
-			channelInfo.setCumulativeWrapValue(new BigDecimal(2^32));
-			//channelInfo.setCumulativeWrapValue(new BigDecimal("100000000"));
-			channelInfos.add(channelInfo);
-			
-		}
+		
 		profileData.setChannelInfos(channelInfos);
 		
 
 		// initialize calendar
 		Calendar calendar = Calendar.getInstance(waveLogV2.getTimeZone());
-		calendar.setTime(encoderDataloggingTable.getLastLoggingRTC());
+		calendar.setTime(extendedDataloggingTable.getLastLoggingRTC());
 
 		if (!ParseUtils.isOnIntervalBoundary(calendar, waveLogV2.getProfileInterval())) {
 			ParseUtils.roundDown2nearestInterval(calendar, waveLogV2.getProfileInterval());
 		}
 		
-		
 		// Build intervaldatas list
 		List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
-		if ((portId==0) || (portId==1)) {
-			int nrOfReadings = portId==0?encoderDataloggingTable.getNrOfReadingsPortA():encoderDataloggingTable.getNrOfReadingsPortB();
-			long[] readings = portId==0?encoderDataloggingTable.getEncoderReadingsPortA():encoderDataloggingTable.getEncoderReadingsPortB();
-			for (int index = 0;index < nrOfReadings; index++) {
-				BigDecimal bd = null;
-				bd = new BigDecimal(readings[index]);
-				List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
-				intervalValues.add(new IntervalValue(bd, 0, 0));
-				intervalDatas.add(new IntervalData(calendar.getTime(),0,0,0,intervalValues));
-				calendar.add(Calendar.SECOND, -1 * waveLogV2.getProfileInterval());
+		
+		// get the smallest nr of readings
+		int smallestNrOfReadings = extendedDataloggingTable.getSmallestNrOfReadings();
+
+		for (int index = 0;index < smallestNrOfReadings; index++) {
+			List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
+			for (int inputId=0;inputId<MAX_NR_OF_INPUTS;inputId++) {
+				if (validateMask(inputMask,inputId)) {
+					BigDecimal bd=new BigDecimal(extendedDataloggingTable.getReadingsInputs()[inputId][index]);
+					intervalValues.add(new IntervalValue(bd, 0, 0));
+				}
 			}
-		}
-		else {
-			// get the smallest nr of readings
-			int smallestNrOfReadings = encoderDataloggingTable.getNrOfReadingsPortA()<encoderDataloggingTable.getNrOfReadingsPortB()?encoderDataloggingTable.getNrOfReadingsPortA():encoderDataloggingTable.getNrOfReadingsPortB();
-			for (int index = 0;index < smallestNrOfReadings; index++) {
-				BigDecimal bdA=null;
-				bdA = new BigDecimal(encoderDataloggingTable.getEncoderReadingsPortA()[index]);
-				BigDecimal bdB=null;
-				bdB = new BigDecimal(encoderDataloggingTable.getEncoderReadingsPortB()[index]);
-				List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
-				intervalValues.add(new IntervalValue(bdA, 0, 0));
-				intervalValues.add(new IntervalValue(bdB, 0, 0));
-				intervalDatas.add(new IntervalData(calendar.getTime(),0,0,0,intervalValues));
-				calendar.add(Calendar.SECOND, -1 * waveLogV2.getProfileInterval());
-			}
+			intervalDatas.add(new IntervalData(calendar.getTime(),0,0,0,intervalValues));
+			calendar.add(Calendar.SECOND, -1 * waveLogV2.getProfileInterval());
 		}
 		profileData.setIntervalDatas(intervalDatas);
 		

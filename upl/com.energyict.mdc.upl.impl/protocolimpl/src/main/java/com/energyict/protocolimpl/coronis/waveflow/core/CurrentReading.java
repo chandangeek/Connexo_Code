@@ -20,7 +20,7 @@ public class CurrentReading extends AbstractRadioCommand {
 	 */
 	private long[] readings;  // indexes for input A,B,C* and D*   (*) C and D depending on the type of waveflow
 	
-	final long[] getReadings() {
+	public final long[] getReadings() {
 		return readings;
 	}
 

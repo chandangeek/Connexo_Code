@@ -11,7 +11,6 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 	
 	enum ParameterId {
 		
-		MeasurementPeriod(0x80,1,"Measurement period (in multiples of sampling periods)"), // page 16
 		BatteryLifeDurationCounter(0xA2,2,"Battery life duration counter"),
 		BatteryLifeDateEnd(0x90,6,"Battery life end date"),
 		ApplicationStatus(0x20,1,"Application Status"), // page 12

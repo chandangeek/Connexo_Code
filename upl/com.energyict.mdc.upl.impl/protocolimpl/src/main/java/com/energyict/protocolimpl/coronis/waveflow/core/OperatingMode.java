@@ -40,10 +40,10 @@ public class OperatingMode extends AbstractParameter {
 
 	void manageInputs(int nrOfInputs2Enable) throws WaveFlowException {
 		setMask(INPUTSELECTOR_MASK);
-		if ((nrOfInputs2Enable > 4) || (nrOfInputs2Enable < 0)) {
-			throw new WaveFlowException("Invalid nr of inputs to manage (0..4), requested ["+nrOfInputs2Enable+"]");
+		if ((nrOfInputs2Enable > 4) || (nrOfInputs2Enable < 1)) {
+			throw new WaveFlowException("Invalid nr of inputs to manage (1..4), requested ["+nrOfInputs2Enable+"]");
 		}
-		setOperatingMode(nrOfInputs2Enable);
+		setOperatingMode(nrOfInputs2Enable-1);
 	}
 
 	

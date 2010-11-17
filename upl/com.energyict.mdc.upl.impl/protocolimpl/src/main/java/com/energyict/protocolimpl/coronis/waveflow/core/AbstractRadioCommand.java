@@ -10,7 +10,7 @@ abstract public class AbstractRadioCommand {
 		
 		ReadParameterLegacy(0x10),
 		WriteParameterLegacy(0x11),
-		ReadParameter(0x18),
+		ReadParameter(0x18,true),
 		WriteParameter(0x19),
 		ExtendedDataloggingTable(0x09), // page 62 waveflow V2 document
 		ReadCurrentRTC(0x14), // page 38 waveflow V2 document

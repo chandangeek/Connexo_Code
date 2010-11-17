@@ -23,7 +23,8 @@ public class WaveFlowMessages implements MessageProtocol {
 		try {
 			if (messageEntry.getContent().indexOf("<RestartDataLogging")>=0) {
 				waveFlow.getLogger().info("************************* RestartDataLogging *************************");
-				waveFlow.restartDataLogging();
+				int nrOfInputs2Enable = Integer.parseInt(stripOffTag(messageEntry.getContent()));
+				waveFlow.restartDataLogging(nrOfInputs2Enable);
 				return MessageResult.createSuccess(messageEntry);
 			}
 			else if (messageEntry.getContent().indexOf("<ForceTimeSync")>=0) {
@@ -57,7 +58,7 @@ public class WaveFlowMessages implements MessageProtocol {
        List theCategories = new ArrayList();
        
        MessageCategorySpec cat1 = new MessageCategorySpec("Waveflow messages");
-       cat1.addMessageSpec(addBasicMsg("Restart datalogging", "RestartDataLogging", false));
+       cat1.addMessageSpec(addBasicMsgWithValue("Restart datalogging for inputs (1..4)", "RestartDataLogging", false));
        theCategories.add(cat1);
        
        MessageCategorySpec cat2 = new MessageCategorySpec("Waveflow advanced messages");

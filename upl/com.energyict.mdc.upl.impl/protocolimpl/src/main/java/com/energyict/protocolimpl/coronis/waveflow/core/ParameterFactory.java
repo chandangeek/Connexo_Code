@@ -8,7 +8,6 @@ public class ParameterFactory {
 	private WaveFlow waveFlow;
 
 	// cached
-	private MeasurementPeriod measurementPeriod=null;
 	private SamplingPeriod samplingPeriod=null;
 	private SamplingActivationType samplingActivationType=null;
 	private ApplicationStatus applicationStatus=null;
@@ -112,27 +111,12 @@ public class ParameterFactory {
 		samplingActivationType.write();
 	}
 	
-	
-	final public int readMeasurementPeriod() throws IOException {
-		if (measurementPeriod == null) {
-			measurementPeriod = new MeasurementPeriod(waveFlow);
-			measurementPeriod.read();
-		}
-		return measurementPeriod.getMeasurementPeriod();
-	}
-
-	final public void writeMeasurementPeriod(final int measurementPeriodVal) throws IOException {
-		measurementPeriod = new MeasurementPeriod(waveFlow);
-		measurementPeriod.setMeasurementPeriod(measurementPeriodVal);
-		measurementPeriod.write();
-	}
-	
 	/**
 	 * This is the combination of SamplingPeriod and MeasurementPeriod
 	 * @return the interval in seconds
 	 */
 	final public int getProfileIntervalInSeconds() throws IOException {
-		return readSamplingPeriod() * readMeasurementPeriod();
+		return readSamplingPeriod();
 	}
 	
 	
