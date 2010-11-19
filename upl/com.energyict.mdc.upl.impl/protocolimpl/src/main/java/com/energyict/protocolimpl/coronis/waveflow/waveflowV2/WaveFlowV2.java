@@ -10,7 +10,7 @@ import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 public class WaveFlowV2 extends WaveFlow {
 
 	/**
-	 * specific severntrent obis code mapper
+	 * specific obis code mapper
 	 */
 	private ObisCodeMapper obisCodeMapper;	
 	
