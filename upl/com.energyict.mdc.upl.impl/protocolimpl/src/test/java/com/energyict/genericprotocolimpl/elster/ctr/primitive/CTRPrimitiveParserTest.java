@@ -185,6 +185,57 @@ public class CTRPrimitiveParserTest extends TestCase {
         assertEquals(obj317.getValueLengths(obj317.getId()).length, obj317.getDefault().length);
         assertEquals(obj29.getValueLengths(obj29.getId()).length, obj29.getDefault().length);
 
+
+        assertEquals(obj1.getId().toString(), id1);
+        assertEquals(obj2.getId().toString(), id2);
+        assertEquals(obj3.getId().toString(), id3);
+        assertEquals(obj4.getId().toString(), id4);
+        assertEquals(obj5.getId().toString(), id5);
+        assertEquals(obj52.getId().toString(), id52);
+        assertEquals(obj53.getId().toString(), id53);
+        assertEquals(obj54.getId().toString(), id54);
+        assertEquals(obj6.getId().toString(), id6);
+        assertEquals(obj62.getId().toString(), id62);
+        assertEquals(obj63.getId().toString(), id63);
+        assertEquals(obj64.getId().toString(), id64);
+        assertEquals(obj65.getId().toString(), id65);
+        assertEquals(obj66.getId().toString(), id66);
+        assertEquals(obj7.getId().toString(), id7);
+        assertEquals(obj8.getId().toString(), id8);
+        assertEquals(obj82.getId().toString(), id82);
+        assertEquals(obj83.getId().toString(), id83);
+        assertEquals(obj84.getId().toString(), id84);
+        assertEquals(obj85.getId().toString(), id85);
+        assertEquals(obj9.getId().toString(), id9);
+        assertEquals(obj92.getId().toString(), id92);
+        assertEquals(obj13.getId().toString(), id13);
+        assertEquals(obj14.getId().toString(), id14);
+        assertEquals(obj15.getId().toString(), id15);
+        assertEquals(obj16.getId().toString(), id16);
+        assertEquals(obj17.getId().toString(), id17);
+        assertEquals(obj18.getId().toString(), id18);
+        assertEquals(obj19.getId().toString(), id19);
+        assertEquals(obj20.getId().toString(), id20);
+        assertEquals(obj21.getId().toString(), id21);
+        assertEquals(obj22.getId().toString(), id22);
+        assertEquals(obj23.getId().toString(), id23);
+        assertEquals(obj232.getId().toString(), id232);
+        assertEquals(obj233.getId().toString(), id233);
+        assertEquals(obj234.getId().toString(), id234);
+        assertEquals(obj235.getId().toString(), id235);
+        assertEquals(obj292.getId().toString(), id292);
+        assertEquals(obj293.getId().toString(), id293);
+        assertEquals(obj294.getId().toString(), id294);
+        assertEquals(obj295.getId().toString(), id295);
+        assertEquals(obj296.getId().toString(), id296);
+        assertEquals(obj312.getId().toString(), id312);
+        assertEquals(obj313.getId().toString(), id313);
+        assertEquals(obj314.getId().toString(), id314);
+        assertEquals(obj315.getId().toString(), id315);
+        assertEquals(obj316.getId().toString(), id316);
+        assertEquals(obj317.getId().toString(), id317);
+        assertEquals(obj29.getId().toString(), id29);
+
         CTRPrimitiveConverter converter = new CTRPrimitiveConverter();
 
         assertEquals(getValueBytesLength(obj1), converter.convertDefaults(obj1.getDefault(), obj1.getValueLengths(obj1.getId())).length);
