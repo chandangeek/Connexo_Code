@@ -30,6 +30,9 @@ public class ReferenceDate extends AbstractField<ReferenceDate> {
     }
 
     public ReferenceDate parse(Date date, TimeZone timeZone) {
+        if (timeZone == null) {
+            timeZone = TimeZone.getDefault();
+        }
         Calendar calendar = Calendar.getInstance(timeZone);
         calendar.setLenient(true);     //overflow in days causes month + 1
         calendar.setTime(date);

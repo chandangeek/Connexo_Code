@@ -139,7 +139,7 @@ public class GprsRequestFactory {
         }
     }
 
-    private GPRSFrame getIdentificationRequest() {
+    public GPRSFrame getIdentificationRequest() {
         GPRSFrame request = new GPRSFrame();
         request.setAddress(getAddress());
         request.getProfi().setLongFrame(false);
@@ -151,7 +151,7 @@ public class GprsRequestFactory {
         return request;
     }
 
-    private GPRSFrame getRegisterRequest(AttributeType attributeType, CTRObjectID[] objectId) throws CTRParsingException {
+    public GPRSFrame getRegisterRequest(AttributeType attributeType, CTRObjectID[] objectId) throws CTRParsingException {
         byte[] pssw = getPassword();
         byte[] numberOfObjects = new byte[]{(byte) objectId.length};
         byte[] type = attributeType.getBytes();
@@ -178,7 +178,7 @@ public class GprsRequestFactory {
         return request;
     }
 
-    private GPRSFrame getTraceRequest(CTRObjectID objectId, PeriodTrace period, StartDate startDate, NumberOfElements numberOfElements) throws CTRParsingException {
+    public GPRSFrame getTraceRequest(CTRObjectID objectId, PeriodTrace period, StartDate startDate, NumberOfElements numberOfElements) throws CTRParsingException {
         byte[] pssw = getPassword();
         byte[] traceRequest = ProtocolTools.concatByteArrays(
                 pssw,
@@ -198,7 +198,7 @@ public class GprsRequestFactory {
         return request;
     }
 
-    private GPRSFrame getTrace_CRequest(CTRObjectID objectId, PeriodTrace period, ReferenceDate referenceDate) throws CTRParsingException {
+    public GPRSFrame getTrace_CRequest(CTRObjectID objectId, PeriodTrace period, ReferenceDate referenceDate) throws CTRParsingException {
         byte[] pssw = getProperties().getPassword().getBytes();
         byte[] trace_CRequest = ProtocolTools.concatByteArrays(
                 pssw,
@@ -226,7 +226,7 @@ public class GprsRequestFactory {
         return queryRegisters(attributeType, objectIds);
     }
 
-    private GPRSFrame getEventArrayRequest(Index_Q index_Q) throws CTRParsingException {
+    public GPRSFrame getEventArrayRequest(Index_Q index_Q) throws CTRParsingException {
         byte[] pssw = getPassword();
         byte[] eventArrayRequest = ProtocolTools.concatByteArrays(
                 pssw,
@@ -243,7 +243,7 @@ public class GprsRequestFactory {
         return request;
     }
 
-    private GPRSFrame getRegisterWriteRequest(ReferenceDate validityDate, WriteDataBlock wdb, P_Session p_Session, AttributeType attributeType, AbstractCTRObject... objects) throws CTRParsingException {
+    public GPRSFrame getRegisterWriteRequest(ReferenceDate validityDate, WriteDataBlock wdb, P_Session p_Session, AttributeType attributeType, AbstractCTRObject... objects) throws CTRParsingException {
         byte[] pssw = getPassword();
         byte[] objectBytes = new byte[]{};
         for (AbstractCTRObject object : objects) {
@@ -271,7 +271,7 @@ public class GprsRequestFactory {
     }
 
 
-    private GPRSFrame getExecuteRequest(ReferenceDate validityDate, WriteDataBlock wdb, CTRObjectID id, byte[] data) throws CTRParsingException {
+    public GPRSFrame getExecuteRequest(ReferenceDate validityDate, WriteDataBlock wdb, CTRObjectID id, byte[] data) throws CTRParsingException {
         byte[] executeRequest = ProtocolTools.concatByteArrays(
                 getPassword(),
                 validityDate.getBytes(),
@@ -290,7 +290,7 @@ public class GprsRequestFactory {
         return request;
     }
 
-    private GPRSFrame getTableDECFRequest() throws CTRParsingException {
+    public GPRSFrame getTableDECFRequest() throws CTRParsingException {
         byte[] tableRequestBytes = getPassword();
         GPRSFrame request = new GPRSFrame();
         request.setAddress(getAddress());
@@ -303,7 +303,7 @@ public class GprsRequestFactory {
         return request;
     }
 
-    private GPRSFrame getTableDECRequest() throws CTRParsingException {
+    public GPRSFrame getTableDECRequest() throws CTRParsingException {
         byte[] tableRequestBytes = getPassword();
         GPRSFrame request = new GPRSFrame();
         request.setAddress(getAddress());
@@ -489,7 +489,7 @@ public class GprsRequestFactory {
      *
      * @return
      */
-    private GPRSFrame getEndOfSessionRequest() {
+    public GPRSFrame getEndOfSessionRequest() {
         GPRSFrame request = new GPRSFrame();
         request.setAddress(getAddress());
         request.getProfi().setLongFrame(false);

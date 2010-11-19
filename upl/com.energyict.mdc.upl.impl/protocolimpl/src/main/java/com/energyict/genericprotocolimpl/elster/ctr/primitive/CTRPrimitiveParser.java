@@ -360,7 +360,7 @@ public class CTRPrimitiveParser {
             def = new Default[]{new Default(0, values[0].getUnit())};
         }
         if (x == 0x0C && y == 1) {
-            def = new Default[]{new Default(0, values[0].getUnit())};
+            def = new Default[]{new Default(0, values[0].getUnit()), new Default(0, values[0].getUnit()), new Default(0, values[0].getUnit())};
         }
 
         return def;

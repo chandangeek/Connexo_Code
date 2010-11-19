@@ -68,6 +68,11 @@ public class CTRObjectFactoryTest {
         byte[] bytes37 = ProtocolTools.getBytesFromHexString("$09$07$0F$00$00$00$01$0F$00$00$00$00");
         byte[] bytes38 = ProtocolTools.getBytesFromHexString("$09$05$0F$00$00$01$0F$00$00$00");
 
+        byte[] bytes39 = ProtocolTools.getBytesFromHexString("$02$31$0F$00$00$00$01$0F$00$00$00$00");
+        byte[] bytes40 = ProtocolTools.getBytesFromHexString("$03$11$0F$00$00$00$01$0F$00$00$00$00");
+        byte[] bytes41 = ProtocolTools.getBytesFromHexString("$11$01$00$01$0A$0A$0A$06$00$00$00$01$01$00$00$00$00$00$00$00$00$00$00$00");
+        byte[] bytes42 = ProtocolTools.getBytesFromHexString("$15$01$0F$00$00$00$01$00$00$00$01$00$00$00$01$00$00$00$01$00$00$00$01$00$00$00$01$00$00$00$01$00$00$00$01$0F$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00");
+
         assertArrayEquals(bytes0, factory.parse(bytes0, 0, type).getBytes());
         assertArrayEquals(bytes1, factory.parse(bytes1, 0, type).getBytes());
         assertArrayEquals(bytes2, factory.parse(bytes2, 0, type).getBytes());
@@ -109,6 +114,11 @@ public class CTRObjectFactoryTest {
         assertArrayEquals(bytes36, factory.parse(bytes36, 0, type).getBytes());
         assertArrayEquals(bytes37, factory.parse(bytes37, 0, type).getBytes());
         assertArrayEquals(bytes38, factory.parse(bytes38, 0, type).getBytes());
+
+        assertArrayEquals(bytes39, factory.parse(bytes39, 0, type).getBytes());
+        assertArrayEquals(bytes40, factory.parse(bytes40, 0, type).getBytes());
+        assertArrayEquals(bytes41, factory.parse(bytes41, 0, type).getBytes());
+        assertArrayEquals(bytes42, factory.parse(bytes42, 0, type).getBytes());
 
     }
 }
