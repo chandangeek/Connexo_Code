@@ -15,7 +15,7 @@ public class CommonObisCodeMapper {
 	
 	static {
 		registerMaps.put(ObisCode.fromString("0.0.96.6.0.255"), "Available battery power in %");
-		
+		registerMaps.put(ObisCode.fromString("0.0.96.6.3.255"), "Application status");
 		// specific waveflow registers start with E-field 50
 		
 
@@ -57,6 +57,10 @@ public class CommonObisCodeMapper {
 	    		// battery counter
 				return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(waveFlow.getParameterFactory().readBatteryLifeDurationCounter().remainingBatteryLife()), Unit.get(BaseUnit.PERCENT)),new Date());
 	   		}
+	    	else if (obisCode.equals(ObisCode.fromString("0.0.96.6.3.255"))) {
+	    		// application status
+	    		return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(waveFlow.getParameterFactory().readApplicationStatus()), Unit.get("")),new Date());
+	    	}
 	    	
 			throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] does not exist!");
 			

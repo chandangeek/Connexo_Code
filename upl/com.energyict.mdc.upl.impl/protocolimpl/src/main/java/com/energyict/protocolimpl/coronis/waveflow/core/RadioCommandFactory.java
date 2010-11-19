@@ -43,11 +43,11 @@ public class RadioCommandFactory {
 	
 	
 	
-//	final public LeakageEventTable readLeakageEventTable() throws IOException {
-//		LeakageEventTable leakageEventTable = new LeakageEventTable(waveFlow);
-//		leakageEventTable.invoke();
-//		return leakageEventTable;
-//	}
+	final public LeakageEventTable readLeakageEventTable() throws IOException {
+		LeakageEventTable leakageEventTable = new LeakageEventTable(waveFlow);
+		leakageEventTable.invoke();
+		return leakageEventTable;
+	}
 	
 	
 }
