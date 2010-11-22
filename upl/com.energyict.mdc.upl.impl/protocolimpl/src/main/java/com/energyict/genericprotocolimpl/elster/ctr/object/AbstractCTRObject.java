@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 
 /**
+ * Parent class for all CTR Objects.
  * Copyrights EnergyICT
  * Date: 21-sep-2010
  * Time: 10:51:36
@@ -48,6 +49,11 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
         return getBytes().length;
     }
 
+    /**
+     * Checks the unit and finds a matching overflow value if it's a common unit
+     * @param unit: the unit to be checked
+     * @return the matching overflow value
+     */
     protected int getCommonOverflow(Unit unit) {
         int overflow = 0;
         if (Unit.get(BaseUnit.HOUR).equals(unit)) {
@@ -134,6 +140,11 @@ public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
         }
     }
 
+    /**
+     * Creates a byte array that represents the object.
+     * It uses the object's AttributeType description to check the object's relevant fields.
+     * @return the byte array
+     */
     public byte[] getBytes() {
         CTRPrimitiveConverter converter = new CTRPrimitiveConverter();
         byte[] bytes = new byte[0];

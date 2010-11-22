@@ -22,6 +22,13 @@ public class EndOfSessionRequestStructure extends Data<EndOfSessionRequestStruct
         ));
     }
 
+    /**
+     * Create a CTR Structure Object representing the given byte array
+     * @param rawData: a given byte array
+     * @param offset: the start position in the array
+     * @return the CTR Structure Object
+     * @throws CTRParsingException
+     */
     @Override
     public EndOfSessionRequestStructure parse(byte[] rawData, int offset) throws CTRParsingException {
         return this;

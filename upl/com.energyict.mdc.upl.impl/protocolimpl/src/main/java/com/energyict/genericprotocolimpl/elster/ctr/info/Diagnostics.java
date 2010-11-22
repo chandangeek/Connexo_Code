@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.info;
 
 /**
+ * Class with all common meter diagnostics
  * Copyrights EnergyICT
  * Date: 19-okt-2010
  * Time: 16:29:27
@@ -36,8 +37,8 @@ public class Diagnostics {
     private static final String VALVE_OPENING_ERROR = "Valve opening error";
 
     /**
-     * @param code
-     * @return
+     * @param code: the diagnostics code
+     * @return the matching diagnostics description(s)
      */
     public static String getDescriptionFromCode(int code) {
         StringBuilder sb = new StringBuilder();
@@ -51,8 +52,8 @@ public class Diagnostics {
     }
 
     /**
-     * @param code
-     * @return
+     * @param code: a single bit indicating one diagnostic description
+     * @return one matching description
      */
     private static String getDescriptionFromSingleCode(int code, int bitNumber) {
         int singleBitCode = code & (1 << bitNumber);

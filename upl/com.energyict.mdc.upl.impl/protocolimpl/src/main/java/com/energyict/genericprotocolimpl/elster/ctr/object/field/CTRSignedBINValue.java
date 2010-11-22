@@ -10,7 +10,7 @@ import java.math.BigDecimal;
  * User: khe
  * Date: 22-sep-2010
  * Time: 11:54:19
- * Contains a value field of type BIN
+ * Contains a value field of type SignedBIN
  */
 public class CTRSignedBINValue extends CTRAbstractValue{
     private BigDecimal value;
@@ -23,6 +23,10 @@ public class CTRSignedBINValue extends CTRAbstractValue{
         this.valueLength = valueLength;
     }
 
+    /**
+     * returns a byte array representing the value
+     * @return byte array
+     */
     @Override
     public byte[] getBytes() {
         return getBytesFromInt(value.intValue(), valueLength);

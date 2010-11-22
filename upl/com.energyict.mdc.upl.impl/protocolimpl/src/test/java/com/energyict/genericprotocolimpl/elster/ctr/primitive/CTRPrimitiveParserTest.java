@@ -1,7 +1,9 @@
 package com.energyict.genericprotocolimpl.elster.ctr.primitive;
 
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
-import com.energyict.genericprotocolimpl.elster.ctr.object.*;
+import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
+import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRObjectID;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import junit.framework.TestCase;
 import org.junit.Test;
@@ -259,11 +261,9 @@ public class CTRPrimitiveParserTest extends TestCase {
         }
 
         for (AbstractCTRObject obj1 : objs) {
-            if (obj1.getId().toString().equals("4.2.6")) {
-                if(obj1.getDefault() == null){
-                    assertArrayEquals(padData(obj1.getBytes()), bytes);
-                }
-            }
+            if(obj1.getDefault() == null){
+                assertArrayEquals(padData(obj1.getBytes()), bytes);
+            } 
         }
     }
 

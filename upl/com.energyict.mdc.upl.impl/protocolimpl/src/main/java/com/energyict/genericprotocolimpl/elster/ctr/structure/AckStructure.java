@@ -8,6 +8,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.structure.field.AckCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
+ * The ACK Structure
  * Copyrights EnergyICT
  * Date: 7-okt-2010
  * Time: 16:00:48
@@ -31,6 +32,13 @@ public class AckStructure extends Data<AckStructure> {
         ));
     }
 
+    /**
+     * Create a CTR Structure Object representing the given byte array
+     * @param rawData: a given byte array
+     * @param offset: the start position in the array
+     * @return the CTR Structure Object
+     * @throws CTRParsingException
+     */
     @Override
     public AckStructure parse(byte[] rawData, int offset) throws CTRParsingException {
         int ptr = offset;

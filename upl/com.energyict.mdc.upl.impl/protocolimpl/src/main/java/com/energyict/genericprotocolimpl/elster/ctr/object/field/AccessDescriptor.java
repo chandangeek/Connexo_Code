@@ -5,6 +5,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.common.Field;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 
 /**
+ * Class for the access field of a CTR Object. Indicates the enabled permissions.
  * Copyrights EnergyICT
  * Date: 7-okt-2010
  * Time: 15:16:41
@@ -25,6 +26,10 @@ public class AccessDescriptor extends AbstractField {
         return access;
     }
 
+    /**
+     * Checks the write permissions for a certain access code
+     * @return the write permissions
+     */
     public String getWritePermissions() {
         String permissions = "";
         for (int i = 0; i < 4; i++) {
@@ -48,7 +53,10 @@ public class AccessDescriptor extends AbstractField {
         return permissions;
     }
 
-
+    /**
+     * Checks the read permissions for a certain code
+     * @return the read permissions
+     */
     public String getReadPermissions() {
         String permissions = "";
         for (int i = 0; i < 4; i++) {

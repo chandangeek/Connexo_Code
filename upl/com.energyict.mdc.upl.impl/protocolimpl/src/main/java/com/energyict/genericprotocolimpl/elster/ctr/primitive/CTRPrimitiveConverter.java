@@ -14,6 +14,12 @@ public class CTRPrimitiveConverter {
 
     public CTRPrimitiveConverter() {}
 
+    /**
+     * Converts a given array of defaults (of a certain CTR Object) into a matching byte array.
+     * @param defaults: the defaults that need to be converted
+     * @param valueLength: the length that the resulting byte array should be
+     * @return byte array representing the defaults
+     */
     public byte[] convertDefaults(Default[] defaults, int[] valueLength) {
 
         if (defaults == null) {

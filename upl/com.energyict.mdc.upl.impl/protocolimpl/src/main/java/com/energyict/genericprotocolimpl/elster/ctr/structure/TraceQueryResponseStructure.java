@@ -3,7 +3,9 @@ package com.energyict.genericprotocolimpl.elster.ctr.structure;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
-import com.energyict.genericprotocolimpl.elster.ctr.object.*;
+import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
+import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -48,6 +50,13 @@ public class TraceQueryResponseStructure extends Data<TraceQueryResponseStructur
         ));
     }
 
+    /**
+     * Create a CTR Structure Object representing the given byte array
+     * @param rawData: a given byte array
+     * @param offset: the start position in the array
+     * @return the CTR Structure Object
+     * @throws CTRParsingException
+     */
     @Override
     public TraceQueryResponseStructure parse(byte[] rawData, int offset) throws CTRParsingException {
 

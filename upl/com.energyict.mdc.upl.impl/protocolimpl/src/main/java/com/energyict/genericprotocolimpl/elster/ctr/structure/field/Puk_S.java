@@ -5,6 +5,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
 import java.util.Random;
 
 /**
+ * Class for the Puk_S field in a CTR Structure Object
  * Copyrights EnergyICT
  * Date: 7-okt-2010
  * Time: 8:02:24

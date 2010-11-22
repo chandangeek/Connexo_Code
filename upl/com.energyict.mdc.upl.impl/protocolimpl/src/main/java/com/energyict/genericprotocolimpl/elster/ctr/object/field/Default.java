@@ -4,6 +4,7 @@ import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 
 /**
+ * Class for the default field in a CTR Object
  * Copyrights EnergyICT
  * Date: 20-okt-2010
  * Time: 9:59:37

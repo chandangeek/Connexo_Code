@@ -5,7 +5,6 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingExceptio
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
-import com.energyict.genericprotocolimpl.elster.ctr.structure.field.Index_Q;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
@@ -30,6 +29,13 @@ public class TableQueryRequestStructure extends Data<TableQueryRequestStructure>
         ));
     }
 
+    /**
+     * Create a CTR Structure Object representing the given byte array
+     * @param rawData: a given byte array
+     * @param offset: the start position in the array
+     * @return the CTR Structure Object
+     * @throws CTRParsingException
+     */
     @Override
     public TableQueryRequestStructure parse(byte[] rawData, int offset) throws CTRParsingException {
 

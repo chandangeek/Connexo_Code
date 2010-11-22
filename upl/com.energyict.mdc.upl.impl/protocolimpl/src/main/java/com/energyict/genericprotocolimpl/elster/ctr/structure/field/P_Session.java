@@ -4,6 +4,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 
 /**
+ * Class for the P_Session field in a CTR Structure Object
  * Copyrights EnergyICT
  * Date: 18-okt-2010
  * Time: 11:18:42

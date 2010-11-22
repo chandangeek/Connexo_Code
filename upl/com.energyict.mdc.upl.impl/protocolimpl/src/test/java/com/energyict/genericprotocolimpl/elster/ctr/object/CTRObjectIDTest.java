@@ -1,5 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr.object;
 
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRObjectID;
 import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;

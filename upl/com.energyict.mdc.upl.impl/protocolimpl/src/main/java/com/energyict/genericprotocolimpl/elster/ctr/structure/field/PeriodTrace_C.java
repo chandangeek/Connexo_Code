@@ -4,6 +4,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 
 /**
+ * Class for the PeriodTrace_C field in a CTR Structure Object
  * Copyrights EnergyICT
  * Date: 8-okt-2010
  * Time: 16:39:27
@@ -39,6 +40,9 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
         return period;
     }
 
+    /**
+     * @return possible date formats
+     */
     public String getDateFormat() {
         switch (period) {
             case 1:
@@ -56,6 +60,9 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
         this.period = period;
     }
 
+    /**
+     * @return description for the period of the trace_c data
+     */
     public String getDescription() {
         switch (period) {
             case 1:
@@ -69,6 +76,9 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
         }
     }
 
+    /**
+     * @return the interval in seconds
+     */
     public int getIntervalInSeconds() {
         switch (period) {
             case 1 : return 15 * SEC_PER_MIN;

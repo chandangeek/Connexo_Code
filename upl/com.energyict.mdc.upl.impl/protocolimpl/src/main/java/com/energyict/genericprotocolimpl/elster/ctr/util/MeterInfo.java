@@ -4,8 +4,10 @@ import com.energyict.genericprotocolimpl.elster.ctr.GprsRequestFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
-import com.energyict.genericprotocolimpl.elster.ctr.object.*;
+import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
+import com.energyict.genericprotocolimpl.elster.ctr.object.DateAndTimeCategory;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.NackStructure;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.ReferenceDate;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.WriteDataBlock;
@@ -42,6 +44,10 @@ public class MeterInfo extends AbstractUtilObject {
         getLogger().warning("No timezone given. Using default timeZone: [" + this.timeZone.getID() + "]");
     }
 
+    /**
+     * @return the converter's serial number.
+     * @throws CTRException
+     */
     public String getConverterSerialNumber() throws CTRException {
         try {
             return getMeterTimeAndSerialNumbers().get(2).getValue()[1].getValue().toString();
@@ -50,6 +56,11 @@ public class MeterInfo extends AbstractUtilObject {
         }
     }
 
+    /**
+     * Gets the meter time.
+     * @return the meter time.
+     * @throws CTRException
+     */
     public Date getTime() throws CTRException {
         try {
             return getDateFromObject(getMeterTimeAndSerialNumbers().get(0));
@@ -58,6 +69,20 @@ public class MeterInfo extends AbstractUtilObject {
         }
     }
 
+    /**
+     * Sends an execute command to the meter, to set the time.
+     * @param referenceDate
+     * @param mode
+     * @param year
+     * @param month
+     * @param day
+     * @param dayOfWeek
+     * @param hour
+     * @param minutes
+     * @param seconds
+     * @return Ack or Nack Structure
+     * @throws CTRException
+     */
     private Data setTime(Date referenceDate, int mode, int year, int month, int day, int dayOfWeek, int hour, int minutes, int seconds) throws CTRException {
         byte[] data = new byte[10];
         data[0] = (byte) mode;
@@ -81,6 +106,12 @@ public class MeterInfo extends AbstractUtilObject {
         return ackOrNack;
     }
 
+    /**
+     * Sends an execute command to the meter, to set the time.
+     * @param time: the desired time (date object)
+     * @return Ack or Nack Structure
+     * @throws CTRException
+     */
     public Data setTime(Date time) throws CTRException {
         Calendar cal = Calendar.getInstance(timeZone);
         cal.setTime(time);
@@ -98,6 +129,10 @@ public class MeterInfo extends AbstractUtilObject {
         return ackOrNack;
     }
 
+    /**
+     * @return the meter's serial number.
+     * @throws CTRException
+     */
     public String getMTUSerialNumber() throws CTRException {
         try {
             return getMeterTimeAndSerialNumbers().get(1).getValue()[0].getValue().toString();
@@ -106,6 +141,12 @@ public class MeterInfo extends AbstractUtilObject {
         }
     }
 
+    /**
+     * Parses an object and gets a date time object from it
+     * @param object
+     * @return date time
+     * @throws CTRException
+     */
     private Date getDateFromObject(AbstractCTRObject object) throws CTRException {
         Calendar cal = Calendar.getInstance(timeZone);
         if (!(object instanceof DateAndTimeCategory)) {
@@ -135,6 +176,12 @@ public class MeterInfo extends AbstractUtilObject {
         return cal.getTime();
     }
 
+    /**
+     * Gets the meter time and the converter and the meter's serial number (in one request).
+     * Caches the result.
+     * @return object list containing the meter time and the serial numbers.
+     * @throws CTRException
+     */
     private List<AbstractCTRObject> getMeterTimeAndSerialNumbers() throws CTRException {
 
         if (ctrObjectList == null) {

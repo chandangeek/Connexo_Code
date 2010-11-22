@@ -3,6 +3,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.common;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 
 /**
+ * AttributeType indicates the fields (Id, Qlf, Val, Access or Def) in a CTR object.
  * Copyrights EnergyICT
  * Date: 1-okt-2010
  * Time: 14:39:39

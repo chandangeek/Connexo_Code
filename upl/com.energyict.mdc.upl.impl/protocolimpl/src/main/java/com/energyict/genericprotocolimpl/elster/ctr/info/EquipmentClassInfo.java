@@ -18,13 +18,13 @@ public class EquipmentClassInfo {
             new String[]{"CEM", "Equipment of class C – Energy Meter"},
             new String[]{"AA1", "Equipment of type A1"},
             new String[]{"AA2", "Equipment of type A2"},
-/*
-            new String[]{"Txx", "Translator of type xx"},
-            new String[]{"Rxx", "Repeater of type xx"},
-            new String[]{"xxx", "Other"}
-*/
     };
 
+    /**
+     * Gives a matching description per equipment class
+     * @param eqClass: equipment class code
+     * @return a matching description
+     */
     public static String getEquipmentClass(String eqClass) {
         for (String[] classInfo : CLASS_INFO) {
             if ((classInfo.length >= 2) && (eqClass.trim().equals(classInfo[0]))) {

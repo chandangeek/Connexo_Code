@@ -3,9 +3,9 @@ package com.energyict.genericprotocolimpl.elster.ctr.structure;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
-import com.energyict.genericprotocolimpl.elster.ctr.object.*;
-import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
-import com.energyict.genericprotocolimpl.elster.ctr.object.field.Qualifier;
+import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
+import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.*;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.PeriodTrace_C;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.ReferenceDate;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -69,6 +69,13 @@ public class Trace_CQueryResponseStructure extends Data<Trace_CQueryResponseStru
         ));
     }
 
+    /**
+     * Create a CTR Structure Object representing the given byte array
+     * @param rawData: a given byte array
+     * @param offset: the start position in the array
+     * @return the CTR Structure Object
+     * @throws CTRParsingException
+     */
     @Override
     public Trace_CQueryResponseStructure parse(byte[] rawData, int offset) throws CTRParsingException {
 

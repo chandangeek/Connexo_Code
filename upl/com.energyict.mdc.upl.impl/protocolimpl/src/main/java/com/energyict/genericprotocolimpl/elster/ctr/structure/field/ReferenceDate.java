@@ -7,6 +7,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import java.util.*;
 
 /**
+ * Class for the ReferenceDate field in a CTR Structure Object
  * Copyrights EnergyICT
  * Date: 8-okt-2010
  * Time: 16:39:27

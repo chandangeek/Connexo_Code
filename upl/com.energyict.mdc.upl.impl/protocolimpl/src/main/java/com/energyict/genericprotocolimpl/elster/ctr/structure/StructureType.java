@@ -1,12 +1,12 @@
 package com.energyict.genericprotocolimpl.elster.ctr.structure;
 
 /**
+ * Enumeration with all common structure types
  * Copyrights EnergyICT
  * Date: 1-okt-2010
  * Time: 13:52:26
  */
 public enum StructureType {
-
 
     IDENTIFICATION(0x30, "Identification structure"),
     IDENTIFICATION2(0x31, "Identification structure 2"),

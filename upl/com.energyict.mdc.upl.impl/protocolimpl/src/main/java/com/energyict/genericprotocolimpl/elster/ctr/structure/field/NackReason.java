@@ -4,6 +4,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 
 /**
+ * Class for the NackReason field in a CTR Structure Object
  * Copyrights EnergyICT
  * Date: 7-okt-2010
  * Time: 15:45:26
@@ -33,6 +34,10 @@ public class NackReason extends AbstractField<NackReason> {
         return this;
     }
 
+    /**
+     * Gets a description for the reason of the Nack
+     * @return reason description
+     */
     public String getDescription() {
         String reasonDescription = "[" + getReason() + "] ";
         switch (getReason()) {

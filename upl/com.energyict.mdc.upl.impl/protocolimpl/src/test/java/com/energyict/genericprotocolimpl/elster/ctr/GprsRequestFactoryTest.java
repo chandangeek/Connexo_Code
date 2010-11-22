@@ -5,8 +5,8 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingExceptio
 import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Function;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.StructureCode;
-import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.object.FlowAndVolumeCategory;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import junit.framework.TestCase;

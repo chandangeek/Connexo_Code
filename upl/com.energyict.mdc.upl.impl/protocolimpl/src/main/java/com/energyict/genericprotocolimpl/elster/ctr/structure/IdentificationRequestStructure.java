@@ -31,6 +31,12 @@ public class IdentificationRequestStructure extends Data<IdentificationRequestSt
         ));
     }
 
+    /**
+     * Create a CTR Structure Object representing the given byte array
+     * @param rawData: a given byte array
+     * @param offset: the start position in the array
+     * @return the CTR Structure Object
+     */
     @Override
     public IdentificationRequestStructure parse(byte[] rawData, int offset) {
         int ptr = offset;

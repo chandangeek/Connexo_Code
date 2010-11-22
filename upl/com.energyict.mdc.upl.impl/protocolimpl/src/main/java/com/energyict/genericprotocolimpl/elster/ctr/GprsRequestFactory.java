@@ -7,7 +7,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.*;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.*;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
-import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.*;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -127,7 +127,8 @@ public class GprsRequestFactory {
     }
 
     /**
-     * @return
+     * Reads a meter for identification 
+     * @return the meter's response
      * @throws CTRException
      */
     private IdentificationResponseStructure readIdentificationStructure() throws CTRException {
@@ -139,6 +140,10 @@ public class GprsRequestFactory {
         }
     }
 
+    /**
+     * Creates a identification request for a meter
+     * @return the identification request
+     */
     public GPRSFrame getIdentificationRequest() {
         GPRSFrame request = new GPRSFrame();
         request.setAddress(getAddress());
@@ -151,6 +156,13 @@ public class GprsRequestFactory {
         return request;
     }
 
+    /**
+     * Creates a register request structure
+     * @param attributeType: sets the fields of the objects in the meter response
+     * @param objectId: the id's of the objects the meter should sent in it's response
+     * @return the request
+     * @throws CTRParsingException
+     */
     public GPRSFrame getRegisterRequest(AttributeType attributeType, CTRObjectID[] objectId) throws CTRParsingException {
         byte[] pssw = getPassword();
         byte[] numberOfObjects = new byte[]{(byte) objectId.length};
@@ -178,6 +190,15 @@ public class GprsRequestFactory {
         return request;
     }
 
+    /**
+     * Create a trace request structure
+     * @param objectId: the id of the requested object
+     * @param period: the interval period (e.g. 15 minutes)
+     * @param startDate: the start date
+     * @param numberOfElements: the number of interval records that should be returned 
+     * @return a request structure
+     * @throws CTRParsingException
+     */
     public GPRSFrame getTraceRequest(CTRObjectID objectId, PeriodTrace period, StartDate startDate, NumberOfElements numberOfElements) throws CTRParsingException {
         byte[] pssw = getPassword();
         byte[] traceRequest = ProtocolTools.concatByteArrays(
@@ -198,6 +219,14 @@ public class GprsRequestFactory {
         return request;
     }
 
+    /**
+     * Create a trace_c request structure
+     * @param objectId: the id of the requested object
+     * @param period: the interval period (e.g. 15 minutes)
+     * @param referenceDate: the reference date
+     * @return a request structure
+     * @throws CTRParsingException
+     */
     public GPRSFrame getTrace_CRequest(CTRObjectID objectId, PeriodTrace period, ReferenceDate referenceDate) throws CTRParsingException {
         byte[] pssw = getProperties().getPassword().getBytes();
         byte[] trace_CRequest = ProtocolTools.concatByteArrays(
@@ -218,6 +247,13 @@ public class GprsRequestFactory {
         return request;
     }
 
+    /**
+     * Requests a number of objects from the meter, via a query.
+     * @param attributeType: determines the fields of the objects in the meter's response
+     * @param objectId: the id's of the requested objects
+     * @return a list of objects, as requested
+     * @throws CTRException
+     */
     public List<AbstractCTRObject> queryRegisters(AttributeType attributeType, String... objectId) throws CTRException {
         CTRObjectID[] objectIds = new CTRObjectID[objectId.length];
         for (int i = 0; i < objectId.length; i++) {
@@ -226,6 +262,12 @@ public class GprsRequestFactory {
         return queryRegisters(attributeType, objectIds);
     }
 
+    /**
+     * Creates a request for a number of event records
+     * @param index_Q: number of event records
+     * @return a request structure
+     * @throws CTRParsingException
+     */
     public GPRSFrame getEventArrayRequest(Index_Q index_Q) throws CTRParsingException {
         byte[] pssw = getPassword();
         byte[] eventArrayRequest = ProtocolTools.concatByteArrays(
@@ -243,6 +285,16 @@ public class GprsRequestFactory {
         return request;
     }
 
+    /**
+     * Creates a request to write registers in the meter.
+     * @param validityDate: the validity date for the writing
+     * @param wdb: a unique number
+     * @param p_Session: the session configuration
+     * @param attributeType: the fields of the object that needs to be written
+     * @param objects: the objects that need to be written
+     * @return a request structure
+     * @throws CTRParsingException
+     */
     public GPRSFrame getRegisterWriteRequest(ReferenceDate validityDate, WriteDataBlock wdb, P_Session p_Session, AttributeType attributeType, AbstractCTRObject... objects) throws CTRParsingException {
         byte[] pssw = getPassword();
         byte[] objectBytes = new byte[]{};
@@ -271,6 +323,15 @@ public class GprsRequestFactory {
     }
 
 
+    /**
+     * Creates an execute request
+     * @param validityDate: the validity date
+     * @param wdb: a unique number
+     * @param id: the id of the object that needs to be written
+     * @param data: the data one wants to write
+     * @return the request structure
+     * @throws CTRParsingException
+     */
     public GPRSFrame getExecuteRequest(ReferenceDate validityDate, WriteDataBlock wdb, CTRObjectID id, byte[] data) throws CTRParsingException {
         byte[] executeRequest = ProtocolTools.concatByteArrays(
                 getPassword(),
@@ -290,6 +351,11 @@ public class GprsRequestFactory {
         return request;
     }
 
+    /**
+     * Create a decf table request
+     * @return the request structure
+     * @throws CTRParsingException
+     */
     public GPRSFrame getTableDECFRequest() throws CTRParsingException {
         byte[] tableRequestBytes = getPassword();
         GPRSFrame request = new GPRSFrame();
@@ -303,6 +369,11 @@ public class GprsRequestFactory {
         return request;
     }
 
+    /**
+     * Creates a dec table request
+     * @return the request structure
+     * @throws CTRParsingException
+     */
     public GPRSFrame getTableDECRequest() throws CTRParsingException {
         byte[] tableRequestBytes = getPassword();
         GPRSFrame request = new GPRSFrame();
@@ -318,10 +389,9 @@ public class GprsRequestFactory {
 
     /**
      * Returns a list of requested objects
-     *
-     * @param attributeType
-     * @param objectId
-     * @return
+     * @param attributeType: determines the fields of the objects
+     * @param objectId: the id's of the requested objects
+     * @return list of requested objects
      * @throws CTRConnectionException
      */
     public List<AbstractCTRObject> queryRegisters(AttributeType attributeType, CTRObjectID... objectId) throws CTRException {
@@ -341,6 +411,11 @@ public class GprsRequestFactory {
         return Arrays.asList(registerResponse.getObjects());
     }
 
+    /**
+     * Queries for a decf table. Returns the meter response.
+     * @return the meter response, being a decf table 
+     * @throws CTRException, if the meter's answer was not a decf table
+     */
     public TableDECFQueryResponseStructure queryTableDECF() throws CTRException {
         GPRSFrame response = getConnection().sendFrameGetResponse(getTableDECFRequest());
         response.doParse();
@@ -354,6 +429,11 @@ public class GprsRequestFactory {
         return tableDECFresponse;
     }
 
+    /**
+     * Queries for a dec table. Returns the meter response.
+     * @return the meter response, being a dec table
+     * @throws CTRException, if the meter's answer was not a dec table
+     */
     public TableDECQueryResponseStructure queryTableDEC() throws CTRException {
         GPRSFrame response = getConnection().sendFrameGetResponse(getTableDECRequest());
         response.doParse();
@@ -367,6 +447,15 @@ public class GprsRequestFactory {
         return tableDECresponse;
     }
 
+    /**
+     * Executes a certain request
+     * @param validityDate: the validity date
+     * @param wdb: a unique number
+     * @param id: the object's id
+     * @param data: data for the execute request
+     * @return the meter's response (ack or nack)
+     * @throws CTRException, when the meter's response was unexpected.
+     */
     public Data executeRequest(ReferenceDate validityDate, WriteDataBlock wdb, CTRObjectID id, byte[] data) throws CTRException {
         GPRSFrame response = getConnection().sendFrameGetResponse(getExecuteRequest(validityDate, wdb, id, data));
         response.doParse();
@@ -384,6 +473,16 @@ public class GprsRequestFactory {
         return executeResponse;
     }
 
+    /**
+     * Writes to register(s) in the meter
+     * @param validityDate: the validity date
+     * @param wdb: a unique number
+     * @param p_Session: the session configuration
+     * @param attributeType: determines the fields of the objects
+     * @param objects: the objects that should be written in the meter
+     * @return: the meter's response (ack or nack)
+     * @throws CTRException, if the meter's response was not recognized
+     */
     public Data writeRegister(ReferenceDate validityDate, WriteDataBlock wdb, P_Session p_Session, AttributeType attributeType, AbstractCTRObject... objects) throws CTRException {
         GPRSFrame response = getConnection().sendFrameGetResponse(getRegisterWriteRequest(validityDate, wdb, p_Session, attributeType, objects));
 
@@ -401,6 +500,15 @@ public class GprsRequestFactory {
         return writeRegisterResponse;
     }
 
+    /**
+     * Do a trace query
+     * @param id: the id of the object you need interval data from
+     * @param period: the interval period (e.g.: 15 minutes)
+     * @param startDate: the start date
+     * @param numberOfElements: the number of interval values returned
+     * @return: a list of objects
+     * @throws CTRException, when the meter's response was not recognized
+     */
     public List<AbstractCTRObject> queryTrace(CTRObjectID id, PeriodTrace period, StartDate startDate, NumberOfElements numberOfElements) throws CTRException {
 
         //Send the id, the period (15min, 1h, 1day, ...), and the start date.
@@ -418,6 +526,12 @@ public class GprsRequestFactory {
         return traceResponse.getTraceData();
     }
 
+    /**
+     * Queries for a number of events
+     * @param index_Q: number of events to query for
+     * @return the meter's response containing event records
+     * @throws CTRException, if the meter's response was not recognized
+     */
     public ArrayEventsQueryResponseStructure queryEventArray(Index_Q index_Q) throws CTRException {
 
         GPRSFrame response = getConnection().sendFrameGetResponse(getEventArrayRequest(index_Q));
@@ -435,6 +549,14 @@ public class GprsRequestFactory {
         return arrayResponse;
     }
 
+    /**
+     * Do a trace_C query
+     * @param id: the id of the requested object
+     * @param period: the interval period
+     * @param referenceDate: the reference date
+     * @return the meter's response
+     * @throws CTRException, if the meter's response was not recognized
+     */
     public Trace_CQueryResponseStructure queryTrace_C(CTRObjectID id, PeriodTrace period, ReferenceDate referenceDate) throws CTRException {
 
         //Send the id, the period (15min, 1h, 1day, ...), and the start date.
@@ -452,7 +574,12 @@ public class GprsRequestFactory {
         return trace_CResponse;
     }
 
-
+    /**
+     * Pads a byte array to a certain length, by appending zeroes
+     * @param length: the given length
+     * @param fieldData: the byte array
+     * @return: the padded data array
+     */
     private byte[] padData(int length, byte[] fieldData) {
         int paddingLength = length - fieldData.length;
         if (paddingLength > 0) {
@@ -466,7 +593,7 @@ public class GprsRequestFactory {
     /**
      * The device timezone
      *
-     * @return
+     * @return The device timezone
      */
     public TimeZone getTimeZone() {
         return timeZone;

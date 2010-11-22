@@ -4,6 +4,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
 import com.energyict.genericprotocolimpl.elster.ctr.encryption.AesCMac128;
 
 /**
+ * Class for the cpa field in a frame
  * Copyrights EnergyICT
  * Date: 29-sep-2010
  * Time: 17:23:46
@@ -87,9 +88,6 @@ public class Cpa extends AbstractField<Cpa> {
     }
 
     @Override
-    /**
-     *
-     */
     public int hashCode() {
         return cpa;
     }

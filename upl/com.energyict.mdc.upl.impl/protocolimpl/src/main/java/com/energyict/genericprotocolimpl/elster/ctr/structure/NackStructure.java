@@ -31,6 +31,13 @@ public class NackStructure extends Data<NackStructure> {
         ));
     }
 
+    /**
+     * Create a CTR Structure Object representing the given byte array
+     * @param rawData: a given byte array
+     * @param offset: the start position in the array
+     * @return the CTR Structure Object
+     * @throws CTRParsingException
+     */
     @Override
     public NackStructure parse(byte[] rawData, int offset) throws CTRParsingException {
         int ptr = offset;

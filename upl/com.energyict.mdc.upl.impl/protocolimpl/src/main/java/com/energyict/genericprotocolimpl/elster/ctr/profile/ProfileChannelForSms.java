@@ -42,7 +42,11 @@ public class ProfileChannelForSms {
         this.meterAmrLogging = meterAmrLogging;
     }
 
-    //Check time sent in trace_c. Use this time instead of querying for the meter clock.
+    /**
+     * Gets the time(a date object) from the trace_c values
+     * @param values: the trace_c values
+     * @return the date object with the time, as sent in the trace_c values
+     */
     private Date getTimeFromTrace_C(CTRAbstractValue<BigDecimal>[] values) {
 
         Calendar cal = Calendar.getInstance(timeZone);
@@ -64,8 +68,12 @@ public class ProfileChannelForSms {
         
         return fixDate(cal.getTime());
     }
-
-    //Checks if min > 60 or hours > 24 (indicates a time shift is in progress)
+    
+    /**
+     * Checks if the hours / minutes have an overflow. This indicates that a time shift is in progress.
+     * @param date: the date that needs to be checked
+     * @return the real date without the overflow
+     */
     private Date fixDate(Date date) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
@@ -138,7 +146,7 @@ public class ProfileChannelForSms {
     }
 
     /**
-     * @return
+     * @return the profile data
      * @throws CTRException
      */
     public ProfileData getProfileData() throws CTRException {
@@ -154,6 +162,7 @@ public class ProfileChannelForSms {
     }
 
     /**
+     * 
      * @return
      */
     private List<ChannelInfo> getChannelInfos() {
@@ -165,7 +174,8 @@ public class ProfileChannelForSms {
         return channelInfos;
     }
 
-    /**
+   /**
+     * Parse the trace_c data received in the SMSFrame. Check all interval data.
      * @param response
      * @return
      */

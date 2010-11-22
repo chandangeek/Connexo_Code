@@ -4,6 +4,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 
 /**
+ * Class for the AckCode field in a CTR Structure Object
  * Copyrights EnergyICT
  * Date: 7-okt-2010
  * Time: 15:45:26

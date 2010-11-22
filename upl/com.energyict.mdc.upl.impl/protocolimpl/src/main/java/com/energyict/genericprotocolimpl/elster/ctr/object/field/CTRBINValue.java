@@ -23,6 +23,10 @@ public class CTRBINValue extends CTRAbstractValue{
         this.valueLength = valueLength;
     }
 
+    /**
+     * returns a byte array representing the value
+     * @return byte array
+     */
     @Override
     public byte[] getBytes() {
         byte[] result = new byte[valueLength];

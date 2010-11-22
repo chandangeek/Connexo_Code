@@ -30,7 +30,6 @@ public class ArrayEventsQueryResponseStructure extends Data<ArrayEventsQueryResp
         super(longFrame);
     }
 
-
     @Override
     public byte[] getBytes() {
 
@@ -51,6 +50,13 @@ public class ArrayEventsQueryResponseStructure extends Data<ArrayEventsQueryResp
         ));
     }
 
+    /**
+     * Create a CTR Structure Object representing the given byte array
+     * @param rawData: a given byte array
+     * @param offset: the start position in the array
+     * @return the CTR Structure Object
+     * @throws CTRParsingException
+     */
     @Override
     public ArrayEventsQueryResponseStructure parse(byte[] rawData, int offset) throws CTRParsingException {
 

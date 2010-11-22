@@ -5,6 +5,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingExceptio
 
 
 /**
+ * Class for the qualifier field in a CTR Object.
  * Copyrights EnergyICT
  * Date: 7-okt-2010
  * Time: 13:12:44
@@ -54,6 +55,10 @@ public class Qualifier extends AbstractField<Qualifier> {
         this.qlf = qlf;
     }
 
+    /**
+     * Returns a matching description for the tarif indicated by the qualifier
+     * @return tarif description
+     */
     public String getTarif() {
         int if1 = qlf & (0x0C0) >> 6;
         String tarif = "";
@@ -74,6 +79,10 @@ public class Qualifier extends AbstractField<Qualifier> {
         return tarif;
     }
 
+    /**
+     * Returns a description of the value indicated by the qualifier
+     * @return a value description
+     */
     public String getValueDescription() {
         int val = qlf & (0x018) >> 3;
         String description = "";
@@ -107,6 +116,10 @@ public class Qualifier extends AbstractField<Qualifier> {
         return getVal() == VAL_RESERVED;
     }
 
+    /**
+     * Gets the absolute Kmolt factor indicated by the qualifier
+     * @return the Kmolt factor
+     */
     public double getKmoltAbsoluteFactor() {
         int kmolt = qlf & (0x07);
         if (kmolt < 7) {
@@ -116,6 +129,10 @@ public class Qualifier extends AbstractField<Qualifier> {
         }
     }
 
+    /**
+     * Gets the Kmolt factor indicated by the qualifier
+     * @return the Kmolt factor (int)
+     */
     public int getKmoltFactor() {
         int kmolt = qlf & (0x07);
         if (kmolt < 7) {
@@ -125,6 +142,10 @@ public class Qualifier extends AbstractField<Qualifier> {
         }
     }
 
+    /**
+     * Checks the qualifier for DST or ST
+     * @return time description
+     */
     public String getValueTime() {
         int sl = qlf & (0x020) >> 5;
         String valueTime = "";

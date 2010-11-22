@@ -35,12 +35,16 @@ public class CTRMeterEvent {
         return requestFactory;
     }
 
+    /**
+     * Gets all event records from the meter, that happened after a certain date
+     * @param fromDate: reference date
+     * @return list of protocol events
+     * @throws CTRException: if the request factory was not found
+     */
     public List<MeterEvent> getMeterEvents(Date fromDate) throws CTRException {
-
         if (getRequestFactory() == null) {
             throw new CTRException("Error, the request factory was not found");
         }
-
         if (fromDate == null) {
             fromDate = ParseUtils.getClearLastDayDate(getTimeZone());
         }
@@ -71,6 +75,11 @@ public class CTRMeterEvent {
         return timeZone;
     }
 
+    /**
+     * Creates a Date object from a given CTR Event object
+     * @param event: the CTR Event object
+     * @return date object
+     */
     private Date getDateFromBytes(CTRAbstractValue[] event) {
         Calendar cal = Calendar.getInstance(getTimeZone());
         cal.set(Calendar.YEAR, event[0].getIntValue() + 2000);
@@ -81,6 +90,11 @@ public class CTRMeterEvent {
         return cal.getTime();
     }
 
+    /**
+     * Converts a list of CTR Meter events to a list of common protocol events 
+     * @param allEventRecords: a list of CTR Meter events
+     * @return a list of common protocol events
+     */
     public List<MeterEvent> convertToMeterEvents(List<CTRAbstractValue[]> allEventRecords) {
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         for (CTRAbstractValue[] eventRecord : allEventRecords) {
@@ -186,6 +200,11 @@ public class CTRMeterEvent {
         return meterEvents;
     }
 
+    /**
+     * Checks if the hours / minutes have an overflow. This indicates that a time shift is in progress.
+     * @param date: the date that needs to be checked
+     * @return the real date without the overflow
+     */
     private Date fixDate(Date date) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
@@ -205,6 +224,11 @@ public class CTRMeterEvent {
         return cal.getTime();
     }
 
+    /**
+     * Checks if the event's date is valid (data has to be in the past)
+     * @param date: the date that needs to be checked
+     * @return boolean, whether or not the date is valid
+     */
     private boolean isValidDate(Date date) {
         Calendar calCurrent = Calendar.getInstance();
         Date dateCurrent = calCurrent.getTime();

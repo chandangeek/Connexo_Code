@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.info;
 
 /**
+ * Enumeration with all common Device Statuses
  * Copyrights EnergyICT
  * Date: 2-nov-2010
  * Time: 16:24:57

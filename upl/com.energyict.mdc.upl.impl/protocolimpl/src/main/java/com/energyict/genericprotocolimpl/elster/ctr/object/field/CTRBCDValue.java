@@ -9,7 +9,8 @@ import java.math.BigDecimal;
  * User: khe
  * Date: 22-sep-2010
  * Time: 11:54:19
- * Contains a value field of type BIN
+ * Contains a value field of type BCD
+ * Only the getBytes() method is different from other value types
  */
 public class CTRBCDValue extends CTRAbstractValue{
     private String value;
@@ -22,6 +23,10 @@ public class CTRBCDValue extends CTRAbstractValue{
         this.valueLength = valueLenght;
     }
 
+    /**
+     * Specific for the BCD value
+     * @return a byte array representing the value
+     */
     public byte[] getBytes() {
         byte[] bts = new byte[value.length() / 2];
         for (int i = 0; i < bts.length; i++) {

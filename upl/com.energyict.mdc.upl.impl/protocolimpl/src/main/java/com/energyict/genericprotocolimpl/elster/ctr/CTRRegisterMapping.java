@@ -1,9 +1,10 @@
 package com.energyict.genericprotocolimpl.elster.ctr;
 
-import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRObjectID;
 import com.energyict.obis.ObisCode;
 
 /**
+ * Maps a CTR register to an obiscode
  * Copyrights EnergyICT
  * Date: 14-okt-2010
  * Time: 11:44:31

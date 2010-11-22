@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.frame.field;
 
 /**
+ * Enum with all common function objects
  * Copyrights EnergyICT
  * Date: 1-okt-2010
  * Time: 17:53:49

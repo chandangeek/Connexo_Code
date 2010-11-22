@@ -3,8 +3,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.object;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
-import com.energyict.genericprotocolimpl.elster.ctr.object.field.AccessDescriptor;
-import com.energyict.genericprotocolimpl.elster.ctr.object.field.Qualifier;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.*;
 import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser;
 
 import java.math.BigDecimal;
@@ -22,8 +21,6 @@ public class CommunicationCategory<T extends CommunicationCategory> extends Abst
         setType(type);
         CTRPrimitiveParser parser = new CTRPrimitiveParser();   //Not static
 
-        CTRObjectID id = this.getId();
-        
         if (type.hasIdentifier()) {
             ptr += CTRObjectID.LENGTH; //Skip the Id bytes
         }
@@ -37,8 +34,8 @@ public class CommunicationCategory<T extends CommunicationCategory> extends Abst
         }
 
         if (type.hasValueFields()) {
-            int[] valueLength = this.getValueLengths(id);
-            this.setValue(parser.parseBCDValue(this, id, rawData, ptr, valueLength));
+            int[] valueLength = this.getValueLengths(getId());
+            this.setValue(parser.parseBCDValue(this, rawData, ptr, valueLength));
             ptr += sum(valueLength);  //There might be multiple value fields
         }
 
@@ -49,10 +46,10 @@ public class CommunicationCategory<T extends CommunicationCategory> extends Abst
         }
 
         if (type.hasDefaultValue()) {
-            this.setDefault(parser.parseDefault(id, this.getValue()));
+            this.setDefault(parser.parseDefault(getId(), this.getValue()));
         }
 
-        this.setSymbol(getSymbol(id));
+        this.setSymbol(getSymbol(getId()));
 
         return (T) this;
     }

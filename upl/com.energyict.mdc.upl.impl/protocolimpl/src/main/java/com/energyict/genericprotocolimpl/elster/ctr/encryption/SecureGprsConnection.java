@@ -47,6 +47,12 @@ public class SecureGprsConnection extends GprsConnection {
         this(in, out, properties, null);
     }
 
+    /**
+     * Sends a given frame, and returns the meter response frame.
+     * @param requestFrame: the given frame to send
+     * @return the meter's response frame
+     * @throws CTRConnectionException
+     */
     @Override
     public GPRSFrame sendFrameGetResponse(GPRSFrame requestFrame) throws CTRConnectionException {
         try {

@@ -2,7 +2,6 @@ package com.energyict.genericprotocolimpl.elster.ctr.primitive;
 
 import com.energyict.cbo.Unit;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
-import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.*;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -11,6 +10,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
+ * Parses byte arrays into values fields for a CTR Object
  * Created by IntelliJ IDEA.
  * User: khe
  * Date: 21-sep-2010
@@ -30,11 +30,18 @@ public class CTRPrimitiveParser {
         return bytes;
     }
 
-    //Parses BIN byte arrays into BigDecimals
-    //also parses single byte fields (e.g. hours, minutes,...)
-    public CTRAbstractValue[] parseUnsignedBINValue(AbstractCTRObject object, CTRObjectID id, byte[] rawData, int offset, int[] valueLength) {
+    /**
+     * Parses BIN byte arrays into an array of value objects
+     * @param object: the CTR Object. Already contains a unit and an overflow value
+     * @param rawData: the byte array representing the value
+     * @param offset: position to start in the byte array
+     * @param valueLength: the length of the value field
+     * @return the resulting array of value objects
+     */
+    public CTRAbstractValue[] parseUnsignedBINValue(AbstractCTRObject object, byte[] rawData, int offset, int[] valueLength) {
 
         int i = 0;
+        CTRObjectID id = object.getId();
         CTRAbstractValue[] result = new CTRAbstractValue[valueLength.length];
 
         //Parse all given values. Each has its length.
@@ -48,11 +55,18 @@ public class CTRPrimitiveParser {
         return result;  //Array of all value objects, each with its unit & domain.
     }
 
-
-    //Parses Signed BIN byte arrays, can also parse Unsigned BIN byte arrays.
-    public CTRAbstractValue[] parseSignedBINValue(AbstractCTRObject object, CTRObjectID id, byte[] rawData, int offset, int[] valueLength) {
+    /**
+     * Parses Signed BIN byte arrays, can also parse Unsigned BIN byte arrays
+     * @param object: the CTR Object. Already contains a unit and an overflow value
+     * @param rawData: the byte array representing the value
+     * @param offset: position to start in the byte array
+     * @param valueLength: the length of the value field
+     * @return the resulting array of value objects
+     */
+    public CTRAbstractValue[] parseSignedBINValue(AbstractCTRObject object, byte[] rawData, int offset, int[] valueLength) {
 
         int i = 0;
+        CTRObjectID id = object.getId();
         CTRAbstractValue[] result = new CTRAbstractValue[valueLength.length];
         int x = id.getX();
         int y = id.getY();
@@ -90,12 +104,19 @@ public class CTRPrimitiveParser {
         return result;  //Array of all value objects, each with its unit & domain.
     }
 
-
-    //Parses String values, can also parse Unsigned BIN byte arrays.
-    public CTRAbstractValue[] parseStringValue(AbstractCTRObject object, CTRObjectID id, byte[] rawData, int offset, int[] valueLength) {
+    /**
+     * Parses String values, can also parse Unsigned BIN byte arrays.
+     * @param object: the CTR Object. Already contains a unit and an overflow value
+     * @param rawData: the byte array representing the value
+     * @param offset: position to start in the byte array
+     * @param valueLength: the length of the value field
+     * @return the resulting array of value objects
+     */
+    public CTRAbstractValue[] parseStringValue(AbstractCTRObject object, byte[] rawData, int offset, int[] valueLength) {
 
         int i = 0;
         CTRAbstractValue[] result = new CTRAbstractValue[valueLength.length];
+        CTRObjectID id = object.getId();
         int x = id.getX();
         int y = id.getY();
         int z = id.getZ();
@@ -138,12 +159,19 @@ public class CTRPrimitiveParser {
         return result;  //Array of all value objects, each with its unit & domain.
     }
 
-
-    //Parses BCD values, can also parse other types.
-    public CTRAbstractValue[] parseBCDValue(AbstractCTRObject object, CTRObjectID id, byte[] rawData, int offset, int[] valueLength){
+    /**
+     * Parses BCD values, can also parse other types.
+     * @param object: the CTR Object. Already contains a unit and an overflow value
+     * @param rawData: the byte array representing the value
+     * @param offset: position to start in the byte array
+     * @param valueLength: the length of the value field
+     * @return the resulting array of value objects
+     */
+    public CTRAbstractValue[] parseBCDValue(AbstractCTRObject object, byte[] rawData, int offset, int[] valueLength){
 
         CTRAbstractValue[] result = new CTRAbstractValue[valueLength.length];
         int i = 0;
+        CTRObjectID id = object.getId();
         int x = id.getX();
         int y = id.getY();
         int z = id.getZ();
@@ -216,6 +244,11 @@ public class CTRPrimitiveParser {
         return new BigDecimal(convertedValue);
     }
 
+    /**
+     * Creates a BCD string that represents a given byte array
+     * @param value: the given byte array
+     * @return the resulting BCD string
+     */
     private String convertByteArrayToBCD(byte[] value){
         String convertedValue = "";
         int len = value.length;
@@ -233,6 +266,11 @@ public class CTRPrimitiveParser {
         return convertedValue;
     }
 
+    /**
+     * Creates a BigDecimal that represents a given byte array
+     * @param value: the given byte array
+     * @return the resulting BigDecimal
+     */
     private BigDecimal convertByteArrayToBigDecimal(byte[] value) {
         byte[] temp = new byte[]{0x00};    //To bypass the sign bit :P
         value = ProtocolTools.concatByteArrays(temp, value);
@@ -240,10 +278,21 @@ public class CTRPrimitiveParser {
         return new BigDecimal(convertedValue);
     }
 
+    /**
+     * Creates a string that represents a given byte array
+     * @param value: the given byte array
+     * @return the resulting string
+     */
     private String convertByteArrayToString(byte[] value) {
         return new String(value);
     }
 
+    /**
+     * Creates a CTRObjectID from a given byte array
+     * @param data: the given byte array
+     * @param offset: the start position in the array
+     * @return the created CTRObjectID
+     */
     public CTRObjectID parseId(byte[] data, int offset) {
         byte byte1 = data[offset];
         byte byte2 = data[offset + 1];
@@ -262,6 +311,12 @@ public class CTRPrimitiveParser {
         return ((int) rawData[offset]) & 0xFF;
     }
 
+    /**
+     * Gives the matching default values for a CTR Object
+     * @param id: the ID of the CTR Object
+     * @param values: the values of the CTR Object
+     * @return the matching default values of the CTR Object
+     */
     public Default[] parseDefault(CTRObjectID id, CTRAbstractValue[] values) {
         int x = id.getX();
         int y = id.getY();

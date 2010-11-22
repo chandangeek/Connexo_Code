@@ -2,6 +2,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.object;
 
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser;
 
 /**

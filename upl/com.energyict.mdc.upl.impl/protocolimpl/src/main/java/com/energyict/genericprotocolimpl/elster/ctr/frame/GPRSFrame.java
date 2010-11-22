@@ -33,6 +33,13 @@ public class GPRSFrame extends AbstractCTRFrame<GPRSFrame> {
         return bytes;
     }
 
+    /**
+     * Parse a given byte array and create a GPRSFrame
+     * @param rawPacket: a given byte array
+     * @param offset: position to start in the byte array
+     * @return the created GPRSFrame
+     * @throws CTRParsingException
+     */
     public GPRSFrame parse(byte[] rawPacket, int offset) throws CTRParsingException {
         int ptr = offset;
         stx = getIntFromBytes(rawPacket, ptr++, 1);
@@ -48,6 +55,6 @@ public class GPRSFrame extends AbstractCTRFrame<GPRSFrame> {
 
     @Override
     public int getLength() {
-        return super.getLength() + 2;
+        return super.getLength() + 2;    //+2 = the length of the STX and the ETX field
     }
 }

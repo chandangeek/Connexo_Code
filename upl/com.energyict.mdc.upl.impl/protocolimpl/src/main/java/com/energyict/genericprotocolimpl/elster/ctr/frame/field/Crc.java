@@ -4,6 +4,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
 import com.energyict.protocolimpl.base.CRC16DNP;
 
 /**
+ * Class for the crc field in a frame
  * Copyrights EnergyICT
  * Date: 29-sep-2010
  * Time: 17:23:46

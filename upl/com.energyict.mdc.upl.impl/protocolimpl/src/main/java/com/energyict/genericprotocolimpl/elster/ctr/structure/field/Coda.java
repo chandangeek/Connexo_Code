@@ -4,6 +4,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 
 /**
+ * Class for the Coda field in a CTR Structure Object
  * Copyrights EnergyICT
  * Date: 8-okt-2010
  * Time: 16:39:27

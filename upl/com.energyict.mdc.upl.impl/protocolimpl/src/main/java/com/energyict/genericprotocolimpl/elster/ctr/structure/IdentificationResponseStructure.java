@@ -2,8 +2,10 @@ package com.energyict.genericprotocolimpl.elster.ctr.structure;
 
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
-import com.energyict.genericprotocolimpl.elster.ctr.object.*;
+import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
+import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRObjectID;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.util.ArrayList;
@@ -62,8 +64,8 @@ public class IdentificationResponseStructure extends AbstractTableQueryResponseS
     /**
      * Check if the DECF table contains an object with the given ID
      *
-     * @param id
-     * @return
+     * @param id: the given id
+     * @return boolean, whether or not the table contains the given ID
      */
     public static boolean containsObjectId(CTRObjectID id) {
         for (String capturedId : CAPTURED_OBJECTS) {
@@ -74,6 +76,10 @@ public class IdentificationResponseStructure extends AbstractTableQueryResponseS
         return false;
     }
 
+    /**
+     * Makes a list of objects
+     * @return list of objects
+     */
     @Override
     public List<AbstractCTRObject> getObjects() {
         List<AbstractCTRObject> objects = new ArrayList<AbstractCTRObject>();
@@ -103,6 +109,13 @@ public class IdentificationResponseStructure extends AbstractTableQueryResponseS
         ));
     }
 
+    /**
+     * Create a CTR Structure Object representing the given byte array
+     * @param rawData: a given byte array
+     * @param offset: the start position in the array
+     * @return the CTR Structure Object
+     * @throws CTRParsingException
+     */
     @Override
     public IdentificationResponseStructure parse(byte[] rawData, int offset) throws CTRParsingException {
         int ptr = offset;

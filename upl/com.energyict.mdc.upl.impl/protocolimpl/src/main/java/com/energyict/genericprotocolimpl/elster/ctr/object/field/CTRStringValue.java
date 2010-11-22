@@ -22,6 +22,10 @@ public class CTRStringValue extends CTRAbstractValue{
         this.valueLength = valueLenght;
     }
 
+    /**
+     * returns a byte array representing the value
+     * @return byte array
+     */
     @Override
     public byte[] getBytes() {
         byte[] bytes = new byte[valueLength];

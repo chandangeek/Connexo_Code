@@ -5,6 +5,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingExceptio
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
+ * Class for the DataArray field in a CTR Structure Object
  * Copyrights EnergyICT
  * Date: 8-okt-2010
  * Time: 16:39:27

@@ -5,9 +5,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.GprsRequestFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.MTU155Properties;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
-import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectID;
-import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
-import com.energyict.genericprotocolimpl.elster.ctr.object.field.Qualifier;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.*;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.Trace_CQueryResponseStructure;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.PeriodTrace;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.ReferenceDate;
@@ -48,6 +46,11 @@ public class ProfileChannel {
         }
     }
 
+    /**
+     * Gets the time(a date object) from the trace_c values
+     * @param values: the trace_c values
+     * @return the date object with the time, as sent in the trace_c values
+     */
     private Date getTimeFromTrace_C(CTRAbstractValue<BigDecimal>[] values) {
 
         Calendar cal = Calendar.getInstance(timeZone);
@@ -70,8 +73,11 @@ public class ProfileChannel {
         return fixDate(cal.getTime());
     }
 
-    //Checks if min > 60 or hours > 24 (indicates a time shift is in progress)
-
+    /**
+     * Checks if the hours / minutes have an overflow. This indicates that a time shift is in progress.
+     * @param date: the date that needs to be checked
+     * @return the real date without the overflow
+     */
     private Date fixDate(Date date) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
@@ -159,7 +165,7 @@ public class ProfileChannel {
     }
 
     /**
-     * @return
+     * @return the profile data
      * @throws CTRException
      */
     public ProfileData getProfileData() throws CTRException {
@@ -195,7 +201,7 @@ public class ProfileChannel {
         Calendar toCalendar = Calendar.getInstance(getDeviceTimeZone());
         lastReferenceDate = null;
 
-        getLogger().info("Reding profile data from [" + fromCalendar.getTime() + "] to [" + toCalendar.getTime() + "]");
+        getLogger().info("Reading profile data from [" + fromCalendar.getTime() + "] to [" + toCalendar.getTime() + "]");
 
         while (fromCalendar.before(toCalendar)) {
             try {
@@ -223,6 +229,7 @@ public class ProfileChannel {
     }
 
     /**
+     * Do a trace_c query request to the meter. Get the interval data.
      * @param channelId
      * @param fromCalendar
      * @return
@@ -243,6 +250,7 @@ public class ProfileChannel {
     }
 
     /**
+     * Parse the trace_c response. Check all interval data.
      * @param response
      * @return
      */
@@ -299,7 +307,6 @@ public class ProfileChannel {
     private Calendar getFromCalendar() {
         Date lastReading = getMeterChannel().getLastReading();
         if (lastReading == null) {
-            //lastReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(getRtu());
             lastReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastDayDate(getRtu().getTimeZone());
         }
         Calendar cal = ProtocolUtils.getCleanCalendar(getDeviceTimeZone());

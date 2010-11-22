@@ -3,7 +3,9 @@ package com.energyict.genericprotocolimpl.elster.ctr.util;
 import com.energyict.cbo.Unit;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
-import com.energyict.genericprotocolimpl.elster.ctr.object.*;
+import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
+import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRObjectID;
 
 /**
  * Copyrights EnergyICT
@@ -20,9 +22,9 @@ public final class CTRObjectInfo {
     }
 
     /**
-     *
-     * @param objectID
-     * @return
+     * Gets the symbol from a given object
+     * @param objectID: the ID of the object
+     * @return the symbol of the object
      */
     public static String getSymbol(String objectID) {
         CTRObjectFactory factory = new CTRObjectFactory();
@@ -35,9 +37,9 @@ public final class CTRObjectInfo {
     }
 
     /**
-     *
-     * @param objectID
-     * @return
+     * Gets the unit from a given object
+     * @param objectID: the ID of the object
+     * @return the unit of the object
      */
     public static Unit getUnit(String objectID) {
         CTRObjectFactory factory = new CTRObjectFactory();

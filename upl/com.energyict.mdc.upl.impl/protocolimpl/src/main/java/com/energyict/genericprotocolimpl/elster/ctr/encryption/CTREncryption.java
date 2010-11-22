@@ -68,7 +68,7 @@ public class CTREncryption {
 
     /**
      *
-     * @return
+     * @return cipher
      */
     private Cipher getAesCTRCipher() {
         if (cipher == null) {
@@ -80,6 +80,13 @@ public class CTREncryption {
         }
         return cipher;
     }
+
+    /**
+     * Decrypts an entire Frame (SMS or GPRS)
+     * @param frame: the frame that has to be decrypted
+     * @return the decrypted frame
+     * @throws CtrCipheringException: when decryption fails
+     */
 
     public Frame decryptFrame(Frame frame) throws CtrCipheringException {
         EncryptionStatus eStatus = frame.getFunctionCode().getEncryptionStatus();
@@ -97,6 +104,17 @@ public class CTREncryption {
         return frame;
     }
 
+    /**
+     * Decrypts the relevant fields of a frame
+     * @param frame: the frame that needs decryption
+     * @return the byte array containing the decrypted fields
+     * @throws IllegalBlockSizeException
+     * @throws InvalidKeyException
+     * @throws NoSuchAlgorithmException
+     * @throws NoSuchPaddingException
+     * @throws BadPaddingException
+     * @throws InvalidAlgorithmParameterException
+     */
     private byte[] decryptStream(Frame frame) throws IllegalBlockSizeException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException {
         byte[] bytes = ProtocolTools.concatByteArrays(frame.getStructureCode().getBytes(), frame.getChannel().getBytes(), frame.getData().getBytes());
         byte[] cpa = frame.getCpa().getBytes();
@@ -114,6 +132,12 @@ public class CTREncryption {
         return result;
     }
 
+    /**
+     * Encrypts a given frame
+     * @param frame: the frame (SMS or GPRS) that needs encryption
+     * @return the encrypted frame
+     * @throws CtrCipheringException
+     */
     public Frame encryptFrame(Frame frame) throws CtrCipheringException {
 
         EncryptionStatus eStatus = frame.getFunctionCode().getEncryptionStatus();
@@ -142,6 +166,13 @@ public class CTREncryption {
         return frame;
     }
 
+    /**
+     * Sets the relevant fields of a given frame with the decrypted/encrypted data
+     * @param frame: the frame to set fields on
+     * @param stream
+     * @return
+     * @throws CTRParsingException
+     */
     private Frame setData(Frame frame, byte[] stream) throws CTRParsingException {
         int offset = 0;
         byte[] struct = ProtocolTools.getSubArray(stream, offset, offset + frame.getStructureCode().getBytes().length);
@@ -158,6 +189,17 @@ public class CTREncryption {
         return frame;
     }
 
+    /**
+     * Encrypts the relevant fields of a given frame
+     * @param frame: the frame that needs encryption
+     * @return byte array with the encrypted fields
+     * @throws IllegalBlockSizeException
+     * @throws InvalidKeyException
+     * @throws NoSuchAlgorithmException
+     * @throws NoSuchPaddingException
+     * @throws BadPaddingException
+     * @throws InvalidAlgorithmParameterException
+     */
     private byte[] encryptStream(Frame frame) throws IllegalBlockSizeException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException {
         byte[] bytes = ProtocolTools.concatByteArrays(frame.getStructureCode().getBytes(), frame.getChannel().getBytes(), frame.getData().getBytes());
         byte[] cpa = frame.getCpa().getBytes();
@@ -186,6 +228,18 @@ public class CTREncryption {
         return frame;
     }
 
+    /**
+     * Encrypts a given byte array with the AES128 encryption (Counter Mode)
+     * @param input: the byte array to encrypt
+     * @param iv: the initial vector for the encryption
+     * @return the encrypted byte array
+     * @throws NoSuchAlgorithmException
+     * @throws NoSuchPaddingException
+     * @throws InvalidKeyException
+     * @throws InvalidAlgorithmParameterException
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
+     */
     private byte[] encryptAES128(byte[] input, byte[] iv) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
         SecretKey aeskey = new SecretKeySpec(keyC, 0, 16, "AES");
         AlgorithmParameterSpec paramSpec = new IvParameterSpec(iv);
@@ -194,6 +248,18 @@ public class CTREncryption {
         return getAesCTRCipher().doFinal(input);
     }
 
+    /**
+     * Decrypts a given byte array with the AES128 decryption (Counter Mode)
+     * @param input: the byte array to decrypt
+     * @param iv: the initial vector for the decryption
+     * @return the decrypted byte array
+     * @throws NoSuchAlgorithmException
+     * @throws NoSuchPaddingException
+     * @throws InvalidKeyException
+     * @throws InvalidAlgorithmParameterException
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
+     */
     private byte[] decryptAES128(byte[] input, byte[] iv) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
         SecretKey aeskey = new SecretKeySpec(keyC, 0, 16, "AES");
         AlgorithmParameterSpec paramSpec = new IvParameterSpec(iv);

@@ -3,6 +3,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.frame.field;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
 
 /**
+ * Class for the address field in a frame
  * Copyrights EnergyICT
  * Date: 29-sep-2010
  * Time: 17:23:46

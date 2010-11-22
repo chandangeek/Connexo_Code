@@ -30,6 +30,13 @@ public class ArrayEventsQueryRequestStructure extends Data<ArrayEventsQueryReque
         ));
     }
 
+    /**
+     * Create a CTR Structure Object representing the given byte array
+     * @param rawData: a given byte array
+     * @param offset: the start position in the array
+     * @return the CTR Structure Object
+     * @throws CTRParsingException
+     */
     @Override
     public ArrayEventsQueryRequestStructure parse(byte[] rawData, int offset) throws CTRParsingException {
 

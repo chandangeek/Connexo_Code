@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.frame.field;
 
 /**
+ * Enum with all common encryption statuses
  * Copyrights EnergyICT
  * Date: 30-sep-2010
  * Time: 17:21:38

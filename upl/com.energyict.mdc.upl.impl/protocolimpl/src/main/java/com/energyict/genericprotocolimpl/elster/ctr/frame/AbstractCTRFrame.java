@@ -7,6 +7,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.structure.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
+ * Parent class for SMS- and GPRSFrames. Contains shared functionality
  * Copyrights EnergyICT
  * Date: 29-sep-2010
  * Time: 16:46:07
@@ -46,6 +47,13 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
         );
     }
 
+    /**
+     * Parses a given byte array and creates a frame object
+     * @param rawData: the byte array
+     * @param offset: position to start in the byte array
+     * @return a frame object
+     * @throws CTRParsingException
+     */
     public T parse(byte[] rawData, int offset) throws CTRParsingException {
         int ptr = offset;
 
@@ -80,6 +88,12 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
         return (T) this;
     }
 
+    /**
+     * Check which kind of data field is in the frame.
+     * @param rawData: the given byte array
+     * @param offset: start position in the array
+     * @throws CTRParsingException
+     */
     private void parseDataField(byte[] rawData, int offset) throws CTRParsingException {
         int ptr = offset;
         if (isIdentificationReply()) {
@@ -197,7 +211,8 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
     }
 
     /**
-     * @return
+     * Generates a Crc (Cyclic redundancy code)
+     * @return a generated Crc
      */
     public Crc generateCrc() {
         byte[] crcData = ProtocolTools.concatByteArrays(

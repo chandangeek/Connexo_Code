@@ -1,8 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.object;
 
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
-import com.energyict.genericprotocolimpl.elster.ctr.object.field.AccessDescriptor;
-import com.energyict.genericprotocolimpl.elster.ctr.object.field.Qualifier;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.*;
 import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser;
 
 /**
@@ -13,12 +12,15 @@ import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser
  */
 public abstract class AbstractStringObject<T extends AbstractStringObject> extends AbstractCTRObject<T> {
 
-    //Parse the raw data & fill in the object's properties
-    public T parse(byte[] rawData, int ptr, AttributeType type) {
+    /**
+     * Parses a given byte array, creates a CTR Object (with value of type String)
+     * @param rawData: the given byte array
+     * @param ptr: the start position in the byte array
+     * @param type: the AttributeType object, indicating the relevant fields of the CTR Object
+     * @return the CTR Object
+     */    public T parse(byte[] rawData, int ptr, AttributeType type) {
         setType(type);
         CTRPrimitiveParser parser = new CTRPrimitiveParser();   //Not static
-
-        CTRObjectID id = this.getId();
 
         if (type.hasIdentifier()) {
             ptr += CTRObjectID.LENGTH; //Skip the Id bytes
@@ -34,8 +36,8 @@ public abstract class AbstractStringObject<T extends AbstractStringObject> exten
         }
 
         if (type.hasValueFields()) {
-            int[] valueLength = this.getValueLengths(id);
-            this.setValue(parser.parseStringValue(this, id, rawData, ptr, valueLength));
+            int[] valueLength = this.getValueLengths(getId());
+            this.setValue(parser.parseStringValue(this, rawData, ptr, valueLength));
             ptr += sum(valueLength);  //There might be multiple value fields
         }
 
@@ -46,10 +48,10 @@ public abstract class AbstractStringObject<T extends AbstractStringObject> exten
         }
 
         if (type.hasDefaultValue()) {
-            this.setDefault(parser.parseDefault(id, this.getValue()));
+            this.setDefault(parser.parseDefault(getId(), this.getValue()));
         }
 
-        this.setSymbol(getSymbol(id));
+        this.setSymbol(getSymbol(getId()));
 
         return (T) this;
     }

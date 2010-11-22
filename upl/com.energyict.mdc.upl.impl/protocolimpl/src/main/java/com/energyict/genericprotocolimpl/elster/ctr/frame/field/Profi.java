@@ -3,6 +3,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.frame.field;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
 
 /**
+ * Class for the profi field in a frame
  * Copyrights EnergyICT
  * Date: 30-sep-2010
  * Time: 9:29:10

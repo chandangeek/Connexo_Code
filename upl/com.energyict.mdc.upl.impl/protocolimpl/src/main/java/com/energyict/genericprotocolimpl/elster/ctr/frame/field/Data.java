@@ -5,6 +5,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingExceptio
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
+ * Class for the data field in a frame
  * Copyrights EnergyICT
  * Date: 29-sep-2010
  * Time: 17:23:46

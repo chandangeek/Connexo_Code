@@ -2,6 +2,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.object;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRObjectID;
 
 import java.math.BigDecimal;
 
@@ -17,6 +18,13 @@ public class BandTotalizerCategory extends AbstractUnsignedBINObject<BandTotaliz
         this.setId(id);
     }
 
+    /**
+     * Returns the overflow value for a specific value of a CTR Object
+     * @param id: the id of the CTR Object
+     * @param valueNumber: index number of the value (an object can have multiple value fields)
+     * @param unit: relevant to check if the overflow value is common
+     * @return the matching overflow value
+     */
     public BigDecimal getOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
         return new BigDecimal(999999999);
     }
@@ -30,6 +38,11 @@ public class BandTotalizerCategory extends AbstractUnsignedBINObject<BandTotaliz
         return Unit.get(BaseUnit.CUBICMETER, getQlf().getKmoltFactor());
     }
 
+    /**
+     * Returns the symbol that matches the object
+     * @param id: the object's id
+     * @return the matching symbol
+     */
     protected String getSymbol(CTRObjectID id) {
         String symbol = "";
 
