@@ -39,7 +39,21 @@ public class SystemMasterRecordCategory extends AbstractBCDObject<SystemMasterRe
                         symbol = "RagSoc"; break;
                     case 7:
                         symbol = "CodUte"; break;
-
+                } break;
+            case 1:
+                switch (z) {
+                    case 1:
+                        symbol = "Mat_P"; break;
+                    case 3:
+                        symbol = "Mat_T"; break;
+                    case 2:
+                        symbol = "Mat_DPh"; break;
+                    case 4:
+                        symbol = "Mat_DPl"; break;
+                    case 5:
+                        symbol = "Mat_Dens"; break;
+                    case 6:
+                        symbol = "Mat_Gascro"; break;
                 } break;
             case 2:
                 switch (z) {

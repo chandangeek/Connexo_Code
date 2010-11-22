@@ -27,6 +27,9 @@ public class TracesCategory extends AbstractUnsignedBINObject<TracesCategory> {
             case 1:
                 symbol = "TraceA";
                 break;
+            case 2:
+                symbol = "ArrayA";
+                break;
         }
         return symbol;
     }

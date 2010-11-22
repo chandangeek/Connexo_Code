@@ -30,6 +30,7 @@ public class EquipmentParametersCategory extends AbstractStringObject {
                 case 4: symbol = "VF";   break;
                 case 5: symbol = "CAP"; break;
                 case 7: symbol = "VS_PRO"; break;
+                case 9: symbol = "SYNCT"; break;
 
             }  break;
             case 1: switch(z) {
@@ -51,7 +52,8 @@ public class EquipmentParametersCategory extends AbstractStringObject {
             case 4: switch(z) {
                 case 0: symbol = "Add"; break;
                 case 1: symbol = "MAC_Add"; break;
-            }
+            }   break;
+            case 5: symbol = "PADL"; break;
         }
         return symbol;
     }
@@ -103,11 +105,16 @@ public class EquipmentParametersCategory extends AbstractStringObject {
                 case 0: valueLength = new int[]{2}; break;
                 case 1: valueLength = new int[]{6}; break;
             }  break;
+            case 5: valueLength = new int[]{4,1,1,1,1,2}; break;
         }
         return valueLength;
     }
 
     public Unit getUnit(CTRObjectID id, int valueNumber) {
+        if (id.getY() == 5) {
+            if (valueNumber == 3) {return Unit.get(BaseUnit.SECOND, -3);}         //milliseconds
+            if (valueNumber == 4) {return Unit.get(BaseUnit.SECOND);}
+        }
         return Unit.get(BaseUnit.UNITLESS);        //There's no units in this category
     }
 

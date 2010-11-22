@@ -227,6 +227,8 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
     public String toString() {
         if (getId().is("8.1.2")) {   //special case: the residual shift object
             return super.toString();
+        } else if (getId().is("8.2.0")) {
+            return super.toString();
         }
         Date date = getDate();
         return date != null ? date.toString() : "null";        

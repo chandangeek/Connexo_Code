@@ -55,7 +55,7 @@ public class InputOutputCategory extends AbstractUnsignedBINObject<InputOutputCa
                 return new int[]{1, 3, 3, 3, 3};
             }
         }
-            return new int[]{1};
+        return new int[]{1};
     }
 
     public Unit getUnit(CTRObjectID id, int valueNumber) {

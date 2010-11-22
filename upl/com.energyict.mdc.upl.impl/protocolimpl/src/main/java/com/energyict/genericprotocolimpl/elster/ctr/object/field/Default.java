@@ -34,4 +34,9 @@ public class Default {
         this.unit = unit;
     }
 
+    @Override
+    public String toString() {
+        return Integer.toString(getDefaultValue());
+    }
+
 }
