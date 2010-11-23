@@ -111,6 +111,10 @@ public class MTU155 extends AbstractGenericProtocol {
 
     }
 
+    /**
+     * Checks if the RTU serial number matches the one in EiServer
+     * @throws CTRConfigurationException, when the serial number doesn't match
+     */
     private void checkSerialNumber() throws CTRConfigurationException {
         String mtuSerial = getRequestFactory().getIdentificationStructure().getMTU155SerialNumber();
         String rtuSerial = getRtuSerialNumber();
@@ -180,7 +184,7 @@ public class MTU155 extends AbstractGenericProtocol {
     }
 
     /**
-     *
+     * Check the device's communication schedules, and execute them.
      */
     private void readDevice() {
         List<CommunicationScheduler> communicationSchedulers = getRtu().getCommunicationSchedulers();
@@ -220,7 +224,8 @@ public class MTU155 extends AbstractGenericProtocol {
     }
 
     /**
-     * @param communicationScheduler
+     * Executes the communication schedule. Can set time, read time, read event records, read profile data or read register data.
+     * @param communicationScheduler: the device's communication schedule
      * @throws IOException
      */
     private void executeCommunicationSchedule(CommunicationScheduler communicationScheduler) throws IOException {
@@ -285,7 +290,7 @@ public class MTU155 extends AbstractGenericProtocol {
     }
 
     /**
-     *
+     * Read channel data from the meter.
      */
     private void readChannelData() {
         List<Channel> channelList = getRtu().getChannels();
@@ -302,6 +307,7 @@ public class MTU155 extends AbstractGenericProtocol {
     }
 
     /**
+     * Read registers from the meter
      * @param cp
      * @return
      */
@@ -337,6 +343,7 @@ public class MTU155 extends AbstractGenericProtocol {
     }
 
     /**
+     * Write the meter clock
      * @param communicationProfile
      * @throws IOException
      */
@@ -392,6 +399,11 @@ public class MTU155 extends AbstractGenericProtocol {
         return getRtu() == null ? null : getRtu().getSerialNumber();
     }
 
+    /**
+     * Get the RTU, by PDR
+     * @return
+     * @throws CTRException
+     */
     private Rtu identifyAndGetRtu() throws CTRException {
         String pdr = readPdr();
         log("MTU155 with pdr='" + pdr + "' connected.");
@@ -450,6 +462,10 @@ public class MTU155 extends AbstractGenericProtocol {
         return new Date();
     }
 
+    /**
+     * Log a successful event
+     * @param commSchedule
+     */
     private void logSuccess(CommunicationScheduler commSchedule) {
         List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
         journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, "0"));
@@ -467,6 +483,10 @@ public class MTU155 extends AbstractGenericProtocol {
         }
     }
 
+    /**
+     * Log a failed event
+     * @param commSchedule
+     */
     private void logFailure(CommunicationScheduler commSchedule) {
         List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
         journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, "0"));

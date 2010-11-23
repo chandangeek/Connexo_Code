@@ -64,18 +64,36 @@ public class SmsHandler implements MessageHandler {
         return rtu;
     }
 
+    /**
+     * processes a given message containing an sms object
+     * @param message: the given message
+     * @param logger: the logger
+     * @throws JMSException
+     * @throws BusinessException
+     * @throws SQLException
+     */
     public void processMessage(Message message, Logger logger) throws JMSException, BusinessException, SQLException {
         this.logger = logger;
         ObjectMessage om = (ObjectMessage) message;
         processMessage((Sms) om.getObject());
     }
 
+    /**
+     * processes a given Sms
+     * @param sms: the given sms
+     * @throws JMSException
+     * @throws BusinessException
+     * @throws SQLException
+     */
     public void processMessage(Sms sms) throws JMSException, BusinessException, SQLException {
         this.sms = sms;
         doExecute();
     }
 
-
+    /**
+     * Log a failed event
+     * @param commSchedule
+     */
     private void logFailure(CommunicationScheduler commSchedule) {
         List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
         journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, "0"));
@@ -92,7 +110,11 @@ public class SmsHandler implements MessageHandler {
             e.printStackTrace();
         }
     }
-
+    
+    /**
+     * Log a successful event
+     * @param commSchedule
+     */
     private void logSuccess(CommunicationScheduler commSchedule) {
         List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
         journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, "0"));
@@ -117,7 +139,13 @@ public class SmsHandler implements MessageHandler {
         return meterAmrLogging;
     }
 
-
+    /**
+     * Processes a given sms frame containing event records, profile data or register data
+     * @param smsFrame: the sms frame
+     * @throws BusinessException
+     * @throws SQLException
+     * @throws LinkException
+     */
     public void processSmsFrame(SMSFrame smsFrame) throws BusinessException, SQLException, LinkException {
 
         List<CommunicationScheduler> communicationSchedulers = getRtu().getCommunicationSchedulers();
@@ -158,6 +186,13 @@ public class SmsHandler implements MessageHandler {
         }
     }
 
+    /**
+     * Decrypt and parse the sms data using the rtu properties
+     * @param sms: the sms that needs to be decrypted
+     * @return the decrypted and parsed sms frame
+     * @throws CTRParsingException
+     * @throws CtrCipheringException
+     */
     public SMSFrame parseAndDecryptSms(Sms sms) throws CTRParsingException, CtrCipheringException {
         SMSFrame smsFrame = new SMSFrame().parse(sms.getMessage(), 0);
         CTREncryption ctrEncryption = new CTREncryption(properties);
@@ -168,7 +203,12 @@ public class SmsHandler implements MessageHandler {
         return getRtu().getSerialNumber();
     }
 
-
+    /**
+     * Check out the communication profile, see what to do with a given sms
+     * @param smsFrame: the given sms frame
+     * @param communicationProfile: the meter's communication profile
+     * @throws CTRException
+     */
     private void processSchedule(SMSFrame smsFrame, CommunicationProfile communicationProfile) throws CTRException {
 
         if (communicationProfile == null) {
@@ -200,6 +240,13 @@ public class SmsHandler implements MessageHandler {
         storeDataToEIServer();
     }
 
+    /**
+     * parse and store the data in the dec table (received via sms)
+     * @param communicationProfile: the meter's communication profile
+     * @param pdr: the meter's pdr number
+     * @param data: sent by the meter via sms
+     * @throws CTRException
+     */
     private void parseAndStoreDECTableData(CommunicationProfile communicationProfile, String pdr, TableDECQueryResponseStructure data) throws CTRException {
         if (!data.getPdr().getValue(0).getValue().equals(pdr)) {
             String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
@@ -217,6 +264,13 @@ public class SmsHandler implements MessageHandler {
         }
     }
 
+    /**
+     * parse and store the data in the decf table (received via sms)
+     * @param communicationProfile: the meter's communication profile
+     * @param pdr: the meter's pdr number
+     * @param data: sent by the meter via sms
+     * @throws CTRException
+     */
     private void parseAndStoreDECFTableData(CommunicationProfile communicationProfile, String pdr, TableDECFQueryResponseStructure data) throws CTRException {
         if (!data.getPdr().getValue(0).getValue().equals(pdr)) {
             String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
@@ -234,6 +288,9 @@ public class SmsHandler implements MessageHandler {
         }
     }
 
+    /**
+     * Store the parsed data to EiServer, via a store object.
+     */
     private void storeDataToEIServer() {
         try {
             storeObject.doExecute();
@@ -248,6 +305,13 @@ public class SmsHandler implements MessageHandler {
         }
     }
 
+    /**
+     * parse and store the trace_c data (received via sms)
+     * @param communicationProfile: the meter's communication profile
+     * @param pdr: the meter's pdr number
+     * @param data: sent by the meter via sms
+     * @throws CTRException
+     */
     private void parseAndStoreTrace_C(String pdr, Trace_CQueryResponseStructure data, CommunicationProfile communicationProfile) throws CTRException {
         if (!data.getPdr().getValue(0).getValue().equals(pdr)) {
             String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
@@ -283,6 +347,13 @@ public class SmsHandler implements MessageHandler {
 
     }
 
+    /**
+     * parse and store the event data (received via sms)
+     * @param communicationProfile: the meter's communication profile
+     * @param pdr: the meter's pdr number
+     * @param data: sent by the meter via sms
+     * @throws CTRException
+     */
     private void parseAndStoreEventArray(CommunicationProfile communicationProfile, String pdr, ArrayEventsQueryResponseStructure data) throws CTRException {
         if (!data.getPdr().getValue(0).getValue().equals(pdr)) {
             String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
@@ -316,7 +387,13 @@ public class SmsHandler implements MessageHandler {
         return getRtu().getDeviceTimeZone();
     }
 
-
+    /**
+     * Read the register data from a received DEC(F) table
+     * @param cp: the meter's communication profile
+     * @param response: the table containing register data
+     * @return: register values
+     * @throws CTRException
+     */
     private Map<RtuRegister, RegisterValue> doReadRegisters(CommunicationProfile cp, AbstractTableQueryResponseStructure response) throws CTRException {
 
         HashMap<RtuRegister, RegisterValue> regValueMap = new HashMap<RtuRegister, RegisterValue>();
@@ -376,6 +453,14 @@ public class SmsHandler implements MessageHandler {
         return "1.0";
     }
 
+    /**
+     * Find the RTU by telephone number
+     * Check the RTU properties
+     * Start processing the sms for the RTU
+     *
+     * @throws BusinessException
+     * @throws SQLException
+     */
     protected void doExecute() throws BusinessException, SQLException {
         try {
             rtu = CommonUtils.findDeviceByPhoneNumber(sms.getFrom());
@@ -412,7 +497,12 @@ public class SmsHandler implements MessageHandler {
         }
     }
 
-    //Replace +XY by 0, e.g. +32 = 0, +39 = 0
+    /**
+     * Replace +XY by 0, e.g. +32 = 0, +39 = 0
+     * @param from: a given telephone number
+     * @return the modified telephone number
+     * @throws IOException
+     */
     private String checkFormat(String from) throws IOException {
 
         if ("".equals(sms.getFrom())){

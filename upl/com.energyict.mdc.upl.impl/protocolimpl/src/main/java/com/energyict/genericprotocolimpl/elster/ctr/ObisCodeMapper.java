@@ -49,6 +49,9 @@ public class ObisCodeMapper {
         initRegisterMapping();
     }
 
+    /**
+     * Maps the obiscodes to a CTR Object's ID
+     */
     private void initRegisterMapping() {
 
         registerMapping.add(new CTRRegisterMapping("7.0.13.26.0.0", "2.1.6"));      //Tot_Vb_pf   (end of previous billing period)
@@ -109,8 +112,8 @@ public class ObisCodeMapper {
     /**
      * Read the register from the device with a given obisCode.
      *
-     * @param obisCode
-     * @return
+     * @param obisCode: the given obiscode
+     * @return: the register value
      * @throws NoSuchRegisterException
      * @throws CTRException
      */
@@ -122,9 +125,9 @@ public class ObisCodeMapper {
      * Read the register from the device with a given obisCode.
      * Use the list of objects received from sms if smsObjects != null
      *
-     * @param obisCode
-     * @param smsObjects
-     * @return
+     * @param obisCode: the given obiscode
+     * @param smsObjects: the list of objects received from an SMS
+     * @return: the register value
      * @throws NoSuchRegisterException
      * @throws CTRException
      */
@@ -177,10 +180,10 @@ public class ObisCodeMapper {
     /**
      * Create a registerValue from the given value
      *
-     * @param oc
-     * @param regMap
-     * @param object
-     * @return
+     * @param oc: a given obsicode
+     * @param regMap: the map linking obiscodes to CTR Object ID's
+     * @param object: the CTR Object
+     * @return the register value
      */
     private RegisterValue getRegisterValue(ObisCode oc, CTRRegisterMapping regMap, AbstractCTRObject object) {
         CTRAbstractValue value = object.getValue()[regMap.getValueIndex()];
@@ -216,10 +219,10 @@ public class ObisCodeMapper {
      * Read a register value with no specific structure or value. Only checks if the value is numeric or not.
      * If not, the object is stored as text in te registerValue;
      *
-     * @param obisCode
-     * @param object
-     * @param value
-     * @return
+     * @param obisCode: a given obsicode
+     * @param object: the CTR Object
+     * @param value: the raw register value
+     * @return the register value object
      */
     private RegisterValue readGenericRegisterValue(ObisCode obisCode, AbstractCTRObject object, CTRAbstractValue value) {
         Object objectValue = value.getValue();
@@ -235,8 +238,8 @@ public class ObisCodeMapper {
     /**
      * Try to get the matching registerMapping for a given obisCode
      *
-     * @param obis
-     * @return
+     * @param obis: the given obiscode
+     * @return a matching Object ID
      */
     public CTRRegisterMapping searchRegisterMapping(ObisCode obis) {
         for (CTRRegisterMapping ctrRegisterMapping : registerMapping) {
@@ -251,9 +254,9 @@ public class ObisCodeMapper {
      * Try to get the requested object from different sources
      * (DEC, DECF, SMS object list or registerQuery).
      *
-     * @param idObject
-     * @param list
-     * @return
+     * @param idObject: the CTR Object's ID
+     * @param list: a list of objects, received via SMS. Can be null in other cases.
+     * @return: The CTR Object
      * @throws CTRException
      * @throws NoSuchRegisterException
      */
@@ -282,8 +285,8 @@ public class ObisCodeMapper {
     /**
      * Read the requested object from the device using a registerQuery request
      *
-     * @param idObject
-     * @return
+     * @param idObject: the CTR Object's ID that needs to be requested
+     * @return the meter's response being the requested CTR Object
      * @throws CTRException
      * @throws NoSuchRegisterException
      */
@@ -308,8 +311,8 @@ public class ObisCodeMapper {
     /**
      * Check if the requested object is in the Identification table, and read it if it is
      *
-     * @param objectId
-     * @return
+     * @param objectId: the id of the requested CTR Object
+     * @return the matching CTR Object, if it is in the Identification table.
      * @throws CTRException
      */
     private AbstractCTRObject getObjectFromIdentificationTable(CTRObjectID objectId) throws CTRException {
@@ -326,8 +329,8 @@ public class ObisCodeMapper {
     /**
      * Check if the requested object is in the DECF table, and read it if it is
      *
-     * @param objectId
-     * @return
+     * @param objectId: the id of the requested CTR Object
+     * @return the matching CTR Object, if it is in the decf table
      * @throws CTRException
      */
     private AbstractCTRObject getObjectFromDECFTable(CTRObjectID objectId) throws CTRException {
@@ -344,8 +347,8 @@ public class ObisCodeMapper {
     /**
      * Check if the requested object is in the DEC table, and read it if it is
      *
-     * @param objectId
-     * @return
+     * @param objectId: the id of the requested CTR Object
+     * @return the matching CTR Object, if it is in the dec table
      * @throws CTRException
      */
     private AbstractCTRObject getObjectFromDECTable(CTRObjectID objectId) throws CTRException {
@@ -362,9 +365,9 @@ public class ObisCodeMapper {
     /**
      * Get the object from a given list of objects, received using SMS
      *
-     * @param idObject
-     * @param list
-     * @return
+     * @param idObject: the id of the requested CTR Object
+     * @param list: the list of objects, received via SMS
+     * @return: the requested CTR Object
      */
     private AbstractCTRObject getObjectFromSMSList(CTRObjectID idObject, List<AbstractCTRObject> list) {
         for (AbstractCTRObject ctrObject : list) {
@@ -378,7 +381,7 @@ public class ObisCodeMapper {
     /**
      * Lazy getter for the logger
      *
-     * @return
+     * @return: the logger
      */
     public Logger getLogger() {
         if (logger == null) {
@@ -391,7 +394,7 @@ public class ObisCodeMapper {
      * Get the IdentificationResponseStructure from the request factory.
      * This object is cached in the request factory
      *
-     * @return
+     * @return the IdentificationResponseStructure from the request factory
      */
     private IdentificationResponseStructure getIdentificationTable() {
         return getRequestFactory().getIdentificationStructure();
@@ -400,8 +403,8 @@ public class ObisCodeMapper {
     /**
      * Return the cached DECF table, or read it from the device
      *
-     * @return
-     * @throws CTRException
+     * @return the meter's decf table
+     * @throws CTRException, when the meter's response was unexpected
      */
     public TableDECFQueryResponseStructure getTableDECF() throws CTRException {
         if (tableDECF == null) {
@@ -413,8 +416,8 @@ public class ObisCodeMapper {
     /**
      * Return the cached DEC table, or read it from the device
      *
-     * @return
-     * @throws CTRException
+     * @return the meter's dec table
+     * @throws CTRException, when the meter's response was unexpected
      */
     public TableDECQueryResponseStructure getTableDEC() throws CTRException {
         if (tableDEC == null) {
@@ -424,18 +427,18 @@ public class ObisCodeMapper {
     }
 
     /**
-     * Getter for the register factory
+     * Getter for the request factory
      *
-     * @return
+     * @return the request factory
      */
     private GprsRequestFactory getRequestFactory() {
         return requestFactory;
     }
 
     /**
-     * @param obisCodeToCheck
-     * @param constantObisCode
-     * @return
+     * @param obisCodeToCheck: the obiscode that needs to be checked
+     * @param constantObisCode: a second obiscode to compare the first obiscode to
+     * @return boolean
      */
     private boolean isObis(ObisCode obisCodeToCheck, String constantObisCode) {
         return ObisCode.fromString(constantObisCode).equals(obisCodeToCheck);
