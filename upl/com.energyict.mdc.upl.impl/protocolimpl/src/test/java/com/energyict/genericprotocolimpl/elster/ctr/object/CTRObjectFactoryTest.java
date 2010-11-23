@@ -13,7 +13,12 @@ import static org.junit.Assert.assertArrayEquals;
  */
 public class CTRObjectFactoryTest {
 
-    @Test               //Tests parsing of common objects
+    /**
+     * Tests parsing of common objects
+     * Tests converting the result to byte arrays again
+     * @throws Exception
+     */
+    @Test
     public void testParse() throws Exception {
 
         CTRObjectFactory factory = new CTRObjectFactory();

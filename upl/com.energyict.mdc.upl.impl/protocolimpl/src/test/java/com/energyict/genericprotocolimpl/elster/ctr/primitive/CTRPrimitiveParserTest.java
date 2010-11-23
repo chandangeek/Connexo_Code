@@ -14,6 +14,7 @@ import java.util.List;
 import static org.junit.Assert.assertArrayEquals;
 
 /**
+ * Tests parsing of all common objects (and converting them back to byte arrays)
  * Copyrights EnergyICT
  * Date: 16-nov-2010
  * Time: 17:04:20

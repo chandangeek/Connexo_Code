@@ -12,14 +12,14 @@ import com.energyict.genericprotocolimpl.elster.ctr.primitive.CTRPrimitiveParser
  */
 public abstract class AbstractUnsignedBINObject<T extends AbstractUnsignedBINObject> extends AbstractCTRObject<T> {
 
-
     /**
      * Parses a given byte array, creates a CTR Object (with value of type UnsingedBIN)
      * @param rawData: the given byte array
      * @param ptr: the start position in the byte array
      * @param type: the AttributeType object, indicating the relevant fields of the CTR Object
      * @return the CTR Object
-     */    public T parse(byte[] rawData, int ptr, AttributeType type) {
+     */
+    public T parse(byte[] rawData, int ptr, AttributeType type) {
         setType(type);
         CTRPrimitiveParser parser = new CTRPrimitiveParser();   //Not static
 
