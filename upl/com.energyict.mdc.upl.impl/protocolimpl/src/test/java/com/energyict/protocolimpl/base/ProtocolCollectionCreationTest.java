@@ -22,7 +22,6 @@ import static org.junit.Assert.fail;
  */
 public class ProtocolCollectionCreationTest {
 
-    @Ignore
     @Test
     public void createCollection(){
         try{
@@ -72,7 +71,7 @@ public class ProtocolCollectionCreationTest {
             sheet.autoSizeColumn(1);
             sheet.autoSizeColumn(2);
             sheet.autoSizeColumn(3);
-            FileOutputStream fileOut = new FileOutputStream("MeterProtocols.xls");
+            FileOutputStream fileOut = new FileOutputStream("c:\\MeterProtocols.xls");
             wb.write(fileOut);
             fileOut.close();
 

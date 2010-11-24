@@ -28,10 +28,13 @@ public class EMeter {
 	private static final ObisCode ENERGY_PROFILE_OBISCODE = ObisCode.fromString("1.1.99.1.0.255");
 
 	private final AS220 as220;
+    /** The used {@link com.energyict.protocolimpl.base.ClockController} */
 	private final ClockController clockController;
+    /** The used {@link com.energyict.protocolimpl.base.ContactorController} */
 	private final ContactorController contactorController;
+    /** The used {@link com.energyict.protocolimpl.base.ActivityCalendarController} */
     private final ActivityCalendarController activityCalendarController;
-
+    /** The used {@link com.energyict.protocolimpl.base.LoadLimitController} */
     private final LoadLimitController loadLimitController;
 
 	/**
@@ -46,14 +49,16 @@ public class EMeter {
 	}
 
 	/**
-	 * @return
+     * Getter for the {@link com.energyict.protocolimpl.dlms.as220.emeter.AS220ClockController}
+	 * @return the {@link #clockController}
 	 */
 	public ClockController getClockController() {
 		return clockController;
 	}
 
 	/**
-	 * @return
+     * Getter for the {@link com.energyict.protocolimpl.dlms.as220.emeter.AS220ClockController}
+	 * @return the {@link #contactorController}
 	 */
 	public ContactorController getContactorController() {
 		return contactorController;

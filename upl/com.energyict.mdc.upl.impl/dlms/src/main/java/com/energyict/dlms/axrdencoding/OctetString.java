@@ -107,6 +107,21 @@ public class OctetString extends AbstractDataType {
 		return new OctetString(string.getBytes(), size, (fixed ? 1 : 0));
 	}
 
+    /**
+     * Create an OctetString with the content of an IP-address
+     *
+     * @param ipAddress the IP-address to parse
+     * @return a new OctetString with 6 fields
+     */
+    public static OctetString fromIpAddressString(String ipAddress) {
+        String[] ipFields = ipAddress.split("\\.");
+        byte[] ipBytes = new byte[ipFields.length];
+        for (int i = 0; i < ipBytes.length; i++) {
+            ipBytes[i] = (byte) Integer.parseInt(ipFields[i]);
+        }
+        return new OctetString(ipBytes);
+    }
+
 	private OctetString(byte[] octetStr, int size, int dummy) {
 		this.setOctetStr(octetStr);
 		this.size = size;

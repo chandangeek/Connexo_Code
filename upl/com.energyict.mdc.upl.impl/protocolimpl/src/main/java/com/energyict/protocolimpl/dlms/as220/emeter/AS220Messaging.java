@@ -27,8 +27,8 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
     public static final String DUMMY_MESSAGE = "DummyMessage";
 
     public static final String ACTIVITY_CALENDAR = "TimeOfUse";
-    public static final String ACTIVATION_DATE = "activationDate";
-    public static final String CALENDAR_NAME = "name";
+    public static final String ACTIVATION_DATE = "ActivationDate";
+    public static final String CALENDAR_NAME = "CalendarName";
     public static final String ACTIVATE_ACTIVITY_CALENDAR = "ActivatePassiveCalendar";
     public static final String ACTIVITY_CALENDAR_ACTIVATION_TIME = "ActivationTime";
 
@@ -81,10 +81,9 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
         eMeterCat.addMessageSpec(createMessageSpec(CONNECT_EMETER_DISPLAY, CONNECT_EMETER, false));
         eMeterCat.addMessageSpec(createMessageSpec(DUMMY_MESSAGE_DISPLAY, DUMMY_MESSAGE, false));
 
-        //TODO set it back, just for this release you don't need it!
-//        eMeterCat.addMessageSpec(createValueMessage(ACTIVATE_CALENDAR_DISPLAY, ACTIVATE_ACTIVITY_CALENDAR, false, ACTIVITY_CALENDAR_ACTIVATION_TIME));
-//        eMeterCat.addMessageSpec(createValueMessage(LOAD_LIMIT_THRESHOLD_DISPLAY, SET_LOADLIMIT_THRESHOLD, false, LOADLIMIT_THRESHOLD));
-//        eMeterCat.addMessageSpec(createValueMessage(LOAD_LIMIT_DURATION_DISPLAY, SET_LOADLIMIT_DURATION, false, LOADLIMIT_DURATION));
+        eMeterCat.addMessageSpec(createValueMessage(ACTIVATE_CALENDAR_DISPLAY, ACTIVATE_ACTIVITY_CALENDAR, false, ACTIVITY_CALENDAR_ACTIVATION_TIME));
+        eMeterCat.addMessageSpec(createValueMessage(LOAD_LIMIT_THRESHOLD_DISPLAY, SET_LOADLIMIT_THRESHOLD, false, LOADLIMIT_THRESHOLD));
+        eMeterCat.addMessageSpec(createValueMessage(LOAD_LIMIT_DURATION_DISPLAY, SET_LOADLIMIT_DURATION, false, LOADLIMIT_DURATION));
 
         otherMeterCat.addMessageSpec(createMessageSpec(FORCE_SET_CLOCK_DISPLAY, FORCE_SET_CLOCK, false));
 
@@ -128,7 +127,17 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
                 getAs220().geteMeter().getLoadLimitController().writeThresholdOverDuration(Integer.valueOf(MessagingTools.getContentOfAttribute(messageEntry, LOADLIMIT_DURATION)));
             } else if (isMessageTag(SET_LOADLIMIT_THRESHOLD, messageEntry)){
                 getAs220().getLogger().info("Set LoadLimit threshold received");
-                getAs220().geteMeter().getLoadLimitController().writeThresholdValue(Long.valueOf(MessagingTools.getContentOfAttribute(messageEntry, LOADLIMIT_THRESHOLD)));
+                long threshold = 0;
+                try {
+                    threshold = Long.valueOf(MessagingTools.getContentOfAttribute(messageEntry, LOADLIMIT_THRESHOLD));
+                    if(threshold > 0xFFFFFF){
+                        threshold = 0xFFFFFF;
+                    }
+                } catch (NumberFormatException e) {
+                    throw new IOException(MessagingTools.getContentOfAttribute(messageEntry, LOADLIMIT_THRESHOLD) + " is not a valid Threshold value.");
+                }
+
+                getAs220().geteMeter().getLoadLimitController().writeThresholdValue(threshold);
             } else {
                 throw new IOException("Received unknown message: " + messageEntry);
             }

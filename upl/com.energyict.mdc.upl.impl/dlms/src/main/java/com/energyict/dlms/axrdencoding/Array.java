@@ -36,6 +36,18 @@ public class Array extends AbstractDataType {
 		dataTypes = new ArrayList<AbstractDataType>();
 	}
 
+    /**
+     * Constructor with an initial number of dataTypes. The same amount of dataTypes are added as null objects to the List
+     *
+     * @param nrOfDataTypes the number of datatypes
+     */
+    public Array(int nrOfDataTypes) {
+        dataTypes = new ArrayList<AbstractDataType>(nrOfDataTypes);
+        for(int i = 0; i < nrOfDataTypes; i++){
+            dataTypes.add(null);
+        }
+    }
+
 	public Array(byte[] berEncodedData, int offset, int level) throws IOException {
 		offsetBegin = offset;
 		if (berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_ARRAY) {
@@ -91,10 +103,26 @@ public class Array extends AbstractDataType {
 		return null;
 	}
 
+    /**
+     * Add the given dataType at the end of the current dataTypes-List
+     *
+     * @param dataType the dataType to add
+     * @return this array
+     */
 	public Array addDataType(AbstractDataType dataType) {
 		dataTypes.add(dataType);
 		return this;
 	}
+
+    /**
+     * Sets the given {@link com.energyict.dlms.axrdencoding.AbstractDataType} to the given index in the dataType list
+     *
+     * @param index    the index of the list to update the datatype
+     * @param dataType the dataType to add
+     */
+    public void setDataType(int index, AbstractDataType dataType) {
+        dataTypes.set(index, dataType);
+    }
 
 	public AbstractDataType getDataType(int index) {
 		return dataTypes.get(index);

@@ -1,18 +1,19 @@
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.protocolimpl.dlms.as220.parsing.CodeTableToXml;
+import com.energyict.protocolimpl.utils.Utilities;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.fail;
+import static org.junit.Assert.assertArrayEquals;
 
 /**
  * Created by IntelliJ IDEA.
@@ -23,22 +24,25 @@ import static junit.framework.Assert.fail;
  */
 public class AS220ActivityCalendarControllerTest {
 
+    static final Log logger = LogFactory.getLog(AS220ActivityCalendarControllerTest.class);
+
     @Test
     public void testParseContent() throws Exception {
-        String content = "<TimeOfUse name=\"ActGna1\" activationDate=\"0\"><?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-                "<CodeTableActCalendar><SeasonProfiles><SeasonProfile><SeasonProfileName>090131</SeasonProfileName>" +
-                "<SeasonStart>090cffffff01ff00000000800000</SeasonStart><SeasonWeekName>090130</SeasonWeekName></SeasonProfile></SeasonProfiles><WeekProfiles><WeekProfile><WeekProfileName>090130</WeekProfileName><wkMonday>1101</wkMonday><wkTuesday>1101</wkTuesday><wkWednesday>1101</wkWednesday><wkThursday>1101</wkThursday><wkFriday>1101</wkFriday><wkSaturday>1102</wkSaturday><wkSunday>1102</wkSunday></WeekProfile></WeekProfiles><DayProfiles><DayProfile><DayProfileId>1101</DayProfileId><DayProfileSchedules><DayProfileSchedule><DayScheduleStartTime>090400000000</DayScheduleStartTime><DayScheduleScriptLN>0910302e302e31302e302e3130302e323535</DayScheduleScriptLN><DayScheduleScriptSL>120000</DayScheduleScriptSL></DayProfileSchedule><DayProfileSchedule><DayScheduleStartTime>090406000000</DayScheduleStartTime><DayScheduleScriptLN>0910302e302e31302e302e3130302e323535</DayScheduleScriptLN><DayScheduleScriptSL>120001</DayScheduleScriptSL></DayProfileSchedule><DayProfileSchedule><DayScheduleStartTime>090415000000</DayScheduleStartTime><DayScheduleScriptLN>0910302e302e31302e302e3130302e323535</DayScheduleScriptLN><DayScheduleScriptSL>120000</DayScheduleScriptSL></DayProfileSchedule></DayProfileSchedules></DayProfile><DayProfile><DayProfileId>1102</DayProfileId><DayProfileSchedules><DayProfileSchedule><DayScheduleStartTime>090400000000</DayScheduleStartTime><DayScheduleScriptLN>0910302e302e31302e302e3130302e323535</DayScheduleScriptLN><DayScheduleScriptSL>120000</DayScheduleScriptSL></DayProfileSchedule></DayProfileSchedules></DayProfile><DayProfile><DayProfileId>1103</DayProfileId><DayProfileSchedules><DayProfileSchedule><DayScheduleStartTime>090400000000</DayScheduleStartTime><DayScheduleScriptLN>0910302e302e31302e302e3130302e323535</DayScheduleScriptLN><DayScheduleScriptSL>120002</DayScheduleScriptSL></DayProfileSchedule></DayProfileSchedules></DayProfile></DayProfiles></CodeTableActCalendar>" +
-                "<CodeTableSpecialDay><SpecialDayProfiles>" +
-                "<SpecialDayProfile><SpecialDayEntryIndex>123af0</SpecialDayEntryIndex><SpecialDayEntryDate>090507db041807</SpecialDayEntryDate>" +
-                "<SpecialDayEntryDayId>1103</SpecialDayEntryDayId></SpecialDayProfile><SpecialDayProfile><SpecialDayEntryIndex>120166</SpecialDayEntryIndex>" +
-                "<SpecialDayEntryDate>0905ffff0c19ff</SpecialDayEntryDate><SpecialDayEntryDayId>1103</SpecialDayEntryDayId></SpecialDayProfile>" +
-                "<SpecialDayProfile><SpecialDayEntryIndex>12013a</SpecialDayEntryIndex><SpecialDayEntryDate>0905ffff0b0bff</SpecialDayEntryDate>" +
-                "<SpecialDayEntryDayId>1103</SpecialDayEntryDayId></SpecialDayProfile></SpecialDayProfiles></CodeTableSpecialDay>" +
-                "</TimeOfUse>";
+
+        String seasonArray = "01010203090100090cffff0101ffffffffffffffff090100";
+        String weekArray = "010102080901001101110111011101110111021102";
+        String dayArray = "01030202110201010203090400000000090600000a0064ff1200000202110101030203090400000000090600000a0064ff1200000203090406000000090600000a0064ff1200010203090415000000090600000a0064ff1200000202110001010203090400000000090600000a0064ff120001";
+        String specialDayArray = "010302031200000905ffff0b0bff110002031200010905ffff0c19ff11000203120002090507db0418ff1100";
+
+        String msgXml = new String(Utilities.readResource("com/energyict/protocolimpl/dlms/as220/parsing/ActivityCalendar.xml"));
 
         AS220ActivityCalendarController aacc = new AS220ActivityCalendarController(null);
-        aacc.parseContent(content);
-        Array seasonArray = aacc.getSeasonArray();
+        aacc.parseContent(msgXml);
+
+        assertArrayEquals(DLMSUtils.hexStringToByteArray(seasonArray), aacc.getSeasonArray().getBEREncodedByteArray());
+        assertArrayEquals(DLMSUtils.hexStringToByteArray(weekArray), aacc.getWeekArray().getBEREncodedByteArray());
+        assertArrayEquals(DLMSUtils.hexStringToByteArray(dayArray), aacc.getDayArray().getBEREncodedByteArray());
+        assertArrayEquals(DLMSUtils.hexStringToByteArray(specialDayArray), aacc.getSpecialDayArray().getBEREncodedByteArray());
     }
 
     @Test
@@ -71,4 +75,29 @@ public class AS220ActivityCalendarControllerTest {
         AS220ActivityCalendarController aacc = new AS220ActivityCalendarController(null);
         assertEquals(content, aacc.getImplicitContentValue(xmlContent, "test"));
     }
+
+    @Test
+    public void createSeasonNameTest(){
+        AS220ActivityCalendarController aacc = new AS220ActivityCalendarController(null);
+        try {
+            assertArrayEquals(new byte[]{0x09, 0x01, 0x00},aacc.createSeasonName("0").getBEREncodedByteArray());
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+            fail();
+        }
+
+        try {
+            aacc.createSeasonName("11").getBEREncodedByteArray();
+        } catch (IOException e) {
+            assertEquals("ActivityCalendar did not contain a valid SEASONName.", e.getMessage());
+        }
+    }
+
+    @Test
+    public final void constructEightByteCalendarNameTest(){
+        byte[] expected = new byte[]{0x43, 0x61, 0x6c, 0x20, 0x20, 0x20, 0x20, 0x20};
+        AS220ActivityCalendarController aacc = new AS220ActivityCalendarController(null);
+        assertArrayEquals(expected, aacc.constructEightByteCalendarName("Cal"));
+    }
+
 }

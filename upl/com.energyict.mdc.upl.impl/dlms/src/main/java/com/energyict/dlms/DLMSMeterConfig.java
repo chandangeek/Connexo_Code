@@ -492,8 +492,7 @@ public class DLMSMeterConfig {
 	}
 
 	/**
-     * @param extra
-     *            the extra to set
+     * @param extra the extra to set
 	 */
 	protected void setExtra(String extra) {
 		this.extra = extra;
@@ -502,4 +501,8 @@ public class DLMSMeterConfig {
     public int getImageTransferSN() throws IOException {
        return config.getImageTransferSN(IOL);
     }
+
+    public int getSFSKPhyMacSetupSN() throws IOException {
+        return config.getSFSKPhyMacSetupSN(IOL);
+}
 }

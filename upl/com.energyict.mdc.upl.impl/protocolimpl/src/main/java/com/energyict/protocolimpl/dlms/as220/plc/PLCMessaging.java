@@ -1,8 +1,10 @@
 package com.energyict.protocolimpl.dlms.as220.plc;
 
 import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.attributeobjects.*;
 import com.energyict.dlms.cosem.attributes.*;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.messaging.*;
@@ -17,7 +19,6 @@ import java.util.List;
 
 /**
  * @author jme
- *
  */
 public class PLCMessaging extends AbstractSubMessageProtocol {
 
@@ -43,6 +44,9 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 	private static final String		SET_SFSK_GAIN_DISPLAY				= "Set the S-FSK gain properties";
 	private static final String		SET_SFSK_REPEATER_DISPLAY			= "Set the S-FSK repeater property";
 	private static final String		SET_SFSK_MAX_FRAME_LENGTH_DISPLAY	= "Set the S-FSK maximum frame length property";
+
+    private static final ObisCode ACTIVE_PLC_CHANNEL_OBISCODE = ObisCode.fromString("0.128.26.32.0.255");
+    private static final ObisCode PLC_SCAN_TIMEOUT = ObisCode.fromString("0.129.26.32.0.255");
 
 	private static final String[][]	FREQUENCIES_NAME = new String[][] {
 		{"CHANNEL1_FS", "CHANNEL1_FM"},
@@ -397,6 +401,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 
 	/**
 	 * <b>Also used by the MeterTool </b>
+     *
 	 * @throws IOException
 	 */
 	public void rescanPLCBus() throws IOException {
@@ -406,6 +411,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 
 	/**
 	 * <b>Also used by the MeterTool </b>
+     *
 	 * @param channel
 	 * @throws IOException
 	 */
@@ -414,14 +420,27 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 			throw new IOException("Channel can only be 0-6, but was " + channel);
 		}
 
+        if (getAs220().getActiveFirmwareVersion().isHigherOrEqualsThen("2")) {
+
+            if (channel != -1) {
+                Data data = getAs220().getCosemObjectFactory().getData(ACTIVE_PLC_CHANNEL_OBISCODE);
+                data.setValueAttr(new Unsigned8(channel));
+                final long value = data.getValue();
+                readAfterWriteCheck((int) value, channel, "2");
+            } else {
+                getAs220().getLogger().info("Skipping write to " + 2 + ".");
+            }
+
+        } else { // use the old way
 		String attributeName = SFSKPhyMacSetupAttribute.ACTIVE_CHANNEL.name();
 		if (channel != -1) {
-			getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().setActiveChannel(new Unsigned8(channel));
+                getAs220().getCosemObjectFactory().getSFSKPhyMacSetupSN().setActiveChannel(new Unsigned8(channel));
 			final int value = getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().getActiveChannel().getValue();
 			readAfterWriteCheck(value, channel, attributeName);
 		} else {
 			getAs220().getLogger().info("Skipping write to " + attributeName + ".");
 		}
+        }
 
         resetNewNotSynchronized();
     }

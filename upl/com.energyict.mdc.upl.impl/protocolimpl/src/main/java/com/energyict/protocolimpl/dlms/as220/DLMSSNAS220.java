@@ -157,6 +157,14 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
         return dlmsConnection;
     }
 
+    public void setDlmsConnection(DLMSConnection connection){
+        this.dlmsConnection = connection;
+    }
+
+    public void setCosemObjectFactory(CosemObjectFactory cof){
+        this.cosemObjectFactory = cof;
+    }
+
     public int getProfileType() {
 		return profileType;
 	}

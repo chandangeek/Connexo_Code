@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.dlms.as220;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;

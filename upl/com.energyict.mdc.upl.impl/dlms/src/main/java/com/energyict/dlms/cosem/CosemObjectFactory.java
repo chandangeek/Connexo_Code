@@ -6,7 +6,10 @@
 
 package com.energyict.dlms.cosem;
 
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.requests.GetDataResult;
 import com.energyict.dlms.cosem.requests.RequestFactory;
 import com.energyict.obis.ObisCode;
@@ -230,6 +233,13 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 
 	public SFSKPhyMacSetup getSFSKPhyMacSetup(ObisCode obisCode) throws IOException {
 		return new SFSKPhyMacSetup(protocolLink, getObjectReference(obisCode));
+	}
+
+	/**
+	 * Getter for the ShortName ImageTransfer Object
+	 */
+	public SFSKPhyMacSetup getSFSKPhyMacSetupSN() throws IOException {
+	    return new SFSKPhyMacSetup(protocolLink, new ObjectReference(protocolLink.getMeterConfig().getSFSKPhyMacSetupSN()));
 	}
 
 	public SFSKMacCounters getSFSKMacCounters() throws IOException {

@@ -74,7 +74,7 @@ class Profile {
     }
 
     /* Get all the available profile data.  This means for position 0
-* to last LogPosition */
+     * to last LogPosition */
     ProfileData getProfileData(boolean includeEvents) throws IOException {
 
         IonHandle pHandle = getDataRecorderHandle();
@@ -100,7 +100,7 @@ class Profile {
     /* Get profile data since lastReading.  By calculating the number
      * of intervals that have passed since lastReading. */
     ProfileData getProfileData( Date lastReading, boolean includeEvents)
-            throws IOException {
+        throws IOException {
 
         if( lastReading == null || !lastReading.before( getMeterTime() ) )
             lastReading = getMeterTime();
@@ -129,7 +129,7 @@ class Profile {
 
     /* Get profile data between from and to.  */
     ProfileData getProfileData( Date from, Date to, boolean includeEvents)
-            throws IOException {
+        throws IOException {
 
         if( from == null || !from.before( getMeterTime() ) )
             from = getMeterTime();
@@ -166,7 +166,7 @@ class Profile {
      * and repeat until end received
      */
     private ProfileData getProfileData( IonHandle handle, int start, int end )
-            throws IOException {
+        throws IOException {
 
         List cInfo = null;
         if( ion.pChannelMap == null ) {
@@ -188,12 +188,12 @@ class Profile {
 
             Command cmd =
                 new Command( handle, IonMethod.READ_VALUE )
-                      .setArguments( new IonRange(start, end).toByteArray() );
+                    .setArguments( new IonRange(start, end).toByteArray() );
 
             ion.getApplicationLayer().read( cmd );
             if( cmd.getResponse() != null ) {
                 if( !cmd.getResponse().isException() ) {
-                                       start = addToProfile(pd, (IonList)cmd.getResponse() ) + 1;
+                    start = addToProfile(pd, (IonList)cmd.getResponse() ) + 1;
                     printDates( (IonList)cmd.getResponse());
                 } else {
                     debug( "ION EXCEPTION => skip interval" );
@@ -236,8 +236,8 @@ class Profile {
                 // Float indicates a valid entry
                 if( anObject.isFloat() ) {
                     Float v = (Float)((IonFloat)anObject).getValue();
-                      intervalData.addValue( v );
-              } else {
+                    intervalData.addValue( v );
+                } else {
                     // not a valid entry
                     // Exception values are ignored
                     intervalData.addValue( new BigDecimal( 0 ) );
@@ -271,7 +271,7 @@ class Profile {
 
         if( diff < 0 ) {
             String msg =
-                    "Attempting to retrieve intervals that have not occurec yet.";
+                "Attempting to retrieve intervals that have not occurec yet.";
             throw new IOException( msg );
         }
 
@@ -280,7 +280,7 @@ class Profile {
     }
 
     /*
-     * For debug purposes. 
+     * For debug purposes.
      */
     void printDates( IonList list ) {
         int i = 0;
@@ -319,14 +319,14 @@ class Profile {
 
         Date oldestRec = new Date( );   /* the oldest read record           */
         int begin = logPos - 15;        /* begin log position               */
-        int previousBegin = -1;         /* previously fetched first log pos 
+        int previousBegin = -1;         /* previously fetched first log pos
                                          * -1 does not exist as logpos      */
 
         boolean fetch = true;
         while( fetch ) {
 
             Command c =
-                    ion.toCmd(IonHandle.ELC_1_EVENT_LOG_ELR, IonMethod.READ_VALUE)
+                ion.toCmd(IonHandle.ELC_1_EVENT_LOG_ELR, IonMethod.READ_VALUE)
                     .setArguments( new IonRange( begin, logPos ).toByteArray() );
             ion.getApplicationLayer().read( c );
 
@@ -335,8 +335,8 @@ class Profile {
             /* the first record that is returned is actually the oldest */
             oldestRec = rec.firstRecordDate;
 
-            /* safety measure: when the same record is returned twice/ 
- * the beginning of the logs was reached, so stop fetching */
+            /* safety measure: when the same record is returned twice/
+             * the beginning of the logs was reached, so stop fetching */
             if( rec.start == previousBegin ) {
                 break;
             }
@@ -361,7 +361,7 @@ class Profile {
     }
 
     /*
-     * For debugging. 
+     * For debugging.
      */
     void printEvents( Map map ) {
         if( ion.logger.getLevel().intValue() >= Level.INFO.intValue() ) {
@@ -384,7 +384,7 @@ class Profile {
         for (Iterator i = al.iterator(); i.hasNext();) {
 
             IonObject ionO = (IonObject)i.next();
-             if( ionO.isInteger() ) {
+            if( ionO.isInteger() ) {
 
                 // read logPosition
                 iId = ((IonInteger)ionO).getIntValue();
@@ -394,7 +394,7 @@ class Profile {
                 boolean add = true;
                 add &= ( from!= null && iDate.after( from ) );
                 if (to == null)
-                    to = new Date();
+                	to = new Date();
                 add &= ( to!=null && iDate.before( to ) );
 
                 if( add ) {
@@ -463,8 +463,8 @@ class Profile {
         MeterEvent me = null;
         if( s.get( "effectHandle" ) != null ) {
             int eh = ((IonInteger)effectHandle).getIntValue();
-             me = new MeterEvent( iDate, toEiCode( effectValue ), eh, sb.toString() );
-       } else {
+            me = new MeterEvent( iDate, toEiCode( effectValue ), eh, sb.toString() );
+        } else {
             me = new MeterEvent( iDate, toEiCode( effectValue ), sb.toString() );
         }
 
@@ -559,10 +559,10 @@ class Profile {
     /* Retrieve the log position of an Event Log register. */
     private int getLogPosition( IonHandle logHandle ) throws IOException{
         return
-                ((IonInteger)
-                        ion.getApplicationLayer().read(
+            ((IonInteger)
+                ion.getApplicationLayer().read(
                 new Command( logHandle, IonMethod.READ_LOG_REGISTER_POSITION ) )
-                                .getResponse()).getIntValue();
+                .getResponse()).getIntValue();
     }
 
     private Date getMeterTime( ) throws IOException {
@@ -572,8 +572,8 @@ class Profile {
         return meterTime;
     }
 
-    /* Fetch all module handles from the feature manager. Read all the classes 
-* of the modules.  The module with class 537 is the Data Recorder. */
+    /* Fetch all module handles from the feature manager. Read all the classes
+     * of the modules.  The module with class 537 is the Data Recorder. */
     IonHandle getDataRecorderModule( ) throws IOException {
         if( dataRecorderModule == null ) {
 
@@ -614,11 +614,11 @@ class Profile {
         if( dataRecorderHandle == null ){
             Command cDataRec =
                 ion.toCmd( getDataRecorderModule(), IonMethod.READ_MODULE_SETUP_HANDLES );
-              ion.getApplicationLayer().read( cDataRec );
+            ion.getApplicationLayer().read( cDataRec );
 
-           List cmds =
+            List cmds =
                 ion.toCmd( ion.collectHandles(
-                           (IonList)cDataRec.getResponse() ), IonMethod.READ_ION_LABEL );
+                        (IonList)cDataRec.getResponse() ), IonMethod.READ_ION_LABEL );
 
             ion.getApplicationLayer().read( cmds );
             for (Iterator iter = cmds.iterator(); iter.hasNext();) {
@@ -630,8 +630,8 @@ class Profile {
 
             if( dataRecorderHandle == null ) {
                 String msg =
-                        "Data Recorder whith name: \"" + ion.pDataRecorderName +
-                                "\" could not be found";
+                    "Data Recorder whith name: \"" + ion.pDataRecorderName +
+                    "\" could not be found";
                 throw new IOException( msg );
             }
 

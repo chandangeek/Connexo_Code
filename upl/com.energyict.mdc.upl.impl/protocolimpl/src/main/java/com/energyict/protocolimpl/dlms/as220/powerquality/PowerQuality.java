@@ -1,13 +1,14 @@
 package com.energyict.protocolimpl.dlms.as220.powerquality;
 
-import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.*;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.as220.AS220;
-import com.energyict.protocolimpl.dlms.as220.emeter.LoadProfileCompactArray;
-import com.energyict.protocolimpl.dlms.as220.emeter.LoadProfileCompactArrayEntry;
 
 import java.io.IOException;
 import java.util.*;
@@ -21,18 +22,17 @@ import java.util.*;
  */
 public class PowerQuality {
 
-    private static final ObisCode POWER_QUALITY_PROFILE_OBISCODE = ObisCode.fromString("1.1.99.1.0.255");
+    private static final ObisCode POWER_QUALITY_PROFILE_OBISCODE = ObisCode.fromString("1.0.99.13.0.255");
 
-    //TODO we can not hardcode the ShortName address, Razvan has to fix it in the ObjectList
-    private static final int POWER_QUALITY_PROFILE_SN = 4600;
+
 
     private final AS220 as220;
+    private PowerQualityProfileBuilder pqpb;
 
-    /** Represents the number of channels of the profile */
-    private int nbOfChannels = -1;
 
     public PowerQuality(AS220 as220) {
         this.as220 = as220;
+        this.pqpb = new PowerQualityProfileBuilder(this);
     }
 
     public ProfileData getPowerQualities(Date from, Date to) throws IOException {
@@ -44,38 +44,17 @@ public class PowerQuality {
         toCal.setTime(to);
 
         ProfileData profileData = new ProfileData();
-        PowerQualityProfileBuilder pqpb = new PowerQualityProfileBuilder(this);
-        ScalerUnit[] scalerunit = pqpb.buildScalerUnits((byte) getNrOfChannels());
+        ScalerUnit[] scalerUnit = pqpb.buildScalerUnits();
 
-        List<ChannelInfo> channelInfos = pqpb.buildChannelInfos(scalerunit);
+        List<ChannelInfo> channelInfos = pqpb.buildChannelInfos(scalerUnit);
         profileData.setChannelInfos(channelInfos);
 
-        byte[] profile = pg.getBufferData(fromCal, toCal);
+        DataContainer dc = pg.getBuffer(fromCal, toCal);
 
-        LoadProfileCompactArray loadProfileCompactArray = new LoadProfileCompactArray();
-        loadProfileCompactArray.parse(profile);
-        List<LoadProfileCompactArrayEntry> loadProfileCompactArrayEntries = loadProfileCompactArray.getLoadProfileCompactArrayEntries();
-
-        List<IntervalData> intervalDatas = pqpb.buildIntervalData(scalerunit,loadProfileCompactArrayEntries);
-        profileData.setIntervalDatas(intervalDatas);
+        profileData.setIntervalDatas(pqpb.buildIntervalData(dc));
 
         profileData.sort();
         return profileData;
-    }
-
-    public int getNrOfChannels() throws IOException {
-        if(this.nbOfChannels == -1){
-            List<CapturedObject> co = getGenericPowerQualityProfile().getCaptureObjects();
-
-            nbOfChannels = 0;
-            for (CapturedObject capturedObject : co) {
-                if (capturedObject.getLogicalName().getObisCode().getD() == 7) {
-                    nbOfChannels++;
-                }
-            }
-
-        }
-        return nbOfChannels;
     }
 
     /**
@@ -88,6 +67,15 @@ public class PowerQuality {
     }
 
     public ProfileGeneric getGenericPowerQualityProfile() throws IOException {
-        return getAs220().getCosemObjectFactory().getProfileGeneric(POWER_QUALITY_PROFILE_SN);
+        return getAs220().getCosemObjectFactory().getProfileGeneric(POWER_QUALITY_PROFILE_OBISCODE);
+    }
+
+    /**
+     * Get the number of channels from the PowerQualityProfileBuilder
+     * @return the number of channels
+     * @throws IOException when an exception occurs during reading
+     */
+    public int getNrOfChannels() throws IOException {
+        return this.pqpb.getNrOfChannels();
     }
 }

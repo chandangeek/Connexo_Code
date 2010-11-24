@@ -11,9 +11,11 @@ import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.dlms.as220.*;
+import com.energyict.protocolimpl.dlms.as220.AS220;
+import com.energyict.protocolimpl.dlms.as220.EventNumber;
+import com.energyict.protocolimpl.dlms.as220.emeter.AS220ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
-import com.energyict.protocolimpl.dlms.as220.parsing.CodeTableToXml;
+import com.energyict.protocolimpl.dlms.as220.parsing.CodeTableXml;
 import com.energyict.protocolimpl.dlms.as220.plc.PLCMessaging;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import sun.misc.BASE64Encoder;
@@ -67,7 +69,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
 
     private static final String FIRMWARE_UPGRADE = "<FirmwareUpdate><IncludedFile>$CONTENT$</IncludedFile></FirmwareUpdate>";
 
-    private static final String ACTIVITY_CALENDAR = "<TimeOfUse name=$ACT_NAME$ activationDate=$ACT_DATE$>$CONTENT$</TimeOfUse>";
+    private static final String ACTIVITY_CALENDAR = "<TimeOfUse>$CONTENT$</TimeOfUse>";
     private static final String ACTIVATE_PASSIVE_CALENDAR = "<ActivatePassiveCalendar ActivationTime=\"$ACT_DATE$\"> </ActivatePassiveCalendar>";
 
     private static final String LOADLIMIT_DURATION_MSG = "<SetLoadLimitDuration LoadLimitDuration=\"$DURATION$\"> </SetLoadLimitDuration>";
@@ -116,7 +118,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         properties.setProperty("ServerLowerMacAddress", "1");
         properties.setProperty("ServerUpperMacAddress", "1");
 
-        properties.setProperty("ProfileType", "4");
+        properties.setProperty("ProfileType", "4"); // PowerQuality
 
         properties.setProperty("LimitMaxNrOfDays", "0");
 
@@ -144,6 +146,10 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         from.add(Calendar.MONTH, -1);
         ProfileData pd = getMeterProtocol().getProfileData(from.getTime(), incluideEvents);
         return pd;
+    }
+
+    public ProfileData readProfileFrom(Calendar from, boolean includeEvents) throws IOException {
+        return getMeterProtocol().getProfileData(from.getTime(), includeEvents);
     }
 
     public void readRegisters() {
@@ -477,7 +483,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     }
 
     private String getB64EncodedFirmareString() throws IOException {
-        File file = new File("C:\\energyict\\protocols\\meterprotocols\\AS220\\Firmware\\AM500_20101006_V2.02\\AM500_20101006_V2.02\\MeterEandis.v2.02_Serial_Release_ImageTransfer.bin");
+        File file = new File("C:\\energyict\\protocols\\meterprotocols\\AS220\\Firmware\\AM500_20101110_V2.03\\MeterEandis.v2.03_Serial_Release_ImageTransfer.bin");
         FileInputStream fis = null;
         byte[] content = new byte[(int) file.length()];
 
@@ -497,10 +503,8 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     }
     
     public void activityCalendarUpgrade(String xmlContent) throws IOException {
-
         MessageResult result = getMeterProtocol().queryMessage(new MessageEntry(xmlContent, "trackGna"));
         System.out.println("ActivityCalender upgrade " + (result.isSuccess() ? "SUCCESS" : "FAILED"));
-
     }
 
     public void readAllCalendarObjects(ActivityCalendar ac) throws IOException {
@@ -576,48 +580,56 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     @Override
     void doDebug() throws LinkException, IOException {
 
-        Limiter loadLimiter = getMeterProtocol().getCosemObjectFactory().getLimiter();
-        readLoadLimitParameters(loadLimiter);
-
-        writeLoadLimitDuration("5");
-
-        log("After writing 5 for the duration");
-        readLoadLimitParameters(loadLimiter);
-
-        writeLoadLimitThreshold("10");
-
-        log("After writing 10 for the threshold");
-        readLoadLimitParameters(loadLimiter);
+//        Limiter loadLimiter = getMeterProtocol().getCosemObjectFactory().getLimiter();
+//        readLoadLimitParameters(loadLimiter);
+//
+//        writeLoadLimitDuration("5");
+//
+//        log("After writing 5 for the duration");
+//        readLoadLimitParameters(loadLimiter);
+//
+//        writeLoadLimitThreshold("10");
+//
+//        log("After writing 10 for the threshold");
+//        readLoadLimitParameters(loadLimiter);
 
 //        log(getMeterProtocol().getNumberOfChannels());
-//
-//        readProfile(false);
+////
+//        Calendar from = Calendar.getInstance(DEFAULT_TIMEZONE);
+//        from.add(Calendar.DAY_OF_MONTH, -1);
+//        System.out.println(readProfileFrom(from, false));
 
 //        readRegisters();
 
 //        log("FirmwareVersion : " + getMeterProtocol().getFirmwareVersion());
 
         // Need an Environment to get the CodeTable
-//        DebugUtils.createEnvironment();
-//        MeteringWarehouse.createBatchContext(false);
-        
+        DebugUtils.createEnvironment();
+        MeteringWarehouse.createBatchContext(false);
+
 //        ActivityCalendar ac = getMeterProtocol().getCosemObjectFactory().getActivityCalendar(getMeterProtocol().getMeterConfig().getActivityCalendar().getObisCode());
 //        readAllCalendarObjects(ac);
+
+
+//        String epoch = ProtocolTools.getEpochTimeFromString("20-11-2010 20:00:00");
+//
+        try {
+            String codeTableXml = CodeTableXml.parseActivityCalendarAndSpecialDayTable(1, Long.valueOf(1));
+//            String codeTableXml = CodeTableXml.parseActivityCalendarAndSpecialDayTable(2, Long.valueOf(epoch));
+
+            activityCalendarUpgrade(codeTableXml);
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+//
+//
+//        readAllCalendarObjects(ac);
+
 
 //        writePassiveActivityCalendarTime("21-10-2010 16:00:00");
 
 //          firmwareUpgrade(getB64EncodedFirmareString().getBytes());
 
-
-//        String epoch = ProtocolTools.getEpochTimeFromString("11-10-2010 16:00:00");
-//
-//        try {
-//            String codeTableXml = CodeTableToXml.parseActivityCalendarAndSpecialDayTable(1, "ActGna1", Long.valueOf(1));
-//
-//            activityCalendarUpgrade(codeTableXml);
-//        } catch (ParserConfigurationException e) {
-//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-//        }
 
     }
 }

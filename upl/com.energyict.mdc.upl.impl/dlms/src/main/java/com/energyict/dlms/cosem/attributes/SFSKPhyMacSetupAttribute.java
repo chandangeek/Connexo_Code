@@ -24,6 +24,8 @@ public enum SFSKPhyMacSetupAttribute implements DLMSClassAttributes {
 	MIN_DELTA_CREDIT(12, 0x58),
 	INITIATOR_MAC_ADDRESS(13, 0x60),
 	SYNCHRONIZATION_LOCKED(14, 0x68),
+
+    // Attention, this a a Manufacturer specific value (Eandis)
 	ACTIVE_CHANNEL(16, 0x78);
 
 	private final int attributeNumber;

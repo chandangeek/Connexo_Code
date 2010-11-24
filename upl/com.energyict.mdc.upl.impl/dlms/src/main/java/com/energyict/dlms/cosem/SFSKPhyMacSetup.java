@@ -321,7 +321,7 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 		BooleanObject syncLocked = getSynchronizationLocked();
 		Unsigned8 activeCh = getActiveChannel();
 
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("SFSKPhyMacSetup").append(crlf);
 		sb.append(" > initiatorElectricalPhase = ").append(initElectricalPhase != null ? initElectricalPhase.getValue() : null).append(crlf);
 		sb.append(" > deltaElectricalPhase = ").append(deltaElectPhase != null ? deltaElectPhase.getValue() : null).append(crlf);

@@ -1,18 +1,22 @@
 package com.energyict.protocolimpl.dlms.as220.powerquality;
 
-import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.*;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
-import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.emeter.LoadProfileCompactArrayEntry;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
+ * TODO allot has to be done to parse this content, waiting for the new firmware so the ObisCode is correct
+ * <p/>
  * Created by IntelliJ IDEA.
  * User: gna
  * Date: 11-okt-2010
@@ -23,23 +27,43 @@ public class PowerQualityProfileBuilder {
 
     private final PowerQuality powerQuality;
 
+
+    /**
+     * Static ObisCode for the Status
+     */
+    private final static ObisCode OBISCODE_STATUS = ObisCode.fromString("0.0.96.10.1.255");
+
+    /**
+     * Represents the number of channels of the profile
+     */
+    private int nbOfChannels = -1;
+
+    /**
+     * Represents the interval of the PowerQualityLoadProfile
+     */
+    private int profileInterval = -1;
+
+    /**
+     * The used list of {@link com.energyict.dlms.cosem.CapturedObject}s
+     */
+    private List<CapturedObject> capturedObjects;
+
     public PowerQualityProfileBuilder(PowerQuality powerQuality) {
         this.powerQuality = powerQuality;
     }
 
-    public ScalerUnit[] buildScalerUnits(byte numberOfChannels) throws IOException {
-        ScalerUnit[] scalerUnits = new ScalerUnit[numberOfChannels];
+    public ScalerUnit[] buildScalerUnits() throws IOException {
+        ScalerUnit[] scalerUnits = new ScalerUnit[getNrOfChannels()];
 
-        List<CapturedObject> co = this.powerQuality.getGenericPowerQualityProfile().getCaptureObjects();
         int index = 0;
-        for (CapturedObject capturedObject : co) {
+        for (CapturedObject capturedObject : getCapturedObjects()) {
             ObisCode obis = capturedObject.getLogicalName().getObisCode();
             if (obis.getA() != 0) {
-                if (index <= numberOfChannels) {
+                if (index <= getNrOfChannels()) {
                     scalerUnits[index] = this.powerQuality.getAs220().getCosemObjectFactory().getCosemObject(obis).getScalerUnit();
                     index++;
                 } else {
-                    throw new IOException("There are more channels in the captured objects [ PowerQualityLoadProfile ] than needed [" + numberOfChannels + "].");
+                    throw new IOException("There are more channels in the captured objects [ PowerQualityLoadProfile ] than needed [" + getNrOfChannels() + "].");
                 }
             }
         }
@@ -56,7 +80,132 @@ public class PowerQualityProfileBuilder {
         return channelInfos;
     }
 
-    public List<IntervalData> buildIntervalData(ScalerUnit[] scalerunit, List<LoadProfileCompactArrayEntry> loadProfileCompactArrayEntries) {
-        return null;  //To change body of created methods use File | Settings | File Templates.
+    public List<IntervalData> buildIntervalData(DataContainer dc) throws IOException {
+        List<IntervalData> intervalList = new ArrayList<IntervalData>();
+        Calendar cal = null;
+        IntervalData currentInterval = null;
+        int profileStatus = 0;
+        if (dc.getRoot().getElements().length != 0) {
+
+            for (int i = 0; i < dc.getRoot().getElements().length; i++) {
+                if (dc.getRoot().getStructure(i).isOctetString(0)) {
+                    cal = new AXDRDateTime(new OctetString(dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex()).getArray())).getValue();
+                } else {
+                    if (cal != null) {
+                        cal.add(Calendar.SECOND, getProfileInterval());
+                    }
+                }
+                if (cal != null) {
+
+                    if (getProfileStatusChannelIndex() != -1) {
+                        profileStatus = dc.getRoot().getStructure(i).getInteger(getProfileStatusChannelIndex());
+                    } else {
+                        profileStatus = 0;
+                    }
+
+                    currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus);
+                    if (currentInterval != null) {
+//                        pd.addInterval(currentInterval);
+                        intervalList.add(currentInterval);
+                    }
+                }
+            }
+        } else {
+            this.powerQuality.getAs220().getLogger().info("No entries in PowerQualityLoadProfile");
+        }
+        return intervalList;
     }
+
+    protected IntervalData getIntervalData(DataStructure ds, Calendar cal, int status) throws IOException {
+
+        IntervalData id = new IntervalData(cal.getTime(), StatusCodeProfile.intervalStateBits(status));
+        try {
+            for (int i = 0; i < getCapturedObjects().size(); i++) {
+                if (!isProfileStatusObisCode(getCapturedObjects().get(i).getLogicalName().getObisCode()) &&
+                        !isClockObisCode(getCapturedObjects().get(i).getLogicalName().getObisCode())) {
+                    id.addValue(new Integer(ds.getInteger(i)));
+                }
+            }
+        } catch (IOException e) {
+            throw new IOException("Failed to parse the intervalData objects form the datacontainer.");
+        }
+
+        return id;
+    }
+
+    protected boolean isProfileStatusObisCode(final ObisCode oc) throws IOException {
+        return oc.equals(OBISCODE_STATUS);
+    }
+
+    protected boolean isClockObisCode(final ObisCode oc) throws IOException {
+        return oc.equals(this.powerQuality.getAs220().getMeterConfig().getClockObject().getObisCode());
+    }
+
+    protected int getProfileClockChannelIndex() throws IOException {
+        try {
+            for (int i = 0; i < getCapturedObjects().size(); i++) {
+                if (isClockObisCode(getCapturedObjects().get(i).getLogicalName().getObisCode())) {
+                    return i;
+                }
+            }
+        } catch (IOException e) {
+            throw new IOException("Could not retrieve the index of the profileData's clock attribute.");
+        }
+        return -1;
+    }
+
+    protected int getProfileStatusChannelIndex() throws IOException {
+        try {
+            for (int i = 0; i < getCapturedObjects().size(); i++) {
+                if (isProfileStatusObisCode(((CapturedObject) (getCapturedObjects().get(i))).getLogicalName().getObisCode())) {
+                    return i;
+                }
+            }
+        } catch (IOException e) {
+            throw new IOException("Could not retrieve the index of the profileData's status attribute.");
+        }
+        return -1;
+    }
+
+    /**
+     * Get the number of channels
+     *
+     * @return the number of channels
+     * @throws IOException when an error occurred during the reading of the captured objects, which are necessary for calculating the number
+     */
+    public int getNrOfChannels() throws IOException {
+        if (this.nbOfChannels == -1) {
+
+            nbOfChannels = 0;
+            for (CapturedObject capturedObject : getCapturedObjects()) {
+                if (capturedObject.getLogicalName().getObisCode().getD() == 7) {
+                    nbOfChannels++;
+                }
+            }
+
+        }
+        return nbOfChannels;
+    }
+
+    public int getProfileInterval() throws IOException {
+        if (this.profileInterval == -1) {
+            this.profileInterval = powerQuality.getGenericPowerQualityProfile().getCapturePeriod();
+        }
+        return this.profileInterval;
+
+    }
+
+    /**
+     * Laizy load the Captured Objects
+     *
+     * @return the list of captured Objects
+     * @throws IOException if the list could not be fetched from the device
+     */
+    private List<CapturedObject> getCapturedObjects() throws IOException {
+        if (this.capturedObjects == null) {
+            this.capturedObjects = powerQuality.getGenericPowerQualityProfile().getCaptureObjects();
+        }
+        return capturedObjects;
+    }
+
 }

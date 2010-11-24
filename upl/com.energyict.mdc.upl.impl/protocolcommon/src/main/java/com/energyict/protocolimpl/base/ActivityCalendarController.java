@@ -38,13 +38,16 @@ public interface ActivityCalendarController {
 
     /**
      * Write the SpecialDays table to the device
+     *
+     * @throws IOException if an error occurred during the writing of the specailDay table
      */
-    void writeSpecialDaysTable();
+    void writeSpecialDaysTable() throws IOException;
 
     /**
      * Write a time from which the new ActivityCalendar should be active
      *
      * @param activationDate the given time
+     * @throws IOException if an error occurred during the writing of the activationdate
      */
     void writeCalendarActivationTime(Calendar activationDate) throws IOException;
 

@@ -35,12 +35,24 @@ public class AS220LoadLimitController implements LoadLimitController {
 
     /**
      * Write the overThresholdDuration time. The seconds should <b>always</b> be a multiple of 5. If not then we will truncate to the nearest
-     * lower 5 second multiple.
+     * highest 5 second multiple.
      *
      * @param seconds the amount of seconds the threshold can be exceeded before disconnecting
      */
     public void writeThresholdOverDuration(int seconds) throws IOException {
-        getLimiter().writeMinOverThresholdDuration(new Unsigned32((seconds%5==0)?seconds:(seconds-(seconds%5))));
+        int secondsOfFive = 0;
+
+        if(seconds > 1270){
+            this.as220.getLogger().info("Threshold duration was > 1270s (" + seconds + "), duration will be limited to 1270s.");
+            seconds = 1270;
+    }
+
+        if(seconds%5 == 0){
+            secondsOfFive = seconds;
+        } else {
+            secondsOfFive = seconds-(seconds%5) + 5;
+        }
+        getLimiter().writeMinOverThresholdDuration(new Unsigned32(secondsOfFive));
     }
 
     /**
