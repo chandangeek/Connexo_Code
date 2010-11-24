@@ -1,4 +1,4 @@
-package com.energyict.protocolimpl.coronis.waveflow.core;
+package com.energyict.protocolimpl.coronis.core;
 
 import java.io.IOException;
 import java.util.*;
@@ -7,7 +7,7 @@ import com.energyict.protocol.ProtocolUtils;
 
 public class TimeDateRTCParser {
 
-	static Calendar parse(byte[] data, TimeZone timeZone) throws IOException {
+	static public Calendar parse(byte[] data, TimeZone timeZone) throws IOException {
 		Calendar calendar = Calendar.getInstance(timeZone);
 		int offset=0;
 		calendar.set(Calendar.DAY_OF_MONTH,ProtocolUtils.getInt(data, offset++, 1));
@@ -28,7 +28,7 @@ public class TimeDateRTCParser {
 		return calendar;
 	}
 	
-	static byte[] prepare(Calendar calendar) {
+	static public byte[] prepare(Calendar calendar) {
 		byte[] data = new byte[7];
 		
 		data[0] = (byte)calendar.get(Calendar.DAY_OF_MONTH);
@@ -42,21 +42,8 @@ public class TimeDateRTCParser {
 		return data;
 	}
 	
-	static int size() {
+	static public int size() {
 		return 7;
-	}
-	
-	static public void main(String[] args) {
-		//byte[] data = new byte[]{0x10,0x0B,0x10,0x02,0x13,0x00};
-		//byte[] data = new byte[]{0x21,0x14,0x02,0x10,0x0b,0x10};//0x10,0x0B,0x10,0x02,0x14,0x21};
-		byte[] data = new byte[]{0x10,0x0B,0x0A,0x02,0x0E,0x37};
-		try {
-			System.out.println(TimeDateRTCParser.parse(data,TimeZone.getDefault()).getTime());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
 	}
 	
 }

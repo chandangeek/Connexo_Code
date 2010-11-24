@@ -23,23 +23,11 @@ public class WaveFlowDLMSWMessages implements MessageProtocol {
 		try {
 			if (messageEntry.getContent().indexOf("<PairMeter")>=0) {
 				abstractDLMS.getLogger().info("************************* PairMeter *************************");
-				
-		    	try {
-		    		abstractDLMS.getEscapeCommandFactory().setAndVerifyWavecardAwakeningPeriod(1);
-		    		abstractDLMS.getEscapeCommandFactory().setAndVerifyWavecardRadiotimeout(20);
-		    		abstractDLMS.getEscapeCommandFactory().setAndVerifyWavecardWakeupLength(110);
-				
-					if (abstractDLMS.pairWithEMeter()) {
-						return MessageResult.createSuccess(messageEntry);
-					}
-					else {
-						return MessageResult.createFailed(messageEntry);
-					}
-		    	}
-				finally {
-					abstractDLMS.getEscapeCommandFactory().setAndVerifyWavecardRadiotimeout(2);
-					abstractDLMS.getEscapeCommandFactory().setAndVerifyWavecardWakeupLength(1100);
-					abstractDLMS.getEscapeCommandFactory().setAndVerifyWavecardAwakeningPeriod(10);
+				if (abstractDLMS.pairWithEMeter()) {
+					return MessageResult.createSuccess(messageEntry);
+				}
+				else {
+					return MessageResult.createFailed(messageEntry);
 				}
 			}
 			else {

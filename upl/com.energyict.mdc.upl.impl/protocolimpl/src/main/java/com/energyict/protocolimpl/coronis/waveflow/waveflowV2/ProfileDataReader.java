@@ -45,9 +45,6 @@ public class ProfileDataReader {
 		Date now = new Date();
 		int nrOfIntervals = (int)(((now.getTime() - lastReading.getTime())/1000) / waveFlowV2.getProfileInterval())+1;
 		
-		//??? 4 inputs
-		//??? sampling rate		
-		
 		// read all intervals for the period lastreading .. now
 		ExtendedDataloggingTable extendedDataloggingTable; 
 		
@@ -113,7 +110,6 @@ public class ProfileDataReader {
 			}
 		}
 		
-		
 		int applicationStatus = waveFlowV2.getParameterFactory().readApplicationStatus();
 		if ((applicationStatus & 0x01) == 0x01) {
 			meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Appl status: Low battery warning"));
@@ -136,6 +132,13 @@ public class ProfileDataReader {
 		if ((applicationStatus & 0x40) == 0x40) {
 			meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Appl status: Wirecut input D"));
 		}
+		if ((applicationStatus & 0x80) == 0x80) {
+			meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Appl status: Backflow detected"));
+		}
+		if (applicationStatus!=0) {
+			waveFlowV2.getParameterFactory().writeApplicationStatus(0);
+		}
+		
 		
 		return meterEvents;
 		

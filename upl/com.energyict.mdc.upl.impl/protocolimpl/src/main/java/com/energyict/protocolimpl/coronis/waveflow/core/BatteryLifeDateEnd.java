@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Calendar;
 
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 
 public class BatteryLifeDateEnd extends AbstractParameter {
 

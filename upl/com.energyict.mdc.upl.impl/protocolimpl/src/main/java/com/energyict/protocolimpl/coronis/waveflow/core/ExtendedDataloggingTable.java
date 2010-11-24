@@ -5,6 +5,7 @@ import java.util.*;
 
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 
 public class ExtendedDataloggingTable extends AbstractRadioCommand {
 

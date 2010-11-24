@@ -16,6 +16,23 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	
 	abstract byte[] getRequest();
 	
+	static Map<ObisCode,ObjectEntry> objectEntries = new HashMap();
+	
+	
+	public static Map<ObisCode,ObjectEntry> getObjectEntries() {
+		return objectEntries;
+	}
+	
+	public static ObjectEntry findObjectByObiscode(final ObisCode obisCode) throws NoSuchRegisterException {
+		ObjectEntry o = objectEntries.get(obisCode);
+		if (o==null) {
+			throw new NoSuchRegisterException("Register with obiscode ["+obisCode+"] not found.");
+		}
+		else {
+			return o;
+		}
+	}	
+	
 	SimpleDataParser simpleDataParser=null;
 
 	WaveFlowDLMSWMessages waveFlowDLMSWMessages = new WaveFlowDLMSWMessages(this);
@@ -51,7 +68,8 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 		// fill in the default password of "22222222" and device address  0x1057
 		byte[] pairingFrame = new byte[]{(byte)0x30,(byte)0x02,(byte)0x02,(byte)0x11,
 				                         (byte)0x02,(byte)0x10,(byte)0x57,(byte)0x00,(byte)0x00,
-				                         (byte)0x08,(byte)0x32,(byte)0x32,(byte)0x32,(byte)0x32,(byte)0x32,(byte)0x32,(byte)0x32,(byte)0x32,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00};
+				                         (byte)0x08,(byte)0x32,(byte)0x32,(byte)0x32,(byte)0x32,(byte)0x32,(byte)0x32,(byte)0x32,(byte)0x32,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,
+				                         (byte)0x00,(byte)0x01,(byte)0x01,(byte)0x01,(byte)0x60,(byte)0x01,(byte)0x00,(byte)0xFF,(byte)0x02};
 		
 		int OFFSET_PASSWORD_LENGTH=9;
 		int OFFSET_PASSWORD=10;
@@ -110,14 +128,18 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	
 	@Override
 	protected void doConnect() throws IOException {
-		// TODO Auto-generated method stub
-		
+		System.out.println("Tune the Wavecard for Waveflow AC");
+		escapeCommandFactory.setAndVerifyWavecardAwakeningPeriod(1);
+		escapeCommandFactory.setAndVerifyWavecardRadiotimeout(20);
+		escapeCommandFactory.setAndVerifyWavecardWakeupLength(110);    	
 	}
 
 	@Override
 	protected void doDisConnect() throws IOException {
-		// TODO Auto-generated method stub
-		
+		System.out.println("Restore Wavecard settings...");
+		escapeCommandFactory.setAndVerifyWavecardRadiotimeout(2);
+		escapeCommandFactory.setAndVerifyWavecardWakeupLength(1100);
+		escapeCommandFactory.setAndVerifyWavecardAwakeningPeriod(10);
 	}
 
 	@Override
@@ -178,13 +200,26 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return new RegisterInfo(obisCode.getDescription());
     }
+    
+    public RegisterValue readRegister(ObisCode obisCode) throws IOException {
+    	
+    	ObjectEntry o = findObjectByObiscode(obisCode);
+    	
+    	TransparentGet tg = new TransparentGet(this, new ObjectInfo(2, o.getClassId(),obisCode));
+    	
+    	tg.invoke();
+    	System.out.println(tg.getGenericHeader());
+    	System.out.println(tg.getDataType());
+    	return null;
+    }
+    
     /**
      * Override this method when requesting an obiscode mapped register from the meter.
      * @param obisCode obiscode rmapped register to request from the meter
      * @throws java.io.IOException thrown when somethiong goes wrong
      * @return RegisterValue object
      */
-    public RegisterValue readRegister(ObisCode obisCode) throws IOException {
+    public RegisterValue readRegister2(ObisCode obisCode) throws IOException {
 
     	if (simpleDataParser == null) {
     		try {
@@ -201,7 +236,7 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	    		catch(WaveflowDLMSStatusError e) {
 	    			getLogger().warning(e.getMessage());
 	    			if (autoPairingRetry == 1) {
-		    			if (pairWithEMeter()) {
+		    			if (doPairWithEMeter()) {
 			    			try {
 			    				Thread.sleep(2000);
 			    			} catch (InterruptedException e1) {
@@ -243,7 +278,22 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
     	}
     }
 
+    
     public boolean pairWithEMeter() throws IOException {
+    	try {
+    		getEscapeCommandFactory().setAndVerifyWavecardAwakeningPeriod(1);
+    		getEscapeCommandFactory().setAndVerifyWavecardRadiotimeout(20);
+    		getEscapeCommandFactory().setAndVerifyWavecardWakeupLength(110);
+			return doPairWithEMeter();
+    	}
+		finally {
+			getEscapeCommandFactory().setAndVerifyWavecardRadiotimeout(2);
+			getEscapeCommandFactory().setAndVerifyWavecardWakeupLength(1100);
+			getEscapeCommandFactory().setAndVerifyWavecardAwakeningPeriod(10);
+		}    	
+    }
+    
+    private boolean doPairWithEMeter() throws IOException {
     	
 			byte[] pairingframe = buildPairingFrame();
 			if (pairingframe == null) {
@@ -264,20 +314,33 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	    			byte[] pairingResponse = waveFlowConnect.sendData(pairingframe);
 	    			// 30046E4AC000ABB002
 	    			int PAIRING_RESULT_OFFFSET=1;
+	    			int PAIRING_RESULT_DATA_LENGTH=2;
+	    			int PAIRING_RESULT_DATA_OFFSET=3;
 	    			if (pairingResponse.length<2) {
 	    				getLogger().warning("Pairing result length is anvalid. Expected [9], received ["+pairingResponse.length+"], try ["+retry+"]...");
 	    			}
 	    			else {
-	    				if (pairingResponse[PAIRING_RESULT_OFFFSET] == 0) {
-		    				getLogger().warning("Pairing with the meter was successfull!");
+	    				if ((pairingResponse[PAIRING_RESULT_OFFFSET] > 0) && (WaveflowProtocolUtils.toInt(pairingResponse[PAIRING_RESULT_OFFFSET]) < 0xFD)) {
+	    					int length = pairingResponse[PAIRING_RESULT_DATA_LENGTH];
+	    					byte[] data = ProtocolUtils.getSubArray(pairingResponse, PAIRING_RESULT_DATA_OFFSET);
+		    				getLogger().warning("Pairing with the meter was successfull, returned data is ["+ProtocolUtils.outputHexString(data)+"]");
 		    				return true;
 	    				}
-	    				else if (pairingResponse[PAIRING_RESULT_OFFFSET] == 2) {
-	    					getLogger().warning("Pairing with the meter was already done, result code [2], leave loop!");
+	    				else if (WaveflowProtocolUtils.toInt(pairingResponse[PAIRING_RESULT_OFFFSET]) == 0) {
+	    					getLogger().warning("Pairing failed, no answer to GET Meter Serial Number, result code [0], leave loop!");
 	    					return true;
 	    				}
-	    				else {
-		    				getLogger().warning("Pairing with the meter resulted in an result code different from [0], received ["+pairingResponse[PAIRING_RESULT_OFFFSET]+"], try ["+retry+"]...");
+	    				else if (WaveflowProtocolUtils.toInt(pairingResponse[PAIRING_RESULT_OFFFSET]) == 0xFD) {
+	    					getLogger().warning("Pairing with the meter was already done, result code [0xFD], leave loop!");
+	    					return true;
+	    				}
+	    				else if (WaveflowProtocolUtils.toInt(pairingResponse[PAIRING_RESULT_OFFFSET]) == 0xFE) {
+	    					getLogger().warning("Pairing failed, no meter connected or connection rejected, result code [0xFE], leave loop!");
+	    					return true;
+	    				}
+	    				else if (WaveflowProtocolUtils.toInt(pairingResponse[PAIRING_RESULT_OFFFSET]) == 0xFF) {
+	    					getLogger().warning("Bad request format, result code [0xFF], leave loop!");
+	    					return true;
 	    				}
 	    			}
 				

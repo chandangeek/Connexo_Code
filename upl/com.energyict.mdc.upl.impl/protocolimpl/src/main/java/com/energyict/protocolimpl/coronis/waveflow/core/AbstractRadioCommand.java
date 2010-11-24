@@ -16,7 +16,7 @@ abstract public class AbstractRadioCommand {
 		ReadCurrentRTC(0x14), // page 38 waveflow V2 document
 		WriteCurrentRTC(0x15), // page 38 waveflow V2 document
 		GlobalIndexReading(0x05,true), // page 42 waveflow V2 document
-		LeakageEventTable(0x04,true),
+		LeakageEventTable(0x04),
 		
 //		EncoderReadLeakageEventTable(0x04,true),
 		FirmwareVersion(0x28);

@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 import java.io.IOException;
 import java.util.Calendar;
 
+import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.TimeDateParser;
 
 public class TimeDateRTC extends AbstractParameter {

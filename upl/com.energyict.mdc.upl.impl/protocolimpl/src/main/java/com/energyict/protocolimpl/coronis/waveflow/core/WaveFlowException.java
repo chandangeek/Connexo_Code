@@ -4,11 +4,11 @@ import java.io.IOException;
 
 public class WaveFlowException extends IOException {
 
-	WaveFlowException() {
+	public WaveFlowException() {
 		super();
 	}
 
-	WaveFlowException(String arg0) {
+	public WaveFlowException(String arg0) {
 		super(arg0);
 	}
 

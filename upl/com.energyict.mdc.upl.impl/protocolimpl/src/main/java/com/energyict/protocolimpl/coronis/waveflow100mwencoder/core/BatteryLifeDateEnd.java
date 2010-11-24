@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
 import java.io.IOException;
 import java.util.Calendar;
-
+import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocol.*;
 
 public class BatteryLifeDateEnd extends AbstractParameter {

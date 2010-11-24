@@ -3,7 +3,7 @@ package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 import java.io.*;
 import java.util.Date;
 
-import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+import com.energyict.protocolimpl.coronis.core.*;
 
 public class LeakageEventTable extends AbstractRadioCommand {
 

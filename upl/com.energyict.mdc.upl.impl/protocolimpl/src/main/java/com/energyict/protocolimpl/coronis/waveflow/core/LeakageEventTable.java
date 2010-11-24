@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.Date;
 
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 
 public class LeakageEventTable extends AbstractRadioCommand {
 

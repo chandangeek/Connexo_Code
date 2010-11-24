@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Date;
 
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 
 public class CommunicationErrorReadingDate extends AbstractParameter {
 
