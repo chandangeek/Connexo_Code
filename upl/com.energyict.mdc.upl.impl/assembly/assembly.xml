@@ -21,40 +21,16 @@
 		<moduleSet>
 			<includes>
 				<include>com.energyict:dlms</include>
-				<!-- Echelon isn't used anymore, when needed just uncomment this -->				
-				<!-- <include>com.energyict:echelon</include> -->
 				<include>com.energyict:protocolimpl</include>
                 <include>com.energyict:protocolcommon</include>
 			</includes>
 			
 			<binaries>
 				<unpack>false</unpack>
-				<outputDirectory>EIServer\ComServerJ\bin</outputDirectory>
+				<outputDirectory>protocol</outputDirectory>
 				<includeDependencies>true</includeDependencies>
 			</binaries>
 		</moduleSet>
 			
-		<!--  moduleSet for EIServer -->
-		<moduleSet>
-			<includes>
-				<include>com.energyict:dlms</include>
-				<include>com.energyict:protocolimpl</include>
-                <include>com.energyict:protocolcommon</include>
-			</includes>
-			
-			<binaries>
-				<unpack>false</unpack>
-				<outputDirectory>EIServer\bin-all</outputDirectory>
-				<includeDependencies>false</includeDependencies>
-				<dependencySets>
-					<dependencySet>
-						<includes>
-							<!--  dependency needed for Iskra P2LPC -->
-							<include>axis-jaxrpc*</include>
-						</includes>
-					</dependencySet>
-				</dependencySets>
-			</binaries>
-		</moduleSet>
 	</moduleSets>
 </assembly>
