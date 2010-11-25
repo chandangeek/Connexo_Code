@@ -191,22 +191,22 @@ public class ObisCodeMapper {
         if (isObis(oc, OBIS_DEVICE_STATUS)) {
             String description = DeviceStatus.fromStatusCode(value.getIntValue()).getDescription();
             Quantity quantity = new Quantity((BigDecimal) value.getValue(), Unit.getUndefined());
-            return new RegisterValue(oc, quantity, new Date(), new Date(), null, new Date(), 0, description);
+            return new RegisterValue(oc, quantity, null, null, null, new Date(), 0, description);
         } else if (isObis(oc, OBIS_DIAG)) {
             Quantity quantity = new Quantity((BigDecimal) value.getValue(), value.getUnit());
             Calendar cal = Calendar.getInstance(TimeZone.getDefault());
             String description = Diagnostics.getDescriptionFromCode(value.getIntValue());
-            return new RegisterValue(oc, quantity, cal.getTime(), cal.getTime(), cal.getTime(), cal.getTime(), 0, description);
+            return new RegisterValue(oc, quantity, null, null, null, cal.getTime(), 0, description);
         } else if (isObis(oc, OBIS_DIAG_REDUCED)) {
             Quantity quantity = new Quantity((BigDecimal) value.getValue(), value.getUnit());
             Calendar cal = Calendar.getInstance(TimeZone.getDefault());
             String description = Diagnostics.getDescriptionFromCode(value.getIntValue());
-            return new RegisterValue(oc, quantity, cal.getTime(), cal.getTime(), cal.getTime(), cal.getTime(), 0, description);
+            return new RegisterValue(oc, quantity, null, null, null, cal.getTime(), 0, description);
         } else if (isObis(oc, OBIS_SEAL_STATUS)) {
             Quantity quantity = new Quantity((BigDecimal) value.getValue(), value.getUnit());
             Calendar cal = Calendar.getInstance(TimeZone.getDefault());
             String description = SealStatusBit.getBrokenSealsDescription(value.getIntValue());
-            return new RegisterValue(oc, quantity, cal.getTime(), cal.getTime(), cal.getTime(), cal.getTime(), 0, description);
+            return new RegisterValue(oc, quantity, null, null, null, cal.getTime(), 0, description);
         } else if (isObis(oc, OBIS_EQUIPMENT_CLASS)) {
             return new RegisterValue(oc, EquipmentClassInfo.getEquipmentClass(value.getValue().toString()));
         } else {
