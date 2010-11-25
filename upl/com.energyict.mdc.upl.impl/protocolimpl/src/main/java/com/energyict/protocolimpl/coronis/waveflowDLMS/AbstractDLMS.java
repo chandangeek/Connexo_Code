@@ -4,8 +4,11 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.util.*;
 
+import org.omg.Dynamic.Parameter;
+
 import com.energyict.cbo.*;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dlms.axrdencoding.util.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
@@ -32,11 +35,41 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 			return o;
 		}
 	}	
-	
-	SimpleDataParser simpleDataParser=null;
 
 	WaveFlowDLMSWMessages waveFlowDLMSWMessages = new WaveFlowDLMSWMessages(this);
+
+	TransparantObjectAccessFactory transparantObjectAccessFactory;
 	
+	ObisCodeMapper obisCodeMapper;
+
+	/**
+	 * the correcttime property. this property is set from the protocolreader in order to allow to sync the time...
+	 */
+	private int correctTime;
+	
+	/**
+	 * the load profile obis code custom property
+	 */
+	private ObisCode loadProfileObisCode;
+	
+	/**
+	 * reference to the radio commands factory
+	 */
+	private RadioCommandFactory radioCommandFactory;	
+	
+	/**
+	 * Reference to the parameter factory
+	 */
+	private ParameterFactory parameterFactory;
+	
+	final RadioCommandFactory getRadioCommandFactory() {
+		return radioCommandFactory;
+	}
+
+	final TransparantObjectAccessFactory getTransparantObjectAccessFactory() {
+		return transparantObjectAccessFactory;
+	}
+
 	/**
 	 * Allow auto pairing when reading an e-meter fails. Default 1 (enabled)
 	 */
@@ -157,7 +190,11 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 			HalfDuplexController halfDuplexController) throws IOException {
 		
 	    escapeCommandFactory = new EscapeCommandFactory(this);
-		waveFlowConnect = new WaveFlowConnect(inputStream,outputStream,timeoutProperty,getLogger(),forcedDelay,getInfoTypeProtocolRetriesProperty());
+	    waveFlowConnect = new WaveFlowConnect(inputStream,outputStream,timeoutProperty,getLogger(),forcedDelay,getInfoTypeProtocolRetriesProperty());
+	    radioCommandFactory = new RadioCommandFactory(this);
+	    parameterFactory = new ParameterFactory(this);
+	    transparantObjectAccessFactory = new TransparantObjectAccessFactory(this);
+		obisCodeMapper = new ObisCodeMapper(this);
 		
 		return waveFlowConnect;
 	}
@@ -166,11 +203,18 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 		setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout","40000").trim()));
 		autoPairingRetry = Integer.parseInt(properties.getProperty("AutoPairingRetry","1").trim());
+		setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", "0.0.99.1.0.255")));
+		correctTime = Integer.parseInt(properties.getProperty(MeterProtocol.CORRECTTIME,"0"));
+		//doTheValidateProperties(properties);
 	}
-
+	
 	@Override
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
-		return "V1.0";
+		try {
+			return "V"+WaveflowProtocolUtils.toHexString(getRadioCommandFactory().readFirmwareVersion().getFirmwareVersion())+", Mode of transmission "+getRadioCommandFactory().readFirmwareVersion().getModeOfTransmission();
+		} catch (IOException e) {
+			return "Error requesting firmware version";
+		}
 	}
 
 	@Override
@@ -183,14 +227,52 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 
 	@Override
 	public Date getTime() throws IOException {
-		return new Date();
+		TransparentGet o = new TransparentGet(this,new ObjectInfo(2,8,ObisCode.fromString("0.0.1.0.0.255")));
+		o.invoke();
+		DateTime dateTime = new DateTime(o.getDataType().getOctetString(), getTimeZone());
+		return dateTime.getValue().getTime();
 	}
 
+	final void forceSetTime() throws IOException {
+		DateTime dateTime = new DateTime(getTimeZone());
+		transparantObjectAccessFactory.writeObjectAttribute(ObisCode.fromString("0.0.1.0.0.255"), 2, dateTime);
+	}
+	
 	@Override
 	public void setTime() throws IOException {
+		if (correctTime>0) {
+			DateTime dateTime = new DateTime(getTimeZone());
+			transparantObjectAccessFactory.writeObjectAttribute(ObisCode.fromString("0.0.1.0.0.255"), 2, dateTime);
+		}
+	}	
+
+/*	
+	@Override
+	public Date getTime() throws IOException {
+		// If we need to sync the time, then we need to request the RTC in the waveflow device in order to determine the shift.
+		// However, if no timesync needs to be done, we're ok with the current RTC from the cached generic header.
+		// we do this because we want to limit the roudtrips to the RF device
+		if ((correctTime==0) &&  (transparantObjectAccessFactory.getGenericHeader() != null)) {
+			return transparantObjectAccessFactory.getGenericHeader().getCurrentDateTime();
+		}
+		else {
+			return parameterFactory.readTimeDateRTC();
+		}
 		
 	}
 
+	final void forceSetTime() throws IOException {
+		parameterFactory.writeTimeDateRTC(new Date());
+	}
+	
+	@Override
+	public void setTime() throws IOException {
+		if (correctTime>0) {
+			parameterFactory.writeTimeDateRTC(new Date());
+		}
+	}	
+*/	
+	
     /**
      * Override this method to provide meter specific info for an obiscode mapped register. This method is called outside the communication session. So the info provided is static info in the protocol.
      * @param obisCode obiscode of the register to lookup
@@ -203,14 +285,7 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
     
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
     	
-    	ObjectEntry o = findObjectByObiscode(obisCode);
-    	
-    	TransparentGet tg = new TransparentGet(this, new ObjectInfo(2, o.getClassId(),obisCode));
-    	
-    	tg.invoke();
-    	System.out.println(tg.getGenericHeader());
-    	System.out.println(tg.getDataType());
-    	return null;
+    	return obisCodeMapper.getRegisterValue(obisCode);
     }
     
     /**
@@ -219,64 +294,64 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
      * @throws java.io.IOException thrown when somethiong goes wrong
      * @return RegisterValue object
      */
-    public RegisterValue readRegister2(ObisCode obisCode) throws IOException {
-
-    	if (simpleDataParser == null) {
-    		try {
-    			
-    			escapeCommandFactory.setAndVerifyWavecardAwakeningPeriod(1);
-    			escapeCommandFactory.setAndVerifyWavecardRadiotimeout(20);
-    			escapeCommandFactory.setAndVerifyWavecardWakeupLength(110);
-	    		byte[] response = waveFlowConnect.sendData(getRequest());
-	    		simpleDataParser = new SimpleDataParser(getLogger());
-	    		
-	    		try {
-	    			simpleDataParser.parse(getRequest(), response);
-	    		}
-	    		catch(WaveflowDLMSStatusError e) {
-	    			getLogger().warning(e.getMessage());
-	    			if (autoPairingRetry == 1) {
-		    			if (doPairWithEMeter()) {
-			    			try {
-			    				Thread.sleep(2000);
-			    			} catch (InterruptedException e1) {
-			    				// TODO Auto-generated catch block
-			    				e1.printStackTrace();
-			    			}
-			    			
-			    			// retry to read the meter...
-			    			response = waveFlowConnect.sendData(getRequest());
-			    			simpleDataParser.parse(getRequest(), response);
-		    			}
-	    			}
-	    			else {
-	    				throw new IOException(e.getMessage()+"[Auto pairing DISABLED]");
-	    			}
-	    			
-	    		} // catch(WaveflowDLMSStatusError e)
-	    		
-    		}
-    		finally {
-    			escapeCommandFactory.setAndVerifyWavecardRadiotimeout(2);
-    			escapeCommandFactory.setAndVerifyWavecardWakeupLength(1100);
-    			escapeCommandFactory.setAndVerifyWavecardAwakeningPeriod(10);
-    		}
-    	}
-
-    	
-    	if (obisCode.equals(ObisCode.fromString("0.0.96.6.15.255"))) {
-    		return new RegisterValue(obisCode,new Quantity(new BigDecimal(simpleDataParser.getQos()), Unit.get("")),new Date());
-    	}
-    	else {
-	        RegisterValue registerValue =  simpleDataParser.getRegisterValues().get(obisCode);
-	        if (registerValue == null) {
-	        	throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] does not exist!");
-	        }
-	        else {
-	        	return registerValue;
-	        }
-    	}
-    }
+//    public RegisterValue readRegister2(ObisCode obisCode) throws IOException {
+//
+//    	if (simpleDataParser == null) {
+//    		try {
+//    			
+//    			escapeCommandFactory.setAndVerifyWavecardAwakeningPeriod(1);
+//    			escapeCommandFactory.setAndVerifyWavecardRadiotimeout(20);
+//    			escapeCommandFactory.setAndVerifyWavecardWakeupLength(110);
+//	    		byte[] response = waveFlowConnect.sendData(getRequest());
+//	    		simpleDataParser = new SimpleDataParser(getLogger());
+//	    		
+//	    		try {
+//	    			simpleDataParser.parse(getRequest(), response);
+//	    		}
+//	    		catch(WaveflowDLMSStatusError e) {
+//	    			getLogger().warning(e.getMessage());
+//	    			if (autoPairingRetry == 1) {
+//		    			if (doPairWithEMeter()) {
+//			    			try {
+//			    				Thread.sleep(2000);
+//			    			} catch (InterruptedException e1) {
+//			    				// TODO Auto-generated catch block
+//			    				e1.printStackTrace();
+//			    			}
+//			    			
+//			    			// retry to read the meter...
+//			    			response = waveFlowConnect.sendData(getRequest());
+//			    			simpleDataParser.parse(getRequest(), response);
+//		    			}
+//	    			}
+//	    			else {
+//	    				throw new IOException(e.getMessage()+"[Auto pairing DISABLED]");
+//	    			}
+//	    			
+//	    		} // catch(WaveflowDLMSStatusError e)
+//	    		
+//    		}
+//    		finally {
+//    			escapeCommandFactory.setAndVerifyWavecardRadiotimeout(2);
+//    			escapeCommandFactory.setAndVerifyWavecardWakeupLength(1100);
+//    			escapeCommandFactory.setAndVerifyWavecardAwakeningPeriod(10);
+//    		}
+//    	}
+//
+//    	
+//    	if (obisCode.equals(ObisCode.fromString("0.0.96.6.15.255"))) {
+//    		return new RegisterValue(obisCode,new Quantity(new BigDecimal(simpleDataParser.getQos()), Unit.get("")),new Date());
+//    	}
+//    	else {
+//	        RegisterValue registerValue =  simpleDataParser.getRegisterValues().get(obisCode);
+//	        if (registerValue == null) {
+//	        	throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] does not exist!");
+//	        }
+//	        else {
+//	        	return registerValue;
+//	        }
+//    	}
+//    }
 
     
     public boolean pairWithEMeter() throws IOException {
@@ -382,6 +457,14 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 
 	public String writeValue(MessageValue value) {
 		return waveFlowDLMSWMessages.writeValue(value);
+	}	
+
+	public ObisCode getLoadProfileObisCode() {
+		return loadProfileObisCode;
+	}
+
+	public void setLoadProfileObisCode(ObisCode loadProfileObisCode) {
+		this.loadProfileObisCode = loadProfileObisCode;
 	}	
 	
 }

@@ -6,15 +6,23 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import com.energyict.cbo.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
-import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.*;
 
 public class ObisCodeMapper {
 	
 
 	private final AbstractDLMS abstractDLMS;
+	
+	private final int CLASS_DATA=1;
+	private final int CLASS_REGISTER=3;
+	private final int CLASS_EXTENDED_REGISTER=4;
+	
+	private final int ATTRIBUTE_VALUE=2;
+	private final int ATTRIBUTE_SCALER=3;	
+	private final int ATTRIBUTE_CAPTURETIME=5;	
 	
     /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(final AbstractDLMS abstractDLMS) {
@@ -40,38 +48,51 @@ public class ObisCodeMapper {
     
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
     	
-    	try {
-	    	if ((obisCode.equals(ObisCode.fromString("0.0.96.6.50.255"))) || (obisCode.equals(ObisCode.fromString("0.0.96.6.51.255")))) {
-/*	    		// read status
-	    		int portId = obisCode.getE()-50;
-	    		EncoderInternalData o = (EncoderInternalData)waveFlow100mW.readInternalDatas()[portId];
-	    		if (o==null) {
-	    			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, "No encoder connected to port "+(portId==0?"A":"B"));
-	    		}
-	    		else {
-	    			return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(o.getStatus()), Unit.get("")),new Date());
-	    		}*/
-	    	}
-	    	else if ((obisCode.equals(ObisCode.fromString("0.0.96.6.52.255"))) || (obisCode.equals(ObisCode.fromString("0.0.96.6.53.255")))) {
-	    		// dry count
-	    		/*
-	    		int portId = obisCode.getE()-52;
-	    		EncoderInternalData o = (EncoderInternalData)waveFlow100mW.readInternalDatas()[portId];
-	    		if (o==null) {
-	    			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, "No encoder connected to port "+(portId==0?"A":"B"));
-	    		}
-	    		else {
-	    			return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(o.getDryCount()), Unit.get("")),new Date());
-	    		}
-	    		*/
-	    	}
-	    	throw new IOException();
-		} catch (IOException e) {
-			
-			throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] has an error ["+e.getMessage()+"]!");
-			
+    	ObjectEntry objectEntry = AbstractDLMS.findObjectByObiscode(obisCode);
+    	
+		if (objectEntry.getClassId() == CLASS_DATA) {
+			AbstractDataType adt = abstractDLMS.getTransparantObjectAccessFactory().readObjectValue(obisCode);
+			if (adt.isOctetString()) {
+				return new RegisterValue(obisCode, adt.getOctetString().stringValue());
+			}
+			else if (adt.isVisibleString()) {
+				return new RegisterValue(obisCode, adt.getOctetString().stringValue());
+			}
+			else {
+				return new RegisterValue(obisCode, new Quantity(adt.toBigDecimal(),Unit.get("")));
+			}
 		}
+		else if (objectEntry.getClassId() == CLASS_REGISTER) {
+			
+			AbstractDataType adt = abstractDLMS.getTransparantObjectAccessFactory().readObjectAttribute(obisCode, ATTRIBUTE_SCALER);
+			int scale = adt.getStructure().getDataType(0).intValue();
+			int code = adt.getStructure().getDataType(1).intValue();
+			Unit unit = Unit.get(code, scale);
+			
+			adt = abstractDLMS.getTransparantObjectAccessFactory().readObjectAttribute(obisCode, ATTRIBUTE_VALUE);
+			BigDecimal value = adt.toBigDecimal();
+			
+			return new RegisterValue(obisCode,new Quantity(value,unit));
+		}    	
+		else if (objectEntry.getClassId() == CLASS_EXTENDED_REGISTER) {
+			
+			AbstractDataType adt = abstractDLMS.getTransparantObjectAccessFactory().readObjectAttribute(obisCode, ATTRIBUTE_SCALER);
+			int scale = adt.getStructure().getDataType(0).intValue();
+			int code = adt.getStructure().getDataType(1).intValue();
+			Unit unit = Unit.get(code, scale);
+			
+			adt = abstractDLMS.getTransparantObjectAccessFactory().readObjectAttribute(obisCode, ATTRIBUTE_VALUE);
+			BigDecimal value = adt.toBigDecimal();
+			
+			adt = abstractDLMS.getTransparantObjectAccessFactory().readObjectAttribute(obisCode, ATTRIBUTE_CAPTURETIME);
+			
+			DateTime eventTime = new DateTime(adt.getOctetString(), abstractDLMS.getTimeZone());
 
+			return new RegisterValue(obisCode,new Quantity(value,unit),eventTime.getValue().getTime());
+		}    	
+		
+		
+		throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] does not exist!"); // has an error ["+e.getMessage()+"]!");
     }
 	
 }

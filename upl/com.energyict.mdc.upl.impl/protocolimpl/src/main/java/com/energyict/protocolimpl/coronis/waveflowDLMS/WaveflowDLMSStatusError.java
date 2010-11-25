@@ -2,7 +2,9 @@ package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
 import java.io.IOException;
 
-public class WaveflowDLMSStatusError extends IOException {
+import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlowException;
+
+public class WaveflowDLMSStatusError extends WaveFlowException {
 
 	public WaveflowDLMSStatusError(String s) {
 		super(s);

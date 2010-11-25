@@ -8,11 +8,11 @@ import com.energyict.protocolimpl.coronis.core.*;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlowException;
 
 /**
- * Implements the transparent access to a DLMS object. See page 13 of the Waveflow AC 150mW DLMS Version 1 Applicative Specification.
+ * Implements the transparent dlms object list read. See page 13 of the Waveflow AC 150mW DLMS Version 1 Applicative Specification.
  * There are 3 subclasses implementing the set, get and action method invocation.  
  * @author kvds
  */
-abstract class AbstractTransparentObjectAccess {
+abstract class AbstractTransparentObjectListRead {
 
 	/**
 	 * the DLSM interaction get, set or action method
@@ -39,8 +39,8 @@ abstract class AbstractTransparentObjectAccess {
 		}
 	}
 	
-	private final int TRANSPARANT_OBJECT_READING_REQ_TAG=0x31;
-	private final int TRANSPARANT_OBJECT_READING_RES_TAG=0xB1;
+	private final int TRANSPARANT_OBJECT_LIST_READING_REQ_TAG=0x32;
+	private final int TRANSPARANT_OBJECT_LIST_READING_RES_TAG=0xB2;
 	
 	/**
 	 * Reference to the implementation class.
@@ -60,7 +60,7 @@ abstract class AbstractTransparentObjectAccess {
 		return frameCount;
 	}
 	
-	AbstractTransparentObjectAccess(AbstractDLMS abstractDLMS) {
+	AbstractTransparentObjectListRead(AbstractDLMS abstractDLMS) {
 		this.abstractDLMS = abstractDLMS;
 	}
 
@@ -96,7 +96,7 @@ abstract class AbstractTransparentObjectAccess {
 		try {	
 			baos = new ByteArrayOutputStream();
 			DataOutputStream daos = new DataOutputStream(baos);
-			daos.writeByte(TRANSPARANT_OBJECT_READING_REQ_TAG);
+			daos.writeByte(TRANSPARANT_OBJECT_LIST_READING_REQ_TAG);
 			daos.write(prepare()); // write 1 parameter
 			
 			parseResponse(abstractDLMS.getWaveFlowConnect().sendData(baos.toByteArray()));
@@ -119,7 +119,6 @@ abstract class AbstractTransparentObjectAccess {
 			case 0xFE: throw new WaveflowDLMSStatusError("Transparant object access error. Pairing request never sent!");
 			case 0xFD: throw new WaveFlowDLMSException("Transparant object access error. Connection rejected!");
 			case 0xFC: throw new WaveFlowDLMSException("Transparant object access error. Association rejected!");
-			case 0xFB: throw new WaveFlowDLMSException("Transparant object access error. Interaction (Get, Set or Action) failed!");
 			default: return;
 		}
 	}
@@ -131,8 +130,8 @@ abstract class AbstractTransparentObjectAccess {
 		try {
 			dais = new DataInputStream(new ByteArrayInputStream(sendData));
 			int responseTag = WaveflowProtocolUtils.toInt(dais.readByte());
-			if (responseTag != TRANSPARANT_OBJECT_READING_RES_TAG) {
-				throw new WaveFlowException("Transparant object access error. Expected ["+WaveflowProtocolUtils.toHexString(TRANSPARANT_OBJECT_READING_RES_TAG)+"], received ["+WaveflowProtocolUtils.toHexString(responseTag)+"]");
+			if (responseTag != TRANSPARANT_OBJECT_LIST_READING_RES_TAG) {
+				throw new WaveFlowException("Transparant object access error. Expected ["+WaveflowProtocolUtils.toHexString(TRANSPARANT_OBJECT_LIST_READING_RES_TAG)+"], received ["+WaveflowProtocolUtils.toHexString(responseTag)+"]");
 			}
 			byte[] temp = new byte[GenericHeader.size()];
 			dais.read(temp);

@@ -1,0 +1,94 @@
+package com.energyict.protocolimpl.coronis.waveflowDLMS;
+
+import java.io.*;
+
+import com.energyict.protocolimpl.coronis.core.*;
+import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.*;
+
+abstract public class AbstractRadioCommand {
+	
+	enum RadioCommandId {
+		
+		RSSILevel(0x20),
+		FirmwareVersion(0x28),
+		WriteParameter(0x19),
+		ReadParameter(0x18);
+		
+		private int commandId;
+		
+		final int getCommandId() {
+			return commandId;
+		}
+
+		RadioCommandId(final int commandId) {
+			this.commandId=commandId;
+		}
+	} // enum RadioCommandId
+
+	/**
+	 * The reference to the ProtocolLink protocol implementation class
+	 */
+	private ProtocolLink protocolLink;
+	
+	final ProtocolLink getProtocolLink() {
+		return protocolLink;
+	}
+	
+	AbstractRadioCommand(ProtocolLink protocolLink) {
+		this.protocolLink = protocolLink;
+	}
+
+	abstract void parse(byte[] data) throws IOException;
+	abstract byte[] prepare() throws IOException;
+	abstract RadioCommandId getRadioCommandId();
+	
+	void invoke() throws IOException {
+		
+		ByteArrayOutputStream baos = null;
+		try {	
+			baos = new ByteArrayOutputStream();
+			DataOutputStream daos = new DataOutputStream(baos);
+			daos.writeByte(getRadioCommandId().getCommandId());
+			daos.write(prepare()); // write 1 parameter
+			parseRead(getProtocolLink().getWaveFlowConnect().sendData(baos.toByteArray()));
+		}
+		finally {
+			if (baos != null) {
+				try {
+					baos.close();
+				}
+				catch(IOException e) {
+					getProtocolLink().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+				}
+			}
+		}			
+	}
+	
+	private final void parseRead(byte[] data) throws IOException {
+		DataInputStream dais = null;
+		try {
+			dais = new DataInputStream(new ByteArrayInputStream(data));
+			
+			int commandIdAck = WaveflowProtocolUtils.toInt(dais.readByte());
+			if (commandIdAck != (0x80 | getRadioCommandId().getCommandId())) {
+				throw new WaveFlowDLMSException("Invalid response tag ["+WaveflowProtocolUtils.toHexString(commandIdAck)+"]");
+			}
+			else {
+				
+				byte[] temp = new byte[dais.available()];
+				dais.read(temp);
+				parse(temp);
+			}
+		}
+		finally {
+			if (dais != null) {
+				try {
+					dais.close();
+				}
+				catch(IOException e) {
+					getProtocolLink().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+				}
+			}
+		}		
+	}
+}

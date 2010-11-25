@@ -11,11 +11,11 @@ import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlowException;
 
-public class TransparentGet extends AbstractTransparentObjectAccess {
+public class TransparentSet extends AbstractTransparentObjectAccess {
 
 	private final ObjectInfo objectInfo;
 	
-	private final int DLMS_GET_RESPONSE=0xC4;
+	private final int DLMS_SET_RESPONSE=0xC5;
 	private final int DLMS_RESPONSE_TAG_OFFSET=3;
 	private final int DLMS_RESPONSE_STATUS_CODE_OFFSET=6;
 	private final int DLMS_RESPONSE_RESULT_CODE_OFFSET=7;
@@ -28,15 +28,19 @@ public class TransparentGet extends AbstractTransparentObjectAccess {
 	final AbstractDataType getDataType() {
 		return dataType;
 	}
+	
+	final void setDataType(AbstractDataType dataType) {
+		this.dataType = dataType;
+	}
 
-	TransparentGet(AbstractDLMS abstractDLMS, ObjectInfo objectInfo) {
+	TransparentSet(AbstractDLMS abstractDLMS, ObjectInfo objectInfo) {
 		super(abstractDLMS);
 		this.objectInfo=objectInfo;
 	}
 
 	@Override
 	InteractionParameter getInteractionParameter() {
-		return InteractionParameter.GET;
+		return InteractionParameter.SET;
 	}
 
 	@Override
@@ -72,8 +76,8 @@ public class TransparentGet extends AbstractTransparentObjectAccess {
 			HDLCFrameParser o = new HDLCFrameParser();
 			o.parseFrame(temp);
 			byte[] dlmsData = o.getDLMSData();
-			if (WaveflowProtocolUtils.toInt(dlmsData[DLMS_RESPONSE_TAG_OFFSET]) != DLMS_GET_RESPONSE) {
-				throw new WaveFlowDLMSException("Transparant object get error. Expected DLMS tag [C4], received["+WaveflowProtocolUtils.toHexString(dlmsData[DLMS_RESPONSE_TAG_OFFSET])+"]");
+			if (WaveflowProtocolUtils.toInt(dlmsData[DLMS_RESPONSE_TAG_OFFSET]) != DLMS_SET_RESPONSE) {
+				throw new WaveFlowDLMSException("Transparant object get error. Expected DLMS tag [C5], received["+WaveflowProtocolUtils.toHexString(dlmsData[DLMS_RESPONSE_TAG_OFFSET])+"]");
 			}
 
 			int statusCode=WaveflowProtocolUtils.toInt(dlmsData[DLMS_RESPONSE_STATUS_CODE_OFFSET]);
@@ -81,7 +85,7 @@ public class TransparentGet extends AbstractTransparentObjectAccess {
 				throw new DataAccessResultException(WaveflowProtocolUtils.toInt(dlmsData[DLMS_RESPONSE_RESULT_CODE_OFFSET]));
 			}			
 			
-			dataType = AXDRDecoder.decode(ProtocolUtils.getSubArray(dlmsData, DLMS_RESPONSE_STATUS_CODE_OFFSET+1));
+			//dataType = AXDRDecoder.decode(ProtocolUtils.getSubArray(dlmsData, DLMS_RESPONSE_STATUS_CODE_OFFSET+1));
 			
 		}
 		finally {
@@ -108,7 +112,8 @@ public class TransparentGet extends AbstractTransparentObjectAccess {
 			daos.write(objectInfo.getObisCode().getLN());
 			daos.writeByte(objectInfo.getAttribute());
 			daos.writeByte(getInteractionParameter().getId());
-			daos.writeByte(0);
+			daos.writeByte(dataType.getBEREncodedByteArray().length);
+			daos.write(dataType.getBEREncodedByteArray());
 			return baos.toByteArray();
 		}
 		finally {

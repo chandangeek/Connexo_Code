@@ -32,7 +32,7 @@ public class AS1253 extends AbstractDLMS {
 	
 	
 	static {
-		objectEntries.put(ObisCode.fromString("0.0.96.0.0.255"),new ObjectEntry("Meter serial number",1));
+		objectEntries.put(ObisCode.fromString("1.1.96.1.0.255"),new ObjectEntry("Meter serial number",1));
 		objectEntries.put(ObisCode.fromString("1.1.1.8.0.255"),new ObjectEntry("Import active energy tarif 0",3));
 		objectEntries.put(ObisCode.fromString("1.1.2.8.0.255"),new ObjectEntry("Export active energy tarif 0",3));
 		objectEntries.put(ObisCode.fromString("1.1.3.8.0.255"),new ObjectEntry("Import reactive energy tarif 0",3));
