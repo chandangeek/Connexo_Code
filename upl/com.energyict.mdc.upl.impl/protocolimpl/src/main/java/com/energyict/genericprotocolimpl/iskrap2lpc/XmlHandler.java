@@ -1,35 +1,20 @@
 package com.energyict.genericprotocolimpl.iskrap2lpc;
 
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import com.energyict.cbo.*;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.ProtocolChannel;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.IntervalValue;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterReadingData;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.base.ProtocolChannel;
-import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Some example xml documents:
@@ -892,9 +877,14 @@ class XmlHandler extends DefaultHandler {
 	public ProfileData addEvents() {
 		ProfileData profileData = new ProfileData();
         Iterator i = eventList.iterator();
+        Date now = new Date();
         while( i.hasNext() ){
             MeterEvent event = (MeterEvent)i.next();
-            profileData.addEvent( event );
+            if (event.getTime().after(now)) {
+                logger.warning("Received event from the future! Skipping this event. [" + event.toString() + " - " + event.getTime() + "]");
+            } else {
+                profileData.addEvent( event );
+            }
         }
 		return profileData;
 	}
