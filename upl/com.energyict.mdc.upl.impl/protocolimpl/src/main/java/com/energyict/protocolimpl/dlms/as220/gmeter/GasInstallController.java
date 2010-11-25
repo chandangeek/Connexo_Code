@@ -5,6 +5,8 @@ package com.energyict.protocolimpl.dlms.as220.gmeter;
 
 import java.io.IOException;
 
+import com.energyict.dlms.cosem.MBusClient;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.base.AbstractMbusInstallController;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
@@ -14,7 +16,6 @@ import com.energyict.protocolimpl.dlms.as220.GasDevice;
  * 
  * @author gna
  * @since 16-feb-2010
- *
  */
 public class GasInstallController extends AbstractMbusInstallController {
 
@@ -39,8 +40,7 @@ public class GasInstallController extends AbstractMbusInstallController {
 	 */
 	public void deinstall() throws IOException {
 		getGasDevice().getLogger().info("DEINSTALL (DeCommission) message received");
-		getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().
-				getMbusClient(getGasDevice().getPhysicalAddress()).getObisCode()).deinstallSlave();
+        getMbusClient().deinstallSlave();
 	}
 
 	/**
@@ -48,8 +48,7 @@ public class GasInstallController extends AbstractMbusInstallController {
 	 */
 	public void install() throws IOException {
 		getGasDevice().getLogger().info("INSTALL (Commission) message received");
-		getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().
-				getMbusClient(getGasDevice().getPhysicalAddress()).getObisCode()).installSlave(getGasDevice().getPhysicalAddress());
+        getMbusClient().installSlave(getGasDevice().getPhysicalAddress());
 	}
 
 	/**
@@ -57,8 +56,7 @@ public class GasInstallController extends AbstractMbusInstallController {
 	 */
 	public void setEncryptionKey(byte[] encryptionKey) throws IOException {
 		getGasDevice().getLogger().info("SET ENCRYPTION KEY (open key) message received");
-		getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().
-				getMbusClient(getGasDevice().getPhysicalAddress()).getObisCode()).setEncryptionKey(encryptionKey);
+        getMbusClient().setEncryptionKey(encryptionKey);
 	}
 
 	/**
@@ -66,13 +64,25 @@ public class GasInstallController extends AbstractMbusInstallController {
 	 */
 	public void setTransferKey(byte[] transferKey) throws IOException {
 		getGasDevice().getLogger().info("SET TRANSFER KEY (encrypted key) message received");
-		getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().
-				getMbusClient(getGasDevice().getPhysicalAddress()).getObisCode()).setTransportKey(transferKey);
+        getMbusClient().setTransportKey(transferKey);
 	}
 
 	public void setBothKeysAtOnce(byte[] rawDataWithKeys) throws IOException {
 		getGasDevice().getLogger().info("SET BOTH KEY (encryption and encrypted key) message received");
-		getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().
-				getMbusClient(getGasDevice().getPhysicalAddress()).getObisCode()).setTransportKeyRawData(rawDataWithKeys);
+        getMbusClient().setTransportKeyRawData(rawDataWithKeys);
 	}
+
+    /**
+     * Getter for the MbusClient Object. Depending on the firmwareVersion of the device, a different shortname mapping is used
+     *
+     * @return the used MbusClient object
+     * @throws IOException
+     */
+    private MBusClient getMbusClient() throws IOException {
+        if(getGasDevice().getActiveFirmwareVersion().isHigherOrEqualsThen("2")){
+            return getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(getGasDevice().getPhysicalAddress()).getObisCode(), MbusClientAttributes.VERSION10);
+        } else {
+            return getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(getGasDevice().getPhysicalAddress()).getObisCode(), MbusClientAttributes.VERSION9);
+}
+    }
 }

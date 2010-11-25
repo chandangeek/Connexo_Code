@@ -7,7 +7,9 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
+import com.energyict.dlms.cosem.attributes.DLMSClassMethods;
 import com.energyict.protocol.ProtocolUtils;
 import org.apache.commons.logging.LogFactory;
 
@@ -205,9 +207,11 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	}
 
 	/**
-	 * @param attribute
-	 * @return
-	 * @throws IOException
+     * Get the responseData based on the given {@link com.energyict.dlms.cosem.attributes.DLMSClassAttributes}
+     *
+     * @param attribute the attribute to read from the device
+     * @return the value of the requested attribute
+     * @throws IOException if an exception occurs during the reading
 	 */
 	protected byte[] getResponseData(DLMSClassAttributes attribute) throws IOException {
 		if (getObjectReference().isSNReference()) {
@@ -217,6 +221,32 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 		}
 	}
+
+	/**
+     * Invoke the method based on the given {@link com.energyict.dlms.cosem.attributes.DLMSClassMethods}
+     *
+     * @param method the method to invoke
+     * @param data   the additional data to write with he method
+     * @throws IOException if an exception occurs during the method call
+     */
+    protected void methodInvoke(DLMSClassMethods method, AbstractDataType data) throws IOException {
+        methodInvoke(method, data.getBEREncodedByteArray());
+    }
+
+    /**
+     * Invoke the method based on the given {@link com.energyict.dlms.cosem.attributes.DLMSClassMethods}
+     *
+     * @param method the method to invoke
+     * @param encodedData   the ber-encoded additional data to write with he method
+     * @throws IOException if an exception occurs during the method call
+     */
+    protected void methodInvoke(DLMSClassMethods method, byte[] encodedData) throws IOException {
+        if (getObjectReference().isSNReference()) {
+            write(method.getShortName(), encodedData);
+        } else {
+            invoke(method.getMethodNumber(), encodedData);
+        }
+    }
 
 	/**
 	 * Build up the request, send it to the device and return the checked

@@ -22,6 +22,7 @@ import static org.junit.Assert.fail;
  */
 public class ProtocolCollectionCreationTest {
 
+    @Ignore
     @Test
     public void createCollection(){
         try{

@@ -7,6 +7,7 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.base.ContactorController;
 import com.energyict.protocolimpl.dlms.as220.gmeter.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -186,7 +187,12 @@ public class GasDevice extends AS220 implements MessageProtocol{
 			GasRegister gasRegister = new GasRegister(this);
 			RegisterValue registerValue = gasRegister.getRegisterValue(oc);
 			return ProtocolTools.setRegisterValueObisCode(registerValue, obisCode);
-		} else {
+		} else if(obisCode.equals(ObisCode.fromString("0.0.24.4.129.255"))) {
+            ContactorController.ContactorState cs = getgMeter().getGasValveController().getContactorState();
+            RegisterValue registerValue = new RegisterValue(obisCode,null, null, null, null, new Date(), 0, cs.name());
+            return registerValue;
+        }
+        else {
 			throw new NoSuchRegisterException(obisCode.toString() + " is not supported.");
 		}
 	}

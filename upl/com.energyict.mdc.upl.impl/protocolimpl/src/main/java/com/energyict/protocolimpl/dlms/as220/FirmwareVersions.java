@@ -58,7 +58,6 @@ public class FirmwareVersions extends Data {
 
     /**
      * Check if the firmwareVersion == version 1.22
-     *
      * @return
      */
     public boolean is122() {
@@ -67,7 +66,6 @@ public class FirmwareVersions extends Data {
 
     /**
      * Check if the firmwareVersion == version 1.27
-     *
      * @return
      */
     public boolean is127() {
@@ -82,7 +80,6 @@ public class FirmwareVersions extends Data {
 
     /**
      * Check if the current firmwareVersion is higher or equals to the provided version
-     *
      * @param v The version to check with (format : majorVersion.minorVersion , minorversion is not required)
      * @return
      */

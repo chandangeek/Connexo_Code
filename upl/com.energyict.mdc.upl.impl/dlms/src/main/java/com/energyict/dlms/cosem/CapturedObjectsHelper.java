@@ -101,7 +101,8 @@ public class CapturedObjectsHelper implements DLMSCOSEMGlobals {
 		else if ((co.getLogicalName().getA() == 0)
 				&& (co.getLogicalName().getB() >= 0)
 				&& (co.getLogicalName().getC() == 24)
-				&& (co.getClassId() == DLMSClassId.EXTENDED_REGISTER.getClassId())) {
+				&& (co.getClassId() == DLMSClassId.EXTENDED_REGISTER.getClassId())
+                && (co.getAttributeIndex() != 4)) {
 			return true;
 		}
 		return false;

@@ -124,7 +124,9 @@ public class GMeter {
 			switch (DLMSClassId.findById(capturedObject.getClassId())) {
 				case REGISTER:
 				case EXTENDED_REGISTER:
+                    if(capturedObject.getAttributeIndex() == 2){
 					channelCount++;
+                    }
 					break;
 				default:
 					break;

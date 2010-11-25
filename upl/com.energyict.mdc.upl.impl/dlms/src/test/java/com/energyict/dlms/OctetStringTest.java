@@ -3,20 +3,24 @@
  */
 package com.energyict.dlms;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
+import com.energyict.util.LogFactory;
+import org.apache.commons.logging.Log;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import com.energyict.dlms.axrdencoding.OctetString;
+
+import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 /**
  * @author jme
  *
  */
 public class OctetStringTest {
+
+    static Log logger = LogFactory.getLog(OctetStringTest.class);
 
 	/**
 	 * Test method for {@link com.energyict.dlms.axrdencoding.OctetString#doGetBEREncodedByteArray()}.
@@ -118,6 +122,16 @@ public class OctetStringTest {
 		assertNotNull(os);
 		assertEquals(testString.length() + 2, os.getDecodedSize());
 	}
+
+	/**
+	 * Test method for {@link com.energyict.dlms.axrdencoding.OctetString#fromIpAddressString(String)}.
+	 */
+    @Test
+    public final void fromIpAddressStringTest() {
+        final String ipAddress = "0.0.10.0.100.255";
+        final String expected = "00000A0064FF";
+        assertArrayEquals(new OctetString(DLMSUtils.hexStringToByteArray(expected)).getBEREncodedByteArray(), OctetString.fromIpAddressString(ipAddress).getBEREncodedByteArray());
+    }
 
 	/**
 	 * Test method for {@link com.energyict.dlms.axrdencoding.OctetString#fromString(java.lang.String, int)}.

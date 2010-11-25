@@ -10,6 +10,7 @@ import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.cosem.requests.GetDataResult;
 import com.energyict.dlms.cosem.requests.RequestFactory;
 import com.energyict.obis.ObisCode;
@@ -211,9 +212,29 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     	return new Disconnector(protocolLink, getObjectReference(obisCode));
     }
 
+    /**
+     * Getter for the {@link com.energyict.dlms.cosem.MBusClient} object according to BlueBook version 9 or below
+     *
+     * @param obisCode the obisCode of the Object
+     * @return a newly created MbusClient object
+     * @throws IOException if the {@link com.energyict.dlms.ProtocolLink#getReference()} != (ProtocolLink#LN_REFERENCE || ProtocolLink#SN_REFERENCE)
+     * @deprecated use {@link #getMbusClient(com.energyict.obis.ObisCode, int)} instead
+     */
 	public MBusClient getMbusClient(ObisCode obisCode) throws IOException{
-		return new MBusClient(protocolLink, getObjectReference(obisCode));
+        return getMbusClient(obisCode, MbusClientAttributes.VERSION9);
 	}
+
+    /**
+     * Getter for the {@link com.energyict.dlms.cosem.MBusClient} object according to BlueBook version 9 or below
+     *
+     * @param obisCode the obisCode of the Object
+     * @param version  the version of the object (see {@link com.energyict.dlms.cosem.attributes.MbusClientAttributes#version} for more details)
+     * @return a newly created MbusClient object
+     * @throws IOException if the {@link com.energyict.dlms.ProtocolLink#getReference()} != (ProtocolLink#LN_REFERENCE || ProtocolLink#SN_REFERENCE)
+     */
+    public MBusClient getMbusClient(ObisCode obisCode, int version) throws IOException {
+        return new MBusClient(protocolLink, getObjectReference(obisCode), version);
+    }
 
 	public Limiter getLimiter() throws IOException{
 		return new Limiter(protocolLink, getObjectReference(LIMITER, protocolLink.getMeterConfig().getLimiterSN()));
