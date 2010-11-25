@@ -71,8 +71,8 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
     /**
      * Device channel mappings
      */
-    private static final DeviceMappingRange MBUS_DEVICES = new DeviceMappingRange(0x01, 0x20);
-    private static final DeviceMappingRange EMETER_DEVICES = new DeviceMappingRange(0x21, 0x40);
+    public static final DeviceMappingRange MBUS_DEVICES = new DeviceMappingRange(0x01, 0x20);
+    public static final DeviceMappingRange EMETER_DEVICES = new DeviceMappingRange(0x21, 0x40);
 
     /**
      * The device obisCodes

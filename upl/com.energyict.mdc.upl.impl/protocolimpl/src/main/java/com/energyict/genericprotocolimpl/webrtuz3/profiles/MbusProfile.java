@@ -6,8 +6,8 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
 import com.energyict.genericprotocolimpl.webrtuz3.MbusDevice;
+import com.energyict.genericprotocolimpl.webrtuz3.WebRTUZ3;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
@@ -22,9 +22,12 @@ import java.util.logging.Level;
 
 public class MbusProfile {
 
+    private static final int MIN_DEVICEID = WebRTUZ3.MBUS_DEVICES.getFrom();
+    private static final int MAX_DEVICEID = WebRTUZ3.MBUS_DEVICES.getTo();
+
 	private MbusDevice mbusDevice;
 
-	public MbusProfile(){
+    public MbusProfile(){
 	}
 
 	public MbusProfile(MbusDevice mbusDevice){
@@ -123,16 +126,21 @@ public class MbusProfile {
 		return channelInfos;
 	}
 
-	private boolean isMbusRegisterObisCode(ObisCode oc){
-		if((oc.getC() == 24) && (oc.getD() == 2) && (oc.getB() >=1) && (oc.getB() <= 4) && (oc.getE() >= 1) && (oc.getE() <= 4) ){
-			return true;
-		} else {
-			return false;
-		}
-	}
+    private boolean isMbusRegisterObisCode(ObisCode oc) {
+        if (oc.getC() != 24) {
+            return false;
+        } else if (oc.getD() != 2) {
+            return false;
+        } else if ((oc.getB() < MIN_DEVICEID) || (oc.getB() > MAX_DEVICEID)) {
+            return false;
+        } else if ((oc.getE() < MIN_DEVICEID) || (oc.getE() > MAX_DEVICEID)) {
+            return false;
+        }
+        return true;
+    }
 
 
-	/**
+    /**
 	 * Read the given object and return the scalerUnit.
 	 * If the unit is 0(not a valid value) then return a unitLess scalerUnit.
 	 * If you can not read the scalerUnit, then return a unitLess scalerUnit.
