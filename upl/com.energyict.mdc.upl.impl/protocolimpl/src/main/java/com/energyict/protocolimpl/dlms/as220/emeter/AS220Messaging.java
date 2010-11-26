@@ -124,7 +124,11 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
                 getAs220().geteMeter().getActivityCalendarController().writeCalendarActivationTime(cal);
             } else if (isMessageTag(SET_LOADLIMIT_DURATION, messageEntry)) {
                 getAs220().getLogger().info("Set LoadLimit duration received");
+                try {
                 getAs220().geteMeter().getLoadLimitController().writeThresholdOverDuration(Integer.valueOf(MessagingTools.getContentOfAttribute(messageEntry, LOADLIMIT_DURATION)));
+                } catch (NumberFormatException e) {
+                    throw new IOException(MessagingTools.getContentOfAttribute(messageEntry, SET_LOADLIMIT_DURATION) + " is not a valid Threshold duration.");
+                }
             } else if (isMessageTag(SET_LOADLIMIT_THRESHOLD, messageEntry)){
                 getAs220().getLogger().info("Set LoadLimit threshold received");
                 long threshold = 0;
