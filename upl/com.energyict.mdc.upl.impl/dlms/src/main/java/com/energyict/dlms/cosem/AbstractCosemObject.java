@@ -735,7 +735,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 								{
 									i++; // skip tag
 
-									if (iBlockNumber == 1) {
+									if (iBlockNumber == 0) {
 										iBlockSize = (int) DLMSUtils.getAXDRLength(responseData, i);
 										i += DLMSUtils.getAXDRLengthOffset(responseData, i);
 										receiveBuffer.addArray(responseData, i);
