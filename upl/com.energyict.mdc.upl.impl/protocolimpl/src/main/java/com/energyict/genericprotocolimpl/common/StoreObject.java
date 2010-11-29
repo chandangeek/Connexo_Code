@@ -1,21 +1,19 @@
 package com.energyict.genericprotocolimpl.common;
 
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.Quantity;
 import com.energyict.cpo.Transaction;
 import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.RtuRegisterReadingStorer;
 import com.energyict.mdw.amrimpl.RtuRegisterImpl;
-import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.coreimpl.ChannelImpl;
 import com.energyict.mdw.coreimpl.RtuImpl;
-import com.energyict.protocol.MeterReadingData;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.mdw.shadow.amr.RtuRegisterReadingShadow;
+import com.energyict.protocol.*;
+
+import java.sql.SQLException;
+import java.util.*;
 
 	/**
 	 * <pre>
@@ -35,7 +33,7 @@ import com.energyict.protocol.RegisterValue;
 	 */
 public class StoreObject implements Transaction {
 	private HashMap storeObjects;
-	
+
 	public StoreObject(){
 		this.storeObjects = new HashMap();
 	}
@@ -55,7 +53,7 @@ public class StoreObject implements Transaction {
 			} else if(key instanceof ProfileData){
 				((Rtu)entry.getValue()).store((ProfileData)key, false);
 			} else if(key instanceof MeterReadingData){
-                ((Rtu)entry.getValue()).store((MeterReadingData)key);
+                store(((Rtu)entry.getValue()), (MeterReadingData)key );
             }
 		}
 		
@@ -93,4 +91,61 @@ public class StoreObject implements Transaction {
 	public HashMap getMap(){
 		return this.storeObjects;
 	}
+
+    private void store(Rtu rtu, MeterReadingData meterReadingData) throws SQLException, BusinessException {
+        Map<RtuRegister, Date> lastReadings = new HashMap<RtuRegister, Date>();
+        Map<RtuRegister, Date> lastCheckeds = new HashMap<RtuRegister, Date>();
+        RtuRegisterReadingStorer storer = new RtuRegisterReadingStorer();
+        for (RegisterValue registerValue : (List<RegisterValue>) meterReadingData.getRegisterValues()) {
+             RtuRegister rtuRegister = getRtuRegister(rtu, registerValue.getRtuRegisterId());
+            if (registerValue.isSupported()) {
+                RtuRegisterReadingShadow shadow = new RtuRegisterReadingShadow();
+                shadow.setToTime(registerValue.getToTime());
+                shadow.setFromTime(registerValue.getFromTime());
+                shadow.setEventTime(registerValue.getEventTime());
+                shadow.setReadTime(registerValue.getReadTime());
+                shadow.setText(registerValue.getText());
+                if (registerValue.getQuantity() != null) {
+                    Phenomenon phenomenon = rtuRegister.getRtuRegisterSpec().getRegisterMapping().getProductSpec().getPhenomenon();
+                    Quantity reading = registerValue.getQuantity();
+                    try {
+                        registerValue.setQuantity(reading.convertTo(phenomenon.getUnit(), true));
+                    } catch (ArithmeticException ex) {
+                        throw new BusinessException(ex);
+                    }
+                    shadow.setValue(registerValue.getQuantity().getAmount());
+                }
+
+                storer.add(rtuRegister, shadow);
+
+                Date lastReading = lastReadings.get(rtuRegister);
+                Date lastChecked = lastCheckeds.get(rtuRegister);
+                Date toTime = registerValue.getToTime();
+                if (lastReading == null || toTime.after(lastReading)) {
+                    lastReadings.put(rtuRegister, toTime);
+                }
+                if (lastChecked == null || toTime.before(lastChecked)) {
+                    lastCheckeds.put(rtuRegister, toTime);
+                }
+            }
+        }
+        MeteringWarehouse.getCurrent().execute(storer);
+        for (RtuRegister rtuRegister : lastReadings.keySet()) {
+            Date lastChecked = lastCheckeds.get(rtuRegister);
+            if (lastChecked != null) {
+                lastChecked = new Date(lastChecked.getTime() - 1000);
+            }
+            rtuRegister.updateLastCheckedAndLastReading(lastChecked, lastReadings.get(rtuRegister));
+        }
+    }
+
+
+    private RtuRegister getRtuRegister(Rtu rtu, int id) throws SQLException, BusinessException {
+        for (RtuRegister rtuRegister : rtu.getRegisters()) {
+            if (rtuRegister.getId() == id) {
+                return rtuRegister;
+            }
+        }
+        throw new BusinessException("RtuImpl, getRtuRegister(id), no RtuRegister for id " + id);
+    }
 }

@@ -41,7 +41,7 @@ public class SmsHandler implements MessageHandler {
     private Logger logger;
     private MeterAmrLogging meterAmrLogging;
     private final Date now = new Date();
-    private final StoreObject storeObject = new StoreObject();
+    private StoreObject storeObject;
     private ObisCodeMapper obisCodeMapper;
     private Sms sms;
 
@@ -51,6 +51,13 @@ public class SmsHandler implements MessageHandler {
 
     private MTU155Properties getProtocolProperties() {
         return properties;
+    }
+
+    public StoreObject getStoreObject() {
+        if (storeObject == null) {
+            storeObject = new StoreObject();
+        }
+        return storeObject;
     }
 
     public Logger getLogger() {
@@ -79,15 +86,18 @@ public class SmsHandler implements MessageHandler {
     }
 
     /**
-     * processes a given Sms
+     * Processes a given Sms
      * @param sms: the given sms
      * @throws JMSException
      * @throws BusinessException
      * @throws SQLException
      */
     public void processMessage(Sms sms) throws JMSException, BusinessException, SQLException {
+        long curMil = System.currentTimeMillis();
         this.sms = sms;
         doExecute();
+        storeObject = null; //reset
+        System.out.println("Tijd: " + (System.currentTimeMillis() - curMil) + " ms");
     }
 
     /**
@@ -241,7 +251,7 @@ public class SmsHandler implements MessageHandler {
     }
 
     /**
-     * parse and store the data in the dec table (received via sms)
+     * Parse and store the data in the dec table (received via sms)
      * @param communicationProfile: the meter's communication profile
      * @param pdr: the meter's pdr number
      * @param data: sent by the meter via sms
@@ -256,7 +266,7 @@ public class SmsHandler implements MessageHandler {
 
         if (communicationProfile.getReadMeterReadings()) {
             log("Getting registers for meter with serial number: " + getRtuSerialNumber());
-            storeObject.addAll(doReadRegisters(communicationProfile, data));
+            getStoreObject().add(doReadRegisters(communicationProfile, data), getRtu());
         } else {
             String message = "Received SMS with register data, but register readings in EIServer are disabled for this meter ";
             logWarning(message);
@@ -265,7 +275,7 @@ public class SmsHandler implements MessageHandler {
     }
 
     /**
-     * parse and store the data in the decf table (received via sms)
+     * Parse and store the data in the decf table (received via sms)
      * @param communicationProfile: the meter's communication profile
      * @param pdr: the meter's pdr number
      * @param data: sent by the meter via sms
@@ -280,7 +290,7 @@ public class SmsHandler implements MessageHandler {
 
         if (communicationProfile.getReadMeterReadings()) {
             log("Getting registers for meter with serial number: " + getRtuSerialNumber());
-            storeObject.addAll(doReadRegisters(communicationProfile, data));
+            getStoreObject().add(doReadRegisters(communicationProfile, data), getRtu());
         } else {
             String message = "Received SMS with register data, but register readings in EIServer are disabled for this meter ";
             logWarning(message);
@@ -293,13 +303,13 @@ public class SmsHandler implements MessageHandler {
      */
     private void storeDataToEIServer() {
         try {
-            storeObject.doExecute();
+            getStoreObject().doExecute();
         } catch (BusinessException e) {
-            String message = "An error happened storing the data to EIServer";
+            String message = "An error happened storing the data to EIServer: " + e.getMessage();
             logWarning(message);
             getMeterAmrLogging().logInfo(message);
         } catch (SQLException e) {
-            String message = "An error happened storing the data to the Oracle Database";
+            String message = "An error happened storing the data to the Oracle Database:" + e.getMessage();
             logWarning(message);
             getMeterAmrLogging().logInfo(message);
         }
@@ -326,7 +336,7 @@ public class SmsHandler implements MessageHandler {
                     if (getProtocolProperties().getChannelConfig().getChannelId(data.getId().toString()) == (channel.getLoadProfileIndex() - 1)) {
                         ProfileChannelForSms profileForSms = new ProfileChannelForSms(logger, properties, channel, data, getTimeZone(), getMeterAmrLogging());
                         ProfileData pd = profileForSms.getProfileData();
-                        storeObject.add(channel, pd);
+                        getStoreObject().add(channel, pd);
                         log("Added profile data for channel " + channel.toString() + ". Data ID is " + data.getId().toString());
                     } else {
                         String message = "Found profile data (" + data.getId().toString() + ", " + CTRObjectInfo.getSymbol(data.getId().toString()) + "), but not for channel " + channel.toString();
@@ -367,7 +377,7 @@ public class SmsHandler implements MessageHandler {
             List<MeterEvent> meterEvents = ctrMeterEvent.convertToMeterEvents(Arrays.asList(data.getEvento_Short()));
             ProfileData profileData = new ProfileData();
             profileData.setMeterEvents(ProtocolUtils.checkOnOverlappingEvents(meterEvents));
-            storeObject.add(getRtu(), profileData);
+            getStoreObject().add(getRtu(), profileData);
         } else {
             String message = "Received SMS with event records, but event readings in EIServer are disabled for this meter ";
             logWarning(message);
@@ -394,9 +404,9 @@ public class SmsHandler implements MessageHandler {
      * @return: register values
      * @throws CTRException
      */
-    private Map<RtuRegister, RegisterValue> doReadRegisters(CommunicationProfile cp, AbstractTableQueryResponseStructure response) throws CTRException {
+    private MeterReadingData doReadRegisters(CommunicationProfile cp, AbstractTableQueryResponseStructure response) throws CTRException {
 
-        HashMap<RtuRegister, RegisterValue> regValueMap = new HashMap<RtuRegister, RegisterValue>();
+        MeterReadingData meterReadingData = new MeterReadingData();
         Iterator<RtuRegister> rtuRegisterIterator = getRtu().getRegisters().iterator();
         List groups = cp.getRtuRegisterGroups();
         List<AbstractCTRObject> list = response.getObjects();
@@ -412,7 +422,7 @@ public class SmsHandler implements MessageHandler {
                         RegisterValue registerValue = getObisCodeMapper().readRegister(obisCode, list);
                         registerValue.setRtuRegisterId(rtuRegister.getId());
                         if (rtuRegister.getReadingAt(registerValue.getReadTime()) == null) {
-                            regValueMap.put(rtuRegister, registerValue);
+                            meterReadingData.add(registerValue);
                         }
                     } catch (NoSuchRegisterException e) {
                         String message = "Received no data for " + rtuRegister.toString() + "(" + obisCode + ") " + e.getMessage();
@@ -422,12 +432,12 @@ public class SmsHandler implements MessageHandler {
                 }
             } catch (IOException e) {
                 //TODO if the connection is out you should not try and read the others as well...
-                getMeterAmrLogging().logInfo("An error occurred in the connection!");
+                getMeterAmrLogging().logInfo("An error occurred in the connection! " + e.getMessage());
                 log(Level.FINEST, e.getMessage());
                 log("Reading register with obisCode " + obisCode + " FAILED.");
             }
         }
-        return regValueMap;
+        return meterReadingData;
     }
 
     public ObisCodeMapper getObisCodeMapper() {
@@ -482,15 +492,15 @@ public class SmsHandler implements MessageHandler {
             try {
                 processSmsFrame(parseAndDecryptSms(this.sms));
             } catch (LinkException e) {
-                String message = "An error occurred in the connection!";
+                String message = "An error occurred in the connection!"  + e.getMessage();
                 log(message);
                 getMeterAmrLogging().logInfo(message);
             } catch (CTRParsingException e) {
-                String message = "An error occurred while parsing the data";
+                String message = "An error occurred while parsing the data" + e.getMessage();
                 log(message);
                 getMeterAmrLogging().logInfo(message);
             } catch (CtrCipheringException e) {
-                String message = "An error occurred while decrypting the data";
+                String message = "An error occurred while decrypting the data" + e.getMessage();
                 log(message);
                 getMeterAmrLogging().logInfo(message);
             }
