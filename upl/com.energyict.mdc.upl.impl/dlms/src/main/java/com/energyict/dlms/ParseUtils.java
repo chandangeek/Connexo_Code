@@ -85,5 +85,26 @@ public final class ParseUtils {
 		}
 	}
 
+    /**
+     * Build up a stringbuffer containing the hex values from the byteArray.
+     * Adds zero to the left if necessary.
+     * ex:
+     * b = {7, 1, 67, 7};
+     * strByff.toString() = "07014307";
+     * @param b - the byteArray containing the ascii chars
+     * @return
+     */
+    public static String decimalByteToString(byte[] b){
+		StringBuffer strBuff = new StringBuffer();
+		for(int i = 0; i < b.length; i++){
+			String str = Integer.toHexString(b[i]&0xFF);
+			if(str.length() == 1) {
+				strBuff.append("0");
+			}
+			strBuff.append(str);
+		}
+		return strBuff.toString();
+    }
+
 
 }

@@ -9,8 +9,7 @@ import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.genericprotocolimpl.common.wakeup.SmsWakeup;
 import com.energyict.genericprotocolimpl.webrtuz3.Z3MeterToolProtocol;
@@ -122,7 +121,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
     private int iiapPriority;
     private int iiapServiceClass;
     private int iiapInvokeId;
-    private int clientMacAddress;
+    protected int clientMacAddress;
     private int serverUpperMacAddress;
     private int serverLowerMacAddress;
     private int timeOut;
@@ -232,7 +231,6 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
       */
 
     /**
-     *
      * @param scheduler Task to execute
      * @param link Link created by the comserver, can be null if a NullDialer is
      * configured
@@ -440,7 +438,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 
         this.cosemObjectFactory = new CosemObjectFactory((ProtocolLink) this);
 
-        SecurityContext sc = new SecurityContext(this.datatransportSecurityLevel, this.authenticationSecurityLevel, 0, "EIT12345".getBytes(), this.securityProvider, this.cipheringType);
+        SecurityContext sc = new SecurityContext(this.datatransportSecurityLevel, this.authenticationSecurityLevel, 0, getSystemIdentifier(), this.securityProvider, this.cipheringType);
 
         this.aso = new ApplicationServiceObject(this.xdlmsAse, this, sc, getContextId());
 
@@ -458,6 +456,16 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 
         doInit();
     }
+
+    /**
+	 * Return the SystemTitle to be used in the DLMS association request.
+	 * Override this method to give a custom value
+	 *
+	 * @return the SystemTitle
+	 */
+	protected byte[] getSystemIdentifier(){
+		return "EIT12345".getBytes();
+	}
 
     /**
      * Retrieve the Rtu back from the database.
@@ -556,7 +564,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
      *
      * @throws IOException
      */
-    private void checkCacheObjects() throws IOException {
+    protected void checkCacheObjects() throws IOException {
 
         int configNumber;
 		if (dlmsCache != null && dlmsCache.getObjectList() != null) { // the dlmsCache exists
@@ -602,7 +610,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
      *
      * @throws IOException if something fails during the request or the parsing of the buffer
      */
-    private void requestConfiguration() throws IOException {
+    protected void requestConfiguration() throws IOException {
 
         try {
             if (getReference() == ProtocolLink.LN_REFERENCE) {
@@ -838,7 +846,8 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
      * @param rtuid - the RTU database id
      * @return a DLMS cache object
      * @throws java.sql.SQLException if a database access error occurs
-	 * @throws com.energyict.cbo.BusinessException if multiple records were found
+     * @throws com.energyict.cbo.BusinessException
+     *                               if multiple records were found
      */
     public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
         if (rtuid != 0) {
@@ -856,10 +865,12 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 
     /**
      * Write the DLMSCache back to the database
+     *
      * @param rtuid       - the RTU database id
      * @param cacheObject - the DLMSCache
      * @throws java.sql.SQLException if a database access error occurs
-	 * @throws com.energyict.cbo.BusinessException if multiple records were found
+     * @throws com.energyict.cbo.BusinessException
+     *                               if multiple records were found
      */
     public void updateCache(final int rtuid, final Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
         if (rtuid != 0) {
@@ -894,7 +905,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
     /**
      * @return the current CommunicationProfile
      */
-    protected CommunicationProfile getCommunicationProfile() {
+    public CommunicationProfile getCommunicationProfile() {
         return communicationScheduler.getCommunicationProfile();
     }
 
@@ -920,6 +931,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 
     /**
      * Read all the register from the device
+     *
      * @return a HashMap containing the RtuRegister and the RegisterValue
      * @throws IOException
      */
@@ -940,14 +952,12 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
                             regValueMap.put(rtuRegister, registerValue);
                         }
                     } catch (NoSuchRegisterException e) {
-                        log(Level.FINEST, e.getMessage());
-                        getLogger().log(Level.INFO, "ObisCode " + obisCode + " is not supported by the meter.");
+                        getLogger().log(Level.WARNING, "ObisCode " + obisCode + " is not supported by the meter. " + e.getMessage());
                     }
                 }
             } catch (IOException e) {
                 // TODO if the connection is out you should not try and read the others as well...
-                log(Level.FINEST, e.getMessage());
-                getLogger().log(Level.INFO, "Reading register with obisCode " + obisCode + " FAILED.");
+                getLogger().log(Level.WARNING, "Reading register with obisCode " + obisCode + " FAILED. " + e.getMessage());
             }
         }
         return regValueMap;

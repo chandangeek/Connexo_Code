@@ -83,7 +83,11 @@ public class XdlmsAse {
 		}
 
 		if(getResponseAllowed()){ // true is the default value
-			xDlmsASEReq[t++] = (byte) 0x00;	// value is not present, default TRUE will be used
+//            xDlmsASEReq[t++] = (byte) 0x00;	// value is not present, default TRUE will be used
+            //TODO the original was the one above
+            
+			xDlmsASEReq[t++] = (byte) 0x01;	// value is not present, default TRUE will be used
+            xDlmsASEReq[t++] = (byte) 0x01;	// value is not present, default TRUE will be used
 		} else {
 			xDlmsASEReq[t++] = (byte)0x01; // indicating the presence of the value
 			xDlmsASEReq[t++] = (byte)0x00; // value is zero
