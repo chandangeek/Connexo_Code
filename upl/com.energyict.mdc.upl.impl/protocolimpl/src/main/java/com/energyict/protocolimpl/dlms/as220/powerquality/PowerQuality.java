@@ -78,4 +78,13 @@ public class PowerQuality {
     public int getNrOfChannels() throws IOException {
         return this.pqpb.getNrOfChannels();
     }
+
+    /**
+     * Getter for the PowerQualityLoadProfile
+     * @return the interval of the loadProfile
+     * @throws IOException
+     */
+    public int getProfileInterval() throws IOException {
+        return this.pqpb.getProfileInterval();
+}
 }

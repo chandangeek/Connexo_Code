@@ -37,6 +37,8 @@ public class EMeter {
     /** The used {@link com.energyict.protocolimpl.base.LoadLimitController} */
     private final LoadLimitController loadLimitController;
 
+    private int interval = -1;
+
 	/**
 	 * @param as220
 	 */
@@ -142,5 +144,18 @@ public class EMeter {
 			}
 		}
     	return nrOfChannels;
+    }
+
+    /**
+     * Getter for the profileInterval
+     *
+     * @return the profileInterval
+     * @throws IOException if the interval can not be fetched from the meter
+     */
+    public int getProfileInterval() throws IOException {
+        if (interval == -1) {
+            interval = getAs220().getCosemObjectFactory().getProfileGeneric(ENERGY_PROFILE_OBISCODE).getCapturePeriod();
+}
+        return interval;
     }
 }

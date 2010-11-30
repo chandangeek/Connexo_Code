@@ -25,6 +25,8 @@ public class PLC {
 
 	private final AS220 as220;
 
+    private int interval = -1;
+
 	/**
 	 * @param as220
 	 */
@@ -62,5 +64,11 @@ public class PLC {
 		return NR_OF_PLC_CHANNELS;
 	}
 
+    public int getProfileInterval() throws IOException {
+        if(interval == -1){
+            interval = getAs220().getCosemObjectFactory().getProfileGeneric(PLC_STATISTICS_OBISCODE).getCapturePeriod();
+        }
+        return interval;
+    }
 
 }

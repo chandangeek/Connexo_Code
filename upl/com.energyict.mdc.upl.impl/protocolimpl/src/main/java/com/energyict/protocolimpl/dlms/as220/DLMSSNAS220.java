@@ -94,7 +94,7 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     private int transparentBaudrate;
     private String nodeId;
     private String serialNumber;
-    private int iInterval=-1;
+    protected int iInterval=-1;
     private int extendedLogging;
     private int opticalBaudrate;
     private int profileType = 0;

@@ -351,4 +351,22 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 		return el.getExtendedLogging();
 	}
 
+    @Override
+    public int getProfileInterval() throws IOException {
+        if (iInterval == -1) {
+            switch (getProfileType()) {
+                // three separate Profiles
+                case PROFILETYPE_EMETER_ONLY:
+                    iInterval = geteMeter().getProfileInterval();break;
+                case PROFILETYPE_PLC_ONLY:
+                    iInterval = getPlc().getProfileInterval();break;
+                case PROFILETYPE_PQ_ONLY:
+                    iInterval = getPowerQuality().getProfileInterval();break;
+                default: // Default we use the profile of the Emeter
+                    iInterval = geteMeter().getProfileInterval();break;
+}
+        }
+        return iInterval;
+    }
+
 }
