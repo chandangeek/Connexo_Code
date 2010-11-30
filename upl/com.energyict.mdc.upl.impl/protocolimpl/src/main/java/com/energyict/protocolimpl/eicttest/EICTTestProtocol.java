@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.TimeZone;
 
 /**
  *
@@ -32,15 +31,17 @@ import java.util.TimeZone;
  */
 public class EICTTestProtocol extends AbstractProtocol implements MessageProtocol  {
 
-    private static final Date	Date	= null;
-	private static String FIRMWAREPROGRAM 	= "UpgradeMeterFirmware";
-    private static String FIRMWAREPROGRAM_DISPLAY 	= "Upgrade Meter Firmware";
+	private static final Date Date = null;
+	private static String FIRMWAREPROGRAM = "UpgradeMeterFirmware";
+	private static String FIRMWAREPROGRAM_DISPLAY = "Upgrade Meter Firmware";
 
-    private CacheObject cache;
+	private CacheObject cache;
 
-    EICTTestProtocolConnection connection;
-    private int eICTTestProperty;
-    ObisCode loadProfileObisCode;
+	EICTTestProtocolConnection connection;
+	private int eICTTestProperty;
+	ObisCode loadProfileObisCode;
+
+	private long steps;
 
     /** Creates a new instance of EICTTestProtocol */
     public EICTTestProtocol() {
@@ -170,33 +171,97 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         getLogger().info("--> here we read the profiledata for "+getLoadProfileObisCode().toString()+" from the meter and construct a profiledata object");
 
         ProfileData pd = new ProfileData();
-        if (getLoadProfileObisCode().getD() == 1) {
-	        pd.addChannel(new ChannelInfo(0, 0, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 1", Unit.get("kWh")));
-	        pd.addChannel(new ChannelInfo(1, 1, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 2", Unit.get("kvarh")));
-	        pd.addChannel(new ChannelInfo(2, 2, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 3", Unit.get("\u00B0C")));
-	        pd.addChannel(new ChannelInfo(3, 3, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 4", Unit.get("kWh")));
-	        pd.addChannel(new ChannelInfo(4, 4, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 5", Unit.get("kvarh")));
-	        pd.addChannel(new ChannelInfo(5, 5, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 6", Unit.get("\u00B0C")));
-	        pd.addChannel(new ChannelInfo(6, 6, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 7", Unit.get("kWh")));
-	        pd.addChannel(new ChannelInfo(7, 7, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 8", Unit.get("kvarh")));
-	        pd.addChannel(new ChannelInfo(8, 8, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 9", Unit.get("\u00B0C")));
-	        pd.addChannel(new ChannelInfo(9, 9, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 10", Unit.get("kWh")));
-        }
-        else if (getLoadProfileObisCode().getD() == 2) {
-	        pd.addChannel(new ChannelInfo(0, 0, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 1", Unit.get("kWh")));
-	        pd.addChannel(new ChannelInfo(1, 1, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 2", Unit.get("kvarh")));
-	        pd.addChannel(new ChannelInfo(2, 2, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 3", Unit.get("\u00B0C")));
-	        pd.addChannel(new ChannelInfo(3, 3, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 4", Unit.get("kWh")));
-	        pd.addChannel(new ChannelInfo(4, 4, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 5", Unit.get("kvarh")));
-	        pd.addChannel(new ChannelInfo(5, 5, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 6", Unit.get("\u00B0C")));
-	        pd.addChannel(new ChannelInfo(6, 6, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 7", Unit.get("kWh")));
-	        pd.addChannel(new ChannelInfo(7, 7, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 8", Unit.get("kvarh")));
-	        pd.addChannel(new ChannelInfo(8, 8, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 9", Unit.get("\u00B0C")));
-	        pd.addChannel(new ChannelInfo(9, 9, "EICT test profile " + getLoadProfileObisCode().toString() + " channel 10", Unit.get("kWh")));
-        }
-        else  {
-        	throw new NoSuchRegisterException("Invalid load profile request "+getLoadProfileObisCode().toString());
-        }
+        
+		boolean isCumulative = false;
+		if (getLoadProfileObisCode().getD() == 1) {
+			isCumulative = false;
+		} else if (getLoadProfileObisCode().getD() == 2) {
+			isCumulative = true;
+		} else {
+			throw new NoSuchRegisterException("Invalid load profile request "
+					+ getLoadProfileObisCode().toString());
+		}
+        
+		if (isCumulative == false) {
+			pd.addChannel(new ChannelInfo(0, 0, "EICT test profile "
+					+ getLoadProfileObisCode().toString() + " channel 1", Unit
+					.get("kWh")));
+			pd.addChannel(new ChannelInfo(1, 1, "EICT test profile "
+					+ getLoadProfileObisCode().toString() + " channel 2", Unit
+					.get("kvarh")));
+			pd.addChannel(new ChannelInfo(2, 2, "EICT test profile "
+					+ getLoadProfileObisCode().toString() + " channel 3", Unit
+					.get("\u00B0C")));
+			pd.addChannel(new ChannelInfo(3, 3, "EICT test profile "
+					+ getLoadProfileObisCode().toString() + " channel 4", Unit
+					.get("kWh")));
+			pd.addChannel(new ChannelInfo(4, 4, "EICT test profile "
+					+ getLoadProfileObisCode().toString() + " channel 5", Unit
+					.get("kvarh")));
+			pd.addChannel(new ChannelInfo(5, 5, "EICT test profile "
+					+ getLoadProfileObisCode().toString() + " channel 6", Unit
+					.get("\u00B0C")));
+			pd.addChannel(new ChannelInfo(6, 6, "EICT test profile "
+					+ getLoadProfileObisCode().toString() + " channel 7", Unit
+					.get("kWh")));
+			pd.addChannel(new ChannelInfo(7, 7, "EICT test profile "
+					+ getLoadProfileObisCode().toString() + " channel 8", Unit
+					.get("kvarh")));
+			pd.addChannel(new ChannelInfo(8, 8, "EICT test profile "
+					+ getLoadProfileObisCode().toString() + " channel 9", Unit
+					.get("\u00B0C")));
+			pd.addChannel(new ChannelInfo(9, 9, "EICT test profile "
+					+ getLoadProfileObisCode().toString() + " channel 10", Unit
+					.get("kWh")));
+		} else {
+			ChannelInfo ci = new ChannelInfo(0, 0, "EICT test profile "
+					+ getLoadProfileObisCode().toString() + " channel 1", Unit
+					.get("kWh"));
+			ci.setCumulative();
+			pd.addChannel(ci);
+			ci = new ChannelInfo(1, 1, "EICT test profile "
+					+ getLoadProfileObisCode().toString() + " channel 2", Unit
+					.get("kvarh"));
+			ci.setCumulative();
+			pd.addChannel(ci);
+			pd.addChannel(new ChannelInfo(2, 2, "EICT test profile "
+					+ getLoadProfileObisCode().toString() + " channel 3", Unit
+					.get("\u00B0C")));
+
+			ci = new ChannelInfo(3, 3, "EICT test profile "
+					+ getLoadProfileObisCode().toString() + " channel 4", Unit
+					.get("kWh"));
+			ci.setCumulative();
+			pd.addChannel(ci);
+			ci = new ChannelInfo(4, 4, "EICT test profile "
+					+ getLoadProfileObisCode().toString() + " channel 5", Unit
+					.get("kvarh"));
+			ci.setCumulative();
+			pd.addChannel(ci);
+			pd.addChannel(new ChannelInfo(5, 5, "EICT test profile "
+					+ getLoadProfileObisCode().toString() + " channel 6", Unit
+					.get("\u00B0C")));
+
+			ci = new ChannelInfo(6, 6, "EICT test profile "
+					+ getLoadProfileObisCode().toString() + " channel 7", Unit
+					.get("kWh"));
+			ci.setCumulative();
+			pd.addChannel(ci);
+			ci = new ChannelInfo(7, 7, "EICT test profile "
+					+ getLoadProfileObisCode().toString() + " channel 8", Unit
+					.get("kvarh"));
+			ci.setCumulative();
+			pd.addChannel(ci);
+			pd.addChannel(new ChannelInfo(8, 8, "EICT test profile "
+					+ getLoadProfileObisCode().toString() + " channel 9", Unit
+					.get("\u00B0C")));
+
+			ci = new ChannelInfo(9, 9, "EICT test profile "
+					+ getLoadProfileObisCode().toString() + " channel 10", Unit
+					.get("kWh"));
+			ci.setCumulative();
+			pd.addChannel(ci);
+		}
 
         // getTimeZone() returns the time zone that has been selected
         // in the RMR-tab of the device properties is EIServer
@@ -207,19 +272,34 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 		}
         ParseUtils.roundDown2nearestInterval(cal,getProfileInterval());
         Date now = new Date();
+        steps = 21600 / getProfileInterval(); // the amount of steps to take in 6 hours
         while(cal.getTime().before(now)) {
            IntervalData id = new IntervalData(cal.getTime());
 
-           id.addValue(calculateValue(cal, 10000, 1000));
-           id.addValue(calculateValue(cal, 1000, 50));
-           id.addValue(calculateValue(cal, 20, 5));
-           id.addValue(calculateValue(cal, 10000, 1000));
-           id.addValue(calculateValue(cal, 1000, 50));
-           id.addValue(calculateValue(cal, 20, 5));
-           id.addValue(calculateValue(cal, 10000, 1000));
-           id.addValue(calculateValue(cal, 1000, 50));
-           id.addValue(calculateValue(cal, 20, 5));
-           id.addValue(calculateValue(cal, 5000, 100));
+			if (isCumulative == false) {
+				id.addValue(calculateValue(cal, 10000, 1000));
+				id.addValue(calculateValue(cal, 1000, 50));
+				id.addValue(calculateValue(cal, 20, 5));
+				id.addValue(calculateValue(cal, 10000, 1000));
+				id.addValue(calculateValue(cal, 1000, 50));
+				id.addValue(calculateValue(cal, 20, 5));
+				id.addValue(calculateValue(cal, 10000, 1000));
+				id.addValue(calculateValue(cal, 1000, 50));
+				id.addValue(calculateValue(cal, 20, 5));
+				id.addValue(calculateValue(cal, 5000, 100));
+			} else {
+				id.addValue(calculateValueCumulative(cal, 1000));
+				id.addValue(calculateValueCumulative(cal, 50));
+				id.addValue(calculateValue(cal, 20, 5));
+				id.addValue(calculateValueCumulative(cal, 1000));
+				id.addValue(calculateValueCumulative(cal, 50));
+				id.addValue(calculateValue(cal, 20, 5));
+				id.addValue(calculateValueCumulative(cal, 1000));
+				id.addValue(calculateValueCumulative(cal, 50));
+				id.addValue(calculateValue(cal, 20, 5));
+				id.addValue(calculateValueCumulative(cal, 100));
+			}
+           
            pd.addInterval(id);
            cal.add(Calendar.SECOND, getProfileInterval());
         }
@@ -229,35 +309,78 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         return pd;
     }
     
-    private BigDecimal calculateValue(Calendar cal, long base, long amplitude)
-    {
-    	int utcOffset = (cal.get(Calendar.ZONE_OFFSET) + cal.get(Calendar.DST_OFFSET));
-    	long localTime = cal.getTime().getTime() + utcOffset;
-    	long offset = localTime % 86400000;
-    	if(offset<=21600000)
-    	{
-    		long delta = offset * amplitude / 21600000;
-    		return new BigDecimal(base + delta);
-    	}
-    	else if(offset<=43200000)
-    	{
-    		offset-=21600000;
-    		long delta = offset * amplitude / 21600000;
-    		return new BigDecimal(base + amplitude - delta);
-    	}
-    	else if(offset<=64800000)
-    	{
-    		offset-=43200000;
-    		long delta = offset * amplitude / 21600000;
-    		return new BigDecimal(base - delta);
-    	}
-    	else
-    	{
-    		offset-=64800000;
-    		long delta = offset * amplitude / 21600000;
-    		return new BigDecimal(base - amplitude + delta);
-    	}
-    }
+	private BigDecimal calculateValue(Calendar cal, long base, long amplitude) {
+		int utcOffset = (cal.get(Calendar.ZONE_OFFSET) + cal
+				.get(Calendar.DST_OFFSET));
+		long localTime = cal.getTime().getTime() + utcOffset;
+		long offset = localTime % 86400000;
+		if (offset <= 21600000) {
+			long delta = offset * amplitude / 21600000;
+			return new BigDecimal(base + delta);
+		} else if (offset <= 43200000) {
+			offset -= 21600000;
+			long delta = offset * amplitude / 21600000;
+			return new BigDecimal(base + amplitude - delta);
+		} else if (offset <= 64800000) {
+			offset -= 43200000;
+			long delta = offset * amplitude / 21600000;
+			return new BigDecimal(base - delta);
+		} else {
+			offset -= 64800000;
+			long delta = offset * amplitude / 21600000;
+			return new BigDecimal(base - amplitude + delta);
+		}
+	}
+    
+	private BigDecimal calculateValueCumulative(Calendar cal, long amplitude)
+			throws UnsupportedException, IOException {
+		int utcOffset = (cal.get(Calendar.ZONE_OFFSET) + cal
+				.get(Calendar.DST_OFFSET));
+		long localTime = (cal.getTime().getTime() + utcOffset) / 1000; // seconds
+		long value = localTime % 1000000; // overflow is 1000000
+		long step = (localTime % 86400) / getProfileInterval();
+		if (amplitude > getProfileInterval()) {
+			amplitude = getProfileInterval();
+		}
+		long delta = amplitude / steps;
+		if (delta == 0) {
+			delta = 1;
+		}
+
+		if (step <= steps) {
+			long factor = getFactor1(step);
+			return new BigDecimal(value + (factor * delta));
+		} else if (step <= steps * 2) {
+			step = steps - (step - steps);
+			long factor = getFactor1(steps) + getFactor2(step);
+			return new BigDecimal(value + (factor * delta));
+		} else if (step <= steps * 3) {
+			step -= (steps * 2);
+			long factor = getFactor1(steps) + getFactor2(0) - getFactor1(step);
+			return new BigDecimal(value + (factor * delta));
+		} else {
+			step -= (steps * 2);
+			step = steps - (step - steps);
+			long factor = getFactor2(0) - getFactor2(step);
+			return new BigDecimal(value + (factor * delta));
+		}
+	}
+
+	private long getFactor1(long step) {
+		long result = 0;
+		for (long i = 0; i <= step; i++) {
+			result += i;
+		}
+		return result;
+	}
+
+	private long getFactor2(long step) {
+		long result = 0;
+		for (long i = steps - 1; i >= step; i--) {
+			result += i;
+		}
+		return result;
+	}
 
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         getLogger().info("call overrided method getRegistersInfo("+extendedLogging+")");
@@ -356,6 +479,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         List list = new ArrayList();
         //add new properties here, e.g. below
         list.add("EICTTestProperty");
+        list.add("LoadProfileObisCode");
         return list;
     }
 	
