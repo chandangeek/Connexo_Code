@@ -8,6 +8,7 @@ import org.omg.Dynamic.Parameter;
 
 import com.energyict.cbo.*;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.util.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -21,6 +22,7 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	
 	static Map<ObisCode,ObjectEntry> objectEntries = new HashMap();
 	
+	private static final ObisCode CLOCK_OBIS_CODE=ObisCode.fromString("0.0.1.0.0.255");
 	
 	public static Map<ObisCode,ObjectEntry> getObjectEntries() {
 		return objectEntries;
@@ -227,9 +229,8 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 
 	@Override
 	public Date getTime() throws IOException {
-		TransparentGet o = new TransparentGet(this,new ObjectInfo(2,8,ObisCode.fromString("0.0.1.0.0.255")));
-		o.invoke();
-		DateTime dateTime = new DateTime(o.getDataType().getOctetString(), getTimeZone());
+		AbstractDataType o = transparantObjectAccessFactory.readObjectAttribute(CLOCK_OBIS_CODE, 2);
+		DateTime dateTime = new DateTime(o.getOctetString(), getTimeZone());
 		return dateTime.getValue().getTime();
 	}
 
@@ -264,14 +265,11 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	final void forceSetTime() throws IOException {
 		parameterFactory.writeTimeDateRTC(new Date());
 	}
-	
-	@Override
-	public void setTime() throws IOException {
-		if (correctTime>0) {
-			parameterFactory.writeTimeDateRTC(new Date());
-		}
-	}	
 */	
+	public void setWaveFlowTime() throws IOException {
+		parameterFactory.writeTimeDateRTC(new Date());
+	}	
+	
 	
     /**
      * Override this method to provide meter specific info for an obiscode mapped register. This method is called outside the communication session. So the info provided is static info in the protocol.

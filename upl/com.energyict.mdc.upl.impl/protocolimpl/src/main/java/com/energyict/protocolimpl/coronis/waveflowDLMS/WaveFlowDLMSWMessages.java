@@ -30,6 +30,16 @@ public class WaveFlowDLMSWMessages implements MessageProtocol {
 					return MessageResult.createFailed(messageEntry);
 				}
 			}
+			else if (messageEntry.getContent().indexOf("<ForceTimeSync")>=0) {
+				abstractDLMS.getLogger().info("************************* ForceTimeSync  (e-meter time)*************************");
+				abstractDLMS.forceSetTime();
+				return MessageResult.createSuccess(messageEntry);
+			}
+			if (messageEntry.getContent().indexOf("<SyncWaveFlowRTC")>=0) {
+				abstractDLMS.getLogger().info("************************* SyncWaveFlowRTC  (waveflow100mW time)*************************");
+				abstractDLMS.setWaveFlowTime();
+				return MessageResult.createSuccess(messageEntry);
+			}
 			else {
 				return MessageResult.createFailed(messageEntry);
 			}

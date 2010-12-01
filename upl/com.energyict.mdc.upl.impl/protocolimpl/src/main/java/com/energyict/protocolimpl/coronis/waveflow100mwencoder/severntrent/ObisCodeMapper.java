@@ -200,10 +200,15 @@ public class ObisCodeMapper {
 	    	else if ((obisCode.equals(ObisCode.fromString("8.1.1.0.0.255"))) || (obisCode.equals(ObisCode.fromString("8.2.1.0.0.255")))) { // Port A or B
 	    		int portId = obisCode.getB()<=1?0:1;
 	    		EncoderInternalData encoderInternalData = (EncoderInternalData)waveFlow100mW.readInternalDatas()[portId];
-	    		Unit unit = encoderInternalData.getEncoderUnitType().toUnit();
-	    		BigDecimal bd = new BigDecimal(encoderInternalData.getCurrentIndex()*100+encoderInternalData.getLastPart());
-	    		bd = bd.movePointLeft(10-encoderInternalData.getDecimalPosition()); 
-	    		return new RegisterValue(obisCode,new Quantity(bd, unit),new Date());
+	    		if (encoderInternalData == null) {
+	    			throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] does not exist. Probably port ["+(portId==0?"A":"B")+"] has no meter connected!");
+	    		}
+	    		else {
+		    		Unit unit = encoderInternalData.getEncoderUnitType().toUnit();
+		    		BigDecimal bd = new BigDecimal(encoderInternalData.getCurrentIndex()*100+encoderInternalData.getLastPart());
+		    		bd = bd.movePointLeft(10-encoderInternalData.getDecimalPosition()); 
+		    		return new RegisterValue(obisCode,new Quantity(bd, unit),new Date());
+	    		}
 	    	}	    	
 	    	
 	    	else {

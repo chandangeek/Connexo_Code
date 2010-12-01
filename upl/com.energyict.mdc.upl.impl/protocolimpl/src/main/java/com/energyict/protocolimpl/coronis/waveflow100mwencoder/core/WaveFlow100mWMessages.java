@@ -27,8 +27,13 @@ public class WaveFlow100mWMessages implements MessageProtocol {
 				return MessageResult.createSuccess(messageEntry);
 			}
 			else if (messageEntry.getContent().indexOf("<ForceTimeSync")>=0) {
-				waveFlow100mW.getLogger().info("************************* ForceTimeSync *************************");
+				waveFlow100mW.getLogger().info("************************* ForceTimeSync (waveflow100mW time) *************************");
 				waveFlow100mW.forceSetTime();
+				return MessageResult.createSuccess(messageEntry);
+			}
+			if (messageEntry.getContent().indexOf("<SyncWaveFlowRTC")>=0) {
+				waveFlow100mW.getLogger().info("************************* SyncWaveFlowRTC (waveflow100mW time) *************************");
+				waveFlow100mW.setWaveFlowTime();
 				return MessageResult.createSuccess(messageEntry);
 			}
 			else if (messageEntry.getContent().indexOf("<DetectMeter")>=0) {

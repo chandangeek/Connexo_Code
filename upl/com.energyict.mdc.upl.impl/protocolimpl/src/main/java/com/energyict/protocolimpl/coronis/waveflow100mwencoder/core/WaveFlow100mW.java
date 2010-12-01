@@ -82,7 +82,10 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
 	 */
 	private EncoderGenericHeader cachedEncoderGenericHeader=null;
 	
-	final public EncoderGenericHeader getCachedEncoderGenericHeader() {
+	final public EncoderGenericHeader getCachedEncoderGenericHeader() throws IOException {
+		if (cachedEncoderGenericHeader == null) {
+			radioCommandFactory.readInternalData();
+		}
 		return cachedEncoderGenericHeader;
 	}
 
@@ -183,10 +186,18 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
 		parameterFactory.writeTimeDateRTC(new Date());
 	}
 	
+	
+	
+	final void setWaveFlowTime() throws IOException {
+		parameterFactory.writeTimeDateRTC(new Date());
+	}
+	
 	@Override
 	public void setTime() throws IOException {
 		if (correctTime>0) {
 			parameterFactory.writeTimeDateRTC(new Date());
+			getLogger().warning("Restart the datalogging after a timeset!");
+			restartDataLogging();
 		}
 	}
 
