@@ -561,10 +561,10 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
             ipAddress.append(":");
             ipAddress.append(getIpPortNumber());
 
-            RtuShadow shadow = getMeter().getShadow();
-            shadow.setIpAddress(ipAddress.toString());
+            if (getMeter().getIpAddress() != null && !getMeter().getIpAddress().equalsIgnoreCase(ipAddress.toString())) {
+                getMeter().updateIpAddress(ipAddress.toString());
+            }
 
-            getMeter().update(shadow);
         } catch (IOException e) {
             log(Level.FINEST, e.getMessage());
             throw new IOException("Could not set the IP address." + e);

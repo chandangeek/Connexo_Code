@@ -632,11 +632,10 @@ public abstract class AbstractNTAProtocol extends MeterMessages implements Gener
 			ipAddress.append(":");
 			ipAddress.append(getPortNumber());
 
-			RtuShadow shadow = getMeter().getShadow();
-			shadow.setIpAddress(ipAddress.toString());
-			// shadow.setPhoneNumber(ipAddress.toString());
+            if (getMeter().getIpAddress() != null && !getMeter().getIpAddress().equalsIgnoreCase(ipAddress.toString())) {
+                getMeter().updateIpAddress(ipAddress.toString());
+            }
 
-			getMeter().update(shadow);
 		} catch (IOException e) {
 			log(Level.FINEST, e.getMessage());
 			throw new IOException("Could not set the IP address.");
