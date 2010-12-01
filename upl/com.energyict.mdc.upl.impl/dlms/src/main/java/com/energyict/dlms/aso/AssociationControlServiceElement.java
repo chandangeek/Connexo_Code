@@ -42,7 +42,9 @@ public class AssociationControlServiceElement {
 	private byte[] respondingAuthenticationValue;
 	private byte[] respondingAPTitle;
 	private XdlmsAse xdlmsAse;
-	private byte[] callingAPTitle;
+	private byte[] callingApplicationProcessTitle;
+    private byte[] calledApplicationProcessTitle;
+    private byte[] calledApplicationEntityQualifier;
 	private SecurityContext sc;
 
 	/**
@@ -119,19 +121,55 @@ public class AssociationControlServiceElement {
      * Getter for the CallingApplicationTitle
      * @return the title
      */
-	public byte[] getCallingAPTitle() {
-		return callingAPTitle;
+	public byte[] getCallingApplicationProcessTitle() {
+		return callingApplicationProcessTitle;
 	}
 
     /**
-     * Setter for the CallingApplicationTitle
-     * @param callingAPTitle the title to set
+     * Getter for the {@link #calledApplicationProcessTitle}
+     * @return the calledApplicationProcessTitle
      */
-	public void setCallingAPTitle(byte[] callingAPTitle) {
-		if(callingAPTitle != null){
-			this.callingAPTitle = callingAPTitle.clone();
+    public byte[] getCalledApplicationProcessTitle(){
+        return this.calledApplicationProcessTitle;
+    }
+
+    /**
+     * Getter for the {@link #calledApplicationEntityQualifier}
+     * @return the calledApplicationEntityQualifier
+     */
+    public byte[] getCalledApplicationEntityQualifier(){
+        return this.calledApplicationEntityQualifier;
+    }
+    
+    /**
+     * Setter for the CallingApplicationTitle
+     * @param callingApplicationProcessTitle the title to set
+     */
+	public void setCallingApplicationProcessTitle(byte[] callingApplicationProcessTitle) {
+		if(callingApplicationProcessTitle != null){
+			this.callingApplicationProcessTitle = callingApplicationProcessTitle.clone();
 		}
 	}
+
+    /**
+     * Setter for the {@link #calledApplicationProcessTitle}
+     * @param calledApplicationProcessTitle the APTitle to set
+     */
+    public void setCalledApplicationProcessTitle(byte[] calledApplicationProcessTitle){
+        if(calledApplicationProcessTitle != null){
+            this.calledApplicationProcessTitle = calledApplicationProcessTitle.clone();
+        }
+    }
+
+    /**
+     * Setter for the {@link #calledApplicationEntityQualifier}
+     * @param calledApplicationEntityQualifier the AEQualifier to set
+     */
+    public void setCalledApplicationEntityQualifier(byte[] calledApplicationEntityQualifier){
+        if(calledApplicationEntityQualifier != null){
+            this.calledApplicationEntityQualifier = calledApplicationEntityQualifier.clone();
+        }
+    }
 
 	/**
 	 * Release the current association
@@ -176,6 +214,15 @@ public class AssociationControlServiceElement {
 				getApplicationContextName().length);
 		t += getApplicationContextName().length;
 
+        if (generateCalledApplicationProcessTitleField() != null) {
+            System.arraycopy(generateCalledApplicationProcessTitleField(), 0, aarq, t, generateCalledApplicationProcessTitleField().length);
+            t += generateCalledApplicationProcessTitleField().length;
+        }
+
+        if (generateCalledApplicationEntityQualifier() != null) {
+            System.arraycopy(generateCalledApplicationEntityQualifier(), 0, aarq, t, generateCalledApplicationEntityQualifier().length);
+            t += generateCalledApplicationEntityQualifier().length;
+        }
 		/**
 		 * called-AE-qualifier [3]
 		 * AE-qualifier OPTIONAL, called-AP-invocation-id [4]
@@ -191,9 +238,9 @@ public class AssociationControlServiceElement {
 		 * printableStrings. TODO encode the above attributes
 		 */
 
-		if (generateCallingAPTitleField() != null) {
-			System.arraycopy(generateCallingAPTitleField(), 0, aarq, t, generateCallingAPTitleField().length);
-			t += generateCallingAPTitleField().length;
+		if (generateCallingApplicationProcessTitleField() != null) {
+			System.arraycopy(generateCallingApplicationProcessTitleField(), 0, aarq, t, generateCallingApplicationProcessTitleField().length);
+			t += generateCallingApplicationProcessTitleField().length;
 		}
 
 		if (this.mechanismId != 0) {
@@ -649,21 +696,58 @@ public class AssociationControlServiceElement {
 
 	/**
      * Generate the Calling ApplicationTitle byteArray
-	 * @return the byteArray containing the our AP title
+	 * @return the byteArray containing the our ApplicationProcess title
 	 */
-	private byte[] generateCallingAPTitleField() {
-		if (getCallingAPTitle() != null) {
-			byte[] callingAppTitleField = new byte[getCallingAPTitle().length + 4];
-			callingAppTitleField[0] = DLMSCOSEMGlobals.AARE_CALLING_AP_TITLE;
+	private byte[] generateCallingApplicationProcessTitleField() {
+		if (getCallingApplicationProcessTitle() != null) {
+			byte[] callingAppTitleField = new byte[getCallingApplicationProcessTitle().length + 4];
+			callingAppTitleField[0] = DLMSCOSEMGlobals.AARQ_CALLING_AP_TITLE;
 			callingAppTitleField[1] = (byte) (callingAppTitleField.length - 2); // length
 			callingAppTitleField[2] = (byte) 0x04; // choice for calling app title
 			callingAppTitleField[3] = (byte) (callingAppTitleField.length - 4); // length
-			System.arraycopy(getCallingAPTitle(), 0, callingAppTitleField, 4, getCallingAPTitle().length);
+			System.arraycopy(getCallingApplicationProcessTitle(), 0, callingAppTitleField, 4, getCallingApplicationProcessTitle().length);
 			return callingAppTitleField;
 		} else {
 			return null;
 		}
 	}
+
+    /**
+     * Generate the Called AppplicationProcess Title byteArray
+     * @return the byteArray containing the called ApplicationProcess title
+     */
+    private byte[] generateCalledApplicationProcessTitleField(){
+		if (getCalledApplicationProcessTitle() != null) {
+			byte[] callingAppTitleField = new byte[getCalledApplicationProcessTitle().length + 4];
+			callingAppTitleField[0] = DLMSCOSEMGlobals.AARQ_CALLED_AP_TITLE;
+			callingAppTitleField[1] = (byte) (callingAppTitleField.length - 2); // length
+			callingAppTitleField[2] = (byte) 0x04; // choice for calling app title
+			callingAppTitleField[3] = (byte) (callingAppTitleField.length - 4); // length
+			System.arraycopy(getCalledApplicationProcessTitle(), 0, callingAppTitleField, 4, getCalledApplicationProcessTitle().length);
+			return callingAppTitleField;
+		} else {
+			return null;
+		}
+    }
+
+    /**
+     * Generate the called ApplicationEntity qualifier byteArray
+     * @return the byteArray containing the called ApplicationEntity qualifier
+     */
+    private byte[] generateCalledApplicationEntityQualifier(){
+		if (getCalledApplicationEntityQualifier() != null) {
+			byte[] callingAppTitleField = new byte[getCalledApplicationEntityQualifier().length + 4];
+            //TODO change
+			callingAppTitleField[0] = DLMSCOSEMGlobals.AARQ_CALLED_AE_QUALIFIER;
+			callingAppTitleField[1] = (byte) (callingAppTitleField.length - 2); // length
+			callingAppTitleField[2] = (byte) 0x04; // choice for calling app title
+			callingAppTitleField[3] = (byte) (callingAppTitleField.length - 4); // length
+			System.arraycopy(getCalledApplicationEntityQualifier(), 0, callingAppTitleField, 4, getCalledApplicationEntityQualifier().length);
+			return callingAppTitleField;
+		} else {
+			return null;
+		}
+    }
 
 
 	/**

@@ -37,18 +37,33 @@ public class ApplicationServiceObject {
     /**
      * Default constructor
      *
-     * @param xDlmsAse        - the used {@link com.energyict.dlms.aso.XdlmsAse}
-     * @param protocolLink    - the used {@link com.energyict.dlms.ProtocolLink}
-     * @param securityContext - the used {@link com.energyict.dlms.aso.SecurityContext}
-     * @param contextId       - the contextId which indicates longName or shortName communication
-     * @throws IOException
+     * @param xDlmsAse        the used {@link com.energyict.dlms.aso.XdlmsAse}
+     * @param protocolLink    the used {@link com.energyict.dlms.ProtocolLink}
+     * @param securityContext the used {@link com.energyict.dlms.aso.SecurityContext}
+     * @param contextId       the contextId which indicates longName or shortName communication
      */
-    public ApplicationServiceObject(XdlmsAse xDlmsAse, ProtocolLink protocolLink, SecurityContext securityContext, int contextId) throws IOException {
+    public ApplicationServiceObject(XdlmsAse xDlmsAse, ProtocolLink protocolLink, SecurityContext securityContext, int contextId){
+        this(xDlmsAse, protocolLink, securityContext, contextId, null, null);
+    }
+
+    /**
+     * Constructor with additional parameters
+     * @param xDlmsAse        the used {@link com.energyict.dlms.aso.XdlmsAse}
+     * @param protocolLink    the used {@link com.energyict.dlms.ProtocolLink}
+     * @param securityContext the used {@link com.energyict.dlms.aso.SecurityContext}
+     * @param contextId       the contextId which indicates longName or shortName communication
+     * @param calledAPTitle   the calledApplicationProcessTitle
+     * @param calledAEQualifier the calledApplicationEntityQualifier
+     */
+    public ApplicationServiceObject(XdlmsAse xDlmsAse, ProtocolLink protocolLink, SecurityContext securityContext, int contextId,
+                                    byte[] calledAPTitle, byte[] calledAEQualifier){
         this.xDlmsAse = xDlmsAse;
         this.protocolLink = protocolLink;
         this.securityContext = securityContext;
         this.acse = new AssociationControlServiceElement(this.xDlmsAse, contextId, securityContext);
-        this.acse.setCallingAPTitle(securityContext.getSystemTitle());
+        this.acse.setCallingApplicationProcessTitle(securityContext.getSystemTitle());
+        this.acse.setCalledApplicationProcessTitle(calledAPTitle);
+        this.acse.setCalledApplicationEntityQualifier(calledAEQualifier);
         this.associationStatus = ASSOCIATION_DISCONNECTED;
     }
 

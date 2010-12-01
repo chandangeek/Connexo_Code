@@ -147,8 +147,8 @@ public abstract class AbstractNTAProtocol extends MeterMessages implements Gener
 	 * Properties
 	 */
 	protected Properties properties;
-	private int authenticationSecurityLevel;
-	private int datatransportSecurityLevel; 	
+	protected int authenticationSecurityLevel;
+	protected int datatransportSecurityLevel; 	
 	private int connectionMode; // 0: DLMS/HDLC - 1: DLMS/TCPIP
 	private int clientMacAddress;
 	private int serverLowerMacAddress;
@@ -505,10 +505,8 @@ public abstract class AbstractNTAProtocol extends MeterMessages implements Gener
 		XdlmsAse xDlmsAse = new XdlmsAse(null, true, -1, 6, cb, 1200);
 		//TODO the dataTransport encryptionType should be a property (although currently only 0 is described by DLMS)
 		SecurityContext sc = new SecurityContext(this.datatransportSecurityLevel, this.authenticationSecurityLevel, 0, "EIT12345".getBytes(), getSecurityProvider(), this.cipheringType);
-		
-		this.aso = new ApplicationServiceObject(xDlmsAse, this, sc, 
-					(this.datatransportSecurityLevel == 0)?AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING:
-					AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_WITH_CIPHERING);
+
+		this.aso = buildApplicationServiceObject(xDlmsAse, sc);
 		
 		this.dlmsConnection = new SecureConnection(this.aso, getTransportDLMSConnection());
 
@@ -529,7 +527,20 @@ public abstract class AbstractNTAProtocol extends MeterMessages implements Gener
 		this.storeObject = new StoreObject();
 	}
 
-	/**
+    /**
+     * Construct the desired {@link com.energyict.dlms.aso.ApplicationServiceObject}
+     *
+     * @param xDlmsAse the {@link com.energyict.dlms.aso.XdlmsAse} to use
+     * @param sc       the {@link com.energyict.dlms.aso.SecurityContext} to use
+     * @return the newly create ApplicationServiceObject
+     */
+    protected ApplicationServiceObject buildApplicationServiceObject(XdlmsAse xDlmsAse, SecurityContext sc) {
+        return new ApplicationServiceObject(xDlmsAse, this, sc,
+                (this.datatransportSecurityLevel == 0) ? AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING :
+                        AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_WITH_CIPHERING);
+    }
+
+    /**
 	 * @return the current securityProvider (currently only LocalSecurityProvider is available) 
 	 */
 	public SecurityProvider getSecurityProvider(){
