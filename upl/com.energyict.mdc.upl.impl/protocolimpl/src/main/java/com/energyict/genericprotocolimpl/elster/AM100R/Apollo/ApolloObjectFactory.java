@@ -204,4 +204,77 @@ public class ApolloObjectFactory {
         }
         return (ProfileGeneric) objectMap.get(getObisCodeProvider().getInstantaneousEnergyValueObisCode());
     }
+
+    public ProfileGeneric getGenericEventLog(ObisCode obisCode) {
+        if (!objectMap.containsKey(obisCode)) {
+            ProfileGeneric profile = new ProfileGeneric(this.meterProtocol, new ObjectReference(obisCode.getLN()));
+            objectMap.put(obisCode, profile);
+        }
+        return (ProfileGeneric) objectMap.get(obisCode);
+    }
+
+    /**
+     * Getter for the {@link com.energyict.dlms.cosem.ProfileGeneric} object which contains the Standard Events
+     *
+     * @return the standard event profile object
+     */
+    public ProfileGeneric getStandardEventLog() {
+        return getGenericEventLog(getObisCodeProvider().getStandardEventLogObisCode());
+    }
+
+    /**
+     * Getter for the {@link com.energyict.dlms.cosem.ProfileGeneric} object which contains the Fraud Detection event log
+     * @return the fraud detection event profile object
+     */
+    public ProfileGeneric getFraudDetectionEventLog() {
+        return getGenericEventLog(getObisCodeProvider().getFraudDetectionEventLogObisCode());
+    }
+
+    /**
+     * Getter for the {@link com.energyict.dlms.cosem.ProfileGeneric} object which contains the PowerQuality event log
+     * @return the power quality event profile object
+     */
+    public ProfileGeneric getPowerQualityEventLog() {
+        return getGenericEventLog(getObisCodeProvider().getPowerQualityEventLogObisCode());
+    }
+
+    /**
+     * Getter for the {@link com.energyict.dlms.cosem.ProfileGeneric} object which contains the DemandManagement event log
+     * @return the demand management event profile object
+     */
+    public ProfileGeneric getDemandManagementEventLog() {
+        return getGenericEventLog(getObisCodeProvider().getDemandManagementEventLog());
+    }
+
+    /**
+     * Getter for the {@link com.energyict.dlms.cosem.ProfileGeneric} object which contains the Common event log
+     * @return the common event profile object
+     */
+    public ProfileGeneric getCommonEventLog() {
+        return getGenericEventLog(getObisCodeProvider().getCommonEventLog());
+    }
+
+    /**
+     * Getter for the {@link com.energyict.dlms.cosem.ProfileGeneric} object which contains the PowerContract event log
+     * @return the power contract event profile object
+     */
+    public ProfileGeneric getPowerContractEventLog() {
+        return getGenericEventLog(getObisCodeProvider().getPowerContractEventLog());
+    }
+
+    /**
+     * Getter for the {@link com.energyict.dlms.cosem.ProfileGeneric} object which contains the Firmware event log
+     * @return the firmware event profile object
+     */
+    public ProfileGeneric getFirmwareEventLog() {
+        return getGenericEventLog(getObisCodeProvider().getFirmwareEventLog());
+    }
+
+    /**
+     * Getter for the {@link com.energyict.dlms.cosem.ProfileGeneric} object which contains the Object Synchronization event log
+     * @return the object synchronization event profile object
+     */
+    public ProfileGeneric getObjectSynchronizationEventLog() {
+        return getGenericEventLog(getObisCodeProvider().getObjectSynchronizationEventLog());
+    }
 }

@@ -156,13 +156,13 @@ public class ApolloMeter extends DLMSProtocol {
      */
     @Override
     protected void checkCacheObjects() throws IOException {
-        if ((((DLMSCache) getCache()).getObjectList() == null) || forcedToReadCache) {
-            log(Level.INFO, forcedToReadCache ? "ForcedToReadCache property is true, reading cache!" : "Cache does not exist, configuration is forced to be read.");
-            requestConfiguration();
-            ((DLMSCache) getCache()).saveObjectList(getMeterConfig().getInstantiatedObjectList());
-        } else {
-            log(Level.INFO, "Cache exist, will not be read!");
-        }
+//        if ((((DLMSCache) getCache()).getObjectList() == null) || forcedToReadCache) {
+//            log(Level.INFO, forcedToReadCache ? "ForcedToReadCache property is true, reading cache!" : "Cache does not exist, configuration is forced to be read.");
+//            requestConfiguration();
+//            ((DLMSCache) getCache()).saveObjectList(getMeterConfig().getInstantiatedObjectList());
+//        } else {
+//            log(Level.INFO, "Cache exist, will not be read!");
+//        }
     }
 
     /**
@@ -172,13 +172,13 @@ public class ApolloMeter extends DLMSProtocol {
      */
     @Override
     protected void requestConfiguration() throws IOException {
-        try {
-            // We retrieve the AssociationLNObject with clientAddress 0, this should return all objects ...
-            getMeterConfig().setInstantiatedObjectList(getApolloObjectFactory().getAssociationLnObject(0).getBuffer());
-        } catch (IOException e) {
-            log(Level.FINEST, e.getMessage());
-            throw new IOException("Requesting configuration failed." + e);
-        }
+//        try {
+//            // We retrieve the AssociationLNObject with clientAddress 0, this should return all objects ...
+//            getMeterConfig().setInstantiatedObjectList(getApolloObjectFactory().getAssociationLnObject(0).getBuffer());
+//        } catch (IOException e) {
+//            log(Level.FINEST, e.getMessage());
+//            throw new IOException("Requesting configuration failed." + e);
+//        }
     }
 
     /**
