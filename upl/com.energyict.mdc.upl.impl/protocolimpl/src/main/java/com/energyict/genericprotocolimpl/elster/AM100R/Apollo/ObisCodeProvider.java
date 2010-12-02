@@ -31,6 +31,22 @@ public class ObisCodeProvider implements CommonObisCodeProvider {
     public static final ObisCode associationLnFirmwareClient = ObisCode.fromString("0.0.40.0.4.255");
     public static final ObisCode firmwareVersionObisCode = ObisCode.fromString("1.0.0.2.0.255");
     public static final ObisCode instantaneousEnergyValuesObisCode = ObisCode.fromString("0.0.21.0.6.255");
+    public static final ObisCode refVoltagePQObisCode = ObisCode.fromString("1.0.0.6.4.255");
+    public static final ObisCode nrOfVoltageSagsAvgVoltageObisCode = ObisCode.fromString("1.0.94.34.90.255");
+    public static final ObisCode durationVoltageSagsAvgVoltageObisCode = ObisCode.fromString("1.0.93.34.91.255");
+    public static final ObisCode nrOfVoltageSwellsAvgVoltageObisCode = ObisCode.fromString("1.0.94.34.92.255");
+    public static final ObisCode durationVoltageSwellsAvgVoltageObisCode = ObisCode.fromString("1.0.93.34.93.255");
+
+    public static final ObisCode activeQuadrantObisCode = ObisCode.fromString("1.1.94.34.100.255");
+    public static final ObisCode activeQuadrantL1ObisCode = ObisCode.fromString("1.1.94.34.101.255");
+    public static final ObisCode activeQuadrantL2ObisCode = ObisCode.fromString("1.1.94.34.102.255");
+    public static final ObisCode activeQuadrantL3ObisCode = ObisCode.fromString("1.1.94.34.103.255");
+    public static final ObisCode phasePrecense = ObisCode.fromString("1.1.94.34.104.255");
+    public static final ObisCode transformerRatioCurrentNumObisCode = ObisCode.fromString("1.0.0.4.2.255");
+    public static final ObisCode transformerRatioVoltageNumObisCode = ObisCode.fromString("1.0.0.4.3.255");
+    public static final ObisCode transformerRatioCurrentDenObisCode = ObisCode.fromString("1.0.0.4.5.255");
+    public static final ObisCode transformerRatioVoltageDenObisCode = ObisCode.fromString("1.0.0.4.6.255");
+    
 
 
     /**
@@ -44,8 +60,7 @@ public class ObisCodeProvider implements CommonObisCodeProvider {
      * @return the obisCode for the <i>default</i> {@link com.energyict.dlms.cosem.ProfileGeneric}
      */
     public ObisCode getDefaultLoadProfileObisCode() {
-//        return loadProfileP1;
-        return loadProfileMonthly;
+        return loadProfileP1;
     }
 
     /**

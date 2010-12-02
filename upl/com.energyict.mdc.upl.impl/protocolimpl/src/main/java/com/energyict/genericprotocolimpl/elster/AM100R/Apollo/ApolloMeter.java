@@ -104,12 +104,14 @@ public class ApolloMeter extends DLMSProtocol {
             }
 
             if (getCommunicationProfile().getReadDemandValues()) {
-                getLogger().log(Level.INFO, "Getting ProfileData for meter with serialnumber: " + this.serialNumber);
-                getProfileData();
+//                getLogger().log(Level.INFO, "Getting ProfileData for meter with serialnumber: " + this.serialNumber);
+//                getProfileData();
+                getLogger().log(Level.INFO, "Currently no LoadProfile Support!");
             }
 
             if (getCommunicationProfile().getReadMeterEvents()) {
                 //TODO complete
+                getLogger().log(Level.INFO, "Currently no Event Support!");
             }
 
             if (getCommunicationProfile().getReadMeterReadings()) {
@@ -132,7 +134,7 @@ public class ApolloMeter extends DLMSProtocol {
         ProfileData pd = new ProfileData();
         pd.setChannelInfos(apb.getChannelInfos());
         Calendar fromCalendar = Calendar.getInstance();
-        fromCalendar.add(Calendar.DAY_OF_MONTH,-3);
+        fromCalendar.add(Calendar.MONTH,-3);
         pg.getBuffer(fromCalendar).printDataContainer();
         getLogger().info("ProfileCapturePeriod: " + pg.getCapturePeriod());
         getLogger().info("EntriesInUse: " + pg.getEntriesInUse());
@@ -154,31 +156,30 @@ public class ApolloMeter extends DLMSProtocol {
      */
     @Override
     protected void checkCacheObjects() throws IOException {
-//        if ((((DLMSCache) getCache()).getObjectList() == null) || forcedToReadCache) {
-//            log(Level.INFO, forcedToReadCache ? "ForcedToReadCache property is true, reading cache!" : "Cache does not exist, configuration is forced to be read.");
-//            requestConfiguration();
-//            ((DLMSCache) getCache()).saveObjectList(getMeterConfig().getInstantiatedObjectList());
-//        } else {
-//            log(Level.INFO, "Cache exist, will not be read!");
-//        }
+        if ((((DLMSCache) getCache()).getObjectList() == null) || forcedToReadCache) {
+            log(Level.INFO, forcedToReadCache ? "ForcedToReadCache property is true, reading cache!" : "Cache does not exist, configuration is forced to be read.");
+            requestConfiguration();
+            ((DLMSCache) getCache()).saveObjectList(getMeterConfig().getInstantiatedObjectList());
+        } else {
+            log(Level.INFO, "Cache exist, will not be read!");
+        }
     }
 
-//    /**
-//     * Request Association buffer list out of the meter.
-//     *
-//     * @throws IOException if something fails during the request or the parsing of the buffer
-//     */
-//    @Override
-//    protected void requestConfiguration() throws IOException {
-//        try {
-//
-//            getMeterConfig().setInstantiatedObjectList(getApolloObjectFactory().getAssociationLnObject(this.clientMacAddress).getBuffer());
-//
-//        } catch (IOException e) {
-//            log(Level.FINEST, e.getMessage());
-//            throw new IOException("Requesting configuration failed." + e);
-//        }
-//    }
+    /**
+     * Request Association buffer list out of the meter.
+     *
+     * @throws IOException if something fails during the request or the parsing of the buffer
+     */
+    @Override
+    protected void requestConfiguration() throws IOException {
+        try {
+            // We retrieve the AssociationLNObject with clientAddress 0, this should return all objects ...
+            getMeterConfig().setInstantiatedObjectList(getApolloObjectFactory().getAssociationLnObject(0).getBuffer());
+        } catch (IOException e) {
+            log(Level.FINEST, e.getMessage());
+            throw new IOException("Requesting configuration failed." + e);
+        }
+    }
 
     /**
      * Return the SystemTitle to be used in the DLMS association request.

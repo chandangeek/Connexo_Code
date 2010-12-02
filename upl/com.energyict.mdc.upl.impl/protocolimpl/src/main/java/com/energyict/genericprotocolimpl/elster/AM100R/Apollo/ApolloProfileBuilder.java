@@ -82,7 +82,7 @@ public class ApolloProfileBuilder {
             this.scalerUnits = new ScalerUnit[getNumberOfChannels()];
             int counter = 0;
             for (CapturedObject co : profileGeneric.getCaptureObjects()) {
-                if (isChannelData(co)) {
+                if (ProfileUtils.isChannelData(co)) {
                     this.scalerUnits[counter++] = this.meterProtocol.getApolloObjectFactory().getCosemtObject(co.getLogicalName().getObisCode(), co.getClassId()).getScalerUnit();
                 }
             }
@@ -100,7 +100,7 @@ public class ApolloProfileBuilder {
         if (this.numberOfChannels == -1) {
             this.numberOfChannels = 0;
             for (CapturedObject co : profileGeneric.getCaptureObjects()) {
-                if (isChannelData(co)) {
+                if (ProfileUtils.isChannelData(co)) {
                     numberOfChannels++;
                 }
             }
@@ -108,17 +108,4 @@ public class ApolloProfileBuilder {
         return this.numberOfChannels;
     }
 
-    /**
-     * Checks if a {@link com.energyict.dlms.cosem.CapturedObject} is a valid Energy Channel.
-     * The check is based of the type of the ClassId(3, 4, 5) and the AttributeIndex (2)
-     *
-     * @param co the capturedObject to test
-     * @return true or false
-     */
-    private boolean isChannelData(CapturedObject co) {
-        return (((co.getClassId() == DLMSClassId.REGISTER.getClassId())
-                || (co.getClassId() == DLMSClassId.EXTENDED_REGISTER.getClassId())
-                || (co.getClassId() == DLMSClassId.DEMAND_REGISTER.getClassId()))
-                && co.getAttributeIndex() == 2);
-    }
 }
