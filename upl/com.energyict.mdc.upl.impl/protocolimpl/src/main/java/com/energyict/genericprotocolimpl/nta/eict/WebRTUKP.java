@@ -45,7 +45,7 @@ public class WebRTUKP extends AbstractNTAProtocol {
             return new ApplicationServiceObject(xDlmsAse, this, sc,
                     (this.datatransportSecurityLevel == 0) ? AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING :
                             AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_WITH_CIPHERING,
-                    this.serialNumber.getBytes(), Integer.toString(getMeter().getDownstreamRtus().size()).getBytes());
+                    this.serialNumber.getBytes(), null);
         } else {
             return super.buildApplicationServiceObject(xDlmsAse, sc);
         }
