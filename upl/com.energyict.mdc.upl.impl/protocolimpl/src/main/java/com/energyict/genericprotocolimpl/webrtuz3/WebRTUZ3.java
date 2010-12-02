@@ -15,7 +15,6 @@ import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.MessageExecuto
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.*;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.MessageCategorySpec;
@@ -444,7 +443,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
     }
 
     @Override
-    protected void doValidateProperties() {
+    protected void doValidateProperties() throws MissingPropertyException, InvalidPropertyException {
 
         if ((getMeter() != null) && (!getMeter().getSerialNumber().equals(""))) {
             this.serialNumber = getMeter().getSerialNumber();
@@ -458,13 +457,13 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
             this.password = getProperties().getProperty(PROPERTY_PASSWORD, DEFAULT_PASSWORD);
         }
 
-        this.requestTimeZone = Integer.parseInt(getProperties().getProperty(PROPERTY_REQUEST_TIME_ZONE, DEFAULT_REQUEST_TIMEZONE));
-        this.readDaily = (Integer.parseInt(getProperties().getProperty(PROPERTY_READ_DAILY_VALUES, DEFAULT_READ_DAILY_VALUES)) == 1) ? true : false;
-        this.readMonthly = (Integer.parseInt(getProperties().getProperty(PROPERTY_READ_MONTHLY_VALUES, DEFAULT_READ_MONTHLY_VALUES)) == 1) ? true : false;
+        this.requestTimeZone = ProtocolTools.getPropertyAsInt(getProperties(), PROPERTY_REQUEST_TIME_ZONE, DEFAULT_REQUEST_TIMEZONE);
+        this.readDaily = (ProtocolTools.getPropertyAsInt(getProperties(), PROPERTY_READ_DAILY_VALUES, DEFAULT_READ_DAILY_VALUES) == 1) ? true : false;
+        this.readMonthly = (ProtocolTools.getPropertyAsInt(getProperties(), PROPERTY_READ_MONTHLY_VALUES, DEFAULT_READ_MONTHLY_VALUES) == 1) ? true : false;
         this.mbusRtuType = getProperties().getProperty(PROPERTY_MBUS_RTUTYPE);
         this.eMeterRtuType = getProperties().getProperty(PROPERTY_EMETER_RTUTYPE);
         this.folderExtName = getProperties().getProperty(PROPERTY_FOLDER_EXT_NAME);
-        this.runTestMethod = (Integer.parseInt(getProperties().getProperty(PROPERTY_RUNTESTMETHOD, DEFAULT_RUNTESTMETHOD)) == 1) ? true : false;
+        this.runTestMethod = (ProtocolTools.getPropertyAsInt(getProperties(), PROPERTY_RUNTESTMETHOD, DEFAULT_RUNTESTMETHOD) == 1) ? true : false;
 
     }
 

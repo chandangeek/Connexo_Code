@@ -9,7 +9,8 @@ import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.genericprotocolimpl.common.wakeup.SmsWakeup;
 import com.energyict.genericprotocolimpl.webrtuz3.Z3MeterToolProtocol;
@@ -19,6 +20,7 @@ import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.*;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -188,7 +190,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
     /**
      * Configuration of the protocol specific Required and Optional properties
      */
-    protected abstract void doValidateProperties();
+    protected abstract void doValidateProperties() throws MissingPropertyException, InvalidPropertyException;
 
     /**
      * Build the logic to provide the desired {@link SecurityProvider}.
@@ -365,44 +367,52 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
         }
 
         String[] securityLevel = properties.getProperty("SecurityLevel", "0").split(":");
-        this.authenticationSecurityLevel = Integer.parseInt(securityLevel[0]);
+        try {
+            this.authenticationSecurityLevel = Integer.parseInt(securityLevel[0]);
+        } catch (NumberFormatException e) {
+            throw new InvalidPropertyException("Property [SecurityLevel] contains an invalid (non numerical) value: " + securityLevel[0]);
+        }
         if (securityLevel.length == 2) {
-            this.datatransportSecurityLevel = Integer.parseInt(securityLevel[1]);
+            try {
+                this.datatransportSecurityLevel = Integer.parseInt(securityLevel[1]);
+            } catch (NumberFormatException e) {
+                throw new InvalidPropertyException("Property [SecurityLevel] contains an invalid (non numerical) value: " + securityLevel[1]);
+            }
         } else if (securityLevel.length == 1) {
             this.datatransportSecurityLevel = 0;
         } else {
-            throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + properties.getProperty("SecurityLevel", "0"));
+            throw new InvalidPropertyException("SecurityLevel property contains an illegal value " + properties.getProperty("SecurityLevel", "0"));
         }
 
         this.password = getMeter().getPassword();
 
-        this.connectionMode = Integer.parseInt(properties.getProperty("Connection", "1"));
+        this.connectionMode = ProtocolTools.getPropertyAsInt(properties, "Connection", "1");
 
-        this.clientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "16"));
+        this.clientMacAddress = ProtocolTools.getPropertyAsInt(properties, "ClientMacAddress", "16");
 
-        this.serverLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "1"));
+        this.serverLowerMacAddress = ProtocolTools.getPropertyAsInt(properties, "ServerLowerMacAddress", "1");
 
-        this.serverUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "17"));
+        this.serverUpperMacAddress = ProtocolTools.getPropertyAsInt(properties, "ServerUpperMacAddress", "17");
 
-        this.timeOut = Integer.parseInt(properties.getProperty("Timeout", (this.connectionMode == 0) ? "5000" : "60000"));    // set the HDLC timeout to 5000 for the WebRTU KP
+        this.timeOut = ProtocolTools.getPropertyAsInt(properties, "Timeout", (this.connectionMode == 0) ? "5000" : "60000");    // set the HDLC timeout to 5000 for the WebRTU KP
 
-        this.forceDelay = Integer.parseInt(properties.getProperty("ForceDelay", "1"));
+        this.forceDelay = ProtocolTools.getPropertyAsInt(properties, "ForceDelay", "1");
 
-        this.retries = Integer.parseInt(properties.getProperty("Retries", "3"));
+        this.retries = ProtocolTools.getPropertyAsInt(properties, "Retries", "3");
 
-        this.addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "2"));
+        this.addressingMode = ProtocolTools.getPropertyAsInt(properties, "AddressingMode", "2");
 
         this.manufacturer = properties.getProperty("Manufacturer", "WKP");
 
-        this.informationFieldSize = Integer.parseInt(properties.getProperty("InformationFieldSize", "-1"));
+        this.informationFieldSize = ProtocolTools.getPropertyAsInt(properties, "InformationFieldSize", "-1");
 
-        this.roundTripCorrection = Integer.parseInt(properties.getProperty("RoundTripCorrection", "0"));
+        this.roundTripCorrection = ProtocolTools.getPropertyAsInt(properties, "RoundTripCorrection", "0");
 
-        this.wakeup = Integer.parseInt(properties.getProperty("WakeUp", "0"));
+        this.wakeup = ProtocolTools.getPropertyAsInt(properties, "WakeUp", "0");
 
         this.ipPortNumber = properties.getProperty("IpPortNumber", "4059");
 
-        this.cipheringType = Integer.parseInt(properties.getProperty("CipheringType", Integer.toString(SecurityContext.CIPHERING_TYPE_GLOBAL)));
+        this.cipheringType = ProtocolTools.getPropertyAsInt(properties, "CipheringType", Integer.toString(SecurityContext.CIPHERING_TYPE_GLOBAL));
         if (cipheringType != SecurityContext.CIPHERING_TYPE_GLOBAL && cipheringType != SecurityContext.CIPHERING_TYPE_DEDICATED) {
             throw new InvalidPropertyException("Only 0 or 1 is allowed for the CipheringType property");
         }

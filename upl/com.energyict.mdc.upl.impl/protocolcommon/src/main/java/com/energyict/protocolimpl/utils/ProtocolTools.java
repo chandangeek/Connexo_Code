@@ -651,4 +651,28 @@ public final class ProtocolTools {
 
     }
 
+    /**
+     * Get an int from a property, and check for invalid values (resulting in a NumberFormatException)
+     * Throws a InvalidPropertyException is the property does not exist, and no default value is given,
+     * or if the value is not a number.
+     *
+     * @param properties
+     * @param key
+     * @param defaultValue
+     * @return
+     * @throws InvalidPropertyException
+     */
+    public static int getPropertyAsInt(Properties properties, String key, String defaultValue) throws InvalidPropertyException {
+        String value = properties.getProperty(key, defaultValue);
+        if (value == null) {
+            throw new InvalidPropertyException("Property [" + key + "] returned 'null'");
+        } else {
+            try {
+                return Integer.parseInt(value);
+            } catch (NumberFormatException e) {
+                throw new InvalidPropertyException("Property [" + key + "] is not a number. Contains [" + value + "]");
+            }
+        }
+    }
+
 }
