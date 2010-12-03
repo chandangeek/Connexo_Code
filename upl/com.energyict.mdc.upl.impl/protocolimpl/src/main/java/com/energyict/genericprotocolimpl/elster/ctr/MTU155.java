@@ -3,9 +3,11 @@ package com.energyict.genericprotocolimpl.elster.ctr;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.*;
 import com.energyict.genericprotocolimpl.common.*;
+import com.energyict.genericprotocolimpl.common.messages.*;
 import com.energyict.genericprotocolimpl.elster.ctr.events.CTRMeterEvent;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRConfigurationException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
+import com.energyict.genericprotocolimpl.elster.ctr.messaging.MTU155MessageExecutor;
 import com.energyict.genericprotocolimpl.elster.ctr.profile.*;
 import com.energyict.genericprotocolimpl.elster.ctr.util.MeterInfo;
 import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
@@ -13,6 +15,7 @@ import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocolimpl.debug.DebugUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -277,7 +280,26 @@ public class MTU155 extends AbstractGenericProtocol {
         //Send the meter messages
         if (communicationProfile.getSendRtuMessage()) {
             getLogger().log(Level.INFO, "Sending messages to meter with serial number: " + getRtuSerialNumber());
-            // TODO: implement method
+            sendMeterMessages();
+        }
+
+    }
+
+    private void sendMeterMessages() {
+
+        MTU155MessageExecutor messageExecutor = new MTU155MessageExecutor();
+
+        Iterator<RtuMessage> it = getRtu().getPendingMessages().iterator();
+        RtuMessage rm = null;
+        while (it.hasNext()) {
+            rm = it.next();
+            try {
+                messageExecutor.doMessage(rm);
+            } catch (BusinessException e) {
+                getLogger().severe("Unable to send message [" + rm.displayString() + "]! " + e.getMessage());
+            } catch (SQLException e) {
+                getLogger().severe("Unable to send message [" + rm.displayString() + "]! " + e.getMessage());
+            }
         }
 
     }
@@ -544,6 +566,22 @@ public class MTU155 extends AbstractGenericProtocol {
             return tz;
         }
         return getRtu().getDeviceTimeZone();
+    }
+
+    @Override
+    public List getMessageCategories() {
+        List<MessageCategorySpec> categories = new ArrayList();
+        categories.add(getConnectivityCategory());
+        return categories;
+    }
+
+    /**
+     * @return the messages for the ConnectivityCategory
+     */
+    private MessageCategorySpec getConnectivityCategory() {
+        MessageCategorySpec catGPRSModemSetup = new MessageCategorySpec(RtuMessageCategoryConstants.CHANGECONNECTIVITY);
+        catGPRSModemSetup.addMessageSpec(addChangeGPRSSetup(RtuMessageKeyIdConstants.GPRSMODEMSETUP, RtuMessageConstant.GPRS_MODEM_SETUP, false));
+        return catGPRSModemSetup;
     }
 
 }

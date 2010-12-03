@@ -2,6 +2,7 @@ package com.energyict.genericprotocolimpl.common;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.Link;
+import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.core.CommunicationScheduler;
 
@@ -21,7 +22,7 @@ import java.util.logging.Logger;
  * This abstract class should contain all the most used and common methods of a basic generic protocol.
  * Keep this class reusable for other generic protocols. No protocol specific code here.
  */
-public abstract class AbstractGenericProtocol implements GenericProtocol {
+public abstract class AbstractGenericProtocol extends GenericMessaging implements GenericProtocol {
 
     private Properties properties = null;
     private long timeDifference = 0;
