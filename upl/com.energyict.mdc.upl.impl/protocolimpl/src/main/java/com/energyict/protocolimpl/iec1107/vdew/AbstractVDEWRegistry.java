@@ -6,12 +6,12 @@
 
 package com.energyict.protocolimpl.iec1107.vdew;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.*;
+
+import java.io.IOException;
+import java.util.*;
 
 /**
  *
@@ -204,7 +204,7 @@ public abstract class AbstractVDEWRegistry {
             else throw new VDEWException("AbstractVDEWRegister, validateData, error received ("+str+")");
         }
         // Ferranti protocol
-        else if (str.indexOf("#") != -1) {
+        else if ((str.indexOf("#") == 0) || (str.indexOf("(#") == 0)) {
             if (getMeterExceptionInfo() != null) {
                str=ProtocolUtils.stripBrackets(str);
                throw new FlagIEC1107ConnectionException("AbstractVDEWRegister, validateData, error received ("+str+") = "+getMeterExceptionInfo().getExceptionInfo(str));                    
@@ -219,7 +219,7 @@ public abstract class AbstractVDEWRegistry {
                throw new FlagIEC1107ConnectionException("AbstractVDEWRegister, validateData, error received ("+str+")");
         }
         // Iskra EMECO protocol
-        else if (str.indexOf("ER") != -1) {
+        else if ((str.indexOf("ER") == 0) || (str.indexOf("(ER") == 0)) {
             if (getMeterExceptionInfo() != null) {
                String exceptionId = str.substring(str.indexOf("ER"),str.indexOf("ER")+4);
                throw new FlagIEC1107ConnectionException("AbstractVDEWRegister, validateData, error received ("+str+") = "+getMeterExceptionInfo().getExceptionInfo(exceptionId));                    
