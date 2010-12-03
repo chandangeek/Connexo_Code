@@ -4,7 +4,6 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.CommonUtils;
@@ -33,6 +32,20 @@ import java.util.logging.Logger;
  */
 public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
 
+    /**
+     * Property names
+     */
+    private static final String PROPERTY_READ_DAILY_VALUES = "ReadDailyValues";
+    private static final String PROPERTY_READ_MONTHLY_VALUES = "ReadMonthlyValues";
+    private static final String PROPERTY_RUNTESTMETHOD = "RunTestMethod";
+
+    /**
+     * Property default values
+     */
+    private static final String DEFAULT_READ_DAILY_VALUES = "1";
+    private static final String DEFAULT_READ_MONTHLY_VALUES = "1";
+    private static final String DEFAULT_RUNTESTMETHOD = "0";
+
     public static final ObisCode FIRMWARE_OBISCODE = ObisCode.fromString("0.0.0.2.0.255");
     public static final ObisCode SERIAL_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
     public static final ObisCode PROFILE_OBISCODE = ObisCode.fromString("0.0.99.1.0.255");
@@ -41,17 +54,34 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
     public static final ObisCode DAILY_PROFILE_OBIS = ObisCode.fromString("0.0.99.2.0.255");
     public static final ObisCode DISCONNECTOR_OBIS = ObisCode.fromString("0.0.96.3.10.255");
 
-    private CommunicationProfile	commProfile;
-	private WebRTUZ3				webRtu;
-	private String					serialNumber;
-	private int						physicalAddress;
-	private Rtu						eMeterRtu;
-	private Logger					logger;
+    /**
+     * Property to allow reading the daily values
+     */
+    private boolean readDaily = true;
+
+    /**
+     * Property to allow reading the monthly values
+     */
+    private boolean readMonthly = true;
+
+    /**
+     * Property to enable debugging on the emeter 
+     */
+    private boolean runTestMethod;
+
+
+    private final Properties properties = new Properties();
+    private CommunicationProfile commProfile;
+    private WebRTUZ3 webRtu;
+    private String serialNumber;
+    private int physicalAddress;
+    private Rtu eMeterRtu;
+    private Logger logger;
 
     private HistoricalRegisterReadings historicalRegisters;
     private MeterAmrLogging meterAmrLogging;
 
-	public EMeter() {
+    public EMeter() {
 
 	}
 
@@ -68,15 +98,22 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
 		this.logger = logger;
 	}
 
+    public void validateProperties() throws MissingPropertyException, InvalidPropertyException {
+        this.readDaily = (ProtocolTools.getPropertyAsInt(getProperties(), PROPERTY_READ_DAILY_VALUES, DEFAULT_READ_DAILY_VALUES) == 1) ? true : false;
+        this.readMonthly = (ProtocolTools.getPropertyAsInt(getProperties(), PROPERTY_READ_MONTHLY_VALUES, DEFAULT_READ_MONTHLY_VALUES) == 1) ? true : false;
+        this.runTestMethod = (ProtocolTools.getPropertyAsInt(getProperties(), PROPERTY_RUNTESTMETHOD, DEFAULT_RUNTESTMETHOD) == 1) ? true : false;
+    }
+
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
 		this.commProfile = scheduler.getCommunicationProfile();
+        validateProperties();
 
-        //testMethod();
+        testMethod();
 
-			// Before reading data, check the serialnumber
-			verifySerialNumber();
+        // Before reading data, check the serialnumber
+        verifySerialNumber();
 
-		// import profile
+        // import profile
 		if(commProfile.getReadDemandValues()){
 			getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + geteMeterRtu().getSerialNumber());
 			EMeterProfile mp = new EMeterProfile(this);
@@ -98,13 +135,13 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
 		if(commProfile.getReadMeterReadings()){
 			DailyMonthly mdm = new DailyMonthly(this);
 
-			if(getWebRTU().isReadDaily()){
+			if(isReadDaily()){
 				getLogger().log(Level.INFO, "Getting Daily values for meter with serialnumber: " + geteMeterRtu().getSerialNumber());
                 ProfileData dailyPd = mdm.getDailyValues(getCorrectedObisCode(DAILY_PROFILE_OBIS));
 				this.webRtu.getStoreObject().add(dailyPd, geteMeterRtu());
 			}
 
-			if(getWebRTU().isReadMonthly()){
+			if(isReadMonthly()){
 				getLogger().log(Level.INFO, "Getting Monthly values for meter with serialnumber: " + geteMeterRtu().getSerialNumber());
                 ProfileData montProfileData = mdm.getMonthlyValues(getCorrectedObisCode(MONTHLY_PROFILE_OBIS));
 				this.webRtu.getStoreObject().add(montProfileData, geteMeterRtu());
@@ -121,36 +158,27 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
 	}
 
     private void testMethod() {
-        String crlfcrlf = "\r\n\r\n";
-        System.out.println(crlfcrlf + "EMeter testMethod(): ");
-        try {
-            UniversalObject[] objects = getMeterConfig().getInstantiatedObjectList();
-            for (int i = 0; i < objects.length; i++) {
-                UniversalObject object = objects[i];
-                if (object.getObisCode().getB() == physicalAddress) {
-                    System.out.println(object.getDescription());
+        if (isRunTestMethod()) {
+            StringBuffer sb = new StringBuffer();
+            sb.append("\r\n\r\n").append("Emeter objects = ").append("\r\n");
+            try {
+                UniversalObject[] objects = getMeterConfig().getInstantiatedObjectList();
+                for (int i = 0; i < objects.length; i++) {
+                    UniversalObject object = objects[i];
+                    if (object.getObisCode().getB() == physicalAddress) {
+                        sb.append(object.getDescription()).append("\r\n");
+                    }
                 }
+            } catch (Exception e) {
+                sb.append("\r\n");
+                sb.append("An error occured while reading the objectList: ").append(e.getMessage());
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            getLogger().warning(sb.toString());
         }
-        System.out.println(crlfcrlf);
-
-        try {
-            ProfileGeneric pg = getCosemObjectFactory().getProfileGeneric(getCorrectedObisCode(EVENTS_OBISCODE));
-            byte[] bytes = pg.getBufferData();
-            Array events = new Array(bytes, 0, 0);
-            System.out.println(ProtocolTools.getHexStringFromBytes(bytes));
-            System.out.println(pg);
-            System.out.println(events);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
     }
 
     /**
-     * 
+     *
      * @return
      */
     private String doReadFirmwareVersion() {
@@ -201,7 +229,7 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
 
 
     /**
-     * 
+     *
      * @param obisCode
      * @return
      * @throws IOException
@@ -247,7 +275,7 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
 	}
 
     /**
-     * 
+     *
       * @param baseObisCode
      * @return
      */
@@ -283,7 +311,9 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
      * @param properties
      */
     public void addProperties(Properties properties) {
-
+        if (properties != null) {
+            getProperties().putAll(properties);
+        }
 	}
 
     /**
@@ -294,12 +324,17 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
 		return "$Date$";
 	}
 
-	public List getOptionalKeys() {
-		return new ArrayList(0);
+	public List<String> getOptionalKeys() {
+        List<String> optionalKeys = new ArrayList<String>();
+        optionalKeys.add(PROPERTY_READ_DAILY_VALUES);
+        optionalKeys.add(PROPERTY_READ_MONTHLY_VALUES);
+        optionalKeys.add(PROPERTY_RUNTESTMETHOD);
+        return optionalKeys;
 	}
 
-	public List getRequiredKeys() {
-		return new ArrayList(0);
+	public List<String> getRequiredKeys() {
+        List<String> requiredKeys = new ArrayList<String>(0);
+        return requiredKeys;
 	}
 
 	/**
@@ -401,4 +436,19 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
         return meterAmrLogging;
     }
 
+    public boolean isReadDaily() {
+        return readDaily;
+    }
+
+    public boolean isReadMonthly() {
+        return readMonthly;
+    }
+
+    public boolean isRunTestMethod() {
+        return runTestMethod;
+    }
+
+    public Properties getProperties() {
+        return properties;
+    }
 }

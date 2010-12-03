@@ -161,11 +161,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
                 updateIPAddress();
             }
 
-            try {
-                testMethod();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            testMethod();
 
             // Check if the time is greater then allowed, if so then no data can be stored...
             // Don't do this when a forceClock is scheduled
@@ -288,7 +284,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
      *
      * @throws IOException
      */
-    private void testMethod() throws IOException {
+    private void testMethod() {
         if (isRunTestMethod()) {
             StringBuffer sb = new StringBuffer();
             sb.append("\r\n\r\n").append("ObjectList = ").append("\r\n");
@@ -881,6 +877,8 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
         for (EMeter eMeter : eMeters) {
             try {
                 if (eMeter != null) {
+                    eMeter.addProperties(getProperties());
+                    eMeter.addProperties(ProtocolTools.getRtuProperties(eMeter.geteMeterRtu()));
                     List<CommunicationScheduler> commSchedulers = eMeter.geteMeterRtu().getCommunicationSchedulers();
                     for (CommunicationScheduler commSchedule : commSchedulers) {
                         try {
@@ -919,6 +917,8 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
         for (MbusDevice mbusDevice : mbusDevices) {
             try {
                 if (mbusDevice != null) {
+                    mbusDevice.addProperties(getProperties());
+                    mbusDevice.addProperties(ProtocolTools.getRtuProperties(mbusDevice.getMbus()));
                     List<CommunicationScheduler> commSchedulers = mbusDevice.getMbus().getCommunicationSchedulers();
                     for (CommunicationScheduler commSchedule : commSchedulers) {
                         try {

@@ -40,6 +40,20 @@ import java.util.logging.Logger;
 
 public class MbusDevice extends MbusMessages implements GenericProtocol {
 
+    /**
+     * Property names
+     */
+    private static final String PROPERTY_READ_DAILY_VALUES = "ReadDailyValues";
+    private static final String PROPERTY_READ_MONTHLY_VALUES = "ReadMonthlyValues";
+    private static final String PROPERTY_RUNTESTMETHOD = "RunTestMethod";
+
+    /**
+     * Property default values
+     */
+    private static final String DEFAULT_READ_DAILY_VALUES = "1";
+    private static final String DEFAULT_READ_MONTHLY_VALUES = "1";
+    private static final String DEFAULT_RUNTESTMETHOD = "0";
+
     private static final ObisCode PROFILE_OBISCODE = ObisCode.fromString("0.0.24.3.0.255");
     public static final ObisCode DAILY_PROFILE_OBIS = ObisCode.fromString("0.0.24.3.1.255");
     public static final ObisCode MONTHLY_PROFILE_OBIS = ObisCode.fromString("0.0.24.3.2.255");
@@ -59,8 +73,13 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
 
     private HistoricalRegisterReadings historicalRegisters;
     private MeterAmrLogging meterAmrLogging;
+    private Properties properties = new Properties();
 
-	public MbusDevice(){
+    private boolean runTestMethod;
+    private boolean readDaily;
+    private boolean readMonthly;
+
+    public MbusDevice(){
 		this.valid = false;
 	}
 
@@ -118,13 +137,20 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
 		return "$Date$";
 	}
 
+    public void validateProperties() throws MissingPropertyException, InvalidPropertyException {
+        this.readDaily = (ProtocolTools.getPropertyAsInt(getProperties(), PROPERTY_READ_DAILY_VALUES, DEFAULT_READ_DAILY_VALUES) == 1) ? true : false;
+        this.readMonthly = (ProtocolTools.getPropertyAsInt(getProperties(), PROPERTY_READ_MONTHLY_VALUES, DEFAULT_READ_MONTHLY_VALUES) == 1) ? true : false;
+        this.runTestMethod = (ProtocolTools.getPropertyAsInt(getProperties(), PROPERTY_RUNTESTMETHOD, DEFAULT_RUNTESTMETHOD) == 1) ? true : false;
+    }
+
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
 		this.commProfile = scheduler.getCommunicationProfile();
+        validateProperties();
 
-        //testMethod();
+        testMethod();
 
-			// Before reading data, check the serialnumber
-			verifySerialNumber();
+		// Before reading data, check the serialnumber
+		verifySerialNumber();
 
         // import profile
         if (commProfile.getReadDemandValues()) {
@@ -148,13 +174,13 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
         if (commProfile.getReadMeterReadings()) {
             MbusDailyMonthly mdm = new MbusDailyMonthly(this);
 
-            if (getWebRTU().isReadDaily()) {
+            if (isReadDaily()) {
                 getLogger().log(Level.INFO, "Getting Daily values for meter with serialnumber: " + getMbus().getSerialNumber());
                 ProfileData dailyPd = mdm.getDailyProfile(getCorrectedObisCode(DAILY_PROFILE_OBIS));
                 this.webRtu.getStoreObject().add(dailyPd, getMbus());
             }
 
-            if (getWebRTU().isReadMonthly()) {
+            if (isReadMonthly()) {
                 getLogger().log(Level.INFO, "Getting Monthly values for meter with serialnumber: " + getMbus().getSerialNumber());
                 ProfileData montProfileData = mdm.getMonthlyProfile(getCorrectedObisCode(MONTHLY_PROFILE_OBIS));
                 this.webRtu.getStoreObject().add(montProfileData, getMbus());
@@ -172,20 +198,23 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
 	}
 
     private void testMethod() {
-        String crlfcrlf = "\r\n\r\n";
-        System.out.println(crlfcrlf + "MBus testMethod(): ");
-        try {
-            UniversalObject[] objects = getMeterConfig().getInstantiatedObjectList();
-            for (int i = 0; i < objects.length; i++) {
-                UniversalObject object = objects[i];
-                if (object.getObisCode().getB() == physicalAddress) {
-                    System.out.println(object.getDescription());
+        if (isRunTestMethod()) {
+            StringBuffer sb = new StringBuffer();
+            sb.append("\r\n\r\n").append("MbusDevice objects = ").append("\r\n");
+            try {
+                UniversalObject[] objects = getMeterConfig().getInstantiatedObjectList();
+                for (int i = 0; i < objects.length; i++) {
+                    UniversalObject object = objects[i];
+                    if (object.getObisCode().getB() == physicalAddress) {
+                        sb.append(object.getDescription()).append("\r\n");
+                    }
                 }
+            } catch (Exception e) {
+                sb.append("\r\n");
+                sb.append("An error occured while reading the objectList: ").append(e.getMessage());
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            getLogger().warning(sb.toString());
         }
-        System.out.println(crlfcrlf);
     }
 
 	/**
@@ -268,15 +297,23 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
 	}
 
 	public void addProperties(Properties properties) {
+        if (properties != null) {
+            getProperties().putAll(properties);
+        }
 	}
 
-	public List getOptionalKeys() {
-		return new ArrayList(0);
-	}
+    public List<String> getOptionalKeys() {
+        List<String> optionalKeys = new ArrayList<String>();
+        optionalKeys.add(PROPERTY_READ_DAILY_VALUES);
+        optionalKeys.add(PROPERTY_READ_MONTHLY_VALUES);
+        optionalKeys.add(PROPERTY_RUNTESTMETHOD);
+        return optionalKeys;
+    }
 
-	public List getRequiredKeys() {
-		return new ArrayList(0);
-	}
+    public List<String> getRequiredKeys() {
+        List<String> requiredKeys = new ArrayList<String>(0);
+        return requiredKeys;
+    }
 
 	public Logger getLogger() {
 		return this.logger;
@@ -330,4 +367,19 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
         return meterAmrLogging;
     }
 
+    public Properties getProperties() {
+        return properties;
+    }
+
+    public boolean isRunTestMethod() {
+        return runTestMethod;
+    }
+
+    public boolean isReadDaily() {
+        return readDaily;
+    }
+
+    public boolean isReadMonthly() {
+        return readMonthly;
+    }
 }

@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.utils;
 
+import com.energyict.mdw.core.CommunicationProtocol;
+import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 
@@ -675,4 +677,20 @@ public final class ProtocolTools {
         }
     }
 
+    /**
+     * Get the properties for a given rtu. This incluides the protocol properties
+     * @param rtu
+     * @return
+     */
+    public static Properties getRtuProperties(Rtu rtu) {
+        Properties properties = new Properties();
+        if (rtu != null) {
+            CommunicationProtocol protocol = rtu.getRtuType().getProtocol();
+            if (protocol != null) {
+                properties.putAll(protocol.getProperties());
+            }
+            properties.putAll(rtu.getProperties());
+        }
+        return properties;
+    }
 }
