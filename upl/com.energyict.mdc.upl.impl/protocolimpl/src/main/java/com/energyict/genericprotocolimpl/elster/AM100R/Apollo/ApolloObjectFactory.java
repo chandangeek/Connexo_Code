@@ -1,7 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.AM100R.Apollo;
 
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
@@ -61,19 +60,6 @@ public class ApolloObjectFactory {
     }
 
     /**
-     * Getter for the SerialNumber of the device
-     *
-     * @return a {@link com.energyict.dlms.cosem.Data} object which represents the serialNumber
-     */
-    public Data getSerialNumber() {
-        if (!objectMap.containsKey(getObisCodeProvider().getSerialNumberObisCode())) {
-            Data serialNumber = new Data(this.meterProtocol, new ObjectReference(getObisCodeProvider().getSerialNumberObisCode().getLN()));
-            objectMap.put(getObisCodeProvider().getSerialNumberObisCode(), serialNumber);
-        }
-        return (Data) objectMap.get(getObisCodeProvider().getSerialNumberObisCode());
-    }
-
-    /**
      * Getter for a requested {@link com.energyict.dlms.cosem.Data} object
      *
      * @param obisCode the {@link com.energyict.obis.ObisCode} of the object
@@ -130,16 +116,17 @@ public class ApolloObjectFactory {
     }
 
     /**
-     * Getter for the default {@link com.energyict.dlms.cosem.ProfileGeneric} object
+     * Getter for a {@link com.energyict.dlms.cosem.ProfileGeneric} object
      *
-     * @return the default GenericProfile object
+     * @param obisCode the obisCode of the object
+     * @return the requested object
      */
-    public ProfileGeneric getDefaultProfile() {
-        if (!objectMap.containsKey(getObisCodeProvider().getDefaultLoadProfileObisCode())) {
-            ProfileGeneric profile = new ProfileGeneric(this.meterProtocol, new ObjectReference(getObisCodeProvider().getDefaultLoadProfileObisCode().getLN()));
-            objectMap.put(getObisCodeProvider().getDefaultLoadProfileObisCode(), profile);
+    public ProfileGeneric getGenericProfileObject(ObisCode obisCode) {
+        if (!objectMap.containsKey(obisCode)) {
+            ProfileGeneric profile = new ProfileGeneric(this.meterProtocol, new ObjectReference(obisCode.getLN()));
+            objectMap.put(obisCode, profile);
         }
-        return (ProfileGeneric) objectMap.get(getObisCodeProvider().getDefaultLoadProfileObisCode());
+        return (ProfileGeneric) objectMap.get(obisCode);
     }
 
     /**
@@ -166,6 +153,24 @@ public class ApolloObjectFactory {
     }
 
     /**
+     * Getter for the SerialNumber of the device
+     *
+     * @return a {@link com.energyict.dlms.cosem.Data} object which represents the serialNumber
+     */
+    public Data getSerialNumber() {
+        return getData(getObisCodeProvider().getSerialNumberObisCode());
+    }
+
+    /**
+     * Getter for the default {@link com.energyict.dlms.cosem.ProfileGeneric} object
+     *
+     * @return the default GenericProfile object
+     */
+    public ProfileGeneric getDefaultProfile() {
+        return getGenericProfileObject(getObisCodeProvider().getDefaultLoadProfileObisCode());
+    }
+
+    /**
      * Getter for the requested {@link com.energyict.dlms.cosem.AssociationLN} object
      *
      * @param clientId the clientMacAddress of this current association
@@ -185,11 +190,7 @@ public class ApolloObjectFactory {
      * @return the firmware version object
      */
     public Data getFirmwareVersion() {
-        if (!objectMap.containsKey(getObisCodeProvider().getFirmwareVersion())) {
-            Data firmware = new Data(this.meterProtocol, new ObjectReference(getObisCodeProvider().getFirmwareVersion().getLN()));
-            objectMap.put(getObisCodeProvider().getFirmwareVersion(), firmware);
-        }
-        return (Data) objectMap.get(getObisCodeProvider().getFirmwareVersion());
+        return getData(getObisCodeProvider().getFirmwareVersion());
     }
 
     /**
@@ -198,19 +199,7 @@ public class ApolloObjectFactory {
      * @return the instant energy value profile object
      */
     public ProfileGeneric getInstantaneousEnergyProfile() {
-        if (!objectMap.containsKey(getObisCodeProvider().getInstantaneousEnergyValueObisCode())) {
-            ProfileGeneric profile = new ProfileGeneric(this.meterProtocol, new ObjectReference(getObisCodeProvider().getInstantaneousEnergyValueObisCode().getLN()));
-            objectMap.put(getObisCodeProvider().getInstantaneousEnergyValueObisCode(), profile);
-        }
-        return (ProfileGeneric) objectMap.get(getObisCodeProvider().getInstantaneousEnergyValueObisCode());
-    }
-
-    public ProfileGeneric getGenericEventLog(ObisCode obisCode) {
-        if (!objectMap.containsKey(obisCode)) {
-            ProfileGeneric profile = new ProfileGeneric(this.meterProtocol, new ObjectReference(obisCode.getLN()));
-            objectMap.put(obisCode, profile);
-        }
-        return (ProfileGeneric) objectMap.get(obisCode);
+        return getGenericProfileObject(getObisCodeProvider().getInstantaneousEnergyValueObisCode());
     }
 
     /**
@@ -219,62 +208,69 @@ public class ApolloObjectFactory {
      * @return the standard event profile object
      */
     public ProfileGeneric getStandardEventLog() {
-        return getGenericEventLog(getObisCodeProvider().getStandardEventLogObisCode());
+        return getGenericProfileObject(getObisCodeProvider().getStandardEventLogObisCode());
     }
 
     /**
      * Getter for the {@link com.energyict.dlms.cosem.ProfileGeneric} object which contains the Fraud Detection event log
+     *
      * @return the fraud detection event profile object
      */
     public ProfileGeneric getFraudDetectionEventLog() {
-        return getGenericEventLog(getObisCodeProvider().getFraudDetectionEventLogObisCode());
+        return getGenericProfileObject(getObisCodeProvider().getFraudDetectionEventLogObisCode());
     }
 
     /**
      * Getter for the {@link com.energyict.dlms.cosem.ProfileGeneric} object which contains the PowerQuality event log
+     *
      * @return the power quality event profile object
      */
     public ProfileGeneric getPowerQualityEventLog() {
-        return getGenericEventLog(getObisCodeProvider().getPowerQualityEventLogObisCode());
+        return getGenericProfileObject(getObisCodeProvider().getPowerQualityEventLogObisCode());
     }
 
     /**
      * Getter for the {@link com.energyict.dlms.cosem.ProfileGeneric} object which contains the DemandManagement event log
+     *
      * @return the demand management event profile object
      */
     public ProfileGeneric getDemandManagementEventLog() {
-        return getGenericEventLog(getObisCodeProvider().getDemandManagementEventLog());
+        return getGenericProfileObject(getObisCodeProvider().getDemandManagementEventLog());
     }
 
     /**
      * Getter for the {@link com.energyict.dlms.cosem.ProfileGeneric} object which contains the Common event log
+     *
      * @return the common event profile object
      */
     public ProfileGeneric getCommonEventLog() {
-        return getGenericEventLog(getObisCodeProvider().getCommonEventLog());
+        return getGenericProfileObject(getObisCodeProvider().getCommonEventLog());
     }
 
     /**
      * Getter for the {@link com.energyict.dlms.cosem.ProfileGeneric} object which contains the PowerContract event log
+     *
      * @return the power contract event profile object
      */
     public ProfileGeneric getPowerContractEventLog() {
-        return getGenericEventLog(getObisCodeProvider().getPowerContractEventLog());
+        return getGenericProfileObject(getObisCodeProvider().getPowerContractEventLog());
     }
 
     /**
      * Getter for the {@link com.energyict.dlms.cosem.ProfileGeneric} object which contains the Firmware event log
+     *
      * @return the firmware event profile object
      */
     public ProfileGeneric getFirmwareEventLog() {
-        return getGenericEventLog(getObisCodeProvider().getFirmwareEventLog());
+        return getGenericProfileObject(getObisCodeProvider().getFirmwareEventLog());
     }
 
     /**
      * Getter for the {@link com.energyict.dlms.cosem.ProfileGeneric} object which contains the Object Synchronization event log
+     *
      * @return the object synchronization event profile object
      */
     public ProfileGeneric getObjectSynchronizationEventLog() {
-        return getGenericEventLog(getObisCodeProvider().getObjectSynchronizationEventLog());
+        return getGenericProfileObject(getObisCodeProvider().getObjectSynchronizationEventLog());
     }
 }

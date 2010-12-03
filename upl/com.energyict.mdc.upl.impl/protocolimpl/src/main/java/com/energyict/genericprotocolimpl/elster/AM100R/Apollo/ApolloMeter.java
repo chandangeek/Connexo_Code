@@ -112,6 +112,10 @@ public class ApolloMeter extends DLMSProtocol {
             if (getCommunicationProfile().getReadMeterEvents()) {
                 //TODO complete
                 getLogger().log(Level.INFO, "Currently no Event Support!");
+
+
+                EventLogs logs = new EventLogs(this);
+                logs.getEventLog(null,null);
             }
 
             if (getCommunicationProfile().getReadMeterReadings()) {
@@ -203,8 +207,6 @@ public class ApolloMeter extends DLMSProtocol {
     @Override
     protected ConformanceBlock configureConformanceBlock() {
         return new ConformanceBlock(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK);
-        // This is the conformace block I have taken from the if2trace.log file
-//        return new ConformanceBlock(Long.valueOf("14686237"));
     }
 
     /**
@@ -215,7 +217,6 @@ public class ApolloMeter extends DLMSProtocol {
     @Override
     protected XdlmsAse configureXdlmsAse() {
         return new XdlmsAse(null, true, -1, 6, configureConformanceBlock(), 1200);
-        // Apparently the proposed max PDUSize of the example is 64k
     }
 
     /**
