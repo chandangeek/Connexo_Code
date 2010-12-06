@@ -75,18 +75,17 @@ public class MTU155MessageExecutor extends GenericMessageExecutor {
         String user = MessagingTools.getContentOfAttribute(messageEntry, RtuMessageConstant.GPRS_USERNAME);
         String pssw = MessagingTools.getContentOfAttribute(messageEntry, RtuMessageConstant.GPRS_PASSWORD);
 
-        if (("".equals(apn) || "".equals(user) || "".equals(pssw)) || (apn.length() > APN_MAX_LENGTH) || (user.length() > USER_MAX_LENGTH)|| (pssw.length() > PASS_MAX_LENGTH)) {
-            throw new BusinessException("One of the parameters was invalid. (too long or null)");
-        } else {
+        String description = checkParameters(apn, user, pssw);
+        if ("".equals(description)) {
             ReferenceDate validityDate = new ReferenceDate().parse(new Date(), factory.getTimeZone());
             WriteDataBlock wdb = new WriteDataBlock((int) (100 * Math.random()));
             P_Session p_session = new P_Session(0x00);
             AttributeType attributeType = AttributeType.getValueOnly();
             attributeType.setHasIdentifier(true);
             byte[] rawData = getObjectBytes(apn, user, pssw);
-
+            
             try {
-                CTRObjectFactory objectFactory = new CTRObjectFactory();                
+                CTRObjectFactory objectFactory = new CTRObjectFactory();
                 AbstractCTRObject object = objectFactory.parse(rawData, 0, attributeType);
                 factory.writeRegister(
                         validityDate,
@@ -100,8 +99,31 @@ public class MTU155MessageExecutor extends GenericMessageExecutor {
             } catch (CTRException e) {
                 throw new BusinessException(e.getMessage());
             }
-
+        } else {
+            throw new BusinessException(description);
         }
+    }
+
+    private String checkParameters(String apn, String user, String pssw) {
+        if ("".equals(apn) || apn == null) {
+            return "Parameter APN was 'null'.";
+        }
+        if ("".equals(pssw) || pssw == null) {
+            return "Parameter password was 'null'.";
+        }
+        if ("".equals(user) || user == null) {
+            return "Parameter username was 'null'.";
+        }
+        if (apn.length() > APN_MAX_LENGTH) {
+            return "Parameter APN exceeded the maximum length (40 characters).";
+        }
+        if (user.length() > USER_MAX_LENGTH) {
+            return "Parameter username exceeded the maximum length (30 characters).";
+        }
+        if (pssw.length() > PASS_MAX_LENGTH) {
+            return "Parameter password exceeded the maximum length (30 characters).";
+        }
+        return "";
     }
 
     private byte[] getObjectBytes(String apn, String user, String pssw) {
