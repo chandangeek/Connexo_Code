@@ -1,19 +1,21 @@
-package com.energyict.genericprotocolimpl.nta.elster.obiscodeproviders;
+package com.energyict.genericprotocolimpl.nta.abstractnta;
 
+import com.energyict.genericprotocolimpl.nta.abstractnta.MbusObisCodeProvider;
 import com.energyict.obis.ObisCode;
 
 /**
  * Contains functionality for the correct NTA obiscodes
- *
+ * <p/>
  * <p>
  * Copyrights EnergyICT
  * Date: 3-aug-2010
  * Time: 16:34:15
  * </p>
  */
-public class NTAObisCodeProvider implements MbusObisCodeProvider{
+public class NTAObisCodeProvider implements MbusObisCodeProvider {
 
     private static final ObisCode hourlyProfileObiscode = ObisCode.fromString("0.1.24.3.0.255");
+    private static final ObisCode currentMasterValue = ObisCode.fromString("0.1.24.2.0.255");
     private static final ObisCode masterValue1 = ObisCode.fromString("0.1.24.2.1.255");
     private static final ObisCode masterValue2 = ObisCode.fromString("0.1.24.2.2.255");
     private static final ObisCode masterValue3 = ObisCode.fromString("0.1.24.2.3.255");
@@ -23,19 +25,27 @@ public class NTAObisCodeProvider implements MbusObisCodeProvider{
 
     /**
      * Adjust the B-field of the given ObisCode with the given bField
-     * @param oc the ObisCode to adjust
+     *
+     * @param oc     the ObisCode to adjust
      * @param bField the new value of the B-field (zero based ??? )
      * @return the adjusted ObisCode
      */
     protected ObisCode adjustToMbusChannelObisCode(ObisCode oc, int bField) {
-		return new ObisCode(oc.getA(), bField+1, oc.getC(), oc.getD(), oc.getE(), oc.getF());
-	}
+        return new ObisCode(oc.getA(), bField + 1, oc.getC(), oc.getD(), oc.getE(), oc.getF());
+    }
 
     /**
      * @return the obisCode for the Hourly profile
      */
     public ObisCode getHourlyProfileObisCode() {
-        return hourlyProfileObiscode;  
+        return hourlyProfileObiscode;
+    }
+
+    /**
+     * @return the ObisCode for the Master register Total value
+     */
+    public ObisCode getMasterRegisterTotal() {
+        return currentMasterValue;
     }
 
     /**

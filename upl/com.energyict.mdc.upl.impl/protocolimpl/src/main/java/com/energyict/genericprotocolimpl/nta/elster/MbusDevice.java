@@ -6,8 +6,8 @@ import com.energyict.genericprotocolimpl.common.messages.RtuMessageCategoryConst
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
-import com.energyict.genericprotocolimpl.nta.elster.obiscodeproviders.MbusObisCodeProvider;
-import com.energyict.genericprotocolimpl.nta.elster.obiscodeproviders.NTAObisCodeProvider;
+import com.energyict.genericprotocolimpl.nta.abstractnta.MbusObisCodeProvider;
+import com.energyict.genericprotocolimpl.nta.abstractnta.NTAObisCodeProvider;
 import com.energyict.genericprotocolimpl.nta.elster.obiscodeproviders.OMSGasObisCodeProvider;
 import com.energyict.genericprotocolimpl.nta.elster.profiles.MbusProfile;
 import com.energyict.genericprotocolimpl.nta.profiles.MbusDailyMonthlyProfile;
@@ -111,7 +111,7 @@ public class MbusDevice extends AbstractMbusDevice {
         if (commProfile.getReadDemandValues()) {
             getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + getMbus().getSerialNumber());
             MbusProfile mp = new MbusProfile(this);
-            mp.getProfile(getObisCodeProvider().getHourlyProfileObisCode(getPhysicalAddress()));
+            mp.getProfile(getObiscodeProvider().getHourlyProfileObisCode(getPhysicalAddress()));
         }
 
         if (commProfile.getReadMeterEvents()) {
@@ -130,13 +130,13 @@ public class MbusDevice extends AbstractMbusDevice {
             //TODO currently no Mbus daily profile is available
             if (false) {
                 getLogger().log(Level.INFO, "Getting Daily values for meter with serialnumber: " + getMbus().getSerialNumber());
-                mdm.getDailyProfile(getObisCodeProvider().getDailyProfileObisCode());
+                mdm.getDailyProfile(getObiscodeProvider().getDailyProfileObisCode());
             }
 
             //TODO currently no Mbus monthly profile is available
             if (false) {
                 getLogger().log(Level.INFO, "Getting Monthly values for meter with serialnumber: " + getMbus().getSerialNumber());
-                mdm.getMonthlyProfile(getObisCodeProvider().getMonthlyObisCode());
+                mdm.getMonthlyProfile(getObiscodeProvider().getMonthlyObisCode());
             }
             getLogger().log(Level.INFO, "Getting registers from Mbus meter " + (getPhysicalAddress() + 1));
             doReadRegisters();
@@ -189,13 +189,14 @@ public class MbusDevice extends AbstractMbusDevice {
         return "$Date$" + " NTAProtocolVersion : " + super.getVersion();
     }
 
+
     /**
-     * Getter for the {@link com.energyict.genericprotocolimpl.nta.elster.obiscodeproviders.MbusObisCodeProvider}
+     * Getter for the {@link com.energyict.genericprotocolimpl.nta.abstractnta.MbusObisCodeProvider}
      *
-     * @return the implemented MbusObisCodeProvider
-     * @throws IOException if the selection property did not match one of the two predefined strings
+     * @return the {@link com.energyict.genericprotocolimpl.nta.abstractnta.MbusObisCodeProvider}
      */
-    public MbusObisCodeProvider getObisCodeProvider() throws IOException {
+    @Override
+    public MbusObisCodeProvider getObiscodeProvider() throws IOException {
         if (NTA.equalsIgnoreCase(mbusType)) {
             return new NTAObisCodeProvider();
         } else if (OMS.equalsIgnoreCase(mbusType)) {

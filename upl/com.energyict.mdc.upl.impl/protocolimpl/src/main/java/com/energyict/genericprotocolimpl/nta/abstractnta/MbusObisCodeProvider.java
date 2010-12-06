@@ -1,4 +1,4 @@
-package com.energyict.genericprotocolimpl.nta.elster.obiscodeproviders;
+package com.energyict.genericprotocolimpl.nta.abstractnta;
 
 import com.energyict.obis.ObisCode;
 
@@ -17,6 +17,11 @@ public interface MbusObisCodeProvider {
      * @return the obisCode for the Hourly profile
      */
     ObisCode getHourlyProfileObisCode();
+
+    /**
+     * @return the ObisCode for the Master register Total value
+     */
+    ObisCode getMasterRegisterTotal();
 
     /**
      * @param bField the value to adjust the B-field

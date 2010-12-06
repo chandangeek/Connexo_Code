@@ -66,6 +66,13 @@ public abstract class AbstractMbusDevice extends MbusMessages implements Generic
      */
     protected abstract List<String> doGetRequiredKeys();    
 	
+
+    /**
+     * Getter for the {@link MbusObisCodeProvider}
+     * @return the {@link MbusObisCodeProvider}
+     */
+    public abstract MbusObisCodeProvider getObiscodeProvider() throws IOException;
+
 	private long mbusAddress	= -1;		// this is the address that was given by the E-meter or a hardcoded MBusAddress in the MBusMeter itself
 	private int physicalAddress = -1;		// this is the orderNumber of the MBus meters on the E-meter, we need this to compute the ObisRegisterValues
 	private int medium = 15;				// value of an unknown medium

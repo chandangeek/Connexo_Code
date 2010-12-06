@@ -1,5 +1,6 @@
 package com.energyict.genericprotocolimpl.nta.elster.obiscodeproviders;
 
+import com.energyict.genericprotocolimpl.nta.abstractnta.MbusObisCodeProvider;
 import com.energyict.obis.ObisCode;
 
 /**
@@ -12,6 +13,7 @@ import com.energyict.obis.ObisCode;
  */
 public class OMSGasObisCodeProvider implements MbusObisCodeProvider {
     private static final ObisCode hourlyProfileObiscode = ObisCode.fromString("0.1.24.3.0.255");
+    private static final ObisCode currentMasterValue = ObisCode.fromString("7.1.3.0.0.255");
     private static final ObisCode masterValue1 = ObisCode.fromString("7.1.3.0.1.255");
     private static final ObisCode masterValue2 = ObisCode.fromString("7.1.3.0.2.255");
     private static final ObisCode masterValue3 = ObisCode.fromString("7.1.3.0.3.255");
@@ -33,6 +35,13 @@ public class OMSGasObisCodeProvider implements MbusObisCodeProvider {
      */
     public ObisCode getHourlyProfileObisCode() {
         return hourlyProfileObiscode;
+    }
+
+    /**
+     * @return the ObisCode for the Master register Total value
+     */
+    public ObisCode getMasterRegisterTotal() {
+        return currentMasterValue;
     }
 
     /**

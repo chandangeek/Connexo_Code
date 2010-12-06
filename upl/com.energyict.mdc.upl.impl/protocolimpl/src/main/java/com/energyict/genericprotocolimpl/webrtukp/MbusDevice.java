@@ -1,9 +1,10 @@
 package com.energyict.genericprotocolimpl.webrtukp;
 
-import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
+import com.energyict.genericprotocolimpl.nta.abstractnta.*;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.protocol.InvalidPropertyException;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -65,6 +66,16 @@ public class MbusDevice extends AbstractMbusDevice {
     @Override
     protected List<String> doGetRequiredKeys() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    /**
+     * Getter for the {@link com.energyict.genericprotocolimpl.nta.abstractnta.MbusObisCodeProvider}
+     *
+     * @return the {@link com.energyict.genericprotocolimpl.nta.abstractnta.MbusObisCodeProvider}
+     */
+    @Override
+    public MbusObisCodeProvider getObiscodeProvider() throws IOException {
+        return new NTAObisCodeProvider();
     }
 
     @Override

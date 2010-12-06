@@ -130,41 +130,14 @@ public class MbusProfile extends AbstractNTAProfile{
 		return channelInfos;
 	}
 	
-	private boolean isMbusRegisterObisCode(ObisCode oc){
-		if((oc.getC() == 24) && (oc.getD() == 2) && (oc.getB() >=1) && (oc.getB() <= 4) && (oc.getE() >= 1) && (oc.getE() <= 4) ){
-			return true;
-		} else {
-			return false;
+	private boolean isMbusRegisterObisCode(ObisCode oc) throws IOException {
+        return this.mbusDevice.getObiscodeProvider().getMasterRegisterTotal().equals(oc) ||
+                this.mbusDevice.getObiscodeProvider().getMasterRegisterValue1().equals(oc) ||
+                this.mbusDevice.getObiscodeProvider().getMasterRegisterValue2().equals(oc) ||
+                this.mbusDevice.getObiscodeProvider().getMasterRegisterValue3().equals(oc) ||
+                this.mbusDevice.getObiscodeProvider().getMasterRegisterValue4().equals(oc);
 		}
-	}
 
-	
-//	/**
-//	 * Read the given object and return the scalerUnit.
-//	 * If the unit is 0(not a valid value) then return a unitLess scalerUnit.
-//	 * If you can not read the scalerUnit, then return a unitLess scalerUnit.
-//	 * @param oc
-//	 * @return
-//	 * @throws IOException
-//	 */
-//	private ScalerUnit getMeterDemandRegisterScalerUnit(ObisCode oc) throws IOException{
-//		try {
-//			ScalerUnit su = getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
-//			if(su != null){
-//				if(su.getUnitCode() == 0){
-//					su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
-//				}
-//
-//			} else {
-//				su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
-//			}
-//			return su;
-//		} catch (IOException e) {
-//			mbusDevice.getLogger().log(Level.INFO, "Could not get the scalerunit from object '" + oc + "'.");
-//		}
-//		return new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
-//	}
-				
 	private int getProfileChannelNumber(int index){
 		int channelIndex = 0;
 		for(int i = 0; i < getMeter().getChannels().size(); i++){
