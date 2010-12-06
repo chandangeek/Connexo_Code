@@ -13,44 +13,51 @@ package com.energyict.protocolimpl.iec1107.kamstrup.unigas300;
 import com.energyict.obis.ObisCode;
 
 /**
- *
- * @author Koen
+ * Copyrights EnergyICT
+ * Date: 6-dec-2010
+ * Time: 9:28:03
  */
 public class RegisterMapping {
-    
-    private String registerCode;
-    private ObisCode obisCode;
-    private String description;
-    
-    /** Creates a new instance of RegisterMapping */
-    public RegisterMapping(String description,String registerCode, ObisCode obisCode) {
-        this.setDescription(description);
-        this.setRegisterCode(registerCode);
-        this.setObisCode(obisCode);
+
+    private final String registerCode;
+    private final ObisCode obisCode;
+    private final String description;
+
+    /**
+     * Creates a new instance of RegisterMapping
+     */
+    public RegisterMapping(String description, String registerCode, ObisCode obisCode) {
+        this.description = description;
+        this.registerCode = registerCode;
+        this.obisCode = obisCode;
     }
 
+    /**
+     * Getter for the register code. This is the VDEW register address used by the device
+     * (ex. C.8.0 or C.91.4, ...)
+     *
+     * @return
+     */
     public String getRegisterCode() {
         return registerCode;
     }
 
-    public void setRegisterCode(String registerCode) {
-        this.registerCode = registerCode;
-    }
-
+    /**
+     * Getter for the obiscode used in eiserver
+     *
+     * @return
+     */
     public ObisCode getObisCode() {
         return obisCode;
     }
 
-    public void setObisCode(ObisCode obisCode) {
-        this.obisCode = obisCode;
-    }
-
+    /**
+     * Getter for the register description, user readable
+     *
+     * @return
+     */
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-    
 }

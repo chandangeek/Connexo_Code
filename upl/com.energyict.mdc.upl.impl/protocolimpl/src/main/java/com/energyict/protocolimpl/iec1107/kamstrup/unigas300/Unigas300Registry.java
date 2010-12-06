@@ -6,15 +6,13 @@
 
 package com.energyict.protocolimpl.iec1107.kamstrup.unigas300;
 
-import java.io.IOException;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
-import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
-import com.energyict.protocolimpl.iec1107.vdew.VDEWRegister;
-import com.energyict.protocolimpl.iec1107.vdew.VDEWRegisterDataParse;
+import com.energyict.protocolimpl.iec1107.vdew.*;
+
+import java.io.IOException;
 
 /**
  *
@@ -24,7 +22,7 @@ public class Unigas300Registry extends AbstractVDEWRegistry {
 
 	private static final RegisterMappingFactory rmf = new RegisterMappingFactory();
 
-	/** Creates a new instance of Unigas300Register */
+    /** Creates a new instance of Unigas300Register */
     public Unigas300Registry(ProtocolLink protocolLink) {
         super(null,protocolLink);
     }
@@ -116,14 +114,19 @@ public class Unigas300Registry extends AbstractVDEWRegistry {
 
         add(RegisterMappingFactory.SCHEDULER_START, 	VDEWRegisterDataParse.VDEW_DATESTRING, null);
 
+        add(RegisterMappingFactory.INPUT_DIVIDER_INP1, 	VDEWRegisterDataParse.VDEW_QUANTITY, null);
+        add(RegisterMappingFactory.INPUT_DIVIDER_INP2, 	VDEWRegisterDataParse.VDEW_QUANTITY, null);
+        add(RegisterMappingFactory.INPUT_DIVIDER_INP3, 	VDEWRegisterDataParse.VDEW_QUANTITY, null);
+
+
         registers.put("Time", new VDEWRegister("0.9.1",VDEWRegisterDataParse.VDEW_TIMESTRING,0, -1,null,VDEWRegister.WRITEABLE,VDEWRegister.NOT_CACHED));
         registers.put("Date", new VDEWRegister("0.9.2",VDEWRegisterDataParse.VDEW_DATESTRING,0, -1,null,VDEWRegister.WRITEABLE,VDEWRegister.NOT_CACHED));
         registers.put("TimeDate", new VDEWRegister("0.9.1 0.9.2",VDEWRegisterDataParse.VDEW_TIMEDATE,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED));
 
         registers.put("DeviceSerialNumber", new VDEWRegister("C.1.0",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
 
-        registers.put("UNIGAS software revision number", new VDEWRegister("C.90.2",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
-        registers.put("CI software revision number", new VDEWRegister("C.90.3",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
+        registers.put(RegisterMappingFactory.UNIGAS_SOFTWARE_REVISION_NUMBER, new VDEWRegister("C.90.2",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
+        registers.put(RegisterMappingFactory.CI_SOFTWARE_REVISION_NUMBER, new VDEWRegister("C.90.3",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
 
     }
 
@@ -145,5 +148,26 @@ public class Unigas300Registry extends AbstractVDEWRegistry {
     	String register = rm.getRegisterCode();
     	registers.put(description, new VDEWRegister(register,parserType,0,length,unit,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
 	}
+
+    /**
+     *
+     * @param registerCode
+     * @return
+     * @throws IOException
+     */
+    public Object getRegisterFromDevice(String registerCode) throws IOException {
+        Object registerContent;
+        try {
+            registerContent = getRegister(registerCode);
+        } catch (IOException e) {
+            if (e.getMessage().contains("does not exist in datareadout")) {
+                registerContent = getRegister(registerCode, false);
+            } else {
+                throw e;
+            }
+        }
+        return registerContent;
+    }
+
 
 }
