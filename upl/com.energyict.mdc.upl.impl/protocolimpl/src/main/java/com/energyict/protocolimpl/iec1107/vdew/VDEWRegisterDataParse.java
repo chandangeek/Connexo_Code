@@ -6,17 +6,15 @@
 
 package com.energyict.protocolimpl.iec1107.vdew;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  *
@@ -302,21 +300,16 @@ abstract public class VDEWRegisterDataParse {
 		return new Quantity(bd,unit);
 	}
 
-	private Unit buildUnit(byte[] rawdata) throws IOException {
-		if (hasAcronym(rawdata)) {
-			Unit unit = Unit.get(getUnitAcronym(rawdata));
-			if (unit == null) {
-				throw new IOException("VDEWRegisterDataPArse, buildUnit, acronym "+getUnitAcronym(rawdata)+" not found in baseunit list!");
-			} else {
-				return unit;
-			}
-		}
-		else if (hasUnitDefined()) {
-			return getUnit();
-		} else {
-			return Unit.get("");
-		}
-	} // private Unit buildUnit(byte[] rawdata)
+    private Unit buildUnit(byte[] rawdata) {
+        Unit unit = null;
+        if (hasAcronym(rawdata)) {
+            unit = Unit.get(getUnitAcronym(rawdata));
+        }
+        if (unit == null) {
+            unit = getUnit();
+        }
+        return unit != null ? unit : Unit.get("");
+    }
 
 	private String getUnitAcronym(byte[] rawdata) {
 		StringBuffer buff = new StringBuffer();
