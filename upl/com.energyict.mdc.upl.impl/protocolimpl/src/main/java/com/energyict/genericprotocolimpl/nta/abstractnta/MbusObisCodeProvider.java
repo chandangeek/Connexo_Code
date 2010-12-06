@@ -25,6 +25,12 @@ public interface MbusObisCodeProvider {
 
     /**
      * @param bField the value to adjust the B-field
+     * @return the ObisCode for the Master register Total value
+     */
+    ObisCode getMasterRegisterTotal(int bField);
+
+    /**
+     * @param bField the value to adjust the B-field
      * @return the obisCode for the Hourly profile
      */
     ObisCode getHourlyProfileObisCode(int bField);

@@ -46,6 +46,14 @@ public class OMSGasObisCodeProvider implements MbusObisCodeProvider {
 
     /**
      * @param bField the value to adjust the B-field
+     * @return the ObisCode for the Master register Total value
+     */
+    public ObisCode getMasterRegisterTotal(int bField) {
+        return adjustToMbusChannelObisCode(getMasterRegisterTotal(), bField);
+    }
+
+    /**
+     * @param bField the value to adjust the B-field
      * @return the obisCode for the Hourly profile
      */
     public ObisCode getHourlyProfileObisCode(int bField) {

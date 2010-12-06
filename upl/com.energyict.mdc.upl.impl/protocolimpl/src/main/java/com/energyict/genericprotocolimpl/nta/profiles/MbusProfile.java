@@ -132,10 +132,10 @@ public class MbusProfile extends AbstractNTAProfile{
 	
 	private boolean isMbusRegisterObisCode(ObisCode oc) throws IOException {
         return this.mbusDevice.getObiscodeProvider().getMasterRegisterTotal().equals(oc) ||
-                this.mbusDevice.getObiscodeProvider().getMasterRegisterValue1().equals(oc) ||
-                this.mbusDevice.getObiscodeProvider().getMasterRegisterValue2().equals(oc) ||
-                this.mbusDevice.getObiscodeProvider().getMasterRegisterValue3().equals(oc) ||
-                this.mbusDevice.getObiscodeProvider().getMasterRegisterValue4().equals(oc);
+                this.mbusDevice.getObiscodeProvider().getMasterRegisterValue1(this.mbusDevice.getPhysicalAddress()).equals(oc) ||
+                this.mbusDevice.getObiscodeProvider().getMasterRegisterValue2(this.mbusDevice.getPhysicalAddress()).equals(oc) ||
+                this.mbusDevice.getObiscodeProvider().getMasterRegisterValue3(this.mbusDevice.getPhysicalAddress()).equals(oc) ||
+                this.mbusDevice.getObiscodeProvider().getMasterRegisterValue4(this.mbusDevice.getPhysicalAddress()).equals(oc);
 		}
 
 	private int getProfileChannelNumber(int index){
