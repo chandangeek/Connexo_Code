@@ -69,7 +69,7 @@ public class CommunicationCategory<T extends CommunicationCategory> extends Abst
                 valueLength = new int[]{1};
                 break;
             case 0x0E:
-                valueLength = new int[]{112};
+                valueLength = new int[]{1, 111};
                 break;
         }
         return valueLength;

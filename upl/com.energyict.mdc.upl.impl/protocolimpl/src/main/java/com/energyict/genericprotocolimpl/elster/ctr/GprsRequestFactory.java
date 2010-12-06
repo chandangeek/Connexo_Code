@@ -302,7 +302,7 @@ public class GprsRequestFactory {
             objectBytes = ProtocolTools.concatByteArrays(objectBytes, object.getBytes());
         }
         byte[] numberOfObjects = new byte[]{(byte) objects.length};
-        byte[] writeRequest = padData(125, ProtocolTools.concatByteArrays(
+        byte[] writeRequest = padData(128, ProtocolTools.concatByteArrays(
                 pssw,
                 validityDate.getBytes(),
                 wdb.getBytes(),

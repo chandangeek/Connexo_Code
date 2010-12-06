@@ -287,7 +287,7 @@ public class MTU155 extends AbstractGenericProtocol {
 
     private void sendMeterMessages() {
 
-        MTU155MessageExecutor messageExecutor = new MTU155MessageExecutor();
+        MTU155MessageExecutor messageExecutor = new MTU155MessageExecutor(getLogger(), getRequestFactory());
 
         Iterator<RtuMessage> it = getRtu().getPendingMessages().iterator();
         RtuMessage rm = null;
