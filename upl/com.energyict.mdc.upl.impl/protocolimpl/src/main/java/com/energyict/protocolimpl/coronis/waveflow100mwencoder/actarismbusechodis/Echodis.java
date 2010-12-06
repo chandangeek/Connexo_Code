@@ -90,7 +90,7 @@ public class Echodis extends WaveFlow100mW {
     	}
     	
     	if (registerFactories[portId] == null) {
-    		throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] does not exist!");
+    		throw new NoSuchRegisterException("Register with obis code ["+o+"] does not exist!");
     	}
     	else {
     		RegisterValue rv = registerFactories[portId].findRegisterValue(obisCode);

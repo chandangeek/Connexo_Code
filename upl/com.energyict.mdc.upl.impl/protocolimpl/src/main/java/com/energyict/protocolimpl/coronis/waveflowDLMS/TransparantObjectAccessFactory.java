@@ -1,10 +1,10 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
 import java.io.IOException;
+import java.util.Date;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocolimpl.ansi.c12.procedures.SetDateTime;
 
 public class TransparantObjectAccessFactory {
 
@@ -35,8 +35,13 @@ public class TransparantObjectAccessFactory {
 	}
 	
 	final AbstractDataType readObjectAttribute(ObisCode obisCode, int attribute) throws IOException {
+		return readObjectAttribute(obisCode,attribute,null);
+	}
+	
+	final AbstractDataType readObjectAttribute(ObisCode obisCode, int attribute, Date fromDate) throws IOException {
     	ObjectEntry o = AbstractDLMS.findObjectByObiscode(obisCode);
     	TransparentGet tg = new TransparentGet(abstractDLMS, new ObjectInfo(attribute, o.getClassId(),obisCode));
+    	tg.setFromDate(fromDate);
     	invoke(tg);
     	return tg.getDataType();
 	}

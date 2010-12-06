@@ -18,7 +18,7 @@ import com.energyict.protocolimpl.coronis.core.*;
 
 abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolLink,MessageProtocol  {
 	
-	abstract byte[] getRequest();
+	
 	
 	static Map<ObisCode,ObjectEntry> objectEntries = new HashMap();
 	
@@ -464,5 +464,4 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	public void setLoadProfileObisCode(ObisCode loadProfileObisCode) {
 		this.loadProfileObisCode = loadProfileObisCode;
 	}	
-	
 }

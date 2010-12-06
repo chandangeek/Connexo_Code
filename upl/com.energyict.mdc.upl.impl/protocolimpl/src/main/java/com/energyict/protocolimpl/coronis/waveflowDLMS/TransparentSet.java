@@ -74,7 +74,7 @@ public class TransparentSet extends AbstractTransparentObjectAccess {
 			temp = new byte[dais.available()];
 			dais.read(temp);
 			HDLCFrameParser o = new HDLCFrameParser();
-			o.parseFrame(temp);
+			o.parseFrame(temp,0);
 			byte[] dlmsData = o.getDLMSData();
 			if (WaveflowProtocolUtils.toInt(dlmsData[DLMS_RESPONSE_TAG_OFFSET]) != DLMS_SET_RESPONSE) {
 				throw new WaveFlowDLMSException("Transparant object get error. Expected DLMS tag [C5], received["+WaveflowProtocolUtils.toHexString(dlmsData[DLMS_RESPONSE_TAG_OFFSET])+"]");
