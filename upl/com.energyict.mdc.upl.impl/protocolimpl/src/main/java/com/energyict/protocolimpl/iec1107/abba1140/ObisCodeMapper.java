@@ -79,7 +79,7 @@ public class ObisCodeMapper {
         			Date toTime = hv.getBillingDate();
 
 //        			registerValue = new RegisterValue(obisCode,quantity,eventTime,fromTime,toTime);
-        			registerValue = new RegisterValue(obisCode,quantity,eventTime,fromTime,toTime, null, 0, getBillingReason(quantity.intValue()));
+        			registerValue = new RegisterValue(obisCode,quantity,eventTime,fromTime,toTime, new Date(), 0, getBillingReason(quantity.intValue()));
         			
         			return registerValue;
         		} else { 
@@ -95,7 +95,7 @@ public class ObisCodeMapper {
         			Date toTime = hv.getBillingDate();
 
 //        			registerValue = new RegisterValue(obisCode,quantity,eventTime,fromTime,toTime);
-        			registerValue = new RegisterValue(obisCode,quantity,eventTime,fromTime,toTime, null, 0, "Billing trigger: Daily billing");
+        			registerValue = new RegisterValue(obisCode,quantity,eventTime,fromTime,toTime, new Date(), 0, "Billing trigger: Daily billing");
 
         			return registerValue;
         		} else { 
