@@ -418,6 +418,8 @@
 
 -keepnames class com.energyict.genericprotocolimpl.elster.ctr.MTU155
 
+-keepnames class com.energyict.protocolimpl.coronis.waveflow.waveflowV2.WaveFlowV2
+
 -keepnames class com.energyict.genericprotocolimpl.elster.ctr.SmsHandler
 
 # Keep the parsing of the CodeTableToXML
