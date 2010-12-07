@@ -41,9 +41,10 @@ public class Unigas300Main extends AbstractDebuggingMain<Unigas300> {
         properties.setProperty(MeterProtocol.SERIALNUMBER, "");
         properties.setProperty("IEC1107Compatible", "1");
         properties.setProperty("SecurityLevel", "1");
+        properties.setProperty("Software7E1", "1");
         properties.setProperty("Retries", "5");
-        properties.setProperty("Timeout", "5000");
-        properties.setProperty(MeterProtocol.NODEID, "");
+        properties.setProperty("Timeout", "10000");
+        properties.setProperty(MeterProtocol.NODEID, "UNILOG10");
 
         return properties;
     }
@@ -53,9 +54,12 @@ public class Unigas300Main extends AbstractDebuggingMain<Unigas300> {
         main.setCommPort("COM1");
         main.setBaudRate(9600);
         main.setStopBits(SerialCommunicationChannel.STOPBITS_1);
-        main.setParity(SerialCommunicationChannel.PARITY_EVEN);
-        main.setDataBits(SerialCommunicationChannel.DATABITS_7);
+        main.setParity(SerialCommunicationChannel.PARITY_NONE);
+        main.setDataBits(SerialCommunicationChannel.DATABITS_8);
+        main.setPhoneNumber("00031627858525");
+        main.setModemInit("ATM0");
         main.setAsciiMode(true);
+        main.set7E1Mode(true);
         main.setShowCommunication(true);
         main.run();
     }
