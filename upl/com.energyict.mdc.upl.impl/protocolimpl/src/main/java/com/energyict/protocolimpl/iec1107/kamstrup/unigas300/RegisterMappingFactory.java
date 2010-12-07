@@ -103,10 +103,6 @@ public class RegisterMappingFactory {
 
     public static final String SCHEDULER_START = "Start time of scheduler";
 
-    public static final String INPUT_DIVIDER_INP1 = "Input divider input 1";
-    public static final String INPUT_DIVIDER_INP2 = "Input divider input 2";
-    public static final String INPUT_DIVIDER_INP3 = "Input divider input 3";
-
     /**
      * Creates a new instance of RegisterMappingFactory
      */
@@ -116,25 +112,25 @@ public class RegisterMappingFactory {
 
     private void initRegisterMapping() {
 
-        add(VM1, "7-1:13.0.0", "7.1.0.13.0.255");
-        add(VC1, "7-1:11.1.0", "7.2.0.11.1.255");
-        add(VC1_ERR, "7-1:12.0.0", "7.1.0.12.0.255");
-        add(VB1, "7-1:11.2.0", "7.2.0.11.2.255");
-        add(VB1_ERR, "7-1:12.1.0", "7.1.0.12.1.255");
-        add(VM2, "7-2:13.0.0", "7.2.0.13.0.255");
-        add(VM3, "7-3:13.0.0", "7.3.0.13.0.255");
+        add(VM1, "1:13.0.0", "7.1.0.13.0.255");
+        add(VC1, "1:11.1.0", "7.2.0.11.1.255");
+        add(VC1_ERR, "1:12.0.0", "7.1.0.12.0.255");
+        add(VB1, "1:11.2.0", "7.2.0.11.2.255");
+        add(VB1_ERR, "1:12.1.0", "7.1.0.12.1.255");
+        add(VM2, "2:13.0.0", "7.2.0.13.0.255");
+        add(VM3, "3:13.0.0", "7.3.0.13.0.255");
 
         add(STATUS1, "97:97.1", "0.0.97.97.1.255");
         add(STATUS2, "97:97.2", "0.0.97.97.2.255");
         add(STATUS3, "97:97.3", "0.0.97.97.3.255");
         add(STATUS4, "97:97.4", "0.0.97.97.4.255");
 
-        add(CF, "7-1:51.0.0", "7.1.0.51.0.255");
-        add(C, "7-1:52.2.0", "7.1.0.52.2.255");
-        add(Z, "7-1:53.0.0", "7.1.0.53.0.255");
-        add(Z_ZB, "7-1:53.2.0", "7.1.0.53.2.255");
-        add(P, "7-1:42.0.0", "7.1.0.42.0.255");
-        add(T, "7-1:41.0.0", "7.1.0.41.0.255");
+        add(CF, "1:51.0.0", "7.1.0.51.0.255");
+        add(C, "1:52.2.0", "7.1.0.52.2.255");
+        add(Z, "1:53.0.0", "7.1.0.53.0.255");
+        add(Z_ZB, "1:53.2.0", "7.1.0.53.2.255");
+        add(P, "1:42.0.0", "7.1.0.42.0.255");
+        add(T, "1:41.0.0", "7.1.0.41.0.255");
 
         add(PMAX_YESTERDAY, "C.95.1", "7.1.42.21.1.255");
         add(TMAX_YESTERDAY, "C.95.2", "7.1.41.21.1.255");
@@ -202,10 +198,6 @@ public class RegisterMappingFactory {
         add(BATTERY_C_USED, "C.6.1", "0.0.96.6.1.255");
         add(BATTERY_C_NEW, "C.6.4", "0.0.96.6.4.255");
         add(OPERATING_HOURS, "C.8.0", "0.0.96.8.0.255");
-
-        add(INPUT_DIVIDER_INP1, "7-1:0.7.2", "0.0.0.0.1.255");
-        add(INPUT_DIVIDER_INP2, "7-2:0.7.2", "0.0.0.0.2.255");
-        add(INPUT_DIVIDER_INP3, "7-3:0.7.2", "0.0.0.0.3.255");
 
     }
 
