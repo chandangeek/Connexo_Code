@@ -297,8 +297,10 @@ public class MTU155 extends AbstractGenericProtocol {
                 messageExecutor.doMessage(rm);
             } catch (BusinessException e) {
                 getLogger().severe("Unable to send message [" + rm.displayString() + "]! " + e.getMessage());
+                getMeterAmrLogging().logInfo("Unable to send message [" + rm.displayString() + "]! " + e.getMessage());
             } catch (SQLException e) {
                 getLogger().severe("Unable to send message [" + rm.displayString() + "]! " + e.getMessage());
+                getMeterAmrLogging().logInfo("Unable to send message [" + rm.displayString() + "]! " + e.getMessage());
             }
         }
 

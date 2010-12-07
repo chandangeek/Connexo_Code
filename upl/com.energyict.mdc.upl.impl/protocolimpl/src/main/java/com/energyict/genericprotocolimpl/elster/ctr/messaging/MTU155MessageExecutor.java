@@ -75,55 +75,50 @@ public class MTU155MessageExecutor extends GenericMessageExecutor {
         String user = MessagingTools.getContentOfAttribute(messageEntry, RtuMessageConstant.GPRS_USERNAME);
         String pssw = MessagingTools.getContentOfAttribute(messageEntry, RtuMessageConstant.GPRS_PASSWORD);
 
-        String description = checkParameters(apn, user, pssw);
-        if ("".equals(description)) {
-            ReferenceDate validityDate = new ReferenceDate().parse(new Date(), factory.getTimeZone());
-            WriteDataBlock wdb = new WriteDataBlock((int) (100 * Math.random()));
-            P_Session p_session = new P_Session(0x00);
-            AttributeType attributeType = AttributeType.getValueOnly();
-            attributeType.setHasIdentifier(true);
-            byte[] rawData = getObjectBytes(apn, user, pssw);
-            
-            try {
-                CTRObjectFactory objectFactory = new CTRObjectFactory();
-                AbstractCTRObject object = objectFactory.parse(rawData, 0, attributeType);
-                factory.writeRegister(
-                        validityDate,
-                        wdb,
-                        p_session,
-                        attributeType,
-                        object
-                );
-            } catch (CTRParsingException e) {
-                throw new BusinessException(e.getMessage());
-            } catch (CTRException e) {
-                throw new BusinessException(e.getMessage());
-            }
-        } else {
-            throw new BusinessException(description);
+        checkParameters(apn, user, pssw);
+        ReferenceDate validityDate = new ReferenceDate().parse(new Date(), factory.getTimeZone());
+        WriteDataBlock wdb = new WriteDataBlock((int) (100 * Math.random()));
+        P_Session p_session = new P_Session(0x00);
+        AttributeType attributeType = AttributeType.getValueOnly();
+        attributeType.setHasIdentifier(true);
+        byte[] rawData = getObjectBytes(apn, user, pssw);
+
+        try {
+            CTRObjectFactory objectFactory = new CTRObjectFactory();
+            AbstractCTRObject object = objectFactory.parse(rawData, 0, attributeType);
+            factory.writeRegister(
+                    validityDate,
+                    wdb,
+                    p_session,
+                    attributeType,
+                    object
+            );
+        } catch (CTRParsingException e) {
+            throw new BusinessException(e.getMessage());
+        } catch (CTRException e) {
+            throw new BusinessException(e.getMessage());
         }
     }
 
-    private String checkParameters(String apn, String user, String pssw) {
+    private void checkParameters(String apn, String user, String pssw) throws BusinessException {
         if ("".equals(apn) || apn == null) {
-            return "Parameter APN was 'null'.";
+            throw new BusinessException("Parameter APN was 'null'.");
         }
         if ("".equals(pssw) || pssw == null) {
-            return "Parameter password was 'null'.";
+            throw new BusinessException("Parameter password was 'null'.");
         }
         if ("".equals(user) || user == null) {
-            return "Parameter username was 'null'.";
+            throw new BusinessException("Parameter username was 'null'.");
         }
         if (apn.length() > APN_MAX_LENGTH) {
-            return "Parameter APN exceeded the maximum length (40 characters).";
+            throw new BusinessException("Parameter APN exceeded the maximum length (40 characters).");
         }
         if (user.length() > USER_MAX_LENGTH) {
-            return "Parameter username exceeded the maximum length (30 characters).";
+            throw new BusinessException("Parameter username exceeded the maximum length (30 characters).");
         }
         if (pssw.length() > PASS_MAX_LENGTH) {
-            return "Parameter password exceeded the maximum length (30 characters).";
+            throw new BusinessException("Parameter password exceeded the maximum length (30 characters).");
         }
-        return "";
     }
 
     private byte[] getObjectBytes(String apn, String user, String pssw) {
