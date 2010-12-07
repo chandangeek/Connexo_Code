@@ -114,11 +114,6 @@ public class Unigas300Registry extends AbstractVDEWRegistry {
 
         add(RegisterMappingFactory.SCHEDULER_START, 	VDEWRegisterDataParse.VDEW_DATESTRING, null);
 
-        add(RegisterMappingFactory.INPUT_DIVIDER_INP1, 	VDEWRegisterDataParse.VDEW_QUANTITY, null);
-        add(RegisterMappingFactory.INPUT_DIVIDER_INP2, 	VDEWRegisterDataParse.VDEW_QUANTITY, null);
-        add(RegisterMappingFactory.INPUT_DIVIDER_INP3, 	VDEWRegisterDataParse.VDEW_QUANTITY, null);
-
-
         registers.put("Time", new VDEWRegister("0.9.1",VDEWRegisterDataParse.VDEW_TIMESTRING,0, -1,null,VDEWRegister.WRITEABLE,VDEWRegister.NOT_CACHED));
         registers.put("Date", new VDEWRegister("0.9.2",VDEWRegisterDataParse.VDEW_DATESTRING,0, -1,null,VDEWRegister.WRITEABLE,VDEWRegister.NOT_CACHED));
         registers.put("TimeDate", new VDEWRegister("0.9.1 0.9.2",VDEWRegisterDataParse.VDEW_TIMEDATE,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED));
