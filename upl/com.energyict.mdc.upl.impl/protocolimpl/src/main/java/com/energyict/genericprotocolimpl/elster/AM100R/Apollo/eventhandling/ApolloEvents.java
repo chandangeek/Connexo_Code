@@ -1,11 +1,13 @@
-package com.energyict.genericprotocolimpl.elster.AM100R.Apollo;
+package com.energyict.genericprotocolimpl.elster.AM100R.Apollo.eventhandling;
 
 import com.energyict.protocol.MeterEvent;
+
+import java.util.*;
 
 /**
  * Straightforward summary fo the available ApolloEvents.
  * (actually this list comes from the <i>Companion Standard for Communication interfaces [Iberdrola AMM T5 meters]</i>
- *
+ * <p/>
  * <br/>
  * Copyrights EnergyICT<br/>
  * Date: 3-dec-2010<br/>
@@ -13,7 +15,9 @@ import com.energyict.protocol.MeterEvent;
  */
 public enum ApolloEvents {
 
-    /*************************************** Group 1 Events ***************************************/
+    /**
+     * ************************************ Group 1 Events **************************************
+     */
     EventLogCleared(255, MeterEvent.CLEAR_DATA, 0, "Event log cleared", "Event log has been cleared"),
     RebootWithLossOfData(1, MeterEvent.OTHER, 1, "Boots and Power Fails", "Reboot with loss of data"),
     RebootWithoutLossOfData(2, MeterEvent.OTHER, 1, "Boots and Power Fails", "Reboot without loss of data"),
@@ -75,21 +79,23 @@ public enum ApolloEvents {
 
     ManualBillingEndB(66, MeterEvent.BILLING_ACTION, 1, "Contract 1, 2 and 3", "Manual billing end (button)"),
 
-    TimeThresholdVoltageSagsSwellsChanged(90, MeterEvent.CONFIGURATIONCHANGE, 1 ,"Quality parameters change", "Time threshold for voltage sags and swells changed"),
+    TimeThresholdVoltageSagsSwellsChanged(90, MeterEvent.CONFIGURATIONCHANGE, 1, "Quality parameters change", "Time threshold for voltage sags and swells changed"),
     TimeThresholdLongPowerFailuresChanged(91, MeterEvent.CONFIGURATIONCHANGE, 1, "Quality parameters change", "Time threshold for long power failures (T') changed"),
     NominalVoltageChanged(92, MeterEvent.CONFIGURATIONCHANGE, 1, "Quality parameters change", "Nominal voltage (Vn) changed"),
-    MaxVoltageLevelChanged(93, MeterEvent.CONFIGURATIONCHANGE, 1 , "Quality parameters change", "Max. voltage level changed (+V)"),
+    MaxVoltageLevelChanged(93, MeterEvent.CONFIGURATIONCHANGE, 1, "Quality parameters change", "Max. voltage level changed (+V)"),
     MinVoltageLevelChanged(94, MeterEvent.CONFIGURATIONCHANGE, 1, "Quality parameters change", "Min. voltage level changed (-V)"),
     DifMinAndNoVoltageChanged(95, MeterEvent.CONFIGURATIONCHANGE, 1, "Quality parameters change", "Difference between min voltage and no voltage changed"),
 
     ContractPowerChanged(96, MeterEvent.CONFIGURATIONCHANGE, 1, "Contract Power", "Contract Power changed"),
     FirmwareChanged(97, MeterEvent.CONFIGURATIONCHANGE, 1, "Firmware", "Firmware changed"),
-    ClockSynchronization(98, MeterEvent.SETCLOCK, 1 , "Synchronization", "Clock synchronization"),
+    ClockSynchronization(98, MeterEvent.SETCLOCK, 1, "Synchronization", "Clock synchronization"),
 
-    /*************************************** Group 2 Events ***************************************/
+    /**
+     * ************************************ Group 2 Events **************************************
+     */
     ManualConnection(1, MeterEvent.MANUAL_CONNECTION, 2, "Disconnector control", "Manual connection"),
     RemoteDisconnection(2, MeterEvent.REMOTE_DISCONNECTION, 2, "Disconnector control", "Remote disconnection (command)"),
-    RemoteConnection(3, MeterEvent.REMOTE_CONNECTION, 2 , "Disconnector control", "Remote connection (command)"),
+    RemoteConnection(3, MeterEvent.REMOTE_CONNECTION, 2, "Disconnector control", "Remote connection (command)"),
     PowerContractControlDisconnection(4, MeterEvent.LOCAL_DISCONNECTION, 2, "Disconnector control", "Power contract control disconnection"),
     PowerControlConnection(5, MeterEvent.REMOTE_CONNECTION, 2, "Disconnector control", "Power control connection"),
     NoTripCurrentExceededByBlockade(6, MeterEvent.OTHER, 2, "Disconnector control", "No trip current exceeded by blockade"),
@@ -99,7 +105,9 @@ public enum ApolloEvents {
     ResidualPowerDeactivationControlConnection(10, MeterEvent.OTHER, 2, "Disconnector control", "Residual power deactivation control connection"),
     ResidualPowerControlConnection(11, MeterEvent.OTHER, 2, "Disconnector control", "Residual power control connection"),
 
-    /*************************************** Group 3 Events ***************************************/
+    /**
+     * ************************************ Group 3 Events **************************************
+     */
     UnderLimitVoltageBetweenPhasesAverage(1, MeterEvent.VOLTAGE_SAG, 3, "Quality non finished events", "Under limit voltage between phases average"),
     UnderLimitVoltageL1(2, MeterEvent.VOLTAGE_SAG, 3, "Quality non finished events", "Under limit voltage L1"),
     UnderLimitVoltageL2(3, MeterEvent.VOLTAGE_SAG, 3, "Quality non finished events", "Under limit voltage L2"),
@@ -125,15 +133,19 @@ public enum ApolloEvents {
     LongPowerFailureL2_2(23, MeterEvent.PHASE_FAILURE, 3, "Quality finished events", "Long power failure L2"),
     LongPowerFailureL3_2(24, MeterEvent.PHASE_FAILURE, 3, "Quality finished events", "Long power failure L3"),
 
-    /*************************************** Group 4 Events ***************************************/
+    /**
+     * ************************************ Group 4 Events **************************************
+     */
     CoverOpened(1, MeterEvent.COVER_OPENED, 4, "Fraud", "Cover opened"),
-    CoverClosed(2, MeterEvent.TAMPER, 4 , "Fraud", "Cover closed"),
+    CoverClosed(2, MeterEvent.TAMPER, 4, "Fraud", "Cover closed"),
     StrongDCFieldDetected(3, MeterEvent.STRONG_DC_FIELD_DETECTED, 4, "Fraud", "Strong DC field detected"),
     NoStrongDCFieldAnymore(4, MeterEvent.NO_STRONG_DC_FIELD_ANYMORE, 4, "Fraud", "No more strong DC field anymore"),
     CurrentWithoutVoltage(5, MeterEvent.OTHER, 4, "Fraud", "Current without voltage"),
     IntrusionDetection(6, MeterEvent.TAMPER, 4, "Fraud", "Instrusion detection"),
 
-    /*************************************** Group 5 Events ***************************************/
+    /**
+     * ************************************ Group 5 Events **************************************
+     */
     ReceptionOrderManagementCriticResidualDemand(1, MeterEvent.OTHER, 5, "Demand management", "Reception order management critic residual demand"),
     ReceptionOrderManagementCriticPrcDecreaseDemand(2, MeterEvent.OTHER, 5, "Demand management", "Reception order management critic % decrease demand"),
     ReceptionOrderManagementDemandAbsoluteValueCriticDemand(3, MeterEvent.OTHER, 5, "Demand management", "Reception order management demand absolute value critic demand"),
@@ -155,14 +167,22 @@ public enum ApolloEvents {
     EndReductionAbsolutePower(19, MeterEvent.OTHER, 5, "Demand management", "End reduction absolute power"),
     DemandCloseToContractPower(20, MeterEvent.OTHER, 5, "Demand management", "DemandCloseToContractPower"),
 
-    /*************************************** Group 6 Events ***************************************/
+    /**
+     * ************************************ Group 6 Events **************************************
+     */
     BeginCommunicationPLCPort(1, MeterEvent.OTHER, 6, "Frequent occurrence-Common", "Begin communication PLC Port"),
     EndCommunicationPLCPort(2, MeterEvent.OTHER, 6, "Frequent occurrence-Common", "End communication PLC Port"),
     BeginCommunicationOpticalPort(3, MeterEvent.OTHER, 6, "Frequent occurrence-Common", "Begin communication Optical Port"),
     EndCommunicationOpticalPort(4, MeterEvent.OTHER, 6, "Frequent occurrence-Common", "End communication Optical Port"),
-    BeginCommunicationSerialPort(5,  MeterEvent.OTHER, 6, "Frequent occurrence-Common", "Begin communication Serial Port"),
-    EndCommunicationSerialPort(6,  MeterEvent.OTHER, 6, "Frequent occurrence-Common", "End communication Serial Port"   )
-    ;
+    BeginCommunicationSerialPort(5, MeterEvent.OTHER, 6, "Frequent occurrence-Common", "Begin communication Serial Port"),
+    EndCommunicationSerialPort(6, MeterEvent.OTHER, 6, "Frequent occurrence-Common", "End communication Serial Port"),
+
+    /**
+     * ************************************ Unknown Events **************************************
+     */
+    UnKnownEvent(0, MeterEvent.OTHER, 0, "Unknown event group", "Unknown Event");
+
+
 
 
     private final int eventId;
@@ -170,13 +190,53 @@ public enum ApolloEvents {
     private final int group;
     private final String description;
     private final String eventDescription;
+    private static List<ApolloEvents> instances;
+
+    private static List<ApolloEvents> getInstances() {
+        if (instances == null) {
+            instances = new ArrayList<ApolloEvents>();
+        }
+        return instances;
+    }
 
 
-    ApolloEvents(int eventId, int eiserverCode, int group, String description, String eventDescription) {
+    private ApolloEvents(int eventId, int eiserverCode, int group, String description, String eventDescription) {
         this.eventId = eventId;
         this.eiserverCode = eiserverCode;
         this.group = group;
         this.description = description;
         this.eventDescription = eventDescription;
+        getInstances().add(this);
+    }
+
+    public static ApolloEvents find(int protocolEventId, int eventGroup) {
+        Iterator it = getInstances().iterator();
+        while (it.hasNext()) {
+            ApolloEvents ae = (ApolloEvents) it.next();
+            if (ae.getGroup() == eventGroup && ae.getProtocolEventId() == protocolEventId) {
+                return ae;
+            }
+        }
+        return UnKnownEvent;
+    }
+
+    public int getGroup() {
+        return this.group;
+    }
+
+    public int getProtocolEventId() {
+        return this.eventId;
+    }
+
+    public int getEIServerCode() {
+        return this.eiserverCode;
+    }
+
+    public String getDescription() {
+        return this.eventDescription;
+    }
+
+    public String getGroupDescription(){
+        return this.description;
     }
 }

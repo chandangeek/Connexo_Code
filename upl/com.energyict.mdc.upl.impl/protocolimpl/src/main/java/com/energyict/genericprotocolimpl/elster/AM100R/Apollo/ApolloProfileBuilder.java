@@ -83,7 +83,14 @@ public class ApolloProfileBuilder {
             int counter = 0;
             for (CapturedObject co : profileGeneric.getCaptureObjects()) {
                 if (ProfileUtils.isChannelData(co)) {
-                    this.scalerUnits[counter++] = this.meterProtocol.getApolloObjectFactory().getCosemtObject(co.getLogicalName().getObisCode(), co.getClassId()).getScalerUnit();
+                    try {
+                        this.scalerUnits[counter] = this.meterProtocol.getApolloObjectFactory().getCosemtObject(co.getLogicalName().getObisCode(), co.getClassId()).getScalerUnit();
+                    } catch (IOException e) {
+                        //TODO fix this, the scalers should be available in the device
+                        this.meterProtocol.getLogger().info("Could not fetch the scalerUnit from channel [" + co + "]. Channel will be unitless.");
+                        this.scalerUnits[counter] = new ScalerUnit(Unit.getUndefined());
+                    }
+                    counter++;
                 }
             }
         }

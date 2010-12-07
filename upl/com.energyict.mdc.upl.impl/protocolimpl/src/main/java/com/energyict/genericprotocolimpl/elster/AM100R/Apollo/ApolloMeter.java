@@ -7,10 +7,10 @@ import com.energyict.dlms.aso.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.*;
+import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.eventhandling.EventLogs;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.dlms.DLMSCache;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -104,18 +104,18 @@ public class ApolloMeter extends DLMSProtocol {
             }
 
             if (getCommunicationProfile().getReadDemandValues()) {
-//                getLogger().log(Level.INFO, "Getting ProfileData for meter with serialnumber: " + this.serialNumber);
-//                getProfileData();
-                getLogger().log(Level.INFO, "Currently no LoadProfile Support!");
+                getLogger().log(Level.INFO, "Getting ProfileData for meter with serialnumber: " + this.serialNumber);
+                ProfileData profile = getProfileData();
+                storeObject.add(profile, getMeter());
+//                getLogger().log(Level.INFO, "Currently no LoadProfile Support!");
             }
 
             if (getCommunicationProfile().getReadMeterEvents()) {
                 //TODO complete
                 getLogger().log(Level.INFO, "Currently no Event Support!");
 
-
-                EventLogs logs = new EventLogs(this);
-                logs.getEventLog(null,null);
+                ProfileData eProfile = getMeterEvents();
+                storeObject.add(eProfile, getMeter());
             }
 
             if (getCommunicationProfile().getReadMeterReadings()) {
@@ -131,19 +131,34 @@ public class ApolloMeter extends DLMSProtocol {
 
     }
 
-    private void getProfileData() throws IOException {
+    private ProfileData getProfileData() throws IOException {
         ProfileGeneric pg = getApolloObjectFactory().getDefaultProfile();
         ApolloProfileBuilder apb = new ApolloProfileBuilder(this, pg);
 
         ProfileData pd = new ProfileData();
         pd.setChannelInfos(apb.getChannelInfos());
         Calendar fromCalendar = Calendar.getInstance();
-        fromCalendar.add(Calendar.MONTH,-3);
-        pg.getBuffer(fromCalendar).printDataContainer();
+        fromCalendar.add(Calendar.MONTH, -3);
+//        pg.getBuffer(fromCalendar).printDataContainer();
+        pg.getBuffer();
         getLogger().info("ProfileCapturePeriod: " + pg.getCapturePeriod());
         getLogger().info("EntriesInUse: " + pg.getEntriesInUse());
         getLogger().info("NumberOfProfileChannels: " + pg.getNumberOfProfileChannels());
         getLogger().info("ProfileEntries: " + pg.getProfileEntries());
+        return pd;
+    }
+
+    private ProfileData getMeterEvents() throws IOException {
+        EventLogs logs = new EventLogs(this);
+        ProfileData eProfile = new ProfileData();
+        Calendar fromCalendar = Calendar.getInstance(getMeter().getTimeZone());
+        Date lastLogReading = getMeter().getLastLogbook();
+		if(lastLogReading == null){
+			lastLogReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(getMeter());
+		}
+        fromCalendar.setTime(lastLogReading);
+        eProfile.getMeterEvents().addAll(logs.getEventLog(fromCalendar));
+        return eProfile;
     }
 
     /**
@@ -437,7 +452,7 @@ public class ApolloMeter extends DLMSProtocol {
     }
 
     /**
-     * @return the storeObject from the Z3
+     * @return the storeObject
      */
     public StoreObject getStoreObject() {
         return this.storeObject;
@@ -445,6 +460,7 @@ public class ApolloMeter extends DLMSProtocol {
 
     /**
      * Getter for the {@link com.energyict.genericprotocolimpl.elster.AM100R.Apollo.ApolloObjectFactory}
+     *
      * @return the used {@link com.energyict.genericprotocolimpl.elster.AM100R.Apollo.ApolloObjectFactory}
      */
     public ApolloObjectFactory getApolloObjectFactory() {
