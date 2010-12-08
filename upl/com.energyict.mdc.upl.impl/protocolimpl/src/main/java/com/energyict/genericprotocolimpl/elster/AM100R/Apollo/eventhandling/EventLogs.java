@@ -154,7 +154,7 @@ public class EventLogs {
      * @throws IOException
      */
     protected void getStandardEvents(Calendar fromCalendar) throws IOException {
-        DataContainer dc = getMeterProtocol().getApolloObjectFactory().getStandardEventLog().getBuffer(fromCalendar);
+        DataContainer dc = getMeterProtocol().getApolloObjectFactory().getStandardEventLog().getBuffer();
         StandardEvents se = new StandardEvents(dc, getMeterProtocol().getTimeZone());
         meterEvents.addAll(se.getMeterEvents());
     }
