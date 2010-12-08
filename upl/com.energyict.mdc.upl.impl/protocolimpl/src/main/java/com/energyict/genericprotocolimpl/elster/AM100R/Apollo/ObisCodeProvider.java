@@ -30,8 +30,8 @@ public class ObisCodeProvider implements CommonObisCodeProvider {
     public static final ObisCode associationLnManagementClient = ObisCode.fromString("0.0.40.0.3.255");
     public static final ObisCode associationLnFirmwareClient = ObisCode.fromString("0.0.40.0.4.255");
     public static final ObisCode firmwareVersionObisCode = ObisCode.fromString("1.0.0.2.0.255");
-    public static final ObisCode standardEventLogObisCode = ObisCode.fromString("0.0.99.98.0.255");
 
+    public static final ObisCode standardEventLogObisCode = ObisCode.fromString("0.0.99.98.0.255");
     public static final ObisCode powerQualityFinishedEventLogObisCode = ObisCode.fromString("0.0.99.98.9.255");
     public static final ObisCode powerQualityNotFinishedEventLogObisCode = ObisCode.fromString("0.0.99.98.5.255");
     public static final ObisCode fraudDetectionEventLogObisCode = ObisCode.fromString("0.0.99.98.1.255");
@@ -178,7 +178,7 @@ public class ObisCodeProvider implements CommonObisCodeProvider {
      * Enumeration containing the possible {@link com.energyict.dlms.cosem.AssociationLN} Obiscodes.
      * Each clientID has a different AssociationObject.
      */
-    enum AssociationLnObisCodes {
+    private enum AssociationLnObisCodes {
 
         /**
          * The current_client

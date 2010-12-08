@@ -182,16 +182,32 @@ public enum ApolloEvents {
      */
     UnKnownEvent(0, MeterEvent.OTHER, 0, "Unknown event group", "Unknown Event");
 
-
-
-
+    /**
+     * The eventcode from the device
+     */
     private final int eventId;
+    /**
+     * The EIS {@link com.energyict.protocol.MeterEvent} code
+     */
     private final int eiserverCode;
+    /**
+     * The group of which the {@link #eventId} belongs to
+     */
     private final int group;
-    private final String description;
+    /**
+     * The basic group description
+     */
+    private final String groupDescription;
+    /**
+     * The event description
+     */
     private final String eventDescription;
     private static List<ApolloEvents> instances;
 
+    /**
+     * Constructs a static list of ApolloEvents, easily to search in
+     * @return the list of available ApolloEvents
+     */
     private static List<ApolloEvents> getInstances() {
         if (instances == null) {
             instances = new ArrayList<ApolloEvents>();
@@ -199,16 +215,31 @@ public enum ApolloEvents {
         return instances;
     }
 
-
+    /**
+     * Private constructor for the enumeration
+     *
+     * @param eventId          the eventCode from the device
+     * @param eiserverCode     the EIS {@link com.energyict.protocol.MeterEvent} code
+     * @param group            the group of which the eventId belongs to
+     * @param description      the groupDescription of the group according to the documentation
+     * @param eventDescription the description of the event according to the documentation
+     */
     private ApolloEvents(int eventId, int eiserverCode, int group, String description, String eventDescription) {
         this.eventId = eventId;
         this.eiserverCode = eiserverCode;
         this.group = group;
-        this.description = description;
+        this.groupDescription = description;
         this.eventDescription = eventDescription;
         getInstances().add(this);
     }
 
+    /**
+     * Find an {@link com.energyict.genericprotocolimpl.elster.AM100R.Apollo.eventhandling.ApolloEvents} in the enumeration based on the given parameters
+     *
+     * @param protocolEventId the eventCode returned from the device
+     * @param eventGroup      the group of which the protocolEventId belongs to
+     * @return the requested ApolloEvent
+     */
     public static ApolloEvents find(int protocolEventId, int eventGroup) {
         Iterator it = getInstances().iterator();
         while (it.hasNext()) {
@@ -220,23 +251,38 @@ public enum ApolloEvents {
         return UnKnownEvent;
     }
 
+    /**
+     * @return the index of the group
+     */
     public int getGroup() {
         return this.group;
     }
 
+    /**
+     * @return the event code returned from the device
+     */
     public int getProtocolEventId() {
         return this.eventId;
     }
 
+    /**
+     * @return the EIS {@link com.energyict.protocol.MeterEvent} code
+     */
     public int getEIServerCode() {
         return this.eiserverCode;
     }
 
+    /**
+     * @return the description of the event
+     */
     public String getDescription() {
         return this.eventDescription;
     }
 
-    public String getGroupDescription(){
-        return this.description;
+    /**
+     * @return the groupDescription of the group
+     */
+    public String getGroupDescription() {
+        return this.groupDescription;
     }
 }

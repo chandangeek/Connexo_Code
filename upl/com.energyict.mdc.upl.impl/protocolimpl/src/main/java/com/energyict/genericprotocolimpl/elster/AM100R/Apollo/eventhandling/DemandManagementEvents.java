@@ -6,13 +6,25 @@ import com.energyict.protocol.MeterEvent;
 import java.util.*;
 
 /**
- * Copyrights EnergyICT
- * Date: 6-dec-2010
- * Time: 15:53:07
+ * Contians all events related to demand management, e.g. modifications on power threshold
+ *<br/>
+ * Copyrights EnergyICT<br/>
+ * Date: 6-dec-2010<br/>
+ * Time: 15:53:07<br/>
  */
 public class DemandManagementEvents extends AbstractEvent{
 
     public static final int DemandManagementGroup = 5;
+
+    /**
+     * Constructor
+     *
+     * @param dc       the dataContainer containing all the raw events
+     * @param timeZone the timezone to use for parsing eventTimes
+     */
+    public DemandManagementEvents(DataContainer dc, TimeZone timeZone) {
+        super(dc, timeZone);
+    }
 
     /**
      * Getter for the groupId
@@ -22,14 +34,5 @@ public class DemandManagementEvents extends AbstractEvent{
     @Override
     protected int getGroupId() {
         return DemandManagementGroup;
-    }
-
-    /**
-     * Constructor
-     *
-     * @param dc
-     */
-    public DemandManagementEvents(DataContainer dc, TimeZone timeZone) {
-        super(dc, timeZone);
     }
 }

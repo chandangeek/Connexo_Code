@@ -4,9 +4,11 @@ import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 
 /**
- * Copyrights EnergyICT
- * Date: 1-dec-2010
- * Time: 13:42:36
+ * Simple utils class to help the ProfileBuilder
+ * <br/>
+ * Copyrights EnergyICT<br/>
+ * Date: 1-dec-2010<br/>
+ * Time: 13:42:36<br/>
  */
 public class ProfileUtils {
 

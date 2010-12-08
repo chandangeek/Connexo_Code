@@ -10,7 +10,8 @@ import java.util.*;
 import java.util.logging.Logger;
 
 /**
- * A default DLMS {@link com.energyict.dlms.cosem.ProfileGeneric} buffer parser to a list {@link com.energyict.protocol.IntervalData}
+ * A default DLMS {@link com.energyict.dlms.cosem.ProfileGeneric} buffer parser to a list {@link com.energyict.protocol.IntervalData}.
+ * Depending on the default or given masks, a profile can be build.
  * <br/>
  * Copyrights EnergyICT<br/>
  * Date: 7-dec-2010<br/>

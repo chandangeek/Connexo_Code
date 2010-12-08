@@ -6,9 +6,12 @@ import com.energyict.protocol.MeterEvent;
 import java.util.*;
 
 /**
- * Copyrights EnergyICT
- * Date: 6-dec-2010
- * Time: 15:12:50
+ * Contains all events related to the detection of fraud attempts, e.g. removal of terminal cover,
+ * removal of meter cover, strong DC field detection, accoss with wrong password
+ * <br/>                     
+ * Copyrights EnergyICT<br/>
+ * Date: 6-dec-2010<br/>
+ * Time: 15:12:50<br/>
  */
 public class FraudDetectionEvents extends AbstractEvent {
 
@@ -17,7 +20,8 @@ public class FraudDetectionEvents extends AbstractEvent {
     /**
      * Constructor
      *
-     * @param dc
+     * @param dc       the dataContainer containing all the raw events
+     * @param timeZone the timezone to use for parsing eventTimes
      */
     public FraudDetectionEvents(DataContainer dc, TimeZone timeZone) {
         super(dc, timeZone);

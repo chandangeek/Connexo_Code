@@ -6,11 +6,12 @@ import com.energyict.protocol.MeterEvent;
 import java.util.*;
 
 /**
- *
+ * Contains all events related to firmware changes
+ * <br/>
  * TODO change the implementation of the buffer
- * Copyrights EnergyICT
- * Date: 6-dec-2010
- * Time: 15:56:50
+ * Copyrights EnergyICT<br/>
+ * Date: 6-dec-2010<br/
+ * Time: 15:56:50<br/
  */
 public class FirmwareEvents extends AbstractEvent{
 
@@ -19,7 +20,8 @@ public class FirmwareEvents extends AbstractEvent{
     /**
      * Constructor
      *
-     * @param dc
+     * @param dc       the dataContainer containing all the raw events
+     * @param timeZone the timezone to use for parsing eventTimes
      */
     public FirmwareEvents(DataContainer dc, TimeZone timeZone) {
         super(dc, timeZone);

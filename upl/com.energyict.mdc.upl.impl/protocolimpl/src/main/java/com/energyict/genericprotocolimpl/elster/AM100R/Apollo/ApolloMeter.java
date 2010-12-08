@@ -8,6 +8,7 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.*;
 import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.eventhandling.EventLogs;
+import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.profile.ApolloProfileBuilder;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -69,6 +70,9 @@ public class ApolloMeter extends DLMSProtocol {
      * Fixed static string for the {@link #forcedToReadCache} property
      */
     private static final String PROP_FORCEDTOREADCACHE = "ForcedToReadCache";
+    /**
+     * Fixed static string for the {@link #password} property
+     */
     private static final String PROPERTY_PASSWORD = "Password";
 
     /**
@@ -87,19 +91,8 @@ public class ApolloMeter extends DLMSProtocol {
         try {
             // Set clock or Force clock... if necessary
             if (getCommunicationProfile().getForceClock()) {
-                Date meterTime = getTime();
-                Calendar currentCalendar = Calendar.getInstance(getTimeZone());
-                currentCalendar.set(Calendar.MILLISECOND, 0);
-                Date currentTime = currentCalendar.getTime();
-                setTimeDifference(Math.abs(currentTime.getTime() - meterTime.getTime()));
-                getLogger().log(Level.INFO, "Forced to set meterClock to systemTime: " + currentTime);
-
-                //            Data clockSync = new Data(this, new ObjectReference(obisCodeProvider.getClockSynchronization().getLN()));
-                //            clockSync.setValueAttr(new AXDRDateTime(currentTime));
-
-                getApolloObjectFactory().getClock().setAXDRDateTimeAttr((new AXDRDateTime(currentTime)));
+                doForceClock();
             } else {
-                //TODO check this if the DLMSProtocol doesn't use the cosemObjectFactory
                 verifyAndWriteClock();
             }
 
@@ -107,13 +100,10 @@ public class ApolloMeter extends DLMSProtocol {
                 getLogger().log(Level.INFO, "Getting ProfileData for meter with serialnumber: " + this.serialNumber);
                 ProfileData profile = getProfileData();
                 storeObject.add(profile, getMeter());
-//                getLogger().log(Level.INFO, "Currently no LoadProfile Support!");
             }
 
             if (getCommunicationProfile().getReadMeterEvents()) {
-                //TODO complete
-                getLogger().log(Level.INFO, "Currently no Event Support!");
-
+                getLogger().log(Level.INFO, "Getting ProfileData for meter with serialnumber: " + this.serialNumber);
                 ProfileData eProfile = getMeterEvents();
                 storeObject.add(eProfile, getMeter());
             }
@@ -137,28 +127,84 @@ public class ApolloMeter extends DLMSProtocol {
 
         ProfileData pd = new ProfileData();
         pd.setChannelInfos(apb.getChannelInfos());
+        Calendar toCalendar = Calendar.getInstance();
         Calendar fromCalendar = Calendar.getInstance();
-        fromCalendar.add(Calendar.MONTH, -3);
-//        pg.getBuffer(fromCalendar).printDataContainer();
-        pg.getBuffer();
-        getLogger().info("ProfileCapturePeriod: " + pg.getCapturePeriod());
-        getLogger().info("EntriesInUse: " + pg.getEntriesInUse());
-        getLogger().info("NumberOfProfileChannels: " + pg.getNumberOfProfileChannels());
-        getLogger().info("ProfileEntries: " + pg.getProfileEntries());
+
+        fromCalendar.setTime(getMeter().getLastReading());
+        pd.setIntervalDatas(apb.getIntervalList(fromCalendar, toCalendar));
+//        pg.getBuffer(fromCalendar, toCalendar).printDataContainer();
+//        pg.getBuffer();
+//        getLogger().info("ProfileCapturePeriod: " + pg.getCapturePeriod());
+//        getLogger().info("EntriesInUse: " + pg.getEntriesInUse());
+//        getLogger().info("NumberOfProfileChannels: " + pg.getNumberOfProfileChannels());
+//        getLogger().info("ProfileEntries: " + pg.getProfileEntries());
         return pd;
     }
 
+    /**
+     * Get the events from the Device
+     *
+     * @return a ProfileData object with only the events written
+     * @throws IOException
+     */
     private ProfileData getMeterEvents() throws IOException {
         EventLogs logs = new EventLogs(this);
         ProfileData eProfile = new ProfileData();
         Calendar fromCalendar = Calendar.getInstance(getMeter().getTimeZone());
         Date lastLogReading = getMeter().getLastLogbook();
-		if(lastLogReading == null){
-			lastLogReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(getMeter());
-		}
+        if (lastLogReading == null) {
+            lastLogReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(getMeter());
+        }
         fromCalendar.setTime(lastLogReading);
         eProfile.getMeterEvents().addAll(logs.getEventLog(fromCalendar));
         return eProfile;
+    }
+
+    /**
+     * Fetch the meter's time
+     *
+     * @return
+     * @throws IOException
+     */
+    @Override
+    public Date getTime() throws IOException {
+        try {
+            return getApolloObjectFactory().getClock().getDateTime();
+        } catch (IOException e) {
+            log(Level.FINEST, e.getMessage());
+            throw new IOException("Could not retrieve the Clock object." + e);
+        }
+    }
+
+    /**
+     * Force the clock of the device to the system time
+     *
+     * @throws IOException
+     */
+    public void doForceClock() throws IOException {
+        Date meterTime = getTime();
+        Calendar currentCalendar = Calendar.getInstance(getTimeZone());
+        currentCalendar.set(Calendar.MILLISECOND, 0);
+        Date currentTime = currentCalendar.getTime();
+        setTimeDifference(Math.abs(currentTime.getTime() - meterTime.getTime()));
+        getLogger().log(Level.INFO, "Forced to set meterClock to systemTime: " + currentTime);
+        setClock(currentTime);
+    }
+
+    /**
+     * Set the meter's clock to a certain time
+     *
+     * @param currentTime - the given time to set
+     * @throws IOException if forcing the clock failed
+     */
+    @Override
+    public void setClock(Date currentTime) throws IOException {
+        try {
+            getApolloObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(currentTime));
+        } catch (IOException e) {
+            log(Level.FINEST, e.getMessage());
+            throw new IOException("Could not set the Clock object." + e);
+        }
     }
 
     /**

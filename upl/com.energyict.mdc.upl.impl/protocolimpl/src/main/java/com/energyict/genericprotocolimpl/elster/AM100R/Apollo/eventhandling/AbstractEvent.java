@@ -31,12 +31,16 @@ public abstract class AbstractEvent {
      */
     protected final DataContainer dcEvents;
 
+    /**
+     * The used {@link java.util.TimeZone}
+     */
     protected final TimeZone timeZone;
 
     /**
      * Constructor
      *
-     * @param dc
+     * @param dc       the dataContainer containing all the raw events
+     * @param timeZone the timezone to use for parsing eventTimes
      */
     public AbstractEvent(DataContainer dc, TimeZone timeZone) {
         this.dcEvents = dc;
@@ -90,11 +94,11 @@ public abstract class AbstractEvent {
     }
 
     /**
-     * Build a list of MeterEvents
+     * Build a MeterEvent based on the protocolEventCode
      *
-     * @param meterEvents
-     * @param eventTimeStamp
-     * @param eventId
+     * @param meterEvents    the list to fill up with the MeterEvent
+     * @param eventTimeStamp the timeStamp for the new Event
+     * @param eventId        the eventCode returned from the device
      */
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
         ApolloEvents ae = ApolloEvents.find(eventId, getGroupId());

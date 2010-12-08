@@ -6,14 +6,23 @@ import com.energyict.protocol.MeterEvent;
 import java.util.*;
 
 /**
- * Copyrights EnergyICT
- * Date: 6-dec-2010
- * Time: 9:32:15
+ * Contains all events not recorded in a special event log, e.g. firmware update, end of billing periods,
+ * changes of the clock, changes of the configuration, clearing of profiles, all kind of self check errors, ...
+ * <br/>
+ * Copyrights EnergyICT<br/>
+ * Date: 6-dec-2010<br/>
+ * Time: 9:32:15<br/>
  */
 public class StandardEvents extends AbstractEvent{
 
     private static final int StandardEventGroup = 1;
-
+    
+    /**
+     * Constructor
+     *
+     * @param dc       the dataContainer containing all the raw events
+     * @param timeZone the timezone to use for parsing eventTimes
+     */
     public StandardEvents(DataContainer dc, TimeZone timeZone) {
         super(dc, timeZone);
     }

@@ -68,7 +68,7 @@ public class DLMSProfileIntervalsTest {
             assertEquals(new Date(Long.valueOf("1283950800000")), profileIntervals.parseIntervals(3600).get(2).getEndTime());
 
         } catch (IOException e) {
-            logger.finest(e.getMessage());
+            logger.info(e.getMessage());
             fail();
         }
     }
@@ -90,7 +90,7 @@ public class DLMSProfileIntervalsTest {
             assertEquals(5, ((IntervalValue)profileIntervals.parseIntervals(3600).get(0).getIntervalValues().get(3)).getEiStatus());
 
         } catch (IOException e) {
-            logger.finest(e.getMessage());
+            logger.info(e.getMessage());
             fail();
         }
 
@@ -179,7 +179,7 @@ public class DLMSProfileIntervalsTest {
             assertFalse(profileIntervals.isChannelIndex(7));
             assertTrue(profileIntervals.isChannelIndex(8));
         } catch (IOException e) {
-            logger.finest(e.getMessage());
+            logger.info(e.getMessage());
             fail();
         }
     }

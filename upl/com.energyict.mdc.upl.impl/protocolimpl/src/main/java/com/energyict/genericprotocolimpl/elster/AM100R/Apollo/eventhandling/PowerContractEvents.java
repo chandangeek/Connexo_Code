@@ -6,10 +6,12 @@ import com.energyict.protocol.MeterEvent;
 import java.util.*;
 
 /**
+ * Contains all events related to power contract change. 
+ * <br/>
  * TODO change the implementation of the buffer
- * Copyrights EnergyICT
- * Date: 6-dec-2010
- * Time: 15:55:25
+ * Copyrights EnergyICT<br/>
+ * Date: 6-dec-2010<br/>
+ * Time: 15:55:25<br/>
  */
 public class PowerContractEvents extends AbstractEvent {
 
@@ -18,7 +20,8 @@ public class PowerContractEvents extends AbstractEvent {
     /**
      * Constructor
      *
-     * @param dc
+     * @param dc       the dataContainer containing all the raw events
+     * @param timeZone the timezone to use for parsing eventTimes
      */
     public PowerContractEvents(DataContainer dc, TimeZone timeZone) {
         super(dc, timeZone);

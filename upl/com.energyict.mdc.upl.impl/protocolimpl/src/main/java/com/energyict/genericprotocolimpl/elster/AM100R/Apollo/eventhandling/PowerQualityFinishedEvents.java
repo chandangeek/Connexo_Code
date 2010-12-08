@@ -6,9 +6,11 @@ import com.energyict.protocol.MeterEvent;
 import java.util.*;
 
 /**
- * Copyrights EnergyICT
- * Date: 6-dec-2010
- * Time: 15:15:20
+ * Contains all events related to voltage variations, e.g. changes of voltage under or over a threshold of Vn for finished events 
+ * <br/>
+ * Copyrights EnergyICT<br/>
+ * Date: 6-dec-2010<br/>
+ * Time: 15:15:20<br/>
  */
 public class PowerQualityFinishedEvents extends AbstractEvent{
 
@@ -17,7 +19,8 @@ public class PowerQualityFinishedEvents extends AbstractEvent{
     /**
      * Constructor
      *
-     * @param dc
+     * @param dc       the dataContainer containing all the raw events
+     * @param timeZone the timezone to use for parsing eventTimes
      */
     public PowerQualityFinishedEvents(DataContainer dc, TimeZone timeZone) {
         super(dc, timeZone);

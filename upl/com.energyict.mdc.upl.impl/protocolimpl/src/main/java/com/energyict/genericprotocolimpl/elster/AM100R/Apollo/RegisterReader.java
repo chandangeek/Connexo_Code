@@ -141,52 +141,6 @@ public class RegisterReader {
             Data data = getMeterProtocol().getApolloObjectFactory().getData(obisCode);
             return new RegisterValue(obisCode, new Quantity(data.getString(), Unit.getUndefined()));
         }
-
-
-        //TODO check if you need this one? THe instantaneous values are already available in the above if/else structure
-//        if ((obisCode.getA() == 1)
-//                && (obisCode.getB() == 0)
-//                && ((obisCode.getC() == 1) || (obisCode.getC() == 2) || ((obisCode.getC() >= 5) && (obisCode.getC() <= 8)))
-//                && (obisCode.getD() == 7)   // D equals 7 means instantaneous
-//                && (obisCode.getE() == 0) && (obisCode.getF() == 255)) {
-//            ProfileGeneric instantEnergyProfile = getMeterProtocol().getApolloObjectFactory().getInstantaneousEnergyProfile();
-//            ObisCode tempOc = new ObisCode(obisCode.getA(), obisCode.getB(), obisCode.getC(), 8, 0, 255);
-//            int index = getProfileIndex(instantEnergyProfile, tempOc);
-//
-//            if(index != -1){
-//                DataContainer dc = instantEnergyProfile.getBuffer();
-//                Quantity q = new Quantity(dc.getRoot().getStructure(0).getStructure(1).getInteger(index),
-//                        getMeterProtocol().getApolloObjectFactory().getRegister(tempOc).getScalerUnit().getUnit());
-//                return new RegisterValue(obisCode, q);
-//            } else {
-//                throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
-//            }
-//
-//        }
-
         throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
     }
-
-    /**
-     * Get the index of the profile
-     *
-     * @param instantEnergyProfile
-     * @param obisCode
-     * @return
-     * @throws IOException
-     */
-    private int getProfileIndex(ProfileGeneric instantEnergyProfile, ObisCode obisCode) throws IOException {
-        int index = 0;
-        for (CapturedObject co : instantEnergyProfile.getCaptureObjects()) {
-            if (ProfileUtils.isChannelData(co)) {
-                if (co.getLogicalName().getObisCode().equals(obisCode)) {
-                    return index;
-                }
-                index++;
-            }
-        }
-        return -1;
-    }
-
-
 }

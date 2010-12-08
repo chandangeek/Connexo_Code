@@ -35,7 +35,7 @@ public class StatusCodeProfile {
     
     public static int intervalStateBits(int statusCodeProfile) {
         
-        int eiCode=0;
+            int eiCode=0;
         
         if ((statusCodeProfile & CRITICAL_ERROR) == CRITICAL_ERROR) {
 			eiCode |= IntervalStateBits.DEVICE_ERROR;

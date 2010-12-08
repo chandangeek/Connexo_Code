@@ -1,9 +1,11 @@
-package com.energyict.genericprotocolimpl.elster.AM100R.Apollo;
+package com.energyict.genericprotocolimpl.elster.AM100R.Apollo.profile;
 
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.cosem.*;
+import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.*;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 
 import java.io.IOException;
 import java.util.*;
@@ -115,4 +117,16 @@ public class ApolloProfileBuilder {
         return this.numberOfChannels;
     }
 
+    /**
+     * Fetch the intervalList from the device
+     *
+     * @param fromCalendar the time to start reading from
+     * @param toCalendar   the last interval to read
+     * @return a list of IntervalData objects to put in the ProfileData object
+     * @throws IOException
+     */
+    public List<IntervalData> getIntervalList(Calendar fromCalendar, Calendar toCalendar) throws IOException {
+        DLMSProfileIntervals intervals = new DLMSProfileIntervals(profileGeneric.getBufferData(fromCalendar, toCalendar), new ApolloProfileIntervalStatusBits());
+        return intervals.parseIntervals(profileGeneric.getCapturePeriod());
+    }
 }
