@@ -10,9 +10,11 @@ import java.util.*;
 import java.util.logging.Logger;
 
 /**
- * Copyrights EnergyICT
- * Date: 7-dec-2010
- * Time: 11:26:42
+ * A default DLMS {@link com.energyict.dlms.cosem.ProfileGeneric} buffer parser to a list {@link com.energyict.protocol.IntervalData}
+ * <br/>
+ * Copyrights EnergyICT<br/>
+ * Date: 7-dec-2010<br/>
+ * Time: 11:26:42<br/>
  */
 public class DLMSProfileIntervals extends Array {
 
@@ -36,6 +38,8 @@ public class DLMSProfileIntervals extends Array {
      */
     private final ProfileIntervalStatusBits profileStatusBits;
 
+    private int profileInterval;
+
     /**
      * Constructor with the default masks enabled:
      * <ul>
@@ -45,7 +49,7 @@ public class DLMSProfileIntervals extends Array {
      * </ul>
      *
      * @param encodedData the raw encoded data of the buffer of the {@link com.energyict.dlms.cosem.ProfileGeneric}
-     * @param statusBits the statusbits converter to use
+     * @param statusBits  the statusbits converter to use
      * @throws IOException when encoding types are not as expected
      */
     public DLMSProfileIntervals(byte[] encodedData, ProfileIntervalStatusBits statusBits) throws IOException {
@@ -59,7 +63,7 @@ public class DLMSProfileIntervals extends Array {
      * @param clockMask   the binary represented mask of the clock index
      * @param statusMask  the binary represented mask of all the status indexes
      * @param channelMask the binary represented mask of all the channel indexes
-     * @param statusBits the statusbits converter to use
+     * @param statusBits  the statusbits converter to use
      * @throws IOException when encoding types are not as expected
      */
     public DLMSProfileIntervals(byte[] encodedData, int clockMask, int statusMask, int channelMask, ProfileIntervalStatusBits statusBits) throws IOException {
@@ -77,6 +81,7 @@ public class DLMSProfileIntervals extends Array {
      * @return a list of intervalData
      */
     public List<IntervalData> parseIntervals(int profileInterval) throws IOException {
+        this.profileInterval = profileInterval;
         List<IntervalData> intervalList = new ArrayList<IntervalData>();
         Calendar cal = null;
         IntervalData currentInterval = null;
@@ -87,24 +92,13 @@ public class DLMSProfileIntervals extends Array {
                 Structure element = (Structure) getDataType(i);
                 List<Integer> values = new ArrayList<Integer>();
 
-                // still implement the case where you have multiple statuses
                 if (getNrOfStatusIndexes() == 1) {
                     for (int d = 0; d < element.nrOfDataTypes(); d++) {
                         if (isClockIndex(d)) {
-                            if (element.getDataType(d) instanceof OctetString) {
-                                OctetString os = (OctetString) element.getDataType(d);
-                                // check if the OctetString contains a date, otherwise just add the profileInterval to the current calendar
-                                if (os.getOctetStr().length == 12) {
-                                    cal = new AXDRDateTime(os).getValue();
-                                } else if (cal != null) {
-                                    cal.add(Calendar.SECOND, profileInterval);
-                                } else {
-                                    throw new IOException("Could not create a correct calender for current interval. IntervalStructure: \r\n" + element);
-                                }
-                            } else if (element.getDataType(d) instanceof NullData && cal != null) {
-                                cal.add(Calendar.SECOND, profileInterval);
-                            } else {
-                                throw new IOException("Unknown calendar type for current interval. IntervalStructure: \r\n" + element);
+                            try {
+                                cal = constructIntervalCalendar(cal, element.getDataType(d));
+                            } catch (IOException e) {
+                                throw new IOException("IntervalStructure: \r\n" + element + "\r\n" + e.getMessage());
                             }
                         } else if (isStatusIndex(d)) {
                             profileStatus = profileStatusBits.getEisStatusCode(element.getDataType(d).intValue());
@@ -118,15 +112,65 @@ public class DLMSProfileIntervals extends Array {
                     } else {
                         throw new IOException("Calender can not be NULL for building an IntervalData. IntervalStructure: \r\n" + element);
                     }
+                } else { // the implementation is different if you have multiple status flags
+                    List<Integer> statuses = new ArrayList<Integer>();
+                    for (int d = 0; d < element.nrOfDataTypes(); d++) {
+                        if (isClockIndex(d)) {
+                            try {
+                                cal = constructIntervalCalendar(cal, element.getDataType(d));
+                            } catch (IOException e) {
+                                throw new IOException("IntervalStructure: \r\n" + element + "\r\n" + e.getMessage());
+                            }
+                        } else if (isStatusIndex(d)) {
+                            statuses.add(profileStatusBits.getEisStatusCode(element.getDataType(d).intValue()));
+                            // we add all the statuses on the 'main' profileStatus
+                            profileStatus |= profileStatusBits.getEisStatusCode(element.getDataType(d).intValue());
+                        } else if (isChannelIndex(d)) {
+                            values.add(element.getDataType(d).intValue());
+                        }
+                    }
+
+                    if (cal != null) {
+                        currentInterval = new IntervalData(cal.getTime(), profileStatus);
+                        for(int j = 0; j < values.size(); j++){
+                            currentInterval.addValue(values.get(j), 0, statuses.get(j));
+                        }
+                    } else {
+                        throw new IOException("Calender can not be NULL for building an IntervalData. IntervalStructure: \r\n" + element);
+                    }
                 }
 
                 intervalList.add(currentInterval);
             }
-
-        } else {
-            // no elements in the intervalObject
         }
         return intervalList;
+    }
+
+    /**
+     * Construct the calendar depending on the type of the dataType
+     *
+     * @param cal      the working Calender in the parser
+     * @param dataType the dataType from the rawData
+     * @return the new Calendar object
+     * @throws IOException when the dataType is not as expected or the calendar could not be constructed
+     */
+    protected Calendar constructIntervalCalendar(Calendar cal, AbstractDataType dataType) throws IOException {
+        if (dataType instanceof OctetString) {
+            OctetString os = (OctetString) dataType;
+            // check if the OctetString contains a date, otherwise just add the profileInterval to the current calendar
+            if (os.getOctetStr().length == 12) {
+                cal = new AXDRDateTime(os).getValue();
+            } else if (cal != null) {
+                cal.add(Calendar.SECOND, profileInterval);
+            } else {
+                throw new IOException("Could not create a correct calender for current interval.");
+            }
+        } else if (dataType instanceof NullData && cal != null) {
+            cal.add(Calendar.SECOND, profileInterval);
+        } else {
+            throw new IOException("Unknown calendar type for current interval.");
+        }
+        return cal;
     }
 
     /**
