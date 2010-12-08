@@ -171,18 +171,18 @@ public class AS220ActivityCalendarController implements ActivityCalendarControll
             NodeList actDateList = doc.getElementsByTagName(AS220Messaging.ACTIVATION_DATE);
 
             Long activationDate = Long.valueOf(actDateList.item(0).getTextContent());
-        if (0 == activationDate || 1 == activationDate) {
-            activatePassiveCalendarTime = OctetString.fromString(Long.toString(activationDate));
-        } else {
-                activatePassiveCalendarTime = new OctetString(convertUnixToGMTDateTime(activationDate*1000).getBEREncodedByteArray(), 0);
-        }
+            if (0 == activationDate || 1 == activationDate) {
+                activatePassiveCalendarTime = OctetString.fromString(Long.toString(activationDate));
+            } else {
+                activatePassiveCalendarTime = new OctetString(convertUnixToGMTDateTime(activationDate * 1000).getBEREncodedByteArray(), 0);
+            }
 
             NodeList passiveNameList = doc.getElementsByTagName(AS220Messaging.CALENDAR_NAME);
             passiveCalendarName = new OctetString(constructEightByteCalendarName(passiveNameList.item(0).getTextContent()));
 
             NodeList seasonProfileList = doc.getElementsByTagName(CodeTableXml.seasonProfile);
             createSeasonProfiles(seasonProfileList);
-            if(seasonArray.nrOfDataTypes() > 1){
+            if (seasonArray.nrOfDataTypes() > 1) {
                 throw new IOException("The current ActivityCalendar only supports 1 season.");
             }
 
@@ -191,7 +191,7 @@ public class AS220ActivityCalendarController implements ActivityCalendarControll
 
             NodeList dayProfileList = doc.getElementsByTagName(CodeTableXml.dayProfile);
             createDayProfiles(dayProfileList);
-            if(dayArray.nrOfDataTypes() > 4){
+            if (dayArray.nrOfDataTypes() > 4) {
                 throw new IOException("The current ActivityCalendar only supports 4 dayTypes.");
             }
 
@@ -270,7 +270,7 @@ public class AS220ActivityCalendarController implements ActivityCalendarControll
      */
     public void writeSpecialDaysTable() {
         //To change body of implemented methods use File | Settings | File Templates.
-                    }
+    }
 
     /**
      * Write a time from which the new ActivityCalendar should be active
@@ -325,10 +325,10 @@ public class AS220ActivityCalendarController implements ActivityCalendarControll
         for (int i = 0; i < seasonProfileList.getLength(); i++) {
             seasonProfile = seasonProfileList.item(i);
             SeasonProfiles sp = new SeasonProfiles();
-                for (int j = 0; j < seasonProfile.getChildNodes().getLength(); j++) {
-                    Node seasonNode = seasonProfile.getChildNodes().item(j);
+            for (int j = 0; j < seasonProfile.getChildNodes().getLength(); j++) {
+                Node seasonNode = seasonProfile.getChildNodes().item(j);
                 if (seasonNode.getNodeName().equalsIgnoreCase(CodeTableXml.seasonProfileName)) {
-                        logger.debug("SeasonProfileName : " + seasonNode.getTextContent());
+                    logger.debug("SeasonProfileName : " + seasonNode.getTextContent());
                     sp.setSeasonProfileName(createSeasonName(seasonNode.getTextContent()));
                 } else if (seasonNode.getNodeName().equalsIgnoreCase(CodeTableXml.seasonStart)) {
                     byte[] startTime = initialDateTimeArray.clone();
@@ -346,18 +346,18 @@ public class AS220ActivityCalendarController implements ActivityCalendarControll
                         } else if (startTimeElement.getNodeName().equalsIgnoreCase(CodeTableXml.dDay)) {
                             logger.debug("SeasonStartDay : " + startTimeElement.getTextContent());
                             startTime[indexDtDayOfMonth] = (byte) (Integer.valueOf(startTimeElement.getTextContent()) & 0xFF);
+                        }
                     }
-                }
                     sp.setSeasonStart(new OctetString(startTime));
                 } else if (seasonNode.getNodeName().equalsIgnoreCase(CodeTableXml.seasonWeekName)) {
                     logger.debug("SeasonWeekName : " + seasonNode.getTextContent());
                     sp.setWeekName(createWeekName(seasonNode.getTextContent()));
+                }
             }
-        }
             //This additional dataType is for the index of the Season.
 //            sp.addDataType(new Unsigned16(i));
             seasonArray.addDataType(sp);
-    }
+        }
     }
 
     /**
@@ -400,16 +400,16 @@ public class AS220ActivityCalendarController implements ActivityCalendarControll
                     logger.debug("WednesDay : " + weekNode.getTextContent());
                     wp.setWednesday(new Unsigned8(Integer.valueOf(weekNode.getTextContent())));
                 } else if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.wkThursday)) {
- logger.debug("Thursday : " + weekNode.getTextContent());
+                    logger.debug("Thursday : " + weekNode.getTextContent());
                     wp.setThursday(new Unsigned8(Integer.valueOf(weekNode.getTextContent())));
                 } else if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.wkFriday)) {
- logger.debug("Friday : " + weekNode.getTextContent());
+                    logger.debug("Friday : " + weekNode.getTextContent());
                     wp.setFriday(new Unsigned8(Integer.valueOf(weekNode.getTextContent())));
                 } else if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.wkSaturday)) {
                     logger.debug("Saturday : " + weekNode.getTextContent());
                     wp.setSaturday(new Unsigned8(Integer.valueOf(weekNode.getTextContent())));
                 } else if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.wkSunday)) {
- logger.debug("Sunday : " + weekNode.getTextContent());
+                    logger.debug("Sunday : " + weekNode.getTextContent());
                     wp.setSunday(new Unsigned8(Integer.valueOf(weekNode.getTextContent())));
                 }
             }
@@ -545,7 +545,7 @@ public class AS220ActivityCalendarController implements ActivityCalendarControll
         for (int i = 0; i < specialDayList.getLength(); i++) {
             specialDayProfile = specialDayList.item(i);
             for (int j = 0; j < specialDayProfile.getChildNodes().getLength(); j++) {
-            Structure sds = new Structure();
+                Structure sds = new Structure();
                 Node specialDayNode = specialDayProfile.getChildNodes().item(j);
                 for (int z = 0; z < specialDayNode.getChildNodes().getLength(); z++) {
                     Node specialDayEntry = specialDayNode.getChildNodes().item(z);
@@ -564,15 +564,15 @@ public class AS220ActivityCalendarController implements ActivityCalendarControll
                                 sdDate[indexDMonth] = (byte) (Integer.valueOf(sdTimeElement.getTextContent()) & 0xFF);
                             } else if (sdTimeElement.getNodeName().equalsIgnoreCase(CodeTableXml.dDay)) {
                                 sdDate[indexDDayOfMonth] = (byte) (Integer.valueOf(sdTimeElement.getTextContent()) & 0xFF);
-                }
-            }
+                            }
+                        }
                         logger.debug("SpecialDayEntryDate : " + specialDayEntry.getTextContent());
                         sds.addDataType(new OctetString(sdDate));
                     } else if (specialDayEntry.getNodeName().equalsIgnoreCase(CodeTableXml.specialDayEntryDayId)) {
                         logger.debug("SpecialDayEntryDayId : " + specialDayEntry.getTextContent());
                         sds.addDataType(new Unsigned8(Integer.valueOf(specialDayEntry.getTextContent())));
-        }
-    }
+                    }
+                }
                 specialDayArray.setDataType(index, sds);
             }
         }
