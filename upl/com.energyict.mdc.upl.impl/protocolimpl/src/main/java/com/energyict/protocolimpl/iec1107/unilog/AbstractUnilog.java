@@ -6,7 +6,6 @@ import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
-import com.energyict.protocolimpl.iec1107.kamstrup.unigas300.ObisCodeMapper;
 
 import java.io.IOException;
 import java.util.*;
@@ -117,7 +116,7 @@ public abstract class AbstractUnilog implements MeterProtocol, RegisterProtocol,
      * @throws IOException
      */
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        return ObisCodeMapper.getRegisterInfo(obisCode);
+        return new RegisterInfo(obisCode.getDescription());
     }
 
     /**
