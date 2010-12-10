@@ -1,11 +1,7 @@
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.NotFoundException;
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.cbo.*;
+import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
@@ -15,9 +11,7 @@ import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
@@ -554,7 +548,7 @@ public class SimpleDLMSProtocol implements MeterProtocol, ProtocolLink, HHUEnabl
      * @return the version of the specific protocol implementation
      */
     public String getProtocolVersion() {
-        return "$Date";  //To change body of implemented methods use File | Settings | File Templates.
+        return "$Date$";  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     /**

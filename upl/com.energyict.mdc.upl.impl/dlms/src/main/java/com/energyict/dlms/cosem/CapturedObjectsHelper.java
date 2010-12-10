@@ -1,11 +1,11 @@
 package com.energyict.dlms.cosem;
 
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.obis.ObisCode;
+
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
-
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.obis.ObisCode;
 
 public class CapturedObjectsHelper implements DLMSCOSEMGlobals {
 
@@ -113,15 +113,11 @@ public class CapturedObjectsHelper implements DLMSCOSEMGlobals {
 			nrOfChannels = 0;
 			Iterator<CapturedObject> it = capturedObjects.iterator();
 
-			int i = 0;
-
 			while (it.hasNext()) {
 				CapturedObject co = it.next();
 				if (isChannelData(co)) {
 					nrOfChannels++;
 				}
-
-				i++;
 			}
 		}
 		return nrOfChannels;
