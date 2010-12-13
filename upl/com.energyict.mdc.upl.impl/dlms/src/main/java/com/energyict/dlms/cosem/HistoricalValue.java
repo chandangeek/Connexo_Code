@@ -6,13 +6,11 @@
 
 package com.energyict.dlms.cosem;
 
-import java.util.*;
-import java.io.*;
-
-import com.energyict.protocolimpl.dlms.*;
 import com.energyict.cbo.Quantity;
-import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.ScalerUnit;
+
+import java.io.IOException;
+import java.util.Date;
 /**
  *
  * @author  Koen
