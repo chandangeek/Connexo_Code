@@ -6,17 +6,14 @@
 
 package com.energyict.protocolimpl.iec1107.indigo;
 
+import com.energyict.dialer.core.*;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.iec1107.*;
+
 import java.io.*;
 import java.util.*;
-import java.util.logging.*;
-
-import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.dialer.core.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.meteridentification.DiscoverInfo;
+import java.util.logging.Logger;
 
 
 // KV TO_DO
@@ -61,7 +58,7 @@ public class IndigoPlus extends AbstractIEC1107Protocol {
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.20 $";
+        return "$Date$";
     }
     
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
