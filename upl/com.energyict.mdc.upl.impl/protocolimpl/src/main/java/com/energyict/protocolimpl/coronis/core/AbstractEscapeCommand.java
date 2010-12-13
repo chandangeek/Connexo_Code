@@ -6,7 +6,9 @@ abstract class AbstractEscapeCommand {
 
 	
 	enum EscapeCommandId {
-			
+		
+		// Radio parameters
+		
 		/**
 		 * Use multiple of 100ms to set the timeout.
 		 * The default is 2 seconds or 0x14 (20 x 100ms = 2000ms or 2s)
@@ -20,7 +22,13 @@ abstract class AbstractEscapeCommand {
 		/**
 		 * Polling period for the RF medium. In unities of 100 ms. Default 10 = 1 sec.
 		 */
-		AWAKENING_PERIOD(0x00,"Polling period for the RF medium");		
+		AWAKENING_PERIOD(0x00,"Polling period for the RF medium"),		
+		
+		
+		// Radio commands. Use commands > 0x20
+		USE_SEND_FRAME(0x20,"Use the SEND_FRAME command"),
+		USE_SEND_MESSAGE(0x22,"Use the SEND_MESSAGE command");
+		
 		
 		final int id;
 		final String description;

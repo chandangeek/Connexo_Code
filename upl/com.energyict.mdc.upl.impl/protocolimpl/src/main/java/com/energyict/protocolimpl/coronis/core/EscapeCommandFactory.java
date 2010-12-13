@@ -38,4 +38,17 @@ public class EscapeCommandFactory {
 		o.invoke();
 	}
 	
+	/**
+	 * Use the 
+	 * @throws IOException
+	 */
+	public void sendUsingSendMessage() throws IOException {
+		WavecardUseSendMessage o = new WavecardUseSendMessage(protocolLink);
+		o.invoke();
+	}
+	
+	public void sendUsingSendFrame() throws IOException {
+		WavecardUseSendFrame o = new WavecardUseSendFrame(protocolLink);
+		o.invoke();
+	}
 }

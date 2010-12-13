@@ -8,6 +8,7 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.coronis.core.EscapeCommandFactory;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.*;
 
 public class AS1253 extends AbstractDLMS {
@@ -61,16 +62,22 @@ public class AS1253 extends AbstractDLMS {
      */
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
     	
-    	//AbstractDataType adt = transparantObjectAccessFactory.readObjectAttribute(OBJECT_LIST, 2);
-    	//System.out.println(adt);
-    	
-    	AbstractDataType adt = transparantObjectAccessFactory.readObjectAttribute(LOAD_PROFILE_PULSE_VALUES, 2,lastReading);
-    	
-    	System.out.println(adt);
-    	
-    	//AbstractDataType adt = transparantObjectAccessFactory.readObjectAttribute(LOAD_PROFILE_PULSE_VALUES, 2);
-    	//System.out.println(adt);
-    	return new ProfileData();
+    	try {
+	    	getEscapeCommandFactory().sendUsingSendMessage();
+	    	AbstractDataType adt = transparantObjectAccessFactory.readObjectAttribute(OBJECT_LIST, 2);
+	    	System.out.println(adt);
+	    	
+	    	//AbstractDataType adt = transparantObjectAccessFactory.readObjectAttribute(LOAD_PROFILE_PULSE_VALUES, 2,lastReading);
+	    	
+	    	System.out.println(adt);
+	    	
+	    	//AbstractDataType adt = transparantObjectAccessFactory.readObjectAttribute(LOAD_PROFILE_PULSE_VALUES, 2);
+	    	//System.out.println(adt);
+	    	return new ProfileData();
+    	}
+    	finally {
+    		getEscapeCommandFactory().sendUsingSendFrame();
+    	}
     }	
 
 
