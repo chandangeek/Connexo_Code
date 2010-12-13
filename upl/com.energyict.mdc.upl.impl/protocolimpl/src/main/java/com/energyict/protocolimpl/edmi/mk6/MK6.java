@@ -10,32 +10,17 @@
 
 package com.energyict.protocolimpl.edmi.mk6;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
-
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.base.AbstractProtocol;
-import com.energyict.protocolimpl.base.Encryptor;
-import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.edmi.mk6.command.CommandFactory;
 import com.energyict.protocolimpl.edmi.mk6.command.TimeInfo;
 import com.energyict.protocolimpl.edmi.mk6.registermapping.ObisCodeFactory;
 import com.energyict.protocolimpl.edmi.mk6.registermapping.ObisCodeMapper;
+
+import java.io.*;
+import java.util.*;
 
 /**
  *
@@ -124,7 +109,7 @@ public class MK6 extends AbstractProtocol implements Serializable{
 	}
 
 	public String getProtocolVersion() {
-		return "$Revision: 1.7 $";
+		return "$Date$";
 	}
 
 	public String getFirmwareVersion() throws IOException {
