@@ -1,36 +1,16 @@
 package com.energyict.protocolimpl.kenda.meteor;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
-
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.core.DialerCarrierException;
-import com.energyict.dialer.core.DialerException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import com.energyict.protocolimpl.kenda.medo.MedoStatus;
+
+import java.io.*;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.logging.Logger;
 
 public class Meteor implements MeterProtocol, RegisterProtocol{
 	/**
@@ -80,7 +60,6 @@ public class Meteor implements MeterProtocol, RegisterProtocol{
  	 *						-> Lowered the interframe retries to prevent huge call times when meter hangs.
 	 *  
 	 */
-	private String protocolVersion="$Date: 2008/09/01 09:28:53 $";;
 
 	private OutputStream outputStream;
 	private InputStream inputStream;
@@ -194,7 +173,7 @@ public class Meteor implements MeterProtocol, RegisterProtocol{
 	}
 
 	public String getProtocolVersion() {
-		return protocolVersion;
+		return "$Date$";
 	}
 	public Date getTime() throws IOException {		
 		MeteorCLK clk=(MeteorCLK) mcf.transmitData(readRTC, null);
