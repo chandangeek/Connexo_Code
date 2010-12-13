@@ -1,30 +1,18 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.logging.Level;
-
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimpl.base.AbstractProtocol;
-import com.energyict.protocolimpl.base.Encryptor;
-import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.iec1107.IEC1107Connection;
+
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.logging.Level;
 
 /**
  * <pre>
@@ -629,7 +617,7 @@ public class CewePrometer extends AbstractProtocol  {
      * @see AbstractProtocol#getProtocolVersion()
      */
     public String getProtocolVersion() {
-        return "$Revision: 1.27 $";
+        return "$Date$";
     }
     
     /** Fetch firware version. 

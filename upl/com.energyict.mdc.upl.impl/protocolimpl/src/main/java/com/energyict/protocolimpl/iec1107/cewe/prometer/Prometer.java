@@ -651,8 +651,7 @@ public class Prometer extends AbstractProtocol  {
      * @see AbstractProtocol#getProtocolVersion()
      */
     public String getProtocolVersion() {
-//        return "$Revision: 1.14 $";	// cvs version
-    	return "$Date$";	// svn version
+    	return "$Date$";
     }
     
     /** Fetch firware version. 
