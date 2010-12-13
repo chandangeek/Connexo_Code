@@ -426,3 +426,4 @@
 -keep public class com.energyict.protocolimpl.dlms.as220.parsing.CodeTableXml{
     public *;
 }
+-keepnames class com.energyict.genericprotocolimpl.elster.AM100R.Apollo.ApolloMeter
