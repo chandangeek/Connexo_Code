@@ -1,14 +1,14 @@
-package com.energyict.protocolimpl.base;
+package com.energyict.dlms;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
 import com.energyict.dlms.cosem.CapturedObjectsHelper;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.dlms.*;
 
 import java.io.*;
@@ -34,6 +34,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     protected Logger logger;
     protected TimeZone timeZone = null;
     protected SecurityContext securityContext;
+    protected String firmwareVersion;
 
     protected int connectionMode;
     protected CapturedObjectsHelper capturedObjectsHelper;

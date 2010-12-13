@@ -2,11 +2,11 @@ package com.energyict.protocolimpl.dlms.elgama;
 
 import com.energyict.cbo.*;
 import com.energyict.dlms.*;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.AbstractDLMSProtocol;
 import com.energyict.protocolimpl.dlms.elgama.eventlogging.FraudDetectionLog;
 import com.energyict.protocolimpl.dlms.elgama.eventlogging.PowerFailureLog;
 
@@ -37,8 +37,13 @@ public class G3B extends AbstractDLMSProtocol {
 
     private static final int MILLIS_1_DAY = 60 * 60 * 24 * 1000;
     private static final ObisCode OBIS_CODE_PROFILE_1 = ObisCode.fromString("1.0.99.1.0.255");
+    private static final ObisCode OBISCODE_ACTIVE_FIRMWARE = ObisCode.fromString("1.0.0.2.0.255");
+    private static final ObisCode OBISCODE_CLOCK = ObisCode.fromString("0.0.1.0.0.255");
 
-
+    /**
+     * Getter for the type of reference (0 = LN, 1 = SN)
+     * @return the type of reference
+     */
     public int getReference() {
         return ProtocolLink.LN_REFERENCE;
     }
@@ -47,24 +52,59 @@ public class G3B extends AbstractDLMSProtocol {
         throw new UnsupportedException();
     }
 
+    /**
+     * Getter for the protocol version
+     * @return the protocol version (being the date of the latest commit)
+     */
     public String getProtocolVersion() {
-        return "$Date$";  //To change body of implemented methods use File | Settings | File Templates.
+        return "$Date$";
     }
 
-    public String getFirmwareVersion() throws IOException {
-        return null;
-        //Todo: implement
+    /**
+     * Requests the meter it's firmware version via DLMS.
+     * @return the meter it's firmware version
+     * @throws IOException when there's a problem communicating with the meter.
+     */
+	public final String getFirmwareVersion() throws IOException {
+		if (this.firmwareVersion == null) {
+			this.firmwareVersion = AXDRDecoder.decode(this.getCosemObjectFactory().getData(OBISCODE_ACTIVE_FIRMWARE).getData()).getOctetString().stringValue();
+		}
+		return this.firmwareVersion;
     }
 
+    /**
+     * Requests the meter's profile data
+     * @param includeEvents: enable or disable tht reading of meterevents
+     * @return the profile data
+     * @throws IOException when there's a problem communicating with the meter.
+     */
+    @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Date lastReading = new Date(new Date().getTime() - MILLIS_1_DAY);
         return getProfileData(lastReading, new Date(), includeEvents);
     }
 
+    /**
+     * Requests the meter's profile data
+     * @param includeEvents: enable or disable tht reading of meterevents
+     * @param lastReading: the from date to start reading at
+     * @return the profile data
+     * @throws IOException when there's a problem communicating with the meter.
+     */
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getProfileData(lastReading, new Date(), includeEvents);
     }
 
+    /**
+     * Requests the meter's profile data
+     * @param from: the from date to start reading at
+     * @param to request the to date, to stop reading at
+     * @param includeEvents eneble or disable requesting of meterevents
+     * @return the profile data
+     * @throws IOException when there's a problem communicating with the meter.
+     */
+    @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         Calendar calFrom = new GregorianCalendar();
         Calendar calTo = new GregorianCalendar();
@@ -73,6 +113,12 @@ public class G3B extends AbstractDLMSProtocol {
         return getProfileData(calFrom, calTo, includeEvents);
     }
 
+    /**
+     * Set the meter's clock.
+     * Use a time shift when the shift is smaller than +/- 15 minutes
+     * Else, use a write time (= force clock).
+     * @throws IOException when there's a problem communicating with the meter.
+     */
     public final void setTime() throws IOException {
 		logger.info("Setting the time of the remote device, first requesting the device's time.");
 		final Clock clock = this.getCosemObjectFactory().getClock();
@@ -110,6 +156,12 @@ public class G3B extends AbstractDLMSProtocol {
 		}
 	}
 
+    /**
+     * Used to force the clock.
+     * Prepares a fitting byte array that represents a DLMS command for the meter
+     * @param newTime the time to be set
+     * @throws IOException when there's a problem communicating with the meter.
+     */
     private void setDeviceTime(final Calendar newTime) throws IOException {
 		newTime.add(Calendar.MILLISECOND, roundtripCorrection);
 		final byte[] byteTimeBuffer = new byte[14];
@@ -132,7 +184,7 @@ public class G3B extends AbstractDLMSProtocol {
 		} else {
 			byteTimeBuffer[13] = (byte) 0x00;
 		}
-		getCosemObjectFactory().writeObject(ObisCode.fromString("0.0.1.0.0.255"), 8, 2, byteTimeBuffer);
+		getCosemObjectFactory().writeObject(OBISCODE_CLOCK, 8, 2, byteTimeBuffer);
 	}
 
     public Quantity getMeterReading(int channelId) throws IOException {
@@ -140,6 +192,11 @@ public class G3B extends AbstractDLMSProtocol {
         return null;
     }
 
+    /**
+     * Getter for the profile data interval.
+     * @return the profile data interval, eg. 900 seconds
+     * @throws IOException when there's a problem communicating with the meter.
+     */
 	public final int getProfileInterval() throws IOException {
 		if (this.profileInterval == -1) {
 			logger.info("Requesting the profile interval from the meter...");
@@ -150,10 +207,20 @@ public class G3B extends AbstractDLMSProtocol {
 		return this.profileInterval;
 	}
 
+    /**
+     * Getter for the meter time
+     * @return the meter time
+     * @throws IOException when there's a problem communicating with the meter.
+     */
     public Date getTime() throws IOException {
         return getCosemObjectFactory().getClock().getDateTime();
     }
 
+    /**
+     * Getter for the number of channels
+     * @return the number of channels
+     * @throws IOException when there's a problem communicating with the meter.
+     */
     public final int getNumberOfChannels() throws IOException {
 		if (this.numberOfChannels == -1) {
 			logger.info("Loading the number of channels, looping over the captured objects...");
@@ -163,6 +230,11 @@ public class G3B extends AbstractDLMSProtocol {
 		return this.numberOfChannels;
 	}
 
+    /**
+     * Helper object for the captured objects
+     * @return the helper object
+     * @throws IOException when there's a problem communicating with the meter.
+     */
     private CapturedObjectsHelper getCapturedObjectsHelper() throws IOException {
 		if (this.capturedObjectsHelper == null) {
 			logger.info("Initializing the CapturedObjectsHelper using the generic profile, profile OBIS code is [" + OBIS_CODE_PROFILE_1.toString() + "]");
@@ -173,6 +245,10 @@ public class G3B extends AbstractDLMSProtocol {
 		return this.capturedObjectsHelper;
 	}
 
+    /**
+     * Getter for the list of optional keys
+     * @return the list of optional keys
+     */
     @Override
     public List getOptionalKeys() {
         List<String> optionalKeys = new ArrayList<String>();
@@ -206,10 +282,22 @@ public class G3B extends AbstractDLMSProtocol {
         return optionalKeys;
     }
 
+    /**
+     *
+     * @param obisCode: obiscode of the register to lookup
+     * @return the matching register info
+     * @throws IOException  when there's a problem communicating with the meter.
+     */
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return new RegisterInfo(obisCode.getDescription());
     }
 
+    /**
+     * Getter for the scaler unit
+     * @param channelId: the channel id for the scaler unit
+     * @return the scaler unit
+     * @throws IOException when there's a problem communicating with the meter.
+     */
     private ScalerUnit getRegisterScalerUnit(final int channelId) throws IOException {
 		ScalerUnit unit;
 		if (getCapturedObjectsHelper().getProfileDataChannelCapturedObject(channelId).getClassId() == DLMSClassId.REGISTER.getClassId()) {
@@ -228,6 +316,14 @@ public class G3B extends AbstractDLMSProtocol {
 		return unit;
 	}
 
+    /**
+     * Maps the interval end time to a calendar
+     * @param cal the calendar object
+     * @param intervalData the intervaldata
+     * @param btype: a flag containing info about the minutes
+     * @return the calendar object
+     * @throws IOException when there's a problem communicating with the meter.
+     */
     private Calendar mapIntervalEndTimeToCalendar(final Calendar cal, final DataStructure intervalData, final byte btype) throws IOException {
         final Calendar calendar = (Calendar) cal.clone();
 
@@ -280,7 +376,12 @@ public class G3B extends AbstractDLMSProtocol {
 
         return calendar;
     }
-     
+
+    /**
+     * Maps the interval state bits to a status for EiServer
+     * @param protocolStatus: the interval state bits
+     * @return the EiServer status
+     */
     private int map2IntervalStateBits(final int protocolStatus) {
         int eiStatus = 0;
 
@@ -324,6 +425,14 @@ public class G3B extends AbstractDLMSProtocol {
         return eiStatus;
     }
 
+    /**
+     * Requests the profile data from the meter
+     * @param from: the from date
+     * @param to: the to date
+     * @param includeEvents: boolean, whether or not to include the events in the profile 
+     * @return the profile data
+     * @throws IOException when there's a problem communicating with the meter.
+     */
     private ProfileData getProfileData(final Calendar from, final Calendar to, final boolean includeEvents) throws IOException {
         logger.info("Loading profile data starting at [" + from.getTime().toString() + "], ending at [" + to.getTime().toString() + "], " + (includeEvents ? "" : "not") + " including events");
         final ProfileData profileData = new ProfileData();
@@ -377,6 +486,13 @@ public class G3B extends AbstractDLMSProtocol {
         return profileData;
     }
 
+    /**
+     * Getter for the meter events. Used while requesting the profile data (if the boolean includeEvents is true)
+     * @param from: the from date
+     * @param to: the to date
+     * @return a list of meter events
+     * @throws IOException when there's a problem communicating with the meter.
+     */
     private List<MeterEvent> getMeterEvents(final Calendar from, final Calendar to) throws IOException {
 		logger.info("Fetching meter events from [" + (from != null ? from.getTime() : "Not specified") + "] to [" + (to != null ? to.getTime() : "Not specified") + "]");
 		final List<MeterEvent> events = new ArrayList<MeterEvent>();
@@ -393,6 +509,12 @@ public class G3B extends AbstractDLMSProtocol {
 		return events;
 	}
 
+    /**
+     * Requests the register values from the meter
+     * @param obisCode obiscode mapped register to request from the meter
+     * @return the register values
+     * @throws IOException when there's a problem communicating with the meter.
+     */
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
             final UniversalObject uo = getMeterConfig().findObject(obisCode);
