@@ -6,11 +6,11 @@
 
 package com.energyict.protocolimpl.dlms;
 
-import java.io.IOException;
-
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.obis.ObisCode;
+
+import java.io.IOException;
 
 /**
  * @deprecated  As of 11022009, replaced by

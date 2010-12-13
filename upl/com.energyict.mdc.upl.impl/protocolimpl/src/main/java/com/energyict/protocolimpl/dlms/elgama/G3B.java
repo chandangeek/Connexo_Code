@@ -49,8 +49,8 @@ public class G3B extends AbstractDLMSProtocol {
         return ProtocolLink.LN_REFERENCE;
     }
 
-    public StoredValues getStoredValues() throws UnsupportedException {
-        throw new UnsupportedException();
+    public StoredValues getStoredValues() {
+        return null;
     }
 
     /**
