@@ -144,19 +144,19 @@ public class SmsWakeup {
         value.setUserId("");
         value.setPassword("");
         gdspHeader.setGdspCredentials(value);
-        BigDecimal bd = (BigDecimal) getAttributeValue("IMSI");
+        Object bd = getAttributeValue("IMSI");
         if (bd != null) {
-            parameters.setDeviceId(Long.toString((bd).longValue()));
+            parameters.setDeviceId(Long.toString(((BigDecimal)bd).longValue()));
         } else {
             throw new IOException("The IMSI number is a required attribute to successfully execute the wakeup trigger.");
         }
-        String MSISDN = (String) getAttributeValue("MSISDN");
+        Object MSISDN = getAttributeValue("MSISDN");
         if (MSISDN != null) {
-            parameters.setMSISDNNumber(MSISDN);
-        }
-        String provider = (String) getAttributeValue("GPRSProvider");
+            parameters.setMSISDNNumber((String)MSISDN);
+        }                                       
+        Object provider = getAttributeValue("GPRSProvider");
         if (provider != null) {
-            parameters.setOperatorName(provider);
+            parameters.setOperatorName((String)provider);
         } else {
             throw new IOException("The Provider is a required attribute to successfully execute the wakeup trigger.");
         }
