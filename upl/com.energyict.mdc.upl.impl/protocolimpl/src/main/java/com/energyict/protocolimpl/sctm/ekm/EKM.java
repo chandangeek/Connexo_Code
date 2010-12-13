@@ -60,7 +60,7 @@ public class EKM extends Metcom2 implements RegisterProtocol {
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.17 $";
+        return "$Date$";
     }    
     
     /*******************************************************************************************

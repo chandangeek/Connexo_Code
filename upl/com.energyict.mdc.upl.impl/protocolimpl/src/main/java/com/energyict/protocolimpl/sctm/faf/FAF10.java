@@ -6,18 +6,13 @@
 
 package com.energyict.protocolimpl.sctm.faf;
 
-import com.energyict.protocolimpl.siemens7ED62.*;
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import java.util.logging.*;
-import com.energyict.cbo.*;
 import com.energyict.protocolimpl.metcom.Metcom3FAF;
 
-import com.energyict.obis.ObisCode;
-import com.energyict.protocolimpl.customerconfig.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -38,7 +33,7 @@ public class FAF10 extends Metcom3FAF implements RegisterProtocol {
     }
 
     public String getProtocolVersion() {
-        return "$Revision: 1.9 $";
+        return "$Date$";
     }    
 
     

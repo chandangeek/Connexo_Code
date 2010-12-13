@@ -40,7 +40,7 @@ public class FBC extends Metcom3FBC implements RegisterProtocol {
     }
 
     public String getProtocolVersion() {
-        return "$Revision: 1.11 $";
+        return "$Date$";
     }    
     
     

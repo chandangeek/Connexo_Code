@@ -38,7 +38,7 @@ public class FAG extends Metcom3FAG implements RegisterProtocol {
     }
 
     public String getProtocolVersion() {
-        return "$Revision: 1.10 $";
+        return "$Date$";
     }    
     
      public List getOptionalKeys() { 

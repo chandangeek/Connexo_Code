@@ -6,19 +6,16 @@
 
 package com.energyict.protocolimpl.sctm.mtt3a;
 
-import com.energyict.protocolimpl.siemens7ED62.*;
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
-import com.energyict.protocol.*;
-import java.util.logging.*;
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.metcom.Metcom3;
-
 import com.energyict.obis.ObisCode;
-import com.energyict.protocolimpl.customerconfig.*;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.customerconfig.EDPRegisterConfig;
+import com.energyict.protocolimpl.customerconfig.RegisterConfig;
+import com.energyict.protocolimpl.metcom.Metcom3;
 import com.energyict.protocolimpl.sctm.base.GenericRegisters;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 /**
  *
  * @author  Koen
@@ -47,7 +44,7 @@ public class MTT3A extends Metcom3 implements RegisterProtocol {
     }
 
     public String getProtocolVersion() {
-        return "$Revision: 1.17 $";
+        return "$Date$";
     }    
 
     public List getOptionalKeys() { 

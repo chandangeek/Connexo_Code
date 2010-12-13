@@ -41,7 +41,7 @@ public class FCL extends Metcom3FCL implements RegisterProtocol {
     }
 
     public String getProtocolVersion() {
-        return "$Revision: 1.10 $";
+        return "$Date$";
     }
     
     

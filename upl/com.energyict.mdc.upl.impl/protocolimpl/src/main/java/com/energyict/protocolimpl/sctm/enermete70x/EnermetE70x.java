@@ -60,7 +60,7 @@ public class EnermetE70x extends Metcom2 implements RegisterProtocol {
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.17 $";
+        return "$Date$";
     }    
     
     /*******************************************************************************************
