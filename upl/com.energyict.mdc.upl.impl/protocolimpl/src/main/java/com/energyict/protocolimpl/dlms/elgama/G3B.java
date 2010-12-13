@@ -49,6 +49,14 @@ public class G3B extends AbstractDLMSProtocol {
         return ProtocolLink.LN_REFERENCE;
     }
 
+    public boolean isRequestTimeZone() {
+        return false;
+    }
+
+    public int getRoundTripCorrection() {
+        return 0;
+    }
+
     public StoredValues getStoredValues() {
         return null;
     }
@@ -189,8 +197,7 @@ public class G3B extends AbstractDLMSProtocol {
 	}
 
     public Quantity getMeterReading(int channelId) throws IOException {
-        //TODO: implement
-        return null;
+        throw new UnsupportedException();
     }
 
     /**

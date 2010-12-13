@@ -120,6 +120,10 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         return getOptionalKeys();
     }
 
+    /**
+     * Getter for the time zone
+     * @return the time zone
+     */
     public TimeZone getTimeZone() {
         if (timeZone == null) {
             timeZone = TimeZone.getDefault();
@@ -128,14 +132,13 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         return timeZone;
     }
 
-    public boolean isRequestTimeZone() {
-        return false;
-    }
-
-    public int getRoundTripCorrection() {
-        return 0;
-    }
-
+    /**
+     * Getter for the cache object
+     * @param rtuid meter database id
+     * @return the cache object
+     * @throws SQLException
+     * @throws BusinessException
+     */
     public Object fetchCache(int rtuid) throws SQLException, BusinessException {
         if (rtuid != 0) {
             RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
@@ -177,6 +180,14 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         return dlmsCache;
     }
 
+    /**
+     * Starts the protocol, sets up the DLMS connection
+     * @param inputStream communication inputstream
+     * @param outputStream communication outputstream
+     * @param timeZone timezone of the meter
+     * @param logger framework logger object to be used by the protocol to log info
+     * @throws IOException
+     */
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
         this.timeZone = timeZone;
         this.logger = logger;
@@ -190,6 +201,10 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         return serialNumber.getBytes();
     }
 
+    /**
+     * Starts the DLMS connection
+     * @throws IOException when the connection failed
+     */
     protected void initDLMSConnection(InputStream inputStream, OutputStream outputStream) throws IOException {
         DLMSConnection connection;
         try {
@@ -241,10 +256,18 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         }
     }
 
+    /**
+     * Returns a boolean whether or not there's encryption used
+     * @return boolean
+     */
     protected boolean isCiphered() {
         return (getContextId() == AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_WITH_CIPHERING) || (getContextId() == AssociationControlServiceElement.SHORT_NAME_REFERENCING_WITH_CIPHERING);
     }
 
+    /**
+     * Getter for the context ID
+     * @return the context ID
+     */
     protected int getContextId() {
         if (getReference() == ProtocolLink.LN_REFERENCE) {
             return (this.datatransportSecurityLevel == 0) ? AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING :
@@ -257,11 +280,22 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         }
     }
 
+    /**
+     * Sets and validates the properties
+     * @param properties Used by the framework
+     * @throws InvalidPropertyException
+     * @throws MissingPropertyException
+     */
     public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
         this.properties = properties;
         validateProperties();
     }
 
+    /**
+     * Validates the properties
+     * @throws MissingPropertyException when a property is missing
+     * @throws InvalidPropertyException when a property is invalid
+     */
     protected void validateProperties() throws MissingPropertyException, InvalidPropertyException {
         Iterator<String> iterator = getRequiredKeys().iterator();
         while (iterator.hasNext()) {
@@ -319,6 +353,10 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
 		}
     }
 
+    /**
+     * Creates an association session
+     * @throws IOException when the communication with the meter failed
+     */
     public void connect() throws IOException {
         try {
             if (this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
@@ -334,6 +372,11 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         }
     }
 
+    /**
+     * Return the iConfig value. This indicates if a parameter in the meter has been changed
+     * @return
+     * @throws IOException when the communication with the meter failed
+     */
     public int requestConfigurationProgramChanges() throws IOException {
         if (iConfigProgramChange == -1) {
             iConfigProgramChange = (int) getCosemObjectFactory().getCosemObject(getMeterConfig().getConfigObject().getObisCode()).getValue();
@@ -348,6 +391,10 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         return cosemObjectFactory;
     }
 
+    /**
+     * Check the cached objects, update them if necessary (indicated by the iConfig value)
+     * @throws IOException when the communication with the meter failed
+     */
     protected void checkCacheObjects() throws IOException {
         try { // conf program change and object list stuff
             int iConf;
@@ -390,6 +437,10 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
 
     }
 
+    /**
+     * Gets a new list with the objects in the meter, to update the protocol's cache
+     * @throws IOException when the communication with the meter failed
+     */
     protected void requestObjectList() throws IOException {
         try {
             if (getReference() == ProtocolLink.LN_REFERENCE) {
@@ -406,6 +457,10 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         }
     }
 
+    /**
+     * Disconnect, stop the association session
+     * @throws IOException when the communication with the meter failed
+     */
     public void disconnect() throws IOException {
         try {
             if ((this.aso != null) && (this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED)) {
