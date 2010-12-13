@@ -411,7 +411,7 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
     }
 
     public String getProtocolVersion() {
-        return "$Revision: 1.24 $";
+        return "$Date$";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {

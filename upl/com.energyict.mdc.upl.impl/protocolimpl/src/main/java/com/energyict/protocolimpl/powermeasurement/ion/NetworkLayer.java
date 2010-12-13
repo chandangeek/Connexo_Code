@@ -54,8 +54,6 @@ class NetworkLayer {
         messageId = messageId + 1;
         packet.setMsgId( messageId );
         datalinkLayer.sendTime( packet.toByteArray() );
-//        ByteArray received = datalinkLayer.send(packet.toByteArray());
-//        Packet receivedPacket = Packet.parse(new Assembly(ion, received));
 
     }
     
