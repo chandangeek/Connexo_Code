@@ -1,38 +1,15 @@
 package com.energyict.protocolimpl.elster.opus;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
-
-import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimpl.base.AbstractProtocol;
-import com.energyict.protocolimpl.base.Encryptor;
-import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.protocolimpl.base.ProtocolConnection;
-import com.energyict.protocolimpl.kenda.medo.MedoStatus;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.*;
+
+import java.io.*;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.logging.Logger;
 
 public class Opus extends AbstractProtocol{
 	/**
@@ -97,8 +74,7 @@ public class Opus extends AbstractProtocol{
 	 * ---------------------------------------------------------------------------------<p>
 	 *  
 	 */
-	private static final String protocolVersion="$Date$";
-	
+
 	private ProtocolChannelMap channelMap=null;
 	
 	private String oldPassword;
@@ -202,7 +178,7 @@ public class Opus extends AbstractProtocol{
 	}
 
 	public String getProtocolVersion() {
-		return protocolVersion;
+		return "$Date$";
 	}
 
     /*******************************************************************************************
