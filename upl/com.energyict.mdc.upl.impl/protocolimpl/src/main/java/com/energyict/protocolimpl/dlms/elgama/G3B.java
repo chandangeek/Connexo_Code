@@ -7,6 +7,7 @@ import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
 import com.energyict.protocolimpl.dlms.elgama.eventlogging.FraudDetectionLog;
 import com.energyict.protocolimpl.dlms.elgama.eventlogging.PowerFailureLog;
 
