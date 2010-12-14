@@ -580,6 +580,10 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     @Override
     void doDebug() throws LinkException, IOException {
 
+//        writeLoadLimitThreshold("10");
+
+        readRegisters("0.0.17.0.0.4");
+
 //        Limiter loadLimiter = getMeterProtocol().getCosemObjectFactory().getLimiter();
 //        readLoadLimitParameters(loadLimiter);
 //
@@ -588,15 +592,17 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
 //        log("After writing 5 for the duration");
 //        readLoadLimitParameters(loadLimiter);
 //
-//        writeLoadLimitThreshold("10");
 //
 //        log("After writing 10 for the threshold");
 //        readLoadLimitParameters(loadLimiter);
 
 //        log(getMeterProtocol().getNumberOfChannels());
+//
+//        ProfileGeneric pg = getMeterProtocol().getPowerQuality().getGenericPowerQualityProfile();
+//        pg.getBuffer().printDataContainer();
 ////
 //        Calendar from = Calendar.getInstance(DEFAULT_TIMEZONE);
-//        from.add(Calendar.DAY_OF_MONTH, -1);
+//        from.add(Calendar.MONTH, -2);
 //        System.out.println(readProfileFrom(from, false));
 
 //        readRegisters();
@@ -604,8 +610,8 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
 //        log("FirmwareVersion : " + getMeterProtocol().getFirmwareVersion());
 
         // Need an Environment to get the CodeTable
-        DebugUtils.createEnvironment();
-        MeteringWarehouse.createBatchContext(false);
+//        DebugUtils.createEnvironment();
+//        MeteringWarehouse.createBatchContext(false);
 
 //        ActivityCalendar ac = getMeterProtocol().getCosemObjectFactory().getActivityCalendar(getMeterProtocol().getMeterConfig().getActivityCalendar().getObisCode());
 //        readAllCalendarObjects(ac);
@@ -613,14 +619,14 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
 
 //        String epoch = ProtocolTools.getEpochTimeFromString("20-11-2010 20:00:00");
 //
-        try {
-            String codeTableXml = CodeTableXml.parseActivityCalendarAndSpecialDayTable(1, Long.valueOf(1));
-//            String codeTableXml = CodeTableXml.parseActivityCalendarAndSpecialDayTable(2, Long.valueOf(epoch));
-
-            activityCalendarUpgrade(codeTableXml);
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+//        try {
+//            String codeTableXml = CodeTableXml.parseActivityCalendarAndSpecialDayTable(1, Long.valueOf(1));
+////            String codeTableXml = CodeTableXml.parseActivityCalendarAndSpecialDayTable(2, Long.valueOf(epoch));
+//
+//            activityCalendarUpgrade(codeTableXml);
+//        } catch (ParserConfigurationException e) {
+//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+//        }
 //
 //
 //        readAllCalendarObjects(ac);

@@ -10,8 +10,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.DLMSAttributeMapper;
 import com.energyict.protocolimpl.base.ObiscodeMapper;
-import com.energyict.protocolimpl.dlms.as220.emeter.AS220ContactorController;
-import com.energyict.protocolimpl.dlms.as220.emeter.DisconnectControlMapper;
+import com.energyict.protocolimpl.dlms.as220.emeter.*;
 import com.energyict.protocolimpl.dlms.as220.plc.*;
 
 import java.io.IOException;
@@ -37,6 +36,7 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 
 	public static final ObisCode		FIRMWARE_VERSION			= ObisCode.fromString("1.0.0.2.0.255");
 	public static final ObisCode		DISCONNECTOR_OBISCODE		= AS220ContactorController.DISCONNECTOR_OBISCODE;
+    public static final ObisCode        LIMITER_OBISCODE            = ObisCode.fromString("0.0.17.0.0.255");
 
 	public static final ObisCode		TARIFF_OBISCODE				= ObisCode.fromString("0.0.96.14.0.255");
 	public static final ObisCode	    METER_ID_OBISCODE			= ObisCode.fromString("0.0.96.1.0.255");
@@ -85,7 +85,8 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 				new SFSKSyncTimeoutsMapper(SFSK_SYNC_TIMEOUTS, as220),
 				new SFSKMacCountersMapper(SFSK_MAC_COUNTERS, as220),
 				new SFSKIec61334LLCSetupMapper(SFSK_IEC_LLC_SETIP, as220),
-				new DisconnectControlMapper(DISCONNECTOR_OBISCODE, as220)
+				new DisconnectControlMapper(DISCONNECTOR_OBISCODE, as220),
+                new LimiterControlMapper(LIMITER_OBISCODE, as220)
 		};
     }
 

@@ -4,8 +4,10 @@
 package com.energyict.dlms.cosem;
 
 import java.io.IOException;
+import java.util.logging.Level;
 
 import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.RegisterReadable;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
@@ -15,7 +17,9 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.cosem.attributes.LimiterAttributes;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.RegisterValue;
 
 /**
  * @author gna
@@ -50,7 +54,7 @@ import com.energyict.obis.ObisCode;
 	 * 		- a long-unsigned(Unsigned16) script_selector
 	 * (See class ActionItem)
  */
-public class Limiter extends AbstractCosemObject{
+public class Limiter extends AbstractCosemObject implements RegisterReadable {
 
 	/** Attributes */
 	private ValueDefinitionType monitoredValue = null;	// Defines an attribute of an object to be monitored. Only simple data types allowed.
@@ -88,6 +92,15 @@ public class Limiter extends AbstractCosemObject{
 		return DLMSClassId.LIMITER.getClassId();
 	}
 
+    /**
+     * Getter for the obisCode of this object
+     *
+     * @return the obisCode of this object
+     */
+	public static ObisCode getObisCode() {
+		return ObisCode.fromString("0.0.17.0.0.255");
+	}
+
 	/**
 	 * Read the monitoredValue structure from the device
 	 * @return
@@ -98,7 +111,6 @@ public class Limiter extends AbstractCosemObject{
 			this.monitoredValue = new ValueDefinitionType(getLNResponseData(ATTRB_MONITORED_VALUE), 0, 0);
 			return this.monitoredValue;
 		} catch (IOException e) {
-			e.printStackTrace();
 			throw new IOException("Could not read the monitoredValue" + e.getMessage());
 		}
 	}
@@ -135,7 +147,6 @@ public class Limiter extends AbstractCosemObject{
 			this.thresholdActive = AXDRDecoder.decode(getLNResponseData(ATTRB_THRESHOLD_ACTIVE));
 			return this.thresholdActive;
 		} catch (IOException e){
-			e.printStackTrace();
 			throw new IOException("Could not retrieve the thresholdActive value." + e.getMessage());
 		}
 	}
@@ -151,7 +162,6 @@ public class Limiter extends AbstractCosemObject{
 			write(ATTRB_THRESHOLD_ACTIVE, thresholdActive.getBEREncodedByteArray());
 			this.thresholdActive = thresholdActive;
 		} catch (IOException e){
-			e.printStackTrace();
 			throw new IOException("Could not write the thresholdActive value." + e.getMessage());
 		}
 	}
@@ -166,7 +176,6 @@ public class Limiter extends AbstractCosemObject{
 			this.thresholdNormal = AXDRDecoder.decode(getLNResponseData(ATTRB_THRESHOLD_NORMAL));
 			return this.thresholdNormal;
 		} catch (IOException e){
-			e.printStackTrace();
 			throw new IOException("Could not retrieve the thresholdNormal value." + e.getMessage());
 		}
 	}
@@ -181,7 +190,6 @@ public class Limiter extends AbstractCosemObject{
 			write(ATTRB_THRESHOLD_NORMAL, thresholdNormal.getBEREncodedByteArray());
 			this.thresholdNormal = thresholdNormal;
 		} catch (IOException e){
-			e.printStackTrace();
 			throw new IOException("Could not write the thresholdNormal value." + e.getMessage());
 		}
 	}
@@ -196,14 +204,13 @@ public class Limiter extends AbstractCosemObject{
 			this.thresholdEmergency = AXDRDecoder.decode(getLNResponseData(ATTRB_THRESHOLD_EMERGENCY));
 			return this.thresholdEmergency;
 		} catch (IOException e){
-			e.printStackTrace();
 			throw new IOException("Could not retrieve the thresholdEmergency value." + e.getMessage());
 		}
 	}
 
 	/**
 	 * Write the given thresholdEmergency value to the device
-	 * @param thresholdNormal
+	 * @param thresholdEmergency
 	 * @throws IOException
 	 */
 	public void writeThresholdEmergency(AbstractDataType thresholdEmergency) throws IOException{
@@ -211,7 +218,6 @@ public class Limiter extends AbstractCosemObject{
 			write(ATTRB_THRESHOLD_EMERGENCY, thresholdEmergency.getBEREncodedByteArray());
 			this.thresholdEmergency = thresholdEmergency;
 		} catch (IOException e){
-			e.printStackTrace();
 			throw new IOException("Could not write the thresholdEmergency value." + e.getMessage());
 		}
 	}
@@ -226,7 +232,6 @@ public class Limiter extends AbstractCosemObject{
 			this.minOverThresholdDuration = new Unsigned32(getLNResponseData(ATTRB_MIN_OVER_THRESHOLD_DURATION), 0);
 			return this.minOverThresholdDuration;
 		} catch (IOException e){
-			e.printStackTrace();
 			throw new IOException("Could not retrieve the minOverThresholdDuration value." + e.getMessage());
 		}
 	}
@@ -241,7 +246,6 @@ public class Limiter extends AbstractCosemObject{
 			write(ATTRB_MIN_OVER_THRESHOLD_DURATION, minOverThresholdDuration.getBEREncodedByteArray());
 			this.minOverThresholdDuration = minOverThresholdDuration;
 		} catch (IOException e){
-			e.printStackTrace();
 			throw new IOException("Could not write the minOverThresholdDuration value." + e.getMessage());
 		}
 	}
@@ -256,14 +260,13 @@ public class Limiter extends AbstractCosemObject{
 			this.minUnderThresholdDuration = new Unsigned32(getLNResponseData(ATTRB_MIN_UNDER_THRESHOLD_DURATION), 0);
 			return this.minUnderThresholdDuration;
 		} catch (IOException e){
-			e.printStackTrace();
 			throw new IOException("Could not retrieve the minUnderThresholdDuration value." + e.getMessage());
 		}
 	}
 
 	/**
 	 * Write the given minUnderThresholdDuration value to the device
-	 * @param minOverThresholdDuration
+	 * @param minUnderThresholdDuration
 	 * @throws IOException
 	 */
 	public void writeMinUnderThresholdDuration(Unsigned32 minUnderThresholdDuration) throws IOException{
@@ -271,7 +274,6 @@ public class Limiter extends AbstractCosemObject{
 			write(ATTRB_MIN_UNDER_THRESHOLD_DURATION, minUnderThresholdDuration.getBEREncodedByteArray());
 			this.minUnderThresholdDuration = minUnderThresholdDuration;
 		} catch (IOException e){
-			e.printStackTrace();
 			throw new IOException("Could not write the minUnderThresholdDuration value." + e.getMessage());
 		}
 	}
@@ -286,7 +288,6 @@ public class Limiter extends AbstractCosemObject{
 			this.emergencyProfile = new EmergencyProfile(getLNResponseData(ATTRB_EMERGENCY_PROFILE), 0, 0);
 			return this.emergencyProfile;
 		} catch (IOException e){
-			e.printStackTrace();
 			throw new IOException("Could not retrieve the emergencyProfile." + e.getMessage());
 		}
 	}
@@ -301,7 +302,6 @@ public class Limiter extends AbstractCosemObject{
 			write(ATTRB_EMERGENCY_PROFILE, emergencyProfile.getBEREncodedByteArray());
 			this.emergencyProfile = emergencyProfile;
 		} catch (IOException e){
-			e.printStackTrace();
 			throw new IOException("Could not write the emergencyProfile structure." + e.getMessage());
 		}
 	}
@@ -315,7 +315,6 @@ public class Limiter extends AbstractCosemObject{
 //			this.emergencyProfile.addDataType(new OctetString(berEncodedByteArray, 5, true));
 //			this.emergencyProfile.addDataType(new Unsigned32(berEncodedByteArray, 17));
 		} catch(IOException e){
-			e.printStackTrace();
 			throw new IOException("Could not write the emergencyProfile structure." + e.getMessage());
 		}
 	}
@@ -330,7 +329,6 @@ public class Limiter extends AbstractCosemObject{
 			this.emergencyProfileGroupIdList = new Array(getLNResponseData(ATTRB_EMERGENCY_PROFILE_GROUP_ID_LIST), 0, 0);
 			return this.emergencyProfileGroupIdList;
 		} catch (IOException e){
-			e.printStackTrace();
 			throw new IOException("Could not retrieve the emergencyProfileGroupIdList array." + e.getMessage());
 		}
 	}
@@ -345,7 +343,6 @@ public class Limiter extends AbstractCosemObject{
 			write(ATTRB_EMERGENCY_PROFILE_GROUP_ID_LIST, emergencyProfileGroupIdList.getBEREncodedByteArray());
 			this.emergencyProfileGroupIdList = emergencyProfileGroupIdList;
 		} catch (IOException e){
-			e.printStackTrace();
 			throw new IOException("Could not write the emergencyProfileGroupIdList array." + e.getMessage());
 		}
 	}
@@ -360,7 +357,6 @@ public class Limiter extends AbstractCosemObject{
 			this.emergencyProfileActive = new BooleanObject(getLNResponseData(ATTRB_EMERGENCY_PROFILE_ACTIVE), 0);
 			return this.emergencyProfileActive;
 		} catch (IOException e){
-			e.printStackTrace();
 			throw new IOException("Could not retrieve the emergencyProfileActive boolean." + e.getMessage());
 		}
 	}
@@ -383,7 +379,6 @@ public class Limiter extends AbstractCosemObject{
 			write(ATTRB_EMERGENCY_PROFILE_ACTIVE, emergencyProfileActive.getBEREncodedByteArray());
 			this.emergencyProfileActive = emergencyProfileActive;
 		} catch (IOException e){
-			e.printStackTrace();
 			throw new IOException("Could not write the current emergencyProfileActive booleanObject." + e.getMessage());
 		}
 	}
@@ -398,14 +393,13 @@ public class Limiter extends AbstractCosemObject{
 			this.actions = new ActionType(getLNResponseData(ATTRB_ACTIONS), 0, 0);
 			return this.actions;
 		} catch (IOException e){
-			e.printStackTrace();
 			throw new IOException("Could not read the actions." + e.getMessage());
 		}
 	}
 
 	/**
 	 * @return the latest retrieved actions attribute from the device
-	 * @throws IOExcepiton
+	 * @throws IOException
 	 */
 	public ActionType getActions() throws IOException{
 		if(this.actions == null){
@@ -424,12 +418,11 @@ public class Limiter extends AbstractCosemObject{
 			write(ATTRB_ACTIONS, actions.getBEREncodedByteArray());
 			this.actions = actions;
 		} catch(IOException e){
-			e.printStackTrace();
 			throw new IOException("Could not write the actions to the device." + e.getMessage());
 		}
 	}
 
-	public class ValueDefinitionType extends Structure{
+    public class ValueDefinitionType extends Structure{
 		private static final int ITEM_CLASS_ID = 0;
 		private static final int ITEM_LOGICAL_NAME = 1;
 		private static final int ITEM_ATTRIBUTE_INDEX = 2;
@@ -493,6 +486,14 @@ public class Limiter extends AbstractCosemObject{
 		public Unsigned32 getEmergencyDuration(){
 			return (Unsigned32) getDataType(ITEM_EMERGENCY_DURATION);
 		}
+
+        public String toString(){
+            StringBuilder strb = new StringBuilder();
+            strb.append("EmergencyProfile ID : " + getEmergencyProfileId().intValue());
+            strb.append(" - EmergencyProfile ActivationTime : " + getEmergencyActivationTime().getDateTime(protocolLink.getTimeZone()));
+            strb.append(" - EmergencyProfile Duration : " + getEmergencyDuration().intValue());
+            return strb.toString();
+        }
 	}
 
 	public class ActionType extends Structure{
@@ -552,6 +553,85 @@ public class Limiter extends AbstractCosemObject{
 		}
 
 	}
+
+    /**
+     * Get the logicalname of the object. Identifies the object instance.
+     * @return
+     */
+    public OctetString getLogicalName() {
+        try {
+            return new OctetString(getResponseData(LimiterAttributes.LOGICAL_NAME));
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    	@Override
+	public String toString() {
+		final String crlf = "\r\n";
+
+            //TODO
+
+		return crlf;
+	}
+
+    /**
+     * @return
+     */
+    public RegisterValue asRegisterValue() {
+        return new RegisterValue(getObisCode(), toString());
+    }
+
+    /**
+     * @return
+     */
+    public RegisterValue asRegisterValue(int attributeNumber) {
+        LimiterAttributes limiterAttribute = LimiterAttributes.findByAttributeNumber(attributeNumber);
+        try {
+            if(limiterAttribute != null){
+                switch (limiterAttribute){
+                    case LOGICAL_NAME :
+                        OctetString ln = getLogicalName();
+                        return new RegisterValue(getObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
+                    case MONITORED_VALUE :
+                        ValueDefinitionType monitoredValue = getMonitoredValue();
+                        return new RegisterValue(getObisCode(), monitoredValue != null ? ObisCode.fromByteArray(monitoredValue.getLogicalName().getContentBytes()).toString() : "null");
+                    case THRESHOLD_ACTIVE :
+                        AbstractDataType active = readThresholdActive();
+                        return new RegisterValue(getObisCode(), active != null ? String.valueOf(active.intValue()) : "null");
+                    case THRESHOLD_NORMAL :
+                        AbstractDataType normal = readThresholdNormal();
+                        return new RegisterValue(getObisCode(), normal != null ? String.valueOf(normal.intValue()) : "null");
+                    case THRESHOLD_EMERGENCY :
+                        AbstractDataType emergency = readThresholdEmergency();
+                        return new RegisterValue(getObisCode(), emergency != null ? String.valueOf(emergency.intValue()) : "null");
+                    case MIN_OVER_THRESHOLD_DURATION :
+                         Unsigned32 minOverDur = readMinOverThresholdDuration();
+                        return new RegisterValue(getObisCode(), minOverDur != null ? String.valueOf(minOverDur.getValue()) : "null");
+                    case MIN_UNDER_THRESHOLD_DURATION :
+                         Unsigned32 minUnderDur = readMinUnderThresholdDuration();
+                        return new RegisterValue(getObisCode(), minUnderDur != null ? String.valueOf(minUnderDur.getValue()) : "null");
+                    case EMERGENCY_PROFILE :
+                        EmergencyProfile ep = readEmergencyProfile();
+                        return new RegisterValue(getObisCode(), ep != null ? ep.toString() : "null");
+                    case EMERGENCY_PROFILE_GROUP_ID_LIST :
+                        Array eProfileIdList = readEmergencyProfileGroupIdList();
+                        return new RegisterValue(getObisCode(), eProfileIdList != null ? eProfileIdList.toString() : "null");
+                    case EMERGENCY_PROFILE_ACTIVE :
+                        BooleanObject eProfileActive = getEmergencyProfileActive();
+                        return new RegisterValue(getObisCode(), eProfileActive != null ? String.valueOf(eProfileActive.intValue()) : "0");
+                    case ACTIONS :
+                        ActionType at = readActions();
+                        return new RegisterValue(getObisCode(), at != null ? at.toString() : "null");
+                    default:
+                        return null;
+                }
+            }
+        } catch (IOException e) {
+            protocolLink.getLogger().log(Level.INFO, "Could not read register for Attribute : " + attributeNumber);
+        }
+        return null;
+    }
 
 	public static void main(String args[]){
 		try {

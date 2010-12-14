@@ -1,0 +1,57 @@
+package com.energyict.dlms.cosem.attributes;
+
+/**
+ * Copyrights EnergyICT
+ * Date: 14-dec-2010
+ * Time: 14:19:55
+ */
+public enum LimiterAttributes implements DLMSClassAttributes{
+
+    LOGICAL_NAME(1, 0x00),
+    MONITORED_VALUE(2, 0x08),
+    THRESHOLD_ACTIVE(3, 0x10),
+    THRESHOLD_NORMAL(4, 0x18),
+    THRESHOLD_EMERGENCY(5, 0x20),
+    MIN_OVER_THRESHOLD_DURATION(6, 0x28),
+    MIN_UNDER_THRESHOLD_DURATION(7, 0x30),
+    EMERGENCY_PROFILE(8, 0x38),
+    EMERGENCY_PROFILE_GROUP_ID_LIST(9, 0x40),
+    EMERGENCY_PROFILE_ACTIVE(10, 0x48),
+    ACTIONS(11, 0x50);
+
+
+    private final int attributeNumber;
+    private final int shortName;
+
+    private LimiterAttributes(int attrNr, int sn) {
+        this.attributeNumber = attrNr;
+        this.shortName = sn;
+    }
+
+    /**
+     * Getter for the attribute number
+     *
+     * @return the attribute number as int
+     */
+    public int getAttributeNumber() {
+        return this.attributeNumber;
+    }
+
+    /**
+     * Getter for the short name
+     *
+     * @return the short name as int
+     */
+    public int getShortName() {
+        return this.shortName;
+    }
+    
+    public static LimiterAttributes findByAttributeNumber(int attribute){
+        for(LimiterAttributes limiterAttribute : LimiterAttributes.values()){
+            if(limiterAttribute.getAttributeNumber() == attribute){
+                return limiterAttribute;
+            }
+        }
+        throw new IllegalArgumentException("No attributeNumber found for id = " + attribute);
+    }
+}
