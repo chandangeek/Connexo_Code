@@ -7,6 +7,7 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -91,18 +92,31 @@ public class AS220StoredValues implements StoredValues {
 			throw new UnsupportedException("Billing point " + billingPoint + " doesn't exist for obiscode " + baseObisCode + ".");
 		}
 
-		BigDecimal value = getValue(baseObisCode, billingPoint);
-		Date billingPointTimeDate = getBillingPointTimeDate(billingPoint);
-		Unit unit = getUnit(baseObisCode);
-		ScalerUnit scalerUnit = getScalerUnit(baseObisCode);
+        RetryHandler retryHandler = new RetryHandler();
 
-		HistoricalRegister historicalRegister = new HistoricalRegister();
-		historicalRegister.setBillingDate(billingPointTimeDate);
-		historicalRegister.setCaptureTime(new Date());
-		historicalRegister.setQuantityValue(value, unit);
-		historicalRegister.setScalerUnit(scalerUnit);
 
-		return new HistoricalValue(historicalRegister, billingPointTimeDate, getProfileGeneric().getResetCounter());
+        Date billingPointTimeDate = null;
+        HistoricalRegister historicalRegister = null;
+        do {
+            try {
+                BigDecimal value = getValue(baseObisCode, billingPoint);
+                billingPointTimeDate = getBillingPointTimeDate(billingPoint);
+                Unit unit = getUnit(baseObisCode);
+                ScalerUnit scalerUnit = getScalerUnit(baseObisCode);
+
+                historicalRegister = new HistoricalRegister();
+                historicalRegister.setBillingDate(billingPointTimeDate);
+                historicalRegister.setCaptureTime(new Date());
+                historicalRegister.setQuantityValue(value, unit);
+                historicalRegister.setScalerUnit(scalerUnit);
+                return new HistoricalValue(historicalRegister, billingPointTimeDate, getProfileGeneric().getResetCounter());
+            } catch (DataAccessResultException e) {
+                retryHandler.logFailure(e);
+                getCosemObjectFactory().getProtocolLink().getLogger().warning("Problem while reading historical value " + obisCode + ", will retry.");
+            }
+        } while (retryHandler.canRetry());
+        
+        throw new IOException("Could not construct a proper historicalValue for ObisCode " + obisCode);
 	}
 
 	private ScalerUnit getScalerUnit(ObisCode baseObisCode) throws IOException {

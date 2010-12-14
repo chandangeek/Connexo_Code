@@ -118,7 +118,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         properties.setProperty("ServerLowerMacAddress", "1");
         properties.setProperty("ServerUpperMacAddress", "1");
 
-        properties.setProperty("ProfileType", "4"); // PowerQuality
+        properties.setProperty("ProfileType", "1");
 
         properties.setProperty("LimitMaxNrOfDays", "0");
 
@@ -580,9 +580,10 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     @Override
     void doDebug() throws LinkException, IOException {
 
+//        readProfile(false);
 //        writeLoadLimitThreshold("10");
 
-        readRegisters("0.0.17.0.0.4");
+        readRegisters("1.0.1.8.1.VZ");
 
 //        Limiter loadLimiter = getMeterProtocol().getCosemObjectFactory().getLimiter();
 //        readLoadLimitParameters(loadLimiter);

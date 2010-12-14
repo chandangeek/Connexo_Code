@@ -8,12 +8,14 @@ import java.util.List;
 
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.dlms.as220.DLMSSNAS220;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -39,37 +41,48 @@ public class ProfileBuilder {
 		return energyObisCode;
 	}
 
-	/**
-	 * @param nrOfChannels
-	 * @return
-	 * @throws IOException
-	 */
-	public ScalerUnit[] buildScalerUnits(byte nrOfChannels) throws IOException {
-		ScalerUnit[] scalerUnits = new ScalerUnit[nrOfChannels];
+    /**
+     * @param nrOfChannels
+     * @return
+     * @throws IOException
+     */
+    public ScalerUnit[] buildScalerUnits(byte nrOfChannels) throws IOException {
+        RetryHandler retryHandler = new RetryHandler(this.as220.getProtocolRetries());
+        ScalerUnit[] scalerUnits = new ScalerUnit[nrOfChannels];
+        do {
+            try {
+                List<CapturedObject> co = getAs220().getCosemObjectFactory().getProfileGeneric(getEnergyObisCode()).getCaptureObjects();
+                int index = 0;
+                for (CapturedObject capturedObject : co) {
+                    ObisCode obis = capturedObject.getLogicalName().getObisCode();
+                    if (obis.getA() != 0) {
+                        if (index <= nrOfChannels) {
+                            scalerUnits[index] = getAs220().getCosemObjectFactory().getCosemObject(obis).getScalerUnit();
+                            index++;
+                        } else {
+                            throw new IOException("There are more channels in the captured objects [" + getEnergyObisCode() + "] than needed [" + nrOfChannels + "].");
+                        }
+                    }
+                }
+                return scalerUnits;
+            } catch (DataAccessResultException e) {
+                retryHandler.logFailure(e);
+            }
+        }
+        while (retryHandler.canRetry());
 
-		List<CapturedObject> co = getAs220().getCosemObjectFactory().getProfileGeneric(getEnergyObisCode()).getCaptureObjects();
-		int index = 0;
-		for (CapturedObject capturedObject : co) {
-			ObisCode obis = capturedObject.getLogicalName().getObisCode();
-			if (obis.getA() != 0) {
-				if (index <= nrOfChannels) {
-					scalerUnits[index] = getAs220().getCosemObjectFactory().getCosemObject(obis).getScalerUnit();
-					index++;
-				} else {
-					throw new IOException("There are more channels in the captured objects [" + getEnergyObisCode() + "] than needed [" + nrOfChannels + "].");
-				}
-			}
-		}
+        /*
+        We should never get here. The scalerUnits array should be properly build and returned from within the try/catch.
+        If not, then an exception should be thrown.
+        */
+        return scalerUnits;
+    }
 
-		return scalerUnits;
-	}
-
-	/**
+    /**
 	 * @param scalerunit
 	 * @return
-	 * @throws IOException
 	 */
-	public List<ChannelInfo> buildChannelInfos(ScalerUnit[] scalerunit) throws IOException {
+	public List<ChannelInfo> buildChannelInfos(ScalerUnit[] scalerunit){
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
 		for (int i = 0; i < scalerunit.length; i++) {
 			ChannelInfo channelInfo = new ChannelInfo(i, "dlms" + getAs220().getDeviceID() + "_channel_" + i, scalerunit[i].getUnit());

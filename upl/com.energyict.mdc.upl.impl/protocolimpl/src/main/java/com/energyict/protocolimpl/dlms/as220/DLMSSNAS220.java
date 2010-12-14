@@ -774,5 +774,14 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     public int getLimitMaxNrOfDays() {
         return limitMaxNrOfDays;
     }
+
+    /**
+     * Getter for the number of retries property. Default this is 5. Change it with the property {@link #PR_RETRIES}
+     *
+     * @return the number of retries
+     */
+    public int getProtocolRetries() {
+        return this.iProtocolRetriesProperty;
+    }
 }
 

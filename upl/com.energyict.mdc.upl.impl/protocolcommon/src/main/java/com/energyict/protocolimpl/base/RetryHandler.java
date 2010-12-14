@@ -51,6 +51,14 @@ public class RetryHandler {
 		}
 	}
 
+    /**
+     * Indicates whether the RetryHandler allows another retry
+     * @return true if you can retry, false otherwise
+     */
+    public boolean canRetry(){
+        return nrOfRetries < maxRetries;
+    }
+
 	public void logFailure(String message) throws IOException {
 		logFailure(null, message);
 	}

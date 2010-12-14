@@ -124,9 +124,10 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 					retry.logFailure(e);
 				}
 			} catch (IOException e) {
-				throw new NoSuchRegisterException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());
+				throw new IOException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());
 			}
-		} while (true);
+		} while (retry.canRetry());
+        throw new IOException("Problems while reading register with obiscode " + obisCode.toString());
 	}
 
 	public int getNumberOfChannels() throws IOException {
