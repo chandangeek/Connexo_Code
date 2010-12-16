@@ -77,7 +77,7 @@ public class TransparentGet extends AbstractTransparentObjectAccess implements D
 						initialFrameCounter--;
 						int frameCounter = WaveflowProtocolUtils.toInt(dais.readByte());
 						if (initialFrameCounter != frameCounter) {
-							throw new WaveFlowDLMSException("Transparant object get error. Mmultiframe seque'nce error. expected frame ["+WaveflowProtocolUtils.toHexString(initialFrameCounter)+"], received ["+WaveflowProtocolUtils.toHexString(frameCounter)+"]");
+							throw new WaveFlowDLMSException("Transparant object get error. Multiframe sequence error. expected frame ["+WaveflowProtocolUtils.toHexString(initialFrameCounter)+"], received ["+WaveflowProtocolUtils.toHexString(frameCounter)+"]");
 						}
 					}
 					

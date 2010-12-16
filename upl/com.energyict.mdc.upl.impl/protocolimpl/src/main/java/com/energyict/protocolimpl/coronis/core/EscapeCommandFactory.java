@@ -16,8 +16,8 @@ public class EscapeCommandFactory {
 	 * @param timeout
 	 */
 	public void setAndVerifyWavecardRadiotimeout(int timeout) throws IOException {
-		WavecardRadioUserTimeout o = new WavecardRadioUserTimeout(protocolLink,timeout);
-		o.invoke();
+		//WavecardRadioUserTimeout o = new WavecardRadioUserTimeout(protocolLink,timeout);
+		//o.invoke();
 	}
 
 	/**
@@ -25,8 +25,8 @@ public class EscapeCommandFactory {
 	 * @param wakeupLength in ms
 	 */
 	public void setAndVerifyWavecardWakeupLength(int wakeupLength) throws IOException {
-		WavecardWakeupLength o = new WavecardWakeupLength(protocolLink,wakeupLength);
-		o.invoke();
+		//WavecardWakeupLength o = new WavecardWakeupLength(protocolLink,wakeupLength);
+		//o.invoke();
 	}
 	
 	/**
@@ -34,8 +34,8 @@ public class EscapeCommandFactory {
 	 * @param wakeupLength in ms
 	 */
 	public void setAndVerifyWavecardAwakeningPeriod(int awakeningPeriod) throws IOException {
-		WavecardAwakeningPeriod o = new WavecardAwakeningPeriod(protocolLink,awakeningPeriod);
-		o.invoke();
+		//WavecardAwakeningPeriod o = new WavecardAwakeningPeriod(protocolLink,awakeningPeriod);
+		//o.invoke();
 	}
 	
 	/**

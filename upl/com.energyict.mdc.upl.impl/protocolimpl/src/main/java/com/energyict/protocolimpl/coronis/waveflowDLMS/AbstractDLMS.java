@@ -146,13 +146,23 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 		String password = getInfoTypePassword();
 		if ((password != null) && (password.compareTo("") != 0)) {
 			getLogger().info("Build pairingrequest frame with password ["+password+"]");
-			byte[] pw = password.getBytes();
-			pairingFrame[OFFSET_PASSWORD_LENGTH]=(byte)pw.length;
-			if (pw.length>20) {
+			if (password.length()==40) {
+				pairingFrame[OFFSET_PASSWORD_LENGTH]=20;
+				//convert to byte values
+				for (int i=0;i<40;i+=2) {
+					int val = Integer.parseInt(password.substring(i, i+2));
+					pairingFrame[OFFSET_PASSWORD+(i/2)]=(byte)val;
+				}
+			}
+			else if (password.length()>20) {
 				throw new IOException("Password length > 20 characters!");
 			}
-			for (int i=0;i<pw.length;i++) {
-				pairingFrame[OFFSET_PASSWORD+i]=pw[i];
+			else {
+				byte[] pw = password.getBytes();
+				pairingFrame[OFFSET_PASSWORD_LENGTH]=(byte)pw.length;
+				for (int i=0;i<pw.length;i++) {
+					pairingFrame[OFFSET_PASSWORD+i]=pw[i];
+				}
 			}
 			
 		}

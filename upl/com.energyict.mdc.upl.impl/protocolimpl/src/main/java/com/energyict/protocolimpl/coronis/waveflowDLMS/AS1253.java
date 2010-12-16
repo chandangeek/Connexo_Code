@@ -62,22 +62,16 @@ public class AS1253 extends AbstractDLMS {
      */
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
     	
-    	try {
-	    	getEscapeCommandFactory().sendUsingSendMessage();
-	    	AbstractDataType adt = transparantObjectAccessFactory.readObjectAttribute(OBJECT_LIST, 2);
-	    	System.out.println(adt);
-	    	
-	    	//AbstractDataType adt = transparantObjectAccessFactory.readObjectAttribute(LOAD_PROFILE_PULSE_VALUES, 2,lastReading);
-	    	
-	    	System.out.println(adt);
-	    	
-	    	//AbstractDataType adt = transparantObjectAccessFactory.readObjectAttribute(LOAD_PROFILE_PULSE_VALUES, 2);
-	    	//System.out.println(adt);
-	    	return new ProfileData();
-    	}
-    	finally {
-    		getEscapeCommandFactory().sendUsingSendFrame();
-    	}
+    	AbstractDataType adt = transparantObjectAccessFactory.readObjectAttribute(OBJECT_LIST, 2);
+    	System.out.println(adt);
+    	
+    	//AbstractDataType adt = transparantObjectAccessFactory.readObjectAttribute(LOAD_PROFILE_PULSE_VALUES, 2,lastReading);
+    	
+    	System.out.println(adt);
+    	
+    	//AbstractDataType adt = transparantObjectAccessFactory.readObjectAttribute(LOAD_PROFILE_PULSE_VALUES, 2);
+    	//System.out.println(adt);
+    	return new ProfileData();
     }	
 
 

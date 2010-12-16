@@ -202,10 +202,14 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
 	}
 
 	final public void restartDataLogging() throws IOException {
-		int om = parameterFactory.readOperatingMode();
+/*		int om = parameterFactory.readOperatingMode();
 		parameterFactory.writeOperatingMode(om & 0xFFF3,0x000C);
 		parameterFactory.writeSamplingActivationNextHour();
-		parameterFactory.writeOperatingMode(om|0x0004);
+		parameterFactory.writeOperatingMode(om|0x0004);*/
+		//int om = parameterFactory.readOperatingMode();
+		parameterFactory.writeOperatingMode(0,0x000C);
+		parameterFactory.writeSamplingActivationNextHour();
+		parameterFactory.writeOperatingMode(0x0004,0x000C);
 	}
 	
 	final public void writeSamplingRate() throws IOException {

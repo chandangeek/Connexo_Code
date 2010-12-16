@@ -194,6 +194,11 @@ public class ProfileDataReader {
 			if ((applicationStatus & 0x10) == 0x10) {
 				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Appl status: Meter misread	detection on Port B"));
 			}
+			
+			if (applicationStatus != 0) {
+				waveFlow100mW.getParameterFactory().writeApplicationStatus(0);
+			}
+			
 		}
 	
 		

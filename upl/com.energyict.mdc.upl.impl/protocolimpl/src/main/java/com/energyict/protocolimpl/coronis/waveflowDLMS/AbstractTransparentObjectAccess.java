@@ -98,10 +98,12 @@ abstract class AbstractTransparentObjectAccess {
 			DataOutputStream daos = new DataOutputStream(baos);
 			daos.writeByte(TRANSPARANT_OBJECT_READING_REQ_TAG);
 			daos.write(prepare()); // write 1 parameter
-			
+		
+			abstractDLMS.getEscapeCommandFactory().sendUsingSendMessage();
 			parseResponse(abstractDLMS.getWaveFlowConnect().sendData(baos.toByteArray()));
 		}
 		finally {
+			abstractDLMS.getEscapeCommandFactory().sendUsingSendFrame();
 			if (baos != null) {
 				try {
 					baos.close();
