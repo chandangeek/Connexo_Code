@@ -113,7 +113,7 @@ import com.energyict.protocolimpl.iec1107.ppm.register.LoadProfileDefinition;
   || can return invalid data.  These are intervals that are not yet correctly
   || closed. (So in fact they should not appear in the profile data at all.)
   || Such an invalid interval shows up in EIServer as a spike, because the value
-  || contains a lot of '9' characters (e.g. ‘99990.0’).
+  || contains a lot of '9' characters (e.g. ï¿½99990.0ï¿½).
   || To make sure that only properly closed intervals are stored, intervals that
   || are less then a minute old are ignored. The end time of an interval needs
   || to be at least a minute before the current meter time.
@@ -443,7 +443,7 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	}
 
 	public String getProtocolVersion() {
-		return "$Revision: 1.48 $";
+		return "$Date$";
 	}
 
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
