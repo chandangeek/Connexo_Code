@@ -1,9 +1,11 @@
 package com.energyict.dlms.cosem.attributes;
 
 /**
- * Copyrights EnergyICT
- * Date: 17-dec-2010
- * Time: 9:53:02
+ * Contains functionality to access attributes of the SpecialDay table (independent whether or not shortName or logicalNames are used)
+ * <br/>
+ * Copyrights EnergyICT<br/>
+ * Date: 17-dec-2010<br/>
+ * Time: 9:53:02<br/>
  */
 public enum SpecialDaysTableAttributes implements DLMSClassAttributes {
 

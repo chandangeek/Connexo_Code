@@ -1,16 +1,15 @@
 package com.energyict.dlms.cosem.attributes;
 
 /**
- * Contains functionality to access methods of the SpecialDay table (independent whether or not shortName or logicalNames are used)
+ * Contains functionality to access methods of the ActivityCalendar (independent whether or not shortName or logicalNames are used)
  * <br/>
  * Copyrights EnergyICT<br/>
  * Date: 17-dec-2010<br/>
- * Time: 9:48:44<br/>
+ * Time: 10:27:39<br/>
  */
-public enum SpecialDaysTableMethods implements DLMSClassMethods {
+public enum ActivityCalendarMethods implements DLMSClassMethods{
 
-    INSERT(1, 0x10),
-    DELETE(2, 0x18);
+    ACTIVATE_PASSIVE_CALENDAR(1, 0x50);
 
     /**
      * The number of the method in chronological order
@@ -24,11 +23,11 @@ public enum SpecialDaysTableMethods implements DLMSClassMethods {
     /**
      * Private constructor
      *
-     * @param methodNr  the number of the method
-     * @param shortName the shortName of the method
+     * @param methodNumber the method number
+     * @param shortName the shortname of the method
      */
-    private SpecialDaysTableMethods(int methodNr, int shortName) {
-        this.methodNumber = methodNr;
+    private ActivityCalendarMethods(int methodNumber, int shortName) {
+        this.methodNumber = methodNumber;
         this.shortName = shortName;
     }
 
