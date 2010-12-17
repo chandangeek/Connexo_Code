@@ -443,7 +443,10 @@ public class ApolloMeter extends DLMSProtocol {
      * @return a version string
      */
     public String getVersion() {
-        return "$Date$";  //To change body of implemented methods use File | Settings | File Templates.
+        String rev = "$Revision$" + " - " + "$Date$";
+        String manipulated = "Revision " + rev.substring(rev.indexOf("$Revision: ") + "$Revision: ".length(), rev.indexOf("$ -")) + "at "
+                + rev.substring(rev.indexOf("$Date: ") + "$Date: ".length(), rev.indexOf("$Date: ") + "$Date: ".length() + 19);
+        return manipulated;
     }
 
     /**
