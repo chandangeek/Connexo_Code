@@ -1,6 +1,8 @@
 package com.energyict.dlms.cosem.attributes;
 
 /**
+ * Interface to provide access to DLMS class <b>Attributes</b> functionality
+ *
  * @author jme
  *
  */

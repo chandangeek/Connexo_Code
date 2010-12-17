@@ -7,7 +7,7 @@ import com.energyict.dlms.cosem.attributes.*;
 import java.io.IOException;
 
 /**
- * A straighforward implementation of the MbusClient object according to the DLMS BlueBooks. Versioning is applied because changes have
+ * A straightforward implementation of the MbusClient object according to the DLMS BlueBooks. Versioning is applied because changes have
  * been made in the mapping of the shortnames
  */
 public class MBusClient extends AbstractCosemObject{

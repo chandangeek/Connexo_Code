@@ -1,9 +1,11 @@
 package com.energyict.dlms.cosem.attributes;
 
 /**
- * Copyrights EnergyICT
- * Date: 25-nov-2010
- * Time: 15:45:46
+ * Interface to provide access to DLMS class <b>Method</b> functionality
+ * <br/>
+ * Copyrights EnergyICT<br/>
+ * Date: 25-nov-2010<br/>
+ * Time: 15:45:46<br/>
  */
 public interface DLMSClassMethods {
 

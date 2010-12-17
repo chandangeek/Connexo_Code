@@ -7,47 +7,73 @@ import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.cosem.attributes.SpecialDaysTableAttributes;
+import com.energyict.dlms.cosem.attributes.SpecialDaysTableMethods;
 
+/**
+ * A straightforward implementation of the SpecialDaysTable object according to the DLMS BlueBooks
+ */
 public class SpecialDaysTable extends AbstractCosemObject {
 
-    	/* Method writes SN */
-	private static final int INSERT_SPECIAL_DAY_SN = 0x10;
-	private static final int DELETE_SPECIAL_DAY_SN = 0x18;
+    /**
+     * The array containing the specialDayEntry Structures
+     */
+    private Array specialDays = null;
 
-
-	private Array specialDays = null;
-
-	public SpecialDaysTable(ProtocolLink protocolLink,ObjectReference objectReference) {
-        super(protocolLink,objectReference);
+    public SpecialDaysTable(ProtocolLink protocolLink, ObjectReference objectReference) {
+        super(protocolLink, objectReference);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected int getClassId() {
         return DLMSClassId.SPECIAL_DAYS_TABLE.getClassId();
     }
 
+    /**
+     * Write the given SpecialDay array to the device
+     *
+     * @param specialDays the given special day array
+     * @throws IOException if the write has failed
+     */
     public void writeSpecialDays(Array specialDays) throws IOException {
-        write(2, specialDays.getBEREncodedByteArray());
+        write(SpecialDaysTableAttributes.ENTRIES, specialDays.getBEREncodedByteArray());
         this.specialDays = specialDays;
     }
 
+    /**
+     * Read the specialDayTable Array from the device
+     *
+     * @return the requested SpecialDay table
+     * @throws IOException if the read has failed.
+     */
     public Array readSpecialDays() throws IOException {
         if (specialDays == null) {
-        	specialDays = (Array) AXDRDecoder.decode(getLNResponseData(2));
+            specialDays = (Array) AXDRDecoder.decode(getResponseData(SpecialDaysTableAttributes.ENTRIES));
         }
         return specialDays;
     }
 
+    /**
+     * Insert a specialDay Entry to the list of SpecialDays
+     *
+     * @param structure the structure containing the SpecialDayEntry definition
+     * @throws IOException if the write has failed
+     */
     public void insert(Structure structure) throws IOException {
-        if (getObjectReference().isLNReference()) {
-            invoke(1, structure.getBEREncodedByteArray());
-        } else {
-            write(INSERT_SPECIAL_DAY_SN, structure.getBEREncodedByteArray());
-        }
+        methodInvoke(SpecialDaysTableMethods.INSERT, structure);
     }
 
+    /**
+     * Delete a specialDay entry from the list of SpecialDays
+     *
+     * @param index the index to delete
+     * @throws IOException if the meter reported an exception(eg. index out of bounds) or if the invocation failed
+     */
     public void delete(int index) throws IOException {
-    	Unsigned16 u16 = new Unsigned16(index);
-        invoke(2,u16.getBEREncodedByteArray());
+        Unsigned16 u16 = new Unsigned16(index);
+        methodInvoke(SpecialDaysTableMethods.DELETE, u16);
     }
 
 }
