@@ -1,43 +1,17 @@
 package com.energyict.protocolimpl.landisgyr.maxsys2510;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.ShadowList;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.LinkException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdw.amr.RtuRegisterMapping;
-import com.energyict.mdw.amr.RtuRegisterSpec;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.RtuType;
-import com.energyict.mdw.shadow.RtuTypeShadow;
-import com.energyict.mdw.shadow.amr.RtuRegisterSpecShadow;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.utils.ProtocolTools;
+
+import java.io.*;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @beginchanges
@@ -124,10 +98,10 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     private Logger logger = null;
 
     private Firmware firmware;
-    
     private boolean readUnit1SerialNumber = false;
     private boolean readProfileDataBeforeConfigChange = true;
     
+
     public MaxSys() { }
     
     public Logger getLogger() {
@@ -159,6 +133,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         		throw new InvalidPropertyException( "NodeId: only numbers allowed");
         	}
         }
+
 
         if (p.getProperty(MeterProtocol.PROFILEINTERVAL) != null)
             pProfileInterval = Integer.parseInt(p.getProperty(MeterProtocol.PROFILEINTERVAL));
@@ -211,8 +186,34 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
          
 
          
+
     }
     
+
+    public Date getBeginningOfRecording() throws IOException {
+    	TableAddress ta = new TableAddress( this, 2, 30 );
+    	byte[] values = ta.readBytes(6);
+    	return TypeDateTimeRcd.parse(new Assembly(this, new ByteArray(values))).toDate();
+    }
+
+    protected void sendNodeId() throws IOException {
+    	try {
+	    	if ((this.pNodeId != null) && !"".equals(pNodeId)) {
+	        	XCommand xCommand = commandFactory.createX( nextCrn(), 0x00, 0x0b ); // 0b => slave
+	    		byte arg1 = (byte) Integer.parseInt(pNodeId.substring(0, 2), 16);
+	    		byte arg2 = (byte) Integer.parseInt(pNodeId.substring(2, 4), 16);
+	    		byte arg3 = (byte) Integer.parseInt(pNodeId.substring(4, 6), 16);
+		        byte arg4 = (byte) Integer.parseInt(pNodeId.substring(6, 8), 16);
+	    		byte[] arg = {arg1, arg2, arg3, arg4};
+	    		xCommand.setArgumnt(arg);
+	            linkLayer.send( xCommand );
+	    	}
+    	}
+    	catch (NumberFormatException e) {
+    		throw new IOException("Invalid node address: " + pNodeId);
+    	}
+    }
+
 
     /**
      * the implementation returns both the address and password key
@@ -240,24 +241,6 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         return result;
     }
     
-    protected void sendNodeId() throws IOException {
-    	try {
-	    	if ((this.pNodeId != null) && !"".equals(pNodeId)) {
-	        	XCommand xCommand = commandFactory.createX( nextCrn(), 0x00, 0x0b ); // 0b => slave
-	    		byte arg1 = (byte) Integer.parseInt(pNodeId.substring(0, 2), 16);     
-	    		byte arg2 = (byte) Integer.parseInt(pNodeId.substring(2, 4), 16);   
-	    		byte arg3 = (byte) Integer.parseInt(pNodeId.substring(4, 6), 16);   
-		        byte arg4 = (byte) Integer.parseInt(pNodeId.substring(6, 8), 16);   
-	    		byte[] arg = {arg1, arg2, arg3, arg4};
-	    		xCommand.setArgumnt(arg);
-	            linkLayer.send( xCommand );
-	    	}
-    	}
-    	catch (NumberFormatException e) {
-    		throw new IOException("Invalid node address: " + pNodeId);
-    	}
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -275,8 +258,6 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
             commandFactory = new CommandFactory();
             linkLayer = 
                 new LinkLayer( inputStream, outputStream, 0, 0, pRetries, pForceDelay, this);
-            
-            
             sendNodeId();
             obisCodeMapper = new ObisCodeMapper(this);
 
@@ -306,13 +287,13 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
      * @see com.energyict.protocol.MeterProtocol#connect()
      */
     public void connect() throws IOException {
-    	this.getLogger().info("connect");
         connect(0);
     }
 
     void connect(int baudRate) throws IOException {
         try {
-        	linkLayer.send( commandFactory.createX( nextCrn(), 0x00, 0x0e ) ); // oe: return unit id
+
+        	linkLayer.send( commandFactory.createX( nextCrn(), 0x00, 0x0e ) ); // 0e: return unit id
             getTable0();
             
             doExtendedLogging();
@@ -323,27 +304,8 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         }
     }
     
-    protected void sleep(int millisec) throws IOException{
-    	try {
-            Thread.sleep(millisec);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            throw new IOException(e.getMessage());
-        }
-    }
-
     public void disconnect() throws IOException {
-    	sleep(4000);
-    	//this.getLogger().info("disconnect " + pSerialNumber);
-        /*linkLayer.send( commandFactory.createX( nextCrn(), 0x00, 0x10 ), 1);
-        try {
-        	getLogger().info("start sleeping: " + new Date());
-        	Thread.sleep(3000);
-        	getLogger().info("end sleeping: " + new Date());
-        }
-        catch (InterruptedException e) {
-        	e.printStackTrace();
-        }*/
+        ProtocolTools.delay(4000);
     }
 
     public int getNumberOfChannels() throws UnsupportedException, IOException {
@@ -431,20 +393,13 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         }
     }
     
-    public Date getBeginningOfRecording() throws IOException {
-    	TableAddress ta = new TableAddress( this, 2, 30 );
-    	byte[] values = ta.readBytes(6);
-    	return TypeDateTimeRcd.parse(new Assembly(this, new ByteArray(values))).toDate();
-    }
-
     private void validateSerialNumber( ) throws IOException {
-    	this.getLogger().info("validateSerialNumber");
         if ((pSerialNumber == null) || ("".equals(pSerialNumber)))
             return;
      
         String sn = null;
         
-        // initial implementatation: serialnumber = unit_id3 (this is the default!)
+        // initial implementataion: serialnumber = unit_id3 (this is the default!)
         // implementation for Imserv: serialnumber = unit_id1
         if (!readUnit1SerialNumber) {
         	TableAddress ta = new TableAddress( this, 2, 19 );
@@ -456,6 +411,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         	sn = getSerialNumber(values).substring(1);
         }
         
+
         if( sn!= null ) {
             if( pSerialNumber.equals( sn ) )
                 return;
@@ -476,8 +432,9 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         return strBuff.toString();
     }
     
+
     public String getProtocolVersion() {
-        return "$Revision: 1.11 $";
+        return "$Date$";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -677,7 +634,6 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     }    
     
     Table12 getTable12( Date from, boolean includeEvents ) throws IOException {
-    	
         int noOfChnls = getTable11().getTypeStoreCntrlRcd().getNoOfChnls();
         int dataSize = getTable11().getTypeStoreCntrlRcd().getDataSize();
         int intervalMinutes = getTable11().getTypeStoreCntrlRcd().getIntvlInMins();
@@ -760,67 +716,5 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         StandardCommand command = commandFactory.createY(nextCrn(), tableAddress); 
         return linkLayer.send( command ); 
     }
-    
-    public static void main(String[] args) throws Exception {
-    	
-    	String pNodeId = "9700189";
-    	pNodeId = "3" + pNodeId;
-		byte arg1 = Byte.parseByte(pNodeId.substring(0, 2), 16);     
-		byte arg2 = Byte.parseByte(pNodeId.substring(2, 4), 16);   
-		byte arg3 = Byte.parseByte(pNodeId.substring(4, 6), 16);   
-
-		byte arg4 = (byte) Integer.parseInt(pNodeId.substring(6, 8), 16); 
-		
-		byte[] arg = {arg1, arg2, arg3, arg4};
-		System.out.println(ProtocolUtils.outputHexString(arg));
-		
-//		int value = 
-		//byte d = (byte)Integer.get
-		//byte b = 0x(int) 
-    	//System.out.println(0x80 & 0xC0);
-    	
-    	
-        /*ialer dialer = null;
-        MaxSys max = new MaxSys();
-        try {
-
-            dialer = DialerFactory.getDirectDialer().newDialer();
-            dialer.init("COM1");
-            dialer.connect("00019163535977", 60000);
-            InputStream is = dialer.getInputStream();
-            OutputStream os = dialer.getOutputStream();
-
-            Properties properties = new Properties();
-            properties.setProperty(MeterProtocol.PASSWORD, "0000");
-
-            
-//            properties.setProperty(PK_EXTENDED_LOGGING, "2");
-
-            properties.setProperty(MeterProtocol.SERIALNUMBER, "DEVICE_ID_3");
-            properties.setProperty("Retries", "5");
-            properties.setProperty("ProfileInterval", "300");
-
-            max.setProperties(properties);
-
-            dialer
-                .getSerialCommunicationChannel()
-                .setParamsAndFlush( 9600, SerialCommunicationChannel.DATABITS_8,
-                                    SerialCommunicationChannel.PARITY_NONE, SerialCommunicationChannel.STOPBITS_1);
-
-            TimeZone ect = TimeZone.getTimeZone("ECT");
-            max.init(is, os, ect, Logger.getLogger("name"));
-            max.connect();
-            
-        } catch (LinkException e) {
-            System.out.println("MaxSys, DialerException, " + e.getMessage());
-            max.disconnect();
-        } catch (IOException e) {
-            System.out.println("MaxSys, IOException, " + e.getMessage());
-            max.disconnect();
-        }*/
-		
-
-    }
-    
 
 }

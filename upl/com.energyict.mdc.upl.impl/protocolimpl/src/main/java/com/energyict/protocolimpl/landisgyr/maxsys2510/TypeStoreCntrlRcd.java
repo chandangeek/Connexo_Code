@@ -51,10 +51,6 @@ class TypeStoreCntrlRcd {
         return dataSize;
     }
     
-    public TypeStoreChnlCntrlRcd getChnlCntrl(int i) {
-    	return (TypeStoreChnlCntrlRcd) chnlCntrl.get(i);
-    }
-
     /** binary integral divisor of 60 */
     int getIntvlInMins() {
         return intvlInMins;
@@ -63,6 +59,10 @@ class TypeStoreCntrlRcd {
     /** Binary, 1 to MAX_STORAGE_CHNNLS */
     int getNoOfChnls() {
         return noOfChnls;
+    }
+
+    public TypeStoreChnlCntrlRcd getChnlCntrl(int i) {
+    	return (TypeStoreChnlCntrlRcd) chnlCntrl.get(i);
     }
 
     public String toString() {
