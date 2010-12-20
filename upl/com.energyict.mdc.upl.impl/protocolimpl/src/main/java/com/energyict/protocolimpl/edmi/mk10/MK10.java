@@ -134,7 +134,7 @@ public class MK10 extends AbstractProtocol {
 
 	public String getProtocolVersion() {
 		sendDebug("getProtocolVersion()");
-		return "$Revision$";
+		return "$Date$";
 	}
 
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
