@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.dlms.elgama;
 
 import com.energyict.cbo.*;
+import com.energyict.dialer.connection.*;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.cosem.*;
@@ -11,7 +13,7 @@ import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
 import com.energyict.protocolimpl.dlms.elgama.eventlogging.FraudDetectionLog;
 import com.energyict.protocolimpl.dlms.elgama.eventlogging.PowerFailureLog;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -544,5 +546,18 @@ public class G3B extends AbstractDLMSProtocol {
         } catch (final Exception e) {
             throw new NoSuchRegisterException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());
         }
+    }
+
+    public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
+        HHUSignOn hhuSignOn = (HHUSignOn) new OpticalHHUConnection(commChannel);
+        hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
+        hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_NORMAL);
+        hhuSignOn.enableDataReadout(datareadout);
+        getDLMSConnection().setHHUSignOn(hhuSignOn, "");
+    }
+
+    @Override
+    public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
+        enableHHUSignOn(commChannel, false);
     }
 }
