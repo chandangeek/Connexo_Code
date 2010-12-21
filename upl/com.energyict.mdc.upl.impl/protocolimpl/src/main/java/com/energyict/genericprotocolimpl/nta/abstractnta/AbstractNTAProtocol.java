@@ -773,7 +773,7 @@ public abstract class AbstractNTAProtocol extends MeterMessages implements Gener
 		return ocm.getRegisterValue(obisCode);
 	}
 
-	private String getFirmWareVersion() throws IOException {
+	protected String getFirmWareVersion() throws IOException {
 		try {
 			return getCosemObjectFactory().getGenericRead(getMeterConfig().getVersionObject()).getString();
 		} catch (IOException e) {

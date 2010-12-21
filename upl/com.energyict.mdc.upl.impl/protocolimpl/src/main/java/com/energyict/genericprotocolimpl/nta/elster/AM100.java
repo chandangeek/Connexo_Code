@@ -191,6 +191,16 @@ public class AM100 extends AbstractNTAProtocol {
         }
     }
 
+    @Override
+    protected String getFirmWareVersion() throws IOException {
+        try {
+            return getCosemObjectFactory().getGenericRead(getMeterConfig().getVersionObject()).getString();
+        } catch (IOException e) {
+            log(Level.SEVERE, "Could not fetch the firmwareVersion: " + e.getMessage());
+        }
+        return "Unknown";
+    }
+
     /**
      * Method to check whether the cache needs to be read out or not, if so the read will be forced.<br>
      * <br>
