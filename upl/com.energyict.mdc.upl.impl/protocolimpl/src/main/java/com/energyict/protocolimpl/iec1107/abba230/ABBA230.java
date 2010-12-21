@@ -464,11 +464,7 @@ RegisterProtocol, MessageProtocol, EventMapper {
 	 * @see com.energyict.protocol.MeterProtocol#getProtocolVersion()
 	 */
 	public String getProtocolVersion() {
-		String rev = "$Revision: 35712 $"+" - "+"$Date: 2009-08-24 17:29:04 +0200 (ma, 24 aug 2009) $";
-		String manipulated = "Revision "+rev.substring(rev.indexOf("$Revision: ")+"$Revision: ".length(), rev.indexOf("$ -"))
-		+"at "
-		+rev.substring(rev.indexOf("$Date: ")+"$Date: ".length(), rev.indexOf("$Date: ")+"$Date: ".length()+19);
-		return manipulated;
+        return "$Date$";
 	}
 
 	/* (non-Javadoc)
