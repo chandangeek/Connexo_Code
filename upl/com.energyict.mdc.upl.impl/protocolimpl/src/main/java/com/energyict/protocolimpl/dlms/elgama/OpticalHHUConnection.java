@@ -57,7 +57,7 @@ public class OpticalHHUConnection implements HHUSignOn {
         readIdent();
         writeRawData(new byte[]{0x06, 0x32, 0x35, 0x32, 0x0D, 0x0A});
         ProtocolTools.delay(100);
-        writeRawData(new byte[]{0x00});
+        writeRawData(new byte[20]);
         ProtocolTools.delay(100);
         set7E1(5);
         readLine();

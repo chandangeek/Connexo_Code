@@ -22,7 +22,7 @@ import java.util.logging.Logger;
  * Date: 9-dec-2010
  * Time: 11:09:31
  */
-public abstract class AbstractDLMSProtocol extends AbstractProtocol implements ProtocolLink {
+public abstract class AbstractDLMSProtocol extends AbstractProtocol implements ProtocolLink, HHUEnabler {
 
     protected ApplicationServiceObject aso;
     protected DLMSCache dlmsCache;
@@ -53,7 +53,6 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     protected int retries;
     protected int addressingMode;
     protected int informationFieldSize;
-    protected int roundTripCorrection;
     protected int wakeup;
     protected int cipheringType;
     protected String manufacturer;
@@ -64,34 +63,33 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     protected int iConfigProgramChange = -1;
     protected int profileInterval = -1;
     protected int clockSetRoundtripTreshold = 0;
-    protected int roundtripCorrection;
 
-    private static final int CONNECTION_MODE_HDLC = 0;
-    private static final int CONNECTION_MODE_TCPIP = 1;
-    private static final int PROPOSED_QOS = -1;
-    private static final int PROPOSED_DLMS_VERSION = 6;
-    private static final int MAX_PDU_SIZE = 200;
-    private static final int DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES = 10;
-    private static final int DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD = 5000;
+    protected static final int CONNECTION_MODE_HDLC = 0;
+    protected static final int CONNECTION_MODE_TCPIP = 1;
+    protected static final int PROPOSED_QOS = -1;
+    protected static final int PROPOSED_DLMS_VERSION = 6;
+    protected static final int MAX_PDU_SIZE = 200;
+    protected static final int DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES = 10;
+    protected static final int DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD = 5000;
 
-    private static final String PROPNAME_INFORMATION_FIELD_SIZE = "InformationFieldSize";
-    private static final String PROPNAME_IIAP_INVOKE_ID = "IIAPInvokeId";
-    private static final String PROPNAME_IIAP_PRIORITY = "IIAPPriority";
-    private static final String PROPNAME_IIAP_SERVICE_CLASS = "IIAPServiceClass";
-    private static final String PROPNAME_CIPHERING_TYPE= "CipheringType";
-    private static final String PROPNAME_ROUNDTRIP_CORRECITON = "RoundTripCorrection";
-    private static final String PROPNAME_ADDRESSING_MODE = "AddressingMode";
-    private static final String PROPNAME_CONNECTION = "Connection";
-    private static final String PROPNAME_MANUFACTURER = "Manufacturer";
-    private static final String PROPNAME_SERVER_LOWER_MAC_ADDRESS = "ServerLowerMacAddress";
-    private static final String PROPNAME_SERVER_UPPER_MAC_ADDRESS = "ServerUpperMacAddress";
-    private static final String PROPNAME_CLIENT_MAC_ADDRESS = "ClientMacAddress";
-    private static final String PROPNAME_RETRIES = "Retries";
-    private static final String PROPNAME_TIMEOUT = "Timeout";
-    private static final String PROPNAME_FORCE_DELAY = "ForceDelay";
-    private static final String PROPNAME_ROUNDTRIP_CORRECTION = "RoundtripCorrection";
-    private static final String PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES = "MaximumNumberOfClockSetTries";
-    private static final String PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD = "ClockSetRoundtripCorrectionTreshold";
+    protected static final String PROPNAME_INFORMATION_FIELD_SIZE = "InformationFieldSize";
+    protected static final String PROPNAME_IIAP_INVOKE_ID = "IIAPInvokeId";
+    protected static final String PROPNAME_IIAP_PRIORITY = "IIAPPriority";
+    protected static final String PROPNAME_IIAP_SERVICE_CLASS = "IIAPServiceClass";
+    protected static final String PROPNAME_CIPHERING_TYPE= "CipheringType";
+    protected static final String PROPNAME_ROUNDTRIP_CORRECITON = "RoundTripCorrection";
+    protected static final String PROPNAME_ADDRESSING_MODE = "AddressingMode";
+    protected static final String PROPNAME_CONNECTION = "Connection";
+    protected static final String PROPNAME_MANUFACTURER = "Manufacturer";
+    protected static final String PROPNAME_SERVER_LOWER_MAC_ADDRESS = "ServerLowerMacAddress";
+    protected static final String PROPNAME_SERVER_UPPER_MAC_ADDRESS = "ServerUpperMacAddress";
+    protected static final String PROPNAME_CLIENT_MAC_ADDRESS = "ClientMacAddress";
+    protected static final String PROPNAME_RETRIES = "Retries";
+    protected static final String PROPNAME_TIMEOUT = "Timeout";
+    protected static final String PROPNAME_FORCE_DELAY = "ForceDelay";
+    protected static final String PROPNAME_ROUNDTRIP_CORRECTION = "RoundtripCorrection";
+    protected static final String PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES = "MaximumNumberOfClockSetTries";
+    protected static final String PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD = "ClockSetRoundtripCorrectionTreshold";
 
 
     @Override
@@ -211,7 +209,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
             switch (connectionMode) {
                 case CONNECTION_MODE_HDLC:
                     connection = new HDLC2Connection(inputStream, outputStream, timeOut, 100, retries, clientMacAddress,
-                            serverLowerMacAddress, serverUpperMacAddress, addressingMode, -1, opticalBaudrate);
+                            serverLowerMacAddress, serverUpperMacAddress, addressingMode, -1, -1);
                     break;
                 case CONNECTION_MODE_TCPIP:
                     connection = new TCPIPConnection(inputStream, outputStream, timeOut, forceDelay, retries, clientMacAddress, serverLowerMacAddress);
@@ -328,12 +326,11 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         addressingMode = Integer.parseInt(properties.getProperty(PROPNAME_ADDRESSING_MODE, "2"));
         manufacturer = properties.getProperty(PROPNAME_MANUFACTURER);
         informationFieldSize = Integer.parseInt(properties.getProperty(PROPNAME_INFORMATION_FIELD_SIZE, "-1"));
-        roundTripCorrection = Integer.parseInt(properties.getProperty(PROPNAME_ROUNDTRIP_CORRECITON, "0"));
         iiapInvokeId = Integer.parseInt(properties.getProperty(PROPNAME_IIAP_INVOKE_ID, "0"));
         iiapPriority = Integer.parseInt(properties.getProperty(PROPNAME_IIAP_PRIORITY, "1"));
         iiapServiceClass = Integer.parseInt(properties.getProperty(PROPNAME_IIAP_SERVICE_CLASS, "1"));
         cipheringType = Integer.parseInt(properties.getProperty(PROPNAME_CIPHERING_TYPE, Integer.toString(SecurityContext.CIPHERING_TYPE_GLOBAL)));
-        roundtripCorrection = Integer.parseInt(properties.getProperty(PROPNAME_ROUNDTRIP_CORRECTION, "0").trim());
+        //roundtripCorrection = Integer.parseInt(properties.getProperty(PROPNAME_ROUNDTRIP_CORRECTION, "0").trim());
 
         if (cipheringType != SecurityContext.CIPHERING_TYPE_GLOBAL && cipheringType != SecurityContext.CIPHERING_TYPE_DEDICATED) {
             throw new InvalidPropertyException("Only 0 or 1 is allowed for the CipheringType property");
@@ -398,6 +395,11 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     protected void checkCacheObjects() throws IOException {
         try { // conf program change and object list stuff
             int iConf;
+
+            if (dlmsCache == null) {
+                dlmsCache = new DLMSCache();
+            }
+
             if (dlmsCache.getObjectList() != null) {
                 dlmsMeterConfig.setInstantiatedObjectList(dlmsCache.getObjectList());
                 try {
@@ -405,19 +407,19 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
                 }
                 catch (IOException e) {
                     iConf = -1;
-                    logger.severe("SimpleDLMSProtocol Configuration change count not accessible, request object list.");
+                    logger.severe("G3B Meter configuration change count not accessible, request object list.");
                     requestObjectList();
                     dlmsCache.saveObjectList(dlmsMeterConfig.getInstantiatedObjectList());  // save object list in cache
                 }
 
                 if (iConf != dlmsCache.getConfProgChange()) {
-                    logger.severe("SimpleDLMSProtocol Configuration changed, request object list.");
+                    logger.severe("G3B Meter configuration changed, request object list.");
                     requestObjectList();           // request object list again from rtu
                     dlmsCache.saveObjectList(dlmsMeterConfig.getInstantiatedObjectList());  // save object list in cache
                     dlmsCache.setConfProgChange(iConf);  // set new configuration program change
                 }
             } else { // Cache not exist
-                logger.info("SimpleDLMSProtocol Cache does not exist, request object list.");
+                logger.info("G3B Meter cache does not exist, request object list.");
                 requestObjectList();
                 try {
                     iConf = requestConfigurationProgramChanges();

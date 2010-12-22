@@ -1,7 +1,8 @@
 package com.energyict.protocolimpl.dlms.elgama;
 
 import com.energyict.cbo.*;
-import com.energyict.dialer.connection.*;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
@@ -13,7 +14,7 @@ import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
 import com.energyict.protocolimpl.dlms.elgama.eventlogging.FraudDetectionLog;
 import com.energyict.protocolimpl.dlms.elgama.eventlogging.PowerFailureLog;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -48,7 +49,7 @@ public class G3B extends AbstractDLMSProtocol {
      * @return the type of reference
      */
     public int getReference() {
-        return ProtocolLink.LN_REFERENCE;
+        return ProtocolLink.SN_REFERENCE;
     }
 
     public boolean isRequestTimeZone() {
@@ -78,7 +79,8 @@ public class G3B extends AbstractDLMSProtocol {
      */
 	public final String getFirmwareVersion() throws IOException {
 		if (this.firmwareVersion == null) {
-			this.firmwareVersion = AXDRDecoder.decode(this.getCosemObjectFactory().getData(OBISCODE_ACTIVE_FIRMWARE).getData()).getOctetString().stringValue();
+            Data data = this.getCosemObjectFactory().getData(OBISCODE_ACTIVE_FIRMWARE);
+            this.firmwareVersion = AXDRDecoder.decode(data.getData()).getVisibleString().getStr();
 		}
 		return this.firmwareVersion;
     }
@@ -174,10 +176,10 @@ public class G3B extends AbstractDLMSProtocol {
      * @throws IOException when there's a problem communicating with the meter.
      */
     private void setDeviceTime(final Calendar newTime) throws IOException {
-		newTime.add(Calendar.MILLISECOND, roundtripCorrection);
+		newTime.add(Calendar.MILLISECOND, 0);
 		final byte[] byteTimeBuffer = new byte[14];
 		byteTimeBuffer[0] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
-		byteTimeBuffer[1] = 12; // length   TODO: LENGTH IS 13 ??
+		byteTimeBuffer[1] = 12; // length
 		byteTimeBuffer[2] = (byte) (newTime.get(Calendar.YEAR) >> 8);
 		byteTimeBuffer[3] = (byte) newTime.get(Calendar.YEAR);
 		byteTimeBuffer[4] = (byte) (newTime.get(Calendar.MONTH) + 1);
