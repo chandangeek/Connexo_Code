@@ -24,31 +24,15 @@ KV|10102006|fix to support 64 bit values in load profile
 package com.energyict.protocolimpl.dlms;
 
 
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Properties;
-import java.util.TimeZone;
-
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.siemenszmd.EventNumber;
 import com.energyict.protocolimpl.dlms.siemenszmd.ObisCodeMapper;
+
+import java.io.IOException;
+import java.util.*;
 
 public class DLMSZMD extends DLMSSN implements RegisterProtocol {
     private static final byte DEBUG=0;
@@ -89,6 +73,11 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol {
 			calendar = Calendar.getInstance(ProtocolUtils.getWinterTimeZone(timeZone));
 		}
         return calendar;
+    }
+
+    @Override
+    public String getProtocolVersion() {
+        return "$Date$";
     }
 
     protected void getEventLog(ProfileData profileData,Calendar fromCalendar, Calendar toCalendar) throws IOException {
