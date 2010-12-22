@@ -16,6 +16,10 @@ public class WaveflowProtocolUtils {
 		return toHexString(toInt(val));
 	}
 	
+	static public String toHexString(final short val) {
+		return "0x"+Integer.toHexString(toInt(val));
+	}
+	
 	static public String toHexString(final int val) {
 		return "0x"+Integer.toHexString(val);
 	}
@@ -48,6 +52,7 @@ public class WaveflowProtocolUtils {
         byte[] subArray = new byte[length];
         System.arraycopy(data,offset,subArray,0,subArray.length);
         return subArray;
-    }	
+    }
+    
 }
 

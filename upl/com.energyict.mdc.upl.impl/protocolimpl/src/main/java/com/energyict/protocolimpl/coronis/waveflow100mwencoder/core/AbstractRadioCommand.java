@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 import java.io.*;
 
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.WaveFlow100mW.MeterProtocolType;
 
 abstract public class AbstractRadioCommand {
 	
@@ -39,10 +40,10 @@ abstract public class AbstractRadioCommand {
 		}
 	} // enum EncoderRadioCommandId
 	
-	private EncoderGenericHeader encoderGenericHeader;
+	private GenericHeader genericHeader;
 	
-	final public EncoderGenericHeader getEncoderGenericHeader() {
-		return encoderGenericHeader;
+	final public GenericHeader getEncoderGenericHeader() {
+		return genericHeader;
 	}
 
 	/**
@@ -102,8 +103,15 @@ abstract public class AbstractRadioCommand {
 				}
 				
 				if (getEncoderRadioCommandId().isReadGenericHeader()) {
-					encoderGenericHeader = new EncoderGenericHeader(dais, getWaveFlow100mW().getLogger(), getWaveFlow100mW().getTimeZone());
-					waveFlow100mW.setCachedEncoderGenericHeader(encoderGenericHeader);
+					
+					if (waveFlow100mW.getMeterProtocolType()==MeterProtocolType.SM150E)	{
+						genericHeader = new EncoderGenericHeader(dais, getWaveFlow100mW().getLogger(), getWaveFlow100mW().getTimeZone());
+					}
+					else if (waveFlow100mW.getMeterProtocolType()==MeterProtocolType.ECHODIS) {
+						genericHeader = new MBusGenericHeader(dais, getWaveFlow100mW().getLogger(), getWaveFlow100mW().getTimeZone());
+					}
+					
+					waveFlow100mW.setCachedGenericHeader(genericHeader);
 				}
 				byte[] temp = new byte[dais.available()];
 				dais.read(temp);

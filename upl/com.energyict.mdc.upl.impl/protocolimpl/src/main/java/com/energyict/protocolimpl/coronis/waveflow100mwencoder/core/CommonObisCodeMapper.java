@@ -9,6 +9,7 @@ import com.energyict.cbo.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.WaveFlow100mW.MeterProtocolType;
 
 public class CommonObisCodeMapper {
 	
@@ -99,8 +100,15 @@ public class CommonObisCodeMapper {
 	    		return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(waveFlow100mW.getParameterFactory().readApplicationStatus()), Unit.get("")),new Date());
 	    	}
 	    	else if (obisCode.equals(ObisCode.fromString("0.0.96.6.4.255"))) {
-	    		// leakage detection status
-	    		return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(waveFlow100mW.getCachedEncoderGenericHeader().getLeakageDetectionStatus()), Unit.get("")),new Date());
+	    		
+				if (waveFlow100mW.getMeterProtocolType()==MeterProtocolType.SM150E)	{
+		    		// leakage detection status
+		    		return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(((EncoderGenericHeader)waveFlow100mW.getCachedGenericHeader()).getLeakageDetectionStatus()), Unit.get("")),new Date());
+				}
+				else if (waveFlow100mW.getMeterProtocolType()==MeterProtocolType.ECHODIS) {
+					throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] does not exist!");
+				}		    		
+	    		
 	    	}
 	    	else if ((obisCode.equals(ObisCode.fromString("0.0.96.6.5.255"))) || (obisCode.equals(ObisCode.fromString("0.0.96.6.6.255")))) {
 	    		// Backflow detection date
@@ -156,14 +164,14 @@ public class CommonObisCodeMapper {
 	    	}
 	    	else if (obisCode.equals(ObisCode.fromString("0.0.96.6.15.255"))) {
 	    		// QOS (RSSI) level
-	    		return new RegisterValue(obisCode,new Quantity(new BigDecimal(waveFlow100mW.getCachedEncoderGenericHeader().getQos()), Unit.get("")),new Date());
+	    		return new RegisterValue(obisCode,new Quantity(new BigDecimal(waveFlow100mW.getCachedGenericHeader().getQos()), Unit.get("")),new Date());
 	    	}
 	    	else if (obisCode.equals(ObisCode.fromString("0.0.96.6.100.255"))) {
 	    		// encoder internal data
-	    		if (waveFlow100mW.getCachedEncoderGenericHeader()==null) {
+	    		if (waveFlow100mW.getCachedGenericHeader()==null) {
 	    			waveFlow100mW.getRadioCommandFactory().readEncoderCurrentReading();
 	    		}
-	   			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, waveFlow100mW.getCachedEncoderGenericHeader().toString());
+	   			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, waveFlow100mW.getCachedGenericHeader().toString());
 	    	}
 	    	
 			throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] does not exist!");

@@ -16,7 +16,7 @@ import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.coronis.core.*;
 
-abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolLink,MessageProtocol  {
+abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolLink,MessageProtocol,EventMapper  {
 	
 	
 	
@@ -473,5 +473,13 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 
 	public void setLoadProfileObisCode(ObisCode loadProfileObisCode) {
 		this.loadProfileObisCode = loadProfileObisCode;
-	}	
+	}
+	
+	public List map2MeterEvent(String event) throws IOException {
+		
+		AlarmFrameParser alarmFrame = new AlarmFrameParser(event.getBytes(), this);
+		
+		return alarmFrame.getMeterEvents();
+	}
+	
 }

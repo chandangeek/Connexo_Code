@@ -11,7 +11,7 @@ import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.coronis.core.*;
 
 
-abstract public class WaveFlow100mW extends AbstractProtocol implements MessageProtocol,ProtocolLink {
+abstract public class WaveFlow100mW extends AbstractProtocol implements MessageProtocol,ProtocolLink,EventMapper {
 
 	private static final int WAVEFLOW_NR_OF_CHANNELS = 2;
 
@@ -78,19 +78,19 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
 	private int correctTime;
 	
 	/**
-	 * cached encoder generic header...
+	 * cached generic header...
 	 */
-	private EncoderGenericHeader cachedEncoderGenericHeader=null;
+	private GenericHeader cachedGenericHeader=null;
 	
-	final public EncoderGenericHeader getCachedEncoderGenericHeader() throws IOException {
-		if (cachedEncoderGenericHeader == null) {
+	final public GenericHeader getCachedGenericHeader() throws IOException {
+		if (cachedGenericHeader == null) {
 			radioCommandFactory.readInternalData();
 		}
-		return cachedEncoderGenericHeader;
+		return cachedGenericHeader;
 	}
 
-	final void setCachedEncoderGenericHeader(EncoderGenericHeader cachedEncoderGenericHeader) {
-		this.cachedEncoderGenericHeader = cachedEncoderGenericHeader;
+	final void setCachedGenericHeader(GenericHeader cachedGenericHeader) {
+		this.cachedGenericHeader = cachedGenericHeader;
 	}
 
 	/**
@@ -173,8 +173,8 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
 		// If we need to sync the time, then we need to request the RTC in the waveflow device in order to determine the shift.
 		// However, if no timesync needs to be done, we're ok with the current RTC from the cached generic header.
 		// we do this because we want to limit the roudtrips to the RF device
-		if ((correctTime==0) &&  (cachedEncoderGenericHeader != null)) {
-			return cachedEncoderGenericHeader.getCurrentRTC();
+		if ((correctTime==0) &&  (cachedGenericHeader != null)) {
+			return cachedGenericHeader.getCurrentRTC();
 		}
 		else {
 			return parameterFactory.readTimeDateRTC();
@@ -308,4 +308,10 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
     public WaveFlowConnect getWaveFlowConnect() {
     	return waveFlowConnect;
     }
+    
+	public List map2MeterEvent(String event) throws IOException {
+		AlarmFrameParser alarmFrame = new AlarmFrameParser(event.getBytes(), this);
+		return alarmFrame.getMeterEvents();	
+	}
+    
 }

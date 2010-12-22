@@ -79,5 +79,4 @@ public class SM150E extends WaveFlow100mW {
 	public void startMeterDetection() throws IOException {
 		getRadioCommandFactory().startMeterDetection();	
 	}
-	
 }

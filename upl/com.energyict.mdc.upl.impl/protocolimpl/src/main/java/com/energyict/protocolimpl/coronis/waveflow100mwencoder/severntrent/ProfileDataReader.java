@@ -165,11 +165,9 @@ public class ProfileDataReader {
 			meterEvents.add(new MeterEvent(date,MeterEvent.OTHER,"Battery life end date ["+date+"], ["+availableBatteryPower+"%] available battery power"));
 		}
 		
-		
-		
-		if (waveFlow100mW.getCachedEncoderGenericHeader() != null) {
+		if (waveFlow100mW.getCachedGenericHeader() != null) {
 			
-			int leakageDetectionStatus = waveFlow100mW.getCachedEncoderGenericHeader().getLeakageDetectionStatus();
+			int leakageDetectionStatus = ((EncoderGenericHeader)waveFlow100mW.getCachedGenericHeader()).getLeakageDetectionStatus();
 			if ((leakageDetectionStatus & 0x01) == 0x01) {
 				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Leakage det status: Low	threshold (residual	leak) Port A"));
 			}
@@ -183,7 +181,7 @@ public class ProfileDataReader {
 				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Leakage det status: High threshold (extreme leak) Port B"));
 			}
 			
-			int applicationStatus = waveFlow100mW.getCachedEncoderGenericHeader().getApplicationStatus();
+			int applicationStatus = ((EncoderGenericHeader)waveFlow100mW.getCachedGenericHeader()).getApplicationStatus();
 			if ((applicationStatus & 0x01) == 0x01) {
 				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Appl status: Low battery warning"));
 			}
@@ -209,7 +207,6 @@ public class ProfileDataReader {
 				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Appl status: Leak detection (extreme or residual)"));
 			}
 		}
-	
 		
 		return meterEvents;
 		

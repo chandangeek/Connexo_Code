@@ -161,37 +161,56 @@ public class ProfileDataReader {
 		
 		
 		
-		if (waveFlow100mW.getCachedEncoderGenericHeader() != null) {
+		if (waveFlow100mW.getCachedGenericHeader() != null) {
 			
-			// FIXME create superclass generic data from where the severntrent and mbus generic extend and so the applicationstatus can be modelled with 1 or 2 bytes 
-			int leakageDetectionStatus = waveFlow100mW.getCachedEncoderGenericHeader().getLeakageDetectionStatus();
-			if ((leakageDetectionStatus & 0x01) == 0x01) {
+			/*
+			"Application Status" parameter give at any time Waveflow 100mW RS232/MBUS fault, or consumptionrate, status.
+			Each Waveflow 100mW RS232/MBUS internal feature that can be activated or deactivated through its
+			corresponding bit in "Operating Mode" has an associated status bit in "Application status" parameter.
+			User has to reset each bit by writing the "Application Status" parameter once the default has been handled.
+			If a fault detection is not handled properly the corresponding bit in "Application Status" parameter will be
+			set once again.
+			 
+			bit12 Meter reading error detection on Port B
+			bit11 Meter reading error detection on Port A
+			bit10 Meter communication error detection	on Port B
+			bit9 Meter communication	error detection	on Port A
+			bit8 Low Battery	Warning	
+			
+			bit3 Meter internal alarm on port B: Manipulation at hydraulic sensor
+			bit2 Meter internal alarm on port B: Hydraulic sensor out of order
+			bit1 Meter internal alarm on port A: Manipulation at hydraulic sensor
+			bit0 Meter internal alarm on port A: Hydraulic sensor out of order	
+			*/			
+			
+			int applicationStatus = ((MBusGenericHeader)waveFlow100mW.getCachedGenericHeader()).getApplicationStatus();
+			
+			
+			if ((applicationStatus & 0x01) == 0x01) {
 				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Meter internal alarm. Hydrolic sensor out of order Port A"));
 			}
-			if ((leakageDetectionStatus & 0x02) == 0x02) {
+			if ((applicationStatus & 0x02) == 0x02) {
 				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Meter internal alarm. Manipulation at hydrolic sensor Port A"));
 			}
-			if ((leakageDetectionStatus & 0x04) == 0x04) {
+			if ((applicationStatus & 0x04) == 0x04) {
 				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Meter internal alarm. Hydrolic sensor out of order Port B"));
 			}
-			if ((leakageDetectionStatus & 0x08) == 0x08) {
+			if ((applicationStatus & 0x08) == 0x08) {
 				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Meter internal alarm. Manipulation at hydrolic sensor Port B"));
 			}
-			
-			int applicationStatus = waveFlow100mW.getCachedEncoderGenericHeader().getApplicationStatus();
-			if ((applicationStatus & 0x01) == 0x01) {
+			if ((applicationStatus & 0x100) == 0x100) {
 				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Appl status: Low battery warning"));
 			}
-			if ((applicationStatus & 0x02) == 0x02) {
+			if ((applicationStatus & 0x200) == 0x200) {
 				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Appl status: Meter communication fault detection on Port A"));
 			}
-			if ((applicationStatus & 0x04) == 0x04) {
+			if ((applicationStatus & 0x400) == 0x400) {
 				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Appl status: Meter communication fault detection on Port B"));
 			}
-			if ((applicationStatus & 0x08) == 0x08) {
+			if ((applicationStatus & 0x800) == 0x800) {
 				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Appl status: Meter misread	detection on Port A"));
 			}
-			if ((applicationStatus & 0x10) == 0x10) {
+			if ((applicationStatus & 0x1000) == 0x1000) {
 				meterEvents.add(new MeterEvent(new Date(),MeterEvent.OTHER,"Appl status: Meter misread	detection on Port B"));
 			}
 			
