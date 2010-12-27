@@ -52,4 +52,9 @@ public class DLMSAttribute {
 		return classId;
 	}
 
+    @Override
+    public String toString() {
+        return "DLMSAttribute={obisCode=" + obisCode + ", attribute=" + attribute + ", classId=" + classId+"}";
+    }
+
 }
