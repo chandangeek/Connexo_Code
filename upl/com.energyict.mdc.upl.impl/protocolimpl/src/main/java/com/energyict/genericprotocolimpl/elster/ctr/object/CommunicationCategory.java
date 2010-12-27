@@ -65,6 +65,9 @@ public class CommunicationCategory<T extends CommunicationCategory> extends Abst
     public int[] getValueLengths(CTRObjectID id) {
         int[] valueLength = null;
         switch (id.getY()) {
+            case 0x02:
+                valueLength = new int[]{1, 21};
+                break;
             case 0x0C:
                 valueLength = new int[]{1};
                 break;
