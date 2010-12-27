@@ -8,7 +8,9 @@ import com.energyict.genericprotocolimpl.elster.ctr.events.CTRMeterEvent;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRConfigurationException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.messaging.MTU155MessageExecutor;
-import com.energyict.genericprotocolimpl.elster.ctr.profile.*;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
+import com.energyict.genericprotocolimpl.elster.ctr.profile.ProfileChannel;
+import com.energyict.genericprotocolimpl.elster.ctr.structure.IdentificationResponseStructure;
 import com.energyict.genericprotocolimpl.elster.ctr.util.MeterInfo;
 import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
 import com.energyict.mdw.amr.RtuRegister;
@@ -17,7 +19,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocolimpl.debug.DebugUtils;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import javax.crypto.*;
 import java.io.IOException;
@@ -84,9 +85,9 @@ public class MTU155 extends AbstractGenericProtocol {
     @Override
     protected void doExecute() throws IOException, BusinessException, SQLException {
 
-/*
+    /*
         testMethod();
-*/
+    */
         try {
             getProtocolProperties().addProperties(getPropertiesFromProtocolClass());
             this.rtu = identifyAndGetRtu();
@@ -157,33 +158,8 @@ public class MTU155 extends AbstractGenericProtocol {
      */
     private void testMethod() throws CTRException {
 
-        getProtocolProperties().addProperty(MTU155Properties.KEYC, "32323232323232323232323232323232");
-        getProtocolProperties().addProperty(MTU155Properties.TIMEOUT, "1000");
-        getProtocolProperties().addProperty(MTU155Properties.RETRIES, "10");
-        getProtocolProperties().addProperty(MTU155Properties.DEBUG, "0");
-        getProtocolProperties().addProperty(MTU155Properties.ADDRESS, "0");
-        getProtocolProperties().addProperty(MTU155Properties.SECURITY_LEVEL, "1");
+        
 
-        this.rtu = new DummyRtu(TimeZone.getTimeZone("GMT"));
-        Calendar lastReading = ProtocolTools.createCalendar(2010, 10, 20, 0, 0, 0, 0, getTimeZone());
-        for (int i = 1; i <= 4; i++) {
-            ProfileData pd = new ProfileChannel(getRequestFactory(), new DummyChannel(i, 3600, lastReading, getRtu())).getProfileData();
-            for (Object intervalData : pd.getIntervalDatas()) {
-                if (intervalData instanceof IntervalData) {
-                    System.out.println(intervalData);
-                }
-            }
-            System.out.println();
-        }
-        for (int i = 5; i <= 12; i++) {
-            ProfileData pd = new ProfileChannel(getRequestFactory(), new DummyChannel(i, 3600 * 24, lastReading, getRtu())).getProfileData();
-            for (Object intervalData : pd.getIntervalDatas()) {
-                if (intervalData instanceof IntervalData) {
-                    System.out.println(intervalData);
-                }
-            }
-            System.out.println();
-        }
     }
 
     /**
@@ -450,7 +426,9 @@ public class MTU155 extends AbstractGenericProtocol {
      * @throws IndexOutOfBoundsException
      */
     private String readPdr() throws CTRException {
-        String pdr = getRequestFactory().getIdentificationStructure().getPdr().getValue();
+        IdentificationResponseStructure identStruct = getRequestFactory().getIdentificationStructure();
+        CTRAbstractValue<String> pdrObject = identStruct != null ? identStruct.getPdr() : null;
+        String pdr = pdrObject != null ? pdrObject.getValue() : null;
         if (pdr == null) {
             throw new CTRException("Unable to detect meter. PDR value was 'null'!");
         }
@@ -563,9 +541,7 @@ public class MTU155 extends AbstractGenericProtocol {
      */
     public TimeZone getTimeZone() {
         if (getRtu() == null) {
-            TimeZone tz = TimeZone.getDefault();
-            getLogger().warning("Rtu not available! Using the default timeZone [" + tz.getID() + "] until rtu is available.");
-            return tz;
+            return TimeZone.getDefault();
         }
         return getRtu().getDeviceTimeZone();
     }
@@ -581,9 +557,10 @@ public class MTU155 extends AbstractGenericProtocol {
      * @return the messages for the ConnectivityCategory
      */
     private MessageCategorySpec getConnectivityCategory() {
-        MessageCategorySpec catGPRSModemSetup = new MessageCategorySpec(RtuMessageCategoryConstants.CHANGECONNECTIVITY);
-        catGPRSModemSetup.addMessageSpec(addChangeGPRSSetup(RtuMessageKeyIdConstants.GPRSMODEMSETUP, RtuMessageConstant.GPRS_MODEM_SETUP, false));
-        return catGPRSModemSetup;
+        MessageCategorySpec catConnectivity = new MessageCategorySpec(RtuMessageCategoryConstants.CHANGECONNECTIVITY);
+        catConnectivity.addMessageSpec(addChangeGPRSSetup(RtuMessageKeyIdConstants.GPRSMODEMSETUP, RtuMessageConstant.GPRS_MODEM_SETUP, false));
+        catConnectivity.addMessageSpec(addChangeSMSCSetup(RtuMessageKeyIdConstants.SMS_CHANGE_SMSC, RtuMessageConstant.SMS_CHANGE_SMSC, false));
+        return catConnectivity;
     }
 
 }

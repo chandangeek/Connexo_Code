@@ -390,9 +390,7 @@ public class SmsHandler implements MessageHandler {
      */
     public TimeZone getTimeZone() {
         if (getRtu() == null) {
-            TimeZone tz = TimeZone.getDefault();
-            getLogger().warning("Rtu not available! Using the default timeZone [" + tz.getID() + "] until rtu is available.");
-            return tz;
+            return TimeZone.getDefault();
         }
         return getRtu().getDeviceTimeZone();
     }

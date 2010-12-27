@@ -816,4 +816,23 @@ public abstract class GenericMessaging implements Messaging {
 		msgSpec.add(tagSpec);
 		return msgSpec;
 	}
+
+    /**
+     * Creates a MessageSpec with the configuration fields for the SMS center number setup
+     * @param keyId - id for the MessageSpec
+     * @param tagName - name for the MessageSpec
+     * @param advanced - indicates whether it's an advanced message or not
+     * @return the newly created MessageSpec
+     */
+    protected MessageSpec addChangeSMSCSetup(String keyId, String tagName, boolean advanced) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.SMS_SMSC_NUMBER, true));
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        tagSpec.add(msgVal);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
 }
