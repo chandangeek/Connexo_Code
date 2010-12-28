@@ -424,11 +424,22 @@ public final class ProtocolTools {
      * @return
      */
     public static String getAsciiFromBytes(byte[] b) {
+        return getAsciiFromBytes(b, '.');
+    }
+
+    /**
+     * This method converts a byte array to a readable string. Unprintable
+     * characters are replaced by the parameter character
+     *
+     * @param b
+     * @return
+     */
+    public static String getAsciiFromBytes(byte[] b, char character) {
         if (b != null) {
             StringBuilder sb = new StringBuilder(b.length);
             for (int i = 0; i < b.length; i++) {
                 if (b[i] < LOWEST_VISIBLE_VALUE) {
-                    sb.append(".");
+                    sb.append(character);
                 } else {
                     sb.append((char) b[i]);
                 }

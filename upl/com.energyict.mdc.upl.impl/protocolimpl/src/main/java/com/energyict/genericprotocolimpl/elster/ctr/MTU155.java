@@ -85,9 +85,6 @@ public class MTU155 extends AbstractGenericProtocol {
     @Override
     protected void doExecute() throws IOException, BusinessException, SQLException {
 
-    /*
-        testMethod();
-    */
         try {
             getProtocolProperties().addProperties(getPropertiesFromProtocolClass());
             this.rtu = identifyAndGetRtu();
@@ -151,15 +148,6 @@ public class MTU155 extends AbstractGenericProtocol {
 
     private void updateRequestFactory() {
         this.requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties(), getTimeZone(), getRequestFactory().getIdentificationStructure());
-    }
-
-    /**
-     * @throws CTRException
-     */
-    private void testMethod() throws CTRException {
-
-
-
     }
 
     /**

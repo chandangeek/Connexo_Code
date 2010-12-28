@@ -219,6 +219,18 @@ public class ProtocolToolsTest {
         assertEquals(asciiString, ProtocolTools.getAsciiFromBytes(bytes));
     }
 
+    @Test
+    public void testGetAsciiFromBytesByteArrayString() throws Exception {
+        String asciiString = "******************************** !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+        byte[] bytes = new byte[127];
+        for (int i = 0; i < bytes.length; i++) {
+            bytes[i] = (byte) i;
+        }
+        assertEquals("", ProtocolTools.getAsciiFromBytes(null, '*'));
+        assertEquals("", ProtocolTools.getAsciiFromBytes(new byte[0], '*'));
+        assertEquals(asciiString, ProtocolTools.getAsciiFromBytes(bytes, '*'));
+    }
+
     @Test(timeout = 750)
     public void testDelayLongTiming() throws Exception {
         int delay = 500;

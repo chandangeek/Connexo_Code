@@ -66,7 +66,11 @@ public class CommunicationCategory<T extends CommunicationCategory> extends Abst
         int[] valueLength = null;
         switch (id.getY()) {
             case 0x02:
+            case 0x03:
                 valueLength = new int[]{1, 21};
+                break;
+            case 0x04:
+                valueLength = new int[]{1, 20};
                 break;
             case 0x0C:
                 valueLength = new int[]{1};
@@ -94,6 +98,10 @@ public class CommunicationCategory<T extends CommunicationCategory> extends Abst
         String symbol = "";
 
         switch (id.getY()) {
+            case 0x02:
+                symbol = "Ntlf_C_"; break;
+            case 0x03:
+                symbol = "Ntlf_S_"; break;
             case 0x0C:
                 symbol = "GSM"; break;
             case 0x0E:
