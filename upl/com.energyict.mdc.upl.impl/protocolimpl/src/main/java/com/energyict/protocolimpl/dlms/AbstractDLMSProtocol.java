@@ -1,18 +1,14 @@
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.NotFoundException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
-import com.energyict.dlms.cosem.CapturedObjectsHelper;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.*;
 
 import java.io.*;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,7 +33,6 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     protected String firmwareVersion;
 
     protected int connectionMode;
-    protected CapturedObjectsHelper capturedObjectsHelper;
     protected int datatransportSecurityLevel;
     protected int authenticationSecurityLevel;
     protected int iiapPriority;
@@ -77,7 +72,6 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     protected static final String PROPNAME_IIAP_PRIORITY = "IIAPPriority";
     protected static final String PROPNAME_IIAP_SERVICE_CLASS = "IIAPServiceClass";
     protected static final String PROPNAME_CIPHERING_TYPE= "CipheringType";
-    protected static final String PROPNAME_ROUNDTRIP_CORRECITON = "RoundTripCorrection";
     protected static final String PROPNAME_ADDRESSING_MODE = "AddressingMode";
     protected static final String PROPNAME_CONNECTION = "Connection";
     protected static final String PROPNAME_MANUFACTURER = "Manufacturer";
@@ -87,7 +81,6 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     protected static final String PROPNAME_RETRIES = "Retries";
     protected static final String PROPNAME_TIMEOUT = "Timeout";
     protected static final String PROPNAME_FORCE_DELAY = "ForceDelay";
-    protected static final String PROPNAME_ROUNDTRIP_CORRECTION = "RoundtripCorrection";
     protected static final String PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES = "MaximumNumberOfClockSetTries";
     protected static final String PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD = "ClockSetRoundtripCorrectionTreshold";
 
@@ -128,28 +121,6 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
             logger.warning("Using default time zone.");
         }
         return timeZone;
-    }
-
-    /**
-     * Getter for the cache object
-     * @param rtuid meter database id
-     * @return the cache object
-     * @throws SQLException
-     * @throws BusinessException
-     */
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
-        if (rtuid != 0) {
-            RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-            RtuDLMS rtu = new RtuDLMS(rtuid);
-            try {
-                return new DLMSCache(rtuCache.getObjectList(), rtu.getConfProgChange());
-            }
-            catch (NotFoundException e) {
-                return new DLMSCache(null, -1);
-            }
-        } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
-        }
     }
 
     public DLMSConnection getDLMSConnection() {
@@ -324,7 +295,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         forceDelay = Integer.parseInt(properties.getProperty(PROPNAME_FORCE_DELAY, "1"));
         retries = Integer.parseInt(properties.getProperty(PROPNAME_RETRIES, "3"));
         addressingMode = Integer.parseInt(properties.getProperty(PROPNAME_ADDRESSING_MODE, "2"));
-        manufacturer = properties.getProperty(PROPNAME_MANUFACTURER);
+        manufacturer = properties.getProperty(PROPNAME_MANUFACTURER, "EIT");
         informationFieldSize = Integer.parseInt(properties.getProperty(PROPNAME_INFORMATION_FIELD_SIZE, "-1"));
         iiapInvokeId = Integer.parseInt(properties.getProperty(PROPNAME_IIAP_INVOKE_ID, "0"));
         iiapPriority = Integer.parseInt(properties.getProperty(PROPNAME_IIAP_PRIORITY, "1"));
@@ -477,20 +448,6 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         } catch (DLMSConnectionException e) {
             //absorb -> trying to close communication
             getLogger().log(Level.FINEST, e.getMessage());
-        }
-    }
-
-    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
-        if (rtuid != 0) {
-            DLMSCache dc = (DLMSCache) cacheObject;
-            if (dc.isChanged()) {
-                RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-                RtuDLMS rtu = new RtuDLMS(rtuid);
-                rtuCache.saveObjectList(dc.getObjectList());
-                rtu.setConfProgChange(dc.getConfProgChange());
-            }
-        } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
         }
     }
 }
