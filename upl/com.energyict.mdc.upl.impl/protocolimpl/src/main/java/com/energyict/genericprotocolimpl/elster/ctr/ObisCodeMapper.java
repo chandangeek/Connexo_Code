@@ -40,7 +40,6 @@ public class ObisCodeMapper {
     private static final String OBIS_EQUIPMENT_CLASS = "7.0.0.2.3.255";
     private static final String OBIS_MTU_PHONE_NR = "0.0.96.12.6.255";
     private static final String OBIS_SMSC_NUMBER = "0.0.96.50.0.255";
-    private static final String OBIS_COMSERVER_IP = "0.0.96.50.1.255";
 
     public List<CTRRegisterMapping> getRegisterMapping() {
         return registerMapping;
@@ -103,9 +102,8 @@ public class ObisCodeMapper {
         registerMapping.add(new CTRRegisterMapping("7.0.0.2.2.255", "9.0.7"));      //Protocol version supported
         registerMapping.add(new CTRRegisterMapping(OBIS_EQUIPMENT_CLASS, "9.0.5")); //Equipment class
 
-        registerMapping.add(new CTRRegisterMapping(OBIS_MTU_PHONE_NR, "E.3.1", 1)); // Device phone number
-        registerMapping.add(new CTRRegisterMapping(OBIS_SMSC_NUMBER, "E.2.1", 1));  // SMS center number
-        registerMapping.add(new CTRRegisterMapping(OBIS_COMSERVER_IP, "E.2.1", 1)); // TODO: CommServerJ ip and port (xxx.xxx.xxx.xxx:ppppp)
+        registerMapping.add(new CTRRegisterMapping(OBIS_MTU_PHONE_NR, "E.2.1", 1)); // Device phone number
+        registerMapping.add(new CTRRegisterMapping(OBIS_SMSC_NUMBER, "E.3.1", 1));  // SMS center number
 
     }
 
@@ -216,9 +214,7 @@ public class ObisCodeMapper {
             return new RegisterValue(oc, quantity, null, null, null, cal.getTime(), 0, description);
         } else if (isObis(oc, OBIS_EQUIPMENT_CLASS)) {
             return new RegisterValue(oc, EquipmentClassInfo.getEquipmentClass(value.getValue().toString()));
-        } else if (isObis(oc, OBIS_MTU_PHONE_NR)) {
-            return new RegisterValue(oc, ProtocolTools.getAsciiFromBytes(value.getBytes(), ' '));
-        } else if (isObis(oc, OBIS_SMSC_NUMBER)) {
+        } else if (isObis(oc, OBIS_MTU_PHONE_NR) || isObis(oc, OBIS_SMSC_NUMBER)) {
             return new RegisterValue(oc, ProtocolTools.getAsciiFromBytes(value.getBytes(), ' '));
         } else {
             return readGenericRegisterValue(oc, object, value);

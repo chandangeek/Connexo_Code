@@ -21,6 +21,8 @@ import java.util.Date;
  */
 public class SMSCenterSetupMessage extends AbstractMTU155Message {
 
+    private static final CTRObjectID SMSC_OBJECT_ID = new CTRObjectID("E.3.1");
+
     private static final int SMSC_NUMBER_MAX_LENGTH = 14;
     private static final int SMSC_NUMBER_REGISTER_LENGTH = 21;
     private static final String ALLOWED_CHARS = "1234567890+";
@@ -49,7 +51,7 @@ public class SMSCenterSetupMessage extends AbstractMTU155Message {
         P_Session p_session = new P_Session(0x00);
         AttributeType attributeType = AttributeType.getValueOnly();
         attributeType.setHasIdentifier(true);
-        byte[] rawData = ProtocolTools.concatByteArrays(new CTRObjectID("E.2.1").getBytes(), new byte[]{0x02}, smscNumber.getBytes());
+        byte[] rawData = ProtocolTools.concatByteArrays(SMSC_OBJECT_ID.getBytes(), new byte[]{0x02}, smscNumber.getBytes());
 
         try {
             CTRObjectFactory objectFactory = new CTRObjectFactory();

@@ -180,7 +180,10 @@ public class RtuMessageConstant {
 
     /** RtuMessage tags for SMS */
     public static final String SMS_CHANGE_SMSC = "Change_SMSC";
-    public static final String SMS_SMSC_NUMBER = "SMSC_Number"; 
+    public static final String SMS_SMSC_NUMBER = "SMSC_Number";
 
-
+    /** RtuMessage tags for other communication parameters */
+    public static final String CHANGE_DEVICE_PHONE_NUMBER = "Change_Device_Phone_Number";
+    public static final String DEVICE_PHONE_NUMBER = "PhoneNumber";
+    
 }

@@ -548,6 +548,7 @@ public class MTU155 extends AbstractGenericProtocol {
         MessageCategorySpec catConnectivity = new MessageCategorySpec(RtuMessageCategoryConstants.CHANGECONNECTIVITY);
         catConnectivity.addMessageSpec(addChangeGPRSSetup(RtuMessageKeyIdConstants.GPRSMODEMSETUP, RtuMessageConstant.GPRS_MODEM_SETUP, false));
         catConnectivity.addMessageSpec(addChangeSMSCSetup(RtuMessageKeyIdConstants.SMS_CHANGE_SMSC, RtuMessageConstant.SMS_CHANGE_SMSC, false));
+        catConnectivity.addMessageSpec(addChangeDevicePhoneNumber(RtuMessageKeyIdConstants.CHANGE_DEVICE_PHONE_NUMBER, RtuMessageConstant.CHANGE_DEVICE_PHONE_NUMBER, false));
         return catConnectivity;
     }
 

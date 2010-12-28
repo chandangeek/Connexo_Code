@@ -39,6 +39,9 @@ public class MTU155MessageExecutor extends GenericMessageExecutor {
             } else if (new SMSCenterSetupMessage(this).canExecuteThisMessage(messageEntry)) {
                 new SMSCenterSetupMessage(this).executeMessage(messageEntry);
                 success = true;
+            } else if (new DevicePhoneNumberSetupMessage(this).canExecuteThisMessage(messageEntry)) {
+                new DevicePhoneNumberSetupMessage(this).executeMessage(messageEntry);
+                success = true;
             } else {
                 throw new BusinessException("Received unknown message: " + rtuMessage.toString());
             }
