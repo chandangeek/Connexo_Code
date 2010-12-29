@@ -144,7 +144,6 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
 		this.protocolclasses.add("com.elster.protocolimpl.iec1107.instromet.dl220.DL220");this.protocolnames.add("Elster DL220");
 		this.protocolclasses.add("com.energyict.protocolimpl.eig.nexus1272.Nexus1272");this.protocolnames.add("Nexus 1272");
 		this.protocolclasses.add("com.energyict.protocolimpl.landisgyr.us.maxsys2510.MaxSys");this.protocolnames.add("L&G MAXsys 2510 (US)");
-        this.protocolclasses.add("com.energyict.protocolimpl.elster.ctr.MTU155");this.protocolnames.add("Elster MTU155 (CTR)");
 
 	}
 

@@ -1,10 +1,10 @@
 package com.energyict.protocolimpl.debug;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
+import com.energyict.genericprotocolimpl.common.GenericProtocolCollectionImpl;
+import com.energyict.protocol.ProtocolCollection;
 import com.energyict.protocolimpl.base.ProtocolCollectionImpl;
+
+import java.io.*;
 
 /**
  * @author jme
@@ -17,32 +17,10 @@ public class ProtocolList {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) {
-		ProtocolCollectionImpl collection = new ProtocolCollectionImpl();
 
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < collection.getSize(); i++) {
-			sb.append(i).append(" = ");
-
-			try {
-				sb.append(collection.getProtocolClassName(i)).append("; ");
-			} catch (IOException e) {
-				sb.append("???").append("; ");
-			}
-
-			try {
-				sb.append(collection.getProtocolName(i)).append("; ");
-			} catch (IOException e) {
-				sb.append("???").append("; ");
-			}
-
-			try {
-				sb.append(collection.getProtocolRevision(i)).append("; ");
-			} catch (IOException e) {
-				sb.append("???").append("; ");
-			}
-
-			sb.append("\r\n");
-		}
+        StringBuilder sb = new StringBuilder();
+        sb.append("Standard protocols: \r\n").append(getProtocolInfo(new ProtocolCollectionImpl()));
+        sb.append("Generic protocols: \r\n").append(getProtocolInfo(new GenericProtocolCollectionImpl()));
 
 		System.out.println(sb.toString());
 		if ((args != null) && (args.length != 0) && (args[0] != null) && (args[0].length() != 0)) {
@@ -51,7 +29,38 @@ public class ProtocolList {
 
 	}
 
-	private static void writeToFile(String fileName, StringBuilder sb) {
+    private static String getProtocolInfo(ProtocolCollection collection) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < collection.getSize(); i++) {
+            sb.append(i).append(" = ");
+
+            try {
+                sb.append(collection.getProtocolClassName(i)).append("; ");
+            } catch (IOException e) {
+                sb.append("???").append("; ");
+            }
+
+            try {
+                sb.append(collection.getProtocolName(i)).append("; ");
+            } catch (IOException e) {
+                sb.append("???").append("; ");
+            }
+
+            try {
+                sb.append(collection.getProtocolRevision(i)).append("; ");
+            } catch (IOException e) {
+                sb.append("???").append("; ");
+            }
+
+            sb.append("\r\n");
+        }
+
+        sb.append("\r\n");
+        
+        return sb.toString();
+    }
+
+    private static void writeToFile(String fileName, StringBuilder sb) {
 		FileOutputStream fos = null;
 		try {
 			fos = new FileOutputStream(fileName);
