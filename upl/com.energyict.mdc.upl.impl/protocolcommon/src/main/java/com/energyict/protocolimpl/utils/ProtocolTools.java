@@ -6,6 +6,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -316,6 +317,31 @@ public final class ProtocolTools {
         }
 
         return returnDate.getTime();
+    }
+
+    /**
+     * Convert a given byte array into an integer
+     * @param byteArray a given byte array
+     * @return the suiting integer
+     */
+    public static int getIntFromBytes(byte[] byteArray) {
+        int value = 0;
+        for (int i = 0; i < byteArray.length; i++) {
+            int intByte = byteArray[i] & 0x0FF;
+            value += intByte << ((byteArray.length - (i + 1)) * 8);
+        }
+        return value;
+    }
+
+    /**
+     * Creates an unsigned int value that represents a given byte array
+     * @param value: the given byte array
+     * @return the resulting BigDecimal
+     */
+    public static int getUnsignedIntFromBytes(byte[] value) {
+        value = ProtocolTools.concatByteArrays(new byte[]{0x00}, value);
+        BigInteger convertedValue = new BigInteger(value);
+        return convertedValue.intValue();
     }
 
     /**

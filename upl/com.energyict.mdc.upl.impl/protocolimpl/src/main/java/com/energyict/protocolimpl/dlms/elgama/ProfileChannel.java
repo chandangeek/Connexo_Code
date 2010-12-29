@@ -222,15 +222,7 @@ public class ProfileChannel {
         return calendar;
     }
 
-    protected int getIntFromBytes(byte[] rawData) {
-        byte[] intBytes = ProtocolTools.getSubArray(rawData, 0, rawData.length);
-        int value = 0;
-        for (int i = 0; i < intBytes.length; i++) {
-            int intByte = intBytes[i] & 0x0FF;
-            value += intByte << ((intBytes.length - (i + 1)) * 8);
-        }
-        return value;
-    }
+
 
     /**
      * Maps the interval state bits to a status for EiServer
@@ -315,7 +307,7 @@ public class ProfileChannel {
 
                 final int protocolStatus;
                 if (intervalData.isOctetString(1)) {
-                    protocolStatus = getIntFromBytes(intervalData.getOctetString(1).getArray());
+                    protocolStatus = ProtocolTools.getIntFromBytes(intervalData.getOctetString(1).getArray());
                 } else if (intervalData.isInteger(1)) {
                     protocolStatus = intervalData.getInteger(1);
                 } else {

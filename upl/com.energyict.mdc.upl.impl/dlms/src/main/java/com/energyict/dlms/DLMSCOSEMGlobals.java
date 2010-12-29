@@ -9,6 +9,7 @@ package com.energyict.dlms;
 /**
  *
  * @author  koen
+ * KHE 29122010: added the long64-unsigned type (0x15)
  */
 public interface DLMSCOSEMGlobals {
 	// TypeDescription
@@ -30,6 +31,7 @@ public interface DLMSCOSEMGlobals {
 	byte TYPEDESC_LONG_UNSIGNED=0x12; // unsigned long in DLMS is 2 bytes
 	byte TYPEDESC_COMPACT_ARRAY=0x13;
 	byte TYPEDESC_LONG64=0x14;
+	byte TYPEDESC_LONG64_UNSIGNED=0x15;
 	byte TYPEDESC_ENUM=0x16;
     byte TYPEDESC_FLOAT32=0x17;
 

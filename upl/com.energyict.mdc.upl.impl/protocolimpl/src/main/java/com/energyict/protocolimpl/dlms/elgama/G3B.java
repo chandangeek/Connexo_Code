@@ -257,7 +257,6 @@ public class G3B extends AbstractDLMSProtocol {
         return optionalKeys;
     }
 
-
     /**
      * Requests the register values from the meter
      * @param obisCode obiscode mapped register to request from the meter
@@ -268,8 +267,6 @@ public class G3B extends AbstractDLMSProtocol {
         try {
             final UniversalObject uo = getMeterConfig().findObject(obisCode);
             if (uo.getClassID() == DLMSClassId.REGISTER.getClassId()) {
-
-                //TODO: error retrieving register ?????
                 final Register register = getCosemObjectFactory().getRegister(obisCode);
                 return new RegisterValue(obisCode, register.getQuantityValue());
             } else if (uo.getClassID() == DLMSClassId.DEMAND_REGISTER.getClassId()) {

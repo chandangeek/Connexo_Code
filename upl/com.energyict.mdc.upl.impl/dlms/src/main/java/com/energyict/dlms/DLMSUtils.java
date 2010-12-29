@@ -7,6 +7,7 @@
 package com.energyict.dlms;
 
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.List;
@@ -150,7 +151,9 @@ public final class DLMSUtils implements DLMSCOSEMGlobals {
 			return ProtocolUtils.getShort(byteBuffer,iOffset+1);
 
 		case  TYPEDESC_LONG64:
-			return ProtocolUtils.getLong(byteBuffer,iOffset+1);
+            return ProtocolUtils.getLong(byteBuffer,iOffset+1);
+        case  TYPEDESC_LONG64_UNSIGNED:
+            return ProtocolTools.getUnsignedIntFromBytes(byteBuffer);
 
 		default:
 			throw new IOException("parseValue2long() error, unknown type "+byteBuffer[iOffset]);
