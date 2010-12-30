@@ -15,6 +15,7 @@ import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.MessageExecuto
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.*;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.*;
+import com.energyict.mdw.shadow.CommunicationProtocolShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.MessageCategorySpec;
@@ -727,17 +728,22 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
      */
     private void checkForDisappearedMbusMeters(List<DeviceMapping> mbusMap) {
 
-        List<Rtu> mbusSlaves = getMeter().getDownstreamRtus();
-        Iterator<Rtu> it = mbusSlaves.iterator();
+        List<Rtu> slaves = getMeter().getDownstreamRtus();
+        Iterator<Rtu> it = slaves.iterator();
         while (it.hasNext()) {
             Rtu mbus = it.next();
             Class device = null;
             try {
-                device = Class.forName(mbus.getRtuType().getShadow().getCommunicationProtocolShadow().getJavaClassName());
-                if ((device != null) && (device.newInstance() instanceof MbusDevice)) {        // we check to see if it's an Mbus device and no TIC device
-                    if (!mbusMap.contains(new DeviceMapping(mbus.getSerialNumber()))) {
-                        getLogger().log(Level.INFO, "MbusDevice [" + mbus + "] is not installed on the physical device.");
-                        mbusMap.add(new DeviceMapping(mbus.getSerialNumber(), true));
+                CommunicationProtocolShadow protocolShadow = mbus.getRtuType().getShadow().getCommunicationProtocolShadow();
+                if (protocolShadow == null) {
+                    log(Level.SEVERE, "Slave deviceType [" + mbus.getRtuType().displayString() + "] in EIServer has no communication protocol! Skipping device until fixed.");
+                } else {
+                    device = Class.forName(protocolShadow.getJavaClassName());
+                    if ((device != null) && (device.newInstance() instanceof MbusDevice)) {        // we check to see if it's an Mbus device and no TIC device
+                        if (!mbusMap.contains(new DeviceMapping(mbus.getSerialNumber()))) {
+                            getLogger().log(Level.INFO, "MbusDevice [" + mbus + "] is not installed on the physical device.");
+                            mbusMap.add(new DeviceMapping(mbus.getSerialNumber(), true));
+                        }
                     }
                 }
             } catch (ClassNotFoundException e) {
@@ -761,17 +767,22 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
      */
     private void checkForDisappearedEMeters(List<DeviceMapping> eMeterMap) {
 
-        List<Rtu> eMeterSlaves = getMeter().getDownstreamRtus();
-        Iterator<Rtu> it = eMeterSlaves.iterator();
+        List<Rtu> slaves = getMeter().getDownstreamRtus();
+        Iterator<Rtu> it = slaves.iterator();
         while (it.hasNext()) {
             Rtu eMeter = it.next();
             Class device = null;
             try {
-                device = Class.forName(eMeter.getRtuType().getShadow().getCommunicationProtocolShadow().getJavaClassName());
-                if ((device != null) && (device.newInstance() instanceof EMeter)) {        // we check to see if it's an Mbus device and no TIC device
-                    if (!eMeterMap.contains(new DeviceMapping(eMeter.getSerialNumber()))) {
-                        getLogger().log(Level.INFO, "EMeter [" + eMeter + "] is not installed on the physical device.");
-                        eMeterMap.add(new DeviceMapping(eMeter.getSerialNumber(), true));
+                CommunicationProtocolShadow protocolShadow = eMeter.getRtuType().getShadow().getCommunicationProtocolShadow();
+                if (protocolShadow == null) {
+                    log(Level.SEVERE, "Slave deviceType [" + eMeter.getRtuType().displayString() + "] in EIServer has no communication protocol! Skipping device until fixed.");
+                } else {
+                    device = Class.forName(protocolShadow.getJavaClassName());
+                    if ((device != null) && (device.newInstance() instanceof EMeter)) {        // we check to see if it's an Mbus device and no TIC device
+                        if (!eMeterMap.contains(new DeviceMapping(eMeter.getSerialNumber()))) {
+                            getLogger().log(Level.INFO, "EMeter [" + eMeter + "] is not installed on the physical device.");
+                            eMeterMap.add(new DeviceMapping(eMeter.getSerialNumber(), true));
+                        }
                     }
                 }
             } catch (ClassNotFoundException e) {
@@ -980,10 +991,15 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
             Class ticDevice = null;
 
             try {
-                ticDevice = Class.forName(tic.getRtuType().getShadow().getCommunicationProtocolShadow().getJavaClassName());
-                if ((ticDevice != null) && (ticDevice.newInstance() instanceof TicDevice)) {
-                    this.ticDevice = new TicDevice(tic);
-                    return true;
+                CommunicationProtocolShadow protocolShadow = tic.getRtuType().getShadow().getCommunicationProtocolShadow();
+                if (protocolShadow == null) {
+                    log(Level.SEVERE, "Slave deviceType [" + tic.getRtuType().displayString() + "] in EIServer has no communication protocol! Skipping device until fixed.");
+                } else {
+                    ticDevice = Class.forName(protocolShadow.getJavaClassName());
+                    if ((ticDevice != null) && (ticDevice.newInstance() instanceof TicDevice)) {
+                        this.ticDevice = new TicDevice(tic);
+                        return true;
+                    }
                 }
             } catch (ClassNotFoundException e) {
                 log(Level.FINEST, e.getMessage());
