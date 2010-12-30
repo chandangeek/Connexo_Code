@@ -18,13 +18,13 @@ public class PowerFailureLog extends AbstractEvent {
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
         switch (eventId) {
             case EVENT_POWER_OUTAGE:
-                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.POWERDOWN, eventId, "Fraud detection event log profile cleared."));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.POWERDOWN, eventId, "Power outage"));
             break;
             case EVENT_POWER_STARTUP:
-                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.POWERUP, eventId, "The terminal cover has been removed"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.POWERUP, eventId, "Power start-up"));
             break;
             default:
-                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Unknown eventcode: " + eventId));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Unknown eventcode: " + eventId));
         }
     }
 }

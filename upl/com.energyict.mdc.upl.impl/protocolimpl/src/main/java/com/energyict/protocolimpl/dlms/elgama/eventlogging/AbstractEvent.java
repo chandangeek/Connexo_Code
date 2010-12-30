@@ -33,6 +33,26 @@ public abstract class AbstractEvent {
      * Container containing raw events
      */
     protected DataContainer dcEvents;
+    protected static final int ONE_SECOND = 1000;
+    protected int previousSize = 0;
+    protected List<MeterEvent> meterEvents;
+
+    protected boolean anEventWasAdded() {
+        return !(previousSize == meterEvents.size());
+    }
+
+    /**
+     * The G3B meter can put multiple events on the same timestamp.
+     * In order to make them all show up in EiServer, their timestamp needs to be altered by e.g. 1 second.
+     * @param eventTimeStamp
+     * @return
+     */
+    protected Date fixStamp(Date eventTimeStamp) {
+        if (anEventWasAdded()) {
+            eventTimeStamp.setTime(eventTimeStamp.getTime() + ONE_SECOND);
+        }
+        return eventTimeStamp;
+    }
 
     /**
      * Constructor

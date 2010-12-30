@@ -6,8 +6,7 @@ import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.dlms.elgama.eventlogging.FraudDetectionLog;
-import com.energyict.protocolimpl.dlms.elgama.eventlogging.PowerFailureLog;
+import com.energyict.protocolimpl.dlms.elgama.eventlogging.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -30,7 +29,21 @@ public class ProfileChannel {
     private static final int AFTER_CLOCK_ADJUST = 0x000020;
     private static final int BILLING_PERIOD_RESET = 0x000010;
     private static final int DISTORTED_INTEGERATION_PERIOD = 0x000004;
-    private static final ObisCode OBIS_CODE_PROFILE_1 = ObisCode.fromString("1.0.99.1.0.255");
+
+    private static final ObisCode OBIS_CODE_LOAD_PROFILE_1 = ObisCode.fromString("1.0.99.1.0.255");
+    private static final ObisCode POWER_FAILURE_EVENT_LOG = ObisCode.fromString("1.0.99.97.0.255");
+    private static final ObisCode CHANGE_IN_NUMBER_OF_PHASES_EVENT_LOG = ObisCode.fromString("1.0.99.98.11.255");
+    private static final ObisCode OVER_VOLTAGE_EVENT_LOG = ObisCode.fromString("1.0.99.98.12.255");
+    private static final ObisCode UNDER_VOLTAGE_EVENT_LOG = ObisCode.fromString("1.0.99.98.13.255");
+    private static final ObisCode POWER_OVER_LIMIT_EVENT_LOG = ObisCode.fromString("1.0.99.98.20.255");
+    private static final ObisCode REVERSE_CURRENT_EVENT_LOG = ObisCode.fromString("1.0.99.98.21.255");
+    private static final ObisCode OVER_CURRENT_EVENT_LOG = ObisCode.fromString("1.0.99.98.22.255");
+    private static final ObisCode MAGNETIC_FIELD_INFLUENCE_EVENT_LOG = ObisCode.fromString("1.0.99.98.30.255");
+    //private static final ObisCode OPENING_OF_MAIN_COVER_EVENT_LOG = ObisCode.fromString("1.0.99.98.31.255");
+    private static final ObisCode OPENING_OF_TERMINAL_COVER_EVENT_LOG = ObisCode.fromString("1.0.99.98.32.255");
+    private static final ObisCode CLOCK_SETTING_EVENT_LOG = ObisCode.fromString("1.0.99.98.40.255");
+    private static final ObisCode PARAMETERIZATION_EVENT_LOG = ObisCode.fromString("1.0.99.98.41.255");
+    private static final ObisCode ERROR_EVENT_LOG = ObisCode.fromString("1.0.99.98.50.255");
 
     private int profileInterval;
     private CapturedObjectsHelper capturedObjectsHelper;
@@ -132,10 +145,10 @@ public class ProfileChannel {
      */
     private CapturedObjectsHelper getCapturedObjectsHelper() throws IOException {
         if (this.capturedObjectsHelper == null) {
-            logger.info("Initializing the CapturedObjectsHelper using the generic profile, profile OBIS code is [" + OBIS_CODE_PROFILE_1.toString() + "]");
+            logger.info("Initializing the CapturedObjectsHelper using the generic profile, profile OBIS code is [" + OBIS_CODE_LOAD_PROFILE_1.toString() + "]");
             final ProfileGeneric profileGeneric = getLoadProfile();
             capturedObjectsHelper = profileGeneric.getCaptureObjectsHelper();
-            logger.info("Done, load profile [" + OBIS_CODE_PROFILE_1 + "] has [" + capturedObjectsHelper.getNrOfCapturedObjects() + "] captured objects...");
+            logger.info("Done, load profile [" + OBIS_CODE_LOAD_PROFILE_1 + "] has [" + capturedObjectsHelper.getNrOfCapturedObjects() + "] captured objects...");
         }
         return this.capturedObjectsHelper;
     }
@@ -221,7 +234,6 @@ public class ProfileChannel {
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar;
     }
-
 
 
     /**
@@ -321,7 +333,7 @@ public class ProfileChannel {
                     if (getCapturedObjectsHelper().isChannelData(j)) {
                         if (isValidTimeStamp(calendar)) {
                             //Add previous value to current value (extra) if the previous value was a the most recent "inter value".
-                            if ((previousTimeStamp == null) || (!isValidTimeStamp(previousTimeStamp) && isRecentStamp(previousTimeStamp, calendar) )) {
+                            if ((previousTimeStamp == null) || (!isValidTimeStamp(previousTimeStamp) && isRecentStamp(previousTimeStamp, calendar))) {
                                 data.addValue(extra[j - nrOfOtherChannels] + intervalData.getInteger(j));
                             } else {
                                 data.addValue(intervalData.getInteger(j));
@@ -348,13 +360,14 @@ public class ProfileChannel {
         }
         if (includeEvents) {
             logger.info("Requested to include meter events, loading...");
-            //profileData.setMeterEvents(this.getMeterEvents(from, to));
+            profileData.setMeterEvents(this.getMeterEvents(from, to));
         }
         return profileData;
     }
 
     /**
      * Checks if a given previous stamp is recent. (not older than 15 minutes from given calendar stamp)
+     *
      * @param previousTimeStamp
      * @param calendar
      * @return
@@ -391,16 +404,49 @@ public class ProfileChannel {
      */
     private List<MeterEvent> getMeterEvents(final Calendar from, final Calendar to) throws IOException {
         logger.info("Fetching meter events from [" + (from != null ? from.getTime() : "Not specified") + "] to [" + (to != null ? to.getTime() : "Not specified") + "]");
+
+        final DataContainer dcPowerFailure = getCosemObjectFactory().getProfileGeneric(POWER_FAILURE_EVENT_LOG).getBuffer(from, to);
+        final DataContainer dcPhaseChanges = getCosemObjectFactory().getProfileGeneric(CHANGE_IN_NUMBER_OF_PHASES_EVENT_LOG).getBuffer(from, to);
+        final DataContainer dcOverVoltage = getCosemObjectFactory().getProfileGeneric(OVER_VOLTAGE_EVENT_LOG).getBuffer(from, to);
+        final DataContainer dcUnderVoltage = getCosemObjectFactory().getProfileGeneric(UNDER_VOLTAGE_EVENT_LOG).getBuffer(from, to);
+        final DataContainer dcPowerOverLimit = getCosemObjectFactory().getProfileGeneric(POWER_OVER_LIMIT_EVENT_LOG).getBuffer(from, to);
+        final DataContainer dcReverseCurrent = getCosemObjectFactory().getProfileGeneric(REVERSE_CURRENT_EVENT_LOG).getBuffer(from, to);
+        final DataContainer dcOverCurrent = getCosemObjectFactory().getProfileGeneric(OVER_CURRENT_EVENT_LOG).getBuffer(from, to);
+        final DataContainer dcMagneticInfluence = getCosemObjectFactory().getProfileGeneric(MAGNETIC_FIELD_INFLUENCE_EVENT_LOG).getBuffer(from, to);
+        //final DataContainer dcCoverOpen = getCosemObjectFactory().getProfileGeneric(OPENING_OF_MAIN_COVER_EVENT_LOG).getBuffer(from, to);
+        final DataContainer dcTerminalOpen = getCosemObjectFactory().getProfileGeneric(OPENING_OF_TERMINAL_COVER_EVENT_LOG).getBuffer(from, to);
+        final DataContainer dcClockSetting = getCosemObjectFactory().getProfileGeneric(CLOCK_SETTING_EVENT_LOG).getBuffer(from, to);
+        final DataContainer dcParameterChange = getCosemObjectFactory().getProfileGeneric(PARAMETERIZATION_EVENT_LOG).getBuffer(from, to);
+        final DataContainer dcInternalError = getCosemObjectFactory().getProfileGeneric(ERROR_EVENT_LOG).getBuffer(from, to);
+
+        final PowerFailureLog eventLog1 = new PowerFailureLog(getTimeZone(), dcPowerFailure);
+        final PhaseChangeLog eventLog2 = new PhaseChangeLog(getTimeZone(), dcPhaseChanges);
+        final OverVoltageLog eventLog3 = new OverVoltageLog(getTimeZone(), dcOverVoltage);
+        final UnderVoltageLog eventLog4 = new UnderVoltageLog(getTimeZone(), dcUnderVoltage);
+        final PowerOverLimitLog eventLog5 = new PowerOverLimitLog(getTimeZone(), dcPowerOverLimit);
+        final ReverseCurrentLog eventLog6 = new ReverseCurrentLog(getTimeZone(), dcReverseCurrent);
+        final OverCurrentLog eventLog7 = new OverCurrentLog(getTimeZone(), dcOverCurrent);
+        final MagneticInfluenceLog eventLog8 = new MagneticInfluenceLog(getTimeZone(), dcMagneticInfluence);
+        //final MeterCoverOpenedLog eventLog9 = new MeterCoverOpenedLog(getTimeZone(), dcCoverOpen);
+        final TerminalCoverOpenedLog eventLog10 = new TerminalCoverOpenedLog(getTimeZone(), dcTerminalOpen);
+        final ClockSettingLog eventLog11 = new ClockSettingLog(getTimeZone(), dcClockSetting);
+        final ParameterChangeLog eventLog12 = new ParameterChangeLog(getTimeZone(), dcParameterChange);
+        final InternalErrorLog eventLog13 = new InternalErrorLog(getTimeZone(), dcInternalError);
+
         final List<MeterEvent> events = new ArrayList<MeterEvent>();
-
-        final DataContainer dcPowerFailure = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getPowerFailureLogObject().getObisCode()).getBuffer(from, to);
-        final DataContainer dcFraudDetection = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getFraudDetectionLogObject().getObisCode()).getBuffer(from, to);
-
-        final PowerFailureLog powerFailure = new PowerFailureLog(getTimeZone(), dcPowerFailure);
-        final FraudDetectionLog fraudDetectionEvents = new FraudDetectionLog(getTimeZone(), dcFraudDetection);
-
-        events.addAll(fraudDetectionEvents.getMeterEvents());
-        events.addAll(powerFailure.getMeterEvents());
+        events.addAll(eventLog1.getMeterEvents());
+        events.addAll(eventLog2.getMeterEvents());
+        events.addAll(eventLog3.getMeterEvents());
+        events.addAll(eventLog4.getMeterEvents());
+        events.addAll(eventLog5.getMeterEvents());
+        events.addAll(eventLog6.getMeterEvents());
+        events.addAll(eventLog7.getMeterEvents());
+        events.addAll(eventLog8.getMeterEvents());
+        //events.addAll(eventLog9.getMeterEvents());
+        events.addAll(eventLog10.getMeterEvents());
+        events.addAll(eventLog11.getMeterEvents());
+        events.addAll(eventLog12.getMeterEvents());
+        events.addAll(eventLog13.getMeterEvents());
 
         return events;
     }
