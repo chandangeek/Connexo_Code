@@ -434,9 +434,10 @@ public class AssociationControlServiceElement {
                                 if (DLMSCOSEMGlobals.DLMS_PDU_INITIATE_RESPONSE == responseData[i + 3]) {
                                     getXdlmsAse().setNegotiatedQOS(responseData[i + 4]);
                                     getXdlmsAse().setNegotiatedDlmsVersion(responseData[i + 5]);
-                                    getXdlmsAse().setNegotiatedConformance((ProtocolUtils.getInt(responseData, i + 8) & 0x00FFFFFF)); // conformance has only 3 bytes, 24 bit
-                                    getXdlmsAse().setMaxRecPDUServerSize(ProtocolUtils.getShort(responseData, i + 12));
-                                    getXdlmsAse().setVAAName(ProtocolUtils.getShort(responseData, i + 14));
+                                    int unusedConformanceBytes = (responseData[i+8] & 0x0FF) - 4; // Conformance block is parsed as int (4 bytes) but normally only 3 are used.
+                                    getXdlmsAse().setNegotiatedConformance((ProtocolUtils.getInt(responseData, i + 9 + unusedConformanceBytes) & 0x00FFFFFF)); // conformance has only 3 bytes, 24 bit
+                                    getXdlmsAse().setMaxRecPDUServerSize(ProtocolUtils.getShort(responseData, i + 13 + unusedConformanceBytes));
+                                    getXdlmsAse().setVAAName(ProtocolUtils.getShort(responseData, i + 15 + unusedConformanceBytes));
                                     return;
 
                                 } else if (DLMSCOSEMGlobals.DLMS_PDU_CONFIRMED_SERVICE_ERROR == responseData[i + 3]) {
