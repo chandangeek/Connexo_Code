@@ -44,29 +44,29 @@ public class MbusLog extends AbstractEvent{
 		if( !ExtraEvents.extraEvents.containsKey(new Integer(eventId)) ){
 			switch(eventId){
 			case EVENT_EVENT_LOG_CLEARED : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.CLEAR_DATA, eventId, "Event log profile cleared."));}break;
-			case EVENT_COMM_ERROR_MBUS_CHANNEL1 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Communication problem with Mbus 1"));}break;
-			case EVENT_COMM_OK_MBUS_CHANNEL1 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Communication problem with Mbus 1 resolved"));}break;
-			case EVENT_REPLACE_BATTERY_MBUS1 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Battery must be replaced for Mbus 1"));}break;
-			case EVENT_FRAUD_ATTEMPT_MBUS1 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.TAMPER, eventId, "Fraud attempt for Mbus 1"));}break;
-			case EVENT_CLOCK_ADJUSTED_MBUS1 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.SETCLOCK, eventId, "Clock adjusted for Mbus 1"));}break;
+			case EVENT_COMM_ERROR_MBUS_CHANNEL1 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.COMMUNICATION_ERROR_MBUS, eventId, "Communication problem with Mbus 1"));}break;
+			case EVENT_COMM_OK_MBUS_CHANNEL1 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.COMMUNICATION_OK_MBUS, eventId, "Communication problem with Mbus 1 resolved"));}break;
+			case EVENT_REPLACE_BATTERY_MBUS1 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.REPLACE_BATTERY_MBUS, eventId, "Battery must be replaced for Mbus 1"));}break;
+			case EVENT_FRAUD_ATTEMPT_MBUS1 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.FRAUD_ATTEMPT_MBUS, eventId, "Fraud attempt for Mbus 1"));}break;
+			case EVENT_CLOCK_ADJUSTED_MBUS1 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.CLOCK_ADJUSTED_MBUS, eventId, "Clock adjusted for Mbus 1"));}break;
 	
-			case EVENT_COMM_ERROR_MBUS_CHANNEL2 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Communication problem with Mbus 2"));}break;
-			case EVENT_COMM_OK_MBUS_CHANNEL2 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Communication problem with Mbus 2 resolved"));}break;
-			case EVENT_REPLACE_BATTERY_MBUS2 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Battery must be replaced for Mbus 2"));}break;
-			case EVENT_FRAUD_ATTEMPT_MBUS2 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.TAMPER, eventId, "Fraud attempt for Mbus 2"));}break;
-			case EVENT_CLOCK_ADJUSTED_MBUS2 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.SETCLOCK, eventId, "Clock adjusted for Mbus 2"));}break;
+			case EVENT_COMM_ERROR_MBUS_CHANNEL2 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.COMMUNICATION_ERROR_MBUS, eventId, "Communication problem with Mbus 2"));}break;
+			case EVENT_COMM_OK_MBUS_CHANNEL2 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.COMMUNICATION_OK_MBUS, eventId, "Communication problem with Mbus 2 resolved"));}break;
+			case EVENT_REPLACE_BATTERY_MBUS2 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.REPLACE_BATTERY_MBUS, eventId, "Battery must be replaced for Mbus 2"));}break;
+			case EVENT_FRAUD_ATTEMPT_MBUS2 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.FRAUD_ATTEMPT_MBUS, eventId, "Fraud attempt for Mbus 2"));}break;
+			case EVENT_CLOCK_ADJUSTED_MBUS2 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.CLOCK_ADJUSTED_MBUS, eventId, "Clock adjusted for Mbus 2"));}break;
 			
-			case EVENT_COMM_ERROR_MBUS_CHANNEL3 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Communication problem with Mbus 3"));}break;
-			case EVENT_COMM_OK_MBUS_CHANNEL3 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Communication problem with Mbus 3 resolved"));}break;
-			case EVENT_REPLACE_BATTERY_MBUS3 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Battery must be replaced for Mbus 3"));}break;
-			case EVENT_FRAUD_ATTEMPT_MBUS3 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.TAMPER, eventId, "Fraud attempt for Mbus 3"));}break;
-			case EVENT_CLOCK_ADJUSTED_MBUS3 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.SETCLOCK, eventId, "Clock adjusted for Mbus 3"));}break;
+			case EVENT_COMM_ERROR_MBUS_CHANNEL3 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.COMMUNICATION_ERROR_MBUS, eventId, "Communication problem with Mbus 3"));}break;
+			case EVENT_COMM_OK_MBUS_CHANNEL3 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.COMMUNICATION_OK_MBUS, eventId, "Communication problem with Mbus 3 resolved"));}break;
+			case EVENT_REPLACE_BATTERY_MBUS3 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.REPLACE_BATTERY_MBUS, eventId, "Battery must be replaced for Mbus 3"));}break;
+			case EVENT_FRAUD_ATTEMPT_MBUS3 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.FRAUD_ATTEMPT_MBUS, eventId, "Fraud attempt for Mbus 3"));}break;
+			case EVENT_CLOCK_ADJUSTED_MBUS3 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.CLOCK_ADJUSTED_MBUS, eventId, "Clock adjusted for Mbus 3"));}break;
 			
-			case EVENT_COMM_ERROR_MBUS_CHANNEL4 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Communication problem with Mbus 4"));}break;
-			case EVENT_COMM_OK_MBUS_CHANNEL4 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Communication problem with Mbus 4 resolved"));}break;
-			case EVENT_REPLACE_BATTERY_MBUS4 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Battery must be replaced for Mbus 4"));}break;
-			case EVENT_FRAUD_ATTEMPT_MBUS4 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.TAMPER, eventId, "Fraud attempt for Mbus 4"));}break;
-			case EVENT_CLOCK_ADJUSTED_MBUS4 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.SETCLOCK, eventId, "Clock adjusted for Mbus 4"));}break;
+			case EVENT_COMM_ERROR_MBUS_CHANNEL4 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.COMMUNICATION_ERROR_MBUS, eventId, "Communication problem with Mbus 4"));}break;
+			case EVENT_COMM_OK_MBUS_CHANNEL4 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.COMMUNICATION_OK_MBUS, eventId, "Communication problem with Mbus 4 resolved"));}break;
+			case EVENT_REPLACE_BATTERY_MBUS4 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.REPLACE_BATTERY_MBUS, eventId, "Battery must be replaced for Mbus 4"));}break;
+			case EVENT_FRAUD_ATTEMPT_MBUS4 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.FRAUD_ATTEMPT_MBUS, eventId, "Fraud attempt for Mbus 4"));}break;
+			case EVENT_CLOCK_ADJUSTED_MBUS4 : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.CLOCK_ADJUSTED_MBUS, eventId, "Clock adjusted for Mbus 4"));}break;
 			
 			default:{
 				meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Unknown eventcode: " + eventId));

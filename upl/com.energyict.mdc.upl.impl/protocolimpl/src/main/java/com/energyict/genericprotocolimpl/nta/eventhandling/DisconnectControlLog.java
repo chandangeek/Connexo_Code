@@ -64,14 +64,14 @@ public class DisconnectControlLog extends AbstractEvent{
 		if( !ExtraEvents.extraEvents.containsKey(new Integer(eventId)) ){
 			switch(eventId){
 			case EVENT_EVENT_LOG_CLEARED : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.CLEAR_DATA, eventId, "Disconnect control event log profile cleared."));}break;
-			case EVENT_MANUAL_DISCONNECTION : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been manually disconnected - Active threshold value: " + threshold));}break;
-			case EVENT_MANUAL_CONNECTION : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been manually connected - Active threshold value: " + threshold));}break;
-			case EVENT_REMOTE_DISCONNECTION : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been remotely disconnected - Active threshold value: " + threshold));}break;
-			case EVENT_REMOTE_CONNECTION : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been remotely connected - Active threshold value: " + threshold));}break;
-			case EVENT_LOCAL_DISCONNECTION : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been locally disconnected (i.e. via the limiter) - Active threshold value: " + threshold));}break;
-			case EVENT_LIMITER_THRESHOLD_EXCEEDED : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The limiter threshold has been exceeded - Active threshold value: " + threshold));}break;
-			case EVENT_LIMITER_THRESHOLD_OK : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The monitored value of the limiter dropped below the threshold - Active threshold value: " + threshold));}break;
-			case EVENT_LIMITER_THRESHOLD_CHANGED : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The limiter threshold has been changed - Active threshold value: " + threshold));}break;
+			case EVENT_MANUAL_DISCONNECTION : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.MANUAL_DISCONNECTION, eventId, "The disconnector has been manually disconnected - Active threshold value: " + threshold));}break;
+			case EVENT_MANUAL_CONNECTION : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.MANUAL_CONNECTION, eventId, "The disconnector has been manually connected - Active threshold value: " + threshold));}break;
+			case EVENT_REMOTE_DISCONNECTION : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.REMOTE_DISCONNECTION, eventId, "The disconnector has been remotely disconnected - Active threshold value: " + threshold));}break;
+			case EVENT_REMOTE_CONNECTION : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.REMOTE_CONNECTION, eventId, "The disconnector has been remotely connected - Active threshold value: " + threshold));}break;
+			case EVENT_LOCAL_DISCONNECTION : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.LOCAL_DISCONNECTION, eventId, "The disconnector has been locally disconnected (i.e. via the limiter) - Active threshold value: " + threshold));}break;
+			case EVENT_LIMITER_THRESHOLD_EXCEEDED : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.LIMITER_THRESHOLD_EXCEEDED, eventId, "The limiter threshold has been exceeded - Active threshold value: " + threshold));}break;
+			case EVENT_LIMITER_THRESHOLD_OK : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.LIMITER_THRESHOLD_OK, eventId, "The monitored value of the limiter dropped below the threshold - Active threshold value: " + threshold));}break;
+			case EVENT_LIMITER_THRESHOLD_CHANGED : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.LIMITER_THRESHOLD_CHANGED, eventId, "The limiter threshold has been changed - Active threshold value: " + threshold));}break;
 			default : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Unknown eventcode: " + eventId + " - Active threshold value: " + threshold));}break;
 			}
 		} else {
