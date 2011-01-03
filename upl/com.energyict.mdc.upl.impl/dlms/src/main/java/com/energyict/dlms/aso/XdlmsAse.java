@@ -1,10 +1,7 @@
 package com.energyict.dlms.aso;
 
 import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.protocol.ProtocolUtils;
 
 public class XdlmsAse {
@@ -56,8 +53,12 @@ public class XdlmsAse {
 		sb.append(" > responseAllowed = ").append(getResponseAllowed()).append(CRLF);
 		sb.append(" > proposedQOS = ").append(getProposedQOS() != null ? getProposedQOS().getValue() : "null").append(CRLF);
 		sb.append(" > proposedDLMSVersion = ").append(getProposedDLMSVersion() != null ? getProposedDLMSVersion().getValue() : "null").append(CRLF);
-		sb.append(" > conformanceBlock = ").append(getConformanceBlock().toString().replace("\r\n", "")).append(CRLF);
-		sb.append(" > maxRecPDUSize = ").append(getMaxRecPDUClientSize() != null ? getMaxRecPDUClientSize().getValue() : "null").append(CRLF);
+		sb.append(" > conformanceBlock = ").append(getConformanceBlock()).append(CRLF);
+		sb.append(" > maxRecPDUClientSize = ").append(getMaxRecPDUClientSize() != null ? getMaxRecPDUClientSize().getValue() : "null").append(CRLF);
+        sb.append(" > negotiatedConformanceBlock = ").append(getNegotiatedConformanceBlock()).append(CRLF);
+        sb.append(" > negotiatedQOS = ").append(getNegotiatedQOS()).append(CRLF);
+        sb.append(" > negotiatedDLMSVersion = ").append(getNegotiatedDLMSVersion()).append(CRLF);
+        sb.append(" > maxRecPDUServerSize = ").append(getMaxRecPDUServerSize()).append(CRLF);
 		sb.append(']').append(CRLF);
 		return sb.toString();
 	}
@@ -245,7 +246,34 @@ public class XdlmsAse {
 		this.negotiatedConformanceBlock = new ConformanceBlock((long)conformance);
 	}
 
-	/**
+    /**
+     * Get the negotiated ConformanceBlock, received from the client.
+     *
+     * @return
+     */
+    public ConformanceBlock getNegotiatedConformanceBlock() {
+        return negotiatedConformanceBlock;
+    }
+
+    /**
+     * Get the negotiated Quality of service (QOS), received from the client.
+     *
+     * @return
+     */
+    public int getNegotiatedQOS() {
+        return negotiatedQOS;
+    }
+
+    /**
+     * Get the negotiated DLMS version, received from the client.
+     *
+     * @return
+     */
+    public int getNegotiatedDLMSVersion() {
+        return negotiatedDLMSVersion;
+    }
+
+    /**
 	 * Set the server his maximum receive PDU size
 	 * @param maxPDUServer
 	 */

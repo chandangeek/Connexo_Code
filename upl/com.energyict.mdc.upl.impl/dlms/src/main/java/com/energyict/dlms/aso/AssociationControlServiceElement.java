@@ -432,12 +432,26 @@ public class AssociationControlServiceElement {
                                 }
 
                                 if (DLMSCOSEMGlobals.DLMS_PDU_INITIATE_RESPONSE == responseData[i + 3]) {
-                                    getXdlmsAse().setNegotiatedQOS(responseData[i + 4]);
-                                    getXdlmsAse().setNegotiatedDlmsVersion(responseData[i + 5]);
-                                    int unusedConformanceBytes = (responseData[i+8] & 0x0FF) - 4; // Conformance block is parsed as int (4 bytes) but normally only 3 are used.
-                                    getXdlmsAse().setNegotiatedConformance((ProtocolUtils.getInt(responseData, i + 9 + unusedConformanceBytes) & 0x00FFFFFF)); // conformance has only 3 bytes, 24 bit
-                                    getXdlmsAse().setMaxRecPDUServerSize(ProtocolUtils.getShort(responseData, i + 13 + unusedConformanceBytes));
-                                    getXdlmsAse().setVAAName(ProtocolUtils.getShort(responseData, i + 15 + unusedConformanceBytes));
+                                    int baseAddress = i + 4;
+                                    if (responseData[baseAddress] != 0x00) {
+                                        getXdlmsAse().setNegotiatedQOS(responseData[++baseAddress]);
+                                    } else {
+                                        getXdlmsAse().setNegotiatedQOS((byte) 0x00);
+                                    }
+                                    baseAddress++;
+                                    getXdlmsAse().setNegotiatedDlmsVersion(responseData[baseAddress++]);
+                                    baseAddress++; // Jump over 0x5F 0x1F tag
+                                    // For compliance with existing implementations, encoding of the [Application 31] tag on one byte (5F)
+                                    // instead of two bytes (5F 1F) is accepted when the 3-layer, connection-oriented, HDLC-based profile is used.
+                                    if (responseData[baseAddress] == 0x1F) {
+                                        baseAddress++;
+                                    }
+                                    baseAddress += (responseData[baseAddress] & 0x0FF) - 3; // Conformance block is parsed as int (4 bytes) but normally only 3 are used.
+                                    getXdlmsAse().setNegotiatedConformance((ProtocolUtils.getInt(responseData, baseAddress) & 0x00FFFFFF)); // conformance has only 3 bytes, 24 bit
+                                    baseAddress += 4; // Jump over conformance block (just pased this)
+                                    getXdlmsAse().setMaxRecPDUServerSize(ProtocolUtils.getShort(responseData, baseAddress));
+                                    baseAddress += 2; // Jump over maxPDU size (two bytes)
+                                    getXdlmsAse().setVAAName(ProtocolUtils.getShort(responseData, baseAddress));
                                     return;
 
                                 } else if (DLMSCOSEMGlobals.DLMS_PDU_CONFIRMED_SERVICE_ERROR == responseData[i + 3]) {
@@ -837,7 +851,7 @@ public class AssociationControlServiceElement {
 	/**
 	 * @return the current xDLMS_ASE
 	 */
-	protected XdlmsAse getXdlmsAse(){
+	public XdlmsAse getXdlmsAse(){
 		if(this.xdlmsAse == null){
 			this.xdlmsAse = new XdlmsAse();
 		}

@@ -132,30 +132,76 @@ public class AssociationControlServiceElementTest {
      * Test to analyze the AARE
      */
     @Test
-    public void analyzeResponseTest(){
-    	try {
+    public void analyzeResponseTest() {
+        try {
 
-        	MockSecurityProvider sp = new MockSecurityProvider();
-        	SecurityContext sc = new SecurityContext(2, 2, 2, sp, SecurityContext.CIPHERING_TYPE_GLOBAL);
+            AssociationControlServiceElement acse;
 
-    		AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
+            acse = new AssociationControlServiceElement(null, 1, new SecurityContext(2, 2, 2, new MockSecurityProvider(), SecurityContext.CIPHERING_TYPE_GLOBAL));
+            String hlSecurityResponse = "6141A109060760857405080101A203020100A305A10302010E88020780890760857405080202AA0A8008503677524A323146BE10040E0800065F1F040000501F01F40007";
+            acse.analyzeAARE(DLMSUtils.hexStringToByteArray(hlSecurityResponse));
+            assertNotNull(acse.getRespondingAuthenticationValue());
+            assertEquals("P6wRJ21F", new String(acse.getRespondingAuthenticationValue()));
+            assertEquals(0x00, acse.getXdlmsAse().getNegotiatedQOS());
+            assertEquals(0x06, acse.getXdlmsAse().getNegotiatedDLMSVersion());
+            assertEquals(0x01F4, acse.getXdlmsAse().getMaxRecPDUServerSize());
+            assertEquals(0x0000501F, acse.getXdlmsAse().getNegotiatedConformanceBlock().getValue());
 
-    		String hlSecurityResponse = "6141A109060760857405080101A203020100A305A10302010E88020780890760857405080202AA0A8008503677524A323146BE10040E0800065F1F040000501F01F40007";
-    		String responsePiet =       "6133a1090607608574050801010a03020101a305a10302010da4084b414d0000000009be10040e0800065f1f040000101904180007";
-    		String responseTom = 		"6129a109060760857405080101a203020101a305a10302010dbe10040e0800065f1f000c00101904180007";
-    		acse.analyzeAARE(DLMSUtils.hexStringToByteArray(hlSecurityResponse));
-//    		acse.analyzeAARE(DLMSUtils.hexStringToByteArray(responseTom));
-    		assertEquals("P6wRJ21F",new String(acse.getRespondingAuthenticationValue()));
+            acse = new AssociationControlServiceElement(null, 1, new SecurityContext(2, 2, 2, new MockSecurityProvider(), SecurityContext.CIPHERING_TYPE_GLOBAL));
+            String responseWithQOS = "000100010064002c612aa109060760857405080101a203020100a305a103020100be11040f080112065f1f0400007c1f04000007";
+            acse.analyzeAARE(DLMSUtils.hexStringToByteArray(responseWithQOS));
+            assertNull(acse.getRespondingAuthenticationValue());
+            assertEquals(0x12, acse.getXdlmsAse().getNegotiatedQOS());
+            assertEquals(0x06, acse.getXdlmsAse().getNegotiatedDLMSVersion());
+            assertEquals(0x0400, acse.getXdlmsAse().getMaxRecPDUServerSize());
+            assertEquals(0x00007C1F, acse.getXdlmsAse().getNegotiatedConformanceBlock().getValue());
 
-    		String str =          "000100010064002c612aa109060760857405080101a203020100a305a103020100be11040f080100065f1f0400007c1f04000007";
-			acse.analyzeAARE(DLMSUtils.hexStringToByteArray(str));
+            acse = new AssociationControlServiceElement(null, 1, new SecurityContext(2, 2, 2, new MockSecurityProvider(), SecurityContext.CIPHERING_TYPE_GLOBAL));
+            String responseWithStrangeShortConformanceLength = "000100010064002c612aa109060760857405080101a203020100a305a103020100be11040f080112065f1f03007c1f04000007";
+            acse.analyzeAARE(DLMSUtils.hexStringToByteArray(responseWithStrangeShortConformanceLength));
+            assertNull(acse.getRespondingAuthenticationValue());
+            assertEquals(0x12, acse.getXdlmsAse().getNegotiatedQOS());
+            assertEquals(0x06, acse.getXdlmsAse().getNegotiatedDLMSVersion());
+            assertEquals(0x0400, acse.getXdlmsAse().getMaxRecPDUServerSize());
+            assertEquals(0x00007C1F, acse.getXdlmsAse().getNegotiatedConformanceBlock().getValue());
 
-			acse.analyzeAARE(noOrLowLevelAuthentication);
+            acse = new AssociationControlServiceElement(null, 1, new SecurityContext(2, 2, 2, new MockSecurityProvider(), SecurityContext.CIPHERING_TYPE_GLOBAL));
+            String responseWithStrangeLongConformanceLength = "000100010064002c612aa109060760857405080101a203020100a305a103020100be11040f080112065f1f110000000000000000000000000000007c1f04000007";
+            acse.analyzeAARE(DLMSUtils.hexStringToByteArray(responseWithStrangeLongConformanceLength));
+            assertNull(acse.getRespondingAuthenticationValue());
+            assertEquals(0x12, acse.getXdlmsAse().getNegotiatedQOS());
+            assertEquals(0x06, acse.getXdlmsAse().getNegotiatedDLMSVersion());
+            assertEquals(0x0400, acse.getXdlmsAse().getMaxRecPDUServerSize());
+            assertEquals(0x00007C1F, acse.getXdlmsAse().getNegotiatedConformanceBlock().getValue());
 
-		} catch (IOException e) {
-			e.printStackTrace();
-			fail();
-		}
+            acse = new AssociationControlServiceElement(null, 1, new SecurityContext(2, 2, 2, new MockSecurityProvider(), SecurityContext.CIPHERING_TYPE_GLOBAL));
+            acse.analyzeAARE(noOrLowLevelAuthentication);
+            assertNull(acse.getRespondingAuthenticationValue());
+            assertEquals(0x00, acse.getXdlmsAse().getNegotiatedQOS());
+            assertEquals(0x06, acse.getXdlmsAse().getNegotiatedDLMSVersion());
+            assertEquals(0x01F4, acse.getXdlmsAse().getMaxRecPDUServerSize());
+            assertEquals(0x0000501F, acse.getXdlmsAse().getNegotiatedConformanceBlock().getValue());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail();
+        }
+    }
+
+    @Test(expected = IOException.class)
+    public void analyzeConfirmedServiceErrosResponseTest1() throws Exception {
+        MockSecurityProvider sp = new MockSecurityProvider();
+        SecurityContext sc = new SecurityContext(2, 2, 2, sp, SecurityContext.CIPHERING_TYPE_GLOBAL);
+        AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
+        acse.analyzeAARE(DLMSUtils.hexStringToByteArray("6129a109060760857405080101a203020101a305a10302010dbe10040e0800065f1f000c00101904180007"));
+    }
+
+    @Test(expected = IOException.class)
+    public void analyzeConfirmedServiceErrosResponseTest2() throws Exception {
+        MockSecurityProvider sp = new MockSecurityProvider();
+        SecurityContext sc = new SecurityContext(2, 2, 2, sp, SecurityContext.CIPHERING_TYPE_GLOBAL);
+        AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
+        acse.analyzeAARE(DLMSUtils.hexStringToByteArray("6133a1090607608574050801010a03020101a305a10302010da4084b414d0000000009be10040e0800065f1f040000101904180007"));
     }
 
     /**
