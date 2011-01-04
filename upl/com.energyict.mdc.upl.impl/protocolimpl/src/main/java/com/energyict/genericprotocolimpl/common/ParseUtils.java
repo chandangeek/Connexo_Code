@@ -232,7 +232,13 @@ public class ParseUtils {
 		try {
 			if(register.getScalerUnit() != null){
 				if(register.getScalerUnit().getUnitCode() != 0){
-					return new Quantity(BigDecimal.valueOf(register.getValue()), register.getScalerUnit().getUnit());
+
+                    //The EIServer Percent Unit code (515) does not match the DLMS Unit code (56)
+                    if(register.getScalerUnit().getUnitCode() == 56){
+                        return new Quantity(BigDecimal.valueOf(register.getValue()), Unit.get(BaseUnit.PERCENT));
+                    } else {
+                        return new Quantity(BigDecimal.valueOf(register.getValue()), register.getScalerUnit().getUnit());
+                    }
 				} else {
 					return new Quantity(BigDecimal.valueOf(register.getValue()), Unit.get(BaseUnit.UNITLESS));
 				}

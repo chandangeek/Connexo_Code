@@ -88,9 +88,8 @@ public class ApolloProfileBuilder {
                     try {
                         this.scalerUnits[counter] = this.meterProtocol.getApolloObjectFactory().getCosemtObject(co.getLogicalName().getObisCode(), co.getClassId()).getScalerUnit();
                     } catch (IOException e) {
-                        //TODO fix this, the scalers should be available in the device
-                        this.meterProtocol.getLogger().info("Could not fetch the scalerUnit from channel [" + co + "]. Channel will be unitless.");
-                        this.scalerUnits[counter] = new ScalerUnit(Unit.getUndefined());
+                        this.meterProtocol.getLogger().info("Could not fetch the scalerUnit from channel [" + co + "]. Data can not be correctly constructed.");
+                        throw e;
                     }
                     counter++;
                 }

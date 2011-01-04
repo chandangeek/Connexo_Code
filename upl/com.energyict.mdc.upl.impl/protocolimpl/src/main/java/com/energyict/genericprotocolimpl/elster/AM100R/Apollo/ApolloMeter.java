@@ -103,7 +103,7 @@ public class ApolloMeter extends DLMSProtocol {
             }
 
             if (getCommunicationProfile().getReadMeterEvents()) {
-                getLogger().log(Level.INFO, "Getting ProfileData for meter with serialnumber: " + this.serialNumber);
+                getLogger().log(Level.INFO, "Getting Events for meter with serialnumber: " + this.serialNumber);
                 ProfileData eProfile = getMeterEvents();
                 storeObject.add(eProfile, getMeter());
             }
