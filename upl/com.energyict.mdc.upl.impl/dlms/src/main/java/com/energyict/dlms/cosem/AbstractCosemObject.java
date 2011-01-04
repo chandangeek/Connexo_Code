@@ -989,6 +989,10 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 				}
 					break; // case COSEM_SETRESPONSE:
 
+                case COSEM_EXCEPTION_RESPONSE: {
+                    throw new ExceptionResponseException(responseData[i+1], responseData[i+2]);
+                }
+
 				default: {
 					throw new IOException("Unknown COSEM PDU, " + " 0x" + Integer.toHexString(ProtocolUtils.byte2int(responseData[DL_COSEMPDU_OFFSET])) + " 0x"
 							+ Integer.toHexString(ProtocolUtils.byte2int(responseData[DL_COSEMPDU_OFFSET + 1])) + " 0x"
