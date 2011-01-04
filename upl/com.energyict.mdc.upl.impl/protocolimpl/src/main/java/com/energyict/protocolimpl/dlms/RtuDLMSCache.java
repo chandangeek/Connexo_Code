@@ -72,7 +72,7 @@ public class RtuDLMSCache
     
     public UniversalObject[] getObjectList () throws SQLException
     {
-       Statement statement = null;
+       PreparedStatement statement = null;
        ResultSet resultSet = null;
        UniversalObject universalObject = null;
        List UniversalObjectList = new ArrayList();
@@ -80,9 +80,10 @@ public class RtuDLMSCache
        
        try
        {
-          statement = connection.createStatement();
-          String sqlString = "select logicaldevice,longname,shortname,classid,version,associationlevel,objectdescription from eisdlmscache where rtuid = " + rtuid;
-          resultSet = statement.executeQuery(sqlString);
+          statement = connection.prepareStatement(
+          	"select logicaldevice,longname,shortname,classid,version,associationlevel,objectdescription from eisdlmscache where rtuid = ?");
+          statement.setInt(1,rtuid);
+          resultSet = statement.executeQuery();
           if (!resultSet.next()) return null;
           iNROfObjects=0;
           do
@@ -141,34 +142,19 @@ public class RtuDLMSCache
     
     private void doInsert() throws SQLException {
        Connection connection = getDefaultConnection();
-       Statement statement = connection.createStatement();  
-       
+       PreparedStatement statement = connection.prepareStatement(
+    		   "insert into eisdlmscache (RTUID, LOGICALDEVICE, LONGNAME, SHORTNAME, CLASSID, VERSION, ASSOCIATIONLEVEL, OBJECTDESCRIPTION) values(?,0,?,?,?,?,0,?)");
+                        
        try {
-           StringBuffer buffer = new StringBuffer("insert into eisdlmscache");
-           buffer.append(" (RTUID, LOGICALDEVICE, LONGNAME, SHORTNAME, CLASSID, VERSION, ASSOCIATIONLEVEL, OBJECTDESCRIPTION) values(");
-           buffer.append(rtuid);
-           buffer.append(",");
-           buffer.append(0);
-           buffer.append(",");
-           Utils.appendQuoted(buffer,longname);
-           buffer.append(",");
-           buffer.append(shortname);
-           buffer.append(",");
-           buffer.append(classid);
-           buffer.append(",");
-           buffer.append(version);
-           buffer.append(",");
-           buffer.append(0);
-           buffer.append(",");
-           Utils.appendQuoted(buffer,objectdescription);
-           buffer.append(")");
-           statement.executeUpdate (buffer.toString());
-       }
-       catch(SQLException e) {
-          throw e;   
-       }
-       finally {
-          if (statement != null) statement.close();
+    	   statement.setInt(1,rtuid);
+    	   statement.setString(2,longname);
+           statement.setInt(3,shortname);
+           statement.setInt(4,classid);
+           statement.setInt(5,version);
+           statement.setString(6, objectdescription);
+           statement.executeUpdate();
+       } finally {
+    	   statement.close();
        }
     } // private doInsert() throws SQLException
     
@@ -176,28 +162,20 @@ public class RtuDLMSCache
     {
        PreparedStatement statement = null;
        Connection connection = getDefaultConnection();
-       try
-       {
-          String sqlString =
-                  "update eisdlmscache SET shortname=?,classid=?,version=?,associationlevel=?,objectdescription=? where rtuid = " + rtuid +" and longname = '"+longname+"'";
-          statement = connection.prepareStatement(sqlString);
-
-          // longname and logicaldevice are part of the key. They'return inserted with doInsert.
-          // We should not write them with an update, otherwise we get the constrain error!
-          statement.setInt(1,shortname);
+       String sqlString =
+           "update eisdlmscache SET shortname=?,classid=?,version=?,associationlevel=?,objectdescription=? where rtuid = ? and longname = ?";
+       statement = connection.prepareStatement(sqlString);
+       try {
+    	  statement.setInt(1,shortname);
           statement.setInt(2,classid);
           statement.setInt(3,version);
           statement.setInt(4,0);
           statement.setString(5,objectdescription);
-          
-          statement.execute();
-       }
-       catch(SQLException e) {
-          throw e;   
-       }
-       finally
-       {
-          if (statement != null) statement.close();
+          statement.setInt(6,rtuid);
+          statement.setString(7,longname);          
+          statement.executeUpdate();
+       } finally {
+    	   statement.close();
        }
       
     } // private void doUpdate() throws SQLException

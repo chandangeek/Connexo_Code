@@ -23,15 +23,15 @@ public class RtuDLMS {
     
     public int getConfProgChange() throws SQLException, BusinessException
     {
-       Statement statement = null;
+       PreparedStatement statement = null;
        ResultSet resultSet = null;
        Connection connection = getDefaultConnection();
        
        try
        {
-          statement = connection.createStatement();
-          String sqlString = "select confprogchange from eisdlms where rtuid = " + rtuid;
-          resultSet = statement.executeQuery(sqlString);
+          statement = connection.prepareStatement("select confprogchange from eisdlms where rtuid = ?");
+          statement.setInt(1,rtuid);
+          resultSet = statement.executeQuery();
           if (!resultSet.next()) throw new NotFoundException("ERROR: No rtu record found!");
           iCount=0;
           do
@@ -76,10 +76,11 @@ public class RtuDLMS {
        PreparedStatement statement = null;
        
        try { 
-           String sqlString = "update eisdlms SET confprogchange=? where rtuid = " + rtuid;
+           String sqlString = "update eisdlms SET confprogchange=? where rtuid = ? ";
            statement = connection.prepareStatement(sqlString);
            statement.setInt(1,confprogchange);
-           statement.execute();
+           statement.setInt(2,rtuid);
+           statement.executeUpdate();
        }
        catch(SQLException e) {
           throw e;   
@@ -93,22 +94,15 @@ public class RtuDLMS {
     void doInsert(int confprogchange) throws SQLException
     {
        Connection connection = getDefaultConnection();
-       Statement statement = connection.createStatement();  
+       PreparedStatement statement = connection.prepareStatement(
+    		   "insert into eisdlms (RTUID, CONFPROGCHANGE) values(?,?)");  
        
        try {
-           StringBuffer buffer = new StringBuffer("insert into eisdlms");
-           buffer.append(" (RTUID, CONFPROGCHANGE) values(");
-           buffer.append(rtuid);
-           buffer.append(",");
-           buffer.append(confprogchange);
-           buffer.append(")");
-           statement.executeUpdate (buffer.toString());
-       }
-       catch(SQLException e) {
-          throw e;   
-       }
-       finally {
-          if (statement != null) statement.close();
+    	   statement.setInt(1,rtuid);
+    	   statement.setInt(2, confprogchange);
+           statement.executeUpdate();
+       } finally {
+    	   statement.close();
        }
     }
     
