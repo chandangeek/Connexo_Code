@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 
 import com.energyict.dlms.DLMSCOSEMGlobals;
@@ -118,7 +119,8 @@ public class AXDRDateTime extends AbstractDataType {
 			deviation = tOffset / SECONDS_PER_MINUTE;
 		}
 
-        TimeZone tz = TimeZone.getTimeZone("GMT"+(deviation<0?"":"+")+deviation);
+        //TimeZone tz = TimeZone.getTimeZone("GMT"+(deviation<0?"":"+")+deviation);
+		TimeZone tz = new SimpleTimeZone(deviation * 3600 * 1000, "GMT" + (deviation<0?"":"+")+deviation);
     	dateTime = Calendar.getInstance(tz);
 
         int year = ProtocolUtils.getShort(berEncodedData, ptr );
