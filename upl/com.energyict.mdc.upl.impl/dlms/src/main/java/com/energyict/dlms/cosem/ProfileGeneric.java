@@ -25,6 +25,8 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
 
     private byte[] capturedObjectsResponseData=null;
     private byte[] bufferResponseData=null;
+    
+    private UniversalObject[] capturedObjects = null;
 
     /** Creates a new instance of ProfileGeneric */
     public ProfileGeneric(ProtocolLink protocolLink,ObjectReference objectReference) {
@@ -93,8 +95,11 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
     }
 
     public UniversalObject[] getCaptureObjectsAsUniversalObjects() throws IOException {
-        return data2UOL(getCapturedObjectsResponseData());
+    	if (capturedObjects == null)
+    		capturedObjects = data2UOL(getCapturedObjectsResponseData());
+    	return capturedObjects;
     }
+    
     public DataContainer getCaptureObjectsAsDataContainer() throws IOException {
         DataContainer dataContainer = new DataContainer();
         dataContainer.parseObjectList(getCapturedObjectsResponseData(),protocolLink.getLogger());
