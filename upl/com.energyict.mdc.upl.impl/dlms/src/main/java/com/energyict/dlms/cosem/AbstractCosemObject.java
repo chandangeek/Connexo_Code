@@ -7,12 +7,14 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
 import com.energyict.dlms.cosem.attributes.DLMSClassMethods;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
 /**
@@ -79,7 +81,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 				responseData = this.protocolLink.getDLMSConnection().sendRequest(request);
 			}
 
-			return DLMSUtils.parseValue2long(CheckCosemPDUResponseHeader(responseData));
+			return DLMSUtils.parseValue2long(checkCosemPDUResponseHeader(responseData));
 		} catch (IOException e) {
 			throw new NestedIOException(e);
 		}
@@ -106,7 +108,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 				byte[] responseData = null;
 				byte[] request = buildActionRequest(getClassId(), this.objectReference.getLn(), methodId, data);
 				responseData = this.protocolLink.getDLMSConnection().sendRequest(request);
-				return CheckCosemPDUResponseHeader(responseData);
+				return checkCosemPDUResponseHeader(responseData);
 			} else {
 				return write(methodId, data);
 			}
@@ -145,7 +147,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 			if (this.protocolLink.getDLMSConnection() instanceof AdaptorConnection) {
 				return responseData;
 			} else {
-				return CheckCosemPDUResponseHeader(responseData);
+				return checkCosemPDUResponseHeader(responseData);
 			}
 		} catch (DataAccessResultException e) {
 			throw (e);
@@ -222,6 +224,40 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		}
 	}
 
+    /**
+     *
+     * @param attributes
+     * @return
+     * @throws IOException
+     */
+    protected byte[][] getLNResponseDataWithList(DLMSAttribute[] attributes) throws IOException {
+        byte[][] result = new byte[attributes.length][];
+        byte[] request = buildGetWithListRequest(attributes);
+        byte[] responseData = this.protocolLink.getDLMSConnection().sendRequest(request);
+        responseData = checkCosemPDUResponseHeader(responseData);
+
+        int ptr = 0;
+        for (int i = 0; i < attributes.length; i++) {
+            switch (responseData[ptr]) {
+                case 0x00: // Data
+                    AbstractDataType dataType = AXDRDecoder.decode(responseData, ptr + 1);
+                    int objectLength = dataType.getBEREncodedByteArray().length;
+                    result[i] = ProtocolTools.getSubArray(responseData, ptr, ptr + objectLength + 1);
+                    ptr += objectLength + 1;
+                    break;
+                case 0x01: // Data-access-result
+                    result[i] = ProtocolTools.getSubArray(responseData, ptr, ptr + 2);
+                    ptr += 2;
+                    break;
+                default:
+                    throw new IOException("Invalid state while parsing GetResponseWithList: expected '0' or '1' but was " + responseData[i]);
+            }
+        }
+
+        return result;
+    }
+
+
 	/**
      * Invoke the method based on the given {@link com.energyict.dlms.cosem.attributes.DLMSClassMethods}
      *
@@ -270,7 +306,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 				request = buildReadRequest((short) this.objectReference.getSn(), attribute, selectiveBuffer);
 			}
 			responseData = this.protocolLink.getDLMSConnection().sendRequest(request);
-			return CheckCosemPDUResponseHeader(responseData);
+			return checkCosemPDUResponseHeader(responseData);
 		} catch (DataAccessResultException e) {
 			throw (e);
 		} catch (IOException e) {
@@ -416,6 +452,29 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 	}
 
+    private byte[] buildGetWithListRequest(DLMSAttribute... attributes) {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        buffer.write(0xE6); // Destination_LSAP
+        buffer.write(0xE6); // Source_LSAP
+        buffer.write(0x00);
+        buffer.write(COSEM_GETREQUEST);
+        buffer.write(COSEM_GETREQUEST_WITH_LIST);
+        buffer.write(this.invokeIdAndPriority);
+        for (DLMSAttribute dlmsAttribute : attributes) {
+            // cosem-attribute-descriptor
+            try {
+                buffer.write(new Unsigned16(dlmsAttribute.getClassId()).getContentByteArray()); // cosem-class-id
+                buffer.write(dlmsAttribute.getObisCode().getLN());                              // cosem-object-inctance-id
+                buffer.write(new Integer8(dlmsAttribute.getAttribute()).getContentByteArray()); // cosem-attribute-id
+                // cosem-selective-access-descriptor (Optional)
+                buffer.write(0x00); // Not available (unused)
+            } catch (IOException e) {
+                // ByteArrayOutputStream never throws exception
+            }
+        }
+        return buffer.toByteArray();
+    }
+
 	/**
 	 * @param iBlockNumber
 	 * @return
@@ -528,7 +587,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		}
 	}
 
-	protected byte[] CheckCosemPDUResponseHeader(byte[] responseData) throws IOException {
+	protected byte[] checkCosemPDUResponseHeader(byte[] responseData) throws IOException {
 		int i;
 
 		boolean boolLastBlock = true;
@@ -776,6 +835,13 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 						}
 							break; // case COSEM_GETRESPONSE_WITH_DATABLOCK:
+
+                        case COSEM_GETRESPONSE_WITH_LIST: {
+                            i++; // skip tag
+                            i++; // skip invoke id & priority
+                            receiveBuffer.addArray(responseData, i);
+                            return receiveBuffer.getArray();
+                        }
 
 						default:
 							throw new IOException("Unknown/unimplemented COSEM_GETRESPONSE, " + responseData[i]);
@@ -1554,4 +1620,12 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	public com.energyict.dlms.cosem.ObjectReference getObjectReference() {
 		return this.objectReference;
 	}
+
+    public void setObjectReference(ObjectReference objectReference) {
+        this.objectReference = objectReference;
+    }
+
+    public ProtocolLink getProtocolLink() {
+        return protocolLink;
+    }
 }

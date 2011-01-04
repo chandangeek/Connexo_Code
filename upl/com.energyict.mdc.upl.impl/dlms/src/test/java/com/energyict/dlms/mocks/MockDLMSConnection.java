@@ -3,15 +3,14 @@
  */
 package com.energyict.dlms.mocks;
 
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dlms.*;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.protocolimpl.utils.ProtocolTools;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.InvokeIdAndPriority;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
  * @author gna
@@ -96,5 +95,9 @@ public class MockDLMSConnection implements DLMSConnection {
 	public int getMaxRetries() {
 		return 0;
 	}
+
+    public ApplicationServiceObject getApplicationServiceObject() {
+        return null;
+    }
 
 }

@@ -1,16 +1,14 @@
 package com.energyict.dlms;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import com.energyict.dialer.connection.ConnectionException;
+
+import java.io.*;
 
 /**
  * @author jme
  *
  */
-public class LLCConnection extends CosemPDUConnection implements DLMSConnection {
+public class LLCConnection extends CosemPDUConnection {
 
 	public LLCConnection(InputStream inputStream, OutputStream outputStream, int timeout, int forceDelay, int maxRetries, int clientAddress, int serverAddress)
 			throws IOException {

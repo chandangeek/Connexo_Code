@@ -1,15 +1,11 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
-import java.io.*;
-
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
-import com.energyict.dlms.cosem.requests.CosemObjectInstanceId;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
-import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlowException;
+
+import java.io.*;
 
 public class TransparentSet extends AbstractTransparentObjectAccess {
 

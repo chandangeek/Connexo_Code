@@ -215,6 +215,14 @@ public class ApplicationServiceObject {
     }
 
     /**
+     * Getter for the AssociationControlServiceElement object
+     * @return
+     */
+    public AssociationControlServiceElement getAssociationControlServiceElement() {
+        return acse;
+    }
+
+    /**
      * Release the current association
      *
      * @throws IOException

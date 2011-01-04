@@ -1,10 +1,11 @@
 package com.energyict.dlms;
 
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.protocol.ProtocolUtils;
 
 public class AdaptorConnection implements DLMSConnection {
 
@@ -88,5 +89,9 @@ public class AdaptorConnection implements DLMSConnection {
 	public int getMaxRetries() {
 		return 0;
 	}
+
+    public ApplicationServiceObject getApplicationServiceObject() {
+        return null;
+    }
 
 }

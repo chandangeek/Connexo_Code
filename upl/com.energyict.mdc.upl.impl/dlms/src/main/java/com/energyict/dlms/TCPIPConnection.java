@@ -1,15 +1,10 @@
 package com.energyict.dlms;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.*;
+import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.*;
 
 /**
  * @version  1.0
@@ -414,5 +409,9 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
 	public int getMaxRetries() {
 		return maxRetries;
 	}
+
+    public ApplicationServiceObject getApplicationServiceObject() {
+        return null;
+    }
 
 } // public class TCPIPConnection

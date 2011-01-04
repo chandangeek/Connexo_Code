@@ -6,20 +6,13 @@
 
 package com.energyict.dlms.cosem;
 
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.dlms.cosem.requests.GetDataResult;
-import com.energyict.dlms.cosem.requests.RequestFactory;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+
 /**
  *
  * @author  Koen
@@ -361,6 +354,14 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 
     }
 
+    public ComposedCosemObject getComposedCosemObject(DLMSAttribute... dlmsAttributes) {
+        return new ComposedCosemObject(protocolLink, dlmsAttributes);
+    }
+
+    public ComposedCosemObject getComposedCosemObject(List<DLMSAttribute> dlmsAttributes) {
+        return new ComposedCosemObject(protocolLink, dlmsAttributes);
+    }
+
     //*****************************************************************************************
     public ObjectReference getObjectReference(ObisCode obisCode) throws IOException {
         return getObjectReference(obisCode,-1);
@@ -384,25 +385,6 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 			return new ObjectReference(sn);
 		}
 		throw new IOException("CosemObjectFactory, getObjectReference, invalid reference type " + protocolLink.getReference());
-	}
-
-	public List<GetDataResult> getGenericReadWithList(List<DLMSAttribute> objects) throws IOException {
-		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-		bytes.write(new byte[3]);
-
-		RequestFactory requestFactory = new RequestFactory(getProtocolLink());
-		byte[] requestWithList = requestFactory.createGetWithListRequest(objects).toByteArray();
-		bytes.write(requestWithList);
-
-		byte[] request = bytes.toByteArray();
-		//request[4] = 1;
-
-		System.out.println(ProtocolTools.getHexStringFromBytes(request));
-
-		byte[] response = getProtocolLink().getDLMSConnection().sendRequest(request);
-		System.out.println(ProtocolTools.getHexStringFromBytes(response));
-
-		return new ArrayList<GetDataResult>();
 	}
 
 }

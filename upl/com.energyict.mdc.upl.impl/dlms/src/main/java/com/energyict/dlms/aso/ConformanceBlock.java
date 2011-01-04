@@ -1,6 +1,6 @@
 package com.energyict.dlms.aso;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 
 /**
@@ -45,9 +45,15 @@ public class ConformanceBlock{
 	/**
 	 * These bits can be used to set or clear a bit in the conformance block
 	 */
+
+//    public static final int BIT_RESERVED_ZERO = 0;
+//    public static final int BIT_RESERVED_ONE = 1;
+//    public static final int BIT_RESERVED_TWO = 2;
 	public static final int BIT_READ = 3;
 	public static final int BIT_WRITE = 4;
 	public static final int BIT_UNCONFIRMED_WRITE = 5;
+//    public static final int BIT_RESERVED_SIX = 6;
+//    public static final int BIT_RESERVED_SEVEN = 7;
 	public static final int BIT_ATTRB0_SUPP_SET = 8;
 	public static final int BIT_PRIORITY_MGMT_SUPP = 9;
 	public static final int BIT_ATTRB0_SUPP_GET = 10;
@@ -56,6 +62,8 @@ public class ConformanceBlock{
 	public static final int BIT_BLOCK_TRANSF_ACTION = 13;
 	public static final int BIT_MULTIPLE_REFS = 14;
 	public static final int BIT_INFORMATION_REPORT = 15;
+//    public static final int BIT_RESERVED_SIXTEEN = 16;
+//    public static final int BIT_RESERVED_SEVENTEEN = 17;
 	public static final int BIT_PARAMETERIZED_ACCESS = 18;
 	public static final int BIT_GET = 19;
 	public static final int BIT_SET = 20;
@@ -63,18 +71,38 @@ public class ConformanceBlock{
 	public static final int BIT_EVENT_NOTIFY = 22;
 	public static final int BIT_ACTION = 23;
 
-	private static final String	CRLF	= "\r\n";
+    private static final String CRLF = "\r\n";
 
-	private byte[] block = new byte[24];
+    private boolean[] block = new boolean[24];
+
+    private static final String[] NAMES = {
+            "RESERVED_ZERO",
+            "RESERVED_ONE",
+            "RESERVED_TWO",
+            "READ",
+            "WRITE",
+            "UNCONFIRMED_WRITE",
+            "RESERVED_SIX",
+            "RESERVED_SEVEN",
+            "ATTRIBUTE0_SUPPORTED_WITH_SET",
+            "PRIORITY_MGMT_SUPPORTED",
+            "ATTRIBUTE0_SUPPORTED_WITH_GET",
+            "BLOCK_TRANSFER_WITH_GET_OR_READ",
+            "BLOCK_TRANSFER_WITH_SET_OR_WRITE",
+            "BLOCK_TRANSFER_WITH_ACTION",
+            "MULTIPLE_REFERENCES",
+            "INFORMATION_REPORT",
+            "RESERVED_SIXTEEN",
+            "RESERVED_SEVENTEEN",
+            "PARAMETERIZED_ACCESS",
+            "GET",
+            "SET",
+            "SELECTIVE_ACCESS",
+            "EVENT_NOTIFICATION",
+            "ACTION"
+    };
 
 	public ConformanceBlock(){}
-
-	@Override
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		sb.append(ProtocolUtils.getResponseData(getByteValue())).append(CRLF);
-		return sb.toString();
-	}
 
 	/**
 	 * Get the {@link Long} value as a byte array of 4 bytes
@@ -115,21 +143,21 @@ public class ConformanceBlock{
 	 * Fill in the byteArray with '0' and '1' to indicate which bit is set or not
 	 * @param proposedConformance - the long value representing the bitString according to the required conformance
 	 */
-	private void updateBlock(long proposedConformance){
-		for(int i = 0; i < this.block.length ; i++){
-			this.block[i] = (byte)((proposedConformance>>(this.block.length-1-i))&0x1);
-		}
-	}
+    private void updateBlock(long proposedConformance) {
+        for (int i = 0; i < this.block.length; i++) {
+            this.block[i] = ((proposedConformance >> (this.block.length - 1 - i)) & 0x01) == 0x01;
+        }
+    }
 
-	/**
+    /**
 	 * Construct the long value from the byteArry
 	 * @return the conformance long-value
 	 */
 	protected long getValue(){
 		long value = 0;
 		for(int i = 0; i < this.block.length; i++){
-			value += this.block[i]*Math.pow(2, (this.block.length-1-i));
-		}
+            value += (this.block[i] ? 1 : 0) * Math.pow(2, (this.block.length - 1 - i));
+        }
 		return value;
 	}
 
@@ -138,13 +166,101 @@ public class ConformanceBlock{
 	 * @param bit - the number of the bit you want to set
 	 */
 	public void setBit(int bit){
-		this.block[bit] = 1;
+		this.block[bit] = true;
 	}
-	/**
+
+    public void setBit(int bitNr, boolean bitValue){
+        this.block[bitNr] = bitValue;
+    }
+
+    /**
 	 * Clear a certain bit in the byteArray
 	 * @param bit - the number of bit you want to clear
 	 */
 	public void clearBit(int bit){
-		this.block[bit] = 0;
+		this.block[bit] = false;
 	}
+
+    public boolean isAction() {
+        return block[BIT_ACTION];
+    }
+
+    public boolean isEventNotification() {
+        return block[BIT_EVENT_NOTIFY];
+    }
+
+    public boolean isSelectiveAccess() {
+        return block[BIT_SELECTIVE_ACCESS];
+    }
+
+    public boolean isSet() {
+        return block[BIT_SET];
+    }
+
+    public boolean isGet() {
+        return block[BIT_GET];
+    }
+
+    public boolean isParameterizedAccess() {
+        return block[BIT_PARAMETERIZED_ACCESS];
+    }
+
+    public boolean isInformationReport() {
+        return block[BIT_INFORMATION_REPORT];
+    }
+
+    public boolean isMultipleReferences() {
+        return block[BIT_MULTIPLE_REFS];
+    }
+
+    public boolean isBlockTransferWithAction() {
+        return block[BIT_BLOCK_TRANSF_ACTION];
+    }
+
+    public boolean isBlockTransferWithSetOrWrite() {
+        return block[BIT_BLOCK_TRANSF_SET];
+    }
+
+    public boolean isBlockTransferWithGetOrRead() {
+        return block[BIT_BLOCK_TRANSF_GET];
+    }
+
+    public boolean isAttribute0SupportedWithGet() {
+        return block[BIT_ATTRB0_SUPP_GET];
+    }
+
+    public boolean isPriorityMgmtSupported() {
+        return block[BIT_PRIORITY_MGMT_SUPP];
+    }
+
+    public boolean isAttribute0SupportedWithSet() {
+        return block[BIT_ATTRB0_SUPP_SET];
+    }
+
+    public boolean isUnconfirmedWrite() {
+        return block[BIT_UNCONFIRMED_WRITE];
+    }
+
+    public boolean isWrite() {
+        return block[BIT_WRITE];
+    }
+
+    public boolean isRead() {
+        return block[BIT_READ];
+    }
+
+    @Override
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("ConformanceBlock{ rawValue = " + ProtocolTools.getHexStringFromBytes(getByteValue())).append(CRLF);
+        for (int i = 0; i < NAMES.length; i++) {
+            String name = NAMES[i];
+            sb.append(block[i] ? "  * " : "    ").append("[").append(ProtocolTools.addPadding(String.valueOf(i), '0', 2, false)).append("] ");
+            sb.append(ProtocolTools.addPadding(name, ' ', 33, true)).append(" = ").append(block[i]).append(CRLF);
+        }
+        sb.append("}");
+        return sb.toString();
+    }
+
+
 }

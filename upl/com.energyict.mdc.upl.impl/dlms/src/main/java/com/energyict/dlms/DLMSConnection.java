@@ -10,9 +10,10 @@ package com.energyict.dlms;
  * Open. You can then make changes to the template in the Source Editor.
  */
 
-import java.io.IOException;
-
 import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+
+import java.io.IOException;
 
 /**
  *
@@ -44,5 +45,7 @@ public interface DLMSConnection {
 	InvokeIdAndPriority getInvokeIdAndPriority();
 
 	int getMaxRetries();
+
+    ApplicationServiceObject getApplicationServiceObject();
 
 }

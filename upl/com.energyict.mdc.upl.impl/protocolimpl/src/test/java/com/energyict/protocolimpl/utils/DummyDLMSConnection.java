@@ -1,11 +1,10 @@
 package com.energyict.protocolimpl.utils;
 
-import java.io.IOException;
-
 import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.InvokeIdAndPriority;
+import com.energyict.dlms.*;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+
+import java.io.IOException;
 
 /**
  * Dummy DLMS connection class.
@@ -114,5 +113,9 @@ public class DummyDLMSConnection implements DLMSConnection {
 	public int getMaxRetries() {
 		return 0;
 	}
+
+    public ApplicationServiceObject getApplicationServiceObject() {
+        return null;
+    }
 
 }

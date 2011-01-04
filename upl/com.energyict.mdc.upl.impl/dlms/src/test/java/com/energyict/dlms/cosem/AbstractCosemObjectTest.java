@@ -3,8 +3,6 @@ package com.energyict.dlms.cosem;
 import com.energyict.dlms.*;
 import com.energyict.dlms.mocks.MockDLMSConnection;
 import com.energyict.dlms.mocks.MockProtocolLink;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.base.ParseUtils;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -29,10 +27,10 @@ public class AbstractCosemObjectTest {
             DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("WKP");
             ProtocolLink protocolLink = new MockProtocolLink(new MockDLMSConnection(), meterConfig);
             data = new Data(protocolLink, null);
-            assertArrayEquals(DLMSUtils.hexStringToByteArray("091048bdb63e5df88885d67330f89ea444bd"), data.CheckCosemPDUResponseHeader(DLMSUtils.hexStringToByteArray(iskraResponse)));
+            assertArrayEquals(DLMSUtils.hexStringToByteArray("091048bdb63e5df88885d67330f89ea444bd"), data.checkCosemPDUResponseHeader(DLMSUtils.hexStringToByteArray(iskraResponse)));
 
             try {
-                data.CheckCosemPDUResponseHeader(DLMSUtils.hexStringToByteArray(iskraResponseFailure));
+                data.checkCosemPDUResponseHeader(DLMSUtils.hexStringToByteArray(iskraResponseFailure));
             } catch (DataAccessResultException e) {
                 if (!e.getMessage().equalsIgnoreCase("Cosem Data-Access-Result exception Object unavailable")) {
                     e.printStackTrace();
@@ -43,11 +41,11 @@ public class AbstractCosemObjectTest {
             meterConfig = DLMSMeterConfig.getInstance("WKP::OLD");
             protocolLink = new MockProtocolLink(new MockDLMSConnection(), meterConfig);
             data = new Data(protocolLink, null);
-            assertArrayEquals(DLMSUtils.hexStringToByteArray("091091ec1f928d8e6ace9823717c15c61271"), data.CheckCosemPDUResponseHeader(DLMSUtils.hexStringToByteArray(z3Response)));
+            assertArrayEquals(DLMSUtils.hexStringToByteArray("091091ec1f928d8e6ace9823717c15c61271"), data.checkCosemPDUResponseHeader(DLMSUtils.hexStringToByteArray(z3Response)));
 
 
             try {
-                data.CheckCosemPDUResponseHeader(DLMSUtils.hexStringToByteArray(z3ResponseFailure));
+                data.checkCosemPDUResponseHeader(DLMSUtils.hexStringToByteArray(z3ResponseFailure));
             } catch (DataAccessResultException e) {
                 if (!e.getMessage().equalsIgnoreCase("Cosem Data-Access-Result exception R/W denied")) {
                     e.printStackTrace();
@@ -73,7 +71,7 @@ public class AbstractCosemObjectTest {
         ProtocolLink protocolLink = new MockProtocolLink(new MockDLMSConnection(), meterConfig);
         data = new Data(protocolLink, null);
         try {
-            data.CheckCosemPDUResponseHeader(DLMSUtils.hexStringToByteArray(confirmedServiceErrorResponseEncryptionFailed));
+            data.checkCosemPDUResponseHeader(DLMSUtils.hexStringToByteArray(confirmedServiceErrorResponseEncryptionFailed));
         } catch (Exception e) {
             if (!e.getMessage().equalsIgnoreCase("Confirmed Service Error - 'Write error' - Reason: Application-reference - Error detected by the deciphering function")) {
                 e.printStackTrace();

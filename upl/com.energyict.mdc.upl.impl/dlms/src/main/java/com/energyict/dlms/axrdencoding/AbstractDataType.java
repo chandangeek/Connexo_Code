@@ -8,10 +8,10 @@
 
 package com.energyict.dlms.axrdencoding;
 
-import java.math.BigDecimal;
-
-import com.energyict.dlms.cosem.requests.Field;
+import com.energyict.dlms.cosem.Field;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+
+import java.math.BigDecimal;
 
 /**
  * @author kvds

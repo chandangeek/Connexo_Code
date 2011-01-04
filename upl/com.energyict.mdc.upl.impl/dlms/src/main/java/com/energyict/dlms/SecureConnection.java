@@ -123,4 +123,8 @@ public class SecureConnection implements DLMSConnection {
         return getTransportConnection().getMaxRetries();
 	}
 
+    public ApplicationServiceObject getApplicationServiceObject() {
+        return aso;
+    }
+
 }

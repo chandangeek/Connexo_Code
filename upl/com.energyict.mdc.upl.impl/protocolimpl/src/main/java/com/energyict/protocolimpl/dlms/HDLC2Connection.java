@@ -1,19 +1,12 @@
 package com.energyict.protocolimpl.dlms;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.InvokeIdAndPriority;
-import com.energyict.dlms.ReceiveBuffer;
+import com.energyict.dialer.connection.*;
+import com.energyict.dlms.*;
+import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.*;
 
 final public class HDLC2Connection extends Connection implements DLMSConnection {
 
@@ -867,4 +860,8 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
 	public int getMaxRetries() {
 		return iMaxRetries;
 	}
+
+    public ApplicationServiceObject getApplicationServiceObject() {
+        return null;
+    }
 }

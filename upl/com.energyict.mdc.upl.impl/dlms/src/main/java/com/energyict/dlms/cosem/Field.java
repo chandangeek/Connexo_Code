@@ -1,4 +1,4 @@
-package com.energyict.dlms.cosem.requests;
+package com.energyict.dlms.cosem;
 
 /**
  * @author jme
