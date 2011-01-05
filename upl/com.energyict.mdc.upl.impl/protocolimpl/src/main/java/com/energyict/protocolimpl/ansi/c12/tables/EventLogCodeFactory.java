@@ -106,7 +106,7 @@ abstract public class EventLogCodeFactory {
                 EventLogCode elc = (EventLogCode)it.next();
                 if (elc.getCode() == code) return elc;
             }
-            return new EventLogCode(code, "Unknown manufacturer log code!","");
+            return new EventLogCode(code, "Unknown manufacturer log code! Code:" + code,"");
         }
         else {
             Iterator it = stdList.iterator();
@@ -114,7 +114,7 @@ abstract public class EventLogCodeFactory {
                 EventLogCode elc = (EventLogCode)it.next();
                 if (elc.getCode() == code) return elc;
             }
-            return new EventLogCode(code, "Unknown standard log code!","");
+            return new EventLogCode(code, "Unknown standard log code! Code:" + code,"");
         }
     }
     
