@@ -76,6 +76,9 @@ public class ObisCodeInfo {
         return 0; //getObisCode().getB()-1; Occurances only 1! see KV2 doc! // B field is used to indicate harmonics or fundamental and special segmentation between phases!
     }
     
+    public boolean isInstantaneous() {
+        return getObisCode().getD() == ObisCode.CODE_D_INSTANTANEOUS;
+    }
     public boolean isTimeIntegral() {
         return getObisCode().getD() == ObisCode.CODE_D_TIME_INTEGRAL;
     }
