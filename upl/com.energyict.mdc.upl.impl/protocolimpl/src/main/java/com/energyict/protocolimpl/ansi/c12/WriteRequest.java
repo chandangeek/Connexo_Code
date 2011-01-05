@@ -70,12 +70,13 @@ public class WriteRequest extends AbstractRequest {
     public void partialWriteOffset(int tableId, int offset, byte[] tableData) throws IOException {
         requestData.setCode(PARTIAL_WRITE_OFFSET);
         byte[] assembledTableData = assembleTableData(tableData);
-        byte[] data = new byte[assembledTableData.length+4];
-        System.arraycopy(assembledTableData,0,data,4,assembledTableData.length);
+        byte[] data = new byte[assembledTableData.length+5];
+        System.arraycopy(assembledTableData,0,data,5,assembledTableData.length);
         data[0] = (byte)(tableId>>8);
         data[1] = (byte)(tableId);
-        data[2] = (byte)(offset>>8);
-        data[3] = (byte)(offset);
+        data[2] = (byte)(offset>>16);
+        data[3] = (byte)(offset>>8);
+        data[4] = (byte)(offset);
         requestData.setData(data);
     }
     
