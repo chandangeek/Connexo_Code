@@ -99,6 +99,8 @@ public class SourceInfo {
         
         // STEP 2   
         if (!((ElectricConstants)alphaA3.getStandardTableFactory().getConstantsTable().getConstants()[multiplierSelect]).getSet1Constants().isSetAppliedBit()) {
+        	if (energy || uomEntryBitField.getIdCode()<15) {
+        		
             int scale = alphaA3.getManufacturerTableFactory().getFactoryDefaultMeteringInformation().getInstrumentationScale();
             BigDecimal ct;
             ct = (BigDecimal)((ElectricConstants)alphaA3.getStandardTableFactory().getConstantsTable().getConstants()[multiplierSelect]).getSet1Constants().getRatioF1();
@@ -109,7 +111,8 @@ public class SourceInfo {
             vt = apply10Scaler(vt, scale);
             multiplier = multiplier.multiply(ct);
             multiplier = multiplier.multiply(vt);
-//System.out.println("STEP 2 multiplier="+multiplier);           
+//System.out.println("STEP 2 multiplier="+multiplier);  
+        	}
         }
         
         // STEP 3
@@ -184,6 +187,14 @@ public class SourceInfo {
                 return bd;
             }
 
+
+            case 27: { // TODO WHAT IS 27?
+                bd = bd.multiply(multiplier);
+                if (loadProfile) {
+                    bd = applyDivisors(bd, index);
+                }
+                return bd;
+            }
             case 33: { // Frequency
                 bd = bd.multiply(multiplier);
                 if (loadProfile) {
