@@ -35,7 +35,7 @@ import com.energyict.cbo.*;
  */
 public class AlphaA3LoadProfile {
     
-    private static final int DEBUG=0; //-1;ff;k;
+    protected static final int DEBUG=0; //-1;ff;k;
     
     AlphaA3 alphaA3;
     
@@ -62,6 +62,7 @@ public class AlphaA3LoadProfile {
         buildIntervalData(profileData,lastReading,to);
         if (includeEvents) {
             try {
+            	buildHistoryLog(profileData,lastReading,to);
                buildEventLog(profileData,lastReading,to);
                profileData.applyEvents(alphaA3.getProfileInterval()/60);
             }
@@ -78,7 +79,14 @@ public class AlphaA3LoadProfile {
         return profileData;
     }
     
-    private void buildEventLog(ProfileData profileData, Date lastReading, Date to) throws IOException {
+    protected void buildHistoryLog(ProfileData profileData, Date lastReading,
+			Date to) throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	private void buildEventLog(ProfileData profileData, Date lastReading, Date to) throws IOException {
        // oredr = 0 oldest -> newest 
        List meterEvents = new ArrayList(); 
        EventLog header = alphaA3.getStandardTableFactory().getEventLogDataTableHeader().getEventLog(); 
@@ -118,10 +126,11 @@ if (DEBUG>=1) System.out.println("KV_DEBUG> nrOfValidEntries="+nrOfValidEntries)
                       event2Read = 0;
            }
        }
-       profileData.setMeterEvents(meterEvents);
+       profileData.getMeterEvents().addAll(meterEvents);
+//       profileData.setMeterEvents(meterEvents);
     }
     
-    private MeterEvent createMeterEvent(EventEntry eventEntry) {
+    protected MeterEvent createMeterEvent(EventEntry eventEntry) {
         EventLogMfgCodeFactory eventFact = new EventLogMfgCodeFactory();
         int eiCode = eventFact.getEICode(eventEntry.getEventCode().getProcedureNr(),eventEntry.getEventCode().isStdVsMfgFlag());
         String text = eventFact.getEvent(eventEntry.getEventCode().getProcedureNr(),eventEntry.getEventCode().isStdVsMfgFlag())+", "+
