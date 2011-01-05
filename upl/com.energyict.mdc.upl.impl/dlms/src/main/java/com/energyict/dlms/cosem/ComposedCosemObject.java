@@ -113,14 +113,6 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
         return false;
     }
 
-    private DLMSAttribute[] getAttributes() {
-        return attributes;
-    }
-
-    private Object[] getDataResult() {
-        return dataResult;
-    }
-
     public long getValue() throws IOException {
         return 0;
     }
