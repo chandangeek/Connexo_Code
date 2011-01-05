@@ -24,6 +24,10 @@ public class ObisCodeDescriptor {
 
     private int bField;
 
+	private int dField = ObisCode.CODE_D_INSTANTANEOUS;
+
+	private int eField = 0;
+
     /**
      * Creates a new instance of ObisCodeDescriptor 
      */
@@ -56,6 +60,22 @@ public class ObisCodeDescriptor {
     public void setBField(int bField) {
         this.bField = bField;
     }
+
+    public void setCurrentDField(int dField) {
+        this.dField = dField;
+    }
+    
+	public int getCurrentDField() {
+		return dField;
+	}
+
+	public void setCurrentEField(int eField) {
+        this.eField  = eField;
+    }
+    
+	public int getCurrentEField() {
+		return eField;
+	}
 
     
 }
