@@ -83,11 +83,11 @@ public class UOM2ObisTranslator {
             } break;
             
             case 20: {
-            	unit = Unit.get("°");//("DEGREE");
+            	unit = Unit.get("°");
             }break;
             
             case 22: {
-            	unit = Unit.get("°");//("DEGREE");
+            	unit = Unit.get("°");
             }break;
             
             case 24: { // power factor computed using VA apparent id code 2
