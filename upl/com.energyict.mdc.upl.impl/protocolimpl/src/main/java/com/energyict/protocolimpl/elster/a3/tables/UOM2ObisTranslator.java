@@ -82,6 +82,14 @@ public class UOM2ObisTranslator {
                 unit = Unit.get("THDIIEEE");
             } break;
             
+            case 20: {
+            	unit = Unit.get("°");//("DEGREE");
+            }break;
+            
+            case 22: {
+            	unit = Unit.get("°");//("DEGREE");
+            }break;
+            
             case 24: { // power factor computed using VA apparent id code 2
                 unit = Unit.get("");
             } break;
@@ -89,6 +97,10 @@ public class UOM2ObisTranslator {
             case 25: { // power factor computed using VA phasor id code 3
                 unit = Unit.get("");
             } break;
+            
+//            case 27: {
+//            	unit = Unit.get("");
+//            }break;
             
             case 33: { // Frequency
                 unit = Unit.get("Hz");
@@ -218,6 +230,7 @@ public class UOM2ObisTranslator {
         boolean importMinusExport = q1 && q2 && q3 && q4 && netFlow;
         boolean importPlusExport = q1 && q2 && q3 && q4 && !netFlow;
         int cField=0;
+        boolean voltageAngle = false;
         
         // parse idCode, netflow & quadrants
         switch(uomEntryBitField.getIdCode()) {
@@ -374,6 +387,17 @@ public class UOM2ObisTranslator {
                 cField=147;
             } break;
             
+            case 20: { // V-VA Voltage Phase Angle
+                strBuff.append("V-VA Voltage Phase Angle");
+                cField=81;
+                voltageAngle = true;
+            } break;
+            
+            case 22: { // I-VA Current Phase Angle
+                strBuff.append("I-VA Current Phase Angle");
+                cField=81;
+            } break;
+            
             case 24: { // power factor computed using VA apparent id code 2
                 strBuff.append("Power factor using VA apparent");
                 cField=13;
@@ -383,6 +407,12 @@ public class UOM2ObisTranslator {
                 strBuff.append("Power factor using VA phasor");
                 cField=148;
             } break;
+            
+//            case 27: {
+//            	strBuff.append("UNKNOWN");
+//                cField=1;
+//            }break;
+            
             
             case 33: { // Frequency
                 strBuff.append("Frequency");
@@ -409,11 +439,41 @@ public class UOM2ObisTranslator {
             segmentationOffset = getSegmentationCFieldOffset(segmentation)-128;
         }
         else segmentationOffset = getSegmentationCFieldOffset(segmentation);
-        cField += segmentationOffset;
         
         strBuff.append(", "+getQuadrantDescription()+", "+getSegmentationAndHarmonicsDescription());
         
-        return new ObisCodeDescriptor(bField,cField, strBuff.toString());
+        ObisCodeDescriptor ocd;
+        if(cField != 81) {
+        	//cField set to 81 indicates angles and the phases are not represented here but in the E field
+        	cField += segmentationOffset;
+        	ocd = new ObisCodeDescriptor(bField,cField, strBuff.toString());
+        } else {
+        	ocd = new ObisCodeDescriptor(bField,cField, strBuff.toString());
+        	ocd.setCurrentDField(7);
+        	ocd.setCurrentEField(getEfield(voltageAngle, segmentation));
+        }
+        
+        
+		return ocd;
         
     } // private ObisCodeDescriptor buildObisCodefields() throws IOException
+
+	private int getEfield(boolean voltageAngle, int segmentation) throws IOException {
+		if (voltageAngle) {
+			if (segmentation == 5) // phase A   
+				return 10;
+			else if (segmentation == 6) // phase B   
+				return 21;
+			else if (segmentation == 7) // phase C   
+				return 2;
+		}else {
+			if (segmentation == 5) // phase A   
+				return 4;
+			else if (segmentation == 6) // phase B   
+				return 15;
+			else if (segmentation == 7) // phase C   
+				return 26;
+		}
+		throw new IOException("UOM2ObisTranslator, getEfield, invalid segmentation "+segmentation);
+	}
 }
