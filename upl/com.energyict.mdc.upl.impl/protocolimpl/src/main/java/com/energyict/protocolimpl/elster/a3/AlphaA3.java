@@ -52,20 +52,20 @@ KV|08102007|Bugfix load profile interval end time
 // changed
 public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
     
-    private C12Layer2 c12Layer2;
-    private PSEMServiceFactory psemServiceFactory;
-    private StandardTableFactory standardTableFactory;
-    private ManufacturerTableFactory manufacturerTableFactory;
-    private StandardProcedureFactory standardProcedureFactory;
-    private ManufacturerProcedureFactory manufacturerProcedureFactory;
+	protected C12Layer2 c12Layer2;
+    protected PSEMServiceFactory psemServiceFactory;
+    protected StandardTableFactory standardTableFactory;
+    protected ManufacturerTableFactory manufacturerTableFactory;
+    protected StandardProcedureFactory standardProcedureFactory;
+    protected ManufacturerProcedureFactory manufacturerProcedureFactory;
     A3 a3=new A3();
     AlphaA3LoadProfile alphaA3LoadProfile;
     private ObisCodeInfoFactory obisCodeInfoFactory=null;
-    int passwordBinary;
+    protected int passwordBinary;
     private int retrieveExtraIntervals;
     
-    String c12User;
-    int c12UserId;    
+    protected String c12User;
+    protected int c12UserId;    
     
     /** Creates a new instance of AlphaA3 */
     public AlphaA3() {
@@ -163,7 +163,7 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
     }
     
     protected List doGetOptionalKeys() {
-        List result = new ArrayList();
+        List result = new ArrayList(super.getOptionalKeys());
         
         result.add("C12User");
         result.add("C12UserId");
