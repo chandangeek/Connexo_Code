@@ -18,6 +18,7 @@ import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
 import com.energyict.genericprotocolimpl.webrtuz3.WebRTUZ3;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.RtuMessageShadow;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -40,8 +41,9 @@ public class MessageExecutor extends GenericMessageExecutor{
 	private WebRTUZ3 webRtu;
 	private boolean DEBUG = false;
 	
+    private static final ObisCode RF_FIRMWARE_OBISCODE = ObisCode.fromString("0.0.44.0.128.255");
 	private static final byte[] defaultMonitoredAttribute = new byte[]{1,0,90,7,0,(byte)255};	// Total current, instantaneous value
-	
+
 	public MessageExecutor(WebRTUZ3 webRTU) {
 		this.webRtu = webRTU;
 	}
@@ -171,7 +173,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 				}
 				
 				byte[] imageData = uf.loadFileInByteArray();
-				ImageTransfer it = getCosemObjectFactory().getImageTransfer(WebRTUZ3.RF_FIRMWARE_OBISCODE);
+				ImageTransfer it = getCosemObjectFactory().getImageTransfer(RF_FIRMWARE_OBISCODE);
 				it.upgrade(imageData);
 				if(DEBUG) {
 					System.out.println("UserFile is send to the device.");

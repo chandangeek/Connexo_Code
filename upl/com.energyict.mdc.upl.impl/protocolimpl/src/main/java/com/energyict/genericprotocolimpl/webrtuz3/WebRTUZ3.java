@@ -6,11 +6,13 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.*;
 import com.energyict.genericprotocolimpl.common.messages.*;
 import com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers.ObisCodeMapper;
 import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
+import com.energyict.genericprotocolimpl.webrtuz3.composedobjects.ComposedMeterInfo;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.MessageExecutor;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.*;
 import com.energyict.mdw.amr.RtuRegister;
@@ -77,8 +79,6 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
     /**
      * The device obisCodes
      */
-    public static final ObisCode RF_FIRMWAREVERSION = ObisCode.fromString("1.129.0.2.0.255");
-    public static final ObisCode RF_FIRMWARE_OBISCODE = ObisCode.fromString("0.0.44.0.128.255");
     public static final ObisCode SERIALNR_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
     public static final ObisCode LOGGER_PROFILE_BASE_OBISCODE = ObisCode.fromString("0.0.99.1.0.255");
 
@@ -151,16 +151,15 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
      * The {@link ObisCodeMapper} used
      */
     private WebRtuZ3ObisCodeMapper ocm;
+    private ComposedMeterInfo meterInfo;
 
     private boolean runTestMethod = false;
+    private CachedMeterTime cachedMeterTime = null;
 
     @Override
     protected void doExecute() throws BusinessException, SQLException, IOException {
 
         try {
-            if (getMeter() != null) {
-                updateIPAddress();
-            }
 
             testMethod();
 
@@ -335,6 +334,11 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
         }
     }
 
+    @Override
+    public int requestConfigurationChanges() throws IOException {
+        return getMeterInfo().getConfigurationChanges();
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -357,7 +361,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
      */
     private String getFirmWareVersion() throws IOException {
         try {
-            return getCosemObjectFactory().getGenericRead(getMeterConfig().getVersionObject()).getString();
+            return getMeterInfo().getFirmwareVersion();
         } catch (IOException e) {
             String message = "Could not fetch the firmwareVersion." + e.getMessage();
             log(Level.FINEST, message);
@@ -372,7 +376,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
      */
     private String getRFFirmwareVersion() {
         try {
-            return getCosemObjectFactory().getGenericRead(RF_FIRMWAREVERSION, DLMSUtils.attrLN2SN(2), 1).getString();
+            return getMeterInfo().getRFFirmwareVersion();
         } catch (IOException e) {
             log(Level.FINEST, "Unable to read the RFFirmwareVersion: " + e.getMessage());
             return "";
@@ -399,7 +403,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
      */
     public String getSerialNumber() throws IOException {
         try {
-            return getCosemObjectFactory().getGenericRead(getMeterConfig().getSerialNumberObject()).getString();
+            return getMeterInfo().getSerialNr();
         } catch (IOException e) {
             log(Level.FINEST, e.getMessage());
             throw new IOException("Could not retrieve the serialnumber of the meter." + e);
@@ -540,34 +544,6 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
      */
     public boolean isBadTime() {
         return badTime;
-    }
-
-    /**
-     * Collect the IP address of the meter and update this value on the RTU
-     *
-     * @throws SQLException      if a database exception occurred during the upgrade of the IP-address
-     * @throws BusinessException if a businessexception occurred during the upgrade of the IP-address
-     * @throws IOException       caused by an invalid reference type or invalid datatype
-     */
-    private void updateIPAddress() throws SQLException, BusinessException, IOException {
-        StringBuffer ipAddress = new StringBuffer();
-        try {
-            IPv4Setup ipv4Setup = getCosemObjectFactory().getIPv4Setup();
-            ipAddress.append(ipv4Setup.getIPAddress());
-            ipAddress.append(":");
-            ipAddress.append(getIpPortNumber());
-
-            if (getMeter().getIpAddress() != null && !getMeter().getIpAddress().equalsIgnoreCase(ipAddress.toString())) {
-                getMeter().updateIpAddress(ipAddress.toString());
-            }
-
-        } catch (IOException e) {
-            log(Level.FINEST, e.getMessage());
-            throw new IOException("Could not set the IP address." + e);
-        } catch (SQLException e) {
-            log(Level.FINEST, e.getMessage());
-            throw new SQLException("Could not update the IP address." + e);
-        }
     }
 
     @Override
@@ -1196,6 +1172,24 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 
     public boolean isRunTestMethod() {
         return runTestMethod;
-}
+    }
 
+    public ComposedMeterInfo getMeterInfo() {
+        if (meterInfo == null) {
+            meterInfo = new ComposedMeterInfo(getProtocolLink());
+        }
+        return meterInfo;
+    }
+
+    private ProtocolLink getProtocolLink() {
+        return (ProtocolLink) this;
+    }
+
+    @Override
+    public Date getTime() throws IOException {
+        if (cachedMeterTime == null) {
+            cachedMeterTime = new CachedMeterTime(super.getTime()); 
+        }
+        return cachedMeterTime.getTime();
+    }
 }

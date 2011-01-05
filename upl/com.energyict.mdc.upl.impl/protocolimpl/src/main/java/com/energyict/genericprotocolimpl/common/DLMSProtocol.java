@@ -606,7 +606,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
      * @return the number of configuration changes.
      * @throws IOException
      */
-    private int requestConfigurationChanges() throws IOException {
+    public int requestConfigurationChanges() throws IOException {
         try {
             return (int) getCosemObjectFactory().getCosemObject(getMeterConfig().getConfigObject().getObisCode()).getValue();
         } catch (IOException e) {
