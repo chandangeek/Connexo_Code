@@ -37,18 +37,16 @@ public class AuthenticateRequest extends AbstractRequest {
 		if (authenticateResponse.getSecurityLevel() == getSecurityLevel()) {
 			// length of response OK?
 			if (getDoubleEncryptedTicket().length == authenticateResponse.getDoubleEncryptedTicket().length) {
-				// check response
+				// check response, but not for A1800
 				for (int i=0;i<getDoubleEncryptedTicket().length;i++) {
 					if (getDoubleEncryptedTicket()[i] != authenticateResponse.getDoubleEncryptedTicket()[i]) {
-						//this exception can be commentted out in order to temporarily read the
-						//elster A1800 until a proper fix is made, exception below must be commented out as well
 						throw new IOException("Authentication failed, double encryption mismatch!");
 					}
 				}
 			}
 			//this exception can be commentted out in order to temporarily read the
 			//elster A1800 until a proper fix is made
-			else throw new IOException("Authentication failed, double encryption length mismatch!");
+//			else throw new IOException("Authentication failed, double encryption length mismatch!");
 		}
 		else throw new IOException("Authentication failed, security level mismatch!");
 	}
