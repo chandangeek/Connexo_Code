@@ -543,6 +543,9 @@ public abstract class GenericMessaging implements Messaging {
         msgAttrSpec = new MessageAttributeSpec(
 				RtuMessageConstant.MBUS_INSTALL_CHANNEL, true);
         tagSpec.add(msgAttrSpec);
+                msgAttrSpec = new MessageAttributeSpec(
+				RtuMessageConstant.MBUS_DEFAULT_ENCRYPTION_KEY, true);
+        tagSpec.add(msgAttrSpec);
         tagSpec.add(msgVal);
 		msgSpec.add(tagSpec);
 		return msgSpec;

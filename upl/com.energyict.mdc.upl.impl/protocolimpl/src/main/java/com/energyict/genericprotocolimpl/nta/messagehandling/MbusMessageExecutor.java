@@ -235,24 +235,28 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 		return getMbusDevice().getPhysicalAddress();
 	}
 	
-	private CosemObjectFactory getCosemObjectFactory() {
+	protected CosemObjectFactory getCosemObjectFactory() {
 		return getMbusDevice().getWebRTU().getCosemObjectFactory();
 	}
-	
-	private DLMSMeterConfig getMeterConfig() {
+
+	protected DLMSMeterConfig getMeterConfig() {
 		return getMbusDevice().getWebRTU().getMeterConfig();
 	}
 
 	protected TimeZone getTimeZone() {
 		return getMbusDevice().getWebRTU().getTimeZone();
 	}
-	
-	private AbstractMbusDevice getMbusDevice(){
+
+	protected AbstractMbusDevice getMbusDevice(){
 		return this.mbusDevice;
 	}
-	
+
 	private Logger getLogger(){
 		return getMbusDevice().getLogger();
+	}
+
+    protected void log(Level level, String msg){
+		getLogger().log(level, msg);
 	}
 
 }

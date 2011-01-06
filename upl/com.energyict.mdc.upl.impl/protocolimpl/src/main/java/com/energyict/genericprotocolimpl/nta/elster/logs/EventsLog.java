@@ -29,8 +29,8 @@ public class EventsLog extends com.energyict.genericprotocolimpl.nta.eventhandli
     public List<MeterEvent> getMeterEvents() throws IOException {
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         int size = this.dcEvents.getRoot().getNrOfElements();
-        System.out.println("Printing DataContainer for Events");
-        this.dcEvents.printDataContainer();
+//        System.out.println("Printing DataContainer for Events");
+//        this.dcEvents.printDataContainer();
         Date eventTimeStamp = null;
         for (int i = 0; i <= (size - 1); i++) {
             int eventId = (int) this.dcEvents.getRoot().getStructure(i).getValue(1) & 0xFF; // To prevent negative values

@@ -218,7 +218,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 	}
 
     /**
-     * Getter for the {@link com.energyict.dlms.cosem.MBusClient} object according to BlueBook version 9 or below
+     * Getter for the {@link com.energyict.dlms.cosem.MBusClient} object (valid for any DLMS version)
      *
      * @param obisCode the obisCode of the Object
      * @param version  the version of the object (see {@link com.energyict.dlms.cosem.attributes.MbusClientAttributes#version} for more details)

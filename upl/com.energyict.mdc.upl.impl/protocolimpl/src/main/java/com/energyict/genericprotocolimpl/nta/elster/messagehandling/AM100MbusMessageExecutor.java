@@ -8,27 +8,38 @@ import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
-import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol;
-import com.energyict.genericprotocolimpl.nta.messagehandling.MessageExecutor;
+import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
+import com.energyict.genericprotocolimpl.nta.messagehandling.MbusMessageExecutor;
 import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.shadow.RtuShadow;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.logging.Level;
 
 /**
- * <p>
  * Copyrights EnergyICT
- * Date: 27-jul-2010
- * Time: 11:02:04
- * </p>
+ * Date: 5-jan-2011
+ * Time: 11:29:45
  */
-public class AM100MessageExecutor extends MessageExecutor {
+public class  AM100MbusMessageExecutor extends MbusMessageExecutor {
 
-    public AM100MessageExecutor(AbstractNTAProtocol webRTUKP) {
-        super(webRTUKP);
+    /**
+     * Constructor matching super
+     *
+     * @param mbusDevice the messageProvider class
+     */
+    public AM100MbusMessageExecutor(AbstractMbusDevice mbusDevice) {
+        super(mbusDevice);
     }
 
+    /**
+     * Execute the given RtuMessage
+     *
+     * @param rtuMessage the RtuMessage to execute
+     * @throws BusinessException
+     * @throws SQLException
+     */
     @Override
     public void doMessage(RtuMessage rtuMessage) throws BusinessException, SQLException {
         boolean success = false;
@@ -37,20 +48,16 @@ public class AM100MessageExecutor extends MessageExecutor {
         try {
             importMessage(content, messageHandler);
 
-            boolean mbusInstall = messageHandler.getType().equals(RtuMessageConstant.MBUS_INSTALL);
-            if (mbusInstall) {
-                log(Level.INFO, "Handling Message " + rtuMessage.displayString() + ": Installing MBus device");
+            boolean mbusDeinstall = messageHandler.getType().equals(RtuMessageConstant.MBUS_DECOMMISSION);
+            if (mbusDeinstall) {
+                log(Level.INFO, "Handling Message " + rtuMessage.displayString() + ": Deinstalling MBus device");
 
-                byte[] serial = "00000000000000000".getBytes();
-                System.arraycopy(messageHandler.getMbusInstallEquipmentId().getBytes(), 0, serial, serial.length -
-                        messageHandler.getMbusInstallEquipmentId().length(), messageHandler.getMbusInstallEquipmentId().length());
+                Data serialNumb = getCosemObjectFactory().getData(getMeterConfig().getMbusSerialNumber(getMbusDevice().getPhysicalAddress()).getObisCode());
+                serialNumb.setValueAttr(OctetString.fromString(new String("")));
 
-                Data serialNumb = getCosemObjectFactory().getData(getMeterConfig().getMbusSerialNumber(messageHandler.getMbusInstallChannel()).getObisCode());
-                serialNumb.setValueAttr(OctetString.fromString(new String (serial)));
-
-                MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(messageHandler.getMbusInstallChannel()).getObisCode(),9);
-                mbusClient.setTransportKey(DLMSUtils.hexStringToByteArray(messageHandler.getMbusInstallEncryptionKey()));
-                mbusClient.setEncryptionKey(DLMSUtils.hexStringToByteArray(messageHandler.getMbusInstallEncryptionKey()));
+                RtuShadow shadow = getMbusDevice().getMbus().getShadow();
+                shadow.setGatewayId(0);
+                getMbusDevice().getMbus().update(shadow);
 
                 success = true;
 

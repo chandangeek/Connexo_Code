@@ -5,6 +5,7 @@ import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.cosem.Data;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageCategoryConstants;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
@@ -17,6 +18,7 @@ import com.energyict.genericprotocolimpl.nta.elster.profiles.EventProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
 
@@ -35,6 +37,8 @@ import java.util.logging.Logger;
  * Time: 13:56:15
  */
 public class AM100 extends AbstractNTAProtocol {
+
+    private static final ObisCode ACTIVE_FIRMWARE_OBISCODE = ObisCode.fromString("0.0.96.14.0.255");
 
     /** Only for testing */
     private static final boolean TESTING = false;
@@ -63,7 +67,6 @@ public class AM100 extends AbstractNTAProtocol {
     @Override
     public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
         boolean success = false;
-        String ipAddress = "";
 
         this.scheduler = scheduler;
         this.logger = logger;
@@ -194,7 +197,9 @@ public class AM100 extends AbstractNTAProtocol {
     @Override
     protected String getFirmWareVersion() throws IOException {
         try {
-            return getCosemObjectFactory().getGenericRead(getMeterConfig().getVersionObject()).getString();
+            Data activeFirmware = getCosemObjectFactory().getData(ACTIVE_FIRMWARE_OBISCODE);
+            return activeFirmware.getString();
+//            return getCosemObjectFactory().getGenericRead(getMeterConfig().getVersionObject()).getString();
         } catch (IOException e) {
             log(Level.SEVERE, "Could not fetch the firmwareVersion: " + e.getMessage());
         }

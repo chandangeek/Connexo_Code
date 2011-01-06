@@ -517,17 +517,35 @@ public class MessageHandler extends DefaultHandler{
     */
     private String mbusEquipmentId = "";
     private String mbusChannelToInstall = "";
+    private String mbusEncryptionKey = "";
     private void handleMbusInstall(Attributes attrbs){
         this.mbusEquipmentId = attrbs.getValue(RtuMessageConstant.MBUS_EQUIPMENT_ID);
         this.mbusChannelToInstall = attrbs.getValue(RtuMessageConstant.MBUS_INSTALL_CHANNEL);
+        this.mbusEncryptionKey = attrbs.getValue(RtuMessageConstant.MBUS_DEFAULT_ENCRYPTION_KEY);
     }
 
+    /**
+     * Getter for the MbusInstall EquipmentIdentifier (for the AM100 this is the RF-address of the IZAR module)
+     * @return the equipmentId the user gave in
+     */
     public String getMbusInstallEquipmentId(){
         return mbusEquipmentId;
     }
 
+    /**
+     * Getter for the MbusInstall channel
+     * @return the channel the user gave in
+     */
     public int getMbusInstallChannel(){
         return Integer.parseInt(mbusChannelToInstall);
+    }
+
+    /**
+     * Getter for the MbusInstall Encryption Key
+     * @return the encryption Key the user gave in
+     */
+    public String getMbusInstallEncryptionKey(){
+        return mbusEncryptionKey;
     }
 
 }

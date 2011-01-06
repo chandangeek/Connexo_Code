@@ -2,17 +2,13 @@ package com.energyict.genericprotocolimpl.nta.elster;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.Link;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageCategoryConstants;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
-import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
-import com.energyict.genericprotocolimpl.nta.abstractnta.MbusObisCodeProvider;
-import com.energyict.genericprotocolimpl.nta.abstractnta.NTAObisCodeProvider;
+import com.energyict.genericprotocolimpl.common.messages.*;
+import com.energyict.genericprotocolimpl.nta.abstractnta.*;
+import com.energyict.genericprotocolimpl.nta.elster.messagehandling.AM100MbusMessageExecutor;
 import com.energyict.genericprotocolimpl.nta.elster.obiscodeproviders.OMSGasObisCodeProvider;
 import com.energyict.genericprotocolimpl.nta.elster.profiles.MbusProfile;
 import com.energyict.genericprotocolimpl.nta.profiles.MbusDailyMonthlyProfile;
-import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.messaging.MessageCategorySpec;
@@ -20,9 +16,7 @@ import com.energyict.protocol.messaging.MessageSpec;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -115,30 +109,14 @@ public class MbusDevice extends AbstractMbusDevice {
         }
 
         if (commProfile.getReadMeterEvents()) {
-
-            // Currently no MBus events
-
-//            getLogger().log(Level.INFO, "Getting events for meter with serialnumber: " + getMbus().getSerialNumber());
-//            MbusEventProfile mep = new MbusEventProfile(this);
-//            mep.getEvents();
+            getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + getMbus().getSerialNumber());
         }
 
-        // import daily/monthly
+        // Registers
         if (commProfile.getReadMeterReadings()) {
             MbusDailyMonthlyProfile mdm = new MbusDailyMonthlyProfile(this);
 
-            //TODO currently no Mbus daily profile is available
-            if (false) {
-                getLogger().log(Level.INFO, "Getting Daily values for meter with serialnumber: " + getMbus().getSerialNumber());
-                mdm.getDailyProfile(getObiscodeProvider().getDailyProfileObisCode());
-            }
-
-            //TODO currently no Mbus monthly profile is available
-            if (false) {
-                getLogger().log(Level.INFO, "Getting Monthly values for meter with serialnumber: " + getMbus().getSerialNumber());
-                mdm.getMonthlyProfile(getObiscodeProvider().getMonthlyObisCode());
-            }
-            getLogger().log(Level.INFO, "Getting registers from Mbus meter " + (getPhysicalAddress() + 1));
+            getLogger().log(Level.INFO, "Getting registers from Mbus meter with serialnumber:" + getMbus().getSerialNumber());
             doReadRegisters();
         }
 
@@ -146,6 +124,20 @@ public class MbusDevice extends AbstractMbusDevice {
         if (commProfile.getSendRtuMessage()) {
             sendMeterMessages();
         }
+    }
+
+    /**
+     * Write the configured messages to the device
+     */
+    protected void sendMeterMessages() throws BusinessException, SQLException {
+        AM100MbusMessageExecutor messageExecutor = new AM100MbusMessageExecutor(this);
+
+		Iterator<RtuMessage> it = getMbus().getPendingMessages().iterator();
+		RtuMessage rm = null;
+		while (it.hasNext()) {
+			rm = it.next();
+			messageExecutor.doMessage(rm);
+		}
     }
 
     /**
@@ -174,9 +166,6 @@ public class MbusDevice extends AbstractMbusDevice {
         MessageSpec msgSpec = addNoValueMsg(
                 RtuMessageKeyIdConstants.MBUSDECOMMISSION,
                 RtuMessageConstant.MBUS_DECOMMISSION, false);
-        catMbusSetup.addMessageSpec(msgSpec);
-        msgSpec = addEncryptionkeys(RtuMessageKeyIdConstants.MBUSENCRYPTIONKEY,
-                RtuMessageConstant.MBUS_ENCRYPTION_KEYS, false);
         catMbusSetup.addMessageSpec(msgSpec);
         return catMbusSetup;
     }
