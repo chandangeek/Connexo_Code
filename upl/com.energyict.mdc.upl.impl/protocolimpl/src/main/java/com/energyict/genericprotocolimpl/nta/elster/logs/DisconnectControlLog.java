@@ -33,7 +33,6 @@ public class DisconnectControlLog extends com.energyict.genericprotocolimpl.nta.
         for (int i = 0; i <= (size - 1); i++) {
             int eventId = (int) this.dcEvents.getRoot().getStructure(i).getValue(1) & 0xFF; // To prevent negative values
             String threshold = "Unknown";
-            //fixed it for the Iskra 2009 meter
             if (this.dcEvents.getRoot().getStructure(i).getElements().length == 3) {
                 threshold = Integer.toString(this.dcEvents.getRoot().getStructure(i).getInteger(2));
             }

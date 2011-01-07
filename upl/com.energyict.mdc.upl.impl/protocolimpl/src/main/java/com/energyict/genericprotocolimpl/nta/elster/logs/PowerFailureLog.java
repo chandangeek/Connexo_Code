@@ -33,14 +33,17 @@ public class PowerFailureLog extends com.energyict.genericprotocolimpl.nta.event
         int size = this.dcEvents.getRoot().getNrOfElements();
         Date eventTimeStamp = null;
         for (int i = 0; i <= (size - 1); i++) {
-            int eventId = (int) this.dcEvents.getRoot().getStructure(i).getValue(1) & 0xFF; // To prevent negative values
+			long duration = this.dcEvents.getRoot().getStructure(i).getValue(1);
+			if(duration < 0){
+				duration += 0xFFFF;
+				duration++;
+			}
             if (isOctetString(this.dcEvents.getRoot().getStructure(i).getElement(0))) {
-//                eventTimeStamp = dcEvents.getRoot().getStructure(i).getOctetString(0).toCalendar(timeZone).getTime();
-                eventTimeStamp = new AXDRDateTime(new OctetString(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray())).getValue().getTime();
+                eventTimeStamp = dcEvents.getRoot().getStructure(i).getOctetString(0).toCalendar(timeZone).getTime();
             }
 
             if (eventTimeStamp != null) {
-                buildMeterEvent(meterEvents, eventTimeStamp, eventId);
+                buildMeterEvent(meterEvents, eventTimeStamp, duration);
             }
         }
         return meterEvents;

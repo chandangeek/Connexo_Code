@@ -47,22 +47,20 @@ public class EventProfile extends com.energyict.genericprotocolimpl.nta.profiles
         DataContainer dcControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getControlLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
         DataContainer dcPowerFailure = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getPowerFailureLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
         DataContainer dcFraudDetection = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getFraudDetectionLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
-//        DataContainer dcMbusEventLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusEventLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
 
         EventsLog standardEvents = new EventsLog(webrtu.getTimeZone(), dcEvent);
         FraudDetectionLog fraudDetectionEvents = new FraudDetectionLog(webrtu.getTimeZone(), dcFraudDetection);
         DisconnectControlLog disconnectControl = new DisconnectControlLog(webrtu.getTimeZone(), dcControlLog);
-//        MbusLog mbusLogs = new MbusLog(getTimeZone(), dcMbusEventLog);
         PowerFailureLog powerFailure = new PowerFailureLog(webrtu.getTimeZone(), dcPowerFailure);
 
         profileData.getMeterEvents().addAll(standardEvents.getMeterEvents());
         profileData.getMeterEvents().addAll(fraudDetectionEvents.getMeterEvents());
         profileData.getMeterEvents().addAll(disconnectControl.getMeterEvents());
-//        profileData.getMeterEvents().addAll(mbusLogs.getMeterEvents());
         profileData.getMeterEvents().addAll(powerFailure.getMeterEvents());
 
         // Don't create statusbits from the events
 //			profileData.applyEvents(webrtu.getMeter().getIntervalInSeconds()/60);
+
         webrtu.getStoreObject().add(profileData, getMeter());
     }
 }
