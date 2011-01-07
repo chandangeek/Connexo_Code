@@ -131,7 +131,11 @@ public class ObisCodeMapper {
     					(obisCode.getC() == 72) ||	// inst. voltage L3
     					(obisCode.getC() == 71) ||	// inst. current L3
     					(obisCode.getC() == 15) ||	// inst. active power (P+)
-    					(obisCode.getC() == 90) ){	// inst. current
+    					(obisCode.getC() == 90) ||  // inst. current
+                        (obisCode.getC() == 4)  ||  // inst. ReAct. Power export Total
+                        (obisCode.getC() == 3)  ||  // inst. ReAct. Power import Total
+                        (obisCode.getC() == 2)  ||  // inst. Act. Power export Total
+                        (obisCode.getC() == 1)){    // inst. Act. Power import Total   
     				co = cof.getCosemObject(obisCode);
     			}
     		} else if(obisCode.getD() == 24) {
