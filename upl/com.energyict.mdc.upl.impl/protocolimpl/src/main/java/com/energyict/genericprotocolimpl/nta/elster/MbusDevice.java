@@ -109,7 +109,7 @@ public class MbusDevice extends AbstractMbusDevice {
         }
 
         if (commProfile.getReadMeterEvents()) {
-            getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + getMbus().getSerialNumber());
+            getLogger().log(Level.INFO, "Events are not available for Mbus meters connected to an AM100.");
         }
 
         // Registers
@@ -186,14 +186,17 @@ public class MbusDevice extends AbstractMbusDevice {
      */
     @Override
     public MbusObisCodeProvider getObiscodeProvider() throws IOException {
-        if (NTA.equalsIgnoreCase(mbusType)) {
-            return new NTAObisCodeProvider();
-        } else if (OMS.equalsIgnoreCase(mbusType)) {
-            
-            // TODO if it is an OMS meter, then there are also differences between the Gas and Water ObisCodes
+        return new NTAObisCodeProvider();
 
-            return new OMSGasObisCodeProvider();
-        }
-        throw new IOException("Incorrect MbusObisCodeProvider selection type");
+        /* Before we hade more then one obiscode provider, depending on the config of the device */
+//        if (NTA.equalsIgnoreCase(mbusType)) {
+//            return new NTAObisCodeProvider();
+//        } else if (OMS.equalsIgnoreCase(mbusType)) {
+//
+//            // TODO if it is an OMS meter, then there are also differences between the Gas and Water ObisCodes
+//
+//            return new OMSGasObisCodeProvider();
+//        }
+//        throw new IOException("Incorrect MbusObisCodeProvider selection type");
     }
 }

@@ -108,7 +108,7 @@ public class MbusProfile extends AbstractNTAProfile{
 					channelIndex = getProfileChannelNumber(index+1);
 					if(channelIndex != -1){
 						CapturedObject co = ((CapturedObject)profile.getCaptureObjects().get(i));
-						ScalerUnit su = getMeterDemandRegisterScalerUnit(co.getLogicalName().getObisCode());
+						ScalerUnit su = getMeterDemandRegisterScalerUnit(co.getLogicalName().getObisCode(), co.getClassId());
 						if((su != null) && (su.getUnitCode() != 0)) {
 							ci = new ChannelInfo(index, channelIndex, "WebRtuKP_MBus_"+index, su.getUnit());
 						} else {
@@ -129,8 +129,8 @@ public class MbusProfile extends AbstractNTAProfile{
 		}
 		return channelInfos;
 	}
-	
-	private boolean isMbusRegisterObisCode(ObisCode oc) throws IOException {
+
+	protected boolean isMbusRegisterObisCode(ObisCode oc) throws IOException {
         return this.mbusDevice.getObiscodeProvider().getMasterRegisterTotal().equals(oc) ||
                 this.mbusDevice.getObiscodeProvider().getMasterRegisterValue1(this.mbusDevice.getPhysicalAddress()).equals(oc) ||
                 this.mbusDevice.getObiscodeProvider().getMasterRegisterValue2(this.mbusDevice.getPhysicalAddress()).equals(oc) ||

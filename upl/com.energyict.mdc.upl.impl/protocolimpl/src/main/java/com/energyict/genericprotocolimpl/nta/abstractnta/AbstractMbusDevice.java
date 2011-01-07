@@ -225,12 +225,10 @@ public abstract class AbstractMbusDevice extends MbusMessages implements Generic
 						}
 						
 					} catch (NoSuchRegisterException e) {
-						e.printStackTrace();
 						getLogger().log(Level.INFO, "ObisCode " + oc + " is not supported by the meter.");
 					}
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
 				getLogger().log(Level.INFO, "Reading register with obisCode " + oc + " FAILED.");
 			}
 		}

@@ -38,7 +38,7 @@ import java.util.logging.Logger;
  */
 public class AM100 extends AbstractNTAProtocol {
 
-    private static final ObisCode ACTIVE_FIRMWARE_OBISCODE = ObisCode.fromString("0.0.96.14.0.255");
+    private static final ObisCode ACTIVE_FIRMWARE_OBISCODE = ObisCode.fromString("1.0.0.2.0.255");
 
     /** Only for testing */
     private static final boolean TESTING = false;

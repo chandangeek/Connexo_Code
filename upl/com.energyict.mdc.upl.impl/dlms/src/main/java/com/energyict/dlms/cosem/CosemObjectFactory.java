@@ -335,8 +335,6 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
             return getStoredValues().getHistoricalValue(obisCode);
         }
         else {
-
-
             if (protocolLink.getMeterConfig().getClassId(obisCode) == Register.CLASSID) {
 				return new Register(protocolLink,getObjectReference(obisCode));
 			} else if (protocolLink.getMeterConfig().getClassId(obisCode) == ExtendedRegister.CLASSID) {
@@ -351,7 +349,29 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 				throw new IOException("CosemObjectFactory, getCosemObject, invalid classId "+protocolLink.getMeterConfig().getClassId(obisCode)+" for obisCode "+obisCode.toString()) ;
 			}
         }
+    }
 
+    /**
+     * Create a cosemObject based on the given parameters. Currently Data, Register, ExtendedRegister and DemandRegister are implemented
+     *
+     * @param oc      the obisCode for the object
+     * @param classId the classId for the object
+     * @return the newly constructed object
+     * @throws IOException if the classId is not supported for this method
+     */
+    public CosemObject getCosemObjectFromObisAndClassId(ObisCode oc, int classId) throws IOException {
+        switch (classId) {
+            case 1:
+                return new Data(protocolLink, getObjectReference(oc));
+            case 3:
+                return new Register(protocolLink, getObjectReference(oc));
+            case 4:
+                return new ExtendedRegister(protocolLink, getObjectReference(oc));
+            case 5:
+                return new DemandRegister(protocolLink, getObjectReference(oc));
+            default:
+                throw new IOException("CosemObjectFactory, getCosemObject, invalid classId " + classId + " for obisCode " + oc);
+        }
     }
 
     public ComposedCosemObject getComposedCosemObject(DLMSAttribute... dlmsAttributes) {
@@ -386,5 +406,6 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 		}
 		throw new IOException("CosemObjectFactory, getObjectReference, invalid reference type " + protocolLink.getReference());
 	}
+
 
 }

@@ -35,7 +35,7 @@ public class MbusObisCodeMapper {
 		
     	//Mbus related ObisRegisters
     	if ((obisCode.getA() == 0) && (obisCode.getC() == 24) ){
-    		if((obisCode.getD() == 2) && ((obisCode.getE() >= 1) && (obisCode.getE() <= 4))){
+    		if((obisCode.getD() == 2) && ((obisCode.getE() >= 0) && (obisCode.getE() <= 4))){
     			ExtendedRegister register = cof.getExtendedRegister(obisCode);
     			return new RegisterValue(obisCode, ParseUtils.registerToQuantity(register));
     		} else if(obisCode.getD() == 4){
