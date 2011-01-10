@@ -284,7 +284,6 @@ public abstract class GenericMessaging implements Messaging {
 	public MessageCategorySpec getAuthEncryptCategory() {
 		MessageCategorySpec catAuthEncrypt = new MessageCategorySpec(
 				RtuMessageCategoryConstants.AUTHENTICATEENCRYPT);
-		// TODO do these have to be advanced messages?
 		MessageSpec msgSpec = addNoValueMsg(
 				RtuMessageKeyIdConstants.CHANGEHLSSECRET,
 				RtuMessageConstant.AEE_CHANGE_HLS_SECRET, false);
@@ -303,6 +302,9 @@ public abstract class GenericMessaging implements Messaging {
 		msgSpec = addSecurityLevelMsg(RtuMessageKeyIdConstants.ACTIVATE_SECURITY,
 				RtuMessageConstant.AEE_ACTIVATE_SECURITY, true);
 		catAuthEncrypt.addMessageSpec(msgSpec);
+        msgSpec = addAuthenticationLevelMsg(RtuMessageKeyIdConstants.CHANGE_AUTHENTICATION_LEVEL,
+                RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL, true);
+        catAuthEncrypt.addMessageSpec(msgSpec);
 		return catAuthEncrypt;
 	}
 
@@ -795,6 +797,26 @@ public abstract class GenericMessaging implements Messaging {
 		msgSpec.add(tagSpec);
 		return msgSpec;
 	}
+
+    /**
+     * Creates a MessageSpec to change the level of the authentication
+	 * @param keyId - id for the MessageSpec
+	 * @param tagName - name for the MessageSpec
+	 * @param advanced - indicates whether it's an advanced message or not
+	 * @return the newly created MessageSpec
+     */
+    protected MessageSpec addAuthenticationLevelMsg(String keyId, String tagName, boolean advanced){
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+		MessageValueSpec msgVal = new MessageValueSpec();
+		msgVal.setValue(" ");
+		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
+				RtuMessageConstant.AEE_AUTHENTICATIONLEVEL, true);
+		tagSpec.add(msgVal);
+		tagSpec.add(msgAttrSpec);
+		msgSpec.add(tagSpec);
+		return msgSpec;
+    }
 
 	/**
 	 * Creates a MessageSpec to enable encryption over P2 (MBus communication)

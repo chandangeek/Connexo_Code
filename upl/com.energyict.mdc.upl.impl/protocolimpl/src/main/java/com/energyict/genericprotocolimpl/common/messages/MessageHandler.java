@@ -114,6 +114,9 @@ public class MessageHandler extends DefaultHandler{
         } else if(RtuMessageConstant.MBUS_INSTALL.equals(qName)){
             setType(RtuMessageConstant.MBUS_INSTALL);
             handleMbusInstall(attrbs);
+        } else if(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL.equals(qName)){
+            setType(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL);
+            handleChangeAuthentication(attrbs);
 		} else {
 			if(!isXmlInContent){ // if its the xmlMessage, then don't fail because it has xml in the content
 				throw new SAXException("Unknown messageContent : " + qName);
@@ -512,6 +515,27 @@ public class MessageHandler extends DefaultHandler{
 	public int getSecurityLevel(){
 		return Integer.parseInt(this.securityLevel);
 	}
+
+    /* Change the authenticationLevel */
+    private String authenticationLevel = "";
+
+    private void handleChangeAuthentication(Attributes attrbs){
+        this.authenticationLevel = attrbs.getValue(RtuMessageConstant.AEE_AUTHENTICATIONLEVEL);
+    }
+
+    /**
+     * Return the authenticationLevel the user gave in.
+     * If the value is not a number, then return -1
+     *
+     * @return the value the user gave in 
+     */
+    public int getAuthenticationLevel() {
+        try {
+            return Integer.parseInt(this.authenticationLevel);
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
 
     /* Mbus installation related messages
     */

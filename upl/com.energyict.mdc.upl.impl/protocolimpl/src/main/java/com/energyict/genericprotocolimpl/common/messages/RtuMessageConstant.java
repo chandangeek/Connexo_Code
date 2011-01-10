@@ -177,7 +177,9 @@ public class RtuMessageConstant {
 	public static final String AEE_GLOBAL_KEY = "GlobalKey";
 	public static final String AEE_CHANGE_AUTHENTICATION_KEY = "AuthenticationKey";
 	public static final String AEE_ACTIVATE_SECURITY = "Activate_dataTransport_Security";
+    public static final String AEE_CHANGE_AUTHENTICATION_LEVEL = "Change_authentication_level";
 	public static final String AEE_SECURITYLEVEL = "SecurityLevel";
+    public static final String AEE_AUTHENTICATIONLEVEL = "AuthenticationLevel";
 
     /** RtuMessage tags for SMS */
     public static final String SMS_CHANGE_SMSC = "Change_SMSC";

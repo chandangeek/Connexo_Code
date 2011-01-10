@@ -91,6 +91,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 			boolean activateSMS		= messageHandler.getType().equals(RtuMessageConstant.WAKEUP_ACTIVATE);
 			boolean deActivateSMS 	= messageHandler.getType().equals(RtuMessageConstant.WAKEUP_DEACTIVATE);
 			boolean actSecuritLevel = messageHandler.getType().equals(RtuMessageConstant.AEE_ACTIVATE_SECURITY);
+            boolean changeAuthLevel = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL);
 			
 			if(xmlConfig){
 				
@@ -793,6 +794,32 @@ public class MessageExecutor extends GenericMessageExecutor{
 			} else if(actSecuritLevel){
 				getCosemObjectFactory().getSecuritySetup().activateSecurity(new TypeEnum(messageHandler.getSecurityLevel()));
 				success = true;
+            } else if(changeAuthLevel){
+                int newAuthLevel = messageHandler.getAuthenticationLevel();
+                if(newAuthLevel != -1){
+                    if(getWebRtu().getReference() == ProtocolLink.LN_REFERENCE){
+                        AssociationLN aln = getCosemObjectFactory().getAssociationLN();
+                        AbstractDataType adt = aln.readAuthenticationMechanismName();
+                        if(adt.isOctetString()){
+                            byte[] octets = ((OctetString)adt).getOctetStr();
+                            if(octets[octets.length-1] != newAuthLevel){
+                                octets[octets.length-1] = (byte) newAuthLevel;
+                                aln.writeAuthenticationMechanismName(new OctetString(octets, 0));
+                                success = true;
+                            } else {
+                                log(Level.INFO, "New authenticationLevel is the same as the one that is already configured in the device," +
+                                        "new level will not be written.");
+                                success = true;
+                            }
+                        }
+                    } else {
+                         // TODO how to do this for with ShortName referencing???
+                    }
+
+                } else {
+                    log(Level.WARNING, "Message " + rtuMessage.displayString() + " contained an invalid authenticationLevel.");
+                    success = false;
+                }
 			} else {
 				success = false;
 			}
