@@ -34,7 +34,7 @@ public class OverCurrentLog extends AbstractEvent {
         if ((eventId & OVER_CURRENT_L3) != 0) {
             eventTimeStamp = fixStamp(eventTimeStamp);
             meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, OVER_CURRENT_L3, "Over-current in phase L3"));
-        }                                                                                                                          
+        }
         if ((eventId & OVER_CURRENT_NEUTRAL) != 0) {
             eventTimeStamp = fixStamp(eventTimeStamp);
             meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, OVER_CURRENT_NEUTRAL, "Over-current in neutral"));

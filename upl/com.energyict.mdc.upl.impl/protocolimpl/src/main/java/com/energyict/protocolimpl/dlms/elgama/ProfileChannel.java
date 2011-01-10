@@ -192,6 +192,9 @@ public class ProfileChannel {
             prevTime = (Calendar) previousTime.clone();
         }
 
+        //TODO: use octetString.toDate(getTimeZone()); in stead of parsing it.
+
+
         //Only hourly values have a timestamp.
         if (!intervalData.isOctetString(0)) {
             prevTime.add(Calendar.SECOND, getProfileInterval());
@@ -341,7 +344,7 @@ public class ProfileChannel {
                             extra[j - nrOfOtherChannels] = 0;
                             interValue = false;
                         } else {
-                            //Else it's a value between 2 intervals. (inter value, due to an unexpected event).
+                            //Else it's a value between 2 intervals (stored due to an unexpected event).
                             //Save the value, add it with the next value.
                             if (!isRecentStamp(previousTimeStamp, calendar)) {
                                 extra[j - nrOfOtherChannels] = 0;
@@ -360,7 +363,7 @@ public class ProfileChannel {
         }
         if (includeEvents) {
             logger.info("Requested to include meter events, loading...");
-            profileData.setMeterEvents(this.getMeterEvents(from, to));
+            profileData.setMeterEvents(getMeterEvents(from, to));
         }
         return profileData;
     }
@@ -375,6 +378,9 @@ public class ProfileChannel {
     private boolean isRecentStamp(Calendar previousTimeStamp, Calendar calendar) {
         Calendar recentStamp = (Calendar) calendar.clone();
         recentStamp.add(Calendar.MINUTE, -1 * getProfileInterval() / 60); //Go back 15 min
+        if (previousTimeStamp == null) {
+            return false;
+        }
         return (previousTimeStamp.after(recentStamp)) && (previousTimeStamp.before(calendar));
     }
 

@@ -19,10 +19,10 @@ public class PowerOverLimitLog extends AbstractEvent {
         switch (eventId) {
             case POWER_OVER_LIMIT_START:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.LIMITER_THRESHOLD_EXCEEDED, eventId, "Contractual power overlimit start"));
-            break;
+                break;
             case POWER_OVER_LIMIT_END:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.LIMITER_THRESHOLD_OK, eventId, "Contractual power overlimit end"));
-            break;
+                break;
             default:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Unknown eventcode: " + eventId));
         }

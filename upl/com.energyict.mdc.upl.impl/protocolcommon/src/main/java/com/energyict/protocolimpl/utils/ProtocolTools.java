@@ -321,6 +321,7 @@ public final class ProtocolTools {
 
     /**
      * Convert a given byte array into an integer
+     *
      * @param byteArray a given byte array
      * @return the suiting integer
      */
@@ -335,10 +336,25 @@ public final class ProtocolTools {
 
     /**
      * Creates an unsigned int value that represents a given byte array
+     *
      * @param value: the given byte array
      * @return the resulting BigDecimal
      */
     public static int getUnsignedIntFromBytes(byte[] value) {
+        value = ProtocolTools.concatByteArrays(new byte[]{0x00}, value);
+        BigInteger convertedValue = new BigInteger(value);
+        return convertedValue.intValue();
+    }
+
+    /**
+     * Creates an unsigned int value that represents a given byte array.
+     * Takes an offset (where to start in the byte array), and a length.
+     *
+     * @param value: the given byte array
+     * @return the resulting BigDecimal
+     */
+    public static int getUnsignedIntFromBytes(byte[] value, int offset, int length) {
+        value = ProtocolTools.getSubArray(value, offset, offset + length);
         value = ProtocolTools.concatByteArrays(new byte[]{0x00}, value);
         BigInteger convertedValue = new BigInteger(value);
         return convertedValue.intValue();
@@ -537,7 +553,6 @@ public final class ProtocolTools {
     }
 
     /**
-     *
      * @param year
      * @param month
      * @param dayOfMonth
@@ -716,6 +731,7 @@ public final class ProtocolTools {
 
     /**
      * Get the properties for a given rtu. This incluides the protocol properties
+     *
      * @param rtu
      * @return
      */

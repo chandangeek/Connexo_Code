@@ -10,7 +10,7 @@ import java.util.*;
 
 /**
  * The Abstract Event class contains common functionality for the NTA event profiles
- *
+ * <p/>
  * <p>
  * Copyrights EnergyICT
  * Date: 4-jun-2010
@@ -23,6 +23,7 @@ public abstract class AbstractEvent {
 
     /**
      * Build a list of MeterEvents
+     *
      * @param meterEvents
      * @param eventTimeStamp
      * @param eventId
@@ -44,6 +45,7 @@ public abstract class AbstractEvent {
     /**
      * The G3B meter can put multiple events on the same timestamp.
      * In order to make them all show up in EiServer, their timestamp needs to be altered by e.g. 1 second.
+     *
      * @param eventTimeStamp
      * @return
      */
@@ -56,6 +58,7 @@ public abstract class AbstractEvent {
 
     /**
      * Constructor
+     *
      * @param dc
      */
     public AbstractEvent(DataContainer dc, TimeZone timeZone) {
@@ -86,9 +89,7 @@ public abstract class AbstractEvent {
     /**
      * Checks if the given {@link Object} is an {@link com.energyict.dlms.OctetString}
      *
-     * @param element
-     *          the object to check the type
-     *
+     * @param element the object to check the type
      * @return true or false
      */
     protected boolean isOctetString(Object element) {

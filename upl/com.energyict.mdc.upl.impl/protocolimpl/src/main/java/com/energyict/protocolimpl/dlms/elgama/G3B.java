@@ -11,10 +11,12 @@ import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -23,14 +25,34 @@ import java.util.logging.Level;
  */
 public class G3B extends AbstractDLMSProtocol {
 
+    private G3BStoredValues storedValuesImpl = null;
     private static final int MILLIS_1_DAY = 60 * 60 * 24 * 1000;
-    private static final ObisCode OBIS_CODE_PROFILE_1 = ObisCode.fromString("1.0.99.1.0.255");                                                   
+    private static final int MAX_TIME_SHIFT_SECONDS = 59;
+    private static final ObisCode OBISCODE_LOAD_PROFILE = ObisCode.fromString("1.0.99.1.0.255");
     private static final ObisCode OBISCODE_ACTIVE_FIRMWARE = ObisCode.fromString("1.0.0.2.0.255");
     private static final ObisCode OBISCODE_CLOCK = ObisCode.fromString("0.0.1.0.0.255");
+    private static final ObisCode OBISCODE_SYNCHRONIZATION = ObisCode.fromString("1.0.96.130.5.255"
+    );
     private ProfileGeneric loadProfile;
+    private ProfileChannel profileChannel;
+
+    /**
+     * G3B adds the storedvalue impl to the init method.
+     */
+    @Override
+    public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
+        this.timeZone = timeZone;
+        this.logger = logger;
+        iConfigProgramChange = -1;
+        cosemObjectFactory = new CosemObjectFactory(this);
+        dlmsMeterConfig = DLMSMeterConfig.getInstance(manufacturer);
+        storedValuesImpl = new G3BStoredValues(getCosemObjectFactory());
+        initDLMSConnection(inputStream, outputStream);
+    }
 
     /**
      * Getter for the type of reference (0 = LN, 1 = SN)
+     *
      * @return the type of reference
      */
     public int getReference() {
@@ -41,23 +63,31 @@ public class G3B extends AbstractDLMSProtocol {
         return false;
     }
 
-        /**
+    /**
+     * Requests the meter's monthly billing profile data, stores it into a register in EiServer.
+     */
+    public StoredValues getStoredValues() {
+        return storedValuesImpl;
+    }
+
+    /**
      * Getter for the profile data interval.
+     *
      * @return the profile data interval, eg. 900 seconds
      * @throws IOException when there's a problem communicating with the meter.
      */
-	public final int getProfileInterval() throws IOException {
-		if (profileInterval == -1) {
-			logger.info("Requesting the profile interval from the meter...");
-			profileInterval = getLoadProfile().getCapturePeriod();
-			logger.info("Profile interval is [" + profileInterval + "]");
-		}
-		return this.profileInterval;
-	}
+    public final int getProfileInterval() throws IOException {
+        if (profileInterval == -1) {
+            logger.info("Requesting the profile interval from the meter...");
+            profileInterval = getLoadProfile().getCapturePeriod();
+            logger.info("Profile interval is [" + profileInterval + "]");
+        }
+        return this.profileInterval;
+    }
 
     public ProfileGeneric getLoadProfile() throws IOException {
         if (loadProfile == null) {
-            loadProfile = getCosemObjectFactory().getProfileGeneric(OBIS_CODE_PROFILE_1);
+            loadProfile = getCosemObjectFactory().getProfileGeneric(OBISCODE_LOAD_PROFILE);
         }
         return loadProfile;
     }
@@ -66,12 +96,13 @@ public class G3B extends AbstractDLMSProtocol {
         return 0;
     }
 
-    public StoredValues getStoredValues() {
-        return null;
+    public int getNumberOfChannels() throws IOException {
+        return getProfileChannel().getNumberOfChannels();
     }
 
     /**
      * Getter for the protocol version
+     *
      * @return the protocol version (being the date of the latest commit)
      */
     public String getProtocolVersion() {
@@ -80,6 +111,7 @@ public class G3B extends AbstractDLMSProtocol {
 
     /**
      * Requests the meter it's firmware version via DLMS.
+     *
      * @return the meter it's firmware version
      * @throws IOException when there's a problem communicating with the meter.
      */
@@ -105,8 +137,9 @@ public class G3B extends AbstractDLMSProtocol {
 
     /**
      * Requests the meter's profile data
+     *
      * @param includeEvents: enable or disable the reading of meterevents
-     * @param lastReading: the from date to start reading at
+     * @param lastReading:   the from date to start reading at
      * @return the profile data
      * @throws IOException when there's a problem communicating with the meter.
      */
@@ -117,8 +150,9 @@ public class G3B extends AbstractDLMSProtocol {
 
     /**
      * Requests the meter's profile data
-     * @param from: the from date to start reading at
-     * @param to request the to date, to stop reading at
+     *
+     * @param from:         the from date to start reading at
+     * @param to            request the to date, to stop reading at
      * @param includeEvents eneble or disable requesting of meterevents
      * @return the profile data
      * @throws IOException when there's a problem communicating with the meter.
@@ -129,83 +163,96 @@ public class G3B extends AbstractDLMSProtocol {
         Calendar calTo = new GregorianCalendar();
         calFrom.setTime(from);
         calTo.setTime(to);
-        ProfileChannel profileChannel = new ProfileChannel(getLogger(), getProfileInterval(), getLoadProfile(), getTimeZone(), getCosemObjectFactory(), getMeterConfig());
-        return profileChannel.getProfileData(calFrom, calTo, includeEvents);
+        return getProfileChannel().getProfileData(calFrom, calTo, includeEvents);
+    }
+
+    public ProfileChannel getProfileChannel() throws IOException {
+        if (profileChannel == null) {
+            profileChannel = new ProfileChannel(getLogger(), getProfileInterval(), getLoadProfile(), getTimeZone(), getCosemObjectFactory(), getMeterConfig());
+        }
+        return profileChannel;
     }
 
     /**
      * Set the meter's clock.
      * Use a time shift when the shift is smaller than +/- 15 minutes
      * Else, use a write time (= force clock).
+     *
      * @throws IOException when there's a problem communicating with the meter.
      */
     public final void setTime() throws IOException {
-		logger.info("Setting the time of the remote device, first requesting the device's time.");
-		final Clock clock = getCosemObjectFactory().getClock();
-		boolean timeAdjusted = false;
-		int currentTry = 1;
+        logger.info("Setting the time of the remote device, first requesting the device's time.");
+        final Clock clock = getCosemObjectFactory().getClock();
+        boolean timeAdjusted = false;
+        int currentTry = 1;
 
-		while (!timeAdjusted && (currentTry <= numberOfClocksetTries)) {
-			logger.info("Requesting clock for adjustment");
-			final long startTime = System.currentTimeMillis();
-			final Date deviceTime = clock.getDateTime();
-			final long endTime = System.currentTimeMillis();
-			if (endTime - startTime <= clockSetRoundtripTreshold) {
-				final long roundtripCorrection = (endTime - startTime) / 2;
-				final long timeDifference = System.currentTimeMillis() - (deviceTime.getTime() + roundtripCorrection);
-				logger.info("Time difference is [" + timeDifference + "] miliseconds (using roundtrip time of [" + roundtripCorrection + "] milliseconds)");
+        while (!timeAdjusted && (currentTry <= numberOfClocksetTries)) {
+            logger.info("Requesting clock for adjustment");
+            final long startTime = System.currentTimeMillis();
+            final Date deviceTime = clock.getDateTime();
+            final long endTime = System.currentTimeMillis();
+            if (endTime - startTime <= clockSetRoundtripTreshold) {
+                final long roundtripCorrection = (endTime - startTime) / 2;
+                final long timeDifference = System.currentTimeMillis() - (deviceTime.getTime() + roundtripCorrection);
+                logger.info("Time difference is [" + timeDifference + "] miliseconds (using roundtrip time of [" + roundtripCorrection + "] milliseconds)");
 
-				if (Math.abs(timeDifference / 1000) <= Clock.MAX_TIME_SHIFT_SECONDS) {
-					logger.info("Time difference can be corrected using a time shift, invoking.");
-					clock.shiftTime((int) (timeDifference / 1000));
-				} else {
-					logger.info("Time difference is too big to be corrected using a time shift, setting absolute date and time.");
-					final Date date = new Date(System.currentTimeMillis() + roundtripCorrection);
-					final Calendar newTimeToSet = Calendar.getInstance();
-					newTimeToSet.setTime(date);
-					setDeviceTime(newTimeToSet);         //Write time, instead of shifting it. = force clock
-				}
-				timeAdjusted = true;
-			} else {
-				logger.info("Roundtrip to the device took [" + (endTime - startTime) + "] milliseconds, which exceeds the treshold of [" + clockSetRoundtripTreshold + "] milliseconds, retrying");
-			}
-			currentTry++;
-		} 
-		if (!timeAdjusted) {
-			logger.log(Level.WARNING, "Cannot set time, did not have a roundtrip that took shorter than [" + clockSetRoundtripTreshold + "] milliseconds. Not setting clock.");
-		}
-	}
+                if (Math.abs(timeDifference / 1000) <= MAX_TIME_SHIFT_SECONDS) {
+                    logger.info("Time difference [" + (timeDifference / 1000) + "]can be corrected using a time shift, invoking.");
+                    clock.shiftTime((int) (timeDifference / 1000));    // TODO: object unavailable??? wrong obis code?
+                    //Data syncData = getCosemObjectFactory().getData(OBISCODE_SYNCHRONIZATION);
+                    //System.out.println(syncData.getValue());
+                    //syncData.setValueAttr(new VisibleString("01"));
+                    //System.out.println(syncData.getValue());
+
+                } else {
+                    logger.info("Time difference is too big to be corrected using a time shift, setting absolute date and time.");
+                    final Date date = new Date(System.currentTimeMillis() + roundtripCorrection);
+                    final Calendar newTimeToSet = Calendar.getInstance();
+                    newTimeToSet.setTime(date);
+                    setDeviceTime(newTimeToSet);         //Write time, instead of shifting it. = force clock
+                }
+                timeAdjusted = true;
+            } else {
+                logger.info("Roundtrip to the device took [" + (endTime - startTime) + "] milliseconds, which exceeds the treshold of [" + clockSetRoundtripTreshold + "] milliseconds, retrying");
+            }
+            currentTry++;
+        }
+        if (!timeAdjusted) {
+            logger.log(Level.WARNING, "Cannot set time, did not have a roundtrip that took shorter than [" + clockSetRoundtripTreshold + "] milliseconds. Not setting clock.");
+        }
+    }
 
     /**
      * Used to force the clock.
      * Prepares a fitting byte array that represents a DLMS command for the meter
+     *
      * @param newTime the time to be set
      * @throws IOException when there's a problem communicating with the meter.
      */
     private void setDeviceTime(final Calendar newTime) throws IOException {
-		newTime.add(Calendar.MILLISECOND, 0);
-		final byte[] byteTimeBuffer = new byte[14];
-		byteTimeBuffer[0] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
-		byteTimeBuffer[1] = 12; // length
-		byteTimeBuffer[2] = (byte) (newTime.get(Calendar.YEAR) >> 8);
-		byteTimeBuffer[3] = (byte) newTime.get(Calendar.YEAR);
-		byteTimeBuffer[4] = (byte) (newTime.get(Calendar.MONTH) + 1);
-		byteTimeBuffer[5] = (byte) newTime.get(Calendar.DAY_OF_MONTH);
-		byte bDOW = (byte) newTime.get(Calendar.DAY_OF_WEEK);
-		byteTimeBuffer[6] = bDOW-- == 1 ? (byte) 7 : bDOW;
-		byteTimeBuffer[7] = (byte) newTime.get(Calendar.HOUR_OF_DAY);
-		byteTimeBuffer[8] = (byte) newTime.get(Calendar.MINUTE);
-		byteTimeBuffer[9] = (byte) newTime.get(Calendar.SECOND);
-		byteTimeBuffer[10] = (byte) 0xFF;
-		byteTimeBuffer[11] = (byte) 0x80;
-		byteTimeBuffer[12] = (byte) 0x00;
-		if (timeZone.inDaylightTime(newTime.getTime())) {
-			byteTimeBuffer[13] = (byte) 0x80;
-		} else {
-			byteTimeBuffer[13] = (byte) 0x00;
-		}
-		getCosemObjectFactory().writeObject(OBISCODE_CLOCK, 8, 2, byteTimeBuffer);
-	}
+        newTime.add(Calendar.MILLISECOND, 0);
+        final byte[] byteTimeBuffer = new byte[14];
+        byteTimeBuffer[0] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
+        byteTimeBuffer[1] = 12; // length
+        byteTimeBuffer[2] = (byte) (newTime.get(Calendar.YEAR) >> 8);
+        byteTimeBuffer[3] = (byte) newTime.get(Calendar.YEAR);
+        byteTimeBuffer[4] = (byte) (newTime.get(Calendar.MONTH) + 1);
+        byteTimeBuffer[5] = (byte) newTime.get(Calendar.DAY_OF_MONTH);
+        byte bDOW = (byte) newTime.get(Calendar.DAY_OF_WEEK);
+        byteTimeBuffer[6] = bDOW-- == 1 ? (byte) 7 : bDOW;
+        byteTimeBuffer[7] = (byte) newTime.get(Calendar.HOUR_OF_DAY);
+        byteTimeBuffer[8] = (byte) newTime.get(Calendar.MINUTE);
+        byteTimeBuffer[9] = (byte) newTime.get(Calendar.SECOND);
+        byteTimeBuffer[10] = (byte) 0xFF;
+        byteTimeBuffer[11] = (byte) 0x80;
+        byteTimeBuffer[12] = (byte) 0x00;
+        if (timeZone.inDaylightTime(newTime.getTime())) {
+            byteTimeBuffer[13] = (byte) 0x80;
+        } else {
+            byteTimeBuffer[13] = (byte) 0x00;
+        }
+        getCosemObjectFactory().writeObject(OBISCODE_CLOCK, 8, 2, byteTimeBuffer);
+    }
 
     public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
@@ -213,15 +260,17 @@ public class G3B extends AbstractDLMSProtocol {
 
     /**
      * Getter for the meter time
+     *
      * @return the meter time
      * @throws IOException when there's a problem communicating with the meter.
      */
     public Date getTime() throws IOException {
         return getCosemObjectFactory().getClock().getDateTime();
     }
-    
+
     /**
      * Getter for the list of optional keys
+     *
      * @return the list of optional keys
      */
     @Override
@@ -259,12 +308,29 @@ public class G3B extends AbstractDLMSProtocol {
 
     /**
      * Requests the register values from the meter
+     *
      * @param obisCode obiscode mapped register to request from the meter
      * @return the register values
      * @throws IOException when there's a problem communicating with the meter.
      */
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
+
+            //Make the register ask for billing profile data.. temporary code.
+            obisCode = ProtocolTools.setObisCodeField(obisCode, 5, (byte) 0);
+
+            //TODO: EVENT TIME SEEMS TO BE 1 HOUR TO EARLY
+            //Billing profile data, store it in a register
+            if (obisCode.getF() != 255) {
+                CosemObject cosemObject = getCosemObjectFactory().getCosemObject(obisCode);
+                if (cosemObject instanceof HistoricalValue) {
+                    HistoricalValue historicalValue = (HistoricalValue) cosemObject;
+                    RegisterValue value = new RegisterValue(obisCode, historicalValue.getQuantityValue(), historicalValue.getEventTime(), historicalValue.getBillingDate());
+                    System.out.println(value);
+                    return value;
+                }
+            }
+
             final UniversalObject uo = getMeterConfig().findObject(obisCode);
             if (uo.getClassID() == DLMSClassId.REGISTER.getClassId()) {
                 final Register register = getCosemObjectFactory().getRegister(obisCode);

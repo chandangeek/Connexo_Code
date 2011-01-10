@@ -20,7 +20,7 @@ public class OverVoltageLog extends AbstractEvent {
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
         previousSize = meterEvents.size();
         this.meterEvents = meterEvents;
-        
+
         if (eventId == EVENT_OVER_VOLTAGE_ALL) {
             eventTimeStamp = fixStamp(eventTimeStamp);
             meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, EVENT_OVER_VOLTAGE_ALL, "Over-voltage event end in all three phases"));

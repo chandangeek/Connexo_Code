@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms;
 
+import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
@@ -9,6 +10,7 @@ import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.*;
 
 import java.io.*;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -58,6 +60,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     protected int iConfigProgramChange = -1;
     protected int profileInterval = -1;
     protected int clockSetRoundtripTreshold = 0;
+    protected String maxTimeDifference;
 
     protected static final int CONNECTION_MODE_HDLC = 0;
     protected static final int CONNECTION_MODE_TCPIP = 1;
@@ -83,7 +86,6 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     protected static final String PROPNAME_FORCE_DELAY = "ForceDelay";
     protected static final String PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES = "MaximumNumberOfClockSetTries";
     protected static final String PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD = "ClockSetRoundtripCorrectionTreshold";
-
 
     @Override
     protected void doConnect() throws IOException {
@@ -147,6 +149,31 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
              dlmsCache = new DLMSCache();
         }
         return dlmsCache;
+    }
+
+    @Override
+    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
+        if(rtuid != 0){
+
+            /* Use the RTUCache to get the blob from the database */
+            RTUCache rtu = new RTUCache(rtuid);
+            try {
+                return rtu.getCacheObject();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
+        if (rtuid != 0) {
+            /* Use the RTUCache to set the blob (cache) to the database */
+            RTUCache rtu = new RTUCache(rtuid);
+            rtu.setBlob(cacheObject);
+        }
     }
 
     /**
@@ -266,9 +293,8 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
      * @throws InvalidPropertyException when a property is invalid
      */
     protected void validateProperties() throws MissingPropertyException, InvalidPropertyException {
-        Iterator<String> iterator = getRequiredKeys().iterator();
-        while (iterator.hasNext()) {
-            String key = iterator.next();
+        for (Object o : getRequiredKeys()) {
+            String key = (String) o;
             if (this.properties.getProperty(key) == null) {
                 throw new MissingPropertyException(key + " key missing");
             }

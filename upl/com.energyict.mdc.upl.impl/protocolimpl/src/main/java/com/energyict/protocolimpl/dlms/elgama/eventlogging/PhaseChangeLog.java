@@ -19,7 +19,7 @@ public class PhaseChangeLog extends AbstractEvent {
 
         previousSize = meterEvents.size();
         this.meterEvents = meterEvents;
-        
+
 
         if ((eventId & EVENT_PHASE_L1_CONNECTED) != 0) {
             eventTimeStamp = fixStamp(eventTimeStamp);
@@ -29,7 +29,7 @@ public class PhaseChangeLog extends AbstractEvent {
             eventTimeStamp = fixStamp(eventTimeStamp);
             meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, EVENT_PHASE_L2_CONNECTED, "Phase L2 connected"));
         }
-        if ((eventId & EVENT_PHASE_L3_CONNECTED) != 0) {                                                       
+        if ((eventId & EVENT_PHASE_L3_CONNECTED) != 0) {
             eventTimeStamp = fixStamp(eventTimeStamp);
             meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, EVENT_PHASE_L3_CONNECTED, "Phase L3 connected"));
         }

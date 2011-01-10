@@ -8,7 +8,7 @@ import java.util.*;
 public class ReverseCurrentLog extends AbstractEvent {
 
     private static final int REVERSE_CURRENT_STARTED = 0x01;
-    private static final int REVERSE_CURRENT_ENDED= 0x00;
+    private static final int REVERSE_CURRENT_ENDED = 0x00;
 
     public ReverseCurrentLog(TimeZone timeZone, DataContainer dc) {
         super(dc, timeZone);
@@ -19,10 +19,10 @@ public class ReverseCurrentLog extends AbstractEvent {
         switch (eventId) {
             case REVERSE_CURRENT_STARTED:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Reverse current flow start"));
-            break;
+                break;
             case REVERSE_CURRENT_ENDED:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Reverse current flow end"));
-            break;
+                break;
             default:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Unknown eventcode: " + eventId));
         }

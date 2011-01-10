@@ -19,10 +19,10 @@ public class InternalErrorLog extends AbstractEvent {
         switch (eventId) {
             case INTERNAL_ERROR_START:
                 meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Internal error event start"));
-            break;
+                break;
             case INTERNAL_ERROR_END:
                 meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Internal error event end"));
-            break;
+                break;
             default:
                 meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Unknown eventcode: " + eventId));
         }

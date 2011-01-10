@@ -19,10 +19,10 @@ public class ClockSettingLog extends AbstractEvent {
         switch (eventId) {
             case CLOCK_SETTING_START:
                 meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.SETCLOCK_BEFORE, eventId, "Clock setting start (old timestamp)"));
-            break;
+                break;
             case CLOCK_SETTING_END:
                 meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.SETCLOCK_AFTER, eventId, "Clock setting start (new timestamp)"));
-            break;
+                break;
             default:
                 meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Unknown eventcode: " + eventId));
         }

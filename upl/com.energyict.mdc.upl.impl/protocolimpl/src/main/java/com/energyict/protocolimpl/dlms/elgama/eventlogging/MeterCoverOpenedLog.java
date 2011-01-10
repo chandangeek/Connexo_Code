@@ -8,7 +8,7 @@ import java.util.*;
 public class MeterCoverOpenedLog extends AbstractEvent {
 
     private static final int METER_COVER_OPEN_START = 0x01;
-    private static final int METER_COVER_OPEN_END= 0x00;
+    private static final int METER_COVER_OPEN_END = 0x00;
 
     public MeterCoverOpenedLog(TimeZone timeZone, DataContainer dc) {
         super(dc, timeZone);
@@ -19,10 +19,10 @@ public class MeterCoverOpenedLog extends AbstractEvent {
         switch (eventId) {
             case METER_COVER_OPEN_START:
                 meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.COVER_OPENED, eventId, "Opening of meter cover event start"));
-            break;
+                break;
             case METER_COVER_OPEN_END:
                 meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.METER_COVER_CLOSED, eventId, "Opening of meter cover event end"));
-            break;
+                break;
             default:
                 meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Unknown eventcode: " + eventId));
         }

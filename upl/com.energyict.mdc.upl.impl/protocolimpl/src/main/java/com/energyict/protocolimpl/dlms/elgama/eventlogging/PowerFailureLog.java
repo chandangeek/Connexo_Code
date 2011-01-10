@@ -7,8 +7,8 @@ import java.util.*;
 
 public class PowerFailureLog extends AbstractEvent {
 
-    private static final int EVENT_POWER_STARTUP = 0x00;
     private static final int EVENT_POWER_OUTAGE = 0x01;
+    private static final int EVENT_POWER_STARTUP = 0x00;
 
     public PowerFailureLog(TimeZone timeZone, DataContainer dc) {
         super(dc, timeZone);
@@ -19,10 +19,10 @@ public class PowerFailureLog extends AbstractEvent {
         switch (eventId) {
             case EVENT_POWER_OUTAGE:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.POWERDOWN, eventId, "Power outage"));
-            break;
+                break;
             case EVENT_POWER_STARTUP:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.POWERUP, eventId, "Power start-up"));
-            break;
+                break;
             default:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Unknown eventcode: " + eventId));
         }
