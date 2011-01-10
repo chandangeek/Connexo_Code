@@ -1,15 +1,12 @@
 package com.energyict.dlms.axrdencoding;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.junit.Test;
-
-import com.energyict.dlms.DLMSCOSEMGlobals;
+import static org.junit.Assert.*;
 
 /**
  * @author jme
@@ -251,6 +248,7 @@ public class AXDRDecoderTest {
 			case DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING:
 			case DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED:
 			case DLMSCOSEMGlobals.TYPEDESC_LONG64:
+			case DLMSCOSEMGlobals.TYPEDESC_LONG64_UNSIGNED:
 			case DLMSCOSEMGlobals.TYPEDESC_BOOLEAN:
 				return true;
 			default:
