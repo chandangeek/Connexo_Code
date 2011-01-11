@@ -547,15 +547,24 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
     }
 
     @Override
+    protected void prepareBulkRegisterReading(Map<ObisCode, RtuRegister> toRead) {
+        WebRtuZ3BulkObisCodeMapper bulkOCM = new WebRtuZ3BulkObisCodeMapper(getCosemObjectFactory());
+        for (ObisCode obisCode : toRead.keySet()) {
+            bulkOCM.enableRegisterMapping(obisCode);
+        }
+        ocm = bulkOCM;
+    }
+
+    @Override
     protected RegisterValue readRegister(ObisCode obisCode) throws IOException {
+        return getObisCodeMapper().getRegisterValue(obisCode);
+    }
+
+    private WebRtuZ3ObisCodeMapper getObisCodeMapper() {
         if (ocm == null) {
             ocm = new WebRtuZ3ObisCodeMapper(getCosemObjectFactory());
         }
-        try {
-            return ocm.getRegisterValue(obisCode);
-        } catch (IOException e) {
-            throw e;
-        }
+        return ocm;
     }
 
     @Override
@@ -1192,4 +1201,5 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
         }
         return cachedMeterTime.getTime();
     }
+
 }

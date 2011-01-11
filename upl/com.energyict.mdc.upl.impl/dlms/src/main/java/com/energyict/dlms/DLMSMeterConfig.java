@@ -8,10 +8,11 @@
 
 package com.energyict.dlms;
 
-import java.io.IOException;
-
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
+
+import java.io.IOException;
 /**
  *
  * @author  Koen
@@ -475,6 +476,22 @@ public class DLMSMeterConfig {
             }
         }
         return false;
+    }
+
+    /**
+     * Get the DLMSClassId for a given obisCode from the objectLst.
+     * Return DLMSClassId.UNKNOWN is not found.
+     *
+     * @param obisCode
+     * @return
+     */
+    public DLMSClassId getDLMSClassId(ObisCode obisCode) {
+        for (UniversalObject uo : getInstantiatedObjectList()) {
+            if (uo.getObisCode().equals(obisCode)) {
+                return uo.getDLMClassId();
+            }
+        }
+        return DLMSClassId.UNKNOWN;
     }
 
     /**

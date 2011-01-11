@@ -229,15 +229,14 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
 
 
     /**
-     *
      * @param obisCode
      * @return
      * @throws IOException
      */
-	private RegisterValue readRegister(ObisCode obisCode) throws IOException {
+    private RegisterValue readRegister(ObisCode obisCode) throws IOException {
         RegisterValue registerValue = null;
 
-		try {
+        try {
             ObisCode physicalObisCode = ProtocolTools.setObisCodeField(obisCode, 1, (byte) getPhysicalAddress());
             if ((physicalObisCode.getF() >= 0) && (physicalObisCode.getF() <= 11)) { // Monthly billing value
                 registerValue = getHistoricalRegisters().readHistoricalMonthlyRegister(physicalObisCode);
@@ -248,21 +247,21 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
                 Disconnector register = getCosemObjectFactory().getDisconnector(ProtocolTools.setObisCodeField(DISCONNECTOR_OBIS, 1, (byte) getPhysicalAddress()));
                 registerValue = register != null ? register.asRegisterValue(2) : null;
             } else { //Another register
-            Register register = getCosemObjectFactory().getRegister(physicalObisCode);
+                Register register = getCosemObjectFactory().getRegister(physicalObisCode);
                 registerValue = (register != null) ? new RegisterValue(obisCode, register.getQuantityValue()) : null;
             }
-		} catch (Exception e) {
-			throw new NoSuchRegisterException(e.getMessage());
-		}
+        } catch (Exception e) {
+            throw new NoSuchRegisterException(e.getMessage());
+        }
 
         if (registerValue == null) {
             throw new NoSuchRegisterException("Register " + obisCode.toString() + " returned 'null'!");
-	}
+        }
 
         return ProtocolTools.setRegisterValueObisCode(registerValue, obisCode);
     }
 
-	/**
+    /**
 	 * Execute the pending device messages
 	 */
 	private void sendMeterMessages() throws BusinessException, SQLException {

@@ -460,6 +460,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
         buffer.write(COSEM_GETREQUEST);
         buffer.write(COSEM_GETREQUEST_WITH_LIST);
         buffer.write(this.invokeIdAndPriority);
+        buffer.write(attributes.length); // Number of items
         for (DLMSAttribute dlmsAttribute : attributes) {
             // cosem-attribute-descriptor
             try {
@@ -839,6 +840,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
                         case COSEM_GETRESPONSE_WITH_LIST: {
                             i++; // skip tag
                             i++; // skip invoke id & priority
+                            i++; // nr of items
                             receiveBuffer.addArray(responseData, i);
                             return receiveBuffer.getArray();
                         }

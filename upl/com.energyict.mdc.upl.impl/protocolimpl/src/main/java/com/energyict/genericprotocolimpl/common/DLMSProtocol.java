@@ -14,8 +14,7 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.genericprotocolimpl.common.wakeup.SmsWakeup;
 import com.energyict.genericprotocolimpl.webrtuz3.Z3MeterToolProtocol;
-import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.*;
 import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -139,6 +138,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
     private String password;
 
     public boolean enforceSerialNumber = true;
+    public boolean ntaSimulationTool = false;
 
     /**
      * Handle the protocol tasks
@@ -417,6 +417,8 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
             throw new InvalidPropertyException("Only 0 or 1 is allowed for the CipheringType property");
         }
 
+        this.ntaSimulationTool = ProtocolTools.getPropertyAsInt(properties, "NTASimulationTool", "0") == 1;
+
         doValidateProperties();
     }
 
@@ -450,7 +452,11 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 
         SecurityContext sc = new SecurityContext(this.datatransportSecurityLevel, this.authenticationSecurityLevel, 0, getSystemIdentifier(), this.securityProvider, this.cipheringType);
 
-        this.aso = new ApplicationServiceObject(this.xdlmsAse, this, sc, getContextId());
+        if (ntaSimulationTool) {
+            this.aso = new ApplicationServiceObject(this.xdlmsAse, this, sc, getContextId(), getMeter().getSerialNumber().getBytes(), null);
+        } else {
+            this.aso = new ApplicationServiceObject(this.xdlmsAse, this, sc, getContextId());
+        }
 
         this.dlmsConnection = new SecureConnection(this.aso, defineTransportDLMSConnection());
 
@@ -947,23 +953,16 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
      */
     public Map<RtuRegister, RegisterValue> doReadRegisters() throws IOException {
         HashMap<RtuRegister, RegisterValue> regValueMap = new HashMap<RtuRegister, RegisterValue>();
-        Iterator<RtuRegister> rtuRegisterIterator = getMeter().getRegisters().iterator();
-        List groups = getCommunicationProfile().getRtuRegisterGroups();
-        while (rtuRegisterIterator.hasNext()) {
-            ObisCode obisCode = null;
+        Map<ObisCode, RtuRegister> toRead = getRegistersToRead();
+        prepareBulkRegisterReading(toRead);
+        for (Map.Entry<ObisCode, RtuRegister> entry : toRead.entrySet()) {
+            ObisCode obisCode = entry.getKey();
+            RtuRegister rtuRegister = entry.getValue();
             try {
-                RtuRegister rtuRegister = rtuRegisterIterator.next();
-                if (CommonUtils.isInRegisterGroup(groups, rtuRegister)) {
-                    obisCode = rtuRegister.getRtuRegisterSpec().getObisCode();
-                    try {
-                        RegisterValue registerValue = readRegister(obisCode);
-                        registerValue.setRtuRegisterId(rtuRegister.getId());
-                        if (rtuRegister.getReadingAt(registerValue.getReadTime()) == null) {
-                            regValueMap.put(rtuRegister, registerValue);
-                        }
-                    } catch (NoSuchRegisterException e) {
-                        getLogger().log(Level.WARNING, "ObisCode " + obisCode + " is not supported by the meter. " + e.getMessage());
-                    }
+                RegisterValue registerValue = readRegister(obisCode);
+                registerValue.setRtuRegisterId(rtuRegister.getId());
+                if (rtuRegister.getReadingAt(registerValue.getReadTime()) == null) {
+                    regValueMap.put(rtuRegister, registerValue);
                 }
             } catch (IOException e) {
                 // TODO if the connection is out you should not try and read the others as well...
@@ -971,6 +970,24 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
             }
         }
         return regValueMap;
+    }
+
+    protected void prepareBulkRegisterReading(Map<ObisCode, RtuRegister> toRead) {
+
+    }
+
+    private Map<ObisCode, RtuRegister> getRegistersToRead() {
+        List<RtuRegister> meterRegisters = getMeter().getRegisters();
+        List<RtuRegisterGroup> groups = getCommunicationProfile().getRtuRegisterGroups();
+
+        Map<ObisCode, RtuRegister> registersToRead = new HashMap<ObisCode, RtuRegister>();
+        for (RtuRegister meterRegister : meterRegisters) {
+            if (CommonUtils.isInRegisterGroup(groups, meterRegister)) {
+                ObisCode obis = meterRegister.getRtuRegisterSpec().getObisCode();
+                registersToRead.put(obis, meterRegister);
+            }
+        }
+        return registersToRead;
     }
 
     /**

@@ -6,11 +6,9 @@
 
 package com.energyict.dlms.cosem;
 
-import java.io.IOException;
+import com.energyict.dlms.*;
 
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.OctetString;
-import com.energyict.dlms.ProtocolLink;
+import java.io.IOException;
 
 /**
  *

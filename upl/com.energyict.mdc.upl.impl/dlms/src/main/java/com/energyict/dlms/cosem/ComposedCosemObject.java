@@ -34,11 +34,24 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
 
     public ComposedCosemObject(ProtocolLink protocolLink, DLMSAttribute... dlmsAttributes) {
         super(protocolLink, new ObjectReference(ObisCode.fromString("0.0.0.0.0.0").getLN()));
+        for (int i = 0; i < dlmsAttributes.length; i++) {
+            DLMSAttribute da = dlmsAttributes[i];
+            dlmsAttributes[i] = getCorrectedClassId(da, protocolLink.getMeterConfig());
+        }
         this.attributes = dlmsAttributes.clone();
         this.dataResult = new AbstractDataType[attributes.length];
     }
 
-    public AbstractDataType getAttribute(DLMSAttribute attribute) throws IOException {
+    public static DLMSAttribute getCorrectedClassId(DLMSAttribute da, DLMSMeterConfig meterConfig) {
+        if (da.getDLMSClassId().equals(DLMSClassId.UNKNOWN)) {
+            return new DLMSAttribute(da.getObisCode(), da.getAttribute(), meterConfig.getDLMSClassId(da.getObisCode()));
+        } else {
+            return da;
+        }
+    }
+
+    public AbstractDataType getAttribute(DLMSAttribute attr) throws IOException {
+        DLMSAttribute attribute = getCorrectedClassId(attr, getProtocolLink().getMeterConfig());
         int index = getAttributeIndex(attribute);
         readAttribute(attribute);
         if (dataResult[index] != null) {
@@ -70,7 +83,7 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
                 return i;
             }
         }
-        throw new IOException("ComposedCosemObject does not contain attribute ["+attribute+"].");
+        throw new IOException("ComposedCosemObject does not contain attribute [" + attribute + "].");
     }
 
     private void readAttribute(DLMSAttribute attribute) throws IOException {
@@ -103,7 +116,8 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
         }
     }
 
-    public boolean contains(DLMSAttribute attribute) {
+    public boolean contains(DLMSAttribute attr) {
+        DLMSAttribute attribute = getCorrectedClassId(attr, getProtocolLink().getMeterConfig());
         for (int i = 0; i < attributes.length; i++) {
             DLMSAttribute dlmsAttribute = attributes[i];
             if (dlmsAttribute.equals(attribute)) {
@@ -156,5 +170,9 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
 
     public Iterator iterator() {
         return Arrays.asList(attributes).iterator();
+    }
+
+    public GenericRead getAttributeAsGenericRead(DLMSAttribute attribute) throws IOException {
+        return new ComposedGenericRead(getAttribute(attribute), attribute, getProtocolLink());
     }
 }

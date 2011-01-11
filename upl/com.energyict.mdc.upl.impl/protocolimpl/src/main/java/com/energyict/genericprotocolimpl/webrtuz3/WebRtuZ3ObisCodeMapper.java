@@ -20,6 +20,11 @@ import java.util.Date;
  */
 public class WebRtuZ3ObisCodeMapper extends ObisCodeMapper {
 
+    public static final ObisCode CORE_FW_VERSION = ObisCode.fromString("0.0.0.2.0.255");
+    public static final ObisCode ERROR_REGISTER = ObisCode.fromString("0.0.97.97.0.255");
+    public static final ObisCode ALARM_REGISTER = ObisCode.fromString("0.0.97.98.0.255");
+    public static final ObisCode ACTIVE_TARIF_REGISTER = ObisCode.fromString("0.0.96.14.0.255");
+
     public WebRtuZ3ObisCodeMapper(CosemObjectFactory cosemObjectFactory) {
         super(cosemObjectFactory);
     }
@@ -28,12 +33,12 @@ public class WebRtuZ3ObisCodeMapper extends ObisCodeMapper {
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
 
         // Core firmware (not upgradeable)
-        if (obisCode.toString().indexOf("0.0.0.2.0.255") != -1) {
+        if (CORE_FW_VERSION.equals(obisCode)) {
             return ProtocolTools.setRegisterValueObisCode(super.getRegisterValue(ObisCode.fromString("1.0.0.2.0.255")), obisCode);
         }
 
         // Error register
-        else if (obisCode.toString().indexOf("0.0.97.97.0.255") != -1) {
+        else if (ERROR_REGISTER.equals(obisCode)) {
             GenericRead gr = getCosemObjectFactory().getGenericRead(obisCode, DLMSUtils.attrLN2SN(2), 1);
             String text = String.valueOf(gr.getValue());
             Quantity quantity = new Quantity(new BigDecimal(gr.getValue()), Unit.getUndefined());
@@ -41,21 +46,19 @@ public class WebRtuZ3ObisCodeMapper extends ObisCodeMapper {
         }
 
         // Alarm register
-        else if (obisCode.toString().indexOf("0.0.97.98.0.255") != -1) {
+        else if (ALARM_REGISTER.equals(obisCode)) {
             GenericRead gr = getCosemObjectFactory().getGenericRead(obisCode, DLMSUtils.attrLN2SN(2), 1);
             String text = String.valueOf(gr.getValue());
             Quantity quantity = new Quantity(new BigDecimal(gr.getValue()), Unit.getUndefined());
             return new RegisterValue(obisCode, quantity, null, null, null, new Date(), 0, text);
         }
 
-        // Actif tarif code register
-        else if (obisCode.toString().indexOf("0.0.96.14.0.255") != -1) {
+        // Active tarif code register
+        else if (ACTIVE_TARIF_REGISTER.equals(obisCode)) {
             Data actifTarifCode = getCosemObjectFactory().getData(obisCode);
             Quantity quantity = new Quantity(actifTarifCode.getValue(), Unit.getUndefined());
             return new RegisterValue(obisCode, quantity);
-        }
-
-        else {
+        } else {
             return super.getRegisterValue(obisCode);
         }
     }

@@ -45,7 +45,12 @@ public class DLMSAttribute {
             String[] strings = dlmsAttribute.split(":");
             if ((strings != null) && (strings.length == 3)) {
                 try {
-                    DLMSClassId classID = DLMSClassId.findById(Integer.valueOf(strings[0]).intValue());
+                    DLMSClassId classID = null;
+                    if (strings[0].equals("?")) {
+                        classID = DLMSClassId.UNKNOWN;
+                    } else {
+                        classID = DLMSClassId.findById(Integer.valueOf(strings[0]).intValue());
+                    }
                     ObisCode obis = ObisCode.fromString(strings[1]);
                     int attribute = Integer.valueOf(strings[2]).intValue();
                     return new DLMSAttribute(obis, attribute, classID);

@@ -27,7 +27,8 @@ public class ObisCodeMapper {
 	private static final String[] possibleConnectStates = {"Disconnected","Connected","Ready for Reconnection"};
 
 	CosemObjectFactory cof = new CosemObjectFactory(null);
-	
+    public static final ObisCode ACTIVITY_CALENDAR = ObisCode.fromString("0.0.13.0.0.255");
+
 	public ObisCodeMapper(CosemObjectFactory cosemObjectFactory) {
 		cof = cosemObjectFactory;
 	}
@@ -40,13 +41,13 @@ public class ObisCodeMapper {
 		RegisterValue rv = null;
 		int billingPoint = -1;
 		CosemObject co = null;
-		
+
 		if(debug){
 			System.out.println(obisCode);
 		}
 		
 		// Abstract Registers
-        if(obisCode.toString().indexOf("0.0.13.0.0.255") != -1){	// Activity Calendar
+        if(ACTIVITY_CALENDAR.equals(obisCode)){	// Activity Calendar
         	rv = new RegisterValue(obisCode,
         			null,
         			null, null, null, new Date(), 0,
