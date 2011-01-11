@@ -1185,7 +1185,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 
     public ComposedMeterInfo getMeterInfo() {
         if (meterInfo == null) {
-            meterInfo = new ComposedMeterInfo(getProtocolLink());
+            meterInfo = new ComposedMeterInfo(getProtocolLink(), isBulkRequest());
         }
         return meterInfo;
     }

@@ -20,8 +20,8 @@ public class ComposedMeterInfo extends ComposedCosemObject {
     public static final DLMSAttribute FIRMWARE_VERSION = DLMSAttribute.fromString("1:1.0.0.2.0.255:2");
     public static final DLMSAttribute CONFIG_NUMBER = DLMSAttribute.fromString("1:0.0.96.2.0.255:2");
 
-    public ComposedMeterInfo(ProtocolLink protocolLink) {
-        super(protocolLink, getDlmsAttributes());
+    public ComposedMeterInfo(ProtocolLink protocolLink, boolean useGetWithList) {
+        super(protocolLink, useGetWithList, getDlmsAttributes());
     }
 
     private static DLMSAttribute[] getDlmsAttributes() {

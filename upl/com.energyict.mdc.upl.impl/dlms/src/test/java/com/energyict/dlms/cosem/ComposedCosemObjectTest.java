@@ -21,7 +21,7 @@ public class ComposedCosemObjectTest {
 
     @Test
     public void testContains() throws Exception {
-        ComposedCosemObject cco = new ComposedCosemObject(null, DATA_VALUE_1, REG_VALUE_2, EXTENDED_REG_SCALER_3);
+        ComposedCosemObject cco = new ComposedCosemObject(null, true, DATA_VALUE_1, REG_VALUE_2, EXTENDED_REG_SCALER_3);
         assertFalse(cco.contains(REG_SCALER_UNIT_1));
         assertFalse(cco.contains(REG_SCALER_UNIT_2));
         assertFalse(cco.contains(REG_SCALER_UNIT_3));
@@ -32,7 +32,7 @@ public class ComposedCosemObjectTest {
 
     @Test
     public void testToString() throws Exception {
-        ComposedCosemObject cco = new ComposedCosemObject(null, DATA_VALUE_1, REG_VALUE_2, EXTENDED_REG_SCALER_3, REG_SCALER_UNIT_1, REG_SCALER_UNIT_2, REG_SCALER_UNIT_3);
+        ComposedCosemObject cco = new ComposedCosemObject(null, true, DATA_VALUE_1, REG_VALUE_2, EXTENDED_REG_SCALER_3, REG_SCALER_UNIT_1, REG_SCALER_UNIT_2, REG_SCALER_UNIT_3);
         assertNotNull(cco.toString());
     }
 }
