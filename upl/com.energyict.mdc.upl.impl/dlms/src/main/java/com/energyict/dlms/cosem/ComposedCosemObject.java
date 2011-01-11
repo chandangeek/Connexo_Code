@@ -22,17 +22,18 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
 
     private final DLMSAttribute[] attributes;
     private final AbstractDataType[] dataResult;
+    private final boolean useGetWithList;
 
     @Override
     protected int getClassId() {
         return getObjectReference().getClassId();
     }
 
-    public ComposedCosemObject(ProtocolLink protocolLink, List<DLMSAttribute> dlmsAttributes) {
-        this(protocolLink, dlmsAttributes.toArray(new DLMSAttribute[0]));
+    public ComposedCosemObject(ProtocolLink protocolLink, boolean useGetWithList, List<DLMSAttribute> dlmsAttributes) {
+        this(protocolLink, useGetWithList, dlmsAttributes.toArray(new DLMSAttribute[0]));
     }
 
-    public ComposedCosemObject(ProtocolLink protocolLink, DLMSAttribute... dlmsAttributes) {
+    public ComposedCosemObject(ProtocolLink protocolLink, boolean useGetWithList, DLMSAttribute... dlmsAttributes) {
         super(protocolLink, new ObjectReference(ObisCode.fromString("0.0.0.0.0.0").getLN()));
         for (int i = 0; i < dlmsAttributes.length; i++) {
             DLMSAttribute da = dlmsAttributes[i];
@@ -40,6 +41,7 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
         }
         this.attributes = dlmsAttributes.clone();
         this.dataResult = new AbstractDataType[attributes.length];
+        this.useGetWithList = useGetWithList;
     }
 
     public static DLMSAttribute getCorrectedClassId(DLMSAttribute da, DLMSMeterConfig meterConfig) {
@@ -66,11 +68,13 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
     }
 
     private boolean isGetWithListSupported() {
-        ApplicationServiceObject serviceObject = getProtocolLink().getDLMSConnection().getApplicationServiceObject();
-        if (serviceObject != null) {
-            ConformanceBlock block = serviceObject.getAssociationControlServiceElement().getXdlmsAse().getNegotiatedConformanceBlock();
-            if (block != null) {
-                return block.isMultipleReferences();
+        if (isUseGetWithList()) {
+            ApplicationServiceObject serviceObject = getProtocolLink().getDLMSConnection().getApplicationServiceObject();
+            if (serviceObject != null) {
+                ConformanceBlock block = serviceObject.getAssociationControlServiceElement().getXdlmsAse().getNegotiatedConformanceBlock();
+                if (block != null) {
+                    return block.isMultipleReferences();
+                }
             }
         }
         return false;
@@ -174,5 +178,9 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
 
     public GenericRead getAttributeAsGenericRead(DLMSAttribute attribute) throws IOException {
         return new ComposedGenericRead(getAttribute(attribute), attribute, getProtocolLink());
+    }
+
+    public boolean isUseGetWithList() {
+        return useGetWithList;
     }
 }

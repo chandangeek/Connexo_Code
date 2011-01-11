@@ -139,6 +139,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 
     public boolean enforceSerialNumber = true;
     public boolean ntaSimulationTool = false;
+    private boolean bulkRequest = false;
 
     /**
      * Handle the protocol tasks
@@ -419,6 +420,8 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 
         this.ntaSimulationTool = ProtocolTools.getPropertyAsInt(properties, "NTASimulationTool", "0") == 1;
 
+        this.bulkRequest = ProtocolTools.getPropertyAsInt(properties, "BulkRequest", "0") == 1;
+
         doValidateProperties();
     }
 
@@ -448,7 +451,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
             throw new ConnectionException("The NullDialer type is only allowed for the wakeup meter.");
         }
 
-        this.cosemObjectFactory = new CosemObjectFactory((ProtocolLink) this);
+        this.cosemObjectFactory = new CosemObjectFactory((ProtocolLink) this, isBulkRequest());
 
         SecurityContext sc = new SecurityContext(this.datatransportSecurityLevel, this.authenticationSecurityLevel, 0, getSystemIdentifier(), this.securityProvider, this.cipheringType);
 
@@ -763,6 +766,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
         optionalKeys.add("IpPortNumber");
         optionalKeys.add("WakeUp");
         optionalKeys.add("CipheringType");
+        optionalKeys.add("BulkRequest");
         List<String> protocolKeys = doGetOptionalKeys();
         if (protocolKeys != null) {
             optionalKeys.addAll(protocolKeys);
@@ -1138,5 +1142,8 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
     protected int getConnectionMode(){
 		return this.connectionMode;
 	}
-	
+
+    public boolean isBulkRequest() {
+        return bulkRequest;
+    }
 }

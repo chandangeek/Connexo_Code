@@ -23,10 +23,16 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     private StoredValues storedValues=null; // cached
     private LoadProfile loadProfile=null; // cached
     private SAPAssignment sapAssignment = null; // cached
+    private boolean useGetWithList;
 
     /** Creates a new instance of CosemObjectFactory */
     public CosemObjectFactory(ProtocolLink protocolLink) {
+        this(protocolLink, false);
+    }
+
+    public CosemObjectFactory(ProtocolLink protocolLink, boolean useGetWithList) {
         this.protocolLink=protocolLink;
+        this.useGetWithList = useGetWithList;
     }
 
     public ProtocolLink getProtocolLink() {
@@ -375,11 +381,11 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     }
 
     public ComposedCosemObject getComposedCosemObject(DLMSAttribute... dlmsAttributes) {
-        return new ComposedCosemObject(protocolLink, dlmsAttributes);
+        return new ComposedCosemObject(protocolLink, isUseGetWithList(), dlmsAttributes);
     }
 
     public ComposedCosemObject getComposedCosemObject(List<DLMSAttribute> dlmsAttributes) {
-        return new ComposedCosemObject(protocolLink, dlmsAttributes);
+        return new ComposedCosemObject(protocolLink, isUseGetWithList(), dlmsAttributes);
     }
 
     //*****************************************************************************************
@@ -407,5 +413,8 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 		throw new IOException("CosemObjectFactory, getObjectReference, invalid reference type " + protocolLink.getReference());
 	}
 
+    public boolean isUseGetWithList() {
+        return useGetWithList;
+    }
 
 }
