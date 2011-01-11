@@ -37,23 +37,27 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
         super(protocolLink, new ObjectReference(ObisCode.fromString("0.0.0.0.0.0").getLN()));
         for (int i = 0; i < dlmsAttributes.length; i++) {
             DLMSAttribute da = dlmsAttributes[i];
-            dlmsAttributes[i] = getCorrectedClassId(da, protocolLink.getMeterConfig());
+            dlmsAttributes[i] = getCorrectedClassId(da, protocolLink);
         }
         this.attributes = dlmsAttributes.clone();
         this.dataResult = new AbstractDataType[attributes.length];
         this.useGetWithList = useGetWithList;
     }
 
-    public static DLMSAttribute getCorrectedClassId(DLMSAttribute da, DLMSMeterConfig meterConfig) {
+    public static DLMSAttribute getCorrectedClassId(DLMSAttribute da, ProtocolLink link) {
         if (da.getDLMSClassId().equals(DLMSClassId.UNKNOWN)) {
-            return new DLMSAttribute(da.getObisCode(), da.getAttribute(), meterConfig.getDLMSClassId(da.getObisCode()));
+            if ((link == null) || (link.getMeterConfig() == null)){
+                throw new IllegalArgumentException("ProtocolLink or MeterConfig cannot be null!");
+            } else {
+                return new DLMSAttribute(da.getObisCode(), da.getAttribute(), link.getMeterConfig().getDLMSClassId(da.getObisCode()));
+            }
         } else {
             return da;
         }
     }
 
     public AbstractDataType getAttribute(DLMSAttribute attr) throws IOException {
-        DLMSAttribute attribute = getCorrectedClassId(attr, getProtocolLink().getMeterConfig());
+        DLMSAttribute attribute = getCorrectedClassId(attr, getProtocolLink());
         int index = getAttributeIndex(attribute);
         readAttribute(attribute);
         if (dataResult[index] != null) {
@@ -121,7 +125,7 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
     }
 
     public boolean contains(DLMSAttribute attr) {
-        DLMSAttribute attribute = getCorrectedClassId(attr, getProtocolLink().getMeterConfig());
+        DLMSAttribute attribute = getCorrectedClassId(attr, getProtocolLink());
         for (int i = 0; i < attributes.length; i++) {
             DLMSAttribute dlmsAttribute = attributes[i];
             if (dlmsAttribute.equals(attribute)) {
