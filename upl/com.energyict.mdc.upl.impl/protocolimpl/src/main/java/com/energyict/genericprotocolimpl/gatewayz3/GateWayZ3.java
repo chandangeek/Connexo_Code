@@ -264,6 +264,13 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 					amrjm.journal(new AmrJournalEntry(completionCode));
 					amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CONNECTTIME, Math.abs(System.currentTimeMillis() - connectTime)/1000));
 
+                    String deviceId = rtu.getDeviceId();
+                    NetworkNode nn = getNetworkNodeForDeviceId(deviceId);
+                    if ((nn != null) && (nn.getSignalStrength() != null)) {
+                        String message = "Slave RSSI for node [" + deviceId + "]: (" + nn.getSignalStrength().getDisplayName() + ", " + nn.getSignalStrength().getRSSIValue() + ")";
+                        amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, message));
+                    }
+
 					if(completionCode == AmrJournalEntry.CC_OK){
 						amrjm.updateLastCommunication();
 					} else {
@@ -439,8 +446,11 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 
 					final String manufacturerId = Long.toHexString((((Integer)topologyEntry.element[0]).intValue() & 0xFFFFFFFFl));
 					final String routingAddress = Long.toHexString((((Integer)topologyEntry.element[1]).intValue() & 0xFFFFFFFFl));
-
-					stringBuilder.append(manufacturerId).append(',').append(routingAddress).append("\n");
+                    stringBuilder.append(manufacturerId).append(',').append(routingAddress);
+                    if (topologyEntry.element.length > 2) {
+                        stringBuilder.append(',').append(topologyEntry.element[2]);
+                    }
+                    stringBuilder.append("\n");
 				}
 
 				log(Level.INFO, "Got routing table \n[" + stringBuilder.toString() + "] from the device.");

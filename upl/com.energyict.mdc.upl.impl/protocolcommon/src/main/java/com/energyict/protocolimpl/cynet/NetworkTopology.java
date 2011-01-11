@@ -49,7 +49,7 @@ public final class NetworkTopology {
             if (!networkMember.equals("OK")) {
                 final String[] memberData = networkMember.split(",");
 
-                if (memberData.length == 2) {
+                if (memberData.length >= 2) {
                     final String manufacturerIdString = memberData[0].trim();
                     final String routingString = memberData[1].trim();
 
@@ -59,11 +59,18 @@ public final class NetworkTopology {
 	                            + manufacturerIdString + "]");
                     }
 
-                    final RouteAddress routeAddress = new RouteAddress(Long.parseLong(routingString, 16), 3);
-                    System.out.println(routeAddress);
-                    
-                    final ManufacturerId nodeId = new ManufacturerId(Long.parseLong(manufacturerIdString, 16));    
-                    topology.addNode(new RouteAddress(Long.parseLong(routingString, 16), 3), nodeId, (signalStrengthListener != null ? signalStrengthListener.getSignalStrength(nodeId) : SignalStrength.UNKNOWN));
+                    final ManufacturerId nodeId = new ManufacturerId(Long.parseLong(manufacturerIdString, 16));
+                    SignalStrength signalStrength = SignalStrength.UNKNOWN;
+                    if ((memberData.length >= 3) && (memberData[2] != null)) {
+                        try {
+                            Integer rssi = Integer.valueOf(memberData[2].trim());
+                            signalStrength = SignalStrength.byRSSIValue(rssi);
+                        } catch (NumberFormatException e) {
+                            logger.warning("Cannot parse rssi [" + memberData[2] + "]: " + e.getMessage());
+                        }
+                    }
+
+                    topology.addNode(new RouteAddress(Long.parseLong(routingString, 16), 3), nodeId, (signalStrengthListener != null ? signalStrengthListener.getSignalStrength(nodeId) : signalStrength));
                 } else {
                     logger.warning("Cannot parse [" + networkMember
                             + "] into network data, splitting records using comma delimiter yields [" + memberData.length + "] parts, contents of array [" + memberData + "]");
