@@ -38,11 +38,11 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 		}
 	}	
 
-	WaveFlowDLMSWMessages waveFlowDLMSWMessages = new WaveFlowDLMSWMessages(this);
+	private WaveFlowDLMSWMessages waveFlowDLMSWMessages = new WaveFlowDLMSWMessages(this);
 
-	TransparantObjectAccessFactory transparantObjectAccessFactory;
+	private TransparantObjectAccessFactory transparantObjectAccessFactory;
 	
-	ObisCodeMapper obisCodeMapper;
+	private ObisCodeMapper obisCodeMapper;
 
 	/**
 	 * the correcttime property. this property is set from the protocolreader in order to allow to sync the time...
@@ -68,7 +68,7 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 		return radioCommandFactory;
 	}
 
-	final TransparantObjectAccessFactory getTransparantObjectAccessFactory() {
+	public final TransparantObjectAccessFactory getTransparantObjectAccessFactory() {
 		return transparantObjectAccessFactory;
 	}
 

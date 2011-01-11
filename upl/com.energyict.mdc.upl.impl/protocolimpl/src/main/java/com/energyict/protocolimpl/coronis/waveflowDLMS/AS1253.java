@@ -1,21 +1,17 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.*;
 
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.coronis.core.EscapeCommandFactory;
-import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.*;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocolimpl.coronis.waveflowDLMS.as1253.ProfileDataReader;
 
 public class AS1253 extends AbstractDLMS {
 
-	private static final ObisCode LOAD_PROFILE_PULSE_VALUES = ObisCode.fromString("1.1.99.1.0.255");
-	private static final ObisCode LOAD_PROFILE_NON_CUMULATIVE_ENGINEERING_VALUES = ObisCode.fromString("1.0.99.1.2.255");
-	private static final ObisCode OBJECT_LIST = ObisCode.fromString("0.0.40.0.0.255");
+	public static final ObisCode LOAD_PROFILE_PULSE_VALUES = ObisCode.fromString("1.1.99.1.0.255");
+	public static final ObisCode LOG_PROFILE = ObisCode.fromString("1.1.99.98.0.255");
+	public static final ObisCode OBJECT_LIST = ObisCode.fromString("0.0.40.0.0.255");
 	static {
 		objectEntries.put(ObisCode.fromString("1.1.96.1.0.255"),new ObjectEntry("Meter serial number",1));
 		objectEntries.put(ObisCode.fromString("1.1.1.8.0.255"),new ObjectEntry("Import active energy tarif 0",3));
@@ -47,8 +43,9 @@ public class AS1253 extends AbstractDLMS {
 		objectEntries.put(ObisCode.fromString("1.1.0.9.1.255"),new ObjectEntry("Meter time",1));
 		objectEntries.put(ObisCode.fromString("1.1.0.0.0.255"),new ObjectEntry("Utility Id",1));
 		
+		objectEntries.put(LOG_PROFILE,new ObjectEntry("Logbook",7));
 		objectEntries.put(LOAD_PROFILE_PULSE_VALUES,new ObjectEntry("Load profile non cumulative engineering values",7));
-		objectEntries.put(OBJECT_LIST,new ObjectEntry("Load profile non cumulative engineering values",15));
+		objectEntries.put(OBJECT_LIST,new ObjectEntry("Object list",15));
 		
 	};
 
@@ -61,20 +58,44 @@ public class AS1253 extends AbstractDLMS {
      * @return All load profile data in the meter from lastReading
      */
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-    	
-    	//AbstractDataType adt = transparantObjectAccessFactory.readObjectAttribute(OBJECT_LIST, 2);
+/*    	
+    	AbstractDataType adt = getTransparantObjectAccessFactory().readObjectAttribute(OBJECT_LIST, 2);
     	//System.out.println(adt);
-    	
-    	AbstractDataType adt = transparantObjectAccessFactory.readObjectAttribute(LOAD_PROFILE_PULSE_VALUES, 2,lastReading);
-    	
+		Array array = adt.getArray();
+		for (AbstractDataType arrayElement : array.getAllDataTypes()) {
+			System.out.print("classid "+arrayElement.getStructure().getDataType(0).intValue()+", obis code "+arrayElement.getStructure().getDataType(2).toString());
+		}
+		System.out.println();
+*/
+/*    	
+    	AbstractDataType adt = getTransparantObjectAccessFactory().readObjectAttribute(LOG_PROFILE, 2,lastReading);
     	System.out.println(adt);
+*/  	
     	
-    	//AbstractDataType adt = transparantObjectAccessFactory.readObjectAttribute(LOAD_PROFILE_PULSE_VALUES, 2);
-    	//System.out.println(adt);
-    	return new ProfileData();
+    	TransparentObjectListRead t = new TransparentObjectListRead(this);
+    	List<ObjectInfo> objectInfos = new ArrayList<ObjectInfo>();
+    	
+		objectEntries.put(ObisCode.fromString("1.1.1.8.0.255"),new ObjectEntry("Import active energy tarif 0",3));
+		objectEntries.put(ObisCode.fromString("1.1.2.8.0.255"),new ObjectEntry("Export active energy tarif 0",3));
+		objectEntries.put(ObisCode.fromString("1.1.3.8.0.255"),new ObjectEntry("Import reactive energy tarif 0",3));
+    	
+    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.1.8.0.255")));
+    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.2.8.0.255")));
+    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.3.8.0.255")));
+    	t.read(objectInfos);
+    	
+    	
+    	
+    	
+    	ProfileDataReader profileDataReader = new ProfileDataReader(this);
+    	return profileDataReader.getProfileData(lastReading, includeEvents);
+    	
+    	
     }	
 
 
+    
+    
 
 
 	

@@ -11,7 +11,7 @@ import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
 public class TransparentGet extends AbstractTransparentObjectAccess implements DLMSCOSEMGlobals {
-
+	
 	private final ObjectInfo objectInfo;
 	
 	private final int DLMS_GET_RESPONSE=0xC4;
@@ -114,8 +114,6 @@ public class TransparentGet extends AbstractTransparentObjectAccess implements D
 	
 	@Override
 	void parse(byte[] data) throws IOException {
-
-		//System.out.println("multiFrameData: "+ProtocolUtils.outputHexString(data));
 		
 		DataInputStream dais = null;
 		try {
@@ -154,7 +152,7 @@ public class TransparentGet extends AbstractTransparentObjectAccess implements D
 			//System.out.println("axdrData: "+ProtocolUtils.outputHexString(axdrData));
 			dataType = AXDRDecoder.decode(axdrData);
 			
-			System.out.println("dataType: "+dataType);
+			//System.out.println("dataType: "+dataType);
 			
 		}
 		finally {
@@ -285,9 +283,9 @@ public class TransparentGet extends AbstractTransparentObjectAccess implements D
 			daos.writeByte(getInteractionParameter().getId());
 			
 			if (fromDate != null) {
-				Calendar toCalendar = Calendar.getInstance(abstractDLMS.getTimeZone());
-				toCalendar.setTime(fromDate);
-				byte[] rangeData = getBufferRangeDescriptorDefault(Calendar.getInstance(abstractDLMS.getTimeZone()), toCalendar);
+				Calendar fromCalendar = Calendar.getInstance(abstractDLMS.getTimeZone());
+				fromCalendar.setTime(fromDate);
+				byte[] rangeData = getBufferRangeDescriptorDefault(fromCalendar,Calendar.getInstance(abstractDLMS.getTimeZone()));
 				daos.writeByte(rangeData.length);
 				daos.write(rangeData);
 			}

@@ -14,7 +14,8 @@ public class TransparantObjectAccessFactory {
 		return genericHeader;
 	}
 
-	private final int ATTRIBUTE_VALUE=2;	
+	
+	public final static int ATTRIBUTE_VALUE=2;	
 	
 	private final AbstractDLMS abstractDLMS;
 
@@ -27,18 +28,18 @@ public class TransparantObjectAccessFactory {
 		genericHeader = atoa.getGenericHeader();
 	}
 	
-	final AbstractDataType readObjectValue(ObisCode obisCode) throws IOException {
+	public final AbstractDataType readObjectValue(ObisCode obisCode) throws IOException {
     	ObjectEntry o = AbstractDLMS.findObjectByObiscode(obisCode);
     	TransparentGet tg = new TransparentGet(abstractDLMS, new ObjectInfo(ATTRIBUTE_VALUE, o.getClassId(),obisCode));
     	invoke(tg);
     	return tg.getDataType();
 	}
 	
-	final AbstractDataType readObjectAttribute(ObisCode obisCode, int attribute) throws IOException {
+	public final AbstractDataType readObjectAttribute(ObisCode obisCode, int attribute) throws IOException {
 		return readObjectAttribute(obisCode,attribute,null);
 	}
 	
-	final AbstractDataType readObjectAttribute(ObisCode obisCode, int attribute, Date fromDate) throws IOException {
+	public final AbstractDataType readObjectAttribute(ObisCode obisCode, int attribute, Date fromDate) throws IOException {
     	ObjectEntry o = AbstractDLMS.findObjectByObiscode(obisCode);
     	TransparentGet tg = new TransparentGet(abstractDLMS, new ObjectInfo(attribute, o.getClassId(),obisCode));
     	tg.setFromDate(fromDate);
@@ -46,7 +47,7 @@ public class TransparantObjectAccessFactory {
     	return tg.getDataType();
 	}
 
-	final void writeObjectAttribute(ObisCode obisCode, int attribute, AbstractDataType dataType) throws IOException {
+	public final void writeObjectAttribute(ObisCode obisCode, int attribute, AbstractDataType dataType) throws IOException {
     	ObjectEntry o = AbstractDLMS.findObjectByObiscode(obisCode);
     	TransparentSet ts = new TransparentSet(abstractDLMS, new ObjectInfo(attribute, o.getClassId(),obisCode));
     	ts.setDataType(dataType);
