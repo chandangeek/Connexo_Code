@@ -6,6 +6,8 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.VisibleString;
+import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.obis.ObisCode;
@@ -27,17 +29,17 @@ public class G3B extends AbstractDLMSProtocol {
 
     private G3BStoredValues storedValuesImpl = null;
     private static final int MILLIS_1_DAY = 60 * 60 * 24 * 1000;
-    private static final int MAX_TIME_SHIFT_SECONDS = 59;
+    private static final int MAX_TIME_SHIFT_SECONDS = 0;//59;
     private static final ObisCode OBISCODE_LOAD_PROFILE = ObisCode.fromString("1.0.99.1.0.255");
     private static final ObisCode OBISCODE_ACTIVE_FIRMWARE = ObisCode.fromString("1.0.0.2.0.255");
     private static final ObisCode OBISCODE_CLOCK = ObisCode.fromString("0.0.1.0.0.255");
-    private static final ObisCode OBISCODE_SYNCHRONIZATION = ObisCode.fromString("1.0.96.130.5.255"
+    private static final ObisCode OBISCODE_SYNCHRONIZATION = ObisCode.fromString("1.0.96.130.3.255"
     );
     private ProfileGeneric loadProfile;
     private ProfileChannel profileChannel;
 
     /**
-     * G3B adds the storedvalue impl to the init method.
+     * G3B adds the storedvalue impl to the init method. (via override)
      */
     @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
@@ -115,16 +117,17 @@ public class G3B extends AbstractDLMSProtocol {
      * @return the meter it's firmware version
      * @throws IOException when there's a problem communicating with the meter.
      */
-	public final String getFirmwareVersion() throws IOException {
-		if (firmwareVersion == null) {
+    public final String getFirmwareVersion() throws IOException {
+        if (firmwareVersion == null) {
             Data data = getCosemObjectFactory().getData(OBISCODE_ACTIVE_FIRMWARE);
             firmwareVersion = AXDRDecoder.decode(data.getData()).getVisibleString().getStr();
-		}
-		return firmwareVersion;
+        }
+        return firmwareVersion;
     }
 
     /**
      * Requests the meter's profile data
+     *
      * @param includeEvents: enable or disable the reading of meterevents
      * @return the profile data
      * @throws IOException when there's a problem communicating with the meter.
@@ -195,21 +198,21 @@ public class G3B extends AbstractDLMSProtocol {
                 final long roundtripCorrection = (endTime - startTime) / 2;
                 final long timeDifference = System.currentTimeMillis() - (deviceTime.getTime() + roundtripCorrection);
                 logger.info("Time difference is [" + timeDifference + "] miliseconds (using roundtrip time of [" + roundtripCorrection + "] milliseconds)");
-
-                if (Math.abs(timeDifference / 1000) <= MAX_TIME_SHIFT_SECONDS) {
-                    logger.info("Time difference [" + (timeDifference / 1000) + "]can be corrected using a time shift, invoking.");
-                    clock.shiftTime((int) (timeDifference / 1000));    // TODO: object unavailable??? wrong obis code?
-                    //Data syncData = getCosemObjectFactory().getData(OBISCODE_SYNCHRONIZATION);
-                    //System.out.println(syncData.getValue());
-                    //syncData.setValueAttr(new VisibleString("01"));
-                    //System.out.println(syncData.getValue());
-
+                int timeShift = (int) (timeDifference / 1000);
+                if (Math.abs(timeShift) < 1) {
+                    logger.info("Time difference [" + timeDifference + " ms] is too small to be corrected.");
                 } else {
-                    logger.info("Time difference is too big to be corrected using a time shift, setting absolute date and time.");
-                    final Date date = new Date(System.currentTimeMillis() + roundtripCorrection);
-                    final Calendar newTimeToSet = Calendar.getInstance();
-                    newTimeToSet.setTime(date);
-                    setDeviceTime(newTimeToSet);         //Write time, instead of shifting it. = force clock
+                    if (Math.abs(timeShift) <= MAX_TIME_SHIFT_SECONDS) {
+                        logger.info("Time difference [" + timeShift + "] can be corrected using a time shift, invoking.");
+                        Data synchronizationObject = getCosemObjectFactory().getData(OBISCODE_SYNCHRONIZATION);
+                        synchronizationObject.setValueAttr(new VisibleString(getHexStringFromTimeShift(timeShift)));
+                    } else {
+                        logger.info("Time difference is too big to be corrected using a time shift, setting absolute date and time.");
+                        final Date date = new Date(System.currentTimeMillis() + roundtripCorrection);
+                        final Calendar newTimeToSet = Calendar.getInstance();
+                        newTimeToSet.setTime(date);
+                        getCosemObjectFactory().getClock().setTimeAttr(new DateTime(newTimeToSet));
+                    }
                 }
                 timeAdjusted = true;
             } else {
@@ -223,35 +226,17 @@ public class G3B extends AbstractDLMSProtocol {
     }
 
     /**
-     * Used to force the clock.
-     * Prepares a fitting byte array that represents a DLMS command for the meter
-     *
-     * @param newTime the time to be set
-     * @throws IOException when there's a problem communicating with the meter.
+     * Converts the number of seconds (that need to be shifted) into a fitting hex string,
+     * following the meter's conventions.
      */
-    private void setDeviceTime(final Calendar newTime) throws IOException {
-        newTime.add(Calendar.MILLISECOND, 0);
-        final byte[] byteTimeBuffer = new byte[14];
-        byteTimeBuffer[0] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
-        byteTimeBuffer[1] = 12; // length
-        byteTimeBuffer[2] = (byte) (newTime.get(Calendar.YEAR) >> 8);
-        byteTimeBuffer[3] = (byte) newTime.get(Calendar.YEAR);
-        byteTimeBuffer[4] = (byte) (newTime.get(Calendar.MONTH) + 1);
-        byteTimeBuffer[5] = (byte) newTime.get(Calendar.DAY_OF_MONTH);
-        byte bDOW = (byte) newTime.get(Calendar.DAY_OF_WEEK);
-        byteTimeBuffer[6] = bDOW-- == 1 ? (byte) 7 : bDOW;
-        byteTimeBuffer[7] = (byte) newTime.get(Calendar.HOUR_OF_DAY);
-        byteTimeBuffer[8] = (byte) newTime.get(Calendar.MINUTE);
-        byteTimeBuffer[9] = (byte) newTime.get(Calendar.SECOND);
-        byteTimeBuffer[10] = (byte) 0xFF;
-        byteTimeBuffer[11] = (byte) 0x80;
-        byteTimeBuffer[12] = (byte) 0x00;
-        if (timeZone.inDaylightTime(newTime.getTime())) {
-            byteTimeBuffer[13] = (byte) 0x80;
+    public String getHexStringFromTimeShift(int timeShift) throws IOException {
+        if (timeShift < 0) {
+            return ProtocolTools.getHexStringFromBytes(new byte[]{(byte) timeShift}, "");
+        } else if (timeShift > 0) {
+            return ProtocolTools.getHexStringFromBytes(new byte[]{(byte) (timeShift + 1 + 255)}, "");
         } else {
-            byteTimeBuffer[13] = (byte) 0x00;
+            return "";
         }
-        getCosemObjectFactory().writeObject(OBISCODE_CLOCK, 8, 2, byteTimeBuffer);
     }
 
     public Quantity getMeterReading(int channelId) throws IOException {
@@ -316,10 +301,8 @@ public class G3B extends AbstractDLMSProtocol {
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
 
-            //Make the register ask for billing profile data.. temporary code.
-            obisCode = ProtocolTools.setObisCodeField(obisCode, 5, (byte) 0);
+            //TODO: eventTime stamp is 1h too early? (same goes for profile data timestamp)
 
-            //TODO: EVENT TIME SEEMS TO BE 1 HOUR TO EARLY
             //Billing profile data, store it in a register
             if (obisCode.getF() != 255) {
                 CosemObject cosemObject = getCosemObjectFactory().getCosemObject(obisCode);

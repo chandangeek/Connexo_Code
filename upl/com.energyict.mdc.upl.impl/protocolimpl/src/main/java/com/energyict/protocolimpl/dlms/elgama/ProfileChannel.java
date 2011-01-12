@@ -161,17 +161,11 @@ public class ProfileChannel {
      * @return the fixed obis code
      */
     private ObisCode fixObisCode(ObisCode obisCode) {
-        if (obisCode.equals(ObisCode.fromString("1.0.4.5.0.255"))) {
-            return ObisCode.fromString("1.0.4.4.0.255");
-        }
-        if (obisCode.equals(ObisCode.fromString("1.0.3.5.0.255"))) {
-            return ObisCode.fromString("1.0.3.4.0.255");
-        }
-        if (obisCode.equals(ObisCode.fromString("1.0.2.5.0.255"))) {
-            return ObisCode.fromString("1.0.2.4.0.255");
-        }
-        if (obisCode.equals(ObisCode.fromString("1.0.1.5.0.255"))) {
-            return ObisCode.fromString("1.0.1.4.0.255");
+        if (obisCode.equals(ObisCode.fromString("1.0.4.5.0.255")) ||
+        obisCode.equals(ObisCode.fromString("1.0.3.5.0.255")) ||
+        obisCode.equals(ObisCode.fromString("1.0.2.5.0.255")) ||
+        obisCode.equals(ObisCode.fromString("1.0.1.5.0.255"))) {
+            return ProtocolTools.setObisCodeField(obisCode, 3, (byte) 4);
         }
         return obisCode;
     }
@@ -192,42 +186,17 @@ public class ProfileChannel {
             prevTime = (Calendar) previousTime.clone();
         }
 
-        //TODO: use octetString.toDate(getTimeZone()); in stead of parsing it.
-
-
         //Only hourly values have a timestamp.
         if (!intervalData.isOctetString(0)) {
             prevTime.add(Calendar.SECOND, getProfileInterval());
             return prevTime;
         }
 
-        byte[] dateArray = intervalData.getOctetString(0).getArray();
-        if (dateArray[0] != -1) {
-            calendar.set(Calendar.YEAR, ((dateArray[0] & 0xff) << 8) | ((dateArray[1] & 0xff)));
-        }
-        if (dateArray[2] != -1) {
-            calendar.set(Calendar.MONTH, (dateArray[2] & 0xff) - 1);
-        }
-        if (dateArray[3] != -1) {
-            calendar.set(Calendar.DAY_OF_MONTH, (dateArray[3] & 0xff));
-        }
-        if (dateArray[5] != -1) {
-            calendar.set(Calendar.HOUR_OF_DAY, (dateArray[5] & 0xff));
-        } else {
-            calendar.set(Calendar.HOUR_OF_DAY, 0);
-        }
-        if (dateArray[6] != -1) {
-            calendar.set(Calendar.MINUTE, (dateArray[6] & 0xff));
-        } else {
-            calendar.set(Calendar.MINUTE, 0);
-        }
-        if (dateArray[7] != -1) {
-            calendar.set(Calendar.SECOND, (dateArray[7] & 0xff));
-        } else {
-            calendar.set(Calendar.SECOND, 0);
-        }
+        OctetString octetString = intervalData.getOctetString(0);
+        calendar.setTime(octetString.toDate(getTimeZone()));
 
         // if DST, add 1 hour
+        byte[] dateArray = octetString.getArray();
         if (dateArray[11] != -1) {
             if ((dateArray[11] & (byte) 0x80) == 0x80) {
                 calendar.add(Calendar.HOUR_OF_DAY, -1);
@@ -317,7 +286,7 @@ public class ProfileChannel {
                 if (logger.isLoggable(Level.FINE)) {
                     logger.log(Level.FINE, "Mapping interval end time...");
                 }
-                Calendar calendar = ProtocolUtils.initCalendar(false, getTimeZone());     //TODO: DST
+                Calendar calendar = ProtocolUtils.initCalendar(getTimeZone().inDaylightTime(new Date()), getTimeZone());     //TODO: DST
                 calendar = this.mapIntervalEndTimeToCalendar(previousTimeStamp, calendar, intervalData);
 
                 final int protocolStatus;

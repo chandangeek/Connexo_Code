@@ -24,6 +24,7 @@ public class G3BStoredValues implements StoredValues {
     private List<ObisCode> capturedCodes = null;
     private Array dataArray = null;
     private boolean hasATimeStamp = false;
+    private TimeZone timeZone;
 
     public G3BStoredValues(CosemObjectFactory cosemObjectFactory) {
         this.cosemObjectFactory = cosemObjectFactory;
@@ -69,7 +70,10 @@ public class G3BStoredValues implements StoredValues {
     }
 
     private TimeZone getTimeZone() {
-        return getCosemObjectFactory().getProtocolLink().getTimeZone();
+        if (timeZone == null) {
+            timeZone = getCosemObjectFactory().getProtocolLink().getTimeZone();
+        }
+        return timeZone;
     }
 
     public HistoricalValue getHistoricalValue(ObisCode obisCode) throws IOException {
@@ -112,14 +116,14 @@ public class G3BStoredValues implements StoredValues {
                         historicalRegister.setEventTime(dateTime.getValue().getTime());
                     }
                 }
-                
+
                 historicalRegister.setBillingDate(billingPointTimeDate);
                 historicalRegister.setCaptureTime(new Date());
                 historicalRegister.setQuantityValue(value, unit);
                 historicalRegister.setScalerUnit(scalerUnit);
 
                 return new HistoricalValue(historicalRegister, billingPointTimeDate, historicalRegister.getEventTime(), getProfileGeneric().getResetCounter());
-                
+
             } catch (DataAccessResultException e) {
                 retryHandler.logFailure(e);
                 getCosemObjectFactory().getProtocolLink().getLogger().warning("Problem while reading historical value " + obisCode + ", will retry.");
