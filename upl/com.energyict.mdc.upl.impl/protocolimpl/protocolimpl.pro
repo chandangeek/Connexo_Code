@@ -131,6 +131,8 @@
 
 -keepnames class com.energyict.protocolimpl.elster.a3.AlphaA3
 
+-keepnames class com.energyict.protocolimpl.elster.a1800.A1800
+
 -keepnames class com.energyict.protocolimpl.edmi.mk6.MK6
 
 -keepnames class com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.S4
@@ -416,14 +418,15 @@
 
 -keepnames class com.energyict.protocolimpl.coronis.waveflowDLMS.AS253
 
--keepnames class com.energyict.genericprotocolimpl.elster.ctr.MTU155
-
 -keepnames class com.energyict.protocolimpl.coronis.waveflow.waveflowV2.WaveFlowV2
 
 -keepnames class com.energyict.genericprotocolimpl.elster.ctr.SmsHandler
+
+-keepnames class com.energyict.genericprotocolimpl.elster.ctr.MTU155
 
 # Keep the parsing of the CodeTableToXML
 -keep public class com.energyict.protocolimpl.dlms.as220.parsing.CodeTableXml{
     public *;
 }
+
 -keepnames class com.energyict.genericprotocolimpl.elster.AM100R.Apollo.ApolloMeter

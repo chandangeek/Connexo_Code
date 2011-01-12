@@ -10,23 +10,24 @@
 
 package com.energyict.protocolimpl.elster.a3;   
 
-import com.energyict.protocolimpl.ansi.c12.procedures.*;
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
-import com.energyict.protocol.HalfDuplexEnabler;  
-import com.energyict.protocolimpl.base.*;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.*;
-import com.energyict.protocol.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import com.energyict.protocolimpl.elster.a3.tables.*;
-import com.energyict.protocolimpl.elster.a3.procedures.*;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocolimpl.meteridentification.*;
+import com.energyict.protocolimpl.ansi.c12.procedures.StandardProcedureFactory;
+import com.energyict.protocolimpl.ansi.c12.tables.LoadProfileSet;
+import com.energyict.protocolimpl.ansi.c12.tables.StandardTableFactory;
+import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.elster.a3.procedures.ManufacturerProcedureFactory;
+import com.energyict.protocolimpl.elster.a3.tables.ManufacturerTableFactory;
+import com.energyict.protocolimpl.meteridentification.A3;
+import com.energyict.protocolimpl.meteridentification.AbstractManufacturer;
+
+import java.io.*;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  *
@@ -163,7 +164,7 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
     }
     
     protected List doGetOptionalKeys() {
-        List result = new ArrayList(super.getOptionalKeys());
+        List result = new ArrayList();
         
         result.add("C12User");
         result.add("C12UserId");
@@ -222,7 +223,7 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
 
     
     public String getProtocolVersion() {
-        return "$Revision: 1.14 $";
+        return "$Date$";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {

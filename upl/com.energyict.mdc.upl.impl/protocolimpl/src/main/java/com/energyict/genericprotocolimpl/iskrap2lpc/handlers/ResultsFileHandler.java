@@ -1,19 +1,15 @@
 package com.energyict.genericprotocolimpl.iskrap2lpc.handlers;
 
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map.Entry;
-
+import com.energyict.genericprotocolimpl.iskrap2lpc.Constant;
+import com.energyict.genericprotocolimpl.iskrap2lpc.ResultsFile;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.energyict.genericprotocolimpl.iskrap2lpc.Constant;
-import com.energyict.genericprotocolimpl.iskrap2lpc.ResultsFile;
-import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class ResultsFileHandler extends DefaultHandler {
 

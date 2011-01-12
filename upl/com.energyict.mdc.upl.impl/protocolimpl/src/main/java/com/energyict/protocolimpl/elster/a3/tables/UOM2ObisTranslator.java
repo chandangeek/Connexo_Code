@@ -10,13 +10,10 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.cbo.Unit;
+import com.energyict.protocolimpl.ansi.c12.tables.UOMEntryBitField;
 
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.cbo.*;
+import java.io.IOException;
 
 /**
  *
@@ -62,7 +59,7 @@ public class UOM2ObisTranslator {
                 unit = Unit.get("V");
             } break;
             
-            case 10: { // RMS volts squared V²
+            case 10: { // RMS volts squared VÂ²
                 unit = Unit.get("V2");
             } break;
             
@@ -70,7 +67,7 @@ public class UOM2ObisTranslator {
                 unit = Unit.get("A");
             } break;
             
-            case 14: { // RMS amps squared A²
+            case 14: { // RMS amps squared AÂ²
                 unit = Unit.get("A2");
             } break;
             
@@ -83,11 +80,11 @@ public class UOM2ObisTranslator {
             } break;
             
             case 20: {
-            	unit = Unit.get("°");
+            	unit = Unit.get("\u00B0");
             }break;
             
             case 22: {
-            	unit = Unit.get("°");
+                unit = Unit.get("\u00B0");
             }break;
             
             case 24: { // power factor computed using VA apparent id code 2
@@ -362,7 +359,7 @@ public class UOM2ObisTranslator {
                 cField=12;
             } break;
             
-            case 10: { // RMS volts squared V²
+            case 10: { // RMS volts squared VÂ²
                 strBuff.append("RMS volts squared");
                 cField=144;
             } break;
@@ -372,7 +369,7 @@ public class UOM2ObisTranslator {
                 cField=11;
             } break;
             
-            case 14: { // RMS amps squared A²
+            case 14: { // RMS amps squared AÂ²
                 strBuff.append("RMS amps squared");
                 cField=145;
             } break;

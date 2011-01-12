@@ -1,65 +1,32 @@
 package com.energyict.protocolimpl.elster.a1800;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.logging.Level;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
-
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.HalfDuplexEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
-import com.energyict.protocolimpl.ansi.c12.C12Layer2;
-import com.energyict.protocolimpl.ansi.c12.PSEMServiceFactory;
-import com.energyict.protocolimpl.ansi.c12.ResponseIOException;
+import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.ansi.c12.*;
 import com.energyict.protocolimpl.ansi.c12.procedures.StandardProcedureFactory;
 import com.energyict.protocolimpl.ansi.c12.tables.StandardTableFactory;
-import com.energyict.protocolimpl.base.Encryptor;
-import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.protocolimpl.base.ProtocolConnection;
-import com.energyict.protocolimpl.base.RtuPlusServerHalfDuplexController;
+import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.elster.a3.AlphaA3;
 import com.energyict.protocolimpl.elster.a3.procedures.ManufacturerProcedureFactory;
 import com.energyict.protocolimpl.elster.a3.tables.ManufacturerTableFactory;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
+
+import javax.xml.parsers.*;
+import java.io.*;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler {
 
-	
-	A1800LoadProfile a1800LoadProfile;
+	/** Logger instance. */
+	private static final Logger logger = Logger.getLogger(A1800.class.getName());
+
+	private A1800LoadProfile a1800LoadProfile;
+
 	private boolean messageFailed = false;
 	
 	private HalfDuplexController halfDuplexController;
@@ -78,7 +45,7 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 	
 	@Override
 	protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
-        c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController);
+		c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, this.halfDuplexController);
         c12Layer2.initStates();
         psemServiceFactory = new PSEMServiceFactory(this);
         standardTableFactory = new StandardTableFactory(this);
@@ -134,18 +101,15 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
             saxParser.parse(i, handler);
             
         } catch (ParserConfigurationException thrown) {
-            thrown.printStackTrace();
             throw new BusinessException(thrown);
         } catch (SAXException thrown) {
-            thrown.printStackTrace();
             throw new BusinessException(thrown);
         } catch (IOException thrown) {
-            thrown.printStackTrace();
             throw new BusinessException(thrown);
         }
 	}
-	
-	
+
+
 
 	public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
 		MessageHandler messageHandler = new MessageHandler();
@@ -196,7 +160,6 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 			}
 		}
 		catch (BusinessException e) {
-			e.printStackTrace();
 			log(Level.INFO, "Message " + messageEntry.getContent() + " has failed. " + e.getMessage());
 			return MessageResult.createFailed(messageEntry);
 		}
@@ -281,19 +244,9 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 		return value.getValue();
 	}
 	
-	public static void main(String[] args) {
-		Unit xx = //Unit.get("°");
-		Unit.get("Hz");
-//		tableIdbBitfield & 0x07FF);
-//        setStdVsMfgFlag((tableIdbBitfield & 0x0800) == 0x0800);
-		System.out.println(0x080D &  0x07FF);
-		System.out.println((0x080D & 0x0800) == 0x0800);
-		"".toCharArray();
-	}
-	
-	protected List doGetOptionalKeys() {
-        List result = new ArrayList(super.getOptionalKeys());
-        
+	protected List<String> doGetOptionalKeys() {
+        List<String> result = new ArrayList<String>(super.doGetOptionalKeys());
+
         result.add("HalfDuplex");
 		result.add("RS485RtuPlusServer");
         
@@ -306,10 +259,15 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 	
 	public void setHalfDuplexController(HalfDuplexController controller) {
 		if (isRS485RtuPlusServer()) {
+			if (logger.isLoggable(Level.FINE)) {
+				logger.log(Level.FINE, "Running on an RTU+Server, using inverted logic for RTS.");
+			}
+
 			this.halfDuplexController = new RtuPlusServerHalfDuplexController(controller);
 		} else {
 			this.halfDuplexController = controller;
 		}
+
 		this.halfDuplexController.setDelay(this.halfDuplex);
 	}
 

@@ -10,16 +10,13 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import com.energyict.protocolimpl.elster.a3.tables.SourceDefinitionTable;
-import java.io.*;
-import java.math.*;
-
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import com.energyict.cbo.*;
+import com.energyict.cbo.Unit;
+import com.energyict.protocolimpl.ansi.c12.tables.ElectricConstants;
+import com.energyict.protocolimpl.ansi.c12.tables.UOMEntryBitField;
 import com.energyict.protocolimpl.elster.a3.AlphaA3;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 /**
  *
  * @author Koen
@@ -149,7 +146,7 @@ public class SourceInfo {
                 return bd.multiply(multiplier);
             }
 
-            case 10: { // RMS volts squared V²
+            case 10: { // RMS volts squared VÂ²
                 bd = bd.multiply(multiplier);
                 if (loadProfile) {
                     bd = applyDivisors(bd, index);
@@ -161,7 +158,7 @@ public class SourceInfo {
                 return bd.multiply(multiplier);
             }
 
-            case 14: { // RMS amps squared A²
+            case 14: { // RMS amps squared AÂ²
                 bd = bd.multiply(multiplier);
                 if (loadProfile) {
                     bd = applyDivisors(bd, index);
