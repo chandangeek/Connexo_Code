@@ -21,10 +21,10 @@ public class G3BTest extends TestCase {
         assertTrue(test2 > 0);
 
         G3B g3b = new G3B();
-        assertEquals(g3b.getHexStringFromTimeShift(-59), "3B");
-        assertEquals(g3b.getHexStringFromTimeShift(-1), "01");
-        assertEquals(g3b.getHexStringFromTimeShift(59), "C5");
-        assertEquals(g3b.getHexStringFromTimeShift(1), "FF");
+        assertEquals(g3b.getHexStringFromTimeShift(-59), "C5");
+        assertEquals(g3b.getHexStringFromTimeShift(1), "01");
+        assertEquals(g3b.getHexStringFromTimeShift(59), "3B");
+        assertEquals(g3b.getHexStringFromTimeShift(-1), "FF");
 
 
 
