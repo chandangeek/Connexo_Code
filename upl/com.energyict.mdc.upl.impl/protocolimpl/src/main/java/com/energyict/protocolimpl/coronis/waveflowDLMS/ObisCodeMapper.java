@@ -10,6 +10,7 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
 public class ObisCodeMapper {
 	
@@ -23,6 +24,27 @@ public class ObisCodeMapper {
 	private final int ATTRIBUTE_VALUE=2;
 	private final int ATTRIBUTE_SCALER=3;	
 	private final int ATTRIBUTE_CAPTURETIME=5;	
+	
+	
+	/**
+	 * cached registervalues read by the Transparant object list reader using the property ObisCodeList
+	 */
+	private Map<ObisCode,RegisterValue> cachedRegisterValues=null; 
+	
+	final Map<ObisCode, RegisterValue> getCachedRegisterValues() throws IOException {
+		
+		if (cachedRegisterValues == null) {
+			cachedRegisterValues = new HashMap<ObisCode,RegisterValue>(); 
+			if (abstractDLMS.getObjectInfos().size() > 0) {
+				abstractDLMS.getLogger().info("Invoke a block register read for ["+abstractDLMS.getObjectInfos().size()+"] values...");
+		    	TransparentObjectListRead t = new TransparentObjectListRead(abstractDLMS,abstractDLMS.getObjectInfos());
+		    	t.read();
+		    	cachedRegisterValues = t.getRegisterValues();
+			}
+		}
+		
+		return cachedRegisterValues;
+	}
 	
     /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(final AbstractDLMS abstractDLMS) {
@@ -38,6 +60,11 @@ public class ObisCodeMapper {
     		Entry<ObisCode,ObjectEntry> o = it.next();
     		strBuilder.append(o.getKey().toString()+", "+o.getValue().getDescription()+"\n");
     	}
+    	strBuilder.append("0.0.96.1.0.255"+", firmware version\n");
+    	strBuilder.append("0.0.96.2.0.255"+", operation mode\n");
+    	strBuilder.append("0.0.96.3.0.255"+", application status\n");
+    	strBuilder.append("0.0.96.4.0.255"+", alarm configuration\n");
+    	strBuilder.append("0.0.96.5.0.255"+", RSSI level\n");
     	
     	return strBuilder.toString();
     }
@@ -48,7 +75,42 @@ public class ObisCodeMapper {
     
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
     	
+
+    	// common non-register obis codes
+    	if (obisCode.equals(ObisCode.fromString("0.0.96.1.0.255"))) { //firmware version
+    		return new RegisterValue(obisCode,"V"+WaveflowProtocolUtils.toHexString(abstractDLMS.getRadioCommandFactory().readFirmwareVersion().getFirmwareVersion())+", Mode of transmission "+abstractDLMS.getRadioCommandFactory().readFirmwareVersion().getModeOfTransmission());
+    	}
+    	if (obisCode.equals(ObisCode.fromString("0.0.96.2.0.255"))) { //Operation mode
+    		if (abstractDLMS.getTransparantObjectAccessFactory().getGenericHeader() == null) {
+    			abstractDLMS.getTransparantObjectAccessFactory().readObjectValue(abstractDLMS.CLOCK_OBIS_CODE);
+    		}
+   			return new RegisterValue(obisCode,new Quantity(""+abstractDLMS.getTransparantObjectAccessFactory().getGenericHeader().getOperatingMode(),Unit.get("")));
+    	}
+    	if (obisCode.equals(ObisCode.fromString("0.0.96.3.0.255"))) { //Application status
+    		if (abstractDLMS.getTransparantObjectAccessFactory().getGenericHeader() == null) {
+    			abstractDLMS.getTransparantObjectAccessFactory().readObjectValue(abstractDLMS.CLOCK_OBIS_CODE);
+    		}
+       		return new RegisterValue(obisCode,new Quantity(""+abstractDLMS.getTransparantObjectAccessFactory().getGenericHeader().getApplicationStatus(),Unit.get("")));
+    	}
+    	if (obisCode.equals(ObisCode.fromString("0.0.96.4.0.255"))) { //Alarm Configuration
+    		if (abstractDLMS.getTransparantObjectAccessFactory().getGenericHeader() == null) {
+    			abstractDLMS.getTransparantObjectAccessFactory().readObjectValue(abstractDLMS.CLOCK_OBIS_CODE);
+    		}
+       		return new RegisterValue(obisCode,new Quantity(""+abstractDLMS.getTransparantObjectAccessFactory().getGenericHeader().getApplicationStatus(),Unit.get("")));
+    	}
+    	if (obisCode.equals(ObisCode.fromString("0.0.96.5.0.255"))) { //RSSI level
+    		return new RegisterValue(obisCode,new Quantity(""+abstractDLMS.getRadioCommandFactory().readRSSILevel(),Unit.get("")));
+    	}
+    	
+    	
     	ObjectEntry objectEntry = AbstractDLMS.findObjectByObiscode(obisCode);
+    	
+    	RegisterValue registerValue = getCachedRegisterValues().get(obisCode);
+    	if (registerValue != null) {
+    		abstractDLMS.getLogger().info("Read "+obisCode+" from cached values");
+    		return registerValue;
+    	}
+    	
     	
 		if (objectEntry.getClassId() == CLASS_DATA) {
 			AbstractDataType adt = abstractDLMS.getTransparantObjectAccessFactory().readObjectValue(obisCode);

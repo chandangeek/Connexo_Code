@@ -29,4 +29,22 @@ public class ParameterFactory {
 		o.write();
 	}
 	
+	final public int readApplicationStatus() throws IOException {
+		ApplicationStatus o = new ApplicationStatus(protocolLink);
+		o.read();
+		return o.getStatus();
+	}
+	
+	final public int readOperatingMode() throws IOException {
+		ApplicationStatus o = new ApplicationStatus(protocolLink);
+		o.read();
+		return o.getOperatingMode();
+	}
+	
+	final public void writeApplicationStatus(int applicationStatus) throws IOException {
+		ApplicationStatus o = new ApplicationStatus(protocolLink);
+		o.setStatus(applicationStatus);
+		o.write();
+	}
+	
 }

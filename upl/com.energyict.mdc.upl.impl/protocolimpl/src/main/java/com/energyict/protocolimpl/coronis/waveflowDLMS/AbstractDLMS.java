@@ -22,7 +22,12 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	
 	static Map<ObisCode,ObjectEntry> objectEntries = new HashMap();
 	
-	private static final ObisCode CLOCK_OBIS_CODE=ObisCode.fromString("0.0.1.0.0.255");
+	static final ObisCode CLOCK_OBIS_CODE=ObisCode.fromString("0.0.1.0.0.255");
+	
+	
+	static {
+		objectEntries.put(CLOCK_OBIS_CODE,new ObjectEntry("Clock",8));
+	}
 	
 	public static Map<ObisCode,ObjectEntry> getObjectEntries() {
 		return objectEntries;
@@ -50,6 +55,16 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	private int correctTime;
 	
 	/**
+	 * List of obiscodes to retrieve at the beginning of the session and cache for later use.
+	 */
+	private List<ObjectInfo> objectInfos;	
+	
+	final List<ObjectInfo> getObjectInfos() {
+		return objectInfos;
+	}
+
+
+	/**
 	 * the load profile obis code custom property
 	 */
 	private ObisCode loadProfileObisCode;
@@ -64,6 +79,10 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	 */
 	private ParameterFactory parameterFactory;
 	
+	public final ParameterFactory getParameterFactory() {
+		return parameterFactory;
+	}
+
 	final RadioCommandFactory getRadioCommandFactory() {
 		return radioCommandFactory;
 	}
@@ -173,18 +192,24 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	
 	@Override
 	protected void doConnect() throws IOException {
-		System.out.println("Tune the Wavecard for Waveflow AC");
+//		System.out.println("Tune the Wavecard for Waveflow AC");
 		escapeCommandFactory.setAndVerifyWavecardAwakeningPeriod(1);
 		escapeCommandFactory.setAndVerifyWavecardRadiotimeout(20);
 		escapeCommandFactory.setAndVerifyWavecardWakeupLength(110);    	
 	}
 
+	
+
+	
 	@Override
 	protected void doDisConnect() throws IOException {
 		System.out.println("Restore Wavecard settings...");
 		escapeCommandFactory.setAndVerifyWavecardRadiotimeout(2);
 		escapeCommandFactory.setAndVerifyWavecardWakeupLength(1100);
 		escapeCommandFactory.setAndVerifyWavecardAwakeningPeriod(10);
+		
+		
+		
 	}
 
 	@Override
@@ -217,6 +242,9 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 		autoPairingRetry = Integer.parseInt(properties.getProperty("AutoPairingRetry","1").trim());
 		setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", "0.0.99.1.0.255")));
 		correctTime = Integer.parseInt(properties.getProperty(MeterProtocol.CORRECTTIME,"0"));
+		objectInfos = buildObisInfos(properties.getProperty("ObisCodeList", ""));  
+		
+		
 		//doTheValidateProperties(properties);
 	}
 	
@@ -292,75 +320,8 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
     }
     
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-    	
     	return obisCodeMapper.getRegisterValue(obisCode);
     }
-    
-    /**
-     * Override this method when requesting an obiscode mapped register from the meter.
-     * @param obisCode obiscode rmapped register to request from the meter
-     * @throws java.io.IOException thrown when somethiong goes wrong
-     * @return RegisterValue object
-     */
-//    public RegisterValue readRegister2(ObisCode obisCode) throws IOException {
-//
-//    	if (simpleDataParser == null) {
-//    		try {
-//    			
-//    			escapeCommandFactory.setAndVerifyWavecardAwakeningPeriod(1);
-//    			escapeCommandFactory.setAndVerifyWavecardRadiotimeout(20);
-//    			escapeCommandFactory.setAndVerifyWavecardWakeupLength(110);
-//	    		byte[] response = waveFlowConnect.sendData(getRequest());
-//	    		simpleDataParser = new SimpleDataParser(getLogger());
-//	    		
-//	    		try {
-//	    			simpleDataParser.parse(getRequest(), response);
-//	    		}
-//	    		catch(WaveflowDLMSStatusError e) {
-//	    			getLogger().warning(e.getMessage());
-//	    			if (autoPairingRetry == 1) {
-//		    			if (doPairWithEMeter()) {
-//			    			try {
-//			    				Thread.sleep(2000);
-//			    			} catch (InterruptedException e1) {
-//			    				// TODO Auto-generated catch block
-//			    				e1.printStackTrace();
-//			    			}
-//			    			
-//			    			// retry to read the meter...
-//			    			response = waveFlowConnect.sendData(getRequest());
-//			    			simpleDataParser.parse(getRequest(), response);
-//		    			}
-//	    			}
-//	    			else {
-//	    				throw new IOException(e.getMessage()+"[Auto pairing DISABLED]");
-//	    			}
-//	    			
-//	    		} // catch(WaveflowDLMSStatusError e)
-//	    		
-//    		}
-//    		finally {
-//    			escapeCommandFactory.setAndVerifyWavecardRadiotimeout(2);
-//    			escapeCommandFactory.setAndVerifyWavecardWakeupLength(1100);
-//    			escapeCommandFactory.setAndVerifyWavecardAwakeningPeriod(10);
-//    		}
-//    	}
-//
-//    	
-//    	if (obisCode.equals(ObisCode.fromString("0.0.96.6.15.255"))) {
-//    		return new RegisterValue(obisCode,new Quantity(new BigDecimal(simpleDataParser.getQos()), Unit.get("")),new Date());
-//    	}
-//    	else {
-//	        RegisterValue registerValue =  simpleDataParser.getRegisterValues().get(obisCode);
-//	        if (registerValue == null) {
-//	        	throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] does not exist!");
-//	        }
-//	        else {
-//	        	return registerValue;
-//	        }
-//    	}
-//    }
-
     
     public boolean pairWithEMeter() throws IOException {
     	try {
@@ -482,4 +443,36 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 		return alarmFrame.getMeterEvents();
 	}
 	
+	private List<ObjectInfo> buildObisInfos(String obisCodeList) throws InvalidPropertyException {
+		
+		List<ObjectInfo> objectInfos = new ArrayList<ObjectInfo>();
+		
+		if (obisCodeList.compareTo("") != 0) {
+		
+			// format class_obiscode_attribute,class.obiscode.attribut,... e.g. 3_1.1.1.8.0.255_2 class 3 obiscode 1.1.1.8.0.255 attribute 2
+			
+			String[] infos = obisCodeList.split(",");
+			
+			for (String info : infos) {
+				
+				String[] fields = info.split("_");
+				if (fields.length == 3) {
+					int classId = Integer.parseInt(fields[0]);
+					ObisCode obisCode = ObisCode.fromString(fields[1]);
+					int attribute = Integer.parseInt(fields[2]);
+					objectInfos.add(new ObjectInfo(attribute, classId, obisCode));
+					
+				}
+				else if (fields.length == 1) {
+					ObisCode obisCode = ObisCode.fromString(fields[0]);
+					objectInfos.add(new ObjectInfo(2, 1, obisCode));
+				}
+				else {
+					throw new InvalidPropertyException("Error in obisCodeList property ["+obisCodeList+"]");
+				}
+			}
+		}
+		return objectInfos;
+		
+	}	
 }

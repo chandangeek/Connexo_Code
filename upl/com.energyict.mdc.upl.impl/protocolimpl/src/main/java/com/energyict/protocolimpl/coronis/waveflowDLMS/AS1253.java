@@ -37,7 +37,7 @@ public class AS1253 extends AbstractDLMS {
 		objectEntries.put(ObisCode.fromString("1.1.97.97.2.255"),new ObjectEntry("Non fatal alarm status 2 (Diagnostic)",1));
 		objectEntries.put(ObisCode.fromString("1.1.97.97.3.255"),new ObjectEntry("Non fatal alarm status 3 (Diagnostic)",1));
 		objectEntries.put(ObisCode.fromString("1.1.96.3.0.255"),new ObjectEntry("Contactor control (on-OFF)- for direct connected meters",1));
-		objectEntries.put(ObisCode.fromString("0.0.1.0.0.255"),new ObjectEntry("Clock",8));
+		
 		objectEntries.put(ObisCode.fromString("1.1.96.56.255.255"),new ObjectEntry("total time of all pwr fails/ battery use time counter",1));
 		objectEntries.put(ObisCode.fromString("1.1.0.9.2.255"),new ObjectEntry("Meter date",1));
 		objectEntries.put(ObisCode.fromString("1.1.0.9.1.255"),new ObjectEntry("Meter time",1));
@@ -46,6 +46,7 @@ public class AS1253 extends AbstractDLMS {
 		objectEntries.put(LOG_PROFILE,new ObjectEntry("Logbook",7));
 		objectEntries.put(LOAD_PROFILE_PULSE_VALUES,new ObjectEntry("Load profile non cumulative engineering values",7));
 		objectEntries.put(OBJECT_LIST,new ObjectEntry("Object list",15));
+		
 		
 	};
 
@@ -66,27 +67,29 @@ public class AS1253 extends AbstractDLMS {
 			System.out.print("classid "+arrayElement.getStructure().getDataType(0).intValue()+", obis code "+arrayElement.getStructure().getDataType(2).toString());
 		}
 		System.out.println();
-*/
-/*    	
+
+    	
     	AbstractDataType adt = getTransparantObjectAccessFactory().readObjectAttribute(LOG_PROFILE, 2,lastReading);
     	System.out.println(adt);
-*/  	
+  	
     	
-    	TransparentObjectListRead t = new TransparentObjectListRead(this);
     	List<ObjectInfo> objectInfos = new ArrayList<ObjectInfo>();
-    	
-		objectEntries.put(ObisCode.fromString("1.1.1.8.0.255"),new ObjectEntry("Import active energy tarif 0",3));
-		objectEntries.put(ObisCode.fromString("1.1.2.8.0.255"),new ObjectEntry("Export active energy tarif 0",3));
-		objectEntries.put(ObisCode.fromString("1.1.3.8.0.255"),new ObjectEntry("Import reactive energy tarif 0",3));
-    	
     	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.1.8.0.255")));
-    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.2.8.0.255")));
-    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.3.8.0.255")));
-    	t.read(objectInfos);
+    	objectInfos.add(new ObjectInfo(3, 3, ObisCode.fromString("1.1.1.8.0.255")));
+//    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.2.8.0.255")));
+//    	objectInfos.add(new ObjectInfo(3, 3, ObisCode.fromString("1.1.2.8.0.255")));
+//    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.3.8.0.255")));
+//    	objectInfos.add(new ObjectInfo(2, 1, ObisCode.fromString("1.1.96.1.0.255")));
+//    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.32.7.0.255")));
+//    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.52.7.0.255")));
+//    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.72.7.0.255")));
+//    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.31.7.0.255")));
+//    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.51.7.0.255")));
+//    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.71.7.0.255")));
     	
-    	
-    	
-    	
+    	TransparentObjectListRead t = new TransparentObjectListRead(this,objectInfos);
+    	t.read();
+*/    	
     	ProfileDataReader profileDataReader = new ProfileDataReader(this);
     	return profileDataReader.getProfileData(lastReading, includeEvents);
     	
