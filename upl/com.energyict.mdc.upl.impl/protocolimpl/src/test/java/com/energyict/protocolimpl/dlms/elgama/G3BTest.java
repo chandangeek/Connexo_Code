@@ -25,12 +25,5 @@ public class G3BTest extends TestCase {
         assertEquals(g3b.getHexStringFromTimeShift(1), "01");
         assertEquals(g3b.getHexStringFromTimeShift(59), "3B");
         assertEquals(g3b.getHexStringFromTimeShift(-1), "FF");
-
-
-
-
-
-
-
     }
 }

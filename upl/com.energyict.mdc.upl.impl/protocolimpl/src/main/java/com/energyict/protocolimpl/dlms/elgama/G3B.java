@@ -29,7 +29,7 @@ public class G3B extends AbstractDLMSProtocol {
 
     private G3BStoredValues storedValuesImpl = null;
     private static final int MILLIS_1_DAY = 60 * 60 * 24 * 1000;
-    private static final int MAX_TIME_SHIFT_SECONDS = 0;//59;
+    private static final int MAX_TIME_SHIFT_SECONDS = 59;
     private static final ObisCode OBISCODE_LOAD_PROFILE = ObisCode.fromString("1.0.99.1.0.255");
     private static final ObisCode OBISCODE_ACTIVE_FIRMWARE = ObisCode.fromString("1.0.0.2.0.255");
     private static final ObisCode OBISCODE_CLOCK = ObisCode.fromString("0.0.1.0.0.255");
@@ -209,7 +209,7 @@ public class G3B extends AbstractDLMSProtocol {
                     } else {
                         logger.info("Time difference is too big to be corrected using a time shift, setting absolute date and time.");
                         final Date date = new Date(System.currentTimeMillis() + roundtripCorrection);
-                        final Calendar newTimeToSet = Calendar.getInstance();
+                        final Calendar newTimeToSet = Calendar.getInstance(getTimeZone());
                         newTimeToSet.setTime(date);
                         getCosemObjectFactory().getClock().setTimeAttr(new DateTime(newTimeToSet));
                     }
@@ -301,19 +301,18 @@ public class G3B extends AbstractDLMSProtocol {
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
 
-            //TODO: eventTime stamp is 1h too early? (same goes for profile data timestamp)
+            obisCode = ProtocolTools.setObisCodeField(obisCode, 5, (byte) 0);
 
             //Billing profile data, store it in a register
             if (obisCode.getF() != 255) {
                 CosemObject cosemObject = getCosemObjectFactory().getCosemObject(obisCode);
                 if (cosemObject instanceof HistoricalValue) {
                     HistoricalValue historicalValue = (HistoricalValue) cosemObject;
-                    RegisterValue value = new RegisterValue(obisCode, historicalValue.getQuantityValue(), historicalValue.getEventTime(), historicalValue.getBillingDate());
-                    System.out.println(value);
-                    return value;
+                    return new RegisterValue(obisCode, historicalValue.getQuantityValue(), historicalValue.getEventTime(), historicalValue.getBillingDate());
                 }
             }
 
+            //Regular register data
             final UniversalObject uo = getMeterConfig().findObject(obisCode);
             if (uo.getClassID() == DLMSClassId.REGISTER.getClassId()) {
                 final Register register = getCosemObjectFactory().getRegister(obisCode);
@@ -336,7 +335,7 @@ public class G3B extends AbstractDLMSProtocol {
     }
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
-        HHUSignOn hhuSignOn = (HHUSignOn) new OpticalHHUConnection(commChannel);
+        HHUSignOn hhuSignOn = new OpticalHHUConnection(commChannel);
         hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_NORMAL);
         hhuSignOn.enableDataReadout(datareadout);
