@@ -123,6 +123,7 @@ public class ApolloMeter extends DLMSProtocol {
 
     private ProfileData getProfileData() throws IOException {
         ProfileGeneric pg = getApolloObjectFactory().getDefaultProfile();
+//        ProfileGeneric pg = getApolloObjectFactory().getGenericProfileObject(ObisCodeProvider.loadProfileP2);
         ApolloProfileBuilder apb = new ApolloProfileBuilder(this, pg);
 
         ProfileData pd = new ProfileData();

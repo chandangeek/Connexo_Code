@@ -86,7 +86,7 @@ public class ApolloProfileBuilder {
             for (CapturedObject co : profileGeneric.getCaptureObjects()) {
                 if (ProfileUtils.isChannelData(co)) {
                     try {
-                        this.scalerUnits[counter] = this.meterProtocol.getApolloObjectFactory().getCosemtObject(co.getLogicalName().getObisCode(), co.getClassId()).getScalerUnit();
+                        this.scalerUnits[counter] = this.meterProtocol.getApolloObjectFactory().getCosemObject(co.getLogicalName().getObisCode(), co.getClassId()).getScalerUnit();
                     } catch (IOException e) {
                         this.meterProtocol.getLogger().info("Could not fetch the scalerUnit from channel [" + co + "]. Data can not be correctly constructed.");
                         throw e;

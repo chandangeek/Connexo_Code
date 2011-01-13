@@ -137,7 +137,7 @@ public class ApolloObjectFactory {
      * @return the requested {@link com.energyict.dlms.cosem.CosemObject}
      * @throws ProtocolException if a non-implemented object is requested
      */
-    public CosemObject getCosemtObject(ObisCode obisCode, int classId) throws ProtocolException {
+    public CosemObject getCosemObject(ObisCode obisCode, int classId) throws ProtocolException {
         if (!objectMap.containsKey(obisCode)) {
             if (classId == DLMSClassId.REGISTER.getClassId()) {
                 return getRegister(obisCode);
