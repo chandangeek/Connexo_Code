@@ -11,6 +11,7 @@ import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.DLMSAttributeMapper;
 import com.energyict.protocolimpl.base.ObiscodeMapper;
 import com.energyict.protocolimpl.dlms.as220.emeter.*;
+import com.energyict.protocolimpl.dlms.as220.objects.CalendarStatus;
 import com.energyict.protocolimpl.dlms.as220.plc.*;
 
 import java.io.IOException;
@@ -55,6 +56,7 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
     public static final ObisCode        DEVICE_ID5_OBISCODE         = ObisCode.fromString("0.4.96.1.0.255");
 
     public static final ObisCode        ACTIVITY_CALENDAR_NAME      = ObisCode.fromString("0.0.13.0.0.255");
+    public static final ObisCode        CALENDAR_STATUS_OBIS        = ObisCode.fromString("0.130.26.32.0.255");
 
 	private static final ObisCode[] SIMPLE_DATA_REGISTERS = new ObisCode[] {
 		NR_CONFIGCHANGES_OBISCODE,
@@ -192,7 +194,10 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 			return new RegisterValue(METER_ID_OBISCODE, getAs220().getSerialNumber());
 		} else if ( obisCode.equals(ACTIVITY_CALENDAR_NAME)){
             return new RegisterValue(ACTIVITY_CALENDAR_NAME, getAs220().geteMeter().getActivityCalendarController().getCalendarName());
-		}
+		} else if ( obisCode.equals(CALENDAR_STATUS_OBIS)) {
+            CalendarStatus status = new CalendarStatus(getCosemObjectFactory(), CALENDAR_STATUS_OBIS);
+            return new RegisterValue(CALENDAR_STATUS_OBIS, status.getCalendarStatus());
+        }
 
         // *********************************************************************************
         CosemObject cosemObject = getCosemObjectFactory().getCosemObject(obisCode);
