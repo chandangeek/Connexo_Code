@@ -19,22 +19,19 @@ import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.math.BigDecimal;
 import java.util.*;
 
 /**
- *
  * @author kvds
- * SDKSampleProtocol
+ *         SDKSampleProtocol
  */
 public class SDKSampleProtocol extends AbstractProtocol implements MessageProtocol {
 
-    private static final Date	Date	= null;
-	private static String FIRMWAREPROGRAM 	= "UpgradeMeterFirmware";
-    private static String FIRMWAREPROGRAM_DISPLAY 	= "Upgrade Meter Firmware";
+    private static final Date Date = null;
+    private static String FIRMWAREPROGRAM = "UpgradeMeterFirmware";
+    private static String FIRMWAREPROGRAM_DISPLAY = "Upgrade Meter Firmware";
 
     private CacheObject cache;
 
@@ -43,24 +40,28 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     private boolean simulateRealCommunication = false;
     ObisCode loadProfileObisCode;
 
-    /** Creates a new instance of SDKSampleProtocol */
+    /**
+     * Creates a new instance of SDKSampleProtocol
+     */
     public SDKSampleProtocol() {
     }
 
-    /*******************************************************************************************
-     M e s s a g e P r o t o c o l  i n t e r f a c e
-     *******************************************************************************************/
+    /**
+     * ****************************************************************************************
+     * M e s s a g e P r o t o c o l  i n t e r f a c e
+     * *****************************************************************************************
+     */
     // message protocol
     public void applyMessages(List messageEntries) throws IOException {
         Iterator it = messageEntries.iterator();
-        while(it.hasNext()) {
-            MessageEntry messageEntry = (MessageEntry)it.next();
+        while (it.hasNext()) {
+            MessageEntry messageEntry = (MessageEntry) it.next();
             //System.out.println(messageEntry);
         }
     }
 
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
-    	getLogger().info("MessageEntry: "+messageEntry.getContent());
+        getLogger().info("MessageEntry: " + messageEntry.getContent());
         doGenerateCommunication();
 
         return MessageResult.createSuccess(messageEntry);
@@ -99,19 +100,20 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     public String writeMessage(Message msg) {
         return msg.write(this);
     }
+
     public String writeTag(MessageTag msgTag) {
         StringBuffer buf = new StringBuffer();
 
         // a. Opening tag
         buf.append("<");
-        buf.append( msgTag.getName() );
+        buf.append(msgTag.getName());
 
         // b. Attributes
         for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
-            MessageAttribute att = (MessageAttribute)it.next();
-            if ((att.getValue()==null) || (att.getValue().length()==0)) {
-				continue;
-			}
+            MessageAttribute att = (MessageAttribute) it.next();
+            if ((att.getValue() == null) || (att.getValue().length() == 0)) {
+                continue;
+            }
             buf.append(" ").append(att.getSpec().getName());
             buf.append("=").append('"').append(att.getValue()).append('"');
         }
@@ -119,21 +121,21 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
 
         // c. sub elements
         for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
-            MessageElement elt = (MessageElement)it.next();
+            MessageElement elt = (MessageElement) it.next();
             if (elt.isTag()) {
-				buf.append( writeTag((MessageTag)elt) );
-			} else if (elt.isValue()) {
-                String value = writeValue((MessageValue)elt);
-                if ((value==null) || (value.length()==0)) {
-					return "";
-				}
+                buf.append(writeTag((MessageTag) elt));
+            } else if (elt.isValue()) {
+                String value = writeValue((MessageValue) elt);
+                if ((value == null) || (value.length() == 0)) {
+                    return "";
+                }
                 buf.append(value);
             }
         }
 
         // d. Closing tag
         buf.append("</");
-        buf.append( msgTag.getName() );
+        buf.append(msgTag.getName());
         buf.append(">");
 
         return buf.toString();
@@ -142,13 +144,14 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     public String writeValue(MessageValue value) {
         return value.getValue();
     }
+
     protected void doConnect() throws IOException {
         getLogger().info("call abstract method doConnect()");
         getLogger().info("--> at that point, we have a communicationlink with the meter (modem, direct, optical, ip, ...)");
         getLogger().info("--> here the login and other authentication and setup should be done");
         doGenerateCommunication();
 
-        if(this.cache != null){
+        if (this.cache != null) {
             getLogger().info("Text from cache : " + this.cache.getText());
         } else {
             getLogger().info("Empty cache, will create one.");
@@ -222,27 +225,30 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     }
 
     protected String getRegistersInfo(int extendedLogging) throws IOException {
-        getLogger().info("call overrided method getRegistersInfo("+extendedLogging+")");
+        getLogger().info("call overrided method getRegistersInfo(" + extendedLogging + ")");
         getLogger().info("--> You can provide info about meter register configuration here. If the ExtendedLogging property is set, that info will be logged.");
         return "1.1.1.8.1.255 Active Import energy";
     }
 
 
-    /*******************************************************************************************
-     R e g i s t e r P r o t o c o l  i n t e r f a c e
-     *******************************************************************************************/
+    /**
+     * ****************************************************************************************
+     * R e g i s t e r P r o t o c o l  i n t e r f a c e
+     * *****************************************************************************************
+     */
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         //getLogger().info("call overrided method translateRegister()");
         return new RegisterInfo(obisCode.getDescription());
     }
+
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-    	getLogger().info("call overrided method readRegister("+obisCode+")");
+        getLogger().info("call overrided method readRegister(" + obisCode + ")");
         getLogger().info("--> request the register from the meter here");
         doGenerateCommunication();
 
-       	Calendar now = Calendar.getInstance();
+        Calendar now = Calendar.getInstance();
         Date toTime = now.getTime();
-    	Date eventTime = null;
+        Date eventTime = null;
 
         now.set(Calendar.DAY_OF_MONTH, 1);
         now.set(Calendar.HOUR_OF_DAY, 0);
@@ -253,48 +259,45 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
         Date fromTime = now.getTime();
 
         if (obisCode.getF() != 255) {
-        	int billing = obisCode.getF();
-        	if (billing < 0) {
-        		billing *= -1;
-        	}
+            int billing = obisCode.getF();
+            if (billing < 0) {
+                billing *= -1;
+            }
 
-        	now.add(Calendar.MONTH, -1 * billing);
-        	toTime = now.getTime();
-        	eventTime = new Date(toTime.getTime());
-        	now.add(Calendar.MONTH, -1);
-        	fromTime = now.getTime();
+            now.add(Calendar.MONTH, -1 * billing);
+            toTime = now.getTime();
+            eventTime = new Date(toTime.getTime());
+            now.add(Calendar.MONTH, -1);
+            fromTime = now.getTime();
 
         }
 
         if (obisCode.getA() == 1) {
-			if (obisCode.getD() == 8) {
-		        if (obisCode.getE() > 0) {
-					Quantity quantity = new Quantity(new BigDecimal("" + (((System.currentTimeMillis() / 1000) * 2) * obisCode.getB())), Unit.get("kWh"));
-					return new RegisterValue(obisCode, quantity, eventTime, fromTime, toTime);
-		        }
-		        else {
-		        	Quantity quantity = new Quantity(new BigDecimal(""+((System.currentTimeMillis()/1000)*obisCode.getB())),Unit.get("kWh"));
-					return new RegisterValue(obisCode,quantity, eventTime, fromTime, toTime);
-		        }
-	        }
-	        else {
-	        	if (obisCode.getE() > 0) {
-	        		Quantity quantity = new Quantity(new BigDecimal("12345678.8").multiply(new BigDecimal("2")),Unit.get("kWh"));
-					return new RegisterValue(obisCode,quantity, eventTime, fromTime, toTime);
-	        	}
-	        	else {
-	        		Quantity quantity = new Quantity(new BigDecimal("12345678.8"),Unit.get("kWh"));
-					return new RegisterValue(obisCode,quantity, eventTime, fromTime, toTime);
-	        	}
-	        }
+            if (obisCode.getD() == 8) {
+                if (obisCode.getE() > 0) {
+                    Quantity quantity = new Quantity(new BigDecimal("" + (((System.currentTimeMillis() / 1000) * 2) * obisCode.getB())), Unit.get("kWh"));
+                    return new RegisterValue(obisCode, quantity, eventTime, fromTime, toTime);
+                } else {
+                    Quantity quantity = new Quantity(new BigDecimal("" + ((System.currentTimeMillis() / 1000) * obisCode.getB())), Unit.get("kWh"));
+                    return new RegisterValue(obisCode, quantity, eventTime, fromTime, toTime);
+                }
+            } else {
+                if (obisCode.getE() > 0) {
+                    Quantity quantity = new Quantity(new BigDecimal("12345678.8").multiply(new BigDecimal("2")), Unit.get("kWh"));
+                    return new RegisterValue(obisCode, quantity, eventTime, fromTime, toTime);
+                } else {
+                    Quantity quantity = new Quantity(new BigDecimal("12345678.8"), Unit.get("kWh"));
+                    return new RegisterValue(obisCode, quantity, eventTime, fromTime, toTime);
+                }
+            }
         }
-        throw new NoSuchRegisterException("Register "+obisCode+" not supported!");
+        throw new NoSuchRegisterException("Register " + obisCode + " not supported!");
     }
 
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         // Override or add new properties here e.g. below
         setSDKSampleProperty(Integer.parseInt(properties.getProperty("SDKSampleProperty", "123")));
-       	this.simulateRealCommunication = properties.getProperty("SimulateRealCommunication", "0").trim().equalsIgnoreCase("1");
+        this.simulateRealCommunication = properties.getProperty("SimulateRealCommunication", "0").trim().equalsIgnoreCase("1");
         setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", "0.0.99.1.0.255")));
     }
 
@@ -305,11 +308,12 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
         list.add("SimulateRealCommunication");
         return list;
     }
-    protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
+
+    protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         getLogger().info("call doInit(...)");
         getLogger().info("--> construct the ProtocolConnection and all other object here");
 
-        connection = new SDKSampleProtocolConnection(inputStream,outputStream,timeoutProperty,protocolRetriesProperty,forcedDelay,echoCancelling,protocolCompatible,encryptor,getLogger());
+        connection = new SDKSampleProtocolConnection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, protocolCompatible, encryptor, getLogger());
         return connection;
     }
 
@@ -326,18 +330,19 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
         doGenerateCommunication();
 
         long currenttime = new Date().getTime();
-        return new Date(currenttime-(1000*30));
+        return new Date(currenttime - (1000 * 30));
     }
+
     public void setTime() throws IOException {
         getLogger().info("call setTime() (this method is called automatically when needed)");
         getLogger().info("--> sync the metertime with the systemtime here");
         doGenerateCommunication();
     }
+
     public String getProtocolVersion() {
-        //getLogger().info("call getProtocolVersion()");
-        return "$Revision: 1.5 $";
-        //return "SDK Sample protocol version";
+        return "$Date$";
     }
+
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         getLogger().info("call getFirmwareVersion()");
         getLogger().info("--> report the firmware version and other important meterinfo here");
@@ -375,20 +380,21 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
         this.sDKSampleProperty = sDKSampleProperty;
     }
 
-	public ObisCode getLoadProfileObisCode() {
-		return loadProfileObisCode;
-	}
+    public ObisCode getLoadProfileObisCode() {
+        return loadProfileObisCode;
+    }
 
-	public void setLoadProfileObisCode(ObisCode loadProfileObisCode) {
-		this.loadProfileObisCode = loadProfileObisCode;
-	}
+    public void setLoadProfileObisCode(ObisCode loadProfileObisCode) {
+        this.loadProfileObisCode = loadProfileObisCode;
+    }
 
     /* Implementation of the Cache interface */
+
     /**
      * {@inheritDoc}
      */
     public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
-        if(rtuid != 0){
+        if (rtuid != 0) {
             /* Use the RTUCache to set the blob (cache) to the database */
             RTUCache rtu = new RTUCache(rtuid);
             rtu.setBlob(cacheObject);
@@ -399,14 +405,14 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
      * {@inheritDoc}
      */
     public void setCache(Object cacheObject) {
-        this.cache = (CacheObject)cacheObject;
+        this.cache = (CacheObject) cacheObject;
     }
 
     /**
      * {@inheritDoc}
      */
     public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
-        if(rtuid != 0){
+        if (rtuid != 0) {
 
             /* Use the RTUCache to get the blob from the database */
             RTUCache rtu = new RTUCache(rtuid);
