@@ -149,7 +149,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
         getLogger().info("call abstract method doConnect()");
         getLogger().info("--> at that point, we have a communicationlink with the meter (modem, direct, optical, ip, ...)");
         getLogger().info("--> here the login and other authentication and setup should be done");
-        doGenerateCommunication();
+        doGenerateCommunication(0, "GET / HTTP/1.1\r\n\r\n");
 
         if (this.cache != null) {
             getLogger().info("Text from cache : " + this.cache.getText());
@@ -361,6 +361,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
                 bytes = value.getBytes();
             }
             getConnection().write(bytes);
+            getConnection().read();
         }
     }
 
