@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.dlms.as220;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -100,10 +99,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     }
 
     public String getProtocolVersion() {
-		String rev = "$Revision$" + " - " + "$Date$";
-		String manipulated = "Revision " + rev.substring(rev.indexOf("$Revision: ") + "$Revision: ".length(), rev.indexOf("$ -")) + "at "
-				+ rev.substring(rev.indexOf("$Date: ") + "$Date: ".length(), rev.indexOf("$Date: ") + "$Date: ".length() + 19);
-    	return manipulated;
+        return "$Date$";
     }
 
     public String getFirmwareVersion() throws IOException {
