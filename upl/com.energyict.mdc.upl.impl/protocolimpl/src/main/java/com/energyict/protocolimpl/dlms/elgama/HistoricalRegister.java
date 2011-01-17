@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * @author jme
+ * @author khe
  *
  */
 public class HistoricalRegister implements CosemObject {

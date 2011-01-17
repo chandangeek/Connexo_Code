@@ -32,7 +32,6 @@ public class G3B extends AbstractDLMSProtocol {
     private static final int MAX_TIME_SHIFT_SECONDS = 59;
     private static final ObisCode OBISCODE_LOAD_PROFILE = ObisCode.fromString("1.0.99.1.0.255");
     private static final ObisCode OBISCODE_ACTIVE_FIRMWARE = ObisCode.fromString("1.0.0.2.0.255");
-    private static final ObisCode OBISCODE_CLOCK = ObisCode.fromString("0.0.1.0.0.255");
     private static final ObisCode OBISCODE_SYNCHRONIZATION = ObisCode.fromString("1.0.96.130.3.255"
     );
     private ProfileGeneric loadProfile;
@@ -300,8 +299,6 @@ public class G3B extends AbstractDLMSProtocol {
      */
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
-
-            obisCode = ProtocolTools.setObisCodeField(obisCode, 5, (byte) 0);
 
             //Billing profile data, store it in a register
             if (obisCode.getF() != 255) {
