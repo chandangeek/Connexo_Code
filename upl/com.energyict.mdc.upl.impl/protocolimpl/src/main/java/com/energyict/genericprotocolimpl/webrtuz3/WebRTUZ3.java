@@ -567,11 +567,6 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
         return ocm;
     }
 
-    @Override
-    public void validateProperties() throws MissingPropertyException, InvalidPropertyException {
-        super.validateProperties();    //To change body of overridden methods use File | Settings | File Templates.
-    }
-
     /**
      * Messages
      *

@@ -122,9 +122,38 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
     private int iiapPriority;
     private int iiapServiceClass;
     private int iiapInvokeId;
-    protected int clientMacAddress;
-    private int serverUpperMacAddress;
-    private int serverLowerMacAddress;
+    private int clientMacAddress;
+
+    /**
+     * The ServerMacAddress:<br>
+     * In case of <i>HDLC</i>, the server address – to enable addressing more than one logical device within a single physical
+     * device and to support the multi-drop configuration – <b>may</b> be divided into two parts.
+     * <ul>
+     * <li> The {@link #upperHDLCAddress}
+     * <li> The {@link #lowerHDLCAddress}
+     * </ul>
+     * The structure of the property should be {@link #upperHDLCAddress}:{@link #lowerHDLCAddress} (upperAddress and lowerAddress separated
+     * by a colon)<br><br>
+     * In case of an <i>IP transport layer</i>, we don't divide the address into two parts. This address is then in fact the
+     * {@link #destinationWPortNumber}.
+     */
+    private String[] serverMacAddress;
+
+    /**
+     * This HDLC address is used to address a Logical Device (a separately addressable entity within a physical device)
+     */
+    private int upperHDLCAddress;
+
+    /**
+     * This HDLC address is used to address a Physical Device (a physical device on the multi-drop).
+     */
+    private int lowerHDLCAddress;
+
+    /**
+     * The wPort number identifies the destination ApplicationProcess when the IP transport layer is used.
+     */
+    private int destinationWPortNumber;
+
     private int timeOut;
     private int forceDelay;
     private int retries;
@@ -391,9 +420,28 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 
         this.clientMacAddress = ProtocolTools.getPropertyAsInt(properties, "ClientMacAddress", "16");
 
-        this.serverLowerMacAddress = ProtocolTools.getPropertyAsInt(properties, "ServerLowerMacAddress", "1");
+        this.serverMacAddress = properties.getProperty("ServerMacAddress", "1").split(":");
 
-        this.serverUpperMacAddress = ProtocolTools.getPropertyAsInt(properties, "ServerUpperMacAddress", "17");
+        if(this.connectionMode == 0){ // HDLC is used as the transport layer
+            try {
+                this.upperHDLCAddress = Integer.parseInt(this.serverMacAddress[0]);
+                if(this.serverMacAddress.length == 2){
+                    this.lowerHDLCAddress = Integer.parseInt(this.serverMacAddress[1]);
+                } else if(this.serverMacAddress.length == 1){
+                    this.lowerHDLCAddress = 0;
+                } else {
+                    throw new InvalidPropertyException("ServerMacAddress property contains an illegal value " + properties.getProperty("ServerMacAddress", "1"));
+                }
+            } catch (NumberFormatException e) {
+                throw new InvalidPropertyException("Property [ServerMacAddress] contains an invalid (non numerical) value: " + serverMacAddress[0]);
+            }
+        } else { // IPv4 is used as transport layer
+            try {
+                this.destinationWPortNumber = Integer.parseInt(this.serverMacAddress[0]);
+            } catch (NumberFormatException e) {
+                throw new InvalidPropertyException("Property [ServerMacAddress] contains an invalid (non numerical) value: " + serverMacAddress[0]);
+            }
+        }
 
         this.timeOut = ProtocolTools.getPropertyAsInt(properties, "Timeout", (this.connectionMode == 0) ? "5000" : "60000");    // set the HDLC timeout to 5000 for the WebRTU KP
 
@@ -549,10 +597,10 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
         DLMSConnection transportConnection;
         if (this.connectionMode == 0) {
             transportConnection = new HDLC2Connection(this.link.getInputStream(), this.link.getOutputStream(), this.timeOut, this.forceDelay, this.retries, this.clientMacAddress,
-                    this.serverLowerMacAddress, this.serverUpperMacAddress, this.addressingMode, this.informationFieldSize, 5);
+                    this.lowerHDLCAddress, this.upperHDLCAddress, this.addressingMode, this.informationFieldSize, 5);
         } else if (this.connectionMode == 1) {
             transportConnection = new TCPIPConnection(this.link.getInputStream(), this.link.getOutputStream(), this.timeOut, this.forceDelay, this.retries, this.clientMacAddress,
-                    this.serverLowerMacAddress);
+                    this.destinationWPortNumber);
         } else {
             throw new IOException("Unknown connectionMode: " + this.connectionMode + " - Only 0(HDLC) and 1(TCP) are allowed");
         }
