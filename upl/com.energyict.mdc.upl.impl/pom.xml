@@ -10,7 +10,7 @@
     <groupId>com.energyict</groupId>
     <artifactId>protocols</artifactId>
     <packaging>pom</packaging>
-    <version>8.9.4-SNAPSHOT</version>
+    <version>8.11.1-SNAPSHOT</version>
     <name>protocols</name>
     <dependencies>
         <dependency>
@@ -23,7 +23,7 @@
 
     <!-- We try to be in sync with the latest EIServer version ... -->
     <properties>
-        <eiserver.version>8.9.3</eiserver.version>
+        <eiserver.version>8.10.0-SNAPSHOT</eiserver.version>
     </properties>
 
     <dependencyManagement>
