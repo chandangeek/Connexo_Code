@@ -62,29 +62,39 @@ public class TransparentGet extends AbstractTransparentObjectAccess implements D
 					throw new WaveFlowDLMSException("Transparant object get error. Expected multiframe tag ["+WaveflowProtocolUtils.toHexString(MULTIFRAME_TAG)+"], received ["+WaveflowProtocolUtils.toHexString(multiframeTag)+"]");
 				}
 				else {
+					boolean duplicate=false;
 					
 					if (initialFrameCounter==0) {
 						// first multiframe, save frame counter...
 						initialFrameCounter = WaveflowProtocolUtils.toInt(dais.readByte());
 					}
 					else {
-						initialFrameCounter--;
+						
 						int frameCounter = WaveflowProtocolUtils.toInt(dais.readByte());
-						if (initialFrameCounter != frameCounter) {
+						if (initialFrameCounter == frameCounter) {
+							// duplicate frame
+							duplicate=true;
+						}
+						else if ((initialFrameCounter-1) == frameCounter) {
+							initialFrameCounter--;
+						}
+						else {
 							throw new WaveFlowDLMSException("Transparant object get error. Multiframe sequence error. expected frame ["+WaveflowProtocolUtils.toHexString(initialFrameCounter)+"], received ["+WaveflowProtocolUtils.toHexString(frameCounter)+"]");
 						}
+						
 					}
 					
 					if (initialFrameCounter == 1) {
 						temp = new byte[dais.available()];
 						dais.read(temp);
-						baos.write(temp);
+						if (!duplicate)	baos.write(temp);
 						return baos.toByteArray();
 					}
 					else {
 						temp = new byte[MAX_MULTIFRAME_LENGTH];
 						dais.read(temp);
-						baos.write(temp);					}
+						if (!duplicate)	baos.write(temp);
+					}
 				}
 			}
 		}

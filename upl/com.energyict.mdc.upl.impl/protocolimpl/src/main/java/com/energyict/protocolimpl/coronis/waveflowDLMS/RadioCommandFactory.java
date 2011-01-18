@@ -37,5 +37,15 @@ public class RadioCommandFactory {
 		}
 		return rssiLevel.getRssiLevel();
 	}
+	/**
+	 * Set the alarmconfiguration and implicit the alarm route path with the sender's address and path.
+	 * @param alarmConfiguration
+	 * @throws IOException 
+	 */
+	public final void setAlarmRoute(int alarmConfiguration) throws IOException {
+		AlarmRoute o = new AlarmRoute(protocolLink);
+		o.setAlarmConfiguration(alarmConfiguration);
+		o.invoke();
+	}
 	
 }

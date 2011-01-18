@@ -11,8 +11,10 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 	
 	enum ParameterId {
 		
-		ApplicationStatus(0x01,1,"Application Status"),
-		CurrentRTC(0x04,7,"Current time and date");
+		ApplicationStatus(0x01,1,"Application Status (R/W)"),
+		CurrentRTC(0x04,7,"Current time and date (R/W)"),
+		AlarmConfiguration(0x58,1,"alarm configuration (R/W)"),
+		Version(0x56,2,"Version (R)");
 		
 		private int id;
 		private int length;

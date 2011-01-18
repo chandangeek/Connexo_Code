@@ -83,7 +83,7 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 		return parameterFactory;
 	}
 
-	final RadioCommandFactory getRadioCommandFactory() {
+	public final RadioCommandFactory getRadioCommandFactory() {
 		return radioCommandFactory;
 	}
 
@@ -438,9 +438,18 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	
 	public List map2MeterEvent(String event) throws IOException {
 		
-		AlarmFrameParser alarmFrame = new AlarmFrameParser(event.getBytes(), this);
+		//FIXME: we should implement a new interface in the protocols to be used for the alarm ack return data...
 		
-		return alarmFrame.getMeterEvents();
+		AlarmFrameParser alarmFrame = new AlarmFrameParser(event.getBytes(), this);
+
+		// this is tricky. We need to return the "alarmstatus" bytes to acknowledge the alarm. 
+		// so to avoid changing the signature of interfaceEventMapper in Ethernet, we add the return "alarmstatus" as first element in the list.
+		byte[] alarmDataByteArray = event.getBytes();
+		List statusAndEvents = new ArrayList();
+		statusAndEvents.add(ProtocolUtils.getSubArray2(alarmDataByteArray,0,3));
+		statusAndEvents.add(alarmFrame.getMeterEvents());
+		
+		return statusAndEvents;
 	}
 	
 	private List<ObjectInfo> buildObisInfos(String obisCodeList) throws InvalidPropertyException {

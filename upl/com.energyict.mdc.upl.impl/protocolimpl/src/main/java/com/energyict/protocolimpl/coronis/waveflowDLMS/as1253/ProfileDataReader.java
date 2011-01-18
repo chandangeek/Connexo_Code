@@ -67,14 +67,18 @@ public class ProfileDataReader {
 				profileData.setChannelInfos(channelInfos);
 			}
 			
+			// Workaround from Peter Bungert (Elster R&D Lampertheim)
+			// Due to a bug in the meter, we reset the protocolstatus each time and only use it when there is also a timestamp involved...
+			int protocolStatus=0; 
 			AbstractDataType structureElement = structure.getDataType(CAPTURED_OBJECTS_DATE_FIELD_INDEX);
 			if (!structureElement.isNullData()) {
 				// set the interval timestamp if it has a value
 				DateTime dateTime = new DateTime(structureElement.getOctetString(), as1253.getTimeZone());
 				calendar.setTime(dateTime.getValue().getTime());
 				ParseUtils.roundUp2nearestInterval(calendar, as1253.getProfileInterval());
+				protocolStatus = structure.getDataType(CAPTURED_OBJECTS_STATUSBITS_FIELD_INDEX).intValue();
 			}
-			int protocolStatus = structure.getDataType(CAPTURED_OBJECTS_STATUSBITS_FIELD_INDEX).intValue();
+			
 			
 			IntervalData intervalData = new IntervalData(calendar.getTime(),protocolStatus,protocolStatus2EICode(protocolStatus));
 			for (int index=0;index<nrOfchannels;index++) {

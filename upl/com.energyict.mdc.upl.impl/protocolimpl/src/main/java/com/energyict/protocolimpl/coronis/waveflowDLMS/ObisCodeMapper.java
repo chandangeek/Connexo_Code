@@ -81,22 +81,25 @@ public class ObisCodeMapper {
     		return new RegisterValue(obisCode,"V"+WaveflowProtocolUtils.toHexString(abstractDLMS.getRadioCommandFactory().readFirmwareVersion().getFirmwareVersion())+", Mode of transmission "+abstractDLMS.getRadioCommandFactory().readFirmwareVersion().getModeOfTransmission());
     	}
     	if (obisCode.equals(ObisCode.fromString("0.0.96.2.0.255"))) { //Operation mode
-    		if (abstractDLMS.getTransparantObjectAccessFactory().getGenericHeader() == null) {
-    			abstractDLMS.getTransparantObjectAccessFactory().readObjectValue(abstractDLMS.CLOCK_OBIS_CODE);
-    		}
-   			return new RegisterValue(obisCode,new Quantity(""+abstractDLMS.getTransparantObjectAccessFactory().getGenericHeader().getOperatingMode(),Unit.get("")));
+    		return new RegisterValue(obisCode,new Quantity(""+abstractDLMS.getParameterFactory().readOperatingMode(),Unit.get("")));
+//    		if (abstractDLMS.getTransparantObjectAccessFactory().getGenericHeader() == null) {
+//    			abstractDLMS.getTransparantObjectAccessFactory().readObjectValue(abstractDLMS.CLOCK_OBIS_CODE);
+//    		}
+//   			return new RegisterValue(obisCode,new Quantity(""+abstractDLMS.getTransparantObjectAccessFactory().getGenericHeader().getOperatingMode(),Unit.get("")));
     	}
     	if (obisCode.equals(ObisCode.fromString("0.0.96.3.0.255"))) { //Application status
-    		if (abstractDLMS.getTransparantObjectAccessFactory().getGenericHeader() == null) {
-    			abstractDLMS.getTransparantObjectAccessFactory().readObjectValue(abstractDLMS.CLOCK_OBIS_CODE);
-    		}
-       		return new RegisterValue(obisCode,new Quantity(""+abstractDLMS.getTransparantObjectAccessFactory().getGenericHeader().getApplicationStatus(),Unit.get("")));
+    		return new RegisterValue(obisCode,new Quantity(""+abstractDLMS.getParameterFactory().readApplicationStatus(),Unit.get("")));
+//    		if (abstractDLMS.getTransparantObjectAccessFactory().getGenericHeader() == null) {
+//    			abstractDLMS.getTransparantObjectAccessFactory().readObjectValue(abstractDLMS.CLOCK_OBIS_CODE);
+//    		}
+//       		return new RegisterValue(obisCode,new Quantity(""+abstractDLMS.getTransparantObjectAccessFactory().getGenericHeader().getApplicationStatus(),Unit.get("")));
     	}
     	if (obisCode.equals(ObisCode.fromString("0.0.96.4.0.255"))) { //Alarm Configuration
-    		if (abstractDLMS.getTransparantObjectAccessFactory().getGenericHeader() == null) {
-    			abstractDLMS.getTransparantObjectAccessFactory().readObjectValue(abstractDLMS.CLOCK_OBIS_CODE);
-    		}
-       		return new RegisterValue(obisCode,new Quantity(""+abstractDLMS.getTransparantObjectAccessFactory().getGenericHeader().getApplicationStatus(),Unit.get("")));
+    		return new RegisterValue(obisCode,new Quantity(""+abstractDLMS.getParameterFactory().readAlarmConfiguration(),Unit.get("")));
+//    		if (abstractDLMS.getTransparantObjectAccessFactory().getGenericHeader() == null) {
+//    			abstractDLMS.getTransparantObjectAccessFactory().readObjectValue(abstractDLMS.CLOCK_OBIS_CODE);
+//    		}
+//       		return new RegisterValue(obisCode,new Quantity(""+abstractDLMS.getTransparantObjectAccessFactory().getGenericHeader().getAlarmConfiguration(),Unit.get("")));
     	}
     	if (obisCode.equals(ObisCode.fromString("0.0.96.5.0.255"))) { //RSSI level
     		return new RegisterValue(obisCode,new Quantity(""+abstractDLMS.getRadioCommandFactory().readRSSILevel(),Unit.get("")));

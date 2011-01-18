@@ -31,13 +31,28 @@ public class WaveFlowDLMSWMessages implements MessageProtocol {
 				}
 			}
 			else if (messageEntry.getContent().indexOf("<ForceTimeSync")>=0) {
-				abstractDLMS.getLogger().info("************************* ForceTimeSync  (e-meter time)*************************");
+				abstractDLMS.getLogger().info("************************* ForceTimeSync (e-meter time)*************************");
 				abstractDLMS.forceSetTime();
 				return MessageResult.createSuccess(messageEntry);
 			}
-			if (messageEntry.getContent().indexOf("<SyncWaveFlowRTC")>=0) {
-				abstractDLMS.getLogger().info("************************* SyncWaveFlowRTC  (waveflow100mW time)*************************");
+			else if (messageEntry.getContent().indexOf("<SyncWaveFlowRTC")>=0) {
+				abstractDLMS.getLogger().info("************************* SyncWaveFlowRTC (waveflow100mW time)*************************");
 				abstractDLMS.setWaveFlowTime();
+				return MessageResult.createSuccess(messageEntry);
+			}
+			else if (messageEntry.getContent().indexOf("<SetAlarmConfig")>=0) {
+				abstractDLMS.getLogger().info("************************* SetAlarmConfig *************************");
+				abstractDLMS.getRadioCommandFactory().setAlarmRoute(Integer.parseInt(getTagContents("SetAlarmConfig", messageEntry.getContent())));
+				return MessageResult.createSuccess(messageEntry);
+			}
+			else if (messageEntry.getContent().indexOf("<SetOperatingMode")>=0) {
+				abstractDLMS.getLogger().info("************************* SetOperatingMode *************************");
+				abstractDLMS.getRadioCommandFactory().setAlarmRoute(Integer.parseInt(getTagContents("SetOperatingMode", messageEntry.getContent())));
+				return MessageResult.createSuccess(messageEntry);
+			}
+			else if (messageEntry.getContent().indexOf("<SetApplicationStatus")>=0) {
+				abstractDLMS.getLogger().info("************************* SetApplicationStatus *************************");
+				abstractDLMS.getRadioCommandFactory().setAlarmRoute(Integer.parseInt(getTagContents("SetApplicationStatus", messageEntry.getContent())));
 				return MessageResult.createSuccess(messageEntry);
 			}
 			else {
@@ -123,5 +138,27 @@ public class WaveFlowDLMSWMessages implements MessageProtocol {
     }
 
 	public void applyMessages(List messageEntries) throws IOException {
+	}
+	
+	
+	/**
+	 * Gets the contents of the given tag.
+	 * 
+	 * @param 	tagName						The name of the tag.
+	 * @param 	messageContents				The contents of the message to extract the data from.
+	 * 
+	 * @return	The contents, <code>null</code> if for some reason the contents cannot be extracted. A warning will be issued in that case.
+	 */
+	private final String getTagContents(final String tagName, final String messageContents) {
+    	final int startIndex = messageContents.indexOf(new StringBuilder("<").append(tagName).append(">").toString()) + tagName.length() + 2;
+    	final int endIndex = messageContents.indexOf(new StringBuilder("</").append(tagName).append(">").toString());
+    	
+    	if (startIndex != -1 && endIndex != -1 && endIndex > startIndex) {
+    		return messageContents.substring(startIndex, endIndex).trim();
+    	} else {
+    		abstractDLMS.getLogger().warning("Cannot get contents of tag [" + tagName + "] out of message [" + messageContents + "], startIndex is [" + startIndex + "], endIndex is [" + endIndex + "]");
+    	}
+    	
+    	return null;
 	}	
 }

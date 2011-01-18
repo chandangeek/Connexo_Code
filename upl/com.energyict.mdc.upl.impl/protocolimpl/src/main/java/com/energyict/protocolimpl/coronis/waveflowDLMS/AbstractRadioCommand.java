@@ -12,6 +12,7 @@ abstract public class AbstractRadioCommand {
 		RSSILevel(0x20),
 		FirmwareVersion(0x28),
 		WriteParameter(0x19),
+		AlarmRoute(0x0A),
 		ReadParameter(0x18);
 		
 		private int commandId;

@@ -29,16 +29,21 @@ public class ParameterFactory {
 		o.write();
 	}
 	
+	final public int readOperatingMode() throws IOException {
+		OperatingMode o = new OperatingMode(protocolLink);
+		o.read();
+		return o.getOperatingMode();
+	}
+	final public void writeOperatingMode(int operatingMode) throws IOException {
+		OperatingMode o = new OperatingMode(protocolLink);
+		o.setOperatingMode(operatingMode);
+		o.write();
+	}
+	
 	final public int readApplicationStatus() throws IOException {
 		ApplicationStatus o = new ApplicationStatus(protocolLink);
 		o.read();
 		return o.getStatus();
-	}
-	
-	final public int readOperatingMode() throws IOException {
-		ApplicationStatus o = new ApplicationStatus(protocolLink);
-		o.read();
-		return o.getOperatingMode();
 	}
 	
 	final public void writeApplicationStatus(int applicationStatus) throws IOException {
@@ -46,5 +51,25 @@ public class ParameterFactory {
 		o.setStatus(applicationStatus);
 		o.write();
 	}
+	
+	final public int readAlarmConfiguration() throws IOException {
+		AlarmConfiguration o = new AlarmConfiguration(protocolLink);
+		o.read();
+		return o.getAlarmConfiguration();
+	}
+	
+	final public void writeAlarmConfiguration(int alarmConfiguration) throws IOException {
+		AlarmConfiguration o = new AlarmConfiguration(protocolLink);
+		o.setAlarmConfiguration(alarmConfiguration);
+		o.write();
+	}
+	
+	final public int readVersion() throws IOException {
+		Version o = new Version(protocolLink);
+		o.read();
+		return o.getVersion();
+	}
+	
+	
 	
 }

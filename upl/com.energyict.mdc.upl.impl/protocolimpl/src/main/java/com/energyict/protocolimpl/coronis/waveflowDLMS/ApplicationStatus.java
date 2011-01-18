@@ -11,6 +11,11 @@ public class ApplicationStatus extends AbstractParameter {
 		super(protocolLink);
 	}
 
+	/*
+	bit0, Supply voltage supervisor :	Power lost notification
+	bit1, Supply voltage	supervisor : Power back notification
+	bit2, Link fault with	energy meter
+	*/
 	private int status;
 	
 	final int getStatus() {
