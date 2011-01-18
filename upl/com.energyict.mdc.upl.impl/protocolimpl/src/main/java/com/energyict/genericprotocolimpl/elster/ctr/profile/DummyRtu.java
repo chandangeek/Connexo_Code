@@ -155,6 +155,17 @@ public class DummyRtu implements Rtu {
         return null;
     }
 
+    /**
+     * Returns the rtu events that fulfill the conditions in the RtuEventFilter
+     * events are returned in descending time order (youngest event first).
+     *
+     * @param filter RtuEventFilter specifying the conditions
+     * @return a List of RtuEvent objects.
+     */
+    public List<RtuEvent> getEvents(RtuEventFilter filter) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     public void updateIpAddress(String ipAddress) throws SQLException, BusinessException {
 
     }

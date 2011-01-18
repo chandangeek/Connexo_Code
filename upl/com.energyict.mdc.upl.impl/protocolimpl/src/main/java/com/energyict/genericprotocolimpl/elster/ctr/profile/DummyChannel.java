@@ -788,6 +788,10 @@ public class DummyChannel implements Channel {
         return 0;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
+    public boolean isStoreData() {
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     public IntervalRecord getLastIntervalRecord(Date from, Date to, Code code, Integer codeValue, Integer mask) {
         return null;
     }

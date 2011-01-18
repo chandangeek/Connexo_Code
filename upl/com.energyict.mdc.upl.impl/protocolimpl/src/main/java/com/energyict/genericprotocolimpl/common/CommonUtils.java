@@ -193,9 +193,9 @@ public final class CommonUtils {
         TypeDescriptor type = factory.getTypeDescriptor();
         com.energyict.metadata.SearchFilter filter = new com.energyict.metadata.SearchFilter(type);
         filter.addAnd(Criterium.eq(type.getAttributeDescriptor("phoneNumber"), phoneNumber));
-        List<BusinessObject> result = factory.findBySearchFilter(filter);
+        List<Rtu> result = factory.findBySearchFilter(filter);
         if (result.size() == 1) {
-            return (Rtu) result.get(0);
+            return result.get(0);
         } else if (result.size() > 1) {
             throw new IOException("Multiple meters found in database with phoneNumber " + phoneNumber);
         } else {
