@@ -8,6 +8,7 @@ import com.energyict.dynamicattributes.BusinessObjectType;
 import com.energyict.interval.DateTime;
 import com.energyict.interval.IntervalRecord;
 import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.RtuRegisterMapping;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.estimation.EstimationProcedure;
 import com.energyict.mdw.relation.*;
@@ -777,6 +778,14 @@ public class DummyChannel implements Channel {
 
     public int getIntervalCount(TimePeriod period) {
         return 0;
+    }
+
+    public RtuRegisterMapping getRtuRegisterMapping() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public int getRtuRegisterMappingId() {
+        return 0;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public IntervalRecord getLastIntervalRecord(Date from, Date to, Code code, Integer codeValue, Integer mask) {
