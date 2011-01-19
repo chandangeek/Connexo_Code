@@ -11,17 +11,14 @@
 
 package com.energyict.protocolimpl.mbus.core;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
+
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  *
@@ -59,11 +56,13 @@ abstract public class AbstractRegisterFactory {
         while(it.hasNext()) {
             DataRecord dataRecord = (DataRecord)it.next();
             StringBuffer strBuff = new StringBuffer();
-            if (dataRecord.getDataRecordHeader().getValueInformationBlock() != null) {
-                strBuff.append(dataRecord.getDataRecordHeader().getValueInformationBlock().getValueInformationfieldCoding().getDescription());
-                if (dataRecord.getDataRecordHeader().getValueInformationBlock().getValueInformationfieldCodings()!=null) {
-                    for (int i=0;i<dataRecord.getDataRecordHeader().getValueInformationBlock().getValueInformationfieldCodings().size();i++) {
-                        strBuff.append(", "+((ValueInformationfieldCoding)dataRecord.getDataRecordHeader().getValueInformationBlock().getValueInformationfieldCodings().get(i)).getDescription());
+            ValueInformationBlock block = dataRecord.getDataRecordHeader().getValueInformationBlock();
+            if (block != null) {
+                ValueInformationfieldCoding vifCoding = block.getValueInformationfieldCoding();
+                strBuff.append(vifCoding != null ? vifCoding.getDescription() : block.toString());
+                if (block.getValueInformationfieldCodings()!=null) {
+                    for (int i=0;i< block.getValueInformationfieldCodings().size();i++) {
+                        strBuff.append(", "+((ValueInformationfieldCoding) block.getValueInformationfieldCodings().get(i)).getDescription());
                     }
                 }
             
@@ -73,7 +72,8 @@ abstract public class AbstractRegisterFactory {
                     strBuff.append(", tariff "+dataRecord.getDataRecordHeader().getDataInformationBlock().getTariffNumber());
 
 
-                RegisterValue registerValue = new RegisterValue(ObisCode.fromString("0.0.96.99."+(code/256)+"."+(code%256)),dataRecord.getQuantity(),dataRecord.getDate(),null,null,new Date(),-1,strBuff.toString());
+                String registerText = ((dataRecord.getText() != null) || (dataRecord.getText().length() <= 0)) ? dataRecord.getText() : strBuff.toString();
+                RegisterValue registerValue = new RegisterValue(ObisCode.fromString("0.0.96.99."+(code/256)+"."+(code%256)),dataRecord.getQuantity(),dataRecord.getDate(),null,null,new Date(),-1, registerText);
                 getRegisterValues().add(registerValue);
                 code++;
             }

@@ -10,12 +10,16 @@
 
 package com.energyict.protocolimpl.mbus.core;
 
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*; 
-import java.math.*;
-import java.util.*;
-import java.io.*;
+import com.energyict.cbo.Quantity;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
@@ -40,126 +44,137 @@ public class DataRecord {
         
         if (dataRecordHeader.getValueInformationBlock()==null)
             return;
-            
-        if (dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().isTypeFormat()) {
-            switch(dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getType()) {
-                case ValueInformationfieldCoding.TYPE_A: {
-                    long val = ParseUtils.getBCD2LongLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
-                    offset+=dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes();
-                    BigDecimal bd = BigDecimal.valueOf(val);
-                    bd = bd.multiply(dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getMultiplier());
-                    quantity = new Quantity(bd,dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getUnit());
-                } break; // TYPE_A
 
-                case ValueInformationfieldCoding.TYPE_D:
-                case ValueInformationfieldCoding.TYPE_C:
-                case ValueInformationfieldCoding.TYPE_B: {
-                    long val = ProtocolUtils.getLongLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
-                    offset+=dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes();
-                    BigDecimal bd = BigDecimal.valueOf(val);
-                    bd = bd.multiply(dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getMultiplier());
-                    quantity = new Quantity(bd,dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getUnit());
-                } break; // TYPE_B
+        if (dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding() != null) {
+            if (dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().isTypeFormat()) {
+                switch(dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getType()) {
+                    case ValueInformationfieldCoding.TYPE_A: {
+                        long val = ParseUtils.getBCD2LongLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
+                        offset+=dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes();
+                        BigDecimal bd = BigDecimal.valueOf(val);
+                        bd = bd.multiply(dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getMultiplier());
+                        quantity = new Quantity(bd,dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getUnit());
+                    } break; // TYPE_A
 
-                case ValueInformationfieldCoding.TYPE_E: {
-                    throw new IOException("DataRecord, invalid data coding TYPE_E is obsolete");
-                } // TYPE_E
+                    case ValueInformationfieldCoding.TYPE_D:
+                    case ValueInformationfieldCoding.TYPE_C:
+                    case ValueInformationfieldCoding.TYPE_B: {
+                        long val = ProtocolUtils.getLongLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
+                        offset+=dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes();
+                        BigDecimal bd = BigDecimal.valueOf(val);
+                        bd = bd.multiply(dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getMultiplier());
+                        quantity = new Quantity(bd,dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getUnit());
+                    } break; // TYPE_B
 
-                case ValueInformationfieldCoding.TYPE_F: {
-                    DataRecordTypeF_CP32 cp32 = new DataRecordTypeF_CP32(timeZone);
-                    cp32.parse(ProtocolUtils.getSubArray2(data,offset,4));
-                    offset+=4;
-                    setDate(cp32.getCalendar().getTime());
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> date="+getDate());
-                } break; // TYPE_F
+                    case ValueInformationfieldCoding.TYPE_E: {
+                        throw new IOException("DataRecord, invalid data coding TYPE_E is obsolete");
+                    } // TYPE_E
 
-                case ValueInformationfieldCoding.TYPE_G: {
-                    DataRecordTypeG_CP16 cp16 = new DataRecordTypeG_CP16(timeZone);
-                    cp16.parse(ProtocolUtils.getSubArray2(data,offset,2));
-                    offset+=4;
-                    setDate(cp16.getCalendar().getTime());
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> date="+getDate());
-                } break; // TYPE_G
+                    case ValueInformationfieldCoding.TYPE_F: {
+                        DataRecordTypeF_CP32 cp32 = new DataRecordTypeF_CP32(timeZone);
+                        cp32.parse(ProtocolUtils.getSubArray2(data,offset,4));
+                        offset+=4;
+                        setDate(cp32.getCalendar().getTime());
+                        if (DEBUG>=1) System.out.println("KV_DEBUG> date="+getDate());
+                    } break; // TYPE_F
 
-                case ValueInformationfieldCoding.TYPE_H: {
-                    float val = Float.intBitsToFloat((int)ProtocolUtils.getLongLE(data,offset,4));
-                    offset+=4;
-                    BigDecimal bd = new BigDecimal(""+val);
-                    bd = bd.multiply(dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getMultiplier());
-                    quantity = new Quantity(bd,dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getUnit());
-                } break; // TYPE_H
+                    case ValueInformationfieldCoding.TYPE_G: {
+                        DataRecordTypeG_CP16 cp16 = new DataRecordTypeG_CP16(timeZone);
+                        cp16.parse(ProtocolUtils.getSubArray2(data,offset,2));
+                        offset+=4;
+                        setDate(cp16.getCalendar().getTime());
+                        if (DEBUG>=1) System.out.println("KV_DEBUG> date="+getDate());
+                    } break; // TYPE_G
 
-                case ValueInformationfieldCoding.TYPE_I: {
-                    DataRecordTypeI typeI = new DataRecordTypeI(timeZone);
-                    typeI.parse(ProtocolUtils.getSubArray2(data,offset,5));
-                    offset+=5;
-                    setDate(typeI.getCalendar().getTime());
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> date="+getDate());
-                } break; // TYPE_I
+                    case ValueInformationfieldCoding.TYPE_H: {
+                        float val = Float.intBitsToFloat((int)ProtocolUtils.getLongLE(data,offset,4));
+                        offset+=4;
+                        BigDecimal bd = new BigDecimal(""+val);
+                        bd = bd.multiply(dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getMultiplier());
+                        quantity = new Quantity(bd,dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getUnit());
+                    } break; // TYPE_H
 
-                case ValueInformationfieldCoding.TYPE_J: {
-                    DataRecordTypeJ typeJ = new DataRecordTypeJ(timeZone);
-                    typeJ.parse(ProtocolUtils.getSubArray2(data,offset,3));
-                    offset+=3;
-                    setDate(typeJ.getCalendar().getTime());
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> date="+getDate());
-                } break; // TYPE_J
+                    case ValueInformationfieldCoding.TYPE_I: {
+                        DataRecordTypeI typeI = new DataRecordTypeI(timeZone);
+                        typeI.parse(ProtocolUtils.getSubArray2(data,offset,5));
+                        offset+=5;
+                        setDate(typeI.getCalendar().getTime());
+                        if (DEBUG>=1) System.out.println("KV_DEBUG> date="+getDate());
+                    } break; // TYPE_I
 
-                case ValueInformationfieldCoding.TYPE_K: {
-                    DataRecordTypeK typeK = new DataRecordTypeK(timeZone);
-                    typeK.parse(ProtocolUtils.getSubArray2(data,offset,3));
-                    offset+=3;
-                    Date dateDSTBegin = typeK.getCalendarDSTBegin().getTime();
-                    Date dateDSTEnd = typeK.getCalendarDSTEnd().getTime();
-                } break; // TYPE_K
+                    case ValueInformationfieldCoding.TYPE_J: {
+                        DataRecordTypeJ typeJ = new DataRecordTypeJ(timeZone);
+                        typeJ.parse(ProtocolUtils.getSubArray2(data,offset,3));
+                        offset+=3;
+                        setDate(typeJ.getCalendar().getTime());
+                        if (DEBUG>=1) System.out.println("KV_DEBUG> date="+getDate());
+                    } break; // TYPE_J
 
-                case ValueInformationfieldCoding.TYPE_L: {
-                    offset = decodeVariableLength(data,offset);
-                    // KV_TO_DO when registervalue is introduced, this is a text value
-                } break; // TYPE_L
+                    case ValueInformationfieldCoding.TYPE_K: {
+                        DataRecordTypeK typeK = new DataRecordTypeK(timeZone);
+                        typeK.parse(ProtocolUtils.getSubArray2(data,offset,3));
+                        offset+=3;
+                        Date dateDSTBegin = typeK.getCalendarDSTBegin().getTime();
+                        Date dateDSTEnd = typeK.getCalendarDSTEnd().getTime();
+                    } break; // TYPE_K
+
+                    case ValueInformationfieldCoding.TYPE_L: {
+                        offset = decodeVariableLength(data,offset);
+                        // KV_TO_DO when registervalue is introduced, this is a text value
+                    } break; // TYPE_L
+                }
             }
+            else if ((dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().isTypeUnit()) ||
+                     (dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().isTypeDuration())) {
+                switch(dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getType()) {
+                    case DataFieldCoding.TYPE_BCD: {
+                        long val = ParseUtils.getBCD2LongLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
+                        offset+=dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes();
+                        BigDecimal bd = BigDecimal.valueOf(val);
+                        bd = bd.multiply(dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getMultiplier());
+                        quantity = new Quantity(bd,dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getUnit());
+                    } break; // DataFieldCoding.TYPE_BCD
+
+                    case DataFieldCoding.TYPE_BINARY: {
+                        long val = ProtocolUtils.getLongLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
+                        offset+=dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes();
+                        BigDecimal bd = BigDecimal.valueOf(val);
+                        bd = bd.multiply(dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getMultiplier());
+                        quantity = new Quantity(bd,dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getUnit());
+                    } break; // DataFieldCoding.TYPE_BINARY
+
+                    case DataFieldCoding.TYPE_REAL: {
+                        float val = Float.intBitsToFloat((int)ProtocolUtils.getLongLE(data,offset,4));
+                        offset+=4;
+                        BigDecimal bd = new BigDecimal(""+val);
+                        bd = bd.multiply(dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getMultiplier());
+                        quantity = new Quantity(bd,dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getUnit());
+                    } break; // DataFieldCoding.TYPE_REAL
+
+                    case DataFieldCoding.TYPE_VARIABLELENGTH: {
+                        offset = decodeVariableLength(data,offset);
+
+                        // KV_TO_DO when registervalue is introduced, this is a text value
+
+                    } break; // DataFieldCoding.TYPE_VARIABLELENGTH
+
+                    case DataFieldCoding.TYPE_SPECIALFUNCTIONS: {
+                        quantity=null;
+                    } break; // DataFieldCoding.TYPE_SPECIALFUNCTIONS
+
+                } // switch(dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getType())
+            } // type unit or type duration
+        } else if (dataRecordHeader.getValueInformationBlock().getPlainTextVIF() != null) {
+            String vif = dataRecordHeader.getValueInformationBlock().getPlainTextVIF();
+            if (vif.equals("cust. ID")) {
+                int length = data[offset++];
+                setText(new String(ProtocolTools.getReverseByteArray(ProtocolTools.getSubArray(data, offset, offset + length))));
+                offset += length;
+            }
+        } else {
+
         }
-        else if ((dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().isTypeUnit()) ||
-                 (dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().isTypeDuration())) {
-            switch(dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getType()) {
-                case DataFieldCoding.TYPE_BCD: {
-                    long val = ParseUtils.getBCD2LongLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
-                    offset+=dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes();
-                    BigDecimal bd = BigDecimal.valueOf(val);
-                    bd = bd.multiply(dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getMultiplier());
-                    quantity = new Quantity(bd,dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getUnit());
-                } break; // DataFieldCoding.TYPE_BCD
 
-                case DataFieldCoding.TYPE_BINARY: {
-                    long val = ProtocolUtils.getLongLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
-                    offset+=dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes();
-                    BigDecimal bd = BigDecimal.valueOf(val);
-                    bd = bd.multiply(dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getMultiplier());
-                    quantity = new Quantity(bd,dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getUnit());
-                } break; // DataFieldCoding.TYPE_BINARY
-
-                case DataFieldCoding.TYPE_REAL: {
-                    float val = Float.intBitsToFloat((int)ProtocolUtils.getLongLE(data,offset,4));
-                    offset+=4;
-                    BigDecimal bd = new BigDecimal(""+val);
-                    bd = bd.multiply(dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getMultiplier());
-                    quantity = new Quantity(bd,dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getUnit());
-                } break; // DataFieldCoding.TYPE_REAL
-
-                case DataFieldCoding.TYPE_VARIABLELENGTH: {
-                    offset = decodeVariableLength(data,offset);
-                    
-                    // KV_TO_DO when registervalue is introduced, this is a text value
-                    
-                } break; // DataFieldCoding.TYPE_VARIABLELENGTH
-
-                case DataFieldCoding.TYPE_SPECIALFUNCTIONS: {
-                    quantity=null;
-                } break; // DataFieldCoding.TYPE_SPECIALFUNCTIONS
-
-            } // switch(dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getType())
-        } // type unit or type duration
-        
         if (DEBUG>=1) System.out.println("KV_DEBUG> DataRecord, quantity="+quantity);
         
         

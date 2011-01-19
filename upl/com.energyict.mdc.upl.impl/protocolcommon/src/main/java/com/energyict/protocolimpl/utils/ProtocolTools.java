@@ -746,4 +746,12 @@ public final class ProtocolTools {
         }
         return properties;
     }
+
+    public static byte[] getReverseByteArray(byte[] bytes) {
+        byte[] reverseBytes = new byte[bytes != null ? bytes.length : 0];
+        for (int i = 0; i < reverseBytes.length; i++) {
+            reverseBytes[i] = bytes[bytes.length - (i+1)];
+        }
+        return reverseBytes;
+    }
 }

@@ -10,9 +10,11 @@
 
 package com.energyict.protocolimpl.mbus.core;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
+
+import java.io.IOException;
 import java.util.*;
-import java.io.*;
 
 
 /**
@@ -32,7 +34,8 @@ public class ValueInformationBlock {
         if ((data[offset] == 0x7C) || (((int)data[offset]&0xff) == 0xFC)) {
             offset++;
             int len = data[offset++];
-            setPlainTextVIF(new String(ProtocolUtils.getSubArray2(data, offset, len)));
+            byte[] plainTextVIF = ProtocolUtils.getSubArray2(data, offset, len);
+            setPlainTextVIF(new String(ProtocolTools.getReverseByteArray(plainTextVIF)));
             offset+=len;
         }        
         else if (((int)data[offset]&0xff) == 0xFB) {
@@ -55,7 +58,7 @@ public class ValueInformationBlock {
             setValueInformationfieldCoding(ValueInformationfieldCoding.findPrimaryValueInformationfieldCoding((int)data[offset++]&0xff,dataField));
         }
         
-        if (getValueInformationfieldCoding().isCodingExtended()) {
+        if ((getValueInformationfieldCoding() != null) && getValueInformationfieldCoding().isCodingExtended()) {
             setValueInformationfieldCodings(new ArrayList());
             ValueInformationfieldCoding v=null;
             do {
