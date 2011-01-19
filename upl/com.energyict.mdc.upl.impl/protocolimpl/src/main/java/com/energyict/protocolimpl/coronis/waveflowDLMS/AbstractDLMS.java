@@ -274,14 +274,14 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 
 	final void forceSetTime() throws IOException {
 		DateTime dateTime = new DateTime(getTimeZone());
-		transparantObjectAccessFactory.writeObjectAttribute(ObisCode.fromString("0.0.1.0.0.255"), 2, dateTime);
+		transparantObjectAccessFactory.writeObjectAttribute(CLOCK_OBIS_CODE, 2, dateTime);
 	}
 	
 	@Override
 	public void setTime() throws IOException {
 		if (correctTime>0) {
 			DateTime dateTime = new DateTime(getTimeZone());
-			transparantObjectAccessFactory.writeObjectAttribute(ObisCode.fromString("0.0.1.0.0.255"), 2, dateTime);
+			transparantObjectAccessFactory.writeObjectAttribute(CLOCK_OBIS_CODE, 2, dateTime);
 		}
 	}	
 
@@ -446,7 +446,7 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 		// so to avoid changing the signature of interfaceEventMapper in Ethernet, we add the return "alarmstatus" as first element in the list.
 		byte[] alarmDataByteArray = event.getBytes();
 		List statusAndEvents = new ArrayList();
-		statusAndEvents.add(ProtocolUtils.getSubArray2(alarmDataByteArray,0,3));
+		statusAndEvents.add(alarmFrame.getResponse());
 		statusAndEvents.add(alarmFrame.getMeterEvents());
 		
 		return statusAndEvents;

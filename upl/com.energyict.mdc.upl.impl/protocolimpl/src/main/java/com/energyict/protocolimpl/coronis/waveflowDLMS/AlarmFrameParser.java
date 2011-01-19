@@ -23,6 +23,16 @@ public class AlarmFrameParser {
 	 */
 	Date date;
 	
+	/**
+	 * Response byte array. this is different per implementation
+	 * For the waveflow AC it is the alarmstatus.
+	 */
+	byte[] response;
+
+	final byte[] getResponse() {
+		return response;
+	}
+
 	// alarm data field 2 bytes unused...
 	
 	AlarmFrameParser(byte[] data,AbstractDLMS abstractDLMS) throws IOException {
@@ -30,8 +40,11 @@ public class AlarmFrameParser {
 		int offset = 0;
 		genericHeader = new GenericHeader(ProtocolUtils.getSubArray(data, offset), abstractDLMS);
 		offset += GenericHeader.size();
-		alarmStatus = new AlarmStatus(ProtocolUtils.getSubArray(data, offset), abstractDLMS);
+		
+		response = ProtocolUtils.getSubArray2(data, offset, AlarmStatus.size());
 		offset += AlarmStatus.size();
+		alarmStatus = new AlarmStatus(response, abstractDLMS);
+
 		date = TimeDateRTCParser.parse(ProtocolUtils.getSubArray(data, offset), abstractDLMS.getTimeZone()).getTime();
 	}
 

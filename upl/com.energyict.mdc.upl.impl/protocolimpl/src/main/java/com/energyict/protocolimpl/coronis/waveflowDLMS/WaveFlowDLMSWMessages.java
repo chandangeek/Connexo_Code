@@ -69,7 +69,13 @@ public class WaveFlowDLMSWMessages implements MessageProtocol {
        List theCategories = new ArrayList();
        
        MessageCategorySpec cat1 = new MessageCategorySpec("WaveflowDLMS messages");
-       cat1.addMessageSpec(addBasicMsg("Pair with the e-meter", "PairMeter", false));
+       cat1.addMessageSpec(addBasicMsg("Pair with the e-meter", "PairMeter", true));
+       cat1.addMessageSpec(addBasicMsg("Force sync the e-meter time", "ForceTimeSync", true));
+       cat1.addMessageSpec(addBasicMsg("Force sync the waveflow time", "SyncWaveFlowRTC", true));
+       cat1.addMessageSpec(addBasicMsg("Set alarm configuration", "SetAlarmConfig", false));
+       cat1.addMessageSpec(addBasicMsg("Set the operating mode", "SetOperatingMode", false));
+       cat1.addMessageSpec(addBasicMsg("Set the applicationstatus", "SetApplicationStatus", false));
+       
        theCategories.add(cat1);
        
        return theCategories;
