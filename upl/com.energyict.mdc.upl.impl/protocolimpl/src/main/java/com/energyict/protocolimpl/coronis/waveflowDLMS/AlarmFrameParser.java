@@ -67,12 +67,14 @@ public class AlarmFrameParser {
 			meterEvents.add(new MeterEvent(date,MeterEvent.OTHER,"Alarm received: Link fault with meter"));
 		}
 		
+		
+		// we don't use the timestamp from the alarmframe because the waveflow AC seems to loose its RTC state
 		if (alarmStatus.isPowerDown()) {
-			meterEvents.add(new MeterEvent(date,MeterEvent.POWERDOWN,"Alarm received: power down"));
+			meterEvents.add(new MeterEvent(new Date(),MeterEvent.POWERDOWN,"Alarm received: power down"));
 		}
 		
 		if (alarmStatus.isPowerUp()) {
-			meterEvents.add(new MeterEvent(date,MeterEvent.POWERUP,"Alarm received: power up"));
+			meterEvents.add(new MeterEvent(new Date(),MeterEvent.POWERUP,"Alarm received: power up"));
 		}
 		
 		return meterEvents;

@@ -23,7 +23,9 @@ public class WaveFlowDLMSWMessages implements MessageProtocol {
 		try {
 			if (messageEntry.getContent().indexOf("<PairMeter")>=0) {
 				abstractDLMS.getLogger().info("************************* PairMeter *************************");
-				if (abstractDLMS.pairWithEMeter()) {
+				
+				int baudrate = Integer.parseInt(getTagContents("SetApplicationStatus", messageEntry.getContent()));
+				if (abstractDLMS.pairWithEMeter(baudrate)) {
 					return MessageResult.createSuccess(messageEntry);
 				}
 				else {
@@ -69,12 +71,12 @@ public class WaveFlowDLMSWMessages implements MessageProtocol {
        List theCategories = new ArrayList();
        
        MessageCategorySpec cat1 = new MessageCategorySpec("WaveflowDLMS messages");
-       cat1.addMessageSpec(addBasicMsg("Pair with the e-meter", "PairMeter", true));
+       cat1.addMessageSpec(addBasicMsgWithValue("Pair with the e-meter (9600 or 19200 (default) baud)", "PairMeter", true, "19200"));
        cat1.addMessageSpec(addBasicMsg("Force sync the e-meter time", "ForceTimeSync", true));
        cat1.addMessageSpec(addBasicMsg("Force sync the waveflow time", "SyncWaveFlowRTC", true));
-       cat1.addMessageSpec(addBasicMsg("Set alarm configuration", "SetAlarmConfig", false));
-       cat1.addMessageSpec(addBasicMsg("Set the operating mode", "SetOperatingMode", false));
-       cat1.addMessageSpec(addBasicMsg("Set the applicationstatus", "SetApplicationStatus", false));
+       cat1.addMessageSpec(addBasicMsgWithValue("Set alarm configuration (0..7)", "SetAlarmConfig", false,"7"));
+       cat1.addMessageSpec(addBasicMsgWithValue("Set the operating mode (0..7)", "SetOperatingMode", false,"7"));
+       cat1.addMessageSpec(addBasicMsgWithValue("Set the applicationstatus (0 to reset)", "SetApplicationStatus", false,"0"));
        
        theCategories.add(cat1);
        
@@ -88,10 +90,12 @@ public class WaveFlowDLMSWMessages implements MessageProtocol {
         return msgSpec;
     }
     
-    protected MessageSpec addBasicMsgWithValue(final String keyId, final String tagName, final boolean advanced) {
+    private MessageSpec addBasicMsgWithValue(final String keyId, final String tagName, final boolean advanced, String defaultValue) {
        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-       tagSpec.add(new MessageValueSpec());
+       MessageValueSpec mspec = new MessageValueSpec();
+       mspec.setValue(defaultValue);
+       tagSpec.add(mspec);
        msgSpec.add(tagSpec);
        return msgSpec;
     }

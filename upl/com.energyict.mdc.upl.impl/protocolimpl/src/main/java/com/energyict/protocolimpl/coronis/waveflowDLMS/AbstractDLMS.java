@@ -55,6 +55,11 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	private int correctTime;
 	
 	/**
+	 * the correctWaveflowTime property. The waveflow time will be set also with the setTime() mechanism as a default
+	 */
+	private int correctWaveflowTime;
+	
+	/**
 	 * List of obiscodes to retrieve at the beginning of the session and cache for later use.
 	 */
 	private List<ObjectInfo> objectInfos;	
@@ -117,13 +122,16 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	private WaveFlowConnect waveFlowConnect;	
 	
 	
-	private byte[] buildPairingFrame() throws IOException {
+	private byte[] buildPairingFrame(int baudrate) throws IOException {
 		
 		// fill in the default password of "22222222" and device address  0x1057
 		byte[] pairingFrame = new byte[]{(byte)0x30,(byte)0x02,(byte)0x02,(byte)0x11,
 				                         (byte)0x02,(byte)0x10,(byte)0x57,(byte)0x00,(byte)0x00,
 				                         (byte)0x08,(byte)0x32,(byte)0x32,(byte)0x32,(byte)0x32,(byte)0x32,(byte)0x32,(byte)0x32,(byte)0x32,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,
 				                         (byte)0x00,(byte)0x01,(byte)0x01,(byte)0x01,(byte)0x60,(byte)0x01,(byte)0x00,(byte)0xFF,(byte)0x02};
+		
+		pairingFrame[2]=2; // 19200 baud
+		if (baudrate == 9600) pairingFrame[2]=1; // 9600 baud
 		
 		int OFFSET_PASSWORD_LENGTH=9;
 		int OFFSET_PASSWORD=10;
@@ -243,7 +251,7 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 		setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", "0.0.99.1.0.255")));
 		correctTime = Integer.parseInt(properties.getProperty(MeterProtocol.CORRECTTIME,"0"));
 		objectInfos = buildObisInfos(properties.getProperty("ObisCodeList", ""));  
-		
+		correctWaveflowTime = Integer.parseInt(properties.getProperty("correctWaveflowTime","1"));
 		
 		//doTheValidateProperties(properties);
 	}
@@ -282,28 +290,12 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 		if (correctTime>0) {
 			DateTime dateTime = new DateTime(getTimeZone());
 			transparantObjectAccessFactory.writeObjectAttribute(CLOCK_OBIS_CODE, 2, dateTime);
+			if (correctWaveflowTime>0) {
+				parameterFactory.writeTimeDateRTC(new Date());
+			}
 		}
 	}	
 
-/*	
-	@Override
-	public Date getTime() throws IOException {
-		// If we need to sync the time, then we need to request the RTC in the waveflow device in order to determine the shift.
-		// However, if no timesync needs to be done, we're ok with the current RTC from the cached generic header.
-		// we do this because we want to limit the roudtrips to the RF device
-		if ((correctTime==0) &&  (transparantObjectAccessFactory.getGenericHeader() != null)) {
-			return transparantObjectAccessFactory.getGenericHeader().getCurrentDateTime();
-		}
-		else {
-			return parameterFactory.readTimeDateRTC();
-		}
-		
-	}
-
-	final void forceSetTime() throws IOException {
-		parameterFactory.writeTimeDateRTC(new Date());
-	}
-*/	
 	public void setWaveFlowTime() throws IOException {
 		parameterFactory.writeTimeDateRTC(new Date());
 	}	
@@ -323,12 +315,12 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
     	return obisCodeMapper.getRegisterValue(obisCode);
     }
     
-    public boolean pairWithEMeter() throws IOException {
+    public boolean pairWithEMeter(int baudrate) throws IOException {
     	try {
     		getEscapeCommandFactory().setAndVerifyWavecardAwakeningPeriod(1);
     		getEscapeCommandFactory().setAndVerifyWavecardRadiotimeout(20);
     		getEscapeCommandFactory().setAndVerifyWavecardWakeupLength(110);
-			return doPairWithEMeter();
+			return doPairWithEMeter(baudrate);
     	}
 		finally {
 			getEscapeCommandFactory().setAndVerifyWavecardRadiotimeout(2);
@@ -337,9 +329,9 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 		}    	
     }
     
-    private boolean doPairWithEMeter() throws IOException {
+    private boolean doPairWithEMeter(int baudrate) throws IOException {
     	
-			byte[] pairingframe = buildPairingFrame();
+			byte[] pairingframe = buildPairingFrame(baudrate);
 			if (pairingframe == null) {
 				getLogger().warning("Cannot pair with the meter again because password and/or meteraddress is not known... Wait 15 minutes for the waveflow to pair with the mater again...");
 				return false;
