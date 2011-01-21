@@ -21,9 +21,10 @@ import java.util.logging.Logger;
  */
 public class ProfileChannel {
 
-    private static final int END_OF_INTEGRATION_PERIOD = 0x8000;
-    private static final int START_OF_INTEGRATION_PERIOD = 0x08000;
+    private static final int END_OF_INTEGRATION_PERIOD = 0x800000;
+    private static final int START_OF_INTEGRATION_PERIOD = 0x080000;
     private static final int BEFORE_CLOCK_ADJUST = 0x008000;
+    private static final int CLEAR_LOAD_PROFILE = 0x004000;
     private static final int POWER_DOWN = 0x000080;
     private static final int POWER_UP = 0x000040;
     private static final int AFTER_CLOCK_ADJUST = 0x000020;
@@ -239,6 +240,9 @@ public class ProfileChannel {
         }
         if ((protocolStatus & DISTORTED_INTEGERATION_PERIOD) != 0) {
             eiStatus |= IntervalStateBits.SHORTLONG;
+        }
+        if ((protocolStatus & CLEAR_LOAD_PROFILE) != 0) {
+            eiStatus |= IntervalStateBits.OTHER;
         }
         return eiStatus;
     }
