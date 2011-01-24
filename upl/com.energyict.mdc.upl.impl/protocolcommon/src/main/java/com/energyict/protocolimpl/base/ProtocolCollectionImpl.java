@@ -145,7 +145,7 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
 		this.protocolclasses.add("com.energyict.protocolimpl.eig.nexus1272.Nexus1272");this.protocolnames.add("Nexus 1272");
 		this.protocolclasses.add("com.energyict.protocolimpl.landisgyr.us.maxsys2510.MaxSys");this.protocolnames.add("L&G MAXsys 2510 (US)");
         this.protocolclasses.add("com.energyict.protocolimpl.elster.a1800.A1800");this.protocolnames.add("Elster A1800");
-
+        this.protocolclasses.add("com.energyict.protocolimpl.dlms.elgama.G3B");this.protocolnames.add("DLMS ElGama G3B");
 	}
 
 	public String getProtocolName(int index) throws IOException {

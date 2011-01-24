@@ -424,6 +424,8 @@
 
 -keepnames class com.energyict.genericprotocolimpl.elster.ctr.MTU155
 
+-keepnames class com.energyict.protocolimpl.dlms.elgama.G3B
+
 # Keep the parsing of the CodeTableToXML
 -keep public class com.energyict.protocolimpl.dlms.as220.parsing.CodeTableXml{
     public *;
