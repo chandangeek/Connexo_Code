@@ -3,10 +3,12 @@ package com.energyict.protocolimpl.coronis.waveflowDLMS.a1800;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.Map.Entry;
 
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.coronis.waveflowDLMS.*;
@@ -21,27 +23,42 @@ public class ProfileDataReader {
 	
 	public static final int CAPTURED_OBJECTS_DATE_FIELD_INDEX=0; 
 	public static final int CAPTURED_OBJECTS_STATUSBITS_FIELD_INDEX=1;
-	public static final int CAPTURED_OBJECTS_CHANNELS_OFFSET_INDEX=2;
-
-	int readProfileInterval() throws IOException {
-		AbstractDataType adt = a1800.getTransparantObjectAccessFactory().readObjectAttribute(AS1253.LOAD_PROFILE_PULSE_VALUES, 4);
-		return adt.intValue();
-	}
+	public static final int CAPTURED_OBJECTS_EXTENDED_STATUSBITS_FIELD_INDEX=2;
+	public static final int CAPTURED_OBJECTS_CHANNELS_OFFSET_INDEX=3;
 	
 	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
 		
 		ProfileData profileData = new ProfileData();
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+
+
+		BatchObisCodeReader batchObisCodeReader = new BatchObisCodeReader(a1800);
+		int nrOfLogEntriesInUse=0;
+		if (includeEvents) {
+			batchObisCodeReader.add(7, A1800.LOG_PROFILE);
+		}
+		batchObisCodeReader.add(4, a1800.getLoadProfileObisCode());
+		batchObisCodeReader.add(2, "Scale factor");
+		batchObisCodeReader.add(2, "Multiplier");
+		batchObisCodeReader.invoke();
 		
-		int profileInterval = readProfileInterval();
+		if (includeEvents) {
+			nrOfLogEntriesInUse = batchObisCodeReader.intValue(A1800.LOG_PROFILE);
+		}
+		int profileInterval = batchObisCodeReader.intValue(a1800.getLoadProfileObisCode());
+		int scaleFactor = batchObisCodeReader.intValue("Scale factor");
+		int multiplier = batchObisCodeReader.intValue("Multiplier");
 		
 		if (profileInterval != a1800.getProfileInterval()) {
 			throw new WaveFlowDLMSException("Invalid profile interval. Configured is ["+a1800.getProfileInterval()+"] s, configured in meter is ["+profileInterval+"]!");
 		}
 		
-		AbstractDataType adt = a1800.getTransparantObjectAccessFactory().readObjectAttribute(AS1253.LOAD_PROFILE_PULSE_VALUES, TransparantObjectAccessFactory.ATTRIBUTE_VALUE,lastReading);
 		
-		//System.out.println("KV_DEBUG> "+adt);
+		// FIXME: iterate until last reading is found...
+		Date now = new Date();
+		int nr_of_entries = (int)(((now.getTime()-lastReading.getTime())/1000)/profileInterval);
+		
+		AbstractDataType adt = a1800.getTransparantObjectAccessFactory().readObjectAttributeEntry(a1800.getLoadProfileObisCode(), TransparantObjectAccessFactory.ATTRIBUTE_VALUE,nr_of_entries);
 		
 		// parse the AXD-R returned data...
 		Calendar calendar = Calendar.getInstance(a1800.getTimeZone()); 
@@ -55,64 +72,63 @@ public class ProfileDataReader {
 			}
 				
 			if (channelInfos.size() == 0) {
-				
-//				if (a1800.getNumberOfChannels() != nrOfchannels) {
-//					a1800.getLogger().warning("Number of channels in the meter load profile does not match with the configured nr of channels in EIServer!");
-//				}
-				
 				// because we have to take care not to do too many roundtrips, we leave the unit type responsability to EIServer to configurate.
 				for (int i = 0; i<nrOfchannels;i++) {
-					channelInfos.add(new ChannelInfo(i, "AS1253_"+(i+1), Unit.get("")));
+					channelInfos.add(new ChannelInfo(i, "A1800_"+(i+1), Unit.get("")));
 				}
 				profileData.setChannelInfos(channelInfos);
 			}
 			
-			// Workaround from Peter Bungert (Elster R&D Lampertheim)
-			// Due to a bug in the meter, we reset the protocolstatus each time and only use it when there is also a timestamp involved...
-			int protocolStatus=0; 
 			AbstractDataType structureElement = structure.getDataType(CAPTURED_OBJECTS_DATE_FIELD_INDEX);
-			if (!structureElement.isNullData()) {
-				// set the interval timestamp if it has a value
-				DateTime dateTime = new DateTime(structureElement.getOctetString(), a1800.getTimeZone());
-				calendar.setTime(dateTime.getValue().getTime());
-				ParseUtils.roundUp2nearestInterval(calendar, a1800.getProfileInterval());
-				protocolStatus = structure.getDataType(CAPTURED_OBJECTS_STATUSBITS_FIELD_INDEX).intValue();
+			DateTime dateTime = new DateTime(structureElement.getOctetString(), a1800.getTimeZone());
+			calendar.setTime(dateTime.getValue().getTime());
+			if (ParseUtils.isOnIntervalBoundary(calendar, a1800.getProfileInterval())) {
+				int protocolStatus = structure.getDataType(CAPTURED_OBJECTS_STATUSBITS_FIELD_INDEX).intValue();
+				long extendedProtocolStatus = structure.getDataType(CAPTURED_OBJECTS_EXTENDED_STATUSBITS_FIELD_INDEX).intValue();
+				
+				IntervalData intervalData = new IntervalData(calendar.getTime(),protocolStatus2EICode(protocolStatus),protocolStatus);
+				for (int index=0;index<nrOfchannels;index++) {
+					BigDecimal bd = BigDecimal.valueOf(structure.getDataType(CAPTURED_OBJECTS_CHANNELS_OFFSET_INDEX+index).longValue());
+					bd = bd.multiply(BigDecimal.valueOf(multiplier)).multiply(BigDecimal.valueOf(Math.pow(10, scaleFactor)));
+					
+					intervalData.addValue(bd, protocolStatus, extendedProtocolStatus2EICode(extendedProtocolStatus,index));
+				}
+				profileData.addInterval(intervalData);
 			}
-			
-			
-			IntervalData intervalData = new IntervalData(calendar.getTime(),protocolStatus,protocolStatus2EICode(protocolStatus));
-			for (int index=0;index<nrOfchannels;index++) {
-				BigDecimal bd = BigDecimal.valueOf(structure.getDataType(CAPTURED_OBJECTS_CHANNELS_OFFSET_INDEX+index).longValue());
-				intervalData.addValue(bd, protocolStatus, protocolStatus2EICode(protocolStatus));
-			}
-			profileData.addInterval(intervalData);  
-			
-			// increment the interval timestamp...
-			calendar.add(Calendar.SECOND, profileInterval);
-			
 		} // for (AbstractDataType arrayElement : array.getAllDataTypes())
 		
 		if (includeEvents) {
-			
-			profileData.setMeterEvents(readMeterLogbook(lastReading));
-			
+			profileData.setMeterEvents(readMeterLogbook(lastReading,nrOfLogEntriesInUse));
 		}
+		
+		profileData.sort();
 		
 		return profileData;
 	}
 	
-	private List<MeterEvent> readMeterLogbook(Date lastReading) throws IOException {
+	private List<MeterEvent> readMeterLogbook(Date lastReading, int nrOfLogEntriesInUse) throws IOException {
 		
 		List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
-
-		AbstractDataType adt = a1800.getTransparantObjectAccessFactory().readObjectAttribute(AS1253.LOG_PROFILE, TransparantObjectAccessFactory.ATTRIBUTE_VALUE,lastReading);
+		
+		
+		
+		AbstractDataType adt = a1800.getTransparantObjectAccessFactory().readObjectAttributeEntry(AS1253.LOG_PROFILE, TransparantObjectAccessFactory.ATTRIBUTE_VALUE,nrOfLogEntriesInUse);
+		
 		//System.out.println("KV_DEBUG> "+adt);
+		
 		Array array = adt.getArray();
 		for (AbstractDataType arrayElement : array.getAllDataTypes()) {
 			DateTime dateTime = new DateTime(arrayElement.getStructure().getDataType(0).getOctetString(), a1800.getTimeZone());
 			Date date = dateTime.getValue().getTime();
-			int meterEventCode2MeterEvents = arrayElement.getStructure().getDataType(1).intValue();
-			meterEvents.addAll(meterEventCode2MeterEvents(date,meterEventCode2MeterEvents));
+/*			
+            Example: 
+			OctetString=$07$DB$01$03$00$10$0E$39$00$00$00$00
+			  Unsigned16=10    sequence nr
+			  Unsigned16=0     user id
+			  Unsigned16=2060  event nr		 	
+*/			
+			int meterEventCode2MeterEvents = arrayElement.getStructure().getDataType(3).intValue();
+			meterEvents.add(meterEventCode2MeterEvent(date,meterEventCode2MeterEvents));
 		}
 		
 		int applicationstatus = a1800.getParameterFactory().readApplicationStatus();
@@ -137,161 +153,72 @@ public class ProfileDataReader {
 	
 	
 	
-	private List<MeterEvent> meterEventCode2MeterEvents(Date date,int meterEventCode) {
-		
-		/*
-		  
-		 I Think that the bits are reversed. 
-		 FIXME: this has to be confirmed by Elster...  
-		  
-		b7 Power failure
-		b6 Power recovery
-		b5 Change of time/date
-		b4 Demand reset
-		b3 Seasonal switchover (summer/winter time)
-		b2 Measure value disturbed
-		b1 Running reserve exhausted
-		b0 Fatal device error
-		*/
-		
-		/*
-Logstatus:
-	0   0   0   0   0   0   0   0
-	|   |   |   |   |   |   |   1		new interval because of power-down 
-	|   |   |   |   |   |   |   2		new interval because of power-up and variable changed by setting 
-	|   |   |   |   |   |   |   4		new time/date or daylight savings switch 
-	|   |   |   |   |   |   |   8		new interval because of demand reset and 1-phase or 2-phase power outage
-	|   |   |   |   |   |   1		season change, i.e. dst switch (VDEW) and system reverse energy flow 
-	|   |   |   |   |   |   2		values not reliable
-	|   |   |   |   |   |   4		carry over error (copy of errcovr, syserr)
-	|   |   |   |   |   |   8		fatal error ('OR' of some syserr flags)
-	|   |   |   |   |   1			input 2 event detected
-	|   |   |   |   |   2			load profile initialised 
-	|   |   |   |   |   4			logbook initialised 
-	|   |   |   |   |   8			input 1 event detected 
-	|   |   |   |   1			reverse power in 1 or 2 phases detected
-	|   |   |   |   2			error or warning off
-	|   |   |   |   4			error or warning on ('OR' of syserr and syswarn flags)
-	|   |   |   |   8			variable changed by setting
-	|   |   |   |
-	|   |   |   1			phase L3 is missing 
-	|   |   |   2			phase L2 is missing 
-	|   |   |   4			phase L1 is missing 
-	|   |   |   8			contactor switched off 
-	|   |   1			wrong password was used
-	|   |   2			main cover is or was opened
-	|   |   4			terminal cover is or was opened
-	|   |   8			change of Impuls constant
-	|   | 
-	|   1				dr1: dr4-dr1: Bit coded demand rates
-	|   2				dr2
-	|   4				dr3
-	|   8				dr4
-	1				Binary coded energy rate
-					T1		T2		T3		T4
-					00		10		01		11
-	2			
-	|
-	4				Binary coded season
-					S1		S2		S3		S4
-					00		10		01		11
-	8			
+	private MeterEvent meterEventCode2MeterEvent(Date date,int meterEventCode) {
+ 
+       if (meterEventCode == 1) return new MeterEvent(date,MeterEvent.POWERDOWN,meterEventCode,"Primary Power Down");
+       if (meterEventCode == 2) return new MeterEvent(date,MeterEvent.POWERUP,meterEventCode,"Primary Power Up");
+       if (meterEventCode == 3) return new MeterEvent(date,MeterEvent.SETCLOCK_BEFORE,meterEventCode,"Time Changed (old time)");
+       if (meterEventCode == 4) return new MeterEvent(date,MeterEvent.SETCLOCK_AFTER,meterEventCode,"Time Changed (new time)");
+       if (meterEventCode == 11) return new MeterEvent(date,MeterEvent.OTHER,meterEventCode,"End Device Programmed");
+       if (meterEventCode == 18) return new MeterEvent(date,MeterEvent.CLEAR_DATA,meterEventCode,"Event Log Cleared");
+       if (meterEventCode == 20) return new MeterEvent(date,MeterEvent.BILLING_ACTION,meterEventCode,"Demand Reset Occurred");
+       if (meterEventCode == 21) return new MeterEvent(date,MeterEvent.OTHER,meterEventCode,"Self Read Occurred");
+       if (meterEventCode == 32) return new MeterEvent(date,MeterEvent.OTHER,meterEventCode,"Test mode started");
+ 	   if (meterEventCode == 33) return new MeterEvent(date,MeterEvent.OTHER,meterEventCode,"Test mode stopped");
+ 	   if (meterEventCode == 2048) return new MeterEvent(date,MeterEvent.OTHER,meterEventCode,"MFG Enter Tier Override");
+	   if (meterEventCode == 2049) return new MeterEvent(date,MeterEvent.OTHER,meterEventCode,"MFG Exit Tier Override");
+	   if (meterEventCode == 2050) return new MeterEvent(date,MeterEvent.TERMINAL_OPENED,meterEventCode,"MFG Terminal cover tamper");
+	   if (meterEventCode == 2051) return new MeterEvent(date,MeterEvent.COVER_OPENED,meterEventCode,"MFG Main cover tamper");
+	   if (meterEventCode == 2052) return new MeterEvent(date,MeterEvent.OTHER,meterEventCode,"MFG External Event 0");
+	   if (meterEventCode == 2053) return new MeterEvent(date,MeterEvent.OTHER,meterEventCode,"MFG External Event 1");
+	   if (meterEventCode == 2054) return new MeterEvent(date,MeterEvent.OTHER,meterEventCode,"MFG External Event 2");
+	   if (meterEventCode == 2055) return new MeterEvent(date,MeterEvent.OTHER,meterEventCode,"MFG External Event 3");
+	   if (meterEventCode == 2056) return new MeterEvent(date,MeterEvent.PHASE_FAILURE,meterEventCode,"MFG Phase A OFF");
+	   if (meterEventCode == 2057) return new MeterEvent(date,MeterEvent.OTHER,meterEventCode,"MFG Phase A ON");
+	   if (meterEventCode == 2058) return new MeterEvent(date,MeterEvent.PHASE_FAILURE,meterEventCode,"MFG Phase B OFF");
+	   if (meterEventCode == 2059) return new MeterEvent(date,MeterEvent.OTHER,meterEventCode,"MFG Phase B ON");
+	   if (meterEventCode == 2060) return new MeterEvent(date,MeterEvent.PHASE_FAILURE,meterEventCode,"MFG Phase C OFF");
+	   if (meterEventCode == 2061) return new MeterEvent(date,MeterEvent.OTHER,meterEventCode,"MFG Phase C ON");
+	   if (meterEventCode == 2062) return new MeterEvent(date,MeterEvent.OTHER,meterEventCode,"Remote Flash failed");
+       return new MeterEvent(date,MeterEvent.OTHER,meterEventCode,"Unknown meterevent ["+meterEventCode+"]");
 
-*/
-		
-		Map<Integer,StringBuilder> meterEventMap = new HashMap<Integer,StringBuilder>();
-		
-		if ((meterEventCode & 0x1) == 0x1) buildMeterEvent(meterEventMap,date,MeterEvent.POWERDOWN,meterEventCode,"new interval because of power-down");
-		if ((meterEventCode & 0x2) == 0x2) buildMeterEvent(meterEventMap,date,MeterEvent.POWERUP,meterEventCode,"new interval because of power-up and variable changed by setting");
-		if ((meterEventCode & 0x4) == 0x4) buildMeterEvent(meterEventMap,date,MeterEvent.SETCLOCK,meterEventCode,"new time/date or daylight savings switch");
-		if ((meterEventCode & 0x8) == 0x8) buildMeterEvent(meterEventMap,date,MeterEvent.BILLING_ACTION,meterEventCode,"new interval because of demand reset and 1-phase or 2-phase power outage");
-		
-		if ((meterEventCode & 0x10) == 0x10) buildMeterEvent(meterEventMap,date,MeterEvent.DAYLIGHT_SAVING_TIME_ENABLED_OR_DISABLED,meterEventCode,"season change, i.e. dst switch (VDEW) and system reverse energy flow");
-		if ((meterEventCode & 0x20) == 0x20) buildMeterEvent(meterEventMap,date,MeterEvent.MEASUREMENT_SYSTEM_ERROR,meterEventCode,"values not reliable");
-		if ((meterEventCode & 0x40) == 0x40) buildMeterEvent(meterEventMap,date,MeterEvent.MEASUREMENT_SYSTEM_ERROR,meterEventCode,"carry over error (copy of errcovr, syserr)");
-		if ((meterEventCode & 0x80) == 0x80) buildMeterEvent(meterEventMap,date,MeterEvent.FATAL_ERROR,meterEventCode,"fatal error ('OR' of some syserr flags)");
-		
-		if ((meterEventCode & 0x100) == 0x100) buildMeterEvent(meterEventMap,date,MeterEvent.OTHER,meterEventCode,"input 2 event detected");
-		if ((meterEventCode & 0x200) == 0x200) buildMeterEvent(meterEventMap,date,MeterEvent.LOADPROFILE_CLEARED,meterEventCode,"load profile initialised");
-		if ((meterEventCode & 0x400) == 0x400) buildMeterEvent(meterEventMap,date,MeterEvent.OTHER,meterEventCode,"logbook initialised");
-		if ((meterEventCode & 0x800) == 0x800) buildMeterEvent(meterEventMap,date,MeterEvent.OTHER,meterEventCode,"input 1 event detected");
-		
-		if ((meterEventCode & 0x1000) == 0x1000) buildMeterEvent(meterEventMap,date,MeterEvent.REVERSE_RUN,meterEventCode,"reverse power in 1 or 2 phases detected");
-		if ((meterEventCode & 0x2000) == 0x2000) buildMeterEvent(meterEventMap,date,MeterEvent.OTHER,meterEventCode,"error or warning off");
-		if ((meterEventCode & 0x4000) == 0x4000) buildMeterEvent(meterEventMap,date,MeterEvent.OTHER,meterEventCode,"error or warning on ('OR' of syserr and syswarn flags)");
-		if ((meterEventCode & 0x8000) == 0x8000) buildMeterEvent(meterEventMap,date,MeterEvent.OTHER,meterEventCode,"variable changed by setting");
-		
-		if ((meterEventCode & 0x10000) == 0x10000) buildMeterEvent(meterEventMap,date,MeterEvent.PHASE_FAILURE,meterEventCode,"phase L3 is missing");
-		if ((meterEventCode & 0x20000) == 0x20000) buildMeterEvent(meterEventMap,date,MeterEvent.PHASE_FAILURE,meterEventCode,"phase L2 is missing");
-		if ((meterEventCode & 0x40000) == 0x40000) buildMeterEvent(meterEventMap,date,MeterEvent.PHASE_FAILURE,meterEventCode,"phase L1 is missing");
-		if ((meterEventCode & 0x80000) == 0x80000) buildMeterEvent(meterEventMap,date,MeterEvent.REMOTE_DISCONNECTION,meterEventCode,"contactor switched off");
-		
-		if ((meterEventCode & 0x100000) == 0x100000) buildMeterEvent(meterEventMap,date,MeterEvent.OTHER,meterEventCode,"wrong password was used");
-		if ((meterEventCode & 0x200000) == 0x200000) buildMeterEvent(meterEventMap,date,MeterEvent.COVER_OPENED,meterEventCode,"main cover is or was opened");
-		if ((meterEventCode & 0x400000) == 0x400000) buildMeterEvent(meterEventMap,date,MeterEvent.TERMINAL_OPENED,meterEventCode,"terminal cover is or was opened");
-		if ((meterEventCode & 0x800000) == 0x800000) buildMeterEvent(meterEventMap,date,MeterEvent.OTHER,meterEventCode,"change of Impuls constant");
-
-		if ((meterEventCode & 0x1000000) == 0x1000000) buildMeterEvent(meterEventMap,date,MeterEvent.OTHER,meterEventCode,"dr1: dr4-dr1: Bit coded demand rates");
-		if ((meterEventCode & 0x2000000) == 0x2000000) buildMeterEvent(meterEventMap,date,MeterEvent.OTHER,meterEventCode,"dr2");
-		if ((meterEventCode & 0x4000000) == 0x4000000) buildMeterEvent(meterEventMap,date,MeterEvent.OTHER,meterEventCode,"dr3");
-		if ((meterEventCode & 0x8000000) == 0x8000000) buildMeterEvent(meterEventMap,date,MeterEvent.OTHER,meterEventCode,"dr4");
-
-		if ((meterEventCode & 0x30000000) == 0x00000000) buildMeterEvent(meterEventMap,date,MeterEvent.OTHER,meterEventCode,"energy rate T1");
-		if ((meterEventCode & 0x30000000) == 0x20000000) buildMeterEvent(meterEventMap,date,MeterEvent.OTHER,meterEventCode,"energy rate T2");
-		if ((meterEventCode & 0x30000000) == 0x10000000) buildMeterEvent(meterEventMap,date,MeterEvent.OTHER,meterEventCode,"energy rate T3");
-		if ((meterEventCode & 0x30000000) == 0x30000000) buildMeterEvent(meterEventMap,date,MeterEvent.OTHER,meterEventCode,"energy rate T4");
-
-		if ((meterEventCode & 0xC0000000) == 0x00000000) buildMeterEvent(meterEventMap,date,MeterEvent.OTHER,meterEventCode,"coded season S1");
-		if ((meterEventCode & 0xC0000000) == 0x80000000) buildMeterEvent(meterEventMap,date,MeterEvent.OTHER,meterEventCode,"coded season S2");
-		if ((meterEventCode & 0xC0000000) == 0x40000000) buildMeterEvent(meterEventMap,date,MeterEvent.OTHER,meterEventCode,"coded season S3");
-		if ((meterEventCode & 0xC0000000) == 0xC0000000) buildMeterEvent(meterEventMap,date,MeterEvent.OTHER,meterEventCode,"coded season S4");
-		
-
-		
-		List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
-		for (int eicCode : meterEventMap.keySet()) {
-			StringBuilder strBuilder = meterEventMap.get(eicCode);
-			meterEvents.add(new MeterEvent(date,eicCode,meterEventCode,strBuilder.toString()));
-		}
-		
-		return meterEvents;
 	}
 	
-	private void buildMeterEvent(Map<Integer,StringBuilder> meterEventMap, Date date, int eiCode, int meterEventCode, String description) {
-		StringBuilder strBuilder = meterEventMap.get(eiCode);
-		if (strBuilder == null) {
-			strBuilder = new StringBuilder();
-			meterEventMap.put(eiCode, strBuilder);
-			strBuilder.append(description);
-		}
-		else {
-			strBuilder.append(", "+description);
-		}
+	private int extendedProtocolStatus2EICode(long extendedProtocolStatus, int channelIndex) {
 		
+		int eiCode=0;
+		int extendedStatus = (int)((extendedProtocolStatus>>(channelIndex*4)) & 0x0FL);
+		
+		
+		/*
+		 * 
+		 * bit 3
+         * bit 2
+         * bit 1 Overflow. The channel data has a value that exceeds the format used internally in the meter. 
+         *                 The value displayed is the maximum that can be represented by that format (2/5/6bytes, signed/unsigned).
+         * bit 0 TestMode. Data recorded in test mode
+		 * 
+		 */
+		
+		if ((extendedStatus & 0x01) == 0x01) eiCode |= IntervalStateBits.TEST;
+		if ((extendedStatus & 0x02) == 0x02) eiCode |= IntervalStateBits.OVERFLOW;
+		
+		return eiCode;
 	}
 	
 	private int protocolStatus2EICode(int protocolStatus) {
 		
-		/*
-		b7 Power failure
-		b6 Power recovery
-		b5 Change of time/date
-		b4 Demand reset
-		b3 Seasonal switchover (summer/winter time)
-		b2 Measure value disturbed
-		b1 Running reserve exhausted
-		b0 Fatal device error
-		*/
-		
 		int eiCode=0;
-		if ((protocolStatus & 0x01) == 0x01) eiCode |= IntervalStateBits.DEVICE_ERROR;
-		if ((protocolStatus & 0x02) == 0x02) eiCode |= IntervalStateBits.BATTERY_LOW;
-		if ((protocolStatus & 0x04) == 0x04) eiCode |= IntervalStateBits.CORRUPTED;
-		if ((protocolStatus & 0x08) == 0x08) eiCode |= IntervalStateBits.SHORTLONG;
-		if ((protocolStatus & 0x10) == 0x10) eiCode |= IntervalStateBits.OTHER;
-		if ((protocolStatus & 0x20) == 0x20) eiCode |= IntervalStateBits.SHORTLONG;
-		if ((protocolStatus & 0x40) == 0x40) eiCode |= IntervalStateBits.POWERUP;
-		if ((protocolStatus & 0x80) == 0x80) eiCode |= IntervalStateBits.POWERDOWN;
+		if ((protocolStatus & 0x01) == 0x00) eiCode |= IntervalStateBits.CORRUPTED;  // bit 0  IF 1 interval is valid, if 0 invalid!!!  
+		//bit 1 reserved
+		if ((protocolStatus & 0x0C) == 0x04) eiCode |= IntervalStateBits.SHORTLONG; // bit 2/3 partial interval
+		if ((protocolStatus & 0x0C) == 0x08) eiCode |= IntervalStateBits.SHORTLONG; // bit 2/3 long interval
+		if ((protocolStatus & 0x0C) == 0x0C) eiCode |= IntervalStateBits.CORRUPTED; // bit 2/3 skipped interval
+		
+		if ((protocolStatus & 0x10) == 0x10) eiCode |= IntervalStateBits.OTHER; // bit 4  DST
+		if ((protocolStatus & 0x20) == 0x20) eiCode |= IntervalStateBits.POWERDOWN; // bit 5  powerfail
+		if ((protocolStatus & 0x40) == 0x40) eiCode |= IntervalStateBits.SHORTLONG; // bit 6  clock set forward
+		if ((protocolStatus & 0x80) == 0x80) eiCode |= IntervalStateBits.SHORTLONG; // bit 7  clock set backward
 		
 		return eiCode;
 	}

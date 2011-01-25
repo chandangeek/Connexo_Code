@@ -24,7 +24,7 @@ public class ProfileDataReader {
 	public static final int CAPTURED_OBJECTS_CHANNELS_OFFSET_INDEX=2;
 
 	int readProfileInterval() throws IOException {
-		AbstractDataType adt = as1253.getTransparantObjectAccessFactory().readObjectAttribute(AS1253.LOAD_PROFILE_PULSE_VALUES, 4);
+		AbstractDataType adt = as1253.getTransparantObjectAccessFactory().readObjectAttribute(as1253.getLoadProfileObisCode(), 4);
 		return adt.intValue();
 	}
 	
@@ -39,7 +39,7 @@ public class ProfileDataReader {
 			throw new WaveFlowDLMSException("Invalid profile interval. Configured is ["+as1253.getProfileInterval()+"] s, configured in meter is ["+profileInterval+"]!");
 		}
 		
-		AbstractDataType adt = as1253.getTransparantObjectAccessFactory().readObjectAttribute(AS1253.LOAD_PROFILE_PULSE_VALUES, TransparantObjectAccessFactory.ATTRIBUTE_VALUE,lastReading);
+		AbstractDataType adt = as1253.getTransparantObjectAccessFactory().readObjectAttributeRange(as1253.getLoadProfileObisCode(), TransparantObjectAccessFactory.ATTRIBUTE_VALUE,lastReading);
 		
 		//System.out.println("KV_DEBUG> "+adt);
 		
@@ -80,7 +80,7 @@ public class ProfileDataReader {
 			}
 			
 			
-			IntervalData intervalData = new IntervalData(calendar.getTime(),protocolStatus,protocolStatus2EICode(protocolStatus));
+			IntervalData intervalData = new IntervalData(calendar.getTime(),protocolStatus2EICode(protocolStatus),protocolStatus);
 			for (int index=0;index<nrOfchannels;index++) {
 				BigDecimal bd = BigDecimal.valueOf(structure.getDataType(CAPTURED_OBJECTS_CHANNELS_OFFSET_INDEX+index).longValue());
 				intervalData.addValue(bd, protocolStatus, protocolStatus2EICode(protocolStatus));
@@ -105,7 +105,7 @@ public class ProfileDataReader {
 		
 		List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
 
-		AbstractDataType adt = as1253.getTransparantObjectAccessFactory().readObjectAttribute(AS1253.LOG_PROFILE, TransparantObjectAccessFactory.ATTRIBUTE_VALUE,lastReading);
+		AbstractDataType adt = as1253.getTransparantObjectAccessFactory().readObjectAttributeRange(AS1253.LOG_PROFILE, TransparantObjectAccessFactory.ATTRIBUTE_VALUE,lastReading);
 		//System.out.println("KV_DEBUG> "+adt);
 		Array array = adt.getArray();
 		for (AbstractDataType arrayElement : array.getAllDataTypes()) {

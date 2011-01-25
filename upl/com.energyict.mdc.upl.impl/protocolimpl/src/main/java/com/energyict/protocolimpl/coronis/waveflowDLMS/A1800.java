@@ -14,7 +14,10 @@ import com.energyict.protocolimpl.coronis.waveflowDLMS.a1800.ProfileDataReader;
 public class A1800 extends AbstractDLMS {
 
 
-	public static final ObisCode LOAD_PROFILE = ObisCode.fromString("1.1.99.1.0.255");
+	public static final ObisCode LOAD_PROFILE_PULSES = ObisCode.fromString("1.0.99.1.0.255");
+	public static final ObisCode LOAD_PROFILE_ENG_CUMM = ObisCode.fromString("1.0.99.1.1.255");
+	public static final ObisCode LOAD_PROFILE_ENG_ADV = ObisCode.fromString("1.0.99.1.2.255");
+	
 	public static final ObisCode LOG_PROFILE = ObisCode.fromString("1.1.99.98.0.255");
 	public static final ObisCode OBJECT_LIST = ObisCode.fromString("0.0.40.0.0.255");
 	static {
@@ -71,8 +74,13 @@ public class A1800 extends AbstractDLMS {
 		
 		objectEntries.put(ObisCode.fromString("0.1.10.0.1.255"),new ObjectEntry("Demand reset action",9));
 		
+		objectEntries.put(ObisCode.fromString("1.1.96.132.2.255"),new ObjectEntry("Scale factor",1));
+		objectEntries.put(ObisCode.fromString("1.1.96.132.1.255"),new ObjectEntry("Multiplier",1));
+		
 		objectEntries.put(LOG_PROFILE,new ObjectEntry("Logbook",7));
-		objectEntries.put(LOAD_PROFILE,new ObjectEntry("Load profile non cumulative engineering values",7));
+		objectEntries.put(LOAD_PROFILE_PULSES,new ObjectEntry("Load profile puls values",7));
+		objectEntries.put(LOAD_PROFILE_ENG_CUMM,new ObjectEntry("Load profile cumulative engineering values",7));
+		objectEntries.put(LOAD_PROFILE_ENG_ADV,new ObjectEntry("Load profile advance engineering values",7));
 		objectEntries.put(OBJECT_LIST,new ObjectEntry("Object list",15));
 		
 	};
@@ -86,44 +94,15 @@ public class A1800 extends AbstractDLMS {
      * @return All load profile data in the meter from lastReading
      */
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-    	
-    	
-/*    	
-    	AbstractDataType adt = getTransparantObjectAccessFactory().readObjectAttribute(OBJECT_LIST, 2);
-    	//System.out.println(adt);
-		Array array = adt.getArray();
-		for (AbstractDataType arrayElement : array.getAllDataTypes()) {
-			System.out.print("classid "+arrayElement.getStructure().getDataType(0).intValue()+", obis code "+arrayElement.getStructure().getDataType(2).toString());
-		}
-		System.out.println();
-
-    	
-    	AbstractDataType adt = getTransparantObjectAccessFactory().readObjectAttribute(LOG_PROFILE, 2,lastReading);
-    	System.out.println(adt);
-  	
-    	
-    	List<ObjectInfo> objectInfos = new ArrayList<ObjectInfo>();
-    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.1.8.0.255")));
-    	objectInfos.add(new ObjectInfo(3, 3, ObisCode.fromString("1.1.1.8.0.255")));
-//    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.2.8.0.255")));
-//    	objectInfos.add(new ObjectInfo(3, 3, ObisCode.fromString("1.1.2.8.0.255")));
-//    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.3.8.0.255")));
-//    	objectInfos.add(new ObjectInfo(2, 1, ObisCode.fromString("1.1.96.1.0.255")));
-//    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.32.7.0.255")));
-//    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.52.7.0.255")));
-//    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.72.7.0.255")));
-//    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.31.7.0.255")));
-//    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.51.7.0.255")));
-//    	objectInfos.add(new ObjectInfo(2, 3, ObisCode.fromString("1.1.71.7.0.255")));
-    	
-    	TransparentObjectListRead t = new TransparentObjectListRead(this,objectInfos);
-    	t.read();
-*/    	
     	ProfileDataReader profileDataReader = new ProfileDataReader(this);
     	return profileDataReader.getProfileData(lastReading, includeEvents);
-    	
-    	
-    }	
+    }
+
+
+	@Override
+	void doTheValidateProperties(Properties properties) {
+		setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", LOAD_PROFILE_PULSES.toString())));		
+	}	
 
 
     

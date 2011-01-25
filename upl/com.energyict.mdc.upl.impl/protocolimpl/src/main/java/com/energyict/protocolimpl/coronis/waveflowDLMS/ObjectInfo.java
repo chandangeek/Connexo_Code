@@ -8,7 +8,7 @@ public class ObjectInfo {
 	private final int classId;
 	private final ObisCode obisCode;
 	
-	ObjectInfo(int attribute, int classId, ObisCode obisCode) {
+	public ObjectInfo(int attribute, int classId, ObisCode obisCode) {
 		super();
 		this.attribute = attribute;
 		this.classId = classId;

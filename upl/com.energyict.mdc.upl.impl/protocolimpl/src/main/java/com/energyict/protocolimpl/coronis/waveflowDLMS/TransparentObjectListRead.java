@@ -19,7 +19,7 @@ import com.energyict.protocolimpl.coronis.waveflowDLMS.SimpleDataParser.ObisCode
  * There are 3 subclasses implementing the set, get and action method invocation.  
  * @author kvds
  */
-class TransparentObjectListRead {
+public class TransparentObjectListRead {
 	
 	private final int TRANSPARANT_OBJECT_LIST_READING_REQ_TAG=0x36;
 	private final int TRANSPARANT_OBJECT_LIST_READING_RES_TAG=0xB6;
@@ -30,6 +30,7 @@ class TransparentObjectListRead {
 
 	private final int CLASS_DATA=1;
 	private final int CLASS_REGISTER=3;
+	private final int CLASS_GENERIC_PROFILE=7;
 	
 	private final int ATTRIBUTE_VALUE=2;
 	private final int ATTRIBUTE_SCALER=3;
@@ -37,7 +38,7 @@ class TransparentObjectListRead {
 	// collected registervalues
 	Map<ObisCode,RegisterValue> registerValues = new HashMap<ObisCode,RegisterValue>(); 
 		
-	final Map<ObisCode, RegisterValue> getRegisterValues() {
+	public final Map<ObisCode, RegisterValue> getRegisterValues() {
 		return registerValues;
 	}
 	
@@ -64,7 +65,7 @@ class TransparentObjectListRead {
 		return frameCount;
 	}
 	
-	TransparentObjectListRead(AbstractDLMS abstractDLMS,List<ObjectInfo> objectInfos) throws WaveFlowDLMSException {
+	public TransparentObjectListRead(AbstractDLMS abstractDLMS,List<ObjectInfo> objectInfos) throws WaveFlowDLMSException {
 		this.abstractDLMS = abstractDLMS;
 		this.objectInfos=objectInfos;
 		if (objectInfos.size() > MAX_NR_OF_OBISCODES) {
@@ -107,7 +108,7 @@ class TransparentObjectListRead {
 		}		
 	}
 	
-	void read() throws IOException {
+	public void read() throws IOException {
 		
 		if (objectInfos.size() == 0) {
 			throw new WaveFlowDLMSException("No obiscodes to read in the list! Cannort preform a transparant object list read");
@@ -402,6 +403,9 @@ class TransparentObjectListRead {
 			else {
 				registerValues.put(objectInfo.getObisCode(), new RegisterValue(objectInfo.getObisCode(), quantity));
 			}
+		}
+		else if (objectInfo.getClassId() == CLASS_GENERIC_PROFILE) {
+			registerValues.put(objectInfo.getObisCode(), new RegisterValue(objectInfo.getObisCode(), new Quantity(adt.toBigDecimal(),Unit.get(""))));
 		}
 	}	
 //	

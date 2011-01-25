@@ -22,9 +22,21 @@ public class TransparentGet extends AbstractTransparentObjectAccess implements D
 	 */
 	private AbstractDataType dataType;
 	
+	/**
+	 * In case of selective access with range descriptor
+	 */
 	private Date fromDate=null;
 	
+	/**
+	 * In case of selective access entry descriptor
+	 */
+	private int fromEntry=-1;
 	
+	
+	final void setFromEntry(int fromEntry) {
+		this.fromEntry = fromEntry;
+	}
+
 	final void setFromDate(Date fromDate) {
 		this.fromDate = fromDate;
 	}
@@ -115,6 +127,9 @@ public class TransparentGet extends AbstractTransparentObjectAccess implements D
 	@Override
 	void parse(byte[] data) throws IOException {
 		
+		
+		
+		
 		DataInputStream dais = null;
 		try {
 			dais = new DataInputStream(new ByteArrayInputStream(data));
@@ -146,14 +161,21 @@ public class TransparentGet extends AbstractTransparentObjectAccess implements D
 				//System.out.println("temp: "+ProtocolUtils.outputHexString(temp));
 			}
 
+			
+			
 			byte[] dlmsData = parseHDLCData(temp);
+			
+//			System.out.println("KV_DEBUG> dlmsData "+ProtocolUtils.outputHexString(dlmsData));
 			
 			XDLMSDataParser xdlmsParser = new XDLMSDataParser(abstractDLMS==null?null:abstractDLMS.getLogger());
 			byte[] axdrData = xdlmsParser.parseAXDRData(dlmsData);
+			
+			
+//			System.out.println("KV_DEBUG> axdrData "+ProtocolUtils.outputHexString(axdrData));
 			//System.out.println("axdrData: "+ProtocolUtils.outputHexString(axdrData));
 			dataType = AXDRDecoder.decode(axdrData);
 			
-			//System.out.println("dataType: "+dataType);
+//			System.out.println("KV_DEBUG> dataType: "+dataType);
 			
 		}
 		finally {
@@ -209,7 +231,15 @@ public class TransparentGet extends AbstractTransparentObjectAccess implements D
 				daos.write(rangeData);
 			}
 			else {
-				daos.writeByte(0);
+				
+				if (fromEntry != -1) {
+					byte[] rangeData = getBufferEntryDescriptorDefault(fromEntry, 0);
+					daos.writeByte(rangeData.length);
+					daos.write(rangeData);
+				}
+				else {
+					daos.writeByte(0);
+				}
 			}
 			return baos.toByteArray();
 		}
@@ -226,6 +256,23 @@ public class TransparentGet extends AbstractTransparentObjectAccess implements D
 	}
 	
 	
+	private final byte RANGE_DESCRIPTOR=1;
+	private final byte ENTRY_DESCRIPTOR=2;
+
+	/**
+	 * @param from
+	 * @param to
+	 * @return BER encoded byte array
+	 */
+	private byte[] getBufferEntryDescriptorDefault(int from, int to) {
+		Structure s = new Structure();
+		s.addDataType(new Unsigned32(to));
+		s.addDataType(new Unsigned32(from));
+		s.addDataType(new Unsigned16(0));
+		s.addDataType(new Unsigned16(0));
+		return ProtocolUtils.concatByteArrays(new byte[]{ENTRY_DESCRIPTOR},s.getBEREncodedByteArray());
+	}
+	
 	/**
 	 * @param fromCalendar
 	 * @param toCalendar
@@ -234,7 +281,7 @@ public class TransparentGet extends AbstractTransparentObjectAccess implements D
 	private byte[] getBufferRangeDescriptorDefault(Calendar fromCalendar, Calendar toCalendar) {
 
 		byte[] intreq = {
-				(byte) 0x01, // range descriptor
+				RANGE_DESCRIPTOR, // range descriptor
 				(byte) 0x02, // structure
 				(byte) 0x04, // 4 items in structure
 				// capture object definition

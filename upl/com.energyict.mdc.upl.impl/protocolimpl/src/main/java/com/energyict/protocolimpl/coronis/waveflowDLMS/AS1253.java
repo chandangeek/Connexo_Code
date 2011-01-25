@@ -98,6 +98,11 @@ public class AS1253 extends AbstractDLMS {
 
 
     
+	@Override
+	void doTheValidateProperties(Properties properties) {
+		setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", LOAD_PROFILE_PULSE_VALUES.toString())));		
+	}	
+
     
 
 

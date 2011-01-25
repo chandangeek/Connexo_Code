@@ -1,15 +1,12 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
 import java.io.*;
-import java.math.BigDecimal;
 import java.util.*;
+import java.util.Map.Entry;
 
-import org.omg.Dynamic.Parameter;
-
-import com.energyict.cbo.*;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.util.*;
+import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
@@ -29,6 +26,8 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 		objectEntries.put(CLOCK_OBIS_CODE,new ObjectEntry("Clock",8));
 	}
 	
+	abstract void doTheValidateProperties(Properties properties);
+	
 	public static Map<ObisCode,ObjectEntry> getObjectEntries() {
 		return objectEntries;
 	}
@@ -41,11 +40,24 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 		else {
 			return o;
 		}
+	}
+	
+	public static Entry<ObisCode,ObjectEntry> findEntryByDescription(final String description) throws NoSuchRegisterException {
+
+		for (Entry<ObisCode,ObjectEntry> o : objectEntries.entrySet()) {
+			if (o.getValue().getDescription().compareTo(description) == 0) return o;
+		}
+		
+		throw new NoSuchRegisterException("Register with description ["+description+"] not found.");
 	}	
 
 	private WaveFlowDLMSWMessages waveFlowDLMSWMessages = new WaveFlowDLMSWMessages(this);
 
+	/**
+	 * Command 31 to transparantly request an obis code
+	 */
 	private TransparantObjectAccessFactory transparantObjectAccessFactory;
+	
 	
 	private ObisCodeMapper obisCodeMapper;
 
@@ -248,12 +260,11 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 		setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout","40000").trim()));
 		autoPairingRetry = Integer.parseInt(properties.getProperty("AutoPairingRetry","1").trim());
-		setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", "0.0.99.1.0.255")));
 		correctTime = Integer.parseInt(properties.getProperty(MeterProtocol.CORRECTTIME,"0"));
 		objectInfos = buildObisInfos(properties.getProperty("ObisCodeList", ""));  
 		correctWaveflowTime = Integer.parseInt(properties.getProperty("correctWaveflowTime","1"));
 		
-		//doTheValidateProperties(properties);
+		doTheValidateProperties(properties);
 	}
 	
 	@Override

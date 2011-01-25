@@ -50,7 +50,7 @@ public class XDLMSDataParser {
 				if (getResponseType == DLMS_GET_RESPONSE_NORMAL) {
 					int statusCode=WaveflowProtocolUtils.toInt(dais.readByte());
 					if (statusCode != 0) {
-						throw new DataAccessResultException(statusCode);
+						throw new DataAccessResultException(WaveflowProtocolUtils.toInt(dais.readByte()));
 					}
 					else {
 						byte[] axdrData = new byte[dais.available()];

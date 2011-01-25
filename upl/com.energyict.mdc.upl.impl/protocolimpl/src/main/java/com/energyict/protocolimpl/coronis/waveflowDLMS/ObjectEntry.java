@@ -14,7 +14,7 @@ public class ObjectEntry {
 		return description;
 	}
 
-	final int getClassId() {
+	public final int getClassId() {
 		return classId;
 	}
 	
