@@ -83,6 +83,15 @@ public class DummyRtu implements Rtu {
         return null;
     }
 
+    /**
+     * Returns all receiver's Channels that are not (yet) assigned to a load profile
+     *
+     * @return a <CODE>List</CODE> of <CODE>Channel</CODE> objects
+     */
+    public List<Channel> getNonAssignedChannels() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     public List<CommunicationScheduler> getCommunicationSchedulers() {
         return null;
     }
