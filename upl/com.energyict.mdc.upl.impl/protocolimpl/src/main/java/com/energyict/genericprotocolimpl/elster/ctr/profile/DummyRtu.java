@@ -459,6 +459,15 @@ public class DummyRtu implements Rtu {
         return null;
     }
 
+    /**
+     * Checks if adding channels or load profiles is allowed on this device
+     *
+     * @return true if adding channels or load profiles is allowed on this device. False otherwise.
+     */
+    public boolean isAddingChannelsOrLoadProfilesAllowed() {
+        return false;  //TODO implement proper functionality.
+    }
+
     public Folder getContainer() {
         return null;
     }
