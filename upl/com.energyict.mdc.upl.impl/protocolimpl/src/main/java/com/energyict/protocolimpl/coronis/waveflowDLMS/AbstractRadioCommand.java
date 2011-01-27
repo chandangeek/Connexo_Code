@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
 import java.io.*;
 
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.coronis.core.*;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.*;
 
@@ -44,25 +45,44 @@ abstract public class AbstractRadioCommand {
 	abstract RadioCommandId getRadioCommandId();
 	
 	void invoke() throws IOException {
-		
-		ByteArrayOutputStream baos = null;
-		try {	
-			baos = new ByteArrayOutputStream();
-			DataOutputStream daos = new DataOutputStream(baos);
-			daos.writeByte(getRadioCommandId().getCommandId());
-			daos.write(prepare()); // write 1 parameter
-			parseRead(getProtocolLink().getWaveFlowConnect().sendData(baos.toByteArray()));
-		}
-		finally {
-			if (baos != null) {
-				try {
-					baos.close();
+		int retry=0;
+		while(true) {
+			ByteArrayOutputStream baos = null;
+			try {	
+				baos = new ByteArrayOutputStream();
+				DataOutputStream daos = new DataOutputStream(baos);
+				daos.writeByte(getRadioCommandId().getCommandId());
+				daos.write(prepare()); // write 1 parameter
+				parseRead(getProtocolLink().getWaveFlowConnect().sendData(baos.toByteArray()));
+				return;
+			}
+			catch(ConnectionException e) {
+				if (retry++ >= getProtocolLink().getInfoTypeProtocolRetriesProperty()) {
+					throw new WaveFlowDLMSException(e.getMessage()+", gave up after ["+getProtocolLink().getInfoTypeProtocolRetriesProperty()+"] reties!");
 				}
-				catch(IOException e) {
-					getProtocolLink().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+				else {
+					getProtocolLink().getLogger().warning(e.getMessage()+", retry ["+retry+"]");
 				}
 			}
-		}			
+			catch(WaveFlowDLMSException e) {
+				if (retry++ >= getProtocolLink().getInfoTypeProtocolRetriesProperty()) {
+					throw new WaveFlowDLMSException(e.getMessage()+", gave up after ["+getProtocolLink().getInfoTypeProtocolRetriesProperty()+"] reties!");
+				}
+				else {
+					getProtocolLink().getLogger().warning(e.getMessage()+", retry ["+retry+"]");
+				}
+			}		
+			finally {
+				if (baos != null) {
+					try {
+						baos.close();
+					}
+					catch(IOException e) {
+						getProtocolLink().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					}
+				}
+			}
+		}
 	}
 	
 	private final void parseRead(byte[] data) throws IOException {

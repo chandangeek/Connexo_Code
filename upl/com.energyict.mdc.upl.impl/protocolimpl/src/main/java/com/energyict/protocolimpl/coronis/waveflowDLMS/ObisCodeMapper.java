@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import com.energyict.cbo.*;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
@@ -29,21 +30,44 @@ public class ObisCodeMapper {
 	/**
 	 * cached registervalues read by the Transparant object list reader using the property ObisCodeList
 	 */
-	private Map<ObisCode,RegisterValue> cachedRegisterValues=null; 
+	private Map<ObisCode,RegisterValue>[] cachedRegisterValues=null; 
 	
-	final Map<ObisCode, RegisterValue> getCachedRegisterValues() throws IOException {
+	private final int findRegisterInList(ObisCode obisCode) {
+		for (int index=0;index<abstractDLMS.getObjectInfosLists().length;index++) {
+			
+			List<ObjectInfo> objectInfos = abstractDLMS.getObjectInfosLists()[index];
+			for (ObjectInfo o : objectInfos) {
+				
+				if (o.getObisCode().equals(obisCode)) {
+					return index;
+				}
+			}
+		}
+		return -1;
+	}
+	
+	private final RegisterValue getCachedRegisterValues(ObisCode obisCode) throws IOException {
 		
-		if (cachedRegisterValues == null) {
-			cachedRegisterValues = new HashMap<ObisCode,RegisterValue>(); 
-			if (abstractDLMS.getObjectInfos().size() > 0) {
-				abstractDLMS.getLogger().info("Invoke a block register read for ["+abstractDLMS.getObjectInfos().size()+"] values...");
-		    	TransparentObjectListRead t = new TransparentObjectListRead(abstractDLMS,abstractDLMS.getObjectInfos());
+		int index = findRegisterInList(obisCode); // does the obis code exist in a list
+		if (index == -1) return null; // if the obiscode does not belongs to a list, leave
+		
+		// initialize the cacedregistervalues array if not already done
+		if (cachedRegisterValues == null) { 
+			cachedRegisterValues = new Map[abstractDLMS.getObjectInfosLists().length];
+		}
+		
+		// read cachedRegisterValues if not already done
+		if (cachedRegisterValues[index] == null) {
+			cachedRegisterValues[index] = new HashMap<ObisCode,RegisterValue>(); 
+			if (abstractDLMS.getObjectInfosLists()[index].size() > 0) {
+				abstractDLMS.getLogger().info("Invoke a block register read for ["+abstractDLMS.getObjectInfosLists()[index].size()+"] values...");
+		    	TransparentObjectListRead t = new TransparentObjectListRead(abstractDLMS,abstractDLMS.getObjectInfosLists()[index]);
 		    	t.read();
-		    	cachedRegisterValues = t.getRegisterValues();
+		    	cachedRegisterValues[index] = t.getRegisterValues();
 			}
 		}
 		
-		return cachedRegisterValues;
+		return cachedRegisterValues[index].get(obisCode);
 	}
 	
     /** Creates a new instance of ObisCodeMapper */
@@ -108,20 +132,21 @@ public class ObisCodeMapper {
     	
     	ObjectEntry objectEntry = AbstractDLMS.findObjectByObiscode(obisCode);
     	
-    	RegisterValue registerValue = getCachedRegisterValues().get(obisCode);
+    	RegisterValue registerValue = getCachedRegisterValues(obisCode);
     	if (registerValue != null) {
     		abstractDLMS.getLogger().info("Read "+obisCode+" from cached values");
     		return registerValue;
     	}
     	
-    	
+    	try {
 		if (objectEntry.getClassId() == CLASS_DATA) {
 			AbstractDataType adt = abstractDLMS.getTransparantObjectAccessFactory().readObjectValue(obisCode);
+			
 			if (adt.isOctetString()) {
-				return new RegisterValue(obisCode, adt.getOctetString().stringValue());
+				return new RegisterValue(obisCode, ProtocolUtils.outputHexString(adt.getOctetString().getOctetStr()));
 			}
 			else if (adt.isVisibleString()) {
-				return new RegisterValue(obisCode, adt.getOctetString().stringValue());
+				return new RegisterValue(obisCode, adt.getVisibleString().getStr());
 			}
 			else {
 				return new RegisterValue(obisCode, new Quantity(adt.toBigDecimal(),Unit.get("")));
@@ -155,7 +180,16 @@ public class ObisCodeMapper {
 
 			return new RegisterValue(obisCode,new Quantity(value,unit),eventTime.getValue().getTime());
 		}    	
-		
+    	}
+    	catch(DataAccessResultException e) {
+    		if ((e.getCode() == e.getCode().OBJECT_UNAVAILABLE) ||
+   				(e.getCode() == e.getCode().OBJECT_UNDEFINED)) {
+    			throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] does not exist ["+e.getMessage()+"]!");
+    		}
+    		else {
+    			throw e;
+    		}
+    	}
 		
 		throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] does not exist!"); // has an error ["+e.getMessage()+"]!");
     }

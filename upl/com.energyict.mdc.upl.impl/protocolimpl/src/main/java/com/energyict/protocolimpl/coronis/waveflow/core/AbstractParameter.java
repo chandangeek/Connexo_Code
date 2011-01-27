@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.coronis.waveflow.core;
 
 import java.io.*;
 
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
 abstract public class AbstractParameter extends AbstractRadioCommand {
@@ -11,7 +12,8 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 	
 	enum ParameterId {
 		
-		BatteryLifeDurationCounter(0xA2,2,"Battery life duration counter"),
+		BatteryLifeDurationCounter(0xA2,3,"Battery life duration counter"),
+		//BatteryLifeDurationCounter(0xA2,2,"Battery life duration counter"),
 		BatteryLifeDateEnd(0x90,6,"Battery life end date"),
 		ApplicationStatus(0x20,1,"Application Status"), // page 12
 		SamplingPeriod(0x80,1,"Reading the sampling period"), // page 14
@@ -202,6 +204,8 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 		try {
 			dais = new DataInputStream(new ByteArrayInputStream(data));
 			
+//System.out.println("KV_DEBUG> "+ProtocolUtils.outputHexString(data));
+
 			int commandIdAck = WaveflowProtocolUtils.toInt(dais.readByte());
 			if (commandIdAck != (0x80 | RadioCommandId.ReadParameter.getCommandId())) {
 				throw new WaveFlowException("Invalid response tag ["+WaveflowProtocolUtils.toHexString(commandIdAck)+"]");

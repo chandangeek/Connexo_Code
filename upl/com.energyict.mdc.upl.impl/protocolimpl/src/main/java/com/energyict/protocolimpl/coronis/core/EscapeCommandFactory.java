@@ -16,17 +16,17 @@ public class EscapeCommandFactory {
 	 * @param timeout
 	 */
 	public void setAndVerifyWavecardRadiotimeout(int timeout) throws IOException {
-		//WavecardRadioUserTimeout o = new WavecardRadioUserTimeout(protocolLink,timeout);
-		//o.invoke();
+		WavecardRadioUserTimeout o = new WavecardRadioUserTimeout(protocolLink,timeout);
+		o.invoke();
 	}
 
 	/**
-	 * Set the wavecard wakeup length in milliseconds. We need to set thios parameter to 110ms to be able to talk to the DLMS meter
+	 * Set the wavecard wakeup length in milliseconds. We need to set this parameter to 110ms to be able to talk to the DLMS meter
 	 * @param wakeupLength in ms
 	 */
 	public void setAndVerifyWavecardWakeupLength(int wakeupLength) throws IOException {
-		//WavecardWakeupLength o = new WavecardWakeupLength(protocolLink,wakeupLength);
-		//o.invoke();
+		WavecardWakeupLength o = new WavecardWakeupLength(protocolLink,wakeupLength);
+		o.invoke();
 	}
 	
 	/**
@@ -34,8 +34,8 @@ public class EscapeCommandFactory {
 	 * @param wakeupLength in ms
 	 */
 	public void setAndVerifyWavecardAwakeningPeriod(int awakeningPeriod) throws IOException {
-		//WavecardAwakeningPeriod o = new WavecardAwakeningPeriod(protocolLink,awakeningPeriod);
-		//o.invoke();
+		WavecardAwakeningPeriod o = new WavecardAwakeningPeriod(protocolLink,awakeningPeriod);
+		o.invoke();
 	}
 	
 	/**

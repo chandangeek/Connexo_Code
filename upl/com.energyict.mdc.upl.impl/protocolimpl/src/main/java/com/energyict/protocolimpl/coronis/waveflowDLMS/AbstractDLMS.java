@@ -74,12 +74,11 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	/**
 	 * List of obiscodes to retrieve at the beginning of the session and cache for later use.
 	 */
-	private List<ObjectInfo> objectInfos;	
+	private List<ObjectInfo>[] objectInfosLists=new List[0];	
 	
-	final List<ObjectInfo> getObjectInfos() {
-		return objectInfos;
+	final List<ObjectInfo>[] getObjectInfosLists() {
+		return objectInfosLists;
 	}
-
 
 	/**
 	 * the load profile obis code custom property
@@ -213,9 +212,9 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	@Override
 	protected void doConnect() throws IOException {
 //		System.out.println("Tune the Wavecard for Waveflow AC");
-		escapeCommandFactory.setAndVerifyWavecardAwakeningPeriod(1);
-		escapeCommandFactory.setAndVerifyWavecardRadiotimeout(20);
-		escapeCommandFactory.setAndVerifyWavecardWakeupLength(110);    	
+//		escapeCommandFactory.setAndVerifyWavecardAwakeningPeriod(1);
+//		escapeCommandFactory.setAndVerifyWavecardRadiotimeout(20);
+//		escapeCommandFactory.setAndVerifyWavecardWakeupLength(110);    	
 	}
 
 	
@@ -224,9 +223,9 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	@Override
 	protected void doDisConnect() throws IOException {
 		System.out.println("Restore Wavecard settings...");
-		escapeCommandFactory.setAndVerifyWavecardRadiotimeout(2);
-		escapeCommandFactory.setAndVerifyWavecardWakeupLength(1100);
-		escapeCommandFactory.setAndVerifyWavecardAwakeningPeriod(10);
+//		escapeCommandFactory.setAndVerifyWavecardRadiotimeout(2);
+//		escapeCommandFactory.setAndVerifyWavecardWakeupLength(1100);
+//		escapeCommandFactory.setAndVerifyWavecardAwakeningPeriod(10);
 		
 		
 		
@@ -236,6 +235,8 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	protected List doGetOptionalKeys() {
 		List list = new ArrayList();
 		list.add("AutoPairingRetry");
+		list.add("ObisCodeList");  
+		list.add("correctWaveflowTime");		
 		return null;
 	}
 
@@ -261,7 +262,7 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 		setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout","40000").trim()));
 		autoPairingRetry = Integer.parseInt(properties.getProperty("AutoPairingRetry","1").trim());
 		correctTime = Integer.parseInt(properties.getProperty(MeterProtocol.CORRECTTIME,"0"));
-		objectInfos = buildObisInfos(properties.getProperty("ObisCodeList", ""));  
+		objectInfosLists = buildObisInfos(properties.getProperty("ObisCodeList", ""));  
 		correctWaveflowTime = Integer.parseInt(properties.getProperty("correctWaveflowTime","1"));
 		
 		doTheValidateProperties(properties);
@@ -328,15 +329,15 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
     
     public boolean pairWithEMeter(int baudrate) throws IOException {
     	try {
-    		getEscapeCommandFactory().setAndVerifyWavecardAwakeningPeriod(1);
-    		getEscapeCommandFactory().setAndVerifyWavecardRadiotimeout(20);
-    		getEscapeCommandFactory().setAndVerifyWavecardWakeupLength(110);
+//    		getEscapeCommandFactory().setAndVerifyWavecardAwakeningPeriod(1);
+//    		getEscapeCommandFactory().setAndVerifyWavecardRadiotimeout(20);
+//    		getEscapeCommandFactory().setAndVerifyWavecardWakeupLength(110);
 			return doPairWithEMeter(baudrate);
     	}
 		finally {
-			getEscapeCommandFactory().setAndVerifyWavecardRadiotimeout(2);
-			getEscapeCommandFactory().setAndVerifyWavecardWakeupLength(1100);
-			getEscapeCommandFactory().setAndVerifyWavecardAwakeningPeriod(10);
+//			getEscapeCommandFactory().setAndVerifyWavecardRadiotimeout(2);
+//			getEscapeCommandFactory().setAndVerifyWavecardWakeupLength(1100);
+//			getEscapeCommandFactory().setAndVerifyWavecardAwakeningPeriod(10);
 		}    	
     }
     
@@ -455,36 +456,43 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 		return statusAndEvents;
 	}
 	
-	private List<ObjectInfo> buildObisInfos(String obisCodeList) throws InvalidPropertyException {
+	private List<ObjectInfo>[] buildObisInfos(String obisCodeList) throws InvalidPropertyException {
 		
-		List<ObjectInfo> objectInfos = new ArrayList<ObjectInfo>();
 		
 		if (obisCodeList.compareTo("") != 0) {
-		
+
+			String[] infosLists = obisCodeList.split(";");
+			
+			List<ObjectInfo>[] objectInfosLists = new List[infosLists.length]; // new ArrayList<ObjectInfo>();
+			
 			// format class_obiscode_attribute,class.obiscode.attribut,... e.g. 3_1.1.1.8.0.255_2 class 3 obiscode 1.1.1.8.0.255 attribute 2
+
 			
-			String[] infos = obisCodeList.split(",");
-			
-			for (String info : infos) {
+			for (int index=0;index<infosLists.length;index++) {
 				
-				String[] fields = info.split("_");
-				if (fields.length == 3) {
-					int classId = Integer.parseInt(fields[0]);
-					ObisCode obisCode = ObisCode.fromString(fields[1]);
-					int attribute = Integer.parseInt(fields[2]);
-					objectInfos.add(new ObjectInfo(attribute, classId, obisCode));
+				String[] infos = infosLists[index].split(",");
+				
+				for (String info : infos) {
 					
-				}
-				else if (fields.length == 1) {
-					ObisCode obisCode = ObisCode.fromString(fields[0]);
-					objectInfos.add(new ObjectInfo(2, 1, obisCode));
-				}
-				else {
-					throw new InvalidPropertyException("Error in obisCodeList property ["+obisCodeList+"]");
+					String[] fields = info.split("_");
+					if (fields.length == 3) {
+						int classId = Integer.parseInt(fields[0]);
+						ObisCode obisCode = ObisCode.fromString(fields[1]);
+						int attribute = Integer.parseInt(fields[2]);
+						objectInfosLists[index].add(new ObjectInfo(attribute, classId, obisCode));
+						
+					}
+					else if (fields.length == 1) {
+						ObisCode obisCode = ObisCode.fromString(fields[0]);
+						objectInfosLists[index].add(new ObjectInfo(2, 1, obisCode));
+					}
+					else {
+						throw new InvalidPropertyException("Error in obisCodeList property ["+obisCodeList+"]");
+					}
 				}
 			}
 		}
-		return objectInfos;
+		return objectInfosLists;
 		
 	}	
 }

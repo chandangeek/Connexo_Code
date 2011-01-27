@@ -2,7 +2,9 @@ package com.energyict.protocolimpl.coronis.waveflow.core;
 
 import java.io.*;
 
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+import com.energyict.protocolimpl.coronis.waveflowDLMS.WaveFlowDLMSException;
 
 abstract public class AbstractRadioCommand {
 	
@@ -98,25 +100,44 @@ abstract public class AbstractRadioCommand {
 	abstract RadioCommandId getRadioCommandId();
 	
 	void invoke() throws IOException {
-		
-		ByteArrayOutputStream baos = null;
-		try {	
-			baos = new ByteArrayOutputStream();
-			DataOutputStream daos = new DataOutputStream(baos);
-			daos.writeByte(getRadioCommandId().getCommandId());
-			daos.write(prepare()); // write 1 parameter
-			parseResponse(getWaveFlow().getWaveFlowConnect().sendData(baos.toByteArray()));
-		}
-		finally {
-			if (baos != null) {
-				try {
-					baos.close();
+		int retry=0;
+		while(true) {
+			ByteArrayOutputStream baos = null;
+			try {	
+				baos = new ByteArrayOutputStream();
+				DataOutputStream daos = new DataOutputStream(baos);
+				daos.writeByte(getRadioCommandId().getCommandId());
+				daos.write(prepare()); // write 1 parameter
+				parseResponse(getWaveFlow().getWaveFlowConnect().sendData(baos.toByteArray()));
+				return;
+			}
+			catch(ConnectionException e) {
+				if (retry++ >= getWaveFlow().getInfoTypeProtocolRetriesProperty()) {
+					throw new WaveFlowDLMSException(e.getMessage()+", gave up after ["+getWaveFlow().getInfoTypeProtocolRetriesProperty()+"] reties!");
 				}
-				catch(IOException e) {
-					getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+				else {
+					getWaveFlow().getLogger().warning(e.getMessage()+", retry ["+retry+"]");
 				}
 			}
-		}			
+			catch(WaveFlowDLMSException e) {
+				if (retry++ >= getWaveFlow().getInfoTypeProtocolRetriesProperty()) {
+					throw new WaveFlowDLMSException(e.getMessage()+", gave up after ["+getWaveFlow().getInfoTypeProtocolRetriesProperty()+"] reties!");
+				}
+				else {
+					getWaveFlow().getLogger().warning(e.getMessage()+", retry ["+retry+"]");
+				}
+			}		
+			finally {
+				if (baos != null) {
+					try {
+						baos.close();
+					}
+					catch(IOException e) {
+						getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					}
+				}
+			}		
+		}
 	}
 
 	/**

@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
 import java.io.*;
 
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.core.*;
@@ -91,28 +92,49 @@ abstract class AbstractTransparentObjectAccess {
 	}
 
 	void invoke() throws IOException {
-		
-		ByteArrayOutputStream baos = null;
-		try {	
-			baos = new ByteArrayOutputStream();
-			DataOutputStream daos = new DataOutputStream(baos);
-			daos.writeByte(TRANSPARANT_OBJECT_READING_REQ_TAG);
-			daos.write(prepare()); // write 1 parameter
-		
-			abstractDLMS.getEscapeCommandFactory().sendUsingSendMessage();
-			parseResponse(abstractDLMS.getWaveFlowConnect().sendData(baos.toByteArray()));
-		}
-		finally {
-			abstractDLMS.getEscapeCommandFactory().sendUsingSendFrame();
-			if (baos != null) {
-				try {
-					baos.close();
+		int retry=0;
+		while(true) {
+			ByteArrayOutputStream baos = null;
+			try {	
+				baos = new ByteArrayOutputStream();
+				DataOutputStream daos = new DataOutputStream(baos);
+				daos.writeByte(TRANSPARANT_OBJECT_READING_REQ_TAG);
+				daos.write(prepare()); // write 1 parameter
+			
+				byte[] data = baos.toByteArray();
+				//System.out.println(ProtocolUtils.outputHexString(data));
+				abstractDLMS.getEscapeCommandFactory().sendUsingSendMessage();
+				parseResponse(abstractDLMS.getWaveFlowConnect().sendData(data));
+				return;
+			}
+			catch(ConnectionException e) {
+				if (retry++ >= abstractDLMS.getInfoTypeProtocolRetriesProperty()) {
+					throw new WaveFlowDLMSException(e.getMessage()+", gave up after ["+abstractDLMS.getInfoTypeProtocolRetriesProperty()+"] reties!");
 				}
-				catch(IOException e) {
-					abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+				else {
+					abstractDLMS.getLogger().warning(e.getMessage()+", retry ["+retry+"]");
 				}
 			}
-		}			
+			catch(WaveFlowDLMSException e) {
+				if (retry++ >= abstractDLMS.getInfoTypeProtocolRetriesProperty()) {
+					throw new WaveFlowDLMSException(e.getMessage()+", gave up after ["+abstractDLMS.getInfoTypeProtocolRetriesProperty()+"] reties!");
+				}
+				else {
+					abstractDLMS.getLogger().warning(e.getMessage()+", retry ["+retry+"]");
+				}
+			}
+			finally {
+				abstractDLMS.getEscapeCommandFactory().sendUsingSendFrame();
+				if (baos != null) {
+					try {
+						baos.close();
+					}
+					catch(IOException e) {
+						abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					}
+				}
+			}			
+		}
 	}
 	
 	private void validateResultCode(int resultCode) throws WaveFlowException {

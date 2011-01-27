@@ -60,6 +60,8 @@ public class ProfileDataReader {
 		
 		AbstractDataType adt = a1800.getTransparantObjectAccessFactory().readObjectAttributeEntry(a1800.getLoadProfileObisCode(), TransparantObjectAccessFactory.ATTRIBUTE_VALUE,nr_of_entries);
 		
+		//System.out.println(adt);
+		
 		// parse the AXD-R returned data...
 		Calendar calendar = Calendar.getInstance(a1800.getTimeZone()); 
 		Array array = adt.getArray();

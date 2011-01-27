@@ -8,4 +8,5 @@ public interface ProtocolLink {
 	Logger getLogger();
 	TimeZone getTimeZone();
 	WaveFlowConnect getWaveFlowConnect();
+	int getInfoTypeProtocolRetriesProperty();
 }

@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
 import java.io.*;
 
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.coronis.core.*;
 
 abstract public class AbstractParameter extends AbstractRadioCommand {
@@ -71,38 +72,57 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 	abstract ParameterId getParameterId();
 	
 	void write() throws IOException {
-		ByteArrayOutputStream baos = null;
-		try {	
-			baos = new ByteArrayOutputStream();
-			DataOutputStream daos = new DataOutputStream(baos);
-			daos.writeByte(RadioCommandId.WriteParameter.getCommandId());
-			if (getParameterId()==null) {
-				daos.writeShort(operatingMode); // update the operating mode
-				daos.writeShort(mask); // mask to update the operating mode
-				daos.writeByte(0); // write 0 parameter, only update the operating mode
+		int retry=0;
+		while(true) {
+			ByteArrayOutputStream baos = null;
+			try {	
+				baos = new ByteArrayOutputStream();
+				DataOutputStream daos = new DataOutputStream(baos);
+				daos.writeByte(RadioCommandId.WriteParameter.getCommandId());
+				if (getParameterId()==null) {
+					daos.writeShort(operatingMode); // update the operating mode
+					daos.writeShort(mask); // mask to update the operating mode
+					daos.writeByte(0); // write 0 parameter, only update the operating mode
+				}
+				else {
+					daos.writeShort(0); // don't update the operating mode, value don't care
+					daos.writeShort(0); // don't update the operating mode, mask = 0
+					daos.writeByte(1); // write 1 parameter
+					daos.writeByte(getParameterId().id);
+					daos.writeByte(getParameterId().length);
+					daos.write(prepare());
+				}
+				
+				parseWriteResponse(getProtocolLink().getWaveFlowConnect().sendData(baos.toByteArray()));
+				return;			
 			}
-			else {
-				daos.writeShort(0); // don't update the operating mode, value don't care
-				daos.writeShort(0); // don't update the operating mode, mask = 0
-				daos.writeByte(1); // write 1 parameter
-				daos.writeByte(getParameterId().id);
-				daos.writeByte(getParameterId().length);
-				daos.write(prepare());
+			catch(ConnectionException e) {
+				if (retry++ >= getProtocolLink().getInfoTypeProtocolRetriesProperty()) {
+					throw new WaveFlowDLMSException(e.getMessage()+", gave up after ["+getProtocolLink().getInfoTypeProtocolRetriesProperty()+"] reties!");
+				}
+				else {
+					getProtocolLink().getLogger().warning(e.getMessage()+", retry ["+retry+"]");
+				}
 			}
-			
-			parseWriteResponse(getProtocolLink().getWaveFlowConnect().sendData(baos.toByteArray()));
-						
+			catch(WaveFlowDLMSException e) {
+				if (retry++ >= getProtocolLink().getInfoTypeProtocolRetriesProperty()) {
+					throw new WaveFlowDLMSException(e.getMessage()+", gave up after ["+getProtocolLink().getInfoTypeProtocolRetriesProperty()+"] reties!");
+				}
+				else {
+					getProtocolLink().getLogger().warning(e.getMessage()+", retry ["+retry+"]");
+				}
+			}		
+			finally {
+				if (baos != null) {
+					try {
+						baos.close();
+					}
+					catch(IOException e) {
+						getProtocolLink().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					}
+				}
+			}
 		}
-		finally {
-			if (baos != null) {
-				try {
-					baos.close();
-				}
-				catch(IOException e) {
-					getProtocolLink().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
-				}
-			}
-		}				
 	}
 	
 	private final void parseWriteResponse(final byte[] data) throws IOException {
@@ -149,33 +169,53 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 	}
 	
 	void read() throws IOException {
-		ByteArrayOutputStream baos = null;
-		try {	
-			baos = new ByteArrayOutputStream();
-			DataOutputStream daos = new DataOutputStream(baos);
-			daos.writeByte(RadioCommandId.ReadParameter.getCommandId());
-			if (getParameterId()==null) {
-				daos.writeByte(0); // write 0 parameter, only update the operating mode
+		int retry=0;
+		while(true) {
+			ByteArrayOutputStream baos = null;
+			try {	
+				baos = new ByteArrayOutputStream();
+				DataOutputStream daos = new DataOutputStream(baos);
+				daos.writeByte(RadioCommandId.ReadParameter.getCommandId());
+				if (getParameterId()==null) {
+					daos.writeByte(0); // write 0 parameter, only update the operating mode
+				}
+				else {
+					daos.writeByte(1); // write 1 parameter
+					daos.writeByte(getParameterId().id);
+					daos.writeByte(getParameterId().length);
+				}
+				
+				parseReadResponse(getProtocolLink().getWaveFlowConnect().sendData(baos.toByteArray()));
+				return;			
 			}
-			else {
-				daos.writeByte(1); // write 1 parameter
-				daos.writeByte(getParameterId().id);
-				daos.writeByte(getParameterId().length);
+			catch(ConnectionException e) {
+				if (retry++ >= getProtocolLink().getInfoTypeProtocolRetriesProperty()) {
+					throw new WaveFlowDLMSException(e.getMessage()+", gave up after ["+getProtocolLink().getInfoTypeProtocolRetriesProperty()+"] reties!");
+				}
+				else {
+					getProtocolLink().getLogger().warning(e.getMessage()+", retry ["+retry+"]");
+				}
+			}
+			catch(WaveFlowDLMSException e) {
+				if (retry++ >= getProtocolLink().getInfoTypeProtocolRetriesProperty()) {
+					throw new WaveFlowDLMSException(e.getMessage()+", gave up after ["+getProtocolLink().getInfoTypeProtocolRetriesProperty()+"] reties!");
+				}
+				else {
+					getProtocolLink().getLogger().warning(e.getMessage()+", retry ["+retry+"]");
+				}
+			}		
+			finally {
+				if (baos != null) {
+					try {
+						baos.close();
+					}
+					catch(IOException e) {
+						getProtocolLink().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					}
+				}
 			}
 			
-			parseReadResponse(getProtocolLink().getWaveFlowConnect().sendData(baos.toByteArray()));
-						
 		}
-		finally {
-			if (baos != null) {
-				try {
-					baos.close();
-				}
-				catch(IOException e) {
-					getProtocolLink().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
-				}
-			}
-		}				
 		
 	}
 	

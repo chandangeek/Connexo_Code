@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import com.energyict.cbo.*;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.obis.ObisCode;
@@ -109,34 +110,53 @@ public class TransparentObjectListRead {
 	}
 	
 	public void read() throws IOException {
-		
 		if (objectInfos.size() == 0) {
 			throw new WaveFlowDLMSException("No obiscodes to read in the list! Cannort preform a transparant object list read");
 		}
-		
-		ByteArrayOutputStream baos = null;
-		try {	
-			baos = new ByteArrayOutputStream();
-			DataOutputStream daos = new DataOutputStream(baos);
-			daos.writeByte(TRANSPARANT_OBJECT_LIST_READING_REQ_TAG);
-			daos.writeByte(objectInfos.size());
-			
-			
-			daos.write(objectList2ByteArray()); 
-			abstractDLMS.getEscapeCommandFactory().sendUsingSendMessage();
-			parseResponse(abstractDLMS.getWaveFlowConnect().sendData(baos.toByteArray()));
-		}
-		finally {
-			abstractDLMS.getEscapeCommandFactory().sendUsingSendFrame();
-			if (baos != null) {
-				try {
-					baos.close();
+		int retry = 0;
+
+		while(true) {
+			ByteArrayOutputStream baos = null;
+			try {	
+				baos = new ByteArrayOutputStream();
+				DataOutputStream daos = new DataOutputStream(baos);
+				daos.writeByte(TRANSPARANT_OBJECT_LIST_READING_REQ_TAG);
+				daos.writeByte(objectInfos.size());
+				
+				
+				daos.write(objectList2ByteArray()); 
+				abstractDLMS.getEscapeCommandFactory().sendUsingSendMessage();
+				parseResponse(abstractDLMS.getWaveFlowConnect().sendData(baos.toByteArray()));
+				return;
+			}
+			catch(ConnectionException e) {
+				if (retry++ >= abstractDLMS.getInfoTypeProtocolRetriesProperty()) {
+					throw new WaveFlowDLMSException(e.getMessage()+", gave up after ["+abstractDLMS.getInfoTypeProtocolRetriesProperty()+"] reties!");
 				}
-				catch(IOException e) {
-					abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+				else {
+					abstractDLMS.getLogger().warning(e.getMessage()+", retry ["+retry+"]");
 				}
 			}
-		}			
+			catch(WaveFlowDLMSException e) {
+				if (retry++ >= abstractDLMS.getInfoTypeProtocolRetriesProperty()) {
+					throw new WaveFlowDLMSException(e.getMessage()+", after ["+abstractDLMS.getInfoTypeProtocolRetriesProperty()+"] reties!");
+				}
+				else {
+					abstractDLMS.getLogger().warning(e.getMessage()+", retry ["+retry+"]");
+				}
+			}
+			finally {
+				abstractDLMS.getEscapeCommandFactory().sendUsingSendFrame();
+				if (baos != null) {
+					try {
+						baos.close();
+					}
+					catch(IOException e) {
+						abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					}
+				}
+			}		
+		}
 	}
 	
 	private void validateResultCode(int resultCode) throws WaveFlowException {

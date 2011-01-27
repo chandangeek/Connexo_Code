@@ -224,9 +224,12 @@ public class TransparentGet extends AbstractTransparentObjectAccess implements D
 			daos.writeByte(getInteractionParameter().getId());
 			
 			if (fromDate != null) {
-				Calendar fromCalendar = Calendar.getInstance(abstractDLMS.getTimeZone());
+				
+				TimeZone timeZone = abstractDLMS==null?TimeZone.getTimeZone("GMT"):abstractDLMS.getTimeZone();
+				
+				Calendar fromCalendar = Calendar.getInstance(timeZone);
 				fromCalendar.setTime(fromDate);
-				byte[] rangeData = getBufferRangeDescriptorDefault(fromCalendar,Calendar.getInstance(abstractDLMS.getTimeZone()));
+				byte[] rangeData = getBufferRangeDescriptorDefault(fromCalendar,Calendar.getInstance(timeZone),timeZone);
 				daos.writeByte(rangeData.length);
 				daos.write(rangeData);
 			}
@@ -278,7 +281,7 @@ public class TransparentGet extends AbstractTransparentObjectAccess implements D
 	 * @param toCalendar
 	 * @return
 	 */
-	private byte[] getBufferRangeDescriptorDefault(Calendar fromCalendar, Calendar toCalendar) {
+	private byte[] getBufferRangeDescriptorDefault(Calendar fromCalendar, Calendar toCalendar, TimeZone timeZone) {
 
 		byte[] intreq = {
 				RANGE_DESCRIPTOR, // range descriptor
@@ -318,7 +321,7 @@ public class TransparentGet extends AbstractTransparentObjectAccess implements D
 		intreq[CAPTURE_FROM_OFFSET + 11] = (byte) 0x80;
 		intreq[CAPTURE_FROM_OFFSET + 12] = 0x00;
 
-		if (abstractDLMS.getTimeZone().inDaylightTime(fromCalendar.getTime())) {
+		if (timeZone.inDaylightTime(fromCalendar.getTime())) {
 			intreq[CAPTURE_FROM_OFFSET + 13] = (byte) 0x80;
 		} else {
 			intreq[CAPTURE_FROM_OFFSET + 13] = 0x00;
@@ -338,7 +341,7 @@ public class TransparentGet extends AbstractTransparentObjectAccess implements D
 		intreq[CAPTURE_TO_OFFSET + 11] = (byte) 0x80;
 		intreq[CAPTURE_TO_OFFSET + 12] = 0x00;
 
-        if ((toCalendar != null) && abstractDLMS.getTimeZone().inDaylightTime(toCalendar.getTime())) {
+        if ((toCalendar != null) && timeZone.inDaylightTime(toCalendar.getTime())) {
             intreq[CAPTURE_TO_OFFSET + 13] = (byte) 0x80;
         } else {
             intreq[CAPTURE_TO_OFFSET + 13] = 0x00;
@@ -352,9 +355,19 @@ public class TransparentGet extends AbstractTransparentObjectAccess implements D
 		
 		
 		
-		byte[] data={(byte)0x00,(byte)0x08,(byte)0x00,(byte)0x00,(byte)0x01,(byte)0x00,(byte)0x00,(byte)0xFF,(byte)0x02,(byte)0x00,(byte)0x21,(byte)0x7E,(byte)0xA0,(byte)0x1F,(byte)0x23,(byte)0x20,(byte)0xAF,(byte)0x52,(byte)0xF4,(byte)0x5D,(byte)0xE6,(byte)0xE7,(byte)0x00,(byte)0xC4,(byte)0x01,(byte)0x81,(byte)0x00,(byte)0x09,(byte)0x0C,(byte)0x07,(byte)0xDA,(byte)0x0C,(byte)0x17,(byte)0xFF,(byte)0x11,(byte)0x0B,(byte)0x39,(byte)0xFF,(byte)0x80,(byte)0x00,(byte)0x00,(byte)0x16,(byte)0xDB,(byte)0x7E};
-		TransparentGet o = new TransparentGet(null, new ObjectInfo(2, 0x0008, ObisCode.fromString("0.0.1.0.0.255")));
+		//byte[] data={(byte)0x00,(byte)0x08,(byte)0x00,(byte)0x00,(byte)0x01,(byte)0x00,(byte)0x00,(byte)0xFF,(byte)0x02,(byte)0x00,(byte)0x21,(byte)0x7E,(byte)0xA0,(byte)0x1F,(byte)0x23,(byte)0x20,(byte)0xAF,(byte)0x52,(byte)0xF4,(byte)0x5D,(byte)0xE6,(byte)0xE7,(byte)0x00,(byte)0xC4,(byte)0x01,(byte)0x81,(byte)0x00,(byte)0x09,(byte)0x0C,(byte)0x07,(byte)0xDA,(byte)0x0C,(byte)0x17,(byte)0xFF,(byte)0x11,(byte)0x0B,(byte)0x39,(byte)0xFF,(byte)0x80,(byte)0x00,(byte)0x00,(byte)0x16,(byte)0xDB,(byte)0x7E};
 		
+		TransparentGet o = new TransparentGet(null, new ObjectInfo(2, 0x0008, ObisCode.fromString("1.1.99.1.0.255")));
+		
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DATE,-7);		
+		o.setFromDate(cal.getTime());
+		try {
+			o.invoke();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		//(byte)0xB1,(byte)0x02,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x01,(byte)0x01,(byte)0x01,(byte)0x01,(byte)0x03,(byte)0x3A,(byte)0x2F,(byte)0x20,(byte)0x0F,
 		/*
@@ -367,13 +380,14 @@ public class TransparentGet extends AbstractTransparentObjectAccess implements D
 		
 		TransparentGet o = new TransparentGet(null, new ObjectInfo(2, 0x000F, ObisCode.fromString("0.0.40.0.0.255")));
 		*/
+		/*
 		try {
 			o.parse(data);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		*/
 		
 		
 		
