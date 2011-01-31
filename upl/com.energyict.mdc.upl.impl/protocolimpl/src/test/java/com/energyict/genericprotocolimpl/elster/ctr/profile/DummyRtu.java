@@ -10,6 +10,7 @@ import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.relation.*;
 import com.energyict.mdw.shadow.*;
+import com.energyict.mdw.task.ChangeRtuTypeTransaction;
 import com.energyict.metadata.TypeId;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -587,4 +588,9 @@ public class DummyRtu implements Rtu {
     public boolean isAuthorized(UserAction action) {
         return false;
     }
+
+    boolean execute(ChangeRtuTypeTransaction transaction) throws BusinessException, SQLException {
+        return true;
+    }
+
 }
