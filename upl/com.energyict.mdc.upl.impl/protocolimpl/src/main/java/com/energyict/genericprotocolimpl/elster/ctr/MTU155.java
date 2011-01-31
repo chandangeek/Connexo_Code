@@ -87,6 +87,7 @@ public class MTU155 extends AbstractGenericProtocol {
 
         try {
             getProtocolProperties().addProperties(getPropertiesFromProtocolClass());
+            updateRequestFactory();
             this.rtu = identifyAndGetRtu();
             log("Rtu with name '" + getRtu().getName() + "' connected successfully.");
             getProtocolProperties().addProperties(rtu.getProtocol().getProperties());
@@ -284,7 +285,7 @@ public class MTU155 extends AbstractGenericProtocol {
         List<Channel> channelList = getRtu().getChannels();
         for (Channel channel : channelList) {
             try {
-                ProfileChannel profile = new ProfileChannel(getRequestFactory(), channel, getTimeZone());
+                ProfileChannel profile = new ProfileChannel(getRequestFactory(), channel);
                 getLogger().info("Reading profile for channel [" + channel.getName() + "]");
                 ProfileData pd = profile.getProfileData();
                 storeObject.add(channel, pd);

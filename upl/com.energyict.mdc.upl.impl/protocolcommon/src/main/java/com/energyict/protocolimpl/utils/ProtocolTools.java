@@ -365,7 +365,7 @@ public final class ProtocolTools {
      * @param intervalInMinutes
      * @return
      */
-    public static Object roundDownToNearestInterval(Date timeStamp, int intervalInMinutes) {
+    public static Date roundDownToNearestInterval(Date timeStamp, int intervalInMinutes) {
         return roundUpToNearestInterval(timeStamp, intervalInMinutes * (-1));
     }
 
@@ -620,7 +620,7 @@ public final class ProtocolTools {
         if (intervalDatas != null) {
             for (int i = 0; i < intervalDatas.size(); i++) {
                 IntervalData intervalData = intervalDatas.get(i);
-                if ((!from.after(intervalData.getEndTime())) && (to.after(intervalData.getEndTime()))) {
+                if ((intervalData.getEndTime().after(from)) && (!intervalData.getEndTime().after(to))) {
                     clippedIntervalDatas.add(intervalData);
                 }
             }

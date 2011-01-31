@@ -737,7 +737,7 @@ public class DummyChannel implements Channel {
     }
 
     public TimeDuration getInterval() {
-        return null;
+        return new TimeDuration(getIntervalInSeconds());
     }
 
     public boolean hasRawValue() {

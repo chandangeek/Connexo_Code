@@ -2,6 +2,8 @@ package com.energyict.genericprotocolimpl.elster.ctr.common;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
+import java.util.Arrays;
+
 /**
  * Copyrights EnergyICT
  * Date: 29-sep-2010
@@ -41,5 +43,29 @@ public abstract class AbstractField<T extends Field> implements Field<T> {
     public String toString() {
         return getClass().getSimpleName() + " = " + ProtocolTools.getHexStringFromBytes(getBytes());
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+}
+        if (!(o instanceof Field)) {
+            return false;
+        }
+
+        Field that = (Field) o;
+
+        if (!Arrays.equals(getBytes(), that.getBytes())) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(getBytes());
+    }
+
 
 }

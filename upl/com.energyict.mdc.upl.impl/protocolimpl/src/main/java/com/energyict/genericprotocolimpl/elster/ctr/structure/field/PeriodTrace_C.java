@@ -1,5 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr.structure.field;
 
+import com.energyict.cbo.TimeDuration;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AbstractField;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 
@@ -11,12 +12,44 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingExceptio
  */
 public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
 
+    private static final int HOURLY = 1;
+    private static final int DAILY = 2;
+    private static final int MONTHLY = 3;
+
+    private static final int LENGTH = 1;
+    private static final TimeDuration HOUR = new TimeDuration(1, TimeDuration.HOURS);
+    private static final TimeDuration DAY = new TimeDuration(1, TimeDuration.DAYS);
+    private static final TimeDuration MONTH = new TimeDuration(1, TimeDuration.MONTHS);
+
     private int period;
-    private static final int SEC_PER_MIN = 60;
-    private static final int SEC_PER_HOUR = SEC_PER_MIN * 60;
 
     public PeriodTrace_C() {
         this(0);
+    }
+
+    public PeriodTrace_C(TimeDuration interval) {
+        int seconds = interval.getSeconds();
+        if (seconds == HOUR.getSeconds()) {
+            this.period = HOURLY;
+        } else if (seconds == DAY.getSeconds()) {
+            this.period = DAILY;
+        } else if (seconds == MONTH.getSeconds()) {
+            this.period = MONTHLY;
+        } else {
+            throw new IllegalArgumentException("Unable to get PeriodTrace_C object for a TimeDuration of [" + interval.toString() + "]");
+        }
+    }
+
+    public static PeriodTrace_C getHourly() {
+        return new PeriodTrace_C(HOURLY);
+    }
+
+    public static PeriodTrace_C getDaily() {
+        return new PeriodTrace_C(DAILY);
+    }
+
+    public static PeriodTrace_C getMonthly() {
+        return new PeriodTrace_C(MONTHLY);
     }
 
     public PeriodTrace_C(int period) {
@@ -33,7 +66,7 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
     }
 
     public int getLength() {
-        return 1;
+        return LENGTH;
     }
 
     public int getPeriod() {
@@ -45,11 +78,11 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
      */
     public String getDateFormat() {
         switch (period) {
-            case 1:
+            case HOURLY:
                 return "yy, mm, dd";
-            case 2:
+            case DAILY:
                 return "yy, mm, dd";
-            case 3:
+            case MONTHLY:
                 return "yy, mm, 00";
             default:
                 return "";
@@ -65,11 +98,11 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
      */
     public String getDescription() {
         switch (period) {
-            case 1:
+            case HOURLY:
                 return "All 1h traces on the specified day";
-            case 2:
+            case DAILY:
                 return "The 1-day traces for the last 15 days (that specified included)";
-            case 3:
+            case MONTHLY:
                 return "The 1-month traces for the last 12 months (that specified included)";
             default:
                 return "";
@@ -81,19 +114,44 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
      */
     public int getIntervalInSeconds() {
         switch (period) {
-            case 1 : return 15 * SEC_PER_MIN;
-            case 2 : return SEC_PER_HOUR;
-            case 3 : return 24 * SEC_PER_HOUR;
-            default : return 0;
+            case HOURLY:
+                return HOUR.getSeconds();
+            case DAILY:
+                return DAY.getSeconds();
+            case MONTHLY:
+                return MONTH.getSeconds();
+            default:
+                return 0;
         }
     }
 
     public int getTraceCIntervalCount() {
         switch (period) {
-            case 1 : return 24; // 24 hours
-            case 2 : return 15; // 15 Days
-            case 3 : return 12; // 12 Months
-            default : return 0;
+            case HOURLY:
+                return 24; // 24 hours
+            case DAILY:
+                return 15;   // 15 Days
+            case MONTHLY:
+                return 12; // 12 Months
+            default:
+                return 0;
         }
     }
+
+    public boolean isHourly() {
+        return period == HOURLY;
+    }
+
+    public boolean isDaily() {
+        return period == DAILY;
+    }
+
+    public boolean isMonthly() {
+        return period == MONTHLY;
+    }
+
+    public boolean isInvalid() {
+        return !(isDaily() || isHourly() || isMonthly());
+    }
+
 }

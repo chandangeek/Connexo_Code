@@ -42,7 +42,7 @@ public class GprsRequestFactoryTest extends TestCase {
         GPRSFrame regRequest = gprsRequestFactory.getRegisterRequest(new AttributeType(0), new CTRObjectID[]{});
         GPRSFrame decfReq = gprsRequestFactory.getTableDECFRequest();
         GPRSFrame decReq = gprsRequestFactory.getTableDECRequest();
-        GPRSFrame trace_CReq = gprsRequestFactory.getTrace_CRequest(new CTRObjectID(1,1,1), new PeriodTrace(1), new ReferenceDate().parse(new Date(), null));
+        GPRSFrame trace_CReq = gprsRequestFactory.getTrace_CRequest(new CTRObjectID(1,1,1), new PeriodTrace_C(1), new ReferenceDate().parse(new Date(), null));
         GPRSFrame traceReq = gprsRequestFactory.getTraceRequest(new CTRObjectID(1,1,1), new PeriodTrace(1), new StartDate(), new NumberOfElements(3));
 
         
