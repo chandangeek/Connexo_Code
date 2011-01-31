@@ -589,8 +589,12 @@ public class DummyRtu implements Rtu {
         return false;
     }
 
-    boolean execute(ChangeRtuTypeTransaction transaction) throws BusinessException, SQLException {
+    public boolean execute(ChangeRtuTypeTransaction transaction) throws BusinessException, SQLException {
         return true;
+    }
+
+    public ChangeRtuTypeTransaction createChangeRtuTypeTransaction(RtuType newType) {
+        return null;
     }
 
 }
