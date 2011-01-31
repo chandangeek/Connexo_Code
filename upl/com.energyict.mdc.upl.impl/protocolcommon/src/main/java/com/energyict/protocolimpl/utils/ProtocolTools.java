@@ -369,6 +369,26 @@ public final class ProtocolTools {
         return roundUpToNearestInterval(timeStamp, intervalInMinutes * (-1));
     }
 
+    /**
+     * Reverse the order of elements in a byte array
+     */
+    public static byte[] reverseByteArray(byte[] array) {
+        if (array == null) {
+            return array;
+        }
+        int i = 0;
+        int j = array.length - 1;
+        byte tmp;
+        while (j > i) {
+            tmp = array[j];
+            array[j] = array[i];
+            array[i] = tmp;
+            j--;
+            i++;
+        }
+        return array;
+    }
+
 
     /**
      * @param profileData
@@ -553,6 +573,7 @@ public final class ProtocolTools {
     }
 
     /**
+     *
      * @param year
      * @param month
      * @param dayOfMonth

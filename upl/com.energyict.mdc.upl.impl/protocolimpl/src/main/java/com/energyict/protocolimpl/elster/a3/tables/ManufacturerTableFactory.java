@@ -10,10 +10,13 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
+import com.energyict.protocolimpl.ansi.c12.tables.TableFactory;
+import com.energyict.protocolimpl.elster.a1800.tables.PowerQualityMonitorLog;
+import com.energyict.protocolimpl.elster.a1800.tables.PowerQualityMonitorTests;
+
+import java.io.IOException;
+
 /**
  *
  * @author Koen
@@ -41,7 +44,9 @@ public class ManufacturerTableFactory extends TableFactory {
     private GlobalParametersTablesForRemotePorts globalParametersTablesForRemotePorts=null;
     private OriginateParametersTableForRemotePorts originateParametersTableForRemotePorts=null;
     private OriginateSchedulingTablesforRemotePorts originateSchedulingTablesforRemotePorts=null;
-    
+    private PowerQualityMonitorLog powerQualityMonitorLog=null;
+    private PowerQualityMonitorTests powerQualityMonitorTests=null;
+
     /** Creates a new instance of TableFactory */
     public ManufacturerTableFactory(C12ProtocolLink c12ProtocolLink) {
         this.c12ProtocolLink = c12ProtocolLink;
@@ -194,4 +199,21 @@ public class ManufacturerTableFactory extends TableFactory {
         return previousIntervalDemand;
     }
     
+    public PowerQualityMonitorLog getPowerQualityMonitorLog() throws IOException {
+        if (powerQualityMonitorLog==null) {
+            powerQualityMonitorLog = new PowerQualityMonitorLog(this, getPowerQualityMonitorTests().hasLogValue());
+            powerQualityMonitorLog.build();
+}
+        return powerQualityMonitorLog;
+    }
+
+    public PowerQualityMonitorTests getPowerQualityMonitorTests() throws IOException {
+        if (powerQualityMonitorTests==null) {
+            powerQualityMonitorTests = new PowerQualityMonitorTests(this);
+            powerQualityMonitorTests.build();
+        }
+        return powerQualityMonitorTests;
+    }
+
+
 }
