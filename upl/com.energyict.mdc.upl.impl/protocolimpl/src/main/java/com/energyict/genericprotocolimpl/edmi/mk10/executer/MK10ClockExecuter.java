@@ -6,17 +6,15 @@
  */
 package com.energyict.genericprotocolimpl.edmi.mk10.executer;
 
-import java.io.IOException;
-import java.text.DateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-import java.util.logging.Level;
-
 import com.energyict.cbo.BusinessException;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.edmi.mk10.MK10;
+
+import java.io.IOException;
+import java.text.DateFormat;
+import java.util.*;
+import java.util.logging.Level;
 
 /**
  * @author jme
@@ -143,9 +141,9 @@ public class MK10ClockExecuter {
         java.util.Date systemDate = Calendar.getInstance().getTime();
         // get the meter time (roundtrip corrected)
         java.util.Date meterDate = getMk10Protocol().getTime();
-        long diff = getDiff(systemDate, meterDate);
-        if (diff > (getCommunicationProfile().getMaximumClockDifference() * 1000)) {
-            String msg = "Time difference exceeds configured maximum: (" + (diff / 1000) + " s >" + getCommunicationProfile().getMaximumClockDifference() + " s )";
+        long diff = getDiff(systemDate, meterDate) / 1000;
+        if (diff > getCommunicationProfile().getMaximumClockDifference()) {
+            String msg = "Time difference exceeds configured maximum: (" + diff + " s >" + getCommunicationProfile().getMaximumClockDifference() + " s )";
             log(Level.SEVERE, msg);
 
             if (!collectOutsiteMaxTimeDiff) {
