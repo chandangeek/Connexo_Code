@@ -432,3 +432,9 @@
 }
 
 -keepnames class com.energyict.genericprotocolimpl.elster.AM100R.Apollo.ApolloMeter
+
+-keepnames class com.energyict.protocolimpl.coronis.core.RegisterCache
+
+-keepclasseswithmembers public class com.energyict.protocolimpl.coronis.core.RegisterCache {
+    public void cacheRegisters(java.util.List);
+}
