@@ -300,24 +300,36 @@ public class MK10ProtocolExecuter {
 	 */
 
 	public CommunicationProfile getCommunicationProfile() throws BusinessException {
-		List schedulerList = getMeter().getCommunicationSchedulers();
-		if (schedulerList.size() != 1) {
-			throw new BusinessException(
-					"Rtu MUST have one and only one CommunicationScheduler when using push protocol. " +
-					"CommunicationSchedulers found for Rtu: " + schedulerList.size()
-					);
-		}
-
-		CommunicationScheduler cs = (CommunicationScheduler) schedulerList.get(0);
-		CommunicationProfile cp =  mw().getCommunicationProfileFactory().find(cs.getCommunicationProfileId());
+		CommunicationProfile cp =  getInboundCommunicationScheduler().getCommunicationProfile();
 		if (cp == null) {
 			throw new BusinessException("No CommunicationProfile found for Rtu.");
 		}
-
 		return cp;
 	}
 
-	public Rtu getMeter() {
+    public CommunicationScheduler getInboundCommunicationScheduler() throws BusinessException {
+        List<CommunicationScheduler> schedulerList = getInboundSchedulers(getMeter().getCommunicationSchedulers());
+        if (schedulerList.size() != 1) {
+            throw new BusinessException(
+                    "Rtu MUST have one and only one CommunicationScheduler with an INBOUND modem pool when using push protocol. " +
+                    "CommunicationSchedulers found for Rtu: " + schedulerList.size()
+            );
+        }
+        return schedulerList.get(0);
+    }
+
+    private List<CommunicationScheduler> getInboundSchedulers(List<CommunicationScheduler> schedulers) {
+        List<CommunicationScheduler> inboundSchedulers = new ArrayList<CommunicationScheduler>();
+        for (CommunicationScheduler scheduler : schedulers) {
+            ModemPool modemPool = scheduler.getModemPool();
+            if ((modemPool != null) && (modemPool.getInbound())) {
+                inboundSchedulers.add(scheduler);
+            }
+        }
+        return inboundSchedulers;
+    }
+
+    public Rtu getMeter() {
 		return meter;
 	}
 

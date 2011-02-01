@@ -108,59 +108,53 @@ public class MK10Push implements GenericProtocol {
 		return returnValue;
 	}
 
-	private void addLogging(int completionCode, String completionMessage, List<AmrJournalEntry> journal, boolean success, Exception exception) throws SQLException, BusinessException {
-		sendDebug("** addLogging **", 2);
+    private void addLogging(CommunicationScheduler cs, int completionCode, String completionMessage, List<AmrJournalEntry> journal, boolean success, Exception exception) throws SQLException, BusinessException {
+        sendDebug("** addLogging **", 2);
 
-		// check if there was an protocol or timeout error
-		if (!success && (completionCode == AmrJournalEntry.CC_OK)) {
-			if (exception != null) {
-				if ((exception.getMessage() != null) && (exception.getMessage().indexOf("timeout") != -1)) {
-					completionCode = AmrJournalEntry.CC_IOERROR;
-				} else {
-					completionCode = AmrJournalEntry.CC_PROTOCOLERROR;
-				}
-			}
-		}
+        // check if there was an protocol or timeout error
+        if (!success && (completionCode == AmrJournalEntry.CC_OK)) {
+            if (exception != null) {
+                if ((exception.getMessage() != null) && (exception.getMessage().indexOf("timeout") != -1)) {
+                    completionCode = AmrJournalEntry.CC_IOERROR;
+                } else {
+                    completionCode = AmrJournalEntry.CC_PROTOCOLERROR;
+                }
+            }
+        }
 
-		if(getMeter() != null){
-			Iterator it = getMeter().getCommunicationSchedulers().iterator();
-			while(it.hasNext()){
-				CommunicationScheduler cs = (CommunicationScheduler)it.next();
-				if( !cs.getActive() ){
-					AMRJournalManager amrjm = new AMRJournalManager(getMeter(), cs);
-					amrjm.journal(new AmrJournalEntry(completionCode));
-					amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CONNECTTIME, Math.abs(getDisconnectTime() - getConnectTime())/1000));
+        if ((cs != null) && (!cs.getActive())) {
+            clearNextCommunicationDate(cs);
 
-					for (int i = 0; i < journal.size(); i++) {
-						AmrJournalEntry amrJournalEntry = journal.get(i);
-						amrjm.journal(amrJournalEntry);
-					}
+            AMRJournalManager amrjm = new AMRJournalManager(getMeter(), cs);
+            amrjm.journal(new AmrJournalEntry(completionCode));
+            amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CONNECTTIME, Math.abs(getDisconnectTime() - getConnectTime()) / 1000));
 
-					if (getErrorString().length() > 0) {
-						amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, getErrorString()));
-					}
-					if (completionMessage.length() > 0) {
-						amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, completionMessage));
-					}
-					if (exception != null) {
-						amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, "Exception: " + exception.toString()));
-					}
+            for (int i = 0; i < journal.size(); i++) {
+                AmrJournalEntry amrJournalEntry = journal.get(i);
+                amrjm.journal(amrJournalEntry);
+            }
 
-					if (success) {
-						sendDebug("** updateLastCommunication **", 3);
-						amrjm.updateLastCommunication();
-					} else {
-						sendDebug("** updateRetrials **", 3);
-						amrjm.updateRetrials();
-					}
-					break;
-				}
-				clearNextCommunicationDate(cs);
-			}
-		} else {
-			getLogger().log(Level.INFO, "Failed to enter an AMR journal entry.");
-		}
-	}
+            if (getErrorString().length() > 0) {
+                amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, getErrorString()));
+            }
+            if (completionMessage.length() > 0) {
+                amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, completionMessage));
+            }
+            if (exception != null) {
+                amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, "Exception: " + exception.toString()));
+            }
+
+            if (success) {
+                sendDebug("** updateLastCommunication **", 3);
+                amrjm.updateLastCommunication();
+            } else {
+                sendDebug("** updateRetrials **", 3);
+                amrjm.updateRetrials();
+            }
+        } else {
+            getLogger().log(Level.INFO, "Failed to enter an AMR journal entry.");
+        }
+    }
 
 	private void clearNextCommunicationDate(CommunicationScheduler cs) throws SQLException, BusinessException {
 		CommunicationSchedulerShadow shadow = cs.getShadow();
@@ -168,19 +162,13 @@ public class MK10Push implements GenericProtocol {
 		cs.update(shadow);
 	}
 
-	private void startCommunication() throws SQLException, BusinessException {
-		if(getMeter() != null){
-			Iterator it = getMeter().getCommunicationSchedulers().iterator();
-			while(it.hasNext()){
-				CommunicationScheduler cs = (CommunicationScheduler)it.next();
-				if( !cs.getActive() ){
-					cs.startCommunication(cs.getComPortId());
-				}
-			}
-		}
-	}
+    private void startCommunication(CommunicationScheduler cs) throws SQLException, BusinessException {
+        if ((cs != null) && (!cs.getActive())) {
+            cs.startCommunication(cs.getComPortId());
+        }
+    }
 
-	private Rtu findMatchingMeter(String serial) {
+    private Rtu findMatchingMeter(String serial) {
 		if (serial == null) {
 			return null;
 		}
@@ -268,7 +256,7 @@ public class MK10Push implements GenericProtocol {
 			Rtu pushDevice = waitForPushMeter();
 			getMK10Executor().setMeter(pushDevice);
 
-			startCommunication();
+			startCommunication(getMK10Executor().getInboundCommunicationScheduler());
 			getMK10Executor().doMeterProtocol();
 			storeMeterData(getMK10Executor().getMeterReadingData(), getMK10Executor().getMeterProfileData());
 
@@ -319,13 +307,18 @@ public class MK10Push implements GenericProtocol {
 
 			try {
 				addLogging(
-						getMK10Executor().getCompletionCode(),
+                        getMK10Executor().getInboundCommunicationScheduler(),
+                        getMK10Executor().getCompletionCode(),
 						getMK10Executor().getCompletionErrorString(),
 						getMK10Executor().getJournal(),
 						success,
 						exception
 				);
-			} catch (SQLException e) {
+            } catch (BusinessException e) {
+                sendDebug("** BusinessException **", 1);
+                e.printStackTrace();
+                throw e;
+            } catch (SQLException e) {
 				sendDebug("** SQLException **", 1);
 				e.printStackTrace();
 				// Close the connection after an SQL exception, connection will startup again if requested
