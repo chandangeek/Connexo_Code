@@ -5,7 +5,8 @@ import java.util.*;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
+import com.energyict.protocolimpl.coronis.wavetalk.core.*;
+
 
 public class WaveTalk extends WaveFlow {
 
@@ -14,6 +15,17 @@ public class WaveTalk extends WaveFlow {
 	 * specific obis code mapper
 	 */
 	private ObisCodeMapper obisCodeMapper;	
+
+	
+	/**
+	 * the common ohis code mapper for the WaveTalk
+	 */
+	private CommonObisCodeMapper commonObisCodeMapper=null;
+	
+	/**
+	 * The parameter factory interface
+	 */
+	private ParameterFactory parameterFactory=null;
 	
 	
 	@Override
@@ -25,6 +37,8 @@ public class WaveTalk extends WaveFlow {
 	@Override
 	protected void doTheInit() throws IOException {
 		obisCodeMapper = new ObisCodeMapper(this);
+		commonObisCodeMapper = new CommonObisCodeMapper(this);
+		parameterFactory = new ParameterFactoryImpl(this);
 	}	
 	
 	@Override
@@ -48,19 +62,6 @@ public class WaveTalk extends WaveFlow {
 		
 	}
 
-	@Override
-	protected MeterProtocolType getMeterProtocolType() {
-		
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	protected ProfileData getTheProfileData(Date lastReading, int portId,
-			boolean includeEvents) throws UnsupportedException, IOException {
-		throw new UnsupportedException();
-	}
-
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
     	return obisCodeMapper.getRegisterValue(obisCode);
     }	 
@@ -73,5 +74,15 @@ public class WaveTalk extends WaveFlow {
      */
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return obisCodeMapper.getRegisterInfo(obisCode);
-    }		
+    }
+
+	@Override
+	public AbstractCommonObisCodeMapper getCommonObisCodeMapper() {
+		return commonObisCodeMapper;
+	}
+
+	@Override
+	public ParameterFactory getParameterFactory() {
+		return parameterFactory;
+	}		
 }

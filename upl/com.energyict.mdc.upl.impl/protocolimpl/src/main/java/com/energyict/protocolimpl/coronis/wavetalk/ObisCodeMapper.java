@@ -1,14 +1,12 @@
 package com.energyict.protocolimpl.coronis.wavetalk;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.Map.Entry;
 
-import com.energyict.cbo.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.coronis.waveflow.core.CommonObisCodeMapper;
+import com.energyict.protocolimpl.coronis.wavetalk.core.CommonObisCodeMapper;
 
 public class ObisCodeMapper {
 	

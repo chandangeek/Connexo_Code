@@ -24,7 +24,7 @@ public class WaveFlowDLMSWMessages implements MessageProtocol {
 			if (messageEntry.getContent().indexOf("<PairMeter")>=0) {
 				abstractDLMS.getLogger().info("************************* PairMeter *************************");
 				
-				int baudrate = Integer.parseInt(getTagContents("SetApplicationStatus", messageEntry.getContent()));
+				int baudrate = Integer.parseInt(getTagContents("PairMeter", messageEntry.getContent()));
 				if (abstractDLMS.pairWithEMeter(baudrate)) {
 					return MessageResult.createSuccess(messageEntry);
 				}
@@ -61,7 +61,7 @@ public class WaveFlowDLMSWMessages implements MessageProtocol {
 				return MessageResult.createFailed(messageEntry);
 			}
 		}
-		catch(IOException e) {
+		catch(Exception e) {
 			abstractDLMS.getLogger().severe("Error parsing message, "+e.getMessage());
 			return MessageResult.createFailed(messageEntry);
 		}

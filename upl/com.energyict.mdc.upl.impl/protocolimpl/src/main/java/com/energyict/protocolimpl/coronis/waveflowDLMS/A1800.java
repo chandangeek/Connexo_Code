@@ -102,11 +102,5 @@ public class A1800 extends AbstractDLMS {
 	@Override
 	void doTheValidateProperties(Properties properties) {
 		setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", LOAD_PROFILE_PULSES.toString())));		
-	}	
-
-
-    
-    
-
-
+	}
 }

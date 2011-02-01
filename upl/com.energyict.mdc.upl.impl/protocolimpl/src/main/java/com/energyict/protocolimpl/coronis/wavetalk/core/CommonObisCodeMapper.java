@@ -1,4 +1,4 @@
-package com.energyict.protocolimpl.coronis.waveflow.core;
+package com.energyict.protocolimpl.coronis.wavetalk.core;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -28,7 +28,7 @@ public class CommonObisCodeMapper extends AbstractCommonObisCodeMapper {
         this.waveFlow=waveFlow;
     }
     
-    public String getRegisterExtendedLogging() {
+    final public String getRegisterExtendedLogging() {
     	
     	StringBuilder strBuilder=new StringBuilder();
     	
@@ -51,8 +51,8 @@ public class CommonObisCodeMapper extends AbstractCommonObisCodeMapper {
     	}
     }
     
-    public RegisterValue getRegisterValue(ObisCode obisCode) throws NoSuchRegisterException {
-		try {
+    public RegisterValue getRegisterValue(ObisCode obisCode) throws NoSuchRegisterException,IOException {
+		//try {
 	    	if (obisCode.equals(ObisCode.fromString("0.0.96.6.0.255"))) {
 	    		// battery counter
 				return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(waveFlow.getParameterFactory().readBatteryLifeDurationCounter().remainingBatteryLife()), Unit.get(BaseUnit.PERCENT)),new Date());
@@ -64,11 +64,10 @@ public class CommonObisCodeMapper extends AbstractCommonObisCodeMapper {
 	    	
 			throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] does not exist!");
 			
-		} catch (IOException e) {
-			
-			throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] has an error ["+e.getMessage()+"]!");
-			
-		}
+//		} catch (IOException e) {
+//			throw e; //new NoSuchRegisterException("Register with obis code ["+obisCode+"] has an error ["+e.getMessage()+"]!");
+//			
+//		}
 
     }
 	

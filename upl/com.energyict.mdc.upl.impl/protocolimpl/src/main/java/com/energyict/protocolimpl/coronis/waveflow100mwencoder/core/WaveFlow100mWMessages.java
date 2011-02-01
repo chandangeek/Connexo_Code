@@ -63,7 +63,7 @@ public class WaveFlow100mWMessages implements MessageProtocol {
 				return MessageResult.createFailed(messageEntry);
 			}
 		}
-		catch(IOException e) {
+		catch(Exception e) {
 			waveFlow100mW.getLogger().severe("Error parsing message, "+e.getMessage());
 			return MessageResult.createFailed(messageEntry);
 		}

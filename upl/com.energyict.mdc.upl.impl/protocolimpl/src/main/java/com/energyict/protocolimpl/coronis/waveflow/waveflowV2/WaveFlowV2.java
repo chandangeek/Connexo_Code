@@ -5,7 +5,7 @@ import java.util.*;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
+import com.energyict.protocolimpl.coronis.waveflow.core.*;
 
 public class WaveFlowV2 extends WaveFlow {
 
@@ -19,11 +19,22 @@ public class WaveFlowV2 extends WaveFlow {
 	 */
 	private ProfileDataReader profileDataReader;
 
+	/**
+	 * The common ohis code mapper for the waveflow pulse (Waveflow V2)
+	 */
+	private CommonObisCodeMapper commonObisCodeMapper=null;
+
+	/**
+	 * The parameter factory interface
+	 */
+	private ParameterFactory parameterFactory=null;
 	
 	@Override
 	protected void doTheInit() throws IOException {
 		obisCodeMapper = new ObisCodeMapper(this);
 		profileDataReader = new ProfileDataReader(this);
+		commonObisCodeMapper = new CommonObisCodeMapper(this);
+		parameterFactory = new ParameterFactoryImpl(this);
 	}	
 	
 	@Override
@@ -68,6 +79,16 @@ public class WaveFlowV2 extends WaveFlow {
 	@Override
 	protected ProfileData getTheProfileData(Date lastReading, int portId,boolean includeEvents) throws UnsupportedException, IOException {
 		return profileDataReader.getProfileData(lastReading, portId, includeEvents);
+	}
+
+	@Override
+	public AbstractCommonObisCodeMapper getCommonObisCodeMapper() {
+		return commonObisCodeMapper;
+	}
+
+	@Override
+	public ParameterFactory getParameterFactory() {
+		return parameterFactory;
 	}
 	
 }

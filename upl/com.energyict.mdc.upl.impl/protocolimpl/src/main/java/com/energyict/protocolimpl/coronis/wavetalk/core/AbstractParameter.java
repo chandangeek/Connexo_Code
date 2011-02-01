@@ -1,9 +1,9 @@
-package com.energyict.protocolimpl.coronis.waveflow.core;
+package com.energyict.protocolimpl.coronis.wavetalk.core;
 
 import java.io.*;
 
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlowException;
 
 abstract public class AbstractParameter extends AbstractRadioCommand {
 
@@ -12,28 +12,9 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 	
 	enum ParameterId {
 		
-		BatteryLifeDurationCounter(0xA2,2,"Battery life duration counter"),
+		BatteryLifeDurationCounter(0xA2,3,"Battery life duration counter WaveTalk"),
 		BatteryLifeDateEnd(0x90,6,"Battery life end date"),
-		ApplicationStatus(0x20,1,"Application Status"), // page 12
-		SamplingPeriod(0x80,1,"Reading the sampling period"), // page 14
-		SamplingActivationStartHour(0x81,1,"Sampling activation start hour (00=00:00, 01=01:00,... , 0x17=23:00)"), 
-		
-		LeakageDetectionStatus(0x02,1,"Leakage Detection Status"), // page 12
-		NrOfLoggedRecords(0x14,2,"Number of records in the datalogging table"), // page 15
-		EncoderModelPortA(0x1D,2,"Encoder model on port A"), // page 18
-		EncoderModelPortB(0x1E,2,"Encoder model on port B"), // page 18
-		EncoderUnitPortA(0x1F,2,"Encoder unit on port A"), // page 19
-		EncoderUnitPortB(0x20,2,"Encoder unit on port B"), // page 19
-		BackflowDetectionDatePortA(0x3E,7,"Backflow detection date port A"),
-		BackflowDetectionDatePortB(0x3F,7,"Backflow detection date port B"),
-		BackflowDetectionFlagsPortA(0x43,2,"Backflow detection flags port A"),
-		BackflowDetectionFlagsPortB(0x47,2,"Backflow detection flags port B"),
-		CommunicationErrorDetectionDatePortA(0x4C,7,"communication error detection date port A"),
-		CommunicationErrorDetectionDatePortB(0x4D,7,"communication error detection date port B"),
-		CommunicationErrorReadingDatePortA(0x4E,7,"communication error reading date port A"),
-		CommunicationErrorReadingDatePortB(0x4F,7,"communication error reading date port B");
-		
-		
+		ApplicationStatus(0x20,1,"Application Status");
 		
 		private int id;
 		private int length;

@@ -37,7 +37,7 @@ public class TransparentObjectListRead {
 	private final int ATTRIBUTE_SCALER=3;
 	
 	// collected registervalues
-	Map<ObisCode,RegisterValue> registerValues = new HashMap<ObisCode,RegisterValue>(); 
+	Map<ObisCode,RegisterValue> registerValues; 
 		
 	public final Map<ObisCode, RegisterValue> getRegisterValues() {
 		return registerValues;
@@ -46,12 +46,12 @@ public class TransparentObjectListRead {
 	/**
 	 * Reference to the implementation class.
 	 */
-	private AbstractDLMS abstractDLMS;
+	private final AbstractDLMS abstractDLMS;
 	
 	/**
 	 * List of obis code objects to read
 	 */
-	private List<ObjectInfo> objectInfos;
+	private final List<ObjectInfo> objectInfos;
 	
 	/**
 	 * Frame count to be received.this is part of the WaveFlow AC protocol implementation.
@@ -67,8 +67,13 @@ public class TransparentObjectListRead {
 	}
 	
 	public TransparentObjectListRead(AbstractDLMS abstractDLMS,List<ObjectInfo> objectInfos) throws WaveFlowDLMSException {
+		this(abstractDLMS,objectInfos,new HashMap<ObisCode,RegisterValue>());
+	}
+	
+	public TransparentObjectListRead(final AbstractDLMS abstractDLMS,final List<ObjectInfo> objectInfos,final Map<ObisCode,RegisterValue> registerValues) throws WaveFlowDLMSException {
 		this.abstractDLMS = abstractDLMS;
 		this.objectInfos=objectInfos;
+		this.registerValues=registerValues;
 		if (objectInfos.size() > MAX_NR_OF_OBISCODES) {
 			throw new WaveFlowDLMSException("Too many obis code requests in list. Requested ["+objectInfos.size()+"], max allowed ["+MAX_NR_OF_OBISCODES+"]");
 		}
@@ -109,7 +114,7 @@ public class TransparentObjectListRead {
 		}		
 	}
 	
-	public void read() throws IOException {
+	public final void read() throws IOException {
 		if (objectInfos.size() == 0) {
 			throw new WaveFlowDLMSException("No obiscodes to read in the list! Cannort preform a transparant object list read");
 		}
@@ -159,7 +164,7 @@ public class TransparentObjectListRead {
 		}
 	}
 	
-	private void validateResultCode(int resultCode) throws WaveFlowException {
+	private final void validateResultCode(int resultCode) throws WaveFlowException {
 		switch(resultCode) {
 			case 0xFF: throw new WaveFlowDLMSException("Transparant object list read error. No data in buffer!");
 			case 0xFE: throw new WaveflowDLMSStatusError("Transparant object list read error. Bad request format!");
@@ -167,7 +172,7 @@ public class TransparentObjectListRead {
 		}
 	}
 	
-	private void parseResponse(byte[] sendData) throws IOException {
+	private final void parseResponse(byte[] sendData) throws IOException {
 
 		//System.out.println("Received : "+ProtocolUtils.outputHexString(sendData));
 
@@ -236,7 +241,7 @@ public class TransparentObjectListRead {
 		}				
 	}
 
-	private byte[] decodeMultiFrame(byte[] multiFrameData) throws IOException {
+	private final byte[] decodeMultiFrame(final byte[] multiFrameData) throws IOException {
 		
 		ByteArrayOutputStream baos=new ByteArrayOutputStream();
 		DataInputStream dais = null;
@@ -300,7 +305,7 @@ public class TransparentObjectListRead {
 		}				
 	}
 	
-	private void parseHDLCFrames(int nrOfResults, byte[] data) throws IOException {
+	private final void parseHDLCFrames(final int nrOfResults,final byte[] data) throws IOException {
 		ByteArrayOutputStream baos=new ByteArrayOutputStream();
 		DataInputStream dais = null;
 		
@@ -331,10 +336,13 @@ public class TransparentObjectListRead {
 				
 				XDLMSDataParser xdlmsParser = new XDLMSDataParser(abstractDLMS==null?null:abstractDLMS.getLogger());
 				
-				parseAXDRObjectData(objectInfos.get(i),xdlmsParser.parseAXDRData(parseHDLCData(temp)));
-				
+				try {
+					parseAXDRObjectData(objectInfos.get(i),xdlmsParser.parseAXDRData(parseHDLCData(temp)));
+				}
+				catch(DataAccessResultException e) {
+					abstractDLMS.getLogger().warning("Error during list access reading ["+obisCode+"], ["+e.getMessage()+"]");
+				}
 			}
-			
 		}
 		finally {
 			if (dais != null) {
@@ -353,7 +361,7 @@ public class TransparentObjectListRead {
 	 * @return DLMS data
 	 * @throws IOException 
 	 */
-	private byte[] parseHDLCData(byte[] hdlcData) throws IOException {
+	private final byte[] parseHDLCData(final byte[] hdlcData) throws IOException {
 		
 		ByteArrayOutputStream baos=new ByteArrayOutputStream();
 		int hdlcDataLength = hdlcData.length;
@@ -380,16 +388,16 @@ public class TransparentObjectListRead {
 	 *      3 = register
 	 */
 	
-	private void parseAXDRObjectData(ObjectInfo objectInfo, byte[] axdrData) throws IOException {
+	private final void parseAXDRObjectData(final ObjectInfo objectInfo,final byte[] axdrData) throws IOException {
 		AbstractDataType adt = AXDRDecoder.decode(axdrData);
 		
 		if (objectInfo.getClassId() == CLASS_DATA) {
 			registerValues.remove(objectInfo.getObisCode());
 			if (adt.isOctetString()) {
-				registerValues.put(objectInfo.getObisCode(), new RegisterValue(objectInfo.getObisCode(), adt.getOctetString().stringValue()));
+				registerValues.put(objectInfo.getObisCode(), new RegisterValue(objectInfo.getObisCode(), adt.getOctetString().stringValue()+" ["+ProtocolUtils.outputHexString(adt.getOctetString().getOctetStr())+"]"));
 			}
 			else if (adt.isVisibleString()) {
-				registerValues.put(objectInfo.getObisCode(), new RegisterValue(objectInfo.getObisCode(), adt.getOctetString().stringValue()));
+				registerValues.put(objectInfo.getObisCode(), new RegisterValue(objectInfo.getObisCode(), adt.getVisibleString().getStr()));
 			}
 			else {
 				registerValues.put(objectInfo.getObisCode(), new RegisterValue(objectInfo.getObisCode(), new Quantity(adt.toBigDecimal(),Unit.get(""))));

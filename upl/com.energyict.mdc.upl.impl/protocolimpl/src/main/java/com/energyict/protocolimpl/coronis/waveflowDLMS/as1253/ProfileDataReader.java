@@ -35,9 +35,9 @@ public class ProfileDataReader {
 		
 		int profileInterval = readProfileInterval();
 		
-		if (profileInterval != as1253.getProfileInterval()) {
-			throw new WaveFlowDLMSException("Invalid profile interval. Configured is ["+as1253.getProfileInterval()+"] s, configured in meter is ["+profileInterval+"]!");
-		}
+//		if (profileInterval != as1253.getProfileInterval()) {
+//			throw new WaveFlowDLMSException("Invalid profile interval. Configured is ["+as1253.getProfileInterval()+"] s, configured in meter is ["+profileInterval+"]!");
+//		}
 		
 		AbstractDataType adt = as1253.getTransparantObjectAccessFactory().readObjectAttributeRange(as1253.getLoadProfileObisCode(), TransparantObjectAccessFactory.ATTRIBUTE_VALUE,lastReading);
 		

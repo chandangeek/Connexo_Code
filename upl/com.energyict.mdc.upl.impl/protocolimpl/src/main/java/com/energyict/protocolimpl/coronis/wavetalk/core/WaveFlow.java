@@ -1,4 +1,4 @@
-package com.energyict.protocolimpl.coronis.waveflow.core;
+package com.energyict.protocolimpl.coronis.wavetalk.core;
 
 import java.io.*;
 import java.util.*;
@@ -10,27 +10,12 @@ import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.coronis.core.*;
 
-abstract public class WaveFlow extends AbstractProtocol implements MessageProtocol,ProtocolLink {
-
-	private static final int WAVEFLOW_NR_OF_CHANNELS = 2;
+abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink {
 
 	abstract protected void doTheConnect() throws IOException;
     abstract protected void doTheInit() throws IOException;
     abstract protected void doTheDisConnect() throws IOException;
     abstract protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
-	abstract protected ProfileData getTheProfileData(Date lastReading, int portId, boolean includeEvents) throws UnsupportedException, IOException;
-    abstract protected MeterProtocolType getMeterProtocolType();
-	
-    public enum MeterProtocolType { 
-    	SM150E(0),
-    	ECHODIS(1);
-    	
-    	int type;
-    	
-    	MeterProtocolType(int type) {
-    		this.type=type;
-    	}
-    }
     
 	/**
 	 * reference to the lower connect latyers of the wavenis stack
@@ -54,11 +39,6 @@ abstract public class WaveFlow extends AbstractProtocol implements MessageProtoc
 	
 	abstract public AbstractCommonObisCodeMapper getCommonObisCodeMapper();
 	abstract public ParameterFactory getParameterFactory();
-
-	/**
-	 * reference to the message protocol parser
-	 */
-	private WaveFlowMessages waveFlowMessages = new WaveFlowMessages(this);
 	
 	/**
 	 * the correcttime property. this property is set from the protocolreader in order to allow to sync the time...
@@ -113,9 +93,7 @@ abstract public class WaveFlow extends AbstractProtocol implements MessageProtoc
 	@Override
 	protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 		setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout","40000").trim()));
-		setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", "0.0.99.1.0.255")));
 		correctTime = Integer.parseInt(properties.getProperty(MeterProtocol.CORRECTTIME,"0"));
-		
 		doTheValidateProperties(properties);
 	}
 
@@ -161,78 +139,6 @@ abstract public class WaveFlow extends AbstractProtocol implements MessageProtoc
 		}
 	}
 
-	final public void restartDataLogging(int nrOfInputs2Enable) throws IOException {
-		int om = getParameterFactory().readOperatingMode();
-		getParameterFactory().manageDataloggingInputs(nrOfInputs2Enable); // enable All 4 inputs... ABCD
-		writeSamplingRate();
-		getParameterFactory().writeSamplingActivationNextHour();
-		getParameterFactory().enableDataLoggingPeriodic();
-	}
-	
-	final public void writeSamplingRate() throws IOException {
-		getParameterFactory().writeSamplingPeriod(getProfileInterval());
-	}
-    
-    /**
-     * Override this method to requesting the load profile integration time
-     * @throws com.energyict.protocol.UnsupportedException thrown when not supported
-     * @throws java.io.IOException Thrown when something goes wrong
-     * @return integration time in seconds
-     */
-    public int getProfileInterval() throws UnsupportedException, IOException {
-        return getParameterFactory().getProfileIntervalInSeconds();
-    }
-
-    /**
-     * Override this method to request the load profile from the meter starting at lastreading until now.
-     * @param lastReading request from
-     * @param includeEvents enable or disable tht reading of meterevents
-     * @throws java.io.IOException When something goes wrong
-     * @return All load profile data in the meter from lastReading
-     */
-    public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-    	
-    	try {
-    		return getTheProfileData(lastReading,getLoadProfileObisCode().getD(),includeEvents);
-    	}
-    	catch(WaveFlowException e) {
-    		getLogger().warning("No profile data available. Probably datalogging restarted...");
-    		return null;
-    	}
-    }    
-   
-	public void applyMessages(List messageEntries) throws IOException {
-		waveFlowMessages.applyMessages(messageEntries);
-	}
-
-	public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
-		return waveFlowMessages.queryMessage(messageEntry);
-	}
-
-	public List getMessageCategories() {
-		return waveFlowMessages.getMessageCategories();
-	}
-
-	public String writeMessage(Message msg) {
-		return waveFlowMessages.writeMessage(msg);
-	}
-
-	public String writeTag(MessageTag tag) {
-		return waveFlowMessages.writeTag(tag);
-	}
-
-	public String writeValue(MessageValue value) {
-		return waveFlowMessages.writeValue(value);
-	}
-    
-	public ObisCode getLoadProfileObisCode() {
-		return loadProfileObisCode;
-	}
-
-	public void setLoadProfileObisCode(ObisCode loadProfileObisCode) {
-		this.loadProfileObisCode = loadProfileObisCode;
-	}
-
 	@Override
     protected List doGetOptionalKeys() {
         List result = new ArrayList();
@@ -241,10 +147,6 @@ abstract public class WaveFlow extends AbstractProtocol implements MessageProtoc
 	
     public void setHalfDuplexController(HalfDuplexController halfDuplexController) {
     	// absorb
-    }
-    
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
-    	return WAVEFLOW_NR_OF_CHANNELS;
     }
 
     public WaveFlowConnect getWaveFlowConnect() {

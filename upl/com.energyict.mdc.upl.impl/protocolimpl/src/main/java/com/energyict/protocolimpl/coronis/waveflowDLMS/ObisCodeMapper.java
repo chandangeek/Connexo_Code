@@ -26,49 +26,15 @@ public class ObisCodeMapper {
 	private final int ATTRIBUTE_SCALER=3;	
 	private final int ATTRIBUTE_CAPTURETIME=5;	
 	
+	/**
+	 * A
+	 */
+	int entryCount=0;
 	
 	/**
-	 * cached registervalues read by the Transparant object list reader using the property ObisCodeList
+	 * cached registervalues read by the Transparant list object list reader using the property ObisCodeList
 	 */
-	private Map<ObisCode,RegisterValue>[] cachedRegisterValues=null; 
-	
-	private final int findRegisterInList(ObisCode obisCode) {
-		for (int index=0;index<abstractDLMS.getObjectInfosLists().length;index++) {
-			
-			List<ObjectInfo> objectInfos = abstractDLMS.getObjectInfosLists()[index];
-			for (ObjectInfo o : objectInfos) {
-				
-				if (o.getObisCode().equals(obisCode)) {
-					return index;
-				}
-			}
-		}
-		return -1;
-	}
-	
-	private final RegisterValue getCachedRegisterValues(ObisCode obisCode) throws IOException {
-		
-		int index = findRegisterInList(obisCode); // does the obis code exist in a list
-		if (index == -1) return null; // if the obiscode does not belongs to a list, leave
-		
-		// initialize the cacedregistervalues array if not already done
-		if (cachedRegisterValues == null) { 
-			cachedRegisterValues = new Map[abstractDLMS.getObjectInfosLists().length];
-		}
-		
-		// read cachedRegisterValues if not already done
-		if (cachedRegisterValues[index] == null) {
-			cachedRegisterValues[index] = new HashMap<ObisCode,RegisterValue>(); 
-			if (abstractDLMS.getObjectInfosLists()[index].size() > 0) {
-				abstractDLMS.getLogger().info("Invoke a block register read for ["+abstractDLMS.getObjectInfosLists()[index].size()+"] values...");
-		    	TransparentObjectListRead t = new TransparentObjectListRead(abstractDLMS,abstractDLMS.getObjectInfosLists()[index]);
-		    	t.read();
-		    	cachedRegisterValues[index] = t.getRegisterValues();
-			}
-		}
-		
-		return cachedRegisterValues[index].get(obisCode);
-	}
+	private Map<ObisCode,RegisterValue> cachedRegisterValues=new HashMap<ObisCode, RegisterValue>(); 
 	
     /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(final AbstractDLMS abstractDLMS) {
@@ -96,6 +62,70 @@ public class ObisCodeMapper {
     public static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
     	return new RegisterInfo(AbstractDLMS.findObjectByObiscode(obisCode).getDescription());
     }
+
+    final private void transparantReadList(final List<ObjectInfo> objectInfoList) throws IOException {
+		TransparentObjectListRead transparentObjectListRead = new TransparentObjectListRead(abstractDLMS,objectInfoList, cachedRegisterValues);
+		transparentObjectListRead.read();
+		abstractDLMS.getLogger().info("Cached ["+objectInfoList.size()+"] attributes...");
+    }
+    
+    final private List<ObjectInfo> readAttributes(final List<ObjectInfo> objectInfoList) throws IOException {
+		if (++entryCount >= 16) {
+			transparantReadList(objectInfoList);
+			entryCount=0;
+			return new ArrayList<ObjectInfo>();
+		}
+		else {
+			return objectInfoList;
+		}
+    }
+    
+    public void cacheRegisters(final List<ObisCode> obisCodes) throws IOException {
+    	
+    	
+    	List<ObjectInfo> objectInfoList = new ArrayList<ObjectInfo>(); 
+    	
+    	for (ObisCode obisCode : obisCodes) {
+    		try {
+				ObjectEntry objectEntry = AbstractDLMS.findObjectByObiscode(obisCode);
+				
+				// if obis code found in register list for meter, check class id and fill 0x36 list according to the attributs to request
+				switch(objectEntry.getClassId()) {
+				
+					case CLASS_DATA: {
+						objectInfoList.add(new ObjectInfo(ATTRIBUTE_VALUE, CLASS_DATA, obisCode));
+						objectInfoList = readAttributes(objectInfoList);
+					} break; // CLASS_DATA
+					
+					case CLASS_REGISTER: {
+						objectInfoList.add(new ObjectInfo(ATTRIBUTE_VALUE, CLASS_REGISTER, obisCode));
+						objectInfoList = readAttributes(objectInfoList);
+						objectInfoList.add(new ObjectInfo(ATTRIBUTE_SCALER, CLASS_REGISTER, obisCode));
+						objectInfoList = readAttributes(objectInfoList);
+					} break; // CLASS_REGISTER
+					
+					case CLASS_EXTENDED_REGISTER: {
+						objectInfoList.add(new ObjectInfo(ATTRIBUTE_VALUE, CLASS_EXTENDED_REGISTER, obisCode));
+						objectInfoList = readAttributes(objectInfoList);
+						objectInfoList.add(new ObjectInfo(ATTRIBUTE_SCALER, CLASS_EXTENDED_REGISTER, obisCode));
+						objectInfoList = readAttributes(objectInfoList);
+					} break; // CLASS_REGISTER
+				
+					default: {
+						
+					} break;
+				
+				} // switch(objectEntry.getClassId())
+    		}
+    		catch (NoSuchRegisterException e) {
+    			// absorb will be read by local API or 0x31 method
+    		}
+    		
+    	} // for (ObisCode obisCode : obisCodes)
+    	
+    	transparantReadList(objectInfoList);
+    	
+    } // public void cacheRegisters(final List<ObisCode> obisCodes) throws IOException
     
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
     	
@@ -132,7 +162,7 @@ public class ObisCodeMapper {
     	
     	ObjectEntry objectEntry = AbstractDLMS.findObjectByObiscode(obisCode);
     	
-    	RegisterValue registerValue = getCachedRegisterValues(obisCode);
+    	RegisterValue registerValue = cachedRegisterValues.get(obisCode);
     	if (registerValue != null) {
     		abstractDLMS.getLogger().info("Read "+obisCode+" from cached values");
     		return registerValue;
@@ -143,7 +173,7 @@ public class ObisCodeMapper {
 			AbstractDataType adt = abstractDLMS.getTransparantObjectAccessFactory().readObjectValue(obisCode);
 			
 			if (adt.isOctetString()) {
-				return new RegisterValue(obisCode, ProtocolUtils.outputHexString(adt.getOctetString().getOctetStr()));
+				return new RegisterValue(obisCode, adt.getOctetString().stringValue()+" ["+ProtocolUtils.outputHexString(adt.getOctetString().getOctetStr())+"]");
 			}
 			else if (adt.isVisibleString()) {
 				return new RegisterValue(obisCode, adt.getVisibleString().getStr());

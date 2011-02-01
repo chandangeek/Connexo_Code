@@ -13,7 +13,7 @@ import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.coronis.core.*;
 
-abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolLink,MessageProtocol,EventMapper  {
+abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolLink,MessageProtocol,EventMapper,RegisterCache  {
 	
 	
 	
@@ -70,15 +70,6 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	 * the correctWaveflowTime property. The waveflow time will be set also with the setTime() mechanism as a default
 	 */
 	private int correctWaveflowTime;
-	
-	/**
-	 * List of obiscodes to retrieve at the beginning of the session and cache for later use.
-	 */
-	private List<ObjectInfo>[] objectInfosLists=new List[0];	
-	
-	final List<ObjectInfo>[] getObjectInfosLists() {
-		return objectInfosLists;
-	}
 
 	/**
 	 * the load profile obis code custom property
@@ -235,7 +226,6 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	protected List doGetOptionalKeys() {
 		List list = new ArrayList();
 		list.add("AutoPairingRetry");
-		list.add("ObisCodeList");  
 		list.add("correctWaveflowTime");		
 		return null;
 	}
@@ -262,7 +252,6 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 		setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout","40000").trim()));
 		autoPairingRetry = Integer.parseInt(properties.getProperty("AutoPairingRetry","1").trim());
 		correctTime = Integer.parseInt(properties.getProperty(MeterProtocol.CORRECTTIME,"0"));
-		objectInfosLists = buildObisInfos(properties.getProperty("ObisCodeList", ""));  
 		correctWaveflowTime = Integer.parseInt(properties.getProperty("correctWaveflowTime","1"));
 		
 		doTheValidateProperties(properties);
@@ -326,6 +315,11 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
     	return obisCodeMapper.getRegisterValue(obisCode);
     }
+    
+	public void cacheRegisters(List<ObisCode> obisCodes) throws IOException {
+		obisCodeMapper.cacheRegisters(obisCodes);
+	}
+    
     
     public boolean pairWithEMeter(int baudrate) throws IOException {
     	try {
@@ -456,43 +450,4 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 		return statusAndEvents;
 	}
 	
-	private List<ObjectInfo>[] buildObisInfos(String obisCodeList) throws InvalidPropertyException {
-		
-		
-		if (obisCodeList.compareTo("") != 0) {
-
-			String[] infosLists = obisCodeList.split(";");
-			
-			List<ObjectInfo>[] objectInfosLists = new List[infosLists.length]; // new ArrayList<ObjectInfo>();
-			
-			// format class_obiscode_attribute,class.obiscode.attribut,... e.g. 3_1.1.1.8.0.255_2 class 3 obiscode 1.1.1.8.0.255 attribute 2
-
-			
-			for (int index=0;index<infosLists.length;index++) {
-				
-				String[] infos = infosLists[index].split(",");
-				
-				for (String info : infos) {
-					
-					String[] fields = info.split("_");
-					if (fields.length == 3) {
-						int classId = Integer.parseInt(fields[0]);
-						ObisCode obisCode = ObisCode.fromString(fields[1]);
-						int attribute = Integer.parseInt(fields[2]);
-						objectInfosLists[index].add(new ObjectInfo(attribute, classId, obisCode));
-						
-					}
-					else if (fields.length == 1) {
-						ObisCode obisCode = ObisCode.fromString(fields[0]);
-						objectInfosLists[index].add(new ObjectInfo(2, 1, obisCode));
-					}
-					else {
-						throw new InvalidPropertyException("Error in obisCodeList property ["+obisCodeList+"]");
-					}
-				}
-			}
-		}
-		return objectInfosLists;
-		
-	}	
 }

@@ -37,22 +37,22 @@ public class ProfileDataReader {
 		if (includeEvents) {
 			batchObisCodeReader.add(7, A1800.LOG_PROFILE);
 		}
-		batchObisCodeReader.add(4, a1800.getLoadProfileObisCode());
-		batchObisCodeReader.add(2, "Scale factor");
-		batchObisCodeReader.add(2, "Multiplier");
+//		batchObisCodeReader.add(4, a1800.getLoadProfileObisCode());
+//		batchObisCodeReader.add(2, "Scale factor");
+//		batchObisCodeReader.add(2, "Multiplier");
 		batchObisCodeReader.invoke();
 		
 		if (includeEvents) {
 			nrOfLogEntriesInUse = batchObisCodeReader.intValue(A1800.LOG_PROFILE);
 		}
-		int profileInterval = batchObisCodeReader.intValue(a1800.getLoadProfileObisCode());
-		int scaleFactor = batchObisCodeReader.intValue("Scale factor");
-		int multiplier = batchObisCodeReader.intValue("Multiplier");
+//		int profileInterval = batchObisCodeReader.intValue(a1800.getLoadProfileObisCode());
+//		int scaleFactor = batchObisCodeReader.intValue("Scale factor");
+//		int multiplier = batchObisCodeReader.intValue("Multiplier");
 		
-		if (profileInterval != a1800.getProfileInterval()) {
-			throw new WaveFlowDLMSException("Invalid profile interval. Configured is ["+a1800.getProfileInterval()+"] s, configured in meter is ["+profileInterval+"]!");
-		}
-		
+//		if (profileInterval != a1800.getProfileInterval()) {
+//			throw new WaveFlowDLMSException("Invalid profile interval. Configured is ["+a1800.getProfileInterval()+"] s, configured in meter is ["+profileInterval+"]!");
+//		}
+		int profileInterval = a1800.getProfileInterval();
 		
 		// FIXME: iterate until last reading is found...
 		Date now = new Date();
@@ -91,7 +91,7 @@ public class ProfileDataReader {
 				IntervalData intervalData = new IntervalData(calendar.getTime(),protocolStatus2EICode(protocolStatus),protocolStatus);
 				for (int index=0;index<nrOfchannels;index++) {
 					BigDecimal bd = BigDecimal.valueOf(structure.getDataType(CAPTURED_OBJECTS_CHANNELS_OFFSET_INDEX+index).longValue());
-					bd = bd.multiply(BigDecimal.valueOf(multiplier)).multiply(BigDecimal.valueOf(Math.pow(10, scaleFactor)));
+//					bd = bd.multiply(BigDecimal.valueOf(multiplier)).multiply(BigDecimal.valueOf(Math.pow(10, scaleFactor)));
 					
 					intervalData.addValue(bd, protocolStatus, extendedProtocolStatus2EICode(extendedProtocolStatus,index));
 				}

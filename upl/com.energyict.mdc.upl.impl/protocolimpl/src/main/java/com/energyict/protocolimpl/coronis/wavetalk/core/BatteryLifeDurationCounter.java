@@ -1,4 +1,4 @@
-package com.energyict.protocolimpl.coronis.waveflow.core;
+package com.energyict.protocolimpl.coronis.wavetalk.core;
 
 import java.io.IOException;
 
@@ -49,7 +49,7 @@ public class BatteryLifeDurationCounter extends AbstractParameter {
 
 	@Override
 	void parse(byte[] data) throws IOException {
-		batteryLifeCounter = ProtocolUtils.getInt(data, 0, 2);
+		batteryLifeCounter = ProtocolUtils.getInt(data, 0, 3);
 	}
 	
 	
