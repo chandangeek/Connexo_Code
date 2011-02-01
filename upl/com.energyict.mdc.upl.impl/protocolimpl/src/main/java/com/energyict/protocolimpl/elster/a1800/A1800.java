@@ -30,7 +30,6 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 	private boolean messageFailed = false;
 	
 	private HalfDuplexController halfDuplexController;
-	private long halfDuplex;
 
 	private int rs485RtuPlusServer = 0;
 	
@@ -45,7 +44,11 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 	
 	@Override
 	protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
-		c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, this.halfDuplexController);
+		if (halfDuplexController != null && this.isRS485RtuPlusServer()) {
+			halfDuplexController = new RtuPlusServerHalfDuplexController(halfDuplexController);
+		}
+
+		c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController);
         c12Layer2.initStates();
         psemServiceFactory = new PSEMServiceFactory(this);
         standardTableFactory = new StandardTableFactory(this);
@@ -63,7 +66,7 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
         c12UserId = Integer.parseInt(properties.getProperty("C12UserId","0").trim());
         passwordBinary = Integer.parseInt(properties.getProperty("PasswordBinary","0").trim());
         setRetrieveExtraIntervals(Integer.parseInt(properties.getProperty("RetrieveExtraIntervals","0").trim()));
-        this.halfDuplex=Integer.parseInt(properties.getProperty("HalfDuplex","0").trim());
+
 		this.rs485RtuPlusServer=Integer.parseInt(properties.getProperty("RS485RtuPlusServer","0").trim());
     }
 	
@@ -256,19 +259,4 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 	private boolean isRS485RtuPlusServer() {
 		return (this.rs485RtuPlusServer  != 0);
 	}
-	
-	public void setHalfDuplexController(HalfDuplexController controller) {
-		if (isRS485RtuPlusServer()) {
-			if (logger.isLoggable(Level.FINE)) {
-				logger.log(Level.FINE, "Running on an RTU+Server, using inverted logic for RTS.");
-			}
-
-			this.halfDuplexController = new RtuPlusServerHalfDuplexController(controller);
-		} else {
-			this.halfDuplexController = controller;
-		}
-
-		this.halfDuplexController.setDelay(this.halfDuplex);
-	}
-
 }
