@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.sdksample;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ParseUtils;
@@ -36,7 +37,7 @@ public class SDKSampleExtendedProtocol implements SmartMeterProtocol {
     /**
      * The used <CODE>Connection</CODE> class
      */
-    SDKSampleProtocolConnection connection;
+    private SDKSampleProtocolConnection connection;
 
     private boolean simulateRealCommunication = false;
 
@@ -482,7 +483,7 @@ public class SDKSampleExtendedProtocol implements SmartMeterProtocol {
      * @return RegisterValue object for an ObisCode
      * @throws java.io.IOException Thrown in case of an exception
      */
-    public RegisterValue readRegister(ObisCode obisCode) throws IOException {
+    public List<RegisterValue> readRegisters(List<ObisCode> obisCode) throws IOException {
         return null;  //TODO implement proper functionality.
     }
 
