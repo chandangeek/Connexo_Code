@@ -171,7 +171,7 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
 		}
 
         // import daily/monthly
-        if (commProfile.getReadMeterReadings()) {
+        if (commProfile.getReadDemandValues()) {
             MbusDailyMonthly mdm = new MbusDailyMonthly(this);
 
             if (isReadDaily()) {
@@ -186,7 +186,10 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
                 this.webRtu.getStoreObject().add(montProfileData, getMbus());
 
             }
+        }
 
+        // Read register readings
+        if (commProfile.getReadMeterReadings()) {
             getLogger().log(Level.INFO, "Getting registers from Mbus meter " + (getPhysicalAddress()));
             doReadRegisters();
         }

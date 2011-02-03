@@ -132,7 +132,7 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
 		}
 
 		// import daily/monthly
-		if(commProfile.getReadMeterReadings()){
+        if(commProfile.getReadDemandValues()){
 			DailyMonthly mdm = new DailyMonthly(this);
 
 			if(isReadDaily()){
@@ -147,6 +147,10 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
 				this.webRtu.getStoreObject().add(montProfileData, geteMeterRtu());
 
 			}
+        }
+
+        // Read registers
+        if(commProfile.getReadMeterReadings()){
             getLogger().log(Level.INFO, "Getting register values for meter with serialnumber: " + geteMeterRtu().getSerialNumber());
 			doReadRegisters();
 		}
