@@ -35,6 +35,7 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
     /**
      * Property names
      */
+    private static final String PROPERTY_READ_REGULAR_DEMAND_VALUES = "ReadRegularDemandValues";
     private static final String PROPERTY_READ_DAILY_VALUES = "ReadDailyValues";
     private static final String PROPERTY_READ_MONTHLY_VALUES = "ReadMonthlyValues";
     private static final String PROPERTY_RUNTESTMETHOD = "RunTestMethod";
@@ -42,6 +43,7 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
     /**
      * Property default values
      */
+    private static final String DEFAULT_READ_REGULAR_DEMAND_VALUES = "1";
     private static final String DEFAULT_READ_DAILY_VALUES = "1";
     private static final String DEFAULT_READ_MONTHLY_VALUES = "1";
     private static final String DEFAULT_RUNTESTMETHOD = "0";
@@ -53,6 +55,11 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
     public static final ObisCode MONTHLY_PROFILE_OBIS = ObisCode.fromString("0.0.99.3.0.255");
     public static final ObisCode DAILY_PROFILE_OBIS = ObisCode.fromString("0.0.99.2.0.255");
     public static final ObisCode DISCONNECTOR_OBIS = ObisCode.fromString("0.0.96.3.10.255");
+
+    /**
+     * Property to allow reading the regular 15m, 30m, hourly, ... values
+     */
+    private boolean readRegular = true;
 
     /**
      * Property to allow reading the daily values
@@ -99,6 +106,7 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
 	}
 
     public void validateProperties() throws MissingPropertyException, InvalidPropertyException {
+        this.readRegular = (ProtocolTools.getPropertyAsInt(getProperties(), PROPERTY_READ_REGULAR_DEMAND_VALUES, DEFAULT_READ_REGULAR_DEMAND_VALUES) == 1) ? true : false;
         this.readDaily = (ProtocolTools.getPropertyAsInt(getProperties(), PROPERTY_READ_DAILY_VALUES, DEFAULT_READ_DAILY_VALUES) == 1) ? true : false;
         this.readMonthly = (ProtocolTools.getPropertyAsInt(getProperties(), PROPERTY_READ_MONTHLY_VALUES, DEFAULT_READ_MONTHLY_VALUES) == 1) ? true : false;
         this.runTestMethod = (ProtocolTools.getPropertyAsInt(getProperties(), PROPERTY_RUNTESTMETHOD, DEFAULT_RUNTESTMETHOD) == 1) ? true : false;
@@ -114,7 +122,7 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
         verifySerialNumber();
 
         // import profile
-		if(commProfile.getReadDemandValues()){
+		if(commProfile.getReadDemandValues() && isReadRegular()){
 			getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + geteMeterRtu().getSerialNumber());
 			EMeterProfile mp = new EMeterProfile(this);
 			ProfileData pd = mp.getProfile(getCorrectedObisCode(PROFILE_OBISCODE));
@@ -329,6 +337,7 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
 
 	public List<String> getOptionalKeys() {
         List<String> optionalKeys = new ArrayList<String>();
+        optionalKeys.add(PROPERTY_READ_REGULAR_DEMAND_VALUES);
         optionalKeys.add(PROPERTY_READ_DAILY_VALUES);
         optionalKeys.add(PROPERTY_READ_MONTHLY_VALUES);
         optionalKeys.add(PROPERTY_RUNTESTMETHOD);
@@ -437,6 +446,10 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
             meterAmrLogging = new MeterAmrLogging();
         }
         return meterAmrLogging;
+    }
+
+    public boolean isReadRegular() {
+        return readRegular;
     }
 
     public boolean isReadDaily() {

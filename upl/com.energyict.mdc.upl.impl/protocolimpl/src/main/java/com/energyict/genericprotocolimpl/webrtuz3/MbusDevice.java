@@ -43,6 +43,7 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
     /**
      * Property names
      */
+    private static final String PROPERTY_READ_REGULAR_DEMAND_VALUES = "ReadRegularDemandValues";
     private static final String PROPERTY_READ_DAILY_VALUES = "ReadDailyValues";
     private static final String PROPERTY_READ_MONTHLY_VALUES = "ReadMonthlyValues";
     private static final String PROPERTY_RUNTESTMETHOD = "RunTestMethod";
@@ -50,6 +51,7 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
     /**
      * Property default values
      */
+    private static final String DEFAULT_READ_REGULAR_DEMAND_VALUES = "1";
     private static final String DEFAULT_READ_DAILY_VALUES = "1";
     private static final String DEFAULT_READ_MONTHLY_VALUES = "1";
     private static final String DEFAULT_RUNTESTMETHOD = "0";
@@ -75,6 +77,7 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
     private MeterAmrLogging meterAmrLogging;
     private Properties properties = new Properties();
 
+    private boolean readRegular;
     private boolean runTestMethod;
     private boolean readDaily;
     private boolean readMonthly;
@@ -138,6 +141,7 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
 	}
 
     public void validateProperties() throws MissingPropertyException, InvalidPropertyException {
+        this.readRegular = (ProtocolTools.getPropertyAsInt(getProperties(), PROPERTY_READ_REGULAR_DEMAND_VALUES, DEFAULT_READ_REGULAR_DEMAND_VALUES) == 1) ? true : false;
         this.readDaily = (ProtocolTools.getPropertyAsInt(getProperties(), PROPERTY_READ_DAILY_VALUES, DEFAULT_READ_DAILY_VALUES) == 1) ? true : false;
         this.readMonthly = (ProtocolTools.getPropertyAsInt(getProperties(), PROPERTY_READ_MONTHLY_VALUES, DEFAULT_READ_MONTHLY_VALUES) == 1) ? true : false;
         this.runTestMethod = (ProtocolTools.getPropertyAsInt(getProperties(), PROPERTY_RUNTESTMETHOD, DEFAULT_RUNTESTMETHOD) == 1) ? true : false;
@@ -153,7 +157,7 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
 		verifySerialNumber();
 
         // import profile
-        if (commProfile.getReadDemandValues()) {
+        if(commProfile.getReadDemandValues() && isReadRegular()){
             getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + getMbus().getSerialNumber());
             MbusProfile mp = new MbusProfile(this);
             ProfileData pd = mp.getProfile(getProfileObisCode());
@@ -307,6 +311,7 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
 
     public List<String> getOptionalKeys() {
         List<String> optionalKeys = new ArrayList<String>();
+        optionalKeys.add(PROPERTY_READ_REGULAR_DEMAND_VALUES);
         optionalKeys.add(PROPERTY_READ_DAILY_VALUES);
         optionalKeys.add(PROPERTY_READ_MONTHLY_VALUES);
         optionalKeys.add(PROPERTY_RUNTESTMETHOD);
@@ -376,6 +381,10 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
 
     public boolean isRunTestMethod() {
         return runTestMethod;
+    }
+
+    public boolean isReadRegular() {
+        return readRegular;
     }
 
     public boolean isReadDaily() {
