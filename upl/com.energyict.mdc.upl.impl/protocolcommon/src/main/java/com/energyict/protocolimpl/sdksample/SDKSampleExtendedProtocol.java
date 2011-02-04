@@ -467,11 +467,11 @@ public class SDKSampleExtendedProtocol implements SmartMeterProtocol {
      * about the meter's supporting the specific ObisCode. If the ObisCode is
      * not supported, NoSuchRegister is thrown.
      *
-     * @param obisCode the ObisCode to request RegisterInfo for
+     * @param register the Register to request RegisterInfo for
      * @return RegisterInfo about the ObisCode
      * @throws java.io.IOException Thrown in case of an exception
      */
-    public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
+    public RegisterInfo translateRegister(Register register) throws IOException {
         return null;  //TODO implement proper functionality.
     }
 
@@ -479,11 +479,11 @@ public class SDKSampleExtendedProtocol implements SmartMeterProtocol {
      * Request a RegisterValue object for an ObisCode. If the ObisCode is not
      * supported, NoSuchRegister is thrown.
      *
-     * @param obisCode The ObisCode for which to request a RegisterValue
+     * @param registers The ObisCode for which to request a RegisterValue
      * @return RegisterValue object for an ObisCode
      * @throws java.io.IOException Thrown in case of an exception
      */
-    public List<RegisterValue> readRegisters(List<ObisCode> obisCode) throws IOException {
+    public List<RegisterValue> readRegisters(List<Register> registers) throws IOException {
         return null;  //TODO implement proper functionality.
     }
 
