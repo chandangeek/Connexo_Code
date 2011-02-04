@@ -9,6 +9,7 @@ import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.VisibleString;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.Register;
 import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;

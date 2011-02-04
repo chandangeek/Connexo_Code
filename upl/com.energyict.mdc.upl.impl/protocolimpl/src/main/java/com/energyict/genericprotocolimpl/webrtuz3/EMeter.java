@@ -6,6 +6,7 @@ import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.Register;
 import com.energyict.genericprotocolimpl.common.CommonUtils;
 import com.energyict.genericprotocolimpl.webrtuz3.historical.HistoricalRegisterReadings;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.EMeterMessageExecutor;

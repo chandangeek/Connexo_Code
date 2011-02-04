@@ -6,21 +6,18 @@ import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.Register;
 import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.EventNumber;
-import com.energyict.protocolimpl.dlms.as220.emeter.AS220ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
-import com.energyict.protocolimpl.dlms.as220.parsing.CodeTableXml;
 import com.energyict.protocolimpl.dlms.as220.plc.PLCMessaging;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import sun.misc.BASE64Encoder;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.util.*;
 

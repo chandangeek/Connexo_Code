@@ -10,12 +10,12 @@
 
 package com.energyict.protocolimpl.edf.trimaran;
 
-import com.energyict.obis.*;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.edf.trimaran.core.*;
-import com.energyict.protocolimpl.edf.trimaran.registermapping.*;
-import java.io.*;
-import java.math.*;
+import com.energyict.protocolimpl.edf.trimaran.registermapping.Register;
+import com.energyict.protocolimpl.edf.trimaran.registermapping.RegisterNameFactory;
+
+import java.io.IOException;
 
 /**
  *

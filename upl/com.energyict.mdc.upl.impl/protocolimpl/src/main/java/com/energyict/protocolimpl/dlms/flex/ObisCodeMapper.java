@@ -6,14 +6,16 @@
  */
 
 package com.energyict.protocolimpl.dlms.flex;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Date;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.Register;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
 *

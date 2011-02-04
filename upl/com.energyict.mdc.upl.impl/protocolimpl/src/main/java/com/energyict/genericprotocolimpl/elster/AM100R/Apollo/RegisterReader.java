@@ -6,10 +6,11 @@ import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Map;
 
 /**
  * Copyrights EnergyICT

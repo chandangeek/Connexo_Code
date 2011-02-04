@@ -11,18 +11,19 @@
 package com.energyict.protocolimpl.edf.trimaran;
 
 
-import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.*;
-import com.energyict.obis.*;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.*;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.protocolimpl.edf.core.*;
-import com.energyict.protocolimpl.edf.trimaran.core.*;
-import com.energyict.protocolimpl.edf.trimaran.registermapping.*;
+import com.energyict.protocolimpl.edf.core.TrimeranConnection;
+import com.energyict.protocolimpl.edf.trimaran.core.DataFactory;
+import com.energyict.protocolimpl.edf.trimaran.core.SPDUFactory;
+import com.energyict.protocolimpl.edf.trimaran.registermapping.Register;
+import com.energyict.protocolimpl.edf.trimaran.registermapping.RegisterFactory;
+
 import java.io.*;
 import java.util.*;
-import java.util.logging.*;
+import java.util.logging.Logger;
 
 /**
  *@beginchanges
