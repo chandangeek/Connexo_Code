@@ -1,5 +1,8 @@
 package com.energyict.protocolimpl.base;
 
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MissingPropertyException;
+
 import java.util.List;
 import java.util.Properties;
 
@@ -15,5 +18,7 @@ public interface ProtocolProperties {
     List<String> getRequiredKeys();
 
     void addProperties(Properties properties);
+
+    void validateProperties() throws MissingPropertyException, InvalidPropertyException;
 
 }

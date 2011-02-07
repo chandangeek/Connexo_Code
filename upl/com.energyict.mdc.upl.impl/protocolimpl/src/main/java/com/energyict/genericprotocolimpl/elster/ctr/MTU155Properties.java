@@ -1,6 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr;
 
-import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.AbstractProtocolProperties;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -39,6 +39,11 @@ public class MTU155Properties extends AbstractProtocolProperties {
     public static final String DEFAULT_CHANNEL_CONFIG = "1.0.2:1.2.2:4.0.2:7.0.2:1.1.3:1.3.3:1.F.2:2.0.3:2.1.3:2.3.3:1.A.3";
     public static final String DEFAULT_SECURITY_LEVEL = "1"; // 0 == KeyT, 1 == KeyC, 2 == KeyF
     public static final String DEFAULT_DEBUG = "0";
+
+    @Override
+    protected void doValidateProperties() throws MissingPropertyException, InvalidPropertyException {
+        
+    }
 
     public MTU155Properties() {
         super(new Properties());

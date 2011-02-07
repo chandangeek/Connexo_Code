@@ -438,3 +438,5 @@
 -keepclasseswithmembers public class com.energyict.protocolimpl.coronis.core.RegisterCache {
     public void cacheRegisters(java.util.List);
 }
+
+-keepnames class com.energyict.smartmeterprotocolimpl.sdksample.SDKSmartMeterProtocol
