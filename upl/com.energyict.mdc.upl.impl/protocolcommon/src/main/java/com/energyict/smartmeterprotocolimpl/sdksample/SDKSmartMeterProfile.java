@@ -41,10 +41,14 @@ import java.util.*;
  *  _________
  * |         |   -> Ch1 - 1.0.1.8.0.255 - kWh - interval 15min  (LoadProfile : 1.0.99.1.0.255)
  * | Master  |   -> Ch2 - 1.0.2.8.0.255 - kWh - interval 15min  (LoadProfile : 1.0.99.1.0.255)
- * |6channel |   -> Ch3 - 1.0.1.8.0.255 - kWh - interval Daily  (LoadProfile : 1.0.99.2.0.255)
- * |         |   -> Ch4 - 1.0.2.8.0.255 - kWh - interval Daily  (LoadProfile : 1.0.99.1.0.255)
- * |         |   -> Ch5 - 1.0.1.8.0.255 - kWh - interval Monthly (LoadProfile : 0.0.98.1.0.255)
- * |_________|   -> Ch6 - 1.0.2.8.0.255 - kWh - interval Monthly (LoadProfile : 0.0.98.1.0.255)
+ * |10channel|   -> Ch3 - 1.0.1.8.1.255 - kWh - interval Daily  (LoadProfile : 1.0.99.2.0.255)
+ * |         |   -> Ch4 - 1.0.1.8.2.255 - kWh - interval Daily  (LoadProfile : 1.0.99.2.0.255)
+ * |         |   -> Ch5 - 1.0.2.8.1.255 - kWh - interval Daily  (LoadProfile : 1.0.99.1.0.255)
+ * |         |   -> Ch6 - 1.0.2.8.2.255 - kWh - interval Daily  (LoadProfile : 1.0.99.1.0.255)
+ * |         |   -> Ch7 - 1.0.1.8.1.255 - kWh - interval Monthly (LoadProfile : 0.0.98.1.0.255)
+ * |         |   -> Ch8 - 1.0.1.8.2.255 - kWh - interval Monthly (LoadProfile : 0.0.98.1.0.255)
+ * |         |   -> Ch9 - 1.0.2.8.2.255 - kWh - interval Monthly (LoadProfile : 0.0.98.1.0.255)
+ * |_________|   -> Ch10 - 1.0.2.8.2.255 - kWh - interval Monthly (LoadProfile : 0.0.98.1.0.255)
  *      |      _________
  *      |---->|         |  -> Ch1 - 0.x.24.2.0.255 - m3 - interval 1hour (LoadProfile : 0.x.24.3.0.255)
  *      |     | Slave1  |  -> Ch2 - 0.x.24.2.0.255 - m3 - interval Daily (LoadProfile : 1.0.99.2.0.255)
@@ -71,21 +75,25 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
     private static final List<ChannelInfo> HourlyChannelInfosSlave2 = new ArrayList<ChannelInfo>();
 
     static {
-        QuarterlyHourChannelInfos.add(new ChannelInfo(0, "1.0.1.8.0.255", Unit.get("kWh"), MasterSerialNumber));
-        QuarterlyHourChannelInfos.add(new ChannelInfo(1, "1.0.2.8.0.255", Unit.get("kWh"), MasterSerialNumber));
+        QuarterlyHourChannelInfos.add(new ChannelInfo(0, "1.0.1.8.0.255", Unit.get("kWh"), MasterSerialNumber, true));
+        QuarterlyHourChannelInfos.add(new ChannelInfo(1, "1.0.2.8.0.255", Unit.get("kWh"), MasterSerialNumber, true));
 
-        DailyChannelInfos.add(new ChannelInfo(0, "1.0.1.8.0.255", Unit.get("kWh"), MasterSerialNumber));
-        DailyChannelInfos.add(new ChannelInfo(1, "1.0.2.8.0.255", Unit.get("kWh"), MasterSerialNumber));
-        DailyChannelInfos.add(new ChannelInfo(2, "0.x.24.2.0.255", Unit.get("m3"), Slave1SerialNumber));
-        DailyChannelInfos.add(new ChannelInfo(3, "0.x.24.2.0.255", Unit.get("m3"), Slave2SerialNumber));
+        DailyChannelInfos.add(new ChannelInfo(0, "1.0.1.8.1.255", Unit.get("kWh"), MasterSerialNumber, true));
+        DailyChannelInfos.add(new ChannelInfo(1, "1.0.1.8.2.255", Unit.get("kWh"), MasterSerialNumber, true));
+        DailyChannelInfos.add(new ChannelInfo(2, "1.0.2.8.1.255", Unit.get("kWh"), MasterSerialNumber, true));
+        DailyChannelInfos.add(new ChannelInfo(3, "1.0.2.8.2.255", Unit.get("kWh"), MasterSerialNumber, true));
+        DailyChannelInfos.add(new ChannelInfo(4, "0.x.24.2.0.255", Unit.get("m3"), Slave1SerialNumber, true));
+        DailyChannelInfos.add(new ChannelInfo(5, "0.x.24.2.0.255", Unit.get("m3"), Slave2SerialNumber, true));
 
-        MonthlyHourChannelInfos.add(new ChannelInfo(0, "1.0.1.8.0.255", Unit.get("kWh"), MasterSerialNumber));
-        MonthlyHourChannelInfos.add(new ChannelInfo(1, "1.0.2.8.0.255", Unit.get("kWh"), MasterSerialNumber));
-        MonthlyHourChannelInfos.add(new ChannelInfo(2, "0.x.24.2.0.255", Unit.get("m3"), Slave1SerialNumber));
-        MonthlyHourChannelInfos.add(new ChannelInfo(3, "0.x.24.2.0.255", Unit.get("m3"), Slave2SerialNumber));
+        MonthlyHourChannelInfos.add(new ChannelInfo(0, "1.0.1.8.1.255", Unit.get("kWh"), MasterSerialNumber, true));
+        MonthlyHourChannelInfos.add(new ChannelInfo(1, "1.0.1.8.2.255", Unit.get("kWh"), MasterSerialNumber, true));
+        MonthlyHourChannelInfos.add(new ChannelInfo(2, "1.0.2.8.1.255", Unit.get("kWh"), MasterSerialNumber, true));
+        MonthlyHourChannelInfos.add(new ChannelInfo(3, "1.0.2.8.2.255", Unit.get("kWh"), MasterSerialNumber, true));
+        MonthlyHourChannelInfos.add(new ChannelInfo(4, "0.x.24.2.0.255", Unit.get("m3"), Slave1SerialNumber, true));
+        MonthlyHourChannelInfos.add(new ChannelInfo(5, "0.x.24.2.0.255", Unit.get("m3"), Slave2SerialNumber, true));
 
-        HourlyChannelInfosSlave1.add(new ChannelInfo(0, "0.x.24.2.0.255", Unit.get("m3"), Slave1SerialNumber));
-        HourlyChannelInfosSlave2.add(new ChannelInfo(0, "0.x.24.2.0.255", Unit.get("m3"), Slave2SerialNumber));
+        HourlyChannelInfosSlave1.add(new ChannelInfo(0, "0.x.24.2.0.255", Unit.get("m3"), Slave1SerialNumber, true));
+        HourlyChannelInfosSlave2.add(new ChannelInfo(0, "0.x.24.2.0.255", Unit.get("m3"), Slave2SerialNumber, true));
     }
 
     private static final ObisCode QuarterlyObisCode = ObisCode.fromString("1.0.99.1.0.255");
@@ -103,7 +111,7 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
         ChannelInfoMapMaster.put(DailyObisCode, DailyChannelInfos);
         ChannelInfoMapMaster.put(MonthlyObisCode, MonthlyHourChannelInfos);
 
-        ChannelInfoMapSlave1.put(HourlyObisCode, HourlyChannelInfosSlave2);
+        ChannelInfoMapSlave1.put(HourlyObisCode, HourlyChannelInfosSlave1);
         ChannelInfoMapSlave1.put(DailyObisCode, DailyChannelInfos);
         ChannelInfoMapSlave1.put(MonthlyObisCode, MonthlyHourChannelInfos);
 
@@ -182,7 +190,7 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
      */
     private LoadProfileConfiguration getLoadProfileConfigurationForGivenReadObject(LoadProfileReader lpro) throws LoadProfileConfigurationException {
         for (LoadProfileConfiguration lpc : this.loadProfileConfigurationList) {
-            if (lpc.getObisCode().equals(lpro.getProfileObisCode())) {
+            if (lpc.getObisCode().equals(lpro.getProfileObisCode()) && lpc.getMeterSerialNumber().equalsIgnoreCase(lpro.getMeterSerialNumber())) {
                 return lpc;
             }
         }
