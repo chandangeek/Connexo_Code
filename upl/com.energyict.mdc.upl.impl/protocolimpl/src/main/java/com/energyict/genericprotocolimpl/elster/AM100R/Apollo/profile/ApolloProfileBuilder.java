@@ -57,6 +57,7 @@ public class ApolloProfileBuilder {
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
         for (int i = 0; i < getNumberOfChannels(); i++) {
             ChannelInfo channelInfo = new ChannelInfo(i, "DLMS Apollo_EnergyChannel_" + i, getChannelUnit(i));
+            channelInfo.setCumulative();
             channelInfos.add(channelInfo);
         }
         return channelInfos;
