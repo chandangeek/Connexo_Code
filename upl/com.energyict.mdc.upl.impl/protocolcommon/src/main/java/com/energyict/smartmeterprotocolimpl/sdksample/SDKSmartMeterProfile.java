@@ -11,11 +11,119 @@ import java.math.BigDecimal;
 import java.util.*;
 
 /**
- * Copyrights EnergyICT
- * Date: 7-feb-2011
- * Time: 13:32:13
+ * For the <b>Kamstrup case</b> we support 1 Master and 2 Slaves.<br>
+ * We need to configure 4 LoadProfiles:
+ * <ul>
+ * <li> 15Min values (2channels)   ->  ObisCode : 1.0.99.1.0.255
+ * <ol>
+ * <li> Active Import  (1.0.1.8.0.255)
+ * <li> Active Export  (1.0.2.8.0.255)
+ * </ol>
+ * <li> Daily values (3channels)   ->  ObisCode : 1.0.99.2.0.255
+ * <ol>
+ * <li> Active Import  (1.0.1.8.0.255)
+ * <li> Active Export  (1.0.2.8.0.255)
+ * <li> Gas Flow       (0.x.24.2.0.255)  -> will have a gasChannel for each slave, in our case <b>2</b>
+ * </ol>
+ * <p/>
+ * <li> Monthly values (3channels) ->  ObisCode : 1.0.98.1.0.255
+ * <ol>
+ * <li> Active Import  (1.0.1.8.0.255)
+ * <li> Active Export  (1.0.2.8.0.255)
+ * <li> Gas Flow       (0.x.24.2.0.255)  -> will have a gasChannel for each slave, in our case <b>2</b>
+ * </ol>
+ * <li> Hourly values (1channels)  ->  ObisCode : 0.x.24.3.0.255
+ * <ol>
+ * <li> Gas Flow       (0.x.24.2.0.255)  -> will have a gasChannel for each slave, in our case <b>2</b>
+ * </ol>
+ * </ul>
+ * <pre>
+ *  _________
+ * |         |   -> Ch1 - 1.0.1.8.0.255 - kWh - interval 15min  (LoadProfile : 1.0.99.1.0.255)
+ * | Master  |   -> Ch2 - 1.0.2.8.0.255 - kWh - interval 15min  (LoadProfile : 1.0.99.1.0.255)
+ * |6channel |   -> Ch3 - 1.0.1.8.0.255 - kWh - interval Daily  (LoadProfile : 1.0.99.2.0.255)
+ * |         |   -> Ch4 - 1.0.2.8.0.255 - kWh - interval Daily  (LoadProfile : 1.0.99.1.0.255)
+ * |         |   -> Ch5 - 1.0.1.8.0.255 - kWh - interval Monthly (LoadProfile : 0.0.98.1.0.255)
+ * |_________|   -> Ch6 - 1.0.2.8.0.255 - kWh - interval Monthly (LoadProfile : 0.0.98.1.0.255)
+ *      |      _________
+ *      |---->|         |  -> Ch1 - 0.x.24.2.0.255 - m3 - interval 1hour (LoadProfile : 0.x.24.3.0.255)
+ *      |     | Slave1  |  -> Ch2 - 0.x.24.2.0.255 - m3 - interval Daily (LoadProfile : 1.0.99.2.0.255)
+ *      |     |3channel |  -> Ch3 - 0.x.24.2.0.255 - m3 - interval Monthly (LoadProfile : 0.0.98.1.0.255)
+ *      |     |_________|
+ *      |
+ *      |      _________
+ *      |---->|         |  -> Ch1 - 0.x.24.2.0.255 - m3 - interval 1hour (LoadProfile : 0.x.24.3.0.255)
+ *            | Slave2  |  -> Ch2 - 0.x.24.2.0.255 - m3 - interval Daily (LoadProfile : 1.0.99.2.0.255)
+ *            |3channel |  -> Ch3 - 0.x.24.2.0.255 - m3 - interval Monthly (LoadProfile : 0.0.98.1.0.255)
+ *            |_________|
+ * </pre>
  */
 public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
+
+    private static final String MasterSerialNumber = "Master";
+    private static final String Slave1SerialNumber = "Slave1";
+    private static final String Slave2SerialNumber = "Slave2";
+
+    private static final List<ChannelInfo> QuarterlyHourChannelInfos = new ArrayList<ChannelInfo>();
+    private static final List<ChannelInfo> DailyChannelInfos = new ArrayList<ChannelInfo>();
+    private static final List<ChannelInfo> MonthlyHourChannelInfos = new ArrayList<ChannelInfo>();
+    private static final List<ChannelInfo> HourlyChannelInfosSlave1 = new ArrayList<ChannelInfo>();
+    private static final List<ChannelInfo> HourlyChannelInfosSlave2 = new ArrayList<ChannelInfo>();
+
+    static {
+        QuarterlyHourChannelInfos.add(new ChannelInfo(0, "1.0.1.8.0.255", Unit.get("kWh"), MasterSerialNumber));
+        QuarterlyHourChannelInfos.add(new ChannelInfo(1, "1.0.2.8.0.255", Unit.get("kWh"), MasterSerialNumber));
+
+        DailyChannelInfos.add(new ChannelInfo(0, "1.0.1.8.0.255", Unit.get("kWh"), MasterSerialNumber));
+        DailyChannelInfos.add(new ChannelInfo(1, "1.0.2.8.0.255", Unit.get("kWh"), MasterSerialNumber));
+        DailyChannelInfos.add(new ChannelInfo(2, "0.x.24.2.0.255", Unit.get("m3"), Slave1SerialNumber));
+        DailyChannelInfos.add(new ChannelInfo(3, "0.x.24.2.0.255", Unit.get("m3"), Slave2SerialNumber));
+
+        MonthlyHourChannelInfos.add(new ChannelInfo(0, "1.0.1.8.0.255", Unit.get("kWh"), MasterSerialNumber));
+        MonthlyHourChannelInfos.add(new ChannelInfo(1, "1.0.2.8.0.255", Unit.get("kWh"), MasterSerialNumber));
+        MonthlyHourChannelInfos.add(new ChannelInfo(2, "0.x.24.2.0.255", Unit.get("m3"), Slave1SerialNumber));
+        MonthlyHourChannelInfos.add(new ChannelInfo(3, "0.x.24.2.0.255", Unit.get("m3"), Slave2SerialNumber));
+
+        HourlyChannelInfosSlave1.add(new ChannelInfo(0, "0.x.24.2.0.255", Unit.get("m3"), Slave1SerialNumber));
+        HourlyChannelInfosSlave2.add(new ChannelInfo(0, "0.x.24.2.0.255", Unit.get("m3"), Slave2SerialNumber));
+    }
+
+    private static final ObisCode QuarterlyObisCode = ObisCode.fromString("1.0.99.1.0.255");
+    private static final ObisCode DailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
+    private static final ObisCode MonthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
+    private static final ObisCode HourlyObisCode = ObisCode.fromString("0.x.24.3.0.255");
+
+    private static Map<String, Map<ObisCode, List<ChannelInfo>>> LoadProfileSerialNumberChannelInfoMap = new HashMap<String, Map<ObisCode, List<ChannelInfo>>>();
+    private static Map<ObisCode, List<ChannelInfo>> ChannelInfoMapMaster = new HashMap<ObisCode, List<ChannelInfo>>();
+    private static Map<ObisCode, List<ChannelInfo>> ChannelInfoMapSlave1 = new HashMap<ObisCode, List<ChannelInfo>>();
+    private static Map<ObisCode, List<ChannelInfo>> ChannelInfoMapSlave2 = new HashMap<ObisCode, List<ChannelInfo>>();
+
+    static {
+        ChannelInfoMapMaster.put(QuarterlyObisCode, QuarterlyHourChannelInfos);
+        ChannelInfoMapMaster.put(DailyObisCode, DailyChannelInfos);
+        ChannelInfoMapMaster.put(MonthlyObisCode, MonthlyHourChannelInfos);
+
+        ChannelInfoMapSlave1.put(HourlyObisCode, HourlyChannelInfosSlave2);
+        ChannelInfoMapSlave1.put(DailyObisCode, DailyChannelInfos);
+        ChannelInfoMapSlave1.put(MonthlyObisCode, MonthlyHourChannelInfos);
+
+        ChannelInfoMapSlave2.put(HourlyObisCode, HourlyChannelInfosSlave2);
+        ChannelInfoMapSlave2.put(DailyObisCode, DailyChannelInfos);
+        ChannelInfoMapSlave2.put(MonthlyObisCode, MonthlyHourChannelInfos);
+
+        LoadProfileSerialNumberChannelInfoMap.put(MasterSerialNumber, ChannelInfoMapMaster);
+        LoadProfileSerialNumberChannelInfoMap.put(Slave1SerialNumber, ChannelInfoMapSlave1);
+        LoadProfileSerialNumberChannelInfoMap.put(Slave2SerialNumber, ChannelInfoMapSlave2);
+    }
+
+    private static Map<ObisCode, Integer> LoadProfileIntervalMap = new HashMap<ObisCode, Integer>();
+
+    static {
+        LoadProfileIntervalMap.put(QuarterlyObisCode, 900);
+        LoadProfileIntervalMap.put(DailyObisCode, 86400);
+        LoadProfileIntervalMap.put(MonthlyObisCode, 0);
+        LoadProfileIntervalMap.put(HourlyObisCode, 3600);
+    }
 
     private final SDKSmartMeterProtocol protocol;
 
@@ -33,37 +141,24 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
      * Build up a list of {@link com.energyict.protocol.LoadProfileConfiguration} objects and return them so the
      * framework can validate them to the configuration in EIServer
      *
-     * @param loadProfileObisCodes the list of LoadProfile ObisCodes
+     * @param loadProfilesToRead the list of LoadProfile ObisCodes
      * @return a list of {@link com.energyict.protocol.LoadProfileConfiguration} objects corresponding with the meter
      */
-    public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileObisCodes) {
+    public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
 
         loadProfileConfigurationList = new ArrayList<LoadProfileConfiguration>();
 
-        LoadProfileConfiguration lpc = new LoadProfileConfiguration(loadProfileObisCodes.get(0).getProfileObisCode(), loadProfileObisCodes.get(0).getMeterSerialNumber());
-        Map<ObisCode, Unit> channelUnitMap = new HashMap<ObisCode, Unit>();
-        channelUnitMap.put(ObisCode.fromString("1.0.1.8.1.255"), Unit.get("kWh"));
-        channelUnitMap.put(ObisCode.fromString("1.0.1.8.2.255"), Unit.get("kWh"));
-        channelUnitMap.put(ObisCode.fromString("1.0.2.8.1.255"), Unit.get("kWh"));
-        channelUnitMap.put(ObisCode.fromString("1.0.2.8.2.255"), Unit.get("kWh"));
-        channelUnitMap.put(ObisCode.fromString("0.x.24.2.1.255"), Unit.get("m3"));
-        channelUnitMap.put(ObisCode.fromString("0.x.24.2.1.255"), Unit.get("m3"));
-        lpc.setChannelUnits(channelUnitMap);
-        lpc.setProfileInterval(86400);
-        loadProfileConfigurationList.add(lpc);
-
-        lpc = new LoadProfileConfiguration(loadProfileObisCodes.get(1).getProfileObisCode(), loadProfileObisCodes.get(1).getMeterSerialNumber());
-        lpc.setProfileInterval(0); //we set 0 as interval because the monthly profile has an asynchronous capture period
-
-        // we use the same channelMap ...
-        lpc.setChannelUnits(channelUnitMap);
-        loadProfileConfigurationList.add(lpc);
-
+        for (LoadProfileReader lpr : loadProfilesToRead) {
+            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
+            Map<ObisCode, List<ChannelInfo>> tempMap = LoadProfileSerialNumberChannelInfoMap.get(lpr.getMeterSerialNumber());
+            lpc.setChannelInfos(tempMap.get(lpr.getProfileObisCode()));
+            lpc.setProfileInterval(LoadProfileIntervalMap.get(lpr.getProfileObisCode()));
+            loadProfileConfigurationList.add(lpc);
+        }
         return loadProfileConfigurationList;
     }
 
     /**
-     * 
      * @param loadProfiles
      * @return
      * @throws IOException
@@ -107,19 +202,11 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
         int timeInterval = Calendar.SECOND;
         int timeDuration = lpc.getProfileInterval();
 
-        List<ChannelInfo> channelInfoList = new ArrayList<ChannelInfo>();
-        int channelCounter = 0;
-        for (Map.Entry<ObisCode, Unit> entry : lpc.getChannelUnits().entrySet()) {
-            channelInfoList.add(new ChannelInfo(channelCounter, channelCounter, entry.getKey().toString(), entry.getValue()));
-            channelCounter++;
-        }
-
         ProfileData pd = new ProfileData(lpro.getLoadProfileId());
-        pd.setChannelInfos(channelInfoList);
+        pd.setChannelInfos(LoadProfileSerialNumberChannelInfoMap.get(lpro.getMeterSerialNumber()).get(lpro.getProfileObisCode()));
 
         Calendar cal = Calendar.getInstance(getProtocol().getTimeZone());
         cal.setTime(lpro.getStartReadingTime());
-
 
         if (timeDuration == 0) { //monthly
             cal.set(Calendar.DAY_OF_MONTH, 1);
@@ -130,6 +217,11 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
 
             timeInterval = Calendar.MONTH;
             timeDuration = 1;
+        } else if (timeDuration == 86400){
+            cal.set(Calendar.HOUR, 0);
+            cal.set(Calendar.MINUTE, 0);
+            cal.set(Calendar.SECOND, 0);
+            cal.set(Calendar.MILLISECOND, 0);
         } else {
             ParseUtils.roundDown2nearestInterval(cal, lpc.getProfileInterval());
         }
@@ -147,15 +239,15 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
             pd.addInterval(id);
             cal.add(timeInterval, timeDuration);
 
-            if (getProtocol().getProtocolProperties().isSimulateRealCommunication()) {
-                ProtocolTools.delay(1);
-                String second = String.valueOf(System.currentTimeMillis() / 500);
-                second = second.substring(second.length() - 1);
-                if (!outputData.equalsIgnoreCase(second)) {
-                    outputData = second;
-                    getProtocol().doGenerateCommunication(1, outputData);
-                }
-            }
+//            if (getProtocol().isSimulateRealCommunication()) {
+//                ProtocolTools.delay(1);
+//                String second = String.valueOf(System.currentTimeMillis() / 500);
+//                second = second.substring(second.length() - 1);
+//                if (!outputData.equalsIgnoreCase(second)) {
+//                    outputData = second;
+//                    doGenerateCommunication(1, outputData);
+//                }
+//            }
         }
         return pd;
     }
