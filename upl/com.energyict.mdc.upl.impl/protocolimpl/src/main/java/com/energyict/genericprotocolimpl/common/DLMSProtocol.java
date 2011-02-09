@@ -800,8 +800,6 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
         optionalKeys.add("Connection");
         optionalKeys.add("SecurityLevel");
         optionalKeys.add("ClientMacAddress");
-        optionalKeys.add("ServerUpperMacAddress");
-        optionalKeys.add("ServerLowerMacAddress");
         optionalKeys.add("InformationFieldSize");
         optionalKeys.add("LoadProfileId");
         optionalKeys.add("AddressingMode");
@@ -815,6 +813,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
         optionalKeys.add("WakeUp");
         optionalKeys.add("CipheringType");
         optionalKeys.add("BulkRequest");
+        optionalKeys.add("ClientMacAddress"); // this replaces the ServerUpperMacAddress and ServerLowerMacAddress
         List<String> protocolKeys = doGetOptionalKeys();
         if (protocolKeys != null) {
             optionalKeys.addAll(protocolKeys);
