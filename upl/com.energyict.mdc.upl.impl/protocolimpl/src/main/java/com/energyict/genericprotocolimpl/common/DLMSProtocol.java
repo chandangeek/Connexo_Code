@@ -813,7 +813,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
         optionalKeys.add("WakeUp");
         optionalKeys.add("CipheringType");
         optionalKeys.add("BulkRequest");
-        optionalKeys.add("ClientMacAddress"); // this replaces the ServerUpperMacAddress and ServerLowerMacAddress
+        optionalKeys.add("ServerMacAddress"); // this replaces the ServerUpperMacAddress and ServerLowerMacAddress
         List<String> protocolKeys = doGetOptionalKeys();
         if (protocolKeys != null) {
             optionalKeys.addAll(protocolKeys);
