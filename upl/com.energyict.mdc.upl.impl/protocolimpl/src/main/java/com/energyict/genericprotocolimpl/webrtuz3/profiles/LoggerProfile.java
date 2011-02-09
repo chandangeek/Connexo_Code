@@ -42,6 +42,7 @@ public class LoggerProfile {
         ProfileData pd = new ProfileData();
         pd.setChannelInfos(getChannelInfos());
         pd.setIntervalDatas(readIntervalDatas(fromCalendar));
+        pd.sort();
         return pd;
     }
 
