@@ -23,8 +23,11 @@ public abstract class AbstractSmartMeterProtocol implements SmartMeterProtocol {
 
     protected abstract ProtocolProperties getProtocolProperties();
 
-    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+    public void addProperties(Properties properties) {
         getProtocolProperties().addProperties(properties);
+    }
+
+    public void validateProperties() throws InvalidPropertyException, MissingPropertyException {
         getProtocolProperties().validateProperties();
     }
 

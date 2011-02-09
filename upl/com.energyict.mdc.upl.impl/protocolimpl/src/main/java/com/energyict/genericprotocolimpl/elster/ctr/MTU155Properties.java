@@ -77,22 +77,22 @@ public class MTU155Properties extends AbstractProtocolProperties {
 
     @ProtocolProperty
     public int getRetries() {
-        return getIntPropery(RETRIES, DEFAULT_RETRIES);
+        return getIntProperty(RETRIES, DEFAULT_RETRIES);
     }
 
     @ProtocolProperty
     public int getTimeout() {
-        return getIntPropery(TIMEOUT, DEFAULT_TIMEOUT);
+        return getIntProperty(TIMEOUT, DEFAULT_TIMEOUT);
     }
 
     @ProtocolProperty
     public int getDelayAfterError() {
-        return getIntPropery(DELAY_AFTER_ERROR, DEFAULT_DELAY_AFTER_ERROR);
+        return getIntProperty(DELAY_AFTER_ERROR, DEFAULT_DELAY_AFTER_ERROR);
     }
 
     @ProtocolProperty
     public int getForcedDelay() {
-        return getIntPropery(FORCED_DELAY, DEFAULT_FORCED_DELAY);
+        return getIntProperty(FORCED_DELAY, DEFAULT_FORCED_DELAY);
     }
 
     @ProtocolProperty
@@ -129,7 +129,7 @@ public class MTU155Properties extends AbstractProtocolProperties {
 
     @ProtocolProperty
     public int getAddress() {
-        return getIntPropery(ADDRESS, DEFAULT_ADDRESS);
+        return getIntProperty(ADDRESS, DEFAULT_ADDRESS);
     }
 
     @ProtocolProperty
@@ -139,7 +139,7 @@ public class MTU155Properties extends AbstractProtocolProperties {
 
     @ProtocolProperty
     public int getSecurityLevel() {
-        return getIntPropery(SECURITY_LEVEL, DEFAULT_SECURITY_LEVEL);
+        return getIntProperty(SECURITY_LEVEL, DEFAULT_SECURITY_LEVEL);
     }
 
     public String getKeyValue(String propertyName, String defaultValue) {
@@ -154,7 +154,7 @@ public class MTU155Properties extends AbstractProtocolProperties {
     }
 
     public boolean isDebug() {
-        return getIntPropery(DEBUG, DEFAULT_DEBUG) == 1;
+        return getBooleanProperty(DEBUG, DEFAULT_DEBUG);
     }
 
 }

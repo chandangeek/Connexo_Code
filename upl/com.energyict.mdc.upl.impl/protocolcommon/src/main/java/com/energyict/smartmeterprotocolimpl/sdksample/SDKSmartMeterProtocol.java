@@ -27,6 +27,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol {
      */
     private SDKSmartMeterProperties properties;
     private SDKSmartMeterProfile smartMeterProfile;
+    private SDKSmartMeterRegisterFactory registerFactory;
 
     /**
      * Constructor ...
@@ -102,16 +103,6 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol {
         doGenerateCommunication();
     }
 
-    @Override
-    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
-        super.setProperties(properties);
-        System.out.println(getProtocolProperties());
-    }
-
-    private SDKSampleProtocolConnection getConnection() {
-        return connection;
-    }
-
     /**
      * Get the ProtocolProperties for the SDKSmartMeterProtocol.
      * This objects contains, manages and validates the properties in a clean way
@@ -128,7 +119,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol {
     /**
      * @return the version of the specific protocol implementation
      */
-    public String getProtocolVersion() {
+    public String getVersion() {
         return "$Date$";
     }
 
@@ -184,13 +175,6 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol {
         return getSMartMeterProfile().fetchLoadProfileConfiguration(loadProfileObisCodes);
     }
 
-    private SDKSmartMeterProfile getSMartMeterProfile() {
-        if (smartMeterProfile == null) {
-            smartMeterProfile = new SDKSmartMeterProfile(this);
-        }
-        return smartMeterProfile;
-    }
-
     /**
      * <p>
      * Fetches one or more LoadProfiles from the device.
@@ -218,8 +202,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol {
      * @throws java.io.IOException Thrown in case of an exception
      */
     public RegisterInfo translateRegister(Register register) throws IOException {
-        //TODO implement proper functionality.
-        return new RegisterInfo(register.getObisCode().toString() + " for device with serial [" + register.getSerialNumber() + "]");
+        return getRegisterFactory().translateRegister(register);
     }
 
     /**
@@ -231,12 +214,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol {
      * @throws java.io.IOException Thrown in case of an exception
      */
     public List<RegisterValue> readRegisters(List<Register> registers) throws IOException {
-        List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
-        for (Register register : registers) {
-            RegisterValue registerValue = new RegisterValue(register, register.getSerialNumber());
-            registerValues.add(registerValue);
-        }
-        return registerValues;
+        return getRegisterFactory().readRegisters(registers);
     }
 
     /**
@@ -249,6 +227,39 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol {
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         //TODO implement proper functionality.
         return meterEvents;
+    }
+
+    /**
+     * Lazy getter for the SDKSmartMeterProfile object
+     *
+     * @return
+     */
+    private SDKSmartMeterProfile getSMartMeterProfile() {
+        if (smartMeterProfile == null) {
+            smartMeterProfile = new SDKSmartMeterProfile(this);
+        }
+        return smartMeterProfile;
+    }
+
+    /**
+     * Lazy getter for the SDKSmartMeterRegisterFactory object
+     *
+     * @return
+     */
+    private SDKSmartMeterRegisterFactory getRegisterFactory() {
+        if (registerFactory == null) {
+            registerFactory = new SDKSmartMeterRegisterFactory();
+        }
+        return registerFactory;
+    }
+
+    /**
+     * Getter for the SDKSampleProtocolConnection object
+     *
+     * @return
+     */
+    private SDKSampleProtocolConnection getConnection() {
+        return connection;
     }
 
     /**

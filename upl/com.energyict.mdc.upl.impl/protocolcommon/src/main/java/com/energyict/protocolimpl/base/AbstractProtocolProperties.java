@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.base;
 
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.lang.reflect.InvocationTargetException;
@@ -27,12 +26,38 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
         this(new Properties());
     }
 
-    protected int getIntPropery(String propertyName, String defaultValue) {
+    @ProtocolProperty
+    public String getPassword() {
+        return getStringValue(MeterProtocol.PASSWORD, "");
+    }
+
+    @ProtocolProperty
+    public String getDeviceId() {
+        return getStringValue(MeterProtocol.ADDRESS, "");
+    }
+
+    @ProtocolProperty
+    public String getNodeAddress() {
+        return getStringValue(MeterProtocol.NODEID, "");
+    }
+
+    @ProtocolProperty
+    public String getSerialNumber() {
+        return getStringValue(MeterProtocol.SERIALNUMBER, "");
+    }
+
+    /**
+     *
+     * @param propertyName
+     * @param defaultValue
+     * @return
+     */
+    protected int getIntProperty(String propertyName, String defaultValue) {
         return Integer.parseInt(getStringValue(propertyName, defaultValue));
     }
 
     protected boolean getBooleanProperty(String propertyName, String defaultValue) {
-        return getIntPropery(propertyName, defaultValue) == 1;
+        return getIntProperty(propertyName, defaultValue) == 1;
     }
 
     protected String getStringValue(String propertyName, String defaultValue) {
@@ -72,7 +97,35 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
      */
     public void validateProperties() throws MissingPropertyException, InvalidPropertyException {
         validateRequiredKeys();
+        validateNumberProperties();
         doValidateProperties();
+    }
+
+    private void validateNumberProperties() throws InvalidPropertyException {
+        Method[] methods = getClass().getMethods();
+        for (Method method : methods) {
+            ProtocolProperty annotation = method.getAnnotation(ProtocolProperty.class);
+            if (annotation != null) {
+                String getterName = method.getName();
+                Object obj = null;
+                try {
+                    obj = method.invoke(this, new Object[0]);
+                    if (getterName.startsWith("is")) {
+                        getterName = getterName.substring(2);
+                    } else if (getterName.startsWith("get")) {
+                        getterName = getterName.substring(3);
+                    }
+                } catch (IllegalAccessException e) {
+                    throw new InvalidPropertyException("Unable to parse property [" + getterName + "]: " + e.getMessage());
+                } catch (InvocationTargetException e) {
+                    Throwable reason = e.getTargetException();
+                    String cause = reason.getClass().getSimpleName() + " - " + reason.getMessage();
+                    throw new InvalidPropertyException("Unable to parse property [" + getterName + "]: " + cause);
+                } catch (NumberFormatException e) {
+                    throw new InvalidPropertyException("Unable to parse property [" + getterName + "]: " + e.getMessage());
+                }
+            }
+        }
     }
 
     /**

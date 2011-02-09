@@ -30,7 +30,7 @@ public class WebRTUZ3 extends AbstractSmartMeterProtocol {
      *
      * @return
      */
-    public String getProtocolVersion() {
+    public String getVersion() {
         return "$Date$";
     }
 
