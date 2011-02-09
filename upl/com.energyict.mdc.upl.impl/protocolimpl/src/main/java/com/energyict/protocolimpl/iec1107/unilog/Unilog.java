@@ -369,6 +369,15 @@ public class Unilog extends AbstractUnilog {
     }
 
     /**
+     * Not supported in the Unigas300 protocol
+     *
+     * @return
+     */
+    public ProtocolChannelMap getProtocolChannelMap() {
+        return protocolChannelMap;
+    }
+
+    /**
      * Checks if the protocol should behave like IEC1107 or manufacturer specific
      *
      * @return
@@ -406,11 +415,15 @@ public class Unilog extends AbstractUnilog {
      * @throws IOException
      */
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        Object register = registry.getRegister(obisCode);
-        if (register instanceof Quantity) {
-            return new RegisterValue(obisCode, (Quantity) register);
-        } else {
-            return new RegisterValue(obisCode, register.toString());
+        try {
+            Object register = registry.getRegister(obisCode);
+            if (register instanceof Quantity) {
+                return new RegisterValue(obisCode, (Quantity) register);
+            } else {
+                return new RegisterValue(obisCode, register.toString());
+            }
+        } catch (IOException e) {
+            throw new NoSuchRegisterException("Problems while reading register " + obisCode + ": " + e.getMessage());
         }
     }
 }
