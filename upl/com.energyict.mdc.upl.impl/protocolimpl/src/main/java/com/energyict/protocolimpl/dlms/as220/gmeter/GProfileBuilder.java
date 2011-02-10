@@ -25,8 +25,9 @@ public class GProfileBuilder {
 
 	private final AS220	as220;
 	private final CapturedObjectsHelper coh;
-	private static final long MASK_VALIDITY  = 0x80000000;
-	private static final long MASK_ENCRYPTED = 0x40000000;
+	private static final long MASK_VALIDITY     = 0x80000000;
+	private static final long MASK_ENCRYPTED    = 0x40000000;
+    private static final long MASK_VALUE        = 0x3FFFFFFF;
 
 
 	public GProfileBuilder(AS220 as220, CapturedObjectsHelper coh) {
@@ -104,37 +105,37 @@ public class GProfileBuilder {
 			for(int i = 0; i < dc.getRoot().getElements().length; i++){
 
                 if(dc.getRoot().getStructure(i) != null){
-				if(dc.getRoot().getStructure(i).isOctetString(0)){	// it is a date
-					cal = new DateTime(new OctetString(dc.getRoot().getStructure(i).getOctetString(0).getArray()), getGasDevice().getTimeZone()).getValue();
-				} else {
-					if(cal != null){
-						cal.add(Calendar.SECOND, getGasDevice().getgMeter().getMbusProfile().getCapturePeriod());
-					}
-				}
+                    if(dc.getRoot().getStructure(i).isOctetString(0)){	// it is a date
+                        cal = new DateTime(new OctetString(dc.getRoot().getStructure(i).getOctetString(0).getArray()), getGasDevice().getTimeZone()).getValue();
+                    } else {
+                        if(cal != null){
+                            cal.add(Calendar.SECOND, getGasDevice().getgMeter().getMbusProfile().getCapturePeriod());
+                        }
+                    }
 
-				if(cal != null){
+                    if(cal != null){
 
-					profileStatus = GasStatusCodes.intervalStateBits(dc.getRoot().getStructure(i).getInteger(1));
+                        profileStatus = GasStatusCodes.intervalStateBits(dc.getRoot().getStructure(i).getInteger(1));
 
-					int value = dc.getRoot().getStructure(i).getInteger(2);
-					if((value&MASK_VALIDITY) == MASK_VALIDITY){
-						value = (int) (value^MASK_VALIDITY);
-						profileStatus = IntervalStateBits.MISSING;
-					} else if((value&MASK_ENCRYPTED) == MASK_ENCRYPTED){
-						value = (int) (value^MASK_ENCRYPTED);
-					} else if((value&MASK_ENCRYPTED) == 0){
-						profileStatus |= IntervalStateBits.CORRUPTED;	// if it is not an encrypted value
-					}
-					IntervalData id = new IntervalData(cal.getTime(), profileStatus);
-					
-					id.addValue(value);
+                        int value = dc.getRoot().getStructure(i).getInteger(2);
 
-					intervalDatas.add(id);
-				}
+                        if (isBitSet(value, MASK_VALIDITY)) {
+                            profileStatus |= IntervalStateBits.MISSING;
+                        }
+                        if (!isBitSet(value, MASK_ENCRYPTED)) {
+                            profileStatus |= IntervalStateBits.CORRUPTED;
+                        }
+
+                        value &= MASK_VALUE;
+
+                        IntervalData id = new IntervalData(cal.getTime(), profileStatus);
+                        id.addValue(value);
+                        intervalDatas.add(id);
+                    }
 
                 } else {
                     getGasDevice().getLogger().info("GasProfile contained a 'NULL' structure.");
-			}
+                }
 
 			}
 		} else {
@@ -143,7 +144,11 @@ public class GProfileBuilder {
 		return intervalDatas;
 	}
 
-	public static void main(String args[]){
+    private boolean isBitSet(int value, long mask) {
+        return (value & mask) == mask;
+    }
+
+    public static void main(String args[]){
 		byte[] b = new byte[] { 1, 45, 2, 3, 9, 12, 7, -38, 2, 17, 4, 15, 9, 28, 0, -128, 0, 0, 6, 0, 0, -64, -1, 6,
 				-128, 0, 0, 0, 2, 3, 9, 12, 7, -38, 2, 17, 4, 15, 11, 22, 0, -128, 0, 0, 6, 0, 0, -64, -1, 6, -128, 0,
 				0, 0, 2, 3, 9, 12, 7, -38, 2, 17, 4, 15, 12, 40, 0, -128, 0, 0, 6, 0, 0, -64, -1, 6, -128, 0, 0, 0, 2,
