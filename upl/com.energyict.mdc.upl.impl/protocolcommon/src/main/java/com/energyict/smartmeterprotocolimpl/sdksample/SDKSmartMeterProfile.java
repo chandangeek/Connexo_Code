@@ -1,13 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.sdksample;
 
+import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -21,15 +20,19 @@ import java.util.*;
  * </ol>
  * <li> Daily values (3channels)   ->  ObisCode : 1.0.99.2.0.255
  * <ol>
- * <li> Active Import  (1.0.1.8.0.255)
- * <li> Active Export  (1.0.2.8.0.255)
+ * <li> Active Import  (1.0.1.8.1.255)
+ * <li> Active Export  (1.0.1.8.2.255)
+ * <li> Active Import  (1.0.2.8.1.255)
+ * <li> Active Export  (1.0.2.8.2.255)
  * <li> Gas Flow       (0.x.24.2.0.255)  -> will have a gasChannel for each slave, in our case <b>2</b>
  * </ol>
  * <p/>
- * <li> Monthly values (3channels) ->  ObisCode : 1.0.98.1.0.255
+ * <li> Monthly values (3channels) ->  ObisCode : 0.0.98.1.0.255
  * <ol>
- * <li> Active Import  (1.0.1.8.0.255)
- * <li> Active Export  (1.0.2.8.0.255)
+ * <li> Active Import  (1.0.1.8.1.255)
+ * <li> Active Export  (1.0.1.8.2.255)
+ * <li> Active Import  (1.0.2.8.1.255)
+ * <li> Active Export  (1.0.2.8.2.255)
  * <li> Gas Flow       (0.x.24.2.0.255)  -> will have a gasChannel for each slave, in our case <b>2</b>
  * </ol>
  * <li> Hourly values (1channels)  ->  ObisCode : 0.x.24.3.0.255
@@ -43,11 +46,11 @@ import java.util.*;
  * | Master  |   -> Ch2 - 1.0.2.8.0.255 - kWh - interval 15min  (LoadProfile : 1.0.99.1.0.255)
  * |10channel|   -> Ch3 - 1.0.1.8.1.255 - kWh - interval Daily  (LoadProfile : 1.0.99.2.0.255)
  * |         |   -> Ch4 - 1.0.1.8.2.255 - kWh - interval Daily  (LoadProfile : 1.0.99.2.0.255)
- * |         |   -> Ch5 - 1.0.2.8.1.255 - kWh - interval Daily  (LoadProfile : 1.0.99.1.0.255)
- * |         |   -> Ch6 - 1.0.2.8.2.255 - kWh - interval Daily  (LoadProfile : 1.0.99.1.0.255)
+ * |         |   -> Ch5 - 1.0.2.8.1.255 - kWh - interval Daily  (LoadProfile : 1.0.99.2.0.255)
+ * |         |   -> Ch6 - 1.0.2.8.2.255 - kWh - interval Daily  (LoadProfile : 1.0.99.2.0.255)
  * |         |   -> Ch7 - 1.0.1.8.1.255 - kWh - interval Monthly (LoadProfile : 0.0.98.1.0.255)
  * |         |   -> Ch8 - 1.0.1.8.2.255 - kWh - interval Monthly (LoadProfile : 0.0.98.1.0.255)
- * |         |   -> Ch9 - 1.0.2.8.2.255 - kWh - interval Monthly (LoadProfile : 0.0.98.1.0.255)
+ * |         |   -> Ch9 - 1.0.2.8.1.255 - kWh - interval Monthly (LoadProfile : 0.0.98.1.0.255)
  * |_________|   -> Ch10 - 1.0.2.8.2.255 - kWh - interval Monthly (LoadProfile : 0.0.98.1.0.255)
  *      |      _________
  *      |---->|         |  -> Ch1 - 0.x.24.2.0.255 - m3 - interval 1hour (LoadProfile : 0.x.24.3.0.255)
@@ -135,6 +138,8 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
 
     private final SDKSmartMeterProtocol protocol;
 
+    private int steps;
+
     /**
      * Contains a list of <CODE>LoadProfileConfiguration</CODE> objects which corresponds with the LoadProfiles in the METER
      */
@@ -218,15 +223,15 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
 
         if (timeDuration == 0) { //monthly
             cal.set(Calendar.DAY_OF_MONTH, 1);
-            cal.set(Calendar.HOUR, 0);
+            cal.set(Calendar.HOUR_OF_DAY, 0);
             cal.set(Calendar.MINUTE, 0);
             cal.set(Calendar.SECOND, 0);
             cal.set(Calendar.MILLISECOND, 0);
 
             timeInterval = Calendar.MONTH;
             timeDuration = 1;
-        } else if (timeDuration == 86400){
-            cal.set(Calendar.HOUR, 0);
+        } else if (timeDuration == 86400) {
+            cal.set(Calendar.HOUR_OF_DAY, 0);
             cal.set(Calendar.MINUTE, 0);
             cal.set(Calendar.SECOND, 0);
             cal.set(Calendar.MILLISECOND, 0);
@@ -235,27 +240,38 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
         }
 
         Calendar currentCal = Calendar.getInstance();
-
-        String outputData = "";
+        long count = 1;
+        switch (new TimeDuration(timeDuration, timeInterval).getSeconds()) {
+            case 900:
+                steps = 86400 / 900;
+                count = (cal.getTimeInMillis()/900000)-(cal.getTimeInMillis()/86400000)*steps;
+                break;
+            case 3600:
+                steps = 86400 / 3600;
+                count = (cal.getTimeInMillis()/3600000)-(cal.getTimeInMillis()/86400000)*steps;
+                break;
+            case 86400:
+                steps = 31;
+                count = (cal.getTimeInMillis()/86400000) - (cal.getTimeInMillis()/((long)31*86400000))*steps;
+                break;
+            case (3600 * 24 * 31):
+                steps = 12;
+                count = (cal.getTimeInMillis()/((long)3600*24*31*1000))-(cal.getTimeInMillis()/((long)12*3600*24*31*1000))*steps;
+                break;
+        }
+        count++;
+        double multiplier = (2 * Math.PI) / steps;
         while (cal.getTime().before(currentCal.getTime())) {
             IntervalData id = new IntervalData(cal.getTime());
 
-            for (int i = 0; i < lpc.getNumberOfChannels(); i++) {
-                id.addValue(new BigDecimal(10 * 10 ^ i + Math.round(Math.random() * 10 * i)));
+            for (int i = 1; i <= lpc.getNumberOfChannels(); i++) {
+                id.addValue(Math.sin(count * multiplier) * i);
             }
-
+            if (count++ >= steps) {
+                count = 1;
+            }
             pd.addInterval(id);
             cal.add(timeInterval, timeDuration);
-
-//            if (getProtocol().isSimulateRealCommunication()) {
-//                ProtocolTools.delay(1);
-//                String second = String.valueOf(System.currentTimeMillis() / 500);
-//                second = second.substring(second.length() - 1);
-//                if (!outputData.equalsIgnoreCase(second)) {
-//                    outputData = second;
-//                    doGenerateCommunication(1, outputData);
-//                }
-//            }
         }
         return pd;
     }
