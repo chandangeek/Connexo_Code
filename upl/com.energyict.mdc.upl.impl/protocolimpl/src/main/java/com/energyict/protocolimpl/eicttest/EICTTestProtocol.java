@@ -33,7 +33,10 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 
 	private static final Date Date = null;
 	private static String FIRMWAREPROGRAM = "UpgradeMeterFirmware";
-	private static String FIRMWAREPROGRAM_DISPLAY = "Upgrade Meter Firmware";
+	private static String FIRMWAREPROGRAM_DISPLAY_1 = "Upgrade Meter Firmware 1";
+	private static String FIRMWAREPROGRAM_DISPLAY_2 = "Upgrade Meter Firmware 2";
+	private static String FIRMWAREPROGRAM_DISPLAY_3 = "Upgrade Meter Firmware 3";
+	private static String INCLUDE_FILE_TAG = "FirmwareFileID";
 
 	private CacheObject cache;
 
@@ -81,7 +84,11 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         msgSpec = addBasicMsg("Limit current to 6A", "LIMITCURRENT6A", false);
         cat.addMessageSpec(msgSpec);
 
-        msgSpec = addBasicMsg(FIRMWAREPROGRAM_DISPLAY, FIRMWAREPROGRAM, true);
+        msgSpec = addBasicMsg(FIRMWAREPROGRAM_DISPLAY_1, FIRMWAREPROGRAM, true);
+        cat.addMessageSpec(msgSpec);
+		msgSpec = addUpgradeMsg1(FIRMWAREPROGRAM_DISPLAY_2, FIRMWAREPROGRAM, true);
+        cat.addMessageSpec(msgSpec);
+		msgSpec = addUpgradeMsg2(FIRMWAREPROGRAM_DISPLAY_3, FIRMWAREPROGRAM, true);
         cat.addMessageSpec(msgSpec);
 
         theCategories.add(cat);
@@ -93,6 +100,32 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
         tagSpec.add(new MessageValueSpec());
         msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+	
+	private MessageSpec addUpgradeMsg1(String keyId, String tagName, boolean advanced) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+		
+        MessageTagSpec rootTag = new MessageTagSpec(tagName);
+		MessageTagSpec fileId = new MessageTagSpec(INCLUDE_FILE_TAG);
+		fileId.add(new MessageValueSpec());
+        rootTag.add(fileId);
+		
+        msgSpec.add(rootTag);
+        return msgSpec;
+    }
+
+	private MessageSpec addUpgradeMsg2(String keyId, String tagName, boolean advanced) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+		
+        MessageTagSpec rootTag = new MessageTagSpec(tagName);
+		rootTag.add(new MessageValueSpec());
+		
+		MessageTagSpec fileId = new MessageTagSpec(INCLUDE_FILE_TAG);
+		fileId.add(new MessageValueSpec());
+		
+        rootTag.add(fileId);
+        msgSpec.add(rootTag);
         return msgSpec;
     }
 
