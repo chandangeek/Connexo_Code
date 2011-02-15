@@ -1,13 +1,12 @@
-package com.energyict.genericprotocolimpl.common;
+package com.energyict.dlms.aso;
+
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocolimpl.base.SecurityLevelException;
 
 import java.io.IOException;
 import java.util.Properties;
 import java.util.Random;
-
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocolimpl.base.SecurityLevelException;
 
 /**
  * Default implementation of the securityProvider.

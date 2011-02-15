@@ -16,6 +16,16 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
 
     private final Properties protocolProperties;
 
+    public static final String TIMEOUT = "Timeout";
+    public static final String RETRIES = "Retries";
+    public static final String FORCED_DELAY = "ForcedDelay";
+    public static final String DELAY_AFTER_ERROR = "DelayAfterError";
+
+    public static final String DEFAULT_TIMEOUT = "10000";
+    public static final String DEFAULT_RETRIES = "3";
+    public static final String DEFAULT_FORCED_DELAY = "0";
+    public static final String DEFAULT_DELAY_AFTER_ERROR = "100";
+
     protected abstract void doValidateProperties() throws MissingPropertyException, InvalidPropertyException;
 
     public AbstractProtocolProperties(Properties properties) {
@@ -46,6 +56,26 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
         return getStringValue(MeterProtocol.SERIALNUMBER, "");
     }
 
+    @ProtocolProperty
+    public int getTimeout() {
+        return getIntProperty(TIMEOUT,  DEFAULT_TIMEOUT);
+    }
+
+    @ProtocolProperty
+    public int getRetries() {
+        return getIntProperty(RETRIES,  DEFAULT_RETRIES);
+    }
+
+    @ProtocolProperty
+    public int getForcedDelay() {
+        return getIntProperty(FORCED_DELAY,  DEFAULT_FORCED_DELAY);
+    }
+
+    @ProtocolProperty
+    public int getDelayAfterError() {
+        return getIntProperty(DELAY_AFTER_ERROR,  DEFAULT_DELAY_AFTER_ERROR);
+    }
+
     /**
      *
      * @param propertyName
@@ -54,6 +84,10 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
      */
     protected int getIntProperty(String propertyName, String defaultValue) {
         return Integer.parseInt(getStringValue(propertyName, defaultValue));
+    }
+
+    protected long getLongProperty(String propertyName, String defaultValue) {
+        return Long.parseLong(getStringValue(propertyName, defaultValue));
     }
 
     protected boolean getBooleanProperty(String propertyName, String defaultValue) {

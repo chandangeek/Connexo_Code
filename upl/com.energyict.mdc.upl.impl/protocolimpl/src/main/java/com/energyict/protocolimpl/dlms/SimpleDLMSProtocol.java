@@ -7,7 +7,6 @@ import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 

@@ -1,8 +1,7 @@
-package com.energyict.protocolimpl.dlms;
+package com.energyict.dlms;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.*;
-import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.protocol.ProtocolUtils;
 

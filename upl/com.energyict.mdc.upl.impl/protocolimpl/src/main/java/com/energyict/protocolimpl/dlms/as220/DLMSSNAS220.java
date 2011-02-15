@@ -25,12 +25,9 @@ import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.cosem.*;
-import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
-import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
-import com.energyict.protocol.messaging.TimeOfUseMessaging;
 import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.dlms.*;
 

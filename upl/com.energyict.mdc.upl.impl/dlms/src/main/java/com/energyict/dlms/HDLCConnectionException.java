@@ -1,4 +1,4 @@
-package com.energyict.protocolimpl.dlms;
+package com.energyict.dlms;
 
 /**
  * <p>Title: Meter Dialup package.</p>

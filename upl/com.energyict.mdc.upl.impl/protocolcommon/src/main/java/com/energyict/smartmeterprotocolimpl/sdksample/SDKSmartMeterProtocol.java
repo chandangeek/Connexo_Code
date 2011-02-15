@@ -3,7 +3,7 @@ package com.energyict.smartmeterprotocolimpl.sdksample;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.sdksample.SDKSampleProtocolConnection;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.smartmeterprotocolimpl.AbstractSmartMeterProtocol;
+import com.energyict.smartmeterprotocolimpl.common.AbstractSmartMeterProtocol;
 
 import java.io.*;
 import java.util.*;

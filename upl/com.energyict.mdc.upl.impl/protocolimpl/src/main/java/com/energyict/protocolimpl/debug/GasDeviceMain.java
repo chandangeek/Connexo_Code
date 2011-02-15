@@ -5,8 +5,8 @@ package com.energyict.protocolimpl.debug;
 
 
 import com.energyict.dialer.core.LinkException;
+import com.energyict.dlms.aso.LocalSecurityProvider;
 import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
 
 import java.io.IOException;

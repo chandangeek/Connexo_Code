@@ -24,7 +24,7 @@ import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import java.io.*;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;

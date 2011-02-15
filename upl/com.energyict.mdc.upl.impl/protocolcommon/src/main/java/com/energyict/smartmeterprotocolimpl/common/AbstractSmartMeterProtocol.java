@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl;
+package com.energyict.smartmeterprotocolimpl.common;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.protocol.*;

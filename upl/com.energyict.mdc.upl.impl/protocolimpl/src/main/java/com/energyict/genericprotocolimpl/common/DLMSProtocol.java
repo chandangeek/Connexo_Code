@@ -126,8 +126,8 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 
     /**
      * The ServerMacAddress:<br>
-     * In case of <i>HDLC</i>, the server address – to enable addressing more than one logical device within a single physical
-     * device and to support the multi-drop configuration – <b>may</b> be divided into two parts.
+     * In case of <i>HDLC</i>, the server address ï¿½ to enable addressing more than one logical device within a single physical
+     * device and to support the multi-drop configuration ï¿½ <b>may</b> be divided into two parts.
      * <ul>
      * <li> The {@link #upperHDLCAddress}
      * <li> The {@link #lowerHDLCAddress}
@@ -461,7 +461,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 
         this.ipPortNumber = properties.getProperty("IpPortNumber", "4059");
 
-        this.cipheringType = ProtocolTools.getPropertyAsInt(properties, "CipheringType", Integer.toString(SecurityContext.CIPHERING_TYPE_GLOBAL));
+        this.cipheringType = ProtocolTools.getPropertyAsInt(properties, "CipheringType", CipheringType.GLOBAL.getTypeString());
         if (cipheringType != SecurityContext.CIPHERING_TYPE_GLOBAL && cipheringType != SecurityContext.CIPHERING_TYPE_DEDICATED) {
             throw new InvalidPropertyException("Only 0 or 1 is allowed for the CipheringType property");
         }

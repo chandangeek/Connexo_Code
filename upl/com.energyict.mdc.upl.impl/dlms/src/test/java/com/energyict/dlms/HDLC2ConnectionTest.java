@@ -1,22 +1,19 @@
 /**
  * 
  */
-package com.energyict.protocolimpl.dlms;
+package com.energyict.dlms;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import com.energyict.cbo.BusinessException;
+import com.energyict.dialer.connection.ConnectionException;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import com.energyict.cbo.BusinessException;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSUtils;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author gna

@@ -1,8 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.webrtuz3;
 
+import com.energyict.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.ProtocolProperties;
-import com.energyict.smartmeterprotocolimpl.AbstractSmartMeterProtocol;
 
 import java.io.IOException;
 import java.util.*;
@@ -12,12 +11,12 @@ import java.util.*;
  * Date: 7-feb-2011
  * Time: 14:15:14
  */
-public class WebRTUZ3 extends AbstractSmartMeterProtocol {
+public class WebRTUZ3 extends AbstractSmartDlmsProtocol {
 
     private WebRTUZ3Properties properties;
 
     @Override
-    protected ProtocolProperties getProtocolProperties() {
+    protected WebRTUZ3Properties getProperties() {
         if (properties == null) {
             properties = new WebRTUZ3Properties();
         }

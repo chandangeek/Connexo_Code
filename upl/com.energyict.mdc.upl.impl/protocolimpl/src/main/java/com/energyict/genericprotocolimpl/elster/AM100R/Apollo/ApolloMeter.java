@@ -5,8 +5,10 @@ import com.energyict.cpo.Environment;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.*;
-import com.energyict.genericprotocolimpl.common.*;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.genericprotocolimpl.common.DLMSProtocol;
+import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.eventhandling.EventLogs;
 import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.profile.ApolloProfileBuilder;
 import com.energyict.mdw.amr.RtuRegister;
@@ -341,7 +343,7 @@ public class ApolloMeter extends DLMSProtocol {
 
     /**
      * Build the logic to provide the desired {@link com.energyict.dlms.aso.SecurityProvider}.
-     * If no securityProvider should be used, then return null and the default({@link com.energyict.genericprotocolimpl.common.LocalSecurityProvider}) will be used.
+     * If no securityProvider should be used, then return null and the default({@link com.energyict.dlms.aso.LocalSecurityProvider}) will be used.
      */
     @Override
     protected SecurityProvider getSecurityProvider() {

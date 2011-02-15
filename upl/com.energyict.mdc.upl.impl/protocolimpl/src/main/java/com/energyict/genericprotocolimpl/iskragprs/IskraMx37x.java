@@ -28,7 +28,6 @@ import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.dlms.HDLCConnection;
 import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
 
 import java.io.*;

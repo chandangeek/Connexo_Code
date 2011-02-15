@@ -5,7 +5,6 @@ import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.*;
 

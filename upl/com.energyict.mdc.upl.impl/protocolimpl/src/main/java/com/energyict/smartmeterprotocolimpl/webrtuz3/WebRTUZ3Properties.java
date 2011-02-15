@@ -1,8 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.webrtuz3;
 
+import com.energyict.dlms.DLMSReference;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocolimpl.base.AbstractProtocolProperties;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,9 +13,7 @@ import java.util.List;
  * Date: 7-feb-2011
  * Time: 14:16:15
  */
-public class WebRTUZ3Properties extends AbstractProtocolProperties {
-
-
+public class WebRTUZ3Properties extends DlmsProtocolProperties {
 
     public List<String> getOptionalKeys() {
         List<String> optional = new ArrayList<String>();
@@ -31,4 +30,12 @@ public class WebRTUZ3Properties extends AbstractProtocolProperties {
 
     }
 
+    public static void main(String[] args) {
+        System.out.println(new WebRTUZ3Properties().toString());
+    }
+
+    @Override
+    public DLMSReference getReference() {
+        return DLMSReference.LN;
+    }
 }
