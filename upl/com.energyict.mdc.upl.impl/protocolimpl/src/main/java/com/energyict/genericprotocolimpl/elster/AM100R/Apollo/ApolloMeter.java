@@ -125,22 +125,15 @@ public class ApolloMeter extends DLMSProtocol {
 
     private ProfileData getProfileData() throws IOException {
         ProfileGeneric pg = getApolloObjectFactory().getDefaultProfile();
-//        ProfileGeneric pg = getApolloObjectFactory().getGenericProfileObject(ObisCodeProvider.loadProfileP2);
         ApolloProfileBuilder apb = new ApolloProfileBuilder(this, pg);
 
         ProfileData pd = new ProfileData();
         pd.setChannelInfos(apb.getChannelInfos());
-        Calendar toCalendar = Calendar.getInstance();
-        Calendar fromCalendar = Calendar.getInstance();
+        Calendar toCalendar = Calendar.getInstance(getTimeZone());
+        Calendar fromCalendar = Calendar.getInstance(getTimeZone());
 
         fromCalendar.setTime(getMeter().getLastReading());
         pd.setIntervalDatas(apb.getIntervalList(fromCalendar, toCalendar));
-//        pg.getBuffer(fromCalendar, toCalendar).printDataContainer();
-//        pg.getBuffer();
-//        getLogger().info("ProfileCapturePeriod: " + pg.getCapturePeriod());
-//        getLogger().info("EntriesInUse: " + pg.getEntriesInUse());
-//        getLogger().info("NumberOfProfileChannels: " + pg.getNumberOfProfileChannels());
-//        getLogger().info("ProfileEntries: " + pg.getProfileEntries());
         return pd;
     }
 
