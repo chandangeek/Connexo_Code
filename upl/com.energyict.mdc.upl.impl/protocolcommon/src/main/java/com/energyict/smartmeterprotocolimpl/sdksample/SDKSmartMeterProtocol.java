@@ -224,8 +224,16 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol {
      * @return a list of <CODE>MeterEvents</CODE>
      */
     public List<MeterEvent> getMeterEvents(Date lastLogbookDate) {
+        getLogger().info("call getMeterEvents()");
+        getLogger().info("Three events will be generated, a ClockSet, a PowerDown and a PowerUp.");
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.HOUR, -1);
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
-        //TODO implement proper functionality.
+        meterEvents.add(new MeterEvent(cal.getTime(), MeterEvent.SETCLOCK, 20));
+        cal.add(Calendar.MINUTE, 13);
+        meterEvents.add(new MeterEvent(cal.getTime(), MeterEvent.POWERDOWN, 4));
+        cal.add(Calendar.MINUTE, 24);
+        meterEvents.add(new MeterEvent(cal.getTime(), MeterEvent.POWERUP, 3));
         return meterEvents;
     }
 
