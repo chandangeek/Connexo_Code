@@ -294,5 +294,4 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol {
             getConnection().write(bytes);
         }
     }
-
 }

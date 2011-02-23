@@ -115,4 +115,43 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol {
         // TODO: Implement the fetching of the profile data
         return profileData;
     }
+
+    /**
+     * <p></p>
+     *
+     * @param name Register name. Devices supporting OBIS codes,
+     *             should use the OBIS code as register name
+     *             </p>
+     * @return the value for the specified register
+     *         </p><p>
+     * @throws java.io.IOException <br>
+     * @throws com.energyict.protocol.UnsupportedException
+     *                             if the device does not support this operation
+     * @throws com.energyict.protocol.NoSuchRegisterException
+     *                             if the device does not support the specified register
+     */
+    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+        //TODO check if you can put these in the AbstractSmartDlmsProtocol
+        return null;  //TODO implement proper functionality.
+    }
+
+    /**
+     * <p>
+     * sets the specified register to value
+     * </p>
+     *
+     * @param name  Register name. Devices supporting OBIS codes,
+     *              should use the OBIS code as register name
+     * @param value to set the register.
+     *              </p>
+     * @throws java.io.IOException <br>
+     * @throws com.energyict.protocol.UnsupportedException
+     *                             if the device does not support this operation
+     * @throws com.energyict.protocol.NoSuchRegisterException
+     *                             if the device does not support the specified register
+     */
+    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+        //TODO check if you can put these in the AbstractSmartDlmsProtocol
+        //TODO implement proper functionality.
+    }
 }
