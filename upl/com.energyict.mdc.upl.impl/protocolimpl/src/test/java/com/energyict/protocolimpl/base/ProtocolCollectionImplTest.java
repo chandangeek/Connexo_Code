@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.base;
 
 import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocolimpl.base.protocolcollections.ProtocolCollectionImpl;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ public class ProtocolCollectionImplTest {
     @Test
     public void testProtocolVersions() {
         ProtocolCollectionImpl collection = new ProtocolCollectionImpl();
-        List<String> classNames = collection.getProtocolclasses();
+        List<String> classNames = collection.getProtocolClasses();
 
         List<String> oldFormat = new ArrayList<String>();
         List<String> missingKeyWord = new ArrayList<String>();

@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.debug;
 
-import com.energyict.genericprotocolimpl.common.GenericProtocolCollectionImpl;
+import com.energyict.protocolimpl.base.protocolcollections.GenericProtocolCollectionImpl;
 import com.energyict.protocol.ProtocolCollection;
-import com.energyict.protocolimpl.base.ProtocolCollectionImpl;
+import com.energyict.protocolimpl.base.protocolcollections.ProtocolCollectionImpl;
 
 import java.io.*;
 

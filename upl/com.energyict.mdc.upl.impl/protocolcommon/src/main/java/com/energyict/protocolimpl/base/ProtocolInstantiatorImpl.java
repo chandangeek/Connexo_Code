@@ -7,171 +7,230 @@
 package com.energyict.protocolimpl.base;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
-import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocol.DemandResetProtocol;
-import com.energyict.protocol.DialinScheduleProtocol;
-import com.energyict.protocol.EventMapper;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.HalfDuplexEnabler;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.ProtocolInstantiator;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.SerialNumber;
+import com.energyict.cbo.ConfigurationSupport;
+import com.energyict.protocol.*;
 
 /**
- *
- * @author  Koen
+ * @author Koen
  */
 public class ProtocolInstantiatorImpl implements ProtocolInstantiator {
-    
-	EventMapper eventMapper=null;
-    MeterProtocol meterProtocol=null;
-    HHUEnabler hhuEnabler=null;
-    HalfDuplexEnabler halfDuplexEnabler=null;
-    RegisterProtocol registerProtocol=null;
-    SerialNumber serialNumber=null;
-    CacheMechanism cacheMechanism=null;
-    DialinScheduleProtocol dialinScheduleProtocol=null;
-    DemandResetProtocol demandResetProtocol=null;
-    
+
+    EventMapper eventMapper = null;
+    MeterProtocol meterProtocol = null;
+    SmartMeterProtocol smartMeterProtocol = null;
+    BulkRegisterProtocol bulkRegisterProtocol = null;
+    ConfigurationSupport configurationSupport;
+    HHUEnabler hhuEnabler = null;
+    HalfDuplexEnabler halfDuplexEnabler = null;
+    RegisterProtocol registerProtocol = null;
+    SerialNumber serialNumber = null;
+    CacheMechanism cacheMechanism = null;
+    DialinScheduleProtocol dialinScheduleProtocol = null;
+    DemandResetProtocol demandResetProtocol = null;
+    MultipleLoadProfileSupport multipleLoadProfileSupport = null;
+
     public ProtocolInstantiatorImpl() {
     }
-    
+
     public void buildInstance(String className) throws IOException {
         Object protocolInstance = getInstance(className);
-        
+
         try {
-        	eventMapper = (EventMapper)protocolInstance;
+            eventMapper = (EventMapper) protocolInstance;
         }
-        catch(ClassCastException e) {
-        	eventMapper=null;   
+        catch (ClassCastException e) {
+            eventMapper = null;
         }
-        
+
         try {
-            meterProtocol = (MeterProtocol)protocolInstance;
-         }
-         catch(ClassCastException e) {
-            meterProtocol=null;   
-         }
-        try {
-           hhuEnabler = (HHUEnabler)protocolInstance;
+            meterProtocol = (MeterProtocol) protocolInstance;
         }
-        catch(ClassCastException e) {
-           hhuEnabler=null;   
+        catch (ClassCastException e) {
+            meterProtocol = null;
         }
         try {
-           halfDuplexEnabler = (HalfDuplexEnabler)protocolInstance;
-        }
-        catch(ClassCastException e) {
-           halfDuplexEnabler=null;   
-        }
-        try {
-           registerProtocol = (RegisterProtocol)protocolInstance;
-        }
-        catch(ClassCastException e) {
-           registerProtocol=null;   
+            smartMeterProtocol = (SmartMeterProtocol) protocolInstance;
+        } catch (ClassCastException e) {
+            smartMeterProtocol = null;
         }
         try {
-           dialinScheduleProtocol = (DialinScheduleProtocol)protocolInstance;
-        }
-        catch(ClassCastException e) {
-           dialinScheduleProtocol=null;   
-        }
-        try {
-           demandResetProtocol = (DemandResetProtocol)protocolInstance;
-        }
-        catch(ClassCastException e) {
-           demandResetProtocol=null;   
+            configurationSupport = (ConfigurationSupport) protocolInstance;
+        } catch (ClassCastException e){
+            configurationSupport = null;
         }
         try {
-           serialNumber = (SerialNumber)protocolInstance;
+            hhuEnabler = (HHUEnabler) protocolInstance;
         }
-        catch(ClassCastException e) {
-           serialNumber=null;   
+        catch (ClassCastException e) {
+            hhuEnabler = null;
         }
         try {
-           cacheMechanism = (CacheMechanism)protocolInstance;
+            halfDuplexEnabler = (HalfDuplexEnabler) protocolInstance;
         }
-        catch(ClassCastException e) {
-           cacheMechanism=null;   
+        catch (ClassCastException e) {
+            halfDuplexEnabler = null;
+        }
+        try {
+            registerProtocol = (RegisterProtocol) protocolInstance;
+        }
+        catch (ClassCastException e) {
+            registerProtocol = null;
+        }
+        try {
+            dialinScheduleProtocol = (DialinScheduleProtocol) protocolInstance;
+        }
+        catch (ClassCastException e) {
+            dialinScheduleProtocol = null;
+        }
+        try {
+            demandResetProtocol = (DemandResetProtocol) protocolInstance;
+        }
+        catch (ClassCastException e) {
+            demandResetProtocol = null;
+        }
+        try {
+            serialNumber = (SerialNumber) protocolInstance;
+        }
+        catch (ClassCastException e) {
+            serialNumber = null;
+        }
+        try {
+            cacheMechanism = (CacheMechanism) protocolInstance;
+        }
+        catch (ClassCastException e) {
+            cacheMechanism = null;
+        }
+        try{
+            bulkRegisterProtocol = (BulkRegisterProtocol) protocolInstance;
+        } catch (ClassCastException e){
+            bulkRegisterProtocol = null;
+        }
+        try {
+            multipleLoadProfileSupport = (MultipleLoadProfileSupport) protocolInstance;
+        } catch (ClassCastException e) {
+            multipleLoadProfileSupport = null;
         }
     }
-    
+
     public MeterProtocol getMeterProtocol() {
         return meterProtocol;
     }
+
+    public SmartMeterProtocol getSmartMeterProtocol() {
+        return this.smartMeterProtocol;
+    }
+
     public HHUEnabler getHHUEnabler() {
         return hhuEnabler;
     }
+
     public HalfDuplexEnabler getHalfDuplexEnabler() {
-        return halfDuplexEnabler;   
+        return halfDuplexEnabler;
     }
+
     public SerialNumber getSerialNumber() {
-        return serialNumber;   
+        return serialNumber;
     }
+
     public CacheMechanism getCacheMechanism() {
-        return cacheMechanism;   
+        return cacheMechanism;
     }
+
     public RegisterProtocol getRegisterProtocol() {
-        return registerProtocol;   
+        return registerProtocol;
     }
-    public DialinScheduleProtocol getDialinScheduleProtocol() {  
+
+    public BulkRegisterProtocol getBulkRegisterProtocol() {
+        return this.bulkRegisterProtocol;
+    }
+
+    public DialinScheduleProtocol getDialinScheduleProtocol() {
         return dialinScheduleProtocol;
     }
+
     public DemandResetProtocol getDemandResetProtocol() {
         return demandResetProtocol;
     }
+
+    public MultipleLoadProfileSupport getMultipleLoadProfileSupport() {
+        return this.multipleLoadProfileSupport;
+    }
+
     public boolean isDialinScheduleProtocolEnabled() {
-        return (getDialinScheduleProtocol()!=null);
+        return (getDialinScheduleProtocol() != null);
     }
-    
+
     public boolean isDemandResetProtocolEnabled() {
-        return (getDemandResetProtocol()!=null);
+        return (getDemandResetProtocol() != null);
     }
-    
+
     public boolean isRegisterProtocolEnabled() {
-        return (getRegisterProtocol()!=null);
+        return (getRegisterProtocol() != null);
     }
+
+    public boolean isBulkRegisterProtocolEnabled() {
+        return getBulkRegisterProtocol() != null;
+    }
+
     public boolean isHHUEnabled() {
-        return (getHHUEnabler()!=null);
+        return (getHHUEnabler() != null);
     }
+
     public boolean isHalfDuplexEnabled() {
-        return (getHalfDuplexEnabler()!=null);
+        return (getHalfDuplexEnabler() != null);
     }
+
     public boolean isSerialNumber() {
-        return (getSerialNumber()!=null);
+        return (getSerialNumber() != null);
     }
+
     public boolean isCacheMechanism() {
-        return (getCacheMechanism()!=null);
+        return (getCacheMechanism() != null);
     }
+
+    public boolean isMultipleLoadProfileSupported() {
+        return getMultipleLoadProfileSupport() != null;
+    }
+
     public List getOptionalKeys() {
-        return getMeterProtocol().getOptionalKeys();
+        if(this.configurationSupport == null){
+            return new ArrayList();
+        } else {
+            return this.configurationSupport.getOptionalKeys();
+        }
     }
-    public List getRequiredKeys()  {
-        return getMeterProtocol().getRequiredKeys();
-   }
+
+    public List getRequiredKeys() {
+        if(this.configurationSupport == null){
+            return new ArrayList();
+        }else {
+            return this.configurationSupport.getRequiredKeys();
+        }
+    }
+
     private Object getInstance(String className) throws IOException {
         try {
-           return(Class.forName(className).newInstance());
+            return (Class.forName(className).newInstance());
         }
-        catch(ClassNotFoundException e) {
-            throw new IOException("instantiateProtocol(), ClassNotFoundException, "+e.getMessage());
+        catch (ClassNotFoundException e) {
+            throw new IOException("instantiateProtocol(), ClassNotFoundException, " + e.getMessage());
         }
-        catch(InstantiationException e) {
-            throw new IOException("instantiateProtocol(), InstantiationException, "+e.getMessage());
+        catch (InstantiationException e) {
+            throw new IOException("instantiateProtocol(), InstantiationException, " + e.getMessage());
         }
-        catch(IllegalAccessException e) {
-            throw new IOException("instantiateProtocol(), IllegalAccessException, "+e.getMessage());
+        catch (IllegalAccessException e) {
+            throw new IOException("instantiateProtocol(), IllegalAccessException, " + e.getMessage());
         }
-        catch(Exception e) {
-            throw new IOException("instantiateProtocol(), Exception, "+e.getMessage());
+        catch (Exception e) {
+            throw new IOException("instantiateProtocol(), Exception, " + e.getMessage());
         }
-        
+
     } // private void instantiateProtocol(String className)
 
-	public EventMapper getEventMapper() {
-		return eventMapper;
-	}
+    public EventMapper getEventMapper() {
+        return eventMapper;
+    }
 }

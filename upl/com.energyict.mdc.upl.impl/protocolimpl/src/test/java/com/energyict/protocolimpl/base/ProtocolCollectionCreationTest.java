@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.base;
 
-import com.energyict.genericprotocolimpl.common.GenericProtocolCollectionImpl;
+import com.energyict.protocolimpl.base.protocolcollections.GenericProtocolCollectionImpl;
+import com.energyict.protocolimpl.base.protocolcollections.ProtocolCollectionImpl;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -31,7 +32,7 @@ public class ProtocolCollectionCreationTest {
 
             ProtocolCollectionImpl pci = new ProtocolCollectionImpl();
 
-            for(int i = 0; i < pci.getProtocolclasses().size(); i++){
+            for(int i = 0; i < pci.getProtocolClasses().size(); i++){
 
                 HSSFRow row     = sheet.createRow(i);
                 row.createCell(0).setCellValue(i);
@@ -53,7 +54,7 @@ public class ProtocolCollectionCreationTest {
 
             GenericProtocolCollectionImpl gpci = new GenericProtocolCollectionImpl();
             int offset = sheet.getLastRowNum() + 1;
-            for(int i = 0; i < gpci.getProtocolclasses().size(); i++){
+            for(int i = 0; i < gpci.getProtocolClasses().size(); i++){
 
                 HSSFRow row     = sheet.createRow(i + offset);
                 row.createCell(0).setCellValue(i + offset);

@@ -1,4 +1,4 @@
-package com.energyict.genericprotocolimpl.common;
+package com.energyict.protocolimpl.base.protocolcollections;
 
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.protocol.*;
@@ -50,10 +50,10 @@ public class GenericProtocolCollectionImpl implements ProtocolCollection{
     }
 
     /**
-     * Getter for property protocolclasses.
-     * @return Value of property protocolclasses.
+     * Getter for property protocolClasses.
+     * @return Value of property protocolClasses.
      */
-    public java.util.List getProtocolclasses() {
+    public java.util.List getProtocolClasses() {
         return this.protocolclasses;
     }
 
@@ -76,10 +76,10 @@ public class GenericProtocolCollectionImpl implements ProtocolCollection{
         return this.protocolclasses.size();
     }
     /**
-     * Getter for property protocolnames.
-     * @return Value of property protocolnames.
+     * Getter for property protocolNames.
+     * @return Value of property protocolNames.
      */
-    public java.util.List getProtocolnames() {
+    public java.util.List getProtocolNames() {
         return this.protocolnames;
     }
 
