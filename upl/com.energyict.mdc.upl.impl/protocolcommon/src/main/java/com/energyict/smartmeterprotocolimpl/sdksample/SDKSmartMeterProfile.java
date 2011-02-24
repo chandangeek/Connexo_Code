@@ -104,10 +104,10 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
     private static final ObisCode MonthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
     private static final ObisCode HourlyObisCode = ObisCode.fromString("0.x.24.3.0.255");
 
-    private static Map<String, Map<ObisCode, List<ChannelInfo>>> LoadProfileSerialNumberChannelInfoMap = new HashMap<String, Map<ObisCode, List<ChannelInfo>>>();
-    private static Map<ObisCode, List<ChannelInfo>> ChannelInfoMapMaster = new HashMap<ObisCode, List<ChannelInfo>>();
-    private static Map<ObisCode, List<ChannelInfo>> ChannelInfoMapSlave1 = new HashMap<ObisCode, List<ChannelInfo>>();
-    private static Map<ObisCode, List<ChannelInfo>> ChannelInfoMapSlave2 = new HashMap<ObisCode, List<ChannelInfo>>();
+    private static final Map<String, Map<ObisCode, List<ChannelInfo>>> LoadProfileSerialNumberChannelInfoMap = new HashMap<String, Map<ObisCode, List<ChannelInfo>>>();
+    private static final Map<ObisCode, List<ChannelInfo>> ChannelInfoMapMaster = new HashMap<ObisCode, List<ChannelInfo>>();
+    private static final Map<ObisCode, List<ChannelInfo>> ChannelInfoMapSlave1 = new HashMap<ObisCode, List<ChannelInfo>>();
+    private static final Map<ObisCode, List<ChannelInfo>> ChannelInfoMapSlave2 = new HashMap<ObisCode, List<ChannelInfo>>();
 
     static {
         ChannelInfoMapMaster.put(QuarterlyObisCode, QuarterlyHourChannelInfos);
@@ -127,7 +127,7 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
         LoadProfileSerialNumberChannelInfoMap.put(Slave2SerialNumber, ChannelInfoMapSlave2);
     }
 
-    private static Map<ObisCode, Integer> LoadProfileIntervalMap = new HashMap<ObisCode, Integer>();
+    private static final Map<ObisCode, Integer> LoadProfileIntervalMap = new HashMap<ObisCode, Integer>();
 
     static {
         LoadProfileIntervalMap.put(QuarterlyObisCode, 900);
@@ -164,22 +164,39 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
         for (LoadProfileReader lpr : loadProfilesToRead) {
             LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
             Map<ObisCode, List<ChannelInfo>> tempMap = LoadProfileSerialNumberChannelInfoMap.get(lpr.getMeterSerialNumber());
-            lpc.setChannelInfos(tempMap.get(lpr.getProfileObisCode()));
-            lpc.setProfileInterval(LoadProfileIntervalMap.get(lpr.getProfileObisCode()));
-            loadProfileConfigurationList.add(lpc);
+            if (tempMap.containsKey(lpr.getProfileObisCode())) {
+                lpc.setChannelInfos(tempMap.get(lpr.getProfileObisCode()));
+                lpc.setProfileInterval(LoadProfileIntervalMap.get(lpr.getProfileObisCode()));
+                loadProfileConfigurationList.add(lpc);
+            } else {
+                this.protocol.getLogger().info("LoadProfile " + lpr.getProfileObisCode() + " is not supported.");
+            }
         }
         return loadProfileConfigurationList;
     }
 
     /**
-     * @param loadProfiles
-     * @return
-     * @throws IOException
+     * <p>
+     * Fetches one or more LoadProfiles from the device. Each <CODE>LoadProfileReader</CODE> contains a list of necessary
+     * channels({@link com.energyict.protocol.LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
+     * if not then all channels may be returned in the <CODE>ProfileData</CODE>.
+     * </p>
+     * <p>
+     * <b>Implementors should throw an exception if all data since {@link LoadProfileReader#getStartReadingTime()} can NOT be fetched</b>,
+     * as the collecting system will update its lastReading setting based on the returned ProfileData
+     * </p>
+     *
+     * @param loadProfiles a list of <CODE>LoadProfileReader</CODE> which have to be read
+     * @return a list of <CODE>ProfileData</CODE> objects containing interval records
+     * @throws java.io.IOException if a communication or parsing error occurred
      */
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
         List<ProfileData> profileDataList = new ArrayList<ProfileData>();
         for (LoadProfileReader loadProfile : loadProfiles) {
-            profileDataList.add(getRawProfileData(loadProfile));
+            ProfileData pd = getRawProfileData(loadProfile);
+            if(pd != null){
+                profileDataList.add(getRawProfileData(loadProfile));
+            }
         }
         return profileDataList;
     }
@@ -190,16 +207,15 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
      *
      * @param lpro the {@link com.energyict.protocol.LoadProfileReader}
      * @return the requested {@link com.energyict.protocol.LoadProfileConfiguration}
-     * @throws LoadProfileConfigurationException
-     *          if no corresponding object is found
      */
-    private LoadProfileConfiguration getLoadProfileConfigurationForGivenReadObject(LoadProfileReader lpro) throws LoadProfileConfigurationException {
+    private LoadProfileConfiguration getLoadProfileConfigurationForGivenReadObject(LoadProfileReader lpro)  {
         for (LoadProfileConfiguration lpc : this.loadProfileConfigurationList) {
             if (lpc.getObisCode().equals(lpro.getProfileObisCode()) && lpc.getMeterSerialNumber().equalsIgnoreCase(lpro.getMeterSerialNumber())) {
                 return lpc;
             }
         }
-        throw new LoadProfileConfigurationException("Could not find the configurationObject to read.");
+        this.protocol.getLogger().info("Could not find the configurationObject to read for " + lpro.getProfileObisCode());
+        return null;
     }
 
     /**
@@ -207,73 +223,76 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
      *
      * @param lpro the identification of which LoadProfile to read
      * @return a {@link com.energyict.protocol.ProfileData} object with the necessary intervals filled in.
-     * @throws IOException
+     * @throws IOException when a error happens during parsing
      */
     private ProfileData getRawProfileData(LoadProfileReader lpro) throws IOException {
 
         LoadProfileConfiguration lpc = getLoadProfileConfigurationForGivenReadObject(lpro);
-        int timeInterval = Calendar.SECOND;
-        int timeDuration = lpc.getProfileInterval();
+        if(lpc != null){
+            int timeInterval = Calendar.SECOND;
+            int timeDuration = lpc.getProfileInterval();
 
-        ProfileData pd = new ProfileData(lpro.getLoadProfileId());
-        pd.setChannelInfos(LoadProfileSerialNumberChannelInfoMap.get(lpro.getMeterSerialNumber()).get(lpro.getProfileObisCode()));
+            ProfileData pd = new ProfileData(lpro.getLoadProfileId());
+            pd.setChannelInfos(LoadProfileSerialNumberChannelInfoMap.get(lpro.getMeterSerialNumber()).get(lpro.getProfileObisCode()));
 
-        Calendar cal = Calendar.getInstance(getProtocol().getTimeZone());
-        cal.setTime(lpro.getStartReadingTime());
+            Calendar cal = Calendar.getInstance(getProtocol().getTimeZone());
+            cal.setTime(lpro.getStartReadingTime());
 
-        if (timeDuration == 0) { //monthly
-            cal.set(Calendar.DAY_OF_MONTH, 1);
-            cal.set(Calendar.HOUR_OF_DAY, 0);
-            cal.set(Calendar.MINUTE, 0);
-            cal.set(Calendar.SECOND, 0);
-            cal.set(Calendar.MILLISECOND, 0);
+            if (timeDuration == 0) { //monthly
+                cal.set(Calendar.DAY_OF_MONTH, 1);
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
 
-            timeInterval = Calendar.MONTH;
-            timeDuration = 1;
-        } else if (timeDuration == 86400) {
-            cal.set(Calendar.HOUR_OF_DAY, 0);
-            cal.set(Calendar.MINUTE, 0);
-            cal.set(Calendar.SECOND, 0);
-            cal.set(Calendar.MILLISECOND, 0);
-        } else {
-            ParseUtils.roundDown2nearestInterval(cal, lpc.getProfileInterval());
-        }
-
-        Calendar currentCal = Calendar.getInstance();
-        long count = 1;
-        switch (new TimeDuration(timeDuration, timeInterval).getSeconds()) {
-            case 900:
-                steps = 86400 / 900;
-                count = (cal.getTimeInMillis()/900000)-(cal.getTimeInMillis()/86400000)*steps;
-                break;
-            case 3600:
-                steps = 86400 / 3600;
-                count = (cal.getTimeInMillis()/3600000)-(cal.getTimeInMillis()/86400000)*steps;
-                break;
-            case 86400:
-                steps = 31;
-                count = (cal.getTimeInMillis()/86400000) - (cal.getTimeInMillis()/((long)31*86400000))*steps;
-                break;
-            case (3600 * 24 * 31):
-                steps = 12;
-                count = (cal.getTimeInMillis()/((long)3600*24*31*1000))-(cal.getTimeInMillis()/((long)12*3600*24*31*1000))*steps;
-                break;
-        }
-        count++;
-        double multiplier = (2 * Math.PI) / steps;
-        while (cal.getTime().before(currentCal.getTime())) {
-            IntervalData id = new IntervalData(cal.getTime());
-
-            for (int i = 1; i <= lpc.getNumberOfChannels(); i++) {
-                id.addValue(Math.sin(count * multiplier) * i);
+                timeInterval = Calendar.MONTH;
+                timeDuration = 1;
+            } else if (timeDuration == 86400) {
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+            } else {
+                ParseUtils.roundDown2nearestInterval(cal, lpc.getProfileInterval());
             }
-            if (count++ >= steps) {
-                count = 1;
+
+            Calendar currentCal = Calendar.getInstance();
+            long count = 1;
+            switch (new TimeDuration(timeDuration, timeInterval).getSeconds()) {
+                case 900:
+                    steps = 86400 / 900;
+                    count = (cal.getTimeInMillis() / 900000) - (cal.getTimeInMillis() / 86400000) * steps;
+                    break;
+                case 3600:
+                    steps = 86400 / 3600;
+                    count = (cal.getTimeInMillis() / 3600000) - (cal.getTimeInMillis() / 86400000) * steps;
+                    break;
+                case 86400:
+                    steps = 31;
+                    count = (cal.getTimeInMillis() / 86400000) - (cal.getTimeInMillis() / ((long) 31 * 86400000)) * steps;
+                    break;
+                case (3600 * 24 * 31):
+                    steps = 12;
+                    count = (cal.getTimeInMillis() / ((long) 3600 * 24 * 31 * 1000)) - (cal.getTimeInMillis() / ((long) 12 * 3600 * 24 * 31 * 1000)) * steps;
+                    break;
             }
-            pd.addInterval(id);
-            cal.add(timeInterval, timeDuration);
+            count++;
+            double multiplier = (2 * Math.PI) / steps;
+            while (cal.getTime().before(currentCal.getTime())) {
+                IntervalData id = new IntervalData(cal.getTime());
+
+                for (int i = 1; i <= lpc.getNumberOfChannels(); i++) {
+                    id.addValue(Math.sin(count * multiplier) * i);
+                }
+                if (count++ >= steps) {
+                    count = 1;
+                }
+                pd.addInterval(id);
+                cal.add(timeInterval, timeDuration);
+            }
+            return pd;
         }
-        return pd;
+        return null;
     }
 
     public SDKSmartMeterProtocol getProtocol() {
