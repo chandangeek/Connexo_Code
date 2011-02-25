@@ -113,6 +113,10 @@ public class ObisCodeMapper {
         			new Quantity(new BigDecimal(gr.getValue()), Unit.getUndefined()),
         			null, null, null, new Date(), 0, text);
         	return rv;
+        } else if (obisCode.toString().indexOf("0.0.96.12.5.255") != -1) { // GSM Signal strength KP meter
+            Register register = cof.getRegister(obisCode);
+            Quantity quantity = new Quantity(register.getValue(), Unit.getUndefined());
+			return new RegisterValue(obisCode, quantity, null, null, null, new Date(), 0, register.getValue() + " dBm");
         }
 		
     	//Electricity related ObisRegisters
