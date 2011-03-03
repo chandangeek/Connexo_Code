@@ -574,7 +574,7 @@ public class ParseUtils {
     public static byte[] stripByteArrayBrackets(byte[] byteArrayWithBrackets){
     	return (ProtocolUtils.stripBrackets(new String(byteArrayWithBrackets))).getBytes();
     }
-    
+
     static public void main(String[] argv) {
         try {
 //            byte[] byteBuffer= new byte[]{(byte)0x09,(byte)0x99,0,0,0,0,0,0,0,0,0}; 
