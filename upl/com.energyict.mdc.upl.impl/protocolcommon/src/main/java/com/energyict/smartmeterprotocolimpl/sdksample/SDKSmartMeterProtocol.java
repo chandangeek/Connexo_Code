@@ -16,6 +16,8 @@ import java.util.logging.Logger;
  */
 public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol {
 
+    private static final String MeterSerialNumber = "Master";
+
     /**
      * The used <CODE>Connection</CODE> class
      */
@@ -139,6 +141,16 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol {
     }
 
     /**
+     * Get the SerialNumber of the device
+     *
+     * @return the serialNumber of the device
+     * @throws java.io.IOException thrown in case of an exception
+     */
+    public String getMeterSerialNumber() throws IOException {
+        return MeterSerialNumber;
+    }
+
+    /**
      * <p></p>
      *
      * @return the current device time
@@ -158,7 +170,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol {
      *
      * @throws java.io.IOException Thrown in case of an exception
      */
-    public void setTime() throws IOException {
+    public void setTime(Date newMeterTime) throws IOException {
         getLogger().info("call setTime() (this method is called automatically when needed)");
         getLogger().info("--> sync the metertime with the systemtime here");
     }

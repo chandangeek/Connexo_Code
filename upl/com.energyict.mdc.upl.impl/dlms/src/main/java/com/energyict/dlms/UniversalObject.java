@@ -261,7 +261,7 @@ public class UniversalObject implements DLMSCOSEMGlobals,Serializable {
 	 *  Find ObisCode in instantiated object list.
 	 *  All instantiated objects have f=255 and are unique for a classId.
 	 */
-	public boolean equals(ObisCode obisCode) throws IOException {
+	public boolean equals(ObisCode obisCode) {
 		if ((getLNA() == obisCode.getA()) &&
 				(getLNB() == obisCode.getB()) &&
 				(getLNC() == obisCode.getC()) &&
