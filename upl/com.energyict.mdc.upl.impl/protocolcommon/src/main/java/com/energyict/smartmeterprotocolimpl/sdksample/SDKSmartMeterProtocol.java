@@ -166,8 +166,9 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol {
     /**
      * <p>
      * sets the device time to the current system time.
-     * </p><p>
+     * </p>
      *
+     * @param newMeterTime the time to set in the meter
      * @throws java.io.IOException Thrown in case of an exception
      */
     public void setTime(Date newMeterTime) throws IOException {
