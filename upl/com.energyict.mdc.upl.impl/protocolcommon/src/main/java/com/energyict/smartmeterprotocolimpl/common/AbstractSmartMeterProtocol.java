@@ -38,18 +38,6 @@ public abstract class AbstractSmartMeterProtocol implements SmartMeterProtocol {
         this.logger = logger;
     }
 
-    public void connect() throws IOException {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void disconnect() throws IOException {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
-        throw new UnsupportedException("getFirmwareVersion not supported.");
-    }
-
     public void initializeDevice() throws IOException, UnsupportedException {
         //To change body of implemented methods use File | Settings | File Templates.
     }

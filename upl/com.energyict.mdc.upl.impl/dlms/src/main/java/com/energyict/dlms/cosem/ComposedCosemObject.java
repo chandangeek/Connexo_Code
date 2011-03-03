@@ -30,7 +30,7 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
     }
 
     public ComposedCosemObject(ProtocolLink protocolLink, boolean useGetWithList, List<DLMSAttribute> dlmsAttributes) {
-        this(protocolLink, useGetWithList, dlmsAttributes.toArray(new DLMSAttribute[0]));
+        this(protocolLink, useGetWithList, dlmsAttributes.toArray(new DLMSAttribute[dlmsAttributes.size()]));
     }
 
     public ComposedCosemObject(ProtocolLink protocolLink, boolean useGetWithList, DLMSAttribute... dlmsAttributes) {
@@ -46,7 +46,7 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
 
     public static DLMSAttribute getCorrectedClassId(DLMSAttribute da, ProtocolLink link) {
         if (da.getDLMSClassId().equals(DLMSClassId.UNKNOWN)) {
-            if ((link == null) || (link.getMeterConfig() == null)){
+            if ((link == null) || (link.getMeterConfig() == null)) {
                 throw new IllegalArgumentException("ProtocolLink or MeterConfig cannot be null!");
             } else {
                 return new DLMSAttribute(da.getObisCode(), da.getAttribute(), link.getMeterConfig().getDLMSClassId(da.getObisCode()));
@@ -186,5 +186,14 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
 
     public boolean isUseGetWithList() {
         return useGetWithList;
+    }
+
+    /**
+     * Getter for the number of attributes in this ComposedCosemObject
+     *
+     * @return the number of attributes
+     */
+    public int getNrOfAttributes() {
+        return this.attributes.length;
     }
 }

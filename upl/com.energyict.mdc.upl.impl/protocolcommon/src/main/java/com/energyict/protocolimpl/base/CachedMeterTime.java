@@ -1,4 +1,4 @@
-package com.energyict.genericprotocolimpl.webrtuz3;
+package com.energyict.protocolimpl.base;
 
 import java.util.Date;
 
