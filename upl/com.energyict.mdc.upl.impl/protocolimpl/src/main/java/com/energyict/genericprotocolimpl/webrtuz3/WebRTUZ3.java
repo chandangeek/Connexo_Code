@@ -22,6 +22,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocolimpl.base.CachedMeterTime;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -1192,7 +1193,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
     @Override
     public Date getTime() throws IOException {
         if (cachedMeterTime == null) {
-            cachedMeterTime = new CachedMeterTime(super.getTime()); 
+            cachedMeterTime = new CachedMeterTime(super.getTime());
         }
         return cachedMeterTime.getTime();
     }
