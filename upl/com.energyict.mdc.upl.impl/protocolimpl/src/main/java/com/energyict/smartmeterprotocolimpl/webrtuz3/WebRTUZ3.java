@@ -1,17 +1,24 @@
 package com.energyict.smartmeterprotocolimpl.webrtuz3;
 
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.CachedMeterTime;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.webrtuz3.composedobjects.ComposedMeterInfo;
-import com.energyict.smartmeterprotocolimpl.webrtuz3.profiles.EMeterEventProfile;
+import com.energyict.smartmeterprotocolimpl.webrtuz3.events.EMeterEventProfile;
+import com.energyict.smartmeterprotocolimpl.webrtuz3.profiles.LoadProfileBuilder;
+import com.energyict.smartmeterprotocolimpl.webrtuz3.topology.DeviceMapping;
+import com.energyict.smartmeterprotocolimpl.webrtuz3.topology.MeterTopology;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.logging.Level;
 
 /**
+ * //TODO we should find a way to store all our request and responses so we can reuse them in other requests
+ * <p/>
  * Copyrights EnergyICT
  * Date: 7-feb-2011
  * Time: 14:15:14
@@ -38,6 +45,28 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements SimpleMeter {
      */
     private CachedMeterTime cachedMeterTime;
 
+    /**
+     * Represents the meter his topology
+     */
+    private MeterTopology meterTopology;
+
+    /**
+     * Contains a summary of all the slaveMeters
+     */
+    private List<SlaveMeter> slaveMeters = new ArrayList<SlaveMeter>();
+
+    /**
+     * Represents the <CODE>LoadProfileBuilder</CODE> to use
+     */
+    private LoadProfileBuilder loadProfileBuilder;
+
+    private static final int ObisCodeBFieldIndex = 1;
+
+//    /**
+//     * Contains a Map of all the requested objects in this communicationSession
+//     */
+//    private Map<DLMSAttribute, AbstractDataType> sessionCachedObjects = new HashMap<DLMSAttribute, AbstractDataType>();
+
     @Override
     protected WebRTUZ3Properties getProperties() {
         if (properties == null) {
@@ -50,8 +79,35 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements SimpleMeter {
      * Initialization method right after we are connected to the physical device.
      */
     @Override
-    protected void initAfterConnect() {
-        //TODO read the slaveDevices and create a list of serialNumbers mapped to ObisCode-B-channels
+    protected void initAfterConnect() throws ConnectionException {
+        getMeterTopology().discoverSlaveDevices();
+        for (DeviceMapping dm : getMeterTopology().geteMeterMap()) {
+            this.slaveMeters.add(new SlaveMeter(this, dm.getSerialNumber(), dm.getPhysicalAddress()));
+        }
+        for (DeviceMapping dm : getMeterTopology().getMbusMap()) {
+            this.slaveMeters.add(new SlaveMeter(this, dm.getSerialNumber(), dm.getPhysicalAddress()));
+        }
+    }
+
+    /**
+     * Getter for the Meter Topology
+     *
+     * @return the Meter Topology
+     */
+    private MeterTopology getMeterTopology() {
+        if (this.meterTopology == null) {
+            this.meterTopology = new MeterTopology(this);
+        }
+        return this.meterTopology;
+    }
+
+    /**
+     * Setter for the {@link #meterTopology}
+     *
+     * @param meterTopology the new meterTopology to set
+     */
+    public void setMeterTopology(MeterTopology meterTopology) {
+        this.meterTopology = meterTopology;
     }
 
     /**
@@ -196,28 +252,38 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements SimpleMeter {
 
     /**
      * Get a list of MeterEvents from the WebRTUZ3 that occurred after the lastLogbookDate
+     * <p/>
+     * TODO currently we store all the meterEvents(including those from the slaveMeters) on the MasterRtu ...
      *
      * @param lastLogbookDate The last event that's already in EIServer
      * @return A list of meterEvents
      */
     public List<MeterEvent> getMeterEvents(Date lastLogbookDate) throws IOException {
+        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         EMeterEventProfile eventProfile = new EMeterEventProfile(this, getDlmsSession());
+        meterEvents.addAll(eventProfile.getEvents(lastLogbookDate));
 
-        //TODO need the slaveMeterEvents!!!!!!
+        // Loop all slave EventProfiles
+        for (SlaveMeter sm : this.slaveMeters) {
+            try {
+                eventProfile = new EMeterEventProfile(sm, getDlmsSession());
+                meterEvents.addAll(eventProfile.getEvents(lastLogbookDate));
+            } catch (IOException e) {
+                getLogger().info("Could not read the events from meter " + sm.getSerialNumber());
+            }
+        }
 
-        return eventProfile.getEvents(lastLogbookDate);
+        return meterEvents;
     }
 
     /**
      * Get the configuration(interval, number of channels, channelUnits) of all given LoadProfiles from the WebRTUZ3.
      *
-     * @param loadProfileObisCodes
-     * @return
+     * @param loadProfileReaders
+     * @return the list of <CODE>LoadProfileConfiguration</CODE> objects which are in the device
      */
-    public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileObisCodes) {
-        List<LoadProfileConfiguration> loadProfileConfigurations = new ArrayList<LoadProfileConfiguration>();
-        // TODO: Implement the loadprofile configuration
-        return loadProfileConfigurations;
+    public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) throws IOException {
+        return getLoadProfileBuilder().fetchLoadProfileConfiguration(loadProfileReaders);
     }
 
     /**
@@ -257,4 +323,59 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements SimpleMeter {
     public int getPhysicalAddress() {
         return 0; // the 'Master' has physicalAddress 0
     }
+
+    /**
+     * Search for the physicalAddress of the meter with the given serialNumber
+     *
+     * @param serialNumber the serialNumber of the meter
+     * @return the requested physical address or -1 when it could not be found
+     */
+    public int getPhysicalAddressFromSerialNumber(String serialNumber) {
+        return getMeterTopology().getPhysicalAddress(serialNumber);
+    }
+
+    /**
+     * Return a B-Field corrected ObisCode.
+     *
+     * @param obisCode     the ObisCode to correct
+     * @param serialNumber the serialNumber of the device for which this ObisCode must be corrected
+     * @return the corrected ObisCode
+     */
+    public ObisCode getPhysicalAddressCorrectedObisCode(ObisCode obisCode, String serialNumber) {
+        int address = getPhysicalAddressFromSerialNumber(serialNumber);
+        if (address != -1) {
+            return ProtocolTools.setObisCodeField(obisCode, ObisCodeBFieldIndex, (byte) address);
+        }
+        return null;
+    }
+
+    /**
+     * Return the serialNumber of the meter which corresponds with the B-Field of the given ObisCode
+     *
+     * @param obisCode the ObisCode
+     * @return the serialNumber
+     */
+    public String getSerialNumberFromCorrectObisCode(ObisCode obisCode) {
+        return getMeterTopology().getSerialNumber(obisCode);
+    }
+
+    /**
+     * Getter for the {@link #loadProfileBuilder}
+     */
+    public LoadProfileBuilder getLoadProfileBuilder() {
+        if (this.loadProfileBuilder == null) {
+            this.loadProfileBuilder = new LoadProfileBuilder(this);
+        }
+        return this.loadProfileBuilder;
+    }
+
+    //    /**
+//     * Save the given object to the {@link #sessionCachedObjects}
+//     *
+//     * @param dlmsAttribute    the definition of the object to cache
+//     * @param abstractDataType the result in the meter of the object
+//     */
+//    public void saveObject(DLMSAttribute dlmsAttribute, AbstractDataType abstractDataType) {
+//        this.sessionCachedObjects.put(dlmsAttribute, abstractDataType);
+//    }
 }

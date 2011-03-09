@@ -72,12 +72,19 @@ public class WebRTUZ3RegisterFactory implements BulkRegisterProtocol {
             RegisterValue rv = null;
             try {
                 if (this.composedRegisterMap.containsKey(register)) {
-                    rv = new RegisterValue(register,
+                    ScalerUnit su = new ScalerUnit(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterUnitAttribute()));
+                    if(su.getUnitCode() != 0){
+                         rv = new RegisterValue(register,
                             new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
-                                    new ScalerUnit(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterUnitAttribute())).getUnit()));
+                                    su.getUnit()));
+                    } else { // TODO don't do this, we should throw an exception because we will report incorrect data. (keeping it here for testing with dump meter)
+                        rv = new RegisterValue(register,
+                            new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
+                                    Unit.getUndefined()));
+                    }
+
                 } else if (this.registerMap.containsKey(register)) {
                     rv = convertCustomAbstractObjectsToRegisterValues(register, registerComposedCosemObject.getAttribute(this.registerMap.get(register)));
-//                    rv = new RegisterValue(register, new Quantity(registerComposedCosemObject.getAttribute(this.registerMap.get(register)).toBigDecimal(), Unit.getUndefined()));
                 }
             } catch (IOException e) {
                 this.meterProtocol.getLogger().log(Level.WARNING, "Failed to fetch register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "]");
@@ -102,26 +109,26 @@ public class WebRTUZ3RegisterFactory implements BulkRegisterProtocol {
      */
     protected ComposedCosemObject constructComposedObjectFromRegisterList(List<Register> registers, boolean supportsBulkRequest) {
 
-        //TODO need to take the correctedRegisterObisCode into account.
-
         if (registers != null) {
             List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
             for (Register register : registers) {
-                UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.meterProtocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), register.getObisCode());
+                ObisCode rObisCode = getCorrectedRegisterObisCode(register);
+
+                UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.meterProtocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), rObisCode);
                 if (uo != null) {
                     if (uo.getClassID() == DLMSClassId.REGISTER.getClassId() || uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
-                        ComposedRegister composedRegister = new ComposedRegister(new DLMSAttribute(register.getObisCode(), RegisterAttributes.Register_Value.getAttributeNumber(), uo.getClassID()),
-                                new DLMSAttribute(register.getObisCode(), RegisterAttributes.Register_Unit.getAttributeNumber(), uo.getClassID()));
+                        ComposedRegister composedRegister = new ComposedRegister(new DLMSAttribute(rObisCode, RegisterAttributes.Register_Value.getAttributeNumber(), uo.getClassID()),
+                                new DLMSAttribute(rObisCode, RegisterAttributes.Register_Unit.getAttributeNumber(), uo.getClassID()));
                         dlmsAttributes.add(composedRegister.getRegisterValueAttribute());
                         dlmsAttributes.add(composedRegister.getRegisterUnitAttribute());
                         this.composedRegisterMap.put(register, composedRegister);
                     } else {
                         // We get the default 'Value' attribute (2)
-                        this.registerMap.put(register, new DLMSAttribute(register.getObisCode(), DLMSCOSEMGlobals.ATTR_DATA_VALUE, uo.getClassID()));
+                        this.registerMap.put(register, new DLMSAttribute(rObisCode, DLMSCOSEMGlobals.ATTR_DATA_VALUE, uo.getClassID()));
                         dlmsAttributes.add(this.registerMap.get(register));
                     }
                 } else {
-                    this.meterProtocol.getLogger().log(Level.INFO, "Register with ObisCode " + register.getObisCode() + " is not supported.");
+                    this.meterProtocol.getLogger().log(Level.INFO, "Register with ObisCode " + rObisCode + " is not supported.");
                 }
             }
             return new ComposedCosemObject(this.meterProtocol.getDlmsSession(), supportsBulkRequest, dlmsAttributes);
@@ -129,15 +136,19 @@ public class WebRTUZ3RegisterFactory implements BulkRegisterProtocol {
         return null;
     }
 
-    private static RegisterValue convertCustomAbstractObjectsToRegisterValues(Register register, AbstractDataType abstractDataType) throws UnsupportedException {
+    public ObisCode getCorrectedRegisterObisCode(Register register) {
+        return this.meterProtocol.getPhysicalAddressCorrectedObisCode(register.getObisCode(), register.getSerialNumber());
+    }
+
+    private RegisterValue convertCustomAbstractObjectsToRegisterValues(Register register, AbstractDataType abstractDataType) throws UnsupportedException {
 
         //TODO need to check if register needs to be build with value AND text or just one of the two.
         //TODO loop over the ObisCodeMapper list of the webrtu.common.ObisCodeMapper, we should support all of them ...
-
-        if(isSupportedByProtocol(register.getObisCode())){
+        ObisCode rObisCode = getCorrectedRegisterObisCode(register);
+        if (isSupportedByProtocol(rObisCode)) {
             return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.getUndefined()), null, null, null, new Date(), 0, String.valueOf(abstractDataType.longValue()));
         } else {
-            throw new UnsupportedException("Register with obisCode " + register.getObisCode() + " is not supported.");
+            throw new UnsupportedException("Register with obisCode " + rObisCode + " is not supported.");
         }
     }
 

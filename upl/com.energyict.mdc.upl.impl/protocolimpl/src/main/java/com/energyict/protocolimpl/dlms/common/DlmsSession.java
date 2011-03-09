@@ -225,4 +225,12 @@ public class DlmsSession implements ProtocolLink {
         return cosemObjectFactory;
     }
 
+    /**
+     * Setter for the DLMSConnection
+     *
+     * @param dlmsConnection the new DLMSConnection to set
+     */
+    public void setDlmsConnection(DLMSConnection dlmsConnection) {
+        this.dlmsConnection = dlmsConnection;
+    }
 }

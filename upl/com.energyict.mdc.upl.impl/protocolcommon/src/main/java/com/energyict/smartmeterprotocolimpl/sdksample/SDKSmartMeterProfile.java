@@ -143,7 +143,7 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
     /**
      * Contains a list of <CODE>LoadProfileConfiguration</CODE> objects which corresponds with the LoadProfiles in the METER
      */
-    private ArrayList<LoadProfileConfiguration> loadProfileConfigurationList;
+    private List<LoadProfileConfiguration> loadProfileConfigurationList;
 
     public SDKSmartMeterProfile(SDKSmartMeterProtocol protocol) {
         this.protocol = protocol;
@@ -195,7 +195,7 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
         for (LoadProfileReader loadProfile : loadProfiles) {
             ProfileData pd = getRawProfileData(loadProfile);
             if(pd != null){
-                profileDataList.add(getRawProfileData(loadProfile));
+                profileDataList.add(pd);
             }
         }
         return profileDataList;

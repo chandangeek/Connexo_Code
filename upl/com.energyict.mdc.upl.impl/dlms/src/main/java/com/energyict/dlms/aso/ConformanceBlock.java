@@ -153,7 +153,7 @@ public class ConformanceBlock{
 	 * Construct the long value from the byteArry
 	 * @return the conformance long-value
 	 */
-	protected long getValue(){
+	public long getValue(){
 		long value = 0;
 		for(int i = 0; i < this.block.length; i++){
             value += (this.block[i] ? 1 : 0) * Math.pow(2, (this.block.length - 1 - i));

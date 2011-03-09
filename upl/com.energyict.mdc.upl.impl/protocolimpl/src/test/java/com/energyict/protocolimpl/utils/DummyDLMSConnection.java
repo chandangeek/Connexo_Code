@@ -21,6 +21,8 @@ public class DummyDLMSConnection implements DLMSConnection {
 	private byte[] responseByte;
 	private byte[] sentBytes;
 
+    private ApplicationServiceObject aso = null;
+
 	/**
 	 *
 	 */
@@ -115,7 +117,11 @@ public class DummyDLMSConnection implements DLMSConnection {
 	}
 
     public ApplicationServiceObject getApplicationServiceObject() {
-        return null;
+        return aso;
+    }
+
+    public void setApplicationServiceObject(ApplicationServiceObject aso){
+        this.aso = aso;
     }
 
 }

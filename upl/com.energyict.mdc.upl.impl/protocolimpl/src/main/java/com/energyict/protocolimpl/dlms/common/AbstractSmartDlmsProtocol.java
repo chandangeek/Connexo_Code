@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.dlms.common;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cpo.Transaction;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdw.core.MeteringWarehouse;
@@ -76,7 +77,7 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
     /**
      * Initialization method right after we are connected to the physical device.
      */
-    protected abstract void initAfterConnect();
+    protected abstract void initAfterConnect() throws ConnectionException;
 
     @Override
     protected ProtocolProperties getProtocolProperties() {

@@ -470,7 +470,7 @@ public class DLMSMeterConfig {
         if (objectList != null) {
             for (int i = 0; i < objectList.length; i++) {
                 UniversalObject universalObject = objectList[i];
-                if (universalObject.getObisCode().equals(obisCode)) {
+                if (universalObject != null && universalObject.getObisCode().equals(obisCode)) {
                     return true;
                 }
             }
