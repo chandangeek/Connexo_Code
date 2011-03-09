@@ -73,14 +73,14 @@ public class WebRTUZ3RegisterFactory implements BulkRegisterProtocol {
             try {
                 if (this.composedRegisterMap.containsKey(register)) {
                     ScalerUnit su = new ScalerUnit(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterUnitAttribute()));
-                    if(su.getUnitCode() != 0){
-                         rv = new RegisterValue(register,
-                            new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
-                                    su.getUnit()));
+                    if (su.getUnitCode() != 0) {
+                        rv = new RegisterValue(register,
+                                new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
+                                        su.getUnit()));
                     } else { // TODO don't do this, we should throw an exception because we will report incorrect data. (keeping it here for testing with dump meter)
                         rv = new RegisterValue(register,
-                            new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
-                                    Unit.getUndefined()));
+                                new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
+                                        Unit.getUndefined()));
                     }
 
                 } else if (this.registerMap.containsKey(register)) {
@@ -104,7 +104,8 @@ public class WebRTUZ3RegisterFactory implements BulkRegisterProtocol {
      * ObjectList, then we just add it to the {@link #registerMap}. The handling of the <CODE>registerMap</CODE> should be done by the {@link #readRegisters(java.util.List)}
      * method for each <CODE>ObisCode</CODE> in specific.
      *
-     * @param registers the Registers to convert
+     * @param registers           the Registers to convert
+     * @param supportsBulkRequest indicates whether a DLMS Bulk reques(getWithList) is desired
      * @return a ComposedCosemObject or null if the list was empty
      */
     protected ComposedCosemObject constructComposedObjectFromRegisterList(List<Register> registers, boolean supportsBulkRequest) {

@@ -114,7 +114,7 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements SimpleMeter {
      * The protocol version in the following format: yyyy-mm-dd
      * This field is updated by svn on every commit.
      *
-     * @return
+     * @return the version of this protocol (file)
      */
     public String getVersion() {
         return "$Date$";
@@ -242,9 +242,9 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements SimpleMeter {
      * Fetch a whole list of registers. We should combine as much as possible values in
      * one request/response to the meter to save time and bandwidth
      *
-     * @param registers
-     * @return
-     * @throws IOException
+     * @param registers the list of <CODE>Registers</CODE> to read
+     * @return a list of <CODE>RegisterValues</CODE> from the requested registers
+     * @throws IOException if an error occurred during the read of during parsing
      */
     public List<RegisterValue> readRegisters(List<Register> registers) throws IOException {
         return getRegisterFactory().readRegisters(registers);
@@ -279,7 +279,7 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements SimpleMeter {
     /**
      * Get the configuration(interval, number of channels, channelUnits) of all given LoadProfiles from the WebRTUZ3.
      *
-     * @param loadProfileReaders
+     * @param loadProfileReaders identifies which LoadProfiles should be checked/fetched
      * @return the list of <CODE>LoadProfileConfiguration</CODE> objects which are in the device
      */
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) throws IOException {
@@ -287,16 +287,22 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements SimpleMeter {
     }
 
     /**
-     * Fetches one or more LoadProfiles from the WebRTUZ3.
+     * <p>
+     * Fetches one or more LoadProfiles from the device. Each <CODE>LoadProfileReader</CODE> contains a list of necessary
+     * channels({@link com.energyict.protocol.LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
+     * if not then all channels may be returned in the <CODE>ProfileData</CODE>.
+     * </p>
+     * <p>
+     * <b>Implementors should throw an exception if all data since {@link LoadProfileReader#getStartReadingTime()} can NOT be fetched</b>,
+     * as the collecting system will update its lastReading setting based on the returned ProfileData
+     * </p>
      *
-     * @param loadProfiles
-     * @return
-     * @throws IOException
+     * @param loadProfiles a list of <CODE>LoadProfileReader</CODE> which have to be read
+     * @return a list of <CODE>ProfileData</CODE> objects containing interval records
+     * @throws java.io.IOException if a communication or parsing error occurred
      */
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
-        List<ProfileData> profileData = new ArrayList<ProfileData>();
-        // TODO: Implement the fetching of the profile data
-        return profileData;
+        return getLoadProfileBuilder().getLoadProfileData(loadProfiles);
     }
 
     public WebRTUZ3RegisterFactory getRegisterFactory() {
@@ -361,6 +367,8 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements SimpleMeter {
 
     /**
      * Getter for the {@link #loadProfileBuilder}
+     *
+     * @return the lazyLoaded <CODE>LoadProfileBuilder</CODE>
      */
     public LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {

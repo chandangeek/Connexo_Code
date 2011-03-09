@@ -59,11 +59,11 @@ public class MeterTopology {
     /**
      * A list of EMeter <CODE>DeviceMappings</CODE>
      */
-    List<DeviceMapping> eMeterMap = new ArrayList<DeviceMapping>();
+    private List<DeviceMapping> eMeterMap = new ArrayList<DeviceMapping>();
     /**
      * A list of MbusMeter <CODE>DeviceMappings</CODE>
      */
-    List<DeviceMapping> mbusMap = new ArrayList<DeviceMapping>();
+    private List<DeviceMapping> mbusMap = new ArrayList<DeviceMapping>();
 
 
     public MeterTopology(WebRTUZ3 meterProtocol) {
@@ -121,8 +121,7 @@ public class MeterTopology {
 
         StringBuffer sb = new StringBuffer();
         sb.append("Found ").append(this.mbusMap.size()).append(" MBus devices: ").append("\r\n");
-        for (int i = 0; i < this.mbusMap.size(); i++) {
-            DeviceMapping deviceMapping = this.mbusMap.get(i);
+        for (DeviceMapping deviceMapping : this.mbusMap) {
             sb.append(deviceMapping).append("\r\n");
         }
         this.meterProtocol.getLogger().log(Level.INFO, sb.toString());
@@ -145,8 +144,7 @@ public class MeterTopology {
 
         StringBuffer sb = new StringBuffer();
         sb.append("Found ").append(this.eMeterMap.size()).append(" eMeter devices: ").append("\r\n");
-        for (int i = 0; i < this.eMeterMap.size(); i++) {
-            DeviceMapping deviceMapping = this.eMeterMap.get(i);
+        for (DeviceMapping deviceMapping : this.eMeterMap) {
             sb.append(deviceMapping).append("\r\n");
         }
         this.meterProtocol.getLogger().log(Level.INFO, sb.toString());
@@ -165,7 +163,6 @@ public class MeterTopology {
         String mbusSerial;
         List<DeviceMapping> mbusMap = new ArrayList<DeviceMapping>();
         for (int i = MBUS_DEVICES.getFrom(); i <= MBUS_DEVICES.getTo(); i++) {
-            mbusSerial = "";
             try {
                 ObisCode serialObisCode = ProtocolTools.setObisCodeField(SERIALNR_OBISCODE, ObisCodeBFieldIndex, (byte) i);
                 if (this.meterProtocol.getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
@@ -196,7 +193,6 @@ public class MeterTopology {
         String eMeterSerial;
         List<DeviceMapping> eMeterMap = new ArrayList<DeviceMapping>();
         for (int i = EMETER_DEVICES.getFrom(); i <= EMETER_DEVICES.getTo(); i++) {
-            eMeterSerial = "";
             try {
                 ObisCode serialObisCode = ProtocolTools.setObisCodeField(SERIALNR_OBISCODE, ObisCodeBFieldIndex, (byte) i);
                 if (this.meterProtocol.getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {

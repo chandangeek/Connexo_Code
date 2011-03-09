@@ -2,11 +2,15 @@ package com.energyict.smartmeterprotocolimpl.webrtuz3.profiles;
 
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.*;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.Register;
+import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
+import com.energyict.protocolimpl.metcom.BufferStructure;
 import com.energyict.smartmeterprotocolimpl.webrtuz3.WebRTUZ3;
 import com.energyict.smartmeterprotocolimpl.webrtuz3.composedobjects.ComposedProfileConfig;
 
@@ -16,7 +20,7 @@ import java.util.logging.Level;
 
 /**
  * Provides functionality to fetch and create {@link com.energyict.protocol.ProfileData} objects for a {@link com.energyict.protocol.SmartMeterProtocol}
- *
+ * <p/>
  * <pre>
  * Copyrights EnergyICT
  * Date: 3-mrt-2011
@@ -49,6 +53,11 @@ public class LoadProfileBuilder {
      * will represent the 'data' channels of the Profile
      */
     private Map<LoadProfileReader, List<Register>> capturedObjectRegisterListMap = new HashMap<LoadProfileReader, List<Register>>();
+
+    /**
+     * Keeps track of the list of <CODE>ChannelInfo</CODE> objects for all the LoadProfiles
+     */
+    private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<LoadProfileReader, List<ChannelInfo>>();
 
     /**
      * Keeps track of the link between a {@link com.energyict.protocol.Register} and his {@link com.energyict.dlms.DLMSAttribute} for ComposedCosemObject reads ...
@@ -96,7 +105,9 @@ public class LoadProfileBuilder {
             if (cpc != null) {
                 try {
                     lpc.setProfileInterval(ccoLpConfigs.getAttribute(cpc.getLoadProfileInterval()).intValue());
-                    lpc.setChannelInfos(constructChannelInfos(capturedObjectRegisterListMap.get(lpr), ccoCapturedObjectRegisterUnits));
+                    List<ChannelInfo> channelInfos = constructChannelInfos(capturedObjectRegisterListMap.get(lpr), ccoCapturedObjectRegisterUnits);
+                    lpc.setChannelInfos(channelInfos);
+                    this.channelInfoMap.put(lpr, channelInfos);
                 } catch (IOException e) {
                     lpc.setSupportedByMeter(false);
                 }
@@ -242,21 +253,21 @@ public class LoadProfileBuilder {
      */
     protected boolean isDataObisCode(ObisCode obisCode, String serialNumber) {
         boolean isDataObisCode = true;
-        ObisCode testObisCode = null;
+        ObisCode testObisCode;
 
-        if(obisCode.getB() != this.meterProtocol.getPhysicalAddressFromSerialNumber(serialNumber)){
+        if (obisCode.getB() != this.meterProtocol.getPhysicalAddressFromSerialNumber(serialNumber)) {
             return false;
         }
 
         testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(EmeterStatusObisCode, serialNumber);
-        if(testObisCode != null){
+        if (testObisCode != null) {
             isDataObisCode &= !testObisCode.equals(obisCode);
         } else {
             return false;
         }
 
         testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(MbusMeterStatusObisCode, serialNumber);
-        if(testObisCode != null){
+        if (testObisCode != null) {
             isDataObisCode &= !testObisCode.equals(obisCode);
         } else {
             return false;
@@ -266,7 +277,7 @@ public class LoadProfileBuilder {
     }
 
     /**
-     * Get the corrected ObisCode from the given Register. With correction we mean chaning the B-field of the ObisCode according to the logical index in the meter
+     * Get the corrected ObisCode from the given Register. With correction we mean changing the B-field of the ObisCode according to the logical index in the meter
      *
      * @param register the register which contains an ObisCode which needs channelCorrection
      * @return the corrected ObisCode
@@ -274,4 +285,62 @@ public class LoadProfileBuilder {
     public ObisCode getCorrectedRegisterObisCode(Register register) {
         return this.meterProtocol.getPhysicalAddressCorrectedObisCode(register.getObisCode(), register.getSerialNumber());
     }
+
+    /**
+     * <p>
+     * Fetches one or more LoadProfiles from the device. Each <CODE>LoadProfileReader</CODE> contains a list of necessary
+     * channels({@link com.energyict.protocol.LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
+     * if not then all channels may be returned in the <CODE>ProfileData</CODE>.
+     * </p>
+     * <p>
+     * <b>Implementors should throw an exception if all data since {@link LoadProfileReader#getStartReadingTime()} can NOT be fetched</b>,
+     * as the collecting system will update its lastReading setting based on the returned ProfileData
+     * </p>
+     *
+     * @param loadProfiles a list of <CODE>LoadProfileReader</CODE> which have to be read
+     * @return a list of <CODE>ProfileData</CODE> objects containing interval records
+     * @throws java.io.IOException if a communication or parsing error occurred
+     */
+    public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
+        List<ProfileData> profileDataList = new ArrayList<ProfileData>();
+        ProfileGeneric profile;
+        ProfileData profileData;
+        for (LoadProfileReader lpr : loadProfiles) {
+            ObisCode lpObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
+            LoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
+            if (this.channelInfoMap.containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
+                profile = this.meterProtocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(lpObisCode);
+                profileData = new ProfileData(lpr.getLoadProfileId());
+                profileData.setChannelInfos(this.channelInfoMap.get(lpr));
+                Calendar fromCalendar = Calendar.getInstance(this.meterProtocol.getTimeZone());
+                fromCalendar.setTime(lpr.getStartReadingTime());
+                Calendar toCalendar = Calendar.getInstance(this.meterProtocol.getTimeZone());
+                toCalendar.setTime(lpr.getEndReadingTime());
+
+                //TODO it is possible that we need to check for the masks ...
+                DLMSProfileIntervals intervals = new DLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), new WebRTUZ3ProfileIntervalStatusBits());
+                profileData.setIntervalDatas(intervals.parseIntervals(lpc.getProfileInterval()));
+
+                profileDataList.add(profileData);
+            }
+        }
+
+        return profileDataList;
+    }
+
+    /**
+     * Look for the <CODE>LoadProfileConfiguration</CODE> in the previously build up list
+     *
+     * @param loadProfileReader the reader linking to the <CODE>LoadProfileConfiguration</CODE>
+     * @return requested configuration
+     */
+    private LoadProfileConfiguration getLoadProfileConfiguration(LoadProfileReader loadProfileReader) {
+        for (LoadProfileConfiguration lpc : this.loadProfileConfigurationList) {
+            if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && loadProfileReader.getMeterSerialNumber().equalsIgnoreCase(lpc.getMeterSerialNumber())) {
+                return lpc;
+            }
+        }
+        return null;
+    }
+
 }
