@@ -3,13 +3,13 @@ package com.energyict.smartmeterprotocolimpl.webrtuz3;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.Register;
+import com.energyict.protocol.SmartMeterProtocol;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -25,7 +25,10 @@ public class WebRTUZ3RegisterFactoryTest {
     @Test
     public void constructComposedObjectFromRegisterListTest() {
         try {
+            Properties props = new Properties();
+            props.put(SmartMeterProtocol.SERIALNUMBER, "Master");
             WebRTUZ3 meterProtocol = new WebRTUZ3();
+            meterProtocol.addProperties(props);
             meterProtocol.getDlmsSession().init();
             WebRTUZ3RegisterFactory registerFactory = new WebRTUZ3RegisterFactory(meterProtocol);
 
@@ -37,15 +40,15 @@ public class WebRTUZ3RegisterFactoryTest {
             meterProtocol.getDlmsSession().getMeterConfig().setInstantiatedObjectList(uos);
 
             assertNotNull(registerFactory.constructComposedObjectFromRegisterList(new ArrayList<Register>(), true));
-            assertEquals(2, registerFactory.constructComposedObjectFromRegisterList(Arrays.asList(reg1), true).getNrOfAttributes());
+            assertEquals("We expect two attribute requests, one for the value and one for the unit.", 2, registerFactory.constructComposedObjectFromRegisterList(Arrays.asList(reg1), true).getNrOfAttributes());
 
             Register reg2 = new Register(ObisCode.fromString("1.0.1.8.1.255"), "Master");
-            assertEquals(2, registerFactory.constructComposedObjectFromRegisterList(Arrays.asList(reg1, reg2), true).getNrOfAttributes());
+            assertEquals("We still expect just the two attribute requests, the additional register is not in the objectList.", 2, registerFactory.constructComposedObjectFromRegisterList(Arrays.asList(reg1, reg2), true).getNrOfAttributes());
 
             uos[2] = new UniversalObject(ObisCode.fromString("0.0.13.0.0.255").getLN(), 13, 6);
             meterProtocol.getDlmsSession().getMeterConfig().setInstantiatedObjectList(uos);
             Register reg3 = new Register(ObisCode.fromString("0.0.13.0.0.255"), "Master");
-            assertEquals(3, registerFactory.constructComposedObjectFromRegisterList(Arrays.asList(reg1, reg2, reg3), true).getNrOfAttributes());
+            assertEquals("Next to the value and unit of the before register, we also want (only) the value of the new object.",3, registerFactory.constructComposedObjectFromRegisterList(Arrays.asList(reg1, reg2, reg3), true).getNrOfAttributes());
 
         } catch (IOException e) {
             fail(e.getMessage());
