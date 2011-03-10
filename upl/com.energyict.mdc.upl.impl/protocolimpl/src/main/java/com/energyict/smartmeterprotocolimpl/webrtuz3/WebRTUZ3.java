@@ -263,6 +263,9 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements SimpleMeter {
         EMeterEventProfile eventProfile = new EMeterEventProfile(this, getDlmsSession());
         meterEvents.addAll(eventProfile.getEvents(lastLogbookDate));
 
+
+        //TODO check if the MBus event Profiles have another ObisCode
+
         // Loop all slave EventProfiles
         for (SlaveMeter sm : this.slaveMeters) {
             try {
