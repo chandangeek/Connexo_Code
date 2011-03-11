@@ -100,11 +100,13 @@ public class DataParser {
 	}
 
 	private int indexOf(byte[] data,byte val,int fromIndex) {
-		for (int i=fromIndex;i<data.length;i++) {
-			if (data[i] == val) {
-				return i;
-			}
-		}
+        if(data != null){
+            for (int i=fromIndex;i<data.length;i++) {
+                if (data[i] == val) {
+                    return i;
+                }
+            }
+        }
 		return -1;
 	}
 

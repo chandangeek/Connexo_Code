@@ -57,11 +57,16 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 
 	private List registerValues=null;
 
-	byte[] dataReadout=null;
+	private byte[] dataReadout=null;
 
 	private boolean software7E1;
 	private boolean isFixedProfileTimeZone;
 	private boolean profileHelper = false;
+
+    /**
+     * Indication whether longNameObisCodes can be used
+     */
+    private boolean longNameObisCodes = false;
 
 	/** Creates a new instance of LZQJ, empty constructor*/
 	public LZQJ() {
@@ -111,7 +116,7 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 	}
 
 	private void setTimeAlternativeMethod() throws IOException {
-		Calendar calendar=null;
+		Calendar calendar ;
 		calendar = ProtocolUtils.getCalendar(timeZone);
 		calendar.add(Calendar.MILLISECOND,iRoundtripCorrection);
 		Date date = calendar.getTime();
@@ -119,7 +124,7 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 	} // public void setTime() throws IOException
 
 	private void setTimeVDEWCompatible() throws IOException {
-		Calendar calendar=null;
+		Calendar calendar ;
 		calendar = ProtocolUtils.getCalendar(timeZone);
 		calendar.add(Calendar.MILLISECOND,iRoundtripCorrection);
 		Date date = calendar.getTime();
@@ -232,8 +237,7 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 	 * @return a list of strings
 	 */
 	public List getRequiredKeys() {
-		List result = new ArrayList(0);
-		return result;
+		return new ArrayList(0);
 	}
 
 	/** this implementation returns an empty list
@@ -275,7 +279,6 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 			data = flagIEC1107Connection.receiveRawData();
 			firmware += "Configuration program version number: " + new String(data);
 		} catch (Exception e) {
-			e.printStackTrace();
 			firmware += "Configuration program version number: (none)";
 		}
 
@@ -287,7 +290,6 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 			data = flagIEC1107Connection.receiveRawData();
 			firmware += " - Parameter number: " + new String(data);
 		} catch (Exception e) {
-			e.printStackTrace();
 			firmware += " - Parameter number: (none)";
 		}
 
@@ -299,7 +301,6 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 			data = flagIEC1107Connection.receiveRawData();
 			firmware += " - Parameter settings: " + new String(data);
 		} catch (Exception e) {
-			e.printStackTrace();
 			firmware += " - Parameter settings: (none)";
 		}
 
@@ -311,7 +312,6 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 			data = flagIEC1107Connection.receiveRawData();
 			firmware += " - Set number: " + new String(data);
 		} catch (Exception e) {
-			e.printStackTrace();
 			firmware += " - Set number: (none)";
 		}
 		return firmware;
@@ -361,7 +361,17 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 
 			if ((getFlagIEC1107Connection().getHhuSignOn()!=null)  && (isDataReadout())) {
 				dataReadout = getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
-			}
+            }
+
+            /*
+            Check if we need to use LongName ObisCodes(the term longNames is not entirely correct because the F field is not even put in ...)
+             */
+            if(isDataReadout()){
+                this.longNameObisCodes = new String(dataReadout).indexOf("1-1:") > 0;
+			} else {
+                this.longNameObisCodes = getLzqjProfile().checkForLongObisCodes(getProfileInterval());
+            }
+
 		}
 		catch(FlagIEC1107ConnectionException e) {
 			throw new IOException(e.getMessage());
@@ -373,7 +383,7 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 
 	}
 
-	public void disconnect() throws IOException {
+    public void disconnect() throws IOException {
 		try {
 			flagIEC1107Connection.disconnectMAC();
 		}
@@ -431,7 +441,16 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 		return dataReadout;
 	}
 
-	public Object getCache() {
+    /**
+     * Setter for the DataReadout
+     *
+     * @param dataReadout the new DataReadout to set
+     */
+    protected void setDataReadout(byte[] dataReadout) {
+        this.dataReadout = dataReadout.clone();
+    }
+
+    public Object getCache() {
 		return null;
 	}
 	public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
@@ -454,7 +473,7 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 		return logger;
 	}
 
-	static Map exceptionInfoMap = new HashMap();
+	private static final Map exceptionInfoMap = new HashMap();
 	static {
 		exceptionInfoMap.put("ERROR","Request could not execute!");
 		exceptionInfoMap.put("ERROR01","EMH LZQJ ERROR 01, invalid command!");
@@ -492,7 +511,7 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 			int billingPoint = billingPointRegister.getQuantity().intValue();
 			int VZ = Math.abs(obisCode.getF());
 
-			if ((billingPoint - VZ) <= 0) {
+			if ((billingPoint - VZ) < 0) {
 				throw new NoSuchRegisterException("No such a billing point.");
 			}
 
@@ -534,7 +553,7 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 			RegisterValue billingPointRegister = doReadRegister(ObisCode.fromString("1.1.0.1.0.255"), false);
 			int billingPoint = billingPointRegister.getQuantity().intValue();
 
-			RegisterValue reg_date = null;
+			RegisterValue reg_date  ;
 			try {
 				reg_date = doReadRegister(new ObisCode(1,1,0,1,2,billingPoint),true);
 				if (reg_date != null) {
@@ -572,38 +591,36 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 		return registerValue;
 	}
 
-	private byte[] readRegisterData(ObisCode obisCode) throws IOException {
-		String edisNotation = EdisObisMapper.getEdisCodeFromObisCode(obisCode);
-		byte[] data = null;
-		if (!isDataReadout()) {
-			String name = edisNotation+"(;)";
-			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-			byteArrayOutputStream.write(name.getBytes());
-			flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5,byteArrayOutputStream.toByteArray());
-			data = flagIEC1107Connection.receiveRawData();
-		}
-		else {
-			DataDumpParser ddp = new DataDumpParser(getDataReadout());
-			if (edisNotation.indexOf("0.1.0") >= 0) {
-				String name = edisNotation + "(;)";
-				ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-				byteArrayOutputStream.write(name.getBytes());
-				flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5, byteArrayOutputStream.toByteArray());
-				data = flagIEC1107Connection.receiveRawData();
-			} else {
-				data = ddp.getRegisterStrValue(edisNotation).getBytes();
-			}
-		}
-		return data;
+    private byte[] readRegisterData(ObisCode obisCode) throws IOException {
+        String edisNotation = EdisObisMapper.getEdisCodeFromObisCode(obisCode, longNameObisCodes);
+        byte[] data  ;
+        if (!isDataReadout()) {
+            String name = edisNotation + "(;)";
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            byteArrayOutputStream.write(name.getBytes());
+            flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5, byteArrayOutputStream.toByteArray());
+            data = flagIEC1107Connection.receiveRawData();
+        } else {
+            DataDumpParser ddp = new DataDumpParser(getDataReadout());
+            if (edisNotation.indexOf("0.1.0") >= 0) {
+                String name = edisNotation + "(;)";
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                byteArrayOutputStream.write(name.getBytes());
+                flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5, byteArrayOutputStream.toByteArray());
+                data = flagIEC1107Connection.receiveRawData();
+            } else {
+                data = ddp.getRegisterStrValue(edisNotation).getBytes();
+            }
+        }
+        return data;
 	}
 
 	private Quantity parseQuantity(byte[] data) throws IOException {
 		DataParser dp = new DataParser(getTimeZone());
-		Quantity quantity = dp.parseQuantityBetweenBrackets(data,0,0);
-		return quantity;
+		return dp.parseQuantityBetweenBrackets(data,0,0);
 	}
 	private Date parseDate(byte[] data,int pos) throws IOException {
-		Date date = null;
+		Date date  ;
 		try {
 			DataParser dp = new DataParser(getTimeZone());
 			VDEWTimeStamp vts = new VDEWTimeStamp(getTimeZone());
@@ -728,7 +745,7 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 		return new RegisterInfo(obisCode.getDescription());
 	}
 
-	private void getRegistersInfo() throws IOException {
+	private void getRegistersInfo()  {
 		StringBuffer strBuff = new StringBuffer();
 
 
@@ -776,7 +793,7 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 	 * @return Value of property lzqjProfile.
 	 * @throws IOException
 	 */
-	public LZQJProfile getLzqjProfile() throws IOException {
+	public LZQJProfile getLzqjProfile()  {
 		lzqjProfile = new LZQJProfile(this, this, lzqjRegistry);
 		return lzqjProfile;
 	}
@@ -796,5 +813,14 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 	public void profileHelperSetter(boolean value){
 		this.profileHelper = value;
 	}
+
+    /**
+     * Setter for the connection class
+     *
+     * @param connection the new connection class to set
+     */
+    protected void setConnection(FlagIEC1107Connection connection) {
+        this.flagIEC1107Connection = connection;
+    }
 
 } // public class LZQJ implements MeterProtocol {

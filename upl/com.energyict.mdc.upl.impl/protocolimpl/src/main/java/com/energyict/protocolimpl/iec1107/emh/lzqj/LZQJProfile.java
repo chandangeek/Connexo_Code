@@ -32,6 +32,29 @@ public class LZQJProfile extends VDEWProfile {
 		super(meterExceptionInfo, protocolLink, abstractVDEWRegistry, false);
 	}
 
+    /**
+     * Check if the device is using longName ObisCodes. The device uses longName obisCodes when there is more then 1 pulse channel defined.
+     * The header of the Profile will then contain something like <i>P.02(040211001500)(00000000)(15)(2)(1-1:1.5)(kW)(1-2:3.5)(kvar)</i>,
+     * where the 1-<b>1</b>: indicates the channel
+     *
+     * @param profileInterval the profileInterval.
+     * @return true if we find a colon in the header, false in all other cases.
+     */
+    public boolean checkForLongObisCodes(int profileInterval) {
+        try {
+            Calendar cal1 = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
+            cal1.setTime(new Date());
+            cal1.add(Calendar.SECOND, -profileInterval);
+            Calendar cal2 = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
+            cal2.setTime(new Date());
+            byte[] response = readRawData(cal1, cal2, 1);
+            String profileHeader = new String(response);
+            return profileHeader.indexOf(":") > 0;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
 	/**
 	 * Fetch the {@link ProfileData} from a certain date in the past. Include the events if necessary.
 	 * 
