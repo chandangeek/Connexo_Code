@@ -215,7 +215,6 @@ public class LoadProfileBuilder {
     /**
      * Construct a list of <CODE>ChannelInfos</CODE>.
      * If a given register is not available, then the corresponding profile may not be fetched.
-     * TODO the above statement is not true yet, need to change this
      *
      * @param registers        a list or <CODE>Registers</CODE> which have to be converted to a list of <CODE>ChannelInfos</CODE>
      * @param ccoRegisterUnits the {@link com.energyict.dlms.cosem.ComposedCosemObject} which groups the reading of all the registers
@@ -231,13 +230,11 @@ public class LoadProfileBuilder {
                     if (su.getUnitCode() != 0) {
                         ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getUnit(), registerUnit.getSerialNumber(), true);
                         channelInfos.add(ci);
-                    } else {// TODO don't do this, we should throw an exception because we will report incorrect data. (keeping it here for testing with dump meter)
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), Unit.getUndefined(), registerUnit.getSerialNumber(), true);
-                        channelInfos.add(ci);
+                    } else {
+                        throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerUnit + " - unitCode was 0.");
                     }
-                } else {// TODO don't do this, we should throw an exception because we will report incorrect data. (keeping it here for testing with dump meter)
-                    ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), Unit.getUndefined(), registerUnit.getSerialNumber(), true);
-                    channelInfos.add(ci);
+                } else {
+                    throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerUnit + " - not in registerUnitMap.");
                 }
             }
         }
@@ -318,7 +315,7 @@ public class LoadProfileBuilder {
                 toCalendar.setTime(lpr.getEndReadingTime());
 
                 //TODO it is possible that we need to check for the masks ...
-                DLMSProfileIntervals intervals = new DLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), new WebRTUZ3ProfileIntervalStatusBits());
+                DLMSProfileIntervals intervals = new DLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), null);
                 profileData.setIntervalDatas(intervals.parseIntervals(lpc.getProfileInterval()));
 
                 profileDataList.add(profileData);

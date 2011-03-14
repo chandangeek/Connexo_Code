@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.logging.Logger;
 
 /**
- * A default DLMS {@link com.energyict.dlms.cosem.ProfileGeneric} buffer parser to a list {@link com.energyict.protocol.IntervalData}.
+ * A default DLMS {@link com.energyict.dlms.cosem.ProfileGeneric} buffer parser to a list of {@link com.energyict.protocol.IntervalData}.
  * Depending on the default or given masks, a profile can be build.
  * <br/>
  * Copyrights EnergyICT<br/>
@@ -50,7 +50,7 @@ public class DLMSProfileIntervals extends Array {
      * </ul>
      *
      * @param encodedData the raw encoded data of the buffer of the {@link com.energyict.dlms.cosem.ProfileGeneric}
-     * @param statusBits  the statusbits converter to use
+     * @param statusBits  the statusbits converter to use (if set to null, then the {@link com.energyict.protocolimpl.dlms.DLMSDefaultProfileIntervalStatusBits} will be used)
      * @throws IOException when encoding types are not as expected
      */
     public DLMSProfileIntervals(byte[] encodedData, ProfileIntervalStatusBits statusBits) throws IOException {
@@ -64,7 +64,7 @@ public class DLMSProfileIntervals extends Array {
      * @param clockMask   the binary represented mask of the clock index
      * @param statusMask  the binary represented mask of all the status indexes
      * @param channelMask the binary represented mask of all the channel indexes
-     * @param statusBits  the statusbits converter to use
+     * @param statusBits  the statusbits converter to use (if set to null, then the {@link com.energyict.protocolimpl.dlms.DLMSDefaultProfileIntervalStatusBits} will be used)
      * @throws IOException when encoding types are not as expected
      */
     public DLMSProfileIntervals(byte[] encodedData, int clockMask, int statusMask, int channelMask, ProfileIntervalStatusBits statusBits) throws IOException {
@@ -72,7 +72,11 @@ public class DLMSProfileIntervals extends Array {
         this.clockMask = clockMask;
         this.statusMask = statusMask;
         this.channelMask = channelMask;
-        this.profileStatusBits = statusBits;
+        if(statusBits == null){
+            this.profileStatusBits = new DLMSDefaultProfileIntervalStatusBits();
+        } else {
+            this.profileStatusBits = statusBits;
+        }
     }
 
     /**
