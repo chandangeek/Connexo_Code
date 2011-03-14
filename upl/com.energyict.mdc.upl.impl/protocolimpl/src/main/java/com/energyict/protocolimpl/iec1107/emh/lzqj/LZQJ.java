@@ -261,7 +261,7 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 	}
 
 	public String getProtocolVersion() {
-		return "$Revision: 1.1 $";
+		return "$Date$";
 	}
 
 	public String getFirmwareVersion() throws IOException,UnsupportedException {
