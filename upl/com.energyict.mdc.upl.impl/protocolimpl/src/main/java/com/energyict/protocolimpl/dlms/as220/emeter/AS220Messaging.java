@@ -1,9 +1,8 @@
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocolimpl.base.AbstractSubMessageProtocol;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.utils.MessagingTools;
@@ -37,6 +36,7 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
     public static final String LOADLIMIT_DURATION = "LoadLimitDuration";
     public static final String LOADLIMIT_THRESHOLD = "LoadLimitThreshold";
 
+    public static final String WRITE_RAW_IEC1107_CLASS = "WriteRawIEC1107Class";
 
     /**
      * Message descriptions
@@ -48,6 +48,7 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
     public static final String ACTIVATE_CALENDAR_DISPLAY = "Activate Activity Calendar";
     public static final String LOAD_LIMIT_THRESHOLD_DISPLAY = "Set LoadLimit threshold";
     public static final String LOAD_LIMIT_DURATION_DISPLAY = "Set LoadLimit duration";
+    public static final String WRITE_RAW_IEC1107_CLASS_DISPLAY = "Write raw IEC1107 class";
 
     //private static final String	ARM_EMETER_DISPLAY				= "Arm E-Meter";
 
@@ -65,6 +66,7 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
         addSupportedMessageTag(ACTIVATE_ACTIVITY_CALENDAR);
         addSupportedMessageTag(SET_LOADLIMIT_DURATION);
         addSupportedMessageTag(SET_LOADLIMIT_THRESHOLD);
+        addSupportedMessageTag(WRITE_RAW_IEC1107_CLASS);
     }
 
     public AS220 getAs220() {
@@ -80,6 +82,7 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
         //eMeterCat.addMessageSpec(createMessageSpec(ARM_EMETER_DISPLAY, ARM_EMETER, false));
         eMeterCat.addMessageSpec(createMessageSpec(CONNECT_EMETER_DISPLAY, CONNECT_EMETER, false));
         eMeterCat.addMessageSpec(createMessageSpec(DUMMY_MESSAGE_DISPLAY, DUMMY_MESSAGE, false));
+        eMeterCat.addMessageSpec(AS220IEC1107AccessController.createWriteIEC1107ClassMessageSpec(WRITE_RAW_IEC1107_CLASS_DISPLAY, WRITE_RAW_IEC1107_CLASS, true));
 
         eMeterCat.addMessageSpec(createValueMessage(ACTIVATE_CALENDAR_DISPLAY, ACTIVATE_ACTIVITY_CALENDAR, false, ACTIVITY_CALENDAR_ACTIVATION_TIME));
         eMeterCat.addMessageSpec(createValueMessage(LOAD_LIMIT_THRESHOLD_DISPLAY, SET_LOADLIMIT_THRESHOLD, false, LOADLIMIT_THRESHOLD));
@@ -142,6 +145,9 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
                 }
 
                 getAs220().geteMeter().getLoadLimitController().writeThresholdValue(threshold);
+            } else if (isMessageTag(WRITE_RAW_IEC1107_CLASS, messageEntry)){
+                getAs220().getLogger().info("Write raw EIC1107 class received");
+                new AS220IEC1107AccessController(getAs220()).executeMessage(messageEntry);
             } else {
                 throw new IOException("Received unknown message: " + messageEntry);
             }

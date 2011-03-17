@@ -10,15 +10,13 @@
 
 package com.energyict.dlms.axrdencoding;
 
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSUtils;
+import java.util.*;
 
 /**
  *
@@ -35,7 +33,14 @@ public class Structure extends AbstractDataType {
 		dataTypes = new ArrayList<AbstractDataType>();
 	}
 
-	public Structure(byte[] berEncodedData, int offset, int level) throws IOException {
+    public Structure(AbstractDataType... dataTypes) {
+        this();
+        for (AbstractDataType dataType : dataTypes) {
+            addDataType(dataType);
+        }
+    }
+
+    public Structure(byte[] berEncodedData, int offset, int level) throws IOException {
 		offsetBegin = offset;
 		if (berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_STRUCTURE) {
 			throw new IOException("Structure, invalid identifier " + berEncodedData[offset]);

@@ -775,4 +775,23 @@ public final class ProtocolTools {
         }
         return reverseBytes;
     }
+
+    /**
+     *
+     * @param value
+     * @return
+     */
+    public static boolean isEven(int value) {
+        return (value % 2) == 0;
+    }
+
+    /**
+     *
+     * @param value
+     * @return
+     */
+    public static boolean isOdd(int value) {
+        return !isEven(value);
+    }
+
 }

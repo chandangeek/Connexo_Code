@@ -64,6 +64,9 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     private static final String SET_PLC_REPEATER_2 = "<SetSFSKRepeater REPEATER=\"2\"> </SetSFSKRepeater>";
     private static final String SET_PLC_REPEATER_3 = "<SetSFSKRepeater REPEATER=\"3\"> </SetSFSKRepeater>";
 
+    private static final String WRITE_IEC_DATA_0 = "<WriteRawIEC1107Class IEC1107ClassId=\"2\" Offset=\"0\" RawData=\"26000000990F0000000C0000000000004803233800400000000000000000005550000000000000000300000000000000000000000000DD0000000000073300000000009903040000000000000000000000000000000000000000000000000000007800000000000000000068\"> </WriteRawIEC1107Class>";
+    private static final String WRITE_IEC_DATA_5 = "<WriteRawIEC1107Class IEC1107ClassId=\"2\" Offset=\"0\" RawData=\"26000000990F0000000C0000000000004803233800400000000000000000005550000000000000000300000000000000000000000000DD0000000000073300000000009903040000000000000000000000000000000000000000000000000000007800140000000000000054\"> </WriteRawIEC1107Class>";
+
     private static final String FIRMWARE_UPGRADE = "<FirmwareUpdate><IncludedFile>$CONTENT$</IncludedFile></FirmwareUpdate>";
 
     private static final String ACTIVITY_CALENDAR = "<TimeOfUse>$CONTENT$</TimeOfUse>";
@@ -76,7 +79,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     protected static final TimeZone DEFAULT_TIMEZONE = TimeZone.getTimeZone("Europe/Paris");
 
     private static final boolean AS1440 = true;
-    protected static final String COMPORT = AS1440 ? "COM6" : "COM5";
+    protected static final String COMPORT = AS1440 ? "COM7" : "COM5";
     protected static final int BAUDRATE = 115200;
     protected static final int DATABITS = SerialCommunicationChannel.DATABITS_8;
     protected static final int PARITY = SerialCommunicationChannel.PARITY_NONE;
@@ -568,7 +571,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         main.setDataBits(DATABITS);
         main.setParity(PARITY);
         main.setStopBits(STOPBITS);
-        main.setObserverFilename(OBSERVER_FILENAME);
+        main.setObserverFilename(null);
         main.setShowCommunication(false);
         main.setTimeZone(DEFAULT_TIMEZONE);
         main.run();
@@ -576,64 +579,6 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
 
     @Override
     void doDebug() throws LinkException, IOException {
-
-//        readProfile(false);
-//        writeLoadLimitThreshold("10");
-
-        readRegisters("1.0.1.8.1.VZ");
-
-//        Limiter loadLimiter = getMeterProtocol().getCosemObjectFactory().getLimiter();
-//        readLoadLimitParameters(loadLimiter);
-//
-//        writeLoadLimitDuration("5");
-//
-//        log("After writing 5 for the duration");
-//        readLoadLimitParameters(loadLimiter);
-//
-//
-//        log("After writing 10 for the threshold");
-//        readLoadLimitParameters(loadLimiter);
-
-//        log(getMeterProtocol().getNumberOfChannels());
-//
-//        ProfileGeneric pg = getMeterProtocol().getPowerQuality().getGenericPowerQualityProfile();
-//        pg.getBuffer().printDataContainer();
-////
-//        Calendar from = Calendar.getInstance(DEFAULT_TIMEZONE);
-//        from.add(Calendar.MONTH, -2);
-//        System.out.println(readProfileFrom(from, false));
-
-//        readRegisters();
-
-//        log("FirmwareVersion : " + getMeterProtocol().getFirmwareVersion());
-
-        // Need an Environment to get the CodeTable
-//        DebugUtils.createEnvironment();
-//        MeteringWarehouse.createBatchContext(false);
-
-//        ActivityCalendar ac = getMeterProtocol().getCosemObjectFactory().getActivityCalendar(getMeterProtocol().getMeterConfig().getActivityCalendar().getObisCode());
-//        readAllCalendarObjects(ac);
-
-
-//        String epoch = ProtocolTools.getEpochTimeFromString("20-11-2010 20:00:00");
-//
-//        try {
-//            String codeTableXml = CodeTableXml.parseActivityCalendarAndSpecialDayTable(1, Long.valueOf(1));
-////            String codeTableXml = CodeTableXml.parseActivityCalendarAndSpecialDayTable(2, Long.valueOf(epoch));
-//
-//            activityCalendarUpgrade(codeTableXml);
-//        } catch (ParserConfigurationException e) {
-//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-//        }
-//
-//
-//        readAllCalendarObjects(ac);
-
-
-//        writePassiveActivityCalendarTime("21-10-2010 16:00:00");
-
-//          firmwareUpgrade(getB64EncodedFirmareString().getBytes());
-
 
     }
 }
