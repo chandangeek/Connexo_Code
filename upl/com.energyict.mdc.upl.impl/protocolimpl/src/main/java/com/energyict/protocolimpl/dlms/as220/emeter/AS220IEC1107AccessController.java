@@ -90,7 +90,7 @@ public class AS220IEC1107AccessController {
             throw new IOException("Invalid RawData string. Should have an even amount of HEX characters [0-9, A-F] but has [" + rawData.length() + "] characters. [" + rawData + "]");
         }
         try {
-            getBytesFromHexString("", "");
+            getBytesFromHexString(rawData, "");
         } catch (Exception e) {
             throw new IOException("Unable to parse RawData: " + e.getMessage() + " [" + rawData + "]");
         }
