@@ -3,7 +3,6 @@ package com.energyict.genericprotocolimpl.elster.ctr;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.*;
 import com.energyict.genericprotocolimpl.common.*;
-import com.energyict.genericprotocolimpl.common.messages.*;
 import com.energyict.genericprotocolimpl.elster.ctr.events.CTRMeterEvent;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRConfigurationException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
@@ -19,6 +18,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocolimpl.debug.DebugUtils;
+import com.energyict.protocolimpl.messages.*;
 
 import javax.crypto.*;
 import java.io.IOException;

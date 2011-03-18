@@ -28,6 +28,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.rpc.ServiceException;
 
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import org.apache.axis.types.UnsignedInt;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -41,8 +42,7 @@ import com.energyict.cbo.Utils;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
+import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.P2LPCSoapPort_PortType;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.WebServiceLocator;
 import com.energyict.mdw.amr.GenericProtocol;

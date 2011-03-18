@@ -3,7 +3,7 @@ package com.energyict.protocolimpl.dlms.as220.gmeter;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;

@@ -19,6 +19,7 @@ import com.energyict.genericprotocolimpl.webrtuz3.WebRTUZ3;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.RtuMessageShadow;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;

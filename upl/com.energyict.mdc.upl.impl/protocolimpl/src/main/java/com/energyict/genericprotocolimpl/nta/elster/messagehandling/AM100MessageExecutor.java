@@ -7,7 +7,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol;
 import com.energyict.genericprotocolimpl.nta.messagehandling.MessageExecutor;
 import com.energyict.mdw.core.RtuMessage;

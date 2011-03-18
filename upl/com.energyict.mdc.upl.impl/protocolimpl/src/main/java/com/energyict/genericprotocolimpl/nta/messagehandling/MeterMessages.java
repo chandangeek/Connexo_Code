@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageCategoryConstants;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
+import com.energyict.protocolimpl.messages.*;
+import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
 

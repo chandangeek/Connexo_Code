@@ -7,7 +7,7 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.webrtuz3.MbusDevice;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.obis.ObisCode;

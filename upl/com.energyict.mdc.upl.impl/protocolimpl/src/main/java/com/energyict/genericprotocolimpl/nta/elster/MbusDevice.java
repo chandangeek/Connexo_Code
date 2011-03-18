@@ -2,10 +2,8 @@ package com.energyict.genericprotocolimpl.nta.elster;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.Link;
-import com.energyict.genericprotocolimpl.common.messages.*;
 import com.energyict.genericprotocolimpl.nta.abstractnta.*;
 import com.energyict.genericprotocolimpl.nta.elster.messagehandling.AM100MbusMessageExecutor;
-import com.energyict.genericprotocolimpl.nta.elster.obiscodeproviders.OMSGasObisCodeProvider;
 import com.energyict.genericprotocolimpl.nta.elster.profiles.MbusProfile;
 import com.energyict.genericprotocolimpl.nta.profiles.MbusDailyMonthlyProfile;
 import com.energyict.mdw.core.*;
@@ -13,6 +11,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocolimpl.messages.*;
 
 import java.io.IOException;
 import java.sql.SQLException;

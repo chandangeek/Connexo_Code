@@ -10,10 +10,13 @@ import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.DLMSProtocol;
 import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.eventhandling.EventLogs;
+import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.messages.*;
 import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.profile.ApolloProfileBuilder;
 import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.core.RtuMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -78,6 +81,11 @@ public class ApolloMeter extends DLMSProtocol {
     private static final String PROPERTY_PASSWORD = "Password";
 
     /**
+     * The used ApolloMessaging object
+     */
+    private ApolloMessaging apolloMessaging;
+
+    /**
      * Handle the protocol tasks
      *
      * @throws com.energyict.cbo.BusinessException
@@ -99,8 +107,8 @@ public class ApolloMeter extends DLMSProtocol {
             }
 
             if (getCommunicationProfile().getReadDemandValues()) {
-                getLogger().log(Level.INFO, "Getting ProfileData for meter with serialnumber: " + this.serialNumber);
-                ProfileData profile = getProfileData();
+                getLogger().log(Level.INFO, "Getting Default ProfileData[" + this.obisCodeProvider.getDefaultLoadProfileObisCode() + "] for meter with serialnumber: " + this.serialNumber);
+                ProfileData profile = getDefaultProfileData();
                 storeObject.add(profile, getMeter());
             }
 
@@ -111,9 +119,17 @@ public class ApolloMeter extends DLMSProtocol {
             }
 
             if (getCommunicationProfile().getReadMeterReadings()) {
+                getLogger().log(Level.INFO, "Getting Daily ProfileData[" + this.obisCodeProvider.getDailyLoadProfileObisCode() + "] for meter with serialnumber: " + this.serialNumber);
+                ProfileData profile = getDailyProfileData();
+                storeObject.add(profile, getMeter());
+
                 getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + this.serialNumber);
                 Map<RtuRegister, RegisterValue> registerMap = getRegisterReader().readRegisters();
                 storeObject.addAll(registerMap);
+            }
+
+            if (getCommunicationProfile().getSendRtuMessage()) {
+                sendMeterMessages();
             }
         } finally {
             if (storeObject != null) {
@@ -123,16 +139,45 @@ public class ApolloMeter extends DLMSProtocol {
 
     }
 
-    private ProfileData getProfileData() throws IOException {
+    /**
+     * Get the default loadProfile
+     *
+     * @return the fetched loadProfile
+     * @throws IOException if an error occurred during the dataFetching
+     */
+    private ProfileData getDefaultProfileData() throws IOException {
         ProfileGeneric pg = getApolloObjectFactory().getDefaultProfile();
-        ApolloProfileBuilder apb = new ApolloProfileBuilder(this, pg);
+        return getProfileData(pg);
+    }
+
+    /**
+     * Get the daily loadProfile
+     *
+     * @return the fetched loadProfile
+     * @throws IOException if an error occurred during the dataFetching
+     */
+    private ProfileData getDailyProfileData() throws IOException {
+        ProfileGeneric pg = getApolloObjectFactory().getGenericProfileObject(this.obisCodeProvider.getDailyLoadProfileObisCode());
+        return getProfileData(pg);
+    }
+
+    /**
+     * Get the loadProfile for the given <CODE>ProfileGeneric</CODE>
+     *
+     * @param profileGeneric the profileGeneric to read
+     * @return the requested <CODE>ProfileData</CODE>
+     * @throws IOException if an error occurred during the dataFetching
+     */
+    private ProfileData getProfileData(ProfileGeneric profileGeneric) throws IOException {
+        ApolloProfileBuilder apb = new ApolloProfileBuilder(this, profileGeneric);
 
         ProfileData pd = new ProfileData();
         pd.setChannelInfos(apb.getChannelInfos());
         Calendar toCalendar = Calendar.getInstance(getTimeZone());
         Calendar fromCalendar = Calendar.getInstance(getTimeZone());
-
-        fromCalendar.setTime(getMeter().getLastReading());
+        Date lastProfileDate = apb.getLastProfileDate();
+        fromCalendar.setTime(lastProfileDate);
+        getLogger().log(Level.INFO, "Getting intervalData from " + fromCalendar.getTime());
         pd.setIntervalDatas(apb.getIntervalList(fromCalendar, toCalendar));
         return pd;
     }
@@ -430,7 +475,7 @@ public class ApolloMeter extends DLMSProtocol {
      */
     @Override
     public List getMessageCategories() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return getApolloMessaging().getMessageCategories();
     }
 
     /**
@@ -515,4 +560,31 @@ public class ApolloMeter extends DLMSProtocol {
         return this.apolloObjectFactory;
     }
 
+    /**
+     * Send all the meterMessages
+     *
+     * @throws BusinessException
+     * @throws SQLException
+     */
+    private void sendMeterMessages() throws BusinessException, SQLException {
+        MessageExecutor me = new MessageExecutor(this);
+        for (RtuMessage rm : getMeter().getPendingMessages()) {
+            me.doMessage(rm);
+        }
+    }
+
+    @Override
+    public String writeTag(final MessageTag msgTag) {
+        return getApolloMessaging().writeTag(msgTag);
+    }
+
+    /**
+     * @return the used <CODE>ApolloMessaging</CODE> object
+     */
+    public ApolloMessaging getApolloMessaging() {
+        if (this.apolloMessaging == null) {
+            this.apolloMessaging = new ApolloMessaging(this);
+        }
+        return this.apolloMessaging;
+    }
 }

@@ -1,6 +1,7 @@
 
 package com.energyict.genericprotocolimpl.common.messages;
 
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -65,9 +66,11 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.TOU_ACTIVITY_CAL.equals(qName)){
 			setType(RtuMessageConstant.TOU_ACTIVITY_CAL);
 			handleTOUMessage(attrbs);
+            isXmlInContent = true;  // for certain protocols (ApolloMeter), we put in the xmlParsed CodeTable
 		} else if(RtuMessageConstant.TOU_SPECIAL_DAYS.equals(qName)){
 			setType(RtuMessageConstant.TOU_SPECIAL_DAYS);
 			handleSpecialDays(attrbs);
+            isXmlInContent = true;  // for certain protocols (ApolloMeter), we put in the xmlParsed CodeTable
 		}else if(RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE.equals(qName)){
 			setType(RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE);
 			handleSpecialDaysDelete(attrbs);
@@ -118,7 +121,7 @@ public class MessageHandler extends DefaultHandler{
             setType(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL);
             handleChangeAuthentication(attrbs);
 		} else {
-			if(!isXmlInContent){ // if its the xmlMessage, then don't fail because it has xml in the content
+			if(!isXmlInContent){ // If there is XML in the content, then the protocol will parse it himselve ...
 				throw new SAXException("Unknown messageContent : " + qName);
 			}
 		}

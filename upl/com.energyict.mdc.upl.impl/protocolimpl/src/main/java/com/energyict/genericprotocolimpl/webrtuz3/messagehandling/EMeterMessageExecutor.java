@@ -8,7 +8,7 @@ import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.CommonUtils;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.webrtuz3.EMeter;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.RtuMessage;

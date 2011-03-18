@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  * <p>
- * Straighforward summary of the possible Obiscodes of the Apollo meter
+ * Straightforward summary of the possible ObisCodes of the Apollo meter
  * </p>
  * <p>
  * Copyrights EnergyICT<br/>
@@ -22,7 +22,7 @@ public class ObisCodeProvider implements CommonObisCodeProvider {
     public static final ObisCode clockSynchronizationObisCode = ObisCode.fromString("0.0.96.2.12.255");
     public static final ObisCode serialNumberObisCode = ObisCode.fromString("0.0.96.1.0.255");
     public static final ObisCode loadProfileP1 = ObisCode.fromString("1.0.99.1.0.255");
-    public static final ObisCode loadProfileP2 = ObisCode.fromString("1.0.99.2.0.255");
+    public static final ObisCode loadProfileDaily = ObisCode.fromString("1.0.99.2.0.255");
     public static final ObisCode loadProfileMonthly = ObisCode.fromString("0.0.98.1.1.255");
     public static final ObisCode associationLnCurrentClient = ObisCode.fromString("0.0.40.0.0.255");
     public static final ObisCode associationLnPublicClient = ObisCode.fromString("0.0.40.0.1.255");
@@ -57,7 +57,10 @@ public class ObisCodeProvider implements CommonObisCodeProvider {
     public static final ObisCode transformerRatioCurrentDenObisCode = ObisCode.fromString("1.0.0.4.5.255");
     public static final ObisCode transformerRatioVoltageDenObisCode = ObisCode.fromString("1.0.0.4.6.255");
 
-
+    public static final ObisCode ActivityCalendarContract1ObisCode = ObisCode.fromString("0.0.13.0.1.255");
+    public static final ObisCode ActiveSpecialDayContract1ObisCode = ObisCode.fromString("0.0.11.0.1.255");
+    public static final ObisCode PassiveSpecialDayContract1ObisCode = ObisCode.fromString("0.0.11.0.4.255");
+    public static final ObisCode CurrentActiveRateContract1ObisCode = ObisCode.fromString("0.0.96.14.1.255");
 
     /**
      * @return the {@link #clockObisCode} for the {@link com.energyict.dlms.cosem.Clock}
@@ -71,6 +74,13 @@ public class ObisCodeProvider implements CommonObisCodeProvider {
      */
     public ObisCode getDefaultLoadProfileObisCode() {
         return loadProfileP1;
+    }
+
+    /**
+     * @return the obisCode fro the <i>Daily</i> LoadProfile
+     */
+    public ObisCode getDailyLoadProfileObisCode() {
+        return loadProfileDaily;
     }
 
     /**
@@ -175,6 +185,34 @@ public class ObisCodeProvider implements CommonObisCodeProvider {
     }
 
     /**
+     * @return the {@link #ActivityCalendarContract1ObisCode} for the ActivityCalendar
+     */
+    public ObisCode getActivityCalendarContract1ObisCode() {
+        return ActivityCalendarContract1ObisCode;
+    }
+
+    /**
+     * @return the {@link #ActiveSpecialDayContract1ObisCode} for the Active SpecialDay Table
+     */
+    public ObisCode getActiveSpecialDayContract1ObisCode() {
+        return ActiveSpecialDayContract1ObisCode;
+    }
+
+    /**
+     * @return the {@link #PassiveSpecialDayContract1ObisCode} for the Passive SpecialDay Table
+     */
+    public ObisCode getPassiveSpecialDayContract1ObisCode() {
+        return PassiveSpecialDayContract1ObisCode;
+    }
+
+    /**
+     * @return the {@link #CurrentActiveRateContract1ObisCode} for the currently active Rate on the ActivityCalendar
+     */
+    public ObisCode getCurrentActiveRateContract1ObisCode() {
+        return CurrentActiveRateContract1ObisCode;
+    }
+
+    /**
      * Enumeration containing the possible {@link com.energyict.dlms.cosem.AssociationLN} Obiscodes.
      * Each clientID has a different AssociationObject.
      */
@@ -199,7 +237,7 @@ public class ObisCodeProvider implements CommonObisCodeProvider {
         /**
          * The firmware client has access to firmware related objects (ex. FirmwareUpgrade)
          */
-        FIRMARE_CLIENT(3, associationLnFirmwareClient);
+        FIRMWARE_CLIENT(3, associationLnFirmwareClient);
 
         /**
          * The clientId for this association

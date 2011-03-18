@@ -1,10 +1,9 @@
 package com.energyict.protocolimpl.dlms.Z3;
 
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 
 public class MessageHandler extends DefaultHandler{
 	

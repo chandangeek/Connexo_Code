@@ -5,7 +5,7 @@ import com.energyict.cpo.Environment;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.genericprotocolimpl.common.GenericCache;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.iskrap2lpc.Concentrator.XmlException;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.*;
 import com.energyict.mdw.amr.RtuRegister;

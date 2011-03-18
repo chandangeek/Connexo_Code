@@ -1,0 +1,167 @@
+package com.energyict.genericprotocolimpl.elster.AM100R.Apollo.messages;
+
+import com.energyict.genericprotocolimpl.common.messages.*;
+import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.ApolloMeter;
+import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.dlms.as220.parsing.CodeTableXml;
+import com.energyict.protocolimpl.messages.*;
+
+import javax.xml.parsers.ParserConfigurationException;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Contains functionality to perfom message handling for the {@link com.energyict.genericprotocolimpl.elster.AM100R.Apollo.ApolloMeter}
+ * <p/>
+ * <pre>
+ * Copyrights EnergyICT
+ * Date: 16-mrt-2011
+ * Time: 16:52:48
+ * </pre>
+ */
+public class ApolloMessaging extends GenericMessaging {
+
+    private final ApolloMeter protocol;
+
+    public ApolloMessaging(final ApolloMeter protocol) {
+        this.protocol = protocol;
+    }
+
+    /**
+     * Abstract method to define your message categories *
+     */
+    @Override
+    public List getMessageCategories() {
+        List<MessageCategorySpec> categories = new ArrayList();
+        categories.add(getActivityCalendarCategory());
+        return categories;
+    }
+
+    @Override
+    public MessageCategorySpec getActivityCalendarCategory() {
+        MessageCategorySpec catActivityCal = new MessageCategorySpec(
+                RtuMessageCategoryConstants.ACTICITYCALENDAR);
+        MessageSpec msgSpec = addTimeOfUse(
+                RtuMessageKeyIdConstants.ACTIVITYCALENDAR,
+                RtuMessageConstant.TOU_ACTIVITY_CAL, false);
+        catActivityCal.addMessageSpec(msgSpec);
+        return catActivityCal;
+    }
+
+    /**
+     * Creates a MessageSpec to add ActivityCalendar functionality
+     *
+     * @param keyId    - id for the MessageSpec
+     * @param tagName  - name for the MessageSpec
+     * @param advanced - indicates whether it's an advanced message or not
+     * @return the newly created MessageSpec
+     */
+    @Override
+    protected MessageSpec addTimeOfUse(String keyId, String tagName, boolean advanced) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        tagSpec.add(msgVal);
+        /*MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
+                RtuMessageConstant.TOU_ACTIVITY_NAME, false);
+        tagSpec.add(msgAttrSpec);*/
+
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
+                RtuMessageConstant.TOU_ACTIVITY_DATE, false);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(
+                RtuMessageConstant.TOU_ACTIVITY_CODE_TABLE, false);
+        tagSpec.add(msgAttrSpec);
+        /*msgAttrSpec = new MessageAttributeSpec(
+                RtuMessageConstant.TOU_ACTIVITY_USER_FILE, false);
+        tagSpec.add(msgAttrSpec);*/
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
+    @Override
+    public String writeTag(final MessageTag msgTag) {
+        if (msgTag.getName().equals(RtuMessageConstant.TOU_ACTIVITY_CAL)) {
+
+            StringBuilder builder = new StringBuilder();
+            addOpeningTag(builder, msgTag.getName());
+            long activationDate = -1;
+            int codeTableId = -1;
+            for (Object maObject : msgTag.getAttributes()) {
+                MessageAttribute ma = (MessageAttribute) maObject;
+                if (ma.getSpec().getName().equals(RtuMessageConstant.TOU_ACTIVITY_DATE)) {
+                    if (ma.getValue() == null || ma.getValue().length() == 0) {
+                        return null;
+                    } else {
+                        activationDate = Long.valueOf(ma.getValue());
+                    }
+                } else if (ma.getSpec().getName().equals(RtuMessageConstant.TOU_ACTIVITY_CODE_TABLE)) {
+                    if (ma.getValue() == null || ma.getValue().length() == 0) {
+                        return null;
+                    } else {
+                        codeTableId = Integer.valueOf(ma.getValue());
+                    }
+                }
+            }
+
+            try {
+                builder.append(CodeTableXml.parseActivityCalendarAndSpecialDayTable(codeTableId, activationDate));
+            } catch (ParserConfigurationException e) {
+                return null;
+            }
+            addClosingTag(builder, msgTag.getName());
+            return builder.toString();
+        } else if (msgTag.getName().equals(RtuMessageConstant.TOU_SPECIAL_DAYS)) {
+
+            StringBuilder builder = new StringBuilder();
+            addOpeningTag(builder, msgTag.getName());
+            int codeTableId = -1;
+            for (Object maObject : msgTag.getAttributes()) {
+                MessageAttribute ma = (MessageAttribute) maObject;
+                if (ma.getSpec().getName().equals(RtuMessageConstant.TOU_SPECIAL_DAYS_CODE_TABLE)) {
+                    if (ma.getValue() == null || ma.getValue().length() == 0) {
+                        return null;
+                    } else {
+                        codeTableId = Integer.valueOf(ma.getValue());
+                    }
+                }
+            }
+
+            try {
+                builder.append(CodeTableXml.parseActivityCalendarAndSpecialDayTable(codeTableId, 0));
+            } catch (ParserConfigurationException e) {
+                return null;
+            }
+            addClosingTag(builder, msgTag.getName());
+            return builder.toString();
+
+        } else {
+            return super.writeTag(msgTag);
+        }
+    }
+
+    /**
+     * Add an openingTag to the Builder
+     *
+     * @param builder the builder to complete
+     * @param tagName the opening TagName
+     */
+    private void addOpeningTag(StringBuilder builder, String tagName) {
+        builder.append("<");
+        builder.append(tagName);
+        builder.append(">");
+    }
+
+    /**
+     * Add a closingTag to the Builder
+     *
+     * @param builder the builder to complete
+     * @param tagName the closing TagName
+     */
+    private void addClosingTag(StringBuilder builder, String tagName) {
+        builder.append("</");
+        builder.append(tagName);
+        builder.append(">");
+    }
+}

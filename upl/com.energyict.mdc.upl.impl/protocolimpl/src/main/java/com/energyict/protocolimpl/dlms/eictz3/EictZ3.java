@@ -9,7 +9,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.nta.eventhandling.*;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.obis.ObisCode;

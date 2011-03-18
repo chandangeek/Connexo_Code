@@ -27,7 +27,7 @@ public interface ActivityCalendarController {
      *
      * @param name the name of the ActivityCalendar
      */
-    void writeCalendarName(String name);
+    void writeCalendarName(String name) throws IOException;
 
     /**
      * Write the complete ActivityCalendar to the device

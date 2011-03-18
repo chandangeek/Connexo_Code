@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.common.messages;
 
 import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.messages.*;
 
 import java.util.Iterator;
 import java.util.List;

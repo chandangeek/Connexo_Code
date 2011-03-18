@@ -171,6 +171,15 @@ public class ApolloObjectFactory {
     }
 
     /**
+     * Getter for the Daily {@link com.energyict.dlms.cosem.ProfileGeneric} object
+     *
+     * @return the daily GenericProfile object
+     */
+    public ProfileGeneric getDailyProfile() {
+        return getGenericProfileObject(getObisCodeProvider().getDailyLoadProfileObisCode());
+    }
+
+    /**
      * Getter for the requested {@link com.energyict.dlms.cosem.AssociationLN} object
      *
      * @param clientId the clientMacAddress of this current association
@@ -272,5 +281,44 @@ public class ApolloObjectFactory {
      */
     public ProfileGeneric getObjectSynchronizationEventLog() {
         return getGenericProfileObject(getObisCodeProvider().getObjectSynchronizationEventLog());
+    }
+
+    /**
+     * Getter for the {@link com.energyict.dlms.cosem.ActivityCalendar} object according to contract 1
+     *
+     * @return the requested ActivityCalendar
+     */
+    public ActivityCalendar getActivityCalendar() {
+        if (!objectMap.containsKey(getObisCodeProvider().getActivityCalendarContract1ObisCode())) {
+            ActivityCalendar activityCalendar = new ActivityCalendar(this.meterProtocol, new ObjectReference(getObisCodeProvider().getActivityCalendarContract1ObisCode().getLN()));
+            objectMap.put(getObisCodeProvider().getActivityCalendarContract1ObisCode(), activityCalendar);
+        }
+        return (ActivityCalendar) objectMap.get(getObisCodeProvider().getActivityCalendarContract1ObisCode());
+    }
+
+    /**
+     * Getter for the {@link com.energyict.dlms.cosem.SpecialDaysTable} object according to contract 1
+     *
+     * @return the requested SpecialDaysTable
+     */
+    public SpecialDaysTable getSpecialDayTable() {
+        if (!objectMap.containsKey(getObisCodeProvider().getActiveSpecialDayContract1ObisCode())) {
+            SpecialDaysTable specialDayTable = new SpecialDaysTable(this.meterProtocol, new ObjectReference(getObisCodeProvider().getActiveSpecialDayContract1ObisCode().getLN()));
+            this.objectMap.put(getObisCodeProvider().getActiveSpecialDayContract1ObisCode(), specialDayTable);
+        }
+        return (SpecialDaysTable) objectMap.get(getObisCodeProvider().getActiveSpecialDayContract1ObisCode());
+    }
+
+    /**
+     * Getter for the <i>Passive</i> {@link com.energyict.dlms.cosem.SpecialDaysTable} according to contract 1
+     *
+     * @return the requested SpecialDaysTable
+     */
+    public SpecialDaysTable getPassiveSpecialDaysTable() {
+        if (!objectMap.containsKey(getObisCodeProvider().getPassiveSpecialDayContract1ObisCode())) {
+            SpecialDaysTable specialDayTable = new SpecialDaysTable(this.meterProtocol, new ObjectReference(getObisCodeProvider().getPassiveSpecialDayContract1ObisCode().getLN()));
+            this.objectMap.put(getObisCodeProvider().getPassiveSpecialDayContract1ObisCode(), specialDayTable);
+        }
+        return (SpecialDaysTable) objectMap.get(getObisCodeProvider().getPassiveSpecialDayContract1ObisCode());
     }
 }

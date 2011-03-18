@@ -1,10 +1,9 @@
-package com.energyict.genericprotocolimpl.common.messages;
+package com.energyict.protocolimpl.messages;
 
 /**
- * 
- * @author gna
- *
  * Constants class for naming the Rtu message CATEGORIES
+ *
+ * <b>Note:</b> Do not change the already existing tags, just add new ones if necessary.
  */
 public class RtuMessageCategoryConstants {
 

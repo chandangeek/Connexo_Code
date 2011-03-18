@@ -16,8 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.testutils.FolderCRUD;
-import com.energyict.mdw.testutils.FolderTypeCRUD;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -25,7 +24,6 @@ import org.junit.Test;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.PersistentObject;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.mdw.shadow.RtuMessageShadow;
 import com.energyict.protocolimpl.utils.Utilities;
 

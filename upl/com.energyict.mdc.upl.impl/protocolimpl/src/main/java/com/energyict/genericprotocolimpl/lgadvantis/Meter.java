@@ -9,9 +9,9 @@ import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.Link;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocol.messaging.*;
- 
+
 /** Defines the Rtu Messages supported by this meter. */
 
 public class Meter implements GenericProtocol, Messaging {

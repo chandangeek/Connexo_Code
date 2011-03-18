@@ -16,7 +16,6 @@ import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.PPPSetup.PPPAuthenticationType;
 import com.energyict.genericprotocolimpl.common.*;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.genericprotocolimpl.common.messages.*;
 import com.energyict.genericprotocolimpl.common.tou.ActivityCalendarReader;
 import com.energyict.genericprotocolimpl.common.tou.CosemActivityCalendarBuilder;
 import com.energyict.genericprotocolimpl.iskragprs.csd.CSDCall;
@@ -29,6 +28,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
+import com.energyict.protocolimpl.messages.*;
 
 import java.io.*;
 import java.math.BigDecimal;

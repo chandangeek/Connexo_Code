@@ -3,7 +3,9 @@ package com.energyict.genericprotocolimpl.elster.AM100R.Apollo.profile;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.cosem.*;
+import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.*;
+import com.energyict.mdw.core.Channel;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 
@@ -128,5 +130,27 @@ public class ApolloProfileBuilder {
     public List<IntervalData> getIntervalList(Calendar fromCalendar, Calendar toCalendar) throws IOException {
         DLMSProfileIntervals intervals = new DLMSProfileIntervals(profileGeneric.getBufferData(fromCalendar, toCalendar), new ApolloProfileIntervalStatusBits());
         return intervals.parseIntervals(profileGeneric.getCapturePeriod());
+    }
+
+    /**
+     * Get the lastReading of the profile. Use the ProfileGeneric interval to search for the channels of this loadProfile
+     *
+     * @return the date of the last stored entry for the profile with the given interval
+     */
+    public Date getLastProfileDate() throws IOException {
+        Date lastDate = new Date();
+        List<Channel> meterChannels = this.meterProtocol.getMeter().getChannels();
+        for(Channel channel : meterChannels){
+            if(channel.getIntervalInSeconds() == this.profileGeneric.getCapturePeriod()){
+                Date channelLastReading = channel.getLastReading();
+                if(channelLastReading == null){
+                    channelLastReading = ParseUtils.getClearLastMonthDate(this.meterProtocol.getMeter());
+                }
+                if(channelLastReading.before(lastDate)){
+                    lastDate = channelLastReading;
+                }
+            }
+        }
+        return lastDate;
     }
 }

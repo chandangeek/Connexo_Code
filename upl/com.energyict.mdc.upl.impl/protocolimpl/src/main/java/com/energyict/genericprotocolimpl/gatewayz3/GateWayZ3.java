@@ -7,7 +7,6 @@ import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.*;
-import com.energyict.genericprotocolimpl.common.messages.*;
 import com.energyict.genericprotocolimpl.webrtuz3.WebRTUZ3;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.core.*;
@@ -19,6 +18,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
 import com.energyict.protocolimpl.cynet.*;
+import com.energyict.protocolimpl.messages.*;
 
 import java.io.IOException;
 import java.net.SocketException;

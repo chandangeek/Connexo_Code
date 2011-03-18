@@ -14,8 +14,8 @@ import java.util.logging.Logger;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;

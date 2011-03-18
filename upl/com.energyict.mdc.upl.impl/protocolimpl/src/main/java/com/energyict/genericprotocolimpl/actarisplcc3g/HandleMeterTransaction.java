@@ -5,7 +5,7 @@ import com.energyict.edf.messages.*;
 import com.energyict.edf.messages.objects.*;
 import com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects.*;
 import com.energyict.genericprotocolimpl.common.*;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.mdw.amr.*;
 import com.energyict.obis.*;
 import com.energyict.protocol.*;

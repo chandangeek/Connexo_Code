@@ -18,7 +18,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.Register;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;

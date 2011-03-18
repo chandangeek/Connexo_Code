@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 
 import javax.xml.rpc.ServiceException;
 
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import org.apache.axis.types.UnsignedInt;
 
 import com.energyict.cbo.BusinessException;
@@ -25,7 +26,6 @@ import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterSpec;

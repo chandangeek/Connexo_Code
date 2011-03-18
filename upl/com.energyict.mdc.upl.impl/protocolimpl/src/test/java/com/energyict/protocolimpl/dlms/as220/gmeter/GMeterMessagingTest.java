@@ -6,11 +6,10 @@ package com.energyict.protocolimpl.dlms.as220.gmeter;
 
 import static org.junit.Assert.assertEquals;
 
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 
 /**
  * @author gna

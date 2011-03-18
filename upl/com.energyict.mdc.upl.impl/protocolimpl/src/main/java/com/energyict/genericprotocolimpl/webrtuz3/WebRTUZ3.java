@@ -9,7 +9,6 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.*;
-import com.energyict.genericprotocolimpl.common.messages.*;
 import com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers.ObisCodeMapper;
 import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.genericprotocolimpl.webrtuz3.composedobjects.ComposedMeterInfo;
@@ -23,6 +22,7 @@ import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
 import com.energyict.protocolimpl.base.CachedMeterTime;
+import com.energyict.protocolimpl.messages.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;

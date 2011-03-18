@@ -1,7 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.messaging;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
