@@ -84,6 +84,8 @@ public class DailyMonthly {
 				ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 				final ProfileData pd = sortOutProfiledate(profileData, TimeDuration.DAYS);
 
+                pd.sort();
+
 				// We save the profileData to a tempObject so we can store everything at the end of the communication
 //			eDevice.getStoreObject().add(getMeter(), pd);
 //				eDevice.getStoreObject().add(pd, getMeter());
@@ -181,6 +183,8 @@ public class DailyMonthly {
 				buildProfileData(dc, profileData, genericProfile, TimeDuration.MONTHS);
 				ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 				final ProfileData pd = sortOutProfiledate(profileData, TimeDuration.MONTHS);
+
+                pd.sort();
 
 				// We save the profileData to a tempObject so we can store everything at the end of the communication
 //			eDevice.getStoreObject().add(getMeter(), pd);

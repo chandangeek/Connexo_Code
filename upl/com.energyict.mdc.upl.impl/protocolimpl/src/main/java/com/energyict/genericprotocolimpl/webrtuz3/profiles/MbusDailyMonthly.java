@@ -72,6 +72,8 @@ public class MbusDailyMonthly {
 			ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 			ProfileData pd = sortOutProfiledate(profileData, TimeDuration.MONTHS);
 			
+            pd.sort();
+
 //			if(mbusDevice.getWebRTU().getMarkedAsBadTime()){
 //				pd.markIntervalsAsBadTime();
 //			}
@@ -352,6 +354,8 @@ public class MbusDailyMonthly {
 			ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 			ProfileData pd = sortOutProfiledate(profileData, TimeDuration.DAYS);
 			
+            pd.sort();
+
 //			if(mbusDevice.getWebRTU().getMarkedAsBadTime()){
 //				pd.markIntervalsAsBadTime();
 //			}
