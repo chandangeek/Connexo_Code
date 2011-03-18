@@ -1,16 +1,12 @@
-package com.energyict.smartmeterprotocolimpl.webrtuz3.profiles;
+package com.energyict.smartmeterprotocolimpl.webrtuz3.renamedprofiles;
 
-import com.energyict.cbo.Unit;
 import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.Register;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
-import com.energyict.protocolimpl.metcom.BufferStructure;
 import com.energyict.smartmeterprotocolimpl.webrtuz3.WebRTUZ3;
 import com.energyict.smartmeterprotocolimpl.webrtuz3.composedobjects.ComposedProfileConfig;
 

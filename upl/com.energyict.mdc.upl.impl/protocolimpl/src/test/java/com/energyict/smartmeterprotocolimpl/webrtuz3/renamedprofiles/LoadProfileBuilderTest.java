@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.webrtuz3.profiles;
+package com.energyict.smartmeterprotocolimpl.webrtuz3.renamedprofiles;
 
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.Clock;
