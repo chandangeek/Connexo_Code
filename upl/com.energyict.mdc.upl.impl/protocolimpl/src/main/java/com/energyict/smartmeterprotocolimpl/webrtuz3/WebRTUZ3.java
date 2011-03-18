@@ -9,7 +9,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.webrtuz3.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.webrtuz3.events.EMeterEventProfile;
-import com.energyict.smartmeterprotocolimpl.webrtuz3.profiles.LoadProfileBuilder;
+import com.energyict.smartmeterprotocolimpl.webrtuz3.renamedprofiles.LoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.webrtuz3.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.webrtuz3.topology.MeterTopology;
 
