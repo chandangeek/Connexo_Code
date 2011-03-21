@@ -202,6 +202,14 @@ public class ApolloObjectFactory {
         return getData(getObisCodeProvider().getFirmwareVersion());
     }
 
+    public Data getActiveFirmwareIdACOR(){
+        return getData(getObisCodeProvider().getActiveLongFirmwareIdentifierACOR());
+    }
+
+    public Data getActiveFirmwareIdMCOR(){
+        return getData(getObisCodeProvider().getActiveLongFirmwareIdentifierMCOR());
+    }
+
     /**
      * Getter for the {@link com.energyict.dlms.cosem.ProfileGeneric} object which contains the instant Energy Values
      *

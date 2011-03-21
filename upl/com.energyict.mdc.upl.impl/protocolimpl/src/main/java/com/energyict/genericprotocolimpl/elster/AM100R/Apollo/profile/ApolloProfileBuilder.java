@@ -1,5 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.AM100R.Apollo.profile;
 
+import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.cosem.*;
@@ -57,12 +58,41 @@ public class ApolloProfileBuilder {
      */
     public List<ChannelInfo> getChannelInfos() throws IOException {
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+        int channelIndex = -1;
         for (int i = 0; i < getNumberOfChannels(); i++) {
-            ChannelInfo channelInfo = new ChannelInfo(i, "DLMS Apollo_EnergyChannel_" + i, getChannelUnit(i));
-            channelInfo.setCumulative();
-            channelInfos.add(channelInfo);
+            channelIndex = getChannelNumber(i, this.profileGeneric.getCapturePeriod());
+            if(channelIndex != -1){
+                ChannelInfo channelInfo = new ChannelInfo(i, channelIndex, "DLMS Apollo_EnergyChannel_" + i, getChannelUnit(i));
+                channelInfo.setCumulative();
+                channelInfos.add(channelInfo);
+            }
         }
         return channelInfos;
+    }
+
+    /**
+     * Calculates the channelNumber for the given profileIndex
+     *
+     * @param index             the profileIndex
+     * @param intervalInSeconds the interval of the channel
+     * @return the calculated channelIndex
+     */
+    private int getChannelNumber(final int index, int intervalInSeconds) {
+        int channelIndex = 0;
+
+        if (intervalInSeconds == 0) {
+            intervalInSeconds = 31 * 86400;
+        }
+
+        for (int i = 0; i < this.meterProtocol.getMeter().getChannels().size(); i++) {
+            if (this.meterProtocol.getMeter().getChannel(i).getInterval().getSeconds() == intervalInSeconds) {
+                if (channelIndex == index) {
+                    return this.meterProtocol.getMeter().getChannel(i).getLoadProfileIndex() - 1;
+                }
+                channelIndex++;
+            }
+        }
+        return -1;
     }
 
     /**
@@ -140,13 +170,13 @@ public class ApolloProfileBuilder {
     public Date getLastProfileDate() throws IOException {
         Date lastDate = new Date();
         List<Channel> meterChannels = this.meterProtocol.getMeter().getChannels();
-        for(Channel channel : meterChannels){
-            if(channel.getIntervalInSeconds() == this.profileGeneric.getCapturePeriod()){
+        for (Channel channel : meterChannels) {
+            if (channel.getIntervalInSeconds() == this.profileGeneric.getCapturePeriod()) {
                 Date channelLastReading = channel.getLastReading();
-                if(channelLastReading == null){
+                if (channelLastReading == null) {
                     channelLastReading = ParseUtils.getClearLastMonthDate(this.meterProtocol.getMeter());
                 }
-                if(channelLastReading.before(lastDate)){
+                if (channelLastReading.before(lastDate)) {
                     lastDate = channelLastReading;
                 }
             }

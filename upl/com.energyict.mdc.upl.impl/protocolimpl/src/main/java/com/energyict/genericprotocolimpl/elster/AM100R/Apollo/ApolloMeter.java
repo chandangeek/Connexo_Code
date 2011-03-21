@@ -17,6 +17,7 @@ import com.energyict.mdw.core.RtuMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.base.ActivityCalendarController;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -84,6 +85,11 @@ public class ApolloMeter extends DLMSProtocol {
      * The used ApolloMessaging object
      */
     private ApolloMessaging apolloMessaging;
+
+    /**
+     * The used ActivityCalendarController
+     */
+    private ApolloActivityCalendarController activityCalendarController;
 
     /**
      * Handle the protocol tasks
@@ -179,6 +185,10 @@ public class ApolloMeter extends DLMSProtocol {
         fromCalendar.setTime(lastProfileDate);
         getLogger().log(Level.INFO, "Getting intervalData from " + fromCalendar.getTime());
         pd.setIntervalDatas(apb.getIntervalList(fromCalendar, toCalendar));
+        getLogger().log(Level.FINEST, "Below is the channelInfo");
+        for(ChannelInfo ci : pd.getChannelInfos()){
+            getLogger().log(Level.FINEST, ci.toString());
+        }
         return pd;
     }
 
@@ -408,6 +418,7 @@ public class ApolloMeter extends DLMSProtocol {
      */
     private String getFirmWareVersion() throws IOException {
         return getApolloObjectFactory().getFirmwareVersion().getString();
+//        return getApolloObjectFactory().getActiveFirmwareIdACOR().getString();
     }
 
     /**
@@ -586,5 +597,12 @@ public class ApolloMeter extends DLMSProtocol {
             this.apolloMessaging = new ApolloMessaging(this);
         }
         return this.apolloMessaging;
+    }
+
+    public ApolloActivityCalendarController getActivityCalendarController() {
+        if (this.activityCalendarController == null) {
+            this.activityCalendarController = new ApolloActivityCalendarController(this);
+        }
+        return this.activityCalendarController;
     }
 }

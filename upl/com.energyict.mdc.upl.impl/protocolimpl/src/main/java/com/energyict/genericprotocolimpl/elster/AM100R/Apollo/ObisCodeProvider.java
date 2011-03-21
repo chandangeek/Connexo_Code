@@ -18,83 +18,87 @@ import java.util.Map;
  */
 public class ObisCodeProvider implements CommonObisCodeProvider {
 
-    public static final ObisCode clockObisCode = ObisCode.fromString("0.0.1.0.0.255");
-    public static final ObisCode clockSynchronizationObisCode = ObisCode.fromString("0.0.96.2.12.255");
-    public static final ObisCode serialNumberObisCode = ObisCode.fromString("0.0.96.1.0.255");
-    public static final ObisCode loadProfileP1 = ObisCode.fromString("1.0.99.1.0.255");
-    public static final ObisCode loadProfileDaily = ObisCode.fromString("1.0.99.2.0.255");
-    public static final ObisCode loadProfileMonthly = ObisCode.fromString("0.0.98.1.1.255");
-    public static final ObisCode associationLnCurrentClient = ObisCode.fromString("0.0.40.0.0.255");
-    public static final ObisCode associationLnPublicClient = ObisCode.fromString("0.0.40.0.1.255");
-    public static final ObisCode associationLnReadingClient = ObisCode.fromString("0.0.40.0.2.255");
-    public static final ObisCode associationLnManagementClient = ObisCode.fromString("0.0.40.0.3.255");
-    public static final ObisCode associationLnFirmwareClient = ObisCode.fromString("0.0.40.0.4.255");
-    public static final ObisCode firmwareVersionObisCode = ObisCode.fromString("1.0.0.2.0.255");
+    public static final ObisCode ClockObisCode = ObisCode.fromString("0.0.1.0.0.255");
+    public static final ObisCode ClockSynchronizationObisCode = ObisCode.fromString("0.0.96.2.12.255");
+    public static final ObisCode SerialNumberObisCode = ObisCode.fromString("0.0.96.1.0.255");
+    public static final ObisCode LoadProfileP1 = ObisCode.fromString("1.0.99.1.0.255");
+    public static final ObisCode LoadProfileDaily = ObisCode.fromString("1.0.99.2.0.255");
+    public static final ObisCode LoadProfileMonthly = ObisCode.fromString("0.0.98.1.1.255");
+    public static final ObisCode AssociationLnCurrentClient = ObisCode.fromString("0.0.40.0.0.255");
+    public static final ObisCode AssociationLnPublicClient = ObisCode.fromString("0.0.40.0.1.255");
+    public static final ObisCode AssociationLnReadingClient = ObisCode.fromString("0.0.40.0.2.255");
+    public static final ObisCode AssociationLnManagementClient = ObisCode.fromString("0.0.40.0.3.255");
+    public static final ObisCode AssociationLnFirmwareClient = ObisCode.fromString("0.0.40.0.4.255");
+    public static final ObisCode FirmwareVersionObisCode = ObisCode.fromString("1.0.0.2.0.255");
+    public static final ObisCode ActiveLongFirmwareIdentifierACOR = ObisCode.fromString("1.0.0.2.0.1");
+    public static final ObisCode ActiveLongFirmwareIdentifierMCOR = ObisCode.fromString("1.0.0.2.0.2");
 
-    public static final ObisCode standardEventLogObisCode = ObisCode.fromString("0.0.99.98.0.255");
-    public static final ObisCode powerQualityFinishedEventLogObisCode = ObisCode.fromString("0.0.99.98.9.255");
-    public static final ObisCode powerQualityNotFinishedEventLogObisCode = ObisCode.fromString("0.0.99.98.5.255");
-    public static final ObisCode fraudDetectionEventLogObisCode = ObisCode.fromString("0.0.99.98.1.255");
-    public static final ObisCode demandManagementEventLogObisCode = ObisCode.fromString("0.0.99.98.6.255");
-    public static final ObisCode commonEventLogObisCode = ObisCode.fromString("0.0.99.98.7.255");
-    public static final ObisCode powerContractEventLogObisCode = ObisCode.fromString("0.0.99.98.3.255");
-    public static final ObisCode firmwareEventLogObisCode = ObisCode.fromString("0.0.99.98.4.255");
-    public static final ObisCode objectSynchronizationEventLogObisCode = ObisCode.fromString("0.0.99.98.8.255");
+    public static final ObisCode StandardEventLogObisCode = ObisCode.fromString("0.0.99.98.0.255");
+    public static final ObisCode PowerQualityFinishedEventLogObisCode = ObisCode.fromString("0.0.99.98.9.255");
+    public static final ObisCode PowerQualityNotFinishedEventLogObisCode = ObisCode.fromString("0.0.99.98.5.255");
+    public static final ObisCode FraudDetectionEventLogObisCode = ObisCode.fromString("0.0.99.98.1.255");
+    public static final ObisCode DemandManagementEventLogObisCode = ObisCode.fromString("0.0.99.98.6.255");
+    public static final ObisCode CommonEventLogObisCode = ObisCode.fromString("0.0.99.98.7.255");
+    public static final ObisCode PowerContractEventLogObisCode = ObisCode.fromString("0.0.99.98.3.255");
+    public static final ObisCode FirmwareEventLogObisCode = ObisCode.fromString("0.0.99.98.4.255");
+    public static final ObisCode ObjectSynchronizationEventLogObisCode = ObisCode.fromString("0.0.99.98.8.255");
 
-    public static final ObisCode instantaneousEnergyValuesObisCode = ObisCode.fromString("0.0.21.0.6.255");
-    public static final ObisCode refVoltagePQObisCode = ObisCode.fromString("1.0.0.6.4.255");
-    public static final ObisCode nrOfVoltageSagsAvgVoltageObisCode = ObisCode.fromString("1.0.94.34.90.255");
-    public static final ObisCode durationVoltageSagsAvgVoltageObisCode = ObisCode.fromString("1.0.93.34.91.255");
-    public static final ObisCode nrOfVoltageSwellsAvgVoltageObisCode = ObisCode.fromString("1.0.94.34.92.255");
-    public static final ObisCode durationVoltageSwellsAvgVoltageObisCode = ObisCode.fromString("1.0.93.34.93.255");
-    public static final ObisCode activeQuadrantObisCode = ObisCode.fromString("1.1.94.34.100.255");
-    public static final ObisCode activeQuadrantL1ObisCode = ObisCode.fromString("1.1.94.34.101.255");
-    public static final ObisCode activeQuadrantL2ObisCode = ObisCode.fromString("1.1.94.34.102.255");
-    public static final ObisCode activeQuadrantL3ObisCode = ObisCode.fromString("1.1.94.34.103.255");
-    public static final ObisCode phasePrecense = ObisCode.fromString("1.1.94.34.104.255");
-    public static final ObisCode transformerRatioCurrentNumObisCode = ObisCode.fromString("1.0.0.4.2.255");
-    public static final ObisCode transformerRatioVoltageNumObisCode = ObisCode.fromString("1.0.0.4.3.255");
-    public static final ObisCode transformerRatioCurrentDenObisCode = ObisCode.fromString("1.0.0.4.5.255");
-    public static final ObisCode transformerRatioVoltageDenObisCode = ObisCode.fromString("1.0.0.4.6.255");
+    public static final ObisCode InstantaneousEnergyValuesObisCode = ObisCode.fromString("0.0.21.0.6.255");
+    public static final ObisCode RefVoltagePQObisCode = ObisCode.fromString("1.0.0.6.4.255");
+    public static final ObisCode NrOfVoltageSagsAvgVoltageObisCode = ObisCode.fromString("1.0.94.34.90.255");
+    public static final ObisCode DurationVoltageSagsAvgVoltageObisCode = ObisCode.fromString("1.0.93.34.91.255");
+    public static final ObisCode NrOfVoltageSwellsAvgVoltageObisCode = ObisCode.fromString("1.0.94.34.92.255");
+    public static final ObisCode DurationVoltageSwellsAvgVoltageObisCode = ObisCode.fromString("1.0.93.34.93.255");
+    public static final ObisCode ActiveQuadrantObisCode = ObisCode.fromString("1.1.94.34.100.255");
+    public static final ObisCode ActiveQuadrantL1ObisCode = ObisCode.fromString("1.1.94.34.101.255");
+    public static final ObisCode ActiveQuadrantL2ObisCode = ObisCode.fromString("1.1.94.34.102.255");
+    public static final ObisCode ActiveQuadrantL3ObisCode = ObisCode.fromString("1.1.94.34.103.255");
+    public static final ObisCode PhasePrecense = ObisCode.fromString("1.1.94.34.104.255");
+    public static final ObisCode TransformerRatioCurrentNumObisCode = ObisCode.fromString("1.0.0.4.2.255");
+    public static final ObisCode TransformerRatioVoltageNumObisCode = ObisCode.fromString("1.0.0.4.3.255");
+    public static final ObisCode TransformerRatioCurrentDenObisCode = ObisCode.fromString("1.0.0.4.5.255");
+    public static final ObisCode TransformerRatioVoltageDenObisCode = ObisCode.fromString("1.0.0.4.6.255");
 
     public static final ObisCode ActivityCalendarContract1ObisCode = ObisCode.fromString("0.0.13.0.1.255");
     public static final ObisCode ActiveSpecialDayContract1ObisCode = ObisCode.fromString("0.0.11.0.1.255");
     public static final ObisCode PassiveSpecialDayContract1ObisCode = ObisCode.fromString("0.0.11.0.4.255");
     public static final ObisCode CurrentActiveRateContract1ObisCode = ObisCode.fromString("0.0.96.14.1.255");
+    public static final ObisCode ActiveCalendarNameObisCode = ObisCode.fromString("0.0.13.0.1.255");
+    public static final ObisCode PassiveCalendarNameObisCode = ObisCode.fromString("0.0.13.0.2.255");
 
     /**
-     * @return the {@link #clockObisCode} for the {@link com.energyict.dlms.cosem.Clock}
+     * @return the {@link #ClockObisCode} for the {@link com.energyict.dlms.cosem.Clock}
      */
     public ObisCode getClockObisCode() {
-        return clockObisCode;
+        return ClockObisCode;
     }
 
     /**
      * @return the obisCode for the <i>default</i> {@link com.energyict.dlms.cosem.ProfileGeneric}
      */
     public ObisCode getDefaultLoadProfileObisCode() {
-        return loadProfileP1;
+        return LoadProfileP1;
     }
 
     /**
      * @return the obisCode fro the <i>Daily</i> LoadProfile
      */
     public ObisCode getDailyLoadProfileObisCode() {
-        return loadProfileDaily;
+        return LoadProfileDaily;
     }
 
     /**
-     * @return the {@link #clockSynchronizationObisCode} for the ClockSynchronization
+     * @return the {@link #ClockSynchronizationObisCode} for the ClockSynchronization
      */
     public ObisCode getClockSynchronization() {
-        return clockSynchronizationObisCode;
+        return ClockSynchronizationObisCode;
     }
 
     /**
-     * @return the {@link #serialNumberObisCode} for the SerialNumber
+     * @return the {@link #SerialNumberObisCode} for the SerialNumber
      */
     public ObisCode getSerialNumberObisCode() {
-        return serialNumberObisCode;
+        return SerialNumberObisCode;
     }
 
     /**
@@ -115,73 +119,73 @@ public class ObisCodeProvider implements CommonObisCodeProvider {
     }
 
     /**
-     * @return the {@link #firmwareVersionObisCode} of this Firmware Version
+     * @return the {@link #FirmwareVersionObisCode} of this Firmware Version
      */
     public ObisCode getFirmwareVersion() {
-        return firmwareVersionObisCode;
+        return FirmwareVersionObisCode;
     }
 
     /**
-     * @return the {@link #instantaneousEnergyValuesObisCode} of the Instantaneous Values Profile
+     * @return the {@link #InstantaneousEnergyValuesObisCode} of the Instantaneous Values Profile
      */
     public ObisCode getInstantaneousEnergyValueObisCode(){
-        return instantaneousEnergyValuesObisCode;
+        return InstantaneousEnergyValuesObisCode;
     }
 
     /**
-     * @return the {@link #standardEventLogObisCode} of the Standard Event Profile
+     * @return the {@link #StandardEventLogObisCode} of the Standard Event Profile
      */
     public ObisCode getStandardEventLogObisCode() {
-        return standardEventLogObisCode;
+        return StandardEventLogObisCode;
     }
 
     /**
-     * @return the {@link #powerQualityFinishedEventLogObisCode} for the PowerQuality Event Profile
+     * @return the {@link #PowerQualityFinishedEventLogObisCode} for the PowerQuality Event Profile
      */
     public ObisCode getPowerQualityEventLogObisCode() {
-        return powerQualityFinishedEventLogObisCode;
+        return PowerQualityFinishedEventLogObisCode;
     }
 
     /**
-     * @return the {@link #fraudDetectionEventLogObisCode} for the FraudDetection Event Profile
+     * @return the {@link #FraudDetectionEventLogObisCode} for the FraudDetection Event Profile
      */
     public ObisCode getFraudDetectionEventLogObisCode() {
-        return fraudDetectionEventLogObisCode;
+        return FraudDetectionEventLogObisCode;
     }
 
     /**
-     * @return the {@link #demandManagementEventLogObisCode} for the Demand management Event Profile
+     * @return the {@link #DemandManagementEventLogObisCode} for the Demand management Event Profile
      */
     public ObisCode getDemandManagementEventLog() {
-        return demandManagementEventLogObisCode;
+        return DemandManagementEventLogObisCode;
     }
 
     /**
-     * @return the {@link #commonEventLogObisCode} for the Common Event Profile
+     * @return the {@link #CommonEventLogObisCode} for the Common Event Profile
      */
     public ObisCode getCommonEventLog() {
-        return commonEventLogObisCode;
+        return CommonEventLogObisCode;
     }
 
     /**
-     * @return the {@link #powerContractEventLogObisCode} for the PowerContract Event Profile
+     * @return the {@link #PowerContractEventLogObisCode} for the PowerContract Event Profile
      */
     public ObisCode getPowerContractEventLog() {
-        return powerContractEventLogObisCode;
+        return PowerContractEventLogObisCode;
     }
 
     /**
-     * @return the {@link #firmwareEventLogObisCode} for the Firmware Event Profile
+     * @return the {@link #FirmwareEventLogObisCode} for the Firmware Event Profile
      */
     public ObisCode getFirmwareEventLog() {
-        return firmwareEventLogObisCode;
+        return FirmwareEventLogObisCode;
     }
 
     /**
-     * @return the {@link #objectSynchronizationEventLogObisCode} for the Object Synchronization Event Profile
+     * @return the {@link #ObjectSynchronizationEventLogObisCode} for the Object Synchronization Event Profile
      */
     public ObisCode getObjectSynchronizationEventLog() {
-        return objectSynchronizationEventLogObisCode;
+        return ObjectSynchronizationEventLogObisCode;
     }
 
     /**
@@ -212,6 +216,18 @@ public class ObisCodeProvider implements CommonObisCodeProvider {
         return CurrentActiveRateContract1ObisCode;
     }
 
+    public ObisCode getActiveCalendarNameObisCode(){
+        return ActiveCalendarNameObisCode;
+    }
+
+    public ObisCode getActiveLongFirmwareIdentifierACOR() {
+        return ActiveLongFirmwareIdentifierACOR;
+    }
+
+    public ObisCode getActiveLongFirmwareIdentifierMCOR() {
+        return ActiveLongFirmwareIdentifierMCOR;
+    }
+
     /**
      * Enumeration containing the possible {@link com.energyict.dlms.cosem.AssociationLN} Obiscodes.
      * Each clientID has a different AssociationObject.
@@ -221,23 +237,23 @@ public class ObisCodeProvider implements CommonObisCodeProvider {
         /**
          * The current_client
          */
-        CURRENT_CLIENT(0, associationLnCurrentClient),
+        CURRENT_CLIENT(0, AssociationLnCurrentClient),
         /**
          * The management client has all access
          */
-        MANAGEMENT_CLIENT(1, associationLnManagementClient),
+        MANAGEMENT_CLIENT(1, AssociationLnManagementClient),
         /**
          * The public client has limited read access
          */
-        PUBLIC_CLIENT(16, associationLnPublicClient),
+        PUBLIC_CLIENT(16, AssociationLnPublicClient),
         /**
          * The reading client has reading access
          */
-        READING_CLIENT(2, associationLnReadingClient),
+        READING_CLIENT(2, AssociationLnReadingClient),
         /**
          * The firmware client has access to firmware related objects (ex. FirmwareUpgrade)
          */
-        FIRMWARE_CLIENT(3, associationLnFirmwareClient);
+        FIRMWARE_CLIENT(3, AssociationLnFirmwareClient);
 
         /**
          * The clientId for this association

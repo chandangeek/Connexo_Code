@@ -8,6 +8,7 @@ import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.base.ActivityCalendarController;
 
 import java.io.IOException;
 import java.util.Map;
@@ -117,30 +118,42 @@ public class RegisterReader {
                     return new RegisterValue(obisCode, new Quantity(data.getString(), Unit.getUndefined()));
                 }
 
-            } else if (obisCode.equals(ObisCodeProvider.nrOfVoltageSagsAvgVoltageObisCode)
-                    || obisCode.equals(ObisCodeProvider.nrOfVoltageSwellsAvgVoltageObisCode)) {
+            } else if (obisCode.equals(ObisCodeProvider.NrOfVoltageSagsAvgVoltageObisCode)
+                    || obisCode.equals(ObisCodeProvider.NrOfVoltageSwellsAvgVoltageObisCode)) {
                 Data data = getMeterProtocol().getApolloObjectFactory().getData(obisCode);
                 return new RegisterValue(obisCode, new Quantity(data.getString(), Unit.getUndefined()));
-            } else if (obisCode.equals(ObisCodeProvider.durationVoltageSagsAvgVoltageObisCode)
-                    || obisCode.equals(ObisCodeProvider.durationVoltageSwellsAvgVoltageObisCode)
-                    || obisCode.equals(ObisCodeProvider.refVoltagePQObisCode)) {
+            } else if (obisCode.equals(ObisCodeProvider.DurationVoltageSagsAvgVoltageObisCode)
+                    || obisCode.equals(ObisCodeProvider.DurationVoltageSwellsAvgVoltageObisCode)
+                    || obisCode.equals(ObisCodeProvider.RefVoltagePQObisCode)) {
                 Register register = getMeterProtocol().getApolloObjectFactory().getRegister(obisCode);
                 return new RegisterValue(obisCode, ParseUtils.registerToQuantity(register));
             }
         }
 
         // Other abstract Objects
-        if (obisCode.equals(ObisCodeProvider.activeQuadrantObisCode)
-                || obisCode.equals(ObisCodeProvider.activeQuadrantL1ObisCode)
-                || obisCode.equals(ObisCodeProvider.activeQuadrantL2ObisCode)
-                || obisCode.equals(ObisCodeProvider.activeQuadrantL3ObisCode)
-                || obisCode.equals(ObisCodeProvider.phasePrecense)
-                || obisCode.equals(ObisCodeProvider.transformerRatioCurrentDenObisCode)
-                || obisCode.equals(ObisCodeProvider.transformerRatioVoltageDenObisCode)
-                || obisCode.equals(ObisCodeProvider.transformerRatioCurrentNumObisCode)
-                || obisCode.equals(ObisCodeProvider.transformerRatioVoltageNumObisCode)) {
+        if (obisCode.equals(ObisCodeProvider.ActiveQuadrantObisCode)
+                || obisCode.equals(ObisCodeProvider.ActiveQuadrantL1ObisCode)
+                || obisCode.equals(ObisCodeProvider.ActiveQuadrantL2ObisCode)
+                || obisCode.equals(ObisCodeProvider.ActiveQuadrantL3ObisCode)
+                || obisCode.equals(ObisCodeProvider.PhasePrecense)
+                || obisCode.equals(ObisCodeProvider.TransformerRatioCurrentDenObisCode)
+                || obisCode.equals(ObisCodeProvider.TransformerRatioVoltageDenObisCode)
+                || obisCode.equals(ObisCodeProvider.TransformerRatioCurrentNumObisCode)
+                || obisCode.equals(ObisCodeProvider.TransformerRatioVoltageNumObisCode)) {
             Data data = getMeterProtocol().getApolloObjectFactory().getData(obisCode);
             return new RegisterValue(obisCode, new Quantity(data.getString(), Unit.getUndefined()));
+        }
+
+        /* ActivityCalendar related Objects */
+        if(obisCode.equals(ObisCodeProvider.CurrentActiveRateContract1ObisCode)){
+            Data data = getMeterProtocol().getApolloObjectFactory().getData(obisCode);
+            return new RegisterValue(obisCode, new Quantity(data.getValue(), Unit.getUndefined()));
+        } else  if(obisCode.equals(ObisCodeProvider.ActiveCalendarNameObisCode)){
+            ActivityCalendarController acc = getMeterProtocol().getActivityCalendarController();
+            return new RegisterValue(obisCode, acc.getCalendarName());
+        } else if (obisCode.equals(ObisCodeProvider.PassiveCalendarNameObisCode)){
+            ActivityCalendar ac = getMeterProtocol().getApolloObjectFactory().getActivityCalendar();
+            return new RegisterValue(obisCode, ac.readCalendarNamePassive().stringValue());
         }
         throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
     }

@@ -44,10 +44,10 @@ public class MessageExecutor extends GenericMessageExecutor {
                 getLogger().log(Level.INFO, "Received update ActivityCalendar message.");
                 getLogger().log(Level.FINEST, "Parsing the content of the CodeTable.");
                 getActivityCalendarController().parseContent(content);
-                getLogger().log(Level.FINEST, "Sending out the new Passive Calendar objects.");
-                getActivityCalendarController().writeCalendar();
                 getLogger().log(Level.FINEST, "Setting the new Passive Calendar Name.");
                 getActivityCalendarController().writeCalendarName("");
+                getLogger().log(Level.FINEST, "Sending out the new Passive Calendar objects.");
+                getActivityCalendarController().writeCalendar();
                 success = true;
             }
         } catch (IOException e) {
@@ -70,10 +70,7 @@ public class MessageExecutor extends GenericMessageExecutor {
     }
 
     private ApolloActivityCalendarController getActivityCalendarController() {
-        if (activityCalendarController == null) {
-            activityCalendarController = new ApolloActivityCalendarController(this.protocol);
-        }
-        return this.activityCalendarController;
+        return this.protocol.getActivityCalendarController();
     }
 
     private Logger getLogger() {

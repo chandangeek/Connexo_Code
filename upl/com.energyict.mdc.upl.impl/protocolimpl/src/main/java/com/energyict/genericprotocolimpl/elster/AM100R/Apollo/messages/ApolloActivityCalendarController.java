@@ -8,7 +8,6 @@ import com.energyict.dlms.cosem.attributeobjects.*;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.ApolloMeter;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
-import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
 import com.energyict.protocolimpl.dlms.as220.parsing.CodeTableXml;
 import org.apache.commons.logging.Log;
@@ -174,7 +173,7 @@ public class ApolloActivityCalendarController implements ActivityCalendarControl
             }
 
             NodeList passiveNameList = doc.getElementsByTagName(AS220Messaging.CALENDAR_NAME);
-            passiveCalendarName = new OctetString(constructEightByteCalendarName(passiveNameList.item(0).getTextContent()));
+            passiveCalendarName = new OctetString(constructSixByteCalendarName(passiveNameList.item(0).getTextContent()));
 
             NodeList seasonProfileList = doc.getElementsByTagName(CodeTableXml.seasonProfile);
             createSeasonProfiles(seasonProfileList);
@@ -213,14 +212,14 @@ public class ApolloActivityCalendarController implements ActivityCalendarControl
     }
 
     /**
-     * Construct the calendarName, which should be 8 bytes
+     * Construct the calendarName, which should be 6 bytes
      *
      * @param name the name to convert to a Calendar.
      * @return a byte Array containing the CalendarName
      */
-    protected byte[] constructEightByteCalendarName(String name) {
-        byte[] calName = new byte[]{0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20};
-        System.arraycopy(name.getBytes(), 0, calName, 0, (name.getBytes().length > 8) ? 8 : name.getBytes().length);
+    protected byte[] constructSixByteCalendarName(String name) {
+        byte[] calName = new byte[]{0x20, 0x20, 0x20, 0x20, 0x20, 0x20};
+        System.arraycopy(name.getBytes(), 0, calName, 0, (name.getBytes().length > 6) ? 6 : name.getBytes().length);
         return calName;
     }
 
@@ -243,10 +242,12 @@ public class ApolloActivityCalendarController implements ActivityCalendarControl
         ac.writeWeekProfileTablePassive(getWeekArray());
         ac.writeDayProfileTablePassive(getDayArray());
 
-/*        *//*
-       Writing all special days separately seems to work
-         *//*
-        getSpecialDayTable().writeSpecialDays(getSpecialDayArray());
+
+       /*Writing all special days separately seems to work*/
+
+
+//        getSpecialDayTable().writeSpecialDays(getSpecialDayArray());
+        getPassiveSpecialDayTable().writeSpecialDays(getSpecialDayArray());
 
         if (!"".equalsIgnoreCase(this.passiveCalendarName.stringValue())) {
             ac.writeCalendarNamePassive(this.passiveCalendarName);
@@ -259,7 +260,7 @@ public class ApolloActivityCalendarController implements ActivityCalendarControl
             ac.writeActivatePassiveCalendarTime(this.activatePassiveCalendarTime);
         } else {
             logger.trace("No passiveCalendar activation date was given.");
-        }*/
+        }
     }
 
     /**
@@ -301,6 +302,10 @@ public class ApolloActivityCalendarController implements ActivityCalendarControl
     private SpecialDaysTable getSpecialDayTable() throws IOException {
         return this.protocol.getApolloObjectFactory().getSpecialDayTable();
 //        return this.as220.getCosemObjectFactory().getSpecialDaysTable(this.as220.getMeterConfig().getSpecialDaysTable().getObisCode());
+    }
+
+    private SpecialDaysTable getPassiveSpecialDayTable() throws IOException {
+        return this.protocol.getApolloObjectFactory().getPassiveSpecialDaysTable();
     }
 
     /**
