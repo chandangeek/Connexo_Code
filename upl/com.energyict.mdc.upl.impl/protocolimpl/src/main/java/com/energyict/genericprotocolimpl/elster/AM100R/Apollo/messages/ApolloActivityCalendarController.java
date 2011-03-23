@@ -45,7 +45,7 @@ public class ApolloActivityCalendarController implements ActivityCalendarControl
     private static final int indexDtDeviationLow = 10;
     private static final int indexDtClockStatus = 11;
     private static final byte[] initialDateTimeArray = new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-            (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
+            0, 0, 0, 0, (byte)0x80, 0, 0};
 
     // Indexes of the Time OctetString
     private static final int indexTHour = 0;
@@ -177,9 +177,9 @@ public class ApolloActivityCalendarController implements ActivityCalendarControl
 
             NodeList seasonProfileList = doc.getElementsByTagName(CodeTableXml.seasonProfile);
             createSeasonProfiles(seasonProfileList);
-            if (seasonArray.nrOfDataTypes() > 1) {
-                throw new IOException("The current ActivityCalendar only supports 1 season.");
-            }
+//            if (seasonArray.nrOfDataTypes() < 12) {
+////                addEmptySeasons();
+//            }
 
             NodeList weekProfileList = doc.getElementsByTagName(CodeTableXml.weekProfile);
             createWeekProfiles(weekProfileList);
@@ -208,6 +208,16 @@ public class ApolloActivityCalendarController implements ActivityCalendarControl
         } catch (SAXException e) {
             logger.error("ActivityCalendar parser -> A parse ERROR occurred.");
             throw new IOException("ActivityCalendar parser -> A parse ERROR occurred. SAXException message : " + e.getLocalizedMessage());
+        }
+    }
+
+    private void addEmptySeasons() throws IOException {
+        for (int i = getSeasonArray().nrOfDataTypes(); i < 12; i++) {
+            SeasonProfiles sp = new SeasonProfiles();
+            sp.setSeasonProfileName(createSeasonName(Integer.toHexString(i)));
+            sp.setSeasonStart(new OctetString(initialDateTimeArray));
+            sp.setWeekName(createWeekName("0"));
+            seasonArray.addDataType(sp);
         }
     }
 
@@ -243,17 +253,17 @@ public class ApolloActivityCalendarController implements ActivityCalendarControl
         ac.writeDayProfileTablePassive(getDayArray());
 
 
-       /*Writing all special days separately seems to work*/
+        /*Writing all special days separately seems to work*/
 
 
 //        getSpecialDayTable().writeSpecialDays(getSpecialDayArray());
         getPassiveSpecialDayTable().writeSpecialDays(getSpecialDayArray());
 
-        if (!"".equalsIgnoreCase(this.passiveCalendarName.stringValue())) {
-            ac.writeCalendarNamePassive(this.passiveCalendarName);
-        } else {
-            logger.debug("No PassiveCalendarName will be written.");
-        }
+//        if (!"".equalsIgnoreCase(this.passiveCalendarName.stringValue())) {
+//            ac.writeCalendarNamePassive(this.passiveCalendarName);
+//        } else {
+//            logger.debug("No PassiveCalendarName will be written.");
+//        }
         if ("1".equalsIgnoreCase(this.activatePassiveCalendarTime.stringValue())) {
             ac.activateNow();
         } else if (!"0".equalsIgnoreCase(this.activatePassiveCalendarTime.stringValue())) {
@@ -294,7 +304,7 @@ public class ApolloActivityCalendarController implements ActivityCalendarControl
      * @return the current local {@link com.energyict.dlms.cosem.ActivityCalendar}
      */
     private ActivityCalendar getActivityCalendar() throws IOException {
-          return this.protocol.getApolloObjectFactory().getActivityCalendar();
+        return this.protocol.getApolloObjectFactory().getActivityCalendar();
 //        return this.protocol.getCosemObjectFactory().getActivityCalendar(this.prt.getMeterConfig().getActivityCalendar().getObisCode());
     }
 
@@ -614,10 +624,10 @@ public class ApolloActivityCalendarController implements ActivityCalendarControl
      * @return the constructed OctetString
      * @throws java.io.IOException if the size of the index is not equal to 1
      */
-    private OctetString createByteName(String index, int type) throws IOException {
+    protected OctetString createByteName(String index, int type) throws IOException {
         byte[] content = new byte[index.length()];
         if (content.length == 1) {
-            content[0] = Integer.valueOf(index).byteValue();
+            content[0] = Integer.valueOf(index, 16).byteValue();
         } else {
             logger.warn(errors[type]);
             throw new IOException(errors[type]);

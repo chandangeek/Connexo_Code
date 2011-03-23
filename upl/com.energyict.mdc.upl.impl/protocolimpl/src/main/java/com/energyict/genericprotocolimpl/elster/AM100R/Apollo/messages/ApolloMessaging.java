@@ -34,6 +34,7 @@ public class ApolloMessaging extends GenericMessaging {
     public List getMessageCategories() {
         List<MessageCategorySpec> categories = new ArrayList();
         categories.add(getActivityCalendarCategory());
+        categories.add(getTestCategory());
         return categories;
     }
 
