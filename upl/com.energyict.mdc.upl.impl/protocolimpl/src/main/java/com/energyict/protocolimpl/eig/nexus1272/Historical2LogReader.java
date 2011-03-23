@@ -90,16 +90,18 @@ public class Historical2LogReader extends AbstractLogReader {
 //				System.out.println(recDate + " --- " + cal.getTime());
 				if (recDate.before(from)) {
 					recNum++;
-					offset = recNum * meterlpMap.size()*8;
+					offset = recNum * recordSize;
 					continue;
 				}
 				
 				offset+= length;
 				IntervalData intervalData = new IntervalData(recDate,0,0);
 				for (LinePoint lp : meterlpMap) {
+					boolean found = false;
 					for (LinePoint lp2 : masterlpMap) {
-
+						
 						if (lp.getLine() == lp2.getLine() && lp.getPoint() == lp2.getPoint()) {
+							found = true;
 							BigDecimal val =new BigDecimal( parseF64(byteArray, offset));
 							offset+=4;
 							BigDecimal divisor = new BigDecimal(1);
@@ -114,10 +116,13 @@ public class Historical2LogReader extends AbstractLogReader {
 							break;
 						}
 					}
+					if (!found) {
+						offset+=4;
+					}
 				}
 
 				recNum++;
-				offset = recNum * meterlpMap.size()*8;
+				offset = recNum * recordSize;//meterlpMap.size()*8;
 				intervalDatas.add(intervalData);
 			}
 		}catch (Exception e) {
