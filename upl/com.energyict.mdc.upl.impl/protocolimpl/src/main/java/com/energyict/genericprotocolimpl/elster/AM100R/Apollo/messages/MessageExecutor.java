@@ -62,6 +62,7 @@ public class MessageExecutor extends GenericMessageExecutor {
             } else if(testMessage){
                 getLogger().log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": TestMessage");
                 doTestMessage(messageHandler.getTestUserFileId());
+                success = true;
             }
         } catch (IOException e) {
             getLogger().log(Level.INFO, "Message " + rtuMessage.displayString() + " has failed. " + e.getMessage());

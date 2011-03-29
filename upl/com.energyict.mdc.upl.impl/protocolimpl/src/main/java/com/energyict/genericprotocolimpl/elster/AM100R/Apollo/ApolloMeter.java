@@ -417,7 +417,22 @@ public class ApolloMeter extends DLMSProtocol {
      * @return the current FirmwareVersion
      */
     private String getFirmWareVersion() throws IOException {
-        return getApolloObjectFactory().getFirmwareVersion().getString();
+        StringBuilder builder = new StringBuilder();
+        builder.append(getApolloObjectFactory().getFirmwareVersion().getString());
+        try {
+            String acor = getApolloObjectFactory().getFirmwareVersion().getAttrbAbstractDataType(-1).getOctetString().stringValue();
+            builder.append(" - ACOR : ").append(acor);
+        } catch (IOException e) {
+            // absorb
+        }
+        try {
+            String mcor = getApolloObjectFactory().getFirmwareVersion().getAttrbAbstractDataType(-2).getOctetString().stringValue();
+            builder.append(" - MCOR : ").append(mcor);
+        } catch (IOException e) {
+            // absorb
+        }
+        return builder.toString();
+
 //        return getApolloObjectFactory().getActiveFirmwareIdACOR().getString();
     }
 

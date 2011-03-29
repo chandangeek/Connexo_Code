@@ -2,6 +2,7 @@ package com.energyict.genericprotocolimpl.elster.AM100R.Apollo.messages;
 
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.attributeobjects.*;
@@ -45,7 +46,7 @@ public class ApolloActivityCalendarController implements ActivityCalendarControl
     private static final int indexDtDeviationLow = 10;
     private static final int indexDtClockStatus = 11;
     private static final byte[] initialDateTimeArray = new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-            0, 0, 0, 0, (byte)0x80, 0, 0};
+            0, 0, 0, 0, (byte) 0x80, 0, 0};
 
     // Indexes of the Time OctetString
     private static final int indexTHour = 0;
@@ -103,6 +104,11 @@ public class ApolloActivityCalendarController implements ActivityCalendarControl
      * The current {@link org.apache.commons.logging.Log}
      */
     private final Log logger = LogFactory.getLog(getClass());
+
+    /**
+     * Contains a map of given DayProfile Ids and usable DayProfile Ids. The ApolloMeter does not allow a dayId starting from <b>0</b>
+     */
+    private Map<String, Integer> tempShiftedDayIdMap = new HashMap<String, Integer>();
 
     public ApolloActivityCalendarController(ApolloMeter protocol) {
         this.protocol = protocol;
@@ -175,20 +181,15 @@ public class ApolloActivityCalendarController implements ActivityCalendarControl
             NodeList passiveNameList = doc.getElementsByTagName(AS220Messaging.CALENDAR_NAME);
             passiveCalendarName = new OctetString(constructSixByteCalendarName(passiveNameList.item(0).getTextContent()));
 
+            NodeList dayProfileList = doc.getElementsByTagName(CodeTableXml.dayProfile);
+            createShiftedDayIdMap(dayProfileList);
+            createDayProfiles(dayProfileList);
+
             NodeList seasonProfileList = doc.getElementsByTagName(CodeTableXml.seasonProfile);
             createSeasonProfiles(seasonProfileList);
-//            if (seasonArray.nrOfDataTypes() < 12) {
-////                addEmptySeasons();
-//            }
 
             NodeList weekProfileList = doc.getElementsByTagName(CodeTableXml.weekProfile);
             createWeekProfiles(weekProfileList);
-
-            NodeList dayProfileList = doc.getElementsByTagName(CodeTableXml.dayProfile);
-            createDayProfiles(dayProfileList);
-            if (dayArray.nrOfDataTypes() > 4) {
-                throw new IOException("The current ActivityCalendar only supports 4 dayTypes.");
-            }
 
             NodeList specialDayEntryDate = doc.getElementsByTagName(CodeTableXml.specialDayEntryDate);
             createTempSortedDateList(specialDayEntryDate);
@@ -211,13 +212,24 @@ public class ApolloActivityCalendarController implements ActivityCalendarControl
         }
     }
 
-    private void addEmptySeasons() throws IOException {
-        for (int i = getSeasonArray().nrOfDataTypes(); i < 12; i++) {
-            SeasonProfiles sp = new SeasonProfiles();
-            sp.setSeasonProfileName(createSeasonName(Integer.toHexString(i)));
-            sp.setSeasonStart(new OctetString(initialDateTimeArray));
-            sp.setWeekName(createWeekName("0"));
-            seasonArray.addDataType(sp);
+    /**
+     * Construct a map of shifted dayProfile ID's. We are reusing the {@link com.energyict.protocolimpl.dlms.as220.parsing.CodeTableXml}, but this results
+     * in dayIds with values of 0, which the ApolloMeter does not allow ...
+     * This method will most likely result in a shift of all the dayProfileId's
+     *
+     * @param dayProfileList the given list of dayProfiles
+     */
+    private void createShiftedDayIdMap(final NodeList dayProfileList) {
+        Node dayProfile;
+        int dayIdCounter = 1;
+        for (int i = 0; i < dayProfileList.getLength(); i++) {
+            dayProfile = dayProfileList.item(i);
+            for (int j = 0; j < dayProfile.getChildNodes().getLength(); j++) {
+                if (dayProfile.getChildNodes().item(j).getNodeName().equalsIgnoreCase(CodeTableXml.dayId)) {
+                    this.tempShiftedDayIdMap.put(dayProfile.getChildNodes().item(j).getTextContent(), dayIdCounter++);
+                    logger.debug("DayId : " + dayProfile.getChildNodes().item(j).getTextContent() + " is changed to " + dayIdCounter);
+                }
+            }
         }
     }
 
@@ -305,13 +317,11 @@ public class ApolloActivityCalendarController implements ActivityCalendarControl
      */
     private ActivityCalendar getActivityCalendar() throws IOException {
         return this.protocol.getApolloObjectFactory().getActivityCalendar();
-//        return this.protocol.getCosemObjectFactory().getActivityCalendar(this.prt.getMeterConfig().getActivityCalendar().getObisCode());
     }
 
 
     private SpecialDaysTable getSpecialDayTable() throws IOException {
         return this.protocol.getApolloObjectFactory().getSpecialDayTable();
-//        return this.as220.getCosemObjectFactory().getSpecialDaysTable(this.as220.getMeterConfig().getSpecialDaysTable().getObisCode());
     }
 
     private SpecialDaysTable getPassiveSpecialDayTable() throws IOException {
@@ -368,8 +378,6 @@ public class ApolloActivityCalendarController implements ActivityCalendarControl
                     sp.setWeekName(createWeekName(seasonNode.getTextContent()));
                 }
             }
-            //This additional dataType is for the index of the Season.
-//            sp.addDataType(new Unsigned16(i));
             seasonArray.addDataType(sp);
         }
     }
@@ -406,28 +414,27 @@ public class ApolloActivityCalendarController implements ActivityCalendarControl
                     wp.setWeekProfileName(createWeekName(weekNode.getTextContent()));
                 } else if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.wkMonday)) {
                     logger.debug("Monday : " + weekNode.getTextContent());
-                    wp.setMonday(new Unsigned8(Integer.valueOf(weekNode.getTextContent())));
+                    wp.setMonday(new Unsigned8(this.tempShiftedDayIdMap.get(weekNode.getTextContent())));
                 } else if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.wkTuesday)) {
                     logger.debug("Tuesday : " + weekNode.getTextContent());
-                    wp.setTuesday(new Unsigned8(Integer.valueOf(weekNode.getTextContent())));
+                    wp.setTuesday(new Unsigned8(this.tempShiftedDayIdMap.get(weekNode.getTextContent())));
                 } else if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.wkWednesDay)) {
                     logger.debug("WednesDay : " + weekNode.getTextContent());
-                    wp.setWednesday(new Unsigned8(Integer.valueOf(weekNode.getTextContent())));
+                    wp.setWednesday(new Unsigned8(this.tempShiftedDayIdMap.get(weekNode.getTextContent())));
                 } else if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.wkThursday)) {
                     logger.debug("Thursday : " + weekNode.getTextContent());
-                    wp.setThursday(new Unsigned8(Integer.valueOf(weekNode.getTextContent())));
+                    wp.setThursday(new Unsigned8(this.tempShiftedDayIdMap.get(weekNode.getTextContent())));
                 } else if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.wkFriday)) {
                     logger.debug("Friday : " + weekNode.getTextContent());
-                    wp.setFriday(new Unsigned8(Integer.valueOf(weekNode.getTextContent())));
+                    wp.setFriday(new Unsigned8(this.tempShiftedDayIdMap.get(weekNode.getTextContent())));
                 } else if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.wkSaturday)) {
                     logger.debug("Saturday : " + weekNode.getTextContent());
-                    wp.setSaturday(new Unsigned8(Integer.valueOf(weekNode.getTextContent())));
+                    wp.setSaturday(new Unsigned8(this.tempShiftedDayIdMap.get(weekNode.getTextContent())));
                 } else if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.wkSunday)) {
                     logger.debug("Sunday : " + weekNode.getTextContent());
-                    wp.setSunday(new Unsigned8(Integer.valueOf(weekNode.getTextContent())));
+                    wp.setSunday(new Unsigned8(this.tempShiftedDayIdMap.get(weekNode.getTextContent())));
                 }
             }
-//            wp.addDataType(new Unsigned16(i));
             weekArray.addDataType(wp);
         }
     }
@@ -460,7 +467,7 @@ public class ApolloActivityCalendarController implements ActivityCalendarControl
             for (int j = 0; j < dayProfile.getChildNodes().getLength(); j++) {
                 if (dayProfile.getChildNodes().item(j).getNodeName().equalsIgnoreCase(CodeTableXml.dayId)) {
                     logger.debug("DayId : " + dayProfile.getChildNodes().item(j).getTextContent());
-                    dp.setDayId(new Unsigned8(Integer.valueOf(dayProfile.getChildNodes().item(j).getTextContent())));
+                    dp.setDayId(new Unsigned8(this.tempShiftedDayIdMap.get(dayProfile.getChildNodes().item(j).getTextContent())));
 
                 } else if (dayProfile.getChildNodes().item(j).getNodeName().equalsIgnoreCase(CodeTableXml.dayTariffs)) {
                     Node dayProfileSchedules = dayProfile.getChildNodes().item(j);
@@ -584,7 +591,7 @@ public class ApolloActivityCalendarController implements ActivityCalendarControl
                         sds.addDataType(new OctetString(sdDate));
                     } else if (specialDayEntry.getNodeName().equalsIgnoreCase(CodeTableXml.specialDayEntryDayId)) {
                         logger.debug("SpecialDayEntryDayId : " + specialDayEntry.getTextContent());
-                        sds.addDataType(new Unsigned8(Integer.valueOf(specialDayEntry.getTextContent())));
+                        sds.addDataType(new Unsigned8(this.tempShiftedDayIdMap.get(specialDayEntry.getTextContent())));
                     }
                 }
                 specialDayArray.setDataType(index, sds);
