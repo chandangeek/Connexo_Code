@@ -2,6 +2,7 @@ package com.energyict.genericprotocolimpl.common.wakeup;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Utils;
+import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.MeteringWarehouse;
@@ -15,6 +16,10 @@ import javax.xml.ws.BindingProvider;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -30,18 +35,7 @@ import java.util.logging.Logger;
  */
 public class SmsWakeup {
 
-    private int logLevel = -2;
-
-    private String updatedIpAddress = "";
-    private long pollTimeout;
-    private int pollFreq;
-    private boolean requestSuccess = false;
-    private String endpointAddress;
-    private String soapAction;
-
-    private Rtu meter;
-    private CommunicationScheduler scheduler;
-    private Logger logger;
+    public static final boolean rndTest = true;
 
     private static String mrcRequestComplete = "000";
     private static String mrcInvalidSecurity = "005";
@@ -51,6 +45,29 @@ public class SmsWakeup {
     private static String NOTIFY_NOT_CONNECTED = "NotConnected";
     private static String NOTIFY_COMMON_ERROR = "ComError";
     private static String NOTIFY_DUPLICATE_IMSI = "Duplicate";
+
+    private static final int semaphorePermits;
+    private static final int semaphoreTimeout;
+
+    static {
+        semaphorePermits = Integer.parseInt(Environment.getDefault().getProperty("smswakeup.semaphore.maxpermits", "25"));
+        semaphoreTimeout = Integer.parseInt(Environment.getDefault().getProperty("smswakeup.semaphore.timeout", "100000"));
+    }
+
+    private static final Semaphore semaphore = new Semaphore(semaphorePermits, true);
+
+    private int logLevel = -2;
+    private String updatedIpAddress = "";
+    private long pollTimeout;
+    private int pollFreq;
+    private boolean requestSuccess = false;
+    private String endpointAddress;
+
+    private String soapAction;
+    private Rtu meter;
+    private CommunicationScheduler scheduler;
+
+    private Logger logger;
 
     public SmsWakeup(CommunicationScheduler scheduler) {
         this(scheduler, null);
@@ -65,10 +82,11 @@ public class SmsWakeup {
     public SmsWakeup(CommunicationScheduler scheduler, Logger logger) {
         this.scheduler = scheduler;
         this.logger = logger;
-		if(this.scheduler != null){
+        if (this.scheduler != null) {
             this.meter = this.scheduler.getRtu();
             updateProperties();
         }
+//        semaphore = new Semaphore(semaphorePermits);
     }
 
     /**
@@ -81,20 +99,54 @@ public class SmsWakeup {
     public void doWakeUp() throws SQLException, BusinessException, IOException {
         clearMetersIpAddress();
         log(5, "Cleared IP");
-        // make the request to Tibco
-		createWakeupCall();
-        // check for an updated IP-address
-        waitForIpUpdate();
+        boolean gotLock;
+
+        try {
+            log(5, "Request Lock at " + Calendar.getInstance().getTime());
+            // get a lock on the semaphore
+            gotLock = semaphore.tryAcquire(semaphoreTimeout, TimeUnit.MILLISECONDS);
+            log(5, "Got Lock at " + Calendar.getInstance().getTime());
+        } catch (InterruptedException e) {
+            throw new BusinessException("WakeUp thread was interrupted while waiting for a lock.");
+        }
+
+        if (gotLock) {
+            // make the request to Tibco
+            try {
+                if (rndTest) {
+                    //TODO this does not need to be in here!
+                    ProtocolTools.delay((long) (Math.random() * 10000));
+                } else {
+                    createWakeupCall();
+                }
+            } finally {
+                log(5, "Releasing Lock at " + Calendar.getInstance().getTime());
+                semaphore.release();
+            }
+        } else {
+            throw new BusinessException("Too many simultaneous connections to the Tibco adapter, could not get a free slot in predefined timewindow [" + semaphoreTimeout/1000 + "s].");
+        }
+
+        if (rndTest) {
+            //TODO put an IP-address in the rtu
+            ProtocolTools.delay((long) (Math.random() * 10000));
+            meter.updateIpAddress("naessens-govanni");
+            this.updatedIpAddress = "naessens-govanni";
+        } else {
+            // check for an updated IP-address
+            waitForIpUpdate();
+        }
+
     }
 
     /**
      * Set some polling properties
      */
-	private void updateProperties(){
+    private void updateProperties() {
         this.pollTimeout = Integer.parseInt(this.meter.getProperties().getProperty("PollTimeOut", "900000"));
         this.pollFreq = Integer.parseInt(this.meter.getProperties().getProperty("PollFrequency", "15000"));
         String host = mw().getSystemProperty("vfEndpointAddress");
-		if(host == null){
+        if (host == null) {
             endpointAddress = "http://localhost:4423/SharedResources/COMM_DEVICE/WUTriggerService.serviceagent/WUTriggerPort";
         } else {
             endpointAddress = host;
@@ -118,10 +170,10 @@ public class SmsWakeup {
         try {
             this.meter.updateIpAddress("");
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.log(Level.INFO, e.getMessage());
             throw new SQLException("Could not clear the IP address.");
         } catch (BusinessException e) {
-            e.printStackTrace();
+            logger.log(Level.INFO, e.getMessage());
             throw new BusinessException("Failed to clear the IP address.", e.getMessage());
         }
 
@@ -134,7 +186,7 @@ public class SmsWakeup {
      *
      * @throws IOException when the wsdl is not found, or when certain attributes are not correctly filled in
      */
-	private void createWakeupCall() throws IOException{
+    private void createWakeupCall() throws IOException {
         log(5, "In createWakeupCall");
         WUTrigger wuTrigger = getWUTrigger();
         log(5, "Got wuTriggerPort");
@@ -146,17 +198,17 @@ public class SmsWakeup {
         gdspHeader.setGdspCredentials(value);
         Object bd = getAttributeValue("IMSI");
         if (bd != null) {
-            parameters.setDeviceId(Long.toString(((BigDecimal)bd).longValue()));
+            parameters.setDeviceId(Long.toString(((BigDecimal) bd).longValue()));
         } else {
             throw new IOException("The IMSI number is a required attribute to successfully execute the wakeup trigger.");
         }
         Object MSISDN = getAttributeValue("MSISDN");
         if (MSISDN != null) {
-            parameters.setMSISDNNumber((String)MSISDN);
-        }                                       
+            parameters.setMSISDNNumber((String) MSISDN);
+        }
         Object provider = getAttributeValue("GPRSProvider");
         if (provider != null) {
-            parameters.setOperatorName((String)provider);
+            parameters.setOperatorName((String) provider);
         } else {
             throw new IOException("The Provider is a required attribute to successfully execute the wakeup trigger.");
         }
@@ -170,13 +222,15 @@ public class SmsWakeup {
         /** If in time CSD is added to this functionality, then make sure this one is fetched from the attributes and is correctly filled in*/
         parameters.setTriggerType("SMS");
 
+        /**
+         * This is the original part of the WakeUp
+         */
         log(5, "Ready for takeoff");
         SubmitWUTriggerResponse swuTriggerResponse;
 
         swuTriggerResponse = wuTrigger.submitWUTrigger(parameters, gdspHeader);
         log(5, "Took off ...");
         analyseRespsonse(swuTriggerResponse);
-
 
     }
 
@@ -230,7 +284,6 @@ public class SmsWakeup {
             throw new BusinessException(error);
         }
 
-
         this.logger.info("IP-Address " + this.updatedIpAddress + " found for meter with serialnumber" + this.meter.getSerialNumber());
     }
 
@@ -241,15 +294,7 @@ public class SmsWakeup {
      * @throws IOException when we get interrupted while sleeping
      */
     private void sleep(long sleepTime) throws IOException {
-
         ProtocolTools.delay(sleepTime);
-        /*
-		try {
-			Thread.sleep(sleepTime);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			throw new IOException("Interrupted while sleeping." +  e.getMessage());
-		}*/
     }
 
     /**
@@ -354,5 +399,5 @@ public class SmsWakeup {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		};
-	}
+    }
 }
