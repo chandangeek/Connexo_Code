@@ -35,7 +35,8 @@ import java.util.logging.Logger;
  */
 public class SmsWakeup {
 
-    public static final boolean rndTest = true;
+    // A testparameter to indicate whether we test locally(true) or with the Tibco adapter(false)
+    public static final boolean rndTest = false;
 
     private static String mrcRequestComplete = "000";
     private static String mrcInvalidSecurity = "005";
@@ -114,7 +115,6 @@ public class SmsWakeup {
             // make the request to Tibco
             try {
                 if (rndTest) {
-                    //TODO this does not need to be in here!
                     ProtocolTools.delay((long) (Math.random() * 10000));
                 } else {
                     createWakeupCall();
@@ -128,7 +128,6 @@ public class SmsWakeup {
         }
 
         if (rndTest) {
-            //TODO put an IP-address in the rtu
             ProtocolTools.delay((long) (Math.random() * 10000));
             meter.updateIpAddress("naessens-govanni");
             this.updatedIpAddress = "naessens-govanni";
