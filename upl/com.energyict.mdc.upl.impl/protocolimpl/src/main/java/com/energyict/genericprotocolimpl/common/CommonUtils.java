@@ -1,7 +1,6 @@
 package com.energyict.genericprotocolimpl.common;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.BusinessObject;
 import com.energyict.mdw.amr.*;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.coreimpl.RtuFactoryImpl;
@@ -46,6 +45,26 @@ public final class CommonUtils {
 			return createMeterWithSerialNumber(rtuType, serialNumber, folderExtNameProperty);
 		}
 	}
+
+	/**
+	 * Find an Rtu by it's serialNumber in the database. The serialnumber is not unique so if multiples were found, exceptions will be thrown.
+	 * If no rtu was found we will return 'null'
+	 * @param serialNumber - the SerialNumber of the Rtu
+	 * @return an Rtu
+	 * @throws IOException if multiple meters were found in the database
+	 * @throws SQLException if database exception occurred
+	 * @throws BusinessException if business exception occurred
+	 */
+	public static Rtu findDeviceBySerialNumber(String serialNumber) throws IOException, SQLException, BusinessException{
+        List result = mw().getRtuFactory().findBySerialNumber(serialNumber);
+        if (result.size() == 1) {        // we found the rtu so return it
+            return (Rtu) result.get(0);
+        } else if (result.size() > 1) {
+            throw new IOException("Multple meters found in database with serialnumber " + serialNumber);
+        } else {
+            return null;
+        }
+    }
 
 	/**
 	 * Find an Rtu by it's deviceId in the database. The deviceId is not unique so if multiples were found, exceptions will be thrown.

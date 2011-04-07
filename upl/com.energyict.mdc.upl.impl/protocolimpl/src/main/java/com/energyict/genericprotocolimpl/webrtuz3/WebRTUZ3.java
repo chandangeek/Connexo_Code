@@ -610,6 +610,55 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
         }
         getLogger().log(Level.INFO, sb.toString());
 
+        // fail all ghost devices
+        failGhostSlaveDevices(mbusMap);
+    }
+
+    private void failGhostSlaveDevices(List<DeviceMapping> mbusMap) throws BusinessException, IOException, SQLException {
+        for (DeviceMapping deviceMapping : mbusMap) {
+            if (deviceMapping.isGhostDevice()) {
+                Rtu ghostDevice = CommonUtils.findDeviceBySerialNumber(deviceMapping.getSerialNumber());
+                failAllPendingSchedules(ghostDevice);
+            }
+        }
+    }
+
+    private void failAllPendingSchedules(Rtu device) {
+        if (device != null) {
+            List<CommunicationScheduler> schedulers = device.getCommunicationSchedulers();
+            if ((schedulers != null) && (!schedulers.isEmpty())) {
+                for (CommunicationScheduler scheduler : schedulers) {
+                    String commSchedName = scheduler.displayString();
+                    Date nextCommunication = scheduler.getNextCommunication();
+                    if (nextCommunication != null) {
+                        if (nextCommunication.getTime() <= getNow().getTime()) {
+                            getLogger().fine("Next communication date [" + nextCommunication + "] for [" + commSchedName + "] reached, but device is ghost device. Failing schedule.");
+                            try {
+                                scheduler.startCommunication();
+                                scheduler.startReadingNow();
+                                MeterAmrLogging meterAmrLogging = new MeterAmrLogging();
+                                meterAmrLogging.logInfo("Device is a ghost device: device is configured in EIServer, but not found on the real concentrator!");
+                                logFailure(scheduler, meterAmrLogging);
+                            } catch (SQLException e) {
+                                getLogger().warning("Tried to fail all ghost device schedules for a given rtu, but an exception occured: " + e.getMessage());
+                            } catch (BusinessException e) {
+                                getLogger().warning("Tried to fail all ghost device schedules for a given rtu, but an exception occured: " + e.getMessage());
+                            }
+                        } else {
+                            getLogger().fine("Next communication date for Communication schedule [" + commSchedName + "] on ghost device [" + device.getName() + "] not reached yet. Skipping.");
+                        }
+                    } else {
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("Communication schedule [").append(commSchedName).append("] is not active.");
+                        sb.append(" Next communication date is 'null'. ");
+                        sb.append(" Skipping.");
+                        getLogger().fine(sb.toString());
+                    }
+                }
+            }
+        } else {
+            getLogger().warning("Tried to fail all ghost device schedules for a given rtu, but rtu was 'null'.");
+        }
     }
 
     /**
@@ -635,6 +684,9 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
             sb.append(deviceMapping).append("\r\n");
         }
         getLogger().log(Level.INFO, sb.toString());
+
+        // fail all ghost devices
+        failGhostSlaveDevices(eMeterMap);
 
     }
 
