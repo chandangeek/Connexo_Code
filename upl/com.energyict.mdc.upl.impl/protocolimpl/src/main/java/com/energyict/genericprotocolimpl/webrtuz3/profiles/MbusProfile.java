@@ -20,7 +20,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
 
-public class MbusProfile {
+public class MbusProfile extends AbstractDLMSProfile {
 
     private static final int MIN_DEVICEID = WebRTUZ3.MBUS_DEVICES.getFrom();
     private static final int MAX_DEVICEID = WebRTUZ3.MBUS_DEVICES.getTo();
@@ -84,7 +84,7 @@ public class MbusProfile {
 
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException(e.getMessage());
+			throw e;
 		}
 		return profileData;
 	}
@@ -101,22 +101,17 @@ public class MbusProfile {
 				if(isMbusRegisterObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode())){
 
 					channelIndex = getProfileChannelNumber(index+1);
-					if(channelIndex != -1){
-						CapturedObject co = ((CapturedObject)profile.getCaptureObjects().get(i));
-						ScalerUnit su = getMeterDemandRegisterScalerUnit(co.getLogicalName().getObisCode());
-						if((su != null) && (su.getUnitCode() != 0)) {
-							ci = new ChannelInfo(index, channelIndex, "WebRtuKP_MBus_"+index, su.getUnit());
-						} else {
-							ci = new ChannelInfo(index, channelIndex, "WebRtuKP_MBus_"+index, Unit.get(BaseUnit.UNITLESS));
-						}
-
-						index++;
-						// We do not do the check because we know it is a cumulative value
-						//TODO need to check the wrapValue
-						ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
-						channelInfos.add(ci);
-					}
-				}
+                    if (channelIndex != -1) {
+                        CapturedObject co = ((CapturedObject) profile.getCaptureObjects().get(i));
+                        Unit unit = getUnit(co.getLogicalName().getObisCode());
+                        ci = new ChannelInfo(index, channelIndex, "WebRtuKP_MBus_" + index, unit);
+                        index++;
+                        // We do not do the check because we know it is a cumulative value
+                        //TODO need to check the wrapValue
+                        ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
+                        channelInfos.add(ci);
+                    }
+                }
 
 			}
 		} catch (IOException e) {
@@ -140,34 +135,7 @@ public class MbusProfile {
     }
 
 
-    /**
-	 * Read the given object and return the scalerUnit.
-	 * If the unit is 0(not a valid value) then return a unitLess scalerUnit.
-	 * If you can not read the scalerUnit, then return a unitLess scalerUnit.
-	 * @param oc
-	 * @return
-	 * @throws IOException
-	 */
-	private ScalerUnit getMeterDemandRegisterScalerUnit(ObisCode oc) throws IOException{
-		try {
-			ScalerUnit su = getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
-			if(su != null){
-				if(su.getUnitCode() == 0){
-					su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
-				}
-
-			} else {
-				su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
-			}
-			return su;
-		} catch (IOException e) {
-			e.printStackTrace();
-			mbusDevice.getLogger().log(Level.INFO, "Could not get the scalerunit from object '" + oc + "'.");
-		}
-		return new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
-	}
-
-	private int getProfileChannelNumber(int index){
+    private int getProfileChannelNumber(int index){
 		int channelIndex = 0;
 		for(int i = 0; i < getMeter().getChannels().size(); i++){
 
@@ -271,7 +239,7 @@ public class MbusProfile {
 		return -1;
 	}
 
-	private CosemObjectFactory getCosemObjectFactory(){
+	protected CosemObjectFactory getCosemObjectFactory(){
 		return this.mbusDevice.getWebRTU().getCosemObjectFactory();
 	}
 

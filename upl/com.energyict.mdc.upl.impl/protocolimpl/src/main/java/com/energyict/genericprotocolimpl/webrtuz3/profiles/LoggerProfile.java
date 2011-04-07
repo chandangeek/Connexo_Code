@@ -1,15 +1,12 @@
 package com.energyict.genericprotocolimpl.webrtuz3.profiles;
 
-import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.Unit;
+import com.energyict.dlms.AbstractDLMSProfile;
 import com.energyict.dlms.ParseUtils;
-import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
-import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -20,7 +17,7 @@ import java.util.*;
  * Date: 9-sep-2010
  * Time: 13:47:06
  */
-public class LoggerProfile {
+public class LoggerProfile extends AbstractDLMSProfile {
 
     private static final ObisCode STATUS_OBISCODE = ObisCode.fromString("0.0.96.10.1.255");
 
@@ -90,32 +87,12 @@ public class LoggerProfile {
                 }
             }
         } catch (IOException e) {
-            // Absorb
+            throw new IOException("Unable to read the channel info: " + e.getMessage());
         }
         return cis;
     }
 
-    /**
-     * Get the unit for the capturedObject from the object itself (register, extended register, ...)
-     * If no unit found, or an error occured, return Unit.getUndefined()
-     * @param obisCode
-     * @return
-     */
-    private Unit getUnit(ObisCode obisCode) {
-        Unit unit;
-        try {
-            CosemObject capturedObject = getCosemObjectFactory().getCosemObject(obisCode);
-            ScalerUnit scalerUnit = capturedObject != null ? capturedObject.getScalerUnit() : null;
-            unit = scalerUnit != null ? scalerUnit.getUnit() : null;
-        } catch (IOException e) {
-            unit = null;
-        } catch (ApplicationException e) {
-            unit = null;
-        }
-        return unit == null ? Unit.getUndefined() : unit;
-    }
-
-    private CosemObjectFactory getCosemObjectFactory() {
+    protected CosemObjectFactory getCosemObjectFactory() {
         return cosemObjectFactory;
     }
 

@@ -17,9 +17,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.logging.Level;
 
-public class DailyMonthly {
+public class DailyMonthly extends AbstractDLMSProfile {
 
 	private EDevice eDevice;
 
@@ -94,7 +93,7 @@ public class DailyMonthly {
 
 		} catch (final IOException e) {
 			e.printStackTrace();
-			throw new IOException(e.getMessage());
+			throw e;
 		}
 		return profileData;
 	}
@@ -117,7 +116,7 @@ public class DailyMonthly {
                 CapturedObject capturedObject = profile.getCaptureObjects().get(i);
                 ObisCode obisCode = capturedObject.getLogicalName().getObisCode();
                 if(com.energyict.dlms.ParseUtils.isElectricityObisCode(obisCode)){ // make a channel out of it
-					final ScalerUnit su = getMeterDemandRegisterScalerUnit(obisCode);
+					final Unit unit = getUnit(obisCode);
 					if(timeDuration == TimeDuration.DAYS){
 						channelIndex = getDailyChannelNumber(index+1);
 					} else if(timeDuration == TimeDuration.MONTHS){
@@ -125,7 +124,7 @@ public class DailyMonthly {
 					}
 
 					if(channelIndex != -1){
-						ci = new ChannelInfo(index, channelIndex, "WebRtuKP_DayMonth_"+index, su.getUnit());
+						ci = new ChannelInfo(index, channelIndex, "WebRtuKP_DayMonth_"+index, unit);
 						index++;
 						if(com.energyict.dlms.ParseUtils.isObisCodeCumulative(obisCode)){
 							//TODO need to check the wrapValue
@@ -200,28 +199,6 @@ public class DailyMonthly {
 			throw new IOException(e.getMessage());
 		}
 		return profileData;
-	}
-
-	/**
-	 * Read the given object and return the scalerUnit.
-	 * If the unit is 0(not a valid value) then return a unitLess scalerUnit.
-	 * If you can not read the scalerUnit, then return a unitLess scalerUnit.
-	 * @param oc
-	 * @return
-	 * @throws IOException
-	 */
-	private ScalerUnit getMeterDemandRegisterScalerUnit(final ObisCode oc) throws IOException{
-		try {
-			ScalerUnit su = getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
-			if( su.getUnitCode() == 0){
-				su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
-			}
-			return su;
-		} catch (final IOException e) {
-			e.printStackTrace();
-			getEDevice().getLogger().log(Level.INFO, "Could not get the scalerunit from object '" + oc + "'.");
-		}
-		return new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
 	}
 
     /**
@@ -455,7 +432,7 @@ public class DailyMonthly {
      * Getetr for the CosemObjectFactory
      * @return
      */
-    private CosemObjectFactory getCosemObjectFactory(){
+    protected CosemObjectFactory getCosemObjectFactory(){
 		return getEDevice().getCosemObjectFactory();
 	}
 

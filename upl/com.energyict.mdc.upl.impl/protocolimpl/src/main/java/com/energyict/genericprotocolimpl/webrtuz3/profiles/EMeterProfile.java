@@ -6,7 +6,6 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
@@ -14,12 +13,11 @@ import com.energyict.protocol.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
 
-public class EMeterProfile {
+public class EMeterProfile extends AbstractDLMSProfile {
 
 	private static final ObisCode STATUS_OBISCODE = ObisCode.fromString("0.0.96.10.1.255");
 
@@ -114,7 +112,7 @@ public class EMeterProfile {
 
 		} catch (final IOException e) {
 			e.printStackTrace();
-			throw new IOException(e.getMessage());
+			throw e;
 		}
 		return profileData;
 	}
@@ -156,15 +154,10 @@ public class EMeterProfile {
 
                 if (isValidChannelObisCode(obisCode) && !isProfileStatusObisCode(obisCode)) { // make a channel out of it
                     final CapturedObject co = ((CapturedObject) captureObjects.get(i));
-                    final ScalerUnit su = getMeterDemandRegisterScalerUnit(co.getLogicalName().getObisCode());
+                    final Unit unit = getUnit(co.getLogicalName().getObisCode());
                     channelIndex = getProfileChannelNumber(index + 1);
                     if (channelIndex != -1) {
-                        if ((su != null) && (su.getUnitCode() != 0)) {
-                            ci = new ChannelInfo(index, channelIndex, "WebRtuKP_" + index, su.getUnit());
-                        } else {
-                            ci = new ChannelInfo(index, channelIndex, "WebRtuKP_" + index, Unit.get(BaseUnit.UNITLESS));
-                        }
-
+                        ci = new ChannelInfo(index, channelIndex, "WebRtuKP_" + index, unit);
                         index++;
                         if (com.energyict.dlms.ParseUtils.isObisCodeCumulative(co.getLogicalName().getObisCode())) {
                             ci.setCumulative();
@@ -179,33 +172,6 @@ public class EMeterProfile {
             throw new IOException("Failed to build the channelInfos." + e);
         }
         return channelInfos;
-    }
-
-	/**
-	 * Read the given object and return the scalerUnit.
-	 * If the unit is 0(not a valid value) then return a unitLess scalerUnit.
-	 * If you can not read the scalerUnit, then return a unitLess scalerUnit.
-	 * @param oc
-	 * @return
-	 * @throws IOException
-	 */
-    private ScalerUnit getMeterDemandRegisterScalerUnit(final ObisCode oc) throws IOException {
-        try {
-            ScalerUnit su = getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
-            if (su != null) {
-                if (su.getUnitCode() == 0) {
-                    su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
-                }
-
-            } else {
-                su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
-            }
-            return su;
-        } catch (final IOException e) {
-            e.printStackTrace();
-            eDevice.getLogger().log(Level.INFO, "Could not get the scalerunit from object '" + oc + "'.");
-        }
-        return new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
     }
 
     /**
@@ -393,7 +359,7 @@ public class EMeterProfile {
      * Getter for the cosemObjectFactory of the eMeter
      * @return
      */
-    private CosemObjectFactory getCosemObjectFactory(){
+    protected CosemObjectFactory getCosemObjectFactory(){
 		return this.eDevice.getCosemObjectFactory();
 	}
 

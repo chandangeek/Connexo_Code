@@ -16,7 +16,6 @@ import com.energyict.protocol.*;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.logging.Level;
 
 /**
  * 
@@ -25,7 +24,7 @@ import java.util.logging.Level;
  * Reminder:
  * The dailyProfile is completely constructed in the protocol. It uses the hourly values to get the midnight intervals.
  */
-public class MbusDailyMonthly {
+public class MbusDailyMonthly extends AbstractDLMSProfile {
 
 	private MbusDevice mbusDevice;
 	
@@ -166,18 +165,17 @@ public class MbusDailyMonthly {
                 CapturedObject co = captureObjects.get(i);
 
                 if(isMbusRegisterObisCode(co.getLogicalName().getObisCode())){ // make a channel out of it
-					ScalerUnit su = getMeterDemandRegisterScalerUnit(co.getLogicalName().getObisCode());
-					
+					Unit unit = getUnit(co.getLogicalName().getObisCode());
 					channelIndex = getDMChannelNumber(index+1, timeDuration);
-					
+
 //					if(timeDuration == TimeDuration.DAYS){
 //						channelIndex = getDMChannelNumber(index+1);
 //					} else if(timeDuration == TimeDuration.MONTHS){
 //						channelIndex = getDMChannelNumber(index+1);
 //					}
-					
+
 					if(channelIndex != -1){
-						ci = new ChannelInfo(index, channelIndex, "WebRtuKP_Mbus_DailyMonthly_"+index, su.getUnit());
+						ci = new ChannelInfo(index, channelIndex, "WebRtuKP_Mbus_DailyMonthly_"+index, unit);
 						index++;
 						//TODO need to check the wrapValue
 						ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
@@ -257,33 +255,6 @@ public class MbusDailyMonthly {
 		return false;
 	}
 	
-	/**
-	 * Read the given object and return the scalerUnit.
-	 * If the unit is 0(not a valid value) then return a unitLess scalerUnit.
-	 * If you can not read the scalerUnit, then return a unitLess scalerUnit.
-	 * @param oc
-	 * @return
-	 * @throws IOException
-	 */
-	private ScalerUnit getMeterDemandRegisterScalerUnit(ObisCode oc) throws IOException{
-		try {
-			ScalerUnit su = getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
-			if(su != null){
-				if(su.getUnitCode() == 0){
-					su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
-				}
-				
-			} else {
-				su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
-			}
-			return su;
-		} catch (IOException e) {
-			e.printStackTrace();
-			mbusDevice.getLogger().log(Level.INFO, "Could not get the scalerunit from object '" + oc + "'.");
-		}
-		return new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
-	}
-	
 	private boolean isMbusRegisterObisCode(ObisCode oc){
 //		if((oc.getC() == 24) && (oc.getD() == 2) && (oc.getB() >=1) && (oc.getB() <= 4) && (oc.getE() >= 1) && (oc.getE() <= 4) ){
 		if((oc.getC() == 24) && (oc.getD() == 2) && (oc.getB() == mbusDevice.getPhysicalAddress()) && (oc.getE() >= 1) && (oc.getE() <= 4) ){
@@ -293,7 +264,7 @@ public class MbusDailyMonthly {
 		}
 	}
 	
-	private CosemObjectFactory getCosemObjectFactory(){
+	public CosemObjectFactory getCosemObjectFactory(){
 		return this.mbusDevice.getWebRTU().getCosemObjectFactory();
 	}
 	
