@@ -72,8 +72,8 @@ public class SmsWakeup {
     /**
      * Constructor
      *
-     * @param scheduler
-     * @param logger
+     * @param scheduler the from the meter
+     * @param logger the used <CODE>Logger</CODE>
      */
     public SmsWakeup(CommunicationScheduler scheduler, Logger logger) {
         this.scheduler = scheduler;
@@ -88,31 +88,29 @@ public class SmsWakeup {
      * Triggers the wakeup
      *
      * @throws SQLException      if we couldn't clear the IP-address
-     * @throws BusinessException if a business error occurred
+     * @throws BusinessException if a business error occurred, or when the acquireThread was interrupted
      * @throws IOException       if parameters aren't correctly configured, when WSDL isn't found or when interrupted while sleeping
      */
     public void doWakeUp() throws SQLException, BusinessException, IOException {
         clearMetersIpAddress();
         log(5, "Cleared IP");
-        boolean gotLock;
 
-        log(5, "Request Lock at " + Calendar.getInstance().getTime());
-        // get a lock on the semaphore
-        gotLock = semaphore.tryAcquire();
-        log(5, "Got Lock at " + Calendar.getInstance().getTime());
-
-        if (gotLock) {
-            // make the request to Tibco
+        try {
+            // get a lock on the semaphore
+            log(5, "Request Lock at " + Calendar.getInstance().getTime());
+            semaphore.acquire();
             try {
+                log(5, "Got Lock at " + Calendar.getInstance().getTime());
 
                 createWakeupCall();
 
             } finally {
-                log(5, "Releasing Lock at " + Calendar.getInstance().getTime());
                 semaphore.release();
+                log(5, "Released Lock at " + Calendar.getInstance().getTime());
             }
-        } else {
-            throw new BusinessException("Too many simultaneous connections to the Tibco adapter, could not get a free slot.");
+        } catch (InterruptedException e) {
+            this.logger.info(e.getMessage());
+            throw new BusinessException("Interrupted while waiting for a lock on the SmsWakeup thread");
         }
 
         // check for an updated IP-address
