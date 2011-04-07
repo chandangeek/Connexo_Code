@@ -35,9 +35,6 @@ import java.util.logging.Logger;
  */
 public class SmsWakeup {
 
-    // A testparameter to indicate whether we test locally(true) or with the Tibco adapter(false)
-    public static final boolean rndTest = false;
-
     private static String mrcRequestComplete = "000";
     private static String mrcInvalidSecurity = "005";
     private static String mrcFailedValidation = "100";
@@ -48,11 +45,9 @@ public class SmsWakeup {
     private static String NOTIFY_DUPLICATE_IMSI = "Duplicate";
 
     private static final int semaphorePermits;
-    private static final int semaphoreTimeout;
 
     static {
         semaphorePermits = Integer.parseInt(Environment.getDefault().getProperty("smswakeup.semaphore.maxpermits", "25"));
-        semaphoreTimeout = Integer.parseInt(Environment.getDefault().getProperty("smswakeup.semaphore.timeout", "100000"));
     }
 
     private static final Semaphore semaphore = new Semaphore(semaphorePermits, true);
@@ -87,7 +82,6 @@ public class SmsWakeup {
             this.meter = this.scheduler.getRtu();
             updateProperties();
         }
-//        semaphore = new Semaphore(semaphorePermits);
     }
 
     /**
@@ -102,39 +96,27 @@ public class SmsWakeup {
         log(5, "Cleared IP");
         boolean gotLock;
 
-        try {
-            log(5, "Request Lock at " + Calendar.getInstance().getTime());
-            // get a lock on the semaphore
-            gotLock = semaphore.tryAcquire(semaphoreTimeout, TimeUnit.MILLISECONDS);
-            log(5, "Got Lock at " + Calendar.getInstance().getTime());
-        } catch (InterruptedException e) {
-            throw new BusinessException("WakeUp thread was interrupted while waiting for a lock.");
-        }
+        log(5, "Request Lock at " + Calendar.getInstance().getTime());
+        // get a lock on the semaphore
+        gotLock = semaphore.tryAcquire();
+        log(5, "Got Lock at " + Calendar.getInstance().getTime());
 
         if (gotLock) {
             // make the request to Tibco
             try {
-                if (rndTest) {
-                    ProtocolTools.delay((long) (Math.random() * 10000));
-                } else {
-                    createWakeupCall();
-                }
+
+                createWakeupCall();
+
             } finally {
                 log(5, "Releasing Lock at " + Calendar.getInstance().getTime());
                 semaphore.release();
             }
         } else {
-            throw new BusinessException("Too many simultaneous connections to the Tibco adapter, could not get a free slot in predefined timewindow [" + semaphoreTimeout/1000 + "s].");
+            throw new BusinessException("Too many simultaneous connections to the Tibco adapter, could not get a free slot.");
         }
 
-        if (rndTest) {
-            ProtocolTools.delay((long) (Math.random() * 10000));
-            meter.updateIpAddress("naessens-govanni");
-            this.updatedIpAddress = "naessens-govanni";
-        } else {
-            // check for an updated IP-address
-            waitForIpUpdate();
-        }
+        // check for an updated IP-address
+        waitForIpUpdate();
 
     }
 
@@ -221,9 +203,6 @@ public class SmsWakeup {
         /** If in time CSD is added to this functionality, then make sure this one is fetched from the attributes and is correctly filled in*/
         parameters.setTriggerType("SMS");
 
-        /**
-         * This is the original part of the WakeUp
-         */
         log(5, "Ready for takeoff");
         SubmitWUTriggerResponse swuTriggerResponse;
 
