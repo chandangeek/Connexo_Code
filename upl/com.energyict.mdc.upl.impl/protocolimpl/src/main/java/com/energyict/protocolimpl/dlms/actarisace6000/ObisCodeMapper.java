@@ -5,18 +5,18 @@
  */
 
 package com.energyict.protocolimpl.dlms.actarisace6000;
-import java.util.*;
-import java.io.*;
-import java.math.BigDecimal;
 
-import com.energyict.obis.*;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.*;
+
+import java.io.IOException;
+import java.util.Date;
 /**
  *
  * @author  Koen
@@ -25,13 +25,15 @@ public class ObisCodeMapper {
     
     CosemObjectFactory cof;
     RegisterProfileMapper registerProfileMapper=null;
-    
-    
+    private DLMSMeterConfig meterConfig = null;
+
+
     /** Creates a new instance of ObisCodeMapper */
-    public ObisCodeMapper(CosemObjectFactory cof) {
+    public ObisCodeMapper(CosemObjectFactory cof, DLMSMeterConfig meterConfig) {
+        this.meterConfig = meterConfig;
         this.cof=cof;
         registerProfileMapper = new RegisterProfileMapper(cof);
-        
+
     }
     
     static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
@@ -70,7 +72,13 @@ public class ObisCodeMapper {
             }
             else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
         } // // billing point timestamp
-      
+        else if ((obisCode.toString().indexOf("1.1.0.2.8.255") != -1) || (obisCode.toString().indexOf("1.0.0.2.8.255") != -1)) { // firmware version
+            DataContainer dataContainer = cof.getGenericRead(meterConfig.getVersionObject()).getDataContainer();
+            String version = dataContainer.getRoot().getOctetString(0).toString();
+            registerValue = new RegisterValue(obisCode, version);
+            return registerValue;
+        } // firmware version
+
         // *********************************************************************************
         // Abstract ObisRegisters
         if ((obisCode.getA() == 0) && (obisCode.getB() == 0)) {
