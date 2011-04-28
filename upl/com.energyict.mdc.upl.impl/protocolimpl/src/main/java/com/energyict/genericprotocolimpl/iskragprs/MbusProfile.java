@@ -76,7 +76,7 @@ public class MbusProfile {
 			final DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 			buildProfileData(dc, profileData, genericProfile);
 			profileData.sort();
-			getMeter().store(profileData, false);
+			getMeter().store(profileData);
 			
 		} catch (final IOException e) {
 			e.printStackTrace();
