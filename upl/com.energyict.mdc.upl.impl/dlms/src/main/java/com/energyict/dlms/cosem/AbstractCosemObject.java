@@ -956,40 +956,19 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 				case COSEM_SETRESPONSE: {
 					i++; // skip tag
-					switch (responseData[i]) {
-						case COSEM_SETRESPONSE_NORMAL: {
-							i++; // skip tag
-							i++; // skip invoke id & priority
-							//                            evalDataAccessResult(responseData[i]);
-							switch (responseData[i]) {
-								case 0: // data
-									i++;
-									receiveBuffer.addArray(responseData, i);
-									return receiveBuffer.getArray();
-
-								case 1: // data-access-result
-								{
-									i++;
-									evalDataAccessResult(responseData[i]);
-									//debug("Data access result OK");
-
-								}
-									break; // data-access-result
-
-								default:
-									throw new IOException("unknown COSEM_SETRESPONSE_NORMAL,  " + responseData[i]);
-
-							} // switch(responseData[i])
-						}
-							break; // case COSEM_SETRESPONSE_NORMAL:
-
-						default:
-							throw new IOException("Unknown/unimplemented COSEM_SETRESPONSE, " + responseData[i]);
-
-					} // switch(responseData[i])
-
-				}
-					break; // case COSEM_SETRESPONSE:
+                    switch (responseData[i]) {
+                        case COSEM_SETRESPONSE_NORMAL: {
+                            i++; // skip COSEM_SETRESPONSE_NORMAL tag
+                            i++; // skip invoke id & priority
+                            evalDataAccessResult(responseData[i]);
+                            receiveBuffer.addArray(responseData, i+1);
+                            return receiveBuffer.getArray();
+                        }
+                        default: {
+                            throw new IOException("Unknown/unimplemented COSEM_SETRESPONSE, " + responseData[i]);
+                        }
+                    } // switch(responseData[i])
+                }
 
                 case COSEM_EXCEPTION_RESPONSE: {
                     throw new ExceptionResponseException(responseData[i+1], responseData[i+2]);
