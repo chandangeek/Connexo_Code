@@ -62,7 +62,7 @@ public class MbusProfile extends com.energyict.genericprotocolimpl.nta.profiles.
                     cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(mbusDevice.getWebRTU().getTimeZone());
                 } else {
                     if (cal != null) {
-                        cal.add(Calendar.SECOND, mbusDevice.getMbus().getIntervalInSeconds());
+                        cal.add(Calendar.SECOND, pg.getCapturePeriod());
                     }
                 }
                 if (cal != null) {

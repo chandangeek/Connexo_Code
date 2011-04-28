@@ -153,48 +153,48 @@ public class WebRTUKPTest {
 		ModemPoolCRUD.deleteModemPool(modemPoolName);
 	}
 	
-	/**
-	 * Check whether the correct registers are read when they are in a certain rtuRegisterGroup
-	 */
-    @Ignore
-	@Test
-	public void registerGroupsTest(){
-
-
-        try {
-            MeteringWarehouse.getCurrent().getCommunicationSchedulerFactory().find(14019);
-
-			connection.setResponseByte(new byte[]{(byte)0x10,(byte)0x00,(byte)0x0A,(byte)0xC4,(byte)0x01,(byte)0xC1,(byte)0x00,(byte)0x09,(byte)0x05
-				,(byte)0x54,(byte)0x75,(byte)0x6D,(byte)0x6D,(byte)0x79});
-			
-			webRtu.setStoreObject(storeObject);
-			List regGroups = new ArrayList();
-			regGroups.add(RtuRegisterGroupCRUD.findRegisterGroup(regGroupName).getShadow());
-			commProfile = CommunicationProfileCRUD.findOrCreateCommunicationProfile(commProfileName, true, false, false, false, false, regGroups);
-			CommunicationSchedulerCRUD.createCommunicationScheduler(this.rtu, this.commProfile, this.mp);
-			assertEquals(1, rtu.getCommunicationSchedulers().size());
-			
-			webRtu.setCommunicationScheduler((CommunicationScheduler)this.rtu.getCommunicationSchedulers().get(0)); // we should only get one!
-			webRtu.doReadRegisters();
-			
-			assertTrue(webRtu.getStoreObject().getMap().containsKey(MeteringWarehouse.getCurrent().getRtuRegisterFactory().findByRtuRegisterSpec(
-					RtuRegisterSpecCRUD.findRtuRegistSpec(this.rtu.getRtuTypeId(), RtuRegisterMappingCRUD.findRegisterMapping(rtuRegisterMappingName).getId())).get(0)));
-			
-			assertFalse(webRtu.getStoreObject().getMap().containsKey(MeteringWarehouse.getCurrent().getRtuRegisterFactory().findByRtuRegisterSpec(
-					RtuRegisterSpecCRUD.findRtuRegistSpec(this.rtu.getRtuTypeId(), RtuRegisterMappingCRUD.findRegisterMapping(rtuRegisterMappingName2).getId())).get(0)));
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-			fail();
-		} catch (BusinessException e) {
-			e.printStackTrace();
-			fail();
-		} catch (IOException e) {
-			e.printStackTrace();
-			fail();
-		}
-		
-	}
+//	/**
+//	 * Check whether the correct registers are read when they are in a certain rtuRegisterGroup
+//	 */
+//    @Ignore
+//	@Test
+//	public void registerGroupsTest(){
+//
+//
+//        try {
+//            MeteringWarehouse.getCurrent().getCommunicationSchedulerFactory().find(14019);
+//
+//			connection.setResponseByte(new byte[]{(byte)0x10,(byte)0x00,(byte)0x0A,(byte)0xC4,(byte)0x01,(byte)0xC1,(byte)0x00,(byte)0x09,(byte)0x05
+//				,(byte)0x54,(byte)0x75,(byte)0x6D,(byte)0x6D,(byte)0x79});
+//
+//			webRtu.setStoreObject(storeObject);
+//			List regGroups = new ArrayList();
+//			regGroups.add(RtuRegisterGroupCRUD.findRegisterGroup(regGroupName).getShadow());
+//			commProfile = CommunicationProfileCRUD.findOrCreateCommunicationProfile(commProfileName, true, false, false, false, false, regGroups);
+//			CommunicationSchedulerCRUD.createCommunicationScheduler(this.rtu, this.commProfile, this.mp);
+//			assertEquals(1, rtu.getCommunicationSchedulers().size());
+//
+//			webRtu.setCommunicationScheduler((CommunicationScheduler)this.rtu.getCommunicationSchedulers().get(0)); // we should only get one!
+//			webRtu.doReadRegisters(webRtu.getFullShadow().getRtuRegisterFullProtocolShadowList());
+//
+//			assertTrue(webRtu.getStoreObject().getMap().containsKey(MeteringWarehouse.getCurrent().getRtuRegisterFactory().findByRtuRegisterSpec(
+//					RtuRegisterSpecCRUD.findRtuRegistSpec(this.rtu.getRtuTypeId(), RtuRegisterMappingCRUD.findRegisterMapping(rtuRegisterMappingName).getId())).get(0)));
+//
+//			assertFalse(webRtu.getStoreObject().getMap().containsKey(MeteringWarehouse.getCurrent().getRtuRegisterFactory().findByRtuRegisterSpec(
+//					RtuRegisterSpecCRUD.findRtuRegistSpec(this.rtu.getRtuTypeId(), RtuRegisterMappingCRUD.findRegisterMapping(rtuRegisterMappingName2).getId())).get(0)));
+//
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//			fail();
+//		} catch (BusinessException e) {
+//			e.printStackTrace();
+//			fail();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			fail();
+//		}
+//
+//	}
 	
 	/**
 	 * Test whether the boolean markAsBadTime is set properly

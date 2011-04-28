@@ -100,9 +100,9 @@ public class WebRTUKP extends AbstractNTAProtocol {
         return "$Date$" + " NTAProtocolVersion : " + super.getVersion();
     }
 
-    @Override
+//    @Override
     protected void setRtu(Rtu rtu) {
-        super.setRtu(rtu);
+//        super.setRtu(rtu);
     }
 
     @Override
@@ -110,9 +110,9 @@ public class WebRTUKP extends AbstractNTAProtocol {
         super.setMeterConfig(meterConfig);
     }
 
-    @Override
+//    @Override
     protected void setCommunicationScheduler(CommunicationScheduler communicationScheduler) {
-        super.setCommunicationScheduler(communicationScheduler);
+//        super.setCommunicationScheduler(communicationScheduler);
     }
 
     @Override

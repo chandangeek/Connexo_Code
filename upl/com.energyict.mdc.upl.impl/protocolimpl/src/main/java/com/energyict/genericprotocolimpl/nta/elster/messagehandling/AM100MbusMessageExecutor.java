@@ -53,9 +53,9 @@ public class  AM100MbusMessageExecutor extends MbusMessageExecutor {
                 Data serialNumb = getCosemObjectFactory().getData(getMeterConfig().getMbusSerialNumber(getMbusDevice().getPhysicalAddress()).getObisCode());
                 serialNumb.setValueAttr(OctetString.fromString(new String("")));
 
-                RtuShadow shadow = getMbusDevice().getMbus().getShadow();
+                RtuShadow shadow = getMbusDevice().getMbusRtu().getShadow();
                 shadow.setGatewayId(0);
-                getMbusDevice().getMbus().update(shadow);
+                getMbusDevice().getMbusRtu().update(shadow);
 
                 success = true;
 

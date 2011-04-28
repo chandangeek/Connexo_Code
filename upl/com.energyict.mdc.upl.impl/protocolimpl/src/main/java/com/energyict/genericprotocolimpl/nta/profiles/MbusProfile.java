@@ -1,32 +1,20 @@
 package com.energyict.genericprotocolimpl.nta.profiles;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.TimeDuration;
-import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
+import com.energyict.genericprotocolimpl.common.pooling.ChannelFullProtocolShadow;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
-import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,11 +29,11 @@ public class MbusProfile extends AbstractNTAProfile{
 		this.mbusDevice = mbusDevice;
 	}
 
-	public void getProfile(ObisCode obisCode) throws IOException, SQLException, BusinessException {
-		getProfile(obisCode, false);
+	public ProfileData getProfile(ObisCode obisCode) throws IOException{
+		return getProfile(obisCode, false);
 	}
 	
-	public void getProfile(ObisCode mbusProfile, boolean events) throws IOException, SQLException, BusinessException{
+	public ProfileData getProfile(ObisCode mbusProfile, boolean events) throws IOException{
 		ProfileData profileData = new ProfileData( );
 		ProfileGeneric genericProfile;
 		
@@ -61,37 +49,33 @@ public class MbusProfile extends AbstractNTAProfile{
 				Calendar channelCalendar = null;
 				Calendar toCalendar = getToCalendar();
 				
-				for (int i = 0; i < getMeter().getChannels().size(); i++) {
-					Channel chn = getMeter().getChannel(i);
-					
-					// TODO does not work with the 7.5
-					
-					if(!(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
-							!(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
-						channelCalendar = getFromCalendar(getMeter().getChannel(i));
-						if((fromCalendar == null) || (channelCalendar.before(fromCalendar))){
-							fromCalendar = channelCalendar;
-						}
-					}
-				}
+                for (ChannelFullProtocolShadow channelFPS : this.mbusDevice.getFullShadow().getRtuShadow().getChannelFullProtocolShadow()) {
+                    if (!(channelFPS.getTimeDuration().getTimeUnitCode() == TimeDuration.DAYS) &&
+                            !(channelFPS.getTimeDuration().getTimeUnitCode() == TimeDuration.MONTHS)) {
+                        channelCalendar = getFromCalendar(channelFPS);
+                        if ((fromCalendar == null) || (channelCalendar.before(fromCalendar))) {
+                            fromCalendar = channelCalendar;
+                        }
+                    }
+                }
+
 				this.mbusDevice.getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 				DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 				buildProfileData(dc, profileData, genericProfile);
 				ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 				profileData.sort();
 				
-				
-				if(mbusDevice.getWebRTU().getMarkedAsBadTime()){
+				if(mbusDevice.getWebRTU().isBadTime()){
 					profileData.markIntervalsAsBadTime();
 				}
-				// We save the profileData to a tempObject so we can store everything at the end of the communication
-				mbusDevice.getWebRTU().getStoreObject().add(getMeter(), profileData);
-				
-			}
-			
-		} catch (IOException e) {
-			throw new IOException(e.getMessage());
-		}
+
+                return profileData;
+            }
+
+        } catch (IOException e) {
+            throw new IOException(e.getMessage());
+        }
+        return null;
 	}
 
 	private List<ChannelInfo> getMbusChannelInfos(ProfileGeneric profile) throws IOException {
@@ -139,20 +123,18 @@ public class MbusProfile extends AbstractNTAProfile{
 		}
 
 	private int getProfileChannelNumber(int index){
-		int channelIndex = 0;
-		for(int i = 0; i < getMeter().getChannels().size(); i++){
-			
-			//TODO does not work with the 7.5, only in the 8.X
-			
-		if(!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
-				!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
-			channelIndex++;
-			if(channelIndex == index){
-				return getMeter().getChannel(i).getLoadProfileIndex() -1;
-			}
-		}
-	}
-		return -1;
+        int channelIndex = 0;
+        for (int i = 0; i < this.mbusDevice.getFullShadow().getRtuShadow().getChannelFullProtocolShadow().size(); i++) {
+
+            if (!(this.mbusDevice.getFullShadow().getRtuShadow().getChannelFullProtocolShadow().get(i).getTimeDuration().getTimeUnitCode() == TimeDuration.DAYS) &&
+                    !(this.mbusDevice.getFullShadow().getRtuShadow().getChannelFullProtocolShadow().get(i).getTimeDuration().getTimeUnitCode() == TimeDuration.MONTHS)) {
+                channelIndex++;
+                if (channelIndex == index) {
+                    return this.mbusDevice.getFullShadow().getRtuShadow().getChannelFullProtocolShadow().get(i).getLoadProfileIndex() - 1;
+                }
+            }
+        }
+        return -1;
 	}
 	
 	protected void buildProfileData(DataContainer dc, ProfileData pd, ProfileGeneric pg) throws IOException{
@@ -168,7 +150,7 @@ public class MbusProfile extends AbstractNTAProfile{
 					cal = new AXDRDateTime(new OctetString(dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).getArray())).getValue();
 				} else {
 					if(cal != null){
-						cal.add(Calendar.SECOND, mbusDevice.getMbus().getIntervalInSeconds());
+						cal.add(Calendar.SECOND, pg.getCapturePeriod());
 					}
 				}
 				if(cal != null){		
@@ -249,16 +231,12 @@ public class MbusProfile extends AbstractNTAProfile{
 		return this.mbusDevice.getWebRTU().getCosemObjectFactory();
 	}
 	
-	protected Rtu getMeter(){
-		return this.mbusDevice.getMbus();
-	}
-	
 	private Calendar getToCalendar(){
 		return this.mbusDevice.getWebRTU().getToCalendar();
 	}
 	
-	private Calendar getFromCalendar(Channel channel){
-		return this.mbusDevice.getWebRTU().getFromCalendar(channel);
+	private Calendar getFromCalendar(ChannelFullProtocolShadow channelFPS){
+		return this.mbusDevice.getWebRTU().getFromCalendar(channelFPS.getLastReading(), mbusDevice.getWebRTU().getTimeZone());
 	}
 	
 	private DLMSMeterConfig getMeterConfig(){

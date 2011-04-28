@@ -6,6 +6,7 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.cosem.Data;
+import com.energyict.mdw.shadow.RtuMessageShadow;
 import com.energyict.protocolimpl.messages.*;
 import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
@@ -52,147 +53,6 @@ public class AM100 extends AbstractNTAProtocol {
      */
     private final static String PROP_FORCEDTOREADCACHE = "ForcedToReadCache";
 
-    /**
-     * <pre>
-     * This method handles the complete WebRTU. The Rtu acts as an Electricity meter. The E-meter itself can have several MBus meters
-     * - First he handles his own data collection:
-     * 	_Profiles
-     * 	_Daily/Monthly readings
-     * 	_Registers
-     * 	_Messages
-     * - Then all the MBus meters are handled in the same way as the E-meter
-     * </pre>
-     */
-    @Override
-    public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
-        boolean success = false;
-
-        this.scheduler = scheduler;
-        this.logger = logger;
-        this.commProfile = this.scheduler.getCommunicationProfile();
-        this.webRtuKP = this.scheduler.getRtu();
-        this.link = link;
-
-        validateProperties();
-        try {
-
-            if (1 == this.wakeup) {
-                doWakeUp();
-            } else if ((this.scheduler.getDialerFactory().getName() != null) && (this.scheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer"))) {
-                throw new ConnectionException("The NullDialer type is only allowed for the wakeup meter.");
-            }
-
-            init();
-            connect();
-            connected = true;
-
-            // Check if the time is greater then allowed, if so then no data can be stored...
-            // Don't do this when a forceClock is scheduled
-            if (!this.scheduler.getCommunicationProfile().getForceClock() && !this.scheduler.getCommunicationProfile().getAdHoc()) {
-                badTime = verifyMaxTimeDifference();
-            }
-
-            /**
-             * After 03/06/09 the events are read apart from the intervalData
-             */
-            if (this.commProfile.getReadDemandValues()) {
-                ElectricityProfile ep = new ElectricityProfile(this);
-                ep.getProfile(getMeterConfig().getProfileObject().getObisCode());
-            }
-
-            if (this.commProfile.getReadMeterEvents()) {
-                getLogger().log(Level.INFO, "Getting events for meter with serialnumber: " + webRtuKP.getSerialNumber());
-                EventProfile evp = new EventProfile(this);
-                evp.getEvents();
-            }
-
-            /**
-             * Here we are assuming that the daily and monthly values should be read. In future it can be that this doesn't work for all customers, then we should implement a SmartMeterProperty to
-             * indicate whether you want to read the actual registers or the daily/monthly registers ...
-             */
-            if (this.commProfile.getReadMeterReadings()) {
-
-                DailyMonthlyProfile dm = new DailyMonthlyProfile(this);
-
-                if (readDaily) {
-                    if (doesObisCodeExistInObjectList(getMeterConfig().getDailyProfileObject().getObisCode())) {
-                        dm.getDailyValues(getMeterConfig().getDailyProfileObject().getObisCode());
-                    } else {
-                        getLogger().log(Level.INFO, "The dailyProfile object doesn't exist in the device.");
-                    }
-                }
-                if (readMonthly) {
-                    if (doesObisCodeExistInObjectList(getMeterConfig().getMonthlyProfileObject().getObisCode())) {
-                        dm.getMonthlyValues(getMeterConfig().getMonthlyProfileObject().getObisCode());
-//                    if (true) {   // I know it is not a nice thing to do, but I did it anyway :-)
-//                        dm.getMonthlyValues(ObisCode.fromString("0.0.98.1.0.255"));
-//                    } else {
-//                        getLogger().log(Level.INFO, "The monthlyProfile object doesn't exist in the device.");
-                    }
-                }
-
-                getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + getSerialNumberValue());
-                doReadRegisters();
-            }
-
-            if (this.commProfile.getSendRtuMessage()) {
-                sendMeterMessages();
-            }
-
-            discoverMbusDevices();
-            if (getValidMbusDevices() != 0) {
-                getLogger().log(Level.INFO, "Starting to handle the MBus meters.");
-                handleMbusMeters();
-            }
-
-            // Set clock or Force clock... if necessary
-            if (this.commProfile.getForceClock()) {
-                Date meterTime = getTime();
-                Date currentTime = Calendar.getInstance(getTimeZone()).getTime();
-                this.timeDifference = (-1 == this.timeDifference) ? Math.abs(currentTime.getTime() - meterTime.getTime()) : this.timeDifference;
-                getLogger().log(Level.INFO, "Forced to set meterClock to systemTime: " + currentTime);
-                forceClock(currentTime);
-            } else {
-                verifyAndWriteClock();
-            }
-
-            success = true;
-
-        } catch (DLMSConnectionException e) {
-            log(Level.FINEST, e.getMessage());
-            disConnect();
-        } catch (ClassCastException e) {
-            // Mostly programmers fault if you get here ...
-            log(Level.FINEST, e.getMessage());
-            disConnect();
-        } catch (SQLException e) {
-            log(Level.FINEST, e.getMessage());
-            disConnect();
-
-            /** Close the connection after an SQL exception, connection will startup again if requested */
-            Environment.getDefault().closeConnection();
-
-            throw new BusinessException(e);
-        } finally {
-
-            // GenericCache.stopCacheMechanism(getMeter(), dlmsCache);
-
-            if (success) {
-                disConnect();
-                getLogger().info("Meter " + this.serialNumber + " has completely finished.");
-            }
-
-            if (getMeter() != null) {
-                // This cacheobject is supported by the 7.5
-                updateCache(getMeter().getId(), dlmsCache);
-            }
-
-            if (getStoreObject() != null) {
-                Environment.getDefault().execute(getStoreObject());
-            }
-        }
-    }
-
     @Override
     protected String getFirmWareVersion() throws IOException {
         try {
@@ -233,12 +93,13 @@ public class AM100 extends AbstractNTAProtocol {
 	 * 
 	 * @throws SQLException
 	 * @throws BusinessException
+     * @param rtuMessageList
 	 */
-    protected void sendMeterMessages() throws BusinessException, SQLException {
+    protected void sendMeterMessages(final List<RtuMessage> rtuMessageList) throws BusinessException, SQLException {
 
 		AM100MessageExecutor messageExecutor = new AM100MessageExecutor(this);
 
-		Iterator<RtuMessage> it = getMeter().getPendingMessages().iterator();
+		Iterator<RtuMessage> it = rtuMessageList.iterator();
 		RtuMessage rm = null;
 		while (it.hasNext()) {
 			rm = it.next();

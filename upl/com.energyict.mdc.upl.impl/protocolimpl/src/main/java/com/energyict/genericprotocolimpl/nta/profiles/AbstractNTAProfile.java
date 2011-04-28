@@ -13,9 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Copyrights EnergyICT
- * Date: 4-nov-2010
- * Time: 11:28:30
+ * Abstract Profile for all Generic NTA protocols
  */
 public abstract class AbstractNTAProfile {
 
@@ -28,11 +26,6 @@ public abstract class AbstractNTAProfile {
      * @return the used {@link com.energyict.dlms.cosem.CosemObjectFactory}
      */
     protected abstract CosemObjectFactory getCosemObjectFactory();
-
-    /**
-     * @return the used {@link com.energyict.mdw.core.Rtu}
-     */
-    protected abstract Rtu getMeter();
 
     /**
      * Read the given object and return the scalerUnit.

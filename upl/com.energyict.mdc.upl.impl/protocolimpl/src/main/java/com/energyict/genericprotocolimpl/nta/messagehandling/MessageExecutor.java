@@ -624,7 +624,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 										case 3 :{ // MESSAGE
 											RtuMessageShadow rms = new RtuMessageShadow();
 											rms.setContents(csvParser.getTestObject(i).getData());
-											rms.setRtuId(getWebRtu().getMeter().getId());
+											rms.setRtuId(getWebRtu().getFullShadow().getRtuShadow().getRtuId());
 											RtuMessage rm = mw().getRtuMessageFactory().create(rms);
 											doMessage(rm);
 											if(rm.getState().getId() == rm.getState().CONFIRMED.getId()){
@@ -692,7 +692,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 							} else {
 								csvParser.addLine("" + failures + " of the " + csvParser.getValidSize() + " tests " + ((failures==1)?"has":"have") +" failed.");
 							}
-							mw().getUserFileFactory().create(csvParser.convertResultToUserFile(uf, getWebRtu().getMeter().getFolderId()));
+							mw().getUserFileFactory().create(csvParser.convertResultToUserFile(uf, getWebRtu().getFullShadow().getRtuShadow().getFolderId()));
 						} else {
 							throw new ApplicationException("Userfile with ID " + userFileId + " does not exist.");
 						}
@@ -943,7 +943,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 	}
 
 	private Date getFirstDate(Date startTime, String type) throws IOException{
-		return getFirstDate(startTime, type, getWebRtu().getMeter().getTimeZone());
+		return getFirstDate(startTime, type, getWebRtu().getTimeZone());
 		}
 	
 	private Date getFirstDate(Date startTime, String type, TimeZone timeZone) throws IOException{
@@ -995,7 +995,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 	}
 
 	private Date setBeforeNextInterval(Date startTime, String type) throws IOException {
-		return setBeforeNextInterval(startTime, type, getWebRtu().getMeter().getTimeZone());
+		return setBeforeNextInterval(startTime, type, getWebRtu().getTimeZone());
 	}
 	
 	private Date setBeforeNextInterval(Date startTime, String type, TimeZone timeZone) throws IOException{

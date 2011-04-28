@@ -132,9 +132,9 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 				mbusClient.deinstallSlave();
 				
 				//Need to clear the gateWay
-				RtuShadow shadow = mbusDevice.getMbus().getShadow();
+				RtuShadow shadow = mbusDevice.getMbusRtu().getShadow();
 				shadow.setGatewayId(0);
-				mbusDevice.getMbus().update(shadow);
+				mbusDevice.getMbusRtu().update(shadow);
 				
 				success = true;
 			} else if(mbusEncryption){

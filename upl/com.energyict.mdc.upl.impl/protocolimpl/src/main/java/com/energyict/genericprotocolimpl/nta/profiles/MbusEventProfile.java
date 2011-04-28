@@ -1,19 +1,16 @@
 package com.energyict.genericprotocolimpl.nta.profiles;
 
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-import java.util.logging.Level;
-
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.genericprotocolimpl.nta.eventhandling.MbusControlLog;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.genericprotocolimpl.nta.eventhandling.MbusControlLog;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.Level;
 
 /**
  * 
@@ -28,13 +25,13 @@ public class MbusEventProfile {
 		this.mbusDevice = mbusDevice;
 	}
 
-	public void getEvents() throws IOException{
+	public ProfileData getEvents() throws IOException{
 		
 		ProfileData profileData = new ProfileData();
 		
-		Date lastLogReading = getMeter().getLastLogbook();
+		Date lastLogReading = this.mbusDevice.getFullShadow().getRtuShadow().getRtuLastLogBook();
 		if(lastLogReading == null){
-			lastLogReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(getMeter());
+			lastLogReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(getTimeZone());
 		}
 		Calendar fromCal = ProtocolUtils.getCleanCalendar(getTimeZone());
 		fromCal.setTime(lastLogReading);
@@ -43,19 +40,14 @@ public class MbusEventProfile {
 		
 		MbusControlLog mbusControlLog = new MbusControlLog(getTimeZone(), mbusLog);
 		profileData.getMeterEvents().addAll(mbusControlLog.getMeterEvents());
-		
-		mbusDevice.getWebRTU().getStoreObject().add(profileData, getMeter());
-		
+
 		// Don't create statusbits from the events
 //		profileData.applyEvents(mbusDevice.getMbus().getIntervalInSeconds()/60);
+        return profileData;
 	}
 	
 	private CosemObjectFactory getCosemObjectFactory(){
 		return this.mbusDevice.getWebRTU().getCosemObjectFactory();
-	}
-	
-	private Rtu getMeter(){
-		return this.mbusDevice.getMbus();
 	}
 	
 	private DLMSMeterConfig getMeterConfig(){

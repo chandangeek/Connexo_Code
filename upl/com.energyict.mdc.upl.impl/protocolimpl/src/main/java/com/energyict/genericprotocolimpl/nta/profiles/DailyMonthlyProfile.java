@@ -1,26 +1,20 @@
 package com.energyict.genericprotocolimpl.nta.profiles;
 
-import com.energyict.cbo.*;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.ScalerUnit;
+import com.energyict.cbo.ApplicationException;
+import com.energyict.cbo.TimeDuration;
+import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
+import com.energyict.genericprotocolimpl.common.pooling.ChannelFullProtocolShadow;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol;
-import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,7 +30,7 @@ public class DailyMonthlyProfile extends AbstractNTAProfile{
 		this.webrtu = webrtu;
 	}
 
-	public void getDailyValues(final ObisCode dailyObisCode) throws IOException, SQLException, BusinessException {
+	public ProfileData getDailyValues(final ObisCode dailyObisCode) throws IOException{
 		final ProfileData profileData = new ProfileData( );
 		try {
 			final ProfileGeneric genericProfile = getCosemObjectFactory().getProfileGeneric(dailyObisCode);
@@ -49,30 +43,29 @@ public class DailyMonthlyProfile extends AbstractNTAProfile{
 				Calendar fromCalendar = null;
 				Calendar channelCalendar = null;
 				final Calendar toCalendar = getToCalendar();
-				for (int i = 0; i < getMeter().getChannels().size(); i++) {
-					final Channel chn = getMeter().getChannel(i);
-					if(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS){ //the channel is a daily channel
-						channelCalendar = getFromCalendar(getMeter().getChannel(i));
-						if((fromCalendar == null) || (channelCalendar.before(fromCalendar))){
-							fromCalendar = channelCalendar;
-						}
-					}
-				}
+
+                for (ChannelFullProtocolShadow channelFPS : webrtu.getFullShadow().getRtuShadow().getChannelFullProtocolShadow()) {
+                    if (channelFPS.getTimeDuration().getTimeUnitCode() == TimeDuration.DAYS) {
+                        channelCalendar = getFromCalendar(channelFPS);
+                        if ((fromCalendar == null) || (channelCalendar.before(fromCalendar))) {
+                            fromCalendar = channelCalendar;
+                        }
+                    }
+                }
+
 				webrtu.getLogger().log(Level.INFO, "Reading Daily values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 				final DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 				buildProfileData(dc, profileData, genericProfile, TimeDuration.DAYS);
 				ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 				final ProfileData pd = sortOutProfiledate(profileData, TimeDuration.DAYS);
 				pd.sort();
-				// We save the profileData to a tempObject so we can store everything at the end of the communication
-//			webrtu.getStoreObject().add(getMeter(), pd);
-				webrtu.getStoreObject().add(pd, getMeter());
-			}
-			
-		} catch (final IOException e) {
-			throw new IOException(e.getMessage());
-		}
-		
+                return pd;
+            }
+
+        } catch (final IOException e) {
+            throw new IOException(e.getMessage());
+        }
+        return null;
 	}
 
 	private List<ChannelInfo> getDailyMonthlyChannelInfos(final ProfileGeneric profile, final int timeDuration) throws IOException {
@@ -116,7 +109,7 @@ public class DailyMonthlyProfile extends AbstractNTAProfile{
 		return channelInfos;
 	}
 
-	public void getMonthlyValues(final ObisCode monthlyObisCode) throws IOException, SQLException, BusinessException {
+	public ProfileData getMonthlyValues(final ObisCode monthlyObisCode) throws IOException{
 		final ProfileData profileData = new ProfileData( );
 		try {
 			final ProfileGeneric genericProfile = getCosemObjectFactory().getProfileGeneric(monthlyObisCode);
@@ -129,56 +122,31 @@ public class DailyMonthlyProfile extends AbstractNTAProfile{
 				Calendar fromCalendar = null;
 				Calendar channelCalendar = null;
 				final Calendar toCalendar = getToCalendar();
-				for (int i = 0; i < getMeter().getChannels().size(); i++) {
-					final Channel chn = getMeter().getChannel(i);
-					if(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS){ //the channel is a daily channel
-						channelCalendar = getFromCalendar(getMeter().getChannel(i));
-						if((fromCalendar == null) || (channelCalendar.before(fromCalendar))){
-							fromCalendar = channelCalendar;
-						}
-					}
-				}
-				
+
+                for (ChannelFullProtocolShadow channelFPS : webrtu.getFullShadow().getRtuShadow().getChannelFullProtocolShadow()) {
+                    if (channelFPS.getTimeDuration().getTimeUnitCode() == TimeDuration.MONTHS) {
+                        channelCalendar = getFromCalendar(channelFPS);
+                        if ((fromCalendar == null) || (channelCalendar.before(fromCalendar))) {
+                            fromCalendar = channelCalendar;
+                        }
+                    }
+                }
+
 				webrtu.getLogger().log(Level.INFO, "Reading Monthly values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 				final DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 				buildProfileData(dc, profileData, genericProfile, TimeDuration.MONTHS);
 				ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 				final ProfileData pd = sortOutProfiledate(profileData, TimeDuration.MONTHS);
 				pd.sort();
-				// We save the profileData to a tempObject so we can store everything at the end of the communication
-//			webrtu.getStoreObject().add(getMeter(), pd);
-				if(webrtu.getMarkedAsBadTime()){
-					pd.markIntervalsAsBadTime();
-				}
-				webrtu.getStoreObject().add(pd, getMeter());
-			}
-			
-		} catch (final IOException e) {
-			throw new IOException(e.getMessage());
-		}
+                return pd;
+            }
+
+        } catch (final IOException e) {
+            throw new IOException(e.getMessage());
+        }
+        return null;
 	}
-	
-//	/**
-//	 * Read the given object and return the scalerUnit.
-//	 * If the unit is 0(not a valid value) then return a unitLess scalerUnit.
-//	 * If you can not read the scalerUnit, then return a unitLess scalerUnit.
-//	 * @param oc
-//	 * @return
-//	 * @throws IOException
-//	 */
-//	private ScalerUnit getMeterDemandRegisterScalerUnit(final ObisCode oc) throws IOException{
-//		try {
-//			ScalerUnit su = getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
-//			if( su.getUnitCode() == 0){
-//				su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
-//			}
-//			return su;
-//		} catch (final IOException e) {
-//			webrtu.getLogger().log(Level.INFO, "Could not get the scalerunit from object '" + oc + "'.");
-//		}
-//		return new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
-//	}
-	
+
 	private ProfileData sortOutProfiledate(final ProfileData profileData, final int timeDuration) {
 		final ProfileData pd = new ProfileData();
 		pd.setChannelInfos(profileData.getChannelInfos());
@@ -230,30 +198,25 @@ public class DailyMonthlyProfile extends AbstractNTAProfile{
 	}
 	
 	private int getDailyChannelNumber(final int index){
-		int channelIndex = 0;
-		for(int i = 0; i < getMeter().getChannels().size(); i++){
-			if(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.DAYS){
-				channelIndex++;
-				if(channelIndex == index){
-					return getMeter().getChannel(i).getLoadProfileIndex() -1;
-				}
-			}
-		}
-		return -1;
+        return getChannelNumberForTimeDuration(index, TimeDuration.DAYS);
 	}
-	
-	private int getMonthlyChannelNumber(final int index){
-		int channelIndex = 0;
-		for(int i = 0; i < getMeter().getChannels().size(); i++){
-			if(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.MONTHS){
-				channelIndex++;
-				if(channelIndex == index){
-					return getMeter().getChannel(i).getLoadProfileIndex() -1;
-				}
-			}
-		}
-		return -1;
-	}
+
+    private int getMonthlyChannelNumber(final int index) {
+        return getChannelNumberForTimeDuration(index, TimeDuration.MONTHS);
+    }
+
+    private int getChannelNumberForTimeDuration(final int index, final int timeDuration) {
+        int channelIndex = 0;
+        for (int i = 0; i < webrtu.getFullShadow().getRtuShadow().getChannelFullProtocolShadow().size(); i++) {
+            if (webrtu.getFullShadow().getRtuShadow().getChannelFullProtocolShadow().get(i).getTimeDuration().getTimeUnitCode() == timeDuration) {
+                channelIndex++;
+                if (channelIndex == index) {
+                    return webrtu.getFullShadow().getRtuShadow().getChannelFullProtocolShadow().get(i).getLoadProfileIndex() - 1;
+                }
+            }
+        }
+        return -1;
+    }
 	
 	protected void buildProfileData(final DataContainer dc, final ProfileData pd, final ProfileGeneric pg, final int timeDuration) throws IOException{
 		
@@ -368,24 +331,16 @@ public class DailyMonthlyProfile extends AbstractNTAProfile{
     protected CosemObjectFactory getCosemObjectFactory(){
 		return this.webrtu.getCosemObjectFactory();
 	}
-	
-	protected Rtu getMeter(){
-		return this.webrtu.getMeter();
-	}
-	
+
 	private Calendar getToCalendar(){
 		return this.webrtu.getToCalendar();
 	}
 	
-	private Calendar getFromCalendar(final Channel channel){
-		return this.webrtu.getFromCalendar(channel);
+	private Calendar getFromCalendar(ChannelFullProtocolShadow channelFPS){
+		return this.webrtu.getFromCalendar(channelFPS.getLastReading(), webrtu.getTimeZone());
 	}
 	
 	protected DLMSMeterConfig getMeterConfig(){
 		return this.webrtu.getMeterConfig();
-	}
-	
-	private TimeZone getTimeZone(){
-		return this.webrtu.getTimeZone();
 	}
 }

@@ -32,17 +32,17 @@ public class EventProfile extends com.energyict.genericprotocolimpl.nta.profiles
      * @throws IOException
      */
     @Override
-    public void getEvents() throws IOException {
+    public ProfileData getEvents() throws IOException {
 
         ProfileData profileData = new ProfileData();
 
-        Date lastLogReading = webrtu.getMeter().getLastLogbook();
+        Date lastLogReading = webrtu.getFullShadow().getRtuShadow().getRtuLastLogBook();
         if (lastLogReading == null) {
-            lastLogReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(webrtu.getMeter());
+            lastLogReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(webrtu.getTimeZone());
         }
         Calendar fromCal = ProtocolUtils.getCleanCalendar(getTimeZone());
         fromCal.setTime(lastLogReading);
-        webrtu.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + webrtu.getSerialNumber() + ".");
+        webrtu.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + webrtu.getFullShadow().getRtuShadow().getSerialNumber() + ".");
         DataContainer dcEvent = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
         DataContainer dcControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getControlLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
         DataContainer dcPowerFailure = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getPowerFailureLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
@@ -60,7 +60,6 @@ public class EventProfile extends com.energyict.genericprotocolimpl.nta.profiles
 
         // Don't create statusbits from the events
 //			profileData.applyEvents(webrtu.getMeter().getIntervalInSeconds()/60);
-
-        webrtu.getStoreObject().add(profileData, getMeter());
+        return profileData;
     }
 }

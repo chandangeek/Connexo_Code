@@ -65,7 +65,7 @@ public class ElectricityProfile extends com.energyict.genericprotocolimpl.nta.pr
 					cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(webrtu.getTimeZone());
                 } else {
                     if (cal != null) {
-                        cal.add(Calendar.SECOND, webrtu.getMeter().getIntervalInSeconds());
+                        cal.add(Calendar.SECOND, pg.getCapturePeriod());
                     }
                 }
                 if (cal != null) {

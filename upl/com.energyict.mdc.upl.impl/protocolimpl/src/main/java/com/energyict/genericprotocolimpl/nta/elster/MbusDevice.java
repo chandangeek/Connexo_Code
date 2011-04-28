@@ -9,6 +9,7 @@ import com.energyict.genericprotocolimpl.nta.profiles.MbusDailyMonthlyProfile;
 import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
 import com.energyict.protocolimpl.messages.*;
@@ -95,54 +96,6 @@ public class MbusDevice extends AbstractMbusDevice {
      * {@inheritDoc}
      */
     @Override
-    public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
-        this.commProfile = scheduler.getCommunicationProfile();
-
-         validateProperties();
-
-        // import profile
-        if (commProfile.getReadDemandValues()) {
-            getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + getMbus().getSerialNumber());
-            MbusProfile mp = new MbusProfile(this);
-            mp.getProfile(getObiscodeProvider().getHourlyProfileObisCode(getPhysicalAddress()));
-        }
-
-        if (commProfile.getReadMeterEvents()) {
-            getLogger().log(Level.INFO, "Events are not available for Mbus meters connected to an AM100.");
-        }
-
-        // Registers
-        if (commProfile.getReadMeterReadings()) {
-            MbusDailyMonthlyProfile mdm = new MbusDailyMonthlyProfile(this);
-
-            getLogger().log(Level.INFO, "Getting registers from Mbus meter with serialnumber:" + getMbus().getSerialNumber());
-            doReadRegisters();
-        }
-
-        // send rtuMessages
-        if (commProfile.getSendRtuMessage()) {
-            sendMeterMessages();
-        }
-    }
-
-    /**
-     * Write the configured messages to the device
-     */
-    protected void sendMeterMessages() throws BusinessException, SQLException {
-        AM100MbusMessageExecutor messageExecutor = new AM100MbusMessageExecutor(this);
-
-		Iterator<RtuMessage> it = getMbus().getPendingMessages().iterator();
-		RtuMessage rm = null;
-		while (it.hasNext()) {
-			rm = it.next();
-			messageExecutor.doMessage(rm);
-		}
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public List getMessageCategories() {
         List<MessageCategorySpec> categories = new ArrayList();
         MessageCategorySpec catDisconnect = getConnectControlCategory();
@@ -169,7 +122,7 @@ public class MbusDevice extends AbstractMbusDevice {
         return catMbusSetup;
     }
 
-    /**  
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -197,5 +150,63 @@ public class MbusDevice extends AbstractMbusDevice {
 //            return new OMSGasObisCodeProvider();
 //        }
 //        throw new IOException("Incorrect MbusObisCodeProvider selection type");
+    }
+
+    /**
+     * Fetch and construct the dailyProfile
+     */
+    @Override
+    protected ProfileData readDailyProfiles() throws IOException{
+        getLogger().log(Level.INFO, "Daily profile not implemented for meter with serialnumber: " + getFullShadow().getRtuShadow().getSerialNumber());
+        return null;
+    }
+
+    /**
+     * Fetch and construct the monthlyProfile
+     */
+    @Override
+    protected ProfileData readMonthlyProfiles() throws IOException{
+        getLogger().log(Level.INFO, "Monthly profile not implemented for meter with serialnumber: " + getFullShadow().getRtuShadow().getSerialNumber());
+        return null;
+    }
+
+    /**
+     * Fetch and construct the default MbusProfile
+     *
+     * @return the mbusProfile
+     */
+    @Override
+    protected ProfileData getMbusProfile() throws IOException{
+        getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + getFullShadow().getRtuShadow().getSerialNumber());
+        MbusProfile mp = new MbusProfile(this);
+        return mp.getProfile(getObiscodeProvider().getHourlyProfileObisCode(getPhysicalAddress()));
+    }
+
+    /**
+     * Fetch and construct the eventProfile
+     *
+     * @return the eventProfile
+     */
+    @Override
+    protected ProfileData getEventProfile() throws IOException {
+        getLogger().log(Level.INFO, "Events are not available for Mbus meters connected to an AM100.");
+        return null;
+    }
+
+    /**
+     * Send the given RtuMessages
+     *
+     * @param rtuMessageList
+     */
+    @Override
+    protected void sendMeterMessages(final List<RtuMessage> rtuMessageList) throws BusinessException, SQLException {
+        AM100MbusMessageExecutor messageExecutor = new AM100MbusMessageExecutor(this);
+
+        Iterator<RtuMessage> it = rtuMessageList.iterator();
+        RtuMessage rm = null;
+        while (it.hasNext()) {
+            rm = it.next();
+            messageExecutor.doMessage(rm);
+        }
     }
 }

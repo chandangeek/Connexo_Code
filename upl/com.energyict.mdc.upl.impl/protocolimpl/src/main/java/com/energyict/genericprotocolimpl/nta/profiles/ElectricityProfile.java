@@ -1,33 +1,20 @@
 package com.energyict.genericprotocolimpl.nta.profiles;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.TimeDuration;
-import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
+import com.energyict.genericprotocolimpl.common.pooling.ChannelFullProtocolShadow;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol;
-import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,11 +31,11 @@ public class ElectricityProfile extends AbstractNTAProfile{
 		this.webrtu = webrtu;
 	}
 	
-	public void getProfile(final ObisCode obisCode) throws IOException {
-		getProfile(obisCode, false);
+	public ProfileData getProfile(final ObisCode obisCode) throws IOException {
+		return getProfile(obisCode, false);
 	}
 	
-	public void getProfile(final ObisCode electricityProfile, final boolean events) throws IOException {
+	public ProfileData getProfile(final ObisCode electricityProfile, final boolean events) throws IOException {
 		final ProfileData profileData = new ProfileData( );
 		ProfileGeneric genericProfile;
 		
@@ -57,44 +44,36 @@ public class ElectricityProfile extends AbstractNTAProfile{
 			final List<ChannelInfo> channelInfos = getChannelInfos(genericProfile);
 			
 			if(channelInfos.size() != 0){
-				webrtu.getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + webrtu.getSerialNumberValue());
+				getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + webrtu.getSerialNumberValue());
 				verifyProfileInterval(genericProfile, channelInfos);
 				
 				profileData.setChannelInfos(channelInfos);
 				Calendar fromCalendar = null;
 				Calendar channelCalendar = null;
 				final Calendar toCalendar = getToCalendar();
-				
-				for (int i = 0; i < getMeter().getChannels().size(); i++) {
-					final Channel chn = getMeter().getChannel(i);
-					
-					//TODO this does not work with the 7.5 version
-					if(!(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS) &&
-							!(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
-						channelCalendar = getFromCalendar(getMeter().getChannel(i));
-						if((fromCalendar == null) || (channelCalendar.before(fromCalendar))){
-							fromCalendar = channelCalendar;
-						}
-					}
-				}
-				
-				webrtu.getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
+
+                for (ChannelFullProtocolShadow channelFPS : webrtu.getFullShadow().getRtuShadow().getChannelFullProtocolShadow()) {
+                    if (!(channelFPS.getTimeDuration().getTimeUnitCode() == TimeDuration.DAYS) &&
+                            !(channelFPS.getTimeDuration().getTimeUnitCode() == TimeDuration.MONTHS)) {
+                        channelCalendar = getFromCalendar(channelFPS);
+                        if ((fromCalendar == null) || (channelCalendar.before(fromCalendar))) {
+                            fromCalendar = channelCalendar;
+                        }
+                    }
+                }
+
+				getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 				final DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 				buildProfileData(dc, profileData, genericProfile);
 				ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 				profileData.sort();
-				
-				if(webrtu.getMarkedAsBadTime()){
-					profileData.markIntervalsAsBadTime();
-				}
-				// We save the profileData to a tempObject so we can store everything at the end of the communication
-				webrtu.getStoreObject().add(getMeter(), profileData);
-				
-			}
-			
-		} catch (final IOException e) {
-			throw new IOException(e.getMessage());
-		}
+                return profileData;
+            }
+
+        } catch (final IOException e) {
+            throw new IOException(e.getMessage());
+        }
+        return null;
 	}
 
     /**
@@ -109,8 +88,8 @@ public class ElectricityProfile extends AbstractNTAProfile{
 		final Iterator<ChannelInfo> it = channelInfos.iterator();
 		while(it.hasNext()){
 			final ChannelInfo ci = it.next();
-			if(getMeter().getChannel(ci.getId()).getIntervalInSeconds() != genericProfile.getCapturePeriod()){
-				throw new IOException("Interval mismatch, EIServer: " + getMeter().getIntervalInSeconds() + "s - Meter: " + genericProfile.getCapturePeriod() + "s.");
+			if(webrtu.getFullShadow().getRtuShadow().getChannelFullProtocolShadow().get(ci.getId()).getIntervalInSeconds() != genericProfile.getCapturePeriod()){
+				throw new IOException("Interval mismatch, EIServer: " + webrtu.getFullShadow().getRtuShadow().getChannelFullProtocolShadow().get(ci.getId()).getIntervalInSeconds() + "s - Meter: " + genericProfile.getCapturePeriod() + "s.");
 			}
 		}
 	}
@@ -152,21 +131,19 @@ public class ElectricityProfile extends AbstractNTAProfile{
 	}
 
     protected int getProfileChannelNumber(final int index) {
-		int channelIndex = 0;
-        for (int i = 0; i < getMeter().getChannels().size(); i++) {
-			
-			//TODO does not work with the 7.5 version, only in the 8.X
-			
-            if (!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.DAYS) &&
-                    !(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.MONTHS)) {
-			channelIndex++;
+        int channelIndex = 0;
+        for (int i = 0; i < webrtu.getFullShadow().getRtuShadow().getChannelFullProtocolShadow().size(); i++) {
+
+            if (!(webrtu.getFullShadow().getRtuShadow().getChannelFullProtocolShadow().get(i).getTimeDuration().getTimeUnitCode() == TimeDuration.DAYS) &&
+                    !(webrtu.getFullShadow().getRtuShadow().getChannelFullProtocolShadow().get(i).getTimeDuration().getTimeUnitCode() == TimeDuration.MONTHS)) {
+                channelIndex++;
                 if (channelIndex == index) {
-                    return getMeter().getChannel(i).getLoadProfileIndex() - 1;
-			}
-		}
-	}
-		return -1;
-	}
+                    return webrtu.getFullShadow().getRtuShadow().getChannelFullProtocolShadow().get(i).getLoadProfileIndex() - 1;
+                }
+            }
+        }
+        return -1;
+    }
 
     /**
      * Construct the profileData object for the received data
@@ -203,7 +180,7 @@ public class ElectricityProfile extends AbstractNTAProfile{
 					cal = new AXDRDateTime(new OctetString(dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).getArray())).getValue();
 				} else {
 					if(cal != null){
-						cal.add(Calendar.SECOND, webrtu.getMeter().getIntervalInSeconds());
+						cal.add(Calendar.SECOND, pg.getCapturePeriod());
 					}
 				}
 				if(cal != null){		
@@ -221,7 +198,7 @@ public class ElectricityProfile extends AbstractNTAProfile{
 				}
 			}
 		} else {
-			webrtu.getLogger().info("No entries in LoadProfile");
+			getLogger().info("No entries in LoadProfile");
 		}
 	}
 	
@@ -289,17 +266,13 @@ public class ElectricityProfile extends AbstractNTAProfile{
 	protected CosemObjectFactory getCosemObjectFactory(){
 		return this.webrtu.getCosemObjectFactory();
 	}
-	
-	protected Rtu getMeter(){
-		return this.webrtu.getMeter();
-	}
-	
+
 	private Calendar getToCalendar(){
 		return this.webrtu.getToCalendar();
 	}
 	
-	private Calendar getFromCalendar(final Channel channel){
-		return this.webrtu.getFromCalendar(channel);
+	private Calendar getFromCalendar(ChannelFullProtocolShadow channelFPS){
+		return this.webrtu.getFromCalendar(channelFPS.getLastReading(), webrtu.getTimeZone());
 	}
 
     /**
