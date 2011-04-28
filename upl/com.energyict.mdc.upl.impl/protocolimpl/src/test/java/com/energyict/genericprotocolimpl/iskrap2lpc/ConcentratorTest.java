@@ -119,8 +119,14 @@ public class ConcentratorTest{
 		result = Utilities.mw().getCommunicationProtocolFactory().findByName(jcnIskraMeter);
 		if (result.size() > 0) {
 			for(int i = 0; i < result.size(); i++) {
-				((CommunicationProtocolImpl)result.get(i)).delete();
-			}
+                try {
+                    ((CommunicationProtocolImpl)result.get(i)).delete();
+                } catch (SQLException e) {
+                    logger.info(e.getMessage());
+                } catch (BusinessException e) {
+                    logger.info(e.getMessage());
+                }
+            }
 		}
 		
 		mbusAfter();
