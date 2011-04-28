@@ -31,9 +31,9 @@ public class StoreObject implements Transaction{
 			Map.Entry entry = (Map.Entry)keyit.next();
 			Object key = entry.getKey();
 			if(key instanceof RtuImpl){
-				((Rtu) key).store((ProfileData) entry.getValue());
+				((Rtu) key).store((ProfileData) entry.getValue(), false);
 			} else if(key instanceof ChannelImpl){
-				(((Channel)key).getRtu()).store((ProfileData) entry.getValue());
+				(((Channel)key).getRtu()).store((ProfileData) entry.getValue(), false);
 			} else if(key instanceof RtuRegisterImpl){
 				((RtuRegister) key).store((RegisterValue) entry.getValue());
 			}
