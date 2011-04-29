@@ -90,7 +90,7 @@ public class ElectricityProfile {
 				profileData.applyEvents(iskramx37x.getMeter().getIntervalInSeconds()/60);
 			}
 			
-			getMeter().store(profileData);
+			getMeter().store(profileData, false);
 			
 		} catch (final IOException e) {
 			e.printStackTrace();

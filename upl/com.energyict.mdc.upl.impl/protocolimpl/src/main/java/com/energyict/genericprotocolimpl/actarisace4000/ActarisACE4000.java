@@ -161,7 +161,7 @@ public class ActarisACE4000 implements GenericProtocol{
 				}
 				if(getObjectFactory().getBillingData().getProfileData().getIntervalDatas().size() > 0){
 					getObjectFactory().getBillingData().getProfileData().sort();
-					getMeter().store(getObjectFactory().getBillingData().getProfileData());
+					getMeter().store(getObjectFactory().getBillingData().getProfileData(), false);
 				}
 				
 				getLogger().log(Level.INFO, "** Closing the UDP session **");

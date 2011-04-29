@@ -74,7 +74,7 @@ public class DailyMonthly {
 			final DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 			buildProfileData(dc, profileData, genericProfile);
 			final ProfileData pd = sortOutProfiledate(profileData, TimeDuration.DAYS);
-			getMeter().store(pd);
+			getMeter().store(pd, false);
 			
 		} catch (final IOException e) {
 			e.printStackTrace();
@@ -146,7 +146,7 @@ public class DailyMonthly {
 			final DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 			buildProfileData(dc, profileData, genericProfile);
 			final ProfileData pd = sortOutProfiledate(profileData, TimeDuration.MONTHS);
-			getMeter().store(pd);
+			getMeter().store(pd, false);
 			
 		} catch (final IOException e) {
 			e.printStackTrace();

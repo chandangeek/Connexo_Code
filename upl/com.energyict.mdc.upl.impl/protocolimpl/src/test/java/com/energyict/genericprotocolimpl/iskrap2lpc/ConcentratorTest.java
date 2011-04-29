@@ -33,8 +33,7 @@ public class ConcentratorTest{
 	private String jcnConcentrator = "com.energyict.genericprotocolimpl.iskrap2lpc.Concentrator";
 	private String jcnIskraMeter = "com.energyict.genericprotocolimpl.iskrap2lpc.Meter";
 	private String jcnMbusMeter = "com.energyict.genericprotocolimpl.iskrap2lpc.MbusDevice";
-	private String testMeter = "TestMeter";
-	
+
 	private String august01 = "2008-08-01T00:00:00 +0200";
 	private String august28 = "2008-08-28T00:00:00 +0200";
 	private String august29 = "2008-08-29T00:00:00 +0200";
@@ -58,6 +57,11 @@ public class ConcentratorTest{
 	private RtuType rtuTypeMeter = null;
 	
 	private List result = new ArrayList();
+
+    private String concentratorName = "";
+    private String rtuName = "";
+    private String rtuTypeName = "";
+    private String mbusMeterType = "";
 	
 	@BeforeClass
 	public static void setUpOnce() {
@@ -68,6 +72,13 @@ public class ConcentratorTest{
 	
 	@Before
 	public void setUp() throws Exception {
+
+        //initialize the names which are going to be used in the test
+        rtuName = "TestMeter" + System.currentTimeMillis();
+        rtuTypeName = "TestRtuType" + System.currentTimeMillis();
+        mbusMeterType = "MbusMeterType" + System.currentTimeMillis();
+
+
 		iskraConcentrator = new Concentrator();
 		iskraConcentrator.setTESTING(true);
 		connection = new TConnection(iskraConcentrator);
@@ -88,9 +99,9 @@ public class ConcentratorTest{
 		}
 		
 		// find out if there is an rtuType defined with this testName, if not, create it
-		result = Utilities.mw().getRtuTypeFactory().findByName(testMeter);
+		result = Utilities.mw().getRtuTypeFactory().findByName(rtuTypeName);
 		if(result.size() == 0) {
-			rtuTypeMeter = Utilities.createRtuType(commProtMeter, testMeter, 4);
+			rtuTypeMeter = Utilities.createRtuType(commProtMeter, rtuTypeName, 4);
 		} else {
 			rtuTypeMeter = (RtuType)result.get(0);
 		}
@@ -100,7 +111,7 @@ public class ConcentratorTest{
 	@After
 	public void tearDown() throws Exception {
 		// first delete all the device
-		List result = Utilities.mw().getRtuFactory().findByName("12345678");
+		List result = Utilities.mw().getRtuFactory().findByName(rtuName);
 		if (result.size() > 0) {
 			for(int i = 0; i < result.size(); i++) {
 				((Rtu)result.get(i)).delete();
@@ -108,7 +119,7 @@ public class ConcentratorTest{
 		}
 		
 		// then the deviceType
-		result = Utilities.mw().getRtuTypeFactory().findByName(testMeter);
+		result = Utilities.mw().getRtuTypeFactory().findByName(rtuTypeName);
 		if (result.size() > 0) {
 			for(int i = 0; i < result.size(); i++){
 				((RtuTypeImpl)result.get(i)).delete();
@@ -144,9 +155,9 @@ public class ConcentratorTest{
 			Number someNumber = 0.892;
 			
 			// find out if there is already a meter with the TestMeter name, if not, create it
-			result = Utilities.mw().getRtuFactory().findByName(testMeter);
+			result = Utilities.mw().getRtuFactory().findByName(rtuName);
 			if(result.size() == 0) {
-				meter = Utilities.createRtu(rtuTypeMeter, "12345678", 900);
+				meter = Utilities.createRtu(rtuTypeMeter, rtuName, 900);
 			} else {
 				meter = (Rtu)result.get(0);
 			}
@@ -156,6 +167,7 @@ public class ConcentratorTest{
 			}
 			
 			meter = Utilities.addPropertyToRtu(meter, Constant.CHANNEL_MAP, "1.8.0+9:2.8.0+9");
+            Utilities.clearChannelsLastReading(meter);
 			iskraConcentrator.setLogger(logger);
 			
 			meterReadTransaction.setMeter(meter);
@@ -198,9 +210,9 @@ public class ConcentratorTest{
 		try {
 			
 			String property = "0:0:0:0:1.8.1+9d:1.8.1+9m";
-			result = Utilities.mw().getRtuFactory().findByName(testMeter);
+			result = Utilities.mw().getRtuFactory().findByName(rtuName);
 			if(result.size() == 0) {
-				meter = Utilities.createRtu(rtuTypeMeter, "12345678", 900);
+				meter = Utilities.createRtu(rtuTypeMeter, rtuName, 900);
 			} else {
 				meter = (Rtu)result.get(0);
 			}
@@ -215,6 +227,7 @@ public class ConcentratorTest{
 			}
 			
 			meter = Utilities.addPropertyToRtu(meter, "ChannelMap", property);
+            Utilities.clearChannelsLastReading(meter);
 			iskraConcentrator.setLogger(logger);
 			meterReadTransaction.setMeter(meter);
 			XmlHandler xmlHandler = new XmlHandler(logger, meterReadTransaction.getChannelMap());
@@ -283,9 +296,9 @@ public class ConcentratorTest{
 	public void importTwoDailyMonthlyProfilesTest(){
 		try {
 			String property = "0:0:0:0:1.8.1+9d:1.8.1+9m";
-			result = Utilities.mw().getRtuFactory().findByName(testMeter);
+			result = Utilities.mw().getRtuFactory().findByName(rtuName);
 			if(result.size() == 0) {
-				meter = Utilities.createRtu(rtuTypeMeter, "12345678", 900);
+				meter = Utilities.createRtu(rtuTypeMeter, rtuName, 900);
 			} else {
 				meter = (Rtu)result.get(0);
 			}
@@ -293,6 +306,7 @@ public class ConcentratorTest{
 			meter = Utilities.addChannel(meter, TimeDuration.MONTHS, 6);
 			
 			meter = Utilities.addPropertyToRtu(meter, "ChannelMap", property);
+            Utilities.clearChannelsLastReading(meter);
 			iskraConcentrator.setLogger(logger);
 			meterReadTransaction.setMeter(meter);
 			
@@ -358,9 +372,9 @@ public class ConcentratorTest{
 	public void importDailyMonthlyFromPLR(){
 		try {
 			String property = "0:0:0:0:1.8.1+9d:1.8.2m";
-			result = Utilities.mw().getRtuFactory().findByName(testMeter);
+			result = Utilities.mw().getRtuFactory().findByName(rtuName);
 			if(result.size() == 0) {
-				meter = Utilities.createRtu(rtuTypeMeter, "12345678", 900);
+				meter = Utilities.createRtu(rtuTypeMeter, rtuName, 900);
 			} else {
 				meter = (Rtu)result.get(0);
 			}
@@ -368,6 +382,7 @@ public class ConcentratorTest{
 			meter = Utilities.addChannel(meter, TimeDuration.MONTHS, 6);
 			
 			meter = Utilities.addPropertyToRtu(meter, "ChannelMap", property);
+            Utilities.clearChannelsLastReading(meter);
 			iskraConcentrator.setLogger(logger);
 			meterReadTransaction.setMeter(meter);
 			
@@ -437,15 +452,16 @@ public class ConcentratorTest{
 	public void singelMonthlyValueTest(){
 		try {
 			String property = "0:0:0:0:1.8.1+9m";
-			result = Utilities.mw().getRtuFactory().findByName(testMeter);
+			result = Utilities.mw().getRtuFactory().findByName(rtuName);
 			if(result.size() == 0) {
-				meter = Utilities.createRtu(rtuTypeMeter, "12345678", 900);
+				meter = Utilities.createRtu(rtuTypeMeter, rtuName, 900);
 			} else {
 				meter = (Rtu)result.get(0);
 			}
 			meter = Utilities.addChannel(meter, TimeDuration.MONTHS, 5);
 			
 			meter = Utilities.addPropertyToRtu(meter, "ChannelMap", property);
+            Utilities.clearChannelsLastReading(meter);
 			iskraConcentrator.setLogger(logger);
 			meterReadTransaction.setMeter(meter);
 			
@@ -486,15 +502,16 @@ public class ConcentratorTest{
 	public void mutlipleSingleStores(){
 		try {
 			String property = "0:0:0:0:1.8.1+9m";
-			result = Utilities.mw().getRtuFactory().findByName(testMeter);
+			result = Utilities.mw().getRtuFactory().findByName(rtuName);
 			if(result.size() == 0) {
-				meter = Utilities.createRtu(rtuTypeMeter, "12345678", 900);
+				meter = Utilities.createRtu(rtuTypeMeter, rtuName, 900);
 			} else {
 				meter = (Rtu)result.get(0);
 			}
 			meter = Utilities.addChannel(meter, TimeDuration.MONTHS, 5);
 			
 			meter = Utilities.addPropertyToRtu(meter, "ChannelMap", property);
+            Utilities.clearChannelsLastReading(meter);
 			iskraConcentrator.setLogger(logger);
 			meterReadTransaction.setMeter(meter);
 			
@@ -575,7 +592,7 @@ public class ConcentratorTest{
 		}
 		
 		// then the deviceType
-		result = Utilities.mw().getRtuTypeFactory().findByName("mbusMeter");
+		result = Utilities.mw().getRtuTypeFactory().findByName(mbusMeterType);
 		if (result.size() > 0) {
 			for(int i = 0; i < result.size(); i++) {
 				((RtuTypeImpl)result.get(i)).delete();
@@ -597,9 +614,9 @@ public class ConcentratorTest{
 		try{
 			
 			String property = "0:0:0:0:1.8.1+9m";
-			result = Utilities.mw().getRtuFactory().findByName(testMeter);
+			result = Utilities.mw().getRtuFactory().findByName(rtuName);
 			if(result.size() == 0) {
-				meter = Utilities.createRtu(rtuTypeMeter, "12345678", 900);
+				meter = Utilities.createRtu(rtuTypeMeter, rtuName, 900);
 			} else {
 				meter = (Rtu)result.get(0);
 			}
@@ -624,9 +641,9 @@ public class ConcentratorTest{
 			}
 			
 			// find out if there is an rtuType defined with this testName, if not, create it
-			result = Utilities.mw().getRtuTypeFactory().findByName("mbusMeter");
+			result = Utilities.mw().getRtuTypeFactory().findByName(mbusMeterType);
 			if(result.size() == 0) {
-				rtuTypeMeter = Utilities.createRtuType(commProtMeter, "mbusMeter", 4);
+				rtuTypeMeter = Utilities.createRtuType(commProtMeter, mbusMeterType, 4);
 			} else {
 				rtuTypeMeter = (RtuType)result.get(0);
 			}
