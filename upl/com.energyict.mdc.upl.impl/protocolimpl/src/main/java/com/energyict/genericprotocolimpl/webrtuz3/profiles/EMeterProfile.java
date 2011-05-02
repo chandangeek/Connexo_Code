@@ -94,7 +94,7 @@ public class EMeterProfile extends AbstractDLMSProfile {
                 final DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
                  */
                 eDevice.getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime());
-                fromCalendar.add(Calendar.SECOND, -getMeter().getIntervalInSeconds());
+//                fromCalendar.add(Calendar.SECOND, -getMeter().getIntervalInSeconds());
                 final DataContainer dc = genericProfile.getBuffer(fromCalendar);
 
                 buildProfileData(dc, profileData, genericProfile);
