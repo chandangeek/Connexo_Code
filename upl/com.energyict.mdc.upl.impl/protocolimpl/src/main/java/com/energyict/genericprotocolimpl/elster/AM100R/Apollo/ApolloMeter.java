@@ -179,13 +179,17 @@ public class ApolloMeter extends DLMSProtocol {
 
         ProfileData pd = new ProfileData();
         pd.setChannelInfos(apb.getChannelInfos());
+        if(pd.getChannelInfos().size() == 0){
+            getLogger().log(Level.INFO, "No channels are found which correspond with he default Profile");
+            return pd;
+        }
         Calendar toCalendar = Calendar.getInstance(getTimeZone());
         Calendar fromCalendar = Calendar.getInstance(getTimeZone());
         Date lastProfileDate = apb.getLastProfileDate();
         fromCalendar.setTime(lastProfileDate);
         getLogger().log(Level.INFO, "Getting intervalData from " + fromCalendar.getTime());
         pd.setIntervalDatas(apb.getIntervalList(fromCalendar, toCalendar));
-        getLogger().log(Level.FINEST, "Below is the channelInfo");
+        getLogger().log(Level.FINEST, "Below are the channelInfo");
         for(ChannelInfo ci : pd.getChannelInfos()){
             getLogger().log(Level.FINEST, ci.toString());
         }

@@ -23,6 +23,8 @@ public class ProfileUtils {
         return (((co.getClassId() == DLMSClassId.REGISTER.getClassId())
                 || (co.getClassId() == DLMSClassId.EXTENDED_REGISTER.getClassId())
                 || (co.getClassId() == DLMSClassId.DEMAND_REGISTER.getClassId()))
-                && co.getAttributeIndex() == 2);
+                && co.getAttributeIndex() == 2)
+
+                || ((co.getClassId() == DLMSClassId.DEMAND_REGISTER.getClassId()) && co.getAttributeIndex() == 3);
     }
 }
