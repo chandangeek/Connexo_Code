@@ -354,6 +354,10 @@ public abstract class AbstractGenericPoolingProtocol extends MeterMessages imple
         return this.fullShadow;
     }
 
+    public void setFullShadow(CommunicationSchedulerFullProtocolShadow fullShadow){
+        this.fullShadow = fullShadow;
+    }
+
     public Logger getLogger() {
         return this.logger;
     }

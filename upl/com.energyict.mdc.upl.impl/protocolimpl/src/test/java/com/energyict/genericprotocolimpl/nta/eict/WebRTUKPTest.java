@@ -7,6 +7,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.common.StoreObject;
+import com.energyict.genericprotocolimpl.common.pooling.CommunicationSchedulerFullProtocolShadowBuilder;
 import com.energyict.mdw.amr.RtuRegisterGroup;
 import com.energyict.mdw.amr.RtuRegisterMapping;
 import com.energyict.mdw.amr.RtuRegisterSpec;
@@ -199,13 +200,13 @@ public class WebRTUKPTest {
 	/**
 	 * Test whether the boolean markAsBadTime is set properly
 	 */
-    @Ignore
 	@Test
 	public void markAsBadTimeTest(){
 		try{
 			commProfile = CommunicationProfileCRUD.createCommunicationProfile(commProfileName,false, false, false, false, true, true, false, false, 3600, 10, null, null);
-			CommunicationSchedulerCRUD.createCommunicationScheduler(this.rtu, this.commProfile, this.mp);
+			CommunicationSchedulerCRUD.addCommunicationScheduleToRtu(this.rtu, this.commProfile, this.mp, null, true);
 			assertEquals(1, rtu.getCommunicationSchedulers().size());
+            webRtu.setFullShadow(CommunicationSchedulerFullProtocolShadowBuilder.createCommunicationSchedulerFullProtocolShadow(rtu.getCommunicationSchedulers().get(0)));
 			
 			webRtu.setCommunicationScheduler((CommunicationScheduler)this.rtu.getCommunicationSchedulers().get(0));
 			webRtu.setMeterConfig(DLMSMeterConfig.getInstance("WKP"));
