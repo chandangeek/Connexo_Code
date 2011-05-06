@@ -31,7 +31,7 @@ public class GprsConnectionTest {
     }
 
 
-    @Test(timeout = 500)
+    @Test(timeout = 10000)
     public void testSendFrameGetResponse() throws Exception {
         byte[] meterData = ProtocolTools.concatByteArrays(new byte[15], NACK_FRAME, new byte[5]);
         ByteArrayInputStream in = new ByteArrayInputStream(meterData);
@@ -44,7 +44,7 @@ public class GprsConnectionTest {
 
     }
 
-    @Test(expected = CTRConnectionException.class, timeout = 1000)
+    @Test(expected = CTRConnectionException.class, timeout = 10000)
     public void testTimeOut() throws Exception {
         MTU155Properties properties = new MTU155Properties();
         properties.addProperty(MTU155Properties.TIMEOUT, "100");
@@ -58,7 +58,7 @@ public class GprsConnectionTest {
         connection.sendFrameGetResponse(new GPRSFrame());
     }
 
-    @Test(timeout = 3000)
+    @Test(timeout = 10000)
     public void testRetries() throws Exception {
         MTU155Properties properties = new MTU155Properties();
         properties.addProperty(MTU155Properties.TIMEOUT, "1");
