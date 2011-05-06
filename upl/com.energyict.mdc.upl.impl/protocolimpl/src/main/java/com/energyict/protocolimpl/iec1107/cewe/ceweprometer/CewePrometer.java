@@ -1056,53 +1056,7 @@ public class CewePrometer extends AbstractProtocol  {
 
  
     public String getExceptionInfo(String id) {
-        
-        if( "001".equals(id) )
-            return "Non existing main id: There is no message with the " +
-            		"requested main id. Main id is the first four leading " +
-            		"digits in the message id. i.e. 0152 in 015200";
-        
-        if( "002".equals(id) )
-            return "Non existing sub id: There are no message with the " +
-                    "requested sub id. Sub id is the last two " +
-                    "digits in the message id. i.e. 00 in 015200";
-        
-        if( "003".equals(id) )
-            return "Locations requested exceeds limit: A maximum of 16 " +
-            		"locations may be read in a single read command e.g." +
-            		"R1<STX>101200(33) is not accepted and the meter " +
-            		"returns error message 003";
-        
-        if( "004".equals(id) )
-            return "Data format error: The format set in a data message has " +
-            		"not a valid format, e.g. a character string is sent when" +
-            		"the meter expects an integer.";
-        
-        if( "005".equals(id) )
-            return "Data content error: The data set in a data message has " +
-            		"not a valid content, e.g. a value is given outside valid" +
-            		"limits.";
-        
-        if( "006".equals(id) )
-            return "Message read only: Returned when a write command is sent" +
-            		"to a read only message.";
-        
-        if( "007".equals(id) )
-            return "Message write only: Returned when a read command is sent" +
-            		"to a write only message.";
-        
-        if( "008".equals(id) )
-            return "Reserved";
-        
-        if( "009".equals(id) )
-            return "General error message.";
-        
-        if( "010".equals(id) )
-            return "Access denied: Returned when current access level is not " +
-            		"enough for the requested message.";
-        
-        return "Error: \"" + id + "\" occured ";
-        
+        return CeweExceptionInfo.getExceptionInfo(id);
     }
     
 }
