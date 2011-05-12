@@ -203,7 +203,7 @@ public class WebRTUKPTest {
 	@Test
 	public void markAsBadTimeTest(){
 		try{
-			commProfile = CommunicationProfileCRUD.createCommunicationProfile(commProfileName,false, false, false, false, true, true, false, false, 3600, 10, null, null);
+			commProfile = CommunicationProfileCRUD.createCommunicationProfile(commProfileName,false, false, false, false, true, false, true, false, false, 3600, 10, null, null);
 			CommunicationSchedulerCRUD.addCommunicationScheduleToRtu(this.rtu, this.commProfile, this.mp, null, true);
 			assertEquals(1, rtu.getCommunicationSchedulers().size());
             webRtu.setFullShadow(CommunicationSchedulerFullProtocolShadowBuilder.createCommunicationSchedulerFullProtocolShadow(rtu.getCommunicationSchedulers().get(0)));
