@@ -1,17 +1,13 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer;
 
+import com.energyict.cbo.NestedIOException;
+import com.energyict.protocol.MeterEvent;
+
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
-
-import com.energyict.cbo.NestedIOException;
-import com.energyict.protocol.MeterEvent;
 
 /**
  * <pre>
@@ -333,7 +329,7 @@ public class EventParser {
     MeterEvent parse(String data) throws NestedIOException {
         Date d;
         try {
-            d = prometer.getEventDateFormat().parse(data.substring(1, 13));
+            d = prometer.getDateFormats().getEventDateFormat().parse(data.substring(1, 13));
         } catch (ParseException e) {
             throw new NestedIOException(e);
         }

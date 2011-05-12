@@ -1,15 +1,12 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer;
 
+import com.energyict.cbo.ApplicationException;
+import com.energyict.cbo.NestedIOException;
+
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
-import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.NestedIOException;
+import java.util.*;
 
 /** 
  * <blockquote><pre>
@@ -31,10 +28,9 @@ import com.energyict.cbo.NestedIOException;
  * @author fbo */
 
 class ProRegister {
-    
-    final static String NOT_SUPPORTED_EXCEPTION = 
-        "Register is not cacheable, so method not supportted";
-    
+
+    final static String NOT_SUPPORTED_EXCEPTION = "Register is not cacheable, so method not supported";
+
     /* reference to protocol object */
     private CewePrometer meter;
     /* protocol id of register */
@@ -46,7 +42,8 @@ class ProRegister {
     
     private String rawData;
     private List fields;
-    
+    private int exceptionCount = 0;
+
     /**
      * @param meter
      * @param id
@@ -101,19 +98,22 @@ class ProRegister {
     Iterator iterator(){
         return fields.iterator();
     }
-    
-    String getRawData() throws IOException {
-        if( rawData == null ) {
-            
-            String tmp = meter.read(id + "(" + fetchSize + ")");
-            if( ! cacheable ) return tmp;
-            
-            rawData = tmp;
 
+    String getRawData() throws IOException {
+        return getRawData(true);
+    }
+
+    String getRawData(boolean retry) throws IOException {
+        if (rawData == null) {
+            String tmp = meter.read(id + "(" + fetchSize + ")", retry);
+            if (!cacheable) {
+                return tmp;
+            }
+            rawData = tmp;
         }
         return rawData;
     }
-    
+
     ProRegister readAndFreeze( ) throws IOException {
         ProRegister register = new ProRegister( getRawData() );
         register.meter = meter;
@@ -127,17 +127,18 @@ class ProRegister {
     
     /** parse field 0 as String */
     String asString() throws IOException {
-        
-        if( !cacheable ) throw createNotSupportedException();
-        
+        if (!cacheable) {
+            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+        }
         return asString(0);
-        
     }
     
     /** parse field: fieldIdx as String */
     String asString(int fieldIdx) throws IOException {
         
-        if( !cacheable ) throw createNotSupportedException();
+        if (!cacheable) {
+            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+        }
         
         if( fields == null ) {
             String tmp = getRawData();
@@ -158,7 +159,9 @@ class ProRegister {
     /** parse field: fieldIdx as Double */
     Double asDouble(int fieldIdx) throws IOException {
         
-        if( !cacheable ) throw createNotSupportedException();
+        if (!cacheable) {
+            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+        }
         
         return new Double(asString(fieldIdx));
         
@@ -167,7 +170,9 @@ class ProRegister {
     /** parse field 0 as Double */
     Double asDouble() throws IOException {
         
-        if( !cacheable ) throw createNotSupportedException();
+        if (!cacheable) {
+            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+        }
         
         return asDouble(0);
         
@@ -176,7 +181,9 @@ class ProRegister {
     /** parse field: fieldIdx int field  */
     Integer asInteger(int fieldIdx) throws IOException {
         
-        if( !cacheable ) throw createNotSupportedException();
+        if (!cacheable) {
+            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+        }
         
         return new Integer(asString(fieldIdx));
         
@@ -185,7 +192,9 @@ class ProRegister {
     /** parse field 0 as Integer */
     Integer asInteger() throws IOException {
         
-        if( !cacheable ) throw createNotSupportedException();
+        if (!cacheable) {
+            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+        }
         
         return asInteger(0);
         
@@ -194,7 +203,9 @@ class ProRegister {
     /** parse field: fieldIdx as int */
     int asInt(int fieldIdx) throws IOException {
         
-        if( !cacheable ) throw createNotSupportedException();
+        if (!cacheable) {
+            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+        }
         
         return Integer.parseInt(asString(fieldIdx));
         
@@ -203,7 +214,9 @@ class ProRegister {
     /** parse field 0 as int */
     int asInt() throws IOException {
         
-        if( !cacheable ) throw createNotSupportedException();
+        if (!cacheable) {
+            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+        }
         
         return asInt(0);
         
@@ -212,10 +225,12 @@ class ProRegister {
     /** parse field 0 as Date with LongDateFormat */
     Date asDate( ) throws IOException {
         
-        if( !cacheable ) throw createNotSupportedException();
+        if (!cacheable) {
+            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+        }
         
         try {
-            return meter.getLongDateFormat().parse(asString(0)+asString(1));
+            return meter.getDateFormats().getLongDateFormat().parse(asString(0)+asString(1));
         } catch (ParseException e) {
             throw new NestedIOException(e);
         }
@@ -225,7 +240,9 @@ class ProRegister {
     /** parse field 0 as Date with sdf as DateFormat */
     Date asDate(SimpleDateFormat sdf) throws IOException {
         
-        if( !cacheable ) throw createNotSupportedException();
+        if (!cacheable) {
+            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+        }
         
         try {
             return sdf.parse(asString(0)+asString(1));
@@ -238,26 +255,24 @@ class ProRegister {
     
     /** parse fieldas Date with short dateFormat */
     Date asShortDate(int fieldIdx) throws IOException {
-        
-        if( !cacheable ) throw createNotSupportedException();
-        
+
+        if (!cacheable) {
+            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+        }
+
         try {
-            return meter.getShortDateFormat().parse(asString(fieldIdx));
+            return meter.getDateFormats().getShortDateFormat().parse(asString(fieldIdx));
         } catch (ParseException e) {
             throw new NestedIOException(e);
         }
         
     }
     
-    /** 19700101,000000 symantically means no date or NULL */
+    /** 19700101,000000 semantically means no date or NULL */
     boolean isNullDate() throws IOException{
         String tmp = getRawData();
         tmp = tmp.substring(1, tmp.length()-1); // remove braces ()
         return "19700101,000000".equals(tmp);
     }
 
-    private ApplicationException createNotSupportedException( ) {
-        return new ApplicationException( NOT_SUPPORTED_EXCEPTION );
-    }
-    
 }

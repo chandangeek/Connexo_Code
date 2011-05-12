@@ -1,23 +1,13 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer;
 
+import com.energyict.cbo.*;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.ObisCodeExtensions;
+
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-
-import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.base.ObisCodeExtensions;
+import java.util.*;
 
 
 /**
@@ -184,28 +174,28 @@ public class ObisCodeMapper {
         for( int bpI = 0; bpI < f.length; bpI ++ ){
         
         /* Energy registers */
-        putStd("1.1.1.8.0."   + f[bpI], prometer.rEenergy, 0 );        
-        putStd("1.1.2.8.0."   + f[bpI], prometer.rEenergy, 1 );
-        putStd("1.1.5.8.0."   + f[bpI], prometer.rEenergy, 2 );            
-        putStd("1.1.6.8.0."   + f[bpI], prometer.rEenergy, 3 );            
-        putStd("1.1.7.8.0."   + f[bpI], prometer.rEenergy, 4 );            
-        putStd("1.1.8.8.0."   + f[bpI], prometer.rEenergy, 5 );            
-        putStd("1.1.9.8.0."   + f[bpI], prometer.rEenergy, 6 );            
-        putStd("1.1.10.8.0."  + f[bpI], prometer.rEenergy, 7 );            
-        putStd("1.1.3.8.0."   + f[bpI], prometer.rEenergy, 8 );            
-        putStd("1.1.4.8.0."   + f[bpI], prometer.rEenergy, 9 );            
-        putStd("1.1.128.8.0." + f[bpI], prometer.rEenergy, 10 );            
-        putStd("1.1.129.8.0." + f[bpI], prometer.rEenergy, 11 );           
+        putStd("1.1.1.8.0."   + f[bpI], prometer.getRegisters().getrEenergy(), 0 );
+        putStd("1.1.2.8.0."   + f[bpI], prometer.getRegisters().getrEenergy(), 1 );
+        putStd("1.1.5.8.0."   + f[bpI], prometer.getRegisters().getrEenergy(), 2 );
+        putStd("1.1.6.8.0."   + f[bpI], prometer.getRegisters().getrEenergy(), 3 );
+        putStd("1.1.7.8.0."   + f[bpI], prometer.getRegisters().getrEenergy(), 4 );
+        putStd("1.1.8.8.0."   + f[bpI], prometer.getRegisters().getrEenergy(), 5 );
+        putStd("1.1.9.8.0."   + f[bpI], prometer.getRegisters().getrEenergy(), 6 );
+        putStd("1.1.10.8.0."  + f[bpI], prometer.getRegisters().getrEenergy(), 7 );
+        putStd("1.1.3.8.0."   + f[bpI], prometer.getRegisters().getrEenergy(), 8 );
+        putStd("1.1.4.8.0."   + f[bpI], prometer.getRegisters().getrEenergy(), 9 );
+        putStd("1.1.128.8.0." + f[bpI], prometer.getRegisters().getrEenergy(), 10 );
+        putStd("1.1.129.8.0." + f[bpI], prometer.getRegisters().getrEenergy(), 11 );
         
         /* External Registers */
-        putStd("1.1.131.8.0." + f[bpI], prometer.rExternal, 0 );
-        putStd("1.1.132.8.0." + f[bpI], prometer.rExternal, 1 );
-        putStd("1.1.133.8.0." + f[bpI], prometer.rExternal, 2 );
-        putStd("1.1.134.8.0." + f[bpI], prometer.rExternal, 3 );
-        putStd("1.1.135.8.0." + f[bpI], prometer.rExternal, 4 );
-        putStd("1.1.136.8.0." + f[bpI], prometer.rExternal, 5 );
-        putStd("1.1.137.8.0." + f[bpI], prometer.rExternal, 6 );
-        putStd("1.1.138.8.0." + f[bpI], prometer.rExternal, 7 );    
+        putStd("1.1.131.8.0." + f[bpI], prometer.getRegisters().getrExternal(), 0 );
+        putStd("1.1.132.8.0." + f[bpI], prometer.getRegisters().getrExternal(), 1 );
+        putStd("1.1.133.8.0." + f[bpI], prometer.getRegisters().getrExternal(), 2 );
+        putStd("1.1.134.8.0." + f[bpI], prometer.getRegisters().getrExternal(), 3 );
+        putStd("1.1.135.8.0." + f[bpI], prometer.getRegisters().getrExternal(), 4 );
+        putStd("1.1.136.8.0." + f[bpI], prometer.getRegisters().getrExternal(), 5 );
+        putStd("1.1.137.8.0." + f[bpI], prometer.getRegisters().getrExternal(), 6 );
+        putStd("1.1.138.8.0." + f[bpI], prometer.getRegisters().getrExternal(), 7 );
         
         putTOU("1.1.1.8.1." + f[bpI],   CewePrometer.TOU_ACTIVE_ENERGY_IMP);
         putTOU("1.1.2.8.1." + f[bpI],   CewePrometer.TOU_ACTIVE_ENERGY_EXP);
@@ -296,12 +286,12 @@ public class ObisCodeMapper {
         
         }
         
-        putStd("1.1.21.8.0.255", prometer.rEenergy, 12);            
-        putStd("1.1.41.8.0.255", prometer.rEenergy, 13);            
-        putStd("1.1.61.8.0.255", prometer.rEenergy, 14);            
-        putStd("1.1.22.8.0.255", prometer.rEenergy, 15);            
-        putStd("1.1.42.8.0.255", prometer.rEenergy, 16);            
-        putStd("1.1.62.8.0.255", prometer.rEenergy, 17); 
+        putStd("1.1.21.8.0.255", prometer.getRegisters().getrEenergy(), 12);
+        putStd("1.1.41.8.0.255", prometer.getRegisters().getrEenergy(), 13);
+        putStd("1.1.61.8.0.255", prometer.getRegisters().getrEenergy(), 14);
+        putStd("1.1.22.8.0.255", prometer.getRegisters().getrEenergy(), 15);
+        putStd("1.1.42.8.0.255", prometer.getRegisters().getrEenergy(), 16);
+        putStd("1.1.62.8.0.255", prometer.getRegisters().getrEenergy(), 17);
         
         
     }
@@ -467,7 +457,7 @@ public class ObisCodeMapper {
         Date getToTime( ) throws IOException {
             if( bp() == 255 ) return null;
             int row = prometer.getRow(bp());
-            return prometer.rTimestamp[row].asDate();
+            return prometer.getRegisters().getrTimestamp()[row].asDate();
         }
 
         String getDescription() {
@@ -497,13 +487,13 @@ public class ObisCodeMapper {
                 throw new NoSuchRegisterException( msg );
             }
 
-            return new Quantity( prometer.rTou[row][phenomenon].asDouble(getRate()),getUnit());
+            return new Quantity( prometer.getRegisters().getrTou()[row][phenomenon].asDouble(getRate()),getUnit());
         }
 
         Date getToTime( ) throws IOException {
             if( bp() == 255 ) return null;
             int row = prometer.getRow(bp());
-            return prometer.rTimestamp[row].asDate();
+            return prometer.getRegisters().getrTimestamp()[row].asDate();
         }
 
         int getRate( ){
@@ -545,9 +535,9 @@ public class ObisCodeMapper {
                     throw new NoSuchRegisterException( msg );
                 }
                 
-                for(int i = 0; i < prometer.rMaximumDemand[row].length; i++){
-                    if( prometer.rMaximumDemand[row][i].asInt(0) == maximumPhenomenon ) 
-                        maximum = prometer.rMaximumDemand[row][i];
+                for(int i = 0; i < prometer.getRegisters().getrMaximumDemand()[row].length; i++){
+                    if( prometer.getRegisters().getrMaximumDemand()[row][i].asInt(0) == maximumPhenomenon )
+                        maximum = prometer.getRegisters().getrMaximumDemand()[row][i];
                 }
                 
             }
@@ -576,7 +566,7 @@ public class ObisCodeMapper {
         Date getToTime( ) throws IOException {
             if( bp() == 255 ) return null;
             int row = prometer.getRow(bp());
-            return prometer.rTimestamp[row].asDate();
+            return prometer.getRegisters().getrTimestamp()[row].asDate();
         }
         
         int getRank() {
@@ -665,7 +655,7 @@ public class ObisCodeMapper {
                 throw new NoSuchRegisterException( msg );
             }
             Unit ms = Unit.get(BaseUnit.SECOND, -3);
-            ProRegister r = prometer.rTimestamp[row].readAndFreeze();
+            ProRegister r = prometer.getRegisters().getrTimestamp()[row].readAndFreeze();
             BigDecimal v = new BigDecimal( r.asDate().getTime() );
             return new Quantity(v,ms );
         }
@@ -673,7 +663,7 @@ public class ObisCodeMapper {
         Date getToTime( ) throws IOException {
             if( bp() == 255 ) return null;
             int row = prometer.getRow(bp());
-            return prometer.rTimestamp[row].asDate();
+            return prometer.getRegisters().getrTimestamp()[row].asDate();
         }
 
         String getDescription() {
