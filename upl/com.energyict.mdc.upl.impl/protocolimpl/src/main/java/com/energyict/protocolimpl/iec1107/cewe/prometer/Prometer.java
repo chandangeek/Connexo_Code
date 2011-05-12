@@ -1,41 +1,19 @@
 package com.energyict.protocolimpl.iec1107.cewe.prometer;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.logging.Level;
-
-import com.energyict.cbo.NestedIOException;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.cbo.*;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimpl.base.AbstractProtocol;
-import com.energyict.protocolimpl.base.Encryptor;
-import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.iec1107.IEC1107Connection;
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.logging.Level;
 
 /** <pre>
 
@@ -689,8 +667,7 @@ public class Prometer extends AbstractProtocol  {
         return getProfileData(from, true);
     }
     
-    public ProfileData getProfileData(Date lastReading, boolean includeEvents) 
-        throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException, UnsupportedException {
         
         /* step 1: write the start date */
         write(toCmd( rLogOffset, getQueryDateFormat().format(lastReading) ));
@@ -721,8 +698,7 @@ public class Prometer extends AbstractProtocol  {
      * Turn a response into a ProfileData object.  A response consists of a
      * series of intervals. 
      */
-    private Date toProfileData(ProfileData profileData, String buffer) 
-        throws IOException {
+    private Date toProfileData(ProfileData profileData, String buffer) throws IOException {
     	
         Date last = null;
         
@@ -881,9 +857,14 @@ public class Prometer extends AbstractProtocol  {
 
     /** send read command */
     String read(String cmd) throws IOException {
-        dbg( "read " + cmd );
+        return read(cmd, true);
+    }
+
+    /** send read command */
+    String read(String cmd, boolean retry) throws IOException {
         connection.sendRawCommandFrame(IEC1107Connection.READ1, cmd.getBytes());
-        return new String(connection.receiveRawData());
+        byte[] rawData = retry ? connection.receiveRawData() : connection.doReceiveData();
+        return new String(rawData);
     }
     
     /** send write command */

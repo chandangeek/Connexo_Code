@@ -42,7 +42,6 @@ class ProRegister {
     
     private String rawData;
     private List fields;
-    private int exceptionCount = 0;
 
     /**
      * @param meter
