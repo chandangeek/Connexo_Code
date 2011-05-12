@@ -25,7 +25,7 @@ package com.energyict.protocolimpl.dlms;
 
 
 import com.energyict.dlms.*;
-import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
@@ -368,7 +368,8 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
      * @throws java.io.IOException
      */
     public void resetDemand() throws IOException {
-        //TODO implement proper functionality.
+        GenericInvoke gi = new GenericInvoke(this, new ObjectReference(ObisCode.fromString("0.0.240.1.0.255").getLN()),5);
+        gi.invoke();
     }
 
     /**
