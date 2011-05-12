@@ -45,4 +45,5 @@ public class RtuMessageKeyIdConstants {
     public static final String CHANGE_AUTHENTICATION_LEVEL = "Change the authentication Level";
     public static final String SMS_CHANGE_SMSC = "Change SMS Center number";
     public static final String CHANGE_DEVICE_PHONE_NUMBER = "Change device phone number";
+    public static final String DEMANDRESET = "Demand Reset";
 }

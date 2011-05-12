@@ -3,7 +3,8 @@ package com.energyict.protocolimpl.messages;
 /**
  * Keeps track of the RtuMessageConstant variables
  * <p/>
- * <b>Note:</b> Do not change the already existing tags, just add new ones if necessary.
+ * <b>Note:</b> Do not change the already existing tags, just add new ones if necessary.<br>
+ * <b>Note_2:</b> Don't use spaces in the names, these are used in XML-tags
  */
 public class RtuMessageConstant {
 
@@ -255,4 +256,5 @@ public class RtuMessageConstant {
     public static final String CHANGE_DEVICE_PHONE_NUMBER = "Change_Device_Phone_Number";
     public static final String DEVICE_PHONE_NUMBER = "PhoneNumber";
 
+    public static final String DEMAND_RESET = "DemandReset";
 }

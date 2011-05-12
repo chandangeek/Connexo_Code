@@ -28,18 +28,21 @@ import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.dlms.siemenszmd.EventNumber;
-import com.energyict.protocolimpl.dlms.siemenszmd.ObisCodeMapper;
+import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.dlms.siemenszmd.*;
 
 import java.io.IOException;
 import java.util.*;
 
-public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProtocol {
+public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProtocol, MessageProtocol {
     private static final byte DEBUG=0;
+
+    private final MessageProtocol messageProtocol;
 
     int eventIdIndex;
 
     public DLMSZMD() {
+        this.messageProtocol = new ZmdMessages(this);
     }
 
     protected String getDeviceID() {
@@ -366,5 +369,45 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
      */
     public void resetDemand() throws IOException {
         //TODO implement proper functionality.
+    }
+
+    /**
+     * Provides the full list of outstanding messages to the protocol.
+     * If for any reason certain messages have to be grouped before they are sent to a device, then this is the place to do it.
+     * At a later timestamp the framework will query each {@link com.energyict.protocol.MessageEntry} (see {@link #queryMessage(com.energyict.protocol.MessageEntry)}) to actually
+     * perform the message.
+     *
+     * @param messageEntries a list of {@link com.energyict.protocol.MessageEntry}s
+     * @throws java.io.IOException if a logical error occurs
+     */
+    public void applyMessages(final List messageEntries) throws IOException {
+        this.messageProtocol.applyMessages(messageEntries);
+    }
+
+    /**
+     * Indicates that each message has to be executed by the protocol.
+     *
+     * @param messageEntry a definition of which message needs to be sent
+     * @return a state of the message which was just sent
+     * @throws java.io.IOException if a logical error occurs
+     */
+    public MessageResult queryMessage(final MessageEntry messageEntry) throws IOException {
+        return this.messageProtocol.queryMessage(messageEntry);
+    }
+
+    public List getMessageCategories() {
+        return this.messageProtocol.getMessageCategories();
+    }
+
+    public String writeMessage(final Message msg) {
+        return this.messageProtocol.writeMessage(msg);
+    }
+
+    public String writeTag(final MessageTag tag) {
+        return this.messageProtocol.writeTag(tag);
+    }
+
+    public String writeValue(final MessageValue value) {
+        return this.messageProtocol.writeValue(value);
     }
 }
