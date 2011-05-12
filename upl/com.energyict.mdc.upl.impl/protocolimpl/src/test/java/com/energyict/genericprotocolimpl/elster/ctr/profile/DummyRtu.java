@@ -593,6 +593,52 @@ public class DummyRtu implements Rtu {
         return true;
     }
 
+    /**
+     * Returns the number of schedules that are currently failing in the device. This property is to be considered
+     * a counter: if a schedule fails, it is incremented, but if the backup schedule succeeds, it is decremented again,
+     * ending up at 0.
+     *
+     * @return number of failed schedules.
+     */
+    public int getNumberOfFailedSchedules() {
+        return 0;  //TODO implement proper functionality.
+    }
+
+    public int getNumberOfSuspects() {
+        return 0;  //TODO implement proper functionality.
+    }
+
+    public int getNumberOfAlarms() {
+        return 0;  //TODO implement proper functionality.
+    }
+
+    /**
+     * Indicates if the data collection status for this device is OK or not.
+     *
+     * @return true if the status is OK, false if the status is not OK
+     */
+    public boolean isDataCollectionStatusOk() {
+        return false;  //TODO implement proper functionality.
+    }
+
+    /**
+     * Indicates if the data validation status for this device is OK or not.
+     *
+     * @return true if the status is OK, false if the status is not OK
+     */
+    public boolean isDataValidationStatusOk() {
+        return false;  //TODO implement proper functionality.
+    }
+
+    /**
+     * Indicates if the alarm status for this device is active or not
+     *
+     * @return true if the device is in alarm status, false if it is not in alarm status
+     */
+    public boolean isAlarmStatus() {
+        return false;  //TODO implement proper functionality.
+    }
+
     public ChangeRtuTypeTransaction createChangeRtuTypeTransaction(RtuType newType) {
         return null;
     }
