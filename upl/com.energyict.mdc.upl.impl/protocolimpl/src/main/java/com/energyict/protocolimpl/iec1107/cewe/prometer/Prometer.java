@@ -56,8 +56,6 @@ import java.util.logging.Level;
  */
 public class Prometer extends AbstractProtocol  {
     
-    private boolean dbg = false;
-     
     /** Property keys specific for CewePrometer protocol. */
     final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
     final static String PK_LOGGER = "Logger";
@@ -575,8 +573,7 @@ public class Prometer extends AbstractProtocol  {
         String nowTimeString = getTimeRegisterFormat().format( cNow.getTime() );
 
         if( !meterDateString.equals(nowDateString) ) {
-            dbg( "attention: setting date" );
-            write( toCmd( rDate, nowDateString ) ); 
+            write( toCmd( rDate, nowDateString ) );
         }
         
         write( toCmd(rTime, nowTimeString ));
@@ -752,8 +749,6 @@ public class Prometer extends AbstractProtocol  {
             String ds = register.asString(0) + "," + register.asString(1);
             Date date = getQueryDateFormat().parse(ds); 
             
-            dbg( ds + " -> " + date );
-            
             IntervalData id = new IntervalData(date);
             
             if( !register.isEmpty(2) ) id.addValue( register.asBigDecimal(2) );
@@ -804,8 +799,6 @@ public class Prometer extends AbstractProtocol  {
         
         for( int i = 0; i < rAlarm.length; i++ ){
         	
-        	if (dbg) i = 20;
-            
             ErrorMessage error = ErrorMessage.get(rAlarm[i].asInt());
             
             if(error == null) continue; // alarm contains null => skip
@@ -869,12 +862,7 @@ public class Prometer extends AbstractProtocol  {
     
     /** send write command */
     void write(String cmd) throws IOException {
-        dbg( "write " + cmd );
         connection.sendRawCommandFrame(IEC1107Connection.WRITE1, cmd.getBytes());
-    }
-    
-    private void dbg(String msg){
-        if( dbg ) System.out.println( "dbg:: " + msg );
     }
     
     /** Date format: yyyyMMdd,HHmmss */
@@ -940,14 +928,11 @@ public class Prometer extends AbstractProtocol  {
      * @throws IOException 
      */
     int findMDRegister(int regNo) throws IOException {
-        
         for( int i = 0; i < rDemandRegister.length; i++)
             if( rDemandRegister[i].asInt() == regNo ) 
                 return i;
         
         throw new NoSuchRegisterException();
-
     }
 
-    
 }
