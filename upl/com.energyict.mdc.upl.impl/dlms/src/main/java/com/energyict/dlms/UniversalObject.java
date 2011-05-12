@@ -128,6 +128,9 @@ public class UniversalObject implements DLMSCOSEMGlobals,Serializable {
 		return ln;
 	}
 
+    /**
+     * @return the ShortName linked to this obisCode
+     */
 	public int getBaseName() {
 		return (int)this.fields[IOL_BASENAME];
 	}

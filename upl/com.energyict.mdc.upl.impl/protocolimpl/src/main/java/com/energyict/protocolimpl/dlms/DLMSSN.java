@@ -287,7 +287,7 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
         strBuff.append("********************* All instantiated objects in the meter *********************\n");
         for (int i=0;i<getMeterConfig().getInstantiatedObjectList().length;i++) {
             UniversalObject uo = getMeterConfig().getInstantiatedObjectList()[i];
-            strBuff.append(uo.getObisCode().toString()+" "+uo.getObisCode().getDescription()+"\n");
+            strBuff.append(uo.getObisCode().toString()+" "+uo.getObisCode().getDescription() + " - ShortName : "+ uo.getBaseName()+ Integer.toHexString(uo.getBaseName()) +"\n");
         }
         
         if (getDeviceID().compareTo("EIT")!=0) {

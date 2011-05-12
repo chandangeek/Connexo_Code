@@ -34,7 +34,7 @@ import com.energyict.protocolimpl.dlms.siemenszmd.ObisCodeMapper;
 import java.io.IOException;
 import java.util.*;
 
-public class DLMSZMD extends DLMSSN implements RegisterProtocol {
+public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProtocol {
     private static final byte DEBUG=0;
 
     int eventIdIndex;
@@ -357,4 +357,14 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
-} // public class DLMSZMD
+    /**
+     * Execute a billing reset on the device. After receiving the “Demand Reset”
+     * command the meter executes a demand reset by doing a snap shot of all
+     * energy and demand registers.
+     *
+     * @throws java.io.IOException
+     */
+    public void resetDemand() throws IOException {
+        //TODO implement proper functionality.
+    }
+}
