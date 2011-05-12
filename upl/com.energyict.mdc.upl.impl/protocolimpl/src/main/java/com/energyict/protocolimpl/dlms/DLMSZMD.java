@@ -285,7 +285,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol {
         int i;
         long current;
         for (i=0;i<currentCount;i++) {
-            if (meterConfig.getChannelObject(i).isCapturedObjectCumulative()) {
+            if (getMeterConfig().getChannelObject(i).isCapturedObjectCumulative()) {
 				current = ((Number)currentIntervalData.get(i)).longValue();
 			} else {
 				current = ((Number)currentIntervalData.get(i)).longValue()+((Number)cumulatedIntervalData.get(i)).longValue();
@@ -340,13 +340,13 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol {
 
         }
         catch (NumberFormatException e) {
-            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());
+            throw new InvalidPropertyException("DLMS ZMD, validateProperties, NumberFormatException, "+e.getMessage());
         }
     }
 
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
-			ObisCodeMapper ocm = new ObisCodeMapper(getCosemObjectFactory());
+			ObisCodeMapper ocm = new ObisCodeMapper(getCosemObjectFactory(), getMeterConfig(), this);
 			return ocm.getRegisterValue(obisCode);
 		} catch (Exception e) {
 			throw new NoSuchRegisterException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());

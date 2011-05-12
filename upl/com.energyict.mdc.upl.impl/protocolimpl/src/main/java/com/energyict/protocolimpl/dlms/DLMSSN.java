@@ -97,8 +97,11 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
     private int iNumberOfChannels=-1;
     private int iMeterTimeZoneOffset=255;
     private int iConfigProgramChange=-1;
-    
-    DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance();
+
+    /**
+     * Contains the Configuration of a DLMS meter
+     */
+    private DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance();
     
     // Added for MeterProtocol interface implementation
     private Logger logger=null;
@@ -464,11 +467,17 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
         UniversalObject uo = meterConfig.getVersionObject();
         return getCosemObjectFactory().getGenericRead(uo.getBaseName(),uo.getValueAttributeOffset()).getString();
     } // public String getFirmwareVersion()
-    
-    private String getSerialNumber() throws IOException {
+
+    /**
+     * Return the serialNumber of the device.
+     *
+     * @return the serialNumber of the device.
+     * @throws IOException if an error occurs during the read
+     */
+    public String getSerialNumber() throws IOException {
         UniversalObject uo = meterConfig.getSerialNumberObject();
-        return getCosemObjectFactory().getGenericRead(uo.getBaseName(),uo.getValueAttributeOffset()).getString();
-    } // public String getSerialNumber()   
+        return getCosemObjectFactory().getGenericRead(uo.getBaseName(), uo.getValueAttributeOffset()).getString();
+    }
     
     /**
      * This method requests for the NR of intervals that can be stored in the memory of the remote meter.
