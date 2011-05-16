@@ -2,32 +2,29 @@ package com.energyict.protocolimpl.debug;
 
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
-import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocolimpl.iec1107.cewe.prometer.Prometer;
 
 import java.io.IOException;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
  * Date: 10/05/11
  * Time: 15:47
  */
-public class CewePrometerMain extends AbstractDebuggingMain<CewePrometer> {
+public class PrometerMain extends AbstractDebuggingMain<Prometer> {
 
-    private static CewePrometer cewePrometer = null;
-    public static final String SERIAL_NEW_FW = "1610901";
-    public static final String SERIAL_OLD_FW = "1483801";
-    private static final String SERIAL = SERIAL_OLD_FW;
+    private static Prometer prometer = null;
+    private static final String SERIAL = "1339607";
 
     @Override
-    CewePrometer getMeterProtocol() {
-        if (cewePrometer == null) {
-            cewePrometer = new CewePrometer();
-            log("Created new instance of " + cewePrometer.getClass().getCanonicalName() + " [" + cewePrometer.getProtocolVersion() + "]");
+    Prometer getMeterProtocol() {
+        if (prometer == null) {
+            prometer = new Prometer();
+            log("Created new instance of " + prometer.getClass().getCanonicalName() + " [" + prometer.getProtocolVersion() + "]");
         }
-        return cewePrometer;
+        return prometer;
     }
 
     @Override
@@ -38,9 +35,9 @@ public class CewePrometerMain extends AbstractDebuggingMain<CewePrometer> {
         properties.setProperty(MeterProtocol.MINTIMEDIFF, "1");
         properties.setProperty(MeterProtocol.CORRECTTIME, "0");
         properties.setProperty(MeterProtocol.PROFILEINTERVAL, "1800");
-        properties.setProperty(MeterProtocol.PASSWORD, "222222");
+        properties.setProperty(MeterProtocol.PASSWORD, "0000");
         properties.setProperty(MeterProtocol.SERIALNUMBER, SERIAL);
-        properties.setProperty("SecurityLevel", "2");
+        properties.setProperty("SecurityLevel", "1");
         properties.setProperty("Software7E1", "1");
         properties.setProperty("Retries", "3");
         properties.setProperty("Timeout", "10000");
@@ -50,13 +47,14 @@ public class CewePrometerMain extends AbstractDebuggingMain<CewePrometer> {
     }
 
     public static void main(String[] args) {
-        CewePrometerMain main = new CewePrometerMain();
+        PrometerMain main = new PrometerMain();
         main.setCommPort("COM20");
         main.setBaudRate(9600);
         main.setStopBits(SerialCommunicationChannel.STOPBITS_1);
         main.setParity(SerialCommunicationChannel.PARITY_NONE);
         main.setDataBits(SerialCommunicationChannel.DATABITS_8);
-        main.setPhoneNumber("004615577556");
+        main.setTimeZone(TimeZone.getTimeZone("GMT"));
+        main.setPhoneNumber("00441445712745");
         main.setModemInit("ATM0");
         main.setAsciiMode(true);
         main.set7E1Mode(true);
@@ -66,10 +64,17 @@ public class CewePrometerMain extends AbstractDebuggingMain<CewePrometer> {
 
     @Override
     void doDebug() throws LinkException, IOException {
-        ProfileData profileData = getMeterProtocol().getProfileData(ProtocolTools.createCalendar(2000, 4, 2, 0, 0, 0, 0).getTime(), false);
-        for (IntervalData data : profileData.getIntervalDatas()) {
-            System.out.println(data);
-        }
+        Date time = getMeterProtocol().getTime();
+        Date systemTime = new Date();
+        System.out.println("\n");
+        System.out.println("Meter time:  " + time + " [" + time.getTime() + "]");
+        System.out.println("System time: " + systemTime + " [" + systemTime.getTime() + "]");
+        System.out.println("Time diff:   " + (time.getTime() - systemTime.getTime()));
+        System.out.println("\n");
+    }
+
+    @RunOnDevice(protocolClass = Prometer.class)
+    public void debugMethod() {
 
     }
 

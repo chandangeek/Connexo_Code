@@ -20,7 +20,6 @@ import java.util.logging.Logger;
 public abstract class AbstractDebuggingMain<P extends MeterProtocol> {
 
     private static final Level LOG_LEVEL = Level.ALL;
-    private P meterProtocol;
 
     private Logger logger = null;
     private Dialer dialer = null;
@@ -42,7 +41,7 @@ public abstract class AbstractDebuggingMain<P extends MeterProtocol> {
 
     abstract void doDebug() throws LinkException, IOException;
 
-    abstract MeterProtocol getMeterProtocol();
+    abstract P getMeterProtocol();
 
     abstract Properties getProperties();
 
