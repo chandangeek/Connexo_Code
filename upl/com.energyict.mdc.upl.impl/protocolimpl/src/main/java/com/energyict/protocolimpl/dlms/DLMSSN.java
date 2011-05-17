@@ -1077,7 +1077,7 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
         return (StoredValues)storedValuesImpl;
     }
 
-    protected void setDLMSConnection(DLMSConnection connection){
+    public void setDLMSConnection(DLMSConnection connection){
         this.dlmsConnection = connection;
     }
 } // public class DLMSSN

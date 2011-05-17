@@ -15,7 +15,7 @@ import java.util.List;
  * Date: 12-mei-2011
  * Time: 11:36:59
  */
-public class ZmdMessages extends ProtocolMessages{
+public class ZmdMessages extends ProtocolMessages {
 
     private final DLMSZMD protocol;
 
@@ -44,26 +44,35 @@ public class ZmdMessages extends ProtocolMessages{
      * @throws java.io.IOException if a logical error occurs
      */
     public MessageResult queryMessage(final MessageEntry messageEntry) throws IOException {
-        if (isItThisMessage(messageEntry, RtuMessageConstant.DEMAND_RESET)) {
-            infoLog("Sending message DemandReset.");
-            this.protocol.resetDemand();
-            infoLog("DemandReset message successful.");
-            return MessageResult.createSuccess(messageEntry);
+        try {
+            if (isItThisMessage(messageEntry, RtuMessageConstant.DEMAND_RESET)) {
+                infoLog("Sending message DemandReset.");
+                this.protocol.resetDemand();
+                infoLog("DemandReset message successful.");
+                return MessageResult.createSuccess(messageEntry);
+            } else {
+                infoLog("Unknown message received.");
+                return MessageResult.createUnknown(messageEntry);
+            }
+
+        } catch (Exception e){
+            infoLog("Message failed : " + e.getMessage());
         }
-        return MessageResult.createUnknown(messageEntry);
+        return MessageResult.createFailed(messageEntry);
     }
 
     public List getMessageCategories() {
-        List<MessageCategorySpec> categories = new ArrayList();
+        List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
         categories.add(ProtocolMessageCategories.getDemandResetCategory());
         return categories;
     }
 
     /**
      * Log the given message to the logger with the INFO level
+     *
      * @param messageToLog
      */
-    private void infoLog(String messageToLog){
+    private void infoLog(String messageToLog) {
         this.protocol.getLogger().info(messageToLog);
     }
 }
