@@ -91,7 +91,7 @@ public class ObisCodeMapper {
                     new String(cof.getActivityCalendar(obisCode).readCalendarNameActive().getOctetStr()));
         } else if (obisCode.equals(ObisCode.fromString("0.0.97.97.0.255"))) {   // Error status
             Register register = cof.getRegister(obisCode);
-            String errorRegister = convertToEightDigitErrorRegister(Long.toHexString(register.getValue()).toUpperCase());
+            String errorRegister = ProtocolUtils.outputHexString(register.getValueAttr().getOctetString().getOctetStr());
             return new RegisterValue(obisCode, errorRegister);
         }
         // *********************************************************************************
@@ -131,24 +131,4 @@ public class ObisCodeMapper {
         return registerValue;
 
     } // private Object doGetRegister(ObisCode obisCode, boolean read) throws IOException
-
-    /**
-     * Create an 8digit errorRegisterString
-     *
-     * @param s the Hex-value of the errorString.
-     * @return
-     */
-    protected String convertToEightDigitErrorRegister(final String s) {
-        String errorRegister = "00000000";
-        errorRegister = errorRegister.substring(0, errorRegister.length() - s.length()).concat(s);
-        StringBuilder strBuilder = new StringBuilder();
-        for (int i = 0; i < errorRegister.length(); i++) {
-            if(i != 0 && i%2 == 0){
-                strBuilder.append(" ");
-            }
-            strBuilder.append(errorRegister.charAt(i));
-        }
-        return strBuilder.toString();
-    }
-
-} // public class ObisCodeMapper 
+}
