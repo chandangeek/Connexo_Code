@@ -604,7 +604,7 @@ public class DummyRtu implements Rtu {
         return 0;  //TODO implement proper functionality.
     }
 
-    public int getNumberOfSuspects() {
+    public int getNumberOfSuspectIntervals() {
         return 0;  //TODO implement proper functionality.
     }
 
