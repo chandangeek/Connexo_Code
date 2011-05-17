@@ -6,6 +6,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -41,6 +42,23 @@ public final class ProtocolTools {
         }
         return bb.toByteArray();
     }
+
+    /**
+     * Turn an integer into a byte array, with a given length.
+     *
+     * @param value
+     * @param length
+     * @return
+     */
+    public static byte[] getBytesFromInt(int value, int length) {
+        byte[] bytes = new byte[length];
+        for (int i = 0; i < bytes.length; i++) {
+            int ptr = (bytes.length - (i + 1));
+            bytes[ptr] = (i < 4) ? (byte) ((value >> (i * 8))) : 0x00;
+        }
+        return bytes;
+    }
+
 
     /**
      * Build a String with the data representation using $ before each byte
@@ -111,6 +129,23 @@ public final class ProtocolTools {
     }
 
     /**
+     * @param stringToPad
+     * @param character
+     * @param length
+     * @param addToEnd
+     * @return
+     */
+    public static String addPaddingAndClip(final String stringToPad, final char character, final int length, final boolean addToEnd) {
+        String padded = addPadding(stringToPad, character, length, addToEnd);
+        if (addToEnd) {
+            return padded.substring(0, length);
+        } else {
+            return padded.substring(padded.length() - length);
+        }
+    }
+
+
+    /**
      * @param array
      * @param index
      * @return
@@ -170,6 +205,44 @@ public final class ProtocolTools {
         System.arraycopy(firstArray, 0, bytes, 0, firstArray.length);
         System.arraycopy(secondArray, 0, bytes, firstArray.length, secondArray.length);
         return bytes;
+    }
+
+    public static Long[] concatLongArrays(final Long[] firstArray, final Long[] secondArray) {
+        if (firstArray == null) {
+            if (secondArray == null) {
+                return new Long[0];
+            } else {
+                return secondArray.clone();
+            }
+        } else {
+            if (secondArray == null) {
+                return firstArray.clone();
+            }
+        }
+
+        Long[] longs = new Long[firstArray.length + secondArray.length];
+              System.arraycopy(firstArray, 0, longs, 0, firstArray.length);
+        System.arraycopy(secondArray, 0, longs, firstArray.length, secondArray.length);
+        return longs;
+    }
+
+    public static BigDecimal[] concatBigDecimalArrays(final BigDecimal[] firstArray, final BigDecimal[] secondArray) {
+        if (firstArray == null) {
+            if (secondArray == null) {
+                return new BigDecimal[0];
+            } else {
+                return secondArray.clone();
+    }
+        } else {
+            if (secondArray == null) {
+                return firstArray.clone();
+            }
+        }
+
+        BigDecimal[] bds = new BigDecimal[firstArray.length + secondArray.length];
+        System.arraycopy(firstArray, 0, bds, 0, firstArray.length);
+        System.arraycopy(secondArray, 0, bds, firstArray.length, secondArray.length);
+        return bds;
     }
 
     /**
@@ -233,9 +306,18 @@ public final class ProtocolTools {
      * @param append
      */
     public static void writeBytesToFile(final String fileName, final byte[] bytes, final boolean append) {
+        writeBytesToFile(new File(fileName), bytes, append);
+    }
+
+    /**
+     * @param file
+     * @param bytes
+     * @param append
+     */
+    public static void writeBytesToFile(final File file, final byte[] bytes, final boolean append) {
         OutputStream os = null;
         try {
-            os = new FileOutputStream(fileName, append);
+            os = new FileOutputStream(file, append);
             os.write(bytes);
         } catch (IOException e) {
             e.printStackTrace();
@@ -251,12 +333,11 @@ public final class ProtocolTools {
     }
 
     /**
-     * @param fileName
+     * @param file
      * @return
      */
-    public static byte[] readBytesFromFile(final String fileName) {
-        File file = new File(fileName);
-        byte[] buffer = new byte[(int) file.length()];
+    public static byte[] readBytesFromFile(final File file) {
+        byte[] buffer = new byte[file == null ? 0 : (int) file.length()];
         InputStream is = null;
         try {
             is = new FileInputStream(file);
@@ -277,6 +358,13 @@ public final class ProtocolTools {
             }
         }
         return buffer;
+    }
+    /**
+     * @param fileName
+     * @return
+     */
+    public static byte[] readBytesFromFile(final String fileName) {
+        return readBytesFromFile(new File(fileName));
     }
 
     /**
@@ -335,6 +423,19 @@ public final class ProtocolTools {
     }
 
     /**
+     * Convert a given byte array into an integer
+     */
+    public static int getIntFromBytes(byte[] bytes, int offset, int length) {
+        byte[] byteArray = getSubArray(bytes, offset, offset + length);
+        int value = 0;
+        for (int i = 0; i < byteArray.length; i++) {
+            int intByte = byteArray[i] & 0x0FF;
+            value += intByte << ((byteArray.length - (i + 1)) * 8);
+        }
+        return value;
+    }
+
+    /**
      * Creates an unsigned int value that represents a given byte array
      *
      * @param value: the given byte array
@@ -359,6 +460,16 @@ public final class ProtocolTools {
         BigInteger convertedValue = new BigInteger(value);
         return convertedValue.intValue();
     }
+
+    /*
+    Same but for Little Endian order.
+     */
+    public static int getUnsignedIntFromBytesLE(byte[] value, int offset, int length) {
+        value = ProtocolTools.getSubArray(value, offset, offset + length);
+        value = ProtocolTools.getReverseByteArray(value);
+        return getUnsignedIntFromBytes(value);
+    }
+
 
     /**
      * @param timeStamp
@@ -573,6 +684,18 @@ public final class ProtocolTools {
     }
 
     /**
+     * Create a new instance of the Calendar with a given timestamp
+     *
+     * @param year
+     * @param month
+     * @param dayOfMonth
+     * @return the new Calendar
+     */
+    public static Calendar createCalendar(int year, int month, int dayOfMonth) {
+        return createCalendar(year, month, dayOfMonth, 0, 0, 0, 0);
+    }
+
+    /**
      *
      * @param year
      * @param month
@@ -684,6 +807,37 @@ public final class ProtocolTools {
     }
 
     /**
+     * Get the epoch time as Date (seconds after January 1, 1970, 00:00:00 GMT)
+     * Returns null if the epoch time was in an incorrect format.
+     * The given epochtime should be one of the following formats (Time in UTC):
+     * <pre>
+     * dd/MM/yyyy HH:mm:ss
+     * dd\MM\yyyy HH:mm:ss
+     * dd-MM-yyyy HH:mm:ss
+     * yyyy/MM/dd HH:mm:ss
+     * yyyy\MM\dd HH:mm:ss
+     * yyyy-MM-dd HH:mm:ss
+     * dd/MM/yyyy HH:mm
+     * dd\MM\yyyy HH:mm
+     * dd-MM-yyyy HH:mm
+     * yyyy/MM/dd HH:mm
+     * yyyy\MM\dd HH:mm
+     * yyyy-MM-dd HH:mm
+     * </pre>
+     *
+     * @param epochTime
+     * @return
+     */
+    public static Date getEpochDateFromString(String epochTime) {
+        String time = getEpochTimeFromString(epochTime);
+        try {
+            return new Date(Long.valueOf(time) * 1000);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    /**
      * Construct a concatenated byteArray for the given byteArrays
      *
      * @param byteArrays the <code>byte[]</code> to concatenate
@@ -777,6 +931,81 @@ public final class ProtocolTools {
     }
 
     /**
+     * Checks if all characters in a given string are numbers (0-9)
+     * For example: "19658" will return true, "12A4" and "-16599" will return false
+     * An empty string will return true. The stringToCheck cannot be null.
+     *
+     * @param stringToCheck This is the string we would like to check if it's a number.
+     * @return true if its a string only containing digits (0-9)
+     */
+    public static boolean isNumber(String stringToCheck) {
+        for (char c : stringToCheck.toCharArray()) {
+            if (!Character.isDigit(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Derives a boolean valus from a given string. The following string contents will return true:
+     * <ul>
+     * <li>"1"</li>
+     * <li>"true"</li>
+     * <li>"enable"</li>
+     * <li>"enabled"</li>
+     * <li>"on"</li>
+     * <li>"active"</li>
+     * </ul>
+     *
+     * @param boolAsString The string that should be converted to a boolean
+     * @return the result of the conversion
+     */
+    public static boolean getBooleanFromString(String boolAsString) {
+        if (boolAsString != null) {
+            boolean isTrue = false;
+            String bool = boolAsString.trim();
+            isTrue |= bool.equalsIgnoreCase("true");
+            isTrue |= bool.equalsIgnoreCase("1");
+            isTrue |= bool.equalsIgnoreCase("enable");
+            isTrue |= bool.equalsIgnoreCase("enabled");
+            isTrue |= bool.equalsIgnoreCase("on");
+            isTrue |= bool.equalsIgnoreCase("active");
+            return isTrue;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Generate a new date object, derived from the given string.
+     * This string should allways have the following format: yyyy-MM-dd hh:mm:ss
+     *
+     * @param yyyyMMddhhmmss the date in string format (yyyy-MM-dd hh:mm:ss) or null if the string vas invalid
+     * @return The new date object
+     */
+    public static Date getDateFromYYYYMMddhhmmss(String yyyyMMddhhmmss) {
+        try {
+            if (yyyyMMddhhmmss != null) {
+                Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(yyyyMMddhhmmss);
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                cal.set(Calendar.MILLISECOND, 0);
+                return cal.getTime();
+            } else {
+                return null;
+            }
+        } catch (ParseException e) {
+            return null;
+        }
+    }
+
+    public static boolean isInDST(Calendar calendar) {
+        return calendar.getTimeZone().inDaylightTime(calendar.getTime());
+
+    }
+
+    /**
      *
      * @param value
      * @return
@@ -792,6 +1021,17 @@ public final class ProtocolTools {
      */
     public static boolean isOdd(int value) {
         return !isEven(value);
+    }
+
+    /**
+     * Creates an int value from a byte. The byte is handled as an unsigned value,
+     * this means that for example 0xFF will return 255, and no negative value.
+     *
+     * @param b the byte to convert
+     * @return the converted positive value from 0-255
+     */
+    public static int getIntFromByte(byte b) {
+        return ((int) b) & 0x0FF;
     }
 
 }
