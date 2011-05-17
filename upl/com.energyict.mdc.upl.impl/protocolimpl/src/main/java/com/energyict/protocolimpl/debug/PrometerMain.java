@@ -16,7 +16,7 @@ import java.util.*;
 public class PrometerMain extends AbstractDebuggingMain<Prometer> {
 
     private static Prometer prometer = null;
-    private static final String SERIAL = "1339607";
+    private static final String SERIAL = "1095704";
 
     @Override
     Prometer getMeterProtocol() {
@@ -54,39 +54,27 @@ public class PrometerMain extends AbstractDebuggingMain<Prometer> {
         main.setParity(SerialCommunicationChannel.PARITY_NONE);
         main.setDataBits(SerialCommunicationChannel.DATABITS_8);
         main.setTimeZone(TimeZone.getTimeZone("GMT"));
-        main.setPhoneNumber("00441445712745");
+        main.setPhoneNumber("00441383611487");
         main.setModemInit("ATM0");
         main.setAsciiMode(true);
         main.set7E1Mode(true);
         main.setShowCommunication(true);
-        main.setObserverFilename("c:\\log\\prometer\\FIXED_" + System.currentTimeMillis() + ".txt");
+        main.setObserverFilename("c:\\log\\prometer\\EVENT_BUG_" + System.currentTimeMillis() + ".txt");
         main.run();
     }
 
     @Override
     void doDebug() throws LinkException, IOException {
-        ProfileData profileData = getMeterProtocol().getProfileData(new Date(System.currentTimeMillis() - (3600000 * 24 * 2)), false);
+        ProfileData profileData = getMeterProtocol().getProfileData(new Date(), true);
         List<IntervalData> intervalDatas = profileData.getIntervalDatas();
-        System.out.println("\n");
+        List<MeterEvent> meterEvents = profileData.getMeterEvents();
         System.out.println("\n");
         for (IntervalData intervalData : intervalDatas) {
-            List<IntervalData> toCheck = profileData.getIntervalDatas();
-            int count = 0;
-            for (IntervalData data : toCheck) {
-                if (data.getEndTime().getTime() == intervalData.getEndTime().getTime()) {
-                    count++;
-                }
-            }
-            if (count > 1) {
-                System.out.println("Duplicate interval: " + intervalData.getEndTime());
-            }
+            System.out.println(intervalData);
         }
-        System.out.println("\n");
-
-        for (IntervalData intervalData : intervalDatas) {
-
+        for (MeterEvent event : meterEvents) {
+            System.out.println(event.getTime() + " - " + event + " [" + event.getProtocolCode() + "|" + event.getEiCode() + "]");
         }
-
     }
 
     @RunOnDevice(protocolClass = Prometer.class)

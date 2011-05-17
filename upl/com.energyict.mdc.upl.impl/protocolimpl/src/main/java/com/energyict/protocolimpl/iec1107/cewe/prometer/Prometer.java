@@ -805,36 +805,23 @@ public class Prometer extends AbstractProtocol  {
      * @throws IOException in case of trouble
      */
     private void addLogBook(ProfileData profileData) throws IOException {
-        
-        for( int i = 0; i < rAlarm.length; i++ ){
-        	
+        for (int i = 0; i < rAlarm.length; i++) {
             ErrorMessage error = ErrorMessage.get(rAlarm[i].asInt());
-            
-            if(error == null) continue; // alarm contains null => skip
-            
-            String sDate = rAlarm[i].asString(1) + rAlarm[i].asString(2);
-            if( (sDate.length() == 12) && (! (sDate.indexOf("<") >= 0 ) ) ) {
-            	
-            	sDate = sDate.substring(sDate.indexOf("<")+1);
-	            Date date;
-	            try {
-	                date = getEventDateFormat().parse(sDate);
-	            } catch (ParseException e) {
-	                throw new NestedIOException(e);
-	            }
-	            
-	            int eiCode  = error.getEiCode();
-	            int pCode   = error.getProtocolCode();
-	            String dscr = error.getDescription();
-	            
-	            profileData.addEvent(new MeterEvent(date, eiCode, pCode, dscr) );
-            
+            if (error != null) {
+                String sDate = rAlarm[i].asString(1) + rAlarm[i].asString(2);
+                try {
+                    Date date = getEventDateFormat().parse(sDate);
+                    int eiServerCode = error.getEiCode();
+                    int protocolCode = error.getProtocolCode();
+                    String description = error.getDescription();
+                    profileData.addEvent(new MeterEvent(date, eiServerCode, protocolCode, description));
+                } catch (ParseException e) {
+                    getLogger().severe("Unable to parse event date [" + sDate + "]: " + e.getMessage());
+                }
             }
-            
         }
-       
     }
-    
+
     /** (non-Javadoc)
      * @see com.energyict.protocolimpl.base.AbstractProtocol#translateRegister(com.energyict.obis.ObisCode)
      */

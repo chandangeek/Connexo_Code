@@ -1,14 +1,11 @@
 package com.energyict.protocolimpl.debug;
 
 import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.Utils;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.*;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Properties;
 
 /**
@@ -18,7 +15,7 @@ import java.util.Properties;
  */
 public class DebugUtils {
 
-    public static final int TIMEOUT = 60000;
+    public static final int TIMEOUT = 2 * 60 * 1000;
     private static final int BAUDRATE = 9600;
 
     private static final int DATABITS = SerialCommunicationChannel.DATABITS_8;
