@@ -608,6 +608,10 @@ public class DummyRtu implements Rtu {
         return 0;  //TODO implement proper functionality.
     }
 
+    public int getNumberOfSuspectReadings() {
+        return 0;
+    }
+
     public int getNumberOfAlarms() {
         return 0;  //TODO implement proper functionality.
     }
