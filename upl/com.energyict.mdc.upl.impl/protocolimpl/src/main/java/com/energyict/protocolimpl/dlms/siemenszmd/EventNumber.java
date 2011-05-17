@@ -134,7 +134,7 @@ public class EventNumber {
             eiCode=MeterEvent.CLEAR_DATA;
         }
         else if (idDescr.compareTo("BatteryLow") == 0) {
-            eiCode=MeterEvent.HARDWARE_ERROR;
+            eiCode=MeterEvent.BATTERY_VOLTAGE_LOW;
         }
         else if (idDescr.compareTo("BatteryOk") == 0) {
             eiCode=MeterEvent.OTHER;
@@ -143,7 +143,7 @@ public class EventNumber {
             eiCode=MeterEvent.BILLING_ACTION;
         }
         else if (idDescr.compareTo("DSTSwitched") == 0) {
-            eiCode=MeterEvent.OTHER;
+            eiCode=MeterEvent.DAYLIGHT_SAVING_TIME_ENABLED_OR_DISABLED;
         }
         else if (idDescr.compareTo("ClockAdjustedOldDateTime") == 0) {
             eiCode=MeterEvent.SETCLOCK_BEFORE;
@@ -155,22 +155,22 @@ public class EventNumber {
             eiCode=MeterEvent.OTHER;
         }
         else if (idDescr.compareTo("UndervoltageL1") == 0) {
-            eiCode=MeterEvent.METER_ALARM;
+            eiCode=MeterEvent.VOLTAGE_SAG;
         }
         else if (idDescr.compareTo("UndervoltageL2") == 0) {
-            eiCode=MeterEvent.METER_ALARM;
+            eiCode=MeterEvent.VOLTAGE_SAG;
         }
         else if (idDescr.compareTo("UndervoltageL3") == 0) {
-            eiCode=MeterEvent.METER_ALARM;
+            eiCode=MeterEvent.VOLTAGE_SAG;
         }
         else if (idDescr.compareTo("OvervoltageL1") == 0) {
-            eiCode=MeterEvent.METER_ALARM;
+            eiCode=MeterEvent.VOLTAGE_SWELL;
         }
         else if (idDescr.compareTo("OvervoltageL2") == 0) {
-            eiCode=MeterEvent.METER_ALARM;
+            eiCode=MeterEvent.VOLTAGE_SWELL;
         }
         else if (idDescr.compareTo("OvervoltageL3") == 0) {
-            eiCode=MeterEvent.METER_ALARM;
+            eiCode=MeterEvent.VOLTAGE_SWELL;
         }
         else if (idDescr.compareTo("PowerDown") == 0) {
             eiCode=MeterEvent.POWERDOWN;
@@ -221,16 +221,16 @@ public class EventNumber {
             eiCode=MeterEvent.METER_ALARM;
         }
         else if (idDescr.compareTo("MissingVoltageL1") == 0) {
-            eiCode=MeterEvent.METER_ALARM;
+            eiCode=MeterEvent.PHASE_FAILURE;
         }
         else if (idDescr.compareTo("MissingVoltageL2") == 0) {
-            eiCode=MeterEvent.METER_ALARM;
+            eiCode=MeterEvent.PHASE_FAILURE;
         }
         else if (idDescr.compareTo("MissingVoltageL3") == 0) {
-            eiCode=MeterEvent.METER_ALARM;
+            eiCode=MeterEvent.PHASE_FAILURE;
         }
         else if (idDescr.compareTo("DateTimeInvalid") == 0) {
-            eiCode=MeterEvent.FATAL_ERROR;
+            eiCode=MeterEvent.CLOCK_INVALID;
         }
         else if (idDescr.compareTo("MeasuringSystemAccessError") == 0) {
             eiCode=MeterEvent.FATAL_ERROR;
@@ -257,7 +257,7 @@ public class EventNumber {
             eiCode=MeterEvent.FATAL_ERROR;
         }
         else if (idDescr.compareTo("AlertOccurred") == 0) {
-            eiCode=MeterEvent.OTHER;
+            eiCode=MeterEvent.METER_ALARM;
         }
         
         return new MeterEvent(dateTime,eiCode,id,eventNumber.getEventDescription());
