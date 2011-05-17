@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.debug;
 
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.iec1107.cewe.prometer.Prometer;
 
 import java.io.IOException;
@@ -59,18 +59,34 @@ public class PrometerMain extends AbstractDebuggingMain<Prometer> {
         main.setAsciiMode(true);
         main.set7E1Mode(true);
         main.setShowCommunication(true);
+        main.setObserverFilename("c:\\log\\prometer\\FIXED_" + System.currentTimeMillis() + ".txt");
         main.run();
     }
 
     @Override
     void doDebug() throws LinkException, IOException {
-        Date time = getMeterProtocol().getTime();
-        Date systemTime = new Date();
+        ProfileData profileData = getMeterProtocol().getProfileData(new Date(System.currentTimeMillis() - (3600000 * 24 * 2)), false);
+        List<IntervalData> intervalDatas = profileData.getIntervalDatas();
         System.out.println("\n");
-        System.out.println("Meter time:  " + time + " [" + time.getTime() + "]");
-        System.out.println("System time: " + systemTime + " [" + systemTime.getTime() + "]");
-        System.out.println("Time diff:   " + (time.getTime() - systemTime.getTime()));
         System.out.println("\n");
+        for (IntervalData intervalData : intervalDatas) {
+            List<IntervalData> toCheck = profileData.getIntervalDatas();
+            int count = 0;
+            for (IntervalData data : toCheck) {
+                if (data.getEndTime().getTime() == intervalData.getEndTime().getTime()) {
+                    count++;
+                }
+            }
+            if (count > 1) {
+                System.out.println("Duplicate interval: " + intervalData.getEndTime());
+            }
+        }
+        System.out.println("\n");
+
+        for (IntervalData intervalData : intervalDatas) {
+
+        }
+
     }
 
     @RunOnDevice(protocolClass = Prometer.class)

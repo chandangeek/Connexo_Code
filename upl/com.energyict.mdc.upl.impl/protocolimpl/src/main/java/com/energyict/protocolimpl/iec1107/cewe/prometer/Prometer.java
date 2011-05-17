@@ -438,12 +438,12 @@ public class Prometer extends AbstractProtocol  {
     
     /** Billing register reg type: Sum 2 */
     final static String REG_TYPE_SUM_2 = "S2";
-    
 
-    
+
+
     /* (non-Javadoc)
-     * @see com.energyict.protocolimpl.base.AbstractProtocol#doInit(java.io.InputStream, java.io.OutputStream, int, int, int, int, int, com.energyict.protocolimpl.base.Encryptor, com.energyict.dialer.core.HalfDuplexController)
-     */
+    * @see com.energyict.protocolimpl.base.AbstractProtocol#doInit(java.io.InputStream, java.io.OutputStream, int, int, int, int, int, com.energyict.protocolimpl.base.Encryptor, com.energyict.dialer.core.HalfDuplexController)
+    */
     protected ProtocolConnection doInit(
             InputStream iStream, OutputStream oStream, 
             int pTimeout, int pRetries, int pForcedDelay, 
@@ -665,20 +665,29 @@ public class Prometer extends AbstractProtocol  {
     }
     
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException, UnsupportedException {
-        
-        /* step 1: write the start date */
-        write(toCmd( rLogOffset, getQueryDateFormat().format(lastReading) ));
-        
-        /* step 2: fetch profile data */
+
         ProfileData pd = new ProfileData();
         pd.setChannelInfos(getChannelInfo());
-        
-        Date lastInterval = toProfileData(pd, rLogNextRecord.getRawData());
-        
-        while( lastInterval != null && lastInterval.before(calculateMeterTime()) ){
-            lastInterval = toProfileData(pd, rLogNextRecord.getRawData());
-        };
-        
+        Date lastInterval = new Date(lastReading.getTime() - (getProfileInterval() * 1000));
+
+        RetryHandler retryHandler = new RetryHandler(getInfoTypeRetries());
+        while (lastInterval != null && lastInterval.before(calculateMeterTime())) {
+            try {
+                /* step 1: write the start date */
+                System.out.println("\n\n" + lastInterval + "\n\n");
+                Date nextDate2Request = new Date(lastInterval.getTime() + (getProfileInterval() * 1000));
+                write(toCmd(rLogOffset, getQueryDateFormat().format(nextDate2Request)));
+                /* step 2: fetch profile data */
+                while (lastInterval != null && lastInterval.before(calculateMeterTime())) {
+                    lastInterval = toProfileData(pd, rLogNextRecord.getRawData(false));
+                    retryHandler.reset();
+                }
+            } catch (IOException e) {
+                System.out.println("\n\n" + e.getMessage() + "\n\n");
+                retryHandler.logFailure(e);
+            }
+        }
+
         /* step 3: fetch log book */
         if( includeEvents ) {
             pd.generateEvents();
@@ -690,8 +699,8 @@ public class Prometer extends AbstractProtocol  {
         
         return pd;
     }
-    
-    /** 
+
+    /**
      * Turn a response into a ProfileData object.  A response consists of a
      * series of intervals. 
      */
@@ -859,7 +868,7 @@ public class Prometer extends AbstractProtocol  {
         byte[] rawData = retry ? connection.receiveRawData() : connection.doReceiveData();
         return new String(rawData);
     }
-    
+
     /** send write command */
     void write(String cmd) throws IOException {
         connection.sendRawCommandFrame(IEC1107Connection.WRITE1, cmd.getBytes());
