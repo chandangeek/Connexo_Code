@@ -4,26 +4,17 @@
 package com.energyict.protocolimpl.utils;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.TimeDuration;
+import com.energyict.mdw.core.*;
+import com.energyict.mdw.coreimpl.*;
+import org.junit.*;
 
 import java.sql.SQLException;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.TimeDuration;
-import com.energyict.mdw.core.CommunicationProtocol;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.core.RtuType;
-import com.energyict.mdw.coreimpl.CommunicationProtocolImpl;
-import com.energyict.mdw.coreimpl.RtuImpl;
-import com.energyict.mdw.coreimpl.RtuTypeImpl;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author gna
@@ -92,10 +83,10 @@ public class UtilitiesTest {
 
 		} catch (BusinessException e) {
 			e.printStackTrace();
-			fail();
+			fail(e.getMessage());
 		} catch (SQLException e) {
 			e.printStackTrace();
-			fail();
+			fail(e.getMessage());
 		}
 	}
 
