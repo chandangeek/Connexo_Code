@@ -7,6 +7,7 @@ import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Properties;
 
 /**
@@ -19,7 +20,7 @@ public class CewePrometerMain extends AbstractDebuggingMain<CewePrometer> {
     private static CewePrometer cewePrometer = null;
     public static final String SERIAL_NEW_FW = "1610901";
     public static final String SERIAL_OLD_FW = "1483801";
-    private static final String SERIAL = SERIAL_OLD_FW;
+    private static final String SERIAL = SERIAL_NEW_FW;
 
     @Override
     CewePrometer getMeterProtocol() {
@@ -66,11 +67,15 @@ public class CewePrometerMain extends AbstractDebuggingMain<CewePrometer> {
 
     @Override
     void doDebug() throws LinkException, IOException {
-        ProfileData profileData = getMeterProtocol().getProfileData(ProtocolTools.createCalendar(2000, 4, 2, 0, 0, 0, 0).getTime(), false);
+        requestProfileData();
+    }
+
+    private void requestProfileData() throws IOException {
+        Date from = ProtocolTools.createCalendar(2000, 5, 15, 0, 0, 0, 0).getTime();
+        ProfileData profileData = getMeterProtocol().getProfileData(new Date(), false);
         for (IntervalData data : profileData.getIntervalDatas()) {
             System.out.println(data);
         }
-
     }
 
 }
