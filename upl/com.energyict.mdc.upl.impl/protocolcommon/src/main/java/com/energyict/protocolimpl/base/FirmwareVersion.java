@@ -10,11 +10,7 @@
 
 package com.energyict.protocolimpl.base;
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
-
-import com.energyict.protocol.ProtocolUtils;
+import java.util.StringTokenizer;
 
 
 /**
@@ -29,11 +25,11 @@ public class FirmwareVersion {
     private String versionString;
     
     /** Creates a new instance of FirmwareVersion */
-    public FirmwareVersion(String versionString) throws IOException {
+    public FirmwareVersion(String versionString) {
         this.setVersionString(versionString);
         StringTokenizer strTok = new StringTokenizer(versionString,".");
         if (strTok.countTokens()>(MAX_REVISIONS+1))
-            throw new IOException("FirmwareVersion, too many revisions in firmwareversion string (max allowed is "+MAX_REVISIONS+")!");
+            throw new IllegalArgumentException("FirmwareVersion, too many revisions in firmwareversion string (max allowed is "+MAX_REVISIONS+")!");
             
         if (strTok.countTokens() > 0) {
             setVersion(Integer.parseInt(strTok.nextToken()));
@@ -63,15 +59,7 @@ public class FirmwareVersion {
     }
     
     public boolean after(FirmwareVersion fw) {
-        if (getVersion()>fw.getVersion()) return true;
-        if (getVersion()==fw.getVersion()) {
-            // check revisions
-            for (int i=0;i<fw.getRevisions().length;i++) {
-                if (getRevisions()[i]<fw.getRevisions()[i]) return false;
-                else if (getRevisions()[i]>fw.getRevisions()[i]) return true;
-            }
-        }
-        return false;
+        return !(before(fw) || equal(fw));
     }
 
     public boolean equal(FirmwareVersion fw) {
@@ -82,18 +70,13 @@ public class FirmwareVersion {
         }
         return true;
     }
-    
-    public static void main(String[] args) {
-        try {
-            String version2check = "5.2";
-            FirmwareVersion fw = new FirmwareVersion("5.2");
-            System.out.println(fw.before(new FirmwareVersion(version2check)));
-            System.out.println(fw.after(new FirmwareVersion(version2check)));
-            System.out.println(fw.equal(new FirmwareVersion(version2check)));
-        }
-        catch(IOException e) {
-            e.printStackTrace();            
-        }
+
+    public boolean afterOrEqual(FirmwareVersion fw) {
+        return this.after(fw) || this.equal(fw);
+    }
+
+    public boolean beforeOrEqual(FirmwareVersion fw) {
+        return this.before(fw) || this.equal(fw);
     }
 
     public int getVersion() {

@@ -231,7 +231,7 @@ public class ProtocolToolsTest {
         assertEquals(asciiString, ProtocolTools.getAsciiFromBytes(bytes, '*'));
     }
 
-    @Test(timeout = 750)
+    @Test(timeout = 5000)
     public void testDelayLongTiming() throws Exception {
         int delay = 500;
         long start = System.currentTimeMillis();
@@ -240,7 +240,7 @@ public class ProtocolToolsTest {
         assertTrue(diff >= delay);
     }
 
-    @Test(timeout = 750)
+    @Test(timeout = 5000)
     public void testDelayLongInterrupt() throws Exception {
         Runnable runnable = new Runnable() {
             public void run() {
