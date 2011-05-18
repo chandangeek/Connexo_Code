@@ -12,7 +12,9 @@ import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.coreimpl.CommunicationProtocolImpl;
 import com.energyict.mdw.coreimpl.RtuImpl;
-import com.energyict.mdw.coreimpl.RtuTypeImpl;
+import com.energyict.mdw.testutils.CommunicationProtocolCRUD;
+import com.energyict.mdw.testutils.RtuCRUD;
+import com.energyict.mdw.testutils.RtuTypeCRUD;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -46,28 +48,10 @@ public class UtilitiesTest {
 	public void tearDown() throws Exception {
 
 		// first delete all the device
-		List result = Utilities.mw().getRtuFactory().findByName("99999999");
-		if (result.size() > 0) {
-			for(int i = 0; i < result.size(); i++) {
-				((Rtu)result.get(0)).delete(); // TODO This looks wrong
-			}
-		}
-
+        RtuCRUD.deleteRtu("99999999");
 		// then all the deviceType
-		result = Utilities.mw().getRtuTypeFactory().findByName(testRtu);
-		if (result.size() > 0) {
-			for(int i = 0; i < result.size(); i++) {
-				((RtuTypeImpl)result.get(0)).delete(); // TODO This looks wrong
-			}
-		}
-
-		// then all the communication profile
-		result = Utilities.mw().getCommunicationProtocolFactory().findByName(javaClassName);
-		if (result.size() > 0) {
-			for(int i = 0; i < result.size(); i++) {
-				((CommunicationProtocolImpl)result.get(0)).delete(); // TODO This looks wrong
-			}
-		}
+        RtuTypeCRUD.deleteRtuType(testRtu);
+        CommunicationProtocolCRUD.deleteCommunicationProtocol(javaClassName);
 	}
 
 	@Test
@@ -84,12 +68,12 @@ public class UtilitiesTest {
         CommunicationProtocol commProtocol = Utilities.createCommunicationProtocol(javaClassName);
 
         Utilities.createRtuType(commProtocol, testRtu, 6);
-        List result = Utilities.mw().getRtuTypeFactory().findByName(testRtu);
+        List<RtuType> result = Utilities.mw().getRtuTypeFactory().findByName(testRtu);
 
         assertEquals(1, result.size());
-        assertEquals(testRtu, ((RtuTypeImpl)result.get(0)).getShadow().getName());
-        assertEquals(javaClassName, ((RtuTypeImpl)result.get(0)).getShadow().getCommunicationProtocolShadow().getName());
-        assertEquals(6, ((RtuTypeImpl)result.get(0)).getShadow().getChannelCount());
+        assertEquals(testRtu, result.get(0).getShadow().getName());
+        assertEquals(javaClassName, result.get(0).getShadow().getCommunicationProtocolShadow().getName());
+        assertEquals(6, result.get(0).getShadow().getChannelCount());
 	}
 
 	@Test
@@ -97,9 +81,9 @@ public class UtilitiesTest {
 		CommunicationProtocol commProtocol = null;
 		RtuType rtuType;
         List result = Utilities.mw().getCommunicationProtocolFactory().findAll();
-        for(int i = 0; i < result.size(); i++){
-            if(((CommunicationProtocol)result.get(i)).getJavaClassName().equalsIgnoreCase(javaClassName)){
-                commProtocol = (CommunicationProtocol)result.get(i);
+        for (Object aResult : result) {
+            if (((CommunicationProtocol) aResult).getJavaClassName().equalsIgnoreCase(javaClassName)) {
+                commProtocol = (CommunicationProtocol) aResult;
                 break;
             }
         }
