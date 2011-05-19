@@ -14,7 +14,6 @@ import com.energyict.protocol.messaging.MessageSpec;
  * @author gna
  *
  */
-
 public class MeterMessages extends GenericMessaging {
 
 	public List getMessageCategories() {
@@ -52,7 +51,6 @@ public class MeterMessages extends GenericMessaging {
 		// categories.add(catGPRSModemSetup);
 		// categories.add(catWakeUp);
 
-		// TODO comment this BEFORE the release
 		categories.add(catAuthEncrypt);
 
 		return categories;
@@ -78,5 +76,40 @@ public class MeterMessages extends GenericMessaging {
 				RtuMessageConstant.WAKEUP_DEACTIVATE, false);
 		catGPRSModemSetup.addMessageSpec(msgSpec);
 		return catGPRSModemSetup;
+	}
+
+	/**
+	 * Create three messages, one to change the <b>globalKey</b>, one to change the
+	 * <b>AuthenticationKey</b>, and the other one to change
+	 * the <b>HLSSecret</b>
+	 *
+	 * @return a category with four MessageSpecs for Authenticate/Encrypt functionality
+	 */
+    @Override
+	public MessageCategorySpec getAuthEncryptCategory() {
+		MessageCategorySpec catAuthEncrypt = new MessageCategorySpec(
+				RtuMessageCategoryConstants.AUTHENTICATEENCRYPT);
+		MessageSpec msgSpec = addNoValueMsg(
+				RtuMessageKeyIdConstants.CHANGEHLSSECRET,
+				RtuMessageConstant.AEE_CHANGE_HLS_SECRET, false);
+		catAuthEncrypt.addMessageSpec(msgSpec);
+
+		//TODO uncomment this again after testing
+//		msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.CHANGELLSSECRET,
+//				RtuMessageConstant.AEE_CHANGE_LLS_SECRET, false);
+//		catAuthEncrypt.addMessageSpec(msgSpec);
+		msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.NTA_CHANGEDATATRANSPORTENCRYPTIONKEY,
+				RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_ENCRYPTION_KEY, false);
+		catAuthEncrypt.addMessageSpec(msgSpec);
+		msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.NTA_CHANGEDATATRANSPORTAUTHENTICATIONKEY,
+				RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY, false);
+		catAuthEncrypt.addMessageSpec(msgSpec);
+		msgSpec = addSecurityLevelMsg(RtuMessageKeyIdConstants.ACTIVATE_SECURITY,
+				RtuMessageConstant.AEE_ACTIVATE_SECURITY, true);
+		catAuthEncrypt.addMessageSpec(msgSpec);
+        msgSpec = addAuthenticationLevelMsg(RtuMessageKeyIdConstants.CHANGE_AUTHENTICATION_LEVEL,
+                RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL, true);
+        catAuthEncrypt.addMessageSpec(msgSpec);
+		return catAuthEncrypt;
 	}
 }

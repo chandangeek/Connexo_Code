@@ -7,6 +7,7 @@ import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 
@@ -269,7 +270,7 @@ public class SimpleDLMSProtocol implements MeterProtocol, ProtocolLink, HHUEnabl
             throw new IOException(e.getMessage());
         }
 
-        LocalSecurityProvider localSecurityProvider = new LocalSecurityProvider(this.properties);
+        NTASecurityProvider localSecurityProvider = new NTASecurityProvider(this.properties);
         securityContext = new SecurityContext(datatransportSecurityLevel, authenticationSecurityLevel, 0, getSystemIdentifier(), localSecurityProvider, this.cipheringType);
 
         if (this.conformanceBlock == null) {
@@ -957,12 +958,12 @@ public class SimpleDLMSProtocol implements MeterProtocol, ProtocolLink, HHUEnabl
         optionalKeys.add("IpPortNumber");
         optionalKeys.add("WakeUp");
         optionalKeys.add("CipheringType");
-		optionalKeys.add(LocalSecurityProvider.DATATRANSPORTKEY);
-		optionalKeys.add(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
-		optionalKeys.add(LocalSecurityProvider.MASTERKEY);
-		optionalKeys.add(LocalSecurityProvider.NEW_GLOBAL_KEY);
-		optionalKeys.add(LocalSecurityProvider.NEW_AUTHENTICATION_KEY);
-		optionalKeys.add(LocalSecurityProvider.NEW_HLS_SECRET);
+		optionalKeys.add(NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY);
+		optionalKeys.add(NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
+		optionalKeys.add(NTASecurityProvider.MASTERKEY);
+		optionalKeys.add(NTASecurityProvider.NEW_DATATRANSPORT_ENCRYPTION_KEY);
+		optionalKeys.add(NTASecurityProvider.NEW_DATATRANSPORT_AUTHENTICATION_KEY);
+		optionalKeys.add(NTASecurityProvider.NEW_HLS_SECRET);
         return optionalKeys;  //To change body of implemented methods use File | Settings | File Templates.
     }
 

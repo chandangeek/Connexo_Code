@@ -12,12 +12,12 @@ import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.eventhandling.EventLogs;
 import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.messages.*;
 import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.profile.ApolloProfileBuilder;
+import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.base.ActivityCalendarController;
+import com.energyict.protocol.messaging.MessageTag;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -402,7 +402,7 @@ public class ApolloMeter extends DLMSProtocol {
         if ((getMeter() != null) && (password != null)) {
             getProperties().put(MeterProtocol.PASSWORD, password);
         }
-        LocalSecurityProvider lsp = new LocalSecurityProvider(getProperties());
+        NTASecurityProvider lsp = new NTASecurityProvider(getProperties());
         return lsp;
     }
 

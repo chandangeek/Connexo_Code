@@ -257,4 +257,8 @@ public class RtuMessageConstant {
     public static final String DEVICE_PHONE_NUMBER = "PhoneNumber";
 
     public static final String DEMAND_RESET = "DemandReset";
+
+    // changed the naming of certain messages for Enexis
+    public static final String NTA_AEE_CHANGE_DATATRANSPORT_ENCRYPTION_KEY = "Change_DataTransportEncryptionKey";
+    public static final String NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY = "Change_DataTransportAuthenticationKey";
 }

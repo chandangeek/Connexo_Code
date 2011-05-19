@@ -60,7 +60,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 		byte theMonitoredAttributeType = -1;
 		boolean success = false;
 		String content = rtuMessage.getContents();
-		MessageHandler messageHandler = new MessageHandler();
+		MessageHandler messageHandler = new NTAMessageHandler();
 		try {
 			importMessage(content, messageHandler);
 			
@@ -86,8 +86,8 @@ public class MessageExecutor extends GenericMessageExecutor{
 			boolean wakeUpWhiteList = messageHandler.getType().equals(RtuMessageConstant.WAKEUP_ADD_WHITELIST);
 			boolean changeHLSSecret = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_HLS_SECRET);
 			boolean changeLLSSecret = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_LLS_SECRET);
-			boolean changeGlobalkey = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY);
-			boolean changeAuthkey 	= messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_KEY);
+			boolean changeGlobalkey = messageHandler.getType().equals(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_ENCRYPTION_KEY);
+			boolean changeAuthkey 	= messageHandler.getType().equals(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY);
 			boolean activateSMS		= messageHandler.getType().equals(RtuMessageConstant.WAKEUP_ACTIVATE);
 			boolean deActivateSMS 	= messageHandler.getType().equals(RtuMessageConstant.WAKEUP_DEACTIVATE);
 			boolean actSecuritLevel = messageHandler.getType().equals(RtuMessageConstant.AEE_ACTIVATE_SECURITY);

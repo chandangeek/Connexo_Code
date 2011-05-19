@@ -5,6 +5,7 @@ import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.*;
 
@@ -218,7 +219,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
             throw new IOException(e.getMessage());
         }
 
-        LocalSecurityProvider localSecurityProvider = new LocalSecurityProvider(this.properties);
+        NTASecurityProvider localSecurityProvider = new NTASecurityProvider(this.properties);
         securityContext = new SecurityContext(datatransportSecurityLevel, authenticationSecurityLevel, 0, getSystemIdentifier(), localSecurityProvider, this.cipheringType);
 
         if (this.conformanceBlock == null) {

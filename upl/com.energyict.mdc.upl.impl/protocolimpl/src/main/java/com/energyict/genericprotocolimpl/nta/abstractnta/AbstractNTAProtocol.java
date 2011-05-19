@@ -346,7 +346,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
         if ((getFullShadow() != null) && (this.password != null)) {    //MeterTool already has the password as a property
             this.properties.put(MeterProtocol.PASSWORD, this.password);
         }
-        LocalSecurityProvider lsp = new LocalSecurityProvider(this.properties);
+        NTASecurityProvider lsp = new NTASecurityProvider(this.properties);
 
         return lsp;
     }
@@ -1186,12 +1186,12 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
         result.add("WakeUp");
         result.add("RoundTripCorrection");
         result.add("FolderExtName");
-        result.add(LocalSecurityProvider.DATATRANSPORTKEY);
-        result.add(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
-        result.add(LocalSecurityProvider.MASTERKEY);
-        result.add(LocalSecurityProvider.NEW_GLOBAL_KEY);
-        result.add(LocalSecurityProvider.NEW_AUTHENTICATION_KEY);
-        result.add(LocalSecurityProvider.NEW_HLS_SECRET);
+        result.add(NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY);
+        result.add(NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
+        result.add(NTASecurityProvider.MASTERKEY);
+        result.add(NTASecurityProvider.NEW_DATATRANSPORT_ENCRYPTION_KEY);
+        result.add(NTASecurityProvider.NEW_DATATRANSPORT_AUTHENTICATION_KEY);
+        result.add(NTASecurityProvider.NEW_HLS_SECRET);
         result.add("OldMbusDiscovery");
         result.add("FixMbusHexShortId");
         result.add("CipheringType");
