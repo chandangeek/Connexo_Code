@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer;
 
+import com.energyict.protocolimpl.utils.ProtocolTools;
+
 /**
  * Copyrights EnergyICT
  * Date: 12/05/11
@@ -14,7 +16,7 @@ public class CeweRegisters {
     
     /** Meter firmware version: as 3 comma separated ints (major, minor, rev)*/
     private final ProRegister rFirmwareVersion;
-    
+
     /** Date and time (yyyymmdd,hhmmss) */
     private final ProRegister rReadDate;
     
@@ -68,9 +70,12 @@ public class CeweRegisters {
     /** Log Read offset: before fetching the load profile set start date */
     private final ProRegister[] rLogOffset;
     
-    /** what is stored in each channel */
-    private final ProRegister[] rLogChannelConfig;
+    /** what is stored in each channel, for fw < 2.1.0  */
+    private final ProRegister[] rLogChannelConfigOld;
     
+    /** what is stored in each channel, for fw >= 2.1.0 */
+    private final ProRegister[][] rLogChannelConfigNew;
+
     /** Read next Log record */
     private final ProRegister[] rLogNextRecord;
     
@@ -230,14 +235,25 @@ public class CeweRegisters {
             new ProRegister(getCewePrometer(), "101700", true)                   // offset log 2
         };
 
-        this.rLogChannelConfig = new ProRegister[] {
-            new ProRegister(getCewePrometer(), "100F00"),                        // log 1 config
-            new ProRegister(getCewePrometer(), "101500")                         // log 2 config
+        this.rLogChannelConfigOld = new ProRegister[] {
+            new ProRegister(getCewePrometer(), "100F00"),                        // log 1 config for fw < 2.1.0
+            new ProRegister(getCewePrometer(), "101500")                         // log 2 config for fw < 2.1.0
         };
 
+        this.rLogChannelConfigNew = new ProRegister[2][50];                      // log config for fw >= 2.1.0
+        for (int logger = 0; logger < rLogChannelConfigNew.length; logger++) {
+            for (int channel = 0; channel < rLogChannelConfigNew[logger].length; channel++) {
+                Long address = Long.valueOf("114000", 16);
+                address += logger;
+                address += channel * 256;
+                String registerAddress = ProtocolTools.addPaddingAndClip(Long.toHexString(address), '0', 6, false);
+                rLogChannelConfigNew[logger][channel] = new ProRegister(getCewePrometer(), registerAddress.toUpperCase(), true);
+            }
+        }
+
         this.rLogNextRecord = new ProRegister[] {
-            new ProRegister(getCewePrometer(), "101200", false, 16),             // read log 1
-            new ProRegister(getCewePrometer(), "101800", false, 16)              // read log 2
+                new ProRegister(getCewePrometer(), "101200", false, 16),             // read log 1
+                new ProRegister(getCewePrometer(), "101800", false, 16)              // read log 2
         };
 
         this.rEventLogReadOffset = new ProRegister(getCewePrometer(), "102100", false);
@@ -273,8 +289,12 @@ public class CeweRegisters {
         return rFirmwareVersion;
     }
 
-    public ProRegister[] getrLogChannelConfig() {
-        return rLogChannelConfig;
+    public ProRegister[] getrLogChannelConfigOld() {
+        return rLogChannelConfigOld;
+    }
+
+    public ProRegister[][] getrLogChannelConfigNew() {
+        return rLogChannelConfigNew;
     }
 
     public ProRegister[] getrLogChannelCount() {

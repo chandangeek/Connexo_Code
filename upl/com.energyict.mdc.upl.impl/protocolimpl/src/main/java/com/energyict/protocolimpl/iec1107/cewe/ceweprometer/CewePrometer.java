@@ -145,7 +145,7 @@ public class CewePrometer extends AbstractProtocol  {
     private List<BillingPointIndex> billingPoints = null;
 
 	private boolean software7E1;
-    private String firmwareVersion = null;
+    private FirmwareVersion firmwareVersion = null;
 
     private CeweDateFormats dateFormats = null;
     private CeweRegisters registers = null;
@@ -374,19 +374,24 @@ public class CewePrometer extends AbstractProtocol  {
     /** Fetch firware version. 
      * @see AbstractProtocol#getFirmwareVersion()
      */
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public FirmwareVersion getFirmwareVersionObject() throws IOException, UnsupportedException {
         if (firmwareVersion == null) {
             String mayor = getRegisters().getrFirmwareVersion().asString(0);
             String minor = getRegisters().getrFirmwareVersion().asString(1);
             String subversion = getRegisters().getrFirmwareVersion().asString(2);
-            firmwareVersion = mayor + "." + minor + "." + subversion;
+            firmwareVersion = new FirmwareVersion(mayor + "." + minor + "." + subversion);
         }
         return firmwareVersion;
     }
-    
+
+    @Override
+    public String getFirmwareVersion() throws IOException, UnsupportedException {
+        return getFirmwareVersionObject().getVersionString();
+    }
+
     /* (non-Javadoc)
-     * @see AbstractProtocol#validateSerialNumber()
-     */
+    * @see AbstractProtocol#validateSerialNumber()
+    */
     protected void validateSerialNumber() throws IOException {
         String configured = getInfoTypeSerialNumber();
         String meter = getRegisters().getrSerial().asString();

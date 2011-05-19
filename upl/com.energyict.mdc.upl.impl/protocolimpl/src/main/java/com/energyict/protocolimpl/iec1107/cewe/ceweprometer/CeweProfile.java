@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer;
 
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.FirmwareVersion;
 import com.energyict.protocolimpl.base.RetryHandler;
 
 import java.io.IOException;
@@ -12,6 +13,8 @@ import java.util.*;
  * Time: 10:16
  */
 public class CeweProfile {
+
+    public static final FirmwareVersion FW_2_1_0 = new FirmwareVersion("2.1.0");
 
     private final CewePrometer cewePrometer;
 
@@ -135,9 +138,18 @@ public class CeweProfile {
      * @throws IOException
      */
     private List<ChannelInfo> getChannelInfos() throws IOException {
-        String rawData = cewePrometer.getRegisters().getrLogChannelConfig()[cewePrometer.getPLogger()].getRawData();
-        int nrChn = cewePrometer.getNumberOfChannels();
-        return ChannelConfigurationParser.toChannelInfo(rawData, nrChn);
+        int channelCount = cewePrometer.getNumberOfChannels();
+        FirmwareVersion fw = cewePrometer.getFirmwareVersionObject();
+        if (fw.before(FW_2_1_0)) {
+            String rawData = cewePrometer.getRegisters().getrLogChannelConfigOld()[cewePrometer.getPLogger()].getRawData();
+            return ChannelConfigurationParser.toChannelInfoOldFw(rawData, channelCount);
+        } else {
+            String[] rawData = new String[channelCount];
+            for (int channelIndex = 0; channelIndex < rawData.length; channelIndex++) {
+                rawData[channelIndex] = cewePrometer.getRegisters().getrLogChannelConfigNew()[cewePrometer.getPLogger()][channelIndex].getRawData();
+            }
+            return ChannelConfigurationParser.toChannelInfoNewFw(rawData);
+        }
     }
 
     /**

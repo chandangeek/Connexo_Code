@@ -47,6 +47,8 @@ public class CewePrometerMain extends AbstractDebuggingMain<CewePrometer> {
         properties.setProperty("Timeout", "10000");
         properties.setProperty(MeterProtocol.NODEID, SERIAL);
 
+        //properties.setProperty("Logger", "1");
+
         return properties;
     }
 

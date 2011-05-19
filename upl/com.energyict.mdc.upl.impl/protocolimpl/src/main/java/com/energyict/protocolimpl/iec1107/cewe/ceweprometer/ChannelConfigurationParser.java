@@ -48,7 +48,7 @@ public class ChannelConfigurationParser {
     };
 
 
-    public static List<ChannelInfo> toChannelInfo(String data, int nrChannels) {
+    public static List<ChannelInfo> toChannelInfoOldFw(String data, int nrChannels) {
 
         data = data.substring(1, data.length() - 1);
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
@@ -61,7 +61,7 @@ public class ChannelConfigurationParser {
             byte bit6To7 = (byte) (Byte.parseByte(s, 16) & 0xC0);
 
             Unit unit = (Unit) QUANTITY[bit1To5][0];
-            String name = (String) QUANTITY[bit1To5][1] + " " + PHASE[bit6To7];
+            String name = QUANTITY[bit1To5][1] + " " + PHASE[bit6To7];
 
             ChannelInfo ci = new ChannelInfo(idx, name, unit);
 
@@ -79,6 +79,33 @@ public class ChannelConfigurationParser {
 
         return channelInfos;
 
+    }
+
+    public static List<ChannelInfo> toChannelInfoNewFw(String[] rawData) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("(");
+        for (int i = 0; i < rawData.length; i++) {
+            String rawChannelInfo = rawData[i];
+            sb.append(getConfigBytesForChannelinfo(rawChannelInfo));
+        }
+        sb.append(")");
+        return toChannelInfoOldFw(sb.toString(), rawData.length);
+    }
+
+    private static String getConfigBytesForChannelinfo(String rawChannelInfo) {
+        String channelInfo = rawChannelInfo.replaceAll("(", "");
+        channelInfo = channelInfo.replaceAll(")", "");
+        channelInfo = channelInfo.trim();
+        String[] infoParts = channelInfo.split(",");
+        if (infoParts.length == 3) {
+            int quantity = Integer.valueOf(infoParts[0]);
+            int phase = Integer.valueOf(infoParts[0]);
+            int value = quantity & 0x3F;
+            value |= ((phase & 0x03) << 6);
+            String hexValue = Integer.toHexString(value);
+            return hexValue.length() == 1 ? "0" + hexValue : hexValue;
+        }
+        return "00";
     }
 
 }
