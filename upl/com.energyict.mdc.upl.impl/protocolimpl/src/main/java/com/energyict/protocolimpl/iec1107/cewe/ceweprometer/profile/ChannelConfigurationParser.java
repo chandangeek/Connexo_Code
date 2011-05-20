@@ -1,4 +1,4 @@
-package com.energyict.protocolimpl.iec1107.cewe.ceweprometer;
+package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.profile;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
@@ -50,6 +50,8 @@ public class ChannelConfigurationParser {
             /* 1C */ {Unit.getUndefined(), "external reg. 5"},
             /* 1D */ {Unit.getUndefined(), "external reg. 6"},
             /* 1E */ {Unit.getUndefined(), "external reg. 7"},
+
+            // TODO: Add the latest quantities of FW 3.1
     };
 
 

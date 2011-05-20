@@ -8,6 +8,9 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.iec1107.IEC1107Connection;
+import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.profile.CeweProfile;
+import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.profile.EventParser;
+import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.*;
 
 import java.io.*;
 import java.util.*;
@@ -149,105 +152,6 @@ public class CewePrometer extends AbstractProtocol  {
 
     private CeweDateFormats dateFormats = null;
     private CeweRegisters registers = null;
-
-    /* TOU-registers select */
-    
-    /** TOU-registers select 00: active energy imp. */
-    final static int TOU_ACTIVE_ENERGY_IMP = 0x0;
-    
-    /** TOU-registers select 01: active energy exp. */
-    final static int TOU_ACTIVE_ENERGY_EXP = 0x1;
-    
-    /** TOU-registers select 02: reactive energy imp. */
-    final static int TOU_REACTIVE_ENERGY_IMP = 0x2;
-    
-    /** TOU-registers select 03: reactive energy exp. */
-    final static int TOU_REACTIVE_ENERGY_EXP = 0x3;
-    
-    /** TOU-registers select 04: reactive energy ind. */
-    final static int TOU_REACTIVE_ENERGY_IND = 0x4;
-    
-    /** TOU-registers select 05: reactive energy cap. */
-    final static int TOU_REACTIVE_ENERGY_CAP = 0x5;
-    
-    /** TOU-registers select 06: reactive energy QI */
-    final static int TOU_REACTIVE_ENERGY_QI = 0x6;
-    
-    /** TOU-registers select 07: reactive energy QII */
-    final static int TOU_REACTIVE_ENERGY_QII = 0x7;
-    
-    /** TOU-registers select 08: reactive energy QIII */
-    final static int TOU_REACTIVE_ENERGY_QIII = 0x8;
-    
-    /** TOU-registers select 09: reactive energy QIV */
-    final static int TOU_REACTIVE_ENERGY_QIV = 0x9;
-    
-    /** TOU-registers select 10: apparent energy imp. */
-    final static int TOU_APPARENT_ENERGY_IMP = 0xA;
-    
-    /** TOU-registers select 11: apparent energy exp. */
-    final static int TOU_APPARENT_ENERGY_EXP = 0xB;
-    
-    /** TOU-registers select 23: active energy imp. */
-    final static int TOU_EXTERNAL_REG_1 = 0x17;
-    
-    /** TOU-registers select 24: active energy imp. */
-    final static int TOU_EXTERNAL_REG_2 = 0x18;
-    
-    /** TOU-registers select 25: active energy imp. */
-    final static int TOU_EXTERNAL_REG_3 = 0x19;
-    
-    /** TOU-registers select 26: active energy imp. */
-    final static int TOU_EXTERNAL_REG_4 = 0x1A;
-    
-    /** TOU-registers select 27: active energy imp. */
-    final static int TOU_EXTERNAL_REG_5 = 0x1B;
-    
-    /** TOU-registers select 28: active energy imp. */
-    final static int TOU_EXTERNAL_REG_6 = 0x1C;
-    
-    /** TOU-registers select 29: active energy imp. */
-    final static int TOU_EXTERNAL_REG_7 = 0x1D;
-    
-    /** TOU-registers select 30: active energy imp. */
-    final static int TOU_EXTERNAL_REG_8 = 0x1E;
-
-    
-    /** Maximum demand for phenomenon: active power import */
-    final static int MD_ACTIVE_POWER_IMP = 0x0;
-    
-    /** Maximum demand for phenomenon: active power export */
-    final static int MD_ACTIVE_POWER_EXP = 0x1;
-    
-    /** Maximum demand for phenomenon: reactive power import */
-    final static int MD_REACTIVE_POWER_IMP = 0x2;
-    
-    /** Maximum demand for phenomenon: reactive power export */
-    final static int MD_REACTIVE_POWER_EXP = 0x3;
-    
-    /** Maximum demand for phenomenon: reactive power inductive */
-    final static int MD_REACTIVE_POWER_IND = 0x4;
-    
-    /** Maximum demand for phenomenon: reactive power capacitive */
-    final static int MD_REACTIVE_POWER_CAP = 0x5;
-    
-    /** Maximum demand for phenomenon: reactive power QI */
-    final static int MD_REACTIVE_POWER_QI = 0x6;
-    
-    /** Maximum demand for phenomenon: reactive power QII */
-    final static int MD_REACTIVE_POWER_QII = 0x7;
-    
-    /** Maximum demand for phenomenon: reactive power QIII */
-    final static int MD_REACTIVE_POWER_QIII = 0x8;
-    
-    /** Maximum demand for phenomenon: reactive power QIV */
-    final static int MD_REACTIVE_POWER_QIV = 0x9;
-    
-    /** Maximum demand for phenomenon: apparent power import */
-    final static int MD_APPARENT_POWER_IMP = 0xA;
-    
-    /** Maximum demand for phenomenon: apparent power export */
-    final static int MD_APPARENT_POWER_EXP = 0xB;
 
     /* (non-Javadoc)
     * @see com.energyict.protocolimpl.base.AbstractProtocol#doInit(java.io.InputStream, java.io.OutputStream, int, int, int, int, int, com.energyict.protocolimpl.base.Encryptor, com.energyict.dialer.core.HalfDuplexController)
@@ -469,7 +373,7 @@ public class CewePrometer extends AbstractProtocol  {
     }
 
     /** send read command */
-    String read(String cmd, boolean retry) throws IOException {
+    public String read(String cmd, boolean retry) throws IOException {
         connection.sendRawCommandFrame(IEC1107Connection.READ1, cmd.getBytes());
         byte[] rawData = retry ? connection.receiveRawData() : connection.doReceiveData();
         return new String(rawData);
@@ -492,7 +396,7 @@ public class CewePrometer extends AbstractProtocol  {
      * fbl 09/10/2007
      * 
      * */
-    void write(String cmd) throws IOException {
+    public void write(String cmd) throws IOException {
         byte [] iecCmd = IEC1107Connection.WRITE1;
         byte [] b = cmd.getBytes();
         String r = connection.sendRawCommandFrameAndReturn(iecCmd, b);
@@ -580,7 +484,7 @@ public class CewePrometer extends AbstractProtocol  {
      * @return Register Id of the billing point 
      * @throws IOException
      */
-    int getRow(int billingPoint) throws IOException {
+    public int getRow(int billingPoint) throws IOException {
         
         /* no need to fetch any historical registers, just return 0 */
         if(billingPoint==255) return 0;
@@ -612,7 +516,7 @@ public class CewePrometer extends AbstractProtocol  {
      *          -1 if no TOU register configured for source
      * @throws  IOException
      */
-    int getTouIndex(int source) throws IOException {
+    public int getTouIndex(int source) throws IOException {
         if( touMap == null ) { // fetch
             touMap = new int[] { -1, -1, -1, -1, -1, -1, -1, -1 };    
             String t = getRegisters().getrTouRegisterSelect().asString();

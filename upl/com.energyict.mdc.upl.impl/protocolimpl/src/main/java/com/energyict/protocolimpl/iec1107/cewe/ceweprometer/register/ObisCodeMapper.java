@@ -1,9 +1,11 @@
-package com.energyict.protocolimpl.iec1107.cewe.ceweprometer;
+package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ObisCodeExtensions;
+import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
+import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.valuefactory.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -224,86 +226,86 @@ public class ObisCodeMapper {
             putStd("1.1.137.8.0." + f[bpI], prometer.getRegisters().getrExternal(), 6);
             putStd("1.1.138.8.0." + f[bpI], prometer.getRegisters().getrExternal(), 7);
 
-            putTOU("1.1.1.8.1." + f[bpI], CewePrometer.TOU_ACTIVE_ENERGY_IMP);
-            putTOU("1.1.2.8.1." + f[bpI], CewePrometer.TOU_ACTIVE_ENERGY_EXP);
-            putTOU("1.1.3.8.1." + f[bpI], CewePrometer.TOU_REACTIVE_ENERGY_IMP);
-            putTOU("1.1.4.8.1." + f[bpI], CewePrometer.TOU_REACTIVE_ENERGY_EXP);
-            putTOU("1.1.128.8.1." + f[bpI], CewePrometer.TOU_REACTIVE_ENERGY_IND);
-            putTOU("1.1.129.8.1." + f[bpI], CewePrometer.TOU_REACTIVE_ENERGY_CAP);
-            putTOU("1.1.5.8.1." + f[bpI], CewePrometer.TOU_REACTIVE_ENERGY_QI);
-            putTOU("1.1.6.8.1." + f[bpI], CewePrometer.TOU_REACTIVE_ENERGY_QII);
-            putTOU("1.1.7.8.1." + f[bpI], CewePrometer.TOU_REACTIVE_ENERGY_QIII);
-            putTOU("1.1.8.8.1." + f[bpI], CewePrometer.TOU_REACTIVE_ENERGY_QIV);
-            putTOU("1.1.9.8.1." + f[bpI], CewePrometer.TOU_APPARENT_ENERGY_IMP);
-            putTOU("1.1.10.8.1." + f[bpI], CewePrometer.TOU_APPARENT_ENERGY_EXP);
+            putTOU("1.1.1.8.1." + f[bpI], CeweRegisters.TOU_ACTIVE_ENERGY_IMP);
+            putTOU("1.1.2.8.1." + f[bpI], CeweRegisters.TOU_ACTIVE_ENERGY_EXP);
+            putTOU("1.1.3.8.1." + f[bpI], CeweRegisters.TOU_REACTIVE_ENERGY_IMP);
+            putTOU("1.1.4.8.1." + f[bpI], CeweRegisters.TOU_REACTIVE_ENERGY_EXP);
+            putTOU("1.1.128.8.1." + f[bpI], CeweRegisters.TOU_REACTIVE_ENERGY_IND);
+            putTOU("1.1.129.8.1." + f[bpI], CeweRegisters.TOU_REACTIVE_ENERGY_CAP);
+            putTOU("1.1.5.8.1." + f[bpI], CeweRegisters.TOU_REACTIVE_ENERGY_QI);
+            putTOU("1.1.6.8.1." + f[bpI], CeweRegisters.TOU_REACTIVE_ENERGY_QII);
+            putTOU("1.1.7.8.1." + f[bpI], CeweRegisters.TOU_REACTIVE_ENERGY_QIII);
+            putTOU("1.1.8.8.1." + f[bpI], CeweRegisters.TOU_REACTIVE_ENERGY_QIV);
+            putTOU("1.1.9.8.1." + f[bpI], CeweRegisters.TOU_APPARENT_ENERGY_IMP);
+            putTOU("1.1.10.8.1." + f[bpI], CeweRegisters.TOU_APPARENT_ENERGY_EXP);
 
-            putTOU("1.1.131.8.1." + f[bpI], CewePrometer.TOU_EXTERNAL_REG_1);
-            putTOU("1.1.132.8.1." + f[bpI], CewePrometer.TOU_EXTERNAL_REG_2);
-            putTOU("1.1.133.8.1." + f[bpI], CewePrometer.TOU_EXTERNAL_REG_3);
-            putTOU("1.1.134.8.1." + f[bpI], CewePrometer.TOU_EXTERNAL_REG_4);
-            putTOU("1.1.135.8.1." + f[bpI], CewePrometer.TOU_EXTERNAL_REG_5);
-            putTOU("1.1.136.8.1." + f[bpI], CewePrometer.TOU_EXTERNAL_REG_6);
-            putTOU("1.1.137.8.1." + f[bpI], CewePrometer.TOU_EXTERNAL_REG_7);
-            putTOU("1.1.138.8.1." + f[bpI], CewePrometer.TOU_EXTERNAL_REG_8);
+            putTOU("1.1.131.8.1." + f[bpI], CeweRegisters.TOU_EXTERNAL_REG_1);
+            putTOU("1.1.132.8.1." + f[bpI], CeweRegisters.TOU_EXTERNAL_REG_2);
+            putTOU("1.1.133.8.1." + f[bpI], CeweRegisters.TOU_EXTERNAL_REG_3);
+            putTOU("1.1.134.8.1." + f[bpI], CeweRegisters.TOU_EXTERNAL_REG_4);
+            putTOU("1.1.135.8.1." + f[bpI], CeweRegisters.TOU_EXTERNAL_REG_5);
+            putTOU("1.1.136.8.1." + f[bpI], CeweRegisters.TOU_EXTERNAL_REG_6);
+            putTOU("1.1.137.8.1." + f[bpI], CeweRegisters.TOU_EXTERNAL_REG_7);
+            putTOU("1.1.138.8.1." + f[bpI], CeweRegisters.TOU_EXTERNAL_REG_8);
 
 
             /* Maximum demand */
-            int mdIdx = CewePrometer.MD_ACTIVE_POWER_IMP;
+            int mdIdx = CeweRegisters.MD_ACTIVE_POWER_IMP;
             putMD("1.1.1." + D_MD_1 + ".0." + f[bpI], mdIdx);
             putMD("1.1.1." + D_MD_2 + ".0." + f[bpI], mdIdx);
             putMD("1.1.1." + D_MD_3 + ".0." + f[bpI], mdIdx);
 
-            mdIdx = CewePrometer.MD_ACTIVE_POWER_EXP;
+            mdIdx = CeweRegisters.MD_ACTIVE_POWER_EXP;
             putMD("1.1.2." + D_MD_1 + ".0." + f[bpI], mdIdx);
             putMD("1.1.2." + D_MD_2 + ".0." + f[bpI], mdIdx);
             putMD("1.1.2." + D_MD_3 + ".0." + f[bpI], mdIdx);
 
-            mdIdx = CewePrometer.MD_REACTIVE_POWER_IMP;
+            mdIdx = CeweRegisters.MD_REACTIVE_POWER_IMP;
             putMD("1.1.3." + D_MD_1 + ".0." + f[bpI], mdIdx);
             putMD("1.1.3." + D_MD_2 + ".0." + f[bpI], mdIdx);
             putMD("1.1.3." + D_MD_3 + ".0." + f[bpI], mdIdx);
 
-            mdIdx = CewePrometer.MD_REACTIVE_POWER_EXP;
+            mdIdx = CeweRegisters.MD_REACTIVE_POWER_EXP;
             putMD("1.1.4." + D_MD_1 + ".0." + f[bpI], mdIdx);
             putMD("1.1.4." + D_MD_2 + ".0." + f[bpI], mdIdx);
             putMD("1.1.4." + D_MD_3 + ".0." + f[bpI], mdIdx);
 
-            mdIdx = CewePrometer.MD_REACTIVE_POWER_IND;
+            mdIdx = CeweRegisters.MD_REACTIVE_POWER_IND;
             putMD("1.1.128." + D_MD_1 + ".0." + f[bpI], mdIdx);
             putMD("1.1.128." + D_MD_2 + ".0." + f[bpI], mdIdx);
             putMD("1.1.128." + D_MD_3 + ".0." + f[bpI], mdIdx);
 
-            mdIdx = CewePrometer.MD_REACTIVE_POWER_CAP;
+            mdIdx = CeweRegisters.MD_REACTIVE_POWER_CAP;
             putMD("1.1.129." + D_MD_1 + ".0." + f[bpI], mdIdx);
             putMD("1.1.129." + D_MD_2 + ".0." + f[bpI], mdIdx);
             putMD("1.1.129." + D_MD_3 + ".0." + f[bpI], mdIdx);
 
-            mdIdx = CewePrometer.MD_REACTIVE_POWER_QI;
+            mdIdx = CeweRegisters.MD_REACTIVE_POWER_QI;
             putMD("1.1.5." + D_MD_1 + ".0." + f[bpI], mdIdx);
             putMD("1.1.5." + D_MD_2 + ".0." + f[bpI], mdIdx);
             putMD("1.1.5." + D_MD_3 + ".0." + f[bpI], mdIdx);
 
-            mdIdx = CewePrometer.MD_REACTIVE_POWER_QII;
+            mdIdx = CeweRegisters.MD_REACTIVE_POWER_QII;
             putMD("1.1.6." + D_MD_1 + ".0." + f[bpI], mdIdx);
             putMD("1.1.6." + D_MD_2 + ".0." + f[bpI], mdIdx);
             putMD("1.1.6." + D_MD_3 + ".0." + f[bpI], mdIdx);
 
-            mdIdx = CewePrometer.MD_REACTIVE_POWER_QIII;
+            mdIdx = CeweRegisters.MD_REACTIVE_POWER_QIII;
             putMD("1.1.7." + D_MD_1 + ".0." + f[bpI], mdIdx);
             putMD("1.1.7." + D_MD_2 + ".0." + f[bpI], mdIdx);
             putMD("1.1.7." + D_MD_3 + ".0." + f[bpI], mdIdx);
 
-            mdIdx = CewePrometer.MD_REACTIVE_POWER_QIV;
+            mdIdx = CeweRegisters.MD_REACTIVE_POWER_QIV;
             putMD("1.1.8." + D_MD_1 + ".0." + f[bpI], mdIdx);
             putMD("1.1.8." + D_MD_2 + ".0." + f[bpI], mdIdx);
             putMD("1.1.8." + D_MD_3 + ".0." + f[bpI], mdIdx);
 
-            mdIdx = CewePrometer.MD_APPARENT_POWER_IMP;
+            mdIdx = CeweRegisters.MD_APPARENT_POWER_IMP;
             putMD("1.1.9." + D_MD_1 + ".0." + f[bpI], mdIdx);
             putMD("1.1.9." + D_MD_2 + ".0." + f[bpI], mdIdx);
             putMD("1.1.9." + D_MD_3 + ".0." + f[bpI], mdIdx);
 
-            mdIdx = CewePrometer.MD_APPARENT_POWER_EXP;
+            mdIdx = CeweRegisters.MD_APPARENT_POWER_EXP;
             putMD("1.1.10." + D_MD_1 + ".0." + f[bpI], mdIdx);
             putMD("1.1.10." + D_MD_2 + ".0." + f[bpI], mdIdx);
             putMD("1.1.10." + D_MD_3 + ".0." + f[bpI], mdIdx);

@@ -1,9 +1,10 @@
-package com.energyict.protocolimpl.iec1107.cewe.ceweprometer;
+package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.valuefactory;
 
 import com.energyict.cbo.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
 
 import java.io.IOException;
 import java.util.Date;

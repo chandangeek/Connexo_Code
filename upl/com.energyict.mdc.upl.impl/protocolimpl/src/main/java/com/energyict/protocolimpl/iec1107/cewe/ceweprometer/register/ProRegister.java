@@ -1,7 +1,8 @@
-package com.energyict.protocolimpl.iec1107.cewe.ceweprometer;
+package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.NestedIOException;
+import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -27,7 +28,7 @@ import java.util.*;
  * 
  * @author fbo */
 
-class ProRegister {
+public class ProRegister {
 
     final static String NOT_SUPPORTED_EXCEPTION = "Register is not cacheable, so method not supported";
 
@@ -76,7 +77,7 @@ class ProRegister {
     /**
      * @param rawData
      */
-    ProRegister(String rawData) {
+    public ProRegister(String rawData) {
         this.rawData = rawData;
         this.cacheable = true;
         String tmp = rawData.substring(1, rawData.length()-1); // remove braces ()
@@ -89,7 +90,7 @@ class ProRegister {
     }
 
     /** nr of fields */
-    int size(){
+    public int size(){
         return fields.size();
     }
     
@@ -98,11 +99,11 @@ class ProRegister {
         return fields.iterator();
     }
 
-    String getRawData() throws IOException {
+    public String getRawData() throws IOException {
         return getRawData(true);
     }
 
-    String getRawData(boolean retry) throws IOException {
+    public String getRawData(boolean retry) throws IOException {
         if (rawData == null) {
             String tmp = meter.read(id + "(" + fetchSize + ")", retry);
             if (!cacheable) {
@@ -113,19 +114,19 @@ class ProRegister {
         return rawData;
     }
 
-    ProRegister readAndFreeze( ) throws IOException {
+    public ProRegister readAndFreeze( ) throws IOException {
         ProRegister register = new ProRegister( getRawData() );
         register.meter = meter;
         register.cacheable = true;
         return register;
     }
     
-    void setCeweProMeter(CewePrometer meter){
+    public void setCeweProMeter(CewePrometer meter){
         this.meter = meter;
     }
     
     /** parse field 0 as String */
-    String asString() throws IOException {
+    public String asString() throws IOException {
         if (!cacheable) {
             throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
         }
@@ -133,7 +134,7 @@ class ProRegister {
     }
     
     /** parse field: fieldIdx as String */
-    String asString(int fieldIdx) throws IOException {
+    public String asString(int fieldIdx) throws IOException {
         
         if (!cacheable) {
             throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
@@ -156,7 +157,7 @@ class ProRegister {
     }
     
     /** parse field: fieldIdx as Double */
-    Double asDouble(int fieldIdx) throws IOException {
+    public Double asDouble(int fieldIdx) throws IOException {
         
         if (!cacheable) {
             throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
@@ -189,7 +190,7 @@ class ProRegister {
     }
 
     /** parse field 0 as Integer */
-    Integer asInteger() throws IOException {
+    public Integer asInteger() throws IOException {
         
         if (!cacheable) {
             throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
@@ -200,7 +201,7 @@ class ProRegister {
     }
     
     /** parse field: fieldIdx as int */
-    int asInt(int fieldIdx) throws IOException {
+    public int asInt(int fieldIdx) throws IOException {
         
         if (!cacheable) {
             throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
@@ -211,7 +212,7 @@ class ProRegister {
     }
     
     /** parse field 0 as int */
-    int asInt() throws IOException {
+    public int asInt() throws IOException {
         
         if (!cacheable) {
             throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
@@ -222,7 +223,7 @@ class ProRegister {
     }
 
     /** parse field 0 as Date with LongDateFormat */
-    Date asDate( ) throws IOException {
+    public Date asDate( ) throws IOException {
         
         if (!cacheable) {
             throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
@@ -237,7 +238,7 @@ class ProRegister {
     }
     
     /** parse field 0 as Date with sdf as DateFormat */
-    Date asDate(SimpleDateFormat sdf) throws IOException {
+    public Date asDate(SimpleDateFormat sdf) throws IOException {
         
         if (!cacheable) {
             throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
@@ -253,7 +254,7 @@ class ProRegister {
 
     
     /** parse fieldas Date with short dateFormat */
-    Date asShortDate(int fieldIdx) throws IOException {
+    public Date asShortDate(int fieldIdx) throws IOException {
 
         if (!cacheable) {
             throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
@@ -268,7 +269,7 @@ class ProRegister {
     }
     
     /** 19700101,000000 semantically means no date or NULL */
-    boolean isNullDate() throws IOException{
+    public boolean isNullDate() throws IOException{
         String tmp = getRawData();
         tmp = tmp.substring(1, tmp.length()-1); // remove braces ()
         return "19700101,000000".equals(tmp);

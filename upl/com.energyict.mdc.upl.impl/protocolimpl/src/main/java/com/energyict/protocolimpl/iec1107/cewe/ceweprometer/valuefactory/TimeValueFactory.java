@@ -1,26 +1,24 @@
-package com.energyict.protocolimpl.iec1107.cewe.ceweprometer;
+package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.valuefactory;
 
-import com.energyict.cbo.Quantity;
+import com.energyict.cbo.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
+import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.ProRegister;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
  * Copyrights EnergyICT
  * Date: 19/05/11
- * Time: 16:44
+ * Time: 16:50
  */
-public class EnergyValueFactory extends AbstractValueFactory {
+public class TimeValueFactory extends AbstractValueFactory {
 
-    private ProRegister[] registerArray;
-    private int fieldIdx;
-
-    public EnergyValueFactory(ObisCode obisCode, ProRegister[] registerArray, int fieldIdx, CewePrometer proMeter) {
+    public TimeValueFactory(ObisCode obisCode, CewePrometer proMeter) {
         super(obisCode, proMeter);
-        this.registerArray = registerArray;
-        this.fieldIdx = fieldIdx;
     }
 
     public Quantity getQuantity() throws IOException {
@@ -29,7 +27,10 @@ public class EnergyValueFactory extends AbstractValueFactory {
             String msg = "No historical data for billing point: " + getBillingPointFromObisCode();
             throw new NoSuchRegisterException(msg);
         }
-        return new Quantity(registerArray[row].asDouble(fieldIdx), getUnit());
+        Unit ms = Unit.get(BaseUnit.SECOND, -3);
+        ProRegister r = getProMeter().getRegisters().getrTimestamp()[row].readAndFreeze();
+        BigDecimal v = new BigDecimal(r.asDate().getTime());
+        return new Quantity(v, ms);
     }
 
     public Date getToTime() throws IOException {

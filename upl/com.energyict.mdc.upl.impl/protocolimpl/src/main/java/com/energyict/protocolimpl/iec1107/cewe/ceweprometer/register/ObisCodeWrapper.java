@@ -1,4 +1,4 @@
-package com.energyict.protocolimpl.iec1107.cewe.ceweprometer;
+package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register;
 
 import com.energyict.obis.ObisCode;
 

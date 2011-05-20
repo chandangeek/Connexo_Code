@@ -1,5 +1,6 @@
-package com.energyict.protocolimpl.iec1107.cewe.ceweprometer;
+package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register;
 
+import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
@@ -9,8 +10,136 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
  */
 public class CeweRegisters {
 
+    /**
+     * TOU-registers select 00: active energy imp.
+     */
+    public static final int TOU_ACTIVE_ENERGY_IMP = 0x0;
+    /**
+     * TOU-registers select 01: active energy exp.
+     */
+    public static final int TOU_ACTIVE_ENERGY_EXP = 0x1;
+    /**
+     * TOU-registers select 02: reactive energy imp.
+     */
+    public static final int TOU_REACTIVE_ENERGY_IMP = 0x2;
+    /**
+     * TOU-registers select 03: reactive energy exp.
+     */
+    public static final int TOU_REACTIVE_ENERGY_EXP = 0x3;
+    /**
+     * TOU-registers select 04: reactive energy ind.
+     */
+    public static final int TOU_REACTIVE_ENERGY_IND = 0x4;
+    /**
+     * TOU-registers select 05: reactive energy cap.
+     */
+    public static final int TOU_REACTIVE_ENERGY_CAP = 0x5;
+    /**
+     * TOU-registers select 06: reactive energy QI
+     */
+    public static final int TOU_REACTIVE_ENERGY_QI = 0x6;
+    /**
+     * TOU-registers select 07: reactive energy QII
+     */
+    public static final int TOU_REACTIVE_ENERGY_QII = 0x7;
+    /**
+     * TOU-registers select 08: reactive energy QIII
+     */
+    public static final int TOU_REACTIVE_ENERGY_QIII = 0x8;
+    /**
+     * TOU-registers select 09: reactive energy QIV
+     */
+    public static final int TOU_REACTIVE_ENERGY_QIV = 0x9;
+    /**
+     * TOU-registers select 10: apparent energy imp.
+     */
+    public static final int TOU_APPARENT_ENERGY_IMP = 0xA;
+    /**
+     * TOU-registers select 11: apparent energy exp.
+     */
+    public static final int TOU_APPARENT_ENERGY_EXP = 0xB;
+    /**
+     * TOU-registers select 23: active energy imp.
+     */
+    public static final int TOU_EXTERNAL_REG_1 = 0x17;
+    /**
+     * TOU-registers select 24: active energy imp.
+     */
+    public static final int TOU_EXTERNAL_REG_2 = 0x18;
+    /**
+     * TOU-registers select 25: active energy imp.
+     */
+    public static final int TOU_EXTERNAL_REG_3 = 0x19;
+    /**
+     * TOU-registers select 26: active energy imp.
+     */
+    public static final int TOU_EXTERNAL_REG_4 = 0x1A;
+    /**
+     * TOU-registers select 27: active energy imp.
+     */
+    public static final int TOU_EXTERNAL_REG_5 = 0x1B;
+    /**
+     * TOU-registers select 28: active energy imp.
+     */
+    public static final int TOU_EXTERNAL_REG_6 = 0x1C;
+    /**
+     * TOU-registers select 29: active energy imp.
+     */
+    public static final int TOU_EXTERNAL_REG_7 = 0x1D;
+    /**
+     * TOU-registers select 30: active energy imp.
+     */
+    public static final int TOU_EXTERNAL_REG_8 = 0x1E;
+    /**
+     * Maximum demand for phenomenon: active power import
+     */
+    public static final int MD_ACTIVE_POWER_IMP = 0x0;
+    /**
+     * Maximum demand for phenomenon: active power export
+     */
+    public static final int MD_ACTIVE_POWER_EXP = 0x1;
+    /**
+     * Maximum demand for phenomenon: reactive power import
+     */
+    public static final int MD_REACTIVE_POWER_IMP = 0x2;
+    /**
+     * Maximum demand for phenomenon: reactive power export
+     */
+    public static final int MD_REACTIVE_POWER_EXP = 0x3;
+    /**
+     * Maximum demand for phenomenon: reactive power inductive
+     */
+    public static final int MD_REACTIVE_POWER_IND = 0x4;
+    /**
+     * Maximum demand for phenomenon: reactive power capacitive
+     */
+    public static final int MD_REACTIVE_POWER_CAP = 0x5;
+    /**
+     * Maximum demand for phenomenon: reactive power QI
+     */
+    public static final int MD_REACTIVE_POWER_QI = 0x6;
+    /**
+     * Maximum demand for phenomenon: reactive power QII
+     */
+    public static final int MD_REACTIVE_POWER_QII = 0x7;
+    /**
+     * Maximum demand for phenomenon: reactive power QIII
+     */
+    public static final int MD_REACTIVE_POWER_QIII = 0x8;
+    /**
+     * Maximum demand for phenomenon: reactive power QIV
+     */
+    public static final int MD_REACTIVE_POWER_QIV = 0x9;
+    /**
+     * Maximum demand for phenomenon: apparent power import
+     */
+    public static final int MD_APPARENT_POWER_IMP = 0xA;
+    /**
+     * Maximum demand for phenomenon: apparent power export
+     */
+    public static final int MD_APPARENT_POWER_EXP = 0xB;
     private final CewePrometer cewePrometer;
-    
+
     /** Meter serial number: 0 to 16 char string */
     private final ProRegister rSerial;
     
