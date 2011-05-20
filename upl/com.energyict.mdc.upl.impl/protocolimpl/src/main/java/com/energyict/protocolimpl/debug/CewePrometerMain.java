@@ -47,7 +47,7 @@ public class CewePrometerMain extends AbstractDebuggingMain<CewePrometer> {
         properties.setProperty("Timeout", "10000");
         properties.setProperty(MeterProtocol.NODEID, SERIAL);
 
-        //properties.setProperty("Logger", "1");
+        properties.setProperty("Logger", "1");
 
         return properties;
     }
@@ -75,8 +75,9 @@ public class CewePrometerMain extends AbstractDebuggingMain<CewePrometer> {
     private void requestProfileData() throws IOException {
         Date from = ProtocolTools.createCalendar(2000, 5, 15, 0, 0, 0, 0).getTime();
         ProfileData profileData = getMeterProtocol().getProfileData(new Date(), false);
-        for (IntervalData data : profileData.getIntervalDatas()) {
-            System.out.println(data);
+        System.out.println("\n");
+        for (ChannelInfo channelInfo : profileData.getChannelInfos()) {
+            System.out.println(channelInfo);
         }
     }
 
