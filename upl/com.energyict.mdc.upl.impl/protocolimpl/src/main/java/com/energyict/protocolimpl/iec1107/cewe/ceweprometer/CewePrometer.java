@@ -116,12 +116,14 @@ import java.util.logging.Level;
 public class CewePrometer extends AbstractProtocol  {
 
     /** Property keys specific for CewePrometer protocol. */
-    final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
-    final static String PK_LOGGER = "Logger";
+    private static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
+    private static final String PK_LOGGER = "Logger";
 
     /** By default the load profile of logger 1 is fetched */
-    final static int PD_LOGGER = 0;
-    
+    private static final int PD_LOGGER = 0;
+    private static final FirmwareVersion MINIMUM_FW_VERSION = new FirmwareVersion("1.2.0");
+    private static final FirmwareVersion NEW_FW_REGISTER = new FirmwareVersion("1.5.0");
+
     /** property for logger that must be fetched (1 or 2) */
     private int pLogger = PD_LOGGER;
     
@@ -137,7 +139,7 @@ public class CewePrometer extends AbstractProtocol  {
     private EventParser eventParser = null;
 
     /** TOU-select for every TOU register */
-    int[] touMap = null;
+    private int[] touMap = null;
     /** nr of meter channels: */ 
     private Integer channelCount = null;
     /** channelInfo registers retrieved from  */
@@ -180,13 +182,15 @@ public class CewePrometer extends AbstractProtocol  {
      */
     protected void doConnect() throws IOException {   
 
-        int v1 = getRegisters().getrFirmwareVersion().asInt(0);
-        int v2 = getRegisters().getrFirmwareVersion().asInt(1);
+        getFirmwareVersionObject().before(MINIMUM_FW_VERSION);
+
+        int v1 = getRegisters().getrFirmwareVersionOld().asInt(0);
+        int v2 = getRegisters().getrFirmwareVersionOld().asInt(1);
         
         double v = Double.parseDouble( v1 + "." + v2 );
         
         if( v < 1.2 ) {
-            throw new ApplicationException("Meter firmware version " + getFirmwareVersion() + " is not supported.  " + "Minimum version 1.2.0.");
+            throw new ApplicationException("Meter firmware version " + getFirmwareVersion() + " is not supported.  " + "Minimum version "+MINIMUM_FW_VERSION+".");
         }
         
         if(pExtendedLogging==1)
@@ -280,10 +284,16 @@ public class CewePrometer extends AbstractProtocol  {
      */
     public FirmwareVersion getFirmwareVersionObject() throws IOException, UnsupportedException {
         if (firmwareVersion == null) {
-            String mayor = getRegisters().getrFirmwareVersion().asString(0);
-            String minor = getRegisters().getrFirmwareVersion().asString(1);
-            String subversion = getRegisters().getrFirmwareVersion().asString(2);
+            String mayor = getRegisters().getrFirmwareVersionOld().asString(0);
+            String minor = getRegisters().getrFirmwareVersionOld().asString(1);
+            String subversion = getRegisters().getrFirmwareVersionOld().asString(2);
             firmwareVersion = new FirmwareVersion(mayor + "." + minor + "." + subversion);
+            if (firmwareVersion.afterOrEqual(NEW_FW_REGISTER)) {
+                mayor = getRegisters().getrFirmwareVersionNew().asString(0);
+                minor = getRegisters().getrFirmwareVersionNew().asString(1);
+                subversion = getRegisters().getrFirmwareVersionNew().asString(2);
+                firmwareVersion = new FirmwareVersion(mayor + "." + minor + "." + subversion);
+            }
         }
         return firmwareVersion;
     }

@@ -356,7 +356,7 @@ public class ObisCodeMapper {
         putStringValue("0.0.96.1.2.255", prometer.getRegisters().getrGeneralInfo(1)); // General info 2
         putStringValue("0.0.96.1.3.255", prometer.getRegisters().getrGeneralInfo(2)); // General info 3
         putStringValue("0.0.96.1.4.255", prometer.getRegisters().getrGeneralInfo(3)); // General info 4
-        putStringValue("1.0.0.2.0.255", prometer.getRegisters().getrFirmwareVersion());  // Firmware version
+        putStringValue("1.0.0.2.0.255", prometer.getRegisters().getrFirmwareVersionOld());  // Firmware version
 
     }
 

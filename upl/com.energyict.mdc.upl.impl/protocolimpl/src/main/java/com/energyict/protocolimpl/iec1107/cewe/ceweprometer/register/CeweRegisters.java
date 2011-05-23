@@ -151,7 +151,12 @@ public class CeweRegisters {
     /**
      * Meter firmware version: as 3 comma separated ints (major, minor, rev)
      */
-    private final ProRegister rFirmwareVersion;
+    private final ProRegister rFirmwareVersionOld;
+
+    /**
+     * Meter firmware version: as 3 comma separated ints (major, minor, rev)
+     */
+    private final ProRegister rFirmwareVersionNew;
 
     /**
      * Date and time (yyyymmdd,hhmmss)
@@ -273,7 +278,8 @@ public class CeweRegisters {
         this.rInternalTemp = new ProRegister(getCewePrometer(), "100700");
         this.rBatteryLeft = new ProRegister(getCewePrometer(), "10D800");
 
-        this.rFirmwareVersion = new ProRegister(getCewePrometer(), "102500");
+        this.rFirmwareVersionOld = new ProRegister(getCewePrometer(), "102500");
+        this.rFirmwareVersionNew = new ProRegister(getCewePrometer(), "10DA00");
 
         /** Date and time (yyyymmdd,hhmmss) */
         this.rReadDate = new ProRegister(getCewePrometer(), "100C00", false);
@@ -472,8 +478,12 @@ public class CeweRegisters {
         return rExternal;
     }
 
-    public ProRegister getrFirmwareVersion() {
-        return rFirmwareVersion;
+    public ProRegister getrFirmwareVersionOld() {
+        return rFirmwareVersionOld;
+    }
+
+    public ProRegister getrFirmwareVersionNew() {
+        return rFirmwareVersionNew;
     }
 
     public ProRegister[] getrLogChannelConfigOld() {
