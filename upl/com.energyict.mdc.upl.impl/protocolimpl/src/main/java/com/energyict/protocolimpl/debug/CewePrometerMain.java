@@ -69,10 +69,40 @@ public class CewePrometerMain extends AbstractDebuggingMain<CewePrometer> {
 
     @Override
     void doDebug() throws LinkException, IOException {
-        requestProfileData();
+        readRegister("0.0.96.50.1.255");
+        readRegister("0.0.96.9.0.255");
+        readRegister("0.0.96.6.6.255");
+        readRegister("1.1.32.7.0.255");
+        readRegister("1.1.52.7.0.255");
+        readRegister("1.1.72.7.0.255");
+        readRegister("1.1.32.7.1.255");
+        readRegister("1.1.52.7.1.255");
+        readRegister("1.1.72.7.1.255");
+        readRegister("1.1.31.7.0.255");
+        readRegister("1.1.51.7.0.255");
+        readRegister("1.1.71.7.0.255");
+        readRegister("1.1.32.7.2.255");
+        readRegister("1.1.52.7.2.255");
+        readRegister("1.1.72.7.2.255");
+        readRegister("1.1.31.7.2.255");
+        readRegister("1.1.51.7.2.255");
+        readRegister("1.1.71.7.2.255");
+        readRegister("1.1.81.7.1.255");
+        readRegister("1.1.81.7.12.255");
+        readRegister("1.1.81.7.20.255");
+        readRegister("1.1.33.7.0.255");
+        readRegister("1.1.53.7.0.255");
+        readRegister("1.1.73.7.0.255");
+        readRegister("0.0.96.1.0.255");
+        readRegister("0.0.96.1.1.255");
+        readRegister("0.0.96.1.2.255");
+        readRegister("0.0.96.1.3.255");
+        readRegister("0.0.96.1.4.255");
+        readRegister("1.0.0.2.0.255");
+
     }
 
-    private void requestProfileData() throws IOException {
+    private void dumpChannelInfos() throws IOException {
         Date from = ProtocolTools.createCalendar(2000, 5, 15, 0, 0, 0, 0).getTime();
         ProfileData profileData = getMeterProtocol().getProfileData(new Date(), false);
         System.out.println("\n");

@@ -140,84 +140,138 @@ public class CeweRegisters {
     public static final int MD_APPARENT_POWER_EXP = 0xB;
     private final CewePrometer cewePrometer;
 
-    /** Meter serial number: 0 to 16 char string */
+    /**
+     * Meter serial number: 0 to 16 char string
+     */
     private final ProRegister rSerial;
-    
-    /** Meter firmware version: as 3 comma separated ints (major, minor, rev)*/
+    private final ProRegister[] rGeneralInfo;
+    private final ProRegister rInternalTemp;
+    private final ProRegister rBatteryLeft;
+
+    /**
+     * Meter firmware version: as 3 comma separated ints (major, minor, rev)
+     */
     private final ProRegister rFirmwareVersion;
 
-    /** Date and time (yyyymmdd,hhmmss) */
+    /**
+     * Date and time (yyyymmdd,hhmmss)
+     */
     private final ProRegister rReadDate;
-    
-    /** Slide time (S,P)
-     *  
-     * S: -28800...28800 
+
+    /**
+     * Slide time (S,P)
+     * <p/>
+     * S: -28800...28800
      * P: 1...40
-     * 
+     * <p/>
      * The meter time is adjusted every minute by P percent of a minute until
      * the time has been adjusted S seconds.
      */
     private final ProRegister rSlideTime;
-    
-    /** TOU-registers select.  (8 hex bytes) 
-     * Defines what each TOU-register represents. */
+
+    /**
+     * TOU-registers select.  (8 hex bytes)
+     * Defines what each TOU-register represents.
+     */
     private final ProRegister rTouRegisterSelect;
 
-    /** Time stamp registers */
+    /**
+     * Returns single precision value. The example 0.1 represents 10% voltage unbalance.
+     */
+    private final ProRegister rVoltageUnbalance;
+
+    /**
+     * Returned as 46 comma separated floats with single precision
+     */
+    private final ProRegister rInstantValues;
+
+    /**
+     * Time stamp registers
+     */
     private final ProRegister[] rTimestamp;
-    
-    /** Energy registers */
+
+    /**
+     * Energy registers
+     */
     private final ProRegister[] rEenergy;
-    
-    /** Historical external registers (8 floats) */
+
+    /**
+     * Historical external registers (8 floats)
+     */
     private final ProRegister[] rExternal;
-    
+
     /* rows: billing points (not in chronological order), 
-     * columns: MD registers
-     * rMD[BILLING POINT][MAXIMUM DEMAND] 
-     */
+    * columns: MD registers
+    * rMD[BILLING POINT][MAXIMUM DEMAND]
+    */
     private final String[][] md;
-    
+
     /* rows: billing points (not in chronological order), 
-     * columns: TOU registers
-     * rMD[BILLING POINT][TOU] 
-     */
+    * columns: TOU registers
+    * rMD[BILLING POINT][TOU]
+    */
     private final String[][] tou;
 
-    /** Maximum demand registers */
+    /**
+     * Maximum demand registers
+     */
     private final ProRegister[][] rMaximumDemand;
-    
-    /** Tou registers*/
+
+    /**
+     * Tou registers
+     */
     private final ProRegister[][] rTou;
-    
-    /** Logger channel count */
+
+    /**
+     * Logger channel count
+     */
     private final ProRegister[] rLogChannelCount;
-    
-    /** Logger channel interval (seconds) */
+
+    /**
+     * Logger channel interval (seconds)
+     */
     private final ProRegister[] rLogChannelInterval;
 
-    /** Log Read offset: before fetching the load profile set start date */
+    /**
+     * Log Read offset: before fetching the load profile set start date
+     */
     private final ProRegister[] rLogOffset;
-    
-    /** what is stored in each channel, for fw < 2.1.0  */
+
+    /**
+     * what is stored in each channel, for fw < 2.1.0
+     */
     private final ProRegister[] rLogChannelConfigOld;
-    
-    /** what is stored in each channel, for fw >= 2.1.0 */
+
+    /**
+     * what is stored in each channel, for fw >= 2.1.0
+     */
     private final ProRegister[][] rLogChannelConfigNew;
 
-    /** Read next Log record */
-    private final ProRegister[] rLogNextRecord;
-    
-    /*
-     * "Event logbook" related registers
+    /**
+     * Read next Log record
      */
-    
+    private final ProRegister[] rLogNextRecord;
+
+    /*
+    * "Event logbook" related registers
+    */
+
     private final ProRegister rEventLogReadOffset;
     private final ProRegister rEventLogNextEvent;
 
     public CeweRegisters(CewePrometer cewePrometer) {
         this.cewePrometer = cewePrometer;
         this.rSerial = new ProRegister(getCewePrometer(), "108700");
+
+        this.rGeneralInfo = new ProRegister[] {
+                new ProRegister(getCewePrometer(), "107100"),
+                new ProRegister(getCewePrometer(), "107101"),
+                new ProRegister(getCewePrometer(), "107102"),
+                new ProRegister(getCewePrometer(), "107103")
+        };
+
+        this.rInternalTemp = new ProRegister(getCewePrometer(), "100700");
+        this.rBatteryLeft = new ProRegister(getCewePrometer(), "10D800");
 
         this.rFirmwareVersion = new ProRegister(getCewePrometer(), "102500");
 
@@ -237,6 +291,10 @@ public class CeweRegisters {
         /** TOU-registers select.  (8 hex bytes)
          * Defines what each TOU-register represents. */
         this.rTouRegisterSelect = new ProRegister(getCewePrometer(), "10D200");
+
+        this.rVoltageUnbalance = new ProRegister(getCewePrometer(), "015400");
+
+        this.rInstantValues = new ProRegister(getCewePrometer(), "015200");
 
 
         /** Time stamp registers */
@@ -472,5 +530,25 @@ public class CeweRegisters {
 
     public String[][] getTou() {
         return tou;
+    }
+
+    public ProRegister getrVoltageUnbalance() {
+        return rVoltageUnbalance;
+    }
+
+    public ProRegister getrInstantValues() {
+        return rInstantValues;
+    }
+
+    public ProRegister getrBatteryLeft() {
+        return rBatteryLeft;
+    }
+
+    public ProRegister getrGeneralInfo(int i) {
+        return rGeneralInfo[i];
+    }
+
+    public ProRegister getrInternalTemp() {
+        return rInternalTemp;
     }
 }

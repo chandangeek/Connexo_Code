@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.cbo.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ObisCodeExtensions;
@@ -30,7 +30,7 @@ public class ObisCodeMapper {
     /**
      * HashMap with the ValueFactories per ObisCode
      */
-    private Map<ObisCodeWrapper, AbstractValueFactory> oMap = new HashMap<ObisCodeWrapper, AbstractValueFactory>();
+    private Map<ObisCodeWrapper, AbstractValueFactory> obisMap = new HashMap<ObisCodeWrapper, AbstractValueFactory>();
 
     /**
      * Creates a new instance of ObisCodeMapping
@@ -66,20 +66,25 @@ public class ObisCodeMapper {
      * Retrieves objects from the ObisCodeMap
      */
     public AbstractValueFactory get(ObisCode o) {
-        return (AbstractValueFactory) oMap.get(new ObisCodeWrapper(o));
+        return (AbstractValueFactory) obisMap.get(new ObisCodeWrapper(o));
+    }
+
+    /**
+     * Add objects to the ObisCodeMap
+     */
+    private void putGeneric(AbstractValueFactory factory) {
+        ObisCodeWrapper obisCodeWrapper = new ObisCodeWrapper(factory.getObisCode());
+        putFactory(factory, obisCodeWrapper);
     }
 
     /**
      * Add objects to the ObisCodeMap
      */
     private void putStd(String ocs, ProRegister[] rArray, int fieldIdx) {
-
         ObisCode oc = ObisCode.fromString(ocs);
-        EnergyValueFactory f = new EnergyValueFactory(oc, rArray, fieldIdx, prometer);
-        ObisCodeWrapper ocw = new ObisCodeWrapper(f.getObisCode());
-
-        putFactory((AbstractValueFactory) f, ocw);
-
+        EnergyValueFactory factory = new EnergyValueFactory(oc, rArray, fieldIdx, prometer);
+        ObisCodeWrapper obisCodeWrapper = new ObisCodeWrapper(factory.getObisCode());
+        putFactory(factory, obisCodeWrapper);
     }
 
     private void putFactory(AbstractValueFactory f, ObisCodeWrapper ocw) {
@@ -87,20 +92,15 @@ public class ObisCodeMapper {
             throw new ApplicationException("obiscode already exists " + ocw);
         }
         keys.add(ocw);
-        oMap.put(ocw, f);
+        obisMap.put(ocw, f);
     }
 
     private void putMD(String oc, int mdId) {
-
-        ObisCode o = ObisCode.fromString(oc);
-
-        MaximumDemandValueFactory f = new MaximumDemandValueFactory(o, mdId, prometer);
-
-        f.setObisCode(ObisCode.fromString(oc));
-        ObisCodeWrapper ocw = new ObisCodeWrapper(f.getObisCode());
-
-        putFactory(f, ocw);
-
+        ObisCode obisCode = ObisCode.fromString(oc);
+        MaximumDemandValueFactory factory = new MaximumDemandValueFactory(obisCode, mdId, prometer);
+        factory.setObisCode(ObisCode.fromString(oc));
+        ObisCodeWrapper obisCodeWrapper = new ObisCodeWrapper(factory.getObisCode());
+        putFactory(factory, obisCodeWrapper);
     }
 
     private void putTOU(String oc, int touPhenomenon) {
@@ -140,15 +140,11 @@ public class ObisCodeMapper {
      * Add objects to the ObisCodeMap
      */
     private void putTime(String oc) {
-
         ObisCode o = ObisCode.fromString(oc);
-        TimeValueFactory f = new TimeValueFactory(o, prometer);
-
-        f.setObisCode(ObisCode.fromString(oc));
-        ObisCodeWrapper ocw = new ObisCodeWrapper(f.getObisCode());
-
-        putFactory(f, ocw);
-
+        TimeValueFactory factory = new TimeValueFactory(o, prometer);
+        factory.setObisCode(ObisCode.fromString(oc));
+        ObisCodeWrapper obisCodeWrapper = new ObisCodeWrapper(factory.getObisCode());
+        putFactory(factory, obisCodeWrapper);
     }
 
     /**
@@ -323,6 +319,57 @@ public class ObisCodeMapper {
         putStd("1.1.62.8.0.255", prometer.getRegisters().getrEenergy(), 17);
 
 
+        putGeneric(new FloatValueFactory("0.0.96.50.1.255", prometer, prometer.getRegisters().getrVoltageUnbalance(), Unit.get("%")));
+        putGeneric(new FloatValueFactory("0.0.96.9.0.255", prometer, prometer.getRegisters().getrInternalTemp(), Unit.get(BaseUnit.DEGREE_CELSIUS))); // Meter internal temperature
+        putGeneric(new IntegerValueFactory("0.0.96.6.6.255", prometer, prometer.getRegisters().getrBatteryLeft(), Unit.get("s"))); // Battery backup time left
+
+        putInstant("1.1.32.7.0.255", 1);  // Phase voltage L1
+        putInstant("1.1.52.7.0.255", 2);  // Phase voltage L2
+        putInstant("1.1.72.7.0.255", 3);  // Phase voltage L3
+
+        putInstant("1.1.32.7.1.255", 4);  // line voltage L1-L2
+        putInstant("1.1.52.7.1.255", 5);  // line voltage L2-L3
+        putInstant("1.1.72.7.1.255", 6);  // line voltage L3-L1
+
+        putInstant("1.1.31.7.0.255", 7);  // Current L1
+        putInstant("1.1.51.7.0.255", 8);  // Current L2
+        putInstant("1.1.71.7.0.255", 9);  // Current L3
+
+        putInstant("1.1.32.7.2.255", 10);  // Phase symmetry voltage L1
+        putInstant("1.1.52.7.2.255", 11);  // Phase symmetry voltage L2
+        putInstant("1.1.72.7.2.255", 12);  // Phase symmetry voltage L3
+
+        putInstant("1.1.31.7.2.255", 13);  // Phase symmetry current L1
+        putInstant("1.1.51.7.2.255", 14);  // Phase symmetry current L2
+        putInstant("1.1.71.7.2.255", 15);  // Phase symmetry current L3
+
+        putInstant("1.1.81.7.1.255", 16);  // Phase angle L1-L2
+        putInstant("1.1.81.7.12.255", 17); // Phase angle L2-L3
+        putInstant("1.1.81.7.20.255", 18); // Phase angle L3-L1
+
+        putInstant("1.1.33.7.0.255", 19);  // Power factor L1
+        putInstant("1.1.53.7.0.255", 20);  // Power factor L2
+        putInstant("1.1.73.7.0.255", 21);  // Power factor L3
+
+        putStringValue("0.0.96.1.0.255", prometer.getRegisters().getrSerial()); // Serial number
+        putStringValue("0.0.96.1.1.255", prometer.getRegisters().getrGeneralInfo(0)); // General info 1
+        putStringValue("0.0.96.1.2.255", prometer.getRegisters().getrGeneralInfo(1)); // General info 2
+        putStringValue("0.0.96.1.3.255", prometer.getRegisters().getrGeneralInfo(2)); // General info 3
+        putStringValue("0.0.96.1.4.255", prometer.getRegisters().getrGeneralInfo(3)); // General info 4
+        putStringValue("1.0.0.2.0.255", prometer.getRegisters().getrFirmwareVersion());  // Firmware version
+
+    }
+
+    private void putStringValue(String obisCode, ProRegister register) {
+        StringValueFactory factory = new StringValueFactory(obisCode, register, prometer);
+        ObisCodeWrapper obisCodeWrapper = new ObisCodeWrapper(factory.getObisCode());
+        putFactory(factory, obisCodeWrapper);
+    }
+
+    private void putInstant(String obisCode, int valueIndex) {
+        InstantValuesFactory factory = new InstantValuesFactory(obisCode, prometer.getRegisters().getrInstantValues(), prometer, valueIndex);
+        ObisCodeWrapper obisCodeWrapper = new ObisCodeWrapper(factory.getObisCode());
+        putFactory(factory, obisCodeWrapper);
     }
 
     /**

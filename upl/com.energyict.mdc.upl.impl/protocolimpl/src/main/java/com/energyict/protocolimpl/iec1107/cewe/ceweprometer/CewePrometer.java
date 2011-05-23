@@ -170,7 +170,7 @@ public class CewePrometer extends AbstractProtocol  {
     }
 
     /** during connect:
-     * 1) check firmware verion
+     * 1) check firmware version
      * 2) trigger extended logging
      * 
      * The minimum firmware version is 1.2.0.  It is (probably) not difficult
@@ -376,7 +376,14 @@ public class CewePrometer extends AbstractProtocol  {
     public String read(String cmd, boolean retry) throws IOException {
         connection.sendRawCommandFrame(IEC1107Connection.READ1, cmd.getBytes());
         byte[] rawData = retry ? connection.receiveRawData() : connection.doReceiveData();
-        return new String(rawData);
+        String response = new String(rawData);
+
+        if( ( null!=response ) && ( response.indexOf( "ER" ) != -1 ) ) {
+            String id = response.substring(4,7);
+            throw new WriteException( getExceptionInfo(id) );
+        }
+
+        return response;
     }
     
     
