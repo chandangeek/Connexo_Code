@@ -218,9 +218,9 @@ public abstract class AbstractGenericPoolingProtocol extends MeterMessages imple
         try {
 
             releaseConnectionFromPool();
+            setLink(link);
             executeWakeUpSequence();
 
-            setLink(link);
             init();
             fetchAndSetLocalCache(this.fullShadow.getRtuShadow().getRtuId());
             connect();
