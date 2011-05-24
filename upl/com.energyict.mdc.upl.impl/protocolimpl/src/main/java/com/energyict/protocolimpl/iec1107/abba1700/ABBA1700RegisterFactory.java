@@ -110,10 +110,10 @@ public class ABBA1700RegisterFactory {
             registers.put("CumulativeMaximumDemand" + i, new ABBA1700Register("509", ABBA1700RegisterData.ABBA_CMD, i * 9, 9, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
         }
 
-        registers.put(VoltageTransformerRatio, new ABBA1700Register("614", ABBA1700RegisterData.ABBA_STRING, 0, -1, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
+        registers.put(VoltageTransformerRatio, new ABBA1700Register("614", ABBA1700RegisterData.ABBA_STRING, 0, 7, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
         registers.put(VoltageTransformerRatioPrimary, new ABBA1700Register("614", ABBA1700RegisterData.ABBA_BIGDECIMAL, 0, 4, Unit.get(BaseUnit.UNITLESS, -2), ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
         registers.put(VoltageTransformerRatioSecondary, new ABBA1700Register("614", ABBA1700RegisterData.ABBA_BIGDECIMAL, 4, 3, Unit.get(BaseUnit.UNITLESS, -2), ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
-        registers.put(CurrentTransformerRatio, new ABBA1700Register("616", ABBA1700RegisterData.ABBA_STRING, 0, -1, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
+        registers.put(CurrentTransformerRatio, new ABBA1700Register("616", ABBA1700RegisterData.ABBA_STRING, 0, 6, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
         registers.put(CurrentTransformerRatioPrimary, new ABBA1700Register("616", ABBA1700RegisterData.ABBA_BIGDECIMAL, 0, 4, Unit.get(BaseUnit.UNITLESS, -2), ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
         registers.put(CurrentTransformerRatioSecondary, new ABBA1700Register("616", ABBA1700RegisterData.ABBA_BIGDECIMAL, 4, 2, Unit.get(BaseUnit.UNITLESS, -2), ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
         registers.put("LoadProfileConfiguration", new ABBA1700Register("777", ABBA1700RegisterData.ABBA_64BITFIELD, 0, 2, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));

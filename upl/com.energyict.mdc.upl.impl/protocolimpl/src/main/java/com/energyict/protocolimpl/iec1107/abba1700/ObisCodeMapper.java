@@ -116,16 +116,20 @@ public class ObisCodeMapper {
             }
         } else if ((obisCode.toString().indexOf("1.1.0.4.2.255") != -1) || (obisCode.toString().indexOf("1.0.0.4.2.255") != -1)) { // CT numerator
             if (read) {
-                String ctRatio = (String) abba1700RegisterFactory.getRegister(CurrentTransformerRatio);
-                registerValue = new RegisterValue(obisCode, new Quantity(new BigDecimal(ctRatio), Unit.get(255)));
+                BigDecimal ctPrimary = (BigDecimal) abba1700RegisterFactory.getRegister(CurrentTransformerRatioPrimary);
+                BigDecimal ctSecondary = (BigDecimal) abba1700RegisterFactory.getRegister(CurrentTransformerRatioSecondary);
+                BigDecimal ctRatio = ctPrimary.divide(ctSecondary);
+                registerValue = new RegisterValue(obisCode, new Quantity(ctRatio, Unit.get(255)), null, null, null, null, -1, "Primary : " + ctPrimary + " - Secondary: " + ctSecondary);
                 return registerValue;
             } else {
                 return new RegisterInfo("CT numerator");
             }
         } else if ((obisCode.toString().indexOf("1.1.0.4.3.255") != -1) || (obisCode.toString().indexOf("1.0.0.4.3.255") != -1)) { // VT numerator
             if (read) {
-                String vtRatio = (String) abba1700RegisterFactory.getRegister(VoltageTransformerRatio);
-                registerValue = new RegisterValue(obisCode, new Quantity(new BigDecimal(vtRatio), Unit.get(255)));
+                BigDecimal vtPrimary = (BigDecimal) abba1700RegisterFactory.getRegister(VoltageTransformerRatioPrimary);
+                BigDecimal vtSecondary = (BigDecimal) abba1700RegisterFactory.getRegister(VoltageTransformerRatioSecondary);
+                BigDecimal vtRatio = vtPrimary.divide(vtSecondary);
+                registerValue = new RegisterValue(obisCode, new Quantity(vtRatio, Unit.get(255)), null, null, null, null, -1, "Primary : " + vtPrimary + " - Secondary: " + vtSecondary);
                 return registerValue;
             } else {
                 return new RegisterInfo("VT numerator");
