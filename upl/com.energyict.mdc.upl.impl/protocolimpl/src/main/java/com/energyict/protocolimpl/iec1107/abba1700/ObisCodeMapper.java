@@ -116,16 +116,16 @@ public class ObisCodeMapper {
             }
         } else if ((obisCode.toString().indexOf("1.1.0.4.2.255") != -1) || (obisCode.toString().indexOf("1.0.0.4.2.255") != -1)) { // CT numerator
             if (read) {
-                BigDecimal bd = (BigDecimal) abba1700RegisterFactory.getRegister(CurrentTransformerRatio);
-                registerValue = new RegisterValue(obisCode, new Quantity(bd, Unit.get(255)));
+                String ctRatio = (String) abba1700RegisterFactory.getRegister(CurrentTransformerRatio);
+                registerValue = new RegisterValue(obisCode, new Quantity(new BigDecimal(ctRatio), Unit.get(255)));
                 return registerValue;
             } else {
                 return new RegisterInfo("CT numerator");
             }
         } else if ((obisCode.toString().indexOf("1.1.0.4.3.255") != -1) || (obisCode.toString().indexOf("1.0.0.4.3.255") != -1)) { // VT numerator
             if (read) {
-                BigDecimal bd = (BigDecimal) abba1700RegisterFactory.getRegister(VoltageTransformerRatio);
-                registerValue = new RegisterValue(obisCode, new Quantity(bd, Unit.get(255)));
+                String vtRatio = (String) abba1700RegisterFactory.getRegister(VoltageTransformerRatio);
+                registerValue = new RegisterValue(obisCode, new Quantity(new BigDecimal(vtRatio), Unit.get(255)));
                 return registerValue;
             } else {
                 return new RegisterInfo("VT numerator");
