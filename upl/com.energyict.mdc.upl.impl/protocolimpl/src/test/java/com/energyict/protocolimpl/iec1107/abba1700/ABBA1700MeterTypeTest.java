@@ -3,6 +3,8 @@ package com.energyict.protocolimpl.iec1107.abba1700;
 import com.energyict.protocol.meteridentification.MeterType;
 import org.junit.Test;
 
+import java.io.IOException;
+
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -17,6 +19,7 @@ public class ABBA1700MeterTypeTest {
     private static final String IDENT_OLD = "/GEC5090100140400@000";
     private static final String IDENT_NEW = "/GEC5090100100400@000";
     private static final String IDENT_NEW_EXTENDED = "/GEC2090100260200@000";
+    private static final String IDENT_A1700 = "/GEC2090100030500@000";
 
 
     @Test
@@ -84,5 +87,11 @@ public class ABBA1700MeterTypeTest {
         assertFalse(new ABBA1700MeterType(new MeterType(IDENT_OLD)).hasExtendedCustomerRegisters());
         assertFalse(new ABBA1700MeterType(new MeterType(IDENT_NEW)).hasExtendedCustomerRegisters());
         assertTrue(new ABBA1700MeterType(new MeterType(IDENT_NEW_EXTENDED)).hasExtendedCustomerRegisters());
+    }
+
+    @Test
+    public void getFirmwareVersionTest() throws IOException {
+        assertEquals("ProductRange: 010 Device No. 014.04",new ABBA1700MeterType(new MeterType(IDENT_OLD)).getFirmwareVersion());
+        assertEquals("ProductRange: 010 Device No. 003.05", new ABBA1700MeterType(new MeterType(IDENT_A1700)).getFirmwareVersion());
     }
 }

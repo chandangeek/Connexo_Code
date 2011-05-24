@@ -26,7 +26,9 @@ public class ABBA1700MeterType {
 
     private int nrOfTariffRegisters = -1;
     private int extraOffsetHistoricDisplayScaling = -1;
+    private String productRange = "";
     private String deviceNr = "";
+    private String issueNr = "";
     private boolean hasExtendedCustomerRegisters = false;
 
     /**
@@ -74,7 +76,9 @@ public class ABBA1700MeterType {
      * @param meterType
      */
     public void updateWith(MeterType meterType) {
-        deviceNr = meterType.getReceivedIdent().substring(10, 13);
+        this.deviceNr = getDeviceNrFromMeterType(meterType);
+        this.issueNr = getIssueNrFromMeterType(meterType);
+        this.productRange = getProductRangeFromMeterType(meterType);
         hasExtendedCustomerRegisters = isExtendedCdrMeterType();
         if (isExtendedTouMeterType()) {
             nrOfTariffRegisters = 32;
@@ -83,6 +87,46 @@ public class ABBA1700MeterType {
             nrOfTariffRegisters = 16;
             extraOffsetHistoricDisplayScaling = 0;
         }
+    }
+
+    /**
+     * @return the firmware version of the meter based on the MeterType id
+     */
+    public String getFirmwareVersion(){
+        return "ProductRange: " + productRange + " Device No. " + deviceNr.concat(".").concat(issueNr);
+    }
+
+    /**
+     * Get the DeviceNr from the meterType string.
+     * ex. metertype = GEC5090100100400@000 -> returnString = 010
+     *
+     * @param meterType the given Metertype
+     * @return the deviceNr.
+     */
+    protected String getDeviceNrFromMeterType(final MeterType meterType) {
+        return meterType.getReceivedIdent().substring(10, 13);
+    }
+
+    /**
+     * Get the product range from the meterType string.
+     * ex. meterType = GEC5090100100400@000 -> productRange = 010
+     *
+     * @param meterType the given Metertype
+     * @return the product range
+     */
+    protected String getProductRangeFromMeterType(final MeterType meterType) {
+        return meterType.getReceivedIdent().substring(7, 10);
+    }
+
+    /**
+     * Get the issueNr from the meterType string.
+     * ex. meterType = GEC5090100100400@000 -> issueNr = 04
+     *
+     * @param meterType the given MeteRType
+     * @return the issue nr.
+     */
+    protected String getIssueNrFromMeterType(final MeterType meterType) {
+        return meterType.getReceivedIdent().substring(13, 15);
     }
 
     /**

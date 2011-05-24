@@ -11,6 +11,7 @@ import com.energyict.cbo.*;
 import java.math.*;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.protocolimpl.iec1107.abba1700.counters.*;
 
 /**
  *
@@ -18,28 +19,32 @@ import com.energyict.protocolimpl.iec1107.*;
  */
 abstract public class ABBA1700RegisterData {
     
-    final static int ABBA_STRING=0;
-    final static int ABBA_DATE=1;
-    final static int ABBA_NUMBER=2;
-    final static int ABBA_LONG=3;
-    final static int ABBA_BYTEARRAY=4;
-    final static int ABBA_QUANTITY=5;
-    final static int ABBA_INTEGER=6;
-    final static int ABBA_64BITFIELD=7;
-    final static int ABBA_BIGDECIMAL=8;
-    final static int ABBA_HEX=9;
-    final static int ABBA_HEX_LE=10;
-    final static int ABBA_MD=11;
-    final static int ABBA_CMD=12;
-    final static int ABBA_HISTORICALVALUES=13;
-    final static int ABBA_REGISTER=14;
-    final static int ABBA_HISTORICALEVENTS=15;
-    final static int ABBA_SYSTEMSTATUS=16;
-    final static int ABBA_TARIFFSOURCES=17;
-    final static int ABBA_HISTORICALDISPLAYSCALINGS=18;
-    final static int ABBA_MDSOURCES=19;
-    final static int ABBA_CUSTDEFREGCONFIG=20;
-    final static int ABBA_INSTANTANEOUSVALUES=21;
+    static final int ABBA_STRING=0;
+    static final int ABBA_DATE=1;
+    static final int ABBA_NUMBER=2;
+    static final int ABBA_LONG=3;
+    static final int ABBA_BYTEARRAY=4;
+    static final int ABBA_QUANTITY=5;
+    static final int ABBA_INTEGER=6;
+    static final int ABBA_64BITFIELD=7;
+    static final int ABBA_BIGDECIMAL=8;
+    static final int ABBA_HEX=9;
+    static final int ABBA_HEX_LE=10;
+    static final int ABBA_MD=11;
+    static final int ABBA_CMD=12;
+    static final int ABBA_HISTORICALVALUES=13;
+    static final int ABBA_REGISTER=14;
+    static final int ABBA_HISTORICALEVENTS=15;
+    static final int ABBA_SYSTEMSTATUS=16;
+    static final int ABBA_TARIFFSOURCES=17;
+    static final int ABBA_HISTORICALDISPLAYSCALINGS=18;
+    static final int ABBA_MDSOURCES=19;
+    static final int ABBA_CUSTDEFREGCONFIG=20;
+    static final int ABBA_INSTANTANEOUSVALUES=21;
+    static final int ABBA_PROGRAMMING_COUNTER =22;
+    static final int ABBA_PHASE_FAILURE_COUNTER =23;
+    static final int ABBA_POWER_DOWN_COUNTER =24;
+    static final int ABBA_REVERSE_RUN_COUNTER =25;
     
     
     
@@ -186,7 +191,27 @@ abstract public class ABBA1700RegisterData {
                    
                case ABBA_CUSTDEFREGCONFIG:
                    return new CustDefRegConfig(data);
-                                      
+
+               case ABBA_PROGRAMMING_COUNTER:
+                   ProgrammingCounter pc = new ProgrammingCounter(getProtocolLink());
+                   pc.parse(data);
+                   return pc;
+
+               case ABBA_PHASE_FAILURE_COUNTER:
+                   PhaseFailureCounter pfc = new PhaseFailureCounter(getProtocolLink());
+                   pfc.parse(data);
+                   return pfc;
+
+               case ABBA_POWER_DOWN_COUNTER:
+                   PowerDownCounter pdc = new PowerDownCounter(getProtocolLink());
+                   pdc.parse(data);
+                   return pdc;
+
+               case ABBA_REVERSE_RUN_COUNTER:
+                   ReverseRunCounter rrc = new ReverseRunCounter(getProtocolLink());
+                   rrc.parse(data);
+                   return rrc;
+               
                default: 
                    throw new IOException("ABBA1700RegisterData, parse , unknown type "+getType());
            }
@@ -230,7 +255,7 @@ abstract public class ABBA1700RegisterData {
         return new Integer(Integer.parseInt(Integer.toHexString(ProtocolUtils.getIntLE(data,getOffset(),getLength()))));
     }
     
-    private Date parseDate(byte[] data) throws IOException {
+    protected Date parseDate(byte[] data) throws IOException {
        Calendar calendar = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
        calendar.set(Calendar.SECOND,ProtocolUtils.BCD2hex(data[0]));
        calendar.set(Calendar.MINUTE,ProtocolUtils.BCD2hex(data[1]));

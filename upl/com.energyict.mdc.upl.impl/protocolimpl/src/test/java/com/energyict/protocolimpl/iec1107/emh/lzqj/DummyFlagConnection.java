@@ -103,6 +103,19 @@ public class DummyFlagConnection extends FlagIEC1107Connection {
     }
 
     /**
+     * @return the data without the brackets
+     * @throws java.io.IOException
+     * @throws com.energyict.dialer.connection.ConnectionException
+     *
+     * @throws com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException
+     *
+     */
+    @Override
+    public byte[] receiveData() throws IOException, ConnectionException, FlagIEC1107ConnectionException {
+        return this.responseList.get(counter++); 
+    }
+
+    /**
      * @return the data including the brackets
      * @throws java.io.IOException
      * @throws com.energyict.dialer.connection.ConnectionException

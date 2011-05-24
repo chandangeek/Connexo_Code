@@ -23,9 +23,24 @@ import java.util.*;
  * @author  Koen
  */
 public class ABBA1700RegisterFactory {
-    
-    static public final int MAX_CMD_REGS=8;
-    static public final int MAX_MD_REGS=24;
+
+    //Constants for the registerIdentifications:
+    public static final String SerialNumberKey = "SerialNumber";
+    public static final String BillingResetKey = "BillingReset";
+    public static final String TimeDateKey = "TimeDate";
+    public static final String VoltageTransformerRatio = "VTPrimaryAndSecundary";
+    public static final String VoltageTransformerRatioPrimary = "VTPrimary";
+    public static final String VoltageTransformerRatioSecondary = "VTSecundary";
+    public static final String CurrentTransformerRatio = "CTPrimaryAndSecundary";
+    public static final String CurrentTransformerRatioPrimary = "CTPrimary";
+    public static final String CurrentTransformerRatioSecondary = "CTSecundary";
+    public static final String ProgrammingCounterKey = "ProgrammingCounter";
+    public static final String PhaseFailureCounterKey = "PhaseFailureCounter";
+    public static final String ReverseRunCounterKey = "ReverseRunCounter";
+    public static final String PowerDownCounterKey = "PowerDownCounter";
+
+    public static final int MAX_CMD_REGS=8;
+    public static final int MAX_MD_REGS=24;
     
     // 32 TOU registers
     //static public final int MAX_TARIFF_REGS=32;
@@ -54,78 +69,83 @@ public class ABBA1700RegisterFactory {
     protected Map getRegisters() {
        return registers;    
     }
-    
+
     // length = -1, not used
+
     private void initRegisters() {
-       registers.put("SerialNumber", new ABBA1700Register("798",ABBA1700RegisterData.ABBA_STRING,0, -1,null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("SchemeID", new ABBA1700Register("795",ABBA1700RegisterData.ABBA_STRING,0,-1, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("TimeDate", new ABBA1700Register("861",ABBA1700RegisterData.ABBA_DATE,0,-1, null,ABBA1700Register.WRITEABLE,ABBA1700Register.NOT_CACHED)); 
-       registers.put("CummulativeMaximumDemand", new ABBA1700Register("509",ABBA1700RegisterData.ABBA_BYTEARRAY,0,-1, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.NOT_CACHED)); 
-       registers.put("MaximumDemandRegisters", new ABBA1700Register("510",ABBA1700RegisterData.ABBA_BYTEARRAY,0,-1, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.NOT_CACHED)); 
+        registers.put(SerialNumberKey, new ABBA1700Register("798", ABBA1700RegisterData.ABBA_STRING, 0, -1, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put("SchemeID", new ABBA1700Register("795", ABBA1700RegisterData.ABBA_STRING, 0, -1, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put(TimeDateKey, new ABBA1700Register("861", ABBA1700RegisterData.ABBA_DATE, 0, -1, null, ABBA1700Register.WRITEABLE, ABBA1700Register.NOT_CACHED));
+        registers.put("CummulativeMaximumDemand", new ABBA1700Register("509", ABBA1700RegisterData.ABBA_BYTEARRAY, 0, -1, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
+        registers.put("MaximumDemandRegisters", new ABBA1700Register("510", ABBA1700RegisterData.ABBA_BYTEARRAY, 0, -1, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
 
-       registers.put("CummulativeRegisters", new ABBA1700Register("507",ABBA1700RegisterData.ABBA_BYTEARRAY,0,-1, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.NOT_CACHED)); 
-       registers.put("CummMainImport", new ABBA1700Register("507",ABBA1700RegisterData.ABBA_REGISTER,0,8,Unit.get(BaseUnit.WATTHOUR,-3),ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("CummMainExport", new ABBA1700Register("507",ABBA1700RegisterData.ABBA_REGISTER,8,8,Unit.get(BaseUnit.WATTHOUR,-3),ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("CummMainQ1", new ABBA1700Register("507",ABBA1700RegisterData.ABBA_REGISTER,16,8,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("CummMainQ2", new ABBA1700Register("507",ABBA1700RegisterData.ABBA_REGISTER,24,8,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("CummMainQ3", new ABBA1700Register("507",ABBA1700RegisterData.ABBA_REGISTER,32,8,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("CummMainQ4", new ABBA1700Register("507",ABBA1700RegisterData.ABBA_REGISTER,40,8,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("CummMainVA", new ABBA1700Register("507",ABBA1700RegisterData.ABBA_REGISTER,48,8,Unit.get(BaseUnit.VOLTAMPEREHOUR,-3),ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("CummMainCustDef1", new ABBA1700Register("507",ABBA1700RegisterData.ABBA_REGISTER,56,8,Unit.get(BaseUnit.COUNT,0),ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("CummMainCustDef2", new ABBA1700Register("507",ABBA1700RegisterData.ABBA_REGISTER,64,8,Unit.get(BaseUnit.COUNT,0),ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("CummMainCustDef3", new ABBA1700Register("507",ABBA1700RegisterData.ABBA_REGISTER,72,8,Unit.get(BaseUnit.COUNT,0),ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
+        registers.put("CummulativeRegisters", new ABBA1700Register("507", ABBA1700RegisterData.ABBA_BYTEARRAY, 0, -1, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
+        registers.put("CummMainImport", new ABBA1700Register("507", ABBA1700RegisterData.ABBA_REGISTER, 0, 8, Unit.get(BaseUnit.WATTHOUR, -3), ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put("CummMainExport", new ABBA1700Register("507", ABBA1700RegisterData.ABBA_REGISTER, 8, 8, Unit.get(BaseUnit.WATTHOUR, -3), ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put("CummMainQ1", new ABBA1700Register("507", ABBA1700RegisterData.ABBA_REGISTER, 16, 8, Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, -3), ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put("CummMainQ2", new ABBA1700Register("507", ABBA1700RegisterData.ABBA_REGISTER, 24, 8, Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, -3), ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put("CummMainQ3", new ABBA1700Register("507", ABBA1700RegisterData.ABBA_REGISTER, 32, 8, Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, -3), ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put("CummMainQ4", new ABBA1700Register("507", ABBA1700RegisterData.ABBA_REGISTER, 40, 8, Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, -3), ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put("CummMainVA", new ABBA1700Register("507", ABBA1700RegisterData.ABBA_REGISTER, 48, 8, Unit.get(BaseUnit.VOLTAMPEREHOUR, -3), ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put("CummMainCustDef1", new ABBA1700Register("507", ABBA1700RegisterData.ABBA_REGISTER, 56, 8, Unit.get(BaseUnit.COUNT, 0), ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put("CummMainCustDef2", new ABBA1700Register("507", ABBA1700RegisterData.ABBA_REGISTER, 64, 8, Unit.get(BaseUnit.COUNT, 0), ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put("CummMainCustDef3", new ABBA1700Register("507", ABBA1700RegisterData.ABBA_REGISTER, 72, 8, Unit.get(BaseUnit.COUNT, 0), ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
 
-       // KV 16022004
-       registers.put("ExternalInput1", new ABBA1700Register("516",ABBA1700RegisterData.ABBA_REGISTER,0,8,Unit.get(BaseUnit.COUNT,0),ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("ExternalInput2", new ABBA1700Register("516",ABBA1700RegisterData.ABBA_REGISTER,8,8,Unit.get(BaseUnit.COUNT,0),ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("ExternalInput3", new ABBA1700Register("516",ABBA1700RegisterData.ABBA_REGISTER,16,8,Unit.get(BaseUnit.COUNT,0),ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("ExternalInput4", new ABBA1700Register("516",ABBA1700RegisterData.ABBA_REGISTER,24,8,Unit.get(BaseUnit.COUNT,0),ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
+        // KV 16022004
+        registers.put("ExternalInput1", new ABBA1700Register("516", ABBA1700RegisterData.ABBA_REGISTER, 0, 8, Unit.get(BaseUnit.COUNT, 0), ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put("ExternalInput2", new ABBA1700Register("516", ABBA1700RegisterData.ABBA_REGISTER, 8, 8, Unit.get(BaseUnit.COUNT, 0), ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put("ExternalInput3", new ABBA1700Register("516", ABBA1700RegisterData.ABBA_REGISTER, 16, 8, Unit.get(BaseUnit.COUNT, 0), ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put("ExternalInput4", new ABBA1700Register("516", ABBA1700RegisterData.ABBA_REGISTER, 24, 8, Unit.get(BaseUnit.COUNT, 0), ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
 
-       // KV 10062004 
-       for (int i=0;i<getMeterType().getNrOfTariffRegisters();i++) {
-          registers.put("TimeOfUse"+i, new ABBA1700Register("508",ABBA1700RegisterData.ABBA_REGISTER,i*8,8,null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       }
-       for (int i=0;i<MAX_MD_REGS;i++) {
-          registers.put("MaximumDemand"+i, new ABBA1700Register("510",ABBA1700RegisterData.ABBA_MD,i*12,12,null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       }
-       for (int i=0;i<MAX_CMD_REGS;i++) {
-          registers.put("CumulativeMaximumDemand"+i, new ABBA1700Register("509",ABBA1700RegisterData.ABBA_CMD,i*9,9,null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       }
-       
-       registers.put("VTPrimaryAndSecundary", new ABBA1700Register("614",ABBA1700RegisterData.ABBA_STRING,0,-1, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.NOT_CACHED)); 
-       registers.put("VTPrimary", new ABBA1700Register("614",ABBA1700RegisterData.ABBA_BIGDECIMAL,0,4, Unit.get(BaseUnit.UNITLESS,-2),ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("VTSecundary", new ABBA1700Register("614",ABBA1700RegisterData.ABBA_BIGDECIMAL,4,3, Unit.get(BaseUnit.UNITLESS,-2),ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("CTPrimaryAndSecundary", new ABBA1700Register("616",ABBA1700RegisterData.ABBA_STRING,0,-1, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.NOT_CACHED)); 
-       registers.put("CTPrimary", new ABBA1700Register("616",ABBA1700RegisterData.ABBA_BIGDECIMAL,0,4, Unit.get(BaseUnit.UNITLESS,-2),ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("CTSecundary", new ABBA1700Register("616",ABBA1700RegisterData.ABBA_BIGDECIMAL,4,2, Unit.get(BaseUnit.UNITLESS,-2),ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("LoadProfileConfiguration", new ABBA1700Register("777",ABBA1700RegisterData.ABBA_64BITFIELD,0,2, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("IntegrationPeriod", new ABBA1700Register("878",ABBA1700RegisterData.ABBA_INTEGER,0,1, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("SubintervalPeriod", new ABBA1700Register("878",ABBA1700RegisterData.ABBA_INTEGER,1,1, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("NumberOfSubintervals", new ABBA1700Register("878",ABBA1700RegisterData.ABBA_INTEGER,2,1, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-        
-       registers.put("LoadProfileSet", new ABBA1700Register("551",ABBA1700RegisterData.ABBA_HEX_LE,0,2, null,ABBA1700Register.WRITEABLE,ABBA1700Register.NOT_CACHED)); 
-       registers.put("LoadProfile64Blocks", new ABBA1700Register("551",ABBA1700RegisterData.ABBA_HEX,0,2, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("LoadProfile256Blocks", new ABBA1700Register("551",ABBA1700RegisterData.ABBA_HEX,2,2, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("LoadProfile", new ABBA1700Register("550",ABBA1700RegisterData.ABBA_BYTEARRAY,0,-1, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.NOT_CACHED)); 
-       
-       registers.put("SystemStatus", new ABBA1700Register("724",ABBA1700RegisterData.ABBA_SYSTEMSTATUS,0,4, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("HistoricalSystemStatus", new ABBA1700Register("691",ABBA1700RegisterData.ABBA_SYSTEMSTATUS,0,4, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("HistoricalEvents", new ABBA1700Register("544",ABBA1700RegisterData.ABBA_HISTORICALEVENTS,0,792, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
+        // KV 10062004
+        for (int i = 0; i < getMeterType().getNrOfTariffRegisters(); i++) {
+            registers.put("TimeOfUse" + i, new ABBA1700Register("508", ABBA1700RegisterData.ABBA_REGISTER, i * 8, 8, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        }
+        for (int i = 0; i < MAX_MD_REGS; i++) {
+            registers.put("MaximumDemand" + i, new ABBA1700Register("510", ABBA1700RegisterData.ABBA_MD, i * 12, 12, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        }
+        for (int i = 0; i < MAX_CMD_REGS; i++) {
+            registers.put("CumulativeMaximumDemand" + i, new ABBA1700Register("509", ABBA1700RegisterData.ABBA_CMD, i * 9, 9, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        }
 
-       registers.put("MDSources", new ABBA1700Register("668",ABBA1700RegisterData.ABBA_MDSOURCES,0,8, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("CustDefRegConfig", new ABBA1700Register("601",ABBA1700RegisterData.ABBA_CUSTDEFREGCONFIG,0,meterType.hasExtendedCustomerRegisters() ? 15 : 6, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED));
+        registers.put(VoltageTransformerRatio, new ABBA1700Register("614", ABBA1700RegisterData.ABBA_STRING, 0, -1, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
+        registers.put(VoltageTransformerRatioPrimary, new ABBA1700Register("614", ABBA1700RegisterData.ABBA_BIGDECIMAL, 0, 4, Unit.get(BaseUnit.UNITLESS, -2), ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put(VoltageTransformerRatioSecondary, new ABBA1700Register("614", ABBA1700RegisterData.ABBA_BIGDECIMAL, 4, 3, Unit.get(BaseUnit.UNITLESS, -2), ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put(CurrentTransformerRatio, new ABBA1700Register("616", ABBA1700RegisterData.ABBA_STRING, 0, -1, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
+        registers.put(CurrentTransformerRatioPrimary, new ABBA1700Register("616", ABBA1700RegisterData.ABBA_BIGDECIMAL, 0, 4, Unit.get(BaseUnit.UNITLESS, -2), ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put(CurrentTransformerRatioSecondary, new ABBA1700Register("616", ABBA1700RegisterData.ABBA_BIGDECIMAL, 4, 2, Unit.get(BaseUnit.UNITLESS, -2), ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put("LoadProfileConfiguration", new ABBA1700Register("777", ABBA1700RegisterData.ABBA_64BITFIELD, 0, 2, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put("IntegrationPeriod", new ABBA1700Register("878", ABBA1700RegisterData.ABBA_INTEGER, 0, 1, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put("SubintervalPeriod", new ABBA1700Register("878", ABBA1700RegisterData.ABBA_INTEGER, 1, 1, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put("NumberOfSubintervals", new ABBA1700Register("878", ABBA1700RegisterData.ABBA_INTEGER, 2, 1, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
 
-       
-       registers.put("HistoricalDisplayScalings", new ABBA1700Register("548",ABBA1700RegisterData.ABBA_HISTORICALDISPLAYSCALINGS,0,(22+getMeterType().getNrOfTariffRegisters()+8+getMeterType().getExtraOffsetHistoricDisplayScaling())*12, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("TariffSources", new ABBA1700Register("667",ABBA1700RegisterData.ABBA_TARIFFSOURCES,0,getMeterType().getNrOfTariffRegisters(), null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       registers.put("HistoricalValues", new ABBA1700Register("543",ABBA1700RegisterData.ABBA_HISTORICALVALUES,0,(10*8+getMeterType().getNrOfTariffRegisters()*8+4*8+8*9+24*12+15)*12, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.CACHED)); 
-       
-       registers.put("InstantaneousValues", new ABBA1700Register("606",ABBA1700RegisterData.ABBA_INSTANTANEOUSVALUES,0,7, null,ABBA1700Register.NOT_WRITEABLE,ABBA1700Register.NOT_CACHED)); 
-       registers.put("InstantaneousValuesRequest", new ABBA1700Register("605",ABBA1700RegisterData.ABBA_HEX,0,1, null,ABBA1700Register.WRITEABLE,ABBA1700Register.NOT_CACHED)); 
-       
-       // KV 30082006
-       registers.put("BillingReset", new ABBA1700Register("655",-1,0,-1, null,ABBA1700Register.WRITEABLE,ABBA1700Register.NOT_CACHED)); 
-       
+        registers.put("LoadProfileSet", new ABBA1700Register("551", ABBA1700RegisterData.ABBA_HEX_LE, 0, 2, null, ABBA1700Register.WRITEABLE, ABBA1700Register.NOT_CACHED));
+        registers.put("LoadProfile64Blocks", new ABBA1700Register("551", ABBA1700RegisterData.ABBA_HEX, 0, 2, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put("LoadProfile256Blocks", new ABBA1700Register("551", ABBA1700RegisterData.ABBA_HEX, 2, 2, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put("LoadProfile", new ABBA1700Register("550", ABBA1700RegisterData.ABBA_BYTEARRAY, 0, -1, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
+
+        registers.put("SystemStatus", new ABBA1700Register("724", ABBA1700RegisterData.ABBA_SYSTEMSTATUS, 0, 4, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put("HistoricalSystemStatus", new ABBA1700Register("691", ABBA1700RegisterData.ABBA_SYSTEMSTATUS, 0, 4, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put("HistoricalEvents", new ABBA1700Register("544", ABBA1700RegisterData.ABBA_HISTORICALEVENTS, 0, 792, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+
+        registers.put("MDSources", new ABBA1700Register("668", ABBA1700RegisterData.ABBA_MDSOURCES, 0, 8, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put("CustDefRegConfig", new ABBA1700Register("601", ABBA1700RegisterData.ABBA_CUSTDEFREGCONFIG, 0, meterType.hasExtendedCustomerRegisters() ? 15 : 6, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+
+
+        registers.put("HistoricalDisplayScalings", new ABBA1700Register("548", ABBA1700RegisterData.ABBA_HISTORICALDISPLAYSCALINGS, 0, (22 + getMeterType().getNrOfTariffRegisters() + 8 + getMeterType().getExtraOffsetHistoricDisplayScaling()) * 12, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put("TariffSources", new ABBA1700Register("667", ABBA1700RegisterData.ABBA_TARIFFSOURCES, 0, getMeterType().getNrOfTariffRegisters(), null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put("HistoricalValues", new ABBA1700Register("543", ABBA1700RegisterData.ABBA_HISTORICALVALUES, 0, (10 * 8 + getMeterType().getNrOfTariffRegisters() * 8 + 4 * 8 + 8 * 9 + 24 * 12 + 15) * 12, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+
+        registers.put("InstantaneousValues", new ABBA1700Register("606", ABBA1700RegisterData.ABBA_INSTANTANEOUSVALUES, 0, 7, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
+        registers.put("InstantaneousValuesRequest", new ABBA1700Register("605", ABBA1700RegisterData.ABBA_HEX, 0, 1, null, ABBA1700Register.WRITEABLE, ABBA1700Register.NOT_CACHED));
+
+        // KV 30082006
+        registers.put(BillingResetKey, new ABBA1700Register("655", -1, 0, -1, null, ABBA1700Register.WRITEABLE, ABBA1700Register.NOT_CACHED));
+
+        registers.put(ProgrammingCounterKey, new ABBA1700Register("680", ABBA1700RegisterData.ABBA_PROGRAMMING_COUNTER, 0, 14, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
+        registers.put(PhaseFailureCounterKey, new ABBA1700Register("693", ABBA1700RegisterData.ABBA_PHASE_FAILURE_COUNTER, 0, 17, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
+        registers.put(ReverseRunCounterKey, new ABBA1700Register("694", ABBA1700RegisterData.ABBA_REVERSE_RUN_COUNTER, 0, 14, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
+        registers.put(PowerDownCounterKey, new ABBA1700Register("695", ABBA1700RegisterData.ABBA_POWER_DOWN_COUNTER, 0, 14, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
     }
     
     private void initLocals() {

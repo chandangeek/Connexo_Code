@@ -6,6 +6,7 @@ import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
@@ -14,11 +15,14 @@ import com.energyict.protocolimpl.iec1107.*;
 import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
+
+import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.BillingResetKey;
+import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.TimeDateKey;
 /**
  *
  * @author  Koen
  */
-public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNumber,MeterExceptionInfo,RegisterProtocol,DemandResetProtocol  { // KV 19012004
+public class ABBA1700 implements MeterProtocol, ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol, DemandResetProtocol, MessageProtocol { // KV 19012004
 
 	private static final int			BREAK_DELAY				= 500;
 	private static final int			BREAK_BAUDRATE			= 9600;
@@ -53,6 +57,7 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
 	private ABBA1700Profile						abba1700Profile			= null;
 	private ABBA1700MeterType					abba1700MeterType		= null;
 	private SerialCommunicationChannel			commChannel				= null;
+    private ABBA1700Messages                    messages                = new ABBA1700Messages(this);
 
     private int iTimeout;
     private int iProtocolRetries;
@@ -109,18 +114,18 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
 	}
 
 	public void resetDemand() throws IOException {
-		getABBA1700RegisterFactory().invokeRegister("BillingReset");
+		getABBA1700RegisterFactory().invokeRegister(BillingResetKey);
 	}
 
 	public Date getTime() throws IOException {
-		return (Date) getABBA1700RegisterFactory().getRegister("TimeDate");
+		return (Date) getABBA1700RegisterFactory().getRegister(TimeDateKey);
 	}
 
 	public void setTime() throws IOException {
 		Calendar calendar = ProtocolUtils.getCalendar(timeZone);
 		calendar.add(Calendar.MILLISECOND, iRoundtripCorrection);
 		getFlagIEC1107Connection().authenticate();
-		getABBA1700RegisterFactory().setRegister("TimeDate", calendar.getTime());
+		getABBA1700RegisterFactory().setRegister(TimeDateKey, calendar.getTime());
 	}
 
 	public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
@@ -196,15 +201,15 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
         return "$Date$";
     }
 
-	public String getFirmwareVersion() throws IOException, UnsupportedException {
-		if ((strID != null) && (strID.length() > 5)) {
-			return strID.substring(5, strID.length());
-		} else {
-			return "Unknown";
-		}
-	}
+    public String getFirmwareVersion() throws IOException, UnsupportedException {
+        if (abba1700MeterType != null && abba1700MeterType.isAssigned()) {
+            return abba1700MeterType.getFirmwareVersion();
+        } else {
+            return "Unknown";
+        }
+    }
 
-	public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException, UnsupportedException {
 		throw new UnsupportedException();
 	}
 
@@ -554,4 +559,51 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
     	}
 	}
 
+    /**
+     * Provides the full list of outstanding messages to the protocol.
+     * If for any reason certain messages have to be grouped before they are sent to a device, then this is the place to do it.
+     * At a later timestamp the framework will query each {@link com.energyict.protocol.MessageEntry} (see {@link #queryMessage(com.energyict.protocol.MessageEntry)}) to actually
+     * perform the message.
+     *
+     * @param messageEntries a list of {@link com.energyict.protocol.MessageEntry}s
+     * @throws java.io.IOException if a logical error occurs
+     */
+    public void applyMessages(final List messageEntries) throws IOException {
+        this.messages.applyMessages(messageEntries);
+    }
+
+    /**
+     * Indicates that each message has to be executed by the protocol.
+     *
+     * @param messageEntry a definition of which message needs to be sent
+     * @return a state of the message which was just sent
+     * @throws java.io.IOException if a logical error occurs
+     */
+    public MessageResult queryMessage(final MessageEntry messageEntry) throws IOException {
+        return this.messages.queryMessage(messageEntry);
+    }
+
+    public List getMessageCategories() {
+        return this.messages.getMessageCategories();
+    }
+
+    public String writeMessage(final Message msg) {
+        return this.messages.writeMessage(msg);
+    }
+
+    public String writeTag(final MessageTag tag) {
+        return this.messages.writeTag(tag);
+    }
+
+    public String writeValue(final MessageValue value) {
+        return this.messages.writeValue(value);
+    }
+
+    protected void setRegisterFactory(ABBA1700RegisterFactory registerFactory){
+        this.abba1700RegisterFactory = registerFactory;
+    }
+
+    protected void setConnection(final FlagIEC1107Connection connection) {
+        this.connection = connection;
+    }
 }
