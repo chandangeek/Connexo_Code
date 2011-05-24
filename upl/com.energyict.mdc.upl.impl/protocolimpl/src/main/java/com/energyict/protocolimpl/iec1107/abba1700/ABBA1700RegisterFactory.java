@@ -38,6 +38,8 @@ public class ABBA1700RegisterFactory {
     public static final String PhaseFailureCounterKey = "PhaseFailureCounter";
     public static final String ReverseRunCounterKey = "ReverseRunCounter";
     public static final String PowerDownCounterKey = "PowerDownCounter";
+    public static final String HistoricalEventsKey = "HistoricalEvents";
+    public static final String BatterySupportStatus = "BatterySupportStatus";
 
     public static final int MAX_CMD_REGS=8;
     public static final int MAX_MD_REGS=24;
@@ -126,7 +128,7 @@ public class ABBA1700RegisterFactory {
 
         registers.put("SystemStatus", new ABBA1700Register("724", ABBA1700RegisterData.ABBA_SYSTEMSTATUS, 0, 4, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
         registers.put("HistoricalSystemStatus", new ABBA1700Register("691", ABBA1700RegisterData.ABBA_SYSTEMSTATUS, 0, 4, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
-        registers.put("HistoricalEvents", new ABBA1700Register("544", ABBA1700RegisterData.ABBA_HISTORICALEVENTS, 0, 792, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put(HistoricalEventsKey, new ABBA1700Register("544", ABBA1700RegisterData.ABBA_HISTORICALEVENTS, 0, 792, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
 
         registers.put("MDSources", new ABBA1700Register("668", ABBA1700RegisterData.ABBA_MDSOURCES, 0, 8, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
         registers.put("CustDefRegConfig", new ABBA1700Register("601", ABBA1700RegisterData.ABBA_CUSTDEFREGCONFIG, 0, meterType.hasExtendedCustomerRegisters() ? 15 : 6, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
@@ -146,6 +148,7 @@ public class ABBA1700RegisterFactory {
         registers.put(PhaseFailureCounterKey, new ABBA1700Register("693", ABBA1700RegisterData.ABBA_PHASE_FAILURE_COUNTER, 0, 17, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
         registers.put(ReverseRunCounterKey, new ABBA1700Register("694", ABBA1700RegisterData.ABBA_REVERSE_RUN_COUNTER, 0, 14, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
         registers.put(PowerDownCounterKey, new ABBA1700Register("695", ABBA1700RegisterData.ABBA_POWER_DOWN_COUNTER, 0, 14, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
+        registers.put(BatterySupportStatus, new ABBA1700Register("546", ABBA1700RegisterData.ABBA_BATTERY_STATUS, 0, 12, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
     }
     
     private void initLocals() {

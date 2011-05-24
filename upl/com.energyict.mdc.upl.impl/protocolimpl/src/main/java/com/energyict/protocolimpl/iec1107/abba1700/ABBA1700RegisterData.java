@@ -45,9 +45,9 @@ abstract public class ABBA1700RegisterData {
     static final int ABBA_PHASE_FAILURE_COUNTER =23;
     static final int ABBA_POWER_DOWN_COUNTER =24;
     static final int ABBA_REVERSE_RUN_COUNTER =25;
-    
-    
-    
+    static final int ABBA_BATTERY_STATUS = 26;
+
+
     abstract protected Unit getUnit();
     abstract protected int getType();
     abstract protected FlagIEC1107Connection getFlagIEC1107Connection();
@@ -211,7 +211,9 @@ abstract public class ABBA1700RegisterData {
                    ReverseRunCounter rrc = new ReverseRunCounter(getProtocolLink());
                    rrc.parse(data);
                    return rrc;
-               
+               case ABBA_BATTERY_STATUS:
+                   BatterySupportStatus bss = new BatterySupportStatus(getProtocolLink(), data);
+                   return bss;
                default: 
                    throw new IOException("ABBA1700RegisterData, parse , unknown type "+getType());
            }

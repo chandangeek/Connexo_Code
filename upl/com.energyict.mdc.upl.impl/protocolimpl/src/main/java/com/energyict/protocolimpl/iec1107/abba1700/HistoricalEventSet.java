@@ -7,7 +7,7 @@
 package com.energyict.protocolimpl.iec1107.abba1700;
 import java.util.*;
 import java.io.*;
-import com.energyict.cbo.*;
+
 import com.energyict.protocol.*;
 /**
  *
@@ -18,7 +18,7 @@ public class HistoricalEventSet {
     int powerFailureCount;
     int phaseOverCurrentCount;
     int reverseRunCount;
-    int remainingBattSupporttime;
+    int remainingBattSupportTime;
     
     List eventLogEntries=new ArrayList();
     TimeZone timeZone;
@@ -35,7 +35,7 @@ public class HistoricalEventSet {
         strBuff.append("powerFailureCount="+getPowerFailureCount()+"\n"); 
         strBuff.append("phaseOverCurrentCount="+getPhaseOverCurrentCount()+"\n"); 
         strBuff.append("reverseRunCount="+getReverseRunCount()+"\n"); 
-        strBuff.append("remainingBattSupporttime="+getRemainingBattSupporttime()+"\n"); 
+        strBuff.append("remainingBattSupporttime="+ getRemainingBattSupportTime()+"\n");
         Iterator it = eventLogEntries.iterator();
         while(it.hasNext()) {
             EventLogEntry ele = (EventLogEntry)it.next();
@@ -97,7 +97,7 @@ public class HistoricalEventSet {
         eventLogEntries.add(new EventLogEntry(date,EventLogEntry.PHASE_1_OVERCURRENT+ProtocolUtils.getIntLE(data,61,1)));
         
         // Battery support time
-        setRemainingBattSupporttime(ProtocolUtils.getIntLE(data,62,4));
+        setRemainingBattSupportTime(ProtocolUtils.getIntLE(data,62,4));
     }
     
     /**
@@ -110,7 +110,7 @@ public class HistoricalEventSet {
     
     /**
      * Setter for property phaseFailureCount.
-     * @param PhaseFailureCount New value of property phaseFailureCount.
+     * @param phaseFailureCount New value of property phaseFailureCount.
      */
     public void setPhaseFailureCount(int phaseFailureCount) {
         this.phaseFailureCount = phaseFailureCount;
@@ -126,7 +126,7 @@ public class HistoricalEventSet {
     
     /**
      * Setter for property powerFailureCount.
-     * @param PowerFailureCount New value of property powerFailureCount.
+     * @param powerFailureCount New value of property powerFailureCount.
      */
     public void setPowerFailureCount(int powerFailureCount) {
         this.powerFailureCount = powerFailureCount;
@@ -168,15 +168,15 @@ public class HistoricalEventSet {
      * Getter for property remainingBattSupporttime.
      * @return Value of property remainingBattSupporttime.
      */
-    public int getRemainingBattSupporttime() {
-        return remainingBattSupporttime;
+    public int getRemainingBattSupportTime() {
+        return remainingBattSupportTime;
     }
     
     /**
      * Setter for property remainingBattSupporttime.
-     * @param remainingBattSupporttime New value of property remainingBattSupporttime.
+     * @param remainingBattSupportTime New value of property remainingBattSupporttime.
      */
-    public void setRemainingBattSupporttime(int remainingBattSupporttime) {
-        this.remainingBattSupporttime = remainingBattSupporttime;
+    public void setRemainingBattSupportTime(int remainingBattSupportTime) {
+        this.remainingBattSupportTime = remainingBattSupportTime;
     }
 }
