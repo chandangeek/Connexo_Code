@@ -7,8 +7,7 @@ import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -95,31 +94,27 @@ public class CewePrometerMain extends AbstractDebuggingMain<CewePrometer> {
         readRegister("1.1.53.7.0.255");
         readRegister("1.1.73.7.0.255");
 */
+/*
         readRegister("0.0.96.1.0.255");
         readRegister("0.0.96.1.1.255");
         readRegister("0.0.96.1.2.255");
         readRegister("0.0.96.1.3.255");
         readRegister("0.0.96.1.4.255");
         readRegister("1.0.0.2.0.255");
+*/
 
         dumpChannelInfos();
 
     }
 
     private void dumpChannelInfos() throws IOException {
-        Date from = ProtocolTools.createCalendar(2000, 6, 15, 0, 0, 0, 0).getTime();
+        Date from = ProtocolTools.createCalendar(2010, 4, 15, 0, 0, 0, 0).getTime();
         ProfileData profileData = getMeterProtocol().getProfileData(from, true);
-
-
-        System.out.println("\n");
-        for (ChannelInfo channelInfo : profileData.getChannelInfos()) {
-            System.out.println(channelInfo);
+        List<MeterEvent> meterEvents = profileData.getMeterEvents();
+        for (MeterEvent event : meterEvents) {
+            System.out.println(event.getTime() + " " + event.getMessage());
         }
 
-        System.out.println("\n");
-        for (IntervalData intervalData : profileData.getIntervalDatas()) {
-            System.out.println(intervalData);
-        }
     }
 
 }
