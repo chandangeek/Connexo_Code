@@ -183,7 +183,7 @@ public class ObisCodeMapper {
             } else {
                 return new RegisterInfo(ProgrammingCounterKey);
             }
-        } else if (obisCode.toString().indexOf("0.0.96.6.0.255") != -1) {
+        } else if (obisCode.toString().indexOf("0.0.96.6.0.255") != -1) {   // Battery Status
             if(read){
                 BatterySupportStatus bss = (BatterySupportStatus) abba1700RegisterFactory.getRegister(BatterySupportStatus);
                 registerValue = new RegisterValue(obisCode, new Quantity(new BigDecimal(bss.getRemainingBatterySupportTime()), Unit.get(BaseUnit.DAY)));
@@ -242,7 +242,7 @@ public class ObisCodeMapper {
                     valId = ABBA1700InstantaneousValues.APPARENT_POWER_SCALED;
                 } else if ((isWithinRange(33, obisCode.getC())) || (obisCode.getC() == 13)) {
                     valId = ABBA1700InstantaneousValues.POWER_FACTOR;
-                } else if (isWithinRange(14, obisCode.getC())) {
+                } else if (isWithinRange(34, obisCode.getC())) {
                     valId = ABBA1700InstantaneousValues.FREQUENCY;
                 }
             } // if (obisCode.getD() == 0)
