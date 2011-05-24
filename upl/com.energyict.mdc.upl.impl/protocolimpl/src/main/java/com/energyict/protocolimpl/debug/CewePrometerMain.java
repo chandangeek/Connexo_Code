@@ -20,7 +20,7 @@ public class CewePrometerMain extends AbstractDebuggingMain<CewePrometer> {
     private static CewePrometer cewePrometer = null;
     public static final String SERIAL_NEW_FW = "1610901";
     public static final String SERIAL_OLD_FW = "1483801";
-    private static final String SERIAL = SERIAL_NEW_FW;
+    private static final String SERIAL = SERIAL_OLD_FW;
 
     @Override
     CewePrometer getMeterProtocol() {
@@ -47,7 +47,7 @@ public class CewePrometerMain extends AbstractDebuggingMain<CewePrometer> {
         properties.setProperty("Timeout", "10000");
         properties.setProperty(MeterProtocol.NODEID, SERIAL);
 
-        properties.setProperty("Logger", "1");
+        properties.setProperty("Logger", "0");
 
         return properties;
     }
@@ -69,6 +69,7 @@ public class CewePrometerMain extends AbstractDebuggingMain<CewePrometer> {
 
     @Override
     void doDebug() throws LinkException, IOException {
+/*
         readRegister("0.0.96.50.1.255");
         readRegister("0.0.96.9.0.255");
         readRegister("0.0.96.6.6.255");
@@ -93,6 +94,7 @@ public class CewePrometerMain extends AbstractDebuggingMain<CewePrometer> {
         readRegister("1.1.33.7.0.255");
         readRegister("1.1.53.7.0.255");
         readRegister("1.1.73.7.0.255");
+*/
         readRegister("0.0.96.1.0.255");
         readRegister("0.0.96.1.1.255");
         readRegister("0.0.96.1.2.255");
@@ -100,14 +102,23 @@ public class CewePrometerMain extends AbstractDebuggingMain<CewePrometer> {
         readRegister("0.0.96.1.4.255");
         readRegister("1.0.0.2.0.255");
 
+        dumpChannelInfos();
+
     }
 
     private void dumpChannelInfos() throws IOException {
-        Date from = ProtocolTools.createCalendar(2000, 5, 15, 0, 0, 0, 0).getTime();
-        ProfileData profileData = getMeterProtocol().getProfileData(new Date(), false);
+        Date from = ProtocolTools.createCalendar(2000, 6, 15, 0, 0, 0, 0).getTime();
+        ProfileData profileData = getMeterProtocol().getProfileData(from, true);
+
+
         System.out.println("\n");
         for (ChannelInfo channelInfo : profileData.getChannelInfos()) {
             System.out.println(channelInfo);
+        }
+
+        System.out.println("\n");
+        for (IntervalData intervalData : profileData.getIntervalDatas()) {
+            System.out.println(intervalData);
         }
     }
 

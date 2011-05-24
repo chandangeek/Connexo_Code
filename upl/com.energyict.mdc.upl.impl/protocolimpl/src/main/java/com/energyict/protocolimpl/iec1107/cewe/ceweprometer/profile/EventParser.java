@@ -219,6 +219,9 @@ public class EventParser {
         dscr = "Meter firmware upgrade";
         put( 46, new EventType(MeterEvent.OTHER, dscr) );
 
+        dscr = "Time to change battery";
+        put( 47, new EventType(MeterEvent.BATTERY_VOLTAGE_LOW, dscr) );
+
         dscr = "Energy registers corrupt";
         put( 1000, new EventType(MeterEvent.HARDWARE_ERROR, dscr) );
 

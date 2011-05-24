@@ -161,7 +161,6 @@ public class CewePrometer extends AbstractProtocol  {
     protected ProtocolConnection doInit(InputStream in, OutputStream out, int pTimeout, int pRetries, int pForcedDelay, int pEchoCancelling, int pCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         try {
             connection = new IEC1107Connection(in, out, pTimeout, pRetries, pForcedDelay, pEchoCancelling, pCompatible, "ER:", software7E1);
-            obisCodeMapper = new ObisCodeMapper(this);
             eventParser = new EventParser(this);
             setInfoTypeProtocolRetriesProperty(pRetries);
         } catch (ConnectionException e) {
@@ -225,7 +224,14 @@ public class CewePrometer extends AbstractProtocol  {
         result.add("Software7E1");
         return result;
     }
-    
+
+    public ObisCodeMapper getObisCodeMapper() throws IOException {
+        if (obisCodeMapper == null) {
+            obisCodeMapper = new ObisCodeMapper(this);
+        }
+        return obisCodeMapper;
+    }
+
     /** @see AbstractProtocol#doValidateProperties(java.util.Properties) */
     protected void doValidateProperties(Properties p) throws MissingPropertyException, InvalidPropertyException {
         String v = p.getProperty(PK_EXTENDED_LOGGING);
@@ -366,7 +372,7 @@ public class CewePrometer extends AbstractProtocol  {
      * @see com.energyict.protocolimpl.base.AbstractProtocol#readRegister(com.energyict.obis.ObisCode)
      */
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        return obisCodeMapper.getRegisterValue(obisCode);
+        return getObisCodeMapper().getRegisterValue(obisCode);
     }
     
     /** Create a meter command in ByteArray form
