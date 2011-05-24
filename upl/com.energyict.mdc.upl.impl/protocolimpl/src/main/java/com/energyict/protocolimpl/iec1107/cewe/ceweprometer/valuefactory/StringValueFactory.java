@@ -16,15 +16,27 @@ import java.io.IOException;
 public class StringValueFactory extends AbstractValueFactory {
 
     private final ProRegister proRegister;
+    private final String value;
 
     public StringValueFactory(String obisCode, ProRegister proRegister, CewePrometer prometer) {
         super(ObisCode.fromString(obisCode), prometer);
         this.proRegister = proRegister;
+        this.value = null;
+    }
+
+    public StringValueFactory(String obisCode, String value, CewePrometer prometer) {
+        super(ObisCode.fromString(obisCode), prometer);
+        this.proRegister = null;
+        this.value = value;
     }
 
     @Override
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
-        return new RegisterValue(getObisCode(), getProRegister().asCompleteString());
+        if (proRegister != null) {
+            return new RegisterValue(getObisCode(), getProRegister().asCompleteString());
+        } else {
+            return new RegisterValue(getObisCode(), value);
+        }
     }
 
     @Override

@@ -136,7 +136,7 @@ public class ChannelConfigurationParser {
             Unit unit = Unit.getUndefined();
             String name = "Unknown ";
             if (bit1To5 < QUANTITY.length) {
-                unit = (Unit) QUANTITY[bit1To5].getUnit();
+                unit = QUANTITY[bit1To5].getUnit();
                 name = QUANTITY[bit1To5].getDescription() + " ";
             }
             name += (bit6To7 < PHASE.length) ? PHASE[bit6To7] : "Unknown phase!";
