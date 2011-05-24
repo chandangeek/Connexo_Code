@@ -40,55 +40,67 @@ public class ABBA1700DataIdentityFactory {
             di.setABBA1700DataIdentityFactory(this);
         }
     }
-    
+
     // Lengths are in hexadecimal!
+
     private void initRegisters() {
-       rawRegisters.put("798", new ABBA1700DataIdentity(16,ABBA1700DataIdentity.NOT_STREAMEABLE)); 
-       rawRegisters.put("795", new ABBA1700DataIdentity(16,ABBA1700DataIdentity.NOT_STREAMEABLE)); 
-       rawRegisters.put("861", new ABBA1700DataIdentity(7,ABBA1700DataIdentity.NOT_STREAMEABLE)); 
-       rawRegisters.put("507", new ABBA1700DataIdentity(80,ABBA1700DataIdentity.NOT_STREAMEABLE)); 
-       rawRegisters.put("516", new ABBA1700DataIdentity(32,ABBA1700DataIdentity.NOT_STREAMEABLE)); 
-       rawRegisters.put("509", new ABBA1700DataIdentity(72,ABBA1700DataIdentity.NOT_STREAMEABLE)); 
-       rawRegisters.put("510", new ABBA1700DataIdentity(288,ABBA1700DataIdentity.NOT_STREAMEABLE)); 
-       // vt primary and secundary current
-       rawRegisters.put("614", new ABBA1700DataIdentity(7,ABBA1700DataIdentity.NOT_STREAMEABLE)); 
-       // ct primary and secundary current
-       rawRegisters.put("616", new ABBA1700DataIdentity(6,ABBA1700DataIdentity.NOT_STREAMEABLE)); 
-       // Load profile configuration
-       rawRegisters.put("777", new ABBA1700DataIdentity(2,ABBA1700DataIdentity.NOT_STREAMEABLE)); 
-       // demand, subinterval period
-       rawRegisters.put("878", new ABBA1700DataIdentity(3,ABBA1700DataIdentity.NOT_STREAMEABLE)); 
-       // Load profile configure data
-       rawRegisters.put("551", new ABBA1700DataIdentity(4,ABBA1700DataIdentity.NOT_STREAMEABLE)); 
-       // Load profile read data
-       rawRegisters.put("550", new ABBA1700DataIdentity(0,ABBA1700DataIdentity.STREAMEABLE)); 
-       // Historical events KV_TO_DO how to use???
-       rawRegisters.put("544", new ABBA1700DataIdentity(66,12,ABBA1700DataIdentity.STREAMEABLE)); 
-       // Meter historical system status
-       rawRegisters.put("691", new ABBA1700DataIdentity(4,ABBA1700DataIdentity.NOT_STREAMEABLE)); 
-       // Meter current system status
-       rawRegisters.put("724", new ABBA1700DataIdentity(4,ABBA1700DataIdentity.NOT_STREAMEABLE)); 
-       // (C)MD register sources  KV_TO_DO not used for the moment. We extract the registersource from the (C)MD register itself
-       rawRegisters.put("668", new ABBA1700DataIdentity(8,ABBA1700DataIdentity.NOT_STREAMEABLE)); 
-       // Customer defined register 1,2 & 3 configuration
-       rawRegisters.put("601", new ABBA1700DataIdentity(meterType.hasExtendedCustomerRegisters() ? 15 : 6, ABBA1700DataIdentity.NOT_STREAMEABLE));
+        rawRegisters.put("798", new ABBA1700DataIdentity(16, ABBA1700DataIdentity.NOT_STREAMEABLE));
+        rawRegisters.put("795", new ABBA1700DataIdentity(16, ABBA1700DataIdentity.NOT_STREAMEABLE));
+        rawRegisters.put("861", new ABBA1700DataIdentity(7, ABBA1700DataIdentity.NOT_STREAMEABLE));
+        rawRegisters.put("507", new ABBA1700DataIdentity(80, ABBA1700DataIdentity.NOT_STREAMEABLE));
+        rawRegisters.put("516", new ABBA1700DataIdentity(32, ABBA1700DataIdentity.NOT_STREAMEABLE));
+        rawRegisters.put("509", new ABBA1700DataIdentity(72, ABBA1700DataIdentity.NOT_STREAMEABLE));
+        rawRegisters.put("510", new ABBA1700DataIdentity(288, ABBA1700DataIdentity.NOT_STREAMEABLE));
+        // vt primary and secundary current
+        rawRegisters.put("614", new ABBA1700DataIdentity(7, ABBA1700DataIdentity.NOT_STREAMEABLE));
+        // ct primary and secundary current
+        rawRegisters.put("616", new ABBA1700DataIdentity(6, ABBA1700DataIdentity.NOT_STREAMEABLE));
+        // Load profile configuration
+        rawRegisters.put("777", new ABBA1700DataIdentity(2, ABBA1700DataIdentity.NOT_STREAMEABLE));
+        // demand, subinterval period
+        rawRegisters.put("878", new ABBA1700DataIdentity(3, ABBA1700DataIdentity.NOT_STREAMEABLE));
+        // Load profile configure data
+        rawRegisters.put("551", new ABBA1700DataIdentity(4, ABBA1700DataIdentity.NOT_STREAMEABLE));
+        // Load profile read data
+        rawRegisters.put("550", new ABBA1700DataIdentity(0, ABBA1700DataIdentity.STREAMEABLE));
+        // Historical events KV_TO_DO how to use???
+        rawRegisters.put("544", new ABBA1700DataIdentity(66, 12, ABBA1700DataIdentity.STREAMEABLE));
+        // Meter historical system status
+        rawRegisters.put("691", new ABBA1700DataIdentity(4, ABBA1700DataIdentity.NOT_STREAMEABLE));
+        // Meter current system status
+        rawRegisters.put("724", new ABBA1700DataIdentity(4, ABBA1700DataIdentity.NOT_STREAMEABLE));
+        // (C)MD register sources  KV_TO_DO not used for the moment. We extract the registersource from the (C)MD register itself
+        rawRegisters.put("668", new ABBA1700DataIdentity(8, ABBA1700DataIdentity.NOT_STREAMEABLE));
+        // Customer defined register 1,2 & 3 configuration
+        rawRegisters.put("601", new ABBA1700DataIdentity(meterType.hasExtendedCustomerRegisters() ? 15 : 6, ABBA1700DataIdentity.NOT_STREAMEABLE));
 
         // TOU register source
-       rawRegisters.put("667", new ABBA1700DataIdentity(meterType.getNrOfTariffRegisters(),ABBA1700DataIdentity.NOT_STREAMEABLE)); 
-       // Historic display scalings (billing point TOU and (C)MD register sources. Protocoldescription seems to be wrong!
-       rawRegisters.put("548", new ABBA1700DataIdentity(22+meterType.getNrOfTariffRegisters()+8+meterType.getExtraOffsetHistoricDisplayScaling(),12,ABBA1700DataIdentity.NOT_STREAMEABLE)); 
-       // TOU registers
-       rawRegisters.put("508", new ABBA1700DataIdentity(8*meterType.getNrOfTariffRegisters(),ABBA1700DataIdentity.NOT_STREAMEABLE)); 
-       // Historical values
-       rawRegisters.put("543", new ABBA1700DataIdentity(10*8+meterType.getNrOfTariffRegisters()*8+4*8+8*9+24*12+15,12,ABBA1700DataIdentity.STREAMEABLE)); 
-       
-       // Instantaneous values
-       //rawRegisters.put("605"), new ABBA1700DataIdentity(6,ABBA1700DataIdentity.NOT_STREAMEABLE)); 
-       rawRegisters.put("605", new ABBA1700DataIdentity(1,ABBA1700DataIdentity.NOT_STREAMEABLE)); 
-       rawRegisters.put("606", new ABBA1700DataIdentity(7,ABBA1700DataIdentity.NOT_STREAMEABLE)); 
-       
-       // KV 30082006
-       rawRegisters.put("655", new ABBA1700DataIdentity(0,ABBA1700DataIdentity.NOT_STREAMEABLE)); 
+        rawRegisters.put("667", new ABBA1700DataIdentity(meterType.getNrOfTariffRegisters(), ABBA1700DataIdentity.NOT_STREAMEABLE));
+        // Historic display scalings (billing point TOU and (C)MD register sources. Protocoldescription seems to be wrong!
+        rawRegisters.put("548", new ABBA1700DataIdentity(22 + meterType.getNrOfTariffRegisters() + 8 + meterType.getExtraOffsetHistoricDisplayScaling(), 12, ABBA1700DataIdentity.NOT_STREAMEABLE));
+        // TOU registers
+        rawRegisters.put("508", new ABBA1700DataIdentity(8 * meterType.getNrOfTariffRegisters(), ABBA1700DataIdentity.NOT_STREAMEABLE));
+        // Historical values
+        rawRegisters.put("543", new ABBA1700DataIdentity(10 * 8 + meterType.getNrOfTariffRegisters() * 8 + 4 * 8 + 8 * 9 + 24 * 12 + 15, 12, ABBA1700DataIdentity.STREAMEABLE));
+
+        // Instantaneous values
+        //rawRegisters.put("605"), new ABBA1700DataIdentity(6,ABBA1700DataIdentity.NOT_STREAMEABLE));
+        rawRegisters.put("605", new ABBA1700DataIdentity(1, ABBA1700DataIdentity.NOT_STREAMEABLE));
+        rawRegisters.put("606", new ABBA1700DataIdentity(7, ABBA1700DataIdentity.NOT_STREAMEABLE));
+
+        // KV 30082006
+        rawRegisters.put("655", new ABBA1700DataIdentity(0, ABBA1700DataIdentity.NOT_STREAMEABLE));
+
+        // ProgrammingCounter
+        rawRegisters.put("680", new ABBA1700DataIdentity(14, ABBA1700DataIdentity.NOT_STREAMEABLE));
+        // PhaseFailure counter
+        rawRegisters.put("693", new ABBA1700DataIdentity(17, ABBA1700DataIdentity.NOT_STREAMEABLE));
+        // ReverseRun Counter
+        rawRegisters.put("694", new ABBA1700DataIdentity(14, ABBA1700DataIdentity.NOT_STREAMEABLE));
+        // PowerDown counter
+        rawRegisters.put("695", new ABBA1700DataIdentity(14, ABBA1700DataIdentity.NOT_STREAMEABLE));
+        // Battery status
+        rawRegisters.put("546", new ABBA1700DataIdentity(12, ABBA1700DataIdentity.NOT_STREAMEABLE));
     }
     
     protected ProtocolLink getProtocolLink() {
