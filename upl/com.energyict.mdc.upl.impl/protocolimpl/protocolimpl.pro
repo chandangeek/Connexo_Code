@@ -440,3 +440,5 @@
 }
 
 -keepnames class com.energyict.smartmeterprotocolimpl.sdksample.SDKSmartMeterProtocol
+
+-keepnames class com.energyict.smartmeterprotocolimpl.webrtuz3.WebRTUZ3
