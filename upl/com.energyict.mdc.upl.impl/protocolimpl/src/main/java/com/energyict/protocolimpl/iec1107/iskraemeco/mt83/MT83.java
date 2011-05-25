@@ -483,4 +483,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     	}
     }
 
+    protected void setConnection(final FlagIEC1107Connection connection) {
+        this.flagIEC1107Connection = connection;
+    }
 } // public class MT83 implements MeterProtocol {

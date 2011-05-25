@@ -116,6 +116,18 @@ public class MT83ObisCodeMapper {
 				}
 			}
 
+            // First do all the abstract Objects
+            if (obisCode.equals(ObisCode.fromString("0.0.96.1.0.255"))) { // just read the serialNumber
+                String value = (String) mt83Registry.getRegister(MT83Registry.SERIAL);
+                return new RegisterValue(obisCode, value);
+            } else if (obisCode.equals(ObisCode.fromString("0.0.96.1.5.255"))) { // just read the firmwareVersion
+                String fwversion = "";
+                fwversion += "Version: " + (String) mt83Registry.getRegister(MT83Registry.SOFTWARE_REVISION) + " - ";
+                fwversion += "Device date: " + (String) mt83Registry.getRegister(MT83Registry.SOFTWARE_DATE) + " - ";
+                fwversion += "Device Type: " + (String) mt83Registry.getRegister(MT83Registry.DEVICE_TYPE);
+                return new RegisterValue(obisCode, fwversion);
+            }
+
 			
 			MT83.sendDebug("Reading register: Obis = " + obisCode.toString() + " Edis: " + strReg, 0);
 			
