@@ -50,7 +50,7 @@ public class ABBA1700MeterEvents {
         try {
             HistoricalValueSetInfo hvsi = ((HistoricalValues) getABBA1700RegisterFactory().getRegister(HistoricalValuesKey)).getHistoricalValueSetInfo();
             if (hvsi.getBillingStartDateTime().after(lastReading)) {
-                meterEventList.add(new MeterEvent(hvsi.getBillingStartDateTime(), MeterEvent.BILLING_ACTION, "Source " + ABBA1700MeterEvents.BillingEventTriggerSource.getTriggerReasonForValue(hvsi.getBillingTriggerSource())));
+                meterEventList.add(new MeterEvent(hvsi.getBillingStartDateTime(), MeterEvent.BILLING_ACTION, "Billing action source: " + ABBA1700MeterEvents.BillingEventTriggerSource.getTriggerReasonForValue(hvsi.getBillingTriggerSource())));
             }
         } catch (IOException e) {
             getLogger().info("Could not fetch the HistoricalValues for event support");
