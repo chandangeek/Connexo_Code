@@ -39,7 +39,8 @@ public class ABBA1700RegisterFactory {
     public static final String ReverseRunCounterKey = "ReverseRunCounter";
     public static final String PowerDownCounterKey = "PowerDownCounter";
     public static final String HistoricalEventsKey = "HistoricalEvents";
-    public static final String BatterySupportStatus = "BatterySupportStatus";
+    public static final String BatterySupportStatusKey = "BatterySupportStatus";
+    public static final String HistoricalValuesKey = "HistoricalValues";
 
     public static final int MAX_CMD_REGS=8;
     public static final int MAX_MD_REGS=24;
@@ -136,7 +137,7 @@ public class ABBA1700RegisterFactory {
 
         registers.put("HistoricalDisplayScalings", new ABBA1700Register("548", ABBA1700RegisterData.ABBA_HISTORICALDISPLAYSCALINGS, 0, (22 + getMeterType().getNrOfTariffRegisters() + 8 + getMeterType().getExtraOffsetHistoricDisplayScaling()) * 12, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
         registers.put("TariffSources", new ABBA1700Register("667", ABBA1700RegisterData.ABBA_TARIFFSOURCES, 0, getMeterType().getNrOfTariffRegisters(), null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
-        registers.put("HistoricalValues", new ABBA1700Register("543", ABBA1700RegisterData.ABBA_HISTORICALVALUES, 0, (10 * 8 + getMeterType().getNrOfTariffRegisters() * 8 + 4 * 8 + 8 * 9 + 24 * 12 + 15) * 12, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
+        registers.put(HistoricalValuesKey, new ABBA1700Register("543", ABBA1700RegisterData.ABBA_HISTORICALVALUES, 0, (10 * 8 + getMeterType().getNrOfTariffRegisters() * 8 + 4 * 8 + 8 * 9 + 24 * 12 + 15) * 12, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.CACHED));
 
         registers.put("InstantaneousValues", new ABBA1700Register("606", ABBA1700RegisterData.ABBA_INSTANTANEOUSVALUES, 0, 7, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
         registers.put("InstantaneousValuesRequest", new ABBA1700Register("605", ABBA1700RegisterData.ABBA_HEX, 0, 1, null, ABBA1700Register.WRITEABLE, ABBA1700Register.NOT_CACHED));
@@ -148,7 +149,7 @@ public class ABBA1700RegisterFactory {
         registers.put(PhaseFailureCounterKey, new ABBA1700Register("693", ABBA1700RegisterData.ABBA_PHASE_FAILURE_COUNTER, 0, 17, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
         registers.put(ReverseRunCounterKey, new ABBA1700Register("694", ABBA1700RegisterData.ABBA_REVERSE_RUN_COUNTER, 0, 14, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
         registers.put(PowerDownCounterKey, new ABBA1700Register("695", ABBA1700RegisterData.ABBA_POWER_DOWN_COUNTER, 0, 14, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
-        registers.put(BatterySupportStatus, new ABBA1700Register("546", ABBA1700RegisterData.ABBA_BATTERY_STATUS, 0, 12, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
+        registers.put(BatterySupportStatusKey, new ABBA1700Register("546", ABBA1700RegisterData.ABBA_BATTERY_STATUS, 0, 12, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
     }
     
     private void initLocals() {
@@ -228,7 +229,7 @@ public class ABBA1700RegisterFactory {
            else if ((billingPoint>=0) && (billingPoint<=11)) {
                if (HistoricalValues.has(register2Retrieve.getDataID())) {
                    // retrieve the billing set data
-                   ABBA1700Register register = findRegister("HistoricalValues");
+                   ABBA1700Register register = findRegister(HistoricalValuesKey);
                    HistoricalValues historicalValues = (HistoricalValues)register.parse(register.readRegister(register.isCached(),billingPoint));
                    HistoricalValueSetInfo hvsi = historicalValues.getHistoricalValueSetInfo();
                    // find register within the data

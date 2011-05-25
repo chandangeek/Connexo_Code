@@ -77,7 +77,7 @@ public class ObisCodeMapper {
         // General purpose ObisRegisters & abstract general service
         if (obisCode.toString().indexOf("1.1.0.1.0.255") != -1) { // billing counter
             if (read) {
-                HistoricalValueSetInfo hvsi = ((HistoricalValues) abba1700RegisterFactory.getRegister("HistoricalValues", 0)).getHistoricalValueSetInfo();
+                HistoricalValueSetInfo hvsi = ((HistoricalValues) abba1700RegisterFactory.getRegister(HistoricalValuesKey, 0)).getHistoricalValueSetInfo();
                 registerValue = new RegisterValue(obisCode, new Quantity(new BigDecimal(hvsi.getBillingCount()), Unit.get("")));
                 return registerValue;
             } else {
@@ -87,7 +87,7 @@ public class ObisCodeMapper {
         else if (obisCode.toString().indexOf("1.1.0.1.2.") != -1) { // billing point timestamp
             if ((billingPoint >= 0) && (billingPoint < 99)) {
                 if (read) {
-                    HistoricalValueSetInfo hvsi = ((HistoricalValues) abba1700RegisterFactory.getRegister("HistoricalValues", billingPoint)).getHistoricalValueSetInfo();
+                    HistoricalValueSetInfo hvsi = ((HistoricalValues) abba1700RegisterFactory.getRegister(HistoricalValuesKey, billingPoint)).getHistoricalValueSetInfo();
                     //registerValue = new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(hvsi.getBillingEndDateTime().getTime()/1000),Unit.get(255)),hvsi.getBillingResetDateTime(),hvsi.getBillingStartDateTime(),hvsi.getBillingEndDateTime());
                     registerValue = new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(hvsi.getBillingTriggerSource()), Unit.get(255)), hvsi.getBillingResetDateTime(), hvsi.getBillingStartDateTime(), hvsi.getBillingEndDateTime());
                     return registerValue;
@@ -185,11 +185,11 @@ public class ObisCodeMapper {
             }
         } else if (obisCode.toString().indexOf("0.0.96.6.0.255") != -1) {   // Battery Status
             if(read){
-                BatterySupportStatus bss = (BatterySupportStatus) abba1700RegisterFactory.getRegister(BatterySupportStatus);
+                BatterySupportStatus bss = (BatterySupportStatus) abba1700RegisterFactory.getRegister(BatterySupportStatusKey);
                 registerValue = new RegisterValue(obisCode, new Quantity(new BigDecimal(bss.getRemainingBatterySupportTime()), Unit.get(BaseUnit.DAY)));
                 return registerValue;
             } else {
-                return new RegisterInfo(BatterySupportStatus);
+                return new RegisterInfo(BatterySupportStatusKey);
             }
         }
 

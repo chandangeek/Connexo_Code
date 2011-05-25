@@ -11,13 +11,14 @@ import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.protocolimpl.iec1107.abba1700.counters.*;
 
 import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
 
-import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.BillingResetKey;
-import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.TimeDateKey;
+import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.*;
+
 /**
  *
  * @author  Koen
@@ -58,6 +59,7 @@ public class ABBA1700 implements MeterProtocol, ProtocolLink, HHUEnabler, Serial
 	private ABBA1700MeterType					abba1700MeterType		= null;
 	private SerialCommunicationChannel			commChannel				= null;
     private ABBA1700Messages                    messages                = new ABBA1700Messages(this);
+    private ABBA1700MeterEvents                 meterEvents             = new ABBA1700MeterEvents(this);
 
     private int iTimeout;
     private int iProtocolRetries;
@@ -86,7 +88,11 @@ public class ABBA1700 implements MeterProtocol, ProtocolLink, HHUEnabler, Serial
 
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(getTimeZone());
-        return abba1700Profile.getProfileData(lastReading,calendar.getTime());
+        ProfileData pd = abba1700Profile.getProfileData(lastReading,calendar.getTime());
+        if(includeEvents){
+            pd.setMeterEvents(meterEvents.getMeterEventList(lastReading));
+        }
+        return pd;
     }
 
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException,UnsupportedException {
@@ -427,7 +433,7 @@ public class ABBA1700 implements MeterProtocol, ProtocolLink, HHUEnabler, Serial
         return ((Integer)getABBA1700RegisterFactory().getRegister("IntegrationPeriod")).intValue()*60;
     }
 
-    private ABBA1700RegisterFactory getABBA1700RegisterFactory() {
+    public ABBA1700RegisterFactory getABBA1700RegisterFactory() {
         return abba1700RegisterFactory;
     }
     private ABBA1700Profile getABBA1700Profile() {
