@@ -1,6 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.webrtuz3;
 
 import com.energyict.dlms.DLMSReference;
+import com.energyict.dlms.aso.LocalSecurityProvider;
+import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocol.InvalidPropertyException;
@@ -33,6 +35,8 @@ public class WebRTUZ3Properties extends DlmsProtocolProperties {
         optional.add(DlmsProtocolProperties.RETRIES);
         optional.add(DlmsProtocolProperties.ROUND_TRIP_CORRECTION);
         optional.add(DlmsProtocolProperties.BULK_REQUEST);  //TODO needed this one for our connection setup ...
+        optional.add(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
+        optional.add(LocalSecurityProvider.DATATRANSPORTKEY);
         return optional;
     }
 

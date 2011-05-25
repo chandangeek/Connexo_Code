@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.webrtuz3.profiles;
 
+import com.energyict.cbo.Unit;
 import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
@@ -227,7 +228,10 @@ public class LoadProfileBuilder {
                         ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getUnit(), registerUnit.getSerialNumber(), true);
                         channelInfos.add(ci);
                     } else {
-                        throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerUnit + " - unitCode was 0.");
+                        //TODO CHECK if this is still correct!
+                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), Unit.getUndefined(), registerUnit.getSerialNumber(), true);
+                        channelInfos.add(ci);
+//                        throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerUnit + " - unitCode was 0.");
                     }
                 } else {
                     throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerUnit + " - not in registerUnitMap.");
