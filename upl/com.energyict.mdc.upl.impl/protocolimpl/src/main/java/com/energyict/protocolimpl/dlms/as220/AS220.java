@@ -198,65 +198,75 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 		return getProfileData(lastReading, null, includeEvents);
 	}
 
-	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
+        if (to == null) {
+            to = ProtocolUtils.getCalendar(getTimeZone()).getTime();
+            getLogger().info("getProfileData: toDate was 'null'. Changing toDate to: " + to);
+        }
 
-		if (to == null) {
-			to = ProtocolUtils.getCalendar(getTimeZone()).getTime();
-			getLogger().info("getProfileData: toDate was 'null'. Changing toDate to: " + to);
-		}
+        // Read the profile data, and take the limitMaxNrOfDays property in account.
+        ProfileData profileData = getProfileWithLimiter(new ProfileLimiter(from, to, getLimitMaxNrOfDays()), includeEvents);
 
-        ProfileLimiter limiter = new ProfileLimiter(from, to, getLimitMaxNrOfDays());
-        from = limiter.getFromDate();
-        to = limiter.getToDate();
+        // If there are no intervals in the profile, read the profile data again, but now with the limitMaxNrOfDays property disabled
+        // This way we can prevent the profile to be stuck an a certain date if there is a gap in the profile bigger than the limitMaxNrOfDays.
+        if ((profileData.getIntervalDatas().size() == 0) && (getLimitMaxNrOfDays() > 0)) {
+            profileData = getProfileWithLimiter(new ProfileLimiter(from, to, 0), includeEvents);
+        }
+        return profileData;
 
-		if (validateFromToDates(from, to)) {
-			return new ProfileData();
-		}
+    }
 
-		getLogger().info("Starting to read profileData [from=" + from + ", to=" + to + ", includeEvents=" + includeEvents + "]");
+    private ProfileData getProfileWithLimiter(ProfileLimiter limiter, boolean includeEvents) throws IOException {
+        Date from = limiter.getFromDate();
+        Date to = limiter.getToDate();
+
+        if (validateFromToDates(from, to)) {
+            return new ProfileData();
+        }
+
+        getLogger().info("Starting to read profileData [from=" + from + ", to=" + to + ", includeEvents=" + includeEvents + "]");
         ProfileData eMeterProfile;
         ProfileData plcStatistics;
         ProfileData powerQualitiesProfile;
-		switch (getProfileType()) {
+        switch (getProfileType()) {
 
             // three separate Profiles
             case PROFILETYPE_EMETER_ONLY:
-				return geteMeter().getProfileData(from, to, includeEvents);
-			case PROFILETYPE_PLC_ONLY:
-				return getPlc().getStatistics(from, to);
+                return geteMeter().getProfileData(from, to, includeEvents);
+            case PROFILETYPE_PLC_ONLY:
+                return getPlc().getStatistics(from, to);
             case PROFILETYPE_PQ_ONLY:
                 return getPowerQuality().getPowerQualities(from, to);
 
             // combination of two
             case PROFILETYPE_EMETER_ONLY + PROFILETYPE_PLC_ONLY: //Emeter and PLC meter
-				eMeterProfile = geteMeter().getProfileData(from, to, includeEvents);
-				plcStatistics = getPlc().getStatistics(from, to);
-				return ProfileAppender.appendProfiles(eMeterProfile, plcStatistics);
+                eMeterProfile = geteMeter().getProfileData(from, to, includeEvents);
+                plcStatistics = getPlc().getStatistics(from, to);
+                return ProfileAppender.appendProfiles(eMeterProfile, plcStatistics);
             case PROFILETYPE_EMETER_ONLY + PROFILETYPE_PQ_ONLY: // Emeter and PQ
-				eMeterProfile = geteMeter().getProfileData(from, to, includeEvents);
-				powerQualitiesProfile = getPowerQuality().getPowerQualities(from, to);
-				return ProfileAppender.appendProfiles(eMeterProfile, powerQualitiesProfile);
-            case PROFILETYPE_PLC_ONLY + PROFILETYPE_PQ_ONLY: // PLC and PQ
-				plcStatistics = getPlc().getStatistics(from, to);
+                eMeterProfile = geteMeter().getProfileData(from, to, includeEvents);
                 powerQualitiesProfile = getPowerQuality().getPowerQualities(from, to);
-				return ProfileAppender.appendProfiles(plcStatistics, powerQualitiesProfile);
+                return ProfileAppender.appendProfiles(eMeterProfile, powerQualitiesProfile);
+            case PROFILETYPE_PLC_ONLY + PROFILETYPE_PQ_ONLY: // PLC and PQ
+                plcStatistics = getPlc().getStatistics(from, to);
+                powerQualitiesProfile = getPowerQuality().getPowerQualities(from, to);
+                return ProfileAppender.appendProfiles(plcStatistics, powerQualitiesProfile);
 
             // combination of three
             case PROFILETYPE_EMETER_ONLY + PROFILETYPE_PLC_ONLY + PROFILETYPE_PQ_ONLY: // Eprofile + PLC profile + PQ profile
-				eMeterProfile = geteMeter().getProfileData(from, to, includeEvents);
-				plcStatistics = getPlc().getStatistics(from, to);
+                eMeterProfile = geteMeter().getProfileData(from, to, includeEvents);
+                plcStatistics = getPlc().getStatistics(from, to);
                 powerQualitiesProfile = getPowerQuality().getPowerQualities(from, to);
                 ProfileData tempProfile = ProfileAppender.appendProfiles(eMeterProfile, plcStatistics);
-				return ProfileAppender.appendProfiles(tempProfile, powerQualitiesProfile);
+                return ProfileAppender.appendProfiles(tempProfile, powerQualitiesProfile);
 
-			default:
-				getLogger().warning("Unknown value for ProfileType! [" + getProfileType() + "]");
-				return new ProfileData();
-		}
+            default:
+                getLogger().warning("Unknown value for ProfileType! [" + getProfileType() + "]");
+                return new ProfileData();
+        }
+    }
 
-	}
-
-	protected boolean validateFromToDates(Date from, Date to) {
+    protected boolean validateFromToDates(Date from, Date to) {
 		long diff = to.getTime() - from.getTime();
 		final int minimumDiff = 1 * 60 * 1000;
 		if (diff <= minimumDiff) {
