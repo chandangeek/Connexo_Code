@@ -59,14 +59,16 @@ public class MT83ObisCodeMapper {
 		int billingPoint=-1;
 		DateValuePair dvp = null;
 
-		// obis F code
-		if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99))
-			billingPoint = obisCode.getF();
-		else if ((obisCode.getF() <= 0) && (obisCode.getF() >= -99))
-			billingPoint = obisCode.getF()*-1;
-		else if (obisCode.getF() == 255)
-			billingPoint = -1;
-		else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported! (1) ");
+        // obis F code
+        if ((obisCode.getF() >= 0) && (obisCode.getF() <= 99)) {
+            billingPoint = obisCode.getF();
+        } else if ((obisCode.getF() <= 0) && (obisCode.getF() >= -99)) {
+            billingPoint = obisCode.getF() * -1;
+        } else if (obisCode.getF() == 255) {
+            billingPoint = -1;
+        } else {
+            throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported! (1) ");
+        }
 
 		String billingDateRegister;
 		Date eventDate = null;
