@@ -5,10 +5,11 @@
  */
 
 package com.energyict.protocolimpl.iec1107.abba1700;
-import java.util.*;
-import java.io.*;
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.TimeZone;
 /**
  *
  * @author  Koen
@@ -54,7 +55,7 @@ public class HistoricalValueSetInfo {
     
      
     public String toString() {
-        return getBillingCount()+", "+getBillingEndDateTime().toString()+", "+getBillingResetDateTime().toString()+", "+getBillingStartDateTime().toString()+", "+getBillingTriggerSource()+getTriggerSourceDescription();
+        return getBillingCount()+", "+getBillingEndDateTime()+", "+getBillingResetDateTime()+", "+getBillingStartDateTime()+", "+getBillingTriggerSource()+getTriggerSourceDescription();
     }
     
     private void parse(byte[] data) throws IOException {
@@ -89,7 +90,7 @@ public class HistoricalValueSetInfo {
      * @return Value of property billingStartDateTime.
      */
     public java.util.Date getBillingStartDateTime() {
-        return billingStartDateTime;
+        return filterMissingDates(billingStartDateTime);
     }
     
     /**
@@ -105,7 +106,7 @@ public class HistoricalValueSetInfo {
      * @return Value of property billingEndDateTime.
      */
     public java.util.Date getBillingEndDateTime() {
-        return billingEndDateTime;
+        return filterMissingDates(billingEndDateTime);
     }
     
     /**
@@ -137,9 +138,9 @@ public class HistoricalValueSetInfo {
      * @return Value of property billingResetDateTime.
      */
     public java.util.Date getBillingResetDateTime() {
-        return billingResetDateTime;
+        return filterMissingDates(billingResetDateTime);
     }
-    
+
     /**
      * Setter for property billingResetDateTime.
      * @param billingResetDateTime New value of property billingResetDateTime.
@@ -147,5 +148,13 @@ public class HistoricalValueSetInfo {
     public void setBillingResetDateTime(java.util.Date billingResetDateTime) {
         this.billingResetDateTime = billingResetDateTime;
     }
-    
+
+    private Date filterMissingDates(Date date) {
+        if ((date != null) && (date.getTime() == 0)) {
+            return null;
+        } else {
+            return date;
+        }
+    }
+
 }
