@@ -589,8 +589,9 @@ public class FlagIEC1107Connection extends Connection {
     public static final byte[] READ2 = {'R', '2'};
     public static final byte[] READSTREAM = {'R', 'D'};
     public static final byte[] WRITE1 = {'W', '1'};
-    static final byte[] LOGON_PROCEDURE_1 = {'P', '1'};
-    static final byte[] LOGON_PROCEDURE_2 = {'P', '2'};
+    public static final byte[] LOGON_PROCEDURE_1 = {'P', '1'};
+    public static final byte[] LOGON_PROCEDURE_2 = {'P', '2'};
+    public static final byte[] EXECUTE_COMMAND = {'E', '2'};
 
     public void sendRawCommandFrame(byte[] command, byte[] rawdata) throws IOException, ConnectionException, FlagIEC1107ConnectionException {
         doSendCommandFrame(command, rawdata, false);

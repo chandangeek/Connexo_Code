@@ -48,6 +48,8 @@ public class MT83Registry extends AbstractVDEWRegistry {
 	public static final String BILLING_DATE_13 = "1.0.0.1.2.13";
 	public static final String BILLING_DATE_14 = "1.0.0.1.2.14";
 	public static final String BILLING_DATE_15 = "1.0.0.1.2.15";
+
+    public static final String BILLING_RESET_COMMAND = "0.0.5.0.4.0";
 		
     /** Creates a new instance of MK10Register */
     public MT83Registry(MeterExceptionInfo meterExceptionInfo,ProtocolLink protocolLink) {
@@ -60,6 +62,7 @@ public class MT83Registry extends AbstractVDEWRegistry {
 		final byte[] READ6 = FlagIEC1107Connection.READ6;
 		final byte[] WRITE1 = FlagIEC1107Connection.WRITE1;
 		final byte[] WRITE5 = FlagIEC1107Connection.WRITE5;
+        final byte[] COMMAND = FlagIEC1107Connection.EXECUTE_COMMAND;
 
 		final int STRING = VDEWRegisterDataParse.VDEW_STRING;
 		final int INTEGER = VDEWRegisterDataParse.VDEW_INTEGER;
@@ -106,6 +109,7 @@ public class MT83Registry extends AbstractVDEWRegistry {
         registers.put(BILLING_DATE_15, newReg("1.0.0.1.2.15", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null));
 
         registers.put(BATTERY_HOURS, newReg("0.0.96.6.0.255", STRING, VDEWRegister.CACHED, false, Unit.get(BaseUnit.HOUR), READ1, null));
+        registers.put(BILLING_RESET_COMMAND, newReg("0.0.5.0.4.0", STRING, VDEWRegister.NOT_CACHED, true, Unit.getUndefined(), null, COMMAND));
     }
         
     private VDEWRegister newReg(String registerID_in, int dataType, boolean isWritable, Unit unit, byte[] readCommand, byte[] writeCommand) {

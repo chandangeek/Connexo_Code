@@ -146,25 +146,34 @@ public class VDEWRegister extends VDEWRegisterDataParse {
     }
     
     private void dowriteRawRegister(String value) throws FlagIEC1107ConnectionException,IOException {
-        String data=null;
-        if (getWriteCommand().equals(FlagIEC1107Connection.WRITE5)) {
-            if (isUsePassword())
-               data = getObjectID()+"("+value+")("+getProtocolLink().getPassword()+")";
-            else
-               data = getObjectID()+"("+value+")";
+        String data = null;
+
+        if (isUsePassword() && ! getWriteCommand().equals(FlagIEC1107Connection.WRITE1)) {
+            data = getObjectID() + "(" + value + ")(" + getProtocolLink().getPassword() + ")";
+        } else {
+            data = getObjectID() + "(" + value + ")";
         }
-        else if (getWriteCommand().equals(FlagIEC1107Connection.WRITE1))
-            data = getObjectID()+"("+value+")";
-        else if (getWriteCommand().equals(FlagIEC1107Connection.WRITE2)) {
-            if (isUsePassword())
-               data = getObjectID()+"("+value+")("+getProtocolLink().getPassword()+")";
-            else
-               data = getObjectID()+"("+value+")";
+
+//        if (getWriteCommand().equals(FlagIEC1107Connection.WRITE5)) {
+//            if (isUsePassword()) {
+//                data = getObjectID() + "(" + value + ")(" + getProtocolLink().getPassword() + ")";
+//            } else {
+//                data = getObjectID() + "(" + value + ")";
+//            }
+//        } else if (getWriteCommand().equals(FlagIEC1107Connection.WRITE1)) {
+//            data = getObjectID() + "(" + value + ")";
+//        } else if (getWriteCommand().equals(FlagIEC1107Connection.WRITE2)) {
+//            if (isUsePassword()) {
+//                data = getObjectID() + "(" + value + ")(" + getProtocolLink().getPassword() + ")";
+//            } else {
+//                data = getObjectID() + "(" + value + ")";
+//            }
+//        }
+        String retval = getProtocolLink().getFlagIEC1107Connection().sendRawCommandFrameAndReturn(getWriteCommand(), data.getBytes());
+
+        if (retval != null) {
+            abstractVDEWRegistry.validateData(retval);
         }
-        String retval = getProtocolLink().getFlagIEC1107Connection().sendRawCommandFrameAndReturn(getWriteCommand(),data.getBytes());
-        
-        if (retval != null)
-            abstractVDEWRegistry.validateData(retval);        
         resetRegdata();
     }
     

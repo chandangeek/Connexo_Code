@@ -6,6 +6,7 @@ import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.iec1107.*;
 import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.registerconfig.MT83RegisterConfig;
@@ -28,7 +29,7 @@ import java.util.logging.Logger;
  * JME	|20042009|	Fixed nullpointer exception when there is no profile data.
  * 
  */
-public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExceptionInfo, RegisterProtocol {
+public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExceptionInfo, RegisterProtocol, DemandResetProtocol, MessageProtocol {
     
     private static final byte DEBUG=0;
         
@@ -59,6 +60,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     MT83Registry mt83Registry=null;
     MT83Profile mt83Profile=null;
     MT83RegisterConfig mt83RegisterConfig = new MT83RegisterConfig(); // we should use an infotype property to determine the registerset
+    MT83MeterMessages meterMessages = new MT83MeterMessages(this);
 
     byte[] dataReadout=null;
     private boolean software7E1;
@@ -143,7 +145,6 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
      * @param properties <br>
      * @throws MissingPropertyException <br>
      * @throws InvalidPropertyException <br>
-     * @see AbstractMeterProtocol#validateProperties
      */
     public void setProperties(Properties properties) throws MissingPropertyException , InvalidPropertyException {
         validateProperties(properties);
@@ -486,4 +487,55 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     protected void setConnection(final FlagIEC1107Connection connection) {
         this.flagIEC1107Connection = connection;
     }
-} // public class MT83 implements MeterProtocol {
+
+    /**
+     * Execute a billing reset on the device. After receiving the “Demand Reset”
+     * command the meter executes a demand reset by doing a snap shot of all
+     * energy and demand registers.
+     *
+     * @throws java.io.IOException
+     */
+    public void resetDemand() throws IOException {
+        mt83Registry.setRegister(MT83Registry.BILLING_RESET_COMMAND, "");
+    }
+
+    /**
+     * Provides the full list of outstanding messages to the protocol.
+     * If for any reason certain messages have to be grouped before they are sent to a device, then this is the place to do it.
+     * At a later timestamp the framework will query each {@link com.energyict.protocol.MessageEntry} (see {@link #queryMessage(com.energyict.protocol.MessageEntry)}) to actually
+     * perform the message.
+     *
+     * @param messageEntries a list of {@link com.energyict.protocol.MessageEntry}s
+     * @throws java.io.IOException if a logical error occurs
+     */
+    public void applyMessages(final List messageEntries) throws IOException {
+        this.meterMessages.applyMessages(messageEntries);
+    }
+
+    /**
+     * Indicates that each message has to be executed by the protocol.
+     *
+     * @param messageEntry a definition of which message needs to be sent
+     * @return a state of the message which was just sent
+     * @throws java.io.IOException if a logical error occurs
+     */
+    public MessageResult queryMessage(final MessageEntry messageEntry) throws IOException {
+        return this.meterMessages.queryMessage(messageEntry);
+    }
+
+    public List getMessageCategories() {
+        return this.meterMessages.getMessageCategories();
+    }
+
+    public String writeMessage(final Message msg) {
+        return this.meterMessages.writeMessage(msg);
+    }
+
+    public String writeTag(final MessageTag tag) {
+        return this.meterMessages.writeTag(tag);
+    }
+
+    public String writeValue(final MessageValue value) {
+        return this.meterMessages.writeValue(value);
+    }
+}
