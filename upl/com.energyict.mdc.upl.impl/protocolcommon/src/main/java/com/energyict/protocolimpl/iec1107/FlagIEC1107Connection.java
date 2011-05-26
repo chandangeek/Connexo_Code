@@ -625,7 +625,7 @@ public class FlagIEC1107Connection extends Connection {
         flushEchoBuffer();
 
 
-        if (command[0] == 'W') {
+        if (command[0] == 'W' || command[0] == 'E') {
             while (true) {
                 echoByteArrayOutputStream.reset();
                 sendTxBuffer(); // KV 27102004
