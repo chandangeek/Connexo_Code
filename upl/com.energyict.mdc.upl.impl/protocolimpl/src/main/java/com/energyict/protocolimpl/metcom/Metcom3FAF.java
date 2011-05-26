@@ -44,7 +44,7 @@ public class Metcom3FAF extends Metcom3 {
             tm[1] = Integer.parseInt((new String(ProtocolUtils.getSubArray2(data, 12, 4))).trim());
             int profileInterval = tm[bufferNr];
             int digitsPerValue = Integer.parseInt(getRegister(DIGITS_PER_VALUE).trim());
-            bs = new BufferStructure(nrOfChannels,digitsPerValue,profileInterval);
+            bs = new BufferStructure(getChannelMap().getBuffers()[bufferNr],digitsPerValue,profileInterval);
         }
         else if (this instanceof com.energyict.protocolimpl.sctm.faf.FAF10) {
             int profileInterval = Integer.parseInt((new String(data)).trim());
