@@ -5,6 +5,7 @@
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.io.*;
 import com.energyict.obis.*;
@@ -50,7 +51,7 @@ public class MT83ObisCodeMapper {
 		return returnValue;
 	}
 
-	private int getBillingResetCounter(RegisterConfig regs) throws IOException {
+	private int getBillingResetCounter() throws IOException {
 		return ((Integer)mt83Registry.getRegister(MT83Registry.BILLING_RESET_COUNTER)).intValue();
 	}
 
@@ -124,10 +125,19 @@ public class MT83ObisCodeMapper {
                 return new RegisterValue(obisCode, value);
             } else if (obisCode.equals(ObisCode.fromString("0.0.96.1.5.255"))) { // just read the firmwareVersion
                 String fwversion = "";
-                fwversion += "Version: " + (String) mt83Registry.getRegister(MT83Registry.SOFTWARE_REVISION) + " - ";
-                fwversion += "Device date: " + (String) mt83Registry.getRegister(MT83Registry.SOFTWARE_DATE) + " - ";
-                fwversion += "Device Type: " + (String) mt83Registry.getRegister(MT83Registry.DEVICE_TYPE);
+                fwversion += "Version: " +  mt83Registry.getRegister(MT83Registry.SOFTWARE_REVISION) + " - ";
+                fwversion += "Device date: " + mt83Registry.getRegister(MT83Registry.SOFTWARE_DATE) + " - ";
+                fwversion += "Device Type: " + mt83Registry.getRegister(MT83Registry.DEVICE_TYPE);
                 return new RegisterValue(obisCode, fwversion);
+            } else if (obisCode.equals(ObisCode.fromString("0.0.96.6.0.255"))) {    // just read the battery status in hours
+                String batteryHours = (String) mt83Registry.getRegister(MT83Registry.BATTERY_HOURS);
+                batteryHours = batteryHours.replace(",", ".");
+                return new RegisterValue(obisCode, new Quantity(batteryHours, Unit.get(BaseUnit.HOUR)));
+            } else if (obisCode.equals(ObisCode.fromString("1.1.0.1.0.255"))) { // billing reset counter
+                 return new RegisterValue(obisCode, new Quantity(new BigDecimal(getBillingResetCounter()), Unit.getUndefined()));
+            } else if (obisCode.equals(ObisCode.fromString("1.1.0.1.2.255"))) { // billing reset counter
+                Date startDate = ((Date)mt83Registry.getRegister(MT83Registry.BILLING_DATE_1));
+                return new RegisterValue(obisCode, startDate);
             }
 
 			

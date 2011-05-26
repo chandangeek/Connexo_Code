@@ -20,6 +20,7 @@ public class MT83Registry extends AbstractVDEWRegistry {
 	public static final String SOFTWARE_REVISION = "SoftwareRevisionNumber";
 	public static final String SOFTWARE_DATE = "SoftwareDate";
 	public static final String DEVICE_TYPE = "DeviceType";
+    public static final String BATTERY_HOURS = "BatteryHours";
 
 	public static final String PROFILE_INTERVAL = "ProfileInterval";
 
@@ -34,7 +35,7 @@ public class MT83Registry extends AbstractVDEWRegistry {
 	public static final String BILLING_DATE_START = "1.0.0.1.2.0";
 	public static final String BILLING_DATE_1 = "1.0.0.1.2.1";
 	public static final String BILLING_DATE_2 = "1.0.0.1.2.2";
-	public static final String BILLING_DATE_3 = "1.0.0.1.2.3";
+	public static final String BILLING_DATE_3 = "1.0.0.1.2.4";
 	public static final String BILLING_DATE_4 = "1.0.0.1.2.4";
 	public static final String BILLING_DATE_5 = "1.0.0.1.2.5";
 	public static final String BILLING_DATE_6 = "1.0.0.1.2.6";
@@ -103,7 +104,8 @@ public class MT83Registry extends AbstractVDEWRegistry {
         registers.put(BILLING_DATE_13, newReg("1.0.0.1.2.13", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null));
         registers.put(BILLING_DATE_14, newReg("1.0.0.1.2.14", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null));
         registers.put(BILLING_DATE_15, newReg("1.0.0.1.2.15", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null));
-        
+
+        registers.put(BATTERY_HOURS, newReg("0.0.96.6.0.255", STRING, VDEWRegister.CACHED, false, Unit.get(BaseUnit.HOUR), READ1, null));
     }
         
     private VDEWRegister newReg(String registerID_in, int dataType, boolean isWritable, Unit unit, byte[] readCommand, byte[] writeCommand) {

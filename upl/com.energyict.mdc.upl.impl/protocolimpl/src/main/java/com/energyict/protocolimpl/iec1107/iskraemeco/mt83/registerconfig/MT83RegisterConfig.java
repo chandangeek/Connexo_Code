@@ -60,6 +60,8 @@ public class MT83RegisterConfig extends RegisterConfig {
     	
     	// Billing points timestamps
     	addToMap("1.1.0.1.2.255", 6, 0, 14, 1, "1.0.0.1.2.255");
+        addToMap("1.1.0.1.2.255", "LastBillingTimeStamp", "1.1.0.1.2.255");
+        addToMap("1.1.0.1.0.255", "Billing counter", "1.1.0.1.0.255");
 
         // FirmwareVersion
         addToMap("0.0.96.1.5.255", "FirmwareVersion", "0.0.96.1.5.255");

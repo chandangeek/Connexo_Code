@@ -30,7 +30,7 @@ import java.util.logging.Logger;
  */
 public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExceptionInfo, RegisterProtocol {
     
-    private static final byte DEBUG=10;
+    private static final byte DEBUG=0;
         
     private static final int LOADPROFILES_FIRST = 1;
     private static final int LOADPROFILES_LAST = 2;
