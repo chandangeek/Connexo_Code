@@ -9,11 +9,10 @@ import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.iec1107.*;
 
 import java.io.*;
-import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.text.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -438,16 +437,13 @@ public class Zmd
     }
 
     private String getEdisBillingNotation(ObisCode obis) throws IOException {
-        if( obis.getF() != 255 ) {
-            
-            int bc = getBillingCount();
-            if( bc == 0 ) throw createNoSuchRegisterException(obis);
-            return "*" + ProtocolUtils.buildStringDecimal(bc - Math.abs(obis.getF()), 2);
-        }
-        else
+        if (obis.getF() != 255) {
+            return "*" + ProtocolUtils.buildStringDecimal(getBillingCount() - Math.abs(obis.getF()), 2);
+        } else {
             return "";
+        }
     }
-    
+
     /* Is o a code represeting a timestamp? */
     private boolean isTimeCode(ObisCode o){
         return  o.getA() == 1 &&
