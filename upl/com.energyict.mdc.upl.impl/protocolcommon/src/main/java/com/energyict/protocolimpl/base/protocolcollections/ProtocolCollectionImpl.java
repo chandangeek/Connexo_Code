@@ -265,6 +265,38 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         this.protocolNames.add("Elster A1800");
         this.protocolClasses.add("com.energyict.protocolimpl.dlms.elgama.G3B");
         this.protocolNames.add("DLMS ElGama G3B");
+        this.protocolClasses.add("com.energyict.protocolimpl.din19244.poreg2.Poreg2");
+        this.protocolNames.add("Poreg 2");
+        this.protocolClasses.add("com.energyict.protocolimpl.din19244.poreg2.Poreg2P");
+        this.protocolNames.add("Poreg 2P");
+
+        this.protocolClasses.add("com.energyict.protocolimpl.coronis.waveflow100mwencoder.actarismbusechodis.Echodis");
+        this.protocolNames.add("WaveFlow 100mW Echodis");
+        this.protocolClasses.add("com.energyict.protocolimpl.coronis.waveflow100mwencoder.severntrent.SM150E");
+        this.protocolNames.add("WaveFlow 100mW Severntrent SM150E");
+        this.protocolClasses.add("com.energyict.protocolimpl.coronis.waveflow.waveflowV210.WaveFlowV210");
+        this.protocolNames.add("WaveFlow V210");
+        this.protocolClasses.add("com.energyict.protocolimpl.coronis.waveflow.waveflowV2.WaveFlowV2");
+        this.protocolNames.add("WaveFlow V2");
+        this.protocolClasses.add("com.energyict.protocolimpl.coronis.waveflow.waveflowV1.WaveFlowV1");
+        this.protocolNames.add("WaveFlow V1");
+        this.protocolClasses.add("com.energyict.protocolimpl.coronis.wavesense.WaveSense");
+        this.protocolNames.add("WaveSense");
+        this.protocolClasses.add("com.energyict.protocolimpl.coronis.wavetherm.WaveTherm");
+        this.protocolNames.add("WaveTherm");
+        this.protocolClasses.add("com.energyict.protocolimpl.coronis.wavelog.WaveLog");
+        this.protocolNames.add("WaveLog");
+        this.protocolClasses.add("com.energyict.protocolimpl.coronis.wavetalk.WaveTalk");
+        this.protocolNames.add("WaveTalk");
+        this.protocolClasses.add("com.energyict.protocolimpl.coronis.amco.rtm.RTM");
+        this.protocolNames.add("RTM");
+        this.protocolClasses.add("com.energyict.protocolimpl.coronis.waveflowDLMS.A1800");
+        this.protocolNames.add("WaveFlow AC A1800");
+        this.protocolClasses.add("com.energyict.protocolimpl.coronis.waveflowDLMS.AS1253");
+        this.protocolNames.add("WaveFlow AC AS1253");
+        this.protocolClasses.add("com.energyict.protocolimpl.coronis.waveflowDLMS.AS253");
+        this.protocolNames.add("WaveFlow AC AS253");
+
 
         this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.sdksample.SDKSmartMeterProtocol");
         this.protocolNames.add("SDK SmartMeter protocol (multipleLoadProfiles)");
@@ -286,17 +318,17 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
      * @return Value of property protocolClasses.
      */
     public List<String> getProtocolClasses() {
-        if(this.protocolClasses == null){
-                    buildDefaultProtocols();
+        if (this.protocolClasses == null) {
+            buildDefaultProtocols();
         }
         return this.protocolClasses;
     }
 
     public String getProtocolVersion(int index) throws IOException {
         ProtocolInstantiator pi = ProtocolImplFactory.getProtocolInstantiator(getProtocolClassName(index));
-        if(pi.getMeterProtocol() != null){
+        if (pi.getMeterProtocol() != null) {
             return getProtocolName(index) + ": " + pi.getMeterProtocol().getProtocolVersion();
-        } else if(pi.getSmartMeterProtocol() != null){
+        } else if (pi.getSmartMeterProtocol() != null) {
             return getProtocolName(index) + ": " + pi.getSmartMeterProtocol().getVersion();
         }
         throw new UnsupportedException("No VersionSupport for protocol " + getProtocolClassName(index));
@@ -304,9 +336,9 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
 
     public String getProtocolRevision(int index) throws IOException {
         ProtocolInstantiator pi = ProtocolImplFactory.getProtocolInstantiator(getProtocolClassName(index));
-        if(pi.getMeterProtocol() != null){
+        if (pi.getMeterProtocol() != null) {
             return pi.getMeterProtocol().getProtocolVersion();
-        } else if(pi.getSmartMeterProtocol() != null){
+        } else if (pi.getSmartMeterProtocol() != null) {
             return pi.getSmartMeterProtocol().getVersion();
         }
         throw new UnsupportedException("No RevisionSupport for protocol " + getProtocolClassName(index));

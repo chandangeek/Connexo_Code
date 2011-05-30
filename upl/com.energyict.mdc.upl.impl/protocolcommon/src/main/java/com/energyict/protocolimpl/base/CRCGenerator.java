@@ -6,9 +6,7 @@
 
 package com.energyict.protocolimpl.base;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
 
 
 /**
@@ -449,5 +447,13 @@ static private final int[] CRC16={
 //        }
         
     }
-    
+
+    public static int getModulo256(byte[] rawData) {
+        int result = 0;
+        for (byte b : rawData) {
+            result += b & 0xFF;
+            result %= 256;
+        }
+        return result & 0x0FF;
+    }
 }

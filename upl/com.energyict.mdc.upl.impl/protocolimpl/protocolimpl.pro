@@ -420,6 +420,22 @@
 
 -keepnames class com.energyict.protocolimpl.coronis.waveflow.waveflowV2.WaveFlowV2
 
+-keepnames class com.energyict.protocolimpl.coronis.waveflow.waveflowV210.WaveFlowV210
+
+-keepnames class com.energyict.protocolimpl.coronis.wavesense.WaveSense
+
+-keepnames class com.energyict.protocolimpl.coronis.amco.rtm.RTM
+
+-keepnames class com.energyict.protocolimpl.din19244.poreg2.Poreg2
+
+-keepnames class com.energyict.protocolimpl.din19244.poreg2.Poreg2P
+
+-keepnames class com.energyict.protocolimpl.coronis.wavelog.WaveLog
+
+-keepnames class com.energyict.protocolimpl.coronis.wavetalk.WaveTalk
+
+-keepnames class com.energyict.protocolimpl.coronis.wavetherm.WaveTherm
+
 -keepnames class com.energyict.genericprotocolimpl.elster.ctr.SmsHandler
 
 -keepnames class com.energyict.genericprotocolimpl.elster.ctr.MTU155
