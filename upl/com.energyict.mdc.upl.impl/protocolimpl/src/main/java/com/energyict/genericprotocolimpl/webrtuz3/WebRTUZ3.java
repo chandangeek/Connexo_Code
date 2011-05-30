@@ -1162,11 +1162,11 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
         categories.add(getConnectivityCategory());
         categories.add(getGlobalResetCategory());
         categories.add(getXmlConfigCategory());
+        categories.add(getConnectControlCategory());
 
 /*
 
 		categories.add(getP1Category());
-		categories.add(getConnectControlCategory());
 		categories.add(getLoadLimitCategory());
 
 */

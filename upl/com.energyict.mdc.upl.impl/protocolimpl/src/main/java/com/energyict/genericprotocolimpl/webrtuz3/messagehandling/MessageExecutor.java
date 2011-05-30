@@ -12,7 +12,8 @@ import com.energyict.dlms.cosem.Limiter.ValueDefinitionType;
 import com.energyict.dlms.cosem.PPPSetup.PPPAuthenticationType;
 import com.energyict.genericprotocolimpl.common.*;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.genericprotocolimpl.common.messages.*;
+import com.energyict.genericprotocolimpl.common.messages.ActivityCalendarMessage;
+import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
 import com.energyict.genericprotocolimpl.webrtuz3.WebRTUZ3;
@@ -235,11 +236,10 @@ public class MessageExecutor extends GenericMessageExecutor{
 				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Connect");
 				
 				if(!messageHandler.getConnectDate().equals("")){	// use the disconnectControlScheduler
+                    Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getConnectDate());
+					SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getDisconnectControlScheduleObis(messageHandler.getOutputId()));
 					
-					Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getConnectDate());
-					SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getDisconnectControlSchedule().getObisCode());
-					
-					ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getDisconnectorScriptTable().getObisCode());
+					ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getDisconnectorScriptTableObis(messageHandler.getOutputId()));
 					byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn(); 
 					Structure scriptStruct = new Structure();
 					scriptStruct.addDataType(new OctetString(scriptLogicalName));
@@ -249,7 +249,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 					sasConnect.writeExecutionTime(executionTimeArray);
 					
 				} else {	// immediate connect
-					Disconnector connector = getCosemObjectFactory().getDisconnector();
+					Disconnector connector = getCosemObjectFactory().getDisconnector(getDisconnectorObisCode(messageHandler.getOutputId()));
 					connector.remoteReconnect();
 				}
 				
@@ -261,9 +261,9 @@ public class MessageExecutor extends GenericMessageExecutor{
 				if(!messageHandler.getDisconnectDate().equals("")){ // use the disconnectControlScheduler
 					
 					Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getDisconnectDate());
-					SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getDisconnectControlSchedule().getObisCode());
+					SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getDisconnectControlScheduleObis(messageHandler.getOutputId()));
 					
-					ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getDisconnectorScriptTable().getObisCode());
+					ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getDisconnectorScriptTableObis(messageHandler.getOutputId()));
 					byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn(); 
 					Structure scriptStruct = new Structure();
 					scriptStruct.addDataType(new OctetString(scriptLogicalName));
@@ -273,7 +273,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 					sasDisconnect.writeExecutionTime(executionTimeArray);
 					
 				} else { 	// immediate disconnect
-					Disconnector disconnector = getCosemObjectFactory().getDisconnector();
+					Disconnector disconnector = getCosemObjectFactory().getDisconnector(getDisconnectorObisCode(messageHandler.getOutputId()));
 					disconnector.remoteDisconnect();
 				}
 				
@@ -288,7 +288,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 						int modeInt = Integer.parseInt(mode);
 						
 						if((modeInt >=0) && (modeInt <=6)){
-							Disconnector connectorMode = getCosemObjectFactory().getDisconnector();
+							Disconnector connectorMode = getCosemObjectFactory().getDisconnector(getDisconnectorObisCode(messageHandler.getOutputId()));
 							connectorMode.writeControlMode(new TypeEnum(modeInt));
 							
 						} else {
@@ -839,8 +839,37 @@ public class MessageExecutor extends GenericMessageExecutor{
 			}
 		}
 	}
-	
-	private void setMonitoredValue(Limiter loadLimiter) throws IOException {
+
+    private ObisCode getDisconnectControlScheduleObis(String outputId) throws IOException {
+        return ObisCode.fromString("0.0.15.0." + (1 + validateAndGetOutputId(outputId)) + ".255");
+    }
+
+    private ObisCode getDisconnectorScriptTableObis(String outputId) throws IOException {
+        return ObisCode.fromString("0.0.10.0." + (106 + validateAndGetOutputId(outputId)) + ".255");
+    }
+
+    private ObisCode getDisconnectorObisCode(String outputId) throws IOException {
+        return ObisCode.fromString("0.0.96.3." + (10 + validateAndGetOutputId(outputId)) + ".255");
+    }
+
+    private int validateAndGetOutputId(String outputId) throws IOException {
+        try {
+            int id;
+            if ((outputId != null) && (!outputId.trim().equals(""))) {
+                id = Integer.valueOf(outputId);
+            } else {
+                id = 0;
+            }
+            if ((id < 0) || (id > 1)) {
+                throw new IOException("Invalid output id: [" + id + "]. Id should be 0 or 1");
+            }
+            return id;
+        } catch (NumberFormatException e) {
+            throw new IOException("Invalid output id: [" + outputId + "]. " + e.getMessage());
+        }
+    }
+
+    private void setMonitoredValue(Limiter loadLimiter) throws IOException {
 		ValueDefinitionType vdt = loadLimiter.new ValueDefinitionType();
 		vdt.addDataType(new Unsigned16(3));
 		OctetString os = new OctetString(defaultMonitoredAttribute);
