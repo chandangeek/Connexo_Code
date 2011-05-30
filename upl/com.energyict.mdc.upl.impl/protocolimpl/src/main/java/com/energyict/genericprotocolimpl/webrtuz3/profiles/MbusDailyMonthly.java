@@ -16,6 +16,7 @@ import com.energyict.protocol.*;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.logging.Level;
 
 /**
  * 
@@ -65,19 +66,12 @@ public class MbusDailyMonthly extends AbstractDLMSProfile {
 					}
 				}
 			}
-			
-			DataContainer dc = genericProfile.getBuffer(fromCalendar);
+			mbusDevice.getLogger().log(Level.INFO, "Retrieving Monthly values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
+			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 			buildProfileData(dc, profileData, genericProfile, TimeDuration.MONTHS);
 			ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 			ProfileData pd = sortOutProfiledate(profileData, TimeDuration.MONTHS);
-			
             pd.sort();
-
-//			if(mbusDevice.getWebRTU().getMarkedAsBadTime()){
-//				pd.markIntervalsAsBadTime();
-//			}
-			
-//			mbusDevice.getWebRTU().getStoreObject().add(pd, getMeter());
 			return pd;
 			
 		}
@@ -319,19 +313,12 @@ public class MbusDailyMonthly extends AbstractDLMSProfile {
 					}
 				}
 			}
-			
-			DataContainer dc = genericProfile.getBuffer(fromCalendar);
+			mbusDevice.getLogger().log(Level.INFO, "Retrieving Monthly values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
+			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 			buildProfileData(dc, profileData, genericProfile, TimeDuration.DAYS);
 			ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 			ProfileData pd = sortOutProfiledate(profileData, TimeDuration.DAYS);
-			
             pd.sort();
-
-//			if(mbusDevice.getWebRTU().getMarkedAsBadTime()){
-//				pd.markIntervalsAsBadTime();
-//			}
-//			
-//			mbusDevice.getWebRTU().getStoreObject().add(pd, getMeter());
 			return pd;
 		}
 		return profileData;

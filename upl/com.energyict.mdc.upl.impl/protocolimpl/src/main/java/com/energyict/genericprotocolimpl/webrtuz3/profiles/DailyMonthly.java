@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.logging.Level;
 
 public class DailyMonthly extends AbstractDLMSProfile {
 
@@ -78,16 +79,12 @@ public class DailyMonthly extends AbstractDLMSProfile {
 					}
 				}
 
-				final DataContainer dc = genericProfile.getBuffer(fromCalendar);
+                eDevice.getLogger().log(Level.INFO, "Retrieving Daily values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
+				final DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 				buildProfileData(dc, profileData, genericProfile, TimeDuration.DAYS);
 				ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 				final ProfileData pd = sortOutProfiledate(profileData, TimeDuration.DAYS);
-
                 pd.sort();
-
-				// We save the profileData to a tempObject so we can store everything at the end of the communication
-//			eDevice.getStoreObject().add(getMeter(), pd);
-//				eDevice.getStoreObject().add(pd, getMeter());
 				return pd;
 			}
 
@@ -178,19 +175,13 @@ public class DailyMonthly extends AbstractDLMSProfile {
 					}
 				}
 
-				final DataContainer dc = genericProfile.getBuffer(fromCalendar);
+                eDevice.getLogger().log(Level.INFO, "Retrieving Monthly values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
+				final DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 				buildProfileData(dc, profileData, genericProfile, TimeDuration.MONTHS);
 				ParseUtils.validateProfileData(profileData, toCalendar.getTime());
+                profileData.sort();
 				final ProfileData pd = sortOutProfiledate(profileData, TimeDuration.MONTHS);
-
                 pd.sort();
-
-				// We save the profileData to a tempObject so we can store everything at the end of the communication
-//			eDevice.getStoreObject().add(getMeter(), pd);
-//				if(eDevice.getMarkedAsBadTime()){
-//					pd.markIntervalsAsBadTime();
-//				}
-//				eDevice.getStoreObject().add(pd, getMeter());
 				return pd;
 			}
 

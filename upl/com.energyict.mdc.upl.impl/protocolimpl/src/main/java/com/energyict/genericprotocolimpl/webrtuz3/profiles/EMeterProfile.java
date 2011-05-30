@@ -13,6 +13,7 @@ import com.energyict.protocol.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
@@ -68,12 +69,12 @@ public class EMeterProfile extends AbstractDLMSProfile {
 			final List<ChannelInfo> channelInfos = getChannelInfos(genericProfile);
 
 			if(channelInfos.size() != 0){
-				eDevice.getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + getMeter().getSerialNumber());
 				verifyProfileInterval(genericProfile, channelInfos);
 
 				profileData.setChannelInfos(channelInfos);
 				Calendar fromCalendar = null;
 				Calendar channelCalendar = null;
+                Calendar toCalendar = eDevice.getToCalendar();
 
 				for (int i = 0; i < getMeter().getChannels().size(); i++) {
 					final Channel chn = getMeter().getChannel(i);
@@ -89,23 +90,13 @@ public class EMeterProfile extends AbstractDLMSProfile {
 					}
 				}
 
-                /*
                 eDevice.getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
                 final DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
-                 */
-                eDevice.getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime());
-//                fromCalendar.add(Calendar.SECOND, -getMeter().getIntervalInSeconds());
-                final DataContainer dc = genericProfile.getBuffer(fromCalendar);
 
                 buildProfileData(dc, profileData, genericProfile);
 				ParseUtils.validateProfileData(profileData, getToCalendar().getTime());
 				profileData.sort();
 
-//				if(webrtu.getMarkedAsBadTime()){
-//					profileData.markIntervalsAsBadTime();
-//				}
-				// We save the profileData to a tempObject so we can store everything at the end of the communication
-//				webrtu.getStoreObject().add(getMeter(), profileData);
 				return profileData;
 
 			}

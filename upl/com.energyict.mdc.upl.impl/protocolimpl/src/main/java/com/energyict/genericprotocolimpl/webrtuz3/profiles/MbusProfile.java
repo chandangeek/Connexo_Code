@@ -73,12 +73,6 @@ public class MbusProfile extends AbstractDLMSProfile {
 				ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 				profileData.sort();
 
-
-//				if(mbusDevice.getWebRTU().getMarkedAsBadTime()){
-//					profileData.markIntervalsAsBadTime();
-//				}
-//				// We save the profileData to a tempObject so we can store everything at the end of the communication
-//				mbusDevice.getWebRTU().getStoreObject().add(getMeter(), profileData);
 				return profileData;
 			}
 
