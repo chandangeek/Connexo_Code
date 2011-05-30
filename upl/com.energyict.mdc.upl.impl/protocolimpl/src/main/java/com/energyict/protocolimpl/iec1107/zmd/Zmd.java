@@ -24,14 +24,16 @@ import java.util.logging.Logger;
    || Bugfix: 
    || RegisterValues for registers from last billing point did not have a toTime.
    || This is now filled with register: 0.1.0*F.
-   GN |march 2008| Added serialnumber support and message is thrown when meter doesn't support this; then use property 'ignoreSerialNumberCheck'
+   GNA |march 2008| Added serialnumber support and message is thrown when meter doesn't support this; then use property 'ignoreSerialNumberCheck'
+   JME |30-05-2011| Added event time to billing counter + made billing point *00 valid.
  * @endchanges
  */
 
-public class Zmd 
-    implements  MeterProtocol, HHUEnabler, ProtocolLink, MeterExceptionInfo, 
-                RegisterProtocol {
-    
+public class Zmd implements  MeterProtocol, HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol {
+
+    private static final ObisCode BILLING_COUNTER = ObisCode.fromString("1.1.0.1.0.255");
+    private static final ObisCode SERIAL_NUMBER = ObisCode.fromString("1.0.9.0.0.255");
+
     private String strID;
     private String strPassword;
     private String serialNumber;
@@ -64,8 +66,7 @@ public class Zmd
     private static SimpleDateFormat registerFormat;
     private DataDumpParser dataDumpParser;
     private boolean software7E1;
-    ObisCode serialNumbObisCode = ObisCode.fromString("1.0.9.0.0.255");
-    
+
     public Zmd() { } 
     
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
@@ -411,14 +412,19 @@ public class Zmd
               return new RegisterValue(obis, str);
         }
         
-        if (obis.equals(serialNumbObisCode)){
+        if (obis.equals(SERIAL_NUMBER)){
         	byte[] data = getDataDumpParser().getRegisterStrValue(toEdis(obis)).getBytes();
         	String text = parseText(data);
         	return new RegisterValue(obis,null,null,null,null,null,0,text);
         }
         
         Quantity quantity = getDataDumpParser().getRegister(toEdis(obis));
-        Date eventTime = getDataDumpParser().getRegisterDateTime(toEdis(obis), getTimeZone());
+        Date eventTime;
+        if (obis.equals(BILLING_COUNTER)) {
+            eventTime = getLastBillTime();
+        } else {
+            eventTime = getDataDumpParser().getRegisterDateTime(toEdis(obis), getTimeZone());
+        }
         Date toTime = null;
         if(obis.getF()!=255)
             toTime = getDataDumpParser().getRegisterDateTime("0.1.0" + getEdisBillingNotation(obis), getTimeZone());
