@@ -29,6 +29,16 @@ public class InputOutputCategory extends AbstractUnsignedBINObject<InputOutputCa
                         break;
                 }
                 break;
+            case 7:
+                switch (id.getZ()) {
+                    case 1:
+                        symbol = "Imp_Vm";
+                        break;
+                    case 2:
+                        symbol = "Imp_Vbs";
+                        break;
+                }
+                break;
             case 0:
                 switch (id.getZ()) {
                     case 0:
@@ -55,6 +65,8 @@ public class InputOutputCategory extends AbstractUnsignedBINObject<InputOutputCa
             } else {
                 return new int[]{1, 3, 3, 3, 3};
             }
+        } else if (id.getY() == 7) {
+            return new int[]{3};
         }
         return new int[]{1};
     }

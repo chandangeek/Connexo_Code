@@ -21,10 +21,11 @@ import java.security.spec.AlgorithmParameterSpec;
 public class CTREncryption {
 
     private Cipher cipher = null;
-    private final byte[] keyT;
-    private final byte[] keyC;
-    private final byte[] keyF;
-    private final int securityLevel;
+    private byte[] keyT;
+    private byte[] keyC;
+    private byte[] keyF;
+    private int securityLevel;
+
     private final static String CTRENCRYPTIONERROR = "An error occured while using the ciphering!";
 
     /**
@@ -37,6 +38,13 @@ public class CTREncryption {
                 properties.getKeyFBytes(),
                 properties.getSecurityLevel()
         );
+    }
+
+    public void update(MTU155Properties properties) {
+        this.keyC = properties.getKeyCBytes();
+        this.keyT = properties.getKeyTBytes();
+        this.keyF = properties.getKeyFBytes();
+        this.securityLevel = properties.getSecurityLevel();
     }
 
     /**

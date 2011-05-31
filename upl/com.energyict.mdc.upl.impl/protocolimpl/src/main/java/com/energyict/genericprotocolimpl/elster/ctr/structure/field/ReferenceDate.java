@@ -60,9 +60,15 @@ public class ReferenceDate extends AbstractField<ReferenceDate> {
         this.date = date.clone();
     }
 
-    public void setTomorrow() throws CTRParsingException {
+    public void addOneDay() throws CTRParsingException {
         date[2] = (byte) (date[2] + 1);
         parse(date, 0);
+    }
+
+    public static ReferenceDate getReferenceDate(int daysAhead) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_YEAR, daysAhead);
+        return new ReferenceDate().parse(calendar);
     }
 
 }

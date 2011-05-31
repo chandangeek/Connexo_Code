@@ -1,13 +1,23 @@
 package com.energyict.genericprotocolimpl.elster.ctr.events;
 
-import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.elster.ctr.GprsRequestFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
+import com.energyict.genericprotocolimpl.elster.ctr.info.DeviceStatus;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
+import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.Index_Q;
 import com.energyict.protocol.MeterEvent;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
+
+import static com.energyict.genericprotocolimpl.elster.ctr.events.EventMapping.getMeterEventFromDeviceCode;
+import static com.energyict.protocolimpl.utils.MeterEventUtils.appendToEventMessage;
+import static com.energyict.protocolimpl.utils.MeterEventUtils.changeEventDate;
+import static com.energyict.protocolimpl.utils.ProtocolTools.getHexStringFromBytes;
+import static com.energyict.protocolimpl.utils.ProtocolTools.getIntFromByte;
 
 /**
  * Copyrights EnergyICT
@@ -15,36 +25,6 @@ import java.util.*;
  * Time: 11:19:11
  */
 public class CTRMeterEvent {
-
-    public final static String EVENT_DESCRIPTION_30 = "Generic";
-    public final static String EVENT_DESCRIPTION_31 = "Over Limit";
-    public final static String EVENT_DESCRIPTION_32 = "Out of range";
-    public final static String EVENT_DESCRIPTION_33 = "Programming";
-    public final static String EVENT_DESCRIPTION_34 = "Modification of a relevant parameter";
-    public final static String EVENT_DESCRIPTION_35 = "General fault";
-    public final static String EVENT_DESCRIPTION_36 = "Primary supply OFF";
-    public final static String EVENT_DESCRIPTION_37 = "Battery low";
-    public final static String EVENT_DESCRIPTION_38 = "Modify date & time";
-    public final static String EVENT_DESCRIPTION_3A = "Calculation error";
-    public final static String EVENT_DESCRIPTION_3B = "Memories reset";
-    public final static String EVENT_DESCRIPTION_3C = "Relevant seal deactivated";
-    public final static String EVENT_DESCRIPTION_3D = "Synchronization error";
-    public final static String EVENT_DESCRIPTION_3E = "Reset event queue";
-    public final static String EVENT_DESCRIPTION_3F = "Day light saving time programming";
-    public final static String EVENT_DESCRIPTION_40 = "Event buffer full";
-    public final static String EVENT_DESCRIPTION_41 = "Tariff scheme configuration";
-    public final static String EVENT_DESCRIPTION_42 = "Activation of a new tariff scheme";
-    public final static String EVENT_DESCRIPTION_43 = "Download of new software";
-    public final static String EVENT_DESCRIPTION_44 = "Activation of new software";
-    public final static String EVENT_DESCRIPTION_46 = "Fraud attempt";
-    public final static String EVENT_DESCRIPTION_47 = "Change of status";
-    public final static String EVENT_DESCRIPTION_48 = "Programming failed";
-    public final static String EVENT_DESCRIPTION_49 = "Flow cut-off";
-    public final static String EVENT_DESCRIPTION_4A = "Pressure cut-off";
-    public final static String EVENT_DESCRIPTION_4B = "Halt volume calculation at standard therm. cond.";
-    public final static String EVENT_DESCRIPTION_4C = "Modification of security parameters";
-    public final static String EVENT_DESCRIPTION_4D = "Replace batteries";
-
 
     private final GprsRequestFactory requestFactory;
     private CTRAbstractValue[][] eventRecords;
@@ -77,7 +57,7 @@ public class CTRMeterEvent {
             throw new CTRException("Error, the request factory was not found");
         }
         if (fromDate == null) {
-            fromDate = ParseUtils.getClearLastDayDate(getTimeZone());
+            fromDate = ProtocolTools.getDateFromYYYYMMddhhmmss("1990-01-01 00:00:00");
         }
 
         boolean notFound = true;
@@ -90,16 +70,49 @@ public class CTRMeterEvent {
             eventRecords = getRequestFactory().queryEventArray(new Index_Q(index_Q)).getEvento_Short();
             for (CTRAbstractValue[] event : eventRecords) {
                 Date eventDate = getDateFromBytes(event);
-                if (fromDate.after(eventDate) || !isValidDate(eventDate)) {
+                if (fromDate.after(eventDate)) {
                     notFound = false;
                     break;
                 }
-                allEventRecords.add(event);
+                if (isValidDate(eventDate)) {
+                    allEventRecords.add(event);
+                }
             }
             requestCounter++;
         }
 
-        return convertToMeterEvents(allEventRecords);
+        List<MeterEvent> meterEvents = convertToMeterEvents(allEventRecords);
+        return avoidDuplicateTimeStamps(meterEvents);
+    }
+
+    private List<MeterEvent> avoidDuplicateTimeStamps(List<MeterEvent> meterEvents) {
+        Collections.sort(
+                meterEvents,
+                new Comparator<MeterEvent>() {
+                    public int compare(MeterEvent meterEvent1, MeterEvent meterEvent2) {
+                        String[] me1 = meterEvent1.getMessage().split("\\[");
+                        String[] me2 = meterEvent2.getMessage().split("\\[");
+                        return me1[me1.length - 1].compareTo(me2[me2.length - 1]);
+                    }
+                }
+        );
+
+        List<MeterEvent> uniqueItems = new ArrayList<MeterEvent>();
+        Map<Date, Integer> occurences = new HashMap<Date, Integer>();
+        for (MeterEvent meterEvent : meterEvents) {
+            Date meterEventTime = meterEvent.getTime();
+            Integer count = occurences.get(meterEventTime);
+            if (count == null) {
+                occurences.put(meterEventTime, 0);
+                uniqueItems.add(meterEvent);
+            } else {
+                count++;
+                Date newEventDate = new Date(meterEvent.getTime().getTime() + (1000 * count));
+                uniqueItems.add(changeEventDate(meterEvent, newEventDate));
+                occurences.put(meterEventTime, count);
+            }
+        }
+        return uniqueItems;
     }
 
     private TimeZone getTimeZone() {
@@ -119,6 +132,8 @@ public class CTRMeterEvent {
         cal.set(Calendar.DAY_OF_MONTH, event[2].getIntValue());
         cal.set(Calendar.HOUR_OF_DAY, event[3].getIntValue());
         cal.set(Calendar.MINUTE, event[4].getIntValue());
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
         return cal.getTime();
     }
 
@@ -131,106 +146,60 @@ public class CTRMeterEvent {
     public List<MeterEvent> convertToMeterEvents(List<CTRAbstractValue[]> allEventRecords) {
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         for (CTRAbstractValue[] eventRecord : allEventRecords) {
-
+            int seq = eventRecord[5].getIntValue();
             int code = eventRecord[7].getIntValue();
-            Date date = getDateFromBytes(eventRecord);
-            date = fixDate(date);
-            MeterEvent meterEvent;
-
-            switch (code) {
-                case 0x30:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, EVENT_DESCRIPTION_30);
-                    break;
-                case 0x31:
-                    meterEvent = new MeterEvent(date, MeterEvent.LIMITER_THRESHOLD_EXCEEDED, code, EVENT_DESCRIPTION_31);
-                    break;
-                case 0x32:
-                    meterEvent = new MeterEvent(date, MeterEvent.MEASUREMENT_SYSTEM_ERROR, code, EVENT_DESCRIPTION_32);
-                    break;
-                case 0x33:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, EVENT_DESCRIPTION_33);
-                    break;
-                case 0x34:
-                    meterEvent = new MeterEvent(date, MeterEvent.CONFIGURATIONCHANGE, code, EVENT_DESCRIPTION_34);
-                    break;
-                case 0x35:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, EVENT_DESCRIPTION_35);
-                    break;
-                case 0x36:
-                    meterEvent = new MeterEvent(date, MeterEvent.POWERDOWN, code, EVENT_DESCRIPTION_36);
-                    break;
-                case 0x37:
-                    meterEvent = new MeterEvent(date, MeterEvent.BATTERY_VOLTAGE_LOW, code, EVENT_DESCRIPTION_37);
-                    break;
-                case 0x38:
-                    meterEvent = new MeterEvent(date, MeterEvent.SETCLOCK_AFTER, code, EVENT_DESCRIPTION_38);
-                    break;
-                case 0x3A:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, EVENT_DESCRIPTION_3A);
-                    break;
-                case 0x3B:
-                    meterEvent = new MeterEvent(date, MeterEvent.CLEAR_DATA, code, EVENT_DESCRIPTION_3B);
-                    break;
-                case 0x3C:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, EVENT_DESCRIPTION_3C);
-                    break;
-                case 0x3D:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, EVENT_DESCRIPTION_3D);
-                    break;
-                case 0x3E:
-                    meterEvent = new MeterEvent(date, MeterEvent.EVENT_LOG_CLEARED, code, EVENT_DESCRIPTION_3E);
-                    break;
-                case 0x3F:
-                    meterEvent = new MeterEvent(date, MeterEvent.DAYLIGHT_SAVING_TIME_ENABLED_OR_DISABLED, code, EVENT_DESCRIPTION_3F);
-                    break;
-                case 0x40:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, EVENT_DESCRIPTION_40);
-                    break;
-                case 0x41:
-                    meterEvent = new MeterEvent(date, MeterEvent.CONFIGURATIONCHANGE, code, EVENT_DESCRIPTION_41);
-                    break;
-                case 0x42:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, EVENT_DESCRIPTION_42);
-                    break;
-                case 0x43:
-                    meterEvent = new MeterEvent(date, MeterEvent.FIRMWARE_READY_FOR_ACTIVATION, code, EVENT_DESCRIPTION_43);
-                    break;
-                case 0x44:
-                    meterEvent = new MeterEvent(date, MeterEvent.FIRMWARE_ACTIVATED, code, EVENT_DESCRIPTION_44);
-                    break;
-                case 0x46:
-                    meterEvent = new MeterEvent(date, MeterEvent.TAMPER, code, EVENT_DESCRIPTION_46);
-                    break;
-                case 0x47:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, EVENT_DESCRIPTION_47);
-                    break;
-                case 0x48:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, EVENT_DESCRIPTION_48);
-                    break;
-                case 0x49:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, EVENT_DESCRIPTION_49);
-                    break;
-                case 0x4A:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, EVENT_DESCRIPTION_4A);
-                    break;
-                case 0x4B:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER, code, EVENT_DESCRIPTION_4B);
-                    break;
-                case 0x4C:
-                    meterEvent = new MeterEvent(date, MeterEvent.CONFIGURATIONCHANGE, code, EVENT_DESCRIPTION_4C);
-                    break;
-                case 0x4D:
-                    meterEvent = new MeterEvent(date, MeterEvent.REPLACE_BATTERY, code, EVENT_DESCRIPTION_4D);
-                    break;
-                default:
-                    meterEvent = new MeterEvent(date, MeterEvent.OTHER);
-                    break;
-            }
-            if (isValidDate(date)) {
-                meterEvents.add(meterEvent);
+            if ((seq != 0) && (code != 0)) {
+                Date date = getDateFromBytes(eventRecord);
+                date = fixDate(date);
+                MeterEvent meterEvent = getMeterEventFromDeviceCode(code, date);
+                meterEvent = appendToEventMessage(meterEvent, getAdditionalInfo(eventRecord));
+                meterEvent = appendToEventMessage(meterEvent, " [" + seq + "]");
+                if (isValidDate(date)) {
+                    meterEvents.add(meterEvent);
+                }
             }
         }
         return meterEvents;
+    }
+
+    private String getAdditionalInfo(CTRAbstractValue[] eventRecord) {
+        int code = eventRecord[7].getIntValue();
+        byte[] add1 = eventRecord[9].getBytes();
+        byte[] add2 = eventRecord[10].getBytes();
+        if (code == 0x38) {
+            Calendar cal = Calendar.getInstance();
+            cal.set(Calendar.YEAR, getIntFromByte(add1[0]) + 2000);
+            cal.set(Calendar.MONTH, getIntFromByte(add1[1]) - 1);
+            cal.set(Calendar.DAY_OF_MONTH, getIntFromByte(add1[2]));
+            cal.set(Calendar.HOUR_OF_DAY, getIntFromByte(add2[0]));
+            cal.set(Calendar.MINUTE, getIntFromByte(add2[1]));
+            cal.set(Calendar.SECOND, getIntFromByte(add2[2]));
+            cal.set(Calendar.MILLISECOND, 0);
+            return " [to '" + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(cal.getTime()) + "']";
+        } else if (code == 0x47) {
+            String oldSD = DeviceStatus.fromStatusCode(getIntFromByte(add2[2])).getDescription();
+            String newSD = DeviceStatus.fromStatusCode(getIntFromByte(add2[3])).getDescription();
+            return " [from '" + oldSD + "' to '" + newSD + "']";
+        } else if (code == 0x34) {
+            String objectID;
+            try {
+                objectID = new CTRObjectID().parse(add1, 0).toString();
+            } catch (CTRParsingException e) {
+                objectID = getHexStringFromBytes(add1);
+            }
+            return " ["+ objectID +"]";
+        } else if (code == 0x4C) {
+            int psCode = getIntFromByte(add2[0]);
+            switch (psCode) {
+                case 0x01: return " [Received secret command]";
+                case 0x02: return " [KeyC]";
+                case 0x03: return " [KeyT]";
+                case 0x04: return " [KeyF]";
+                case 0x05: return " [Password]";
+                default: return " ["+ProtocolTools.getHexStringFromBytes(add2)+"]";
+            }
+        }
+        return "";
     }
 
     /**

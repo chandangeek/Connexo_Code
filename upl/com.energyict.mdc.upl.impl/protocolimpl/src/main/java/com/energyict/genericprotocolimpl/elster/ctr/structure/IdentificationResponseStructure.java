@@ -179,7 +179,11 @@ public class IdentificationResponseStructure extends AbstractTableQueryResponseS
         return pdr.getValue(0);
     }
 
-    public String getMTU155SerialNumber() {
+    /**
+     * This is the serial number of the GAS meter
+     * @return
+     */
+    public String getMeterSerialNumber() {
         return getAnCont().getValue(2).getStringValue();
     }
 

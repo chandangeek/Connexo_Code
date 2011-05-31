@@ -58,25 +58,28 @@ public class CTRObjectFactory {
             case 9:
                 obj = new EquipmentParametersCategory(id);
                 break;            //String & BIN values
-            case 10:
+            case 0x0A:
                 obj = new VolumeConverterCategory(id);
                 break;            //BIN
-            case 12:
+            case 0x0B:
+                obj = new GasAnalysisCategory(id);
+                break;            //BIN
+            case 0x0C:
                 obj = new SystemMasterRecordCategory(id);
                 break;            //BCD & BIN & String & Signed BIN
-            case 13:
+            case 0x0D:
                 obj = new SecurityCategory(id);
                 break;            //String & BIN values
-            case 14:
+            case 0x0E:
                 obj = new CommunicationCategory(id);
                 break;            //Signed BIN & String
-            case 15:
+            case 0x0F:
                 obj = new MaintenanceCategory(id);
                 break;            //BIN
-            case 16:
+            case 0x10:
                 obj = new EventCategory(id);
                 break;            //BIN
-            case 17:
+            case 0x11:
                 obj = new ExecuteCategory(id);
                 break;            //BIN
             case 18:

@@ -26,6 +26,14 @@ public class MTU155Properties extends AbstractProtocolProperties {
     public static final String CHANNEL_CONFIG = "ChannelConfig";
     public static final String SECURITY_LEVEL = "SecurityLevel";
     public static final String DEBUG = "Debug";
+    public static final String FOLDER_EXTERNAL_NAME = "FolderExtName";
+    public static final String RTU_TYPE = "RtuType";
+    public static final String CHANNEL_BACKLOG = "ChannelBacklog";
+    public static final String FAST_DEPLOYMENT = "FastDeployment";
+    public static final String SEND_END_OF_SESSION = "SendEndOfSession";
+    public static final String GENERATE_RANDOM_MTU_SERIAL = "GenerateRandomMTUSerial";
+    public static final String MAX_ALLOWED_INVALID_PROFILE_RESPONSES = "MaxAllowedInvalidProfileResponses";
+    public static final String DISABLE_DST_FOR_KNOCKING_DEVICES = "DisableDSTForKnockingDevices";
 
     public static final String DEFAULT_TIMEOUT = "10000";
     public static final String DEFAULT_RETRIES = "3";
@@ -39,14 +47,26 @@ public class MTU155Properties extends AbstractProtocolProperties {
     public static final String DEFAULT_CHANNEL_CONFIG = "1.0.2:1.2.2:4.0.2:7.0.2:1.1.3:1.3.3:1.F.2:2.0.3:2.1.3:2.3.3:1.A.3";
     public static final String DEFAULT_SECURITY_LEVEL = "1"; // 0 == KeyT, 1 == KeyC, 2 == KeyF
     public static final String DEFAULT_DEBUG = "0";
+    public static final String DEFAULT_FOLDER_EXTERNAL_NAME = null;
+    public static final String DEFAULT_RTU_TYPE = null;
+    public static final String DEFAULT_CHANNEL_BACKLOG = "85";
+    public static final String DEFAULT_FAST_DEPLOYMENT = "0";
+    public static final String DEFAULT_SEND_END_OF_SESSION = "1";
+    public static final String DEFAULT_GENERATE_RANDOM_MTU_SERIAL = "0";
+    public static final String DEFAULT_MAX_ALLOWED_INVALID_PROFILE_RESPONSES = "5";
+    public static final String DEFAULT_DISABLE_DST_FOR_KNOCKING_DEVICES = "0";
+
+    public MTU155Properties() {
+        this(new Properties());
+    }
+
+    public MTU155Properties(Properties properties) {
+        super(properties);
+    }
 
     @Override
     protected void doValidateProperties() throws MissingPropertyException, InvalidPropertyException {
-        
-    }
 
-    public MTU155Properties() {
-        super(new Properties());
     }
 
     public List<String> getOptionalKeys() {
@@ -60,6 +80,13 @@ public class MTU155Properties extends AbstractProtocolProperties {
         optional.add(CHANNEL_CONFIG);
         optional.add(SECURITY_LEVEL);
         optional.add(DEBUG);
+        optional.add(FOLDER_EXTERNAL_NAME);
+        optional.add(CHANNEL_BACKLOG);
+        optional.add(FAST_DEPLOYMENT);
+        optional.add(SEND_END_OF_SESSION);
+        optional.add(GENERATE_RANDOM_MTU_SERIAL);
+        optional.add(MAX_ALLOWED_INVALID_PROFILE_RESPONSES);
+        optional.add(DISABLE_DST_FOR_KNOCKING_DEVICES);
         return optional;
     }
 
@@ -68,6 +95,7 @@ public class MTU155Properties extends AbstractProtocolProperties {
         required.add(KEYC);
         required.add(KEYF);
         required.add(KEYT);
+        required.add(RTU_TYPE);
         return required;
     }
 
@@ -110,6 +138,10 @@ public class MTU155Properties extends AbstractProtocolProperties {
         return getKeyValue(KEYF, DEFAULT_KEYF);
     }
 
+    public void updateKeyC(String keyC) {
+        getProtocolProperties().setProperty(KEYC, keyC);
+    }
+
     public byte[] getKeyCBytes() {
         return getByteValue(getKeyC());
     }
@@ -142,7 +174,52 @@ public class MTU155Properties extends AbstractProtocolProperties {
         return getIntProperty(SECURITY_LEVEL, DEFAULT_SECURITY_LEVEL);
     }
 
-    public String getKeyValue(String propertyName, String defaultValue) {
+    @ProtocolProperty
+    public boolean isDebug() {
+        return getIntProperty(DEBUG, DEFAULT_DEBUG) == 1;
+    }
+
+    @ProtocolProperty
+    public String getFolderExternalName() {
+        return getStringValue(FOLDER_EXTERNAL_NAME, DEFAULT_FOLDER_EXTERNAL_NAME);
+    }
+
+    @ProtocolProperty
+    public String getRtuType() {
+        return getStringValue(RTU_TYPE, DEFAULT_RTU_TYPE);
+    }
+
+    @ProtocolProperty
+    public int getChannelBacklog() {
+        return getIntProperty(CHANNEL_BACKLOG, DEFAULT_CHANNEL_BACKLOG);
+    }
+
+    @ProtocolProperty
+    public boolean isFastDeployment() {
+        return getIntProperty(FAST_DEPLOYMENT, DEFAULT_FAST_DEPLOYMENT) == 1;
+    }
+
+    @ProtocolProperty
+    public boolean isSendEndOfSession() {
+        return getIntProperty(SEND_END_OF_SESSION, DEFAULT_SEND_END_OF_SESSION) == 1;
+    }
+
+    @ProtocolProperty
+    public boolean isGenerateRandomMTUSerial() {
+        return getIntProperty(GENERATE_RANDOM_MTU_SERIAL, DEFAULT_GENERATE_RANDOM_MTU_SERIAL) == 1;
+    }
+
+    @ProtocolProperty
+    public int getMaxAllowedInvalidProfileResponses() {
+        return getIntProperty(MAX_ALLOWED_INVALID_PROFILE_RESPONSES, DEFAULT_MAX_ALLOWED_INVALID_PROFILE_RESPONSES);
+    }
+
+    @ProtocolProperty
+    public boolean isDisableDSTForKnockingDevices() {
+        return getIntProperty(DISABLE_DST_FOR_KNOCKING_DEVICES, DEFAULT_DISABLE_DST_FOR_KNOCKING_DEVICES) == 1;
+    }
+
+    private String getKeyValue(String propertyName, String defaultValue) {
         String key = getStringValue(propertyName, defaultValue);
         if (key.length() == 16) {
             return ProtocolTools.getHexStringFromBytes(key.getBytes(), "");
@@ -151,10 +228,6 @@ public class MTU155Properties extends AbstractProtocolProperties {
         } else {
             throw new IllegalArgumentException("Invalid key format! Key should be 16 bytes or 32 bytes long.");
         }
-    }
-
-    public boolean isDebug() {
-        return getBooleanProperty(DEBUG, DEFAULT_DEBUG);
     }
 
 }

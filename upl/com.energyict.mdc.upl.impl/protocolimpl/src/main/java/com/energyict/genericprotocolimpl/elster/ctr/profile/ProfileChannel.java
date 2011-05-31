@@ -3,10 +3,11 @@ package com.energyict.genericprotocolimpl.elster.ctr.profile;
 import com.energyict.cbo.Unit;
 import com.energyict.genericprotocolimpl.elster.ctr.GprsRequestFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.MTU155Properties;
-import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.*;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.Trace_CQueryResponseStructure;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.PeriodTrace_C;
+import com.energyict.genericprotocolimpl.elster.ctr.structure.field.ReferenceDate;
 import com.energyict.genericprotocolimpl.elster.ctr.util.CTRObjectInfo;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Rtu;
@@ -41,11 +42,15 @@ public class ProfileChannel {
         this(requestFactory, meterChannel, null);
     }
 
-    public ProfileChannel(GprsRequestFactory requestFactory, Channel meterChannel, Calendar to) {
+    public ProfileChannel(GprsRequestFactory requestFactory, Channel meterChannel, Calendar forcedToCalendar) {
+        this(requestFactory, meterChannel, null, forcedToCalendar);
+    }
+
+    public ProfileChannel(GprsRequestFactory requestFactory, Channel meterChannel, Calendar forcedFromCalendar, Calendar forcedToCalendar) {
         this.requestFactory = requestFactory;
         this.meterChannel = meterChannel;
-        this.toCalendar = getStartOfGasDay(to == null ? Calendar.getInstance(getDeviceTimeZone()) : (Calendar) to.clone());
-        this.fromCalendar = getFromCalendar();
+        this.fromCalendar = forcedFromCalendar == null ? getLastChannelInterval() : (Calendar) forcedFromCalendar.clone();
+        this.toCalendar = getStartOfGasDay(forcedToCalendar == null ? Calendar.getInstance(getDeviceTimeZone()) : (Calendar) forcedToCalendar.clone());
     }
 
     /**
@@ -169,7 +174,7 @@ public class ProfileChannel {
      * @return the profile data
      * @throws CTRException
      */
-    public ProfileData getProfileData() throws CTRException {
+    public ProfileData getProfileData() throws CTRExceptionWithProfileData {
         if (getChannelObjectIdAsString() == null) {
             getLogger().warning("No channel config found for channel with loadProfileIndex [" + getChannelIndex() + "]");
             return new ProfileData();
@@ -177,8 +182,14 @@ public class ProfileChannel {
 
         ProfileData pd = new ProfileData();
         pd.setChannelInfos(getChannelInfos());
-        pd.setIntervalDatas(getIntervalData());
-        return ProtocolTools.clipProfileData(getFromCalendar().getTime(), toCalendar.getTime(), pd);
+        try {
+            pd.setIntervalDatas(getIntervalData());
+        } catch (CTRExceptionWithIntervalData e) {
+            pd.setIntervalDatas(e.getIntervalDatas());
+            pd = ProtocolTools.clipProfileData(fromCalendar.getTime(), toCalendar.getTime(), pd);
+            throw new CTRExceptionWithProfileData(e.getException(), pd);
+        }
+        return ProtocolTools.clipProfileData(fromCalendar.getTime(), toCalendar.getTime(), pd);
     }
 
     /**
@@ -196,22 +207,62 @@ public class ProfileChannel {
     /**
      * @throws CTRException
      */
-    private List<IntervalData> getIntervalData() throws CTRException {
+    private List<IntervalData> getIntervalData() throws CTRExceptionWithIntervalData {
         List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
         Calendar ptrDate = (Calendar) fromCalendar.clone();
-        while (ptrDate.before(toCalendar)) {
-            Trace_CQueryResponseStructure response = getRequestFactory().queryTrace_C(getChannelObjectId(), getPeriod(), calcRefDate(ptrDate, getPeriod()));
-            TraceCProfileParser parser = new TraceCProfileParser(response, getDeviceTimeZone());
-            intervalDatas.addAll(parser.getIntervalData(fromCalendar, toCalendar));
-            ptrDate = (Calendar) parser.getToCalendar().clone();
+        int invalidCount = 0;
+        try {
+            while (ptrDate.before(toCalendar)) {
+                ReferenceDate referenceDate = calcRefDate(ptrDate, getPeriod());
+                Trace_CQueryResponseStructure traceCStructure = getRequestFactory().queryTrace_C(getChannelObjectId(), getPeriod(), referenceDate);
+                if (isValidResponse(traceCStructure, referenceDate)) {
+                    TraceCProfileParser parser = new TraceCProfileParser(traceCStructure, getDeviceTimeZone());
+                    intervalDatas.addAll(parser.getIntervalData(fromCalendar, toCalendar));
+                    ptrDate = (Calendar) parser.getToCalendar().clone();
+                } else {
+                    if (invalidCount++ > maxAllowedInvalidResponses()) {
+                        throw new CTRException("Received more than " + maxAllowedInvalidResponses() + " invalid responses.");
+                    }
+                }
+            }
+        } catch (CTRException e) {
+            throw new CTRExceptionWithIntervalData(e, intervalDatas);
         }
         return intervalDatas;
+    }
+
+    private double maxAllowedInvalidResponses() {
+        return getProperties().getMaxAllowedInvalidProfileResponses();
+    }
+
+    private boolean isValidResponse(Trace_CQueryResponseStructure traceCStructure, ReferenceDate referenceDate) throws CTRConfigurationException {
+        CTRObjectID id = traceCStructure.getId();
+        ReferenceDate receivedReferenceDate = traceCStructure.getDate();
+        if ((id != null) && (id.is(getChannelObjectIdAsString()))) {
+            if ((receivedReferenceDate != null) && (Arrays.equals(referenceDate.getBytes(), receivedReferenceDate.getBytes()))) {
+                PeriodTrace_C responsePeriod = traceCStructure.getPeriod();
+                int meterInterval = responsePeriod.getIntervalInSeconds();
+                int eiserverInterval = getMeterChannel().getIntervalInSeconds();
+                if (meterInterval != eiserverInterval) {
+                    throw new CTRConfigurationException("Channel interval is incorrect for channel [" + getMeterChannel() + "]. " +
+                            "Configuration in EIServer is [" + eiserverInterval + "s], " +
+                            "but meter returned [" + meterInterval + "s]."
+                    );
+                }
+                return true;
+            } else {
+                getLogger().warning("Received invalid response! Requested [" + referenceDate + "] but received [" + receivedReferenceDate + "]");
+            }
+        } else {
+            getLogger().warning("Received invalid response! Requested [" + getChannelObjectIdAsString() + "] but received [" + id + "]");
+        }
+        return false;
     }
 
     /**
      * @return
      */
-    private Calendar getFromCalendar() {
+    private Calendar getLastChannelInterval() {
         Date lastReading = getMeterChannel().getLastReading();
         if (lastReading == null) {
             lastReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastDayDate(getDeviceTimeZone());

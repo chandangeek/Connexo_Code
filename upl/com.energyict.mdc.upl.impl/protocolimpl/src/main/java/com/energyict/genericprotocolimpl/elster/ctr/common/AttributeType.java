@@ -41,6 +41,13 @@ public class AttributeType extends AbstractField<AttributeType> {
         return type;
     }
 
+    public static AttributeType getValueAndObjectId() {
+        AttributeType type = new AttributeType(0);
+        type.setHasValueFields(true);
+        type.setHasIdentifier(true);
+        return type;
+    }
+
     public static AttributeType getQualifierAndValue() {
         AttributeType type = new AttributeType(0);
         type.setHasValueFields(true);

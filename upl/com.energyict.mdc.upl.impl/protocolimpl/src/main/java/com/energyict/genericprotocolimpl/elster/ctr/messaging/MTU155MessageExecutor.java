@@ -2,7 +2,9 @@ package com.energyict.genericprotocolimpl.elster.ctr.messaging;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
+import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.elster.ctr.GprsRequestFactory;
+import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.protocol.MessageEntry;
 
@@ -19,10 +21,14 @@ public class MTU155MessageExecutor extends GenericMessageExecutor {
 
     private Logger logger;
     private GprsRequestFactory factory;
+    private Rtu rtu;
+    private StoreObject storeObject;
 
-    public MTU155MessageExecutor(Logger logger, GprsRequestFactory factory) {
+    public MTU155MessageExecutor(Logger logger, GprsRequestFactory factory, Rtu rtu, StoreObject storeObject) {
         this.factory = factory;
         this.logger = logger;
+        this.rtu = rtu;
+        this.storeObject = storeObject;
     }
 
     @Override
@@ -33,16 +39,49 @@ public class MTU155MessageExecutor extends GenericMessageExecutor {
             String trackingId = rtuMessage.getTrackingId();
             MessageEntry messageEntry = new MessageEntry(content, trackingId);
 
-            if (new ApnSetupMessage(this).canExecuteThisMessage(messageEntry)) {
-                new ApnSetupMessage(this).executeMessage(messageEntry);
-                success = true;
-            } else if (new SMSCenterSetupMessage(this).canExecuteThisMessage(messageEntry)) {
-                new SMSCenterSetupMessage(this).executeMessage(messageEntry);
-                success = true;
-            } else if (new DevicePhoneNumberSetupMessage(this).canExecuteThisMessage(messageEntry)) {
-                new DevicePhoneNumberSetupMessage(this).executeMessage(messageEntry);
-                success = true;
-            } else {
+            AbstractMTU155Message[] messages = new AbstractMTU155Message[]{
+                    // Device configuration group
+                    new WriteConverterMasterDataMessage(this),
+                    new WriteMeterMasterDataMessage(this),
+                    new WriteGasParametersMessage(this),
+                    new ChangeDSTMessage(this),
+                    new WritePDRMessage(this),
+
+                    // Connectivity setup group
+                    new DevicePhoneNumberSetupMessage(this),
+                    new ApnSetupMessage(this),
+                    new SMSCenterSetupMessage(this),
+
+                    // Key management
+                    new ActivateTemporaryKeyMessage(this),
+                    new ChangeExecutionKeyMessage(this),
+                    new ChangeTemporaryKeyMessage(this),
+
+                    // Seals management group
+                    new TemporaryBreakSealMessage(this),
+                    new ChangeSealStatusMessage(this),
+
+                    // Tariff management
+                    new TariffUploadPassiveMessage(this),
+                    new TariffDisablePassiveMessage(this),
+
+                    // Maintenance group
+                    new WakeUpFrequency(this),
+                    new ForceSyncClockMessage(this),
+                    new ReadPartialProfileDataMessage(this)
+
+            };
+
+            boolean messageFound = false;
+            for (AbstractMTU155Message message : messages) {
+                if (message.canExecuteThisMessage(messageEntry)) {
+                    messageFound = true;
+                    message.executeMessage(messageEntry);
+                    success = true;
+                    break;
+                }
+            }
+            if (!messageFound) {
                 throw new BusinessException("Received unknown message: " + rtuMessage.toString());
             }
         } finally {
@@ -51,9 +90,10 @@ public class MTU155MessageExecutor extends GenericMessageExecutor {
                 getLogger().info("Message " + rtuMessage.displayString() + " has finished successfully.");
             } else {
                 rtuMessage.setFailed();
-                getLogger().info("Message " + rtuMessage.displayString() + " has finished unsuccessfully.");
+                getLogger().info("Message " + rtuMessage.displayString() + " has failed.");
             }
         }
+
     }
 
 
@@ -71,5 +111,13 @@ public class MTU155MessageExecutor extends GenericMessageExecutor {
             logger = Logger.getLogger(getClass().getName());
         }
         return logger;
+    }
+
+    public Rtu getRtu() {
+        return rtu;
+    }
+
+    public StoreObject getStoreObject() {
+        return storeObject;
     }
 }

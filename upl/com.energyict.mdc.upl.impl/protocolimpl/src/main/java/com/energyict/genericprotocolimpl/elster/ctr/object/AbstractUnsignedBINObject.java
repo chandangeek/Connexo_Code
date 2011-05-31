@@ -23,6 +23,8 @@ public abstract class AbstractUnsignedBINObject<T extends AbstractUnsignedBINObj
         setType(type);
         CTRPrimitiveParser parser = new CTRPrimitiveParser();   //Not static
 
+        this.setSymbol(getSymbol(getId()));
+
         if (type.hasIdentifier()) {
             ptr += CTRObjectID.LENGTH; //Skip the sent ID bytes, ID is already set in constructor
         }
@@ -52,9 +54,16 @@ public abstract class AbstractUnsignedBINObject<T extends AbstractUnsignedBINObj
             this.setDefault(parser.parseDefault(getId(), this.getValue()));
         }
 
-        this.setSymbol(getSymbol(getId()));
-
         return (T) this;
+    }
+
+    /**
+     *
+     * @param intValues
+     * @return
+     */
+    protected static final int[] gi(int... intValues) {
+        return intValues;
     }
 
 }

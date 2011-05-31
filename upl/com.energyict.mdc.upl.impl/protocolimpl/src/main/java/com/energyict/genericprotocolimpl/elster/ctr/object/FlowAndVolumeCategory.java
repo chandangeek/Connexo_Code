@@ -73,6 +73,7 @@ public class FlowAndVolumeCategory extends AbstractUnsignedBINObject {
                         case 5:
                         case 6: valueLength = new int[]{3,1,1,1,1}; break;
                     }
+                break;
                 default: valueLength = new int[]{3}; break;
         }
         return valueLength;

@@ -31,7 +31,7 @@ public enum SealStatusBit {
 
     private final int bitNumber;
     private final String description;
-    private final boolean enabled;
+    private final boolean realStatusBit;
 
     /**
      * Private constructor for enum
@@ -43,10 +43,10 @@ public enum SealStatusBit {
         this(bitNumber, description, true);
     }
 
-    private SealStatusBit(int bitNumber, String description, boolean enabled) {
+    private SealStatusBit(int bitNumber, String description, boolean realStatusBit) {
         this.bitNumber = bitNumber;
         this.description = description;
-        this.enabled = enabled;
+        this.realStatusBit = realStatusBit;
     }
 
     /**
@@ -71,8 +71,8 @@ public enum SealStatusBit {
      * Getter for the enabled field
      * @return
      */
-    public boolean isEnabled() {
-        return enabled;
+    public boolean isRealStatusBit() {
+        return realStatusBit;
     }
 
     /**
@@ -90,13 +90,13 @@ public enum SealStatusBit {
         return INVALID;
     }
 
-    public static List<SealStatusBit> getBrokenSeals(int sealStatus) {
+    public static List<SealStatusBit> getIntegerSeals(int sealStatus) {
         List<SealStatusBit> statusBits = new ArrayList<SealStatusBit>();
         for (int i = 0; i <= 15; i++) {
             int bitValue = sealStatus & (1 << i);
             if (bitValue == 0) {
                 SealStatusBit statusBit = fromBitValue(i);
-                if (statusBit.isEnabled()) {
+                if (statusBit.isRealStatusBit()) {
                     statusBits.add(statusBit);
                 }
             }
@@ -109,14 +109,21 @@ public enum SealStatusBit {
      * @param sealStatus
      * @return
      */
-    public static String getBrokenSealsDescription(int sealStatus) {
+    public static String getIntegerSealsDescription(int sealStatus) {
         StringBuilder sb = new StringBuilder();
-        List<SealStatusBit> statusBits = getBrokenSeals(sealStatus);
+        List<SealStatusBit> statusBits = getIntegerSeals(sealStatus);
         for (SealStatusBit statusBit : statusBits) {
             sb.append(statusBit.getDescription()).append(", ");
         }
         return sb.toString();
     }
 
+    public boolean isSealBroken(int sealStatus) {
+        return ((0x01 << getBitNumber()) & sealStatus) != 0;
+    }
+
+    public boolean isSealInteger(int sealStatus) {
+        return !isSealBroken(sealStatus);
+    }
 
 }

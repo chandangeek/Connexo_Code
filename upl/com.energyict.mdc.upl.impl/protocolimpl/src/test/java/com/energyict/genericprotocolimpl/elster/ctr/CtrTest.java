@@ -1,5 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr;
 
+import com.energyict.genericprotocolimpl.common.StoreObject;
+
 import java.io.*;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -26,6 +28,10 @@ public abstract class CtrTest {
             nullOut = new ByteArrayOutputStream();
         }
         return nullOut;
+    }
+
+    protected StoreObject getDummyStoreObject() {
+        return new StoreObject();
     }
 
     protected GprsRequestFactory getDummyRequestFactory(byte[] rawResponse) {

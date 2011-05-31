@@ -3,7 +3,6 @@ package com.energyict.genericprotocolimpl.elster.ctr.util;
 import com.energyict.genericprotocolimpl.common.CommonUtils;
 import com.energyict.mdw.amr.RtuRegisterMapping;
 import com.energyict.mdw.amr.RtuRegisterMappingFactory;
-import com.energyict.mdw.amrimpl.RtuRegisterMappingImpl;
 import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.shadow.RtuTypeShadow;
 import com.energyict.mdw.shadow.amr.RtuRegisterMappingShadow;
@@ -98,7 +97,7 @@ public class CtrMasterData {
         try {
             rtuType.update(rtuTypeShadow);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
 
     }

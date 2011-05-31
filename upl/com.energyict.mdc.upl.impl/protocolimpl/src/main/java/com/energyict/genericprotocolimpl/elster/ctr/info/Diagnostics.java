@@ -9,7 +9,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.info;
 public class Diagnostics {
 
     private static final int POWER_NOT_AVAILABLE_BIT = 0x0001;
-    private static final int LOW_BATTERY_BIT = 0x0002;
+    private static final int CONVERTER_LOW_BATTERY_BIT = 0x0002;
     private static final int EVENT_LOG_90P_BIT = 0x0004;
     private static final int GENERAL_ALARM_BIT = 0x0008;
     private static final int CONNECTION_BROKEN_BIT = 0x0010;
@@ -21,9 +21,10 @@ public class Diagnostics {
     private static final int FLOW_OVER_LIMIT_BIT = 0x0400;
     private static final int VALVE_CLOSING_ERROR_BIT = 0x0800;
     private static final int VALVE_OPENING_ERROR_BIT = 0x1000;
+    private static final int MTU155_LOW_BATTERY_BIT = 0x2000;
 
     private static final String POWER_NOT_AVAILABLE = "Mains power not available";
-    private static final String LOW_BATTERY = "Low Battery";
+    private static final String CONVERTER_LOW_BATTERY = "Converter low Battery";
     private static final String EVENT_LOG_AT_90_PERCENT = "Event log at 90%";
     private static final String GENERAL_ALARM = "General alarm";
     private static final String CONNECTION_BROKEN = "Connection with emitter or converter broken";
@@ -35,6 +36,7 @@ public class Diagnostics {
     private static final String FLOW_OVER_LIMIT = "Flow over limit";
     private static final String VALVE_CLOSING_ERROR = "Valve closing error";
     private static final String VALVE_OPENING_ERROR = "Valve opening error";
+    private static final String MTU155_LOW_BATTERY = "MTU155 low battery";
 
     /**
      * @param code: the diagnostics code
@@ -42,7 +44,7 @@ public class Diagnostics {
      */
     public static String getDescriptionFromCode(int code) {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < 16; i++) {
+        for (int i = 0; i < 32; i++) {
             String bitMessage = getDescriptionFromSingleCode(code, i);
             if (bitMessage != null) {
                 sb.append((sb.length() > 0) ? ", " : "").append(bitMessage);
@@ -60,8 +62,8 @@ public class Diagnostics {
         switch (singleBitCode) {
             case POWER_NOT_AVAILABLE_BIT:
                 return POWER_NOT_AVAILABLE;
-            case LOW_BATTERY_BIT:
-                return LOW_BATTERY;
+            case CONVERTER_LOW_BATTERY_BIT:
+                return CONVERTER_LOW_BATTERY;
             case EVENT_LOG_90P_BIT:
                 return EVENT_LOG_AT_90_PERCENT;
             case GENERAL_ALARM_BIT:
@@ -84,6 +86,8 @@ public class Diagnostics {
                 return VALVE_CLOSING_ERROR;
             case VALVE_OPENING_ERROR_BIT:
                 return VALVE_OPENING_ERROR;
+            case MTU155_LOW_BATTERY_BIT:
+                return MTU155_LOW_BATTERY;
             default:
                 return null;
         }

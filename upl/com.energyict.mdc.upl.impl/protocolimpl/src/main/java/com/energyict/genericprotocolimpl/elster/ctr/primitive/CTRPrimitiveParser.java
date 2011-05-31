@@ -219,7 +219,7 @@ public class CTRPrimitiveParser {
                 signedValue = true;
             }
             if (x == 0x0E && y == 0x0E) {
-                stringValue = true;
+                stringValue = false;
             }
 
             if (signedValue) {

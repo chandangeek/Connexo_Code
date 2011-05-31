@@ -84,11 +84,6 @@ public class DummyRtu implements Rtu {
         return null;
     }
 
-    /**
-     * Returns all receiver's Channels that are not (yet) assigned to a load profile
-     *
-     * @return a <CODE>List</CODE> of <CODE>Channel</CODE> objects
-     */
     public List<Channel> getNonAssignedChannels() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
@@ -173,7 +168,7 @@ public class DummyRtu implements Rtu {
      * @return a List of RtuEvent objects.
      */
     public List<RtuEvent> getEvents(RtuEventFilter filter) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return new ArrayList<RtuEvent>();  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void updateIpAddress(String ipAddress) throws SQLException, BusinessException {
@@ -214,6 +209,10 @@ public class DummyRtu implements Rtu {
 
     public boolean changeRtuType(RtuType newType) throws BusinessException, SQLException {
         return false;
+    }
+
+    public ChangeRtuTypeTransaction createChangeRtuTypeTransaction(RtuType newType) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public SerialCommunicationSettings getCommunicationSettings() {
@@ -460,13 +459,40 @@ public class DummyRtu implements Rtu {
         return null;
     }
 
-    /**
-     * Checks if adding channels or load profiles is allowed on this device
-     *
-     * @return true if adding channels or load profiles is allowed on this device. False otherwise.
-     */
     public boolean isAddingChannelsOrLoadProfilesAllowed() {
-        return false;  //TODO implement proper functionality.
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public boolean execute(ChangeRtuTypeTransaction transaction) throws BusinessException, SQLException {
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public int getNumberOfFailedSchedules() {
+        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public int getNumberOfSuspectIntervals() {
+        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public int getNumberOfSuspectReadings() {
+        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public int getNumberOfAlarms() {
+        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public boolean isDataCollectionStatusOk() {
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public boolean isDataValidationStatusOk() {
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public boolean isAlarmStatus() {
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public Folder getContainer() {
@@ -588,63 +614,4 @@ public class DummyRtu implements Rtu {
     public boolean isAuthorized(UserAction action) {
         return false;
     }
-
-    public boolean execute(ChangeRtuTypeTransaction transaction) throws BusinessException, SQLException {
-        return true;
-    }
-
-    /**
-     * Returns the number of schedules that are currently failing in the device. This property is to be considered
-     * a counter: if a schedule fails, it is incremented, but if the backup schedule succeeds, it is decremented again,
-     * ending up at 0.
-     *
-     * @return number of failed schedules.
-     */
-    public int getNumberOfFailedSchedules() {
-        return 0;  //TODO implement proper functionality.
-    }
-
-    public int getNumberOfSuspectIntervals() {
-        return 0;  //TODO implement proper functionality.
-    }
-
-    public int getNumberOfSuspectReadings() {
-        return 0;
-    }
-
-    public int getNumberOfAlarms() {
-        return 0;  //TODO implement proper functionality.
-    }
-
-    /**
-     * Indicates if the data collection status for this device is OK or not.
-     *
-     * @return true if the status is OK, false if the status is not OK
-     */
-    public boolean isDataCollectionStatusOk() {
-        return false;  //TODO implement proper functionality.
-    }
-
-    /**
-     * Indicates if the data validation status for this device is OK or not.
-     *
-     * @return true if the status is OK, false if the status is not OK
-     */
-    public boolean isDataValidationStatusOk() {
-        return false;  //TODO implement proper functionality.
-    }
-
-    /**
-     * Indicates if the alarm status for this device is active or not
-     *
-     * @return true if the device is in alarm status, false if it is not in alarm status
-     */
-    public boolean isAlarmStatus() {
-        return false;  //TODO implement proper functionality.
-    }
-
-    public ChangeRtuTypeTransaction createChangeRtuTypeTransaction(RtuType newType) {
-        return null;
-    }
-
 }

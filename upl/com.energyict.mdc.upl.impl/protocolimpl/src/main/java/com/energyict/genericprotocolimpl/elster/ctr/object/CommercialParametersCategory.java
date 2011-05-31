@@ -24,19 +24,21 @@ public class CommercialParametersCategory extends AbstractUnsignedBINObject {
 
     @Override
     protected String getSymbol(CTRObjectID id) {
-        if (id.getZ() == 4) {
-            return "ID-PT";
-        } else {
-            return "PT";
+        switch (id.getZ()) {
+            case 0: return "PT_cor";
+            case 1: return "PT_fut";
+            case 4: return "ID-PT";
+            default: return "";
         }
     }
 
     @Override
     public int[] getValueLengths(CTRObjectID id) {
-        if (id.getZ() == 4) {
-            return new int[]{2, 2, 2, 3};
-        } else {
-            return new int[]{1, 2, 3, 1, 17, 17, 2, 30};
+        switch (id.getZ()) {
+            case 0: return gi(73);
+            case 1: return gi(73);
+            case 4: return gi(2,2,2,3);
+            default: return gi(0);
         }
     }
 

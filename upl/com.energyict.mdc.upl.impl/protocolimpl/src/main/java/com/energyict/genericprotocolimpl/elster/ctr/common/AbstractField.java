@@ -48,7 +48,7 @@ public abstract class AbstractField<T extends Field> implements Field<T> {
     public boolean equals(Object o) {
         if (this == o) {
             return true;
-}
+        }
         if (!(o instanceof Field)) {
             return false;
         }

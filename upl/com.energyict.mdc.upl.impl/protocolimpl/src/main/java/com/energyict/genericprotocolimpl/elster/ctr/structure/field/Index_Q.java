@@ -18,7 +18,7 @@ public class Index_Q extends AbstractField<Index_Q> {
     }
 
     public Index_Q(int index_Q) {
-        this.index_Q = index_Q;
+        this.index_Q = index_Q < 0 ? 0 : index_Q;
     }
 
     public int getLength() {

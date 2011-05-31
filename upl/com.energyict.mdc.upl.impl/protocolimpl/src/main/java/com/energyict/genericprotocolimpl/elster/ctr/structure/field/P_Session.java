@@ -41,4 +41,8 @@ public class P_Session extends AbstractField<P_Session> {
         return LENGTH;
     }
 
+    public static final P_Session getOpenAndClosePSession() {
+        return new P_Session(0);
+    }
+
 }

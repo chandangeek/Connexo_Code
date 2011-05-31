@@ -31,7 +31,7 @@ public class ProfileChannelTest {
 
         DummyRtu dummyRtu = new DummyRtu(TimeZone.getDefault());
         DummyChannel dummyChannel = new DummyChannel(DAILY_VM_INDEX, DAILY_INTERVAL, lastReading, dummyRtu);
-
+        
         ProfileChannel pc = new ProfileChannel(getGPRSRequestFactory(), dummyChannel, TO);
         ProfileData pd = pc.getProfileData();
 

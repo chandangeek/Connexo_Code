@@ -56,7 +56,7 @@ public class DecryptSniffer {
     }
 
     private static String decrypt(String packet) throws CTRParsingException, CtrCipheringException {
-        CTREncryption encryption = new CTREncryption("32323232323232323232323232323232", "32323232323232323232323232323232", "32323232323232323232323232323232", 1);
+        CTREncryption encryption = new CTREncryption("30303030303030303030303030303031", "30303030303030303030303030303031", "30303030303030303030303030303031", 1);
         GPRSFrame frame = new GPRSFrame().parse(ProtocolTools.getBytesFromHexString(packet, ""), 0);
         GPRSFrame decryptedFrame = (GPRSFrame) encryption.decryptFrame(frame);
         decryptedFrame.doParse();

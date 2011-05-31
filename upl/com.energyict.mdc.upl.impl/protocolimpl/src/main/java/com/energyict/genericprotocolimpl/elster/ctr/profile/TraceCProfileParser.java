@@ -12,6 +12,8 @@ import com.energyict.protocol.*;
 import java.math.BigDecimal;
 import java.util.*;
 
+import static com.energyict.protocolimpl.utils.ProtocolTools.isInDST;
+
 /**
  * Copyrights EnergyICT
  * Date: 26-jan-2011
@@ -173,6 +175,7 @@ public class TraceCProfileParser {
         if (fromCalendar == null) {
             fromCalendar = response.getDate().getCalendar(deviceTimeZone);
             fromCalendar.add(Calendar.HOUR_OF_DAY, response.getEndOfDayTime().getIntValue());
+            boolean fromTimeDST = isInDST(fromCalendar);
             if (getPeriod().isHourly()) {
                 fromCalendar.add(Calendar.SECOND, getIntervalInSeconds());
             } else if (getPeriod().isDaily()) {
@@ -183,6 +186,13 @@ public class TraceCProfileParser {
                 throw new IllegalArgumentException("Invalid period: " + getPeriod() + ". Monthly periods not yet supported.");
             } else {
                 throw new IllegalArgumentException("Invalid period: " + getPeriod());
+            }
+            if (fromTimeDST != isInDST(fromCalendar)) {
+                if (isInDST(fromCalendar)) {
+                    fromCalendar.add(Calendar.HOUR, -1);
+                } else {
+                    fromCalendar.add(Calendar.HOUR, 1);
+                }
             }
         }
         return fromCalendar;

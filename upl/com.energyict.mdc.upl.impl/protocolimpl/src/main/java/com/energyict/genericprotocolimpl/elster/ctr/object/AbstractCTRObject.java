@@ -19,6 +19,10 @@ import java.util.Arrays;
  */
 public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
 
+    protected static final BigDecimal DEFAULT_OVERFLOW = new BigDecimal(0);
+    protected static final String DEFAULT_SYMBOL = "???";
+    protected static final Unit DEFAULT_UNIT = Unit.get(BaseUnit.UNITLESS);
+
     private CTRObjectID id;
     private AccessDescriptor access;
     private Qualifier qlf;

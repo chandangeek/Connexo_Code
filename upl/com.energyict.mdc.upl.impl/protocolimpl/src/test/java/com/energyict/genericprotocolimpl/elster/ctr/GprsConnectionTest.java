@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.Properties;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -31,20 +32,22 @@ public class GprsConnectionTest {
     }
 
 
-    @Test(timeout = 10000)
+    @Test(timeout = 1000)
     public void testSendFrameGetResponse() throws Exception {
         byte[] meterData = ProtocolTools.concatByteArrays(new byte[15], NACK_FRAME, new byte[5]);
         ByteArrayInputStream in = new ByteArrayInputStream(meterData);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         GPRSFrame request = new GPRSFrame();
-        GprsConnection connection = new GprsConnection(in, out, new MTU155Properties());
+        Properties props = new Properties();
+        props.setProperty(MTU155Properties.TIMEOUT, "100");
+        GprsConnection connection = new GprsConnection(in, out, new MTU155Properties(props));
         GPRSFrame response = connection.sendFrameGetResponse(request);
         assertArrayEquals(NACK_FRAME, response.getBytes());
 
     }
 
-    @Test(expected = CTRConnectionException.class, timeout = 10000)
+    @Test(expected = CTRConnectionException.class, timeout = 1000)
     public void testTimeOut() throws Exception {
         MTU155Properties properties = new MTU155Properties();
         properties.addProperty(MTU155Properties.TIMEOUT, "100");
@@ -58,7 +61,7 @@ public class GprsConnectionTest {
         connection.sendFrameGetResponse(new GPRSFrame());
     }
 
-    @Test(timeout = 10000)
+    @Test(timeout = 3000)
     public void testRetries() throws Exception {
         MTU155Properties properties = new MTU155Properties();
         properties.addProperty(MTU155Properties.TIMEOUT, "1");

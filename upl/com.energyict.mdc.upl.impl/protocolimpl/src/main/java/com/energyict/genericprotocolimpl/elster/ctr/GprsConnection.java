@@ -1,8 +1,10 @@
 package com.energyict.genericprotocolimpl.elster.ctr;
 
-import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRConnectionException;
-import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
+import com.energyict.genericprotocolimpl.elster.ctr.encryption.CTREncryption;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.*;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.GPRSFrame;
+import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
+import com.energyict.genericprotocolimpl.elster.ctr.structure.NackStructure;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.*;
@@ -55,7 +57,14 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
         do {
             try {
                 sendFrame(frame);
-                return readFrame();
+                GPRSFrame gprsFrame = readFrame();
+                Data data = gprsFrame.getData();
+                if (data instanceof NackStructure) {
+                    //throw new CTRNackException((NackStructure) data);
+                }
+                return gprsFrame;
+            } catch (CTRNackException e) {
+                throw e;
             } catch (CTRConnectionException e) {
                 delayAndFlushConnection(-1);
                 attempts++;
@@ -118,7 +127,7 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
             do {
                 if (System.currentTimeMillis() > timeOutMoment) {
                     String message = "Timed out while receiving data. State='" + state + "', timeout='" + timeOut + "'.";
-                    throw new CTRConnectionException(message);
+                    throw new CTRTimeoutException(message);
                 }
                 if (!bytesFromDeviceAvailable()) {
                     ProtocolTools.delay(1);
@@ -143,6 +152,8 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
                 }
             } while (state != CtrConnectionState.FRAME_RECEIVED);
             delayAndFlushConnection(50);
+        } catch (CTRTimeoutException e) {
+            throw e;
         } catch (IOException e) {
             throw new CTRConnectionException("An error occured while reading the raw CtrFrame.", e);
         }
@@ -215,8 +226,12 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
     private void sendFrame(GPRSFrame frame) throws CTRConnectionException {
         try {
             doForcedDelay();
-            out.write(frame.getBytes());
-            out.flush();
+            if (out != null) {
+                out.write(frame.getBytes());
+                out.flush();
+            } else {
+                throw new CTRConnectionException("Unable to send frame. OutputStream was null.");
+            }
         } catch (IOException e) {
             throw new CTRConnectionException("Unable to send frame.", e);
         }
@@ -229,6 +244,10 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
         if (forcedDelay > 0) {
             ProtocolTools.delay(forcedDelay);
         }
+    }
+
+    public CTREncryption getCTREncryption() {
+        return null;
     }
 
 }

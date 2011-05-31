@@ -8,6 +8,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.info.*;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.*;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.*;
+import com.energyict.genericprotocolimpl.elster.ctr.util.GasQuality;
 import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
@@ -33,13 +34,19 @@ public class ObisCodeMapper {
 
     private TableDECFQueryResponseStructure tableDECF;
     private TableDECQueryResponseStructure tableDEC;
-    private static final String OBIS_DEVICE_STATUS = "0.0.96.10.1.255";
-    private static final String OBIS_SEAL_STATUS = "0.0.96.10.2.255";
-    private static final String OBIS_DIAG = "0.0.96.10.3.255";
-    private static final String OBIS_DIAG_REDUCED = "0.0.96.10.4.255";
-    private static final String OBIS_EQUIPMENT_CLASS = "7.0.0.2.3.255";
-    private static final String OBIS_MTU_PHONE_NR = "0.0.96.12.6.255";
-    private static final String OBIS_SMSC_NUMBER = "0.0.96.50.0.255";
+
+    public static final String OBIS_DEVICE_STATUS = "0.0.96.10.1.255";
+    public static final String OBIS_SEAL_STATUS = "0.0.96.10.2.255";
+    public static final String OBIS_DIAG = "0.0.96.10.3.255";
+    public static final String OBIS_DIAG_REDUCED = "0.0.96.10.4.255";
+    public static final String OBIS_EQUIPMENT_CLASS = "7.0.0.2.3.255";
+    public static final String OBIS_MTU_PHONE_NR = "0.0.96.12.6.255";
+    public static final String OBIS_SMSC_NUMBER = "0.0.96.50.0.255";
+    public static final String OBIS_MTU_IP_ADDRESS = "0.0.96.51.0.255";
+    public static final String OBIS_INSTALL_DATE = "0.0.96.52.0.255";
+    public static final String OBIS_DST_IN_USE = "0.0.96.53.0.255";
+    public static final String OBIS_Z_CALC_METHOD = "7.0.53.12.0.255";
+    public static final String OBIS_VOLUME_CALC_METHOD = "7.0.53.12.1.255";
 
     public List<CTRRegisterMapping> getRegisterMapping() {
         return registerMapping;
@@ -66,7 +73,8 @@ public class ObisCodeMapper {
         registerMapping.add(new CTRRegisterMapping("7.0.42.0.0.255", "4.0.0"));     //P
         registerMapping.add(new CTRRegisterMapping("7.0.41.0.0.255", "7.0.0"));     //T
         registerMapping.add(new CTRRegisterMapping("7.0.52.0.0.255", "A.0.0"));     //C, conversion factor
-        registerMapping.add(new CTRRegisterMapping("7.0.53.0.0.255", "A.1.6"));     //Z, compressibility
+        registerMapping.add(new CTRRegisterMapping("7.0.53.0.1.255", "A.1.6"));     //Z, compressibility, attributed
+        registerMapping.add(new CTRRegisterMapping("7.0.53.0.0.255", "A.2.0"));     //Z, compressibility, instantaneous
 
         registerMapping.add(new CTRRegisterMapping("7.0.128.2.1.255", "2.3.7"));    //Tot_Vme_f1
         registerMapping.add(new CTRRegisterMapping("7.0.128.2.2.255", "2.3.8"));    //Tot_Vme_f2
@@ -104,6 +112,29 @@ public class ObisCodeMapper {
 
         registerMapping.add(new CTRRegisterMapping(OBIS_MTU_PHONE_NR, "E.2.1", 1)); // Device phone number
         registerMapping.add(new CTRRegisterMapping(OBIS_SMSC_NUMBER, "E.3.1", 1));  // SMS center number
+        registerMapping.add(new CTRRegisterMapping(OBIS_MTU_IP_ADDRESS));           // Device IP address
+
+        registerMapping.add(new CTRRegisterMapping("7.0.54.0.0.255", "B.1.0"));    // HCV
+        registerMapping.add(new CTRRegisterMapping("7.0.0.12.19.255", "B.2.0"));   // LCV
+        registerMapping.add(new CTRRegisterMapping("7.0.0.12.11.255", "B.2.6"));   // LCV attributed
+
+        registerMapping.add(new CTRRegisterMapping("7.0.0.12.8.255", "4.9.1")); // P ref
+        registerMapping.add(new CTRRegisterMapping("7.0.0.12.9.255", "7.B.1")); // T ref
+
+        registerMapping.add(new CTRRegisterMapping(OBIS_Z_CALC_METHOD, "A.B.2"));      // Z calculation method
+        registerMapping.add(new CTRRegisterMapping(OBIS_VOLUME_CALC_METHOD, "A.B.4")); // Volume calculation method
+
+        registerMapping.add(new CTRRegisterMapping("7.0.45.0.0.255", "A.3.0")); // Density Gas
+        registerMapping.add(new CTRRegisterMapping("7.0.49.0.0.255", "A.4.0")); // Density Air
+        registerMapping.add(new CTRRegisterMapping("7.0.46.0.0.255", "A.5.0")); // Density Relative
+
+        registerMapping.add(new CTRRegisterMapping("7.0.0.12.60.255", "A.6.0")); // N2%
+        registerMapping.add(new CTRRegisterMapping("7.0.0.12.66.255", "A.7.0")); // CO2%
+        registerMapping.add(new CTRRegisterMapping("7.0.0.12.61.255", "A.8.0")); // H2%
+        registerMapping.add(new CTRRegisterMapping("7.0.0.12.65.255", "A.9.0")); // CO%
+
+        registerMapping.add(new CTRRegisterMapping(OBIS_INSTALL_DATE));             // Installation date
+        registerMapping.add(new CTRRegisterMapping(OBIS_DST_IN_USE, "8.2.0", 0));   // DST status
 
     }
 
@@ -141,10 +172,14 @@ public class ObisCodeMapper {
 
         CTRRegisterMapping regMap = searchRegisterMapping(obis);
         if (regMap == null) {
-            String message = "Unsupported Obis Code";
+            String message = "Register with obisCode [" + obis + "] is not supported.";
             getMeterAmrLogging().logRegisterFailure(message, obisCode);
             getLogger().log(Level.WARNING, message);
             throw new NoSuchRegisterException(message);
+        }
+
+        if (regMap.getObjectId() == null) {
+            return readSpecialRegister(regMap);
         }
 
         AbstractCTRObject object = getObject(regMap.getObjectId(), smsObjects);
@@ -182,6 +217,25 @@ public class ObisCodeMapper {
 
     }
 
+    private RegisterValue readSpecialRegister(CTRRegisterMapping registerMapping) throws NoSuchRegisterException {
+        RegisterValue registerValue = null;
+        ObisCode obis = ProtocolTools.setObisCodeField(registerMapping.getObisCode(), 1, (byte) 0x00);
+
+        if (isObis(obis, OBIS_MTU_IP_ADDRESS)) {
+            registerValue = new RegisterValue(obis, getRequestFactory().getIPAddress());
+        }
+
+        if (isObis(obis, OBIS_INSTALL_DATE)) {
+            throw new NoSuchRegisterException("Installation date cannot be read as a regular register.");
+        }
+
+        if (registerValue == null) {
+            throw new NoSuchRegisterException("Register with obisCode [" + obis + "] is not supported.");
+        } else {
+            return ProtocolTools.setRegisterValueObisCode(registerValue, registerMapping.getObisCode());
+        }
+    }
+
     /**
      * Create a registerValue from the given value
      *
@@ -210,12 +264,22 @@ public class ObisCodeMapper {
         } else if (isObis(oc, OBIS_SEAL_STATUS)) {
             Quantity quantity = new Quantity((BigDecimal) value.getValue(), value.getUnit());
             Calendar cal = Calendar.getInstance(TimeZone.getDefault());
-            String description = SealStatusBit.getBrokenSealsDescription(value.getIntValue());
+            String description = SealStatusBit.getIntegerSealsDescription(value.getIntValue());
             return new RegisterValue(oc, quantity, null, null, null, cal.getTime(), 0, description);
         } else if (isObis(oc, OBIS_EQUIPMENT_CLASS)) {
             return new RegisterValue(oc, EquipmentClassInfo.getEquipmentClass(value.getValue().toString()));
         } else if (isObis(oc, OBIS_MTU_PHONE_NR) || isObis(oc, OBIS_SMSC_NUMBER)) {
             return new RegisterValue(oc, ProtocolTools.getAsciiFromBytes(value.getBytes(), ' '));
+        } else if(isObis(oc, OBIS_Z_CALC_METHOD)) {
+            Quantity quantity = new Quantity((BigDecimal) value.getValue(), value.getUnit());
+            Calendar cal = Calendar.getInstance(TimeZone.getDefault());
+            String description = ZCalculationMethod.fromMethodNr(value.getIntValue()).getDescription();
+            return new RegisterValue(oc, quantity, null, null, null, cal.getTime(), 0, description);
+        } else if(isObis(oc, OBIS_VOLUME_CALC_METHOD)) {
+            Quantity quantity = new Quantity((BigDecimal) value.getValue(), value.getUnit());
+            Calendar cal = Calendar.getInstance(TimeZone.getDefault());
+            String description = VolumeCalculationMethod.fromMethodNr(value.getIntValue()).getDescription();
+            return new RegisterValue(oc, quantity, null, null, null, cal.getTime(), 0, description);
         } else {
             return readGenericRegisterValue(oc, object, value);
         }
@@ -235,7 +299,9 @@ public class ObisCodeMapper {
         Object objectValue = value.getValue();
         if (objectValue instanceof BigDecimal) {
             Unit unit = value.getUnit();
-            Quantity quantity = new Quantity((BigDecimal) objectValue, unit.getDlmsCode(), object.getQlf().getKmoltFactor());
+            BigDecimal amount = (BigDecimal) objectValue;
+            amount = amount.movePointRight(object.getQlf().getKmoltFactor());
+            Quantity quantity = new Quantity(amount, unit);
             return new RegisterValue(obisCode, quantity);
         } else {
             return new RegisterValue(obisCode, objectValue.toString());
@@ -262,14 +328,14 @@ public class ObisCodeMapper {
      * (DEC, DECF, SMS object list or registerQuery).
      *
      * @param idObject: the CTR Object's ID
-     * @param list: a list of objects, received via SMS. Can be null in other cases.
+     * @param smsObjects: a list of objects, received via SMS. Can be null in other cases.
      * @return: The CTR Object
      * @throws CTRException
      * @throws NoSuchRegisterException
      */
-    private AbstractCTRObject getObject(CTRObjectID idObject, List<AbstractCTRObject> list) throws CTRException, NoSuchRegisterException {
+    private AbstractCTRObject getObject(CTRObjectID idObject, List<AbstractCTRObject> smsObjects) throws CTRException, NoSuchRegisterException {
         AbstractCTRObject object = null;
-        if (list == null) {
+        if (smsObjects == null) {
             if (object == null) {
                 object = getObjectFromIdentificationTable(idObject);
             }
@@ -280,10 +346,13 @@ public class ObisCodeMapper {
                 object = getObjectFromDECTable(idObject);
             }
             if (object == null) {
+                object = getObjectFromGasQuality(idObject);
+            }
+            if (object == null) {
                 object = getObjectFromRegisterRequest(idObject); //If the object was not sent in the tableDECF response, query specifically for it
             }
         } else { //There's a given sms response containing data for several registers, find the right one
-            object = getObjectFromSMSList(idObject, list);
+            object = getObjectFromSMSList(idObject, smsObjects);
         }
 
         return object;
@@ -361,6 +430,24 @@ public class ObisCodeMapper {
     private AbstractCTRObject getObjectFromDECTable(CTRObjectID objectId) throws CTRException {
         if (TableDECQueryResponseStructure.containsObjectId(objectId)) {
             for (AbstractCTRObject ctrObject : getTableDEC().getObjects()) {
+                if (ctrObject.getId().toString().equals(objectId.toString())) {
+                    return ctrObject;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Check if the requested object is in the GasQuality object, and read it if it is
+     *
+     * @param objectId: the id of the requested CTR Object
+     * @return the matching CTR Object, if it is in the dec table
+     * @throws CTRException
+     */
+    private AbstractCTRObject getObjectFromGasQuality(CTRObjectID objectId) throws CTRException {
+        if (GasQuality.containsObjectId(objectId)) {
+            for (AbstractCTRObject ctrObject : getRequestFactory().getGasQuality().getObjects()) {
                 if (ctrObject.getId().toString().equals(objectId.toString())) {
                     return ctrObject;
                 }

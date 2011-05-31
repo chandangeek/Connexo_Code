@@ -10,6 +10,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingExceptio
  * Time: 11:15:26
  */
 public class WriteDataBlock extends AbstractField<WriteDataBlock> {
+
     private int wdb;
     private static final int LENGTH = 1;
 
@@ -40,4 +41,9 @@ public class WriteDataBlock extends AbstractField<WriteDataBlock> {
     public int getLength() {
         return LENGTH;
     }
+
+    public static WriteDataBlock getRandomWDB() {
+        return new WriteDataBlock((int) (100 * Math.random()));
+    }
+
 }

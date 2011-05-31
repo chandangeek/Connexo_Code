@@ -65,6 +65,9 @@ public class CommunicationCategory<T extends CommunicationCategory> extends Abst
     public int[] getValueLengths(CTRObjectID id) {
         int[] valueLength = null;
         switch (id.getY()) {
+            case 0x00:
+                valueLength = new int[]{1,2,1,1};
+                break;
             case 0x02:
             case 0x03:
                 valueLength = new int[]{1, 21};
@@ -72,11 +75,17 @@ public class CommunicationCategory<T extends CommunicationCategory> extends Abst
             case 0x04:
                 valueLength = new int[]{1, 20};
                 break;
+            case 0x07:
+                valueLength = new int[]{2, 2, 4, 9};
+                break;
             case 0x0C:
                 valueLength = new int[]{1};
                 break;
             case 0x0E:
                 valueLength = new int[]{1, 111};
+                break;
+            case 0x0D:
+                valueLength = new int[]{4,4,4,4,4,4};
                 break;
         }
         return valueLength;
@@ -102,6 +111,8 @@ public class CommunicationCategory<T extends CommunicationCategory> extends Abst
                 symbol = "Ntlf_C_"; break;
             case 0x03:
                 symbol = "Ntlf_S_"; break;
+            case 0x07:
+                symbol = "WU"; break;
             case 0x0C:
                 symbol = "GSM"; break;
             case 0x0E:

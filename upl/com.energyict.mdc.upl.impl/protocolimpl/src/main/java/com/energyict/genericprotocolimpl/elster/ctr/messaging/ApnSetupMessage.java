@@ -1,7 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr.messaging;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
@@ -9,6 +8,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.*;
 import com.energyict.protocol.MessageEntry;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.MessagingTools;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -55,7 +55,8 @@ public class ApnSetupMessage extends AbstractMTU155Message {
         P_Session p_session = new P_Session(0x00);
         AttributeType attributeType = AttributeType.getValueOnly();
         attributeType.setHasIdentifier(true);
-        byte[] rawData = getObjectBytes(apn, user, pssw);
+        int frequency = 0;
+        byte[] rawData = getObjectBytes(frequency, apn, user, pssw);
 
         try {
             CTRObjectFactory objectFactory = new CTRObjectFactory();
@@ -84,9 +85,9 @@ public class ApnSetupMessage extends AbstractMTU155Message {
         }
     }
 
-    private byte[] getObjectBytes(String apn, String user, String pssw) {
+    private byte[] getObjectBytes(int frequency, String apn, String user, String pssw) {
         byte[] rawData = new CTRObjectID("E.E.1").getBytes();
-        rawData = ProtocolTools.concatByteArrays(rawData, new byte[1]);
+        rawData = ProtocolTools.concatByteArrays(rawData, new byte[] {(byte) frequency});
         rawData = ProtocolTools.concatByteArrays(rawData, apn.getBytes());
         rawData = ProtocolTools.concatByteArrays(rawData, new byte[1]);
         rawData = ProtocolTools.concatByteArrays(rawData, user.getBytes());

@@ -3,15 +3,13 @@ package com.energyict.genericprotocolimpl.elster.ctr.profile;
 import com.energyict.cbo.Unit;
 import com.energyict.genericprotocolimpl.elster.ctr.MTU155Properties;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
-import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
-import com.energyict.genericprotocolimpl.elster.ctr.object.field.Qualifier;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.Trace_CQueryResponseStructure;
 import com.energyict.genericprotocolimpl.elster.ctr.util.CTRObjectInfo;
-import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Rtu;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.ProfileData;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -26,20 +24,16 @@ public class ProfileChannelForSms {
 
     private final Channel meterChannel;
     private MTU155Properties properties;
-    private final Date meterClock;
     private Logger logger;
     private TimeZone timeZone;
     private Trace_CQueryResponseStructure response;
-    private MeterAmrLogging meterAmrLogging;
 
-    public ProfileChannelForSms(Logger logger, MTU155Properties properties, Channel meterChannel, Trace_CQueryResponseStructure response, TimeZone timeZone, MeterAmrLogging meterAmrLogging) {
+    public ProfileChannelForSms(Logger logger, MTU155Properties properties, Channel meterChannel, Trace_CQueryResponseStructure response, TimeZone timeZone) {
         this.properties = properties;
         this.meterChannel = meterChannel;
         this.logger = logger;
         this.response = response;
         this.timeZone = timeZone;
-        this.meterClock = getTimeFromTrace_C(response.getDateAndhourS());
-        this.meterAmrLogging = meterAmrLogging;
     }
 
     /**
@@ -141,10 +135,6 @@ public class ProfileChannelForSms {
         return getMeterChannel().getLoadProfileIndex();
     }
 
-    public Date getMeterClock() {
-        return meterClock;
-    }
-
     /**
      * @return the profile data
      * @throws CTRException
@@ -157,7 +147,7 @@ public class ProfileChannelForSms {
 
         ProfileData pd = new ProfileData();
         pd.setChannelInfos(getChannelInfos());
-        pd.setIntervalDatas(getIntervalDatasFromResponse(response));
+        pd.setIntervalDatas(new TraceCProfileParser(response, getDeviceTimeZone()).getIntervalData());
         return pd;
     }
 
@@ -174,64 +164,4 @@ public class ProfileChannelForSms {
         return channelInfos;
     }
 
-   /**
-     * Parse the trace_c data received in the SMSFrame. Check all interval data.
-     * @param response
-     * @return
-     */
-    private List<IntervalData> getIntervalDatasFromResponse(Trace_CQueryResponseStructure response) {
-        List<IntervalData> intervals = new ArrayList<IntervalData>();
-        Calendar startDate = response.getDate().getCalendar(getDeviceTimeZone());
-        int startOfDay = response.getEndOfDayTime().getIntValue();
-        startDate.add(Calendar.HOUR, startOfDay);
-        int interval = getMeterChannel().getIntervalInSeconds();
-
-        for (int i = 0; i < response.getTraceData().size(); i++) {
-            if (i < response.getPeriod().getTraceCIntervalCount()) {
-                AbstractCTRObject object = response.getTraceData().get(i);
-                startDate.add(Calendar.SECOND, interval);
-                Date endDate = new Date(startDate.getTimeInMillis());
-                List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
-                Qualifier qlf = object.getQlf();
-                Object objectValue = object.getValue(0).getValue();
-                if (objectValue instanceof Number) {
-                    Number number = (Number) objectValue;
-                    if (number instanceof BigDecimal) {
-                        BigDecimal decimal = (BigDecimal) number;
-                        decimal = decimal.movePointRight(qlf.getKmoltFactor());
-                        intervalValues.add(new IntervalValue(decimal, 0, 0));
-                    } else {
-                        intervalValues.add(new IntervalValue(number, 0, 0));
-                    }
-                }
-                if (endDate.before(getMeterClock())) {
-                    intervals.add(new IntervalData(endDate, getIntervalStateBits(qlf), qlf.getQlf(), 0, intervalValues));
-                } else {
-                    break;
-                }
-            }
-        }
-        return intervals;
-    }
-
-
-    public MeterAmrLogging getMeterAmrLogging() {
-        if (meterAmrLogging == null) {
-            meterAmrLogging = new MeterAmrLogging();
-        }
-        return meterAmrLogging;
-    }
-
-
-    private int getIntervalStateBits(Qualifier qualifier) {
-        if (qualifier.isInvalidMeasurement()) {
-            return IntervalStateBits.CORRUPTED;
-        } else if (qualifier.isSubjectToMaintenance()) {
-            return IntervalStateBits.OTHER;
-        } else if (qualifier.isReservedVal()) {
-            return IntervalStateBits.OTHER;
-        } else {
-            return IntervalStateBits.OK;
-        }
-    }
 }

@@ -36,6 +36,8 @@ import java.util.logging.Logger;
  */
 public class SmsHandler implements MessageHandler {
 
+    private static final String SMS = "SMS";
+
     private Rtu rtu;
     private MTU155Properties properties = new MTU155Properties();
     private Logger logger;
@@ -97,7 +99,6 @@ public class SmsHandler implements MessageHandler {
         this.sms = sms;
         doExecute();
         storeObject = null; //reset
-        System.out.println("Tijd: " + (System.currentTimeMillis() - curMil) + " ms");
     }
 
     /**
@@ -151,48 +152,55 @@ public class SmsHandler implements MessageHandler {
 
     /**
      * Processes a given sms frame containing event records, profile data or register data
+     *
      * @param smsFrame: the sms frame
      * @throws BusinessException
      * @throws SQLException
      * @throws LinkException
      */
-    public void processSmsFrame(SMSFrame smsFrame) throws BusinessException, SQLException, LinkException {
-
+    private void processSmsFrame(SMSFrame smsFrame) throws BusinessException, SQLException, LinkException {
         List<CommunicationScheduler> communicationSchedulers = getRtu().getCommunicationSchedulers();
-
         if (communicationSchedulers.size() == 0) {
             log("Rtu '" + getRtu().getName() + "' has no CommunicationSchedulers. Skipping.");
         } else {
             for (CommunicationScheduler cs : communicationSchedulers) {
-                String csName = cs.displayString();
-                meterAmrLogging = null;
-                if (cs.getNextCommunication() == null) {
-                    log("CommunicationScheduler '" + csName + "' nextCommunication is 'null'. Skipping.");
-                } else {
-                    log("Executing communicationScheduler '" + csName + "'.");
-                    try {
-                        cs.startCommunication();
-                        cs.startReadingNow();
-                        processSchedule(smsFrame, cs.getCommunicationProfile());
-                        logSuccess(cs);
-                    } catch (CTRException e) {
-                        getMeterAmrLogging().logInfo(e);
-                        logFailure(cs);
-                    } catch (SQLException e) {
-                        getMeterAmrLogging().logInfo(e);
-                        logFailure(cs);
-                    } catch (IOException e) {
-                        getMeterAmrLogging().logInfo(e);
-                        logFailure(cs);
-                    } catch (BusinessException e) {
-                        getMeterAmrLogging().logInfo(e);
-                        logFailure(cs);
-                    } catch (Exception e) {
-                        getMeterAmrLogging().logInfo(e);
-                        e.printStackTrace();
-                    }
+                processSMSFrameSingleSchedule(smsFrame, cs);
+            }
+        }
+    }
+
+    private void processSMSFrameSingleSchedule(SMSFrame smsFrame, CommunicationScheduler cs) {
+        String csName = cs.displayString();
+        if (isSmsProfile(cs)) {
+            meterAmrLogging = null;
+            if (cs.getNextCommunication() == null) {
+                log("CommunicationScheduler '" + csName + "' nextCommunication is 'null'. Skipping.");
+            } else {
+                log("Executing communicationScheduler '" + csName + "'.");
+                try {
+                    cs.startCommunication();
+                    cs.startReadingNow();
+                    processSchedule(smsFrame, cs.getCommunicationProfile());
+                    logSuccess(cs);
+                } catch (CTRException e) {
+                    getMeterAmrLogging().logInfo(e);
+                    logFailure(cs);
+                } catch (SQLException e) {
+                    getMeterAmrLogging().logInfo(e);
+                    logFailure(cs);
+                } catch (IOException e) {
+                    getMeterAmrLogging().logInfo(e);
+                    logFailure(cs);
+                } catch (BusinessException e) {
+                    getMeterAmrLogging().logInfo(e);
+                    logFailure(cs);
+                } catch (Exception e) {
+                    getMeterAmrLogging().logInfo(e);
+                    e.printStackTrace();
                 }
             }
+        } else {
+            log("CommunicationScheduler '" + csName + "' is no SMS communication profile. The name should contain '" + SMS + "'. Skipping.");
         }
     }
 
@@ -334,7 +342,7 @@ public class SmsHandler implements MessageHandler {
             for (Channel channel : channelList) {
                 try {
                     if (getProtocolProperties().getChannelConfig().getChannelId(data.getId().toString()) == (channel.getLoadProfileIndex() - 1)) {
-                        ProfileChannelForSms profileForSms = new ProfileChannelForSms(logger, properties, channel, data, getTimeZone(), getMeterAmrLogging());
+                        ProfileChannelForSms profileForSms = new ProfileChannelForSms(logger, properties, channel, data, getTimeZone());
                         ProfileData pd = profileForSms.getProfileData();
                         getStoreObject().add(channel, pd);
                         log("Added profile data for channel " + channel.toString() + ". Data ID is " + data.getId().toString());
@@ -514,7 +522,7 @@ public class SmsHandler implements MessageHandler {
     private String checkFormat(String from) throws IOException {
 
         if ("".equals(sms.getFrom())){
-            throw new IOException();
+            throw new IOException("Invalid (empty) phone number!");
         }
         if ("+".equals(Character.toString(from.charAt(0)))) {
             from = "0" + from.substring(3);
@@ -532,5 +540,10 @@ public class SmsHandler implements MessageHandler {
 
     public List getOptionalKeys() {
         return new ArrayList();
+    }
+
+    public static boolean isSmsProfile(CommunicationScheduler cs) {
+        String displayName = cs != null ? cs.displayString() : null;
+        return (displayName != null) && displayName.contains(SMS);
     }
 }

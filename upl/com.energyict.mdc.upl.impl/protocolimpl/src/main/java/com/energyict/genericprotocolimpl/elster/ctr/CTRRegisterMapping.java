@@ -27,6 +27,10 @@ public class CTRRegisterMapping {
         this.valueIndex = valueIndex;
     }
 
+    public CTRRegisterMapping(String obisCode) {
+        this(ObisCode.fromString(obisCode), null);
+    }
+
     public CTRRegisterMapping(String obisCode, String objectId, String description) {
         this(ObisCode.fromString(obisCode), new CTRObjectID(objectId), description, 0);
     }

@@ -10,12 +10,20 @@ import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.*;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.*;
+import com.energyict.genericprotocolimpl.elster.ctr.util.GasQuality;
+import com.energyict.genericprotocolimpl.elster.ctr.util.MeterInfo;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.util.*;
 import java.util.logging.Logger;
+
+import static com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType.getValueAndObjectId;
+import static com.energyict.genericprotocolimpl.elster.ctr.structure.field.P_Session.getOpenAndClosePSession;
+import static com.energyict.genericprotocolimpl.elster.ctr.structure.field.ReferenceDate.getReferenceDate;
+import static com.energyict.genericprotocolimpl.elster.ctr.structure.field.WriteDataBlock.getRandomWDB;
 
 /**
  * Copyrights EnergyICT
@@ -24,11 +32,16 @@ import java.util.logging.Logger;
  */
 public class GprsRequestFactory {
 
+    private MeterInfo meterInfo;
+    private GasQuality gasQuality;
     private final GprsConnection connection;
     private MTU155Properties properties;
     private Logger logger;
     private TimeZone timeZone;
     private IdentificationResponseStructure identificationStructure = null;
+    private Link link;
+
+    private static final int REF_DATE_DAYS_AHEAD = 0;
 
     /**
      * @param link
@@ -37,6 +50,7 @@ public class GprsRequestFactory {
      */
     public GprsRequestFactory(Link link, Logger logger, MTU155Properties properties, TimeZone timeZone) {
         this(link.getInputStream(), link.getOutputStream(), logger, properties, timeZone);
+        this.link = link;
     }
 
     /**
@@ -59,6 +73,7 @@ public class GprsRequestFactory {
      */
     public GprsRequestFactory(Link link, Logger logger, MTU155Properties properties, TimeZone timeZone, IdentificationResponseStructure identificationStructure) {
         this(link.getInputStream(), link.getOutputStream(), logger, properties, timeZone, identificationStructure);
+        this.link = link;
     }
 
     /**
@@ -322,6 +337,39 @@ public class GprsRequestFactory {
         return request;
     }
 
+    /**
+     * Creates a request to write registers in the meter.
+     * @param validityDate: the validity date for the writing
+     * @param wdb: a unique number
+     * @param p_Session: the session configuration
+     * @param attributeType: the fields of the object that needs to be written
+     * @param rawData: the rawData with the objects
+     * @return a request structure
+     * @throws CTRParsingException
+     */
+    public GPRSFrame getRegisterWriteRequest(ReferenceDate validityDate, WriteDataBlock wdb, P_Session p_Session, AttributeType attributeType, int numberOfObjects, byte[] rawData) throws CTRParsingException {
+        byte[] pssw = getPassword();
+        byte[] nrObjects = new byte[]{(byte) numberOfObjects};
+        byte[] writeRequest = padData(128, ProtocolTools.concatByteArrays(
+                pssw,
+                validityDate.getBytes(),
+                wdb.getBytes(),
+                p_Session.getBytes(),
+                nrObjects,
+                attributeType.getBytes(),
+                rawData
+        ));
+
+        GPRSFrame request = new GPRSFrame();
+        request.setAddress(getAddress());
+        request.getFunctionCode().setEncryptionStatus(EncryptionStatus.NO_ENCRYPTION);
+        request.getFunctionCode().setFunction(Function.WRITE);
+        request.getProfi().setLongFrame(false);
+        request.getStructureCode().setStructureCode(StructureCode.REGISTER);
+        request.setData(new RegisterWriteRequestStructure(false).parse(writeRequest, 0));
+        return request;
+    }
+
 
     /**
      * Creates an execute request
@@ -408,7 +456,24 @@ public class GprsRequestFactory {
             throw new CTRException("Expected RegisterResponseStructure but was " + response.getData().getClass().getSimpleName());
         }
 
-        return Arrays.asList(registerResponse.getObjects());
+        List<AbstractCTRObject> objects = Arrays.asList(registerResponse.getObjects());
+        validateRegisterResponse(objects, objectId);
+        return objects;
+    }
+
+    private void validateRegisterResponse(List<AbstractCTRObject> objects, CTRObjectID[] objectId) throws CTRException {
+        for (int i = 0; i < objectId.length; i++) {
+            CTRObjectID requestedId = objectId[i];
+            if (objects.size() > i) {
+                AbstractCTRObject receivedObject = objects.get(i);
+                CTRObjectID receivedId = receivedObject.getId();
+                if ((receivedId != null) && (requestedId != null)) {
+                    if (!receivedId.toString().equalsIgnoreCase(requestedId.toString())) {
+                        throw new CTRException("Expected [" + requestedId.toString() + "] but received [" + receivedId.toString() + "] while reading registers.");
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -465,12 +530,16 @@ public class GprsRequestFactory {
         if (response.getData() instanceof AckStructure) {
             executeResponse = (AckStructure) response.getData();
         } else if (response.getData() instanceof NackStructure) {
-            executeResponse = (NackStructure) response.getData();
+            throw new CTRNackException((NackStructure) response.getData());
         } else {
             throw new CTRException("Expected Ack or Nack but was " + response.getData().getClass().getSimpleName());
         }
 
         return executeResponse;
+    }
+
+    public Data executeRequest(CTRObjectID id, byte[] data) throws CTRException {
+        return executeRequest(getReferenceDate(REF_DATE_DAYS_AHEAD), getRandomWDB(), id, data);
     }
 
     /**
@@ -492,12 +561,59 @@ public class GprsRequestFactory {
         if (response.getData() instanceof AckStructure) {
             writeRegisterResponse = (AckStructure) response.getData();
         } else if (response.getData() instanceof NackStructure) {
-            writeRegisterResponse = (NackStructure) response.getData();
+            throw new CTRNackException((NackStructure) response.getData());
         } else {
             throw new CTRException("Expected Ack or Nack but was " + response.getData().getClass().getSimpleName());
         }
 
         return writeRegisterResponse;
+    }
+
+    /**
+     *
+     * @param attributeType: determines the fields of the objects
+     * @param numberOfObjects: the number of objects to write to the device
+     * @param rawData: the raw data containing the objects to write
+     * @return: the meter's response (ack or nack)
+     * @throws CTRException, if the meter's response was not recognized
+     */
+    public Data writeRegister(AttributeType attributeType, int numberOfObjects, byte[] rawData) throws CTRException {
+        GPRSFrame registerWriteRequest = getRegisterWriteRequest(
+                ReferenceDate.getReferenceDate(REF_DATE_DAYS_AHEAD),
+                WriteDataBlock.getRandomWDB(),
+                P_Session.getOpenAndClosePSession(),
+                attributeType,
+                numberOfObjects,
+                rawData
+        );
+        GPRSFrame response = getConnection().sendFrameGetResponse(registerWriteRequest);
+
+        //Check the response: should be Ack or Nack
+        Data writeRegisterResponse;
+        response.doParse();
+        if (response.getData() instanceof AckStructure) {
+            writeRegisterResponse = (AckStructure) response.getData();
+        } else if (response.getData() instanceof NackStructure) {
+            throw new CTRNackException((NackStructure) response.getData());
+        } else {
+            throw new CTRException("Expected Ack or Nack but was " + response.getData().getClass().getSimpleName());
+        }
+
+        return writeRegisterResponse;
+    }
+
+    /**
+     * Writes to register(s) in the meter, using the default and most used write parameters
+     * DV = today + 14 days
+     * WDB = random
+     * PSession = 0x00 (open & close)
+     * AttributeType = Value and ObjectID
+     * @param objects: the objects that should be written in the meter
+     * @return: the meter's response (ack or nack)
+     * @throws CTRException, if the meter's response was not recognized
+     */
+    public Data writeRegister(AbstractCTRObject... objects) throws CTRException {
+        return writeRegister(getReferenceDate(REF_DATE_DAYS_AHEAD), getRandomWDB(), getOpenAndClosePSession(), getValueAndObjectId(), objects);
     }
 
     /**
@@ -524,6 +640,16 @@ public class GprsRequestFactory {
         }
 
         return traceResponse.getTraceData();
+    }
+
+    /**
+     * Queries for a number of events
+     * @param index_Q: number of events to query for
+     * @return the meter's response containing event records
+     * @throws CTRException, if the meter's response was not recognized
+     */
+    public ArrayEventsQueryResponseStructure queryEventArray(int index_Q) throws CTRException {
+        return queryEventArray(new Index_Q(index_Q));
     }
 
     /**
@@ -605,7 +731,11 @@ public class GprsRequestFactory {
     public void sendEndOfSession() {
         getLogger().severe("Closing session. Sending End Of Session Request.");
         try {
-            getConnection().sendFrameGetResponse(getEndOfSessionRequest());
+            if (getConnection() != null) {
+                getConnection().sendFrameGetResponse(getEndOfSessionRequest());
+            } else {
+                getLogger().warning("Unable to close connection. getConnection() returned null.");
+            }
         } catch (CTRConnectionException e) {
             getLogger().severe("Failed to close session! " + e.getMessage());
         }
@@ -646,4 +776,55 @@ public class GprsRequestFactory {
         return identificationStructure;
     }
 
+    private Link getLink() {
+        return link;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getIPAddress() {
+        String ipAddress = null;
+        if ((getLink() != null) && (getLink().getStreamConnection() != null) && (getLink().getStreamConnection().getSocket() != null)) {
+            InetAddress address = getLink().getStreamConnection().getSocket().getInetAddress();
+            if (address != null) {
+                ipAddress = address.getHostAddress();
+            }
+        }
+        return ipAddress == null ? "Unknown" : ipAddress;
+    }
+
+    /**
+     * Get the cached meter info object. If not exist yet, create a new one.
+     *
+     * @return
+     */
+    public MeterInfo getMeterInfo() {
+        if (meterInfo == null) {
+            meterInfo = new MeterInfo(this, getLogger(), getTimeZone());
+        }
+        return meterInfo;
+    }
+
+    /**
+     * Get the cached GasQuality object. If not exist yet, create a new one.
+     *
+     * @return
+     */
+    public GasQuality getGasQuality() {
+        if (gasQuality == null) {
+            gasQuality = new GasQuality(this, getLogger());
+        }
+        return gasQuality;
+    }
+
+    public AbstractCTRObject queryRegister(String objectID) throws CTRException {
+        List<AbstractCTRObject> objects = queryRegisters(new AttributeType(0x03), objectID);
+        if ((objects != null) && (objects.size() > 0)) {
+            return objects.get(0);
+        } else {
+            return null;
+        }
+    }
 }
