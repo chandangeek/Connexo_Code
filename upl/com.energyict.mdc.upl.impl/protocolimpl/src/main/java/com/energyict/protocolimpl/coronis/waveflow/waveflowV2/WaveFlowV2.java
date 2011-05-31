@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.coronis.waveflow.waveflowV2;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.coronis.core.BubbleUpObject;
 import com.energyict.protocolimpl.coronis.waveflow.core.*;
 import com.energyict.protocolimpl.coronis.waveflow.core.messages.WaveFlowMessageParser;
 import com.energyict.protocolimpl.coronis.waveflow.core.messages.WaveFlowV2Messages;
