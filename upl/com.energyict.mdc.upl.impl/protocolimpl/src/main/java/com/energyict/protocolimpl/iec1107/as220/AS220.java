@@ -498,10 +498,10 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
 				return new RegisterValue(obis, readTime());
 			}
 
-			if ("1.1.0.0.0.255".equals(obis.toString())) {
+			if ("1.1.0.0.0.255".equals(obis.toString()) || "0.0.96.1.0.255".equals(obis.toString())) {
 				return new RegisterValue(obis, getMeterSerial());
 			}
-			if ("1.1.0.2.0.255".equals(obis.toString())) {
+			if ("1.1.0.2.0.255".equals(obis.toString()) || "0.0.96.1.5.255".equals(obis.toString())) {
 				return new RegisterValue(obis, getFirmwareVersion());
 			}
 
