@@ -6,6 +6,7 @@ import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.alarmframe.AlarmFrameParser;
+import com.energyict.protocolimpl.coronis.amco.rtm.core.alarmframe.BubbleUpFrameParser;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.ParameterFactory;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand.RadioCommandFactory;
 import com.energyict.protocolimpl.coronis.core.*;
@@ -13,7 +14,7 @@ import com.energyict.protocolimpl.coronis.core.*;
 import java.io.*;
 import java.util.*;
 
-public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLink, EventMapper {
+public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLink, EventMapper, BubbleUp {
 
     private ObisCodeMapper obisCodeMapper;
     private WaveFlowConnect rtmConnect;
@@ -225,5 +226,9 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
         statusAndEvents.add(alarmFrame.getResponse());
         statusAndEvents.add(alarmFrame.getMeterEvents());
         return statusAndEvents;
+    }
+
+    public BubbleUpObject parseBubbleUpData(byte[] data) throws IOException {
+        return BubbleUpFrameParser.parse(data, this);
     }
 }
