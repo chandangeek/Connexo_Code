@@ -242,18 +242,9 @@ public class P2LPCTest {
 				assertTrue(rtum.isConfirmed()); 	// the length of the userFile is empty
 			}
 
-		} catch (BusinessException e) {
-            finest(e.getMessage());
-			fail(e.getMessage());
-		} catch (SQLException e) {
-			finest(e.getMessage());
-			fail(e.getMessage());
-		} catch (FileNotFoundException e) {
-			finest(e.getMessage());
-			fail(e.getMessage());
-		} catch (IOException e) {
-			finest(e.getMessage());
-			fail(e.getMessage());
+		} catch (Exception e) {
+			e.printStackTrace();
+            fail(e.getMessage());
 		}
 	}
 
