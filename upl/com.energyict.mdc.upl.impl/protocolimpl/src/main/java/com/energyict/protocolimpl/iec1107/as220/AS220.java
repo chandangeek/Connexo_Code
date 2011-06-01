@@ -493,10 +493,11 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
 
 		try {
 
-//			// it is not possible to translate the following edis code in this way
-//			if ("1.1.0.1.2.255".equals(obis.toString())) {
-//				return new RegisterValue(obis, readTime());
-//			}
+			// it is not possible to translate the following edis code in this way
+			if ("1.1.0.1.2.255".equals(obis.toString())) {
+                Date billingDate = (Date)this.aS220Registry.getRegister(AS220Registry.BILLINGPOINTTIMESTAMP);
+				return new RegisterValue(obis, billingDate);
+			}
 
 			if ("1.1.0.0.0.255".equals(obis.toString()) || "0.0.96.1.0.255".equals(obis.toString())) {
 				return new RegisterValue(obis, getMeterSerial());
