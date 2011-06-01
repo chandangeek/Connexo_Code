@@ -23,6 +23,7 @@ import java.util.*;
 public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 	private static final boolean	DEBUG								= false;
+    private static final boolean    WRITE_WITH_BLOCK_ENABLED            = false;
 
 	private static final byte		READRESPONSE_DATA_TAG				= 0;
 	private static final byte		READRESPONSE_DATAACCESSERROR_TAG	= 1;
@@ -142,8 +143,15 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 				}
 
 				byte[] request = buildWriteRequest((short) this.objectReference.getSn(), attribute, data);
-				responseData = this.protocolLink.getDLMSConnection().sendRequest(request);
+
+				// Server max receive pdu size exceeded: we should use write request with block transfer
+                if (WRITE_WITH_BLOCK_ENABLED && (request.length >= getMaxRecPduServer())) {
+                    responseData = sendWriteRequestWithBlockTransfer(request);
+                } else {
+                    responseData = this.protocolLink.getDLMSConnection().sendRequest(request);
+                }
 			}
+
 			if (this.protocolLink.getDLMSConnection() instanceof AdaptorConnection) {
 				return responseData;
 			} else {
@@ -155,6 +163,83 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 			throw new NestedIOException(e);
 		}
 	}
+
+    private byte[] sendWriteRequestWithBlockTransfer(byte[] requestToSend) throws IOException {
+
+        // Strip the legacy bytes and the original write request tag (3 + 1 = total 4 bytes to strip)
+        byte[] request = new byte[requestToSend.length - 4];
+        System.arraycopy(requestToSend, 4, request, 0, request.length);
+
+        // Some calculations that can be useful further on ...
+        // WriteRequest with data block has 3 legacy + 9 header = 12 bytes extra
+        final int maxBlockSize = getMaxRecPduServer() - 12;
+        final int numberOfFullSizedBlocks = request.length / maxBlockSize;
+        final int lastBlockSize = request.length % maxBlockSize;
+        final int numberOfBlocksToSend = lastBlockSize != 0 ? numberOfFullSizedBlocks + 1 : numberOfFullSizedBlocks;
+
+        int blockNumber = 1;
+        int offset = 0;
+
+        while (true) {
+            // Check if this is the last block
+            boolean lastBlock = blockNumber == numberOfBlocksToSend;
+
+            // Get the length and the data to send for this particular block
+            byte[] dataToSend = new byte[lastBlock ? lastBlockSize : maxBlockSize];
+            System.arraycopy(request, offset, dataToSend, 0, dataToSend.length);
+
+            // Send the block to the device. Validate the response of the last block
+            if (lastBlock) {
+                return sendWriteRequestBlock(dataToSend, blockNumber, lastBlock);
+            } else {
+                sendWriteRequestBlock(dataToSend, blockNumber, lastBlock);
+            }
+
+            // And finally, set everything ready for the next block
+            offset += dataToSend.length;
+            blockNumber++;
+
+        }
+
+    }
+
+    private byte[] sendWriteRequestBlock(byte[] dataToSend, int blockNumber, boolean lastBlock) throws IOException {
+        byte[] request = new byte[3 + 9 + dataToSend.length];
+
+        int ptr = 0;
+        // As usual, add the 3 legacy bytes :)
+        request[ptr++] = (byte) 0xE6; // Destination_LSAP
+        request[ptr++] = (byte) 0xE6; // Source_LSAP
+        request[ptr++] = 0x00;        // LLC_Quality
+
+        // Create the WriteRequest with data blocks header (9 bytes)
+        request[ptr++] = COSEM_WRITEREQUEST;
+        request[ptr++] = 0x01; // One 'VariableDataSpec'
+        request[ptr++] = 0x07; // Write data block access tag
+        request[ptr++] = (byte) (lastBlock ? 0x01 : 0x00);  // Last block bool
+        request[ptr++] = (byte) ((blockNumber>>8) & 0x0FF); // Block number HIGH
+        request[ptr++] = (byte) (blockNumber & 0x0FF);      // Block number LOW
+        request[ptr++] = 0x01; // One data part
+        request[ptr++] = 0x09; // OctetString tag
+        request[ptr++] = (byte) (dataToSend.length & 0x0FF); // Actual data length
+
+        // Add the actual content of the write data block
+        System.arraycopy(dataToSend, 0, request, ptr, dataToSend.length);
+
+        // Send it to the device
+        byte[] response = this.protocolLink.getDLMSConnection().sendRequest(request);
+
+        // Validate the response. For the last block, the response is validated in the calling methods
+        if (!lastBlock) {
+            checkCosemPDUResponseHeader(response);
+        }
+
+        return response;
+    }
+
+    private int getMaxRecPduServer() {
+        return getProtocolLink().getDLMSConnection().getApplicationServiceObject().getAssociationControlServiceElement().getXdlmsAse().getMaxRecPDUServerSize();
+    }
 
 	/**
 	 * @param attribute

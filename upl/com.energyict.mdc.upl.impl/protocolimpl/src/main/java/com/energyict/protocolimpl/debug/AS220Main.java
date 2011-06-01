@@ -79,7 +79,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     protected static final TimeZone DEFAULT_TIMEZONE = TimeZone.getTimeZone("Europe/Paris");
 
     private static final boolean AS1440 = true;
-    protected static final String COMPORT = AS1440 ? "COM7" : "COM5";
+    protected static final String COMPORT = AS1440 ? "COM5" : "COM7";
     protected static final int BAUDRATE = 115200;
     protected static final int DATABITS = SerialCommunicationChannel.DATABITS_8;
     protected static final int PARITY = SerialCommunicationChannel.PARITY_NONE;
@@ -579,6 +579,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
 
     @Override
     void doDebug() throws LinkException, IOException {
-
+        System.out.println(getMeterProtocol().getDLMSConnection().getApplicationServiceObject().getAssociationControlServiceElement().getXdlmsAse());
+        getMeterProtocol().queryMessage(new MessageEntry(WRITE_IEC_DATA_0, ""));
     }
 }
