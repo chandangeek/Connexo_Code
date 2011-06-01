@@ -493,10 +493,10 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
 
 		try {
 
-			// it is not possible to translate the following edis code in this way
-			if ("1.1.0.1.2.255".equals(obis.toString())) {
-				return new RegisterValue(obis, readTime());
-			}
+//			// it is not possible to translate the following edis code in this way
+//			if ("1.1.0.1.2.255".equals(obis.toString())) {
+//				return new RegisterValue(obis, readTime());
+//			}
 
 			if ("1.1.0.0.0.255".equals(obis.toString()) || "0.0.96.1.0.255".equals(obis.toString())) {
 				return new RegisterValue(obis, getMeterSerial());
@@ -546,6 +546,8 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
 
             if("1.1.14.7.0.255".equals(obis.toString())){   // current frequency
                 data = read("34.7");
+            } else if ("0.0.96.1.4.255".equals(obis.toString())) {
+                data = read("C.2.0");
             } else {
                 String edis = obis.getC() + "." + obis.getD() + "." + obis.getE() + fs;
                 data = read(edis);
