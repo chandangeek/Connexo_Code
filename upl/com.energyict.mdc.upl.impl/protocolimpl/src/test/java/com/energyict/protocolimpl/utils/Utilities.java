@@ -192,7 +192,6 @@ public class Utilities {
     }
 
     /**
-     * @param COM1 - 9600 - NO Parity - 1 - 60000(timeOut in ms)
      * @return new dialer
      */
     public static Dialer getNewDialer() throws LinkException, IOException {
@@ -237,9 +236,6 @@ public class Utilities {
     /**
      * Create a new {@link CommunicationProfile} given a type name
      * The types can be:
-     * {@link Utilities.COMMPROFILE_ALL}
-     * {@link Utilities.COMMPROFILE_SENDRTUMESSAGE}
-     * {@link Utilities.COMMPROFILE_READDEMANDVALUES}
      *
      * @param type
      * @return
@@ -272,9 +268,6 @@ public class Utilities {
     /**
      * Create a new {@link CommunicationProfile} given a type name and ad it to a given {@link Rtu}
      * The types can be:
-     * {@link Utilities.COMMPROFILE_ALL}
-     * {@link Utilities.COMMPROFILE_SENDRTUMESSAGE}
-     * {@link Utilities.COMMPROFILE_READDEMANDVALUES}
      *
      * @param rtu
      * @param type
@@ -314,10 +307,11 @@ public class Utilities {
      * @throws BusinessException
      * @throws SQLException
      */
-    public static Group createNotEmptyGroup() throws SQLException, BusinessException {
+    public static Group createRtuTypeGroup() throws SQLException, BusinessException {
         GroupShadow grs = new GroupShadow();
         grs.setName(notEmptyGroup);
         grs.setObjectType(MeteringWarehouse.FACTORYID_RTU);
+        grs.getSearchFilter().setObjectType(MeteringWarehouse.FACTORYID_RTU);
         grs.getSearchFilter().setUseMaxResults(false);
         return mw().getGroupFactory().create(grs);
     }
@@ -395,13 +389,6 @@ public class Utilities {
         meter.update(rs);
     }
 
-    /**
-     * Generate a array of bytes from a hex string. This method does the opposite
-     * of the {@link ProtocolUtils.getResponseData(byte[] bytes)} method.
-     *
-     * @param hexString The hex string (ex: "$00$01$02$03")
-     * @return the byte array
-     */
     public static byte[] getBytesFromHexString(String hexString) {
         ByteArrayOutputStream bb = new ByteArrayOutputStream();
         for (int i = 0; i < hexString.length(); i += 3) {
