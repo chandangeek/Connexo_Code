@@ -9,6 +9,7 @@ package com.energyict.protocolimpl.iec1107.as220;
 import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.abba1700.counters.ProgrammingCounter;
 import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWRegister;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWRegisterDataParse;
@@ -49,6 +50,7 @@ public class AS220Registry extends AbstractVDEWRegistry {
 	public static final String LOAD_LOG_RESET_REGISTER = "LoadLogResetRegister";
 
 	public static final String DISPLAY_MESSAGE_REGISTER = "DisplayMessageRegister";
+    public static final String PROGRAMCOUNTER = "ProgrammingCounter";
 
 	/**
 	 * Creates a new instance of KamstrupRegister
@@ -102,6 +104,8 @@ public class AS220Registry extends AbstractVDEWRegistry {
 		this.registers.put(LOAD_LOG_RESET_REGISTER, new VDEWRegister("S08",VDEWRegisterDataParse.VDEW_STRING, 0, 1, null, VDEWRegister.WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1,FlagIEC1107Connection.WRITE1));
 
 		this.registers.put(DISPLAY_MESSAGE_REGISTER, new VDEWRegister("S0K",VDEWRegisterDataParse.VDEW_STRING, 0, 1, null, VDEWRegister.WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1,FlagIEC1107Connection.WRITE1));
+
+        this.registers.put(PROGRAMCOUNTER,  new VDEWRegister("C.2.0", VDEWRegisterDataParse.VDEW_INTEGER, 0, 1, null, VDEWRegister.NOT_WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1, FlagIEC1107Connection.WRITE1));
 
 	}
 

@@ -505,7 +505,7 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
 				return new RegisterValue(obis, getFirmwareVersion());
 			}
 
-			if ("1.1.0.0.1.255".equals(obis.toString())) {
+ 			if ("1.1.0.0.1.255".equals(obis.toString())) {
 				return new RegisterValue(obis, readSpecialRegister((String) this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
 			}
 			if ("1.1.0.0.2.255".equals(obis.toString())) {
@@ -544,8 +544,12 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
 				fs = "*" + ProtocolUtils.buildStringDecimal(f, 2);
 			}
 
-			String edis = obis.getC() + "." + obis.getD() + "." + obis.getE() + fs;
-			data = read(edis);
+            if("1.1.14.7.0.255".equals(obis.toString())){   // current frequency
+                data = read("34.7");
+            } else {
+                String edis = obis.getC() + "." + obis.getD() + "." + obis.getE() + fs;
+                data = read(edis);
+            }
 
 			// try to read the time stamp, and us it as the register toTime.
 			try {

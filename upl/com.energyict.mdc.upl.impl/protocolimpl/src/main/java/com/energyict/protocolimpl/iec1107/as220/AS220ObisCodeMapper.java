@@ -26,6 +26,7 @@ public class AS220ObisCodeMapper {
     public static final String DATETIME = "Date and time (0.9.1 0.9.2)";
     public static final String BILLINGCOUNTER = "Billing counter";
     public static final String BILLINGRESETTIME = "Billing reset time";
+//    public static final String PROGRAMCOUNTER = "Program Counter";
 
     public static final String IEC1107_ID = "Device IEC1107_ID";
     public static final String IEC1107_ADDRESS_OP = "Device IEC1107_ADDRESS_OP (optical)";
@@ -50,6 +51,8 @@ public class AS220ObisCodeMapper {
         this.obisMap.put("1.1.0.1.2.255", DATETIME);
 
         this.obisMap.put("1.1.0.2.0.255", FIRMWAREID);
+
+//        this.obisMap.put("0.0.96.1.4.255", PROGRAMCOUNTER);
 
         this.obisMap.put("1.1.0.0.0.255", SERIAL);
         this.obisMap.put("0.0.96.1.0.255", SERIAL);
