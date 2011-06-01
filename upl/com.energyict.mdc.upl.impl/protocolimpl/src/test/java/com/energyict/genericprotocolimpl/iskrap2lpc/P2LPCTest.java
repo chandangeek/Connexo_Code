@@ -1,31 +1,20 @@
 package com.energyict.genericprotocolimpl.iskrap2lpc;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import com.energyict.cbo.BusinessException;
+import com.energyict.cpo.PersistentObject;
+import com.energyict.mdw.core.*;
+import com.energyict.mdw.shadow.RtuMessageShadow;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.utils.Utilities;
+import org.junit.*;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.energyict.mdw.core.*;
-import com.energyict.protocolimpl.messages.RtuMessageConstant;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.PersistentObject;
-import com.energyict.mdw.shadow.RtuMessageShadow;
-import com.energyict.protocolimpl.utils.Utilities;
+import static org.junit.Assert.*;
 
 /**
  * @author gna
@@ -254,17 +243,17 @@ public class P2LPCTest {
 			}
 
 		} catch (BusinessException e) {
-			finest(e.getMessage());
-			fail();
+            finest(e.getMessage());
+			fail(e.getMessage());
 		} catch (SQLException e) {
 			finest(e.getMessage());
-			fail();
+			fail(e.getMessage());
 		} catch (FileNotFoundException e) {
 			finest(e.getMessage());
-			fail();
+			fail(e.getMessage());
 		} catch (IOException e) {
 			finest(e.getMessage());
-			fail();
+			fail(e.getMessage());
 		}
 	}
 
