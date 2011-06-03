@@ -16,6 +16,7 @@ import java.io.IOException;
 public abstract class AbstractDLMSProfile {
 
     protected abstract CosemObjectFactory getCosemObjectFactory();
+    protected abstract ObisCode getCorrectedObisCode(ObisCode baseObisCode);
 
     /**
      * Read the given object and return the Unit.
@@ -39,6 +40,30 @@ public abstract class AbstractDLMSProfile {
             throw new IOException("Unable to read the scaler and/or unit for channel with obiscode [" + oc + "]. Unit was 'null'.");
         }
         return unit;
+    }
+
+
+    /**
+     * Check if it is a valid channel Obiscode
+     *
+     * @param obisCode - the {@link ObisCode} to check
+     * @return true if you know it is a valid channelData oc, false otherwise
+     */
+    protected boolean isValidChannelObisCode(final ObisCode obisCode) {
+        ObisCode oc = getCorrectedObisCode(obisCode);
+        if ((oc.getA() == 1) && (((oc.getB() >= 0) && (oc.getB() <= 64)) || (oc.getB() == 128))) {    // Energy channels - Pulse channels (C == 82)
+            return true;
+        } else if (oc.getC() == 96) {    // Temperature and Humidity
+            if ((oc.getA() == 0) && ((oc.getB() == 0) || (oc.getB() == 1)) && (oc.getD() == 9) && ((oc.getE() == 0) || (oc.getE() == 2))) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if ((oc.getA() == 4) || (oc.getA() == 5) || (oc.getA() == 6) || (oc.getA() == 7) || (oc.getA() == 8) || (oc.getA() == 9)) {    // Allow heat, gas, water, cooling, ...
+            return true;
+        } else {
+            return false;
+        }
     }
 
 

@@ -13,7 +13,6 @@ import com.energyict.protocol.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
@@ -276,28 +275,6 @@ public class EMeterProfile extends AbstractDLMSProfile {
     }
 
     /**
-     * Check if it is a valid channel Obiscode
-     * TODO it is the same method as the one from the {@link EMeterProfile}, maybe extract an abstract profile class for both ...
-     *
-     * @param obisCode - the {@link ObisCode} to check
-     * @return true if you know it is a valid channelData oc, false otherwise
-     */
-    private boolean isValidChannelObisCode(final ObisCode obisCode){
-		ObisCode oc = getCorrectedObisCode(obisCode);
-        if ((oc.getA() == 1) && (((oc.getB() >= 0) && (oc.getB() <= 64)) || (oc.getB() == 128)) ) {	// Energy channels - Pulse channels (C == 82)
-			return true;
-		} else if(oc.getC() == 96){	// Temperature and Humidity
-			if((oc.getA() == 0) && ((oc.getB() == 0) || (oc.getB() == 1)) && (oc.getD() == 9) && ((oc.getE() == 0) || (oc.getE() == 2))){
-				return true;
-			} else {
-				return false;
-			}
-		} else {
-			return false;
-		}
-	}
-
-    /**
      * 
      * @param pg
      * @return
@@ -392,7 +369,7 @@ public class EMeterProfile extends AbstractDLMSProfile {
      * @param baseObisCode
      * @return
      */
-    private ObisCode getCorrectedObisCode(ObisCode baseObisCode) {
+    protected ObisCode getCorrectedObisCode(ObisCode baseObisCode) {
 		return ProtocolTools.setObisCodeField(baseObisCode, 1, (byte) eDevice.getPhysicalAddress());
 	}
 

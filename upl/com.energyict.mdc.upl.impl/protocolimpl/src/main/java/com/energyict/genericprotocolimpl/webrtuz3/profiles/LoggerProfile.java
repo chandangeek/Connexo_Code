@@ -96,6 +96,11 @@ public class LoggerProfile extends AbstractDLMSProfile {
         return cosemObjectFactory;
     }
 
+    @Override
+    protected ObisCode getCorrectedObisCode(ObisCode baseObisCode) {
+        return baseObisCode;
+    }
+
     private ProfileGeneric getProfileGeneric() throws IOException {
         if (profileGeneric == null) {
             profileGeneric = getCosemObjectFactory().getProfileGeneric(profileObisCode);

@@ -28,11 +28,11 @@ import java.util.logging.Level;
 public class MbusDailyMonthly extends AbstractDLMSProfile {
 
 	private MbusDevice mbusDevice;
-	
-	public MbusDailyMonthly(){
-	}
-	
-	public MbusDailyMonthly(MbusDevice mbusDevice){
+
+    public MbusDailyMonthly() {
+    }
+
+    public MbusDailyMonthly(MbusDevice mbusDevice){
 		this.mbusDevice = mbusDevice;
 	}
 	
@@ -114,7 +114,7 @@ public class MbusDailyMonthly extends AbstractDLMSProfile {
 	private int getProfileClockChannelIndex(ProfileGeneric pg) throws IOException{
 		try {
 			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
-				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(getMeterConfig().getClockObject().getObisCode())){
+				if(pg.getCaptureObjects().get(i).getLogicalName().getObisCode().equals(getMeterConfig().getClockObject().getObisCode())){
 					return i;
 				}
 			}
@@ -133,7 +133,7 @@ public class MbusDailyMonthly extends AbstractDLMSProfile {
 		try {
 			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
 				if(index < channelInfos.size()){
-					if(isMbusRegisterObisCode(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode())){
+					if(isMbusRegisterObisCode(pg.getCaptureObjects().get(i).getLogicalName().getObisCode())){
 						id.addValue(new Integer(ds.getInteger(i)));
 						index++;
 					}
@@ -161,12 +161,6 @@ public class MbusDailyMonthly extends AbstractDLMSProfile {
                 if(isMbusRegisterObisCode(co.getLogicalName().getObisCode())){ // make a channel out of it
 					Unit unit = getUnit(co.getLogicalName().getObisCode());
 					channelIndex = getDMChannelNumber(index+1, timeDuration);
-
-//					if(timeDuration == TimeDuration.DAYS){
-//						channelIndex = getDMChannelNumber(index+1);
-//					} else if(timeDuration == TimeDuration.MONTHS){
-//						channelIndex = getDMChannelNumber(index+1);
-//					}
 
 					if(channelIndex != -1){
 						ci = new ChannelInfo(index, channelIndex, "WebRtuKP_Mbus_DailyMonthly_"+index, unit);
@@ -261,8 +255,13 @@ public class MbusDailyMonthly extends AbstractDLMSProfile {
 	public CosemObjectFactory getCosemObjectFactory(){
 		return this.mbusDevice.getWebRTU().getCosemObjectFactory();
 	}
-	
-	private Rtu getMeter(){
+
+    @Override
+    protected ObisCode getCorrectedObisCode(ObisCode baseObisCode) {
+        return baseObisCode;
+    }
+
+    private Rtu getMeter(){
 		return this.mbusDevice.getMbus();
 	}
 	

@@ -24,8 +24,9 @@ public class MbusProfile extends AbstractDLMSProfile {
 
     private static final int MIN_DEVICEID = WebRTUZ3.MBUS_DEVICES.getFrom();
     private static final int MAX_DEVICEID = WebRTUZ3.MBUS_DEVICES.getTo();
+    private static final ObisCode MBUS_STATUS_OBIS = ObisCode.fromString("0.0.96.10.3.255");
 
-	private MbusDevice mbusDevice;
+    private MbusDevice mbusDevice;
 
     public MbusProfile(){
 	}
@@ -85,20 +86,19 @@ public class MbusProfile extends AbstractDLMSProfile {
 
 	private List<ChannelInfo> getMbusChannelInfos(ProfileGeneric profile) throws IOException {
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
-		ChannelInfo ci = null;
-		int index = 0;
-		int channelIndex = -1;
 		try{
 			for(int i = 0; i < profile.getCaptureObjects().size(); i++){
 
 				// Normally the mbusData is in a separate profile
-				if(isMbusRegisterObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode())){
+				if(isMbusRegisterObisCode(profile.getCaptureObjects().get(i).getLogicalName().getObisCode())){
+                    int index = 0;
+                    int channelIndex = -1;
 
 					channelIndex = getProfileChannelNumber(index+1);
                     if (channelIndex != -1) {
                         CapturedObject co = ((CapturedObject) profile.getCaptureObjects().get(i));
                         Unit unit = getUnit(co.getLogicalName().getObisCode());
-                        ci = new ChannelInfo(index, channelIndex, "WebRtuKP_MBus_" + index, unit);
+                        ChannelInfo ci = new ChannelInfo(index, channelIndex, "WebRtuKP_MBus_" + index, unit);
                         index++;
                         // We do not do the check because we know it is a cumulative value
                         //TODO need to check the wrapValue
@@ -148,14 +148,11 @@ public class MbusProfile extends AbstractDLMSProfile {
 
 	private void buildProfileData(DataContainer dc, ProfileData pd, ProfileGeneric pg) throws IOException{
 
-		Calendar cal = null;
-		IntervalData currentInterval = null;
-		int profileStatus = 0;
 		if(dc.getRoot().getElements().length != 0){
 
 			for(int i = 0; i < dc.getRoot().getElements().length; i++){
+                Calendar cal = null;
 				if(dc.getRoot().getStructure(i).isOctetString(0)){
-//					cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getTimeZone());
 					cal = new AXDRDateTime(new OctetString(dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).getArray())).getValue();
 				} else {
 					if(cal != null){
@@ -164,13 +161,12 @@ public class MbusProfile extends AbstractDLMSProfile {
 				}
 				if(cal != null){
 
+                    int profileStatus = 0;
 					if(getProfileStatusChannelIndex(pg) != -1){
 						profileStatus = dc.getRoot().getStructure(i).getInteger(getProfileStatusChannelIndex(pg));
-					} else {
-						profileStatus = 0;
 					}
 
-					currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus, pg, pd.getChannelInfos());
+					IntervalData currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus, pg, pd.getChannelInfos());
 					if(currentInterval != null){
 						pd.addInterval(currentInterval);
 					}
@@ -189,7 +185,7 @@ public class MbusProfile extends AbstractDLMSProfile {
 		try {
 			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
 				if(index < channelInfos.size()){
-					if(isMbusRegisterObisCode(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode())){
+					if(isMbusRegisterObisCode(pg.getCaptureObjects().get(i).getLogicalName().getObisCode())){
 						id.addValue(new Integer(ds.getInteger(i)));
 						index++;
 					}
@@ -206,7 +202,7 @@ public class MbusProfile extends AbstractDLMSProfile {
 	private int getProfileClockChannelIndex(ProfileGeneric pg) throws IOException{
 		try {
 			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
-				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(getMeterConfig().getClockObject().getObisCode())){
+				if(pg.getCaptureObjects().get(i).getLogicalName().getObisCode().equals(getMeterConfig().getClockObject().getObisCode())){
 					return i;
 				}
 			}
@@ -220,9 +216,8 @@ public class MbusProfile extends AbstractDLMSProfile {
 	private int getProfileStatusChannelIndex(ProfileGeneric pg) throws IOException{
 		try {
 			for(int i = 0; i < pg.getCaptureObjectsAsUniversalObjects().length; i++){
-				//ObisCode mbusStatOC = getMeterConfig().getMbusStatusObject(this.mbusDevice.getPhysicalAddress()).getObisCode();
-				ObisCode mbusStatOC = ProtocolTools.setObisCodeField(ObisCode.fromString("0.0.96.10.3.255"), 1, (byte) this.mbusDevice.getPhysicalAddress());
-				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(mbusStatOC)){
+                ObisCode mbusStatOC = getCorrectedObisCode(MBUS_STATUS_OBIS);
+				if(pg.getCaptureObjects().get(i).getLogicalName().getObisCode().equals(mbusStatOC)){
 					return i;
 				}
 			}
@@ -237,7 +232,12 @@ public class MbusProfile extends AbstractDLMSProfile {
 		return this.mbusDevice.getWebRTU().getCosemObjectFactory();
 	}
 
-	private Rtu getMeter(){
+    @Override
+    protected ObisCode getCorrectedObisCode(ObisCode baseObisCode) {
+        return ProtocolTools.setObisCodeField(baseObisCode, 1, (byte) this.mbusDevice.getPhysicalAddress());
+    }
+
+    private Rtu getMeter(){
 		return this.mbusDevice.getMbus();
 	}
 
