@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -496,7 +497,7 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
 			// it is not possible to translate the following edis code in this way
 			if ("1.1.0.1.2.255".equals(obis.toString())) {
                 Date billingDate = (Date)this.aS220Registry.getRegister(AS220Registry.BILLINGPOINTTIMESTAMP);
-				return new RegisterValue(obis, billingDate);
+				return new RegisterValue(obis, new Quantity(new BigDecimal(billingDate.getTime()), Unit.getUndefined()), billingDate, null, null, new Date(), -1, billingDate.toString());
 			}
 
 			if ("1.1.0.0.0.255".equals(obis.toString()) || "0.0.96.1.0.255".equals(obis.toString())) {
