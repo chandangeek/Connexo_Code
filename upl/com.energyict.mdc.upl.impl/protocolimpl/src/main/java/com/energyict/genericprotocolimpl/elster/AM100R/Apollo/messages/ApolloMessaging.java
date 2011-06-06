@@ -72,7 +72,7 @@ public class ApolloMessaging extends GenericMessaging {
                 RtuMessageConstant.TOU_ACTIVITY_DATE, false);
         tagSpec.add(msgAttrSpec);
         msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.TOU_ACTIVITY_CODE_TABLE, false);
+                RtuMessageConstant.TOU_ACTIVITY_CODE_TABLE, true);
         tagSpec.add(msgAttrSpec);
         /*msgAttrSpec = new MessageAttributeSpec(
                 RtuMessageConstant.TOU_ACTIVITY_USER_FILE, false);
@@ -92,15 +92,11 @@ public class ApolloMessaging extends GenericMessaging {
             for (Object maObject : msgTag.getAttributes()) {
                 MessageAttribute ma = (MessageAttribute) maObject;
                 if (ma.getSpec().getName().equals(RtuMessageConstant.TOU_ACTIVITY_DATE)) {
-                    if (ma.getValue() == null || ma.getValue().length() == 0) {
-                        return null;
-                    } else {
+                    if (ma.getValue() != null && ma.getValue().length() != 0) {
                         activationDate = Long.valueOf(ma.getValue());
                     }
                 } else if (ma.getSpec().getName().equals(RtuMessageConstant.TOU_ACTIVITY_CODE_TABLE)) {
-                    if (ma.getValue() == null || ma.getValue().length() == 0) {
-                        return null;
-                    } else {
+                    if (ma.getValue() != null && ma.getValue().length() != 0) {
                         codeTableId = Integer.valueOf(ma.getValue());
                     }
                 }
