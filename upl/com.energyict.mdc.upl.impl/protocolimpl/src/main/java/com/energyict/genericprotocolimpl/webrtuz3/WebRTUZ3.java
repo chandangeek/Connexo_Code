@@ -377,11 +377,13 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
      */
     private String getRFFirmwareVersion() {
         try {
-            return getMeterInfo().getRFFirmwareVersion();
+            if (getMeterConfig().isObisCodeInObjectList(ComposedMeterInfo.RF_FIRMWAREVERSION.getObisCode())) {
+                return getMeterInfo().getRFFirmwareVersion();
+            }
         } catch (IOException e) {
             log(Level.FINEST, "Unable to read the RFFirmwareVersion: " + e.getMessage());
-            return "";
         }
+        return "";
     }
 
     /**
