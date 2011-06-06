@@ -22,6 +22,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.MagicNumberConstants;
 import com.energyict.protocolimpl.dlms.*;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -153,6 +154,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
     protected int oldMbusDiscovery;
     protected boolean fixMbusHexShortId;
     private int cipheringType;
+    private int maxRecPduSize;
 
     /**
      * Create a shadow object that contains all the necessary information for this communicationSession to complete successfully.
@@ -298,7 +300,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
         this.cosemObjectFactory = new CosemObjectFactory((ProtocolLink) this);
 
         ConformanceBlock cb = new ConformanceBlock(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK);
-        XdlmsAse xDlmsAse = new XdlmsAse(null, true, -1, 6, cb, 1200);
+        XdlmsAse xDlmsAse = new XdlmsAse(null, true, -1, 6, cb, maxRecPduSize);
         //TODO the dataTransport encryptionType should be a property (although currently only 0 is described by DLMS)
         SecurityContext sc = new SecurityContext(this.datatransportSecurityLevel, this.authenticationSecurityLevel, 0, "EIT12345".getBytes(), getSecurityProvider(), this.cipheringType);
 
@@ -1139,6 +1141,8 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
             throw new InvalidPropertyException("Only 0 or 1 is allowed for the CipheringType property");
         }
 
+        this.maxRecPduSize = Integer.parseInt(properties.getProperty(DlmsProtocolProperties.MAX_REC_PDU_SIZE, DlmsProtocolProperties.DEFAULT_MAX_REC_PDU_SIZE));
+
         doValidateProperties();
     }
 
@@ -1195,6 +1199,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
         result.add("OldMbusDiscovery");
         result.add("FixMbusHexShortId");
         result.add("CipheringType");
+        result.add(DlmsProtocolProperties.MAX_REC_PDU_SIZE);
 
         List<String> protocolKeys = doGetOptionalKeys();
         if (protocolKeys != null) {

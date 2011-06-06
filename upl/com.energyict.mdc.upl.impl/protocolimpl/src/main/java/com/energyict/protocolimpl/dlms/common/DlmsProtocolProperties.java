@@ -56,7 +56,7 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
     public static final String DEFAULT_CONFORMANCE_BLOCK_VALUE_SN = "" + ConformanceBlock.DEFAULT_SN_CONFORMANCE_BLOCK;
     public static final String DEFAULT_SYSTEM_IDENTIFIER = "EICTCOMM";
     public static final String DEFAULT_INVOKE_ID_AND_PRIORITY = "66"; // 0x42, 0b01000010 -> [invoke-id = 1, service_class = 1 (confirmed), priority = 0 (normal)]
-    public static final String DEFAULT_MAX_REC_PDU_SIZE = "1200";
+    public static final String DEFAULT_MAX_REC_PDU_SIZE = "4096";
     public static final String DEFAULT_PROPOSED_DLMS_VERSION = "6";
     public static final String DEFAULT_PROPOSED_QOS = "-1";
     public static final String DEFAULT_REQUEST_TIMEZONE = "0";
