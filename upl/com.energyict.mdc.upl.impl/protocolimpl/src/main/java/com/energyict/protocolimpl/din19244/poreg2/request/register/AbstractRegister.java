@@ -89,7 +89,7 @@ abstract public class AbstractRegister extends AbstractRequest {
     @Override
     public void doRequest() throws IOException {
         byte[] result = new byte[0];
-        byte[] response = poreg.getConnection().doRequest(getRequestASDU(), getAdditionalBytes(), getExpectedResponseType(), getResponseASDU(), getDelay());
+        byte[] response = poreg.getConnection().doRequest(getRequestASDU(), getAdditionalBytes(), getExpectedResponseType(), getResponseASDU());
 
         while (true) {
             validateAdditionalBytes(response);
@@ -99,7 +99,7 @@ abstract public class AbstractRegister extends AbstractRequest {
                 break;
             }
             previouslyReceivedNumberOfRegisters = getReceivedNumberOfRegisters();
-            response = poreg.getConnection().doContinue(getExpectedResponseType(), getResponseASDU(), getDelay());
+            response = poreg.getConnection().doContinue(getExpectedResponseType(), getResponseASDU());
         }
 
         //Parse the rest

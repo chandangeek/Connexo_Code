@@ -33,7 +33,7 @@ abstract public class AbstractRequest {
     }
 
     public void doRequest() throws IOException {
-        byte[] response = poreg.getConnection().doRequest(getRequestASDU(), getAdditionalBytes(), getExpectedResponseType(), getResponseASDU(), getDelay());
+        byte[] response = poreg.getConnection().doRequest(getRequestASDU(), getAdditionalBytes(), getExpectedResponseType(), getResponseASDU());
         response = validateAdditionalBytes(response);
 
         //Parse the rest
@@ -42,10 +42,6 @@ abstract public class AbstractRequest {
 
     protected byte[] validateAdditionalBytes(byte[] response) throws IOException {
         return response;        //Default there's no additional bytes to validate. Subclasses can override.
-    }
-
-    protected int getDelay() {
-        return 500;             //Default, can be overridden
     }
 
     protected abstract int getResponseASDU();
@@ -71,7 +67,7 @@ abstract public class AbstractRequest {
     }
 
     public void write() throws IOException {
-        byte[] response = poreg.getConnection().doSimpleRequest(getWriteASDU(), getAdditionalBytes(), getWriteBytes(), getDelay());
+        byte[] response = poreg.getConnection().doSimpleRequest(getWriteASDU(), getAdditionalBytes(), getWriteBytes());
         parseWriteResponse(response);
     }
 }

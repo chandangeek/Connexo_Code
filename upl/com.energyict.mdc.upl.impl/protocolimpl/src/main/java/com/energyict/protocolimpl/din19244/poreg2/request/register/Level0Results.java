@@ -36,11 +36,6 @@ public class Level0Results extends AbstractRegister {
     }
 
     @Override
-    protected int getDelay() {
-        return 2000;
-    }
-
-    @Override
     protected void parse(byte[] data) {
         values = RegisterDataParser.parseData(data, getTotalReceivedNumberOfRegisters(), getReceivedNumberOfFields());
     }

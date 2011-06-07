@@ -70,7 +70,7 @@ public class ProfileData extends AbstractRequest {
 
     @Override
     public void doRequest() throws IOException {
-        byte[] response = poreg.getConnection().doRequest(getRequestASDU(), getAdditionalBytes(), getExpectedResponseType(), getResponseASDU(), getDelay());
+        byte[] response = poreg.getConnection().doRequest(getRequestASDU(), getAdditionalBytes(), getExpectedResponseType(), getResponseASDU());
 
         while (true) {
             response = validateAdditionalBytes(response);
@@ -78,7 +78,7 @@ public class ProfileData extends AbstractRequest {
             if (isComplete()) {
                 break;
             }
-            response = poreg.getConnection().doContinue(getExpectedResponseType(), getResponseASDU(), getDelay());
+            response = poreg.getConnection().doContinue(getExpectedResponseType(), getResponseASDU());
         }
     }
 
@@ -155,10 +155,5 @@ public class ProfileData extends AbstractRequest {
     @Override
     protected byte[] getRequestASDU() {
         return ASDU.ProfileData.getIdBytes();
-    }
-
-    @Override
-    protected int getDelay() {
-        return 2000;
     }
 }

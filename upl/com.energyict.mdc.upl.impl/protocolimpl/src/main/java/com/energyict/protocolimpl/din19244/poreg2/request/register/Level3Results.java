@@ -31,11 +31,6 @@ public class Level3Results extends AbstractRegister {
     }
 
     @Override
-    protected int getDelay() {
-        return 2000;
-    }
-
-    @Override
     protected int getRegisterGroupID() {
         return RegisterGroupID.Level3Result.getId();
     }

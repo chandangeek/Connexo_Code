@@ -27,7 +27,6 @@ public class PoregConnection implements ProtocolConnection {
     private int retries;
     private Poreg poreg;
 
-    private static final int NO_DATA_AVAILABLE = -1;
     private static final int END = 0x16;
     private static final int START_FIXED = 0x10;
     private static final int START_VARIABLE = 0x68;
@@ -51,7 +50,7 @@ public class PoregConnection implements ProtocolConnection {
 
     public void disconnectMAC() throws NestedIOException, ProtocolConnectionException {
         try {
-            byte[] result = sendAndReceive(Poreg2Frame.getDisconnectFrame(poreg), 500);
+            byte[] result = sendAndReceive(Poreg2Frame.getDisconnectFrame(poreg));
             parseFixedFrame(result, Response.ACK);
         } catch (IOException e) {
             throw new NestedIOException(e);
@@ -74,30 +73,33 @@ public class PoregConnection implements ProtocolConnection {
     }
 
     /**
-     * Read one byte
+     * Try to read one byte, timeout if nothing is received for a defined amount of time.
+     *
+     * @param retryRequest: the request to be executed when retrying.
+     * @return the read byte
+     * @throws java.io.IOException when there's a communication problem
      */
-    public int readByte() throws NestedIOException, ConnectionException {
-        try {
-            if (inputStream.available() != 0) {
-                return inputStream.read();
-            } else {
-                Thread.sleep(1);
+    public int readByte(byte[] retryRequest) throws IOException {
+        return readBytes(1, retryRequest)[0] & 0xFF;
             }
-        } catch (InterruptedException e) {
-            throw new NestedIOException(e);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new ConnectionException("Connection, readByte() error " + e.getMessage());
-        }
-        return -1;       //If no data is available
-    }
 
     /**
-     * Read a number of bytes
+     * Try to read a number of bytes, timeout if nothing is received for a defined amount of time.
+     *
+     * @param length the number of bytes to be read
+     * @param retryRequest: the request to be executed when retrying.
+     * @return the read byte
+     * @throws java.io.IOException when there's a communication problem
      */
-    public byte[] readBytes(int length) throws NestedIOException, ConnectionException {
+    public byte[] readBytes(int length, byte[] retryRequest) throws IOException {
+
+        long endMillis = System.currentTimeMillis() + timeout;
+        int counter = 0;
+
+        while (true) {
+
         try {
-            if (inputStream.available() != 0) {
+                if (inputStream.available() >= length) {
                 byte[] result = new byte[length];
                 inputStream.read(result);
                 return result;
@@ -107,85 +109,75 @@ public class PoregConnection implements ProtocolConnection {
         } catch (InterruptedException e) {
             throw new NestedIOException(e);
         } catch (IOException e) {
-            e.printStackTrace();
             throw new ConnectionException("Connection, readBytes() error " + e.getMessage());
         }
-        return new byte[0];       //If no data is available
-    }
-
-    public byte[] sendAndReceive(byte[] data, int millis) throws IOException {
-        sendData(data);
-        ProtocolTools.delay(millis);
-
-        ByteArrayOutputStream result = new ByteArrayOutputStream();
-        long endMillis = System.currentTimeMillis() + timeout;
-        int counter = 0;
-
-        while (true) {
-            int kar = readByte();
-            if (kar != NO_DATA_AVAILABLE) {
-                switch (kar) {
-                    case START_FIXED:
-                        readFixedFrame(result);
-                        return result.toByteArray();
-                    case START_VARIABLE:
-                        readVariableFrame(result);
-                        return result.toByteArray();
-                    case START_CONNECT:
-                        result.write(kar);
-                        readConnectionFrame(result);
-                        return result.toByteArray();
-                }
-            } else {
-                ProtocolTools.delay(1);
-            }
 
             // in case of a response timeout
             if (System.currentTimeMillis() > endMillis) {
                 if (counter == retries) {
-                    throw new ProtocolConnectionException("receiveDataLength() response timeout error");
+                    throw new ProtocolConnectionException("Response timeout error, after " + retries + " retries");
                 } else {
-                    sendData(data);
-                    ProtocolTools.delay(millis);
+                    sendData(retryRequest);
                     endMillis = System.currentTimeMillis() + timeout;
                     counter++;
-                }
+    }
             }
         }
     }
+
+    public byte[] sendAndReceive(byte[] data) throws IOException {
+        sendData(data);
+        ByteArrayOutputStream result = new ByteArrayOutputStream();
+
+        int kar = readByte(data);
+                switch (kar) {
+                    case START_FIXED:
+                readFixedFrame(result, data);
+                        return result.toByteArray();
+                    case START_VARIABLE:
+                readVariableFrame(result, data);
+                        return result.toByteArray();
+                    case START_CONNECT:
+                        result.write(kar);
+                readConnectionFrame(result, data);
+                        return result.toByteArray();
+                }
+        throw new ProtocolConnectionException("Unexpected first byte: " + kar + ". Expected: 0x10 (fixed frame), 0x68 (variable frame) or 0x43 (connecting)");
+
+                }
 
     private void sendData(byte[] data) throws IOException {
         outputStream.write(data);
     }
 
-    private void readConnectionFrame(ByteArrayOutputStream result) throws IOException {
+    private void readConnectionFrame(ByteArrayOutputStream result, byte[] retryRequest) throws IOException {
         byte[] userData;
-        userData = readBytes(15);
+        userData = readBytes(9, retryRequest);
         result.write(userData);
     }
 
-    private void readVariableFrame(ByteArrayOutputStream result) throws IOException {
+    private void readVariableFrame(ByteArrayOutputStream result, byte[] retryRequest) throws IOException {
         byte[] userData;
-        int length = readByte();
-        int length2 = readByte();
+        int length = readByte(retryRequest);
+        int length2 = readByte(retryRequest);
         if (length != length2) {
             throw new ProtocolConnectionException("Connection frame error: expected " + length + " as length confirmer, received " + length2);
         }
-        int start2 = readByte();
+        int start2 = readByte(retryRequest);
         if (START_VARIABLE != start2) {
             throw new ProtocolConnectionException("Connection frame error: expected " + START_VARIABLE + " as start confirmer, received " + start2);
         }
         if (length > 0) {
-            userData = readBytes(length);
+            userData = readBytes(length, retryRequest);
         } else {
             return;
         }
-        int crc = readByte();
+        int crc = readByte(retryRequest);
         int calcedCRC = calcCRC(userData);
         if (crc != calcedCRC) {
-            throw new ProtocolConnectionException("CRC error: expected " + crc + ", received " + calcedCRC);
+            throw new ProtocolConnectionException("CRC error: expected " + calcedCRC + ", received " + crc);
         }
-        int end = readByte();
+        int end = readByte(retryRequest);
         if (end != END) {
             throw new ProtocolConnectionException("Connection error: expected " + END + "at the end, received " + end);
         }
@@ -196,14 +188,14 @@ public class PoregConnection implements ProtocolConnection {
         return CRCGenerator.getModulo256(userData);
     }
 
-    private void readFixedFrame(ByteArrayOutputStream result) throws IOException {
-        byte[] userData = readBytes(3);
-        int crc = readByte();
+    private void readFixedFrame(ByteArrayOutputStream result, byte[] retryRequest) throws IOException {
+        byte[] userData = readBytes(3, retryRequest);
+        int crc = readByte(retryRequest);
         int calcedCRC = calcCRC(userData);
         if (crc != calcedCRC) {
-            throw new ProtocolConnectionException("CRC error: expected " + crc + ", received " + calcedCRC);
+            throw new ProtocolConnectionException("CRC error: expected " + calcedCRC + ", received " + crc);
         }
-        int end = readByte();
+        int end = readByte(retryRequest);
         if (end != END) {
             throw new ProtocolConnectionException("Connection frame error: expected " + END + " at the end, received " + end);
         }
@@ -211,8 +203,17 @@ public class PoregConnection implements ProtocolConnection {
     }
 
     public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException {
+        if (strID == null || "".equals(strID)) {
+            strID = "00000000";
+        }
+        if (strPassword == null) {
+            strPassword = "";
+        }
+        if (nodeId == null || "".equals(nodeId)) {
+            nodeId = "00000000";
+        }
         byte[] data = Poreg2Frame.getConnectFrame(strID, strPassword, nodeId);
-        byte[] result = sendAndReceive(data, 500);    //Force a waiting period, the meter is slow
+        byte[] result = sendAndReceive(data);
         String response = new String(result).substring(0, 1);
         if (!CONNECTED.equals(response)) {
             throw new IOException("Error connecting to the Poreg 2 data recorder, returned " + response);
@@ -224,18 +225,18 @@ public class PoregConnection implements ProtocolConnection {
         return new byte[0];
     }
 
-    public byte[] doRequest(byte[] requestASDUType, byte[] extraInfo, int expectedResponseType, int expectedASDUType, int delay) throws IOException {
+    public byte[] doRequest(byte[] requestASDUType, byte[] extraInfo, int expectedResponseType, int expectedASDUType) throws IOException {
         byte[] request = Poreg2Frame.getRequestFrame(poreg, requestASDUType, extraInfo);
-        byte[] response = sendAndReceive(request, delay);                                             //Wait for the slow meter
+        byte[] response = sendAndReceive(request);
         return parseResponseHeader(response, expectedResponseType, expectedASDUType);
     }
 
     /**
      * Do a request with a simple fixed response.
      */
-    public byte[] doSimpleRequest(byte[] requestASDUType, byte[] header, byte[] extraInfo, int delay) throws IOException {
+    public byte[] doSimpleRequest(byte[] requestASDUType, byte[] header, byte[] extraInfo) throws IOException {
         byte[] request = Poreg2Frame.getRequestFrame(poreg, requestASDUType, ProtocolTools.concatByteArrays(header, extraInfo));
-        return sendAndReceive(request, delay);
+        return sendAndReceive(request);
     }
 
     private byte[] parseResponseHeader(byte[] response, int expectedResponseType, int expectedASDUType) throws IOException {
@@ -278,9 +279,9 @@ public class PoregConnection implements ProtocolConnection {
         return new byte[]{hex[2], hex[1]};
     }
 
-    public byte[] doContinue(int expectedResponseType, int expectedASDUType, int delay) throws IOException {
+    public byte[] doContinue(int expectedResponseType, int expectedASDUType) throws IOException {
         byte[] request = Poreg2Frame.getContinueFrame(poreg);
-        byte[] response = sendAndReceive(request, delay);                                             //Wait for the slow meter
+        byte[] response = sendAndReceive(request);
         return parseResponseHeader(response, expectedResponseType, expectedASDUType);
     }
 }

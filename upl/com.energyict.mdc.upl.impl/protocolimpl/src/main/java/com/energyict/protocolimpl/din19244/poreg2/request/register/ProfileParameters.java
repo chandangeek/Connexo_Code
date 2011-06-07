@@ -33,11 +33,6 @@ public class ProfileParameters extends AbstractRegister {
     }
 
     @Override
-    protected int getDelay() {
-        return 2000;
-    }
-
-    @Override
     protected void parse(byte[] data) throws IOException {
         profileParameters = new ArrayList<ProfileInfo>();
         List<ExtendedValue> values = RegisterDataParser.parseData(data, getTotalReceivedNumberOfRegisters(), getReceivedNumberOfFields());

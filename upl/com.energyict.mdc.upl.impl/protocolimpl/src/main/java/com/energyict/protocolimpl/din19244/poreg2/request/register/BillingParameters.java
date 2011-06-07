@@ -32,10 +32,6 @@ public class BillingParameters extends AbstractRegister {
         return configs;
     }
 
-    protected int getDelay() {
-        return 2000;
-    }
-
     @Override
     protected int getRegisterGroupID() {
         return RegisterGroupID.BillingParameters.getId();

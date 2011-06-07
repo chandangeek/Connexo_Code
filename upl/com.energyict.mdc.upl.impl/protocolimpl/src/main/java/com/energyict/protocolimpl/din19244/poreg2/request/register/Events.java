@@ -35,15 +35,11 @@ public class Events extends AbstractRegister {
 
     @Override
     public void doRequest() throws IOException {
-        byte[] response = poreg.getConnection().doRequest(getRequestASDU(), getAdditionalBytes(), getExpectedResponseType(), getResponseASDU(), getDelay());
+        byte[] response = poreg.getConnection().doRequest(getRequestASDU(), getAdditionalBytes(), getExpectedResponseType(), getResponseASDU());
         response = validateAdditionalBytes(response);
 
         //Parse the rest
         parse(response);
-    }
-
-    protected int getDelay() {
-        return 1000;
     }
 
     public void parse(byte[] data) throws IOException {
