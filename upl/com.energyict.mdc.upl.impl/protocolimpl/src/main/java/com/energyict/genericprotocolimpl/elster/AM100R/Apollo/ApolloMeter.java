@@ -73,13 +73,22 @@ public class ApolloMeter extends DLMSProtocol {
     private String serialNumber;
 
     /**
+     * The ObisCode of the daily profile
+     */
+    private String dailyProfileObiscode;
+
+    /**
      * Fixed static string for the {@link #forcedToReadCache} property
      */
-    private static final String PROP_FORCEDTOREADCACHE = "ForcedToReadCache";
+    private static final String PROPERTY_FORCEDTOREADCACHE = "ForcedToReadCache";
     /**
      * Fixed static string for the {@link #password} property
      */
     private static final String PROPERTY_PASSWORD = "Password";
+    /**
+     * Fixed static string for the {@link #dailyProfileObiscode} property
+     */
+    private static final String PROPERTY_DAILY_PROFILE_OBISCODE = "DailyProfileObisCode";
 
     /**
      * The used ApolloMessaging object
@@ -163,7 +172,12 @@ public class ApolloMeter extends DLMSProtocol {
      * @throws IOException if an error occurred during the dataFetching
      */
     private ProfileData getDailyProfileData() throws IOException {
-        ProfileGeneric pg = getApolloObjectFactory().getGenericProfileObject(this.obisCodeProvider.getDailyLoadProfileObisCode());
+        ProfileGeneric pg;
+        if(this.dailyProfileObiscode.equalsIgnoreCase("")){
+            pg = getApolloObjectFactory().getDailyProfile();
+        } else {
+            pg = getApolloObjectFactory().getGenericProfileObject(ObisCode.fromString(this.dailyProfileObiscode));
+        }
         return getProfileData(pg);
     }
 
@@ -363,14 +377,16 @@ public class ApolloMeter extends DLMSProtocol {
     }
 
     /**
-     * Define a list of OPTIONAL properties, other then the ones configured in {@linkplain #getOptionalKeys()}.
+     * Define a list of OPTIONAL properties, other then the ones configured in {@link #getOptionalKeys()}.
      * These properties can be used specifically for the protocol
      *
      * @return the properties list
      */
     @Override
     protected List<String> doGetOptionalKeys() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        List<String> optionalKeys = new ArrayList<String>();
+        optionalKeys.add(PROPERTY_DAILY_PROFILE_OBISCODE);
+        return optionalKeys;
     }
 
     /**
@@ -385,12 +401,14 @@ public class ApolloMeter extends DLMSProtocol {
             this.serialNumber = "";
         }
 
-        this.forcedToReadCache = !getProperties().getProperty(PROP_FORCEDTOREADCACHE, "0").equalsIgnoreCase("0");
+        this.forcedToReadCache = !getProperties().getProperty(PROPERTY_FORCEDTOREADCACHE, "0").equalsIgnoreCase("0");
         if ((getMeter() != null) && (!getMeter().getPassword().equals(""))) {
             this.password = getMeter().getPassword();
         } else if (getMeter() == null) {
             this.password = getProperties().getProperty(PROPERTY_PASSWORD, "");
         }
+
+        this.dailyProfileObiscode = getProperties().getProperty(PROPERTY_DAILY_PROFILE_OBISCODE, "");
     }
 
     /**

@@ -210,7 +210,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
     protected abstract List<String> doGetRequiredKeys();
 
     /**
-     * Define a list of OPTIONAL properties, other then the ones configured in {@linkplain #getOptionalKeys()}.
+     * Define a list of OPTIONAL properties, other then the ones configured in {@link #getOptionalKeys()}.
      * These properties can be used specifically for the protocol
      *
      * @return the properties list

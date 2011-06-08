@@ -22,7 +22,7 @@ public class ObisCodeProvider implements CommonObisCodeProvider {
     public static final ObisCode ClockSynchronizationObisCode = ObisCode.fromString("0.0.96.2.12.255");
     public static final ObisCode SerialNumberObisCode = ObisCode.fromString("0.0.96.1.0.255");
     public static final ObisCode LoadProfileP1 = ObisCode.fromString("1.0.99.1.0.255");
-    public static final ObisCode LoadProfileDaily = ObisCode.fromString("1.0.99.2.0.255");
+    public static final ObisCode LoadProfileDaily = ObisCode.fromString("0.0.98.2.1.255");
     public static final ObisCode LoadProfileMonthly = ObisCode.fromString("0.0.98.1.1.255");
     public static final ObisCode AssociationLnCurrentClient = ObisCode.fromString("0.0.40.0.0.255");
     public static final ObisCode AssociationLnPublicClient = ObisCode.fromString("0.0.40.0.1.255");
