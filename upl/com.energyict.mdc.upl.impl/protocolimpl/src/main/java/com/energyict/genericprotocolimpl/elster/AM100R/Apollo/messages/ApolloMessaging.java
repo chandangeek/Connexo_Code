@@ -40,11 +40,10 @@ public class ApolloMessaging extends GenericMessaging {
 
     @Override
     public MessageCategorySpec getActivityCalendarCategory() {
-        MessageCategorySpec catActivityCal = new MessageCategorySpec(
-                RtuMessageCategoryConstants.ACTICITYCALENDAR);
-        MessageSpec msgSpec = addTimeOfUse(
-                RtuMessageKeyIdConstants.ACTIVITYCALENDAR,
-                RtuMessageConstant.TOU_ACTIVITY_CAL, false);
+        MessageCategorySpec catActivityCal = new MessageCategorySpec(RtuMessageCategoryConstants.ACTICITYCALENDAR);
+        MessageSpec msgSpec = addTimeOfUse(RtuMessageKeyIdConstants.ACTIVITYCALENDAR, RtuMessageConstant.TOU_ACTIVITY_CAL, false);
+        catActivityCal.addMessageSpec(msgSpec);
+        msgSpec = addActivateCalendarMsg(RtuMessageKeyIdConstants.ACTIVATEACTIVITYCALENDAR, RtuMessageConstant.TOU_ACTIVATE_CALENDAR, false);
         catActivityCal.addMessageSpec(msgSpec);
         return catActivityCal;
     }
@@ -64,19 +63,33 @@ public class ApolloMessaging extends GenericMessaging {
         MessageValueSpec msgVal = new MessageValueSpec();
         msgVal.setValue(" ");
         tagSpec.add(msgVal);
-        /*MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.TOU_ACTIVITY_NAME, false);
-        tagSpec.add(msgAttrSpec);*/
-
         MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
                 RtuMessageConstant.TOU_ACTIVITY_DATE, false);
         tagSpec.add(msgAttrSpec);
         msgAttrSpec = new MessageAttributeSpec(
                 RtuMessageConstant.TOU_ACTIVITY_CODE_TABLE, true);
         tagSpec.add(msgAttrSpec);
-        /*msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.TOU_ACTIVITY_USER_FILE, false);
-        tagSpec.add(msgAttrSpec);*/
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
+    /**
+     * Creates a MessageSpec to add an Activate a passive ActivityCalendar
+     *
+     * @param keyId    the id for the MessageSpec
+     * @param tagName  the name for the MessageSpec
+     * @param advanced indicates whether it's an advanced message or not
+     * @return the newly created MessageSpec
+     */
+    protected MessageSpec addActivateCalendarMsg(String keyId, String tagName, boolean advanced) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        tagSpec.add(msgVal);
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
+                RtuMessageConstant.TOU_ACTIVITY_DATE, false);
+        tagSpec.add(msgAttrSpec);
         msgSpec.add(tagSpec);
         return msgSpec;
     }

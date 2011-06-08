@@ -53,6 +53,7 @@ public class RtuMessageConstant {
     public static final String TOU_ACTIVITY_NAME = "Calendar_Name";
     public static final String TOU_ACTIVITY_CODE_TABLE = "Code_Table";
     public static final String TOU_ACTIVITY_USER_FILE = "Userfile";
+    public static final String TOU_ACTIVATE_CALENDAR = "Activate_Calendar";
     public static final String TOU_ACTIVITY_DATE = "Activation_Date";
     public static final String TOU_SPECIAL_DAYS = "Special_Days";
     public static final String TOU_SPECIAL_DAYS_DELETE = "Special_Days_Delete";

@@ -19,6 +19,7 @@ public class RtuMessageKeyIdConstants {
     public static final String LOADLIMITCLEAR = "Clear the Loadlimit configuration";
     public static final String LOADLIMITGROUPID = "Set emergency profile group id's";
     public static final String ACTIVITYCALENDAR = "Select the Activity Calendar";
+    public static final String ACTIVATEACTIVITYCALENDAR = "Activate the passive Calendar";
     public static final String SPECIALDAYS = "Select the Special days Calendar";
     public static final String SETTIME = "Set the meterTime to a specific time";
     public static final String CREATEDATABASEENTRIES = "Create entries in the meters database";

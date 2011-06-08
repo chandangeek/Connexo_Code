@@ -67,6 +67,9 @@ public class MessageHandler extends DefaultHandler{
 			setType(RtuMessageConstant.TOU_ACTIVITY_CAL);
 			handleTOUMessage(attrbs);
             isXmlInContent = true;  // for certain protocols (ApolloMeter), we put in the xmlParsed CodeTable
+        } else if (RtuMessageConstant.TOU_ACTIVATE_CALENDAR.equals(qName)){
+            setType(RtuMessageConstant.TOU_ACTIVATE_CALENDAR);
+            handleTOUActivation(attrbs);
 		} else if(RtuMessageConstant.TOU_SPECIAL_DAYS.equals(qName)){
 			setType(RtuMessageConstant.TOU_SPECIAL_DAYS);
 			handleSpecialDays(attrbs);
@@ -306,6 +309,10 @@ public class MessageHandler extends DefaultHandler{
 		this.touCodeTable = attrbs.getValue(RtuMessageConstant.TOU_ACTIVITY_CODE_TABLE);
 		this.touUserFile = attrbs.getValue(RtuMessageConstant.TOU_ACTIVITY_USER_FILE);
 	}
+
+    private void handleTOUActivation(Attributes attrbs){
+        this.touActivationDate = ProtocolTools.getEpochTimeFromString(attrbs.getValue(RtuMessageConstant.TOU_ACTIVITY_DATE));
+    }
 
 	private void handleSpecialDays(Attributes attrbs) {
 		this.touSpecialDaysCodeTable = attrbs.getValue(RtuMessageConstant.TOU_SPECIAL_DAYS_CODE_TABLE);

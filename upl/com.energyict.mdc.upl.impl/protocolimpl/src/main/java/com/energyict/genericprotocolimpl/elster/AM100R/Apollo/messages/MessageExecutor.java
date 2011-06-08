@@ -18,8 +18,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,6 +49,7 @@ public class MessageExecutor extends GenericMessageExecutor {
 
             boolean timeOfUseMessage = messageHandler.getType().equals(RtuMessageConstant.TOU_ACTIVITY_CAL);
             boolean testMessage = messageHandler.getType().equals(RtuMessageConstant.TEST_MESSAGE);
+            boolean activateCalendar = messageHandler.getType().equals(RtuMessageConstant.TOU_ACTIVATE_CALENDAR);
             if (timeOfUseMessage) {
                 getLogger().log(Level.INFO, "Received update ActivityCalendar message.");
                 getLogger().log(Level.FINEST, "Parsing the content of the CodeTable.");
@@ -59,7 +59,16 @@ public class MessageExecutor extends GenericMessageExecutor {
                 getLogger().log(Level.FINEST, "Sending out the new Passive Calendar objects.");
                 getActivityCalendarController().writeCalendar();
                 success = true;
-            } else if(testMessage){
+            } else if (activateCalendar) {
+                String dateFromMessage = messageHandler.getActivationDate();
+                if(dateFromMessage.equalsIgnoreCase("1")){
+                    getActivityCalendarController().writeCalendarActivationTime(null);  //writing null will activate immediately
+                } else {
+                    Calendar calendar = Calendar.getInstance(this.protocol.getTimeZone());
+                    calendar.setTimeInMillis(Long.valueOf(dateFromMessage) * 1000);
+                    getActivityCalendarController().writeCalendarActivationTime(calendar);
+                }
+            } else if (testMessage) {
                 getLogger().log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": TestMessage");
                 doTestMessage(messageHandler.getTestUserFileId());
                 success = true;
@@ -74,8 +83,6 @@ public class MessageExecutor extends GenericMessageExecutor {
                 rtuMessage.setFailed();
             }
         }
-
-        //TODO implement proper functionality.
     }
 
     private boolean doTestMessage(String userFileId) throws IOException, BusinessException, SQLException {
@@ -210,28 +217,30 @@ public class MessageExecutor extends GenericMessageExecutor {
         return true;
     }
 
-	private void waitCyclus(int delay) throws IOException{
-		try {
-			int nrOfPolls = (delay/20) + (delay%20==0?0:1);
-			for(int i = 0; i < nrOfPolls; i++){
-				if(i < nrOfPolls-1){
+    private void waitCyclus(int delay) throws IOException {
+        try {
+            int nrOfPolls = (delay / 20) + (delay % 20 == 0 ? 0 : 1);
+            for (int i = 0; i < nrOfPolls; i++) {
+                if (i < nrOfPolls - 1) {
                     ProtocolTools.delay(20000);
-				} else {
-                    ProtocolTools.delay((delay-(i*20))*1000);
-				}
-				this.protocol.getLogger().log(Level.INFO, "Keeping connection alive");
-				this.protocol.getTime();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException("Could not keep connection alive." + e.getMessage());
-		}
-	}
+                } else {
+                    ProtocolTools.delay((delay - (i * 20)) * 1000);
+                }
+                this.protocol.getLogger().log(Level.INFO, "Keeping connection alive");
+                this.protocol.getTime();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new IOException("Could not keep connection alive." + e.getMessage());
+        }
+    }
 
-	/** Short notation for MeteringWarehouse.getCurrent() */
-	public MeteringWarehouse mw() {
-		return MeteringWarehouse.getCurrent();
-	}
+    /**
+     * Short notation for MeteringWarehouse.getCurrent()
+     */
+    public MeteringWarehouse mw() {
+        return MeteringWarehouse.getCurrent();
+    }
 
     @Override
     protected TimeZone getTimeZone() {

@@ -298,7 +298,11 @@ public class ApolloActivityCalendarController implements ActivityCalendarControl
      * @param activationDate the given time
      */
     public void writeCalendarActivationTime(Calendar activationDate) throws IOException {
-        getActivityCalendar().writeActivatePassiveCalendarTime(new OctetString(convertUnixToGMTDateTime(activationDate.getTimeInMillis()).getBEREncodedByteArray(), 0));
+        if(activationDate == null){
+            getActivityCalendar().activateNow();
+        } else {
+            getActivityCalendar().writeActivatePassiveCalendarTime(new OctetString(convertUnixToGMTDateTime(activationDate.getTimeInMillis()).getBEREncodedByteArray(), 0));
+        }
     }
 
     /**
