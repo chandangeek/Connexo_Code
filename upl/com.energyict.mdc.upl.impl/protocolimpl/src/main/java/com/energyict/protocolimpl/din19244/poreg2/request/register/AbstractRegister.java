@@ -84,7 +84,7 @@ abstract public class AbstractRegister extends AbstractRequest {
     /**
      * Requests the registers contents based on the number of fields and registers defined in the constructor.
      * Parses the received data into relevant content.
-     * @throws java.io.IOException in case of timeout
+     * @throws IOException in case of timeout
      */
     @Override
     public void doRequest() throws IOException {
@@ -124,7 +124,7 @@ abstract public class AbstractRegister extends AbstractRequest {
      * They should contain the same values as the info given in the constructor.
      * @param response the received bytes
      * @return the remaining bytes (without the additional data)
-     * @throws java.io.IOException
+     * @throws IOException
      */
     @Override
     protected byte[] validateAdditionalBytes(byte[] response) throws IOException {

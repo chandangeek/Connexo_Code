@@ -31,7 +31,9 @@ public class PoregConnection implements ProtocolConnection {
     private static final int START_FIXED = 0x10;
     private static final int START_VARIABLE = 0x68;
     private static final int START_CONNECT = 0x43;
+    private static final int CONTINUE = 0x40;
     private static final String CONNECTED = "C";
+    private boolean doContinue = false;
 
     public PoregConnection(Poreg poreg, InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) {
         this.inputStream = inputStream;
@@ -42,6 +44,10 @@ public class PoregConnection implements ProtocolConnection {
     }
 
     public void setHHUSignOn(HHUSignOn hhuSignOn) {
+    }
+
+    public boolean isDoContinue() {
+        return doContinue;
     }
 
     public HHUSignOn getHhuSignOn() {
@@ -269,6 +275,9 @@ public class PoregConnection implements ProtocolConnection {
             throw new IOException("Error receiving register group, length mismatch. Expected " + (response.length - 3) + ", received " + length);
         }
         offset++;
+
+        doContinue = ((response[offset] & 0xFF) == CONTINUE);  //Check if a following frame is expected
+
         offset += 4; //Skip the 4 zero bytes.
 
         return ProtocolTools.getSubArray(response, offset);

@@ -39,6 +39,14 @@ public abstract class Poreg extends AbstractProtocol implements MessageProtocol 
     }
 
     @Override
+    public String getStrID() {
+        if (null == super.getStrID() || "".equals(super.getStrID())) {
+            return "00000000";
+        }
+        return super.getStrID();
+    }
+
+    @Override
     public MeterType getMeterType() {
         return meterType;
     }

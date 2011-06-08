@@ -75,15 +75,11 @@ public class ProfileData extends AbstractRequest {
         while (true) {
             response = validateAdditionalBytes(response);
             parse(response);
-            if (isComplete()) {
+            if (!poreg.getConnection().isDoContinue()) {
                 break;
             }
             response = poreg.getConnection().doContinue(getExpectedResponseType(), getResponseASDU());
         }
-    }
-
-    private boolean isComplete() {
-        return getReceivedNumberOfRecords() < 29;
     }
 
     public List<ProfileDataEntry> getProfileDataEntries() {
