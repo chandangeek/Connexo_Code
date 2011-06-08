@@ -36,7 +36,10 @@ public class GlobalIndexReading extends AbstractRadioCommand {
 
     @Override
     public void parse(byte[] data) throws IOException {
+        parse(data, true, 0);
+    }
 
+    public void parse(byte[] data, boolean requestsAllowed, int numberOfPorts) throws IOException {
         if (data.length > 8) {
             readings = new long[4];
         } else {
@@ -46,7 +49,13 @@ public class GlobalIndexReading extends AbstractRadioCommand {
         readings[0] = ProtocolTools.getIntFromBytes(data, 0, 4);           //The indexes are signed values!
         readings[1] = ProtocolTools.getIntFromBytes(data, 4, 4);
 
-        boolean type4Inputs = getWaveFlow().getParameterFactory().readProfileType().isOfType4Iputs();
+        boolean type4Inputs;
+        if (requestsAllowed) {
+            type4Inputs = getWaveFlow().getParameterFactory().readProfileType().isOfType4Iputs();
+        } else {
+            type4Inputs = numberOfPorts == 4;
+        }
+
         if (data.length >= 12) {
             if (type4Inputs) {
                 readings[2] = ProtocolTools.getIntFromBytes(data, 8, 4);                               //MSB first in this case

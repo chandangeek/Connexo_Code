@@ -92,7 +92,7 @@ public class ObisCodeMapper {
                 int channel = obisCode.getB() - 1;
                 PulseWeight pulseWeight = waveFlowV2.getParameterFactory().readPulseWeight(channel + 1);
                 DailyConsumption consumption = waveFlowV2.getRadioCommandFactory().readDailyConsumption();
-                int value = consumption.getIndexZone().getDailyIndex(channel);
+                int value = consumption.getIndexZone().getDailyIndexOnPort(channel);
                 if (value == -1) {
                     throw new WaveFlowException("No billing data available yet");
                 }

@@ -22,10 +22,14 @@ public class EventStatusAndDescription {
     public static final int EVENTCODE_WIRECUT_TAMPER_D = 0x13;
     public static final int EVENTCODE_REEDFAULT_A = 0x14;
     public static final int EVENTCODE_REEDFAULT_B = 0x15;
-    private static final int EVENTCODE_BACKFLOW_START_A = 0x16;
-    private static final int EVENTCODE_BACKFLOW_START_B = 0x17;
-    private static final int EVENTCODE_BACKFLOW_END_A = 0x18;
-    private static final int EVENTCODE_BACKFLOW_END_B = 0x19;
+    private static final int EVENTCODE_BACKFLOW_VOLUMEMEASURING_START_A = 0x16;
+    private static final int EVENTCODE_BACKFLOW_VOLUMEMEASURING_START_B = 0x17;
+    private static final int EVENTCODE_BACKFLOW_VOLUMEMEASURING_END_A = 0x18;
+    private static final int EVENTCODE_BACKFLOW_VOLUMEMEASURING_END_B = 0x19;
+    private static final int EVENTCODE_BACKFLOW_FLOWRATE_START_A = 0x30;
+    private static final int EVENTCODE_BACKFLOW_FLOWRATE_START_B = 0x31;
+    private static final int EVENTCODE_BACKFLOW_FLOWRATE_END_A = 0x32;
+    private static final int EVENTCODE_BACKFLOW_FLOWRATE_END_B = 0x33;
     private static final int EVENTCODE_LEAKAGE_RESIDUAL_START_A = 0x1A;
     private static final int EVENTCODE_LEAKAGE_RESIDUAL_START_B = 0x1B;
     private static final int EVENTCODE_LEAKAGE_RESIDUAL_START_C = 0x1C;
@@ -42,8 +46,12 @@ public class EventStatusAndDescription {
     private static final int EVENTCODE_LEAKAGE_EXTREME_END_B = 0x27;
     private static final int EVENTCODE_LEAKAGE_EXTREME_END_C = 0x28;
     public static final int EVENTCODE_LEAKAGE_EXTREME_END_D = 0x29;
-    public static final int EVENTCODE_BURST = 0x2A;
-    public static final int EVENTCODE_OVERSPEED = 0x2B;
+    public static final int EVENTCODE_BURST = 0x34;
+    public static final int EVENTCODE_OVERSPEED = 0x35;
+
+    public static final int EVENTCODE_SIMPLE_BACKFLOW_A = 0x2E;
+    public static final int EVENTCODE_SIMPLE_BACKFLOW_B = 0x2F;
+
     private WaveFlow waveFlow;
 
     public EventStatusAndDescription(WaveFlow waveFlow) {
@@ -52,10 +60,10 @@ public class EventStatusAndDescription {
 
     public int getProtocolCodeForSimpleBackflow(int input) {
         if (input == 0) {
-            return EVENTCODE_BACKFLOW_END_A;
+            return EVENTCODE_SIMPLE_BACKFLOW_A;
         }
         if (input == 1) {
-            return EVENTCODE_BACKFLOW_END_B;
+            return EVENTCODE_SIMPLE_BACKFLOW_B;
         }
         return EVENTCODE_DEFAULT;
     }
@@ -129,12 +137,22 @@ public class EventStatusAndDescription {
         return "";
     }
 
-    public int getProtocolCodeForAdvancedBackflow(int input, boolean start) {
+    public int getProtocolCodeForAdvancedBackflowVolumeMeasuring(int input, boolean start) {
         if (input == 0) {
-            return start ? EVENTCODE_BACKFLOW_START_A : EVENTCODE_BACKFLOW_END_A;
+            return start ? EVENTCODE_BACKFLOW_VOLUMEMEASURING_START_A : EVENTCODE_BACKFLOW_VOLUMEMEASURING_END_A;
         }
         if (input == 1) {
-            return start ? EVENTCODE_BACKFLOW_START_B : EVENTCODE_BACKFLOW_END_B;
+            return start ? EVENTCODE_BACKFLOW_VOLUMEMEASURING_START_B : EVENTCODE_BACKFLOW_VOLUMEMEASURING_END_B;
+        }
+        return EVENTCODE_DEFAULT;
+    }
+
+    public int getProtocolCodeForAdvancedBackflowFlowRate(int input, boolean start) {
+        if (input == 0) {
+            return start ? EVENTCODE_BACKFLOW_FLOWRATE_START_A : EVENTCODE_BACKFLOW_FLOWRATE_END_A;
+        }
+        if (input == 1) {
+            return start ? EVENTCODE_BACKFLOW_FLOWRATE_START_B : EVENTCODE_BACKFLOW_FLOWRATE_END_B;
         }
         return EVENTCODE_DEFAULT;
     }

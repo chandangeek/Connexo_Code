@@ -79,7 +79,12 @@ public class ExtendedIndexReading extends AbstractRadioCommand {
             last4LoggedIndexes.add(indexes);
         }
 
-        dateOfLastLoggedValue = TimeDateRTCParser.parse(data, offset, 6, getWaveFlow().getTimeZone()).getTime();
+        TimeZone timeZone = getWaveFlow().getTimeZone();
+        if (timeZone == null) {
+            timeZone = TimeZone.getDefault();
+        }
+
+        dateOfLastLoggedValue = TimeDateRTCParser.parse(data, offset, 6, timeZone).getTime();
         offset += 6;
 
         dataloggingMeasurementPeriod = new SamplingPeriod(getWaveFlow());
@@ -93,7 +98,12 @@ public class ExtendedIndexReading extends AbstractRadioCommand {
     }
 
     private Calendar parseDateOfLastMonthsEnd() throws IOException {
-        Calendar calLastOfMonth = new GregorianCalendar(getWaveFlow().getTimeZone());
+        TimeZone timeZone = getWaveFlow().getTimeZone();
+        if (timeZone == null) {
+            timeZone = TimeZone.getDefault();
+        }
+
+        Calendar calLastOfMonth = new GregorianCalendar(timeZone);
         calLastOfMonth.setTime(dateOfLastLoggedValue);
         calLastOfMonth.set(Calendar.DATE, 1);
         calLastOfMonth.set(Calendar.HOUR_OF_DAY, 0);

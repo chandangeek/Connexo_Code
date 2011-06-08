@@ -29,8 +29,12 @@ public class CurrentIndexReading extends AbstractRadioCommand {
     @Override
     public void parse(byte[] data) throws IOException {
         readings = new int[2];
-        readings[0] = ProtocolTools.getIntFromBytes(data, 0, 4);           //The indexes are signed values!
-        readings[1] = ProtocolTools.getIntFromBytes(data, 4, 4);
+        int offset = 2;            //Skip the operation mode and application status
+
+        readings[0] = ProtocolTools.getIntFromBytes(data, offset, 4);           //The indexes are signed values!
+        offset += 4;
+
+        readings[1] = ProtocolTools.getIntFromBytes(data, offset, 4);
     }
 
     protected byte[] prepare() throws IOException {

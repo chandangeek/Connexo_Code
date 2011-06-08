@@ -9,6 +9,7 @@ import com.energyict.protocolimpl.coronis.waveflow.core.parameter.OperatingMode;
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.*;
 import com.energyict.protocolimpl.coronis.waveflow.waveflowV1.ProfileDataReaderV1;
 import com.energyict.protocolimpl.coronis.waveflow.waveflowV2.ProfileDataReader;
+import com.energyict.protocolimpl.coronis.waveflow.waveflowV2.WaveFlowV2;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -24,7 +25,6 @@ public class BubbleUpFrameParser {
     private static final int HOURLY = 60 * 60;
     private static final int DAILY = HOURLY * 24;
     private static final int WEEKLY = DAILY * 7;
-    private static final int MONTHLY = WEEKLY * 4;
 
     public static BubbleUpObject parse(byte[] data, WaveFlow waveflow) throws IOException {
         int type = data[0] & 0xFF;
@@ -51,17 +51,30 @@ public class BubbleUpFrameParser {
     private static BubbleUpObject parseDailyConsumption(byte[] data, WaveFlow waveflow) throws IOException {
         BubbleUpObject result = new BubbleUpObject();
         List<ProfileData> profileDatas = new ArrayList<ProfileData>();
+        List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
 
         DailyConsumption dailyConsumption = new DailyConsumption(waveflow);
         dailyConsumption.parse(data);
+
+        RegisterValue reg = new RegisterValue(ObisCode.fromString("1.1.82.8.0.255"), new Quantity(dailyConsumption.getIndexZone().getCurrentIndexOnA(), Unit.get("")), new Date());
+        registerValues.add(reg);
+
+        for (int port = 0; port < dailyConsumption.getNumberOfInputs(); port++) {
+            int value = dailyConsumption.getIndexZone().getDailyIndexOnPort(port);
+            reg = new RegisterValue(ObisCode.fromString("1." + (port + 1) + ".82.8.0.1"), new Quantity(value, Unit.get("")), new Date(), dailyConsumption.getLastLoggedReading() );
+            registerValues.add(reg);
+        }
+        result.setRegisterValues(registerValues);
+
         Date lastLogged = dailyConsumption.getLastLoggedReading();
         ProfileDataReader profileDataReader = new ProfileDataReader(waveflow);
 
         profileDataReader.setNumberOfInputsUsed(dailyConsumption.getNumberOfInputs());
-        profileDataReader.setInterval(DAILY);
+        profileDataReader.setInterval(dailyConsumption.getSamplingPeriod().getSamplingPeriodInSeconds());
 
         profileDatas.add(profileDataReader.parseProfileData(false, false, true, false, lastLogged, 0, 0, dailyConsumption, new Date(0), new Date(), null));
         result.setProfileDatas(profileDatas);
+        result.setRegisterValues(registerValues);
         return result;
     }
 
@@ -76,25 +89,18 @@ public class BubbleUpFrameParser {
         Date lastLogged = extendedIndexReading.getDateOfLastLoggedValue();
         List<Long[]> last4loggedIndexes = extendedIndexReading.getLast4LoggedIndexes();
 
-        boolean monthly = false;
         OperatingMode operatingMode = new OperatingMode(waveflow, extendedIndexReading.getOperationMode());
-        if (operatingMode.isMonthlyMeasurement()) {
-            monthly = true;
-        }
         profileDataReader.setNumberOfInputsUsed(operatingMode.getNumberOfInputsUsed());
         profileDataReader.setInterval(extendedIndexReading.getDataloggingMeasurementPeriod().getSamplingPeriodInSeconds());
-        if (operatingMode.isMonthlyMeasurement()) {
-            profileDataReader.setInterval(MONTHLY);
-        }
         if (operatingMode.isWeeklyMeasurement()) {
             profileDataReader.setInterval(WEEKLY);
         }
-        profileDatas.add(profileDataReader.parseProfileData(false, false, false, monthly, lastLogged, 0, 0, null, new Date(0), new Date(), last4loggedIndexes));
+        profileDatas.add(profileDataReader.parseProfileData(false, false, false, operatingMode.isMonthlyMeasurement(), lastLogged, 0, 0, null, new Date(0), new Date(), last4loggedIndexes));
         result.setProfileDatas(profileDatas);
 
         for (int input = 0; input < extendedIndexReading.getNumberOfEnabledInputs(); input++) {
             int value = extendedIndexReading.getIndexOfLastMonth(input);
-            RegisterValue reg = new RegisterValue(ObisCode.fromString("1." + String.valueOf(input + 1) + ".82.8.0.0"), new Quantity(value, Unit.get("")), new Date());
+            RegisterValue reg = new RegisterValue(ObisCode.fromString("1." + String.valueOf(input + 1) + ".82.8.0.0"), new Quantity(value, Unit.get("")), new Date(), parseDateOfLastMonthsEnd(extendedIndexReading.getDateOfLastLoggedValue()).getTime());
             registerValues.add(reg);
             int value2 = extendedIndexReading.getCurrentIndex(input);
             RegisterValue reg2 = new RegisterValue(ObisCode.fromString("1." + String.valueOf(input + 1) + ".82.8.0.255"), new Quantity(value2, Unit.get("")), new Date());
@@ -104,13 +110,27 @@ public class BubbleUpFrameParser {
         return result;
     }
 
+    private static Calendar parseDateOfLastMonthsEnd(Date dateOfLastLoggedValue) throws IOException {
+        Calendar calLastOfMonth = new GregorianCalendar(TimeZone.getDefault());
+        calLastOfMonth.setTime(dateOfLastLoggedValue);
+        calLastOfMonth.set(Calendar.DATE, 1);
+        calLastOfMonth.set(Calendar.HOUR_OF_DAY, 0);
+        calLastOfMonth.set(Calendar.MINUTE, 0);
+        calLastOfMonth.set(Calendar.SECOND, 0);
+        calLastOfMonth.set(Calendar.MILLISECOND, 0);
+        return calLastOfMonth;
+    }
+
     private static BubbleUpObject parseGlobalIndexes(byte[] data, WaveFlow waveflow) throws IOException {
         BubbleUpObject result = new BubbleUpObject();
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
         GlobalIndexReading globalIndexReading = new GlobalIndexReading(waveflow);
-        globalIndexReading.parse(data);
-        int index = 0;
+        int operationMode = data[0] & 0xFF;
+        OperatingMode operatingMode = new OperatingMode(new WaveFlowV2(), operationMode);
+        data = ProtocolTools.getSubArray(data, 2);  //Skip first 2 bytes
+        globalIndexReading.parse(data, false, operatingMode.getNumberOfInputsUsed());
 
+        int index = 0;
         for (long value : globalIndexReading.getReadings()) {
             RegisterValue reg = new RegisterValue(ObisCode.fromString("1." + String.valueOf(index + 1) + ".82.8.0.255"), new Quantity(value, Unit.get("")), new Date());
             registerValues.add(reg);
@@ -121,7 +141,7 @@ public class BubbleUpFrameParser {
         return result;
     }
 
-    private static BubbleUpObject parseDataloggingTable(byte[] data, WaveFlow waveflow, int type) throws IOException {
+    public static BubbleUpObject parseDataloggingTable(byte[] data, WaveFlow waveflow, int type) throws IOException {
         BubbleUpObject result = new BubbleUpObject();
         List<ProfileData> profileDatas = new ArrayList<ProfileData>();
         Date lastLogged;
@@ -153,19 +173,22 @@ public class BubbleUpFrameParser {
         dataloggingTable.parse(data);
         List<Long[]> rawValues = new ArrayList<Long[]>();
         lastLogged = dataloggingTable.getLastLoggedIndexDate();
-        rawValues.add(dataloggingTable.getProfileDataA());
-        rawValues.add(dataloggingTable.getProfileDataB());
+
+        for (int port = 0; port < 4; port++) {
+            if (dataloggingTable.getProfileData(port) != null && dataloggingTable.getProfileData(port).length > 0) {
+                rawValues.add(dataloggingTable.getProfileData(port));
+            }
+        }
 
         ProfileDataReaderV1 profileDataReaderV1 = new ProfileDataReaderV1(waveflow);
         profileDataReaderV1.setProfileInterval(dataloggingTable.getDataloggingMeasurementPeriod().getSamplingPeriodInSeconds());
-        if (operatingMode.isMonthlyMeasurement()) {
-            profileDataReaderV1.setProfileInterval(MONTHLY);
-        }
         if (operatingMode.isWeeklyMeasurement()) {
             profileDataReaderV1.setProfileInterval(WEEKLY);
         }
+        int inputsUsed = (channels == 1 || channels == 3) ? 1 : 2;
+        int nrOfReadings = (inputsUsed == 1 ? ((channels == 3) ? 12 : 24) : 12);
 
-        profileDatas.add(profileDataReaderV1.parseProfileData(false, false, new Date(0), new Date(), false, rawValues, lastLogged));
+        profileDatas.add(profileDataReaderV1.parseProfileData(false, inputsUsed, nrOfReadings, operatingMode.isMonthlyMeasurement(), new Date(0), new Date(), false, rawValues, lastLogged));
         result.setProfileDatas(profileDatas);
         return result;
     }

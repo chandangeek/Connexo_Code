@@ -76,7 +76,9 @@ public class ProfileDataReaderV1 {
             rawValues.add(dataloggingTableCD.getProfileDataD());
             lastLoggedValueDate = dataloggingTableCD.getLastLoggedIndexDate();
         }
-        return parseProfileData(true, monthly, lastReading, toDate, includeEvents, rawValues, lastLoggedValueDate);
+        int nrOfReadings = (getNumberOfInputsUsed() == 1 ? 24 : 12);
+
+        return parseProfileData(true, getNumberOfInputsUsed(), nrOfReadings, monthly, lastReading, toDate, includeEvents, rawValues, lastLoggedValueDate);
     }
 
     /*
@@ -84,15 +86,22 @@ public class ProfileDataReaderV1 {
     It can be used for pushed frames and requested frames.
      */
 
-    public ProfileData parseProfileData(boolean requestsAllowed, boolean monthly, Date lastReading, Date toDate, boolean includeEvents, List<Long[]> rawValues, Date lastLoggedValueDate) throws IOException {
+    public ProfileData parseProfileData(boolean requestsAllowed, int numberOfInputsUsed, int nrOfReadings, boolean monthly, Date lastReading, Date toDate, boolean includeEvents, List<Long[]> rawValues, Date lastLoggedValueDate) throws IOException {
 
         ProfileData profileData = new ProfileData();
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
-        Calendar calendar = Calendar.getInstance(waveFlowV1.getTimeZone());
+        TimeZone timeZone;
+        if (requestsAllowed) {
+            timeZone = waveFlowV1.getTimeZone();
+        } else {
+            timeZone = TimeZone.getDefault();
+        }
+
+        Calendar calendar = Calendar.getInstance(timeZone);
         calendar.setLenient(true);
 
         int channelId = 0;
-        for (int inputId = 0; inputId < getNumberOfInputsUsed(); inputId++) {
+        for (int inputId = 0; inputId < numberOfInputsUsed; inputId++) {
             Unit unit = Unit.get("");
             if (requestsAllowed) {
                 unit = waveFlowV1.getParameterFactory().readPulseWeight(inputId + 1).getUnit();
@@ -110,12 +119,11 @@ public class ProfileDataReaderV1 {
             ParseUtils.roundDown2nearestInterval(calendar, getProfileIntervalInSeconds());
         }
 
-        int nrOfReadings = (getNumberOfInputsUsed() == 1 ? 24 : 12);
         List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
         for (int index = 0; index < nrOfReadings; index++) {
             List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
 
-            for (int inputId = 0; inputId < getNumberOfInputsUsed(); inputId++) {
+            for (int inputId = 0; inputId < numberOfInputsUsed; inputId++) {
                 int weight = 1;
                 if (requestsAllowed) {
                     weight = waveFlowV1.getParameterFactory().readPulseWeight(inputId + 1).getWeight();
@@ -187,8 +195,8 @@ public class ProfileDataReaderV1 {
                 for (BackFlowEventByVolumeMeasuring backFlowEvent : waveFlowV1.getRadioCommandFactory().readBackFlowEventTableByVolumeMeasuring().getEvents()) {
                     int inputIndex = backFlowEvent.getInputIndex();
                     PulseWeight pulseWeight = waveFlowV1.getParameterFactory().readPulseWeight(inputIndex);
-                    meterEvents.add(new MeterEvent(backFlowEvent.getStartOfDetectionDate(), MeterEvent.OTHER, translator.getProtocolCodeForAdvancedBackflow(inputIndex, true), "Backflow start, input channel = " + inputIndex + ", volume = " + backFlowEvent.getVolume() * pulseWeight.getWeight() + " " + pulseWeight.getUnit().toString()));
-                    meterEvents.add(new MeterEvent(backFlowEvent.getEndOfDetectionDate(), MeterEvent.OTHER, translator.getProtocolCodeForAdvancedBackflow(inputIndex, false), "Backflow end, input channel = " + inputIndex + ", volume = " + backFlowEvent.getVolume() * pulseWeight.getWeight() + " " + pulseWeight.getUnit().toString()));
+                    meterEvents.add(new MeterEvent(backFlowEvent.getStartOfDetectionDate(), MeterEvent.OTHER, translator.getProtocolCodeForAdvancedBackflowVolumeMeasuring(inputIndex, true), "Backflow start, input channel = " + inputIndex + ", volume = " + backFlowEvent.getVolume() * pulseWeight.getWeight() + " " + pulseWeight.getUnit().toString()));
+                    meterEvents.add(new MeterEvent(backFlowEvent.getEndOfDetectionDate(), MeterEvent.OTHER, translator.getProtocolCodeForAdvancedBackflowVolumeMeasuring(inputIndex, false), "Backflow end, input channel = " + inputIndex + ", volume = " + backFlowEvent.getVolume() * pulseWeight.getWeight() + " " + pulseWeight.getUnit().toString()));
                 }
             }
 
@@ -197,8 +205,8 @@ public class ProfileDataReaderV1 {
                 for (BackFlowEventByFlowRate backFlowEvent : waveFlowV1.getRadioCommandFactory().readBackFlowEventTableByFlowRate().getEvents()) {
                     int inputIndex = backFlowEvent.getInputIndex();
                     PulseWeight pulseWeight = waveFlowV1.getParameterFactory().readPulseWeight(inputIndex);
-                    meterEvents.add(new MeterEvent(backFlowEvent.getStartDate(), MeterEvent.OTHER, translator.getProtocolCodeForAdvancedBackflow(inputIndex, true), "Backflow start, input channel = " + inputIndex + ", volume = " + backFlowEvent.getVolume() * pulseWeight.getWeight() + " " + pulseWeight.getUnit().toString() + ", detection duration = " + backFlowEvent.getDetectionDuration() + " minutes, water backflow duration = " + backFlowEvent.getBackflowDuration() + " minutes."));
-                    meterEvents.add(new MeterEvent(backFlowEvent.getEndDate(), MeterEvent.OTHER, translator.getProtocolCodeForAdvancedBackflow(inputIndex, true), "Backflow end, input channel = " + inputIndex + ", volume = " + backFlowEvent.getVolume() * pulseWeight.getWeight() + " " + pulseWeight.getUnit().toString() + ", detection duration = " + backFlowEvent.getDetectionDuration() + " minutes, water backflow duration = " + backFlowEvent.getBackflowDuration() + " minutes."));
+                    meterEvents.add(new MeterEvent(backFlowEvent.getStartDate(), MeterEvent.OTHER, translator.getProtocolCodeForAdvancedBackflowFlowRate(inputIndex, true), "Backflow start, input channel = " + inputIndex + ", maximum flow rate = " + backFlowEvent.getVolume() * pulseWeight.getWeight() + " " + pulseWeight.getUnit().toString() + ", detection duration = " + backFlowEvent.getDetectionDuration() + " minutes, water backflow duration = " + backFlowEvent.getBackflowDuration() + " minutes."));
+                    meterEvents.add(new MeterEvent(backFlowEvent.getEndDate(), MeterEvent.OTHER, translator.getProtocolCodeForAdvancedBackflowFlowRate(inputIndex, false), "Backflow end, input channel = " + inputIndex + ", maximum flow rate = " + backFlowEvent.getVolume() * pulseWeight.getWeight() + " " + pulseWeight.getUnit().toString() + ", detection duration = " + backFlowEvent.getDetectionDuration() + " minutes, water backflow duration = " + backFlowEvent.getBackflowDuration() + " minutes."));
                 }
             }
         }

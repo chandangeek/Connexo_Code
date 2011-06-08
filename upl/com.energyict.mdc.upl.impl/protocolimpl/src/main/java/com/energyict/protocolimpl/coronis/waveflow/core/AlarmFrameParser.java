@@ -111,7 +111,7 @@ public class AlarmFrameParser {
             events.add(new MeterEvent(date, 0, A.equals(input) ? EventStatusAndDescription.EVENTCODE_REEDFAULT_A : EventStatusAndDescription.EVENTCODE_REEDFAULT_B, "Reed fault detection on input " + input));
         }
         if ((status & 0x08) == 0x08) {
-            events.add(new MeterEvent(date, 0, translator.getProtocolCodeForAdvancedBackflow((status & 0x03) - 1, false), "Backflow detection on input " + input));
+            events.add(new MeterEvent(date, 0, translator.getProtocolCodeForSimpleBackflow((status & 0x03) - 1), "Backflow detection on input " + input));
         }
         if ((status & 0x10) == 0x10) {
             events.add(new MeterEvent(date, 0, EventStatusAndDescription.EVENTCODE_BATTERY_LOW, "End of battery life"));

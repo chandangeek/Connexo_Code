@@ -61,6 +61,10 @@ public class WaveFlowV1 extends WaveFlow implements MessageProtocol {
         return obisCodeMapper.getRegisterInfo(obisCode);
     }
 
+    public RegisterValue readRegister(ObisCode obisCode) throws IOException {
+        return obisCodeMapper.getRegisterValue(obisCode);
+    }
+
     @Override
     protected ProfileData getTheProfileData(Date lastReading, Date toDate, boolean includeEvents) throws UnsupportedException, IOException {
         return profileDataReader.getProfileData(lastReading, toDate, includeEvents);

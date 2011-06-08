@@ -7,6 +7,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.TimeZone;
 
 public class DailyConsumption extends AbstractRadioCommand {
 
@@ -80,7 +81,12 @@ public class DailyConsumption extends AbstractRadioCommand {
         indexZone.parse(data, offset);
         offset += 39;
 
-        lastLoggedReading = TimeDateRTCParser.parse(data, offset, 7, getWaveFlow().getTimeZone()).getTime();
+        TimeZone timeZone = getWaveFlow().getTimeZone();
+        if (timeZone == null) {
+            timeZone = TimeZone.getDefault();
+        }
+
+        lastLoggedReading = TimeDateRTCParser.parse(data, offset, 7, timeZone).getTime();
         offset += 7;
 
         samplingPeriod = new SamplingPeriod(getWaveFlow());
@@ -116,8 +122,6 @@ public class DailyConsumption extends AbstractRadioCommand {
             }
         }
     }
-
-
 
     protected byte[] prepare() throws IOException {
         return new byte[0];

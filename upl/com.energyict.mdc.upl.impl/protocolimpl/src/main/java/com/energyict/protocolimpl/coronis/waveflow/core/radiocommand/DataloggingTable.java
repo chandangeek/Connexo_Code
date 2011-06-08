@@ -8,6 +8,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.TimeZone;
 
 public class DataloggingTable extends AbstractRadioCommand {
 
@@ -40,6 +41,16 @@ public class DataloggingTable extends AbstractRadioCommand {
 
     public Long[] getProfileDataA() {
         return profileDataA;
+    }
+
+    public Long[] getProfileData(int index) {
+        switch (index) {
+            case 0: return profileDataA;
+            case 1: return profileDataB;
+            case 2: return profileDataC;
+            case 3: return profileDataD;
+        }
+        return new Long[0];
     }
 
     public Long[] getProfileDataB() {
@@ -122,7 +133,12 @@ public class DataloggingTable extends AbstractRadioCommand {
             }
         }
         byte[] dateBytes = ProtocolTools.getSubArray(data, offset, data.length);
-        lastLoggedIndexDate = TimeDateRTCParser.parse(dateBytes, getWaveFlow().getTimeZone()).getTime();
+        TimeZone timeZone = getWaveFlow().getTimeZone();
+        if (timeZone == null) {
+            timeZone = TimeZone.getDefault();
+        }
+
+        lastLoggedIndexDate = TimeDateRTCParser.parse(dateBytes, timeZone).getTime();
         offset += 6;
 
         dataloggingMeasurementPeriod = new SamplingPeriod(getWaveFlow());

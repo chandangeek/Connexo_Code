@@ -6,6 +6,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.TimeZone;
 
 public class IndexZone {
 
@@ -43,7 +44,12 @@ public class IndexZone {
 
     public void parse(byte[] data, int offset) throws IOException {
         
-        lastDailyLoggedIndex = TimeDateRTCParser.parse(data, offset, 7, getWaveFlow().getTimeZone()).getTime();
+        TimeZone timeZone = getWaveFlow().getTimeZone();
+        if (timeZone == null) {
+            timeZone = TimeZone.getDefault();
+        }
+
+        lastDailyLoggedIndex = TimeDateRTCParser.parse(data, offset, 7, timeZone).getTime();
         offset += 7;
         dailyIndexOnA = ProtocolTools.getIntFromBytes(data, offset, 4);
         offset += 4;
@@ -99,18 +105,12 @@ public class IndexZone {
         return lastDailyLoggedIndex;
     }
 
-    public int getDailyIndex(int channel) {
-        if (channel == 0) {
-            return getDailyIndexOnA();
-        }
-        if (channel == 1) {
-            return getDailyIndexOnB();
-        }
-        if (channel == 2) {
-            return getDailyIndexOnC();
-        }
-        if (channel == 3) {
-            return getDailyIndexOnD();
+    public int getDailyIndexOnPort(int port) {
+        switch (port) {
+            case 0: return getDailyIndexOnA();
+            case 1: return getDailyIndexOnB();
+            case 2: return getDailyIndexOnC();
+            case 3: return getDailyIndexOnD();
         }
         return 0;
     }
