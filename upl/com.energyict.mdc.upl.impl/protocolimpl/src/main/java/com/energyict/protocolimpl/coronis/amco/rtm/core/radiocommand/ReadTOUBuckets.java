@@ -44,15 +44,20 @@ public class ReadTOUBuckets extends AbstractRadioCommand {
         numberOfPorts = new OperatingMode(getRTM(), operationMode).readNumberOfPorts();
         int offset = 23;    //Skip the generic header
 
-        Date initializationDate = TimeDateRTCParser.parse(data, offset, 7, getRTM().getTimeZone()).getTime();
+        TimeZone timeZone = getRTM().getTimeZone();
+        if (timeZone == null) {
+            timeZone = TimeZone.getDefault();
+        }
+
+        Date initializationDate = TimeDateRTCParser.parse(data, offset, 7, timeZone).getTime();
         offset += 7;
         offset += 7;        //Skip the bucket parameters
 
-        int[] totalizers = new int[6];
-        int currentReading = 0;
         listOfAllTotalizers = new ArrayList<PortTotalizers>();
 
         for (int port = 0; port < numberOfPorts; port++) {
+            int[] totalizers = new int[6];
+            int currentReading = 0;
             currentReading = ProtocolTools.getIntFromBytes(data, offset, 4);
             offset += 4;
             for (int bucket = 1; bucket < 7; bucket++) {

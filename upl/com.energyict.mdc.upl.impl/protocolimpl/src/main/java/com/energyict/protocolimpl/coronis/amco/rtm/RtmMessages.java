@@ -410,7 +410,6 @@ public class RtmMessages implements MessageProtocol {
 
         int portMask = 0;
         int numberOfReadings = 0;
-        int offset = 0;
         if (value == 7) {
             try {
                 portMask = Integer.parseInt(parts[3].substring(1, 3));
@@ -422,18 +421,9 @@ public class RtmMessages implements MessageProtocol {
             } catch (NumberFormatException e) {
                 numberOfReadings = Integer.parseInt(parts[4].substring(1, 2));
             }
-            try {
-                offset = Integer.parseInt(parts[6].substring(1, 4));
-            } catch (NumberFormatException e) {
-                try {
-                    offset = Integer.parseInt(parts[6].substring(1, 3));
-                } catch (NumberFormatException e1) {
-                    offset = Integer.parseInt(parts[6].substring(1, 2));
                 }
-            }
-        }
 
-        rtm.getParameterFactory().replaceCommandInBuffer(value, portMask, numberOfReadings, offset);
+        rtm.getParameterFactory().replaceCommandInBuffer(value, portMask, numberOfReadings, 0);
         return MessageResult.createSuccess(messageEntry);
     }
 
@@ -465,7 +455,6 @@ public class RtmMessages implements MessageProtocol {
 
         int portMask = 0;
         int numberOfReadings = 0;
-        int offset = 0;
         if (value == 7) {
             try {
                 portMask = Integer.parseInt(parts[3].substring(1, 3));
@@ -477,17 +466,8 @@ public class RtmMessages implements MessageProtocol {
             } catch (NumberFormatException e) {
                 numberOfReadings = Integer.parseInt(parts[4].substring(1, 2));
             }
-            try {
-                offset = Integer.parseInt(parts[6].substring(1, 4));
-            } catch (NumberFormatException e) {
-                try {
-                    offset = Integer.parseInt(parts[6].substring(1, 3));
-                } catch (NumberFormatException e1) {
-                    offset = Integer.parseInt(parts[6].substring(1, 2));
                 }
-            }
-        }
-        rtm.getParameterFactory().writeBubbleUpConfiguration(value, portMask, numberOfReadings, offset);
+        rtm.getParameterFactory().writeBubbleUpConfiguration(value, portMask, numberOfReadings, 0);
         return MessageResult.createSuccess(messageEntry);
     }
 
@@ -1083,10 +1063,10 @@ public class RtmMessages implements MessageProtocol {
         cat2.addMessageSpec(addBasicMsgWithValue("Write the profile data interval", "WriteSamplingPeriod", false));
         cat2.addMessageSpec(addBasicMsgWithValue("Set day of week (or month) for weekly/monthly data logging", "WriteDayOfWeekOrMonth", false));
         cat2.addMessageSpec(addBasicMsgWithValue("Set hour of measurement for weekly/monthly data logging", "SetHourOfMeasurement", false));
-        cat2.addMessageSpec(addBasicMsgWithValue("Stop the data logging", "StopDataLogging", false));
-        cat2.addMessageSpec(addBasicMsgWithValue("Start data logging in periodic time steps", "SetPeriodicStepsLogging", false));
-        cat2.addMessageSpec(addBasicMsgWithValue("Start weekly data logging", "SetWeeklyDataLogging", false));
-        cat2.addMessageSpec(addBasicMsgWithValue("Start monthly data logging", "SetMonthlyDataLogging", false));
+        cat2.addMessageSpec(addBasicMsg("Stop the data logging", "StopDataLogging", false));
+        cat2.addMessageSpec(addBasicMsg("Start data logging in periodic time steps", "SetPeriodicStepsLogging", false));
+        cat2.addMessageSpec(addBasicMsg("Start weekly data logging", "SetWeeklyDataLogging", false));
+        cat2.addMessageSpec(addBasicMsg("Start monthly data logging", "SetMonthlyDataLogging", false));
         cat2.addMessageSpec(addBasicMsgWithSevenAttr("Write start hour of the TOU buckets", "WriteTOUBucketStartHour", false, "Number of TOU buckets (minimum 2)", "Start hour of the 1st TOU bucket", "Start hour of the 2nd TOU bucket", "Start hour of the 3rd TOU bucket (if applicable)", "Start hour of the 4th TOU bucket (if applicable)", "Start hour of the 5th TOU bucket (if applicable)", "Start hour of the 6th TOU bucket (if applicable)"));
         cat2.addMessageSpec(addBasicMsg("Enable the TOU Buckets" , "EnableTOUBuckets", false));
         cat2.addMessageSpec(addBasicMsg("Disable the TOU Buckets" , "DisableTOUBuckets", false));
@@ -1128,10 +1108,10 @@ public class RtmMessages implements MessageProtocol {
         cat5.addMessageSpec(addBasicMsgWithValue("Set end hour of bubble up period", "SetEndOfMechanism", true));
         cat5.addMessageSpec(addBasicMsgWithValue("Set transmission period (in minutes!)", "SetTransmissionPeriod", true));
         cat5.addMessageSpec(addBasicMsgWithValue("Set max cancellation timeout (1 - 10 seconds)", "SetMaxCancelTimeout", true));
-        cat5.addMessageSpec(addBasicMsgWithOptionalAttr("Add applicative command to the command buffer", "AddCommandToBuffer", true, "Applicative command (e.g. Current reading = 1)", "Port mask (decimal value) (only for command 7)", "Expected number of readings per port (only for command 7)", "Offset in records table (0 = newest) (only for command 7)"));
+        cat5.addMessageSpec(addBasicMsgWithOptionalAttr("Add applicative command to the command buffer", "AddCommandToBuffer", true, "Applicative command (e.g. Current reading = 1)", "Port mask (decimal value) (only for command 7)", "Expected number of readings per port (only for command 7)"));
         cat5.addMessageSpec(addBasicMsg("Enable bubble up mechanism flag in the operation mode", "EnableBubbleUpMechanism", true));
         cat5.addMessageSpec(addBasicMsg("Disable bubble up mechanism flag in the operation mode", "DisableBubbleUpMechanism", true));
-        cat5.addMessageSpec(addBasicMsgWithOptionalAttr("Start bubble up mechanism", "StartBubbleUpMechanism", true, "Applicative command (e.g. Current reading = 1)", "Port mask (decimal value) (only for command 7)", "Expected number of readings per port (only for command 7)", "Offset in records table (0 = newest) (only for command 7)"));
+        cat5.addMessageSpec(addBasicMsgWithOptionalAttr("Start bubble up mechanism", "StartBubbleUpMechanism", true, "Applicative command (e.g. Current reading = 1)", "Port mask (decimal value) (only for command 7)", "Expected number of readings per port (only for command 7)"));
         cat5.addMessageSpec(addBasicMsg("Clear the command buffer", "ClearCommandBuffer", true));
         theCategories.add(cat5);
 
@@ -1214,7 +1194,7 @@ public class RtmMessages implements MessageProtocol {
     }
 
 
-    protected MessageSpec addBasicMsgWithOptionalAttr(final String keyId, final String tagName, final boolean advanced, String attr1, String attr2, String attr3, String attr4) {
+    protected MessageSpec addBasicMsgWithOptionalAttr(final String keyId, final String tagName, final boolean advanced, String attr1, String attr2, String attr3) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
         MessageAttributeSpec addAttribute1 = new MessageAttributeSpec(attr1, true);
@@ -1223,8 +1203,6 @@ public class RtmMessages implements MessageProtocol {
         tagSpec.add(addAttribute2);
         MessageAttributeSpec addAttribute3 = new MessageAttributeSpec(attr3, false);
         tagSpec.add(addAttribute3);
-        MessageAttributeSpec addAttribute4 = new MessageAttributeSpec(attr4, false);
-        tagSpec.add(addAttribute4);
         MessageValueSpec msgVal = new MessageValueSpec();
         msgVal.setValue(" "); //Disable this field
         tagSpec.add(msgVal);

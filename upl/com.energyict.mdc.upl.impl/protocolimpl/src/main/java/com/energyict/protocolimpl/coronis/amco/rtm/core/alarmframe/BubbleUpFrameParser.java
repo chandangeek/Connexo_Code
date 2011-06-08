@@ -21,11 +21,6 @@ import java.util.*;
  */
 public class BubbleUpFrameParser {
 
-    private static final int HOURLY = 60 * 60;
-    private static final int DAILY = HOURLY * 24;
-    private static final int WEEKLY = DAILY * 7;
-    private static final int MONTHLY = (WEEKLY * 4) - 1;
-
     public static BubbleUpObject parse(byte[] data, RTM rtm) throws IOException {
         int type = data[0] & 0xFF;
         type = type | 0x80;         //Not sure if type is the command or it's ack, so convert it to an ack
@@ -52,12 +47,17 @@ public class BubbleUpFrameParser {
         table.parseBubbleUpData(data);
         List<List<Integer>> profileData = table.getProfileDataForAllPorts();
         ProfileDataReader profileDataReader = new ProfileDataReader(rtm);
-        boolean monthly = false;
-        if (rtm.getParameterFactory().getProfileIntervalInSeconds() >= MONTHLY) {
-            monthly = true;
+
+        int numberOfPorts = 0;
+        for (List<Integer> values : profileData) {
+            if (values.size() > 0) {
+                numberOfPorts++;
         }
+        }
+
         OperatingMode operatingMode = new OperatingMode(rtm, table.getOperationMode());
-        profileDataReader.setNumberOfInputs(operatingMode.readNumberOfPorts());
+        boolean monthly = operatingMode.isMonthlyLogging();
+        profileDataReader.setNumberOfInputs(numberOfPorts);
         profileDataReader.setProfileInterval(table.getProfileInterval());
 
         profileDatas.add(profileDataReader.parseProfileData(false, profileData, new ProfileData(), monthly, false, new Date(), new Date(0), table.getLastLoggedTimeStamp(), 0));
@@ -106,10 +106,18 @@ public class BubbleUpFrameParser {
         BubbleUpObject result = new BubbleUpObject();
         List<ProfileData> profileDatas = new ArrayList<ProfileData>();
         ProfileData profileData = new ProfileData();
+        List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
 
         DailyConsumption dailyConsumption = new DailyConsumption(rtm);
         dailyConsumption.parse(data);
         List<List<Integer>> rawValues = new ArrayList<List<Integer>>();
+
+        for (int port = 0; port < dailyConsumption.getNumberOfPorts(); port++) {
+            int value = dailyConsumption.getCurrentIndexes()[port];
+            RegisterValue reg = new RegisterValue(ObisCode.fromString("1." + (port + 1) + ".82.8.0.255"), new Quantity(value, Unit.get("")), new Date());
+            registerValues.add(reg);
+        }
+        result.setRegisterValues(registerValues);
 
         for (int port = 0; port < dailyConsumption.getNumberOfPorts(); port++) {
             rawValues.add(dailyConsumption.getDailyReadings(port));

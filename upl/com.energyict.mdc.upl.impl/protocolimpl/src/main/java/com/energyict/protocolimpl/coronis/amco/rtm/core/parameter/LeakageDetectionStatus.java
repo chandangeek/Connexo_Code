@@ -41,28 +41,28 @@ public class LeakageDetectionStatus extends AbstractParameter {
         EventStatusAndDescription translator = new EventStatusAndDescription();
 
         if (isHighThresholdOnPortA()) {
-            events.add(new MeterEvent(new Date(), MeterEvent.LIMITER_THRESHOLD_EXCEEDED, translator.getProtocolCodeForLeakage(LeakageEvent.START, LeakageEvent.LEAKAGETYPE_EXTREME, LeakageEvent.A), "Real time extreme leak on port A detected"));
+            events.add(new MeterEvent(new Date(), MeterEvent.LIMITER_THRESHOLD_EXCEEDED, translator.getProtocolCodeForLeakageStatus(LeakageEvent.LEAKAGETYPE_EXTREME, LeakageEvent.A), "Real time extreme leak on port A detected"));
         }
         if (isHighThresholdOnPortB()) {
-            events.add(new MeterEvent(new Date(), MeterEvent.LIMITER_THRESHOLD_EXCEEDED, translator.getProtocolCodeForLeakage(LeakageEvent.START, LeakageEvent.LEAKAGETYPE_EXTREME, LeakageEvent.B), "Real time extreme leak on port B detected"));
+            events.add(new MeterEvent(new Date(), MeterEvent.LIMITER_THRESHOLD_EXCEEDED, translator.getProtocolCodeForLeakageStatus(LeakageEvent.LEAKAGETYPE_EXTREME, LeakageEvent.B), "Real time extreme leak on port B detected"));
         }
         if (isHighThresholdOnPortC()) {
-            events.add(new MeterEvent(new Date(), MeterEvent.LIMITER_THRESHOLD_EXCEEDED, translator.getProtocolCodeForLeakage(LeakageEvent.START, LeakageEvent.LEAKAGETYPE_EXTREME, LeakageEvent.C), "Real time extreme leak on port C detected"));
+            events.add(new MeterEvent(new Date(), MeterEvent.LIMITER_THRESHOLD_EXCEEDED, translator.getProtocolCodeForLeakageStatus(LeakageEvent.LEAKAGETYPE_EXTREME, LeakageEvent.C), "Real time extreme leak on port C detected"));
         }
         if (isHighThresholdOnPortD()) {
-            events.add(new MeterEvent(new Date(), MeterEvent.LIMITER_THRESHOLD_EXCEEDED, translator.getProtocolCodeForLeakage(LeakageEvent.START, LeakageEvent.LEAKAGETYPE_EXTREME, LeakageEvent.D), "Real time extreme leak on port D detected"));
+            events.add(new MeterEvent(new Date(), MeterEvent.LIMITER_THRESHOLD_EXCEEDED, translator.getProtocolCodeForLeakageStatus(LeakageEvent.LEAKAGETYPE_EXTREME, LeakageEvent.D), "Real time extreme leak on port D detected"));
         }
         if (isLowThresholdOnPortA()) {
-            events.add(new MeterEvent(new Date(), MeterEvent.LIMITER_THRESHOLD_EXCEEDED, translator.getProtocolCodeForLeakage(LeakageEvent.START, LeakageEvent.LEAKAGETYPE_RESIDUAL, LeakageEvent.A), "Real time residual leak on port A detected"));
+            events.add(new MeterEvent(new Date(), MeterEvent.LIMITER_THRESHOLD_EXCEEDED, translator.getProtocolCodeForLeakageStatus(LeakageEvent.LEAKAGETYPE_RESIDUAL, LeakageEvent.A), "Real time residual leak on port A detected"));
         }
         if (isLowThresholdOnPortB()) {
-            events.add(new MeterEvent(new Date(), MeterEvent.LIMITER_THRESHOLD_EXCEEDED, translator.getProtocolCodeForLeakage(LeakageEvent.START, LeakageEvent.LEAKAGETYPE_RESIDUAL, LeakageEvent.B), "Real time residual leak on port B detected"));
+            events.add(new MeterEvent(new Date(), MeterEvent.LIMITER_THRESHOLD_EXCEEDED, translator.getProtocolCodeForLeakageStatus(LeakageEvent.LEAKAGETYPE_RESIDUAL, LeakageEvent.B), "Real time residual leak on port B detected"));
         }
         if (isLowThresholdOnPortC()) {
-            events.add(new MeterEvent(new Date(), MeterEvent.LIMITER_THRESHOLD_EXCEEDED, translator.getProtocolCodeForLeakage(LeakageEvent.START, LeakageEvent.LEAKAGETYPE_RESIDUAL, LeakageEvent.C), "Real time residual leak on port C detected"));
+            events.add(new MeterEvent(new Date(), MeterEvent.LIMITER_THRESHOLD_EXCEEDED, translator.getProtocolCodeForLeakageStatus(LeakageEvent.LEAKAGETYPE_RESIDUAL, LeakageEvent.C), "Real time residual leak on port C detected"));
         }
         if (isLowThresholdOnPortD()) {
-            events.add(new MeterEvent(new Date(), MeterEvent.LIMITER_THRESHOLD_EXCEEDED, translator.getProtocolCodeForLeakage(LeakageEvent.START, LeakageEvent.LEAKAGETYPE_RESIDUAL, LeakageEvent.D), "Real time residual leak on port D detected"));
+            events.add(new MeterEvent(new Date(), MeterEvent.LIMITER_THRESHOLD_EXCEEDED, translator.getProtocolCodeForLeakageStatus(LeakageEvent.LEAKAGETYPE_RESIDUAL, LeakageEvent.D), "Real time residual leak on port D detected"));
         }
         return events;
     }

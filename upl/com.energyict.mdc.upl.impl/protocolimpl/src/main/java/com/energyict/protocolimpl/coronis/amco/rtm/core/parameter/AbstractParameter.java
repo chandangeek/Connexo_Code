@@ -373,8 +373,8 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
         int startMoment = getRTM().getBubbleUpStartMoment();
         int startHour = (startMoment / 3600);
         startMoment -= startHour * 3600;
-        int startMinute = startMoment % 60;
-        startMoment -= (startMinute / 60);
+        int startMinute = startMoment / 60;
+        startMoment -= (startMinute * 60);
         int startSeconds = startMoment;
 
         daos.writeShort(0x0800);

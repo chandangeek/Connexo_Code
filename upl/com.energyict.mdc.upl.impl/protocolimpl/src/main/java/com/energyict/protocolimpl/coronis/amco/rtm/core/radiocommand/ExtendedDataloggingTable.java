@@ -125,12 +125,12 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
         int offset = 23;    //Skip the rest of the generic header
 
         SamplingPeriod period = new SamplingPeriod(getRTM());
-        period.parse(ProtocolTools.getSubArray(data, offset, 1));
+        period.parse(ProtocolTools.getSubArray(data, offset, offset + 1));
         int multiplier = data[offset + 2] & 0xFF;
         profileInterval = period.getSamplingPeriodInSeconds() * multiplier;
         offset += 7;        //Skip data logging parameters in the first frame
         
-        lastLoggedTimeStamp = TimeDateRTCParser.parse(data, offset, 7, getRTM().getTimeZone()).getTime();
+        lastLoggedTimeStamp = TimeDateRTCParser.parse(data, offset, 7, TimeZone.getDefault()).getTime();
         offset += 7;
         offset++;           //Skip the frame counter, in case of bubble up there is only one frame possible
 

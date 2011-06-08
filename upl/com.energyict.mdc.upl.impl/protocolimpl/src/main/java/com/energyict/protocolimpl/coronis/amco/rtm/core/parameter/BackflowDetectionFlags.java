@@ -38,7 +38,7 @@ public class BackflowDetectionFlags extends AbstractParameter {
         for (int i = 0; i <= 12; i++) {
             if (flagIsSet(i)) {
                 Date eventDate = getEventDate(i);
-                meterEvents.add(new MeterEvent(eventDate, MeterEvent.OTHER, A.equals(getInputChannelName()) ? EventStatusAndDescription.EVENTCODE_BACKFLOW_END_A : EventStatusAndDescription.EVENTCODE_BACKFLOW_END_B, "Backflow occurrence detected in month, on input " + getInputChannelName()));
+                meterEvents.add(new MeterEvent(eventDate, MeterEvent.OTHER, A.equals(getInputChannelName()) ? EventStatusAndDescription.EVENTCODE_BACKFLOW_OCCURRENCE_IN_MONTH_A : EventStatusAndDescription.EVENTCODE_BACKFLOW_OCCURRENCE_IN_MONTH_B, "Backflow occurrence detected in month, on input " + getInputChannelName()));
             }
         }
         return meterEvents;

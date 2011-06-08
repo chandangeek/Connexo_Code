@@ -154,7 +154,13 @@ public class ProfileDataReader {
     public ProfileData parseProfileData(boolean requestsAllowed, List<List<Integer>> rawValues, ProfileData profileData, boolean monthly, boolean daily, Date toDate, Date lastReading, Date lastLoggedValue, long initialOffset) throws IOException {
 
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
-        Calendar calendar = Calendar.getInstance(rtm.getTimeZone());
+        Calendar calendar;
+        if (requestsAllowed) {
+            calendar = Calendar.getInstance(rtm.getTimeZone());
+        } else {
+            calendar = Calendar.getInstance();
+        }
+
         calendar.setLenient(true);
 
         int channelId = 0;

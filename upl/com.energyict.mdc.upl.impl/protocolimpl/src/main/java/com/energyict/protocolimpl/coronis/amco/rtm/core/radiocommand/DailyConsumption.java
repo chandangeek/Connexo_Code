@@ -17,6 +17,7 @@ import java.util.*;
  */
 public class DailyConsumption extends AbstractRadioCommand {
 
+
     public DailyConsumption(RTM rtm) throws IOException {
         super(rtm);
     }
@@ -27,6 +28,7 @@ public class DailyConsumption extends AbstractRadioCommand {
     private Integer[] dailyReadingsB = new Integer[5];
     private Integer[] dailyReadingsC = new Integer[5];
     private Integer[] dailyReadingsD = new Integer[5];
+    private int[] currentIndexes;
     private Date lastLoggedValue;
 
     public Date getLastLoggedValue() {
@@ -35,6 +37,10 @@ public class DailyConsumption extends AbstractRadioCommand {
 
     public int getNumberOfPorts() {
         return numberOfPorts;
+    }
+
+    public int[] getCurrentIndexes() {
+        return currentIndexes;
     }
 
     public List<Integer> getDailyReadings(int port) {
@@ -58,7 +64,11 @@ public class DailyConsumption extends AbstractRadioCommand {
         numberOfPorts = new OperatingMode(getRTM(), operationMode).readNumberOfPorts();
         int offset = 23;    //Skip the generic header
 
-        lastLoggedValue = TimeDateRTCParser.parse(data, offset, 7, getRTM().getTimeZone()).getTime();
+        TimeZone timeZone = getRTM().getTimeZone();
+        if (timeZone == null) {
+            timeZone = TimeZone.getDefault();
+        }
+        lastLoggedValue = TimeDateRTCParser.parse(data, offset, 7, timeZone).getTime();
         offset += 7;
 
         SamplingPeriod period = new SamplingPeriod(getRTM());
@@ -68,7 +78,12 @@ public class DailyConsumption extends AbstractRadioCommand {
 
         offset += 7; //Skip data logging parameters
 
-        offset += 4 * numberOfPorts;     //The current values per port are sent (each 4 bytes)
+        currentIndexes = new int[numberOfPorts];
+
+        for (int portId = 0; portId < numberOfPorts; portId++) {
+            currentIndexes[portId] = ProtocolTools.getIntFromBytes(data, offset, 4);
+            offset+=4;
+        }
 
         for (int i = 0; i < 5; i++) {
             int value = ProtocolTools.getIntFromBytes(data, offset, 4);
