@@ -58,7 +58,7 @@ public class ApolloProfileBuilder {
      */
     public List<ChannelInfo> getChannelInfos() throws IOException {
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
-        int channelIndex = -1;
+        int channelIndex;
         for (int i = 0; i < getNumberOfChannels(); i++) {
             channelIndex = getChannelNumber(i, this.profileGeneric.getCapturePeriod());
             if(channelIndex != -1){

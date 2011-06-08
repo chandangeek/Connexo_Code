@@ -194,7 +194,9 @@ public class ApolloMeter extends DLMSProtocol {
         ProfileData pd = new ProfileData();
         pd.setChannelInfos(apb.getChannelInfos());
         if(pd.getChannelInfos().size() == 0){
-            getLogger().log(Level.INFO, "No channels are found which correspond with he default Profile");
+            getLogger().log(Level.INFO, "No matching EIServer channels were found for loadprofile with obiscode " +
+                    ObisCode.fromByteArray(profileGeneric.getObjectReference().getLn()) +
+                    " and profileInterval of " + profileGeneric.getCapturePeriod() + "s");
             return pd;
         }
         Calendar toCalendar = Calendar.getInstance(getTimeZone());
