@@ -56,11 +56,11 @@ public class ApolloProfileBuilder {
      * @return the list of ChannelInfos
      * @throws IOException if either the number of channels OR the array of scalerUnits could not be correctly fetched/build
      */
-    public List<ChannelInfo> getChannelInfos() throws IOException {
+    public List<ChannelInfo> getChannelInfos(int channelInterval) throws IOException {
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
         int channelIndex;
         for (int i = 0; i < getNumberOfChannels(); i++) {
-            channelIndex = getChannelNumber(i, this.profileGeneric.getCapturePeriod());
+            channelIndex = getChannelNumber(i, channelInterval);
             if(channelIndex != -1){
                 ChannelInfo channelInfo = new ChannelInfo(i, channelIndex, "DLMS Apollo_EnergyChannel_" + i, getChannelUnit(i));
                 channelInfo.setCumulative();
