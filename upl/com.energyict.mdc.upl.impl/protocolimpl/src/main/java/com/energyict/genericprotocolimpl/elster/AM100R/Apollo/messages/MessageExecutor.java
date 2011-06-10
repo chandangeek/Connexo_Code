@@ -60,7 +60,8 @@ public class MessageExecutor extends GenericMessageExecutor {
                 getActivityCalendarController().writeCalendar();
                 success = true;
             } else if (activateCalendar) {
-                String dateFromMessage = messageHandler.getActivationDate();
+                String dateFromMessage = messageHandler.getTOUActivationDate();
+                getLogger().log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Activating activity calendar");
                 if(dateFromMessage.equalsIgnoreCase("1")){
                     getActivityCalendarController().writeCalendarActivationTime(null);  //writing null will activate immediately
                 } else {
@@ -68,6 +69,7 @@ public class MessageExecutor extends GenericMessageExecutor {
                     calendar.setTimeInMillis(Long.valueOf(dateFromMessage) * 1000);
                     getActivityCalendarController().writeCalendarActivationTime(calendar);
                 }
+                success = true;
             } else if (testMessage) {
                 getLogger().log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": TestMessage");
                 doTestMessage(messageHandler.getTestUserFileId());
@@ -81,6 +83,7 @@ public class MessageExecutor extends GenericMessageExecutor {
                 getLogger().log(Level.INFO, "Message " + rtuMessage.displayString() + " has finished.");
             } else {
                 rtuMessage.setFailed();
+                getLogger().log(Level.INFO, "Message " + rtuMessage.displayString() + " has FAILED.");
             }
         }
     }

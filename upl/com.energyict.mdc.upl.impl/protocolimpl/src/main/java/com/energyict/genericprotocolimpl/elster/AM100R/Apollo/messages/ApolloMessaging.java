@@ -100,7 +100,7 @@ public class ApolloMessaging extends GenericMessaging {
 
             StringBuilder builder = new StringBuilder();
             addOpeningTag(builder, msgTag.getName());
-            long activationDate = -1;
+            long activationDate = 0;
             int codeTableId = -1;
             for (Object maObject : msgTag.getAttributes()) {
                 MessageAttribute ma = (MessageAttribute) maObject;
