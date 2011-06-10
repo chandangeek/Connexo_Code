@@ -162,7 +162,7 @@ public class ApolloMeter extends DLMSProtocol {
      */
     private ProfileData getDefaultProfileData() throws IOException {
         ProfileGeneric pg = getApolloObjectFactory().getDefaultProfile();
-        return getProfileData(pg);
+        return getProfileData(pg, getMeter().getIntervalInSeconds());
     }
 
     /**
@@ -178,7 +178,7 @@ public class ApolloMeter extends DLMSProtocol {
         } else {
             pg = getApolloObjectFactory().getGenericProfileObject(ObisCode.fromString(this.dailyProfileObiscode));
         }
-        return getProfileData(pg);
+        return getProfileData(pg, 86400);
     }
 
     /**
@@ -188,11 +188,11 @@ public class ApolloMeter extends DLMSProtocol {
      * @return the requested <CODE>ProfileData</CODE>
      * @throws IOException if an error occurred during the dataFetching
      */
-    private ProfileData getProfileData(ProfileGeneric profileGeneric) throws IOException {
+    private ProfileData getProfileData(ProfileGeneric profileGeneric, int channelInterval) throws IOException {
         ApolloProfileBuilder apb = new ApolloProfileBuilder(this, profileGeneric);
 
         ProfileData pd = new ProfileData();
-        pd.setChannelInfos(apb.getChannelInfos());
+        pd.setChannelInfos(apb.getChannelInfos(channelInterval));
         if(pd.getChannelInfos().size() == 0){
             getLogger().log(Level.INFO, "No matching EIServer channels were found for loadprofile with obiscode " +
                     ObisCode.fromByteArray(profileGeneric.getObjectReference().getLn()) +
@@ -443,14 +443,16 @@ public class ApolloMeter extends DLMSProtocol {
     private String getFirmWareVersion() throws IOException {
         StringBuilder builder = new StringBuilder();
         builder.append(getApolloObjectFactory().getFirmwareVersion().getString());
+
+
         try {
-            String acor = getApolloObjectFactory().getFirmwareVersion().getAttrbAbstractDataType(-1).getOctetString().stringValue();
+            String acor = getApolloObjectFactory().getActiveFirmwareIdACOR().getAttrbAbstractDataType(-1).getOctetString().stringValue();
             builder.append(" - ACOR : ").append(acor);
         } catch (IOException e) {
             // absorb
         }
         try {
-            String mcor = getApolloObjectFactory().getFirmwareVersion().getAttrbAbstractDataType(-2).getOctetString().stringValue();
+            String mcor = getApolloObjectFactory().getActiveFirmwareIdMCOR().getAttrbAbstractDataType(-1).getOctetString().stringValue();
             builder.append(" - MCOR : ").append(mcor);
         } catch (IOException e) {
             // absorb
@@ -517,7 +519,7 @@ public class ApolloMeter extends DLMSProtocol {
      */
     @Override
     protected RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        return getRegisterReader().read(obisCode);  //To change body of implemented methods use File | Settings | File Templates.
+        return getRegisterReader().read(obisCode);
     }
 
     /**

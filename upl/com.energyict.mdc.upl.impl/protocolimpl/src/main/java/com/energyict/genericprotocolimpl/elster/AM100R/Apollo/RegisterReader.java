@@ -155,6 +155,14 @@ public class RegisterReader {
             ActivityCalendar ac = getMeterProtocol().getApolloObjectFactory().getActivityCalendar();
             return new RegisterValue(obisCode, ac.readCalendarNamePassive().stringValue());
         }
+
+        if(obisCode.equals(ObisCodeProvider.ActiveLongFirmwareIdentifierACOR)){
+            String acor = getMeterProtocol().getApolloObjectFactory().getActiveFirmwareIdACOR().getAttrbAbstractDataType(-1).getOctetString().stringValue();
+            return new RegisterValue(obisCode, "ACOR : " + acor);
+        } else if (obisCode.equals(ObisCodeProvider.ActiveLongFirmwareIdentifierMCOR)){
+            String mcor = getMeterProtocol().getApolloObjectFactory().getActiveFirmwareIdMCOR().getAttrbAbstractDataType(-1).getOctetString().stringValue();
+            return new RegisterValue(obisCode, "MCOR : " + mcor);
+        }
         throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
     }
 }

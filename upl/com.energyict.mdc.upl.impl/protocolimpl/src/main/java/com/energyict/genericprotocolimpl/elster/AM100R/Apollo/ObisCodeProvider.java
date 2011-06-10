@@ -30,8 +30,8 @@ public class ObisCodeProvider implements CommonObisCodeProvider {
     public static final ObisCode AssociationLnManagementClient = ObisCode.fromString("0.0.40.0.3.255");
     public static final ObisCode AssociationLnFirmwareClient = ObisCode.fromString("0.0.40.0.4.255");
     public static final ObisCode FirmwareVersionObisCode = ObisCode.fromString("1.0.0.2.0.255");
-    public static final ObisCode ActiveLongFirmwareIdentifierACOR = ObisCode.fromString("1.0.0.2.0.1");
-    public static final ObisCode ActiveLongFirmwareIdentifierMCOR = ObisCode.fromString("1.0.0.2.0.2");
+    public static final ObisCode ActiveLongFirmwareIdentifierACOR = ObisCode.fromString("1.2.0.2.0.255");
+    public static final ObisCode ActiveLongFirmwareIdentifierMCOR = ObisCode.fromString("1.1.0.2.0.255");
 
     public static final ObisCode StandardEventLogObisCode = ObisCode.fromString("0.0.99.98.0.255");
     public static final ObisCode PowerQualityFinishedEventLogObisCode = ObisCode.fromString("0.0.99.98.9.255");
