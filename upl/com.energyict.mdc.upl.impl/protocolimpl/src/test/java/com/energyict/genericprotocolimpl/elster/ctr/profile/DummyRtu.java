@@ -9,6 +9,7 @@ import com.energyict.interval.DateTime;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.relation.*;
+import com.energyict.mdw.sdp.ServiceDeliveryPoint;
 import com.energyict.mdw.shadow.*;
 import com.energyict.mdw.task.ChangeRtuTypeTransaction;
 import com.energyict.metadata.TypeId;
@@ -493,6 +494,13 @@ public class DummyRtu implements Rtu {
 
     public boolean isAlarmStatus() {
         return false;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    /**
+     * @return the <Code>ServiceDeliveryPoint</Code> this device is installed at for the given date
+     */
+    public ServiceDeliveryPoint getServiceDeliveryPoint(final Date when) {
+        return null;  //TODO implement proper functionality.
     }
 
     public Folder getContainer() {
