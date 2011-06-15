@@ -51,7 +51,12 @@ public class AlarmFrameParser {
 
         status = WaveflowProtocolUtils.toInt(data[offset++]);
 
-        date = TimeDateRTCParser.parse(data, offset, 6, waveFlow.getTimeZone()).getTime();
+        TimeZone timeZone = waveFlow.getTimeZone();
+        if (timeZone == null) {
+            timeZone = TimeZone.getDefault();
+        }
+
+        date = TimeDateRTCParser.parse(data, offset, 6, timeZone).getTime();
         offset += 6;
 
         if (data.length > 7) {

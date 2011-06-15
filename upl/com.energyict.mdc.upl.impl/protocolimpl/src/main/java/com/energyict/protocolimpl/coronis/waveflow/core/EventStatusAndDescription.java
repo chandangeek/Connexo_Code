@@ -49,8 +49,8 @@ public class EventStatusAndDescription {
     public static final int EVENTCODE_BURST = 0x34;
     public static final int EVENTCODE_OVERSPEED = 0x35;
 
-    public static final int EVENTCODE_SIMPLE_BACKFLOW_A = 0x2E;
-    public static final int EVENTCODE_SIMPLE_BACKFLOW_B = 0x2F;
+    public static final int EVENTCODE_SIMPLE_BACKFLOW_A = 0x3E;
+    public static final int EVENTCODE_SIMPLE_BACKFLOW_B = 0x3F;
 
     private WaveFlow waveFlow;
 

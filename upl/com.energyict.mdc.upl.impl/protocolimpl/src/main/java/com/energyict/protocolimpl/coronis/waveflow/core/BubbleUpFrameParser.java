@@ -25,8 +25,12 @@ public class BubbleUpFrameParser {
     private static final int HOURLY = 60 * 60;
     private static final int DAILY = HOURLY * 24;
     private static final int WEEKLY = DAILY * 7;
+    private static final double MAX = 0x20;
+    private static final int INITIAL_BATTERY_LIFE_COUNT = 0xC15C;
 
     public static BubbleUpObject parse(byte[] data, WaveFlow waveflow) throws IOException {
+        data = ProtocolTools.getSubArray(data, 6);          //Skip the radio address
+
         int type = data[0] & 0xFF;
         type = type | 0x80;
         data = ProtocolTools.getSubArray(data, 1);
@@ -48,6 +52,29 @@ public class BubbleUpFrameParser {
         }
     }
 
+    /**
+     * Parses the RSSI level and battery level from the generic header
+     *
+     * @param data the generic header
+     * @return 2 registers
+     */
+    private static List<RegisterValue> getGenericHeaderRegisters(byte[] data) {
+        List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
+
+        double qos = ProtocolTools.getUnsignedIntFromBytes(data, 12, 1);
+        qos = (qos / MAX) * 100;
+        double shortLifeCounter = ProtocolTools.getUnsignedIntFromBytes(data, 13, 2);
+        shortLifeCounter = 100 - (((INITIAL_BATTERY_LIFE_COUNT * 100) - (shortLifeCounter * 100)) / INITIAL_BATTERY_LIFE_COUNT);
+
+        RegisterValue reg = new RegisterValue(ObisCode.fromString("0.0.96.6.0.255"), new Quantity(shortLifeCounter, Unit.get("")), new Date());
+        registerValues.add(reg);
+
+        reg = new RegisterValue(ObisCode.fromString("0.0.96.0.63.255"), new Quantity(qos, Unit.get("")), new Date());
+        registerValues.add(reg);
+        return registerValues;
+    }
+
+
     private static BubbleUpObject parseDailyConsumption(byte[] data, WaveFlow waveflow) throws IOException {
         BubbleUpObject result = new BubbleUpObject();
         List<ProfileData> profileDatas = new ArrayList<ProfileData>();
@@ -55,6 +82,7 @@ public class BubbleUpFrameParser {
 
         DailyConsumption dailyConsumption = new DailyConsumption(waveflow);
         dailyConsumption.parse(data);
+        registerValues.addAll(getGenericHeaderRegisters(data));       //Parse the generic header, it contains the battery counter and RSSI level
 
         RegisterValue reg = new RegisterValue(ObisCode.fromString("1.1.82.8.0.255"), new Quantity(dailyConsumption.getIndexZone().getCurrentIndexOnA(), Unit.get("")), new Date());
         registerValues.add(reg);
