@@ -166,7 +166,7 @@ public class RegisterReader {
         }
 
         /* TOU BlockRegisters */
-        if (isBlockRegister(obisCode)) {
+        if (isBlockRegister(obisCode) || isBlockRegisterThreshold(obisCode)) {
             Register register = getMeterProtocol().getApolloObjectFactory().getRegister(obisCode);
             return new RegisterValue(obisCode, ParseUtils.registerToQuantity(register));
         }
@@ -181,11 +181,21 @@ public class RegisterReader {
      * @return true if it is a blockRegister ObisCode, false otherwise
      */
     private boolean isBlockRegister(final ObisCode oc) {
-
-        //TODO still to test!
         return (oc.getA() == 1) && ((oc.getD() == 8) || (oc.getD() == 9)) && (oc.getF() == 255) &&
                 ((oc.getB() >= 11) && (oc.getB() <= 18)) &&
                 ((oc.getC() == 1) || (oc.getC() == 2)) &&
                 ((oc.getE() >= 0) && (oc.getE() <= 8));
+    }
+
+    /**
+     * Check if the given ObisCode is a BlockRegisterThreshold ObisCode.
+     *
+     * @param oc the ObisCode to check
+     * @return true if it is a blockRegisterThreshold ObisCode, false otherwise
+     */
+    private boolean isBlockRegisterThreshold(final ObisCode oc) {
+        return (oc.getA() == 1) && (oc.getB() == 0) &&
+                ((oc.getC() == 1) || oc.getC() == 2) &&
+                (oc.getD() == 60) && (oc.getE() >= 1) && (oc.getE() <= 7) && (oc.getF() == 255);
     }
 }
