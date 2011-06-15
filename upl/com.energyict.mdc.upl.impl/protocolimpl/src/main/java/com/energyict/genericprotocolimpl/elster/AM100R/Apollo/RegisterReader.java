@@ -145,24 +145,47 @@ public class RegisterReader {
         }
 
         /* ActivityCalendar related Objects */
-        if(obisCode.equals(ObisCodeProvider.CurrentActiveRateContract1ObisCode)){
+        if (obisCode.equals(ObisCodeProvider.CurrentActiveRateContract1ObisCode)) {
             Data data = getMeterProtocol().getApolloObjectFactory().getData(obisCode);
             return new RegisterValue(obisCode, new Quantity(data.getValue(), Unit.getUndefined()));
-        } else  if(obisCode.equals(ObisCodeProvider.ActiveCalendarNameObisCode)){
+        } else if (obisCode.equals(ObisCodeProvider.ActiveCalendarNameObisCode)) {
             ActivityCalendarController acc = getMeterProtocol().getActivityCalendarController();
             return new RegisterValue(obisCode, acc.getCalendarName());
-        } else if (obisCode.equals(ObisCodeProvider.PassiveCalendarNameObisCode)){
+        } else if (obisCode.equals(ObisCodeProvider.PassiveCalendarNameObisCode)) {
             ActivityCalendar ac = getMeterProtocol().getApolloObjectFactory().getActivityCalendar();
             return new RegisterValue(obisCode, ac.readCalendarNamePassive().stringValue());
         }
 
-        if(obisCode.equals(ObisCodeProvider.ActiveLongFirmwareIdentifierACOR)){
+        /* FirmwareVersion related objects */
+        if (obisCode.equals(ObisCodeProvider.ActiveLongFirmwareIdentifierACOR)) {
             String acor = getMeterProtocol().getApolloObjectFactory().getActiveFirmwareIdACOR().getAttrbAbstractDataType(-1).getOctetString().stringValue();
             return new RegisterValue(obisCode, "ACOR : " + acor);
-        } else if (obisCode.equals(ObisCodeProvider.ActiveLongFirmwareIdentifierMCOR)){
+        } else if (obisCode.equals(ObisCodeProvider.ActiveLongFirmwareIdentifierMCOR)) {
             String mcor = getMeterProtocol().getApolloObjectFactory().getActiveFirmwareIdMCOR().getAttrbAbstractDataType(-1).getOctetString().stringValue();
             return new RegisterValue(obisCode, "MCOR : " + mcor);
         }
+
+        /* TOU BlockRegisters */
+        if (isBlockRegister(obisCode)) {
+            Register register = getMeterProtocol().getApolloObjectFactory().getRegister(obisCode);
+            return new RegisterValue(obisCode, ParseUtils.registerToQuantity(register));
+        }
+
         throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
+    }
+
+    /**
+     * Check if the given ObisCode is a BlockRegister ObisCode
+     *
+     * @param oc the ObisCode to check
+     * @return true if it is a blockRegister ObisCode, false otherwise
+     */
+    private boolean isBlockRegister(final ObisCode oc) {
+
+        //TODO still to test!
+        return (oc.getA() == 1) && ((oc.getD() == 8) || (oc.getD() == 9)) && (oc.getF() == 255) &&
+                ((oc.getB() >= 11) && (oc.getB() <= 18)) &&
+                ((oc.getC() == 1) || (oc.getC() == 2)) &&
+                ((oc.getE() >= 0) && (oc.getE() <= 8));
     }
 }
