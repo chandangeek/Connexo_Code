@@ -12,6 +12,7 @@ import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.eventhandling.EventLogs;
 import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.messages.*;
 import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.profile.ApolloProfileBuilder;
+import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.profile.ProfileConfiguration;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.RtuMessage;
@@ -75,7 +76,12 @@ public class ApolloMeter extends DLMSProtocol {
     /**
      * The ObisCode of the daily profile
      */
-    private String dailyProfileObiscode;
+    private String defaultProfileConfiguration;
+
+    /**
+     * The ObisCode of the daily profile
+     */
+    private String dailyProfileConfiguration;
 
     /**
      * Fixed static string for the {@link #forcedToReadCache} property
@@ -86,9 +92,13 @@ public class ApolloMeter extends DLMSProtocol {
      */
     private static final String PROPERTY_PASSWORD = "Password";
     /**
-     * Fixed static string for the {@link #dailyProfileObiscode} property
+     * Fixed static string for the {@link #defaultProfileConfiguration} property
      */
-    private static final String PROPERTY_DAILY_PROFILE_OBISCODE = "DailyProfileObisCode";
+    private static final String PROPERTY_DEFAULT_PROFILE_CONFIGURATION = "DefaultProfileConfiguration";
+    /**
+     * Fixed static string for the {@link #dailyProfileConfiguration} property
+     */
+    private static final String PROPERTY_DAILY_PROFILE_CONFIGURATION = "DailyProfileConfiguration";
 
     /**
      * The used ApolloMessaging object
@@ -161,8 +171,16 @@ public class ApolloMeter extends DLMSProtocol {
      * @throws IOException if an error occurred during the dataFetching
      */
     private ProfileData getDefaultProfileData() throws IOException {
-        ProfileGeneric pg = getApolloObjectFactory().getDefaultProfile();
-        return getProfileData(pg, getMeter().getIntervalInSeconds());
+        ProfileGeneric pg;
+        ProfileConfiguration pc;
+        if (this.defaultProfileConfiguration.equalsIgnoreCase("")) {
+            pc = new ProfileConfiguration(getApolloObjectFactory().getObisCodeProvider().getDefaultLoadProfileObisCode().toString(), "", getMeter().getIntervalInSeconds());
+            pg = getApolloObjectFactory().getDefaultProfile();
+        } else {
+            pc = new ProfileConfiguration(getApolloObjectFactory().getObisCodeProvider().getDailyLoadProfileObisCode().toString(), this.defaultProfileConfiguration, getMeter().getIntervalInSeconds());
+            pg = getApolloObjectFactory().getGenericProfileObject(pc.getProfileObisCode());
+        }
+        return getProfileData(pg, pc);
     }
 
     /**
@@ -173,26 +191,30 @@ public class ApolloMeter extends DLMSProtocol {
      */
     private ProfileData getDailyProfileData() throws IOException {
         ProfileGeneric pg;
-        if (this.dailyProfileObiscode.equalsIgnoreCase("")) {
+        ProfileConfiguration pc;
+        if (this.dailyProfileConfiguration.equalsIgnoreCase("")) {
+            pc = new ProfileConfiguration(getApolloObjectFactory().getObisCodeProvider().getDailyLoadProfileObisCode().toString(), "", 86400);
             pg = getApolloObjectFactory().getDailyProfile();
         } else {
-            pg = getApolloObjectFactory().getGenericProfileObject(ObisCode.fromString(this.dailyProfileObiscode));
+            pc = new ProfileConfiguration(getApolloObjectFactory().getObisCodeProvider().getDailyLoadProfileObisCode().toString(), this.dailyProfileConfiguration, 86400);
+            pg = getApolloObjectFactory().getGenericProfileObject(pc.getProfileObisCode());
         }
-        return getProfileData(pg, 86400);
+        return getProfileData(pg, pc);
     }
 
     /**
      * Get the loadProfile for the given <CODE>ProfileGeneric</CODE>
      *
      * @param profileGeneric the profileGeneric to read
+     * @param profileConfig the profileConfiguration for this profile
      * @return the requested <CODE>ProfileData</CODE>
      * @throws IOException if an error occurred during the dataFetching
      */
-    private ProfileData getProfileData(ProfileGeneric profileGeneric, int channelInterval) throws IOException {
-        ApolloProfileBuilder apb = new ApolloProfileBuilder(this, profileGeneric);
+    private ProfileData getProfileData(final ProfileGeneric profileGeneric, final ProfileConfiguration profileConfig) throws IOException {
+        ApolloProfileBuilder apb = new ApolloProfileBuilder(this, profileGeneric, profileConfig);
 
         ProfileData pd = new ProfileData();
-        pd.setChannelInfos(apb.getChannelInfos(channelInterval));
+        pd.setChannelInfos(apb.getChannelInfos());
         if (pd.getChannelInfos().size() == 0) {
             getLogger().log(Level.INFO, "No matching EIServer channels were found for loadprofile with obiscode " +
                     ObisCode.fromByteArray(profileGeneric.getObjectReference().getLn()) +
@@ -205,10 +227,10 @@ public class ApolloMeter extends DLMSProtocol {
         }
         Calendar toCalendar = Calendar.getInstance(getTimeZone());
         Calendar fromCalendar = Calendar.getInstance(getTimeZone());
-        Date lastProfileDate = apb.getLastProfileDate(channelInterval);
+        Date lastProfileDate = apb.getLastProfileDate(profileConfig.getProfileInterval());
         fromCalendar.setTime(lastProfileDate);
         getLogger().log(Level.INFO, "Getting intervalData from " + fromCalendar.getTime());
-        pd.setIntervalDatas(apb.getIntervalList(fromCalendar, toCalendar, channelInterval));
+        pd.setIntervalDatas(apb.getIntervalList(fromCalendar, toCalendar, profileConfig));
         return pd;
     }
 
@@ -387,7 +409,7 @@ public class ApolloMeter extends DLMSProtocol {
     @Override
     protected List<String> doGetOptionalKeys() {
         List<String> optionalKeys = new ArrayList<String>();
-        optionalKeys.add(PROPERTY_DAILY_PROFILE_OBISCODE);
+        optionalKeys.add(PROPERTY_DAILY_PROFILE_CONFIGURATION);
         return optionalKeys;
     }
 
@@ -409,8 +431,8 @@ public class ApolloMeter extends DLMSProtocol {
         } else if (getMeter() == null) {
             this.password = getProperties().getProperty(PROPERTY_PASSWORD, "");
         }
-
-        this.dailyProfileObiscode = getProperties().getProperty(PROPERTY_DAILY_PROFILE_OBISCODE, "");
+        this.defaultProfileConfiguration = getProperties().getProperty(PROPERTY_DEFAULT_PROFILE_CONFIGURATION, "");
+        this.dailyProfileConfiguration = getProperties().getProperty(PROPERTY_DAILY_PROFILE_CONFIGURATION, "");
     }
 
     /**

@@ -8,7 +8,6 @@ import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.*;
-import java.util.logging.Logger;
 
 /**
  * A default DLMS {@link com.energyict.dlms.cosem.ProfileGeneric} buffer parser to a list of {@link com.energyict.protocol.IntervalData}.
@@ -19,6 +18,15 @@ import java.util.logging.Logger;
  * Time: 11:26:42<br/>
  */
 public class DLMSProfileIntervals extends Array {
+
+    /**
+     * Indicator for the default clock mask of the capturedObjects
+     */
+    public static final int DefaultClockMask = 1;
+    /**
+     * Indicator for the default status mask of the capturedObjects
+     */
+    public static final int DefaultStatusMask = 2;
 
     /**
      * Represents a bitmasked location of the clock object. Default this is on position 1.
@@ -55,7 +63,7 @@ public class DLMSProfileIntervals extends Array {
      * @throws IOException when encoding types are not as expected
      */
     public DLMSProfileIntervals(byte[] encodedData, ProfileIntervalStatusBits statusBits) throws IOException {
-        this(encodedData, 1, 2, -1, statusBits);
+        this(encodedData, DefaultClockMask, DefaultStatusMask, -1, statusBits);
     }
 
     /**
