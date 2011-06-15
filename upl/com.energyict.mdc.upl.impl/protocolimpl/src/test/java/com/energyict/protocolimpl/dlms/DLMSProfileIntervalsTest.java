@@ -84,10 +84,10 @@ public class DLMSProfileIntervalsTest {
 
             assertEquals(4, profileIntervals.parseIntervals(3600).get(0).getIntervalValues().size());
             assertEquals(5, profileIntervals.parseIntervals(3600).get(0).getEiStatus());
-            assertEquals(5, ((IntervalValue)profileIntervals.parseIntervals(3600).get(0).getIntervalValues().get(0)).getEiStatus());
-            assertEquals(0, ((IntervalValue)profileIntervals.parseIntervals(3600).get(0).getIntervalValues().get(1)).getEiStatus());
-            assertEquals(4, ((IntervalValue)profileIntervals.parseIntervals(3600).get(0).getIntervalValues().get(2)).getEiStatus());
-            assertEquals(5, ((IntervalValue)profileIntervals.parseIntervals(3600).get(0).getIntervalValues().get(3)).getEiStatus());
+            assertEquals(5, ((IntervalValue) profileIntervals.parseIntervals(3600).get(0).getIntervalValues().get(0)).getEiStatus());
+            assertEquals(0, ((IntervalValue) profileIntervals.parseIntervals(3600).get(0).getIntervalValues().get(1)).getEiStatus());
+            assertEquals(4, ((IntervalValue) profileIntervals.parseIntervals(3600).get(0).getIntervalValues().get(2)).getEiStatus());
+            assertEquals(5, ((IntervalValue) profileIntervals.parseIntervals(3600).get(0).getIntervalValues().get(3)).getEiStatus());
 
         } catch (IOException e) {
             logger.info(e.getMessage());
@@ -104,9 +104,15 @@ public class DLMSProfileIntervalsTest {
 
             assertTrue(profileIntervals.isClockIndex(0));
             assertFalse(profileIntervals.isClockIndex(1));
+            assertFalse(profileIntervals.isClockIndex(32));
+            assertFalse(profileIntervals.isClockIndex(64));
+            assertFalse(profileIntervals.isClockIndex(128));
 
             assertTrue(profileIntervals.isStatusIndex(1));
             assertFalse(profileIntervals.isStatusIndex(0));
+            assertFalse(profileIntervals.isStatusIndex(33));
+            assertFalse(profileIntervals.isStatusIndex(65));
+            assertFalse(profileIntervals.isStatusIndex(129));
 
             assertFalse(profileIntervals.isChannelIndex(0));
             assertFalse(profileIntervals.isChannelIndex(1));

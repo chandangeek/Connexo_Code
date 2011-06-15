@@ -61,7 +61,7 @@ public class ApolloProfileBuilder {
         int channelIndex;
         for (int i = 0; i < getNumberOfChannels(); i++) {
             channelIndex = getChannelNumber(i, channelInterval);
-            if(channelIndex != -1){
+            if (channelIndex != -1) {
                 ChannelInfo channelInfo = new ChannelInfo(i, channelIndex, "DLMS Apollo_EnergyChannel_" + i, getChannelUnit(i));
                 channelInfo.setCumulative();
                 channelInfos.add(channelInfo);
@@ -152,26 +152,28 @@ public class ApolloProfileBuilder {
     /**
      * Fetch the intervalList from the device
      *
-     * @param fromCalendar the time to start reading from
-     * @param toCalendar   the last interval to read
+     * @param fromCalendar    the time to start reading from
+     * @param toCalendar      the last interval to read
+     * @param channelInterval the interval of the channels of the profile
      * @return a list of IntervalData objects to put in the ProfileData object
      * @throws IOException
      */
-    public List<IntervalData> getIntervalList(Calendar fromCalendar, Calendar toCalendar) throws IOException {
+    public List<IntervalData> getIntervalList(Calendar fromCalendar, Calendar toCalendar, final int channelInterval) throws IOException {
         DLMSProfileIntervals intervals = new DLMSProfileIntervals(profileGeneric.getBufferData(fromCalendar, toCalendar), new ApolloProfileIntervalStatusBits());
-        return intervals.parseIntervals(profileGeneric.getCapturePeriod());
+        return intervals.parseIntervals(channelInterval);
     }
 
     /**
      * Get the lastReading of the profile. Use the ProfileGeneric interval to search for the channels of this loadProfile
      *
+     * @param channelInterval the interval of the channels of the profile
      * @return the date of the last stored entry for the profile with the given interval
      */
-    public Date getLastProfileDate() throws IOException {
+    public Date getLastProfileDate(final int channelInterval) throws IOException {
         Date lastDate = new Date();
         List<Channel> meterChannels = this.meterProtocol.getMeter().getChannels();
         for (Channel channel : meterChannels) {
-            if (channel.getIntervalInSeconds() == this.profileGeneric.getCapturePeriod()) {
+            if (channel.getIntervalInSeconds() == channelInterval) {
                 Date channelLastReading = channel.getLastReading();
                 if (channelLastReading == null) {
                     channelLastReading = ParseUtils.getClearLastMonthDate(this.meterProtocol.getMeter());

@@ -6,6 +6,7 @@ import com.energyict.protocol.IntervalData;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -72,7 +73,7 @@ public class DLMSProfileIntervals extends Array {
         this.clockMask = clockMask;
         this.statusMask = statusMask;
         this.channelMask = channelMask;
-        if(statusBits == null){
+        if (statusBits == null) {
             this.profileStatusBits = new DLMSDefaultProfileIntervalStatusBits();
         } else {
             this.profileStatusBits = statusBits;
@@ -137,7 +138,7 @@ public class DLMSProfileIntervals extends Array {
 
                     if (cal != null) {
                         currentInterval = new IntervalData(cal.getTime(), profileStatus);
-                        for(int j = 0; j < values.size(); j++){
+                        for (int j = 0; j < values.size(); j++) {
                             currentInterval.addValue(values.get(j), 0, statuses.get(j));
                         }
                     } else {
@@ -185,7 +186,7 @@ public class DLMSProfileIntervals extends Array {
      * @return true if the given index is the clockIndex, false otherwise
      */
     protected boolean isClockIndex(int index) {
-        return ((this.clockMask >> index) & 0x01) == 1;
+        return new BigInteger(String.valueOf(this.clockMask)).shiftRight(index).and(new BigInteger("1")).intValue() == 1;
     }
 
     /**
@@ -195,7 +196,7 @@ public class DLMSProfileIntervals extends Array {
      * @return true if the given index is a valid StatusIndex, false otherwise
      */
     protected boolean isStatusIndex(int index) {
-        return ((this.statusMask >> index) & 0x01) == 1;
+        return new BigInteger(String.valueOf(this.statusMask)).shiftRight(index).and(new BigInteger("1")).intValue() == 1;
     }
 
     /**
@@ -208,7 +209,7 @@ public class DLMSProfileIntervals extends Array {
         if (isClockIndex(index) || isStatusIndex(index)) {
             return false;
         }
-        return ((this.channelMask >> index) & 0x01) == 1;
+        return new BigInteger(String.valueOf(this.channelMask)).shiftRight(index).and(new BigInteger("1")).intValue() == 1;
     }
 
     /**

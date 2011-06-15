@@ -173,7 +173,7 @@ public class ApolloMeter extends DLMSProtocol {
      */
     private ProfileData getDailyProfileData() throws IOException {
         ProfileGeneric pg;
-        if(this.dailyProfileObiscode.equalsIgnoreCase("")){
+        if (this.dailyProfileObiscode.equalsIgnoreCase("")) {
             pg = getApolloObjectFactory().getDailyProfile();
         } else {
             pg = getApolloObjectFactory().getGenericProfileObject(ObisCode.fromString(this.dailyProfileObiscode));
@@ -193,22 +193,22 @@ public class ApolloMeter extends DLMSProtocol {
 
         ProfileData pd = new ProfileData();
         pd.setChannelInfos(apb.getChannelInfos(channelInterval));
-        if(pd.getChannelInfos().size() == 0){
+        if (pd.getChannelInfos().size() == 0) {
             getLogger().log(Level.INFO, "No matching EIServer channels were found for loadprofile with obiscode " +
                     ObisCode.fromByteArray(profileGeneric.getObjectReference().getLn()) +
                     " and profileInterval of " + profileGeneric.getCapturePeriod() + "s");
             return pd;
         }
-        Calendar toCalendar = Calendar.getInstance(getTimeZone());
-        Calendar fromCalendar = Calendar.getInstance(getTimeZone());
-        Date lastProfileDate = apb.getLastProfileDate();
-        fromCalendar.setTime(lastProfileDate);
-        getLogger().log(Level.INFO, "Getting intervalData from " + fromCalendar.getTime());
-        pd.setIntervalDatas(apb.getIntervalList(fromCalendar, toCalendar));
         getLogger().log(Level.FINEST, "Below are the channelInfo");
-        for(ChannelInfo ci : pd.getChannelInfos()){
+        for (ChannelInfo ci : pd.getChannelInfos()) {
             getLogger().log(Level.FINEST, ci.toString());
         }
+        Calendar toCalendar = Calendar.getInstance(getTimeZone());
+        Calendar fromCalendar = Calendar.getInstance(getTimeZone());
+        Date lastProfileDate = apb.getLastProfileDate(channelInterval);
+        fromCalendar.setTime(lastProfileDate);
+        getLogger().log(Level.INFO, "Getting intervalData from " + fromCalendar.getTime());
+        pd.setIntervalDatas(apb.getIntervalList(fromCalendar, toCalendar, channelInterval));
         return pd;
     }
 
