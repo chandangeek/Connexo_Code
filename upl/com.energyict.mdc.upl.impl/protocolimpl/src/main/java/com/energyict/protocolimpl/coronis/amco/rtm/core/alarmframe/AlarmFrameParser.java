@@ -45,7 +45,12 @@ public class AlarmFrameParser {
         status = ProtocolTools.getUnsignedIntFromBytes(data, offset, 3);
         offset += 3;
 
-        date = TimeDateRTCParser.parse(data, offset, 7, rtm.getTimeZone()).getTime();
+        TimeZone timeZone = rtm.getTimeZone();
+        if (timeZone == null) {
+            timeZone = TimeZone.getDefault();
+        }
+
+        date = TimeDateRTCParser.parse(data, offset, 7, timeZone).getTime();
         offset += 7;
 
         alarmData = ProtocolTools.getUnsignedIntFromBytes(data, offset, 2);

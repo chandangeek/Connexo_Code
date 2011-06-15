@@ -16,8 +16,8 @@ public class EventStatusAndDescription {
     public static final int EVENTCODE_WIRECUT_TAMPER_B = 0x11;
     public static final int EVENTCODE_WIRECUT_TAMPER_C = 0x12;
     public static final int EVENTCODE_WIRECUT_TAMPER_D = 0x13;
-    public static final int EVENTCODE_BACKFLOW_END_A = 0x2E;         //Simple backflow
-    public static final int EVENTCODE_BACKFLOW_END_B = 0x2F;         //Simple backflow
+    public static final int EVENTCODE_BACKFLOW_END_A = 0x2E;         //Realtime backflow alarm
+    public static final int EVENTCODE_BACKFLOW_END_B = 0x2F;         //Realtime backflow alarm
     public static final int EVENTCODE_LEAKAGE_RESIDUAL_START_A = 0x1A;
     public static final int EVENTCODE_LEAKAGE_RESIDUAL_START_B = 0x1B;
     public static final int EVENTCODE_LEAKAGE_RESIDUAL_START_C = 0x1C;
@@ -48,8 +48,8 @@ public class EventStatusAndDescription {
     public static final int EVENTCODE_LEAKAGE_RESIDUAL_RT_C = 0x3C;
     public static final int EVENTCODE_LEAKAGE_RESIDUAL_RT_D = 0x3D;
 
-    public static final int EVENTCODE_BACKFLOW_OCCURRENCE_IN_MONTH_A = 0x3E;         //Occurrence in month
-    public static final int EVENTCODE_BACKFLOW_OCCURRENCE_IN_MONTH_B = 0x3F;         //Occurrence in month
+    public static final int EVENTCODE_BACKFLOW_OCCURRENCE_IN_MONTH_A = 0x3E;         //Occurrence in month (simple backflow detection)
+    public static final int EVENTCODE_BACKFLOW_OCCURRENCE_IN_MONTH_B = 0x3F;         //Occurrence in month (simple backflow detection)
 
     public int getProtocolCodeForLeakage(String startOrEnd, String type, String input) {
         if (LeakageEvent.START.equals(startOrEnd)) {
