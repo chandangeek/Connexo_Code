@@ -410,6 +410,7 @@ public class ApolloMeter extends DLMSProtocol {
     protected List<String> doGetOptionalKeys() {
         List<String> optionalKeys = new ArrayList<String>();
         optionalKeys.add(PROPERTY_DAILY_PROFILE_CONFIGURATION);
+        optionalKeys.add(PROPERTY_DEFAULT_PROFILE_CONFIGURATION);
         return optionalKeys;
     }
 
