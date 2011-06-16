@@ -59,20 +59,20 @@ public class RegisterReader {
 
         //Electricity related ObisRegisters
         if (obisCode.getA() == 1 && obisCode.getB() == 0) {
-            // 1/ Active Energy Import/Export - Reactive Energy Q1/Q2/Q3/Q4 with different rates
-            if (((obisCode.getC() == 1) || (obisCode.getC() == 2) || ((obisCode.getC() >= 5) && (obisCode.getC() <= 8)))
+            // 1/ Active Energy Import/Export - Reactive Energy Impor/Export - Q1/Q2/Q3/Q4 with different rates
+            if (((obisCode.getC() >= 1) && (obisCode.getC() <= 8))
                     && ((obisCode.getD() == 8) || (obisCode.getD() == 29))
-                    && ((obisCode.getE() == 0)
-                    || ((obisCode.getE() >= 10) && (obisCode.getE() <= 16))
-                    || ((obisCode.getE() >= 20) && (obisCode.getE() <= 26))
-                    || ((obisCode.getE() >= 30) && (obisCode.getE() <= 36)))
+//                    && ((obisCode.getE() == 0)
+//                    || ((obisCode.getE() >= 10) && (obisCode.getE() <= 16))
+//                    || ((obisCode.getE() >= 20) && (obisCode.getE() <= 26))
+//                    || ((obisCode.getE() >= 30) && (obisCode.getE() <= 36)))
                     && (obisCode.getF() == 255)) {
                 Register register = getMeterProtocol().getApolloObjectFactory().getRegister(obisCode);
                 return new RegisterValue(obisCode, ParseUtils.registerToQuantity(register));
             }
 
             // 2/ Average Demand Registers && Maximum Demand Registers
-            if (((obisCode.getC() == 1) || (obisCode.getC() == 2))
+            if (((obisCode.getC() == 1) || (obisCode.getC() == 2) || (obisCode.getC() == 3) || (obisCode.getC() == 4))
                     && (obisCode.getD() == 4)
                     && (obisCode.getE() == 0)
                     && (obisCode.getF() == 255)) {
@@ -80,11 +80,11 @@ public class RegisterReader {
                 return new RegisterValue(obisCode, ParseUtils.cosemObjectToQuantity(dRegister));
             } else if ((obisCode.getA() == 1)
                     && (obisCode.getB() == 0)
-                    && ((obisCode.getC() == 1) || (obisCode.getC() == 2))
+                    && ((obisCode.getC() == 1) || (obisCode.getC() == 2) || (obisCode.getC() == 3) || (obisCode.getC() == 4))
                     && (obisCode.getD() == 6)
-                    && (((obisCode.getE() >= 10) && (obisCode.getE() <= 16))
-                    || ((obisCode.getE() >= 20) && (obisCode.getE() <= 26))
-                    || ((obisCode.getE() >= 30) && (obisCode.getE() <= 36)))
+//                    && (((obisCode.getE() >= 10) && (obisCode.getE() <= 16))
+//                    || ((obisCode.getE() >= 20) && (obisCode.getE() <= 26))
+//                    || ((obisCode.getE() >= 30) && (obisCode.getE() <= 36)))
                     && (obisCode.getF() == 255)) {
                 ExtendedRegister dRegister = getMeterProtocol().getApolloObjectFactory().getExtendedRegister(obisCode);
                 return new RegisterValue(obisCode, ParseUtils.cosemObjectToQuantity(dRegister));
