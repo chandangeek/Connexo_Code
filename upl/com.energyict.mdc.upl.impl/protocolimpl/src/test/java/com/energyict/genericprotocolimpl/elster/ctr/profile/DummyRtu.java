@@ -184,6 +184,33 @@ public class DummyRtu implements Rtu {
 
     }
 
+    /**
+     * Updates the total number of suspects register readings on this device
+     *
+     * @throws java.sql.SQLException
+     */
+    public void updateNumberOfSuspectReadings() throws SQLException {
+        //TODO implement proper functionality.
+    }
+
+    /**
+     * Updates the total number of suspect intervals on this device
+     *
+     * @throws java.sql.SQLException
+     */
+    public void updateNumberOfSuspectIntervals() throws SQLException {
+        //TODO implement proper functionality.
+    }
+
+    /**
+     * Updates the number of failed schedules on this device
+     *
+     * @throws java.sql.SQLException
+     */
+    public void updateNumberOfFailedSchedules() throws SQLException {
+        //TODO implement proper functionality.
+    }
+
     public void store(ProfileData profileData) throws SQLException, BusinessException {
 
     }
