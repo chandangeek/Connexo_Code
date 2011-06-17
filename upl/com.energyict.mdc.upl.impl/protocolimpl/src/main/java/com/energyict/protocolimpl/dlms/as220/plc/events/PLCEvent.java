@@ -177,9 +177,21 @@ public class PLCEvent extends Structure {
         sb.append("N0").append("=").append(getN0()).append(", ");
         sb.append("S1").append("=").append(getS1()).append(", ");
         sb.append("N1").append("=").append(getN1()).append(", ");
-        sb.append("GAIN").append("=").append(getGain()).append(", ");
-        sb.append("METHOD").append("=").append(getMethod());
+        sb.append("GAIN").append("=").append(getGain()).append("/7, ");
+        sb.append("METHOD").append("=").append(getMethodDescription());
         return sb.toString();
+    }
+
+    private String getMethodDescription() {
+        int method = getMethod();
+        switch (method) {
+            case 1: return "ASK0" + " [" + method + "]";
+            case 2: return "ASK1" + " [" + method + "]";
+            case 3: return "FSK" + " [" + method + "]";
+            case 4: return "FSK0" + " [" + method + "]";
+            case 5: return "FSK1" + " [" + method + "]";
+        }
+        return "Unknown [" + method + "]";
     }
 
     @Override
