@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.dlms.as220;
 import com.energyict.dlms.DataContainer;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
+import com.energyict.protocolimpl.dlms.as220.plc.events.PLCLog;
 
 import java.io.IOException;
 import java.util.*;
@@ -15,6 +16,7 @@ public class EventLogs {
 
     private static final ObisCode STANDARD_EVENTLOG_OBISCODE = ObisCode.fromString("0.0.99.98.0.255");
     private static final ObisCode DISCONNEC_EVENTLOG_OBISCODE = ObisCode.fromString("0.0.99.98.2.255");
+    private static final ObisCode PLC_EVENTLOG_OBISCODE = ObisCode.fromString("0.0.128.0.0.255");
 
     private final DLMSSNAS220 as220;
 
@@ -47,6 +49,25 @@ public class EventLogs {
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         meterEvents.addAll(readLogbook(STANDARD_EVENTLOG_OBISCODE, fromCalendar, toCalendar));
         meterEvents.addAll(readLogbook(DISCONNEC_EVENTLOG_OBISCODE, fromCalendar, toCalendar));
+        meterEvents.addAll(readPlcLog(fromCalendar, toCalendar));
+        return meterEvents;
+    }
+
+    private List<MeterEvent> readPlcLog(Calendar fromCalendar, Calendar toCalendar) {
+        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
+        if (getAs220().isReadPlcLogbook()) {
+            if (getAs220().getMeterConfig().isObisCodeInObjectList(PLC_EVENTLOG_OBISCODE)) {
+                try {
+                    byte[] bufferData = getAs220().getCosemObjectFactory().getProfileGeneric(PLC_EVENTLOG_OBISCODE).getBufferData(fromCalendar, toCalendar);
+                    PLCLog plcLog = new PLCLog(bufferData, getAs220().getTimeZone());
+                    meterEvents.addAll(plcLog.getMeterEvents());
+                } catch (IOException e) {
+                    getAs220().getLogger().severe("Unable to read the PLC logbook: " + e.getMessage());
+                }
+            } else {
+                getAs220().getLogger().severe("PLC logbook with obis [" + PLC_EVENTLOG_OBISCODE + "] not found in object list.");
+            }
+        }
         return meterEvents;
     }
 

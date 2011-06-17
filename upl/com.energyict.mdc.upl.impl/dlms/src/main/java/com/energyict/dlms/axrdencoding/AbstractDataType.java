@@ -64,6 +64,10 @@ abstract public class AbstractDataType implements Field {
 		return isInteger16() ? (Integer16) this : null;
 	}
 
+	public BooleanObject getBooleanObject() {
+		return isBooleanObject() ? (BooleanObject) this : null;
+	}
+
 	public Integer32 getInteger32() {
 		return isInteger32() ? (Integer32) this : null;
 	}
@@ -114,6 +118,10 @@ abstract public class AbstractDataType implements Field {
 
 	public boolean isArray() {
 		return this instanceof Array;
+	}
+
+	public boolean isBooleanObject() {
+		return this instanceof BooleanObject;
 	}
 
 	public boolean isBitString() {

@@ -15,6 +15,7 @@ import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.EventNumber;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
 import com.energyict.protocolimpl.dlms.as220.plc.PLCMessaging;
+import com.energyict.protocolimpl.dlms.as220.plc.events.PLCLog;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import sun.misc.BASE64Encoder;
 
@@ -483,7 +484,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     }
 
     private String getB64EncodedFirmareString() throws IOException {
-        File file = new File("C:\\energyict\\protocols\\meterprotocols\\AS220\\Firmware\\AM500_20101110_V2.03\\MeterEandis.v2.03_Serial_Release_ImageTransfer.bin");
+        File file = new File("C:\\Documents and Settings\\jme\\Desktop\\AM500_20110607_V2.08\\MeterEandis.v2.08_Serial_Release_ImageTransfer.bin");
         FileInputStream fis = null;
         byte[] content = new byte[(int) file.length()];
 
@@ -579,7 +580,8 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
 
     @Override
     void doDebug() throws LinkException, IOException {
-        System.out.println(getMeterProtocol().getDLMSConnection().getApplicationServiceObject().getAssociationControlServiceElement().getXdlmsAse());
-        getMeterProtocol().queryMessage(new MessageEntry(WRITE_IEC_DATA_0, ""));
+        ProfileGeneric profileGeneric = getMeterProtocol().getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.128.0.0.255"));
+        byte[] bufferData = profileGeneric.getBufferData();
+        PLCLog plcLog = new PLCLog(bufferData, getTimeZone());
     }
 }

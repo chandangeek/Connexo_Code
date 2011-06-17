@@ -30,6 +30,7 @@ import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
 import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.dlms.*;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.*;
 import java.util.*;
@@ -59,6 +60,7 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 	private static final String			PR_TIMEOUT					= "Timeout";
     private static final String         PR_CIPHERING_TYPE           = "CipheringType";
     private static final String         PR_LIMIT_MAX_NR_OF_DAYS     = "LimitMaxNrOfDays";
+    private static final String         PR_READ_PLC_LOG             = "ReadPlcLog";
 
 	private static final int			MAX_PDU_SIZE				= 200;
 	private static final int			PROPOSED_QOS				= -1;
@@ -126,6 +128,7 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 
 	private int	iForcedDelay;
     private int limitMaxNrOfDays;
+    private boolean readPlcLogbook;
 
 	/**
 	 * Do some extra connect settings
@@ -517,6 +520,7 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
             }
 
             this.limitMaxNrOfDays = Integer.parseInt(properties.getProperty(PR_LIMIT_MAX_NR_OF_DAYS, "0"));
+            this.readPlcLogbook = ProtocolTools.getBooleanFromString(properties.getProperty(PR_READ_PLC_LOG, "0"));
 
 		} catch (NumberFormatException e) {
 			throw new InvalidPropertyException(" validateProperties, NumberFormatException, " + e.getMessage());
@@ -585,6 +589,7 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
         result.add(PR_OPTICAL_BAUDRATE);
         result.add(PR_CIPHERING_TYPE);
         result.add(PR_LIMIT_MAX_NR_OF_DAYS);
+        result.add(PR_READ_PLC_LOG);
         return result;
     }
 
@@ -780,5 +785,15 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     public int getProtocolRetries() {
         return this.iProtocolRetriesProperty;
     }
+
+    /**
+     * Check if we have to read the PLC logbook
+     *
+     * @return
+     */
+    public boolean isReadPlcLogbook() {
+        return this.readPlcLogbook;
+    }
+
 }
 
