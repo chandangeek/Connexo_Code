@@ -537,32 +537,33 @@ public class A1440 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
 				return new RegisterValue(obis, readSpecialRegister((String) this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
 			}
 
-			if (obis.getF() != 255) {
-				int f = getBillingCount() - Math.abs(obis.getF());
-				if (f < 0) {
-					throw new NoSuchRegisterException("Billing count is only " + getBillingCount() + " so cannot read register with F = " + obis.getF());
-				}
-				fs = "*" + ProtocolUtils.buildStringDecimal(f, 2);
-			}
+            if (obis.getF() != 255) {
+                int f = getBillingCount() - Math.abs(obis.getF());
+                if (f < 0) {
+                    throw new NoSuchRegisterException("Billing count is only " + getBillingCount() + " so cannot read register with F = " + obis.getF());
+                }
+                fs = "*" + ProtocolUtils.buildStringDecimal(f, 2);
 
-			String edis = obis.getC() + "." + obis.getD() + "." + obis.getE() + fs;
-			data = read(edis);
+                // try to read the time stamp, and us it as the register toTime.
+                try {
+                    String billingPoint = "";
+                    if ("1.1.0.1.0.255".equalsIgnoreCase(obis.toString())) {
+                        billingPoint = "*" + ProtocolUtils.buildStringDecimal(getBillingCount(), 2);
+                    } else {
+                        billingPoint = fs;
+                    }
+                    VDEWTimeStamp vts = new VDEWTimeStamp(getTimeZone());
+                    timeStampData = read("0.1.2" + billingPoint);
+                    toTimeString = dp.parseBetweenBrackets(timeStampData);
+                    vts.parse(toTimeString);
+                    toTime = vts.getCalendar().getTime();
+                } catch (Exception e) {
+                }
+            }
 
-			// try to read the time stamp, and us it as the register toTime.
-			try {
-				String billingPoint = "";
-				if ("1.1.0.1.0.255".equalsIgnoreCase(obis.toString())) {
-					billingPoint = "*" + ProtocolUtils.buildStringDecimal(getBillingCount(), 2);
-				} else {
-					billingPoint = fs;
-				}
-				VDEWTimeStamp vts = new VDEWTimeStamp(getTimeZone());
-				timeStampData = read("0.1.2" + billingPoint);
-				toTimeString = dp.parseBetweenBrackets(timeStampData);
-				vts.parse(toTimeString);
-				toTime = vts.getCalendar().getTime();
-			} catch (Exception e) {
-			}
+            String edis = obis.getC() + "." + obis.getD() + "." + obis.getE() + fs;
+            data = read(edis);
+
 
 			// read and parse the value an the unit ()if exists) of the register
 			String temp = dp.parseBetweenBrackets(data, 0, 0);
