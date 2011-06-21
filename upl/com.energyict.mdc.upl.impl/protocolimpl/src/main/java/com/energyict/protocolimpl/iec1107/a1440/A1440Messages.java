@@ -36,7 +36,7 @@ public class A1440Messages implements MessageProtocol {
     private static final A1440MessageType EVENT_LOG_RESET = new A1440MessageType("EVENT_LOG_RESET", 0, 0, "Event log register reset");
 
     //PQ threshold messages
-    private static final A1440MessageType PQ_THRESHOLD = new A1440MessageType("PQ_THRESHOLD", 37, 180 * 2, "PowerQuality Threshold");
+    private static final A1440MessageType PQ_THRESHOLD = new A1440MessageType("CLASS_37_UPDATE", 37, 180 * 2, "Update MeterClass 37");
 
     private A1440 a1440 = null;
 
@@ -61,7 +61,7 @@ public class A1440Messages implements MessageProtocol {
         catResetMessages.addMessageSpec(addBasicMsg(LOAD_LOG_RESET, true));
         catResetMessages.addMessageSpec(addBasicMsg(EVENT_LOG_RESET, true));
 
-        MessageCategorySpec catPowerQuality = new MessageCategorySpec("'PowerQuality Limits' Messages");
+        MessageCategorySpec catPowerQuality = new MessageCategorySpec("'Meter class update' Messages");
         catPowerQuality.addMessageSpec(addValueMsg(PQ_THRESHOLD, false));
 
         theCategories.add(catContactor);
@@ -337,7 +337,7 @@ public class A1440Messages implements MessageProtocol {
      * @throws IOException
      */
     public void doPowerQualityLimitMessage(MessageEntry messageEntry) throws IOException {
-        getLogger().fine("Received PQ_THRESHOLDS");
+        getLogger().fine("Received message : " + PQ_THRESHOLD.getDisplayName());
         writeClassSettings(messageEntry, PQ_THRESHOLD);
     }
 
