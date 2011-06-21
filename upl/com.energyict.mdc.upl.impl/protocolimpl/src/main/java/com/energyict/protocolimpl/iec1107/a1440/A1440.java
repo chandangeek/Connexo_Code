@@ -288,7 +288,7 @@ public class A1440 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
 	}
 
 	public String getProtocolVersion() {
-		return "$Revision$";
+		return "$Date$";
 	}
 
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
