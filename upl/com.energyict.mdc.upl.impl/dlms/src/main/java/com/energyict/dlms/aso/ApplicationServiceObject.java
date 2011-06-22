@@ -4,8 +4,7 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.cosem.AssociationLN;
-import com.energyict.dlms.cosem.AssociationSN;
+import com.energyict.dlms.cosem.*;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -42,21 +41,22 @@ public class ApplicationServiceObject {
      * @param securityContext the used {@link com.energyict.dlms.aso.SecurityContext}
      * @param contextId       the contextId which indicates longName or shortName communication
      */
-    public ApplicationServiceObject(XdlmsAse xDlmsAse, ProtocolLink protocolLink, SecurityContext securityContext, int contextId){
+    public ApplicationServiceObject(XdlmsAse xDlmsAse, ProtocolLink protocolLink, SecurityContext securityContext, int contextId) {
         this(xDlmsAse, protocolLink, securityContext, contextId, null, null);
     }
 
     /**
      * Constructor with additional parameters
-     * @param xDlmsAse        the used {@link com.energyict.dlms.aso.XdlmsAse}
-     * @param protocolLink    the used {@link com.energyict.dlms.ProtocolLink}
-     * @param securityContext the used {@link com.energyict.dlms.aso.SecurityContext}
-     * @param contextId       the contextId which indicates longName or shortName communication
-     * @param calledAPTitle   the calledApplicationProcessTitle
+     *
+     * @param xDlmsAse          the used {@link com.energyict.dlms.aso.XdlmsAse}
+     * @param protocolLink      the used {@link com.energyict.dlms.ProtocolLink}
+     * @param securityContext   the used {@link com.energyict.dlms.aso.SecurityContext}
+     * @param contextId         the contextId which indicates longName or shortName communication
+     * @param calledAPTitle     the calledApplicationProcessTitle
      * @param calledAEQualifier the calledApplicationEntityQualifier
      */
     public ApplicationServiceObject(XdlmsAse xDlmsAse, ProtocolLink protocolLink, SecurityContext securityContext, int contextId,
-                                    byte[] calledAPTitle, byte[] calledAEQualifier){
+                                    byte[] calledAPTitle, byte[] calledAEQualifier) {
         this.xDlmsAse = xDlmsAse;
         this.protocolLink = protocolLink;
         this.securityContext = securityContext;
@@ -123,7 +123,10 @@ public class ApplicationServiceObject {
                 this.associationStatus = ASSOCIATION_CONNECTED;
                 break;
             case MAN_SPECIFIC_LEVEL:
-                throw new IOException("High level security 2 is not supported.");
+                replyToHLSAuthentication(this.securityContext.getSecurityProvider().associationEncryptionByManufacturer(this.acse.getRespondingAuthenticationValue()));
+                // the association object will fail if we don't get a proper response.
+                this.associationStatus = ASSOCIATION_CONNECTED;
+                break;
             case HLS3_MD5: {
                 if (this.acse.getRespondingAuthenticationValue() != null) {
                     plainText = ProtocolUtils.concatByteArrays(this.acse.getRespondingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
@@ -157,7 +160,8 @@ public class ApplicationServiceObject {
                     throw new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
                             ") requires the server to respond with a challenge.");
                 }
-            }break;
+            }
+            break;
             default: {
                 // should never get here
                 throw new ConnectionException("Unknown authenticationLevel: " + this.securityContext.getAuthenticationLevel());
@@ -173,10 +177,10 @@ public class ApplicationServiceObject {
      */
     protected void analyzeEncryptedResponse(byte[] encryptedResponse) throws IOException {
         byte[] plainText = ProtocolUtils.concatByteArrays(this.securityContext.getSecurityProvider().getCallingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
-        
+
         byte[] cToSEncrypted;
         // We have to make a distinction between the response from HLS5_GMAC or one of the below ones.
-        if(this.securityContext.getAuthenticationType() != AuthenticationTypes.HLS5_GMAC){
+        if (this.securityContext.getAuthenticationType() != AuthenticationTypes.HLS5_GMAC) {
             cToSEncrypted = this.securityContext.associationEncryption(plainText);
         } else {
             cToSEncrypted = this.securityContext.createHighLevelAuthenticationGMACResponse(this.securityContext.getSecurityProvider().getCallingAuthenticationValue(), encryptedResponse);
@@ -204,18 +208,20 @@ public class ApplicationServiceObject {
             encryptedResponse = new OctetString(aln.replyToHLSAuthentication(digest));
         } else if ((this.acse.getContextId() == AssociationControlServiceElement.SHORT_NAME_REFERENCING_NO_CIPHERING)
                 || (this.acse.getContextId() == AssociationControlServiceElement.SHORT_NAME_REFERENCING_WITH_CIPHERING)) {    // reply with AssociationSN
-            AssociationSN asn = new AssociationSN(this.protocolLink);
+            AssociationSN asn = new CosemObjectFactory(this.protocolLink).getAssociationSN();
             encryptedResponse = new OctetString(asn.replyToHLSAuthentication(digest));
         } else {
             throw new IllegalArgumentException("Invalid ContextId: " + this.acse.getContextId());
         }
-
-
+        if(encryptedResponse.getOctetStr().length == 0){
+            return new byte[0];
+        }
         return encryptedResponse.getContentBytes();
     }
 
     /**
      * Getter for the AssociationControlServiceElement object
+     *
      * @return
      */
     public AssociationControlServiceElement getAssociationControlServiceElement() {

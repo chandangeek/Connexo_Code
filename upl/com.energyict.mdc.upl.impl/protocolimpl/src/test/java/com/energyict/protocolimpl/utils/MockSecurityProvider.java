@@ -172,7 +172,17 @@ public class MockSecurityProvider implements SecurityProvider{
 		return null;
 	}
 
-	public byte[] getNEWAuthenticationKey() throws IOException {
+    /**
+     * Construct the content of the responseValue when a Manufacturer Specific encryption algorithm ({@link com.energyict.dlms.aso.AuthenticationTypes#MAN_SPECIFIC_LEVEL}) is applied.
+     *
+     * @param respondingAuthenticationValue the response value from the meter OR null
+     * @return the encrypted Value to send back to the meter
+     */
+    public byte[] associationEncryptionByManufacturer(final byte[] respondingAuthenticationValue) throws IOException {
+        throw new IOException("High level security 2 is not supported.");
+    }
+
+    public byte[] getNEWAuthenticationKey() throws IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}

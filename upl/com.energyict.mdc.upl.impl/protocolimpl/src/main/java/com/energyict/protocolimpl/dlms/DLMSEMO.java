@@ -15,6 +15,10 @@ package com.energyict.protocolimpl.dlms;
 
 import java.io.*;
 import java.util.*;
+
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocol.*;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.ScalerUnit;
@@ -44,7 +48,23 @@ public class DLMSEMO extends DLMSSN {
 
     protected void getEventLog(ProfileData profileDate,Calendar fromCalendar, Calendar toCalendar) throws IOException {
     }
-    
+
+    @Override
+    protected SecurityProvider getSecurityProvider() {
+        return new NTASecurityProvider(getProperties());
+    }
+
+    /**
+     * Configure the {@link com.energyict.dlms.aso.ConformanceBlock} which is used for the DLMS association.
+     *
+     * @return the conformanceBlock, if null is returned then depending on the reference,
+     *         the default value({@link com.energyict.dlms.aso.ConformanceBlock#DEFAULT_LN_CONFORMANCE_BLOCK} or {@link com.energyict.dlms.aso.ConformanceBlock#DEFAULT_SN_CONFORMANCE_BLOCK}) will be used
+     */
+    @Override
+    protected ConformanceBlock configureConformanceBlock() {
+        return new ConformanceBlock(1573408L);
+    }
+
     protected void buildProfileData(byte bNROfChannels,ProfileData profileData,ScalerUnit[] scalerunit,UniversalObject[] intervalList)  throws IOException
     {
         byte bDOW;

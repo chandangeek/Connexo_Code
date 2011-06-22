@@ -350,8 +350,8 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
      * @param data   the additional data to write with he method
      * @throws IOException if an exception occurs during the method call
      */
-    protected void methodInvoke(DLMSClassMethods method, AbstractDataType data) throws IOException {
-        methodInvoke(method, data.getBEREncodedByteArray());
+    protected byte[] methodInvoke(DLMSClassMethods method, AbstractDataType data) throws IOException {
+        return methodInvoke(method, data.getBEREncodedByteArray());
     }
 
     /**
@@ -361,11 +361,11 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
      * @param encodedData   the ber-encoded additional data to write with he method
      * @throws IOException if an exception occurs during the method call
      */
-    protected void methodInvoke(DLMSClassMethods method, byte[] encodedData) throws IOException {
+    protected byte[] methodInvoke(DLMSClassMethods method, byte[] encodedData) throws IOException {
         if (getObjectReference().isSNReference()) {
-            write(method.getShortName(), encodedData);
+            return write(method.getShortName(), encodedData);
         } else {
-            invoke(method.getMethodNumber(), encodedData);
+            return invoke(method.getMethodNumber(), encodedData);
         }
     }
 

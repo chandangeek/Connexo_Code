@@ -25,6 +25,8 @@ package com.energyict.protocolimpl.dlms;
 
 
 import com.energyict.dlms.*;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
@@ -124,6 +126,22 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
 			profileData.addEvent(meterEvent);
 		}
         }
+    }
+
+    @Override
+    protected SecurityProvider getSecurityProvider() {
+        return new ZMDSecurityProvider(getProperties());
+    }
+
+    /**
+     * Configure the {@link com.energyict.dlms.aso.ConformanceBlock} which is used for the DLMS association.
+     *
+     * @return the conformanceBlock, if null is returned then depending on the reference,
+     *         the default value({@link com.energyict.dlms.aso.ConformanceBlock#DEFAULT_LN_CONFORMANCE_BLOCK} or {@link com.energyict.dlms.aso.ConformanceBlock#DEFAULT_SN_CONFORMANCE_BLOCK}) will be used
+     */
+    @Override
+    protected ConformanceBlock configureConformanceBlock() {
+        return new ConformanceBlock(1573408L);
     }
 
     protected void buildProfileData(byte bNROfChannels,ProfileData profileData,ScalerUnit[] scalerunit,UniversalObject[] intervalList)  throws IOException {
@@ -336,7 +354,6 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
             iRequestTimeZone=Integer.parseInt(properties.getProperty("RequestTimeZone","0").trim());
             iRequestClockObject=Integer.parseInt(properties.getProperty("RequestClockObject","0").trim());
             iRoundtripCorrection=Integer.parseInt(properties.getProperty("RoundtripCorrection","0").trim());
-            iSecurityLevelProperty=Integer.parseInt(properties.getProperty("SecurityLevel","1").trim());
             iClientMacAddress=Integer.parseInt(properties.getProperty("ClientMacAddress","32").trim());
             iServerUpperMacAddress=Integer.parseInt(properties.getProperty("ServerUpperMacAddress","1").trim());
             iServerLowerMacAddress=Integer.parseInt(properties.getProperty("ServerLowerMacAddress","0").trim());

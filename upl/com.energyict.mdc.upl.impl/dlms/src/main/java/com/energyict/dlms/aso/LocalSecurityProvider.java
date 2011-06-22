@@ -136,7 +136,17 @@ public class LocalSecurityProvider implements SecurityProvider {
 		return this.masterKey;
 	}
 
-	//********** Return new keys for KeyChange functionality **********/
+    /**
+     * Construct the content of the responseValue when a Manufacturer Specific encryption algorithm ({@link AuthenticationTypes#MAN_SPECIFIC_LEVEL}) is applied.
+     *
+     * @param respondingAuthenticationValue the response value from the meter OR null
+     * @return the encrypted Value to send back to the meter
+     */
+    public byte[] associationEncryptionByManufacturer(final byte[] respondingAuthenticationValue) throws IOException {
+        throw new IOException("High level security 2 is not supported.");
+    }
+
+    //********** Return new keys for KeyChange functionality **********/
 
 	/**
 	 * @return the new data encryption Authentication Key

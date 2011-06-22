@@ -3,6 +3,7 @@ package com.energyict.dlms.cosem;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.cosem.attributes.AssociationSNMethods;
 import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
@@ -76,7 +77,7 @@ public class AssociationSN extends AbstractCosemObject {
 	 * the HLSKey
 	 */
 	public byte[] replyToHLSAuthentication(byte[] encryptedChallenge) throws IOException {
-		return invoke(METHOD_REPLY_TO_HLS_AUTH, new OctetString(encryptedChallenge).getBEREncodedByteArray());
+        return methodInvoke(AssociationSNMethods.REPLY_TO_HLS_AUTHENTICATION, new OctetString(encryptedChallenge));
 	}
 
 	/**
@@ -89,6 +90,6 @@ public class AssociationSN extends AbstractCosemObject {
 	 * don't have the proper permissions
 	 */
 	public byte[] changeSecret(byte[] secret) throws IOException {
-		return invoke(METHOD_CHANGE_SECRET, new OctetString(secret).getBEREncodedByteArray());
+		return methodInvoke(AssociationSNMethods.CHANGE_SECRET, new OctetString(secret));
 	}
 }

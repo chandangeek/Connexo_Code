@@ -19,14 +19,14 @@ import java.util.Random;
  */
 public class NTASecurityProvider implements SecurityProvider {
 
-	private int securityLevel;
-	private byte[] cTOs;
-	private byte[] authenticationKey;
-	private byte[] encryptionKey;
-	private byte[] dedicatedKey;
-	private byte[] masterKey;
-	private String hlsSecret;
-	private Properties properties;
+	protected int securityLevel;
+	protected byte[] cTOs;
+	protected byte[] authenticationKey;
+	protected byte[] encryptionKey;
+	protected byte[] dedicatedKey;
+	protected byte[] masterKey;
+	protected String hlsSecret;
+	protected Properties properties;
 
 	/** Property name of the new AuthenticationKey */
 	public static final String NEW_DATATRANSPORT_AUTHENTICATION_KEY = "NewDataTransportAuthenticationKey";
@@ -64,7 +64,7 @@ public class NTASecurityProvider implements SecurityProvider {
 	/**
 	 * Generate a random challenge of 8 bytes long
 	 */
-	private void generateClientToServerChallenge(){
+	protected void generateClientToServerChallenge(){
 		if(this.cTOs == null){
 			Random generator = new Random();
 			this.cTOs = new byte[8];
@@ -137,7 +137,17 @@ public class NTASecurityProvider implements SecurityProvider {
 		return this.masterKey;
 	}
 
-	//********** Return new keys for KeyChange functionality **********/
+    /**
+     * Construct the content of the responseValue when a Manufacturer Specific encryption algorithm ({@link com.energyict.dlms.aso.AuthenticationTypes#MAN_SPECIFIC_LEVEL}) is applied.
+     *
+     * @param respondingAuthenticationValue the response value from the meter OR null
+     * @return the encrypted Value to send back to the meter
+     */
+    public byte[] associationEncryptionByManufacturer(final byte[] respondingAuthenticationValue) throws IOException {
+        throw new IOException("High level security 2 is not supported.");
+    }
+
+    //********** Return new keys for KeyChange functionality **********/
 
 	/**
 	 * @return the new data encryption Authentication Key
