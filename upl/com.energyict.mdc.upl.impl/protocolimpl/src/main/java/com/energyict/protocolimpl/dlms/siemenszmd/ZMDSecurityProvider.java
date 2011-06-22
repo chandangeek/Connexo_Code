@@ -82,20 +82,21 @@ public class ZMDSecurityProvider extends NTASecurityProvider {
         byte[] intArray = convertASCIIArrayToIntegerArray(respondingAuthenticationValue);
 
         int encryptionType = intArray[MAN_SPEC_TYPE_INDEX];
-        byte[] encryptedAuthenticationValue = new byte[0];
+        byte[] encryptedAuthenticationValue = new byte[MAN_SPEC_RESPONDING_VALUE_LENGTH];
+        System.arraycopy(intArray,0, encryptedAuthenticationValue, 0, MAN_SPEC_RESPONDING_VALUE_LENGTH);
         switch (encryptionType) {
             case VARIANT0_ADD:
-                encryptedAuthenticationValue = bitWiseAdd(Arrays.copyOf(intArray, MAN_SPEC_RESPONDING_VALUE_LENGTH), convertASCIIArrayToIntegerArray(getHLSSecret()));break;
+                encryptedAuthenticationValue = bitWiseAdd(encryptedAuthenticationValue, convertASCIIArrayToIntegerArray(getHLSSecret()));break;
             case VARIANT1_OR:
-                encryptedAuthenticationValue = bitWiseOr(Arrays.copyOf(intArray, MAN_SPEC_RESPONDING_VALUE_LENGTH), convertASCIIArrayToIntegerArray(getHLSSecret()));break;
+                encryptedAuthenticationValue = bitWiseOr(encryptedAuthenticationValue, convertASCIIArrayToIntegerArray(getHLSSecret()));break;
             case VARIANT2_XOR:
-                encryptedAuthenticationValue = bitWiseXor(Arrays.copyOf(intArray, MAN_SPEC_RESPONDING_VALUE_LENGTH), convertASCIIArrayToIntegerArray(getHLSSecret()));break;
+                encryptedAuthenticationValue = bitWiseXor(encryptedAuthenticationValue, convertASCIIArrayToIntegerArray(getHLSSecret()));break;
             case VARIANT3_ADD_OR:
-                encryptedAuthenticationValue = bitWiseAddOr(Arrays.copyOf(intArray, MAN_SPEC_RESPONDING_VALUE_LENGTH), convertASCIIArrayToIntegerArray(getHLSSecret()));break;
+                encryptedAuthenticationValue = bitWiseAddOr(encryptedAuthenticationValue, convertASCIIArrayToIntegerArray(getHLSSecret()));break;
             case VARIANT4_ADD_XOR:
-                encryptedAuthenticationValue = bitWiseAddXor(Arrays.copyOf(intArray, MAN_SPEC_RESPONDING_VALUE_LENGTH), convertASCIIArrayToIntegerArray(getHLSSecret()));break;
+                encryptedAuthenticationValue = bitWiseAddXor(encryptedAuthenticationValue, convertASCIIArrayToIntegerArray(getHLSSecret()));break;
             case VARIANT5_ADD:
-                encryptedAuthenticationValue = bitWiseAdd(Arrays.copyOf(intArray, MAN_SPEC_RESPONDING_VALUE_LENGTH), convertASCIIArrayToIntegerArray(getHLSSecret()));break;
+                encryptedAuthenticationValue = bitWiseAdd(encryptedAuthenticationValue, convertASCIIArrayToIntegerArray(getHLSSecret()));break;
         }
         return convertIntegerArrayToASCIIArray(DLMSUtils.concatByteArrays(encryptedAuthenticationValue, new byte[]{(byte) encryptionType}));
     }
