@@ -117,7 +117,7 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
     /**
      * Contains the Configuration of a DLMS meter
      */
-    private DLMSMeterConfig meterConfig;
+    private DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance();;
 
     // Added for MeterProtocol interface implementation
     private Logger logger = null;
@@ -161,7 +161,6 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
 
         cosemObjectFactory = new CosemObjectFactory(this);
         storedValuesImpl = new StoredValuesImpl(cosemObjectFactory);
-        this.meterConfig = DLMSMeterConfig.getInstance();
         initDLMSConnection(inputStream, outputStream);
     }
 
