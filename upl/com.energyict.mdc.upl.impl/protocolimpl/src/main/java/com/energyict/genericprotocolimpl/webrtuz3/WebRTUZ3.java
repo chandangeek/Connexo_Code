@@ -970,13 +970,13 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
                         try {
                             handleMbusSingleSchedule(mbusDevice, commSchedule);
                         } catch (SQLException e) {
-                            commSchedule.logFailure(getNow(), e.getMessage());
+                            logFailure(commSchedule, mbusDevice.getMeterAmrLogging());
                             throw e;
                         } catch (BusinessException e) {
-                            commSchedule.logFailure(getNow(), e.getMessage());
+                            logFailure(commSchedule, mbusDevice.getMeterAmrLogging());
                             throw e;
                         } catch (IOException e) {
-                            commSchedule.logFailure(getNow(), e.getMessage());
+                            logFailure(commSchedule, mbusDevice.getMeterAmrLogging());
                             throw e;
                         }
                     }
@@ -1089,27 +1089,38 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
     }
 
     private void handleMbusSingleSchedule(MbusDevice mbusDevice, CommunicationScheduler commSchedule) throws SQLException, BusinessException, IOException {
-        String commSchedName = commSchedule.displayString();
-        Date nextCommunicationDate = commSchedule.getNextCommunication();
+        try {
+            String commSchedName = commSchedule.displayString();
+            Date nextCommunicationDate = commSchedule.getNextCommunication();
 
-        if (nextCommunicationDate != null) {
-            if (nextCommunicationDate.getTime() <= getNow().getTime()) {
-                getLogger().fine("Next communication date [" + nextCommunicationDate + "] for [" + commSchedName + "] reached. Executing schedule now.");
-                commSchedule.startCommunication(getCommunicationScheduler().getComPortId());
-                commSchedule.startReadingNow();
-                mbusDevice.setWebRtu(this);
-                mbusDevice.execute(commSchedule, null, null);
-                logSuccess(commSchedule, mbusDevice.getMeterAmrLogging());
-                getLogger().info("MbusDevice " + mbusDevice + " has finished.");
+            if (nextCommunicationDate != null) {
+                if (nextCommunicationDate.getTime() <= getNow().getTime()) {
+                    getLogger().fine("Next communication date [" + nextCommunicationDate + "] for [" + commSchedName + "] reached. Executing schedule now.");
+                    commSchedule.startCommunication(getCommunicationScheduler().getComPortId());
+                    commSchedule.startReadingNow();
+                    mbusDevice.setWebRtu(this);
+                    mbusDevice.execute(commSchedule, null, null);
+                    logSuccess(commSchedule, mbusDevice.getMeterAmrLogging());
+                    getLogger().info("MbusDevice " + mbusDevice + " has finished.");
+                } else {
+                    getLogger().fine("Next communication date for Communication schedule [" + commSchedName + "] not reached yet. Skipping.");
+                }
             } else {
-                getLogger().fine("Next communication date for Communication schedule [" + commSchedName + "] not reached yet. Skipping.");
+                StringBuilder sb = new StringBuilder();
+                sb.append("Communication schedule [").append(commSchedName).append("] is not active: ");
+                sb.append(" Next communication date is 'null'. ");
+                sb.append(" Skipping.");
+                getLogger().fine(sb.toString());
             }
-        } else {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Communication schedule [").append(commSchedName).append("] is not active: ");
-            sb.append(" Next communication date is 'null'. ");
-            sb.append(" Skipping.");
-            getLogger().fine(sb.toString());
+        } catch (SQLException e) {
+            mbusDevice.getMeterAmrLogging().logInfo(e);
+            throw e;
+        } catch (BusinessException e) {
+            mbusDevice.getMeterAmrLogging().logInfo(e);
+            throw e;
+        } catch (IOException e) {
+            mbusDevice.getMeterAmrLogging().logInfo(e);
+            throw e;
         }
     }
 
