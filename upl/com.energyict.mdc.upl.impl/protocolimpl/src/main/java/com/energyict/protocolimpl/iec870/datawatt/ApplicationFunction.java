@@ -6,12 +6,13 @@
 
 package com.energyict.protocolimpl.iec870.datawatt;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
-
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec870.*;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  *
@@ -130,23 +131,22 @@ public class ApplicationFunction {
             throw new ProtocolException("DataWatt, historicalDataASDU, "+e.getMessage());
         }
     }
-    
+
     public void clockSynchronizationASDU(Calendar calendar) throws IOException {
         try {
             CP56Time2a cp56 = new CP56Time2a(calendar);
             IEC870InformationObject io = new IEC870InformationObject(0);
             io.addData(cp56.getData());
+            IEC870ASDU asdu = new IEC870ASDU(IEC870TypeIdentification.getId("C_CS_NA_1"), 1, IEC870TransmissionCause.getId("ACT"), ORIGINATOR_ADDRESS, iec870Connection.getRTUAddress(), io);
+            List apdus = iec870Connection.sendConfirm(asdu);
             if (DEBUG >= 2) {
-                IEC870ASDU asdu = new IEC870ASDU(IEC870TypeIdentification.getId("C_CS_NA_1"), 1, IEC870TransmissionCause.getId("ACT"), ORIGINATOR_ADDRESS, iec870Connection.getRTUAddress(), io);
-                List apdus = iec870Connection.sendConfirm(asdu);
                 printAPDUList(apdus);
             }
-        }
-        catch(IEC870ConnectionException e) {
-            throw new ProtocolException("DataWatt, clockSynchronizationASDU, "+e.getMessage());
+        } catch (IEC870ConnectionException e) {
+            throw new ProtocolException("DataWatt, clockSynchronizationASDU, " + e.getMessage());
         }
     }
-    
+
     public Calendar dsapGetClockASDU() throws IOException {
         try {
             byte[] objData = {(byte)0x34,(byte)0x34,(byte)0x1e,(byte)0x00,(byte)0x0a,(byte)0x01};
