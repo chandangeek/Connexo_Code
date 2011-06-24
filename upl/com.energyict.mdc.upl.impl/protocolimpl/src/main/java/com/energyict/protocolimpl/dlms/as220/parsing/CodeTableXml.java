@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.dlms.as220.parsing;
 
 import com.energyict.cbo.ApplicationException;
-import com.energyict.mdw.core.*;
-import com.energyict.protocolimpl.dlms.as220.emeter.AS220ActivityCalendarController;
+import com.energyict.mdw.core.Code;
+import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -14,7 +14,8 @@ import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Parser object to convert the structure of a CodeTable to an XML format
@@ -421,7 +422,8 @@ public class CodeTableXml {
      */
     public static String getXmlWithoutDocType(Document doc) {
         String codeTableXml = documentToString(doc);
-        return codeTableXml.substring(codeTableXml.indexOf(AS220ActivityCalendarController.xmlDocType) + AS220ActivityCalendarController.xmlDocType.length());
+        int index = codeTableXml.indexOf("?>");
+        return (index != -1) ? codeTableXml.substring(index + 2) : codeTableXml;
     }
 
     /**
