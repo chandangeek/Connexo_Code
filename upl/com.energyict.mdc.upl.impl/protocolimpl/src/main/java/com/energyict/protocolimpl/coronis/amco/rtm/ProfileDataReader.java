@@ -200,8 +200,13 @@ public class ProfileDataReader {
                 if (requestsAllowed) {
                     multiplier = rtm.getParameterFactory().readUnit(inputId + 1).getMultiplier();
                 }
-                BigDecimal bd = new BigDecimal(multiplier * rawValues.get(inputId).get(index));
-                intervalValues.add(new IntervalValue(bd, 0, 0));    //The module doesn't send any information about the value's status..
+                int status = 0;
+                Integer value = rawValues.get(inputId).get(index);
+                if (value == Integer.MAX_VALUE) {
+                    status = IntervalStateBits.CORRUPTED;
+                }
+                BigDecimal bd = new BigDecimal(multiplier * value);
+                intervalValues.add(new IntervalValue(bd, 0, status));    //The module doesn't send any information about the value's status..
             }
 
             //Don't add the record if it doesn't belong in the requested interval, except for pushed daily consumption data
