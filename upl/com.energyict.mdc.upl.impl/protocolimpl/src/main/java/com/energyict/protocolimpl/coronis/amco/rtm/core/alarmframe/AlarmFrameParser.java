@@ -59,23 +59,23 @@ public class AlarmFrameParser {
     public List<MeterEvent> getMeterEvents() throws IOException {
 
         if (profileType.isDigitialPorts()) {
-            AlarmFramePulseProfile alarmFrame = new AlarmFramePulseProfile(rtm, status, alarmData, date);
+            AlarmFramePulseProfile alarmFrame = new AlarmFramePulseProfile(rtm, alarmData, status, date);
             return alarmFrame.getMeterEvents();
         }
         if (profileType.isEncoderPorts()) {
-            AlarmFrameEncoderProfile alarmFrame = new AlarmFrameEncoderProfile(rtm, status, alarmData, date);
+            AlarmFrameEncoderProfile alarmFrame = new AlarmFrameEncoderProfile(rtm, alarmData, status, date);
             return alarmFrame.getMeterEvents();
         }
         if (profileType.isEvoHop()) {
-            AlarmFrameEvoHopProfile alarmFrame = new AlarmFrameEvoHopProfile(rtm, status, alarmData, date);
+            AlarmFrameEvoHopProfile alarmFrame = new AlarmFrameEvoHopProfile(rtm, alarmData, status, date);
             return alarmFrame.getMeterEvents();
         }
         if (profileType.isDigitalAndValvePorts()) {
-            AlarmFramePulseAndValveProfile alarmFrame = new AlarmFramePulseAndValveProfile(rtm, status, alarmData, date);
+            AlarmFramePulseAndValveProfile alarmFrame = new AlarmFramePulseAndValveProfile(rtm, alarmData, status, date);
             return alarmFrame.getMeterEvents();
         }
         if (profileType.isEncoderAndValvePorts()) {
-            AlarmFrameEncoderAndValveProfile alarmFrame = new AlarmFrameEncoderAndValveProfile(rtm, status, alarmData, date);
+            AlarmFrameEncoderAndValveProfile alarmFrame = new AlarmFrameEncoderAndValveProfile(rtm, alarmData, status, date);
             return alarmFrame.getMeterEvents();
         } else {
             return new ArrayList<MeterEvent>();
