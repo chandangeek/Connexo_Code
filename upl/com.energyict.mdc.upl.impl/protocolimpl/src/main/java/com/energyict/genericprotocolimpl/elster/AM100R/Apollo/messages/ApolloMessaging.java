@@ -1,12 +1,14 @@
 package com.energyict.genericprotocolimpl.elster.AM100R.Apollo.messages;
 
-import com.energyict.genericprotocolimpl.common.messages.*;
+import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.ApolloMeter;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.as220.parsing.CodeTableXml;
 import com.energyict.protocolimpl.messages.*;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -116,8 +118,11 @@ public class ApolloMessaging extends GenericMessaging {
             }
 
             try {
-                builder.append(CodeTableXml.parseActivityCalendarAndSpecialDayTable(codeTableId, activationDate));
+                String xmlContent = CodeTableXml.parseActivityCalendarAndSpecialDayTable(codeTableId, activationDate);
+                builder.append(ProtocolTools.compress(xmlContent));
             } catch (ParserConfigurationException e) {
+                return null;
+            } catch (IOException e) {
                 return null;
             }
             addClosingTag(builder, msgTag.getName());
@@ -139,8 +144,11 @@ public class ApolloMessaging extends GenericMessaging {
             }
 
             try {
-                builder.append(CodeTableXml.parseActivityCalendarAndSpecialDayTable(codeTableId, 0));
+                String xmlContent = CodeTableXml.parseActivityCalendarAndSpecialDayTable(codeTableId, 0);
+                builder.append(ProtocolTools.compress(xmlContent));
             } catch (ParserConfigurationException e) {
+                return null;
+            } catch (IOException e) {
                 return null;
             }
             addClosingTag(builder, msgTag.getName());

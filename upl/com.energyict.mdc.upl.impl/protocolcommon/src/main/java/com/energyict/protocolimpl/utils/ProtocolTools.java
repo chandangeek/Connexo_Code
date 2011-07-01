@@ -4,6 +4,8 @@ import com.energyict.mdw.core.CommunicationProtocol;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -11,6 +13,8 @@ import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * Utility class with static methods used for protocols
@@ -1032,6 +1036,33 @@ public final class ProtocolTools {
      */
     public static int getIntFromByte(byte b) {
         return ((int) b) & 0x0FF;
+    }
+
+    public static String compress(String uncompressedContent) throws IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        GZIPOutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream);
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(gzipOutputStream);
+        objectOutputStream.writeObject(uncompressedContent);
+        objectOutputStream.flush();
+        objectOutputStream.close();
+        return new BASE64Encoder().encode(byteArrayOutputStream.toByteArray());
+    }
+
+    public static String decompress(String compressedBase64Content) throws IOException {
+        try {
+            byte[] compressedContent = new BASE64Decoder().decodeBuffer(compressedBase64Content);
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(compressedContent);
+            GZIPInputStream gzipInputStream = new GZIPInputStream(byteArrayInputStream);
+            ObjectInputStream objectInputStream = new ObjectInputStream(gzipInputStream);
+            Object object = objectInputStream.readObject();
+            if (object instanceof String) {
+                return (String) object;
+            } else {
+                throw new IOException("Compressed object should be a java.lang.String but was [" + object.getClass().getName() + "]");
+            }
+        } catch (ClassNotFoundException e) {
+            throw new IOException(e.getMessage());
+        }
     }
 
 }

@@ -2,7 +2,6 @@ package com.energyict.genericprotocolimpl.elster.AM100R.Apollo.messages;
 
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.attributeobjects.*;
@@ -11,6 +10,7 @@ import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.ApolloMeter;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
 import com.energyict.protocolimpl.dlms.as220.parsing.CodeTableXml;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.*;
@@ -159,10 +159,17 @@ public class ApolloActivityCalendarController implements ActivityCalendarControl
      * <li> Only 4 dayTypes are supported, same reason as above
      * </ul>
      *
-     * @param content the activityCalendar content
+     * @param xmlContent the activityCalendar content
      * @throws java.io.IOException if a parsing exception occurred
      */
-    public void parseContent(String content) throws IOException {
+    public void parseContent(String xmlContent) throws IOException {
+
+        final String openingTag = "<Activity_Calendar>";
+        final String closingTag = "</Activity_Calendar>";
+        String compressedBase64Content = xmlContent.replaceFirst(openingTag, "");
+        compressedBase64Content = compressedBase64Content.replaceFirst(closingTag, "");
+        compressedBase64Content = compressedBase64Content.trim();
+        String content = openingTag + ProtocolTools.decompress(compressedBase64Content) + closingTag;
 
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
