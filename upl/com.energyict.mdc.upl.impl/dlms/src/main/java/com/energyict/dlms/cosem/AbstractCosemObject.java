@@ -8,6 +8,7 @@ package com.energyict.dlms.cosem;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
 import com.energyict.dlms.cosem.attributes.DLMSClassMethods;
 import com.energyict.protocol.ProtocolUtils;
@@ -388,6 +389,39 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 				request = buildGetRequest(getClassId(), this.objectReference.getLn(), DLMSUtils.attrSN2LN(attribute), selectiveBuffer);
 			} else if (this.objectReference.isSNReference()) {
 				byte[] selectiveBuffer = (from == null ? null : getBufferRangeDescriptor(from, to));
+				request = buildReadRequest((short) this.objectReference.getSn(), attribute, selectiveBuffer);
+			}
+			responseData = this.protocolLink.getDLMSConnection().sendRequest(request);
+			return checkCosemPDUResponseHeader(responseData);
+		} catch (DataAccessResultException e) {
+			throw (e);
+		} catch (IOException e) {
+			throw new NestedIOException(e);
+        } catch (IndexOutOfBoundsException e) {
+            throw new NestedIOException(e, "Received partial response or invalid packet from device!");
+		}
+	}
+
+	/**
+	 * Build up the request, send it to the device and return the checked
+	 * response data as byte[]
+	 *
+	 * @param attribute - the DLMS attribute id
+	 * @param from - the from date as {@link Calendar}
+	 * @param to - the to date as {@link Calendar}
+	 * @param channels - a list of channels that should be read out
+     * @return the validate response as byte[]
+	 * @throws IOException
+	 */
+	protected byte[] getResponseData(int attribute, Calendar from, Calendar to, List<CapturedObject> channels) throws IOException {
+		try {
+			byte[] responseData = null;
+			byte[] request = null;
+			if (this.objectReference.isLNReference()) {
+				byte[] selectiveBuffer = (from == null ? null : getBufferRangeDescriptor(from, to, channels));
+				request = buildGetRequest(getClassId(), this.objectReference.getLn(), DLMSUtils.attrSN2LN(attribute), selectiveBuffer);
+			} else if (this.objectReference.isSNReference()) {
+				byte[] selectiveBuffer = (from == null ? null : getBufferRangeDescriptor(from, to, channels));
 				request = buildReadRequest((short) this.objectReference.getSn(), attribute, selectiveBuffer);
 			}
 			responseData = this.protocolLink.getDLMSConnection().sendRequest(request);
@@ -1246,6 +1280,16 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		} else {
 			return getBufferRangeDescriptorDefault(fromCalendar, toCalendar);
 		}
+
+	}
+	private byte[] getBufferRangeDescriptor(Calendar fromCalendar, Calendar toCalendar, List<CapturedObject> channels) {
+		if ((toCalendar == null) && this.protocolLink.getMeterConfig().isSL7000()) {
+			return getBufferRangeDescriptorSL7000(fromCalendar);
+		} else if (this.protocolLink.getMeterConfig().isActarisPLCC()) {
+			return getBufferRangeDescriptorActarisPLCC(fromCalendar, toCalendar);
+		} else {
+			return getBufferRangeDescriptorDefault(fromCalendar, toCalendar, channels);
+		}
 	}
 
 	/**
@@ -1388,6 +1432,96 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 				(byte) 0x80, (byte) 0x00, (byte) 0x00,
 				// selected values
 				(byte) 0x01, (byte) 0x00 };
+
+		int CAPTURE_FROM_OFFSET = 21;
+		int CAPTURE_TO_OFFSET = 35;
+
+		intreq[CAPTURE_FROM_OFFSET] = TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_FROM_OFFSET + 1] = 12; // length
+		intreq[CAPTURE_FROM_OFFSET + 2] = (byte) (fromCalendar.get(Calendar.YEAR) >> 8);
+		intreq[CAPTURE_FROM_OFFSET + 3] = (byte) fromCalendar.get(Calendar.YEAR);
+		intreq[CAPTURE_FROM_OFFSET + 4] = (byte) (fromCalendar.get(Calendar.MONTH) + 1);
+		intreq[CAPTURE_FROM_OFFSET + 5] = (byte) fromCalendar.get(Calendar.DAY_OF_MONTH);
+		//             bDOW = (byte)fromCalendar.get(Calendar.DAY_OF_WEEK);
+		//             intreq[CAPTURE_FROM_OFFSET+6]=bDOW--==1?(byte)7:bDOW;
+		intreq[CAPTURE_FROM_OFFSET + 6] = (byte) 0xff;
+		intreq[CAPTURE_FROM_OFFSET + 7] = (byte) fromCalendar.get(Calendar.HOUR_OF_DAY);
+		intreq[CAPTURE_FROM_OFFSET + 8] = (byte) fromCalendar.get(Calendar.MINUTE);
+		//             intreq[CAPTURE_FROM_OFFSET+9]=(byte)fromCalendar.get(Calendar.SECOND);
+
+		if (this.protocolLink.getMeterConfig().isIskra()) {
+			intreq[CAPTURE_FROM_OFFSET + 9] = 0;
+		} else {
+			intreq[CAPTURE_FROM_OFFSET + 9] = 0x01;
+		}
+
+		intreq[CAPTURE_FROM_OFFSET + 10] = (byte) 0xFF;
+		intreq[CAPTURE_FROM_OFFSET + 11] = (byte) 0x80;
+		intreq[CAPTURE_FROM_OFFSET + 12] = 0x00;
+
+		if (this.protocolLink.getTimeZone().inDaylightTime(fromCalendar.getTime())) {
+			intreq[CAPTURE_FROM_OFFSET + 13] = (byte) 0x80;
+		} else {
+			intreq[CAPTURE_FROM_OFFSET + 13] = 0x00;
+		}
+
+		intreq[CAPTURE_TO_OFFSET] = TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_TO_OFFSET + 1] = 12; // length
+		intreq[CAPTURE_TO_OFFSET + 2] = toCalendar != null ? (byte) (toCalendar.get(Calendar.YEAR) >> 8) : (byte) 0xFF;
+		intreq[CAPTURE_TO_OFFSET + 3] = toCalendar != null ? (byte) toCalendar.get(Calendar.YEAR) : (byte) 0xFF;
+		intreq[CAPTURE_TO_OFFSET + 4] = toCalendar != null ? (byte) (toCalendar.get(Calendar.MONTH) + 1) : (byte) 0xFF;
+		intreq[CAPTURE_TO_OFFSET + 5] = toCalendar != null ? (byte) toCalendar.get(Calendar.DAY_OF_MONTH) : (byte) 0xFF;
+		intreq[CAPTURE_TO_OFFSET + 6] = (byte) 0xFF;
+		intreq[CAPTURE_TO_OFFSET + 7] = toCalendar != null ? (byte) toCalendar.get(Calendar.HOUR_OF_DAY) : (byte) 0xFF;
+		intreq[CAPTURE_TO_OFFSET + 8] = toCalendar != null ? (byte) toCalendar.get(Calendar.MINUTE) : (byte) 0xFF;
+		intreq[CAPTURE_TO_OFFSET + 9] = 0x00;
+		intreq[CAPTURE_TO_OFFSET + 10] = (byte) 0xFF;
+		intreq[CAPTURE_TO_OFFSET + 11] = (byte) 0x80;
+		intreq[CAPTURE_TO_OFFSET + 12] = 0x00;
+
+        if ((toCalendar != null) && this.protocolLink.getTimeZone().inDaylightTime(toCalendar.getTime())) {
+            intreq[CAPTURE_TO_OFFSET + 13] = (byte) 0x80;
+        } else {
+            intreq[CAPTURE_TO_OFFSET + 13] = 0x00;
+        }
+
+        return intreq;
+	}
+
+	private byte[] getBufferRangeDescriptorDefault(Calendar fromCalendar, Calendar toCalendar, List<CapturedObject> channels) {
+
+        byte[] selectedValues = new byte[]{(byte) 0x01 , (byte) 0x00};        //Default is empty array, fetching all channels
+        if (channels != null && channels.size() != 0) {
+            Array array = new Array();
+            for (CapturedObject channel : channels) {
+                Structure structure = new Structure();
+                structure.addDataType(new Unsigned16(channel.getClassId()));
+                structure.addDataType(new OctetString(channel.getLogicalName().getObisCode().getLN()));
+                structure.addDataType(new Integer8(channel.getAttributeIndex()));
+                structure.addDataType(new Unsigned16(channel.getDataIndex()));
+                array.addDataType(structure);
+            }
+            selectedValues = array.getBEREncodedByteArray();
+        }
+
+        byte[] intreq = {
+                (byte) 0x01, // range descriptor
+                (byte) 0x02, // structure
+                (byte) 0x04, // 4 items in structure
+                // capture object definition
+                (byte) 0x02, (byte) 0x04, (byte) 0x12, (byte) 0x00, (byte) 0x08, (byte) 0x09, (byte) 0x06, (byte) 0x00, (byte) 0x00, (byte) 0x01, (byte) 0x00,
+                (byte) 0x00, (byte) 0xFF, (byte) 0x0F, (byte) 0x02, (byte) 0x12, (byte) 0x00,
+                (byte) 0x00,
+                // from value
+                (byte) 0x09, (byte) 0x0C, (byte) 0x07, (byte) 0xD2, (byte) 0x05, (byte) 23, (byte) 0xFF, (byte) 11, (byte) 0x00, (byte) 0x00, (byte) 0xFF,
+                (byte) 0x80, (byte) 0x00, (byte) 0x00,
+                // to value
+                (byte) 0x09, (byte) 0x0C, (byte) 0x07, (byte) 0xD2, (byte) 0x05, (byte) 23, (byte) 0xFF, (byte) 13, (byte) 0x00, (byte) 0x00, (byte) 0xFF,
+                (byte) 0x80, (byte) 0x00, (byte) 0x00,
+                };
+
+        // selected values
+        intreq = ProtocolTools.concatByteArrays(intreq, selectedValues);
 
 		int CAPTURE_FROM_OFFSET = 21;
 		int CAPTURE_TO_OFFSET = 35;

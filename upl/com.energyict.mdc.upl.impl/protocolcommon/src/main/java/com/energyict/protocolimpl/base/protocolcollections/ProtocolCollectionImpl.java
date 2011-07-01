@@ -269,6 +269,8 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         this.protocolNames.add("Poreg 2");
         this.protocolClasses.add("com.energyict.protocolimpl.din19244.poreg2.Poreg2P");
         this.protocolNames.add("Poreg 2P");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.elster.apollo.AS300");
+        this.protocolNames.add("Smart AS300");
 
         this.protocolClasses.add("com.energyict.protocolimpl.coronis.waveflow100mwencoder.actarismbusechodis.Echodis");
         this.protocolNames.add("WaveFlow 100mW Echodis");

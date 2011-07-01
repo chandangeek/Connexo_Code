@@ -106,7 +106,7 @@ public class DLMSProfileIntervals extends Array {
                 Structure element = (Structure) getDataType(i);
                 List<Integer> values = new ArrayList<Integer>();
 
-                if (getNrOfStatusIndexes() == 1) {
+                if (getNrOfStatusIndexes() <= 1) {
                     for (int d = 0; d < element.nrOfDataTypes(); d++) {
                         if (isClockIndex(d)) {
                             try {

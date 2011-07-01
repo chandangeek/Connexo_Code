@@ -420,6 +420,8 @@
 
 -keepnames class com.energyict.protocolimpl.coronis.waveflow.waveflowV2.WaveFlowV2
 
+-keepnames class com.energyict.smartmeterprotocolimpl.elster.apollo.AS300
+
 -keepnames class com.energyict.protocolimpl.coronis.waveflow.waveflowV210.WaveFlowV210
 
 -keepnames class com.energyict.protocolimpl.coronis.wavesense.WaveSense

@@ -79,6 +79,10 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
         return getBufferResponseData(fromCalendar, toCalendar);
     }
 
+    public byte[] getBufferData(Calendar fromCalendar, Calendar toCalendar, List<CapturedObject> channels) throws IOException {
+        return getBufferResponseData(fromCalendar, toCalendar, channels);
+    }
+
     public UniversalObject[] getBufferAsUniversalObjects() throws IOException {
         return getBufferAsUniversalObjects(null, null);
     }
@@ -95,6 +99,13 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
     private byte[] getBufferResponseData(Calendar fromCalendar, Calendar toCalendar) throws IOException {
         if (bufferResponseData == null) {
             bufferResponseData = getResponseData(PROFILE_GENERIC_BUFFER, fromCalendar, toCalendar);
+        }
+        return bufferResponseData;
+    }
+
+    private byte[] getBufferResponseData(Calendar fromCalendar, Calendar toCalendar, List<CapturedObject> channels) throws IOException {
+        if (bufferResponseData == null) {
+            bufferResponseData = getResponseData(PROFILE_GENERIC_BUFFER, fromCalendar, toCalendar, channels);
         }
         return bufferResponseData;
     }
