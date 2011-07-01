@@ -193,10 +193,10 @@ public class CewePrometer extends AbstractProtocol  {
         }
         
         if(pExtendedLogging==1)
-            getLogger().info(obisCodeMapper.toString() );
+            getLogger().info(getObisCodeMapper().toString() );
         
         if(pExtendedLogging==2)
-            getLogger().info(obisCodeMapper.getExtendedLogging());
+            getLogger().info(getObisCodeMapper().getExtendedLogging());
         
     }
 

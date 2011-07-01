@@ -2,12 +2,11 @@ package com.energyict.protocolimpl.debug;
 
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.protocol.*;
+import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Properties;
 
 /**
  * Copyrights EnergyICT
@@ -19,7 +18,7 @@ public class CewePrometerMain extends AbstractDebuggingMain<CewePrometer> {
     private static CewePrometer cewePrometer = null;
     public static final String SERIAL_NEW_FW = "1610901";
     public static final String SERIAL_OLD_FW = "1483801";
-    private static final String SERIAL = SERIAL_OLD_FW;
+    private static final String SERIAL = SERIAL_NEW_FW;
 
     @Override
     CewePrometer getMeterProtocol() {
@@ -45,6 +44,7 @@ public class CewePrometerMain extends AbstractDebuggingMain<CewePrometer> {
         properties.setProperty("Retries", "3");
         properties.setProperty("Timeout", "10000");
         properties.setProperty(MeterProtocol.NODEID, SERIAL);
+        properties.setProperty("ExtendedLogging", "2");
 
         properties.setProperty("Logger", "0");
 
@@ -68,52 +68,6 @@ public class CewePrometerMain extends AbstractDebuggingMain<CewePrometer> {
 
     @Override
     void doDebug() throws LinkException, IOException {
-/*
-        readRegister("0.0.96.50.1.255");
-        readRegister("0.0.96.9.0.255");
-        readRegister("0.0.96.6.6.255");
-        readRegister("1.1.32.7.0.255");
-        readRegister("1.1.52.7.0.255");
-        readRegister("1.1.72.7.0.255");
-        readRegister("1.1.32.7.1.255");
-        readRegister("1.1.52.7.1.255");
-        readRegister("1.1.72.7.1.255");
-        readRegister("1.1.31.7.0.255");
-        readRegister("1.1.51.7.0.255");
-        readRegister("1.1.71.7.0.255");
-        readRegister("1.1.32.7.2.255");
-        readRegister("1.1.52.7.2.255");
-        readRegister("1.1.72.7.2.255");
-        readRegister("1.1.31.7.2.255");
-        readRegister("1.1.51.7.2.255");
-        readRegister("1.1.71.7.2.255");
-        readRegister("1.1.81.7.1.255");
-        readRegister("1.1.81.7.12.255");
-        readRegister("1.1.81.7.20.255");
-        readRegister("1.1.33.7.0.255");
-        readRegister("1.1.53.7.0.255");
-        readRegister("1.1.73.7.0.255");
-*/
-/*
-        readRegister("0.0.96.1.0.255");
-        readRegister("0.0.96.1.1.255");
-        readRegister("0.0.96.1.2.255");
-        readRegister("0.0.96.1.3.255");
-        readRegister("0.0.96.1.4.255");
-        readRegister("1.0.0.2.0.255");
-*/
-
-        dumpChannelInfos();
-
-    }
-
-    private void dumpChannelInfos() throws IOException {
-        Date from = ProtocolTools.createCalendar(2010, 4, 15, 0, 0, 0, 0).getTime();
-        ProfileData profileData = getMeterProtocol().getProfileData(from, true);
-        List<MeterEvent> meterEvents = profileData.getMeterEvents();
-        for (MeterEvent event : meterEvents) {
-            System.out.println(event.getTime() + " " + event.getMessage());
-        }
 
     }
 
