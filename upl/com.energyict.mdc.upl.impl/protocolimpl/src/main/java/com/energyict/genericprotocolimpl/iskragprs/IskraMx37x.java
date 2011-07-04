@@ -42,7 +42,6 @@ import java.util.logging.Logger;
 
 /**
  * @author gna
- *         <p/>
  *         Changes:
  *         GNA |29012009| Added force clock
  *         GNA |02022009| Mad some changes to the sendTOU message. No activationDate is immediate activation using the Object method
