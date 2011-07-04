@@ -42,6 +42,7 @@ public class UtilitiesTest {
 
 	@Before
 	public void setUp() throws Exception {
+        javaClassName = javaClassName + System.currentTimeMillis();
 	}
 
 	@After
