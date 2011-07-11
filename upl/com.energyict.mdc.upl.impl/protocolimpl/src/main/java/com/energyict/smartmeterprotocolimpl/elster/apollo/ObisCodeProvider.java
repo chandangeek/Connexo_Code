@@ -24,17 +24,32 @@ public class ObisCodeProvider implements CommonObisCodeProvider {
     public static final ObisCode LoadProfileP1 = ObisCode.fromString("1.0.99.1.0.255");
     public static final ObisCode LoadProfileDaily = ObisCode.fromString("0.0.98.2.0.255");
     public static final ObisCode LoadProfileMonthly = ObisCode.fromString("0.0.98.1.0.255");
-    public static final ObisCode LoadProfileBillingP1 = ObisCode.fromString("1.0.99.1.1.255");          //Block profile data   ==> E = 1
-    public static final ObisCode LoadProfileBillingDaily = ObisCode.fromString("0.0.98.2.1.255");       //Block profile data   ==> E = 1
-    public static final ObisCode LoadProfileBillingMonthly = ObisCode.fromString("0.0.98.1.1.255");     //Block profile data   ==> E = 1
+    public static final ObisCode LoadProfileBlockDaily = ObisCode.fromString("0.0.98.2.1.255");       //Block profile data   ==> E = 1
+    public static final ObisCode LoadProfileBlockMonthly = ObisCode.fromString("0.0.98.1.1.255");     //Block profile data   ==> E = 1
     public static final ObisCode AssociationLnCurrentClient = ObisCode.fromString("0.0.40.0.0.255");
     public static final ObisCode AssociationLnPublicClient = ObisCode.fromString("0.0.40.0.1.255");
     public static final ObisCode AssociationLnReadingClient = ObisCode.fromString("0.0.40.0.2.255");
     public static final ObisCode AssociationLnManagementClient = ObisCode.fromString("0.0.40.0.3.255");
     public static final ObisCode AssociationLnFirmwareClient = ObisCode.fromString("0.0.40.0.4.255");
     public static final ObisCode FirmwareVersionObisCode = ObisCode.fromString("1.0.0.2.0.255");
+    public static final ObisCode MIDCheckSumObisCode = ObisCode.fromString("1.0.0.2.8.255");
+    public static final ObisCode FormerFirmwareVersionObisCode = ObisCode.fromString("1.0.0.1.0.255");
+    public static final ObisCode E_OperationalFirmwareVersionObisCode = ObisCode.fromString("1.3.0.2.0.255");
     public static final ObisCode ActiveLongFirmwareIdentifierACOR = ObisCode.fromString("1.2.0.2.0.255");
     public static final ObisCode ActiveLongFirmwareIdentifierMCOR = ObisCode.fromString("1.1.0.2.0.255");
+    public static final ObisCode ReferenceTime = ObisCode.fromString("0.128.3.6.0.255");
+
+    public static final ObisCode clockShiftEventLimit = ObisCode.fromString("1.0.0.9.11.255");
+    public static final ObisCode clockShiftInvalidLimit = ObisCode.fromString("1.1.94.34.1.255");
+    public static final ObisCode clockSyncWindow = ObisCode.fromString("1.0.0.9.9.255");
+
+    public static final ObisCode LastBillingResetTimeStamp = ObisCode.fromString("0.0.0.1.11.255");
+    public static final ObisCode BillingResetLockoutTime = ObisCode.fromString("0.1.94.34.40.255");
+    public static final ObisCode DaysSinceBillingReset = ObisCode.fromString("1.0.0.9.0.255");
+
+    public static final ObisCode ErrorRegister = ObisCode.fromString("0.0.97.97.0.255");
+    public static final ObisCode AlarmRegister = ObisCode.fromString("0.0.97.98.0.255");
+    public static final ObisCode AlarmFilter = ObisCode.fromString("0.0.97.98.10.255");
 
     public static final ObisCode StandardEventLogObisCode = ObisCode.fromString("0.0.99.98.0.255");
     public static final ObisCode PowerQualityFinishedEventLogObisCode = ObisCode.fromString("0.0.99.98.9.255");

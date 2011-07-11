@@ -1,13 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.cbo.*;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.cosem.ComposedCosemObject;
-import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.Register;
 import com.energyict.protocol.*;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.composed.ComposedRegister;
 
@@ -41,10 +40,25 @@ public class RegisterReader {
                 if (this.composedRegisterMap.containsKey(register)) {
                     ScalerUnit su = new ScalerUnit(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterUnitAttribute()));
                     if (su.getUnitCode() != 0) {
-                        registerValue = new RegisterValue(register, new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(), su.getUnit()));
+                        Unit unit = su.getUnitCode() == 56 ? Unit.get(BaseUnit.PERCENT, su.getScaler()) : su.getUnit();    //Replace dlms % by our %
+                        AbstractDataType value = registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute());
+                        registerValue = new RegisterValue(register, new Quantity(value.toBigDecimal(), unit));
                     }
                 } else if (this.registerMap.containsKey(register)) {
-                    registerValue = convertCustomAbstractObjectsToRegisterValues(register, registerComposedCosemObject.getAttribute(this.registerMap.get(register)));
+                    if (getClassId(register.getObisCode()).getClassId() == DLMSClassId.DATA.getClassId()) {
+                        if (register.getObisCode().equals(ObisCodeProvider.LastBillingResetTimeStamp)) {
+                            Data data = meterProtocol.getObjectFactory().getData(register.getObisCode());
+                            registerValue = new RegisterValue(register, data.getBillingDate().toString());
+                        } else {
+                            try {
+                                registerValue = new RegisterValue(register, meterProtocol.getObjectFactory().getData(register.getObisCode()).getString());
+                            } catch (IOException e) {
+                                registerValue = new RegisterValue(register, meterProtocol.getObjectFactory().getData(register.getObisCode()).getQuantityValue());
+                            }
+                        }
+                    } else {
+                        registerValue = convertCustomAbstractObjectsToRegisterValues(register, registerComposedCosemObject.getAttribute(this.registerMap.get(register)));
+                    }
                 }
             } catch (IOException e) {
                 this.meterProtocol.getLogger().log(Level.WARNING, "Failed to fetch register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "]");
@@ -64,11 +78,15 @@ public class RegisterReader {
 
     public static DLMSClassId getClassId(ObisCode obisCode) {
 
+        if (obisCode.getA() == 0 && obisCode.getB() == 0 && obisCode.getC() == 96 && obisCode.getD() == 1) {
+            return DLMSClassId.DATA;
+        }
+
         if (obisCode.getA() == 1 && obisCode.getB() == 0) {
             if (((obisCode.getC() >= 1) && (obisCode.getC() <= 8)) && ((obisCode.getD() == 8) || (obisCode.getD() == 29)) && (obisCode.getF() == 255)) {
                 return DLMSClassId.REGISTER;
             }
-            if (((obisCode.getC() == 1) || (obisCode.getC() == 2) || (obisCode.getC() == 3) || (obisCode.getC() == 4)) && (obisCode.getD() == 4) && (obisCode.getE() == 0) && (obisCode.getF() == 255)) {
+            if (((obisCode.getC() == 1) || (obisCode.getC() == 2) || (obisCode.getC() == 3) || (obisCode.getC() == 4) || (obisCode.getC() == 9) || (obisCode.getC() == 10)) && (obisCode.getD() == 4 || obisCode.getD() == 25) && (obisCode.getE() == 0) && (obisCode.getF() == 255)) {
                 return DLMSClassId.DEMAND_REGISTER;
             } else if ((obisCode.getA() == 1) && (obisCode.getB() == 0) && ((obisCode.getC() == 1) || (obisCode.getC() == 2) || (obisCode.getC() == 3) || (obisCode.getC() == 4)) && (obisCode.getD() == 6) && (obisCode.getF() == 255)) {
                 return DLMSClassId.EXTENDED_REGISTER;
@@ -119,20 +137,23 @@ public class RegisterReader {
         } else if (obisCode.equals(ObisCodeProvider.PassiveCalendarNameObisCode)) {
             return DLMSClassId.ACTIVITY_CALENDAR;
         }
-        if (obisCode.equals(ObisCodeProvider.ActiveLongFirmwareIdentifierACOR)) {
-            return DLMSClassId.DATA;
-        } else if (obisCode.equals(ObisCodeProvider.ActiveLongFirmwareIdentifierMCOR)) {
+        if (isData(obisCode)) {
             return DLMSClassId.DATA;
         }
+
         if (isBlockRegister(obisCode) || isBlockRegisterThreshold(obisCode)) {
             return DLMSClassId.REGISTER;
         }
 
-        if (obisCode.equals(ObisCodeProvider.LoadProfileDaily) ||obisCode.equals(ObisCodeProvider.LoadProfileMonthly) || obisCode.equals(ObisCodeProvider.LoadProfileP1) || obisCode.equals(ObisCodeProvider.LoadProfileBillingP1) || obisCode.equals(ObisCodeProvider.LoadProfileBillingDaily) || obisCode.equals(ObisCodeProvider.LoadProfileBillingMonthly)) {
+        if (obisCode.equals(ObisCodeProvider.LoadProfileDaily) || obisCode.equals(ObisCodeProvider.LoadProfileMonthly) || obisCode.equals(ObisCodeProvider.LoadProfileP1) || obisCode.equals(ObisCodeProvider.LoadProfileBlockDaily) || obisCode.equals(ObisCodeProvider.LoadProfileBlockMonthly)) {
             return DLMSClassId.PROFILE_GENERIC;
         }
 
         return DLMSClassId.UNKNOWN;
+    }
+
+    private static boolean isData(ObisCode obisCode) {
+        return obisCode.equals(ObisCodeProvider.ActiveLongFirmwareIdentifierACOR) || obisCode.equals(ObisCodeProvider.ActiveLongFirmwareIdentifierMCOR) || obisCode.equals(ObisCodeProvider.FirmwareVersionObisCode) || obisCode.equals(ObisCodeProvider.FormerFirmwareVersionObisCode) || obisCode.equals(ObisCodeProvider.E_OperationalFirmwareVersionObisCode) || obisCode.equals(ObisCodeProvider.MIDCheckSumObisCode) || obisCode.equals(ObisCodeProvider.ClockSynchronizationObisCode) || obisCode.equals(ObisCodeProvider.clockSyncWindow) || obisCode.equals(ObisCodeProvider.clockShiftInvalidLimit) || obisCode.equals(ObisCodeProvider.clockShiftEventLimit) || obisCode.equals(ObisCodeProvider.ReferenceTime) || obisCode.equals(ObisCodeProvider.CurrentActiveRateContract1ObisCode) || obisCode.equals(ObisCodeProvider.LastBillingResetTimeStamp) || obisCode.equals(ObisCodeProvider.BillingResetLockoutTime) || obisCode.equals(ObisCodeProvider.ErrorRegister) || obisCode.equals(ObisCodeProvider.AlarmFilter) || obisCode.equals(ObisCodeProvider.AlarmRegister) || obisCode.equals(ObisCodeProvider.DaysSinceBillingReset);
     }
 
     /**

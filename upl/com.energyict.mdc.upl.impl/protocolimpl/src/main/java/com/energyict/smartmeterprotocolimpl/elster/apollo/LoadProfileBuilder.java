@@ -3,6 +3,7 @@ package com.energyict.smartmeterprotocolimpl.elster.apollo;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -27,7 +28,7 @@ public class LoadProfileBuilder {
     private Map<LoadProfileReader, ComposedProfileConfig> lpConfigMap = new HashMap<LoadProfileReader, ComposedProfileConfig>();
     private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<LoadProfileReader, List<ChannelInfo>>();
     private Map<LoadProfileReader, List<Register>> capturedObjectRegisterListMap = new HashMap<LoadProfileReader, List<Register>>();
-    private List<CapturedObject> capturedObjectsToRequest = new ArrayList<CapturedObject>();
+    private Map<ObisCode, List<CapturedObject>> capturedObjectsToRequest = new HashMap<ObisCode, List<CapturedObject>>();
     private AS300 meterProtocol;
     private int clockMask = 0;
     private int statusMask = 0;
@@ -78,8 +79,12 @@ public class LoadProfileBuilder {
             for (Register register : registers) {
                 ObisCode rObisCode = register.getObisCode();
                 UniversalObject uo = new UniversalObject(rObisCode.getLN(), RegisterReader.getClassId(rObisCode).getClassId(), 0);
-                if (uo.getClassID() == DLMSClassId.REGISTER.getClassId() || uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
+                if (isRegisterClass(uo)) {
                     DLMSAttribute registerUnit = new DLMSAttribute(rObisCode, RegisterAttributes.Register_Unit.getAttributeNumber(), uo.getClassID());
+                    dlmsAttributes.add(registerUnit);
+                    this.registerUnitMap.put(register, registerUnit);
+                } else if (isDemandRegisterClass(uo)) {            //Because the unit is attribute 4 for demand registers!
+                    DLMSAttribute registerUnit = new DLMSAttribute(rObisCode, DemandRegisterAttributes.Register_Unit.getAttributeNumber(), uo.getClassID());
                     dlmsAttributes.add(registerUnit);
                     this.registerUnitMap.put(register, registerUnit);
                 }
@@ -87,6 +92,14 @@ public class LoadProfileBuilder {
             return new ComposedCosemObject(this.meterProtocol.getDlmsSession(), supportsBulkRequest, dlmsAttributes);
         }
         return null;
+    }
+
+    private boolean isRegisterClass(UniversalObject uo) {
+        return uo.getClassID() == DLMSClassId.REGISTER.getClassId() || uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId();
+    }
+
+    private boolean isDemandRegisterClass(UniversalObject uo) {
+        return uo.getClassID() == DLMSClassId.DEMAND_REGISTER.getClassId();
     }
 
     private List<ChannelInfo> constructChannelInfos(List<Register> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
@@ -126,9 +139,11 @@ public class LoadProfileBuilder {
                 Calendar toCalendar = Calendar.getInstance(this.meterProtocol.getTimeZone());
                 toCalendar.setTime(lpr.getEndReadingTime());
 
-
-
-                DLMSProfileIntervals intervals = new DLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar, capturedObjectsToRequest), clockMask, statusMask, -1,  null);
+                List<CapturedObject> channels = capturedObjectsToRequest.get(lpObisCode);
+                if (channels == null) {
+                    continue;
+                }
+                DLMSProfileIntervals intervals = new DLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar, channels), clockMask, statusMask, -1,  null);
                 profileData.setIntervalDatas(intervals.parseIntervals(lpc.getProfileInterval()));
 
                 profileDataList.add(profileData);
@@ -164,23 +179,25 @@ public class LoadProfileBuilder {
                     ProfileGeneric pg = new ProfileGeneric(this.meterProtocol.getDlmsSession(), null);
                     List<CapturedObject> capturedObjects = pg.getCapturedObjectsFromDataContainter(dc);
                     List<Register> coRegisters = new ArrayList<Register>();
+                    List<CapturedObject> relevantObjects = new ArrayList<CapturedObject>();
                     for (CapturedObject co : capturedObjects) {
                         if (loadProfileContains(lpr, co.getLogicalName().getObisCode())) {
-                            capturedObjectsToRequest.add(co);
+                            relevantObjects.add(co);
                             Register reg = new Register(co.getLogicalName().getObisCode(), meterProtocol.getMeterSerialNumber());
                             if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode())) {// this way we don't get duplicate registerRequests in one getWithList
                                 channelRegisters.add(reg);
                             }
                             coRegisters.add(reg); // we always add it to the list of registers for this CapturedObject
                         } else if (isStatus(co.getLogicalName().getObisCode())) {
-                            capturedObjectsToRequest.add(co);
+                            relevantObjects.add(co);
                             statusMask = DLMSProfileIntervals.DefaultStatusMask;
                         } else if (co.getClassId() == DLMSClassId.CLOCK.getClassId()) {
-                            capturedObjectsToRequest.add(co);
+                            relevantObjects.add(co);
                             clockMask = DLMSProfileIntervals.DefaultClockMask;
                         }
                     }
                     this.capturedObjectRegisterListMap.put(lpr, coRegisters);
+                    capturedObjectsToRequest.put(lpr.getProfileObisCode(), relevantObjects);
                 }
             }
         } else {
