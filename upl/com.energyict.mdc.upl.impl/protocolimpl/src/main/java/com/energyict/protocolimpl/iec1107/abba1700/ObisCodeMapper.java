@@ -377,7 +377,11 @@ public class ObisCodeMapper {
                             // Sort in accending quantity. If not all 3 energytype codes are
                             // the same, an IOException is thrown.
                             MaximumDemand.sortOnQuantity(mds);
-                            md = (MaximumDemand) mds.get(3 - obisCode.getB()); // B=1 => get(2), B=2 => get(1), B=3 => get(0)
+                            int index = 3 - obisCode.getB();
+                            if ((index < 0) || (index >= mds.size())) {
+                                throw new NoSuchRegisterException("B field should be 1-3 but was [" + obisCode.getB() + "] for register with obiscode [" + obisCode + "]");
+                            }
+                            md = (MaximumDemand)mds.get(index); // B=1 => get(2), B=2 => get(1), B=3 => get(0)
                             if (unit != null) // in case of customer defined registers unit is defined earlier
                             {
                                 md.setQuantity(new Quantity(md.getQuantity().getAmount(), unit.getFlowUnit()));
