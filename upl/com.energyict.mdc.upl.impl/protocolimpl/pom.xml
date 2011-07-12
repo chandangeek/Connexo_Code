@@ -505,6 +505,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jaxws-maven-plugin</artifactId>
                 <version>1.10</version>
+
                 <executions>
                     <execution>
                         <goals>
@@ -513,7 +514,7 @@
 
                         <configuration>
                             <wsdlDirectory>${basedir}/src/main/resources/wsdl</wsdlDirectory>
-                            <sourceDestDir>${basedir}/src/generated/java</sourceDestDir>
+                            <sourceDestDir>${basedir}/src/generated-sources/jaxws-maven-plugin/java</sourceDestDir>
                             <xnocompile>true</xnocompile>
                         </configuration>
 
