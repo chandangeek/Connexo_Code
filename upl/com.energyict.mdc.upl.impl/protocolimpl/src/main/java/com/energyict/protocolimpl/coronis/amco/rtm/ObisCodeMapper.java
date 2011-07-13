@@ -149,7 +149,7 @@ public class ObisCodeMapper {
             int mode = rtm.getParameterFactory().readOperatingMode().getOperationMode();
             return new RegisterValue(obisCode, new Quantity(mode, Unit.get("")), new Date());
         } else if (obisCode.equals(OBISCODE_FIRMWARE)) {
-            return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, rtm.getFirmwareVersion());
+            return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, rtm.readFirmwareVersion());
         } else if (obisCode.equals(OBISCODE_RSSI)) {
             double value = rtm.getRadioCommandFactory().readRSSI();
             return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date());

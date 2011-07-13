@@ -135,6 +135,10 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
 
     @Override
     public String getFirmwareVersion() throws IOException {
+        return "N/A";         //Omit for battery saving purposes.
+    }
+
+    public String readFirmwareVersion() throws IOException {
         try {
             return "V" + WaveflowProtocolUtils.toHexString(getRadioCommandFactory().readFirmwareVersion().getFirmwareVersion()) + ", Mode of transmission " + getRadioCommandFactory().readFirmwareVersion().getCommunicationMode();
         } catch (IOException e) {
