@@ -104,7 +104,7 @@ public class OperatingMode extends AbstractParameter {
         operationMode = operationMode | enable << 7;
     }
 
-    public int readValveCommunicationFaultDetection(int enable) {
+    public int readValveCommunicationFaultDetection() {
         return (operationMode & 0x4000) >> 14;
     }
     

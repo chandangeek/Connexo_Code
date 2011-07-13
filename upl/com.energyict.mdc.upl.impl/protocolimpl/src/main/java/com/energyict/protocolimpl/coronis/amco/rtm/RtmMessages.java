@@ -548,18 +548,21 @@ public class RtmMessages implements MessageProtocol {
     private MessageResult setAlarmOnBackFlow(MessageEntry messageEntry) throws IOException {
         rtm.getLogger().info("************************* setAlarmOnBackFlow *************************");
         rtm.getParameterFactory().setAlarmOnBackFlow();
+        rtm.getParameterFactory().enableBackFlowDetection();
         return MessageResult.createSuccess(messageEntry);
     }
 
     private MessageResult setAlarmOnCutCable(MessageEntry messageEntry) throws IOException {
         rtm.getLogger().info("************************* setAlarmOnCutCable *************************");
         rtm.getParameterFactory().setAlarmOnCutCable();
+        rtm.getParameterFactory().enableTamperDetection();
         return MessageResult.createSuccess(messageEntry);
     }
 
     private MessageResult setAlarmOnCutRegisterCable(MessageEntry messageEntry) throws IOException {
         rtm.getLogger().info("************************* setAlarmOnCutRegisterCable *************************");
         rtm.getParameterFactory().setAlarmOnCutRegisterCable();
+        rtm.getParameterFactory().enableTamperDetection();
         return MessageResult.createSuccess(messageEntry);
     }
 
@@ -572,6 +575,7 @@ public class RtmMessages implements MessageProtocol {
     private MessageResult setAlarmOnEncoderCommunicationFailure(MessageEntry messageEntry) throws IOException {
         rtm.getLogger().info("************************* setAlarmOnEncoderCommunicationFailure *************************");
         rtm.getParameterFactory().setAlarmOnEncoderCommunicationFailure();
+        rtm.getParameterFactory().enableEncoderCommunicationFaultDetection();
         return MessageResult.createSuccess(messageEntry);
     }
 
@@ -622,12 +626,14 @@ public class RtmMessages implements MessageProtocol {
     private MessageResult setAlarmOnEncoderMisread(MessageEntry messageEntry) throws IOException {
         rtm.getLogger().info("************************* setAlarmOnEncoderMisread *************************");
         rtm.getParameterFactory().setAlarmOnEncoderMisread();
+        rtm.getParameterFactory().enableEncoderMisreadDetection();
         return MessageResult.createSuccess(messageEntry);
     }
 
     private MessageResult setAlarmOnHighThreshold(MessageEntry messageEntry) throws IOException {
         rtm.getLogger().info("************************* setAlarmOnHighThreshold *************************");
         rtm.getParameterFactory().setAlarmOnHighThreshold();
+        rtm.getParameterFactory().enableExtremeLeakDetection();
         return MessageResult.createSuccess(messageEntry);
     }
 
@@ -640,6 +646,7 @@ public class RtmMessages implements MessageProtocol {
     private MessageResult setAlarmOnLowThreshold(MessageEntry messageEntry) throws IOException {
         rtm.getLogger().info("************************* setAlarmOnLowThreshold *************************");
         rtm.getParameterFactory().setAlarmOnLowThreshold();
+        rtm.getParameterFactory().enableResidualLeakDetection();
         return MessageResult.createSuccess(messageEntry);
     }
 
@@ -879,7 +886,7 @@ public class RtmMessages implements MessageProtocol {
 
     private MessageResult enableAllAlarms(MessageEntry messageEntry) throws IOException {
         rtm.getLogger().info("************************* EnableAllAlarms *************************");
-        rtm.getParameterFactory().writeAlarmConfiguration(0xFF);
+        rtm.getParameterFactory().enableAllAlarms();
         return MessageResult.createSuccess(messageEntry);
     }
 

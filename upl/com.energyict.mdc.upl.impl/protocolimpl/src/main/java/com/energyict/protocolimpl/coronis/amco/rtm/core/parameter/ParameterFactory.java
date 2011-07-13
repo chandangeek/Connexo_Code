@@ -268,6 +268,55 @@ public class ParameterFactory {
         return profileType;
     }
 
+    public void enableBackFlowDetection() throws IOException {
+        if (readOperatingMode().readBackFlowDetection() == 0) {
+            operatingMode.setBackFlowDetection(1);
+            operatingMode.write();
+        }
+    }
+
+    public void enableEncoderCommunicationFaultDetection() throws IOException {
+        if (readOperatingMode().readEncoderCommunicationFaultDetection() == 0) {
+            operatingMode.setEncoderCommunicationFaultDetection(1);
+            operatingMode.write();
+        }
+    }
+
+    public void enableValveCommunicationFaultDetection() throws IOException {
+        if (readOperatingMode().readValveCommunicationFaultDetection() == 0) {
+            operatingMode.setValveCommunicationFaultDetection(1);
+            operatingMode.write();
+        }
+    }
+
+    public void enableResidualLeakDetection() throws IOException {
+        if (readOperatingMode().readResidualLeakDetection() == 0) {
+            operatingMode.setResidualLeakDetection(1);
+            operatingMode.write();
+        }
+    }
+
+    public void enableTamperDetection() throws IOException {
+        if (readOperatingMode().readTamperDetection() == 0) {
+            operatingMode.setTamperDetection(1);
+            operatingMode.write();
+        }
+    }
+
+    public void enableEncoderMisreadDetection() throws IOException {
+        if (readOperatingMode().readEncoderMisReadDetection() == 0) {
+            operatingMode.setEncoderMisReadDetection(1);
+            operatingMode.write();
+        }
+    }
+
+    public void enableExtremeLeakDetection() throws IOException {
+        if (readOperatingMode().readExtremeLeakDetection() == 0) {
+            operatingMode.setExtremeLeakDetection(1);
+            operatingMode.write();
+        }
+    }
+
     public AlarmConfiguration readAlarmConfiguration() throws IOException {
         AlarmConfiguration configuration = new AlarmConfiguration(rtm);
         configuration.read();
@@ -611,5 +660,11 @@ public class ParameterFactory {
         readOperatingMode();
         operatingMode.setTouBucketsManagement(0);
         operatingMode.write();
+    }
+
+    public void enableAllAlarms() throws IOException {
+        AlarmConfiguration configuration = readAlarmConfiguration();
+        configuration.enableAllAlarms();
+        configuration.write();
     }
 }

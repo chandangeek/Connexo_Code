@@ -84,4 +84,19 @@ public class AlarmConfiguration extends AbstractParameter {
         config = config & 0xFE;
         config = config | (0x01 * enable);
     }
+
+    public void enableAllAlarms() throws IOException {
+        ProfileType profileType = getRTM().getParameterFactory().readProfileType();
+        if (profileType.isDigitialPorts()) {
+            config = 0x0F;
+        } else if (profileType.isEncoderPorts()) {
+            config = 0x3F;
+        } else if (profileType.isEvoHop()) {
+            config = 0x02;
+        } else if (profileType.isDigitalAndValvePorts()) {
+            config = 0x4F;
+        } else if (profileType.isEncoderAndValvePorts()) {
+            config = 0x7F;
+        }
+    }
 }
