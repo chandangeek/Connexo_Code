@@ -304,6 +304,8 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         this.protocolNames.add("SDK SmartMeter protocol (multipleLoadProfiles)");
         this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.webrtuz3.WebRTUZ3");
         this.protocolNames.add("SmartMeter - WebRTUZ3 DLMS protocol");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.nta.dsmr22.SmartNtaProtocol");
+        this.protocolNames.add("SmartMeter - NTA DSMR 2.2 protocol");
     }
 
     public String getProtocolName(int index) throws IOException {
