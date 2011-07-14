@@ -665,6 +665,9 @@ public class ParameterFactory {
     public void enableAllAlarms() throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
         configuration.enableAllAlarms();
+        readOperatingMode();
+        operatingMode.enableAllDetections();
+        operatingMode.write();
         configuration.write();
     }
 }
