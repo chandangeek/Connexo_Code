@@ -8,6 +8,7 @@ import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr22.composedobjects.ComposedMeterInfo;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr22.profiles.EventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr22.profiles.LoadProfileBuilder;
 
 import java.io.IOException;
@@ -40,6 +41,11 @@ public class SmartNtaProtocol extends AbstractSmartDlmsProtocol implements Simpl
      * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr22.profiles.LoadProfileBuilder}
      */
     private LoadProfileBuilder loadProfileBuilder;
+
+    /**
+     * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr22.profiles.EventProfile}
+     */
+    private EventProfile eventProfile;
 
     /**
      * Getter for the {@link com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties}
@@ -153,7 +159,7 @@ public class SmartNtaProtocol extends AbstractSmartDlmsProtocol implements Simpl
      * @throws java.io.IOException when a logical error occurred
      */
     public List<MeterEvent> getMeterEvents(final Date lastLogbookDate) throws IOException {
-        return null;  //TODO implement proper functionality.
+        return getEventProfile().getEvents(lastLogbookDate);
     }
 
     /**
@@ -258,5 +264,12 @@ public class SmartNtaProtocol extends AbstractSmartDlmsProtocol implements Simpl
             this.loadProfileBuilder = new LoadProfileBuilder(this);
         }
         return loadProfileBuilder;
+    }
+
+    public EventProfile getEventProfile() {
+        if(this.eventProfile == null){
+            this.eventProfile = new EventProfile(this);
+        }
+        return eventProfile;
     }
 }
