@@ -1,18 +1,15 @@
 package com.energyict.smartmeterprotocolimpl.webrtuz3.topology;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.ComposedCosemObject;
-import com.energyict.dlms.cosem.Data;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.webrtuz3.WebRTUZ3;
-import com.energyict.smartmeterprotocolimpl.webrtuz3.topology.DeviceMapping;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
 

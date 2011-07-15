@@ -6,21 +6,25 @@ import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
+import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr22.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr22.profiles.EventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr22.profiles.LoadProfileBuilder;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr22.topology.MeterTopology;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
  * Date: 14-jul-2011
  * Time: 11:20:34
  */
-public class SmartNtaProtocol extends AbstractSmartDlmsProtocol implements SimpleMeter {
+public class SmartNtaProtocol extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter {
+
+    private static final int ObisCodeBFieldIndex = 1;
 
     /**
      * The <code>Properties</code> used for this protocol
@@ -48,12 +52,22 @@ public class SmartNtaProtocol extends AbstractSmartDlmsProtocol implements Simpl
     private EventProfile eventProfile;
 
     /**
+     * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr22.topology.MeterTopology}
+     */
+    private MeterTopology meterTopology;
+
+    /**
+     * A list of slaveDevices
+     */
+    private List<MbusDevice> mbusDevices = new ArrayList<MbusDevice>();
+
+    /**
      * Getter for the {@link com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties}
      *
      * @return the requested Properties
      */
     @Override
-    protected DlmsProtocolProperties getProperties() {
+    public Dsmr22Properties getProperties() {
         if (this.properties == null) {
             this.properties = new Dsmr22Properties();
         }
@@ -65,7 +79,10 @@ public class SmartNtaProtocol extends AbstractSmartDlmsProtocol implements Simpl
      */
     @Override
     protected void initAfterConnect() throws ConnectionException {
-        //TODO, implement proper MBus functionality(discovery)
+        getMeterTopology().searchForSlaveDevices();
+        for (DeviceMapping dm : getMeterTopology().getMbusMeterMap()) {
+            this.mbusDevices.add(new MbusDevice(this, dm.getSerialNumber(), dm.getPhysicalAddress()));
+        }
     }
 
     /**
@@ -236,7 +253,11 @@ public class SmartNtaProtocol extends AbstractSmartDlmsProtocol implements Simpl
      * @return the corrected ObisCode
      */
     public ObisCode getPhysicalAddressCorrectedObisCode(final ObisCode obisCode, final String serialNumber) {
-        return obisCode;  //TODO slave support
+        int address = getPhysicalAddressFromSerialNumber(serialNumber);
+        if (address != -1) {
+            return ProtocolTools.setObisCodeField(obisCode, ObisCodeBFieldIndex, (byte) address);
+        }
+        return null;
     }
 
     /**
@@ -246,7 +267,7 @@ public class SmartNtaProtocol extends AbstractSmartDlmsProtocol implements Simpl
      * @return the serialNumber
      */
     public String getSerialNumberFromCorrectObisCode(ObisCode obisCode) {
-        return getSerialNumber(); //TODO slave support
+        return getMeterTopology().getSerialNumber(obisCode);
     }
 
     /**
@@ -256,20 +277,34 @@ public class SmartNtaProtocol extends AbstractSmartDlmsProtocol implements Simpl
      * @return the requested physical address or -1 when it could not be found
      */
     public int getPhysicalAddressFromSerialNumber(final String serialNumber) {
-        return getPhysicalAddress(); //TODO slave support
+        return getMeterTopology().getPhysicalAddress(serialNumber);
     }
 
     public LoadProfileBuilder getLoadProfileBuilder() {
-        if(this.loadProfileBuilder == null){
+        if (this.loadProfileBuilder == null) {
             this.loadProfileBuilder = new LoadProfileBuilder(this);
         }
         return loadProfileBuilder;
     }
 
     public EventProfile getEventProfile() {
-        if(this.eventProfile == null){
+        if (this.eventProfile == null) {
             this.eventProfile = new EventProfile(this);
         }
         return eventProfile;
+    }
+
+    /**
+     * Search for local slave devices so a general topology can be build up
+     */
+    public void searchForSlaveDevices() throws ConnectionException {
+        getMeterTopology().searchForSlaveDevices();
+    }
+
+    public MeterTopology getMeterTopology() {
+        if (this.meterTopology == null) {
+            this.meterTopology = new MeterTopology(this);
+        }
+        return meterTopology;
     }
 }

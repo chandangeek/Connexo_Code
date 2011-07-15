@@ -27,13 +27,17 @@ import java.util.logging.Level;
 public class LoadProfileBuilder {
 
     /**
-     * Hardcoded ObisCode for the status of an Emeter profile
+     * Hardcoded ObisCode for the status of the 15min profile
      */
-    protected static final ObisCode EmeterStatusObisCode = ObisCode.fromString("0.0.96.10.1.255");
+    protected static final ObisCode QuarterlyHourStatusObisCode = ObisCode.fromString("0.0.96.10.1.255");
     /**
-     * Hardcoded ObisCode for the status of an Mbus profile
+     * Hardcoded ObisCode for the status of the daily profile
      */
-    protected static final ObisCode MbusMeterStatusObisCode = ObisCode.fromString("0.0.96.10.3.255");
+    protected static final ObisCode DailyStatusObisCode = ObisCode.fromString("0.0.96.10.2.255");
+    /**
+     * Hardcoded ObisCode for the status of the hourly profile
+     */
+    protected static final ObisCode HourlyStatusObiscode = ObisCode.fromString("0.0.96.10.3.255");
 
     /**
      * The used meterProtocol
@@ -256,14 +260,21 @@ public class LoadProfileBuilder {
             return false;
         }
 
-        testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(EmeterStatusObisCode, serialNumber);
+        testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(QuarterlyHourStatusObisCode, serialNumber);
         if (testObisCode != null) {
             isDataObisCode &= !testObisCode.equals(obisCode);
         } else {
             return false;
         }
 
-        testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(MbusMeterStatusObisCode, serialNumber);
+        testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(DailyStatusObisCode, serialNumber);
+        if (testObisCode != null) {
+            isDataObisCode &= !testObisCode.equals(obisCode);
+        } else {
+            return false;
+        }
+
+        testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(HourlyStatusObiscode, serialNumber);
         if (testObisCode != null) {
             isDataObisCode &= !testObisCode.equals(obisCode);
         } else {

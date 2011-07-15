@@ -9,6 +9,7 @@ import com.energyict.protocol.SmartMeterProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.DummyDLMSConnection;
 import com.energyict.protocolimpl.utils.MockSecurityProvider;
+import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.webrtuz3.WebRTUZ3;
 import org.junit.Test;
 

@@ -4,6 +4,7 @@ import com.energyict.dlms.DLMSReference;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ public class Dsmr22Properties extends DlmsProtocolProperties {
         optional.add(DlmsProtocolProperties.ROUND_TRIP_CORRECTION);
         optional.add(DlmsProtocolProperties.BULK_REQUEST);
         optional.add(DlmsProtocolProperties.CIPHERING_TYPE);
+        optional.add(DlmsProtocolProperties.NTA_SIMULATION_TOOL);
         optional.add(NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
         optional.add(NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY);
         optional.add(NTASecurityProvider.NEW_DATATRANSPORT_ENCRYPTION_KEY);
@@ -58,5 +60,15 @@ public class Dsmr22Properties extends DlmsProtocolProperties {
         List<String> required = new ArrayList<String>();
         required.add(DlmsProtocolProperties.SECURITY_LEVEL);
         return required;
+    }
+
+    @ProtocolProperty
+    public boolean getFixMbusHexShortId() {
+        return getBooleanProperty(FIX_MBUS_HEX_SHORT_ID, "0");
+    }
+
+    @ProtocolProperty
+    public boolean getOldMbusDiscovery() {
+        return getBooleanProperty(OLD_MBUS_DISCOVERY, "0");
     }
 }

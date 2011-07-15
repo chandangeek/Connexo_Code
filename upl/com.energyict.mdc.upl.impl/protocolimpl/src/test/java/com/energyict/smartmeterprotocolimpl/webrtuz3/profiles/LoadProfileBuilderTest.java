@@ -5,7 +5,7 @@ import com.energyict.dlms.cosem.Clock;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.smartmeterprotocolimpl.webrtuz3.WebRTUZ3;
-import com.energyict.smartmeterprotocolimpl.webrtuz3.topology.DeviceMapping;
+import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.webrtuz3.topology.MeterTopology;
 import org.junit.Test;
 

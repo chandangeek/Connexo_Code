@@ -7,10 +7,10 @@ import com.energyict.protocolimpl.base.CachedMeterTime;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
+import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.webrtuz3.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.webrtuz3.events.EMeterEventProfile;
 import com.energyict.smartmeterprotocolimpl.webrtuz3.profiles.LoadProfileBuilder;
-import com.energyict.smartmeterprotocolimpl.webrtuz3.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.webrtuz3.topology.MeterTopology;
 
 import java.io.IOException;
