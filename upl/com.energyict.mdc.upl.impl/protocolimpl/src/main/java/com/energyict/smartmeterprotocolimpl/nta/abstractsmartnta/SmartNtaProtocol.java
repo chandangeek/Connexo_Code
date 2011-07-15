@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.nta.dsmr23;
+package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
@@ -8,6 +8,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.*;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
@@ -21,7 +22,7 @@ import java.util.*;
  * Date: 14-jul-2011
  * Time: 11:20:34
  */
-public class SmartNtaProtocol extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter {
+public abstract class SmartNtaProtocol extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter {
 
     private static final int ObisCodeBFieldIndex = 1;
 
@@ -36,7 +37,7 @@ public class SmartNtaProtocol extends AbstractSmartDlmsProtocol implements Maste
     private ComposedMeterInfo meterInfo;
 
     /**
-     * The used {@link RegisterFactory}
+     * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.RegisterFactory}
      */
     private RegisterFactory registerFactory;
 
@@ -79,9 +80,9 @@ public class SmartNtaProtocol extends AbstractSmartDlmsProtocol implements Maste
     @Override
     protected void initAfterConnect() throws ConnectionException {
         getMeterTopology().searchForSlaveDevices();
-        for (DeviceMapping dm : getMeterTopology().getMbusMeterMap()) {
-            this.mbusDevices.add(new MbusDevice(this, dm.getSerialNumber(), dm.getPhysicalAddress()));
-        }
+//        for (DeviceMapping dm : getMeterTopology().getMbusMeterMap()) {
+//            this.mbusDevices.add(new MbusDevice(this, dm.getSerialNumber(), dm.getPhysicalAddress()));
+//        }
     }
 
     /**

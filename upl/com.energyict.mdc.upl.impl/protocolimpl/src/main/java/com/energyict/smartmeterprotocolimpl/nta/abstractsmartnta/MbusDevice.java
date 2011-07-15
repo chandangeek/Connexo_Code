@@ -1,6 +1,8 @@
-package com.energyict.smartmeterprotocolimpl.nta.dsmr23;
+package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
+import com.energyict.mdw.core.Pluggable;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
+import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.SmartNtaProtocol;
 
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -10,7 +12,7 @@ import java.util.logging.Logger;
  * Date: 15-jul-2011
  * Time: 10:31:14
  */
-public class MbusDevice implements SimpleMeter {
+public abstract class MbusDevice implements SimpleMeter, Pluggable {
 
     private final SmartNtaProtocol meterProtocol;
     private final String serialNumber;

@@ -8,7 +8,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.Register;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.SmartNtaProtocol;
+import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.SmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedProfileConfig;
 
 import java.io.IOException;

@@ -10,6 +10,7 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.attributes.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.SmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.webrtuz3.composedobjects.ComposedRegister;
 
 import java.io.IOException;

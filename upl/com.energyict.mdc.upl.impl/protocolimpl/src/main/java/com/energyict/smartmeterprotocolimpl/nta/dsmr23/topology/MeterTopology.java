@@ -9,7 +9,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.SmartNtaProtocol;
+import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.SmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMbusSerialNumber;
 
 import java.io.IOException;
