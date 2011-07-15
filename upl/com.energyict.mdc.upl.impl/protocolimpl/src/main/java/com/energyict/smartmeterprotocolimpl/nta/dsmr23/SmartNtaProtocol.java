@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.nta.dsmr22;
+package com.energyict.smartmeterprotocolimpl.nta.dsmr23;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
@@ -36,7 +36,7 @@ public class SmartNtaProtocol extends AbstractSmartDlmsProtocol implements Maste
     private ComposedMeterInfo meterInfo;
 
     /**
-     * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr22.RegisterFactory}
+     * The used {@link RegisterFactory}
      */
     private RegisterFactory registerFactory;
 

@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.nta.dsmr22;
+package com.energyict.smartmeterprotocolimpl.nta.dsmr23;
 
 import com.energyict.dlms.DLMSReference;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
