@@ -15,7 +15,7 @@ import java.util.List;
  * Date: 14-jul-2011
  * Time: 11:26:48
  */
-public class Dsmr22Properties extends DlmsProtocolProperties {
+public class Dsmr23Properties extends DlmsProtocolProperties {
 
     public static final String OLD_MBUS_DISCOVERY = "OldMbusDiscovery";
     public static final String FIX_MBUS_HEX_SHORT_ID = "FixMbusHexShortId";

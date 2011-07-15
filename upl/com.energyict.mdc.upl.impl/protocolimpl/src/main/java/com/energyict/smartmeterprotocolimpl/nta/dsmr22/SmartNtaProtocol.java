@@ -4,7 +4,6 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
-import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
@@ -29,7 +28,7 @@ public class SmartNtaProtocol extends AbstractSmartDlmsProtocol implements Maste
     /**
      * The <code>Properties</code> used for this protocol
      */
-    private Dsmr22Properties properties;
+    private Dsmr23Properties properties;
 
     /**
      * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr22.composedobjects.ComposedMeterInfo}
@@ -67,9 +66,9 @@ public class SmartNtaProtocol extends AbstractSmartDlmsProtocol implements Maste
      * @return the requested Properties
      */
     @Override
-    public Dsmr22Properties getProperties() {
+    public Dsmr23Properties getProperties() {
         if (this.properties == null) {
-            this.properties = new Dsmr22Properties();
+            this.properties = new Dsmr23Properties();
         }
         return this.properties;
     }
