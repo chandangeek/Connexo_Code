@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.nta.dsmr22.profiles;
+package com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles;
 
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.*;
@@ -9,7 +9,7 @@ import com.energyict.protocol.*;
 import com.energyict.protocol.Register;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.SmartNtaProtocol;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr22.composedobjects.ComposedProfileConfig;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedProfileConfig;
 
 import java.io.IOException;
 import java.util.*;

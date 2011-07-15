@@ -1,11 +1,11 @@
-package com.energyict.smartmeterprotocolimpl.nta.dsmr22.profiles;
+package com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles;
 
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.protocol.*;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.SmartNtaProtocol;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr22.eventhandling.*;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.*;
 
 import java.io.IOException;
 import java.util.*;

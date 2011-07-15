@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.nta.dsmr22.composedobjects;
+package com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.axrdencoding.AbstractDataType;

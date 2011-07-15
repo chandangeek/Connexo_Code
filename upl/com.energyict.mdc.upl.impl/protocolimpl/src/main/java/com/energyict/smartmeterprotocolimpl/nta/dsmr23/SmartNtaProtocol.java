@@ -8,10 +8,10 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr22.composedobjects.ComposedMeterInfo;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr22.profiles.EventProfile;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr22.profiles.LoadProfileBuilder;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr22.topology.MeterTopology;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMeterInfo;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology.MeterTopology;
 
 import java.io.IOException;
 import java.util.*;
@@ -31,7 +31,7 @@ public class SmartNtaProtocol extends AbstractSmartDlmsProtocol implements Maste
     private Dsmr23Properties properties;
 
     /**
-     * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr22.composedobjects.ComposedMeterInfo}
+     * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMeterInfo}
      */
     private ComposedMeterInfo meterInfo;
 
@@ -41,17 +41,17 @@ public class SmartNtaProtocol extends AbstractSmartDlmsProtocol implements Maste
     private RegisterFactory registerFactory;
 
     /**
-     * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr22.profiles.LoadProfileBuilder}
+     * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder}
      */
     private LoadProfileBuilder loadProfileBuilder;
 
     /**
-     * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr22.profiles.EventProfile}
+     * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile}
      */
     private EventProfile eventProfile;
 
     /**
-     * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr22.topology.MeterTopology}
+     * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology.MeterTopology}
      */
     private MeterTopology meterTopology;
 
