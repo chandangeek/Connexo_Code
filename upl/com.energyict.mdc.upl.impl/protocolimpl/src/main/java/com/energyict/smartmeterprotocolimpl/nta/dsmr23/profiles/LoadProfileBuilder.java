@@ -8,7 +8,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.Register;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
-import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.SmartNtaProtocol;
+import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedProfileConfig;
 
 import java.io.IOException;
@@ -42,7 +42,7 @@ public class LoadProfileBuilder {
     /**
      * The used meterProtocol
      */
-    private final SmartNtaProtocol meterProtocol;
+    private final AbstractSmartNtaProtocol meterProtocol;
 
     /**
      * Keeps track of the link between a {@link com.energyict.protocol.LoadProfileReader} and a {@link com.energyict.smartmeterprotocolimpl.webrtuz3.composedobjects.ComposedProfileConfig}
@@ -80,7 +80,7 @@ public class LoadProfileBuilder {
      *
      * @param meterProtocol the {@link #meterProtocol}
      */
-    public LoadProfileBuilder(SmartNtaProtocol meterProtocol) {
+    public LoadProfileBuilder(AbstractSmartNtaProtocol meterProtocol) {
         this.meterProtocol = meterProtocol;
     }
 

@@ -9,7 +9,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
-import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.SmartNtaProtocol;
+import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMbusSerialNumber;
 
 import java.io.IOException;
@@ -29,7 +29,7 @@ public class MeterTopology implements MasterMeter {
 
     public static final int MaxMbusDevices = 4;
 
-    private final SmartNtaProtocol protocol;
+    private final AbstractSmartNtaProtocol protocol;
 
     /**
      * The <CODE>ComposedCosemObject</CODE> for requesting all serialNumbers in 1 request
@@ -46,7 +46,7 @@ public class MeterTopology implements MasterMeter {
      */
     private List<DeviceMapping> mbusMap = new ArrayList<DeviceMapping>();
 
-    public MeterTopology(final SmartNtaProtocol protocol) {
+    public MeterTopology(final AbstractSmartNtaProtocol protocol) {
         this.protocol = protocol;
     }
 
