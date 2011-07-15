@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra;
 
-import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.SmartNtaProtocol;
+import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
+import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 
 import java.util.List;
 import java.util.Properties;
@@ -10,9 +11,9 @@ import java.util.Properties;
  * Date: 15-jul-2011
  * Time: 12:04:42
  */
-public class MbusDevice extends com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.MbusDevice{
+public class MbusDevice extends AbstractNtaMbusDevice {
 
-    public MbusDevice(final SmartNtaProtocol meterProtocol, final String serialNumber, final int physicalAddress) {
+    public MbusDevice(final AbstractSmartNtaProtocol meterProtocol, final String serialNumber, final int physicalAddress) {
         super(meterProtocol, serialNumber, physicalAddress);
     }
 

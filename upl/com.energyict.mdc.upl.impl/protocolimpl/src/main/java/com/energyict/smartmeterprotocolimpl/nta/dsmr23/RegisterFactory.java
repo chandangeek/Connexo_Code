@@ -10,7 +10,7 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.attributes.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.SmartNtaProtocol;
+import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.webrtuz3.composedobjects.ComposedRegister;
 
 import java.io.IOException;
@@ -40,11 +40,11 @@ public class RegisterFactory implements BulkRegisterProtocol {
     public static final ObisCode GSM_SIGNAL_STRENGTH = ObisCode.fromString("0.0.96.12.5.255");
 
 
-    private final SmartNtaProtocol protocol;
+    private final AbstractSmartNtaProtocol protocol;
     private Map<Register, ComposedRegister> composedRegisterMap = new HashMap<Register, ComposedRegister>();
     private Map<Register, DLMSAttribute> registerMap = new HashMap<Register, DLMSAttribute>();
 
-    public RegisterFactory(final SmartNtaProtocol protocol) {
+    public RegisterFactory(final AbstractSmartNtaProtocol protocol) {
         this.protocol = protocol;
     }
 

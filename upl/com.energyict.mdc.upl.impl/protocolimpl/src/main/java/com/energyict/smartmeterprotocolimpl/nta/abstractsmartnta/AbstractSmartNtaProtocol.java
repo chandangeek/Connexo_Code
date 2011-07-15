@@ -7,7 +7,6 @@ import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
-import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.*;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
@@ -22,7 +21,7 @@ import java.util.*;
  * Date: 14-jul-2011
  * Time: 11:20:34
  */
-public abstract class SmartNtaProtocol extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter {
+public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter {
 
     private static final int ObisCodeBFieldIndex = 1;
 
@@ -59,7 +58,7 @@ public abstract class SmartNtaProtocol extends AbstractSmartDlmsProtocol impleme
     /**
      * A list of slaveDevices
      */
-    private List<MbusDevice> mbusDevices = new ArrayList<MbusDevice>();
+    private List<AbstractNtaMbusDevice> mbusDevices = new ArrayList<AbstractNtaMbusDevice>();
 
     /**
      * Getter for the {@link com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties}
