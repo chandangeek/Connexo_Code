@@ -95,7 +95,10 @@ public class ApplicationServiceObject {
         byte[] response = this.protocolLink.getDLMSConnection().sendRequest(request);
         this.acse.analyzeAARE(response);
         getSecurityContext().setResponseSystemTitle(this.acse.getRespondingAPTtitle());
-
+        if (this.acse.hlsChallengeMatch()) {
+            releaseAssociation();
+            throw new ConnectionException("Invalid responding authenticationValue.");
+        }
         if (!DLMSMeterConfig.OLD2.equalsIgnoreCase(this.protocolLink.getMeterConfig().getExtra())) {
             this.associationStatus = ASSOCIATION_CONNECTED;
         }
@@ -213,7 +216,7 @@ public class ApplicationServiceObject {
         } else {
             throw new IllegalArgumentException("Invalid ContextId: " + this.acse.getContextId());
         }
-        if(encryptedResponse.getOctetStr().length == 0){
+        if (encryptedResponse.getOctetStr().length == 0) {
             return new byte[0];
         }
         return encryptedResponse.getContentBytes();
@@ -248,5 +251,4 @@ public class ApplicationServiceObject {
         sb.append("ApplicationServiceObject:").append(crlf);
         return sb.toString();
     }
-
 }

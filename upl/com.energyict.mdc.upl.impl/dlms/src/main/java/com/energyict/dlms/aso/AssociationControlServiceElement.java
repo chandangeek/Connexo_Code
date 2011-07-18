@@ -9,6 +9,7 @@ import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.UnexpectedEndOfArrayException;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * The AssociationControlServiceElement is an application layer protocol to establish and release an association between two entities
@@ -895,4 +896,12 @@ public class AssociationControlServiceElement {
 	public byte[] getRespondingAPTtitle(){
 		return this.respondingAPTitle;
 	}
+
+    /**
+     * Checks if the calling- and responding authenticationValue are identical, if so then it is possible a fake meter is on the oter side ...
+     * @return true if both challenges are the same, false otherwise.
+     */
+    public boolean hlsChallengeMatch() {
+        return Arrays.equals(getCallingAuthenticationValue(), getRespondingAuthenticationValue());
+    }
 }
