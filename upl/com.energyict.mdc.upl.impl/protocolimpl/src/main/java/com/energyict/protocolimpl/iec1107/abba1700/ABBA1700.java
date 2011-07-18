@@ -20,7 +20,6 @@ import java.util.logging.Logger;
 import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.*;
 
 /**
- *
  * @author  Koen
  */
 public class ABBA1700 implements MeterProtocol, ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol, DemandResetProtocol, MessageProtocol { // KV 19012004
