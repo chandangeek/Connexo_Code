@@ -880,7 +880,7 @@ public class RtmMessages implements MessageProtocol {
 
     private MessageResult disableAllAlarms(MessageEntry messageEntry) throws IOException {
         rtm.getLogger().info("************************* DisableAllAlarms *************************");
-        rtm.getParameterFactory().writeAlarmConfiguration(0);
+        rtm.getParameterFactory().disableAllAlarms();
         return MessageResult.createSuccess(messageEntry);
     }
 

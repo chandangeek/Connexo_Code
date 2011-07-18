@@ -386,18 +386,27 @@ public class ParameterFactory {
     public void disableAlarmOnBackFlow() throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
         configuration.setAlarmOnBackFlow(0);
+        readOperatingMode();
+        operatingMode.setBackFlowDetection(0);
+        operatingMode.write();
         configuration.write();
     }
 
     public void disableAlarmOnCutCable() throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
         configuration.setAlarmOnCutCable(0);
+        readOperatingMode();
+        operatingMode.setTamperDetection(0);
+        operatingMode.write();
         configuration.write();
     }
 
     public void disableAlarmOnCutRegisterCable() throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
         configuration.setAlarmOnCutRegisterCable(0);
+        readOperatingMode();
+        operatingMode.setTamperDetection(0);
+        operatingMode.write();
         configuration.write();
     }
 
@@ -410,18 +419,27 @@ public class ParameterFactory {
     public void disableAlarmOnEncoderCommunicationFailure() throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
         configuration.setAlarmOnEncoderCommunicationFailure(0);
+        readOperatingMode();
+        operatingMode.setEncoderCommunicationFaultDetection(0);
+        operatingMode.write();
         configuration.write();
     }
 
     public void disableAlarmOnEncoderMisread() throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
         configuration.setAlarmOnEncoderMisread(0);
+        readOperatingMode();
+        operatingMode.setEncoderMisReadDetection(0);
+        operatingMode.write();
         configuration.write();
     }
 
     public void disableAlarmOnHighThreshold() throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
         configuration.setAlarmOnHighThreshold(0);
+        readOperatingMode();
+        operatingMode.setExtremeLeakDetection(0);
+        operatingMode.write();
         configuration.write();
     }
 
@@ -434,6 +452,9 @@ public class ParameterFactory {
     public void disableAlarmOnLowThreshold() throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
         configuration.setAlarmOnLowThreshold(0);
+        readOperatingMode();
+        operatingMode.setResidualLeakDetection(0);
+        operatingMode.write();
         configuration.write();
     }
 
@@ -666,8 +687,18 @@ public class ParameterFactory {
         AlarmConfiguration configuration = readAlarmConfiguration();
         configuration.enableAllAlarms();
         readOperatingMode();
-        operatingMode.enableAllDetections();
+        operatingMode.setAllDetections(1);
         operatingMode.write();
         configuration.write();
+    }
+
+    public void disableAllAlarms() throws IOException {
+        AlarmConfiguration configuration = readAlarmConfiguration();
+        configuration.setConfig(0);
+        readOperatingMode();
+        operatingMode.setAllDetections(0);
+        operatingMode.write();
+        configuration.write();
+
     }
 }

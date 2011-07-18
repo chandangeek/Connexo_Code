@@ -40,14 +40,14 @@ public class OperatingMode extends AbstractParameter {
         operationMode = operationMode | enable << 14;
     }
 
-    public void enableAllDetections() {
-        setEncoderMisReadDetection(1);
-        setExtremeLeakDetection(1);
-        setTamperDetection(1);
-        setBackFlowDetection(1);
-        setEncoderCommunicationFaultDetection(1);
-        setResidualLeakDetection(1);
-        setValveCommunicationFaultDetection(1);
+    public void setAllDetections(int enable) {
+        setEncoderMisReadDetection(enable);
+        setExtremeLeakDetection(enable);
+        setTamperDetection(enable);
+        setBackFlowDetection(enable);
+        setEncoderCommunicationFaultDetection(enable);
+        setResidualLeakDetection(enable);
+        setValveCommunicationFaultDetection(enable);
     }
 
     public void setNetworkConfiguration(int config) {
