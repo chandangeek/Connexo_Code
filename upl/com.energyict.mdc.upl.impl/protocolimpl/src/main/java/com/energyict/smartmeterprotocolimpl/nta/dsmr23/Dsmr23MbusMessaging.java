@@ -15,10 +15,8 @@ import java.util.List;
  */
 public class Dsmr23MbusMessaging extends GenericMessaging implements MessageProtocol{
 
-    private final Dsmr23MbusMessageExecutor messageExecutor;
 
-    public Dsmr23MbusMessaging(final Dsmr23MbusMessageExecutor messageExecutor) {
-        this.messageExecutor = messageExecutor;
+    public Dsmr23MbusMessaging() {
     }
 
     /**
@@ -42,7 +40,8 @@ public class Dsmr23MbusMessaging extends GenericMessaging implements MessageProt
      * @throws java.io.IOException if a logical error occurs
      */
     public MessageResult queryMessage(final MessageEntry messageEntry) throws IOException {
-        return this.messageExecutor.executeMessageEntry(messageEntry);
+        // We should not call this queryMessage, the MbusMessages should be handled in the SmartMeter
+        return MessageResult.createFailed(messageEntry);
     }
 
     public List getMessageCategories() {

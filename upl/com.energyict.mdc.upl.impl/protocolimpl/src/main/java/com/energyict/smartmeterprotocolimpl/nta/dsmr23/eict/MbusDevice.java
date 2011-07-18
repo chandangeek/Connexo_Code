@@ -30,7 +30,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr23MbusMessaging(new Dsmr23MbusMessageExecutor(getMeterProtocol()));
+        return new Dsmr23MbusMessaging();
     }
 
 

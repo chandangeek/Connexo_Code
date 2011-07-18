@@ -49,121 +49,129 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
 
     public MessageResult executeMessageEntry(MessageEntry msgEntry) {
 
-        String content = msgEntry.getContent();
-        MessageHandler messageHandler = new NTAMessageHandler();
-        success = true;
+        if(!this.protocol.getSerialNumber().equalsIgnoreCase(msgEntry.getSerialNumber())){
+            Dsmr23MbusMessageExecutor mbusMessageExecutor = new Dsmr23MbusMessageExecutor(protocol);
+            return mbusMessageExecutor.executeMessageEntry(msgEntry);
+        } else {
 
-        try {
-            importMessage(content, messageHandler);
+            String content = msgEntry.getContent();
+            MessageHandler messageHandler = new NTAMessageHandler();
+            success = true;
 
-            /* All eMeter related messages */
-            boolean xmlConfig = messageHandler.getType().equals(RtuMessageConstant.XMLCONFIG);
-            boolean firmware = messageHandler.getType().equals(RtuMessageConstant.FIRMWARE_UPGRADE);
-            boolean p1Text = messageHandler.getType().equals(RtuMessageConstant.P1TEXTMESSAGE);
-            boolean p1Code = messageHandler.getType().equals(RtuMessageConstant.P1CODEMESSAGE);
-            boolean connect = messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
-            boolean disconnect = messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
-            boolean connectMode = messageHandler.getType().equals(RtuMessageConstant.CONNECT_CONTROL_MODE);
-            boolean llConfig = messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_CONFIGURE);
-            boolean llClear = messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_DISABLE);
-            boolean llSetGrId = messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE_GROUP_ID_LIST);
-            boolean touCalendar = messageHandler.getType().equals(RtuMessageConstant.TOU_ACTIVITY_CAL);
-            boolean touSpecialDays = messageHandler.getType().equals(RtuMessageConstant.TOU_SPECIAL_DAYS);
-            boolean specialDelEntry = messageHandler.getType().equals(RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE);
-            boolean setTime = messageHandler.getType().equals(RtuMessageConstant.SET_TIME);
-            boolean fillUpDB = messageHandler.getType().equals(RtuMessageConstant.ME_MAKING_ENTRIES);
-            boolean gprsParameters = messageHandler.getType().equals(RtuMessageConstant.GPRS_MODEM_SETUP);
-            boolean gprsCredentials = messageHandler.getType().equals(RtuMessageConstant.GPRS_MODEM_CREDENTIALS);
-            boolean testMessage = messageHandler.getType().equals(RtuMessageConstant.TEST_MESSAGE);
-            boolean globalReset = messageHandler.getType().equals(RtuMessageConstant.GLOBAL_METER_RESET);
-            boolean wakeUpWhiteList = messageHandler.getType().equals(RtuMessageConstant.WAKEUP_ADD_WHITELIST);
-            boolean changeHLSSecret = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_HLS_SECRET);
-            boolean changeLLSSecret = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_LLS_SECRET);
-            boolean changeGlobalkey = messageHandler.getType().equals(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_ENCRYPTION_KEY);
-            boolean changeAuthkey = messageHandler.getType().equals(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY);
-            boolean activateSMS = messageHandler.getType().equals(RtuMessageConstant.WAKEUP_ACTIVATE);
-            boolean deActivateSMS = messageHandler.getType().equals(RtuMessageConstant.WAKEUP_DEACTIVATE);
-            boolean actSecuritLevel = messageHandler.getType().equals(RtuMessageConstant.AEE_ACTIVATE_SECURITY);
-            boolean changeAuthLevel = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL);
+            try {
+                importMessage(content, messageHandler);
 
-            /* All MbusMeter related messages */
-            //TODO to complete
+                /* All eMeter related messages */
+                boolean xmlConfig = messageHandler.getType().equals(RtuMessageConstant.XMLCONFIG);
+                boolean firmware = messageHandler.getType().equals(RtuMessageConstant.FIRMWARE_UPGRADE);
+                boolean p1Text = messageHandler.getType().equals(RtuMessageConstant.P1TEXTMESSAGE);
+                boolean p1Code = messageHandler.getType().equals(RtuMessageConstant.P1CODEMESSAGE);
+                boolean connect = messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
+                boolean disconnect = messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
+                boolean connectMode = messageHandler.getType().equals(RtuMessageConstant.CONNECT_CONTROL_MODE);
+                boolean llConfig = messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_CONFIGURE);
+                boolean llClear = messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_DISABLE);
+                boolean llSetGrId = messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE_GROUP_ID_LIST);
+                boolean touCalendar = messageHandler.getType().equals(RtuMessageConstant.TOU_ACTIVITY_CAL);
+                boolean touSpecialDays = messageHandler.getType().equals(RtuMessageConstant.TOU_SPECIAL_DAYS);
+                boolean specialDelEntry = messageHandler.getType().equals(RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE);
+                boolean setTime = messageHandler.getType().equals(RtuMessageConstant.SET_TIME);
+                boolean fillUpDB = messageHandler.getType().equals(RtuMessageConstant.ME_MAKING_ENTRIES);
+                boolean gprsParameters = messageHandler.getType().equals(RtuMessageConstant.GPRS_MODEM_SETUP);
+                boolean gprsCredentials = messageHandler.getType().equals(RtuMessageConstant.GPRS_MODEM_CREDENTIALS);
+                boolean testMessage = messageHandler.getType().equals(RtuMessageConstant.TEST_MESSAGE);
+                boolean globalReset = messageHandler.getType().equals(RtuMessageConstant.GLOBAL_METER_RESET);
+                boolean wakeUpWhiteList = messageHandler.getType().equals(RtuMessageConstant.WAKEUP_ADD_WHITELIST);
+                boolean changeHLSSecret = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_HLS_SECRET);
+                boolean changeLLSSecret = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_LLS_SECRET);
+                boolean changeGlobalkey = messageHandler.getType().equals(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_ENCRYPTION_KEY);
+                boolean changeAuthkey = messageHandler.getType().equals(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY);
+                boolean activateSMS = messageHandler.getType().equals(RtuMessageConstant.WAKEUP_ACTIVATE);
+                boolean deActivateSMS = messageHandler.getType().equals(RtuMessageConstant.WAKEUP_DEACTIVATE);
+                boolean actSecuritLevel = messageHandler.getType().equals(RtuMessageConstant.AEE_ACTIVATE_SECURITY);
+                boolean changeAuthLevel = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL);
 
-            if (xmlConfig) {
-                doXmlConfig(content);
-            } else if (firmware) {
-                doFirmwareUpgrade(messageHandler);
-            } else if (p1Code) {
-                setP1Code(messageHandler);
-            } else if (p1Text) {
-                setP1Text(messageHandler);
-            } else if (connect) {
-                doConnect(messageHandler);
-            } else if (disconnect) {
-                doDisconnect(messageHandler);
-            } else if (connectMode) {
-                setConnectMode(messageHandler);
-            } else if (llConfig) {
-                loadLimitConfiguration(messageHandler);
-            } else if (llClear) {
-                clearLoadLimiting(messageHandler);
-            } else if (llSetGrId) {
-                setLoadLimitGroupId(messageHandler);
-            } else if (touCalendar) {
-                upgradeCalendar(messageHandler);
-            } else if (touSpecialDays) {
-                upgradeSpecialDays(messageHandler);
-            } else if (specialDelEntry) {
-                deleteSpecialDay(messageHandler);
-            } else if (setTime) {
-                setTime(messageHandler);
-            } else if (fillUpDB) {
-                createDataBaseEntries(messageHandler);
-            } else if (gprsParameters) {
-                setGPRSParameters(messageHandler);
-            } else if (gprsCredentials) {
-                setGPRSCredentials(messageHandler);
-            } else if (testMessage) {
-                testMessage(messageHandler);
-            } else if (globalReset) {
-                doGlobalReset();
-            } else if (wakeUpWhiteList) {
-                setWakeUpWhiteList(messageHandler);
-            } else if (changeHLSSecret) {
-                changeHLSSecret();
-            } else if (changeAuthkey) {
-                changeAuthenticationKey();
-            } else if (changeGlobalkey) {
-                changeGlobalKey();
-            } else if (changeLLSSecret) {
-                changeLLSSecret();
-            } else if (activateSMS) {
-                getCosemObjectFactory().getAutoConnect().writeMode(4);
-            } else if (deActivateSMS) {
-                getCosemObjectFactory().getAutoConnect().writeMode(1);
-            } else if (actSecuritLevel) {
-                getCosemObjectFactory().getSecuritySetup().activateSecurity(new TypeEnum(messageHandler.getSecurityLevel()));
-            } else if (changeAuthLevel) {
-                changeAuthenticationLevel(messageHandler);
-            }
-        } catch (BusinessException e) {
-            log(Level.SEVERE, "Message failed : " + e.getMessage());
-            success = false;
-        } catch (IOException e) {
-            log(Level.SEVERE, "Message failed : " + e.getMessage());
-            success = false;
-        } catch (InterruptedException e) {
-            log(Level.SEVERE, "Message failed : " + e.getMessage());
-            success = false;
-        } catch (SQLException e) {
-            log(Level.SEVERE, "Message failed : " + e.getMessage());
-            success = false;
-        } finally {
-            if (success) {
-                log(Level.INFO, "Message has finished.");
-                return MessageResult.createSuccess(msgEntry);
-            } else {
-                return MessageResult.createFailed(msgEntry);
+                /* All MbusMeter related messages */
+                //TODO to complete
+
+                if (xmlConfig) {
+                    doXmlConfig(content);
+                } else if (firmware) {
+                    doFirmwareUpgrade(messageHandler);
+                } else if (p1Code) {
+                    setP1Code(messageHandler);
+                } else if (p1Text) {
+                    setP1Text(messageHandler);
+                } else if (connect) {
+                    doConnect(messageHandler);
+                } else if (disconnect) {
+                    doDisconnect(messageHandler);
+                } else if (connectMode) {
+                    setConnectMode(messageHandler);
+                } else if (llConfig) {
+                    loadLimitConfiguration(messageHandler);
+                } else if (llClear) {
+                    clearLoadLimiting(messageHandler);
+                } else if (llSetGrId) {
+                    setLoadLimitGroupId(messageHandler);
+                } else if (touCalendar) {
+                    upgradeCalendar(messageHandler);
+                } else if (touSpecialDays) {
+                    upgradeSpecialDays(messageHandler);
+                } else if (specialDelEntry) {
+                    deleteSpecialDay(messageHandler);
+                } else if (setTime) {
+                    setTime(messageHandler);
+                } else if (fillUpDB) {
+                    createDataBaseEntries(messageHandler);
+                } else if (gprsParameters) {
+                    setGPRSParameters(messageHandler);
+                } else if (gprsCredentials) {
+                    setGPRSCredentials(messageHandler);
+                } else if (testMessage) {
+                    testMessage(messageHandler);
+                } else if (globalReset) {
+                    doGlobalReset();
+                } else if (wakeUpWhiteList) {
+                    setWakeUpWhiteList(messageHandler);
+                } else if (changeHLSSecret) {
+                    changeHLSSecret();
+                } else if (changeAuthkey) {
+                    changeAuthenticationKey();
+                } else if (changeGlobalkey) {
+                    changeGlobalKey();
+                } else if (changeLLSSecret) {
+                    changeLLSSecret();
+                } else if (activateSMS) {
+                    getCosemObjectFactory().getAutoConnect().writeMode(4);
+                } else if (deActivateSMS) {
+                    getCosemObjectFactory().getAutoConnect().writeMode(1);
+                } else if (actSecuritLevel) {
+                    getCosemObjectFactory().getSecuritySetup().activateSecurity(new TypeEnum(messageHandler.getSecurityLevel()));
+                } else if (changeAuthLevel) {
+                    changeAuthenticationLevel(messageHandler);
+                } else {
+                    success = false;
+                }
+            } catch (BusinessException e) {
+                log(Level.SEVERE, "Message failed : " + e.getMessage());
+                success = false;
+            } catch (IOException e) {
+                log(Level.SEVERE, "Message failed : " + e.getMessage());
+                success = false;
+            } catch (InterruptedException e) {
+                log(Level.SEVERE, "Message failed : " + e.getMessage());
+                success = false;
+            } catch (SQLException e) {
+                log(Level.SEVERE, "Message failed : " + e.getMessage());
+                success = false;
+            } finally {
+                if (success) {
+                    log(Level.INFO, "Message has finished.");
+                    return MessageResult.createSuccess(msgEntry);
+                } else {
+                    return MessageResult.createFailed(msgEntry);
+                }
             }
         }
     }

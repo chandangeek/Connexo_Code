@@ -1,6 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
-import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.core.Pluggable;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;

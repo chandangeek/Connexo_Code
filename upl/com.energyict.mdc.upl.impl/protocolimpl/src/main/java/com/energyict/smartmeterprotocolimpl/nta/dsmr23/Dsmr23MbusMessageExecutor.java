@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cpo.Environment;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
@@ -68,6 +69,8 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
                 setMbusCorrected(messageHandler, serialNumber);
             } else if (mbusUnCorrected) {
                 setMbusUncorrected(messageHandler, serialNumber);
+            } else {
+                success = false;
             }
         } catch (BusinessException e) {
             log(Level.SEVERE, "Message failed : " + e.getMessage());
@@ -87,7 +90,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
 
     private void setMbusUncorrected(final MessageHandler messageHandler, final String serialNumber) throws IOException {
         log(Level.INFO, "Handling MbusMessage Set loadprofile to unCorrected values");
-        MBusClient mc = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(this.protocol.getPhysicalAddressFromSerialNumber(serialNumber)).getObisCode(), MbusClientAttributes.VERSION9);
+        MBusClient mc = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getMbusAddress(serialNumber)).getObisCode(), MbusClientAttributes.VERSION9);
         Array capDef = new Array();
         Structure struct = new Structure();
         OctetString dib = new OctetString(new byte[]{(byte) 0x0C});
@@ -100,7 +103,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
 
     private void setMbusCorrected(final MessageHandler messageHandler, final String serialNumber) throws IOException {
         log(Level.INFO, "Handling MbusMessage  Set loadprofile to corrected values");
-        MBusClient mc = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(this.protocol.getPhysicalAddressFromSerialNumber(serialNumber)).getObisCode(), MbusClientAttributes.VERSION9);
+        MBusClient mc = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getMbusAddress(serialNumber)).getObisCode(), MbusClientAttributes.VERSION9);
         Array capDef = new Array();
         Structure struct = new Structure();
         OctetString dib = new OctetString(new byte[]{0x0C});
@@ -117,7 +120,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         String openKey = messageHandler.getOpenKey();
         String transferKey = messageHandler.getTransferKey();
 
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(this.protocol.getPhysicalAddressFromSerialNumber(serialNumber)).getObisCode(), MbusClientAttributes.VERSION9);
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getMbusAddress(serialNumber)).getObisCode(), MbusClientAttributes.VERSION9);
 
         if (openKey == null) {
             mbusClient.setEncryptionKey("");
@@ -132,7 +135,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
     private void doDecommission(final MessageHandler messageHandler, final String serialNumber) throws IOException, BusinessException, SQLException {
         log(Level.INFO, "Handling MbusMessage Decommission MBus device");
 
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(this.protocol.getPhysicalAddressFromSerialNumber(serialNumber)).getObisCode(), MbusClientAttributes.VERSION9);
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getMbusAddress(serialNumber)).getObisCode(), MbusClientAttributes.VERSION9);
         mbusClient.deinstallSlave();
 
         //Need to clear the gateWay
@@ -154,7 +157,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
                 int modeInt = Integer.parseInt(mode);
 
                 if ((modeInt >= 0) && (modeInt <= 6)) {
-                    Disconnector connectorMode = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(this.protocol.getPhysicalAddressFromSerialNumber(serialNumber)).getObisCode());
+                    Disconnector connectorMode = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getMbusAddress(serialNumber)).getObisCode());
                     connectorMode.writeControlMode(new TypeEnum(modeInt));
 
                 } else {
@@ -176,9 +179,9 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         if (!messageHandler.getDisconnectDate().equals("")) {    // use the disconnectControlScheduler
 
             Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getDisconnectDate());
-            SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(this.protocol.getPhysicalAddressFromSerialNumber(serialNumber)).getObisCode());
+            SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(getMbusAddress(serialNumber)).getObisCode());
 
-            ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(this.protocol.getPhysicalAddressFromSerialNumber(serialNumber)).getObisCode());
+            ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getMbusAddress(serialNumber)).getObisCode());
             byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn();
             Structure scriptStruct = new Structure();
             scriptStruct.addDataType(new OctetString(scriptLogicalName));
@@ -188,7 +191,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
             sasDisconnect.writeExecutionTime(executionTimeArray);
 
         } else { // immediate disconnect
-            Disconnector connector = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(this.protocol.getPhysicalAddressFromSerialNumber(serialNumber)).getObisCode());
+            Disconnector connector = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getMbusAddress(serialNumber)).getObisCode());
             connector.remoteDisconnect();
         }
     }
@@ -199,9 +202,9 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         if (!messageHandler.getConnectDate().equals("")) {    // use the disconnectControlScheduler
 
             Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getConnectDate());
-            SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(this.protocol.getPhysicalAddressFromSerialNumber(serialNumber)).getObisCode());
+            SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(getMbusAddress(serialNumber)).getObisCode());
 
-            ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(this.protocol.getPhysicalAddressFromSerialNumber(serialNumber)).getObisCode());
+            ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getMbusAddress(serialNumber)).getObisCode());
             byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn();
             Structure scriptStruct = new Structure();
             scriptStruct.addDataType(new OctetString(scriptLogicalName));
@@ -211,7 +214,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
             sasConnect.writeExecutionTime(executionTimeArray);
 
         } else { // immediate connect
-            Disconnector connector = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(this.protocol.getPhysicalAddressFromSerialNumber(serialNumber)).getObisCode());
+            Disconnector connector = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getMbusAddress(serialNumber)).getObisCode());
             connector.remoteReconnect();
         }
     }
@@ -251,14 +254,19 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         this.dlmsSession.getLogger().log(level, msg);
     }
 
+    private int getMbusAddress(String serialNumber){
+        return this.protocol.getPhysicalAddressFromSerialNumber(serialNumber) - 1;
+    }
+
     /*****************************************************************************/
-    /* These methods require database access ...
+    /* These methods require database access ...  TODO we should do this using the framework ...
     /*****************************************************************************/
 
     /**
      * Short notation for MeteringWarehouse.getCurrent()
      */
     public MeteringWarehouse mw() {
+        MeteringWarehouse.createBatchContext(false);
         return MeteringWarehouse.getCurrent();
     }
 
