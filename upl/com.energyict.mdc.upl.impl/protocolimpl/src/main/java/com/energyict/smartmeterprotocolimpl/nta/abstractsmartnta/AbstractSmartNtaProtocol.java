@@ -1,8 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
@@ -21,9 +24,11 @@ import java.util.*;
  * Date: 14-jul-2011
  * Time: 11:20:34
  */
-public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter {
+public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol {
 
     private static final int ObisCodeBFieldIndex = 1;
+
+    public abstract MessageProtocol getMessageProtocol();
 
     /**
      * The <code>Properties</code> used for this protocol
@@ -60,6 +65,8 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
      */
     private List<AbstractNtaMbusDevice> mbusDevices = new ArrayList<AbstractNtaMbusDevice>();
 
+    private SecurityProvider securityProvider;
+
     /**
      * Getter for the {@link com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties}
      *
@@ -79,6 +86,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
     @Override
     protected void initAfterConnect() throws ConnectionException {
         getMeterTopology().searchForSlaveDevices();
+        securityProvider = new NTASecurityProvider(getProperties().getProtocolProperties());
 //        for (DeviceMapping dm : getMeterTopology().getMbusMeterMap()) {
 //            this.mbusDevices.add(new MbusDevice(this, dm.getSerialNumber(), dm.getPhysicalAddress()));
 //        }
@@ -305,5 +313,49 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
             this.meterTopology = new MeterTopology(this);
         }
         return meterTopology;
+    }
+
+    public SecurityProvider getSecurityProvider() {
+        return securityProvider;
+    }
+
+    /**
+     * Provides the full list of outstanding messages to the protocol.
+     * If for any reason certain messages have to be grouped before they are sent to a device, then this is the place to do it.
+     * At a later timestamp the framework will query each {@link com.energyict.protocol.MessageEntry} (see {@link #queryMessage(com.energyict.protocol.MessageEntry)}) to actually
+     * perform the message.
+     *
+     * @param messageEntries a list of {@link com.energyict.protocol.MessageEntry}s
+     * @throws java.io.IOException if a logical error occurs
+     */
+    public void applyMessages(final List messageEntries) throws IOException {
+        getMessageProtocol().applyMessages(messageEntries);
+    }
+
+    /**
+     * Indicates that each message has to be executed by the protocol.
+     *
+     * @param messageEntry a definition of which message needs to be sent
+     * @return a state of the message which was just sent
+     * @throws java.io.IOException if a logical error occurs
+     */
+    public MessageResult queryMessage(final MessageEntry messageEntry) throws IOException {
+        return getMessageProtocol().queryMessage(messageEntry);
+    }
+
+    public List getMessageCategories() {
+        return getMessageProtocol().getMessageCategories();
+    }
+
+    public String writeMessage(final Message msg) {
+        return getMessageProtocol().writeMessage(msg);
+    }
+
+    public String writeTag(final MessageTag tag) {
+        return getMessageProtocol().writeTag(tag);
+    }
+
+    public String writeValue(final MessageValue value) {
+        return getMessageProtocol().writeValue(value);
     }
 }

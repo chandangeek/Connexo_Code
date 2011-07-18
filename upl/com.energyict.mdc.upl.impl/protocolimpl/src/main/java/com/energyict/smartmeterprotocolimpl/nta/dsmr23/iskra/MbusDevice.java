@@ -1,10 +1,17 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra;
 
+import com.energyict.cbo.BusinessException;
+import com.energyict.dialer.core.Link;
+import com.energyict.mdw.core.CommunicationScheduler;
+import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.*;
 
-import java.util.List;
-import java.util.Properties;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -13,8 +20,17 @@ import java.util.Properties;
  */
 public class MbusDevice extends AbstractNtaMbusDevice {
 
+    public MbusDevice() {
+        super();
+    }
+
     public MbusDevice(final AbstractSmartNtaProtocol meterProtocol, final String serialNumber, final int physicalAddress) {
         super(meterProtocol, serialNumber, physicalAddress);
+    }
+
+    @Override
+    public MessageProtocol getMessageProtocol() {
+        return new Dsmr23MbusMessaging(new Dsmr23MbusMessageExecutor(getMeterProtocol()));
     }
 
     /**
@@ -41,7 +57,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
      * @return a List of String objects
      */
     public List<String> getRequiredKeys() {
-        return null;  //TODO implement proper functionality.
+        return new ArrayList<String>();
     }
 
     /**
@@ -50,6 +66,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
      * @return a List of String objects
      */
     public List<String> getOptionalKeys() {
-        return null;  //TODO implement proper functionality.
+        return new ArrayList<String>();
     }
+
 }

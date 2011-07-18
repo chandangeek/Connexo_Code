@@ -1,6 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra;
 
+import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23MessageExecutor;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23Messaging;
 
 /**
  * Copyrights EnergyICT
@@ -8,6 +11,11 @@ import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNt
  * Time: 11:59:24
  */
 public class Mx382 extends AbstractSmartNtaProtocol {
+
+    @Override
+    public MessageProtocol getMessageProtocol() {
+        return new Dsmr23Messaging(new Dsmr23MessageExecutor(this));
+    }
 
     /**
      * Returns the implementation version

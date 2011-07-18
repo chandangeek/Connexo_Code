@@ -61,6 +61,11 @@ public class LoadProfileBuilder {
     private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<LoadProfileReader, List<ChannelInfo>>();
 
     /**
+     * Keep track of a list of statusMask per LoadProfileReader
+     */
+    private Map<LoadProfileReader, Integer> statusMasksMap = new HashMap<LoadProfileReader, Integer>();
+
+    /**
      * Keeps track of the link between a {@link com.energyict.protocol.Register} and his {@link com.energyict.dlms.DLMSAttribute} for ComposedCosemObject reads ...
      */
     private Map<Register, DLMSAttribute> registerUnitMap = new HashMap<Register, DLMSAttribute>();
@@ -107,8 +112,10 @@ public class LoadProfileBuilder {
                 try {
                     lpc.setProfileInterval(ccoLpConfigs.getAttribute(cpc.getLoadProfileInterval()).intValue());
                     List<ChannelInfo> channelInfos = constructChannelInfos(capturedObjectRegisterListMap.get(lpr), ccoCapturedObjectRegisterUnits);
+                    int statusMask = constructStatusMask(capturedObjectRegisterListMap.get(lpr));
                     lpc.setChannelInfos(channelInfos);
                     this.channelInfoMap.put(lpr, channelInfos);
+                    this.statusMasksMap.put(lpr, statusMask);
                 } catch (IOException e) {
                     lpc.setSupportedByMeter(false);
                 }
@@ -245,6 +252,19 @@ public class LoadProfileBuilder {
         return channelInfos;
     }
 
+    private int constructStatusMask(List<Register> registers) {
+        int statusMask = 0;
+        int counter = 0;
+        for (Register registerUnit : registers) {
+            if (isStatusObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
+                statusMask |= (int)Math.pow(2, counter);
+            }
+            counter++;
+        }
+        return statusMask;
+    }
+
+
     /**
      * Checks if the given ObisCode/Serialnumber combination is a valid profileChannel. Checks are done based on the the StatusObisCodes and ClockObisCode
      *
@@ -253,35 +273,38 @@ public class LoadProfileBuilder {
      * @return true if the obisCode is not a {@link com.energyict.dlms.cosem.Clock} object nor a Status object
      */
     protected boolean isDataObisCode(ObisCode obisCode, String serialNumber) {
-        boolean isDataObisCode = true;
-        ObisCode testObisCode;
+        boolean isDataObisCode = !isStatusObisCode(obisCode, serialNumber);
+        return !Clock.getObisCode().equals(obisCode) && isDataObisCode;
+    }
 
+    protected boolean isStatusObisCode(ObisCode obisCode, String serialNumber) {
+        boolean isStatusObisCode = false;
+        ObisCode testObisCode;
         if (obisCode.getB() != this.meterProtocol.getPhysicalAddressFromSerialNumber(serialNumber)) {
             return false;
         }
 
         testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(QuarterlyHourStatusObisCode, serialNumber);
         if (testObisCode != null) {
-            isDataObisCode &= !testObisCode.equals(obisCode);
+            isStatusObisCode |= testObisCode.equals(obisCode);
         } else {
             return false;
         }
 
         testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(DailyStatusObisCode, serialNumber);
         if (testObisCode != null) {
-            isDataObisCode &= !testObisCode.equals(obisCode);
+            isStatusObisCode |= testObisCode.equals(obisCode);
         } else {
             return false;
         }
 
         testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(HourlyStatusObiscode, serialNumber);
         if (testObisCode != null) {
-            isDataObisCode &= !testObisCode.equals(obisCode);
+            isStatusObisCode |= testObisCode.equals(obisCode);
         } else {
             return false;
         }
-
-        return !Clock.getObisCode().equals(obisCode) && isDataObisCode;
+        return isStatusObisCode;
     }
 
     /**
@@ -326,7 +349,8 @@ public class LoadProfileBuilder {
                 toCalendar.setTime(lpr.getEndReadingTime());
 
                 //TODO it is possible that we need to check for the masks ...
-                DLMSProfileIntervals intervals = new DLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), null);
+                DLMSProfileIntervals intervals = new DLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), DLMSProfileIntervals.DefaultClockMask,
+                        this.statusMasksMap.get(lpr), -1, null);
                 profileData.setIntervalDatas(intervals.parseIntervals(lpc.getProfileInterval()));
 
                 profileDataList.add(profileData);
