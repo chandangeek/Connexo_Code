@@ -110,7 +110,7 @@ public class DataWatt implements MeterProtocol,IEC870ProtocolLink {
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.17 $";
+        return "$Date$";
     }
     
     public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
