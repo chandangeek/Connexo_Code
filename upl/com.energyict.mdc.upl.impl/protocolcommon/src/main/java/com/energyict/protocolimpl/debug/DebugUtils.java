@@ -59,6 +59,20 @@ public class DebugUtils {
         return getConnectedModemDialer(phoneNumber, commPort, modemInit, null);
     }
 
+
+    public static Dialer getConnectedIPDialer(String remoteHost, DebuggingObserver debuggingObserver) throws IOException, LinkException {
+        Dialer dialer = DialerFactory.get("IPDIALER").newDialer();
+        if (debuggingObserver != null) {
+            dialer.setStreamObservers(debuggingObserver);
+        }
+        dialer.connect(remoteHost, 60);
+        return dialer;
+    }
+
+    public static Dialer getConnectedIPDialer(String phoneNumber) throws IOException, LinkException {
+        return getConnectedIPDialer(phoneNumber, null);
+    }
+
     /**
      * Create, initialise and connect a direct dialer
      * Use a given DebuggingObserver to log the data to the screen of to a file
@@ -115,5 +129,4 @@ public class DebugUtils {
 			throw new ApplicationException(e);
 		}
 	}
-
 }
