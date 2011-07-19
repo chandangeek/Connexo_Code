@@ -48,18 +48,23 @@ public class MbusProfile extends AbstractNTAProfile{
 				Calendar fromCalendar = null;
 				Calendar channelCalendar = null;
 				Calendar toCalendar = getToCalendar();
-				
-                for (ChannelFullProtocolShadow channelFPS : this.mbusDevice.getFullShadow().getRtuShadow().getChannelFullProtocolShadow()) {
-                    if (!(channelFPS.getTimeDuration().getTimeUnitCode() == TimeDuration.DAYS) &&
-                            !(channelFPS.getTimeDuration().getTimeUnitCode() == TimeDuration.MONTHS)) {
-                        channelCalendar = getFromCalendar(channelFPS);
-                        if ((fromCalendar == null) || (channelCalendar.before(fromCalendar))) {
-                            fromCalendar = channelCalendar;
+
+                if (this.mbusDevice.getWebRTU().isRequestOneDay()) {
+                    fromCalendar = ProtocolUtils.getCalendar(this.mbusDevice.getWebRTU().getTimeZone());
+                    fromCalendar.add(Calendar.HOUR, -24);
+                    this.mbusDevice.getLogger().log(Level.INFO, "Requesting One Day - from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
+                } else {
+                    for (ChannelFullProtocolShadow channelFPS : this.mbusDevice.getFullShadow().getRtuShadow().getChannelFullProtocolShadow()) {
+                        if (!(channelFPS.getTimeDuration().getTimeUnitCode() == TimeDuration.DAYS) &&
+                                !(channelFPS.getTimeDuration().getTimeUnitCode() == TimeDuration.MONTHS)) {
+                            channelCalendar = getFromCalendar(channelFPS);
+                            if ((fromCalendar == null) || (channelCalendar.before(fromCalendar))) {
+                                fromCalendar = channelCalendar;
+                            }
                         }
                     }
+                    this.mbusDevice.getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
                 }
-
-				this.mbusDevice.getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 				DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 				buildProfileData(dc, profileData, genericProfile);
 				ParseUtils.validateProfileData(profileData, toCalendar.getTime());

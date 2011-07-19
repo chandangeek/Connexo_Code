@@ -52,17 +52,23 @@ public class ElectricityProfile extends AbstractNTAProfile{
 				Calendar channelCalendar = null;
 				final Calendar toCalendar = getToCalendar();
 
-                for (ChannelFullProtocolShadow channelFPS : webrtu.getFullShadow().getRtuShadow().getChannelFullProtocolShadow()) {
-                    if (!(channelFPS.getTimeDuration().getTimeUnitCode() == TimeDuration.DAYS) &&
-                            !(channelFPS.getTimeDuration().getTimeUnitCode() == TimeDuration.MONTHS)) {
-                        channelCalendar = getFromCalendar(channelFPS);
-                        if ((fromCalendar == null) || (channelCalendar.before(fromCalendar))) {
-                            fromCalendar = channelCalendar;
+                if (webrtu.isRequestOneDay()) {
+                    fromCalendar = ProtocolUtils.getCalendar(webrtu.getTimeZone());
+                    fromCalendar.add(Calendar.HOUR, -24);
+                    webrtu.getLogger().log(Level.INFO, "Requesting One Day - from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
+                } else {
+                    for (ChannelFullProtocolShadow channelFPS : webrtu.getFullShadow().getRtuShadow().getChannelFullProtocolShadow()) {
+                        if (!(channelFPS.getTimeDuration().getTimeUnitCode() == TimeDuration.DAYS) &&
+                                !(channelFPS.getTimeDuration().getTimeUnitCode() == TimeDuration.MONTHS)) {
+                            channelCalendar = getFromCalendar(channelFPS);
+                            if ((fromCalendar == null) || (channelCalendar.before(fromCalendar))) {
+                                fromCalendar = channelCalendar;
+                            }
                         }
                     }
+                    getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
                 }
 
-				getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 				final DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 				buildProfileData(dc, profileData, genericProfile);
 				ParseUtils.validateProfileData(profileData, toCalendar.getTime());

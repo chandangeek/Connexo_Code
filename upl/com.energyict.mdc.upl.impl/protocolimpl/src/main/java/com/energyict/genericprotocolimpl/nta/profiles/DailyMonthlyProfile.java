@@ -44,16 +44,22 @@ public class DailyMonthlyProfile extends AbstractNTAProfile{
 				Calendar channelCalendar = null;
 				final Calendar toCalendar = getToCalendar();
 
-                for (ChannelFullProtocolShadow channelFPS : webrtu.getFullShadow().getRtuShadow().getChannelFullProtocolShadow()) {
-                    if (channelFPS.getTimeDuration().getTimeUnitCode() == TimeDuration.DAYS) {
-                        channelCalendar = getFromCalendar(channelFPS);
-                        if ((fromCalendar == null) || (channelCalendar.before(fromCalendar))) {
-                            fromCalendar = channelCalendar;
-                        }
-                    }
-                }
+                 if (webrtu.isRequestOneDay()) {
+                    fromCalendar = ProtocolUtils.getCalendar(webrtu.getTimeZone());
+                    fromCalendar.add(Calendar.HOUR, -24);
+                    webrtu.getLogger().log(Level.INFO, "Requesting One Day - from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
+                 } else {
+                     for (ChannelFullProtocolShadow channelFPS : webrtu.getFullShadow().getRtuShadow().getChannelFullProtocolShadow()) {
+                         if (channelFPS.getTimeDuration().getTimeUnitCode() == TimeDuration.DAYS) {
+                             channelCalendar = getFromCalendar(channelFPS);
+                             if ((fromCalendar == null) || (channelCalendar.before(fromCalendar))) {
+                                 fromCalendar = channelCalendar;
+                             }
+                         }
+                     }
+                     webrtu.getLogger().log(Level.INFO, "Reading Daily values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
+                 }
 
-				webrtu.getLogger().log(Level.INFO, "Reading Daily values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 				final DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 				buildProfileData(dc, profileData, genericProfile, TimeDuration.DAYS);
 				ParseUtils.validateProfileData(profileData, toCalendar.getTime());
@@ -123,16 +129,22 @@ public class DailyMonthlyProfile extends AbstractNTAProfile{
 				Calendar channelCalendar = null;
 				final Calendar toCalendar = getToCalendar();
 
-                for (ChannelFullProtocolShadow channelFPS : webrtu.getFullShadow().getRtuShadow().getChannelFullProtocolShadow()) {
-                    if (channelFPS.getTimeDuration().getTimeUnitCode() == TimeDuration.MONTHS) {
-                        channelCalendar = getFromCalendar(channelFPS);
-                        if ((fromCalendar == null) || (channelCalendar.before(fromCalendar))) {
-                            fromCalendar = channelCalendar;
+                if (webrtu.isRequestOneDay()) {
+                    fromCalendar = ProtocolUtils.getCalendar(webrtu.getTimeZone());
+                    fromCalendar.add(Calendar.HOUR, -24);
+                    webrtu.getLogger().log(Level.INFO, "Requesting One Day - from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
+                } else {
+                    for (ChannelFullProtocolShadow channelFPS : webrtu.getFullShadow().getRtuShadow().getChannelFullProtocolShadow()) {
+                        if (channelFPS.getTimeDuration().getTimeUnitCode() == TimeDuration.MONTHS) {
+                            channelCalendar = getFromCalendar(channelFPS);
+                            if ((fromCalendar == null) || (channelCalendar.before(fromCalendar))) {
+                                fromCalendar = channelCalendar;
+                            }
                         }
                     }
+                    webrtu.getLogger().log(Level.INFO, "Reading Monthly values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
                 }
 
-				webrtu.getLogger().log(Level.INFO, "Reading Monthly values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 				final DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 				buildProfileData(dc, profileData, genericProfile, TimeDuration.MONTHS);
 				ParseUtils.validateProfileData(profileData, toCalendar.getTime());

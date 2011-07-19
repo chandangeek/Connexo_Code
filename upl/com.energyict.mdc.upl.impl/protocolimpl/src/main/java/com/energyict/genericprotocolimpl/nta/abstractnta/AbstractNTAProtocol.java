@@ -147,6 +147,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
     private String deviceId;
     protected boolean readDaily;
     protected boolean readMonthly;
+    protected boolean requestOneDay;
     private int iiapPriority;
     private int iiapServiceClass;
     private int iiapInvokeId;
@@ -1124,6 +1125,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
         this.informationFieldSize = Integer.parseInt(properties.getProperty("InformationFieldSize", "-1"));
         this.readDaily = !properties.getProperty("ReadDailyValues", "1").equalsIgnoreCase("0");
         this.readMonthly = !properties.getProperty("ReadMonthlyValues", "1").equalsIgnoreCase("0");
+        this.requestOneDay = !properties .getProperty("RequestOneDay", "0").equalsIgnoreCase("0");
         this.roundTripCorrection = Long.parseLong(properties.getProperty("RoundTripCorrection", "0"));
 
         this.iiapInvokeId = Integer.parseInt(properties.getProperty("IIAPInvokeId", "0"));
@@ -1183,6 +1185,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
         result.add("MaxMbusDevices");
         result.add("ReadDailyValues");
         result.add("ReadMonthlyValues");
+        result.add("RequestOneDay");
         result.add("IpPortNumber");
         result.add("IIAPInvokeId");
         result.add("IIAPPriority");
@@ -1311,6 +1314,10 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
 
     public boolean isReadMonthly() {
         return readMonthly;
+    }
+
+    public boolean isRequestOneDay() {
+        return requestOneDay;
     }
 
     public void setCache(Object cacheObject) {
