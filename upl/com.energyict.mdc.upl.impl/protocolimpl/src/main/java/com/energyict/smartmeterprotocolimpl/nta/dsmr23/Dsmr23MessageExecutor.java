@@ -369,7 +369,6 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                                 }
 
                             } catch (Exception e) {
-                                e.printStackTrace();
                                 if (!hasWritten) {
                                     if ((to.getExpected() != null) && (e.getMessage().indexOf(to.getExpected()) != -1)) {
                                         to.setResult(e.getMessage());
@@ -491,7 +490,6 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
             sdt.delete(Integer.parseInt(messageHandler.getSpecialDayDeleteEntry()));
         } catch (NumberFormatException e) {
-            e.printStackTrace();
             throw new IOException("Delete index is not a valid entry");
         }
     }
@@ -608,8 +606,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                 epdiLimiter.writeEmergencyProfileGroupIdList(idArray);
             }
         } catch (NumberFormatException e) {
-            e.printStackTrace();
-            throw new IOException("The given lookupTable id is not a valid entry.");
+            throw new IOException("The given lookupTable id is not a valid entry. Error : " + e.getMessage());
         }
     }
 
@@ -633,7 +630,6 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             try {
                 loadLimiter.writeThresholdNormal(convertToMonitoredType(theMonitoredAttributeType, messageHandler.getNormalThreshold()));
             } catch (NumberFormatException e) {
-                e.printStackTrace();
                 log(Level.INFO, "Could not pars the normalThreshold value to an integer.");
                 throw new IOException("Could not pars the normalThreshold value to an integer." + e.getMessage());
             }
@@ -644,7 +640,6 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             try {
                 loadLimiter.writeThresholdEmergency(convertToMonitoredType(theMonitoredAttributeType, messageHandler.getEmergencyThreshold()));
             } catch (NumberFormatException e) {
-                e.printStackTrace();
                 log(Level.INFO, "Could not pars the emergencyThreshold value to an integer.");
                 throw new IOException("Could not pars the emergencyThreshold value to an integer." + e.getMessage());
             }
@@ -655,7 +650,6 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             try {
                 loadLimiter.writeMinOverThresholdDuration(new Unsigned32(Integer.parseInt(messageHandler.getOverThresholdDurtion())));
             } catch (NumberFormatException e) {
-                e.printStackTrace();
                 log(Level.INFO, "Could not pars the minimum over threshold duration value to an integer.");
                 throw new IOException("Could not pars the minimum over threshold duration value to an integer." + e.getMessage());
             }
@@ -667,7 +661,6 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             try {
                 emergencyProfile.addDataType(new Unsigned16(Integer.parseInt(messageHandler.getEpProfileId())));
             } catch (NumberFormatException e) {
-                e.printStackTrace();
                 log(Level.INFO, "Could not pars the emergency profile id value to an integer.");
                 throw new IOException("Could not pars the emergency profile id value to an integer." + e.getMessage());
             }
@@ -677,7 +670,6 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
 //						emergencyProfile.addDataType(new OctetString(convertStringToDateTimeOctetString(messageHandler.getEpActivationTime()).getBEREncodedByteArray(), 0, true));
                 emergencyProfile.addDataType(new OctetString(convertUnixToGMTDateTime(messageHandler.getEpActivationTime()).getBEREncodedByteArray(), 0, true));
             } catch (NumberFormatException e) {
-                e.printStackTrace();
                 log(Level.INFO, "Could not pars the emergency profile activationTime value to a valid date.");
                 throw new IOException("Could not pars the emergency profile activationTime value to a valid date." + e.getMessage());
             }
@@ -686,7 +678,6 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             try {
                 emergencyProfile.addDataType(new Unsigned32(Integer.parseInt(messageHandler.getEpDuration())));
             } catch (NumberFormatException e) {
-                e.printStackTrace();
                 log(Level.INFO, "Could not pars the emergency profile duration value to an integer.");
                 throw new IOException("Could not pars the emergency profile duration value to an integer." + e.getMessage());
             }
@@ -714,7 +705,6 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         try {
             clearLLimiter.writeEmergencyProfile(clearLLimiter.new EmergencyProfile(emptyStruct.getBEREncodedByteArray(), 0, 0));
         } catch (IOException e) {
-            e.printStackTrace();
             if (e.getMessage().indexOf("Could not write the emergencyProfile structure.Cosem Data-Access-Result exception Type unmatched") != -1) { // do it oure way
                 emptyStruct = new Structure();
                 emptyStruct.addDataType(new NullData());
@@ -744,7 +734,6 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                 }
 
             } catch (NumberFormatException e) {
-                e.printStackTrace();
                 throw new IOException("Mode is not a valid entry.");
             }
         } else {
@@ -1013,7 +1002,6 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                 getCosemObjectFactory().getClock().getDateTime();
             }
         } catch (IOException e) {
-            e.printStackTrace();
             throw new IOException("Could not keep connection alive." + e.getMessage());
         }
     }
@@ -1060,7 +1048,6 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                 getCosemObjectFactory().getClock().getDateTime();
             }
         } catch (IOException e) {
-            e.printStackTrace();
             throw new IOException("Could not keep connection alive." + e.getMessage());
         }
     }
@@ -1074,7 +1061,12 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
      * Short notation for MeteringWarehouse.getCurrent()
      */
     public MeteringWarehouse mw() {
-        return MeteringWarehouse.getCurrent();
+        MeteringWarehouse result = MeteringWarehouse.getCurrent();
+        if (result == null) {
+            return new MeteringWarehouseFactory().getBatch(false);
+        } else {
+            return result;
+        }
     }
 
     private Rtu getRtuFromDatabaseBySerialNumber() {

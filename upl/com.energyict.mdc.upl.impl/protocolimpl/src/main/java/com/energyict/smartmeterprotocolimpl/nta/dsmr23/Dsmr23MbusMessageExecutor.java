@@ -266,8 +266,12 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
      * Short notation for MeteringWarehouse.getCurrent()
      */
     public MeteringWarehouse mw() {
-        MeteringWarehouse.createBatchContext(false);
-        return MeteringWarehouse.getCurrent();
+        MeteringWarehouse result = MeteringWarehouse.getCurrent();
+        if (result == null) {
+            return new MeteringWarehouseFactory().getBatch(false);
+        } else {
+            return result;
+        }
     }
 
     private Rtu getRtuFromDatabaseBySerialNumber(String serialNumber) {
