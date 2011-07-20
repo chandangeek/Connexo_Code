@@ -3,10 +3,9 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.*;
-import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.dlms.cosem.attributes.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocol.Register;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedProfileConfig;
@@ -53,7 +52,7 @@ public class LoadProfileBuilder {
      * Keeps track of the link between a {@link com.energyict.protocol.LoadProfileReader} and a list of {@link com.energyict.protocol.Register} which
      * will represent the 'data' channels of the Profile
      */
-    private Map<LoadProfileReader, List<Register>> capturedObjectRegisterListMap = new HashMap<LoadProfileReader, List<Register>>();
+    private Map<LoadProfileReader, List<CapturedRegisterObject>> capturedObjectRegisterListMap = new HashMap<LoadProfileReader, List<CapturedRegisterObject>>();
 
     /**
      * Keeps track of the list of <CODE>ChannelInfo</CODE> objects for all the LoadProfiles
@@ -68,7 +67,7 @@ public class LoadProfileBuilder {
     /**
      * Keeps track of the link between a {@link com.energyict.protocol.Register} and his {@link com.energyict.dlms.DLMSAttribute} for ComposedCosemObject reads ...
      */
-    private Map<Register, DLMSAttribute> registerUnitMap = new HashMap<Register, DLMSAttribute>();
+    private Map<CapturedRegisterObject, DLMSAttribute> registerUnitMap = new HashMap<CapturedRegisterObject, DLMSAttribute>();
 
     /**
      * The list of LoadProfileReaders which are expected to be fetched
@@ -101,7 +100,7 @@ public class LoadProfileBuilder {
         this.loadProfileConfigurationList = new ArrayList<LoadProfileConfiguration>();
 
         ComposedCosemObject ccoLpConfigs = constructLoadProfileConfigComposedCosemObject(loadProfileReaders, this.meterProtocol.supportsBulkRequests());
-        List<Register> capturedObjectRegisterList = createCapturedObjectRegisterList(ccoLpConfigs);
+        List<CapturedRegisterObject> capturedObjectRegisterList = createCapturedObjectRegisterList(ccoLpConfigs);
         ComposedCosemObject ccoCapturedObjectRegisterUnits = constructCapturedObjectRegisterUnitComposedCosemObject(capturedObjectRegisterList, this.meterProtocol.supportsBulkRequests());
 
         for (LoadProfileReader lpr : this.expectedLoadProfileReaders) {
@@ -163,20 +162,33 @@ public class LoadProfileBuilder {
      * @return a list of Registers
      * @throws java.io.IOException if an error occurred during dataFetching or -Parsing
      */
-    private List<Register> createCapturedObjectRegisterList(ComposedCosemObject ccoLpConfigs) throws IOException {
-        List<Register> channelRegisters = new ArrayList<Register>();
+    private List<CapturedRegisterObject> createCapturedObjectRegisterList(ComposedCosemObject ccoLpConfigs) throws IOException {
+        List<CapturedRegisterObject> channelRegisters = new ArrayList<CapturedRegisterObject>();
         if (this.expectedLoadProfileReaders != null) {
             for (LoadProfileReader lpr : this.expectedLoadProfileReaders) {
                 ComposedProfileConfig cpc = this.lpConfigMap.get(lpr);
                 if (cpc != null) {
+                    // Fetch the raw captured object list from the device
+                    DLMSAttribute colAttribute = cpc.getLoadProfileCapturedObjects();
+                    byte[] rawCapturedObjectList = ccoLpConfigs.getAttribute(colAttribute).getBEREncodedByteArray();
+
+                    // Store the data in a new data container, so it can be used further on
                     DataContainer dc = new DataContainer();
-                    dc.parseObjectList(ccoLpConfigs.getAttribute(cpc.getLoadProfileCapturedObjects()).getBEREncodedByteArray(), this.meterProtocol.getLogger());
+                    dc.parseObjectList(rawCapturedObjectList, this.meterProtocol.getLogger());
+
+                    // Use a dummy profile generic object to get a list of CapturedObjects from the previously created data container
                     ProfileGeneric pg = new ProfileGeneric(this.meterProtocol.getDlmsSession(), null);
                     List<CapturedObject> capturedObjects = pg.getCapturedObjectsFromDataContainter(dc);
-                    List<Register> coRegisters = new ArrayList<Register>();
+
+                    // Convert each captured object to a register (DLMSAttribute + device serial number)
+                    List<CapturedRegisterObject> coRegisters = new ArrayList<CapturedRegisterObject>();
                     for (CapturedObject co : capturedObjects) {
-                        Register reg = new Register(co.getLogicalName().getObisCode(), this.meterProtocol.getSerialNumberFromCorrectObisCode(co.getLogicalName().getObisCode()));
-                        if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode(), reg.getSerialNumber())) {// this way we don't get duplicate registerRequests in one getWithList
+                        String deviceSerialNumber = this.meterProtocol.getSerialNumberFromCorrectObisCode(co.getLogicalName().getObisCode());
+                        DLMSAttribute dlmsAttribute = new DLMSAttribute(co.getLogicalName().getObisCode(), co.getAttributeIndex(), co.getClassId());
+                        CapturedRegisterObject reg = new CapturedRegisterObject(dlmsAttribute, deviceSerialNumber);
+
+                        // Prepare each register only once. This way we don't get duplicate registerRequests in one getWithList
+                        if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode(), reg.getSerialNumber())) {
                             channelRegisters.add(reg);
                         }
                         coRegisters.add(reg); // we always add it to the list of registers for this CapturedObject
@@ -197,19 +209,27 @@ public class LoadProfileBuilder {
      * @param supportsBulkRequest indication whether we may use the DLMS bulkRequest
      * @return the constructed <CODE>ComposedCosemObject</CODE>
      */
-    private ComposedCosemObject constructCapturedObjectRegisterUnitComposedCosemObject(List<Register> registers, boolean supportsBulkRequest) {
+    private ComposedCosemObject constructCapturedObjectRegisterUnitComposedCosemObject(List<CapturedRegisterObject> registers, boolean supportsBulkRequest) {
         if (registers != null) {
             List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
-            for (Register register : registers) {
+            for (CapturedRegisterObject register : registers) {
                 ObisCode rObisCode = getCorrectedRegisterObisCode(register);
 
                 UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.meterProtocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), rObisCode);
                 if (uo != null) {
                     //TODO do we need to check the classId???
-                    if (uo.getClassID() == DLMSClassId.REGISTER.getClassId() || uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
-                        DLMSAttribute registerUnit = new DLMSAttribute(rObisCode, RegisterAttributes.Register_Unit.getAttributeNumber(), uo.getClassID());
-                        dlmsAttributes.add(registerUnit);
-                        this.registerUnitMap.put(register, registerUnit);
+                    if (uo.getDLMSClassId().isRegister()) {
+                        DLMSAttribute unitAttribute = new DLMSAttribute(rObisCode, RegisterAttributes.Register_Unit.getAttributeNumber(), uo.getClassID());
+                        dlmsAttributes.add(unitAttribute);
+                        this.registerUnitMap.put(register, unitAttribute);
+                    } else if (uo.getDLMSClassId().isExtendedRegister()) {
+                        DLMSAttribute unitAttribute = new DLMSAttribute(rObisCode, ExtendedRegisterAttributes.Register_Unit.getAttributeNumber(), uo.getClassID());
+                        dlmsAttributes.add(unitAttribute);
+                        this.registerUnitMap.put(register, unitAttribute);
+                    } else if (uo.getDLMSClassId().isDemandRegister()) {
+                        DLMSAttribute unitAttribute = new DLMSAttribute(rObisCode, DemandRegisterAttributes.Register_Unit.getAttributeNumber(), uo.getClassID());
+                        dlmsAttributes.add(unitAttribute);
+                        this.registerUnitMap.put(register, unitAttribute);
                     }
                 } else {
                     this.meterProtocol.getLogger().log(Level.INFO, "Register with ObisCode " + rObisCode + " is not supported.");
@@ -229,9 +249,9 @@ public class LoadProfileBuilder {
      * @return a constructed list of <CODE>ChannelInfos</CODE>
      * @throws java.io.IOException when an error occurred during dataFetching or -Parsing
      */
-    private List<ChannelInfo> constructChannelInfos(List<Register> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
+    private List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
-        for (Register registerUnit : registers) {
+        for (CapturedRegisterObject registerUnit : registers) {
             if (isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
                 if (this.registerUnitMap.containsKey(registerUnit)) {
                     ScalerUnit su = new ScalerUnit(ccoRegisterUnits.getAttribute(this.registerUnitMap.get(registerUnit)));
@@ -252,10 +272,10 @@ public class LoadProfileBuilder {
         return channelInfos;
     }
 
-    private int constructStatusMask(List<Register> registers) {
+    private int constructStatusMask(List<CapturedRegisterObject> registers) {
         int statusMask = 0;
         int counter = 0;
-        for (Register registerUnit : registers) {
+        for (CapturedRegisterObject registerUnit : registers) {
             if (isStatusObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
                 statusMask |= (int)Math.pow(2, counter);
             }
@@ -273,8 +293,7 @@ public class LoadProfileBuilder {
      * @return true if the obisCode is not a {@link com.energyict.dlms.cosem.Clock} object nor a Status object
      */
     protected boolean isDataObisCode(ObisCode obisCode, String serialNumber) {
-        boolean isDataObisCode = !isStatusObisCode(obisCode, serialNumber);
-        return !Clock.getObisCode().equals(obisCode) && isDataObisCode;
+        return !(Clock.isClockObisCode(obisCode) || isStatusObisCode(obisCode, serialNumber));
     }
 
     protected boolean isStatusObisCode(ObisCode obisCode, String serialNumber) {
@@ -308,12 +327,12 @@ public class LoadProfileBuilder {
     }
 
     /**
-     * Get the corrected ObisCode from the given Register. With correction we mean changing the B-field of the ObisCode according to the logical index in the meter
+     * Get the corrected ObisCode from the given CapturedRegisterObject. With correction we mean changing the B-field of the ObisCode according to the logical index in the meter
      *
      * @param register the register which contains an ObisCode which needs channelCorrection
      * @return the corrected ObisCode
      */
-    public ObisCode getCorrectedRegisterObisCode(Register register) {
+    public ObisCode getCorrectedRegisterObisCode(CapturedRegisterObject register) {
         return this.meterProtocol.getPhysicalAddressCorrectedObisCode(register.getObisCode(), register.getSerialNumber());
     }
 

@@ -488,7 +488,7 @@ public class DLMSMeterConfig {
     public DLMSClassId getDLMSClassId(ObisCode obisCode) {
         for (UniversalObject uo : getInstantiatedObjectList()) {
             if (uo.getObisCode().equals(obisCode)) {
-                return uo.getDLMClassId();
+                return uo.getDLMSClassId();
             }
         }
         return DLMSClassId.UNKNOWN;

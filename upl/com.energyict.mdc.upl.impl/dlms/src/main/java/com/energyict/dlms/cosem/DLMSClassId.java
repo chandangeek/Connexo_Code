@@ -104,4 +104,28 @@ public enum DLMSClassId {
         return findById(dlmsClassId).toString();
 	}
 
+    public boolean isRegister() {
+        return getClassId() == REGISTER.getClassId();
+    }
+
+    public boolean isExtendedRegister() {
+        return getClassId() == EXTENDED_REGISTER.getClassId();
+    }
+
+    public boolean isDemandRegister() {
+        return getClassId() == DEMAND_REGISTER.getClassId();
+    }
+
+    public boolean isProfileGeneric() {
+        return getClassId() == PROFILE_GENERIC.getClassId();
+    }
+
+    public boolean isData() {
+        return getClassId() == DATA.getClassId();
+    }
+
+    public boolean isClock() {
+        return getClassId() == CLOCK.getClassId();
+    }
+
 }

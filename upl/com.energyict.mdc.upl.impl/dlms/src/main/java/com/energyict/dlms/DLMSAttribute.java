@@ -70,7 +70,7 @@ public class DLMSAttribute {
      */
     public static DLMSAttribute fromUniversalObject(UniversalObject uo, int attribute) {
         if (uo != null) {
-            return new DLMSAttribute(uo.getObisCode(), attribute, uo.getDLMClassId());
+            return new DLMSAttribute(uo.getObisCode(), attribute, uo.getDLMSClassId());
         }
         throw new IllegalArgumentException("UniversalObject 'uo' cannot be null.");
     }

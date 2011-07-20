@@ -59,6 +59,10 @@ public class Clock extends AbstractCosemObject {
 		return ObisCode.fromByteArray(LN) ;
 	}
 
+    public static boolean isClockObisCode(ObisCode obisCode) {
+        return getObisCode().equals(obisCode);
+    }
+
     public void setDateTime(OctetString octetString) throws IOException {
         byte[] data = {0x09,0x0C};
         dateTime = getDateTime(ProtocolUtils.concatByteArrays(data,octetString.getArray()));
@@ -87,7 +91,7 @@ public class Clock extends AbstractCosemObject {
      * Getter for property dateTime. Method used when attribute of Clock object
      * taken from profile buffer data!
      * Do not apply roundTripCorrection!
-     * @param data to parse
+     * @param responseData to parse
      * @return Value of property dateTime.
      */
     public java.util.Date getDateTime(byte[] responseData) throws IOException {

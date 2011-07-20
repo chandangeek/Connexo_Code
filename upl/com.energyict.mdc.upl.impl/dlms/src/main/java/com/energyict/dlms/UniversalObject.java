@@ -359,7 +359,7 @@ public class UniversalObject implements DLMSCOSEMGlobals,Serializable {
 			sb.append("[").append(getBaseName()).append("], ");
 		}
 		sb.append(getObisCode()).append(", ");
-		sb.append(getDLMClassId()).append(", ");
+		sb.append(getDLMSClassId()).append(", ");
 		sb.append(getObisCode().getDescription());
 		return  sb.toString();
 	}
@@ -413,7 +413,7 @@ public class UniversalObject implements DLMSCOSEMGlobals,Serializable {
      * Get the DLMSClassId from the given id value
      * @return
      */
-    public DLMSClassId getDLMClassId() {
+    public DLMSClassId getDLMSClassId() {
         return DLMSClassId.findById(getClassID());
     }
 
