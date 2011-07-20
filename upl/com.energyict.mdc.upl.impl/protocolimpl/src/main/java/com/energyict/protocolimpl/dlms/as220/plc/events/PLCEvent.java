@@ -14,7 +14,7 @@ import java.util.TimeZone;
  *      time:           octet-string    = OctetString
  *      channel:        unsigned        = Unsigned8
  *      master-address: long-unsigned   = Unsigned16
- *      rejected:       boolean         = Boolean
+ *      rejected:       boolean         = BooleanObject
  *      s0:             long-unsigned   = Unsigned16
  *      n0:             long-unsigned   = Unsigned16
  *      s1:             long-unsigned   = Unsigned16
