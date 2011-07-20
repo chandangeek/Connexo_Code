@@ -170,7 +170,7 @@ public class PLCEvent extends Structure {
 
     public String getDescription() {
         final StringBuilder sb = new StringBuilder();
-        sb.append("CHANNEL").append("=").append(getChannel()).append(", ");
+        sb.append("CHANNEL").append("=").append(getChannel() + 1).append(", ");
         sb.append("MASTER_ADDR").append("=").append(getMasterAddress()).append(", ");
         sb.append("REJECTED").append("=").append(isRejected()).append(", ");
         sb.append("S0").append("=").append(getS0()).append(", ");
@@ -179,17 +179,30 @@ public class PLCEvent extends Structure {
         sb.append("N1").append("=").append(getN1()).append(", ");
         sb.append("GAIN").append("=").append(getGain()).append("/7, ");
         sb.append("METHOD").append("=").append(getMethodDescription());
+
+        if (getChannel()==0 && getMasterAddress()==0 && isRejected() == false && getS0() == 0
+                && getN0() == 0 && getS1() == 0 && getN1() == 0 && getGain() == 0 && getMethod()== 0) {
+            return "Start of plc scan";
+        } else if (isRejected() == false && getS0() == 0
+                && getN0() == 0 && getS1() == 0 && getN1() == 0 && getGain() == 0 && getMethod()== 0) {
+            return "End of plc scan. Selected "+getMasterAddress()+" on channel "+ (getChannel()+1);
+        }
         return sb.toString();
     }
 
     private String getMethodDescription() {
         int method = getMethod();
         switch (method) {
-            case 1: return "ASK0" + " [" + method + "]";
-            case 2: return "ASK1" + " [" + method + "]";
-            case 3: return "FSK" + " [" + method + "]";
-            case 4: return "FSK0" + " [" + method + "]";
-            case 5: return "FSK1" + " [" + method + "]";
+            case 1:
+                return "ASK0" + " [" + method + "]";
+            case 2:
+                return "ASK1" + " [" + method + "]";
+            case 3:
+                return "FSK" + " [" + method + "]";
+            case 4:
+                return "FSK0" + " [" + method + "]";
+            case 5:
+                return "FSK1" + " [" + method + "]";
         }
         return "Unknown [" + method + "]";
     }
