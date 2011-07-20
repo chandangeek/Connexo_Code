@@ -206,11 +206,6 @@ public class RegisterFactory implements BulkRegisterProtocol {
         }
     }
 
-    private static boolean isOctetStringtype(ObisCode obisCode) {
-        return CORE_FIRMWARE.equals(obisCode) || MODULE_FIRMWARE.equals(obisCode) || CORE_FIRMWARE_SIGNATURE.equals(obisCode)
-                || MODULE_FIRMWARE_SIGNATURE.equals(obisCode) || ACTIVITY_CALENDAR.equals(obisCode) || GSM_SIGNAL_STRENGTH.equals(obisCode);
-    }
-
     /**
      * Convert the received value to a readeable text
      *

@@ -8,6 +8,8 @@ import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.composedobjects.ComposedMeterInfo;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging.UkHubMessageExecutor;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging.UkHubMessaging;
 
 import java.io.IOException;
 import java.util.*;
@@ -16,7 +18,7 @@ import java.util.*;
  * The UK hub has the same protocolBase as the WebRTUZ3. Additional functionality is added for SSE, more specifically Zigbee HAN functionality
  * and Prepayment.
  */
-public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol{
+public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol {
 
     /**
      * The properties to use for this protocol
@@ -28,8 +30,13 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      */
     private ComposedMeterInfo meterInfo;
 
-    public MessageProtocol getMessageProtocol(){
-        return null;
+    /**
+     * Getter for the MessageProtocol implementation
+     *
+     * @return the UkHubMessaging implementation
+     */
+    public MessageProtocol getMessageProtocol() {
+        return new UkHubMessaging(new UkHubMessageExecutor(this));
     }
 
     /**
@@ -39,17 +46,30 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      */
     @Override
     protected DlmsProtocolProperties getProperties() {
-        if(this.properties == null){
+        if (this.properties == null) {
             this.properties = new UkHubProperties();
         }
         return this.properties;
     }
 
-    private ComposedMeterInfo getMeterInfo(){
-        if(this.meterInfo == null){
+    private ComposedMeterInfo getMeterInfo() {
+        if (this.meterInfo == null) {
             this.meterInfo = new ComposedMeterInfo(getDlmsSession(), getProperties().isBulkRequest());
         }
         return this.meterInfo;
+    }
+
+    /**
+     * <p>
+     * sets the device time to the current system time.
+     * </p>
+     *
+     * @param newMeterTime the time to set in the meter
+     * @throws java.io.IOException Thrown in case of an exception
+     */
+    @Override
+    public void setTime(final Date newMeterTime) throws IOException {
+        getLogger().info("TimeSet not applied, meter is synchronized by the E-meter.");
     }
 
     /**
@@ -193,7 +213,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      * @throws java.io.IOException if a logical error occurs
      */
     public void applyMessages(final List messageEntries) throws IOException {
-        //TODO implement proper functionality.
+        getMessageProtocol().applyMessages(messageEntries);
     }
 
     /**
@@ -227,7 +247,8 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      * Search for local slave devices so a general topology can be build up
      */
     public void searchForSlaveDevices() throws ConnectionException {
-        //TODO implement proper functionality.
+        // TODO implement proper functionality.
+        // TODO not sure if we need this
     }
 
     /**
@@ -246,5 +267,14 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      */
     public int getPhysicalAddress() {
         return 0;  // indicates the Master
+    }
+
+    /**
+     * Tests if the Rtu wants to use the bulkRequests
+     *
+     * @return true if the Rtu wants to use BulkRequests, false otherwise
+     */
+    public boolean supportsBulkRequests() {
+        return getProperties().isBulkRequest();
     }
 }

@@ -4,6 +4,7 @@ import com.energyict.dlms.DLMSReference;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 
 import java.util.ArrayList;
@@ -14,9 +15,11 @@ import java.util.List;
  * Date: 20-jul-2011
  * Time: 13:29:29
  */
-public class UkHubProperties extends DlmsProtocolProperties{
+public class UkHubProperties extends DlmsProtocolProperties {
 
     public static final String DEFAULT_UK_HUB_CLIENT_MAC_ADDRESS = "64";
+    private static final String MaxReceivePduSize = "4096";
+    private static final String DefaultZ3BulkRequesSupport = "1";
 
     @Override
     public DLMSReference getReference() {
@@ -58,6 +61,18 @@ public class UkHubProperties extends DlmsProtocolProperties{
 
     @Override
     public int getClientMacAddress() {
-        return getIntProperty(CLIENT_MAC_ADDRESS, DEFAULT_CLIENT_MAC_ADDRESS);
+        return getIntProperty(CLIENT_MAC_ADDRESS, DEFAULT_UK_HUB_CLIENT_MAC_ADDRESS);
+    }
+
+    @ProtocolProperty
+    @Override
+    public int getMaxRecPDUSize() {
+        return getIntProperty(MAX_REC_PDU_SIZE, MaxReceivePduSize);
+    }
+
+    @ProtocolProperty
+    @Override
+    public boolean isBulkRequest() {
+        return getBooleanProperty(BULK_REQUEST, DefaultZ3BulkRequesSupport);
     }
 }
