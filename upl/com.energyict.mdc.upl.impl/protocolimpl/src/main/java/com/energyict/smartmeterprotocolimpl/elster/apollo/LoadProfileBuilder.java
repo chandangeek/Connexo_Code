@@ -9,7 +9,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.Register;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
-import com.energyict.smartmeterprotocolimpl.elster.apollo.composed.ComposedProfileConfig;
+import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig;
 
 import java.io.IOException;
 import java.util.*;

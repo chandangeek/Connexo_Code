@@ -8,8 +8,8 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.Register;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
+import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3;
-import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.composedobjects.ComposedProfileConfig;
 
 import java.io.IOException;
 import java.util.*;
@@ -41,7 +41,7 @@ public class LoadProfileBuilder {
     private final WebRTUZ3 meterProtocol;
 
     /**
-     * Keeps track of the link between a {@link com.energyict.protocol.LoadProfileReader} and a {@link com.energyict.smartmeterprotocolimpl.eict.webrtuz3.composedobjects.ComposedProfileConfig}
+     * Keeps track of the link between a {@link com.energyict.protocol.LoadProfileReader} and a {@link com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig}
      */
     private Map<LoadProfileReader, ComposedProfileConfig> lpConfigMap = new HashMap<LoadProfileReader, ComposedProfileConfig>();
 

@@ -8,7 +8,7 @@ import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.*;
-import com.energyict.smartmeterprotocolimpl.elster.apollo.composed.ComposedRegister;
+import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedRegister;
 
 import java.io.IOException;
 import java.util.*;

@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.elster.apollo.composed;
+package com.energyict.smartmeterprotocolimpl.common.composedobjects;
 
 import com.energyict.dlms.DLMSAttribute;
 

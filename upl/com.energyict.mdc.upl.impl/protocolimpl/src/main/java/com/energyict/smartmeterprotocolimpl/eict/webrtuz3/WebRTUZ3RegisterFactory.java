@@ -8,8 +8,7 @@ import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.Register;
-import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3;
-import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.composedobjects.ComposedRegister;
+import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedRegister;
 
 import java.io.IOException;
 import java.util.*;
