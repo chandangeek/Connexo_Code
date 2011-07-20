@@ -7,17 +7,26 @@ import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.composedobjects.ComposedMeterInfo;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
- * Copyrights EnergyICT
- * Date: 20-jul-2011
- * Time: 13:07:16
+ * The UK hub has the same protocolBase as the WebRTUZ3. Additional functionality is added for SSE, more specifically Zigbee HAN functionality
+ * and Prepayment.
  */
 public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol{
+
+    /**
+     * The properties to use for this protocol
+     */
+    private UkHubProperties properties;
+
+    /**
+     * The used ComposedMeterInfo
+     */
+    private ComposedMeterInfo meterInfo;
 
     public MessageProtocol getMessageProtocol(){
         return null;
@@ -30,7 +39,17 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      */
     @Override
     protected DlmsProtocolProperties getProperties() {
-        return null;  //TODO implement proper functionality.
+        if(this.properties == null){
+            this.properties = new UkHubProperties();
+        }
+        return this.properties;
+    }
+
+    private ComposedMeterInfo getMeterInfo(){
+        if(this.meterInfo == null){
+            this.meterInfo = new ComposedMeterInfo(getDlmsSession(), getProperties().isBulkRequest());
+        }
+        return this.meterInfo;
     }
 
     /**
@@ -48,7 +67,22 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      * @throws java.io.IOException Thrown in case of an exception
      */
     public String getFirmwareVersion() throws IOException {
-        return null;  //TODO implement proper functionality.
+        try {
+            StringBuilder firmware = new StringBuilder();
+            firmware.append(getMeterInfo().getFirmwareVersion());
+
+            // TODO possible to add the ZigBee versions etc.
+//            String rfFirmware = getRFFirmwareVersion();
+//            if (!rfFirmware.equalsIgnoreCase("")) {
+//                firmware.append(" - RF-FirmwareVersion : ");
+//                firmware.append(rfFirmware);
+//            }
+            return firmware.toString();
+        } catch (IOException e) {
+            String message = "Could not fetch the firmwareVersion. " + e.getMessage();
+            getLogger().finest(message);
+            return "UnKnown version";
+        }
     }
 
     /**
@@ -58,7 +92,13 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      * @throws java.io.IOException thrown in case of an exception
      */
     public String getMeterSerialNumber() throws IOException {
-        return null;  //TODO implement proper functionality.
+        try {
+            return getMeterInfo().getSerialNumber();
+        } catch (IOException e) {
+            String message = "Could not retrieve the SerialNumber of the meter. " + e.getMessage();
+            getLogger().finest(message);
+            throw new IOException(message);
+        }
     }
 
     /**
@@ -71,7 +111,8 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      * @throws java.io.IOException Thrown in case of an exception
      */
     public RegisterInfo translateRegister(final Register register) throws IOException {
-        return null;  //TODO implement proper functionality.
+        //TODO implement proper functionality.
+        return new RegisterInfo("Unknown");
     }
 
     /**
@@ -83,7 +124,8 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      * @throws java.io.IOException Thrown in case of an exception
      */
     public List<RegisterValue> readRegisters(final List<Register> registers) throws IOException {
-        return null;  //TODO implement proper functionality.
+        //TODO implement proper functionality
+        return new ArrayList<RegisterValue>();
     }
 
     /**
@@ -94,7 +136,8 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      * @throws java.io.IOException when a logical error occurred
      */
     public List<MeterEvent> getMeterEvents(final Date lastLogbookDate) throws IOException {
-        return null;  //TODO implement proper functionality.
+        //TODO implement proper functionality.
+        return new ArrayList<MeterEvent>();
     }
 
     /**
@@ -107,7 +150,8 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      * @throws java.io.IOException if a communication or parsing error occurred
      */
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(final List<LoadProfileReader> loadProfilesToRead) throws IOException {
-        return null;  //TODO implement proper functionality.
+        //TODO implement proper functionality.
+        return new ArrayList<LoadProfileConfiguration>();
     }
 
     /**
@@ -126,7 +170,8 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      * @throws java.io.IOException if a communication or parsing error occurred
      */
     public List<ProfileData> getLoadProfileData(final List<LoadProfileReader> loadProfiles) throws IOException {
-        return null;  //TODO implement proper functionality.
+        //TODO implement proper functionality.
+        return new ArrayList<ProfileData>();
     }
 
     /**
@@ -191,7 +236,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      * @return the serialNumber of the meter
      */
     public String getSerialNumber() {
-        return null;  //TODO implement proper functionality.
+        return getProperties().getSerialNumber();
     }
 
     /**
@@ -200,6 +245,6 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      * @return the physical Address of the Meter.
      */
     public int getPhysicalAddress() {
-        return 0;  //TODO implement proper functionality.
+        return 0;  // indicates the Master
     }
 }
