@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.webrtuz3.composedobjects;
+package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.composedobjects;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.ProtocolLink;

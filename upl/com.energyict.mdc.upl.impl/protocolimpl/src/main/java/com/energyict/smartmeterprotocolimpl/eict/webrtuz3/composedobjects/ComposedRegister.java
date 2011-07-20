@@ -1,7 +1,6 @@
-package com.energyict.smartmeterprotocolimpl.webrtuz3.composedobjects;
+package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.composedobjects;
 
 import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.cosem.ComposedCosemObject;
 
 /**
  * The ComposedRegister is just a ValueObject that holds the {@link com.energyict.dlms.DLMSAttribute} from the register his value and unit

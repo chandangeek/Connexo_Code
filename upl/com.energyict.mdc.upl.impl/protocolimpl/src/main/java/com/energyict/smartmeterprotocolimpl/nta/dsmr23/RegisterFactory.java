@@ -11,7 +11,7 @@ import com.energyict.dlms.cosem.attributes.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
-import com.energyict.smartmeterprotocolimpl.webrtuz3.composedobjects.ComposedRegister;
+import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.composedobjects.ComposedRegister;
 
 import java.io.IOException;
 import java.math.BigDecimal;

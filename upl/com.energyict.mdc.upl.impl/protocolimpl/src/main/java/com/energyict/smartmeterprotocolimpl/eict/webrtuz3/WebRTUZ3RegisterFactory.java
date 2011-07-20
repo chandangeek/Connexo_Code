@@ -1,18 +1,17 @@
-package com.energyict.smartmeterprotocolimpl.webrtuz3;
+package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
 import com.energyict.cbo.*;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.*;
-import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.Register;
-import com.energyict.smartmeterprotocolimpl.webrtuz3.composedobjects.ComposedRegister;
+import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3;
+import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.composedobjects.ComposedRegister;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.logging.Level;
 

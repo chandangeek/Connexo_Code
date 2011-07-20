@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.webrtuz3;
+package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 

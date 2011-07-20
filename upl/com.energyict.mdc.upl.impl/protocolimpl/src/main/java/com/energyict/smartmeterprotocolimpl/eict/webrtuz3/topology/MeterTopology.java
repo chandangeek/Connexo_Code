@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.webrtuz3.topology;
+package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.topology;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.*;
@@ -7,7 +7,7 @@ import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
-import com.energyict.smartmeterprotocolimpl.webrtuz3.WebRTUZ3;
+import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3;
 
 import java.io.IOException;
 import java.util.*;

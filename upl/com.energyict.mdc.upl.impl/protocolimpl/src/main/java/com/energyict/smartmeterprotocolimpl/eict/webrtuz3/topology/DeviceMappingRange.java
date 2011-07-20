@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.webrtuz3.topology;
+package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.topology;
 
 /**
  * Copyrights EnergyICT

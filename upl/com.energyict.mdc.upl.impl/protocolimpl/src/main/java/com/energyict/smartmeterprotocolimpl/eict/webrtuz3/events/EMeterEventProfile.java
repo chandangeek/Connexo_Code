@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.webrtuz3.events;
+package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.events;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DataContainer;

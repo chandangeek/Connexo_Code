@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.webrtuz3;
+package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.LocalSecurityProvider;
