@@ -27,10 +27,9 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      * Creates a new instance of AbstractCosemObject
      *
      * @param protocolLink
-     * @param objectReference
      */
-    public ZigbeeHanManagement(ProtocolLink protocolLink, ObjectReference objectReference) {
-        super(protocolLink, objectReference);
+    public ZigbeeHanManagement(ProtocolLink protocolLink) {
+        super(protocolLink, new ObjectReference(LN));
     }
 
     /**

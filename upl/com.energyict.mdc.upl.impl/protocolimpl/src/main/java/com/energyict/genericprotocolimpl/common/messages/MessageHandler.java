@@ -123,6 +123,8 @@ public class MessageHandler extends DefaultHandler{
         } else if(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL.equals(qName)){
             setType(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL);
             handleChangeAuthentication(attrbs);
+        } else if(RtuMessageConstant.CreateHanNetwork.equalsIgnoreCase(qName)){
+            setType(RtuMessageConstant.CreateHanNetwork);
 		} else {
 			if(!isXmlInContent){ // If there is XML in the content, then the protocol will parse it himself ...
 				throw new SAXException("Unknown messageContent : " + qName);

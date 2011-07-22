@@ -151,6 +151,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                 } else if (changeAuthLevel) {
                     changeAuthenticationLevel(messageHandler);
                 } else {
+                    log(Level.INFO, "Message not supported : " + content);
                     success = false;
                 }
             } catch (BusinessException e) {
