@@ -117,4 +117,10 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter {
     public int getPhysicalAddress() {
         return 0;//TODO?
     }
+
+    @Override
+    protected void checkCacheObjects() throws IOException {
+        getDlmsSession().getMeterConfig().setInstantiatedObjectList(ApolloObjectList.OBJECT_LIST);
+    }
+
 }

@@ -279,4 +279,10 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
         }
         return registerFactory;
     }
+
+    @Override
+    protected void checkCacheObjects() throws IOException {
+        getDlmsSession().getMeterConfig().setInstantiatedObjectList(UkHubObjectList.OBJECT_LIST);
+    }
+
 }
