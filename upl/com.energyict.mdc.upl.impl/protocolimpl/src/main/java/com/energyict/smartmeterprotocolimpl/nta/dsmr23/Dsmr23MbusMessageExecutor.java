@@ -78,13 +78,16 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         } catch (IOException e) {
             log(Level.SEVERE, "Message failed : " + e.getMessage());
             success = false;
-        } finally {
-            if (success) {
-                log(Level.INFO, "Message has finished.");
-                return MessageResult.createSuccess(msgEntry);
-            } else {
-                return MessageResult.createFailed(msgEntry);
-            }
+        } catch (SQLException e) {
+            log(Level.SEVERE, "Message failed : " + e.getMessage());
+            success = false;
+        }
+
+        if (success) {
+            log(Level.INFO, "Message has finished.");
+            return MessageResult.createSuccess(msgEntry);
+        } else {
+            return MessageResult.createFailed(msgEntry);
         }
     }
 
@@ -254,7 +257,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         this.dlmsSession.getLogger().log(level, msg);
     }
 
-    private int getMbusAddress(String serialNumber){
+    private int getMbusAddress(String serialNumber) {
         return this.protocol.getPhysicalAddressFromSerialNumber(serialNumber) - 1;
     }
 

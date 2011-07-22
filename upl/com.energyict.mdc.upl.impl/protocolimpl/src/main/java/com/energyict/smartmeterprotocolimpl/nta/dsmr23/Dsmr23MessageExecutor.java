@@ -49,7 +49,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
 
     public MessageResult executeMessageEntry(MessageEntry msgEntry) {
 
-        if(!this.protocol.getSerialNumber().equalsIgnoreCase(msgEntry.getSerialNumber())){
+        if (!this.protocol.getSerialNumber().equalsIgnoreCase(msgEntry.getSerialNumber())) {
             Dsmr23MbusMessageExecutor mbusMessageExecutor = new Dsmr23MbusMessageExecutor(protocol);
             return mbusMessageExecutor.executeMessageEntry(msgEntry);
         } else {
@@ -166,13 +166,13 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             } catch (SQLException e) {
                 log(Level.SEVERE, "Message failed : " + e.getMessage());
                 success = false;
-            } finally {
-                if (success) {
-                    log(Level.INFO, "Message has finished.");
-                    return MessageResult.createSuccess(msgEntry);
-                } else {
-                    return MessageResult.createFailed(msgEntry);
-                }
+            }
+
+            if (success) {
+                log(Level.INFO, "Message has finished.");
+                return MessageResult.createSuccess(msgEntry);
+            } else {
+                return MessageResult.createFailed(msgEntry);
             }
         }
     }

@@ -53,13 +53,16 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         } catch (IOException e) {
             log(Level.SEVERE, "Message failed : " + e.getMessage());
             success = false;
-        } finally {
-            if (success) {
-                log(Level.INFO, "Message has finished.");
-                return MessageResult.createSuccess(messageEntry);
-            } else {
-                return MessageResult.createFailed(messageEntry);
-            }
+        } catch (BusinessException e) {
+            log(Level.SEVERE, "Message failed : " + e.getMessage());
+            success = false;
+        }
+
+        if (success) {
+            log(Level.INFO, "Message has finished.");
+            return MessageResult.createSuccess(messageEntry);
+        } else {
+            return MessageResult.createFailed(messageEntry);
         }
     }
 
