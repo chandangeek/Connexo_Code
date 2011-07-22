@@ -283,6 +283,9 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
     }
 
     public UkHubRegisterFactory getRegisterFactory() {
+        if(this.registerFactory == null) {
+            this.registerFactory = new UkHubRegisterFactory(this);
+        }
         return registerFactory;
     }
 }
