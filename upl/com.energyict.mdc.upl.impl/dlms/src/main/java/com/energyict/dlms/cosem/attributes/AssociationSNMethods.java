@@ -1,5 +1,7 @@
 package com.energyict.dlms.cosem.attributes;
 
+import com.energyict.dlms.cosem.DLMSClassId;
+
 /**
  * Copyrights EnergyICT
  * Date: 22-jun-2011
@@ -26,6 +28,10 @@ public enum AssociationSNMethods implements DLMSClassMethods {
      */
     public int getMethodNumber() {
         return this.methodNumber;
+    }
+
+    public DLMSClassId getDlmsClassId() {
+        return DLMSClassId.ASSOCIATION_SN;
     }
 
     /**

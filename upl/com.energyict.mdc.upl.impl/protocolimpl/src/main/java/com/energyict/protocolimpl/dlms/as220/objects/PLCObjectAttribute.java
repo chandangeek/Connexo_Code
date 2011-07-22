@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.as220.objects;
 
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
 
 
@@ -25,7 +26,11 @@ public enum PLCObjectAttribute implements DLMSClassAttributes {
 		return attributeNumber;
 	}
 
-	public int getShortName() {
+    public DLMSClassId getDlmsClassId() {
+        return DLMSClassId.DATA;
+    }
+
+    public int getShortName() {
 		return shortName;
 	}
 

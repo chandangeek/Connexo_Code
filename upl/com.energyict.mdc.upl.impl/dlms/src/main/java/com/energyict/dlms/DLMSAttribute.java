@@ -1,6 +1,8 @@
 package com.energyict.dlms;
 
 import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.attributes.DLMSAttributes;
+import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
 import com.energyict.obis.ObisCode;
 
 import java.util.*;
@@ -16,23 +18,34 @@ public class DLMSAttribute {
 	private final int		classId;
 
     /**
-	 * @param obisCode
-	 * @param attribute
-	 */
-	public DLMSAttribute(ObisCode obisCode, int attribute, DLMSClassId classId) {
-		this.obisCode = obisCode;
-		this.attribute = attribute;
-		this.classId = classId.getClassId();
-	}
+     *
+     * @param obisCode
+     * @param attribute
+     * @param classId
+     */
+    public DLMSAttribute(ObisCode obisCode, int attribute, int classId) {
+        this.obisCode = obisCode;
+        this.attribute = attribute;
+        this.classId = classId;
+    }
 
     /**
-	 * @param obisCode
-	 * @param attribute
-	 */
-	public DLMSAttribute(ObisCode obisCode, int attribute, int classId) {
-		this.obisCode = obisCode;
-		this.attribute = attribute;
-		this.classId = classId;
+     *
+     * @param obisCode
+     * @param attribute
+     */
+    public DLMSAttribute(ObisCode obisCode, DLMSClassAttributes attribute) {
+        this(obisCode, attribute.getAttributeNumber(), attribute.getDlmsClassId());
+    }
+
+    /**
+     *
+     * @param obisCode
+     * @param attribute
+     * @param classId
+     */
+    public DLMSAttribute(ObisCode obisCode, int attribute, DLMSClassId classId) {
+		this(obisCode, attribute, classId.getClassId());
 	}
 
     /**

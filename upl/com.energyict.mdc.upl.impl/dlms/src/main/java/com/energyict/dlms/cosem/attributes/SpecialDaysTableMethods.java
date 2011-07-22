@@ -1,5 +1,7 @@
 package com.energyict.dlms.cosem.attributes;
 
+import com.energyict.dlms.cosem.DLMSClassId;
+
 /**
  * Contains functionality to access methods of the SpecialDay table (independent whether or not shortName or logicalNames are used)
  * <br/>
@@ -39,6 +41,10 @@ public enum SpecialDaysTableMethods implements DLMSClassMethods {
      */
     public int getMethodNumber() {
         return this.methodNumber;
+    }
+
+    public DLMSClassId getDlmsClassId() {
+        return DLMSClassId.SPECIAL_DAYS_TABLE;
     }
 
     /**

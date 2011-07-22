@@ -4,6 +4,8 @@
 package com.energyict.dlms.cosem.attributes;
 
 
+import com.energyict.dlms.cosem.DLMSClassId;
+
 /**
  * @author jme
  *
@@ -25,7 +27,11 @@ public enum SFSKActiveInitiatorAttribute implements DLMSClassAttributes {
 		return attributeNumber;
 	}
 
-	public int getShortName() {
+    public DLMSClassId getDlmsClassId() {
+        return DLMSClassId.S_FSK_ACTIVE_INITIATOR;
+    }
+
+    public int getShortName() {
 		return shortName;
 	}
 

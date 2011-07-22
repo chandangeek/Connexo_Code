@@ -4,6 +4,8 @@
 package com.energyict.dlms.cosem.attributes;
 
 
+import com.energyict.dlms.cosem.DLMSClassId;
+
 /**
  * @author jme
  *
@@ -27,7 +29,11 @@ public enum DisconnectControlAttribute implements DLMSClassAttributes {
 		return attributeNumber;
 	}
 
-	public int getShortName() {
+    public DLMSClassId getDlmsClassId() {
+        return DLMSClassId.DISCONNECT_CONTROL;
+    }
+
+    public int getShortName() {
 		return shortName;
 	}
 

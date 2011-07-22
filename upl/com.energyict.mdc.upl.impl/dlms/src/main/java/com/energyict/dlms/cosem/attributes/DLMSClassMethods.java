@@ -7,7 +7,7 @@ package com.energyict.dlms.cosem.attributes;
  * Date: 25-nov-2010<br/>
  * Time: 15:45:46<br/>
  */
-public interface DLMSClassMethods {
+public interface DLMSClassMethods extends DLMSAttributes {
 
     /**
 	 * Getter for the method number
@@ -15,12 +15,5 @@ public interface DLMSClassMethods {
 	 * @return the method number as int
 	 */
 	int getMethodNumber();
-
-	/**
-	 * Getter for the short name
-	 *
-	 * @return the short name as int
-	 */
-	int getShortName();
 
 }

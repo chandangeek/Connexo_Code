@@ -1,5 +1,7 @@
 package com.energyict.dlms.cosem.attributes;
 
+import com.energyict.dlms.cosem.DLMSClassId;
+
 /**
  * Contains functionality to access attributes of the ActivityCalendar (independent whether or not shortName or logicalNames are used)
  * <br/>
@@ -47,6 +49,10 @@ public enum ActivityCalendarAttributes implements DLMSClassAttributes {
      */
     public int getAttributeNumber() {
         return this.attributeNumber;
+    }
+
+    public DLMSClassId getDlmsClassId() {
+        return DLMSClassId.ACTIVITY_CALENDAR;
     }
 
     /**

@@ -1,5 +1,7 @@
 package com.energyict.dlms.cosem.attributes;
 
+import com.energyict.dlms.cosem.DLMSClassId;
+
 /**
  * Copyrights EnergyICT
  * Date: 25-nov-2010
@@ -71,6 +73,10 @@ public enum MbusClientMethods implements DLMSClassMethods {
      */
     public int getMethodNumber() {
         return this.methodNumber;
+    }
+
+    public DLMSClassId getDlmsClassId() {
+        return DLMSClassId.MBUS_CLIENT;
     }
 
     /**

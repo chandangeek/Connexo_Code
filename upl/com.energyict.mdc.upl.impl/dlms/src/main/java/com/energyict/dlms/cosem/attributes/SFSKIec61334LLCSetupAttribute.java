@@ -4,6 +4,8 @@
 package com.energyict.dlms.cosem.attributes;
 
 
+import com.energyict.dlms.cosem.DLMSClassId;
+
 /**
  * @author jme
  *
@@ -26,7 +28,11 @@ public enum SFSKIec61334LLCSetupAttribute implements DLMSClassAttributes {
 		return attributeNumber;
 	}
 
-	public int getShortName() {
+    public DLMSClassId getDlmsClassId() {
+        return DLMSClassId.S_FSK_IEC_61334_4_32_LLC_SETUP;
+    }
+
+    public int getShortName() {
 		return shortName;
 	}
 

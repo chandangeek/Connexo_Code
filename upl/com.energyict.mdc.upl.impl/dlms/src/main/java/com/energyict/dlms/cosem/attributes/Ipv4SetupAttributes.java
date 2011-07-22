@@ -1,5 +1,7 @@
 package com.energyict.dlms.cosem.attributes;
 
+import com.energyict.dlms.cosem.DLMSClassId;
+
 /**
  * <p>
  *
@@ -42,6 +44,10 @@ public enum Ipv4SetupAttributes implements DLMSClassAttributes{
      */
     public int getAttributeNumber() {
         return this.attributeNumber;
+    }
+
+    public DLMSClassId getDlmsClassId() {
+        return DLMSClassId.IPV4_SETUP;
     }
 
     /**

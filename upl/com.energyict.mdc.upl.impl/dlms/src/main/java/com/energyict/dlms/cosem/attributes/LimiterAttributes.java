@@ -1,5 +1,7 @@
 package com.energyict.dlms.cosem.attributes;
 
+import com.energyict.dlms.cosem.DLMSClassId;
+
 /**
  * Copyrights EnergyICT
  * Date: 14-dec-2010
@@ -35,6 +37,10 @@ public enum LimiterAttributes implements DLMSClassAttributes{
      */
     public int getAttributeNumber() {
         return this.attributeNumber;
+    }
+
+    public DLMSClassId getDlmsClassId() {
+        return DLMSClassId.LIMITER;
     }
 
     /**
