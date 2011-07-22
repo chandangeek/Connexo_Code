@@ -13,8 +13,6 @@ public class SswgEvents {
 
     private static final List<SswgEvent> EVENTS;
 
-    // TODO: All the SswgEvents are still mapped as MeterEvent.OTHER! We should map them properly on the existing EIServer events.
-
     static {
         EVENTS = new ArrayList<SswgEvent>();
         EVENTS.add(new SswgEvent(0x0000, MeterEvent.COVER_OPENED, "Meter cover removed"));
