@@ -24,13 +24,34 @@ import java.util.logging.Level;
 public class UkHubRegisterFactory implements BulkRegisterProtocol {
 
 //    public static final ObisCode CORE_FW_VERSION = ObisCode.fromString("0.0.0.2.0.255");
-//    public static final ObisCode ERROR_REGISTER = ObisCode.fromString("0.0.97.97.0.255");
-//    public static final ObisCode ALARM_REGISTER = ObisCode.fromString("0.0.97.98.0.255");
+    public static final ObisCode ERROR_REGISTER = ObisCode.fromString("0.0.97.97.0.255");
+    public static final ObisCode ALARM_REGISTER = ObisCode.fromString("0.0.97.98.0.255");
 //    public static final ObisCode ACTIVE_TARIFF_REGISTER = ObisCode.fromString("0.0.96.14.0.255");
 //    public static final ObisCode ACTIVITY_CALENDAR = ObisCode.fromString("0.0.13.0.0.255");
 
+    public static final ObisCode DeviceId1 = ObisCode.fromString("0.0.96.1.0.255");     // HUB SerialNumber
+    public static final ObisCode DeviceId2 = ObisCode.fromString("0.0.96.1.1.255");     // UtilitySpecified EquipmentID
+    public static final ObisCode DeviceId3 = ObisCode.fromString("0.0.96.1.2.255");     //E-Function location details, e.g. 48 chars (maybe need removing)
+    public static final ObisCode DeviceId4 = ObisCode.fromString("0.0.96.1.3.255");     //E-location information – 48 chars
+    public static final ObisCode DeviceId5 = ObisCode.fromString("0.0.96.1.4.255");     //E-configuration information – 16 chars
+    public static final ObisCode DeviceId6 = ObisCode.fromString("0.0.96.1.5.255");     //Manufacturer Name
+    public static final ObisCode DeviceId7 = ObisCode.fromString("0.0.96.1.6.255");     //Manufacture ID (ZigBee MSP ID [SSWG code for Clusters])
+    public static final ObisCode DeviceId8 = ObisCode.fromString("0.0.96.1.7.255");     //PAYG ID
+    public static final ObisCode DeviceId10 = ObisCode.fromString("0.0.96.1.9.255");     //Serial Number of Module
+    public static final ObisCode MeteringPointId = ObisCode.fromString("0.0.96.1.10.255");     //MPAN or the MPRN
+    public static final ObisCode DeviceId50 = ObisCode.fromString("0.0.96.1.50.255");     //hours in operation
+    public static final ObisCode DeviceId51 = ObisCode.fromString("0.0.96.1.51.255");     //hours in fault
+    public static final ObisCode DeviceId52 = ObisCode.fromString("0.0.96.1.52.255");     //remaining battery life
+
+    public static final ObisCode OperationalFirmwareMonolitic = ObisCode.fromString("0.0.0.2.0.255");
+    public static final ObisCode OperationalFirmwareMID = ObisCode.fromString("0.1.0.2.0.255");
+    public static final ObisCode OperationalFirmwareNonMIDApp = ObisCode.fromString("0.2.0.2.0.255");
+    public static final ObisCode OperationalFirmwareBootloader = ObisCode.fromString("0.3.0.2.0.255");
     public static final ObisCode OperationalFirmwareZCLVersion = ObisCode.fromString("0.4.0.2.0.255");
     public static final ObisCode OperationalFirmwareStackVersion = ObisCode.fromString("0.5.0.2.0.255");
+    public static final ObisCode OperationalFirmwareZigbeeChip = ObisCode.fromString("0.6.0.2.0.255");
+    public static final ObisCode OperationalFirmwareHAN = ObisCode.fromString("0.7.0.2.0.255");
+    public static final ObisCode OperationalFirmwareWAN = ObisCode.fromString("0.8.0.2.0.255");
 
     private final UkHub meterProtocol;
 
@@ -126,7 +147,7 @@ public class UkHubRegisterFactory implements BulkRegisterProtocol {
                         dlmsAttributes.add(composedRegister.getRegisterUnitAttribute());
                         this.composedRegisterMap.put(register, composedRegister);
 
-                    // All Demand registers will be supported
+                        // All Demand registers will be supported
                     } else if (uo.getClassID() == DLMSClassId.DEMAND_REGISTER.getClassId()) {
                         ComposedRegister composedRegister = new ComposedRegister(new DLMSAttribute(rObisCode, DemandRegisterAttributes.Register_Value.getAttributeNumber(), uo.getClassID()),
                                 new DLMSAttribute(rObisCode, DemandRegisterAttributes.Register_Unit.getAttributeNumber(), uo.getClassID()));
@@ -134,7 +155,7 @@ public class UkHubRegisterFactory implements BulkRegisterProtocol {
                         dlmsAttributes.add(composedRegister.getRegisterUnitAttribute());
                         this.composedRegisterMap.put(register, composedRegister);
 
-                    // A custom defined list of registers or objectAttributes
+                        // A custom defined list of registers or objectAttributes
                     } else {
                         // We get the default 'Value' attribute (2)
                         this.registerMap.put(register, new DLMSAttribute(rObisCode, DLMSCOSEMGlobals.ATTR_DATA_VALUE, uo.getClassID()));
@@ -156,11 +177,20 @@ public class UkHubRegisterFactory implements BulkRegisterProtocol {
     private RegisterValue convertCustomAbstractObjectsToRegisterValues(Register register, AbstractDataType abstractDataType) throws UnsupportedException {
         ObisCode rObisCode = register.getObisCode();
 
-        if(rObisCode.equals(OperationalFirmwareZCLVersion) || rObisCode.equals(OperationalFirmwareStackVersion)){
-            return new RegisterValue(register, null, null, null, null, new Date(), 0, new String(abstractDataType.toByteArray()));
+        if (rObisCode.equals(OperationalFirmwareZCLVersion) || rObisCode.equals(OperationalFirmwareStackVersion)
+                || rObisCode.equals(OperationalFirmwareMonolitic) || rObisCode.equals(OperationalFirmwareMID)
+                || rObisCode.equals(OperationalFirmwareNonMIDApp) || rObisCode.equals(OperationalFirmwareBootloader)
+                || rObisCode.equals(OperationalFirmwareZigbeeChip) || rObisCode.equals(OperationalFirmwareHAN)
+                || rObisCode.equals(OperationalFirmwareWAN)
 
-//        }if (isSupportedByProtocol(rObisCode)) {
-//            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.getUndefined()), null, null, null, new Date(), 0, String.valueOf(abstractDataType.longValue()));
+                || rObisCode.equals(DeviceId1) || rObisCode.equals(DeviceId2) || rObisCode.equals(DeviceId3)
+                || rObisCode.equals(DeviceId4) || rObisCode.equals(DeviceId5) || rObisCode.equals(DeviceId6)
+                || rObisCode.equals(DeviceId7) || rObisCode.equals(DeviceId8) || rObisCode.equals(DeviceId10)
+                || rObisCode.equals(DeviceId50) || rObisCode.equals(DeviceId51) || rObisCode.equals(DeviceId52)
+                || rObisCode.equals(MeteringPointId)) {
+            return new RegisterValue(register, null, null, null, null, new Date(), 0, new String(abstractDataType.toByteArray()));
+        } else if(rObisCode.equals(ERROR_REGISTER) || rObisCode.equals(ALARM_REGISTER)){
+            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.getUndefined()), null, null, null, new Date(), 0, String.valueOf(abstractDataType.longValue()));
         } else {
             throw new UnsupportedException("Register with obisCode " + rObisCode + " is not supported.");
         }

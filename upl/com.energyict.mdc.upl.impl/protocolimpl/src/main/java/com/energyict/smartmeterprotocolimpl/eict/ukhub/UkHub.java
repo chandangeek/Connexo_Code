@@ -31,6 +31,11 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
     private ComposedMeterInfo meterInfo;
 
     /**
+     * The used <code>UkHubRegisterFactory</code> to read and manage the HUB registers
+     */
+    private UkHubRegisterFactory registerFactory;
+
+    /**
      * Getter for the MessageProtocol implementation
      *
      * @return the UkHubMessaging implementation
@@ -144,8 +149,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      * @throws java.io.IOException Thrown in case of an exception
      */
     public List<RegisterValue> readRegisters(final List<Register> registers) throws IOException {
-        //TODO implement proper functionality
-        return new ArrayList<RegisterValue>();
+        return getRegisterFactory().readRegisters(registers);
     }
 
     /**
@@ -276,5 +280,9 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      */
     public boolean supportsBulkRequests() {
         return getProperties().isBulkRequest();
+    }
+
+    public UkHubRegisterFactory getRegisterFactory() {
+        return registerFactory;
     }
 }
