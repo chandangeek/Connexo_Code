@@ -106,7 +106,7 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
     /**
      * Method to check whether the cache needs to be read out or not, if so the read will be forced
      */
-    private void checkCacheObjects() throws IOException {
+    protected void checkCacheObjects() throws IOException {
         int configNumber = -1;
         try {
             if (this.dlmsCache != null && this.dlmsCache.getObjectList() != null) { // the dlmsCache exists

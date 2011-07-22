@@ -48,7 +48,11 @@ public class UniversalObject implements DLMSCOSEMGlobals,Serializable {
 		return ASSOC_SN_OBJECT_LIST_STRUCTURE_SIZE;
 	}
 
-	public UniversalObject(byte[] ln, int classId, int version) {
+    public UniversalObject(ObisCode obisCode, DLMSClassId classId) {
+        this(obisCode.getLN(), classId.getClassId(), -1);
+    }
+
+    public UniversalObject(byte[] ln, int classId, int version) {
 		this.fields = new long[9];
 		this.fields[0] = -1;
 		this.fields[1] = classId;

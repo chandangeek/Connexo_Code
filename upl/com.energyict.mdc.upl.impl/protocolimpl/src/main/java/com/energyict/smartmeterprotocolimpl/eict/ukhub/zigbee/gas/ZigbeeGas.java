@@ -249,4 +249,9 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
         return zigbeeGasLoadProfile;
     }
 
+    @Override
+    protected void checkCacheObjects() throws IOException {
+        getDlmsSession().getMeterConfig().setInstantiatedObjectList(ZigbeeGasObjectList.OBJECT_LIST);
+
+    }
 }
