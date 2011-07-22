@@ -1,5 +1,6 @@
 package com.energyict.dlms.cosem.attributes;
 
+import com.energyict.dlms.cosem.methods.MbusClientMethods;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;

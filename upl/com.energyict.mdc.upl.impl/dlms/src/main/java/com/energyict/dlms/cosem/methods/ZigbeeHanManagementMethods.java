@@ -1,18 +1,24 @@
-package com.energyict.dlms.cosem.attributes;
+package com.energyict.dlms.cosem.methods;
 
 import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.methods.DLMSClassMethods;
 
 /**
- * Contains functionality to access methods of the SpecialDay table (independent whether or not shortName or logicalNames are used)
+ * Contains functionality to access methods of the Zigbee HAN Management object (independent whether or not shortName or logicalNames are used)
  * <br/>
  * Copyrights EnergyICT<br/>
- * Date: 17-dec-2010<br/>
- * Time: 9:48:44<br/>
+ * Date: 22-jul-2011<br/>
+ * Time: 11:41:07<br/>
  */
-public enum SpecialDaysTableMethods implements DLMSClassMethods {
+public enum ZigbeeHanManagementMethods implements DLMSClassMethods {
 
-    INSERT(1, 0x10),
-    DELETE(2, 0x18);
+    BACKUP(1, 0x20),
+    RESTORE(2, 0x28),
+    CREATE_HAN(3, 0x30),
+    IDENTIFY_DEVICE(4, 0x38),
+    REMOVE_MIRROR(5, 0x40),
+    UPDATE_NETWORK_KEYS(6, 0x48),
+    UPDATE_LINK_KEYS(7, 0x50);
 
     /**
      * The number of the method in chronological order
@@ -23,14 +29,8 @@ public enum SpecialDaysTableMethods implements DLMSClassMethods {
      */
     private final int shortName;
 
-    /**
-     * Private constructor
-     *
-     * @param methodNr  the number of the method
-     * @param shortName the shortName of the method
-     */
-    private SpecialDaysTableMethods(int methodNr, int shortName) {
-        this.methodNumber = methodNr;
+    ZigbeeHanManagementMethods(final int methodNumber, final int shortName) {
+        this.methodNumber = methodNumber;
         this.shortName = shortName;
     }
 
@@ -44,7 +44,7 @@ public enum SpecialDaysTableMethods implements DLMSClassMethods {
     }
 
     public DLMSClassId getDlmsClassId() {
-        return DLMSClassId.SPECIAL_DAYS_TABLE;
+        return DLMSClassId.ZIGBEE_HAN_MANAGEMENT;
     }
 
     /**

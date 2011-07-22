@@ -10,7 +10,7 @@ import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
-import com.energyict.dlms.cosem.attributes.DLMSClassMethods;
+import com.energyict.dlms.cosem.methods.DLMSClassMethods;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.apache.commons.logging.LogFactory;
@@ -345,7 +345,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 
 	/**
-     * Invoke the method based on the given {@link com.energyict.dlms.cosem.attributes.DLMSClassMethods}
+     * Invoke the method based on the given {@link com.energyict.dlms.cosem.methods.DLMSClassMethods}
      *
      * @param method the method to invoke
      * @param data   the additional data to write with he method
@@ -356,7 +356,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
     }
 
     /**
-     * Invoke the method based on the given {@link com.energyict.dlms.cosem.attributes.DLMSClassMethods}
+     * Invoke the method based on the given {@link com.energyict.dlms.cosem.methods.DLMSClassMethods}
      *
      * @param method the method to invoke
      * @param encodedData   the ber-encoded additional data to write with he method

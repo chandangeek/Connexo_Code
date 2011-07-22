@@ -1,7 +1,5 @@
 package com.energyict.dlms.cosem;
 
-import java.io.IOException;
-
 /**
  * This enum contains all the dlms class id's
  *
@@ -56,7 +54,8 @@ public enum DLMSClassId {
 	DISCONNECT_CONTROL(70),
 	LIMITER(71),
 	MBUS_CLIENT(72),
-	WIRELESS_MODE_Q_CHANNEL(73);
+	WIRELESS_MODE_Q_CHANNEL(73),
+    ZIGBEE_HAN_MANAGEMENT(9900);
 
 	private int classId;
 

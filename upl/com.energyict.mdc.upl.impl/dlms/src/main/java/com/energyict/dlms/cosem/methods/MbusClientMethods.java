@@ -1,4 +1,4 @@
-package com.energyict.dlms.cosem.attributes;
+package com.energyict.dlms.cosem.methods;
 
 import com.energyict.dlms.cosem.DLMSClassId;
 

@@ -9,11 +9,24 @@ public class ProtocolMessageSpecifications {
 
     /**
      * Creates a MessageSpecification for a <i>Demand Reset</i> message. The message does not contain any values or attributes.
+     *
      * @return the requested messageSpecification.
      */
     public static MessageSpec getDemandResetMessageSpecification() {
         MessageSpec msgSpec = new MessageSpec(RtuMessageKeyIdConstants.DEMANDRESET, false);
         MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.DEMAND_RESET);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
+    /**
+     * Creates a MessageSpecification for creating a HAN network message. The message does not contain any values or attributes.
+     *
+     * @return the requested messageSpecification
+     */
+    public static MessageSpec getCreateHanMessageSpecification() {
+        MessageSpec msgSpec = new MessageSpec(RtuMessageKeyIdConstants.CreateHan, false);
+        MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.CreateHanNetwork);
         msgSpec.add(tagSpec);
         return msgSpec;
     }

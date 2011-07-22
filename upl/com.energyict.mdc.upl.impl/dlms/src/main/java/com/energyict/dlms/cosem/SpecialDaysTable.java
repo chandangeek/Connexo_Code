@@ -8,7 +8,7 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.attributes.SpecialDaysTableAttributes;
-import com.energyict.dlms.cosem.attributes.SpecialDaysTableMethods;
+import com.energyict.dlms.cosem.methods.SpecialDaysTableMethods;
 
 /**
  * A straightforward implementation of the SpecialDaysTable object according to the DLMS BlueBooks

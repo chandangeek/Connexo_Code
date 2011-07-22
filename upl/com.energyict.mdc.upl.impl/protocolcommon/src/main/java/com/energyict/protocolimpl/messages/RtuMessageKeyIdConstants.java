@@ -51,4 +51,6 @@ public class RtuMessageKeyIdConstants {
     // changed the naming of certain messages for Enexis
     public static final String NTA_CHANGEDATATRANSPORTENCRYPTIONKEY = "Change DataTransportEncryptionKey";
     public static final String NTA_CHANGEDATATRANSPORTAUTHENTICATIONKEY = "Change DataTransportAuthenticationKey";
+
+    public static final String CreateHan = "Create Han Network";
 }

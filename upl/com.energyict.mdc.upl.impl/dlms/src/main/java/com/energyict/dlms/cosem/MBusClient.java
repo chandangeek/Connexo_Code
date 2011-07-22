@@ -3,6 +3,7 @@ package com.energyict.dlms.cosem;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributes.*;
+import com.energyict.dlms.cosem.methods.MbusClientMethods;
 
 import java.io.IOException;
 

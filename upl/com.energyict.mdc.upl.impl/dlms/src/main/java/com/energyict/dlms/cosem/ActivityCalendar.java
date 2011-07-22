@@ -14,7 +14,7 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.attributes.ActivityCalendarAttributes;
-import com.energyict.dlms.cosem.attributes.ActivityCalendarMethods;
+import com.energyict.dlms.cosem.methods.ActivityCalendarMethods;
 
 /**
  * Straightforward implementation of the ActivityCalendar object according to the BlueBook
@@ -23,7 +23,7 @@ import com.energyict.dlms.cosem.attributes.ActivityCalendarMethods;
  *         GNA|02022009| Added the activatePassiveCalendar method
  *
  * @since protocols-8.9.4 we added support for ShortNaming and LogicalNaming by using the {@link com.energyict.dlms.cosem.attributes.ActivityCalendarAttributes}
- * and {@link com.energyict.dlms.cosem.attributes.ActivityCalendarMethods} objects 
+ * and {@link com.energyict.dlms.cosem.methods.ActivityCalendarMethods} objects
  */
 public class ActivityCalendar extends AbstractCosemObject {
 

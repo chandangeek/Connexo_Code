@@ -1,4 +1,6 @@
-package com.energyict.dlms.cosem.attributes;
+package com.energyict.dlms.cosem.methods;
+
+import com.energyict.dlms.cosem.attributes.DLMSAttributes;
 
 /**
  * Interface to provide access to DLMS class <b>Method</b> functionality

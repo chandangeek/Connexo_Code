@@ -1,17 +1,19 @@
-package com.energyict.dlms.cosem.attributes;
+package com.energyict.dlms.cosem.methods;
 
 import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.methods.DLMSClassMethods;
 
 /**
- * Contains functionality to access methods of the ActivityCalendar (independent whether or not shortName or logicalNames are used)
+ * Contains functionality to access methods of the SpecialDay table (independent whether or not shortName or logicalNames are used)
  * <br/>
  * Copyrights EnergyICT<br/>
  * Date: 17-dec-2010<br/>
- * Time: 10:27:39<br/>
+ * Time: 9:48:44<br/>
  */
-public enum ActivityCalendarMethods implements DLMSClassMethods{
+public enum SpecialDaysTableMethods implements DLMSClassMethods {
 
-    ACTIVATE_PASSIVE_CALENDAR(1, 0x50);
+    INSERT(1, 0x10),
+    DELETE(2, 0x18);
 
     /**
      * The number of the method in chronological order
@@ -25,11 +27,11 @@ public enum ActivityCalendarMethods implements DLMSClassMethods{
     /**
      * Private constructor
      *
-     * @param methodNumber the method number
-     * @param shortName the shortname of the method
+     * @param methodNr  the number of the method
+     * @param shortName the shortName of the method
      */
-    private ActivityCalendarMethods(int methodNumber, int shortName) {
-        this.methodNumber = methodNumber;
+    private SpecialDaysTableMethods(int methodNr, int shortName) {
+        this.methodNumber = methodNr;
         this.shortName = shortName;
     }
 
@@ -43,7 +45,7 @@ public enum ActivityCalendarMethods implements DLMSClassMethods{
     }
 
     public DLMSClassId getDlmsClassId() {
-        return DLMSClassId.ACTIVITY_CALENDAR;
+        return DLMSClassId.SPECIAL_DAYS_TABLE;
     }
 
     /**
