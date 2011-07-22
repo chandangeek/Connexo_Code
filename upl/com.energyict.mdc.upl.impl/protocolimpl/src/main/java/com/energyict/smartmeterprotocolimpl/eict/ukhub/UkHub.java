@@ -273,15 +273,6 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
         return 0;  // indicates the Master
     }
 
-    /**
-     * Tests if the Rtu wants to use the bulkRequests
-     *
-     * @return true if the Rtu wants to use BulkRequests, false otherwise
-     */
-    public boolean supportsBulkRequests() {
-        return getProperties().isBulkRequest();
-    }
-
     public UkHubRegisterFactory getRegisterFactory() {
         if(this.registerFactory == null) {
             this.registerFactory = new UkHubRegisterFactory(this);

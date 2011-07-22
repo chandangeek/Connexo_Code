@@ -250,4 +250,13 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
         }
     }
 
+    /**
+     * Tests if the Rtu wants to use the bulkRequests
+     *
+     * @return true if the Rtu wants to use BulkRequests, false otherwise
+     */
+    public boolean supportsBulkRequests() {
+        return getProperties().isBulkRequest();
+    }
+
 }

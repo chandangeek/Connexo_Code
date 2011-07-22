@@ -7,6 +7,7 @@ import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.events.ZigbeeGasEventProfiles;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.profile.ZigbeeGasLoadProfile;
 
 import java.io.IOException;
 import java.util.*;
@@ -27,6 +28,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
      */
     private ComposedMeterInfo meterInfo;
     private ZigbeeGasEventProfiles zigbeeGasEventProfiles;
+    private ZigbeeGasLoadProfile zigbeeGasLoadProfile;
 
     public MessageProtocol getMessageProtocol() {
         if (zigbeeGasMessaging == null) {
@@ -144,8 +146,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
      * @throws java.io.IOException if a communication or parsing error occurred
      */
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(final List<LoadProfileReader> loadProfilesToRead) throws IOException {
-        //TODO implement proper functionality.
-        return new ArrayList<LoadProfileConfiguration>();
+        return getZigbeeGasLoadProfile().fetchLoadProfileConfiguration(loadProfilesToRead);
     }
 
     /**
@@ -159,13 +160,12 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
      * as the collecting system will update its lastReading setting based on the returned ProfileData
      * </p>
      *
-     * @param loadProfiles a list of <CODE>LoadProfileReader</CODE> which have to be read
+     * @param loadProfilesToRead a list of <CODE>LoadProfileReader</CODE> which have to be read
      * @return a list of <CODE>ProfileData</CODE> objects containing interval records
      * @throws java.io.IOException if a communication or parsing error occurred
      */
-    public List<ProfileData> getLoadProfileData(final List<LoadProfileReader> loadProfiles) throws IOException {
-        //TODO implement proper functionality.
-        return new ArrayList<ProfileData>();
+    public List<ProfileData> getLoadProfileData(final List<LoadProfileReader> loadProfilesToRead) throws IOException {
+        return getZigbeeGasLoadProfile().getLoadProfileData(loadProfilesToRead);
     }
 
     /**
@@ -187,7 +187,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
      * @throws java.io.IOException if a logical error occurs
      */
     public void applyMessages(final List messageEntries) throws IOException {
-        //TODO implement proper functionality.
+        getMessageProtocol().applyMessages(messageEntries);
     }
 
     /**
@@ -241,4 +241,12 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
         }
         return zigbeeGasEventProfiles;
     }
+
+    public ZigbeeGasLoadProfile getZigbeeGasLoadProfile() {
+        if (zigbeeGasLoadProfile == null) {
+            this.zigbeeGasLoadProfile = new ZigbeeGasLoadProfile(this);
+        }
+        return zigbeeGasLoadProfile;
+    }
+
 }

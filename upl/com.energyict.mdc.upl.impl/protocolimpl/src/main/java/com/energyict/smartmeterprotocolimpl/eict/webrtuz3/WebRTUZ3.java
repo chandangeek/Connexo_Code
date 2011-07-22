@@ -192,15 +192,6 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements SimpleMeter {
     }
 
     /**
-     * Tests if the Rtu wants to use the bulkRequests
-     *
-     * @return true if the Rtu wants to use BulkRequests, false otherwise
-     */
-    public boolean supportsBulkRequests() {
-        return getProperties().isBulkRequest();
-    }
-
-    /**
      * Get a description of a given register, identified by the obiscode/serial number combination
      *
      * @param register The register we need to get info for
