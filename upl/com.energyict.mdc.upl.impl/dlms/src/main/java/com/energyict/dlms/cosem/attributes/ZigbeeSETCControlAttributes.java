@@ -3,7 +3,7 @@ package com.energyict.dlms.cosem.attributes;
 import com.energyict.dlms.cosem.DLMSClassId;
 
 /**
- * Contains functionality to access attributes of the Zigbee HAN management object (independent whether or not shortName or logicalNames are used)
+ * Contains functionality to access attributes of the Zigbee SETC Control object (independent whether or not shortName or logicalNames are used)
  * <br/>
  * <p><b>
  * TODO the SN attribute numbering is purely based on logical sequence numbering. This object is not defined in the BlueBook yet, <br>
@@ -11,14 +11,13 @@ import com.energyict.dlms.cosem.DLMSClassId;
  *</b></p>
  * Copyrights EnergyICT<br/>
  * Date: 22-jul-2011<br/>
- * Time: 11:36:44<br/>
+ * Time: 15:14:55<br/>
  */
-public enum ZigbeeHanManagementAttributes implements DLMSClassAttributes{
+public enum ZigbeeSETCControlAttributes implements DLMSClassAttributes {
 
     LOGICAL_NAMTE(1, 0x00),
-    BLACK_LIST(2, 0x08),
-    ACTIVE_DEVICES(3, 0x10),
-    BACKUP_DATA(4, 0x18);
+    ENABLE_DISABLE_JOINGING(2, 0x08),
+    JOIN_TIMEOUT(3, 0x10);
 
     /**
      * The number of this attribute
@@ -29,7 +28,7 @@ public enum ZigbeeHanManagementAttributes implements DLMSClassAttributes{
      */
     private final int shortName;
 
-    ZigbeeHanManagementAttributes(final int attributeNumber, final int shortName) {
+    ZigbeeSETCControlAttributes(final int attributeNumber, final int shortName) {
         this.attributeNumber = attributeNumber;
         this.shortName = shortName;
     }
@@ -44,7 +43,7 @@ public enum ZigbeeHanManagementAttributes implements DLMSClassAttributes{
     }
 
     public DLMSClassId getDlmsClassId() {
-        return DLMSClassId.ZIGBEE_HAN_MANAGEMENT;
+        return DLMSClassId.ZIGBEE_SETC_CONTROL;
     }
 
     /**
