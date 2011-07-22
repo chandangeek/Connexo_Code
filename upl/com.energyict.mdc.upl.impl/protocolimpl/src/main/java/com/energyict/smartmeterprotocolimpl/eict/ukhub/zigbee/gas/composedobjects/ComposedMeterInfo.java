@@ -4,9 +4,7 @@ import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.ComposedCosemObject;
-import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
-import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.protocolimpl.dlms.common.DlmsSession;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ObisCodeProvider;
 

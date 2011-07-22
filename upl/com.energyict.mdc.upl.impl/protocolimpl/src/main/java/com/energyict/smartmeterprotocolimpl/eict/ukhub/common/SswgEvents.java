@@ -363,7 +363,7 @@ public class SswgEvents {
         // SswgEvents object should not be instantiated
     }
 
-    private static class SswgEvent {
+    public static class SswgEvent {
 
         private final int deviceCode;
         private final int eiserverCode;

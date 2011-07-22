@@ -6,6 +6,7 @@ import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.composedobjects.ComposedMeterInfo;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.events.ZigbeeGasEventProfiles;
 
 import java.io.IOException;
 import java.util.*;
@@ -25,6 +26,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
      * The used ComposedMeterInfo
      */
     private ComposedMeterInfo meterInfo;
+    private ZigbeeGasEventProfiles zigbeeGasEventProfiles;
 
     public MessageProtocol getMessageProtocol() {
         if (zigbeeGasMessaging == null) {
@@ -129,10 +131,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
      * @throws java.io.IOException when a logical error occurred
      */
     public List<MeterEvent> getMeterEvents(final Date lastLogbookDate) throws IOException {
-        ArrayList<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
-        // Add meter events here
-        // getEventProfile().getEvents(lastLogbookDate);
-        return meterEvents;
+        return getZigbeeGasEventProfiles().getEvents(lastLogbookDate);
     }
 
     /**
@@ -234,5 +233,12 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
      */
     public int getPhysicalAddress() {
         return 0;  // indicates the Master
+    }
+
+    public ZigbeeGasEventProfiles getZigbeeGasEventProfiles() {
+        if (zigbeeGasEventProfiles == null) {
+            zigbeeGasEventProfiles = new ZigbeeGasEventProfiles(this);
+        }
+        return zigbeeGasEventProfiles;
     }
 }
