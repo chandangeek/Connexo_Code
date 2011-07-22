@@ -91,7 +91,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 	/**
 	 * @param methodId
-	 * @return
+	 * @return raw data returned from the method invocation
 	 * @throws IOException
 	 */
 	public byte[] invoke(int methodId) throws IOException {
@@ -101,7 +101,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	/**
 	 * @param methodId
 	 * @param data
-	 * @return
+	 * @return raw data returned from the method invocation
 	 * @throws IOException
 	 */
 	public byte[] invoke(int methodId, byte[] data) throws IOException {
@@ -349,6 +349,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
      *
      * @param method the method to invoke
      * @param data   the additional data to write with he method
+     * @return raw data returned from the method invocation
      * @throws IOException if an exception occurs during the method call
      */
     protected byte[] methodInvoke(DLMSClassMethods method, AbstractDataType data) throws IOException {
@@ -360,6 +361,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
      *
      * @param method the method to invoke
      * @param encodedData   the ber-encoded additional data to write with he method
+     * @return raw data returned from the method invocation
      * @throws IOException if an exception occurs during the method call
      */
     protected byte[] methodInvoke(DLMSClassMethods method, byte[] encodedData) throws IOException {

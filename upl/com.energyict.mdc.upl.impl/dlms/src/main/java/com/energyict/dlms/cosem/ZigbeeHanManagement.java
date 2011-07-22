@@ -1,8 +1,10 @@
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.attributes.ZigbeeHanManagementAttributes;
+import com.energyict.dlms.cosem.methods.ZigbeeHanManagementMethods;
 
 import java.io.IOException;
 
@@ -144,5 +146,94 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
             readBackupData();
         }
         return this.backupData;
+    }
+
+    /**
+     * Inform the HUB to backup all ZigBee devices
+     *
+     * @param data additional data
+     * @return raw data returned from the method invocation
+     * @throws IOException if for some reason the invocation did not succeed
+     */
+    public byte[] backup(AbstractDataType data) throws IOException {
+        return methodInvoke(ZigbeeHanManagementMethods.BACKUP, data);
+    }
+
+    /**
+     * Restore previously backup data to the HUB.
+     *
+     * @param backUp the data to restore, format:<br>
+     *               structure:: = backUp<br>
+     *               {<br>
+     *               array[10]:: = Network Backup<br>
+     *               {<br>
+     *               Mac address = {43,0-0:25.2.xx.255,2,0}<br>
+     *               Network_Link_Key = Octet-string[20] (# this is the old LINK_KEY#)<br>
+     *               }<br>
+     *               }
+     * @return raw data returned from the method invocation
+     * @throws IOException if for some reason the invocation did not succeed
+     */
+    public byte[] restore(Structure backUp) throws IOException {
+        return methodInvoke(ZigbeeHanManagementMethods.RESTORE, backUp);
+    }
+
+    /**
+     * Inform the HUB to create a HAN network
+     *
+     * @param data additional data
+     * @return raw data returned from the method invocation
+     * @throws IOException if for some reason the invocation did not succeed
+     */
+    public byte[] createHan(AbstractDataType data) throws IOException {
+        return methodInvoke(ZigbeeHanManagementMethods.CREATE_HAN, data);
+    }
+
+    /**
+     * Request the HUB to identify a certain device.
+     *
+     * @param identificationData defining which device needs to identify, format:<br>
+     *                           {<br>
+     *                           Mac address = {43,0-0:25.2.xx.255,2,0}<br>
+     *                           IdentfiyTime = long-unsigned (seconds)<br>
+     *                           }
+     * @return raw data returned from the method invocation
+     * @throws IOException if for some reason the invocation did not succeed
+     */
+    public byte[] identifyDevice(Structure identificationData) throws IOException {
+        return methodInvoke(ZigbeeHanManagementMethods.IDENTIFY_DEVICE, identificationData);
+    }
+
+    /**
+     * Inform the HUB to remove his ZigBee mirror
+     *
+     * @param data additional data
+     * @return raw data returned from the method invocation
+     * @throws IOException if for some reason the invocation did not succeed
+     */
+    public byte[] removeMirror(AbstractDataType data) throws IOException {
+        return methodInvoke(ZigbeeHanManagementMethods.REMOVE_MIRROR, data);
+    }
+
+    /**
+     * Inform the HUB to update his network key
+     *
+     * @param data additional data
+     * @return raw data returned from the method invocation
+     * @throws IOException if for some reason the invocation did not succeed
+     */
+    public byte[] updateNetworkKeys(AbstractDataType data) throws IOException {
+        return methodInvoke(ZigbeeHanManagementMethods.UPDATE_NETWORK_KEYS, data);
+    }
+
+    /**
+     * Inform the HUB to update his link key
+     *
+     * @param data additional data
+     * @return raw data returned from the method invocation
+     * @throws IOException if for some reason the invocation did not succeed
+     */
+    public byte[] updateLinkKeys(AbstractDataType data) throws IOException {
+        return methodInvoke(ZigbeeHanManagementMethods.UPDATE_LINK_KEYS, data);
     }
 }
