@@ -62,13 +62,18 @@ public class MessageExecutor extends GenericMessageExecutor {
             } else if (activateCalendar) {
                 String dateFromMessage = messageHandler.getTOUActivationDate();
                 getLogger().log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Activating activity calendar");
-                if(dateFromMessage.equalsIgnoreCase("1")){
-                    getActivityCalendarController().writeCalendarActivationTime(null);  //writing null will activate immediately
+                if (!dateFromMessage.equals(null)) {
+                    if (dateFromMessage.equalsIgnoreCase("1")) {
+                        getActivityCalendarController().writeCalendarActivationTime(null);  //writing null will activate immediately
+                    } else {
+                        Calendar calendar = Calendar.getInstance(this.protocol.getTimeZone());
+                        calendar.setTimeInMillis(Long.valueOf(dateFromMessage) * 1000);
+                        getActivityCalendarController().writeCalendarActivationTime(calendar);
+                    }
                 } else {
-                    Calendar calendar = Calendar.getInstance(this.protocol.getTimeZone());
-                    calendar.setTimeInMillis(Long.valueOf(dateFromMessage) * 1000);
-                    getActivityCalendarController().writeCalendarActivationTime(calendar);
+                    throw new IOException("No activationDate is given in the \"ActivateCalendar\" message - A value for the activationDate field is required.");
                 }
+
                 success = true;
             } else if (testMessage) {
                 getLogger().log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": TestMessage");
