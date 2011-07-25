@@ -68,6 +68,6 @@ public class PLCEventTest {
         berEncodedByteArray = structure.getBEREncodedByteArray();
         plcEvent = new PLCEvent(berEncodedByteArray, TimeZone.getDefault());
         actualDescription = plcEvent.getDescription();
-        assertEquals("End of plc scan. Selected 5 on channel 2", actualDescription);
+        assertEquals("End of plc scan. Selected [0005] on channel [2]", actualDescription);
     }
 }

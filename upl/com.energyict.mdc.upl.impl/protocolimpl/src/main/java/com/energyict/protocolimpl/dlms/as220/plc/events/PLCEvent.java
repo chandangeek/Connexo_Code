@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.dlms.as220.plc.events;
 
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.protocol.MeterEvent;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.Date;
@@ -107,7 +108,6 @@ public class PLCEvent extends Structure {
         if ((getDataType(i) == null) || (!getDataType(i).isUnsigned16())) {
             throw new IOException("PLCEvent '" + FIELD_NAMES[i] + "' at index [" + i + "] should be an Unsigned16.");
         }
-
         i = INDEX_GAIN;
         if ((getDataType(i) == null) || (!getDataType(i).isUnsigned8())) {
             throw new IOException("PLCEvent '" + FIELD_NAMES[i] + "' at index [" + i + "] should be an Unsigned8.");
@@ -185,7 +185,7 @@ public class PLCEvent extends Structure {
             return "Start of plc scan";
         } else if (isRejected() == false && getS0() == 0
                 && getN0() == 0 && getS1() == 0 && getN1() == 0 && getGain() == 0 && getMethod()== 0) {
-            return "End of plc scan. Selected "+getMasterAddress()+" on channel "+ (getChannel()+1);
+            return "End of plc scan. Selected ["+ProtocolTools.getHexStringFromInt(getMasterAddress(),2,"")+"] on channel ["+   (getChannel()+1) +"]";
         }
         return sb.toString();
     }
