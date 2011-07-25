@@ -171,7 +171,7 @@ public class PLCEvent extends Structure {
     public String getDescription() {
         final StringBuilder sb = new StringBuilder();
         sb.append("CHANNEL").append("=").append(getChannel() + 1).append(", ");
-        sb.append("MASTER_ADDR").append("=").append(getMasterAddress()).append(", ");
+        sb.append("MASTER_ADDR").append("=").append(ProtocolTools.getHexStringFromInt(getMasterAddress(),2,"")).append(", ");
         sb.append("REJECTED").append("=").append(isRejected()).append(", ");
         sb.append("S0").append("=").append(getS0()).append(", ");
         sb.append("N0").append("=").append(getN0()).append(", ");
@@ -185,7 +185,7 @@ public class PLCEvent extends Structure {
             return "Start of plc scan";
         } else if (isRejected() == false && getS0() == 0
                 && getN0() == 0 && getS1() == 0 && getN1() == 0 && getGain() == 0 && getMethod()== 0) {
-            return "End of plc scan. Selected ["+ProtocolTools.getHexStringFromInt(getMasterAddress(),2,"")+"] on channel ["+   (getChannel()+1) +"]";
+            return "End of plc scan. Selected Master Address["+ProtocolTools.getHexStringFromInt(getMasterAddress(),2,"")+"] on channel ["+   (getChannel()+1) +"]";
         }
         return sb.toString();
     }
