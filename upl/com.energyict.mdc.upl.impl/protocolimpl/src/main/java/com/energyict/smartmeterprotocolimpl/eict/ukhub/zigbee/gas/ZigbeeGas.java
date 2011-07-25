@@ -8,9 +8,11 @@ import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.events.ZigbeeGasEventProfiles;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.profile.ZigbeeGasLoadProfile;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.registers.ZigbeeGasRegisterFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 
 /**
  * The ZigbeeGas logical device has the same protocolBase as the WebRTUZ3. Additional functionality is added for SSE.
@@ -29,6 +31,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
     private ComposedMeterInfo meterInfo;
     private ZigbeeGasEventProfiles zigbeeGasEventProfiles;
     private ZigbeeGasLoadProfile zigbeeGasLoadProfile;
+    private ZigbeeGasRegisterFactory registerFactory;
 
     public MessageProtocol getMessageProtocol() {
         if (zigbeeGasMessaging == null) {
@@ -108,8 +111,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
      * @throws java.io.IOException Thrown in case of an exception
      */
     public RegisterInfo translateRegister(final Register register) throws IOException {
-        //TODO implement proper functionality.
-        return new RegisterInfo("Unknown");
+        return getRegisterFactory().translateRegister(register);
     }
 
     /**
@@ -121,8 +123,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
      * @throws java.io.IOException Thrown in case of an exception
      */
     public List<RegisterValue> readRegisters(final List<Register> registers) throws IOException {
-        //TODO implement proper functionality
-        return new ArrayList<RegisterValue>();
+        return getRegisterFactory().readRegisters(registers);
     }
 
     /**
@@ -228,11 +229,13 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
 
     /**
      * Get the physical address of the Meter. Mostly this will be an index of the meterList
+     * No physical addressing used for ZigbeeGas devices. Each ZigbeeGas device has its own logical device,
+     * so Physical address should always be '0'
      *
      * @return the physical Address of the Meter.
      */
     public int getPhysicalAddress() {
-        return 0;  // indicates the Master
+        return 0;
     }
 
     public ZigbeeGasEventProfiles getZigbeeGasEventProfiles() {
@@ -249,9 +252,17 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
         return zigbeeGasLoadProfile;
     }
 
+    public ZigbeeGasRegisterFactory getRegisterFactory() {
+        if (this.registerFactory == null) {
+            this.registerFactory = new ZigbeeGasRegisterFactory(this);
+        }
+        return registerFactory;
+    }
+
     @Override
     protected void checkCacheObjects() throws IOException {
-        getDlmsSession().getMeterConfig().setInstantiatedObjectList(ZigbeeGasObjectList.OBJECT_LIST);
+        getDlmsSession().getMeterConfig().setInstantiatedObjectList(ObisCodeProvider.OBJECT_LIST);
 
     }
+
 }
