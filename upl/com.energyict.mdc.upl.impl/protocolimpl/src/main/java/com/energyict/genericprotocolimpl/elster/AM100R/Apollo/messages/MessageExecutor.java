@@ -62,7 +62,7 @@ public class MessageExecutor extends GenericMessageExecutor {
             } else if (activateCalendar) {
                 String dateFromMessage = messageHandler.getTOUActivationDate();
                 getLogger().log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Activating activity calendar");
-                if (!dateFromMessage.equals(null)) {
+                if (!dateFromMessage.equals(null) && (!dateFromMessage.equals(""))) {
                     if (dateFromMessage.equalsIgnoreCase("1")) {
                         getActivityCalendarController().writeCalendarActivationTime(null);  //writing null will activate immediately
                     } else {
