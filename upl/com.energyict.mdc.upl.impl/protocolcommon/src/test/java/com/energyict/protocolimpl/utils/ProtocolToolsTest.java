@@ -555,4 +555,92 @@ public class ProtocolToolsTest {
         assertEquals(uncompressedContent, ProtocolTools.decompress(compressed));
     }
 
+    @Test
+    public void testGetHexStringFromInt() throws Exception {
+        assertEquals("000000", ProtocolTools.getHexStringFromInt(0, 3, ""));
+        assertEquals("000001", ProtocolTools.getHexStringFromInt(0x0001, 3, ""));
+        assertEquals("000010", ProtocolTools.getHexStringFromInt(0x0010, 3, ""));
+        assertEquals("000100", ProtocolTools.getHexStringFromInt(0x0100, 3, ""));
+        assertEquals("001000", ProtocolTools.getHexStringFromInt(0x1000, 3, ""));
+        assertEquals("00FFFF", ProtocolTools.getHexStringFromInt(0x0FFFF, 3, ""));
+        assertEquals("01FFFF", ProtocolTools.getHexStringFromInt(0x1FFFF, 3, ""));
+
+        assertEquals("0000", ProtocolTools.getHexStringFromInt(0, 2, ""));
+        assertEquals("0001", ProtocolTools.getHexStringFromInt(0x0001, 2, ""));
+        assertEquals("0010", ProtocolTools.getHexStringFromInt(0x0010, 2, ""));
+        assertEquals("0100", ProtocolTools.getHexStringFromInt(0x0100, 2, ""));
+        assertEquals("1000", ProtocolTools.getHexStringFromInt(0x1000, 2, ""));
+        assertEquals("FFFF", ProtocolTools.getHexStringFromInt(0x0FFFF, 2, ""));
+        assertEquals("FFFF", ProtocolTools.getHexStringFromInt(0x1FFFF, 2, ""));
+
+        assertEquals("00", ProtocolTools.getHexStringFromInt(0, 1, ""));
+        assertEquals("01", ProtocolTools.getHexStringFromInt(0x0001, 1, ""));
+        assertEquals("10", ProtocolTools.getHexStringFromInt(0x0010, 1, ""));
+        assertEquals("00", ProtocolTools.getHexStringFromInt(0x0100, 1, ""));
+        assertEquals("00", ProtocolTools.getHexStringFromInt(0x1000, 1, ""));
+        assertEquals("FF", ProtocolTools.getHexStringFromInt(0x0FFFF, 1, ""));
+        assertEquals("FF", ProtocolTools.getHexStringFromInt(0x1FFFF, 1, ""));
+
+        assertEquals("$00$00$00", ProtocolTools.getHexStringFromInt(0, 3, "$"));
+        assertEquals("$00$00$01", ProtocolTools.getHexStringFromInt(0x0001, 3, "$"));
+        assertEquals("$00$00$10", ProtocolTools.getHexStringFromInt(0x0010, 3, "$"));
+        assertEquals("$00$01$00", ProtocolTools.getHexStringFromInt(0x0100, 3, "$"));
+        assertEquals("$00$10$00", ProtocolTools.getHexStringFromInt(0x1000, 3, "$"));
+        assertEquals("$00$FF$FF", ProtocolTools.getHexStringFromInt(0x0FFFF, 3, "$"));
+        assertEquals("$01$FF$FF", ProtocolTools.getHexStringFromInt(0x1FFFF, 3, "$"));
+
+        assertEquals("$00$00", ProtocolTools.getHexStringFromInt(0, 2, "$"));
+        assertEquals("$00$01", ProtocolTools.getHexStringFromInt(0x0001, 2, "$"));
+        assertEquals("$00$10", ProtocolTools.getHexStringFromInt(0x0010, 2, "$"));
+        assertEquals("$01$00", ProtocolTools.getHexStringFromInt(0x0100, 2, "$"));
+        assertEquals("$10$00", ProtocolTools.getHexStringFromInt(0x1000, 2, "$"));
+        assertEquals("$FF$FF", ProtocolTools.getHexStringFromInt(0x0FFFF, 2, "$"));
+        assertEquals("$FF$FF", ProtocolTools.getHexStringFromInt(0x1FFFF, 2, "$"));
+
+        assertEquals("$00", ProtocolTools.getHexStringFromInt(0, 1, "$"));
+        assertEquals("$01", ProtocolTools.getHexStringFromInt(0x0001, 1, "$"));
+        assertEquals("$10", ProtocolTools.getHexStringFromInt(0x0010, 1, "$"));
+        assertEquals("$00", ProtocolTools.getHexStringFromInt(0x0100, 1, "$"));
+        assertEquals("$00", ProtocolTools.getHexStringFromInt(0x1000, 1, "$"));
+        assertEquals("$FF", ProtocolTools.getHexStringFromInt(0x0FFFF, 1, "$"));
+        assertEquals("$FF", ProtocolTools.getHexStringFromInt(0x1FFFF, 1, "$"));
+
+        assertEquals("$00$00$00", ProtocolTools.getHexStringFromInt(0, 3));
+        assertEquals("$00$00$01", ProtocolTools.getHexStringFromInt(0x0001, 3));
+        assertEquals("$00$00$10", ProtocolTools.getHexStringFromInt(0x0010, 3));
+        assertEquals("$00$01$00", ProtocolTools.getHexStringFromInt(0x0100, 3));
+        assertEquals("$00$10$00", ProtocolTools.getHexStringFromInt(0x1000, 3));
+        assertEquals("$00$FF$FF", ProtocolTools.getHexStringFromInt(0x0FFFF, 3));
+        assertEquals("$01$FF$FF", ProtocolTools.getHexStringFromInt(0x1FFFF, 3));
+
+        assertEquals("$00$00", ProtocolTools.getHexStringFromInt(0, 2));
+        assertEquals("$00$01", ProtocolTools.getHexStringFromInt(0x0001, 2));
+        assertEquals("$00$10", ProtocolTools.getHexStringFromInt(0x0010, 2));
+        assertEquals("$01$00", ProtocolTools.getHexStringFromInt(0x0100, 2));
+        assertEquals("$10$00", ProtocolTools.getHexStringFromInt(0x1000, 2));
+        assertEquals("$FF$FF", ProtocolTools.getHexStringFromInt(0x0FFFF, 2));
+        assertEquals("$FF$FF", ProtocolTools.getHexStringFromInt(0x1FFFF, 2));
+
+        assertEquals("$00", ProtocolTools.getHexStringFromInt(0, 1));
+        assertEquals("$01", ProtocolTools.getHexStringFromInt(0x0001, 1));
+        assertEquals("$10", ProtocolTools.getHexStringFromInt(0x0010, 1));
+        assertEquals("$00", ProtocolTools.getHexStringFromInt(0x0100, 1));
+        assertEquals("$00", ProtocolTools.getHexStringFromInt(0x1000, 1));
+        assertEquals("$FF", ProtocolTools.getHexStringFromInt(0x0FFFF, 1));
+        assertEquals("$FF", ProtocolTools.getHexStringFromInt(0x1FFFF, 1));
+
+        assertEquals("$00$00$00$00", ProtocolTools.getHexStringFromInt(0));
+        assertEquals("$00$00$00$01", ProtocolTools.getHexStringFromInt(0x0001));
+        assertEquals("$00$00$00$10", ProtocolTools.getHexStringFromInt(0x0010));
+        assertEquals("$00$00$01$00", ProtocolTools.getHexStringFromInt(0x0100));
+        assertEquals("$00$00$10$00", ProtocolTools.getHexStringFromInt(0x1000));
+        assertEquals("$00$00$FF$FF", ProtocolTools.getHexStringFromInt(0x0FFFF));
+        assertEquals("$00$01$FF$FF", ProtocolTools.getHexStringFromInt(0x1FFFF));
+        assertEquals("$01$FF$FF$FF", ProtocolTools.getHexStringFromInt(0x01FFFFFF));
+        assertEquals("$08$FF$FF$FF", ProtocolTools.getHexStringFromInt(0x08FFFFFF));
+        assertEquals("$1F$FF$FF$FF", ProtocolTools.getHexStringFromInt(0x1FFFFFFF));
+        assertEquals("$FF$FF$FF$FF", ProtocolTools.getHexStringFromInt(0xFFFFFFFF));
+
+    }
+
 }

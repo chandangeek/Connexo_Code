@@ -63,6 +63,42 @@ public final class ProtocolTools {
         return bytes;
     }
 
+    /**
+     * Convert int value to a hexadecimal string with a given byte length.
+     * The given 'prefix' separator is used between each byte.
+     *
+     * @param value  The intValue to convert
+     * @param length The amount of bytes that should be shown in the hex string
+     * @param prefix The prefix that should be used in front of each byte
+     * @return The hex string
+     */
+    public static String getHexStringFromInt(int value, int length, String prefix) {
+        byte[] bytes = getBytesFromInt(value, length);
+        return getHexStringFromBytes(bytes, prefix);
+    }
+
+    /**
+     * Convert int value to a hexadecimal string with a given byte length.
+     * The default separator '$' is used between each byte.
+     *
+     * @param value The intValue to convert
+     * @param length The amount of bytes that should be shown in the hex string
+     * @return The hex string
+     */
+    public static String getHexStringFromInt(int value, int length) {
+        return getHexStringFromInt(value, length, "$");
+    }
+
+    /**
+     * Convert int value to a hexadecimal string with a default byte length of 4.
+     * The default separator '$' is used between each byte.
+     *
+     * @param value The intValue to convert
+     * @return The hex string
+     */
+    public static String getHexStringFromInt(int value) {
+        return getHexStringFromInt(value, 4);
+    }
 
     /**
      * Build a String with the data representation using $ before each byte
