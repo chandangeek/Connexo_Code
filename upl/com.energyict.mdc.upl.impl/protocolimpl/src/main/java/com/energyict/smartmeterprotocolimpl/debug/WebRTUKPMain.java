@@ -1,18 +1,13 @@
 package com.energyict.smartmeterprotocolimpl.debug;
 
-import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.LinkException;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.mdw.core.RtuMessage;
-import com.energyict.mdw.coreimpl.RtuMessageImpl;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.debug.AbstractSmartDebuggingMain;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Properties;
+import java.util.TimeZone;
 
 /**
  * Copyrights EnergyICT
