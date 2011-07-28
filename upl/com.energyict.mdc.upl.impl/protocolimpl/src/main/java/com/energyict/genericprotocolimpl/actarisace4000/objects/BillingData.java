@@ -1,383 +1,244 @@
-/**
- *
- */
 package com.energyict.genericprotocolimpl.actarisace4000.objects;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
-import java.util.logging.Level;
-
-import org.apache.axis.encoding.Base64;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.genericprotocolimpl.actarisace4000.ActarisACE4000;
+import com.energyict.cbo.*;
 import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
-import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterReadingData;
-import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.utils.ProtocolTools;
+import org.apache.axis.encoding.Base64;
+import org.w3c.dom.*;
+
+import java.io.IOException;
+import java.util.*;
 
 /**
  * @author gna
- *
+ *         <p/>
+ *         This class parses billing data (billing point = 0, 1, 2, ...) for:
+ *         Active & reactive energy (import & export), total or rate 1/2/3/4
  */
 public class BillingData extends AbstractActarisObject {
 
-	private int DEBUG = 0;
+    private String registerList = null;
+    private Date from = null;
+    private List<Date> billingPointDates = new ArrayList<Date>();
 
-	private int trackingID;
-	private String reqString = null;
+    private int enabled = -1;
+    private int interval = -1;
+    private int numOfRecs = -1;
+    private MeterReadingData mrd = new MeterReadingData();
+    private boolean isComplexBillingData = false;
 
-	private String subSet = null;
+    public BillingData(ObjectFactory of) {
+        super(of);
+    }
 
-	private Date timeStamp = null;
+    public Date getFrom() {
+        return from;
+    }
 
-	private int enabled = -1;
-	private int interval = -1;
-	private int numOfRecs = -1;
+    public void setFrom(Date from) {
+        this.from = from;
+    }
 
-	private ProfileData billingProfile;
-	private ChannelInfo channelInfo;
+    /**
+     * Request all billing data
+     */
+    public String prepareXML() {
+        Document doc = createDomDocument();
+
+        Element root = doc.createElement(XMLTags.MPULL);
+        doc.appendChild(root);
+        Element md = doc.createElement(XMLTags.METERDATA);
+        root.appendChild(md);
+        Element s = doc.createElement(XMLTags.SERIALNUMBER);
+        s.setTextContent(getObjectFactory().getAce4000().getNecessarySerialNumber());
+        md.appendChild(s);
+        Element t = doc.createElement(XMLTags.TRACKER);
+        t.setTextContent(String.valueOf(getTrackingID()));
+        md.appendChild(t);
+
+        if (getFrom() == null) {
+            Element bd = doc.createElement(XMLTags.REQALLBD);
+            md.appendChild(bd);
+        } else {
+            Element bd = doc.createElement(XMLTags.REQBDRANGE);
+            bd.setTextContent(getHexDate(from) + getHexDate(new Date()));
+            md.appendChild(bd);
+        }
+
+        String msg = convertDocumentToString(doc);
+        return (msg.substring(msg.indexOf("?>") + 2));
+    }
+
+    public void parse(Element mdElement) throws DOMException, IOException {
+        registerList = mdElement.getAttribute(XMLTags.BDATTR);
+        isComplexBillingData = false;
+        if (registerList == null || "".equals(registerList)) {
+            registerList = mdElement.getAttribute(XMLTags.BDATTR2);
+            isComplexBillingData = true;
+        }
+
+        NodeList list = mdElement.getChildNodes();
+        for (int i = 0; i < list.getLength(); i++) {
+            Element element = (Element) list.item(i);
+
+            if (element.getNodeName().equalsIgnoreCase(XMLTags.REGDATA)) {
+                setRegisterData(element.getTextContent());
+            }
+        }
+    }
+
+    public MeterReadingData getMrd() {
+        setBillingPoints();
+        return mrd;
+    }
+
+    private void setBillingPoints() {
+        Collections.sort(billingPointDates);
+        MeterReadingData result = new MeterReadingData();
+
+        for (RegisterValue registerValue : mrd.getRegisterValues()) {
+            int billingPoint = billingPointDates.size() - billingPointDates.indexOf(registerValue.getToTime()) - 1;
+            ObisCode obisCode = ProtocolTools.setObisCodeField(registerValue.getObisCode(), 5, (byte) billingPoint);
+            result.add(new RegisterValue(obisCode, registerValue.getQuantity(), registerValue.getEventTime(), registerValue.getToTime()));
+        }
+        mrd = result;
+    }
+
+    private void setRegisterData(String textContent) throws IOException {
+
+        int offset = 0;
+        byte[] decoded = Base64.decode(textContent);
+        long timeStamp = (long) (getNumberFromB64(decoded, offset, 4));
+        Date date = getObjectFactory().convertMeterDateToSystemDate(timeStamp);
+        if (!billingPointDates.contains(date)) {
+            billingPointDates.add(date);
+        }
+        offset += 4;
+
+        if (registerList != null && !isComplexBillingData) {
+            Quantity quantity;
+            if (registerList.contains("T")) {           //Total import
+                quantity = new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR));
+                offset += 4;
+                mrd.add(new RegisterValue(ObisCode.fromString("1.0.1.8.0.0"), quantity, new Date(), date));
+            }
+
+            if (registerList.contains("R")) {           //Total export
+                quantity = new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR));
+                offset += 4;
+                mrd.add(new RegisterValue(ObisCode.fromString("1.0.2.8.0.0"), quantity, new Date(), date));
+            }
+
+            if (registerList.contains("1")) {
+                quantity = new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR));
+                offset += 4;
+                mrd.add(new RegisterValue(ObisCode.fromString("1.0.1.8.1.0"), quantity, new Date(), date));
+            }
+
+            if (registerList.contains("2")) {
+                quantity = new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR));
+                offset += 4;
+                mrd.add(new RegisterValue(ObisCode.fromString("1.0.1.8.2.0"), quantity, new Date(), date));
+            }
+
+            if (registerList.contains("3")) {
+                quantity = new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR));
+                offset += 4;
+                mrd.add(new RegisterValue(ObisCode.fromString("1.0.1.8.3.0"), quantity, new Date(), date));
+            }
+
+            if (registerList.contains("4")) {
+                quantity = new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR));
+                offset += 4;
+                mrd.add(new RegisterValue(ObisCode.fromString("1.0.1.8.4.0"), quantity, new Date(), date));
+            }
+        }
+
+        if (registerList != null && isComplexBillingData) {
+            String[] registers = registerList.split(";");
+            for (String register : registers) {
+                ObisCode obisCode;
+                Unit unit;
+
+                if (register.contains("AI")) {
+                    obisCode = ObisCode.fromString("1.0.1.8.0.0");
+                    unit = Unit.get(BaseUnit.WATTHOUR);
+                } else if (register.contains("AE")) {
+                    obisCode = ObisCode.fromString("1.0.2.8.0.0");
+                    unit = Unit.get(BaseUnit.WATTHOUR);
+                } else if (register.contains("RI")) {
+                    obisCode = ObisCode.fromString("1.0.3.8.0.0");
+                    unit = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR);
+                } else if (register.contains("RE")) {
+                    obisCode = ObisCode.fromString("1.0.4.8.0.0");
+                    unit = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR);
+                } else {
+                    throw new IOException("Received unexpected register data, XML attribute name: " + register);
+                }
+
+                if (register.split(":")[1].contains("T")) {
+                    obisCode = ProtocolTools.setObisCodeField(obisCode, 4, (byte) 0);
+                    addRegisterValue(offset, decoded, date, obisCode, unit);
+                    offset += 4;
+                }
+
+                if (register.split(":")[1].contains("1")) {
+                    obisCode = ProtocolTools.setObisCodeField(obisCode, 4, (byte) 1);
+                    addRegisterValue(offset, decoded, date, obisCode, unit);
+                    offset += 4;
+                }
+
+                if (register.split(":")[1].contains("2")) {
+                    obisCode = ProtocolTools.setObisCodeField(obisCode, 4, (byte) 2);
+                    addRegisterValue(offset, decoded, date, obisCode, unit);
+                    offset += 4;
+                }
+
+                if (register.split(":")[1].contains("3")) {
+                    obisCode = ProtocolTools.setObisCodeField(obisCode, 4, (byte) 3);
+                    addRegisterValue(offset, decoded, date, obisCode, unit);
+                    offset += 4;
+                }
+
+                if (register.split(":")[1].contains("4")) {
+                    obisCode = ProtocolTools.setObisCodeField(obisCode, 4, (byte) 4);
+                    addRegisterValue(offset, decoded, date, obisCode, unit);
+                    offset += 4;
+                }
+            }
+        }
+    }
+
+    private void addRegisterValue(int offset, byte[] decoded, Date date, ObisCode obisCode, Unit unit) {
+        Quantity quantity = new Quantity(getNumberFromB64(decoded, offset, 4), unit);
+        mrd.add(new RegisterValue(obisCode, quantity, new Date(), date));
+    }
 
 
-	/**
-	 * @param of
-	 */
-	public BillingData(ObjectFactory of) {
-		super(of);
-	}
+    public int getEnabled() {
+        return enabled;
+    }
 
-	/* (non-Javadoc)
-	 * @see com.energyict.genericprotocolimpl.actarisace4000.objects.AbstractActarisObject#getReqString()
-	 */
-	protected String getReqString() {
-		return reqString;
-	}
+    protected void setEnabled(int enabled) {
+        this.enabled = enabled;
+    }
 
-	private void setReqString(String reqString){
-		this.reqString = reqString;
-	}
+    public int getInterval() {
+        return interval;
+    }
 
-	/* (non-Javadoc)
-	 * @see com.energyict.genericprotocolimpl.actarisace4000.objects.AbstractActarisObject#getTrackingID()
-	 */
-	protected int getTrackingID() {
-		return trackingID;
-	}
+    protected void setInterval(int interval) {
+        this.interval = interval;
+    }
 
-	/* (non-Javadoc)
-	 * @see com.energyict.genericprotocolimpl.actarisace4000.objects.AbstractActarisObject#setTrackingID(int)
-	 */
-	protected void setTrackingID(int trackingID) {
-		this.trackingID = trackingID;
-	}
+    protected int getNumOfRecs() {
+        return numOfRecs;
+    }
 
-	public static void main(String[] args){
-		String time;
-
-		boolean doThis = true;
-
-		if(doThis){
-		    Date date = new Date();
-			time = "1219449600000";
-			long t = Long.valueOf(time);
-			Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-			cal.setTimeInMillis(t);
-			System.out.println(cal.getTime());
-			Calendar cal2 = Calendar.getInstance();
-			cal2.setTimeInMillis(t);
-			System.out.println(cal2.getTime());
-		}
-
-		if(!doThis){
-			String str = "SHxmVgAAA9UAAAAAAAAA2AAAAv0AAAAAAAAAAAEB";
-			String str2 = "SJJSAAAAA9UAAAAAAAAA2AAAAv0AAAAAAAAAAAER";
-			String str3 = "1bDUQQAABucAAAAAAAACmAAABE8AAAAAAAAAAAEB";
-			String str4 = "SKywAAAACE8AAAAAAAADBAAABUsAAAAAAAAAAAEA";
-
-
-			ActarisACE4000 aace = new ActarisACE4000();
-			ObjectFactory of = new ObjectFactory(aace);
-			BillingData bd = new BillingData(of);
-
-			bd.subSet = "TR1234";
-			bd.setTrackingID(-1);
-//		bd.setRegisterData(str);
-//		bd.setRegisterData(str2);
-			try {
-				bd.setRegisterData(str4);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			System.out.println(bd.getProfileData());
-		}
-	}
-
-	/**
-	 * Request all billing data
-	 */
-	public void prepareXML(){
-		Document doc = createDomDocument();
-
-		Element root = doc.createElement(XMLTags.MPULL);
-		doc.appendChild(root);
-		Element md = doc.createElement(XMLTags.METERDATA);
-		root.appendChild(md);
-		Element s = doc.createElement(XMLTags.SERIALNUMBER);
-		s.setTextContent(getObjectFactory().getAace().getNecessarySerialnumber());
-		md.appendChild(s);
-		Element t = doc.createElement(XMLTags.TRACKER);
-		t.setTextContent(String.valueOf(trackingID));
-		md.appendChild(t);
-
-		Element bd = doc.createElement(XMLTags.REQALLBD);
-		md.appendChild(bd);
-
-		String msg = convertDocumentToString(doc);
-		setReqString(msg.substring(msg.indexOf("?>")+2));
-	}
-
-	/**
-	 * Request billing data from requested date
-	 * @param from
-	 */
-	public void prepareXML(Date from){
-		Document doc = createDomDocument();
-
-		Element root = doc.createElement(XMLTags.MPULL);
-		doc.appendChild(root);
-		Element md = doc.createElement(XMLTags.METERDATA);
-		root.appendChild(md);
-		Element s = doc.createElement(XMLTags.SERIALNUMBER);
-		s.setTextContent(getObjectFactory().getAace().getNecessarySerialnumber());
-		md.appendChild(s);
-		Element t = doc.createElement(XMLTags.TRACKER);
-		t.setTextContent(String.valueOf(trackingID));
-		md.appendChild(t);
-
-		Element bd = doc.createElement(XMLTags.REQBDRANGE);
-		bd.setTextContent(Long.toHexString(from.getTime()/1000)+Long.toHexString(System.currentTimeMillis()/1000));
-		md.appendChild(bd);
-
-		String msg = convertDocumentToString(doc);
-		setReqString(msg.substring(msg.indexOf("?>")+2));
-	}
-
-	public void prepareXMLConfig(int enabled, int intervals, int numb){
-		Document doc = createDomDocument();
-
-		Element root = doc.createElement(XMLTags.MPULL);
-		doc.appendChild(root);
-		Element md = doc.createElement(XMLTags.METERDATA);
-		root.appendChild(md);
-		Element s = doc.createElement(XMLTags.SERIALNUMBER);
-		s.setTextContent(getObjectFactory().getAace().getNecessarySerialnumber());
-		md.appendChild(s);
-		Element t = doc.createElement(XMLTags.TRACKER);
-		t.setTextContent(String.valueOf(trackingID));
-		md.appendChild(t);
-
-		Element cf = doc.createElement(XMLTags.CONFIGHANDLING);
-		md.appendChild(cf);
-		Element ps = doc.createElement(XMLTags.BILLINGCONF);
-		cf.appendChild(ps);
-		Element enable = doc.createElement(XMLTags.BILLENABLE);
-		enable.setTextContent(Integer.toString(enabled, 16));
-		ps.appendChild(enable);
-		Element bi = doc.createElement(XMLTags.BILLINT);
-		bi.setTextContent(Integer.toString(intervals, 16));
-		ps.appendChild(bi);
-		Element bn = doc.createElement(XMLTags.BILLNUMB);
-		bn.setTextContent(Integer.toString(numb, 16));
-		ps.appendChild(bn);
-
-		String msg = convertDocumentToString(doc);
-		setReqString(msg.substring(msg.indexOf("?>")+2));
-	}
-
-	public void setElement(Element mdElement) throws DOMException, IOException {
-		subSet = mdElement.getAttribute(XMLTags.BDATTR);
-
-		NodeList list = mdElement.getChildNodes();
-		if(DEBUG >= 2 ) {
-			System.out.println("Billing:");
-		}
-		for(int i = 0; i < list.getLength(); i++){
-			Element element = (Element)list.item(i);
-
-			if(element.getNodeName().equalsIgnoreCase(XMLTags.REGDATA)) {
-				setRegisterData(element.getTextContent());
-			}
-		}
-	}
-
-	public void setConfig(Element mdElement) {
-		NodeList list = mdElement.getChildNodes();
-
-		for(int i = 0; i < list.getLength(); i++){
-			Element element = (Element)list.item(i);
-
-			if(element.getNodeName().equalsIgnoreCase(XMLTags.BILLENABLE)) {
-				setEnabled(Integer.parseInt(element.getTextContent()));
-			}
-			if(element.getNodeName().equalsIgnoreCase(XMLTags.BILLINT)) {
-				setInterval(Integer.parseInt(element.getTextContent(),16));
-			}
-			if(element.getNodeName().equalsIgnoreCase(XMLTags.BILLNUMB)) {
-				setNumOfRecs(Integer.parseInt(element.getTextContent(),16));
-			}
-		}
-	}
-
-	private void setRegisterData(String textContent) throws IOException {
-
-		int offset = 0;
-		byte[] decoded = Base64.decode(textContent);
-		if(DEBUG >=1) {
-			System.out.println(new String(decoded));
-		}
-		long timeStamp = (long)(getNumberFromB64(decoded, offset, 4))*1000;
-		if(DEBUG >= 2){
-			System.out.print(timeStamp);
-			System.out.print(" - " + new Date(timeStamp) + " - ");
-		}
-		setTimeStamp(new Date(timeStamp));
-		offset+=4;
-
-		IntervalData id = null;
-
-		if(subSet != null){
-			MeterReadingData mrd = new MeterReadingData();
-			RegisterValue rv = null;
-			RtuRegister register = null;
-			ObisCode oc = null;
-			Quantity q = null;
-			id = new IntervalData(getTimeStamp());
-			if(subSet.indexOf("T") != -1){
-				q = new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR));
-				offset+=4;
-				oc = ObisCode.fromString("1.0.1.8.0.255");
-				id.addValue(q.getAmount());
-			} else {
-				id.addValue(0);
-			}
-
-			if(subSet.indexOf("R") != -1){
-				q = new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR));
-				offset+=4;
-				oc = ObisCode.fromString("1.0.2.8.0.255");
-				id.addValue(q.getAmount());
-			} else {
-				id.addValue(0);
-			}
-
-			if(subSet.indexOf("1") != -1){
-				q = new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR));
-				offset+=4;
-				oc = ObisCode.fromString("1.0.1.8.1.255");
-				id.addValue(q.getAmount());
-			} else {
-				id.addValue(0);
-			}
-
-			if(subSet.indexOf("2") != -1){
-				q = new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR));
-				offset+=4;
-				oc = ObisCode.fromString("1.0.1.8.2.255");
-				id.addValue(q.getAmount());
-			} else {
-				id.addValue(0);
-			}
-
-			if(subSet.indexOf("3") != -1){
-				q = new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR));
-				offset+=4;
-				oc = ObisCode.fromString("1.0.1.8.3.255");
-				id.addValue(q.getAmount());
-			} else {
-				id.addValue(0);
-			}
-
-			if(subSet.indexOf("4") != -1){
-				q = new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR));
-				offset+=4;
-				oc = ObisCode.fromString("1.0.1.8.4.255");
-				id.addValue(q.getAmount());
-			} else {
-				id.addValue(0);
-			}
-
-			getProfileData().addInterval(id);
-		}
-
-		if(getTrackingID() != -1){
-			getObjectFactory().sendAcknowledge(getTrackingID());
-			getObjectFactory().getAace().getLogger().log(Level.INFO, "Sent billingdata ACK for tracknr: " + getTrackingID());
-		}
-	}
-
-	private void setTimeStamp(Date date) {
-		this.timeStamp = date;
-	}
-
-	private Date getTimeStamp(){
-		return timeStamp;
-	}
-
-	public int getEnabled() {
-		return enabled;
-	}
-
-	protected void setEnabled(int enabled) {
-		this.enabled = enabled;
-	}
-
-	public int getInterval() {
-		return interval;
-	}
-
-	protected void setInterval(int interval) {
-		this.interval = interval;
-	}
-
-	protected int getNumOfRecs() {
-		return numOfRecs;
-	}
-
-	protected void setNumOfRecs(int numOfRecs) {
-		this.numOfRecs = numOfRecs;
-	}
-
-	public ProfileData getProfileData(){
-		if(billingProfile == null){
-			billingProfile = new ProfileData();
-			createChannelInfo();
-		}
-		return billingProfile;
-	}
-
-	public void createChannelInfo(){
-		ArrayList result = new ArrayList();
-		result.add(new ChannelInfo(0, 1, "Total Forward Register", Unit.get(BaseUnit.WATTHOUR)));
-		result.add(new ChannelInfo(1, 2, "Total Reverse Register", Unit.get(BaseUnit.WATTHOUR)));
-		result.add(new ChannelInfo(2, 3, "Rate 1 Register", Unit.get(BaseUnit.WATTHOUR)));
-		result.add(new ChannelInfo(3, 4, "Rate 2 Register", Unit.get(BaseUnit.WATTHOUR)));
-		result.add(new ChannelInfo(4, 5, "Rate 3 Register", Unit.get(BaseUnit.WATTHOUR)));
-		result.add(new ChannelInfo(5, 6, "Rate 4 Register", Unit.get(BaseUnit.WATTHOUR)));
-		getProfileData().setChannelInfos(result);
-	}
-
+    protected void setNumOfRecs(int numOfRecs) {
+        this.numOfRecs = numOfRecs;
+    }
 }

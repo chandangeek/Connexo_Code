@@ -1,13 +1,7 @@
-/**
- *
- */
 package com.energyict.genericprotocolimpl.actarisace4000.objects;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
 import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
+import org.w3c.dom.*;
 
 /**
  * @author gna
@@ -17,21 +11,12 @@ public class FirmwareVersion extends AbstractActarisObject{
 
 	private String metrologyFirmwareVersion = null;
 	private String auxiliaryFirmwareVersion = null;
-	private String reqString = null;
-	private int trackingID;
-
-	/**
-	 * empty constructor
-	 */
-	public FirmwareVersion() {
-		this(null);
-	}
 
 	public FirmwareVersion(ObjectFactory of) {
 		super(of);
 	}
 
-	protected void prepareXML(){
+	protected String prepareXML(){
 		Document doc = createDomDocument();
 
 		Element root = doc.createElement(XMLTags.MPULL);
@@ -39,10 +24,10 @@ public class FirmwareVersion extends AbstractActarisObject{
 		Element md = doc.createElement(XMLTags.METERDATA);
 		root.appendChild(md);
 		Element s = doc.createElement(XMLTags.SERIALNUMBER);
-		s.setTextContent(getObjectFactory().getAace().getNecessarySerialnumber());
+		s.setTextContent(getObjectFactory().getAce4000().getNecessarySerialNumber());
 		md.appendChild(s);
 		Element t = doc.createElement(XMLTags.TRACKER);
-		t.setTextContent(String.valueOf(trackingID));
+		t.setTextContent(String.valueOf(getTrackingID()));
 		md.appendChild(t);
 
 		Element cf = doc.createElement(XMLTags.REQFIRMWARE);
@@ -50,24 +35,10 @@ public class FirmwareVersion extends AbstractActarisObject{
 
 		String msg = convertDocumentToString(doc);
 
-		setReqString(msg.substring(msg.indexOf("?>")+2));
+		return (msg.substring(msg.indexOf("?>")+2));
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-	}
-
-	protected int getTrackingID() {
-		return trackingID;
-	}
-
-	protected void setTrackingID(int trackingID) {
-		this.trackingID = trackingID;
-	}
-
-	protected void setElement(Element mdElement) {
+	protected void parse(Element mdElement) {
 		NodeList list = mdElement.getChildNodes();
 
 		for(int i = 0; i < list.getLength(); i++){
@@ -97,13 +68,4 @@ public class FirmwareVersion extends AbstractActarisObject{
 	private void setMetrologyFirmwareVersion(String metrologyFirmwareVersion) {
 		this.metrologyFirmwareVersion = metrologyFirmwareVersion;
 	}
-
-	protected String getReqString() {
-		return reqString;
-	}
-
-	private void setReqString(String reqString) {
-		this.reqString = reqString;
-	}
-
 }

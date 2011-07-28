@@ -25,8 +25,13 @@ public class XMLTags {
 	public final static String REASON			= "Reason";
 	public final static String SERIALNUMBER 	= "M";
 	public final static String TRACKER 			= "T";
-	public final static String CONFIGHANDLING	= "CF";
+	public final static String CONFIGURATION    = "CF";
 	public final static String CONFIGACK		= "CAK";
+
+    //Event tags
+	public final static String EVENT            = "EV";
+	public final static String EVENTREQUEST     = "qEV";
+	public final static String EVENTDATA        = "ED";
 
 	// firmware Tags
 	public final static String REQFIRMWARE 		= "qV";			// request firmware
@@ -44,11 +49,12 @@ public class XMLTags {
 	public final static String SYSTEMIPADDRESS	= "IPDef";		// System Ip address
 
 	// autoPush configuration tags
-	public final static String PUSCHSCHEDULE	= "PushSched";	// Auto-push settings sub-schema parent tag
+	public final static String PUSHSCHEDULE     = "PushSched";	// Auto-push settings sub-schema parent tag
 	public final static String ENABLESTATE		= "Enable";		// Auto-push enable state
 	public final static String TIMEOPEN			= "TMo";		// number of minutes after midnight to open the push window (encoded in hex)
 	public final static String TIMECLOSE		= "TMc";		// number of minutes after midnight to close the push window (encoded in hex)
 	public final static String RANDOM			= "Random";		// commands to auto-push to start at a random time between TMo and TMc
+	public final static String RWIN			    = "RWin";		// Retry window percentage
 
 	public final static String FULLCONFIG		= "qCF";
 
@@ -58,26 +64,45 @@ public class XMLTags {
 	public final static String LOADPR			= "LP";			// loadProfile data with incremental values
 	public final static String LOADPRABS		= "LPA";		// loadProfile data with absolute values
 	public final static String LOADPRDINSO		= "LPd";		// loadProfile data for DIN/SO meters
+	public final static String SCALE		    = "S";		    // loadProfile scaler
 
 	//MBus tags
 	public final static String MBUSRAW			= "RAW";		// raw MBus meter data
-	public final static String MBUSLP			= "MBR";		// MBus data sub-schema parent tag
+	public final static String MBUSBILLINGDATA  = "MBR";		// MBus billing registers
 	public final static String MBUSCREADING		= "MBCR";		// MBus instantaneous register readings
-	public final static String REQMBALLDATA		= "qMBRAll";	// request all raw MBus meter consumption data
-	public final static String REQMBRANGE		= "qMBRDTr";	// Raw MBus meter data within a date range. Start date in UTC format in hex and the stop date in UTC format in hex
+	public final static String REQMBUSCR        = "qMBCR";		// request for MBus instantaneous register readings
+	public final static String REQMBALLDATA		= "qMBRAll";	// request all raw MBus billing data
+	public final static String REQMBRANGE		= "qMBRDTr";	// Raw MBus billing data within a date range. Start date in UTC format in hex and the stop date in UTC format in hex
 
 	// meter installation and removal
 	public final static String ANNOUNCE			= "Announce";	// Meter installation & removal sub-schema parent tag
-	public final static String LOST				= "Lost";		// Used to denote the removal of a meter
+	public final static String LOST				= "Lost";		// Communication with slave was lost
 	public final static String ICID				= "ICID";		// The ICID number of the SIM associated with a meter
 	public final static String TYPE				= "Type";		// meter type
 	public final static String SSTRENGTH		= "SS";			// GSM signal strength
 	public final static String BSTATION			= "BS";			// GSM cell base station ID
 	public final static String OPERATORNAME		= "OT";			// GSM operator name
 	public final static String CODSTRING		= "CS";			// meter codification string, if this does not apply then 0 is sent in the data field
+
+    // registers
+	public final static String REQCR            = "qCR";	    // request for instantaneous register readings
 	public final static String CURREADING		= "CR";			// instantaneous register readings
 	public final static String READINGDATA		= "RD";			// the actual reading data
 	public final static String CRATTR			= "R";			// attribute of the current readings
+	public final static String MAXDEMAND        = "MDR";		// maximum demand register
+
+    // instantaneous register
+	public final static String REQINSTVC        = "qIPR";		// Request instant voltage and current
+    public final static String INSTVC           = "IPR";		// Instant voltage and current
+    public final static String INSTTIME         = "TOR";		// Time Of Reading
+    public final static String PHASE            = "Ph";		    // Phase
+	public final static String PHASEATTR        = "N";		    // Phase number attribute
+	public final static String VOLTAGE          = "Vo";		    // Instantaneous voltage, expressed as hundredths of volts
+	public final static String CURRENT          = "I";	    	// Instantaneous current
+	public final static String ACTPOW           = "Pac";		// Instantaneous Active Power
+	public final static String REACTPOW         = "Pre";		// Instantaneous Reactive Power
+	public final static String APPARPOW         = "Pap";		// Instantaneous Apparent Power
+	public final static String POWERFACTOR      = "PwF";		// Power Factor
 
 	// time set/sync tags
 	public final static String SYNCTIME			= "ST";			// SNTP time synchronization sub-schema parent tags
@@ -96,6 +121,7 @@ public class XMLTags {
 	// billing data tags
 	public final static String BILLDATA			= "BD";			// Billing data sub-schema parent tags
 	public final static String BDATTR			= "R";			// attribute of the billing data
+	public final static String BDATTR2			= "R2";			// attribute2 of the billing data
 	public final static String REGDATA			= "RD";			// Billing register data
 
 	public final static String REQALLBD			= "qBRAll";		// Request all billing data from a meter

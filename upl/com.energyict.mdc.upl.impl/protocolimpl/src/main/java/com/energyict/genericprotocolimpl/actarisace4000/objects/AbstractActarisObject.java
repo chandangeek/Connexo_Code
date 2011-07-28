@@ -1,31 +1,16 @@
-/**
- * 
- */
 package com.energyict.genericprotocolimpl.actarisace4000.objects;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.Iterator;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
+import com.energyict.cbo.ApplicationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.energyict.cbo.ApplicationException;
-import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
-import com.energyict.mdw.amr.RtuRegisterSpec;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.obis.ObisCode;
+import javax.xml.parsers.*;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Date;
 
 /**
  * @author gna
@@ -35,53 +20,57 @@ abstract public class AbstractActarisObject {
 	
 	private ObjectFactory objectFactory;
 	private String serialNumber;
-	
-	/**
-	 * Gets the tracking ID of this object
-	 * @return trackingID
-	 */
-	abstract protected int getTrackingID();
-	/**
-	 * Sets the tracking ID of this object, the tracking ID can be retrieved from the Actaris class
-	 * @param trackingID
-	 */
-	abstract protected void setTrackingID(int trackingID);
-	/**
-	 * Gets the request string to encapsulate in the request message
-	 * @return reqString
-	 */
-	abstract protected String getReqString();
+    private int trackingID;
+
+    /**
+     * Parses the received content
+     * @param element the received content
+     * @throws Exception when SAX error, ...
+     */
+    abstract protected void parse(Element element) throws Exception;
+
+    /**
+     * This generates the necessary meterXML to send the request to the meter
+     * @return the meterXML string
+     */
+    abstract protected String prepareXML();
 
 	/**
-	 * @param ObjectFactory of
+	 * @param of
 	 */
 	public AbstractActarisObject(ObjectFactory of) {
 		this.objectFactory = of;
-		this.serialNumber = getObjectFactory().getAace().getPushedSerialNumber();
+		this.serialNumber = getObjectFactory().getAce4000().getPushedSerialNumber();
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-	}
-	
-	/**
+    /**
+     * Gets the tracking ID of this object
+     * @return trackingID the tracking ID
+     */
+    protected int getTrackingID() {
+        return trackingID;
+    }
+
+    /**
+     * Sets the tracking ID of this object, the tracking ID can be retrieved from the Actaris class
+     * @param trackingID the tracking ID
+     */
+    protected void setTrackingID(int trackingID) {
+        this.trackingID = trackingID;
+    }
+
+    /**
 	 * Sends the actual request with the object request string
 	 * @throws IOException 
 	 */
 	public void request() throws IOException{
-		getObjectFactory().getAace().getOutputStream().write(getReqString().getBytes());
+		getObjectFactory().getAce4000().getOutputStream().write(prepareXML().getBytes());
 	}
 
 	public ObjectFactory getObjectFactory() {
 		return objectFactory;
 	}
 
-	public void setObjectFactory(ObjectFactory objectFactory) {
-		this.objectFactory = objectFactory;
-	}
-	
 	public String getSerialNumber(){
 		return serialNumber;
 	}
@@ -93,11 +82,10 @@ abstract public class AbstractActarisObject {
     public static Document createDomDocument() {
         try {
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document doc = builder.newDocument();
-            return doc;
+            return builder.newDocument();
         } catch (ParserConfigurationException e) {
+            return null;
         }
-        return null;
     }
     
     /**
@@ -135,21 +123,21 @@ abstract public class AbstractActarisObject {
 		}
 		return sum;
 	}
-	
-	/**
-	 * Checks whether the given Obiscode is configured on the device
-	 * @param obisCode
-	 * @return true or false
-	 */
-	protected boolean isAllowed(ObisCode obisCode) {
-		Rtu rtu = getObjectFactory().getAace().getMeter();
-		Iterator it = rtu.getRtuType().getRtuRegisterSpecs().iterator();
-		while(it.hasNext()){
-            RtuRegisterSpec spec = (RtuRegisterSpec) it.next();
-            ObisCode oc = spec.getObisCode();
-            if(oc.equals(obisCode))
-            	return true;
-		}
-		return false;
-	}
+
+    /**
+     * Converts a given date to the meter time zone and returns the hex representation
+     * Also pads the length so its always 8 characters long
+     * @param date the timestamp that needs to be converted
+     * @return hex representation
+     */
+    protected String getHexDate(Date date) {
+        if (date == null) {
+            date = new Date();
+        }
+        String hex = Long.toHexString(getObjectFactory().getMeterTime(date).getTime() / 1000);
+        while (hex.length() < 8) {
+            hex = "0" + hex;
+        }
+        return hex;
+    }
 }

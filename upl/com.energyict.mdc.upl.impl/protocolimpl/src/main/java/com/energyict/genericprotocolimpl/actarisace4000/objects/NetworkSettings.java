@@ -1,12 +1,8 @@
-/**
- *
- */
 package com.energyict.genericprotocolimpl.actarisace4000.objects;
 
+import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
 
 /**
  * @author gna
@@ -14,43 +10,66 @@ import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
  */
 public class NetworkSettings extends AbstractActarisObject {
 
-	private int trackingID;
-	private String reqString = null;
+    private String dnsIPAddress;
+    private String username;
+    private String password;
+    private String apn;
+    private String port;
+    private String ip;
 
-	/**
-	 * @param of
-	 */
-	public NetworkSettings(ObjectFactory of) {
+    public String getApn() {
+        return apn;
+    }
+
+    public void setApn(String apn) {
+        this.apn = apn;
+    }
+
+    public String getDnsIPAddress() {
+        return dnsIPAddress;
+    }
+
+    public void setDnsIPAddress(String dnsIPAddress) {
+        this.dnsIPAddress = dnsIPAddress;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getPort() {
+        return port;
+    }
+
+    public void setPort(String port) {
+        this.port = port;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public NetworkSettings(ObjectFactory of) {
 		super(of);
-		// TODO Auto-generated constructor stub
 	}
 
-	/* (non-Javadoc)
-	 * @see com.energyict.genericprotocolimpl.actarisace4000.objects.AbstractActarisObject#getReqString()
-	 */
-	protected String getReqString() {
-		return reqString;
-	}
-
-	private void setReqString(String reqString){
-		this.reqString = reqString;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.energyict.genericprotocolimpl.actarisace4000.objects.AbstractActarisObject#getTrackingID()
-	 */
-	protected int getTrackingID() {
-		return trackingID;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.energyict.genericprotocolimpl.actarisace4000.objects.AbstractActarisObject#setTrackingID(int)
-	 */
-	protected void setTrackingID(int trackingID) {
-		this.trackingID = trackingID;
-	}
-
-	protected void prepareXML(String dnsIPAddress, String username, String password, String apn, String port, String ip){
+	protected String prepareXML(){
 		Document doc = createDomDocument();
 
 		Element root = doc.createElement(XMLTags.MPULL);
@@ -58,50 +77,39 @@ public class NetworkSettings extends AbstractActarisObject {
 		Element md = doc.createElement(XMLTags.METERDATA);
 		root.appendChild(md);
 		Element s = doc.createElement(XMLTags.SERIALNUMBER);
-		s.setTextContent(getObjectFactory().getAace().getNecessarySerialnumber());
+		s.setTextContent(getObjectFactory().getAce4000().getNecessarySerialNumber());
 		md.appendChild(s);
 		Element t = doc.createElement(XMLTags.TRACKER);
-		t.setTextContent(String.valueOf(trackingID));
+		t.setTextContent(String.valueOf(getTrackingID()));
 		md.appendChild(t);
 
-		Element cf = doc.createElement(XMLTags.CONFIGHANDLING);
+		Element cf = doc.createElement(XMLTags.CONFIGURATION);
 		md.appendChild(cf);
 		Element ipdef = doc.createElement(XMLTags.SYSTEMIPADDRESS);
-		ipdef.setTextContent(ip);
+		ipdef.setTextContent(getIp());
 		cf.appendChild(ipdef);
 		Element ns = doc.createElement(XMLTags.NETWORKSETTINGS);
 		cf.appendChild(ns);
 		Element dnsip = doc.createElement(XMLTags.DNSIPADDRESS);
-		dnsip.setTextContent(dnsIPAddress);
+		dnsip.setTextContent(getDnsIPAddress());
 		ns.appendChild(dnsip);
 		Element gun = doc.createElement(XMLTags.GPRSUSERNAME);
-		gun.setTextContent(username);
+		gun.setTextContent(getUsername());
 		ns.appendChild(gun);
 		Element gpw = doc.createElement(XMLTags.GPRSPASSWORD);
-		gpw.setTextContent(password);
+		gpw.setTextContent(getPassword());
 		ns.appendChild(gpw);
 		Element gapn = doc.createElement(XMLTags.GPRSACCESSPOINT);
-		gapn.setTextContent(apn);
+		gapn.setTextContent(getApn());
 		ns.appendChild(gapn);
 		Element csprt = doc.createElement(XMLTags.SYSTEMIPPORTNR);
-		csprt.setTextContent(port);
+		csprt.setTextContent(getPort());
 		ns.appendChild(csprt);
 
 		String msg = convertDocumentToString(doc);
-		setReqString(msg.substring(msg.indexOf("?>")+2));
+		return (msg.substring(msg.indexOf("?>")+2));
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
+	protected void parse(Element element) {
 	}
-
-	protected void setElement(Element element) {
-		// TODO Auto-generated method stub
-
-	}
-
 }

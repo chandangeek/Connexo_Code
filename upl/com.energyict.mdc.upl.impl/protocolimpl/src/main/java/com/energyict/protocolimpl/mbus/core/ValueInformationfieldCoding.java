@@ -10,11 +10,12 @@
 
 package com.energyict.protocolimpl.mbus.core;
 
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
-import java.math.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
-import java.io.*;
 
 /**
  *
@@ -51,15 +52,15 @@ public class ValueInformationfieldCoding {
         primaryVIFs.add(addPower10ValueInformationfieldCoding(0x18,0x78,-3,Unit.get(BaseUnit.KILOGRAM),TYPE_UNIT,"Mass",new ObisCodeCreator().setB(1).setC(1).setD(8).setE(0).setF(255)));   
         primaryVIFs.add(addDurationValueInformationfieldCoding(0x20,0x7C,Unit.get(BaseUnit.SECOND),TYPE_DURATION,"Duration of meter power up,null",null));   
         primaryVIFs.add(addDurationValueInformationfieldCoding(0x24,0x7C,Unit.get(BaseUnit.SECOND),TYPE_DURATION,"Duration of meter accumulation",null));   
-        primaryVIFs.add(addPower10ValueInformationfieldCoding(0x28,0x78,-3,Unit.get(BaseUnit.WATT),TYPE_UNIT,"Power",null));   
+        primaryVIFs.add(addPower10ValueInformationfieldCoding(0x28,0x78,-3,Unit.get(BaseUnit.WATT),TYPE_UNIT,"Power",new ObisCodeCreator(-1, 0, 1, 7, 0, 255)));      //Power: D field = 7
         primaryVIFs.add(addPower10ValueInformationfieldCoding(0x30,0x78,0,Unit.get(BaseUnit.JOULEPERHOUR),TYPE_UNIT,"Power",null));   
-        primaryVIFs.add(addPower10ValueInformationfieldCoding(0x38,0x78,-6,Unit.get(BaseUnit.CUBICMETERPERHOUR),TYPE_UNIT,"Volume Flow",null));   
+        primaryVIFs.add(addPower10ValueInformationfieldCoding(0x38,0x78,-6,Unit.get(BaseUnit.CUBICMETERPERHOUR),TYPE_UNIT,"Volume Flow", new ObisCodeCreator().setB(0).setC(4).setD(0).setE(0).setF(255)));
         primaryVIFs.add(addPower10Mul60ValueInformationfieldCoding(0x40,0x78,-7,Unit.get(BaseUnit.CUBICMETERPERHOUR),TYPE_UNIT,"Volume Flow ext.",null));   
         primaryVIFs.add(addPower10Mul3600ValueInformationfieldCoding(0x48,0x78,-9,Unit.get(BaseUnit.CUBICMETERPERHOUR),TYPE_UNIT,"Volume Flow ext.",null));   
         primaryVIFs.add(addPower10ValueInformationfieldCoding(0x50,0x78,-3,Unit.get(BaseUnit.KILOGRAMPERHOUR),TYPE_UNIT,"Mass Flow",null));   
-        primaryVIFs.add(addPower10ValueInformationfieldCoding(0x58,0x7C,-3,Unit.get(BaseUnit.DEGREE_CELSIUS),TYPE_UNIT,"Flow Temperature",null));   
-        primaryVIFs.add(addPower10ValueInformationfieldCoding(0x5C,0x7C,-3,Unit.get(BaseUnit.DEGREE_CELSIUS),TYPE_UNIT,"Return Temperature",null));
-        primaryVIFs.add(addPower10ValueInformationfieldCoding(0x60,0x7C,-3,Unit.get(BaseUnit.KELVIN),TYPE_UNIT,"Temperature Difference",null));
+        primaryVIFs.add(addPower10ValueInformationfieldCoding(0x58,0x7C,-3,Unit.get(BaseUnit.DEGREE_CELSIUS),TYPE_UNIT,"Flow Temperature", new ObisCodeCreator().setB(0).setC(10).setD(0).setE(0).setF(255)));
+        primaryVIFs.add(addPower10ValueInformationfieldCoding(0x5C,0x7C,-3,Unit.get(BaseUnit.DEGREE_CELSIUS),TYPE_UNIT,"Return Temperature",new ObisCodeCreator().setB(0).setC(11).setD(0).setE(0).setF(255)));
+        primaryVIFs.add(addPower10ValueInformationfieldCoding(0x60,0x7C,-3,Unit.get(BaseUnit.KELVIN),TYPE_UNIT,"Temperature Difference",new ObisCodeCreator().setB(0).setC(12).setD(0).setE(0).setF(255)));
         primaryVIFs.add(addPower10ValueInformationfieldCoding(0x64,0x7C,-3,Unit.get(BaseUnit.DEGREE_CELSIUS),TYPE_UNIT,"External Temperature",null));
         primaryVIFs.add(addPower10ValueInformationfieldCoding(0x68,0x7C,-3,Unit.get(BaseUnit.BAR),TYPE_UNIT,"Pressure",null));
         primaryVIFs.add(addValueInformationfieldCoding(0x6C,0x7F,0x02,Unit.get(BaseUnit.UNITLESS),TYPE_G,"Date (actual or associated with a storage number/function",null));
@@ -73,7 +74,7 @@ public class ValueInformationfieldCoding {
         primaryVIFs.add(addValueInformationfieldCoding(0x6F,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Reserved for a future third table of VIF-extensions",null));
         primaryVIFs.add(addDurationValueInformationfieldCoding(0x70,0x7C,Unit.get(BaseUnit.SECOND),TYPE_DURATION,"Averaging Duration",null));   
         primaryVIFs.add(addDurationValueInformationfieldCoding(0x74,0x7C,Unit.get(BaseUnit.SECOND),TYPE_DURATION,"Actuality Duration",null));   
-        primaryVIFs.add(addValueInformationfieldCoding(0x78,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Fabrication Number",null));   
+        primaryVIFs.add(addValueInformationfieldCoding(0x78,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Fabrication Number", new ObisCodeCreator(0, 1, 24, 1, 0, 255)));
         primaryVIFs.add(addValueInformationfieldCoding(0x79,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"(Enhanced) Identification",null));   
         primaryVIFs.add(addValueInformationfieldCoding(0x7A,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Address",null));   
         primaryVIFs.add(addValueInformationfieldCoding(0x7B,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Extension to VIF codes FB",null));   
@@ -87,8 +88,8 @@ public class ValueInformationfieldCoding {
         fdVIFEs.add(addValueInformationfieldCoding(0x0B,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Parameter set identification",null));   
         fdVIFEs.add(addValueInformationfieldCoding(0x0C,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Model/Version",null));   
         fdVIFEs.add(addValueInformationfieldCoding(0x0D,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Hardware Version",null));   
-        fdVIFEs.add(addValueInformationfieldCoding(0x0E,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Metrology Firmware Version",null));   
-        fdVIFEs.add(addValueInformationfieldCoding(0x0F,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Other software version",null));   
+        fdVIFEs.add(addValueInformationfieldCoding(0x0E,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Metrology Firmware Version", new ObisCodeCreator(-1, 0, 0, 2, 1, 255)));
+        fdVIFEs.add(addValueInformationfieldCoding(0x0F,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Other software version", new ObisCodeCreator(-1, 0, 0, 2, 2, 255)));
         fdVIFEs.add(addValueInformationfieldCoding(0x10,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Customer Location",null));   
         fdVIFEs.add(addValueInformationfieldCoding(0x11,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Customer",null));   
         fdVIFEs.add(addValueInformationfieldCoding(0x12,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Access Code User",null));   

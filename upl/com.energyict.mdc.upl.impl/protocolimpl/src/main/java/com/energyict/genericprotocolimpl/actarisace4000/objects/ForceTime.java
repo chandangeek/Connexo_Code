@@ -1,20 +1,24 @@
 package com.energyict.genericprotocolimpl.actarisace4000.objects;
 
 import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import java.io.IOException;
-
+import java.util.Date;
 
 /**
  * @author gna
  */
-public class FullMeterConfig extends AbstractActarisObject {
+public class ForceTime extends AbstractActarisObject {
 
-    public FullMeterConfig(ObjectFactory of) {
+    public ForceTime(ObjectFactory of) {
         super(of);
     }
 
+    /**
+     * Force the Meter time to the System time
+     */
     protected String prepareXML() {
         Document doc = createDomDocument();
 
@@ -29,31 +33,25 @@ public class FullMeterConfig extends AbstractActarisObject {
         t.setTextContent(String.valueOf(getTrackingID()));
         md.appendChild(t);
 
-        Element cf = doc.createElement(XMLTags.FULLCONFIG);
-        md.appendChild(cf);
+        String newDate = getHexDate(new Date());
+
+        Element ft = doc.createElement(XMLTags.FORCETIME);
+        md.appendChild(ft);
+        Element t1 = doc.createElement(XMLTags.TIME1);
+        t1.setTextContent("00000000");
+        ft.appendChild(t1);
+        Element t2 = doc.createElement(XMLTags.TIME2);
+        t2.setTextContent(newDate);
+        ft.appendChild(t2);
+        Element t3 = doc.createElement(XMLTags.TIME3);
+        t3.setTextContent(newDate);
+        ft.appendChild(t3);
 
         String msg = convertDocumentToString(doc);
-
         return (msg.substring(msg.indexOf("?>") + 2));
     }
 
     protected void parse(Element mdElement) throws IOException {
-        NodeList list = mdElement.getChildNodes();
-
-        for (int i = 0; i < list.getLength(); i++) {
-            Element element = (Element) list.item(i);
-
-            // TODO handle the other config parameters
-            if (element.getNodeName().equalsIgnoreCase(XMLTags.BILLINGCONF)) {
-                getObjectFactory().getBillingConfig().parse(element);
-            } else if (element.getNodeName().equalsIgnoreCase(XMLTags.EVENT)) {
-                getObjectFactory().getEventData().parse(element);
-            }
-
-
-
-
-
-        }
+        //This results in <DT> tags, which are parsed in the DateTime class
     }
 }

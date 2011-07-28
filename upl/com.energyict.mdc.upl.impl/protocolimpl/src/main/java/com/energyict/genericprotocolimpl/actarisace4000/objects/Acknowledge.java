@@ -1,12 +1,8 @@
-/**
- *
- */
 package com.energyict.genericprotocolimpl.actarisace4000.objects;
 
+import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
 
 /**
  * @author gna
@@ -14,49 +10,15 @@ import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
  */
 public class Acknowledge extends AbstractActarisObject{
 
-	private int trackingID;
-	private String reqString = null;
-
-	/**
-	 *
-	 */
-	public Acknowledge() {
-		this(null);
-	}
-
 	public Acknowledge(ObjectFactory objectFactory){
 		super(objectFactory);
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-
+	protected void parse(Element element) {
+        //No parsing here
 	}
 
-	protected int getTrackingID() {
-		return trackingID;
-	}
-
-	protected void setTrackingID(int trackingID) {
-		this.trackingID = trackingID;
-	}
-
-	protected String getReqString() {
-		return reqString;
-	}
-
-	private void setReqString(String reqString){
-		this.reqString = reqString;
-	}
-
-	protected void setElement(Element element) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void prepareXML() {
+	public String prepareXML() {
 		Document doc = createDomDocument();
 
 		Element root = doc.createElement(XMLTags.MPULL);
@@ -64,7 +26,7 @@ public class Acknowledge extends AbstractActarisObject{
 		Element md = doc.createElement(XMLTags.METERDATA);
 		root.appendChild(md);
 		Element s = doc.createElement(XMLTags.SERIALNUMBER);
-		s.setTextContent(getObjectFactory().getAace().getNecessarySerialnumber());
+		s.setTextContent(getObjectFactory().getAce4000().getNecessarySerialNumber());
 		md.appendChild(s);
 
 		Element ak = doc.createElement(XMLTags.ACKNOWLEDGE);
@@ -73,7 +35,7 @@ public class Acknowledge extends AbstractActarisObject{
 
 		String msg = convertDocumentToString(doc);
 
-		setReqString(msg.substring(msg.indexOf("?>")+2));
+		return (msg.substring(msg.indexOf("?>")+2));
 
 	}
 }

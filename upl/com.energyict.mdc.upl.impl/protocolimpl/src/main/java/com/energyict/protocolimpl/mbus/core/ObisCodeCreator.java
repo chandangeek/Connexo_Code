@@ -27,6 +27,16 @@ public class ObisCodeCreator {
     }
     
     /** Creates a new instance of ObisCodeCreator */
+    public ObisCodeCreator(int a, int b, int c, int d, int e, int f) {
+        this.setA(a);
+        this.setB(b);
+        this.setC(c);
+        this.setD(d);
+        this.setE(e);
+        this.setF(f);
+    }
+
+    /** Creates a new instance of ObisCodeCreator */
     public ObisCodeCreator(int a, int b, int c, int d) {
         this.setA(a);
         this.setB(b);

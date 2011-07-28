@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.energyict.genericprotocolimpl.actarisace4000.objects.tables;
 
 /**

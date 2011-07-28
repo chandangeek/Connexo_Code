@@ -1,292 +1,295 @@
-/**
- *
- */
 package com.energyict.genericprotocolimpl.actarisace4000.objects;
+
+import com.energyict.cbo.*;
+import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
+import com.energyict.protocol.*;
+import org.apache.axis.encoding.Base64;
+import org.w3c.dom.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
 import java.util.logging.Level;
 
-import org.apache.axis.encoding.Base64;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.Unit;
-import com.energyict.genericprotocolimpl.actarisace4000.ActarisACE4000;
-import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.ProfileData;
 /**
  * @author gna
- *
  */
 public class LoadProfile extends AbstractActarisObject {
 
-	private int DEBUG = 0;
+    private int intervalInSeconds;
+    private Date from = null;
+    private ProfileData profileData;
 
-	private String reqString = null;
-	private int trackingID;
+    public LoadProfile(ObjectFactory of) {
+        super(of);
+    }
 
-	private int lpInterval;
-	private ProfileData profileData;
+    public Date getFrom() {
+        return from;
+    }
 
-	/**
-	 * @param of
-	 */
-	public LoadProfile(ObjectFactory of) {
-		super(of);
-	}
+    public void setFrom(Date from) {
+        this.from = from;
+    }
 
-	/* (non-Javadoc)
-	 * @see com.energyict.genericprotocolimpl.actarisace4000.objects.AbstractActarisObject#getReqString()
-	 */
-	protected String getReqString() {
-		return reqString;
-	}
+    /**
+     * Request all loadProfileIntervals
+     */
+    protected String prepareXML() {
+        Document doc = createDomDocument();
 
-	private void setReqString(String reqString){
-		this.reqString = reqString;
-	}
+        Element root = doc.createElement(XMLTags.MPULL);
+        doc.appendChild(root);
+        Element md = doc.createElement(XMLTags.METERDATA);
+        root.appendChild(md);
+        Element s = doc.createElement(XMLTags.SERIALNUMBER);
+        s.setTextContent(getObjectFactory().getAce4000().getNecessarySerialNumber());
+        md.appendChild(s);
+        Element t = doc.createElement(XMLTags.TRACKER);
+        t.setTextContent(String.valueOf(getTrackingID()));
+        md.appendChild(t);
 
-	/**
-	 * Request all loadProfileIntervals
-	 */
-	protected void prepareXML(){
-		Document doc = createDomDocument();
+        if (getFrom() == null) {
+            Element lp = doc.createElement(XMLTags.REQLPALL);
+            md.appendChild(lp);
+        } else {
 
-		Element root = doc.createElement(XMLTags.MPULL);
-		doc.appendChild(root);
-		Element md = doc.createElement(XMLTags.METERDATA);
-		root.appendChild(md);
-		Element s = doc.createElement(XMLTags.SERIALNUMBER);
-		s.setTextContent(getObjectFactory().getAace().getNecessarySerialnumber());
-		md.appendChild(s);
-		Element t = doc.createElement(XMLTags.TRACKER);
-		t.setTextContent(String.valueOf(trackingID));
-		md.appendChild(t);
+            Element lp = doc.createElement(XMLTags.REQLP);
+            lp.setTextContent(getHexDate(from) + getHexDate(new Date()));
+            md.appendChild(lp);
+        }
 
-		Element lp = doc.createElement(XMLTags.REQLPALL);
-		md.appendChild(lp);
+        String msg = convertDocumentToString(doc);
+        return (msg.substring(msg.indexOf("?>") + 2));
+    }
 
-		String msg = convertDocumentToString(doc);
-		setReqString(msg.substring(msg.indexOf("?>")+2));
-	}
+    protected void parse(Element mdElement) throws DOMException, IOException, SQLException, BusinessException {
+        if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.LOADPR)) {
+            parseLoadProfile(mdElement.getTextContent(), false, 0);
+        } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.LOADPRABS)) {
+            String scale = mdElement.getAttribute(XMLTags.SCALE);
+            parseAbsoluteLoadProfile(scale, mdElement.getTextContent());
+        }
+    }
 
-	/**
-	 * Request the loadProfile from the requested date
-	 * @param from
-	 * TODO the form is not correct yet! will not work!
-	 */
-	protected void prepareXML(Date from){
-		Document doc = createDomDocument();
+    private void parseLoadProfile(String data, boolean absoluteValues, int scale) throws BusinessException {
+        int offset = 0;
+        byte[] decoded = Base64.decode(data);
 
-		Element root = doc.createElement(XMLTags.MPULL);
-		doc.appendChild(root);
-		Element md = doc.createElement(XMLTags.METERDATA);
-		root.appendChild(md);
-		Element s = doc.createElement(XMLTags.SERIALNUMBER);
-		s.setTextContent(getObjectFactory().getAace().getNecessarySerialnumber());
-		md.appendChild(s);
-		Element t = doc.createElement(XMLTags.TRACKER);
-		t.setTextContent(String.valueOf(trackingID));
-		md.appendChild(t);
+        int numberOfChannels = getObjectFactory().getAce4000().getMeter().getChannels().size();
+        if (numberOfChannels != 1) {
+            throw new BusinessException("Received profile data for 1 channel, while " + numberOfChannels + " are configured in EiServer");
+        }
 
-		Element lp = doc.createElement(XMLTags.REQLP);
-		lp.setTextContent(Long.toHexString(from.getTime()/1000)+Long.toHexString(System.currentTimeMillis()/1000));
-		md.appendChild(lp);
 
-		String msg = convertDocumentToString(doc);
-		setReqString(msg.substring(msg.indexOf("?>")+2));
-	}
+        Date timeStamp = getObjectFactory().convertMeterDateToSystemDate(getNumberFromB64(decoded, offset, 4));
+        offset += 4;
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(timeStamp);
 
-	/* (non-Javadoc)
-	 * @see com.energyict.genericprotocolimpl.actarisace4000.objects.AbstractActarisObject#getTrackingID()
-	 */
-	protected int getTrackingID() {
-		return trackingID;
-	}
+        setIntervalInSeconds(60 * getNumberFromB64(decoded, offset, 1));
+        offset += 1;
 
-	/* (non-Javadoc)
-	 * @see com.energyict.genericprotocolimpl.actarisace4000.objects.AbstractActarisObject#setTrackingID(int)
-	 */
-	protected void setTrackingID(int trackingID) {
-		this.trackingID = trackingID;
-	}
+        int numberOfValues = getNumberFromB64(decoded, offset, 1);
+        offset += 1;
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-//		int s = 1212105600;
-//		byte[] data = new byte[50];
-//		String str = Integer.toHexString(s);
-//		System.out.println(str);
+        if (getObjectFactory().getAce4000().getMeterProfileInterval() != getIntervalInSeconds()) {
+            if ((numberOfValues > 1)) {
+                throw new BusinessException("Load profile interval mismatch, EIServer: " + getObjectFactory().getAce4000().getMeterProfileInterval() + "s, Meter: " + getIntervalInSeconds() + "s.");
+            }
+        }
 
-		String mbus = "SJFxDxYFEAdnBAEDKQAAAA14ETYxNTAwMTcwQUcwMTAxMjAwDBMyBgAA";
+        int storedValue = 0;
+        if (!absoluteValues) {
+            storedValue = getNumberFromB64(decoded, offset, 4);
+            offset += 4;
+        }
 
-		String str = "SI0TCA8cAAAD1UEAAQAAA9VBAAEAAAPVQQABAAAD1UEAAQAAA9VBAAEAAAPVQQABAAAD1UEAAQAAA9VBAAEAAAPVQQABAAAD1UEAAQAAA9VBAAEAAAPVQQABAAAD1UEAAQAAA9VBAAEAAAPVQQABAAAD1UEAAQAAA9VBAAEAAAPVQQABAAAD1UEAAQAAA9VBAAEAAAPVQQABAAAD1UEAAQAAA9VBAAEAAAPVQQACAAAD1UEAAgAAA9VBAAIAAAPVQQECAAAD1UEBAg==</LPA><LPA>SI11tA8BAAAD1UEBAg==</LPA><LPA>SI14/A8IAAAD1UEBAgAAA9VBAQIAAAPVQQACAAAD1UEAAgAAA9VBAAIAAAPVQQACAAAD1UEAAgAAA9VBAAI=</LPA><LPA>SI2V0A8BAAAD1UEBAg==</LPA><LPA>SI2YoA8CAAAD1UEAAgAAA9VBAAI=";
-		String str2 = "QOfxQA8GAAAowwAAAAEBAAQAAwEADgAFAQAVAAsC+1sAAAIAVAARAg==";
-		String str3 = "QOfxQA8GAAAOWWABAQAAKMcAAEwEAACjVAAUBAAAo6gALAgabI0UAAAIAASOZABEC";
-		String str4 = "SKFmKA8OAAAD4kEAAgAAA+NBAAIAAAPkQQACAAAD5UEAAgAAA+ZBAAIAAAPnQQACAAAD6EEAAgAAA+lBAAIAAAPqQQACAAAD60EAAgAAA+xBAAIAAAPtQQACAAAD7kEAAgAAA+9BAAI=";
+        List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
+        List<IntervalValue> intervalValues;
 
-		ActarisACE4000 aace = new ActarisACE4000();
-		ObjectFactory of = new ObjectFactory(aace);
-		LoadProfile lp = new LoadProfile(of);
-		try {
-			lp.setABSLoadProfile(str4);
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (BusinessException e) {
-			e.printStackTrace();
-		}
-//		lp.setLoadProfile(str);
-	}
+        for (int i = 0; i < numberOfValues; i++) {
+            int increase = getNumberFromB64(decoded, offset, absoluteValues ? 4 : 2);
 
-	protected void setElement(Element mdElement) throws DOMException, IOException, SQLException, BusinessException {
-		if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.LOADPR)){
-			setLoadProfile(mdElement.getTextContent());
-		}
-		else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.LOADPRABS)){
-			setABSLoadProfile(mdElement.getTextContent());
-		}
-	}
+            if (absoluteValues) {
+                storedValue = increase;       //Absolute value was parsed, length is 4 bytes
+            } else {
+                storedValue += increase;      //Incremental value was parsed, length is 2 bytes
+            }
+            offset += absoluteValues ? 4 : 2;
 
-	private void setLoadProfile(String data){
-		int offset = 0;
-		int length = 0;
-		byte[] decoded = Base64.decode(data);
-		if(DEBUG >= 1) {
-			System.out.println(new String(decoded));
-		}
+            int alarmFlags = getNumberFromB64(decoded, offset, 2);
+            offset += 2;
 
-		long timeStamp = (long)(getNumberFromB64(decoded, offset, 4))*1000;
-		if(DEBUG >= 1) {
-			System.out.println(new Date(timeStamp));
-		}
-		offset+=4;
+            int tariffRate = getNumberFromB64(decoded, offset, 1);
+            offset += 1;
 
-		setLpInterval((getNumberFromB64(decoded, offset, 1))*60);
-		offset+=1;
-		if(DEBUG >= 1) {
-			System.out.println("Interval = " + getLpInterval());
-		}
-		length = getNumberFromB64(decoded, offset, 1);
-		offset+=1;
-		if(DEBUG >= 1) {
-			System.out.println("IntervalCount = " + length);
-		}
-		int first = getNumberFromB64(decoded, offset, 4);
-		offset+=4;
-		if(DEBUG >= 1) {
-			System.out.println("First: " + first);
-		}
-		for(int i = 0; i < length; i++){
-			System.out.println("Value " + i + ": " +getNumberFromB64(decoded, offset, 2));
-			offset+=2;
-			System.out.println("Alarm " + i + ": " +getNumberFromB64(decoded, offset, 2));
-			offset+=2;
-			System.out.println("Active Rate " + i + ": " +getNumberFromB64(decoded, offset, 1));
-			offset+=1;
-		}
-	}
+            intervalValues = new ArrayList<IntervalValue>(1);
+            IntervalValue intervalValue = new IntervalValue(storedValue, alarmFlags, getEiStatus(alarmFlags));
+            intervalValues.add(intervalValue);
+            intervalDatas.add(new IntervalData(cal.getTime(), intervalValue.getEiStatus(), intervalValue.getProtocolStatus(), tariffRate, intervalValues));
+            cal.add(Calendar.SECOND, getIntervalInSeconds());
+        }
 
-	private void setABSLoadProfile(String data) throws IOException, SQLException, BusinessException{
-		int offset = 0;
-		int length = 0;
-		Calendar intervalCalendar = Calendar.getInstance();
-		byte[] decoded = Base64.decode(data);
-		if(DEBUG >= 1) {
-			System.out.println(new String(decoded));
-		}
+        getProfileData().setChannelInfos(getSingleChannelInfo(scale));
+        getProfileData().getIntervalDatas().addAll(intervalDatas);
+    }
 
-		long timeStamp = (long)(getNumberFromB64(decoded, offset, 4))*1000;
-		intervalCalendar.setTimeInMillis(timeStamp);
-		if(DEBUG >= 2){
-			System.out.print(timeStamp);
-			System.out.print(" - " + new Date(timeStamp) + " - ");
-		}
-		offset+=4;
+    private int getEiStatus(int alarmFlags) {                          //TODO;  Meter communication timeout ??
+        int result = 0;                                                //TODO: Meter does not have valid time ??
+        if (isBitSet(alarmFlags, 0)) {
+            result += IntervalStateBits.POWERDOWN;
+        }
+        if (isBitSet(alarmFlags, 1)) {
+            result += IntervalStateBits.CORRUPTED;
+        }
+        if (isBitSet(alarmFlags, 2)) {
+            result += IntervalStateBits.CORRUPTED;
+        }
+        if (isBitSet(alarmFlags, 3)) {
+            result += IntervalStateBits.WATCHDOGRESET;
+        }
+        if (isBitSet(alarmFlags, 4)) {
+            result += IntervalStateBits.WATCHDOGRESET;
+        }
+        if (isBitSet(alarmFlags, 5)) {
+            result += IntervalStateBits.BADTIME;
+        }
+        if (isBitSet(alarmFlags, 6)) {
+            result += IntervalStateBits.DEVICE_ERROR;
+        }
+        if (isBitSet(alarmFlags, 8)) {
+            result += IntervalStateBits.PHASEFAILURE;
+        }
+        if (isBitSet(alarmFlags, 9)) {
+            result += IntervalStateBits.OTHER;
+        }
+        if (isBitSet(alarmFlags, 11)) {
+            result += IntervalStateBits.REVERSERUN;
+        }
+        if (isBitSet(alarmFlags, 12)) {
+            result += IntervalStateBits.DEVICE_ERROR;
+        }
+        if (isBitSet(alarmFlags, 14)) {
+            result += IntervalStateBits.OTHER;
+        }
+        if (isBitSet(alarmFlags, 15)) {
+            result += IntervalStateBits.OTHER;
+        }
+        return result;
+    }
 
-		setLpInterval((getNumberFromB64(decoded, offset, 1))*60);
-		offset+=1;
-		if(DEBUG >= 1) {
-			System.out.println("Interval = " + getLpInterval());
-		}
+    private boolean isBitSet(int flag, int bitNumber) {
+        int bit = 0x01 << bitNumber;
+        return (flag & bit) == bit;
+    }
 
-		length = getNumberFromB64(decoded, offset, 1);
-		offset+=1;
-		if(DEBUG >= 1) {
-			System.out.println("IntervalCount = " + length);
-		}
+    private void parseAbsoluteLoadProfile(String scaleStr, String data) throws IOException, SQLException, BusinessException {
+        int scale = (scaleStr == null || scaleStr.equals("")) ? 0 : Integer.parseInt(scaleStr);
 
-		// check if the interval matches the interval configured on the meter
-		if(getObjectFactory().getAace().getMeterProfileInterval() == getLpInterval()){
-			IntervalData id = null;
-			int value, alarm, tariff;
+        byte[] decoded = Base64.decode(data);
 
-			// just add one channel
-			if(getProfileData().getChannelInfos().size() == 0) {
-				getProfileData().addChannel(getDefaultChannelInfo());
-			}
+        int numberOfValues = decoded[5] & 0xFF;
+        int length1 = 6 + numberOfValues * 6;
+        int length2 = 6 + numberOfValues * 15;
 
-			for(int i = 0; i < length; i++){
-				value = getNumberFromB64(decoded, offset, 4); offset+=4;
-				alarm = getNumberFromB64(decoded, offset, 2); offset+=2;
-				tariff = getNumberFromB64(decoded, offset, 1); offset+=1;
+        if (decoded.length == length1) {
+            parseLoadProfile(data, true, scale);
+        } else if (decoded.length == length2) {
 
-				if(DEBUG >= 2){
-					System.out.print(value +";");
-				}
+            int numberOfChannels = getObjectFactory().getAce4000().getMeter().getChannels().size();
+            if (numberOfChannels != 3) {
+                throw new BusinessException("Received profile data for 3 channels, while " + numberOfChannels + " are configured in EiServer");
+            }
 
-				id = new IntervalData(intervalCalendar.getTime(), 0, 0, tariff);
-				id.addValue(value);
-				intervalCalendar.add(Calendar.SECOND, getLpInterval());
-				getProfileData().addInterval(id);
-			}
-		}
-		else{
-			throw new ApplicationException("Actaris ACE4000, pushedLoadProfile, interval did not match, EIServer: "
-					+getObjectFactory().getAace().getMeterProfileInterval() + "s , Meter: " + getLpInterval() + "s");
-		}
+            int offset = 0;
 
-		if(DEBUG >=1) {
-			System.out.println(getProfileData());
-		}
+            Date timeStamp = getObjectFactory().convertMeterDateToSystemDate(getNumberFromB64(decoded, offset, 4));
+            offset += 4;
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(timeStamp);
 
-		if(getTrackingID() != -1){
-			getObjectFactory().sendAcknowledge(getTrackingID());
-			getObjectFactory().getAace().getLogger().log(Level.INFO, "Sent loadprofile ACK for tracknr: " + getTrackingID());
-		}
-	}
+            setIntervalInSeconds(60 * getNumberFromB64(decoded, offset, 1));
+            offset += 1;
 
-	public int getLpInterval() {
-		return lpInterval;
-	}
+            if (getObjectFactory().getAce4000().getMeterProfileInterval() != getIntervalInSeconds()) {
+                if ((numberOfValues > 1)) {
+                    throw new BusinessException("Load profile interval mismatch, EIServer: " + getObjectFactory().getAce4000().getMeterProfileInterval() + "s, Meter: " + getIntervalInSeconds() + "s.");
+                }
+            }
 
-	private void setLpInterval(int lpInterval) {
-		this.lpInterval = lpInterval;
-	}
+            numberOfValues = getNumberFromB64(decoded, offset, 1);
+            offset += 1;
 
-	public ProfileData getProfileData(){
-		if(profileData == null) {
-			profileData = new ProfileData();
-		}
-		return profileData;
-	}
+            List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
+            List<IntervalValue> intervalValues;
 
-	private ChannelInfo getDefaultChannelInfo(){
-		ChannelInfo ci = new ChannelInfo(0, "Actaris ACE4000 Channel 1", Unit.get(BaseUnit.WATTHOUR));
-		ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
-		return ci;
-	}
+            for (int i = 0; i < numberOfValues; i++) {
+                int activeImport = getNumberFromB64(decoded, offset, 4);
+                offset += 4;
+                int reactiveImport = getNumberFromB64(decoded, offset, 4);
+                offset += 4;
+                int activeExport = getNumberFromB64(decoded, offset, 4);
+                offset += 4;
+
+                int alarmFlags = getNumberFromB64(decoded, offset, 2);
+                offset += 2;
+
+                int tariffRate = getNumberFromB64(decoded, offset, 1);
+                offset += 1;
+
+                intervalValues = new ArrayList<IntervalValue>(3);
+                intervalValues.add(new IntervalValue(activeImport, alarmFlags, getEiStatus(alarmFlags)));
+                intervalValues.add(new IntervalValue(activeExport, alarmFlags, getEiStatus(alarmFlags)));
+                intervalValues.add(new IntervalValue(reactiveImport, alarmFlags, getEiStatus(alarmFlags)));
+
+                intervalDatas.add(new IntervalData(cal.getTime(), getEiStatus(alarmFlags), alarmFlags, tariffRate, intervalValues));
+                cal.add(Calendar.SECOND, getIntervalInSeconds());
+            }
+
+            getProfileData().setChannelInfos(getExtendedChannelInfo(scale));
+            getProfileData().getIntervalDatas().addAll(intervalDatas);
+        } else {
+            getObjectFactory().log(Level.WARNING, "Unrecognized LP message length, cannot parse contents");
+        }
+    }
+
+    public int getIntervalInSeconds() {
+        return intervalInSeconds;
+    }
+
+    private void setIntervalInSeconds(int intervalInSeconds) {
+        this.intervalInSeconds = intervalInSeconds;
+    }
+
+    public ProfileData getProfileData() {
+        if (profileData == null) {
+            profileData = new ProfileData();
+        }
+        return profileData;
+    }
+
+    private List<ChannelInfo> getSingleChannelInfo(int scale) {
+        ChannelInfo ci = new ChannelInfo(0, "1.0.1.8.0.255", Unit.get(BaseUnit.WATTHOUR, scale));
+        ci.setCumulativeWrapValue(new BigDecimal(Integer.MAX_VALUE));
+        List<ChannelInfo> result = new ArrayList<ChannelInfo>(1);
+        result.add(ci);
+        return result;
+    }
+
+    private List<ChannelInfo> getExtendedChannelInfo(int scale) {
+        ChannelInfo ci1 = new ChannelInfo(0, "1.0.1.8.0.255", Unit.get(BaseUnit.WATTHOUR, scale));
+        ci1.setCumulativeWrapValue(new BigDecimal(Integer.MAX_VALUE));
+        ChannelInfo ci2 = new ChannelInfo(1, "1.0.3.8.0.255", Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, scale));
+        ci2.setCumulativeWrapValue(new BigDecimal(Integer.MAX_VALUE));
+        ChannelInfo ci3 = new ChannelInfo(2, "1.0.2.8.0.255", Unit.get(BaseUnit.WATTHOUR, scale));
+        ci3.setCumulativeWrapValue(new BigDecimal(Integer.MAX_VALUE));
+
+        List<ChannelInfo> result = new ArrayList<ChannelInfo>(3);
+        result.add(ci1);
+        result.add(ci2);
+        result.add(ci3);
+        return result;
+    }
 }
