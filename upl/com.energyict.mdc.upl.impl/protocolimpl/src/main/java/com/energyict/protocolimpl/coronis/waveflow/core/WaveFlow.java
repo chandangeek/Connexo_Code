@@ -148,6 +148,9 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
         // e.g. USED,4,28740,28800,1,0e514a401f25
         bubbleUpStartMoment = Integer.parseInt(properties.getProperty("WavenisBubbleUpInfo", "USED,1,28800,28800,1,000000000000").split(",")[2]);
         deviceType = Integer.parseInt(properties.getProperty("ApplicationStatusVariant", "0"));
+
+         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, "5000").trim()));
+         setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty(PROP_RETRIES, "2").trim()));
     }
 
     @Override
