@@ -147,12 +147,11 @@ public class MTU155Discover {
         SearchFilter filter = new SearchFilter(typeDescr);
 
         Criterium externalName = typeDescr.getAttributeDescriptor("externalName").eq(createExternalName());
-        Criterium serial = typeDescr.getAttributeDescriptor("serialNumber").eq(meterSerial);
         Criterium deviceId = typeDescr.getAttributeDescriptor("deviceId").eq(mtuSerial);
         Criterium name = typeDescr.getAttributeDescriptor("name").eq(convertorSerial);
         Criterium callHomeId = typeDescr.getAttributeDescriptor("dialHomeId").eq(pdr);
 
-        filter.addAnd(externalName.or(serial).or(deviceId).or(name).or(callHomeId));
+        filter.addAnd(externalName.or(deviceId).or(name).or(callHomeId));
         List<Rtu> result = factory.findBySearchFilter(filter);
         if (result.size() > 0) {
             String ids = null;
@@ -163,7 +162,7 @@ public class MTU155Discover {
                     ids += ", " + rtu.getId();
                 }
             }
-            throw new CTRDiscoverException("Duplicate serials, external name and/or pdr found for [" + result.size() + "] existing rtu(s) with id(s): [" + ids + "]");
+            throw new CTRDiscoverException("Duplicate external name and/or pdr found for [" + result.size() + "] existing rtu(s) with id(s): [" + ids + "]");
         }
 
     }
