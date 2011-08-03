@@ -344,22 +344,34 @@ public class MTU155 extends AbstractGenericProtocol {
         if (register == null) {
             throw new CTRDiscoverException("No register configured for the installation date! [" + obis + "]");
         } else if (register.getLastReading() == null) {
-            severe("No installation date yet! Starting installation date detection.");
-            List<MeterEvent> allEvents = MeterEventUtils.convertRtuEventToMeterEvent(getRtu().getEvents());
-            allEvents.addAll(meterEvents);
-            Date installationDate = new InstallationDateDiscover(allEvents).getInstallationDateFromEvents();
-            if (installationDate != null) {
-                severe("Found installation date! [" + installationDate + "]");
+            if (getProtocolProperties().getExtractInstallationDate() == 0) {
+                // Use current date & time instead of accessing events.
+                severe("No installation date yet! Setting current time as installation date.");
+                Date installationDate = Calendar.getInstance(getTimeZone()).getTime();
                 Quantity installationQuantity = new Quantity(installationDate.getTime(), Unit.get("ms"));
                 RegisterValue registerValue = new RegisterValue(obis, installationQuantity, installationDate, new Date(), new Date(), new Date(), 0, installationDate.toString());
                 storeObject.add(register, registerValue);
                 severe("Preparing RtuDiscoveredEvent for rtu [" + getRtu().getName() + "]");
                 discoveredEvent = new RtuDiscoveredEvent(getRtu());
             } else {
-                severe("No installation date found yet. Retrying next time.");
+                severe("No installation date yet! Starting installation date detection.");
+                List<MeterEvent> allEvents = MeterEventUtils.convertRtuEventToMeterEvent(getRtu().getEvents());
+                allEvents.addAll(meterEvents);
+                Date installationDate = new InstallationDateDiscover(allEvents).getInstallationDateFromEvents();
+                if (installationDate != null) {
+                    severe("Found installation date! [" + installationDate + "]");
+                    Quantity installationQuantity = new Quantity(installationDate.getTime(), Unit.get("ms"));
+                    RegisterValue registerValue = new RegisterValue(obis, installationQuantity, installationDate, new Date(), new Date(), new Date(), 0, installationDate.toString());
+                    storeObject.add(register, registerValue);
+                    severe("Preparing RtuDiscoveredEvent for rtu [" + getRtu().getName() + "]");
+                    discoveredEvent = new RtuDiscoveredEvent(getRtu());
+                } else {
+                    severe("No installation date found yet. Retrying next time.");
+                }
             }
+
         } else {
-            log("No need to determine installation date from events.");
+            log("No need to determine installation date.");
         }
     }
 

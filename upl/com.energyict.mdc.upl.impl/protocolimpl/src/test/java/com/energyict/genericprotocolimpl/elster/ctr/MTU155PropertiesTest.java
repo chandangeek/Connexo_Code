@@ -45,6 +45,15 @@ public class MTU155PropertiesTest {
     }
 
     @Test
+    public void testGetExtractInstallationDate() {
+        MTU155Properties properties = new MTU155Properties();
+        for (int i = 0; i < TEST_ROUNDS; i++) {
+            properties.addProperty(MTU155Properties.EXTRACTINSTALLATIONDATE, String.valueOf(i));
+            assertEquals(i, properties.getExtractInstallationDate());
+        }
+    }
+
+    @Test
     public void testGetDelayAfterError() throws Exception {
         MTU155Properties properties = new MTU155Properties();
         for (int i = 0; i < TEST_ROUNDS; i++) {

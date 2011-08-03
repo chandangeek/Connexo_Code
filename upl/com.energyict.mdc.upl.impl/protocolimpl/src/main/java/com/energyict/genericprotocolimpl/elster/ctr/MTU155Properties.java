@@ -56,6 +56,9 @@ public class MTU155Properties extends AbstractProtocolProperties {
     public static final String DEFAULT_MAX_ALLOWED_INVALID_PROFILE_RESPONSES = "5";
     public static final String DEFAULT_DISABLE_DST_FOR_KNOCKING_DEVICES = "0";
 
+    public static final String EXTRACTINSTALLATIONDATE = "ExtractInstallationDate";
+    public static final String DEFAULT_EXTRACTINSTALLATIONDATE = "1";
+
     public MTU155Properties() {
         this(new Properties());
     }
@@ -87,6 +90,7 @@ public class MTU155Properties extends AbstractProtocolProperties {
         optional.add(GENERATE_RANDOM_MTU_SERIAL);
         optional.add(MAX_ALLOWED_INVALID_PROFILE_RESPONSES);
         optional.add(DISABLE_DST_FOR_KNOCKING_DEVICES);
+        optional.add(EXTRACTINSTALLATIONDATE);
         return optional;
     }
 
@@ -121,6 +125,10 @@ public class MTU155Properties extends AbstractProtocolProperties {
     @ProtocolProperty
     public int getForcedDelay() {
         return getIntProperty(FORCED_DELAY, DEFAULT_FORCED_DELAY);
+    }
+
+    public int getExtractInstallationDate() {
+        return getIntProperty(EXTRACTINSTALLATIONDATE, DEFAULT_EXTRACTINSTALLATIONDATE);
     }
 
     @ProtocolProperty
