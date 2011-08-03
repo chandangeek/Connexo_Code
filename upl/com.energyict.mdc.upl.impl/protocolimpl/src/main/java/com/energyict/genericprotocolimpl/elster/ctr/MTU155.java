@@ -58,7 +58,7 @@ public class MTU155 extends AbstractGenericProtocol {
     }
 
     /**
-     * The protocol version
+     * The protocol version 2011/08/03
      *
      * @return
      */
