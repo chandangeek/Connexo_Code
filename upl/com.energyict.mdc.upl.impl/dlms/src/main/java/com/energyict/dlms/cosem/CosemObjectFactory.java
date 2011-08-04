@@ -340,6 +340,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new ZigbeeHanManagement(protocolLink);
     }
 
+    public ZigBeeSETCControl getZigBeeSETCControl() throws IOException {
+        return new ZigBeeSETCControl(protocolLink);
+    }
+
     public CosemObject getCosemObject(ObisCode obisCode) throws IOException {
         if (obisCode.getF() != 255) {
             return getStoredValues().getHistoricalValue(obisCode);

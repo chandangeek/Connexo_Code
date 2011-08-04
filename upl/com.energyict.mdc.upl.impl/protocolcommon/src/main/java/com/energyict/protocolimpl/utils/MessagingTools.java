@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.utils;
 
 import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValueSpec;
 
 /**
  * @author jme
@@ -34,5 +36,17 @@ public final class MessagingTools {
 		}
 		return null;
 	}
+
+    public static MessageValueSpec getEmptyMessageValueSpec() {
+        MessageValueSpec valueSpec = new MessageValueSpec();
+        valueSpec.setValue(" ");
+        return valueSpec;
+    }
+
+    public static MessageTagSpec getAttributesOnlyMessageTagSpec(String tagName) {
+        MessageTagSpec messageTagSpec = new MessageTagSpec(tagName);
+        messageTagSpec.add(getEmptyMessageValueSpec());
+        return messageTagSpec;
+    }
 
 }

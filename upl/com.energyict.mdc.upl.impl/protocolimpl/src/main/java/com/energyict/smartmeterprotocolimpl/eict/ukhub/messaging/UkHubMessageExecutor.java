@@ -2,7 +2,8 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.cosem.ZigbeeHanManagement;
+import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.attributeobjects.RegisterZigbeeDeviceData;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
@@ -26,13 +27,23 @@ import java.util.logging.Level;
 public class UkHubMessageExecutor extends GenericMessageExecutor {
 
     private final AbstractSmartDlmsProtocol protocol;
-    private final DlmsSession dlmsSession;
 
     private boolean success;
 
     public UkHubMessageExecutor(final AbstractSmartDlmsProtocol protocol) {
         this.protocol = protocol;
-        this.dlmsSession = this.protocol.getDlmsSession();
+    }
+
+    private CosemObjectFactory getCosemObjectFactory() {
+        return getDlmsSession().getCosemObjectFactory();
+    }
+
+    private DlmsSession getDlmsSession() {
+        return getProtocol().getDlmsSession();
+    }
+
+    public AbstractSmartDlmsProtocol getProtocol() {
+        return this.protocol;
     }
 
     public MessageResult executeMessageEntry(final MessageEntry messageEntry) {
@@ -42,10 +53,13 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         try {
             importMessage(content, messageHandler);
 
-            boolean createHan = messageHandler.getType().equals(RtuMessageConstant.CreateHanNetwork);
+            boolean createHan = messageHandler.getType().equals(RtuMessageConstant.CREATE_HAN_NETWORK);
+            boolean joinZigbeeSlave = messageHandler.getType().equals(RtuMessageConstant.JOIN_ZIGBEE_SLAVE);
 
             if (createHan) {
                 createHanNetwork(messageHandler);
+            } else if (joinZigbeeSlave) {
+                joinZigbeeSlave(messageHandler);
             } else {
                 log(Level.INFO, "Message not supported : " + content);
                 success = false;
@@ -66,14 +80,23 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         }
     }
 
+    private void joinZigbeeSlave(MessageHandler messageHandler) throws IOException {
+        log(Level.INFO, "Sending message : Join Zigbee slave");
+        String address = messageHandler.getJoinZigBeeIEEEAddress();
+        String key = messageHandler.getJoinZigBeeLinkKey();
+        ZigBeeSETCControl zigBeeSETCControl = getCosemObjectFactory().getZigBeeSETCControl();
+        zigBeeSETCControl.registerDevice(new RegisterZigbeeDeviceData(address, key));
+        zigBeeSETCControl.writeEnableDisableJoining(true);
+    }
+
     private void createHanNetwork(final MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Sending message : Create HAN Network");
-        ZigbeeHanManagement hanManagement = this.dlmsSession.getCosemObjectFactory().getZigbeeHanManagement();
+        ZigbeeHanManagement hanManagement = getCosemObjectFactory().getZigbeeHanManagement();
         hanManagement.createHan(new Integer8(0));
     }
 
     private void log(final Level level, final String msg) {
-        this.dlmsSession.getLogger().log(level, msg);
+        getDlmsSession().getLogger().log(level, msg);
     }
 
     @Override
@@ -83,6 +106,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
 
     @Override
     protected TimeZone getTimeZone() {
-        return this.dlmsSession.getTimeZone();
+        return getDlmsSession().getTimeZone();
     }
+
 }

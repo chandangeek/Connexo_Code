@@ -16,7 +16,7 @@ import com.energyict.dlms.cosem.DLMSClassId;
 public enum ZigbeeSETCControlAttributes implements DLMSClassAttributes {
 
     LOGICAL_NAMTE(1, 0x00),
-    ENABLE_DISABLE_JOINGING(2, 0x08),
+    ENABLE_DISABLE_JOINING(2, 0x08),
     JOIN_TIMEOUT(3, 0x10);
 
     /**

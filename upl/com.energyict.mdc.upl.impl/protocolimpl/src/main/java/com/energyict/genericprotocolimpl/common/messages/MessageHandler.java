@@ -123,8 +123,11 @@ public class MessageHandler extends DefaultHandler{
         } else if(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL.equals(qName)){
             setType(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL);
             handleChangeAuthentication(attrbs);
-        } else if(RtuMessageConstant.CreateHanNetwork.equalsIgnoreCase(qName)){
-            setType(RtuMessageConstant.CreateHanNetwork);
+        } else if(RtuMessageConstant.CREATE_HAN_NETWORK.equalsIgnoreCase(qName)){
+            setType(RtuMessageConstant.CREATE_HAN_NETWORK);
+        } else if(RtuMessageConstant.JOIN_ZIGBEE_SLAVE.equalsIgnoreCase(qName)){
+            setType(RtuMessageConstant.JOIN_ZIGBEE_SLAVE);
+            handleJoinZigBeeSlave(attrbs);
 		} else {
 			if(!isXmlInContent){ // If there is XML in the content, then the protocol will parse it himself ...
 				throw new SAXException("Unknown messageContent : " + qName);
@@ -582,6 +585,21 @@ public class MessageHandler extends DefaultHandler{
      */
     public String getMbusInstallEncryptionKey(){
         return mbusEncryptionKey;
+    }
+
+    private String joinZigBeeIEEEAddress = "";
+    private String joinZigBeeLinkKey = "";
+    private void handleJoinZigBeeSlave(Attributes attrbs) {
+        this.joinZigBeeIEEEAddress = attrbs.getValue(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_IEEE_ADDRESS);
+        this.joinZigBeeLinkKey = attrbs.getValue(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_LINK_KEY);
+    }
+
+    public String getJoinZigBeeIEEEAddress() {
+        return joinZigBeeIEEEAddress;
+    }
+
+    public String getJoinZigBeeLinkKey() {
+        return joinZigBeeLinkKey;
     }
 
 }

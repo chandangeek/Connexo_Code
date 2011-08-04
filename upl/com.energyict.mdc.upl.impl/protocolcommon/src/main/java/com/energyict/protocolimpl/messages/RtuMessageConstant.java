@@ -263,7 +263,13 @@ public class RtuMessageConstant {
     public static final String NTA_AEE_CHANGE_DATATRANSPORT_ENCRYPTION_KEY = "Change_DataTransportEncryptionKey";
     public static final String NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY = "Change_DataTransportAuthenticationKey";
 
-    // Zigbee related Han management messages
-    public static final String HanManagement = "Han_Management";
-    public static final String CreateHanNetwork = "Create_Han_Network";
+    // ZigBee related Han management messages
+    public static final String HAN_MANAGEMENT = "Han_Management";
+    public static final String CREATE_HAN_NETWORK = "Create_Han_Network";
+
+    // Join ZigBee slave device related message constants
+    public static final String JOIN_ZIGBEE_SLAVE = "Join_ZigBee_Slave";
+    public static final String JOIN_ZIGBEE_SLAVE_IEEE_ADDRESS = "ZigBee_IEEE_Address";
+    public static final String JOIN_ZIGBEE_SLAVE_LINK_KEY = "ZigBee_Link_Key";
+
 }

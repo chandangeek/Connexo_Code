@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.messages;
 
 import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageSpec;
 
 /**
  * Contains a summary of possible {@link com.energyict.protocol.messaging.MessageCategorySpec} for a protocol to implement
@@ -25,8 +24,9 @@ public class ProtocolMessageCategories {
      * @return the newly created category
      */
     public static MessageCategorySpec getHanManagementCategory() {
-        MessageCategorySpec hanManagement = new MessageCategorySpec(RtuMessageConstant.HanManagement);
+        MessageCategorySpec hanManagement = new MessageCategorySpec(RtuMessageCategoryConstants.ZIG_BEE_SETUP);
         hanManagement.addMessageSpec(ProtocolMessageSpecifications.getCreateHanMessageSpecification());
+        hanManagement.addMessageSpec(ProtocolMessageSpecifications.getJoinZigBeeSlaveSpecification());
         return hanManagement;
     }
 
