@@ -53,7 +53,7 @@ public class LoadProfileBuilder {
         ComposedCosemObject ccoCapturedObjectRegisterUnits = constructCapturedObjectRegisterUnitComposedCosemObject(capturedObjectRegisterList, this.meterProtocol.getProperties().isBulkRequest());
 
         for (LoadProfileReader lpr : this.expectedLoadProfileReaders) {
-            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), meterProtocol.getMeterSerialNumber());
+            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), meterProtocol.getSerialNumber());
 
             ComposedProfileConfig cpc = lpConfigMap.get(lpr);
             if (cpc != null) {
@@ -183,7 +183,7 @@ public class LoadProfileBuilder {
                     for (CapturedObject co : capturedObjects) {
                         if (loadProfileContains(lpr, co.getLogicalName().getObisCode())) {
                             relevantObjects.add(co);
-                            Register reg = new Register(co.getLogicalName().getObisCode(), meterProtocol.getMeterSerialNumber());
+                            Register reg = new Register(co.getLogicalName().getObisCode(), meterProtocol.getSerialNumber());
                             if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode())) {// this way we don't get duplicate registerRequests in one getWithList
                                 channelRegisters.add(reg);
                             }
