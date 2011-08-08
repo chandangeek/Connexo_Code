@@ -52,7 +52,7 @@ public enum ZigBeeSASStartup {
     }
 
     public DLMSClassId getDlmsClassId() {
-        return DLMSClassId.ZIGBEE_SETC_CONTROL;
+        return DLMSClassId.ZIGBEE_SAS_STARTUP;
     }
 
     /**
