@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.messages;
 
 import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.utils.MessagingTools;
 
 /**
  * Contains a summary of {@link com.energyict.protocol.messaging.MessageSpec} for the protocol to use in the {@link com.energyict.protocolimpl.messages.ProtocolMessageCategories}
@@ -54,8 +53,21 @@ public class ProtocolMessageSpecifications {
      * @return the requested messageSpecification
      */
     public static MessageSpec getBackupZigBeeHanKeyMessageSpecification() {
-        MessageSpec msgSpec = new MessageSpec(RtuMessageKeyIdConstants.BACKUP_ZIGBEE_HAN_KEYS);
-        MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.BACKUP_ZIGBEE_HAN_KEYS);
+        MessageSpec msgSpec = new MessageSpec(RtuMessageKeyIdConstants.BACKUP_ZIGBEE_HAN_PARAMETERS);
+        MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.BACKUP_ZIGBEE_HAN_PARAMETERS);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
+    /**
+     * Creates a MessageSpecification for creating a Restore ZigBee HAN parameters message
+     *
+     * @return the requested messageSpecification
+     */
+    public static MessageSpec getRestoreZigBeeParametersMessageSpecification() {
+        MessageSpec msgSpec = new MessageSpec(RtuMessageKeyIdConstants.RESTORE_ZIGBEE_HAN_PARAMETERS);
+        MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS);
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.RESTORE_ZIGBEE_PARAMETERS_USERFILE_ID, true));
         msgSpec.add(tagSpec);
         return msgSpec;
     }

@@ -128,23 +128,26 @@ public class MessageHandler extends DefaultHandler{
         } else if(RtuMessageConstant.JOIN_ZIGBEE_SLAVE.equalsIgnoreCase(qName)){
             setType(RtuMessageConstant.JOIN_ZIGBEE_SLAVE);
             handleJoinZigBeeSlave(attrbs);
-        } else if(RtuMessageConstant.BACKUP_ZIGBEE_HAN_KEYS.equalsIgnoreCase(qName)){
-            setType(RtuMessageConstant.BACKUP_ZIGBEE_HAN_KEYS);
+        } else if(RtuMessageConstant.BACKUP_ZIGBEE_HAN_PARAMETERS.equalsIgnoreCase(qName)){
+            setType(RtuMessageConstant.BACKUP_ZIGBEE_HAN_PARAMETERS);
+        } else if(RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS.equalsIgnoreCase(qName)){
+            setType(RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS);
+            handleRestoreHANParameters(attrbs);
 		} else {
 			if(!isXmlInContent){ // If there is XML in the content, then the protocol will parse it himself ...
 				throw new SAXException("Unknown messageContent : " + qName);
 			}
 		}
 	}
-	
-	/**
+
+    /**
 	 * Setter for the {@link MessageHandler#type}
 	 * @param type - the message
 	 */
     protected void setType(String type){
 		this.type = type;
 	}
-	
+
 	/**
 	 * Getter fo the {@link MessageHandler#type}
 	 * @return
@@ -152,77 +155,77 @@ public class MessageHandler extends DefaultHandler{
 	public String getType(){
 		return this.type;
 	}
-	
-	
-	/* FirmwareUpgrade Related messages 
+
+	/* FirmwareUpgrade Related messages
 	/**********************************************/
-	private String userfileId;
-	private String activationDate;
-	
+
+
+    private String userfileId;
+    private String activationDate;
     private void handleFirmWareUpgrade(Attributes attrbs) {
     	this.userfileId = attrbs.getValue(RtuMessageConstant.FIRMWARE);
     	this.activationDate = ProtocolTools.getEpochTimeFromString(attrbs.getValue(RtuMessageConstant.FIRMWARE_ACTIVATE_DATE));
 	}
-	
+
 	public String getUserFileId(){
 		return this.userfileId;
 	}
-	
+
 	public String getActivationDate(){
 		if(this.activationDate == null){
 			this.activationDate = "";
 		}
 		return this.activationDate;
 	}
-	
-	
+
 	/* P1 port Related messages
 	/**********************************************/
-	private String code;
-	private String text;
 
+
+    private String code;
+    private String text;
 	private void handleP1Code(Attributes attrbs) {
 		this.code = attrbs.getValue(RtuMessageConstant.P1CODE);
 	}
 
 	private void handleP1Text(Attributes attrbs) {
-		this.text = attrbs.getValue(RtuMessageConstant.P1TEXT);		
+		this.text = attrbs.getValue(RtuMessageConstant.P1TEXT);
 	}
-	
+
 	public String getP1Code(){
 		return this.code;
 	}
-	
+
 	public String getP1Text(){
 		return this.text;
 	}
-	
+
 	/* Disconnect Control Related messages
 	/**********************************************/
-	private String connectDate;
-	private String disconnectDate;
-	private String mode;
-    private String outputId;
 
+    private String connectDate;
+    private String disconnectDate;
+    private String mode;
+    private String outputId;
 	private void handleConnectLoad(Attributes attrbs){
 		this.connectDate = ProtocolTools.getEpochTimeFromString(attrbs.getValue(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE));
         this.outputId = attrbs.getValue(RtuMessageConstant.DISCONNECTOR_OUTPUT_ID);
 	}
-	
+
 	private void handleDisconnectLoad(Attributes attrbs){
 		this.disconnectDate = ProtocolTools.getEpochTimeFromString(attrbs.getValue(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE));
         this.outputId = attrbs.getValue(RtuMessageConstant.DISCONNECTOR_OUTPUT_ID);
 	}
-	
+
 	private void handleConnectControlMode(Attributes attrbs){
 		this.mode = attrbs.getValue(RtuMessageConstant.CONNECT_MODE);
         this.outputId = attrbs.getValue(RtuMessageConstant.DISCONNECTOR_OUTPUT_ID);
 	}
-	
+
 	public String getConnectControlMode(){
 		return this.mode;
 	}
-	
+
     public String getOutputId() {
         if (this.outputId == null) {
             outputId = "";
@@ -236,7 +239,7 @@ public class MessageHandler extends DefaultHandler{
 		}
 		return this.connectDate;
 	}
-	
+
 	public String getDisconnectDate(){
 		if(this.disconnectDate == null){
 			this.disconnectDate = "";
@@ -244,17 +247,17 @@ public class MessageHandler extends DefaultHandler{
 		return this.disconnectDate;
 	}
 
-	
 	/* LoadLimit Related messages
 	/**********************************************/
-	private String normalThreshold = "";
-	private String emergencyThreshold = "";
-	private String overThresholdDurtion = "";
-	private String epProfileId = "";
-	private String epActivationTime = "";
-	private String epDuration = "";
-	private String epGroupIdListLookupTableId = "";
-	
+
+
+    private String normalThreshold = "";
+    private String emergencyThreshold = "";
+    private String overThresholdDurtion = "";
+    private String epProfileId = "";
+    private String epActivationTime = "";
+    private String epDuration = "";
+    private String epGroupIdListLookupTableId = "";
 	private void handleLoadLimitEPGroupIDList(Attributes attrbs) {
 		this.epGroupIdListLookupTableId = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_EP_GRID_LOOKUP_ID);
 
@@ -265,13 +268,13 @@ public class MessageHandler extends DefaultHandler{
 		this.emergencyThreshold = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_EMERGENCY_THRESHOLD);
 		this.overThresholdDurtion = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_MIN_OVER_THRESHOLD_DURATION);
 	}
-	
+
 	private void handleLoadLimitEmergencyProfile(Attributes attrbs) {
 		this.epProfileId = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_EP_PROFILE_ID);
 		this.epActivationTime = ProtocolTools.getEpochTimeFromString(attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_EP_ACTIVATION_TIME));
 		this.epDuration = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_EP_DURATION);
 	}
-	
+
 	public String getNormalThreshold() {
 		return normalThreshold;
 	}
@@ -299,17 +302,17 @@ public class MessageHandler extends DefaultHandler{
 	public String getEpGroupIdListLookupTableId() {
 		return epGroupIdListLookupTableId;
 	}
-	
-	
+
 	/* Activity Calendar Related messages
 	/**********************************************/
-	private String touActivationDate = "";
-	private String touCalendarName = "";
-	private String touCodeTable = "";
-	private String touUserFile = "";
-	private String touSpecialDaysCodeTable = "";
-	private String deleteEntry = "";
-	
+
+
+    private String touActivationDate = "";
+    private String touCalendarName = "";
+    private String touCodeTable = "";
+    private String touUserFile = "";
+    private String touSpecialDaysCodeTable = "";
+    private String deleteEntry = "";
 	private void handleTOUMessage(Attributes attrbs){
 		this.touActivationDate = ProtocolTools.getEpochTimeFromString(attrbs.getValue(RtuMessageConstant.TOU_ACTIVITY_DATE));
 		this.touCalendarName = attrbs.getValue(RtuMessageConstant.TOU_ACTIVITY_NAME);
@@ -324,86 +327,86 @@ public class MessageHandler extends DefaultHandler{
 	private void handleSpecialDays(Attributes attrbs) {
 		this.touSpecialDaysCodeTable = attrbs.getValue(RtuMessageConstant.TOU_SPECIAL_DAYS_CODE_TABLE);
 	}
-	
+
 	private void handleSpecialDaysDelete(Attributes attrbs){
 		this.deleteEntry = attrbs.getValue(RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE_ENTRY);
 	}
-	
+
 	public String getTOUActivationDate(){
 		return this.touActivationDate;
 	}
-	
+
 	public String getTOUCalendarName(){
 		return this.touCalendarName;
 	}
-	
+
 	public String getTOUCodeTable(){
 		return this.touCodeTable;
 	}
-	
+
 	public String getTOUUserFile(){
 		return this.touUserFile;
 	}
-	
+
 	public String getSpecialDaysCodeTable(){
 		return this.touSpecialDaysCodeTable;
 	}
-	
+
 	public String getSpecialDayDeleteEntry(){
 		return this.deleteEntry;
 	}
-	
-	
+
 	/* Mbus encryption keys Related messages
  	/**********************************************/
-	private String openKey = "";
-	private String transferKey = "";
-	
+
+
+    private String openKey = "";
+    private String transferKey = "";
 	private void handleMbusEncryptionKeys(Attributes attrbs){
 		this.openKey = attrbs.getValue(RtuMessageConstant.MBUS_OPEN_KEY);
 		this.transferKey = attrbs.getValue(RtuMessageConstant.MBUS_TRANSFER_KEY);
 	}
-	
+
 	public String getOpenKey(){
 		return this.openKey;
 	}
-	
+
 	public String getTransferKey(){
 		return this.transferKey;
 	}
-	
-	
+
 	/* SetTime Related messages
 	/**********************************************/
-	private String epochTime = "";
-	
+
+
+    private String epochTime = "";
 	private void handleSetTime(Attributes attrbs){
 		this.epochTime = ProtocolTools.getEpochTimeFromString(attrbs.getValue(RtuMessageConstant.SET_TIME_VALUE));
 	}
-	
+
 	public String getEpochTime(){
 		return this.epochTime;
 	}
 
-
 	/* Making entries Related messages
 	/***********************************************/
-	private String startDate = "";
-	private String entries = "";
-	private String interval = "";
-	private String syncClock = "";
-	
+
+
+    private String startDate = "";
+    private String entries = "";
+    private String interval = "";
+    private String syncClock = "";
 	private void handleMakingEntries(Attributes attrbs){
 		this.startDate = ProtocolTools.getEpochTimeFromString(attrbs.getValue(RtuMessageConstant.ME_START_DATE));
 		this.entries = attrbs.getValue(RtuMessageConstant.ME_NUMBER_OF_ENTRIES);
 		this.interval = attrbs.getValue(RtuMessageConstant.ME_INTERVAL);
 		this.syncClock = attrbs.getValue(RtuMessageConstant.ME_SET_CLOCK_BACK);
 	}
-	
+
 	public String getMEStartDate(){
 		return this.startDate;
 	}
-	
+
 	public int getMEEntries() throws IOException{
 		try {
 			return Integer.parseInt(this.entries);
@@ -412,14 +415,14 @@ public class MessageHandler extends DefaultHandler{
 			throw new IOException("Number of entries does not contain a non numeric value: " + this.entries);
 		}
 	}
-	
+
 	public String getMEInterval() throws IOException {
 		if(!this.interval.equalsIgnoreCase("15") && !this.interval.equalsIgnoreCase("day") && !this.interval.equalsIgnoreCase("month")){
 			throw new IOException("Only '15 - day - month' is alowed in the interval field. (value: " + this.interval);
 		}
 		return this.interval;
 	}
-	
+
 	public boolean getMESyncAtEnd(){
 		if(this.syncClock != null){
 			return !this.syncClock.equalsIgnoreCase("0");
@@ -428,13 +431,13 @@ public class MessageHandler extends DefaultHandler{
 		}
 	}
 
-
 	/* Changing GPRS modem parameters Related messages
 	/***********************************************/
-	private String gprsApn = "";
-	private String gprsUsername = "";
-	private String gprsPassword = "";
-	
+
+
+    private String gprsApn = "";
+    private String gprsUsername = "";
+    private String gprsPassword = "";
 	private void handleGrpsModemSetup(Attributes attrbs){
 		this.gprsApn = attrbs.getValue(RtuMessageConstant.GPRS_APN);
 		this.gprsUsername = attrbs.getValue(RtuMessageConstant.GPRS_USERNAME);
@@ -453,7 +456,7 @@ public class MessageHandler extends DefaultHandler{
 			return "";
 		}
 	}
-	
+
 	public String getGprsUsername(){
 		if(this.gprsUsername != null){
 			return this.gprsUsername;
@@ -461,7 +464,7 @@ public class MessageHandler extends DefaultHandler{
 			return "";
 		}
 	}
-	
+
 	public String getGprsPassword(){
 		if(this.gprsPassword != null){
 			return this.gprsPassword;
@@ -470,28 +473,28 @@ public class MessageHandler extends DefaultHandler{
 		}
 	}
 
-
 	/* Handle TestMessage Related messages
 	/***********************************************/
-	private String ufId = "";
-	
+
+
+    private String ufId = "";
 	private void handleTestMessage(Attributes attrbs){
 		this.ufId = attrbs.getValue(RtuMessageConstant.TEST_FILE);
 	}
-	
+
 	public String getTestUserFileId(){
 		return (this.ufId != null)?this.ufId:"";
 	}
-	
-	
+
 	/* WakeUp functionality Related messages
 	/**********************************************/
-	private String nr1 = "";
-	private String nr2 = "";
-	private String nr3 = "";
-	private String nr4 = "";
-	private String nr5 = "";
-	
+
+
+    private String nr1 = "";
+    private String nr2 = "";
+    private String nr3 = "";
+    private String nr4 = "";
+    private String nr5 = "";
 	private void handleWakeUpWhiteList(Attributes attrbs){
 		this.nr1 = attrbs.getValue(RtuMessageConstant.WAKEUP_NR1);
 		this.nr2 = attrbs.getValue(RtuMessageConstant.WAKEUP_NR2);
@@ -519,23 +522,23 @@ public class MessageHandler extends DefaultHandler{
 	public String getNr5() {
 		return (this.nr5 != null)?this.nr5:"";
 	}
-	
-	
+
 	/* Authentication and Encryption functionality Related messages
 	/***********************************************/
-	private String securityLevel = "";
-	
+
+
+    private String securityLevel = "";
 	private void handleActivateSecurityLevel(Attributes attrbs){
 		this.securityLevel = attrbs.getValue(RtuMessageConstant.AEE_SECURITYLEVEL);
 	}
-	
+
 	public int getSecurityLevel(){
 		return Integer.parseInt(this.securityLevel);
 	}
 
     /* Change the authenticationLevel */
-    private String authenticationLevel = "";
 
+    private String authenticationLevel = "";
     private void handleChangeAuthentication(Attributes attrbs){
         this.authenticationLevel = attrbs.getValue(RtuMessageConstant.AEE_AUTHENTICATIONLEVEL);
     }
@@ -544,7 +547,7 @@ public class MessageHandler extends DefaultHandler{
      * Return the authenticationLevel the user gave in.
      * If the value is not a number, then return -1
      *
-     * @return the value the user gave in 
+     * @return the value the user gave in
      */
     public int getAuthenticationLevel() {
         try {
@@ -556,6 +559,7 @@ public class MessageHandler extends DefaultHandler{
 
     /* Mbus installation related messages
     */
+
     private String mbusEquipmentId = "";
     private String mbusChannelToInstall = "";
     private String mbusEncryptionKey = "";
@@ -564,7 +568,6 @@ public class MessageHandler extends DefaultHandler{
         this.mbusChannelToInstall = attrbs.getValue(RtuMessageConstant.MBUS_INSTALL_CHANNEL);
         this.mbusEncryptionKey = attrbs.getValue(RtuMessageConstant.MBUS_DEFAULT_ENCRYPTION_KEY);
     }
-
     /**
      * Getter for the MbusInstall EquipmentIdentifier (for the AM100 this is the RF-address of the IZAR module)
      * @return the equipmentId the user gave in
@@ -590,12 +593,12 @@ public class MessageHandler extends DefaultHandler{
     }
 
     private String joinZigBeeIEEEAddress = "";
+
     private String joinZigBeeLinkKey = "";
     private void handleJoinZigBeeSlave(Attributes attrbs) {
         this.joinZigBeeIEEEAddress = attrbs.getValue(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_IEEE_ADDRESS);
         this.joinZigBeeLinkKey = attrbs.getValue(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_LINK_KEY);
     }
-
     public String getJoinZigBeeIEEEAddress() {
         return joinZigBeeIEEEAddress;
     }
@@ -604,4 +607,17 @@ public class MessageHandler extends DefaultHandler{
         return joinZigBeeLinkKey;
     }
 
+
+    private String restoreHanParametersUserFileID = "";
+    private void handleRestoreHANParameters(final Attributes attrbs) {
+        this.restoreHanParametersUserFileID = attrbs.getValue(RtuMessageConstant.RESTORE_ZIGBEE_PARAMETERS_USERFILE_ID);
+    }
+
+    public int getRestoreHanParametersUserFileId(){
+        try {
+            return Integer.valueOf(this.restoreHanParametersUserFileID);
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
 }

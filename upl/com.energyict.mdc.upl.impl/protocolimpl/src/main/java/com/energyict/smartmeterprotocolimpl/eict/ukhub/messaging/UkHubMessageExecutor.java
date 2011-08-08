@@ -58,14 +58,17 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
 
             boolean createHan = messageHandler.getType().equals(RtuMessageConstant.CREATE_HAN_NETWORK);
             boolean joinZigBeeSlave = messageHandler.getType().equals(RtuMessageConstant.JOIN_ZIGBEE_SLAVE);
-            boolean backupZigBeeHanKeys = messageHandler.getType().equals(RtuMessageConstant.BACKUP_ZIGBEE_HAN_KEYS);
+            boolean backupZigBeeHanParameters = messageHandler.getType().equals(RtuMessageConstant.BACKUP_ZIGBEE_HAN_PARAMETERS);
+            boolean restoreZigBeeParameters = messageHandler.getType().equals(RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS);
 
             if (createHan) {
                 createHanNetwork(messageHandler);
             } else if (joinZigBeeSlave) {
                 joinZigBeeSlave(messageHandler);
-            } else if(backupZigBeeHanKeys){
-                backupZigBeeHanKeys(messageHandler);
+            } else if (backupZigBeeHanParameters) {
+                backupZigBeeHanParameters(messageHandler);
+            } else if (restoreZigBeeParameters) {
+                restoreZigBeeHanParameters(messageHandler);
             } else {
                 log(Level.INFO, "Message not supported : " + content);
                 success = false;
@@ -89,7 +92,28 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private void backupZigBeeHanKeys(final MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
+    private void restoreZigBeeHanParameters(final MessageHandler messageHandler) throws IOException {
+        log(Level.INFO, "Sending message : Backup ZigBee Han Keys");
+        int userFileId = messageHandler.getRestoreHanParametersUserFileId();
+        if (userFileId == -1) {
+            throw new IOException("Invalid UserFileId value : " + userFileId);
+        }
+
+        UserFile uf = mw().getUserFileFactory().find(userFileId);
+        if (uf == null) {
+            throw new IOException("No UserFile found with ID : " + userFileId);
+        }
+
+        Structure backUpData = new Structure(uf.loadFileInByteArray(), 0, 0);
+
+        // write the externalPANID
+        // write the linkkey
+        // call the restore function
+        // set MAC addresses?
+
+    }
+
+    private void backupZigBeeHanParameters(final MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
         log(Level.INFO, "Sending message : Backup ZigBee Han Keys");
         ZigbeeHanManagement hanManagement = getCosemObjectFactory().getZigbeeHanManagement();
         hanManagement.backup();
@@ -153,7 +177,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         return mw().getRtuFactory().findBySerialNumber(serial).get(0);
     }
 
-    private int getFolderIdFromHub(){
+    private int getFolderIdFromHub() {
         return getRtuFromDatabaseBySerialNumber().getFolderId();
     }
 }

@@ -84,7 +84,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      */
     @Override
     protected void initAfterConnect() throws ConnectionException {
-        //TODO implement proper functionality.
+        //Currently nothing to implement
     }
 
     /**
@@ -175,7 +175,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      * @throws java.io.IOException if a communication or parsing error occurred
      */
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(final List<LoadProfileReader> loadProfilesToRead) throws IOException {
-        //TODO implement proper functionality.
+        //Currently no LoadProfile is supported
         return new ArrayList<LoadProfileConfiguration>();
     }
 
@@ -195,7 +195,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      * @throws java.io.IOException if a communication or parsing error occurred
      */
     public List<ProfileData> getLoadProfileData(final List<LoadProfileReader> loadProfiles) throws IOException {
-        //TODO implement proper functionality.
+        //Currently not LoadProfile is supported
         return new ArrayList<ProfileData>();
     }
 

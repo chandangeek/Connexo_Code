@@ -42,7 +42,7 @@ public class UkHubMessaging extends GenericMessaging implements MessageProtocol 
      * @throws java.io.IOException if a logical error occurs
      */
     public void applyMessages(final List messageEntries) throws IOException {
-        //TODO implement proper functionality.
+        //currently nothing to implement
     }
 
     /**
