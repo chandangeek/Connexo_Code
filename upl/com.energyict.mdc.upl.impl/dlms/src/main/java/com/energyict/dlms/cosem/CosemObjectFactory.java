@@ -78,6 +78,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return getGenericRead(uo.getObisCode(),uo.getValueAttributeOffset(),uo.getClassID());
     }
 
+    public GenericRead getGenericRead(DLMSAttribute attribute) throws IOException {
+        return getGenericRead(attribute.getObisCode(), attribute.getAttribute(), attribute.getClassId());
+    }
+
     public GenericRead getGenericRead(ObisCode obisCode, int snAttr) throws IOException {
         return getGenericRead(obisCode,snAttr,-1);
     }

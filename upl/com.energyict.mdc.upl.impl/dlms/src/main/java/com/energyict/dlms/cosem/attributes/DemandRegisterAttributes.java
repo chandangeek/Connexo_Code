@@ -1,10 +1,12 @@
 package com.energyict.dlms.cosem.attributes;
 
+import com.energyict.dlms.cosem.DLMSClassId;
+
 /**
  * Straightforward summary of the DemandRegister attributes.
  * Note that the unit is attribute 4, instead of 3 (for registers)
  */
-public enum DemandRegisterAttributes {
+public enum DemandRegisterAttributes implements DLMSClassAttributes {
 
     Logical_Name(1, 0x00),
     Register_Value(2, 0x08),
@@ -31,6 +33,10 @@ public enum DemandRegisterAttributes {
      */
     public int getAttributeNumber() {
         return this.attributeNumber;
+    }
+
+    public DLMSClassId getDlmsClassId() {
+        return DLMSClassId.DEMAND_REGISTER;
     }
 
     /**

@@ -1,9 +1,11 @@
 package com.energyict.dlms.cosem.attributes;
 
+import com.energyict.dlms.cosem.DLMSClassId;
+
 /**
  * Straightforward summary of the {@link com.energyict.dlms.cosem.ExtendedRegister} attributes
  */
-public enum ExtendedRegisterAttributes {
+public enum ExtendedRegisterAttributes implements DLMSClassAttributes {
 
     Logical_Name(1, 0x00),
     Register_Value(2, 0x08),
@@ -30,6 +32,10 @@ public enum ExtendedRegisterAttributes {
      */
     public int getAttributeNumber() {
         return this.attributeNumber;
+    }
+
+    public DLMSClassId getDlmsClassId() {
+        return DLMSClassId.EXTENDED_REGISTER;
     }
 
     /**
