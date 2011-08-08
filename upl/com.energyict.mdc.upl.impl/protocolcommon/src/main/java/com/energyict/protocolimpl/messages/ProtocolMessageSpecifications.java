@@ -33,17 +33,30 @@ public class ProtocolMessageSpecifications {
     }
 
     /**
-     * Creates a MessageSpecification for creating a HAN network message. The message does not contain any values or attributes.
+     * Creates a MessageSpecification for creating a HAN network message.
      *
      * @return the requested messageSpecification
      */
     public static MessageSpec getJoinZigBeeSlaveSpecification() {
         MessageSpec msgSpec = new MessageSpec(RtuMessageKeyIdConstants.JOIN_ZIGBEE_SLAVE, false);
-        MessageTagSpec tagSpec = MessagingTools.getAttributesOnlyMessageTagSpec(RtuMessageConstant.JOIN_ZIGBEE_SLAVE);
+//        MessageTagSpec tagSpec = MessagingTools.getAttributesOnlyMessageTagSpec(RtuMessageConstant.JOIN_ZIGBEE_SLAVE);
+        // TODO Don't BackPort this to version below 8.11, use the above snippet instead
+        MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.JOIN_ZIGBEE_SLAVE);
         tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_IEEE_ADDRESS, true));
         tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_LINK_KEY, true));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
 
+    /**
+     * Creates a MessageSpecification for backing up the ZigBee HAN Keys. The message does not contain any values or attributes.
+     *
+     * @return the requested messageSpecification
+     */
+    public static MessageSpec getBackupZigBeeHanKeyMessageSpecification() {
+        MessageSpec msgSpec = new MessageSpec(RtuMessageKeyIdConstants.BACKUP_ZIGBEE_HAN_KEYS);
+        MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.BACKUP_ZIGBEE_HAN_KEYS);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
 }

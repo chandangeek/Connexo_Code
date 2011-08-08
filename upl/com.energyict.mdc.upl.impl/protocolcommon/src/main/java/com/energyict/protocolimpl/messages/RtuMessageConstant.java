@@ -272,4 +272,7 @@ public class RtuMessageConstant {
     public static final String JOIN_ZIGBEE_SLAVE_IEEE_ADDRESS = "ZigBee_IEEE_Address";
     public static final String JOIN_ZIGBEE_SLAVE_LINK_KEY = "ZigBee_Link_Key";
 
+    // Backup ZigBee Han keys
+    public static final String BACKUP_ZIGBEE_HAN_KEYS = "Backup_ZigBee_Han_Keys";
+
 }

@@ -128,6 +128,8 @@ public class MessageHandler extends DefaultHandler{
         } else if(RtuMessageConstant.JOIN_ZIGBEE_SLAVE.equalsIgnoreCase(qName)){
             setType(RtuMessageConstant.JOIN_ZIGBEE_SLAVE);
             handleJoinZigBeeSlave(attrbs);
+        } else if(RtuMessageConstant.BACKUP_ZIGBEE_HAN_KEYS.equalsIgnoreCase(qName)){
+            setType(RtuMessageConstant.BACKUP_ZIGBEE_HAN_KEYS);
 		} else {
 			if(!isXmlInContent){ // If there is XML in the content, then the protocol will parse it himself ...
 				throw new SAXException("Unknown messageContent : " + qName);

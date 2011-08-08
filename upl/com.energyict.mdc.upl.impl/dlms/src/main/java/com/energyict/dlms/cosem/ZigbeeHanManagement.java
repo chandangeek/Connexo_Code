@@ -1,8 +1,7 @@
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributes.ZigbeeHanManagementAttributes;
 import com.energyict.dlms.cosem.methods.ZigbeeHanManagementMethods;
 
@@ -156,6 +155,16 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      */
     public byte[] backup(AbstractDataType data) throws IOException {
         return methodInvoke(ZigbeeHanManagementMethods.BACKUP, data);
+    }
+
+    /**
+     * Inform the HUB to backup all ZigBee devices. Default additional data will be a {@link com.energyict.dlms.axrdencoding.Unsigned8} with value '0'.
+     *
+     * @return raw data returned from the method invocation
+     * @throws IOException if for some reason the invocation did not succeed
+     */
+    public byte[] backup() throws IOException {
+        return methodInvoke(ZigbeeHanManagementMethods.BACKUP, new Unsigned8(0));
     }
 
     /**

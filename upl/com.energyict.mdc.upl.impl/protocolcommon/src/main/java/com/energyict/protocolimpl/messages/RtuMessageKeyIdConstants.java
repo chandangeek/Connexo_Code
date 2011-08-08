@@ -54,5 +54,6 @@ public class RtuMessageKeyIdConstants {
 
     public static final String CREATE_HAN = "Create Han Network";
     public static final String JOIN_ZIGBEE_SLAVE = "Join ZigBee slave device";
+    public static final String BACKUP_ZIGBEE_HAN_KEYS = "Backup ZigBee HAN keys";
 
 }

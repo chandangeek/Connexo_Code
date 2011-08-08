@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.utils;
 
 import com.energyict.mdw.core.CommunicationProtocol;
 import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import sun.misc.BASE64Decoder;
@@ -1101,4 +1102,27 @@ public final class ProtocolTools {
         }
     }
 
+    /**
+     * Create a UserFileShadow with the given parameters.
+     *
+     * @param name      the name of the userfile
+     * @param content   the content of the userfile
+     * @param folderId  the folderId where to put the userFile
+     * @param extension the extension of the userfile
+     * @return the expected UserFileShadow
+     * @throws IOException if an error occurred during the creation of the file
+     */
+    public static UserFileShadow createUserFileShadow(String name, byte[] content, int folderId, String extension) throws IOException {
+        UserFileShadow ufs = new UserFileShadow();
+        ufs.setName(name);
+        ufs.setExtension(extension);
+        ufs.setFolderId(folderId);
+        File file = File.createTempFile("TempUserFile", extension);
+        FileOutputStream fos = new FileOutputStream(file);
+        fos.write(content);
+        fos.close();
+        file.deleteOnExit();
+        ufs.setFile(file);
+        return ufs;
+    }
 }

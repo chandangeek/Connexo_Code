@@ -27,6 +27,7 @@ public class ProtocolMessageCategories {
         MessageCategorySpec hanManagement = new MessageCategorySpec(RtuMessageCategoryConstants.ZIG_BEE_SETUP);
         hanManagement.addMessageSpec(ProtocolMessageSpecifications.getCreateHanMessageSpecification());
         hanManagement.addMessageSpec(ProtocolMessageSpecifications.getJoinZigBeeSlaveSpecification());
+        hanManagement.addMessageSpec(ProtocolMessageSpecifications.getBackupZigBeeHanKeyMessageSpecification());
         return hanManagement;
     }
 
