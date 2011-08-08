@@ -1,11 +1,11 @@
-package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.events;
+package com.energyict.smartmeterprotocolimpl.eict.ukhub.events;
 
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.ObisCodeProvider;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.BasicEventLog;
-import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ObisCodeProvider;
-import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ZigbeeGas;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -13,46 +13,47 @@ import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
- * Date: 22/07/11
- * Time: 9:56
+ * Date: 8/08/11
+ * Time: 8:35
  */
-public class ZigbeeGasEventProfiles {
+public class UkHubEventProfiles {
 
-    private final ZigbeeGas zigbeeGas;
+    private final UkHub ukHub;
 
-    public ZigbeeGasEventProfiles(ZigbeeGas zigbeeGas) {
-        this.zigbeeGas = zigbeeGas;
-    }
-
-    public ZigbeeGas getZigbeeGas() {
-        return zigbeeGas;
+    public UkHubEventProfiles(UkHub ukHub) {
+        this.ukHub = ukHub;
     }
 
     public List<MeterEvent> getEvents(Date from) {
         ArrayList<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
-        getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + getZigbeeGas().getSerialNumber() + ".");
+        getLogger().log(Level.INFO, "Reading EVENTS from HUB with serial number " + getUkHub().getSerialNumber() + ".");
 
         Calendar fromCalendar = getFromCalendar(from);
         meterEvents.addAll(getStandardEventLog(fromCalendar));
-        meterEvents.addAll(getDisconnectControlEventLog(fromCalendar));
         meterEvents.addAll(getFraudDetectionEventLog(fromCalendar));
         meterEvents.addAll(getFirmwareEventLog(fromCalendar));
+        meterEvents.addAll(getHanManagementFailureEventLog(fromCalendar));
+        meterEvents.addAll(getCommunicationsFailureEventLog(fromCalendar));
 
         return meterEvents;
     }
 
     private Calendar getFromCalendar(Date from) {
-        Calendar fromCal = ProtocolUtils.getCleanCalendar(getZigbeeGas().getTimeZone());
+        Calendar fromCal = ProtocolUtils.getCleanCalendar(getUkHub().getTimeZone());
         fromCal.setTime(from);
         return fromCal;
     }
 
     private Logger getLogger() {
-        return getZigbeeGas().getLogger();
+        return getUkHub().getLogger();
     }
 
     private CosemObjectFactory getCosemObjectFactory() {
-        return getZigbeeGas().getDlmsSession().getCosemObjectFactory();
+        return getUkHub().getDlmsSession().getCosemObjectFactory();
+    }
+
+    public UkHub getUkHub() {
+        return ukHub;
     }
 
     private List<MeterEvent> getStandardEventLog(Calendar from) {
@@ -75,16 +76,6 @@ public class ZigbeeGasEventProfiles {
         return basicEventLog.getEvents(from);
     }
 
-    private List<MeterEvent> getDisconnectControlEventLog(Calendar from) {
-        // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
-        BasicEventLog basicEventLog = new BasicEventLog(
-                ObisCodeProvider.DISCONNECT_CONTROL_EVENT_LOG,
-                getCosemObjectFactory(),
-                getLogger()
-        );
-        return basicEventLog.getEvents(from);
-    }
-
     private List<MeterEvent> getFirmwareEventLog(Calendar from) {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
         BasicEventLog basicEventLog = new BasicEventLog(
@@ -94,5 +85,26 @@ public class ZigbeeGasEventProfiles {
         );
         return basicEventLog.getEvents(from);
     }
+
+    private List<MeterEvent> getHanManagementFailureEventLog(Calendar from) {
+        // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
+        BasicEventLog basicEventLog = new BasicEventLog(
+                ObisCodeProvider.HAN_MANAGEMENT_FAILURE_EVENT_LOG,
+                getCosemObjectFactory(),
+                getLogger()
+        );
+        return basicEventLog.getEvents(from);
+    }
+
+    private List<MeterEvent> getCommunicationsFailureEventLog(Calendar from) {
+        // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
+        BasicEventLog basicEventLog = new BasicEventLog(
+                ObisCodeProvider.COMM_FAILURE_EVENT_LOG,
+                getCosemObjectFactory(),
+                getLogger()
+        );
+        return basicEventLog.getEvents(from);
+    }
+
 
 }

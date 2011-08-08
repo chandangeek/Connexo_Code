@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.events;
+package com.energyict.smartmeterprotocolimpl.eict.ukhub.common;
 
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.CosemObjectFactory;

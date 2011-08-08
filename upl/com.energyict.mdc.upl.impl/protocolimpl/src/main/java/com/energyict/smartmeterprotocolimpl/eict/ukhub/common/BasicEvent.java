@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.events;
+package com.energyict.smartmeterprotocolimpl.eict.ukhub.common;
 
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;

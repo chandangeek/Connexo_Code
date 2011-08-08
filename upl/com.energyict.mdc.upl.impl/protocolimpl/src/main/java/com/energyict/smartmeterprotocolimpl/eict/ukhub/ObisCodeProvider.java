@@ -9,7 +9,14 @@ import com.energyict.obis.ObisCode;
  * Date: 22/07/11
  * Time: 17:09
  */
-public class UkHubObjectList {
+public class ObisCodeProvider {
+
+
+    public static final ObisCode STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.0.255");
+    public static final ObisCode FRAUD_DETECTION_EVENT_LOG = ObisCode.fromString("0.0.99.98.1.255");
+    public static final ObisCode FIRMWARE_EVENT_LOG = ObisCode.fromString("0.0.99.98.3.255");
+    public static final ObisCode HAN_MANAGEMENT_FAILURE_EVENT_LOG = ObisCode.fromString("0.0.99.97.15.255");
+    public static final ObisCode COMM_FAILURE_EVENT_LOG = ObisCode.fromString("0.0.99.97.6.255");
 
     public static final UniversalObject[] OBJECT_LIST;
 

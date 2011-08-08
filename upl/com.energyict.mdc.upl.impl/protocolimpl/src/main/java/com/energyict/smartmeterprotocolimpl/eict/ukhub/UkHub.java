@@ -8,6 +8,7 @@ import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.composedobjects.ComposedMeterInfo;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.events.UkHubEventProfiles;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging.UkHubMessageExecutor;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging.UkHubMessaging;
 
@@ -33,7 +34,8 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
     /**
      * The used <code>UkHubRegisterFactory</code> to read and manage the HUB registers
      */
-    private UkHubRegisterFactory registerFactory;
+    private UkHubRegisterFactory registerFactory = null;
+    private UkHubEventProfiles ukHubEventProfiles = null;
 
     /**
      * Getter for the MessageProtocol implementation
@@ -160,8 +162,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      * @throws java.io.IOException when a logical error occurred
      */
     public List<MeterEvent> getMeterEvents(final Date lastLogbookDate) throws IOException {
-        //TODO implement proper functionality.
-        return new ArrayList<MeterEvent>();
+        return getUkHubEventProfiles().getEvents(lastLogbookDate);
     }
 
     /**
@@ -282,7 +283,13 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
 
     @Override
     protected void checkCacheObjects() throws IOException {
-        getDlmsSession().getMeterConfig().setInstantiatedObjectList(UkHubObjectList.OBJECT_LIST);
+        getDlmsSession().getMeterConfig().setInstantiatedObjectList(ObisCodeProvider.OBJECT_LIST);
     }
 
+    public UkHubEventProfiles getUkHubEventProfiles() {
+        if (ukHubEventProfiles == null) {
+            this.ukHubEventProfiles = new UkHubEventProfiles(this);
+        }
+        return ukHubEventProfiles;
+    }
 }
