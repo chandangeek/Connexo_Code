@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * The ZigbeeGas logical device has the same protocolBase as the WebRTUZ3. Additional functionality is added for SSE.
  */
-public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol {
+public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, TimeOfUseMessaging {
 
     /**
      * The properties to use for this protocol
@@ -33,7 +33,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
     private ZigbeeGasLoadProfile zigbeeGasLoadProfile;
     private ZigbeeGasRegisterFactory registerFactory;
 
-    public MessageProtocol getMessageProtocol() {
+    public ZigbeeGasMessaging getMessageProtocol() {
         if (zigbeeGasMessaging == null) {
             this.zigbeeGasMessaging = new ZigbeeGasMessaging();
         }
@@ -265,4 +265,19 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
 
     }
 
+    public boolean needsName() {
+        return getMessageProtocol().needsName();
+    }
+
+    public boolean supportsCodeTables() {
+        return getMessageProtocol().supportsCodeTables();
+    }
+
+    public boolean supportsUserFiles() {
+        return getMessageProtocol().supportsUserFiles();
+    }
+
+    public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
+        return getMessageProtocol().getTimeOfUseMessageBuilder();
+    }
 }
