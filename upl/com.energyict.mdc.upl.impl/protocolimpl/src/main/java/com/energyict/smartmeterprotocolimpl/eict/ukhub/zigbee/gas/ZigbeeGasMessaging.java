@@ -54,15 +54,4 @@ public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMes
         return messageBuilder;
     }
 
-    public static void main(String[] args) {
-        MeteringWarehouse.createBatchContext();
-        Rtu rtu = MeteringWarehouse.getCurrent().getRtuFactory().find(6465);
-        List<RtuMessage> messages = rtu.getMessages();
-        for (RtuMessage message : messages) {
-            String baseContents = message.getShadow().getExpandedContents();
-            System.out.println(baseContents);
-        }
-
-    }
-
 }
