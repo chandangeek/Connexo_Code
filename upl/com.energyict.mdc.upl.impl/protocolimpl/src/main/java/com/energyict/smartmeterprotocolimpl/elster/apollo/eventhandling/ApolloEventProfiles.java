@@ -34,7 +34,6 @@ public class ApolloEventProfiles {
      *
      * @param fromCalendar the time to start collection events from the device
      * @return a list of MeterEvents
-     * @throws java.io.IOException when something happened during the read or parsing of the events
      */
     public List<MeterEvent> getEventLog(Calendar fromCalendar) {
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
@@ -54,7 +53,7 @@ public class ApolloEventProfiles {
      * Collect the events from the SynchronizationEvents logbook
      *
      * @param from the time to start collecting events from
-     * @throws java.io.IOException
+     * @return the List of meterEvents
      */
     private List<MeterEvent> getPrepaymentEvents(Calendar from) {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
@@ -70,7 +69,7 @@ public class ApolloEventProfiles {
      * Collect the events from the PowerContractEvents logbook
      *
      * @param from the time to start collecting events from
-     * @throws java.io.IOException
+     * @return the List of meterEvents
      */
     private List<MeterEvent> getPowerFailureEvents(Calendar from) {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
@@ -87,7 +86,7 @@ public class ApolloEventProfiles {
      * Collect the events from the PowerQualityFinishedEvents logbook
      *
      * @param from the time to start collecting events from
-     * @throws java.io.IOException
+     * @return the List of meterEvents
      */
     private List<MeterEvent> getPowerQualityEvents(Calendar from) {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
@@ -103,7 +102,7 @@ public class ApolloEventProfiles {
      * Collect the events from the FirmwareEvents logbook
      *
      * @param from the time to start collecting events from
-     * @throws java.io.IOException
+     * @return the List of meterEvents
      */
     private List<MeterEvent> getFirmwareEvents(Calendar from) {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
@@ -119,7 +118,7 @@ public class ApolloEventProfiles {
      * Collect the events from the DemandManagementEvents logbook
      *
      * @param from the time to start collecting events from
-     * @throws java.io.IOException
+     * @return the List of meterEvents
      */
     private List<MeterEvent> getCommunicationFailureEvents(Calendar from) {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
@@ -135,7 +134,7 @@ public class ApolloEventProfiles {
      * Collect the events from the CommonEvents logbook
      *
      * @param from the time to start collecting events from
-     * @throws java.io.IOException
+     * @return the List of meterEvents
      */
     private List<MeterEvent> getDisconnectControlEvents(Calendar from) {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
@@ -151,7 +150,7 @@ public class ApolloEventProfiles {
      * Collect the events from the FraudDetectionEvents logbook
      *
      * @param from the time to start collecting events from
-     * @throws java.io.IOException
+     * @return the List of meterEvents
      */
     private List<MeterEvent> getFraudEvents(Calendar from) {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
@@ -167,7 +166,7 @@ public class ApolloEventProfiles {
      * Collect the events from the StandardEvents logbook
      *
      * @param from the time to start collecting events from
-     * @throws java.io.IOException
+     * @return the List of meterEvents
      */
     protected List<MeterEvent> getStandardEvents(Calendar from) {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
@@ -183,7 +182,7 @@ public class ApolloEventProfiles {
      * Collect the events from the StandardEvents logbook
      *
      * @param from the time to start collecting events from
-     * @throws java.io.IOException
+     * @return the List of meterEvents
      */
     protected List<MeterEvent> getClockSyncEvents(Calendar from) {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
