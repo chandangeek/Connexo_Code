@@ -27,11 +27,15 @@ public final class ObisCodeProvider {
     public static final ObisCode DISCONNECT_CONTROL_EVENT_LOG = ObisCode.fromString("0.0.99.98.2.255");
     public static final ObisCode FIRMWARE_EVENT_LOG = ObisCode.fromString("0.0.99.98.3.255");
 
-    public static final ObisCode COMM_FAILURE_EVENT_LOG = ObisCode.fromString("0.0.99.97.6.255");
-    public static final ObisCode PREPAYMENT_EVENT_LOG = ObisCode.fromString("0.0.99.97.7.255");
+    public static final ObisCode COMM_FAILURE_EVENT_LOG = ObisCode.fromString("0.0.99.98.6.255");
+    public static final ObisCode PREPAYMENT_EVENT_LOG = ObisCode.fromString("0.0.99.98.7.255");
 
-    public static final ObisCode TEXT_MSG_SEND_EVENT_LOG = ObisCode.fromString("0.0.99.97.20.255");
-    public static final ObisCode TEXT_MSG_RESPONSE_EVENT_LOG = ObisCode.fromString("0.0.99.97.21.255");
+    public static final ObisCode NOTIFICATION_FLAGS_EVENT_LOG = ObisCode.fromString("0.0.99.98.8.255");
+    public static final ObisCode TARIFF_UPDATES_EVENT_LOG = ObisCode.fromString("0.0.99.98.9.255");
+    public static final ObisCode MIRROR_UPDATES_EVENT_LOG = ObisCode.fromString("0.0.99.98.10.255");
+
+    public static final ObisCode TEXT_MSG_SEND_EVENT_LOG = ObisCode.fromString("0.0.99.98.20.255");
+    public static final ObisCode TEXT_MSG_RESPONSE_EVENT_LOG = ObisCode.fromString("0.0.99.98.21.255");
 
     public static final UniversalObject[] OBJECT_LIST;
 

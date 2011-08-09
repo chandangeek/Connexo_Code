@@ -6,7 +6,7 @@ import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
-import com.energyict.smartmeterprotocolimpl.elster.apollo.eventhandling.EventLogs;
+import com.energyict.smartmeterprotocolimpl.elster.apollo.eventhandling.ApolloEventProfiles;
 
 import java.io.IOException;
 import java.util.*;
@@ -92,7 +92,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter {
     }
 
     public List<MeterEvent> getMeterEvents(Date lastLogbookDate) throws IOException {
-        EventLogs logs = new EventLogs(this);
+        ApolloEventProfiles logs = new ApolloEventProfiles(this);
         Calendar cal = Calendar.getInstance(getTimeZone());
         cal.setTime(lastLogbookDate == null ? new Date(0) : lastLogbookDate);
         return logs.getEventLog(cal);

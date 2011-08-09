@@ -51,15 +51,15 @@ public class ObisCodeProvider implements CommonObisCodeProvider {
     public static final ObisCode AlarmRegister = ObisCode.fromString("0.0.97.98.0.255");
     public static final ObisCode AlarmFilter = ObisCode.fromString("0.0.97.98.10.255");
 
-    public static final ObisCode StandardEventLogObisCode = ObisCode.fromString("0.0.99.98.0.255");
-    public static final ObisCode PowerQualityFinishedEventLogObisCode = ObisCode.fromString("0.0.99.98.9.255");
-    public static final ObisCode PowerQualityNotFinishedEventLogObisCode = ObisCode.fromString("0.0.99.98.5.255");
-    public static final ObisCode FraudDetectionEventLogObisCode = ObisCode.fromString("0.0.99.98.1.255");
-    public static final ObisCode DemandManagementEventLogObisCode = ObisCode.fromString("0.0.99.98.6.255");
-    public static final ObisCode CommonEventLogObisCode = ObisCode.fromString("0.0.99.98.7.255");
-    public static final ObisCode PowerContractEventLogObisCode = ObisCode.fromString("0.0.99.98.3.255");
-    public static final ObisCode FirmwareEventLogObisCode = ObisCode.fromString("0.0.99.98.4.255");
-    public static final ObisCode ObjectSynchronizationEventLogObisCode = ObisCode.fromString("0.0.99.98.8.255");
+    public static final ObisCode STANDARD_EVENTLOG_OBISCODE = ObisCode.fromString("0.0.99.98.0.255");
+    public static final ObisCode FRAUD_DETECTION_EVENTLOG_OBISCODE = ObisCode.fromString("0.0.99.98.1.255");
+    public static final ObisCode DISCONNECT_CONTROL_EVENTLOG_OBISCODE = ObisCode.fromString("0.0.99.98.2.255");
+    public static final ObisCode FIRMWARE_EVENTLOG_OBISCODE = ObisCode.fromString("0.0.99.98.3.255");
+    public static final ObisCode POWER_QUALITY_EVENTLOG_OBISCODE = ObisCode.fromString("0.0.99.98.4.255");
+    public static final ObisCode POWER_FAILURE_EVENTLOG_OBISCODE = ObisCode.fromString("0.0.99.98.5.255");
+    public static final ObisCode COMMUNICATION_FAILURE_EVENTLOG_OBISCODE = ObisCode.fromString("0.0.99.98.6.255");
+    public static final ObisCode PREPAYMENT_EVENTLOG_OBISCODE = ObisCode.fromString("0.0.99.98.7.255");
+    public static final ObisCode CLOCK_SYNC_EVENTLOG_OBISCODE = ObisCode.fromString("0.0.99.98.30.255");
 
     public static final ObisCode InstantaneousEnergyValuesObisCode = ObisCode.fromString("0.0.21.0.6.255");
     public static final ObisCode RefVoltagePQObisCode = ObisCode.fromString("1.0.0.6.4.255");
@@ -151,62 +151,6 @@ public class ObisCodeProvider implements CommonObisCodeProvider {
      */
     public ObisCode getInstantaneousEnergyValueObisCode(){
         return InstantaneousEnergyValuesObisCode;
-    }
-
-    /**
-     * @return the {@link #StandardEventLogObisCode} of the Standard Event Profile
-     */
-    public ObisCode getStandardEventLogObisCode() {
-        return StandardEventLogObisCode;
-    }
-
-    /**
-     * @return the {@link #PowerQualityFinishedEventLogObisCode} for the PowerQuality Event Profile
-     */
-    public ObisCode getPowerQualityEventLogObisCode() {
-        return PowerQualityFinishedEventLogObisCode;
-    }
-
-    /**
-     * @return the {@link #FraudDetectionEventLogObisCode} for the FraudDetection Event Profile
-     */
-    public ObisCode getFraudDetectionEventLogObisCode() {
-        return FraudDetectionEventLogObisCode;
-    }
-
-    /**
-     * @return the {@link #DemandManagementEventLogObisCode} for the Demand management Event Profile
-     */
-    public ObisCode getDemandManagementEventLog() {
-        return DemandManagementEventLogObisCode;
-    }
-
-    /**
-     * @return the {@link #CommonEventLogObisCode} for the Common Event Profile
-     */
-    public ObisCode getCommonEventLog() {
-        return CommonEventLogObisCode;
-    }
-
-    /**
-     * @return the {@link #PowerContractEventLogObisCode} for the PowerContract Event Profile
-     */
-    public ObisCode getPowerContractEventLog() {
-        return PowerContractEventLogObisCode;
-    }
-
-    /**
-     * @return the {@link #FirmwareEventLogObisCode} for the Firmware Event Profile
-     */
-    public ObisCode getFirmwareEventLog() {
-        return FirmwareEventLogObisCode;
-    }
-
-    /**
-     * @return the {@link #ObjectSynchronizationEventLogObisCode} for the Object Synchronization Event Profile
-     */
-    public ObisCode getObjectSynchronizationEventLog() {
-        return ObjectSynchronizationEventLogObisCode;
     }
 
     /**

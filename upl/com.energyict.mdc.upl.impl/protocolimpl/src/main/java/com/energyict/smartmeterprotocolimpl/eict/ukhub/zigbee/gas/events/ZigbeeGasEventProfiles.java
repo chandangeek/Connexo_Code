@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.events;
 
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.BasicEventLog;
@@ -37,6 +38,11 @@ public class ZigbeeGasEventProfiles {
         meterEvents.addAll(getDisconnectControlEventLog(fromCalendar));
         meterEvents.addAll(getFraudDetectionEventLog(fromCalendar));
         meterEvents.addAll(getFirmwareEventLog(fromCalendar));
+        meterEvents.addAll(getCommFailureEventLog(fromCalendar));
+        meterEvents.addAll(getPrepaymentEventLog(fromCalendar));
+        meterEvents.addAll(getNotificationEventLog(fromCalendar));
+        meterEvents.addAll(getTariffUpdatesEventLog(fromCalendar));
+        meterEvents.addAll(getMirrorUpdatesEventLog(fromCalendar));
 
         return meterEvents;
     }
@@ -89,6 +95,56 @@ public class ZigbeeGasEventProfiles {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
         BasicEventLog basicEventLog = new BasicEventLog(
                 ObisCodeProvider.FIRMWARE_EVENT_LOG,
+                getCosemObjectFactory(),
+                getLogger()
+        );
+        return basicEventLog.getEvents(from);
+    }
+
+    private List<MeterEvent> getCommFailureEventLog(Calendar from) {
+        // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
+        BasicEventLog basicEventLog = new BasicEventLog(
+                ObisCodeProvider.COMM_FAILURE_EVENT_LOG,
+                getCosemObjectFactory(),
+                getLogger()
+        );
+        return basicEventLog.getEvents(from);
+    }
+
+    private List<MeterEvent> getPrepaymentEventLog(Calendar from) {
+        // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
+        BasicEventLog basicEventLog = new BasicEventLog(
+                ObisCodeProvider.PREPAYMENT_EVENT_LOG,
+                getCosemObjectFactory(),
+                getLogger()
+        );
+        return basicEventLog.getEvents(from);
+    }
+
+    private List<MeterEvent> getNotificationEventLog(Calendar from) {
+        // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
+        BasicEventLog basicEventLog = new BasicEventLog(
+                ObisCodeProvider.NOTIFICATION_FLAGS_EVENT_LOG,
+                getCosemObjectFactory(),
+                getLogger()
+        );
+        return basicEventLog.getEvents(from);
+    }
+
+    private List<MeterEvent> getTariffUpdatesEventLog(Calendar from) {
+        // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
+        BasicEventLog basicEventLog = new BasicEventLog(
+                ObisCodeProvider.TARIFF_UPDATES_EVENT_LOG,
+                getCosemObjectFactory(),
+                getLogger()
+        );
+        return basicEventLog.getEvents(from);
+    }
+
+    private List<MeterEvent> getMirrorUpdatesEventLog(Calendar from) {
+        // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
+        BasicEventLog basicEventLog = new BasicEventLog(
+                ObisCodeProvider.MIRROR_UPDATES_EVENT_LOG,
                 getCosemObjectFactory(),
                 getLogger()
         );
