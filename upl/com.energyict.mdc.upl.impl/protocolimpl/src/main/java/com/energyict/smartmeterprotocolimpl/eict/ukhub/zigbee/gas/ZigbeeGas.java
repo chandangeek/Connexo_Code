@@ -7,6 +7,8 @@ import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.events.ZigbeeGasEventProfiles;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging.ZigbeeGasMessaging;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging.ZigbeeMessageExecutor;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.profile.ZigbeeGasLoadProfile;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.registers.ZigbeeGasRegisterFactory;
 
@@ -35,7 +37,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
 
     public ZigbeeGasMessaging getMessageProtocol() {
         if (zigbeeGasMessaging == null) {
-            this.zigbeeGasMessaging = new ZigbeeGasMessaging();
+            this.zigbeeGasMessaging = new ZigbeeGasMessaging(new ZigbeeMessageExecutor(this));
         }
         return this.zigbeeGasMessaging;
     }

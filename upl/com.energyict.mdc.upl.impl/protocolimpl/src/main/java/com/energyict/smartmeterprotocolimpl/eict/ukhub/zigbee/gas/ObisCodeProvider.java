@@ -59,6 +59,10 @@ public final class ObisCodeProvider {
     public static final ObisCode REG_DEMAND_TOTAL = ObisCode.fromString("7.0.1.4.0.255");
     public static final ObisCode REG_MAXIMUM_DEMAND_ENERGY_IMPORT = ObisCode.fromString("7.0.1.6.1.255");
 
+    public static final ObisCode ACTIVITY_CALENDER = ObisCode.fromString("0.0.13.0.1.255");
+    public static final ObisCode SPECIAL_DAY_TABLE = ObisCode.fromString("0.0.11.0.0.255");
+
+
     static {
         OBJECT_LIST = new UniversalObject[]{
                 new UniversalObject(ObisCode.fromString("0.0.41.0.0.255"), DLMSClassId.SAP_ASSIGNMENT),
@@ -129,8 +133,8 @@ public final class ObisCodeProvider {
                 new UniversalObject(ObisCode.fromString("0.0.14.0.1.255"), DLMSClassId.REGISTER_ACTIVATION),
                 new UniversalObject(ObisCode.fromString("0.0.14.0.7.255"), DLMSClassId.REGISTER_ACTIVATION),
 
-                new UniversalObject(ObisCode.fromString("0.0.13.0.1.255"), DLMSClassId.ACTIVITY_CALENDAR),
-                new UniversalObject(ObisCode.fromString("0.0.11.0.0.255"), DLMSClassId.SPECIAL_DAYS_TABLE),
+                new UniversalObject(ACTIVITY_CALENDER, DLMSClassId.ACTIVITY_CALENDAR),
+                new UniversalObject(SPECIAL_DAY_TABLE, DLMSClassId.SPECIAL_DAYS_TABLE),
                 new UniversalObject(ObisCode.fromString("0.0.96.3.10.255"), DLMSClassId.DISCONNECT_CONTROL),
                 new UniversalObject(ObisCode.fromString("0.0.44.0.0.255"), DLMSClassId.IMAGE_TRANSFER),
                 new UniversalObject(ObisCode.fromString("0.0.1.0.0.255"), DLMSClassId.CLOCK),

@@ -64,7 +64,7 @@ public class AS300ActivityCalendarController implements ActivityCalendarControll
     private static final int indexDDayOfWeek = 4;
     private static final byte[] initialSpecialDayDateArray = new byte[]{(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff};
 
-    private final AS300 protocol;
+    private AS300 protocol;
 
     /**
      * The {@link com.energyict.dlms.axrdencoding.Array} containing the {@link com.energyict.dlms.cosem.attributeobjects.SeasonProfiles}
@@ -110,6 +110,9 @@ public class AS300ActivityCalendarController implements ActivityCalendarControll
      * Contains a map of given DayProfile Ids and usable DayProfile Ids. The ApolloMeter does not allow a dayId starting from <b>0</b>
      */
     private Map<String, Integer> tempShiftedDayIdMap = new HashMap<String, Integer>();
+
+    public AS300ActivityCalendarController(){
+    }
 
     public AS300ActivityCalendarController(AS300 protocol) {
         this.protocol = protocol;
@@ -332,16 +335,16 @@ public class AS300ActivityCalendarController implements ActivityCalendarControll
      *
      * @return the current local {@link com.energyict.dlms.cosem.ActivityCalendar}
      */
-    private ActivityCalendar getActivityCalendar() throws IOException {
+    protected ActivityCalendar getActivityCalendar() throws IOException {
         return this.protocol.getObjectFactory().getActivityCalendar();
     }
 
 
-    private SpecialDaysTable getSpecialDayTable() throws IOException {
+    protected SpecialDaysTable getSpecialDayTable() throws IOException {
         return this.protocol.getObjectFactory().getSpecialDayTable();
     }
 
-    private SpecialDaysTable getPassiveSpecialDayTable() throws IOException {
+    protected SpecialDaysTable getPassiveSpecialDayTable() throws IOException {
         return this.protocol.getObjectFactory().getPassiveSpecialDaysTable();
     }
 

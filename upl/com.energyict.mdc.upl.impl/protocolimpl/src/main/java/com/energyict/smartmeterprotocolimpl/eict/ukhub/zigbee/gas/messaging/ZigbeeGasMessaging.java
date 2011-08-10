@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas;
+package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.mdw.core.*;
@@ -18,15 +18,20 @@ import java.util.List;
  */
 public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMessaging {
 
-    private TimeOfUseMessageBuilder messageBuilder = null;
+    private final ZigbeeMessageExecutor messageExecutor;
+
+    public ZigbeeGasMessaging(final ZigbeeMessageExecutor messageExecutor) {
+        this.messageExecutor = messageExecutor;
+    }
 
     public void applyMessages(List messageEntries) throws IOException {
         // Nothing to do here
     }
 
+    private TimeOfUseMessageBuilder messageBuilder = null;
+
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
-        // Add messages here
-        return MessageResult.createFailed(messageEntry);
+        return this.messageExecutor.executeMessageEntry(messageEntry);
     }
 
     public List getMessageCategories() {
@@ -70,7 +75,7 @@ public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMes
      *         <code>true</code> for a generic protocol, and <code>false</code> for a normal one.
      */
     public boolean supportsCodeTableReferences() {
-        return false;   // we need to inline the userFile
+        return false;   // we need to inline the codeTable
     }
 
     /**
@@ -96,7 +101,7 @@ public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMes
 
     public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
         if (messageBuilder == null) {
-            this.messageBuilder = new TimeOfUseMessageBuilder();
+            this.messageBuilder = new ZigbeeTimeOfUseMessageBuilder();
         }
         return messageBuilder;
     }
