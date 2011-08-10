@@ -16,7 +16,7 @@ import java.util.Map;
  * Time: 16:32:14<br/>
  * </p>
  */
-public class ObisCodeProvider implements CommonObisCodeProvider {
+public class AS300ObisCodeProvider implements CommonObisCodeProvider {
 
     public static final ObisCode ClockObisCode = ObisCode.fromString("0.0.1.0.0.255");
     public static final ObisCode ClockSynchronizationObisCode = ObisCode.fromString("0.0.96.2.12.255");
@@ -59,7 +59,7 @@ public class ObisCodeProvider implements CommonObisCodeProvider {
     public static final ObisCode POWER_FAILURE_EVENTLOG_OBISCODE = ObisCode.fromString("0.0.99.98.5.255");
     public static final ObisCode COMMUNICATION_FAILURE_EVENTLOG_OBISCODE = ObisCode.fromString("0.0.99.98.6.255");
     public static final ObisCode PREPAYMENT_EVENTLOG_OBISCODE = ObisCode.fromString("0.0.99.98.7.255");
-    public static final ObisCode CLOCK_SYNC_EVENTLOG_OBISCODE = ObisCode.fromString("0.0.99.98.30.255");
+    public static final ObisCode CLOCK_SYNC_EVENTLOG_OBISCODE = ObisCode.fromString("0.0.99.98.30.255");    
 
     public static final ObisCode InstantaneousEnergyValuesObisCode = ObisCode.fromString("0.0.21.0.6.255");
     public static final ObisCode RefVoltagePQObisCode = ObisCode.fromString("1.0.0.6.4.255");
@@ -79,7 +79,7 @@ public class ObisCodeProvider implements CommonObisCodeProvider {
 
     public static final ObisCode ActivityCalendarContract1ObisCode = ObisCode.fromString("0.0.13.0.1.255");
     public static final ObisCode ActiveSpecialDayContract1ObisCode = ObisCode.fromString("0.0.11.0.1.255");
-    public static final ObisCode PassiveSpecialDayContract1ObisCode = ObisCode.fromString("0.0.11.0.4.255");
+    public static final ObisCode PassiveSpecialDayContract1ObisCode = ObisCode.fromString("0.0.11.0.0.255");
     public static final ObisCode CurrentActiveRateContract1ObisCode = ObisCode.fromString("0.0.96.14.1.255");
     public static final ObisCode ActiveCalendarNameObisCode = ObisCode.fromString("0.0.13.0.1.255");
     public static final ObisCode PassiveCalendarNameObisCode = ObisCode.fromString("0.0.13.0.2.255");
@@ -133,7 +133,7 @@ public class ObisCodeProvider implements CommonObisCodeProvider {
 
     /**
      * @param clientId the used clientId for this association
-     * @return the {@link com.energyict.smartmeterprotocolimpl.elster.apollo.ObisCodeProvider.AssociationLnObisCodes#obiscode} for the {@link com.energyict.dlms.cosem.AssociationLN} object
+     * @return the {@link AS300ObisCodeProvider.AssociationLnObisCodes#obiscode} for the {@link com.energyict.dlms.cosem.AssociationLN} object
      */
     public ObisCode getAssociationLnObisCode(int clientId) {
         return AssociationLnObisCodes.forClient(clientId);

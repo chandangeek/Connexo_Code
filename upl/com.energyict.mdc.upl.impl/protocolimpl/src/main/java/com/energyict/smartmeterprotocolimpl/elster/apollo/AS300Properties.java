@@ -15,7 +15,7 @@ import java.util.List;
  * Date: 7-feb-2011
  * Time: 14:16:15
  */
-public class ApolloProperties extends DlmsProtocolProperties {
+public class AS300Properties extends DlmsProtocolProperties {
 
     public List<String> getOptionalKeys() {
         List<String> optional = new ArrayList<String>();

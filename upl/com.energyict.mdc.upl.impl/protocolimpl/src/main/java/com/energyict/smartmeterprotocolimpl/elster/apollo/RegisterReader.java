@@ -46,7 +46,7 @@ public class RegisterReader {
                     }
                 } else if (this.registerMap.containsKey(register)) {
                     if (getClassId(register.getObisCode()).getClassId() == DLMSClassId.DATA.getClassId()) {
-                        if (register.getObisCode().equals(ObisCodeProvider.LastBillingResetTimeStamp)) {
+                        if (register.getObisCode().equals(AS300ObisCodeProvider.LastBillingResetTimeStamp)) {
                             Data data = meterProtocol.getObjectFactory().getData(register.getObisCode());
                             registerValue = new RegisterValue(register, data.getBillingDate().toString());
                         } else {
@@ -113,28 +113,28 @@ public class RegisterReader {
                     return DLMSClassId.DATA;
                 }
 
-            } else if (obisCode.equals(ObisCodeProvider.NrOfVoltageSagsAvgVoltageObisCode) || obisCode.equals(ObisCodeProvider.NrOfVoltageSwellsAvgVoltageObisCode)) {
+            } else if (obisCode.equals(AS300ObisCodeProvider.NrOfVoltageSagsAvgVoltageObisCode) || obisCode.equals(AS300ObisCodeProvider.NrOfVoltageSwellsAvgVoltageObisCode)) {
                 return DLMSClassId.DATA;
-            } else if (obisCode.equals(ObisCodeProvider.DurationVoltageSagsAvgVoltageObisCode) || obisCode.equals(ObisCodeProvider.DurationVoltageSwellsAvgVoltageObisCode) || obisCode.equals(ObisCodeProvider.RefVoltagePQObisCode)) {
+            } else if (obisCode.equals(AS300ObisCodeProvider.DurationVoltageSagsAvgVoltageObisCode) || obisCode.equals(AS300ObisCodeProvider.DurationVoltageSwellsAvgVoltageObisCode) || obisCode.equals(AS300ObisCodeProvider.RefVoltagePQObisCode)) {
                 return DLMSClassId.REGISTER;
             }
         }
-        if (obisCode.equals(ObisCodeProvider.ActiveQuadrantObisCode)
-                || obisCode.equals(ObisCodeProvider.ActiveQuadrantL1ObisCode)
-                || obisCode.equals(ObisCodeProvider.ActiveQuadrantL2ObisCode)
-                || obisCode.equals(ObisCodeProvider.ActiveQuadrantL3ObisCode)
-                || obisCode.equals(ObisCodeProvider.PhasePrecense)
-                || obisCode.equals(ObisCodeProvider.TransformerRatioCurrentDenObisCode)
-                || obisCode.equals(ObisCodeProvider.TransformerRatioVoltageDenObisCode)
-                || obisCode.equals(ObisCodeProvider.TransformerRatioCurrentNumObisCode)
-                || obisCode.equals(ObisCodeProvider.TransformerRatioVoltageNumObisCode)) {
+        if (obisCode.equals(AS300ObisCodeProvider.ActiveQuadrantObisCode)
+                || obisCode.equals(AS300ObisCodeProvider.ActiveQuadrantL1ObisCode)
+                || obisCode.equals(AS300ObisCodeProvider.ActiveQuadrantL2ObisCode)
+                || obisCode.equals(AS300ObisCodeProvider.ActiveQuadrantL3ObisCode)
+                || obisCode.equals(AS300ObisCodeProvider.PhasePrecense)
+                || obisCode.equals(AS300ObisCodeProvider.TransformerRatioCurrentDenObisCode)
+                || obisCode.equals(AS300ObisCodeProvider.TransformerRatioVoltageDenObisCode)
+                || obisCode.equals(AS300ObisCodeProvider.TransformerRatioCurrentNumObisCode)
+                || obisCode.equals(AS300ObisCodeProvider.TransformerRatioVoltageNumObisCode)) {
             return DLMSClassId.DATA;
         }
-        if (obisCode.equals(ObisCodeProvider.CurrentActiveRateContract1ObisCode)) {
+        if (obisCode.equals(AS300ObisCodeProvider.CurrentActiveRateContract1ObisCode)) {
             return DLMSClassId.DATA;
-        } else if (obisCode.equals(ObisCodeProvider.ActiveCalendarNameObisCode)) {
+        } else if (obisCode.equals(AS300ObisCodeProvider.ActiveCalendarNameObisCode)) {
             return DLMSClassId.ACTIVITY_CALENDAR;
-        } else if (obisCode.equals(ObisCodeProvider.PassiveCalendarNameObisCode)) {
+        } else if (obisCode.equals(AS300ObisCodeProvider.PassiveCalendarNameObisCode)) {
             return DLMSClassId.ACTIVITY_CALENDAR;
         }
         if (isData(obisCode)) {
@@ -145,7 +145,7 @@ public class RegisterReader {
             return DLMSClassId.REGISTER;
         }
 
-        if (obisCode.equals(ObisCodeProvider.LoadProfileDaily) || obisCode.equals(ObisCodeProvider.LoadProfileMonthly) || obisCode.equals(ObisCodeProvider.LoadProfileP1) || obisCode.equals(ObisCodeProvider.LoadProfileBlockDaily) || obisCode.equals(ObisCodeProvider.LoadProfileBlockMonthly)) {
+        if (obisCode.equals(AS300ObisCodeProvider.LoadProfileDaily) || obisCode.equals(AS300ObisCodeProvider.LoadProfileMonthly) || obisCode.equals(AS300ObisCodeProvider.LoadProfileP1) || obisCode.equals(AS300ObisCodeProvider.LoadProfileBlockDaily) || obisCode.equals(AS300ObisCodeProvider.LoadProfileBlockMonthly)) {
             return DLMSClassId.PROFILE_GENERIC;
         }
 
@@ -153,7 +153,7 @@ public class RegisterReader {
     }
 
     private static boolean isData(ObisCode obisCode) {
-        return obisCode.equals(ObisCodeProvider.ActiveLongFirmwareIdentifierACOR) || obisCode.equals(ObisCodeProvider.ActiveLongFirmwareIdentifierMCOR) || obisCode.equals(ObisCodeProvider.FirmwareVersionObisCode) || obisCode.equals(ObisCodeProvider.FormerFirmwareVersionObisCode) || obisCode.equals(ObisCodeProvider.E_OperationalFirmwareVersionObisCode) || obisCode.equals(ObisCodeProvider.MIDCheckSumObisCode) || obisCode.equals(ObisCodeProvider.ClockSynchronizationObisCode) || obisCode.equals(ObisCodeProvider.clockSyncWindow) || obisCode.equals(ObisCodeProvider.clockShiftInvalidLimit) || obisCode.equals(ObisCodeProvider.clockShiftEventLimit) || obisCode.equals(ObisCodeProvider.ReferenceTime) || obisCode.equals(ObisCodeProvider.CurrentActiveRateContract1ObisCode) || obisCode.equals(ObisCodeProvider.LastBillingResetTimeStamp) || obisCode.equals(ObisCodeProvider.BillingResetLockoutTime) || obisCode.equals(ObisCodeProvider.ErrorRegister) || obisCode.equals(ObisCodeProvider.AlarmFilter) || obisCode.equals(ObisCodeProvider.AlarmRegister) || obisCode.equals(ObisCodeProvider.DaysSinceBillingReset);
+        return obisCode.equals(AS300ObisCodeProvider.ActiveLongFirmwareIdentifierACOR) || obisCode.equals(AS300ObisCodeProvider.ActiveLongFirmwareIdentifierMCOR) || obisCode.equals(AS300ObisCodeProvider.FirmwareVersionObisCode) || obisCode.equals(AS300ObisCodeProvider.FormerFirmwareVersionObisCode) || obisCode.equals(AS300ObisCodeProvider.E_OperationalFirmwareVersionObisCode) || obisCode.equals(AS300ObisCodeProvider.MIDCheckSumObisCode) || obisCode.equals(AS300ObisCodeProvider.ClockSynchronizationObisCode) || obisCode.equals(AS300ObisCodeProvider.clockSyncWindow) || obisCode.equals(AS300ObisCodeProvider.clockShiftInvalidLimit) || obisCode.equals(AS300ObisCodeProvider.clockShiftEventLimit) || obisCode.equals(AS300ObisCodeProvider.ReferenceTime) || obisCode.equals(AS300ObisCodeProvider.CurrentActiveRateContract1ObisCode) || obisCode.equals(AS300ObisCodeProvider.LastBillingResetTimeStamp) || obisCode.equals(AS300ObisCodeProvider.BillingResetLockoutTime) || obisCode.equals(AS300ObisCodeProvider.ErrorRegister) || obisCode.equals(AS300ObisCodeProvider.AlarmFilter) || obisCode.equals(AS300ObisCodeProvider.AlarmRegister) || obisCode.equals(AS300ObisCodeProvider.DaysSinceBillingReset);
     }
 
     /**

@@ -9,7 +9,7 @@ import com.energyict.obis.ObisCode;
  * Date: 22/07/11
  * Time: 17:09
  */
-public class ApolloObjectList {
+public class AS300ObjectList {
 
     public static final UniversalObject[] OBJECT_LIST;
 

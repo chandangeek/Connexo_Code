@@ -207,7 +207,7 @@ public class LoadProfileBuilder {
     }
 
     private boolean isStatus(ObisCode obisCode) {
-        return ObisCodeProvider.LoadProfileStatus30Min.equals(obisCode) || ObisCodeProvider.LoadProfileStatusP2.equals(obisCode);
+        return AS300ObisCodeProvider.LoadProfileStatus30Min.equals(obisCode) || AS300ObisCodeProvider.LoadProfileStatusP2.equals(obisCode);
     }
 
     private boolean loadProfileContains(LoadProfileReader lpr, ObisCode obisCode) throws IOException {

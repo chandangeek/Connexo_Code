@@ -4,7 +4,7 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.BasicEventLog;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
-import com.energyict.smartmeterprotocolimpl.elster.apollo.ObisCodeProvider;
+import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300ObisCodeProvider;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -58,7 +58,7 @@ public class ApolloEventProfiles {
     private List<MeterEvent> getPrepaymentEvents(Calendar from) {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
         BasicEventLog basicEventLog = new BasicEventLog(
-                ObisCodeProvider.PREPAYMENT_EVENTLOG_OBISCODE,
+                AS300ObisCodeProvider.PREPAYMENT_EVENTLOG_OBISCODE,
                 getCosemObjectFactory(),
                 getLogger()
         );
@@ -74,7 +74,7 @@ public class ApolloEventProfiles {
     private List<MeterEvent> getPowerFailureEvents(Calendar from) {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
         BasicEventLog basicEventLog = new BasicEventLog(
-                ObisCodeProvider.POWER_FAILURE_EVENTLOG_OBISCODE,
+                AS300ObisCodeProvider.POWER_FAILURE_EVENTLOG_OBISCODE,
                 getCosemObjectFactory(),
                 getLogger()
         );
@@ -91,7 +91,7 @@ public class ApolloEventProfiles {
     private List<MeterEvent> getPowerQualityEvents(Calendar from) {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
         BasicEventLog basicEventLog = new BasicEventLog(
-                ObisCodeProvider.POWER_QUALITY_EVENTLOG_OBISCODE,
+                AS300ObisCodeProvider.POWER_QUALITY_EVENTLOG_OBISCODE,
                 getCosemObjectFactory(),
                 getLogger()
         );
@@ -107,7 +107,7 @@ public class ApolloEventProfiles {
     private List<MeterEvent> getFirmwareEvents(Calendar from) {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
         BasicEventLog basicEventLog = new BasicEventLog(
-                ObisCodeProvider.FIRMWARE_EVENTLOG_OBISCODE,
+                AS300ObisCodeProvider.FIRMWARE_EVENTLOG_OBISCODE,
                 getCosemObjectFactory(),
                 getLogger()
         );
@@ -123,7 +123,7 @@ public class ApolloEventProfiles {
     private List<MeterEvent> getCommunicationFailureEvents(Calendar from) {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
         BasicEventLog basicEventLog = new BasicEventLog(
-                ObisCodeProvider.COMMUNICATION_FAILURE_EVENTLOG_OBISCODE,
+                AS300ObisCodeProvider.COMMUNICATION_FAILURE_EVENTLOG_OBISCODE,
                 getCosemObjectFactory(),
                 getLogger()
         );
@@ -139,7 +139,7 @@ public class ApolloEventProfiles {
     private List<MeterEvent> getDisconnectControlEvents(Calendar from) {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
         BasicEventLog basicEventLog = new BasicEventLog(
-                ObisCodeProvider.DISCONNECT_CONTROL_EVENTLOG_OBISCODE,
+                AS300ObisCodeProvider.DISCONNECT_CONTROL_EVENTLOG_OBISCODE,
                 getCosemObjectFactory(),
                 getLogger()
         );
@@ -155,7 +155,7 @@ public class ApolloEventProfiles {
     private List<MeterEvent> getFraudEvents(Calendar from) {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
         BasicEventLog basicEventLog = new BasicEventLog(
-                ObisCodeProvider.FRAUD_DETECTION_EVENTLOG_OBISCODE,
+                AS300ObisCodeProvider.FRAUD_DETECTION_EVENTLOG_OBISCODE,
                 getCosemObjectFactory(),
                 getLogger()
         );
@@ -171,7 +171,7 @@ public class ApolloEventProfiles {
     protected List<MeterEvent> getStandardEvents(Calendar from) {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
         BasicEventLog basicEventLog = new BasicEventLog(
-                ObisCodeProvider.STANDARD_EVENTLOG_OBISCODE,
+                AS300ObisCodeProvider.STANDARD_EVENTLOG_OBISCODE,
                 getCosemObjectFactory(),
                 getLogger()
         );
@@ -187,7 +187,7 @@ public class ApolloEventProfiles {
     protected List<MeterEvent> getClockSyncEvents(Calendar from) {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
         BasicEventLog basicEventLog = new BasicEventLog(
-                ObisCodeProvider.CLOCK_SYNC_EVENTLOG_OBISCODE,
+                AS300ObisCodeProvider.CLOCK_SYNC_EVENTLOG_OBISCODE,
                 getCosemObjectFactory(),
                 getLogger()
         );
