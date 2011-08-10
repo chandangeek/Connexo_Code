@@ -32,17 +32,44 @@ public class ProtocolMessageSpecifications {
     }
 
     /**
-     * Creates a MessageSpecification for creating a HAN network message.
+     * Creates a MessageSpecification for removing a HAN network message. The message does not contain any values or attributes.
+     *
+     * @return
+     */
+    public static MessageSpec getRemoveHanMessageSpecification() {
+        MessageSpec msgSpec = new MessageSpec(RtuMessageKeyIdConstants.REMOVE_HAN, false);
+        MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.REMOVE_HAN_NETWORK);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
+    /**
+     * Creates a MessageSpecification for adding a ZigBee device (IHD, Gas, ...) to the network.
      *
      * @return the requested messageSpecification
      */
     public static MessageSpec getJoinZigBeeSlaveSpecification() {
         MessageSpec msgSpec = new MessageSpec(RtuMessageKeyIdConstants.JOIN_ZIGBEE_SLAVE, false);
-//        MessageTagSpec tagSpec = MessagingTools.getAttributesOnlyMessageTagSpec(RtuMessageConstant.JOIN_ZIGBEE_SLAVE);
+        // MessageTagSpec tagSpec = MessagingTools.getAttributesOnlyMessageTagSpec(RtuMessageConstant.JOIN_ZIGBEE_SLAVE);
         // TODO Don't BackPort this to version below 8.11, use the above snippet instead
         MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.JOIN_ZIGBEE_SLAVE);
         tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_IEEE_ADDRESS, true));
         tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_LINK_KEY, true));
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
+    /**
+     * Creates a MessageSpecification for removing a ZigBee device (IHD, Gas, ...) from the network.
+     *
+     * @return
+     */
+    public static MessageSpec getRemoveZigBeeSlaveSpecification() {
+        MessageSpec msgSpec = new MessageSpec(RtuMessageKeyIdConstants.REMOVE_ZIGBEE_SLAVE, false);
+        // MessageTagSpec tagSpec = MessagingTools.getAttributesOnlyMessageTagSpec(RtuMessageConstant.REMOVE_ZIGBEE_SLAVE);
+        // TODO Don't BackPort this to version below 8.11, use the above snippet instead
+        MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.REMOVE_ZIGBEE_SLAVE);
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.REMOVE_ZIGBEE_SLAVE_IEEE_ADDRESS, true));
         msgSpec.add(tagSpec);
         return msgSpec;
     }

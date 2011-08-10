@@ -125,9 +125,14 @@ public class MessageHandler extends DefaultHandler{
             handleChangeAuthentication(attrbs);
         } else if(RtuMessageConstant.CREATE_HAN_NETWORK.equalsIgnoreCase(qName)){
             setType(RtuMessageConstant.CREATE_HAN_NETWORK);
+        } else if(RtuMessageConstant.REMOVE_HAN_NETWORK.equalsIgnoreCase(qName)){
+            setType(RtuMessageConstant.REMOVE_HAN_NETWORK);
         } else if(RtuMessageConstant.JOIN_ZIGBEE_SLAVE.equalsIgnoreCase(qName)){
             setType(RtuMessageConstant.JOIN_ZIGBEE_SLAVE);
             handleJoinZigBeeSlave(attrbs);
+        } else if(RtuMessageConstant.REMOVE_ZIGBEE_SLAVE.equalsIgnoreCase(qName)){
+            setType(RtuMessageConstant.REMOVE_ZIGBEE_SLAVE);
+            handleRemoveZigBeeSlave(attrbs);
         } else if(RtuMessageConstant.BACKUP_ZIGBEE_HAN_PARAMETERS.equalsIgnoreCase(qName)){
             setType(RtuMessageConstant.BACKUP_ZIGBEE_HAN_PARAMETERS);
         } else if(RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS.equalsIgnoreCase(qName)){
@@ -593,12 +598,13 @@ public class MessageHandler extends DefaultHandler{
     }
 
     private String joinZigBeeIEEEAddress = "";
-
     private String joinZigBeeLinkKey = "";
+
     private void handleJoinZigBeeSlave(Attributes attrbs) {
         this.joinZigBeeIEEEAddress = attrbs.getValue(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_IEEE_ADDRESS);
         this.joinZigBeeLinkKey = attrbs.getValue(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_LINK_KEY);
     }
+
     public String getJoinZigBeeIEEEAddress() {
         return joinZigBeeIEEEAddress;
     }
@@ -607,6 +613,15 @@ public class MessageHandler extends DefaultHandler{
         return joinZigBeeLinkKey;
     }
 
+    private String removeZigBeeIEEEAddress = "";
+
+    private void handleRemoveZigBeeSlave(Attributes attrbs) {
+        this.removeZigBeeIEEEAddress = attrbs.getValue(RtuMessageConstant.REMOVE_ZIGBEE_SLAVE_IEEE_ADDRESS);
+    }
+
+    public String getRemoveZigBeeIEEEAddress() {
+        return removeZigBeeIEEEAddress;
+    }
 
     private String restoreHanParametersUserFileID = "";
     private void handleRestoreHANParameters(final Attributes attrbs) {

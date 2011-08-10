@@ -266,11 +266,16 @@ public class RtuMessageConstant {
     // ZigBee related Han management messages
     public static final String HAN_MANAGEMENT = "Han_Management";
     public static final String CREATE_HAN_NETWORK = "Create_Han_Network";
+    public static final String REMOVE_HAN_NETWORK = "Remove_Han_Network";
 
     // Join ZigBee slave device related message constants
     public static final String JOIN_ZIGBEE_SLAVE = "Join_ZigBee_Slave";
     public static final String JOIN_ZIGBEE_SLAVE_IEEE_ADDRESS = "ZigBee_IEEE_Address";
     public static final String JOIN_ZIGBEE_SLAVE_LINK_KEY = "ZigBee_Link_Key";
+
+    // Remove ZigBee slave device related message constants
+    public static final String REMOVE_ZIGBEE_SLAVE = "Remove_ZigBee_Slave";
+    public static final String REMOVE_ZIGBEE_SLAVE_IEEE_ADDRESS = "ZigBee_IEEE_Address";
 
     // Backup ZigBee HAN parameters
     public static final String BACKUP_ZIGBEE_HAN_PARAMETERS = "Backup_ZigBee_Han_Parameters";

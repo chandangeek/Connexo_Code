@@ -57,14 +57,20 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
             importMessage(content, messageHandler);
 
             boolean createHan = messageHandler.getType().equals(RtuMessageConstant.CREATE_HAN_NETWORK);
+            boolean removeHan = messageHandler.getType().equals(RtuMessageConstant.REMOVE_HAN_NETWORK);
             boolean joinZigBeeSlave = messageHandler.getType().equals(RtuMessageConstant.JOIN_ZIGBEE_SLAVE);
+            boolean removeZigBeeSlave = messageHandler.getType().equals(RtuMessageConstant.REMOVE_ZIGBEE_SLAVE);
             boolean backupZigBeeHanParameters = messageHandler.getType().equals(RtuMessageConstant.BACKUP_ZIGBEE_HAN_PARAMETERS);
             boolean restoreZigBeeParameters = messageHandler.getType().equals(RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS);
 
             if (createHan) {
                 createHanNetwork(messageHandler);
+            } else if (removeHan) {
+                removeHanNetwork(messageHandler);
             } else if (joinZigBeeSlave) {
                 joinZigBeeSlave(messageHandler);
+            } else if (removeZigBeeSlave) {
+                removeZigBeeSlave(messageHandler);
             } else if (backupZigBeeHanParameters) {
                 backupZigBeeHanParameters(messageHandler);
             } else if (restoreZigBeeParameters) {
@@ -136,10 +142,23 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         zigBeeSETCControl.writeEnableDisableJoining(true);
     }
 
+    private void removeZigBeeSlave(MessageHandler messageHandler) throws IOException {
+        log(Level.INFO, "Sending message : Remove ZigBee slave");
+        String address = messageHandler.getRemoveZigBeeIEEEAddress();
+        // TODO: Add actual implementation
+        throw new IOException("Not implemented yet.");
+    }
+
     private void createHanNetwork(final MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Sending message : Create HAN Network");
         ZigbeeHanManagement hanManagement = getCosemObjectFactory().getZigbeeHanManagement();
         hanManagement.createHan(new Integer8(0));
+    }
+
+    private void removeHanNetwork(final MessageHandler messageHandler) throws IOException {
+        log(Level.INFO, "Sending message : Remove HAN Network");
+        // TODO: Add actual implementation
+        throw new IOException("Not implemented yet.");
     }
 
     private void log(final Level level, final String msg) {
