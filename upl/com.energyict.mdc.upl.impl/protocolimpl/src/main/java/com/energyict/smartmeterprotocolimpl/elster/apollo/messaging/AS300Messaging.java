@@ -61,7 +61,7 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol,
      * @return <code>true</code> a 'name' is needed for the tarif calendar, <code>false</code> if not.
      */
     public boolean needsName() {
-        return true; //TODO If a userFile is used, then this is true, otherwise it might be that we use the name of the codetable
+        return true;
     }
 
     /**

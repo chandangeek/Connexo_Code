@@ -1,4 +1,4 @@
-package com.energyict.protocolimpl.dlms.as220.parsing;
+package com.energyict.protocolimpl.messages.codetableparsing;
 
 import com.energyict.mdw.core.CodeCalendar;
 

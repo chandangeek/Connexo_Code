@@ -1,40 +1,23 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.TimePeriod;
-import com.energyict.cpo.*;
-import com.energyict.cuo.core.DesktopDecorator;
-import com.energyict.dynamicattributes.AttributeType;
-import com.energyict.mdw.core.*;
-import com.energyict.mdw.relation.*;
-import com.energyict.mdw.shadow.UserFileShadow;
-import com.energyict.metadata.TypeId;
-import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.dlms.as220.parsing.CodeTableXml;
+import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
+import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import org.xml.sax.SAXException;
-import sun.misc.BASE64Encoder;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.List;
+import java.util.Calendar;
 
 /**
- * Copyrights EnergyICT
- * Date: 8-aug-2011
- * Time: 15:27:28
+ * MessageBuilder for the TimeOfUse Message.
  */
 public class AS300TimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
 
     public static final String RAW_CONTENT_TAG = "Activity_Calendar";
 
     /**
-     * {@inheritDoc}
+     * We override this because we can't convert the CodeTable content in a proper manner ...
      */
     @Override
     protected String getMessageContent() throws BusinessException {
@@ -53,7 +36,7 @@ public class AS300TimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
         builder.append(">");
         if (getCodeId() > 0l) {
             try {
-                String xmlContent = CodeTableXml.parseActivityCalendarAndSpecialDayTable(getCodeId(), getActivationDate().getTime());
+                String xmlContent = CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(getCodeId(), Calendar.getInstance().getTime().before(getActivationDate())?getActivationDate().getTime():1, getName());
                 addChildTag(builder, getTagCode(), getCodeId());
                 addChildTag(builder, RAW_CONTENT_TAG, ProtocolTools.compress(xmlContent));
             } catch (ParserConfigurationException e) {
