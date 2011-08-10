@@ -5,6 +5,7 @@ import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributeobjects.RegisterZigbeeDeviceData;
+import com.energyict.dlms.cosem.attributeobjects.ZigBeeIEEEAddress;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
@@ -21,6 +22,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.TimeZone;
 import java.util.logging.Level;
+
+import static com.energyict.protocolimpl.utils.ProtocolTools.getBytesFromHexString;
 
 /**
  * Copyrights EnergyICT
@@ -145,8 +148,8 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
     private void removeZigBeeSlave(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Sending message : Remove ZigBee slave");
         String address = messageHandler.getRemoveZigBeeIEEEAddress();
-        // TODO: Add actual implementation
-        throw new IOException("Not implemented yet.");
+        ZigBeeIEEEAddress ieeeAddress = new ZigBeeIEEEAddress(getBytesFromHexString(address));
+        getCosemObjectFactory().getZigBeeSETCControl().unRegisterDevice(ieeeAddress);
     }
 
     private void createHanNetwork(final MessageHandler messageHandler) throws IOException {
@@ -157,8 +160,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
 
     private void removeHanNetwork(final MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Sending message : Remove HAN Network");
-        // TODO: Add actual implementation
-        throw new IOException("Not implemented yet.");
+        throw new IOException("Not implemented yet. Remove HAN not available (yet?) in ZigBee DLMS objects.");
     }
 
     private void log(final Level level, final String msg) {
