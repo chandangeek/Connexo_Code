@@ -24,15 +24,15 @@ public class GasDevice extends AS220 implements MessageProtocol{
 
 	private static final int MAX_MBUS_CHANNELS = 4;
 
-	private String 	emeterSerialnumber;
-	private String  gmeterSerialnumber;
-	private int 	gasMeterSlot = -1;
-	private int		mbusProfileInterval = -1;
+    private String emeterSerialnumber;
+    private String gmeterSerialnumber;
+    private int gasMeterSlot = -1;
+    private int mbusProfileInterval = -1;
 
-	private final GMeter	gMeter	= new GMeter(this);
-	private GMeterMessaging messaging;
+    private final GMeter gMeter = new GMeter(this);
+    private GMeterMessaging messaging;
 
-	/**
+    /**
 	 * {@inheritDoc}
 	 */
 	@Override

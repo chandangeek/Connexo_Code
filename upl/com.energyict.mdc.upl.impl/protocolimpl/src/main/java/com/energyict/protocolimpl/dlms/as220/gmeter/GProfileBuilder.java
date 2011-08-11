@@ -120,7 +120,7 @@ public class GProfileBuilder {
                         int value = dc.getRoot().getStructure(i).getInteger(2);
 
                         if (isBitSet(value, MASK_VALIDITY)) {
-                            profileStatus |= IntervalStateBits.MISSING;
+                            profileStatus = IntervalStateBits.MISSING;
                         }
                         if (!isBitSet(value, MASK_ENCRYPTED)) {
                             profileStatus |= IntervalStateBits.CORRUPTED;
