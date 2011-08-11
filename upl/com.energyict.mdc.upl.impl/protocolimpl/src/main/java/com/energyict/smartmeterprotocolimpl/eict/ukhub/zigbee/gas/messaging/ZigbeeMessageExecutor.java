@@ -1,16 +1,22 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
+import com.energyict.dlms.ParseUtils;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.xmlparsing.GenericDataToWrite;
+import com.energyict.dlms.xmlparsing.XmlToDlms;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsSession;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300TimeOfUseMessageBuilder;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 
 /**
@@ -43,6 +49,7 @@ public class ZigbeeMessageExecutor {
 
     public MessageResult executeMessageEntry(final MessageEntry messageEntry) {
         String content = messageEntry.getContent();
+        success = true;
 
         try {
             if (isTimeOfUseMessage(content)) {
@@ -66,7 +73,7 @@ public class ZigbeeMessageExecutor {
 
     private void updateTimeOfUse(final String content) throws IOException {
         log(Level.INFO, "Received update ActivityCalendar message.");
-        final ZigbeeTimeOfUseMessageBuilder builder = new ZigbeeTimeOfUseMessageBuilder();
+        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder();
 
         try {
             builder.initFromXml(content);
@@ -82,8 +89,16 @@ public class ZigbeeMessageExecutor {
                 log(Level.FINEST, "Getting UserFile from message");
                 final byte[] userFileData = builder.getUserFile().loadFileInByteArray();
                 if (userFileData.length > 0) {
-                    log(Level.WARNING, "Currently No UserFile Support, message will fail.");
-                    success = false;
+                    XmlToDlms x2d = new XmlToDlms(getDlmsSession());
+                    List<GenericDataToWrite> gdtwList = x2d.parseSetRequests(new String(ProtocolTools.decompressBytes(new String(userFileData, "US-ASCII")), "US-ASCII"));
+                    log(Level.FINEST, "Sending out the new Passive Calendar objects.");
+                    for(GenericDataToWrite gdtw : gdtwList){
+                        try {
+                            gdtw.writeData();
+                        } catch (IOException e) {
+                            throw new IOException("Could not write [" + ParseUtils.decimalByteToString(gdtw.getDataToWrite()) + "] to object " + ObisCode.fromByteArray(gdtw.getGenericWrite().getObjectReference().getLn()) + ", message will fail.");
+                        }
+                    }
                 } else {
                     log(Level.WARNING, "Length of the ActivityCalendar UserFile is not valid [" + userFileData + " bytes], failing message.");
                     success = false;

@@ -2,6 +2,8 @@ package com.energyict.dlms.xmlparsing;
 
 import com.energyict.dlms.cosem.GenericWrite;
 
+import java.io.IOException;
+
 /**
  * Copyrights EnergyICT
  * Date: 10-aug-2011
@@ -23,5 +25,14 @@ public class GenericDataToWrite {
 
     public byte[] getDataToWrite() {
         return dataToWrite;
+    }
+
+    /**
+     * Write data to device
+     *
+     * @throws IOException if something happened during the write
+     */
+    public void writeData() throws IOException {
+        this.genericWrite.write(dataToWrite);
     }
 }

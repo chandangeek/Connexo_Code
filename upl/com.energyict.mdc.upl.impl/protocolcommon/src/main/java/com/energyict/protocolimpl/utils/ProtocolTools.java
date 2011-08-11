@@ -1085,6 +1085,14 @@ public final class ProtocolTools {
         return new BASE64Encoder().encode(byteArrayOutputStream.toByteArray());
     }
 
+    /**
+     * Decompress the Zipped AND Base64 encoded String
+     *
+     * @param compressedBase64Content the Zipped and Base64 encoded String
+     * @return the decompressed String
+     *
+     * @throws IOException if decompression failed
+     */
     public static String decompress(String compressedBase64Content) throws IOException {
         try {
             byte[] compressedContent = new BASE64Decoder().decodeBuffer(compressedBase64Content);
@@ -1094,6 +1102,31 @@ public final class ProtocolTools {
             Object object = objectInputStream.readObject();
             if (object instanceof String) {
                 return (String) object;
+            } else {
+                throw new IOException("Compressed object should be a java.lang.String but was [" + object.getClass().getName() + "]");
+            }
+        } catch (ClassNotFoundException e) {
+            throw new IOException(e.getMessage());
+        }
+    }
+
+    /**
+     * Decompress the Zipped AND Base64 encoded String to a byte array
+     *
+     * @param compressedBase64Content the Zipped and Base64 encoded String
+     * @return the decompressed byte array
+     *
+     * @throws IOException if decompression failed
+     */
+    public static byte[] decompressBytes(String compressedBase64Content) throws IOException {
+        try {
+            byte[] compressedContent = new BASE64Decoder().decodeBuffer(compressedBase64Content);
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(compressedContent);
+            GZIPInputStream gzipInputStream = new GZIPInputStream(byteArrayInputStream);
+            ObjectInputStream objectInputStream = new ObjectInputStream(gzipInputStream);
+            Object object = objectInputStream.readObject();
+            if (object instanceof byte[]) {
+                return (byte[]) object;
             } else {
                 throw new IOException("Compressed object should be a java.lang.String but was [" + object.getClass().getName() + "]");
             }
