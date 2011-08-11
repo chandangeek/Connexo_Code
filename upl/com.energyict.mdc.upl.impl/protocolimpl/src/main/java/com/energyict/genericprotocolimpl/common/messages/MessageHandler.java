@@ -123,6 +123,9 @@ public class MessageHandler extends DefaultHandler{
         } else if(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL.equals(qName)){
             setType(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL);
             handleChangeAuthentication(attrbs);
+        } else if(RtuMessageConstant.CHANGE_HAN_SAS.equalsIgnoreCase(qName)){
+            setType(RtuMessageConstant.CHANGE_HAN_SAS);
+            handleChangeHanSas(attrbs);
         } else if(RtuMessageConstant.CREATE_HAN_NETWORK.equalsIgnoreCase(qName)){
             setType(RtuMessageConstant.CREATE_HAN_NETWORK);
         } else if(RtuMessageConstant.REMOVE_HAN_NETWORK.equalsIgnoreCase(qName)){
@@ -133,6 +136,8 @@ public class MessageHandler extends DefaultHandler{
         } else if(RtuMessageConstant.REMOVE_ZIGBEE_SLAVE.equalsIgnoreCase(qName)){
             setType(RtuMessageConstant.REMOVE_ZIGBEE_SLAVE);
             handleRemoveZigBeeSlave(attrbs);
+        } else if(RtuMessageConstant.REMOVE_ALL_ZIGBEE_SLAVES.equalsIgnoreCase(qName)){
+            setType(RtuMessageConstant.REMOVE_ALL_ZIGBEE_SLAVES);
         } else if(RtuMessageConstant.BACKUP_ZIGBEE_HAN_PARAMETERS.equalsIgnoreCase(qName)){
             setType(RtuMessageConstant.BACKUP_ZIGBEE_HAN_PARAMETERS);
         } else if(RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS.equalsIgnoreCase(qName)){
@@ -635,4 +640,27 @@ public class MessageHandler extends DefaultHandler{
             return -1;
         }
     }
+
+    private String changeHanSasPanId = "";
+    private String changeHanSasChannel = "";
+    private String changeHanSasInsecureJoin = "";
+
+    private void handleChangeHanSas(Attributes attrbs) {
+        this.changeHanSasPanId = attrbs.getValue(RtuMessageConstant.HAN_SAS_PAN_ID);
+        this.changeHanSasChannel = attrbs.getValue(RtuMessageConstant.HAN_SAS_CHANNEL);
+        this.changeHanSasInsecureJoin = attrbs.getValue(RtuMessageConstant.HAN_SAS_INSECURE_JOIN);
+    }
+
+    public String getChangeHanSasPanId() {
+        return changeHanSasPanId;
+    }
+
+    public String getChangeHanSasChannel() {
+        return changeHanSasChannel;
+    }
+
+    public String getChangeHanSasInsecureJoin() {
+        return changeHanSasInsecureJoin;
+    }
+
 }

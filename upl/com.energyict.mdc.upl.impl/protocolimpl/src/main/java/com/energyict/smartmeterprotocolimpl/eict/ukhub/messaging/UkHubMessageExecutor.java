@@ -59,14 +59,18 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         try {
             importMessage(content, messageHandler);
 
+            boolean changeHanSAS = messageHandler.getType().equals(RtuMessageConstant.CHANGE_HAN_SAS);
             boolean createHan = messageHandler.getType().equals(RtuMessageConstant.CREATE_HAN_NETWORK);
             boolean removeHan = messageHandler.getType().equals(RtuMessageConstant.REMOVE_HAN_NETWORK);
             boolean joinZigBeeSlave = messageHandler.getType().equals(RtuMessageConstant.JOIN_ZIGBEE_SLAVE);
             boolean removeZigBeeSlave = messageHandler.getType().equals(RtuMessageConstant.REMOVE_ZIGBEE_SLAVE);
+            boolean removeAllZigBeeSlaves = messageHandler.getType().equals(RtuMessageConstant.REMOVE_ALL_ZIGBEE_SLAVES);
             boolean backupZigBeeHanParameters = messageHandler.getType().equals(RtuMessageConstant.BACKUP_ZIGBEE_HAN_PARAMETERS);
             boolean restoreZigBeeParameters = messageHandler.getType().equals(RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS);
 
-            if (createHan) {
+            if (changeHanSAS) {
+                changeHanSAS(messageHandler);
+            } else if (createHan) {
                 createHanNetwork(messageHandler);
             } else if (removeHan) {
                 removeHanNetwork(messageHandler);
@@ -74,6 +78,8 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
                 joinZigBeeSlave(messageHandler);
             } else if (removeZigBeeSlave) {
                 removeZigBeeSlave(messageHandler);
+            } else if (removeAllZigBeeSlaves) {
+                removeAllZigBeeSlaves(messageHandler);
             } else if (backupZigBeeHanParameters) {
                 backupZigBeeHanParameters(messageHandler);
             } else if (restoreZigBeeParameters) {
@@ -99,6 +105,18 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         } else {
             return MessageResult.createFailed(messageEntry);
         }
+    }
+
+    private void changeHanSAS(MessageHandler messageHandler) throws IOException {
+        log(Level.INFO, "Sending message : Change Zigbee HAN SAS");
+        String panId = messageHandler.getChangeHanSasPanId();
+        String channel = messageHandler.getChangeHanSasPanId();
+
+        String insecureJoin = messageHandler.getChangeHanSasInsecureJoin();
+
+        // TODO: Implement this method. DLMS objects not implemented yet as well, so we'll have to do that first.
+
+        throw new IOException("Not implemented yet!");
     }
 
     private void restoreZigBeeHanParameters(final MessageHandler messageHandler) throws IOException {
@@ -150,6 +168,11 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         String address = messageHandler.getRemoveZigBeeIEEEAddress();
         ZigBeeIEEEAddress ieeeAddress = new ZigBeeIEEEAddress(getBytesFromHexString(address));
         getCosemObjectFactory().getZigBeeSETCControl().unRegisterDevice(ieeeAddress);
+    }
+
+    private void removeAllZigBeeSlaves(MessageHandler messageHandler) throws IOException {
+        log(Level.INFO, "Sending message : Remove all ZigBee slaves");
+        getCosemObjectFactory().getZigBeeSETCControl().unRegisterAllDevices();
     }
 
     private void createHanNetwork(final MessageHandler messageHandler) throws IOException {

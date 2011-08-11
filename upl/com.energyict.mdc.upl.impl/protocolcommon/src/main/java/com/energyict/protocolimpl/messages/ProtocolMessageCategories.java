@@ -26,10 +26,12 @@ public class ProtocolMessageCategories {
     public static MessageCategorySpec getHanManagementCategory() {
         MessageCategorySpec hanManagement = new MessageCategorySpec(RtuMessageCategoryConstants.ZIG_BEE_SETUP);
         hanManagement.addMessageSpec(ProtocolMessageSpecifications.getCreateHanMessageSpecification());
+        hanManagement.addMessageSpec(ProtocolMessageSpecifications.getChangeZigBeeHanSASMessageSpecification());
         // ZigBee DLMS objects currently have no support to shutdown a previously created HAN network, should they have one?
         //hanManagement.addMessageSpec(ProtocolMessageSpecifications.getRemoveHanMessageSpecification());
         hanManagement.addMessageSpec(ProtocolMessageSpecifications.getJoinZigBeeSlaveSpecification());
         hanManagement.addMessageSpec(ProtocolMessageSpecifications.getRemoveZigBeeSlaveSpecification());
+        hanManagement.addMessageSpec(ProtocolMessageSpecifications.getRemoveAllZigBeeSlavesSpecification());
         hanManagement.addMessageSpec(ProtocolMessageSpecifications.getBackupZigBeeHanKeyMessageSpecification());
         hanManagement.addMessageSpec(ProtocolMessageSpecifications.getRestoreZigBeeParametersMessageSpecification());
         return hanManagement;

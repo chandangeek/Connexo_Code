@@ -19,6 +19,18 @@ public class ProtocolMessageSpecifications {
         return msgSpec;
     }
 
+    public static MessageSpec getChangeZigBeeHanSASMessageSpecification() {
+        MessageSpec msgSpec = new MessageSpec(RtuMessageKeyIdConstants.CHANGE_ZIGBEE_HAN_SAS, false);
+        // MessageTagSpec tagSpec = MessagingTools.getAttributesOnlyMessageTagSpec(RtuMessageConstant.JOIN_ZIGBEE_SLAVE);
+        // TODO Don't BackPort this to version below 8.11, use the above snippet instead
+        MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.CHANGE_HAN_SAS);
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.HAN_SAS_PAN_ID, false));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.HAN_SAS_CHANNEL, false));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.HAN_SAS_INSECURE_JOIN, false));
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
     /**
      * Creates a MessageSpecification for creating a HAN network message. The message does not contain any values or attributes.
      *
@@ -70,6 +82,18 @@ public class ProtocolMessageSpecifications {
         // TODO Don't BackPort this to version below 8.11, use the above snippet instead
         MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.REMOVE_ZIGBEE_SLAVE);
         tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.REMOVE_ZIGBEE_SLAVE_IEEE_ADDRESS, true));
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
+    /**
+     * Creates a MessageSpecification for removing all ZigBee devices at once (IHD, Gas, ...) from the network.
+     *
+     * @return
+     */
+    public static MessageSpec getRemoveAllZigBeeSlavesSpecification() {
+        MessageSpec msgSpec = new MessageSpec(RtuMessageKeyIdConstants.REMOVE_ALL_ZIGBEE_SLAVES, false);
+        MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.REMOVE_ALL_ZIGBEE_SLAVES);
         msgSpec.add(tagSpec);
         return msgSpec;
     }

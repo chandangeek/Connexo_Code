@@ -52,10 +52,12 @@ public class RtuMessageKeyIdConstants {
     public static final String NTA_CHANGEDATATRANSPORTENCRYPTIONKEY = "Change DataTransportEncryptionKey";
     public static final String NTA_CHANGEDATATRANSPORTAUTHENTICATIONKEY = "Change DataTransportAuthenticationKey";
 
+    public static final String CHANGE_ZIGBEE_HAN_SAS = "Change ZigBee HAN Startup Attribute Setup (SAS)";
     public static final String CREATE_HAN = "Create Han Network";
     public static final String REMOVE_HAN = "Remove Han Network";
     public static final String JOIN_ZIGBEE_SLAVE = "Join ZigBee slave device";
     public static final String REMOVE_ZIGBEE_SLAVE = "Remove ZigBee slave device";
+    public static final String REMOVE_ALL_ZIGBEE_SLAVES = "Remove all ZigBee slave devices";
     public static final String BACKUP_ZIGBEE_HAN_PARAMETERS = "Backup ZigBee HAN Parameters";
     public static final String RESTORE_ZIGBEE_HAN_PARAMETERS = "Restore ZigBee HAN Parameters";
 
