@@ -4,6 +4,7 @@ import com.energyict.dlms.ParseUtils;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.xmlparsing.GenericDataToWrite;
 import com.energyict.dlms.xmlparsing.XmlToDlms;
+import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
@@ -93,8 +94,8 @@ public class AS300MessageExecutor {
     }
 
     private String getIncludedContent(final String content) {
-        int begin = content.indexOf(AS300Messaging.INCLUDED_USERFILE_TAG) + AS300Messaging.INCLUDED_USERFILE_TAG.length() + 1;
-        int end = content.indexOf(AS300Messaging.INCLUDED_USERFILE_TAG, begin) - 2;
+        int begin = content.indexOf(GenericMessaging.INCLUDED_USERFILE_TAG) + GenericMessaging.INCLUDED_USERFILE_TAG.length() + 1;
+        int end = content.indexOf(GenericMessaging.INCLUDED_USERFILE_TAG, begin) - 2;
         return content.substring(begin, end);
     }
 

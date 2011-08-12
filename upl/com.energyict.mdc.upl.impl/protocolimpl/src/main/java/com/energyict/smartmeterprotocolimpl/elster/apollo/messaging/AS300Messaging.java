@@ -19,24 +19,6 @@ import java.util.List;
  */
 public class AS300Messaging extends GenericMessaging implements MessageProtocol, TimeOfUseMessaging {
 
-    /**
-     * Tag that wraps around an included file.
-     */
-    public static final String INCLUDED_USERFILE_TAG = "IncludedFile";
-    /**
-     * The tag that is used for an include file.
-     */
-    protected static final String INCLUDE_USERFILE_TAG = "includeFile";
-
-    /**
-     * This is an attribute to aforementioned tag indicating the ID of the user file. See RtuMessageContentParser for more details.
-     */
-    protected static final String INCLUDE_USERFILE_ID_ATTRIBUTE = "fileId";
-    /**
-     * This is an attribute tag to indicate whether zipping needs to be applied. See RtuMessageContentParser for more details.
-     */
-    protected static final String CREATEZIP_ATTRIBUTE_TAG = "createZip";
-
     private final AS300MessageExecutor messageExecutor;
 
     public AS300Messaging(final AS300MessageExecutor messageExecutor) {

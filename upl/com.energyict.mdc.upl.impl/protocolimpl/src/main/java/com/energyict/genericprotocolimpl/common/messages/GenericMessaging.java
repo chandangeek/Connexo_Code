@@ -17,7 +17,24 @@ import java.util.List;
  */
 public abstract class GenericMessaging implements Messaging {
 
-	/** Abstract method to define your message categories **/
+    /**
+     * Tag that wraps around an included file.
+     */
+    public static final String INCLUDED_USERFILE_TAG = "IncludedFile";
+    /**
+     * The tag that is used for an include file.
+     */
+    protected static final String INCLUDE_USERFILE_TAG = "includeFile";
+    /**
+     * This is an attribute to aforementioned tag indicating the ID of the user file. See RtuMessageContentParser for more details.
+     */
+    protected static final String INCLUDE_USERFILE_ID_ATTRIBUTE = "fileId";
+    /**
+     * This is an attribute tag to indicate whether zipping needs to be applied. See RtuMessageContentParser for more details.
+     */
+    protected static final String CREATEZIP_ATTRIBUTE_TAG = "createZip";
+
+    /** Abstract method to define your message categories **/
 	public abstract List getMessageCategories();
 
 	public String writeMessage(Message msg) {

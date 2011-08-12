@@ -5,7 +5,7 @@ import com.energyict.mdw.core.*;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.messages.ProtocolMessages;
+import com.energyict.protocolimpl.messages.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,9 +35,9 @@ public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMes
     }
 
     public List getMessageCategories() {
-        List<MessageCategorySpec> categorySpecs = new ArrayList<MessageCategorySpec>();
-        // Add message categories here
-        return categorySpecs;
+        List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
+        categories.add(ProtocolMessageCategories.getPricingInformationCategory());
+        return categories;
     }
 
     public boolean needsName() {
@@ -106,4 +106,34 @@ public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMes
         return messageBuilder;
     }
 
+    @Override
+    public String writeTag(final MessageTag msgTag) {
+        if (msgTag.getName().equals(RtuMessageConstant.UPDATE_PRICING_INFORMATION)) {
+
+            int userFileId = 0;
+            for (Object maObject : msgTag.getAttributes()) {
+                MessageAttribute ma = (MessageAttribute) maObject;
+                if (ma.getSpec().getName().equals(RtuMessageConstant.UPDATE_PRICING_INFORMATION_USERFILE_ID)) {
+                    if (ma.getValue() != null && ma.getValue().length() != 0) {
+                        userFileId = Integer.valueOf(ma.getValue());
+                    }
+                }
+            }
+
+            StringBuilder builder = new StringBuilder();
+            addOpeningTag(builder, msgTag.getName());
+            builder.append("<").append(INCLUDED_USERFILE_TAG).append(">");
+
+            // This will generate a message that will make the RtuMessageContentParser inline the file.
+            builder.append("<").append(INCLUDE_USERFILE_TAG).append(" ").append(INCLUDE_USERFILE_ID_ATTRIBUTE).append("=\"").append(userFileId).append("\"");
+            builder.append(" ").append(CREATEZIP_ATTRIBUTE_TAG).append("=\"true\"");
+            builder.append("/>");
+
+            builder.append("</").append(INCLUDED_USERFILE_TAG).append(">");
+            addClosingTag(builder, msgTag.getName());
+            return builder.toString();
+        } else {
+            return super.writeTag(msgTag);
+        }
+    }
 }
