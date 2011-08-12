@@ -10,7 +10,7 @@ import java.util.*;
 /**
  * Copyrights EnergyICT
  * Date: 29-sep-2010
- * Time: 15:58:55
+ * Time: 15:58:56
  */
 public class ACE4000Properties extends AbstractProtocolProperties {
 
