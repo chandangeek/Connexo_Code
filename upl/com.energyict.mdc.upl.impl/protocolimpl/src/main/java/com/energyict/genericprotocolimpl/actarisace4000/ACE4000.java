@@ -31,8 +31,7 @@ public class ACE4000 extends AbstractGenericProtocol {
 
     private List<String> mbSerialNumber;
     private String pushedSerialNumber;
-    private String masterSerialNumber;
-    private String necessarySerialNumber;
+    private String masterSerialNumber = "";
     private StringBuilder errorString = null;
     private ACE4000Messages ace4000Messages;
 
@@ -50,10 +49,6 @@ public class ACE4000 extends AbstractGenericProtocol {
             ace4000Messages = new ACE4000Messages(this);
         }
         return ace4000Messages;
-    }
-
-    public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
-        return getACE4000Messages().queryMessage(messageEntry);
     }
 
     public List getMessageCategories() {
@@ -145,6 +140,7 @@ public class ACE4000 extends AbstractGenericProtocol {
                     addSuccessLogging();
                 } else {
                     log("An error occurred and was logged in the AMR journal.");
+                    log(getErrorString().toString());
                     addFailureLogging(getErrorString());
                 }
             } finally {
@@ -166,21 +162,36 @@ public class ACE4000 extends AbstractGenericProtocol {
      * @return the incremented time out moment, if new requests were sent
      * @throws IOException            communication error
      * @throws ConfigurationException meter serial number is not found (or not unique) in EiServer database
+     * @throws com.energyict.cbo.BusinessException
+     *                                when a database transaction fails
+     * @throws java.sql.SQLException  when data storage fails
      */
-    private long doRequestsOnce(long interSessionTimeOut) throws IOException, ConfigurationException {
+    private long doRequestsOnce(long interSessionTimeOut) throws IOException, ConfigurationException, BusinessException, SQLException {
         if (oneTimer == 0 && (schedulers.size() != 0)) {
             boolean newRequest = false;
+            getObjectFactory().resetTrackingIDs();
             for (CommunicationScheduler scheduler : schedulers) {
 
                 Date fromDate = scheduler.getRtu().getLastReading();
-                if (scheduler.getCommunicationProfile().getSendRtuMessage()) {
-                    //TODO TODO :)
-                    //TODO Read events message, read LP data
+                List<RtuMessage> messages = scheduler.getRtu().getPendingMessages();
+                if (getACE4000Messages().shouldRetry(messages) && scheduler.getCommunicationProfile().getSendRtuMessage()) {
+                    if (retry < getProtocolProperties().getRetries()) {
+                        for (RtuMessage message : messages) {
+                            getACE4000Messages().doMessage(message);
+                            newRequest = getACE4000Messages().isNewRequest();
+                        }
+                    } else {
+                        getACE4000Messages().logTimeoutMessages(messages, retry);
+                    }
                 }
                 if (scheduler.getCommunicationProfile().getReadDemandValues()) {
                     if (!getObjectFactory().isReceivedLoadProfile()) {
                         if (retry < getProtocolProperties().getRetries()) {
-                            getObjectFactory().sendLoadProfileRequest(fromDate);        //TODO Message: read LP data met specifieke fromDate
+                            if (fromDate == null) {
+                                getObjectFactory().sendLoadProfileRequest();
+                            } else {
+                                getObjectFactory().sendLoadProfileRequest(fromDate);
+                            }
                             newRequest = true;
                         } else {
                             log(Level.SEVERE, "Sent request to read load profile " + (retry + 1) + " times, meter didn't reply");
@@ -201,7 +212,7 @@ public class ACE4000 extends AbstractGenericProtocol {
 
                     if (isMasterMeter(getPushedSerialNumber())) {
                         if (retry < getProtocolProperties().getRetries()) {
-                            if (!getObjectFactory().requestAllMasterRegisters(fromDate)) {
+                            if (!getObjectFactory().requestAllMasterRegisters()) {
                                 newRequest = true;
                             }
                         } else {
@@ -209,7 +220,7 @@ public class ACE4000 extends AbstractGenericProtocol {
                         }
                     } else if (isSlaveMeter(getPushedSerialNumber())) {
                         if (retry < getProtocolProperties().getRetries()) {
-                            if (!getObjectFactory().requestAllSlaveRegisters(fromDate)) {
+                            if (!getObjectFactory().requestAllSlaveRegisters()) {
                                 newRequest = true;
                             }
                         } else {
@@ -235,7 +246,9 @@ public class ACE4000 extends AbstractGenericProtocol {
 //			getObjectFactory().sendTimeConfig(4800, 120, 3);
             }
             oneTimer++;
-            retry++;
+            if (newRequest) {
+                retry++;
+            }
             return newRequest ? System.currentTimeMillis() + getTimeOut() : interSessionTimeOut;
         }
         return interSessionTimeOut;
@@ -243,7 +256,11 @@ public class ACE4000 extends AbstractGenericProtocol {
 
     private void storeData() throws SQLException, BusinessException, ConfigurationException {
         for (CommunicationScheduler scheduler : schedulers) {
-            if (scheduler.getCommunicationProfile().getReadDemandValues()) {
+            if (scheduler.getCommunicationProfile().getSendRtuMessage()) {
+                setMessageResults();
+            }
+
+            if (scheduler.getCommunicationProfile().getReadDemandValues() || getACE4000Messages().isProfileDataRequested()) {
                 ProfileData profileData = getObjectFactory().getLoadProfile().getProfileData();
                 int size = profileData.getIntervalDatas().size();
                 if (size > 0) {
@@ -251,10 +268,14 @@ public class ACE4000 extends AbstractGenericProtocol {
                     profileData.sort();
                     getMeter().store(profileData);
                 }
+            } else if (getObjectFactory().getLoadProfile().getProfileData().getIntervalDatas().size() > 0) {
+                log("Received profile data, but none are stored because of the communication profile settings");
             }
 
-            if (scheduler.getCommunicationProfile().getReadMeterEvents()) {
+            if (scheduler.getCommunicationProfile().getReadMeterEvents() || getACE4000Messages().isEventsRequested()) {
                 storeEvents();
+            } else if (getObjectFactory().getMeterEvents().size() > 0) {
+                log("Received " + getObjectFactory().getMeterEvents().size() + " event(s), but none are stored because of the communication profile settings");
             }
 
             if (scheduler.getCommunicationProfile().getReadMeterReadings()) {
@@ -266,17 +287,26 @@ public class ACE4000 extends AbstractGenericProtocol {
                     MeterReadingData allSlaveRegisters = getObjectFactory().getAllMBusRegisters();
                     storeSlaveRegisters(allSlaveRegisters);
                 }
+            } else if ((getObjectFactory().getAllMasterRegisters().getRegisterValues().size() > 0) || getObjectFactory().getAllMBusRegisters().getRegisterValues().size() > 0) {
+                log("Received register data, but none are stored because of the communication profile settings");
             }
         }
     }
 
+    public void setMessageResults() throws BusinessException, SQLException {
+        for (CommunicationScheduler scheduler : getCommSchedulers()) {
+            getACE4000Messages().setMessageResult(scheduler.getRtu().getPendingMessages());
+        }
+    }
+
     private void storeEvents() throws SQLException, BusinessException {
-        List<MeterEvent> meterEvents = getObjectFactory().getEventData().getMeterEvents();
+        List<MeterEvent> meterEvents = getObjectFactory().getMeterEvents();
         if (meterEvents.size() > 0) {
             ProfileData profileData = new ProfileData();
             List<MeterEvent> result = new ArrayList<MeterEvent>();
             for (MeterEvent meterEvent : meterEvents) {
-                if (meterEvent.getTime().after(getMeter().getLastLogbook())) {
+                Date lastLogbook = getMeter().getLastLogbook();
+                if (meterEvent.getTime().after(lastLogbook == null ? new Date(0) : lastLogbook)) {
                     result.add(meterEvent);
                 }
             }
@@ -291,15 +321,21 @@ public class ACE4000 extends AbstractGenericProtocol {
 
             //Don't store register values if the register is not defined on the RTU
             MeterReadingData result = new MeterReadingData();
-            for (RtuRegister register : getMeter().getRegisters()) {
-                for (RegisterValue registerValue : mrd.getRegisterValues()) {
-                    if (register.getRtuRegisterSpec().getObisCode().equals(registerValue.getObisCode())) {
-                        registerValue.setRtuRegisterId(register.getId());
+            for (RegisterValue registerValue : mrd.getRegisterValues()) {
+                boolean found = false;
+                for (RtuRegister rtuRegister : getMeter().getRegisters()) {
+                    if (rtuRegister.getRtuRegisterSpec().getObisCode().equals(registerValue.getObisCode())) {
+                        found = true;
+                        registerValue.setRtuRegisterId(rtuRegister.getId());
                         result.add(registerValue);
                         break;
                     }
                 }
+                if (!found) {
+                    log(Level.WARNING, "Received data for register [" + registerValue.getObisCode().toString() + "], but this register is not defined on the RTU in EiServer");
+                }
             }
+
             log("Received " + mrd.getRegisterValues().size() + " registers, storing data for " + result.getRegisterValues().size() + " configured registers");
             getMeter().store(result);
         }
@@ -312,13 +348,18 @@ public class ACE4000 extends AbstractGenericProtocol {
             MeterReadingData result = new MeterReadingData();
             Rtu slave = getMbusMetersMap().get(getPushedSerialNumber());
             if (slave != null) {
-                for (RtuRegister register : slave.getRegisters()) {
-                    for (RegisterValue registerValue : mrd.getRegisterValues()) {
-                        if (register.getRtuRegisterSpec().getObisCode().equals(registerValue.getObisCode())) {
-                            registerValue.setRtuRegisterId(register.getId());
+                for (RegisterValue registerValue : mrd.getRegisterValues()) {
+                    boolean found = false;
+                    for (RtuRegister rtuRegister : slave.getRegisters()) {
+                        if (rtuRegister.getRtuRegisterSpec().getObisCode().equals(registerValue.getObisCode())) {
+                            found = true;
+                            registerValue.setRtuRegisterId(rtuRegister.getId());
                             result.add(registerValue);
                             break;
                         }
+                    }
+                    if (!found) {
+                        log(Level.WARNING, "Received data for register [" + registerValue.getObisCode().toString() + "], but this register is not defined on the RTU in EiServer");
                     }
                 }
                 log("Storing " + result.getRegisterValues().size() + " received registers");
@@ -492,18 +533,14 @@ public class ACE4000 extends AbstractGenericProtocol {
         return false;
     }
 
-    public void setNecessarySerialNumber(String necessarySerialNumber) {
-        this.necessarySerialNumber = necessarySerialNumber;
-    }
-
     /**
      * Returns the serialNumber of the E-meter or the MBus-meters
      * Needs to be set before the message is sent!
      *
      * @return a serialNumber
      */
-    public String getNecessarySerialNumber() {
-        return necessarySerialNumber;
+    public String getMasterSerialNumber() {
+        return masterSerialNumber;
     }
 
     /**
@@ -514,13 +551,6 @@ public class ACE4000 extends AbstractGenericProtocol {
      */
     public String getPushedSerialNumber() {
         return pushedSerialNumber;
-    }
-
-    /**
-     * @return the masters serialNumber
-     */
-    public String getMasterSerialNumber() {
-        return masterSerialNumber;
     }
 
     /**

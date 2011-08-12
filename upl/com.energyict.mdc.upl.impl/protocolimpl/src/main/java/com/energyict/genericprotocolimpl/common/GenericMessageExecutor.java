@@ -1,25 +1,17 @@
 package com.energyict.genericprotocolimpl.common;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.SQLException;
-import java.util.Calendar;
-import java.util.TimeZone;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
+import com.energyict.cbo.BusinessException;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.mdw.core.RtuMessage;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.mdw.core.RtuMessage;
+import javax.xml.parsers.*;
+import java.io.*;
+import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 /**
  * 
@@ -29,7 +21,7 @@ import com.energyict.mdw.core.RtuMessage;
  */
 public abstract class GenericMessageExecutor {
 	
-	abstract public void doMessage(RtuMessage rtuMessage)throws BusinessException, SQLException;
+	abstract public void doMessage(RtuMessage rtuMessage) throws BusinessException, SQLException, IOException;
 	
 	abstract protected TimeZone getTimeZone();
 	

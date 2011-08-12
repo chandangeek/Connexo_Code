@@ -26,7 +26,7 @@ public class Acknowledge extends AbstractActarisObject{
 		Element md = doc.createElement(XMLTags.METERDATA);
 		root.appendChild(md);
 		Element s = doc.createElement(XMLTags.SERIALNUMBER);
-		s.setTextContent(getObjectFactory().getAce4000().getNecessarySerialNumber());
+		s.setTextContent(getObjectFactory().getAce4000().getMasterSerialNumber());
 		md.appendChild(s);
 
 		Element ak = doc.createElement(XMLTags.ACKNOWLEDGE);

@@ -13,16 +13,16 @@ public class DateTime extends AbstractActarisObject {
 
     private long meterTime;
     private long receiveTime;
-    private long minDiff = -1;
-    private long maxDiff = -1;
+    private long minDiff = 0;          //Default
+    private long maxDiff = 3600;       //Default
 
     public DateTime(ObjectFactory of) {
         super(of);
         if (getObjectFactory().getAce4000().getCommSchedulers().size() != 0) {
             for (CommunicationScheduler scheduler : getObjectFactory().getAce4000().getCommSchedulers()) {
                 if (scheduler.getCommunicationProfile().getForceClock()) {
-                    setMaxDiff(scheduler.getCommunicationProfile().getMaximumClockDifference() * 1000);
-                    setMinDiff(scheduler.getCommunicationProfile().getMinimumClockDifference() * 1000);
+                    setMaxDiff(((long) scheduler.getCommunicationProfile().getMaximumClockDifference()) * 1000);
+                    setMinDiff(((long) scheduler.getCommunicationProfile().getMinimumClockDifference()) * 1000);
                     break;
                 }
             }
@@ -45,24 +45,12 @@ public class DateTime extends AbstractActarisObject {
 
         setReceiveTime(getObjectFactory().getCurrentMeterTime().getTime());          //Current time, in the meter's time zone!
         long diff = Math.abs(getMeterTime() - getReceiveTime());
-        if (diff > getMinDiff() && diff < getMaxDiff()) {
-            doTimeSync();
-        } else if (diff > getMaxDiff()) {
+        if (diff > getMaxDiff()) {
             getObjectFactory().sendForceTime();
         } else {
-            if (getMaxDiff() == - 1 && getMinDiff() == -1) {
-                getObjectFactory().log(Level.WARNING, "Min and max time difference must be defined in order to do a clock set.");
-            } else {
-                getObjectFactory().log(Level.WARNING, "Time difference didn't fit in [min diff - max diff], no clock set was done.");
-            }
+            getObjectFactory().sendSyncTime(getMeterTime(), getReceiveTime());         //Have to send this as an ACK
         }
         getObjectFactory().setClockWasSet(true);
-    }
-
-    private void doTimeSync() throws IOException {
-        getObjectFactory().getSyncTime().setMeterTime(getMeterTime());
-        getObjectFactory().getSyncTime().setReceiveTime(getReceiveTime());
-        getObjectFactory().sendSyncTime();         //Have to send this as an ACK
     }
 
     protected long getMeterTime() {

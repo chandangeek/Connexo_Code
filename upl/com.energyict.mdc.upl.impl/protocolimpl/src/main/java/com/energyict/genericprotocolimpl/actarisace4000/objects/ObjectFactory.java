@@ -25,6 +25,7 @@ public class ObjectFactory {
     private Acknowledge acknowledge = null;
     private ConfigurationAcknowledge configurationAcknowledge = null;
     private FirmwareVersion firmwareVersion = null;
+    private NegativeAcknowledge negativeAcknowledge = null;
     private AutoPushConfig autoPushConfig = null;
     private FullMeterConfig fullMeterConfig = null;
     private Announcement announcement = null;
@@ -40,6 +41,14 @@ public class ObjectFactory {
     private MaxDemandRegister maximumDemandRegisters = null;
     private InstantVoltAndCurrent instantVoltAndCurrent = null;
     private BillingData billingData = null;
+    private FirmwareUpgrade firmwareUpgrade = null;
+    private Reject reject = null;
+    private ContactorControlCommand contactorControlCommand = null;
+    private DisplayMessage displayMessage = null;
+    private DisplayConfiguration displayConfiguration = null;
+    private LoadProfileConfiguration loadProfileConfiguration = null;
+    private ConsumptionLimitationConfiguration consumptionLimitationConfiguration = null;
+    private MaxDemandConfiguration maxDemandConfiguration = null;
 
     private int trackingID = -1;
     private boolean sendAck = false;      //Indicates whether or not the parsed message must be ACK'ed.
@@ -54,6 +63,22 @@ public class ObjectFactory {
     private boolean receivedMaxDemandRegisters = false;
     private boolean receivedInstantRegisters = false;
     private boolean receivedLoadProfile = false;
+    private Boolean connectSucceeded = null;
+    private Boolean disconnectSucceeded = null;
+    private Boolean displayMessageSucceeded = null;
+    private Boolean displayConfigurationSucceeded = null;
+    private Boolean loadProfileConfigurationSucceeded = null;
+    private Boolean maxDemandConfigurationSucceeded = null;
+    private Boolean consumptionLimitationConfigurationSucceeded = null;
+    private Boolean firmWareSucceeded = null;
+    private int connectTrackingId = -2;
+    private int disconnectTrackingId = -2;
+    private int firmwareTrackingId = -2;
+    private int displayMessageTrackingId = -2;
+    private int displayConfigurationTrackingId = -2;
+    private int loadProfileConfigurationTrackingId = -2;
+    private int maxDemandConfigurationTrackingId = -2;
+    private int consumptionLimitationConfigurationTrackingId = -2;
     private boolean clockWasSet = false;
 
     public ObjectFactory(ACE4000 ace4000) {
@@ -92,8 +117,72 @@ public class ObjectFactory {
         return receivedLoadProfile;
     }
 
+    public boolean shouldRetryFirmwareUpgrade() {
+        return (firmWareSucceeded == null);     //Should not retry if FW upgrade was ACK'ed or NACK'ed.
+    }                                           //Only retry after timeouts.
+
+    public boolean isFirmwareUpgradeSuccess() {
+        return firmWareSucceeded == null ? false : firmWareSucceeded;
+    }
+
+    public boolean isConnectSuccess() {
+        return connectSucceeded == null ? false : connectSucceeded;
+    }
+
+    public boolean isDisconnectSuccess() {
+        return disconnectSucceeded == null ? false : disconnectSucceeded;
+    }
+
+    public boolean isDisplayConfigurationSucceeded() {
+        return displayConfigurationSucceeded == null ? false : displayConfigurationSucceeded;
+    }
+
+    public boolean isLoadProfileConfigurationSucceeded() {
+        return loadProfileConfigurationSucceeded == null ? false : loadProfileConfigurationSucceeded;
+    }
+
+    public boolean isMaxDemandConfigurationSucceeded() {
+        return maxDemandConfigurationSucceeded == null ? false : maxDemandConfigurationSucceeded;
+    }
+
+    public boolean isConsumptionLimitationConfigurationSucceeded() {
+        return consumptionLimitationConfigurationSucceeded == null ? false : consumptionLimitationConfigurationSucceeded;
+    }
+
+    public boolean isDisplayMessageSucceeded() {
+        return displayMessageSucceeded == null ? false : displayMessageSucceeded;
+    }
+
     public boolean isReceivedMBusBillingRegisters() {
         return receivedMBusBillingRegisters;
+    }
+
+    public boolean shouldRetryConnectCommand() {
+        return (connectSucceeded == null);
+    }
+
+    public boolean shouldRetryDisplayConfigRequest() {
+        return (displayConfigurationSucceeded == null);
+    }
+
+    public boolean shouldRetryLoadProfileConfiguration() {
+        return (loadProfileConfigurationSucceeded == null);
+    }
+
+    public boolean shouldRetryMaxDemandConfiguration() {
+        return (maxDemandConfigurationSucceeded == null);
+    }
+
+    public boolean shouldRetryConsumptionLimitationConfiguration() {
+        return (consumptionLimitationConfigurationSucceeded == null);
+    }
+
+    public boolean shouldRetryDisconnectCommand() {
+        return (disconnectSucceeded == null);
+    }
+
+    public boolean shouldRetryDisplayMessageRequest() {
+        return (displayMessageSucceeded == null);
     }
 
     public boolean isReceivedMBusCurrentRegisters() {
@@ -112,6 +201,69 @@ public class ObjectFactory {
             announcement = new Announcement(this);
         }
         return announcement;
+    }
+
+    public FirmwareUpgrade getFirmwareUpgrade() {
+        if (firmwareUpgrade == null) {
+            firmwareUpgrade = new FirmwareUpgrade(this);
+        }
+        return firmwareUpgrade;
+    }
+
+    public Reject getReject() {
+        if (reject == null) {
+            reject = new Reject(null);
+        }
+        return reject;
+    }
+
+    public ContactorControlCommand getContactorControlCommand() {
+        if (contactorControlCommand == null) {
+            contactorControlCommand = new ContactorControlCommand(this);
+        }
+        return contactorControlCommand;
+    }
+
+    public DisplayMessage getDisplayMessage() {
+        if (displayMessage == null) {
+            displayMessage = new DisplayMessage(this);
+        }
+        return displayMessage;
+    }
+
+    public DisplayConfiguration getDisplayConfiguration() {
+        if (displayConfiguration == null) {
+            displayConfiguration = new DisplayConfiguration(this);
+        }
+        return displayConfiguration;
+    }
+
+    public LoadProfileConfiguration getLoadProfileConfiguration() {
+        if (loadProfileConfiguration == null) {
+            loadProfileConfiguration = new LoadProfileConfiguration(this);
+        }
+        return loadProfileConfiguration;
+    }
+
+    public ConsumptionLimitationConfiguration getConsumptionLimitationConfiguration() {
+        if (consumptionLimitationConfiguration == null) {
+            consumptionLimitationConfiguration = new ConsumptionLimitationConfiguration(this);
+        }
+        return consumptionLimitationConfiguration;
+    }
+
+    public MaxDemandConfiguration getMaxDemandConfiguration() {
+        if (maxDemandConfiguration == null) {
+            maxDemandConfiguration = new MaxDemandConfiguration(this);
+        }
+        return maxDemandConfiguration;
+    }
+
+    public NegativeAcknowledge getNegativeAcknowledge() {
+        if (negativeAcknowledge == null) {
+            negativeAcknowledge = new NegativeAcknowledge(this);
+        }
+        return negativeAcknowledge;
     }
 
     public CurrentReadings getCurrentReadings() {
@@ -244,8 +396,6 @@ public class ObjectFactory {
      */
     public void sendFullMeterConfigRequest() throws IOException {
         log(Level.INFO, "Sending meter configuration request" + getRetryDescription());
-        getFullMeterConfig().setTrackingID(getIncreasedTrackingID());
-        getAce4000().setNecessarySerialNumber(getAce4000().getMasterSerialNumber());
         getFullMeterConfig().request();
     }
 
@@ -261,26 +411,115 @@ public class ObjectFactory {
      */
     public void setAutoPushConfig(int enabled, int start, int stop, boolean random, int retryWindowPercentage) throws IOException {
         log(Level.INFO, "Sending request to change the auto push configuration" + getRetryDescription());
-        getAutoPushConfig().setTrackingID(getIncreasedTrackingID());
-        getAce4000().setNecessarySerialNumber(getAce4000().getMasterSerialNumber());
         getAutoPushConfig().setEnableState(enabled);
         getAutoPushConfig().setOpen(start);
         getAutoPushConfig().setClose(stop);
         getAutoPushConfig().setRandom(random);
         getAutoPushConfig().setRetryWindowPercentage(retryWindowPercentage);
-
         getAutoPushConfig().request();
     }
 
+    public void sendFirmwareUpgradeRequest(String path, int jarSize, int jadSize) throws IOException {
+        log(Level.INFO, "Sending request do a firmware upgrade" + getRetryDescription());
+        getFirmwareUpgrade().setPath(path);
+        getFirmwareUpgrade().setJarSize(jarSize);
+        getFirmwareUpgrade().setJadSize(jadSize);
+        getFirmwareUpgrade().request();
+        firmwareTrackingId = getTrackingID();        //Remember this tracking ID to see if the FW request is acknowledged by the meter
+    }
+
     /**
-     * Request all the loadprofile data
+     * Send a command to the meter to connect or disconnect the contactor.
+     *
+     * @param date when to execute the command. This date is optional.
+     * @param cmd  connect or disconnect
+     * @throws IOException when communication fails
+     */
+    public void sendContactorCommand(Date date, int cmd) throws IOException {
+        getContactorControlCommand().setCommand(cmd);
+        getContactorControlCommand().setDate(date);
+        getContactorControlCommand().request();
+
+        String commandDescription = "";
+        switch (cmd) {
+            case 0:
+                connectTrackingId = getTrackingID();
+                commandDescription = "(connect)";
+                break;
+            case 1:
+                disconnectTrackingId = getTrackingID();
+                commandDescription = "(disconnect)";
+                break;
+        }
+        log(Level.INFO, "Sending a contactor control command " + commandDescription + getRetryDescription());
+    }
+
+    public void sendDisplayMessage(int mode, String message) throws IOException {
+        if ((message != null) && !"".equals(message)) {
+            log(Level.INFO, "Sending a display message [" + message + "]" + getRetryDescription());
+        } else {
+            log(Level.INFO, "Disabling the display message" + getRetryDescription());
+        }
+        getDisplayMessage().setMode(mode);
+        getDisplayMessage().setMessage(message);
+        getDisplayMessage().request();
+        displayMessageTrackingId = getTrackingID();
+    }
+
+    public void sendDisplayConfigurationRequest(int resolution, String sequence, String originalSequence, int interval) throws IOException {
+        log(Level.INFO, "Configuring the display settings, sequence = [" + originalSequence + "]" + getRetryDescription());
+        getDisplayConfiguration().setResolutionCode(resolution);
+        getDisplayConfiguration().setSequence(sequence);
+        getDisplayConfiguration().setInterval(interval);
+        getDisplayConfiguration().request();
+        displayConfigurationTrackingId = getTrackingID();
+    }
+
+    public void sendLoadProfileConfiguration(int enable, int intervalCode, int maxNumberOfRecords) throws IOException {
+        log(Level.INFO, "Sending request to configure the load profile data recording" + getRetryDescription());
+        getLoadProfileConfiguration().setEnable(enable);
+        getLoadProfileConfiguration().setInterval(intervalCode);
+        getLoadProfileConfiguration().setMaxNumberOfRecords(maxNumberOfRecords);
+        getLoadProfileConfiguration().request();
+        loadProfileConfigurationTrackingId = getTrackingID();
+    }
+
+    public void sendMaxDemandConfiguration(int register, int numberOfSubIntervals, int subIntervalDuration) throws IOException {
+        log(Level.INFO, "Sending request to configure maximum demand settings" + getRetryDescription());
+        getMaxDemandConfiguration().setNumberOfSubIntervals(numberOfSubIntervals);
+        getMaxDemandConfiguration().setSubIntervalDuration(subIntervalDuration);
+        getMaxDemandConfiguration().setRegister(register);
+        getMaxDemandConfiguration().request();
+        maxDemandConfigurationTrackingId = getTrackingID();
+    }
+
+    public void sendConsumptionLimitationConfigurationRequest(int numberOfSubIntervals, int subIntervalDuration, int ovlRate, int thresholdTolerance, int thresholdSelection, List<String> switchingMomentsDP0, List<Integer> thresholdsDP0, List<Integer> unitsDP0, List<String> actionsDP0, List<String> switchingMomentsDP1, List<Integer> thresholdsDP1, List<Integer> unitsDP1, List<String> actionsDP1, List<Integer> weekProfile) throws IOException {
+        log(Level.INFO, "Sending request to configure consumption limitations" + getRetryDescription());
+        getConsumptionLimitationConfiguration().setNumberOfSubIntervals(numberOfSubIntervals);
+        getConsumptionLimitationConfiguration().setSubIntervalDuration(subIntervalDuration);
+        getConsumptionLimitationConfiguration().setOvlRate(ovlRate);
+        getConsumptionLimitationConfiguration().setThresholdTolerance(thresholdTolerance);
+        getConsumptionLimitationConfiguration().setThresholdSelection(thresholdSelection);
+        getConsumptionLimitationConfiguration().setSwitchingMomentsDP0(switchingMomentsDP0);
+        getConsumptionLimitationConfiguration().setThresholdsDP0(thresholdsDP0);
+        getConsumptionLimitationConfiguration().setUnitsDP0(unitsDP0);
+        getConsumptionLimitationConfiguration().setActionsDP0(actionsDP0);
+        getConsumptionLimitationConfiguration().setSwitchingMomentsDP1(switchingMomentsDP1);
+        getConsumptionLimitationConfiguration().setThresholdsDP1(thresholdsDP1);
+        getConsumptionLimitationConfiguration().setUnitsDP1(unitsDP1);
+        getConsumptionLimitationConfiguration().setActionsDP1(actionsDP1);
+        getConsumptionLimitationConfiguration().setWeekProfile(weekProfile);
+        getConsumptionLimitationConfiguration().request();
+        consumptionLimitationConfigurationTrackingId = getTrackingID();
+    }
+
+    /**
+     * Request all the load profile data
      *
      * @throws IOException when the communication fails
      */
     public void sendLoadProfileRequest() throws IOException {
         log(Level.INFO, "Sending profile data request (all data)" + getRetryDescription());
-        getLoadProfile().setTrackingID(getIncreasedTrackingID());
-        getAce4000().setNecessarySerialNumber(getAce4000().getMasterSerialNumber());
         getLoadProfile().request();
     }
 
@@ -292,9 +531,14 @@ public class ObjectFactory {
      */
     public void sendLoadProfileRequest(Date from) throws IOException {
         log(Level.INFO, "Sending profile data request, from date = " + from.toString() + getRetryDescription());
-        getLoadProfile().setTrackingID(getIncreasedTrackingID());
-        getAce4000().setNecessarySerialNumber(getAce4000().getMasterSerialNumber());
         getLoadProfile().setFrom(from);
+        getLoadProfile().request();
+    }
+
+    public void sendLoadProfileRequest(Date from, Date toDate) throws IOException {
+        log(Level.INFO, "Sending profile data request, from date = " + from.toString() + ", to date = " + toDate.toString() + getRetryDescription());
+        getLoadProfile().setFrom(from);
+        getLoadProfile().setToDate(toDate);
         getLoadProfile().request();
     }
 
@@ -305,8 +549,6 @@ public class ObjectFactory {
      */
     public void sendMBusBillingDataRequest() throws IOException {
         log(Level.INFO, "Sending MBus billing data request (all data)" + getRetryDescription());
-        getMBusBillingData().setTrackingID(getIncreasedTrackingID());
-        getAce4000().setNecessarySerialNumber(getAce4000().getMasterSerialNumber());
         getMBusBillingData().request();
     }
 
@@ -317,8 +559,6 @@ public class ObjectFactory {
      */
     public void sendInstantVoltageAndCurrentRequest() throws IOException {
         log(Level.INFO, "Sending request for instantaneous voltage and current registers" + getRetryDescription());
-        getInstantVoltAndCurrent().setTrackingID(getIncreasedTrackingID());
-        getAce4000().setNecessarySerialNumber(getAce4000().getMasterSerialNumber());
         getInstantVoltAndCurrent().request();
     }
 
@@ -330,8 +570,6 @@ public class ObjectFactory {
      */
     public void sendMBusBillingDataRequest(Date from) throws IOException {
         log(Level.INFO, "Sending MBus billing data request, from date = " + from.toString() + getRetryDescription());
-        getMBusBillingData().setTrackingID(getIncreasedTrackingID());
-        getAce4000().setNecessarySerialNumber(getAce4000().getMasterSerialNumber());     //TODO should we put the slave SN here?? //TODO
         getMBusBillingData().setFrom(from);
         getMBusBillingData().request();
     }
@@ -343,8 +581,6 @@ public class ObjectFactory {
      */
     public void sendMBusCurrentRegistersRequest() throws IOException {
         log(Level.INFO, "Sending MBus current registers request" + getRetryDescription());
-        getMBCurrentReadings().setTrackingID(getIncreasedTrackingID());
-        getAce4000().setNecessarySerialNumber(getAce4000().getMasterSerialNumber());     //TODO should we put the slave SN here?? //TODO
         getMBCurrentReadings().request();
     }
 
@@ -355,8 +591,6 @@ public class ObjectFactory {
      */
     public void sendBDRequest() throws IOException {
         log(Level.INFO, "Sending billing data (all) request" + getRetryDescription());
-        getBillingData().setTrackingID(getIncreasedTrackingID());
-        getAce4000().setNecessarySerialNumber(getAce4000().getMasterSerialNumber());
         getBillingData().request();
     }
 
@@ -368,8 +602,6 @@ public class ObjectFactory {
      */
     public void sendBDRequest(Date from) throws IOException {
         log(Level.INFO, "Sending billing data request" + getRetryDescription());
-        getBillingData().setTrackingID(getIncreasedTrackingID());
-        getAce4000().setNecessarySerialNumber(getAce4000().getMasterSerialNumber());
         getBillingData().setFrom(from);
         getBillingData().request();
     }
@@ -381,8 +613,6 @@ public class ObjectFactory {
      */
     public void sendCurrentRegisterRequest() throws IOException {
         log(Level.INFO, "Sending current registers request" + getRetryDescription());
-        getCurrentReadings().setTrackingID(getIncreasedTrackingID());
-        getAce4000().setNecessarySerialNumber(getAce4000().getMasterSerialNumber());
         getCurrentReadings().request();
     }
 
@@ -396,8 +626,6 @@ public class ObjectFactory {
      */
     public void sendBDConfig(int enabled, int intervals, int numbOfInt) throws IOException {
         log(Level.INFO, "Sending billing data configuration (for e-meter) request" + getRetryDescription());
-        getBillingConfig().setTrackingID(getIncreasedTrackingID());
-        getAce4000().setNecessarySerialNumber(getAce4000().getMasterSerialNumber());
         getBillingConfig().setEnabled(enabled);
         getBillingConfig().setInterval(intervals);
         getBillingConfig().setNumOfRecs(numbOfInt);
@@ -411,8 +639,6 @@ public class ObjectFactory {
      */
     public void sendForceTime() throws IOException {
         log(Level.INFO, "Sending force time request, keeping the DST and meter time zone in mind" + getRetryDescription());
-        getForceTime().setTrackingID(getIncreasedTrackingID());
-        getAce4000().setNecessarySerialNumber(getAce4000().getMasterSerialNumber());
         getForceTime().request();
     }
 
@@ -423,20 +649,20 @@ public class ObjectFactory {
      */
     public void sendEventRequest() throws IOException {
         log(Level.INFO, "Sending request to read the events" + getRetryDescription());
-        getEventData().setTrackingID(getIncreasedTrackingID());
-        getAce4000().setNecessarySerialNumber(getAce4000().getMasterSerialNumber());
         getEventData().request();
     }
 
     /**
      * Sync the meter time to the system time
      *
+     * @param meterTime   used in the time sync message
+     * @param receiveTime used in the time sync message
      * @throws IOException when the communication fails
      */
-    public void sendSyncTime() throws IOException {
-        log(Level.INFO, "Sending time sync request" + getRetryDescription());
-        getSyncTime().setTrackingID(getIncreasedTrackingID());
-        getAce4000().setNecessarySerialNumber(getAce4000().getMasterSerialNumber());
+    public void sendSyncTime(long meterTime, long receiveTime) throws IOException {
+        log(Level.INFO, "Sending time sync request");
+        getSyncTime().setMeterTime(meterTime);
+        getSyncTime().setReceiveTime(receiveTime);
         getSyncTime().request();
     }
 
@@ -450,8 +676,6 @@ public class ObjectFactory {
      */
     public void sendTimeConfig(int diff, int trip, int retry) throws IOException {
         log(Level.INFO, "Sending time configuration request" + getRetryDescription());
-        getConfigTime().setTrackingID(getIncreasedTrackingID());
-        getAce4000().setNecessarySerialNumber(getAce4000().getMasterSerialNumber());
         getConfigTime().setDiff(diff);
         getConfigTime().setTrip(trip);
         getConfigTime().setRetry(retry);
@@ -459,24 +683,19 @@ public class ObjectFactory {
     }
 
     /**
-     * Send an acknowledgment with for a certain message with a given tracking number
+     * Send an acknowledgment with the current (not incremented) tracking ID
      *
-     * @param tracker equals the tracking number
      * @throws IOException when the communication fails
      */
-    public void sendAcknowledge(int tracker) throws IOException {
-        log(Level.INFO, "Sending acknowledge with tracking ID [" + tracker + "]");
-        getAcknowledge().setTrackingID(tracker);
-        getAce4000().setNecessarySerialNumber(getAce4000().getMasterSerialNumber());
-        getAcknowledge().prepareXML();
+    public void sendAcknowledge() throws IOException {
+        log(Level.INFO, "Sending acknowledge with tracking ID [" + getTrackingID() + "]");
+        getAcknowledge().setTrackingId(getTrackingID());
         getAcknowledge().request();
     }
 
-    public void sendConfigurationAcknowledge(int tracker) throws IOException {
-        log(Level.INFO, "Sending configuration acknowledge with tracking ID [" + tracker + "]");
-        getAcknowledge().setTrackingID(tracker);
-        getAce4000().setNecessarySerialNumber(getAce4000().getMasterSerialNumber());
-        getConfigurationAcknowledge().prepareXML();
+    public void sendConfigurationAcknowledge() throws IOException {
+        log(Level.INFO, "Sending configuration acknowledge with tracking ID [" + getTrackingID() + "]");
+        getAcknowledge().setTrackingId(getTrackingID());
         getConfigurationAcknowledge().request();
     }
 
@@ -487,9 +706,6 @@ public class ObjectFactory {
      */
     public void sendFirmwareRequest() throws IOException {
         log(Level.INFO, "Sending firmware version request" + getRetryDescription());
-        getFirmwareVersion().setTrackingID(getIncreasedTrackingID());
-        getAce4000().setNecessarySerialNumber(getAce4000().getMasterSerialNumber());
-        getFirmwareVersion().prepareXML();
         getFirmwareVersion().request();
     }
 
@@ -520,6 +736,9 @@ public class ObjectFactory {
             throw new ParserConfigurationException("Failed to make a new builder from the documentBuilderFactory" + e.getMessage() + "(Received xml: " + xml + ")");
         } catch (SAXException e) {
             e.printStackTrace();
+            if (xml.length() == 1024) {
+                log(Level.SEVERE, "UDP listener could not handle the XML message, message is too long (max = 1024 bytes)");
+            }
             throw new SAXException("Could not parse the received xmlString." + e.getMessage() + "(Received xml: " + xml + ")");
         } catch (IOException e) {
             e.printStackTrace();
@@ -533,6 +752,59 @@ public class ObjectFactory {
         } catch (BusinessException e) {
             e.printStackTrace();
             throw new BusinessException(e.getMessage() + "(Received xml: " + xml + ")");
+        }
+    }
+
+    /**
+     * These trackingID's are kept to check if certain messages are ACK'ed.
+     * They should be reset after every message attempt.
+     */
+    public void resetTrackingIDs() {
+        firmwareTrackingId = -2;
+        connectTrackingId = -2;
+        disconnectTrackingId = -2;
+        displayMessageTrackingId = -2;
+        displayConfigurationTrackingId = -2;
+        loadProfileConfigurationTrackingId = -2;
+        maxDemandConfigurationTrackingId = -2;
+        consumptionLimitationConfigurationTrackingId = -2;
+    }
+
+    private void updateStatus(boolean status) {
+        if (getTrackingID() == firmwareTrackingId) {
+            firmWareSucceeded = status;
+        }
+        if (getTrackingID() == connectTrackingId) {
+            connectSucceeded = status;
+        }
+        if (getTrackingID() == disconnectTrackingId) {
+            disconnectSucceeded = status;
+        }
+    }
+
+    /**
+     * A configuration acknowledgement with the right tracking ID confirms the display message success
+     */
+    private void updateConfigurationStatus(boolean status) throws BusinessException, SQLException {
+        if (getTrackingID() == displayMessageTrackingId) {
+            displayMessageSucceeded = status;
+            getAce4000().setMessageResults();
+        }
+        if (getTrackingID() == displayConfigurationTrackingId) {
+            displayConfigurationSucceeded = status;
+            getAce4000().setMessageResults();
+        }
+        if (getTrackingID() == loadProfileConfigurationTrackingId) {
+            loadProfileConfigurationSucceeded = status;
+            getAce4000().setMessageResults();
+        }
+        if (getTrackingID() == maxDemandConfigurationTrackingId) {
+            maxDemandConfigurationSucceeded = status;
+            getAce4000().setMessageResults();
+        }
+        if (getTrackingID() == consumptionLimitationConfigurationTrackingId) {
+            consumptionLimitationConfigurationSucceeded = status;
+            getAce4000().setMessageResults();
         }
     }
 
@@ -557,10 +829,22 @@ public class ObjectFactory {
                             sendAck = true;               //Every received trackingId must be ACK'ed
                         } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.ACKNOWLEDGE)) {
                             setTrackingID(Integer.parseInt(mdElement.getTextContent(), 16));
+                            updateStatus(true);
                             log(Level.INFO, "Received an acknowledge with tracking ID [" + getTrackingID() + "]");
                         } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.CONFIGACK)) {
                             setTrackingID(Integer.parseInt(mdElement.getTextContent(), 16));
+                            updateConfigurationStatus(true);
                             log(Level.INFO, "Received a configuration acknowledge with tracking ID [" + getTrackingID() + "]");
+                        } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.NACK)) {
+                            getNegativeAcknowledge().parse(mdElement);
+                            updateStatus(false);
+                            updateConfigurationStatus(false);
+                            log(Level.INFO, "Received a negative acknowledgement, reason: " + getNegativeAcknowledge().getReasonDescription());
+                        } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.REJECT)) {
+                            getReject().parse(mdElement);
+                            updateStatus(false);
+                            updateConfigurationStatus(false);
+                            log(Level.INFO, "Message was rejected, reason: " + getReject().getReasonDescription());
                         } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.LOADPR)) {
                             log(Level.INFO, "Received a loadProfile element.");
                             getLoadProfile().parse(mdElement);
@@ -637,7 +921,7 @@ public class ObjectFactory {
             throw e;
         }
         if (sendAck) {
-            sendAcknowledge(getTrackingID());
+            sendAcknowledge();
             sendAck = false;
         }
     }
@@ -723,6 +1007,12 @@ public class ObjectFactory {
         return meter.getTime();
     }
 
+    /**
+     * Collection of all received events.
+     * Note that an announce message is also regarded as an event
+     *
+     * @return all events
+     */
     public List<MeterEvent> getMeterEvents() {
         if (meterEvents == null) {
             meterEvents = new ArrayList<MeterEvent>();
@@ -770,14 +1060,13 @@ public class ObjectFactory {
      * Checks if the registers were received.
      * If not, request the missing registers.
      *
-     * @param fromDate for querying the billing registers
      * @return if the registers have been received or not
      * @throws IOException communication error
      */
-    public boolean requestAllMasterRegisters(Date fromDate) throws IOException {
+    public boolean requestAllMasterRegisters() throws IOException {
         boolean received = true;
         if (!isReceivedBillingRegisters()) {
-            sendBDRequest(fromDate);
+            sendBDRequest();
             received = false;
         }
         if (!isReceivedCurrentRegisters()) {
@@ -795,14 +1084,13 @@ public class ObjectFactory {
      * Checks if slave registers were received.
      * If not, request the missing registers.
      *
-     * @param fromDate for querying the billing registers
      * @return if the registers have been received or not
      * @throws IOException communication error
      */
-    public boolean requestAllSlaveRegisters(Date fromDate) throws IOException {
+    public boolean requestAllSlaveRegisters() throws IOException {
         boolean received = true;
         if (!isReceivedMBusBillingRegisters()) {
-            sendMBusBillingDataRequest(fromDate);
+            sendMBusBillingDataRequest();
             received = false;
         }
         if (!isReceivedMBusCurrentRegisters()) {

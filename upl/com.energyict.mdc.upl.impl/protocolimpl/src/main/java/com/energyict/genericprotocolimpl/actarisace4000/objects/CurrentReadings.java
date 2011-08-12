@@ -10,6 +10,7 @@ import org.apache.axis.encoding.Base64;
 import org.w3c.dom.*;
 
 import java.util.Date;
+import java.util.logging.Level;
 
 /**
  * @author gna
@@ -48,10 +49,10 @@ public class CurrentReadings extends AbstractActarisObject {
         Element md = doc.createElement(XMLTags.METERDATA);
         root.appendChild(md);
         Element s = doc.createElement(XMLTags.SERIALNUMBER);
-        s.setTextContent(getObjectFactory().getAce4000().getNecessarySerialNumber());
+        s.setTextContent(getObjectFactory().getAce4000().getMasterSerialNumber());
         md.appendChild(s);
         Element t = doc.createElement(XMLTags.TRACKER);
-        t.setTextContent(String.valueOf(getTrackingID()));
+        t.setTextContent(Integer.toString(getTrackingID(), 16));
         md.appendChild(t);
 
         Element lp = doc.createElement(XMLTags.REQCR);
@@ -118,6 +119,8 @@ public class CurrentReadings extends AbstractActarisObject {
             rv = new RegisterValue(oc, value, new Date(), getTimeStamp());
             rv.setRtuRegisterId(register.getId());
             mrd.add(rv);
+        } else {
+            getObjectFactory().log(Level.WARNING, "Received data for register [" + oc.toString() + "], but this register is not defined on the RTU in EiServer");
         }
     }
 

@@ -205,7 +205,7 @@ public class EventData extends AbstractActarisObject {
         } else if (eventId == 0x0C) {
             return result + "event counter: " + getInt(textContent, 0, 2) + ", time difference: " + getInt(textContent, 2, 4);
         } else if (eventId == 0x0D) {
-            return result + "event counter: " + getInt(textContent, 0, 2) + ", Slave meter serial number: " + ProtocolTools.getHexStringFromBytes(ProtocolTools.getSubArray(textContent, 2), "");     //TODO test parsing! hex?
+            return result + "event counter: " + getInt(textContent, 0, 2) + ", Slave meter serial number: " + ProtocolTools.getHexStringFromBytes(ProtocolTools.getSubArray(textContent, 2), "");
         } else if (eventId == 0x48) {
             return result + "phase: " + (textContent[0] & 0xFF);
         } else if (eventId == 0x10) {
@@ -333,13 +333,6 @@ public class EventData extends AbstractActarisObject {
         return MeterEvent.OTHER;
     }
 
-    public List<MeterEvent> getMeterEvents() {
-        if (meterEvents == null) {
-            meterEvents = new ArrayList<MeterEvent>();
-        }
-        return meterEvents;
-    }
-
     @Override
     protected String prepareXML() {
         Document doc = createDomDocument();
@@ -349,10 +342,10 @@ public class EventData extends AbstractActarisObject {
         Element md = doc.createElement(XMLTags.METERDATA);
         root.appendChild(md);
         Element s = doc.createElement(XMLTags.SERIALNUMBER);
-        s.setTextContent(getObjectFactory().getAce4000().getNecessarySerialNumber());
+        s.setTextContent(getObjectFactory().getAce4000().getMasterSerialNumber());
         md.appendChild(s);
         Element t = doc.createElement(XMLTags.TRACKER);
-        t.setTextContent(String.valueOf(getTrackingID()));
+        t.setTextContent(Integer.toString(getTrackingID(), 16));
         md.appendChild(t);
         Element lp = doc.createElement(XMLTags.EVENTREQUEST);
         md.appendChild(lp);

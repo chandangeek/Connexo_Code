@@ -18,8 +18,9 @@ import java.util.logging.Level;
 public class LoadProfile extends AbstractActarisObject {
 
     private int intervalInSeconds;
-    private Date from = null;
     private ProfileData profileData;
+    private Date from = null;
+    private Date toDate = null;
 
     public LoadProfile(ObjectFactory of) {
         super(of);
@@ -44,19 +45,18 @@ public class LoadProfile extends AbstractActarisObject {
         Element md = doc.createElement(XMLTags.METERDATA);
         root.appendChild(md);
         Element s = doc.createElement(XMLTags.SERIALNUMBER);
-        s.setTextContent(getObjectFactory().getAce4000().getNecessarySerialNumber());
+        s.setTextContent(getObjectFactory().getAce4000().getMasterSerialNumber());
         md.appendChild(s);
         Element t = doc.createElement(XMLTags.TRACKER);
-        t.setTextContent(String.valueOf(getTrackingID()));
+        t.setTextContent(Integer.toString(getTrackingID(), 16));
         md.appendChild(t);
 
-        if (getFrom() == null) {
+        if (getFrom() == null && getToDate() == null) {
             Element lp = doc.createElement(XMLTags.REQLPALL);
             md.appendChild(lp);
         } else {
-
             Element lp = doc.createElement(XMLTags.REQLP);
-            lp.setTextContent(getHexDate(from) + getHexDate(new Date()));
+            lp.setTextContent(getHexDate(from) + getHexDate(toDate));
             md.appendChild(lp);
         }
 
@@ -136,7 +136,7 @@ public class LoadProfile extends AbstractActarisObject {
         getProfileData().getIntervalDatas().addAll(intervalDatas);
     }
 
-    private int getEiStatus(int alarmFlags) {                          //TODO;  Meter communication timeout ??
+    private int getEiStatus(int alarmFlags) {                          //TODO;  Meter communication timeout ??        ... sent mail, waiting for response
         int result = 0;                                                //TODO: Meter does not have valid time ??
         if (isBitSet(alarmFlags, 0)) {
             result += IntervalStateBits.POWERDOWN;
@@ -178,11 +178,6 @@ public class LoadProfile extends AbstractActarisObject {
             result += IntervalStateBits.OTHER;
         }
         return result;
-    }
-
-    private boolean isBitSet(int flag, int bitNumber) {
-        int bit = 0x01 << bitNumber;
-        return (flag & bit) == bit;
     }
 
     private void parseAbsoluteLoadProfile(String scaleStr, String data) throws IOException, SQLException, BusinessException {
@@ -291,5 +286,13 @@ public class LoadProfile extends AbstractActarisObject {
         result.add(ci2);
         result.add(ci3);
         return result;
+    }
+
+    public void setToDate(Date toDate) {
+        this.toDate = toDate;
+    }
+
+    public Date getToDate() {
+        return toDate;
     }
 }

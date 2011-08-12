@@ -65,10 +65,10 @@ public class MBusBillingData extends AbstractActarisObject {
         Element md = doc.createElement(XMLTags.METERDATA);
         root.appendChild(md);
         Element s = doc.createElement(XMLTags.SERIALNUMBER);
-        s.setTextContent(getObjectFactory().getAce4000().getNecessarySerialNumber());
+        s.setTextContent(getObjectFactory().getAce4000().getMasterSerialNumber());
         md.appendChild(s);
         Element t = doc.createElement(XMLTags.TRACKER);
-        t.setTextContent(String.valueOf(getTrackingID()));
+        t.setTextContent(Integer.toString(getTrackingID(), 16));
         md.appendChild(t);
 
         if (getFrom() == null) {

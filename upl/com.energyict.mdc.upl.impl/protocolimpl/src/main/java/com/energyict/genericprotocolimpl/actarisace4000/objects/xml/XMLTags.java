@@ -20,24 +20,32 @@ public class XMLTags {
 	public final static String MPUSH 			= "MPush";
 	public final static String METERDATA 		= "MD";
 	public final static String ACKNOWLEDGE		= "AK";
-	public final static String NEGACKNOWLEDGE	= "NAK";
 	public final static String REJECT			= "Reject";
 	public final static String REASON			= "Reason";
 	public final static String SERIALNUMBER 	= "M";
 	public final static String TRACKER 			= "T";
 	public final static String CONFIGURATION    = "CF";
 	public final static String CONFIGACK		= "CAK";
+    public final static String NACK		        = "NAK";
 
     //Event tags
 	public final static String EVENT            = "EV";
 	public final static String EVENTREQUEST     = "qEV";
 	public final static String EVENTDATA        = "ED";
 
+    //Contactor tags
+    public final static String CONTACTORCMD     = "CDE";
+    public final static String TIME_ATTR        = "t";              //Optional timestamp attribute
+
 	// firmware Tags
-	public final static String REQFIRMWARE 		= "qV";			// request firmware
-	public final static String RESFIRMWARE 		= "V";			// Firmware settings sub-schema parent tag
-	public final static String METFIRMVERS		= "MV";			// Metrology firmware version
-	public final static String AUXFIRMVERS		= "AV";			// Auxiliary firmware version
+	public final static String REQFIRMWARE 		= "qV";			    // request firmware
+	public final static String RESFIRMWARE 		= "V";			    // Firmware settings sub-schema parent tag
+	public final static String METFIRMVERS		= "MV";			    // Metrology firmware version
+	public final static String AUXFIRMVERS		= "AV";			    // Auxiliary firmware version
+	public final static String FWUPGRADE		= "OTA";		    // Firmware upgrade
+	public final static String FW_PATH	    	= "path";		    // Path (URL) to the firmware file
+	public final static String FW_JAR_SIZE		= "jar_file_size";	// Size of the JAR file
+	public final static String FW_JAD_SIZE		= "jad_file_size";	// Size of the JAD file
 
 	// gprs network settings and system communication tags
 	public final static String NETWORKSETTINGS	= "NS";			// Network settings sub-schema parent tag
@@ -55,8 +63,23 @@ public class XMLTags {
 	public final static String TIMECLOSE		= "TMc";		// number of minutes after midnight to close the push window (encoded in hex)
 	public final static String RANDOM			= "Random";		// commands to auto-push to start at a random time between TMo and TMc
 	public final static String RWIN			    = "RWin";		// Retry window percentage
-
 	public final static String FULLCONFIG		= "qCF";
+
+    //Max demand configuration tags
+    public final static String MAXDEMANDCONFIG  = "MxD";		// Maximum demand parent tag
+    public final static String MXDREG           = "Reg";		// Register: Active or reactive
+    public final static String MXDSUBI_NUMBER   = "SubI";		// Number of sub-intervals
+    public final static String MXDSUBI_DURATION = "SubD";		// Sub-interval duration
+
+    //Consumption limitation configuration
+    public final static String CONSLIMITCONFIG  = "CLM";		// Consumption limitation mode parent tag with optional attribute ‘t’ – activation timestamp.
+    public final static String SUBINTERVALS     = "ADCF";		// Concatenation of number of sub intervals and duration of a sub interval
+    public final static String CONSRATE         = "OvL";		// Override Limitation: Is consumption limitation override allowed and which rate is applied.
+    public final static String CONSTOLERANCE    = "ThT";		// Threshold Tolerance: Allowed excess tolerance.
+    public final static String CONSTHRESHOLD    = "ThS";		// Threshold Selection
+    public final static String CONS_DP0         = "DP0";		// Day profile 0: Array of 8 switching times
+    public final static String CONS_DP1         = "DP1";		// Day profile 1: Array of 8 switching times
+    public final static String CONS_WEEKPROFILE = "WP";		    // Week profile: Array of 7 days
 
 	// loadProfile tags
 	public final static String REQLP			= "qLPDTr";		// request loadProfile within a date range
@@ -65,6 +88,11 @@ public class XMLTags {
 	public final static String LOADPRABS		= "LPA";		// loadProfile data with absolute values
 	public final static String LOADPRDINSO		= "LPd";		// loadProfile data for DIN/SO meters
 	public final static String SCALE		    = "S";		    // loadProfile scaler
+
+	public final static String LPCONFIG	        = "LPDef";		// Load profile register recording settings
+	public final static String LPENABLE	        = "Enable";		// Recording enable state
+	public final static String LPINTERVAL       = "LPInt";		// Time intervals between each record
+	public final static String LPMAXNUMBER      = "LPNum";		// Maximum number of records to store
 
 	//MBus tags
 	public final static String MBUSRAW			= "RAW";		// raw MBus meter data
@@ -90,6 +118,16 @@ public class XMLTags {
 	public final static String READINGDATA		= "RD";			// the actual reading data
 	public final static String CRATTR			= "R";			// attribute of the current readings
 	public final static String MAXDEMAND        = "MDR";		// maximum demand register
+
+    //Display config
+    public final static String MESSAGE          = "Message";    // Message parent tag
+    public final static String MODE             = "Mode";       // Disabled (0) | Enable Standard (short) (1) | Enable Long (2)
+    public final static String LONGMSG          = "LM";         // Long Message: ASCII 1024 characters
+    public final static String SHORTMSG         = "SM";         // Short Message: ASCII 8 characters
+    public final static String DISPLAYCONFIG    = "LCD";        // LCD settings sub-schema parent tags
+    public final static String RESOLUTION       = "DR";         //
+    public final static String SEQUENCE         = "DS";         //
+    public final static String INTERVAL         = "CTime";         //
 
     // instantaneous register
 	public final static String REQINSTVC        = "qIPR";		// Request instant voltage and current

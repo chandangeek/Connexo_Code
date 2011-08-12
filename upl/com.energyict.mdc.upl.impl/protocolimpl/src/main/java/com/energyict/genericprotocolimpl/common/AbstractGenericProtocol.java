@@ -128,7 +128,7 @@ public abstract class AbstractGenericProtocol extends GenericMessaging implement
      * @param level
      * @param message
      */
-    protected void log(Level level, String message) {
+    public void log(Level level, String message) {
         getLogger().log(level, message);
     }
 
@@ -137,7 +137,7 @@ public abstract class AbstractGenericProtocol extends GenericMessaging implement
      *
      * @param message
      */
-    protected void log(String message) {
+    public void log(String message) {
         log(Level.INFO, message);
     }
 
