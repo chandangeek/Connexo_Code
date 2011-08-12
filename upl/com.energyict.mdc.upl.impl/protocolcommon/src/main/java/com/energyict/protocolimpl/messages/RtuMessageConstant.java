@@ -290,4 +290,7 @@ public class RtuMessageConstant {
     // Restore ZigBee HAN parameters
     public static final String RESTORE_ZIGBEE_HAN_PARAMETERS = "Restore_ZigBee_Han_Parameters";
     public static final String RESTORE_ZIGBEE_PARAMETERS_USERFILE_ID = "Restore_UserFile_ID";
+
+    public static final String UPDATE_PRICING_INFORMATION = "Update_Pricing_Information";
+    public static final String UPDATE_PRICING_INFORMATION_USERFILE_ID = "Update_Pricing_Information_UserFile_ID";
 }

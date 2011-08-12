@@ -1128,7 +1128,7 @@ public final class ProtocolTools {
             if (object instanceof byte[]) {
                 return (byte[]) object;
             } else {
-                throw new IOException("Compressed object should be a java.lang.String but was [" + object.getClass().getName() + "]");
+                throw new IOException("Compressed object should be a byte[] but was [" + object.getClass().getName() + "]");
             }
         } catch (ClassNotFoundException e) {
             throw new IOException(e.getMessage());
@@ -1157,5 +1157,23 @@ public final class ProtocolTools {
         file.deleteOnExit();
         ufs.setFile(file);
         return ufs;
+    }
+
+    /**
+     * Check if the ipAddress contains a PortNumber, if not then add the given one
+     *
+     * @param ipAddress
+     * @param portNumber
+     * @return the ipAddress concatenated with a colon and the portNumber
+     */
+    public static String checkIPAddressForPortNumber(String ipAddress, String portNumber) {
+        if (!ipAddress.contains(":")) {
+            StringBuffer strBuff = new StringBuffer();
+            strBuff.append(ipAddress);
+            strBuff.append(":");
+            strBuff.append(portNumber);
+            return strBuff.toString();
+        }
+        return ipAddress;
     }
 }

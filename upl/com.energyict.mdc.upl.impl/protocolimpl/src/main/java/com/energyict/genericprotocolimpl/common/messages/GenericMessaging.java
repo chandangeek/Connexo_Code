@@ -879,4 +879,27 @@ public abstract class GenericMessaging implements Messaging {
         return msgSpec;
     }
 
+    /**
+     * Add an openingTag to the Builder
+     *
+     * @param builder the builder to complete
+     * @param tagName the opening TagName
+     */
+    protected void addOpeningTag(StringBuilder builder, String tagName) {
+        builder.append("<");
+        builder.append(tagName);
+        builder.append(">");
+    }
+
+    /**
+     * Add a closingTag to the Builder
+     *
+     * @param builder the builder to complete
+     * @param tagName the closing TagName
+     */
+    protected void addClosingTag(StringBuilder builder, String tagName) {
+        builder.append("</");
+        builder.append(tagName);
+        builder.append(">");
+    }
 }

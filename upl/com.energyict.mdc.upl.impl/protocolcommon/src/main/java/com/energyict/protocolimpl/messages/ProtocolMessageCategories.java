@@ -37,4 +37,15 @@ public class ProtocolMessageCategories {
         return hanManagement;
     }
 
+    /**
+     * MessageCategory containing relevant Pricing Information messages
+     *
+     * @return the newly created category
+     */
+    public static MessageCategorySpec getPricingInformationCategory() {
+        MessageCategorySpec pricing = new MessageCategorySpec(RtuMessageCategoryConstants.PRICING_INFORMATION);
+        pricing.addMessageSpec(ProtocolMessageSpecifications.getUpdatePricingMessageSpecification());
+        return pricing;
+    }
+
 }

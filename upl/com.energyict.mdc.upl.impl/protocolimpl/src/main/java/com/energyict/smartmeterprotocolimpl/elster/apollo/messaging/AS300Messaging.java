@@ -3,7 +3,11 @@ package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +18,24 @@ import java.util.List;
  * Time: 14:32:04
  */
 public class AS300Messaging extends GenericMessaging implements MessageProtocol, TimeOfUseMessaging {
+
+    /**
+     * Tag that wraps around an included file.
+     */
+    public static final String INCLUDED_USERFILE_TAG = "IncludedFile";
+    /**
+     * The tag that is used for an include file.
+     */
+    protected static final String INCLUDE_USERFILE_TAG = "includeFile";
+
+    /**
+     * This is an attribute to aforementioned tag indicating the ID of the user file. See RtuMessageContentParser for more details.
+     */
+    protected static final String INCLUDE_USERFILE_ID_ATTRIBUTE = "fileId";
+    /**
+     * This is an attribute tag to indicate whether zipping needs to be applied. See RtuMessageContentParser for more details.
+     */
+    protected static final String CREATEZIP_ATTRIBUTE_TAG = "createZip";
 
     private final AS300MessageExecutor messageExecutor;
 
@@ -26,7 +48,9 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol,
      */
     @Override
     public List getMessageCategories() {
-        return new ArrayList<MessageCategorySpec>();
+        List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
+        categories.add(ProtocolMessageCategories.getPricingInformationCategory());
+        return categories;
     }
 
     /**
@@ -136,5 +160,36 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol,
      */
     public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
         return new AS300TimeOfUseMessageBuilder();
+    }
+
+    @Override
+    public String writeTag(final MessageTag msgTag) {
+        if (msgTag.getName().equals(RtuMessageConstant.UPDATE_PRICING_INFORMATION)) {
+
+            int userFileId = 0;
+            for (Object maObject : msgTag.getAttributes()) {
+                MessageAttribute ma = (MessageAttribute) maObject;
+                if (ma.getSpec().getName().equals(RtuMessageConstant.UPDATE_PRICING_INFORMATION_USERFILE_ID)) {
+                    if (ma.getValue() != null && ma.getValue().length() != 0) {
+                        userFileId = Integer.valueOf(ma.getValue());
+                    }
+                }
+            }
+
+            StringBuilder builder = new StringBuilder();
+            addOpeningTag(builder, msgTag.getName());
+            builder.append("<").append(INCLUDED_USERFILE_TAG).append(">");
+
+            // This will generate a message that will make the RtuMessageContentParser inline the file.
+            builder.append("<").append(INCLUDE_USERFILE_TAG).append(" ").append(INCLUDE_USERFILE_ID_ATTRIBUTE).append("=\"").append(userFileId).append("\"");
+            builder.append(" ").append(CREATEZIP_ATTRIBUTE_TAG).append("=\"true\"");
+            builder.append("/>");
+
+            builder.append("</").append(INCLUDED_USERFILE_TAG).append(">");
+            addClosingTag(builder, msgTag.getName());
+            return builder.toString();
+        } else {
+            return super.writeTag(msgTag);
+        }
     }
 }

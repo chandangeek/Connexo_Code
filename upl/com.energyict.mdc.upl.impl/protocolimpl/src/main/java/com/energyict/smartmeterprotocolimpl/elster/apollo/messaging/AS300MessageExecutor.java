@@ -11,6 +11,7 @@ import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsSession;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
 import org.xml.sax.SAXException;
@@ -54,6 +55,8 @@ public class AS300MessageExecutor {
         try {
             if (isTimeOfUseMessage(content)) {
                 updateTimeOfUse(content);
+            } else if (isUpdatePricingInformationMessage(content)) {
+                updatePricingInformation(content);
             } else {
                 log(Level.INFO, "Message not supported : " + content);
                 success = false;
@@ -69,6 +72,30 @@ public class AS300MessageExecutor {
         } else {
             return MessageResult.createFailed(messageEntry);
         }
+    }
+
+    private void updatePricingInformation(final String content) throws IOException {
+        log(Level.INFO, "Received update Update Pricing Information message.");
+        log(Level.FINEST, "Getting UserFile from message");
+        String includedFile = getIncludedContent(content);
+        try {
+            if (includedFile.length() > 0) {
+                log(Level.FINEST, "Sending out the PricingInformation objects.");
+                handleXmlToDlms(includedFile);
+            } else {
+                log(Level.WARNING, "Length of the PricingInformation UserFile is not valid [" + includedFile.length() + " bytes], failing message.");
+                success = false;
+            }
+        } catch (SAXException e) {
+            log(Level.SEVERE, "Cannot process ActivityCalendar upgrade message due to an XML parsing error [" + e.getMessage() + "]");
+            success = false;
+        }
+    }
+
+    private String getIncludedContent(final String content) {
+        int begin = content.indexOf(AS300Messaging.INCLUDED_USERFILE_TAG) + AS300Messaging.INCLUDED_USERFILE_TAG.length() + 1;
+        int end = content.indexOf(AS300Messaging.INCLUDED_USERFILE_TAG, begin) - 2;
+        return content.substring(begin, end);
     }
 
     private void updateTimeOfUse(final String content) throws IOException {
@@ -89,18 +116,10 @@ public class AS300MessageExecutor {
                 log(Level.FINEST, "Getting UserFile from message");
                 final byte[] userFileData = builder.getUserFile().loadFileInByteArray();
                 if (userFileData.length > 0) {
-                    XmlToDlms x2d = new XmlToDlms(getDlmsSession());
-                    List<GenericDataToWrite> gdtwList = x2d.parseSetRequests(new String(ProtocolTools.decompressBytes(new String(userFileData, "US-ASCII")), "US-ASCII"));
                     log(Level.FINEST, "Sending out the new Passive Calendar objects.");
-                    for(GenericDataToWrite gdtw : gdtwList){
-                        try {
-                            gdtw.writeData();
-                        } catch (IOException e) {
-                            throw new IOException("Could not write [" + ParseUtils.decimalByteToString(gdtw.getDataToWrite()) + "] to object " + ObisCode.fromByteArray(gdtw.getGenericWrite().getObjectReference().getLn()) + ", message will fail.");
-                        }
-                    }
+                    handleXmlToDlms(new String(userFileData, "US-ASCII"));
                 } else {
-                    log(Level.WARNING, "Length of the ActivityCalendar UserFile is not valid [" + userFileData + " bytes], failing message.");
+                    log(Level.WARNING, "Length of the ActivityCalendar UserFile is not valid [" + userFileData.length + " bytes], failing message.");
                     success = false;
                 }
             }
@@ -109,11 +128,34 @@ public class AS300MessageExecutor {
             log(Level.SEVERE, "Cannot process ActivityCalendar upgrade message due to an XML parsing error [" + e.getMessage() + "]");
             success = false;
         }
+    }
 
+    /**
+     * Parse to given xmlContent to GenericDataToWrite objects and send them over to the device
+     *
+     * @param xmlContent the xml DLMS content
+     * @throws IOException  if writing to the device failed
+     * @throws SAXException if parsing the xmlContent failed
+     */
+    private void handleXmlToDlms(String xmlContent) throws IOException, SAXException {
+        XmlToDlms x2d = new XmlToDlms(getDlmsSession());
+        List<GenericDataToWrite> gdtwList = x2d.parseSetRequests(new String(ProtocolTools.decompressBytes(xmlContent), "US-ASCII"));
+        log(Level.FINEST, "Parsed message XML content, staring to write...");
+        for (GenericDataToWrite gdtw : gdtwList) {
+            try {
+                gdtw.writeData();
+            } catch (IOException e) {
+                throw new IOException("Could not write [" + ParseUtils.decimalByteToString(gdtw.getDataToWrite()) + "] to object " + ObisCode.fromByteArray(gdtw.getGenericWrite().getObjectReference().getLn()) + ", message will fail.");
+            }
+        }
     }
 
     private boolean isTimeOfUseMessage(final String messageContent) {
         return (messageContent != null) && messageContent.contains(TimeOfUseMessageBuilder.getMessageNodeTag());
+    }
+
+    private boolean isUpdatePricingInformationMessage(final String messageContent) {
+        return (messageContent != null) && messageContent.contains(RtuMessageConstant.UPDATE_PRICING_INFORMATION);
     }
 
     public ActivityCalendarController getActivityCalendarController() {

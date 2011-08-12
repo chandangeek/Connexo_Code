@@ -122,4 +122,17 @@ public class ProtocolMessageSpecifications {
         msgSpec.add(tagSpec);
         return msgSpec;
     }
+
+    /**
+     * Creates a MessageSpecification for updating the Pricing Information message
+     *
+     * @return the requested messageSpecification
+     */
+    public static MessageSpec getUpdatePricingMessageSpecification() {
+        MessageSpec msgSpec = new MessageSpec(RtuMessageKeyIdConstants.UPDATE_PRICING_INFORMATION);
+        MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.UPDATE_PRICING_INFORMATION);
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.UPDATE_PRICING_INFORMATION_USERFILE_ID, true));
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
 }
