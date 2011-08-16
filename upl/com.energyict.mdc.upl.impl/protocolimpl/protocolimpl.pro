@@ -420,8 +420,6 @@
 
 -keepnames class com.energyict.protocolimpl.coronis.waveflow.waveflowV2.WaveFlowV2
 
--keepnames class com.energyict.smartmeterprotocolimpl.elster.apollo.AS300
-
 -keepnames class com.energyict.protocolimpl.coronis.waveflow.waveflowV210.WaveFlowV210
 
 -keepnames class com.energyict.protocolimpl.coronis.wavesense.WaveSense
@@ -460,3 +458,11 @@
 -keepnames class com.energyict.smartmeterprotocolimpl.sdksample.SDKSmartMeterProtocol
 
 -keepnames class com.energyict.smartmeterprotocolimpl.webrtuz3.WebRTUZ3
+
+-keepnames class com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ZigbeeGas
+
+-keepnames class com.energyict.smartmeterprotocolimpl.elster.apollo.AS300
+
+-keepnames class com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub
+
+-keepnames class com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.InHomeDisplay
