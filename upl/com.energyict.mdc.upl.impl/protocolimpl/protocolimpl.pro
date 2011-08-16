@@ -459,10 +459,10 @@
 
 -keepnames class com.energyict.smartmeterprotocolimpl.webrtuz3.WebRTUZ3
 
--keepnames class com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ZigbeeGas
-
 -keepnames class com.energyict.smartmeterprotocolimpl.elster.apollo.AS300
 
 -keepnames class com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub
+
+-keepnames class com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ZigbeeGas
 
 -keepnames class com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.InHomeDisplay
