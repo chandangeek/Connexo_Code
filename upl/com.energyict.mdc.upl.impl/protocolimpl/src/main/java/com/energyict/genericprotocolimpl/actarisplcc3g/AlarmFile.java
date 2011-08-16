@@ -12,6 +12,8 @@ package com.energyict.genericprotocolimpl.actarisplcc3g;
 
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.*;
+import com.energyict.dlms.axrdencoding.util.DateTime;
+
 import java.util.*;
 import java.io.*;
 

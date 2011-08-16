@@ -12,6 +12,7 @@ package com.energyict.genericprotocolimpl.common;
 
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.*;
+import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.protocol.*;
 import java.io.*;
 import java.math.*;
