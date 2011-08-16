@@ -31,7 +31,7 @@ public enum SupplierNameAttributes implements DLMSClassAttributes {
     }
 
     public DLMSClassId getDlmsClassId() {
-        return DLMSClassId.SUPPLIER_NAME;
+        return DLMSClassId.ACTIVE_PASSIVE;
     }
 
     /**

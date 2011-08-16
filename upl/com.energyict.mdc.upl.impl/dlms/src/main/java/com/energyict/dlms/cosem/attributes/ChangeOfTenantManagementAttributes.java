@@ -31,7 +31,7 @@ public enum ChangeOfTenantManagementAttributes implements DLMSClassAttributes {
     }
 
     public DLMSClassId getDlmsClassId() {
-        return DLMSClassId.COT_MANAGEMENT;
+        return DLMSClassId.ACTIVE_PASSIVE;
     }
 
     /**

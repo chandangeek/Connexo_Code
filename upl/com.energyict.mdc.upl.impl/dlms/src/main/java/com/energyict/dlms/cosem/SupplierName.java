@@ -39,7 +39,7 @@ public class SupplierName extends AbstractCosemObject {
      */
     @Override
     protected int getClassId() {
-        return DLMSClassId.COT_MANAGEMENT.getClassId();
+        return DLMSClassId.ACTIVE_PASSIVE.getClassId();
     }
 
     /**

@@ -41,7 +41,7 @@ public enum SupplierNameMethods implements DLMSClassMethods {
      * @return the DLMS ClassID
      */
     public DLMSClassId getDlmsClassId() {
-        return DLMSClassId.SUPPLIER_NAME;
+        return DLMSClassId.ACTIVE_PASSIVE;
     }
 
     /**

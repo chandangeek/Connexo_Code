@@ -41,7 +41,7 @@ public enum ChangeOfTenantManagementMethods implements DLMSClassMethods {
      * @return the DLMS ClassID
      */
     public DLMSClassId getDlmsClassId() {
-        return DLMSClassId.COT_MANAGEMENT;
+        return DLMSClassId.ACTIVE_PASSIVE;
     }
 
     /**
