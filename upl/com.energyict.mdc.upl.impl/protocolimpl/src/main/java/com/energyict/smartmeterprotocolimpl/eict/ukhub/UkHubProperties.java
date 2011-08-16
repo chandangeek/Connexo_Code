@@ -18,6 +18,7 @@ import java.util.List;
 public class UkHubProperties extends DlmsProtocolProperties {
 
     public static final String DEFAULT_UK_HUB_CLIENT_MAC_ADDRESS = "64";
+    public static final String DEFAULT_UK_HUB_LOGICAL_DEVICE_ADDRESS = "1";
     private static final String MaxReceivePduSize = "4096";
     private static final String DefaultZ3BulkRequesSupport = "1";
 
@@ -58,9 +59,16 @@ public class UkHubProperties extends DlmsProtocolProperties {
         return new ArrayList<String>();
     }
 
+    @ProtocolProperty
     @Override
     public int getClientMacAddress() {
         return getIntProperty(CLIENT_MAC_ADDRESS, DEFAULT_UK_HUB_CLIENT_MAC_ADDRESS);
+    }
+
+    @ProtocolProperty
+    @Override
+    public String getServerMacAddress() {
+        return getStringValue(SERVER_MAC_ADDRESS, DEFAULT_UK_HUB_LOGICAL_DEVICE_ADDRESS);
     }
 
     @ProtocolProperty

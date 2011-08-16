@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas;
+package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd;
 
 import com.energyict.dlms.DLMSReference;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
@@ -11,18 +11,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
- * Date: 20-jul-2011
- * Time: 13:29:29
+ * Provides property information for the InHomeDisplay
  */
-public class ZigbeeGasProperties extends DlmsProtocolProperties {
+public class InHomeDisplayProperties extends DlmsProtocolProperties {
 
-    public static final String DEFAULT_ZIGBEE_GAS_CLIENT_MAC_ADDRESS = "64";
+    public static final String DEFAULT_IHD_CLIENT_MAC_ADDRESS = "64";
 
     /**
-     * Default it starts at 30, but if more devices are supported then it can go from 30 to 45
+     * Uses the same logical device address as the HUB!!
      */
-    public static final String DEFAULT_ZIGBEE_GAS_LOGICAL_DEVICE_ADDRESS = "30";
+    public static final String DEFAULT_IHD_LOGICAL_DEVICE_ADDRESS = "1";
+
 
     @Override
     public DLMSReference getReference() {
@@ -31,7 +30,7 @@ public class ZigbeeGasProperties extends DlmsProtocolProperties {
 
     @Override
     protected void doValidateProperties() throws MissingPropertyException, InvalidPropertyException {
-        // nothing to do
+        //TODO implement proper functionality.
     }
 
     public List<String> getOptionalKeys() {
@@ -62,15 +61,14 @@ public class ZigbeeGasProperties extends DlmsProtocolProperties {
         return new ArrayList<String>();
     }
 
-    @ProtocolProperty
     @Override
     public int getClientMacAddress() {
-        return getIntProperty(CLIENT_MAC_ADDRESS, DEFAULT_ZIGBEE_GAS_CLIENT_MAC_ADDRESS);
+        return getIntProperty(CLIENT_MAC_ADDRESS, DEFAULT_IHD_CLIENT_MAC_ADDRESS);
     }
 
     @ProtocolProperty
     @Override
     public String getServerMacAddress() {
-        return getStringValue(SERVER_MAC_ADDRESS, DEFAULT_ZIGBEE_GAS_LOGICAL_DEVICE_ADDRESS);
+        return getStringValue(SERVER_MAC_ADDRESS, DEFAULT_IHD_LOGICAL_DEVICE_ADDRESS);
     }
 }

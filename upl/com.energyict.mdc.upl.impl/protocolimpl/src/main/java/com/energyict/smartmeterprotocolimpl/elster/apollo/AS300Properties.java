@@ -17,6 +17,9 @@ import java.util.List;
  */
 public class AS300Properties extends DlmsProtocolProperties {
 
+    public static final String DEFAULT_AS300_CLIENT_MAC_ADDRESS = "64";
+    public static final String DEFAULT_AS300_LOGICAL_DEVICE_ADDRESS = "45";
+
     public List<String> getOptionalKeys() {
         List<String> optional = new ArrayList<String>();
         optional.add(DlmsProtocolProperties.ADDRESSING_MODE);
@@ -46,6 +49,17 @@ public class AS300Properties extends DlmsProtocolProperties {
     protected void doValidateProperties() throws MissingPropertyException, InvalidPropertyException {
     }
 
+    @ProtocolProperty
+    @Override
+    public String getServerMacAddress() {
+        return getStringValue(SERVER_MAC_ADDRESS, DEFAULT_AS300_LOGICAL_DEVICE_ADDRESS);
+    }
+
+    @ProtocolProperty
+    @Override
+    public int getClientMacAddress() {
+        return getIntProperty(CLIENT_MAC_ADDRESS, DEFAULT_AS300_CLIENT_MAC_ADDRESS);
+    }
 
     @ProtocolProperty
     @Override
