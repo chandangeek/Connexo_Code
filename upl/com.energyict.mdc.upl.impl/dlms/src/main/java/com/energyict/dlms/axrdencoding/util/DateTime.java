@@ -165,7 +165,7 @@ public class DateTime extends AbstractDataType {
 
         return
             new byte [] {
-                (byte) DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING,
+                DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING,
                 (byte) SIZE,
                 (byte) ((year & INT_HIGH_MASK ) >> BYTE_SIZE),
                 (byte) (year & INT_LOW_MASK),

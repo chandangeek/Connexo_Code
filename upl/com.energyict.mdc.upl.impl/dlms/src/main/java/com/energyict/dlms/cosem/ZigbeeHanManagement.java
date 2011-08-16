@@ -158,13 +158,13 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
     }
 
     /**
-     * Inform the HUB to backup all ZigBee devices. Default additional data will be a {@link com.energyict.dlms.axrdencoding.Unsigned8} with value '0'.
+     * Inform the HUB to backup all ZigBee devices. Default additional data will be a {@link com.energyict.dlms.axrdencoding.Integer8} with value '0'.
      *
      * @return raw data returned from the method invocation
      * @throws IOException if for some reason the invocation did not succeed
      */
     public byte[] backup() throws IOException {
-        return methodInvoke(ZigbeeHanManagementMethods.BACKUP, new Unsigned8(0));
+        return methodInvoke(ZigbeeHanManagementMethods.BACKUP, new Integer8(0));
     }
 
     /**

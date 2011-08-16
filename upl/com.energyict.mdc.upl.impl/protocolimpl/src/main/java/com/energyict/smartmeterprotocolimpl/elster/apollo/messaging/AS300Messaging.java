@@ -32,6 +32,8 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol,
     public List getMessageCategories() {
         List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
         categories.add(ProtocolMessageCategories.getPricingInformationCategory());
+        categories.add(ProtocolMessageCategories.getChangeOfTenancyCategory());
+        categories.add(ProtocolMessageCategories.getChangeOfSupplierCategory());
         return categories;
     }
 

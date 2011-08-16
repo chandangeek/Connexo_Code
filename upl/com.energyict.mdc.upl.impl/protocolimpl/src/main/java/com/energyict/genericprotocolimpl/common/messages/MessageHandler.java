@@ -143,6 +143,12 @@ public class MessageHandler extends DefaultHandler{
         } else if(RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS.equalsIgnoreCase(qName)){
             setType(RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS);
             handleRestoreHANParameters(attrbs);
+        } else if(RtuMessageConstant.CHANGE_OF_TENANT.equalsIgnoreCase(qName)) {
+            setType(RtuMessageConstant.CHANGE_OF_TENANT);
+            handleChangeOfTenantParameters(attrbs);
+        } else if(RtuMessageConstant.CHANGE_OF_SUPPLIER.equalsIgnoreCase(qName)) {
+            setType(RtuMessageConstant.CHANGE_OF_SUPPLIER);
+            handleChangeOfSupplierParameters(attrbs);
 		} else {
 			if(!isXmlInContent){ // If there is XML in the content, then the protocol will parse it himself ...
 				throw new SAXException("Unknown messageContent : " + qName);
@@ -663,4 +669,42 @@ public class MessageHandler extends DefaultHandler{
         return changeHanSasInsecureJoin;
     }
 
+
+    private String tenantValue = "";
+    private String tenantActivationDate = "";
+
+    private void handleChangeOfTenantParameters(final Attributes attrbs) {
+        this.tenantValue = attrbs.getValue(RtuMessageConstant.CHANGE_OF_TENANT_VALUE);
+        this.tenantActivationDate = attrbs.getValue(RtuMessageConstant.CHANGE_OF_TENANT_ACTIATION_DATE);
+    }
+
+    public String getTenantValue() {
+        return tenantValue;
+    }
+
+    public String getTenantActivationDate() {
+        return tenantActivationDate;
+    }
+
+    
+    private String supplierName = "";
+    private String supplierId = "";
+    private String supplierActivationDate = "";
+    private void handleChangeOfSupplierParameters(final Attributes attrbs) {
+        this.supplierName = attrbs.getValue(RtuMessageConstant.CHANGE_OF_SUPPLIER_NAME);
+        this.supplierId = attrbs.getValue(RtuMessageConstant.CHANGE_OF_SUPPLIER_ID);
+        this.supplierActivationDate = attrbs.getValue(RtuMessageConstant.CHANGE_OF_SUPPLIER_ACTIATION_DATE);
+    }
+
+    public String getSupplierName() {
+        return supplierName;
+    }
+
+    public String getSupplierId() {
+        return supplierId;
+    }
+
+    public String getSupplierActivationDate() {
+        return supplierActivationDate;
+    }
 }

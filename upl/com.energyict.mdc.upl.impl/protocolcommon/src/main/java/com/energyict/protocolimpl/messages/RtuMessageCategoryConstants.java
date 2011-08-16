@@ -27,5 +27,7 @@ public class RtuMessageCategoryConstants {
     public static final String DEMANDRESET = "Demand Reset";
     public static final String ZIG_BEE_SETUP = "ZigBee setup";
     public static final String PRICING_INFORMATION = "Pricing Information";
+    public static final String CHANGE_OF_TENANCY = "Change of Tenancy";
+    public static final String CHANGE_OF_SUPPLIER = "Change of Supplier";
 
 }

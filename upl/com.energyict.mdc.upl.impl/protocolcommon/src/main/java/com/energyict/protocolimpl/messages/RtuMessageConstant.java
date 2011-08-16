@@ -293,4 +293,13 @@ public class RtuMessageConstant {
 
     public static final String UPDATE_PRICING_INFORMATION = "Update_Pricing_Information";
     public static final String UPDATE_PRICING_INFORMATION_USERFILE_ID = "Update_Pricing_Information_UserFile_ID";
+
+    public static final String CHANGE_OF_TENANT = "Change_Of_Tenant";
+    public static final String CHANGE_OF_TENANT_VALUE = "Change_Of_Tenant_Value";
+    public static final String CHANGE_OF_TENANT_ACTIATION_DATE = "Change_Of_Tenant_ActivationDate";
+
+    public static final String CHANGE_OF_SUPPLIER = "Change_Of_Supplier";
+    public static final String CHANGE_OF_SUPPLIER_NAME = "Change_Of_Supplier_Name";
+    public static final String CHANGE_OF_SUPPLIER_ID = "Change_Of_Supplier_ID";
+    public static final String CHANGE_OF_SUPPLIER_ACTIATION_DATE = "Change_Of_Supplier_ActivationDate";
 }

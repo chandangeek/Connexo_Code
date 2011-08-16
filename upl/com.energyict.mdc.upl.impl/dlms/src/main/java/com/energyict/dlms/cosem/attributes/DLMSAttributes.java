@@ -9,6 +9,11 @@ import com.energyict.dlms.cosem.DLMSClassId;
  */
 public interface DLMSAttributes {
 
+    /**
+     * Getter for the ClassId for this object
+     *
+     * @return the DLMS ClassID
+     */
     DLMSClassId getDlmsClassId();
 
     /**

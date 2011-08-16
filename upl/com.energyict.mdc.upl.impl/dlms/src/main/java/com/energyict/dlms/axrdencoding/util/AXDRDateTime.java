@@ -63,22 +63,22 @@ import com.energyict.protocol.ProtocolUtils;
 public class AXDRDateTime extends AbstractDataType {
 
 	private static final int	MILLIS_PER_SECOND					= 1000;
-	private static final int	SECONDS_PER_MINUTE					= 60;
-	private static final int	MS_PER_HS							= 10;
-	private static final int	BITS_PER_BYTE						= 8;
+	protected static final int	SECONDS_PER_MINUTE					= 60;
+	protected static final int	MS_PER_HS							= 10;
+	protected static final int	BITS_PER_BYTE						= 8;
 
-	private static final int	INT_HIGH_MASK						= 0XFF00;
-	private static final int	INT_LOW_MASK						= 0X00FF;
+	protected static final int	INT_HIGH_MASK						= 0XFF00;
+	protected static final int	INT_LOW_MASK						= 0X00FF;
 	private static final int	INVALID_CLOCK_STATUS_MASK			= 0x08;
 	private static final int	DIFFERENT_CLOCK_BASE_STATUS_MASK	= 0x04;
 	private static final int	DOUBTFUL_STATUS_MASK				= 0x02;
 	private static final int	INVALID_STATUS_MASK					= 0x01;
 
-	private static final byte[]	NO_DEVIATION						= new byte[] { (byte) 0x80, (byte) 0x00 };
+	protected static final byte[]	NO_DEVIATION						= new byte[] { (byte) 0x80, (byte) 0x00 };
 	private static final int	SIZE								= 12;
 
-	private Calendar dateTime;
-    private int status;
+	protected Calendar dateTime;
+    protected int status;
 
     public AXDRDateTime( ) {
     }

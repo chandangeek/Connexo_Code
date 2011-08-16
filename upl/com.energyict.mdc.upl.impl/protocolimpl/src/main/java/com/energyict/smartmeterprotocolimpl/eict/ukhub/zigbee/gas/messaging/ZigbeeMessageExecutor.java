@@ -1,10 +1,16 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
+import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.ParseUtils;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.xmlparsing.GenericDataToWrite;
 import com.energyict.dlms.xmlparsing.XmlToDlms;
+import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
+import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
+import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
+import com.energyict.mdw.core.RtuMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
@@ -19,7 +25,8 @@ import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300TimeOfU
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.util.List;
+import java.sql.SQLException;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -27,7 +34,10 @@ import java.util.logging.Level;
  * Date: 10-aug-2011
  * Time: 15:02:34
  */
-public class ZigbeeMessageExecutor {
+public class ZigbeeMessageExecutor extends GenericMessageExecutor {
+
+    private static final ObisCode ChangeOfSupplierNameObisCode = ObisCode.fromString("1.0.1.64.0.255");
+    private static final ObisCode ChangeOfSupplierIdObisCode = ObisCode.fromString("1.0.1.64.1.255");
 
     private final AbstractSmartDlmsProtocol protocol;
     private ActivityCalendarController activityCalendarController;
@@ -60,10 +70,23 @@ public class ZigbeeMessageExecutor {
             } else if (isUpdatePricingInformationMessage(content)) {
                 updatePricingInformation(content);
             } else {
-                log(Level.INFO, "Message not supported : " + content);
-                success = false;
+
+                MessageHandler messageHandler = new NTAMessageHandler();
+                importMessage(content, messageHandler);
+
+                if (isChangeOfTenantMessage(messageHandler)) {
+                    changeOfTenant(messageHandler);
+                } else if (isChangeOfSupplierMessage(messageHandler)) {
+                    changeOfSupplier(messageHandler);
+                } else {
+                    log(Level.INFO, "Message not supported : " + content);
+                    success = false;
+                }
             }
         } catch (IOException e) {
+            log(Level.SEVERE, "Message failed : " + e.getMessage());
+            success = false;
+        } catch (BusinessException e) {
             log(Level.SEVERE, "Message failed : " + e.getMessage());
             success = false;
         }
@@ -75,6 +98,55 @@ public class ZigbeeMessageExecutor {
             return MessageResult.createFailed(messageEntry);
         }
     }
+
+    private void changeOfSupplier(final MessageHandler messageHandler) throws IOException {
+        log(Level.INFO, "Received Change of Supplier message.");
+        log(Level.FINEST, "Writing new SupplierName Value");
+        getCosemObjectFactory().getSupplierName(ChangeOfSupplierNameObisCode).writePassiveValue(OctetString.fromString(messageHandler.getSupplierName()));
+        try {
+            log(Level.FINEST, "Writing new SupplierId Value");
+            getCosemObjectFactory().getSupplierId(ChangeOfSupplierIdObisCode).writePassiveValue(new Unsigned32(Long.valueOf(messageHandler.getSupplierId())));
+        } catch (NumberFormatException e) {
+            log(Level.SEVERE, "Incorrect SupplierID : " + messageHandler.getTenantValue() + " - Message will fail.");
+            success = false;
+        }
+        if(success) {
+            log(Level.FINEST, "Writing new Supplier ActivationDates");
+            try {
+
+                // TODO need to figure out how to write the dateTimes ...
+
+                getCosemObjectFactory().getSupplierName(ChangeOfSupplierNameObisCode).writeActivationDate(new DateTime(new Date(Long.valueOf(messageHandler.getSupplierActivationDate()))));
+                getCosemObjectFactory().getSupplierId(ChangeOfSupplierIdObisCode).writeActivationDate(new DateTime(new Date(Long.valueOf(messageHandler.getSupplierActivationDate()))));
+            } catch (NumberFormatException e) {
+                log(Level.SEVERE, "Incorrect ActivationDate : " + messageHandler.getSupplierActivationDate() + " - Message will fail.");
+                success = false;
+            }
+        }
+    }
+
+    private void changeOfTenant(final MessageHandler messageHandler) throws IOException {
+        log(Level.INFO, "Received Change of Tenant message.");
+        log(Level.FINEST, "Writing new Tenant Value");
+        try {
+            getCosemObjectFactory().getChangeOfTenantManagement().writePassiveValue(new Unsigned32(Long.valueOf(messageHandler.getTenantValue())));
+        } catch (NumberFormatException e) {
+            log(Level.SEVERE, "Incorrect TenantValue : " + messageHandler.getTenantValue() + " - Message will fail.");
+            success = false;
+        }
+        if(success){ // if the previous failed, then we don't try to write the activationDate
+            log(Level.FINEST, "Writing new Tenant ActivationDate");
+            try {
+
+                // TODO need to figure out how to write the dateTimes ...
+
+                getCosemObjectFactory().getChangeOfTenantManagement().writeActivationDate(new DateTime(new Date(Long.valueOf(messageHandler.getTenantActivationDate()))));
+            } catch (NumberFormatException e) {
+                log(Level.SEVERE, "Incorrect ActivationDate : " + messageHandler.getTenantActivationDate() + " - Message will fail.");
+                success = false;
+            }
+        }
+    }    
 
     private void updatePricingInformation(final String content) throws IOException {
         log(Level.INFO, "Received update Update Pricing Information message.");
@@ -161,6 +233,14 @@ public class ZigbeeMessageExecutor {
         return (messageContent != null) && messageContent.contains(RtuMessageConstant.UPDATE_PRICING_INFORMATION);
     }
 
+    private boolean isChangeOfSupplierMessage(final MessageHandler messageHandler) {
+        return (messageHandler != null) && RtuMessageConstant.CHANGE_OF_SUPPLIER.equalsIgnoreCase(messageHandler.getType());
+    }
+
+    private boolean isChangeOfTenantMessage(final MessageHandler messageHandler) {
+        return (messageHandler != null) && RtuMessageConstant.CHANGE_OF_TENANT.equalsIgnoreCase(messageHandler.getType());
+    }
+
     public ActivityCalendarController getActivityCalendarController() {
         if (this.activityCalendarController == null) {
             this.activityCalendarController = new ZigbeeActivityCalendarController(this.protocol);
@@ -170,6 +250,16 @@ public class ZigbeeMessageExecutor {
 
     private void log(Level level, String message) {
         this.protocol.getLogger().log(level, message);
+    }
+
+    @Override
+    public void doMessage(final RtuMessage rtuMessage) throws BusinessException, SQLException, IOException {
+        // nothing to do
+    }
+
+    @Override
+    protected TimeZone getTimeZone() {
+        return this.protocol.getTimeZone();
     }
 }
 

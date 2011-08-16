@@ -48,4 +48,25 @@ public class ProtocolMessageCategories {
         return pricing;
     }
 
+    /**
+     * MessageCategory containing relevant functionality to inform a device a 'Change Of Tenancy' will occur.
+     *
+     * @return the newly created category
+     */
+    public static MessageCategorySpec getChangeOfTenancyCategory() {
+        MessageCategorySpec cot = new MessageCategorySpec(RtuMessageCategoryConstants.CHANGE_OF_TENANCY);
+        cot.addMessageSpec(ProtocolMessageSpecifications.getChangeOfTenancyMessageSpecification());
+        return cot;
+    }
+
+    /**
+     * MessageCategory containing relevant functionality to inform a device that a 'Supplier change' will occur.
+     *
+     * @return the newly created category
+     */
+    public static MessageCategorySpec getChangeOfSupplierCategory() {
+        MessageCategorySpec cos = new MessageCategorySpec(RtuMessageCategoryConstants.CHANGE_OF_SUPPLIER);
+        cos.addMessageSpec(ProtocolMessageSpecifications.getChangeOfSupplierMessageSpecification());
+        return cos;
+    }
 }

@@ -135,4 +135,33 @@ public class ProtocolMessageSpecifications {
         msgSpec.add(tagSpec);
         return msgSpec;
     }
+
+    /**
+     * Creates a MessageSpecification for changing the Tenant message. The message contains a value and an ActivationDate
+     *
+     * @return the requested messageSpecification
+     */
+    public static MessageSpec getChangeOfTenancyMessageSpecification() {
+        MessageSpec msgSpec = new MessageSpec(RtuMessageKeyIdConstants.CHANGE_OF_TENANT);
+        MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.CHANGE_OF_TENANT);
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.CHANGE_OF_TENANT_VALUE, true));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.CHANGE_OF_TENANT_ACTIATION_DATE, true));
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
+    /**
+     * Creates a MessageSpecification for changing the Supplier message. The message contains a value, an ID and an ActivationDate
+     *
+     * @return the requested messageSpecification
+     */
+    public static MessageSpec getChangeOfSupplierMessageSpecification() {
+        MessageSpec msgSpec = new MessageSpec(RtuMessageKeyIdConstants.CHANGE_OF_SUPPLIER);
+        MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.CHANGE_OF_SUPPLIER);
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.CHANGE_OF_SUPPLIER_NAME, true));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.CHANGE_OF_SUPPLIER_ID, true));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.CHANGE_OF_SUPPLIER_ACTIATION_DATE, true));
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
 }

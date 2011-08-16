@@ -34,6 +34,9 @@ public interface DLMSCOSEMGlobals {
 	byte TYPEDESC_LONG64_UNSIGNED=0x15;
 	byte TYPEDESC_ENUM=0x16;
     byte TYPEDESC_FLOAT32=0x17;
+    byte TYPEDESC_FLOAT64 = 0x18;
+    byte TYPEDESC_DATE_TIME = 0x19;
+    byte TYPEDESC_DATE = 0x1A;
 
 	byte LN_A=0;
 	byte LN_B=1;

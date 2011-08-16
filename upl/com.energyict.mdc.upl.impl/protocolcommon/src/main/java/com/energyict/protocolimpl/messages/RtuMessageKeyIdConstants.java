@@ -61,5 +61,7 @@ public class RtuMessageKeyIdConstants {
     public static final String BACKUP_ZIGBEE_HAN_PARAMETERS = "Backup ZigBee HAN Parameters";
     public static final String RESTORE_ZIGBEE_HAN_PARAMETERS = "Restore ZigBee HAN Parameters";
     public static final String UPDATE_PRICING_INFORMATION = "Update Pricing Information";
+    public static final String CHANGE_OF_TENANT = "Change Of Tenant";
+    public static final String CHANGE_OF_SUPPLIER = "Change Of Supplier";
 
 }
