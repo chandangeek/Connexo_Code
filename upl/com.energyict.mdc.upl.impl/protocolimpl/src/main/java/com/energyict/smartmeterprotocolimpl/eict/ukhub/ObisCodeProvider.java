@@ -17,6 +17,7 @@ public class ObisCodeProvider {
     public static final ObisCode FIRMWARE_EVENT_LOG = ObisCode.fromString("0.0.99.98.3.255");
     public static final ObisCode HAN_MANAGEMENT_FAILURE_EVENT_LOG = ObisCode.fromString("0.0.99.97.15.255");
     public static final ObisCode COMM_FAILURE_EVENT_LOG = ObisCode.fromString("0.0.99.97.6.255");
+    public static final ObisCode HanManagementEventObject = ObisCode.fromString("0.0.96.11.15.255");
 
     public static final UniversalObject[] OBJECT_LIST;
 
@@ -33,7 +34,7 @@ public class ObisCodeProvider {
                 new UniversalObject(ObisCode.fromString("0.0.35.5.0.255"), DLMSClassId.ZIGBEE_HAN_MANAGEMENT),
                 new UniversalObject(ObisCode.fromString("0.4.0.2.0.255"), DLMSClassId.DATA),
                 new UniversalObject(ObisCode.fromString("0.5.0.2.0.255"), DLMSClassId.DATA),
-                new UniversalObject(ObisCode.fromString("0.0.96.11.15.255"), DLMSClassId.DATA),
+                new UniversalObject(HanManagementEventObject, DLMSClassId.DATA),
                 new UniversalObject(ObisCode.fromString("0.0.99.97.15.255"), DLMSClassId.PROFILE_GENERIC),
                 new UniversalObject(ObisCode.fromString("0.0.93.44.15.255"), DLMSClassId.DATA),
                 new UniversalObject(ObisCode.fromString("0.0.96.15.15.255"), DLMSClassId.DATA),

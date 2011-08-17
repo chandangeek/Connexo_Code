@@ -5,6 +5,7 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributeobjects.RegisterZigbeeDeviceData;
 import com.energyict.dlms.cosem.attributeobjects.ZigBeeIEEEAddress;
+import com.energyict.dlms.cosem.ZigBeeSASStartup;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
@@ -16,6 +17,7 @@ import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsSession;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.ObisCodeProvider;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -172,13 +174,18 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
             throw new IOException("No UserFile found with ID : " + userFileId);
         }
 
-        Structure backUpData = new Structure(uf.loadFileInByteArray(), 0, 0);
+        HanBackupRestoreData hanBackUpData = new HanBackupRestoreData(uf.loadFileInByteArray(), 0, 0);
+        ZigBeeSASStartup sasStartup = getCosemObjectFactory().getZigBeeSASStartup();
+        log(Level.FINE, "Writing : ExtendedPanId");
+        sasStartup.writeExtendedPanId(hanBackUpData.getExtendedPanId());
+        log(Level.FINE, "Writing : LinkKey");
+        sasStartup.writeLinkKey(hanBackUpData.getLinkKey());
+        log(Level.FINE, "Writing : NetworkKey");
+        sasStartup.writeNetworkKey(hanBackUpData.getNetworkKey());
 
-        // write the externalPANID
-        // write the linkkey
-        // call the restore function
-        // set MAC addresses?
-
+        ZigbeeHanManagement hanManagement = getCosemObjectFactory().getZigbeeHanManagement();
+        log(Level.FINE, "Writing : RestoreData Structure");
+        hanManagement.restore(hanBackUpData.getRestoreData());
     }
 
     private void backupZigBeeHanParameters(final MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
@@ -186,11 +193,34 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         ZigbeeHanManagement hanManagement = getCosemObjectFactory().getZigbeeHanManagement();
         hanManagement.backup();
 
-        // TODO Check if we need to wait a certain period before the HUB created the Backup of the data
+//        boolean backedUp = false;
+//        while(!backedUp){
+//            try {
+//                Thread.sleep(1000);
+//                Long eventValue = getCosemObjectFactory().getData(ObisCodeProvider.HanManagementEventObject).getValue();
+//                if(eventValue == 0x0126) {    //Should be event 'HAN Backup Performed'
+//                    backedUp = true;
+//                }
+//            } catch (InterruptedException e) {
+//                log(Level.SEVERE, "Interrupted while sleeping : " + e.getMessage());
+//                throw new BusinessException(e);
+//            }
+//        }
 
         // TODO this requires dataBase access, the message will not succeed in an HTTP ComServer environment
         Structure backUpData = hanManagement.readBackupData();
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow("ZigBeeBackUp_" + protocol.getDlmsSession().getProperties().getSerialNumber(), backUpData.getBEREncodedByteArray(), getFolderIdFromHub(), "bin");
+        ZigBeeSASStartup sasStartup = getCosemObjectFactory().getZigBeeSASStartup();
+        OctetString extendedPanId = sasStartup.readExtendedPanId();
+        OctetString linkKey = sasStartup.readLinkKey();
+        OctetString networkKey = sasStartup.readNetworkKey();
+        
+        HanBackupRestoreData hanBackupData = new HanBackupRestoreData();
+        hanBackupData.setBackupData(backUpData);
+        hanBackupData.setExtendedPanId(extendedPanId);
+        hanBackupData.setLinkKey(linkKey);
+        hanBackupData.setNetworkKey(networkKey);
+                
+        UserFileShadow ufs = ProtocolTools.createUserFileShadow("ZigBeeBackUp_" + protocol.getDlmsSession().getProperties().getSerialNumber(), hanBackupData.getBEREncodedByteArray(), getFolderIdFromHub(), "bin");
         mw().getUserFileFactory().create(ufs);
         log(Level.INFO, "Backed-up ZigBee parameters in userFile : ZigBeeBackUp_" + protocol.getDlmsSession().getProperties().getSerialNumber());
     }
