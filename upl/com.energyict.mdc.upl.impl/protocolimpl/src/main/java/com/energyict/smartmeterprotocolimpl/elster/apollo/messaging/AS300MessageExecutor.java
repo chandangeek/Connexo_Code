@@ -115,9 +115,6 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         if(success) {
             log(Level.FINEST, "Writing new Supplier ActivationDates");
             try {
-
-                // TODO need to figure out how to write the dateTimes ...
-
                 getCosemObjectFactory().getSupplierName(ChangeOfSupplierNameObisCode).writeActivationDate(new DateTime(new Date(Long.valueOf(messageHandler.getSupplierActivationDate()))));
                 getCosemObjectFactory().getSupplierId(ChangeOfSupplierIdObisCode).writeActivationDate(new DateTime(new Date(Long.valueOf(messageHandler.getSupplierActivationDate()))));
             } catch (NumberFormatException e) {
@@ -139,9 +136,6 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         if(success){ // if the previous failed, then we don't try to write the activationDate
             log(Level.FINEST, "Writing new Tenant ActivationDate");
             try {
-
-                // TODO need to figure out how to write the dateTimes ...
-
                 getCosemObjectFactory().getChangeOfTenantManagement().writeActivationDate(new DateTime(new Date(Long.valueOf(messageHandler.getTenantActivationDate()))));
             } catch (NumberFormatException e) {
                 log(Level.SEVERE, "Incorrect ActivationDate : " + messageHandler.getTenantActivationDate() + " - Message will fail.");

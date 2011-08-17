@@ -2,7 +2,8 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.ParseUtils;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.xmlparsing.GenericDataToWrite;
@@ -21,7 +22,6 @@ import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsSession;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300Messaging;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300TimeOfUseMessageBuilder;
 import org.xml.sax.SAXException;
 
@@ -114,9 +114,6 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
         if(success) {
             log(Level.FINEST, "Writing new Supplier ActivationDates");
             try {
-
-                // TODO need to figure out how to write the dateTimes ...
-
                 getCosemObjectFactory().getSupplierName(ChangeOfSupplierNameObisCode).writeActivationDate(new DateTime(new Date(Long.valueOf(messageHandler.getSupplierActivationDate()))));
                 getCosemObjectFactory().getSupplierId(ChangeOfSupplierIdObisCode).writeActivationDate(new DateTime(new Date(Long.valueOf(messageHandler.getSupplierActivationDate()))));
             } catch (NumberFormatException e) {
@@ -138,9 +135,6 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
         if(success){ // if the previous failed, then we don't try to write the activationDate
             log(Level.FINEST, "Writing new Tenant ActivationDate");
             try {
-
-                // TODO need to figure out how to write the dateTimes ...
-
                 getCosemObjectFactory().getChangeOfTenantManagement().writeActivationDate(new DateTime(new Date(Long.valueOf(messageHandler.getTenantActivationDate()))));
             } catch (NumberFormatException e) {
                 log(Level.SEVERE, "Incorrect ActivationDate : " + messageHandler.getTenantActivationDate() + " - Message will fail.");
