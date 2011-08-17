@@ -277,34 +277,19 @@ public class GasDevice extends AS220 implements MessageProtocol{
 	 *
 	 * FirmwareUpgrade is not supported but it's there because we inherit from AS220 ...
 	 */
+    @Override
 	public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
 	    return null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * Currently URL's are not supported
-	 */
-	public boolean supportsUrls() {
-	    return false;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * FirmwareUpgrade is not supported but it's there because we inherit from AS220 ...
+     */
+    @Override
+    public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
+        return new FirmwareUpdateMessagingConfig();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * We don't have database access so we don't need references
-	 */
-	public boolean supportsUserFileReferences() {
-	    return false;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * Userfiles are not supported for upgrades
-	 */
-	public boolean supportsUserFilesForFirmwareUpdate() {
-	    return false;
-	}
 }

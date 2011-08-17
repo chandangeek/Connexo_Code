@@ -62,88 +62,21 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol,
     }
 
     /**
-     * Indicates whether the protocol needs a 'name' for the tarif calendar or not.
-     * For some meter a name needs to be sent to the meter.  If this is necessary the protocol must
-     * return true for this method.
-     *
-     * @return <code>true</code> a 'name' is needed for the tarif calendar, <code>false</code> if not.
-     */
-    public boolean needsName() {
-        return true;
-    }
-
-    /**
-     * Indicates whether the tariff calendar data is saved in code table or not.
-     *
-     * @return <code>true</code> the tariff calendar data is saved in code table, <code>false</code> if not.
-     */
-    public boolean supportsCodeTables() {
-        return true;
-    }
-
-    /**
-     * Indicates whether the tarif calendar data is saved in a userfile or not.
-     *
-     * @return <code>true</code> the tarif calendar data is saved in a userfile, <code>false</code> if not.
-     */
-    public boolean supportsUserFiles() {
-        return true;
-    }
-
-    /**
-     * Indicates whether the implementer supports {@link com.energyict.mdw.core.UserFile} references. This will typically be used by generic protocols, as these have
-     * access to the database. If {@link #supportsUserFiles()} is true, and this method returns <code>false</code>, the entire file is sent as payload in
-     * the message. If this method returns <code>true</code>, a user file ID is passed on to the implementer, who can then query the database for the
-     * contents of the file.
-     *
-     * @return <code>true</code> if the protocol supports a file ID reference, <code>false</code> if it does not. This can equally be translated into
-     *         <code>true</code> for a generic protocol, and <code>false</code> for a normal one.
-     */
-    public boolean supportsUserFileReferences() {
-        return false;   // false because we "don't" want access to the database
-    }
-
-    /**
-     * Indicates whether the implementer supports {@link com.energyict.mdw.core.Code} references. This will typically be used by generic protocols, as these have
-     * access to the database. If {@link #supportsCodeTables()} is true, and this method returns <code>false</code>, the entire file is sent as payload in
-     * the message. If this method returns <code>true</code>, a user file ID is passed on to the implementer, who can then query the database for the
-     * contents of the file.
-     *
-     * @return <code>true</code> if the protocol supports a codeTable ID reference, <code>false</code> if it does not. This can equally be translated into
-     *         <code>true</code> for a generic protocol, and <code>false</code> for a normal one.
-     */
-    public boolean supportsCodeTableReferences() {
-        return false;   // false because we "don't" want access to the database
-    }
-
-    /**
-     * Indicates whether the content of the {@link com.energyict.mdw.core.UserFile} of the {@link com.energyict.mdw.core.Code} must be zipped when it is inlined in the
-     * RtuMessage. This is only taken into account when {@link #supportsCodeTableReferences()} or {@link #supportsUserFileReferences()} is false.</br>
-     * <b><u>NOTE:</u> If the content is zipped, then Base64 Encoding is also applied!</b>
-     *
-     * @return true if the content needs to be zipped, false otherwise
-     */
-    public boolean zipContent() {
-        return true;
-    }
-
-    /**
-     * Indicate whether the content of the {@link com.energyict.mdw.core.UserFile} or {@link com.energyict.mdw.core.Code} must be Base64 Encoded.
-     * <b><u>NOTE:</u> Base64 encoding will be automatically applied if {@link #zipContent()} returns true</b>
-     *
-     * @return true if the content needs to be Base64 encoded, false otherwise
-     */
-    public boolean encodeContentToBase64() {
-        return false;  // it gets B64 encoded with the ZIP file
-    }
-
-    /**
      * Returns the message builder capable of generating and parsing 'time of use' messages.
      *
      * @return The {@link com.energyict.protocol.messaging.MessageBuilder} capable of generating and parsing 'time of use' messages.
      */
     public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
         return new AS300TimeOfUseMessageBuilder();
+    }
+
+    public TimeOfUseMessagingConfig getTimeOfUseMessagingConfig() {
+        TimeOfUseMessagingConfig config = new TimeOfUseMessagingConfig();
+        config.setNeedsName(true);
+        config.setSupportsUserFiles(true);
+        config.setSupportsCodeTables(true);
+        config.setZipContent(true);
+        return config;
     }
 
     @Override

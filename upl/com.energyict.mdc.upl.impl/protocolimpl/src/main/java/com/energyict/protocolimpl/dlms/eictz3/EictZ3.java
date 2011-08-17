@@ -2053,32 +2053,11 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 		return new FirmwareUpdateMessageBuilder();
 	}
 
-	/**
-	 * We use {@link UserFile}s to do this.
-	 *
-	 * {@inheritDoc}
-	 */
-	public final boolean supportsUrls() {
-		return false;
-	}
-
-	/**
-	 * So this is true.
-	 *
-	 * {@inheritDoc}
-	 */
-	public final boolean supportsUserFilesForFirmwareUpdate() {
-		return true;
-	}
-
-	/**
-	 * And we don't have access to the database so we don't want references.
-	 *
-	 * {@inheritDoc}
-	 */
-	public final boolean supportsUserFileReferences() {
-		return false;
-	}
+    public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
+        FirmwareUpdateMessagingConfig config = new FirmwareUpdateMessagingConfig();
+        config.setSupportsUserFiles(true);
+        return config;
+    }
 
 	/**
 	 * Returns the CyNet RF network topology. This is a really specific method that will poll a specific register on the EpIO (in which the current

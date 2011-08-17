@@ -26,8 +26,7 @@ import com.energyict.dlms.aso.*;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.cosem.*;
 import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
-import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.dlms.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -742,32 +741,11 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 	    return new FirmwareUpdateMessageBuilder();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * Currently URL's are not supported
-	 */
-	public boolean supportsUrls() {
-	    return false;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * We don't have database access so we don't need references
-	 */
-	public boolean supportsUserFileReferences() {
-	    return false;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * Userfiles are supported for upgrades
-	 */
-	public boolean supportsUserFilesForFirmwareUpdate() {
-	    return true;
-	}
+    public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
+        FirmwareUpdateMessagingConfig config = new FirmwareUpdateMessagingConfig();
+        config.setSupportsUserFiles(true);
+        return config;
+    }
 
     /**
      *
