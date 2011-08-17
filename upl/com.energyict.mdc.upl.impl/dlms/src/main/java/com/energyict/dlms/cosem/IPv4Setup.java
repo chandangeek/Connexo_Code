@@ -57,7 +57,7 @@ public class IPv4Setup extends AbstractCosemObject{
 	}
 
     /** The current ObisCode */
-	public static ObisCode getObisCode() {
+	public static ObisCode getDefaultObisCode() {
 		return ObisCode.fromByteArray(LN) ;
 	}
 

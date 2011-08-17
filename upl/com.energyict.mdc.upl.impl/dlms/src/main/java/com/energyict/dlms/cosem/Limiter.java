@@ -97,7 +97,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
      *
      * @return the obisCode of this object
      */
-	public static ObisCode getObisCode() {
+	public static ObisCode getDefaultObisCode() {
 		return ObisCode.fromString("0.0.17.0.0.255");
 	}
 
@@ -579,7 +579,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
      * @return
      */
     public RegisterValue asRegisterValue() {
-        return new RegisterValue(getObisCode(), toString());
+        return new RegisterValue(getDefaultObisCode(), toString());
     }
 
     /**
@@ -592,37 +592,37 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
                 switch (limiterAttribute){
                     case LOGICAL_NAME :
                         OctetString ln = getLogicalName();
-                        return new RegisterValue(getObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
+                        return new RegisterValue(getDefaultObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
                     case MONITORED_VALUE :
                         ValueDefinitionType monitoredValue = getMonitoredValue();
-                        return new RegisterValue(getObisCode(), monitoredValue != null ? ObisCode.fromByteArray(monitoredValue.getLogicalName().getContentBytes()).toString() : "null");
+                        return new RegisterValue(getDefaultObisCode(), monitoredValue != null ? ObisCode.fromByteArray(monitoredValue.getLogicalName().getContentBytes()).toString() : "null");
                     case THRESHOLD_ACTIVE :
                         AbstractDataType active = readThresholdActive();
-                        return new RegisterValue(getObisCode(), active != null ? String.valueOf(active.intValue()) : "null");
+                        return new RegisterValue(getDefaultObisCode(), active != null ? String.valueOf(active.intValue()) : "null");
                     case THRESHOLD_NORMAL :
                         AbstractDataType normal = readThresholdNormal();
-                        return new RegisterValue(getObisCode(), normal != null ? String.valueOf(normal.intValue()) : "null");
+                        return new RegisterValue(getDefaultObisCode(), normal != null ? String.valueOf(normal.intValue()) : "null");
                     case THRESHOLD_EMERGENCY :
                         AbstractDataType emergency = readThresholdEmergency();
-                        return new RegisterValue(getObisCode(), emergency != null ? String.valueOf(emergency.intValue()) : "null");
+                        return new RegisterValue(getDefaultObisCode(), emergency != null ? String.valueOf(emergency.intValue()) : "null");
                     case MIN_OVER_THRESHOLD_DURATION :
                          Unsigned32 minOverDur = readMinOverThresholdDuration();
-                        return new RegisterValue(getObisCode(), minOverDur != null ? String.valueOf(minOverDur.getValue()) : "null");
+                        return new RegisterValue(getDefaultObisCode(), minOverDur != null ? String.valueOf(minOverDur.getValue()) : "null");
                     case MIN_UNDER_THRESHOLD_DURATION :
                          Unsigned32 minUnderDur = readMinUnderThresholdDuration();
-                        return new RegisterValue(getObisCode(), minUnderDur != null ? String.valueOf(minUnderDur.getValue()) : "null");
+                        return new RegisterValue(getDefaultObisCode(), minUnderDur != null ? String.valueOf(minUnderDur.getValue()) : "null");
                     case EMERGENCY_PROFILE :
                         EmergencyProfile ep = readEmergencyProfile();
-                        return new RegisterValue(getObisCode(), ep != null ? ep.toString() : "null");
+                        return new RegisterValue(getDefaultObisCode(), ep != null ? ep.toString() : "null");
                     case EMERGENCY_PROFILE_GROUP_ID_LIST :
                         Array eProfileIdList = readEmergencyProfileGroupIdList();
-                        return new RegisterValue(getObisCode(), eProfileIdList != null ? eProfileIdList.toString() : "null");
+                        return new RegisterValue(getDefaultObisCode(), eProfileIdList != null ? eProfileIdList.toString() : "null");
                     case EMERGENCY_PROFILE_ACTIVE :
                         BooleanObject eProfileActive = getEmergencyProfileActive();
-                        return new RegisterValue(getObisCode(), eProfileActive != null ? String.valueOf(eProfileActive.intValue()) : "0");
+                        return new RegisterValue(getDefaultObisCode(), eProfileActive != null ? String.valueOf(eProfileActive.intValue()) : "0");
                     case ACTIONS :
                         ActionType at = readActions();
-                        return new RegisterValue(getObisCode(), at != null ? at.toString() : "null");
+                        return new RegisterValue(getDefaultObisCode(), at != null ? at.toString() : "null");
                     default:
                         return null;
                 }

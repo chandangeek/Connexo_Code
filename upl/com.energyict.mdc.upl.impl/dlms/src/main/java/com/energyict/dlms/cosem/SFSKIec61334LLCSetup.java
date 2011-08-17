@@ -23,7 +23,7 @@ public class SFSKIec61334LLCSetup extends AbstractCosemObject implements Registe
 	/**
 	 * @return
 	 */
-	public static ObisCode getObisCode() {
+	public static ObisCode getDefaultObisCode() {
 		return ObisCode.fromByteArray(LN);
 	}
 
@@ -97,7 +97,7 @@ public class SFSKIec61334LLCSetup extends AbstractCosemObject implements Registe
 	}
 
 	public RegisterValue asRegisterValue() {
-		return new RegisterValue(getObisCode(), toString());
+		return new RegisterValue(getDefaultObisCode(), toString());
 	}
 
 	public RegisterValue asRegisterValue(int attributeNumber) {
@@ -106,13 +106,13 @@ public class SFSKIec61334LLCSetup extends AbstractCosemObject implements Registe
 			switch (attribute) {
 				case LOGICAL_NAME:
 					OctetString ln = getLogicalName();
-					return new RegisterValue(getObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
+					return new RegisterValue(getDefaultObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
 				case MAX_FRAME_LENGTH:
 					Unsigned8 maxFrameLen = getMaxFrameLength();
-					return new RegisterValue(getObisCode(), maxFrameLen != null ? String.valueOf(maxFrameLen.getValue()) : "null");
+					return new RegisterValue(getDefaultObisCode(), maxFrameLen != null ? String.valueOf(maxFrameLen.getValue()) : "null");
 				case REPLY_STATUS_LIST:
 					ReplyStatusList reply = getReplyStatusList();
-					return new RegisterValue(getObisCode(), reply != null ? reply.toString() : "null");
+					return new RegisterValue(getDefaultObisCode(), reply != null ? reply.toString() : "null");
 			}
 		}
 		return null;

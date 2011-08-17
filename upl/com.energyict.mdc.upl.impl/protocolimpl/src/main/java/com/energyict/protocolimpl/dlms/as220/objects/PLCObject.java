@@ -18,7 +18,7 @@ public class PLCObject extends AbstractCosemObject {
 
     private static final byte[] LN = ObisCode.fromString("0.0.96.128.0.255").getLN();
 
-    public static ObisCode getObisCode() {
+    public static ObisCode getDefaultObisCode() {
         return ObisCode.fromByteArray(LN);
     }
 
@@ -43,7 +43,7 @@ public class PLCObject extends AbstractCosemObject {
      * @throws IOException
      */
     public PLCObject(CosemObjectFactory cosemObjectFactory) throws IOException {
-        super(cosemObjectFactory.getProtocolLink(), cosemObjectFactory.getObjectReference(PLCObject.getObisCode()));
+        super(cosemObjectFactory.getProtocolLink(), cosemObjectFactory.getObjectReference(PLCObject.getDefaultObisCode()));
     }
 
     /**

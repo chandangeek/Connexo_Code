@@ -32,7 +32,7 @@ public class SFSKMacCounters extends AbstractCosemObject implements RegisterRead
 		super(protocolLink, objectReference);
 	}
 
-	public static ObisCode getObisCode() {
+	public static ObisCode getDefaultObisCode() {
 		return ObisCode.fromByteArray(LN);
 	}
 
@@ -138,7 +138,7 @@ public class SFSKMacCounters extends AbstractCosemObject implements RegisterRead
 	}
 
 	public RegisterValue asRegisterValue() {
-		return new RegisterValue(getObisCode(), toString());
+		return new RegisterValue(getDefaultObisCode(), toString());
 	}
 
 	public RegisterValue asRegisterValue(int attributeNumber) {
@@ -147,28 +147,28 @@ public class SFSKMacCounters extends AbstractCosemObject implements RegisterRead
 			switch (attribute) {
 				case LOGICAL_NAME:
 					OctetString ln = getLogicalName();
-					return new RegisterValue(getObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
+					return new RegisterValue(getDefaultObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
 				case SYNCHRONIZATION_REGISTER:
 					MacUnsigned32Couples sync = getSynchronizationRegister();
-					return new RegisterValue(getObisCode(), sync != null ? sync.toString() : "null");
+					return new RegisterValue(getDefaultObisCode(), sync != null ? sync.toString() : "null");
 				case DESYNCHRONIZATION_LISTING:
 					DesynchronizationListing desync = getDesynchronizationListing();
-					return new RegisterValue(getObisCode(), desync != null ? desync.toString() : "null");
+					return new RegisterValue(getDefaultObisCode(), desync != null ? desync.toString() : "null");
 				case BROADCAST_FRAMES_COUNTER:
 					MacUnsigned32Couples bc = getBroadcastFramesCounter();
-					return new RegisterValue(getObisCode(), bc != null ? bc.toString() : "null");
+					return new RegisterValue(getDefaultObisCode(), bc != null ? bc.toString() : "null");
 				case REPETITIONS_COUNTER:
 					Unsigned32 rep = getRepetitionsCounter();
-					return new RegisterValue(getObisCode(), rep != null ? String.valueOf(rep.getValue()) : "null");
+					return new RegisterValue(getDefaultObisCode(), rep != null ? String.valueOf(rep.getValue()) : "null");
 				case TRANSMISSIONS_COUNTER:
 					Unsigned32 tx = getTransmissionsCounter();
-					return new RegisterValue(getObisCode(), tx != null ? String.valueOf(tx.getValue()) : "null");
+					return new RegisterValue(getDefaultObisCode(), tx != null ? String.valueOf(tx.getValue()) : "null");
 				case CRC_OK_FRAMES_COUNTER:
 					Unsigned32 crcOk = getCrcOkFramesCounter();
-					return new RegisterValue(getObisCode(), crcOk != null ? String.valueOf(crcOk.getValue()) : "null");
+					return new RegisterValue(getDefaultObisCode(), crcOk != null ? String.valueOf(crcOk.getValue()) : "null");
 				case CRC_NOK_FRAMES_COUNTER:
 					Unsigned32 crcNotOk = getCrcNOkFramesCounter();
-					return new RegisterValue(getObisCode(), crcNotOk != null ? String.valueOf(crcNotOk.getValue()) : "null");
+					return new RegisterValue(getDefaultObisCode(), crcNotOk != null ? String.valueOf(crcNotOk.getValue()) : "null");
 			}
 		}
 		return null;

@@ -164,7 +164,7 @@ public class LoadProfileBuilder {
 
     private boolean isDataObisCode(ObisCode obisCode) {
         boolean isDataObisCode = true;
-        return !Clock.getObisCode().equals(obisCode) && isDataObisCode;
+        return !Clock.getDefaultObisCode().equals(obisCode) && isDataObisCode;
     }
 
 

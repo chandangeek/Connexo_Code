@@ -270,7 +270,7 @@ public class LoadProfileBuilder {
             return false;
         }
 
-        return !Clock.getObisCode().equals(obisCode) && isDataObisCode;
+        return !Clock.getDefaultObisCode().equals(obisCode) && isDataObisCode;
     }
 
     /**

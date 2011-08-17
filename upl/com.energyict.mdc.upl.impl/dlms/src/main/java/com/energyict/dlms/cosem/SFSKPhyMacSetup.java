@@ -18,7 +18,7 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 
 	private static final byte[]	LN	= ObisCode.fromString("0.0.26.0.0.255").getLN();
 
-	public static ObisCode getObisCode() {
+	public static ObisCode getDefaultObisCode() {
 		return ObisCode.fromByteArray(LN);
 	}
 
@@ -214,14 +214,14 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 	 * NOTE MAC addresses are expressed on 12 bits.
 	 *
 	 * Contains the value of the address of the physical attachment (MAC address)
-	 * associated to the local system. In the unconfigured state, the MAC address is “NEW-address”.
+	 * associated to the local system. In the unconfigured state, the MAC address is ï¿½NEW-addressï¿½.
 	 * This attribute is locally written by the CIASE when the system is registered
 	 * (with a Register service). The value is used in each outgoing or incoming
 	 * frame. The default value is "NEW-address".
 	 *
 	 * This attribute is set to NEW:
 	 * - by the MAC sub-layer, once the time-out-not-addressed delay is exceeded;
-	 * - when a client system “resets” the server system.
+	 * - when a client system ï¿½resetsï¿½ the server system.
 	 *
 	 * When this attribute is set to NEW:
 	 * - the system loses its synchronization (function of the MAC-sublayer);
@@ -341,7 +341,7 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 	}
 
 	public RegisterValue asRegisterValue() {
-		return new RegisterValue(getObisCode(), toString());
+		return new RegisterValue(getDefaultObisCode(), toString());
 	}
 
 	public RegisterValue asRegisterValue(int attributeNumber) {
@@ -350,49 +350,49 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 			switch (attribute) {
 				case LOGICAL_NAME:
 					OctetString ln = getLogicalName();
-					return new RegisterValue(getObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
+					return new RegisterValue(getDefaultObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
 				case INITIATOR_ELECTRICAL_PHASE:
 					ElectricalPhase phase = getInitiatorElectricalPhase();
-					return new RegisterValue(getObisCode(), phase != null ? phase.toString() : "null");
+					return new RegisterValue(getDefaultObisCode(), phase != null ? phase.toString() : "null");
 				case DELTA_ELECTRICAL_PHASE:
 					DeltaElectricalPhase deltaPhase = getDeltaElectricalPhase();
-					return new RegisterValue(getObisCode(), deltaPhase != null ? deltaPhase.toString() : "null");
+					return new RegisterValue(getDefaultObisCode(), deltaPhase != null ? deltaPhase.toString() : "null");
 				case MAX_RECEIVING_GAIN:
 					Unsigned8 gainTx = getMaxReceivingGain();
-					return new RegisterValue(getObisCode(), gainTx != null ? String.valueOf(gainTx.getValue()) : "null");
+					return new RegisterValue(getDefaultObisCode(), gainTx != null ? String.valueOf(gainTx.getValue()) : "null");
 				case MAX_TRANSMITTING_GAIN:
 					Unsigned8 gainRx = getMaxTransmittingGain();
-					return new RegisterValue(getObisCode(), gainRx != null ? String.valueOf(gainRx.getValue()) : "null");
+					return new RegisterValue(getDefaultObisCode(), gainRx != null ? String.valueOf(gainRx.getValue()) : "null");
 				case SEARCH_INITIATOR_GAIN:
 					Unsigned8 gainInitiator = getSearchInitiatorGain();
-					return new RegisterValue(getObisCode(), gainInitiator != null ? String.valueOf(gainInitiator.getValue()) : "null");
+					return new RegisterValue(getDefaultObisCode(), gainInitiator != null ? String.valueOf(gainInitiator.getValue()) : "null");
 				case FREQUENCIES:
 					Frequencies freq = getFrequencies();
-					return new RegisterValue(getObisCode(), freq != null ? freq.toString() : "null");
+					return new RegisterValue(getDefaultObisCode(), freq != null ? freq.toString() : "null");
 				case MAC_ADDRESS:
 					MacAddress mac = getMacAddress();
-					return new RegisterValue(getObisCode(), mac != null ? mac.toString() : "null");
+					return new RegisterValue(getDefaultObisCode(), mac != null ? mac.toString() : "null");
 				case MAC_GROUP_ADDRESSES:
 					MacAddressList groupMacs = getMacGroupAddresses();
-					return new RegisterValue(getObisCode(), groupMacs != null ? groupMacs.toString() : "null");
+					return new RegisterValue(getDefaultObisCode(), groupMacs != null ? groupMacs.toString() : "null");
 				case REPEATER:
 					Repeater rep = getRepeater();
-					return new RegisterValue(getObisCode(), rep != null ? rep.toString() : "null");
+					return new RegisterValue(getDefaultObisCode(), rep != null ? rep.toString() : "null");
 				case REPEATER_STATUS:
 					BooleanObject repStatus = getRepeaterStatus();
-					return new RegisterValue(getObisCode(), repStatus != null ? String.valueOf(repStatus.getState()) : "null");
+					return new RegisterValue(getDefaultObisCode(), repStatus != null ? String.valueOf(repStatus.getState()) : "null");
 				case MIN_DELTA_CREDIT:
 					Unsigned8 minDeltaCred = getMinDeltaCredit();
-					return new RegisterValue(getObisCode(), minDeltaCred != null ? String.valueOf(minDeltaCred.getValue()) : "null");
+					return new RegisterValue(getDefaultObisCode(), minDeltaCred != null ? String.valueOf(minDeltaCred.getValue()) : "null");
 				case INITIATOR_MAC_ADDRESS:
 					MacAddress initMac = getInitiatorMacAddress();
-					return new RegisterValue(getObisCode(), initMac != null ? initMac.toString() : "null");
+					return new RegisterValue(getDefaultObisCode(), initMac != null ? initMac.toString() : "null");
 				case SYNCHRONIZATION_LOCKED:
 					BooleanObject syncLocked = getSynchronizationLocked();
-					return new RegisterValue(getObisCode(), syncLocked != null ? String.valueOf(syncLocked.getState()) : "null");
+					return new RegisterValue(getDefaultObisCode(), syncLocked != null ? String.valueOf(syncLocked.getState()) : "null");
 				case ACTIVE_CHANNEL:
 					Unsigned8 channel = getActiveChannel();
-					return new RegisterValue(getObisCode(), channel != null ? String.valueOf(channel.getValue()) : "null");
+					return new RegisterValue(getDefaultObisCode(), channel != null ? String.valueOf(channel.getValue()) : "null");
 			}
 
 		}

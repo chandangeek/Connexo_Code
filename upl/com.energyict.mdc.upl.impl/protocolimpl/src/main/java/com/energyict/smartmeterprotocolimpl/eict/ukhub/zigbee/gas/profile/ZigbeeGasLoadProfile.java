@@ -240,7 +240,7 @@ public class ZigbeeGasLoadProfile {
      * @return true if the obisCode is not a {@link com.energyict.dlms.cosem.Clock} object nor a Status object
      */
     protected boolean isDataObisCode(ObisCode obisCode) {
-        return !(Clock.getObisCode().equals(obisCode) || obisCode.equalsIgnoreBChannel(ObisCodeProvider.GENERAL_LP_STATUS_OBISCODE));
+        return !(Clock.getDefaultObisCode().equals(obisCode) || obisCode.equalsIgnoreBChannel(ObisCodeProvider.GENERAL_LP_STATUS_OBISCODE));
     }
 
     /**

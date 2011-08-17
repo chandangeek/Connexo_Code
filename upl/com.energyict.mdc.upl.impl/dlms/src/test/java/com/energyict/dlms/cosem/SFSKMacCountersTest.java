@@ -32,12 +32,12 @@ public class SFSKMacCountersTest {
 	}
 
 	/**
-	 * Test method for {@link com.energyict.dlms.cosem.SFSKMacCounters#getObisCode()}.
+	 * Test method for {@link com.energyict.dlms.cosem.SFSKMacCounters#getDefaultObisCode()}.
 	 */
 	@Test
 	public final void testGetObisCode() {
-		assertNotNull(SFSKMacCounters.getObisCode());
-		assertEquals(ObisCode.fromString("0.0.26.3.0.255"), SFSKMacCounters.getObisCode());
+		assertNotNull(SFSKMacCounters.getDefaultObisCode());
+		assertEquals(ObisCode.fromString("0.0.26.3.0.255"), SFSKMacCounters.getDefaultObisCode());
 	}
 
 	/**

@@ -19,7 +19,7 @@ import com.energyict.protocol.RegisterValue;
  *
  * 					** States **
  * ------------------------------------------------
- * StateN°	|	StateName	|	State Description
+ * StateNï¿½	|	StateName	|	State Description
  * __________________________________________________________________________________________________________
  * 	0		| Disconnected	| The outputState is set to FALSE and the consumer is disconnected
  * 	1		| Connected		| The outputState is set to TRUE and the consumer is connected
@@ -240,10 +240,10 @@ public class Disconnector extends AbstractCosemObject implements RegisterReadabl
 	}
 
 	public RegisterValue asRegisterValue() {
-		return new RegisterValue(getObisCode(), super.toString());
+		return new RegisterValue(getDefaultObisCode(), super.toString());
 	}
 
-	public static ObisCode getObisCode() {
+	public static ObisCode getDefaultObisCode() {
 		return ObisCode.fromString("0.0.96.3.10.255");
 	}
 
@@ -253,21 +253,21 @@ public class Disconnector extends AbstractCosemObject implements RegisterReadabl
 			switch (attribute) {
 				case LOGICAL_NAME:
 					OctetString ln = getLogicalName();
-					return new RegisterValue(getObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
+					return new RegisterValue(getDefaultObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
 				case OUTPUT_STATE:
                     BooleanObject output = null;
                     try {
                         output = readOutputState();
-					return new RegisterValue(getObisCode(), output != null ? String.valueOf(output.getState()) : "null");
+					return new RegisterValue(getDefaultObisCode(), output != null ? String.valueOf(output.getState()) : "null");
                     } catch (InvalidBooleanStateException e) {
-                        return new RegisterValue(getObisCode(), output != null ? String.valueOf(output.getState()) : "Unknown state");
+                        return new RegisterValue(getDefaultObisCode(), output != null ? String.valueOf(output.getState()) : "Unknown state");
                     }
 				case CONTROL_STATE:
 					TypeEnum ctrlStat = readControlState();
-					return new RegisterValue(getObisCode(), ctrlStat != null ? String.valueOf(ctrlStat.getValue()) : "null");
+					return new RegisterValue(getDefaultObisCode(), ctrlStat != null ? String.valueOf(ctrlStat.getValue()) : "null");
 				case CONTROL_MODE:
 					TypeEnum ctrlMode = readControlMode();
-					return new RegisterValue(getObisCode(), ctrlMode != null ? String.valueOf(ctrlMode.getValue()) : "null");
+					return new RegisterValue(getDefaultObisCode(), ctrlMode != null ? String.valueOf(ctrlMode.getValue()) : "null");
 			}
 		}
 		return null;

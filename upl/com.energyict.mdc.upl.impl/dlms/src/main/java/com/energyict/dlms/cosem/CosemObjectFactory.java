@@ -8,7 +8,6 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.dlms.cosem.attributes.ZigBeeSASStartupAttribute;
 import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
@@ -253,7 +252,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 	}
 
 	public SFSKPhyMacSetup getSFSKPhyMacSetup() throws IOException {
-		return getSFSKPhyMacSetup(SFSKPhyMacSetup.getObisCode());
+		return getSFSKPhyMacSetup(SFSKPhyMacSetup.getDefaultObisCode());
 	}
 
 	public SFSKPhyMacSetup getSFSKPhyMacSetup(ObisCode obisCode) throws IOException {
@@ -268,7 +267,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 	}
 
 	public SFSKMacCounters getSFSKMacCounters() throws IOException {
-		return getSFSKMacCounters(SFSKMacCounters.getObisCode());
+		return getSFSKMacCounters(SFSKMacCounters.getDefaultObisCode());
 	}
 
 	public SFSKMacCounters getSFSKMacCounters(ObisCode obisCode) throws IOException {
@@ -276,7 +275,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 	}
 
 	public SFSKIec61334LLCSetup getSFSKIec61334LLCSetup() throws IOException {
-		return getSFSKIec61334LLCSetup(SFSKIec61334LLCSetup.getObisCode());
+		return getSFSKIec61334LLCSetup(SFSKIec61334LLCSetup.getDefaultObisCode());
 	}
 
 	public SFSKIec61334LLCSetup getSFSKIec61334LLCSetup(ObisCode obisCode) throws IOException {
@@ -284,7 +283,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 	}
 
 	public SFSKActiveInitiator getSFSKActiveInitiator() throws IOException {
-		return getSFSKActiveInitiator(SFSKActiveInitiator.getObisCode());
+		return getSFSKActiveInitiator(SFSKActiveInitiator.getDefaultObisCode());
 	}
 
 	public SFSKActiveInitiator getSFSKActiveInitiator(ObisCode obisCode) throws IOException {
@@ -292,7 +291,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 	}
 
 	public SFSKSyncTimeouts getSFSKSyncTimeouts() throws IOException {
-		return getSFSKSyncTimeouts(SFSKSyncTimeouts.getObisCode());
+		return getSFSKSyncTimeouts(SFSKSyncTimeouts.getDefaultObisCode());
 	}
 
 	public SFSKSyncTimeouts getSFSKSyncTimeouts(ObisCode obisCode) throws IOException {
@@ -300,7 +299,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 	}
 
 	public MBusSlavePortSetup getMBusSlavePortSetup() throws IOException {
-		return getMBusSlavePortSetup(MBusSlavePortSetup.getObisCode());
+		return getMBusSlavePortSetup(MBusSlavePortSetup.getDefaultObisCode());
 	}
 
 	public MBusSlavePortSetup getMBusSlavePortSetup(ObisCode obisCode) throws IOException {

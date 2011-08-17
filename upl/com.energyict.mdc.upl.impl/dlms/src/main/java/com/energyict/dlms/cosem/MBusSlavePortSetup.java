@@ -12,7 +12,7 @@ import com.energyict.protocol.RegisterValue;
 
 /**
  * This {@link AbstractCosemObject} with class_id 25 allows to model and
- * configure communication channels according to EN13757-2 “M-Bus” Several
+ * configure communication channels according to EN13757-2 ï¿½M-Busï¿½ Several
  * communication channels can be configured.
  *
  * @author jme
@@ -47,7 +47,7 @@ public class MBusSlavePortSetup extends AbstractCosemObject implements RegisterR
 	 * Get the default {@link ObisCode} of the object
 	 * @return
 	 */
-	public static ObisCode getObisCode() {
+	public static ObisCode getDefaultObisCode() {
 		return ObisCode.fromByteArray(LN);
 	}
 
@@ -57,7 +57,7 @@ public class MBusSlavePortSetup extends AbstractCosemObject implements RegisterR
 	}
 
 	/**
-	 * Identifies the “M-Bus Port setup object instance.
+	 * Identifies the ï¿½M-Bus Port setup object instance.
 	 *
 	 * @return the logical name as {@link OctetString}
 	 */
@@ -138,7 +138,7 @@ public class MBusSlavePortSetup extends AbstractCosemObject implements RegisterR
 	}
 
 	public RegisterValue asRegisterValue() {
-		return new RegisterValue(getObisCode(), toString());
+		return new RegisterValue(getDefaultObisCode(), toString());
 	}
 
 	public RegisterValue asRegisterValue(int attributeNumber) {

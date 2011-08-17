@@ -31,7 +31,7 @@ public class AssociationSN extends AbstractCosemObject {
 	 * @param protocolLink
 	 */
 	public AssociationSN(ProtocolLink protocolLink) {
-		super(protocolLink, new ObjectReference(getObisCode().getLN()));
+		super(protocolLink, new ObjectReference(getDefaultObisCode().getLN()));
 	}
 
 	/**
@@ -53,7 +53,7 @@ public class AssociationSN extends AbstractCosemObject {
 	 *
 	 * @return the logicalName ({@link ObisCode}) of this object
 	 */
-	public static ObisCode getObisCode() {
+	public static ObisCode getDefaultObisCode() {
 		return OBISCODE;
 	}
 

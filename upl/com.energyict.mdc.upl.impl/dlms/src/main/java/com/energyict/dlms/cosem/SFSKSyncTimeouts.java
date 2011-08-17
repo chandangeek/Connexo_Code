@@ -18,7 +18,7 @@ public class SFSKSyncTimeouts extends AbstractCosemObject implements RegisterRea
 
 	private static final byte[]	LN	= ObisCode.fromString("0.0.26.2.0.255").getLN();
 
-	public static ObisCode getObisCode() {
+	public static ObisCode getDefaultObisCode() {
 		return ObisCode.fromByteArray(LN);
 	}
 
@@ -110,7 +110,7 @@ public class SFSKSyncTimeouts extends AbstractCosemObject implements RegisterRea
 	}
 
 	public RegisterValue asRegisterValue() {
-		return new RegisterValue(getObisCode(), toString());
+		return new RegisterValue(getDefaultObisCode(), toString());
 	}
 
 	public RegisterValue asRegisterValue(int attributeNumber) {
@@ -119,19 +119,19 @@ public class SFSKSyncTimeouts extends AbstractCosemObject implements RegisterRea
 			switch (attribute) {
 				case LOGICAL_NAME:
 					OctetString ln = getLogicalName();
-					return new RegisterValue(getObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
+					return new RegisterValue(getDefaultObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
 				case SEARCH_INITIATOR_TIMEOUT:
 					Unsigned16 search = getSearchInitiatorTimeout();
-					return new RegisterValue(getObisCode(), search != null ? String.valueOf(search.getValue()) : "null");
+					return new RegisterValue(getDefaultObisCode(), search != null ? String.valueOf(search.getValue()) : "null");
 				case SYNCHRONIZATION_CONFIRMATION_TIMEOUT:
 					Unsigned16 confirmTimeout = getSyncConfirmTimeout();
-					return new RegisterValue(getObisCode(), confirmTimeout != null ? String.valueOf(confirmTimeout.getValue()) : "null");
+					return new RegisterValue(getDefaultObisCode(), confirmTimeout != null ? String.valueOf(confirmTimeout.getValue()) : "null");
 				case TIME_OUT_NOT_ADDRESSED:
 					Unsigned16 notAddressed = getTimeoutNotAddressed();
-					return new RegisterValue(getObisCode(), notAddressed != null ? String.valueOf(notAddressed.getValue()) : "null");
+					return new RegisterValue(getDefaultObisCode(), notAddressed != null ? String.valueOf(notAddressed.getValue()) : "null");
 				case TIME_OUT_FRAME_NOT_OK:
 					Unsigned16 frameNOK = getTimeoutFrameNotOk();
-					return new RegisterValue(getObisCode(), frameNOK != null ? String.valueOf(frameNOK.getValue()) : "null");
+					return new RegisterValue(getDefaultObisCode(), frameNOK != null ? String.valueOf(frameNOK.getValue()) : "null");
 			}
 		}
 		return null;

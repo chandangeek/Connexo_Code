@@ -85,7 +85,7 @@ public class AssociationLN extends AbstractCosemObject {
     }
 
     /** Return the logicalName (obiscode) of this object */
-    public static ObisCode getObisCode(){
+    public static ObisCode getDefaultObisCode(){
     	return ObisCode.fromByteArray(LN);
     }
 

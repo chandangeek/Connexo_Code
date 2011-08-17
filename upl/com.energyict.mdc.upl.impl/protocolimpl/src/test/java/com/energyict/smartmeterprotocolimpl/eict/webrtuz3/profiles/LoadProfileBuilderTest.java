@@ -32,7 +32,7 @@ public class LoadProfileBuilderTest {
         assertNotNull(lpb.isDataObisCode(ObisCode.fromString("1.0.1.8.0.255"), "MasterSerialNumber"));
         assertTrue(lpb.isDataObisCode(ObisCode.fromString("1.0.1.8.0.255"), "MasterSerialNumber"));
         assertFalse(lpb.isDataObisCode(ObisCode.fromString("1.0.1.8.0.255"), "SomeOtherSerialNumber"));
-        assertFalse(lpb.isDataObisCode(Clock.getObisCode(), "MasterSerialNumber"));
+        assertFalse(lpb.isDataObisCode(Clock.getDefaultObisCode(), "MasterSerialNumber"));
         assertFalse(lpb.isDataObisCode(LoadProfileBuilder.MbusMeterStatusObisCode, "MasterSerialNumber"));
         assertFalse(lpb.isDataObisCode(LoadProfileBuilder.EmeterStatusObisCode, "MasterSerialNumber"));
         assertFalse(lpb.isDataObisCode(LoadProfileBuilder.MbusMeterStatusObisCode, "SomeOtherSerialNumber"));

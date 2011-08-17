@@ -23,7 +23,7 @@ public class SFSKActiveInitiator extends AbstractCosemObject implements Register
 	/** Method numbers */
 	private static final int	ATTRB_RESET_NEW_NOT_SYNC	= 0x10;
 
-	public static ObisCode getObisCode() {
+	public static ObisCode getDefaultObisCode() {
 		return ObisCode.fromByteArray(LN);
 	}
 
@@ -73,7 +73,7 @@ public class SFSKActiveInitiator extends AbstractCosemObject implements Register
 	}
 
 	public RegisterValue asRegisterValue() {
-		return new RegisterValue(getObisCode(), toString());
+		return new RegisterValue(getDefaultObisCode(), toString());
 	}
 
 	public RegisterValue asRegisterValue(int attributeNumber) {
@@ -82,10 +82,10 @@ public class SFSKActiveInitiator extends AbstractCosemObject implements Register
 			switch (attribute) {
 				case LOGICAL_NAME:
 					OctetString ln = getLogicalName();
-					return new RegisterValue(getObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
+					return new RegisterValue(getDefaultObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
 				case INITIATOR_ELECTRICAL_PHASE:
 					InitiatorDescriptor initiator = getActiveInitiator();
-					return new RegisterValue(getObisCode(), initiator != null ? initiator.toString() : "null");
+					return new RegisterValue(getDefaultObisCode(), initiator != null ? initiator.toString() : "null");
 			}
 		}
 		return null;

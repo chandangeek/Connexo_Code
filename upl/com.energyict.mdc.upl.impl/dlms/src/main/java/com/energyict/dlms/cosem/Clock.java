@@ -55,12 +55,12 @@ public class Clock extends AbstractCosemObject {
         super(protocolLink,objectReference);
     }
 
-    public static ObisCode getObisCode() {
+    public static ObisCode getDefaultObisCode() {
 		return ObisCode.fromByteArray(LN) ;
 	}
 
     public static boolean isClockObisCode(ObisCode obisCode) {
-        return getObisCode().equals(obisCode);
+        return getDefaultObisCode().equals(obisCode);
     }
 
     public void setDateTime(OctetString octetString) throws IOException {

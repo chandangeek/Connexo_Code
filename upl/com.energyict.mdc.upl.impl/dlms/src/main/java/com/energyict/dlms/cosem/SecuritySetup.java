@@ -34,7 +34,7 @@ public class SecuritySetup extends AbstractCosemObject{
 		super(protocolLink, new ObjectReference(LN));
 	}
 
-	public static ObisCode getObisCode() {
+	public static ObisCode getDefaultObisCode() {
 		return ObisCode.fromByteArray(LN) ;
 	}
 
