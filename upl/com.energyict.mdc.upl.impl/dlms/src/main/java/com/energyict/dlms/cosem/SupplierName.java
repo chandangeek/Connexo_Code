@@ -3,7 +3,7 @@ package com.energyict.dlms.cosem;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.attributes.SupplierNameAttributes;
 import com.energyict.dlms.cosem.methods.SupplierNameMethods;
 
@@ -68,7 +68,7 @@ public class SupplierName extends AbstractCosemObject {
 
     /**
      * Write the value to the device. <b>Note:</b> it may not be allowed to set it directly, you can try it
-     * with the {@link #writePassiveValue(com.energyict.dlms.axrdencoding.OctetString)} and {@link #writeActivationDate(com.energyict.dlms.axrdencoding.DateTime)}
+     * with the {@link #writePassiveValue(com.energyict.dlms.axrdencoding.OctetString)} and {@link #writeActivationDate(com.energyict.dlms.axrdencoding.util.DateTime)}
      *
      * @param value the value to write
      * @throws java.io.IOException if for some reason you could not write the attribute
@@ -105,7 +105,7 @@ public class SupplierName extends AbstractCosemObject {
 
     /**
      * Write the ScalerUnit to the device. <b>Note:</b> it may not be allowed to set it directly, you can try it
-     * with the {@link #writePassiveScalerUnit(com.energyict.dlms.ScalerUnit)} and {@link #writeActivationDate(com.energyict.dlms.axrdencoding.DateTime)}
+     * with the {@link #writePassiveScalerUnit(com.energyict.dlms.ScalerUnit)} and {@link #writeActivationDate(com.energyict.dlms.axrdencoding.util.DateTime)}
      *
      * @param scalerUnit the ScalerUnit to write
      * @throws java.io.IOException if for some reason you could not write the attribute
@@ -193,7 +193,7 @@ public class SupplierName extends AbstractCosemObject {
      * @throws java.io.IOException if for some reason you could not read the attribute
      */
     public DateTime readActivationDate() throws IOException {
-        this.activationDate = new DateTime(getResponseData(SupplierNameAttributes.ACTIVATION_TIME), 0);
+        this.activationDate = new DateTime(getResponseData(SupplierNameAttributes.ACTIVATION_TIME));
         return this.activationDate;
     }
 
