@@ -11,6 +11,7 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
 import com.energyict.dlms.cosem.methods.DLMSClassMethods;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.apache.commons.logging.LogFactory;
@@ -1834,4 +1835,9 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
     public ProtocolLink getProtocolLink() {
         return protocolLink;
     }
+
+    public ObisCode getObisCode() {
+        return getObjectReference() != null ? getObjectReference().getObisCode() : null;
+    }
+
 }

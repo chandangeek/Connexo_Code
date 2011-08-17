@@ -8,6 +8,7 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.dlms.cosem.attributes.ZigBeeSASStartupAttribute;
 import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
@@ -346,6 +347,14 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 
     public ZigBeeSETCControl getZigBeeSETCControl() throws IOException {
         return new ZigBeeSETCControl(protocolLink);
+    }
+
+    public ZigBeeSASStartup getZigBeeSASStartup() throws IOException {
+        return new ZigBeeSASStartup(protocolLink);
+    }
+
+    public ZigBeeSASStartup getZigBeeSASStartup(ObisCode obisCode) throws IOException {
+        return new ZigBeeSASStartup(protocolLink, getObjectReference(obisCode));
     }
 
     public CosemObject getCosemObject(ObisCode obisCode) throws IOException {

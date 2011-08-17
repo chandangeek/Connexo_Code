@@ -54,10 +54,6 @@ public class AutoConnect extends AbstractCosemObject {
 		super(protocolLink, objectReference);
 	}
 
-	public ObisCode getObisCode(){
-		return ObisCode.fromByteArray(LN);
-	}
-
 	protected int getClassId() {
 		return DLMSClassId.AUTO_CONNECT.getClassId();
 	}
@@ -108,7 +104,7 @@ public class AutoConnect extends AbstractCosemObject {
 	 * (0)  no auto dialling,
 	 * (1)  auto dialling allowed anytime,
 	 * (2)  auto dialling allowed within the validity time of the calling window,
-	 * (3)  “regular” auto dialling allowed within the validity time of the calling window; “alarm” initiated auto dialling allowed anytime,
+	 * (3)  ï¿½regularï¿½ auto dialling allowed within the validity time of the calling window; ï¿½alarmï¿½ initiated auto dialling allowed anytime,
 	 * (4)  SMS sending via Public Land Mobile Network (PLMN),
 	 * (5)  SMS sending via PSTN,
 	 * (6)  email  sending,

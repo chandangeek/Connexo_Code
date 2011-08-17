@@ -1,5 +1,7 @@
 package com.energyict.dlms.cosem;
 
+import com.energyict.obis.ObisCode;
+
 /**
  * 
  * @author Koen
@@ -98,6 +100,13 @@ public class ObjectReference {
 	public int getClassId() {
 		return classId;
 	}
+
+    public ObisCode getObisCode() {
+        if ((getLn() != null) && (getLn().length == 6)) {
+            return ObisCode.fromByteArray(getLn());
+        }
+        return null;
+    }
 
 	public String toString() {
 		StringBuffer sb = new StringBuffer();

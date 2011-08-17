@@ -647,14 +647,20 @@ public class MessageHandler extends DefaultHandler{
         }
     }
 
+    private String changeHanSasExtendedPanId = "";
     private String changeHanSasPanId = "";
     private String changeHanSasChannel = "";
     private String changeHanSasInsecureJoin = "";
 
     private void handleChangeHanSas(Attributes attrbs) {
+        this.changeHanSasExtendedPanId = attrbs.getValue(RtuMessageConstant.HAN_SAS_EXTENDED_PAN_ID);
         this.changeHanSasPanId = attrbs.getValue(RtuMessageConstant.HAN_SAS_PAN_ID);
         this.changeHanSasChannel = attrbs.getValue(RtuMessageConstant.HAN_SAS_CHANNEL);
         this.changeHanSasInsecureJoin = attrbs.getValue(RtuMessageConstant.HAN_SAS_INSECURE_JOIN);
+    }
+
+    public String getChangeHanSasExtendedPanId() {
+        return changeHanSasExtendedPanId;
     }
 
     public String getChangeHanSasPanId() {

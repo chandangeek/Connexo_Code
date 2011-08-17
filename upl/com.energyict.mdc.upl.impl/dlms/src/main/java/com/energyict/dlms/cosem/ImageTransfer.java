@@ -80,13 +80,6 @@ public class ImageTransfer extends AbstractCosemObject{
 	}
 
 	/**
-	 * @return the obisCode from the ImageTransferObject
-	 */
-	public ObisCode getObisCode() {
-		return ObisCode.fromByteArray(getObjectReference().getLn()) ;
-	}
-
-	/**
 	 * @return the classId of the ImageTransfer object, should always be 18
 	 */
 	protected int getClassId() {

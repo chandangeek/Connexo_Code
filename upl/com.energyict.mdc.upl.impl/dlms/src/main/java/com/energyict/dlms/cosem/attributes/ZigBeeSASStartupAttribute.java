@@ -13,20 +13,20 @@ import com.energyict.dlms.cosem.DLMSClassId;
  * Date: 8-aug-2011
  * Time: 13:26:17
  */
-public enum ZigBeeSASStartup {
+public enum ZigBeeSASStartupAttribute implements DLMSClassAttributes {
 
-    LOGICAL_NAMTE(1, 0x00),
+    LOGICAL_NAME(1, 0x00),
     SHORT_ADDRESS(2, 0x08),
     EXTENDED_PAN_ID(3, 0x10),
     PAN_ID(4, 0x18),
     CHANNEL_MASK(5, 0x20),
     PROTOCOL_VERSION(6, 0x28),
     STACK_PROFILE(7, 0x30),
-    START_UP_ONTROL(8, 0x38),
+    START_UP_CONTROL(8, 0x38),
     TRUST_CENTER_ADDRESS(9, 0x40),
     LINK_KEY(10, 0x48),
     NETWORK_KEY(11, 0x50),
-    USE_INSECURE_JOIN(12, 0x58),;
+    USE_INSECURE_JOIN(12, 0x58);
 
     /**
      * The number of this attribute
@@ -37,7 +37,7 @@ public enum ZigBeeSASStartup {
      */
     private final int shortName;
 
-    ZigBeeSASStartup(final int attributeNumber, final int shortName) {
+    ZigBeeSASStartupAttribute(final int attributeNumber, final int shortName) {
         this.attributeNumber = attributeNumber;
         this.shortName = shortName;
     }
@@ -51,6 +51,11 @@ public enum ZigBeeSASStartup {
         return this.attributeNumber;
     }
 
+    /**
+     * Getter for the DLMS class id
+     *
+     * @return The dlms class Id
+     */
     public DLMSClassId getDlmsClassId() {
         return DLMSClassId.ZIGBEE_SAS_STARTUP;
     }

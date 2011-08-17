@@ -1,8 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributeobjects.RegisterZigbeeDeviceData;
 import com.energyict.dlms.cosem.attributeobjects.ZigBeeIEEEAddress;
@@ -22,6 +21,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.TimeZone;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.energyict.protocolimpl.utils.ProtocolTools.getBytesFromHexString;
 
@@ -109,14 +109,55 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
 
     private void changeHanSAS(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Sending message : Change Zigbee HAN SAS");
+        String extendedPanId = messageHandler.getChangeHanSasExtendedPanId();
         String panId = messageHandler.getChangeHanSasPanId();
-        String channel = messageHandler.getChangeHanSasPanId();
-
+        String channelMask = messageHandler.getChangeHanSasPanId();
         String insecureJoin = messageHandler.getChangeHanSasInsecureJoin();
 
         // TODO: Implement this method. DLMS objects not implemented yet as well, so we'll have to do that first.
 
-        throw new IOException("Not implemented yet!");
+        ZigBeeSASStartup zigBeeSASStartup = getCosemObjectFactory().getZigBeeSASStartup();
+
+        // Write the EXTENDED PAN ID
+        if (extendedPanId != null) {
+            getLogger().info("Writing extended pan id [" + extendedPanId + "]");
+            byte[] extendedPanIdValue = ProtocolTools.getBytesFromHexString(extendedPanId, "");
+            OctetString extendedPanIdObject = new OctetString(extendedPanIdValue, true);
+            zigBeeSASStartup.writeExtendedPanId(extendedPanIdObject);
+        }
+
+        // Write the PAN ID
+        if (panId != null) {
+            getLogger().info("Writing pan id [" + panId + "]");
+            try {
+                int panIdValue = Integer.valueOf(panId);
+                Unsigned16 panIdObject = new Unsigned16(panIdValue);
+                zigBeeSASStartup.writePanId(panIdObject);
+            } catch (NumberFormatException e) {
+                getLogger().severe("Unable to write pan id [" + panId + "]! Invalid value: " + e.getMessage());
+            }
+        }
+
+        // Write the channel mask
+        if (channelMask != null) {
+            getLogger().info("Writing channel mask [" + channelMask + "]");
+            try {
+                long channelMaskValue = Long.valueOf(channelMask);
+                Unsigned32 channelMaskObject = new Unsigned32(channelMaskValue);
+                zigBeeSASStartup.writeChannelMask(channelMaskObject);
+            } catch (NumberFormatException e) {
+                getLogger().severe("Unable to write channel mask [" + channelMask + "]! Invalid value: " + e.getMessage());
+            }
+        }
+
+        // Write the use insecure join attribute
+        if (insecureJoin != null) {
+            getLogger().info("Writing insecure join [" + insecureJoin + "]");
+            boolean insecureJoinValue = ProtocolTools.getBooleanFromString(insecureJoin);
+            BooleanObject insecureJoinObject = new BooleanObject(insecureJoinValue);
+            zigBeeSASStartup.writeUseInsecureJoin(insecureJoinObject);
+        }
+
     }
 
     private void restoreZigBeeHanParameters(final MessageHandler messageHandler) throws IOException {
@@ -187,7 +228,11 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
     }
 
     private void log(final Level level, final String msg) {
-        getDlmsSession().getLogger().log(level, msg);
+        getLogger().log(level, msg);
+    }
+
+    private Logger getLogger() {
+        return getDlmsSession().getLogger();
     }
 
     @Override
