@@ -62,7 +62,7 @@ public class UtilitiesTest {
     @Test
     public void createCommunicationProtocolTest() throws BusinessException, SQLException {
         try {
-            Utilities.createCommunicationProtocol(javaClassName);
+            Utilities.findOrcreateCommunicationProtocol(javaClassName);
         } catch (BusinessException e) {
             //absorb
         } catch (SQLException e) {
@@ -76,7 +76,7 @@ public class UtilitiesTest {
 
     @Test
     public void createRtuTypeTest() throws BusinessException, SQLException {
-        CommunicationProtocol commProtocol = Utilities.createCommunicationProtocol(javaClassName);
+        CommunicationProtocol commProtocol = Utilities.findOrcreateCommunicationProtocol(javaClassName);
 
         Utilities.createRtuType(commProtocol, testRtu, 6);
         List<RtuType> result = Utilities.mw().getRtuTypeFactory().findByName(testRtu);
@@ -99,7 +99,7 @@ public class UtilitiesTest {
             }
         }
         if (commProtocol == null) {
-            commProtocol = Utilities.createCommunicationProtocol(javaClassName);
+            commProtocol = Utilities.findOrcreateCommunicationProtocol(javaClassName);
         }
         rtuType = Utilities.createRtuType(commProtocol, testRtu, 6);
 
@@ -116,7 +116,7 @@ public class UtilitiesTest {
         CommunicationProtocol commProtocol;
         RtuType rtuType;
         Rtu rtu = null;
-        commProtocol = Utilities.createCommunicationProtocol(javaClassName);
+        commProtocol = Utilities.findOrcreateCommunicationProtocol(javaClassName);
         rtuType = Utilities.createRtuType(commProtocol, testRtu, 6);
 
         Utilities.createRtu(rtuType);

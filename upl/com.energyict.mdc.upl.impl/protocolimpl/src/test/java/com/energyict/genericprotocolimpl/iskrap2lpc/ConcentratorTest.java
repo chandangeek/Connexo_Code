@@ -95,7 +95,7 @@ public class ConcentratorTest{
 			}
 		}
 		if(commProtMeter == null) {
-			commProtMeter = Utilities.createCommunicationProtocol(jcnIskraMeter);
+			commProtMeter = Utilities.findOrcreateCommunicationProtocol(jcnIskraMeter);
 		}
 		
 		// find out if there is an rtuType defined with this testName, if not, create it
@@ -637,7 +637,7 @@ public class ConcentratorTest{
 				}
 			}
 			if(commProtMeter == null) {
-				commProtMeter = Utilities.createCommunicationProtocol(jcnMbusMeter);
+				commProtMeter = Utilities.findOrcreateCommunicationProtocol(jcnMbusMeter);
 			}
 			
 			// find out if there is an rtuType defined with this testName, if not, create it

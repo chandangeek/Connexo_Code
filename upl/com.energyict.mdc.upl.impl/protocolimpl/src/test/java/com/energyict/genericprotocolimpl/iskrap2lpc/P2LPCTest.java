@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -82,7 +81,7 @@ public class P2LPCTest {
             }
         }
         if (commProtMeter == null) {
-            commProtMeter = Utilities.createCommunicationProtocol(jcnIskraMeter);
+            commProtMeter = Utilities.findOrcreateCommunicationProtocol(jcnIskraMeter);
         }
 
         // find out if there is an rtuType defined with this testName, if not, create it
@@ -442,7 +441,7 @@ public class P2LPCTest {
             }
         }
         if (commProtMeter == null) {
-            commProtMeter = Utilities.createCommunicationProtocol(jcnConcentrator);
+            commProtMeter = Utilities.findOrcreateCommunicationProtocol(jcnConcentrator);
         }
 
         // find out if there is an rtuType defined with this testName, if not, create it

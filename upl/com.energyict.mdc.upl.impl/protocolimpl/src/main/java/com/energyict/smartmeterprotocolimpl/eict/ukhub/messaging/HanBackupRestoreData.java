@@ -88,6 +88,7 @@ public class HanBackupRestoreData extends Array {
             restoreBackups.addDataType(rStruct);
         }
 
+        restoreData.addDataType(restoreBackups);
         return restoreData;
     }
 }

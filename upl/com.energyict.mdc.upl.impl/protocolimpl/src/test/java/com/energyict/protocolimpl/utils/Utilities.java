@@ -79,7 +79,11 @@ public class Utilities {
      * @throws BusinessException
      * @throws SQLException
      */
-    public static CommunicationProtocol createCommunicationProtocol(String javaClassName) throws BusinessException, SQLException {
+    public static CommunicationProtocol findOrcreateCommunicationProtocol(String javaClassName) throws BusinessException, SQLException {
+        List<CommunicationProtocol> comProtocols = mw().getCommunicationProtocolFactory().findByName(javaClassName);
+        if(comProtocols.size() >= 1) {
+            return comProtocols.get(0);
+        }
         CommunicationProtocolShadow commProtShadow = new CommunicationProtocolShadow();
         commProtShadow.setJavaClassName(javaClassName);
         commProtShadow.setName(javaClassName);
