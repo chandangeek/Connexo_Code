@@ -193,19 +193,22 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         ZigbeeHanManagement hanManagement = getCosemObjectFactory().getZigbeeHanManagement();
         hanManagement.backup();
 
-//        boolean backedUp = false;
-//        while(!backedUp){
-//            try {
-//                Thread.sleep(1000);
-//                Long eventValue = getCosemObjectFactory().getData(ObisCodeProvider.HanManagementEventObject).getValue();
-//                if(eventValue == 0x0126) {    //Should be event 'HAN Backup Performed'
-//                    backedUp = true;
-//                }
-//            } catch (InterruptedException e) {
-//                log(Level.SEVERE, "Interrupted while sleeping : " + e.getMessage());
-//                throw new BusinessException(e);
-//            }
-//        }
+        boolean backedUp = false;
+        int counter = 0;
+        while(!backedUp){
+            try {
+                Thread.sleep(1000);
+                Long eventValue = getCosemObjectFactory().getData(ObisCodeProvider.HanManagementEventObject).getValue();
+                if(eventValue == 0x0126) {    //Should be event 'HAN Backup Performed'
+                    backedUp = true;
+                } else if(counter++ >= 30){
+                    throw new IOException("ZigBee backup probably failed, takes to long (30s) before 'HAN Backup Performed'-event is written.");
+                }
+            } catch (InterruptedException e) {
+                log(Level.SEVERE, "Interrupted while sleeping : " + e.getMessage());
+                throw new BusinessException(e);
+            }
+        }
 
         // TODO this requires dataBase access, the message will not succeed in an HTTP ComServer environment
         Structure backUpData = hanManagement.readBackupData();
