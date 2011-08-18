@@ -4,6 +4,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributes.ZigbeeHanManagementAttributes;
 import com.energyict.dlms.cosem.methods.ZigbeeHanManagementMethods;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 
@@ -118,7 +119,9 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      * @throws IOException if for some reason we could not read the attribute
      */
     public Structure readBackupData() throws IOException {
-        this.backupData = new Structure(getResponseData(ZigbeeHanManagementAttributes.BACKUP_DATA), 0, 0);
+        byte[] responseData = getResponseData(ZigbeeHanManagementAttributes.BACKUP_DATA);
+        System.out.println(ProtocolTools.getHexStringFromBytes(responseData));
+        this.backupData = new Structure(responseData, 0, 0);
         return this.backupData;
     }
 

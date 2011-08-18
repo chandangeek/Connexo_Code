@@ -19,7 +19,7 @@ import java.util.*;
  * Date: 29-jun-2011
  * Time: 11:32:30
  */
-public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, TimeOfUseMessaging {
+public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, TimeOfUseMessaging, FirmwareUpdateMessaging {
 
     private AS300Properties properties;
     private AS300ObjectFactory objectFactory;
@@ -192,4 +192,11 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
         return getMessageProtocol().getTimeOfUseMessagingConfig();
     }
 
+    public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
+        return getMessageProtocol().getFirmwareUpdateMessagingConfig();
+    }
+
+    public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
+        return getMessageProtocol().getFirmwareUpdateMessageBuilder();
+    }
 }

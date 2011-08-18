@@ -49,7 +49,7 @@ public class ProfileDataReader {
 		
 		// parse the AXD-R returned data...
 		Calendar calendar = Calendar.getInstance(as253.getTimeZone()); 
-		Array array = adt.getArray();
+		Array<AbstractDataType> array = adt.getArray();
 		for (AbstractDataType arrayElement : array.getAllDataTypes()) {
 			
 			Structure structure = arrayElement.getStructure();
@@ -111,7 +111,7 @@ public class ProfileDataReader {
 
 		AbstractDataType adt = as253.getTransparantObjectAccessFactory().readObjectAttributeRange(AS1253.LOG_PROFILE, TransparantObjectAccessFactory.ATTRIBUTE_VALUE,lastReading);
 		//System.out.println("KV_DEBUG> "+adt);
-		Array array = adt.getArray();
+		Array<AbstractDataType> array = adt.getArray();
 		for (AbstractDataType arrayElement : array.getAllDataTypes()) {
 			DateTime dateTime = new DateTime(arrayElement.getStructure().getDataType(0).getOctetString(), as253.getTimeZone());
 			Date date = dateTime.getValue().getTime();

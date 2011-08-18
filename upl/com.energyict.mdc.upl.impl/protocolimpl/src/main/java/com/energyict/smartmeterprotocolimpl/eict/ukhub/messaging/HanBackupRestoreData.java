@@ -78,16 +78,16 @@ public class HanBackupRestoreData extends Array {
         Structure restoreData = new Structure();
         restoreData.addDataType(data.getDataType(0));
 
-        Array deviceBackups = (Array) data.getDataType(1);
-        Array restoreBackups = new Array();
+        Array<Structure> deviceBackups = (Array<Structure>) data.getDataType(1);
+        Array<Structure> restoreBackups = new Array<Structure>();
 
-        for(AbstractDataType struct : deviceBackups.getAllDataTypes()){
+        for (Structure struct : deviceBackups.getAllDataTypes()) {
             Structure rStruct = new Structure();
-            rStruct.addDataType(((Structure)struct).getNextDataType());
-            rStruct.addDataType(((Structure)struct).getNextDataType());
+            rStruct.addDataType(struct.getNextDataType());
+            rStruct.addDataType(struct.getNextDataType());
             restoreBackups.addDataType(rStruct);
         }
-
+        
         restoreData.addDataType(restoreBackups);
         return restoreData;
     }

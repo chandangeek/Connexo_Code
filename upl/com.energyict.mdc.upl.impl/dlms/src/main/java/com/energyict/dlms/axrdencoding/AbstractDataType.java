@@ -27,8 +27,8 @@ abstract public class AbstractDataType implements Field {
 	public abstract BigDecimal toBigDecimal();
 	public abstract long longValue();
 
-	public Array getArray() {
-		return isArray() ? (Array) this : null;
+	public Array<AbstractDataType> getArray() {
+		return isArray() ? (Array<AbstractDataType>) this : null;
 	}
 
 	public byte[] getBEREncodedByteArray() {

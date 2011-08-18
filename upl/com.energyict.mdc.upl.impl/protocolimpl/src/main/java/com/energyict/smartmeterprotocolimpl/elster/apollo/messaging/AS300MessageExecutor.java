@@ -6,6 +6,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.xmlparsing.GenericDataToWrite;
 import com.energyict.dlms.xmlparsing.XmlToDlms;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
@@ -16,6 +17,7 @@ import com.energyict.mdw.core.RtuMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
@@ -24,11 +26,13 @@ import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
 import org.xml.sax.SAXException;
+import sun.misc.BASE64Decoder;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -66,7 +70,9 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         success = true;
 
         try {
-            if (isTimeOfUseMessage(content)) {
+            if (isFirmwareUpdateMessage(content)) {
+                updateFirmware(content);
+            } else if (isTimeOfUseMessage(content)) {
                 updateTimeOfUse(content);
             } else if (isUpdatePricingInformationMessage(content)) {
                 updatePricingInformation(content);
@@ -99,6 +105,64 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
             log(Level.INFO, "Message has FAILED.");
             return MessageResult.createFailed(messageEntry);
         }
+    }
+
+    private void updateFirmware(String content) throws IOException {
+        getLogger().info("Received a firmware upgrade message.");
+
+        try {
+            getLogger().info("Parsing XML from FirmwareUpgrade message...");
+            FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder();
+            builder.initFromXml(content);
+            if (builder.getUserFile() == null) {
+                throw new IOException("The message did not contain a user file to use for the upgrade, message fails...");
+            }
+
+            getLogger().info("Pulling out user file and dispatching to the device...");
+            final byte[] upgradeFileData = builder.getUserFile().loadFileInByteArray();
+            if (upgradeFileData.length == 0) {
+                throw new IOException("Length of the upgrade file is not valid [" + upgradeFileData.length + " bytes], failing message.");
+            }
+
+            upgradeDevice(upgradeFileData);
+
+            getLogger().info("Firmware upgrade completed successfully.");
+
+        } catch (final SAXException e) {
+            throw new IOException("Cannot process firmware upgrade message due to an XML parsing error [" + e.getMessage() + "]");
+        }
+
+    }
+
+    private void upgradeDevice(byte[] firmwareData) throws IOException {
+
+        final ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
+
+        try {
+            getLogger().info("Converting received image to binary using a Base64 decoder...");
+
+            final BASE64Decoder decoder = new BASE64Decoder();
+            final byte[] binaryImage = decoder.decodeBuffer(new String(firmwareData));
+
+            getLogger().info("Commencing upgrade...");
+
+            imageTransfer.upgrade(binaryImage);
+            imageTransfer.imageActivation();
+
+            getLogger().info("Upgrade has finished successfully...");
+        } catch (final InterruptedException e) {
+            getLogger().severe("Interrupted while uploading firmware image [" + e.getMessage() + "]");
+
+            final IOException ioException = new IOException(e.getMessage());
+            ioException.initCause(e);
+
+            throw ioException;
+        }
+
+    }
+
+    private boolean isFirmwareUpdateMessage(String messageContent) {
+        return (messageContent != null) && messageContent.contains(AS300FirmwareUpdateMessageBuilder.getMessageNodeTag());
     }
 
     private void changeOfSupplier(final MessageHandler messageHandler) throws IOException {
@@ -228,7 +292,11 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
     }
 
     private void log(Level level, String message) {
-        this.protocol.getLogger().log(level, message);
+        getLogger().log(level, message);
+    }
+
+    private Logger getLogger() {
+        return this.protocol.getLogger();
     }
 
     private boolean isTimeOfUseMessage(final String messageContent) {

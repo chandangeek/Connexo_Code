@@ -17,7 +17,7 @@ import java.util.List;
  * Date: 8-aug-2011
  * Time: 14:32:04
  */
-public class AS300Messaging extends GenericMessaging implements MessageProtocol, TimeOfUseMessaging {
+public class AS300Messaging extends GenericMessaging implements MessageProtocol, TimeOfUseMessaging, FirmwareUpdateMessaging {
 
     private final AS300MessageExecutor messageExecutor;
 
@@ -77,6 +77,16 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol,
         config.setSupportsCodeTables(true);
         config.setZipContent(true);
         return config;
+    }
+
+    public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
+        FirmwareUpdateMessagingConfig config = new FirmwareUpdateMessagingConfig();
+        config.setSupportsUserFiles(true);
+        return config;
+    }
+
+    public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
+        return new AS300FirmwareUpdateMessageBuilder();
     }
 
     @Override

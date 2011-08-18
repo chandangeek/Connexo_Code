@@ -14,12 +14,8 @@ import java.io.IOException;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.attributes.AssociationLNAttributes;
 import com.energyict.obis.ObisCode;
 /**
  *
@@ -107,6 +103,10 @@ public class AssociationLN extends AbstractCosemObject {
 
         buffer = data2UOL(responseData);
         return buffer;
+    }
+
+    public Array readObjectList() throws IOException {
+        return new Array(getResponseData(AssociationLNAttributes.OBJECT_LIST), 0, 0);
     }
 
     private UniversalObject[] parseResponseData() {
