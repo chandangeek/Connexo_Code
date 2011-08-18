@@ -21,24 +21,36 @@ import java.util.logging.Level;
 public class MBusBillingData extends AbstractActarisObject {
 
     private Date from;
+    private Map<String, List<Date>> billingPointDates = new HashMap<String, List<Date>>();
+    private String slaveSerialNumber = "";
     private MeterReadingData mrd = new MeterReadingData();
-    private List<Date> billingPointDates = new ArrayList<Date>();
+    private List<String> slaveSerialNumbers = new ArrayList<String>();
+    private Map<String, MeterReadingData> mrdPerSlave = new HashMap<String, MeterReadingData>();
 
-    public MeterReadingData getMrd() {
+    public MeterReadingData getMrdPerSlave(String serialNumber) {
         setBillingPoints();
-        return mrd;
+        return mrdPerSlave.get(serialNumber);
     }
 
     private void setBillingPoints() {
-        Collections.sort(billingPointDates);
-        MeterReadingData result = new MeterReadingData();
+        for (String serialNumber : slaveSerialNumbers) {
+            List<Date> billingPointDatesPerSerialNumber = billingPointDates.get(serialNumber);
+            Collections.sort(billingPointDatesPerSerialNumber);
+            MeterReadingData result = new MeterReadingData();
 
-        for (RegisterValue registerValue : mrd.getRegisterValues()) {
-            int billingPoint = billingPointDates.size() - billingPointDates.indexOf(registerValue.getToTime()) - 1;
-            ObisCode obisCode = ProtocolTools.setObisCodeField(registerValue.getObisCode(), 5, (byte) billingPoint);
-            result.add(new RegisterValue(obisCode, registerValue.getQuantity(), registerValue.getEventTime(), registerValue.getToTime()));
+            for (RegisterValue registerValue : mrd.getRegisterValues()) {
+                if (serialNumber.equals(registerValue.getText())) {
+                    int billingPoint = billingPointDatesPerSerialNumber.size() - billingPointDatesPerSerialNumber.indexOf(registerValue.getToTime()) - 1;
+                    ObisCode obisCode = ProtocolTools.setObisCodeField(registerValue.getObisCode(), 5, (byte) billingPoint);
+                    result.add(new RegisterValue(obisCode, registerValue.getQuantity(), registerValue.getEventTime(), registerValue.getToTime()));
+                }
+            }
+            mrdPerSlave.put(serialNumber, result);
         }
-        mrd = result;
+    }
+
+    public MeterReadingData getMrd() {
+        return mrd;
     }
 
     public MBusBillingData(ObjectFactory of) {
@@ -99,9 +111,18 @@ public class MBusBillingData extends AbstractActarisObject {
         int offset = 0;
         byte[] decoded = Base64.decode(data);
         Date timeStamp = getObjectFactory().convertMeterDateToSystemDate((long) (getNumberFromB64(decoded, offset, 4)));
-        if (!billingPointDates.contains(timeStamp)) {
-            billingPointDates.add(timeStamp);
+
+        List<Date> dates = billingPointDates.get(slaveSerialNumber);
+        if (dates == null) {
+            dates = new ArrayList<Date>();
+            dates.add(timeStamp);
+        } else {
+            if (!dates.contains(timeStamp)) {
+                dates.add(timeStamp);
+            }
         }
+        billingPointDates.put(slaveSerialNumber, dates);
+
         offset += 4;
 
         //Raw MBus frame
@@ -129,7 +150,7 @@ public class MBusBillingData extends AbstractActarisObject {
                             obisCodeCreator.setF(0);
                             ObisCode obisCode = ObisCode.fromString(obisCodeCreator.toString());
 
-                            RegisterValue value = new RegisterValue(obisCode, record.getQuantity(), new Date(), timeStamp);
+                            RegisterValue value = new RegisterValue(obisCode, record.getQuantity(), new Date(), timeStamp, timeStamp, new Date(), 0, slaveSerialNumber);
                             mrd.add(value);
                         }
                     }
@@ -138,6 +159,13 @@ public class MBusBillingData extends AbstractActarisObject {
         } catch (IOException e) {
             e.printStackTrace();
             throw new IOException("Failed to parse the raw MBus frame." + e.getMessage());
+        }
+    }
+
+    public void setSlaveSerialNumber(String pushedSerialNumber) {
+        this.slaveSerialNumber = pushedSerialNumber;
+        if (!slaveSerialNumbers.contains(pushedSerialNumber)) {
+            slaveSerialNumbers.add(pushedSerialNumber);
         }
     }
 }

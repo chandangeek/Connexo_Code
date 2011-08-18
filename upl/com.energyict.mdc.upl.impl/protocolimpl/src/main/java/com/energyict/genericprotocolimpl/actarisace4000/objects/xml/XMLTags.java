@@ -37,7 +37,7 @@ public class XMLTags {
     public final static String CONTACTORCMD     = "CDE";
     public final static String TIME_ATTR        = "t";              //Optional timestamp attribute
 
-	// firmware Tags
+	// Firmware tags
 	public final static String REQFIRMWARE 		= "qV";			    // request firmware
 	public final static String RESFIRMWARE 		= "V";			    // Firmware settings sub-schema parent tag
 	public final static String METFIRMVERS		= "MV";			    // Metrology firmware version
@@ -72,6 +72,10 @@ public class XMLTags {
     public final static String MXDSUBI_DURATION = "SubD";		// Sub-interval duration
 
     //Consumption limitation configuration
+    public final static String EM_CLM           = "CLME";		// Emergency consumption limitation mode parent tag
+    public final static String EM_CLM_THRESHOLD = "ThV";		// Threshold Value: the consumption limitation fixed threshold
+    public final static String EM_CLM_DURATION  = "DurM";		// Duration of emergency consumption limitation mode (min)
+
     public final static String CONSLIMITCONFIG  = "CLM";		// Consumption limitation mode parent tag with optional attribute ‘t’ – activation timestamp.
     public final static String SUBINTERVALS     = "ADCF";		// Concatenation of number of sub intervals and duration of a sub interval
     public final static String CONSRATE         = "OvL";		// Override Limitation: Is consumption limitation override allowed and which rate is applied.
@@ -80,6 +84,16 @@ public class XMLTags {
     public final static String CONS_DP0         = "DP0";		// Day profile 0: Array of 8 switching times
     public final static String CONS_DP1         = "DP1";		// Day profile 1: Array of 8 switching times
     public final static String CONS_WEEKPROFILE = "WP";		    // Week profile: Array of 7 days
+
+    //Tariff configuration
+    public final static String TARIFF           = "Tariff";	    // Tariff configuration sub-schema parent tags
+    public final static String TARIFF_TYPE      = "type";	    // Tariff configuration sub-schema parent tags
+    public final static String TARIFF_NUMBER    = "Num";	    // Tariff number
+    public final static String TARIFF_RATES     = "Rts";	    // Number of rates in the tariff
+    public final static String TARIFF_SW_DAY    = "SW";	        // Tariff switching days
+    public final static String TARIFF_SPEC_DAYS = "SDys";	    // Special days parent tag
+    public final static String TARIFF_SPEC_DAY  = "SD";	        // Special day
+    public final static String TARIFF_SEASON    = "Season";	    // Season definition
 
 	// loadProfile tags
 	public final static String REQLP			= "qLPDTr";		// request loadProfile within a date range

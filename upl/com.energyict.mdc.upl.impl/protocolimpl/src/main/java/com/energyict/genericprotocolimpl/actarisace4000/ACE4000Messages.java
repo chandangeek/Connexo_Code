@@ -27,6 +27,8 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
     private static final String CONFIG_LOADPROFILE = "ConfigureLoadProfile";
     private static final String CONFIG_MAX_DEMAND = "ConfigureMaxDemand";
     private static final String CONFIG_CONSUMPTION_LIMITATION = "ConfigureConsumptionLimitation";
+    private static final String CONFIG_EMERGENCY_CONSUMPTION_LIMITATION = "ConfigureEmergencyConsumptionLimitation";
+    private static final String CONFIG_TARIFF = "TariffConfig";
 
     private ACE4000 ace4000;
     private boolean newRequest = false;
@@ -49,13 +51,13 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
     public void doMessage(RtuMessage messageEntry) throws BusinessException, SQLException, IOException {
         try {
             if (messageEntry.getContents().contains(READ_EVENTS)) {
-                if (!ace4000.getObjectFactory().isReceivedEvents()) {
+                if (ace4000.getObjectFactory().shouldRetryEvents()) {
                     readEvents();
                     eventsRequested = true;
                     newRequest = true;
                 }
             } else if (messageEntry.getContents().contains(READ_PROFILE_DATA)) {
-                if (!ace4000.getObjectFactory().isReceivedLoadProfile()) {
+                if (ace4000.getObjectFactory().shouldRetryLoadProfile()) {
                     readProfileData(messageEntry);
                     profileDataRequested = true;
                     newRequest = true;
@@ -110,6 +112,16 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
                     sendConsumptionLimitationConfiguration(messageEntry);
                     newRequest = true;
                 }
+            } else if (messageEntry.getContents().contains(CONFIG_EMERGENCY_CONSUMPTION_LIMITATION)) {
+                if (ace4000.getObjectFactory().shouldRetryEmergencyConsumptionLimitationConfiguration()) {
+                    sendEmergencyConsumptionLimitationConfiguration(messageEntry);
+                    newRequest = true;
+                }
+            } else if (messageEntry.getContents().contains(CONFIG_TARIFF)) {
+                if (ace4000.getObjectFactory().shouldRetryTariffConfiguration()) {
+                    sendTariffConfiguration(messageEntry);
+                    newRequest = true;
+                }
             } else {
                 ace4000.getLogger().warning("Unknown message: [" + messageEntry.getContents() + "], cannot execute.");
                 messageEntry.setFailed();
@@ -143,7 +155,9 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
         cat2.addMessageSpec(addBasicMsgWith4Values("Configure LCD display", DISPLAY_CONFIG, false, "Number of digits before comma (allowed: 5, 6 or 7)", "Number of digits after comma (allowed: 0, 1, 2 or 3)", "Display sequence (comma separated hex values, e.g.: 1,2,E,12,1A)", "Display cycle time (seconds)"));
         cat2.addMessageSpec(addBasicMsgWith3Values("Configure load profile data recording", CONFIG_LOADPROFILE, false, "Enable (1) or disable (0)", "Interval (1, 2, 3, 5, 6, 10, 12, 15, 20, 30, 60, 120 or 240 minutes)", "Maximum number of records (min 1, max 65535)"));
         cat2.addMessageSpec(addBasicMsgWith3Values("Configure maximum demand settings", CONFIG_MAX_DEMAND, false, "Active registers (0) or reactive registers (1)", "Number of sub intervals (0, 1, 2, 3, 4, 5, 10 or 15)", "Sub interval duration (30, 60, 300, 600, 900, 1200, 1800 or 3600 seconds)"));
-        cat2.addMessageSpec(addBasicMsgWith14Values("Configure consumption limitation settings", CONFIG_CONSUMPTION_LIMITATION, false, "Number of sub intervals (0, 1, 2, 3, 4, 5, 10 or 15)", "Sub interval duration (30, 60, 300, 600, 900, 1200, 1800 or 3600 seconds)", "Applied rate for override limitation (0: disabled)", "Allowed excess tolerance (0 - 100 %)", "Threshold selection (0: day profile, 1: maximum threshold)", "8 switching moments for daily profile 0 (comma separated, e.g.: 01:00,05:00,...)", "8 thresholds for daily profile 0 (comma separated)", "8 units for the thresholds (comma separated) (0: Watt, 1: Ampere)", "8 actions (in hex) for daily profile 0 (comma separated)", "8 switching moments for daily profile 1 (comma separated, e.g.: 01:00,05:00,...)", "8 thresholds for daily profile 1 (comma separated)", "8 units for the thresholds (comma separated) (0: Watt, 1: Ampere)", "8 actions (in hex) for daily profile 1 (comma separated)", "Day profiles used for each day of the week (comma separated)"));
+        cat2.addMessageSpec(addBasicMsgWith15Values("Configure consumption limitation settings", CONFIG_CONSUMPTION_LIMITATION, false, "Number of sub intervals (0, 1, 2, 3, 4, 5, 10 or 15)", "Sub interval duration (30, 60, 300, 600, 900, 1200, 1800 or 3600 seconds)", "Override rate (0: disabled)", "Allowed excess tolerance (0 - 100 %)", "Threshold selection (0: day profile, 1: maximum threshold)", "8 switching moments for daily profile 0 (comma separated, e.g.: 01:00,05:00,...)", "8 thresholds for daily profile 0 (comma separated)", "8 units for the thresholds (comma separated) (0: Watt, 1: Ampere)", "8 actions (in hex) for daily profile 0 (comma separated)", "8 switching moments for daily profile 1 (comma separated, e.g.: 01:00,05:00,...)", "8 thresholds for daily profile 1 (comma separated)", "8 units for the thresholds (comma separated) (0: Watt, 1: Ampere)", "8 actions (in hex) for daily profile 1 (comma separated)", "Day profiles used for each day of the week (comma separated)", "Activation date (dd/mm/yyyy hh:mm:ss) (optional)"));
+        cat2.addMessageSpec(addBasicMsgWith4Values("Configure emergency consumption limitation settings", CONFIG_EMERGENCY_CONSUMPTION_LIMITATION, false, "Duration (minutes)", "Threshold value", "Threshold unit (0: watt, 1: ampere)", "Override rate (0: disabled)"));
+        cat2.addMessageSpec(addBasicMsgWith3Values("Configure tariff settings", CONFIG_TARIFF, false, "Unique tariff ID number", "Number of tariff rates (max 6)", "Code table ID"));
 
         categories.add(cat2);
 
@@ -180,7 +194,7 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
     protected MessageSpec addBasicMsgWith2Values(final String keyId, final String tagName, final boolean advanced, String attr1, String attr2) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageAttributeSpec addAttribute1 = new MessageAttributeSpec(attr1, true);
+        MessageAttributeSpec addAttribute1 = new MessageAttributeSpec(attr1, false);
         tagSpec.add(addAttribute1);
         MessageAttributeSpec addAttribute2 = new MessageAttributeSpec(attr2, false);
         tagSpec.add(addAttribute2);
@@ -225,7 +239,7 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
         return msgSpec;
     }
 
-    protected MessageSpec addBasicMsgWith14Values(final String keyId, final String tagName, final boolean advanced, String attr1, String attr2, String attr3, String attr4, String attr5, String attr6, String attr7, String attr8, String attr9, String attr10, String attr11, String attr12, String attr13, String attr14) {
+    protected MessageSpec addBasicMsgWith15Values(final String keyId, final String tagName, final boolean advanced, String attr1, String attr2, String attr3, String attr4, String attr5, String attr6, String attr7, String attr8, String attr9, String attr10, String attr11, String attr12, String attr13, String attr14, String attr15) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
         MessageAttributeSpec addAttribute1 = new MessageAttributeSpec(attr1, true);
@@ -256,6 +270,8 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
         tagSpec.add(addAttribute13);
         MessageAttributeSpec addAttribute14 = new MessageAttributeSpec(attr14, true);
         tagSpec.add(addAttribute14);
+        MessageAttributeSpec addAttribute15 = new MessageAttributeSpec(attr15, false);
+        tagSpec.add(addAttribute15);
         MessageValueSpec msgVal = new MessageValueSpec();
         msgVal.setValue(" "); //Disable this field
         tagSpec.add(msgVal);
@@ -322,6 +338,24 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
         return null;    //Not used
     }
 
+
+    private void sendTariffConfiguration(RtuMessage messageEntry) throws IOException, BusinessException, SQLException {
+        String[] parts = messageEntry.getContents().split("=");
+        int number = Integer.parseInt(parts[1].substring(1).split("\"")[0]);
+        int numberOfRates = Integer.parseInt(parts[2].substring(1).split("\"")[0]);
+        int codeTableId = Integer.parseInt(parts[3].substring(1).split("\"")[0]);
+        if (numberOfRates > 6 || numberOfRates < 0) {
+            failMessage(messageEntry, "Tariff configuration failed, invalid number of rates");
+            return;
+        }
+
+        try {
+            ace4000.getObjectFactory().sendTariffConfiguration(number, numberOfRates, codeTableId);
+        } catch (InvalidPropertyException e) {
+            failMessage(messageEntry, "Tariff configuration failed, invalid code table settings");
+        }
+    }
+
     private void sendLoadProfileConfigurationRequest(RtuMessage messageEntry) throws IOException, BusinessException, SQLException {
         String[] parts = messageEntry.getContents().split("=");
         int enable = Integer.parseInt(parts[1].substring(1).split("\"")[0]);
@@ -340,28 +374,34 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
 
     private void readProfileData(RtuMessage messageEntry) throws IOException, BusinessException, SQLException {
         String[] parts = messageEntry.getContents().split("=");
-        String fromDateString = parts[1].substring(1, 20);
-        String toDateString = parts[2].substring(1, 20);
-
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        Date fromDate;
-        Date toDate;
-        try {
-            fromDate = formatter.parse(fromDateString);
-        } catch (ParseException e) {
-            failMessage(messageEntry, "Request for load profile data failed, invalid arguments");
-            return;
+        Date fromDate = null;
+        Date toDate = null;
+
+        if (parts.length > 1) {
+            try {
+                String fromDateString = parts[1].substring(1, 20);
+                fromDate = formatter.parse(fromDateString);
+            } catch (Exception e) {
+                failMessage(messageEntry, "Request for load profile data failed, invalid arguments");
+                return;
+            }
         }
-        try {
-            toDate = formatter.parse(toDateString);
-        } catch (ParseException e) {
+        if (parts.length > 2) {
+            try {
+                String toDateString = parts[2].substring(1, 20);
+                toDate = formatter.parse(toDateString);
+            } catch (Exception e) {
+                toDate = new Date();
+            }
+        }
+        if (toDate == null) {
             toDate = new Date();
         }
-
         if (toDate.after(new Date())) {
             toDate = new Date();
         }
-        if (!fromDate.before(toDate)) {
+        if (fromDate != null && !fromDate.before(toDate)) {
             failMessage(messageEntry, "Request for load profile data failed, invalid arguments");
             return;
         }
@@ -675,8 +715,47 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
             return;
         }
 
-        ace4000.getObjectFactory().sendConsumptionLimitationConfigurationRequest(convertToNumberOfSubIntervalsCode(numberOfSubIntervals), convertToSubIntervalDurationCode(subIntervalDuration), ovl, thresholdTolerance, thresholdSelection, switchingTimesDP0, thresholdsDP0, unitsDP0, actionsDP0, switchingTimesDP1, thresholdsDP1, unitsDP1, actionsDP1, weekProfile);
+        Date date = null;
+        if (parts.length > 15) {
+            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+            try {
+                String dateString = parts[15].substring(1).split("\"")[0];
+                date = formatter.parse(dateString);
+            } catch (ParseException e) {
+                failMessage(messageEntry, failMsg);
+                return;
+            }
+        }
+
+        ace4000.getObjectFactory().sendConsumptionLimitationConfigurationRequest(date, convertToNumberOfSubIntervalsCode(numberOfSubIntervals), convertToSubIntervalDurationCode(subIntervalDuration), ovl, thresholdTolerance, thresholdSelection, switchingTimesDP0, thresholdsDP0, unitsDP0, actionsDP0, switchingTimesDP1, thresholdsDP1, unitsDP1, actionsDP1, weekProfile);
     }
+
+    private void sendEmergencyConsumptionLimitationConfiguration(RtuMessage messageEntry) throws BusinessException, SQLException, IOException {
+        String[] parts = messageEntry.getContents().split("=");
+        int duration = Integer.parseInt(parts[1].substring(1).split("\"")[0]);
+        int threshold = Integer.parseInt(parts[2].substring(1).split("\"")[0]);
+        int unit = Integer.parseInt(parts[3].substring(1).split("\"")[0]);
+        int overrideRate = Integer.parseInt(parts[4].substring(1).split("\"")[0]);
+        String failMsg = "Emergency consumption limitation configuration message failed, invalid arguments";
+        if (duration > 0xFFFF || duration < 0) {
+            failMessage(messageEntry, failMsg);
+            return;
+        }
+        if (threshold < 0) {
+            failMessage(messageEntry, failMsg);
+            return;
+        }
+        if (unit != 0 && unit != 1) {
+            failMessage(messageEntry, failMsg);
+            return;
+        }
+        if (overrideRate < 0 || overrideRate > 4) {
+            failMessage(messageEntry, failMsg);
+            return;
+        }
+        ace4000.getObjectFactory().sendEmergencyConsumptionLimitationConfigurationRequest(duration, threshold, unit, overrideRate);
+    }
+
 
     private void failMessage(RtuMessage messageEntry, String msg) throws BusinessException, SQLException {
         ace4000.log(Level.WARNING, msg);
@@ -709,7 +788,6 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
         return map.get(numberOfSubIntervals);
     }
 
-
     private void readEvents() throws IOException, BusinessException, SQLException {
         ace4000.getObjectFactory().sendEventRequest();
     }
@@ -718,77 +796,59 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
         return newRequest;
     }
 
-    public void setMessageResult(List<RtuMessage> messages) throws BusinessException, SQLException {
+    public void setMessageResult(boolean end, List<RtuMessage> messages) throws BusinessException, SQLException {
         for (RtuMessage messageEntry : messages) {
             if (messageEntry.getContents().contains(READ_EVENTS)) {
-                if (!ace4000.getObjectFactory().isReceivedEvents()) {
-                    failMessage(messageEntry, "Request for event data failed");
-                } else {
-                    messageEntry.confirm();
-                }
+                setMessage(messageEntry, ace4000.getObjectFactory().getReceivedEvents(), "Request for event data failed");
             }
             if (messageEntry.getContents().contains(READ_PROFILE_DATA)) {
-                if (!ace4000.getObjectFactory().isReceivedLoadProfile()) {
-                    failMessage(messageEntry, "Request for load profile data failed");
-                } else {
-                    messageEntry.confirm();
-                }
+                setMessage(messageEntry, ace4000.getObjectFactory().getReceivedLoadProfile(), "Request for load profile data failed");
+            }
+            if (messageEntry.getContents().contains(DISPLAY_CONFIG)) {
+                setMessage(messageEntry, ace4000.getObjectFactory().getDisplayConfigurationSucceeded(), "Display configuration request failed");
+            }
+            if (messageEntry.getContents().contains(CONFIG_LOADPROFILE)) {
+                setMessage(messageEntry, ace4000.getObjectFactory().getLoadProfileConfigurationSucceeded(), "Load profile configuration message failed");
+            }
+            if (messageEntry.getContents().contains(CONFIG_MAX_DEMAND)) {
+                setMessage(messageEntry, ace4000.getObjectFactory().getMaxDemandConfigurationSucceeded(), "Max demand configuration message failed");
+            }
+            if (messageEntry.getContents().contains(CONFIG_CONSUMPTION_LIMITATION)) {
+                setMessage(messageEntry, ace4000.getObjectFactory().getConsumptionLimitationConfigurationSucceeded(), "Consumption limitation configuration message failed");
+            }
+            if (messageEntry.getContents().contains(CONFIG_EMERGENCY_CONSUMPTION_LIMITATION)) {
+                setMessage(messageEntry, ace4000.getObjectFactory().getEmergencyConsumptionLimitationConfigurationSucceeded(), "Emergency consumption limitation configuration message failed");
+            }
+            if (messageEntry.getContents().contains(CONFIG_TARIFF)) {
+                setMessage(messageEntry, ace4000.getObjectFactory().getTariffConfigurationSucceeded(), "Tariff configuration message failed");
+            }
+            if (messageEntry.getContents().contains(SHORT_DISPLAY_MESSAGE) || messageEntry.getContents().contains(LONG_DISPLAY_MESSAGE) || messageEntry.getContents().contains(NO_DISPLAY_MESSAGE)) {
+                setMessage(messageEntry, ace4000.getObjectFactory().getDisplayMessageSucceeded(), "Display message request failed");
             }
             if (messageEntry.getContents().contains(FIRMWARE_UPGRADE)) {
-                if (!ace4000.getObjectFactory().isFirmwareUpgradeSuccess()) {
-                    failMessage(messageEntry, "Request firmware upgrade failed");
-                } else {
-                    messageEntry.confirm();
+                if (end) {
+                    setMessage(messageEntry, ace4000.getObjectFactory().getFirmWareSucceeded(), "Request firmware upgrade failed");
                 }
             }
             if (messageEntry.getContents().contains(CONNECT)) {
-                if (!ace4000.getObjectFactory().isConnectSuccess()) {
-                    failMessage(messageEntry, "Contactor control message failed");
-                } else {
-                    messageEntry.confirm();
+                if (end) {
+                    setMessage(messageEntry, ace4000.getObjectFactory().getConnectSucceeded(), "Contactor control message (connect) failed");
                 }
             }
             if (messageEntry.getContents().contains(DISCONNECT)) {
-                if (!ace4000.getObjectFactory().isDisconnectSuccess()) {
-                    failMessage(messageEntry, "Contactor control message failed");
-                } else {
-                    messageEntry.confirm();
+                if (end) {
+                    setMessage(messageEntry, ace4000.getObjectFactory().getDisconnectSucceeded(), "Contactor control message (disconnect) failed");
                 }
             }
-            if (messageEntry.getContents().contains(DISPLAY_CONFIG)) {
-                if (!ace4000.getObjectFactory().isDisplayConfigurationSucceeded()) {
-                    failMessage(messageEntry, "Display configuration request failed");
-                } else {
-                    messageEntry.confirm();
-                }
-            }
-            if (messageEntry.getContents().contains(CONFIG_LOADPROFILE)) {
-                if (!ace4000.getObjectFactory().isLoadProfileConfigurationSucceeded()) {
-                    failMessage(messageEntry, "Load profile configuration message failed");
-                } else {
-                    messageEntry.confirm();
-                }
-            }
-            if (messageEntry.getContents().contains(CONFIG_MAX_DEMAND)) {
-                if (!ace4000.getObjectFactory().isMaxDemandConfigurationSucceeded()) {
-                    failMessage(messageEntry, "Max demand configuration message failed");
-                } else {
-                    messageEntry.confirm();
-                }
-            }
-            if (messageEntry.getContents().contains(CONFIG_CONSUMPTION_LIMITATION)) {
-                if (!ace4000.getObjectFactory().isConsumptionLimitationConfigurationSucceeded()) {
-                    failMessage(messageEntry, "Consumption limitation configuration message failed");
-                } else {
-                    messageEntry.confirm();
-                }
-            }
-            if (messageEntry.getContents().contains(SHORT_DISPLAY_MESSAGE) || messageEntry.getContents().contains(LONG_DISPLAY_MESSAGE) || messageEntry.getContents().contains(NO_DISPLAY_MESSAGE)) {
-                if (!ace4000.getObjectFactory().isDisplayMessageSucceeded()) {
-                    failMessage(messageEntry, "Display message failed");
-                } else {
-                    messageEntry.confirm();
-                }
+        }
+    }
+
+    private void setMessage(RtuMessage messageEntry, Boolean success, String failMsg) throws BusinessException, SQLException {
+        if (!(success == null)) {
+            if (success) {
+                messageEntry.confirm();
+            } else {
+                failMessage(messageEntry, failMsg);
             }
         }
     }
@@ -796,12 +856,12 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
     public boolean shouldRetry(List<RtuMessage> messages) {
         for (RtuMessage messageEntry : messages) {
             if (messageEntry.getContents().contains(READ_EVENTS)) {
-                if (!ace4000.getObjectFactory().isReceivedEvents()) {
+                if (!ace4000.getObjectFactory().shouldRetryEvents()) {
                     return true;
                 }
             }
             if (messageEntry.getContents().contains(READ_PROFILE_DATA)) {
-                if (!ace4000.getObjectFactory().isReceivedLoadProfile()) {
+                if (!ace4000.getObjectFactory().shouldRetryLoadProfile()) {
                     return true;
                 }
             }
@@ -840,6 +900,16 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
                     return true;
                 }
             }
+            if (messageEntry.getContents().contains(CONFIG_EMERGENCY_CONSUMPTION_LIMITATION)) {
+                if (ace4000.getObjectFactory().shouldRetryEmergencyConsumptionLimitationConfiguration()) {
+                    return true;
+                }
+            }
+            if (messageEntry.getContents().contains(CONFIG_TARIFF)) {
+                if (ace4000.getObjectFactory().shouldRetryTariffConfiguration()) {
+                    return true;
+                }
+            }
             if (messageEntry.getContents().contains(SHORT_DISPLAY_MESSAGE) || messageEntry.getContents().contains(LONG_DISPLAY_MESSAGE) || messageEntry.getContents().contains(NO_DISPLAY_MESSAGE)) {
                 if (ace4000.getObjectFactory().shouldRetryDisplayMessageRequest()) {
                     return true;
@@ -852,13 +922,13 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
     public void logTimeoutMessages(List<RtuMessage> messages, int retries) throws BusinessException, SQLException {
         for (RtuMessage messageEntry : messages) {
             if (messageEntry.getContents().contains(READ_EVENTS)) {
-                if (!ace4000.getObjectFactory().isReceivedEvents()) {
+                if (ace4000.getObjectFactory().shouldRetryEvents()) {
                     ace4000.log("Sent request for events " + (retries + 1) + " times, meter didn't reply");
                     messageEntry.setFailed();
                 }
             }
             if (messageEntry.getContents().contains(READ_PROFILE_DATA)) {
-                if (!ace4000.getObjectFactory().isReceivedLoadProfile()) {
+                if (ace4000.getObjectFactory().shouldRetryLoadProfile()) {
                     ace4000.log("Sent request for profile data " + (retries + 1) + " times, meter didn't reply. Possibly there's no profile data in the requested range.");
                     messageEntry.setFailed();
                 }
@@ -902,6 +972,18 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
             if (messageEntry.getContents().contains(CONFIG_CONSUMPTION_LIMITATION)) {
                 if (ace4000.getObjectFactory().shouldRetryConsumptionLimitationConfiguration()) {
                     ace4000.log("Sent request to configure consumption limitation settings " + (retries + 1) + " times, meter didn't reply.");
+                    messageEntry.setFailed();
+                }
+            }
+            if (messageEntry.getContents().contains(CONFIG_EMERGENCY_CONSUMPTION_LIMITATION)) {
+                if (ace4000.getObjectFactory().shouldRetryEmergencyConsumptionLimitationConfiguration()) {
+                    ace4000.log("Sent request to configure emergency consumption limitation settings " + (retries + 1) + " times, meter didn't reply.");
+                    messageEntry.setFailed();
+                }
+            }
+            if (messageEntry.getContents().contains(CONFIG_TARIFF)) {
+                if (ace4000.getObjectFactory().shouldRetryEmergencyConsumptionLimitationConfiguration()) {
+                    ace4000.log("Sent request to configure tariff settings " + (retries + 1) + " times, meter didn't reply.");
                     messageEntry.setFailed();
                 }
             }

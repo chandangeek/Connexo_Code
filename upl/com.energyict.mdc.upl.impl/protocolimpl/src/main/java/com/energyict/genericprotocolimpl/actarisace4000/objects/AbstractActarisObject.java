@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.actarisace4000.objects;
 
 import com.energyict.cbo.ApplicationException;
+import com.energyict.protocol.InvalidPropertyException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -34,8 +35,9 @@ abstract public class AbstractActarisObject {
      * This generates the necessary meterXML to send the request to the meter
      *
      * @return the meterXML string
+     * @throws InvalidPropertyException when a message contains invalid arguments
      */
-    abstract protected String prepareXML();
+    abstract protected String prepareXML() throws InvalidPropertyException;
 
     /**
      * @param of

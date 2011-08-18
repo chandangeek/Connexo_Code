@@ -48,6 +48,8 @@ public class ObjectFactory {
     private DisplayConfiguration displayConfiguration = null;
     private LoadProfileConfiguration loadProfileConfiguration = null;
     private ConsumptionLimitationConfiguration consumptionLimitationConfiguration = null;
+    private EmergencyConsumptionLimitationConfiguration emergencyConsumptionLimitationConfiguration = null;
+    private TariffConfiguration tariffConfiguration = null;
     private MaxDemandConfiguration maxDemandConfiguration = null;
 
     private int trackingID = -1;
@@ -55,14 +57,14 @@ public class ObjectFactory {
     private EventData eventData = null;
     private List<MeterEvent> meterEvents;
 
-    private boolean receivedEvents = false;
     private boolean receivedCurrentRegisters = false;
     private boolean receivedBillingRegisters = false;
-    private boolean receivedMBusCurrentRegisters = false;
-    private boolean receivedMBusBillingRegisters = false;
     private boolean receivedMaxDemandRegisters = false;
     private boolean receivedInstantRegisters = false;
-    private boolean receivedLoadProfile = false;
+    private Boolean receivedMBusCurrentRegisters = null;       //Nack when device doesn't support slave meters
+    private Boolean receivedMBusBillingRegisters = null;       //Nack when device doesn't support slave meters
+    private Boolean receivedEvents = null;
+    private Boolean receivedLoadProfile = null;
     private Boolean connectSucceeded = null;
     private Boolean disconnectSucceeded = null;
     private Boolean displayMessageSucceeded = null;
@@ -70,23 +72,25 @@ public class ObjectFactory {
     private Boolean loadProfileConfigurationSucceeded = null;
     private Boolean maxDemandConfigurationSucceeded = null;
     private Boolean consumptionLimitationConfigurationSucceeded = null;
+    private Boolean emergencyConsumptionLimitationConfigurationSucceeded = null;
+    private Boolean tariffConfigurationSucceeded = null;
     private Boolean firmWareSucceeded = null;
     private int connectTrackingId = -2;
     private int disconnectTrackingId = -2;
     private int firmwareTrackingId = -2;
+    private int mBusBillingRegistersTrackingId = -2;
+    private int mBusCurrentRegistersTrackingId = -2;
     private int displayMessageTrackingId = -2;
     private int displayConfigurationTrackingId = -2;
     private int loadProfileConfigurationTrackingId = -2;
     private int maxDemandConfigurationTrackingId = -2;
     private int consumptionLimitationConfigurationTrackingId = -2;
+    private int emergencyConsumptionLimitationConfigurationTrackingId = -2;
+    private int tariffConfigurationTrackingId = -2;
     private boolean clockWasSet = false;
 
     public ObjectFactory(ACE4000 ace4000) {
         this.ace4000 = ace4000;
-    }
-
-    public boolean isReceivedEvents() {
-        return receivedEvents;     //Indicates whether or not an extra request for events is necessary
     }
 
     public boolean isReceivedBillingRegisters() {
@@ -95,6 +99,10 @@ public class ObjectFactory {
 
     public boolean isClockWasSet() {
         return clockWasSet;
+    }
+
+    public Boolean isReceivedMBusBillingRegisters() {
+        return receivedMBusBillingRegisters;
     }
 
     public void setClockWasSet(boolean clockWasSet) {
@@ -113,49 +121,21 @@ public class ObjectFactory {
         return receivedMaxDemandRegisters;
     }
 
-    public boolean isReceivedLoadProfile() {
-        return receivedLoadProfile;
+    public Boolean isReceivedMBusCurrentRegisters() {
+        return receivedMBusCurrentRegisters;
+    }
+
+    public boolean shouldRetryLoadProfile() {
+        return (receivedLoadProfile == null);
+    }
+
+    public boolean shouldRetryEvents() {
+        return (receivedEvents == null);
     }
 
     public boolean shouldRetryFirmwareUpgrade() {
         return (firmWareSucceeded == null);     //Should not retry if FW upgrade was ACK'ed or NACK'ed.
     }                                           //Only retry after timeouts.
-
-    public boolean isFirmwareUpgradeSuccess() {
-        return firmWareSucceeded == null ? false : firmWareSucceeded;
-    }
-
-    public boolean isConnectSuccess() {
-        return connectSucceeded == null ? false : connectSucceeded;
-    }
-
-    public boolean isDisconnectSuccess() {
-        return disconnectSucceeded == null ? false : disconnectSucceeded;
-    }
-
-    public boolean isDisplayConfigurationSucceeded() {
-        return displayConfigurationSucceeded == null ? false : displayConfigurationSucceeded;
-    }
-
-    public boolean isLoadProfileConfigurationSucceeded() {
-        return loadProfileConfigurationSucceeded == null ? false : loadProfileConfigurationSucceeded;
-    }
-
-    public boolean isMaxDemandConfigurationSucceeded() {
-        return maxDemandConfigurationSucceeded == null ? false : maxDemandConfigurationSucceeded;
-    }
-
-    public boolean isConsumptionLimitationConfigurationSucceeded() {
-        return consumptionLimitationConfigurationSucceeded == null ? false : consumptionLimitationConfigurationSucceeded;
-    }
-
-    public boolean isDisplayMessageSucceeded() {
-        return displayMessageSucceeded == null ? false : displayMessageSucceeded;
-    }
-
-    public boolean isReceivedMBusBillingRegisters() {
-        return receivedMBusBillingRegisters;
-    }
 
     public boolean shouldRetryConnectCommand() {
         return (connectSucceeded == null);
@@ -177,6 +157,14 @@ public class ObjectFactory {
         return (consumptionLimitationConfigurationSucceeded == null);
     }
 
+    public boolean shouldRetryEmergencyConsumptionLimitationConfiguration() {
+        return (emergencyConsumptionLimitationConfigurationSucceeded == null);
+    }
+
+    public boolean shouldRetryTariffConfiguration() {
+        return (tariffConfigurationSucceeded == null);
+    }
+
     public boolean shouldRetryDisconnectCommand() {
         return (disconnectSucceeded == null);
     }
@@ -185,8 +173,52 @@ public class ObjectFactory {
         return (displayMessageSucceeded == null);
     }
 
-    public boolean isReceivedMBusCurrentRegisters() {
-        return receivedMBusCurrentRegisters;
+    public Boolean getReceivedEvents() {
+        return receivedEvents;
+    }
+
+    public Boolean getReceivedLoadProfile() {
+        return receivedLoadProfile;
+    }
+
+    public Boolean getConnectSucceeded() {
+        return connectSucceeded;
+    }
+
+    public Boolean getDisconnectSucceeded() {
+        return disconnectSucceeded;
+    }
+
+    public Boolean getDisplayMessageSucceeded() {
+        return displayMessageSucceeded;
+    }
+
+    public Boolean getDisplayConfigurationSucceeded() {
+        return displayConfigurationSucceeded;
+    }
+
+    public Boolean getLoadProfileConfigurationSucceeded() {
+        return loadProfileConfigurationSucceeded;
+    }
+
+    public Boolean getMaxDemandConfigurationSucceeded() {
+        return maxDemandConfigurationSucceeded;
+    }
+
+    public Boolean getConsumptionLimitationConfigurationSucceeded() {
+        return consumptionLimitationConfigurationSucceeded;
+    }
+
+    public Boolean getEmergencyConsumptionLimitationConfigurationSucceeded() {
+        return emergencyConsumptionLimitationConfigurationSucceeded;
+    }
+
+    public Boolean getTariffConfigurationSucceeded() {
+        return tariffConfigurationSucceeded;
+    }
+
+    public Boolean getFirmWareSucceeded() {
+        return firmWareSucceeded;
     }
 
     public FullMeterConfig getFullMeterConfig() {
@@ -250,6 +282,20 @@ public class ObjectFactory {
             consumptionLimitationConfiguration = new ConsumptionLimitationConfiguration(this);
         }
         return consumptionLimitationConfiguration;
+    }
+
+    public EmergencyConsumptionLimitationConfiguration getEmergencyConsumptionLimitationConfiguration() {
+        if (emergencyConsumptionLimitationConfiguration == null) {
+            emergencyConsumptionLimitationConfiguration = new EmergencyConsumptionLimitationConfiguration(this);
+        }
+        return emergencyConsumptionLimitationConfiguration;
+    }
+
+    public TariffConfiguration getTariffConfiguration() {
+        if (tariffConfiguration == null) {
+            tariffConfiguration = new TariffConfiguration(this);
+        }
+        return tariffConfiguration;
     }
 
     public MaxDemandConfiguration getMaxDemandConfiguration() {
@@ -493,8 +539,9 @@ public class ObjectFactory {
         maxDemandConfigurationTrackingId = getTrackingID();
     }
 
-    public void sendConsumptionLimitationConfigurationRequest(int numberOfSubIntervals, int subIntervalDuration, int ovlRate, int thresholdTolerance, int thresholdSelection, List<String> switchingMomentsDP0, List<Integer> thresholdsDP0, List<Integer> unitsDP0, List<String> actionsDP0, List<String> switchingMomentsDP1, List<Integer> thresholdsDP1, List<Integer> unitsDP1, List<String> actionsDP1, List<Integer> weekProfile) throws IOException {
+    public void sendConsumptionLimitationConfigurationRequest(Date date, int numberOfSubIntervals, int subIntervalDuration, int ovlRate, int thresholdTolerance, int thresholdSelection, List<String> switchingMomentsDP0, List<Integer> thresholdsDP0, List<Integer> unitsDP0, List<String> actionsDP0, List<String> switchingMomentsDP1, List<Integer> thresholdsDP1, List<Integer> unitsDP1, List<String> actionsDP1, List<Integer> weekProfile) throws IOException {
         log(Level.INFO, "Sending request to configure consumption limitations" + getRetryDescription());
+        getConsumptionLimitationConfiguration().setDate(date);
         getConsumptionLimitationConfiguration().setNumberOfSubIntervals(numberOfSubIntervals);
         getConsumptionLimitationConfiguration().setSubIntervalDuration(subIntervalDuration);
         getConsumptionLimitationConfiguration().setOvlRate(ovlRate);
@@ -511,6 +558,25 @@ public class ObjectFactory {
         getConsumptionLimitationConfiguration().setWeekProfile(weekProfile);
         getConsumptionLimitationConfiguration().request();
         consumptionLimitationConfigurationTrackingId = getTrackingID();
+    }
+
+    public void sendEmergencyConsumptionLimitationConfigurationRequest(int duration, int threshold, int unit, int overrideRate) throws IOException {
+        log(Level.INFO, "Sending request to configure emergency consumption limitations" + getRetryDescription());
+        getEmergencyConsumptionLimitationConfiguration().setDuration(duration);
+        getEmergencyConsumptionLimitationConfiguration().setThreshold(threshold);
+        getEmergencyConsumptionLimitationConfiguration().setUnit(unit);
+        getEmergencyConsumptionLimitationConfiguration().setOvlRate(overrideRate);
+        getEmergencyConsumptionLimitationConfiguration().request();
+        emergencyConsumptionLimitationConfigurationTrackingId = getTrackingID();
+    }
+
+    public void sendTariffConfiguration(int number, int numberOfRates, int codeTableId) throws IOException {
+        log(Level.INFO, "Sending request to configure tariff settings" + getRetryDescription());
+        getTariffConfiguration().setTariffNumber(number);
+        getTariffConfiguration().setNumberOfRates(numberOfRates);
+        getTariffConfiguration().setCodeTableId(codeTableId);
+        getTariffConfiguration().request();
+        tariffConfigurationTrackingId = getTrackingID();
     }
 
     /**
@@ -550,6 +616,7 @@ public class ObjectFactory {
     public void sendMBusBillingDataRequest() throws IOException {
         log(Level.INFO, "Sending MBus billing data request (all data)" + getRetryDescription());
         getMBusBillingData().request();
+        mBusBillingRegistersTrackingId = getTrackingID();
     }
 
     /**
@@ -572,6 +639,7 @@ public class ObjectFactory {
         log(Level.INFO, "Sending MBus billing data request, from date = " + from.toString() + getRetryDescription());
         getMBusBillingData().setFrom(from);
         getMBusBillingData().request();
+        mBusBillingRegistersTrackingId = getTrackingID();
     }
 
     /**
@@ -582,6 +650,7 @@ public class ObjectFactory {
     public void sendMBusCurrentRegistersRequest() throws IOException {
         log(Level.INFO, "Sending MBus current registers request" + getRetryDescription());
         getMBCurrentReadings().request();
+        mBusCurrentRegistersTrackingId = getTrackingID();
     }
 
     /**
@@ -768,6 +837,8 @@ public class ObjectFactory {
         loadProfileConfigurationTrackingId = -2;
         maxDemandConfigurationTrackingId = -2;
         consumptionLimitationConfigurationTrackingId = -2;
+        emergencyConsumptionLimitationConfigurationTrackingId = -2;
+        tariffConfigurationTrackingId = -2;
     }
 
     private void updateStatus(boolean status) {
@@ -782,30 +853,45 @@ public class ObjectFactory {
         }
     }
 
+    private void updateMBusRequestStatus() {
+        if (getTrackingID() == mBusBillingRegistersTrackingId) {
+            receivedMBusBillingRegisters = false;
+            log(Level.WARNING, "Meter doesn't support slave devices, can't request MBus billing data");
+            mBusBillingRegistersTrackingId = -2;
+        }
+        if (getTrackingID() == mBusCurrentRegistersTrackingId) {
+            receivedMBusCurrentRegisters = false;
+            log(Level.WARNING, "Meter doesn't support slave devices, can't request MBus current readings");
+            mBusCurrentRegistersTrackingId = -2;
+        }
+    }
+
     /**
      * A configuration acknowledgement with the right tracking ID confirms the display message success
      */
     private void updateConfigurationStatus(boolean status) throws BusinessException, SQLException {
         if (getTrackingID() == displayMessageTrackingId) {
             displayMessageSucceeded = status;
-            getAce4000().setMessageResults();
         }
         if (getTrackingID() == displayConfigurationTrackingId) {
             displayConfigurationSucceeded = status;
-            getAce4000().setMessageResults();
         }
         if (getTrackingID() == loadProfileConfigurationTrackingId) {
             loadProfileConfigurationSucceeded = status;
-            getAce4000().setMessageResults();
         }
         if (getTrackingID() == maxDemandConfigurationTrackingId) {
             maxDemandConfigurationSucceeded = status;
-            getAce4000().setMessageResults();
         }
         if (getTrackingID() == consumptionLimitationConfigurationTrackingId) {
             consumptionLimitationConfigurationSucceeded = status;
-            getAce4000().setMessageResults();
         }
+        if (getTrackingID() == emergencyConsumptionLimitationConfigurationTrackingId) {
+            emergencyConsumptionLimitationConfigurationSucceeded = status;
+        }
+        if (getTrackingID() == tariffConfigurationTrackingId) {
+            tariffConfigurationSucceeded = status;
+        }
+        getAce4000().setMessageResults(false);
     }
 
     private void parseElements(Element element) throws IOException, SQLException, BusinessException {
@@ -837,9 +923,10 @@ public class ObjectFactory {
                             log(Level.INFO, "Received a configuration acknowledge with tracking ID [" + getTrackingID() + "]");
                         } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.NACK)) {
                             getNegativeAcknowledge().parse(mdElement);
-                            updateStatus(false);
-                            updateConfigurationStatus(false);
                             log(Level.INFO, "Received a negative acknowledgement, reason: " + getNegativeAcknowledge().getReasonDescription());
+                            updateStatus(false);
+                            updateMBusRequestStatus();
+                            updateConfigurationStatus(false);
                         } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.REJECT)) {
                             getReject().parse(mdElement);
                             updateStatus(false);
@@ -849,18 +936,22 @@ public class ObjectFactory {
                             log(Level.INFO, "Received a loadProfile element.");
                             getLoadProfile().parse(mdElement);
                             receivedLoadProfile = true;
+                            getAce4000().setMessageResults(false);
                         } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.LOADPRABS)) {
                             log(Level.INFO, "Received a loadProfile element.");
                             getLoadProfile().parse(mdElement);
                             receivedLoadProfile = true;
+                            getAce4000().setMessageResults(false);
                         } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.MBUSBILLINGDATA)) {
                             log(Level.INFO, "Received MBus billing data.");
+                            getMBusBillingData().setSlaveSerialNumber(ace4000.getPushedSerialNumber());
                             getMBusBillingData().parse(mdElement);
                             receivedMBusBillingRegisters = true;
                         } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.EVENT)) {
                             log(Level.INFO, "Received events");
                             getEventData().parse(mdElement);
                             receivedEvents = true;
+                            getAce4000().setMessageResults(false);
                         } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.INSTVC)) {
                             log(Level.INFO, "Received instantaneous registers");
                             getInstantVoltAndCurrent().parse(mdElement);
@@ -877,6 +968,7 @@ public class ObjectFactory {
                             receivedCurrentRegisters = true;
                         } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.MBUSCREADING)) {
                             log(Level.INFO, "Received current readings from MBus meter.");
+                            getMBCurrentReadings().setSlaveSerialNumber(ace4000.getPushedSerialNumber());
                             getMBCurrentReadings().parse(mdElement);
                             receivedMBusCurrentRegisters = true;
                         } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.RESFIRMWARE)) {
@@ -1042,11 +1134,28 @@ public class ObjectFactory {
     }
 
     /**
-     * Returns all slave registers: current readings and billing registers
+     * Returns registers for a slave: current readings and billing registers
      *
+     * @param serialNumber the serial number identifying the slave meter
      * @return slave registers
      */
-    public MeterReadingData getAllMBusRegisters() {            //Fetch all current and billing registers
+    public MeterReadingData getAllMBusRegisters(String serialNumber) {            //Fetch all current and billing registers
+        MeterReadingData mrd;
+        mrd = getMBCurrentReadings().getMrdPerSlave(serialNumber);
+        if (getMBusBillingData().getMrdPerSlave(serialNumber) != null) {
+            for (RegisterValue registerValue : getMBusBillingData().getMrdPerSlave(serialNumber).getRegisterValues()) {
+                mrd.add(registerValue);
+            }
+        }
+        return mrd;
+    }
+
+    /**
+     * Return the registers for ALL slaves
+     *
+     * @return all slave registers
+     */
+    public MeterReadingData getAllMBusRegisters() {
         MeterReadingData mrd;
         mrd = getMBCurrentReadings().getMrd();
 
@@ -1063,10 +1172,10 @@ public class ObjectFactory {
      * @return if the registers have been received or not
      * @throws IOException communication error
      */
-    public boolean requestAllMasterRegisters() throws IOException {
+    public boolean requestAllMasterRegisters(Date from) throws IOException {
         boolean received = true;
         if (!isReceivedBillingRegisters()) {
-            sendBDRequest();
+            sendBDRequest(from);
             received = false;
         }
         if (!isReceivedCurrentRegisters()) {
@@ -1087,13 +1196,13 @@ public class ObjectFactory {
      * @return if the registers have been received or not
      * @throws IOException communication error
      */
-    public boolean requestAllSlaveRegisters() throws IOException {
+    public boolean requestAllSlaveRegisters(Date from) throws IOException {
         boolean received = true;
-        if (!isReceivedMBusBillingRegisters()) {
-            sendMBusBillingDataRequest();
+        if (isReceivedMBusBillingRegisters() == null) {
+            sendMBusBillingDataRequest(from);
             received = false;
         }
-        if (!isReceivedMBusCurrentRegisters()) {
+        if (isReceivedMBusCurrentRegisters() == null) {
             sendMBusCurrentRegistersRequest();
             received = false;
         }

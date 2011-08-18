@@ -4,6 +4,7 @@ import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -22,6 +23,7 @@ public class ConsumptionLimitationConfiguration extends AbstractActarisObject {
         //Only ack or nack is sent back
     }
 
+    private Date date = null;
     private int numberOfSubIntervals;
     private int subIntervalDuration;
     private int ovlRate;
@@ -111,6 +113,9 @@ public class ConsumptionLimitationConfiguration extends AbstractActarisObject {
         Element cf = doc.createElement(XMLTags.CONFIGURATION);
         md.appendChild(cf);
         Element consumptionLimitElement = doc.createElement(XMLTags.CONSLIMITCONFIG);
+        if (date != null) {
+            consumptionLimitElement.setAttribute(XMLTags.TIME_ATTR, getHexDate(date));
+        }
         cf.appendChild(consumptionLimitElement);
 
         Element numberOfIntervalsElement = doc.createElement(XMLTags.SUBINTERVALS);
@@ -186,5 +191,9 @@ public class ConsumptionLimitationConfiguration extends AbstractActarisObject {
             text = "0" + text;
         }
         return text;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 }

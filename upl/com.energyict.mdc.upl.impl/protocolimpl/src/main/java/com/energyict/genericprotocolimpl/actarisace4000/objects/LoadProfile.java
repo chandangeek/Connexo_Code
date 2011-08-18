@@ -77,7 +77,7 @@ public class LoadProfile extends AbstractActarisObject {
         int offset = 0;
         byte[] decoded = Base64.decode(data);
 
-        int numberOfChannels = getObjectFactory().getAce4000().getMeter().getChannels().size();
+        int numberOfChannels = getObjectFactory().getAce4000().getMasterMeter().getChannels().size();
         if (numberOfChannels != 1) {
             throw new BusinessException("Received profile data for 1 channel, while " + numberOfChannels + " are configured in EiServer");
         }
@@ -193,7 +193,7 @@ public class LoadProfile extends AbstractActarisObject {
             parseLoadProfile(data, true, scale);
         } else if (decoded.length == length2) {
 
-            int numberOfChannels = getObjectFactory().getAce4000().getMeter().getChannels().size();
+            int numberOfChannels = getObjectFactory().getAce4000().getMasterMeter().getChannels().size();
             if (numberOfChannels != 3) {
                 throw new BusinessException("Received profile data for 3 channels, while " + numberOfChannels + " are configured in EiServer");
             }

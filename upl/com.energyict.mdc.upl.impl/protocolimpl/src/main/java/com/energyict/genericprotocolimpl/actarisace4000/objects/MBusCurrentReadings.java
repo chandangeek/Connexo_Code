@@ -17,12 +17,14 @@ import java.util.List;
 import java.util.logging.Level;
 
 /**
- * @author gna
+ * @author gna & khe
  */
 public class MBusCurrentReadings extends AbstractActarisObject {
 
-    MeterReadingData mrd = new MeterReadingData();
     private Date timeStamp = null;
+    private String slaveSerialNumber = "";
+    private MeterReadingData mrd = new MeterReadingData();
+
 
     public MBusCurrentReadings(ObjectFactory of) {
         super(of);
@@ -37,7 +39,20 @@ public class MBusCurrentReadings extends AbstractActarisObject {
                 setMBReadingData(element.getTextContent());
             }
         }
+    }
 
+    public MeterReadingData getMrdPerSlave(String serialNumber) {
+        MeterReadingData result = new MeterReadingData();
+        for (RegisterValue registerValue : mrd.getRegisterValues()) {
+            if (serialNumber.equals(registerValue.getText())) {
+                result.add(new RegisterValue(registerValue.getObisCode(), registerValue.getQuantity(), registerValue.getEventTime(), registerValue.getToTime()));
+            }
+        }
+        return result;
+    }
+
+    public MeterReadingData getMrd() {
+        return mrd;
     }
 
     @Override
@@ -93,7 +108,7 @@ public class MBusCurrentReadings extends AbstractActarisObject {
                             obisCodeCreator.setB(0);
                             ObisCode obisCode = ObisCode.fromString(obisCodeCreator.toString());
 
-                            RegisterValue value = new RegisterValue(obisCode, record.getQuantity(), new Date(), getTimeStamp());
+                            RegisterValue value = new RegisterValue(obisCode, record.getQuantity(), new Date(), getTimeStamp(), getTimeStamp(), new Date(), 0, slaveSerialNumber);
                             mrd.add(value);
                         }
                     }
@@ -114,7 +129,7 @@ public class MBusCurrentReadings extends AbstractActarisObject {
         this.timeStamp = timeStamp;
     }
 
-    protected MeterReadingData getMrd() {
-        return mrd;
+    public void setSlaveSerialNumber(String pushedSerialNumber) {
+        this.slaveSerialNumber = pushedSerialNumber;
     }
 }

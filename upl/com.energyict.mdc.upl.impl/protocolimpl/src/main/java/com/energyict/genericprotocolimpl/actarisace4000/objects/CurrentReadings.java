@@ -10,7 +10,6 @@ import org.apache.axis.encoding.Base64;
 import org.w3c.dom.*;
 
 import java.util.Date;
-import java.util.logging.Level;
 
 /**
  * @author gna
@@ -114,13 +113,11 @@ public class CurrentReadings extends AbstractActarisObject {
     private void addRegister(ObisCode oc, Quantity value) {
         RtuRegister register;
         RegisterValue rv;
-        register = getObjectFactory().getAce4000().getMeter().getRegister(oc);
+        register = getObjectFactory().getAce4000().getMasterMeter().getRegister(oc);
         if (register != null) {
             rv = new RegisterValue(oc, value, new Date(), getTimeStamp());
             rv.setRtuRegisterId(register.getId());
             mrd.add(rv);
-        } else {
-            getObjectFactory().log(Level.WARNING, "Received data for register [" + oc.toString() + "], but this register is not defined on the RTU in EiServer");
         }
     }
 
