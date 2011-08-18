@@ -10,7 +10,7 @@ import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
 public class AS300FirmwareUpdateMessageBuilder extends FirmwareUpdateMessageBuilder {
 
     public static String getMessageNodeTag() {
-        return getMessageNodeTag();
+        return FirmwareUpdateMessageBuilder.getMessageNodeTag();
     }
 
 }
