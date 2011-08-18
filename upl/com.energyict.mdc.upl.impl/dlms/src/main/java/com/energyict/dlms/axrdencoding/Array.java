@@ -22,16 +22,16 @@ import com.energyict.dlms.DLMSUtils;
  *
  * @author kvds
  */
-public class Array<T extends AbstractDataType> extends AbstractDataType implements Iterable<T> {
+public class Array extends AbstractDataType implements Iterable<AbstractDataType> {
 
-	private List<T> dataTypes;
+	private List<AbstractDataType> dataTypes;
 	private int offsetBegin, offsetEnd;
 
 	/**
 	 * Creates a new instance of Array
 	 */
 	public Array() {
-		dataTypes = new ArrayList<T>();
+		dataTypes = new ArrayList<AbstractDataType>();
 	}
 
     /**
@@ -40,7 +40,7 @@ public class Array<T extends AbstractDataType> extends AbstractDataType implemen
      * @param nrOfDataTypes the number of datatypes
      */
     public Array(int nrOfDataTypes) {
-        dataTypes = new ArrayList<T>(nrOfDataTypes);
+        dataTypes = new ArrayList<AbstractDataType>(nrOfDataTypes);
         for(int i = 0; i < nrOfDataTypes; i++){
             dataTypes.add(null);
         }
@@ -52,12 +52,12 @@ public class Array<T extends AbstractDataType> extends AbstractDataType implemen
 			throw new IOException("Array, invalid identifier " + berEncodedData[offset]);
 		}
 		offset++;
-		dataTypes = new ArrayList<T>();
+		dataTypes = new ArrayList<AbstractDataType>();
 		int length = (int) DLMSUtils.getAXDRLength(berEncodedData, offset);
 		offset += DLMSUtils.getAXDRLengthOffset(berEncodedData, offset);
 		// setLevel(getLevel()+1);
 		for (int i = 0; i < length; i++) {
-			T adt = (T) AXDRDecoder.decode(berEncodedData, offset, getLevel() + 1);
+			AbstractDataType adt = AXDRDecoder.decode(berEncodedData, offset, getLevel() + 1);
             adt.setLevel(level);
 			dataTypes.add(adt);
 			offset += adt.size();
@@ -72,9 +72,9 @@ public class Array<T extends AbstractDataType> extends AbstractDataType implemen
 		}
 		StringBuffer strBuff = new StringBuffer();
 		strBuff.append(strBuffTab.toString() + "Array[" + dataTypes.size() + "]:\n");
-		Iterator<T> it = dataTypes.iterator();
+		Iterator<AbstractDataType> it = dataTypes.iterator();
 		while (it.hasNext()) {
-			T adt = it.next();
+			AbstractDataType adt = it.next();
 			strBuff.append(strBuffTab.toString() + adt);
 		}
 		return strBuff.toString();
@@ -89,9 +89,9 @@ public class Array<T extends AbstractDataType> extends AbstractDataType implemen
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			baos.write(DLMSCOSEMGlobals.TYPEDESC_ARRAY);
 			baos.write(DLMSUtils.getAXDRLengthEncoding(dataTypes.size()));
-			Iterator<T> it = dataTypes.iterator();
+			Iterator<AbstractDataType> it = dataTypes.iterator();
 			while (it.hasNext()) {
-				T dt = it.next();
+				AbstractDataType dt = it.next();
 				baos.write(dt.getBEREncodedByteArray());
 			}
 			return baos.toByteArray();
@@ -107,7 +107,7 @@ public class Array<T extends AbstractDataType> extends AbstractDataType implemen
      * @param dataType the dataType to add
      * @return this array
      */
-	public Array addDataType(T dataType) {
+	public Array addDataType(AbstractDataType dataType) {
 		dataTypes.add(dataType);
 		return this;
 	}
@@ -118,11 +118,11 @@ public class Array<T extends AbstractDataType> extends AbstractDataType implemen
      * @param index    the index of the list to update the datatype
      * @param dataType the dataType to add
      */
-    public void setDataType(int index, T dataType) {
+    public void setDataType(int index, AbstractDataType dataType) {
         dataTypes.set(index, dataType);
     }
 
-	public T getDataType(int index) {
+	public AbstractDataType getDataType(int index) {
 		return dataTypes.get(index);
 	}
 
@@ -131,7 +131,7 @@ public class Array<T extends AbstractDataType> extends AbstractDataType implemen
      *
      * @return all the dataTypes
      */
-    public List<T> getAllDataTypes(){
+    public List<AbstractDataType> getAllDataTypes(){
         return this.dataTypes;
     }
 
@@ -151,16 +151,16 @@ public class Array<T extends AbstractDataType> extends AbstractDataType implemen
 		return -1;
 	}
 
-    public Iterator<T> iterator() {
+    public Iterator<AbstractDataType> iterator() {
         return new ArrayIterator(this);
     }
 
-    private class ArrayIterator implements Iterator<T> {
+    private class ArrayIterator implements Iterator<AbstractDataType> {
 
-        private final Array<T> arrayObject;
+        private final Array arrayObject;
         private int index;
 
-        public ArrayIterator(Array<T> arrayObject) {
+        public ArrayIterator(Array arrayObject) {
             this.arrayObject = arrayObject;
             this.index = 0;
         }
@@ -169,11 +169,11 @@ public class Array<T extends AbstractDataType> extends AbstractDataType implemen
             return this.index < arrayObject.nrOfDataTypes();
         }
 
-        public T next() {
+        public AbstractDataType next() {
             if (!hasNext()) {
                 throw new NoSuchElementException("No next element available in array.");
             }
-            T item = arrayObject.getDataType(index);
+            AbstractDataType item = arrayObject.getDataType(index);
             this.index++;
             return item;
         }

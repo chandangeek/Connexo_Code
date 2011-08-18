@@ -1,0 +1,58 @@
+package com.energyict.dlms.cosem.attributes;
+
+import com.energyict.dlms.cosem.DLMSClassId;
+
+/**
+ * Contains functionality to access attributes of the ActivityCalendar (independent whether or not shortName or logicalNames are used)
+ * <br/>
+ * Copyrights EnergyICT<br/>
+ * Date: 17-dec-2010<br/>
+ * Time: 10:27:28<br/>
+ */
+public enum AssociationLNAttributes implements DLMSClassAttributes {
+
+    LOGICAL_NAME(1, 0x00),
+    OBJECT_LIST(2,0x08);
+
+    /**
+     * The number of this attribute
+     */
+    private final int attributeNumber;
+    /**
+     * The shortName of this attribute according to BlueBook V9
+     */
+    private final int shortName;
+
+    /**
+     * Private constructor
+     *
+     * @param attributeNumber the chronological number of the attribute
+     * @param shortName       the shortname of the attribute
+     */
+    private AssociationLNAttributes(int attributeNumber, int shortName) {
+        this.attributeNumber = attributeNumber;
+        this.shortName = shortName;
+    }
+
+    /**
+     * Getter for the attribute number
+     *
+     * @return the attribute number as int
+     */
+    public int getAttributeNumber() {
+        return this.attributeNumber;
+    }
+
+    public DLMSClassId getDlmsClassId() {
+        return DLMSClassId.ACTIVITY_CALENDAR;
+    }
+
+    /**
+     * Getter for the short name
+     *
+     * @return the short name as int
+     */
+    public int getShortName() {
+        return this.shortName;
+    }
+}

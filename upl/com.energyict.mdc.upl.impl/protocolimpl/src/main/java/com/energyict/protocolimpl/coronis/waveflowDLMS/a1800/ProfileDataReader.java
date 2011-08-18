@@ -79,7 +79,7 @@ public class ProfileDataReader {
 
             // parse the AXD-R returned data...
             Calendar calendar = Calendar.getInstance(a1800.getTimeZone());
-            Array<AbstractDataType> array = adt.getArray();
+            Array array = adt.getArray();
             for (AbstractDataType arrayElement : array.getAllDataTypes()) {
 
                 Structure structure = arrayElement.getStructure();
@@ -139,7 +139,7 @@ public class ProfileDataReader {
 		
 		//System.out.println("KV_DEBUG> "+adt);
 		
-		Array<AbstractDataType> array = adt.getArray();
+		Array array = adt.getArray();
 		for (AbstractDataType arrayElement : array.getAllDataTypes()) {
 			DateTime dateTime = new DateTime(arrayElement.getStructure().getDataType(0).getOctetString(), a1800.getTimeZone());
 			Date date = dateTime.getValue().getTime();

@@ -32,7 +32,7 @@ public class BasicEventLog {
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
 
         try {
-            Array<AbstractDataType> eventArray = getEventArray(from);
+            Array eventArray = getEventArray(from);
             for (AbstractDataType abstractEventData : eventArray.getAllDataTypes()) {
                 BasicEvent basicEvent = getBasicEvent(abstractEventData);
                 if (basicEvent != null) {
