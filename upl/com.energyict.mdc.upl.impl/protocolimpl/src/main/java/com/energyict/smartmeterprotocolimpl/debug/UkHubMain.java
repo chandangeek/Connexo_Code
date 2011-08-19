@@ -1,17 +1,13 @@
 package com.energyict.smartmeterprotocolimpl.debug;
 
 import com.energyict.dialer.core.LinkException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.cosem.ZigbeeHanManagement;
-import com.energyict.protocol.MeterProtocol;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.debug.AbstractSmartDebuggingMain;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
 
 import java.io.IOException;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -59,11 +55,20 @@ public class UkHubMain extends AbstractSmartDebuggingMain<UkHub> {
     }
 
     public void doDebug() throws LinkException, IOException {
-        Array array = getMeterProtocol().getDlmsSession().getCosemObjectFactory().getAssociationLN().readObjectList();
-        System.out.println(array);
-        byte[] rawData = array.getBEREncodedByteArray();
-        System.out.println("\n" + ProtocolTools.getHexStringFromBytes(rawData));
+        List<Register> registers = new ArrayList<Register>();
+        registers.add(new Register(ObisCode.fromString("0.0.97.97.0.255"), "3300-00009D-1108"));
+        List<RegisterValue> registerValues = getMeterProtocol().readRegisters(registers);
+        for (RegisterValue registerValue : registerValues) {
+            System.out.println(registerValue);
+        }
 
+    }
+
+    private void readLogbooks() throws IOException {
+        List<MeterEvent> meterEvents = getMeterProtocol().getMeterEvents(new Date(0));
+        for (MeterEvent meterEvent : meterEvents) {
+            System.out.println(meterEvent.getTime() + "  " +  meterEvent.toString());
+        }
     }
 
 }

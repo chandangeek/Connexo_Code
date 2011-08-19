@@ -13,6 +13,7 @@ import com.energyict.protocol.*;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedRegister;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -32,8 +33,8 @@ public class UkHubRegisterFactory implements BulkRegisterProtocol {
     public static final ObisCode DeviceId1 = ObisCode.fromString("0.0.96.1.0.255");     // HUB SerialNumber
     public static final ObisCode DeviceId2 = ObisCode.fromString("0.0.96.1.1.255");     // UtilitySpecified EquipmentID
     public static final ObisCode DeviceId3 = ObisCode.fromString("0.0.96.1.2.255");     //E-Function location details, e.g. 48 chars (maybe need removing)
-    public static final ObisCode DeviceId4 = ObisCode.fromString("0.0.96.1.3.255");     //E-location information – 48 chars
-    public static final ObisCode DeviceId5 = ObisCode.fromString("0.0.96.1.4.255");     //E-configuration information – 16 chars
+    public static final ObisCode DeviceId4 = ObisCode.fromString("0.0.96.1.3.255");     //E-location information ï¿½ 48 chars
+    public static final ObisCode DeviceId5 = ObisCode.fromString("0.0.96.1.4.255");     //E-configuration information ï¿½ 16 chars
     public static final ObisCode DeviceId6 = ObisCode.fromString("0.0.96.1.5.255");     //Manufacturer Name
     public static final ObisCode DeviceId7 = ObisCode.fromString("0.0.96.1.6.255");     //Manufacture ID (ZigBee MSP ID [SSWG code for Clusters])
     public static final ObisCode DeviceId8 = ObisCode.fromString("0.0.96.1.7.255");     //PAYG ID
@@ -96,20 +97,20 @@ public class UkHubRegisterFactory implements BulkRegisterProtocol {
             RegisterValue rv = null;
             try {
                 if (this.composedRegisterMap.containsKey(register)) {
-                    ScalerUnit su = new ScalerUnit(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterUnitAttribute()));
-                    if (su.getUnitCode() != 0) {
-                        rv = new RegisterValue(register,
-                                new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
-                                        su.getUnit()));
-                    } else {
+                    ComposedRegister composedRegister = this.composedRegisterMap.get(register);
+                    DLMSAttribute registerValueAttribute = composedRegister.getRegisterValueAttribute();
+                    BigDecimal value = registerComposedCosemObject.getAttribute(registerValueAttribute).toBigDecimal();
+                    DLMSAttribute registerUnitAttribute = composedRegister.getRegisterUnitAttribute();
+                    ScalerUnit su = new ScalerUnit(registerComposedCosemObject.getAttribute(registerUnitAttribute));
+                    if (su.getUnitCode() == 0) {
                         throw new NoSuchRegisterException("Register with ObisCode: " + register.getObisCode() + " does not provide a proper Unit.");
                     }
-
+                    rv = new RegisterValue(register, new Quantity(value, su.getUnit()));
                 } else if (this.registerMap.containsKey(register)) {
                     rv = convertCustomAbstractObjectsToRegisterValues(register, registerComposedCosemObject.getAttribute(this.registerMap.get(register)));
                 }
             } catch (IOException e) {
-                this.meterProtocol.getLogger().log(Level.WARNING, "Failed to fetch register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "]");
+                this.meterProtocol.getLogger().log(Level.SEVERE, "Failed to fetch register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "]: " + e.getMessage());
             }
             if (rv != null) {
                 registerValues.add(rv);
