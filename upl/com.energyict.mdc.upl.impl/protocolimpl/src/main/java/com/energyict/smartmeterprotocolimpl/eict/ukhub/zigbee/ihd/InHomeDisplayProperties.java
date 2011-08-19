@@ -58,7 +58,9 @@ public class InHomeDisplayProperties extends DlmsProtocolProperties {
     }
 
     public List<String> getRequiredKeys() {
-        return new ArrayList<String>();
+        ArrayList<String> required = new ArrayList<String>();
+        required.add(DlmsProtocolProperties.SECURITY_LEVEL);
+        return required;
     }
 
     @Override
