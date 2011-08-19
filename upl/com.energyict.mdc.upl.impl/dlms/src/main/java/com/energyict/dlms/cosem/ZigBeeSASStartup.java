@@ -57,7 +57,7 @@ public class ZigBeeSASStartup extends AbstractCosemObject {
     }
 
     public OctetString readExtendedPanId() throws IOException {
-        return new OctetString(getResponseData(ZigBeeSASStartupAttribute.EXTENDED_PAN_ID), 0, true);
+        return new OctetString(getResponseData(ZigBeeSASStartupAttribute.EXTENDED_PAN_ID), 0);
     }
 
     public void writeExtendedPanId(OctetString extendedPanID) throws IOException {

@@ -124,7 +124,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         if (extendedPanId != null) {
             getLogger().info("Writing extended pan id [" + extendedPanId + "]");
             byte[] extendedPanIdValue = ProtocolTools.getBytesFromHexString(extendedPanId, "");
-            OctetString extendedPanIdObject = new OctetString(extendedPanIdValue, true);
+            OctetString extendedPanIdObject = new OctetString(extendedPanIdValue);
             zigBeeSASStartup.writeExtendedPanId(extendedPanIdObject);
         }
 

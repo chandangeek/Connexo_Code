@@ -1,6 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.debug;
 
 import com.energyict.dialer.core.LinkException;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.debug.AbstractSmartDebuggingMain;
@@ -50,18 +52,29 @@ public class UkHubMain extends AbstractSmartDebuggingMain<UkHub> {
         UkHubMain main = new UkHubMain();
         main.setTimeZone(TimeZone.getTimeZone("GMT"));
         main.setPhoneNumber("10.113.0.18:4059");
+        //main.setPhoneNumber("10.0.2.209:4059");
+        //main.setPhoneNumber("10.0.2.222:4059");
         main.setShowCommunication(false);
         main.run();
     }
 
-    public void doDebug() throws LinkException, IOException {
-        List<Register> registers = new ArrayList<Register>();
-        registers.add(new Register(ObisCode.fromString("0.0.97.97.0.255"), "3300-00009D-1108"));
-        List<RegisterValue> registerValues = getMeterProtocol().readRegisters(registers);
-        for (RegisterValue registerValue : registerValues) {
-            System.out.println(registerValue);
-        }
+    private CosemObjectFactory getCosemObjectFactory() {
+        return getMeterProtocol().getDlmsSession().getCosemObjectFactory();
+    }
 
+    public void doDebug() throws LinkException, IOException {
+        createHAN();
+    }
+
+    private void createHAN() throws IOException {
+        //String content = "<Change_HAN_SAS HAN_SAS_EXTENDED_PAN_ID=\"0102030405060708\" HAN_SAS_PAN_ID=\"1234\" HAN_SAS_PAN_Channel=\"134215680\" HAN_SAS_Insecure_Join=\"1\"/>";
+        String content = "<Change_HAN_SAS HAN_SAS_PAN_ID=\"45493\" />";
+        String trackingId = "";
+        MessageEntry messageEntry = new MessageEntry(content, trackingId);
+        // getMeterProtocol().queryMessage(messageEntry);
+
+        messageEntry = new MessageEntry("<Create_Han_Network/>", "");
+        getMeterProtocol().queryMessage(messageEntry);
     }
 
     private void readLogbooks() throws IOException {
