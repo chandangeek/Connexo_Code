@@ -28,7 +28,7 @@ public class GenericProtocolCollectionImpl implements ProtocolCollection{
         this.protocolnames = new ArrayList();
 
 
-        this.protocolclasses.add("com.energyict.genericprotocolimpl.actarisace4000.ActarisACE4000");this.protocolnames.add("Actaris ACE4000");
+        this.protocolclasses.add("com.energyict.genericprotocolimpl.ace4000.ACE4000");this.protocolnames.add("ACE4000");
         this.protocolclasses.add("com.energyict.genericprotocolimpl.actarisplcc3g.Concentrator");this.protocolnames.add("Actaris PLCC 3G concentrator");
         this.protocolclasses.add("com.energyict.genericprotocolimpl.gatewayz3.GateWayZ3");this.protocolnames.add("WebRTU GateWay Z3");
         this.protocolclasses.add("com.energyict.genericprotocolimpl.iskragprs.IskraMx37x");this.protocolnames.add("Iskra Mx372 GPRS");

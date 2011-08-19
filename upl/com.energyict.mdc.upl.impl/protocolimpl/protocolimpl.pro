@@ -219,7 +219,7 @@
 
 -keepnames class com.energyict.genericprotocolimpl.iskragprs.MbusDevice
 
--keepnames class com.energyict.genericprotocolimpl.actarisace4000.ACE4000
+-keepnames class com.energyict.genericprotocolimpl.ace4000.ACE4000
 
 # Moved it to the commons package
 #-keepnames class SDKSampleProtocol
