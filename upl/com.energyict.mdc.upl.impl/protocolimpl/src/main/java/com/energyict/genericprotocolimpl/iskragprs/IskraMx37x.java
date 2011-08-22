@@ -153,7 +153,10 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     private ObisCode crPowerLimit = ObisCode.fromString("0.0.128.62.3.255");
     private ObisCode crMeterGroupID = ObisCode.fromString("0.0.128.62.6.255");
     private ObisCode contractPowerLimit = ObisCode.fromString("0.0.128.61.1.255");
-    private ObisCode llsSecretObisCode = ObisCode.fromString("0.0.128.100.4.255");
+    private ObisCode llsSecretObisCode1 = ObisCode.fromString("0.0.128.100.1.255");
+    private ObisCode llsSecretObisCode2 = ObisCode.fromString("0.0.128.100.2.255");
+    private ObisCode llsSecretObisCode3 = ObisCode.fromString("0.0.128.100.3.255");
+    private ObisCode llsSecretObisCode4 = ObisCode.fromString("0.0.128.100.4.255");
     private ObisCode dailyObisCode = null;
     private ObisCode monthlyObisCode = null;
     private ObisCode loadProfileObisCode = null;
@@ -1294,12 +1297,27 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         String newLLSSecret = getProperty(NTASecurityProvider.NEW_LLS_SECRET);
         if (newLLSSecret == null) {
             fail(new InvalidPropertyException("Invalid new LLS secret property."), msg, "Invalid new LLS secret property");
-        } else if (newLLSSecret.length() != 8) {
-            fail(new InvalidPropertyException("Invalid length of the new LLS secret property, must by 8 char long."), msg, "Invalid length of the new LLS secret proprety, must by 8 char long.");
+        } else if (newLLSSecret.length() > 16) {
+            fail(new InvalidPropertyException("Invalid length of the new LLS secret property, MAX 16 char long."), msg, "Invalid length of the new LLS secret property, MAX 16 char long.");
         } else {
-            Data authKeyData = getCosemObjectFactory().getData(llsSecretObisCode);
-            authKeyData.setValueAttr(OctetString.fromString(newLLSSecret));
-            msg.confirm();
+            try {
+                Data authKeyData = getCosemObjectFactory().getData(llsSecretObisCode4);
+                authKeyData.setValueAttr(OctetString.fromString(newLLSSecret));
+                authKeyData = getCosemObjectFactory().getData(llsSecretObisCode3);
+                authKeyData.setValueAttr(OctetString.fromString(newLLSSecret));
+                authKeyData = getCosemObjectFactory().getData(llsSecretObisCode2);
+                authKeyData.setValueAttr(OctetString.fromString(newLLSSecret));
+                authKeyData = getCosemObjectFactory().getData(llsSecretObisCode1);
+                authKeyData.setValueAttr(OctetString.fromString(newLLSSecret));
+                msg.confirm();
+//                for (int i = 4; i > 0; i--) {
+//                    ObisCode oc = new ObisCode(llsSecretObisCode.getA(), llsSecretObisCode.getB(), llsSecretObisCode.getC(), llsSecretObisCode.getD(), i, llsSecretObisCode.getF());
+//                    Data authKeyData = getCosemObjectFactory().getData(oc);
+//                    authKeyData.setValueAttr(OctetString.fromString(newLLSSecret));
+//                }
+            } catch (Exception e) {
+                fail(e, msg, "Could not write all the necessary LLS keys.");
+            }
         }
     }
 
