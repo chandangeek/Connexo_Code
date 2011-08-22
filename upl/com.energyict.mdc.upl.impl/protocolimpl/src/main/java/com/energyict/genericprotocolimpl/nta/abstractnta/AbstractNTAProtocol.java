@@ -23,6 +23,7 @@ import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.MagicNumberConstants;
 import com.energyict.protocolimpl.dlms.*;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -178,7 +179,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
             SmsWakeup smsWakeup = new SmsWakeup(getCommunicationScheduler(), getLogger());
             smsWakeup.doWakeUp();
 
-            ipAddress = checkIPAddressForPortNumber(smsWakeup.getIpAddress());
+            ipAddress = ProtocolTools.checkIPAddressForPortNumber(smsWakeup.getIpAddress(), getPortNumber());
 
             this.link.setStreamConnection(new SocketStreamConnection(ipAddress));
             this.link.getStreamConnection().open();
@@ -240,22 +241,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
         forceClock(currentTime);
     }
 
-    /**
-     * If the received IP address doesn't contain a portnumber, then put one in it
-     *
-     * @param ipAddress
-     * @return
-     */
-    protected String checkIPAddressForPortNumber(String ipAddress) {
-        if (!ipAddress.contains(":")) {
-            StringBuffer strBuff = new StringBuffer();
-            strBuff.append(ipAddress);
-            strBuff.append(":");
-            strBuff.append(getPortNumber());
-            return strBuff.toString();
-        }
-        return ipAddress;
-    }
+
 
     public long getTimeDifference() {
         return this.timeDifference;
@@ -445,7 +431,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
     }
 
     /**
-     * Look if there is a portnumber given with the property IpPortNumber, else use the default 2048
+     * Look if there is a portnumber given with the property IpPortNumber, else use the default 4059
      *
      * @return the portNumber
      */

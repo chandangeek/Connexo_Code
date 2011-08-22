@@ -67,6 +67,9 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
      */
     private List<AbstractNtaMbusDevice> mbusDevices = new ArrayList<AbstractNtaMbusDevice>();
 
+    /**
+     * The used DLMS SecurityProvider
+     */
     private SecurityProvider securityProvider;
 
     /**
