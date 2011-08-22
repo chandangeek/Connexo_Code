@@ -83,7 +83,7 @@ public class RegisterReader {
         }
 
         if (obisCode.getA() == 1 && obisCode.getB() == 0) {
-            if (((obisCode.getC() >= 1) && (obisCode.getC() <= 8)) && ((obisCode.getD() == 8) || (obisCode.getD() == 29)) && (obisCode.getF() == 255)) {
+            if (((obisCode.getC() >= 1) && (obisCode.getC() <= 8)) && ((obisCode.getD() == 8) || (obisCode.getD() == 25) || (obisCode.getD() == 29)) && (obisCode.getF() == 255)) {
                 return DLMSClassId.REGISTER;
             }
             if (((obisCode.getC() == 1) || (obisCode.getC() == 2) || (obisCode.getC() == 3) || (obisCode.getC() == 4) || (obisCode.getC() == 9) || (obisCode.getC() == 10)) && (obisCode.getD() == 4 || obisCode.getD() == 25) && (obisCode.getE() == 0) && (obisCode.getF() == 255)) {
