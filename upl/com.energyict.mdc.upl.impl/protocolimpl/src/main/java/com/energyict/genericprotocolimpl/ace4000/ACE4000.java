@@ -216,7 +216,7 @@ public class ACE4000 extends AbstractGenericProtocol {
                 }
                 if (scheduler.getCommunicationProfile().getReadMeterReadings()) {
                     if (retry < getProtocolProperties().getRetries()) {
-                        if (!getObjectFactory().requestAllMasterRegisters(fromDate)) {
+                        if (!getObjectFactory().requestAllMasterRegisters(fromDate, getMasterMeter().getRegisters())) {
                             newRequest = true;
                         }
                     } else {
@@ -224,7 +224,7 @@ public class ACE4000 extends AbstractGenericProtocol {
                     }
                     if (!getMBusMetersMap().isEmpty()) {
                         if (retry < getProtocolProperties().getRetries()) {
-                            if (!getObjectFactory().requestAllSlaveRegisters(fromDate)) {
+                            if (!getObjectFactory().requestAllSlaveRegisters(fromDate, getMBusMetersMap())) {
                                 newRequest = true;
                             }
                         } else {

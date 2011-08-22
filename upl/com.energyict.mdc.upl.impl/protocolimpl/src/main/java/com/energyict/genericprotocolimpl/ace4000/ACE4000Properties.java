@@ -15,7 +15,7 @@ import java.util.*;
 public class ACE4000Properties extends AbstractProtocolProperties {
 
     public static final String TIMEOUT2 = "TimeOut";
-    public static final String DEFAULT_TIMEOUT = "15000";   //TODO: 60 sec!
+    public static final String DEFAULT_TIMEOUT = "60000";
 
     public ACE4000Properties() {
         this(new Properties());

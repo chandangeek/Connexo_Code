@@ -133,6 +133,13 @@ public class XMLTags {
 	public final static String CRATTR			= "R";			// attribute of the current readings
 	public final static String MAXDEMAND        = "MDR";		// maximum demand register
 
+    // Special data mode
+    public final static String SPECIALDATAMODE  = "SDM";		// Special data mode parent tag
+    public final static String SPECIAL_BILLING  = "SBilling";	// Special billing register recording
+    public final static String SPECIAL_LP       = "SLPDef";		// Special load profile register recording
+    public final static String SDM_DURATION     = "DurD";		// SDM duration in days
+    public final static String SDM_ACTIV_DATE   = "SAD";		// Special data mode activation date.
+
     //Display config
     public final static String MESSAGE          = "Message";    // Message parent tag
     public final static String MODE             = "Mode";       // Disabled (0) | Enable Standard (short) (1) | Enable Long (2)
@@ -141,7 +148,7 @@ public class XMLTags {
     public final static String DISPLAYCONFIG    = "LCD";        // LCD settings sub-schema parent tags
     public final static String RESOLUTION       = "DR";         //
     public final static String SEQUENCE         = "DS";         //
-    public final static String INTERVAL         = "CTime";         //
+    public final static String INTERVAL         = "CTime";      //
 
     // instantaneous register
 	public final static String REQINSTVC        = "qIPR";		// Request instant voltage and current

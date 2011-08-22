@@ -25,6 +25,7 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
     private static final String NO_DISPLAY_MESSAGE = "NoDisplayMessage";
     private static final String DISPLAY_CONFIG = "DisplayConfiguration";
     private static final String CONFIG_LOADPROFILE = "ConfigureLoadProfile";
+    private static final String CONFIG_SPECIAL_DATA_MODE = "ConfigureSpecialDataMode";
     private static final String CONFIG_MAX_DEMAND = "ConfigureMaxDemand";
     private static final String CONFIG_CONSUMPTION_LIMITATION = "ConfigureConsumptionLimitation";
     private static final String CONFIG_EMERGENCY_CONSUMPTION_LIMITATION = "ConfigureEmergencyConsumptionLimitation";
@@ -102,6 +103,11 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
                     sendLoadProfileConfigurationRequest(messageEntry);
                     newRequest = true;
                 }
+            } else if (messageEntry.getContents().contains(CONFIG_SPECIAL_DATA_MODE)) {
+                if (ace4000.getObjectFactory().shouldRetrySDMConfiguration()) {
+                    sendSDMConfigurationRequest(messageEntry);
+                    newRequest = true;
+                }
             } else if (messageEntry.getContents().contains(CONFIG_MAX_DEMAND)) {
                 if (ace4000.getObjectFactory().shouldRetryMaxDemandConfiguration()) {
                     sendMaxDemandConfigurationRequest(messageEntry);
@@ -154,6 +160,7 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
         cat2.addMessageSpec(addBasicMsg("Disable the display message", NO_DISPLAY_MESSAGE, false));
         cat2.addMessageSpec(addBasicMsgWith4Values("Configure LCD display", DISPLAY_CONFIG, false, "Number of digits before comma (allowed: 5, 6 or 7)", "Number of digits after comma (allowed: 0, 1, 2 or 3)", "Display sequence (comma separated hex values, e.g.: 1,2,E,12,1A)", "Display cycle time (seconds)"));
         cat2.addMessageSpec(addBasicMsgWith3Values("Configure load profile data recording", CONFIG_LOADPROFILE, false, "Enable (1) or disable (0)", "Interval (1, 2, 3, 5, 6, 10, 12, 15, 20, 30, 60, 120 or 240 minutes)", "Maximum number of records (min 1, max 65535)"));
+        cat2.addMessageSpec(addBasicMsgWith8Values("Configure special data mode", CONFIG_SPECIAL_DATA_MODE, false, "Special data mode duration (days)", "Special data mode activation date (dd/mm/yyyy)", "Special billing register recording: enable (1) or disable (0)", "Special billing register recording: interval (0: hourly, 1: daily, 2: monthly)", "Special billing register recording: max number of records (min 1, max 65535)", "Special load profile: enable (1) or disable (0)", "Special load profile: interval (1, 2, 3, 5, 6, 10, 12, 15, 20, 30, 60, 120 or 240 minutes)", "Special load profile: max number of records (min 1, max 65535)"));
         cat2.addMessageSpec(addBasicMsgWith3Values("Configure maximum demand settings", CONFIG_MAX_DEMAND, false, "Active registers (0) or reactive registers (1)", "Number of sub intervals (0, 1, 2, 3, 4, 5, 10 or 15)", "Sub interval duration (30, 60, 300, 600, 900, 1200, 1800 or 3600 seconds)"));
         cat2.addMessageSpec(addBasicMsgWith15Values("Configure consumption limitation settings", CONFIG_CONSUMPTION_LIMITATION, false, "Number of sub intervals (0, 1, 2, 3, 4, 5, 10 or 15)", "Sub interval duration (30, 60, 300, 600, 900, 1200, 1800 or 3600 seconds)", "Override rate (0: disabled)", "Allowed excess tolerance (0 - 100 %)", "Threshold selection (0: day profile, 1: maximum threshold)", "8 switching moments for daily profile 0 (comma separated, e.g.: 01:00,05:00,...)", "8 thresholds for daily profile 0 (comma separated)", "8 units for the thresholds (comma separated) (0: Watt, 1: Ampere)", "8 actions (in hex) for daily profile 0 (comma separated)", "8 switching moments for daily profile 1 (comma separated, e.g.: 01:00,05:00,...)", "8 thresholds for daily profile 1 (comma separated)", "8 units for the thresholds (comma separated) (0: Watt, 1: Ampere)", "8 actions (in hex) for daily profile 1 (comma separated)", "Day profiles used for each day of the week (comma separated)", "Activation date (dd/mm/yyyy hh:mm:ss) (optional)"));
         cat2.addMessageSpec(addBasicMsgWith4Values("Configure emergency consumption limitation settings", CONFIG_EMERGENCY_CONSUMPTION_LIMITATION, false, "Duration (minutes)", "Threshold value", "Threshold unit (0: Watt, 1: Ampere)", "Override rate (0: disabled)"));
@@ -272,6 +279,32 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
         tagSpec.add(addAttribute14);
         MessageAttributeSpec addAttribute15 = new MessageAttributeSpec(attr15, false);
         tagSpec.add(addAttribute15);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" "); //Disable this field
+        tagSpec.add(msgVal);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
+    protected MessageSpec addBasicMsgWith8Values(final String keyId, final String tagName, final boolean advanced, String attr1, String attr2, String attr3, String attr4, String attr5, String attr6, String attr7, String attr8) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageAttributeSpec addAttribute1 = new MessageAttributeSpec(attr1, true);
+        tagSpec.add(addAttribute1);
+        MessageAttributeSpec addAttribute2 = new MessageAttributeSpec(attr2, true);
+        tagSpec.add(addAttribute2);
+        MessageAttributeSpec addAttribute3 = new MessageAttributeSpec(attr3, true);
+        tagSpec.add(addAttribute3);
+        MessageAttributeSpec addAttribute4 = new MessageAttributeSpec(attr4, true);
+        tagSpec.add(addAttribute4);
+        MessageAttributeSpec addAttribute5 = new MessageAttributeSpec(attr5, true);
+        tagSpec.add(addAttribute5);
+        MessageAttributeSpec addAttribute6 = new MessageAttributeSpec(attr6, true);
+        tagSpec.add(addAttribute6);
+        MessageAttributeSpec addAttribute7 = new MessageAttributeSpec(attr7, true);
+        tagSpec.add(addAttribute7);
+        MessageAttributeSpec addAttribute8 = new MessageAttributeSpec(attr8, true);
+        tagSpec.add(addAttribute8);
         MessageValueSpec msgVal = new MessageValueSpec();
         msgVal.setValue(" "); //Disable this field
         tagSpec.add(msgVal);
@@ -756,6 +789,54 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
         ace4000.getObjectFactory().sendEmergencyConsumptionLimitationConfigurationRequest(duration, threshold, unit, overrideRate);
     }
 
+    private void sendSDMConfigurationRequest(RtuMessage messageEntry) throws BusinessException, SQLException, IOException {
+        String failMsg = "Special data mode configuration message failed, invalid arguments";
+        String[] parts = messageEntry.getContents().split("=");
+
+        int duration = Integer.parseInt(parts[1].substring(1).split("\"")[0]);
+        Date date;
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+            date = formatter.parse(parts[2].substring(1).split("\"")[0]);
+        } catch (Exception e) {
+            failMessage(messageEntry, failMsg);
+            return;
+        }
+
+        int billingEnable = Integer.parseInt(parts[3].substring(1).split("\"")[0]);
+        if (billingEnable != 0 && billingEnable != 1) {
+            failMessage(messageEntry, failMsg);
+            return;
+        }
+        int billingInterval = Integer.parseInt(parts[4].substring(1).split("\"")[0]);
+        if (billingInterval != 0 && billingInterval != 1 && billingInterval != 2) {
+            failMessage(messageEntry, failMsg);
+            return;
+        }
+        int billingNumber = Integer.parseInt(parts[5].substring(1).split("\"")[0]);
+        if (billingNumber > 0xFFFF || billingNumber < 0) {
+            failMessage(messageEntry, failMsg);
+            return;
+        }
+
+        int loadProfileEnable = Integer.parseInt(parts[6].substring(1).split("\"")[0]);
+        if (loadProfileEnable != 0 && loadProfileEnable != 1) {
+            failMessage(messageEntry, failMsg);
+            return;
+        }
+        int loadProfileInterval = Integer.parseInt(parts[7].substring(1).split("\"")[0]);
+        if (loadProfileInterval != 1 && loadProfileInterval != 2 && loadProfileInterval != 3 && loadProfileInterval != 5 && loadProfileInterval != 6 && loadProfileInterval != 0x0A && loadProfileInterval != 0x0C && loadProfileInterval != 0x0F && loadProfileInterval != 0x14 && loadProfileInterval != 0x1E && loadProfileInterval != 0x3C && loadProfileInterval != 0x78 && loadProfileInterval != 0xF0) {
+            failMessage(messageEntry, failMsg);
+            return;
+        }
+        int loadProfileNumber = Integer.parseInt(parts[8].substring(1).split("\"")[0]);
+        if (loadProfileNumber > 0xFFFF || loadProfileNumber < 0) {
+            failMessage(messageEntry, failMsg);
+            return;
+        }
+        ace4000.getObjectFactory().sendSDMConfiguration(billingEnable, billingInterval, billingNumber, loadProfileEnable, loadProfileInterval, loadProfileNumber, duration, date);
+    }
+
 
     private void failMessage(RtuMessage messageEntry, String msg) throws BusinessException, SQLException {
         ace4000.log(Level.WARNING, msg);
@@ -809,6 +890,9 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
             }
             if (messageEntry.getContents().contains(CONFIG_LOADPROFILE)) {
                 setMessage(messageEntry, ace4000.getObjectFactory().getLoadProfileConfigurationSucceeded(), "Load profile configuration message failed");
+            }
+            if (messageEntry.getContents().contains(CONFIG_SPECIAL_DATA_MODE)) {
+                setMessage(messageEntry, ace4000.getObjectFactory().getSDMConfigurationSucceeded(), "Special data mode configuration message failed");
             }
             if (messageEntry.getContents().contains(CONFIG_MAX_DEMAND)) {
                 setMessage(messageEntry, ace4000.getObjectFactory().getMaxDemandConfigurationSucceeded(), "Max demand configuration message failed");
@@ -890,6 +974,11 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
                     return true;
                 }
             }
+            if (messageEntry.getContents().contains(CONFIG_SPECIAL_DATA_MODE)) {
+                if (ace4000.getObjectFactory().shouldRetrySDMConfiguration()) {
+                    return true;
+                }
+            }
             if (messageEntry.getContents().contains(CONFIG_MAX_DEMAND)) {
                 if (ace4000.getObjectFactory().shouldRetryMaxDemandConfiguration()) {
                     return true;
@@ -960,6 +1049,12 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
             if (messageEntry.getContents().contains(CONFIG_LOADPROFILE)) {
                 if (ace4000.getObjectFactory().shouldRetryLoadProfileConfiguration()) {
                     ace4000.log("Sent load profile data recording configuration request " + (retries + 1) + " times, meter didn't reply.");
+                    messageEntry.setFailed();
+                }
+            }
+            if (messageEntry.getContents().contains(CONFIG_SPECIAL_DATA_MODE)) {
+                if (ace4000.getObjectFactory().shouldRetrySDMConfiguration()) {
+                    ace4000.log("Sent special data mode configuration request " + (retries + 1) + " times, meter didn't reply.");
                     messageEntry.setFailed();
                 }
             }

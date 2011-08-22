@@ -69,8 +69,6 @@ public class CurrentReadings extends AbstractActarisObject {
         offset += 4;
 
         if (includedRegisters != null) {
-            RegisterValue rv;
-            RtuRegister register;
             ObisCode oc;
             if (includedRegisters.contains("T")) {
                 oc = ObisCode.fromString("1.0.1.8.0.255");

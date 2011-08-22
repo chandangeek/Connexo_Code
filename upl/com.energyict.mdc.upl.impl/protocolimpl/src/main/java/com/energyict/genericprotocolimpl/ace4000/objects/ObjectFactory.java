@@ -4,6 +4,9 @@ import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.genericprotocolimpl.ace4000.ACE4000;
 import com.energyict.genericprotocolimpl.ace4000.objects.xml.XMLTags;
+import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.core.Rtu;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import org.w3c.dom.*;
 import org.xml.sax.InputSource;
@@ -47,6 +50,7 @@ public class ObjectFactory {
     private DisplayMessage displayMessage = null;
     private DisplayConfiguration displayConfiguration = null;
     private LoadProfileConfiguration loadProfileConfiguration = null;
+    private SpecialDataModeConfiguration specialDataModeConfiguration = null;
     private ConsumptionLimitationConfiguration consumptionLimitationConfiguration = null;
     private EmergencyConsumptionLimitationConfiguration emergencyConsumptionLimitationConfiguration = null;
     private TariffConfiguration tariffConfiguration = null;
@@ -70,6 +74,7 @@ public class ObjectFactory {
     private Boolean displayMessageSucceeded = null;
     private Boolean displayConfigurationSucceeded = null;
     private Boolean loadProfileConfigurationSucceeded = null;
+    private Boolean sdmConfigurationSucceeded = null;
     private Boolean maxDemandConfigurationSucceeded = null;
     private Boolean consumptionLimitationConfigurationSucceeded = null;
     private Boolean emergencyConsumptionLimitationConfigurationSucceeded = null;
@@ -83,6 +88,7 @@ public class ObjectFactory {
     private int displayMessageTrackingId = -2;
     private int displayConfigurationTrackingId = -2;
     private int loadProfileConfigurationTrackingId = -2;
+    private int sdmConfigurationTrackingId = -2;
     private int maxDemandConfigurationTrackingId = -2;
     private int consumptionLimitationConfigurationTrackingId = -2;
     private int emergencyConsumptionLimitationConfigurationTrackingId = -2;
@@ -149,6 +155,10 @@ public class ObjectFactory {
         return (loadProfileConfigurationSucceeded == null);
     }
 
+    public boolean shouldRetrySDMConfiguration() {
+        return (sdmConfigurationSucceeded == null);
+    }
+
     public boolean shouldRetryMaxDemandConfiguration() {
         return (maxDemandConfigurationSucceeded == null);
     }
@@ -199,6 +209,10 @@ public class ObjectFactory {
 
     public Boolean getLoadProfileConfigurationSucceeded() {
         return loadProfileConfigurationSucceeded;
+    }
+
+    public Boolean getSDMConfigurationSucceeded() {
+        return sdmConfigurationSucceeded;
     }
 
     public Boolean getMaxDemandConfigurationSucceeded() {
@@ -275,6 +289,13 @@ public class ObjectFactory {
             loadProfileConfiguration = new LoadProfileConfiguration(this);
         }
         return loadProfileConfiguration;
+    }
+
+    public SpecialDataModeConfiguration getSpecialDataModeConfiguration() {
+        if (specialDataModeConfiguration == null) {
+            specialDataModeConfiguration = new SpecialDataModeConfiguration(this);
+        }
+        return specialDataModeConfiguration;
     }
 
     public ConsumptionLimitationConfiguration getConsumptionLimitationConfiguration() {
@@ -528,6 +549,20 @@ public class ObjectFactory {
         getLoadProfileConfiguration().setMaxNumberOfRecords(maxNumberOfRecords);
         getLoadProfileConfiguration().request();
         loadProfileConfigurationTrackingId = getTrackingID();
+    }
+
+    public void sendSDMConfiguration(int billingEnable, int billingInterval, int billingNumber, int loadProfileEnable, int loadProfileInterval, int loadProfileNumber, int duration, Date date) throws IOException {
+        log(Level.INFO, "Sending request to configure the special data mode" + getRetryDescription());
+        getSpecialDataModeConfiguration().setBillingEnable(billingEnable);
+        getSpecialDataModeConfiguration().setBillingInterval(billingInterval);
+        getSpecialDataModeConfiguration().setBillingMaxNumberOfRecords(billingNumber);
+        getSpecialDataModeConfiguration().setLoadProfileEnable(loadProfileEnable);
+        getSpecialDataModeConfiguration().setLoadProfileInterval(loadProfileInterval);
+        getSpecialDataModeConfiguration().setLoadProfileMaxNumberOfRecords(loadProfileNumber);
+        getSpecialDataModeConfiguration().setDurationInDays(duration);
+        getSpecialDataModeConfiguration().setActivationDate(date);
+        getSpecialDataModeConfiguration().request();
+        sdmConfigurationTrackingId = getTrackingID();
     }
 
     public void sendMaxDemandConfiguration(int register, int numberOfSubIntervals, int subIntervalDuration) throws IOException {
@@ -835,6 +870,7 @@ public class ObjectFactory {
         displayMessageTrackingId = -2;
         displayConfigurationTrackingId = -2;
         loadProfileConfigurationTrackingId = -2;
+        sdmConfigurationTrackingId = -2;
         maxDemandConfigurationTrackingId = -2;
         consumptionLimitationConfigurationTrackingId = -2;
         emergencyConsumptionLimitationConfigurationTrackingId = -2;
@@ -878,6 +914,9 @@ public class ObjectFactory {
         }
         if (getTrackingID() == loadProfileConfigurationTrackingId) {
             loadProfileConfigurationSucceeded = status;
+        }
+        if (getTrackingID() == sdmConfigurationTrackingId) {
+            sdmConfigurationSucceeded = status;
         }
         if (getTrackingID() == maxDemandConfigurationTrackingId) {
             maxDemandConfigurationSucceeded = status;
@@ -1172,21 +1211,81 @@ public class ObjectFactory {
      * @return if the registers have been received or not
      * @throws IOException communication error
      */
-    public boolean requestAllMasterRegisters(Date from) throws IOException {
+    public boolean requestAllMasterRegisters(Date from, List<RtuRegister> registers) throws IOException {
         boolean received = true;
-        if (!isReceivedBillingRegisters()) {
+        if (!isReceivedBillingRegisters() && shouldRequestBillingRegisters(registers)) {
             sendBDRequest(from);
             received = false;
         }
-        if (!isReceivedCurrentRegisters()) {
+        if (!isReceivedCurrentRegisters() && shouldRequestCurrentRegisters(registers)) {
             sendCurrentRegisterRequest();
             received = false;
         }
-        if (!isReceivedInstantRegisters()) {
+        if (!isReceivedInstantRegisters() && shouldRequestInstantaneousRegisters(registers)) {
             sendInstantVoltageAndCurrentRequest();
             received = false;
         }
         return received;
+    }
+
+    private boolean shouldRequestInstantaneousRegisters(List<RtuRegister> registers) {
+        List<Integer> allowedCFields = new ArrayList<Integer>();
+        allowedCFields.add(31);
+        allowedCFields.add(51);
+        allowedCFields.add(71);
+        allowedCFields.add(32);
+        allowedCFields.add(52);
+        allowedCFields.add(72);
+        allowedCFields.add(21);
+        allowedCFields.add(41);
+        allowedCFields.add(61);
+        allowedCFields.add(23);
+        allowedCFields.add(43);
+        allowedCFields.add(63);
+        allowedCFields.add(29);
+        allowedCFields.add(49);
+        allowedCFields.add(69);
+        allowedCFields.add(85);
+        allowedCFields.add(86);
+        allowedCFields.add(87);
+
+        for (RtuRegister register : registers) {
+            ObisCode obisCode = register.getRtuRegisterSpec().getObisCode();
+            if (allowedCFields.contains(obisCode.getC()) && obisCode.getA() == 1 && obisCode.getB() == 0 && obisCode.getD() == 7 && obisCode.getE() == 0 && obisCode.getF() == 255) {
+                return true;
+            }
+        }
+        return false;
+
+    }
+
+    private boolean shouldRequestCurrentRegisters(List<RtuRegister> registers) {
+        for (RtuRegister register : registers) {
+            ObisCode obisCode = register.getRtuRegisterSpec().getObisCode();
+            if (obisCode.getA() == 1 && obisCode.getB() == 0 && (obisCode.getC() == 1 || obisCode.getC() == 2) && obisCode.getD() == 8 && obisCode.getF() == 255) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if billing registers are defined on the RTU in EiServer.
+     *
+     * @param registers list of all registers defined on the RTU
+     * @return true or false
+     */
+    private boolean shouldRequestBillingRegisters(List<RtuRegister> registers) {
+        for (RtuRegister register : registers) {
+            if (isBillingRegister(register)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isBillingRegister(RtuRegister register) {
+        return register.getRtuRegisterSpec().getObisCode().getF() != 255;
     }
 
     /**
@@ -1196,16 +1295,40 @@ public class ObjectFactory {
      * @return if the registers have been received or not
      * @throws IOException communication error
      */
-    public boolean requestAllSlaveRegisters(Date from) throws IOException {
+    public boolean requestAllSlaveRegisters(Date from, HashMap<String, Rtu> slaves) throws IOException {
+        List<RtuRegister> allSlaveRegisters = new ArrayList<RtuRegister>();
+        for (Rtu slave : slaves.values()) {
+            allSlaveRegisters.addAll(slave.getRegisters());
+        }
+
         boolean received = true;
-        if (isReceivedMBusBillingRegisters() == null) {
+        if (isReceivedMBusBillingRegisters() == null && shouldRequestBillingRegisters(allSlaveRegisters)) {
             sendMBusBillingDataRequest(from);
             received = false;
         }
-        if (isReceivedMBusCurrentRegisters() == null) {
+        if (isReceivedMBusCurrentRegisters() == null && shouldRequestMBusCurrentRegisters(slaves)) {
             sendMBusCurrentRegistersRequest();
             received = false;
         }
         return received;
+    }
+
+    /**
+     * Checks if there's more than just billing registers defined on the slave RTU.
+     *
+     * @param slaves list of slave RTU's
+     * @return true or false
+     */
+    private boolean shouldRequestMBusCurrentRegisters(HashMap<String, Rtu> slaves) {
+        for (Rtu slave : slaves.values()) {
+            int numberOfBillingRegisters = 0;
+            for (RtuRegister register : slave.getRegisters()) {
+                numberOfBillingRegisters += isBillingRegister(register) ? 1 : 0;
+            }
+            if (slave.getRegisters().size() > numberOfBillingRegisters) {
+                return true;
+            }
+        }
+        return false;
     }
 }
