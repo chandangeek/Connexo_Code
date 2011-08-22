@@ -26,7 +26,7 @@ import java.util.logging.Level;
 
 public class ImageTransfer extends AbstractCosemObject{
 
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 	private static int delay = 3000;
 	private int maxBlockRetryCount = 3;
 	private int maxTotalRetryCount = 500;
@@ -490,7 +490,7 @@ public class ImageTransfer extends AbstractCosemObject{
 				write(IMAGE_TRANSFER_INITIATE_SN, imageInfo.getBEREncodedByteArray());
 			}
 		} catch (IOException e) {
-			throw new IOException("Could not initiate the imageTransfer" + e.getMessage());
+			throw new IOException("Could not initiate the imageTransfer: " + e.getMessage());
 		}
 	}
 

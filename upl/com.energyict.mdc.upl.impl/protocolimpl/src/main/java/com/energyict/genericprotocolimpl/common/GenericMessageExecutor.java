@@ -4,6 +4,7 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdw.core.RtuMessage;
+import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300FirmwareUpdateMessageBuilder;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -46,7 +47,7 @@ public abstract class GenericMessageExecutor {
             throw new BusinessException(thrown);
         }
 	}
-	
+
 	public String getMessageValue(String msgStr, String str) {
 		try {
 			return msgStr.substring(msgStr.indexOf(str + ">") + str.length()

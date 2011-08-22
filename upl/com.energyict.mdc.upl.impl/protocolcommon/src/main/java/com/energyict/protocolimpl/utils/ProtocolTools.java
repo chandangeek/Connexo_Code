@@ -351,6 +351,15 @@ public final class ProtocolTools {
     }
 
     /**
+     * @param fileName
+     * @param text
+     * @param append
+     */
+    public static void writeStringToFile(final String fileName, final String text, final boolean append) {
+        writeBytesToFile(new File(fileName), text.getBytes(), append);
+    }
+
+    /**
      * @param file
      * @param bytes
      * @param append

@@ -3,6 +3,7 @@ package com.energyict.genericprotocolimpl.common.messages;
 
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import org.apache.axis.encoding.Base64;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -35,6 +36,9 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.FIRMWARE_UPGRADE.equals(qName)){
 			setType(RtuMessageConstant.FIRMWARE_UPGRADE);
 			handleFirmWareUpgrade(attrbs);
+		} else if(RtuMessageConstant.FIRMWARE_UPDATE.equals(qName)){
+			setType(RtuMessageConstant.FIRMWARE_UPDATE);
+            isXmlInContent = true;
 		} else if(RtuMessageConstant.RF_FIRMWARE_UPGRADE.equals(qName)){
 			setType(RtuMessageConstant.RF_FIRMWARE_UPGRADE);
 			handleFirmWareUpgrade(attrbs);
@@ -194,8 +198,8 @@ public class MessageHandler extends DefaultHandler{
 		return this.activationDate;
 	}
 
-	/* P1 port Related messages
-	/**********************************************/
+/* P1 port Related messages
+    /**********************************************/
 
 
     private String code;

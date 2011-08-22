@@ -106,6 +106,9 @@ public class RtuMessageConstant {
     public static final String FIRMWARE_ACTIVATE_NOW = "Activate_now";
     public static final String FIRMWARE_ACTIVATE_DATE = "Activation_date";
 
+    public static final String FIRMWARE_UPDATE = "FirmwareUpdate";
+    public static final String FIRMWARE_UPDATE_INCLUDED_FILE = "IncludedFile";
+
     /**
      * RtuMessage tag for prepaid functionality
      */

@@ -7,10 +7,12 @@ import com.energyict.dlms.cosem.attributeobjects.RegisterZigbeeDeviceData;
 import com.energyict.dlms.cosem.attributeobjects.ZigBeeIEEEAddress;
 import com.energyict.dlms.cosem.ZigBeeSASStartup;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
+import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.UserFileShadow;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
@@ -18,6 +20,8 @@ import com.energyict.protocolimpl.dlms.common.DlmsSession;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.ObisCodeProvider;
+import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300FirmwareUpdateMessageBuilder;
+import org.apache.axis.encoding.Base64;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -69,6 +73,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
             boolean removeAllZigBeeSlaves = messageHandler.getType().equals(RtuMessageConstant.REMOVE_ALL_ZIGBEE_SLAVES);
             boolean backupZigBeeHanParameters = messageHandler.getType().equals(RtuMessageConstant.BACKUP_ZIGBEE_HAN_PARAMETERS);
             boolean restoreZigBeeParameters = messageHandler.getType().equals(RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS);
+            boolean firmwareUpdate = messageHandler.getType().equals(RtuMessageConstant.FIRMWARE_UPDATE);
 
             if (changeHanSAS) {
                 changeHanSAS(messageHandler);
@@ -86,6 +91,8 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
                 backupZigBeeHanParameters(messageHandler);
             } else if (restoreZigBeeParameters) {
                 restoreZigBeeHanParameters(messageHandler);
+            } else if (firmwareUpdate) {
+                firmwareUpdate(messageHandler, content);
             } else {
                 log(Level.INFO, "Message not supported : " + content);
                 success = false;
@@ -107,6 +114,33 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         } else {
             return MessageResult.createFailed(messageEntry);
         }
+    }
+
+    private void firmwareUpdate(MessageHandler messageHandler, String content) throws IOException {
+        getLogger().info("Executing firmware update message");
+        try {
+            String base64Encoded = getIncludedContent(content);
+            byte[] imageData = Base64.decode(base64Encoded);
+            System.out.println("Raw firmware content: [" + ProtocolTools.getHexStringFromBytes(imageData) + "]");
+            ImageTransfer it = getCosemObjectFactory().getImageTransfer(ObisCode.fromString("0.0.44.0.128.255"));
+            System.out.println("ImageTransfer: [" + it + "]");
+            it.upgrade(imageData);
+            it.imageActivation();
+        } catch (InterruptedException e) {
+            String msg = "Firmware upgrade failed! " + e.getClass().getName() + " : " + e.getMessage();
+            getLogger().severe(msg);
+            throw new IOException(msg);
+        }
+    }
+
+    private String getIncludedContent(final String content) {
+        int begin = content.indexOf(GenericMessaging.INCLUDED_USERFILE_TAG) + GenericMessaging.INCLUDED_USERFILE_TAG.length() + 1;
+        int end = content.indexOf(GenericMessaging.INCLUDED_USERFILE_TAG, begin) - 2;
+        return content.substring(begin, end);
+    }
+
+    private boolean isFirmwareUpdateMessage(String messageContent) {
+        return (messageContent != null) && messageContent.contains(AS300FirmwareUpdateMessageBuilder.getMessageNodeTag());
     }
 
     private void changeHanSAS(MessageHandler messageHandler) throws IOException {

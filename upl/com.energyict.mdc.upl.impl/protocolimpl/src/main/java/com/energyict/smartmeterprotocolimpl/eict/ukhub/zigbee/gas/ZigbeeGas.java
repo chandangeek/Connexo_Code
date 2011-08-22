@@ -67,7 +67,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
      */
     @Override
     protected void initAfterConnect() throws ConnectionException {
-        //TODO implement proper functionality.
+        //Currently nothing to implement
     }
 
     /**

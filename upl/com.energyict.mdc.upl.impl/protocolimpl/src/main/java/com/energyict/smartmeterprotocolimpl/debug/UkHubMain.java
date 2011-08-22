@@ -1,12 +1,16 @@
 package com.energyict.smartmeterprotocolimpl.debug;
 
 import com.energyict.dialer.core.LinkException;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.Data;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.debug.AbstractSmartDebuggingMain;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
+import sun.misc.BASE64Encoder;
 
 import java.io.IOException;
 import java.util.*;
@@ -52,8 +56,6 @@ public class UkHubMain extends AbstractSmartDebuggingMain<UkHub> {
         UkHubMain main = new UkHubMain();
         main.setTimeZone(TimeZone.getTimeZone("GMT"));
         main.setPhoneNumber("10.113.0.18:4059");
-        //main.setPhoneNumber("10.0.2.209:4059");
-        //main.setPhoneNumber("10.0.2.222:4059");
         main.setShowCommunication(false);
         main.run();
     }
@@ -63,7 +65,29 @@ public class UkHubMain extends AbstractSmartDebuggingMain<UkHub> {
     }
 
     public void doDebug() throws LinkException, IOException {
-        createHAN();
+        String b64 = new BASE64Encoder().encode(ProtocolTools.readBytesFromFile("C:\\Users\\jme\\Desktop\\am110r-22-08-2011_1400.bin"));
+        ProtocolTools.writeStringToFile("C:\\Users\\jme\\Desktop\\am110r-22-08-2011_1400_B64.bin", b64, false);
+    }
+
+    private void writePPPSettings() {
+        try {
+            Data data = getCosemObjectFactory().getData(ObisCode.fromString("0.129.0.0.0.255"));
+            //data.setValueAttr(OctetString.fromString("<Configuration><Config><PPP><UserName>EICTSMQ007</UserName><Password>1893903</Password></PPP></Config></Configuration>"));
+            data.setValueAttr(OctetString.fromString("<Configuration><Config><PPP><UserName>EICTSMQ006</UserName><Password>4091459</Password></PPP></Config></Configuration>"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void printObjectList() throws IOException {
+        UniversalObject[] buffer = getCosemObjectFactory().getAssociationLN().getBuffer();
+        StringBuilder sb = new StringBuilder();
+        for (UniversalObject universalObject : buffer) {
+            sb.append(universalObject.getDescription()).append('\n');
+        }
+        String text = sb.toString();
+        System.out.println(text);
+        ProtocolTools.writeStringToFile("c:\\ukhub_objectlist.txt", text, false);
     }
 
     private void createHAN() throws IOException {
