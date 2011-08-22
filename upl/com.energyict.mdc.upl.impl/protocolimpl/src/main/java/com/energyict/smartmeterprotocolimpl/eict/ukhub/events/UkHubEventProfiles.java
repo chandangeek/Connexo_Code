@@ -28,6 +28,9 @@ public class UkHubEventProfiles {
         ArrayList<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         getLogger().log(Level.INFO, "Reading EVENTS from HUB with serial number " + getUkHub().getSerialNumber() + ".");
 
+        if(from == null){
+            from = ProtocolUtils.getClearLastMonthDate(this.ukHub.getTimeZone());
+        }
         Calendar fromCalendar = getFromCalendar(from);
         meterEvents.addAll(getStandardEventLog(fromCalendar));
         meterEvents.addAll(getFraudDetectionEventLog(fromCalendar));
