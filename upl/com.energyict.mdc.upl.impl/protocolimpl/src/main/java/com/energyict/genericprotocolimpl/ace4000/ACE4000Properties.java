@@ -15,7 +15,9 @@ import java.util.*;
 public class ACE4000Properties extends AbstractProtocolProperties {
 
     public static final String TIMEOUT2 = "TimeOut";
-    public static final String DEFAULT_TIMEOUT = "60000";
+    public static final String DEFAULT_TIMEOUT = "30000";
+    public static final String METER_TYPE_DEFAULT = "1";
+    public static final String METER_TYPE = "MeterType";
 
     public ACE4000Properties() {
         this(new Properties());
@@ -33,7 +35,12 @@ public class ACE4000Properties extends AbstractProtocolProperties {
         List<String> optional = new ArrayList<String>();
         optional.add(TIMEOUT);
         optional.add(RETRIES);
+        optional.add(METER_TYPE);
         return optional;
+    }
+
+    public String getMeterType() {
+        return getProtocolProperties().getProperty(METER_TYPE, METER_TYPE_DEFAULT);
     }
 
     public List<String> getRequiredKeys() {

@@ -182,6 +182,9 @@ public class LoadProfile extends AbstractActarisObject {
 
     private void parseAbsoluteLoadProfile(String scaleStr, String data) throws IOException, SQLException, BusinessException {
         int scale = (scaleStr == null || scaleStr.equals("")) ? 0 : Integer.parseInt(scaleStr);
+        if (getObjectFactory().getAce4000().isDCMeter()) {
+            scale = 0;
+        }
 
         byte[] decoded = Base64.decode(data);
 

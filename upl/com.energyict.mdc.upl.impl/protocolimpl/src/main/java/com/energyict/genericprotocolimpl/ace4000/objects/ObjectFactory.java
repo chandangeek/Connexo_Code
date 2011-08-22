@@ -705,7 +705,7 @@ public class ObjectFactory {
      * @throws IOException when the communication fails
      */
     public void sendBDRequest(Date from) throws IOException {
-        log(Level.INFO, "Sending billing data request" + getRetryDescription());
+        log(Level.INFO, "Sending billing data request, from date = " + from.toString() + getRetryDescription());
         getBillingData().setFrom(from);
         getBillingData().request();
     }
@@ -1256,7 +1256,6 @@ public class ObjectFactory {
             }
         }
         return false;
-
     }
 
     private boolean shouldRequestCurrentRegisters(List<RtuRegister> registers) {

@@ -23,6 +23,7 @@ import java.util.logging.Level;
 public class ACE4000 extends AbstractGenericProtocol {
 
     private static final String START = "<MPush>";
+    private static final int MAX_TIMEOUT = 40000;
     private InputStream inputStream;
     private OutputStream outputStream;
     private Rtu masterMeter;
@@ -158,7 +159,8 @@ public class ACE4000 extends AbstractGenericProtocol {
     }
 
     private int getTimeOut() {
-        return getProtocolProperties().getTimeout();
+        int timeout = getProtocolProperties().getTimeout();
+        return timeout > MAX_TIMEOUT ? MAX_TIMEOUT : timeout;
     }
 
     /**
@@ -655,5 +657,9 @@ public class ACE4000 extends AbstractGenericProtocol {
 
     public int getRetry() {
         return retry;
+    }
+
+    public boolean isDCMeter() {
+        return ACE4000Properties.METER_TYPE_DEFAULT.equalsIgnoreCase(getProtocolProperties().getMeterType());
     }
 }

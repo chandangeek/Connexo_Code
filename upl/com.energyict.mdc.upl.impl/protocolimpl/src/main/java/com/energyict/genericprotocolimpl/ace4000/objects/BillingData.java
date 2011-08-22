@@ -121,37 +121,37 @@ public class BillingData extends AbstractActarisObject {
         if (registerList != null && !isComplexBillingData) {
             Quantity quantity;
             if (registerList.contains("T")) {           //Total import
-                quantity = new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR));
+                quantity = new Quantity(getNumberFromB64(decoded, offset, 4), getUnit());
                 offset += 4;
                 mrd.add(new RegisterValue(ObisCode.fromString("1.0.1.8.0.0"), quantity, new Date(), date));
             }
 
             if (registerList.contains("R")) {           //Total export
-                quantity = new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR));
+                quantity = new Quantity(getNumberFromB64(decoded, offset, 4), getUnit());
                 offset += 4;
                 mrd.add(new RegisterValue(ObisCode.fromString("1.0.2.8.0.0"), quantity, new Date(), date));
             }
 
             if (registerList.contains("1")) {
-                quantity = new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR));
+                quantity = new Quantity(getNumberFromB64(decoded, offset, 4), getUnit());
                 offset += 4;
                 mrd.add(new RegisterValue(ObisCode.fromString("1.0.1.8.1.0"), quantity, new Date(), date));
             }
 
             if (registerList.contains("2")) {
-                quantity = new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR));
+                quantity = new Quantity(getNumberFromB64(decoded, offset, 4), getUnit());
                 offset += 4;
                 mrd.add(new RegisterValue(ObisCode.fromString("1.0.1.8.2.0"), quantity, new Date(), date));
             }
 
             if (registerList.contains("3")) {
-                quantity = new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR));
+                quantity = new Quantity(getNumberFromB64(decoded, offset, 4), getUnit());
                 offset += 4;
                 mrd.add(new RegisterValue(ObisCode.fromString("1.0.1.8.3.0"), quantity, new Date(), date));
             }
 
             if (registerList.contains("4")) {
-                quantity = new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR));
+                quantity = new Quantity(getNumberFromB64(decoded, offset, 4), getUnit());
                 offset += 4;
                 mrd.add(new RegisterValue(ObisCode.fromString("1.0.1.8.4.0"), quantity, new Date(), date));
             }
@@ -165,16 +165,16 @@ public class BillingData extends AbstractActarisObject {
 
                 if (register.contains("AI")) {
                     obisCode = ObisCode.fromString("1.0.1.8.0.0");
-                    unit = Unit.get(BaseUnit.WATTHOUR);
+                    unit = getUnit();
                 } else if (register.contains("AE")) {
                     obisCode = ObisCode.fromString("1.0.2.8.0.0");
-                    unit = Unit.get(BaseUnit.WATTHOUR);
+                    unit = getUnit();
                 } else if (register.contains("RI")) {
                     obisCode = ObisCode.fromString("1.0.3.8.0.0");
-                    unit = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR);
+                    unit = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, getObjectFactory().getAce4000().isDCMeter() ? 0 : 1);
                 } else if (register.contains("RE")) {
                     obisCode = ObisCode.fromString("1.0.4.8.0.0");
-                    unit = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR);
+                    unit = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, getObjectFactory().getAce4000().isDCMeter() ? 0 : 1);
                 } else {
                     throw new IOException("Received unexpected register data, XML attribute name: " + register);
                 }
@@ -210,6 +210,10 @@ public class BillingData extends AbstractActarisObject {
                 }
             }
         }
+    }
+
+    private Unit getUnit() {
+        return Unit.get(BaseUnit.WATTHOUR, getObjectFactory().getAce4000().isDCMeter() ? 0 : 1);
     }
 
     private void addRegisterValue(int offset, byte[] decoded, Date date, ObisCode obisCode, Unit unit) {
