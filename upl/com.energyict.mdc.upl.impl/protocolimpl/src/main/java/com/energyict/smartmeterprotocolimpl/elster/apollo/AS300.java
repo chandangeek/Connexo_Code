@@ -67,6 +67,9 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
 
     @Override
     public Date getTime() throws IOException {
+        if(getProperties().getClientMacAddress() == AssociationLnObisCodes.FIRMWARE_CLIENT.getClientId()){
+            return new Date();
+        }
         return getObjectFactory().getClock().getDateTime();
     }
 

@@ -3,9 +3,6 @@ package com.energyict.smartmeterprotocolimpl.elster.apollo;
 import com.energyict.genericprotocolimpl.common.CommonObisCodeProvider;
 import com.energyict.obis.ObisCode;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * <p>
  * Straightforward summary of the possible ObisCodes of the Apollo meter
@@ -28,9 +25,10 @@ public class AS300ObisCodeProvider implements CommonObisCodeProvider {
     public static final ObisCode LoadProfileBlockMonthly = ObisCode.fromString("0.0.98.1.1.255");     //Block profile data   ==> E = 1
     public static final ObisCode AssociationLnCurrentClient = ObisCode.fromString("0.0.40.0.0.255");
     public static final ObisCode AssociationLnPublicClient = ObisCode.fromString("0.0.40.0.1.255");
-    public static final ObisCode AssociationLnReadingClient = ObisCode.fromString("0.0.40.0.2.255");
-    public static final ObisCode AssociationLnManagementClient = ObisCode.fromString("0.0.40.0.3.255");
-    public static final ObisCode AssociationLnFirmwareClient = ObisCode.fromString("0.0.40.0.4.255");
+    public static final ObisCode AssociationLnDataCollectionClient = ObisCode.fromString("0.0.40.0.2.255");
+    public static final ObisCode AssociationLnExtDataCollectionClient = ObisCode.fromString("0.0.40.0.3.255");
+    public static final ObisCode AssociationLnManagementClient = ObisCode.fromString("0.0.40.0.4.255");
+    public static final ObisCode AssociationLnFirmwareClient = ObisCode.fromString("0.0.40.0.5.255");
     public static final ObisCode FirmwareVersionObisCode = ObisCode.fromString("1.0.0.2.0.255");
     public static final ObisCode MIDCheckSumObisCode = ObisCode.fromString("1.0.0.2.8.255");
     public static final ObisCode FormerFirmwareVersionObisCode = ObisCode.fromString("1.0.0.1.0.255");
@@ -128,12 +126,12 @@ public class AS300ObisCodeProvider implements CommonObisCodeProvider {
      * @return the obisCode for the AssociationLn object
      */
     public ObisCode getAssociationLnObisCode() {
-        return getAssociationLnObisCode(1);
+        return getAssociationLnObisCode(AssociationLnObisCodes.MANAGEMENT_CLIENT.getClientId());
     }
 
     /**
      * @param clientId the used clientId for this association
-     * @return the {@link AS300ObisCodeProvider.AssociationLnObisCodes#obiscode} for the {@link com.energyict.dlms.cosem.AssociationLN} object
+     * @return the {@link AssociationLnObisCodes#obiscode} for the {@link com.energyict.dlms.cosem.AssociationLN} object
      */
     public ObisCode getAssociationLnObisCode(int clientId) {
         return AssociationLnObisCodes.forClient(clientId);
@@ -193,77 +191,4 @@ public class AS300ObisCodeProvider implements CommonObisCodeProvider {
         return ActiveLongFirmwareIdentifierMCOR;
     }
 
-    /**
-     * Enumeration containing the possible {@link com.energyict.dlms.cosem.AssociationLN} Obiscodes.
-     * Each clientID has a different AssociationObject.
-     */
-    private enum AssociationLnObisCodes {
-
-        /**
-         * The current_client
-         */
-        CURRENT_CLIENT(0, AssociationLnCurrentClient),
-        /**
-         * The management client has all access
-         */
-        MANAGEMENT_CLIENT(1, AssociationLnManagementClient),
-        /**
-         * The public client has limited read access
-         */
-        PUBLIC_CLIENT(16, AssociationLnPublicClient),
-        /**
-         * The reading client has reading access
-         */
-        READING_CLIENT(2, AssociationLnReadingClient),
-        /**
-         * The firmware client has access to firmware related objects (ex. FirmwareUpgrade)
-         */
-        FIRMWARE_CLIENT(3, AssociationLnFirmwareClient);
-
-        /**
-         * The clientId for this association
-         */
-        private final int clientId;
-        /**
-         * The obiscode for the {@link com.energyict.dlms.cosem.AssociationLN} object
-         */
-        private final ObisCode obiscode;
-        /**
-         * Map containig all the possible instances
-         */
-        private static Map<Integer, ObisCode> instances;
-
-        /**
-         * Private constructor
-         *
-         * @param clientId                      the ID of the client
-         * @param associationLnManagementClient the ObisCode of this clients' associationLN object
-         */
-        private AssociationLnObisCodes(int clientId, ObisCode associationLnManagementClient) {
-            this.clientId = clientId;
-            this.obiscode = associationLnManagementClient;
-            getInstances().put(this.clientId, this.obiscode);
-        }
-
-        /**
-         * Return the obisCode of the {@link com.energyict.dlms.cosem.AssociationLN} object for the given {@link #clientId}
-         *
-         * @param clientId the ID of the client
-         * @return the requested ObisCode
-         */
-        public static ObisCode forClient(int clientId) {
-            ObisCode oc = getInstances().get(clientId);
-            return oc != null ? oc : null;
-        }
-
-        /**
-         * @return an instance of all the clients
-         */
-        private static Map<Integer, ObisCode> getInstances() {
-            if (instances == null) {
-                instances = new HashMap<Integer, ObisCode>(5);
-            }
-            return instances;
-        }
-    }
 }
