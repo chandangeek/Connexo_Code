@@ -92,7 +92,6 @@ public class BubbleUpFrameParser {
             reg = new RegisterValue(ObisCode.fromString("1." + (port + 1) + ".82.8.0.1"), new Quantity(value, Unit.get("")), new Date(), dailyConsumption.getLastLoggedReading() );
             registerValues.add(reg);
         }
-        result.setRegisterValues(registerValues);
 
         Date lastLogged = dailyConsumption.getLastLoggedReading();
         ProfileDataReader profileDataReader = new ProfileDataReader(waveflow);
@@ -110,6 +109,7 @@ public class BubbleUpFrameParser {
         BubbleUpObject result = new BubbleUpObject();
         List<ProfileData> profileDatas = new ArrayList<ProfileData>();
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
+        registerValues.addAll(getGenericHeaderRegisters(data));       //Parse the generic header, it contains the battery counter and RSSI level
 
         ExtendedIndexReading extendedIndexReading = new ExtendedIndexReading(waveflow);
         extendedIndexReading.parse(data);
@@ -152,6 +152,7 @@ public class BubbleUpFrameParser {
     private static BubbleUpObject parseGlobalIndexes(byte[] data, WaveFlow waveflow) throws IOException {
         BubbleUpObject result = new BubbleUpObject();
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
+        registerValues.addAll(getGenericHeaderRegisters(data));       //Parse the generic header, it contains the battery counter and RSSI level
         GlobalIndexReading globalIndexReading = new GlobalIndexReading(waveflow);
         int operationMode = data[0] & 0xFF;
         OperatingMode operatingMode = new OperatingMode(new WaveFlowV2(), operationMode);
@@ -172,6 +173,9 @@ public class BubbleUpFrameParser {
     public static BubbleUpObject parseDataloggingTable(byte[] data, WaveFlow waveflow, int type) throws IOException {
         BubbleUpObject result = new BubbleUpObject();
         List<ProfileData> profileDatas = new ArrayList<ProfileData>();
+        List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
+        registerValues.addAll(getGenericHeaderRegisters(data));       //Parse the generic header, it contains the battery counter and RSSI level
+
         Date lastLogged;
         OperatingMode operatingMode = new OperatingMode(waveflow, data[0] & 0xFF);
 
@@ -218,12 +222,14 @@ public class BubbleUpFrameParser {
 
         profileDatas.add(profileDataReaderV1.parseProfileData(false, inputsUsed, nrOfReadings, operatingMode.isMonthlyMeasurement(), new Date(0), new Date(), false, rawValues, lastLogged));
         result.setProfileDatas(profileDatas);
+        result.setRegisterValues(registerValues);
         return result;
     }
 
     private static BubbleUpObject parseImmediateIndex(byte[] data, WaveFlow waveflow) throws IOException {
         BubbleUpObject result = new BubbleUpObject();
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
+        registerValues.addAll(getGenericHeaderRegisters(data));       //Parse the generic header, it contains the battery counter and RSSI level
 
         CurrentIndexReading indexReading = new CurrentIndexReading(waveflow);
         indexReading.parse(data);
