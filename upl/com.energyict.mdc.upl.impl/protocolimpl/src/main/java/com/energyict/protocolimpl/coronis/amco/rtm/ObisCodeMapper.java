@@ -59,8 +59,8 @@ public class ObisCodeMapper {
     private static final ObisCode OBISCODE_TOUBUCKET5_PORT4 = ObisCode.fromString("0.4.96.0.57.255");
     private static final ObisCode OBISCODE_TOUBUCKET6_PORT4 = ObisCode.fromString("0.4.96.0.58.255");
 
+    private static final ObisCode OBISCODE_COMMAND_BUFFER = ObisCode.fromString("0.0.96.0.101.255");
     private static final ObisCode OBISCODE_RSSI = ObisCode.fromString("0.0.96.0.63.255");
-
     private static final String OBISCODE_PORT1 = "1.1.82.8.0.255";
     private static final String OBISCODE_PORT2 = "1.2.82.8.0.255";
     private static final String OBISCODE_PORT3 = "1.3.82.8.0.255";
@@ -112,6 +112,7 @@ public class ObisCodeMapper {
         registerMaps.put(OBISCODE_TOUBUCKET5_PORT4, "TOU Bucket 5 totalizer for port 4");
         registerMaps.put(OBISCODE_TOUBUCKET6_PORT4, "TOU Bucket 6 totalizer for port 4");
         registerMaps.put(OBISCODE_RSSI, "RSSI Level");
+        registerMaps.put(OBISCODE_COMMAND_BUFFER, "Bubble up command buffer");
 
         registerMaps.put(ObisCode.fromString(OBISCODE_PORT1), "Port A current index");
         registerMaps.put(ObisCode.fromString(OBISCODE_PORT2), "Port B current index");
@@ -153,6 +154,16 @@ public class ObisCodeMapper {
         } else if (obisCode.equals(OBISCODE_RSSI)) {
             double value = rtm.getRadioCommandFactory().readRSSI();
             return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date());
+        } else if (obisCode.equals(OBISCODE_COMMAND_BUFFER)) {
+            String cmdBuffer = rtm.getParameterFactory().readPushCommandBuffer().getBuffer();
+            int cmd;
+            try {
+                cmd = Integer.parseInt(cmdBuffer.substring(2, 4));
+            } catch (Exception e) {
+                throw new NoSuchRegisterException("Could not parse command buffer: " + cmdBuffer);
+            }
+            String additionalText = "Full buffer content (hex): " + cmdBuffer.substring(2);
+            return new RegisterValue(obisCode, new Quantity(cmd, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, additionalText);
         } else if (obisCode.equals(OBISCODE_VALVE_STATUS)) {
             if (!rtm.getParameterFactory().readProfileType().isValve()) {
                 throw new NoSuchRegisterException("Module doesn't support valve control");
@@ -213,7 +224,7 @@ public class ObisCodeMapper {
     }
 
     private boolean isTOUBucketTotalizer(ObisCode obisCode) {
-        return ((obisCode.getC() == 96) &&  (obisCode.getE() > 52));
+        return ((obisCode.getC() == 96) && (obisCode.getE() > 52));
     }
 
     private boolean isPulseWeightReadout(ObisCode obisCode) {

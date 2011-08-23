@@ -14,6 +14,10 @@ public class PseudoBubbleUpCommandBuffer extends AbstractParameter {
         super(rtm);
     }
 
+    public String getBuffer() {
+        return ProtocolTools.getHexStringFromBytes(buffer, "");
+    }
+
     public void replaceCommand(int cmd, int portMask, int numberOfReadings, int offset) {
         length = (portMask == 0) ? 1 : 6;
         byte[] numberOfReadingsBytes = ProtocolTools.getBytesFromInt(numberOfReadings, 2);
