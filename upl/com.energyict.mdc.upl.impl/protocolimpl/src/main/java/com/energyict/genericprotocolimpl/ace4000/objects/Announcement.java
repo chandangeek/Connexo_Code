@@ -1,8 +1,8 @@
 package com.energyict.genericprotocolimpl.ace4000.objects;
 
-import com.energyict.genericprotocolimpl.ace4000.objects.tables.MeterTypeTable;
 import com.energyict.genericprotocolimpl.ace4000.objects.xml.XMLTags;
 import com.energyict.protocol.MeterEvent;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -15,18 +15,20 @@ import java.util.logging.Level;
 public class Announcement extends AbstractActarisObject {
 
     private String ICID = null;        // SIM card ICID number
-    private String type = null;        // meter type code
-    private int sStrength = 0;        // GSM signal strength
-    private int bStationID = 0;        // GSM cell base station ID
+    private int type = 0;            // meter type code
+    private String sStrength = "";        // GSM signal strength
+    private String bStationID = "";        // GSM cell base station ID
     private String opName = null;        // GSM opertor name
-    private String cString = null;        // meter codification string
+    private String codificationString = null;        // meter codification string
+    private static String DCMETER = "1";
+    private static String CTMETER = "2";
 
     public Announcement(ObjectFactory of) {
         super(of);
     }
 
     protected void parse(Element mdElement) {
-        NodeList list = mdElement.getElementsByTagName(XMLTags.ANNOUNCE);
+        NodeList list = mdElement.getChildNodes();
 
         for (int i = 0; i < list.getLength(); i++) {
             Element element = (Element) list.item(i);
@@ -44,11 +46,11 @@ public class Announcement extends AbstractActarisObject {
             } else if (element.getNodeName().equalsIgnoreCase(XMLTags.ICID)) {
                 setICID(element.getTextContent());
             } else if (element.getNodeName().equalsIgnoreCase(XMLTags.TYPE)) {
-                setType(MeterTypeTable.meterType[Integer.parseInt(element.getTextContent())]);
+                setType(Integer.parseInt(element.getTextContent()));
             } else if (element.getNodeName().equalsIgnoreCase(XMLTags.SSTRENGTH)) {
-                setSStrength(Integer.parseInt(element.getTextContent()));
+                setSStrength(element.getTextContent());
             } else if (element.getNodeName().equalsIgnoreCase(XMLTags.BSTATION)) {
-                setBStationID(Integer.parseInt(element.getTextContent()));
+                setBStationID(element.getTextContent());
             } else if (element.getNodeName().equalsIgnoreCase(XMLTags.OPERATORNAME)) {
                 setOpName(element.getTextContent());
             } else if (element.getNodeName().equalsIgnoreCase(XMLTags.CODSTRING)) {
@@ -56,7 +58,6 @@ public class Announcement extends AbstractActarisObject {
             } else if (element.getNodeName().equalsIgnoreCase(XMLTags.CURREADING)) {
                 getObjectFactory().getCurrentReadings().parse(element);
             }
-
         }
     }
 
@@ -73,27 +74,27 @@ public class Announcement extends AbstractActarisObject {
         ICID = icid;
     }
 
-    protected String getType() {
+    protected int getType() {
         return type;
     }
 
-    protected void setType(String type) {
+    protected void setType(int type) {
         this.type = type;
     }
 
-    protected int getSStrength() {
+    protected String getSStrength() {
         return sStrength;
     }
 
-    protected void setSStrength(int strength) {
+    protected void setSStrength(String strength) {
         sStrength = strength;
     }
 
-    protected int getBStationID() {
+    protected String getBStationID() {
         return bStationID;
     }
 
-    protected void setBStationID(int stationID) {
+    protected void setBStationID(String stationID) {
         bStationID = stationID;
     }
 
@@ -106,10 +107,37 @@ public class Announcement extends AbstractActarisObject {
     }
 
     protected String getCString() {
-        return cString;
+        return codificationString;
     }
 
     protected void setCString(String string) {
-        cString = string;
+        codificationString = string;
+    }
+
+    public String getMeterType() {
+        byte[] codification = ProtocolTools.getBytesFromHexString(codificationString, "");
+        if (codification.length < 12) {
+            getObjectFactory().log(Level.WARNING, "Unrecognized internal contactor type (in codification string), taking default: DC meter");
+            return DCMETER;
+        }
+
+        String modelType = new String(codification).substring(0, 2);
+        int meterType = Integer.parseInt(new String(new byte[]{codification[11]}));
+        if (modelType.equals("GT")) {
+            if (meterType == 2) {
+                return CTMETER;
+            }
+            if (meterType == 3) {
+                return DCMETER;
+            }
+        } else if (modelType.equals("GS") || modelType.equals("GI")) {
+            if (meterType == 0) {
+                return CTMETER;
+            } else {
+                return DCMETER;
+            }
+        }
+        getObjectFactory().log(Level.WARNING, "Unrecognized internal contactor type (in codification string), taking default: DC meter");
+        return DCMETER;
     }
 }

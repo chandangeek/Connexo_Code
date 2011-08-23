@@ -136,7 +136,7 @@ public class ACE4000 extends AbstractGenericProtocol {
             }
 
         } catch (Exception e) {
-            getErrorString().append(e.getMessage());
+            getErrorString().append(e.toString());
             success = false;
             e.printStackTrace();
             throw new BusinessException(e.getMessage());
