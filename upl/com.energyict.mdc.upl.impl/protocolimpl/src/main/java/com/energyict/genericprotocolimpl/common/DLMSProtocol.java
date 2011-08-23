@@ -485,7 +485,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 
         if (this.wakeup == 1) {
             this.logger.info("In Wakeup");
-            SmsWakeup smsWakeup = new SmsWakeup(communicationScheduler, this.logger);
+            SmsWakeup smsWakeup = new SmsWakeup(communicationScheduler.getRtu(), this.logger);
             smsWakeup.doWakeUp();
 
             meter = getUpdatedMeter();

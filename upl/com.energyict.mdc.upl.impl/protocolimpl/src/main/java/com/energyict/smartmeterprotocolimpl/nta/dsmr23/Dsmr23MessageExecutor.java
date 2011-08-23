@@ -1053,22 +1053,14 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         }
     }
 
+    private MeteringWarehouse mw(){
+        return ProtocolTools.mw();
+    }
+
 
     /*****************************************************************************/
     /* These methods require database access ...
     /*****************************************************************************/
-
-    /**
-     * Short notation for MeteringWarehouse.getCurrent()
-     */
-    public MeteringWarehouse mw() {
-        MeteringWarehouse result = MeteringWarehouse.getCurrent();
-        if (result == null) {
-            return new MeteringWarehouseFactory().getBatch(false);
-        } else {
-            return result;
-        }
-    }
 
     private Rtu getRtuFromDatabaseBySerialNumber() {
         String serial = this.protocol.getSerialNumber();

@@ -4,11 +4,10 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Utils;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-
 import com.vodafone.gdsp.ws.*;
 
 import javax.xml.namespace.QName;
@@ -18,7 +17,6 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -61,27 +59,25 @@ public class SmsWakeup {
 
     private String soapAction;
     private Rtu meter;
-    private CommunicationScheduler scheduler;
 
     private Logger logger;
+    private static final String VF_ENDPOINT_ADDRESS_PROPERTY = "vfEndpointAddress";
+    private static final String VF_SOAP_ACTION_PROPERTY = "vfSoapAction";
 
-    public SmsWakeup(CommunicationScheduler scheduler) {
-        this(scheduler, null);
+    public SmsWakeup(Rtu meter) {
+        this(meter, null);
     }
 
     /**
      * Constructor
      *
-     * @param scheduler the from the meter
+     * @param meter  the rtu
      * @param logger the used <CODE>Logger</CODE>
      */
-    public SmsWakeup(CommunicationScheduler scheduler, Logger logger) {
-        this.scheduler = scheduler;
+    public SmsWakeup(Rtu meter, Logger logger) {
         this.logger = logger;
-        if (this.scheduler != null) {
-            this.meter = this.scheduler.getRtu();
-            updateProperties();
-        }
+        this.meter = meter;
+        updateProperties();
     }
 
     /**
@@ -124,15 +120,16 @@ public class SmsWakeup {
     private void updateProperties() {
         this.pollTimeout = Integer.parseInt(this.meter.getProperties().getProperty("PollTimeOut", "900000"));
         this.pollFreq = Integer.parseInt(this.meter.getProperties().getProperty("PollFrequency", "15000"));
-        String host = mw().getSystemProperty("vfEndpointAddress");
+
+        String host = mw().getSystemProperty(VF_ENDPOINT_ADDRESS_PROPERTY);
         if (host == null) {
-            endpointAddress = "http://localhost:4423/SharedResources/COMM_DEVICE/WUTriggerService.serviceagent/WUTriggerPort";
+            endpointAddress = Environment.getDefault().getProperty(VF_ENDPOINT_ADDRESS_PROPERTY, "http://localhost:4423/SharedResources/COMM_DEVICE/WUTriggerService.serviceagent/WUTriggerPort");
         } else {
             endpointAddress = host;
         }
-        String action = mw().getSystemProperty("vfSoapAction");
+        String action = mw().getSystemProperty(VF_SOAP_ACTION_PROPERTY);
         if (action == null) {
-            soapAction = "/SharedResources/COMM_DEVICE/WUTriggerService.serviceagent/WUTriggerPort/submitWUTrigger";
+            soapAction = Environment.getDefault().getProperty(VF_SOAP_ACTION_PROPERTY, "/SharedResources/COMM_DEVICE/WUTriggerService.serviceagent/WUTriggerPort/submitWUTrigger");
         } else {
             soapAction = action;
         }
@@ -279,7 +276,7 @@ public class SmsWakeup {
      * @return
      */
     private Rtu getRefreshedMeter() {
-        return MeteringWarehouse.getCurrent().getRtuFactory().find(this.scheduler.getRtuId());
+        return MeteringWarehouse.getCurrent().getRtuFactory().find(this.meter.getId());
     }
 
     /**
@@ -299,7 +296,10 @@ public class SmsWakeup {
      * @param attribute
      * @return
      */
-    private Object getAttributeValue(String attribute) {
+    private Object getAttributeValue(String attribute) throws UnsupportedException {
+        if(this.meter.getDefaultRelation() == null){
+            throw new UnsupportedException("Meter has no default relation, wakeup related attributes can not be fetched.");
+        }
         return this.meter.getDefaultRelation().get(attribute);
     }
 

@@ -53,6 +53,7 @@ public class Dsmr23Properties extends DlmsProtocolProperties {
         optional.add(NTASecurityProvider.NEW_HLS_SECRET);
         optional.add(OLD_MBUS_DISCOVERY);
         optional.add(FIX_MBUS_HEX_SHORT_ID);
+        optional.add(DlmsProtocolProperties.WAKE_UP);
         return optional;
     }
 

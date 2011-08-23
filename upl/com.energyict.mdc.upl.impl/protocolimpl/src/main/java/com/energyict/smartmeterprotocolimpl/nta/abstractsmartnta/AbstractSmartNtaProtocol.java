@@ -1,9 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
+import com.energyict.cbo.BusinessException;
+import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dialer.core.Link;
+import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.genericprotocolimpl.common.wakeup.SmsWakeup;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
+import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
@@ -11,7 +16,6 @@ import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
-import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.*;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
@@ -19,14 +23,17 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuild
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology.MeterTopology;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
  * Date: 14-jul-2011
  * Time: 11:20:34
  */
-public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol {
+public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol, WakeUpProtocolSupport {
 
     private static final int ObisCodeBFieldIndex = 1;
 
@@ -362,5 +369,44 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
 
     public String writeValue(final MessageValue value) {
         return getMessageProtocol().writeValue(value);
+    }
+
+    /**
+     * Executes the WakeUp call. The implementer should use and/or update the <code>Link</code> if a WakeUp succeeded. The communicationSchedulerId
+     * can be used to find the task which triggered this wakeUp or which Rtu is being waked up.
+     *
+     * @param communicationSchedulerId the ID of the <code>CommunicationScheduler</code> which started this task
+     * @param link                     Link created by the comserver, can be null if a NullDialer is configured
+     * @param logger                   Logger object - when using a level of warning or higher message will be stored in the communication session's database log,
+     *                                 messages with a level lower than warning will only be logged in the file log if active.
+     * @throws com.energyict.cbo.BusinessException
+     *                               if a business exception occurred
+     * @throws java.io.IOException   if an io exception occurred
+     */
+    public boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws BusinessException, IOException {
+        if (getProperties().isWakeUp()) {
+            String ipAddress = "";
+            logger.info("In Wakeup");
+            CommunicationScheduler cs = ProtocolTools.mw().getCommunicationSchedulerFactory().find(communicationSchedulerId);
+            if(cs != null){
+                SmsWakeup smsWakeup = new SmsWakeup(cs.getRtu(), logger);
+                try {
+                    smsWakeup.doWakeUp();
+                } catch (SQLException e) {
+                    logger.severe("WakeUp failed - " + e.getMessage());
+                    Environment.getDefault().closeConnection();
+                    throw new BusinessException("Failed during the WakeUp",e);
+                }
+
+                ipAddress = ProtocolTools.checkIPAddressForPortNumber(smsWakeup.getIpAddress(), "4059");
+
+                link.setStreamConnection(new SocketStreamConnection(ipAddress));
+                link.getStreamConnection().open();
+                logger.log(Level.INFO, "Connected to " + ipAddress);
+            } else {
+                throw new BusinessException("Could not find the proper CommunicationScheduler during the WakeUp.");
+            }
+        }
+        return true;
     }
 }

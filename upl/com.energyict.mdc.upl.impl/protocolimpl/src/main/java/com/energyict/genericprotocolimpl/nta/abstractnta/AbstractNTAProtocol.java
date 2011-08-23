@@ -176,7 +176,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
         if (wakeup == 1) {
             String ipAddress = "";
             getLogger().info("In Wakeup");
-            SmsWakeup smsWakeup = new SmsWakeup(getCommunicationScheduler(), getLogger());
+            SmsWakeup smsWakeup = new SmsWakeup(getCommunicationScheduler().getRtu(), getLogger());
             smsWakeup.doWakeUp();
 
             ipAddress = ProtocolTools.checkIPAddressForPortNumber(smsWakeup.getIpAddress(), getPortNumber());

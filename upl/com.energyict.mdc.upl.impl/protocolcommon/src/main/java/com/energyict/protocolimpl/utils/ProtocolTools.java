@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.utils;
 
-import com.energyict.mdw.core.CommunicationProtocol;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -1184,5 +1183,17 @@ public final class ProtocolTools {
             return strBuff.toString();
         }
         return ipAddress;
+    }
+
+    /**
+     * Short notation for MeteringWarehouse.getCurrent()
+     */
+    public static MeteringWarehouse mw() {
+        MeteringWarehouse result = MeteringWarehouse.getCurrent();
+        if (result == null) {
+            return new MeteringWarehouseFactory().getBatch(false);
+        } else {
+            return result;
+        }
     }
 }
