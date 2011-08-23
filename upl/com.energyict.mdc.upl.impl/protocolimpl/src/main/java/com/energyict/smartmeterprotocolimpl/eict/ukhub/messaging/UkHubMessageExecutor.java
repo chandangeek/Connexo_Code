@@ -21,6 +21,7 @@ import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.ObisCodeProvider;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300FirmwareUpdateMessageBuilder;
+import com.jidesoft.filter.NextWeekFilter;
 import org.apache.axis.encoding.Base64;
 
 import java.io.IOException;
@@ -122,7 +123,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
             String base64Encoded = getIncludedContent(content);
             byte[] imageData = Base64.decode(base64Encoded);
             System.out.println("Raw firmware content: [" + ProtocolTools.getHexStringFromBytes(imageData) + "]");
-            ImageTransfer it = getCosemObjectFactory().getImageTransfer(ObisCode.fromString("0.0.44.0.128.255"));
+            ImageTransfer it = getCosemObjectFactory().getImageTransfer(ObisCodeProvider.FIRMWARE_UPDATE);
             System.out.println("ImageTransfer: [" + it + "]");
             it.upgrade(imageData);
             it.imageActivation();
@@ -147,7 +148,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         log(Level.INFO, "Sending message : Change Zigbee HAN SAS");
         String extendedPanId = messageHandler.getChangeHanSasExtendedPanId();
         String panId = messageHandler.getChangeHanSasPanId();
-        String channelMask = messageHandler.getChangeHanSasPanId();
+        String channelMask = messageHandler.getChangeHanSasChannel();
         String insecureJoin = messageHandler.getChangeHanSasInsecureJoin();
 
         // TODO: Implement this method. DLMS objects not implemented yet as well, so we'll have to do that first.
@@ -266,8 +267,21 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         log(Level.INFO, "Sending message : Join ZigBee slave");
         String address = messageHandler.getJoinZigBeeIEEEAddress();
         String key = messageHandler.getJoinZigBeeLinkKey();
+        RegisterZigbeeDeviceData zigbeeDeviceData = new RegisterZigbeeDeviceData(address, key);
+
+        System.out.println("\n\n");
+        System.out.println(zigbeeDeviceData);
+        System.out.println(ProtocolTools.getHexStringFromBytes(zigbeeDeviceData.getBEREncodedByteArray(), " "));
+
         ZigBeeSETCControl zigBeeSETCControl = getCosemObjectFactory().getZigBeeSETCControl();
-        zigBeeSETCControl.registerDevice(new RegisterZigbeeDeviceData(address, key));
+        getLogger().info("Writing MAC and LinkKey.");
+        zigBeeSETCControl.registerDevice(zigbeeDeviceData);
+
+        getLogger().info("Writing join timeout.");
+        Unsigned16 timeout = new Unsigned16(120);
+        zigBeeSETCControl.writeJoinTimeout(timeout);
+
+        getLogger().info("Enable joining.");
         zigBeeSETCControl.writeEnableDisableJoining(true);
     }
 

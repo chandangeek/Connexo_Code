@@ -10,7 +10,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 public class ZigBeeIEEEAddress extends OctetString {
 
     public ZigBeeIEEEAddress(byte[] address) {
-        super(address, true);
+        super(address);
     }
 
 }

@@ -20,6 +20,8 @@ public class ObisCodeProvider {
 
     public static final ObisCode HanManagementEventObject = ObisCode.fromString("0.0.96.11.15.255");
 
+    public static final ObisCode FIRMWARE_UPDATE = ObisCode.fromString("0.0.44.0.0.255");
+
     public static final UniversalObject[] OBJECT_LIST;
 
     static {
@@ -96,7 +98,7 @@ public class ObisCodeProvider {
                 new UniversalObject(ObisCode.fromString("0.0.99.97.6.255"), DLMSClassId.PROFILE_GENERIC),
                 new UniversalObject(ObisCode.fromString("0.0.93.44.6.255"), DLMSClassId.DATA),
                 new UniversalObject(ObisCode.fromString("0.0.96.15.6.255"), DLMSClassId.DATA),
-                new UniversalObject(ObisCode.fromString("0.0.44.0.0.255"), DLMSClassId.IMAGE_TRANSFER),
+                new UniversalObject(FIRMWARE_UPDATE, DLMSClassId.IMAGE_TRANSFER),
                 new UniversalObject(ObisCode.fromString("0.0.15.0.2.255"), DLMSClassId.SINGLE_ACTION_SCHEDULE),
                 new UniversalObject(ObisCode.fromString("0.0.10.0.107.255"), DLMSClassId.SCRIPT_TABLE),
                 new UniversalObject(ObisCode.fromString("0.0.35.2.0.255"), DLMSClassId.ZIGBEE_SETC_CONTROL),

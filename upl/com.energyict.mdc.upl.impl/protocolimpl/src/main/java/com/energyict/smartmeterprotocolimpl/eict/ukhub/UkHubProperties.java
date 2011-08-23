@@ -22,6 +22,8 @@ public class UkHubProperties extends DlmsProtocolProperties {
     private static final String MaxReceivePduSize = "4096";
     private static final String DefaultZ3BulkRequesSupport = "1";
 
+    public static final int FIRMWARE_CLIENT = 0x50;
+
     @Override
     public DLMSReference getReference() {
         return DLMSReference.LN;
@@ -84,4 +86,9 @@ public class UkHubProperties extends DlmsProtocolProperties {
     public boolean isBulkRequest() {
         return getBooleanProperty(BULK_REQUEST, DefaultZ3BulkRequesSupport);
     }
+
+    public boolean isFirmwareUpdateSession() {
+        return getClientMacAddress() == FIRMWARE_CLIENT;
+    }
+
 }

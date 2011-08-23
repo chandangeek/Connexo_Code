@@ -41,7 +41,7 @@ public class ZigBeeSASStartup extends AbstractCosemObject {
     }
 
     public OctetString readLogicalName() throws IOException {
-        return new OctetString(getResponseData(ZigBeeSASStartupAttribute.LOGICAL_NAME), 0, true);
+        return new OctetString(getResponseData(ZigBeeSASStartupAttribute.LOGICAL_NAME), 0);
     }
 
     public void writeLogicalName(OctetString logicalName) throws IOException {
@@ -105,7 +105,7 @@ public class ZigBeeSASStartup extends AbstractCosemObject {
     }
 
     public OctetString readTrustCentreAddress() throws IOException {
-        return new OctetString(getResponseData(ZigBeeSASStartupAttribute.TRUST_CENTER_ADDRESS), 0, true);
+        return new OctetString(getResponseData(ZigBeeSASStartupAttribute.TRUST_CENTER_ADDRESS), 0);
     }
 
     public void writeTrustCentreAddress(OctetString trustCentreAddress) throws IOException {
@@ -113,7 +113,7 @@ public class ZigBeeSASStartup extends AbstractCosemObject {
     }
 
     public OctetString readLinkKey() throws IOException {
-        return new OctetString(getResponseData(ZigBeeSASStartupAttribute.LINK_KEY), 0, true);
+        return new OctetString(getResponseData(ZigBeeSASStartupAttribute.LINK_KEY), 0);
     }
 
     public void writeLinkKey(OctetString linkKey) throws IOException {
@@ -121,7 +121,7 @@ public class ZigBeeSASStartup extends AbstractCosemObject {
     }
 
     public OctetString readNetworkKey() throws IOException {
-        return new OctetString(getResponseData(ZigBeeSASStartupAttribute.NETWORK_KEY), 0, true);
+        return new OctetString(getResponseData(ZigBeeSASStartupAttribute.NETWORK_KEY), 0);
     }
 
     public void writeNetworkKey(OctetString networkKey) throws IOException {

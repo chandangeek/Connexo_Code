@@ -28,7 +28,8 @@ public class ImageTransfer extends AbstractCosemObject{
 
 	public static boolean DEBUG = true;
 	private static int delay = 3000;
-	private int maxBlockRetryCount = 3;
+    public static final int REPORT_STATUS_EVERY_X_BLOCKS = 1;
+    private int maxBlockRetryCount = 3;
 	private int maxTotalRetryCount = 500;
 	
 	private ProtocolLink protocolLink;
@@ -240,7 +241,7 @@ public class ImageTransfer extends AbstractCosemObject{
 			// without retries
 			imageBlockTransfer(imageBlockTransfer);
 
-			if(i % 50 == 0){ // i is multiple of 50
+			if(i % REPORT_STATUS_EVERY_X_BLOCKS == 0){ // i is multiple of 50
 				this.protocolLink.getLogger().log(Level.INFO, "ImageTransfer: " + i + " of " + blockCount + " blocks are sent to the device");
 			}
 		}

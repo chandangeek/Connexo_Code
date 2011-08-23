@@ -15,7 +15,7 @@ import static com.energyict.protocolimpl.utils.ProtocolTools.getBytesFromHexStri
 public class RegisterZigbeeDeviceData extends Structure {
 
     public RegisterZigbeeDeviceData(String address, String linkKey) throws IOException {
-        this(new ZigBeeIEEEAddress(getBytesFromHexString(address)), new OctetString(getBytesFromHexString(linkKey), true));
+        this(new ZigBeeIEEEAddress(getBytesFromHexString(address, "")), new OctetString(getBytesFromHexString(linkKey, "")));
     }
 
     public RegisterZigbeeDeviceData(ZigBeeIEEEAddress address, OctetString linkKey) throws IOException {
@@ -35,7 +35,7 @@ public class RegisterZigbeeDeviceData extends Structure {
             throw new IOException("Link key is required and cannot be 'null'");
         }
 
-        int length = linkKey.stringValue().length();
+        int length = linkKey.getOctetStr().length;
         if (length != 16) {
             throw new IOException("Link key length should be 16 bytes but was [" + length + "]!");
         }

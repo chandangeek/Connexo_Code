@@ -13,6 +13,7 @@ import com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging.*;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
 
 /**
  * The UK hub has the same protocolBase as the WebRTUZ3. Additional functionality is added for SSE, more specifically Zigbee HAN functionality
@@ -51,7 +52,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      * @return the requested Properties
      */
     @Override
-    protected DlmsProtocolProperties getProperties() {
+    protected UkHubProperties getProperties() {
         if (this.properties == null) {
             this.properties = new UkHubProperties();
         }
@@ -87,27 +88,48 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
     }
 
     /**
+     * <p></p>
+     *
+     * @return the current device time
+     * @throws java.io.IOException <br>
+     */
+    public Date getTime() throws IOException {
+        if (getProperties().isFirmwareUpdateSession()) {
+            getLogger().severe("Using firmware update client. Skipping clock readout!");
+            return new Date();
+        } else {
+            return super.getTime();
+        }
+    }
+
+
+    /**
      * Get the firmware version of the meter
      *
      * @return the version of the meter firmware
      * @throws java.io.IOException Thrown in case of an exception
      */
     public String getFirmwareVersion() throws IOException {
-        try {
-            StringBuilder firmware = new StringBuilder();
-            firmware.append(getMeterInfo().getFirmwareVersion());
+        if (getProperties().isFirmwareUpdateSession()) {
+            getLogger().severe("Using firmware update client. Skipping firmware version readout!");
+            return "";
+        } else {
+            try {
+                StringBuilder firmware = new StringBuilder();
+                firmware.append(getMeterInfo().getFirmwareVersion());
 
-            // TODO possible to add the ZigBee versions etc.
-//            String rfFirmware = getRFFirmwareVersion();
-//            if (!rfFirmware.equalsIgnoreCase("")) {
-//                firmware.append(" - RF-FirmwareVersion : ");
-//                firmware.append(rfFirmware);
-//            }
-            return firmware.toString();
-        } catch (IOException e) {
-            String message = "Could not fetch the firmwareVersion. " + e.getMessage();
-            getLogger().finest(message);
-            return "UnKnown version";
+                // TODO possible to add the ZigBee versions etc.
+                //            String rfFirmware = getRFFirmwareVersion();
+                //            if (!rfFirmware.equalsIgnoreCase("")) {
+                //                firmware.append(" - RF-FirmwareVersion : ");
+                //                firmware.append(rfFirmware);
+                //            }
+                return firmware.toString();
+            } catch (IOException e) {
+                String message = "Could not fetch the firmwareVersion. " + e.getMessage();
+                getLogger().finest(message);
+                return "UnKnown version";
+            }
         }
     }
 
@@ -118,12 +140,17 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      * @throws java.io.IOException thrown in case of an exception
      */
     public String getMeterSerialNumber() throws IOException {
-        try {
-            return getMeterInfo().getSerialNumber();
-        } catch (IOException e) {
-            String message = "Could not retrieve the SerialNumber of the meter. " + e.getMessage();
-            getLogger().finest(message);
-            throw new IOException(message);
+        if (getProperties().isFirmwareUpdateSession()) {
+            getLogger().severe("Using firmware update client. Skipping serial number check!");
+            return getSerialNumber();
+        } else {
+            try {
+                return getMeterInfo().getSerialNumber();
+            } catch (IOException e) {
+                String message = "Could not retrieve the SerialNumber of the meter. " + e.getMessage();
+                getLogger().finest(message);
+                throw new IOException(message);
+            }
         }
     }
 
