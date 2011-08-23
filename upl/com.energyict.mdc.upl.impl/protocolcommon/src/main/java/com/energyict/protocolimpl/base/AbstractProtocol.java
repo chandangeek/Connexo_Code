@@ -952,7 +952,7 @@ public abstract class AbstractProtocol implements MeterProtocol, HHUEnabler, Ser
 
     /*
     *  Method must be overridden by the subclass to build a StringBuffer with all
-    *  possible registers that can be read from the particulart meter. The StringBuffer
+    *  possible registers that can be read from the particular meter. The StringBuffer
     *  is then logged as info.
     *  This method is called if the 'ExtendedLogging' property is set to 1
     */
@@ -965,13 +965,7 @@ public abstract class AbstractProtocol implements MeterProtocol, HHUEnabler, Ser
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         return("");
     }
-    
-    /*  
-     *  Method must be overridden by the subclass to verify the property 'SerialNumber'
-     *  against the serialnumber read from the meter.
-     *  Use code below as example to implement the method.
-     *  This code has been taken from a real protocol implementation.
-     */
+
     /**
      * Method must be overridden by the subclass to verify the property 'SerialNumber'
      * against the serialnumber read from the meter. Code below as example to implement the method.
@@ -996,7 +990,7 @@ public abstract class AbstractProtocol implements MeterProtocol, HHUEnabler, Ser
     protected void validateDeviceId() throws IOException {
         
     }
-    
+
     /**
      * Getter for the custom property "RequestHeader"
      * @return boolean
