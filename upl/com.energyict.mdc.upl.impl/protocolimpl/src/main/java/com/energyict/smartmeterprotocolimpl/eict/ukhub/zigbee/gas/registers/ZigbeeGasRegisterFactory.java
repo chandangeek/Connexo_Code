@@ -72,7 +72,7 @@ public class ZigbeeGasRegisterFactory implements BulkRegisterProtocol {
             } else if(attribute.getDLMSClassId().isData()){
                 Data data = getCosemObjectFactory().getData(obisCode);
                 Long value = data.getValue();
-                return new RegisterValue(register, new Quantity(new BigDecimal(value), Unit.get(BaseUnit.HOUR)), null, null, null, null, -1, String.valueOf(value));
+                return new RegisterValue(register, new Quantity(new BigDecimal(value), Unit.get(BaseUnit.HOUR)), null, null, null, new Date(), 0, String.valueOf(value));
             }
         } else if (getObisCodeMapper().isAbstractTextRegister(obisCode)) {
             DLMSAttribute attribute = getObisCodeMapper().getAbstractTextDLMSAttribute(obisCode);
