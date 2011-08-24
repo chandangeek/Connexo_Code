@@ -19,17 +19,6 @@ import java.util.*;
  */
 public class ObisCodeMapper {
 
-    /**
-
-
-
-
-     ObisCode REG_PROFILE_DEMAND                 = ObisCode.fromString("3       7.0.1.25.0.255
-     ObisCode REG_DEMAND_TOTAL		             = ObisCode.fromString("5	0	7.0.1.4.0.255
-     ObisCode REG_MAXIMUM_DEMAND_ENERGY_IMPORT	 = ObisCode.fromString("4	0	7.0.1.6.1.255
-
-     */
-
     public static final Map<ObisCode, DLMSAttribute> ABSTRACT_REGISTER = new HashMap<ObisCode, DLMSAttribute>();
 
     static {
@@ -68,14 +57,37 @@ public class ObisCodeMapper {
 
 
     public DLMSAttribute getAbstractRegisterDLMSAttribute(ObisCode obisCode) {
-        return ABSTRACT_TEXT.get(obisCode);
+        return ABSTRACT_REGISTER.get(obisCode);
     }
 
     public static final Map<ObisCode, DLMSAttribute> ABSTRACT_TEXT = new HashMap<ObisCode, DLMSAttribute>();
 
     static {
-        ABSTRACT_TEXT.put(ObisCodeProvider.SERIAL_NUMBER, new DLMSAttribute(ObisCodeProvider.SERIAL_NUMBER, DataAttributes.VALUE));
-        ABSTRACT_TEXT.put(ObisCodeProvider.FIRMWARE_VERSION_MONOLITIC, new DLMSAttribute(ObisCodeProvider.FIRMWARE_VERSION_MONOLITIC, DataAttributes.VALUE));
+        //Device ID's
+        ABSTRACT_TEXT.put(ObisCodeProvider.DeviceId1, new DLMSAttribute(ObisCodeProvider.DeviceId1, DataAttributes.VALUE));
+        ABSTRACT_TEXT.put(ObisCodeProvider.DeviceId2, new DLMSAttribute(ObisCodeProvider.DeviceId2, DataAttributes.VALUE));
+        ABSTRACT_TEXT.put(ObisCodeProvider.DeviceId3, new DLMSAttribute(ObisCodeProvider.DeviceId3, DataAttributes.VALUE));
+        ABSTRACT_TEXT.put(ObisCodeProvider.DeviceId4, new DLMSAttribute(ObisCodeProvider.DeviceId4, DataAttributes.VALUE));
+        ABSTRACT_TEXT.put(ObisCodeProvider.DeviceId5, new DLMSAttribute(ObisCodeProvider.DeviceId5, DataAttributes.VALUE));
+        ABSTRACT_TEXT.put(ObisCodeProvider.DeviceId6, new DLMSAttribute(ObisCodeProvider.DeviceId6, DataAttributes.VALUE));
+        ABSTRACT_TEXT.put(ObisCodeProvider.DeviceId7, new DLMSAttribute(ObisCodeProvider.DeviceId7, DataAttributes.VALUE));
+        ABSTRACT_TEXT.put(ObisCodeProvider.DeviceId8, new DLMSAttribute(ObisCodeProvider.DeviceId8, DataAttributes.VALUE));
+        ABSTRACT_TEXT.put(ObisCodeProvider.DeviceId10, new DLMSAttribute(ObisCodeProvider.DeviceId10, DataAttributes.VALUE));
+        ABSTRACT_TEXT.put(ObisCodeProvider.MeteringPointId, new DLMSAttribute(ObisCodeProvider.MeteringPointId, DataAttributes.VALUE));
+        ABSTRACT_TEXT.put(ObisCodeProvider.DeviceId50, new DLMSAttribute(ObisCodeProvider.DeviceId50, DataAttributes.VALUE));
+        ABSTRACT_TEXT.put(ObisCodeProvider.DeviceId51, new DLMSAttribute(ObisCodeProvider.DeviceId51, DataAttributes.VALUE));
+        ABSTRACT_TEXT.put(ObisCodeProvider.DeviceId52, new DLMSAttribute(ObisCodeProvider.DeviceId52, DataAttributes.VALUE));
+
+        //FirmwareVersions
+        ABSTRACT_TEXT.put(ObisCodeProvider.OperationalFirmwareMonlicitic, new DLMSAttribute(ObisCodeProvider.OperationalFirmwareMonlicitic, DataAttributes.VALUE));
+        ABSTRACT_TEXT.put(ObisCodeProvider.OperationalFirmwareBootloader, new DLMSAttribute(ObisCodeProvider.OperationalFirmwareBootloader, DataAttributes.VALUE));
+        ABSTRACT_TEXT.put(ObisCodeProvider.OperationalFirmwareHAN, new DLMSAttribute(ObisCodeProvider.OperationalFirmwareHAN, DataAttributes.VALUE));
+        ABSTRACT_TEXT.put(ObisCodeProvider.OperationalFirmwareMID, new DLMSAttribute(ObisCodeProvider.OperationalFirmwareMID, DataAttributes.VALUE));
+        ABSTRACT_TEXT.put(ObisCodeProvider.OperationalFirmwareNonMIDApp, new DLMSAttribute(ObisCodeProvider.OperationalFirmwareNonMIDApp, DataAttributes.VALUE));
+        ABSTRACT_TEXT.put(ObisCodeProvider.OperationalFirmwareStackVersion, new DLMSAttribute(ObisCodeProvider.OperationalFirmwareStackVersion, DataAttributes.VALUE));
+        ABSTRACT_TEXT.put(ObisCodeProvider.OperationalFirmwareWAN, new DLMSAttribute(ObisCodeProvider.OperationalFirmwareWAN, DataAttributes.VALUE));
+        ABSTRACT_TEXT.put(ObisCodeProvider.OperationalFirmwareZCLVersion, new DLMSAttribute(ObisCodeProvider.OperationalFirmwareZCLVersion, DataAttributes.VALUE));
+        ABSTRACT_TEXT.put(ObisCodeProvider.OperationalFirmwareZigbeeChip, new DLMSAttribute(ObisCodeProvider.OperationalFirmwareZigbeeChip, DataAttributes.VALUE));
     }
 
     public boolean isAbstractTextRegister(ObisCode obisCode) {

@@ -16,8 +16,29 @@ import java.util.List;
 public final class ObisCodeProvider {
 
 
-    public static final ObisCode FIRMWARE_VERSION_MONOLITIC = ObisCode.fromString("7.0.0.2.0.255");
-    public static final ObisCode SERIAL_NUMBER = ObisCode.fromString("0.0.96.1.0.255");
+    public static final ObisCode OperationalFirmwareMonlicitic = ObisCode.fromString("7.0.0.2.0.255");
+    public static final ObisCode OperationalFirmwareMID = ObisCode.fromString("7.1.0.2.0.255");
+    public static final ObisCode OperationalFirmwareNonMIDApp = ObisCode.fromString("7.2.0.2.0.255");
+    public static final ObisCode OperationalFirmwareBootloader = ObisCode.fromString("7.3.0.2.0.255");
+    public static final ObisCode OperationalFirmwareZCLVersion = ObisCode.fromString("7.4.0.2.0.255");
+    public static final ObisCode OperationalFirmwareStackVersion = ObisCode.fromString("7.5.0.2.0.255");
+    public static final ObisCode OperationalFirmwareZigbeeChip = ObisCode.fromString("7.6.0.2.0.255");
+    public static final ObisCode OperationalFirmwareHAN = ObisCode.fromString("7.7.0.2.0.255");
+    public static final ObisCode OperationalFirmwareWAN = ObisCode.fromString("7.8.0.2.0.255");
+
+    public static final ObisCode DeviceId1 = ObisCode.fromString("0.0.96.1.0.255");     // SerialNumber
+    public static final ObisCode DeviceId2 = ObisCode.fromString("0.0.96.1.1.255");     // UtilitySpecified EquipmentID
+    public static final ObisCode DeviceId3 = ObisCode.fromString("0.0.96.1.2.255");     //E-Function location details, e.g. 48 chars (maybe need removing)
+    public static final ObisCode DeviceId4 = ObisCode.fromString("0.0.96.1.3.255");     //E-location information ? 48 chars
+    public static final ObisCode DeviceId5 = ObisCode.fromString("0.0.96.1.4.255");     //E-configuration information ? 16 chars
+    public static final ObisCode DeviceId6 = ObisCode.fromString("0.0.96.1.5.255");     //Manufacturer Name
+    public static final ObisCode DeviceId7 = ObisCode.fromString("0.0.96.1.6.255");     //Manufacture ID (ZigBee MSP ID [SSWG code for Clusters])
+    public static final ObisCode DeviceId8 = ObisCode.fromString("0.0.96.1.7.255");     //PAYG ID
+    public static final ObisCode DeviceId10 = ObisCode.fromString("0.0.96.1.9.255");     //Serial Number of Module
+    public static final ObisCode MeteringPointId = ObisCode.fromString("0.0.96.1.10.255");     //MPAN or the MPRN
+    public static final ObisCode DeviceId50 = ObisCode.fromString("0.0.96.1.50.255");     //hours in operation
+    public static final ObisCode DeviceId51 = ObisCode.fromString("0.0.96.1.51.255");     //hours in fault
+    public static final ObisCode DeviceId52 = ObisCode.fromString("0.0.96.1.52.255");     //remaining battery life
 
     public static final ObisCode GENERAL_LOAD_PROFILE = ObisCode.fromString("0.0.96.10.1.255");
     public static final ObisCode GENERAL_LP_STATUS_OBISCODE = ObisCode.fromString("0.0.96.10.1.255");
@@ -45,15 +66,15 @@ public final class ObisCodeProvider {
     public static final ObisCode REG_ALARM = ObisCode.fromString("0.0.97.98.0.255");
     public static final ObisCode REG_TIME_SINCE_LAST_EOB_1 = ObisCode.fromString("7.0.0.9.0.255");
 
-    public static final ObisCode REG_GAS_VOLUME_TOTAL  = ObisCode.fromString("7.0.1.8.0.255");
-    public static final ObisCode REG_GAS_VOLUME_TOU_1  = ObisCode.fromString("7.0.1.8.1.255");
-    public static final ObisCode REG_GAS_VOLUME_TOU_2  = ObisCode.fromString("7.0.1.8.2.255");
-    public static final ObisCode REG_GAS_VOLUME_TOU_3  = ObisCode.fromString("7.0.1.8.3.255");
-    public static final ObisCode REG_GAS_VOLUME_TOU_4  = ObisCode.fromString("7.0.1.8.4.255");
-    public static final ObisCode REG_GAS_VOLUME_TOU_5  = ObisCode.fromString("7.0.1.8.5.255");
-    public static final ObisCode REG_GAS_VOLUME_TOU_6  = ObisCode.fromString("7.0.1.8.6.255");
-    public static final ObisCode REG_GAS_VOLUME_TOU_7  = ObisCode.fromString("7.0.1.8.7.255");
-    public static final ObisCode REG_GAS_VOLUME_TOU_8  = ObisCode.fromString("7.0.1.8.8.255");
+    public static final ObisCode REG_GAS_VOLUME_TOTAL = ObisCode.fromString("7.0.1.8.0.255");
+    public static final ObisCode REG_GAS_VOLUME_TOU_1 = ObisCode.fromString("7.0.1.8.1.255");
+    public static final ObisCode REG_GAS_VOLUME_TOU_2 = ObisCode.fromString("7.0.1.8.2.255");
+    public static final ObisCode REG_GAS_VOLUME_TOU_3 = ObisCode.fromString("7.0.1.8.3.255");
+    public static final ObisCode REG_GAS_VOLUME_TOU_4 = ObisCode.fromString("7.0.1.8.4.255");
+    public static final ObisCode REG_GAS_VOLUME_TOU_5 = ObisCode.fromString("7.0.1.8.5.255");
+    public static final ObisCode REG_GAS_VOLUME_TOU_6 = ObisCode.fromString("7.0.1.8.6.255");
+    public static final ObisCode REG_GAS_VOLUME_TOU_7 = ObisCode.fromString("7.0.1.8.7.255");
+    public static final ObisCode REG_GAS_VOLUME_TOU_8 = ObisCode.fromString("7.0.1.8.8.255");
 
     public static final ObisCode REG_PROFILE_DEMAND = ObisCode.fromString("7.0.1.25.0.255");
     public static final ObisCode REG_DEMAND_TOTAL = ObisCode.fromString("7.0.1.4.0.255");
@@ -140,29 +161,31 @@ public final class ObisCodeProvider {
                 new UniversalObject(ObisCode.fromString("0.0.1.0.0.255"), DLMSClassId.CLOCK),
 
                 new UniversalObject(ObisCode.fromString("0.0.42.0.0.255"), DLMSClassId.DATA),
-                new UniversalObject(ObisCode.fromString("0.0.96.1.0.255"), DLMSClassId.DATA),
-                new UniversalObject(ObisCode.fromString("0.0.96.1.1.255"), DLMSClassId.DATA),
-                new UniversalObject(ObisCode.fromString("0.0.96.1.2.255"), DLMSClassId.DATA),
-                new UniversalObject(ObisCode.fromString("0.0.96.1.3.255"), DLMSClassId.DATA),
-                new UniversalObject(ObisCode.fromString("0.0.96.1.4.255"), DLMSClassId.DATA),
-                new UniversalObject(ObisCode.fromString("0.0.96.1.5.255"), DLMSClassId.DATA),
-                new UniversalObject(ObisCode.fromString("0.0.96.1.6.255"), DLMSClassId.DATA),
-                new UniversalObject(ObisCode.fromString("0.0.96.1.7.255"), DLMSClassId.DATA),
-                new UniversalObject(ObisCode.fromString("0.0.96.1.8.255"), DLMSClassId.DATA),
-                new UniversalObject(ObisCode.fromString("0.0.96.1.9.255"), DLMSClassId.DATA),
-                new UniversalObject(ObisCode.fromString("0.0.96.1.10.255"), DLMSClassId.DATA),
-                new UniversalObject(ObisCode.fromString("0.0.96.1.50.255"), DLMSClassId.DATA),
-                new UniversalObject(ObisCode.fromString("0.0.96.1.51.255"), DLMSClassId.DATA),
-                new UniversalObject(ObisCode.fromString("0.0.96.1.52.255"), DLMSClassId.DATA),
-                new UniversalObject(ObisCode.fromString("7.0.0.2.0.255"), DLMSClassId.DATA),
-                new UniversalObject(ObisCode.fromString("7.0.0.2.1.255"), DLMSClassId.DATA),
-                new UniversalObject(ObisCode.fromString("7.0.0.2.2.255"), DLMSClassId.DATA),
-                new UniversalObject(ObisCode.fromString("7.0.0.2.3.255"), DLMSClassId.DATA),
-                new UniversalObject(ObisCode.fromString("0.4.0.2.0.255"), DLMSClassId.DATA),
-                new UniversalObject(ObisCode.fromString("0.5.0.2.0.255"), DLMSClassId.DATA),
-                new UniversalObject(ObisCode.fromString("0.6.0.2.0.255"), DLMSClassId.DATA),
-                new UniversalObject(ObisCode.fromString("0.7.0.2.0.255"), DLMSClassId.DATA),
-                new UniversalObject(ObisCode.fromString("0.8.0.2.0.255"), DLMSClassId.DATA),
+
+                new UniversalObject(DeviceId1, DLMSClassId.DATA),
+                new UniversalObject(DeviceId2, DLMSClassId.DATA),
+                new UniversalObject(DeviceId3, DLMSClassId.DATA),
+                new UniversalObject(DeviceId4, DLMSClassId.DATA),
+                new UniversalObject(DeviceId5, DLMSClassId.DATA),
+                new UniversalObject(DeviceId6, DLMSClassId.DATA),
+                new UniversalObject(DeviceId7, DLMSClassId.DATA),
+                new UniversalObject(DeviceId8, DLMSClassId.DATA),
+                new UniversalObject(DeviceId10, DLMSClassId.DATA),
+                new UniversalObject(MeteringPointId, DLMSClassId.DATA),
+                new UniversalObject(DeviceId50, DLMSClassId.DATA),
+                new UniversalObject(DeviceId51, DLMSClassId.DATA),
+                new UniversalObject(DeviceId52, DLMSClassId.DATA),
+
+                new UniversalObject(OperationalFirmwareMonlicitic, DLMSClassId.DATA),
+                new UniversalObject(OperationalFirmwareMID, DLMSClassId.DATA),
+                new UniversalObject(OperationalFirmwareNonMIDApp, DLMSClassId.DATA),
+                new UniversalObject(OperationalFirmwareBootloader, DLMSClassId.DATA),
+                new UniversalObject(OperationalFirmwareZCLVersion, DLMSClassId.DATA),
+                new UniversalObject(OperationalFirmwareStackVersion, DLMSClassId.DATA),
+                new UniversalObject(OperationalFirmwareZigbeeChip, DLMSClassId.DATA),
+                new UniversalObject(OperationalFirmwareHAN, DLMSClassId.DATA),
+                new UniversalObject(OperationalFirmwareWAN, DLMSClassId.DATA),
+
                 new UniversalObject(ObisCode.fromString("7.0.0.2.8.255"), DLMSClassId.DATA),
                 new UniversalObject(ObisCode.fromString("7.0.0.9.1.255"), DLMSClassId.DATA),
                 new UniversalObject(ObisCode.fromString("7.0.0.9.2.255"), DLMSClassId.DATA),

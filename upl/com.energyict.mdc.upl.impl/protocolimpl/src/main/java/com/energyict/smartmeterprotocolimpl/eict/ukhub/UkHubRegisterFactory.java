@@ -171,10 +171,6 @@ public class UkHubRegisterFactory implements BulkRegisterProtocol {
         return null;
     }
 
-//    public ObisCode getCorrectedRegisterObisCode(Register register) {
-//        return this.meterProtocol.getPhysicalAddressCorrectedObisCode(register.getObisCode(), register.getSerialNumber());
-//    }
-
     private RegisterValue convertCustomAbstractObjectsToRegisterValues(Register register, AbstractDataType abstractDataType) throws UnsupportedException {
         ObisCode rObisCode = register.getObisCode();
 
@@ -197,8 +193,4 @@ public class UkHubRegisterFactory implements BulkRegisterProtocol {
         }
     }
 
-//    private static boolean isSupportedByProtocol(ObisCode obisCode) {
-//        return ERROR_REGISTER.equals(obisCode) || ALARM_REGISTER.equals(obisCode) || ACTIVE_TARIFF_REGISTER.equals(obisCode)
-//                || CORE_FW_VERSION.equals(obisCode) || ACTIVITY_CALENDAR.equals(obisCode);
-//    }
 }

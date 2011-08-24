@@ -17,8 +17,8 @@ import java.io.IOException;
  */
 public class ComposedMeterInfo extends ComposedCosemObject {
 
-    public static final DLMSAttribute FIRMWARE_VERSION_MONOLITIC = new DLMSAttribute(ObisCodeProvider.FIRMWARE_VERSION_MONOLITIC, DataAttributes.VALUE);
-    public static final DLMSAttribute SERIAL_NUMBER = new DLMSAttribute(ObisCodeProvider.SERIAL_NUMBER, DataAttributes.VALUE);
+    public static final DLMSAttribute FIRMWARE_VERSION_MONOLITIC = new DLMSAttribute(ObisCodeProvider.OperationalFirmwareMonlicitic, DataAttributes.VALUE);
+    public static final DLMSAttribute SERIAL_NUMBER = new DLMSAttribute(ObisCodeProvider.DeviceId1, DataAttributes.VALUE);
 
     public ComposedMeterInfo(final DlmsSession dlmsSession, final boolean bulkRequest) {
         super(dlmsSession, bulkRequest, getDlmsAttributes());
