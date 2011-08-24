@@ -39,6 +39,7 @@ public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMes
         categories.add(ProtocolMessageCategories.getPricingInformationCategory());
         categories.add(ProtocolMessageCategories.getChangeOfTenancyCategory());
         categories.add(ProtocolMessageCategories.getChangeOfSupplierCategory());
+        categories.add(getTestCategory());
         return categories;
     }
 

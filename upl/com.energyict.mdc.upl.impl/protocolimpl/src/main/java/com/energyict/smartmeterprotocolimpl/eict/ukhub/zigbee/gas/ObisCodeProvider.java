@@ -34,6 +34,7 @@ public final class ObisCodeProvider {
     public static final ObisCode DeviceId6 = ObisCode.fromString("0.0.96.1.5.255");     //Manufacturer Name
     public static final ObisCode DeviceId7 = ObisCode.fromString("0.0.96.1.6.255");     //Manufacture ID (ZigBee MSP ID [SSWG code for Clusters])
     public static final ObisCode DeviceId8 = ObisCode.fromString("0.0.96.1.7.255");     //PAYG ID
+    public static final ObisCode DeviceId9 =ObisCode.fromString("0.0.96.1.8.255");     
     public static final ObisCode DeviceId10 = ObisCode.fromString("0.0.96.1.9.255");     //Serial Number of Module
     public static final ObisCode MeteringPointId = ObisCode.fromString("0.0.96.1.10.255");     //MPAN or the MPRN
     public static final ObisCode DeviceId50 = ObisCode.fromString("0.0.96.1.50.255");     //hours in operation

@@ -43,6 +43,10 @@ public class ObisCodeMapper {
         ABSTRACT_REGISTER.put(ObisCodeProvider.REG_DEMAND_TOTAL, new DLMSAttribute(ObisCodeProvider.REG_DEMAND_TOTAL, DemandRegisterAttributes.Register_Value));
         ABSTRACT_REGISTER.put(ObisCodeProvider.REG_MAXIMUM_DEMAND_ENERGY_IMPORT, new DLMSAttribute(ObisCodeProvider.REG_MAXIMUM_DEMAND_ENERGY_IMPORT, ExtendedRegisterAttributes.Register_Value));
 
+        ABSTRACT_REGISTER.put(ObisCodeProvider.DeviceId9, new DLMSAttribute(ObisCodeProvider.DeviceId9, DataAttributes.VALUE));
+        ABSTRACT_REGISTER.put(ObisCodeProvider.DeviceId50, new DLMSAttribute(ObisCodeProvider.DeviceId50, DataAttributes.VALUE));
+        ABSTRACT_REGISTER.put(ObisCodeProvider.DeviceId51, new DLMSAttribute(ObisCodeProvider.DeviceId51, DataAttributes.VALUE));
+        ABSTRACT_REGISTER.put(ObisCodeProvider.DeviceId52, new DLMSAttribute(ObisCodeProvider.DeviceId52, DataAttributes.VALUE));
     }
 
     public static final Map<ObisCode, DLMSAttribute> ABSTRACT_VALUE = new HashMap<ObisCode, DLMSAttribute>();
@@ -74,9 +78,7 @@ public class ObisCodeMapper {
         ABSTRACT_TEXT.put(ObisCodeProvider.DeviceId8, new DLMSAttribute(ObisCodeProvider.DeviceId8, DataAttributes.VALUE));
         ABSTRACT_TEXT.put(ObisCodeProvider.DeviceId10, new DLMSAttribute(ObisCodeProvider.DeviceId10, DataAttributes.VALUE));
         ABSTRACT_TEXT.put(ObisCodeProvider.MeteringPointId, new DLMSAttribute(ObisCodeProvider.MeteringPointId, DataAttributes.VALUE));
-        ABSTRACT_TEXT.put(ObisCodeProvider.DeviceId50, new DLMSAttribute(ObisCodeProvider.DeviceId50, DataAttributes.VALUE));
-        ABSTRACT_TEXT.put(ObisCodeProvider.DeviceId51, new DLMSAttribute(ObisCodeProvider.DeviceId51, DataAttributes.VALUE));
-        ABSTRACT_TEXT.put(ObisCodeProvider.DeviceId52, new DLMSAttribute(ObisCodeProvider.DeviceId52, DataAttributes.VALUE));
+
 
         //FirmwareVersions
         ABSTRACT_TEXT.put(ObisCodeProvider.OperationalFirmwareMonlicitic, new DLMSAttribute(ObisCodeProvider.OperationalFirmwareMonlicitic, DataAttributes.VALUE));

@@ -1,7 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.registers;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.cbo.*;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.*;
@@ -12,6 +11,8 @@ import com.energyict.protocol.Register;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ZigbeeGas;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 
 /**
@@ -68,6 +69,10 @@ public class ZigbeeGasRegisterFactory implements BulkRegisterProtocol {
                 Date captureTime = extendedRegister.getCaptureTime();
                 Date billingDate = extendedRegister.getBillingDate();
                 return new RegisterValue(register, quantity, captureTime, billingDate);
+            } else if(attribute.getDLMSClassId().isData()){
+                Data data = getCosemObjectFactory().getData(obisCode);
+                Long value = data.getValue();
+                return new RegisterValue(register, new Quantity(new BigDecimal(value), Unit.get(BaseUnit.HOUR)), null, null, null, null, -1, String.valueOf(value));
             }
         } else if (getObisCodeMapper().isAbstractTextRegister(obisCode)) {
             DLMSAttribute attribute = getObisCodeMapper().getAbstractTextDLMSAttribute(obisCode);
