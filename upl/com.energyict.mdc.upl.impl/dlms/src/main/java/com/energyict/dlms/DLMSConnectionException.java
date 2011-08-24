@@ -11,17 +11,19 @@ package com.energyict.dlms;
 
 public class DLMSConnectionException extends Exception {
 
-	private static final int UNKNOWN_REASON = -1;
+	private static final int REASON_UNKNOWN = -1;
+    public static final short REASON_SECURITY = 1;
+
 	private short sReason;
 
 	public DLMSConnectionException(String str) {
 		super(str);
-		this.sReason = UNKNOWN_REASON;
+		this.sReason = REASON_UNKNOWN;
 	}
 
 	public DLMSConnectionException() {
 		super();
-		this.sReason = UNKNOWN_REASON;
+		this.sReason = REASON_UNKNOWN;
 	}
 
 	public DLMSConnectionException(String str, short sReason) {
@@ -31,7 +33,7 @@ public class DLMSConnectionException extends Exception {
 
 	public DLMSConnectionException(Throwable ex) {
 		super(ex);
-		this.sReason = UNKNOWN_REASON;
+		this.sReason = REASON_UNKNOWN;
 	}
 
 	public short getReason() {

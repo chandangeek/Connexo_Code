@@ -268,7 +268,7 @@ public class ActivityCalendar extends AbstractCosemObject {
      */
     public OctetString readActivatePassiveCalendarTime() throws IOException {
         if (activatePassiveCalendarTime == null) {
-            activatePassiveCalendarTime = (OctetString) AXDRDecoder.decode(getLNResponseData(10));
+            activatePassiveCalendarTime = (OctetString) AXDRDecoder.decode(getResponseData(ActivityCalendarAttributes.ACTIVATE_PASSIVE_CALENDAR_TIME));
         }
         return activatePassiveCalendarTime;
     }

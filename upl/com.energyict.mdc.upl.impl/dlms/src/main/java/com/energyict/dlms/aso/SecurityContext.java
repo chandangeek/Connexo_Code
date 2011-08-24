@@ -1,6 +1,7 @@
 package com.energyict.dlms.aso;
 
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.encryption.AesGcm128;
 import com.energyict.encryption.BitVector;
@@ -68,7 +69,7 @@ public class SecurityContext {
     private final int cipheringType;
 
     private long frameCounter;
-    private long responseFrameCounter;
+    private Integer responseFrameCounter = null;
     private byte[] systemTitle;
     private byte[] responseSystemTitle;
 
@@ -100,7 +101,7 @@ public class SecurityContext {
         this.authenticationAlgorithm = AuthenticationTypes.getTypeFor(this.authenticationLevel);
         this.frameCounter = getRandomFrameCounter();
         this.systemTitle = systemIdentifier != null ? systemIdentifier.clone() : null;
-        this.responseFrameCounter = 0;
+        this.responseFrameCounter = null;
     }
 
     /**
@@ -370,7 +371,7 @@ public class SecurityContext {
      * @return the encrypted packet
      * @throws IOException
      */
-    public byte[] createHighLevelAuthenticationGMACResponse(byte[] respondingChallenge, byte[] cipheredFrame) throws IOException {
+    public byte[] createHighLevelAuthenticationGMACResponse(byte[] respondingChallenge, byte[] cipheredFrame) throws IOException, DLMSConnectionException {
         byte[] fc = ProtocolUtils.getSubArray2(cipheredFrame, 1, FRAME_COUNTER_SIZE);
         setResponseFrameCounter(ProtocolUtils.getInt(fc));
 
@@ -431,7 +432,7 @@ public class SecurityContext {
      * @throws IOException         when Keys could not be fetched
      * @throws ConnectionException when the decryption fails
      */
-    public byte[] dataTransportDecryption(byte[] cipherFrame) throws IOException {
+    public byte[] dataTransportDecryption(byte[] cipherFrame) throws IOException, DLMSConnectionException {
         switch (this.securityPolicy) {
             case SECURITYPOLICY_NONE: {
                 return cipherFrame;
@@ -584,6 +585,7 @@ public class SecurityContext {
 
     /**
      * Setter for the servers' responding SystemTitle
+     *
      * @param title the server his SystemTitle
      */
     public void setResponseSystemTitle(byte[] title) {
@@ -635,10 +637,25 @@ public class SecurityContext {
 
     /**
      * Setter for the responding FrameCounter
+     *
      * @param frameCounter the frameCounter to set from the server
+     * @throws com.energyict.dlms.DLMSConnectionException
+     *          if the FrameCounter was not incremented in a proper way
      */
-    public void setResponseFrameCounter(long frameCounter) {
-        this.responseFrameCounter = frameCounter;
+    public void setResponseFrameCounter(int frameCounter) throws DLMSConnectionException {
+        if (this.responseFrameCounter == null) {
+            this.responseFrameCounter = frameCounter;
+        } else {
+            if (this.responseFrameCounter == -1 && frameCounter == 0) {
+                this.responseFrameCounter = frameCounter;
+            } else if (this.responseFrameCounter == -1 && frameCounter != 0) {
+                throw new DLMSConnectionException("Received incorrect overFlow FrameCounter.", DLMSConnectionException.REASON_SECURITY);
+            } else if (frameCounter != this.responseFrameCounter + 1) {
+                throw new DLMSConnectionException("Received incorrect FrameCounter.", DLMSConnectionException.REASON_SECURITY);
+            } else {
+                this.responseFrameCounter = frameCounter;
+            }
+        }
     }
 
     /**
@@ -707,7 +724,7 @@ public class SecurityContext {
      * @return true if it is, false otherwise
      */
     public boolean isGlobalCiphering() {
-       return cipheringType == CIPHERING_TYPE_GLOBAL;
+        return cipheringType == CIPHERING_TYPE_GLOBAL;
     }
 
 }

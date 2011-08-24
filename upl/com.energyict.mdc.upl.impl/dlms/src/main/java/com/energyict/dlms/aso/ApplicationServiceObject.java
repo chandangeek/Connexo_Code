@@ -1,8 +1,7 @@
 package com.energyict.dlms.aso;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.*;
 import com.energyict.protocol.ProtocolUtils;
@@ -90,7 +89,7 @@ public class ApplicationServiceObject {
      * Create an ApplicationAssociation.
      * Depending on the securityLevel encrypted challenges will be used to authenticate the client and server
      */
-    public void createAssociation() throws IOException {
+    public void createAssociation() throws IOException, DLMSConnectionException {
         byte[] request = this.acse.createAssociationRequest();
         byte[] response = this.protocolLink.getDLMSConnection().sendRequest(request);
         this.acse.analyzeAARE(response);
@@ -112,7 +111,7 @@ public class ApplicationServiceObject {
      *
      * @throws IOException
      */
-    protected void handleHighLevelSecurityAuthentication() throws IOException {
+    protected void handleHighLevelSecurityAuthentication() throws IOException, DLMSConnectionException {
         byte[] encryptedResponse;
         byte[] plainText;
 
@@ -178,7 +177,7 @@ public class ApplicationServiceObject {
      * @param encryptedResponse is the response from the server to the reply_to_HLS_authentication
      * @throws IOException if the two challenges don't match, or if the HLSSecret could be supplied, if it's not a valid algorithm or when there is no callingAuthenticationvalue
      */
-    protected void analyzeEncryptedResponse(byte[] encryptedResponse) throws IOException {
+    protected void analyzeEncryptedResponse(byte[] encryptedResponse) throws IOException, DLMSConnectionException {
         byte[] plainText = ProtocolUtils.concatByteArrays(this.securityContext.getSecurityProvider().getCallingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
 
         byte[] cToSEncrypted;

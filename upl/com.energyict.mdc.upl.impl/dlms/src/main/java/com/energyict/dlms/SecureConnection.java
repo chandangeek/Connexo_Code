@@ -90,7 +90,12 @@ public class SecureConnection implements DLMSConnection {
                 if (XdlmsApduTags.contains(securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG])) {
                     // FIXME: Strip the 3 leading bytes before decryption -> due to old HDLC code
                     // Strip the 3 leading bytes before encrypting
-                    final byte[] decryptedResponse = this.aso.getSecurityContext().dataTransportDecryption(ProtocolUtils.getSubArray(securedResponse, 3));
+                    final byte[] decryptedResponse;
+                    try {
+                        decryptedResponse = this.aso.getSecurityContext().dataTransportDecryption(ProtocolUtils.getSubArray(securedResponse, 3));
+                    } catch (DLMSConnectionException e) {
+                        throw new IOException(e.getMessage());
+                    }
 
                     // FIXME: Last step is to add the three leading bytes you stripped in the beginning -> due to old HDLC code
                     return ProtocolUtils.concatByteArrays(leading, decryptedResponse);

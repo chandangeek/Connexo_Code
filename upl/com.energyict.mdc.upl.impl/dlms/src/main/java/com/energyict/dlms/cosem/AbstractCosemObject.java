@@ -94,6 +94,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	 * @param methodId
 	 * @return raw data returned from the method invocation
 	 * @throws IOException
+     * @deprecated use {@link #methodInvoke(com.energyict.dlms.cosem.methods.DLMSClassMethods, byte[])} instead. Should be converted to a private method.
 	 */
 	public byte[] invoke(int methodId) throws IOException {
 		return invoke(methodId, null);
@@ -104,6 +105,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	 * @param data
 	 * @return raw data returned from the method invocation
 	 * @throws IOException
+     * @deprecated use {@link #methodInvoke(com.energyict.dlms.cosem.methods.DLMSClassMethods, byte[])} instead. Should be converted to a private method.
 	 */
 	public byte[] invoke(int methodId, byte[] data) throws IOException {
 		try {
@@ -127,6 +129,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	 * @param data
 	 * @return
 	 * @throws IOException
+     * @deprecated use {@link #write(com.energyict.dlms.cosem.attributes.DLMSClassAttributes, byte[])} instead. Should be converted to a private method.
 	 */
 	protected byte[] write(int attribute, byte[] data) throws IOException {
 		try {
@@ -243,19 +246,21 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
         return getProtocolLink().getDLMSConnection().getApplicationServiceObject().getAssociationControlServiceElement().getXdlmsAse().getMaxRecPDUServerSize();
     }
 
-	/**
-	 * @param attribute
-	 * @param data
-	 * @return
-	 * @throws IOException
-	 */
-	protected byte[] write(DLMSClassAttributes attribute, byte[] data) throws IOException {
-		if (getObjectReference().isSNReference()) {
-			return write(attribute.getShortName(), data);
-		} else {
-			return write(attribute.getAttributeNumber(), data);
-		}
-	}
+    /**
+     * DLMS LN and SN supported write of the given DLMSClassAttribute to the device
+     *
+     * @param attribute the attribute to write
+     * @param data      the data to write
+     * @return any additional response data
+     * @throws IOException if for some reason the write failed
+     */
+    protected byte[] write(DLMSClassAttributes attribute, byte[] data) throws IOException {
+        if (getObjectReference().isSNReference()) {
+            return write(attribute.getShortName(), data);
+        } else {
+            return write(attribute.getAttributeNumber(), data);
+        }
+    }
 
 
 	/**
@@ -266,6 +271,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	 * @param attribute the attribute to read
 	 * @return the response from the device
 	 * @throws IOException
+     * @deprecated use {@link #getResponseData(com.energyict.dlms.cosem.attributes.DLMSClassAttributes)} instead
 	 */
 	protected byte[] getLNResponseData(int attribute) throws IOException {
 		return getLNResponseData(attribute, null, null);
@@ -290,13 +296,14 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	 * @param attribute
 	 * @return
 	 * @throws IOException
+     * @deprecated use {@link #getResponseData(com.energyict.dlms.cosem.attributes.DLMSClassAttributes)} instead. Should be converted to a private method
 	 */
 	protected byte[] getResponseData(int attribute) throws IOException {
 		return getResponseData(attribute, null, null);
 	}
 
 	/**
-     * Get the responseData based on the given {@link com.energyict.dlms.cosem.attributes.DLMSClassAttributes}
+     * DLMS LN and SN supported get of the given {@link com.energyict.dlms.cosem.attributes.DLMSClassAttributes}
      *
      * @param attribute the attribute to read from the device
      * @return the value of the requested attribute
@@ -346,7 +353,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 
 	/**
-     * Invoke the method based on the given {@link com.energyict.dlms.cosem.methods.DLMSClassMethods}
+     * DLMS LN and SN supported invocation of the methods based on the given {@link com.energyict.dlms.cosem.methods.DLMSClassMethods}
      *
      * @param method the method to invoke
      * @param data   the additional data to write with he method
@@ -358,7 +365,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
     }
 
     /**
-     * Invoke the method based on the given {@link com.energyict.dlms.cosem.methods.DLMSClassMethods}
+     * DLMS LN and SN supported invocation of the methods based on the given {@link com.energyict.dlms.cosem.methods.DLMSClassMethods}
      *
      * @param method the method to invoke
      * @param encodedData   the ber-encoded additional data to write with he method
