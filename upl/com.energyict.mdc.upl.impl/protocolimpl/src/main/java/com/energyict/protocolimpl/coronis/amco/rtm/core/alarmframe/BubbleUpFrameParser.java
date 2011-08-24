@@ -6,6 +6,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.coronis.amco.rtm.ProfileDataReader;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
+import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.GenericHeader;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.OperatingMode;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand.*;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
@@ -21,9 +22,7 @@ import java.util.*;
  */
 public class BubbleUpFrameParser {
 
-    private final static int INITIAL_BATTERY_LIFE_COUNT_SRTM_AND_EVOHOP = 0xF7F490;
-    private final static int INITIAL_BATTERY_LIFE_COUNT_RTM = 0x895440;
-    private static final double MAX = 0x20;
+    private static GenericHeader genericHeader;
 
     public static BubbleUpObject parse(byte[] data, RTM rtm) throws IOException {
         byte[] radioAddress = ProtocolTools.getSubArray(data, 0, 6);
@@ -61,7 +60,7 @@ public class BubbleUpFrameParser {
         for (List<Integer> values : profileData) {
             if (values.size() > 0) {
                 numberOfPorts++;
-        }
+            }
         }
 
         OperatingMode operatingMode = new OperatingMode(rtm, table.getOperationMode());
@@ -69,7 +68,7 @@ public class BubbleUpFrameParser {
         profileDataReader.setNumberOfInputs(numberOfPorts);
         profileDataReader.setProfileInterval(table.getProfileInterval());
 
-        profileDatas.add(profileDataReader.parseProfileData(false, profileData, new ProfileData(), monthly, false, new Date(), new Date(0), table.getLastLoggedTimeStamp(), 0));
+        profileDatas.add(profileDataReader.parseProfileData(genericHeader, false, profileData, new ProfileData(), monthly, false, new Date(), new Date(0), table.getLastLoggedTimeStamp(), 0));
         result.setProfileDatas(profileDatas);
         result.setRegisterValues(registerValues);
         return result;
@@ -84,30 +83,19 @@ public class BubbleUpFrameParser {
 
         for (int port = 0; port < readTOUBuckets.getNumberOfPorts(); port++) {
             int value = readTOUBuckets.getListOfAllTotalizers().get(port).getCurrentReading();
-            RegisterValue reg = new RegisterValue(ObisCode.fromString("1." + (port + 1) + ".82.8.0.255"), new Quantity(value, Unit.get("")), new Date());
+            int multiplier = genericHeader.getRtmUnit(port).getMultiplier();
+            RegisterValue reg = new RegisterValue(ObisCode.fromString("1." + (port + 1) + ".82.8.0.255"), new Quantity(value * multiplier, genericHeader.getUnit(port)), new Date());
             registerValues.add(reg);
 
             for (int bucket = 1; bucket < 7; bucket++) {
                 ObisCode obisCode = ObisCode.fromString("0." + (port + 1) + ".96.0." + (52 + bucket) + ".255");
                 value = readTOUBuckets.getListOfAllTotalizers().get(port).getTOUBucketsTotalizers()[bucket - 1];
-                reg = new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date());
+                reg = new RegisterValue(obisCode, new Quantity(value * multiplier, genericHeader.getUnit(port)), new Date());
                 registerValues.add(reg);
             }
         }
         result.setRegisterValues(registerValues);
         return result;
-    }
-
-    private static boolean isRtm(byte[] radioAddress) {
-        return (radioAddress[1] & 0xFF) == 0x50;
-    }
-
-    private static boolean isSRTM(byte[] radioAddress) {
-        return (radioAddress[1] & 0xFF) == 0x51;
-    }
-
-    private static boolean isEvoHop(byte[] radioAddress) {
-        return (radioAddress[1] & 0xFF) == 0x56;
     }
 
     private static BubbleUpObject parseCurrentIndexes(byte[] data, RTM rtm, byte[] radioAddress) throws IOException {
@@ -121,7 +109,7 @@ public class BubbleUpFrameParser {
 
         RegisterValue reg;
         for (int port = 0; port < currentRegisterReading.getNumberOfPorts(); port++) {
-            reg = new RegisterValue(ObisCode.fromString("1." + (port + 1) + ".82.8.0.255"), new Quantity(currentRegisterReading.getCurrentReading(port + 1), Unit.get("")), new Date());
+            reg = new RegisterValue(ObisCode.fromString("1." + (port + 1) + ".82.8.0.255"), new Quantity(currentRegisterReading.getCurrentReading(port + 1) * genericHeader.getRtmUnit(port).getMultiplier(), genericHeader.getUnit(port)), new Date());
             registerValues.add(reg);
         }
         result.setRegisterValues(registerValues);
@@ -130,34 +118,23 @@ public class BubbleUpFrameParser {
 
     /**
      * Parses the RSSI level and battery level from the generic header
-     * @param data the generic header
+     *
+     * @param data         the generic header
      * @param radioAddress indicates the RTM type, important to know the initial battery level
      * @return 2 registers
      */
-    private static List<RegisterValue> getGenericHeaderRegisters(byte[] data, byte[] radioAddress) {
+    private static List<RegisterValue> getGenericHeaderRegisters(byte[] data, byte[] radioAddress) throws IOException {
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
 
-        double qos = ProtocolTools.getUnsignedIntFromBytes(data, 12, 1);
-        qos = (qos / MAX) * 100;
-        double shortLifeCounter = ProtocolTools.getUnsignedIntFromBytes(data, 13, 2) << 8;
-        shortLifeCounter = 100 - (((getInitialBatteryCount(radioAddress) * 100) - (shortLifeCounter * 100)) / getInitialBatteryCount(radioAddress));
+        genericHeader = new GenericHeader(radioAddress);
+        genericHeader.parse(data);
 
-        RegisterValue reg = new RegisterValue(ObisCode.fromString("0.0.96.6.0.255"), new Quantity(shortLifeCounter, Unit.get("")), new Date());
+        RegisterValue reg = new RegisterValue(ObisCode.fromString("0.0.96.6.0.255"), new Quantity(genericHeader.getShortLifeCounter(), Unit.get("")), new Date());
         registerValues.add(reg);
 
-        reg = new RegisterValue(ObisCode.fromString("0.0.96.0.63.255"), new Quantity(qos, Unit.get("")), new Date());
+        reg = new RegisterValue(ObisCode.fromString("0.0.96.0.63.255"), new Quantity(genericHeader.getQos(), Unit.get("")), new Date());
         registerValues.add(reg);
         return registerValues;
-    }
-
-    public static int getInitialBatteryCount(byte[] radioAddress) {
-        if (isRtm(radioAddress)) {
-            return INITIAL_BATTERY_LIFE_COUNT_RTM;
-        }
-        if (isSRTM(radioAddress) || isEvoHop(radioAddress)) {
-            return INITIAL_BATTERY_LIFE_COUNT_SRTM_AND_EVOHOP;
-        }
-        return INITIAL_BATTERY_LIFE_COUNT_SRTM_AND_EVOHOP;
     }
 
     private static BubbleUpObject parseDailyConsumption(byte[] data, RTM rtm, byte[] radioAddress) throws IOException {
@@ -174,7 +151,7 @@ public class BubbleUpFrameParser {
 
         for (int port = 0; port < dailyConsumption.getNumberOfPorts(); port++) {
             int value = dailyConsumption.getCurrentIndexes()[port];
-            RegisterValue reg = new RegisterValue(ObisCode.fromString("1." + (port + 1) + ".82.8.0.255"), new Quantity(value, Unit.get("")), new Date());
+            RegisterValue reg = new RegisterValue(ObisCode.fromString("1." + (port + 1) + ".82.8.0.255"), new Quantity(value * genericHeader.getRtmUnit(port).getMultiplier(), genericHeader.getUnit(port)), new Date());
             registerValues.add(reg);
         }
         result.setRegisterValues(registerValues);
@@ -186,7 +163,7 @@ public class BubbleUpFrameParser {
         ProfileDataReader profileDataReader = new ProfileDataReader(rtm);
         profileDataReader.setNumberOfInputs(dailyConsumption.getNumberOfPorts());
         profileDataReader.setProfileInterval(dailyConsumption.getProfileInterval());
-        profileData = profileDataReader.parseProfileData(false, rawValues, profileData, false, true, new Date(), new Date(0), dailyConsumption.getLastLoggedValue(), 0);
+        profileData = profileDataReader.parseProfileData(genericHeader, false, rawValues, profileData, false, true, new Date(), new Date(0), dailyConsumption.getLastLoggedValue(), 0);
         profileDatas.add(profileData);
 
         result.setProfileDatas(profileDatas);

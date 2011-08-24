@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
-import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.OperatingMode;
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -21,7 +20,7 @@ public class ReadTOUBuckets extends AbstractRadioCommand {
 
     private List<PortTotalizers> listOfAllTotalizers;
     private int numberOfPorts;
-    
+
     /**
      * List of totalizers, grouped per port.
      * Element 1 is an array of 6 totalizers, for the TOU buckets on port 1.
@@ -40,8 +39,8 @@ public class ReadTOUBuckets extends AbstractRadioCommand {
             return;         //The evoHop module doesn't contain TOU bucket data
         }
 
-        operationMode = ProtocolTools.getIntFromBytes(data, 1, 2);
-        numberOfPorts = new OperatingMode(getRTM(), operationMode).readNumberOfPorts();
+        getGenericHeader().parse(data);
+        numberOfPorts = getGenericHeader().getOperationMode().readNumberOfPorts();
         int offset = 23;    //Skip the generic header
 
         TimeZone timeZone = getRTM().getTimeZone();

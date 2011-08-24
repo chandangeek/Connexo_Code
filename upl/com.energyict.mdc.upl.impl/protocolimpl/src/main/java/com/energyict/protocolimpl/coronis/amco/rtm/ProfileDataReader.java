@@ -4,8 +4,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.EventStatusAndDescription;
-import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.ApplicationStatus;
-import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.ProfileType;
+import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.*;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand.ExtendedDataloggingTable;
 
 import java.io.IOException;
@@ -111,6 +110,7 @@ public class ProfileDataReader {
 
         int startOffset = -1;
         long initialOffset = -1;
+        GenericHeader genericHeader = null;
 
         //Get the profile data for all selected input channels, in case of periodic/weekly/monthly measuring.
         for (int i = 0; i < getNumberOfInputsUsed(); i++) {
@@ -120,6 +120,9 @@ public class ProfileDataReader {
             while (nrOfIntervals > 0) {
                 if (startOffset == -1) {
                     ExtendedDataloggingTable table = rtm.getRadioCommandFactory().readExtendedDataloggingTable(i + 1, (nrOfIntervals < getSteps(nrOfIntervals) ? nrOfIntervals : getSteps(nrOfIntervals)), toDate);
+                    if (genericHeader == null) {
+                        genericHeader = table.getGenericHeader();
+                    }
                     values.addAll(table.getProfileData());
                     startOffset = table.getOffset();
                     initialOffset = startOffset;
@@ -148,10 +151,10 @@ public class ProfileDataReader {
             return profileData;
         }
 
-        return parseProfileData(true, rawValues, profileData, monthly, false, toDate, lastReading, lastLoggedValue, initialOffset);
+        return parseProfileData(genericHeader, true, rawValues, profileData, monthly, false, toDate, lastReading, lastLoggedValue, initialOffset);
     }
 
-    public ProfileData parseProfileData(boolean requestsAllowed, List<List<Integer>> rawValues, ProfileData profileData, boolean monthly, boolean daily, Date toDate, Date lastReading, Date lastLoggedValue, long initialOffset) throws IOException {
+    public ProfileData parseProfileData(GenericHeader genericHeader, boolean requestsAllowed, List<List<Integer>> rawValues, ProfileData profileData, boolean monthly, boolean daily, Date toDate, Date lastReading, Date lastLoggedValue, long initialOffset) throws IOException {
 
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
         Calendar calendar;
@@ -165,10 +168,7 @@ public class ProfileDataReader {
 
         int channelId = 0;
         for (int inputId = 0; inputId < getNumberOfInputsUsed(); inputId++) {
-            Unit unit = Unit.get("");
-            if (requestsAllowed) {
-                unit = rtm.getParameterFactory().readUnit(inputId + 1).getUnit();
-            }
+            Unit unit = genericHeader.getUnit(inputId);
             ChannelInfo channelInfo = new ChannelInfo(channelId++, "Input channel " + (inputId + 1), unit);
             channelInfo.setCumulative();
             channelInfo.setCumulativeWrapValue(new BigDecimal(Integer.MAX_VALUE)); //4 bytes long, signed value
@@ -196,10 +196,7 @@ public class ProfileDataReader {
             List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
 
             for (int inputId = 0; inputId < getNumberOfInputsUsed(); inputId++) {
-                int multiplier = 1;
-                if (requestsAllowed) {
-                    multiplier = rtm.getParameterFactory().readUnit(inputId + 1).getMultiplier();
-                }
+                int multiplier = genericHeader.getRtmUnit(inputId).getMultiplier();
                 int status = 0;
                 Integer value = rawValues.get(inputId).get(index);
                 if (value == Integer.MAX_VALUE) {

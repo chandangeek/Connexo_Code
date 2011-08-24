@@ -120,8 +120,8 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
     }
 
     public void parseBubbleUpData(byte[] data) throws IOException {
-        operationMode = ProtocolTools.getIntFromBytes(data, 1, 2);
-        OperatingMode operatingMode = new OperatingMode(getRTM(), operationMode);
+        getGenericHeader().parse(data);
+        OperatingMode operatingMode = getGenericHeader().getOperationMode();
         int offset = 23;    //Skip the rest of the generic header
 
         SamplingPeriod period = new SamplingPeriod(getRTM());
@@ -156,6 +156,7 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
         if ((data[0] & 0xFF) == 0xFF) {
             throw new WaveFlowException("No profile data available yet");
         }
+        getGenericHeader().parse(data);
         int offset = 23;    //Skip generic header in the first frame
 
         do {

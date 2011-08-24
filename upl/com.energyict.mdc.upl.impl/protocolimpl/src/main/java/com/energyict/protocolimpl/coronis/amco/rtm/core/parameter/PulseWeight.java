@@ -49,7 +49,7 @@ public class PulseWeight extends RtmUnit {
     }
 
     @Override
-    protected void parse(byte[] data) throws IOException {
+    public void parse(byte[] data) throws IOException {
         weight = (data[0] & 0xFF) & 0x1F;
         unitNumber = ((data[0] & 0xFF) >> 5);
         parseScaleAndMultiplier(weight);

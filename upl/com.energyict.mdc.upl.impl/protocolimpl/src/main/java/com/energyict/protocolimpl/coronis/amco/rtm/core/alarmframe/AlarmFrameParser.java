@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.coronis.amco.rtm.core.alarmframe;
 
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
+import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.GenericHeader;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.ProfileType;
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -37,8 +38,9 @@ public class AlarmFrameParser {
         alarmId = data[offset] & 0xFF;   //Received from the RTU+Server, indicates the alarm frame type!
         offset++;
 
-        profileType = new ProfileType(rtm);
-        profileType.parse(ProtocolTools.getSubArray(data, offset, offset + 1));
+        GenericHeader header = new GenericHeader();
+        header.parse(data);
+        profileType = header.getProfileType();
 
         offset += 23; //Skip the generic header
 
@@ -86,7 +88,7 @@ public class AlarmFrameParser {
      * Used in the acknowledgement of the push frame.
      */
     public byte[] getResponse() {
-        byte[] ack = new byte[] {alarmId == 0x40 ? (byte) 0xC0 : (byte) 0xC1};
+        byte[] ack = new byte[]{alarmId == 0x40 ? (byte) 0xC0 : (byte) 0xC1};
         byte[] statusBytes = ProtocolTools.getBytesFromInt(status, 3);
         return ProtocolTools.concatByteArrays(ack, statusBytes);
     }

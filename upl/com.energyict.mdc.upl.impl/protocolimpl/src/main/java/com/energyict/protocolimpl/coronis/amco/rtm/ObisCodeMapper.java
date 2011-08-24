@@ -191,7 +191,7 @@ public class ObisCodeMapper {
             if (Integer.MAX_VALUE == currentRegister.getCurrentReading(port)) {
                 throw new NoSuchRegisterException("No index logged yet for port " + port);      //Indicated by value 0x7FFFFFFF
             }
-            RtmUnit rtmUnit = rtm.getParameterFactory().readUnit(port);
+            RtmUnit rtmUnit = currentRegister.getGenericHeader().getRtmUnit(port - 1);
             return new RegisterValue(obisCode, new Quantity(currentRegister.getCurrentReading(port) * rtmUnit.getMultiplier(), rtmUnit.getUnit()));
         } else if (isPulseWeightReadout(obisCode)) {
             if (!rtm.getParameterFactory().readProfileType().isPulse()) {
@@ -216,15 +216,15 @@ public class ObisCodeMapper {
             }
             ReadTOUBuckets bucketTotalizers = rtm.getRadioCommandFactory().readTOUBuckets();
             int value = bucketTotalizers.getListOfAllTotalizers().get(port - 1).getTOUBucketsTotalizers()[bucket];
-            Unit unit = rtm.getParameterFactory().readUnit(port).getUnit();
-            return new RegisterValue(obisCode, new Quantity(value, unit));
+            RtmUnit unit = bucketTotalizers.getGenericHeader().getRtmUnit(port - 1);
+            return new RegisterValue(obisCode, new Quantity(value * unit.getMultiplier(), unit.getUnit()));
         } else {
             throw new NoSuchRegisterException("Register with obiscode [" + obisCode + "] is not supported");
         }
     }
 
     private boolean isTOUBucketTotalizer(ObisCode obisCode) {
-        return ((obisCode.getC() == 96) && (obisCode.getE() > 52));
+        return ((obisCode.getC() == 96) && (obisCode.getE() > 52) && (obisCode.getE() < 59));
     }
 
     private boolean isPulseWeightReadout(ObisCode obisCode) {
@@ -246,5 +246,4 @@ public class ObisCodeMapper {
     private boolean isCurrentIndexReading(ObisCode obisCode) {
         return isInputPulseRegister(obisCode) && (obisCode.getF() == 255);
     }
-
 }

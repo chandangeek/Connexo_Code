@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
+import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.GenericHeader;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflowDLMS.WaveFlowDLMSException;
@@ -30,14 +31,14 @@ abstract public class AbstractRadioCommand {
 
         private int commandId;
         private boolean returnsOperationMode;
-        private boolean genericHeader;
+        private boolean isGenericHeader;
 
         final boolean isReturnsOperationMode() {
             return returnsOperationMode;
         }
 
         final boolean isGenericHeader() {
-            return genericHeader;
+            return isGenericHeader;
         }
 
         public final int getCommandId() {
@@ -55,8 +56,17 @@ abstract public class AbstractRadioCommand {
         RadioCommandId(final int commandId, final boolean returnsOperationMode, final boolean genericHeader) {
             this.commandId = commandId;
             this.returnsOperationMode = returnsOperationMode;
-            this.genericHeader = genericHeader;
+            this.isGenericHeader = genericHeader;
         }
+    }
+
+    protected GenericHeader genericHeader = null;
+
+    public GenericHeader getGenericHeader() {
+        if (genericHeader == null) {
+            genericHeader = new GenericHeader();
+        }
+        return genericHeader;
     }
 
     private RTM rtm;
@@ -97,27 +107,23 @@ abstract public class AbstractRadioCommand {
                 daos.write(prepare()); // write 1 parameter
                 parseResponse(getRTM().getWaveFlowConnect().sendData(baos.toByteArray()));
                 return;
-            }
-            catch (ConnectionException e) {
+            } catch (ConnectionException e) {
                 if (retry++ >= getRTM().getInfoTypeProtocolRetriesProperty()) {
                     throw new WaveFlowDLMSException(e.getMessage() + ", gave up after [" + getRTM().getInfoTypeProtocolRetriesProperty() + "] reties!");
                 } else {
                     getRTM().getLogger().warning(e.getMessage() + ", retry [" + retry + "]");
                 }
-            }
-            catch (WaveFlowDLMSException e) {
+            } catch (WaveFlowDLMSException e) {
                 if (retry++ >= getRTM().getInfoTypeProtocolRetriesProperty()) {
                     throw new WaveFlowDLMSException(e.getMessage() + ", gave up after [" + getRTM().getInfoTypeProtocolRetriesProperty() + "] reties!");
                 } else {
                     getRTM().getLogger().warning(e.getMessage() + ", retry [" + retry + "]");
                 }
-            }
-            finally {
+            } finally {
                 if (baos != null) {
                     try {
                         baos.close();
-                    }
-                    catch (IOException e) {
+                    } catch (IOException e) {
                         getRTM().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
                     }
                 }
@@ -139,13 +145,11 @@ abstract public class AbstractRadioCommand {
             daos.writeByte(getRadioCommandId().getCommandId());
             daos.write(prepare()); // write 1 parameter
             parseResponse(getRTM().getWaveFlowConnect().sendData(baos.toByteArray()));
-        }
-        finally {
+        } finally {
             if (baos != null) {
                 try {
                     baos.close();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     getRTM().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
                 }
             }
@@ -174,13 +178,11 @@ abstract public class AbstractRadioCommand {
                 dais.read(temp);
                 parse(temp);
             }
-        }
-        finally {
+        } finally {
             if (dais != null) {
                 try {
                     dais.close();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     getRTM().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
                 }
             }
