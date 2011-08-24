@@ -75,7 +75,7 @@ public class ObisCodeMapper {
 
     static {
         ABSTRACT_TEXT.put(ObisCodeProvider.SERIAL_NUMBER, new DLMSAttribute(ObisCodeProvider.SERIAL_NUMBER, DataAttributes.VALUE));
-        ABSTRACT_TEXT.put(ObisCodeProvider.FIRMWARE_VERSION_MID, new DLMSAttribute(ObisCodeProvider.FIRMWARE_VERSION_MID, DataAttributes.VALUE));
+        ABSTRACT_TEXT.put(ObisCodeProvider.FIRMWARE_VERSION_MONOLITIC, new DLMSAttribute(ObisCodeProvider.FIRMWARE_VERSION_MONOLITIC, DataAttributes.VALUE));
     }
 
     public boolean isAbstractTextRegister(ObisCode obisCode) {

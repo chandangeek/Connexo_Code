@@ -17,7 +17,7 @@ import java.io.IOException;
  */
 public class ComposedMeterInfo extends ComposedCosemObject {
 
-    public static final DLMSAttribute FIRMWARE_VERSION_MID = new DLMSAttribute(ObisCodeProvider.FIRMWARE_VERSION_MID, DataAttributes.VALUE);
+    public static final DLMSAttribute FIRMWARE_VERSION_MONOLITIC = new DLMSAttribute(ObisCodeProvider.FIRMWARE_VERSION_MONOLITIC, DataAttributes.VALUE);
     public static final DLMSAttribute SERIAL_NUMBER = new DLMSAttribute(ObisCodeProvider.SERIAL_NUMBER, DataAttributes.VALUE);
 
     public ComposedMeterInfo(final DlmsSession dlmsSession, final boolean bulkRequest) {
@@ -26,13 +26,13 @@ public class ComposedMeterInfo extends ComposedCosemObject {
 
     private static DLMSAttribute[] getDlmsAttributes() {
         return new DLMSAttribute[]{
-                FIRMWARE_VERSION_MID,
+                FIRMWARE_VERSION_MONOLITIC,
                 SERIAL_NUMBER
         };
     }
 
-    public String getFirmwareVersionMid() throws IOException {
-        AbstractDataType attribute = getAttribute(FIRMWARE_VERSION_MID);
+    public String getFirmwareVersionMonolitic() throws IOException {
+        AbstractDataType attribute = getAttribute(FIRMWARE_VERSION_MONOLITIC);
         if (attribute instanceof OctetString) {
             return attribute.getOctetString().stringValue();
         } else {

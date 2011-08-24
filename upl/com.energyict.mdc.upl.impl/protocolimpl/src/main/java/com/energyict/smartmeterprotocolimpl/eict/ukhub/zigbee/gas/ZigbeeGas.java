@@ -79,7 +79,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
     public String getFirmwareVersion() throws IOException {
         try {
             StringBuilder firmware = new StringBuilder();
-            firmware.append(getMeterInfo().getFirmwareVersionMid());
+            firmware.append(getMeterInfo().getFirmwareVersionMonolitic());
             return firmware.toString();
         } catch (IOException e) {
             getLogger().finest("Could not fetch the firmwareVersion. " + e.getMessage());
