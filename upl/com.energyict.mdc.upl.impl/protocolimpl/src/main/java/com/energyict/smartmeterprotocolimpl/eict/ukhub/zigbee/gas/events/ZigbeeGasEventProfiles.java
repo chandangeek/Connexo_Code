@@ -32,7 +32,9 @@ public class ZigbeeGasEventProfiles {
     public List<MeterEvent> getEvents(Date from) {
         ArrayList<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + getZigbeeGas().getSerialNumber() + ".");
-
+        if (from == null) {
+            from = ProtocolUtils.getClearLastMonthDate(this.zigbeeGas.getTimeZone());
+        }
         Calendar fromCalendar = getFromCalendar(from);
         meterEvents.addAll(getStandardEventLog(fromCalendar));
         meterEvents.addAll(getDisconnectControlEventLog(fromCalendar));

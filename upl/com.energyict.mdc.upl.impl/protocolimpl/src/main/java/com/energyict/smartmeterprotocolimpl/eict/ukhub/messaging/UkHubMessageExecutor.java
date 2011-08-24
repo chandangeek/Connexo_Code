@@ -1,16 +1,22 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 
+import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributeobjects.RegisterZigbeeDeviceData;
 import com.energyict.dlms.cosem.attributeobjects.ZigBeeIEEEAddress;
 import com.energyict.dlms.cosem.ZigBeeSASStartup;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
+import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
+import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
+import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
 import com.energyict.mdw.core.*;
+import com.energyict.mdw.shadow.RtuMessageShadow;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
@@ -26,6 +32,7 @@ import org.apache.axis.encoding.Base64;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -75,6 +82,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
             boolean backupZigBeeHanParameters = messageHandler.getType().equals(RtuMessageConstant.BACKUP_ZIGBEE_HAN_PARAMETERS);
             boolean restoreZigBeeParameters = messageHandler.getType().equals(RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS);
             boolean firmwareUpdate = messageHandler.getType().equals(RtuMessageConstant.FIRMWARE_UPDATE);
+            boolean testMessage = messageHandler.getType().equals(RtuMessageConstant.TEST_MESSAGE);
 
             if (changeHanSAS) {
                 changeHanSAS(messageHandler);
@@ -94,6 +102,8 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
                 restoreZigBeeHanParameters(messageHandler);
             } else if (firmwareUpdate) {
                 firmwareUpdate(messageHandler, content);
+            } else if (testMessage){
+                testMessage(messageHandler);
             } else {
                 log(Level.INFO, "Message not supported : " + content);
                 success = false;
@@ -230,13 +240,13 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
 
         boolean backedUp = false;
         int counter = 0;
-        while(!backedUp){
+        while (!backedUp) {
             try {
                 Thread.sleep(1000);
                 Long eventValue = getCosemObjectFactory().getData(ObisCodeProvider.HanManagementEventObject).getValue();
-                if(eventValue == 0x0126) {    //Should be event 'HAN Backup Performed'
+                if (eventValue == 0x0126) {    //Should be event 'HAN Backup Performed'
                     backedUp = true;
-                } else if(counter++ >= 30){
+                } else if (counter++ >= 30) {
                     throw new IOException("ZigBee backup probably failed, takes to long (30s) before 'HAN Backup Performed'-event is written.");
                 }
             } catch (InterruptedException e) {
@@ -251,13 +261,13 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         OctetString extendedPanId = sasStartup.readExtendedPanId();
         OctetString linkKey = sasStartup.readLinkKey();
         OctetString networkKey = sasStartup.readNetworkKey();
-        
+
         HanBackupRestoreData hanBackupData = new HanBackupRestoreData();
         hanBackupData.setBackupData(backUpData);
         hanBackupData.setExtendedPanId(extendedPanId);
         hanBackupData.setLinkKey(linkKey);
         hanBackupData.setNetworkKey(networkKey);
-                
+
         UserFileShadow ufs = ProtocolTools.createUserFileShadow("ZigBeeBackUp_" + protocol.getDlmsSession().getProperties().getSerialNumber(), hanBackupData.getBEREncodedByteArray(), getFolderIdFromHub(), "bin");
         mw().getUserFileFactory().create(ufs);
         log(Level.INFO, "Backed-up ZigBee parameters in userFile : ZigBeeBackUp_" + protocol.getDlmsSession().getProperties().getSerialNumber());
@@ -349,5 +359,152 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
 
     private int getFolderIdFromHub() {
         return getRtuFromDatabaseBySerialNumber().getFolderId();
+    }
+
+    private void testMessage(MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
+        log(Level.INFO, "Handling message TestMessage");
+        int failures = 0;
+        String userFileId = messageHandler.getTestUserFileId();
+        Date currentTime;
+        if (!userFileId.equalsIgnoreCase("")) {
+            if (ParseUtils.isInteger(userFileId)) {
+                UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileId));
+                if (uf != null) {
+                    byte[] data = uf.loadFileInByteArray();
+                    CSVParser csvParser = new CSVParser();
+                    csvParser.parse(data);
+                    boolean hasWritten;
+                    TestObject to = new TestObject("");
+                    for (int i = 0; i < csvParser.size(); i++) {
+                        to = csvParser.getTestObject(i);
+                        if (csvParser.isValidLine(to)) {
+                            currentTime = new Date(System.currentTimeMillis());
+                            hasWritten = false;
+                            try {
+                                switch (to.getType()) {
+                                    case 0: { // GET
+                                        GenericRead gr = getCosemObjectFactory().getGenericRead(to.getObisCode(), DLMSUtils.attrLN2SN(to.getAttribute()), to.getClassId());
+                                        to.setResult("0x" + ParseUtils.decimalByteToString(gr.getResponseData()));
+                                        hasWritten = true;
+                                    }
+                                    break;
+                                    case 1: { // SET
+                                        GenericWrite gw = getCosemObjectFactory().getGenericWrite(to.getObisCode(), to.getAttribute(), to.getClassId());
+                                        gw.write(ParseUtils.hexStringToByteArray(to.getData()));
+                                        to.setResult("OK");
+                                        hasWritten = true;
+                                    }
+                                    break;
+                                    case 2: { // ACTION
+                                        GenericInvoke gi = getCosemObjectFactory().getGenericInvoke(to.getObisCode(), to.getClassId(), to.getMethod());
+                                        if (to.getData().equalsIgnoreCase("")) {
+                                            gi.invoke();
+                                        } else {
+                                            gi.invoke(ParseUtils.hexStringToByteArray(to.getData()));
+                                        }
+                                        to.setResult("OK");
+                                        hasWritten = true;
+                                    }
+                                    break;
+                                    case 3: { // MESSAGE
+                                        RtuMessageShadow rms = new RtuMessageShadow();
+                                        rms.setContents(csvParser.getTestObject(i).getData());
+                                        rms.setRtuId(getRtuFromDatabaseBySerialNumber().getId());
+                                        RtuMessage rm = mw().getRtuMessageFactory().create(rms);
+                                        doMessage(rm);
+                                        if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
+                                            to.setResult("OK");
+                                        } else {
+                                            to.setResult("MESSAGE failed, current state " + rm.getState().getId());
+                                        }
+                                        hasWritten = true;
+                                    }
+                                    break;
+                                    case 4: { // WAIT
+                                        waitCyclus(Integer.parseInt(to.getData()));
+                                        to.setResult("OK");
+                                        hasWritten = true;
+                                    }
+                                    break;
+                                    case 5: {
+                                        // do nothing, it's no valid line
+                                    }
+                                    break;
+                                    default: {
+                                        throw new ApplicationException("Row " + i + " of the CSV file does not contain a valid type.");
+                                    }
+                                }
+                                to.setTime(currentTime.getTime());
+
+                                // Check if the expected value is the same as the result
+                                if ((to.getExpected() == null) || (!to.getExpected().equalsIgnoreCase(to.getResult()))) {
+                                    to.setResult("Failed - " + to.getResult());
+                                    failures++;
+                                    log(Level.INFO, "Test " + i + " has successfully finished, but the result didn't match the expected value.");
+                                } else {
+                                    log(Level.INFO, "Test " + i + " has successfully finished.");
+                                }
+
+                            } catch (Exception e) {
+                                if (!hasWritten) {
+                                    if ((to.getExpected() != null) && (e.getMessage().indexOf(to.getExpected()) != -1)) {
+                                        to.setResult(e.getMessage());
+                                        log(Level.INFO, "Test " + i + " has successfully finished.");
+                                        hasWritten = true;
+                                    } else {
+                                        log(Level.INFO, "Test " + i + " has failed.");
+                                        String eMessage;
+                                        if (e.getMessage().indexOf("\r\n") != -1) {
+                                            eMessage = e.getMessage().substring(0, e.getMessage().indexOf("\r\n")) + "...";
+                                        } else {
+                                            eMessage = e.getMessage();
+                                        }
+                                        to.setResult("Failed. " + eMessage);
+                                        hasWritten = true;
+                                        failures++;
+                                    }
+                                    to.setTime(currentTime.getTime());
+                                }
+                            } finally {
+                                if (!hasWritten) {
+                                    to.setResult("Failed - Unknow exception ...");
+                                    failures++;
+                                    to.setTime(currentTime.getTime());
+                                }
+                            }
+                        }
+                    }
+                    if (failures == 0) {
+                        csvParser.addLine("All the tests are successfully finished.");
+                    } else {
+                        csvParser.addLine("" + failures + " of the " + csvParser.getValidSize() + " tests " + ((failures == 1) ? "has" : "have") + " failed.");
+                    }
+                    mw().getUserFileFactory().create(csvParser.convertResultToUserFile(uf, getRtuFromDatabaseBySerialNumber().getFolderId()));
+                } else {
+                    throw new ApplicationException("Userfile with ID " + userFileId + " does not exist.");
+                }
+            } else {
+                throw new IOException("UserFileId is not a valid number");
+            }
+        } else {
+            throw new IOException("No userfile id is given.");
+        }
+    }
+
+    private void waitCyclus(int delay) throws IOException {
+        try {
+            int nrOfPolls = (delay / (20)) + (delay % (20) == 0 ? 0 : 1);
+            for (int i = 0; i < nrOfPolls; i++) {
+                if (i < nrOfPolls - 1) {
+                    ProtocolTools.delay(20000);
+                } else {
+                    ProtocolTools.delay((delay - (i * (20))) * 1000);
+                }
+                log(Level.INFO, "Keeping connection alive");
+                getCosemObjectFactory().getClock().getDateTime();
+            }
+        } catch (IOException e) {
+            throw new IOException("Could not keep connection alive." + e.getMessage());
+        }
     }
 }

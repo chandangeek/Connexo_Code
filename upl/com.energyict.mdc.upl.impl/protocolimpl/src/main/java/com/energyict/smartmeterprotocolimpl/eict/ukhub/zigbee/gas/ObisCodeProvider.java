@@ -20,11 +20,11 @@ public final class ObisCodeProvider {
     public static final ObisCode OperationalFirmwareMID = ObisCode.fromString("7.1.0.2.0.255");
     public static final ObisCode OperationalFirmwareNonMIDApp = ObisCode.fromString("7.2.0.2.0.255");
     public static final ObisCode OperationalFirmwareBootloader = ObisCode.fromString("7.3.0.2.0.255");
-    public static final ObisCode OperationalFirmwareZCLVersion = ObisCode.fromString("7.4.0.2.0.255");
-    public static final ObisCode OperationalFirmwareStackVersion = ObisCode.fromString("7.5.0.2.0.255");
-    public static final ObisCode OperationalFirmwareZigbeeChip = ObisCode.fromString("7.6.0.2.0.255");
-    public static final ObisCode OperationalFirmwareHAN = ObisCode.fromString("7.7.0.2.0.255");
-    public static final ObisCode OperationalFirmwareWAN = ObisCode.fromString("7.8.0.2.0.255");
+    public static final ObisCode OperationalFirmwareZCLVersion = ObisCode.fromString("0.4.0.2.0.255");
+    public static final ObisCode OperationalFirmwareStackVersion = ObisCode.fromString("0.5.0.2.0.255");
+    public static final ObisCode OperationalFirmwareZigbeeChip = ObisCode.fromString("0.6.0.2.0.255");
+    public static final ObisCode OperationalFirmwareHAN = ObisCode.fromString("0.7.0.2.0.255");
+    public static final ObisCode OperationalFirmwareWAN = ObisCode.fromString("0.8.0.2.0.255");
 
     public static final ObisCode DeviceId1 = ObisCode.fromString("0.0.96.1.0.255");     // SerialNumber
     public static final ObisCode DeviceId2 = ObisCode.fromString("0.0.96.1.1.255");     // UtilitySpecified EquipmentID

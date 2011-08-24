@@ -29,6 +29,7 @@ public class UkHubMessaging extends GenericMessaging implements MessageProtocol 
     public List getMessageCategories() {
         List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
         categories.add(ProtocolMessageCategories.getHanManagementCategory());
+        categories.add(getTestCategory());
         return categories;
     }
 
