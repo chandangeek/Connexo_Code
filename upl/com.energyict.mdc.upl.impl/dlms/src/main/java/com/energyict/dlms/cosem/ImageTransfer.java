@@ -29,6 +29,7 @@ public class ImageTransfer extends AbstractCosemObject{
 	public static boolean DEBUG = true;
 	private static int delay = 3000;
     public static final int REPORT_STATUS_EVERY_X_BLOCKS = 1;
+    public static final String DEFAULT_IMAGE_NAME = "NewImage";
     private int maxBlockRetryCount = 3;
 	private int maxTotalRetryCount = 500;
 	
@@ -69,8 +70,9 @@ public class ImageTransfer extends AbstractCosemObject{
 	private OctetString imageSignature = null;
 
 	static final byte[] LN=new byte[]{0,0,44,0,0,(byte)255};
+    private String imageName = null;
 
-	public ImageTransfer(ProtocolLink protocolLink) {
+    public ImageTransfer(ProtocolLink protocolLink) {
             super(protocolLink,new ObjectReference(LN));
             this.protocolLink = protocolLink;
         }
@@ -135,7 +137,7 @@ public class ImageTransfer extends AbstractCosemObject{
 
 			// Step2: Initiate the image transfer
 			Structure imageInitiateStructure = new Structure();
-			imageInitiateStructure.addDataType(OctetString.fromString("NewImage"));	// it's a default name for the new image
+			imageInitiateStructure.addDataType(OctetString.fromString(getImageName()));	// it's a default name for the new image
 			imageInitiateStructure.addDataType(this.size);
 
 			imageTransferInitiate(imageInitiateStructure);
@@ -170,7 +172,11 @@ public class ImageTransfer extends AbstractCosemObject{
 
 	}
 
-	/**
+    private String getImageName() {
+        return imageName == null ? DEFAULT_IMAGE_NAME : imageName;
+    }
+
+    /**
 	 * Transfer all the image blocks to the meter.
 	 * 
 	 * @param additionalZeros 
@@ -578,4 +584,9 @@ public class ImageTransfer extends AbstractCosemObject{
 	public Unsigned32 getImageFirstNotTransferedBlockNumber() {
 		return imageFirstNotTransferedBlockNumber;
 	}
+
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
+    }
+
 }
