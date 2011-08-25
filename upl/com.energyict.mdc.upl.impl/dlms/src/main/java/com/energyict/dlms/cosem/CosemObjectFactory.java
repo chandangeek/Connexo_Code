@@ -320,6 +320,21 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 	public ImageTransfer getImageTransfer() throws IOException {
 		return new ImageTransfer(protocolLink);
 	}
+
+	/**
+     * Getter for the file transfer object
+     */
+	public FileTransfer getFileTransfer() throws IOException {
+		return getFileTransfer(FileTransfer.getDefaultObisCode());
+	}
+
+	/**
+     * Getter for the file transfer object
+     */
+	public FileTransfer getFileTransfer(ObisCode obisCode) throws IOException {
+		return new FileTransfer(protocolLink, getObjectReference(obisCode));
+	}
+
 	/**
 	 * Getter for the ShortName ImageTransfer Object
 	 */
@@ -451,5 +466,9 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 
     public SupplierId getSupplierId(ObisCode obisCode) throws IOException {
         return new SupplierId(protocolLink, getObjectReference(obisCode));
+    }
+
+    public ActivePassive getActivePassive(ObisCode obisCode) throws IOException {
+        return new ActivePassive(protocolLink, getObjectReference(obisCode));
     }
 }

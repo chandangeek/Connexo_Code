@@ -2,8 +2,12 @@ package com.energyict.smartmeterprotocolimpl.debug;
 
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.*;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.debug.AbstractSmartDebuggingMain;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
 
 import java.io.IOException;
@@ -95,7 +99,7 @@ public class AS300Main extends AbstractSmartDebuggingMain<AS300> {
     }
 
     private static void setIpSettings(AS300Main main) {
-        main.setPhoneNumber("10.113.0.18:4059");
+        main.setPhoneNumber("10.113.0.20:4059");
     }
 
     private static void setOpticalSettings(AS300Main main) {
@@ -107,10 +111,27 @@ public class AS300Main extends AbstractSmartDebuggingMain<AS300> {
     }
 
     public void doDebug() throws LinkException, IOException {
-        String firmwareVersion = getMeterProtocol().getFirmwareVersion();
-        System.out.println("\n\n");
-        System.out.println(firmwareVersion);
-        System.out.println("\n\n");
+        CosemObjectFactory cof = getMeterProtocol().getDlmsSession().getCosemObjectFactory();
+        ActivePassive activePassive = cof.getActivePassive(ObisCode.fromString("1.0.35.3.8.255"));
+
+        String message = "Goeiemorgen";
+
+        Structure value = new Structure();
+        value.addDataType(new Unsigned32(1));                       // messageId
+        value.addDataType(OctetString.fromString(message));         // Message
+        value.addDataType(new Unsigned16(10));                      // duration
+        value.addDataType(new BitString(0x0008, 8));                // messageControl
+        value.addDataType(new Unsigned16(0));                       // macAddress
+
+        System.out.println("\n\n" + value + "\n\n");
+        System.out.println("\n\n" + ProtocolTools.getHexStringFromBytes(value.getBEREncodedByteArray()) + "\n\n");
+
+        activePassive.writePassiveValue(value);
+
+        System.out.println("\n\nActivate\n\n");
+
+        activePassive.activate();
+
     }
 
 }

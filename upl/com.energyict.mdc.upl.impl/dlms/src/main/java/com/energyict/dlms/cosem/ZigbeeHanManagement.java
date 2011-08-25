@@ -192,12 +192,21 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
     /**
      * Inform the HUB to create a HAN network
      *
-     * @param data additional data
      * @return raw data returned from the method invocation
      * @throws IOException if for some reason the invocation did not succeed
      */
-    public byte[] createHan(AbstractDataType data) throws IOException {
-        return methodInvoke(ZigbeeHanManagementMethods.CREATE_HAN, data);
+    public byte[] createHan() throws IOException {
+        return methodInvoke(ZigbeeHanManagementMethods.CREATE_HAN, new Integer8(0));
+    }
+
+    /**
+     * Inform the HUB to remove a HAN network
+     *
+     * @return raw data returned from the method invocation
+     * @throws IOException if for some reason the invocation did not succeed
+     */
+    public byte[] removeHan() throws IOException {
+        return methodInvoke(ZigbeeHanManagementMethods.REMOVE_HAN, new Integer8(0));
     }
 
     /**

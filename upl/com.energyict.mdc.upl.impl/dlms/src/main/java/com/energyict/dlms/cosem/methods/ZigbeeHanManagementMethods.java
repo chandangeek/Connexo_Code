@@ -22,7 +22,8 @@ public enum ZigbeeHanManagementMethods implements DLMSClassMethods {
     IDENTIFY_DEVICE(4, 0x38),
     REMOVE_MIRROR(5, 0x40),
     UPDATE_NETWORK_KEYS(6, 0x48),
-    UPDATE_LINK_KEYS(7, 0x50);
+    UPDATE_LINK_KEYS(7, 0x50),
+    REMOVE_HAN(8, 0x58);
 
     /**
      * The number of the method in chronological order

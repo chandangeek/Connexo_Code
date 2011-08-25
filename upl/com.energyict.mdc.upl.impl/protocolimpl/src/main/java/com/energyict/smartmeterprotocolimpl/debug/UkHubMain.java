@@ -54,21 +54,14 @@ public class UkHubMain extends AbstractSmartDebuggingMain<UkHub> {
     public static void main(String[] args) {
         UkHubMain main = new UkHubMain();
         main.setTimeZone(TimeZone.getTimeZone("GMT"));
-        main.setPhoneNumber("10.0.2.206:4059");
-        //main.setPhoneNumber("10.113.0.18:4059");
-        main.setShowCommunication(false);
+        //main.setPhoneNumber("10.0.2.215:4059");
+        main.setPhoneNumber("10.113.0.21:4059");
+        main.setShowCommunication(true);
         main.run();
     }
 
     private CosemObjectFactory getCosemObjectFactory() {
         return getMeterProtocol().getDlmsSession().getCosemObjectFactory();
-    }
-
-    public void doDebug() throws LinkException, IOException {
-        //createHAN();
-        joinDevice();
-        removeDevice();
-        //removeAllSlaves();
     }
 
     private void readZigBeeSAS() throws IOException {
@@ -155,6 +148,17 @@ public class UkHubMain extends AbstractSmartDebuggingMain<UkHub> {
         List<MeterEvent> meterEvents = getMeterProtocol().getMeterEvents(new Date(0));
         for (MeterEvent meterEvent : meterEvents) {
             System.out.println(meterEvent.getTime() + "  " +  meterEvent.toString());
+        }
+    }
+
+    public void doDebug() throws LinkException, IOException {
+        try {
+            FileTransfer fileTransfer = getCosemObjectFactory().getFileTransfer();
+            fileTransfer.setFilename("test.css");
+            fileTransfer.setFiletype("text/css");
+            fileTransfer.upgrade(ProtocolTools.readBytesFromFile("C:\\Users\\jme\\Desktop\\UKHUB files\\test.css"));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 

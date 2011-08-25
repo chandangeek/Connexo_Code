@@ -310,12 +310,13 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
     private void createHanNetwork(final MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Sending message : Create HAN Network");
         ZigbeeHanManagement hanManagement = getCosemObjectFactory().getZigbeeHanManagement();
-        hanManagement.createHan(new Integer8(0));
+        hanManagement.createHan();
     }
 
     private void removeHanNetwork(final MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Sending message : Remove HAN Network");
-        throw new IOException("Not implemented yet. Remove HAN not available (yet?) in ZigBee DLMS objects.");
+        ZigbeeHanManagement hanManagement = getCosemObjectFactory().getZigbeeHanManagement();
+        hanManagement.removeHan();
     }
 
     private void log(final Level level, final String msg) {
