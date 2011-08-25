@@ -7,7 +7,6 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributeobjects.RegisterZigbeeDeviceData;
 import com.energyict.dlms.cosem.attributeobjects.ZigBeeIEEEAddress;
-import com.energyict.dlms.cosem.ZigBeeSASStartup;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
@@ -27,7 +26,6 @@ import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.ObisCodeProvider;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300FirmwareUpdateMessageBuilder;
-import com.jidesoft.filter.NextWeekFilter;
 import org.apache.axis.encoding.Base64;
 
 import java.io.IOException;
@@ -83,6 +81,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
             boolean restoreZigBeeParameters = messageHandler.getType().equals(RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS);
             boolean firmwareUpdate = messageHandler.getType().equals(RtuMessageConstant.FIRMWARE_UPDATE);
             boolean testMessage = messageHandler.getType().equals(RtuMessageConstant.TEST_MESSAGE);
+            boolean xmlCOnfig = messageHandler.getType().equals(RtuMessageConstant.XMLCONFIG);
 
             if (changeHanSAS) {
                 changeHanSAS(messageHandler);
@@ -102,8 +101,10 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
                 restoreZigBeeHanParameters(messageHandler);
             } else if (firmwareUpdate) {
                 firmwareUpdate(messageHandler, content);
-            } else if (testMessage){
+            } else if (testMessage) {
                 testMessage(messageHandler);
+            } else if (xmlCOnfig) {
+                xmlConfigMessage(messageHandler, content);
             } else {
                 log(Level.INFO, "Message not supported : " + content);
                 success = false;
@@ -125,6 +126,52 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         } else {
             return MessageResult.createFailed(messageEntry);
         }
+    }
+
+    private void xmlConfigMessage(MessageHandler messageHandler, String fullContent) throws IOException {
+
+        String firstTag = "<XMLConfig>";
+        String lastTag = "</XMLConfig>";
+        int firstIndex = fullContent.indexOf(firstTag) + firstTag.length();
+        int lastIndex = fullContent.indexOf(lastTag);
+        String content = fullContent.substring(firstIndex, lastIndex);
+
+        getLogger().info("Executing XML config update message");
+
+        ObisCode obisCode = ObisCode.fromString("0.129.0.0.0.255");
+        Data data = getCosemObjectFactory().getData(obisCode);
+
+/*
+        String apn =  "instantenergy.com";
+        String user = "orange";
+        String password = "54ghd67s&";
+*/
+
+        String apn = "apn.energyict.com";
+        String user = "EICTSMQ010";
+        String password = "2465282";
+
+        getLogger().severe("[" + content + "]");
+
+        if (content.equalsIgnoreCase("Logica")) {
+            getLogger().severe("WARNING! Writing special config to device (APN & gprs settings for LOGICA)");
+            String userAndPasswordXML = "<Configuration><Config><PPP><UserName>" + user + "</UserName><Password>" + password + "</Password></PPP></Config></Configuration>";
+            String apnXML = "<Configuration><Config><Modem><APN>" + apn + "</APN></Modem></Config></Configuration>";
+
+            OctetString userNameAndPasswordValue = OctetString.fromString(userAndPasswordXML);
+            OctetString apnValue = OctetString.fromString(apnXML);
+
+            data.setValueAttr(userNameAndPasswordValue);
+            data.setValueAttr(apnValue);
+
+        } else {
+            getLogger().severe("Writing plain XML to device [" + content + "]...");
+
+            OctetString plainXML = OctetString.fromString(content);
+            data.setValueAttr(plainXML);
+
+        }
+
     }
 
     private void firmwareUpdate(MessageHandler messageHandler, String content) throws IOException {
