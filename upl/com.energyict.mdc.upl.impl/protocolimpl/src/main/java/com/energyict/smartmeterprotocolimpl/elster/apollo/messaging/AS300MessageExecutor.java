@@ -197,6 +197,12 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         } catch (NumberFormatException e) {
             log(Level.SEVERE, "Incorrect TenantValue : " + messageHandler.getTenantValue() + " - Message will fail.");
             success = false;
+        } catch (IOException e){
+            if(e.getMessage().indexOf("Cosem Data-Access-Result exception R/W denied") >= 0){
+                log(Level.SEVERE, "Could not write the new tenant value, still try to update the activationDate");
+            } else {
+                throw e;
+            }
         }
         if(success){ // if the previous failed, then we don't try to write the activationDate
             log(Level.FINEST, "Writing new Tenant ActivationDate");
