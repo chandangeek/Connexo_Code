@@ -46,26 +46,22 @@ public class ParameterFactory {
     }
 
     public void stopDataLogging() throws IOException {
-        readOperatingMode();
-        operatingMode.setDataLoggingMode(0);
+        getNewOperationMode().setDataLoggingMode(0);
         operatingMode.write();
     }
 
     public void setDataLoggingToPeriodic() throws IOException {
-        readOperatingMode();
-        operatingMode.setDataLoggingMode(1);
+        getNewOperationMode().setDataLoggingMode(1);
         operatingMode.write();
     }
 
     public void setDataLoggingToWeekly() throws IOException {
-        readOperatingMode();
-        operatingMode.setDataLoggingMode(2);
+        getNewOperationMode().setDataLoggingMode(2);
         operatingMode.write();
     }
 
     public void setDataLoggingToMonthly() throws IOException {
-        readOperatingMode();
-        operatingMode.setDataLoggingMode(3);
+        getNewOperationMode().setDataLoggingMode(3);
         operatingMode.write();
     }
 
@@ -101,7 +97,6 @@ public class ParameterFactory {
     }
 
     private void setDayOfWeekToday(int mode) throws IOException {
-        readOperatingMode();
         if (mode == WEEKLY_LOGGING) {
             Calendar now = new GregorianCalendar(rtm.getTimeZone());
             int dayOfWeek = now.get(Calendar.DAY_OF_WEEK) - 1;  //Sunday = 0, Monday = 1, ...
@@ -129,7 +124,7 @@ public class ParameterFactory {
         setDayOfWeekToday(mode);                    //Set the day of week (to start the logging on) to today, in case of weekly/monthly logging.
 
         //Now restart it
-        operatingMode.setDataLoggingMode(mode);     //1 = periodic, 2 = weekly, 3 = monthly
+        getNewOperationMode().setDataLoggingMode(mode);     //1 = periodic, 2 = weekly, 3 = monthly
         operatingMode.write();
     }
 
@@ -191,8 +186,7 @@ public class ParameterFactory {
     }
 
     public void setBubbleUpManagement(int enable) throws IOException {
-        readOperatingMode();
-        operatingMode.setBubbleUpManagement(enable);
+        getNewOperationMode().setBubbleUpManagement(enable);
         operatingMode.write();
     }
 
@@ -269,52 +263,38 @@ public class ParameterFactory {
     }
 
     public void enableBackFlowDetection() throws IOException {
-        if (readOperatingMode().readBackFlowDetection() == 0) {
-            operatingMode.setBackFlowDetection(1);
-            operatingMode.write();
-        }
+        getNewOperationMode().setBackFlowDetection(1);
+        operatingMode.write();
     }
 
     public void enableEncoderCommunicationFaultDetection() throws IOException {
-        if (readOperatingMode().readEncoderCommunicationFaultDetection() == 0) {
-            operatingMode.setEncoderCommunicationFaultDetection(1);
-            operatingMode.write();
-        }
+        getNewOperationMode().setEncoderCommunicationFaultDetection(1);
+        operatingMode.write();
     }
 
     public void enableValveCommunicationFaultDetection() throws IOException {
-        if (readOperatingMode().readValveCommunicationFaultDetection() == 0) {
-            operatingMode.setValveCommunicationFaultDetection(1);
-            operatingMode.write();
-        }
+        getNewOperationMode().setValveCommunicationFaultDetection(1);
+        operatingMode.write();
     }
 
     public void enableResidualLeakDetection() throws IOException {
-        if (readOperatingMode().readResidualLeakDetection() == 0) {
-            operatingMode.setResidualLeakDetection(1);
-            operatingMode.write();
-        }
+        getNewOperationMode().setResidualLeakDetection(1);
+        operatingMode.write();
     }
 
     public void enableTamperDetection() throws IOException {
-        if (readOperatingMode().readTamperDetection() == 0) {
-            operatingMode.setTamperDetection(1);
-            operatingMode.write();
-        }
+        getNewOperationMode().setTamperDetection(1);
+        operatingMode.write();
     }
 
     public void enableEncoderMisreadDetection() throws IOException {
-        if (readOperatingMode().readEncoderMisReadDetection() == 0) {
-            operatingMode.setEncoderMisReadDetection(1);
-            operatingMode.write();
-        }
+        getNewOperationMode().setEncoderMisReadDetection(1);
+        operatingMode.write();
     }
 
     public void enableExtremeLeakDetection() throws IOException {
-        if (readOperatingMode().readExtremeLeakDetection() == 0) {
-            operatingMode.setExtremeLeakDetection(1);
-            operatingMode.write();
-        }
+        getNewOperationMode().setExtremeLeakDetection(1);
+        operatingMode.write();
     }
 
     public AlarmConfiguration readAlarmConfiguration() throws IOException {
@@ -386,27 +366,24 @@ public class ParameterFactory {
     public void disableAlarmOnBackFlow() throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
         configuration.setAlarmOnBackFlow(0);
-        readOperatingMode();
-        operatingMode.setBackFlowDetection(0);
-        operatingMode.write();
+        getNewOperationMode().setBackFlowDetection(0);
+        configuration.setOperatingMode(operatingMode);
         configuration.write();
     }
 
     public void disableAlarmOnCutCable() throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
         configuration.setAlarmOnCutCable(0);
-        readOperatingMode();
-        operatingMode.setTamperDetection(0);
-        operatingMode.write();
+        getNewOperationMode().setTamperDetection(0);
+        configuration.setOperatingMode(operatingMode);
         configuration.write();
     }
 
     public void disableAlarmOnCutRegisterCable() throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
         configuration.setAlarmOnCutRegisterCable(0);
-        readOperatingMode();
-        operatingMode.setTamperDetection(0);
-        operatingMode.write();
+        getNewOperationMode().setTamperDetection(0);
+        configuration.setOperatingMode(operatingMode);
         configuration.write();
     }
 
@@ -419,27 +396,24 @@ public class ParameterFactory {
     public void disableAlarmOnEncoderCommunicationFailure() throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
         configuration.setAlarmOnEncoderCommunicationFailure(0);
-        readOperatingMode();
-        operatingMode.setEncoderCommunicationFaultDetection(0);
-        operatingMode.write();
+        getNewOperationMode().setEncoderCommunicationFaultDetection(0);
+        configuration.setOperatingMode(operatingMode);
         configuration.write();
     }
 
     public void disableAlarmOnEncoderMisread() throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
         configuration.setAlarmOnEncoderMisread(0);
-        readOperatingMode();
-        operatingMode.setEncoderMisReadDetection(0);
-        operatingMode.write();
+        getNewOperationMode().setEncoderMisReadDetection(0);
+        configuration.setOperatingMode(operatingMode);
         configuration.write();
     }
 
     public void disableAlarmOnHighThreshold() throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
         configuration.setAlarmOnHighThreshold(0);
-        readOperatingMode();
-        operatingMode.setExtremeLeakDetection(0);
-        operatingMode.write();
+        getNewOperationMode().setExtremeLeakDetection(0);
+        configuration.setOperatingMode(operatingMode);
         configuration.write();
     }
 
@@ -452,9 +426,8 @@ public class ParameterFactory {
     public void disableAlarmOnLowThreshold() throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
         configuration.setAlarmOnLowThreshold(0);
-        readOperatingMode();
-        operatingMode.setResidualLeakDetection(0);
-        operatingMode.write();
+        getNewOperationMode().setResidualLeakDetection(0);
+        configuration.setOperatingMode(operatingMode);
         configuration.write();
     }
 
@@ -636,10 +609,8 @@ public class ParameterFactory {
     }
 
     public void clearBackFlowFlags() throws IOException {
-        readOperatingMode();
-
         //Disable back flow detection
-        operatingMode.setBackFlowDetection(0);
+        getNewOperationMode().setBackFlowDetection(0);
         operatingMode.write();
 
         //Enable it again
@@ -671,34 +642,34 @@ public class ParameterFactory {
         recipientAddress.write();
     }
 
+    public OperatingMode getNewOperationMode() {
+        operatingMode = new OperatingMode(rtm, 0);
+        return operatingMode;
+    }
+
     public void enableTOUBuckets() throws IOException {
-        readOperatingMode();
-        operatingMode.setTouBucketsManagement(1);
+        getNewOperationMode().setTouBucketsManagement(1);
         operatingMode.write();
     }
 
     public void disableTOUBuckets() throws IOException {
-        readOperatingMode();
-        operatingMode.setTouBucketsManagement(0);
+        getNewOperationMode().setTouBucketsManagement(0);
         operatingMode.write();
     }
 
     public void enableAllAlarms() throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
         configuration.enableAllAlarms();
-        readOperatingMode();
-        operatingMode.setAllDetections(1);
-        operatingMode.write();
+        getNewOperationMode().setAllDetections(1);
+        configuration.setOperatingMode(operatingMode);
         configuration.write();
     }
 
     public void disableAllAlarms() throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
         configuration.setConfig(0);
-        readOperatingMode();
-        operatingMode.setAllDetections(0);
-        operatingMode.write();
+        getNewOperationMode().setAllDetections(0);
+        configuration.setOperatingMode(operatingMode);
         configuration.write();
-
     }
 }

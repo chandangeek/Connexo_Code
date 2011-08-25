@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.GenericHeader;
+import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.OperatingMode;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflowDLMS.WaveFlowDLMSException;
@@ -71,10 +72,32 @@ abstract public class AbstractRadioCommand {
 
     private RTM rtm;
 
-    protected int operationMode = -1;
+    protected int operationMode = 0;
 
     public int getOperationMode() {
         return operationMode;
+    }
+
+    public void setOperationMode(int operationMode) {
+        this.operationMode = operationMode;
+    }
+
+    /**
+     * Operating mode write mask
+     */
+    protected int mask = 0;
+
+    public int getMask() {
+        return mask;
+    }
+
+    protected final void setMask(int mask) {
+        this.mask = this.mask | mask;
+    }
+
+    public void setOperatingMode(OperatingMode operatingMode) {
+        this.operationMode = operatingMode.getOperationMode();
+        this.mask = operatingMode.getMask();
     }
 
     protected final RTM getRTM() {

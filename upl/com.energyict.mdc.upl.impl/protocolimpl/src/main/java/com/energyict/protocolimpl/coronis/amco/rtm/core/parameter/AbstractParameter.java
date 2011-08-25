@@ -133,15 +133,6 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
         }
     }
 
-    /**
-     * Operating mode write mask
-     */
-    private int mask = 0xffff;
-
-    final void setMask(int mask) {
-        this.mask = mask;
-    }
-
     AbstractParameter(RTM rtm) {
         super(rtm);
     }
@@ -155,16 +146,13 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
             DataOutputStream daos = new DataOutputStream(baos);
             daos.writeByte(RadioCommandId.WriteParameter.getCommandId());
 
+            daos.writeShort(operationMode);
+            daos.writeShort(mask);
+
             //Special case: only write the operation mode (2 bytes)
             if (getParameterId() == null) {
-                daos.writeShort(operationMode);
-                daos.writeShort(mask);
                 daos.writeByte(0);
-
-                //Else: write a parameter
             } else {
-                daos.writeShort(0); // don't update the working mode, value don't care
-                daos.writeShort(0); // don't update the working mode, mask = 0
                 daos.writeByte(1); // write 1 parameter
                 daos.writeByte(getParameterId().id);
                 daos.writeByte(getParameterId().length);

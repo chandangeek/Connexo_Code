@@ -14,10 +14,7 @@ public class OperatingMode extends AbstractParameter {
     public OperatingMode(RTM rtm, int opMode) {
         super(rtm);
         this.operationMode = opMode;
-    }
-
-    public void setOperationMode(int operationMode) {
-        this.operationMode = operationMode;
+        this.mask = 0;
     }
 
     @Override
@@ -37,6 +34,7 @@ public class OperatingMode extends AbstractParameter {
 
     public void setValveCommunicationFaultDetection(int enable) {
         operationMode = operationMode & 0xBFFF;
+        this.setMask(~0xBFFF);
         operationMode = operationMode | enable << 14;
     }
 
@@ -52,31 +50,37 @@ public class OperatingMode extends AbstractParameter {
 
     public void setNetworkConfiguration(int config) {
         operationMode = operationMode & 0xCFFF;
+        this.setMask(~0xCFFF);
         operationMode = operationMode | config << 12;
     }
 
     public void setBubbleUpManagement(int enable) {
         operationMode = operationMode & 0xF7FF;
+        this.setMask(~0xF7FF);
         operationMode = operationMode | enable << 11;
     }
 
     public void setTouBucketsManagement(int enable) {
         operationMode = operationMode & 0xFBFF;
+        this.setMask(~0xFBFF);
         operationMode = operationMode | enable << 10;
     }
 
     public void setEncoderFilteringAlgorithmManagement(int enable) {
         operationMode = operationMode & 0xFDFF;
+        this.setMask(~0xFDFF);
         operationMode = operationMode | enable << 9;
     }
 
     public void setBackFlowDetection(int enable) {
         operationMode = operationMode & 0xFEFF;
+        this.setMask(~0xFEFF);
         operationMode = operationMode | enable << 8;
     }
 
     public void setNumberOfPorts(int number) {
         operationMode = operationMode & 0xFFFC;
+        this.setMask(~0xFFFC);
         operationMode = operationMode | number - 1;
     }
 
@@ -86,31 +90,37 @@ public class OperatingMode extends AbstractParameter {
      */
     public void setDataLoggingMode(int mode) {
         operationMode = operationMode & 0xFFF3;
+        this.setMask(~0xFFF3);
         operationMode = operationMode | mode << 2;
     }
 
     public void setTamperDetection(int enable) {
         operationMode = operationMode & 0xFFEF;
+        this.setMask(~0xFFEF);
         operationMode = operationMode | enable << 4;
     }
 
     public void setEncoderCommunicationFaultDetection(int enable) {
         operationMode = operationMode & 0xFFEF;
+        this.setMask(~0xFFEF);
         operationMode = operationMode | enable << 4;
     }
 
     public void setResidualLeakDetection(int enable) {
         operationMode = operationMode & 0xFFDF;
+        this.setMask(~0xFFDF);
         operationMode = operationMode | enable << 5;
     }
 
     public void setExtremeLeakDetection(int enable) {
         operationMode = operationMode & 0xFFBF;
+        this.setMask(~0xFFBF);
         operationMode = operationMode | enable << 6;
     }
 
     public void setEncoderMisReadDetection(int enable) {
         operationMode = operationMode & 0xFF7F;
+        this.setMask(~0xFF7F);
         operationMode = operationMode | enable << 7;
     }
 
