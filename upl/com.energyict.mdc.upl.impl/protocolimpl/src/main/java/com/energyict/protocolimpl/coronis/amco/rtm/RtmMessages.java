@@ -74,41 +74,41 @@ public class RtmMessages implements MessageProtocol {
             } else if (messageEntry.getContent().indexOf("<DisableAllAlarms") >= 0) {
                 return disableAllAlarms(messageEntry);
             } else if (messageEntry.getContent().indexOf("<setAlarmOnBackFlow") >= 0) {
-                return setAlarmOnBackFlow(messageEntry);
+                return setAlarmOnBackFlow(messageEntry, 1);
             } else if (messageEntry.getContent().indexOf("<setAlarmOnCutCable") >= 0) {
-                return setAlarmOnCutCable(messageEntry);
+                return setAlarmOnCutCable(messageEntry, 1);
             } else if (messageEntry.getContent().indexOf("<setAlarmOnCutRegisterCable") >= 0) {
-                return setAlarmOnCutRegisterCable(messageEntry);
+                return setAlarmOnCutRegisterCable(messageEntry, 1);
             } else if (messageEntry.getContent().indexOf("<setAlarmOnDefaultValve") >= 0) {
-                return setAlarmOnDefaultValve(messageEntry);
+                return setAlarmOnDefaultValve(messageEntry, 1);
             } else if (messageEntry.getContent().indexOf("<setAlarmOnEncoderCommunicationFailure") >= 0) {
-                return setAlarmOnEncoderCommunicationFailure(messageEntry);
+                return setAlarmOnEncoderCommunicationFailure(messageEntry, 1);
             } else if (messageEntry.getContent().indexOf("<setAlarmOnEncoderMisread") >= 0) {
-                return setAlarmOnEncoderMisread(messageEntry);
+                return setAlarmOnEncoderMisread(messageEntry, 1);
             } else if (messageEntry.getContent().indexOf("<setAlarmOnHighThreshold") >= 0) {
-                return setAlarmOnHighThreshold(messageEntry);
+                return setAlarmOnHighThreshold(messageEntry, 1);
             } else if (messageEntry.getContent().indexOf("<setAlarmOnLowBattery") >= 0) {
-                return setAlarmOnLowBattery(messageEntry);
+                return setAlarmOnLowBattery(messageEntry, 1);
             } else if (messageEntry.getContent().indexOf("<setAlarmOnLowThreshold") >= 0) {
-                return setAlarmOnLowThreshold(messageEntry);
+                return setAlarmOnLowThreshold(messageEntry, 1);
             } else if (messageEntry.getContent().indexOf("<disableAlarmOnBackFlow") >= 0) {
-                return disableAlarmOnBackFlow(messageEntry);
+                return setAlarmOnBackFlow(messageEntry, 0);
             } else if (messageEntry.getContent().indexOf("<disableAlarmOnCutCable") >= 0) {
-                return disableAlarmOnCutCable(messageEntry);
+                return setAlarmOnCutCable(messageEntry, 0);
             } else if (messageEntry.getContent().indexOf("<disableAlarmOnCutRegisterCable") >= 0) {
-                return disableAlarmOnCutRegisterCable(messageEntry);
+                return setAlarmOnCutRegisterCable(messageEntry, 0);
             } else if (messageEntry.getContent().indexOf("<disableAlarmOnDefaultValve") >= 0) {
-                return disableAlarmOnDefaultValve(messageEntry);
+                return setAlarmOnDefaultValve(messageEntry, 0);
             } else if (messageEntry.getContent().indexOf("<disableAlarmOnEncoderCommunicationFailure") >= 0) {
-                return disableAlarmOnEncoderCommunicationFailure(messageEntry);
+                return setAlarmOnEncoderCommunicationFailure(messageEntry, 0);
             } else if (messageEntry.getContent().indexOf("<disableAlarmOnEncoderMisread") >= 0) {
-                return disableAlarmOnEncoderMisread(messageEntry);
+                return setAlarmOnEncoderMisread(messageEntry, 0);
             } else if (messageEntry.getContent().indexOf("<disableAlarmOnHighThreshold") >= 0) {
-                return disableAlarmOnHighThreshold(messageEntry);
+                return setAlarmOnHighThreshold(messageEntry, 0);
             } else if (messageEntry.getContent().indexOf("<disableAlarmOnLowBattery") >= 0) {
-                return disableAlarmOnLowBattery(messageEntry);
+                return setAlarmOnLowBattery(messageEntry, 0);
             } else if (messageEntry.getContent().indexOf("<disableAlarmOnLowThreshold") >= 0) {
-                return disableAlarmOnLowThreshold(messageEntry);
+                return setAlarmOnLowThreshold(messageEntry, 0);
             } else if (messageEntry.getContent().indexOf("<SetNumberOfRepeaters") >= 0) {
                 return setNumberOfRepeaters(messageEntry);
             } else if (messageEntry.getContent().indexOf("<SetRepeaterAddress") >= 0) {
@@ -180,8 +180,7 @@ public class RtmMessages implements MessageProtocol {
             } else {
                 return MessageResult.createFailed(messageEntry);
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             rtm.getLogger().severe("Error parsing message, " + e.getMessage());
             return MessageResult.createFailed(messageEntry);
         }
@@ -421,7 +420,7 @@ public class RtmMessages implements MessageProtocol {
             } catch (NumberFormatException e) {
                 numberOfReadings = Integer.parseInt(parts[4].substring(1, 2));
             }
-                }
+        }
 
         rtm.getParameterFactory().replaceCommandInBuffer(value, portMask, numberOfReadings, 0);
         return MessageResult.createSuccess(messageEntry);
@@ -466,7 +465,7 @@ public class RtmMessages implements MessageProtocol {
             } catch (NumberFormatException e) {
                 numberOfReadings = Integer.parseInt(parts[4].substring(1, 2));
             }
-                }
+        }
         rtm.getParameterFactory().writeBubbleUpConfiguration(value, portMask, numberOfReadings, 0);
         return MessageResult.createSuccess(messageEntry);
     }
@@ -545,49 +544,45 @@ public class RtmMessages implements MessageProtocol {
         return MessageResult.createSuccess(messageEntry);
     }
 
-    private MessageResult setAlarmOnBackFlow(MessageEntry messageEntry) throws IOException {
-        rtm.getLogger().info("************************* setAlarmOnBackFlow *************************");
-        rtm.getParameterFactory().setAlarmOnBackFlow();
-        rtm.getParameterFactory().enableBackFlowDetection();
+    private MessageResult setAlarmOnBackFlow(MessageEntry messageEntry, int enable) throws IOException {
+        rtm.getLogger().info("************************* setAlarmOnBackFlow: " + enable + " *************************");
+        rtm.getParameterFactory().setAlarmOnBackFlow(enable);
         return MessageResult.createSuccess(messageEntry);
     }
 
-    private MessageResult setAlarmOnCutCable(MessageEntry messageEntry) throws IOException {
-        rtm.getLogger().info("************************* setAlarmOnCutCable *************************");
-        rtm.getParameterFactory().setAlarmOnCutCable();
-        rtm.getParameterFactory().enableTamperDetection();
+    private MessageResult setAlarmOnCutCable(MessageEntry messageEntry, int enable) throws IOException {
+        rtm.getLogger().info("************************* setAlarmOnCutCable: " + enable + " *************************");
+        rtm.getParameterFactory().setAlarmOnCutCable(enable);
         return MessageResult.createSuccess(messageEntry);
     }
 
-    private MessageResult setAlarmOnCutRegisterCable(MessageEntry messageEntry) throws IOException {
-        rtm.getLogger().info("************************* setAlarmOnCutRegisterCable *************************");
-        rtm.getParameterFactory().setAlarmOnCutRegisterCable();
-        rtm.getParameterFactory().enableTamperDetection();
+    private MessageResult setAlarmOnCutRegisterCable(MessageEntry messageEntry, int enable) throws IOException {
+        rtm.getLogger().info("************************* setAlarmOnCutRegisterCable: " + enable + " *************************");
+        rtm.getParameterFactory().setAlarmOnCutRegisterCable(enable);
         return MessageResult.createSuccess(messageEntry);
     }
 
-    private MessageResult setAlarmOnDefaultValve(MessageEntry messageEntry) throws IOException {
-        rtm.getLogger().info("************************* setAlarmOnDefaultValve *************************");
-        rtm.getParameterFactory().setAlarmOnDefaultValve();
+    private MessageResult setAlarmOnDefaultValve(MessageEntry messageEntry, int enable) throws IOException {
+        rtm.getLogger().info("************************* setAlarmOnDefaultValve: " + enable + " *************************");
+        rtm.getParameterFactory().setAlarmOnDefaultValve(enable);
         return MessageResult.createSuccess(messageEntry);
     }
 
-    private MessageResult setAlarmOnEncoderCommunicationFailure(MessageEntry messageEntry) throws IOException {
-        rtm.getLogger().info("************************* setAlarmOnEncoderCommunicationFailure *************************");
-        rtm.getParameterFactory().setAlarmOnEncoderCommunicationFailure();
-        rtm.getParameterFactory().enableEncoderCommunicationFaultDetection();
+    private MessageResult setAlarmOnEncoderCommunicationFailure(MessageEntry messageEntry, int enable) throws IOException {
+        rtm.getLogger().info("************************* setAlarmOnEncoderCommunicationFailure: " + enable + " *************************");
+        rtm.getParameterFactory().setAlarmOnEncoderCommunicationFailure(enable);
         return MessageResult.createSuccess(messageEntry);
     }
 
     private MessageResult enableTOUBuckets(MessageEntry messageEntry) throws IOException {
         rtm.getLogger().info("************************* EnableTOUBuckets *************************");
-        rtm.getParameterFactory().enableTOUBuckets();
+        rtm.getParameterFactory().setTOUBuckets(1);
         return MessageResult.createSuccess(messageEntry);
     }
 
     private MessageResult disableTOUBuckets(MessageEntry messageEntry) throws IOException {
         rtm.getLogger().info("************************* DisableTOUBuckets *************************");
-        rtm.getParameterFactory().disableTOUBuckets();
+        rtm.getParameterFactory().setTOUBuckets(0);
         return MessageResult.createSuccess(messageEntry);
     }
 
@@ -623,84 +618,27 @@ public class RtmMessages implements MessageProtocol {
         return MessageResult.createSuccess(messageEntry);
     }
 
-    private MessageResult setAlarmOnEncoderMisread(MessageEntry messageEntry) throws IOException {
-        rtm.getLogger().info("************************* setAlarmOnEncoderMisread *************************");
-        rtm.getParameterFactory().setAlarmOnEncoderMisread();
-        rtm.getParameterFactory().enableEncoderMisreadDetection();
+    private MessageResult setAlarmOnEncoderMisread(MessageEntry messageEntry, int enable) throws IOException {
+        rtm.getLogger().info("************************* setAlarmOnEncoderMisread: " + enable + " *************************");
+        rtm.getParameterFactory().setAlarmOnEncoderMisread(enable);
         return MessageResult.createSuccess(messageEntry);
     }
 
-    private MessageResult setAlarmOnHighThreshold(MessageEntry messageEntry) throws IOException {
-        rtm.getLogger().info("************************* setAlarmOnHighThreshold *************************");
-        rtm.getParameterFactory().setAlarmOnHighThreshold();
-        rtm.getParameterFactory().enableExtremeLeakDetection();
+    private MessageResult setAlarmOnHighThreshold(MessageEntry messageEntry, int enable) throws IOException {
+        rtm.getLogger().info("************************* setAlarmOnHighThreshold: " + enable + " *************************");
+        rtm.getParameterFactory().setAlarmOnHighThreshold(enable);
         return MessageResult.createSuccess(messageEntry);
     }
 
-    private MessageResult setAlarmOnLowBattery(MessageEntry messageEntry) throws IOException {
-        rtm.getLogger().info("************************* setAlarmOnLowBattery *************************");
-        rtm.getParameterFactory().setAlarmOnLowBattery();
+    private MessageResult setAlarmOnLowBattery(MessageEntry messageEntry, int enable) throws IOException {
+        rtm.getLogger().info("************************* setAlarmOnLowBattery: " + enable + " *************************");
+        rtm.getParameterFactory().setAlarmOnLowBattery(enable);
         return MessageResult.createSuccess(messageEntry);
     }
 
-    private MessageResult setAlarmOnLowThreshold(MessageEntry messageEntry) throws IOException {
-        rtm.getLogger().info("************************* setAlarmOnLowThreshold *************************");
-        rtm.getParameterFactory().setAlarmOnLowThreshold();
-        rtm.getParameterFactory().enableResidualLeakDetection();
-        return MessageResult.createSuccess(messageEntry);
-    }
-
-    private MessageResult disableAlarmOnBackFlow(MessageEntry messageEntry) throws IOException {
-        rtm.getLogger().info("************************* disableAlarmOnBackFlow *************************");
-        rtm.getParameterFactory().disableAlarmOnBackFlow();
-        return MessageResult.createSuccess(messageEntry);
-    }
-
-    private MessageResult disableAlarmOnCutCable(MessageEntry messageEntry) throws IOException {
-        rtm.getLogger().info("************************* disableAlarmOnCutCable *************************");
-        rtm.getParameterFactory().disableAlarmOnCutCable();
-        return MessageResult.createSuccess(messageEntry);
-    }
-
-    private MessageResult disableAlarmOnCutRegisterCable(MessageEntry messageEntry) throws IOException {
-        rtm.getLogger().info("************************* disableAlarmOnCutRegisterCable *************************");
-        rtm.getParameterFactory().disableAlarmOnCutRegisterCable();
-        return MessageResult.createSuccess(messageEntry);
-    }
-
-    private MessageResult disableAlarmOnDefaultValve(MessageEntry messageEntry) throws IOException {
-        rtm.getLogger().info("************************* disableAlarmOnDefaultValve *************************");
-        rtm.getParameterFactory().disableAlarmOnDefaultValve();
-        return MessageResult.createSuccess(messageEntry);
-    }
-
-    private MessageResult disableAlarmOnEncoderCommunicationFailure(MessageEntry messageEntry) throws IOException {
-        rtm.getLogger().info("************************* disableAlarmOnEncoderCommunicationFailure *************************");
-        rtm.getParameterFactory().disableAlarmOnEncoderCommunicationFailure();
-        return MessageResult.createSuccess(messageEntry);
-    }
-
-    private MessageResult disableAlarmOnEncoderMisread(MessageEntry messageEntry) throws IOException {
-        rtm.getLogger().info("************************* disableAlarmOnEncoderMisread *************************");
-        rtm.getParameterFactory().disableAlarmOnEncoderMisread();
-        return MessageResult.createSuccess(messageEntry);
-    }
-
-    private MessageResult disableAlarmOnHighThreshold(MessageEntry messageEntry) throws IOException {
-        rtm.getLogger().info("************************* disableAlarmOnHighThreshold *************************");
-        rtm.getParameterFactory().disableAlarmOnHighThreshold();
-        return MessageResult.createSuccess(messageEntry);
-    }
-
-    private MessageResult disableAlarmOnLowBattery(MessageEntry messageEntry) throws IOException {
-        rtm.getLogger().info("************************* disableAlarmOnLowBattery *************************");
-        rtm.getParameterFactory().disableAlarmOnLowBattery();
-        return MessageResult.createSuccess(messageEntry);
-    }
-
-    private MessageResult disableAlarmOnLowThreshold(MessageEntry messageEntry) throws IOException {
-        rtm.getLogger().info("************************* disableAlarmOnLowThreshold *************************");
-        rtm.getParameterFactory().disableAlarmOnLowThreshold();
+    private MessageResult setAlarmOnLowThreshold(MessageEntry messageEntry, int enable) throws IOException {
+        rtm.getLogger().info("************************* setAlarmOnLowThreshold: " + enable + " *************************");
+        rtm.getParameterFactory().setAlarmOnLowThreshold(enable);
         return MessageResult.createSuccess(messageEntry);
     }
 
@@ -1075,8 +1013,8 @@ public class RtmMessages implements MessageProtocol {
         cat2.addMessageSpec(addBasicMsg("Start weekly data logging", "SetWeeklyDataLogging", false));
         cat2.addMessageSpec(addBasicMsg("Start monthly data logging", "SetMonthlyDataLogging", false));
         cat2.addMessageSpec(addBasicMsgWithSevenAttr("Write start hour of the TOU buckets", "WriteTOUBucketStartHour", false, "Number of TOU buckets (minimum 2)", "Start hour of the 1st TOU bucket", "Start hour of the 2nd TOU bucket", "Start hour of the 3rd TOU bucket (if applicable)", "Start hour of the 4th TOU bucket (if applicable)", "Start hour of the 5th TOU bucket (if applicable)", "Start hour of the 6th TOU bucket (if applicable)"));
-        cat2.addMessageSpec(addBasicMsg("Enable the TOU Buckets" , "EnableTOUBuckets", false));
-        cat2.addMessageSpec(addBasicMsg("Disable the TOU Buckets" , "DisableTOUBuckets", false));
+        cat2.addMessageSpec(addBasicMsg("Enable the TOU Buckets", "EnableTOUBuckets", false));
+        cat2.addMessageSpec(addBasicMsg("Disable the TOU Buckets", "DisableTOUBuckets", false));
         theCategories.add(cat2);
 
         MessageCategorySpec cat3 = new MessageCategorySpec("RTM alarm frames configuration");

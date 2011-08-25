@@ -262,41 +262,6 @@ public class ParameterFactory {
         return profileType;
     }
 
-    public void enableBackFlowDetection() throws IOException {
-        getNewOperationMode().setBackFlowDetection(1);
-        operatingMode.write();
-    }
-
-    public void enableEncoderCommunicationFaultDetection() throws IOException {
-        getNewOperationMode().setEncoderCommunicationFaultDetection(1);
-        operatingMode.write();
-    }
-
-    public void enableValveCommunicationFaultDetection() throws IOException {
-        getNewOperationMode().setValveCommunicationFaultDetection(1);
-        operatingMode.write();
-    }
-
-    public void enableResidualLeakDetection() throws IOException {
-        getNewOperationMode().setResidualLeakDetection(1);
-        operatingMode.write();
-    }
-
-    public void enableTamperDetection() throws IOException {
-        getNewOperationMode().setTamperDetection(1);
-        operatingMode.write();
-    }
-
-    public void enableEncoderMisreadDetection() throws IOException {
-        getNewOperationMode().setEncoderMisReadDetection(1);
-        operatingMode.write();
-    }
-
-    public void enableExtremeLeakDetection() throws IOException {
-        getNewOperationMode().setExtremeLeakDetection(1);
-        operatingMode.write();
-    }
-
     public AlarmConfiguration readAlarmConfiguration() throws IOException {
         AlarmConfiguration configuration = new AlarmConfiguration(rtm);
         configuration.read();
@@ -309,124 +274,70 @@ public class ParameterFactory {
         configuration.write();
     }
 
-    public void setAlarmOnBackFlow() throws IOException {
+    public void setAlarmOnBackFlow(int enable) throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
-        configuration.setAlarmOnBackFlow(1);
-        configuration.write();
-    }
-
-    public void setAlarmOnCutCable() throws IOException {
-        AlarmConfiguration configuration = readAlarmConfiguration();
-        configuration.setAlarmOnCutCable(1);
-        configuration.write();
-    }
-
-    public void setAlarmOnCutRegisterCable() throws IOException {
-        AlarmConfiguration configuration = readAlarmConfiguration();
-        configuration.setAlarmOnCutRegisterCable(1);
-        configuration.write();
-    }
-
-    public void setAlarmOnDefaultValve() throws IOException {
-        AlarmConfiguration configuration = readAlarmConfiguration();
-        configuration.setAlarmOnDefaultValve(1);
-        configuration.write();
-    }
-
-    public void setAlarmOnEncoderCommunicationFailure() throws IOException {
-        AlarmConfiguration configuration = readAlarmConfiguration();
-        configuration.setAlarmOnEncoderCommunicationFailure(1);
-        configuration.write();
-    }
-
-    public void setAlarmOnEncoderMisread() throws IOException {
-        AlarmConfiguration configuration = readAlarmConfiguration();
-        configuration.setAlarmOnEncoderMisread(1);
-        configuration.write();
-    }
-
-    public void setAlarmOnHighThreshold() throws IOException {
-        AlarmConfiguration configuration = readAlarmConfiguration();
-        configuration.setAlarmOnHighThreshold(1);
-        configuration.write();
-    }
-
-    public void setAlarmOnLowBattery() throws IOException {
-        AlarmConfiguration configuration = readAlarmConfiguration();
-        configuration.setAlarmOnLowBattery(1);
-        configuration.write();
-    }
-
-    public void setAlarmOnLowThreshold() throws IOException {
-        AlarmConfiguration configuration = readAlarmConfiguration();
-        configuration.setAlarmOnLowThreshold(1);
-        configuration.write();
-    }
-
-    public void disableAlarmOnBackFlow() throws IOException {
-        AlarmConfiguration configuration = readAlarmConfiguration();
-        configuration.setAlarmOnBackFlow(0);
-        getNewOperationMode().setBackFlowDetection(0);
+        configuration.setAlarmOnBackFlow(enable);
+        getNewOperationMode().setBackFlowDetection(enable);
         configuration.setOperatingMode(operatingMode);
         configuration.write();
     }
 
-    public void disableAlarmOnCutCable() throws IOException {
+    public void setAlarmOnCutCable(int enable) throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
-        configuration.setAlarmOnCutCable(0);
-        getNewOperationMode().setTamperDetection(0);
+        configuration.setAlarmOnCutCable(enable);
+        getNewOperationMode().setTamperDetection(enable);
         configuration.setOperatingMode(operatingMode);
         configuration.write();
     }
 
-    public void disableAlarmOnCutRegisterCable() throws IOException {
+    public void setAlarmOnCutRegisterCable(int enable) throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
-        configuration.setAlarmOnCutRegisterCable(0);
-        getNewOperationMode().setTamperDetection(0);
+        configuration.setAlarmOnCutRegisterCable(enable);
+        getNewOperationMode().setTamperDetection(enable);
         configuration.setOperatingMode(operatingMode);
         configuration.write();
     }
 
-    public void disableAlarmOnDefaultValve() throws IOException {
+    public void setAlarmOnDefaultValve(int enable) throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
-        configuration.setAlarmOnDefaultValve(0);
+        configuration.setAlarmOnDefaultValve(enable);
         configuration.write();
     }
 
-    public void disableAlarmOnEncoderCommunicationFailure() throws IOException {
+    public void setAlarmOnEncoderCommunicationFailure(int enable) throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
-        configuration.setAlarmOnEncoderCommunicationFailure(0);
-        getNewOperationMode().setEncoderCommunicationFaultDetection(0);
+        configuration.setAlarmOnEncoderCommunicationFailure(enable);
+        getNewOperationMode().setEncoderCommunicationFaultDetection(enable);
         configuration.setOperatingMode(operatingMode);
         configuration.write();
     }
 
-    public void disableAlarmOnEncoderMisread() throws IOException {
+    public void setAlarmOnEncoderMisread(int enable) throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
-        configuration.setAlarmOnEncoderMisread(0);
-        getNewOperationMode().setEncoderMisReadDetection(0);
+        configuration.setAlarmOnEncoderMisread(enable);
+        getNewOperationMode().setEncoderMisReadDetection(enable);
         configuration.setOperatingMode(operatingMode);
         configuration.write();
     }
 
-    public void disableAlarmOnHighThreshold() throws IOException {
+    public void setAlarmOnHighThreshold(int enable) throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
-        configuration.setAlarmOnHighThreshold(0);
-        getNewOperationMode().setExtremeLeakDetection(0);
+        configuration.setAlarmOnHighThreshold(enable);
+        getNewOperationMode().setExtremeLeakDetection(enable);
         configuration.setOperatingMode(operatingMode);
         configuration.write();
     }
 
-    public void disableAlarmOnLowBattery() throws IOException {
+    public void setAlarmOnLowBattery(int enable) throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
-        configuration.setAlarmOnLowBattery(0);
+        configuration.setAlarmOnLowBattery(enable);
         configuration.write();
     }
 
-    public void disableAlarmOnLowThreshold() throws IOException {
+    public void setAlarmOnLowThreshold(int enable) throws IOException {
         AlarmConfiguration configuration = readAlarmConfiguration();
-        configuration.setAlarmOnLowThreshold(0);
-        getNewOperationMode().setResidualLeakDetection(0);
+        configuration.setAlarmOnLowThreshold(enable);
+        getNewOperationMode().setResidualLeakDetection(enable);
         configuration.setOperatingMode(operatingMode);
         configuration.write();
     }
@@ -647,13 +558,8 @@ public class ParameterFactory {
         return operatingMode;
     }
 
-    public void enableTOUBuckets() throws IOException {
-        getNewOperationMode().setTouBucketsManagement(1);
-        operatingMode.write();
-    }
-
-    public void disableTOUBuckets() throws IOException {
-        getNewOperationMode().setTouBucketsManagement(0);
+    public void setTOUBuckets(int enable) throws IOException {
+        getNewOperationMode().setTouBucketsManagement(enable);
         operatingMode.write();
     }
 
