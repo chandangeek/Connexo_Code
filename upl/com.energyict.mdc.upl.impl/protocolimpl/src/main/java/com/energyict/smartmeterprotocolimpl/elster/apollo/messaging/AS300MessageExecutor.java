@@ -5,8 +5,7 @@ import com.energyict.dlms.ParseUtils;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.xmlparsing.GenericDataToWrite;
 import com.energyict.dlms.xmlparsing.XmlToDlms;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
@@ -43,6 +42,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
 
     private static final ObisCode ChangeOfSupplierNameObisCode = ObisCode.fromString("1.0.1.64.0.255");
     private static final ObisCode ChangeOfSupplierIdObisCode = ObisCode.fromString("1.0.1.64.1.255");
+    private static final ObisCode ChangeOfTennantObisCode = ObisCode.fromString("0.128.128.0.0.255");
 
     private final AbstractSmartDlmsProtocol protocol;
 
@@ -82,7 +82,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
                 importMessage(content, messageHandler);
 
                 if (isChangeOfTenantMessage(messageHandler)) {
-                    changeOfTenant(messageHandler);
+                    changeOfTenantMessage(messageHandler);
                 } else if (isChangeOfSupplierMessage(messageHandler)) {
                     changeOfSupplier(messageHandler);
                 } else {
@@ -188,11 +188,12 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private void changeOfTenant(final MessageHandler messageHandler) throws IOException {
+    private void changeOfTenantMessage(final MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Received Change of Tenant message.");
         log(Level.FINEST, "Writing new Tenant Value");
+        ChangeOfTenantManagement changeOfTenant = getCosemObjectFactory().getChangeOfTenantManagement(ChangeOfTennantObisCode);
         try {
-            getCosemObjectFactory().getChangeOfTenantManagement().writePassiveValue(new Unsigned32(Long.valueOf(messageHandler.getTenantValue())));
+            changeOfTenant.writePassiveValue(new Unsigned32(Long.valueOf(messageHandler.getTenantValue())));
         } catch (NumberFormatException e) {
             log(Level.SEVERE, "Incorrect TenantValue : " + messageHandler.getTenantValue() + " - Message will fail.");
             success = false;
@@ -200,7 +201,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         if(success){ // if the previous failed, then we don't try to write the activationDate
             log(Level.FINEST, "Writing new Tenant ActivationDate");
             try {
-                getCosemObjectFactory().getChangeOfTenantManagement().writeActivationDate(new DateTime(new Date(Long.valueOf(messageHandler.getTenantActivationDate()))));
+                changeOfTenant.writeActivationDate(new DateTime(new Date(Long.valueOf(messageHandler.getTenantActivationDate()))));
             } catch (NumberFormatException e) {
                 log(Level.SEVERE, "Incorrect ActivationDate : " + messageHandler.getTenantActivationDate() + " - Message will fail.");
                 success = false;

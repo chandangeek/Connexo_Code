@@ -112,6 +112,7 @@ public class AS300ActivityCalendarController implements ActivityCalendarControll
     private Map<String, Integer> tempShiftedDayIdMap = new HashMap<String, Integer>();
 
     public AS300ActivityCalendarController(){
+        this(null);
     }
 
     public AS300ActivityCalendarController(AS300 protocol) {
@@ -225,7 +226,7 @@ public class AS300ActivityCalendarController implements ActivityCalendarControll
     }
 
     private String getCompressedBase64Content(final String xmlContent, final String openingTag, final String closingTag) {
-        return xmlContent.substring(xmlContent.indexOf(openingTag)+openingTag.length(), xmlContent.indexOf(closingTag));
+        return xmlContent.substring(xmlContent.indexOf(openingTag) + openingTag.length(), xmlContent.indexOf(closingTag));
     }
 
     /**

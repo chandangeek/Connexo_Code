@@ -34,6 +34,10 @@ public class ChangeOfTenantManagement extends AbstractCosemObject {
         super(protocolLink, new ObjectReference(LN));
     }
 
+    public ChangeOfTenantManagement(final ProtocolLink protocolLink, final ObjectReference objectReference) {
+        super(protocolLink, objectReference);
+    }
+
     /**
      * Getter for the dlms class id
      *

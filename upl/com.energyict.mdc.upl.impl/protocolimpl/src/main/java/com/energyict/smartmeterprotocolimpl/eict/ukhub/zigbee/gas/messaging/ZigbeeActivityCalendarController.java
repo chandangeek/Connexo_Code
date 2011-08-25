@@ -20,6 +20,7 @@ public class ZigbeeActivityCalendarController extends AS300ActivityCalendarContr
     private SpecialDaysTable specialDayTable;
 
     public ZigbeeActivityCalendarController(AbstractSmartDlmsProtocol protocol) {
+        super();
         this.protocol = protocol;
     }
 
@@ -44,4 +45,11 @@ public class ZigbeeActivityCalendarController extends AS300ActivityCalendarContr
         return this.specialDayTable;
     }
 
+    @Override
+    protected SpecialDaysTable getPassiveSpecialDayTable() throws IOException {
+        if (this.specialDayTable == null) {
+            this.specialDayTable = new SpecialDaysTable(this.protocol.getDlmsSession(), new ObjectReference(ObisCodeProvider.SPECIAL_DAY_TABLE.getLN()));
+        }
+        return this.specialDayTable;
+    }
 }

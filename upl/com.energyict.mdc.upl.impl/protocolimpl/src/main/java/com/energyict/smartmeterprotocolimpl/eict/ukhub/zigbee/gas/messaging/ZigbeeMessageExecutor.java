@@ -84,7 +84,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
                     changeOfTenant(messageHandler);
                 } else if (isChangeOfSupplierMessage(messageHandler)) {
                     changeOfSupplier(messageHandler);
-                } else if (isTestMessage(messageHandler)){
+                } else if (isTestMessage(messageHandler)) {
                     testMessage(messageHandler);
                 } else {
                     log(Level.INFO, "Message not supported : " + content);
@@ -122,7 +122,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
             log(Level.SEVERE, "Incorrect SupplierID : " + messageHandler.getTenantValue() + " - Message will fail.");
             success = false;
         }
-        if(success) {
+        if (success) {
             log(Level.FINEST, "Writing new Supplier ActivationDates");
             try {
                 getCosemObjectFactory().getSupplierName(ChangeOfSupplierNameObisCode).writeActivationDate(new DateTime(new Date(Long.valueOf(messageHandler.getSupplierActivationDate()))));
@@ -143,7 +143,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
             log(Level.SEVERE, "Incorrect TenantValue : " + messageHandler.getTenantValue() + " - Message will fail.");
             success = false;
         }
-        if(success){ // if the previous failed, then we don't try to write the activationDate
+        if (success) { // if the previous failed, then we don't try to write the activationDate
             log(Level.FINEST, "Writing new Tenant ActivationDate");
             try {
                 getCosemObjectFactory().getChangeOfTenantManagement().writeActivationDate(new DateTime(new Date(Long.valueOf(messageHandler.getTenantActivationDate()))));
@@ -152,7 +152,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
                 success = false;
             }
         }
-    }    
+    }
 
     private void updatePricingInformation(final String content) throws IOException {
         log(Level.INFO, "Received update Update Pricing Information message.");
@@ -272,7 +272,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
         return this.protocol.getTimeZone();
     }
 
-        private void testMessage(MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
+    private void testMessage(MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
         log(Level.INFO, "Handling message TestMessage");
         int failures = 0;
         String userFileId = messageHandler.getTestUserFileId();
@@ -419,9 +419,14 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private Rtu getRtuFromDatabaseBySerialNumber() {
+    private Rtu getRtuFromDatabaseBySerialNumber() throws IOException {
         String serial = this.protocol.getDlmsSession().getProperties().getSerialNumber();
-        return mw().getRtuFactory().findBySerialNumber(serial).get(0);
+        List<Rtu> rtus = mw().getRtuFactory().findBySerialNumber(serial);
+        if(rtus.size() != 0){
+            return rtus.get(0);
+        } else {
+            throw new IOException("No meter found, serialNumber probably not correct.");
+        }
     }
 
     public MeteringWarehouse mw() {
