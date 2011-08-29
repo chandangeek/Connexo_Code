@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 
 public class ObisCodeMapper {
 
@@ -140,86 +141,100 @@ public class ObisCodeMapper {
     }
 
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
-        if (obisCode.equals(OBISCODE_APPLICATION_STATUS)) {
-            int status = rtm.getParameterFactory().readApplicationStatus().getStatus();
-            return new RegisterValue(obisCode, new Quantity(status, Unit.get("")), new Date());
-        } else if (obisCode.equals(OBISCODE_REMAINING_BATTERY)) {
-            int value = rtm.getParameterFactory().readBatteryLifeDurationCounter().remainingBatteryLife();
-            return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(value), Unit.get(BaseUnit.UNITLESS)), new Date());
-        } else if (obisCode.equals(OBISCODE_OPERATION_MODE)) {
-            int mode = rtm.getParameterFactory().readOperatingMode().getOperationMode();
-            return new RegisterValue(obisCode, new Quantity(mode, Unit.get("")), new Date());
-        } else if (obisCode.equals(OBISCODE_FIRMWARE)) {
-            return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, rtm.readFirmwareVersion());
-        } else if (obisCode.equals(OBISCODE_RSSI)) {
-            double value = rtm.getRadioCommandFactory().readRSSI();
-            return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date());
-        } else if (obisCode.equals(OBISCODE_COMMAND_BUFFER)) {
-            String cmdBuffer = rtm.getParameterFactory().readPushCommandBuffer().getBuffer();
-            int cmd;
-            try {
-                cmd = Integer.parseInt(cmdBuffer.substring(2, 4));
-            } catch (Exception e) {
-                throw new NoSuchRegisterException("Could not parse command buffer: " + cmdBuffer);
+        try {
+            if (obisCode.equals(OBISCODE_APPLICATION_STATUS)) {
+                int status = rtm.getParameterFactory().readApplicationStatus().getStatus();
+                return new RegisterValue(obisCode, new Quantity(status, Unit.get("")), new Date());
+            } else if (obisCode.equals(OBISCODE_REMAINING_BATTERY)) {
+                int value = rtm.getParameterFactory().readBatteryLifeDurationCounter().remainingBatteryLife();
+                return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(value), Unit.get(BaseUnit.UNITLESS)), new Date());
+            } else if (obisCode.equals(OBISCODE_OPERATION_MODE)) {
+                int mode = rtm.getParameterFactory().readOperatingMode().getOperationMode();
+                return new RegisterValue(obisCode, new Quantity(mode, Unit.get("")), new Date());
+            } else if (obisCode.equals(OBISCODE_FIRMWARE)) {
+                return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, rtm.readFirmwareVersion());
+            } else if (obisCode.equals(OBISCODE_RSSI)) {
+                double value = rtm.getRadioCommandFactory().readRSSI();
+                return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date());
+            } else if (obisCode.equals(OBISCODE_COMMAND_BUFFER)) {
+                String cmdBuffer = rtm.getParameterFactory().readPushCommandBuffer().getBuffer();
+                int cmd;
+                try {
+                    cmd = Integer.parseInt(cmdBuffer.substring(2, 4));
+                } catch (Exception e) {
+                    rtm.getLogger().log(Level.WARNING, "Could not parse command buffer: " + cmdBuffer);
+                    throw new IOException("Could not parse command buffer: " + cmdBuffer);
+                }
+                String additionalText = "Full buffer content (hex): " + cmdBuffer.substring(2);
+                return new RegisterValue(obisCode, new Quantity(cmd, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, additionalText);
+            } else if (obisCode.equals(OBISCODE_VALVE_STATUS)) {
+                if (!rtm.getParameterFactory().readProfileType().isValve()) {
+                    rtm.getLogger().log(Level.WARNING, "Module doesn't support valve control");
+                    throw new NoSuchRegisterException("Module doesn't support valve control");
+                }
+                ValveStatus valveStatus = rtm.getRadioCommandFactory().readValveStatus();
+                return new RegisterValue(obisCode, new Quantity(valveStatus.getState(), Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, valveStatus.getDescription());
+            } else if (obisCode.equals(OBISCODE_PROFILE_TYPE)) {
+                ProfileType profileType = rtm.getParameterFactory().readProfileType();
+                return new RegisterValue(obisCode, new Quantity(profileType.getProfile(), Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, profileType.getDescription());
+            } else if (obisCode.equals(OBISCODE_ENCODER_MODEL_TYPE_A)) {
+                String description = rtm.getRadioCommandFactory().readEncoderModelTypeA();
+                return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, description);
+            } else if (obisCode.equals(OBISCODE_ENCODER_MODEL_TYPE_B)) {
+                String description = rtm.getRadioCommandFactory().readEncoderModelTypeB();
+                return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, description);
+            } else if (isCurrentIndexReading(obisCode)) {
+                int port = obisCode.getB();
+                if (rtm.getParameterFactory().readProfileType().isEvoHop()) {
+                    rtm.getLogger().log(Level.WARNING, "Reading of current indexes is not supported by the EvoHop module");
+                    throw new NoSuchRegisterException("Reading of current indexes is not supported by the EvoHop module");
+                }
+                if (port > rtm.getParameterFactory().readOperatingMode().readNumberOfPorts()) {
+                    rtm.getLogger().log(Level.WARNING, "Port " + port + " is not supported by the module");
+                    throw new NoSuchRegisterException("Port " + port + " is not supported by the module");
+                }
+                CurrentRegisterReading currentRegister = rtm.getRadioCommandFactory().readCurrentRegister();
+                if (Integer.MAX_VALUE == currentRegister.getCurrentReading(port)) {
+                    rtm.getLogger().log(Level.WARNING, "No index logged yet for port " + port);
+                    throw new NoSuchRegisterException("No index logged yet for port " + port);      //Indicated by value 0x7FFFFFFF
+                }
+                RtmUnit rtmUnit = currentRegister.getGenericHeader().getRtmUnit(port - 1);
+                return new RegisterValue(obisCode, new Quantity(currentRegister.getCurrentReading(port) * rtmUnit.getMultiplier(), rtmUnit.getUnit()));
+            } else if (isPulseWeightReadout(obisCode)) {
+                if (!rtm.getParameterFactory().readProfileType().isPulse()) {
+                    rtm.getLogger().log(Level.WARNING, "Reading the pulse weight is only supported by modules managing pulse registers");
+                    throw new NoSuchRegisterException("Reading the pulse weight is only supported by modules managing pulse registers");
+                }
+                int inputChannel = (obisCode.getB());
+                PulseWeight pulseWeight = rtm.getParameterFactory().readPulseWeight(inputChannel);
+                return new RegisterValue(obisCode, new Quantity(new BigDecimal(pulseWeight.getMultiplier()), pulseWeight.getUnit()));
+            } else if (isEncoderUnitReadout(obisCode)) {
+                if (!rtm.getParameterFactory().readProfileType().isEncoder()) {
+                    rtm.getLogger().log(Level.WARNING, "Reading the encoder unit is only supported by modules with an encoder profile");
+                    throw new NoSuchRegisterException("Reading the encoder unit is only supported by modules with an encoder profile");
+                }
+                int inputChannel = (obisCode.getB());
+                EncoderUnit encoderUnit = rtm.getParameterFactory().readEncoderUnit(inputChannel);
+                return new RegisterValue(obisCode, new Quantity(1, encoderUnit.getUnit()));
+            } else if (isTOUBucketTotalizer(obisCode)) {
+                int port = obisCode.getB();
+                int bucket = obisCode.getE() - 53;
+                int numberOfPorts = rtm.getParameterFactory().readOperatingMode().readNumberOfPorts();
+                if (port > numberOfPorts) {
+                    rtm.getLogger().log(Level.WARNING, "Port " + port + " is not supported by the module");
+                    throw new NoSuchRegisterException("Port " + port + " is not supported by the module");
+                }
+                ReadTOUBuckets bucketTotalizers = rtm.getRadioCommandFactory().readTOUBuckets();
+                int value = bucketTotalizers.getListOfAllTotalizers().get(port - 1).getTOUBucketsTotalizers()[bucket];
+                RtmUnit unit = bucketTotalizers.getGenericHeader().getRtmUnit(port - 1);
+                return new RegisterValue(obisCode, new Quantity(value * unit.getMultiplier(), unit.getUnit()));
+            } else {
+                rtm.getLogger().log(Level.WARNING, "Register with obiscode [" + obisCode + "] is not supported");
+                throw new NoSuchRegisterException("Register with obiscode [" + obisCode + "] is not supported");
             }
-            String additionalText = "Full buffer content (hex): " + cmdBuffer.substring(2);
-            return new RegisterValue(obisCode, new Quantity(cmd, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, additionalText);
-        } else if (obisCode.equals(OBISCODE_VALVE_STATUS)) {
-            if (!rtm.getParameterFactory().readProfileType().isValve()) {
-                throw new NoSuchRegisterException("Module doesn't support valve control");
-            }
-            ValveStatus valveStatus = rtm.getRadioCommandFactory().readValveStatus();
-            return new RegisterValue(obisCode, new Quantity(valveStatus.getState(), Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, valveStatus.getDescription());
-        } else if (obisCode.equals(OBISCODE_PROFILE_TYPE)) {
-            ProfileType profileType = rtm.getParameterFactory().readProfileType();
-            return new RegisterValue(obisCode, new Quantity(profileType.getProfile(), Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, profileType.getDescription());
-        } else if (obisCode.equals(OBISCODE_ENCODER_MODEL_TYPE_A)) {
-            String description = rtm.getRadioCommandFactory().readEncoderModelTypeA();
-            return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, description);
-        } else if (obisCode.equals(OBISCODE_ENCODER_MODEL_TYPE_B)) {
-            String description = rtm.getRadioCommandFactory().readEncoderModelTypeB();
-            return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, description);
-        } else if (isCurrentIndexReading(obisCode)) {
-            int port = obisCode.getB();
-            if (rtm.getParameterFactory().readProfileType().isEvoHop()) {
-                throw new NoSuchRegisterException("Reading of current indexes is not supported by the EvoHop module");
-            }
-            if (port > rtm.getParameterFactory().readOperatingMode().readNumberOfPorts()) {
-                throw new NoSuchRegisterException("Port " + port + " is not supported by the module");
-            }
-            CurrentRegisterReading currentRegister = rtm.getRadioCommandFactory().readCurrentRegister();
-            if (Integer.MAX_VALUE == currentRegister.getCurrentReading(port)) {
-                throw new NoSuchRegisterException("No index logged yet for port " + port);      //Indicated by value 0x7FFFFFFF
-            }
-            RtmUnit rtmUnit = currentRegister.getGenericHeader().getRtmUnit(port - 1);
-            return new RegisterValue(obisCode, new Quantity(currentRegister.getCurrentReading(port) * rtmUnit.getMultiplier(), rtmUnit.getUnit()));
-        } else if (isPulseWeightReadout(obisCode)) {
-            if (!rtm.getParameterFactory().readProfileType().isPulse()) {
-                throw new NoSuchRegisterException("Reading the pulse weight is only supported by modules managing pulse registers");
-            }
-            int inputChannel = (obisCode.getB());
-            PulseWeight pulseWeight = rtm.getParameterFactory().readPulseWeight(inputChannel);
-            return new RegisterValue(obisCode, new Quantity(new BigDecimal(pulseWeight.getMultiplier()), pulseWeight.getUnit()));
-        } else if (isEncoderUnitReadout(obisCode)) {
-            if (!rtm.getParameterFactory().readProfileType().isEncoder()) {
-                throw new NoSuchRegisterException("Reading the encoder unit is only supported by modules with an encoder profile");
-            }
-            int inputChannel = (obisCode.getB());
-            EncoderUnit encoderUnit = rtm.getParameterFactory().readEncoderUnit(inputChannel);
-            return new RegisterValue(obisCode, new Quantity(1, encoderUnit.getUnit()));
-        } else if (isTOUBucketTotalizer(obisCode)) {
-            int port = obisCode.getB();
-            int bucket = obisCode.getE() - 53;
-            int numberOfPorts = rtm.getParameterFactory().readOperatingMode().readNumberOfPorts();
-            if (port > numberOfPorts) {
-                throw new NoSuchRegisterException("Port " + port + " is not supported by the module");
-            }
-            ReadTOUBuckets bucketTotalizers = rtm.getRadioCommandFactory().readTOUBuckets();
-            int value = bucketTotalizers.getListOfAllTotalizers().get(port - 1).getTOUBucketsTotalizers()[bucket];
-            RtmUnit unit = bucketTotalizers.getGenericHeader().getRtmUnit(port - 1);
-            return new RegisterValue(obisCode, new Quantity(value * unit.getMultiplier(), unit.getUnit()));
-        } else {
-            throw new NoSuchRegisterException("Register with obiscode [" + obisCode + "] is not supported");
+        } catch (IOException e) {
+            rtm.getLogger().log(Level.WARNING, "Register with obiscode [" + obisCode + "] timed out: " + e.getMessage());
+            throw e;
         }
     }
 
