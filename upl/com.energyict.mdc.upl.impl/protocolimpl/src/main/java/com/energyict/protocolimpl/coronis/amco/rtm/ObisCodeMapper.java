@@ -61,6 +61,7 @@ public class ObisCodeMapper {
     private static final ObisCode OBISCODE_TOUBUCKET6_PORT4 = ObisCode.fromString("0.4.96.0.58.255");
 
     private static final ObisCode OBISCODE_COMMAND_BUFFER = ObisCode.fromString("0.0.96.0.101.255");
+    private static final ObisCode OBISCODE_BUBBLE_UP_START_HOUR = ObisCode.fromString("0.0.96.0.102.255");
     private static final ObisCode OBISCODE_RSSI = ObisCode.fromString("0.0.96.0.63.255");
     private static final String OBISCODE_PORT1 = "1.1.82.8.0.255";
     private static final String OBISCODE_PORT2 = "1.2.82.8.0.255";
@@ -114,6 +115,7 @@ public class ObisCodeMapper {
         registerMaps.put(OBISCODE_TOUBUCKET6_PORT4, "TOU Bucket 6 totalizer for port 4");
         registerMaps.put(OBISCODE_RSSI, "RSSI Level");
         registerMaps.put(OBISCODE_COMMAND_BUFFER, "Bubble up command buffer");
+        registerMaps.put(OBISCODE_BUBBLE_UP_START_HOUR, "Bubble up start hour");
 
         registerMaps.put(ObisCode.fromString(OBISCODE_PORT1), "Port A current index");
         registerMaps.put(ObisCode.fromString(OBISCODE_PORT2), "Port B current index");
@@ -174,6 +176,9 @@ public class ObisCodeMapper {
                 }
                 ValveStatus valveStatus = rtm.getRadioCommandFactory().readValveStatus();
                 return new RegisterValue(obisCode, new Quantity(valveStatus.getState(), Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, valveStatus.getDescription());
+            } else if (obisCode.equals(OBISCODE_BUBBLE_UP_START_HOUR)) {
+                String startHour = rtm.getParameterFactory().readStartOfPushFrameMechanism();
+                return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, startHour);
             } else if (obisCode.equals(OBISCODE_PROFILE_TYPE)) {
                 ProfileType profileType = rtm.getParameterFactory().readProfileType();
                 return new RegisterValue(obisCode, new Quantity(profileType.getProfile(), Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, profileType.getDescription());

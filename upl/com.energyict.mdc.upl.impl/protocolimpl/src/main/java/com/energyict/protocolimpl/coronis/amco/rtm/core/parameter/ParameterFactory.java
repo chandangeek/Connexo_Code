@@ -436,6 +436,12 @@ public class ParameterFactory {
         startHour.write();
     }
 
+    public String readStartOfPushFrameMechanism() throws IOException {
+        PseudoBubbleUpMechanismStartHour startHour = new PseudoBubbleUpMechanismStartHour(rtm);
+        startHour.read();
+        return startHour.getHour() + ":" + startHour.getMinute() + ":" + startHour.getSecond();
+    }
+
     public void writeEndOfPushFrameMechanism(int hour) throws IOException {
         PseudoBubbleUpPeriodEndHour end = new PseudoBubbleUpPeriodEndHour(rtm);
         end.setHour(hour);
