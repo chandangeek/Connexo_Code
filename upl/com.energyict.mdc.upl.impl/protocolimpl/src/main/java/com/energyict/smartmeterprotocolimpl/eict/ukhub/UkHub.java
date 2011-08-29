@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub;
 
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
@@ -85,6 +86,11 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
     @Override
     protected void initAfterConnect() throws ConnectionException {
         //Currently nothing to implement
+    }
+
+    @Override
+    public SecurityProvider getSecurityProvider() {
+        return null;  //TODO implement proper functionality.
     }
 
     /**

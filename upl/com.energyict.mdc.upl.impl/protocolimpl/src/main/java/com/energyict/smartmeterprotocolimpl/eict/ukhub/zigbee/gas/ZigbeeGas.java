@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas;
 
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
@@ -40,6 +41,11 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
             this.zigbeeGasMessaging = new ZigbeeGasMessaging(new ZigbeeMessageExecutor(this));
         }
         return this.zigbeeGasMessaging;
+    }
+
+    @Override
+    public SecurityProvider getSecurityProvider() {
+        return null;  //TODO implement proper functionality.
     }
 
     /**

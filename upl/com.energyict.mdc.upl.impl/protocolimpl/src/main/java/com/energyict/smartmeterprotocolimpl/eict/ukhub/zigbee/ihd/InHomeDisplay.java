@@ -2,6 +2,7 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
@@ -20,6 +21,11 @@ import java.util.List;
 public class InHomeDisplay extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol {
 
     private InHomeDisplayMessaging messageProtocol;
+
+    @Override
+    public SecurityProvider getSecurityProvider() {
+        return null;  //TODO implement proper functionality.
+    }
 
     /**
      * Override this method when requesting time from the meter is needed.

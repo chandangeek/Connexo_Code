@@ -1,15 +1,22 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.CachedMeterTime;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.events.EMeterEventProfile;
+import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.messaging.WebRTUZ3MessageExecutor;
+import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.messaging.WebRTUZ3Messaging;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.profiles.LoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.topology.MeterTopology;
 
@@ -23,7 +30,7 @@ import java.util.*;
  * Date: 7-feb-2011
  * Time: 14:15:14
  */
-public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements SimpleMeter {
+public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol {
 
     /**
      * Contains properties related to the WebRTUZ3 protocol
@@ -60,6 +67,13 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements SimpleMeter {
      */
     private LoadProfileBuilder loadProfileBuilder;
 
+    /**
+     * The used DLMS SecurityProvider
+     */
+    private SecurityProvider securityProvider;
+
+    private WebRTUZ3Messaging messageProtocol = new WebRTUZ3Messaging(new WebRTUZ3MessageExecutor(this));
+
     private static final int ObisCodeBFieldIndex = 1;
 
 //    /**
@@ -80,13 +94,15 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements SimpleMeter {
      */
     @Override
     protected void initAfterConnect() throws ConnectionException {
-        getMeterTopology().discoverSlaveDevices();
+        searchForSlaveDevices();
         for (DeviceMapping dm : getMeterTopology().geteMeterMap()) {
-            this.slaveMeters.add(new SlaveMeter(this, dm.getSerialNumber(), dm.getPhysicalAddress()));
+            this.slaveMeters.add(new EMeter(this, dm.getSerialNumber(), dm.getPhysicalAddress()));
         }
         for (DeviceMapping dm : getMeterTopology().getMbusMap()) {
-            this.slaveMeters.add(new SlaveMeter(this, dm.getSerialNumber(), dm.getPhysicalAddress()));
+            this.slaveMeters.add(new MbusDevice(this, dm.getSerialNumber(), dm.getPhysicalAddress()));
         }
+
+        securityProvider = new NTASecurityProvider(getProperties().getProtocolProperties());
     }
 
     /**
@@ -94,7 +110,7 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements SimpleMeter {
      *
      * @return the Meter Topology
      */
-    private MeterTopology getMeterTopology() {
+    public MeterTopology getMeterTopology() {
         if (this.meterTopology == null) {
             this.meterTopology = new MeterTopology(this);
         }
@@ -380,4 +396,64 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements SimpleMeter {
 //    public void saveObject(DLMSAttribute dlmsAttribute, AbstractDataType abstractDataType) {
 //        this.sessionCachedObjects.put(dlmsAttribute, abstractDataType);
 //    }
+
+    /**
+     * Provides the full list of outstanding messages to the protocol.
+     * If for any reason certain messages have to be grouped before they are sent to a device, then this is the place to do it.
+     * At a later timestamp the framework will query each {@link com.energyict.protocol.MessageEntry} (see {@link #queryMessage(com.energyict.protocol.MessageEntry)}) to actually
+     * perform the message.
+     *
+     * @param messageEntries a list of {@link com.energyict.protocol.MessageEntry}s
+     * @throws java.io.IOException if a logical error occurs
+     */
+    public void applyMessages(final List messageEntries) throws IOException {
+        this.messageProtocol.applyMessages(messageEntries);
+    }
+
+    /**
+     * Indicates that each message has to be executed by the protocol.
+     *
+     * @param messageEntry a definition of which message needs to be sent
+     * @return a state of the message which was just sent
+     * @throws java.io.IOException if a logical error occurs
+     */
+    public MessageResult queryMessage(final MessageEntry messageEntry) throws IOException {
+        return this.messageProtocol.queryMessage(messageEntry);
+    }
+
+    public List getMessageCategories() {
+        return this.messageProtocol.getMessageCategories();
+    }
+
+    public String writeMessage(final Message msg) {
+        return this.messageProtocol.writeMessage(msg);
+    }
+
+    public String writeTag(final MessageTag tag) {
+        return this.messageProtocol.writeTag(tag);
+    }
+
+    public String writeValue(final MessageValue value) {
+        return this.messageProtocol.writeValue(value);
+    }
+
+    /**
+     * Search for local slave devices so a general topology can be build up
+     */
+    public void searchForSlaveDevices() throws ConnectionException {
+        getMeterTopology().discoverSlaveDevices();
+    }
+
+    public SecurityProvider getSecurityProvider() {
+        return securityProvider;
+    }
+
+    public SlaveMeter getSlaveMeterForSerial(String serialNumber){
+        for (SlaveMeter slaveMeter : slaveMeters) {
+            if(slaveMeter.getSerialNumber().equalsIgnoreCase(serialNumber)){
+                return slaveMeter;
+            }
+        }
+        return null;
+    }
 }

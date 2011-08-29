@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
@@ -63,6 +64,11 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
 
     public String getFirmwareVersion() throws IOException {
         return getObjectFactory().getFirmwareVersion().getString();
+    }
+
+    @Override
+    public SecurityProvider getSecurityProvider() {
+        return null;  //TODO implement proper functionality.
     }
 
     @Override

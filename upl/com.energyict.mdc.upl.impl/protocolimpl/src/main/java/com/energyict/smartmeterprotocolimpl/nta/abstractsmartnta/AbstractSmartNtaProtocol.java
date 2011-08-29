@@ -97,7 +97,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
      */
     @Override
     protected void initAfterConnect() throws ConnectionException {
-        getMeterTopology().searchForSlaveDevices();
+        searchForSlaveDevices();
         securityProvider = new NTASecurityProvider(getProperties().getProtocolProperties());
 //        for (DeviceMapping dm : getMeterTopology().getMbusMeterMap()) {
 //            this.mbusDevices.add(new MbusDevice(this, dm.getSerialNumber(), dm.getPhysicalAddress()));

@@ -5,6 +5,7 @@ import com.energyict.cbo.NotFoundException;
 import com.energyict.cpo.Transaction;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.obis.ObisCode;
@@ -24,6 +25,8 @@ import java.util.logging.Level;
  * Abstract Implementation of a DLMS SmartMeterProtocol.
  */
 public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtocol implements CacheMechanism {
+
+    public abstract SecurityProvider getSecurityProvider();
 
     /**
      * The used {@link com.energyict.protocolimpl.dlms.common.DlmsSession}
@@ -170,6 +173,7 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
         }
     }
 
+
     /**
      * Disconnect from the physical device.
      * Close the association and check if we need to close the underlying connection
@@ -177,7 +181,6 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
     public void disconnect() throws IOException {
         getDlmsSession().disconnect();
     }
-
 
     @Override
     public void setCache(Object cacheObject) {
