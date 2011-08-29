@@ -136,8 +136,8 @@ public class LoadProfile extends AbstractActarisObject {
         getProfileData().getIntervalDatas().addAll(intervalDatas);
     }
 
-    private int getEiStatus(int alarmFlags) {                          //TODO;  Meter communication timeout ??        ... sent mail, waiting for response
-        int result = 0;                                                //TODO: Meter does not have valid time ??
+    private int getEiStatus(int alarmFlags) {
+        int result = 0;
         if (isBitSet(alarmFlags, 0)) {
             result += IntervalStateBits.POWERDOWN;
         }

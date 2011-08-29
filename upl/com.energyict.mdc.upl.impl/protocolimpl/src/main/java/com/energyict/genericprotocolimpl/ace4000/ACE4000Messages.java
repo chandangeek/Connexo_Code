@@ -164,7 +164,7 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
         cat2.addMessageSpec(addBasicMsgWith3Values("Configure maximum demand settings", CONFIG_MAX_DEMAND, false, "Active registers (0) or reactive registers (1)", "Number of sub intervals (0, 1, 2, 3, 4, 5, 10 or 15)", "Sub interval duration (30, 60, 300, 600, 900, 1200, 1800 or 3600 seconds)"));
         cat2.addMessageSpec(addBasicMsgWith15Values("Configure consumption limitation settings", CONFIG_CONSUMPTION_LIMITATION, false, "Number of sub intervals (0, 1, 2, 3, 4, 5, 10 or 15)", "Sub interval duration (30, 60, 300, 600, 900, 1200, 1800 or 3600 seconds)", "Override rate (0: disabled)", "Allowed excess tolerance (0 - 100 %)", "Threshold selection (0: day profile, 1: maximum threshold)", "8 switching moments for daily profile 0 (comma separated, e.g.: 01:00,05:00,...)", "8 thresholds for daily profile 0 (comma separated)", "8 units for the thresholds (comma separated) (0: Watt, 1: Ampere)", "8 actions (in hex) for daily profile 0 (comma separated)", "8 switching moments for daily profile 1 (comma separated, e.g.: 01:00,05:00,...)", "8 thresholds for daily profile 1 (comma separated)", "8 units for the thresholds (comma separated) (0: Watt, 1: Ampere)", "8 actions (in hex) for daily profile 1 (comma separated)", "Day profiles used for each day of the week (comma separated)", "Activation date (dd/mm/yyyy hh:mm:ss) (optional)"));
         cat2.addMessageSpec(addBasicMsgWith4Values("Configure emergency consumption limitation settings", CONFIG_EMERGENCY_CONSUMPTION_LIMITATION, false, "Duration (minutes)", "Threshold value", "Threshold unit (0: Watt, 1: Ampere)", "Override rate (0: disabled)"));
-        cat2.addMessageSpec(addBasicMsgWith3Values("Configure tariff settings", CONFIG_TARIFF, false, "Unique tariff ID number", "Number of tariff rates (max 6)", "Code table ID"));
+        cat2.addMessageSpec(addBasicMsgWith3Values("Configure tariff settings", CONFIG_TARIFF, false, "Unique tariff ID number", "Number of tariff rates (max 4)", "Code table ID"));
 
         categories.add(cat2);
 
@@ -377,7 +377,7 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
         int number = Integer.parseInt(parts[1].substring(1).split("\"")[0]);
         int numberOfRates = Integer.parseInt(parts[2].substring(1).split("\"")[0]);
         int codeTableId = Integer.parseInt(parts[3].substring(1).split("\"")[0]);
-        if (numberOfRates > 6 || numberOfRates < 0) {
+        if (numberOfRates > 4 || numberOfRates < 0) {
             failMessage(messageEntry, "Tariff configuration failed, invalid number of rates");
             return;
         }

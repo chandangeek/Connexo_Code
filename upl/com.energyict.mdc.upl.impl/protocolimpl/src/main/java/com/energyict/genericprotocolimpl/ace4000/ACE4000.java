@@ -1,7 +1,6 @@
 package com.energyict.genericprotocolimpl.ace4000;
 
-import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.*;
 import com.energyict.cpo.Environment;
 import com.energyict.genericprotocolimpl.ace4000.objects.ObjectFactory;
 import com.energyict.genericprotocolimpl.common.AMRJournalManager;
@@ -152,6 +151,40 @@ public class ACE4000 extends AbstractGenericProtocol {
                 }
             } finally {
                 log("** Closing the UDP session **");
+                // Close the connection after an SQL exception, connection will startup again if requested
+                Environment.getDefault().closeConnection();
+            }
+        }
+    }
+
+    public void doExecuteSms(Sms sms) throws BusinessException, SQLException {
+        try {
+            masterMeter = null;
+            if (super.getCommunicationScheduler() == null) {    // we got a message from the COMMSERVER UDP Listener
+                log("** A new SMS message was received **");
+                setObjectFactory(new ObjectFactory(this));
+                getObjectFactory().setRequestsAllowed(false);
+                getObjectFactory().parseXML(sms.getText());
+                storeData();
+                success = true;
+            }
+
+        } catch (Exception e) {
+            getErrorString().append(e.toString());
+            success = false;
+            e.printStackTrace();
+            throw new BusinessException(e.getMessage());
+
+        } finally {
+            try {
+                if (success) {
+                    addSuccessLogging();
+                } else {
+                    log("An error occurred while parsing an SMS and was logged in the AMR journal.");
+                    log(getErrorString().toString());
+                    addFailureLogging(getErrorString());
+                }
+            } finally {
                 // Close the connection after an SQL exception, connection will startup again if requested
                 Environment.getDefault().closeConnection();
             }
@@ -309,8 +342,10 @@ public class ACE4000 extends AbstractGenericProtocol {
     }
 
     public void setMessageResults(boolean end) throws BusinessException, SQLException {
-        for (CommunicationScheduler scheduler : getCommSchedulers()) {
-            getACE4000Messages().setMessageResult(end, scheduler.getRtu().getPendingMessages());
+        if (getObjectFactory().isRequestsAllowed()) {
+            for (CommunicationScheduler scheduler : getCommSchedulers()) {
+                getACE4000Messages().setMessageResult(end, scheduler.getRtu().getPendingMessages());
+            }
         }
     }
 

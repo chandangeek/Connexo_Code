@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.logging.Level;
 
 /**
- * @author gna
+ * @author gna & khe
  */
 public class ObjectFactory {
 
@@ -60,6 +60,7 @@ public class ObjectFactory {
 
     private int trackingID = -1;
     private boolean sendAck = false;      //Indicates whether or not the parsed message must be ACK'ed.
+    private boolean requestsAllowed = true;      //Indicates if a GPRS session is alive
     private EventData eventData = null;
     private List<MeterEvent> meterEvents;
 
@@ -99,6 +100,14 @@ public class ObjectFactory {
 
     public ObjectFactory(ACE4000 ace4000) {
         this.ace4000 = ace4000;
+    }
+
+    public void setRequestsAllowed(boolean requestsAllowed) {
+        this.requestsAllowed = requestsAllowed;
+    }
+
+    public boolean isRequestsAllowed() {
+        return requestsAllowed;
     }
 
     public boolean isReceivedBillingRegisters() {
@@ -766,10 +775,12 @@ public class ObjectFactory {
      * @throws IOException when the communication fails
      */
     public void sendSyncTime(long meterTime, long receiveTime) throws IOException {
-        log(Level.INFO, "Sending time sync request");
-        getSyncTime().setMeterTime(meterTime);
-        getSyncTime().setReceiveTime(receiveTime);
-        getSyncTime().request();
+        if (isRequestsAllowed()) {
+            log(Level.INFO, "Sending time sync request");
+            getSyncTime().setMeterTime(meterTime);
+            getSyncTime().setReceiveTime(receiveTime);
+            getSyncTime().request();
+        }
     }
 
     /**
@@ -1001,9 +1012,6 @@ public class ObjectFactory {
                             log(Level.INFO, "Received a device announcement.");
                             getAnnouncement().parse(mdElement);
                             setMeterType();
-                        } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.REJECT)) {
-                            int reason = Integer.parseInt(mdElement.getTextContent(), 16);
-                            log(Level.WARNING, "Meter rejected a message. Reason: " + reason);
                         } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.CURREADING)) {
                             log(Level.INFO, "Received current readings from meter.");
                             getCurrentReadings().parse(mdElement);
@@ -1054,7 +1062,7 @@ public class ObjectFactory {
             e.printStackTrace();
             throw e;
         }
-        if (sendAck) {
+        if (sendAck && requestsAllowed) {
             sendAcknowledge();
             sendAck = false;
         }
@@ -1062,8 +1070,9 @@ public class ObjectFactory {
 
     /**
      * Use the announced info to set the meter type to DC meter or CT-meter
+     *
      * @throws BusinessException when the property updating fails
-     * @throws SQLException when the property updating fails
+     * @throws SQLException      when the property updating fails
      */
     private void setMeterType() throws BusinessException, SQLException {
         Rtu rtu = getAce4000().getMasterMeter();
