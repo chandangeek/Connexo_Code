@@ -27,7 +27,7 @@ public class BasicEventLog {
         this.logger = logger;
     }
 
-    public List<MeterEvent> getEvents(Calendar from) {
+    public List<MeterEvent> getEvents(Calendar from) throws IOException {
         getLogger().log(Level.INFO, "Fetching EVENTS from [" + getObisCode() + "] from [" + from.getTime() + "]");
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
 
@@ -40,6 +40,9 @@ public class BasicEventLog {
                 }
             }
         } catch (IOException e) {
+            if(e.getMessage().indexOf("ConnectionException: receiveResponse() interframe timeout error") >= 0){
+                throw e;
+            }
             getLogger().severe("Unable to fetch EVENTS from [" + getObisCode() + "]: " + e.getMessage());
         }
 

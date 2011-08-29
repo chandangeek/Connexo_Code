@@ -7,6 +7,7 @@ import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.ObisCodeProvider;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.BasicEventLog;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,7 +25,7 @@ public class UkHubEventProfiles {
         this.ukHub = ukHub;
     }
 
-    public List<MeterEvent> getEvents(Date from) {
+    public List<MeterEvent> getEvents(Date from) throws IOException {
         ArrayList<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         getLogger().log(Level.INFO, "Reading EVENTS from HUB with serial number " + getUkHub().getSerialNumber() + ".");
 
@@ -59,7 +60,7 @@ public class UkHubEventProfiles {
         return ukHub;
     }
 
-    private List<MeterEvent> getStandardEventLog(Calendar from) {
+    private List<MeterEvent> getStandardEventLog(Calendar from) throws IOException {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
         BasicEventLog basicEventLog = new BasicEventLog(
                 ObisCodeProvider.STANDARD_EVENT_LOG,
@@ -69,7 +70,7 @@ public class UkHubEventProfiles {
         return basicEventLog.getEvents(from);
     }
 
-    private List<MeterEvent> getFraudDetectionEventLog(Calendar from) {
+    private List<MeterEvent> getFraudDetectionEventLog(Calendar from) throws IOException {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
         BasicEventLog basicEventLog = new BasicEventLog(
                 ObisCodeProvider.FRAUD_DETECTION_EVENT_LOG,
@@ -79,7 +80,7 @@ public class UkHubEventProfiles {
         return basicEventLog.getEvents(from);
     }
 
-    private List<MeterEvent> getFirmwareEventLog(Calendar from) {
+    private List<MeterEvent> getFirmwareEventLog(Calendar from) throws IOException {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
         BasicEventLog basicEventLog = new BasicEventLog(
                 ObisCodeProvider.FIRMWARE_EVENT_LOG,
@@ -89,7 +90,7 @@ public class UkHubEventProfiles {
         return basicEventLog.getEvents(from);
     }
 
-    private List<MeterEvent> getHanManagementFailureEventLog(Calendar from) {
+    private List<MeterEvent> getHanManagementFailureEventLog(Calendar from) throws IOException {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
         BasicEventLog basicEventLog = new BasicEventLog(
                 ObisCodeProvider.HAN_MANAGEMENT_FAILURE_EVENT_LOG,
@@ -99,7 +100,7 @@ public class UkHubEventProfiles {
         return basicEventLog.getEvents(from);
     }
 
-    private List<MeterEvent> getCommunicationsFailureEventLog(Calendar from) {
+    private List<MeterEvent> getCommunicationsFailureEventLog(Calendar from) throws IOException {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
         BasicEventLog basicEventLog = new BasicEventLog(
                 ObisCodeProvider.COMM_FAILURE_EVENT_LOG,

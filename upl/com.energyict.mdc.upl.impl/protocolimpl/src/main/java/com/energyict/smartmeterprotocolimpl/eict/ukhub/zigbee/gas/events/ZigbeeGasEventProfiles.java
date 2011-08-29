@@ -8,6 +8,7 @@ import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.BasicEventLog;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ObisCodeProvider;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ZigbeeGas;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,7 +30,7 @@ public class ZigbeeGasEventProfiles {
         return zigbeeGas;
     }
 
-    public List<MeterEvent> getEvents(Date from) {
+    public List<MeterEvent> getEvents(Date from) throws IOException {
         ArrayList<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + getZigbeeGas().getSerialNumber() + ".");
         if (from == null) {
@@ -63,7 +64,7 @@ public class ZigbeeGasEventProfiles {
         return getZigbeeGas().getDlmsSession().getCosemObjectFactory();
     }
 
-    private List<MeterEvent> getStandardEventLog(Calendar from) {
+    private List<MeterEvent> getStandardEventLog(Calendar from) throws IOException {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
         BasicEventLog basicEventLog = new BasicEventLog(
                 ObisCodeProvider.STANDARD_EVENT_LOG,
@@ -73,7 +74,7 @@ public class ZigbeeGasEventProfiles {
         return basicEventLog.getEvents(from);
     }
 
-    private List<MeterEvent> getFraudDetectionEventLog(Calendar from) {
+    private List<MeterEvent> getFraudDetectionEventLog(Calendar from) throws IOException {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
         BasicEventLog basicEventLog = new BasicEventLog(
                 ObisCodeProvider.FRAUD_DETECTION_EVENT_LOG,
@@ -83,7 +84,7 @@ public class ZigbeeGasEventProfiles {
         return basicEventLog.getEvents(from);
     }
 
-    private List<MeterEvent> getDisconnectControlEventLog(Calendar from) {
+    private List<MeterEvent> getDisconnectControlEventLog(Calendar from) throws IOException {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
         BasicEventLog basicEventLog = new BasicEventLog(
                 ObisCodeProvider.DISCONNECT_CONTROL_EVENT_LOG,
@@ -93,7 +94,7 @@ public class ZigbeeGasEventProfiles {
         return basicEventLog.getEvents(from);
     }
 
-    private List<MeterEvent> getFirmwareEventLog(Calendar from) {
+    private List<MeterEvent> getFirmwareEventLog(Calendar from) throws IOException {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
         BasicEventLog basicEventLog = new BasicEventLog(
                 ObisCodeProvider.FIRMWARE_EVENT_LOG,
@@ -103,7 +104,7 @@ public class ZigbeeGasEventProfiles {
         return basicEventLog.getEvents(from);
     }
 
-    private List<MeterEvent> getCommFailureEventLog(Calendar from) {
+    private List<MeterEvent> getCommFailureEventLog(Calendar from) throws IOException {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
         BasicEventLog basicEventLog = new BasicEventLog(
                 ObisCodeProvider.COMM_FAILURE_EVENT_LOG,
@@ -113,7 +114,7 @@ public class ZigbeeGasEventProfiles {
         return basicEventLog.getEvents(from);
     }
 
-    private List<MeterEvent> getPrepaymentEventLog(Calendar from) {
+    private List<MeterEvent> getPrepaymentEventLog(Calendar from) throws IOException {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
         BasicEventLog basicEventLog = new BasicEventLog(
                 ObisCodeProvider.PREPAYMENT_EVENT_LOG,
@@ -123,7 +124,7 @@ public class ZigbeeGasEventProfiles {
         return basicEventLog.getEvents(from);
     }
 
-    private List<MeterEvent> getNotificationEventLog(Calendar from) {
+    private List<MeterEvent> getNotificationEventLog(Calendar from) throws IOException {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
         BasicEventLog basicEventLog = new BasicEventLog(
                 ObisCodeProvider.NOTIFICATION_FLAGS_EVENT_LOG,
@@ -133,7 +134,7 @@ public class ZigbeeGasEventProfiles {
         return basicEventLog.getEvents(from);
     }
 
-    private List<MeterEvent> getTariffUpdatesEventLog(Calendar from) {
+    private List<MeterEvent> getTariffUpdatesEventLog(Calendar from) throws IOException {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
         BasicEventLog basicEventLog = new BasicEventLog(
                 ObisCodeProvider.TARIFF_UPDATES_EVENT_LOG,
@@ -143,7 +144,7 @@ public class ZigbeeGasEventProfiles {
         return basicEventLog.getEvents(from);
     }
 
-    private List<MeterEvent> getMirrorUpdatesEventLog(Calendar from) {
+    private List<MeterEvent> getMirrorUpdatesEventLog(Calendar from) throws IOException {
         // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
         BasicEventLog basicEventLog = new BasicEventLog(
                 ObisCodeProvider.MIRROR_UPDATES_EVENT_LOG,
