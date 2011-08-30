@@ -161,7 +161,10 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
             OctetString userNameAndPasswordValue = OctetString.fromString(userAndPasswordXML);
             OctetString apnValue = OctetString.fromString(apnXML);
 
+            getLogger().severe("Sending XMLConfig [" + userAndPasswordXML + "]");
             data.setValueAttr(userNameAndPasswordValue);
+
+            getLogger().severe("Sending XMLConfig [" + apnXML + "]");
             data.setValueAttr(apnValue);
 
         } else {
