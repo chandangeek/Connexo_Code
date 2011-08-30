@@ -51,13 +51,13 @@ public class BubbleUpFrameParser {
         List<ProfileData> profileDatas = new ArrayList<ProfileData>();
         ExtendedDataloggingTable table = new ExtendedDataloggingTable(rtm);
         table.parseBubbleUpData(data);
-        List<List<Integer>> profileData = table.getProfileDataForAllPorts();
+        List<List<Integer[]>> rawValues = table.getProfileDataForAllPorts();
         ProfileDataReader profileDataReader = new ProfileDataReader(rtm);
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
         registerValues.addAll(getGenericHeaderRegisters(data, radioAddress));
 
         int numberOfPorts = 0;
-        for (List<Integer> values : profileData) {
+        for (List<Integer[]> values : rawValues) {
             if (values.size() > 0) {
                 numberOfPorts++;
             }
@@ -68,7 +68,7 @@ public class BubbleUpFrameParser {
         profileDataReader.setNumberOfInputs(numberOfPorts);
         profileDataReader.setProfileInterval(table.getProfileInterval());
 
-        profileDatas.add(profileDataReader.parseProfileData(genericHeader, false, profileData, new ProfileData(), monthly, false, new Date(), new Date(0), table.getLastLoggedTimeStamp(), 0));
+        profileDatas.add(profileDataReader.parseProfileData(genericHeader, false, rawValues, new ProfileData(), monthly, false, new Date(), new Date(0), table.getLastLoggedTimeStamp(), 0));
         result.setProfileDatas(profileDatas);
         result.setRegisterValues(registerValues);
         return result;
@@ -145,7 +145,7 @@ public class BubbleUpFrameParser {
 
         DailyConsumption dailyConsumption = new DailyConsumption(rtm);
         dailyConsumption.parse(data);
-        List<List<Integer>> rawValues = new ArrayList<List<Integer>>();
+        List<List<Integer[]>> rawValues = new ArrayList<List<Integer[]>>();
 
         registerValues.addAll(getGenericHeaderRegisters(data, radioAddress));
 
@@ -157,7 +157,11 @@ public class BubbleUpFrameParser {
         result.setRegisterValues(registerValues);
 
         for (int port = 0; port < dailyConsumption.getNumberOfPorts(); port++) {
-            rawValues.add(dailyConsumption.getDailyReadings(port));
+            List<Integer[]> resultPerPort = new ArrayList<Integer[]>();
+            for (Integer value : dailyConsumption.getDailyReadings(port)) {
+                resultPerPort.add(new Integer[]{value, genericHeader.getIntervalStatus(port), genericHeader.getApplicationStatus().getStatus()});
+        }
+            rawValues.add(resultPerPort);
         }
 
         ProfileDataReader profileDataReader = new ProfileDataReader(rtm);

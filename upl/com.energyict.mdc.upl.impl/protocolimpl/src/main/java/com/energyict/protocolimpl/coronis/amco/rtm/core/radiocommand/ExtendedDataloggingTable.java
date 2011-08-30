@@ -29,7 +29,7 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
     private List<Integer> profileData = new ArrayList<Integer>();
 
     //Used for parsing data received via the bubble up mechanism
-    private List<List<Integer>> profileDataForAllPorts = new ArrayList<List<Integer>>();
+    private List<List<Integer[]>> profileDataForAllPorts = new ArrayList<List<Integer[]>>();
     private int profileInterval;
 
     public int getProfileInterval() {
@@ -40,7 +40,7 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
         super(rtm);
     }
 
-    public List<List<Integer>> getProfileDataForAllPorts() {
+    public List<List<Integer[]>> getProfileDataForAllPorts() {
         return profileDataForAllPorts;
     }
 
@@ -140,9 +140,9 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
         }
 
         for (int port = 0; port < operatingMode.readNumberOfPorts(); port++) {
-            List<Integer> profileDataPerPort = new ArrayList<Integer>();
+            List<Integer[]> profileDataPerPort = new ArrayList<Integer[]>();
             for (int number = 0; number < numberOfValuesPerPort[port]; number++) {
-                profileDataPerPort.add(ProtocolTools.getIntFromBytes(data, offset, 4));
+                profileDataPerPort.add(new Integer[]{ProtocolTools.getIntFromBytes(data, offset, 4), getGenericHeader().getIntervalStatus(port), getGenericHeader().getApplicationStatus().getStatus()});
                 offset += 4;
             }
             profileDataForAllPorts.add(profileDataPerPort);

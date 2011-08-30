@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
 import com.energyict.cbo.Unit;
+import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -21,6 +22,7 @@ public class GenericHeader {
     private double qos = 0;
     private double shortLifeCounter = 0;
     private OperatingMode operationMode = null;
+    private ApplicationStatus applicationStatus = null;
     private ProfileType profileType = null;
 
     public ProfileType getProfileType() {
@@ -41,6 +43,55 @@ public class GenericHeader {
 
     public GenericHeader(byte[] radioAddress) {
         this.radioAddress = radioAddress;
+    }
+
+    public int getIntervalStatus(int port) {
+        int status = IntervalStateBits.OK;
+        if ((applicationStatus.getStatus() & 0x01) == 0x01) {
+            status = status | IntervalStateBits.BATTERY_LOW;
+        }
+        if (profileType.isPulse()) {
+            switch (port) {
+                case 0:
+                    if ((applicationStatus.getStatus() & 0x02) == 0x02) {
+                        status = status | IntervalStateBits.CORRUPTED;
+                    }
+                    break;
+                case 1:
+                    if ((applicationStatus.getStatus() & 0x04) == 0x04) {
+                        status = status | IntervalStateBits.CORRUPTED;
+                    }
+                    break;
+                case 2:
+                    if ((applicationStatus.getStatus() & 0x08) == 0x08) {
+                        status = status | IntervalStateBits.CORRUPTED;
+                    }
+                    break;
+                case 3:
+                    if ((applicationStatus.getStatus() & 0x10) == 0x10) {
+                        status = status | IntervalStateBits.CORRUPTED;
+                    }
+                    break;
+            }
+        } else if (profileType.isEncoder()) {
+            switch (port) {
+                case 0:
+                    if (((applicationStatus.getStatus() & 0x02) == 0x02) || ((applicationStatus.getStatus() & 0x08) == 0x08)) {
+                        status = status | IntervalStateBits.CORRUPTED;
+                    }
+                    break;
+                case 1:
+                    if (((applicationStatus.getStatus() & 0x04) == 0x04) || ((applicationStatus.getStatus() & 0x10) == 0x10)) {
+                        status = status | IntervalStateBits.CORRUPTED;
+                    }
+                    break;
+            }
+        }
+        return status;
+    }
+
+    public ApplicationStatus getApplicationStatus() {
+        return applicationStatus;
     }
 
     public GenericHeader() {
@@ -84,6 +135,7 @@ public class GenericHeader {
     public void parse(byte[] data) throws IOException {
 
         operationMode = new OperatingMode(new RTM(), ProtocolTools.getIntFromBytes(data, 1, 2));
+        applicationStatus = new ApplicationStatus(new RTM(), data[3] & 0xFF);
 
         qos = ProtocolTools.getUnsignedIntFromBytes(data, 12, 1);
         qos = (qos / MAX) * 100;

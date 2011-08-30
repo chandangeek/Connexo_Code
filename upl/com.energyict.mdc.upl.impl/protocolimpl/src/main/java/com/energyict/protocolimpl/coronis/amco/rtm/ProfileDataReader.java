@@ -106,24 +106,24 @@ public class ProfileDataReader {
         int nrOfIntervals = getNrOfIntervals(lastReading, toDate);
         int initialNrOfIntervals = nrOfIntervals;
         Date lastLoggedValue = new Date();
-        List<List<Integer>> rawValues = new ArrayList<List<Integer>>();
+        List<List<Integer[]>> rawValues = new ArrayList<List<Integer[]>>();
 
         int startOffset = -1;
         long initialOffset = -1;
         GenericHeader genericHeader = null;
 
         //Get the profile data for all selected input channels, in case of periodic/weekly/monthly measuring.
-        for (int i = 0; i < getNumberOfInputsUsed(); i++) {
+        for (int port = 0; port < getNumberOfInputsUsed(); port++) {
             nrOfIntervals = initialNrOfIntervals;
             int counter = 0;
-            List<Integer> values = new ArrayList<Integer>();
+            List<Integer[]> values = new ArrayList<Integer[]>();
             while (nrOfIntervals > 0) {
                 if (startOffset == -1) {
-                    ExtendedDataloggingTable table = rtm.getRadioCommandFactory().readExtendedDataloggingTable(i + 1, (nrOfIntervals < getSteps(nrOfIntervals) ? nrOfIntervals : getSteps(nrOfIntervals)), toDate);
-                    if (genericHeader == null) {
-                        genericHeader = table.getGenericHeader();
+                    ExtendedDataloggingTable table = rtm.getRadioCommandFactory().readExtendedDataloggingTable(port + 1, (nrOfIntervals < getSteps(nrOfIntervals) ? nrOfIntervals : getSteps(nrOfIntervals)), toDate);
+                    genericHeader = table.getGenericHeader();
+                    for (Integer integer : table.getProfileData()) {
+                        values.add(new Integer[]{integer, genericHeader.getIntervalStatus(port), genericHeader.getApplicationStatus().getStatus()});        //Add interval value and status bit!
                     }
-                    values.addAll(table.getProfileData());
                     startOffset = table.getOffset();
                     initialOffset = startOffset;
                     lastLoggedValue = table.getLastLoggedTimeStamp();
@@ -132,8 +132,11 @@ public class ProfileDataReader {
                     }
                 } else {
                     int offset = (startOffset + getSteps(nrOfIntervals) * counter);
-                    ExtendedDataloggingTable table = rtm.getRadioCommandFactory().readExtendedDataloggingTable(i + 1, (nrOfIntervals < getSteps(nrOfIntervals) ? nrOfIntervals : getSteps(nrOfIntervals)), offset);
-                    values.addAll(table.getProfileData());
+                    ExtendedDataloggingTable table = rtm.getRadioCommandFactory().readExtendedDataloggingTable(port + 1, (nrOfIntervals < getSteps(nrOfIntervals) ? nrOfIntervals : getSteps(nrOfIntervals)), offset);
+                    genericHeader = table.getGenericHeader();
+                    for (Integer integer : table.getProfileData()) {
+                        values.add(new Integer[]{integer, genericHeader.getIntervalStatus(port), genericHeader.getApplicationStatus().getStatus()});        //Add interval value and status bit!
+                    }
                     if (table.getProfileData().size() < getSteps(nrOfIntervals)) {
                         break;   //To avoid invalid offsets in the next iteration
                     }
@@ -141,8 +144,8 @@ public class ProfileDataReader {
                 counter++;
                 nrOfIntervals -= getSteps(nrOfIntervals);
             }
-            if (values.get(0) == Integer.MAX_VALUE) {
-                rtm.getLogger().info("Port " + i + " has no meter connected, no profile data available for this port");
+            if (values.get(0)[0] == Integer.MAX_VALUE) {
+                rtm.getLogger().info("Port " + port + " has no meter connected, no profile data available for this port");
             } else {
                 rawValues.add(values);
             }
@@ -154,7 +157,7 @@ public class ProfileDataReader {
         return parseProfileData(genericHeader, true, rawValues, profileData, monthly, false, toDate, lastReading, lastLoggedValue, initialOffset);
     }
 
-    public ProfileData parseProfileData(GenericHeader genericHeader, boolean requestsAllowed, List<List<Integer>> rawValues, ProfileData profileData, boolean monthly, boolean daily, Date toDate, Date lastReading, Date lastLoggedValue, long initialOffset) throws IOException {
+    public ProfileData parseProfileData(GenericHeader genericHeader, boolean requestsAllowed, List<List<Integer[]>> rawValues, ProfileData profileData, boolean monthly, boolean daily, Date toDate, Date lastReading, Date lastLoggedValue, long initialOffset) throws IOException {
 
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
         Calendar calendar;
@@ -182,7 +185,7 @@ public class ProfileDataReader {
             if (!ParseUtils.isOnIntervalBoundary(calendar, getProfileIntervalInSeconds())) {
                 ParseUtils.roundDown2nearestInterval(calendar, getProfileIntervalInSeconds());
             }
-        } else if (monthly) {
+        } else {
             calendar.setTime(getTimeStampOfNewestRecordMonthly(toDate, lastLoggedValue));
         }
 
@@ -197,13 +200,14 @@ public class ProfileDataReader {
 
             for (int inputId = 0; inputId < getNumberOfInputsUsed(); inputId++) {
                 int multiplier = genericHeader.getRtmUnit(inputId).getMultiplier();
-                int status = 0;
-                Integer value = rawValues.get(inputId).get(index);
+                Integer value = rawValues.get(inputId).get(index)[0];
+                int status = rawValues.get(inputId).get(index)[1];
+                int protocolStatus = rawValues.get(inputId).get(index)[2];
                 if (value == Integer.MAX_VALUE) {
-                    status = IntervalStateBits.CORRUPTED;
+                    status = status | IntervalStateBits.CORRUPTED;
                 }
                 BigDecimal bd = new BigDecimal(multiplier * value);
-                intervalValues.add(new IntervalValue(bd, 0, status));    //The module doesn't send any information about the value's status..
+                intervalValues.add(new IntervalValue(bd, protocolStatus, status));
             }
 
             //Don't add the record if it doesn't belong in the requested interval, except for pushed daily consumption data
