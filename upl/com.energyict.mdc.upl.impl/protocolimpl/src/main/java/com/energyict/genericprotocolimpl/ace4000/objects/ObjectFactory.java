@@ -60,6 +60,7 @@ public class ObjectFactory {
     private boolean sendAck = false;      //Indicates whether or not the parsed message must be ACK'ed.
     private boolean requestsAllowed = true;      //Indicates if a GPRS session is alive
     private EventData eventData = null;
+    private PowerFailLog powerFailLog = null;
     private List<MeterEvent> meterEvents;
 
     private boolean receivedCurrentRegisters = false;
@@ -382,6 +383,13 @@ public class ObjectFactory {
             eventData = new EventData(this);
         }
         return eventData;
+    }
+
+    public PowerFailLog getPowerFailLog() {
+        if (powerFailLog == null) {
+            powerFailLog = new PowerFailLog(this);
+        }
+        return powerFailLog;
     }
 
     public InstantVoltAndCurrent getInstantVoltAndCurrent() {
@@ -1002,6 +1010,9 @@ public class ObjectFactory {
                             getEventData().parse(mdElement);
                             receivedEvents = true;
                             getAce4000().setMessageResults(false);
+                        } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.POWERFAIL)) {
+                            log(Level.INFO, "Received power fail log");
+                            getPowerFailLog().parse(mdElement);
                         } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.INSTVC)) {
                             log(Level.INFO, "Received instantaneous registers");
                             getInstantVoltAndCurrent().parse(mdElement);

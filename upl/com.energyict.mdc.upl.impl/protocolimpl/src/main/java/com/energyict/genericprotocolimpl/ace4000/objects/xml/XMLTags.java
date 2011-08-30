@@ -32,6 +32,7 @@ public class XMLTags {
 	public final static String EVENT            = "EV";
 	public final static String EVENTREQUEST     = "qEV";
 	public final static String EVENTDATA        = "ED";
+	public final static String POWERFAIL        = "PF";
 
     //Contactor tags
     public final static String CONTACTORCMD     = "CDE";
