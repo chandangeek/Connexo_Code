@@ -10,8 +10,8 @@ import sun.misc.BASE64Encoder;
  */
 public class B64 {
 
-    private static final String BIN_FW_FILE = "C:\\original_firmware_file.bin";
-    private static final String B64_FW_FILE = "C:\\base64_encoded_firmware_file_to_create.bin";
+    private static final String BIN_FW_FILE = "I:\\EnergyICT test release\\Firmware\\WebRTU AM110-R\\R3.01.03(Pxx)\\am110r.bin";
+    private static final String B64_FW_FILE = "I:\\EnergyICT test release\\Firmware\\WebRTU AM110-R\\R3.01.03(Pxx)\\am110r_B64.bin";
 
     public static void main(String[] args) {
         byte[] rawFirmware = ProtocolTools.readBytesFromFile(BIN_FW_FILE);
