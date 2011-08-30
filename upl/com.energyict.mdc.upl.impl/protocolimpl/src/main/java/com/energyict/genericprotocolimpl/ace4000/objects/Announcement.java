@@ -2,7 +2,6 @@ package com.energyict.genericprotocolimpl.ace4000.objects;
 
 import com.energyict.genericprotocolimpl.ace4000.objects.xml.XMLTags;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -20,8 +19,6 @@ public class Announcement extends AbstractActarisObject {
     private String bStationID = "";        // GSM cell base station ID
     private String opName = null;        // GSM opertor name
     private String codificationString = null;        // meter codification string
-    private static String DCMETER = "1";
-    private static String CTMETER = "2";
 
     public Announcement(ObjectFactory of) {
         super(of);
@@ -112,32 +109,5 @@ public class Announcement extends AbstractActarisObject {
 
     protected void setCString(String string) {
         codificationString = string;
-    }
-
-    public String getMeterType() {
-        byte[] codification = ProtocolTools.getBytesFromHexString(codificationString, "");
-        //if (codification.length < 12) {
-        //    getObjectFactory().log(Level.WARNING, "Unrecognized meter type (in codification string), taking default: DC meter");
-        //    return DCMETER;
-        //}
-        //
-        //String modelType = new String(codification).substring(0, 2);
-        //int meterType = Integer.parseInt(new String(new byte[]{codification[11]}));
-        //if (modelType.equals("GT")) {
-        //    if (meterType == 2) {
-        //        return CTMETER;
-        //    }
-        //    if (meterType == 3) {
-        //        return DCMETER;
-        //    }
-        //} else if (modelType.equals("GS") || modelType.equals("GI")) {
-        //    if (meterType == 0) {
-        //        return CTMETER;
-        //    } else {
-        //        return DCMETER;
-        //    }
-        //}
-        //getObjectFactory().log(Level.WARNING, "Unrecognized meter type (in codification string), taking default: DC meter");
-        return DCMETER;
     }
 }

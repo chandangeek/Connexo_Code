@@ -171,10 +171,10 @@ public class BillingData extends AbstractActarisObject {
                     unit = getUnit();
                 } else if (register.contains("RI")) {
                     obisCode = ObisCode.fromString("1.0.3.8.0.0");
-                    unit = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, getObjectFactory().getAce4000().isDCMeter() ? 0 : 1);
+                    unit = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, 0);
                 } else if (register.contains("RE")) {
                     obisCode = ObisCode.fromString("1.0.4.8.0.0");
-                    unit = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, getObjectFactory().getAce4000().isDCMeter() ? 0 : 1);
+                    unit = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, 0);
                 } else {
                     throw new IOException("Received unexpected register data, XML attribute name: " + register);
                 }
@@ -213,7 +213,7 @@ public class BillingData extends AbstractActarisObject {
     }
 
     private Unit getUnit() {
-        return Unit.get(BaseUnit.WATTHOUR, getObjectFactory().getAce4000().isDCMeter() ? 0 : 1);
+        return Unit.get(BaseUnit.WATTHOUR, 0);
     }
 
     private void addRegisterValue(int offset, byte[] decoded, Date date, ObisCode obisCode, Unit unit) {

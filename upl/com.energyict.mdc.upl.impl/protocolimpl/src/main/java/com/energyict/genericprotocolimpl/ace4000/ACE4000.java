@@ -693,8 +693,4 @@ public class ACE4000 extends AbstractGenericProtocol {
     public int getRetry() {
         return retry;
     }
-
-    public boolean isDCMeter() {
-        return ACE4000Properties.METER_TYPE_DEFAULT.equalsIgnoreCase(getProtocolProperties().getMeterType());
-    }
 }

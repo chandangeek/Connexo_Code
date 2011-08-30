@@ -56,7 +56,7 @@ public class InstantVoltAndCurrent extends AbstractActarisObject {
                     Long value = Long.valueOf(registerElement.getTextContent(), 16);
                     int dField = 31 + (phase - 1) * 20;
                     ObisCode obisCode = ObisCode.fromString("1.0." + dField + ".7.0.255");
-                    quantity = new Quantity(value, Unit.get(BaseUnit.AMPERE, getObjectFactory().getAce4000().isDCMeter() ? -2 : -3));
+                    quantity = new Quantity(value, Unit.get(BaseUnit.AMPERE, -2));
                     mrd.add(new RegisterValue(obisCode, quantity, new Date(), getTimeStamp()));
                 } else if (registerElement.getNodeName().equalsIgnoreCase(XMLTags.ACTPOW)) {
                     Long value = Long.valueOf(registerElement.getTextContent(), 16);

@@ -3,11 +3,9 @@ package com.energyict.genericprotocolimpl.ace4000.objects;
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.genericprotocolimpl.ace4000.ACE4000;
-import com.energyict.genericprotocolimpl.ace4000.ACE4000Properties;
 import com.energyict.genericprotocolimpl.ace4000.objects.xml.XMLTags;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import org.w3c.dom.*;
@@ -1011,7 +1009,6 @@ public class ObjectFactory {
                         } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.ANNOUNCE)) {
                             log(Level.INFO, "Received a device announcement.");
                             getAnnouncement().parse(mdElement);
-                            setMeterType();
                         } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.CURREADING)) {
                             log(Level.INFO, "Received current readings from meter.");
                             getCurrentReadings().parse(mdElement);
@@ -1066,21 +1063,6 @@ public class ObjectFactory {
             sendAcknowledge();
             sendAck = false;
         }
-    }
-
-    /**
-     * Use the announced info to set the meter type to DC meter or CT-meter
-     *
-     * @throws BusinessException when the property updating fails
-     * @throws SQLException      when the property updating fails
-     */
-    private void setMeterType() throws BusinessException, SQLException {
-        Rtu rtu = getAce4000().getMasterMeter();
-        RtuShadow rShadow = rtu.getShadow();
-        Properties props = rtu.getProperties();
-        props.put(ACE4000Properties.METER_TYPE, getAnnouncement().getMeterType());
-        rShadow.setProperties(props);
-        rtu.update(rShadow);
     }
 
     protected void log(Level level, String msg) {
