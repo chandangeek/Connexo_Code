@@ -141,15 +141,15 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         ObisCode obisCode = ObisCode.fromString("0.129.0.0.0.255");
         Data data = getCosemObjectFactory().getData(obisCode);
 
-/*
         String apn =  "instantenergy.com";
         String user = "orange";
         String password = "54ghd67s&";
-*/
 
+/*
         String apn = "apn.energyict.com";
         String user = "EICTSMQ010";
         String password = "2465282";
+*/
 
         getLogger().severe("[" + content + "]");
 
