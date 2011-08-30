@@ -24,7 +24,7 @@ public class ACE4000 extends AbstractGenericProtocol {
     private static final String START = "<MPush>";
     private static final int MAX_TIMEOUT = 40000;
     private InputStream inputStream;
-    private OutputStream outputStream;
+    private OutputStream outputStream = null;
     private Rtu masterMeter;
     private HashMap<String, Rtu> mBusMeters;
     private ACE4000Properties properties = new ACE4000Properties();

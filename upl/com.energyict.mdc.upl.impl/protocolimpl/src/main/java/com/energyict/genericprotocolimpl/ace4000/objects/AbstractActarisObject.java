@@ -76,6 +76,9 @@ abstract public class AbstractActarisObject {
      * @throws IOException
      */
     public void request() throws IOException {
+        if (getObjectFactory().getAce4000().getOutputStream() == null) {
+            return;
+        }
         getObjectFactory().getAce4000().getOutputStream().write(prepareXML().getBytes());
     }
 

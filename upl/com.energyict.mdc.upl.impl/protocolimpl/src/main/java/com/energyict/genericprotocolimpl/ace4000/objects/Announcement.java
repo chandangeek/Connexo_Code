@@ -116,28 +116,28 @@ public class Announcement extends AbstractActarisObject {
 
     public String getMeterType() {
         byte[] codification = ProtocolTools.getBytesFromHexString(codificationString, "");
-        if (codification.length < 12) {
-            getObjectFactory().log(Level.WARNING, "Unrecognized internal contactor type (in codification string), taking default: DC meter");
-            return DCMETER;
-        }
-
-        String modelType = new String(codification).substring(0, 2);
-        int meterType = Integer.parseInt(new String(new byte[]{codification[11]}));
-        if (modelType.equals("GT")) {
-            if (meterType == 2) {
-                return CTMETER;
-            }
-            if (meterType == 3) {
-                return DCMETER;
-            }
-        } else if (modelType.equals("GS") || modelType.equals("GI")) {
-            if (meterType == 0) {
-                return CTMETER;
-            } else {
-                return DCMETER;
-            }
-        }
-        getObjectFactory().log(Level.WARNING, "Unrecognized internal contactor type (in codification string), taking default: DC meter");
+        //if (codification.length < 12) {
+        //    getObjectFactory().log(Level.WARNING, "Unrecognized meter type (in codification string), taking default: DC meter");
+        //    return DCMETER;
+        //}
+        //
+        //String modelType = new String(codification).substring(0, 2);
+        //int meterType = Integer.parseInt(new String(new byte[]{codification[11]}));
+        //if (modelType.equals("GT")) {
+        //    if (meterType == 2) {
+        //        return CTMETER;
+        //    }
+        //    if (meterType == 3) {
+        //        return DCMETER;
+        //    }
+        //} else if (modelType.equals("GS") || modelType.equals("GI")) {
+        //    if (meterType == 0) {
+        //        return CTMETER;
+        //    } else {
+        //        return DCMETER;
+        //    }
+        //}
+        //getObjectFactory().log(Level.WARNING, "Unrecognized meter type (in codification string), taking default: DC meter");
         return DCMETER;
     }
 }

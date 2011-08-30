@@ -149,7 +149,7 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
         MessageCategorySpec cat1 = new MessageCategorySpec("ACE4000 general messages");
         cat1.addMessageSpec(addBasicMsg("Read all events", READ_EVENTS, false));
         cat1.addMessageSpec(addBasicMsgWith2Values("Read profile data from... to...", READ_PROFILE_DATA, false, "From date (dd/mm/yyyy hh:mm:ss)", "To date (dd/mm/yyyy hh:mm:ss)"));
-        cat1.addMessageSpec(addBasicMsgWith3Values("Firmware upgrade", FIRMWARE_UPGRADE, false, "URL path (start with http://)", "Size of the JAR file (decimal number)", "Size of the JAD file (decimal number)"));
+        cat1.addMessageSpec(addBasicMsgWith3Values("Firmware upgrade", FIRMWARE_UPGRADE, false, "URL path (start with http://)", "Size of the JAR file (bytes)", "Size of the JAD file (bytes)"));
         cat1.addMessageSpec(addBasicMsgWith1Attr("Connect (close contactor)", CONNECT, false, "Optional date (dd/mm/yyyy hh:mm:ss)"));
         cat1.addMessageSpec(addBasicMsgWith1Attr("Disconnect (open contactor)", DISCONNECT, false, "Optional date (dd/mm/yyyy hh:mm:ss)"));
         categories.add(cat1);
