@@ -63,7 +63,16 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
     }
 
     public String getFirmwareVersion() throws IOException {
-        return getObjectFactory().getFirmwareVersion().getString();
+        StringBuilder strBuilder = new StringBuilder();
+        strBuilder.append(getObjectFactory().getFirmwareVersion().getString());
+        strBuilder.append("(");
+        try {
+            strBuilder.append(new String(getObjectFactory().getActiveFirmwareIdACOR().getAttrbAbstractDataType(-1).toByteArray()));
+        } catch (IOException e) {
+            strBuilder.append("unknown");
+        }
+        strBuilder.append(")");
+        return strBuilder.toString();
     }
 
     @Override

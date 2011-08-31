@@ -51,6 +51,8 @@ public class RegisterReader {
                         if (register.getObisCode().equals(AS300ObisCodeProvider.LastBillingResetTimeStamp)) {
                             Data data = meterProtocol.getObjectFactory().getData(register.getObisCode());
                             registerValue = new RegisterValue(register, data.getBillingDate().toString());
+                        } else if(register.getObisCode().equals(AS300ObisCodeProvider.ActiveLongFirmwareIdentifierACOR)){
+                            registerValue = new RegisterValue(register, meterProtocol.getFirmwareVersion());
                         } else {
                             try {
                                 registerValue = new RegisterValue(register, meterProtocol.getObjectFactory().getData(register.getObisCode()).getString());
