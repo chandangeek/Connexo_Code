@@ -238,7 +238,9 @@ public class ObisCodeMapper {
                 throw new NoSuchRegisterException("Register with obiscode [" + obisCode + "] is not supported");
             }
         } catch (IOException e) {
+            if (!(e instanceof NoSuchRegisterException)) {
             rtm.getLogger().log(Level.WARNING, "Register with obiscode [" + obisCode + "] timed out: " + e.getMessage());
+            }
             throw e;
         }
     }
