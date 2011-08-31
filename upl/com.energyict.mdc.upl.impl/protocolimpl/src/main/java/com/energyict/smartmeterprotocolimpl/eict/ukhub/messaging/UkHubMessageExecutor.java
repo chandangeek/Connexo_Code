@@ -182,9 +182,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         try {
             String base64Encoded = getIncludedContent(content);
             byte[] imageData = Base64.decode(base64Encoded);
-            System.out.println("Raw firmware content: [" + ProtocolTools.getHexStringFromBytes(imageData) + "]");
             ImageTransfer it = getCosemObjectFactory().getImageTransfer(ObisCodeProvider.FIRMWARE_UPDATE);
-            System.out.println("ImageTransfer: [" + it + "]");
             it.upgrade(imageData);
             it.imageActivation();
         } catch (InterruptedException e) {
@@ -327,11 +325,9 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         log(Level.INFO, "Sending message : Join ZigBee slave");
         String address = messageHandler.getJoinZigBeeIEEEAddress();
         String key = messageHandler.getJoinZigBeeLinkKey();
+        address = ZigBeeMessagingUtils.validateAndFormatIeeeAddress(address);
+        key = ZigBeeMessagingUtils.validateAndFormatLinkKey(key);
         RegisterZigbeeDeviceData zigbeeDeviceData = new RegisterZigbeeDeviceData(address, key);
-
-        System.out.println("\n\n");
-        System.out.println(zigbeeDeviceData);
-        System.out.println(ProtocolTools.getHexStringFromBytes(zigbeeDeviceData.getBEREncodedByteArray(), " "));
 
         ZigBeeSETCControl zigBeeSETCControl = getCosemObjectFactory().getZigBeeSETCControl();
         getLogger().info("Writing MAC and LinkKey.");
