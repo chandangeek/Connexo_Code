@@ -270,7 +270,7 @@ public class RtuMessageConstant {
     public static final String CHANGE_HAN_SAS = "Change_HAN_SAS";
     public static final String HAN_SAS_EXTENDED_PAN_ID = "HAN_SAS_EXTENDED_PAN_ID";
     public static final String HAN_SAS_PAN_ID = "HAN_SAS_PAN_ID";
-    public static final String HAN_SAS_CHANNEL = "HAN_SAS_PAN_Channel";
+    public static final String HAN_SAS_CHANNEL = "HAN_SAS_PAN_Channel_Mask";
     public static final String HAN_SAS_INSECURE_JOIN = "HAN_SAS_Insecure_Join";
 
     // ZigBee related Han management messages

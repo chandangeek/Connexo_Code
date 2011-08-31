@@ -116,7 +116,7 @@ public class UkHubMain extends AbstractSmartDebuggingMain<UkHub> {
     }
 
     private void createHAN() throws IOException {
-        //String content = "<Change_HAN_SAS HAN_SAS_EXTENDED_PAN_ID=\"0102030405060708\" HAN_SAS_PAN_ID=\"1234\" HAN_SAS_PAN_Channel=\"134215680\" HAN_SAS_Insecure_Join=\"1\"/>";
+        //String content = "<Change_HAN_SAS HAN_SAS_EXTENDED_PAN_ID=\"0102030405060708\" HAN_SAS_PAN_ID=\"1234\" HAN_SAS_PAN_Channel_Mask=\"134215680\" HAN_SAS_Insecure_Join=\"1\"/>";
         String content = "<Change_HAN_SAS HAN_SAS_PAN_ID=\"45493\" />";
         String trackingId = "";
         MessageEntry messageEntry = new MessageEntry(content, trackingId);
