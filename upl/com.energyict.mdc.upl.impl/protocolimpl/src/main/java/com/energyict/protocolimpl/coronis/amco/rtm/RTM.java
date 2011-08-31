@@ -161,6 +161,14 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     }
 
     @Override
+    public TimeZone getTimeZone() {
+        if (super.getTimeZone() == null) {
+            return TimeZone.getDefault();
+        }
+        return super.getTimeZone();
+    }
+
+    @Override
     public void setTime() throws IOException {
         Calendar now = Calendar.getInstance();
         GregorianCalendar cal = new GregorianCalendar(getTimeZone());
