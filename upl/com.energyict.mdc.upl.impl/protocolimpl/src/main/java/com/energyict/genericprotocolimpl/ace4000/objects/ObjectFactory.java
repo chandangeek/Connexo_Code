@@ -859,10 +859,7 @@ public class ObjectFactory {
             throw new ParserConfigurationException("Failed to make a new builder from the documentBuilderFactory" + e.getMessage() + "(Received xml: " + xml + ")");
         } catch (SAXException e) {
             e.printStackTrace();
-            if (xml.length() == 1024) {
-                log(Level.SEVERE, "UDP listener could not handle the XML message, message is too long (max = 1024 bytes)");
-            }
-            throw new SAXException("Could not parse the received xmlString." + e.getMessage() + "(Received xml: " + xml + ")");
+            throw new SAXException(e.getMessage() + "(Received xml: " + xml + ")");
         } catch (IOException e) {
             e.printStackTrace();
             throw new IOException(e.getMessage() + "(Received xml: " + xml + ")");
