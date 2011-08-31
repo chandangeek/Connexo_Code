@@ -18,7 +18,7 @@ import java.util.logging.Level;
 
 /**
  * The UK hub has the same protocolBase as the WebRTUZ3. Additional functionality is added for SSE, more specifically Zigbee HAN functionality
- * and Prepayment.
+ * and Prepayment
  */
 public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol, FirmwareUpdateMessaging {
 

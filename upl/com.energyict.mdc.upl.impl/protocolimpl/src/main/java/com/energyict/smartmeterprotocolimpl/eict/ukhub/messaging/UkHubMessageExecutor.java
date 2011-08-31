@@ -348,7 +348,8 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
     private void removeZigBeeSlave(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Sending message : Remove ZigBee slave");
         String address = messageHandler.getRemoveZigBeeIEEEAddress();
-        ZigBeeIEEEAddress ieeeAddress = new ZigBeeIEEEAddress(getBytesFromHexString(address));
+        address = ZigBeeMessagingUtils.validateAndFormatIeeeAddress(address);
+        ZigBeeIEEEAddress ieeeAddress = new ZigBeeIEEEAddress(getBytesFromHexString(address, ""));
         getCosemObjectFactory().getZigBeeSETCControl().unRegisterDevice(ieeeAddress);
     }
 
