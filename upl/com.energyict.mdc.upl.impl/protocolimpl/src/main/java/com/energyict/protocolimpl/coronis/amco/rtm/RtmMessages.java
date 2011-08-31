@@ -8,6 +8,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 public class RtmMessages implements MessageProtocol {
 
@@ -465,6 +466,10 @@ public class RtmMessages implements MessageProtocol {
             } catch (NumberFormatException e) {
                 numberOfReadings = Integer.parseInt(parts[4].substring(1, 2));
             }
+        }
+        if (rtm.getBubbleUpStartMoment() == -1) {
+            rtm.getLogger().log(Level.INFO, "Custom property containing bubble up info is not set, message failed");
+            return MessageResult.createFailed(messageEntry);
         }
         rtm.getParameterFactory().writeBubbleUpConfiguration(value, portMask, numberOfReadings, 0);
         return MessageResult.createSuccess(messageEntry);
