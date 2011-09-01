@@ -160,14 +160,12 @@ public class ACE4000 extends AbstractGenericProtocol {
     public void doExecuteSms(Sms sms) throws BusinessException, SQLException {
         try {
             masterMeter = null;
-            if (super.getCommunicationScheduler() == null) {    // we got a message from the COMMSERVER UDP Listener
                 log("** A new SMS message was received **");
                 setObjectFactory(new ObjectFactory(this));
                 getObjectFactory().setRequestsAllowed(false);
                 getObjectFactory().parseXML(sms.getText());
                 storeData();
                 success = true;
-            }
 
         } catch (Exception e) {
             getErrorString().append(e.toString());
@@ -355,11 +353,23 @@ public class ACE4000 extends AbstractGenericProtocol {
             ProfileData profileData = new ProfileData();
             List<MeterEvent> result = new ArrayList<MeterEvent>();
             for (MeterEvent meterEvent : meterEvents) {
+                if (meterEvent.getEiCode() == MeterEvent.POWERDOWN) {
+                    if (!meterEvent.getMessage().contains("Duration")) {
+                        for (MeterEvent event : meterEvents) {
+                            if ((event.getMessage().contains("Duration")) && (event.getTime().equals(meterEvent.getTime()) && (event.getEiCode() == MeterEvent.POWERDOWN))) {
+                                meterEvent = new MeterEvent(meterEvent.getTime(), meterEvent.getEiCode(), meterEvent.getProtocolCode(), meterEvent.getMessage() + ", " + event.getMessage());
+                            }
+                        }
+                    }
+                }
+
                 Date lastLogbook = getMasterMeter().getLastLogbook();
                 if (meterEvent.getTime().after(lastLogbook == null ? new Date(0) : lastLogbook)) {
                     result.add(meterEvent);
                 }
             }
+
+
             log("Received " + meterEvents.size() + " events, storing " + result.size() + " new events");
             profileData.setMeterEvents(result);
             getMasterMeter().store(profileData);

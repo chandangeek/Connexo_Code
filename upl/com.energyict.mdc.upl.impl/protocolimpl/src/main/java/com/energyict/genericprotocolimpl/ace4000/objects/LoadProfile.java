@@ -94,9 +94,12 @@ public class LoadProfile extends AbstractActarisObject {
         int numberOfValues = getNumberFromB64(decoded, offset, 1);
         offset += 1;
 
+        int flag = IntervalStateBits.OK;
         if (getObjectFactory().getAce4000().getMeterProfileInterval() != getIntervalInSeconds()) {
             if ((numberOfValues > 1)) {
                 throw new BusinessException("Load profile interval mismatch, EIServer: " + getObjectFactory().getAce4000().getMeterProfileInterval() + "s, Meter: " + getIntervalInSeconds() + "s.");
+            } else if (numberOfValues == 1) {
+                flag = IntervalStateBits.SHORTLONG;
             }
         }
 
@@ -126,7 +129,7 @@ public class LoadProfile extends AbstractActarisObject {
             offset += 1;
 
             intervalValues = new ArrayList<IntervalValue>(1);
-            IntervalValue intervalValue = new IntervalValue(storedValue, alarmFlags, getEiStatus(alarmFlags));
+            IntervalValue intervalValue = new IntervalValue(storedValue, alarmFlags, getEiStatus(alarmFlags) | flag);
             intervalValues.add(intervalValue);
             intervalDatas.add(new IntervalData(cal.getTime(), intervalValue.getEiStatus(), intervalValue.getProtocolStatus(), tariffRate, intervalValues));
             cal.add(Calendar.SECOND, getIntervalInSeconds());
@@ -208,9 +211,12 @@ public class LoadProfile extends AbstractActarisObject {
             setIntervalInSeconds(60 * getNumberFromB64(decoded, offset, 1));
             offset += 1;
 
+            int flag = IntervalStateBits.OK;
             if (getObjectFactory().getAce4000().getMeterProfileInterval() != getIntervalInSeconds()) {
                 if ((numberOfValues > 1)) {
                     throw new BusinessException("Load profile interval mismatch, EIServer: " + getObjectFactory().getAce4000().getMeterProfileInterval() + "s, Meter: " + getIntervalInSeconds() + "s.");
+                } else if (numberOfValues == 1) {
+                    flag = IntervalStateBits.SHORTLONG;
                 }
             }
 
@@ -235,9 +241,9 @@ public class LoadProfile extends AbstractActarisObject {
                 offset += 1;
 
                 intervalValues = new ArrayList<IntervalValue>(3);
-                intervalValues.add(new IntervalValue(activeImport, alarmFlags, getEiStatus(alarmFlags)));
-                intervalValues.add(new IntervalValue(activeExport, alarmFlags, getEiStatus(alarmFlags)));
-                intervalValues.add(new IntervalValue(reactiveImport, alarmFlags, getEiStatus(alarmFlags)));
+                intervalValues.add(new IntervalValue(activeImport, alarmFlags, flag | getEiStatus(alarmFlags)));
+                intervalValues.add(new IntervalValue(activeExport, alarmFlags, flag | getEiStatus(alarmFlags)));
+                intervalValues.add(new IntervalValue(reactiveImport, alarmFlags, flag | getEiStatus(alarmFlags)));
 
                 intervalDatas.add(new IntervalData(cal.getTime(), getEiStatus(alarmFlags), alarmFlags, tariffRate, intervalValues));
                 cal.add(Calendar.SECOND, getIntervalInSeconds());

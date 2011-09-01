@@ -847,8 +847,6 @@ public class ObjectFactory {
      */
     public void parseXML(String xml) throws ParserConfigurationException, SAXException, IOException, BusinessException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-
-        System.out.println(xml);
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document document = builder.parse(new InputSource(new StringReader(xml)));
