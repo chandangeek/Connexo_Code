@@ -8,6 +8,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.attributes.*;
+import com.energyict.genericprotocolimpl.common.EncryptionStatus;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedRegister;
@@ -23,7 +24,7 @@ import java.util.logging.Level;
  * Date: 14-jul-2011
  * Time: 13:12:35
  */
-public class RegisterFactory implements BulkRegisterProtocol {
+public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
 
     private static final String[] possibleConnectStates = {"Disconnected", "Connected", "Ready for Reconnection"};
 
@@ -39,12 +40,17 @@ public class RegisterFactory implements BulkRegisterProtocol {
     public static final ObisCode ISKRA_MBUS_ENCRYPTION_STATUS = ObisCode.fromString("0.0.97.98.1.255");
     public static final ObisCode GSM_SIGNAL_STRENGTH = ObisCode.fromString("0.0.96.12.5.255");
 
+    // Mbus Registers
+    public static final ObisCode MbusEncryptionStatus = ObisCode.fromString("0.x.24.50.0.255");
+    public static final ObisCode MbusDisconnectMode = ObisCode.fromString("0.x.24.4.128.255");
+    public static final ObisCode MbusDisconnectControlState = ObisCode.fromString("0.x.24.4.129.255");
+    public static final ObisCode MbusDisconnectOutputState = ObisCode.fromString("0.x.24.4.130.255");
 
-    private final AbstractSmartNtaProtocol protocol;
+    protected final AbstractSmartNtaProtocol protocol;
     private Map<Register, ComposedRegister> composedRegisterMap = new HashMap<Register, ComposedRegister>();
-    private Map<Register, DLMSAttribute> registerMap = new HashMap<Register, DLMSAttribute>();
+    protected Map<Register, DLMSAttribute> registerMap = new HashMap<Register, DLMSAttribute>();
 
-    public RegisterFactory(final AbstractSmartNtaProtocol protocol) {
+    public Dsmr23RegisterFactory(final AbstractSmartNtaProtocol protocol) {
         this.protocol = protocol;
     }
 
@@ -58,7 +64,7 @@ public class RegisterFactory implements BulkRegisterProtocol {
      * @throws java.io.IOException Thrown in case of an exception
      */
     public RegisterInfo translateRegister(final Register register) throws IOException {
-        return null;  //TODO implement proper functionality.
+        return null;
     }
 
     /**
@@ -118,7 +124,7 @@ public class RegisterFactory implements BulkRegisterProtocol {
             for (Register register : registers) {
                 ObisCode rObisCode = getCorrectedRegisterObisCode(register);
 
-                // check if the registers are directly readable with from the ObjectList
+                // check if the registers are directly readable from the ObjectList
                 UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.protocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), rObisCode);
                 if (uo != null) {
                     if (uo.getClassID() == DLMSClassId.REGISTER.getClassId() || uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
@@ -156,6 +162,18 @@ public class RegisterFactory implements BulkRegisterProtocol {
                     } else if (rObisCode.equals(CONNECT_CONTROL_BREAKER_STATE)) {
                         this.registerMap.put(register, new DLMSAttribute(DISCONNECT_CONTROL_OBISCODE, DisconnectControlAttribute.OUTPUT_STATE.getAttributeNumber(), DLMSClassId.DISCONNECT_CONTROL.getClassId()));
                         dlmsAttributes.add(this.registerMap.get(register));
+                    } else if (rObisCode.equalsIgnoreBChannel(MbusEncryptionStatus)) {
+                        this.registerMap.put(register, new DLMSAttribute(MbusEncryptionStatus, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA));
+                        dlmsAttributes.add(this.registerMap.get(register));
+                    } else if (rObisCode.equalsIgnoreBChannel(MbusDisconnectMode)) {
+                        this.registerMap.put(register, new DLMSAttribute(adjustToMbusDisconnectOC(MbusDisconnectMode), DisconnectControlAttribute.CONTROL_MODE.getAttributeNumber(), DLMSClassId.DISCONNECT_CONTROL));
+                        dlmsAttributes.add(this.registerMap.get(register));
+                    } else if (rObisCode.equalsIgnoreBChannel(MbusDisconnectControlState)) {
+                        this.registerMap.put(register, new DLMSAttribute(adjustToMbusDisconnectOC(MbusDisconnectControlState), DisconnectControlAttribute.CONTROL_STATE.getAttributeNumber(), DLMSClassId.DISCONNECT_CONTROL));
+                        dlmsAttributes.add(this.registerMap.get(register));
+                    } else if (rObisCode.equalsIgnoreBChannel(MbusDisconnectOutputState)) {
+                        this.registerMap.put(register, new DLMSAttribute(adjustToMbusDisconnectOC(MbusDisconnectOutputState), DisconnectControlAttribute.OUTPUT_STATE.getAttributeNumber(), DLMSClassId.DISCONNECT_CONTROL));
+                        dlmsAttributes.add(this.registerMap.get(register));
                     } else {
                         this.protocol.getLogger().log(Level.INFO, "Register with ObisCode " + rObisCode + " is not supported.");
                     }
@@ -171,9 +189,18 @@ public class RegisterFactory implements BulkRegisterProtocol {
         return this.protocol.getPhysicalAddressCorrectedObisCode(register.getObisCode(), register.getSerialNumber());
     }
 
-    //TODO Mbus registers should be added as well
+    /**
+     * The given obisCode is not a valid one. We use it to make a distiction between two arguments of the same object.
+     * This function will return the original obisCode from the Disconnector object, without the E-value
+     *
+     * @param oc -  the manipulated ObisCode of the Disconnector object
+     * @return the original ObisCode of the Disconnector object
+     */
+    private ObisCode adjustToMbusDisconnectOC(ObisCode oc) {
+        return new ObisCode(oc.getA(), oc.getB(), oc.getC(), oc.getD(), 0, oc.getF());
+    }
 
-    private RegisterValue convertCustomAbstractObjectsToRegisterValues(Register register, AbstractDataType abstractDataType) throws IOException {
+    protected RegisterValue convertCustomAbstractObjectsToRegisterValues(Register register, AbstractDataType abstractDataType) throws IOException {
         ObisCode rObisCode = getCorrectedRegisterObisCode(register);
         if (rObisCode.equals(ACTIVITY_CALENDAR)) {
             return new RegisterValue(register, null, null, null, null, new Date(), 0, new String(((OctetString) abstractDataType).getOctetStr()));
@@ -201,6 +228,25 @@ public class RegisterFactory implements BulkRegisterProtocol {
             return new RegisterValue(register, new Quantity(new BigDecimal(abstractDataType.longValue()), Unit.getUndefined()), null, null, null, new Date(), 0, text);
         } else if (rObisCode.equals(GSM_SIGNAL_STRENGTH)) {
             return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.getUndefined()), null, null, null, new Date(), 0, abstractDataType.longValue() + " dBm");
+        } else if (rObisCode.equalsIgnoreBChannel(MbusEncryptionStatus)) {
+            long encryptionValue = abstractDataType.longValue();
+            Quantity quantity = new Quantity(BigDecimal.valueOf(encryptionValue), Unit.getUndefined());
+            String text = EncryptionStatus.forValue((int) encryptionValue).getLabelKey();
+            return new RegisterValue(register, quantity, null, null, null, new Date(), 0, text);
+        } else if (rObisCode.equals(MbusDisconnectMode)) {
+            int mode = ((TypeEnum) abstractDataType).getValue();
+            return new RegisterValue(register, new Quantity(BigDecimal.valueOf(mode), Unit.getUndefined()), null, null, null, new Date(), 0, new String("ConnectControl mode: " + mode));
+        } else if (rObisCode.equals(MbusDisconnectControlState)) {
+            int state = ((TypeEnum) abstractDataType).getValue();
+            if ((state < 0) || (state > 2)) {
+                throw new IllegalArgumentException("The connectControlState has an invalid value: " + state);
+            }
+            return new RegisterValue(register, new Quantity(BigDecimal.valueOf(state), Unit.getUndefined()), null, null, null, new Date(), 0, new String("ConnectControl state: " + possibleConnectStates[state]));
+        } else if (rObisCode.equals(MbusDisconnectOutputState)) {
+            boolean state;
+            state = ((BooleanObject) abstractDataType).getState();
+            Quantity quantity = new Quantity(state ? "1" : "0", Unit.getUndefined());
+            return new RegisterValue(register, quantity, null, null, null, new Date(), 0, "State: " + state);
         } else {
             throw new UnsupportedException("Register with obisCode " + rObisCode + " is not supported.");
         }

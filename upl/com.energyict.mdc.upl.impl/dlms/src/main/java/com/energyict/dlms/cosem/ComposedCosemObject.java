@@ -196,4 +196,12 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
     public int getNrOfAttributes() {
         return this.attributes.length;
     }
+
+    /**
+     * Getter for the List of defined DLMSAttributes
+     * @return {@link #attributes}
+     */
+    public final DLMSAttribute[] getDlmsAttributesList(){
+        return this.attributes;
+    }
 }

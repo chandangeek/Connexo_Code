@@ -10,6 +10,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23Properties;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMbusSerialNumber;
 
 import java.io.IOException;
@@ -152,7 +153,7 @@ public class MeterTopology implements MasterMeter {
         strBuilder.append((char) (((manufacturer.getValue() & 0x03E0) / 32) + 64));
         strBuilder.append((char) ((manufacturer.getValue() & 0x001F) + 64));
 
-        strBuilder.append(String.format((this.protocol.getProperties().getFixMbusHexShortId()) ? "%08d" : "%08x", identification.getValue()));    // 8 Hex digits with leading zeros
+        strBuilder.append(String.format((((Dsmr23Properties)this.protocol.getProperties()).getFixMbusHexShortId()) ? "%08d" : "%08x", identification.getValue()));    // 8 Hex digits with leading zeros
         strBuilder.append(String.format("%03d", version.getValue()));            // 3 Dec digits with leading zeros
         strBuilder.append(String.format("%02d", deviceType.getValue()));        // 2 Dec digits with leading zeros
 

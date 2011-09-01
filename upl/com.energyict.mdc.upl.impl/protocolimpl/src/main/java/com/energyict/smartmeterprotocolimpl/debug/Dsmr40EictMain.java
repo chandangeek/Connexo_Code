@@ -2,13 +2,12 @@ package com.energyict.smartmeterprotocolimpl.debug;
 
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.LinkException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.debug.AbstractSmartDebuggingMain;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr40.eict.Dsmr40Eict;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.eict.Dsmr40Protocol;
 
 import java.io.IOException;
 import java.util.*;
@@ -18,15 +17,15 @@ import java.util.*;
  * Date: 19/07/11
  * Time: 13:45
  */
-public class Dsmr40EictMain extends AbstractSmartDebuggingMain<Dsmr40Eict> {
+public class Dsmr40EictMain extends AbstractSmartDebuggingMain<Dsmr40Protocol> {
 
-    private static Dsmr40Eict dsmr40Eict = null;
+    private static Dsmr40Protocol dsmr40Eict = null;
     public static final String MASTER_SERIAL_NUMBER = "1000827";
     public static final String MBUS_SERIAL_NUMBER = "SIM1000827006301";
 
-    public Dsmr40Eict getMeterProtocol() {
+    public Dsmr40Protocol getMeterProtocol() {
         if (dsmr40Eict == null) {
-            dsmr40Eict = new Dsmr40Eict();
+            dsmr40Eict = new Dsmr40Protocol();
             log("Created new instance of " + dsmr40Eict.getClass().getCanonicalName() + " [" + dsmr40Eict.getVersion() + "]");
         }
         return dsmr40Eict;

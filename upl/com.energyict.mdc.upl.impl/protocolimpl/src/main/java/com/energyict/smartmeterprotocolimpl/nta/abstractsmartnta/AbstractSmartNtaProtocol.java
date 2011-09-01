@@ -13,6 +13,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
@@ -42,7 +43,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
     /**
      * The <code>Properties</code> used for this protocol
      */
-    private Dsmr23Properties properties;
+    protected Dsmr23Properties properties;
 
     /**
      * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMeterInfo}
@@ -50,9 +51,9 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
     private ComposedMeterInfo meterInfo;
 
     /**
-     * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.RegisterFactory}
+     * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23RegisterFactory}
      */
-    private RegisterFactory registerFactory;
+    protected Dsmr23RegisterFactory registerFactory;
 
     /**
      * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder}
@@ -85,7 +86,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
      * @return the requested Properties
      */
     @Override
-    public Dsmr23Properties getProperties() {
+    public DlmsProtocolProperties getProperties() {
         if (this.properties == null) {
             this.properties = new Dsmr23Properties();
         }
@@ -239,9 +240,9 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
         return "$Date$";
     }
 
-    public RegisterFactory getRegisterFactory() {
+    public Dsmr23RegisterFactory getRegisterFactory() {
         if (this.registerFactory == null) {
-            this.registerFactory = new RegisterFactory(this);
+            this.registerFactory = new Dsmr23RegisterFactory(this);
         }
         return registerFactory;
     }
