@@ -51,7 +51,7 @@ public class LoadProfile extends AbstractActarisObject {
         t.setTextContent(Integer.toString(getTrackingID(), 16));
         md.appendChild(t);
 
-        if (getFrom() == null && getToDate() == null) {
+        if (getFrom() == null && toDate == null) {
             Element lp = doc.createElement(XMLTags.REQLPALL);
             md.appendChild(lp);
         } else {
@@ -299,6 +299,9 @@ public class LoadProfile extends AbstractActarisObject {
     }
 
     public Date getToDate() {
+        if (toDate == null) {
+            toDate = new Date();
+        }
         return toDate;
     }
 }

@@ -301,23 +301,37 @@ public class ACE4000 extends AbstractGenericProtocol {
                 setMessageResults(true);
             }
 
-            if (scheduler.getCommunicationProfile().getReadDemandValues() || getACE4000Messages().isProfileDataRequested()) {
+            if (!storedProfileDate && (scheduler.getCommunicationProfile().getReadDemandValues() || getACE4000Messages().isProfileDataRequested())) {
                 ProfileData profileData = getObjectFactory().getLoadProfile().getProfileData();
                 int size = profileData.getIntervalDatas().size();
                 if (size > 0) {
                     log("Storing profile data, received " + size + " intervals");
                     profileData.sort();
+                    if (getACE4000Messages().isProfileDataRequested()) {
+                        ProfileData result = new ProfileData();
+                        result.setChannelInfos(profileData.getChannelInfos());
+                        for (Object intervalObject : profileData.getIntervalDatas()) {
+                            IntervalData intervalData = (IntervalData) intervalObject;
+                            Date endTime = intervalData.getEndTime();
+                            Date toDate = getObjectFactory().getLoadProfile().getToDate();
+                            Date fromDate = getObjectFactory().getLoadProfile().getFrom();
+                            if ((endTime.before(toDate) && endTime.after(fromDate)) || endTime.equals(toDate) || endTime.equals(fromDate)) {
+                                result.addInterval(intervalData);
+                            }
+                        }
+                        profileData = result;
+                    }
                     getMasterMeter().store(profileData);
                 }
                 storedProfileDate = true;
             }
 
-            if (scheduler.getCommunicationProfile().getReadMeterEvents() || getACE4000Messages().isEventsRequested()) {
+            if (!storedEvents && (scheduler.getCommunicationProfile().getReadMeterEvents() || getACE4000Messages().isEventsRequested())) {
                 storeEvents();
                 storedEvents = true;
             }
 
-            if (scheduler.getCommunicationProfile().getReadMeterReadings()) {
+            if (!storedRegisters && (scheduler.getCommunicationProfile().getReadMeterReadings())) {
                 MeterReadingData allMasterRegisters = getObjectFactory().getAllMasterRegisters();
                 storeMasterRegisters(allMasterRegisters);
                 for (String serialNumber : mBusMeters.keySet()) {
@@ -353,18 +367,23 @@ public class ACE4000 extends AbstractGenericProtocol {
             ProfileData profileData = new ProfileData();
             List<MeterEvent> result = new ArrayList<MeterEvent>();
             for (MeterEvent meterEvent : meterEvents) {
+                boolean add = false;
                 if (meterEvent.getEiCode() == MeterEvent.POWERDOWN) {
                     if (!meterEvent.getMessage().contains("Duration")) {
                         for (MeterEvent event : meterEvents) {
                             if ((event.getMessage().contains("Duration")) && (event.getTime().equals(meterEvent.getTime()) && (event.getEiCode() == MeterEvent.POWERDOWN))) {
                                 meterEvent = new MeterEvent(meterEvent.getTime(), meterEvent.getEiCode(), meterEvent.getProtocolCode(), meterEvent.getMessage() + ", " + event.getMessage());
+                                add = true;
+                                break;
                             }
                         }
                     }
+                } else {
+                    add = true;
                 }
 
                 Date lastLogbook = getMasterMeter().getLastLogbook();
-                if (meterEvent.getTime().after(lastLogbook == null ? new Date(0) : lastLogbook)) {
+                if (add && (meterEvent.getTime().after(lastLogbook == null ? new Date(0) : lastLogbook))) {
                     result.add(meterEvent);
                 }
             }

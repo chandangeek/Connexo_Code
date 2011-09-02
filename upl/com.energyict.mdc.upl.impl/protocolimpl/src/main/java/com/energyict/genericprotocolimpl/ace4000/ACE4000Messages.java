@@ -940,12 +940,12 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
     public boolean shouldRetry(List<RtuMessage> messages) {
         for (RtuMessage messageEntry : messages) {
             if (messageEntry.getContents().contains(READ_EVENTS)) {
-                if (!ace4000.getObjectFactory().shouldRetryEvents()) {
+                if (ace4000.getObjectFactory().shouldRetryEvents()) {
                     return true;
                 }
             }
             if (messageEntry.getContents().contains(READ_PROFILE_DATA)) {
-                if (!ace4000.getObjectFactory().shouldRetryLoadProfile()) {
+                if (ace4000.getObjectFactory().shouldRetryLoadProfile()) {
                     return true;
                 }
             }
