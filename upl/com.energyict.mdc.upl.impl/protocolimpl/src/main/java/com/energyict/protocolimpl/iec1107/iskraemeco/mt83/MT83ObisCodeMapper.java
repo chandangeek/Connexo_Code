@@ -161,7 +161,7 @@ public class MT83ObisCodeMapper {
 				} else {
 					eventDate = toDate;
 				}
-				registerValue = new RegisterValue(obisCode, quantity, eventDate, fromDate, toDate, null, 0, dvp.getText());
+				registerValue = new RegisterValue(obisCode, quantity, eventDate, fromDate, toDate, new Date(), 0, dvp.getText());
 			} else {
 				String strValue = (String)mt83Registry.getRegister(strReg+" STRING");
 				registerValue = new RegisterValue(obisCode,strValue);
