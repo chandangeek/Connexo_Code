@@ -47,6 +47,7 @@ public class A1440Registry extends AbstractVDEWRegistry {
 	public static final String REGISTERS_RESET_REGISTER = "RegisterResetRegister";
 	public static final String EVENT_LOG_RESET_REGISTER = "EventLogResetRegister";
 	public static final String LOAD_LOG_RESET_REGISTER = "LoadLogResetRegister";
+    public static final String ERROR_REGISTER = "Error register";
 
 	/**
 	 * Creates a new instance of KamstrupRegister
@@ -98,7 +99,7 @@ public class A1440Registry extends AbstractVDEWRegistry {
 		this.registers.put(REGISTERS_RESET_REGISTER, new VDEWRegister("P01",VDEWRegisterDataParse.VDEW_STRING, 0, 1, null, VDEWRegister.WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1,FlagIEC1107Connection.WRITE1));
 		this.registers.put(EVENT_LOG_RESET_REGISTER, new VDEWRegister("S0D",VDEWRegisterDataParse.VDEW_STRING, 0, 1, null, VDEWRegister.WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1,FlagIEC1107Connection.WRITE1));
 		this.registers.put(LOAD_LOG_RESET_REGISTER, new VDEWRegister("S08",VDEWRegisterDataParse.VDEW_STRING, 0, 1, null, VDEWRegister.WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1,FlagIEC1107Connection.WRITE1));
-
+        this.registers.put(ERROR_REGISTER, new VDEWRegister("F.F", VDEWRegisterDataParse.VDEW_STRING, 0, -1, null, VDEWRegister.NOT_WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ5));
 	}
 
 }

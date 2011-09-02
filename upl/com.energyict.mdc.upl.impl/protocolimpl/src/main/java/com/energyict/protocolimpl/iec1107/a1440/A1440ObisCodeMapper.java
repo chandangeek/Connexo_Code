@@ -26,6 +26,7 @@ public class A1440ObisCodeMapper {
 	public static final String FIRMWAREID = "Firmware version ID";
 	public static final String DATETIME = "Date and time (0.9.1 0.9.2)";
 	public static final String BILLINGCOUNTER = "Billing counter";
+    public static final String ERROR_REGISTER = "Error register";
 
 	public static final String IEC1107_ID = "Device IEC1107_ID";
 	public static final String IEC1107_ADDRESS_OP = "Device IEC1107_ADDRESS_OP (optical)";
@@ -82,6 +83,7 @@ public class A1440ObisCodeMapper {
 		this.obisMap.put("1.1.42.7.0.255", "-P L2, T0");
 		this.obisMap.put("1.1.62.7.0.255", "-P L3, T0");
 
+        this.obisMap.put("0.0.97.97.0.255", ERROR_REGISTER);
 	}
 
 	/**
