@@ -3,10 +3,9 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.cosem.ComposedCosemObject;
-import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.attributes.AssociationLNAttributes;
 import com.energyict.genericprotocolimpl.common.EncryptionStatus;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.Register;
@@ -28,6 +27,9 @@ public class DSMR40RegisterFactory extends Dsmr23RegisterFactory {
 
     public static final ObisCode MbusEncryptionStatus_New = ObisCode.fromString("0.x.24.1.0.13");   // ObisCode from MbusSetup object with AttributeNr. as F-field
     public static final ObisCode MbusKeyStatusObisCode = ObisCode.fromString("0.x.24.1.0.15"); // ObisCode from MbusSetup object with AttributNr. as F-field
+
+    public static final ObisCode SecurityPolicyObisCode = ObisCode.fromString("0.0.43.0.0.2");
+    public static final ObisCode HighLevelSecurityObisCode = ObisCode.fromString("0.0.40.0.0.6");
 
     public DSMR40RegisterFactory(final AbstractSmartNtaProtocol protocol) {
         super(protocol);
@@ -52,7 +54,7 @@ public class DSMR40RegisterFactory extends Dsmr23RegisterFactory {
             for (Register register : registers) {
                 try {
                     ObisCode rObisCode = getCorrectedRegisterObisCode(register);
-                    if (rObisCode.equalsIgnoreBChannel(MbusEncryptionStatus_New)) {
+                    if (rObisCode.equalsIgnoreBChannel(MbusEncryptionStatus_New) || rObisCode.equalsIgnoreBChannel(MbusEncryptionStatus)) {     // if they still use the old obiscode, then read the new object
                         ObisCode mbusClientObisCode = this.protocol.getPhysicalAddressCorrectedObisCode(this.protocol.getDlmsSession().getMeterConfig().getMbusClient(0).getObisCode(), register.getSerialNumber());
                         this.registerMap.put(register, new DLMSAttribute(mbusClientObisCode, DSMR4_MbusClientAttributes.ENCRYPTION_STATUS.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                         dlmsAttributes.add(this.registerMap.get(register));
@@ -60,9 +62,15 @@ public class DSMR40RegisterFactory extends Dsmr23RegisterFactory {
                         ObisCode mbusClientObisCode = this.protocol.getPhysicalAddressCorrectedObisCode(this.protocol.getDlmsSession().getMeterConfig().getMbusClient(0).getObisCode(), register.getSerialNumber());
                         this.registerMap.put(register, new DLMSAttribute(mbusClientObisCode, DSMR4_MbusClientAttributes.KEY_STATUS.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                         dlmsAttributes.add(this.registerMap.get(register));
+                    } else if (rObisCode.equals(SecurityPolicyObisCode)) {
+                        this.registerMap.put(register, new DLMSAttribute(SecuritySetup.getDefaultObisCode(), 2, DLMSClassId.SECURITY_SETUP.getClassId()));
+                        dlmsAttributes.add(this.registerMap.get(register));
+                    } else if (rObisCode.equals(HighLevelSecurityObisCode)) {
+                        this.registerMap.put(register, new DLMSAttribute(AssociationLN.getDefaultObisCode(), AssociationLNAttributes.AUTHENTICATION_MECHANISM_NAME.getAttributeNumber(), DLMSClassId.ASSOCIATION_LN.getClassId()));
+                        dlmsAttributes.add(this.registerMap.get(register));
                     }
                 } catch (IOException e) {
-                    this.protocol.getLogger().warning("Could not process register " + register);
+                    this.protocol.getLogger().warning("Could not process register: " + register);
                 }
             }
             ComposedCosemObject sRegisterList = super.constructComposedObjectFromRegisterList(registers, supportsBulkRequest);
@@ -77,7 +85,7 @@ public class DSMR40RegisterFactory extends Dsmr23RegisterFactory {
     @Override
     protected RegisterValue convertCustomAbstractObjectsToRegisterValues(final Register register, final AbstractDataType abstractDataType) throws IOException {
         ObisCode rObisCode = getCorrectedRegisterObisCode(register);
-        if (rObisCode.equals(MbusEncryptionStatus_New)) {
+        if (rObisCode.equals(MbusEncryptionStatus_New) || rObisCode.equalsIgnoreBChannel(MbusEncryptionStatus)) {     // if they still use the old obiscode, then read the new object
             long encryptionValue = abstractDataType.longValue();
             Quantity quantity = new Quantity(BigDecimal.valueOf(encryptionValue), Unit.getUndefined());
             String text = EncryptionStatus.forValue((int) encryptionValue).getLabelKey();
@@ -85,6 +93,19 @@ public class DSMR40RegisterFactory extends Dsmr23RegisterFactory {
         } else if (rObisCode.equals(MbusKeyStatusObisCode)) {
             int state = ((TypeEnum) abstractDataType).getValue();
             return new RegisterValue(register, new Quantity(BigDecimal.valueOf(state), Unit.getUndefined()), null, null, null, new Date(), 0, MbusKeyStatus.getDescriptionForValue(state));
+        } else if (rObisCode.equals(SecurityPolicyObisCode)) {
+            long securityPolicy = abstractDataType.longValue();
+            Quantity quantity = new Quantity(BigDecimal.valueOf(securityPolicy), Unit.getUndefined());
+            return new RegisterValue(register, quantity);
+        } else if (rObisCode.equals(HighLevelSecurityObisCode)) {
+            int level = -1;
+            if (abstractDataType instanceof Structure) {
+                level = ((Structure) abstractDataType).getDataType(((Structure) abstractDataType).nrOfDataTypes() - 1).intValue();
+            } else if (abstractDataType instanceof OctetString) {
+                level = ((OctetString) abstractDataType).getContentBytes()[((OctetString) abstractDataType).getContentBytes().length - 1];
+            }
+            Quantity quantity = new Quantity(BigDecimal.valueOf(level), Unit.getUndefined());
+            return new RegisterValue(register, quantity);
         }
         return super.convertCustomAbstractObjectsToRegisterValues(register, abstractDataType);
     }
@@ -103,20 +124,20 @@ public class DSMR40RegisterFactory extends Dsmr23RegisterFactory {
             this.description = description;
         }
 
-        public static String getDescriptionForValue(int value){
+        public static String getDescriptionForValue(int value) {
             for (MbusKeyStatus mbusKeyStatus : values()) {
-                if(mbusKeyStatus.getValue() == value){
+                if (mbusKeyStatus.getValue() == value) {
                     return mbusKeyStatus.getDescription();
                 }
             }
             return "UnKnown State";
         }
 
-        private int getValue(){
+        private int getValue() {
             return this.value;
         }
 
-        private String getDescription(){
+        private String getDescription() {
             return this.description;
         }
     }

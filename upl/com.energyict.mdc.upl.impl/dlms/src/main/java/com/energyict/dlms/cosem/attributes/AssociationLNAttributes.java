@@ -12,7 +12,14 @@ import com.energyict.dlms.cosem.DLMSClassId;
 public enum AssociationLNAttributes implements DLMSClassAttributes {
 
     LOGICAL_NAME(1, 0x00),
-    OBJECT_LIST(2,0x08);
+    OBJECT_LIST(2, 0x08),
+    ASSOCIATED_PARTNERS_ID(3, 0x10),
+    APPLICATION_CONTEXT_NAME(4, 0x18),
+    XDLMS_CONTEXT_INFO(5, 0x20),
+    AUTHENTICATION_MECHANISM_NAME(6, 0x28),
+    LLS_SECRET(7, 0x30),
+    ASSOCIATION_STATUS(8, 0x38),
+    SECURITY_SETUP_REFERENCE(9, 0x40);
 
     /**
      * The number of this attribute
