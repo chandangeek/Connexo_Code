@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.common.pooling;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.DatabaseException;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSConnectionException;
@@ -202,6 +203,7 @@ public abstract class AbstractGenericPoolingProtocol extends MeterMessages imple
     public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
 
         boolean success = false;
+        boolean databaseException = false;
         ProfileData electricityProfile = null;
         ProfileData eventProfile = null;
         ProfileData dailyProfile = null;
@@ -319,22 +321,26 @@ public abstract class AbstractGenericPoolingProtocol extends MeterMessages imple
             log(Level.FINEST, e.getMessage());
             disConnect();
         } catch (SQLException e) {
+            databaseException = true;
             log(Level.FINEST, e.getMessage());
             disConnect();
-
-            /** Close the connection after an SQL exception, connection will startup again if requested */
-            Environment.getDefault().closeConnection();
-
-            throw new BusinessException(e);
+            throw e; // we rethrow the exception so the ComServer can catch it and properly handle the sqlException
+        } catch (DatabaseException e){
+            databaseException = true;
+            log(Level.FINEST, e.getMessage());
+            disConnect();
+            throw e; // we rethrow the exception so the ComServer can catch it and properly handle the sqlException
         } finally {
             if (success) {
                 disConnect();
                 getLogger().info("Meter " + this.fullShadow.getRtuShadow().getSerialNumber() + " has completely finished.");
             }
-            updateCache(this.scheduler.getRtu().getId(), getDlmsCache());
 
-            if (getStoreObject() != null) {
-                Environment.getDefault().execute(getStoreObject());
+            if (!databaseException) {
+                updateCache(this.scheduler.getRtu().getId(), getDlmsCache());
+                if (getStoreObject() != null) {
+                    Environment.getDefault().execute(getStoreObject());
+                }
             }
         }
     }
@@ -354,7 +360,7 @@ public abstract class AbstractGenericPoolingProtocol extends MeterMessages imple
         return this.fullShadow;
     }
 
-    public void setFullShadow(CommunicationSchedulerFullProtocolShadow fullShadow){
+    public void setFullShadow(CommunicationSchedulerFullProtocolShadow fullShadow) {
         this.fullShadow = fullShadow;
     }
 
