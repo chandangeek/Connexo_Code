@@ -221,6 +221,8 @@
 
 -keepnames class com.energyict.genericprotocolimpl.ace4000.ACE4000
 
+-keepnames class com.energyict.protocolimpl.dlms.idis.IDIS
+
 # Moved it to the commons package
 #-keepnames class SDKSampleProtocol
 
