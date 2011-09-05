@@ -11,6 +11,8 @@ import java.util.TimeZone;
 
 public class DailyConsumption extends AbstractRadioCommand {
 
+    private int genericHeaderLength = 23;
+
     public DailyConsumption(WaveFlow waveFlow) {
         super(waveFlow);
     }
@@ -68,6 +70,10 @@ public class DailyConsumption extends AbstractRadioCommand {
         return timeOfMeasurement;
     }
 
+    public void setGenericHeaderLength(int length) {
+        this.genericHeaderLength = length;
+    }
+
     @Override
     public void parse(byte[] data) throws IOException {
         int offset = 0;
@@ -75,7 +81,7 @@ public class DailyConsumption extends AbstractRadioCommand {
         //Get the operation mode out of the generic header, skip the rest of the metadata
         OperatingMode operatingMode = new OperatingMode(getWaveFlow(), data[2] & 0xFF);
         numberOfInputs = operatingMode.getNumberOfInputsUsed();
-        offset +=23;
+        offset += genericHeaderLength;
 
         indexZone = new IndexZone(getWaveFlow());
         indexZone.parse(data, offset);

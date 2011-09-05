@@ -125,6 +125,7 @@ public class RadioCommandFactory {
     final public DailyConsumption readDailyConsumption() throws IOException {
         if (dailyConsumption == null) {
             dailyConsumption = new DailyConsumption(waveFlow);
+            dailyConsumption.setGenericHeaderLength(23);
             dailyConsumption.set();
         }
         return dailyConsumption;

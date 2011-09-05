@@ -81,6 +81,7 @@ public class BubbleUpFrameParser {
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
 
         DailyConsumption dailyConsumption = new DailyConsumption(waveflow);
+        dailyConsumption.setGenericHeaderLength(19);   //Instead of the usual 23!
         dailyConsumption.parse(data);
         registerValues.addAll(getGenericHeaderRegisters(data));       //Parse the generic header, it contains the battery counter and RSSI level
 
