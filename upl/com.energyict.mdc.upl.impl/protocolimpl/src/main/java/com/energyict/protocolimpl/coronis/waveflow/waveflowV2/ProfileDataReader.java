@@ -163,10 +163,6 @@ public class ProfileDataReader {
             nrOfReadings = getNumberOfDailyValues();  //a fixed amount for the daily values table, see documentation
         }
 
-        if (daily) {
-            calendar.add(Calendar.SECOND, -1 * (getProfileIntervalInSeconds() * 4));          //Daily consumption contains every 4th value of the table
-        }
-
         List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
         for (int index = 0; index < nrOfReadings; index++) {
             List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
@@ -196,7 +192,7 @@ public class ProfileDataReader {
             }
 
             if (!monthly) {
-                calendar.add(Calendar.SECOND, -1 * getProfileIntervalInSeconds() * (daily ? 4 : 1));   //Go back 4 intervals in case of daily consumption
+                calendar.add(Calendar.SECOND, -1 * getProfileIntervalInSeconds() * (daily ? getNumberOfInputsUsed() : 1));   //Go back 4 intervals in case of daily consumption & 4 ports
             } else {
                 calendar.add(Calendar.MONTH, -1);
             }
