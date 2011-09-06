@@ -52,15 +52,17 @@ public class SmsHandler implements MessageHandler {
      * Concatenate and parse if all fragments are found.
      */
     public static void processMessage(String msg, String from) throws JMSException, BusinessException, SQLException {
+        msg = msg.substring(1, msg.length() - 4);     //Ignore the first character (#) and the trailing CRC
         int header = ProtocolTools.getUnsignedIntFromBytes(Base64.decode(msg.substring(0, 4)));
         int nr = header >> 18;                              //first 6 bits
         int parts = (header & 0x03FFFF) >> 12;              //second 6 bits
         int trackingId = header & 0x000FFF;
         String externalName = from + String.valueOf(trackingId);
         String xml = msg.substring(4);
+        System.out.println(msg + ", from: " + from);
 
         if (parts == 0) {
-        ACE4000 ace4000 = new ACE4000();
+            ACE4000 ace4000 = new ACE4000();
             ace4000.doExecuteSms(xml);
         } else {
             Map<Integer, String> fragments = new HashMap<Integer, String>();
@@ -72,7 +74,7 @@ public class SmsHandler implements MessageHandler {
             List<ConsumptionRequest> consumptionRequests = factory.findByFilter(filter);
             for (ConsumptionRequest consumptionRequest : consumptionRequests) {
                 fragments.put(consumptionRequest.getState(), consumptionRequest.getRequest());
-    }
+            }
             fragments.put(nr, xml);
             if (fragments.size() == (parts + 1)) {
                 for (ConsumptionRequest consumptionRequest : consumptionRequests) {
