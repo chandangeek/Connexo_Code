@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.ace4000;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.ApplicationException;
+import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.Environment;
 import com.energyict.genericprotocolimpl.ace4000.objects.ObjectFactory;
 import com.energyict.genericprotocolimpl.common.AMRJournalManager;
@@ -157,13 +158,13 @@ public class ACE4000 extends AbstractGenericProtocol {
         }
     }
 
-    public void doExecuteSms(Sms sms) throws BusinessException, SQLException {
+    public void doExecuteSms(String msg) throws BusinessException, SQLException {
         try {
             masterMeter = null;
                 log("** A new SMS message was received **");
                 setObjectFactory(new ObjectFactory(this));
                 getObjectFactory().setRequestsAllowed(false);
-                getObjectFactory().parseXML(sms.getText());
+                getObjectFactory().parseXML(msg);
                 storeData();
                 success = true;
 
