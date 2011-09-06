@@ -490,7 +490,7 @@ public class ImageTransfer extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public void imageTransferInitiate(Structure imageInfo) throws IOException {
-		try {
+        try {
 			if (getObjectReference().isLNReference()) {
 				invoke(IMAGE_TRANSFER_INITIATE, imageInfo.getBEREncodedByteArray());
 			} else { // SN referencing

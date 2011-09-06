@@ -227,12 +227,12 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
     /**
      * Inform the HUB to remove his ZigBee mirror
      *
-     * @param data additional data
+     * @param mirrorDataStructure additional data
      * @return raw data returned from the method invocation
      * @throws IOException if for some reason the invocation did not succeed
      */
-    public byte[] removeMirror(AbstractDataType data) throws IOException {
-        return methodInvoke(ZigbeeHanManagementMethods.REMOVE_MIRROR, data);
+    public byte[] removeMirror(Structure mirrorDataStructure) throws IOException {
+        return methodInvoke(ZigbeeHanManagementMethods.REMOVE_MIRROR, mirrorDataStructure);
     }
 
     /**

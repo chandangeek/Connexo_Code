@@ -29,7 +29,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
     private AS300Messaging messageProtocol;
 
     @Override
-    protected DlmsProtocolProperties getProperties() {
+    protected AS300Properties getProperties() {
         if (properties == null) {
             properties = new AS300Properties();
         }
@@ -63,16 +63,21 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
     }
 
     public String getFirmwareVersion() throws IOException {
-        StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append(getObjectFactory().getFirmwareVersion().getString());
-        strBuilder.append("(");
-        try {
-            strBuilder.append(new String(getObjectFactory().getActiveFirmwareIdACOR().getAttrbAbstractDataType(-1).toByteArray()));
-        } catch (IOException e) {
-            strBuilder.append("unknown");
+        if (getProperties().isFirmwareUpdateSession()) {
+            getLogger().severe("Using firmware update client. Skipping firmware version readout!");
+            return "";
+        } else {
+            StringBuilder strBuilder = new StringBuilder();
+            strBuilder.append(getObjectFactory().getFirmwareVersion().getString());
+            strBuilder.append("(");
+            try {
+                strBuilder.append(new String(getObjectFactory().getActiveFirmwareIdACOR().getAttrbAbstractDataType(-1).toByteArray()));
+            } catch (IOException e) {
+                strBuilder.append("unknown");
+            }
+            strBuilder.append(")");
+            return strBuilder.toString();
         }
-        strBuilder.append(")");
-        return strBuilder.toString();
     }
 
     @Override
@@ -82,19 +87,30 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
 
     @Override
     public Date getTime() throws IOException {
-        if(getProperties().getClientMacAddress() == AssociationLnObisCodes.FIRMWARE_CLIENT.getClientId()){
+        if (getProperties().isFirmwareUpdateSession()) {
+            getLogger().severe("Using firmware update client. Skipping clock readout!");
             return new Date();
+        } else {
+            return getObjectFactory().getClock().getDateTime();
         }
-        return getObjectFactory().getClock().getDateTime();
     }
 
     @Override
     public void setTime(Date newMeterTime) throws IOException {
-        getObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(newMeterTime));
+        if (getProperties().isFirmwareUpdateSession()) {
+            getLogger().severe("Using firmware update client. Skipping clock set!");
+        } else {
+            getObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(newMeterTime));
+        }
     }
 
     public String getMeterSerialNumber() throws IOException {
-        return getObjectFactory().getSerialNumber().getString();
+        if (getProperties().isFirmwareUpdateSession()) {
+            getLogger().severe("Using firmware update client. Skipping serial number check!");
+            return getSerialNumber();
+        } else {
+            return getObjectFactory().getSerialNumber().getString();
+        }
     }
 
     public RegisterInfo translateRegister(Register register) throws IOException {

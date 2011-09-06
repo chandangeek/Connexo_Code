@@ -20,6 +20,8 @@ public class AS300Properties extends DlmsProtocolProperties {
     public static final String DEFAULT_AS300_CLIENT_MAC_ADDRESS = "64";
     public static final String DEFAULT_AS300_LOGICAL_DEVICE_ADDRESS = "45";
 
+    private static final int FIRMWARE_CLIENT = 0x50;
+
     public List<String> getOptionalKeys() {
         List<String> optional = new ArrayList<String>();
         optional.add(DlmsProtocolProperties.ADDRESSING_MODE);
@@ -71,4 +73,9 @@ public class AS300Properties extends DlmsProtocolProperties {
     public DLMSReference getReference() {
         return DLMSReference.LN;
     }
+
+    public boolean isFirmwareUpdateSession() {
+        return getClientMacAddress() == FIRMWARE_CLIENT;
+    }
+
 }

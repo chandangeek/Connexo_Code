@@ -25,8 +25,7 @@ import com.energyict.protocolimpl.dlms.common.DlmsSession;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.ObisCodeProvider;
-import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300FirmwareUpdateMessageBuilder;
-import org.apache.axis.encoding.Base64;
+import sun.misc.BASE64Decoder;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -75,6 +74,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
             boolean createHan = messageHandler.getType().equals(RtuMessageConstant.CREATE_HAN_NETWORK);
             boolean removeHan = messageHandler.getType().equals(RtuMessageConstant.REMOVE_HAN_NETWORK);
             boolean joinZigBeeSlave = messageHandler.getType().equals(RtuMessageConstant.JOIN_ZIGBEE_SLAVE);
+            boolean removeZigBeeMirror = messageHandler.getType().equals(RtuMessageConstant.REMOVE_ZIGBEE_MIRROR);
             boolean removeZigBeeSlave = messageHandler.getType().equals(RtuMessageConstant.REMOVE_ZIGBEE_SLAVE);
             boolean removeAllZigBeeSlaves = messageHandler.getType().equals(RtuMessageConstant.REMOVE_ALL_ZIGBEE_SLAVES);
             boolean backupZigBeeHanParameters = messageHandler.getType().equals(RtuMessageConstant.BACKUP_ZIGBEE_HAN_PARAMETERS);
@@ -91,6 +91,8 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
                 removeHanNetwork(messageHandler);
             } else if (joinZigBeeSlave) {
                 joinZigBeeSlave(messageHandler);
+            } else if (removeZigBeeMirror) {
+                removeZigBeeMirror(messageHandler);
             } else if (removeZigBeeSlave) {
                 removeZigBeeSlave(messageHandler);
             } else if (removeAllZigBeeSlaves) {
@@ -141,7 +143,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         ObisCode obisCode = ObisCode.fromString("0.129.0.0.0.255");
         Data data = getCosemObjectFactory().getData(obisCode);
 
-        String apn =  "instantenergy.com";
+        String apn = "instantenergy.com";
         String user = "orange";
         String password = "54ghd67s&";
 
@@ -181,7 +183,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         getLogger().info("Executing firmware update message");
         try {
             String base64Encoded = getIncludedContent(content);
-            byte[] imageData = Base64.decode(base64Encoded);
+            byte[] imageData = new BASE64Decoder().decodeBuffer(base64Encoded);
             ImageTransfer it = getCosemObjectFactory().getImageTransfer(ObisCodeProvider.FIRMWARE_UPDATE);
             it.upgrade(imageData);
             it.imageActivation();
@@ -196,10 +198,6 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         int begin = content.indexOf(GenericMessaging.INCLUDED_USERFILE_TAG) + GenericMessaging.INCLUDED_USERFILE_TAG.length() + 1;
         int end = content.indexOf(GenericMessaging.INCLUDED_USERFILE_TAG, begin) - 2;
         return content.substring(begin, end);
-    }
-
-    private boolean isFirmwareUpdateMessage(String messageContent) {
-        return (messageContent != null) && messageContent.contains(AS300FirmwareUpdateMessageBuilder.getMessageNodeTag());
     }
 
     private void changeHanSAS(MessageHandler messageHandler) throws IOException {
@@ -347,6 +345,25 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         address = ZigBeeMessagingUtils.validateAndFormatIeeeAddress(address);
         ZigBeeIEEEAddress ieeeAddress = new ZigBeeIEEEAddress(getBytesFromHexString(address, ""));
         getCosemObjectFactory().getZigBeeSETCControl().unRegisterDevice(ieeeAddress);
+    }
+
+    private void removeZigBeeMirror(MessageHandler messageHandler) throws IOException {
+        log(Level.INFO, "Sending message : Remove ZigBee mirror");
+        String address = messageHandler.getRemoveZigBeeIEEEAddress();
+        String forceAttribute = messageHandler.getForceRemovalZigBeeMirror();
+
+        address = ZigBeeMessagingUtils.validateAndFormatIeeeAddress(address);
+        boolean force = ProtocolTools.getBooleanFromString(forceAttribute);
+
+        getLogger().severe("Removing mirror for device with address [" + address + "] " + (force ? "Forced remove!" : "Normal remove."));
+
+        ZigBeeIEEEAddress ieeeAddress = new ZigBeeIEEEAddress(getBytesFromHexString(address, ""));
+        BitString bitString = new BitString(force ? 0x01 : 0x00, 16);
+        Structure structure = new Structure(ieeeAddress, bitString);
+
+        ZigbeeHanManagement hanManagement = getCosemObjectFactory().getZigbeeHanManagement();
+        hanManagement.removeMirror(structure);
+
     }
 
     private void removeAllZigBeeSlaves(MessageHandler messageHandler) throws IOException {

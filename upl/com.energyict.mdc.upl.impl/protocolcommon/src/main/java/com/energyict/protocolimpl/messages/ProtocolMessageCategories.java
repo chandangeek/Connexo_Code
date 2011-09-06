@@ -28,6 +28,7 @@ public class ProtocolMessageCategories {
         hanManagement.addMessageSpec(ProtocolMessageSpecifications.getCreateHanMessageSpecification());
         hanManagement.addMessageSpec(ProtocolMessageSpecifications.getChangeZigBeeHanSASMessageSpecification());
         hanManagement.addMessageSpec(ProtocolMessageSpecifications.getRemoveHanMessageSpecification());
+        hanManagement.addMessageSpec(ProtocolMessageSpecifications.getRemoveMirrorMessageSpecification());
         hanManagement.addMessageSpec(ProtocolMessageSpecifications.getJoinZigBeeSlaveSpecification());
         hanManagement.addMessageSpec(ProtocolMessageSpecifications.getRemoveZigBeeSlaveSpecification());
         hanManagement.addMessageSpec(ProtocolMessageSpecifications.getRemoveAllZigBeeSlavesSpecification());

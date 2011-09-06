@@ -57,6 +57,20 @@ public class ProtocolMessageSpecifications {
     }
 
     /**
+     * Creates a MessageSpecification for removing a HAN network message. The message does not contain any values or attributes.
+     *
+     * @return
+     */
+    public static MessageSpec getRemoveMirrorMessageSpecification() {
+        MessageSpec msgSpec = new MessageSpec(RtuMessageKeyIdConstants.REMOVE_MIRROR, false);
+        MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.REMOVE_ZIGBEE_MIRROR);
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.REMOVE_ZIGBEE_MIRROR_IEEE_ADDRESS, true));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.REMOVE_ZIGBEE_MIRROR_FORCE, false));
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
+    /**
      * Creates a MessageSpecification for adding a ZigBee device (IHD, Gas, ...) to the network.
      *
      * @return the requested messageSpecification

@@ -3,7 +3,6 @@ package com.energyict.genericprotocolimpl.common.messages;
 
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import org.apache.axis.encoding.Base64;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -140,6 +139,9 @@ public class MessageHandler extends DefaultHandler{
         } else if(RtuMessageConstant.REMOVE_ZIGBEE_SLAVE.equalsIgnoreCase(qName)){
             setType(RtuMessageConstant.REMOVE_ZIGBEE_SLAVE);
             handleRemoveZigBeeSlave(attrbs);
+        } else if(RtuMessageConstant.REMOVE_ZIGBEE_MIRROR.equalsIgnoreCase(qName)){
+            setType(RtuMessageConstant.REMOVE_ZIGBEE_MIRROR);
+            handleRemoveZigBeeMirror(attrbs);
         } else if(RtuMessageConstant.REMOVE_ALL_ZIGBEE_SLAVES.equalsIgnoreCase(qName)){
             setType(RtuMessageConstant.REMOVE_ALL_ZIGBEE_SLAVES);
         } else if(RtuMessageConstant.BACKUP_ZIGBEE_HAN_PARAMETERS.equalsIgnoreCase(qName)){
@@ -636,6 +638,16 @@ public class MessageHandler extends DefaultHandler{
 
     public String getRemoveZigBeeIEEEAddress() {
         return removeZigBeeIEEEAddress;
+    }
+
+    private String forceRemovalZigBeeMirror = "";
+    private void handleRemoveZigBeeMirror(Attributes attrbs) {
+        this.removeZigBeeIEEEAddress = attrbs.getValue(RtuMessageConstant.REMOVE_ZIGBEE_MIRROR_IEEE_ADDRESS);
+        this.forceRemovalZigBeeMirror = attrbs.getValue(RtuMessageConstant.REMOVE_ZIGBEE_MIRROR_FORCE);
+    }
+
+    public String getForceRemovalZigBeeMirror() {
+        return forceRemovalZigBeeMirror;
     }
 
     private String restoreHanParametersUserFileID = "";

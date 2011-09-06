@@ -55,7 +55,7 @@ public class UkHubMain extends AbstractSmartDebuggingMain<UkHub> {
         UkHubMain main = new UkHubMain();
         main.setTimeZone(TimeZone.getTimeZone("GMT"));
         //main.setPhoneNumber("10.0.2.215:4059");
-        main.setPhoneNumber("10.113.0.21:4059");
+        main.setPhoneNumber("10.113.0.19:4059");
         main.setShowCommunication(true);
         main.run();
     }
@@ -64,102 +64,10 @@ public class UkHubMain extends AbstractSmartDebuggingMain<UkHub> {
         return getMeterProtocol().getDlmsSession().getCosemObjectFactory();
     }
 
-    private void readZigBeeSAS() throws IOException {
-        Unsigned32 channelMask = getCosemObjectFactory().getZigBeeSASStartup().readChannelMask();
-        System.out.print("channelMask = " + channelMask);
-
-        OctetString extendedPanId = getCosemObjectFactory().getZigBeeSASStartup().readExtendedPanId();
-        System.out.print("extendedPanId = " + extendedPanId);
-
-        Unsigned16 panId = getCosemObjectFactory().getZigBeeSASStartup().readPanId();
-        System.out.print("panId = " + panId);
-
-        BooleanObject useInsecureJoin = getCosemObjectFactory().getZigBeeSASStartup().readUseInsecureJoin();
-        System.out.print("useInsecureJoin = " + useInsecureJoin);
-
-        OctetString linkKey = getCosemObjectFactory().getZigBeeSASStartup().readLinkKey();
-        System.out.print("linkKey = " + linkKey);
-
-        OctetString networkKey = getCosemObjectFactory().getZigBeeSASStartup().readNetworkKey();
-        System.out.print("networkKey = " + networkKey);
-    }
-
-    private void firmwareUpdate() throws IOException {
-        try {
-            byte[] bytes = ProtocolTools.readBytesFromFile("C:\\Users\\jme\\Desktop\\am110r-22-08-2011_1400.bin");
-            ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
-            imageTransfer.upgrade(bytes);
-        } catch (InterruptedException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-    }
-
-    private void writePPPSettings() {
-        try {
-            Data data = getCosemObjectFactory().getData(ObisCode.fromString("0.129.0.0.0.255"));
-            //data.setValueAttr(OctetString.fromString("<Configuration><Config><PPP><UserName>EICTSMQ007</UserName><Password>1893903</Password></PPP></Config></Configuration>"));
-            data.setValueAttr(OctetString.fromString("<Configuration><Config><PPP><UserName>EICTSMQ006</UserName><Password>4091459</Password></PPP></Config></Configuration>"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void printObjectList() throws IOException {
-        UniversalObject[] buffer = getCosemObjectFactory().getAssociationLN().getBuffer();
-        StringBuilder sb = new StringBuilder();
-        for (UniversalObject universalObject : buffer) {
-            sb.append(universalObject.getDescription()).append('\n');
-        }
-        String text = sb.toString();
-        System.out.println(text);
-        ProtocolTools.writeStringToFile("c:\\ukhub_objectlist.txt", text, false);
-    }
-
-    private void createHAN() throws IOException {
-        //String content = "<Change_HAN_SAS HAN_SAS_EXTENDED_PAN_ID=\"0102030405060708\" HAN_SAS_PAN_ID=\"1234\" HAN_SAS_PAN_Channel_Mask=\"134215680\" HAN_SAS_Insecure_Join=\"1\"/>";
-        String content = "<Change_HAN_SAS HAN_SAS_PAN_ID=\"45493\" />";
-        String trackingId = "";
-        MessageEntry messageEntry = new MessageEntry(content, trackingId);
-        // getMeterProtocol().queryMessage(messageEntry);
-
-        messageEntry = new MessageEntry("<Create_Han_Network/>", "");
-        getMeterProtocol().queryMessage(messageEntry);
-    }
-
-    private void joinDevice() throws IOException {
-        String content = "<Join_ZigBee_Slave ZigBee_IEEE_Address=\"00239BFE00000007\" ZigBee_Link_Key=\"9629DC2A358EA6459A584D66C1A68D27\"/>";
-        MessageEntry messageEntry = new MessageEntry(content, "");
-        getMeterProtocol().queryMessage(messageEntry);
-    }
-
-    private void removeDevice() throws IOException {
-        String content = "<Remove_ZigBee_Slave ZigBee_IEEE_Address=\"00239BFE00000007\"/>";
-        MessageEntry messageEntry = new MessageEntry(content, "");
-        getMeterProtocol().queryMessage(messageEntry);
-    }
-
-    private void removeAllSlaves() throws IOException {
-        String content = "<Remove_All_ZigBee_Slaves/>";
-        MessageEntry messageEntry = new MessageEntry(content, "");
-        getMeterProtocol().queryMessage(messageEntry);
-    }
-
-    private void readLogbooks() throws IOException {
-        List<MeterEvent> meterEvents = getMeterProtocol().getMeterEvents(new Date(0));
-        for (MeterEvent meterEvent : meterEvents) {
-            System.out.println(meterEvent.getTime() + "  " +  meterEvent.toString());
-        }
-    }
-
     public void doDebug() throws LinkException, IOException {
-        try {
-            FileTransfer fileTransfer = getCosemObjectFactory().getFileTransfer();
-            fileTransfer.setFilename("test.css");
-            fileTransfer.setFiletype("text/css");
-            fileTransfer.upgrade(ProtocolTools.readBytesFromFile("C:\\Users\\jme\\Desktop\\UKHUB files\\test.css"));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        String firmwareVersion = getMeterProtocol().getFirmwareVersion();
+        System.out.println("\n\n" + firmwareVersion + "\n\n");
+
     }
 
 }

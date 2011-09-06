@@ -277,6 +277,11 @@ public class RtuMessageConstant {
     public static final String CREATE_HAN_NETWORK = "Create_Han_Network";
     public static final String REMOVE_HAN_NETWORK = "Remove_Han_Network";
 
+    // ZigBee related massages for mirror object
+    public static final String REMOVE_ZIGBEE_MIRROR = "Remove_Mirror";
+    public static final String REMOVE_ZIGBEE_MIRROR_IEEE_ADDRESS = "Mirror_IEEE_Address";
+    public static final String REMOVE_ZIGBEE_MIRROR_FORCE = "Force_Removal";
+
     // Join ZigBee slave device related message constants
     public static final String JOIN_ZIGBEE_SLAVE = "Join_ZigBee_Slave";
     public static final String JOIN_ZIGBEE_SLAVE_IEEE_ADDRESS = "ZigBee_IEEE_Address";

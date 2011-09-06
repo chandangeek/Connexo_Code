@@ -16,7 +16,6 @@ import com.energyict.mdw.core.RtuMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
@@ -108,57 +107,19 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
     }
 
     private void updateFirmware(String content) throws IOException {
+        getLogger().info("Executing firmware update message");
+        try {
+            String base64Encoded = getIncludedContent(content);
+            byte[] imageData = new BASE64Decoder().decodeBuffer(base64Encoded);
+            final ImageTransfer it = getCosemObjectFactory().getImageTransfer();
+            it.upgrade(imageData);
+            it.imageActivation();
+        } catch (InterruptedException e) {
+            String msg = "Firmware upgrade failed! " + e.getClass().getName() + " : " + e.getMessage();
+            getLogger().severe(msg);
+            throw new IOException(msg);
+        }
         getLogger().info("Received a firmware upgrade message.");
-
-        try {
-            getLogger().info("Parsing XML from FirmwareUpgrade message...");
-            FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder();
-            builder.initFromXml(content);
-            if (builder.getUserFile() == null) {
-                throw new IOException("The message did not contain a user file to use for the upgrade, message fails...");
-            }
-
-            getLogger().info("Pulling out user file and dispatching to the device...");
-            final byte[] upgradeFileData = builder.getUserFile().loadFileInByteArray();
-            if (upgradeFileData.length == 0) {
-                throw new IOException("Length of the upgrade file is not valid [" + upgradeFileData.length + " bytes], failing message.");
-            }
-
-            upgradeDevice(upgradeFileData);
-
-            getLogger().info("Firmware upgrade completed successfully.");
-
-        } catch (final SAXException e) {
-            throw new IOException("Cannot process firmware upgrade message due to an XML parsing error [" + e.getMessage() + "]");
-        }
-
-    }
-
-    private void upgradeDevice(byte[] firmwareData) throws IOException {
-
-        final ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
-
-        try {
-            getLogger().info("Converting received image to binary using a Base64 decoder...");
-
-            final BASE64Decoder decoder = new BASE64Decoder();
-            final byte[] binaryImage = decoder.decodeBuffer(new String(firmwareData));
-
-            getLogger().info("Commencing upgrade...");
-
-            imageTransfer.upgrade(binaryImage);
-            imageTransfer.imageActivation();
-
-            getLogger().info("Upgrade has finished successfully...");
-        } catch (final InterruptedException e) {
-            getLogger().severe("Interrupted while uploading firmware image [" + e.getMessage() + "]");
-
-            final IOException ioException = new IOException(e.getMessage());
-            ioException.initCause(e);
-
-            throw ioException;
-        }
-
     }
 
     private boolean isFirmwareUpdateMessage(String messageContent) {
