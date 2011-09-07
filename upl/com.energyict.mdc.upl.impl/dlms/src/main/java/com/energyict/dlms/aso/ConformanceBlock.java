@@ -249,6 +249,75 @@ public class ConformanceBlock{
         return block[BIT_READ];
     }
 
+
+    public void setRead(boolean value) {
+        setBit(BIT_READ, value);
+    }
+
+    public void setWrite(boolean value) {
+        setBit(BIT_WRITE, value);
+    }
+
+    public void setUnconfirmedWrite(boolean value) {
+        setBit(BIT_UNCONFIRMED_WRITE, value);
+    }
+
+    public void setAttribute0SupportedWithSet(boolean value) {
+        setBit(BIT_ATTRB0_SUPP_SET, value);
+    }
+
+    public void setPriorityManagementSupported(boolean value) {
+        setBit(BIT_PRIORITY_MGMT_SUPP, value);
+    }
+
+    public void setAttribute0SupportedWithGet(boolean value) {
+        setBit(BIT_ATTRB0_SUPP_GET, value);
+    }
+
+    public void setBlockTransferWithGetOrRead(boolean value) {
+        setBit(BIT_BLOCK_TRANSF_GET, value);
+    }
+
+    public void setBlockTransferWithSetOrWrite(boolean value) {
+        setBit(BIT_BLOCK_TRANSF_SET, value);
+    }
+
+    public void setBlockTransferWithAction(boolean value) {
+        setBit(BIT_BLOCK_TRANSF_ACTION, value);
+    }
+
+    public void setMultipleReferences(boolean value) {
+        setBit(BIT_MULTIPLE_REFS, value);
+    }
+
+    public void setInformationReport(boolean value) {
+        setBit(BIT_INFORMATION_REPORT, value);
+    }
+
+    public void setParameterizedAccess(boolean value) {
+        setBit(BIT_PARAMETERIZED_ACCESS, value);
+    }
+
+    public void setGet(boolean value) {
+        setBit(BIT_GET, value);
+    }
+
+    public void setSet(boolean value) {
+        setBit(BIT_SET, value);
+    }
+
+    public void setSelectiveAccess(boolean value) {
+        setBit(BIT_SELECTIVE_ACCESS, value);
+    }
+
+    public void setEventNotification(boolean value) {
+        setBit(BIT_EVENT_NOTIFY, value);
+    }
+
+    public void setAction(boolean value) {
+        setBit(BIT_ACTION, value);
+    }
+
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
@@ -262,5 +331,10 @@ public class ConformanceBlock{
         return sb.toString();
     }
 
+
+    public static void main(String[] args) {
+        ConformanceBlock cb = new ConformanceBlock(DEFAULT_LN_CONFORMANCE_BLOCK);
+        System.out.println(cb);
+    }
 
 }
