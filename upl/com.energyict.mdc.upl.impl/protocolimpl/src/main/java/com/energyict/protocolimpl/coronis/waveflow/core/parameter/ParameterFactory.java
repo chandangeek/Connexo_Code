@@ -308,7 +308,7 @@ public class ParameterFactory {
     final public Date readBatteryLifeDateEnd() throws IOException {
         BatteryLifeDateEnd o = new BatteryLifeDateEnd(waveFlow);
         o.read();
-        return (o.getCalendar() == null ? null : o.getCalendar().getTime());
+        return (o.getCalendar().getTime());
     }
 
     public void writeDayOfWeek(int day) throws IOException {

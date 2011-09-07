@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.coronis.waveflow.core.parameter;
 
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
@@ -21,7 +20,6 @@ public class BatteryLifeDateEnd extends AbstractParameter {
 		super(waveFlow);
 	}
 
-	
 	@Override
 	ParameterId getParameterId() {
 		return ParameterId.BatteryLifeDateEnd;
@@ -29,13 +27,10 @@ public class BatteryLifeDateEnd extends AbstractParameter {
 
 	@Override
     protected void parse(byte[] data) throws IOException {
-		
-		long date = ProtocolUtils.getLong(data, 0, 7);
-		if (date == 0x01010101010101L) {
-			calendar = null;
-		}
-		else {
+        try {
 			calendar = TimeDateRTCParser.parse(data, getWaveFlow().getTimeZone());
+        } catch (Exception e) {
+            calendar = Calendar.getInstance();
 		}
 	}
 
@@ -43,6 +38,4 @@ public class BatteryLifeDateEnd extends AbstractParameter {
     protected byte[] prepare() throws IOException {
 		throw new UnsupportedException();
 	}
-	
-
 }
