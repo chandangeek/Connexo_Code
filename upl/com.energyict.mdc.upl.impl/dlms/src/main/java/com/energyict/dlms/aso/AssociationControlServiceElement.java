@@ -2,6 +2,7 @@ package com.energyict.dlms.aso;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.encryption.XDlmsDecryption;
 import com.energyict.encryption.XDlmsEncryption;
@@ -283,7 +284,8 @@ public class AssociationControlServiceElement {
         try {
             while (true) {
                 if (responseData[i] == DLMSCOSEMGlobals.AARE_TAG) {
-                    i += 2; // skip tag & length
+                    i++; // skip tag
+                    i += DLMSUtils.getAXDRLengthOffset(responseData, i);
                     while (true) {
                         if (responseData[i] == DLMSCOSEMGlobals.AARE_APPLICATION_CONTEXT_NAME) {
                             i++; // skip tag
