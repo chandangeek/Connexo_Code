@@ -3,7 +3,6 @@ package com.energyict.protocolimpl.coronis.waveflow.waveflowV2;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.waveflow.core.EventStatusAndDescription;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 import com.energyict.protocolimpl.coronis.waveflow.core.parameter.*;
@@ -151,7 +150,6 @@ public class ProfileDataReader {
             }
         } else if (daily) {
             calendar.setTime(dailyConsumption.getIndexZone().getLastDailyLoggedIndex());
-            checkReceivedDailyLoggings(dailyConsumption, lastReading, toDate);
         } else if (monthly) {
             calendar.setTime(getTimeStampOfNewestRecordMonthly(toDate, lastLoggedValue));
         }
@@ -213,30 +211,6 @@ public class ProfileDataReader {
      */
     private int getSteps(int nrOfIntervals) {
         return waveFlowV2.isMultiFrame() ? nrOfIntervals : STEPS;
-    }
-
-    private void checkReceivedDailyLoggings(DailyConsumption dailyConsumption, Date lastReading, Date toDate) throws IOException {
-        TimeZone timeZone = waveFlowV2.getTimeZone();
-        if (timeZone == null) {
-            timeZone = TimeZone.getDefault();
-        }
-
-        Calendar lastLogged = Calendar.getInstance(timeZone);
-        lastLogged.setTime(dailyConsumption.getIndexZone().getLastDailyLoggedIndex());
-        lastLogged.setLenient(true);
-
-        if (lastLogged.getTime().before(lastReading)) {
-            throw new WaveFlowException("There's no daily profile data available for the requested period");
-        }
-
-        Calendar oldestLogging = Calendar.getInstance(timeZone);
-        oldestLogging.setTime(lastLogged.getTime());
-        lastLogged.setLenient(true);
-        oldestLogging.add(Calendar.DAY_OF_YEAR, -1 * getNumberOfDailyValues());
-
-        if (oldestLogging.getTime().after(toDate)) {
-            throw new WaveFlowException("There's no daily profile data available for the requested period");
-        }
     }
 
     /**
