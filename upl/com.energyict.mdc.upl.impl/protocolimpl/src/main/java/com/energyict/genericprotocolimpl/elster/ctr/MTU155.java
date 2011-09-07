@@ -12,6 +12,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValu
 import com.energyict.genericprotocolimpl.elster.ctr.profile.ProfileChannel;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.IdentificationResponseStructure;
 import com.energyict.genericprotocolimpl.elster.ctr.tariff.CodeTableBase64Builder;
+import com.energyict.genericprotocolimpl.elster.ctr.util.MeterInfo;
 import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.*;
@@ -98,6 +99,15 @@ public class MTU155 extends AbstractGenericProtocol {
             getProtocolProperties().addProperties(getPropertiesFromProtocolClass());
             log("Incomming TCP connection from: " + getRequestFactory().getIPAddress());
             updateRequestFactory();
+
+            IdentificationResponseStructure structure = getRequestFactory().getIdentificationStructure();
+            MeterInfo meterInfo = getRequestFactory().getMeterInfo();
+            log(structure.toString());
+            log("MTU155 with pdr='" + structure.getPdr() + "'");
+            log("Serial number of the MTU155='" + meterInfo.getConverterSerialNumber() + "'");
+            log("Serial number of the converter='"+ meterInfo.getConverterSerialNumber() +"'");
+            log("Serial number of the gas meter='" + structure.getMeterSerialNumber() +"'");
+
             this.rtu = identifyAndGetRtu();
             log("Rtu with name '" + getRtu().getName() + "' connected successfully.");
             getProtocolProperties().addProperties(rtu.getProtocol().getProperties());
