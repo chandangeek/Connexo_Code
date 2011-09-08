@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 
 public class ObisCodeMapper {
 
@@ -76,6 +77,7 @@ public class ObisCodeMapper {
                 ExtendedIndexReading extendedIndexReadingConfiguration = waveFlowV1.getRadioCommandFactory().readExtendedIndexConfiguration();
                 int value = extendedIndexReadingConfiguration.getIndexOfLastMonth(channel);
                 if (value == -1) {
+                    waveFlowV1.getLogger().log(Level.WARNING, "No billing data available yet, values are 0xFFFFFFFF");
                     throw new WaveFlowException("No billing data available yet");
                 }
                 BigDecimal lastMonthsIndexValue = new BigDecimal(pulseWeight.getWeight() * value);
@@ -89,6 +91,9 @@ public class ObisCodeMapper {
             }
 
         } catch (IOException e) {
+            if (!(e instanceof NoSuchRegisterException)) {
+                waveFlowV1.getLogger().log(Level.SEVERE, "Error getting [" + obisCode + "]: timeout, " + e.getMessage());
+            }
             throw new NoSuchRegisterException("Register with obis code [" + obisCode + "] has an error [" + e.getMessage() + "]!");
         }
     }

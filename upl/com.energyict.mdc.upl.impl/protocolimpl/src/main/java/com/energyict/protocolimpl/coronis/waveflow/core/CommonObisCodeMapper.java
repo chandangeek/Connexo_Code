@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 
 public class CommonObisCodeMapper {
 
@@ -54,7 +55,7 @@ public class CommonObisCodeMapper {
     private static final ObisCode OBISCODE_EXTREME_LEAKAGE_THRESHOLD4 = ObisCode.fromString("8.4.96.50.1.255");
 
     private static final ObisCode OBISCODE_LEAKAGE_MEASUREMENTSTEP = ObisCode.fromString("8.0.96.51.2.255");
-    
+
     private static final ObisCode OBISCODE_RESIDUAL_LEAKAGE_PERIOD1 = ObisCode.fromString("8.1.96.51.0.255");
     private static final ObisCode OBISCODE_RESIDUAL_LEAKAGE_PERIOD2 = ObisCode.fromString("8.2.96.51.0.255");
     private static final ObisCode OBISCODE_RESIDUAL_LEAKAGE_PERIOD3 = ObisCode.fromString("8.3.96.51.0.255");
@@ -196,6 +197,7 @@ public class CommonObisCodeMapper {
                 return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(hour), Unit.get(BaseUnit.HOUR)), new Date());
             } else if (obisCode.equals(OBISCODE_DATALOGGING_STARTMINUTE)) {
                 if (waveFlow.isV1()) {
+                    waveFlow.getLogger().log(Level.WARNING, "The WaveFlow V1 module doesn't support the data logging start minute parameter");
                     throw new UnsupportedException("The WaveFlow V1 module doesn't support the data logging start minute parameter");
                 }
                 int minute = waveFlow.getParameterFactory().readStartMinuteOfMeasurement();
@@ -328,7 +330,7 @@ public class CommonObisCodeMapper {
                 int value = waveFlow.getParameterFactory().getNumberOfFramesInRx();
                 return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date());
             } else if (obisCode.equals(OBISCODE_NUMBER_OF_FRAME_TX)) {
-                int value = waveFlow.getParameterFactory().getNumberOfFramesInTx();                
+                int value = waveFlow.getParameterFactory().getNumberOfFramesInTx();
                 return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date());
             } else if (obisCode.equals(OBISCODE_RSSI_LEVEL)) {
                 double value = waveFlow.getRadioCommandFactory().readModuleType().getRssiLevel();
@@ -338,8 +340,12 @@ public class CommonObisCodeMapper {
                 PulseWeight pulseWeight = waveFlow.getParameterFactory().readPulseWeight(inputChannel);
                 return new RegisterValue(obisCode, new Quantity(new BigDecimal(pulseWeight.getWeight()), pulseWeight.getUnit()));
             }
+            waveFlow.getLogger().log(Level.SEVERE, "Register with obis code [" + obisCode + "] does not exist!");
             throw new NoSuchRegisterException("Register with obis code [" + obisCode + "] does not exist!");
         } catch (IOException e) {
+            if (!(e instanceof NoSuchRegisterException)) {
+                waveFlow.getLogger().log(Level.SEVERE, "Error getting [" + obisCode + "]: timeout, " + e.getMessage());
+            }
             throw new NoSuchRegisterException("Register with obis code [" + obisCode + "] has an error [" + e.getMessage() + "]!");
         }
     }
