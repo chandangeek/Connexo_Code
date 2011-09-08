@@ -18,7 +18,7 @@ public class ProfileDataReaderV1 {
     private static final int DAILY = HOURLY * 24;
     private static final int WEEKLY = DAILY * 7;
     private static final int MONTHLY = (WEEKLY * 4) - 1;
-    
+
     private int profileInterval = 0;
     private int numberOfInputs = 0;
     private WaveFlow waveFlowV1;
@@ -47,14 +47,18 @@ public class ProfileDataReaderV1 {
 
         List<Long[]> rawValues = new ArrayList<Long[]>();
         Date lastLoggedValueDate = new Date();
+        int[] channelIndexes = new int[0];
 
         if (getNumberOfInputsUsed() == 1) {
             DataloggingTable dataloggingTableA = waveFlowV1.getRadioCommandFactory().readDataloggingTable(1);
+            channelIndexes = new int[]{1};
+
             rawValues.add(dataloggingTableA.getProfileDataA());
             lastLoggedValueDate = dataloggingTableA.getLastLoggedIndexDate();
         }
         if (getNumberOfInputsUsed() == 2) {
             DataloggingTable dataloggingTableAB = waveFlowV1.getRadioCommandFactory().readDataloggingTable(12);
+            channelIndexes = new int[]{1, 2};
             rawValues.add(dataloggingTableAB.getProfileDataA());
             rawValues.add(dataloggingTableAB.getProfileDataB());
             lastLoggedValueDate = dataloggingTableAB.getLastLoggedIndexDate();
@@ -64,6 +68,7 @@ public class ProfileDataReaderV1 {
             rawValues.add(dataloggingTableAB.getProfileDataA());
             rawValues.add(dataloggingTableAB.getProfileDataB());
             DataloggingTable dataloggingTableC = waveFlowV1.getRadioCommandFactory().readDataloggingTable(3);
+            channelIndexes = new int[]{1, 2, 3};
             rawValues.add(dataloggingTableC.getProfileDataC());
             lastLoggedValueDate = dataloggingTableC.getLastLoggedIndexDate();
         }
@@ -74,11 +79,12 @@ public class ProfileDataReaderV1 {
             DataloggingTable dataloggingTableCD = waveFlowV1.getRadioCommandFactory().readDataloggingTable(34);
             rawValues.add(dataloggingTableCD.getProfileDataC());
             rawValues.add(dataloggingTableCD.getProfileDataD());
+            channelIndexes = new int[]{1, 2, 3, 4};
             lastLoggedValueDate = dataloggingTableCD.getLastLoggedIndexDate();
         }
         int nrOfReadings = (getNumberOfInputsUsed() == 1 ? 24 : 12);
 
-        return parseProfileData(true, getNumberOfInputsUsed(), nrOfReadings, monthly, lastReading, toDate, includeEvents, rawValues, lastLoggedValueDate);
+        return parseProfileData(true, getNumberOfInputsUsed(), channelIndexes, nrOfReadings, monthly, lastReading, toDate, includeEvents, rawValues, lastLoggedValueDate);
     }
 
     /*
@@ -86,7 +92,7 @@ public class ProfileDataReaderV1 {
     It can be used for pushed frames and requested frames.
      */
 
-    public ProfileData parseProfileData(boolean requestsAllowed, int numberOfInputsUsed, int nrOfReadings, boolean monthly, Date lastReading, Date toDate, boolean includeEvents, List<Long[]> rawValues, Date lastLoggedValueDate) throws IOException {
+    public ProfileData parseProfileData(boolean requestsAllowed, int numberOfInputsUsed, int[] channelIndexes, int nrOfReadings, boolean monthly, Date lastReading, Date toDate, boolean includeEvents, List<Long[]> rawValues, Date lastLoggedValueDate) throws IOException {
 
         ProfileData profileData = new ProfileData();
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
@@ -100,13 +106,12 @@ public class ProfileDataReaderV1 {
         Calendar calendar = Calendar.getInstance(timeZone);
         calendar.setLenient(true);
 
-        int channelId = 0;
-        for (int inputId = 0; inputId < numberOfInputsUsed; inputId++) {
+        for (int channelIndex : channelIndexes) {
             Unit unit = Unit.get("");
             if (requestsAllowed) {
-                unit = waveFlowV1.getParameterFactory().readPulseWeight(inputId + 1).getUnit();
+                unit = waveFlowV1.getParameterFactory().readPulseWeight(channelIndex).getUnit();
             }
-            ChannelInfo channelInfo = new ChannelInfo(channelId++, "Input channel " + (inputId + 1), unit);
+            ChannelInfo channelInfo = new ChannelInfo(channelIndex - 1, String.valueOf(channelIndex), unit);
             channelInfo.setCumulative();
             channelInfo.setCumulativeWrapValue(new BigDecimal(Integer.MAX_VALUE));
             channelInfos.add(channelInfo);
@@ -244,12 +249,12 @@ public class ProfileDataReaderV1 {
         if ((applicationStatus & 0x20) == 0x20) {
             Date eventDate = waveFlowV1.getParameterFactory().readWireCutDetectionDate(2);
             meterEvents.add(new MeterEvent(eventDate, translator.getEventCode(0x20), translator.getProtocolCodeForStatus(0x20), translator.getEventDescription(0x20)));
-            }
+        }
 
         if ((applicationStatus & 0x40) == 0x40) {
             Date eventDate = waveFlowV1.getParameterFactory().readWireCutDetectionDate(3);
             meterEvents.add(new MeterEvent(eventDate, MeterEvent.TAMPER, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_D, "Wirecut input D"));
-            }
+        }
 
         //Bit 7 is not parsed, the back flow events are already handled in the event table.
 

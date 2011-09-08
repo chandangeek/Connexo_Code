@@ -177,22 +177,29 @@ public class BubbleUpFrameParser {
 
         int channels = 0;
         int numberOfInputsUsed = operatingMode.getNumberOfInputsUsed();
+        int[] channelIndexes = new int[0];
         if (numberOfInputsUsed == 1) {
             channels = 1;
+            channelIndexes = new int[]{1};
         }
         if (numberOfInputsUsed == 2) {
             channels = 12;
+            channelIndexes = new int[]{1, 2};
         }
         if (numberOfInputsUsed == 3) {
             channels = 12;
+            channelIndexes = new int[]{1, 2};
             if (type == 0x87) {
                 channels = 3;
+                channelIndexes = new int[]{3};
             }
         }
         if (numberOfInputsUsed == 4) {
             channels = 12;
+            channelIndexes = new int[]{1, 2};
             if (type == 0x87) {
                 channels = 34;
+                channelIndexes = new int[]{3, 4};
             }
         }
         DataloggingTable dataloggingTable = new DataloggingTable(waveflow);
@@ -216,7 +223,7 @@ public class BubbleUpFrameParser {
         int inputsUsed = (channels == 1 || channels == 3) ? 1 : 2;
         int nrOfReadings = (inputsUsed == 1 ? ((channels == 3) ? 12 : 24) : 12);
 
-        profileDatas.add(profileDataReaderV1.parseProfileData(false, inputsUsed, nrOfReadings, operatingMode.isMonthlyMeasurement(), new Date(0), new Date(), false, rawValues, lastLogged));
+        profileDatas.add(profileDataReaderV1.parseProfileData(false, inputsUsed, channelIndexes, nrOfReadings, operatingMode.isMonthlyMeasurement(), new Date(0), new Date(), false, rawValues, lastLogged));
         result.setProfileDatas(profileDatas);
         return result;
     }

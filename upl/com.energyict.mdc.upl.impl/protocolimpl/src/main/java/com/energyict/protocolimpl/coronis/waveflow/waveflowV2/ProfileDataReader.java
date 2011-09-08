@@ -18,7 +18,7 @@ public class ProfileDataReader {
     private WaveFlow waveFlowV2;
     private int inputsUsed = 0;
     private int interval = 0;
-    
+
     private static final int HOURLY = 60 * 60;
     private static final int DAILY = HOURLY * 24;
     private static final int WEEKLY = DAILY * 7;
@@ -135,7 +135,7 @@ public class ProfileDataReader {
             if (requestsAllowed) {
                 unit = waveFlowV2.getParameterFactory().readPulseWeight(inputId + 1).getUnit();
             }
-            ChannelInfo channelInfo = new ChannelInfo(channelId++, "Input channel " + (inputId + 1), unit);
+            ChannelInfo channelInfo = new ChannelInfo(channelId++, String.valueOf(inputId + 1), unit);       //Channel name: 1, 2, 3 or 4
             channelInfo.setCumulative();
             channelInfo.setCumulativeWrapValue(new BigDecimal(Integer.MAX_VALUE)); //4 bytes long, signed value
             channelInfos.add(channelInfo);
