@@ -177,6 +177,45 @@ public class ImageTransfer extends AbstractCosemObject{
     }
 
     /**
+     * Do the first 2 steps of a firmware upgrade.
+     * Use this to allow more progress feedback to the user
+     */
+	public void initialize(byte[] data) throws IOException, InterruptedException{
+		this.data = data;
+		this.size = new Unsigned32(data.length);
+
+		// Set the imageTransferEnabledState to true (otherwise the upgrade can not be performed)
+		writeImageTransferEnabledState(true);
+
+		if(getImageTransferEnabledState().getState()){
+
+			if(DEBUG) {
+				System.out.println("ImageTrans: Enabled state is true.");
+    }
+
+			// Step1: Get the maximum image block size
+			// and calculate the amount of blocks in one step
+			this.blockCount = (int)(this.size.getValue()/readImageBlockSize().getValue()) + (((this.size.getValue()%readImageBlockSize().getValue())==0)?0:1);
+			if(DEBUG) {
+				System.out.println("ImageTrans: Maximum block size is: " + readImageBlockSize() +
+						", Number of blocks: " + blockCount + ".");
+			}
+
+			// Step2: Initiate the image transfer
+			Structure imageInitiateStructure = new Structure();
+			imageInitiateStructure.addDataType(OctetString.fromString("NewImage"));	// it's a default name for the new image
+			imageInitiateStructure.addDataType(this.size);
+
+			imageTransferInitiate(imageInitiateStructure);
+			if(DEBUG) {
+				System.out.println("ImageTrans: Initialize success.");
+			}
+		} else {
+			throw new IOException("Could not perform the upgrade because meter does not allow it.");
+		}
+	}
+
+    /**
 	 * Transfer all the image blocks to the meter.
 	 * 
 	 * @param additionalZeros 
@@ -254,6 +293,55 @@ public class ImageTransfer extends AbstractCosemObject{
 //		fos.close();
 	}
 	
+	public void transferNextImageBlocks(int counter, boolean additionalZeros) throws IOException {
+
+        int numberOfBlocksPerStep = blockCount / 20 + (((blockCount % 20) == 0) ? 0 : 1);
+        int startOffset = counter * numberOfBlocksPerStep;
+
+        if ((startOffset + numberOfBlocksPerStep) > blockCount) {
+            numberOfBlocksPerStep = blockCount - startOffset;
+        }
+
+		byte[] octetStringData;
+		OctetString os;
+		Structure imageBlockTransfer;
+		for(int i = startOffset; i < startOffset + numberOfBlocksPerStep; i++){
+			if(i < blockCount -1){
+				octetStringData = new byte[(int)readImageBlockSize().getValue()];
+				System.arraycopy(this.data, (int)(i*readImageBlockSize().getValue()), octetStringData, 0,
+						(int)readImageBlockSize().getValue());
+			} else {
+			    /*
+			     * If it is the last block then it is dependent from vendor to vendor whether they want the size of the last block
+			     * to be the same as the others, or just the size of the remaining bytes.
+			     */
+			    long blockSize = this.size.getValue() - (i*readImageBlockSize().getValue());
+			    if(additionalZeros){
+				octetStringData = new byte[(int)readImageBlockSize().getValue()];
+				System.arraycopy(this.data, (int)(i*readImageBlockSize().getValue()), octetStringData, 0,
+						(int)blockSize);
+			    } else {
+				octetStringData = new byte[(int)blockSize];
+				System.arraycopy(this.data, (int)(i*readImageBlockSize().getValue()), octetStringData, 0,
+					(int)blockSize);
+			    }
+
+			}
+			os = new OctetString(octetStringData);
+			imageBlockTransfer = new Structure();
+			imageBlockTransfer.addDataType(new Unsigned32(i));
+			imageBlockTransfer.addDataType(os);
+
+			// without retries
+			imageBlockTransfer(imageBlockTransfer);
+
+			if(i % 50 == 0){ // i is multiple of 50
+				this.protocolLink.getLogger().log(Level.INFO, "ImageTransfer: " + i + " of " + blockCount + " blocks are sent to the device");
+			}
+		}
+//		fos.close();
+	}
+
 	/**
 	 * Check if there are missing blocks, if so, resent them
 	 * @throws IOException

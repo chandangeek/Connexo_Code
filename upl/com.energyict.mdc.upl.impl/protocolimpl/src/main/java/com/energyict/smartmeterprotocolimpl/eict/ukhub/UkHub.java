@@ -1,26 +1,25 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub;
 
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
-import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
-import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
-import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
+import com.energyict.smartmeterprotocolimpl.common.*;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.events.UkHubEventProfiles;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging.*;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.logging.Level;
 
 /**
  * The UK hub has the same protocolBase as the WebRTUZ3. Additional functionality is added for SSE, more specifically Zigbee HAN functionality
  * and Prepayment
  */
-public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol, FirmwareUpdateMessaging {
+public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol, FirmwareUpdateMessaging, SmartMeterToolProtocol {
 
     /**
      * The properties to use for this protocol
@@ -333,5 +332,17 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
 
     public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
         return new UkHubFirmwareUpdateMessageBuilder();
+    }
+
+    public void disConnect() throws IOException {
+        super.disconnect();
+    }
+
+    public DLMSMeterConfig getMeterConfig() {
+        return getDlmsSession().getMeterConfig();
+    }
+
+    public CosemObjectFactory getCosemObjectFactory() {
+        return getDlmsSession().getCosemObjectFactory();
     }
 }

@@ -93,4 +93,8 @@ public abstract class AbstractSmartMeterProtocol implements SmartMeterProtocol {
     public TimeZone getTimeZone() {
         return timeZone;
     }
+
+    public void setLogger(Logger logger) {
+        this.logger = logger;
+    }
 }

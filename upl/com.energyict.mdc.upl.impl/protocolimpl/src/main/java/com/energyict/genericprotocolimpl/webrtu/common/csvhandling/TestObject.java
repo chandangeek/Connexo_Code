@@ -20,11 +20,11 @@ public class TestObject {
 	private static final int EXPECTED = 12;
 	private static final int STARTTIME = 13;
 	
-	private static final int GET = 0;
-	private static final int SET = 1;
-	private static final int ACTION = 2;
+	public static final int GET = 0;
+	public static final int SET = 1;
+	public static final int ACTION = 2;
 	private static final int MESSAGE = 3;
-	private static final int WAIT = 4;
+	public static final int WAIT = 4;
 	private static final int EMPTY = 5;
 	
 	private String[] testRow;
@@ -133,6 +133,10 @@ public class TestObject {
 	
 	public int getAttribute(){
 		return Integer.parseInt(this.testRow[ATTRIBUTE]);
+	}
+
+	public String getStringAttribute(){
+		return this.testRow[ATTRIBUTE];
 	}
 	
 	public int getMethod(){
