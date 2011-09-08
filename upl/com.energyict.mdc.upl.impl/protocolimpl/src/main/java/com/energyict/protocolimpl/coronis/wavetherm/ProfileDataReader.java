@@ -134,7 +134,7 @@ public class ProfileDataReader {
         //Set up the channel and its info
         for (int index = 0; index < getNumberOfChannels(); index++) {
             Unit unit = Unit.get(BaseUnit.DEGREE_CELSIUS);
-            ChannelInfo channelInfo = new ChannelInfo(0, "Sensor " + index, unit);
+            ChannelInfo channelInfo = new ChannelInfo(index, String.valueOf(index + 1), unit);
             channelInfo.setCumulative();
             channelInfo.setCumulativeWrapValue(new BigDecimal(0xFFFF));
             channelInfos.add(channelInfo);

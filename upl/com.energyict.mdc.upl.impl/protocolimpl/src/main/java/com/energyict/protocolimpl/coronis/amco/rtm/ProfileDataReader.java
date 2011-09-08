@@ -172,7 +172,7 @@ public class ProfileDataReader {
         int channelId = 0;
         for (int inputId = 0; inputId < getNumberOfInputsUsed(); inputId++) {
             Unit unit = genericHeader.getUnit(inputId);
-            ChannelInfo channelInfo = new ChannelInfo(channelId++, "Input channel " + (inputId + 1), unit);
+            ChannelInfo channelInfo = new ChannelInfo(channelId++, String.valueOf(inputId + 1), unit);
             channelInfo.setCumulative();
             channelInfo.setCumulativeWrapValue(new BigDecimal(Integer.MAX_VALUE)); //4 bytes long, signed value
             channelInfos.add(channelInfo);
