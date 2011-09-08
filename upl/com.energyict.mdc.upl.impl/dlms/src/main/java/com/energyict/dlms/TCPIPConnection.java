@@ -1,5 +1,6 @@
 package com.energyict.dlms;
 
+import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.*;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.protocol.ProtocolUtils;
@@ -253,6 +254,10 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
 	 * @exception TCPIPConnectionException
 	 */
 	public byte[] sendRequest(byte[] data) throws IOException {
+
+        //TODO test for connectionPooling
+        Environment.getDefault().closeConnection();
+
 		int retry=0;
 
 		// strip the HDLC LLC header. This is because of the code inherited from  the days only HDLC existed...
