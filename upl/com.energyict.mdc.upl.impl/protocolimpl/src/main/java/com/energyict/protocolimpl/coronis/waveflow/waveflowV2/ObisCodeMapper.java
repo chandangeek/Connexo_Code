@@ -113,7 +113,7 @@ public class ObisCodeMapper {
             if (!(e instanceof NoSuchRegisterException)) {
                 waveFlowV2.getLogger().log(Level.SEVERE, "Error getting [" + obisCode + "]: timeout, " + e.getMessage());
             }
-            throw new NoSuchRegisterException("Register with obis code [" + obisCode + "] has an error [" + e.getMessage() + "]!");
+            throw e;
         }
     }
 

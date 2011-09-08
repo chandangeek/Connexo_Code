@@ -180,7 +180,7 @@ public class CommonObisCodeMapper {
         }
     }
 
-    public RegisterValue getRegisterValue(ObisCode obisCode) throws NoSuchRegisterException {
+    public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
         try {
             OperatingMode operatingMode = waveFlow.getParameterFactory().readOperatingMode();
             if (obisCode.equals(OBISCODE_REMAINING_BATTERY)) {
@@ -346,7 +346,7 @@ public class CommonObisCodeMapper {
             if (!(e instanceof NoSuchRegisterException)) {
                 waveFlow.getLogger().log(Level.SEVERE, "Error getting [" + obisCode + "]: timeout, " + e.getMessage());
             }
-            throw new NoSuchRegisterException("Register with obis code [" + obisCode + "] has an error [" + e.getMessage() + "]!");
+            throw e;
         }
     }
 

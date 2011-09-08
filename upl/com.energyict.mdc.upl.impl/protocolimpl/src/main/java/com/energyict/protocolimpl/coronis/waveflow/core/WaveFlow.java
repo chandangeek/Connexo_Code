@@ -158,7 +158,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
         try {
             return "V" + WaveflowProtocolUtils.toHexString(getRadioCommandFactory().readFirmwareVersion().getFirmwareVersion()) + ", Mode of transmission " + getRadioCommandFactory().readFirmwareVersion().getModeOfTransmission();
         } catch (IOException e) {
-            return "Error requesting firmware version";
+            return "Error requesting firmware version, timeout";
         }
     }
 
