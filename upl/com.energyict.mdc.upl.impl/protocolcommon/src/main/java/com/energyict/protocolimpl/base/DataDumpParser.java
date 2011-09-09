@@ -10,7 +10,6 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProtocolUtils;
-import org.hibernate.type.IntegerType;
 
 import java.io.File;
 import java.io.FileInputStream;
