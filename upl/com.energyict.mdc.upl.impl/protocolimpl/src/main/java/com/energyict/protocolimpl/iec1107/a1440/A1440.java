@@ -547,7 +547,8 @@ public class A1440 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
             if (obis.getF() != 255) {
                 int f = getBillingCount() - Math.abs(obis.getF());
                 if (f < 0) {
-                    throw new NoSuchRegisterException("Billing count is only " + getBillingCount() + " so cannot read register with F = " + obis.getF());
+                    f += 100;
+                    //throw new NoSuchRegisterException("Billing count is only " + getBillingCount() + " so cannot read register with F = " + obis.getF());
                 }
                 fs = "*" + ProtocolUtils.buildStringDecimal(f, 2);
 
