@@ -3,6 +3,7 @@ package com.energyict.smartmeterprotocolimpl.elster.apollo.eventhandling;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.BasicEventLog;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.EventUtils;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300ObisCodeProvider;
 
@@ -46,6 +47,8 @@ public class ApolloEventProfiles {
         meterEvents.addAll(getCommunicationFailureEvents(fromCalendar));
         meterEvents.addAll(getPrepaymentEvents(fromCalendar));
         meterEvents.addAll(getClockSyncEvents(fromCalendar));
+        EventUtils.removeDuplicateEvents(meterEvents);
+        EventUtils.removeStoredEvents(meterEvents, fromCalendar.getTime());
         return meterEvents;
     }
 

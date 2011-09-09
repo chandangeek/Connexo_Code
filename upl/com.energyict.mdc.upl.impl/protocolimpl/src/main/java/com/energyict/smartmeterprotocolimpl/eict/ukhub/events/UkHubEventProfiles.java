@@ -6,6 +6,7 @@ import com.energyict.protocol.ProtocolUtils;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.ObisCodeProvider;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.BasicEventLog;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.EventUtils;
 
 import java.io.IOException;
 import java.util.*;
@@ -38,7 +39,8 @@ public class UkHubEventProfiles {
         meterEvents.addAll(getFirmwareEventLog(fromCalendar));
         meterEvents.addAll(getHanManagementFailureEventLog(fromCalendar));
         meterEvents.addAll(getCommunicationsFailureEventLog(fromCalendar));
-
+        EventUtils.removeDuplicateEvents(meterEvents);
+        EventUtils.removeStoredEvents(meterEvents, fromCalendar.getTime());        
         return meterEvents;
     }
 

@@ -5,6 +5,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.BasicEventLog;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.EventUtils;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ObisCodeProvider;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ZigbeeGas;
 
@@ -46,7 +47,8 @@ public class ZigbeeGasEventProfiles {
         meterEvents.addAll(getNotificationEventLog(fromCalendar));
         meterEvents.addAll(getTariffUpdatesEventLog(fromCalendar));
         meterEvents.addAll(getMirrorUpdatesEventLog(fromCalendar));
-
+        EventUtils.removeDuplicateEvents(meterEvents);
+        EventUtils.removeStoredEvents(meterEvents, fromCalendar.getTime());        
         return meterEvents;
     }
 
