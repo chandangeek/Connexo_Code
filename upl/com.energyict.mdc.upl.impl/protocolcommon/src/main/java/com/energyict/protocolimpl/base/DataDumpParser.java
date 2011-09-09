@@ -10,14 +10,14 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProtocolUtils;
+import org.hibernate.type.IntegerType;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.util.Date;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  *
@@ -85,36 +85,47 @@ public class DataDumpParser {
             throw new IOException("SCTMDumpData, getRegisterDateTime, Invalid datetime signature ("+datetimeSignature+")");
         }
     }
-    
-    
-    public int getBillingCounter() {
-        
-        int billingCounter=0;
-        int index1=-1;
-        
-        while(true) {
-            index1 = strFrame.indexOf('*',index1+1);
+
+
+    public Set<Integer> getBillingPoints() {
+        Set<Integer> billingPoints = new HashSet<Integer>();
+        int index1 = -1;
+        while (true) {
+            index1 = strFrame.indexOf('*', index1 + 1);
             if (index1 == -1) {
-				break;
-			}
-            int index2 = strFrame.indexOf('(',index1);
-
-
-            try {
-                int value = Integer.parseInt(strFrame.substring(index1+1,index2));
-                if (value>billingCounter) {
-					billingCounter = value;
-				}     
+                break;
             }
-            catch(NumberFormatException e) {
+
+            int index2 = strFrame.indexOf('(', index1);
+            try {
+                billingPoints.add(Integer.parseInt(strFrame.substring(index1 + 1, index2)));
+            } catch (NumberFormatException e) {
                 // absorb
             }
         }
-        
-        return billingCounter;
+        return new TreeSet<Integer>(billingPoints);
     }
-    
-    
+
+    public int getBillingCounter() {
+        return getBillingCounter(getBillingPoints());
+    }
+
+    public int getBillingCounter(Set<Integer> billingPoints) {
+        Integer[] bplist = billingPoints.toArray(new Integer[0]);
+        for (int i = 0; i < bplist.length; i++) {
+            int currentPoint = bplist[i];
+            if ((i + 1) < bplist.length) {
+                int nextPoint = bplist[i + 1];
+                if (nextPoint > (currentPoint + 1)) {
+                    return currentPoint;
+                }
+            } else {
+                return currentPoint;
+            }
+        }
+        return 0;
+    }
+
     public Quantity getRegister(String strReg) throws IOException {
         String strRegister="\n"+strReg;
         Quantity quantity = parseQuantity(searchRegister(strRegister));

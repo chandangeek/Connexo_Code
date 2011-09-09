@@ -103,7 +103,7 @@ public class A1440 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
     private A1440ObisCodeMapper a1440ObisCodeMapper = new A1440ObisCodeMapper(this);
 
     private byte[] dataReadout = null;
-    private int[] billingCount;
+    private int billingCount = -1;
     private String firmwareVersion = null;
     private Date meterDate = null;
     private String meterSerial = null;
@@ -731,11 +731,11 @@ public class A1440 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
     }
 
     int getBillingCount() throws IOException {
-        if (this.billingCount == null) {
+        if (this.billingCount == -1) {
 
             if (isDataReadout()) {
                 DataDumpParser ddp = new DataDumpParser(getDataReadout());
-                this.billingCount = new int[]{ddp.getBillingCounter()};
+                this.billingCount = ddp.getBillingCounter();
             } else {
 
                 String data;
@@ -753,15 +753,15 @@ public class A1440 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
                 String value = data.substring(start, stop);
 
                 try {
-                    this.billingCount = new int[]{Integer.parseInt(value)};
+                    this.billingCount = Integer.parseInt(value);
                 } catch (NumberFormatException e) {
-                    this.billingCount = new int[]{0};
+                    this.billingCount = 0;
                     getLogger().info("Unable to read billingCounter. Defaulting to 0!");
                 }
             }
 
         }
-        return this.billingCount[0];
+        return this.billingCount;
     }
 
     private String getMeterSerial() throws IOException {
