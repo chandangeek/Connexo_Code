@@ -575,8 +575,6 @@ public class AS300ActivityCalendarController implements ActivityCalendarControll
     }
 
     /**
-     * TODO
-     *
      * @param specialDayList
      * @throws java.io.IOException
      */

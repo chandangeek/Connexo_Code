@@ -46,7 +46,6 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
     private final AbstractSmartDlmsProtocol protocol;
 
     private boolean success;
-    private ActivityCalendarController activityCalendarController;
 
     public AS300MessageExecutor(final AbstractSmartDlmsProtocol protocol) {
         this.protocol = protocol;
@@ -203,17 +202,17 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
     private void updateTimeOfUse(final String content) throws IOException {
         log(Level.INFO, "Received update ActivityCalendar message.");
         final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder();
-
+        ActivityCalendarController activityCalendarController = new AS300ActivityCalendarController((AS300) this.protocol);
         try {
             builder.initFromXml(content);
 
             if (builder.getCodeId() > 0) { // codeTable implementation
                 log(Level.FINEST, "Parsing the content of the CodeTable.");
-                getActivityCalendarController().parseContent(content);
+                activityCalendarController.parseContent(content);
                 log(Level.FINEST, "Setting the new Passive Calendar Name.");
-                getActivityCalendarController().writeCalendarName("");
+                activityCalendarController.writeCalendarName("");
                 log(Level.FINEST, "Sending out the new Passive Calendar objects.");
-                getActivityCalendarController().writeCalendar();
+                activityCalendarController.writeCalendar();
             } else if (builder.getUserFile() != null) { // userFile implementation
                 log(Level.FINEST, "Getting UserFile from message");
                 final byte[] userFileData = builder.getUserFile().loadFileInByteArray();
@@ -250,13 +249,6 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
                 throw new IOException("Could not write [" + ParseUtils.decimalByteToString(gdtw.getDataToWrite()) + "] to object " + ObisCode.fromByteArray(gdtw.getGenericWrite().getObjectReference().getLn()) + ", message will fail.");
             }
         }
-    }
-
-    public ActivityCalendarController getActivityCalendarController() {
-        if (this.activityCalendarController == null) {
-            this.activityCalendarController = new AS300ActivityCalendarController((AS300) this.protocol);
-        }
-        return activityCalendarController;
     }
 
     private void log(Level level, String message) {
