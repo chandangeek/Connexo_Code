@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.waveflow.waveflowV2;
 
 import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
@@ -37,6 +38,8 @@ public class ObisCodeMapper {
         registerMaps.put(ObisCode.fromString("1.2.82.8.0.1"), "Last Billing period (day) index for input B");
         registerMaps.put(ObisCode.fromString("1.3.82.8.0.1"), "Last Billing period (day) index for input C");
         registerMaps.put(ObisCode.fromString("1.4.82.8.0.1"), "Last Billing period (day) index for input D");
+
+        registerMaps.put(ObisCode.fromString("0.0.96.5.4.255"), "Valve application status");
     }
 
     private WaveFlowV2 waveFlowV2;
@@ -102,6 +105,9 @@ public class ObisCodeMapper {
                 BigDecimal lastMonthsIndexValue = new BigDecimal(pulseWeight.getWeight() * value);
                 Date toDate = consumption.getIndexZone().getLastDailyLoggedIndex();
                 return new RegisterValue(obisCode, new Quantity(lastMonthsIndexValue, pulseWeight.getUnit()), toDate, toDate);
+            } else if (obisCode.equals(ObisCode.fromString("0.0.96.5.4.255"))) {
+                int status = waveFlowV2.getParameterFactory().readValveApplicationStatus();
+                return new RegisterValue(obisCode, new Quantity(status, Unit.get("")), new Date());
             }
 
             // Other cases

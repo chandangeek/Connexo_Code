@@ -16,7 +16,7 @@ public class EventStatusAndDescription {
     private static final int EVENTCODE_MAGNETIC_TAMPER = 0x03;
     private static final int EVENTCODE_TAMPER_REMOVAL = 0x04;
     public static final int EVENTCODE_VALVE_FAULT = 0x05;
-    private static final int EVENTCODE_WIRECUT_TAMPER_A = 0x10;
+    public static final int EVENTCODE_WIRECUT_TAMPER_A = 0x10;
     public static final int EVENTCODE_WIRECUT_TAMPER_B = 0x11;
     public static final int EVENTCODE_WIRECUT_TAMPER_C = 0x12;
     public static final int EVENTCODE_WIRECUT_TAMPER_D = 0x13;

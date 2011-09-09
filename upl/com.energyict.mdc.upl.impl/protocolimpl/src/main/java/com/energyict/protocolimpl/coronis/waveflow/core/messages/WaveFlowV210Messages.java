@@ -55,6 +55,7 @@ public class WaveFlowV210Messages extends WaveFlowMessageParser {
         theCategories.add(cat5);
 
         MessageCategorySpec cat7 = new MessageCategorySpec("Waveflow alarm frames configuration");
+        cat7.addMessageSpec(addBasicMsgWithValue("Initialize the alarm route and set the alarm config byte", "InitializeRoute", true));
         cat7.addMessageSpec(addBasicMsgWithValue("Set the alarm configuration byte", "SetAlarmConfig", true));
         cat7.addMessageSpec(addBasicMsgWithValue("Set number of repeaters (max 3)", "SetNumberOfRepeaters", true));
         cat7.addMessageSpec(addBasicMsgWithTwoAttr("Set address of repeater", "SetRepeaterAddress", true, "Number of the repeater (1, 2 or 3)", "Address (hex string)"));

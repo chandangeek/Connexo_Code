@@ -20,6 +20,7 @@ abstract public class AbstractRadioCommand {
         ReadDataFeature(0x52),         //This is an extended operation mode
         WriteTariffMode(0x53),
 		ReadTariffMode(0x54),
+		InitializeAlarmRoute(0x23),
         WritePeakFlowSettings(0x56),
         ReadPeakFlowSettings(0x57),
         ReadPeakFlowData(0x58),

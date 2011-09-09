@@ -17,6 +17,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
         BatteryLifeDurationCounter(0xA2, 2, "Battery life duration counter"),
         BatteryLifeDateEnd(0x90, 6, "Battery life end date"),
         ApplicationStatus(0x20, 1, "Application Status"),
+        ValveApplicationStatus(0x21, 1, "Valve application Status"),
         AlarmFramesTimeAssignement(0x24, 1, "Time affection for alarm frames"),
         AlarmConfig(0x22, 1, "Alarm configuration byte"),
         NumberOfRepeaters(0xB0, 1, "Number of repeaters"),

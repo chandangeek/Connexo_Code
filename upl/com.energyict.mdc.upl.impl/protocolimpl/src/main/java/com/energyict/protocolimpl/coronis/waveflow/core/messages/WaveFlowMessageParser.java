@@ -308,6 +308,8 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
                 return resetIndexes(messageEntry);
             } else if (messageEntry.getContent().indexOf("<WriteIndexA") >= 0) {
                 return writeIndex(messageEntry, 1);
+            } else if (messageEntry.getContent().indexOf("<InitializeRoute") >= 0) {
+                return initializeRoute(messageEntry);
             } else if (messageEntry.getContent().indexOf("<WriteIndexB") >= 0) {
                 return writeIndex(messageEntry, 2);
             } else if (messageEntry.getContent().indexOf("<WriteIndexC") >= 0) {
@@ -478,6 +480,13 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
         waveFlow.getLogger().info("************************* writeIndex *************************");
         int index = Integer.parseInt(stripOffTag(messageEntry.getContent()));
         waveFlow.getRadioCommandFactory().writeIndexes(index, input);
+        return MessageResult.createSuccess(messageEntry);
+    }
+
+    private MessageResult initializeRoute(MessageEntry messageEntry) throws IOException {
+        waveFlow.getLogger().info("************************* initializeRoute *************************");
+        int alarmMode = Integer.parseInt(stripOffTag(messageEntry.getContent()));
+        waveFlow.getRadioCommandFactory().initializeRoute(alarmMode);
         return MessageResult.createSuccess(messageEntry);
     }
 

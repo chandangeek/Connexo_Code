@@ -14,6 +14,7 @@ public class ParameterFactory {
     // cached
     private SamplingPeriod samplingPeriod = null;
     private ApplicationStatus applicationStatus = null;
+    private ValveApplicationStatus valveApplicationStatus = null;
     private OperatingMode operatingMode = null;
     private ExtendedOperationMode extendedOperationMode = null;
     ProfileType profileType;
@@ -66,6 +67,14 @@ public class ParameterFactory {
             applicationStatus.read();
         }
         return applicationStatus.getStatus();
+    }
+
+    final public int readValveApplicationStatus() throws IOException {
+        if (valveApplicationStatus == null) {
+            valveApplicationStatus = new ValveApplicationStatus(waveFlow);
+            valveApplicationStatus.read();
+        }
+        return valveApplicationStatus.getStatus();
     }
 
     //Advanced restart, sets the start moment in 3 minutes.

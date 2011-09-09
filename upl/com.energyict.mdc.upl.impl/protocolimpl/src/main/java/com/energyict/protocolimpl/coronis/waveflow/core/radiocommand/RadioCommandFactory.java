@@ -43,6 +43,12 @@ public class RadioCommandFactory {
         return o;
     }
 
+    public void initializeRoute(int alarmMode) throws IOException {
+        InitializeAlarmRoute initializeAlarmRoute = new InitializeAlarmRoute(waveFlow);
+        initializeAlarmRoute.setAlarmMode(alarmMode);
+        initializeAlarmRoute.set();
+    }
+
     final public ExtendedDataloggingTable readExtendedDataloggingTable(int indexChannel, final int nrOfValues, final Date toDate) throws IOException {
         ExtendedDataloggingTable o = new ExtendedDataloggingTable(waveFlow, indexChannel, nrOfValues, toDate);
         o.set();

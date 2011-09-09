@@ -331,6 +331,7 @@ public class ProfileDataReader {
         }
 
         int applicationStatus = waveFlowV2.getParameterFactory().readApplicationStatus();
+        int valveApplicationStatus = waveFlowV2.getParameterFactory().readValveApplicationStatus();
         if ((applicationStatus & 0x01) == 0x01) {
             Date eventDate = waveFlowV2.getParameterFactory().readBatteryLifeDateEnd();
             meterEvents.add(new MeterEvent(eventDate, MeterEvent.BATTERY_VOLTAGE_LOW, EventStatusAndDescription.EVENTCODE_BATTERY_LOW, "Low battery warning"));
@@ -354,6 +355,19 @@ public class ProfileDataReader {
         if ((applicationStatus & 0x40) == 0x40) {
             Date eventDate = waveFlowV2.getParameterFactory().readWireCutDetectionDate(3);
             meterEvents.add(new MeterEvent(eventDate, MeterEvent.TAMPER, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_D, "Wirecut input D"));
+        }
+
+        if ((valveApplicationStatus & 0x01) == 0x01) {
+            meterEvents.add(new MeterEvent(new Date(), MeterEvent.TAMPER, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_A, "Valve wirecut"));
+        }
+        if ((valveApplicationStatus & 0x02) == 0x02) {
+            meterEvents.add(new MeterEvent(new Date(), MeterEvent.HARDWARE_ERROR, EventStatusAndDescription.EVENTCODE_VALVE_FAULT, "Valve fault"));
+        }
+        if ((valveApplicationStatus & 0x04) == 0x04) {
+            meterEvents.add(new MeterEvent(new Date(), MeterEvent.LIMITER_THRESHOLD_EXCEEDED, EventStatusAndDescription.EVENTCODE_DEFAULT, "Credit under threshold"));
+        }
+        if ((valveApplicationStatus & 0x08) == 0x08) {
+            meterEvents.add(new MeterEvent(new Date(), MeterEvent.OTHER, EventStatusAndDescription.EVENTCODE_DEFAULT, "Credit equal to zero"));
         }
 
         //Bit 7 is not parsed, the back flow events are already handled in the event table.
