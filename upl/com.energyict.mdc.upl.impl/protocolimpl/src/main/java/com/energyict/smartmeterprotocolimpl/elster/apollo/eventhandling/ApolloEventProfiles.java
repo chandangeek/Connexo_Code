@@ -11,7 +11,6 @@ import java.util.*;
 import java.util.logging.Logger;
 
 /**
- * TODO the events are fetched without using the fromCalendar
  * Provides functionality to collect the events from the device and return them as a list of {@link com.energyict.protocol.MeterEvent}
  * Copyrights EnergyICT
  * Date: 2-dec-2010

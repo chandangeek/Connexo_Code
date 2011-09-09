@@ -87,11 +87,6 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
         //Currently nothing to implement
     }
 
-    @Override
-    public SecurityProvider getSecurityProvider() {
-        return null;  //TODO implement proper functionality.
-    }
-
     /**
      * <p></p>
      *

@@ -4,13 +4,14 @@ import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocol.MeterProtocol;
 
 import java.util.Properties;
+import java.util.Random;
 
 /**
  * Copyrights EnergyICT
  * Date: 1-sep-2011
  * Time: 11:22:36
  */
-public class Dsmr40SecurityProvider extends NTASecurityProvider{
+public class Dsmr40SecurityProvider extends NTASecurityProvider {
 
     /**
      * Create a new instance of LocalSecurityProvider
@@ -29,10 +30,18 @@ public class Dsmr40SecurityProvider extends NTASecurityProvider{
     @Override
     public byte[] getHLSSecret() {
         String hexPassword = this.properties.getProperty(Dsmr40Properties.Dsmr40HexPassword);
-        if(hexPassword != null){
+        if (hexPassword != null) {
             return com.energyict.dlms.DLMSUtils.hexStringToByteArray(hexPassword);
         } else {
             return super.getHLSSecret();
         }
+    }
+
+    /**
+     * @return the initial frameCounter
+     */
+    public long getInitialFrameCounter() {
+        Random generator = new Random();
+        return generator.nextLong();
     }
 }

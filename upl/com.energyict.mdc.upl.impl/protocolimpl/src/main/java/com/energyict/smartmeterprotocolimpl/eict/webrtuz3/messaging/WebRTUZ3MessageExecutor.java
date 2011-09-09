@@ -753,7 +753,7 @@ public class WebRTUZ3MessageExecutor extends GenericMessageExecutor {
                     Array globalKeyArray = new Array();
                     Structure keyData = new Structure();
                     keyData.addDataType(new TypeEnum(0));    // 0 means keyType: global unicast encryption key
-                    keyData.addDataType(new OctetString(this.protocol.getSecurityProvider().getNEWGlobalKey()));
+                    keyData.addDataType(new OctetString(this.protocol.getDlmsSession().getProperties().getSecurityProvider().getNEWGlobalKey()));
                     globalKeyArray.addDataType(keyData);
 
                     SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
@@ -765,7 +765,7 @@ public class WebRTUZ3MessageExecutor extends GenericMessageExecutor {
                     Array globalKeyArray = new Array();
                     Structure keyData = new Structure();
                     keyData.addDataType(new TypeEnum(2));    // 2 means keyType: authenticationKey
-                    keyData.addDataType(new OctetString(this.protocol.getSecurityProvider().getNEWAuthenticationKey()));
+                    keyData.addDataType(new OctetString(this.protocol.getDlmsSession().getProperties().getSecurityProvider().getNEWAuthenticationKey()));
                     globalKeyArray.addDataType(keyData);
 
                     SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
@@ -779,14 +779,14 @@ public class WebRTUZ3MessageExecutor extends GenericMessageExecutor {
 
                         // We just return the byteArray because it is possible that the berEncoded octetString contains
                         // extra check bits ...
-                        aln.changeHLSSecret(this.protocol.getSecurityProvider().getNEWHLSSecret());
+                        aln.changeHLSSecret(this.protocol.getDlmsSession().getProperties().getSecurityProvider().getNEWHLSSecret());
                     } else if (this.protocol.getDlmsSession().getReference() == ProtocolLink.SN_REFERENCE) {
                         AssociationSN asn = getCosemObjectFactory().getAssociationSN();
 
                         // We just return the byteArray because it is possible that the berEncoded octetString contains
                         // extra check bits ...
                         //TODO low lever security should set the value directly to the secret attribute of the SNAssociation
-                        asn.changeSecret(this.protocol.getSecurityProvider().getNEWHLSSecret());
+                        asn.changeSecret(this.protocol.getDlmsSession().getProperties().getSecurityProvider().getNEWHLSSecret());
                     }
                     success = true;
                 } else if (activateSMS) {

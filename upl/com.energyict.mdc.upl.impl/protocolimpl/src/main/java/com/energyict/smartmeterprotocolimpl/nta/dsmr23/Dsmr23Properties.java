@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23;
 
 import com.energyict.dlms.DLMSReference;
+import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
@@ -71,5 +72,10 @@ public class Dsmr23Properties extends DlmsProtocolProperties {
     @ProtocolProperty
     public boolean getOldMbusDiscovery() {
         return getBooleanProperty(OLD_MBUS_DISCOVERY, "0");
+    }
+
+    @Override
+    public SecurityProvider getSecurityProvider() {
+        return new NTASecurityProvider(getProtocolProperties());
     }
 }

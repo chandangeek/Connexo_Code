@@ -1,8 +1,7 @@
 package com.energyict.dlms.aso;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.encryption.XDlmsDecryption;
 import com.energyict.encryption.XDlmsEncryption;
@@ -525,6 +524,8 @@ public class AssociationControlServiceElement {
             } // while(true)
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new UnexpectedEndOfArrayException("Unexpected end of AARE response", e, responseData);
+        } catch (DLMSConnectionException e) {
+            throw new IOException(e.getMessage());
         }
         throw new IOException("Application Association Establishment Failed" + strResultSourceDiagnostics);
     }
@@ -534,7 +535,7 @@ public class AssociationControlServiceElement {
 	 * @param encryptedUserInformation the encrypted userInformationField from the Device
 	 * @throws IOException
 	 */
-	private byte[] decryptUserInformation(byte[] encryptedUserInformation) throws IOException {
+	private byte[] decryptUserInformation(byte[] encryptedUserInformation) throws IOException, DLMSConnectionException {
 		int ptr = 0;
 		byte length = encryptedUserInformation[ptr++];
 		byte scb = encryptedUserInformation[ptr++];
@@ -567,6 +568,7 @@ public class AssociationControlServiceElement {
 		decryption.setFrameCounter(fc);
 		decryption.setSecurityControlByte(scb);
 		decryption.setSystemTitle(respondingAPTitle);
+        getSecurityContext().setResponseFrameCounter(ProtocolUtils.getInt(fc));
 		return decryption.generatePlainText();
 	}
 

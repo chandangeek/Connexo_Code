@@ -67,11 +67,6 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
      */
     private LoadProfileBuilder loadProfileBuilder;
 
-    /**
-     * The used DLMS SecurityProvider
-     */
-    private SecurityProvider securityProvider;
-
     private WebRTUZ3Messaging messageProtocol = new WebRTUZ3Messaging(new WebRTUZ3MessageExecutor(this));
 
     private static final int ObisCodeBFieldIndex = 1;
@@ -101,8 +96,6 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
         for (DeviceMapping dm : getMeterTopology().getMbusMap()) {
             this.slaveMeters.add(new MbusDevice(this, dm.getSerialNumber(), dm.getPhysicalAddress()));
         }
-
-        securityProvider = new NTASecurityProvider(getProperties().getProtocolProperties());
     }
 
     /**
@@ -442,10 +435,6 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
      */
     public void searchForSlaveDevices() throws ConnectionException {
         getMeterTopology().discoverSlaveDevices();
-    }
-
-    public SecurityProvider getSecurityProvider() {
-        return securityProvider;
     }
 
     public SlaveMeter getSlaveMeterForSerial(String serialNumber){

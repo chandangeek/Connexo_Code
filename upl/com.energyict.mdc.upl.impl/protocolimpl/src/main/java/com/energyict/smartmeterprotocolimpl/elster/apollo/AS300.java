@@ -3,10 +3,11 @@ package com.energyict.smartmeterprotocolimpl.elster.apollo;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
-import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.eventhandling.ApolloEventProfiles;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300MessageExecutor;
@@ -81,11 +82,6 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
     }
 
     @Override
-    public SecurityProvider getSecurityProvider() {
-        return null;  //TODO implement proper functionality.
-    }
-
-    @Override
     public Date getTime() throws IOException {
         if (getProperties().isFirmwareUpdateSession()) {
             getLogger().severe("Using firmware update client. Skipping clock readout!");
@@ -122,7 +118,39 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
      */
     @Override
     public void connect() throws IOException {
+
+        //TODO need to fetch the frameCounter with the public client
+
+//        fetchFrameCounter();
+
         getDlmsSession().connect();
+    }
+
+    private void fetchFrameCounter() throws IOException {
+
+        if(getDlmsSession().getProperties().getDataTransportSecurityLevel() != 0 || getDlmsSession().getProperties().getAuthenticationSecurityLevel() == 5){
+            int backupClientId = getDlmsSession().getProperties().getClientMacAddress();
+            String backupSecurityLevel = getDlmsSession().getProperties().getSecurityLevel();
+
+            Properties pClientProps = getDlmsSession().getProperties().getProtocolProperties();
+
+            pClientProps.setProperty(AS300Properties.CLIENT_MAC_ADDRESS, "16");
+            pClientProps.setProperty(AS300Properties.SECURITY_LEVEL, "0:0");
+            getDlmsSession().getProperties().addProperties(pClientProps);
+
+            getDlmsSession().connect();
+            Data lastFrameCounter =getDlmsSession().getCosemObjectFactory().getData(getObjectFactory().getObisCodeProvider().getFrameCounterObisCode(backupClientId));
+            long initialFrameCounter = lastFrameCounter.getValue();
+//            getDlmsSession().disconnect();
+
+            Properties restoredProperties = getDlmsSession().getProperties().getProtocolProperties();
+            restoredProperties.setProperty(AS300Properties.CLIENT_MAC_ADDRESS, Integer.toString(backupClientId));
+            restoredProperties.setProperty(AS300Properties.SECURITY_LEVEL, backupSecurityLevel);
+            getDlmsSession().getProperties().addProperties(restoredProperties);
+
+            //TODO need to set framecounter
+            ((NTASecurityProvider)(getDlmsSession().getProperties().getSecurityProvider())).setInitialFrameCounter(initialFrameCounter);
+        }
     }
 
     public List<RegisterValue> readRegisters(List<Register> registers) throws IOException {
@@ -233,4 +261,6 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
     public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
         return getMessageProtocol().getFirmwareUpdateMessageBuilder();
     }
+
+
 }

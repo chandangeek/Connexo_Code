@@ -7,6 +7,7 @@ import com.energyict.protocol.ProtocolUtils;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Random;
 
 public class MockSecurityProvider implements SecurityProvider{
 	
@@ -180,6 +181,14 @@ public class MockSecurityProvider implements SecurityProvider{
      */
     public byte[] associationEncryptionByManufacturer(final byte[] respondingAuthenticationValue) throws IOException {
         throw new IOException("High level security 2 is not supported.");
+    }
+
+    /**
+     * @return the initial frameCounter
+     */
+    public long getInitialFrameCounter() {
+        Random generator = new Random();
+        return generator.nextLong();
     }
 
     public byte[] getNEWAuthenticationKey() throws IOException {

@@ -76,11 +76,6 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
     private List<AbstractNtaMbusDevice> mbusDevices = new ArrayList<AbstractNtaMbusDevice>();
 
     /**
-     * The used DLMS SecurityProvider
-     */
-    private SecurityProvider securityProvider;
-
-    /**
      * Getter for the {@link com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties}
      *
      * @return the requested Properties
@@ -99,7 +94,6 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
     @Override
     protected void initAfterConnect() throws ConnectionException {
         searchForSlaveDevices();
-        securityProvider = new NTASecurityProvider(getProperties().getProtocolProperties());
 //        for (DeviceMapping dm : getMeterTopology().getMbusMeterMap()) {
 //            this.mbusDevices.add(new MbusDevice(this, dm.getSerialNumber(), dm.getPhysicalAddress()));
 //        }
@@ -326,10 +320,6 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
             this.meterTopology = new MeterTopology(this);
         }
         return meterTopology;
-    }
-
-    public SecurityProvider getSecurityProvider() {
-        return securityProvider;
     }
 
     /**

@@ -43,6 +43,8 @@ public class NTASecurityProvider implements SecurityProvider {
 	/** Property name of the new LowLevel security Secret */
 	public static final String NEW_LLS_SECRET = "NewLLSSecret";
 
+    Long initialFrameCounter;
+
 	/**
 	 * Create a new instance of LocalSecurityProvider
 	 * @param properties - contains the keys for the authentication/encryption
@@ -145,6 +147,22 @@ public class NTASecurityProvider implements SecurityProvider {
      */
     public byte[] associationEncryptionByManufacturer(final byte[] respondingAuthenticationValue) throws IOException {
         throw new IOException("High level security 2 is not supported.");
+    }
+
+    /**
+     * @return the initial frameCounter
+     */
+    public long getInitialFrameCounter() {
+        if(initialFrameCounter != null){
+            return initialFrameCounter;
+        } else {
+            Random generator = new Random();
+            return generator.nextLong();
+        }
+    }
+
+    public void setInitialFrameCounter(long frameCounter){
+        this.initialFrameCounter = frameCounter;
     }
 
     //********** Return new keys for KeyChange functionality **********/

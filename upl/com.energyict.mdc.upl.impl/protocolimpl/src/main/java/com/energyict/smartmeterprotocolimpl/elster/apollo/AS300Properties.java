@@ -2,6 +2,8 @@ package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.LocalSecurityProvider;
+import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocolimpl.base.ProtocolProperty;
@@ -16,6 +18,8 @@ import java.util.List;
  * Time: 14:16:15
  */
 public class AS300Properties extends DlmsProtocolProperties {
+
+    private SecurityProvider securityProvider;
 
     public static final String DEFAULT_AS300_CLIENT_MAC_ADDRESS = "64";
     public static final String DEFAULT_AS300_LOGICAL_DEVICE_ADDRESS = "45";
@@ -78,4 +82,11 @@ public class AS300Properties extends DlmsProtocolProperties {
         return getClientMacAddress() == FIRMWARE_CLIENT;
     }
 
+    @Override
+    public SecurityProvider getSecurityProvider() {
+        if(this.securityProvider == null){
+            this.securityProvider = new NTASecurityProvider(getProtocolProperties());
+        }
+        return this.securityProvider;
+    }
 }

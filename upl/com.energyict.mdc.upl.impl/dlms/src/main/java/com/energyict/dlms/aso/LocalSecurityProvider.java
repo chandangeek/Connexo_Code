@@ -146,6 +146,14 @@ public class LocalSecurityProvider implements SecurityProvider {
         throw new IOException("High level security 2 is not supported.");
     }
 
+    /**
+     * @return the initial frameCounter
+     */
+    public long getInitialFrameCounter() {
+        Random generator = new Random();
+        return generator.nextLong();
+    }
+
     //********** Return new keys for KeyChange functionality **********/
 
 	/**

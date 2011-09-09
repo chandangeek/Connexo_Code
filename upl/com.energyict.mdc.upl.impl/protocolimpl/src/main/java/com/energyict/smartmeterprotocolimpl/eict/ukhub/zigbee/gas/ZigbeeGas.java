@@ -43,11 +43,6 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
         return this.zigbeeGasMessaging;
     }
 
-    @Override
-    public SecurityProvider getSecurityProvider() {
-        return null;  //TODO implement proper functionality.
-    }
-
     /**
      * Getter for the {@link com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties}
      *

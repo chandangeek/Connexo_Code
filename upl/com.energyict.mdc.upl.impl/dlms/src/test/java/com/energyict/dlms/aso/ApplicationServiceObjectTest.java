@@ -67,7 +67,7 @@ public class ApplicationServiceObjectTest {
         aso = new ApplicationServiceObject(null, dpl, sc, 1);
         aso.acse.setRespondingAuthenticationValue(new byte[]{53, 73, 86, 107, 86, 49, 115, 68, 88, 78, 115, 72, 84, 70, 68, 114}); // This value doesn't matter
         sp.setCallingAuthenticationValue(new byte[]{-10, -89, 17, 88, 28, 60, 11, 118});    // just need to set
-        aso.analyzeEncryptedResponse(new byte[]{16, 0, 0, 1, 41, -86, -43, 19, -112, 26, -18, 85, -83, 89, 65, -66, -26});
+        aso.analyzeDecryptedResponse(new byte[]{16, 0, 0, 1, 41, -86, -43, 19, -112, 26, -18, 85, -83, 89, 65, -66, -26});
 
     }
 }

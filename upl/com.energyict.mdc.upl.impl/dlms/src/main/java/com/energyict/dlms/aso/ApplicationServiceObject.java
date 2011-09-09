@@ -112,7 +112,7 @@ public class ApplicationServiceObject {
      * @throws IOException
      */
     protected void handleHighLevelSecurityAuthentication() throws IOException, DLMSConnectionException {
-        byte[] encryptedResponse;
+        byte[] decryptedResponse;
         byte[] plainText;
 
         if (DLMSMeterConfig.OLD2.equalsIgnoreCase(this.protocolLink.getMeterConfig().getExtra())) {
@@ -132,8 +132,8 @@ public class ApplicationServiceObject {
             case HLS3_MD5: {
                 if (this.acse.getRespondingAuthenticationValue() != null) {
                     plainText = ProtocolUtils.concatByteArrays(this.acse.getRespondingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
-                    encryptedResponse = replyToHLSAuthentication(this.securityContext.associationEncryption(plainText));
-                    analyzeEncryptedResponse(encryptedResponse);
+                    decryptedResponse = replyToHLSAuthentication(this.securityContext.associationEncryption(plainText));
+                    analyzeDecryptedResponse(decryptedResponse);
                 } else {
                     throw new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
                             ") requires the server to respond with a challenge.");
@@ -144,8 +144,8 @@ public class ApplicationServiceObject {
             case HLS4_SHA1: {
                 if (this.acse.getRespondingAuthenticationValue() != null) {
                     plainText = ProtocolUtils.concatByteArrays(this.acse.getRespondingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
-                    encryptedResponse = replyToHLSAuthentication(this.securityContext.associationEncryption(plainText));
-                    analyzeEncryptedResponse(encryptedResponse);
+                    decryptedResponse = replyToHLSAuthentication(this.securityContext.associationEncryption(plainText));
+                    analyzeDecryptedResponse(decryptedResponse);
                 } else {
                     throw new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
                             ") requires the server to respond with a challenge.");
@@ -156,8 +156,8 @@ public class ApplicationServiceObject {
             case HLS5_GMAC: {
 
                 if (this.acse.getRespondingAuthenticationValue() != null) {
-                    encryptedResponse = replyToHLSAuthentication(this.securityContext.highLevelAuthenticationGMAC(this.acse.getRespondingAuthenticationValue()));
-                    analyzeEncryptedResponse(encryptedResponse);
+                    decryptedResponse = replyToHLSAuthentication(this.securityContext.highLevelAuthenticationGMAC(this.acse.getRespondingAuthenticationValue()));
+                    analyzeDecryptedResponse(decryptedResponse);
                 } else {
                     throw new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
                             ") requires the server to respond with a challenge.");
@@ -172,12 +172,12 @@ public class ApplicationServiceObject {
     }
 
     /**
-     * Encrypt the clientToServer challenge and compare it with the encrypted response from the server
+     * Calculate the digest from the meter and compare it with the response you got from the meter.
      *
      * @param encryptedResponse is the response from the server to the reply_to_HLS_authentication
      * @throws IOException if the two challenges don't match, or if the HLSSecret could be supplied, if it's not a valid algorithm or when there is no callingAuthenticationvalue
      */
-    protected void analyzeEncryptedResponse(byte[] encryptedResponse) throws IOException, DLMSConnectionException {
+    protected void analyzeDecryptedResponse(byte[] encryptedResponse) throws IOException, DLMSConnectionException {
         byte[] plainText = ProtocolUtils.concatByteArrays(this.securityContext.getSecurityProvider().getCallingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
 
         byte[] cToSEncrypted;
@@ -202,23 +202,23 @@ public class ApplicationServiceObject {
      * @throws IOException
      */
     private byte[] replyToHLSAuthentication(byte[] digest) throws IOException {
-        OctetString encryptedResponse = null;
+        OctetString decryptedResponse = null;
 
         if ((this.acse.getContextId() == AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING)
                 || (this.acse.getContextId() == AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_WITH_CIPHERING)) {            // reply with AssociationLN
             AssociationLN aln = new AssociationLN(this.protocolLink);
-            encryptedResponse = new OctetString(aln.replyToHLSAuthentication(digest));
+            decryptedResponse = new OctetString(aln.replyToHLSAuthentication(digest));
         } else if ((this.acse.getContextId() == AssociationControlServiceElement.SHORT_NAME_REFERENCING_NO_CIPHERING)
                 || (this.acse.getContextId() == AssociationControlServiceElement.SHORT_NAME_REFERENCING_WITH_CIPHERING)) {    // reply with AssociationSN
             AssociationSN asn = new CosemObjectFactory(this.protocolLink).getAssociationSN();
-            encryptedResponse = new OctetString(asn.replyToHLSAuthentication(digest));
+            decryptedResponse = new OctetString(asn.replyToHLSAuthentication(digest));
         } else {
             throw new IllegalArgumentException("Invalid ContextId: " + this.acse.getContextId());
         }
-        if (encryptedResponse.getOctetStr().length == 0) {
+        if (decryptedResponse.getOctetStr().length == 0) {
             return new byte[0];
         }
-        return encryptedResponse.getContentBytes();
+        return decryptedResponse.getContentBytes();
     }
 
     /**

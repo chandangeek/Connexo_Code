@@ -22,11 +22,6 @@ public class InHomeDisplay extends AbstractSmartDlmsProtocol implements SimpleMe
 
     private InHomeDisplayMessaging messageProtocol;
 
-    @Override
-    public SecurityProvider getSecurityProvider() {
-        return null;  //TODO implement proper functionality.
-    }
-
     /**
      * Override this method when requesting time from the meter is needed.
      *

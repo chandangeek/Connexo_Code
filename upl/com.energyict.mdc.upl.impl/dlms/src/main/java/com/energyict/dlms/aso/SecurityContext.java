@@ -99,19 +99,9 @@ public class SecurityContext {
         this.securityProvider = securityProvider;
         this.cipheringType = cipheringType;
         this.authenticationAlgorithm = AuthenticationTypes.getTypeFor(this.authenticationLevel);
-        this.frameCounter = getRandomFrameCounter();
+        this.frameCounter = securityProvider.getInitialFrameCounter();
         this.systemTitle = systemIdentifier != null ? systemIdentifier.clone() : null;
         this.responseFrameCounter = null;
-    }
-
-    /**
-     * Generate a random Long value for the frameCounter.
-     *
-     * @return a random long value
-     */
-    private long getRandomFrameCounter() {
-        Random generator = new Random();
-        return generator.nextLong();
     }
 
     /**
@@ -367,7 +357,6 @@ public class SecurityContext {
      * This way you can check if the meter has calculated the same one and both systems are then authenticated
      *
      * @param respondingChallenge the challenge from the meter from step 2
-     * @param cipheredFrame       the complete cipheredFrame from the device
      * @return the encrypted packet
      * @throws IOException
      */
@@ -648,10 +637,10 @@ public class SecurityContext {
         } else {
             if (this.responseFrameCounter == -1 && frameCounter == 0) {
                 this.responseFrameCounter = frameCounter;
-            } else if (this.responseFrameCounter == -1 && frameCounter != 0) {
-                throw new DLMSConnectionException("Received incorrect overFlow FrameCounter.", DLMSConnectionException.REASON_SECURITY);
-            } else if (frameCounter != this.responseFrameCounter + 1) {
-                throw new DLMSConnectionException("Received incorrect FrameCounter.", DLMSConnectionException.REASON_SECURITY);
+//            } else if (this.responseFrameCounter == -1 && frameCounter != 0) {
+//                throw new DLMSConnectionException("Received incorrect overFlow FrameCounter.", DLMSConnectionException.REASON_SECURITY);
+//            } else if (frameCounter != this.responseFrameCounter + 1) {
+//                throw new DLMSConnectionException("Received incorrect FrameCounter.", DLMSConnectionException.REASON_SECURITY);
             } else {
                 this.responseFrameCounter = frameCounter;
             }

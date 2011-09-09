@@ -26,8 +26,6 @@ import java.util.logging.Level;
  */
 public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtocol implements CacheMechanism {
 
-    public abstract SecurityProvider getSecurityProvider();
-
     /**
      * The used {@link com.energyict.protocolimpl.dlms.common.DlmsSession}
      */

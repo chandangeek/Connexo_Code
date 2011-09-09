@@ -22,6 +22,7 @@ import java.util.logging.Level;
 public class RegisterReader {
 
     public static final ObisCode ActivityCalendarNameObisCode = ObisCode.fromString("0.0.13.0.1.255");
+    public static final ObisCode ChangeOfSupplierNameObisCode = ObisCode.fromString("1.0.1.64.0.255");
 
     private final AS300 meterProtocol;
 
@@ -40,7 +41,7 @@ public class RegisterReader {
             RegisterValue registerValue = null;
             try {
                 if (this.composedRegisterMap.containsKey(register)) {
-                   ScalerUnit su = new ScalerUnit(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterUnitAttribute()));
+                    ScalerUnit su = new ScalerUnit(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterUnitAttribute()));
                     if (su.getUnitCode() != 0) {
                         Unit unit = su.getUnitCode() == 56 ? Unit.get(BaseUnit.PERCENT, su.getScaler()) : su.getUnit();    //Replace dlms % by our %
                         AbstractDataType value = registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute());
@@ -51,7 +52,7 @@ public class RegisterReader {
                         if (register.getObisCode().equals(AS300ObisCodeProvider.LastBillingResetTimeStamp)) {
                             Data data = meterProtocol.getObjectFactory().getData(register.getObisCode());
                             registerValue = new RegisterValue(register, data.getBillingDate().toString());
-                        } else if(register.getObisCode().equals(AS300ObisCodeProvider.ActiveLongFirmwareIdentifierACOR)){
+                        } else if (register.getObisCode().equals(AS300ObisCodeProvider.ActiveLongFirmwareIdentifierACOR)) {
                             registerValue = new RegisterValue(register, meterProtocol.getFirmwareVersion());
                         } else {
                             try {
@@ -76,7 +77,7 @@ public class RegisterReader {
 
 
     private RegisterValue convertCustomAbstractObjectsToRegisterValues(Register register, AbstractDataType abstractDataType) throws UnsupportedException {
-        if (register.getObisCode().equals(ActivityCalendarNameObisCode)) {
+        if (register.getObisCode().equals(ActivityCalendarNameObisCode) || register.getObisCode().equals(ChangeOfSupplierNameObisCode)) {
             return new RegisterValue(register, null, null, null, null, new Date(), 0, new String(abstractDataType.toByteArray()));
         }
         return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.getUndefined()), null, null, null, new Date(), 0, String.valueOf(abstractDataType.longValue()));
@@ -206,6 +207,9 @@ public class RegisterReader {
                         this.registerMap.put(register, new DLMSAttribute(rObisCode, DLMSCOSEMGlobals.ATTR_DATA_VALUE, uo.getClassID()));
                         dlmsAttributes.add(this.registerMap.get(register));
                     }
+                } else if (rObisCode.equals(ChangeOfSupplierNameObisCode)) {
+                    this.registerMap.put(register, new DLMSAttribute(rObisCode, DLMSCOSEMGlobals.ATTR_DATA_VALUE, 9000));
+                    dlmsAttributes.add(this.registerMap.get(register));
                 }
             }
             return new ComposedCosemObject(this.meterProtocol.getDlmsSession(), supportsBulkRequest, dlmsAttributes);

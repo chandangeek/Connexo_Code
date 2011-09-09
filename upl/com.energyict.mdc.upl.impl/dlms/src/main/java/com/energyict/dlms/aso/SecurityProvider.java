@@ -102,4 +102,9 @@ public interface SecurityProvider {
      * @throws java.io.IOException when method is not supported or some of the encryption values aren't correct
      */
     byte[] associationEncryptionByManufacturer(byte[] respondingAuthenticationValue) throws IOException;
+
+    /**
+     * @return the initial frameCounter
+     */
+    long getInitialFrameCounter();
 }

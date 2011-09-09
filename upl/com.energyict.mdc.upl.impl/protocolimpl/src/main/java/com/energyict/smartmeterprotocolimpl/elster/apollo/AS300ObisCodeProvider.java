@@ -36,6 +36,11 @@ public class AS300ObisCodeProvider implements CommonObisCodeProvider {
     public static final ObisCode ActiveLongFirmwareIdentifierACOR = ObisCode.fromString("1.2.0.2.0.255");
     public static final ObisCode ActiveLongFirmwareIdentifierMCOR = ObisCode.fromString("1.1.0.2.0.255");
     public static final ObisCode ReferenceTime = ObisCode.fromString("0.128.3.6.0.255");
+    public static final ObisCode FrameCounterPublicClient = ObisCode.fromString("0.0.43.1.1.255");
+    public static final ObisCode FrameCounterDataCollectionClient = ObisCode.fromString("0.0.43.1.2.255");
+    public static final ObisCode FrameCounterExtDataCollectionClient = ObisCode.fromString("0.0.43.1.3.255");
+    public static final ObisCode FrameCounterManagementClient = ObisCode.fromString("0.0.43.1.4.255");
+    public static final ObisCode FrameCounterFirmwareClient = ObisCode.fromString("0.0.43.1.5.255");
 
     public static final ObisCode clockShiftEventLimit = ObisCode.fromString("1.0.0.9.11.255");
     public static final ObisCode clockShiftInvalidLimit = ObisCode.fromString("1.1.94.34.1.255");
@@ -126,15 +131,23 @@ public class AS300ObisCodeProvider implements CommonObisCodeProvider {
      * @return the obisCode for the AssociationLn object
      */
     public ObisCode getAssociationLnObisCode() {
-        return getAssociationLnObisCode(AssociationLnObisCodes.MANAGEMENT_CLIENT.getClientId());
+        return getAssociationLnObisCode(MultipleClientRelatedObisCodes.MANAGEMENT_CLIENT.getClientId());
     }
 
     /**
      * @param clientId the used clientId for this association
-     * @return the {@link AssociationLnObisCodes#obiscode} for the {@link com.energyict.dlms.cosem.AssociationLN} object
+     * @return the {@link com.energyict.smartmeterprotocolimpl.elster.apollo.MultipleClientRelatedObisCodes#frameCounterObisCode}
+     */
+    public ObisCode getFrameCounterObisCode(int clientId){
+        return MultipleClientRelatedObisCodes.frameCounterForClient(clientId);
+    }
+
+    /**
+     * @param clientId the used clientId for this association
+     * @return the {@link MultipleClientRelatedObisCodes#associationObisCode} for the {@link com.energyict.dlms.cosem.AssociationLN} object
      */
     public ObisCode getAssociationLnObisCode(int clientId) {
-        return AssociationLnObisCodes.forClient(clientId);
+        return MultipleClientRelatedObisCodes.associationLNForClient(clientId);
     }
 
     /**
