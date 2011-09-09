@@ -27,14 +27,23 @@ public class ProtocolCollectionCreationTest {
     @Test
     public void createCollection(){
         try{
-            HSSFWorkbook wb          = new HSSFWorkbook();
-            HSSFSheet sheet = wb.createSheet();
+            HSSFWorkbook wb = new HSSFWorkbook();
+            HSSFSheet sheet = wb.createSheet("Classic Protocols");
+            HSSFSheet sheetSm = wb.createSheet("SmartMeter Protocols");
 
             ProtocolCollectionImpl pci = new ProtocolCollectionImpl();
 
-            for(int i = 0; i < pci.getProtocolClasses().size(); i++){
+            int counter = 0;
+            int smCounter = 0;
 
-                HSSFRow row     = sheet.createRow(i);
+            for(int i = 0; i < pci.getProtocolClasses().size(); i++){
+                HSSFRow row;
+                if(pci.getProtocolClassName(i).indexOf("genericprotocolimpl") > 0 || pci.getProtocolClassName(i).indexOf("smartmeterprotocolimpl") > 0  ){
+                    row = sheetSm.createRow(smCounter++);
+                } else {
+                    row = sheet.createRow(counter++);
+                }
+
                 row.createCell(0).setCellValue(i);
                 row.createCell(1).setCellValue((String)pci.getProtocolClassName(i));
                 row.createCell(2).setCellValue((String)pci.getProtocolName(i));
@@ -46,18 +55,17 @@ public class ProtocolCollectionCreationTest {
 
             }
 
-            HSSFRow emptyRow = sheet.createRow(sheet.getLastRowNum() +1);
-            emptyRow.createCell(0).setCellValue(" ");
-            emptyRow.createCell(1).setCellValue(" ");
-            emptyRow.createCell(2).setCellValue(" ");
-            emptyRow.createCell(3).setCellValue(" ");
-
             GenericProtocolCollectionImpl gpci = new GenericProtocolCollectionImpl();
-            int offset = sheet.getLastRowNum() + 1;
             for(int i = 0; i < gpci.getProtocolClasses().size(); i++){
 
-                HSSFRow row     = sheet.createRow(i + offset);
-                row.createCell(0).setCellValue(i + offset);
+                HSSFRow row;
+                if(gpci.getProtocolClassName(i).indexOf("genericprotocolimpl") > 0 || gpci.getProtocolClassName(i).indexOf("smartmeterprotocolimpl") > 0  ){
+                    row = sheetSm.createRow(smCounter++);
+                } else {
+                    row = sheet.createRow(counter++);
+                }
+
+                row.createCell(0).setCellValue(i);
                 row.createCell(1).setCellValue((String)gpci.getProtocolClassName(i));
                 row.createCell(2).setCellValue((String)gpci.getProtocolName(i));
                 try{
@@ -67,12 +75,16 @@ public class ProtocolCollectionCreationTest {
                 }
 
             }
-
-            // Create an empty row that differs the generics form the classic protocols
+            
             sheet.autoSizeColumn(0);
             sheet.autoSizeColumn(1);
             sheet.autoSizeColumn(2);
             sheet.autoSizeColumn(3);
+            sheetSm.autoSizeColumn(0);
+            sheetSm.autoSizeColumn(1);
+            sheetSm.autoSizeColumn(2);
+            sheetSm.autoSizeColumn(3);
+
             FileOutputStream fileOut = new FileOutputStream("c:\\MeterProtocols.xls");
             wb.write(fileOut);
             fileOut.close();
