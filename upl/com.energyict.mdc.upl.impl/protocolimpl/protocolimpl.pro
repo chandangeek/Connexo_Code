@@ -468,3 +468,11 @@
 -keepnames class com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ZigbeeGas
 
 -keepnames class com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.InHomeDisplay
+
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.MbusDevice
+
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP
+
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.Mx382
+
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.MbusDevice
