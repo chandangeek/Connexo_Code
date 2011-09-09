@@ -309,13 +309,13 @@ public class AssociationControlServiceElementTest {
     }
 
 //    0001002d0030009c618199a109060760857405080103a203020100a305a103020100a40a0408454c53303030303088020780890760857405080205aa428040713a35673f232a624f293e35656c355b57276575542e76467e395b5b5d527b79797726772f642c227d74623a71296575296b784257577e6b312a6a37326b6b51be230421281f3000000001bf8c78b1336f8f1123128cd74dc14dea3824011801954a9ecfa1
-
-    @Test
-    public void as300Test() throws IOException {
-        AssociationControlServiceElement acse;
-
-            acse = new AssociationControlServiceElement(null, 1, new SecurityContext(3, 5, 2, new MockSecurityProvider(), SecurityContext.CIPHERING_TYPE_GLOBAL));
-            String hlSecurityResponse = "618199a109060760857405080103a203020100a305a103020100a40a0408454c53303030303088020780890760857405080205aa428040713a35673f232a624f293e35656c355b57276575542e76467e395b5b5d527b79797726772f642c227d74623a71296575296b784257577e6b312a6a37326b6b51be230421281f3000000001bf8c78b1336f8f1123128cd74dc14dea3824011801954a9ecfa1";
-            acse.analyzeAARE(DLMSUtils.hexStringToByteArray(hlSecurityResponse));
-    }
+//
+//    @Test
+//    public void as300Test() throws IOException {
+//        AssociationControlServiceElement acse;
+//
+//            acse = new AssociationControlServiceElement(null, 1, new SecurityContext(3, 5, 2, new MockSecurityProvider(), SecurityContext.CIPHERING_TYPE_GLOBAL));
+//            String hlSecurityResponse = "618199a109060760857405080103a203020100a305a103020100a40a0408454c53303030303088020780890760857405080205aa428040713a35673f232a624f293e35656c355b57276575542e76467e395b5b5d527b79797726772f642c227d74623a71296575296b784257577e6b312a6a37326b6b51be230421281f3000000001bf8c78b1336f8f1123128cd74dc14dea3824011801954a9ecfa1";
+//            acse.analyzeAARE(DLMSUtils.hexStringToByteArray(hlSecurityResponse));
+//    }
 }
