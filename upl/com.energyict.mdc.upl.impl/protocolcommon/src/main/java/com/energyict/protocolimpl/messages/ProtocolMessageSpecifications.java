@@ -179,4 +179,16 @@ public class ProtocolMessageSpecifications {
         msgSpec.add(tagSpec);
         return msgSpec;
     }
+
+    /**
+     * Creates a MessageSpecification for changing the Administrative status message. The message does not contain any values or attributes.
+     *
+     * @return the requested messageSpecification
+     */
+    public static MessageSpec getChangeAdministrativeStatusMessageSpecification() {
+        MessageSpec msgSpec = new MessageSpec(RtuMessageKeyIdConstants.CHANGE_ADMINISTRATIVE_STATUS, false);
+        MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.CHANGE_ADMINISTRATIVE_STATUS);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
 }

@@ -30,4 +30,5 @@ public class RtuMessageCategoryConstants {
     public static final String CHANGE_OF_TENANCY = "Change of Tenancy";
     public static final String CHANGE_OF_SUPPLIER = "Change of Supplier";
 
+    public static final String CHANGE_ADMINISTRATIVE_STATUS = "Change administrative status";
 }

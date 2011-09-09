@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.nta.dsmr23;
+package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.Environment;

@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.nta.dsmr23;
+package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
@@ -22,6 +22,7 @@ import com.energyict.protocolimpl.dlms.common.DlmsSession;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessageExecutor;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -210,7 +211,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         // changing the LLS secret in LN_referencing is a set of an attribute
         if (this.dlmsSession.getReference() == ProtocolLink.LN_REFERENCE) {
             AssociationLN aln = getCosemObjectFactory().getAssociationLN();
-            aln.writeSecret(new OctetString(this.protocol.getSecurityProvider().getNEWLLSSecret()));
+            aln.writeSecret(new OctetString(this.protocol.getDlmsSession().getProperties().getSecurityProvider().getNEWLLSSecret()));
 
             // changing the LLS secret in SN_referencing is the same action as for the HLS secret
         } else if (this.dlmsSession.getReference() == ProtocolLink.SN_REFERENCE) {
@@ -219,7 +220,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             // We just return the byteArray because it is possible that the berEncoded octetString contains
             // extra check bits ...
             //TODO low lever security should set the value directly to the secret attribute of the SNAssociation
-            asn.changeSecret(this.protocol.getSecurityProvider().getNEWHLSSecret());
+            asn.changeSecret(this.protocol.getDlmsSession().getProperties().getSecurityProvider().getNEWHLSSecret());
         }
     }
 
@@ -228,7 +229,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         Array globalKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(0));    // 0 means keyType: global unicast encryption key
-        keyData.addDataType(new OctetString(this.protocol.getSecurityProvider().getNEWGlobalKey()));
+        keyData.addDataType(new OctetString(this.protocol.getDlmsSession().getProperties().getSecurityProvider().getNEWGlobalKey()));
         globalKeyArray.addDataType(keyData);
 
         SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
@@ -240,7 +241,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         Array globalKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(2));    // 2 means keyType: authenticationKey
-        keyData.addDataType(new OctetString(this.protocol.getSecurityProvider().getNEWAuthenticationKey()));
+        keyData.addDataType(new OctetString(this.protocol.getDlmsSession().getProperties().getSecurityProvider().getNEWAuthenticationKey()));
         globalKeyArray.addDataType(keyData);
 
         SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
@@ -254,14 +255,14 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
 
             // We just return the byteArray because it is possible that the berEncoded octetString contains
             // extra check bits ...
-            aln.changeHLSSecret(this.protocol.getSecurityProvider().getNEWHLSSecret());
+            aln.changeHLSSecret(this.protocol.getDlmsSession().getProperties().getSecurityProvider().getNEWHLSSecret());
         } else if (this.dlmsSession.getReference() == ProtocolLink.SN_REFERENCE) {
             AssociationSN asn = getCosemObjectFactory().getAssociationSN();
 
             // We just return the byteArray because it is possible that the berEncoded octetString contains
             // extra check bits ...
             //TODO low lever security should set the value directly to the secret attribute of the SNAssociation
-            asn.changeSecret(this.protocol.getSecurityProvider().getNEWHLSSecret());
+            asn.changeSecret(this.protocol.getDlmsSession().getProperties().getSecurityProvider().getNEWHLSSecret());
         }
     }
 

@@ -1,17 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.dialer.core.Link;
-import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.*;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.*;
-import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT

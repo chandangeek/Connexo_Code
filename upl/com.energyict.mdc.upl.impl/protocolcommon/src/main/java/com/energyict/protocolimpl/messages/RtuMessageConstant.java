@@ -311,4 +311,5 @@ public class RtuMessageConstant {
     public static final String CHANGE_OF_SUPPLIER_NAME = "Change_Of_Supplier_Name";
     public static final String CHANGE_OF_SUPPLIER_ID = "Change_Of_Supplier_ID";
     public static final String CHANGE_OF_SUPPLIER_ACTIATION_DATE = "Change_Of_Supplier_ActivationDate";
+    public static final String CHANGE_ADMINISTRATIVE_STATUS = "Change_Administrtive_Status";
 }

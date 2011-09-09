@@ -6,6 +6,7 @@ import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.AssociationLNAttributes;
+import com.energyict.dlms.cosem.attributes.DataAttributes;
 import com.energyict.genericprotocolimpl.common.EncryptionStatus;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.Register;
@@ -30,6 +31,8 @@ public class DSMR40RegisterFactory extends Dsmr23RegisterFactory {
 
     public static final ObisCode SecurityPolicyObisCode = ObisCode.fromString("0.0.43.0.0.2");
     public static final ObisCode HighLevelSecurityObisCode = ObisCode.fromString("0.0.40.0.0.6");
+
+    public static final ObisCode AdministrativeStatusObisCode = ObisCode.fromString("0.1.94.31.0.255");
 
     public DSMR40RegisterFactory(final AbstractSmartNtaProtocol protocol) {
         super(protocol);
@@ -67,6 +70,9 @@ public class DSMR40RegisterFactory extends Dsmr23RegisterFactory {
                         dlmsAttributes.add(this.registerMap.get(register));
                     } else if (rObisCode.equals(HighLevelSecurityObisCode)) {
                         this.registerMap.put(register, new DLMSAttribute(AssociationLN.getDefaultObisCode(), AssociationLNAttributes.AUTHENTICATION_MECHANISM_NAME.getAttributeNumber(), DLMSClassId.ASSOCIATION_LN.getClassId()));
+                        dlmsAttributes.add(this.registerMap.get(register));
+                    } else if (rObisCode.equals(AdministrativeStatusObisCode)) {
+                        this.registerMap.put(register, new DLMSAttribute(AdministrativeStatusObisCode, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA));
                         dlmsAttributes.add(this.registerMap.get(register));
                     }
                 } catch (IOException e) {
@@ -106,7 +112,11 @@ public class DSMR40RegisterFactory extends Dsmr23RegisterFactory {
             }
             Quantity quantity = new Quantity(BigDecimal.valueOf(level), Unit.getUndefined());
             return new RegisterValue(register, quantity);
+        } else if (rObisCode.equals(AdministrativeStatusObisCode)) {
+            int adminStatus = abstractDataType.intValue();
+            return new RegisterValue(register, new Quantity(BigDecimal.valueOf(adminStatus), Unit.getUndefined()), null, null, null, new Date(), 0, AdministrativeStatus.getDescriptionForValue(adminStatus));
         }
+
         return super.convertCustomAbstractObjectsToRegisterValues(register, abstractDataType);
     }
 
@@ -131,6 +141,38 @@ public class DSMR40RegisterFactory extends Dsmr23RegisterFactory {
                 }
             }
             return "UnKnown State";
+        }
+
+        private int getValue() {
+            return this.value;
+        }
+
+        private String getDescription() {
+            return this.description;
+        }
+    }
+
+    private enum AdministrativeStatus {
+
+        OPT_OUT(0, "Administrative off (Opt Out)"),
+        DEFAULT(1, "Administrative on (Default)"),
+        OPT_IN(2, "Meter is administrative on and reading of profile data is allowed (Opt In)");
+
+        private final int value;
+        private final String description;
+
+        AdministrativeStatus(final int value, final String description) {
+            this.value = value;
+            this.description = description;
+        }
+
+        public static String getDescriptionForValue(int value) {
+            for (AdministrativeStatus administrativeStatus : values()) {
+                if(administrativeStatus.getValue() == value){
+                    return administrativeStatus.getDescription();
+                }
+            }
+            return "Unknown";
         }
 
         private int getValue() {

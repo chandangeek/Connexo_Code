@@ -1,10 +1,12 @@
-package com.energyict.smartmeterprotocolimpl.nta.dsmr23;
+package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
+import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
 import com.energyict.protocolimpl.messages.*;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MessageExecutor;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,8 +21,8 @@ public class Dsmr23Messaging extends GenericMessaging implements MessageProtocol
 
     private final Dsmr23MessageExecutor messageExecutor;
 
-    public Dsmr23Messaging(final Dsmr23MessageExecutor messageExecutor) {
-        this.messageExecutor = messageExecutor;
+    public Dsmr23Messaging(final GenericMessageExecutor messageExecutor) {
+        this.messageExecutor = (Dsmr23MessageExecutor) messageExecutor;
     }
 
     /**

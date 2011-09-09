@@ -2,8 +2,8 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict;
 
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23MessageExecutor;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23Messaging;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MessageExecutor;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23Messaging;
 
 /**
  * Copyrights EnergyICT

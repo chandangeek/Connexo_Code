@@ -69,4 +69,16 @@ public class ProtocolMessageCategories {
         cos.addMessageSpec(ProtocolMessageSpecifications.getChangeOfSupplierMessageSpecification());
         return cos;
     }
+
+
+    /**
+     * MessageCategory containing relevant functionality to change the administrative state of a DSMR4.0 meter.
+     *
+     * @return the newly created category
+     */
+    public static MessageCategorySpec getChangeAdministrativeStatusCategory() {
+        MessageCategorySpec casc = new MessageCategorySpec(RtuMessageCategoryConstants.CHANGE_ADMINISTRATIVE_STATUS);
+        casc.addMessageSpec(ProtocolMessageSpecifications.getChangeAdministrativeStatusMessageSpecification());
+        return casc;
+    }
 }

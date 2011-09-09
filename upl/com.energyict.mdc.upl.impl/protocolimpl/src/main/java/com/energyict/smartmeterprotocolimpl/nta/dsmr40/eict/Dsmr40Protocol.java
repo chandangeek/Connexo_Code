@@ -4,8 +4,12 @@ import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.*;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MessageExecutor;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23Messaging;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RegisterFactory;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MessageExecutor;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging;
 
 /**
  * Copyrights EnergyICT
@@ -16,7 +20,7 @@ public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr23Messaging(new Dsmr23MessageExecutor(this));
+        return new Dsmr40Messaging(new Dsmr40MessageExecutor(this));
     }/**
      * Getter for the {@link com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties}
      *

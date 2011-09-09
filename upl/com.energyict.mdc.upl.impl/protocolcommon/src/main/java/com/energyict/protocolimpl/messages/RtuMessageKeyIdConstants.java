@@ -65,4 +65,5 @@ public class RtuMessageKeyIdConstants {
     public static final String CHANGE_OF_TENANT = "Change Of Tenant";
     public static final String CHANGE_OF_SUPPLIER = "Change Of Supplier";
 
+    public static final String CHANGE_ADMINISTRATIVE_STATUS = "Change Administrative status";
 }
