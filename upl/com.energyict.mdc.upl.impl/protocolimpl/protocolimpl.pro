@@ -246,6 +246,10 @@
 
 -keepnames class com.energyict.protocolimpl.cm10.CM10
 
+-keepnames class com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject {
+	public *;
+}
+
 -keepnames class com.energyict.protocolimpl.iec1107.iskraemeco.mt83.MT83
 
 -keepnames class com.energyict.protocolimpl.iec1107.sdc.Sdc
@@ -325,6 +329,9 @@
 }
 
 -keep class com.energyict.genericprotocolimpl.webrtukp.eventhandling.*{
+	public *;
+}
+-keep class com.energyict.genericprotocolimpl.nta.eventhandling.*{
 	public *;
 }
 
@@ -476,3 +483,9 @@
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.Mx382
 
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.MbusDevice
+
+-keepnames class com.energyict.protocolimpl.base.RtuDiscoveredEvent
+
+-keep public class com.energyict.genericprotocolimpl.common.DLMSProtocol{
+    public *;
+}
