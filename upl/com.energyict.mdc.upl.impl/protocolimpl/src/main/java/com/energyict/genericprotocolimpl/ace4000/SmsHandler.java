@@ -59,7 +59,6 @@ public class SmsHandler implements MessageHandler {
         int trackingId = header & 0x000FFF;
         String externalName = from + String.valueOf(trackingId);
         String xml = msg.substring(4);
-        System.out.println(msg + ", from: " + from);
 
         if (parts == 0) {
             ACE4000 ace4000 = new ACE4000();

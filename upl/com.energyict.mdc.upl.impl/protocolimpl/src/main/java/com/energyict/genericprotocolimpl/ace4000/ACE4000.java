@@ -27,7 +27,7 @@ public class ACE4000 extends AbstractGenericProtocol {
     private InputStream inputStream;
     private OutputStream outputStream = null;
     private Rtu masterMeter;
-    private HashMap<String, Rtu> mBusMeters;
+    private HashMap<String, Rtu> mBusMeters = new HashMap<String, Rtu>();
     private ACE4000Properties properties = new ACE4000Properties();
     private ObjectFactory objectFactory;
 
@@ -161,31 +161,29 @@ public class ACE4000 extends AbstractGenericProtocol {
     public void doExecuteSms(String msg) throws BusinessException, SQLException {
         try {
             masterMeter = null;
-                log("** A new SMS message was received **");
-                setObjectFactory(new ObjectFactory(this));
-                getObjectFactory().setRequestsAllowed(false);
-                getObjectFactory().parseXML(msg);
-                storeData();
-                success = true;
+            log("** A new SMS message was received **");
+            setObjectFactory(new ObjectFactory(this));
+            getObjectFactory().setRequestsAllowed(false);
+            getObjectFactory().parseXML(msg);
+            storeData();
+            success = true;
 
         } catch (Exception e) {
+            if (e instanceof SQLException) {
+                Environment.getDefault().closeConnection();
+            }
             getErrorString().append(e.toString());
             success = false;
             e.printStackTrace();
             throw new BusinessException(e.getMessage());
 
         } finally {
-            try {
-                if (success) {
-                    addSuccessLogging();
-                } else {
-                    log("An error occurred while parsing an SMS and was logged in the AMR journal.");
-                    log(getErrorString().toString());
-                    addFailureLogging(getErrorString());
-                }
-            } finally {
-                // Close the connection after an SQL exception, connection will startup again if requested
-                Environment.getDefault().closeConnection();
+            if (success) {
+                addSuccessLogging();
+            } else {
+                log("An error occurred while parsing an SMS and was logged in the AMR journal.");
+                log(getErrorString().toString());
+                addFailureLogging(getErrorString());
             }
         }
     }
