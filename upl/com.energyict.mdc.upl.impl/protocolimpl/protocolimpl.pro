@@ -28,6 +28,11 @@
     public **[] values();
 }
 
+-keep interface *
+-keep class * implements com.energyict.protocol.SmartMeterProtocol
+-keep class * implements com.energyict.protocol.MeterProtocol
+-keep class * implements com.energyict.mdw.amr.GenericProtocol
+
 # Keep names - Native method names. Keep all native class/method names.
 -keepclasseswithmembernames class * {
     native <methods>;
@@ -348,6 +353,10 @@
 -keepnames class com.energyict.genericprotocolimpl.webrtuz3.WebRTUZ3
 
 -keep public class com.energyict.genericprotocolimpl.webrtu.common.*{
+	*;
+}
+
+-keep public class com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub {
 	*;
 }
 
