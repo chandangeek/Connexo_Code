@@ -2,10 +2,12 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.dlms.DLMSCache;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.common.*;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.composedobjects.ComposedMeterInfo;
@@ -309,7 +311,10 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
 
     @Override
     protected void checkCacheObjects() throws IOException {
-        getDlmsSession().getMeterConfig().setInstantiatedObjectList(ObisCodeProvider.OBJECT_LIST);
+        UniversalObject[] objectList = ObisCodeProvider.OBJECT_LIST;
+        getDlmsSession().getMeterConfig().setInstantiatedObjectList(objectList);
+        DLMSCache cacheObject = new DLMSCache(objectList, ObisCodeProvider.OBJECT_LIST_VERSION);
+        setCache(cacheObject);
     }
 
     public UkHubEventProfiles getUkHubEventProfiles() {

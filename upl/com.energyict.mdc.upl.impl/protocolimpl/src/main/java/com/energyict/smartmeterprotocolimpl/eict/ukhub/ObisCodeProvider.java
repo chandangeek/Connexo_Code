@@ -11,6 +11,7 @@ import com.energyict.obis.ObisCode;
  */
 public class ObisCodeProvider {
 
+    public static int OBJECT_LIST_VERSION  = 1;
 
     public static final ObisCode STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.0.255");
     public static final ObisCode FRAUD_DETECTION_EVENT_LOG = ObisCode.fromString("0.0.99.98.1.255");
