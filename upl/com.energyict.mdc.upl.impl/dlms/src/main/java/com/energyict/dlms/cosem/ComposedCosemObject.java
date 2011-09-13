@@ -23,6 +23,7 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
     private final DLMSAttribute[] attributes;
     private final AbstractDataType[] dataResult;
     private final boolean useGetWithList;
+    private Date lastAttributeReadTime;
 
     @Override
     protected int getClassId() {
@@ -97,6 +98,7 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
     private void readAttribute(DLMSAttribute attribute) throws IOException {
         int index = getAttributeIndex(attribute);
         if (dataResult[index] == null) {
+            this.lastAttributeReadTime = new Date();
             if (isGetWithListSupported()) {
                 byte[][] dataWithList = getLNResponseDataWithList(attributes);
                 for (int i = 0; i < dataWithList.length; i++) {
@@ -203,5 +205,9 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
      */
     public final DLMSAttribute[] getDlmsAttributesList(){
         return this.attributes;
+    }
+
+    public Date getLastAttributeReadTime() {
+        return lastAttributeReadTime;
     }
 }
