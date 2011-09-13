@@ -1,6 +1,8 @@
 package com.energyict.dlms.cosem.attributes;
 
+import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.obis.ObisCode;
 
 /**
  * Straightforward summary of the {@link com.energyict.dlms.cosem.ExtendedRegister} attributes
@@ -46,4 +48,9 @@ public enum ExtendedRegisterAttributes implements DLMSClassAttributes {
     public int getShortName() {
         return this.shortName;
     }
+
+    public DLMSAttribute getDLMSAttribute(ObisCode obisCode) {
+        return new DLMSAttribute(obisCode, this);
+    }
+
 }

@@ -1,7 +1,9 @@
 package com.energyict.protocolimpl.dlms.as220.objects;
 
+import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
+import com.energyict.obis.ObisCode;
 
 
 /**
@@ -59,5 +61,10 @@ public enum PLCObjectAttribute implements DLMSClassAttributes {
 		}
 		throw new IllegalArgumentException("No shortName found for id = " + shortName);
 	}
+
+    public DLMSAttribute getDLMSAttribute(ObisCode obisCode) {
+        return new DLMSAttribute(obisCode, this);
+    }
+
 
 }

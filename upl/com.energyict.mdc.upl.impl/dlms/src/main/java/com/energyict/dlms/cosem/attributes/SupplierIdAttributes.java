@@ -1,6 +1,8 @@
 package com.energyict.dlms.cosem.attributes;
 
+import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.obis.ObisCode;
 
 /**
  * Copyrights EnergyICT
@@ -51,4 +53,9 @@ public enum SupplierIdAttributes implements DLMSClassAttributes {
     public int getAttributeNumber() {
         return this.attributeNumber;
     }
+
+    public DLMSAttribute getDLMSAttribute(ObisCode obisCode) {
+        return new DLMSAttribute(obisCode, this);
+    }
+
 }

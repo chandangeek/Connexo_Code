@@ -1,6 +1,8 @@
 package com.energyict.dlms.cosem.attributes;
 
+import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.obis.ObisCode;
 
 /**
  * Contains functionality to access attributes of the SpecialDay table (independent whether or not shortName or logicalNames are used)
@@ -49,4 +51,9 @@ public enum SpecialDaysTableAttributes implements DLMSClassAttributes {
     public int getShortName() {
         return this.shortName;
     }
+
+    public DLMSAttribute getDLMSAttribute(ObisCode obisCode) {
+        return new DLMSAttribute(obisCode, this);
+    }
+
 }

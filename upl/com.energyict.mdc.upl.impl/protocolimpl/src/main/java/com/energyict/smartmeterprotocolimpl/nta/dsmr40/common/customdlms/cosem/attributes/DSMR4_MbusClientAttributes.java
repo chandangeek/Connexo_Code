@@ -1,7 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.customdlms.cosem.attributes;
 
+import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
+import com.energyict.obis.ObisCode;
 
 /**
  * Copyrights EnergyICT
@@ -67,4 +69,9 @@ public enum DSMR4_MbusClientAttributes implements DLMSClassAttributes {
     public int getShortName() {
         return shortName;
     }
+
+    public DLMSAttribute getDLMSAttribute(ObisCode obisCode) {
+        return new DLMSAttribute(obisCode, this);
+    }
+
 }

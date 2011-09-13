@@ -4,7 +4,9 @@
 package com.energyict.dlms.cosem.attributes;
 
 
+import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.obis.ObisCode;
 
 /**
  * @author jme
@@ -62,5 +64,10 @@ public enum DisconnectControlAttribute implements DLMSClassAttributes {
 		}
 		throw new IllegalArgumentException("No shortName found for id = " + shortName);
 	}
+
+    public DLMSAttribute getDLMSAttribute(ObisCode obisCode) {
+        return new DLMSAttribute(obisCode, this);
+    }
+
 
 }
