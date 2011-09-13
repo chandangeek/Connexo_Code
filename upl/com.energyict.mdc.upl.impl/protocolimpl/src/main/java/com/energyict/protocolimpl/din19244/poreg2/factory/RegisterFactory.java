@@ -12,7 +12,7 @@ import java.util.*;
 
 /**
  * Factory able to request registers.
- *
+ * <p/>
  * Copyrights EnergyICT
  * Date: 20-apr-2011
  * Time: 14:09:45
@@ -159,8 +159,9 @@ public class RegisterFactory {
         return billingParameters.getConfigs();
     }
 
-    public long readBillingData(int tariff, int level) throws IOException {
-        BankConfiguration config = getBankConfig(tariff, level);
+    public long readBillingData(int tariff, int level, int dField) throws IOException {
+        tariff = tariff == 4 ? 0 : tariff;
+        BankConfiguration config = getBankConfig(tariff, level, dField);
         List<ExtendedValue> values;
         values = readBillingDataLastPeriod();
 
@@ -173,6 +174,24 @@ public class RegisterFactory {
         return total;
     }
 
+    public long readCurrentData(int tariff, int level, int dField) throws IOException {
+        tariff = tariff == 4 ? 0 : tariff;
+        BankConfiguration config = getBankConfig(tariff, level, dField);
+        List<ExtendedValue> values;
+        values = readBillingDataCurrentPeriod();
+
+        long total = 0;
+        for (int i = 0; i < values.size(); i++) {                     //Sum all values of the row (concentrator)
+            if (config.getChannels()[i] != 0xFF) {
+                total += values.get(i).getValue();
+            }
+        }
+        return total;
+    }
+
+    /**
+     * Read a specific row (indicated by bankId) in GID = 20 containing billing data.
+     */
     private List<ExtendedValue> readBillingDataCurrentPeriod() throws IOException {
         checkBankId();
         BillingDataCurrentPeriod billingDataCurrentPeriod = new BillingDataCurrentPeriod(poreg, bankId, 0, 1, 8);
@@ -187,10 +206,13 @@ public class RegisterFactory {
         return billingDataLastPeriod.getValues();
     }
 
-    private BankConfiguration getBankConfig(int tariff, int level) throws IOException {
+    /**
+     * Iterate over the bank definitions, find the right bank id for the tariff, level and dField.
+     */
+    private BankConfiguration getBankConfig(int tariff, int level, int dField) throws IOException {
         List<BankConfiguration> configs = readBillingConfiguration();
         for (BankConfiguration config : configs) {
-            if (((tariff == - 1) || (config.isTariffRate(tariff))) && config.isResultLevel(level)) {
+            if (((tariff == -1) || (config.isTariffRate(tariff))) && config.isResultLevel(level) && ((dField == -1) || config.isResultRenewal(dField))) {
                 bankId = config.getBankId();
                 return config;
             }
@@ -212,7 +234,7 @@ public class RegisterFactory {
         return timeStamp.getTimeStamp();
     }
 
-    private Date readBillingDataCurrentPeriodTimeStamp() throws IOException {
+    public Date readBillingDataCurrentPeriodTimeStamp() throws IOException {
         checkBankId();
         BillingDataCurrentPeriodTimeStamp timeStamp = new BillingDataCurrentPeriodTimeStamp(poreg, bankId, 0, 1, 1);
         timeStamp.doRequest();
@@ -221,7 +243,7 @@ public class RegisterFactory {
 
     private void checkBankId() throws IOException {
         if (bankId == -1) {
-            getBankConfig(-1, 0);
+            getBankConfig(-1, 0, -1);
         }
     }
 

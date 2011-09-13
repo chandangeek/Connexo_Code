@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * Class to read/write the billing configuration parameters
- *
+ * <p/>
  * Copyrights EnergyICT
  * Date: 9-mei-2011
  * Time: 9:23:31
@@ -42,6 +42,7 @@ public class BillingParameters extends AbstractRegister {
         List<ExtendedValue> values = RegisterDataParser.parseData(data, getTotalReceivedNumberOfRegisters(), getReceivedNumberOfFields());
 
         int resultType;
+        int resultRenewal;
         int tariffType;
         int tariffIndex;
         int resultLevel;
@@ -54,7 +55,7 @@ public class BillingParameters extends AbstractRegister {
                 break;
             }
             offset++;
-            offset++;
+            resultRenewal = values.get(offset++).getValue();
             offset++;
             offset++;
             offset++;
@@ -70,7 +71,7 @@ public class BillingParameters extends AbstractRegister {
             channels[6] = values.get(offset++).getValue();
             channels[7] = values.get(offset++).getValue();
 
-            configs.add(new BankConfiguration(bankId, channels, resultLevel, resultType, tariffIndex, tariffType));
+            configs.add(new BankConfiguration(bankId, resultRenewal, channels, resultLevel, resultType, tariffIndex, tariffType));
         }
     }
 
