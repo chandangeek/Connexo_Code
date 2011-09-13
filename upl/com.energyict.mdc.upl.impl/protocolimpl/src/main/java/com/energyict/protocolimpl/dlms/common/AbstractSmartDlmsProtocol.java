@@ -29,7 +29,7 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
     /**
      * The used {@link com.energyict.protocolimpl.dlms.common.DlmsSession}
      */
-    private DlmsSession dlmsSession;
+    protected DlmsSession dlmsSession;
 
     /**
      * <p></p>

@@ -16,204 +16,219 @@ import java.util.Arrays;
  * and to determine the application context of that association.
  *
  * @author gna
- *
  */
 public class AssociationControlServiceElement {
 
-	/**
-	 * <pre>
-	 * This default object identifier means:
-	 *  - two ASE's are present (ACSE and xDLMS_ASE)
-	 *  - xDLMS_ASE is as it is specified in 61334-4-41
-	 *  - the transfer syntax is A-XDR
-	 * </pre>
-	 */
-	private static final byte[] DEFAULT_OBJECT_IDENTIFIER = new byte[] { (byte) 0x60,
-			(byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08 };
+    /**
+     * <pre>
+     * This default object identifier means:
+     *  - two ASE's are present (ACSE and xDLMS_ASE)
+     *  - xDLMS_ASE is as it is specified in 61334-4-41
+     *  - the transfer syntax is A-XDR
+     * </pre>
+     */
+    private static final byte[] DEFAULT_OBJECT_IDENTIFIER = new byte[]{(byte) 0x60,
+            (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08};
 
-	public static final int LOGICAL_NAME_REFERENCING_NO_CIPHERING = 1;
-	public static final int LOGICAL_NAME_REFERENCING_WITH_CIPHERING = 3;
-	public static final int SHORT_NAME_REFERENCING_NO_CIPHERING = 2;
-	public static final int SHORT_NAME_REFERENCING_WITH_CIPHERING = 4;
+    public static final int LOGICAL_NAME_REFERENCING_NO_CIPHERING = 1;
+    public static final int LOGICAL_NAME_REFERENCING_WITH_CIPHERING = 3;
+    public static final int SHORT_NAME_REFERENCING_NO_CIPHERING = 2;
+    public static final int SHORT_NAME_REFERENCING_WITH_CIPHERING = 4;
 
-	private int ACSE_protocolVersion = 0; // default version1
-	private int contextId = 1;
-	private int mechanismId = 0;
-	private byte[] userInformationData;
-	private byte[] respondingAuthenticationValue;
-	private byte[] respondingAPTitle;
-	private XdlmsAse xdlmsAse;
-	private byte[] callingApplicationProcessTitle;
+    private int ACSE_protocolVersion = 0; // default version1
+    private int contextId = 1;
+    private int mechanismId = 0;
+    private byte[] userInformationData;
+    private byte[] respondingAuthenticationValue;
+    private byte[] respondingAPTitle;
+    private XdlmsAse xdlmsAse;
+    private byte[] callingApplicationProcessTitle;
     private byte[] calledApplicationProcessTitle;
     private byte[] calledApplicationEntityQualifier;
-	private SecurityContext sc;
+    private SecurityContext sc;
 
-	/**
-	 * Create a new instance of the AssociationControlServiceElement
-	 * @param xDlmsAse - the xDLMS_ASE
-	 * @param contextId - the applicationContextId which indicates which type of reference(LN/SN) and the use of ciphering
+    /**
+     * Create a new instance of the AssociationControlServiceElement
+     *
+     * @param xDlmsAse        - the xDLMS_ASE
+     * @param contextId       - the applicationContextId which indicates which type of reference(LN/SN) and the use of ciphering
      * @param securityContext - the used {@link com.energyict.dlms.aso.SecurityContext}
-	 */
-	public AssociationControlServiceElement(XdlmsAse xDlmsAse, int contextId, SecurityContext securityContext) {
-		this.xdlmsAse = xDlmsAse;
-		this.contextId = contextId;
-		this.mechanismId = securityContext.getAuthenticationLevel();
-		this.sc = securityContext;
-	}
+     */
+    public AssociationControlServiceElement(XdlmsAse xDlmsAse, int contextId, SecurityContext securityContext) {
+        this.xdlmsAse = xDlmsAse;
+        this.contextId = contextId;
+        this.mechanismId = securityContext.getAuthenticationLevel();
+        this.sc = securityContext;
+    }
 
     /**
      * @return the CallingAuthenticationValue from the {@link com.energyict.dlms.aso.SecurityProvider}
      */
-	private byte[] getCallingAuthenticationValue() {
-		try {
-			return sc.getSecurityProvider().getCallingAuthenticationValue();
-		} catch (IOException e) {
-			return null;
-		}
-	}
+    private byte[] getCallingAuthenticationValue() {
+        try {
+            return sc.getSecurityProvider().getCallingAuthenticationValue();
+        } catch (IOException e) {
+            return null;
+        }
+    }
 
     /**
      * Getter for the {@link com.energyict.dlms.aso.SecurityContext}
+     *
      * @return the used SecurityContext
      */
-	public SecurityContext getSecurityContext() {
-		return sc;
-	}
+    public SecurityContext getSecurityContext() {
+        return sc;
+    }
 
-	@Override
-	public String toString() {
-		final Object crlf = "\r\n";
-		StringBuffer sb = new StringBuffer();
-		sb.append("AssociationControlServiceElement").append(crlf);
-		sb.append(" > xdlmsAse = ").append(xdlmsAse != null ? xdlmsAse.toString().replace("\r\n", "") : "null").append(crlf);
-		sb.append(" > contextId = ").append(contextId).append(crlf);
-		sb.append(" > mechanismId = ").append(mechanismId).append(crlf);
-		sb.append(" > callingAuthenticationValue = ").append(getCallingAuthenticationValue() != null ? ProtocolUtils.getResponseData(getCallingAuthenticationValue()) : "null").append(crlf);
-		sb.append(crlf);
-		return sb.toString();
-	}
+    @Override
+    public String toString() {
+        final Object crlf = "\r\n";
+        StringBuffer sb = new StringBuffer();
+        sb.append("AssociationControlServiceElement").append(crlf);
+        sb.append(" > xdlmsAse = ").append(xdlmsAse != null ? xdlmsAse.toString().replace("\r\n", "") : "null").append(crlf);
+        sb.append(" > contextId = ").append(contextId).append(crlf);
+        sb.append(" > mechanismId = ").append(mechanismId).append(crlf);
+        sb.append(" > callingAuthenticationValue = ").append(getCallingAuthenticationValue() != null ? ProtocolUtils.getResponseData(getCallingAuthenticationValue()) : "null").append(crlf);
+        sb.append(crlf);
+        return sb.toString();
+    }
 
-	/**
-	 * Create an Association, based on the available variables
-	 * @throws IOException
-	 */
-	public byte[] createAssociationRequest() throws IOException {
-		byte[] userInformation = this.xdlmsAse.getInitiatRequestByteArray();
+    /**
+     * Create an Association, based on the available variables
+     *
+     * @throws IOException
+     */
+    public byte[] createAssociationRequest() throws IOException {
+        updateUserInformation();
+        return addUnusedPrefixBytesForCompliancyWithOldCode(buildAARQApdu());
+    }
 
-		switch (getSecurityContext().getSecurityPolicy()) {
-			case SecurityContext.SECURITYPOLICY_BOTH:
-			case SecurityContext.SECURITYPOLICY_ENCRYPTION:
-				XDlmsEncryption xdlmsEncryption = new XDlmsEncryption();
-				xdlmsEncryption.setPlainText(userInformation);
-				xdlmsEncryption.setSystemTitle(getSecurityContext().getSystemTitle());
-				xdlmsEncryption.setFrameCounter(getSecurityContext().getFrameCounterInBytes());
-				xdlmsEncryption.setAuthenticationKey(getSecurityContext().getSecurityProvider().getAuthenticationKey());
-				xdlmsEncryption.setGlobalKey(getSecurityContext().getSecurityProvider().getGlobalKey());
-				xdlmsEncryption.setSecurityControlByte((byte) 0x30);
-				userInformation = xdlmsEncryption.generateCipheredAPDU();
-				getSecurityContext().incFrameCounter();
-		}
+    private void updateUserInformation() throws IOException {
+        byte[] userInformation = this.xdlmsAse.getInitiatRequestByteArray();
 
-		setUserInformation(userInformation);
-		return addUnusedPrefixBytesForCompliancyWithOldCode(buildAARQApdu());
-	}
+        switch (getSecurityContext().getSecurityPolicy()) {
+            case SecurityContext.SECURITYPOLICY_BOTH:
+            case SecurityContext.SECURITYPOLICY_ENCRYPTION:
+                XDlmsEncryption xdlmsEncryption = new XDlmsEncryption();
+                xdlmsEncryption.setPlainText(userInformation);
+                xdlmsEncryption.setSystemTitle(getSecurityContext().getSystemTitle());
+                xdlmsEncryption.setFrameCounter(getSecurityContext().getFrameCounterInBytes());
+                xdlmsEncryption.setAuthenticationKey(getSecurityContext().getSecurityProvider().getAuthenticationKey());
+                xdlmsEncryption.setGlobalKey(getSecurityContext().getSecurityProvider().getGlobalKey());
+                xdlmsEncryption.setSecurityControlByte((byte) 0x30);
+                userInformation = xdlmsEncryption.generateCipheredAPDU();
+                getSecurityContext().incFrameCounter();
+        }
+
+        setUserInformation(userInformation);
+    }
 
     /**
      * Getter for the CallingApplicationTitle
+     *
      * @return the title
      */
-	public byte[] getCallingApplicationProcessTitle() {
-		return callingApplicationProcessTitle;
-	}
+    public byte[] getCallingApplicationProcessTitle() {
+        return callingApplicationProcessTitle;
+    }
 
     /**
      * Getter for the {@link #calledApplicationProcessTitle}
+     *
      * @return the calledApplicationProcessTitle
      */
-    public byte[] getCalledApplicationProcessTitle(){
+    public byte[] getCalledApplicationProcessTitle() {
         return this.calledApplicationProcessTitle;
     }
 
     /**
      * Getter for the {@link #calledApplicationEntityQualifier}
+     *
      * @return the calledApplicationEntityQualifier
      */
-    public byte[] getCalledApplicationEntityQualifier(){
+    public byte[] getCalledApplicationEntityQualifier() {
         return this.calledApplicationEntityQualifier;
     }
-    
+
     /**
      * Setter for the CallingApplicationTitle
+     *
      * @param callingApplicationProcessTitle the title to set
      */
-	public void setCallingApplicationProcessTitle(byte[] callingApplicationProcessTitle) {
-		if(callingApplicationProcessTitle != null){
-			this.callingApplicationProcessTitle = callingApplicationProcessTitle.clone();
-		}
-	}
+    public void setCallingApplicationProcessTitle(byte[] callingApplicationProcessTitle) {
+        if (callingApplicationProcessTitle != null) {
+            this.callingApplicationProcessTitle = callingApplicationProcessTitle.clone();
+        }
+    }
 
     /**
      * Setter for the {@link #calledApplicationProcessTitle}
+     *
      * @param calledApplicationProcessTitle the APTitle to set
      */
-    public void setCalledApplicationProcessTitle(byte[] calledApplicationProcessTitle){
-        if(calledApplicationProcessTitle != null){
+    public void setCalledApplicationProcessTitle(byte[] calledApplicationProcessTitle) {
+        if (calledApplicationProcessTitle != null) {
             this.calledApplicationProcessTitle = calledApplicationProcessTitle.clone();
         }
     }
 
     /**
      * Setter for the {@link #calledApplicationEntityQualifier}
-     * @param calledApplicationEntityQualifier the AEQualifier to set
+     *
+     * @param calledApplicationEntityQualifier
+     *         the AEQualifier to set
      */
-    public void setCalledApplicationEntityQualifier(byte[] calledApplicationEntityQualifier){
-        if(calledApplicationEntityQualifier != null){
+    public void setCalledApplicationEntityQualifier(byte[] calledApplicationEntityQualifier) {
+        if (calledApplicationEntityQualifier != null) {
             this.calledApplicationEntityQualifier = calledApplicationEntityQualifier.clone();
         }
     }
 
-	/**
-	 * Release the current association
-	 * @return a byteArray containing an ApplicationAssociationReleaseRequest
-	 * @throws IOException
-	 */
-	public byte[] releaseAssociationRequest() throws IOException {
-		return addUnusedPrefixBytesForCompliancyWithOldCode(buildRLRQApdu());
-	}
+    /**
+     * Release the current association
+     *
+     * @return a byteArray containing an ApplicationAssociationReleaseRequest
+     * @throws IOException
+     */
+    public byte[] releaseAssociationRequest() throws IOException {
+        updateUserInformation();
+        return addUnusedPrefixBytesForCompliancyWithOldCode(buildRLRQApdu());
+    }
 
-	/**
-	 * FIXME TCPIPConnection strips the first three bytes of the byteArray.
-	 * This method add three redundant bytes in front of your array to be compliant with old implementation.
-	 */
-	private byte[] addUnusedPrefixBytesForCompliancyWithOldCode(byte[] request){
-		byte[] r = new byte[request.length+3];
-		System.arraycopy(new byte[]{(byte)0xE6,(byte)0xE6,(byte)0x00}, 0, r, 0, 3);
-		System.arraycopy(request, 0, r, 3, request.length);
-		return r;
-	}
+    /**
+     * FIXME TCPIPConnection strips the first three bytes of the byteArray.
+     * This method add three redundant bytes in front of your array to be compliant with old implementation.
+     */
+    private byte[] addUnusedPrefixBytesForCompliancyWithOldCode(byte[] request) {
+        byte[] r = new byte[request.length + 3];
+        System.arraycopy(new byte[]{(byte) 0xE6, (byte) 0xE6, (byte) 0x00}, 0, r, 0, 3);
+        System.arraycopy(request, 0, r, 3, request.length);
+        return r;
+    }
 
-	/**
+    /**
      * Build up the ApplicationAssociationRequest
      *
-	 * @return the generated AARQ to establish an ApplicationAssociation
-	 * @throws IOException
-	 */
-	protected byte[] buildAARQApdu() throws IOException {
-		int t = 0;
-		byte[] aarq = new byte[1024];
-		// byte
-		aarq[t++] = DLMSCOSEMGlobals.AARQ_TAG;
-		aarq[t++] = 0;
+     * @return the generated AARQ to establish an ApplicationAssociation
+     * @throws IOException
+     */
+    protected byte[] buildAARQApdu() throws IOException {
+        int t = 0;
+        byte[] aarq = new byte[1024];
+        // byte
+        aarq[t++] = DLMSCOSEMGlobals.AARQ_TAG;
+        aarq[t++] = 0;
 
-		if (getACSEProtocolVersion() != null) { // Optional parameter
-			System.arraycopy(getACSEProtocolVersion(), 0, aarq, t,
-					getACSEProtocolVersion().length);
-			t += getACSEProtocolVersion().length;
-		}
+        if (getACSEProtocolVersion() != null) { // Optional parameter
+            System.arraycopy(getACSEProtocolVersion(), 0, aarq, t,
+                    getACSEProtocolVersion().length);
+            t += getACSEProtocolVersion().length;
+        }
 
-		System.arraycopy(getApplicationContextName(), 0, aarq, t,
-				getApplicationContextName().length);
-		t += getApplicationContextName().length;
+        System.arraycopy(getApplicationContextName(), 0, aarq, t,
+                getApplicationContextName().length);
+        t += getApplicationContextName().length;
 
         if (generateCalledApplicationProcessTitleField() != null) {
             System.arraycopy(generateCalledApplicationProcessTitleField(), 0, aarq, t, generateCalledApplicationProcessTitleField().length);
@@ -224,60 +239,61 @@ public class AssociationControlServiceElement {
             System.arraycopy(generateCalledApplicationEntityQualifier(), 0, aarq, t, generateCalledApplicationEntityQualifier().length);
             t += generateCalledApplicationEntityQualifier().length;
         }
-		/**
-		 * called-AE-qualifier [3]
-		 * AE-qualifier OPTIONAL, called-AP-invocation-id [4]
-		 * AP-invocation-identifier OPTIONAL, called-AE-invocation-id [5]
-		 * AE-invocation-identifier OPTIONAL,
-		 *
-		 * OPTIONAL, calling-AE-qualifier [7] AE-qualifier OPTIONAL,
-		 * calling-AP-invocation-id [8] AP-invocation-identifier OPTIONAL,
-		 * calling-AE-invocation-id [9] AE-invocation-identifier OPTIONAL,
-		 *
-		 * All above mentioned attributes are optional in the request. If they
-		 * are not used then they are not coded. They are encoded as
-		 * printableStrings. TODO encode the above attributes
-		 */
+        /**
+         * called-AE-qualifier [3]
+         * AE-qualifier OPTIONAL, called-AP-invocation-id [4]
+         * AP-invocation-identifier OPTIONAL, called-AE-invocation-id [5]
+         * AE-invocation-identifier OPTIONAL,
+         *
+         * OPTIONAL, calling-AE-qualifier [7] AE-qualifier OPTIONAL,
+         * calling-AP-invocation-id [8] AP-invocation-identifier OPTIONAL,
+         * calling-AE-invocation-id [9] AE-invocation-identifier OPTIONAL,
+         *
+         * All above mentioned attributes are optional in the request. If they
+         * are not used then they are not coded. They are encoded as
+         * printableStrings. TODO encode the above attributes
+         */
 
-		if (generateCallingApplicationProcessTitleField() != null) {
-			System.arraycopy(generateCallingApplicationProcessTitleField(), 0, aarq, t, generateCallingApplicationProcessTitleField().length);
-			t += generateCallingApplicationProcessTitleField().length;
-		}
+        if (generateCallingApplicationProcessTitleField() != null) {
+            System.arraycopy(generateCallingApplicationProcessTitleField(), 0, aarq, t, generateCallingApplicationProcessTitleField().length);
+            t += generateCallingApplicationProcessTitleField().length;
+        }
 
-		if (this.mechanismId != 0) {
-			System.arraycopy(getSenderACSERequirements(), 0, aarq, t,
-					getSenderACSERequirements().length);
-			t += getSenderACSERequirements().length;
+        if (this.mechanismId != 0) {
+            System.arraycopy(getSenderACSERequirements(), 0, aarq, t,
+                    getSenderACSERequirements().length);
+            t += getSenderACSERequirements().length;
 
-			System.arraycopy(getMechanismName(), 0, aarq, t,
-					getMechanismName().length);
-			t += getMechanismName().length;
+            System.arraycopy(getMechanismName(), 0, aarq, t,
+                    getMechanismName().length);
+            t += getMechanismName().length;
 
-			System.arraycopy(assembleCallingAuthenticationValue(), 0, aarq, t,
-					assembleCallingAuthenticationValue().length);
-			t += assembleCallingAuthenticationValue().length;
+            System.arraycopy(assembleCallingAuthenticationValue(), 0, aarq, t,
+                    assembleCallingAuthenticationValue().length);
+            t += assembleCallingAuthenticationValue().length;
 
-		}
+        }
 
-		// TODO implementation-information
+        // TODO implementation-information
 
-		if (getUserInformation() != null) {
-			System.arraycopy(getUserInformation(), 0, aarq, t,
-					getUserInformation().length);
-			t += getUserInformation().length;
-		}
+        if (getUserInformation() != null) {
+            System.arraycopy(getUserInformation(), 0, aarq, t,
+                    getUserInformation().length);
+            t += getUserInformation().length;
+        }
 
-		aarq[1] = (byte) (t - 2);
-		return ProtocolUtils.getSubArray(aarq, 0, t - 1);
-	}
+        aarq[1] = (byte) (t - 2);
+        return ProtocolUtils.getSubArray(aarq, 0, t - 1);
+    }
 
-	/**
-	 * Analyze the responseData
-	 * @param responseData from the device
-	 * @throws IOException
-	 */
+    /**
+     * Analyze the responseData
+     *
+     * @param responseData from the device
+     * @throws IOException
+     */
 
-	protected void analyzeAARE(byte[] responseData) throws IOException {
+    protected void analyzeAARE(byte[] responseData) throws IOException {
         int i = 0;
         String strResultSourceDiagnostics = "";
         try {
@@ -306,19 +322,17 @@ public class AssociationControlServiceElement {
                             }
                         } // else if (responseData[i] == AARE_RESULT)
 
-                        else if(responseData[i] == DLMSCOSEMGlobals.AARE_RESPONING_AP_TITLE){
+                        else if (responseData[i] == DLMSCOSEMGlobals.AARE_RESPONING_AP_TITLE) {
                             i++; // skip tag
                             if (responseData[i] > 0) { // length of octet string
-                                if ((responseData[i] - responseData[i+2]) != 2) {
-                                    this.respondingAPTitle = ProtocolUtils.getSubArray2(responseData, i+1, responseData[i]);
+                                if ((responseData[i] - responseData[i + 2]) != 2) {
+                                    this.respondingAPTitle = ProtocolUtils.getSubArray2(responseData, i + 1, responseData[i]);
                                 } else {
-                                    this.respondingAPTitle = ProtocolUtils.getSubArray2(responseData, i+3, responseData[i+2]);
+                                    this.respondingAPTitle = ProtocolUtils.getSubArray2(responseData, i + 3, responseData[i + 2]);
                                 }
                             }
                             i += responseData[i];
-                        }
-
-                        else if (responseData[i] == DLMSCOSEMGlobals.AARE_RESULT_SOURCE_DIAGNOSTIC) {
+                        } else if (responseData[i] == DLMSCOSEMGlobals.AARE_RESULT_SOURCE_DIAGNOSTIC) {
                             i++; // skip tag
                             if (responseData[i] == 5) // check length
                             {
@@ -326,35 +340,29 @@ public class AssociationControlServiceElement {
                                     if ((responseData[i + 2] == 3)
                                             && (responseData[i + 3] == 2)
                                             && (responseData[i + 4] == 1)) {
-                                        if (responseData[i + 5] == 0x00){
+                                        if (responseData[i + 5] == 0x00) {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_USER";
-                                        }
-                                        else if (responseData[i + 5] == 0x01){
+                                        } else if (responseData[i + 5] == 0x01) {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_USER, no reason given";
                                             throw new IOException("Application Association Establishment Failed"
                                                     + strResultSourceDiagnostics);
-                                        }
-                                        else if (responseData[i + 5] == 0x02){
+                                        } else if (responseData[i + 5] == 0x02) {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Application Context Name Not Supported";
                                             throw new IOException("Application Association Establishment Failed"
                                                     + strResultSourceDiagnostics);
-                                        }
-                                        else if (responseData[i + 5] == 0x0B){
+                                        } else if (responseData[i + 5] == 0x0B) {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Mechanism Name Not Recognised";
                                             throw new IOException("Application Association Establishment Failed"
                                                     + strResultSourceDiagnostics);
-                                        }
-                                        else if (responseData[i + 5] == 0x0C){
+                                        } else if (responseData[i + 5] == 0x0C) {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Mechanism Name Required";
                                             throw new IOException("Application Association Establishment Failed"
                                                     + strResultSourceDiagnostics);
-                                        }
-                                        else if (responseData[i + 5] == 0x0D){
+                                        } else if (responseData[i + 5] == 0x0D) {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Failure";
                                             throw new IOException("Application Association Establishment Failed"
                                                     + strResultSourceDiagnostics);
-                                        }
-                                        else if (responseData[i + 5] == 0x0E) {
+                                        } else if (responseData[i + 5] == 0x0E) {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Required";
                                         } else {
                                             throw new IOException(
@@ -384,7 +392,7 @@ public class AssociationControlServiceElement {
                                                 "Application Association Establishment Failed, result_source_diagnostic, ACSE_SERVICE_PROVIDER,  wrong tag");
                                     }
                                 } // else if (responseData[i+1] ==
-                                    // ACSE_SERVICE_PROVIDER)
+                                // ACSE_SERVICE_PROVIDER)
                                 else {
                                     throw new IOException(
                                             "Application Association Establishment Failed, result_source_diagnostic,  wrong tag");
@@ -397,25 +405,21 @@ public class AssociationControlServiceElement {
                             i += responseData[i]; // skip length + data
                         } // else if (responseData[i] == AARE_RESULT_SOURCE_DIAGNOSTIC)
 
-                        else if (responseData[i] == DLMSCOSEMGlobals.AARE_MECHANISM_NAME){
+                        else if (responseData[i] == DLMSCOSEMGlobals.AARE_MECHANISM_NAME) {
                             i++; //skip tag
-                            if(responseData[i + 7] != this.mechanismId){
-                                throw new IOException("Application Association Establishment Failed, mechanim_id("+ responseData[i+7] +"),  different then proposed(" + this.mechanismId + ")");
+                            if (responseData[i + 7] != this.mechanismId) {
+                                throw new IOException("Application Association Establishment Failed, mechanim_id(" + responseData[i + 7] + "),  different then proposed(" + this.mechanismId + ")");
                             }
                             i += responseData[i]; // skip length + data
-                        }
-
-                        else if (responseData[i] == DLMSCOSEMGlobals.AARE_RESPONDING_AUTHENTICATION_VALUE){
+                        } else if (responseData[i] == DLMSCOSEMGlobals.AARE_RESPONDING_AUTHENTICATION_VALUE) {
                             i++; //skip tag
 
-                            if(responseData[i + 1] == (byte)0x80){ // encoding choice for GraphicString
-                                setRespondingAuthenticationValue(ProtocolUtils.getSubArray2(responseData, i+3, responseData[i+2]));
+                            if (responseData[i + 1] == (byte) 0x80) { // encoding choice for GraphicString
+                                setRespondingAuthenticationValue(ProtocolUtils.getSubArray2(responseData, i + 3, responseData[i + 2]));
                             }
 
                             i += responseData[i]; // skip length + data
-                        }
-
-                        else if (responseData[i] == DLMSCOSEMGlobals.AARE_USER_INFORMATION) {
+                        } else if (responseData[i] == DLMSCOSEMGlobals.AARE_USER_INFORMATION) {
                             i++; // skip tag
 
                             if (responseData[i + 2] > 0) { // length of octet string
@@ -429,7 +433,7 @@ public class AssociationControlServiceElement {
                                     byte[] encryptedUserInformation = new byte[responseData.length - (i + 4)];
                                     System.arraycopy(responseData, i + 4, encryptedUserInformation, 0, encryptedUserInformation.length);
                                     byte[] ui = decryptUserInformation(encryptedUserInformation);
-                                    System.arraycopy(ui, 0, responseData, i+3, ui.length);
+                                    System.arraycopy(ui, 0, responseData, i + 3, ui.length);
                                     responseData = ProtocolUtils.getSubArray(responseData, 0, i + 2 + ui.length);
                                 }
 
@@ -492,7 +496,7 @@ public class AssociationControlServiceElement {
                                 }
 
                             } // if (responseData[i+2] > 0) --> length of the octet
-                                // string
+                            // string
 
                             i += responseData[i]; // skip length + data
                         } // else if (responseData[i] == AARE_USER_INFORMATION)
@@ -504,9 +508,9 @@ public class AssociationControlServiceElement {
                             // LOOP because length will
                             // be subtracted from i!!!
                             i += (((int) responseData[i]) & 0x000000FF); // skip
-                                                                            // length
-                                                                            // +
-                                                                            // data
+                            // length
+                            // +
+                            // data
                         }
 
                         if (i++ >= (responseData.length - 1)) {
@@ -530,17 +534,18 @@ public class AssociationControlServiceElement {
         throw new IOException("Application Association Establishment Failed" + strResultSourceDiagnostics);
     }
 
-	/**
+    /**
      * Decrypt the UserInformation field
-	 * @param encryptedUserInformation the encrypted userInformationField from the Device
-	 * @throws IOException
-	 */
-	private byte[] decryptUserInformation(byte[] encryptedUserInformation) throws IOException, DLMSConnectionException {
-		int ptr = 0;
-		byte length = encryptedUserInformation[ptr++];
-		byte scb = encryptedUserInformation[ptr++];
-		byte[] fc = new byte[4];
-		byte[] at = new byte[12];
+     *
+     * @param encryptedUserInformation the encrypted userInformationField from the Device
+     * @throws IOException
+     */
+    private byte[] decryptUserInformation(byte[] encryptedUserInformation) throws IOException, DLMSConnectionException {
+        int ptr = 0;
+        byte length = encryptedUserInformation[ptr++];
+        byte scb = encryptedUserInformation[ptr++];
+        byte[] fc = new byte[4];
+        byte[] at = new byte[12];
         byte[] ct = new byte[0];
         try {
             for (int j = 0; j < fc.length; j++) {
@@ -561,51 +566,51 @@ public class AssociationControlServiceElement {
         }
 
         XDlmsDecryption decryption = new XDlmsDecryption();
-		decryption.setAuthenticationKey(getSecurityContext().getSecurityProvider().getAuthenticationKey());
-		decryption.setGlobalKey(getSecurityContext().getSecurityProvider().getGlobalKey());
-		decryption.setAuthenticationTag(at);
-		decryption.setCipheredText(ct);
-		decryption.setFrameCounter(fc);
-		decryption.setSecurityControlByte(scb);
-		decryption.setSystemTitle(respondingAPTitle);
+        decryption.setAuthenticationKey(getSecurityContext().getSecurityProvider().getAuthenticationKey());
+        decryption.setGlobalKey(getSecurityContext().getSecurityProvider().getGlobalKey());
+        decryption.setAuthenticationTag(at);
+        decryption.setCipheredText(ct);
+        decryption.setFrameCounter(fc);
+        decryption.setSecurityControlByte(scb);
+        decryption.setSystemTitle(respondingAPTitle);
         getSecurityContext().setResponseFrameCounter(ProtocolUtils.getInt(fc));
-		return decryption.generatePlainText();
-	}
+        return decryption.generatePlainText();
+    }
 
-	/**
-	 * @return the generated RLRQ to release the association
-	 */
-	protected byte[] buildRLRQApdu() {
-		int t = 0;
-		byte[] rlrq = new byte[1024];
-		// byte
-		rlrq[t++] = DLMSCOSEMGlobals.RLRQ_TAG;
+    /**
+     * @return the generated RLRQ to release the association
+     */
+    protected byte[] buildRLRQApdu() {
+        int t = 0;
+        byte[] rlrq = new byte[1024];
+        // byte
+        rlrq[t++] = DLMSCOSEMGlobals.RLRQ_TAG;
 
-		if (userInformationData != null) {
-			switch (getSecurityContext().getSecurityPolicy()) {
-				case SecurityContext.SECURITYPOLICY_BOTH:
-				case SecurityContext.SECURITYPOLICY_ENCRYPTION:
-					rlrq[t++] = (byte) (userInformationData.length + 4); // total length
-					rlrq[t++] = DLMSCOSEMGlobals.RLRQ_USER_INFORMATION;
-					rlrq[t++] = (byte) (userInformationData.length + 2); // Total length of the userInformation (including the following 2 bytes)
-					rlrq[t++] = 0x04; // OctetString
-					rlrq[t++] = (byte) userInformationData.length; // Length of the userInformation
-					for (int i = 0; i < userInformationData.length; i++) {
-						rlrq[t++] = userInformationData[i];
-					}
-					break;
-				default:
-					rlrq[t++] = 0x00;
-			}
-		} else {
-			rlrq[t++] = 0x00;
-		}
+        if (userInformationData != null) {
+            switch (getSecurityContext().getSecurityPolicy()) {
+                case SecurityContext.SECURITYPOLICY_BOTH:
+                case SecurityContext.SECURITYPOLICY_ENCRYPTION:
+                    rlrq[t++] = (byte) (userInformationData.length + 4); // total length
+                    rlrq[t++] = DLMSCOSEMGlobals.RLRQ_USER_INFORMATION;
+                    rlrq[t++] = (byte) (userInformationData.length + 2); // Total length of the userInformation (including the following 2 bytes)
+                    rlrq[t++] = 0x04; // OctetString
+                    rlrq[t++] = (byte) userInformationData.length; // Length of the userInformation
+                    for (int i = 0; i < userInformationData.length; i++) {
+                        rlrq[t++] = userInformationData[i];
+                    }
+                    break;
+                default:
+                    rlrq[t++] = 0x00;
+            }
+        } else {
+            rlrq[t++] = 0x00;
+        }
 
-		//TODO a Release-Request-Reason and UserInformationField can be added, but they are optional ...
+        //TODO a Release-Request-Reason and UserInformationField can be added, but they are optional ...
 
-		rlrq[1] = (byte) (t - 2);
-		return ProtocolUtils.getSubArray(rlrq, 0, t - 1);
-	}
+        rlrq[1] = (byte) (t - 2);
+        return ProtocolUtils.getSubArray(rlrq, 0, t - 1);
+    }
 
     /**
      * Analyze the ReleaseResponse
@@ -671,238 +676,244 @@ public class AssociationControlServiceElement {
      * @return the ACSE req.
      */
     private byte[] getSenderACSERequirements() {
-		byte[] senderACSEReq = new byte[4];
-		senderACSEReq[0] = DLMSCOSEMGlobals.AARQ_SENDER_ACSE_REQUIREMENTS;
-		senderACSEReq[1] = (byte) 0x02; // length of the following bitString
-		senderACSEReq[2] = (byte) 0x07; // coding number of unused bits in the last byte of the BIT STRING
-		senderACSEReq[3] = (byte) 0x80; // coding of the authentication functional unit
-		return senderACSEReq;
-	}
+        byte[] senderACSEReq = new byte[4];
+        senderACSEReq[0] = DLMSCOSEMGlobals.AARQ_SENDER_ACSE_REQUIREMENTS;
+        senderACSEReq[1] = (byte) 0x02; // length of the following bitString
+        senderACSEReq[2] = (byte) 0x07; // coding number of unused bits in the last byte of the BIT STRING
+        senderACSEReq[3] = (byte) 0x80; // coding of the authentication functional unit
+        return senderACSEReq;
+    }
 
     /**
      * Getter for the UserInformationField <i>(encryption must already be applied)</i>
+     *
      * @return the UserInformation byteArray
      */
-	protected byte[] getUserInformation() {
-		if (this.userInformationData != null) {
-			byte[] uiData = new byte[this.userInformationData.length + 4];
-			uiData[0] = DLMSCOSEMGlobals.AARQ_USER_INFORMATION;
-			uiData[1] = (byte) (this.userInformationData.length + 2);
-			uiData[2] = (byte) 0x04;// choice for user information
-			uiData[3] = (byte) this.userInformationData.length;
-			System.arraycopy(this.userInformationData, 0, uiData, 4, this.userInformationData.length);
-			return uiData;
-		}
-		return null;
-	}
+    protected byte[] getUserInformation() {
+        if (this.userInformationData != null) {
+            byte[] uiData = new byte[this.userInformationData.length + 4];
+            uiData[0] = DLMSCOSEMGlobals.AARQ_USER_INFORMATION;
+            uiData[1] = (byte) (this.userInformationData.length + 2);
+            uiData[2] = (byte) 0x04;// choice for user information
+            uiData[3] = (byte) this.userInformationData.length;
+            System.arraycopy(this.userInformationData, 0, uiData, 4, this.userInformationData.length);
+            return uiData;
+        }
+        return null;
+    }
 
-	/**
-	 * The applicationContextName is generated from a default objectIdentifier
-	 * and two specific bytes
-	 *
-	 * @return the byteArray encoded applicationContextName
-	 */
-	protected byte[] getApplicationContextName() {
-		byte[] appContextName = new byte[DEFAULT_OBJECT_IDENTIFIER.length + 6];
-		appContextName[0] = DLMSCOSEMGlobals.AARQ_APPLICATION_CONTEXT_NAME;
-		appContextName[1] = (byte) 0x09; // length
-		appContextName[2] = (byte) 0x06; // choice for application context name ...
-		appContextName[3] = (byte) 0x07; // length
-		System.arraycopy(DEFAULT_OBJECT_IDENTIFIER, 0, appContextName, 4, DEFAULT_OBJECT_IDENTIFIER.length);
-		appContextName[DEFAULT_OBJECT_IDENTIFIER.length + 4] = 1; // 1 meaning application context
-		appContextName[DEFAULT_OBJECT_IDENTIFIER.length + 5] = (byte) this.contextId;
-		return appContextName;
-	}
+    /**
+     * The applicationContextName is generated from a default objectIdentifier
+     * and two specific bytes
+     *
+     * @return the byteArray encoded applicationContextName
+     */
+    protected byte[] getApplicationContextName() {
+        byte[] appContextName = new byte[DEFAULT_OBJECT_IDENTIFIER.length + 6];
+        appContextName[0] = DLMSCOSEMGlobals.AARQ_APPLICATION_CONTEXT_NAME;
+        appContextName[1] = (byte) 0x09; // length
+        appContextName[2] = (byte) 0x06; // choice for application context name ...
+        appContextName[3] = (byte) 0x07; // length
+        System.arraycopy(DEFAULT_OBJECT_IDENTIFIER, 0, appContextName, 4, DEFAULT_OBJECT_IDENTIFIER.length);
+        appContextName[DEFAULT_OBJECT_IDENTIFIER.length + 4] = 1; // 1 meaning application context
+        appContextName[DEFAULT_OBJECT_IDENTIFIER.length + 5] = (byte) this.contextId;
+        return appContextName;
+    }
 
-	/**
+    /**
      * Generate the Calling ApplicationTitle byteArray
-	 * @return the byteArray containing the our ApplicationProcess title
-	 */
-	private byte[] generateCallingApplicationProcessTitleField() {
-		if (getCallingApplicationProcessTitle() != null) {
-			byte[] callingAppTitleField = new byte[getCallingApplicationProcessTitle().length + 4];
-			callingAppTitleField[0] = DLMSCOSEMGlobals.AARQ_CALLING_AP_TITLE;
-			callingAppTitleField[1] = (byte) (callingAppTitleField.length - 2); // length
-			callingAppTitleField[2] = (byte) 0x04; // choice for calling app title
-			callingAppTitleField[3] = (byte) (callingAppTitleField.length - 4); // length
-			System.arraycopy(getCallingApplicationProcessTitle(), 0, callingAppTitleField, 4, getCallingApplicationProcessTitle().length);
-			return callingAppTitleField;
-		} else {
-			return null;
-		}
-	}
+     *
+     * @return the byteArray containing the our ApplicationProcess title
+     */
+    private byte[] generateCallingApplicationProcessTitleField() {
+        if (getCallingApplicationProcessTitle() != null) {
+            byte[] callingAppTitleField = new byte[getCallingApplicationProcessTitle().length + 4];
+            callingAppTitleField[0] = DLMSCOSEMGlobals.AARQ_CALLING_AP_TITLE;
+            callingAppTitleField[1] = (byte) (callingAppTitleField.length - 2); // length
+            callingAppTitleField[2] = (byte) 0x04; // choice for calling app title
+            callingAppTitleField[3] = (byte) (callingAppTitleField.length - 4); // length
+            System.arraycopy(getCallingApplicationProcessTitle(), 0, callingAppTitleField, 4, getCallingApplicationProcessTitle().length);
+            return callingAppTitleField;
+        } else {
+            return null;
+        }
+    }
 
     /**
      * Generate the Called AppplicationProcess Title byteArray
+     *
      * @return the byteArray containing the called ApplicationProcess title
      */
-    private byte[] generateCalledApplicationProcessTitleField(){
-		if (getCalledApplicationProcessTitle() != null) {
-			byte[] callingAppTitleField = new byte[getCalledApplicationProcessTitle().length + 4];
-			callingAppTitleField[0] = DLMSCOSEMGlobals.AARQ_CALLED_AP_TITLE;
-			callingAppTitleField[1] = (byte) (callingAppTitleField.length - 2); // length
-			callingAppTitleField[2] = (byte) 0x04; // choice for calling app title
-			callingAppTitleField[3] = (byte) (callingAppTitleField.length - 4); // length
-			System.arraycopy(getCalledApplicationProcessTitle(), 0, callingAppTitleField, 4, getCalledApplicationProcessTitle().length);
-			return callingAppTitleField;
-		} else {
-			return null;
-		}
+    private byte[] generateCalledApplicationProcessTitleField() {
+        if (getCalledApplicationProcessTitle() != null) {
+            byte[] callingAppTitleField = new byte[getCalledApplicationProcessTitle().length + 4];
+            callingAppTitleField[0] = DLMSCOSEMGlobals.AARQ_CALLED_AP_TITLE;
+            callingAppTitleField[1] = (byte) (callingAppTitleField.length - 2); // length
+            callingAppTitleField[2] = (byte) 0x04; // choice for calling app title
+            callingAppTitleField[3] = (byte) (callingAppTitleField.length - 4); // length
+            System.arraycopy(getCalledApplicationProcessTitle(), 0, callingAppTitleField, 4, getCalledApplicationProcessTitle().length);
+            return callingAppTitleField;
+        } else {
+            return null;
+        }
     }
 
     /**
      * Generate the called ApplicationEntity qualifier byteArray
+     *
      * @return the byteArray containing the called ApplicationEntity qualifier
      */
-    private byte[] generateCalledApplicationEntityQualifier(){
-		if (getCalledApplicationEntityQualifier() != null) {
-			byte[] callingAppTitleField = new byte[getCalledApplicationEntityQualifier().length + 4];
+    private byte[] generateCalledApplicationEntityQualifier() {
+        if (getCalledApplicationEntityQualifier() != null) {
+            byte[] callingAppTitleField = new byte[getCalledApplicationEntityQualifier().length + 4];
             //TODO change
-			callingAppTitleField[0] = DLMSCOSEMGlobals.AARQ_CALLED_AE_QUALIFIER;
-			callingAppTitleField[1] = (byte) (callingAppTitleField.length - 2); // length
-			callingAppTitleField[2] = (byte) 0x04; // choice for calling app title
-			callingAppTitleField[3] = (byte) (callingAppTitleField.length - 4); // length
-			System.arraycopy(getCalledApplicationEntityQualifier(), 0, callingAppTitleField, 4, getCalledApplicationEntityQualifier().length);
-			return callingAppTitleField;
-		} else {
-			return null;
-		}
+            callingAppTitleField[0] = DLMSCOSEMGlobals.AARQ_CALLED_AE_QUALIFIER;
+            callingAppTitleField[1] = (byte) (callingAppTitleField.length - 2); // length
+            callingAppTitleField[2] = (byte) 0x04; // choice for calling app title
+            callingAppTitleField[3] = (byte) (callingAppTitleField.length - 4); // length
+            System.arraycopy(getCalledApplicationEntityQualifier(), 0, callingAppTitleField, 4, getCalledApplicationEntityQualifier().length);
+            return callingAppTitleField;
+        } else {
+            return null;
+        }
     }
 
 
-	/**
-	 * The mechanism name is generated from a default objectIdentifier and to
-	 * specific bytes
-	 *
-	 * @return the byteArray encoded mechanism name
-	 */
-	protected byte[] getMechanismName() {
-		byte[] mechanismName = new byte[DEFAULT_OBJECT_IDENTIFIER.length + 4];
-		mechanismName[0] = DLMSCOSEMGlobals.AARQ_MECHANISM_NAME;
-		mechanismName[1] = (byte) 0x07; // length
-		System.arraycopy(DEFAULT_OBJECT_IDENTIFIER, 0, mechanismName, 2, DEFAULT_OBJECT_IDENTIFIER.length);
-		mechanismName[DEFAULT_OBJECT_IDENTIFIER.length + 2] = 2; // 2 meaning mechanism name
-		mechanismName[DEFAULT_OBJECT_IDENTIFIER.length + 3] = (byte) this.mechanismId;
-		return mechanismName;
-	}
+    /**
+     * The mechanism name is generated from a default objectIdentifier and to
+     * specific bytes
+     *
+     * @return the byteArray encoded mechanism name
+     */
+    protected byte[] getMechanismName() {
+        byte[] mechanismName = new byte[DEFAULT_OBJECT_IDENTIFIER.length + 4];
+        mechanismName[0] = DLMSCOSEMGlobals.AARQ_MECHANISM_NAME;
+        mechanismName[1] = (byte) 0x07; // length
+        System.arraycopy(DEFAULT_OBJECT_IDENTIFIER, 0, mechanismName, 2, DEFAULT_OBJECT_IDENTIFIER.length);
+        mechanismName[DEFAULT_OBJECT_IDENTIFIER.length + 2] = 2; // 2 meaning mechanism name
+        mechanismName[DEFAULT_OBJECT_IDENTIFIER.length + 3] = (byte) this.mechanismId;
+        return mechanismName;
+    }
 
-	/**
-	 * @return a byteArray containing the callingAuthenticationValue(in other
-	 *         words, the password) coded as a graphical string...
-	 * @throws ConnectionException when the callingauthenticationvalue is not filled in
-	 */
-	protected byte[] assembleCallingAuthenticationValue() throws ConnectionException {
-		if(getCallingAuthenticationValue() == null){
-			throw new ConnectionException("CallingAuthenticationValue is not filled in.");
-		}
-		byte[] authValue = new byte[getCallingAuthenticationValue().length + 4];
-		authValue[0] = DLMSCOSEMGlobals.AARQ_CALLING_AUTHENTICATION_VALUE;
-		authValue[1] = (byte) (getCallingAuthenticationValue().length + 2);
-		authValue[2] = (byte) 0x80; // choice for authentication-information ...
-		authValue[3] = (byte) getCallingAuthenticationValue().length;
-		System.arraycopy(getCallingAuthenticationValue(), 0, authValue, 4, getCallingAuthenticationValue().length);
-		return authValue;
-	}
+    /**
+     * @return a byteArray containing the callingAuthenticationValue(in other
+     *         words, the password) coded as a graphical string...
+     * @throws ConnectionException when the callingauthenticationvalue is not filled in
+     */
+    protected byte[] assembleCallingAuthenticationValue() throws ConnectionException {
+        if (getCallingAuthenticationValue() == null) {
+            throw new ConnectionException("CallingAuthenticationValue is not filled in.");
+        }
+        byte[] authValue = new byte[getCallingAuthenticationValue().length + 4];
+        authValue[0] = DLMSCOSEMGlobals.AARQ_CALLING_AUTHENTICATION_VALUE;
+        authValue[1] = (byte) (getCallingAuthenticationValue().length + 2);
+        authValue[2] = (byte) 0x80; // choice for authentication-information ...
+        authValue[3] = (byte) getCallingAuthenticationValue().length;
+        System.arraycopy(getCallingAuthenticationValue(), 0, authValue, 4, getCallingAuthenticationValue().length);
+        return authValue;
+    }
 
-	/**
-	 * <pre>
-	 * Create the byteArray for the protocolVersion.
-	 * If it is the default value(which will mostly be the case) then it's not required to put it in the request
-	 * </pre>
-	 *
-	 * @return the BER encoded BitString protocolVersion
-	 * @throws IOException
-	 *             is never throw, but it's defined on the interface
-	 */
-	private byte[] getACSEProtocolVersion() throws IOException {
-		if (this.ACSE_protocolVersion != 0) {
-			return new BitString(this.ACSE_protocolVersion).getBEREncodedByteArray();
-		}
-		return null;
-	}
+    /**
+     * <pre>
+     * Create the byteArray for the protocolVersion.
+     * If it is the default value(which will mostly be the case) then it's not required to put it in the request
+     * </pre>
+     *
+     * @return the BER encoded BitString protocolVersion
+     * @throws IOException is never throw, but it's defined on the interface
+     */
+    private byte[] getACSEProtocolVersion() throws IOException {
+        if (this.ACSE_protocolVersion != 0) {
+            return new BitString(this.ACSE_protocolVersion).getBEREncodedByteArray();
+        }
+        return null;
+    }
 
-	/**
-	 * <p>
-	 * Setter for the application context name - context id
-	 * <p>
-	 *
-	 * @param contextId
-	 */
-	public void setContextId(int contextId) {
-		this.contextId = contextId;
-	}
+    /**
+     * <p/>
+     * Setter for the application context name - context id
+     * <p/>
+     *
+     * @param contextId
+     */
+    public void setContextId(int contextId) {
+        this.contextId = contextId;
+    }
 
-	/**
-	 * <p>
-	 * Setter for the authentication mechanism - mechanism id
-	 * </p>
-	 *
-	 * @param mechanismId
-	 */
-	public void setAuthMechanismId(int mechanismId) {
-		this.mechanismId = mechanismId;
-	}
+    /**
+     * <p>
+     * Setter for the authentication mechanism - mechanism id
+     * </p>
+     *
+     * @param mechanismId
+     */
+    public void setAuthMechanismId(int mechanismId) {
+        this.mechanismId = mechanismId;
+    }
 
-	/**
-	 * Setter for the userInformation field. If you plan on initiating an
-	 * association, then normally this is a xDLMS.initiateRequest()
-	 *
-	 * @param userInformation
-	 */
-	public void setUserInformation(byte[] userInformation) {
-		this.userInformationData = userInformation.clone();
-	}
+    /**
+     * Setter for the userInformation field. If you plan on initiating an
+     * association, then normally this is a xDLMS.initiateRequest()
+     *
+     * @param userInformation
+     */
+    public void setUserInformation(byte[] userInformation) {
+        this.userInformationData = userInformation.clone();
+    }
 
-	/**
-	 * @return the current xDLMS_ASE
-	 */
-	public XdlmsAse getXdlmsAse(){
-		if(this.xdlmsAse == null){
-			this.xdlmsAse = new XdlmsAse();
-		}
-		return this.xdlmsAse;
-	}
+    /**
+     * @return the current xDLMS_ASE
+     */
+    public XdlmsAse getXdlmsAse() {
+        if (this.xdlmsAse == null) {
+            this.xdlmsAse = new XdlmsAse();
+        }
+        return this.xdlmsAse;
+    }
 
-	/**
-	 * @return the authenticaionValue(challenge) from the server
-	 */
-	protected byte[] getRespondingAuthenticationValue(){
-		return this.respondingAuthenticationValue;
-	}
+    /**
+     * @return the authenticaionValue(challenge) from the server
+     */
+    protected byte[] getRespondingAuthenticationValue() {
+        return this.respondingAuthenticationValue;
+    }
 
-	/**
-	 * Set the authenticationValue(challenge) from the server
-	 * @param respondingAuthenticationValue - the challenge from the server
-	 */
-	protected void setRespondingAuthenticationValue(byte[] respondingAuthenticationValue){
-		if(respondingAuthenticationValue != null){
-			this.respondingAuthenticationValue = respondingAuthenticationValue.clone();
-		}
-	}
+    /**
+     * Set the authenticationValue(challenge) from the server
+     *
+     * @param respondingAuthenticationValue - the challenge from the server
+     */
+    protected void setRespondingAuthenticationValue(byte[] respondingAuthenticationValue) {
+        if (respondingAuthenticationValue != null) {
+            this.respondingAuthenticationValue = respondingAuthenticationValue.clone();
+        }
+    }
 
-	/**
-	 * @return the applicationContextId
-	 */
-	public int getContextId() {
-		return this.contextId;
-	}
+    /**
+     * @return the applicationContextId
+     */
+    public int getContextId() {
+        return this.contextId;
+    }
 
-	protected void setRespondingAPTitle(byte[] respondingAPTitle){
-		if(respondingAPTitle != null){
-			this.respondingAPTitle = respondingAPTitle.clone();
-		}
-	}
+    protected void setRespondingAPTitle(byte[] respondingAPTitle) {
+        if (respondingAPTitle != null) {
+            this.respondingAPTitle = respondingAPTitle.clone();
+        }
+    }
 
     /**
      * Getter for the Responding ApplicatonTitle
+     *
      * @return the Responding AP title
      */
-	public byte[] getRespondingAPTtitle(){
-		return this.respondingAPTitle;
-	}
+    public byte[] getRespondingAPTtitle() {
+        return this.respondingAPTitle;
+    }
 
     /**
      * Checks if the calling- and responding authenticationValue are identical, if so then it is possible a fake meter is on the oter side ...
+     *
      * @return true if both challenges are the same, false otherwise.
      */
     public boolean hlsChallengeMatch() {

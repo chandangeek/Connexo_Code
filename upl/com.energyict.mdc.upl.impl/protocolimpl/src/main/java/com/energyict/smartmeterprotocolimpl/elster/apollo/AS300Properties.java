@@ -89,4 +89,8 @@ public class AS300Properties extends DlmsProtocolProperties {
         }
         return this.securityProvider;
     }
+
+    public void setSecurityProvider(SecurityProvider securityProvider){
+        this.securityProvider = securityProvider;
+    }
 }

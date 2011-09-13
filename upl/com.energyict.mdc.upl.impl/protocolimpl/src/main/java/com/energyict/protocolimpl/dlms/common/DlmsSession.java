@@ -122,7 +122,7 @@ public class DlmsSession implements ProtocolLink {
      *
      * @return
      */
-    private ApplicationServiceObject buildAso() {
+    private ApplicationServiceObject buildAso() throws IOException {
         SecurityContext sc = buildSecurityContext();
         if (getProperties().isNtaSimulationTool()) {
             return new ApplicationServiceObject(buildXDlmsAse(), this, sc, getContextId(), getProperties().getSerialNumber().getBytes(), null);
@@ -136,9 +136,9 @@ public class DlmsSession implements ProtocolLink {
      *
      * @return
      */
-    private XdlmsAse buildXDlmsAse() {
+    private XdlmsAse buildXDlmsAse() throws IOException {
         return new XdlmsAse(
-                null, true,
+                (getProperties().getCipheringType() == CipheringType.DEDICATED) ? getProperties().getSecurityProvider().getDedicatedKey() : null, true,
                 getProperties().getProposedQOS(),
                 getProperties().getProposedDLMSVersion(),
                 getProperties().getConformanceBlock(),
