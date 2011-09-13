@@ -30,8 +30,8 @@ public class LoadProfileBuilder {
     private Map<LoadProfileReader, List<Register>> capturedObjectRegisterListMap = new HashMap<LoadProfileReader, List<Register>>();
     private Map<ObisCode, List<CapturedObject>> capturedObjectsToRequest = new HashMap<ObisCode, List<CapturedObject>>();
     private AS300 meterProtocol;
-    private int clockMask = 0;
-    private int statusMask = 0;
+    private Map<LoadProfileReader, ProfileMasks> masks = new HashMap<LoadProfileReader, ProfileMasks>();
+
 
     public LoadProfileBuilder(AS300 meterProtocol) {
         this.meterProtocol = meterProtocol;
@@ -143,7 +143,7 @@ public class LoadProfileBuilder {
                 if (channels == null) {
                     continue;
                 }
-                DLMSProfileIntervals intervals = new DLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar, channels), clockMask, statusMask, -1,  null);
+                DLMSProfileIntervals intervals = new DLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar, channels), masks.get(lpr).getClockMask(), masks.get(lpr).getStatusMask(), -1, null);
                 profileData.setIntervalDatas(intervals.parseIntervals(lpc.getProfileInterval()));
 
                 profileDataList.add(profileData);
@@ -155,7 +155,7 @@ public class LoadProfileBuilder {
 
     private LoadProfileConfiguration getLoadProfileConfiguration(LoadProfileReader loadProfileReader) {
         for (LoadProfileConfiguration lpc : this.loadProfileConfigurationList) {
-            if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode())  && loadProfileReader.getMeterSerialNumber().equalsIgnoreCase(lpc.getMeterSerialNumber())) {
+            if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && loadProfileReader.getMeterSerialNumber().equalsIgnoreCase(lpc.getMeterSerialNumber())) {
                 return lpc;
             }
         }
@@ -172,6 +172,8 @@ public class LoadProfileBuilder {
         List<Register> channelRegisters = new ArrayList<Register>();
         if (this.expectedLoadProfileReaders != null) {
             for (LoadProfileReader lpr : this.expectedLoadProfileReaders) {
+                int statusMask = 0;
+                int clockMask = 0;
                 ComposedProfileConfig cpc = this.lpConfigMap.get(lpr);
                 if (cpc != null) {
                     DataContainer dc = new DataContainer();
@@ -198,6 +200,7 @@ public class LoadProfileBuilder {
                     }
                     this.capturedObjectRegisterListMap.put(lpr, coRegisters);
                     capturedObjectsToRequest.put(lpr.getProfileObisCode(), relevantObjects);
+                    masks.put(lpr, new ProfileMasks(clockMask, statusMask));
                 }
             }
         } else {
@@ -239,5 +242,23 @@ public class LoadProfileBuilder {
             return new ComposedCosemObject(this.meterProtocol.getDlmsSession(), supportsBulkRequest, dlmsAttributes);
         }
         return null;
+    }
+
+    private class ProfileMasks{
+        private final int clockMask;
+        private final int statusMask;
+
+        public ProfileMasks(final int clockMask, final int statusMask){
+            this.clockMask = clockMask;
+            this.statusMask = statusMask;
+        }
+
+        public int getClockMask() {
+            return clockMask;
+        }
+
+        public int getStatusMask() {
+            return statusMask;
+        }
     }
 }
