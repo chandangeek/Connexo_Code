@@ -31,4 +31,8 @@ public class ValveApplicationStatus extends AbstractParameter {
     protected byte[] prepare() throws IOException {
         return new byte[]{(byte) status};
     }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
 }

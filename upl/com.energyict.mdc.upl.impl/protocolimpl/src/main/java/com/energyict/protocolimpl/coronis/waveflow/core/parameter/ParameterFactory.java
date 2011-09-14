@@ -191,6 +191,12 @@ public class ParameterFactory {
         applicationStatus.write();
     }
 
+    final public void writeValveApplicationStatus(final int status) throws IOException {
+        valveApplicationStatus = new ValveApplicationStatus(waveFlow);
+        valveApplicationStatus.setStatus(status);
+        valveApplicationStatus.write();
+    }
+
     final public OperatingMode readOperatingMode() throws IOException {
         if (operatingMode == null) {
             operatingMode = new OperatingMode(waveFlow);

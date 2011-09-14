@@ -87,6 +87,8 @@ public class WaveFlowV2Messages extends WaveFlowMessageParser {
         theCategories.add(cat7);
 
         MessageCategorySpec cat8 = new MessageCategorySpec("Waveflow enable alarm frames");
+        cat8.addMessageSpec(addBasicMsg("Reset application status", "ResetApplicationStatus", true));
+        cat8.addMessageSpec(addBasicMsg("Reset valve application status", "ResetValveApplicationStatus", true));
         cat8.addMessageSpec(addBasicMsg("Send alarm on wirecut detection", "SendAlarmOnWirecutDetection", true));
         cat8.addMessageSpec(addBasicMsg("Send alarm on end of battery life", "SendAlarmOnBatteryEnd", true));
         cat8.addMessageSpec(addBasicMsg("Send alarm on low leak detection", "SendAlarmOnLowLeakDetection", true));

@@ -324,6 +324,8 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
                 return setOperationMode(messageEntry);
             } else if (messageEntry.getContent().indexOf("<ResetApplicationStatus") >= 0) {
                 return resetApplicationStatus(messageEntry);
+            } else if (messageEntry.getContent().indexOf("<ResetValveApplicationStatus") >= 0) {
+                return resetValveApplicationStatus(messageEntry);
             } else if (messageEntry.getContent().indexOf("<SetDayOfWeek") >= 0) {
                 return setDayOfWeekOrMonth(messageEntry);
             } else if (messageEntry.getContent().indexOf("<SetHourOfDailyIndexStorage") >= 0) {
@@ -453,8 +455,7 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
             } else {
                 return MessageResult.createFailed(messageEntry);
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             waveFlow.getLogger().severe("Error parsing message, " + e.getMessage());
             return MessageResult.createFailed(messageEntry);
         }
@@ -1427,6 +1428,15 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
         waveFlow.getLogger().info("************************* ResetApplicationStatus *************************");
         waveFlow.getParameterFactory().writeApplicationStatus(0);
         return MessageResult.createSuccess(messageEntry);
+    }
+
+    private MessageResult resetValveApplicationStatus(MessageEntry messageEntry) throws IOException {
+        waveFlow.getLogger().info("************************* ResetValveApplicationStatus *************************");
+        if (waveFlow.getParameterFactory().readProfileType().supportsWaterValveControl()) {
+            waveFlow.getParameterFactory().writeValveApplicationStatus(0);
+            return MessageResult.createSuccess(messageEntry);
+        }
+        return MessageResult.createFailed(messageEntry);
     }
 
     private MessageResult setOperationMode(MessageEntry messageEntry) throws IOException {
