@@ -114,7 +114,7 @@ public class SmsHandlerTest extends TestCase {
         assertEquals("Laptop computer scherm typen toetsenbord bekertje ", sms3.getText());
 
         SmsHandler handler = new SmsHandler();
-        handler.processMessage(sms);
+        //handler.processMessage(sms);
 
 
     }
