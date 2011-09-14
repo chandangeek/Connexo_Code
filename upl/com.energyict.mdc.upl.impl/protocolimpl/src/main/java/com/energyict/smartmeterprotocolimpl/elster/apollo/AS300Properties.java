@@ -25,6 +25,7 @@ public class AS300Properties extends DlmsProtocolProperties {
     public static final String DEFAULT_AS300_LOGICAL_DEVICE_ADDRESS = "45";
 
     private static final int FIRMWARE_CLIENT = 0x50;
+    private static final String MaxReceivePduSize = "128";
 
     public List<String> getOptionalKeys() {
         List<String> optional = new ArrayList<String>();
@@ -92,5 +93,11 @@ public class AS300Properties extends DlmsProtocolProperties {
 
     public void setSecurityProvider(SecurityProvider securityProvider){
         this.securityProvider = securityProvider;
+    }
+
+    @ProtocolProperty
+    @Override
+    public int getMaxRecPDUSize() {
+        return getIntProperty(MAX_REC_PDU_SIZE, MaxReceivePduSize);
     }
 }

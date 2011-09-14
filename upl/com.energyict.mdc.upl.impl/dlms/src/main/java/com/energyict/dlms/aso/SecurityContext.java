@@ -362,8 +362,6 @@ public class SecurityContext {
      */
     public byte[] createHighLevelAuthenticationGMACResponse(byte[] respondingChallenge, byte[] cipheredFrame) throws IOException, DLMSConnectionException {
         byte[] fc = ProtocolUtils.getSubArray2(cipheredFrame, 1, FRAME_COUNTER_SIZE);
-        setResponseFrameCounter(ProtocolUtils.getInt(fc));
-
         int offset = 0;
         List<byte[]> plainArray = new ArrayList<byte[]>();
         plainArray.add(new byte[]{getHLS5SecurityControlByte()});
@@ -373,7 +371,7 @@ public class SecurityContext {
 
         AesGcm128 ag128 = new AesGcm128(isGlobalCiphering() ? getSecurityProvider().getGlobalKey() : getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
         ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
-        ag128.setInitializationVector(new BitVector(getRespondingInitializationVector()));
+        ag128.setInitializationVector(new BitVector(ProtocolUtils.concatByteArrays(getResponseSystemTitle(), fc)));
 
         ag128.encrypt();
 
@@ -385,7 +383,7 @@ public class SecurityContext {
         */
         byte[] securedApdu = new byte[1 + FRAMECOUNTER_BYTE_LENGTH + DLMS_AUTH_TAG_SIZE];
         securedApdu[offset++] = getHLS5SecurityControlByte();
-        System.arraycopy(getRespondingFrameCounterInBytes(), 0, securedApdu, offset, FRAMECOUNTER_BYTE_LENGTH);
+        System.arraycopy(fc, 0, securedApdu, offset, FRAMECOUNTER_BYTE_LENGTH);
         offset += FRAMECOUNTER_BYTE_LENGTH;
         System.arraycopy(ProtocolUtils.getSubArray2(ag128.getTag().getValue(), 0, DLMS_AUTH_TAG_SIZE), 0, securedApdu, offset,
                 DLMS_AUTH_TAG_SIZE);
@@ -637,10 +635,10 @@ public class SecurityContext {
         } else {
             if (this.responseFrameCounter == -1 && frameCounter == 0) {
                 this.responseFrameCounter = frameCounter;
-//            } else if (this.responseFrameCounter == -1 && frameCounter != 0) {
-//                throw new DLMSConnectionException("Received incorrect overFlow FrameCounter.", DLMSConnectionException.REASON_SECURITY);
-//            } else if (frameCounter != this.responseFrameCounter + 1) {
-//                throw new DLMSConnectionException("Received incorrect FrameCounter.", DLMSConnectionException.REASON_SECURITY);
+            } else if (this.responseFrameCounter == -1 && frameCounter != 0) {
+                throw new DLMSConnectionException("Received incorrect overFlow FrameCounter.", DLMSConnectionException.REASON_SECURITY);
+            } else if (frameCounter != this.responseFrameCounter + 1) {
+                throw new DLMSConnectionException("Received incorrect FrameCounter.", DLMSConnectionException.REASON_SECURITY);
             } else {
                 this.responseFrameCounter = frameCounter;
             }
