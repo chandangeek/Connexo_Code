@@ -341,8 +341,8 @@ public class SmsHandler implements MessageHandler {
             List<Channel> channelList = getRtu().getChannels();
             for (Channel channel : channelList) {
                 try {
-                    if (getProtocolProperties().getChannelConfig().getChannelId(data.getId().toString()) == (channel.getLoadProfileIndex() - 1)) {
-                        ProfileChannelForSms profileForSms = new ProfileChannelForSms(logger, properties, channel, data, getTimeZone());
+                    if (hasDataForThisChannel(data, channel)) {
+                        ProfileChannelForSms profileForSms = new ProfileChannelForSms(logger, properties, channel, data, getTimeZone(), hasExtraTotalizerForThisChannel(data, channel));
                         ProfileData pd = profileForSms.getProfileData();
                         getStoreObject().add(channel, pd);
                         log("Added profile data for channel " + channel.toString() + ". Data ID is " + data.getId().toString());
@@ -363,6 +363,42 @@ public class SmsHandler implements MessageHandler {
             getMeterAmrLogging().logInfo(message);
         }
 
+    }
+
+    private boolean hasDataForThisChannel(Trace_CQueryResponseStructure data, Channel channel) {
+        // Get the channel ID from the data received in the SMS
+        String dataObjectId = data.getId().toString();
+        int dataChannelId = getProtocolProperties().getChannelConfig().getChannelId(dataObjectId);
+
+        // Get the eiserver channel id we're checking against
+        int eiserverChannelId = channel.getLoadProfileIndex() - 1;
+
+        // Return true if the channel can store the data OR if the channel can store the total value
+        return (dataChannelId == eiserverChannelId) || hasExtraTotalizerForThisChannel(data, channel);
+    }
+
+    private boolean hasExtraTotalizerForThisChannel(Trace_CQueryResponseStructure data, Channel channel) {
+        // Does the data also contains a daily TotVx value? Get the channel ID for the daily channel
+        String dataObjectId = data.getId().toString();
+        String dailyDataObjectId = getDailyTotObjectId(dataObjectId);
+        int dailyDataChannelId = getProtocolProperties().getChannelConfig().getChannelId(dailyDataObjectId);
+        int eiserverChannelId = channel.getLoadProfileIndex() - 1;
+        return (dailyDataChannelId == eiserverChannelId);
+    }
+
+    /**
+     * Translate the hourly object id to the daily total object id that is also included in the same sms
+     *
+     * @param dataObjectId The object ID of the hourly Vm or Vb value
+     * @return The correct TotalVx object id, or NA if there is no total value.
+     */
+    private String getDailyTotObjectId(String dataObjectId) {
+        if ("1.0.2".equalsIgnoreCase(dataObjectId)) {
+            return "2.0.3";
+        } else if ("1.2.2".equalsIgnoreCase(dataObjectId)) {
+            return "2.1.3";
+        }
+        return "NA";
     }
 
     /**

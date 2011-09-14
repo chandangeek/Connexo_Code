@@ -27,13 +27,15 @@ public class ProfileChannelForSms {
     private Logger logger;
     private TimeZone timeZone;
     private Trace_CQueryResponseStructure response;
+    private boolean fetchTotals;
 
-    public ProfileChannelForSms(Logger logger, MTU155Properties properties, Channel meterChannel, Trace_CQueryResponseStructure response, TimeZone timeZone) {
+    public ProfileChannelForSms(Logger logger, MTU155Properties properties, Channel meterChannel, Trace_CQueryResponseStructure response, TimeZone timeZone, boolean fetchTotals) {
         this.properties = properties;
         this.meterChannel = meterChannel;
         this.logger = logger;
         this.response = response;
         this.timeZone = timeZone;
+        this.fetchTotals = fetchTotals;
     }
 
     /**
@@ -145,6 +147,12 @@ public class ProfileChannelForSms {
             return new ProfileData();
         }
 
+        // TODO: make it work so we don't have to give this warning anymore :)
+        if (isFetchTotals()) {
+            getLogger().warning("TotVm and TotVb are not (yet) supported over SMS!");
+            return new ProfileData();
+        }
+
         ProfileData pd = new ProfileData();
         pd.setChannelInfos(getChannelInfos());
         pd.setIntervalDatas(new TraceCProfileParser(response, getDeviceTimeZone()).getIntervalData());
@@ -162,6 +170,10 @@ public class ProfileChannelForSms {
         ChannelInfo info = new ChannelInfo(0, getChannelIndex() - 1, symbol, unit);
         channelInfos.add(info);
         return channelInfos;
+    }
+
+    public boolean isFetchTotals() {
+        return this.fetchTotals;
     }
 
 }
