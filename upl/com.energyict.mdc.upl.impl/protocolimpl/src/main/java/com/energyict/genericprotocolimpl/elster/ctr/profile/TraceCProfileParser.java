@@ -84,6 +84,15 @@ public class TraceCProfileParser {
         return intervalData;
     }
 
+    public List<IntervalData> getIntervalDataForTotalizer() {
+        List<IntervalData> intervalData = new ArrayList<IntervalData>();
+        List<IntervalValue> values = new ArrayList<IntervalValue>();
+        values.add(new IntervalValue(getDataValueForTotalizer(), response.getTotalizerQlf().getQlf(), getEIStatus(response.getTotalizerQlf())));
+        IntervalData data = new IntervalData(getTimeStamp(23).getTime(), getEIStatus(response.getTotalizerQlf()), response.getTotalizerQlf().getQlf(), 0, values);
+        intervalData.add(data);
+        return intervalData;
+    }
+
     /**
      * Get all the profile data entries this response contains
      *
@@ -123,6 +132,16 @@ public class TraceCProfileParser {
         return BigDecimal.ZERO;
     }
 
+    private BigDecimal getDataValueForTotalizer() {
+        Qualifier totalizerQlf = response.getTotalizerQlf();
+        if ((getEIStatus(totalizerQlf) & IntervalStateBits.CORRUPTED) == 0) {
+            BigDecimal decimal = response.getTotalizerValue().getValue();
+            decimal = decimal.movePointRight(totalizerQlf.getKmoltFactor());
+            return decimal;
+        }
+        return BigDecimal.ZERO;
+    }
+
     /**
      * Get the translated interval status code for a given valueIndex
      *
@@ -132,6 +151,10 @@ public class TraceCProfileParser {
     private int getEIStatus(int valueIndex) {
         checkValueIndex(valueIndex);
         Qualifier qlf = response.getTraceData().get(valueIndex).getQlf();
+        return getEIStatus(qlf);
+    }
+
+    private int getEIStatus(Qualifier qlf) {
         if (qlf.isInvalidMeasurement()) {
             return IntervalStateBits.CORRUPTED;
         } else if (qlf.isSubjectToMaintenance()) {

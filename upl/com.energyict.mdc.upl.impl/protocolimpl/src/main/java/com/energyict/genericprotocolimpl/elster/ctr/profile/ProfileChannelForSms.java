@@ -40,6 +40,7 @@ public class ProfileChannelForSms {
 
     /**
      * Gets the time(a date object) from the trace_c values
+     *
      * @param values: the trace_c values
      * @return the date object with the time, as sent in the trace_c values
      */
@@ -61,12 +62,13 @@ public class ProfileChannelForSms {
         cal.set(Calendar.MINUTE, min);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
-        
+
         return fixDate(cal.getTime());
     }
-    
+
     /**
      * Checks if the hours / minutes have an overflow. This indicates that a time shift is in progress.
+     *
      * @param date: the date that needs to be checked
      * @return the real date without the overflow
      */
@@ -147,20 +149,18 @@ public class ProfileChannelForSms {
             return new ProfileData();
         }
 
-        // TODO: make it work so we don't have to give this warning anymore :)
-        if (isFetchTotals()) {
-            getLogger().warning("TotVm and TotVb are not (yet) supported over SMS!");
-            return new ProfileData();
-        }
-
         ProfileData pd = new ProfileData();
         pd.setChannelInfos(getChannelInfos());
-        pd.setIntervalDatas(new TraceCProfileParser(response, getDeviceTimeZone()).getIntervalData());
+        if (isFetchTotals()) {
+            pd.setIntervalDatas(new TraceCProfileParser(response, getDeviceTimeZone()).getIntervalDataForTotalizer());
+        } else {
+            pd.setIntervalDatas(new TraceCProfileParser(response, getDeviceTimeZone()).getIntervalData());
+        }
+
         return pd;
     }
 
     /**
-     * 
      * @return
      */
     private List<ChannelInfo> getChannelInfos() {
@@ -175,5 +175,4 @@ public class ProfileChannelForSms {
     public boolean isFetchTotals() {
         return this.fetchTotals;
     }
-
 }
