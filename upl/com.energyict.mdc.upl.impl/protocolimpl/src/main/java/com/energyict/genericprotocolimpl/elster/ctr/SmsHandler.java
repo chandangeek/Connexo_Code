@@ -342,10 +342,15 @@ public class SmsHandler implements MessageHandler {
             for (Channel channel : channelList) {
                 try {
                     if (hasDataForThisChannel(data, channel)) {
-                        ProfileChannelForSms profileForSms = new ProfileChannelForSms(logger, properties, channel, data, getTimeZone(), hasExtraTotalizerForThisChannel(data, channel));
+                        boolean totalizerIncluded = hasExtraTotalizerForThisChannel(data, channel);
+                        ProfileChannelForSms profileForSms = new ProfileChannelForSms(logger, properties, channel, data, getTimeZone(), totalizerIncluded);
                         ProfileData pd = profileForSms.getProfileData();
                         getStoreObject().add(channel, pd);
-                        log("Added profile data for channel " + channel.toString() + ". Data ID is " + data.getId().toString());
+                        String dataId = data.getId().toString();
+                        if (totalizerIncluded) {
+                            dataId = getDailyTotObjectId(dataId);
+                        }
+                        log("Added profile data for channel " + channel.toString() + ". Data ID is " + dataId);
                     } else {
                         String message = "Found profile data (" + data.getId().toString() + ", " + CTRObjectInfo.getSymbol(data.getId().toString()) + "), but not for channel " + channel.toString();
                         log(message);

@@ -105,7 +105,7 @@ public class SmsHandlerTest extends TestCase {
         byte[] bytesTest7bit = ProtocolTools.getBytesFromHexString("D4F29C0E", "");
         byte[] bytesTest7bit2 = ProtocolTools.getBytesFromHexString("CC309CFE8683C6EF36BC4E2FCB41F331BA2C6F83E87978D90DA2BFCBF479D92D7ECBC92071795D96D3D56510", "");
 
-        Sms sms = new Sms("++32478949259", "20893210", new Date(), "proximus", "0001", 8, bytes);
+        Sms sms = new Sms("+32478949259", "20893210", new Date(), "proximus", "0001", 8, bytes48);
         Sms sms2 = new Sms("056356291", "20893210", new Date(), "proximus", "0001", 7, bytesTest7bit);
         Sms sms3 = new Sms("056356291", "20893210", new Date(), "proximus", "0001", 7, bytesTest7bit2);
 
