@@ -156,11 +156,13 @@ public class ZigbeeGasLoadProfile {
                     List<CapturedObject> capturedObjects = pg.getCapturedObjectsFromDataContainter(dc);
                     List<Register> coRegisters = new ArrayList<Register>();
                     for (CapturedObject co : capturedObjects) {
-                        Register reg = new Register(co.getLogicalName().getObisCode(), this.zigbeeGas.getSerialNumber());
-                        if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode())) {// this way we don't get duplicate registerRequests in one getWithList
-                            channelRegisters.add(reg);
+                        if (loadProfileContains(lpr, co.getLogicalName().getObisCode())) {
+                            Register reg = new Register(co.getLogicalName().getObisCode(), this.zigbeeGas.getSerialNumber());
+                            if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode())) {// this way we don't get duplicate registerRequests in one getWithList
+                                channelRegisters.add(reg);
+                            }
+                            coRegisters.add(reg); // we always add it to the list of registers for this CapturedObject
                         }
-                        coRegisters.add(reg); // we always add it to the list of registers for this CapturedObject
                     }
                     this.capturedObjectRegisterListMap.put(lpr, coRegisters);
                 } //TODO should we log this if we didn't get it???
@@ -169,6 +171,15 @@ public class ZigbeeGasLoadProfile {
             throw new LoadProfileConfigurationException("ExpectedLoadProfileReaders may not be null");
         }
         return channelRegisters;
+    }
+
+    private boolean loadProfileContains(LoadProfileReader lpr, ObisCode obisCode) throws IOException {
+        for (ChannelInfo channelInfo : lpr.getChannelInfos()) {
+            if (channelInfo.getChannelObisCode().equals(obisCode)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
