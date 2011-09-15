@@ -400,6 +400,10 @@ public class ParameterFactory {
         return pulseWeights[inputChannelIndex - 1];
     }
 
+    public PulseWeight[] getPulseWeights() {
+        return pulseWeights;
+    }
+
     public void writeStartHourOfMeasurement(int time) throws IOException {
         if (readOperatingMode().isPeriodicMeasurement()) {
             writeSamplingActivationType(time);

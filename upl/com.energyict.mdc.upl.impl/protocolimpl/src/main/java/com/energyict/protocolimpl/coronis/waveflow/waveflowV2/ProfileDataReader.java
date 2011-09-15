@@ -112,13 +112,18 @@ public class ProfileDataReader {
         else {
             dailyConsumption = waveFlowV2.getRadioCommandFactory().readDailyConsumption();
         }
-        return parseProfileData(true, includeEvents, daily, monthly, lastLoggedValue, initialOffset, indexFirst, dailyConsumption, lastReading, toDate, rawValues);
+
+        //Read the pulseWeights for all enabled ports
+        for (int i = 0; i < getNumberOfInputsUsed(); i++) {
+            waveFlowV2.getParameterFactory().readPulseWeight(i + 1);
+        }
+        return parseProfileData(waveFlowV2.getParameterFactory().getPulseWeights(), true, includeEvents, daily, monthly, lastLoggedValue, initialOffset, indexFirst, dailyConsumption, lastReading, toDate, rawValues);
     }
 
     //The parsing of the values.
     //This method can be used after a request or for a bubble up frame containing daily profile data.
 
-    public ProfileData parseProfileData(boolean requestsAllowed, boolean includeEvents, boolean daily, boolean monthly, Date lastLoggedValue, long initialOffset, int indexFirst, DailyConsumption dailyConsumption, Date lastReading, Date toDate, List<Long[]> rawValues) throws IOException {
+    public ProfileData parseProfileData(PulseWeight[] pulseWeights, boolean requestsAllowed, boolean includeEvents, boolean daily, boolean monthly, Date lastLoggedValue, long initialOffset, int indexFirst, DailyConsumption dailyConsumption, Date lastReading, Date toDate, List<Long[]> rawValues) throws IOException {
         ProfileData profileData = new ProfileData();
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
         TimeZone timeZone = waveFlowV2.getTimeZone();
@@ -131,10 +136,7 @@ public class ProfileDataReader {
 
         int channelId = 0;
         for (int inputId = 0; inputId < getNumberOfInputsUsed(); inputId++) {
-            Unit unit = Unit.get("");
-            if (requestsAllowed) {
-                unit = waveFlowV2.getParameterFactory().readPulseWeight(inputId + 1).getUnit();
-            }
+            Unit unit = pulseWeights[inputId].getUnit();
             ChannelInfo channelInfo = new ChannelInfo(channelId++, String.valueOf(inputId + 1), unit);       //Channel name: 1, 2, 3 or 4
             channelInfo.setCumulative();
             channelInfo.setCumulativeWrapValue(new BigDecimal(Integer.MAX_VALUE)); //4 bytes long, signed value

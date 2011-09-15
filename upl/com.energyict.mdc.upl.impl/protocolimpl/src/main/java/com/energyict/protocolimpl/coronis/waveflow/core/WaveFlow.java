@@ -8,12 +8,23 @@ import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.coronis.core.*;
 import com.energyict.protocolimpl.coronis.waveflow.core.messages.WaveFlowMessageParser;
 import com.energyict.protocolimpl.coronis.waveflow.core.parameter.ParameterFactory;
+import com.energyict.protocolimpl.coronis.waveflow.core.parameter.PulseWeight;
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.RadioCommandFactory;
+import com.energyict.protocolimpl.coronis.waveflow.waveflowV2.WaveFlowV2;
 
 import java.io.*;
 import java.util.*;
 
 abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink, EventMapper, BubbleUp {
+
+    private static final String PROP_SCALE_A = "ScaleA";
+    private static final String PROP_SCALE_B = "ScaleB";
+    private static final String PROP_SCALE_C = "ScaleC";
+    private static final String PROP_SCALE_D = "ScaleD";
+    private static final String PROP_MULTIPLIER_A = "MultiplierA";
+    private static final String PROP_MULTIPLIER_B = "MultiplierB";
+    private static final String PROP_MULTIPLIER_C = "MultiplierC";
+    private static final String PROP_MULTIPLIER_D = "MultiplierD";
 
     abstract protected void doTheInit() throws IOException;
 
@@ -24,6 +35,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
     private boolean isV1 = false;
     private int bubbleUpStartMoment;
     private int deviceType;
+    private PulseWeight[] pulseWeights = new PulseWeight[4];
     private boolean isV210 = false;
     protected WaveFlowMessageParser waveFlowMessages;
 
@@ -144,13 +156,40 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
         //Important to set this to false (don't check the interval) when requesting the DAILY load profile.
         //This is because the meter's interval needs to be set to 60 minutes in order to generate daily values...
         verifyProfileInterval = Integer.parseInt(properties.getProperty("verifyProfileInterval", "1")) == 1;
-        
+
         // e.g. USED,4,28740,28800,1,0e514a401f25
         bubbleUpStartMoment = Integer.parseInt(properties.getProperty("WavenisBubbleUpInfo", "USED,1,28800,28800,1,000000000000").split(",")[2]);
         deviceType = Integer.parseInt(properties.getProperty("ApplicationStatusVariant", "0"));
 
-         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, "5000").trim()));
-         setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty(PROP_RETRIES, "2").trim()));
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, "5000").trim()));
+        setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty(PROP_RETRIES, "2").trim()));
+
+        int scaleA = Integer.parseInt(properties.getProperty(PROP_SCALE_A, "0"));
+        int scaleB = Integer.parseInt(properties.getProperty(PROP_SCALE_B, "0"));
+        int scaleC = Integer.parseInt(properties.getProperty(PROP_SCALE_C, "0"));
+        int scaleD = Integer.parseInt(properties.getProperty(PROP_SCALE_D, "0"));
+
+        int multiplierA = Integer.parseInt(properties.getProperty(PROP_MULTIPLIER_A, "1"));
+        int multiplierB = Integer.parseInt(properties.getProperty(PROP_MULTIPLIER_B, "1"));
+        int multiplierC = Integer.parseInt(properties.getProperty(PROP_MULTIPLIER_C, "1"));
+        int multiplierD = Integer.parseInt(properties.getProperty(PROP_MULTIPLIER_D, "1"));
+
+        WaveFlow waveFlow = new WaveFlowV2();
+        PulseWeight pulseWeightA = new PulseWeight(waveFlow, scaleA, multiplierA, 1);
+        PulseWeight pulseWeightB = new PulseWeight(waveFlow, scaleB, multiplierB, 2);
+        PulseWeight pulseWeightC = new PulseWeight(waveFlow, scaleC, multiplierC, 3);
+        PulseWeight pulseWeightD = new PulseWeight(waveFlow, scaleD, multiplierD, 4);
+
+        pulseWeights = new PulseWeight[]{pulseWeightA, pulseWeightB, pulseWeightC, pulseWeightD};
+    }
+
+    public PulseWeight[] getPulseWeights() {
+        return pulseWeights;
+    }
+
+
+    public PulseWeight getPulseWeight(int port) {
+        return pulseWeights[port];
     }
 
     @Override
@@ -226,8 +265,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         try {
             return getTheProfileData(lastReading, new Date(), includeEvents);
-        }
-        catch (WaveFlowException e) {
+        } catch (WaveFlowException e) {
             getLogger().warning("No profile data available." + "\n\r" + e.getMessage());
             return null;
         }
@@ -236,8 +274,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
         try {
             return getTheProfileData(from, to, includeEvents);
-        }
-        catch (WaveFlowException e) {
+        } catch (WaveFlowException e) {
             getLogger().warning("No profile data available." + "\n\r" + e.getMessage());
             return null;
         }
@@ -258,6 +295,14 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
         result.add("verifyProfileInterval");
         result.add("LoadProfileObisCode");
         result.add("ApplicationStatusVariant");
+        result.add(PROP_SCALE_A);
+        result.add(PROP_SCALE_B);
+        result.add(PROP_SCALE_C);
+        result.add(PROP_SCALE_D);
+        result.add(PROP_MULTIPLIER_A);
+        result.add(PROP_MULTIPLIER_B);
+        result.add(PROP_MULTIPLIER_C);
+        result.add(PROP_MULTIPLIER_D);
         return result;
     }
 

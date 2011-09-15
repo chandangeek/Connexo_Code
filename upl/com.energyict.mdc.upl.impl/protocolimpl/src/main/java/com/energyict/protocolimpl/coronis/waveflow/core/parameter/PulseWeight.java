@@ -17,6 +17,13 @@ public class PulseWeight extends AbstractParameter {
         this.inputChannel = inputChannel;
     }
 
+    public PulseWeight(WaveFlow waveFlow, int scale, int weight, int inputChannel) {
+        super(waveFlow);
+        this.inputChannel = inputChannel;
+        this.setUnitScaler(scale);
+        this.setWeight(weight);
+    }
+
     @Override
     ParameterId getParameterId() {
         switch (inputChannel) {

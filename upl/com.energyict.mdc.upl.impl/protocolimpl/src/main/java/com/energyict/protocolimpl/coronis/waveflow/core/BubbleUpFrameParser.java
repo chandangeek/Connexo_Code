@@ -6,10 +6,10 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.waveflow.core.parameter.OperatingMode;
+import com.energyict.protocolimpl.coronis.waveflow.core.parameter.PulseWeight;
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.*;
 import com.energyict.protocolimpl.coronis.waveflow.waveflowV1.ProfileDataReaderV1;
 import com.energyict.protocolimpl.coronis.waveflow.waveflowV2.ProfileDataReader;
-import com.energyict.protocolimpl.coronis.waveflow.waveflowV2.WaveFlowV2;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -27,6 +27,7 @@ public class BubbleUpFrameParser {
     private static final int WEEKLY = DAILY * 7;
     private static final double MAX = 0x20;
     private static final int INITIAL_BATTERY_LIFE_COUNT = 0xC15C;
+    private static PulseWeight[] pulseWeights = new PulseWeight[4];
 
     public static BubbleUpObject parse(byte[] data, WaveFlow waveflow) throws IOException {
         data = ProtocolTools.getSubArray(data, 6);          //Skip the radio address
@@ -58,7 +59,7 @@ public class BubbleUpFrameParser {
      * @param data the generic header
      * @return 2 registers
      */
-    private static List<RegisterValue> getGenericHeaderRegisters(byte[] data) {
+    private static List<RegisterValue> getGenericHeaderRegisters(byte[] data, WaveFlow waveFlow) {
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
 
         double qos = ProtocolTools.getUnsignedIntFromBytes(data, 12, 1);
@@ -68,6 +69,12 @@ public class BubbleUpFrameParser {
 
         RegisterValue reg = new RegisterValue(ObisCode.fromString("0.0.96.6.0.255"), new Quantity(shortLifeCounter, Unit.get("")), new Date());
         registerValues.add(reg);
+
+        PulseWeight pulseA = new PulseWeight(waveFlow, data[15] & 0xFF);
+        PulseWeight pulseB = new PulseWeight(waveFlow, data[16] & 0xFF);
+        PulseWeight pulseC = new PulseWeight(waveFlow, data[17] & 0xFF);
+        PulseWeight pulseD = new PulseWeight(waveFlow, data[18] & 0xFF);
+        pulseWeights = new PulseWeight[]{pulseA, pulseB, pulseC, pulseD};
 
         reg = new RegisterValue(ObisCode.fromString("0.0.96.0.63.255"), new Quantity(qos, Unit.get("")), new Date());
         registerValues.add(reg);
@@ -83,14 +90,14 @@ public class BubbleUpFrameParser {
         DailyConsumption dailyConsumption = new DailyConsumption(waveflow);
         dailyConsumption.setGenericHeaderLength(19);   //Instead of the usual 23!
         dailyConsumption.parse(data);
-        registerValues.addAll(getGenericHeaderRegisters(data));       //Parse the generic header, it contains the battery counter and RSSI level
+        registerValues.addAll(getGenericHeaderRegisters(data, waveflow));       //Parse the generic header, it contains the battery counter and RSSI level
 
-        RegisterValue reg = new RegisterValue(ObisCode.fromString("1.1.82.8.0.255"), new Quantity(dailyConsumption.getIndexZone().getCurrentIndexOnA(), Unit.get("")), new Date());
+        RegisterValue reg = new RegisterValue(ObisCode.fromString("1.1.82.8.0.255"), new Quantity(dailyConsumption.getIndexZone().getCurrentIndexOnA() * pulseWeights[0].getWeight(), pulseWeights[0].getUnit()), new Date());
         registerValues.add(reg);
 
         for (int port = 0; port < dailyConsumption.getNumberOfInputs(); port++) {
             int value = dailyConsumption.getIndexZone().getDailyIndexOnPort(port);
-            reg = new RegisterValue(ObisCode.fromString("1." + (port + 1) + ".82.8.0.1"), new Quantity(value, Unit.get("")), new Date(), dailyConsumption.getLastLoggedReading() );
+            reg = new RegisterValue(ObisCode.fromString("1." + (port + 1) + ".82.8.0.1"), new Quantity(value * pulseWeights[port].getWeight(), pulseWeights[port].getUnit()), new Date(), dailyConsumption.getLastLoggedReading() );
             registerValues.add(reg);
         }
 
@@ -100,7 +107,7 @@ public class BubbleUpFrameParser {
         profileDataReader.setNumberOfInputsUsed(dailyConsumption.getNumberOfInputs());
         profileDataReader.setInterval(dailyConsumption.getSamplingPeriod().getSamplingPeriodInSeconds());
 
-        profileDatas.add(profileDataReader.parseProfileData(false, false, true, false, lastLogged, 0, 0, dailyConsumption, new Date(0), new Date(), null));
+        profileDatas.add(profileDataReader.parseProfileData(pulseWeights, false, false, true, false, lastLogged, 0, 0, dailyConsumption, new Date(0), new Date(), null));
         result.setProfileDatas(profileDatas);
         result.setRegisterValues(registerValues);
         return result;
@@ -123,15 +130,16 @@ public class BubbleUpFrameParser {
         if (operatingMode.isWeeklyMeasurement()) {
             profileDataReader.setInterval(WEEKLY);
         }
-        profileDatas.add(profileDataReader.parseProfileData(false, false, false, operatingMode.isMonthlyMeasurement(), lastLogged, 0, 0, null, new Date(0), new Date(), last4loggedIndexes));
+        profileDatas.add(profileDataReader.parseProfileData(waveflow.getPulseWeights(), false, false, false, operatingMode.isMonthlyMeasurement(), lastLogged, 0, 0, null, new Date(0), new Date(), last4loggedIndexes));
         result.setProfileDatas(profileDatas);
 
         for (int input = 0; input < extendedIndexReading.getNumberOfEnabledInputs(); input++) {
             int value = extendedIndexReading.getIndexOfLastMonth(input);
-            RegisterValue reg = new RegisterValue(ObisCode.fromString("1." + String.valueOf(input + 1) + ".82.8.0.0"), new Quantity(value, Unit.get("")), new Date(), parseDateOfLastMonthsEnd(extendedIndexReading.getDateOfLastLoggedValue()).getTime());
+            PulseWeight pulseWeight = waveflow.getPulseWeight(input);
+            RegisterValue reg = new RegisterValue(ObisCode.fromString("1." + String.valueOf(input + 1) + ".82.8.0.0"), new Quantity(value * pulseWeight.getWeight(), pulseWeight.getUnit()), new Date(), parseDateOfLastMonthsEnd(extendedIndexReading.getDateOfLastLoggedValue()).getTime());
             registerValues.add(reg);
             int value2 = extendedIndexReading.getCurrentIndex(input);
-            RegisterValue reg2 = new RegisterValue(ObisCode.fromString("1." + String.valueOf(input + 1) + ".82.8.0.255"), new Quantity(value2, Unit.get("")), new Date());
+            RegisterValue reg2 = new RegisterValue(ObisCode.fromString("1." + String.valueOf(input + 1) + ".82.8.0.255"), new Quantity(value2 * pulseWeight.getWeight(), pulseWeight.getUnit()), new Date());
             registerValues.add(reg2);
         }
         result.setRegisterValues(registerValues);
@@ -154,13 +162,13 @@ public class BubbleUpFrameParser {
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
         GlobalIndexReading globalIndexReading = new GlobalIndexReading(waveflow);
         int operationMode = data[0] & 0xFF;
-        OperatingMode operatingMode = new OperatingMode(new WaveFlowV2(), operationMode);
+        OperatingMode operatingMode = new OperatingMode(waveflow, operationMode);
         data = ProtocolTools.getSubArray(data, 2);  //Skip first 2 bytes
         globalIndexReading.parse(data, false, operatingMode.getNumberOfInputsUsed());
 
         int index = 0;
         for (long value : globalIndexReading.getReadings()) {
-            RegisterValue reg = new RegisterValue(ObisCode.fromString("1." + String.valueOf(index + 1) + ".82.8.0.255"), new Quantity(value, Unit.get("")), new Date());
+            RegisterValue reg = new RegisterValue(ObisCode.fromString("1." + String.valueOf(index + 1) + ".82.8.0.255"), new Quantity(value * waveflow.getPulseWeight(index).getWeight(), waveflow.getPulseWeight(index).getUnit()), new Date());
             registerValues.add(reg);
             index++;
         }
@@ -234,8 +242,8 @@ public class BubbleUpFrameParser {
 
         CurrentIndexReading indexReading = new CurrentIndexReading(waveflow);
         indexReading.parse(data);
-        RegisterValue readingA = new RegisterValue(ObisCode.fromString("1.1.82.8.0.255"), new Quantity(indexReading.getReadings(0), Unit.get("")), new Date());
-        RegisterValue readingB = new RegisterValue(ObisCode.fromString("1.2.82.8.0.255"), new Quantity(indexReading.getReadings(1), Unit.get("")), new Date());
+        RegisterValue readingA = new RegisterValue(ObisCode.fromString("1.1.82.8.0.255"), new Quantity(indexReading.getReadings(0) * waveflow.getPulseWeight(0).getWeight(), waveflow.getPulseWeight(0).getUnit()), new Date());
+        RegisterValue readingB = new RegisterValue(ObisCode.fromString("1.2.82.8.0.255"), new Quantity(indexReading.getReadings(1) * waveflow.getPulseWeight(1).getWeight(), waveflow.getPulseWeight(1).getUnit()), new Date());
 
         registerValues.add(readingA);
         registerValues.add(readingB);
