@@ -59,7 +59,7 @@ public class BubbleUpFrameParser {
      * @param data the generic header
      * @return 2 registers
      */
-    private static List<RegisterValue> getGenericHeaderRegisters(byte[] data, WaveFlow waveFlow) {
+    private static List<RegisterValue> getGenericHeaderRegisters(byte[] data, WaveFlow waveFlow) throws IOException {
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
 
         double qos = ProtocolTools.getUnsignedIntFromBytes(data, 12, 1);
@@ -70,10 +70,15 @@ public class BubbleUpFrameParser {
         RegisterValue reg = new RegisterValue(ObisCode.fromString("0.0.96.6.0.255"), new Quantity(shortLifeCounter, Unit.get("")), new Date());
         registerValues.add(reg);
 
-        PulseWeight pulseA = new PulseWeight(waveFlow, data[15] & 0xFF);
-        PulseWeight pulseB = new PulseWeight(waveFlow, data[16] & 0xFF);
-        PulseWeight pulseC = new PulseWeight(waveFlow, data[17] & 0xFF);
-        PulseWeight pulseD = new PulseWeight(waveFlow, data[18] & 0xFF);
+        PulseWeight pulseA = new PulseWeight(waveFlow, 1);
+        PulseWeight pulseB = new PulseWeight(waveFlow, 2);
+        PulseWeight pulseC = new PulseWeight(waveFlow, 3);
+        PulseWeight pulseD = new PulseWeight(waveFlow, 4);
+        pulseA.parse(new byte[] {data[15]});
+        pulseB.parse(new byte[] {data[16]});
+        pulseC.parse(new byte[] {data[17]});
+        pulseD.parse(new byte[] {data[18]});
+
         pulseWeights = new PulseWeight[]{pulseA, pulseB, pulseC, pulseD};
 
         reg = new RegisterValue(ObisCode.fromString("0.0.96.0.63.255"), new Quantity(qos, Unit.get("")), new Date());

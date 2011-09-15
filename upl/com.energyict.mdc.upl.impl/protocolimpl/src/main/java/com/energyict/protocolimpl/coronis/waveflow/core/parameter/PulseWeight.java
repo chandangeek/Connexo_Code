@@ -65,7 +65,7 @@ public class PulseWeight extends AbstractParameter {
     }
 
     @Override
-    protected void parse(byte[] data) throws IOException {
+    public void parse(byte[] data) throws IOException {
         weight = data[0] & 0x0F;
         unitScaler = (data[0] >> 4) - 3;
     }

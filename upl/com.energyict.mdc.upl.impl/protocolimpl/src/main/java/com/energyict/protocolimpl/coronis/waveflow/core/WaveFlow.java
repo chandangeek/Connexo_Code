@@ -184,11 +184,18 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
     }
 
     public PulseWeight[] getPulseWeights() {
+        for (int port = 0; port < 4; port++) {
+            if (pulseWeights[port] == null) {
+                pulseWeights[port] = new PulseWeight(this, 0, 1, port + 1);
+            }
+        }
         return pulseWeights;
     }
 
-
     public PulseWeight getPulseWeight(int port) {
+        if (pulseWeights[port] == null) {
+            pulseWeights[port] = new PulseWeight(this, 0, 1, port + 1);
+        }
         return pulseWeights[port];
     }
 
