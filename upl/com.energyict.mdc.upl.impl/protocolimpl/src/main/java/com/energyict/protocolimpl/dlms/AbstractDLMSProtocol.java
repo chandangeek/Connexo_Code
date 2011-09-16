@@ -404,19 +404,19 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
                 }
                 catch (IOException e) {
                     iConf = -1;
-                    logger.severe("G3B Meter configuration change count not accessible, request object list.");
+                    logger.severe("Meter configuration change count not accessible, request object list.");
                     requestObjectList();
                     dlmsCache.saveObjectList(dlmsMeterConfig.getInstantiatedObjectList());  // save object list in cache
                 }
 
                 if (iConf != dlmsCache.getConfProgChange()) {
-                    logger.severe("G3B Meter configuration changed, request object list.");
+                    logger.severe("Meter configuration changed, request object list.");
                     requestObjectList();           // request object list again from rtu
                     dlmsCache.saveObjectList(dlmsMeterConfig.getInstantiatedObjectList());  // save object list in cache
                     dlmsCache.setConfProgChange(iConf);  // set new configuration program change
                 }
             } else { // Cache not exist
-                logger.info("G3B Meter cache does not exist, request object list.");
+                logger.info("Meter cache does not exist, request object list.");
                 requestObjectList();
                 try {
                     iConf = requestConfigurationProgramChanges();
