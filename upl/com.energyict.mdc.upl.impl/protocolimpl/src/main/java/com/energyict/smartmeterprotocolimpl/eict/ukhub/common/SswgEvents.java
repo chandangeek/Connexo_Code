@@ -385,8 +385,8 @@ public class SswgEvents {
             return description;
         }
 
-        public MeterEvent toMeterEvent(Date eventDate) {
-            return new MeterEvent(eventDate, getEiserverCode(), getDeviceCode(), getDescription());
+        public MeterEvent toMeterEvent(Date eventDate, final int logbookId, final int eventNumber) {
+            return new MeterEvent(eventDate, getEiserverCode(), getDeviceCode(), getDescription(), logbookId, eventNumber);
         }
 
     }

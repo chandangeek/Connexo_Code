@@ -4,7 +4,6 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.SswgEvents;
 
 import java.io.IOException;
 import java.util.Date;
@@ -21,6 +20,7 @@ public class BasicEvent extends Structure {
 
     private static final int EVENT_TIME_INDEX = 0;
     private static final int EVENT_CODE_INDEX = 1;
+    private static final int EVENT_NUMBER_INDEX = 2;
 
     private final Logger logger;
 
@@ -43,9 +43,9 @@ public class BasicEvent extends Structure {
         return logger;
     }
 
-    public MeterEvent getMeterEvent() throws IOException {
+    public MeterEvent getMeterEvent(final int logbookId) throws IOException {
         SswgEvents.SswgEvent sswgEvent = SswgEvents.getSswgEventFromDeviceCode(getEventCode());
-        return sswgEvent.toMeterEvent(getEventTime());
+        return sswgEvent.toMeterEvent(getEventTime(), logbookId, getEventNumber());
     }
 
     private Date getEventTime() throws IOException {
@@ -57,4 +57,11 @@ public class BasicEvent extends Structure {
         return getDataType(EVENT_CODE_INDEX).intValue();
     }
 
+    private int getEventNumber() {
+        if(nrOfDataTypes() >= EVENT_NUMBER_INDEX+1){
+            return getDataType(EVENT_NUMBER_INDEX).intValue();
+        } else {
+            return 0;
+        }
+    }
 }

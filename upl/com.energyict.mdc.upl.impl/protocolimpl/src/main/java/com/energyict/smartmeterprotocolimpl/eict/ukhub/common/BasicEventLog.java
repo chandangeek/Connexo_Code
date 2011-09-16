@@ -36,7 +36,7 @@ public class BasicEventLog {
             for (AbstractDataType abstractEventData : eventArray.getAllDataTypes()) {
                 BasicEvent basicEvent = getBasicEvent(abstractEventData);
                 if (basicEvent != null) {
-                    meterEvents.add(basicEvent.getMeterEvent());
+                    meterEvents.add(basicEvent.getMeterEvent(obisCode.getE()));
                 }
             }
         } catch (IOException e) {
