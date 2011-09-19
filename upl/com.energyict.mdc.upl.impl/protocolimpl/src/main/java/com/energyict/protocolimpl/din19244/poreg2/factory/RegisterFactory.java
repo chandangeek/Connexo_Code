@@ -159,9 +159,9 @@ public class RegisterFactory {
         return billingParameters.getConfigs();
     }
 
-    public long readBillingData(int tariff, int dField) throws IOException {
+    public long readBillingData(int tariff, int level, int dField) throws IOException {
         tariff = tariff == 4 ? 0 : tariff;
-        BankConfiguration config = getBankConfig(tariff, dField);
+        BankConfiguration config = getBankConfig(tariff, level, dField);
         List<ExtendedValue> values;
         values = readBillingDataLastPeriod();
 
@@ -174,9 +174,9 @@ public class RegisterFactory {
         return total;
     }
 
-    public long readCurrentData(int tariff, int dField) throws IOException {
+    public long readCurrentData(int tariff, int level, int dField) throws IOException {
         tariff = tariff == 4 ? 0 : tariff;
-        BankConfiguration config = getBankConfig(tariff, dField);
+        BankConfiguration config = getBankConfig(tariff, level, dField);
         List<ExtendedValue> values;
         values = readBillingDataCurrentPeriod();
 
@@ -209,15 +209,26 @@ public class RegisterFactory {
     /**
      * Iterate over the bank definitions, find the right bank id for the tariff, level and dField.
      */
-    private BankConfiguration getBankConfig(int tariff, int dField) throws IOException {
+    private BankConfiguration getBankConfig(int tariff, int level, int dField) throws IOException {
         List<BankConfiguration> configs = readBillingConfiguration();
         for (BankConfiguration config : configs) {
-            if (((tariff == -1) || (config.isTariffRate(tariff))) && ((dField == -1) || config.isResultRenewal(dField))) {
+            if (((tariff == -1) || (config.isTariffRate(tariff))) && checkLevel(level, config) && ((dField == -1) || config.isResultRenewal(dField))) {
                 bankId = config.getBankId();
                 return config;
             }
         }
         throw new NoSuchRegisterException("Billing data for tariff rate " + tariff + " is not configured to be stored");
+    }
+
+    private boolean checkLevel(int level, BankConfiguration config) {
+        if (poreg.getApparentEnergyResultLevel() == 0) {                        //Apparent energy on level 0
+            return (level == 3) && config.getResultLevel() != 0xFF;             //In this case, every configured level contains apparent energy
+        } else {
+            if (level == 0) {
+                return config.getResultLevel() != 3;                            //Level0, 1 or 2 contain active energy
+            }
+            return level == config.getResultLevel();
+        }
     }
 
     public Date readBillingDataLastPeriodTimeStamp() throws IOException {
@@ -236,7 +247,7 @@ public class RegisterFactory {
 
     private void checkBankId() throws IOException {
         if (bankId == -1) {
-            getBankConfig(-1, -1);
+            getBankConfig(-1, 0, -1);
         }
     }
 

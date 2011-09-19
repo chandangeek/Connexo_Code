@@ -24,6 +24,16 @@ public class ObisCodeMapper {
     private static final ObisCode OBISCODE_LAST_DEMAND_RESET_TIMESTAMP = ObisCode.fromString("1.0.0.1.2.0");
     private static final ObisCode OBISCODE_BILLING_COUNTER = ObisCode.fromString("1.0.0.1.0.255");
 
+    private static final ObisCode OBISCODE_MAX_ACTIVE_ENERGY_TOTAL = ObisCode.fromString("1.0.1.6.0.255");
+    private static final ObisCode OBISCODE_MAX_ACTIVE_ENERGY_TOTAL2 = ObisCode.fromString("1.0.1.6.4.255");
+    private static final ObisCode OBISCODE_MAX_ACTIVE_ENERGY_RATE1 = ObisCode.fromString("1.0.1.6.1.255");
+    private static final ObisCode OBISCODE_MAX_ACTIVE_ENERGY_RATE2 = ObisCode.fromString("1.0.1.6.2.255");
+
+    private static final ObisCode OBISCODE_CUMUL_ACTIVE_ENERGY_TOTAL = ObisCode.fromString("1.0.1.8.0.255");
+    private static final ObisCode OBISCODE_CUMUL_ACTIVE_ENERGY_TOTAL2 = ObisCode.fromString("1.0.1.8.4.255");
+    private static final ObisCode OBISCODE_CUMUL_ACTIVE_ENERGY_RATE1 = ObisCode.fromString("1.0.1.8.1.255");
+    private static final ObisCode OBISCODE_CUMUL_ACTIVE_ENERGY_RATE2 = ObisCode.fromString("1.0.1.8.2.255");
+
     private static final ObisCode OBISCODE_MAX_APPARENT_ENERGY = ObisCode.fromString("1.0.9.6.0.255");
     private static final ObisCode OBISCODE_MAX_APPARENT_ENERGY2 = ObisCode.fromString("1.0.9.6.4.255");
     private static final ObisCode OBISCODE_MAX_APPARENT_ENERGY_RATE1 = ObisCode.fromString("1.0.9.6.1.255");
@@ -33,6 +43,16 @@ public class ObisCodeMapper {
     private static final ObisCode OBISCODE_CUMUL_APPARENT_ENERGY2 = ObisCode.fromString("1.0.9.8.4.255");
     private static final ObisCode OBISCODE_CUMUL_APPARENT_ENERGY_RATE1 = ObisCode.fromString("1.0.9.8.1.255");
     private static final ObisCode OBISCODE_CUMUL_APPARENT_ENERGY_RATE2 = ObisCode.fromString("1.0.9.8.2.255");
+
+    private static final ObisCode OBISCODE_MAX_ACTIVE_ENERGY_TOTAL_BILLING = ObisCode.fromString("1.0.1.6.0.0");
+    private static final ObisCode OBISCODE_MAX_ACTIVE_ENERGY_TOTAL2_BILLING = ObisCode.fromString("1.0.1.6.4.0");
+    private static final ObisCode OBISCODE_MAX_ACTIVE_ENERGY_RATE1_BILLING = ObisCode.fromString("1.0.1.6.1.0");
+    private static final ObisCode OBISCODE_MAX_ACTIVE_ENERGY_RATE2_BILLING = ObisCode.fromString("1.0.1.6.2.0");
+
+    private static final ObisCode OBISCODE_CUMUL_ACTIVE_ENERGY_TOTAL_BILLING = ObisCode.fromString("1.0.1.8.0.0");
+    private static final ObisCode OBISCODE_CUMUL_ACTIVE_ENERGY_TOTAL2_BILLING = ObisCode.fromString("1.0.1.8.4.0");
+    private static final ObisCode OBISCODE_CUMUL_ACTIVE_ENERGY_RATE1_BILLING = ObisCode.fromString("1.0.1.8.1.0");
+    private static final ObisCode OBISCODE_CUMUL_ACTIVE_ENERGY_RATE2_BILLING = ObisCode.fromString("1.0.1.8.2.0");
 
     private static final ObisCode OBISCODE_MAX_APPARENT_ENERGY_BILLING = ObisCode.fromString("1.0.9.6.0.0");
     private static final ObisCode OBISCODE_MAX_APPARENT_ENERGY2_BILLING = ObisCode.fromString("1.0.9.6.4.0");
@@ -61,6 +81,16 @@ public class ObisCodeMapper {
         registerMaps.put(OBISCODE_CUMUL_APPARENT_ENERGY_RATE1, "Cumulative apparent energy total, rate 1");
         registerMaps.put(OBISCODE_CUMUL_APPARENT_ENERGY_RATE2, "Cumulative apparent energy total, rate 2");
 
+        registerMaps.put(OBISCODE_CUMUL_ACTIVE_ENERGY_TOTAL, "Active energy (import) total");
+        registerMaps.put(OBISCODE_CUMUL_ACTIVE_ENERGY_TOTAL2, "Active energy (import) total");
+        registerMaps.put(OBISCODE_CUMUL_ACTIVE_ENERGY_RATE1, "Active energy (import) rate 1");
+        registerMaps.put(OBISCODE_CUMUL_ACTIVE_ENERGY_RATE2, "Active energy (import) rate 2");
+
+        registerMaps.put(OBISCODE_MAX_ACTIVE_ENERGY_TOTAL, "Max demand active energy (import) total");
+        registerMaps.put(OBISCODE_MAX_ACTIVE_ENERGY_TOTAL2, "Max demand active energy (import) total");
+        registerMaps.put(OBISCODE_MAX_ACTIVE_ENERGY_RATE1, "Max demand active energy (import) rate 1");
+        registerMaps.put(OBISCODE_MAX_ACTIVE_ENERGY_RATE2, "Max demand active energy (import) rate 2");
+
         registerMaps.put(OBISCODE_MAX_APPARENT_ENERGY_BILLING, "Max apparent energy total at last billing point");
         registerMaps.put(OBISCODE_MAX_APPARENT_ENERGY2_BILLING, "Max apparent energy total at last billing point");
         registerMaps.put(OBISCODE_MAX_APPARENT_ENERGY_RATE1_BILLING, "Max apparent energy total, rate 1 at last billing point");
@@ -70,6 +100,16 @@ public class ObisCodeMapper {
         registerMaps.put(OBISCODE_CUMUL_APPARENT_ENERGY2_BILLING, "Cumulative apparent energy total at last billing point");
         registerMaps.put(OBISCODE_CUMUL_APPARENT_ENERGY_RATE1_BILLING, "Cumulative apparent energy total, rate 1 at last billing point");
         registerMaps.put(OBISCODE_CUMUL_APPARENT_ENERGY_RATE2_BILLING, "Cumulative apparent energy total, rate 2 at last billing point");
+
+        registerMaps.put(OBISCODE_MAX_ACTIVE_ENERGY_TOTAL_BILLING, "Max demand active energy (import) total at last billing point");
+        registerMaps.put(OBISCODE_MAX_ACTIVE_ENERGY_TOTAL2_BILLING, "Max demand active energy (import) total at last billing point");
+        registerMaps.put(OBISCODE_MAX_ACTIVE_ENERGY_RATE1_BILLING, "Max demand active energy (import) rate 1 at last billing point");
+        registerMaps.put(OBISCODE_MAX_ACTIVE_ENERGY_RATE2_BILLING, "Max demand active energy (import) rate 2 at last billing point");
+
+        registerMaps.put(OBISCODE_CUMUL_ACTIVE_ENERGY_TOTAL_BILLING, "Cumulative active energy (import) total at last billing point");
+        registerMaps.put(OBISCODE_CUMUL_ACTIVE_ENERGY_TOTAL2_BILLING, "Cumulative active energy (import) total at last billing point");
+        registerMaps.put(OBISCODE_CUMUL_ACTIVE_ENERGY_RATE1_BILLING, "Cumulative active energy (import) rate 1 at last billing point");
+        registerMaps.put(OBISCODE_CUMUL_ACTIVE_ENERGY_RATE2_BILLING, "Cumulative active energy (import) rate 2 at last billing point");
     }
 
     private Poreg poreg;
@@ -105,16 +145,38 @@ public class ObisCodeMapper {
             Date timeStamp = poreg.getRegisterFactory().readBillingDataLastPeriodTimeStamp();
             return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), timeStamp, new Date(), new Date(), new Date(), 0, timeStamp.toString());
         } else if (isApparentEnergyBillingData(obisCode)) {
-            long totalApparentEnergyLastBillingPeriod = poreg.getRegisterFactory().readBillingData(obisCode.getE(), obisCode.getD());
+            long totalApparentEnergyLastBillingPeriod = poreg.getRegisterFactory().readBillingData(obisCode.getE(), 3, obisCode.getD());
             Date timeStamp = poreg.getRegisterFactory().readBillingDataLastPeriodTimeStamp();
             return new RegisterValue(obisCode, new Quantity(totalApparentEnergyLastBillingPeriod, Unit.get(BaseUnit.VOLTAMPEREHOUR, 3)), new Date(), timeStamp);
+        } else if (isActiveEnergyBillingData(obisCode)) {
+            if (poreg.getApparentEnergyResultLevel() == 0) {
+                throw new NoSuchRegisterException("No active energy available, inputs contain apparent energy.");
+            }
+            long totalTotalActiveEnergyLastBillingPeriod = poreg.getRegisterFactory().readBillingData(obisCode.getE(), 0, obisCode.getD());
+            Date timeStamp = poreg.getRegisterFactory().readBillingDataLastPeriodTimeStamp();
+            return new RegisterValue(obisCode, new Quantity(totalTotalActiveEnergyLastBillingPeriod, Unit.get(BaseUnit.WATTHOUR, 3)), new Date(), timeStamp);
         } else if (isApparentEnergyCurrentData(obisCode)) {
-            long totalApparentEnergyCurrentPeriod = poreg.getRegisterFactory().readCurrentData(obisCode.getE(), obisCode.getD());
+            long totalApparentEnergyCurrentPeriod = poreg.getRegisterFactory().readCurrentData(obisCode.getE(), 3, obisCode.getD());
             Date timeStamp = poreg.getRegisterFactory().readBillingDataCurrentPeriodTimeStamp();
             return new RegisterValue(obisCode, new Quantity(totalApparentEnergyCurrentPeriod, Unit.get(BaseUnit.VOLTAMPEREHOUR, 3)), new Date(), timeStamp);
+        } else if (isActiveEnergyCurrentData(obisCode)) {
+            if (poreg.getApparentEnergyResultLevel() == 0) {
+                throw new NoSuchRegisterException("No active energy available, inputs contain apparent energy.");
+            }
+            long totalTotalActiveEnergyCurrentBillingPeriod = poreg.getRegisterFactory().readCurrentData(obisCode.getE(), 0, obisCode.getD());
+            Date timeStamp = poreg.getRegisterFactory().readBillingDataCurrentPeriodTimeStamp();
+            return new RegisterValue(obisCode, new Quantity(totalTotalActiveEnergyCurrentBillingPeriod, Unit.get(BaseUnit.WATTHOUR, 3)), new Date(), timeStamp);
         } else {
             throw new NoSuchRegisterException("Register with obiscode [" + obisCode + "] is not supported");
         }
+    }
+
+    private boolean isActiveEnergyBillingData(ObisCode obisCode) {
+        return isActiveEnergy(obisCode) && (obisCode.getF() == 0);
+    }
+
+    private boolean isActiveEnergyCurrentData(ObisCode obisCode) {
+        return isActiveEnergy(obisCode) && (obisCode.getF() == 255);
     }
 
     private boolean isApparentEnergyBillingData(ObisCode obisCode) {
@@ -127,5 +189,9 @@ public class ObisCodeMapper {
 
     private boolean isApparentEnergy(ObisCode obisCode) {
         return (obisCode.getA() == 1) && (obisCode.getB() == 0) && (obisCode.getC() == 9) && ((obisCode.getD() == 8) || (obisCode.getD() == 6));
+    }
+
+    private boolean isActiveEnergy(ObisCode obisCode) {
+        return (obisCode.getA() == 1) && (obisCode.getB() == 0) && (obisCode.getC() == 1) && (obisCode.getD() == 8 || obisCode.getD() == 6);
     }
 }
