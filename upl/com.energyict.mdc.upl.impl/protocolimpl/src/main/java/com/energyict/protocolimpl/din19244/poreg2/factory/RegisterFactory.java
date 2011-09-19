@@ -159,9 +159,9 @@ public class RegisterFactory {
         return billingParameters.getConfigs();
     }
 
-    public long readBillingData(int tariff, int level, int dField) throws IOException {
+    public long readBillingData(int tariff, int dField) throws IOException {
         tariff = tariff == 4 ? 0 : tariff;
-        BankConfiguration config = getBankConfig(tariff, level, dField);
+        BankConfiguration config = getBankConfig(tariff, dField);
         List<ExtendedValue> values;
         values = readBillingDataLastPeriod();
 
@@ -174,9 +174,9 @@ public class RegisterFactory {
         return total;
     }
 
-    public long readCurrentData(int tariff, int level, int dField) throws IOException {
+    public long readCurrentData(int tariff, int dField) throws IOException {
         tariff = tariff == 4 ? 0 : tariff;
-        BankConfiguration config = getBankConfig(tariff, level, dField);
+        BankConfiguration config = getBankConfig(tariff, dField);
         List<ExtendedValue> values;
         values = readBillingDataCurrentPeriod();
 
@@ -209,20 +209,13 @@ public class RegisterFactory {
     /**
      * Iterate over the bank definitions, find the right bank id for the tariff, level and dField.
      */
-    private BankConfiguration getBankConfig(int tariff, int level, int dField) throws IOException {
+    private BankConfiguration getBankConfig(int tariff, int dField) throws IOException {
         List<BankConfiguration> configs = readBillingConfiguration();
         for (BankConfiguration config : configs) {
-            if (((tariff == -1) || (config.isTariffRate(tariff))) && config.isResultLevel(level) && ((dField == -1) || config.isResultRenewal(dField))) {
+            if (((tariff == -1) || (config.isTariffRate(tariff))) && ((dField == -1) || config.isResultRenewal(dField))) {
                 bankId = config.getBankId();
                 return config;
             }
-        }
-        if (level == 3) {
-            throw new NoSuchRegisterException("Apparent energy is not configured to be stored as billing data");
-        }
-
-        if (tariff == 0) {
-            throw new NoSuchRegisterException("Billing data is not configured to be stored without a tariff rate");
         }
         throw new NoSuchRegisterException("Billing data for tariff rate " + tariff + " is not configured to be stored");
     }
@@ -243,7 +236,7 @@ public class RegisterFactory {
 
     private void checkBankId() throws IOException {
         if (bankId == -1) {
-            getBankConfig(-1, 0, -1);
+            getBankConfig(-1, -1);
         }
     }
 
