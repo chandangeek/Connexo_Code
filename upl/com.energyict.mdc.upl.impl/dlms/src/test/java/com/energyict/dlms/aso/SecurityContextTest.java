@@ -222,7 +222,6 @@ public class SecurityContextTest {
 
     }
 
-    @Ignore // TODO unignore this
     @Test
     public void incorrectFrameCounterTest() throws IOException, DLMSConnectionException {
         MockSecurityProvider msp = new MockSecurityProvider();
