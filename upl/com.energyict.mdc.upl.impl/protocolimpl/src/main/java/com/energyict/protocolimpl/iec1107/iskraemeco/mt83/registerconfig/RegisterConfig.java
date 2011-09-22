@@ -89,11 +89,10 @@ public abstract class RegisterConfig {
 
     	if ((obis.getE() > 6) || (obis.getE() < 0)) return false;
 
-    	if (obis.getF() != 255) {
-    		if ((obis.getF() < 0) || ((obis.getF() > 14))) {
-    			return false;
-    		} 
-    	} 
+//    	if (obis.getF() != 255) {
+//    		if ((obis.getF() < 0) || ((obis.getF() > 14))) {
+//    			return false;
+//    		}//    	}
 
     	return true;
 

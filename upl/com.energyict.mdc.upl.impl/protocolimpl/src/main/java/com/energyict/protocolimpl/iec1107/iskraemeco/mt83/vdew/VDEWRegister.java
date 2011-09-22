@@ -184,7 +184,11 @@ public class VDEWRegister extends VDEWRegisterDataParse {
     // read register in the meter if not cached
     protected byte[] readRegister(boolean cached) throws FlagIEC1107ConnectionException,IOException {
         if (cached && (getProtocolLink().getDataReadout() != null)) {
-            regdata = doReadDataReadoutRawRegister();
+            try {
+                regdata = doReadDataReadoutRawRegister();
+            } catch (IOException e) {
+                regdata = doReadRawRegister();
+            }
         }
         else {
             if ((!cached) || (regdata == null)) {

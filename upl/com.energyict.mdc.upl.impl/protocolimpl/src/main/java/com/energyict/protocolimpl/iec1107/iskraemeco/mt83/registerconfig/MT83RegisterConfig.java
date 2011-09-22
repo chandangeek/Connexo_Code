@@ -196,11 +196,17 @@ public class MT83RegisterConfig extends RegisterConfig {
 	}
     
     private String genDeviceCode(ObisCode obis) throws NoSuchRegisterException {
-    	int offset = 0;
-    	if (!checkRegister(obis)) throw new NoSuchRegisterException("Register not found!");
-    	if (obis.getF() != 255) offset = 1;
-    	return (new ObisCode(obis.getA(), obis.getB(), obis.getC(), obis.getD(), obis.getE(), obis.getF() + offset)).toString();
+        int billing;
+        if (!checkRegister(obis)) {
+            throw new NoSuchRegisterException("Register not found!");
 	}
-    
+        if (obis.getF() != 255) {
+            billing = 1 - obis.getF();
+        } else {
+            billing = 255;
+        }
+        return (new ObisCode(obis.getA(), obis.getB(), obis.getC(), obis.getD(), obis.getE(), billing)).toString();
+    }
+
 
 }

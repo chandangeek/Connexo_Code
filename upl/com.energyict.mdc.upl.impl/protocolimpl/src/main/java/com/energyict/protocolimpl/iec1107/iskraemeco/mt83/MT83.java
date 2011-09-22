@@ -4,9 +4,11 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.base.DataDumpParser;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.iec1107.*;
 import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.registerconfig.MT83RegisterConfig;
@@ -64,6 +66,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
 
     byte[] dataReadout=null;
     private boolean software7E1;
+    private int dataReadoutRequest;
     
     /** Creates a new instance of MT83, empty constructor*/
     public MT83() {
@@ -188,10 +191,11 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
             	exceptionmessage += "for the MT83x protocol.";
             	throw new InvalidPropertyException(exceptionmessage);
             }
+            this.dataReadoutRequest = Integer.parseInt(properties.getProperty("DataReadout", "0").trim());
             
         }
         catch (NumberFormatException e) {
-            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());
+            throw new InvalidPropertyException("Iskra MT83, validateProperties, NumberFormatException, "+e.getMessage());
         }
         
     }
@@ -250,6 +254,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
         result.add("ReadCurrentDay");
         result.add("LoadProfileNumber");
         result.add("Software7E1");
+        result.add("DataReadout");
         return result;
     }
     
@@ -295,7 +300,16 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
      * @throws IOException  */
     public void connect() throws IOException {
         try {
+            if (getFlagIEC1107Connection().getHhuSignOn() == null) {
+                dataReadout = flagIEC1107Connection.dataReadout(strID, nodeId);
+                flagIEC1107Connection.disconnectMAC();
+            }
+
             flagIEC1107Connection.connectMAC(strID,strPassword,iSecurityLevel,nodeId);
+
+            if (getFlagIEC1107Connection().getHhuSignOn() != null) {
+                dataReadout = getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
+        }
         }
         catch(FlagIEC1107ConnectionException e) {
             throw new IOException(e.getMessage());
@@ -403,7 +417,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     }
     
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
-        enableHHUSignOn(commChannel,false);
+        enableHHUSignOn(commChannel,true);
     }
     public void enableHHUSignOn(SerialCommunicationChannel commChannel,boolean datareadout) throws ConnectionException {
         HHUSignOn hhuSignOn =
@@ -446,12 +460,14 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
         RegisterInfo regInfo = new RegisterInfo(this.mt83RegisterConfig.getRegisterDescription(obisCode));
     	return regInfo;
     }
+
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
     	RegisterValue regvalue;
     	sendDebug("readRegister() obiscode = "  + obisCode.toString(), DEBUG);
-    	MT83ObisCodeMapper ocm = new MT83ObisCodeMapper(getMT83Registry(),getTimeZone(),mt83RegisterConfig);
+    	MT83ObisCodeMapper ocm = new MT83ObisCodeMapper(getMT83Registry(),getTimeZone(),mt83RegisterConfig, isDataReadout());
 
     	try {
+            ocm.setDataDumpParser(new DataDumpParser(getDataReadout(), "yymmddHHMISS"));
 			regvalue = ocm.getRegisterValue(obisCode);
 		} catch (IOException e) {
 			sendDebug(e.getMessage(), DEBUG);
@@ -538,4 +554,8 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     public String writeValue(final MessageValue value) {
         return this.meterMessages.writeValue(value);
     }
+
+    public boolean isDataReadout() {
+        return (this.dataReadoutRequest == 1);
+}
 }
