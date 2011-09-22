@@ -22,7 +22,7 @@ public class ParameterFactory {
 
     private static final int DAILY = 60 * 60 * 24;
     private static final int WEEKLY = DAILY * 7;
-    private static final int MONTHLY = (WEEKLY * 4) - 1;
+    private static final int MONTHLY = DAILY * 31;
     private static final int PERIODIC_STEPS = 1;
     private static final int WEEKLY_LOGGING = 2;
     private static final int MONTHLY_LOGGING = 3;
