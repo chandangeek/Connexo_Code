@@ -453,6 +453,7 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
             } else if (messageEntry.getContent().indexOf("<EnableTimeOfUseTariffs") >= 0) {
                 return enableTimeOfUseTariffs(messageEntry);
             } else {
+                waveFlow.getLogger().severe("Unknown message, cannot execute");
                 return MessageResult.createFailed(messageEntry);
             }
         } catch (Exception e) {
