@@ -296,6 +296,14 @@ public class DummyChannel implements Channel {
         return false;
     }
 
+    public boolean add(final Date date, final int code, final BigDecimal value, final int intervalState, final boolean overrule, final BigDecimal rawValue) throws SQLException, BusinessException {
+        return false;  //TODO implement proper functionality.
+    }
+
+    public boolean add(final Date date, final int code, final BigDecimal value, final int intervalState, final boolean overrule, final BigDecimal rawValue, final boolean journal) throws SQLException, BusinessException {
+        return false;  //TODO implement proper functionality.
+    }
+
     public boolean overrule(DateTime dateTime, int code, int value) throws SQLException, BusinessException {
         return false;
     }
