@@ -178,11 +178,11 @@ public class ApplicationServiceObject {
      * @throws IOException if the two challenges don't match, or if the HLSSecret could be supplied, if it's not a valid algorithm or when there is no callingAuthenticationvalue
      */
     protected void analyzeDecryptedResponse(byte[] encryptedResponse) throws IOException, DLMSConnectionException {
-        byte[] plainText = ProtocolUtils.concatByteArrays(this.securityContext.getSecurityProvider().getCallingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
 
         byte[] cToSEncrypted;
         // We have to make a distinction between the response from HLS5_GMAC or one of the below ones.
         if (this.securityContext.getAuthenticationType() != AuthenticationTypes.HLS5_GMAC) {
+            byte[] plainText = ProtocolUtils.concatByteArrays(this.securityContext.getSecurityProvider().getCallingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
             cToSEncrypted = this.securityContext.associationEncryption(plainText);
         } else {
             cToSEncrypted = this.securityContext.createHighLevelAuthenticationGMACResponse(this.securityContext.getSecurityProvider().getCallingAuthenticationValue(), encryptedResponse);

@@ -356,17 +356,17 @@ public class SecurityContext {
      * Create the encrypted packet with the StoC challenge and the framecounter of the meter.
      * This way you can check if the meter has calculated the same one and both systems are then authenticated
      *
-     * @param respondingChallenge the challenge from the meter from step 2
+     * @param clientChallenge our challenge we originally send to the meter
      * @return the encrypted packet
      * @throws IOException
      */
-    public byte[] createHighLevelAuthenticationGMACResponse(byte[] respondingChallenge, byte[] cipheredFrame) throws IOException, DLMSConnectionException {
+    public byte[] createHighLevelAuthenticationGMACResponse(byte[] clientChallenge, byte[] cipheredFrame) throws IOException, DLMSConnectionException {
         byte[] fc = ProtocolUtils.getSubArray2(cipheredFrame, 1, FRAME_COUNTER_SIZE);
         int offset = 0;
         List<byte[]> plainArray = new ArrayList<byte[]>();
         plainArray.add(new byte[]{getHLS5SecurityControlByte()});
         plainArray.add(getSecurityProvider().getAuthenticationKey());
-        plainArray.add(respondingChallenge);
+        plainArray.add(clientChallenge);
         byte[] associatedData = DLMSUtils.concatListOfByteArrays(plainArray);
 
         AesGcm128 ag128 = new AesGcm128(isGlobalCiphering() ? getSecurityProvider().getGlobalKey() : getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
