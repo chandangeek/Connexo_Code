@@ -333,7 +333,11 @@ public class ProfileDataReader {
         }
 
         int applicationStatus = waveFlowV2.getParameterFactory().readApplicationStatus();
-        int valveApplicationStatus = waveFlowV2.getParameterFactory().readValveApplicationStatus();
+        int valveApplicationStatus = 0;
+        if (waveFlowV2.getParameterFactory().readProfileType().supportsWaterValveControl()) {
+            valveApplicationStatus = waveFlowV2.getParameterFactory().readValveApplicationStatus();
+        }
+
         if ((applicationStatus & 0x01) == 0x01) {
             Date eventDate = waveFlowV2.getParameterFactory().readBatteryLifeDateEnd();
             meterEvents.add(new MeterEvent(eventDate, MeterEvent.BATTERY_VOLTAGE_LOW, EventStatusAndDescription.EVENTCODE_BATTERY_LOW, "Low battery warning"));

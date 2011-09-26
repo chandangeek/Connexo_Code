@@ -69,7 +69,7 @@ public class ObisCodeMapper {
                 return new RegisterValue(obisCode, new Quantity(new BigDecimal(value), unit));
             } else if (obisCode.equals(OBISCODE_RSSI)) {
                 double value = waveSense.getRadioCommandFactory().readRSSI();
-                return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date());
+                return new RegisterValue(obisCode, new Quantity(value > 100 ? 100 : value, Unit.get("")), new Date());
             }
 
             throw new NoSuchRegisterException("Register with obis code [" + obisCode + "] does not exist!");

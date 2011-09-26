@@ -3,7 +3,6 @@ package com.energyict.protocolimpl.coronis.waveflow.waveflowV210;
 import com.energyict.cbo.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.waveflow.core.CommonObisCodeMapper;
 import com.energyict.protocolimpl.coronis.waveflow.core.parameter.PulseWeight;
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.ExtendedIndexReading;
@@ -270,7 +269,7 @@ public class ObisCodeMapper {
                 int value = extendedIndexReadingConfiguration.getIndexOfLastMonth(channel);
                 if (value == -1) {
                     waveFlowV1.getLogger().log(Level.WARNING, "No billing data available yet, values are 0xFFFFFFFF");
-                    throw new WaveFlowException("No billing data available yet");
+                    throw new NoSuchRegisterException("No billing data available yet");
                 }
                 BigDecimal lastMonthsIndexValue = new BigDecimal(pulseWeight.getWeight() * value);
                 Date toDate = extendedIndexReadingConfiguration.getDateOfLastMonthsEnd();

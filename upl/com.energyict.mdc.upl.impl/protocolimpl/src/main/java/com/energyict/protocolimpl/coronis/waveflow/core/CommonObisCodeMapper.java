@@ -198,7 +198,7 @@ public class CommonObisCodeMapper {
             } else if (obisCode.equals(OBISCODE_DATALOGGING_STARTMINUTE)) {
                 if (waveFlow.isV1()) {
                     waveFlow.getLogger().log(Level.WARNING, "The WaveFlow V1 module doesn't support the data logging start minute parameter");
-                    throw new UnsupportedException("The WaveFlow V1 module doesn't support the data logging start minute parameter");
+                    throw new NoSuchRegisterException("The WaveFlow V1 module doesn't support the data logging start minute parameter");
                 }
                 int minute = waveFlow.getParameterFactory().readStartMinuteOfMeasurement();
                 return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(minute), Unit.get(BaseUnit.MINUTE)), new Date());
@@ -334,7 +334,7 @@ public class CommonObisCodeMapper {
                 return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date());
             } else if (obisCode.equals(OBISCODE_RSSI_LEVEL)) {
                 double value = waveFlow.getRadioCommandFactory().readModuleType().getRssiLevel();
-                return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date());      //A percentage representing the saturation
+                return new RegisterValue(obisCode, new Quantity(value > 100 ? 100 : value, Unit.get("")), new Date());      //A percentage representing the saturation
             } else if (isPulseWeightReadout(obisCode)) {
                 int inputChannel = (obisCode.getB());
                 PulseWeight pulseWeight = waveFlow.getParameterFactory().readPulseWeight(inputChannel);

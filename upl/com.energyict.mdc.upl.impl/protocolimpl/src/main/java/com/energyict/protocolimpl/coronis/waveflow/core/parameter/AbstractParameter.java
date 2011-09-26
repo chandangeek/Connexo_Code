@@ -297,7 +297,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 
 					int length = WaveflowProtocolUtils.toInt(dais.readByte());
 					if (length != getParameterId().length) {
-						throw new WaveFlowException("Invalid length returned expected ["+getParameterId().length+"], returned ["+length+"]");
+						throw new WaveFlowException("Error reading parameter [" + getParameterId().toString() + "]. Invalid length returned: expected ["+getParameterId().length+"], returned ["+length+"]");
 					}
 
 					byte[] resultData = new byte[dais.available()];
