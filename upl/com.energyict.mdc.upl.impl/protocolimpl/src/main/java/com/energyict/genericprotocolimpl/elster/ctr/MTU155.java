@@ -100,13 +100,7 @@ public class MTU155 extends AbstractGenericProtocol {
             log("Incomming TCP connection from: " + getRequestFactory().getIPAddress());
             updateRequestFactory();
 
-            IdentificationResponseStructure structure = getRequestFactory().getIdentificationStructure();
-            MeterInfo meterInfo = getRequestFactory().getMeterInfo();
-            log(structure.toString());
-            log("MTU155 with pdr='" + structure.getPdr() + "'");
-            log("Serial number of the MTU155='" + meterInfo.getConverterSerialNumber() + "'");
-            log("Serial number of the converter='"+ meterInfo.getConverterSerialNumber() +"'");
-            log("Serial number of the gas meter='" + structure.getMeterSerialNumber() +"'");
+            logMeterInfo();
 
             this.rtu = identifyAndGetRtu();
             log("Rtu with name '" + getRtu().getName() + "' connected successfully.");
@@ -139,6 +133,19 @@ public class MTU155 extends AbstractGenericProtocol {
             severe(e.getMessage());
         }
 
+    }
+
+    private void logMeterInfo() {
+        IdentificationResponseStructure structure = getRequestFactory().getIdentificationStructure();
+        CTRAbstractValue<String> pdrObject = structure != null ? structure.getPdr() : null;
+        String pdr = pdrObject != null ? pdrObject.getValue() : null;
+
+        MeterInfo meterInfo = getRequestFactory().getMeterInfo();
+
+        log("MTU155 with pdr='" + pdr + "'");
+        log("Serial number of the MTU155='" + meterInfo.getMTUSerialNumber() + "'");
+        log("Serial number of the converter='"+ meterInfo.getConverterSerialNumber() +"'");
+        log("Serial number of the gas meter='" + structure.getMeterSerialNumber() +"'");
     }
 
     /**
