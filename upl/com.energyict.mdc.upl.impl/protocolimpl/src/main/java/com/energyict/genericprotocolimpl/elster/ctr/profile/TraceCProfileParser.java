@@ -120,26 +120,18 @@ public class TraceCProfileParser {
      */
     private BigDecimal getDataValues(int valueIndex) {
         checkValueIndex(valueIndex);
-        if ((getEIStatus(valueIndex) & IntervalStateBits.CORRUPTED) == 0) {
-            AbstractCTRObject object = response.getTraceData().get(valueIndex);
-            Object objectValue = object.getValue(0).getValue();
-            if (objectValue instanceof BigDecimal) {
-                BigDecimal decimal = (BigDecimal) objectValue;
-                decimal = decimal.movePointRight(object.getQlf().getKmoltFactor());
-                return decimal;
-            }
-        }
-        return BigDecimal.ZERO;
+        AbstractCTRObject object = response.getTraceData().get(valueIndex);
+        Object objectValue = object.getValue(0).getValue();
+        BigDecimal decimal = (BigDecimal) objectValue;
+        decimal = decimal.movePointRight(object.getQlf().getKmoltFactor());
+        return decimal;
     }
 
     private BigDecimal getDataValueForTotalizer() {
         Qualifier totalizerQlf = response.getTotalizerQlf();
-        if ((getEIStatus(totalizerQlf) & IntervalStateBits.CORRUPTED) == 0) {
-            BigDecimal decimal = response.getTotalizerValue().getValue();
-            decimal = decimal.movePointRight(totalizerQlf.getKmoltFactor());
-            return decimal;
-        }
-        return BigDecimal.ZERO;
+        BigDecimal decimal = response.getTotalizerValue().getValue();
+        decimal = decimal.movePointRight(totalizerQlf.getKmoltFactor());
+        return decimal;
     }
 
     /**
