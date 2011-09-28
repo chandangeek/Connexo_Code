@@ -2,12 +2,10 @@ package com.energyict.smartmeterprotocolimpl.common;
 
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.*;
 
 import java.io.*;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -76,5 +74,10 @@ public interface SmartMeterToolProtocol {
 	 * @return a CosemObjectFactory that can be used to read data from the meter.
 	 */
 	CosemObjectFactory getCosemObjectFactory();
+
+    /**
+     * @return a list of meter events
+     */
+    List<MeterEvent> getMeterEvents(final Date lastLogbookDate) throws IOException;
 
 }
