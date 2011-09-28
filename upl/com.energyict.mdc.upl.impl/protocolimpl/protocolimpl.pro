@@ -2,7 +2,6 @@
 -dontoptimize
 -verbose
 
-
 # Keep - Applications. Keep all application classes that have a main method.
 -keepclasseswithmembers public class * {
     public static void main(java.lang.String[]);
@@ -318,6 +317,7 @@
 
 # Keep annotations, 
 -keepattributes *Annotation*
+-keepattributes Exceptions
 
 -keepnames class com.vodafone.gdsp.ws.package-info
 -keep public class com.vodafone.gdsp.ws.*{
