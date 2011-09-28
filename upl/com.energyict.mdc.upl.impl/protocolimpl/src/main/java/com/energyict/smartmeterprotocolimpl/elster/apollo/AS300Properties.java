@@ -41,8 +41,8 @@ public class AS300Properties extends DlmsProtocolProperties {
         optional.add(DlmsProtocolProperties.RETRIES);
         optional.add(DlmsProtocolProperties.BULK_REQUEST);
         optional.add(DlmsProtocolProperties.ROUND_TRIP_CORRECTION);
-        optional.add(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
-        optional.add(LocalSecurityProvider.DATATRANSPORTKEY);
+        optional.add(NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
+        optional.add(NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY);
         return optional;
     }
 
