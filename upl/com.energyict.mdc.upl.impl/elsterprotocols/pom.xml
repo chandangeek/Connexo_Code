@@ -12,7 +12,7 @@
 
     <groupId>com.energyict</groupId>
     <artifactId>elsterprotocols</artifactId>
-    <version>8.11.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
