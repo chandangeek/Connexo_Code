@@ -371,6 +371,14 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new ZigBeeSASStartup(protocolLink, getObjectReference(obisCode));
     }
 
+    public ZigBeeSASJoin getZigBeeSASJoin() throws IOException {
+        return new ZigBeeSASJoin(protocolLink);
+    }
+
+    public ZigBeeSASJoin getZigBeeSASJoin(ObisCode obisCode) throws IOException {
+        return new ZigBeeSASJoin(protocolLink, getObjectReference(obisCode));
+    }
+
     public CosemObject getCosemObject(ObisCode obisCode) throws IOException {
         if (obisCode.getF() != 255) {
             return getStoredValues().getHistoricalValue(obisCode);

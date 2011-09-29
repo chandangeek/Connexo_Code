@@ -5,29 +5,23 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.obis.ObisCode;
 
 /**
- * Contains functionality to access attributes of the Zigbee SAS startup object (independent whether or not shortName or logicalNames are used)
+ * Contains functionality to access attributes of the ZigBee SAS Join object (independent whether or not shortName or logicalNames are used)
  * <br/>
  * <p><b>
  * TODO the SN attribute numbering is purely based on logical sequence numbering. This object is not defined in the BlueBook yet, <br>
  * TODO so additional attributes may be added in the future
  * </b></p>
  * Copyrights EnergyICT
- * Date: 11/08/11
- * Time: 8:35
+ * Date: 8-aug-2011
+ * Time: 13:26:17
  */
-public enum ZigbeeSASStartupAttributes implements DLMSClassAttributes {
+public enum ZigBeeSASJoinAttribute implements DLMSClassAttributes {
+
     LOGICAL_NAME(1, 0x00),
-    SHORT_ADDRESS(2, 0x08),
-    EXTENDED_PAN_ID(3, 0x10),
-    PAN_ID(4, 0x18),
-    CHANNEL_MASK(5, 0x20),
-    PROTOCOL_VERSION(6, 0x28),
-    STACK_PROFILE(7, 0x30),
-    START_UP_CONTROL(8, 0x38),
-    TRUST_CENTRE_ADDRESS(9, 0x40),
-    LINK_KEY(10, 0x48),
-    NETWORK_KEY(11, 0x50),
-    USE_INSECURE_JOIN(12, 0x58);
+    SCAN_ATTEMPTS(2, 0x08),
+    TIME_BETWEEN_SCANS(3, 0x10),
+    REJOIN_INTERVAL(4, 0x18),
+    MAX_REJOIN_INTERVAL(5, 0x20);
 
     /**
      * The number of this attribute
@@ -38,13 +32,9 @@ public enum ZigbeeSASStartupAttributes implements DLMSClassAttributes {
      */
     private final int shortName;
 
-    ZigbeeSASStartupAttributes(final int attributeNumber, final int shortName) {
+    ZigBeeSASJoinAttribute(final int attributeNumber, final int shortName) {
         this.attributeNumber = attributeNumber;
         this.shortName = shortName;
-    }
-
-    public DLMSClassId getDlmsClassId() {
-        return DLMSClassId.ZIGBEE_SAS_STARTUP;
     }
 
     /**
@@ -54,6 +44,15 @@ public enum ZigbeeSASStartupAttributes implements DLMSClassAttributes {
      */
     public int getAttributeNumber() {
         return this.attributeNumber;
+    }
+
+    /**
+     * Getter for the DLMS class id
+     *
+     * @return The dlms class Id
+     */
+    public DLMSClassId getDlmsClassId() {
+        return DLMSClassId.ZIGBEE_SAS_JOIN;
     }
 
     /**
@@ -68,5 +67,6 @@ public enum ZigbeeSASStartupAttributes implements DLMSClassAttributes {
     public DLMSAttribute getDLMSAttribute(ObisCode obisCode) {
         return new DLMSAttribute(obisCode, this);
     }
+
 
 }
