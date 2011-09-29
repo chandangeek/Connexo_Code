@@ -79,7 +79,7 @@ public class Lis200ProfileTest implements ProtocolLink {
 
         System.out.println("testDl220processing()");
 
-        String rawData = getResourceAsString("/com/elster/protocolimpl/lis200/profile/DL220Profile.txt");
+        String rawData = getResourceAsString("DL220Profile.txt");
 
         timeZone = TimeZone.getTimeZone("GMT+1");
         Lis200Profile profile = new Lis200Profile(this,
@@ -94,7 +94,7 @@ public class Lis200ProfileTest implements ProtocolLink {
             result.append("\n");
         }
 
-        String compareData = getResourceAsString("/com/elster/protocolimpl/lis200/profile/dl220comp.txt");
+        String compareData = getResourceAsString("dl220comp.txt");
         assertEquals(result.toString(), compareData);
     }
 
@@ -103,8 +103,8 @@ public class Lis200ProfileTest implements ProtocolLink {
 
         System.out.println("testEk260processing()");
 
-        String intervalRawData = getResourceAsString("/com/elster/protocolimpl/lis200/profile/4011220_A3.txt");
-        String eventRawData = getResourceAsString("/com/elster/protocolimpl/lis200/profile/4011220_A4.txt");
+        String intervalRawData = getResourceAsString("4011220_A3.txt");
+        String eventRawData = getResourceAsString("4011220_A4.txt");
 
         timeZone = TimeZone.getTimeZone("EUROPE/BERLIN");
         Lis200Profile profile = new Lis200Profile(this,
@@ -125,7 +125,7 @@ public class Lis200ProfileTest implements ProtocolLink {
             result.append("\n");
         }
 
-        String compareData = getResourceAsString("/com/elster/protocolimpl/lis200/profile/4011220_A34comp.txt");
+        String compareData = getResourceAsString("4011220_A34comp.txt");
         assertEquals(result.toString(), compareData);
     }
 
