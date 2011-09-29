@@ -24,11 +24,6 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdw</artifactId>
         </dependency>
-        <dependency>
-          <groupId>com.elster</groupId>
-          <artifactId>elsterutils</artifactId>
-          <version>1.1.5</version>
-        </dependency>
     </dependencies>
 
 </project>
