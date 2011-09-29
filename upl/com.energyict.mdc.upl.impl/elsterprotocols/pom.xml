@@ -4,21 +4,22 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <artifactId>elsterprotocols</artifactId>
+    <name>elsterprotocols</name>
+    <packaging>jar</packaging>
+
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>protocols</artifactId>
         <version>8.11.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.energyict</groupId>
-    <artifactId>elsterprotocols</artifactId>
-    <packaging>jar</packaging>
-
     <dependencies>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>protocolcommon</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
