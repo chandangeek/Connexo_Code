@@ -6,6 +6,7 @@ import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.iec1107.*;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.*;
@@ -99,6 +100,7 @@ public class Lis200ProfileTest implements ProtocolLink {
     }
 
     @Test
+    @Ignore
     public void testEk260processing() throws IOException {
 
         System.out.println("testEk260processing()");
