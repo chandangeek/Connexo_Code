@@ -320,11 +320,9 @@
 
     <modules>
         <module>protocolimpl</module>
-
-        <!-- Echelon isn't used anymore, when needed just uncomment this -->
-        <!-- <module>echelon</module> -->
         <module>protocolcommon</module>
         <module>dlms</module>
+        <module>elsterprotocols</module>
     </modules>
     <build>
         <plugins>
