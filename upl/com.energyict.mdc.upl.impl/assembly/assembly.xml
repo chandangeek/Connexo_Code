@@ -23,6 +23,7 @@
 				<include>com.energyict:dlms</include>
 				<include>com.energyict:protocolimpl</include>
                 <include>com.energyict:protocolcommon</include>
+                <include>com.energyict:protocolimpl-elster</include>
 			</includes>
 			
 			<binaries>

@@ -322,7 +322,7 @@
         <module>protocolimpl</module>
         <module>protocolcommon</module>
         <module>dlms</module>
-        <module>elsterprotocols</module>
+        <module>protocolimpl-elster</module>
     </modules>
     <build>
         <plugins>
