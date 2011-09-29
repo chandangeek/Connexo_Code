@@ -44,6 +44,7 @@ public class DL220ProfileTest {
 	 * Test the construction of the intervalData
 	 */
 	@Test
+    @Ignore
 	public final void buildIntervalDataTest(){
 		try {
 			DL220 link = new DL220();
@@ -129,6 +130,7 @@ public class DL220ProfileTest {
 	}
 	
 	@Test
+    @Ignore
 	public final void buildMeterEventListTest(){
 		try {
 			String capturedObjects = "(GONr)(AONr)(Zeit)(Er)(Check)";
@@ -168,7 +170,8 @@ public class DL220ProfileTest {
 	 * Test intervals with a float value (I call it float values because they have a comma or dot in the value)
 	 */
 	@Test
-	public final void buildFloatProfileTest(){
+	@Ignore
+    public final void buildFloatProfileTest(){
 		try {
 			DL220 link = new DL220();
 			link.init(null, null, TimeZone.getTimeZone("GMT"), Logger.getAnonymousLogger());
