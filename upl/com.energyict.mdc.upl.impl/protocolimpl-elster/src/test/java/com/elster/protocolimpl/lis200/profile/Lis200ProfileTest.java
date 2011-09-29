@@ -99,8 +99,8 @@ public class Lis200ProfileTest implements ProtocolLink {
         assertEquals(result.toString(), compareData);
     }
 
-    @Test
     @Ignore
+    @Test
     public void testEk260processing() throws IOException {
 
         System.out.println("testEk260processing()");
