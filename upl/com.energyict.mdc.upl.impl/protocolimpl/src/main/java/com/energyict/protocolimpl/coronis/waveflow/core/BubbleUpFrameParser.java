@@ -102,7 +102,7 @@ public class BubbleUpFrameParser {
 
         for (int port = 0; port < dailyConsumption.getNumberOfInputs(); port++) {
             int value = dailyConsumption.getIndexZone().getDailyIndexOnPort(port);
-            reg = new RegisterValue(ObisCode.fromString("1." + (port + 1) + ".82.8.0.1"), new Quantity(value * pulseWeights[port].getWeight(), pulseWeights[port].getUnit()), new Date(), dailyConsumption.getLastLoggedReading() );
+            reg = new RegisterValue(ObisCode.fromString("1." + (port + 1) + ".82.8.0.1"), new Quantity(value * pulseWeights[port].getWeight(), pulseWeights[port].getUnit()), new Date(), dailyConsumption.getIndexZone().getLastDailyLoggedIndex() );
             registerValues.add(reg);
         }
 

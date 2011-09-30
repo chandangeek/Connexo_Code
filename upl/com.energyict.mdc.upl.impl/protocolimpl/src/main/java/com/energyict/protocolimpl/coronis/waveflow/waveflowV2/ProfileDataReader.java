@@ -151,7 +151,7 @@ public class ProfileDataReader {
                 ParseUtils.roundDown2nearestInterval(calendar, getProfileIntervalInSeconds());
             }
         } else if (daily) {
-            calendar.setTime(dailyConsumption.getIndexZone().getLastDailyLoggedIndex());
+            calendar.setTime(dailyConsumption.getLastLoggedReading());
         } else if (monthly) {
             calendar.setTime(getTimeStampOfNewestRecordMonthly(toDate, lastLoggedValue));
         }
