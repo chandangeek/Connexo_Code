@@ -48,7 +48,7 @@ public class DL220ProfileTest {
 	public final void buildIntervalDataTest(){
 		try {
 			DL220 link = new DL220();
-			link.init(null, null, TimeZone.getTimeZone("GMT"), Logger.getAnonymousLogger());
+			link.init(new ByteArrayInputStream(new byte[0]), new ByteArrayOutputStream(), TimeZone.getTimeZone("GMT"), Logger.getAnonymousLogger());
 			File file = new File(DL220ProfileTest.class.getResource("/com/energyict/protocolimpl/iec1107/instromet/dl220/profile/DL220Profile.bin").getFile());
 			FileInputStream fis = new FileInputStream(file);
 			byte[] content = new byte[(int) file.length()];
@@ -135,7 +135,7 @@ public class DL220ProfileTest {
 		try {
 			String capturedObjects = "(GONr)(AONr)(Zeit)(Er)(Check)";
 			DL220 link = new DL220();
-			link.init(null, null, TimeZone.getTimeZone("GMT"), Logger.getAnonymousLogger());
+			link.init(new ByteArrayInputStream(new byte[0]), new ByteArrayOutputStream(), TimeZone.getTimeZone("GMT"), Logger.getAnonymousLogger());
 			File file = new File(DL220Profile.class.getClassLoader().getResource(
 			"com/energyict/protocolimpl/iec1107/instromet/dl220/profile/DL220EventProfile.bin").getFile());
 			FileInputStream fis = new FileInputStream(file);
@@ -174,7 +174,7 @@ public class DL220ProfileTest {
     public final void buildFloatProfileTest(){
 		try {
 			DL220 link = new DL220();
-			link.init(null, null, TimeZone.getTimeZone("GMT"), Logger.getAnonymousLogger());
+			link.init(new ByteArrayInputStream(new byte[0]), new ByteArrayOutputStream(), TimeZone.getTimeZone("GMT"), Logger.getAnonymousLogger());
 			File file = new File(DL220Profile.class.getClassLoader().getResource(
 			"com/energyict/protocolimpl/iec1107/instromet/dl220/profile/DL220FloatProfile.bin").getFile());
 			FileInputStream fis = new FileInputStream(file);
