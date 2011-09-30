@@ -79,7 +79,7 @@ class MyGenericArchiveObject extends GenericArchiveObject {
 
         StringBuilder s = new StringBuilder();
         Date[] dates = archiveData.keySet().toArray(new Date[0]);
-        java.util.Arrays.sort(dates);
+        Arrays.sort(dates);
         for (Date d: dates) {
             if ((d.getTime() >= from.getTime()) &&
                     (d.getTime() < to.getTime())) {

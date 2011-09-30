@@ -223,7 +223,7 @@ public class TestEk260_V111 extends EK260 {
 
             StringBuilder s = new StringBuilder();
             Date[] dates = archiveData.keySet().toArray(new Date[archiveData.keySet().size()]);
-            java.util.Arrays.sort(dates);
+            Arrays.sort(dates);
             for (Date d : dates) {
                 if ((d.getTime() >= from.getTime()) &&
                         (d.getTime() < to.getTime())) {

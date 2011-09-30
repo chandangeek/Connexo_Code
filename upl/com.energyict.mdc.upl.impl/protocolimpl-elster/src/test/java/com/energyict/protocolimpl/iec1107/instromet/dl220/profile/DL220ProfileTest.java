@@ -16,8 +16,8 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.logging.Logger;
 
-import static org.junit.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author gna
@@ -27,14 +27,14 @@ import static org.junit.Assert.*;
 public class DL220ProfileTest {
 
 	/**
-	 * @throws java.lang.Exception
+	 * @throws Exception
 	 */
 	@Before
 	public void setUp() throws Exception {
 	}
 
 	/**
-	 * @throws java.lang.Exception
+	 * @throws Exception
 	 */
 	@After
 	public void tearDown() throws Exception {
