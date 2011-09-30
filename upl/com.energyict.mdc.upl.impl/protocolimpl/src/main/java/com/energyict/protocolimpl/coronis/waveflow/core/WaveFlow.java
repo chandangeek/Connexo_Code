@@ -222,10 +222,18 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
         // However, if no timesync needs to be done, we're ok with a dummy Date() from the RTU+Server.
         // we do this because we want to limit the roundtrips to the RF device
         if (correctTime == 0) {
-            return new Date();
+            return Calendar.getInstance(getTimeZone()).getTime();
         } else {
             return getParameterFactory().readTimeDateRTC();
         }
+    }
+
+    @Override
+    public TimeZone getTimeZone() {
+        if (super.getTimeZone() == null) {
+            return TimeZone.getDefault();
+        }
+        return super.getTimeZone();
     }
 
     public final void forceSetTime() throws IOException {
