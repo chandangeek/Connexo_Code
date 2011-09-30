@@ -43,8 +43,8 @@ public class DL220ProfileTest {
 	/**
 	 * Test the construction of the intervalData
 	 */
-    @Ignore
-	@Test
+    @Test
+    @Ignore("Timezone issue on build server")
 	public final void buildIntervalDataTest(){
 		try {
 			DL220 link = new DL220();
@@ -129,8 +129,8 @@ public class DL220ProfileTest {
 		}
 	}
 	
-    @Ignore
-	@Test
+    @Test
+    @Ignore("Timezone issue on build server")
 	public final void buildMeterEventListTest(){
 		try {
 			String capturedObjects = "(GONr)(AONr)(Zeit)(Er)(Check)";
@@ -169,8 +169,8 @@ public class DL220ProfileTest {
 	/**
 	 * Test intervals with a float value (I call it float values because they have a comma or dot in the value)
 	 */
-    @Ignore
-	@Test
+    @Test
+    @Ignore("Timezone issue on build server")
     public final void buildFloatProfileTest(){
 		try {
 			DL220 link = new DL220();

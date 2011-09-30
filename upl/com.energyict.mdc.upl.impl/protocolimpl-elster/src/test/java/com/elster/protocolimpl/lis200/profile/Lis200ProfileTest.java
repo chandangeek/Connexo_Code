@@ -99,8 +99,8 @@ public class Lis200ProfileTest implements ProtocolLink {
         assertEquals(result.toString(), compareData);
     }
 
-    @Ignore
     @Test
+    @Ignore("Timezone issue on build server")
     public void testEk260processing() throws IOException {
 
         System.out.println("testEk260processing()");
