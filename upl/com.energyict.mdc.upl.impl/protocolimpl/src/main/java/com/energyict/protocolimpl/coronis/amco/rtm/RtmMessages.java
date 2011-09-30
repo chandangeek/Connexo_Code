@@ -181,7 +181,7 @@ public class RtmMessages implements MessageProtocol {
             } else {
                 return MessageResult.createFailed(messageEntry);
             }
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             rtm.getLogger().severe("Error parsing message, " + e.getMessage());
             return MessageResult.createFailed(messageEntry);
         }

@@ -221,7 +221,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
         // If we need to sync the time, then we need to request the RTC in the waveflow device in order to determine the shift.
         // However, if no timesync needs to be done, we're ok with a dummy Date() from the RTU+Server.
         // we do this because we want to limit the roundtrips to the RF device
-        if (!(correctTime == 0)) {
+        if (correctTime == 0) {
             return new Date();
         } else {
             return getParameterFactory().readTimeDateRTC();

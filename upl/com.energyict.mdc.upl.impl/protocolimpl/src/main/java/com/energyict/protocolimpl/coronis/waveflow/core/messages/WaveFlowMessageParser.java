@@ -456,7 +456,7 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
                 waveFlow.getLogger().severe("Unknown message, cannot execute");
                 return MessageResult.createFailed(messageEntry);
             }
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             waveFlow.getLogger().severe("Error parsing message, " + e.getMessage());
             return MessageResult.createFailed(messageEntry);
         }
