@@ -75,8 +75,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         try {
             return profileDataReader.getProfileData(lastReading, new Date(), includeEvents);
-        }
-        catch (WaveFlowException e) {
+        } catch (WaveFlowException e) {
             getLogger().warning("No profile data available." + "\n\r" + e.getMessage());
             return null;
         }
@@ -85,8 +84,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
         try {
             return profileDataReader.getProfileData(from, to, includeEvents);
-        }
-        catch (WaveFlowException e) {
+        } catch (WaveFlowException e) {
             getLogger().warning("No profile data available." + "\n\r" + e.getMessage());
             return null;
         }
@@ -153,8 +151,8 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
 
     @Override
     public Date getTime() throws IOException {
-        if (!(correctTime == 0)) {
-            return new GregorianCalendar(getTimeZone()).getTime();
+        if (correctTime == 0) {
+            return Calendar.getInstance(getTimeZone()).getTime();
         } else {
             return getParameterFactory().readTimeDateRTC();
         }
