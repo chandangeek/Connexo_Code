@@ -76,7 +76,7 @@ public class Lis200ProfileTest implements ProtocolLink {
     }
 
     @Test
-    public void testDl220processing() throws IOException {
+    public void dl220processingTest() throws IOException {
 
         System.out.println("testDl220processing()");
 
@@ -101,7 +101,7 @@ public class Lis200ProfileTest implements ProtocolLink {
 
     @Ignore
     @Test
-    public void testEk260processing() throws IOException {
+    public void ek260ProcessingTest() throws IOException {
 
         System.out.println("testEk260processing()");
 
