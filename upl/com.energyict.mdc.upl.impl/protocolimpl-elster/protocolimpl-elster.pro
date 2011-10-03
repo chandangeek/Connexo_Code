@@ -63,4 +63,4 @@
 -keepnames class com.elster.protocolimpl.dlms.Dlms
 
 # LIS100 drivers
--keepnames class com.elster.protocolimpl.lis100.Ek88
+-keepnames class com.elster.protocolimpl.lis100.EK88
