@@ -256,7 +256,8 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
                 ParseUtils.roundDown2nearestInterval(cal, lpc.getProfileInterval());
             }
 
-            Calendar currentCal = Calendar.getInstance();
+            Calendar endCal = Calendar.getInstance(getProtocol().getTimeZone());
+            endCal.setTime(lpro.getEndReadingTime());
             long count = 1;
             switch (new TimeDuration(timeDuration, timeInterval).getSeconds()) {
                 case 900:
@@ -278,7 +279,7 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
             }
             count++;
             double multiplier = (2 * Math.PI) / steps;
-            while (cal.getTime().before(currentCal.getTime())) {
+            while (cal.getTime().before(endCal.getTime()) || cal.getTime().equals(endCal.getTime())) {
                 IntervalData id = new IntervalData(cal.getTime());
 
                 for (int i = 1; i <= lpc.getNumberOfChannels(); i++) {

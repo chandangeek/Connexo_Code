@@ -1,13 +1,13 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
-import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.*;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.*;
-import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
+import com.energyict.dlms.cosem.Register;
+import com.energyict.genericprotocolimpl.common.*;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.messages.ActivityCalendarMessage;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
@@ -16,13 +16,16 @@ import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.RtuMessageShadow;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageResult;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.LoadProfileRegisterMessageBuilder;
+import com.energyict.protocol.messaging.PartialLoadProfileMessageBuilder;
 import com.energyict.protocolimpl.dlms.common.DlmsSession;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessageExecutor;
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -38,6 +41,8 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
 
     private final DlmsSession dlmsSession;
     private final AbstractSmartNtaProtocol protocol;
+
+    private final StoreObject storeObject = new StoreObject();
 
     private static final byte[] defaultMonitoredAttribute = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
 
@@ -91,10 +96,10 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                 boolean deActivateSMS = messageHandler.getType().equals(RtuMessageConstant.WAKEUP_DEACTIVATE);
                 boolean actSecuritLevel = messageHandler.getType().equals(RtuMessageConstant.AEE_ACTIVATE_SECURITY);
                 boolean changeAuthLevel = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL);
+                boolean partialLoadProfile = messageHandler.getType().equals(PartialLoadProfileMessageBuilder.getMessageNodeTag());
+                boolean loadProfileRegisterRequest = messageHandler.getType().equals(LoadProfileRegisterMessageBuilder.getMessageNodeTag());
 
                 /* All MbusMeter related messages */
-                //TODO to complete
-
                 if (xmlConfig) {
                     doXmlConfig(content);
                 } else if (firmware) {
@@ -151,6 +156,10 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                     getCosemObjectFactory().getSecuritySetup().activateSecurity(new TypeEnum(messageHandler.getSecurityLevel()));
                 } else if (changeAuthLevel) {
                     changeAuthenticationLevel(messageHandler);
+                } else if (partialLoadProfile) {
+                    doReadPartialLoadProfile(content);
+                } else if (loadProfileRegisterRequest) {
+                    doReadLoadProfileRegisters(content);
                 } else {
                     log(Level.INFO, "Message not supported : " + content);
                     success = false;
@@ -175,6 +184,78 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             } else {
                 return MessageResult.createFailed(msgEntry);
             }
+        }
+    }
+
+    private void doReadLoadProfileRegisters(final String content) throws BusinessException, SQLException, IOException {
+        try {
+            log(Level.INFO, "Handling message Read LoadProfile Registers.");
+            LoadProfileRegisterMessageBuilder builder = this.protocol.getLoadProfileRegisterMessageBuilder();
+            builder = (LoadProfileRegisterMessageBuilder) builder.fromXml(content);
+
+            LoadProfileReader lpr = builder.getLoadProfileReader();
+            final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
+            final List<ProfileData> profileDatas = this.protocol.getLoadProfileData(Arrays.asList(lpr));
+
+            if (profileDatas.size() != 1) {
+                throw new IOException("We are supposed to receive 1 LoadProfile configuration in this message.");
+            }
+
+            ProfileData pd = profileDatas.get(0);
+            IntervalData id = null;
+            for (IntervalData intervalData : pd.getIntervalDatas()) {
+                if (intervalData.getEndTime().equals(builder.getStartReadingTime())) {
+                    id = intervalData;
+                }
+            }
+
+            if (id == null) {
+                throw new IOException("Didn't receive data for requested interval (" + builder.getStartReadingTime() + ")");
+            }
+
+            MeterReadingData mrd = new MeterReadingData();
+            for (com.energyict.protocol.Register register : builder.getRegisters()) {
+                for (int i = 0; i < pd.getChannelInfos().size(); i++) {
+                    final ChannelInfo channel = pd.getChannel(i);
+                    if (register.getObisCode().equalsIgnoreBChannel(ObisCode.fromString(channel.getName())) && register.getSerialNumber().equals(channel.getMeterIdentifier())) {
+                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(id.get(i), channel.getUnit()), id.getEndTime(), null, id.getEndTime(), new Date(), builder.getRtuRegisterIdForRegister(register));
+                        mrd.add(registerValue);
+                    }
+                }
+            }
+
+            MeterData md = new MeterData();
+            md.setMeterReadingData(mrd);
+
+            builder.getLoadProfile().getRtu().store(md, false);
+            log(Level.INFO, "Message Read LoadProfile Registers Finished.");
+        } catch (SAXException e) {
+            throw new IOException(e.getMessage());
+        } catch (IOException e) {
+            throw e;
+        }
+    }
+
+    private void doReadPartialLoadProfile(final String content) throws IOException, BusinessException, SQLException {
+        try {
+            log(Level.INFO, "Handling message Read Partial LoadProfile.");
+            PartialLoadProfileMessageBuilder builder = this.protocol.getPartialLoadProfileMessageBuilder();
+            builder = (PartialLoadProfileMessageBuilder) builder.fromXml(content);
+
+            LoadProfileReader lpr = builder.getLoadProfileReader();
+            final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
+            final List<ProfileData> profileData = this.protocol.getLoadProfileData(Arrays.asList(lpr));
+            MeterData md = new MeterData();
+            for (ProfileData data : profileData) {
+                data.sort();
+                md.addProfileData(data);
+            }
+            storeObject.add(md, builder.getLoadProfile().getRtu());
+            storeObject.doExecute();
+        } catch (SAXException e) {
+            throw new IOException(e.getMessage());
+        } catch (IOException e) {
+            throw e;
         }
     }
 
@@ -1054,15 +1135,16 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private MeteringWarehouse mw(){
+    private MeteringWarehouse mw() {
         return ProtocolTools.mw();
     }
 
 
-    /*****************************************************************************/
+    /**
+     * *************************************************************************
+     */
     /* These methods require database access ...
     /*****************************************************************************/
-
     private Rtu getRtuFromDatabaseBySerialNumber() {
         String serial = this.protocol.getSerialNumber();
         return mw().getRtuFactory().findBySerialNumber(serial).get(0);

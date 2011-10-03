@@ -1,11 +1,17 @@
 package com.energyict.smartmeterprotocolimpl.sdksample;
 
+import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.Quantity;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.sdksample.SDKSampleProtocolConnection;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.AbstractSmartMeterProtocol;
+import org.xml.sax.SAXException;
 
 import java.io.*;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -14,7 +20,7 @@ import java.util.logging.Logger;
  * Date: 17-jan-2011
  * Time: 15:14:31
  */
-public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol {
+public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements MessageProtocol, PartialLoadProfileMessaging, LoadProfileRegisterMessaging {
 
     private static final String MeterSerialNumber = "Master";
 
@@ -306,5 +312,141 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol {
             }
             getConnection().write(bytes);
         }
+    }
+
+    public PartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
+        return new PartialLoadProfileMessageBuilder();
+    }
+
+    /**
+     * Provides the full list of outstanding messages to the protocol.
+     * If for any reason certain messages have to be grouped before they are sent to a device, then this is the place to do it.
+     * At a later timestamp the framework will query each {@link com.energyict.protocol.MessageEntry} (see {@link #queryMessage(com.energyict.protocol.MessageEntry)}) to actually
+     * perform the message.
+     *
+     * @param messageEntries a list of {@link com.energyict.protocol.MessageEntry}s
+     * @throws java.io.IOException if a logical error occurs
+     */
+    public void applyMessages(final List messageEntries) throws IOException {
+        //TODO implement proper functionality.
+    }
+
+    /**
+     * Indicates that each message has to be executed by the protocol.
+     *
+     * @param messageEntry a definition of which message needs to be sent
+     * @return a state of the message which was just sent
+     * @throws java.io.IOException if a logical error occurs
+     */
+    public MessageResult queryMessage(final MessageEntry messageEntry) {
+        MessageResult result = MessageResult.createFailed(messageEntry);
+        try {
+            if (messageEntry.getContent().contains(PartialLoadProfileMessageBuilder.getMessageNodeTag())) {
+                doReadPartialLoadProfile(messageEntry.getContent());
+                result = MessageResult.createSuccess(messageEntry);
+            } else if (messageEntry.getContent().contains(LoadProfileRegisterMessageBuilder.getMessageNodeTag())) {
+                doReadLoadProfileRegisters(messageEntry.getContent());
+                result = MessageResult.createSuccess(messageEntry);
+            }
+        } catch (BusinessException e) {
+            result = MessageResult.createFailed(messageEntry);
+        } catch (SQLException e) {
+            result = MessageResult.createFailed(messageEntry);
+        } catch (IOException e) {
+            result = MessageResult.createFailed(messageEntry);
+        }
+        return result;
+    }
+
+    private void doReadLoadProfileRegisters(final String content) throws IOException, BusinessException, SQLException {
+        try {
+            getLogger().info("Handling message Read LoadProfile Registers.");
+            LoadProfileRegisterMessageBuilder builder = getLoadProfileRegisterMessageBuilder();
+            builder = (LoadProfileRegisterMessageBuilder) builder.fromXml(content);
+
+            LoadProfileReader lpr = builder.getLoadProfileReader();
+            final List<LoadProfileConfiguration> loadProfileConfigurations = fetchLoadProfileConfiguration(Arrays.asList(lpr));
+            final List<ProfileData> profileDatas = getLoadProfileData(Arrays.asList(lpr));
+
+            if (profileDatas.size() != 1) {
+                throw new IOException("We are supposed to receive 1 LoadProfile configuration in this message.");
+            }
+
+            ProfileData pd = profileDatas.get(0);
+            IntervalData id = null;
+            for (IntervalData intervalData : pd.getIntervalDatas()) {
+                if (intervalData.getEndTime().equals(builder.getStartReadingTime())) {
+                    id = intervalData;
+                }
+            }
+
+            if (id == null) {
+                throw new IOException("Didn't receive data for requested interval (" + builder.getStartReadingTime() + ")");
+            }
+
+            MeterReadingData mrd = new MeterReadingData();
+            for (Register register : builder.getRegisters()) {
+                for (int i = 0; i < pd.getChannelInfos().size(); i++) {
+                    final ChannelInfo channel = pd.getChannel(i);
+                    if (register.getObisCode().equalsIgnoreBChannel(ObisCode.fromString(channel.getName())) && register.getSerialNumber().equals(channel.getMeterIdentifier())) {
+                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(id.get(i), channel.getUnit()), id.getEndTime(), null, id.getEndTime(), new Date(), builder.getRtuRegisterIdForRegister(register));
+                        mrd.add(registerValue);
+                    }
+                }
+            }
+
+            MeterData md = new MeterData();
+            md.setMeterReadingData(mrd);
+
+            builder.getLoadProfile().getRtu().store(md, false);
+            getLogger().info("Message Read LoadProfile Registers Finished.");
+        } catch (SAXException e) {
+            throw new IOException(e.getMessage());
+        } catch (IOException e) {
+            throw e;
+        }
+    }
+
+    private void doReadPartialLoadProfile(final String content) throws IOException, BusinessException, SQLException {
+        try {
+            getLogger().info("Handling message Read Partial LoadProfile.");
+            PartialLoadProfileMessageBuilder builder = getPartialLoadProfileMessageBuilder();
+            builder = (PartialLoadProfileMessageBuilder) builder.fromXml(content);
+
+            LoadProfileReader lpr = builder.getLoadProfileReader();
+            final List<LoadProfileConfiguration> loadProfileConfigurations = fetchLoadProfileConfiguration(Arrays.asList(lpr));
+            final List<ProfileData> profileDatas = getLoadProfileData(Arrays.asList(lpr));
+            MeterData md = new MeterData();
+            for (ProfileData data : profileDatas) {
+                data.sort();
+                md.addProfileData(data);
+            }
+            builder.getLoadProfile().getRtu().store(md, false);
+            getLogger().info("Message Read Partial LoadProfile Finished.");
+        } catch (SAXException e) {
+            throw new IOException(e.getMessage());
+        } catch (IOException e) {
+            throw e;
+        }
+    }
+
+    public List getMessageCategories() {
+        return null;  //TODO implement proper functionality.
+    }
+
+    public String writeMessage(final Message msg) {
+        return null;  //TODO implement proper functionality.
+    }
+
+    public String writeTag(final MessageTag tag) {
+        return null;  //TODO implement proper functionality.
+    }
+
+    public String writeValue(final MessageValue value) {
+        return null;  //TODO implement proper functionality.
+    }
+
+    public LoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
+        return new LoadProfileRegisterMessageBuilder();
     }
 }

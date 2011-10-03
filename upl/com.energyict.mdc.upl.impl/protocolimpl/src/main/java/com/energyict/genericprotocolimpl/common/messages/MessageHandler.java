@@ -1,6 +1,8 @@
 
 package com.energyict.genericprotocolimpl.common.messages;
 
+import com.energyict.protocol.messaging.LoadProfileRegisterMessageBuilder;
+import com.energyict.protocol.messaging.PartialLoadProfileMessageBuilder;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.xml.sax.Attributes;
@@ -155,6 +157,12 @@ public class MessageHandler extends DefaultHandler{
         } else if(RtuMessageConstant.CHANGE_OF_SUPPLIER.equalsIgnoreCase(qName)) {
             setType(RtuMessageConstant.CHANGE_OF_SUPPLIER);
             handleChangeOfSupplierParameters(attrbs);
+        } else if(PartialLoadProfileMessageBuilder.getMessageNodeTag().equalsIgnoreCase(qName)){
+            setType(PartialLoadProfileMessageBuilder.getMessageNodeTag());
+            isXmlInContent = true;
+        } else if(LoadProfileRegisterMessageBuilder.getMessageNodeTag().equalsIgnoreCase(qName)){
+            setType(LoadProfileRegisterMessageBuilder.getMessageNodeTag());
+            isXmlInContent = true;
 		} else {
 			if(!isXmlInContent){ // If there is XML in the content, then the protocol will parse it himself ...
 				throw new SAXException("Unknown messageContent : " + qName);

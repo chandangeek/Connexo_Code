@@ -34,7 +34,7 @@ import java.util.logging.Logger;
  * Date: 14-jul-2011
  * Time: 11:20:34
  */
-public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol, WakeUpProtocolSupport {
+public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol, WakeUpProtocolSupport, PartialLoadProfileMessaging, LoadProfileRegisterMessaging {
 
     private static final int ObisCodeBFieldIndex = 1;
 
@@ -399,5 +399,13 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
             }
         }
         return true;
+    }
+
+    public PartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
+        return new PartialLoadProfileMessageBuilder();
+    }
+
+    public LoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
+        return new LoadProfileRegisterMessageBuilder();
     }
 }
