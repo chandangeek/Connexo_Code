@@ -13,7 +13,7 @@ import java.io.IOException;
  */
 public class ComposedMeterInfo extends ComposedCosemObject {
 
-    public static final DLMSAttribute FIRMWARE_VERSION = DLMSAttribute.fromString("1:1.0.0.2.0.255:2");
+    public static final DLMSAttribute FIRMWARE_VERSION = DLMSAttribute.fromString("1:0.0.0.2.0.255:2");
     public static final DLMSAttribute SERIALNR = DLMSAttribute.fromString("1:0.0.96.1.0.255:2");
 
     public ComposedMeterInfo(final DlmsSession dlmsSession, final boolean bulkRequest) {
