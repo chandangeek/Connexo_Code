@@ -48,6 +48,11 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
 
     private boolean success;
 
+    /**
+     * Contains additional info regarding the sent message
+     */
+    private String protocolInfo;
+
     public Dsmr23MessageExecutor(final AbstractSmartNtaProtocol protocol) {
         this.protocol = protocol;
         this.dlmsSession = this.protocol.getDlmsSession();
@@ -63,6 +68,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             String content = msgEntry.getContent();
             MessageHandler messageHandler = new NTAMessageHandler();
             success = true;
+            protocolInfo = "";
 
             try {
                 importMessage(content, messageHandler);
@@ -166,23 +172,27 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                 }
             } catch (BusinessException e) {
                 log(Level.SEVERE, "Message failed : " + e.getMessage());
+                protocolInfo = e.getMessage();
                 success = false;
             } catch (IOException e) {
                 log(Level.SEVERE, "Message failed : " + e.getMessage());
+                protocolInfo = e.getMessage();
                 success = false;
             } catch (InterruptedException e) {
                 log(Level.SEVERE, "Message failed : " + e.getMessage());
+                protocolInfo = e.getMessage();
                 success = false;
             } catch (SQLException e) {
                 log(Level.SEVERE, "Message failed : " + e.getMessage());
+                protocolInfo = e.getMessage();
                 success = false;
             }
 
             if (success) {
                 log(Level.INFO, "Message has finished.");
-                return MessageResult.createSuccess(msgEntry);
+                return MessageResult.createSuccess(msgEntry, protocolInfo);
             } else {
-                return MessageResult.createFailed(msgEntry);
+                return MessageResult.createFailed(msgEntry, protocolInfo);
             }
         }
     }
@@ -228,7 +238,6 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             md.setMeterReadingData(mrd);
 
             builder.getLoadProfile().getRtu().store(md, false);
-            log(Level.INFO, "Message Read LoadProfile Registers Finished.");
         } catch (SAXException e) {
             throw new IOException(e.getMessage());
         } catch (IOException e) {
@@ -245,13 +254,26 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             LoadProfileReader lpr = builder.getLoadProfileReader();
             final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
             final List<ProfileData> profileData = this.protocol.getLoadProfileData(Arrays.asList(lpr));
-            MeterData md = new MeterData();
+
             for (ProfileData data : profileData) {
-                data.sort();
-                md.addProfileData(data);
+                if(data.getIntervalDatas().size() == 0){
+                    success = false;
+                    protocolInfo = "LoadProfile returned no data";
+                }
             }
-            storeObject.add(md, builder.getLoadProfile().getRtu());
-            storeObject.doExecute();
+
+            // Only store it if we have loadProfile, otherwise you request a database connection for no reason ...
+            if(success){
+                MeterData md = new MeterData();
+                for (ProfileData data : profileData) {
+                    data.sort();
+                    md.addProfileData(data);
+                }
+                storeObject.add(md, builder.getLoadProfile().getRtu());
+                storeObject.doExecute();
+            } else {
+                log(Level.SEVERE, "Message failed : " + protocolInfo);
+            }
         } catch (SAXException e) {
             throw new IOException(e.getMessage());
         } catch (IOException e) {
