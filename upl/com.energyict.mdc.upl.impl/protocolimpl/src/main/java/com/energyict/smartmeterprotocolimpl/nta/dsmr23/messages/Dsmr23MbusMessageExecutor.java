@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.Quantity;
 import com.energyict.cpo.Environment;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.axrdencoding.*;
@@ -11,15 +12,18 @@ import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.RtuShadow;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageResult;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.LoadProfileRegisterMessageBuilder;
+import com.energyict.protocol.messaging.PartialLoadProfileMessageBuilder;
 import com.energyict.protocolimpl.dlms.common.DlmsSession;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -32,8 +36,6 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
     private final AbstractSmartNtaProtocol protocol;
     private final DlmsSession dlmsSession;
 
-    private boolean success;
-
     public Dsmr23MbusMessageExecutor(final AbstractSmartNtaProtocol protocol) {
         this.protocol = protocol;
         this.dlmsSession = this.protocol.getDlmsSession();
@@ -43,7 +45,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         String content = msgEntry.getContent();
         MessageHandler messageHandler = new NTAMessageHandler();
         String serialNumber = msgEntry.getSerialNumber();
-        success = true;
+        MessageResult msgResult = null;
         try {
             importMessage(content, messageHandler);
 
@@ -54,6 +56,8 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
             boolean mbusEncryption = messageHandler.getType().equals(RtuMessageConstant.MBUS_ENCRYPTION_KEYS);
             boolean mbusCorrected = messageHandler.getType().equals(RtuMessageConstant.MBUS_CORRECTED_VALUES);
             boolean mbusUnCorrected = messageHandler.getType().equals(RtuMessageConstant.MBUS_UNCORRECTED_VALUES);
+            boolean partialLoadProfile = messageHandler.getType().equals(PartialLoadProfileMessageBuilder.getMessageNodeTag());
+            boolean loadProfileRegisterRequest = messageHandler.getType().equals(LoadProfileRegisterMessageBuilder.getMessageNodeTag());
 
             if (connect) {
                 doConnectMessage(messageHandler, serialNumber);
@@ -69,26 +73,33 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
                 setMbusCorrected(messageHandler, serialNumber);
             } else if (mbusUnCorrected) {
                 setMbusUncorrected(messageHandler, serialNumber);
+            } else if (partialLoadProfile) {
+                msgResult = doReadPartialLoadProfile(msgEntry);
+            } else if (loadProfileRegisterRequest) {
+                msgResult = doReadLoadProfileRegisters(msgEntry);
             } else {
-                success = false;
+                msgResult = MessageResult.createFailed(msgEntry, "Message not supported by the protocol.");
+                log(Level.INFO, "Message not supported : " + content);
+            }
+
+            // Some message create their own messageResult
+            if (msgResult == null) {
+                msgResult = MessageResult.createSuccess(msgEntry);
+                log(Level.INFO, "Message has finished.");
+            } else if (msgResult.isFailed()) {
+                log(Level.SEVERE, "Message failed : " + msgResult.getInfo());
             }
         } catch (BusinessException e) {
+            msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
             log(Level.SEVERE, "Message failed : " + e.getMessage());
-            success = false;
         } catch (IOException e) {
+            msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
             log(Level.SEVERE, "Message failed : " + e.getMessage());
-            success = false;
         } catch (SQLException e) {
+            msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
             log(Level.SEVERE, "Message failed : " + e.getMessage());
-            success = false;
         }
-
-        if (success) {
-            log(Level.INFO, "Message has finished.");
-            return MessageResult.createSuccess(msgEntry);
-        } else {
-            return MessageResult.createFailed(msgEntry);
-        }
+        return msgResult;
     }
 
     private void setMbusUncorrected(final MessageHandler messageHandler, final String serialNumber) throws IOException {
@@ -232,6 +243,90 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
             return b;
         } catch (NumberFormatException e) {
             throw new IOException("String " + string + " can not be formatted to byteArray");
+        }
+    }
+
+
+    private MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) {
+        try {
+            log(Level.INFO, "Handling message Read LoadProfile Registers.");
+            LoadProfileRegisterMessageBuilder builder = this.protocol.getLoadProfileRegisterMessageBuilder();
+            builder = (LoadProfileRegisterMessageBuilder) builder.fromXml(msgEntry.getContent());
+
+            LoadProfileReader lpr = builder.getLoadProfileReader();
+            final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
+            final List<ProfileData> profileDatas = this.protocol.getLoadProfileData(Arrays.asList(lpr));
+
+            if (profileDatas.size() != 1) {
+                return MessageResult.createFailed(msgEntry, "We are supposed to receive 1 LoadProfile configuration in this message, but we received " + profileDatas.size());
+            }
+
+            ProfileData pd = profileDatas.get(0);
+            IntervalData id = null;
+            for (IntervalData intervalData : pd.getIntervalDatas()) {
+                if (intervalData.getEndTime().equals(builder.getStartReadingTime())) {
+                    id = intervalData;
+                }
+            }
+
+            if (id == null) {
+                return MessageResult.createFailed(msgEntry, "Didn't receive data for requested interval (" + builder.getStartReadingTime() + ")");
+            }
+
+            MeterReadingData mrd = new MeterReadingData();
+            for (com.energyict.protocol.Register register : builder.getRegisters()) {
+                for (int i = 0; i < pd.getChannelInfos().size(); i++) {
+                    final ChannelInfo channel = pd.getChannel(i);
+                    if (register.getObisCode().equalsIgnoreBChannel(ObisCode.fromString(channel.getName())) && register.getSerialNumber().equals(channel.getMeterIdentifier())) {
+                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(id.get(i), channel.getUnit()), id.getEndTime(), null, id.getEndTime(), new Date(), builder.getRtuRegisterIdForRegister(register));
+                        mrd.add(registerValue);
+                    }
+                }
+            }
+
+            MeterData md = new MeterData();
+            md.setMeterReadingData(mrd);
+
+            log(Level.INFO, "Message Read LoadProfile Registers Finished.");
+            return MeterDataMessageResult.createSuccess(msgEntry, "", md);
+        } catch (SAXException e) {
+            return MessageResult.createFailed(msgEntry, "Could not parse the content of the xml message, probably incorrect message.");
+        } catch (IOException e) {
+            return MessageResult.createFailed(msgEntry, "Failed while fetching the LoadProfile data.");
+        }
+    }
+
+    private MessageResult doReadPartialLoadProfile(final MessageEntry msgEntry) {
+        try {
+            log(Level.INFO, "Handling message Read Partial LoadProfile.");
+            PartialLoadProfileMessageBuilder builder = this.protocol.getPartialLoadProfileMessageBuilder();
+            builder = (PartialLoadProfileMessageBuilder) builder.fromXml(msgEntry.getContent());
+
+            LoadProfileReader lpr = builder.getLoadProfileReader();
+            final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
+            final List<ProfileData> profileData = this.protocol.getLoadProfileData(Arrays.asList(lpr));
+
+            if(profileData.size() == 0){
+                return MessageResult.createFailed(msgEntry, "LoadProfile returned no data.");
+            } else {
+                for (ProfileData data : profileData) {
+                    if (data.getIntervalDatas().size() == 0) {
+                        return MessageResult.createFailed(msgEntry, "LoadProfile returned no interval data.");
+                    }
+                }
+            }
+
+            MeterData md = new MeterData();
+            for (ProfileData data : profileData) {
+                data.sort();
+                md.addProfileData(data);
+            }
+            log(Level.INFO, "Message Read Partial LoadProfile Finished.");
+            return MeterDataMessageResult.createSuccess(msgEntry, "", md);
+        } catch (SAXException e) {
+            return MessageResult.createFailed(msgEntry, "Could not parse the content of the xml message, probably incorrect message.");
+        } catch (IOException e) {
+            return MessageResult.createFailed(msgEntry, "Failed while fetching the LoadProfile data.");
         }
     }
 

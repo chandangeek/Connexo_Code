@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict;
 
 import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.messaging.*;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging;
@@ -12,7 +13,7 @@ import java.util.*;
  * Date: 15-jul-2011
  * Time: 12:00:53
  */
-public class MbusDevice extends AbstractNtaMbusDevice {
+public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProfileMessaging, LoadProfileRegisterMessaging {
 
     public MbusDevice() {
         super();
@@ -62,5 +63,13 @@ public class MbusDevice extends AbstractNtaMbusDevice {
      */
     public List<String> getOptionalKeys() {
         return new ArrayList<String>();
+    }
+
+    public LoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
+        return new LoadProfileRegisterMessageBuilder();
+    }
+
+    public PartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
+        return new PartialLoadProfileMessageBuilder();
     }
 }

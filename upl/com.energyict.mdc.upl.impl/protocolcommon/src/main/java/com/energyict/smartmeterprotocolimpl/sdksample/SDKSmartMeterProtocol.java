@@ -342,11 +342,9 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
         MessageResult result = MessageResult.createFailed(messageEntry);
         try {
             if (messageEntry.getContent().contains(PartialLoadProfileMessageBuilder.getMessageNodeTag())) {
-                doReadPartialLoadProfile(messageEntry.getContent());
-                result = MessageResult.createSuccess(messageEntry);
+                result = doReadPartialLoadProfile(messageEntry);
             } else if (messageEntry.getContent().contains(LoadProfileRegisterMessageBuilder.getMessageNodeTag())) {
-                doReadLoadProfileRegisters(messageEntry.getContent());
-                result = MessageResult.createSuccess(messageEntry);
+                result = doReadLoadProfileRegisters(messageEntry);
             }
         } catch (BusinessException e) {
             result = MessageResult.createFailed(messageEntry);
@@ -358,18 +356,18 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
         return result;
     }
 
-    private void doReadLoadProfileRegisters(final String content) throws IOException, BusinessException, SQLException {
+    private MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) throws IOException, BusinessException, SQLException {
         try {
             getLogger().info("Handling message Read LoadProfile Registers.");
             LoadProfileRegisterMessageBuilder builder = getLoadProfileRegisterMessageBuilder();
-            builder = (LoadProfileRegisterMessageBuilder) builder.fromXml(content);
+            builder = (LoadProfileRegisterMessageBuilder) builder.fromXml(msgEntry.getContent());
 
             LoadProfileReader lpr = builder.getLoadProfileReader();
             final List<LoadProfileConfiguration> loadProfileConfigurations = fetchLoadProfileConfiguration(Arrays.asList(lpr));
             final List<ProfileData> profileDatas = getLoadProfileData(Arrays.asList(lpr));
 
             if (profileDatas.size() != 1) {
-                throw new IOException("We are supposed to receive 1 LoadProfile configuration in this message.");
+                return MessageResult.createFailed(msgEntry, "We are supposed to receive 1 LoadProfile configuration in this message.");
             }
 
             ProfileData pd = profileDatas.get(0);
@@ -381,7 +379,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
             }
 
             if (id == null) {
-                throw new IOException("Didn't receive data for requested interval (" + builder.getStartReadingTime() + ")");
+                return MessageResult.createFailed(msgEntry, "Didn't receive data for requested interval (" + builder.getStartReadingTime() + ")");
             }
 
             MeterReadingData mrd = new MeterReadingData();
@@ -398,20 +396,20 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
             MeterData md = new MeterData();
             md.setMeterReadingData(mrd);
 
-            builder.getLoadProfile().getRtu().store(md, false);
             getLogger().info("Message Read LoadProfile Registers Finished.");
+            return MeterDataMessageResult.createSuccess(msgEntry, "", md);
         } catch (SAXException e) {
-            throw new IOException(e.getMessage());
+            return MessageResult.createFailed(msgEntry, e.getMessage());
         } catch (IOException e) {
-            throw e;
+            return MessageResult.createFailed(msgEntry, e.getMessage());
         }
     }
 
-    private void doReadPartialLoadProfile(final String content) throws IOException, BusinessException, SQLException {
+    private MessageResult doReadPartialLoadProfile(final MessageEntry msgEntry) {
         try {
             getLogger().info("Handling message Read Partial LoadProfile.");
             PartialLoadProfileMessageBuilder builder = getPartialLoadProfileMessageBuilder();
-            builder = (PartialLoadProfileMessageBuilder) builder.fromXml(content);
+            builder = (PartialLoadProfileMessageBuilder) builder.fromXml(msgEntry.getContent());
 
             LoadProfileReader lpr = builder.getLoadProfileReader();
             final List<LoadProfileConfiguration> loadProfileConfigurations = fetchLoadProfileConfiguration(Arrays.asList(lpr));
@@ -421,12 +419,12 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
                 data.sort();
                 md.addProfileData(data);
             }
-            builder.getLoadProfile().getRtu().store(md, false);
             getLogger().info("Message Read Partial LoadProfile Finished.");
+            return MeterDataMessageResult.createSuccess(msgEntry, "", md);
         } catch (SAXException e) {
-            throw new IOException(e.getMessage());
+            return MessageResult.createFailed(msgEntry, e.getMessage());
         } catch (IOException e) {
-            throw e;
+            return MessageResult.createFailed(msgEntry, e.getMessage());
         }
     }
 

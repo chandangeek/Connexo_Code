@@ -24,7 +24,6 @@ import com.energyict.protocolimpl.dlms.common.DlmsSession;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessageExecutor;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -46,13 +45,6 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
 
     private static final byte[] defaultMonitoredAttribute = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
 
-    private boolean success;
-
-    /**
-     * Contains additional info regarding the sent message
-     */
-    private String protocolInfo;
-
     public Dsmr23MessageExecutor(final AbstractSmartNtaProtocol protocol) {
         this.protocol = protocol;
         this.dlmsSession = this.protocol.getDlmsSession();
@@ -65,11 +57,9 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             return mbusMessageExecutor.executeMessageEntry(msgEntry);
         } else {
 
+            MessageResult msgResult = null;
             String content = msgEntry.getContent();
             MessageHandler messageHandler = new NTAMessageHandler();
-            success = true;
-            protocolInfo = "";
-
             try {
                 importMessage(content, messageHandler);
 
@@ -161,54 +151,53 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                 } else if (actSecuritLevel) {
                     getCosemObjectFactory().getSecuritySetup().activateSecurity(new TypeEnum(messageHandler.getSecurityLevel()));
                 } else if (changeAuthLevel) {
-                    changeAuthenticationLevel(messageHandler);
+                    msgResult = changeAuthenticationLevel(msgEntry, messageHandler);
                 } else if (partialLoadProfile) {
-                    doReadPartialLoadProfile(content);
+                    msgResult = doReadPartialLoadProfile(msgEntry);
                 } else if (loadProfileRegisterRequest) {
-                    doReadLoadProfileRegisters(content);
+                    msgResult = doReadLoadProfileRegisters(msgEntry);
                 } else {
+                    msgResult = MessageResult.createFailed(msgEntry, "Message not supported by the protocol.");
                     log(Level.INFO, "Message not supported : " + content);
-                    success = false;
                 }
-            } catch (BusinessException e) {
-                log(Level.SEVERE, "Message failed : " + e.getMessage());
-                protocolInfo = e.getMessage();
-                success = false;
-            } catch (IOException e) {
-                log(Level.SEVERE, "Message failed : " + e.getMessage());
-                protocolInfo = e.getMessage();
-                success = false;
-            } catch (InterruptedException e) {
-                log(Level.SEVERE, "Message failed : " + e.getMessage());
-                protocolInfo = e.getMessage();
-                success = false;
-            } catch (SQLException e) {
-                log(Level.SEVERE, "Message failed : " + e.getMessage());
-                protocolInfo = e.getMessage();
-                success = false;
-            }
 
-            if (success) {
-                log(Level.INFO, "Message has finished.");
-                return MessageResult.createSuccess(msgEntry, protocolInfo);
-            } else {
-                return MessageResult.createFailed(msgEntry, protocolInfo);
+                // Some message create their own messageResult
+                if(msgResult == null){
+                    msgResult = MessageResult.createSuccess(msgEntry);
+                    log(Level.INFO, "Message has finished.");
+                } else if(msgResult.isFailed()){
+                    log(Level.SEVERE, "Message failed : " + msgResult.getInfo());
+                }
+
+            } catch (BusinessException e) {
+                msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
+                log(Level.SEVERE, "Message failed : " + e.getMessage());
+            } catch (IOException e) {
+                msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
+                log(Level.SEVERE, "Message failed : " + e.getMessage());
+            } catch (InterruptedException e) {
+                msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
+                log(Level.SEVERE, "Message failed : " + e.getMessage());
+            } catch (SQLException e) {
+                msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
+                log(Level.SEVERE, "Message failed : " + e.getMessage());
             }
+            return msgResult;
         }
     }
 
-    private void doReadLoadProfileRegisters(final String content) throws BusinessException, SQLException, IOException {
+    private MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) {
         try {
             log(Level.INFO, "Handling message Read LoadProfile Registers.");
             LoadProfileRegisterMessageBuilder builder = this.protocol.getLoadProfileRegisterMessageBuilder();
-            builder = (LoadProfileRegisterMessageBuilder) builder.fromXml(content);
+            builder = (LoadProfileRegisterMessageBuilder) builder.fromXml(msgEntry.getContent());
 
             LoadProfileReader lpr = builder.getLoadProfileReader();
             final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
             final List<ProfileData> profileDatas = this.protocol.getLoadProfileData(Arrays.asList(lpr));
 
             if (profileDatas.size() != 1) {
-                throw new IOException("We are supposed to receive 1 LoadProfile configuration in this message.");
+                return MessageResult.createFailed(msgEntry, "We are supposed to receive 1 LoadProfile configuration in this message, but we received " + profileDatas.size());
             }
 
             ProfileData pd = profileDatas.get(0);
@@ -220,7 +209,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             }
 
             if (id == null) {
-                throw new IOException("Didn't receive data for requested interval (" + builder.getStartReadingTime() + ")");
+                return MessageResult.createFailed(msgEntry, "Didn't receive data for requested interval (" + builder.getStartReadingTime() + ")");
             }
 
             MeterReadingData mrd = new MeterReadingData();
@@ -234,55 +223,59 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                 }
             }
 
+            if(mrd.getRegisterValues().size() != pd.getNumberOfChannels()){
+                return MessageResult.createFailed(msgEntry, "Did not receive a LoadProfile interval for all required channels, probably RtuRegisterMappings not correct.");
+            }
+
             MeterData md = new MeterData();
             md.setMeterReadingData(mrd);
 
-            builder.getLoadProfile().getRtu().store(md, false);
+           log(Level.INFO, "Message Read LoadProfile Registers Finished.");
+            return MeterDataMessageResult.createSuccess(msgEntry, "", md);
         } catch (SAXException e) {
-            throw new IOException(e.getMessage());
+            return MessageResult.createFailed(msgEntry, "Could not parse the content of the xml message, probably incorrect message.");
         } catch (IOException e) {
-            throw e;
+            return MessageResult.createFailed(msgEntry, "Failed while fetching the LoadProfile data.");
         }
     }
 
-    private void doReadPartialLoadProfile(final String content) throws IOException, BusinessException, SQLException {
+    private MessageResult doReadPartialLoadProfile(final MessageEntry msgEntry) {
         try {
             log(Level.INFO, "Handling message Read Partial LoadProfile.");
             PartialLoadProfileMessageBuilder builder = this.protocol.getPartialLoadProfileMessageBuilder();
-            builder = (PartialLoadProfileMessageBuilder) builder.fromXml(content);
+            builder = (PartialLoadProfileMessageBuilder) builder.fromXml(msgEntry.getContent());
 
             LoadProfileReader lpr = builder.getLoadProfileReader();
             final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
             final List<ProfileData> profileData = this.protocol.getLoadProfileData(Arrays.asList(lpr));
 
-            for (ProfileData data : profileData) {
-                if(data.getIntervalDatas().size() == 0){
-                    success = false;
-                    protocolInfo = "LoadProfile returned no data";
+            if(profileData.size() == 0){
+                return MessageResult.createFailed(msgEntry, "LoadProfile returned no data.");
+            } else {
+                for (ProfileData data : profileData) {
+                    if (data.getIntervalDatas().size() == 0) {
+                        return MessageResult.createFailed(msgEntry, "LoadProfile returned no interval data.");
+                    }
                 }
             }
 
-            // Only store it if we have loadProfile, otherwise you request a database connection for no reason ...
-            if(success){
-                MeterData md = new MeterData();
-                for (ProfileData data : profileData) {
-                    data.sort();
-                    md.addProfileData(data);
-                }
-                storeObject.add(md, builder.getLoadProfile().getRtu());
-                storeObject.doExecute();
-            } else {
-                log(Level.SEVERE, "Message failed : " + protocolInfo);
+            MeterData md = new MeterData();
+            for (ProfileData data : profileData) {
+                data.sort();
+                md.addProfileData(data);
             }
+            log(Level.INFO, "Message Read Partial LoadProfile Finished.");
+            return MeterDataMessageResult.createSuccess(msgEntry, "", md);
         } catch (SAXException e) {
-            throw new IOException(e.getMessage());
+            return MessageResult.createFailed(msgEntry, "Could not parse the content of the xml message, probably incorrect message.");
         } catch (IOException e) {
-            throw e;
+            return MessageResult.createFailed(msgEntry, "Failed while fetching the LoadProfile data.");
         }
     }
 
-    private void changeAuthenticationLevel(MessageHandler messageHandler) throws IOException {
+    private MessageResult changeAuthenticationLevel(MessageEntry  msgEntry, MessageHandler messageHandler) throws IOException {
         int newAuthLevel = messageHandler.getAuthenticationLevel();
+        MessageResult msgResult;
         if (newAuthLevel != -1) {
             if (this.dlmsSession.getReference() == ProtocolLink.LN_REFERENCE) {
                 AssociationLN aln = getCosemObjectFactory().getAssociationLN();
@@ -292,21 +285,26 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                     if (octets[octets.length - 1] != newAuthLevel) {
                         octets[octets.length - 1] = (byte) newAuthLevel;
                         aln.writeAuthenticationMechanismName(new OctetString(octets, 0));
+                        return MessageResult.createSuccess(msgEntry);
                     } else {
-                        log(Level.INFO, "New authenticationLevel is the same as the one that is already configured in the device, " +
+                        msgResult = MessageResult.createSuccess(msgEntry, "New authenticationLevel is the same as the one that is already configured in the device, " +
                                 "new level will not be written.");
+                        log(Level.INFO, msgResult.getInfo());
+                        return msgResult;
                     }
+                } else {
+                    msgResult = MessageResult.createFailed(msgEntry, "Returned AuthenticationMechanismName is not of the type OctetString.");
                 }
             } else {
-                // TODO how to do this for with ShortName referencing???
-                log(Level.WARNING, "Changing authenticationLevel using ShortName referencing is not supported.");
-                success = false;
+                msgResult =  MessageResult.createFailed(msgEntry, "Changing authenticationLevel using ShortName referencing is not supported.");
+                log(Level.WARNING, msgResult.getInfo());
             }
 
         } else {
-            log(Level.WARNING, "Message contained an invalid authenticationLevel.");
-            success = false;
+            msgResult = MessageResult.createFailed(msgEntry, "Message contained an invalid authenticationLevel.");
+            log(Level.WARNING, msgResult.getInfo());
         }
+        return msgResult;
     }
 
     private void changeLLSSecret() throws IOException {
