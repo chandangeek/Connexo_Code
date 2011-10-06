@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd;
 
 import com.energyict.dlms.DLMSReference;
+import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
@@ -21,6 +22,8 @@ public class InHomeDisplayProperties extends DlmsProtocolProperties {
      * Uses the same logical device address as the HUB!!
      */
     public static final String DEFAULT_IHD_LOGICAL_DEVICE_ADDRESS = "1";
+
+    private SecurityProvider securityProvider;
 
 
     @Override
@@ -72,5 +75,17 @@ public class InHomeDisplayProperties extends DlmsProtocolProperties {
     @Override
     public String getServerMacAddress() {
         return getStringValue(SERVER_MAC_ADDRESS, DEFAULT_IHD_LOGICAL_DEVICE_ADDRESS);
+    }
+
+    public void setSecurityProvider(final NTASecurityProvider ntaSecurityProvider) {
+        this.securityProvider = ntaSecurityProvider;
+    }
+
+    @Override
+    public SecurityProvider getSecurityProvider() {
+        if (this.securityProvider == null) {
+            this.securityProvider = new NTASecurityProvider(getProtocolProperties());
+        }
+        return this.securityProvider;
     }
 }

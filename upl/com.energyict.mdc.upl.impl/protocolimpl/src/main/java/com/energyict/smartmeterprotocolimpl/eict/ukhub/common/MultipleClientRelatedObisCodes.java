@@ -1,12 +1,13 @@
-package com.energyict.smartmeterprotocolimpl.elster.apollo;
+package com.energyict.smartmeterprotocolimpl.eict.ukhub.common;
 
 import com.energyict.obis.ObisCode;
+import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300ObisCodeProvider;
 
 /**
  * Enumeration containing the possible {@link com.energyict.dlms.cosem.AssociationLN} ObisCodes and FrameCounter ObisCodes.
  * Each clientID has a different AssociationObject and FrameCounter object.
  */
-enum MultipleClientRelatedObisCodes {
+public enum MultipleClientRelatedObisCodes {
 
     /**
      * The current_client

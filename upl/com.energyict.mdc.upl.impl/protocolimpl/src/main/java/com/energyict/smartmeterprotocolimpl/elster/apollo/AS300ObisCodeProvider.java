@@ -2,6 +2,7 @@ package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
 import com.energyict.genericprotocolimpl.common.CommonObisCodeProvider;
 import com.energyict.obis.ObisCode;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.MultipleClientRelatedObisCodes;
 
 /**
  * <p>
@@ -136,7 +137,7 @@ public class AS300ObisCodeProvider implements CommonObisCodeProvider {
 
     /**
      * @param clientId the used clientId for this association
-     * @return the {@link com.energyict.smartmeterprotocolimpl.elster.apollo.MultipleClientRelatedObisCodes#frameCounterObisCode}
+     * @return the {@link com.energyict.smartmeterprotocolimpl.eict.ukhub.common.MultipleClientRelatedObisCodes#frameCounterObisCode}
      */
     public ObisCode getFrameCounterObisCode(int clientId){
         return MultipleClientRelatedObisCodes.frameCounterForClient(clientId);
@@ -144,7 +145,7 @@ public class AS300ObisCodeProvider implements CommonObisCodeProvider {
 
     /**
      * @param clientId the used clientId for this association
-     * @return the {@link MultipleClientRelatedObisCodes#associationObisCode} for the {@link com.energyict.dlms.cosem.AssociationLN} object
+     * @return the {@link com.energyict.smartmeterprotocolimpl.eict.ukhub.common.MultipleClientRelatedObisCodes#associationObisCode} for the {@link com.energyict.dlms.cosem.AssociationLN} object
      */
     public ObisCode getAssociationLnObisCode(int clientId) {
         return MultipleClientRelatedObisCodes.associationLNForClient(clientId);

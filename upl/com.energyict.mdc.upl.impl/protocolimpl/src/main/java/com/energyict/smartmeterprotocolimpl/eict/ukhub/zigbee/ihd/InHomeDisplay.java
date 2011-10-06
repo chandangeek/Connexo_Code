@@ -1,26 +1,31 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd;
 
+import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.core.Link;
+import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
-import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.dlms.common.*;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.MultipleClientRelatedObisCodes;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.messaging.InHomeDisplayMessaging;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * The InHomeDisplay logical device has limited functionality, currently only serves as placeholder
  */
-public class InHomeDisplay extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol {
+public class InHomeDisplay extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, WakeUpProtocolSupport {
 
     private InHomeDisplayMessaging messageProtocol;
+    private InHomeDisplayProperties properties;
 
     /**
      * Override this method when requesting time from the meter is needed.
@@ -40,7 +45,10 @@ public class InHomeDisplay extends AbstractSmartDlmsProtocol implements SimpleMe
      */
     @Override
     protected DlmsProtocolProperties getProperties() {
-        return new InHomeDisplayProperties();
+        if (this.properties == null) {
+            this.properties = new InHomeDisplayProperties();
+        }
+        return this.properties;
     }
 
     /**
@@ -251,5 +259,63 @@ public class InHomeDisplay extends AbstractSmartDlmsProtocol implements SimpleMe
      */
     public String getVersion() {
         return "$Date$";
+    }
+
+    /**
+     * Executes the WakeUp call. The implementer should use and/or update the <code>Link</code> if a WakeUp succeeded. The communicationSchedulerId
+     * can be used to find the task which triggered this wakeUp or which Rtu is being waked up.
+     *
+     * @param communicationSchedulerId the ID of the <code>CommunicationScheduler</code> which started this task
+     * @param link                     Link created by the comserver, can be null if a NullDialer is configured
+     * @param logger                   Logger object - when using a level of warning or higher message will be stored in the communication session's database log,
+     *                                 messages with a level lower than warning will only be logged in the file log if active.
+     * @throws com.energyict.cbo.BusinessException
+     *                             if a business exception occurred
+     * @throws java.io.IOException if an io exception occurred
+     */
+    public boolean executeWakeUp(final int communicationSchedulerId, Link link, final Logger logger) throws BusinessException, IOException {
+
+        boolean success = true;
+
+        init(link.getInputStream(), link.getOutputStream(), TimeZone.getDefault(), logger);
+        if (getDlmsSession().getProperties().getDataTransportSecurityLevel() != 0 || getDlmsSession().getProperties().getAuthenticationSecurityLevel() == 5) {
+            int backupClientId = getDlmsSession().getProperties().getClientMacAddress();
+            String backupSecurityLevel = getDlmsSession().getProperties().getSecurityLevel();
+            String password = getDlmsSession().getProperties().getPassword();
+
+            Properties pClientProps = getDlmsSession().getProperties().getProtocolProperties();
+
+            pClientProps.setProperty(InHomeDisplayProperties.CLIENT_MAC_ADDRESS, "16");
+            pClientProps.setProperty(InHomeDisplayProperties.SECURITY_LEVEL, "0:0");
+            getDlmsSession().getProperties().addProperties(pClientProps);
+
+            getDlmsSession().connect();
+            long initialFrameCounter = getDlmsSession().getCosemObjectFactory().getData(MultipleClientRelatedObisCodes.frameCounterForClient(backupClientId)).getValue();
+            getDlmsSession().disconnect();
+
+            Properties restoredProperties = getDlmsSession().getProperties().getProtocolProperties();
+            restoredProperties.setProperty(InHomeDisplayProperties.CLIENT_MAC_ADDRESS, Integer.toString(backupClientId));
+            restoredProperties.setProperty(InHomeDisplayProperties.SECURITY_LEVEL, backupSecurityLevel);
+            restoredProperties.setProperty(SmartMeterProtocol.PASSWORD, password);
+
+            String ipAddress = link.getStreamConnection().getSocket().getInetAddress().getHostAddress();
+
+            link.getStreamConnection().serverClose();
+            link.setStreamConnection(new SocketStreamConnection(ipAddress + ":4059"));
+            link.getStreamConnection().serverOpen();
+            reInitDlmsSession(link);
+
+            getDlmsSession().getProperties().addProperties(restoredProperties);
+            ((InHomeDisplayProperties) getDlmsSession().getProperties()).setSecurityProvider(new NTASecurityProvider(getDlmsSession().getProperties().getProtocolProperties()));
+
+            ((NTASecurityProvider) (getDlmsSession().getProperties().getSecurityProvider())).setInitialFrameCounter(initialFrameCounter + 1);
+        } else {
+            this.dlmsSession = null;
+        }
+        return success;
+    }
+
+    private void reInitDlmsSession(final Link link) {
+        this.dlmsSession = new DlmsSession(link.getInputStream(), link.getOutputStream(), getLogger(), getProperties(), getTimeZone());
     }
 }

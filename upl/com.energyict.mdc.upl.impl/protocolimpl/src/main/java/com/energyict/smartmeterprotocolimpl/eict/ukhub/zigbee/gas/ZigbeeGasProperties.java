@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas;
 
 import com.energyict.dlms.DLMSReference;
+import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
@@ -23,6 +24,8 @@ public class ZigbeeGasProperties extends DlmsProtocolProperties {
      * Default it starts at 30, but if more devices are supported then it can go from 30 to 45
      */
     public static final String DEFAULT_ZIGBEE_GAS_LOGICAL_DEVICE_ADDRESS = "30";
+
+    private SecurityProvider securityProvider;
 
     @Override
     public DLMSReference getReference() {
@@ -74,5 +77,17 @@ public class ZigbeeGasProperties extends DlmsProtocolProperties {
     @Override
     public String getServerMacAddress() {
         return getStringValue(SERVER_MAC_ADDRESS, DEFAULT_ZIGBEE_GAS_LOGICAL_DEVICE_ADDRESS);
+    }
+
+    public void setSecurityProvider(final NTASecurityProvider ntaSecurityProvider) {
+        this.securityProvider = ntaSecurityProvider;
+    }
+
+    @Override
+    public SecurityProvider getSecurityProvider() {
+        if (this.securityProvider == null) {
+            this.securityProvider = new NTASecurityProvider(getProtocolProperties());
+        }
+        return this.securityProvider;
     }
 }

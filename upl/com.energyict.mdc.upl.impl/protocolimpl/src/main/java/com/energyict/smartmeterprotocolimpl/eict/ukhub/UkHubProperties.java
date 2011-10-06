@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub;
 
 import com.energyict.dlms.DLMSReference;
+import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
@@ -23,6 +24,8 @@ public class UkHubProperties extends DlmsProtocolProperties {
     private static final String DefaultZ3BulkRequesSupport = "1";
 
     public static final int FIRMWARE_CLIENT = 0x50;
+
+    private SecurityProvider securityProvider;
 
     @Override
     public DLMSReference getReference() {
@@ -91,4 +94,15 @@ public class UkHubProperties extends DlmsProtocolProperties {
         return getClientMacAddress() == FIRMWARE_CLIENT;
     }
 
+    public void setSecurityProvider(final NTASecurityProvider ntaSecurityProvider) {
+        this.securityProvider = ntaSecurityProvider;
+    }
+
+    @Override
+    public SecurityProvider getSecurityProvider() {
+        if(this.securityProvider == null){
+            this.securityProvider = new NTASecurityProvider(getProtocolProperties());
+        }
+        return this.securityProvider;
+    }
 }
