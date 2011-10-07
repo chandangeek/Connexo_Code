@@ -88,6 +88,7 @@ public class ZigbeeGasLoadProfile {
         ComposedCosemObject ccoCapturedObjectRegisterUnits = constructCapturedObjectRegisterUnitComposedCosemObject(capturedObjectRegisterList, this.zigbeeGas.supportsBulkRequests());
 
         for (LoadProfileReader lpr : this.expectedLoadProfileReaders) {
+            this.zigbeeGas.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
             LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
 
             ComposedProfileConfig cpc = lpConfigMap.get(lpr);
@@ -277,6 +278,7 @@ public class ZigbeeGasLoadProfile {
             ObisCode lpObisCode = lpr.getProfileObisCode();
             LoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
             if (this.channelInfoMap.containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
+                this.zigbeeGas.getLogger().log(Level.INFO, "Getting LoadProfile data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + lpr.getEndReadingTime());
                 profile = this.zigbeeGas.getDlmsSession().getCosemObjectFactory().getProfileGeneric(lpObisCode);
                 profileData = new ProfileData(lpr.getLoadProfileId());
                 profileData.setChannelInfos(this.channelInfoMap.get(lpr));
