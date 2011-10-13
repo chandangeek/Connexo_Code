@@ -530,6 +530,13 @@ public class DummyRtu implements Rtu {
         return null;  //TODO implement proper functionality.
     }
 
+    /**
+     * Notification method to signal that something on the rtu's load profile(s) changed
+     */
+    public void loadProfilesChanged() throws BusinessException, SQLException {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     public Folder getContainer() {
         return null;
     }
