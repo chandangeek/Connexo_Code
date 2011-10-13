@@ -13,122 +13,133 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.protocol.ProtocolUtils;
 
 /**
- * @author gna
- * @since 03/02/2009
  * This is the copy of the DateTime class.
  * The blue book describes the dateTime as an OctetString(size(12)). The 12 indicates that the length is fixed an does not have to be encode.
- *
  * <pre>
+ *               deviation
+ *                long:        in minutes of local time to GMT
+ *                             0x8000 = not specified
  *
- * deviation
+ *               clock_status
+ *                bit 0 (LSB): invalid value (Time could not be recovered after an incident.)
+ *                bit 1:       doubtfull vlaue
+ *                bit 2:       different clock base
+ *                bit 3:       invalid clock status
+ *                bit 4:       reserved
+ *                bit 5:       reserved
+ *                bit 6:       reserved
+ *                bit 7 (MSB): daylist saving active
  *
- *  long:        in minutes of local time to GMT
- *               0x8000 = not specified
+ *               date_time
+ *                year highbyte;
+ *                year lowbyte;
+ *                month;
+ *                day of month;
+ *                day of week;
+ *                hour;
+ *                minute;
+ *                second;
+ *                hundredths of second;
+ *                deviation highbyte;
+ *                defiation lowbyte;
+ *                clock status;
+ * 
+ *               day of week is ignored: calendar knows this
+ *               deviation is ignored: protocol configuration provides timezone
+ *</pre>
  *
- * clock_status
- *
- *  bit 0 (LSB): invalid value (Time could not be recovered after an incident.)
- *  bit 1:       doubtfull vlaue
- *  bit 2:       different clock base
- *  bit 3:       invalid clock status
- *  bit 4:       reserved
- *  bit 5:       reserved
- *  bit 6:       reserved
- *  bit 7 (MSB): daylist saving active
- *
- *
- * date_time
- *
- *  year highbyte;
- *  year lowbyte;
- *  month;
- *  day of month;
- *  day of week;
- *  hour;
- *  minute;
- *  second;
- *  hundredths of second;
- *  deviation highbyte;
- *  defiation lowbyte;
- *  clock status;
- *
- *
- * day of week is ignored: calendar knows this
- * deviation is ignored: protocol configuration provides timezone
- *
- * </pre>
- *
+ * @author gna
+ * @since 03/02/2009
  */
 
 public class AXDRDateTime extends AbstractDataType {
 
-	private static final int	MILLIS_PER_SECOND					= 1000;
-	protected static final int	SECONDS_PER_MINUTE					= 60;
-	protected static final int	MS_PER_HS							= 10;
-	protected static final int	BITS_PER_BYTE						= 8;
+    private static final int MILLIS_PER_SECOND = 1000;
+    protected static final int SECONDS_PER_MINUTE = 60;
+    protected static final int MS_PER_HS = 10;
+    protected static final int BITS_PER_BYTE = 8;
 
-	protected static final int	INT_HIGH_MASK						= 0XFF00;
-	protected static final int	INT_LOW_MASK						= 0X00FF;
-	private static final int	INVALID_CLOCK_STATUS_MASK			= 0x08;
-	private static final int	DIFFERENT_CLOCK_BASE_STATUS_MASK	= 0x04;
-	private static final int	DOUBTFUL_STATUS_MASK				= 0x02;
-	private static final int	INVALID_STATUS_MASK					= 0x01;
+    protected static final int INT_HIGH_MASK = 0XFF00;
+    protected static final int INT_LOW_MASK = 0X00FF;
+    private static final int INVALID_CLOCK_STATUS_MASK = 0x08;
+    private static final int DIFFERENT_CLOCK_BASE_STATUS_MASK = 0x04;
+    private static final int DOUBTFUL_STATUS_MASK = 0x02;
+    private static final int INVALID_STATUS_MASK = 0x01;
 
-	protected static final byte[]	NO_DEVIATION						= new byte[] { (byte) 0x80, (byte) 0x00 };
-	private static final int	SIZE								= 12;
+    protected static final byte[] NO_DEVIATION = new byte[]{(byte) 0x80, (byte) 0x00};
+    private static final int SIZE = 12;
 
-	protected Calendar dateTime;
+    protected Calendar dateTime;
     protected int status;
 
-    public AXDRDateTime( ) {
+    public AXDRDateTime() {
     }
 
     public AXDRDateTime(TimeZone timeZone) {
-    	dateTime = Calendar.getInstance(timeZone);
+        dateTime = Calendar.getInstance(timeZone);
     }
 
     public AXDRDateTime(Calendar dateTime) {
-    	this.dateTime = dateTime;
+        this.dateTime = dateTime;
     }
 
     public AXDRDateTime(Date date) {
-    	dateTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-    	dateTime.setTime(date);
+        dateTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        dateTime.setTime(date);
     }
 
+    /**
+     * @deprecated use {@link #AXDRDateTime(OctetString, AXDRDateTimeDeviationType)} instead for correct deviation interpretation
+     */
     public AXDRDateTime(OctetString octetString) throws IOException {
-    	this(octetString.getBEREncodedByteArray());
+        this(octetString.getBEREncodedByteArray(), AXDRDateTimeDeviationType.Negative);
     }
 
+    public AXDRDateTime(OctetString octetString, AXDRDateTimeDeviationType deviationType) throws IOException {
+        this(octetString.getBEREncodedByteArray(), deviationType);
+    }
+
+    /**
+     * @deprecated use {@link #AXDRDateTime(byte[], AXDRDateTimeDeviationType)} instead for correct deviation interpretation
+     */
     public AXDRDateTime(byte[] berEncodedData) throws IOException {
-    	this(berEncodedData,0);
+        this(berEncodedData, 0, AXDRDateTimeDeviationType.Negative);
     }
 
+    public AXDRDateTime(byte[] berEncodedData, AXDRDateTimeDeviationType deviationType) throws IOException {
+        this(berEncodedData, 0, deviationType);
+    }
+
+    /**
+     * @deprecated use {@link #AXDRDateTime(byte[], int, AXDRDateTimeDeviationType)} instead for correct deviation interpretation
+     */
     public AXDRDateTime(byte[] berEncodedData, int offset) throws IOException {
-    	int ptr = offset;
+        this(berEncodedData, offset, AXDRDateTimeDeviationType.Negative);    // default we have a negative deviationType
+    }
 
-    	if (berEncodedData[ptr] != DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING){
-            throw new IOException("AXDRDateTime, invalid identifier "+berEncodedData[ptr]);
-    	}
-    	ptr = ptr + 2;
+    public AXDRDateTime(byte[] berEncodedData, int offset, AXDRDateTimeDeviationType deviationType) throws IOException {
+        int ptr = offset;
 
-		int deviation = 0;
-		if ((berEncodedData[offset + 11] != NO_DEVIATION[0]) || (berEncodedData[offset + 12] != NO_DEVIATION[1])) {
-			int tOffset = (short) ProtocolUtils.getInt(berEncodedData, offset + 11, 2);
-			tOffset *= -1;
-			deviation = tOffset / SECONDS_PER_MINUTE;
-		}
+        if (berEncodedData[ptr] != DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING) {
+            throw new IOException("AXDRDateTime, invalid identifier " + berEncodedData[ptr]);
+        }
+        ptr = ptr + 2;
 
-        //TimeZone tz = TimeZone.getTimeZone("GMT"+(deviation<0?"":"+")+deviation);
-		TimeZone tz = new SimpleTimeZone(deviation * 3600 * 1000, "GMT" + (deviation<0?"":"+")+deviation);
-    	dateTime = Calendar.getInstance(tz);
+        int deviation = 0;
+        if ((berEncodedData[offset + 11] != NO_DEVIATION[0]) || (berEncodedData[offset + 12] != NO_DEVIATION[1])) {
+            int tOffset = (short) ProtocolUtils.getInt(berEncodedData, offset + 11, 2);
+            deviation = tOffset / SECONDS_PER_MINUTE;
+        }
 
-        int year = ProtocolUtils.getShort(berEncodedData, ptr );
+        TimeZone tz = new SimpleTimeZone(deviation * 3600 * 1000, deviationType.getGmtNotation(deviation));
+        dateTime = Calendar.getInstance(tz);
+
+        int year = ProtocolUtils.getShort(berEncodedData, ptr);
         dateTime.set(Calendar.YEAR, year);
         ptr = ptr + 2;
 
         int month = ProtocolUtils.getByte2Int(berEncodedData, ptr);
-        dateTime.set(Calendar.MONTH, month-1);
+        dateTime.set(Calendar.MONTH, month - 1);
         ptr = ptr + 1;
 
         int dayOfMonth = ProtocolUtils.getByte2Int(berEncodedData, ptr);
@@ -169,36 +180,36 @@ public class AXDRDateTime extends AbstractDataType {
 
         Calendar v = getValue();
 
-        int year        = v.get(Calendar.YEAR);
-        int month       = v.get(Calendar.MONTH);
-        int dayOfMonth  = v.get(Calendar.DAY_OF_MONTH);
-        int dayOfWeek   = v.get(Calendar.DAY_OF_WEEK);
-        int hour        = v.get(Calendar.HOUR_OF_DAY);
-        int minute      = v.get(Calendar.MINUTE);
-        int second      = v.get(Calendar.SECOND);
-        int hs          = v.get(Calendar.MILLISECOND) / MS_PER_HS;
+        int year = v.get(Calendar.YEAR);
+        int month = v.get(Calendar.MONTH);
+        int dayOfMonth = v.get(Calendar.DAY_OF_MONTH);
+        int dayOfWeek = v.get(Calendar.DAY_OF_WEEK);
+        int hour = v.get(Calendar.HOUR_OF_DAY);
+        int minute = v.get(Calendar.MINUTE);
+        int second = v.get(Calendar.SECOND);
+        int hs = v.get(Calendar.MILLISECOND) / MS_PER_HS;
 
 //        int deviation = (v.getTimeZone().getRawOffset()/60000) + (v.getTimeZone().inDaylightTime(v.getTime())?1:0);
 
         return
-            new byte [] {
-                DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING,
-                (byte) SIZE,	// fixed octetString, no need for giving the length
-                (byte) ((year & INT_HIGH_MASK ) >> BITS_PER_BYTE),
-                (byte) (year & INT_LOW_MASK),
-                (byte) (month + 1),
-                (byte) (dayOfMonth),
-                (byte) (dayOfWeek - 1),
-                (byte) (hour),
-                (byte) (minute),
-                (byte) (second),
-                (byte) (hs),
+                new byte[]{
+                        DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING,
+                        (byte) SIZE,    // fixed octetString, no need for giving the length
+                        (byte) ((year & INT_HIGH_MASK) >> BITS_PER_BYTE),
+                        (byte) (year & INT_LOW_MASK),
+                        (byte) (month + 1),
+                        (byte) (dayOfMonth),
+                        (byte) (dayOfWeek - 1),
+                        (byte) (hour),
+                        (byte) (minute),
+                        (byte) (second),
+                        (byte) (hs),
 //                (byte) ((deviation>>8)&0xFF),
 //                (byte) (deviation&0xFF),
-                (byte) 0x00,
-                (byte) 0x00,
-                (byte)status
-            };
+                        (byte) 0x00,
+                        (byte) 0x00,
+                        (byte) status
+                };
 
     }
 
@@ -207,7 +218,7 @@ public class AXDRDateTime extends AbstractDataType {
     }
 
     public void setValue(Calendar dateTime) {
-        setValue(dateTime, (byte)0);
+        setValue(dateTime, (byte) 0);
     }
 
     public void setValue(Calendar dateTime, byte status) {
@@ -215,7 +226,7 @@ public class AXDRDateTime extends AbstractDataType {
         this.status = status;
     }
 
-    public Calendar getValue( ){
+    public Calendar getValue() {
         return dateTime;
     }
 
@@ -240,7 +251,7 @@ public class AXDRDateTime extends AbstractDataType {
     }
 
     public int intValue() {
-        return (int)(getValue().getTime().getTime()/MILLIS_PER_SECOND);
+        return (int) (getValue().getTime().getTime() / MILLIS_PER_SECOND);
     }
 
     public long longValue() {
@@ -248,9 +259,9 @@ public class AXDRDateTime extends AbstractDataType {
     }
 
     @Override
-	public String toString() {
-		String rawData = ProtocolUtils.getResponseData(getBEREncodedByteArray());
-		return getValue().getTime().toString() + " [" + rawData + "]";
-	}
+    public String toString() {
+        String rawData = ProtocolUtils.getResponseData(getBEREncodedByteArray());
+        return getValue().getTime().toString() + " [" + rawData + "]";
+    }
 
 }

@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.dlms;
 
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 
@@ -173,7 +174,7 @@ public class DLMSProfileIntervals extends Array {
             OctetString os = (OctetString) dataType;
             // check if the OctetString contains a date, otherwise just add the profileInterval to the current calendar
             if (os.getOctetStr().length == 12) {
-                cal = new AXDRDateTime(os).getValue();
+                cal = new AXDRDateTime(os, AXDRDateTimeDeviationType.Negative).getValue();
             } else if (cal != null) {
                 cal.add(Calendar.SECOND, profileInterval);
             } else {
@@ -245,5 +246,9 @@ public class DLMSProfileIntervals extends Array {
      */
     protected int getNrOfClockIndexes() {
         return Integer.bitCount(this.clockMask);
+    }
+
+    protected int getProfileInterval() {
+        return profileInterval;
     }
 }

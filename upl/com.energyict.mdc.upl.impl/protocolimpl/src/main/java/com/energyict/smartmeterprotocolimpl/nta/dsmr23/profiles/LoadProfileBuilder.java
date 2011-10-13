@@ -388,7 +388,7 @@ public class LoadProfileBuilder {
      * @param loadProfileReader the reader linking to the <CODE>LoadProfileConfiguration</CODE>
      * @return requested configuration
      */
-    private LoadProfileConfiguration getLoadProfileConfiguration(LoadProfileReader loadProfileReader) {
+    protected LoadProfileConfiguration getLoadProfileConfiguration(LoadProfileReader loadProfileReader) {
         for (LoadProfileConfiguration lpc : this.loadProfileConfigurationList) {
             if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && loadProfileReader.getMeterSerialNumber().equalsIgnoreCase(lpc.getMeterSerialNumber())) {
                 return lpc;
@@ -397,4 +397,15 @@ public class LoadProfileBuilder {
         return null;
     }
 
+    protected Map<LoadProfileReader, List<ChannelInfo>> getChannelInfoMap() {
+        return channelInfoMap;
+    }
+
+    protected Map<LoadProfileReader, Integer> getStatusMasksMap() {
+        return statusMasksMap;
+    }
+
+    protected AbstractSmartNtaProtocol getMeterProtocol() {
+        return meterProtocol;
+    }
 }

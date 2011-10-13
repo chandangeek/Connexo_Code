@@ -1,12 +1,14 @@
-package com.energyict.smartmeterprotocolimpl.nta.dsmr40.eict;
+package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr;
 
-import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocolimpl.dlms.DLMSCache;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23RegisterFactory;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RegisterFactory;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MessageExecutor;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging;
 
@@ -14,10 +16,12 @@ import java.io.IOException;
 
 /**
  * Copyrights EnergyICT
- * Date: 18/07/11
- * Time: 13:57
+ * Date: 13-okt-2011
+ * Time: 12:04:50
  */
-public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
+public class E350 extends AbstractSmartNtaProtocol {
+
+    private LoadProfileBuilder loadProfileBuilder;
 
     @Override
     public MessageProtocol getMessageProtocol() {
@@ -43,7 +47,7 @@ public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
     }
 
     @Override
-    public BulkRegisterProtocol getRegisterFactory() {
+    public Dsmr23RegisterFactory getRegisterFactory() {
         if (this.registerFactory == null) {
             this.registerFactory = new DSMR40RegisterFactory(this);
         }
@@ -74,4 +78,11 @@ public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
         }
     }
 
+    @Override
+    public LoadProfileBuilder getLoadProfileBuilder() {
+        if (this.loadProfileBuilder == null) {
+            this.loadProfileBuilder = new LGLoadProfileBuilder(this);
+        }
+        return loadProfileBuilder;
+    }
 }

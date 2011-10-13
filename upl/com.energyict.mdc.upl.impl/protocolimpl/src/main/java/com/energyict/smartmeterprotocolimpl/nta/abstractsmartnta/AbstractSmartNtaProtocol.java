@@ -234,7 +234,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
         return "$Date$";
     }
 
-    public Dsmr23RegisterFactory getRegisterFactory() {
+    public BulkRegisterProtocol getRegisterFactory() {
         if (this.registerFactory == null) {
             this.registerFactory = new Dsmr23RegisterFactory(this);
         }
