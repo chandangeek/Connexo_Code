@@ -2,7 +2,6 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -70,7 +69,6 @@ public class ImageTransfer extends AbstractCosemObject{
 	private OctetString imageSignature = null;
 
 	static final byte[] LN=new byte[]{0,0,44,0,0,(byte)255};
-    private String imageName = null;
 
     public ImageTransfer(ProtocolLink protocolLink) {
             super(protocolLink,new ObjectReference(LN));
@@ -115,6 +113,24 @@ public class ImageTransfer extends AbstractCosemObject{
 	 * @throws InterruptedException when interrupted while sleeping
 	 */
 	public void upgrade(byte[] data, boolean additionalZeros) throws IOException, InterruptedException{
+        upgrade(data, additionalZeros, "NewImage", false);
+	}
+
+	/**
+	 * Start the automatic upgrade procedure. You may choose to add additional zeros at in the last block to match the blockSize for each block.
+	 *
+	 * @param data
+	 * 		- the image to transfer
+	 * @param additionalZeros
+	 * 		- indicate whether you need to add zeros to the last block to match the blockSize
+	 * @param imageIdentifier
+     *      - the name of the file. Default is NewImage
+     * @param checkForMissingBlocks
+     *      - whether or not to resend lost blocks
+     * @throws IOException when something went wrong during the upgrade
+	 * @throws InterruptedException when interrupted while sleeping
+	 */
+	public void upgrade(byte[] data, boolean additionalZeros, String imageIdentifier, boolean checkForMissingBlocks) throws IOException, InterruptedException{
 		this.data = data;
 		this.size = new Unsigned32(data.length);
 
@@ -137,7 +153,7 @@ public class ImageTransfer extends AbstractCosemObject{
 
 			// Step2: Initiate the image transfer
 			Structure imageInitiateStructure = new Structure();
-			imageInitiateStructure.addDataType(OctetString.fromString(getImageName()));	// it's a default name for the new image
+			imageInitiateStructure.addDataType(OctetString.fromString(imageIdentifier));
 			imageInitiateStructure.addDataType(this.size);
 
 			imageTransferInitiate(imageInitiateStructure);
@@ -151,9 +167,10 @@ public class ImageTransfer extends AbstractCosemObject{
 			this.protocolLink.getLogger().log(Level.INFO, "All blocks are sent at : " + new Date(System.currentTimeMillis()));
 
 			// Step4: Check completeness of the image and transfer missing blocks
-			//TODO - Checking for missings is not necessary at the moment because we have a guaranteed connection,
 			// Every block is confirmed by the meter
-//			checkAndSendMissingBlocks();
+            if (checkForMissingBlocks) {
+    			checkAndSendMissingBlocks();
+            }
 
 			// Step5: Verify image
 			verifyAndRetryImage();
@@ -171,10 +188,6 @@ public class ImageTransfer extends AbstractCosemObject{
 		}
 
 	}
-
-    private String getImageName() {
-        return imageName == null ? DEFAULT_IMAGE_NAME : imageName;
-    }
 
     /**
      * Do the first 2 steps of a firmware upgrade.
@@ -672,9 +685,4 @@ public class ImageTransfer extends AbstractCosemObject{
 	public Unsigned32 getImageFirstNotTransferedBlockNumber() {
 		return imageFirstNotTransferedBlockNumber;
 	}
-
-    public void setImageName(String imageName) {
-        this.imageName = imageName;
-    }
-
 }
