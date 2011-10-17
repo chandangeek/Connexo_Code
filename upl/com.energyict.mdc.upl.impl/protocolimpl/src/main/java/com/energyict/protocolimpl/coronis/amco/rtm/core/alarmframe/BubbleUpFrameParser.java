@@ -132,7 +132,8 @@ public class BubbleUpFrameParser {
         RegisterValue reg = new RegisterValue(ObisCode.fromString("0.0.96.6.0.255"), new Quantity(genericHeader.getShortLifeCounter(), Unit.get("")), new Date());
         registerValues.add(reg);
 
-        reg = new RegisterValue(ObisCode.fromString("0.0.96.0.63.255"), new Quantity(genericHeader.getQos(), Unit.get("")), new Date());
+        double qos = genericHeader.getQos();
+        reg = new RegisterValue(ObisCode.fromString("0.0.96.0.63.255"), new Quantity(qos > 100 ? 100 : qos, Unit.get("")), new Date());
         registerValues.add(reg);
         return registerValues;
     }

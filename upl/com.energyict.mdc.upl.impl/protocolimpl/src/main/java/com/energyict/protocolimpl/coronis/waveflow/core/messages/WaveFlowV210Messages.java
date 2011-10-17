@@ -17,7 +17,7 @@ public class WaveFlowV210Messages extends WaveFlowMessageParser {
 
         MessageCategorySpec cat1 = new MessageCategorySpec("Waveflow general messages");
         cat1.addMessageSpec(addBasicMsgWithValue("Set operating mode", "SetOperatingMode", false));
-        cat1.addMessageSpec(addBasicMsg("Reset application status", "ResetApplicationStatus", false));
+        cat1.addMessageSpec(addBasicMsg("Reset application status", "ResetApplicationStatusFull", false));
         cat1.addMessageSpec(addBasicMsg("Force to sync the time", "ForceTimeSync", false));
         cat1.addMessageSpec(addBasicMsgWithValue("Set number of inputs to be used", "SetNumberOfInputs", false));
         cat1.addMessageSpec(addBasicMsgWithThreeValues("Define the pulse weight [min 1, max 15]", "DefinePulseWeight", true, "Channel input (1, 2, 3 or 4)", "Unit scaler (0 = millilitre, 3 = litre, 5 = hectolitre,... )"));
@@ -97,6 +97,18 @@ public class WaveFlowV210Messages extends WaveFlowMessageParser {
         cat10.addMessageSpec(addBasicMsgWithSevenAttributes("Enable rising block tariffs", "EnableRisingBlockTariffs", true, "Number of log blocks (2 or 3)", "Scaler for the billable unit (-3 or 0)", "Tariff period mode (0: days, 1: months)", "Period (day: 1 - 28, month: 1 - 12)", "Start time (day: 0 - 23, month: 1 - 28)", "RB1 (max 9999)", "RB2 (max 9999)"));
         cat10.addMessageSpec(addBasicMsgWithFourAttributes("Enable time of use tariffs", "EnableTimeOfUseTariffs", true, "Tariff period mode (0: daily, 1: seasonal)", "Duration (daily: 1 - 24, seasonal: 1 - 255)", "Start hour or month (hour : 0 - 23, month: 1 - 12)", "Start minute or day (minute: 0 - 59, day: 1 - 28)"));
         theCategories.add(cat10);
+
+        MessageCategorySpec cat11 = new MessageCategorySpec("Waveflow application status");
+        cat11.addMessageSpec(addBasicMsg("Reset application status", "ResetApplicationStatusFull", true));
+        cat11.addMessageSpec(addBasicMsg("Reset low battery flag", "ResetApplicationStatusBit0", true));
+        cat11.addMessageSpec(addBasicMsg("Reset tamper (wire cut) flag", "ResetApplicationStatusBit1", true));
+        cat11.addMessageSpec(addBasicMsg("Reset no flow flag", "ResetApplicationStatusBit1", true));
+        cat11.addMessageSpec(addBasicMsg("Reset tamper (removal) flag", "ResetApplicationStatusBit1", true));
+        cat11.addMessageSpec(addBasicMsg("Reset low leak flag", "ResetApplicationStatusBit3", true));
+        cat11.addMessageSpec(addBasicMsg("Reset burst (high leak) flag", "ResetApplicationStatusBit4", true));
+        cat11.addMessageSpec(addBasicMsg("Reset tamper (magnet) flag", "ResetApplicationStatusBit5", true));
+        cat11.addMessageSpec(addBasicMsg("Reset backflow flag", "ResetApplicationStatusBit7", true));
+        theCategories.add(cat11);
 
         return theCategories;
     }

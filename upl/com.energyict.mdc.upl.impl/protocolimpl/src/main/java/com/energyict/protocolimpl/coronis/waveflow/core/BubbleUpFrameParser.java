@@ -81,7 +81,7 @@ public class BubbleUpFrameParser {
 
         pulseWeights = new PulseWeight[]{pulseA, pulseB, pulseC, pulseD};
 
-        reg = new RegisterValue(ObisCode.fromString("0.0.96.0.63.255"), new Quantity(qos, Unit.get("")), new Date());
+        reg = new RegisterValue(ObisCode.fromString("0.0.96.0.63.255"), new Quantity(qos > 100 ? 100 : qos, Unit.get("")), new Date());
         registerValues.add(reg);
         return registerValues;
     }

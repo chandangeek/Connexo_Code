@@ -35,4 +35,13 @@ public class ValveApplicationStatus extends AbstractParameter {
     public void setStatus(int status) {
         this.status = status;
     }
+
+    /**
+     * Resets a flag in the status byte.
+     *
+     * @param bit: zero based index of the bit that should be set to 0.
+     */
+    public void resetBit(int bit) {
+        status = status & ~(0x01 << bit);
+    }
 }

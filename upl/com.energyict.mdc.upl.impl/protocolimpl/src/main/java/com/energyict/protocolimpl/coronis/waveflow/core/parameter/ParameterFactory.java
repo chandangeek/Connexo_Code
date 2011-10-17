@@ -191,6 +191,18 @@ public class ParameterFactory {
         applicationStatus.write();
     }
 
+    public void writeApplicationStatusBit(int bit) throws IOException {
+        readApplicationStatus();
+        applicationStatus.resetBit(bit);
+        applicationStatus.write();
+    }
+
+    public void writeValveApplicationStatusBit(int bit) throws IOException {
+        readValveApplicationStatus();
+        valveApplicationStatus.resetBit(bit);
+        valveApplicationStatus.write();
+    }
+
     final public void writeValveApplicationStatus(final int status) throws IOException {
         valveApplicationStatus = new ValveApplicationStatus(waveFlow);
         valveApplicationStatus.setStatus(status);
@@ -885,8 +897,8 @@ public class ParameterFactory {
         assignement.write();
     }
 
-    public void writeBubbleUpConfiguration(int value) throws IOException {
+    public void writeBubbleUpConfiguration(int value, int transmissionPeriod) throws IOException {
         PushCommandBuffer buffer = new PushCommandBuffer(waveFlow);
-        buffer.writeBubbleUpConfiguration(value);
+        buffer.writeBubbleUpConfiguration(value, transmissionPeriod);
     }
 }

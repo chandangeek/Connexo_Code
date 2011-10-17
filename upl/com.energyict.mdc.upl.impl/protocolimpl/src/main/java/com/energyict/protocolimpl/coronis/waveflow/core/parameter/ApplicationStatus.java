@@ -35,4 +35,13 @@ public class ApplicationStatus extends AbstractParameter {
     protected byte[] prepare() throws IOException {
         return new byte[]{(byte) status};
     }
+
+    /**
+     * Resets a flag in the status byte.
+     *
+     * @param bit: zero based index of the bit that should be set to 0.
+     */
+    public void resetBit(int bit) {
+        status = status & ~(0x01 << bit);
+    }
 }

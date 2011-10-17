@@ -17,7 +17,7 @@ public class WaveFlowV1Messages extends WaveFlowMessageParser {
 
         MessageCategorySpec cat1 = new MessageCategorySpec("Waveflow general messages");
         cat1.addMessageSpec(addBasicMsgWithValue("Set operating mode", "SetOperatingMode", false));
-        cat1.addMessageSpec(addBasicMsg("Reset application status", "ResetApplicationStatus", false));
+        cat1.addMessageSpec(addBasicMsg("Reset application status", "ResetApplicationStatusFull", false));
         cat1.addMessageSpec(addBasicMsg("Force to sync the time", "ForceTimeSync", false));
         cat1.addMessageSpec(addBasicMsgWithValue("Set number of inputs to be used", "SetNumberOfInputs", false));
         cat1.addMessageSpec(addBasicMsgWithThreeValues("Define the pulse weight [min 1, max 15]", "DefinePulseWeight", true, "Channel input (1, 2, 3 or 4)", "Unit scaler (0 = millilitre, 3 = litre, 5 = hectolitre,... )"));
@@ -85,6 +85,18 @@ public class WaveFlowV1Messages extends WaveFlowMessageParser {
         cat9.addMessageSpec(addBasicMsg("Disable alarm on threshold detection of credit amount", "DisableAlarmOnThresholdDetectionOfCreditAmount", true));
         cat9.addMessageSpec(addBasicMsg("Disable all alarms", "DisableAllAlarms", true));
         theCategories.add(cat9);
+
+        MessageCategorySpec cat10 = new MessageCategorySpec("Waveflow application status");
+        cat10.addMessageSpec(addBasicMsg("Reset application status", "ResetApplicationStatusFull", true));
+        cat10.addMessageSpec(addBasicMsg("Reset low battery flag", "ResetApplicationStatusBit0", true));
+        cat10.addMessageSpec(addBasicMsg("Reset tamper (wire cut) flag", "ResetApplicationStatusBit1", true));
+        cat10.addMessageSpec(addBasicMsg("Reset no flow flag", "ResetApplicationStatusBit1", true));
+        cat10.addMessageSpec(addBasicMsg("Reset tamper (removal) flag", "ResetApplicationStatusBit1", true));
+        cat10.addMessageSpec(addBasicMsg("Reset low leak flag", "ResetApplicationStatusBit3", true));
+        cat10.addMessageSpec(addBasicMsg("Reset burst (high leak) flag", "ResetApplicationStatusBit4", true));
+        cat10.addMessageSpec(addBasicMsg("Reset tamper (magnet) flag", "ResetApplicationStatusBit5", true));
+        cat10.addMessageSpec(addBasicMsg("Reset backflow flag", "ResetApplicationStatusBit7", true));
+        theCategories.add(cat10);
 
         return theCategories;
     }

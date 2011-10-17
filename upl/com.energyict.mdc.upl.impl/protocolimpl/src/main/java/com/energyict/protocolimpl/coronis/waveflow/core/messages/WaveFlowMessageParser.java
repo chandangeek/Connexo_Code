@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.coronis.waveflow.core.messages;
 
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 
 import java.io.IOException;
@@ -322,10 +323,30 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
                 return setBackflowDetectionMethod(messageEntry);
             } else if (messageEntry.getContent().indexOf("<SetOperatingMode") >= 0) {
                 return setOperationMode(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<ResetApplicationStatus") >= 0) {
+            } else if (messageEntry.getContent().indexOf("<ResetApplicationStatusFull") >= 0) {
                 return resetApplicationStatus(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<ResetValveApplicationStatus") >= 0) {
+            } else if (messageEntry.getContent().indexOf("<ResetApplicationStatusBit0") >= 0) {
+                return resetApplicationStatusBit(messageEntry, 0);
+            } else if (messageEntry.getContent().indexOf("<ResetApplicationStatusBit1") >= 0) {
+                return resetApplicationStatusBit(messageEntry, 1);
+            } else if (messageEntry.getContent().indexOf("<ResetApplicationStatusBit3") >= 0) {
+                return resetApplicationStatusBit(messageEntry, 3);
+            } else if (messageEntry.getContent().indexOf("<ResetApplicationStatusBit4") >= 0) {
+                return resetApplicationStatusBit(messageEntry, 4);
+            } else if (messageEntry.getContent().indexOf("<ResetApplicationStatusBit5") >= 0) {
+                return resetApplicationStatusBit(messageEntry, 5);
+            } else if (messageEntry.getContent().indexOf("<ResetApplicationStatusBit7") >= 0) {
+                return resetApplicationStatusBit(messageEntry, 7);
+            } else if (messageEntry.getContent().indexOf("<ResetValveApplicationStatusFull") >= 0) {
                 return resetValveApplicationStatus(messageEntry);
+            } else if (messageEntry.getContent().indexOf("<ResetValveApplicationStatusBit0") >= 0) {
+                return resetValveApplicationStatusBit(messageEntry, 0);
+            } else if (messageEntry.getContent().indexOf("<ResetValveApplicationStatusBit1") >= 0) {
+                return resetValveApplicationStatusBit(messageEntry, 1);
+            } else if (messageEntry.getContent().indexOf("<ResetValveApplicationStatusBit2") >= 0) {
+                return resetValveApplicationStatusBit(messageEntry, 2);
+            } else if (messageEntry.getContent().indexOf("<ResetValveApplicationStatusBit3") >= 0) {
+                return resetValveApplicationStatusBit(messageEntry, 3);
             } else if (messageEntry.getContent().indexOf("<SetDayOfWeek") >= 0) {
                 return setDayOfWeekOrMonth(messageEntry);
             } else if (messageEntry.getContent().indexOf("<SetHourOfDailyIndexStorage") >= 0) {
@@ -458,6 +479,9 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
             }
         } catch (NumberFormatException e) {
             waveFlow.getLogger().severe("Error parsing message, " + e.getMessage());
+            return MessageResult.createFailed(messageEntry);
+        } catch (WaveFlowException e) {
+            waveFlow.getLogger().severe("Message failed, " + e.getMessage());
             return MessageResult.createFailed(messageEntry);
         }
     }
@@ -1204,7 +1228,16 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
         if (value > 0xFF || value < 0x01) {
             return MessageResult.createFailed(messageEntry);
         }
-        waveFlow.getParameterFactory().writeBubbleUpConfiguration(value);
+        int transmissionPeriod = Integer.parseInt(parts[3].substring(1).split("\"")[0]);
+        int transmissionPeriodUnit = Integer.parseInt(parts[4].substring(1).split("\"")[0]);
+        if (transmissionPeriod < 1 || transmissionPeriod > 63) {
+            return MessageResult.createFailed(messageEntry);
+        }
+        if (transmissionPeriodUnit < 0 || transmissionPeriodUnit > 2) {
+            return MessageResult.createFailed(messageEntry);
+        }
+        transmissionPeriod = (transmissionPeriod << 2) | transmissionPeriodUnit;
+        waveFlow.getParameterFactory().writeBubbleUpConfiguration(value, transmissionPeriod);
         return MessageResult.createSuccess(messageEntry);
     }
 
@@ -1428,6 +1461,18 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
     private MessageResult resetApplicationStatus(MessageEntry messageEntry) throws IOException {
         waveFlow.getLogger().info("************************* ResetApplicationStatus *************************");
         waveFlow.getParameterFactory().writeApplicationStatus(0);
+        return MessageResult.createSuccess(messageEntry);
+    }
+
+    private MessageResult resetApplicationStatusBit(MessageEntry messageEntry, int bit) throws IOException {
+        waveFlow.getLogger().info("************************* ResetApplicationStatusBit *************************");
+        waveFlow.getParameterFactory().writeApplicationStatusBit(bit);
+        return MessageResult.createSuccess(messageEntry);
+    }
+
+    private MessageResult resetValveApplicationStatusBit(MessageEntry messageEntry, int bit) throws IOException {
+        waveFlow.getLogger().info("************************* resetValveApplicationStatusBit *************************");
+        waveFlow.getParameterFactory().writeValveApplicationStatusBit(bit);
         return MessageResult.createSuccess(messageEntry);
     }
 

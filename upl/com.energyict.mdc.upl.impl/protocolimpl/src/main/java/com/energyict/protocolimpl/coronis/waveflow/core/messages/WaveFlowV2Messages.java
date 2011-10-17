@@ -17,7 +17,7 @@ public class WaveFlowV2Messages extends WaveFlowMessageParser {
 
         MessageCategorySpec cat1 = new MessageCategorySpec("Waveflow general messages");
         cat1.addMessageSpec(addBasicMsgWithValue("Set operating mode", "SetOperatingMode", false));
-        cat1.addMessageSpec(addBasicMsg("Reset application status", "ResetApplicationStatus", false));
+        cat1.addMessageSpec(addBasicMsg("Reset application status", "ResetApplicationStatusFull", false));
         cat1.addMessageSpec(addBasicMsg("Force to sync the time", "ForceTimeSync", false));
         cat1.addMessageSpec(addBasicMsgWithValue("Set number of inputs to be used", "SetNumberOfInputs", false));
         cat1.addMessageSpec(addBasicMsgWithThreeValues("Define the pulse weight [min 1, max 15]", "DefinePulseWeight", true, "Channel input (1, 2, 3 or 4)", "Unit scaler (0 = millilitre, 3 = litre, 5 = hectolitre,... )"));
@@ -65,7 +65,7 @@ public class WaveFlowV2Messages extends WaveFlowMessageParser {
 
         MessageCategorySpec cat6 = new MessageCategorySpec("Waveflow push frame parameters");
         cat6.addMessageSpec(addBasicMsg("Enable push frames", "EnablePushFrames", true));
-        cat6.addMessageSpec(addBasicMsgWithAttr("Start push frame mechanism ", "StartPushFrames", true, "Command (e.g. Read immediate index = 1)"));
+        cat6.addMessageSpec(addBasicMsgWithThreeAttr("Start push frame mechanism ", "StartPushFrames", true, "Command (e.g. Read immediate index = 1)", "Transmission period (range: 1 - 63)", "Transmission period unit (0: minute, 1: hour, 2: day)"));
         cat6.addMessageSpec(addBasicMsg("Disable push frames", "DisablePushFrames", true));
         cat6.addMessageSpec(addBasicMsgWithFourValues("Set starting hour, minutes and seconds of the mechanism", "SetStartOfMechanism", true, "starting hour (0 - 23)", "minutes (0 - 59)", "seconds (0 - 59)"));
         cat6.addMessageSpec(addBasicMsgWithValue("Set push frame transmission period (in minutes!)", "SetTransmissionPeriod", true));
@@ -87,8 +87,6 @@ public class WaveFlowV2Messages extends WaveFlowMessageParser {
         theCategories.add(cat7);
 
         MessageCategorySpec cat8 = new MessageCategorySpec("Waveflow enable alarm frames");
-        cat8.addMessageSpec(addBasicMsg("Reset application status", "ResetApplicationStatus", true));
-        cat8.addMessageSpec(addBasicMsg("Reset valve application status", "ResetValveApplicationStatus", true));
         cat8.addMessageSpec(addBasicMsg("Send alarm on wirecut detection", "SendAlarmOnWirecutDetection", true));
         cat8.addMessageSpec(addBasicMsg("Send alarm on end of battery life", "SendAlarmOnBatteryEnd", true));
         cat8.addMessageSpec(addBasicMsg("Send alarm on low leak detection", "SendAlarmOnLowLeakDetection", true));
@@ -99,6 +97,23 @@ public class WaveFlowV2Messages extends WaveFlowMessageParser {
         cat8.addMessageSpec(addBasicMsg("Send alarm on threshold detection of credit amount", "SendAlarmOnThresholdDetectionOfCreditAmount", true));
         cat8.addMessageSpec(addBasicMsg("Send all alarms", "SendAllAlarms", true));
         theCategories.add(cat8);
+
+        MessageCategorySpec cat10 = new MessageCategorySpec("Waveflow application status");
+        cat10.addMessageSpec(addBasicMsg("Reset application status", "ResetApplicationStatusFull", true));
+        cat10.addMessageSpec(addBasicMsg("Reset valve application status", "ResetValveApplicationStatusFull", true));
+        cat10.addMessageSpec(addBasicMsg("Reset valve wirecut flag", "ResetValveApplicationStatusBit0", true));
+        cat10.addMessageSpec(addBasicMsg("Reset valve fault flag", "ResetValveApplicationStatusBit1", true));
+        cat10.addMessageSpec(addBasicMsg("Reset credit under threshold flag", "ResetValveApplicationStatusBit2", true));
+        cat10.addMessageSpec(addBasicMsg("Reset credit equal to zero flag", "ResetValveApplicationStatusBit3", true));
+        cat10.addMessageSpec(addBasicMsg("Reset low battery flag", "ResetApplicationStatusBit0", true));
+        cat10.addMessageSpec(addBasicMsg("Reset tamper (wire cut) flag", "ResetApplicationStatusBit1", true));
+        cat10.addMessageSpec(addBasicMsg("Reset no flow flag", "ResetApplicationStatusBit1", true));
+        cat10.addMessageSpec(addBasicMsg("Reset tamper (removal) flag", "ResetApplicationStatusBit1", true));
+        cat10.addMessageSpec(addBasicMsg("Reset low leak flag", "ResetApplicationStatusBit3", true));
+        cat10.addMessageSpec(addBasicMsg("Reset burst (high leak) flag", "ResetApplicationStatusBit4", true));
+        cat10.addMessageSpec(addBasicMsg("Reset tamper (magnet) flag", "ResetApplicationStatusBit5", true));
+        cat10.addMessageSpec(addBasicMsg("Reset backflow flag", "ResetApplicationStatusBit7", true));
+        theCategories.add(cat10);
 
         MessageCategorySpec cat9 = new MessageCategorySpec("Waveflow disable alarm frames");
         cat9.addMessageSpec(addBasicMsg("Disable alarm on wirecut detection", "DisableAlarmOnWirecutDetection", true));
