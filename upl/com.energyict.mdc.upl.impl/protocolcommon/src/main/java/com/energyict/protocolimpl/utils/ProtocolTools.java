@@ -1196,4 +1196,19 @@ public final class ProtocolTools {
             return result;
         }
     }
+
+    public static boolean isCorrectIntervalBoundary(Calendar toDate, int intervalInSeconds) {
+        if (toDate == null) {
+            return false;
+        }
+        toDate.set(Calendar.MILLISECOND, 0);
+        int toDateSec = toDate.get(Calendar.MINUTE) * 60;
+        toDateSec += toDate.get(Calendar.SECOND);
+        for (int sec = 0; (sec < (3600)) || (sec < (toDateSec * 60)); sec += intervalInSeconds) {
+            if (toDateSec == sec) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

@@ -643,4 +643,101 @@ public class ProtocolToolsTest {
 
     }
 
+    @Test
+    public void testIsCorrectIntervalBoundary() throws Exception {
+        Calendar date_2011_01_05_06h00 = ProtocolTools.createCalendar(2011, 01, 05, 06, 00, 00, 000);
+        Calendar date_2011_01_05_06h01 = ProtocolTools.createCalendar(2011, 01, 05, 06, 01, 00, 000);
+        Calendar date_2011_01_05_06h05 = ProtocolTools.createCalendar(2011, 01, 05, 06, 05, 00, 000);
+        Calendar date_2011_01_05_06h10 = ProtocolTools.createCalendar(2011, 01, 05, 06, 10, 00, 000);
+        Calendar date_2011_01_05_06h12 = ProtocolTools.createCalendar(2011, 01, 05, 06, 12, 00, 000);
+        Calendar date_2011_01_05_06h15 = ProtocolTools.createCalendar(2011, 01, 05, 06, 15, 00, 000);
+        Calendar date_2011_01_05_06h30 = ProtocolTools.createCalendar(2011, 01, 05, 06, 30, 00, 000);
+        Calendar date_2011_01_05_06h45 = ProtocolTools.createCalendar(2011, 01, 05, 06, 45, 00, 000);
+        Calendar date_2011_01_05_06h50 = ProtocolTools.createCalendar(2011, 01, 05, 06, 50, 00, 000);
+        Calendar date_2011_01_05_06h59 = ProtocolTools.createCalendar(2011, 01, 05, 06, 59, 00, 000);
+        Calendar date_2011_01_05_07h00 = ProtocolTools.createCalendar(2011, 01, 05, 07, 00, 00, 000);
+        Calendar date_2011_01_05_07h00s01 = ProtocolTools.createCalendar(2011, 01, 05, 07, 00, 01, 000);
+        Calendar date_2011_01_05_07h00s00m213 = ProtocolTools.createCalendar(2011, 01, 05, 07, 00, 00, 213);
+
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h00, 5  * 60));
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h00, 10 * 60));
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h00, 15 * 60));
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h00, 30 * 60));
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h00, 60 * 60));
+
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h01, 5  * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h01, 10 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h01, 15 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h01, 30 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h01, 60 * 60));
+
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h05,  5  * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h05, 10 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h05, 15 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h05, 30 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h05, 60 * 60));
+
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h10, 5  * 60));
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h10, 10 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h10, 15 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h10, 30 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h10, 60 * 60));
+
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h12, 5  * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h12, 10 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h12, 15 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h12, 30 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h12, 60 * 60));
+
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h15, 5  * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h15, 10 * 60));
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h15, 15 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h15, 30 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h15, 60 * 60));
+
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h30, 5  * 60));
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h30, 10 * 60));
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h30, 15 * 60));
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h30, 30 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h30, 60 * 60));
+
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h45, 5  * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h45, 10 * 60));
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h45, 15 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h45, 30 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h45, 60 * 60));
+
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h50, 5  * 60));
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h50, 10 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h50, 15 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h50, 30 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h50, 60 * 60));
+
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h59, 5  * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h59, 10 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h59, 15 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h59, 30 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_06h59, 60 * 60));
+
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_07h00, 5  * 60));
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_07h00, 10 * 60));
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_07h00, 15 * 60));
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_07h00, 30 * 60));
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_07h00, 60 * 60));
+
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_07h00s01, 5  * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_07h00s01, 10 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_07h00s01, 15 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_07h00s01, 30 * 60));
+        assertFalse(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_07h00s01, 60 * 60));
+
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_07h00s00m213, 5  * 60));
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_07h00s00m213, 10 * 60));
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_07h00s00m213, 15 * 60));
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_07h00s00m213, 30 * 60));
+        assertTrue(ProtocolTools.isCorrectIntervalBoundary(date_2011_01_05_07h00s00m213, 60 * 60));
+
+    }
+
+
 }

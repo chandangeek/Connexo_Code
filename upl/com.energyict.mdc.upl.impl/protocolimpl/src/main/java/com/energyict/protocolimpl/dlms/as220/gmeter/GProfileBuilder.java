@@ -10,6 +10,7 @@ import com.energyict.dlms.cosem.CapturedObjectsHelper;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -96,6 +97,7 @@ public class GProfileBuilder {
 	 * @throws IOException
 	 */
 	public List<IntervalData> buildIntervalData(ScalerUnit[] scalerunit, DataContainer dc ) throws IOException {
+        int capturePeriod = getGasDevice().getgMeter().getMbusProfile().getCapturePeriod();
 
 		List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
 		Calendar cal = null;
@@ -109,7 +111,7 @@ public class GProfileBuilder {
                         cal = new DateTime(new OctetString(dc.getRoot().getStructure(i).getOctetString(0).getArray()), getGasDevice().getTimeZone()).getValue();
                     } else {
                         if(cal != null){
-                            cal.add(Calendar.SECOND, getGasDevice().getgMeter().getMbusProfile().getCapturePeriod());
+                            cal.add(Calendar.SECOND, capturePeriod);
                         }
                     }
 
@@ -128,9 +130,13 @@ public class GProfileBuilder {
 
                         value &= MASK_VALUE;
 
-                        IntervalData id = new IntervalData(cal.getTime(), profileStatus);
-                        id.addValue(value);
-                        intervalDatas.add(id);
+                        if (ProtocolTools.isCorrectIntervalBoundary(cal, capturePeriod)) {
+                            IntervalData id = new IntervalData(cal.getTime(), profileStatus);
+                            id.addValue(value);
+                            intervalDatas.add(id);
+                        } else {
+                            getGasDevice().getLogger().severe("Removing interval from profile data [" + cal.getTime() + " = " + value + "]. Not on interval boundary.");
+                        }
                     }
 
                 } else {

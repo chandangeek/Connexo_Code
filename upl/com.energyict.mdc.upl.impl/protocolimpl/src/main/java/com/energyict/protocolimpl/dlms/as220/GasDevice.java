@@ -157,7 +157,7 @@ public class GasDevice extends AS220 implements MessageProtocol{
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
 		if (to == null) {
 			to = ProtocolUtils.getCalendar(getTimeZone()).getTime();
-			getLogger().info("getProfileData: toDate was 'null'. Reading profildate up to: " + to);
+			getLogger().info("getProfileData: toDate was 'null'. Reading profiledate up to: " + to);
 		}
 
         ProfileLimiter limiter = new ProfileLimiter(from, to, getLimitMaxNrOfDays());
