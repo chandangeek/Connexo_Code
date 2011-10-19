@@ -192,7 +192,7 @@ public class MeterTopology implements MasterMeter {
      */
     public String getSerialNumber(final ObisCode obisCode) {
         int bField = obisCode.getB();
-        if (bField == this.protocol.getPhysicalAddress()) {
+        if (bField == this.protocol.getPhysicalAddress() || bField == 128) {    // 128 is the notation of the CapturedObjects in mW for Electricity ...
             return this.protocol.getSerialNumber();
         }
 

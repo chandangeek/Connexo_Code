@@ -268,6 +268,9 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
      */
     public ObisCode getPhysicalAddressCorrectedObisCode(final ObisCode obisCode, final String serialNumber) {
         int address = getPhysicalAddressFromSerialNumber(serialNumber);
+        if(obisCode.getB() == 128) { // then don't correct the obisCode
+            return obisCode;
+        }
         if (address != -1) {
             return ProtocolTools.setObisCodeField(obisCode, ObisCodeBFieldIndex, (byte) address);
         }
@@ -301,6 +304,11 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
         return loadProfileBuilder;
     }
 
+    /**
+     * Getter for the <b>DSMR 2.3</b> EventProfile
+     *
+     * @return the lazy loaded EventProfile
+     */
     public EventProfile getEventProfile() {
         if (this.eventProfile == null) {
             this.eventProfile = new EventProfile(this);

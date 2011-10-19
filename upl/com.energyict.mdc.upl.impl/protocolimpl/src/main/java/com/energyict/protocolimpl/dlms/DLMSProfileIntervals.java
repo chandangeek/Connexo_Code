@@ -128,7 +128,7 @@ public class DLMSProfileIntervals extends Array {
                         throw new IOException("Calender can not be NULL for building an IntervalData. IntervalStructure: \r\n" + element);
                     }
                 } else { // the implementation is different if you have multiple status flags
-                    List<Integer> statuses = new ArrayList<Integer>();
+                    Map<Integer, Integer> statuses = new HashMap<Integer, Integer>();
                     for (int d = 0; d < element.nrOfDataTypes(); d++) {
                         if (isClockIndex(d)) {
                             try {
@@ -137,7 +137,7 @@ public class DLMSProfileIntervals extends Array {
                                 throw new IOException("IntervalStructure: \r\n" + element + "\r\n" + e.getMessage());
                             }
                         } else if (isStatusIndex(d)) {
-                            statuses.add(profileStatusBits.getEisStatusCode(element.getDataType(d).intValue()));
+                            statuses.put(values.size(),profileStatusBits.getEisStatusCode(element.getDataType(d).intValue()));
                             // we add all the statuses on the 'main' profileStatus
                             profileStatus |= profileStatusBits.getEisStatusCode(element.getDataType(d).intValue());
                         } else if (isChannelIndex(d)) {
@@ -148,7 +148,7 @@ public class DLMSProfileIntervals extends Array {
                     if (cal != null) {
                         currentInterval = new IntervalData(cal.getTime(), profileStatus);
                         for (int j = 0; j < values.size(); j++) {
-                            currentInterval.addValue(values.get(j), 0, statuses.get(j));
+                            currentInterval.addValue(values.get(j), 0, (statuses.containsKey(j)?statuses.get(j):0));
                         }
                     } else {
                         throw new IOException("Calender can not be NULL for building an IntervalData. IntervalStructure: \r\n" + element);

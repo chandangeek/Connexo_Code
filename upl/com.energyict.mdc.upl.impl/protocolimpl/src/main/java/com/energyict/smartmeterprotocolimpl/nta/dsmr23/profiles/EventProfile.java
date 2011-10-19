@@ -4,6 +4,7 @@ import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.protocol.*;
+import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.*;
 
@@ -12,6 +13,8 @@ import java.util.*;
 import java.util.logging.Level;
 
 /**
+ * TODO, we should think about how we can add the MbusControlLog events to the MbusDevices instead of the MASTER!!!
+ *
  * @author gna
  */
 public class EventProfile {
@@ -26,7 +29,7 @@ public class EventProfile {
         List<MeterEvent> eventList = new ArrayList<MeterEvent>();
 
         Calendar fromCal = ProtocolUtils.getCleanCalendar(getTimeZone());
-        if(fromDate == null){
+        if (fromDate == null) {
             fromDate = ProtocolUtils.getClearLastMonthDate(getTimeZone());
         }
         fromCal.setTime(fromDate);
@@ -49,6 +52,13 @@ public class EventProfile {
         eventList.addAll(mbusLogs.getMeterEvents());
         eventList.addAll(powerFailure.getMeterEvents());
 
+        DataContainer dcMbusControlLog;
+        MbusControlLog mbusControlLog;
+        for (DeviceMapping mbusDevices : this.protocol.getMeterTopology().getMbusMeterMap()) {
+            dcMbusControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusControlLog(mbusDevices.getPhysicalAddress()).getObisCode()).getBuffer(fromCal, getToCalendar());
+            mbusControlLog = new MbusControlLog(getTimeZone(), dcMbusControlLog);
+            eventList.addAll(mbusControlLog.getMeterEvents());
+        }
         return eventList;
     }
 
@@ -64,7 +74,7 @@ public class EventProfile {
         return this.protocol.getTimeZone();
     }
 
-    private Calendar getToCalendar() throws IOException {
+    protected Calendar getToCalendar() throws IOException {
         return ProtocolUtils.getCalendar(getTimeZone());
     }
 }

@@ -10,18 +10,18 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * 
  * @author gna
- * Changes:
- * GNA|20072009| Changed the duration to a long, otherwise you could get negative durations ...
+ *         Changes:
+ *         GNA|20072009| Changed the duration to a long, otherwise you could get negative durations ...
  */
 
-public class PowerFailureLog extends AbstractEvent{
-	
-	// Power failure log
-	public PowerFailureLog(TimeZone timeZone, DataContainer dc){
+public class PowerFailureLog extends AbstractEvent {
+
+    // Power failure log
+
+    public PowerFailureLog(TimeZone timeZone, DataContainer dc) {
         super(dc, timeZone);
-	}
+    }
 
     /**
      * <b><u>Note:</u></b> This will do nothing
@@ -33,27 +33,28 @@ public class PowerFailureLog extends AbstractEvent{
     }
 
     @Override
-    public List<MeterEvent> getMeterEvents() throws IOException{
-		List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
-		int size = this.dcEvents.getRoot().getNrOfElements();
-		Date eventTimeStamp = null;
-		for(int i = 0; i <= (size-1); i++){
-			long duration = this.dcEvents.getRoot().getStructure(i).getValue(1);
-			if(duration < 0){
-				duration += 0xFFFF;
-				duration++;
-			}
-			if(isOctetString(this.dcEvents.getRoot().getStructure(i).getElement(0))){
-				eventTimeStamp = new AXDRDateTime(new OctetString(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray())).getValue().getTime();
-			}
-			if(eventTimeStamp != null){
-				buildMeterEvent(meterEvents, eventTimeStamp, duration);
-			}
-		}
-		return meterEvents;
-	}
+    public List<MeterEvent> getMeterEvents() throws IOException {
+        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
+        int size = this.dcEvents.getRoot().getNrOfElements();
+        Date eventTimeStamp = null;
+        for (int i = 0; i <= (size - 1); i++) {
+            long duration = this.dcEvents.getRoot().getStructure(i).getValue(1);
+            if (duration < 0) {
+                duration += 0xFFFF;
+                duration++;
+            }
+            if (isOctetString(this.dcEvents.getRoot().getStructure(i).getElement(0))) {
+                eventTimeStamp = new AXDRDateTime(new OctetString(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray())).getValue().getTime();
+            }
+            if (eventTimeStamp != null) {
+                buildMeterEvent(meterEvents, eventTimeStamp, duration);
+            }
+        }
+        return meterEvents;
+    }
 
-	protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, long duration) {
-		meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.PHASE_FAILURE, "Duration of power failure: " + duration));
-	}
+    protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, long duration) {
+        meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.PHASE_FAILURE, 0, "Duration of power failure: " + duration, EventLogbookId.PowerFailureEventLogbook.eventLogId(), 0));
+    }
+
 }
