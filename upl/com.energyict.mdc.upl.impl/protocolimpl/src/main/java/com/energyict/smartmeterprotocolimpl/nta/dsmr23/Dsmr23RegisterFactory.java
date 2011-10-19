@@ -5,12 +5,12 @@ import com.energyict.cbo.Unit;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.cosem.ComposedCosemObject;
-import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.*;
 import com.energyict.genericprotocolimpl.common.EncryptionStatus;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocol.Register;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedRegister;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 
@@ -146,9 +146,11 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
                             this.registerMap.put(register, new DLMSAttribute(rObisCode, RegisterAttributes.Register_Value.getAttributeNumber(), DLMSClassId.REGISTER.getClassId()));
                         } else if (rObisCode.equals(ISKRA_MBUS_ENCRYPTION_STATUS)) {
                             this.registerMap.put(register, new DLMSAttribute(rObisCode, DLMSCOSEMGlobals.ATTR_DATA_VALUE, DLMSClassId.DATA.getClassId()));
-                        } else {
+
+                            // We can't add this for the SecuritySetup or the AssociationLN object, the DSMR4.0 uses these
+                        } else if(!(uo.getObisCode().equals(SecuritySetup.getDefaultObisCode()) || (uo.getObisCode().equals(AssociationLN.getDefaultObisCode())))) {
                             // We get the default 'Value' attribute (2), mostly Data objects
-                            this.registerMap.put(register, new DLMSAttribute(rObisCode, DLMSCOSEMGlobals.ATTR_DATA_VALUE, uo.getClassID()));
+                            this.registerMap.put(register, new DLMSAttribute(uo.getObisCode(), DLMSCOSEMGlobals.ATTR_DATA_VALUE, uo.getClassID()));
                         }
                         dlmsAttributes.add(this.registerMap.get(register));
                     }
