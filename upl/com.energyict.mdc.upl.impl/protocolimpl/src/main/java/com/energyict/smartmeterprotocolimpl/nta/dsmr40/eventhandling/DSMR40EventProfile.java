@@ -51,10 +51,16 @@ public class DSMR40EventProfile extends EventProfile {
 
         DataContainer dcMbusControlLog;
         MbusControlLog mbusControlLog;
-        for (DeviceMapping mbusDevices : this.protocol.getMeterTopology().getMbusMeterMap()) {
-            dcMbusControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusControlLog(mbusDevices.getPhysicalAddress()).getObisCode()).getBuffer(fromCal, getToCalendar());
-            mbusControlLog = new MbusControlLog(getTimeZone(), dcMbusControlLog);
-            eventList.addAll(mbusControlLog.getMeterEvents());
+        try {
+            for (DeviceMapping mbusDevices : this.protocol.getMeterTopology().getMbusMeterMap()) {
+                dcMbusControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusControlLog(mbusDevices.getPhysicalAddress()).getObisCode()).getBuffer(fromCal, getToCalendar());
+                mbusControlLog = new MbusControlLog(getTimeZone(), dcMbusControlLog);
+                eventList.addAll(mbusControlLog.getMeterEvents());
+            }
+        } catch (IOException e) {
+            if(!e.getMessage().contains("DLMSConfig, getMbusControlLog, not found in objectlist (IOL)")){
+                throw e;
+            } // else it just means no MbusDevices are installed ...
         }
         return eventList;
     }
