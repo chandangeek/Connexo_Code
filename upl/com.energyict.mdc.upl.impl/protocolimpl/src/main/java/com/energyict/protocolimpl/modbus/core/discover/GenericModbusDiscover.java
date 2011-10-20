@@ -258,7 +258,7 @@ public class GenericModbusDiscover extends Modbus {
             DiscoverTools discoverTools = null;
             
             if ((args==null) || (args.length<=1))
-                discoverTools = new DiscoverTools("COM1");
+                discoverTools = new DiscoverTools("/home/alex/rs485");
             else
                 discoverTools = new DiscoverTools(args[1]); //"/dev/ttyXR0";
             discoverTools.setProperties(genericModbusDiscover.getProperties(1));
