@@ -27,8 +27,8 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
     }
 
     private void buildDefaultProtocols() {
-        this.protocolClasses = new ArrayList();
-        this.protocolNames = new ArrayList();
+        this.protocolClasses = new ArrayList<String>();
+        this.protocolNames = new ArrayList<String>();
 
 
         this.protocolClasses.add("com.energyict.protocolimpl.sdksample.SDKSampleProtocol");
@@ -314,6 +314,10 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         this.protocolNames.add("Enerdis Enerium 150 modbus meter");
         this.protocolClasses.add("com.energyict.protocolimpl.modbus.enerdis.enerium50.Enerium50");
         this.protocolNames.add("Enerdis Enerium 50 modbus meter");
+        
+        this.protocolClasses.add("com.energyict.protocolimpl.modbus.northerndesign.eimeterflex.EIMeterFlexSM352"); 
+        this.protocolNames.add("EIMeter Flex SM352 submetering module");
+
     }
 
     public String getProtocolName(int index) throws IOException {
@@ -384,9 +388,9 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
     static public void main(String[] args) {
 
         ProtocolCollectionImpl o = new ProtocolCollectionImpl();
-        Iterator it = o.getProtocolClasses().iterator();
+        Iterator<String> it = o.getProtocolClasses().iterator();
         while (it.hasNext()) {
-            String className = (String) it.next();
+            String className = it.next();
             System.out.println("-keepnames class " + className + "\n");
         }
 
