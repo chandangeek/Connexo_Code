@@ -516,7 +516,7 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>${basedir}/src/generated-sources</source>
+                                <source>${basedir}/src/generated-sources/jaxws-maven-plugin/java</source>
                             </sources>
                         </configuration>
                     </execution>
