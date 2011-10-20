@@ -516,7 +516,7 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>${basedir}/target/generated-sources</source>
+                                <source>${basedir}/src/generated-sources</source>
                             </sources>
                         </configuration>
                     </execution>
