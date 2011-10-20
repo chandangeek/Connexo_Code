@@ -28,6 +28,7 @@ import com.energyict.protocolimpl.modbus.northerndesign.NDBaseRegisterFactory;
  * 
  * @author alex
  */
+@SuppressWarnings("unchecked")
 public final class EIMeterFlexSM352 extends Modbus {
 	
 	/** Logger instance. */
@@ -107,7 +108,6 @@ public final class EIMeterFlexSM352 extends Modbus {
 		 * {@inheritDoc}
 		 */
 		@Override
-		@SuppressWarnings("unchecked")
 		protected final void init() {
 			super.init();
 
