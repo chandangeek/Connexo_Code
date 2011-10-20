@@ -184,6 +184,8 @@
 
     <build>
         <plugins>
+
+            <!-- This proguard plugin is used to obfuscate the protocolimpl jar-->
             <plugin>
                 <groupId>com.pyx4me</groupId>
                 <artifactId>proguard-maven-plugin</artifactId>
@@ -500,7 +502,28 @@
                 </configuration>
             </plugin>
 
-            <!-- Change from 11/05/09 -->
+            <!-- This plugin is used to add the 'generated-sources' folder to the source folder.-->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.4</version>
+                <executions>
+                    <execution>
+                        <id>test</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${basedir}/target/generated-sources</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- This plugin is used to generate the java sources from the wsdl's.-->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jaxws-maven-plugin</artifactId>
@@ -538,8 +561,6 @@
                     </dependency>
                 </dependencies>
             </plugin>
-            <!--  End change -->
-
 
         </plugins>
     </build>
