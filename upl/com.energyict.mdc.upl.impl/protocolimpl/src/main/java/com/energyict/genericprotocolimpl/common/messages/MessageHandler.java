@@ -107,6 +107,10 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.WAKEUP_ADD_WHITELIST.equals(qName)){
 			setType(RtuMessageConstant.WAKEUP_ADD_WHITELIST);
 			handleWakeUpWhiteList(attrbs);
+        } else if(RtuMessageConstant.WAKEUP_ACTIVATE.equals(qName)){
+            setType(RtuMessageConstant.WAKEUP_ACTIVATE);
+        } else if(RtuMessageConstant.WAKEUP_DEACTIVATE.equals(qName)){
+            setType(RtuMessageConstant.WAKEUP_DEACTIVATE);
 		} else if(RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY.equals(qName)){
 			setType(RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY);
 		} else if(RtuMessageConstant.AEE_CHANGE_HLS_SECRET.equals(qName)){

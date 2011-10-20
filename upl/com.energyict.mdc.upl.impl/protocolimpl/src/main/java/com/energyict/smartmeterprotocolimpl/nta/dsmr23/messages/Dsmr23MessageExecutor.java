@@ -292,8 +292,22 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                         log(Level.INFO, msgResult.getInfo());
                         return msgResult;
                     }
+                } else if(adt.isStructure()){
+                    Structure struct = (Structure) adt;
+                    Unsigned8 u8 = (Unsigned8) struct.getDataType(struct.nrOfDataTypes()-1);
+                    if(u8.intValue() != newAuthLevel){
+                        u8 = new Unsigned8(newAuthLevel);
+                        struct.setDataType(struct.nrOfDataTypes()-1, u8);
+                        aln.writeAuthenticationMechanismName(struct);
+                        return MessageResult.createSuccess(msgEntry);
+                    } else {
+                        msgResult = MessageResult.createSuccess(msgEntry, "New authenticationLevel is the same as the one that is already configured in the device, " +
+                                "new level will not be written.");
+                        log(Level.INFO, msgResult.getInfo());
+                        return msgResult;
+                    }
                 } else {
-                    msgResult = MessageResult.createFailed(msgEntry, "Returned AuthenticationMechanismName is not of the type OctetString.");
+                    msgResult = MessageResult.createFailed(msgEntry, "Returned AuthenticationMechanismName is not of the type OctetString, nor Structure.");
                 }
             } else {
                 msgResult =  MessageResult.createFailed(msgEntry, "Changing authenticationLevel using ShortName referencing is not supported.");
