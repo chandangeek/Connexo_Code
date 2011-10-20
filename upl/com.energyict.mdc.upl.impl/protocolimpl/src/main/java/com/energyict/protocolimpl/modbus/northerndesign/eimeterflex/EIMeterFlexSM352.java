@@ -127,7 +127,7 @@ public final class EIMeterFlexSM352 extends Modbus {
 	 * {@inheritDoc}
 	 */
     public final String getProtocolVersion() {
-        return "$Date: 2011-10-20 17:49:52 +0200 (do, 20 okt 2011) $";
+        return "$Date$";
     }
 
     /**
