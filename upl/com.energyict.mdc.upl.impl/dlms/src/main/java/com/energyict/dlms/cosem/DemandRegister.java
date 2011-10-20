@@ -185,8 +185,4 @@ public class DemandRegister extends AbstractCosemObject implements CosemObject {
         return DLMSClassId.DEMAND_REGISTER.getClassId();
     }
 
-    public AbstractDataType getAttrbAbstractDataType(int attribute) throws IOException{
-    	return AXDRDecoder.decode(getLNResponseData(attribute));
-    }
-
 }

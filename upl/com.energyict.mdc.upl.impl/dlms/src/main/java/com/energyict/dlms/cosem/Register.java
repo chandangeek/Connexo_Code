@@ -126,7 +126,4 @@ public class Register extends AbstractCosemObject implements CosemObject {
         write(2, dataType.getBEREncodedByteArray());
     }
 
-    public AbstractDataType getAttrbAbstractDataType(int attribute) throws IOException{
-    	return AXDRDecoder.decode(getLNResponseData(attribute));
-    }
 }

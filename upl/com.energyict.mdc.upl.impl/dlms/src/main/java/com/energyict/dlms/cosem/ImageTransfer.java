@@ -174,7 +174,7 @@ public class ImageTransfer extends AbstractCosemObject{
 
 			// Step5: Verify image
 			verifyAndRetryImage();
-			this.protocolLink.getLogger().log(Level.INFO, "Verification of the image was succesfull at : " + new Date(System.currentTimeMillis()));
+			this.protocolLink.getLogger().log(Level.INFO, "Verification of the image was successful at : " + new Date(System.currentTimeMillis()));
 
 			// Step6: Check image before activation
 			// Skip this step

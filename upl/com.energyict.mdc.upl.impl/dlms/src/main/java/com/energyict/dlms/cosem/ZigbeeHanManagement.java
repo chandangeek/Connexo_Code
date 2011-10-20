@@ -20,7 +20,7 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
     public static final byte[] LN = new byte[]{0, 0, 35, 5, 0, (byte) 255};
 
     private Structure blackList;
-    private Structure activeDevices;
+    private Array activeDevices;
     private Structure backupData;
 
     /**
@@ -83,8 +83,8 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      * @return the up-to-date structure with the active devices
      * @throws IOException if for some reason we could not read the attribute
      */
-    public Structure readActiveDevices() throws IOException {
-        this.activeDevices = new Structure(getResponseData(ZigbeeHanManagementAttributes.ACTIVE_DEVICES), 0, 0);
+    public Array readActiveDevices() throws IOException {
+        this.activeDevices = new Array(getResponseData(ZigbeeHanManagementAttributes.ACTIVE_DEVICES), 0, 0);
         return this.activeDevices;
     }
 
@@ -94,7 +94,7 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      * @param activeDevices the activeDevices to write
      * @throws IOException if for some reason we could not write the attribute
      */
-    public void writeActiveDevices(Structure activeDevices) throws IOException {
+    public void writeActiveDevices(Array activeDevices) throws IOException {
         write(ZigbeeHanManagementAttributes.ACTIVE_DEVICES, activeDevices.getBEREncodedByteArray());
         this.activeDevices = activeDevices;
     }
@@ -105,7 +105,7 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      * @return the 'cached' activeDevices attribute
      * @throws IOException if for some reason we could not read the attribute
      */
-    public Structure getActiveDevices() throws IOException {
+    public Array getActiveDevices() throws IOException {
         if (this.activeDevices == null) {
             readActiveDevices();
         }

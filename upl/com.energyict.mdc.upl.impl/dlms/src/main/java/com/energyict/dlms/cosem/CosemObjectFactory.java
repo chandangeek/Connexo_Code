@@ -355,6 +355,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 		return new SecuritySetup(protocolLink);
 	}
     
+	public SecuritySetup getSecuritySetup(ObisCode obisCode) throws IOException {
+		return new SecuritySetup(protocolLink, getObjectReference(obisCode));
+	}
+
     public ZigbeeHanManagement getZigbeeHanManagement() throws IOException {
         return new ZigbeeHanManagement(protocolLink);
     }

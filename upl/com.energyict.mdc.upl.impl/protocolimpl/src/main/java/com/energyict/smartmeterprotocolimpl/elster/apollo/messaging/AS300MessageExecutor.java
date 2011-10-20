@@ -111,7 +111,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
             String base64Encoded = getIncludedContent(content);
             byte[] imageData = new BASE64Decoder().decodeBuffer(base64Encoded);
             final ImageTransfer it = getCosemObjectFactory().getImageTransfer();
-            it.upgrade(imageData);
+            it.upgrade(imageData, false);
             it.imageActivation();
         } catch (InterruptedException e) {
             String msg = "Firmware upgrade failed! " + e.getClass().getName() + " : " + e.getMessage();

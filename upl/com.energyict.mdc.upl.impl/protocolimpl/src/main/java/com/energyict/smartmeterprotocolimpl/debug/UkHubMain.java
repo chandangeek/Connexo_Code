@@ -1,15 +1,13 @@
 package com.energyict.smartmeterprotocolimpl.debug;
 
 import com.energyict.dialer.core.LinkException;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.debug.AbstractSmartDebuggingMain;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
-import sun.misc.BASE64Encoder;
 
 import java.io.IOException;
 import java.util.*;
@@ -54,9 +52,8 @@ public class UkHubMain extends AbstractSmartDebuggingMain<UkHub> {
     public static void main(String[] args) {
         UkHubMain main = new UkHubMain();
         main.setTimeZone(TimeZone.getTimeZone("GMT"));
-        //main.setPhoneNumber("10.0.2.215:4059");
-        main.setPhoneNumber("10.113.0.19:4059");
-        main.setShowCommunication(true);
+        main.setPhoneNumber("10.113.0.18:4059");
+        main.setShowCommunication(false);
         main.run();
     }
 
@@ -65,9 +62,63 @@ public class UkHubMain extends AbstractSmartDebuggingMain<UkHub> {
     }
 
     public void doDebug() throws LinkException, IOException {
-        String firmwareVersion = getMeterProtocol().getFirmwareVersion();
-        System.out.println("\n\n" + firmwareVersion + "\n\n");
+        String[] obisCodesAsString = new String[]{
+                "0-0:96.12.5.255"
+        };
+        for (String obisCodeAsString : obisCodesAsString) {
+            String correctObisString = obisCodeAsString.replace("-", ".").replace(":", ".");
+            testRegisterObisCode(ObisCode.fromString(correctObisString));
+        }
+    }
 
+    private void testProfileObisCode(ObisCode obisCode) {
+        System.out.println("Reading profile generic object with obisCode [" + obisCode + "]");
+        try {
+            ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(obisCode);
+            List<CapturedObject> captureObjects = profileGeneric.getCaptureObjects();
+            int capturePeriod = profileGeneric.getCapturePeriod();
+            //int sortMethod = profileGeneric.getSortMethod();
+
+            System.out.println("Captured objects = ");
+            for (CapturedObject captureObject : captureObjects) {
+                System.out.println("  > " + captureObject);
+            }
+            System.out.println("capturePeriod = " + capturePeriod);
+            //System.out.println("sortMethod = " + sortMethod);
+
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        System.out.println();
+    }
+
+    private void testRegisterObisCode(ObisCode obisCode) {
+        System.out.println("Reading register object with obisCode [" + obisCode + "]");
+        try {
+            Register data = getCosemObjectFactory().getRegister(obisCode);
+            AbstractDataType valueAttr = data.getValueAttr();
+            ScalerUnit scalerUnit = data.getScalerUnit();
+            System.out.println("valueAttrib = " + valueAttr.toString().replace("\n", " "));
+            System.out.println("scalerUnit = " + scalerUnit);
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        System.out.println();
+    }
+
+    private void testDataObisCode(ObisCode obisCode) {
+        System.out.println("Reading data object with obisCode [" + obisCode + "]");
+        try {
+            Data data = getCosemObjectFactory().getData(obisCode);
+            AbstractDataType valueAttr = data.getValueAttr();
+            if (valueAttr.isOctetString()) {
+                System.out.println("value = " + valueAttr.getOctetString().stringValue());
+            }
+            System.out.println(valueAttr);
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        System.out.println();
     }
 
 }

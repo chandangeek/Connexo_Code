@@ -107,14 +107,6 @@ public class ExtendedRegister extends Register implements CosemObject {
     }
 
     /**
-     * @param attribute - the attribute of the DLMS object you try to read
-     * @return the value of the attribute in an abstract type
-     */
-    public AbstractDataType getAttrbAbstractDataType(int attribute) throws IOException{
-    	return AXDRDecoder.decode(getLNResponseData(attribute));
-    }
-
-    /**
      * @return the status of the register
      * @throws IOException if resulted dataType is not supported or when read failed.
      */

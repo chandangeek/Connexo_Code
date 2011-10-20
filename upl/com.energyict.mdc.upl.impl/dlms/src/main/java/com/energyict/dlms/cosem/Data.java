@@ -119,8 +119,4 @@ public class Data extends AbstractCosemObject implements CosemObject {
         return CLASSID;
     }
 
-    public AbstractDataType getAttrbAbstractDataType(int attribute) throws IOException{
-    	return AXDRDecoder.decode(getLNResponseData(attribute));
-    }
-
 }

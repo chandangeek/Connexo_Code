@@ -1847,4 +1847,8 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
         return getObjectReference() != null ? getObjectReference().getObisCode() : null;
     }
 
+    public AbstractDataType getAttrbAbstractDataType(int attribute) throws IOException{
+    	return AXDRDecoder.decode(getLNResponseData(attribute));
+    }
+
 }
