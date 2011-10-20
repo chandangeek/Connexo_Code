@@ -183,7 +183,7 @@ public class Enerium200 extends Modbus {
 	 * Public getters and setters
 	 */
 
-    private MeterInfo getMeterInfo() throws IOException {
+    protected MeterInfo getMeterInfo() throws IOException {
 		if (this.meterInfo == null) {
 	    	meterInfo = (MeterInfo) getRegFactory().meterInfo.value();
 		}
