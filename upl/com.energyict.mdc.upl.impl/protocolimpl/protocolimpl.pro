@@ -121,6 +121,10 @@
 
 -keepnames class com.energyict.protocolimpl.modbus.eictmodbusrtu.EictModbusRtu
 
+-keepnames class com.energyict.protocolimpl.modbus.northerndesign.eimeterflex.EIMeterFlexSM352
+
+-keepnames class com.energyict.protocolimpl.modbus.northerndesign.cube350.Cube350
+
 -keepnames class com.energyict.protocolimpl.elster.alpha.alphabasic.AlphaBasic
 
 -keepnames class com.energyict.protocolimpl.ge.kv.GEKV
