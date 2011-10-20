@@ -310,6 +310,10 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         this.protocolNames.add("SmartMeter - NTA DSMR 2.3 WebRTUKP protocol");
         this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.Mx382");
         this.protocolNames.add("SmartMeter - NTA DSMR 2.3 Iskra Mx382 protocol");
+        this.protocolClasses.add("com.energyict.protocolimpl.modbus.enerdis.enerium150.Enerium150");
+        this.protocolNames.add("Enerdis Enerium 150 modbus meter");
+        this.protocolClasses.add("com.energyict.protocolimpl.modbus.enerdis.enerium50.Enerium50");
+        this.protocolNames.add("Enerdis Enerium 50 modbus meter");
     }
 
     public String getProtocolName(int index) throws IOException {
