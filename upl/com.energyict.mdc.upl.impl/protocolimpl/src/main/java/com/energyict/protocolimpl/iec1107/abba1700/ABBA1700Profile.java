@@ -510,7 +510,7 @@ public class ABBA1700Profile {
         if ((status & DATA_CHANGE) == DATA_CHANGE)
              intervalData.addEiStatus(IntervalStateBits.CONFIGURATIONCHANGE);
         if ((status & BATTERY_FAIL) == BATTERY_FAIL)
-             intervalData.addEiStatus(IntervalStateBits.OTHER);
+             intervalData.addEiStatus(IntervalStateBits.BATTERY_LOW);
         if ((status & REVERSE_RUN) == REVERSE_RUN)
              intervalData.addEiStatus(IntervalStateBits.REVERSERUN);
         if ((status & PHASE_FAILURE) == PHASE_FAILURE)
