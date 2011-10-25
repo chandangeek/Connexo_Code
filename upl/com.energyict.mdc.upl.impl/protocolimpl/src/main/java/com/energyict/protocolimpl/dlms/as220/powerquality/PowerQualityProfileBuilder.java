@@ -4,12 +4,11 @@ import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocolimpl.dlms.as220.emeter.LoadProfileCompactArrayEntry;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.dlms.as220.AS220;
 
 import java.io.IOException;
 import java.util.*;
@@ -25,6 +24,7 @@ import java.util.*;
  */
 public class PowerQualityProfileBuilder {
 
+    private static final int STATUS_MISSING_VALUE = 0x10000000;
     private final PowerQuality powerQuality;
 
 
@@ -80,7 +80,7 @@ public class PowerQualityProfileBuilder {
         return channelInfos;
     }
 
-    public List<IntervalData> buildIntervalData(DataContainer dc) throws IOException {
+    public List<IntervalData> buildIntervalData(DataContainer dc, AS220 as220) throws IOException {
         List<IntervalData> intervalList = new ArrayList<IntervalData>();
         Calendar cal = null;
         IntervalData currentInterval = null;
@@ -89,7 +89,8 @@ public class PowerQualityProfileBuilder {
 
             for (int i = 0; i < dc.getRoot().getElements().length; i++) {
                 if (dc.getRoot().getStructure(i).isOctetString(0)) {
-                    cal = new AXDRDateTime(new OctetString(dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex()).getArray())).getValue();
+                    OctetString octetString = new OctetString(dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex()).getArray());
+                    cal = new AXDRDateTime(octetString.getBEREncodedByteArray(), 0, as220.getTimeZone()).getValue();
                 } else {
                     if (cal != null) {
                         cal.add(Calendar.SECOND, getProfileInterval());
@@ -98,16 +99,19 @@ public class PowerQualityProfileBuilder {
                 if (cal != null) {
 
                     if (getProfileStatusChannelIndex() != -1) {
-                        profileStatus = dc.getRoot().getStructure(i).getInteger(getProfileStatusChannelIndex());
-                    } else {
-                        profileStatus = 0;
+                        profileStatus = profileStatus | dc.getRoot().getStructure(i).getInteger(getProfileStatusChannelIndex());
                     }
 
                     currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus);
                     if (currentInterval != null) {
-//                        pd.addInterval(currentInterval);
+                        IntervalValue intervalValue = (IntervalValue) currentInterval.getIntervalValues().get(0);
+                        if (intervalValue.getNumber().intValue() != STATUS_MISSING_VALUE) {             //Don't add this value
+                            if (ParseUtils.isOnIntervalBoundary(cal, as220.getProfileInterval())) {     //Don't add values with invalid timestamps
                         intervalList.add(currentInterval);
                     }
+                            profileStatus = 0; //Reset, else keep the status for the next interval
+                }
+            }
                 }
             }
         } else {

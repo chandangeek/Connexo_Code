@@ -1,26 +1,29 @@
 package com.energyict.dlms.axrdencoding.util;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.SimpleTimeZone;
-import java.util.TimeZone;
-
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.protocol.ProtocolUtils;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.*;
+
 /**
+ * @author gna
+ * @since 03/02/2009
  * This is the copy of the DateTime class.
  * The blue book describes the dateTime as an OctetString(size(12)). The 12 indicates that the length is fixed an does not have to be encode.
+ *
  * <pre>
+ *
  *               deviation
+ *
  *                long:        in minutes of local time to GMT
  *                             0x8000 = not specified
  *
  *               clock_status
+ *
  *                bit 0 (LSB): invalid value (Time could not be recovered after an incident.)
  *                bit 1:       doubtfull vlaue
  *                bit 2:       different clock base
@@ -30,7 +33,9 @@ import com.energyict.protocol.ProtocolUtils;
  *                bit 6:       reserved
  *                bit 7 (MSB): daylist saving active
  *
+ *
  *               date_time
+ *
  *                year highbyte;
  *                year lowbyte;
  *                month;
@@ -44,8 +49,10 @@ import com.energyict.protocol.ProtocolUtils;
  *                defiation lowbyte;
  *                clock status;
  * 
+ *
  *               day of week is ignored: calendar knows this
  *               deviation is ignored: protocol configuration provides timezone
+ *
  *</pre>
  *
  * @author gna
@@ -140,6 +147,61 @@ public class AXDRDateTime extends AbstractDataType {
 
         int month = ProtocolUtils.getByte2Int(berEncodedData, ptr);
         dateTime.set(Calendar.MONTH, month - 1);
+        ptr = ptr + 1;
+
+        int dayOfMonth = ProtocolUtils.getByte2Int(berEncodedData, ptr);
+        dateTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+        ptr = ptr + 2; // one extra: skip day of week
+
+        int hour = ProtocolUtils.getByte2Int(berEncodedData, ptr);
+        dateTime.set(Calendar.HOUR_OF_DAY, hour);
+        ptr = ptr + 1;
+
+        int minute = ProtocolUtils.getByte2Int(berEncodedData, ptr);
+        dateTime.set(Calendar.MINUTE, minute);
+        ptr = ptr + 1;
+
+        int second = ProtocolUtils.getByte2Int(berEncodedData, ptr);
+        dateTime.set(Calendar.SECOND, second);
+
+        dateTime.set(Calendar.MILLISECOND, 0);
+
+        ptr = ptr + 1;
+
+        ptr = ptr + 1;
+
+        ptr = ptr + 1;    // deviation highbyte
+
+        ptr = ptr + 1;    // deviation lowbyte
+
+        status = ProtocolUtils.getByte2Int(berEncodedData, ptr);
+
+
+    }
+
+    /**
+     * In case the deviation information is not present in the octet string, this method can be used.
+     * @param berEncodedData the bytes of the octet string
+     * @param offset start position for the byte array
+     * @param tz the device timezone
+     * @throws IOException
+     */
+    public AXDRDateTime(byte[] berEncodedData, int offset, TimeZone tz) throws IOException {
+    	int ptr = offset;
+
+    	if (berEncodedData[ptr] != DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING){
+            throw new IOException("AXDRDateTime, invalid identifier "+berEncodedData[ptr]);
+    	}
+    	ptr = ptr + 2;
+
+    	dateTime = Calendar.getInstance(tz);
+
+        int year = ProtocolUtils.getShort(berEncodedData, ptr );
+        dateTime.set(Calendar.YEAR, year);
+        ptr = ptr + 2;
+
+        int month = ProtocolUtils.getByte2Int(berEncodedData, ptr);
+        dateTime.set(Calendar.MONTH, month-1);
         ptr = ptr + 1;
 
         int dayOfMonth = ProtocolUtils.getByte2Int(berEncodedData, ptr);

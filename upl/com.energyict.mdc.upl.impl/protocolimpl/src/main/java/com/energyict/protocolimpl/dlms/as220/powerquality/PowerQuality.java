@@ -1,13 +1,11 @@
 package com.energyict.protocolimpl.dlms.as220.powerquality;
 
-import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 
 import java.io.IOException;
@@ -51,7 +49,7 @@ public class PowerQuality {
 
         DataContainer dc = pg.getBuffer(fromCal, toCal);
 
-        profileData.setIntervalDatas(pqpb.buildIntervalData(dc));
+        profileData.setIntervalDatas(pqpb.buildIntervalData(dc, as220));
 
         profileData.sort();
         return profileData;
