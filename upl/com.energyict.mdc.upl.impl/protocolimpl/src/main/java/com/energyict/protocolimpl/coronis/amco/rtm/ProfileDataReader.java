@@ -112,6 +112,14 @@ public class ProfileDataReader {
         long initialOffset = -1;
         GenericHeader genericHeader = null;
 
+        if (rtm.usesInitialRFCommand()) {
+            ExtendedDataloggingTable table = rtm.getRadioCommandFactory().getCachedExtendedDataloggingTable();
+            genericHeader = table.getGenericHeader();
+            rawValues = table.getProfileDataForAllPorts();
+            setProfileInterval(table.getProfileInterval());
+            return parseProfileData(genericHeader, false, rawValues, new ProfileData(), monthly, false, new Date(), new Date(0), table.getLastLoggedTimeStamp(), 0);
+        }
+
         //Get the profile data for all selected input channels, in case of periodic/weekly/monthly measuring.
         for (int port = 0; port < getNumberOfInputsUsed(); port++) {
             nrOfIntervals = initialNrOfIntervals;
@@ -180,13 +188,17 @@ public class ProfileDataReader {
         profileData.setChannelInfos(channelInfos);
 
         // initialize calendar
-        if (!monthly) {
-            calendar.setTime(getTimeStampOfNewestRecord(lastLoggedValue, initialOffset));
-            if (!ParseUtils.isOnIntervalBoundary(calendar, getProfileIntervalInSeconds())) {
-                ParseUtils.roundDown2nearestInterval(calendar, getProfileIntervalInSeconds());
-            }
+        if (rtm.usesInitialRFCommand()) {
+            calendar.setTime(lastLoggedValue);
         } else {
-            calendar.setTime(getTimeStampOfNewestRecordMonthly(toDate, lastLoggedValue));
+            if (!monthly) {
+                calendar.setTime(getTimeStampOfNewestRecord(lastLoggedValue, initialOffset));
+                if (!ParseUtils.isOnIntervalBoundary(calendar, getProfileIntervalInSeconds())) {
+                    ParseUtils.roundDown2nearestInterval(calendar, getProfileIntervalInSeconds());
+                }
+            } else {
+                calendar.setTime(getTimeStampOfNewestRecordMonthly(toDate, lastLoggedValue));
+            }
         }
 
         if (daily) {
@@ -211,7 +223,7 @@ public class ProfileDataReader {
             }
 
             //Don't add the record if it doesn't belong in the requested interval, except for pushed daily consumption data
-            if ((daily && !requestsAllowed) || (calendar.getTime().before(toDate) && calendar.getTime().after(lastReading))) {
+            if (rtm.usesInitialRFCommand() || ((daily && !requestsAllowed) || (calendar.getTime().before(toDate) && calendar.getTime().after(lastReading)))) {
                 intervalDatas.add(new IntervalData(calendar.getTime(), 0, 0, 0, intervalValues));
             }
 
@@ -246,74 +258,118 @@ public class ProfileDataReader {
 
     private List<MeterEvent> buildMeterEvents(Date lastReading, Date toDate) throws IOException {
 
+        boolean usesInitialRFCommand = rtm.usesInitialRFCommand();
+
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         ApplicationStatus status = rtm.getParameterFactory().readApplicationStatus();
         int numberOfPorts = rtm.getParameterFactory().readOperatingMode().readNumberOfPorts();
 
         if (status.isLowBatteryWarning()) {
-            Date eventDate = rtm.getParameterFactory().readLowBatteryDetectionDate();
+            Date eventDate = new Date();
+            if (!usesInitialRFCommand) {
+                eventDate = rtm.getParameterFactory().readLowBatteryDetectionDate();
+            }
             meterEvents.add(new MeterEvent(eventDate, MeterEvent.BATTERY_VOLTAGE_LOW, EventStatusAndDescription.EVENTCODE_BATTERY_LOW, "Low battery level detected"));
             if (profileType.isEvoHop()) {
                 return meterEvents;         //Low battery is the only event available in the evoHop module
             }
         }
 
-        meterEvents.addAll(rtm.getRadioCommandFactory().readLeakageEventTable().getMeterEvents());
+        if (!usesInitialRFCommand) {
+            meterEvents.addAll(rtm.getRadioCommandFactory().readLeakageEventTable().getMeterEvents());
+        }
 
-        for (int input = 0; input < numberOfPorts; input++) {
-            meterEvents.addAll(rtm.getParameterFactory().readSimpleBackflowDetectionFlags(input + 1).getMeterEvents());
+        if (!usesInitialRFCommand) {
+            for (int input = 0; input < numberOfPorts; input++) {
+                meterEvents.addAll(rtm.getParameterFactory().readSimpleBackflowDetectionFlags(input + 1).getMeterEvents());
+            }
         }
 
         if (profileType.isPulse()) {
             if (status.isTamperDetectionOnPortA()) {
-                Date eventDate = rtm.getParameterFactory().readTamperDetectionDate(1);
+                Date eventDate = new Date();
+                if (!usesInitialRFCommand) {
+                    eventDate = rtm.getParameterFactory().readTamperDetectionDate(1);
+                }
                 meterEvents.add(new MeterEvent(eventDate, MeterEvent.TAMPER, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_A, "Tamper detection on port A"));
             }
             if (status.isTamperDetectionOnPortB()) {
-                Date eventDate = rtm.getParameterFactory().readTamperDetectionDate(2);
+                Date eventDate = new Date();
+                if (!usesInitialRFCommand) {
+                    eventDate = rtm.getParameterFactory().readTamperDetectionDate(2);
+                }
                 meterEvents.add(new MeterEvent(eventDate, MeterEvent.TAMPER, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_B, "Tamper detection on port B"));
             }
             if (status.isTamperDetectionOnPortC()) {
-                Date eventDate = rtm.getParameterFactory().readTamperDetectionDate(3);
+                Date eventDate = new Date();
+                if (!usesInitialRFCommand) {
+                    eventDate = rtm.getParameterFactory().readTamperDetectionDate(3);
+                }
                 meterEvents.add(new MeterEvent(eventDate, MeterEvent.TAMPER, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_C, "Tamper detection on port C"));
             }
             if (status.isTamperDetectionOnPortD()) {
-                Date eventDate = rtm.getParameterFactory().readTamperDetectionDate(4);
+                Date eventDate = new Date();
+                if (!usesInitialRFCommand) {
+                    eventDate = rtm.getParameterFactory().readTamperDetectionDate(4);
+                }
                 meterEvents.add(new MeterEvent(eventDate, MeterEvent.TAMPER, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_D, "Tamper detection on port D"));
             }
         }
 
         if (profileType.isValve()) {
-            meterEvents.addAll(rtm.getParameterFactory().readLeakageDetectionStatus().getMeterEvents());
+            if (!usesInitialRFCommand) {
+                meterEvents.addAll(rtm.getParameterFactory().readLeakageDetectionStatus().getMeterEvents());
+            }
             if (status.isValveFault()) {
-                Date eventDate = rtm.getParameterFactory().readValveErrorDetectionDate();
+                Date eventDate = new Date();
+                if (!usesInitialRFCommand) {
+                    eventDate = rtm.getParameterFactory().readValveErrorDetectionDate();
+                }
                 meterEvents.add(new MeterEvent(eventDate, 0, EventStatusAndDescription.EVENTCODE_VALVE_FAULT, "Valve communication error detected"));
             }
         }
 
         if (profileType.isEncoder()) {
             if (status.isBackFlowOnPortA()) {
-                Date eventDate = rtm.getParameterFactory().readBackflowDate(1);
+                Date eventDate = new Date();
+                if (!usesInitialRFCommand) {
+                    eventDate = rtm.getParameterFactory().readBackflowDate(1);
+                }
                 meterEvents.add(new MeterEvent(eventDate, 0, EventStatusAndDescription.EVENTCODE_BACKFLOW_END_A, "Backflow detected on port A"));
             }
             if (status.isBackFlowOnPortB()) {
-                Date eventDate = rtm.getParameterFactory().readBackflowDate(2);
+                Date eventDate = new Date();
+                if (!usesInitialRFCommand) {
+                    eventDate = rtm.getParameterFactory().readBackflowDate(2);
+                }
                 meterEvents.add(new MeterEvent(eventDate, 0, EventStatusAndDescription.EVENTCODE_BACKFLOW_END_B, "Backflow detected on port B"));
             }
             if (status.isEncoderCommFaultOnPortA()) {
-                Date eventDate = rtm.getParameterFactory().readEncoderCommFaultDate(1);
+                Date eventDate = new Date();
+                if (!usesInitialRFCommand) {
+                    eventDate = rtm.getParameterFactory().readEncoderCommFaultDate(1);
+                }
                 meterEvents.add(new MeterEvent(eventDate, 0, EventStatusAndDescription.EVENTCODE_ENCODER_COMMUNICATION_FAULT_A, "Encoder communication fault on port A"));
             }
             if (status.isEncoderCommFaultOnPortB()) {
-                Date eventDate = rtm.getParameterFactory().readEncoderCommFaultDate(2);
+                Date eventDate = new Date();
+                if (!usesInitialRFCommand) {
+                    eventDate = rtm.getParameterFactory().readEncoderCommFaultDate(2);
+                }
                 meterEvents.add(new MeterEvent(eventDate, 0, EventStatusAndDescription.EVENTCODE_ENCODER_COMMUNICATION_FAULT_B, "Encoder communication fault on port B"));
             }
             if (status.isEncoderMisreadOnPortA()) {
-                Date eventDate = rtm.getParameterFactory().readEncoderReadingErrorDate(1);
+                Date eventDate = new Date();
+                if (!usesInitialRFCommand) {
+                    eventDate = rtm.getParameterFactory().readEncoderReadingErrorDate(1);
+                }
                 meterEvents.add(new MeterEvent(eventDate, 0, EventStatusAndDescription.EVENTCODE_ENCODER_MISREAD_A, "Encoder misread on port A"));
             }
             if (status.isEncoderMisreadOnPortB()) {
-                Date eventDate = rtm.getParameterFactory().readEncoderReadingErrorDate(2);
+                Date eventDate = new Date();
+                if (!usesInitialRFCommand) {
+                    eventDate = rtm.getParameterFactory().readEncoderReadingErrorDate(2);
+                }
                 meterEvents.add(new MeterEvent(eventDate, 0, EventStatusAndDescription.EVENTCODE_ENCODER_MISREAD_B, "Encoder misread on port B"));
             }
         }

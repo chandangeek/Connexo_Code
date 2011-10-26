@@ -10,10 +10,12 @@ public class RadioCommandFactory {
 
 
     private RTM rtm;
+    private RSSILevel rssiLevel = null;
 
     // Cached, only needs to be read out once.
     private FirmwareVersion firmwareVersion = null;
     EncoderModelDetection encoderModel = null;
+    private ExtendedDataloggingTable cachedExtendedDataloggingTable = null;
 
     public RadioCommandFactory(RTM rtm) {
         this.rtm = rtm;
@@ -72,6 +74,24 @@ public class RadioCommandFactory {
         return table;
     }
 
+    /**
+     * Depending on the number of configured channels (in EiServer), the port mask is either 0x01, 0x03, 0x07 or 0x0F.
+     *
+     * @param portMask indicates which channels should be read out. E.g. 3 first channels = 0x07 (00000111)
+     * @param numberOfReadings how many LP entries per port (total max is 24, aka 8 entries for 3 ports, or 6 entries for 4 ports, etc..)
+     * @return a table containing the requested profile data entries
+     * @throws IOException timeout errors etc
+     */
+    final public ExtendedDataloggingTable readExtendedDataloggingTable(int portMask, int numberOfReadings) throws IOException {
+        cachedExtendedDataloggingTable = new ExtendedDataloggingTable(rtm, portMask, numberOfReadings);
+        cachedExtendedDataloggingTable.set();
+        return cachedExtendedDataloggingTable;
+    }
+
+    public ExtendedDataloggingTable getCachedExtendedDataloggingTable() {
+        return cachedExtendedDataloggingTable;
+    }
+
     final public LeakageEventTable readLeakageEventTable() throws IOException {
         LeakageEventTable leakageEventTable = new LeakageEventTable(rtm);
         leakageEventTable.set();
@@ -127,10 +147,16 @@ public class RadioCommandFactory {
         return status;
     }
 
-    public double readRSSI() throws IOException {
-        RSSILevel rssiLevel = new RSSILevel(rtm);
-        rssiLevel.set();
-        return rssiLevel.getRssiLevel();
+    public RSSILevel readRSSI() throws IOException {
+        if (rssiLevel == null) {
+            rssiLevel = new RSSILevel(rtm);
+            rssiLevel.set();
+        }
+        return rssiLevel;
+    }
+
+    public void setRSSILevel(RSSILevel rssiLevel) {
+        this.rssiLevel = rssiLevel;
     }
 
     public void detectEncoderModel() throws IOException {

@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
+import com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand.RSSILevel;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -24,13 +25,14 @@ public class GenericHeader {
     private OperatingMode operationMode = null;
     private ApplicationStatus applicationStatus = null;
     private ProfileType profileType = null;
+    private RTM rtm;
 
     public ProfileType getProfileType() {
         return profileType;
     }
 
     public double getQos() {
-        return qos;
+        return (qos / MAX) * 100;
     }
 
     public OperatingMode getOperationMode() {
@@ -38,7 +40,7 @@ public class GenericHeader {
     }
 
     public double getShortLifeCounter() {
-        return shortLifeCounter;
+        return 100 - (((getInitialBatteryCount(radioAddress) * 100) - (shortLifeCounter * 100)) / getInitialBatteryCount(radioAddress));
     }
 
     public GenericHeader(byte[] radioAddress) {
@@ -94,7 +96,8 @@ public class GenericHeader {
         return applicationStatus;
     }
 
-    public GenericHeader() {
+    public GenericHeader(RTM rtm) {
+        this.rtm = rtm;
     }
 
     private static boolean isRtm(byte[] radioAddress) {
@@ -133,20 +136,22 @@ public class GenericHeader {
     }
 
     public void parse(byte[] data) throws IOException {
-
         operationMode = new OperatingMode(new RTM(), ProtocolTools.getIntFromBytes(data, 1, 2));
+        rtm.getParameterFactory().setOperatingMode(operationMode);
+
         applicationStatus = new ApplicationStatus(new RTM(), data[3] & 0xFF);
+        rtm.getParameterFactory().setApplicationStatus(applicationStatus);
 
         qos = ProtocolTools.getUnsignedIntFromBytes(data, 12, 1);
-        qos = (qos / MAX) * 100;
+        rtm.getRadioCommandFactory().setRSSILevel(new RSSILevel(rtm, (int) qos));
 
         shortLifeCounter = ProtocolTools.getUnsignedIntFromBytes(data, 13, 2) << 8;
-        shortLifeCounter = 100 - (((getInitialBatteryCount(radioAddress) * 100) - (shortLifeCounter * 100)) / getInitialBatteryCount(radioAddress));
-
+        rtm.getParameterFactory().setBatteryLifeDurationCounter(new BatteryLifeDurationCounter(rtm, (int) shortLifeCounter));
 
         byte[] meterEncoderData = ProtocolTools.getSubArray(data, 15, 23);
         profileType = new ProfileType(new RTM());
         profileType.parse(data);
+        rtm.getParameterFactory().setProfileType(profileType);
 
         if (profileType.isPulse()) {
             PulseWeight pulseWeight;

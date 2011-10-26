@@ -18,6 +18,11 @@ public class RSSILevel extends AbstractRadioCommand {
         super(rtm);
     }
 
+    public RSSILevel(RTM rtm, int qos) {
+        super(rtm);
+        this.rssiLevel = qos;
+    }
+
     /*
     A percentage representing the saturation. 100% = full saturation = 48 dB
     */

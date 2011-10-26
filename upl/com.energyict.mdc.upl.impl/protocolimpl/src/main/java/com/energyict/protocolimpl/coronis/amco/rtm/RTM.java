@@ -28,9 +28,18 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     private boolean multiFrame;         //Custom property enabling multiframe mode. This mode is not available when using repeaters to reach the waveflow module.
     private int bubbleUpStartMoment;
     private int bubbleUpEndHour;
+    private int initialRFCommand = 0;
 
     public ObisCodeMapper getObisCodeMapper() {
         return obisCodeMapper;
+    }
+
+    public int getInitialRFCommand() {
+        return initialRFCommand;
+    }
+
+    public boolean usesInitialRFCommand() {
+        return initialRFCommand == 0x07;
     }
 
     public ParameterFactory getParameterFactory() {
@@ -53,6 +62,9 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     protected void doConnect() throws IOException {
         if (getExtendedLogging() >= 1) {
             getObisCodeMapper().getRegisterExtendedLogging();
+        }
+        if (getInitialRFCommand() == 0x07) {
+            getRadioCommandFactory().readExtendedDataloggingTable(((int) Math.pow(2, super.getNumberOfChannels())) - 1, 24 / super.getNumberOfChannels());
         }
     }
 
@@ -123,12 +135,13 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
         correctTime = Integer.parseInt(properties.getProperty(MeterProtocol.CORRECTTIME, "0"));
         verifyProfileInterval = Integer.parseInt(properties.getProperty("verifyProfileInterval", "1")) == 1;
         multiFrame = Integer.parseInt(properties.getProperty("EnableMultiFrameMode", "0")) == 1;
-        
+
         // e.g. USED,4,28740,28800,1,0e514a401f25
         bubbleUpStartMoment = Integer.parseInt(properties.getProperty("WavenisBubbleUpInfo", "USED,1,-1,-1,1,000000000000").split(",")[2]);
-        
+
         // e.g. USED,4,28740,28800,1,0e514a401f25
         bubbleUpEndHour = Integer.parseInt(properties.getProperty("WavenisBubbleUpInfo", "USED,1,-1,-1,1,000000000000").split(",")[3]);
+        initialRFCommand = Integer.parseInt(properties.getProperty("InitialRFCommand", "0").trim());
     }
 
     @Override
@@ -214,6 +227,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
         List result = new ArrayList();
         result.add("EnableMultiFrameMode");
         result.add("verifyProfileInterval");
+        result.add("InitialRFCommand");
         return result;
     }
 

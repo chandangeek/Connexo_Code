@@ -18,6 +18,7 @@ public class ParameterFactory {
     private SamplingPeriod samplingPeriod = null;
     private RtmUnit[] rtmUnits = new RtmUnit[4];
     private MeasurementPeriodMultiplier samplingIntervalMultiplier = null;
+    private BatteryLifeDurationCounter batteryLifeDurationCounter = null;
 
     private static final int DAILY = 60 * 60 * 24;
     private static final int WEEKLY = DAILY * 7;
@@ -145,9 +146,15 @@ public class ParameterFactory {
     }
 
     public BatteryLifeDurationCounter readBatteryLifeDurationCounter() throws IOException {
-        BatteryLifeDurationCounter counter = new BatteryLifeDurationCounter(rtm);
-        counter.read();
-        return counter;
+        if (batteryLifeDurationCounter == null) {
+            batteryLifeDurationCounter = new BatteryLifeDurationCounter(rtm);
+            batteryLifeDurationCounter.read();
+        }
+        return batteryLifeDurationCounter;
+    }
+
+    public void setBatteryLifeDurationCounter(BatteryLifeDurationCounter batteryLifeDurationCounter) {
+        this.batteryLifeDurationCounter = batteryLifeDurationCounter;
     }
 
     public BackflowDetectionFlags readSimpleBackflowDetectionFlags(int portId) throws IOException {
@@ -177,12 +184,20 @@ public class ParameterFactory {
         applicationStatus.write();
     }
 
+    public void setApplicationStatus(ApplicationStatus applicationStatus) {
+        this.applicationStatus = applicationStatus;
+    }
+
     public OperatingMode readOperatingMode() throws IOException {
         if (operatingMode == null) {
             operatingMode = new OperatingMode(rtm);
             operatingMode.read();
         }
         return operatingMode;
+    }
+
+    public void setOperatingMode(OperatingMode operatingMode) {
+        this.operatingMode = operatingMode;
     }
 
     public void setBubbleUpManagement(int enable) throws IOException {
@@ -260,6 +275,10 @@ public class ParameterFactory {
             profileType.read();
         }
         return profileType;
+    }
+
+    public void setProfileType(ProfileType profileType) {
+        this.profileType = profileType;
     }
 
     public AlarmConfiguration readAlarmConfiguration() throws IOException {
@@ -362,6 +381,7 @@ public class ParameterFactory {
 
     /**
      * Depending on the module type, returns the pulse weight or the encoder unit.
+     * This method is no longer used, only the units in the generic header are used.
      *
      * @param port: the port number, 1-based
      */

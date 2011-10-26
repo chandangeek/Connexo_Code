@@ -65,7 +65,7 @@ abstract public class AbstractRadioCommand {
 
     public GenericHeader getGenericHeader() {
         if (genericHeader == null) {
-            genericHeader = new GenericHeader();
+            genericHeader = new GenericHeader(getRTM());
         }
         return genericHeader;
     }

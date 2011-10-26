@@ -58,6 +58,13 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
         this.toDate = toDate;
     }
 
+    protected ExtendedDataloggingTable(RTM rtm, int portMask, int numberOfReadings) throws WaveFlowException {
+        super(rtm);
+        this.portMask = portMask;
+        this.numberOfRequestedReadings = numberOfReadings;
+        this.offset = 0;
+    }
+
     public List<Integer> getProfileData() {
         return profileData;
     }
@@ -151,6 +158,9 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
 
     @Override
     public void parse(byte[] data) throws IOException {
+        if (getRTM().usesInitialRFCommand()) {
+            parseBubbleUpData(data);
+        }
 
         int frameCounter = 0;
         if ((data[0] & 0xFF) == 0xFF) {
