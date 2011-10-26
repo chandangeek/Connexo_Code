@@ -38,7 +38,7 @@ public class AlarmFrameParser {
         alarmId = data[offset] & 0xFF;   //Received from the RTU+Server, indicates the alarm frame type!
         offset++;
 
-        GenericHeader header = new GenericHeader();
+        GenericHeader header = new GenericHeader(rtm);
         header.parse(data);
         profileType = header.getProfileType();
 
