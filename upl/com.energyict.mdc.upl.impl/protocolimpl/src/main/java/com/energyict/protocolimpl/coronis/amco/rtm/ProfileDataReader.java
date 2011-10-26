@@ -115,6 +115,7 @@ public class ProfileDataReader {
         if (rtm.usesInitialRFCommand()) {
             ExtendedDataloggingTable table = rtm.getRadioCommandFactory().getCachedExtendedDataloggingTable();
             genericHeader = table.getGenericHeader();
+            profileInterval = table.getProfileInterval();
             rawValues = table.getProfileDataForAllPorts();
             setProfileInterval(table.getProfileInterval());
             return parseProfileData(genericHeader, false, rawValues, new ProfileData(), monthly, false, new Date(), new Date(0), table.getLastLoggedTimeStamp(), 0);
