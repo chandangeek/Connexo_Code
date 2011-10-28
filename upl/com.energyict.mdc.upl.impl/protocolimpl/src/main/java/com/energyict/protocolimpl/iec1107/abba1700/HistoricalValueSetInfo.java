@@ -47,8 +47,9 @@ public class HistoricalValueSetInfo {
     private String getTriggerSourceDescription() {
         StringBuffer strBuff = new StringBuffer();
         for (int i = 0; i < 8; i++) {
-            if ((getBillingTriggerSource()&(0x01<<i)) == (0x01<<i))
+            if ((getBillingTriggerSource() & (0x01 << i)) == (0x01 << i)) {
                 strBuff.append(", "+triggerSources[i]);
+            }
         }
         return strBuff.toString();
     }
@@ -150,7 +151,7 @@ public class HistoricalValueSetInfo {
     }
 
     private Date filterMissingDates(Date date) {
-        if ((date != null) && (date.getTime() == 0)) {
+        if ((date != null) && ((date.getTime() == 0) || (Math.abs(date.getTime()) == timeZone.getRawOffset()))) {
             return null;
         } else {
             return date;

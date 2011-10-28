@@ -174,20 +174,27 @@ public class ABBA1700RegisterFactory {
     public void setRegister(String name,String value) throws IOException {
         try {
            ABBA1700Register register = findRegister(name);
-           if (register.isWriteable()) register.writeRegister(value);
-           else throw new IOException("ABBA1700, setRegister, register not writeable");
-           
+            if (register.isWriteable()) {
+                register.writeRegister(value);
+            } else {
+                throw new IOException("ABBA1700, setRegister, register not writeable");
+            }
+
         }
         catch(FlagIEC1107ConnectionException e) {
            throw new IOException("ABBA1700, setRegister, "+e.getMessage());
         }
     }
+
     public void setRegister(String name,Object object) throws IOException {
         try {
            ABBA1700Register register = findRegister(name);
-           if (register.isWriteable()) register.writeRegister(object);
-           else throw new IOException("ABBA1700, setRegister, register not writeable");
-           
+            if (register.isWriteable()) {
+                register.writeRegister(object);
+            } else {
+                throw new IOException("ABBA1700, setRegister, register not writeable");
+            }
+
         }
         catch(FlagIEC1107ConnectionException e) {
            throw new IOException("ABBA1700, setRegister, "+e.getMessage());
@@ -197,9 +204,12 @@ public class ABBA1700RegisterFactory {
     public void invokeRegister(String name) throws IOException {
         try {
            ABBA1700Register register = findRegister(name);
-           if (register.isWriteable()) register.invokeRegister();
-           else throw new IOException("ABBA1700, setRegister, register not writeable");
-           
+            if (register.isWriteable()) {
+                register.invokeRegister();
+            } else {
+                throw new IOException("ABBA1700, setRegister, register not writeable");
+            }
+
         }
         catch(FlagIEC1107ConnectionException e) {
            throw new IOException("ABBA1700, setRegister, "+e.getMessage());
@@ -247,8 +257,9 @@ public class ABBA1700RegisterFactory {
                    register2Retrieve = findRegister(name);
                    return register2Retrieve.parse(register2Retrieve.readRegister(register2Retrieve.isCached(),billingPoint));
                }
+            } else {
+                throw new IOException("ABBA1700, getRegister, invalid billing point " + billingPoint + "!");
            }
-           else throw new IOException("ABBA1700, getRegister, invalid billing point "+billingPoint+"!");
         }
         catch(FlagIEC1107ConnectionException e) {
            throw new IOException("ABBA1700, getRegister, "+e.getMessage());
@@ -283,12 +294,16 @@ public class ABBA1700RegisterFactory {
     // search the map for the register info
     private ABBA1700Register findRegister(String name) throws IOException {
        ABBA1700Register register = (ABBA1700Register)registers.get(name);
-       if (register == null) throw new IOException("ABBA1700RegisterFactory, findRegister, "+name+" does not exist!");
-       else return register;
+        if (register == null) {
+            throw new IOException("ABBA1700RegisterFactory, findRegister, " + name + " does not exist!");
+        } else {
+            return register;
+        }
     }
-    
+
     /**
      * Getter for property meterType.
+     *
      * @return Value of property meterType.
      */
     public ABBA1700MeterType getMeterType() {
@@ -300,5 +315,4 @@ public class ABBA1700RegisterFactory {
     }
     
  
-    
 }

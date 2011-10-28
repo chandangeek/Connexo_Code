@@ -231,29 +231,39 @@ abstract public class ABBA1700RegisterData {
     }
     
     private BigDecimal parseBigDecimal(byte[] data) throws IOException,NumberFormatException {
-        if (getLength() > 8) throw new IOException("ABBA1700RegisterData, parseBigDecimal, datalength should not exceed 8!");        
+        if (getLength() > 8) {
+            throw new IOException("ABBA1700RegisterData, parseBigDecimal, datalength should not exceed 8!");
+        }
         BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
         return bd.movePointLeft(Math.abs(getUnit().getScale()));
     }
 
     private Quantity parseQuantity(byte[] data) throws IOException,NumberFormatException {
-        if (getLength() > 8) throw new IOException("ABBA1700RegisterData, parseQuantity, datalength should not exceed 8!");        
+        if (getLength() > 8) {
+            throw new IOException("ABBA1700RegisterData, parseQuantity, datalength should not exceed 8!");
+        }
         BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
         return new Quantity(bd,getUnit());
     } 
     
     private Long parseBitfield(byte[] data) throws IOException {
-        if (getLength() > 8) throw new IOException("ABBA1700RegisterData, parseBitfield, datalength should not exceed 8!");
+        if (getLength() > 8) {
+            throw new IOException("ABBA1700RegisterData, parseBitfield, datalength should not exceed 8!");
+        }
         return new Long(ProtocolUtils.getLong(data,getOffset(),getLength()));
     }
 
     private Long parseLong(byte[] data) throws IOException,NumberFormatException {
-        if (getLength() > 8) throw new IOException("ABBA1700RegisterData, parseLong, datalength should not exceed 8!");
+        if (getLength() > 8) {
+            throw new IOException("ABBA1700RegisterData, parseLong, datalength should not exceed 8!");
+        }
         return new Long(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
     }
     
     private Integer parseInteger(byte[] data) throws IOException,NumberFormatException {
-        if (getLength() > 4) throw new IOException("ABBA1700RegisterData, parseInteger, datalength should not exceed 4!");
+        if (getLength() > 4) {
+            throw new IOException("ABBA1700RegisterData, parseInteger, datalength should not exceed 4!");
+        }
         return new Integer(Integer.parseInt(Integer.toHexString(ProtocolUtils.getIntLE(data,getOffset(),getLength()))));
     }
     

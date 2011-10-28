@@ -81,7 +81,7 @@ public class ABBA1700DataIdentityFactory {
         // TOU registers
         rawRegisters.put("508", new ABBA1700DataIdentity(8 * meterType.getNrOfTariffRegisters(), ABBA1700DataIdentity.NOT_STREAMEABLE));
         // Historical values
-        rawRegisters.put("543", new ABBA1700DataIdentity(10 * 8 + meterType.getNrOfTariffRegisters() * 8 + 4 * 8 + 8 * 9 + 24 * 12 + 15, 12, ABBA1700DataIdentity.STREAMEABLE));
+        rawRegisters.put("543", new ABBA1700DataIdentity(10 * 8 + meterType.getNrOfTariffRegisters() * 8 + 4 * 8 + 8 * 9 + 24 * 12 + (meterType.hasExtendedCustomerRegisters() ? 5 * 24 : 0) + 15, 12, ABBA1700DataIdentity.STREAMEABLE));
 
         // Instantaneous values
         //rawRegisters.put("605"), new ABBA1700DataIdentity(6,ABBA1700DataIdentity.NOT_STREAMEABLE));
@@ -134,16 +134,22 @@ public class ABBA1700DataIdentityFactory {
     }
     
     // search the map for the register info
+
     private ABBA1700DataIdentity findRawRegister(String dataID) throws IOException {
        ABBA1700DataIdentity rawRegister = (ABBA1700DataIdentity)rawRegisters.get(dataID);
-       if (rawRegister == null) throw new IOException("ABBA1700DataIdentityFactory, findRawRegister, "+dataID+" does not exist!");
-       else return rawRegister;
+        if (rawRegister == null) {
+            throw new IOException("ABBA1700DataIdentityFactory, findRawRegister, " + dataID + " does not exist!");
+        } else {
+            return rawRegister;
     }
-    
+    }
+
     public byte[] getDataIdentityStream(String dataID,boolean cached,int nrOfBlocks) throws IOException {
         try {
            ABBA1700DataIdentity rawRegister = findRawRegister(dataID);
-           if (!rawRegister.isStreameable()) throw new IOException("ABBA1700DataIdentity, getDataIdentityStream, data identity not streameable!");
+            if (!rawRegister.isStreameable()) {
+                throw new IOException("ABBA1700DataIdentity, getDataIdentityStream, data identity not streameable!");
+            }
            return rawRegister.readRawRegisterStream(dataID,cached,nrOfBlocks);
         }
         catch(FlagIEC1107ConnectionException e) {

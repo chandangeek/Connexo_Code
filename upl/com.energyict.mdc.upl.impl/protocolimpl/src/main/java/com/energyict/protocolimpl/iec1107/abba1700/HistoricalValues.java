@@ -24,6 +24,7 @@ public class HistoricalValues {
     byte[] identity516; // = new byte[12][4*8];  // multi utility
     byte[] identity509; // = new byte[12][8*9];  // cumulative max demand
     byte[] identity510; // = new byte[12][24*12]; // maximum demand
+    byte[] identity511; // Coincident maximum demand
     HistoricalValueSetInfo historicalValueSetInfo;
     
     Map map = new HashMap(); 
@@ -41,7 +42,7 @@ public class HistoricalValues {
         identity516 = new byte[4*8];  // multi utility
         identity509 = new byte[8*9];  // cumulative max demand
         identity510 = new byte[24*12]; // maximum demand
-        
+        identity511 = new byte[5*24];   // coincident maximum demand
         parse(data);
     }
     
@@ -59,7 +60,7 @@ public class HistoricalValues {
        identity516 = ProtocolUtils.getSubArray2(data,identity507.length+identity508.length,identity516.length);
        identity509 = ProtocolUtils.getSubArray2(data,identity507.length+identity508.length+identity516.length,identity509.length);
        identity510 = ProtocolUtils.getSubArray2(data,identity507.length+identity508.length+identity516.length+identity509.length,identity510.length);
-       int offset = identity507.length+identity508.length+identity516.length+identity509.length+identity510.length;       
+       int offset = identity507.length+identity508.length+identity516.length+identity509.length+identity510.length+(meterType.hasExtendedCustomerRegisters()?identity511.length:0);
        historicalValueSetInfo = new HistoricalValueSetInfo(ProtocolUtils.getSubArray2(data,offset,BILLING_SET_INFO_LENGTH),timeZone);
        map.put("507", identity507);
        map.put("508", identity508);
