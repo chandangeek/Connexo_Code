@@ -67,7 +67,7 @@ public class MT83RegisterConfig extends RegisterConfig {
         addToMap("0.0.96.1.5.255", "FirmwareVersion", "0.0.96.1.5.255");
 
         // add Programming counter
-        addToMap("0.0.96.1.4.255", "Programming counter", "0.0.96.2.0.255");
+        addToMap("0.0.96.1.4.255", "Date of last program change", "0.0.96.1.4.255");
 
         //Battery usage counter
         addToMap("0.0.96.6.0.255", "Battery Usage counter", "0.0.96.6.0.255");

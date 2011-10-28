@@ -21,6 +21,7 @@ public class MT83Registry extends AbstractVDEWRegistry {
 	public static final String SOFTWARE_DATE = "SoftwareDate";
 	public static final String DEVICE_TYPE = "DeviceType";
     public static final String BATTERY_HOURS = "BatteryHours";
+    public static final String LAST_CONFIG_CHANGE_DATE = "LastConfigDate";
 
 	public static final String PROFILE_INTERVAL = "ProfileInterval";
 
@@ -110,6 +111,7 @@ public class MT83Registry extends AbstractVDEWRegistry {
 
         registers.put(BATTERY_HOURS, newReg("0.0.96.6.0.255", STRING, VDEWRegister.CACHED, false, Unit.get(BaseUnit.HOUR), READ1, null));
         registers.put(BILLING_RESET_COMMAND, newReg("0.0.5.0.4.0", STRING, VDEWRegister.NOT_CACHED, true, Unit.getUndefined(), null, COMMAND));
+        registers.put(LAST_CONFIG_CHANGE_DATE, newReg("0.0.C.2.1", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null));
     }
         
     private VDEWRegister newReg(String registerID_in, int dataType, boolean isWritable, Unit unit, byte[] readCommand, byte[] writeCommand) {

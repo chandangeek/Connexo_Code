@@ -110,6 +110,9 @@ public class MT83ObisCodeMapper {
             } else if (obisCode.equals(ObisCode.fromString("1.1.0.1.2.255"))) { // billing reset counter
                 Date startDate = ((Date) mt83Registry.getRegister(MT83Registry.BILLING_DATE_1));
                 return new RegisterValue(obisCode, startDate);
+            } else if (obisCode.equals(ObisCode.fromString("0.0.96.1.4.255"))) {
+                Date lastConfigDate = (Date) mt83Registry.getRegister(MT83Registry.LAST_CONFIG_CHANGE_DATE);
+                return new RegisterValue(obisCode, lastConfigDate);
             }
 
             if (billingPoint != -1) {
