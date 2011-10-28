@@ -72,6 +72,7 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
     protected static final String PROPNAME_IIAP_SERVICE_CLASS = "IIAPServiceClass";
     protected static final String PROPNAME_CIPHERING_TYPE = "CipheringType";
     protected static final String PROPNAME_MAX_PDU_SIZE = "MaxPduSize";
+    protected static final String PROPNAME_IFORCEDELAY_BEFORE_SEND = "ForcedDelay";
     private DLMSCache dlmsCache = new DLMSCache();
     protected ApplicationServiceObject aso;
     protected ConformanceBlock conformanceBlock;
@@ -104,6 +105,7 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
     private int iNROfIntervals = -1;
     private int extendedLogging;
     protected ProtocolChannelMap channelMap;
+    protected int iForceDelay; // delay before each command is send over the line (default 100ms)
 
     private DLMSConnection dlmsConnection = null;
     private CosemObjectFactory cosemObjectFactory = null;
@@ -178,14 +180,14 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
         try {
             switch (connectionMode) {
                 case CONNECTION_MODE_HDLC:
-                    connection = new HDLC2Connection(inputStream, outputStream, iHDLCTimeoutProperty, 100, iProtocolRetriesProperty, iClientMacAddress,
+                    connection = new HDLC2Connection(inputStream, outputStream, iHDLCTimeoutProperty, iForceDelay, iProtocolRetriesProperty, iClientMacAddress,
                             iServerLowerMacAddress, iServerUpperMacAddress, addressingMode, -1, -1);
                     break;
                 case CONNECTION_MODE_TCPIP:
-                    connection = new TCPIPConnection(inputStream, outputStream, iHDLCTimeoutProperty, 100, iProtocolRetriesProperty, iClientMacAddress, iServerLowerMacAddress);
+                    connection = new TCPIPConnection(inputStream, outputStream, iHDLCTimeoutProperty, iForceDelay, iProtocolRetriesProperty, iClientMacAddress, iServerLowerMacAddress);
                     break;
                 case CONNECTION_MODE_COSEMPDU:
-                    connection=new CosemPDUConnection(inputStream,outputStream,iHDLCTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
+                    connection = new CosemPDUConnection(inputStream, outputStream, iHDLCTimeoutProperty, iForceDelay, iProtocolRetriesProperty, iClientMacAddress, iServerLowerMacAddress);
                     break;
                 default:
                     throw new IOException("Unable to initialize dlmsConnection, connection property unknown: " + connectionMode);
@@ -744,7 +746,7 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
             iiapServiceClass = Integer.parseInt(properties.getProperty(PROPNAME_IIAP_SERVICE_CLASS, "1"));
             cipheringType = Integer.parseInt(properties.getProperty(PROPNAME_CIPHERING_TYPE, Integer.toString(SecurityContext.CIPHERING_TYPE_GLOBAL)));
             maxPduSize = Integer.parseInt(properties.getProperty(PROPNAME_MAX_PDU_SIZE, MAX_PDU_SIZE));
-
+            iForceDelay = Integer.parseInt(properties.getProperty(PROPNAME_IFORCEDELAY_BEFORE_SEND, "100"));
             doValidateProperties(properties);
         }
         catch (NumberFormatException e) {
@@ -819,7 +821,7 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
      * @return a list of strings
      */
     public List getOptionalKeys() {
-        List result = new ArrayList(9);
+        List result = new ArrayList();
         result.add("Timeout");
         result.add("Retries");
         result.add("DelayAfterFail");
@@ -839,6 +841,7 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
         result.add(PROPNAME_IIAP_PRIORITY);
         result.add(PROPNAME_IIAP_SERVICE_CLASS);
         result.add(PROPNAME_MAX_PDU_SIZE);
+        result.add(PROPNAME_IFORCEDELAY_BEFORE_SEND);
         return result;
     }
 
