@@ -454,14 +454,29 @@ abstract public class VDEWRegisterDataParse {
 			calendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
 		}
 
+        String dateFormat = "yy/mm/dd";
+        if (this instanceof VDEWRegister) {
+            dateFormat = ((VDEWRegister) this).getDateFormat();
+        }
+    	StringTokenizer tokenizer = new StringTokenizer(dateFormat,"/");
+
 		byte[] data = ProtocolUtils.convert2ascii(timedate);
 		calendar.set(Calendar.HOUR_OF_DAY,ProtocolUtils.BCD2hex(data[0]));
 		calendar.set(Calendar.MINUTE,ProtocolUtils.BCD2hex(data[1]));
 		calendar.set(Calendar.SECOND,ProtocolUtils.BCD2hex(data[2]));
-		calendar.set(Calendar.YEAR, getYear1900_2000(ProtocolUtils.BCD2hex(data[3])));
-		calendar.set(Calendar.MONTH,ProtocolUtils.BCD2hex(data[4])-1);
-		calendar.set(Calendar.DAY_OF_MONTH,ProtocolUtils.BCD2hex(data[5]));
-		return calendar.getTime();
+
+        for (int i = 3; i < 6; i++) {
+            String token = tokenizer.nextToken();
+            if (token.equals("yy")) {
+                calendar.set(Calendar.YEAR, getYear1900_2000(ProtocolUtils.BCD2hex(data[i])));
+            } else if (token.equals("mm")) {
+                calendar.set(Calendar.MONTH, ProtocolUtils.BCD2hex(data[i]) - 1);
+            } else if (token.equals("dd")) {
+                calendar.set(Calendar.DAY_OF_MONTH, ProtocolUtils.BCD2hex(data[i]));
+            }
+        }
+
+        return calendar.getTime();
 	}
 
 	private Date parseSTimeSDate(byte[] rawdata) throws IOException {

@@ -41,6 +41,7 @@ public class VDEWRegister extends VDEWRegisterDataParse {
     private boolean cached;
     //private boolean datareadout;
     private boolean usePassword;
+    private String dateFormat;
     private byte[] readCommand=null,writeCommand=null;
     
     private AbstractVDEWRegistry abstractVDEWRegistry=null;
@@ -69,8 +70,15 @@ public class VDEWRegister extends VDEWRegisterDataParse {
     public VDEWRegister(String objectId, int type, int offset, int length, Unit unit, boolean writeable, boolean cached, byte[] readCommand, byte[] writeCommand) {
         this(objectId,type,offset,length,unit,writeable,cached,readCommand,writeCommand,true);
     }
+
+    public VDEWRegister(String objectId, int type, int offset, int length, Unit unit, boolean writeable, boolean cached, String dateFormat) {
+        this(objectId, type, offset, length, unit, writeable, cached, FlagIEC1107Connection.READ5, FlagIEC1107Connection.WRITE5, true, dateFormat);
+    }
     
     public VDEWRegister(String objectId, int type, int offset, int length, Unit unit, boolean writeable, boolean cached, byte[] readCommand, byte[] writeCommand, boolean usePassword) {
+         this(objectId,type,offset,length,unit,writeable,cached,readCommand,writeCommand,usePassword, "yy/mm/dd");
+    }
+    public VDEWRegister(String objectId, int type, int offset, int length, Unit unit, boolean writeable, boolean cached, byte[] readCommand, byte[] writeCommand, boolean usePassword, String dateFormat) {
         this.objectId = objectId;
         this.type = type;
         this.offset = offset;
@@ -82,6 +90,7 @@ public class VDEWRegister extends VDEWRegisterDataParse {
         this.readCommand = readCommand;
         this.writeCommand = writeCommand;
         this.usePassword=usePassword;
+        this.dateFormat=dateFormat;
     }
     
     
@@ -277,7 +286,7 @@ public class VDEWRegister extends VDEWRegisterDataParse {
             throw new IOException("VDEWRegister, doReadRawRegister, FlagIEC1107ConnectionException, "+e.getMessage());
         }
     } // private byte[] doReadRawRegister()
-    
+
 
     
     /**
@@ -294,6 +303,11 @@ public class VDEWRegister extends VDEWRegisterDataParse {
      */
     public void setUsePassword(boolean usePassword) {
         this.usePassword = usePassword;
+    }
+
+
+    public String getDateFormat() {
+        return dateFormat;
     }
     
  // private void validateData(byte[] data) throws IOException

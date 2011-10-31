@@ -27,6 +27,7 @@ public abstract class AbstractVDEWRegistry {
     protected ProtocolLink protocolLink=null;
     private MeterExceptionInfo meterExceptionInfo=null;
     public int registerSet;
+    protected String dateFormat;
     
     private void addDefaultRegisters() {
         registers.put("DEFAULT_REGISTER", new VDEWRegister("",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED,FlagIEC1107Connection.READ1));
@@ -247,12 +248,18 @@ public abstract class AbstractVDEWRegistry {
     
     /** Creates a new instance of AbstractRegistry */
     public AbstractVDEWRegistry(MeterExceptionInfo meterExceptionInfo, ProtocolLink protocolLink) {
-        this(meterExceptionInfo,protocolLink,-1);
+        this(meterExceptionInfo,protocolLink,-1, "yy/mm/dd");
     }
+
     public AbstractVDEWRegistry(MeterExceptionInfo meterExceptionInfo, ProtocolLink protocolLink, int registerSet) {
+        this(meterExceptionInfo, protocolLink, registerSet, "yy/mm/dd");
+    }
+
+    public AbstractVDEWRegistry(MeterExceptionInfo meterExceptionInfo, ProtocolLink protocolLink, int registerSet, String dateFormat) {
         this.registerSet=registerSet;
         this.protocolLink = protocolLink;
         this.meterExceptionInfo=meterExceptionInfo;
+        this.dateFormat = dateFormat;
         initRegisters();
         initLocals();
     }

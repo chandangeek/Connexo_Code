@@ -5,15 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 import com.energyict.cbo.BaseUnit;
@@ -88,6 +80,7 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
     private ProtocolChannelMap protocolChannelMap = null;
     private int dataReadoutRequest;
     private long roundTripTime = 0;
+    private String strDateFormat;
 
     private TimeZone timeZone;
     private Logger logger;
@@ -237,7 +230,15 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
             if (!iFirmwareVersion.equalsIgnoreCase("3.03") && !iFirmwareVersion.equalsIgnoreCase("3.02")) {
 				throw new InvalidPropertyException("Invalid value for FirmwareVersion: " + iFirmwareVersion + "! Valid FirmwareVersion values are '3.02' and '3.03'.");
 			}
-
+            strDateFormat = properties.getProperty("DateFormat","yy/MM/dd").trim().toLowerCase();
+            // Check for valid DateFormat
+            StringTokenizer tokenizer = new StringTokenizer(strDateFormat,"/");
+            for (int i=0; i<3; i++){
+                String token = tokenizer.nextToken();
+                if (!token.equals("mm") && !token.equals("yy") && !token.equals("dd")) {
+                    throw new InvalidPropertyException("Invalid format of DateFormat property: " + strDateFormat + "! Valid formats should match pattern 'xx/xx/xx'.");
+                }
+            }
         }
         catch (NumberFormatException e) {
            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());
@@ -313,6 +314,7 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
         result.add("ForcedDelay");
         result.add("FirmwareVersion");
         result.add("Software7E1");
+        result.add("DateFormat");
         return result;
     }
 
@@ -337,7 +339,7 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
 
         try {
            flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,forcedDelay,iEchoCancelling,iIEC1107Compatible,software7E1);
-           abba1500Registry = new ABBA1500Registry(this,this);
+           abba1500Registry = new ABBA1500Registry(this,this, getDateFormat());
            abba1500Profile = new ABBA1500Profile(this,this,abba1500Registry);
            abba1500Profile.setFirmwareVersion(getIFirmwareVersion());
         }
@@ -430,6 +432,10 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
 
     public TimeZone getTimeZone() {
         return timeZone;
+    }
+
+    public String getDateFormat() {
+        return strDateFormat;
     }
 
     public boolean isIEC1107Compatible() {
