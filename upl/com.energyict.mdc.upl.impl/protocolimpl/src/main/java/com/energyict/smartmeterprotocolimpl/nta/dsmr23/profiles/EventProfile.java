@@ -55,7 +55,7 @@ public class EventProfile {
         DataContainer dcMbusControlLog;
         MbusControlLog mbusControlLog;
         for (DeviceMapping mbusDevices : this.protocol.getMeterTopology().getMbusMeterMap()) {
-            dcMbusControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusControlLog(mbusDevices.getPhysicalAddress()).getObisCode()).getBuffer(fromCal, getToCalendar());
+            dcMbusControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusControlLog(mbusDevices.getPhysicalAddress()-1).getObisCode()).getBuffer(fromCal, getToCalendar());
             mbusControlLog = new MbusControlLog(getTimeZone(), dcMbusControlLog);
             eventList.addAll(mbusControlLog.getMeterEvents());
         }

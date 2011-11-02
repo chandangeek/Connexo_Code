@@ -168,13 +168,13 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
                         this.registerMap.put(register, new DLMSAttribute(MbusEncryptionStatus, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA));
                         dlmsAttributes.add(this.registerMap.get(register));
                     } else if (rObisCode.equalsIgnoreBChannel(MbusDisconnectMode)) {
-                        this.registerMap.put(register, new DLMSAttribute(adjustToMbusDisconnectOC(MbusDisconnectMode), DisconnectControlAttribute.CONTROL_MODE.getAttributeNumber(), DLMSClassId.DISCONNECT_CONTROL));
+                        this.registerMap.put(register, new DLMSAttribute(adjustToMbusDisconnectOC(rObisCode), DisconnectControlAttribute.CONTROL_MODE.getAttributeNumber(), DLMSClassId.DISCONNECT_CONTROL));
                         dlmsAttributes.add(this.registerMap.get(register));
                     } else if (rObisCode.equalsIgnoreBChannel(MbusDisconnectControlState)) {
-                        this.registerMap.put(register, new DLMSAttribute(adjustToMbusDisconnectOC(MbusDisconnectControlState), DisconnectControlAttribute.CONTROL_STATE.getAttributeNumber(), DLMSClassId.DISCONNECT_CONTROL));
+                        this.registerMap.put(register, new DLMSAttribute(adjustToMbusDisconnectOC(rObisCode), DisconnectControlAttribute.CONTROL_STATE.getAttributeNumber(), DLMSClassId.DISCONNECT_CONTROL));
                         dlmsAttributes.add(this.registerMap.get(register));
                     } else if (rObisCode.equalsIgnoreBChannel(MbusDisconnectOutputState)) {
-                        this.registerMap.put(register, new DLMSAttribute(adjustToMbusDisconnectOC(MbusDisconnectOutputState), DisconnectControlAttribute.OUTPUT_STATE.getAttributeNumber(), DLMSClassId.DISCONNECT_CONTROL));
+                        this.registerMap.put(register, new DLMSAttribute(adjustToMbusDisconnectOC(rObisCode), DisconnectControlAttribute.OUTPUT_STATE.getAttributeNumber(), DLMSClassId.DISCONNECT_CONTROL));
                         dlmsAttributes.add(this.registerMap.get(register));
                     } else {
                         this.protocol.getLogger().log(Level.INFO, "Register with ObisCode " + rObisCode + " is not supported.");
@@ -235,16 +235,16 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
             Quantity quantity = new Quantity(BigDecimal.valueOf(encryptionValue), Unit.getUndefined());
             String text = EncryptionStatus.forValue((int) encryptionValue).getLabelKey();
             return new RegisterValue(register, quantity, null, null, null, new Date(), 0, text);
-        } else if (rObisCode.equals(MbusDisconnectMode)) {
+        } else if (rObisCode.equalsIgnoreBChannel(MbusDisconnectMode)) {
             int mode = ((TypeEnum) abstractDataType).getValue();
             return new RegisterValue(register, new Quantity(BigDecimal.valueOf(mode), Unit.getUndefined()), null, null, null, new Date(), 0, new String("ConnectControl mode: " + mode));
-        } else if (rObisCode.equals(MbusDisconnectControlState)) {
+        } else if (rObisCode.equalsIgnoreBChannel(MbusDisconnectControlState)) {
             int state = ((TypeEnum) abstractDataType).getValue();
             if ((state < 0) || (state > 2)) {
                 throw new IllegalArgumentException("The connectControlState has an invalid value: " + state);
             }
             return new RegisterValue(register, new Quantity(BigDecimal.valueOf(state), Unit.getUndefined()), null, null, null, new Date(), 0, new String("ConnectControl state: " + possibleConnectStates[state]));
-        } else if (rObisCode.equals(MbusDisconnectOutputState)) {
+        } else if (rObisCode.equalsIgnoreBChannel(MbusDisconnectOutputState)) {
             boolean state;
             state = ((BooleanObject) abstractDataType).getState();
             Quantity quantity = new Quantity(state ? "1" : "0", Unit.getUndefined());
