@@ -4,6 +4,7 @@ import com.energyict.cbo.*;
 import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.*;
+import com.energyict.dlms.aso.*;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.*;
@@ -174,7 +175,9 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	private int protocolRetries;
 
 	/** The security level used. */
-	private SecurityLevel securityLevel;
+	private AuthenticationLevel authenticationLevel;
+    /** the used encryptionLevel */
+    private EncryptionLevel encryptionLevel;
 
 	/** Indicates whether we should request the time zone from the meter. */
 	private boolean requestTimeZone;
@@ -275,7 +278,13 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	 */
 	private transient boolean propertiesSet = false;
 
-	/**
+    /** Indication whether global or dedicated ciphering is used */
+    private int cipheringType;
+
+    /** The used ApplicationServiceObject for proper handling the DLMS connection */
+    private ApplicationServiceObject aso;
+
+    /**
 	 * {@inheritDoc}
 	 */
 	public final DLMSConnection getDLMSConnection() {
@@ -296,6 +305,13 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 		if (logger != null) {
 			this.logger = logger;
 		}
+
+        ConformanceBlock cb = new ConformanceBlock(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK);
+        XdlmsAse xDlmsAse = new XdlmsAse(null, true, -1, 6, cb, 1200);
+        //TODO the dataTransport encryptionType should be a property (although currently only 0 is described by DLMS)
+        SecurityContext sc = new SecurityContext(this.encryptionLevel.getEncryptionValue(), this.authenticationLevel.getAuthenticationValue(), 0, "EIT12345".getBytes(), getSecurityProvider(), this.cipheringType);
+
+        this.aso = buildApplicationServiceObject(xDlmsAse, sc);
 
 		try {
 			logger.info("Initializing DLMS connection...");
@@ -318,6 +334,31 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 			throw ioException;
 		}
 	}
+
+    /**
+     * Construct the desired {@link com.energyict.dlms.aso.ApplicationServiceObject}
+     *
+     * @param xDlmsAse the {@link com.energyict.dlms.aso.XdlmsAse} to use
+     * @param sc       the {@link com.energyict.dlms.aso.SecurityContext} to use
+     * @return the newly create ApplicationServiceObject
+     */
+    protected ApplicationServiceObject buildApplicationServiceObject(XdlmsAse xDlmsAse, SecurityContext sc) {
+        return new ApplicationServiceObject(xDlmsAse, this, sc,
+                (this.encryptionLevel.getEncryptionValue() == 0) ? AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING :
+                        AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_WITH_CIPHERING);
+    }
+
+    /**
+     * @return the current securityProvider (currently only LocalSecurityProvider is available)
+     */
+    public SecurityProvider getSecurityProvider() {
+        Properties props = new Properties();
+        props.put(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY, this.authenticationLevel.getAuthenticationValue());
+        props.put(LocalSecurityProvider.DATATRANSPORTKEY, this.encryptionLevel.getEncryptionValue());
+        props.put(MeterProtocol.PASSWORD, password);
+        LocalSecurityProvider lsp = new LocalSecurityProvider(props);
+        return lsp;
+    }
 
 	/**
 	 * Returns the {@link CapturedObjectsHelper}.
@@ -878,9 +919,9 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 		AARQ aarq = null;
 
 		if (this.maximumAPDUSize == -1) {
-			aarq = new AARQ(this.securityLevel.getPropertyValue(), this.password, getDLMSConnection());
+			aarq = new AARQ(this.authenticationLevel.getAuthenticationValue(), this.password, getDLMSConnection());
 		} else {
-			aarq = new AARQ(this.securityLevel.getPropertyValue(), this.password, this.getDLMSConnection(), this.maximumAPDUSize);
+			aarq = new AARQ(this.authenticationLevel.getAuthenticationValue(), this.password, this.getDLMSConnection(), this.maximumAPDUSize);
 		}
 
 		logger.info("Done, associated. Checking if we need to update our cache...");
@@ -1161,7 +1202,17 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 		this.password = properties.getProperty(MeterProtocol.PASSWORD);
 		this.hdlcTimeout = Integer.parseInt(properties.getProperty(PROPNAME_TIMEOUT, "10000").trim());
 		this.protocolRetries = Integer.parseInt(properties.getProperty(PROPNAME_RETRIES, "5").trim());
-		this.securityLevel = SecurityLevel.getByPropertyValue(Integer.parseInt(properties.getProperty(PROPNAME_SECURITY_LEVEL, "1").trim()));
+
+        /* the format of the securityLevel is changed, now authenticationSecurityLevel and dataTransportSecurityLevel are in one*/
+        String securityLevel =              properties.getProperty(PROPNAME_SECURITY_LEVEL, "1").trim();
+        if(securityLevel.contains(":")){
+            this.authenticationLevel = AuthenticationLevel.getByPropertyValue(Integer.parseInt(securityLevel.substring(0, securityLevel.indexOf(":"))));
+            this.encryptionLevel = EncryptionLevel.getByPropertyValue(Integer.parseInt(securityLevel.substring(securityLevel.indexOf(":") + 1)));
+        } else {
+            this.authenticationLevel = AuthenticationLevel.getByPropertyValue(Integer.parseInt(securityLevel));
+            this.encryptionLevel = EncryptionLevel.getByPropertyValue(0);
+        }
+
 		this.requestTimeZone = Integer.parseInt(properties.getProperty(PROPNAME_REQUEST_TIME_ZONE, "0").trim()) != 0;
 		this.roundtripCorrection = Integer.parseInt(properties.getProperty(PROPNAME_ROUNDTRIP_CORRECTION, "0").trim());
 		this.clientMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_CLIENT_MAC_ADDRESS, "1").trim());
@@ -1202,6 +1253,12 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 			this.numberOfClocksetTries = DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES;
 		}
+
+                // the NTA meters normally use the global keys to encrypt
+        this.cipheringType = Integer.parseInt(properties.getProperty("CipheringType", Integer.toString(SecurityContext.CIPHERING_TYPE_GLOBAL)));
+        if (cipheringType != SecurityContext.CIPHERING_TYPE_GLOBAL && cipheringType != SecurityContext.CIPHERING_TYPE_DEDICATED) {
+            throw new InvalidPropertyException("Only 0 or 1 is allowed for the CipheringType property");
+        }
 
 		this.propertiesSet = true;
 	}
