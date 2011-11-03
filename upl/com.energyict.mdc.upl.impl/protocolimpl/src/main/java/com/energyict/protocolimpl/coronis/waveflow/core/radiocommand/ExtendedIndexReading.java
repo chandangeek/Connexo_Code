@@ -57,10 +57,12 @@ public class ExtendedIndexReading extends AbstractRadioCommand {
     public void parse(byte[] data) throws IOException {
         int offset = 0;
         operationMode = WaveflowProtocolUtils.toInt(data[offset]);
-        numberOfEnabledInputs = parseNumberOfInputs();      //b1 and b0 define the number of inputs...
+        getWaveFlow().getParameterFactory().setOperatingMode(operationMode);
+        numberOfEnabledInputs = getWaveFlow().getParameterFactory().readOperatingMode().getNumberOfInputsUsed();
         offset++;
 
         applicationStatus = WaveflowProtocolUtils.toInt(data[offset]);
+        getWaveFlow().getParameterFactory().setApplicationStatus(applicationStatus);
         offset++;
 
         immediateIndexesArea = WaveflowProtocolUtils.getSubArray(data, offset, 4 * getNumberOfEnabledInputs());
@@ -102,7 +104,7 @@ public class ExtendedIndexReading extends AbstractRadioCommand {
         if (timeZone == null) {
             timeZone = TimeZone.getDefault();
         }
-
+        
         Calendar calLastOfMonth = new GregorianCalendar(timeZone);
         calLastOfMonth.setTime(dateOfLastLoggedValue);
         calLastOfMonth.set(Calendar.DATE, 1);
@@ -111,10 +113,6 @@ public class ExtendedIndexReading extends AbstractRadioCommand {
         calLastOfMonth.set(Calendar.SECOND, 0);
         calLastOfMonth.set(Calendar.MILLISECOND, 0);
         return calLastOfMonth;
-    }
-
-    private int parseNumberOfInputs() {
-        return (operationMode & 0x03) + 1;
     }
 
     @Override

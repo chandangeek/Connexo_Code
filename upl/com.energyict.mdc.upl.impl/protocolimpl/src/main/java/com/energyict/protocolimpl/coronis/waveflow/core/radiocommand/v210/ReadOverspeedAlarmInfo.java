@@ -31,7 +31,7 @@ public class ReadOverspeedAlarmInfo extends AbstractRadioCommand {
         if (alarmInfos.size() == 0) {
             return result;
         }
-        PulseWeight pulseWeight = getWaveFlow().getParameterFactory().readPulseWeight(1);
+        PulseWeight pulseWeight = getWaveFlow().getPulseWeight(0);
         String unitDescription = Unit.get(BaseUnit.LITERPERHOUR, pulseWeight.getUnitScaler()).toString();
 
         for (OverSpeedAlarmInfo alarmInfo : alarmInfos) {

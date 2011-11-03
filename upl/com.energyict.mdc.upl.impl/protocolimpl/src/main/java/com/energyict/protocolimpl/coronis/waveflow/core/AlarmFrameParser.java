@@ -79,16 +79,16 @@ public class AlarmFrameParser {
         List<MeterEvent> events = new ArrayList<MeterEvent>();
 
         if ((status & 0x01) == 0x01) {
-            events.add(new MeterEvent(date, 0, EventStatusAndDescription.EVENTCODE_VALVE_FAULT, "Wirecut on valve"));
+            events.add(new MeterEvent(date, MeterEvent.OTHER, EventStatusAndDescription.EVENTCODE_VALVE_FAULT, "Wirecut on valve"));
         }
         if ((status & 0x02) == 0x02) {
-            events.add(new MeterEvent(date, 0, EventStatusAndDescription.EVENTCODE_VALVE_FAULT, "Fault on water gate"));
+            events.add(new MeterEvent(date, MeterEvent.OTHER, EventStatusAndDescription.EVENTCODE_VALVE_FAULT, "Fault on water gate"));
         }
         if ((status & 0x04) == 0x04) {
-            events.add(new MeterEvent(date, 0, EventStatusAndDescription.EVENTCODE_DEFAULT, "Threshold detection on credit"));
+            events.add(new MeterEvent(date, MeterEvent.OTHER, EventStatusAndDescription.EVENTCODE_DEFAULT, "Threshold detection on credit"));
         }
         if ((status & 0x08) == 0x08) {
-            events.add(new MeterEvent(date, 0, EventStatusAndDescription.EVENTCODE_DEFAULT, "Credit is zero"));
+            events.add(new MeterEvent(date, MeterEvent.OTHER, EventStatusAndDescription.EVENTCODE_DEFAULT, "Credit is zero"));
         }
         return events;
     }
@@ -113,22 +113,22 @@ public class AlarmFrameParser {
         EventStatusAndDescription translator = new EventStatusAndDescription(waveFlow);
 
         if ((status & 0x04) == 0x04) {
-            events.add(new MeterEvent(date, 0, A.equals(input) ? EventStatusAndDescription.EVENTCODE_REEDFAULT_A : EventStatusAndDescription.EVENTCODE_REEDFAULT_B, "Reed fault detection on input " + input));
+            events.add(new MeterEvent(date, MeterEvent.OTHER, A.equals(input) ? EventStatusAndDescription.EVENTCODE_REEDFAULT_A : EventStatusAndDescription.EVENTCODE_REEDFAULT_B, "Reed fault detection on input " + input));
         }
         if ((status & 0x08) == 0x08) {
-            events.add(new MeterEvent(date, 0, translator.getProtocolCodeForSimpleBackflow((status & 0x03) - 1), "Backflow detection on input " + input));
+            events.add(new MeterEvent(date, MeterEvent.OTHER, translator.getProtocolCodeForSimpleBackflow((status & 0x03) - 1), "Backflow detection on input " + input));
         }
         if ((status & 0x10) == 0x10) {
-            events.add(new MeterEvent(date, 0, EventStatusAndDescription.EVENTCODE_BATTERY_LOW, "End of battery life"));
+            events.add(new MeterEvent(date, MeterEvent.OTHER, EventStatusAndDescription.EVENTCODE_BATTERY_LOW, "End of battery life"));
         }
         if ((status & 0x20) == 0x20) {
-            events.add(new MeterEvent(date, 0, translator.getProtocolCodeForWireCut(status & 0x03) , "Wirecut detection on input " + input));
+            events.add(new MeterEvent(date, MeterEvent.OTHER, translator.getProtocolCodeForWireCut(status & 0x03) , "Wirecut detection on input " + input));
         }
         if ((status & 0x40) == 0x40) {
-            events.add(new MeterEvent(date, 0, translator.getProtocolCodeForLeakage(LeakageEvent.END, LeakageEvent.LEAKAGETYPE_RESIDUAL, input), "Residual leak detection (low threshold) on input " + input + ". Flow is " + flow + "."));
+            events.add(new MeterEvent(date, MeterEvent.OTHER, translator.getProtocolCodeForLeakage(LeakageEvent.END, LeakageEvent.LEAKAGETYPE_RESIDUAL, input), "Residual leak detection (low threshold) on input " + input + ". Flow is " + flow + "."));
         }
         if ((status & 0x80) == 0x80) {
-            events.add(new MeterEvent(date, 0, translator.getProtocolCodeForLeakage(LeakageEvent.END, LeakageEvent.LEAKAGETYPE_EXTREME, input), "Extreme leak detection (high threshold) on input " + input + ". Flow is " + flow + "."));
+            events.add(new MeterEvent(date, MeterEvent.OTHER, translator.getProtocolCodeForLeakage(LeakageEvent.END, LeakageEvent.LEAKAGETYPE_EXTREME, input), "Extreme leak detection (high threshold) on input " + input + ". Flow is " + flow + "."));
         }
         return events;
     }

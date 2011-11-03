@@ -76,15 +76,22 @@ public class ObisCodeMapper {
             // Index request for inputs A..D  (FieldA = 1 (electricity) because there's no pulse counter yet for water meters in the blue book...)
             if (isCurrentIndexReading(obisCode)) {
                 int channel = obisCode.getB() - 1;
-                PulseWeight pulseWeight = waveFlowV2.getParameterFactory().readPulseWeight(channel + 1);
+                if (channel > (waveFlowV2.getNumberOfChannels() - 1)) {
+                    throw new NoSuchRegisterException("This channel is not supported");
+                }
+
+                PulseWeight pulseWeight = waveFlowV2.getPulseWeight(channel);
                 BigDecimal currentIndexValue = new BigDecimal(pulseWeight.getWeight() * waveFlowV2.getRadioCommandFactory().readCurrentReading().getReadings()[channel]);
                 return new RegisterValue(obisCode, new Quantity(currentIndexValue, pulseWeight.getUnit()), new Date());
 
                 // Billing data request for inputs A ... D
             } else if (isLastBillingPeriodIndexReadingForMonth(obisCode)) {
                 int channel = obisCode.getB() - 1;
-                PulseWeight pulseWeight = waveFlowV2.getParameterFactory().readPulseWeight(channel + 1);
+                PulseWeight pulseWeight = waveFlowV2.getPulseWeight(channel);
                 ExtendedIndexReading extendedIndexReadingConfiguration = waveFlowV2.getRadioCommandFactory().readExtendedIndexConfiguration();
+                if (channel > (waveFlowV2.getNumberOfChannels() - 1)) {
+                    throw new NoSuchRegisterException("No billing data available this channel");
+                }
                 int value = extendedIndexReadingConfiguration.getIndexOfLastMonth(channel);
                 if (value == -1) {
                     waveFlowV2.getLogger().log(Level.WARNING, "No billing data available yet, values are 0xFFFFFFFF");
@@ -95,7 +102,7 @@ public class ObisCodeMapper {
                 return new RegisterValue(obisCode, new Quantity(lastMonthsIndexValue, pulseWeight.getUnit()), toDate, toDate);
             } else if (isLastBillingPeriodIndexReadingForDay(obisCode)) {
                 int channel = obisCode.getB() - 1;
-                PulseWeight pulseWeight = waveFlowV2.getParameterFactory().readPulseWeight(channel + 1);
+                PulseWeight pulseWeight = waveFlowV2.getPulseWeight(channel);
                 DailyConsumption consumption = waveFlowV2.getRadioCommandFactory().readDailyConsumption();
                 int value = consumption.getIndexZone().getDailyIndexOnPort(channel);
                 if (value == -1) {

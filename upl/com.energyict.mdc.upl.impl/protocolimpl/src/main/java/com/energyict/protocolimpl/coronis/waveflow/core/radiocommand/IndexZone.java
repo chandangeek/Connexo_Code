@@ -43,7 +43,7 @@ public class IndexZone {
     }
 
     public void parse(byte[] data, int offset) throws IOException {
-        
+
         TimeZone timeZone = getWaveFlow().getTimeZone();
         if (timeZone == null) {
             timeZone = TimeZone.getDefault();

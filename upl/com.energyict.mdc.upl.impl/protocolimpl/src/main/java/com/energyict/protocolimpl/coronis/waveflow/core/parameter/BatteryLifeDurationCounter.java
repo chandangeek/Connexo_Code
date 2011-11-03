@@ -43,6 +43,11 @@ public class BatteryLifeDurationCounter extends AbstractParameter {
 	BatteryLifeDurationCounter(WaveFlow waveFlow) {
 		super(waveFlow);
 	}
+
+	BatteryLifeDurationCounter(WaveFlow waveFlow, int batteryLifeCounter) {
+		super(waveFlow);
+        this.batteryLifeCounter = batteryLifeCounter;
+	}
 	
 	@Override
 	ParameterId getParameterId() {

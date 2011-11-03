@@ -90,10 +90,12 @@ public class DataloggingTable extends AbstractRadioCommand {
     public void parse(byte[] data) throws IOException {
         int offset = 0;
 
-        int operationMode = data[offset] & 0xFF;
+        operationMode = data[offset] & 0xFF;
+        getWaveFlow().getParameterFactory().setOperatingMode(operationMode);
         offset++;
 
-        int applicationStatus = data[offset] & 0xFF;
+        applicationStatus = data[offset] & 0xFF;
+        getWaveFlow().getParameterFactory().setApplicationStatus(applicationStatus);
         offset++;
 
         if (channels == 1) {

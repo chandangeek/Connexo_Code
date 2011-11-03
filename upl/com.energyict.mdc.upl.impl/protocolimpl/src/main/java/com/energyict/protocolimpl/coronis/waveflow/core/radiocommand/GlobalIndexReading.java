@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.waveflow.core.radiocommand;
 
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
+import com.energyict.protocolimpl.coronis.waveflow.core.parameter.OperatingMode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -19,14 +20,10 @@ public class GlobalIndexReading extends AbstractRadioCommand {
     /**
      * The encoder readings
      */
-    private long[] readings;  // indexes for input A,B,C* and D*   (*) C and D depending on the type of waveflow
+    private long[] readings = new long[4];  // indexes for input A,B,C* and D*   (*) C and D depending on the type of waveflow
 
     public final long[] getReadings() {
         return readings;
-    }
-    
-    public final long getReadings(int i) {
-        return readings[i];
     }
 
     @Override
@@ -34,12 +31,17 @@ public class GlobalIndexReading extends AbstractRadioCommand {
         return RadioCommandId.GlobalIndexReading;
     }
 
-    @Override
-    public void parse(byte[] data) throws IOException {
-        parse(data, true, 0);
+    public void setReading(int port, int value) {
+        readings[port] = value;
     }
 
-    public void parse(byte[] data, boolean requestsAllowed, int numberOfPorts) throws IOException {
+    @Override
+    protected void parse(byte[] data) throws IOException {
+        OperatingMode operatingMode = new OperatingMode(super.getWaveFlow(), operationMode);
+        parse(data, operatingMode.getNumberOfInputsUsed());
+    }
+
+    public void parse(byte[] data, int numberOfPorts) throws IOException {
         if (data.length > 8) {
             readings = new long[4];
         } else {
@@ -49,12 +51,7 @@ public class GlobalIndexReading extends AbstractRadioCommand {
         readings[0] = ProtocolTools.getIntFromBytes(data, 0, 4);           //The indexes are signed values!
         readings[1] = ProtocolTools.getIntFromBytes(data, 4, 4);
 
-        boolean type4Inputs;
-        if (requestsAllowed) {
-            type4Inputs = getWaveFlow().getParameterFactory().readProfileType().isOfType4Iputs();
-        } else {
-            type4Inputs = numberOfPorts == 4;
-        }
+        boolean type4Inputs = (numberOfPorts == 4);
 
         if (data.length >= 12) {
             if (type4Inputs) {

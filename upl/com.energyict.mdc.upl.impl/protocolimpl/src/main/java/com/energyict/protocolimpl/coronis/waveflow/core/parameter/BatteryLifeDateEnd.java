@@ -9,33 +9,33 @@ import java.util.Calendar;
 
 public class BatteryLifeDateEnd extends AbstractParameter {
 
-	private Calendar calendar;
+    private Calendar calendar;
 
-	
-	final Calendar getCalendar() {
-		return calendar;
-	}
 
-	BatteryLifeDateEnd(WaveFlow waveFlow) {
-		super(waveFlow);
-	}
+    final Calendar getCalendar() {
+        return calendar;
+    }
 
-	@Override
-	ParameterId getParameterId() {
-		return ParameterId.BatteryLifeDateEnd;
-	}
+    BatteryLifeDateEnd(WaveFlow waveFlow) {
+        super(waveFlow);
+    }
 
-	@Override
+    @Override
+    ParameterId getParameterId() {
+        return ParameterId.BatteryLifeDateEnd;
+    }
+
+    @Override
     protected void parse(byte[] data) throws IOException {
         try {
-			calendar = TimeDateRTCParser.parse(data, getWaveFlow().getTimeZone());
+            calendar = TimeDateRTCParser.parse(data, getWaveFlow().getTimeZone());
         } catch (Exception e) {
             calendar = Calendar.getInstance();
-		}
-	}
+        }
+    }
 
-	@Override
+    @Override
     protected byte[] prepare() throws IOException {
-		throw new UnsupportedException();
-	}
+        throw new UnsupportedException();
+    }
 }

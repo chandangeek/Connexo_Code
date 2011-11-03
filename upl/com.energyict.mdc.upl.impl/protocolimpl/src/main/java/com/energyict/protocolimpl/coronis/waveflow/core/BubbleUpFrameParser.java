@@ -112,7 +112,7 @@ public class BubbleUpFrameParser {
         profileDataReader.setNumberOfInputsUsed(dailyConsumption.getNumberOfInputs());
         profileDataReader.setInterval(dailyConsumption.getSamplingPeriod().getSamplingPeriodInSeconds());
 
-        profileDatas.add(profileDataReader.parseProfileData(pulseWeights, false, false, true, false, lastLogged, 0, 0, dailyConsumption, new Date(0), new Date(), null));
+        profileDatas.add(profileDataReader.parseProfileData(false, false, true, false, lastLogged, 0, 0, dailyConsumption, new Date(0), new Date(), null));
         result.setProfileDatas(profileDatas);
         result.setRegisterValues(registerValues);
         return result;
@@ -135,12 +135,12 @@ public class BubbleUpFrameParser {
         if (operatingMode.isWeeklyMeasurement()) {
             profileDataReader.setInterval(WEEKLY);
         }
-        profileDatas.add(profileDataReader.parseProfileData(waveflow.getPulseWeights(), false, false, false, operatingMode.isMonthlyMeasurement(), lastLogged, 0, 0, null, new Date(0), new Date(), last4loggedIndexes));
+        profileDatas.add(profileDataReader.parseProfileData(false, false, false, operatingMode.isMonthlyMeasurement(), lastLogged, 0, 0, null, new Date(0), new Date(), last4loggedIndexes));
         result.setProfileDatas(profileDatas);
 
         for (int input = 0; input < extendedIndexReading.getNumberOfEnabledInputs(); input++) {
             int value = extendedIndexReading.getIndexOfLastMonth(input);
-            PulseWeight pulseWeight = waveflow.getPulseWeight(input);
+            PulseWeight pulseWeight = waveflow.getPulseWeight(input, false);
             RegisterValue reg = new RegisterValue(ObisCode.fromString("1." + String.valueOf(input + 1) + ".82.8.0.0"), new Quantity(value * pulseWeight.getWeight(), pulseWeight.getUnit()), new Date(), parseDateOfLastMonthsEnd(extendedIndexReading.getDateOfLastLoggedValue()).getTime());
             registerValues.add(reg);
             int value2 = extendedIndexReading.getCurrentIndex(input);
@@ -169,11 +169,11 @@ public class BubbleUpFrameParser {
         int operationMode = data[0] & 0xFF;
         OperatingMode operatingMode = new OperatingMode(waveflow, operationMode);
         data = ProtocolTools.getSubArray(data, 2);  //Skip first 2 bytes
-        globalIndexReading.parse(data, false, operatingMode.getNumberOfInputsUsed());
+        globalIndexReading.parse(data, operatingMode.getNumberOfInputsUsed());
 
         int index = 0;
         for (long value : globalIndexReading.getReadings()) {
-            RegisterValue reg = new RegisterValue(ObisCode.fromString("1." + String.valueOf(index + 1) + ".82.8.0.255"), new Quantity(value * waveflow.getPulseWeight(index).getWeight(), waveflow.getPulseWeight(index).getUnit()), new Date());
+            RegisterValue reg = new RegisterValue(ObisCode.fromString("1." + String.valueOf(index + 1) + ".82.8.0.255"), new Quantity(value * waveflow.getPulseWeight(index, false).getWeight(), waveflow.getPulseWeight(index, false).getUnit()), new Date());
             registerValues.add(reg);
             index++;
         }
@@ -247,8 +247,8 @@ public class BubbleUpFrameParser {
 
         CurrentIndexReading indexReading = new CurrentIndexReading(waveflow);
         indexReading.parse(data);
-        RegisterValue readingA = new RegisterValue(ObisCode.fromString("1.1.82.8.0.255"), new Quantity(indexReading.getReadings(0) * waveflow.getPulseWeight(0).getWeight(), waveflow.getPulseWeight(0).getUnit()), new Date());
-        RegisterValue readingB = new RegisterValue(ObisCode.fromString("1.2.82.8.0.255"), new Quantity(indexReading.getReadings(1) * waveflow.getPulseWeight(1).getWeight(), waveflow.getPulseWeight(1).getUnit()), new Date());
+        RegisterValue readingA = new RegisterValue(ObisCode.fromString("1.1.82.8.0.255"), new Quantity(indexReading.getReadings(0) * waveflow.getPulseWeight(0, false).getWeight(), waveflow.getPulseWeight(0, false).getUnit()), new Date());
+        RegisterValue readingB = new RegisterValue(ObisCode.fromString("1.2.82.8.0.255"), new Quantity(indexReading.getReadings(1) * waveflow.getPulseWeight(1, false).getWeight(), waveflow.getPulseWeight(1, false).getUnit()), new Date());
 
         registerValues.add(readingA);
         registerValues.add(readingB);

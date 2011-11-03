@@ -22,10 +22,12 @@ public class RadioCommandFactory {
     private ReadCumulativeFlowVolumeParameters parameters7bands = null;
     private Read4DailySegmentsParameters dailySegmentsParameters = null;
     private ReadOverSpeedParameters overSpeedParameters = null;
-
+    private GlobalIndexReading currentIndexes = null;
+    private ModuleType moduleType = null;
 
     public static final Unit BILLABLE_UNIT = Unit.get(BaseUnit.CUBICMETER);
     public static final Unit SMALL_BILLABLE_UNIT = Unit.get(BaseUnit.LITER);
+    private ExtendedIndexReading extendedIndexReading = null;
 
     public RadioCommandFactory(WaveFlow waveFlow) {
         this.waveFlow = waveFlow;
@@ -33,14 +35,17 @@ public class RadioCommandFactory {
 
     /**
      * Read the meter's current indexes (for all inputs: A, B, C, D)
+     * Cache the results.
      *
      * @return the current readings
      * @throws IOException when the communication failed
      */
     final public GlobalIndexReading readCurrentReading() throws IOException {
-        GlobalIndexReading o = new GlobalIndexReading(waveFlow);
-        o.set();
-        return o;
+        if (currentIndexes == null) {
+            currentIndexes = new GlobalIndexReading(waveFlow);
+            currentIndexes.set();
+        }
+        return currentIndexes;
     }
 
     public void initializeRoute(int alarmMode) throws IOException {
@@ -104,16 +109,33 @@ public class RadioCommandFactory {
         return firmwareVersion;
     }
 
-    public final ModuleType readModuleType() throws IOException {
-        ModuleType moduleType = new ModuleType(waveFlow);
-        moduleType.set();
-        return moduleType;
+    public final double readRSSILevel() throws IOException {
+        if (moduleType == null) {
+            moduleType = new ModuleType(waveFlow);
+            moduleType.set();
+        }
+        return moduleType.getRssiLevel();
+    }
+
+    public void setModuleType(ModuleType moduleType) {
+        this.moduleType = moduleType;
     }
 
     public final ExtendedIndexReading readExtendedIndexConfiguration() throws IOException {
-        ExtendedIndexReading o = new ExtendedIndexReading(waveFlow);
-        o.set();
-        return o;
+        if (extendedIndexReading == null) {
+            extendedIndexReading = new ExtendedIndexReading(waveFlow);
+            extendedIndexReading.set();
+
+            currentIndexes = new GlobalIndexReading(waveFlow);             //Cache the current indexes!
+            for (int i = 0; i < extendedIndexReading.getNumberOfEnabledInputs(); i++) {
+                int currentIndex = extendedIndexReading.getCurrentIndex(i);
+                currentIndexes.setReading(i, currentIndex);
+            }
+
+            //Cache the received sampling period
+            waveFlow.getParameterFactory().setSamplingPeriod(extendedIndexReading.getDataloggingMeasurementPeriod());
+        }
+        return extendedIndexReading;
     }
 
     public ExtendedDataloggingTable getMostRecentRecord() throws IOException {
@@ -133,6 +155,14 @@ public class RadioCommandFactory {
             dailyConsumption = new DailyConsumption(waveFlow);
             dailyConsumption.setGenericHeaderLength(23);
             dailyConsumption.set();
+
+            //Cache the contents: TODO: index B, C and D?
+            currentIndexes = new GlobalIndexReading(waveFlow);
+            currentIndexes.setReading(0, dailyConsumption.getIndexZone().getCurrentIndexOnA());
+            currentIndexes.setReading(1, dailyConsumption.getIndexZone().getExpectedIndexOnB());
+            currentIndexes.setReading(2, dailyConsumption.getIndexZone().getExpectedIndexOnC());
+            currentIndexes.setReading(3, dailyConsumption.getIndexZone().getExpectedIndexOnD());
+            waveFlow.getParameterFactory().setSamplingPeriod(dailyConsumption.getSamplingPeriod());
         }
         return dailyConsumption;
     }

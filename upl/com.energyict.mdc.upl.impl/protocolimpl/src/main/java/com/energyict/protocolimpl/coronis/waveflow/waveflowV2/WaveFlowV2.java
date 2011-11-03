@@ -54,6 +54,9 @@ public class WaveFlowV2 extends WaveFlow implements MessageProtocol {
 
     @Override
     public ParameterFactory getParameterFactory() {
+        if (parameterFactory == null) {
+            parameterFactory = new ParameterFactory(this);
+        }
         return parameterFactory;
     }
 

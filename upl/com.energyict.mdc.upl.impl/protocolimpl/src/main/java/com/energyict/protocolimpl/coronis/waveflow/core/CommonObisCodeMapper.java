@@ -307,7 +307,7 @@ public class CommonObisCodeMapper {
                 int mode = operatingMode.getOperationMode();
                 return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(mode), Unit.get("")), new Date());
             } else if (obisCode.equals(OBISCODE_FIRMWARE)) {
-                return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, waveFlow.getFirmwareVersion());
+                return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, waveFlow.readFirmwareVersion());
             } else if (obisCode.equals(OBISCODE_ELAPSED_DAYS)) {
                 int nr = waveFlow.getParameterFactory().readElapsedDays();
                 return new RegisterValue(obisCode, new Quantity(new BigDecimal(nr), Unit.get(BaseUnit.DAY)), new Date());
@@ -333,11 +333,11 @@ public class CommonObisCodeMapper {
                 int value = waveFlow.getParameterFactory().getNumberOfFramesInTx();
                 return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date());
             } else if (obisCode.equals(OBISCODE_RSSI_LEVEL)) {
-                double value = waveFlow.getRadioCommandFactory().readModuleType().getRssiLevel();
+                double value = waveFlow.getRadioCommandFactory().readRSSILevel();
                 return new RegisterValue(obisCode, new Quantity(value > 100 ? 100 : value, Unit.get("")), new Date());      //A percentage representing the saturation
             } else if (isPulseWeightReadout(obisCode)) {
                 int inputChannel = (obisCode.getB());
-                PulseWeight pulseWeight = waveFlow.getParameterFactory().readPulseWeight(inputChannel);
+                PulseWeight pulseWeight = waveFlow.getPulseWeight(inputChannel, true);
                 return new RegisterValue(obisCode, new Quantity(new BigDecimal(pulseWeight.getWeight()), pulseWeight.getUnit()));
             }
             waveFlow.getLogger().log(Level.SEVERE, "Register with obis code [" + obisCode + "] does not exist!");

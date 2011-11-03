@@ -65,15 +65,21 @@ public class ObisCodeMapper {
             //Uses the pulse weight to convert the received pulse amount in liters
             if (isCurrentIndexReading(obisCode)) {
                 int channel = obisCode.getB() - 1;
-                PulseWeight pulseWeight = waveFlowV1.getParameterFactory().readPulseWeight(channel + 1);
+                if (channel > (waveFlowV1.getNumberOfChannels() - 1)) {
+                    throw new NoSuchRegisterException("This channel is not supported");
+                }
+                PulseWeight pulseWeight = waveFlowV1.getPulseWeight(channel);
                 BigDecimal currentIndexValue = new BigDecimal(pulseWeight.getWeight() * waveFlowV1.getRadioCommandFactory().readCurrentReading().getReadings()[channel]);
                 return new RegisterValue(obisCode, new Quantity(currentIndexValue, pulseWeight.getUnit()), new Date());
 
                 // Billing data request for inputs A ... D
             } else if (isLastBillingPeriodIndexReading(obisCode)) {
                 int channel = obisCode.getB() - 1;
-                PulseWeight pulseWeight = waveFlowV1.getParameterFactory().readPulseWeight(channel + 1);
+                PulseWeight pulseWeight = waveFlowV1.getPulseWeight(channel);
                 ExtendedIndexReading extendedIndexReadingConfiguration = waveFlowV1.getRadioCommandFactory().readExtendedIndexConfiguration();
+                if (channel > (waveFlowV1.getNumberOfChannels() - 1)) {
+                    throw new NoSuchRegisterException("No billing data available this channel");
+                }
                 int value = extendedIndexReadingConfiguration.getIndexOfLastMonth(channel);
                 if (value == -1) {
                     waveFlowV1.getLogger().log(Level.WARNING, "No billing data available yet, values are 0xFFFFFFFF");

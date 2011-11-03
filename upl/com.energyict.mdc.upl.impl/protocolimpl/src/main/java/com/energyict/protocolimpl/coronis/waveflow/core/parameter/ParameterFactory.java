@@ -16,8 +16,9 @@ public class ParameterFactory {
     private ApplicationStatus applicationStatus = null;
     private ValveApplicationStatus valveApplicationStatus = null;
     private OperatingMode operatingMode = null;
+    private BatteryLifeDurationCounter batteryLifeDurationCounter = null;
     private ExtendedOperationMode extendedOperationMode = null;
-    ProfileType profileType;
+    private ProfileType profileType = null;
     private PulseWeight[] pulseWeights = new PulseWeight[4];
 
     private static final int DAILY = 60 * 60 * 24;
@@ -67,6 +68,15 @@ public class ParameterFactory {
             applicationStatus.read();
         }
         return applicationStatus.getStatus();
+    }
+
+    public void setApplicationStatus(ApplicationStatus applicationStatus) {
+        this.applicationStatus = applicationStatus;
+    }
+
+    public void setApplicationStatus(int applicationStatus) {
+        this.applicationStatus = new ApplicationStatus(waveFlow);
+        this.applicationStatus.setStatus(applicationStatus);
     }
 
     final public int readValveApplicationStatus() throws IOException {
@@ -217,6 +227,18 @@ public class ParameterFactory {
         return operatingMode;
     }
 
+    public void setOperatingMode(OperatingMode operatingMode) {
+        this.operatingMode = operatingMode;
+    }
+
+    public void setOperatingMode(int operatingMode) {
+        this.operatingMode = new OperatingMode(waveFlow, operatingMode);
+    }
+
+    public void setExtendedOperationMode(int extendedOperationMode) {
+        this.extendedOperationMode = new ExtendedOperationMode(waveFlow, extendedOperationMode);
+    }
+
     final public void enableDataLoggingPeriodic() throws IOException {
         readOperatingMode();
         operatingMode.setDataLoggingStepsToPeriodic();
@@ -253,12 +275,7 @@ public class ParameterFactory {
         if (operatingMode.isWeeklyMeasurement()) {
             return WEEKLY;
         }
-        if (samplingPeriod == null) {
-            samplingPeriod = new SamplingPeriod(waveFlow);
-            samplingPeriod.read();
-            waveFlow.getLogger().info("Received profile data interval: [" + samplingPeriod.getSamplingPeriodInSeconds() + " seconds] ");
-        }
-        return samplingPeriod.getSamplingPeriodInSeconds();
+        return readRawSamplingPeriod();
     }
 
     /**
@@ -268,8 +285,13 @@ public class ParameterFactory {
         if (samplingPeriod == null) {
             samplingPeriod = new SamplingPeriod(waveFlow);
             samplingPeriod.read();
+            waveFlow.getLogger().info("Received profile data interval: [" + samplingPeriod.getSamplingPeriodInSeconds() + " seconds] ");
         }
         return samplingPeriod.getSamplingPeriodInSeconds();
+    }
+
+    public void setSamplingPeriod(SamplingPeriod dataloggingMeasurementPeriod) {
+        this.samplingPeriod = dataloggingMeasurementPeriod;
     }
 
     /**
@@ -327,9 +349,15 @@ public class ParameterFactory {
     }
 
     final public BatteryLifeDurationCounter readBatteryLifeDurationCounter() throws IOException {
-        BatteryLifeDurationCounter o = new BatteryLifeDurationCounter(waveFlow);
-        o.read();
-        return o;
+        if (batteryLifeDurationCounter == null) {
+            batteryLifeDurationCounter = new BatteryLifeDurationCounter(waveFlow);
+            batteryLifeDurationCounter.read();
+        }
+        return batteryLifeDurationCounter;
+    }
+
+    final public void setBatteryLifeDurationCounter(int shortLifeCounter) {
+        batteryLifeDurationCounter = new BatteryLifeDurationCounter(waveFlow, shortLifeCounter);
     }
 
     final public Date readBatteryLifeDateEnd() throws IOException {
@@ -394,15 +422,21 @@ public class ParameterFactory {
         pulseWeight.setUnitScaler(unitNumber);
         pulseWeight.setWeight(weight);
         pulseWeight.write();
+        pulseWeights[inputChannelIndex - 1] = pulseWeight;
         return true;
     }
 
+    /**
+     * Read out the pulse weight for a certain port
+     * The value is cached for further use
+     *
+     * @param inputChannelIndex indicates which port (one based!)
+     * @return the pulse weight for that port
+     * @throws IOException
+     */
     public PulseWeight readPulseWeight(int inputChannelIndex) throws IOException {
         if (inputChannelIndex == 0) {
             inputChannelIndex = 1;
-        }
-        if (inputChannelIndex > readOperatingMode().getNumberOfInputsUsed()) {
-            throw new WaveFlowException("Requested channel index [" + inputChannelIndex + "] is not supported by the module.");
         }
         if (pulseWeights[inputChannelIndex - 1] == null) {
             PulseWeight pulseWeight = new PulseWeight(waveFlow, inputChannelIndex);
@@ -410,10 +444,6 @@ public class ParameterFactory {
             pulseWeights[inputChannelIndex - 1] = pulseWeight;
         }
         return pulseWeights[inputChannelIndex - 1];
-    }
-
-    public PulseWeight[] getPulseWeights() {
-        return pulseWeights;
     }
 
     public void writeStartHourOfMeasurement(int time) throws IOException {

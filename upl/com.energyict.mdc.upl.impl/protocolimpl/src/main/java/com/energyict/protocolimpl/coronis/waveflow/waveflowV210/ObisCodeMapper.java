@@ -257,15 +257,22 @@ public class ObisCodeMapper {
             //Uses the pulse weight to convert the received pulse amount in liters
             if (isCurrentIndexReading(obisCode)) {
                 int channel = obisCode.getB() - 1;
-                PulseWeight pulseWeight = waveFlowV1.getParameterFactory().readPulseWeight(channel + 1);
+                if (channel > (waveFlowV1.getNumberOfChannels() - 1)) {
+                    throw new NoSuchRegisterException("This channel is not supported");
+                }
+
+                PulseWeight pulseWeight = waveFlowV1.getPulseWeight(channel, true);
                 BigDecimal currentIndexValue = new BigDecimal(pulseWeight.getWeight() * waveFlowV1.getRadioCommandFactory().readCurrentReading().getReadings()[channel]);
                 return new RegisterValue(obisCode, new Quantity(currentIndexValue, pulseWeight.getUnit()), new Date());
 
                 // Billing data request for inputs A ... D
             } else if (isLastBillingPeriodIndexReading(obisCode)) {
                 int channel = obisCode.getB() - 1;
-                PulseWeight pulseWeight = waveFlowV1.getParameterFactory().readPulseWeight(channel + 1);
+                PulseWeight pulseWeight = waveFlowV1.getPulseWeight(channel);
                 ExtendedIndexReading extendedIndexReadingConfiguration = waveFlowV1.getRadioCommandFactory().readExtendedIndexConfiguration();
+                if (channel > (waveFlowV1.getNumberOfChannels() - 1)) {
+                    throw new NoSuchRegisterException("No billing data available this channel");
+                }
                 int value = extendedIndexReadingConfiguration.getIndexOfLastMonth(channel);
                 if (value == -1) {
                     waveFlowV1.getLogger().log(Level.WARNING, "No billing data available yet, values are 0xFFFFFFFF");
@@ -285,7 +292,7 @@ public class ObisCodeMapper {
                 int value = waveFlowV1.getRadioCommandFactory().readFeatureData().is7BandsEnabled();
                 return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date());
             } else if (OBISCODE_OVERSPEED_THRESHOLD.equals(obisCode)) {
-                PulseWeight pulseWeight = waveFlowV1.getParameterFactory().readPulseWeight(1);
+                PulseWeight pulseWeight = waveFlowV1.getPulseWeight(0, true);
                 int value = waveFlowV1.getRadioCommandFactory().readOverSpeedParameters().getSpeedThreshold() * 3600 * pulseWeight.getWeight();
                 return new RegisterValue(obisCode, new Quantity(value, Unit.get(BaseUnit.CUBICMETERPERHOUR, pulseWeight.getUnitScaler() - 3)), new Date());
             } else if (OBISCODE_OVERSPEED_TIME.equals(obisCode)) {
@@ -576,7 +583,7 @@ public class ObisCodeMapper {
             }
 
         } catch (IOException e) {
-           if (!(e instanceof NoSuchRegisterException)) {
+            if (!(e instanceof NoSuchRegisterException)) {
                 waveFlowV1.getLogger().log(Level.SEVERE, "Error getting [" + obisCode + "]: timeout, " + e.getMessage());
             }
             throw e;

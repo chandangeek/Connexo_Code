@@ -117,7 +117,7 @@ abstract public class AbstractRadioCommand {
 	/**
 	 * the 1 byte application status send together with some of the radio command responses
 	 */
-	private int applicationStatus=-1;
+	protected int applicationStatus=-1;
 
 	public final int getOperationMode() {
 		return operationMode;
@@ -197,6 +197,9 @@ abstract public class AbstractRadioCommand {
 				else if (getRadioCommandId().isStatus()) {
 					operationMode = WaveflowProtocolUtils.toInt(dais.readByte());
 					applicationStatus = WaveflowProtocolUtils.toInt(dais.readByte());
+
+                    waveFlow.getParameterFactory().setOperatingMode(operationMode);
+                    waveFlow.getParameterFactory().setApplicationStatus(applicationStatus);
 				}
 
                 if (waveFlow.isV210() && (RadioCommandId.ExtendedApplicativeCommand.equals(getRadioCommandId()))) {         //The V210 send an extra ack, for the sub command

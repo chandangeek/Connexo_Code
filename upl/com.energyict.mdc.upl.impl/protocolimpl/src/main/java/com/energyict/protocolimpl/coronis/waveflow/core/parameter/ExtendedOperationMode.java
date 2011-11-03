@@ -13,6 +13,11 @@ public class ExtendedOperationMode extends AbstractParameter {
         super(waveFlow);
     }
 
+    public ExtendedOperationMode(WaveFlow waveFlow, int status) {
+        super(waveFlow);
+        this.status = status;
+    }
+
     // The LSB of this status byte indicates the method of back flow detection.
     public final int getStatus() {
         return status;

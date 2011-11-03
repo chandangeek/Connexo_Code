@@ -78,9 +78,10 @@ public class DailyConsumption extends AbstractRadioCommand {
     public void parse(byte[] data) throws IOException {
         int offset = 0;
 
-        //Get the operation mode out of the generic header, skip the rest of the metadata
-        OperatingMode operatingMode = new OperatingMode(getWaveFlow(), data[2] & 0xFF);
-        numberOfInputs = operatingMode.getNumberOfInputsUsed();
+        GenericHeader genericHeader = new GenericHeader(getWaveFlow());
+        genericHeader.parse(data);  //Parses all metadata, caches it in the factory.
+
+        numberOfInputs = getWaveFlow().getParameterFactory().readOperatingMode().getNumberOfInputsUsed();
         offset += genericHeaderLength;
 
         indexZone = new IndexZone(getWaveFlow());

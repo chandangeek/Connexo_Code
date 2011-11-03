@@ -32,12 +32,17 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
 
     private boolean multiFrame;         //Custom property enabling multiframe mode. This mode is not available when using repeaters to reach the waveflow module.
     private boolean verifyProfileInterval = true;
+    private int initialRFCommand = 0;
     private boolean isV1 = false;
     private int bubbleUpStartMoment;
     private int deviceType;
     private PulseWeight[] pulseWeights = new PulseWeight[4];
     private boolean isV210 = false;
     protected WaveFlowMessageParser waveFlowMessages;
+
+    public boolean usesInitialRFCommand() {
+        return getInitialRFCommand() == 0x06 || getInitialRFCommand() == 0x27;
+    }
 
     public boolean isV1() {
         return isV1;
@@ -61,6 +66,10 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
 
     public final boolean isVerifyProfileInterval() {
         return verifyProfileInterval;
+    }
+
+    public int getInitialRFCommand() {
+        return initialRFCommand;
     }
 
     public int getBubbleUpStartMoment() {
@@ -118,6 +127,9 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
     ObisCode loadProfileObisCode;
 
     final public RadioCommandFactory getRadioCommandFactory() {
+        if (radioCommandFactory == null) {
+            radioCommandFactory = new RadioCommandFactory(this);
+        }
         return radioCommandFactory;
     }
 
@@ -126,6 +138,15 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
         if (getExtendedLogging() >= 1) {
             getCommonObisCodeMapper().getRegisterExtendedLogging();
         }
+        if (getInitialRFCommand() == 0x06) {
+            getRadioCommandFactory().readExtendedIndexConfiguration();    //Cache its contents
+        } else if ((getInitialRFCommand() == 0x27) && isV2()) {           //Only V2 supports daily consumption (0x27)
+            getRadioCommandFactory().readDailyConsumption();
+        }
+    }
+
+    private boolean isV2() {
+        return (!isV1() && !isV210());
     }
 
     @Override
@@ -179,41 +200,53 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
         PulseWeight pulseWeightB = new PulseWeight(waveFlow, scaleB, multiplierB, 2);
         PulseWeight pulseWeightC = new PulseWeight(waveFlow, scaleC, multiplierC, 3);
         PulseWeight pulseWeightD = new PulseWeight(waveFlow, scaleD, multiplierD, 4);
+        initialRFCommand = Integer.parseInt(properties.getProperty("InitialRFCommand", "0").trim());
 
         pulseWeights = new PulseWeight[]{pulseWeightA, pulseWeightB, pulseWeightC, pulseWeightD};
     }
 
-    public PulseWeight[] getPulseWeights() {
-        for (int port = 0; port < 4; port++) {
-            if (pulseWeights[port] == null) {
+    /**
+     * Getter for the pulse weight for a specific port
+     *
+     * @param port            port number, zero based!
+     * @param requestsAllowed
+     * @return
+     * @throws IOException
+     */
+    public PulseWeight getPulseWeight(int port, boolean requestsAllowed) throws IOException {
+        if (port < 0) {
+            port = 0;
+        }
+        if (pulseWeights[port] == null) {
+            if (requestsAllowed) {
+                pulseWeights[port] = getParameterFactory().readPulseWeight(port + 1);
+            } else {
                 pulseWeights[port] = new PulseWeight(this, 0, 1, port + 1);
             }
-        }
-        return pulseWeights;
-    }
-
-    public PulseWeight getPulseWeight(int port) {
-        if (pulseWeights[port] == null) {
-            pulseWeights[port] = new PulseWeight(this, 0, 1, port + 1);
         }
         return pulseWeights[port];
     }
 
+    public void setPulseWeights(PulseWeight[] pulseWeights) {
+        this.pulseWeights = pulseWeights;
+    }
+
+    public PulseWeight getPulseWeight(int port) throws IOException {
+        return getPulseWeight(port, true);
+    }
+
     @Override
     public String getFirmwareVersion() throws IOException, UnsupportedException {
-        try {
-            return "V" + WaveflowProtocolUtils.toHexString(getRadioCommandFactory().readFirmwareVersion().getFirmwareVersion()) + ", Mode of transmission " + getRadioCommandFactory().readFirmwareVersion().getModeOfTransmission();
-        } catch (IOException e) {
-            return "Error requesting firmware version, timeout";
-        }
+        return "N/A";         //Omit for battery saving purposes.
+    }
+
+    public String readFirmwareVersion() throws IOException, UnsupportedException {
+        return "V" + WaveflowProtocolUtils.toHexString(getRadioCommandFactory().readFirmwareVersion().getFirmwareVersion()) + ", Mode of transmission " + getRadioCommandFactory().readFirmwareVersion().getModeOfTransmission();
     }
 
     @Override
     public String getProtocolVersion() {
-        String rev = "$Revision: 43219 $" + " - " + "$Date: 2010-09-21 10:31:34 +0100 (tu, 21 sep 2010) $";
-        String manipulated = "Revision " + rev.substring(rev.indexOf("$Revision: ") + "$Revision: ".length(), rev.indexOf("$ -")) + "at "
-                + rev.substring(rev.indexOf("$Date: ") + "$Date: ".length(), rev.indexOf("$Date: ") + "$Date: ".length() + 19);
-        return manipulated;
+        return "$Date: 2011-10-25 16:18:44 +0200 (di, 25 okt 2011) $";
     }
 
     @Override
@@ -308,6 +341,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
         List result = new ArrayList();
         result.add("EnableMultiFrameMode");
         result.add("verifyProfileInterval");
+        result.add("InitialRFCommand");
         result.add("LoadProfileObisCode");
         result.add("ApplicationStatusVariant");
         result.add(PROP_SCALE_A);
