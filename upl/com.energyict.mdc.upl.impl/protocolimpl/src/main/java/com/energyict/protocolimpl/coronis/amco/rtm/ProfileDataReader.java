@@ -192,18 +192,18 @@ public class ProfileDataReader {
         if (rtm.usesInitialRFCommand()) {
             calendar.setTime(lastLoggedValue);
         } else {
-            if (!monthly) {
-                calendar.setTime(getTimeStampOfNewestRecord(lastLoggedValue, initialOffset));
-                if (!ParseUtils.isOnIntervalBoundary(calendar, getProfileIntervalInSeconds())) {
-                    ParseUtils.roundDown2nearestInterval(calendar, getProfileIntervalInSeconds());
-                }
-            } else {
-                calendar.setTime(getTimeStampOfNewestRecordMonthly(toDate, lastLoggedValue));
+        if (!monthly) {
+            calendar.setTime(getTimeStampOfNewestRecord(lastLoggedValue, initialOffset));
+            if (!ParseUtils.isOnIntervalBoundary(calendar, getProfileIntervalInSeconds())) {
+                ParseUtils.roundDown2nearestInterval(calendar, getProfileIntervalInSeconds());
             }
+        } else {
+            calendar.setTime(getTimeStampOfNewestRecordMonthly(toDate, lastLoggedValue));
+        }
         }
 
         if (daily) {
-            calendar.add(Calendar.SECOND, -1 * (getProfileIntervalInSeconds() * 4));          //Daily consumption contains every 4th value of the table  
+            calendar.add(Calendar.SECOND, -1 * (getProfileIntervalInSeconds() * 4));          //Daily consumption contains every 4th value of the table
         }
 
         int nrOfReadings = rawValues.get(0).size();
@@ -211,7 +211,7 @@ public class ProfileDataReader {
         for (int index = 0; index < nrOfReadings; index++) {
             List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
 
-            for (int inputId = 0; inputId < getNumberOfInputsUsed(); inputId++) {
+            for (int inputId = 0; inputId < rawValues.size(); inputId++) {
                 int multiplier = genericHeader.getRtmUnit(inputId).getMultiplier();
                 Integer value = rawValues.get(inputId).get(index)[0];
                 int status = rawValues.get(inputId).get(index)[1];
@@ -277,13 +277,13 @@ public class ProfileDataReader {
         }
 
         if (!usesInitialRFCommand) {
-            meterEvents.addAll(rtm.getRadioCommandFactory().readLeakageEventTable().getMeterEvents());
+        meterEvents.addAll(rtm.getRadioCommandFactory().readLeakageEventTable().getMeterEvents());
         }
 
         if (!usesInitialRFCommand) {
-            for (int input = 0; input < numberOfPorts; input++) {
-                meterEvents.addAll(rtm.getParameterFactory().readSimpleBackflowDetectionFlags(input + 1).getMeterEvents());
-            }
+        for (int input = 0; input < numberOfPorts; input++) {
+            meterEvents.addAll(rtm.getParameterFactory().readSimpleBackflowDetectionFlags(input + 1).getMeterEvents());
+        }
         }
 
         if (profileType.isPulse()) {
@@ -319,7 +319,7 @@ public class ProfileDataReader {
 
         if (profileType.isValve()) {
             if (!usesInitialRFCommand) {
-                meterEvents.addAll(rtm.getParameterFactory().readLeakageDetectionStatus().getMeterEvents());
+            meterEvents.addAll(rtm.getParameterFactory().readLeakageDetectionStatus().getMeterEvents());
             }
             if (status.isValveFault()) {
                 Date eventDate = new Date();

@@ -47,6 +47,11 @@ public class GenericHeader {
         this.radioAddress = radioAddress;
     }
 
+    public GenericHeader(RTM rtm, byte[] radioAddress) {
+        this.rtm = rtm;
+        this.radioAddress = radioAddress;
+    }
+
     public int getIntervalStatus(int port) {
         int status = IntervalStateBits.OK;
         if ((applicationStatus.getStatus() & 0x01) == 0x01) {

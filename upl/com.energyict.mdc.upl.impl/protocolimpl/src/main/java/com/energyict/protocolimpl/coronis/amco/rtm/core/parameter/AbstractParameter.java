@@ -174,10 +174,10 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
         }
     }
 
-    void writeBubbleUpConfiguration(int command, int portMask, int numberOfReadings, int offset) throws IOException {
+    void writeBubbleUpConfiguration(int command, int portMask, int numberOfReadings, int offset, int transmissionPeriod) throws IOException {
         ByteArrayOutputStream baos = null;
         try {
-            baos = getWriteBubbleUpConfigCommand(command, portMask, numberOfReadings, offset);
+            baos = getWriteBubbleUpConfigCommand(command, portMask, numberOfReadings, offset, transmissionPeriod);
             parseBubbleUpConfigResponse(getRTM().getWaveFlowConnect().sendData(baos.toByteArray()));
         }
         finally {
@@ -352,7 +352,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
     /**
      * Prepares a byte[] to set all bubble up configuration parameters at once
      */
-    private ByteArrayOutputStream getWriteBubbleUpConfigCommand(int command, int portMask, int numberOfReadings, int offset) throws IOException {
+    private ByteArrayOutputStream getWriteBubbleUpConfigCommand(int command, int portMask, int numberOfReadings, int offset, int transmissionPeriod) throws IOException {
         ByteArrayOutputStream baos;
         baos = new ByteArrayOutputStream();
         DataOutputStream daos = new DataOutputStream(baos);
@@ -377,7 +377,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 
         daos.writeByte(ParameterId.PseudoBubbleUpTransmissionPeriod.id);
         daos.writeByte(ParameterId.PseudoBubbleUpTransmissionPeriod.length);
-        daos.writeByte(0x06);   //Default value
+        daos.writeByte(transmissionPeriod);   //Default value
 
         daos.writeByte(ParameterId.PushCommandBuffer.id);
         daos.writeByte(ParameterId.PushCommandBuffer.length);

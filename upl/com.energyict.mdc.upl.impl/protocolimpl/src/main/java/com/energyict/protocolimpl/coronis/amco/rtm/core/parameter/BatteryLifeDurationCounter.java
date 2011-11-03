@@ -55,7 +55,9 @@ public class BatteryLifeDurationCounter extends AbstractParameter {
     public BatteryLifeDurationCounter(RTM rtm, int batteryLifeCounter) throws IOException {
         super(rtm);
         this.batteryLifeCounter = batteryLifeCounter;
-        radioAddress = rtm.getWaveFlowConnect().readRadioAddress();
+        if (rtm.getWaveFlowConnect() != null) {
+            radioAddress = rtm.getWaveFlowConnect().readRadioAddress();
+        }
     }
 
     @Override

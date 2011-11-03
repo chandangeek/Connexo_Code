@@ -43,10 +43,16 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     }
 
     public ParameterFactory getParameterFactory() {
+        if (parameterFactory == null) {
+            parameterFactory = new ParameterFactory(this);
+        }
         return parameterFactory;
     }
 
     final public RadioCommandFactory getRadioCommandFactory() {
+        if (radioCommandFactory == null) {
+            radioCommandFactory = new RadioCommandFactory(this);
+        }
         return radioCommandFactory;
     }
 
@@ -74,7 +80,6 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
         }
         return numberOfChannels;
     }
-
 
     public boolean isMultiFrame() {
         return multiFrame;
@@ -155,7 +160,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2011-05-30 14:05:54 +0200 (ma, 30 mei 2011) $";
+        return "$Date: 2011-11-03 14:29:32 +0100 (do, 03 nov 2011) $";
     }
 
     @Override

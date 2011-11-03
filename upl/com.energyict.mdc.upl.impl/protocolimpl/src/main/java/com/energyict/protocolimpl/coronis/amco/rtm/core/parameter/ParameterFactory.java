@@ -149,7 +149,7 @@ public class ParameterFactory {
         if (batteryLifeDurationCounter == null) {
             batteryLifeDurationCounter = new BatteryLifeDurationCounter(rtm);
             batteryLifeDurationCounter.read();
-        }
+    }
         return batteryLifeDurationCounter;
     }
 
@@ -206,7 +206,6 @@ public class ParameterFactory {
     }
 
     public void writeOperatingMode(int mode) throws IOException {
-        operatingMode = new OperatingMode(rtm);
         operatingMode.setOperationMode(mode);
         operatingMode.write();
     }
@@ -226,9 +225,9 @@ public class ParameterFactory {
         if (samplingPeriod == null) {
             samplingPeriod = new SamplingPeriod(rtm);
             samplingPeriod.read();
+            rtm.getLogger().info("Received profile data interval: [" + samplingPeriod.getSamplingPeriodInSeconds() + " seconds] ");
+            writeSamplingIntervalMultiplier(1);
         }
-        writeSamplingIntervalMultiplier(1);
-        rtm.getLogger().info("Received profile data interval: [" + samplingPeriod.getSamplingPeriodInSeconds() + " seconds] ");
         return samplingPeriod.getSamplingPeriodInSeconds();
     }
 
@@ -492,9 +491,9 @@ public class ParameterFactory {
         commandBuffer.write();
     }
 
-    public void writeBubbleUpConfiguration(int command, int portMask, int numberOfReadings, int offset) throws IOException {
+    public void writeBubbleUpConfiguration(int command, int portMask, int numberOfReadings, int offset, int transmissionPeriod) throws IOException {
         PseudoBubbleUpCommandBuffer config = new PseudoBubbleUpCommandBuffer(rtm);
-        config.writeBubbleUpConfiguration(command, portMask, numberOfReadings, offset);            //A special command that writes all parameters
+        config.writeBubbleUpConfiguration(command, portMask, numberOfReadings, offset, transmissionPeriod);            //A special command that writes all parameters
     }
 
     public void clearCommandBuffer() throws IOException {

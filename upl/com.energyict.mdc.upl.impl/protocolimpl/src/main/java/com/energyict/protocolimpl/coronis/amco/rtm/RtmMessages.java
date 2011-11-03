@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.coronis.amco.rtm;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.ProfileType;
+import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -183,6 +184,9 @@ public class RtmMessages implements MessageProtocol {
             }
         } catch (NumberFormatException e) {
             rtm.getLogger().severe("Error parsing message, " + e.getMessage());
+            return MessageResult.createFailed(messageEntry);
+        } catch (WaveFlowException e) {
+            rtm.getLogger().severe("Message failed, " + e.getMessage());
             return MessageResult.createFailed(messageEntry);
         }
     }
@@ -467,11 +471,29 @@ public class RtmMessages implements MessageProtocol {
                 numberOfReadings = Integer.parseInt(parts[4].substring(1, 2));
             }
         }
+
+        int transmissionPeriod;
+        int transmissionPeriodUnit;
+        try {
+            transmissionPeriod = Integer.parseInt(parts[5 - (value == 7 ? 0 : 2)].substring(1).split("\"")[0]);
+            transmissionPeriodUnit = Integer.parseInt(parts[6 - (value == 7 ? 0 : 2)].substring(1).split("\"")[0]);
+            if (transmissionPeriod < 1 || transmissionPeriod > 63) {
+                return MessageResult.createFailed(messageEntry);
+            }
+            if (transmissionPeriodUnit < 0 || transmissionPeriodUnit > 2) {
+                return MessageResult.createFailed(messageEntry);
+            }
+        } catch (IndexOutOfBoundsException e) {
+            rtm.getLogger().log(Level.INFO, "Invalid arguments for starting the bubble up mechanism, message failed");
+            return MessageResult.createFailed(messageEntry);
+        }
+
+        transmissionPeriod = (transmissionPeriod << 2) | transmissionPeriodUnit;
         if (rtm.getBubbleUpStartMoment() == -1) {
             rtm.getLogger().log(Level.INFO, "Custom property containing bubble up info is not set, message failed");
             return MessageResult.createFailed(messageEntry);
         }
-        rtm.getParameterFactory().writeBubbleUpConfiguration(value, portMask, numberOfReadings, 0);
+        rtm.getParameterFactory().writeBubbleUpConfiguration(value, portMask, numberOfReadings, 0, transmissionPeriod);
         return MessageResult.createSuccess(messageEntry);
     }
 
@@ -1061,7 +1083,7 @@ public class RtmMessages implements MessageProtocol {
         cat5.addMessageSpec(addBasicMsgWithOptionalAttr("Add applicative command to the command buffer", "AddCommandToBuffer", true, "Applicative command (e.g. Current reading = 1)", "Port mask (decimal value) (only for command 7)", "Expected number of readings per port (only for command 7)"));
         cat5.addMessageSpec(addBasicMsg("Enable bubble up mechanism flag in the operation mode", "EnableBubbleUpMechanism", true));
         cat5.addMessageSpec(addBasicMsg("Disable bubble up mechanism flag in the operation mode", "DisableBubbleUpMechanism", true));
-        cat5.addMessageSpec(addBasicMsgWithOptionalAttr("Start bubble up mechanism", "StartBubbleUpMechanism", true, "Applicative command (e.g. Current reading = 1)", "Port mask (decimal value) (only for command 7)", "Expected number of readings per port (only for command 7)"));
+        cat5.addMessageSpec(addBasicMsgWithOptionalAttr2("Start bubble up mechanism", "StartBubbleUpMechanism", true, "Applicative command (e.g. Current reading = 1)", "Port mask (decimal value) (only for command 7)", "Expected number of readings per port (only for command 7)", "Transmission period (range: 1 - 63)", "Transmission period unit (0: minute, 1: hour, 2: day)"));
         cat5.addMessageSpec(addBasicMsg("Clear the command buffer", "ClearCommandBuffer", true));
         theCategories.add(cat5);
 
@@ -1153,6 +1175,27 @@ public class RtmMessages implements MessageProtocol {
         tagSpec.add(addAttribute2);
         MessageAttributeSpec addAttribute3 = new MessageAttributeSpec(attr3, false);
         tagSpec.add(addAttribute3);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" "); //Disable this field
+        tagSpec.add(msgVal);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
+
+    protected MessageSpec addBasicMsgWithOptionalAttr2(final String keyId, final String tagName, final boolean advanced, String attr1, String attr2, String attr3, String attr4, String attr5) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageAttributeSpec addAttribute1 = new MessageAttributeSpec(attr1, true);
+        tagSpec.add(addAttribute1);
+        MessageAttributeSpec addAttribute2 = new MessageAttributeSpec(attr2, false);
+        tagSpec.add(addAttribute2);
+        MessageAttributeSpec addAttribute3 = new MessageAttributeSpec(attr3, false);
+        tagSpec.add(addAttribute3);
+        MessageAttributeSpec addAttribute4 = new MessageAttributeSpec(attr4, true);
+        tagSpec.add(addAttribute4);
+        MessageAttributeSpec addAttribute5 = new MessageAttributeSpec(attr5, true);
+        tagSpec.add(addAttribute5);
         MessageValueSpec msgVal = new MessageValueSpec();
         msgVal.setValue(" "); //Disable this field
         tagSpec.add(msgVal);

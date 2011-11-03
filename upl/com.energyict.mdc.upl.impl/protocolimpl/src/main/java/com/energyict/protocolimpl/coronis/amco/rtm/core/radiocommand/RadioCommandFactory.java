@@ -150,8 +150,8 @@ public class RadioCommandFactory {
     public RSSILevel readRSSI() throws IOException {
         if (rssiLevel == null) {
             rssiLevel = new RSSILevel(rtm);
-            rssiLevel.set();
-        }
+        rssiLevel.set();
+    }
         return rssiLevel;
     }
 

@@ -54,7 +54,7 @@ public class BubbleUpFrameParser {
         List<List<Integer[]>> rawValues = table.getProfileDataForAllPorts();
         ProfileDataReader profileDataReader = new ProfileDataReader(rtm);
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
-        registerValues.addAll(getGenericHeaderRegisters(data, radioAddress));
+        registerValues.addAll(getGenericHeaderRegisters(rtm, data, radioAddress));
 
         int numberOfPorts = 0;
         for (List<Integer[]> values : rawValues) {
@@ -79,7 +79,7 @@ public class BubbleUpFrameParser {
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
         ReadTOUBuckets readTOUBuckets = new ReadTOUBuckets(rtm);
         readTOUBuckets.parse(data);
-        registerValues.addAll(getGenericHeaderRegisters(data, radioAddress));
+        registerValues.addAll(getGenericHeaderRegisters(rtm, data, radioAddress));
 
         for (int port = 0; port < readTOUBuckets.getNumberOfPorts(); port++) {
             int value = readTOUBuckets.getListOfAllTotalizers().get(port).getCurrentReading();
@@ -102,7 +102,7 @@ public class BubbleUpFrameParser {
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
         BubbleUpObject result = new BubbleUpObject();
 
-        registerValues.addAll(getGenericHeaderRegisters(data, radioAddress));
+        registerValues.addAll(getGenericHeaderRegisters(rtm, data, radioAddress));
 
         CurrentRegisterReading currentRegisterReading = new CurrentRegisterReading(rtm);
         currentRegisterReading.parse(data);
@@ -123,10 +123,10 @@ public class BubbleUpFrameParser {
      * @param radioAddress indicates the RTM type, important to know the initial battery level
      * @return 2 registers
      */
-    private static List<RegisterValue> getGenericHeaderRegisters(byte[] data, byte[] radioAddress) throws IOException {
+    private static List<RegisterValue> getGenericHeaderRegisters(RTM rtm, byte[] data, byte[] radioAddress) throws IOException {
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
 
-        genericHeader = new GenericHeader(radioAddress);
+        genericHeader = new GenericHeader(rtm, radioAddress);
         genericHeader.parse(data);
 
         RegisterValue reg = new RegisterValue(ObisCode.fromString("0.0.96.6.0.255"), new Quantity(genericHeader.getShortLifeCounter(), Unit.get("")), new Date());
@@ -148,7 +148,7 @@ public class BubbleUpFrameParser {
         dailyConsumption.parse(data);
         List<List<Integer[]>> rawValues = new ArrayList<List<Integer[]>>();
 
-        registerValues.addAll(getGenericHeaderRegisters(data, radioAddress));
+        registerValues.addAll(getGenericHeaderRegisters(rtm, data, radioAddress));
 
         for (int port = 0; port < dailyConsumption.getNumberOfPorts(); port++) {
             int value = dailyConsumption.getCurrentIndexes()[port];
@@ -161,7 +161,7 @@ public class BubbleUpFrameParser {
             List<Integer[]> resultPerPort = new ArrayList<Integer[]>();
             for (Integer value : dailyConsumption.getDailyReadings(port)) {
                 resultPerPort.add(new Integer[]{value, genericHeader.getIntervalStatus(port), genericHeader.getApplicationStatus().getStatus()});
-        }
+            }
             rawValues.add(resultPerPort);
         }
 

@@ -127,6 +127,10 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
     }
 
     public void parseBubbleUpData(byte[] data) throws IOException {
+        if (data.length == 1 && ((data[0] & 0xFF) == 0xFF)) {
+            throw new WaveFlowException("Error reading the Extended data logging table, returned 0xFF");
+        }
+
         getGenericHeader().parse(data);
         OperatingMode operatingMode = getGenericHeader().getOperationMode();
         int offset = 23;    //Skip the rest of the generic header
@@ -136,7 +140,7 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
         int multiplier = data[offset + 2] & 0xFF;
         profileInterval = period.getSamplingPeriodInSeconds() * multiplier;
         offset += 7;        //Skip data logging parameters in the first frame
-        
+
         lastLoggedTimeStamp = TimeDateRTCParser.parse(data, offset, 7, TimeZone.getDefault()).getTime();
         offset += 7;
         offset++;           //Skip the frame counter, in case of bubble up there is only one frame possible
@@ -160,6 +164,7 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
     public void parse(byte[] data) throws IOException {
         if (getRTM().usesInitialRFCommand()) {
             parseBubbleUpData(data);
+            return;
         }
 
         int frameCounter = 0;
