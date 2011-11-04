@@ -51,7 +51,8 @@ public class HistoricalValues {
                ("508".compareTo(dataId) == 0) ||
                ("516".compareTo(dataId) == 0) ||
                ("509".compareTo(dataId) == 0) ||
-               ("510".compareTo(dataId) == 0));
+               ("510".compareTo(dataId) == 0) ||
+                ("511".compareTo(dataId) == 0));
     }
     
     private void parse(byte[] data) throws IOException {

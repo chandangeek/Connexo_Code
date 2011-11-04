@@ -30,6 +30,8 @@ public class ABBA1700MeterType {
     private String deviceNr = "";
     private String issueNr = "";
     private boolean hasExtendedCustomerRegisters = false;
+    private int sizeOfScalingSet;
+    private int sizeOfCDSource;
 
     /**
      * Creates a new instance of MeterType
@@ -39,14 +41,20 @@ public class ABBA1700MeterType {
             nrOfTariffRegisters = 16;
             extraOffsetHistoricDisplayScaling = 0;
             hasExtendedCustomerRegisters = false;
+            sizeOfScalingSet = 8*2;
+            sizeOfCDSource = 6;
         } else if (type == METERTYPE_32_TOU) {
             nrOfTariffRegisters = 32;
             extraOffsetHistoricDisplayScaling = 124;
             hasExtendedCustomerRegisters = false;
+            sizeOfScalingSet = 8*2;
+            sizeOfCDSource = 6;
         } else if (type == METERTYPE_32_TOU_5_CDR) {
             nrOfTariffRegisters = 32;
             extraOffsetHistoricDisplayScaling = 124;
             hasExtendedCustomerRegisters = true;
+            sizeOfScalingSet = 8*2;
+            sizeOfCDSource = 15;
         }
     }
 
@@ -197,4 +205,8 @@ public class ABBA1700MeterType {
     public boolean hasExtendedCustomerRegisters() {
         return hasExtendedCustomerRegisters;
     }
+
+    public int getDisplayScalingTOUOffset(){
+        return this.sizeOfScalingSet + this.sizeOfCDSource;
+}
 }

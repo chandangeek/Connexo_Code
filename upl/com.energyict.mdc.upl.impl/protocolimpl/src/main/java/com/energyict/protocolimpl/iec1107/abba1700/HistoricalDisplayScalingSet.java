@@ -28,9 +28,9 @@ public class HistoricalDisplayScalingSet {
         return tariffSources.toString()+"\n"+mdSources.toString();   
     }
     
-    private void parse(byte[] data) throws IOException {
-        tariffSources = new TariffSources(ProtocolUtils.getSubArray2(data,22,meterType.getNrOfTariffRegisters()),meterType);
-        mdSources = new MDSources(ProtocolUtils.getSubArray2(data,(22+meterType.getNrOfTariffRegisters()),8));
+    protected void parse(byte[] data) throws IOException {
+        tariffSources = new TariffSources(ProtocolUtils.getSubArray2(data,meterType.getDisplayScalingTOUOffset(),meterType.getNrOfTariffRegisters()),meterType);
+        mdSources = new MDSources(ProtocolUtils.getSubArray2(data,(meterType.getDisplayScalingTOUOffset()+meterType.getNrOfTariffRegisters()),8));
     }    
     
     /**
