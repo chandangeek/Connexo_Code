@@ -56,6 +56,10 @@ public abstract class NDBaseRegisterFactory extends AbstractRegisterFactory {
         
         /* energy */
         
+        /* Integrals. */
+        this.getRegisters().add(new HoldingRegister(514, 2, this.toObis("1.1.1.8.0.255"),Unit.get("kWh"))); // Active Power QI + QIV
+        this.getRegisters().add(new HoldingRegister(516, 2, this.toObis("1.1.9.8.0.255"), Unit.get("kVAh"))); // Apparent Power QI + QIV
+        this.getRegisters().add(new HoldingRegister(518, 2, this.toObis("1.1.3.8.0.255"), Unit.get("kvarh"))); // Reactive Power QI + QIV
         
         /* energy */
         getRegisters().add(new HoldingRegister(514,2,toObis("1.1.1.8.0.255"),Unit.get("kWh"))); 
