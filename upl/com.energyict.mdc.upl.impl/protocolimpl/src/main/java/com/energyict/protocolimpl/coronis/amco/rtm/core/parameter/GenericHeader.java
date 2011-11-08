@@ -52,6 +52,10 @@ public class GenericHeader {
         this.radioAddress = radioAddress;
     }
 
+    public void setRadioAddress(byte[] radioAddress) {
+        this.radioAddress = radioAddress;
+    }
+
     public int getIntervalStatus(int port) {
         int status = IntervalStateBits.OK;
         if ((applicationStatus.getStatus() & 0x01) == 0x01) {
@@ -151,7 +155,9 @@ public class GenericHeader {
         rtm.getRadioCommandFactory().setRSSILevel(new RSSILevel(rtm, (int) qos));
 
         shortLifeCounter = ProtocolTools.getUnsignedIntFromBytes(data, 13, 2) << 8;
-        rtm.getParameterFactory().setBatteryLifeDurationCounter(new BatteryLifeDurationCounter(rtm, (int) shortLifeCounter));
+
+        BatteryLifeDurationCounter batteryLifeDurationCounter = new BatteryLifeDurationCounter(rtm, (int) shortLifeCounter, radioAddress);
+        rtm.getParameterFactory().setBatteryLifeDurationCounter(batteryLifeDurationCounter);
 
         byte[] meterEncoderData = ProtocolTools.getSubArray(data, 15, 23);
         profileType = new ProfileType(new RTM());

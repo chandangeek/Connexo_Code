@@ -12,7 +12,7 @@ public class BatteryLifeDurationCounter extends AbstractParameter {
     final int INITIAL_BATTERY_LIFE_COUNT_RTM = 0x895440;
 
     private int batteryLifeCounter;
-    private byte[] radioAddress = new byte[6];          //The radio address contains the module type.
+    private byte[] radioAddress = null;                 //The radio address contains the module type.
                                                         //The module type indicates the initial battery level.
     final int getBatteryLifeCounter() {
         return batteryLifeCounter;
@@ -49,14 +49,18 @@ public class BatteryLifeDurationCounter extends AbstractParameter {
 
     BatteryLifeDurationCounter(RTM rtm) throws IOException {
         super(rtm);
-        radioAddress = rtm.getWaveFlowConnect().readRadioAddress();
+        if (radioAddress == null) {
+            radioAddress = rtm.getWaveFlowConnect().readRadioAddress();
+        }
     }
 
-    public BatteryLifeDurationCounter(RTM rtm, int batteryLifeCounter) throws IOException {
+    public BatteryLifeDurationCounter(RTM rtm, int batteryLifeCounter, byte[] radioAddress) throws IOException {
         super(rtm);
         this.batteryLifeCounter = batteryLifeCounter;
-        if (rtm.getWaveFlowConnect() != null) {
-            radioAddress = rtm.getWaveFlowConnect().readRadioAddress();
+        if (radioAddress == null) {
+            this.radioAddress = rtm.getWaveFlowConnect().readRadioAddress();
+        } else {
+            this.radioAddress = radioAddress;
         }
     }
 

@@ -126,11 +126,11 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
         lastLoggedTimeStamp = mostRecentRecord.getLastLoggedTimeStamp();
     }
 
-    public void parseBubbleUpData(byte[] data) throws IOException {
+    public void parseBubbleUpData(byte[] data, byte[] radioAddress) throws IOException {
         if (data.length == 1 && ((data[0] & 0xFF) == 0xFF)) {
             throw new WaveFlowException("Error reading the Extended data logging table, returned 0xFF");
         }
-
+        getGenericHeader().setRadioAddress(radioAddress);
         getGenericHeader().parse(data);
         OperatingMode operatingMode = getGenericHeader().getOperationMode();
         int offset = 23;    //Skip the rest of the generic header
@@ -160,6 +160,10 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
         }
     }
 
+    public void parseBubbleUpData(byte[] data) throws IOException {
+        parseBubbleUpData(data, null);
+    }
+
     @Override
     public void parse(byte[] data) throws IOException {
         if (getRTM().usesInitialRFCommand()) {
@@ -171,6 +175,7 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
         if ((data[0] & 0xFF) == 0xFF) {
             throw new WaveFlowException("No profile data available yet");
         }
+        getGenericHeader().setRadioAddress(null);
         getGenericHeader().parse(data);
         int offset = 23;    //Skip generic header in the first frame
 
