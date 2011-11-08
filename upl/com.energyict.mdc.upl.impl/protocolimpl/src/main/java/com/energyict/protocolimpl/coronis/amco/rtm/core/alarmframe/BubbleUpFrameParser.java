@@ -50,7 +50,7 @@ public class BubbleUpFrameParser {
         BubbleUpObject result = new BubbleUpObject();
         List<ProfileData> profileDatas = new ArrayList<ProfileData>();
         ExtendedDataloggingTable table = new ExtendedDataloggingTable(rtm);
-        table.parseBubbleUpData(data);
+        table.parseBubbleUpData(data, radioAddress);
         List<List<Integer[]>> rawValues = table.getProfileDataForAllPorts();
         ProfileDataReader profileDataReader = new ProfileDataReader(rtm);
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
@@ -78,7 +78,7 @@ public class BubbleUpFrameParser {
         BubbleUpObject result = new BubbleUpObject();
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
         ReadTOUBuckets readTOUBuckets = new ReadTOUBuckets(rtm);
-        readTOUBuckets.parse(data);
+        readTOUBuckets.parse(data, radioAddress);
         registerValues.addAll(getGenericHeaderRegisters(rtm, data, radioAddress));
 
         for (int port = 0; port < readTOUBuckets.getNumberOfPorts(); port++) {
@@ -105,7 +105,7 @@ public class BubbleUpFrameParser {
         registerValues.addAll(getGenericHeaderRegisters(rtm, data, radioAddress));
 
         CurrentRegisterReading currentRegisterReading = new CurrentRegisterReading(rtm);
-        currentRegisterReading.parse(data);
+        currentRegisterReading.parse(data, radioAddress);
 
         RegisterValue reg;
         for (int port = 0; port < currentRegisterReading.getNumberOfPorts(); port++) {
@@ -145,7 +145,7 @@ public class BubbleUpFrameParser {
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
 
         DailyConsumption dailyConsumption = new DailyConsumption(rtm);
-        dailyConsumption.parse(data);
+        dailyConsumption.parse(data, radioAddress);
         List<List<Integer[]>> rawValues = new ArrayList<List<Integer[]>>();
 
         registerValues.addAll(getGenericHeaderRegisters(rtm, data, radioAddress));

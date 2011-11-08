@@ -35,11 +35,15 @@ public class ReadTOUBuckets extends AbstractRadioCommand {
 
     @Override
     public void parse(byte[] data) throws IOException {
+        parse(data, null);
+    }
+
+    public void parse(byte[] data, byte[] radioAddress) throws IOException {
         if (data.length <= 23) {
             return;         //The evoHop module doesn't contain TOU bucket data
         }
 
-        getGenericHeader().setRadioAddress(null);
+        getGenericHeader().setRadioAddress(radioAddress);
         getGenericHeader().parse(data);
         numberOfPorts = getGenericHeader().getOperationMode().readNumberOfPorts();
         int offset = 23;    //Skip the generic header

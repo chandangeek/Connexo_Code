@@ -59,7 +59,11 @@ public class DailyConsumption extends AbstractRadioCommand {
 
     @Override
     public void parse(byte[] data) throws IOException {
-        getGenericHeader().setRadioAddress(null);
+        parse(data, null);
+    }
+
+    public void parse(byte[] data, byte[] radioAddress) throws IOException {
+        getGenericHeader().setRadioAddress(radioAddress);
         getGenericHeader().parse(data);
         numberOfPorts = getGenericHeader().getOperationMode().readNumberOfPorts();
         int offset = 23;    //Skip the generic header
