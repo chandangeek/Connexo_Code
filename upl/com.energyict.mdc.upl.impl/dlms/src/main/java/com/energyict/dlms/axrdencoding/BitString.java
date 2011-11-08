@@ -45,9 +45,12 @@ public class BitString extends AbstractDataType {
 			size = ((size / 8) + 1);
 		}
 
+/*
+        // Why can't size be > 8 bytes ??? Should be possible
 		if (size > 8) {
 			throw new IOException("BitString, invalid length " + size);
 		}
+*/
 
 		value = 0;
 		for (int i = 0; i < size; i++) {
