@@ -63,7 +63,8 @@ public class ProfileDataReader {
         profileData.setIntervalDatas(intervalDatas);
 
         if (includeEvents) {
-            getMeterEvents(fromCal, toCal);
+            List<MeterEvent> meterEvents = getMeterEvents(fromCal, toCal);
+            profileData.setMeterEvents(meterEvents);
         }
         return profileData;
     }

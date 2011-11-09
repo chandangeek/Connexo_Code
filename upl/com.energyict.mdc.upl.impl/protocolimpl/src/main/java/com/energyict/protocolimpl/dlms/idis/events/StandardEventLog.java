@@ -77,9 +77,6 @@ public class StandardEventLog extends AbstractEvent {
             case 48:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.CONFIGURATIONCHANGE, eventId, "Global key(s) changed"));
                 break;
-            case 49:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.N_TIMES_WRONG_PASSWORD, eventId, "Decryption or authentication failure (n time failure)"));
-                break;
             case 51:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "FW verification failed"));
                 break;
