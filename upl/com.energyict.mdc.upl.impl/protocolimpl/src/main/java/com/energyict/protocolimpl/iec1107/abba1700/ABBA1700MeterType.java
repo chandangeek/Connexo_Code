@@ -33,6 +33,8 @@ public class ABBA1700MeterType {
     private int sizeOfScalingSet;
     private int sizeOfCDSource;
 
+    private int type;
+
     /**
      * Creates a new instance of MeterType
      */
@@ -56,6 +58,11 @@ public class ABBA1700MeterType {
             sizeOfScalingSet = 8*2;
             sizeOfCDSource = 15;
         }
+        this.type = type;
+    }
+
+    public int getType(){
+        return this.type;
     }
 
     /**

@@ -8,6 +8,8 @@ import java.util.*;
 import java.util.logging.Logger;
 
 import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.*;
+import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.PhaseFailureCounterKey;
+import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.PowerDownCounterKey;
 
 /**
  * Copyrights EnergyICT
@@ -17,14 +19,17 @@ import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactor
 public class ABBA1700MeterEvents {
 
     private final ABBA1700 protocol;
+    private final ABBA1700MeterType meterType;
 
     /**
      * Create new instance
      *
      * @param protocol
+     * @param meterType
      */
-    public ABBA1700MeterEvents(final ABBA1700 protocol) {
+    public ABBA1700MeterEvents(final ABBA1700 protocol, final ABBA1700MeterType meterType) {
         this.protocol = protocol;
+        this.meterType = meterType;
     }
 
 
@@ -61,6 +66,31 @@ public class ABBA1700MeterEvents {
     protected List<MeterEvent> getReverseRunCounterEvents(final Date lastReading) {
         List<MeterEvent> meterEventList = new ArrayList<MeterEvent>();
         try {
+
+            if (meterType.getType() == ABBA1700MeterType.METERTYPE_32_TOU_5_CDR) {
+                ReverseRunCounter2 rrc = (ReverseRunCounter2) getABBA1700RegisterFactory().getRegister(ReverseRunCounterKey2);
+                if (rrc.getEventStart4().after(lastReading)) {
+                    meterEventList.add(new MeterEvent(rrc.getEventStart4(), MeterEvent.REVERSE_RUN));
+                    meterEventList.add(new MeterEvent(rrc.getEventStart3(), MeterEvent.REVERSE_RUN));
+                    meterEventList.add(new MeterEvent(rrc.getEventStart2(), MeterEvent.REVERSE_RUN));
+                    meterEventList.add(new MeterEvent(rrc.getEventStart1(), MeterEvent.REVERSE_RUN));
+                    meterEventList.add(new MeterEvent(rrc.getEventStart0(), MeterEvent.REVERSE_RUN));
+                } else if (rrc.getEventStart3().after(lastReading)) {
+                    meterEventList.add(new MeterEvent(rrc.getEventStart3(), MeterEvent.REVERSE_RUN));
+                    meterEventList.add(new MeterEvent(rrc.getEventStart2(), MeterEvent.REVERSE_RUN));
+                    meterEventList.add(new MeterEvent(rrc.getEventStart1(), MeterEvent.REVERSE_RUN));
+                    meterEventList.add(new MeterEvent(rrc.getEventStart0(), MeterEvent.REVERSE_RUN));
+                } else if (rrc.getEventStart2().after(lastReading)) {
+                    meterEventList.add(new MeterEvent(rrc.getEventStart2(), MeterEvent.REVERSE_RUN));
+                    meterEventList.add(new MeterEvent(rrc.getEventStart1(), MeterEvent.REVERSE_RUN));
+                    meterEventList.add(new MeterEvent(rrc.getEventStart0(), MeterEvent.REVERSE_RUN));
+                } else if (rrc.getEventStart1().after(lastReading)) {
+                    meterEventList.add(new MeterEvent(rrc.getEventStart1(), MeterEvent.REVERSE_RUN));
+                    meterEventList.add(new MeterEvent(rrc.getEventStart0(), MeterEvent.REVERSE_RUN));
+                } else if (rrc.getEventStart0().after(lastReading)) {
+                    meterEventList.add(new MeterEvent(rrc.getEventStart0(), MeterEvent.REVERSE_RUN));
+                }
+            } else {
             ReverseRunCounter rrc = (ReverseRunCounter) getABBA1700RegisterFactory().getRegister(ReverseRunCounterKey);
             if (rrc.getThirdMostRecentEventTime().after(lastReading)) {
                 meterEventList.add(new MeterEvent(rrc.getThirdMostRecentEventTime(), MeterEvent.REVERSE_RUN));
@@ -71,6 +101,7 @@ public class ABBA1700MeterEvents {
                 meterEventList.add(new MeterEvent(rrc.getMostRecentEventTime(), MeterEvent.REVERSE_RUN));
             } else if (rrc.getMostRecentEventTime().after(lastReading)) {
                 meterEventList.add(new MeterEvent(rrc.getMostRecentEventTime(), MeterEvent.REVERSE_RUN));
+            }
             }
         } catch (IOException e) {
             getLogger().info("Could not fetch the reverseRunCounters");
@@ -101,17 +132,45 @@ public class ABBA1700MeterEvents {
     protected List<MeterEvent> getPowerDownEvents(final Date lastReading) {
         List<MeterEvent> meterEventList = new ArrayList<MeterEvent>();
         try {
+
+            if (meterType.getType() == ABBA1700MeterType.METERTYPE_32_TOU_5_CDR) {
+                PowerDownCounter2 pdc = (PowerDownCounter2) getABBA1700RegisterFactory().getRegister(PowerDownCounterKey2);
+                if (pdc.getEventStart4().after(lastReading)) {
+                    meterEventList.add(new MeterEvent(pdc.getEventStart4(), MeterEvent.POWERDOWN, ABBA1700ProfileEntry.POWERDOWN));
+                    meterEventList.add(new MeterEvent(pdc.getEventStart3(), MeterEvent.POWERDOWN, ABBA1700ProfileEntry.POWERDOWN));
+                    meterEventList.add(new MeterEvent(pdc.getEventStart2(), MeterEvent.POWERDOWN, ABBA1700ProfileEntry.POWERDOWN));
+                    meterEventList.add(new MeterEvent(pdc.getEventStart1(), MeterEvent.POWERDOWN, ABBA1700ProfileEntry.POWERDOWN));
+                    meterEventList.add(new MeterEvent(pdc.getEventStart0(), MeterEvent.POWERDOWN, ABBA1700ProfileEntry.POWERDOWN));
+                } else if (pdc.getEventStart3().after(lastReading)) {
+                    meterEventList.add(new MeterEvent(pdc.getEventStart3(), MeterEvent.POWERDOWN, ABBA1700ProfileEntry.POWERDOWN));
+                    meterEventList.add(new MeterEvent(pdc.getEventStart2(), MeterEvent.POWERDOWN, ABBA1700ProfileEntry.POWERDOWN));
+                    meterEventList.add(new MeterEvent(pdc.getEventStart1(), MeterEvent.POWERDOWN, ABBA1700ProfileEntry.POWERDOWN));
+                    meterEventList.add(new MeterEvent(pdc.getEventStart0(), MeterEvent.POWERDOWN, ABBA1700ProfileEntry.POWERDOWN));
+                } else if (pdc.getEventStart2().after(lastReading)) {
+                    meterEventList.add(new MeterEvent(pdc.getEventStart2(), MeterEvent.POWERDOWN, ABBA1700ProfileEntry.POWERDOWN));
+                    meterEventList.add(new MeterEvent(pdc.getEventStart1(), MeterEvent.POWERDOWN, ABBA1700ProfileEntry.POWERDOWN));
+                    meterEventList.add(new MeterEvent(pdc.getEventStart0(), MeterEvent.POWERDOWN, ABBA1700ProfileEntry.POWERDOWN));
+                } else if (pdc.getEventStart1().after(lastReading)) {
+                    meterEventList.add(new MeterEvent(pdc.getEventStart1(), MeterEvent.POWERDOWN, ABBA1700ProfileEntry.POWERDOWN));
+                    meterEventList.add(new MeterEvent(pdc.getEventStart0(), MeterEvent.POWERDOWN, ABBA1700ProfileEntry.POWERDOWN));
+                } else if (pdc.getEventStart0().after(lastReading)) {
+                    meterEventList.add(new MeterEvent(pdc.getEventStart0(), MeterEvent.POWERDOWN, ABBA1700ProfileEntry.POWERDOWN));
+                }
+
+            } else {
             PowerDownCounter pdc = (PowerDownCounter) getABBA1700RegisterFactory().getRegister(PowerDownCounterKey);
             if (pdc.getThirdMostRecentEventTime().after(lastReading)) {
-                meterEventList.add(new MeterEvent(pdc.getThirdMostRecentEventTime(), MeterEvent.POWERDOWN));
-                meterEventList.add(new MeterEvent(pdc.getSecondMostRecentEventTime(), MeterEvent.POWERDOWN));
-                meterEventList.add(new MeterEvent(pdc.getMostRecentEventTime(), MeterEvent.POWERDOWN));
+                    meterEventList.add(new MeterEvent(pdc.getThirdMostRecentEventTime(), MeterEvent.POWERDOWN, ABBA1700ProfileEntry.POWERDOWN));
+                    meterEventList.add(new MeterEvent(pdc.getSecondMostRecentEventTime(), MeterEvent.POWERDOWN, ABBA1700ProfileEntry.POWERDOWN));
+                    meterEventList.add(new MeterEvent(pdc.getMostRecentEventTime(), MeterEvent.POWERDOWN, ABBA1700ProfileEntry.POWERDOWN));
             } else if (pdc.getSecondMostRecentEventTime().after(lastReading)) {
-                meterEventList.add(new MeterEvent(pdc.getSecondMostRecentEventTime(), MeterEvent.POWERDOWN));
-                meterEventList.add(new MeterEvent(pdc.getMostRecentEventTime(), MeterEvent.POWERDOWN));
+                    meterEventList.add(new MeterEvent(pdc.getSecondMostRecentEventTime(), MeterEvent.POWERDOWN, ABBA1700ProfileEntry.POWERDOWN));
+                    meterEventList.add(new MeterEvent(pdc.getMostRecentEventTime(), MeterEvent.POWERDOWN, ABBA1700ProfileEntry.POWERDOWN));
             } else if (pdc.getMostRecentEventTime().after(lastReading)) {
-                meterEventList.add(new MeterEvent(pdc.getMostRecentEventTime(), MeterEvent.POWERDOWN));
+                    meterEventList.add(new MeterEvent(pdc.getMostRecentEventTime(), MeterEvent.POWERDOWN, ABBA1700ProfileEntry.POWERDOWN));
             }
+            }
+
         } catch (IOException e) {
             getLogger().info("Could not fetch the powerDownCounters");
         }
@@ -121,6 +180,33 @@ public class ABBA1700MeterEvents {
     protected List<MeterEvent> getPhaseFailureEvents(Date lastReading) {
         List<MeterEvent> meterEventList = new ArrayList<MeterEvent>();
         try {
+
+            if (meterType.getType() == ABBA1700MeterType.METERTYPE_32_TOU_5_CDR) {
+                PhaseFailureCounter2 pfc = (PhaseFailureCounter2) getABBA1700RegisterFactory().getRegister(PhaseFailureCounterKey2);
+
+                if (pfc.getEventStart4().after(lastReading)) {
+                    meterEventList.add(new MeterEvent(pfc.getEventStart4(), MeterEvent.PHASE_FAILURE, "Phase " + pfc.getFailedPhase4()));
+                    meterEventList.add(new MeterEvent(pfc.getEventStart3(), MeterEvent.PHASE_FAILURE, "Phase " + pfc.getFailedPhase3()));
+                    meterEventList.add(new MeterEvent(pfc.getEventStart2(), MeterEvent.PHASE_FAILURE, "Phase " + pfc.getFailedPhase2()));
+                    meterEventList.add(new MeterEvent(pfc.getEventStart1(), MeterEvent.PHASE_FAILURE, "Phase " + pfc.getFailedPhase1()));
+                    meterEventList.add(new MeterEvent(pfc.getEventStart0(), MeterEvent.PHASE_FAILURE, "Phase " + pfc.getFailedPhase0()));
+                } else if (pfc.getEventStart3().after(lastReading)) {
+                    meterEventList.add(new MeterEvent(pfc.getEventStart3(), MeterEvent.PHASE_FAILURE, "Phase " + pfc.getFailedPhase3()));
+                    meterEventList.add(new MeterEvent(pfc.getEventStart2(), MeterEvent.PHASE_FAILURE, "Phase " + pfc.getFailedPhase2()));
+                    meterEventList.add(new MeterEvent(pfc.getEventStart1(), MeterEvent.PHASE_FAILURE, "Phase " + pfc.getFailedPhase1()));
+                    meterEventList.add(new MeterEvent(pfc.getEventStart0(), MeterEvent.PHASE_FAILURE, "Phase " + pfc.getFailedPhase0()));
+                } else if (pfc.getEventStart2().after(lastReading)) {
+                    meterEventList.add(new MeterEvent(pfc.getEventStart2(), MeterEvent.PHASE_FAILURE, "Phase " + pfc.getFailedPhase2()));
+                    meterEventList.add(new MeterEvent(pfc.getEventStart1(), MeterEvent.PHASE_FAILURE, "Phase " + pfc.getFailedPhase1()));
+                    meterEventList.add(new MeterEvent(pfc.getEventStart0(), MeterEvent.PHASE_FAILURE, "Phase " + pfc.getFailedPhase0()));
+                } else if (pfc.getEventStart1().after(lastReading)) {
+                    meterEventList.add(new MeterEvent(pfc.getEventStart1(), MeterEvent.PHASE_FAILURE, "Phase " + pfc.getFailedPhase1()));
+                    meterEventList.add(new MeterEvent(pfc.getEventStart0(), MeterEvent.PHASE_FAILURE, "Phase " + pfc.getFailedPhase0()));
+                } else if (pfc.getEventStart0().after(lastReading)) {
+                    meterEventList.add(new MeterEvent(pfc.getEventStart0(), MeterEvent.PHASE_FAILURE, "Phase " + pfc.getFailedPhase0()));
+                }
+
+            } else {
             PhaseFailureCounter pfc = (PhaseFailureCounter) getABBA1700RegisterFactory().getRegister(PhaseFailureCounterKey);
             if (pfc.getThirdMostRecentEventTime().after(lastReading)) {
                 meterEventList.add(new MeterEvent(pfc.getThirdMostRecentEventTime(), MeterEvent.PHASE_FAILURE, "Phase " + pfc.getThirdFailedPhase()));
@@ -132,6 +218,8 @@ public class ABBA1700MeterEvents {
             } else if (pfc.getMostRecentEventTime().after(lastReading)) {
                 meterEventList.add(new MeterEvent(pfc.getMostRecentEventTime(), MeterEvent.PHASE_FAILURE, "Phase " + pfc.getFirstFailedPhase()));
             }
+            }
+
         } catch (IOException e) {
             getLogger().info("Could not fetch the phaseFailureCounters");
         }

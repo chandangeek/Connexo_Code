@@ -5,13 +5,14 @@
  */
 
 package com.energyict.protocolimpl.iec1107.abba1700;
+
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.TimeZone;
+
 /**
- *
  * @author  Koen
  */
 public class HistoricalValueSetInfo {
@@ -38,7 +39,10 @@ public class HistoricalValueSetInfo {
     
     public HistoricalValueSetInfo() {
     }
-    /** Creates a new instance of HistoricalValueSetInfo */
+
+    /**
+     * Creates a new instance of HistoricalValueSetInfo
+     */
     public HistoricalValueSetInfo(byte[] data, TimeZone timeZone) throws IOException {
         this.timeZone=timeZone;
         parse(data);
@@ -72,6 +76,7 @@ public class HistoricalValueSetInfo {
     
     /**
      * Getter for property billingCount.
+     *
      * @return Value of property billingCount.
      */
     public int getBillingCount() {
@@ -80,6 +85,7 @@ public class HistoricalValueSetInfo {
     
     /**
      * Setter for property billingCount.
+     *
      * @param billingCount New value of property billingCount.
      */
     public void setBillingCount(int billingCount) {
@@ -88,6 +94,7 @@ public class HistoricalValueSetInfo {
     
     /**
      * Getter for property billingStartDateTime.
+     *
      * @return Value of property billingStartDateTime.
      */
     public java.util.Date getBillingStartDateTime() {
@@ -96,6 +103,7 @@ public class HistoricalValueSetInfo {
     
     /**
      * Setter for property billingStartDateTime.
+     *
      * @param billingStartDateTime New value of property billingStartDateTime.
      */
     public void setBillingStartDateTime(java.util.Date billingStartDateTime) {
@@ -104,6 +112,7 @@ public class HistoricalValueSetInfo {
     
     /**
      * Getter for property billingEndDateTime.
+     *
      * @return Value of property billingEndDateTime.
      */
     public java.util.Date getBillingEndDateTime() {
@@ -112,6 +121,7 @@ public class HistoricalValueSetInfo {
     
     /**
      * Setter for property billingEndDateTime.
+     *
      * @param billingEndDateTime New value of property billingEndDateTime.
      */
     public void setBillingEndDateTime(java.util.Date billingEndDateTime) {
@@ -120,6 +130,7 @@ public class HistoricalValueSetInfo {
     
     /**
      * Getter for property billingTriggerSource.
+     *
      * @return Value of property billingTriggerSource.
      */
     public int getBillingTriggerSource() {
@@ -128,6 +139,7 @@ public class HistoricalValueSetInfo {
     
     /**
      * Setter for property billingTriggerSource.
+     *
      * @param billingTriggerSource New value of property billingTriggerSource.
      */
     public void setBillingTriggerSource(int billingTriggerSource) {
@@ -136,6 +148,7 @@ public class HistoricalValueSetInfo {
     
     /**
      * Getter for property billingResetDateTime.
+     *
      * @return Value of property billingResetDateTime.
      */
     public java.util.Date getBillingResetDateTime() {
@@ -144,6 +157,7 @@ public class HistoricalValueSetInfo {
 
     /**
      * Setter for property billingResetDateTime.
+     *
      * @param billingResetDateTime New value of property billingResetDateTime.
      */
     public void setBillingResetDateTime(java.util.Date billingResetDateTime) {
@@ -151,7 +165,7 @@ public class HistoricalValueSetInfo {
     }
 
     private Date filterMissingDates(Date date) {
-        if ((date != null) && ((date.getTime() == 0) || (Math.abs(date.getTime()) == timeZone.getRawOffset()))) {
+        if ((date != null) && (date.getTime() == 0)) {
             return null;
         } else {
             return date;

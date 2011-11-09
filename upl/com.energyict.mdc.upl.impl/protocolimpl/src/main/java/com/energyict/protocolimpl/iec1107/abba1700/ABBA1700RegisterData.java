@@ -5,16 +5,19 @@
  */
 
 package com.energyict.protocolimpl.iec1107.abba1700;
+
 import java.io.*;
 import java.util.*;
+
 import com.energyict.cbo.*;
+
 import java.math.*;
+
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.iec1107.*;
 import com.energyict.protocolimpl.iec1107.abba1700.counters.*;
 
 /**
- *
  * @author  Koen
  */
 abstract public class ABBA1700RegisterData {
@@ -46,14 +49,23 @@ abstract public class ABBA1700RegisterData {
     static final int ABBA_POWER_DOWN_COUNTER =24;
     static final int ABBA_REVERSE_RUN_COUNTER =25;
     static final int ABBA_BATTERY_STATUS = 26;
+    static final int ABBA_PHASE_FAILURE_COUNTER2 = 27;
+    static final int ABBA_POWER_DOWN_COUNTER2 = 28;
+    static final int ABBA_REVERSE_RUN_COUNTER2 = 29;
 
 
     abstract protected Unit getUnit();
+
     abstract protected int getType();
+
     abstract protected FlagIEC1107Connection getFlagIEC1107Connection();
+
     abstract protected ProtocolLink getProtocolLink();
+
     abstract protected int getOffset();
+
     abstract protected int getLength();
+
     abstract protected ABBA1700MeterType getMeterType();
     
 
@@ -202,15 +214,31 @@ abstract public class ABBA1700RegisterData {
                    pfc.parse(data);
                    return pfc;
 
+                case ABBA_PHASE_FAILURE_COUNTER2:
+                    PhaseFailureCounter2 pfc2 = new PhaseFailureCounter2(getProtocolLink());
+                    pfc2.parse(data);
+                    return pfc2;
+
                case ABBA_POWER_DOWN_COUNTER:
                    PowerDownCounter pdc = new PowerDownCounter(getProtocolLink());
                    pdc.parse(data);
                    return pdc;
 
+                case ABBA_POWER_DOWN_COUNTER2:
+                    PowerDownCounter2 pdc2 = new PowerDownCounter2(getProtocolLink());
+                    pdc2.parse(data);
+                    return pdc2;
+
                case ABBA_REVERSE_RUN_COUNTER:
                    ReverseRunCounter rrc = new ReverseRunCounter(getProtocolLink());
                    rrc.parse(data);
                    return rrc;
+
+                case ABBA_REVERSE_RUN_COUNTER2:
+                    ReverseRunCounter2 rrc2 = new ReverseRunCounter2(getProtocolLink());
+                    rrc2.parse(data);
+                    return rrc2;
+
                case ABBA_BATTERY_STATUS:
                    BatterySupportStatus bss = new BatterySupportStatus(getProtocolLink(), data);
                    return bss;
@@ -226,7 +254,8 @@ abstract public class ABBA1700RegisterData {
     private Long parseLongHexLE(byte[] data) throws IOException,NumberFormatException { 
         return new Long(ProtocolUtils.getLongLE(data,getOffset(),getLength()));
     }
-    private Long parseLongHex(byte[] data) throws IOException,NumberFormatException { 
+
+    private Long parseLongHex(byte[] data) throws IOException,NumberFormatException {
         return new Long(ProtocolUtils.getLong(data,getOffset(),getLength()));
     }
     
@@ -279,7 +308,9 @@ abstract public class ABBA1700RegisterData {
        return calendar.getTime();
     }
     
-    /** Creates a new instance of ABBA1700RegisterData */
+    /**
+     * Creates a new instance of ABBA1700RegisterData
+     */
     public ABBA1700RegisterData() {
     }
     

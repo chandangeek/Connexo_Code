@@ -439,6 +439,8 @@ public class ABBA1700Profile {
                                                        (int)MeterEvent.CLEAR_DATA,
                                                        (int)ABBA1700ProfileEntry.LOADPROFILECLEARED));
                     break;
+               default:profileData.addEvent(new MeterEvent(ProtocolUtils.getCalendar(timeZone,profileEntry.getTime()).getTime(),
+                                                       (int)MeterEvent.OTHER, (int)profileEntry.getType()));
            } // switch (profileEntry.getType())
        }
     }

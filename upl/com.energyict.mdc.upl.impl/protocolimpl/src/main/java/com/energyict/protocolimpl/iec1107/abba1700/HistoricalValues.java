@@ -8,7 +8,6 @@ package com.energyict.protocolimpl.iec1107.abba1700;
 
 import java.util.*;
 import java.io.*;
-import com.energyict.cbo.*;
 import com.energyict.protocol.*;
 /**
  *

@@ -7,6 +7,7 @@
  */
 
 package com.energyict.protocolimpl.iec1107.abba1700;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
@@ -19,7 +20,6 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- *
  * @author  Koen
  */
 public class ABBA1700RegisterFactory {
@@ -36,8 +36,11 @@ public class ABBA1700RegisterFactory {
     public static final String CurrentTransformerRatioSecondary = "CTSecundary";
     public static final String ProgrammingCounterKey = "ProgrammingCounter";
     public static final String PhaseFailureCounterKey = "PhaseFailureCounter";
+    public static final String PhaseFailureCounterKey2 = "PhaseFailureCounter2";    // For meterType 2
     public static final String ReverseRunCounterKey = "ReverseRunCounter";
+    public static final String ReverseRunCounterKey2 = "ReverseRunCounter2";
     public static final String PowerDownCounterKey = "PowerDownCounter";
+    public static final String PowerDownCounterKey2 = "PowerDownCounter2";
     public static final String HistoricalEventsKey = "HistoricalEvents";
     public static final String BatterySupportStatusKey = "BatterySupportStatus";
     public static final String HistoricalValuesKey = "HistoricalValues";
@@ -147,8 +150,11 @@ public class ABBA1700RegisterFactory {
 
         registers.put(ProgrammingCounterKey, new ABBA1700Register("680", ABBA1700RegisterData.ABBA_PROGRAMMING_COUNTER, 0, 14, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
         registers.put(PhaseFailureCounterKey, new ABBA1700Register("693", ABBA1700RegisterData.ABBA_PHASE_FAILURE_COUNTER, 0, 17, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
+        registers.put(PhaseFailureCounterKey2, new ABBA1700Register("693", ABBA1700RegisterData.ABBA_PHASE_FAILURE_COUNTER2, 0, 63, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
         registers.put(ReverseRunCounterKey, new ABBA1700Register("694", ABBA1700RegisterData.ABBA_REVERSE_RUN_COUNTER, 0, 14, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
+        registers.put(ReverseRunCounterKey2, new ABBA1700Register("694", ABBA1700RegisterData.ABBA_REVERSE_RUN_COUNTER2, 0, 46, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
         registers.put(PowerDownCounterKey, new ABBA1700Register("695", ABBA1700RegisterData.ABBA_POWER_DOWN_COUNTER, 0, 14, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
+        registers.put(PowerDownCounterKey2, new ABBA1700Register("695", ABBA1700RegisterData.ABBA_POWER_DOWN_COUNTER2, 0, 22, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
         registers.put(BatterySupportStatusKey, new ABBA1700Register("546", ABBA1700RegisterData.ABBA_BATTERY_STATUS, 0, 12, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
     }
     
@@ -160,7 +166,9 @@ public class ABBA1700RegisterFactory {
         }
     }
      
-    /** Creates a new instance of ABBA1700RegisterFactory */
+    /**
+     * Creates a new instance of ABBA1700RegisterFactory
+     */
     public ABBA1700RegisterFactory(ProtocolLink protocolLink, MeterExceptionInfo meterExceptionInfo, ABBA1700MeterType abba1700MeterType) { // KV 19012004
         this.protocolLink = protocolLink;
         this.meterExceptionInfo = meterExceptionInfo; // KV 19012004

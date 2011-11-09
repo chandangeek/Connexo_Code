@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- *
  * @author  Koen
  */
 public class ABBA1700DataIdentityFactory {
@@ -24,7 +23,9 @@ public class ABBA1700DataIdentityFactory {
     private MeterExceptionInfo meterExceptionInfo=null; // KV 19012004
     private ABBA1700MeterType meterType;
     
-    /** Creates a new instance of ABBA1700DataIdentityFactory */
+    /**
+     * Creates a new instance of ABBA1700DataIdentityFactory
+     */
     public ABBA1700DataIdentityFactory(ProtocolLink protocolLink,MeterExceptionInfo meterExceptionInfo,ABBA1700MeterType meterType) {
         this.protocolLink = protocolLink;
         this.meterExceptionInfo = meterExceptionInfo; // KV 19012004
@@ -94,11 +95,11 @@ public class ABBA1700DataIdentityFactory {
         // ProgrammingCounter
         rawRegisters.put("680", new ABBA1700DataIdentity(14, ABBA1700DataIdentity.NOT_STREAMEABLE));
         // PhaseFailure counter
-        rawRegisters.put("693", new ABBA1700DataIdentity(17, ABBA1700DataIdentity.NOT_STREAMEABLE));
+        rawRegisters.put("693", new ABBA1700DataIdentity(meterType.getType()==ABBA1700MeterType.METERTYPE_32_TOU_5_CDR?63:17, ABBA1700DataIdentity.NOT_STREAMEABLE));
         // ReverseRun Counter
-        rawRegisters.put("694", new ABBA1700DataIdentity(14, ABBA1700DataIdentity.NOT_STREAMEABLE));
+        rawRegisters.put("694", new ABBA1700DataIdentity(meterType.getType()==ABBA1700MeterType.METERTYPE_32_TOU_5_CDR?46:14, ABBA1700DataIdentity.NOT_STREAMEABLE));
         // PowerDown counter
-        rawRegisters.put("695", new ABBA1700DataIdentity(14, ABBA1700DataIdentity.NOT_STREAMEABLE));
+        rawRegisters.put("695", new ABBA1700DataIdentity(meterType.getType()==ABBA1700MeterType.METERTYPE_32_TOU_5_CDR?22:14, ABBA1700DataIdentity.NOT_STREAMEABLE));
         // Battery status
         rawRegisters.put("546", new ABBA1700DataIdentity(12, ABBA1700DataIdentity.NOT_STREAMEABLE));
     }
@@ -168,9 +169,10 @@ public class ABBA1700DataIdentityFactory {
         }
     }
 
-    /** Getter for property meterExceptionInfo.
-     * @return Value of property meterExceptionInfo.
+    /**
+     * Getter for property meterExceptionInfo.
      *
+     * @return Value of property meterExceptionInfo.
      */
     // KV 19012004
     public com.energyict.protocol.MeterExceptionInfo getMeterExceptionInfo() {

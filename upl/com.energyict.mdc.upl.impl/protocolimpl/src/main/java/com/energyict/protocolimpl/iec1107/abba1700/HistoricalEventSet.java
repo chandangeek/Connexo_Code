@@ -5,15 +5,17 @@
  */
 
 package com.energyict.protocolimpl.iec1107.abba1700;
+
 import java.util.*;
 import java.io.*;
 
 import com.energyict.protocol.*;
+
 /**
- *
  * @author  Koen
  */
 public class HistoricalEventSet {
+
     int phaseFailureCount;
     int powerFailureCount;
     int phaseOverCurrentCount;
@@ -23,7 +25,9 @@ public class HistoricalEventSet {
     List eventLogEntries=new ArrayList();
     TimeZone timeZone;
     
-    /** Creates a new instance of HistoricalEventSet */
+    /**
+     * Creates a new instance of HistoricalEventSet
+     */
     public HistoricalEventSet(byte[] data, TimeZone timeZone) throws IOException {
         this.timeZone=timeZone;
         parse(data);
@@ -102,6 +106,7 @@ public class HistoricalEventSet {
     
     /**
      * Getter for property PhaseFailureCount.
+     *
      * @return Value of property PhaseFailureCount.
      */
     public int getPhaseFailureCount() {
@@ -110,6 +115,7 @@ public class HistoricalEventSet {
     
     /**
      * Setter for property phaseFailureCount.
+     *
      * @param phaseFailureCount New value of property phaseFailureCount.
      */
     public void setPhaseFailureCount(int phaseFailureCount) {
@@ -118,6 +124,7 @@ public class HistoricalEventSet {
     
     /**
      * Getter for property PowerFailureCount.
+     *
      * @return Value of property powerFailureCount.
      */
     public int getPowerFailureCount() {
@@ -126,6 +133,7 @@ public class HistoricalEventSet {
     
     /**
      * Setter for property powerFailureCount.
+     *
      * @param powerFailureCount New value of property powerFailureCount.
      */
     public void setPowerFailureCount(int powerFailureCount) {
@@ -134,6 +142,7 @@ public class HistoricalEventSet {
     
     /**
      * Getter for property phaseOverCurrentCount.
+     *
      * @return Value of property phaseOverCurrentCount.
      */
     public int getPhaseOverCurrentCount() {
@@ -142,6 +151,7 @@ public class HistoricalEventSet {
     
     /**
      * Setter for property phaseOverCurrentCount.
+     *
      * @param phaseOverCurrentCount New value of property phaseOverCurrentCount.
      */
     public void setPhaseOverCurrentCount(int phaseOverCurrentCount) {
@@ -150,6 +160,7 @@ public class HistoricalEventSet {
     
     /**
      * Getter for property reverseRunCount.
+     *
      * @return Value of property reverseRunCount.
      */
     public int getReverseRunCount() {
@@ -158,6 +169,7 @@ public class HistoricalEventSet {
     
     /**
      * Setter for property reverseRunCount.
+     *
      * @param reverseRunCount New value of property reverseRunCount.
      */
     public void setReverseRunCount(int reverseRunCount) {
@@ -166,6 +178,7 @@ public class HistoricalEventSet {
     
     /**
      * Getter for property remainingBattSupporttime.
+     *
      * @return Value of property remainingBattSupporttime.
      */
     public int getRemainingBattSupportTime() {
@@ -174,6 +187,7 @@ public class HistoricalEventSet {
     
     /**
      * Setter for property remainingBattSupporttime.
+     *
      * @param remainingBattSupportTime New value of property remainingBattSupporttime.
      */
     public void setRemainingBattSupportTime(int remainingBattSupportTime) {

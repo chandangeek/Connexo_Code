@@ -11,7 +11,6 @@ import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocolimpl.iec1107.abba1700.counters.*;
 
 import java.io.*;
 import java.util.*;
@@ -36,6 +35,7 @@ public class ABBA1700 implements MeterProtocol, ProtocolLink, HHUEnabler, Serial
 
     // KV 19012004 implementation of MeterExceptionInfo
     private static final Map<String, String> EXCEPTIONINFOMAP = new HashMap<String, String>();
+
     static {
            EXCEPTIONINFOMAP.put("ERR1","Invalid Command/Function type e.g. other than W1, R1 etc");
            EXCEPTIONINFOMAP.put("ERR2","Invalid Data Identity Number e.g. Data id does not exist in the meter");
@@ -58,7 +58,7 @@ public class ABBA1700 implements MeterProtocol, ProtocolLink, HHUEnabler, Serial
 	private ABBA1700MeterType					abba1700MeterType		= null;
 	private SerialCommunicationChannel			commChannel				= null;
     private ABBA1700Messages                    messages                = new ABBA1700Messages(this);
-    private ABBA1700MeterEvents                 meterEvents             = new ABBA1700MeterEvents(this);
+    private ABBA1700MeterEvents meterEvents;
 
     private int iTimeout;
     private int iProtocolRetries;
@@ -89,9 +89,19 @@ public class ABBA1700 implements MeterProtocol, ProtocolLink, HHUEnabler, Serial
         Calendar calendar = ProtocolUtils.getCalendar(getTimeZone());
         ProfileData pd = abba1700Profile.getProfileData(lastReading,calendar.getTime());
         if(includeEvents){
-            pd.setMeterEvents(meterEvents.getMeterEventList(lastReading));
+            List<MeterEvent> meterEventList = getMeterEvents().getMeterEventList(lastReading);
+            for (MeterEvent meterEvent : meterEventList) {
+                pd.addEvent(meterEvent);
+        }
         }
         return pd;
+    }
+
+    private ABBA1700MeterEvents getMeterEvents(){
+        if(this.meterEvents == null){
+            this.meterEvents = new ABBA1700MeterEvents(this, this.abba1700MeterType);
+        }
+        return this.meterEvents;
     }
 
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException,UnsupportedException {
