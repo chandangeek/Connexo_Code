@@ -30,7 +30,7 @@ public class ABBA1700MeterEventsTest {
         protocol.init(null, null, TimeZone.getTimeZone("Europe/Brussel"), Logger.getAnonymousLogger());
         protocol.setConnection(connection);
         protocol.setRegisterFactory(new ABBA1700RegisterFactory((ProtocolLink) protocol, (MeterExceptionInfo) protocol, new ABBA1700MeterType(1)));
-        ABBA1700MeterEvents events = new ABBA1700MeterEvents(protocol);
+        ABBA1700MeterEvents events = new ABBA1700MeterEvents(protocol, new ABBA1700MeterType(1));
 
         List<MeterEvent> meterEvents = events.getReverseRunCounterEvents(new Date(1));
         assertEquals(3, meterEvents.size());
@@ -65,7 +65,7 @@ public class ABBA1700MeterEventsTest {
         protocol.init(null, null, TimeZone.getTimeZone("Europe/Brussel"), Logger.getAnonymousLogger());
         protocol.setConnection(connection);
         protocol.setRegisterFactory(new ABBA1700RegisterFactory((ProtocolLink) protocol, (MeterExceptionInfo) protocol, new ABBA1700MeterType(1)));
-        ABBA1700MeterEvents events = new ABBA1700MeterEvents(protocol);
+        ABBA1700MeterEvents events = new ABBA1700MeterEvents(protocol, new ABBA1700MeterType(1));
 
         List<MeterEvent> meterEvents = events.getProgrammingCounterEvents(new Date(1));
         assertEquals(3, meterEvents.size());
@@ -99,7 +99,7 @@ public class ABBA1700MeterEventsTest {
         protocol.init(null, null, TimeZone.getTimeZone("Europe/Brussel"), Logger.getAnonymousLogger());
         protocol.setConnection(connection);
         protocol.setRegisterFactory(new ABBA1700RegisterFactory((ProtocolLink) protocol, (MeterExceptionInfo) protocol, new ABBA1700MeterType(1)));
-        ABBA1700MeterEvents events = new ABBA1700MeterEvents(protocol);
+        ABBA1700MeterEvents events = new ABBA1700MeterEvents(protocol, new ABBA1700MeterType(1));
 
         List<MeterEvent> meterEvents = events.getPowerDownEvents(new Date(1));
         assertEquals(3, meterEvents.size());
@@ -133,7 +133,7 @@ public class ABBA1700MeterEventsTest {
         protocol.init(null, null, TimeZone.getTimeZone("Europe/Brussel"), Logger.getAnonymousLogger());
         protocol.setConnection(connection);
         protocol.setRegisterFactory(new ABBA1700RegisterFactory((ProtocolLink) protocol, (MeterExceptionInfo) protocol, new ABBA1700MeterType(1)));
-        ABBA1700MeterEvents events = new ABBA1700MeterEvents(protocol);
+        ABBA1700MeterEvents events = new ABBA1700MeterEvents(protocol, new ABBA1700MeterType(1));
 
         List<MeterEvent> meterEvents = events.getPhaseFailureEvents(new Date(1));
         assertEquals(3, meterEvents.size());
