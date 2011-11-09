@@ -86,7 +86,7 @@ public class MK10ProtocolExecuter {
     }
 
     public void setCompletionCodeConfiguration() {
-        adjustCompletionCode(AmrJournalEntry.CC_CONFIGURATION);
+        adjustCompletionCode(AmrJournalEntry.CC_CONFIGURATION_ERROR);
     }
 
     public void adjustCompletionCode(int cc) {

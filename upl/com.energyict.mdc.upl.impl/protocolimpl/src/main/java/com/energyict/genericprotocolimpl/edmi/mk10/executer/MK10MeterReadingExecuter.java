@@ -1,15 +1,12 @@
 package com.energyict.genericprotocolimpl.edmi.mk10.executer;
 
-import java.io.IOException;
-import java.util.Iterator;
-
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.AmrJournalEntry;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MeterReadingData;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
+
+import java.io.IOException;
+import java.util.Iterator;
 
 public class MK10MeterReadingExecuter {
 
@@ -64,7 +61,7 @@ public class MK10MeterReadingExecuter {
 
         // Add all unsupported obiscodes to a stringbuffer and post once to the amr journal, otherwise we get a primarykey constrain error!
         if (strBuff != null) {
-        	getExecuter().adjustCompletionCode(AmrJournalEntry.CC_CONFIGURATION);
+        	getExecuter().adjustCompletionCode(AmrJournalEntry.CC_CONFIGURATION_WARNING);
             getExecuter().journal(new AmrJournalEntry(AmrJournalEntry.NO_SUCH_REGISTER, strBuff.toString()));
         }
 

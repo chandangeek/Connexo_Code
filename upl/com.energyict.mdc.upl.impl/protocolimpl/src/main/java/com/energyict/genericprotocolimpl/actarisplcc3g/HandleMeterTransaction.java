@@ -1,23 +1,22 @@
 package com.energyict.genericprotocolimpl.actarisplcc3g;
 
 import com.energyict.cbo.*;
+import com.energyict.cpo.Transaction;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.edf.messages.*;
-import com.energyict.edf.messages.objects.*;
-import com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects.*;
-import com.energyict.genericprotocolimpl.common.*;
-import com.energyict.protocolimpl.messages.RtuMessageConstant;
-import com.energyict.mdw.amr.*;
-import com.energyict.obis.*;
+import com.energyict.edf.messages.objects.ComplexCosemObject;
+import com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects.PLCCMeterDailyEnergyValueProfile;
+import com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects.PLCCMeterListBlocData;
+import com.energyict.genericprotocolimpl.common.DailyBillingEntry;
+import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.core.*;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import java.io.*;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
+
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
-
-import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.Transaction;
-import com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects.PLCCMeterListBlocData;
-import com.energyict.mdw.core.*;
-import com.energyict.dlms.cosem.DataAccessResultException;
 
 public class HandleMeterTransaction implements Transaction {
     
@@ -196,7 +195,7 @@ public class HandleMeterTransaction implements Transaction {
         }
         
         if (!onDemandRead && (strBuff != null)) {
-            handleMeter.getAMRJournalManager().adjustCompletionCode(AmrJournalEntry.CC_CONFIGURATION);
+            handleMeter.getAMRJournalManager().adjustCompletionCode(AmrJournalEntry.CC_CONFIGURATION_WARNING);
             handleMeter.getAMRJournalManager().journal(new AmrJournalEntry(AmrJournalEntry.NO_SUCH_REGISTER, "meter "+handleMeter.getMeterInfo().getSerialNumber()+": \n"+strBuff.toString()));
         }
         

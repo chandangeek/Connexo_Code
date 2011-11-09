@@ -6,18 +6,13 @@
  */
 package com.energyict.genericprotocolimpl.edmi.mk10.executer;
 
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.TimeZone;
-import java.util.logging.Level;
-
 import com.energyict.cbo.BusinessException;
 import com.energyict.mdw.core.AmrJournalEntry;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.Level;
 
 /**
  * @author jme
@@ -63,7 +58,7 @@ public class MK10DemandValuesExecuter {
         if (getExecuter().getCommunicationProfile().getCheckChannelConfig()) {
             // check if configuration nr of channels == protocol nr of channels... else throw exception
             if (getConfigNumberOfChannels() != getExecuter().getMk10Protocol().getNumberOfChannels()) {
-            	getExecuter().adjustCompletionCode(AmrJournalEntry.CC_CONFIGURATION);
+            	getExecuter().adjustCompletionCode(AmrJournalEntry.CC_CONFIGURATION_ERROR);
                 throw new IOException(
                 		"nr of channels configuration (" + getConfigNumberOfChannels() + 
                 		") != nr of channels protocol (" + getExecuter().getMk10Protocol().getNumberOfChannels() + ")"
