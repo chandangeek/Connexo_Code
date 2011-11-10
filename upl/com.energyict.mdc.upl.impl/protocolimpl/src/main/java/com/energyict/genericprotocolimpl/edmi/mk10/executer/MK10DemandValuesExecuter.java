@@ -58,7 +58,7 @@ public class MK10DemandValuesExecuter {
         if (getExecuter().getCommunicationProfile().getCheckChannelConfig()) {
             // check if configuration nr of channels == protocol nr of channels... else throw exception
             if (getConfigNumberOfChannels() != getExecuter().getMk10Protocol().getNumberOfChannels()) {
-            	getExecuter().adjustCompletionCode(AmrJournalEntry.CC_CONFIGURATION_ERROR);
+            	getExecuter().adjustCompletionCode(AmrJournalEntry.CC_CONFIGURATION);
                 throw new IOException(
                 		"nr of channels configuration (" + getConfigNumberOfChannels() + 
                 		") != nr of channels protocol (" + getExecuter().getMk10Protocol().getNumberOfChannels() + ")"

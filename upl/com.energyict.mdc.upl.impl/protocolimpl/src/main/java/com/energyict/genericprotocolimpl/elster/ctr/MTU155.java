@@ -675,7 +675,7 @@ public class MTU155 extends AbstractGenericProtocol {
         journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, getConnectTime()));
         journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + getRtu().toString() + "]"));
         journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "" + getTimeDifference()));
-        journal.add(new AmrJournalEntry(AmrJournalEntry.CC_CONFIGURATION_ERROR));
+        journal.add(new AmrJournalEntry(AmrJournalEntry.CC_CONFIGURATION));
         journal.addAll(getMeterAmrLogging().getJournalEntries());
         try {
             commSchedule.journal(journal);
