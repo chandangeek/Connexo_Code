@@ -5,6 +5,7 @@ import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.debug.AbstractSmartDebuggingMain;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -55,12 +56,16 @@ public class AS300Main extends AbstractSmartDebuggingMain<AS300> {
         properties.setProperty(MeterProtocol.PROFILEINTERVAL, "900");
         properties.setProperty(MeterProtocol.PASSWORD, "12345678");
 
-        properties.setProperty("Retries", "3");
-        properties.setProperty("Timeout", "10000");
+        properties.setProperty("Retries", "10");
+        properties.setProperty("Timeout", "60000");
 
-        properties.setProperty("ClientMacAddress", "64");
+        properties.setProperty("ClientMacAddress", "80");
         properties.setProperty("Connection", "1");
-        properties.setProperty("SecurityLevel", "1:0");
+        properties.setProperty("SecurityLevel", "5:3");
+
+        properties.setProperty("DataTransportAuthenticationKey", "0F0E0D0C0B0A09080706050403020100");
+        properties.setProperty("DataTransportEncryptionKey", "0F0E0D0C0B0A09080706050403020100");
+        properties.setProperty("DataTransportKey", "0F0E0D0C0B0A09080706050403020100");
 
         return properties;
     }
@@ -93,12 +98,12 @@ public class AS300Main extends AbstractSmartDebuggingMain<AS300> {
         } else {
             setOpticalSettings(main);
         }
-        main.setShowCommunication(true);
+        main.setShowCommunication(false);
         main.run();
     }
 
     private static void setIpSettings(AS300Main main) {
-        main.setPhoneNumber("10.113.0.19:4059");
+        main.setPhoneNumber("10.113.0.21:4059");
     }
 
     private static void setOpticalSettings(AS300Main main) {
@@ -110,7 +115,8 @@ public class AS300Main extends AbstractSmartDebuggingMain<AS300> {
     }
 
     public void doDebug() throws LinkException, IOException {
-        getMeterProtocol().setTime(new Date());
+        byte[] bytes = ProtocolTools.readBytesFromFile("c:\\fw.txt");
+        getMeterProtocol().queryMessage(new MessageEntry(new String(bytes), "", ""));
     }
 
 }
