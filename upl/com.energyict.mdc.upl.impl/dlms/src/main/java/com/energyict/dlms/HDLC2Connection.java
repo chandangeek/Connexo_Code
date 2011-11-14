@@ -168,7 +168,7 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
                 0x00, // Header CRC
                 (byte)0x81,
                 (byte)0x80,
-                0x12};
+                0x0E};
     	byte[] macSNRM_part2 = new byte[] {0x07,0x01,0x01,0x08,0x01, 0x01,0x00,0x00};
     	byte[] infoFieldBytes = new byte[8];
     	int index = 0;
