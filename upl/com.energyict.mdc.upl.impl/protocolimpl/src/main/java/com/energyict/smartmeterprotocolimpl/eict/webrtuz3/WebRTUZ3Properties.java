@@ -34,6 +34,7 @@ public class WebRTUZ3Properties extends DlmsProtocolProperties {
         optional.add(DlmsProtocolProperties.INFORMATION_FIELD_SIZE);
         optional.add(DlmsProtocolProperties.MAX_REC_PDU_SIZE);
         optional.add(DlmsProtocolProperties.RETRIES);
+        optional.add(DlmsProtocolProperties.TIMEOUT);
         optional.add(DlmsProtocolProperties.ROUND_TRIP_CORRECTION);
         optional.add(DlmsProtocolProperties.BULK_REQUEST);  //TODO needed this one for our connection setup ...
         optional.add(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);

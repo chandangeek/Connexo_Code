@@ -39,6 +39,7 @@ public class AS300Properties extends DlmsProtocolProperties {
         optional.add(DlmsProtocolProperties.INFORMATION_FIELD_SIZE);
         optional.add(DlmsProtocolProperties.MAX_REC_PDU_SIZE);
         optional.add(DlmsProtocolProperties.RETRIES);
+        optional.add(DlmsProtocolProperties.TIMEOUT);
         optional.add(DlmsProtocolProperties.BULK_REQUEST);
         optional.add(DlmsProtocolProperties.ROUND_TRIP_CORRECTION);
         optional.add(NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
