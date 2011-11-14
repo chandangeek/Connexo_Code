@@ -5,13 +5,10 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.dlms.DLMSCache;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsSession;
 import com.energyict.smartmeterprotocolimpl.common.*;
@@ -19,7 +16,6 @@ import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.MultipleClientRela
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.events.UkHubEventProfiles;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging.*;
-import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300Properties;
 
 import java.io.IOException;
 import java.util.*;
@@ -315,14 +311,6 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
             this.registerFactory = new UkHubRegisterFactory(this);
         }
         return registerFactory;
-    }
-
-    @Override
-    protected void checkCacheObjects() throws IOException {
-        UniversalObject[] objectList = ObisCodeProvider.OBJECT_LIST;
-        getDlmsSession().getMeterConfig().setInstantiatedObjectList(objectList);
-        DLMSCache cacheObject = new DLMSCache(objectList, ObisCodeProvider.OBJECT_LIST_VERSION);
-        setCache(cacheObject);
     }
 
     public UkHubEventProfiles getUkHubEventProfiles() {

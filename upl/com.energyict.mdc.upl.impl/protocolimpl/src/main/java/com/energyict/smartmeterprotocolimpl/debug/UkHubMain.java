@@ -44,7 +44,11 @@ public class UkHubMain extends AbstractSmartDebuggingMain<UkHub> {
         //properties.setProperty("ClientMacAddress", "80");
 
         properties.setProperty("Connection", "1");
-        properties.setProperty("SecurityLevel", "3:0");
+
+        properties.setProperty("SecurityLevel", "5:3");
+        properties.setProperty("DataTransportAuthenticationKey", "0F0E0D0C0B0A09080706050403020100");
+        properties.setProperty("DataTransportEncryptionKey", "0F0E0D0C0B0A09080706050403020100");
+        properties.setProperty("DataTransportKey", "0F0E0D0C0B0A09080706050403020100");
 
         return properties;
     }
@@ -52,7 +56,7 @@ public class UkHubMain extends AbstractSmartDebuggingMain<UkHub> {
     public static void main(String[] args) {
         UkHubMain main = new UkHubMain();
         main.setTimeZone(TimeZone.getTimeZone("GMT"));
-        main.setPhoneNumber("10.113.0.18:4059");
+        main.setPhoneNumber("10.113.0.21:4059");
         main.setShowCommunication(false);
         main.run();
     }
@@ -62,63 +66,7 @@ public class UkHubMain extends AbstractSmartDebuggingMain<UkHub> {
     }
 
     public void doDebug() throws LinkException, IOException {
-        String[] obisCodesAsString = new String[]{
-                "0-0:96.12.5.255"
-        };
-        for (String obisCodeAsString : obisCodesAsString) {
-            String correctObisString = obisCodeAsString.replace("-", ".").replace(":", ".");
-            testRegisterObisCode(ObisCode.fromString(correctObisString));
-        }
-    }
 
-    private void testProfileObisCode(ObisCode obisCode) {
-        System.out.println("Reading profile generic object with obisCode [" + obisCode + "]");
-        try {
-            ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(obisCode);
-            List<CapturedObject> captureObjects = profileGeneric.getCaptureObjects();
-            int capturePeriod = profileGeneric.getCapturePeriod();
-            //int sortMethod = profileGeneric.getSortMethod();
-
-            System.out.println("Captured objects = ");
-            for (CapturedObject captureObject : captureObjects) {
-                System.out.println("  > " + captureObject);
-            }
-            System.out.println("capturePeriod = " + capturePeriod);
-            //System.out.println("sortMethod = " + sortMethod);
-
-        } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-        System.out.println();
-    }
-
-    private void testRegisterObisCode(ObisCode obisCode) {
-        System.out.println("Reading register object with obisCode [" + obisCode + "]");
-        try {
-            Register data = getCosemObjectFactory().getRegister(obisCode);
-            AbstractDataType valueAttr = data.getValueAttr();
-            ScalerUnit scalerUnit = data.getScalerUnit();
-            System.out.println("valueAttrib = " + valueAttr.toString().replace("\n", " "));
-            System.out.println("scalerUnit = " + scalerUnit);
-        } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-        System.out.println();
-    }
-
-    private void testDataObisCode(ObisCode obisCode) {
-        System.out.println("Reading data object with obisCode [" + obisCode + "]");
-        try {
-            Data data = getCosemObjectFactory().getData(obisCode);
-            AbstractDataType valueAttr = data.getValueAttr();
-            if (valueAttr.isOctetString()) {
-                System.out.println("value = " + valueAttr.getOctetString().stringValue());
-            }
-            System.out.println(valueAttr);
-        } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-        System.out.println();
     }
 
 }

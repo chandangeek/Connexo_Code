@@ -268,12 +268,6 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
         return registerFactory;
     }
 
-    @Override
-    protected void checkCacheObjects() throws IOException {
-        getDlmsSession().getMeterConfig().setInstantiatedObjectList(ObisCodeProvider.OBJECT_LIST);
-
-    }
-
     public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
         return getMessageProtocol().getTimeOfUseMessageBuilder();
     }

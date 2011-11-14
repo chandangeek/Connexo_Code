@@ -59,7 +59,8 @@ public class AS300Main extends AbstractSmartDebuggingMain<AS300> {
         properties.setProperty("Retries", "10");
         properties.setProperty("Timeout", "60000");
 
-        properties.setProperty("ClientMacAddress", "80");
+        //properties.setProperty("ClientMacAddress", "80");
+
         properties.setProperty("Connection", "1");
         properties.setProperty("SecurityLevel", "5:3");
 
@@ -115,8 +116,7 @@ public class AS300Main extends AbstractSmartDebuggingMain<AS300> {
     }
 
     public void doDebug() throws LinkException, IOException {
-        byte[] bytes = ProtocolTools.readBytesFromFile("c:\\fw.txt");
-        getMeterProtocol().queryMessage(new MessageEntry(new String(bytes), "", ""));
+
     }
 
 }
