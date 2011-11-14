@@ -483,9 +483,9 @@ public class RtmMessages implements MessageProtocol {
             if (transmissionPeriodUnit < 0 || transmissionPeriodUnit > 2) {
                 return MessageResult.createFailed(messageEntry);
             }
-        } catch (IndexOutOfBoundsException e) {
-            rtm.getLogger().log(Level.INFO, "Invalid arguments for starting the bubble up mechanism, message failed");
-            return MessageResult.createFailed(messageEntry);
+        } catch (IndexOutOfBoundsException e) {     //Use the default values
+            transmissionPeriod = 1;
+            transmissionPeriodUnit = 2;
         }
 
         transmissionPeriod = (transmissionPeriod << 2) | transmissionPeriodUnit;
