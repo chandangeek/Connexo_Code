@@ -73,6 +73,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
         } catch (InterruptedException e) {
             throw new IOException(e.getMessage());
         }
+        idis.getLogger().log(Level.SEVERE, "Unexpected message: " + messageEntry.getContent());
         return MessageResult.createFailed(messageEntry);
     }
 
@@ -81,6 +82,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
         activityCalendarController.parseContent(messageEntry.getContent());
         activityCalendarController.writeCalendarName("");
         activityCalendarController.writeCalendar();
+        idis.getLogger().log(Level.INFO, "Activity calendar was successfully written");
         return MessageResult.createSuccess(messageEntry);
     }
 
@@ -88,16 +90,19 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
         ActivityCalendarController activityCalendarController = new IDISActivityCalendarController(idis);
         activityCalendarController.parseContent(messageEntry.getContent());
         activityCalendarController.writeSpecialDaysTable();
+        idis.getLogger().log(Level.INFO, "Special days were successfully written");
         return MessageResult.createSuccess(messageEntry);
     }
 
     protected MessageResult remoteDisconnect(MessageEntry messageEntry) throws IOException {
         idis.getCosemObjectFactory().getDisconnector().remoteDisconnect();
+        idis.getLogger().log(Level.INFO, "Remote disconnect message was successful");
         return MessageResult.createSuccess(messageEntry);
     }
 
     protected MessageResult remoteConnect(MessageEntry messageEntry) throws IOException {
         idis.getCosemObjectFactory().getDisconnector().remoteReconnect();
+        idis.getLogger().log(Level.INFO, "Remote connect message was successful");
         return MessageResult.createSuccess(messageEntry);
     }
 
@@ -107,6 +112,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
         ObisCode obisCode = RELAY_CONTROL_OBISCODE;
         obisCode = ProtocolTools.setObisCodeField(obisCode, 1, (byte) relayControlNumber);
         idis.getCosemObjectFactory().getDisconnector(obisCode).remoteDisconnect();
+        idis.getLogger().log(Level.INFO, "Open relay message was successful");
         return MessageResult.createSuccess(messageEntry);
     }
 
@@ -116,6 +122,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
         ObisCode obisCode = RELAY_CONTROL_OBISCODE;
         obisCode = ProtocolTools.setObisCodeField(obisCode, 1, (byte) relayControlNumber);
         idis.getCosemObjectFactory().getDisconnector(obisCode).remoteReconnect();
+        idis.getLogger().log(Level.INFO, "Close relay message was successful");
         return MessageResult.createSuccess(messageEntry);
     }
 
@@ -135,6 +142,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
         ImageTransfer imageTransfer = idis.getCosemObjectFactory().getImageTransfer();
         imageTransfer.upgrade(binaryImage, false, firmwareIdentifier, true);
         imageTransfer.imageActivation();
+        idis.getLogger().log(Level.INFO, "Firmware upgrade message was successful");
         return MessageResult.createSuccess(messageEntry);
     }
 
@@ -146,6 +154,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
         try {
             date = formatter.parse(dateString);
         } catch (ParseException e) {
+            idis.getLogger().log(Level.SEVERE, "Error parsing the given date: " + e.getMessage());
             return MessageResult.createFailed(messageEntry);
         }
         SingleActionSchedule singleActionSchedule = idis.getCosemObjectFactory().getSingleActionSchedule(TIMED_CONNECTOR_ACTION_OBISCODE);
@@ -156,6 +165,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
 
         singleActionSchedule.writeExecutedScript(scriptStruct);
         singleActionSchedule.writeExecutionTime(convertDateToDLMSArray(date));
+        idis.getLogger().log(Level.INFO, "Timed re/connect message was successful");
         return MessageResult.createSuccess(messageEntry);
     }
 
@@ -174,6 +184,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
         try {
             date = formatter.parse(emergencyActivationTime);
         } catch (ParseException e) {
+            idis.getLogger().log(Level.SEVERE, "Error parsing the given date: " + e.getMessage());
             return MessageResult.createFailed(messageEntry);
         }
 
@@ -194,6 +205,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
             try {
                 groupIdList.addDataType(new Unsigned16(Integer.parseInt(id)));
             } catch (NumberFormatException e) {
+                idis.getLogger().log(Level.INFO, "Error parsing the profile id list: " + e.getMessage());
                 return MessageResult.createFailed(messageEntry);
             }
         }
@@ -201,13 +213,14 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
 
         writeActions(actionUnderThreshold, limiter);
 
+        idis.getLogger().log(Level.INFO, "Load controlled connect message was successful");
         return MessageResult.createSuccess(messageEntry);
     }
 
     private void writeEmergencyProfile(int emergencyProfileId, Date date, int emergencyDuration, Limiter limiter) throws IOException {
         Limiter.EmergencyProfile emergencyProfile = limiter.new EmergencyProfile();
         emergencyProfile.addDataType(new Unsigned16(emergencyProfileId));
-        emergencyProfile.addDataType(new OctetString(new AXDRDateTime(date).getBEREncodedByteArray()));
+        emergencyProfile.addDataType(new OctetString(ProtocolTools.getSubArray(new AXDRDateTime(date).getBEREncodedByteArray(), 2)));
         emergencyProfile.addDataType(new Unsigned32(emergencyDuration));
         limiter.writeEmergencyProfile(emergencyProfile);
     }
@@ -228,6 +241,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
                 obisCode = ObisCode.fromString("1.0.71.4.0.255");
                 break;
             default:
+                idis.getLogger().log(Level.SEVERE, "Unexpected phase number, should be 1, 2 or 3");
                 return MessageResult.createFailed(messageEntry);
         }
         RegisterMonitor registerMonitor = idis.getCosemObjectFactory().getRegisterMonitor(obisCode);
@@ -235,6 +249,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
         thresholds.addDataType(new Unsigned32(threshold));
         registerMonitor.writeThresholds(thresholds);
 
+        idis.getLogger().log(Level.INFO, "Phase supervision message was successful");
         return MessageResult.createSuccess(messageEntry);
     }
 
@@ -322,7 +337,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
         cat1.addMessageSpec(addBasicMsg("Remote controlled reconnection", "RemoteConnect", false));
         cat1.addMessageSpec(addBasicMsgWithAttributes("Open relay", "OpenRelay", false, "Relay number (1 or 2)"));
         cat1.addMessageSpec(addBasicMsgWithAttributes("Close relay", "CloseRelay", false, "Relay number (1 or 2)"));
-        cat1.addMessageSpec(addBasicMsgWithAttributes("Load control configuration (limiter)", "LoadControlledConnect", false, "Monitored value (1: Total inst. current, 2: Avg A+ (sliding demand), 3: Avg total A (sliding demand))", "Normal threshold", "Emergency threshold", "Minimal over threshold duration (seconds)", "Minimal under threshold duration (seconds)", "Emergency profile ID", "Emergency activation time (dd/mm/yyyy hh:mm:ss)", "Emergency duration", "Emergency profile group id list (comma separated, e.g. 1,2,3", "Action when under threshold (0: nothing, 2: reconnect)"));
+        cat1.addMessageSpec(addBasicMsgWithAttributes("Load control configuration (limiter)", "LoadControlledConnect", false, "Monitored value (1: Total inst. current, 2: Avg A+ (sliding demand), 3: Avg total A (sliding demand))", "Normal threshold", "Emergency threshold", "Minimal over threshold duration (seconds)", "Minimal under threshold duration (seconds)", "Emergency profile ID", "Emergency activation time (dd/mm/yyyy hh:mm:ss)", "Emergency duration (seconds)", "Emergency profile group id list (comma separated, e.g. 1,2,3)", "Action when under threshold (0: nothing, 2: reconnect)"));
         cat1.addMessageSpec(addBasicMsgWithAttributes("Supervision monitor", "SuperVision", false, "Phase (1, 2 or 3)", "Threshold (ampere)"));
         cat1.addMessageSpec(addBasicMsgWithAttributes("Time controlled reconnection", "TimedReconnect", false, "Date (dd/mm/yyyy hh:mm)"));
         cat1.addMessageSpec(addBasicMsgWithAttributes("Time controlled disconnection", "TimedDisconnect", false, "Date (dd/mm/yyyy hh:mm)"));
@@ -388,7 +403,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
             Date actDate = new Date(Long.valueOf(activationDate));
             if (codeId > 0) {
                 try {
-                    String xmlContent = CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(codeId, Calendar.getInstance(idis.getTimeZone()).getTime().before(actDate) ? actDate.getTime() : 1, name);
+                    String xmlContent = CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(codeId, Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime().before(actDate) ? actDate.getTime() : 1, name);
                     addChildTag(builder, RAW_CONTENT, ProtocolTools.compress(xmlContent));
                 } catch (ParserConfigurationException e) {
                     idis.getLogger().severe(e.getMessage());
