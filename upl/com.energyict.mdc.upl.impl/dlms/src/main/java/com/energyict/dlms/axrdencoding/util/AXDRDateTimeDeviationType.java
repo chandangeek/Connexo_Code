@@ -47,4 +47,12 @@ public enum AXDRDateTimeDeviationType {
         }
         return GMT + (deviation < 0 ? "" : "+") + deviation;
     }
+
+    public int getGmtOffset(int deviation){
+        if(inverse){
+            return deviation *= -1;
+        } else {
+            return deviation;
+        }
+    }
 }

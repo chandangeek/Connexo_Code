@@ -253,7 +253,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
             LoadProfileRegisterMessageBuilder builder = this.protocol.getLoadProfileRegisterMessageBuilder();
             builder = (LoadProfileRegisterMessageBuilder) builder.fromXml(msgEntry.getContent());
 
-            LoadProfileReader lpr = builder.getLoadProfileReader();
+            LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectdLoadProfileReader(builder.getLoadProfileReader()), msgEntry);
             final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
             final List<ProfileData> profileDatas = this.protocol.getLoadProfileData(Arrays.asList(lpr));
 
@@ -294,6 +294,12 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         } catch (IOException e) {
             return MessageResult.createFailed(msgEntry, "Failed while fetching the LoadProfile data.");
         }
+    }
+
+    private LoadProfileReader constructDateTimeCorrectdLoadProfileReader(final LoadProfileReader loadProfileReader) {
+        Date from = new Date(loadProfileReader.getStartReadingTime().getTime() - 5000);
+        Date to = new Date(loadProfileReader.getEndReadingTime().getTime() + 5000);
+        return new LoadProfileReader(loadProfileReader.getProfileObisCode(), from, to, loadProfileReader.getLoadProfileId(), loadProfileReader.getMeterSerialNumber(), loadProfileReader.getChannelInfos());
     }
 
     private MessageResult doReadPartialLoadProfile(final MessageEntry msgEntry) {

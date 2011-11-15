@@ -192,7 +192,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             LoadProfileRegisterMessageBuilder builder = this.protocol.getLoadProfileRegisterMessageBuilder();
             builder = (LoadProfileRegisterMessageBuilder) builder.fromXml(msgEntry.getContent());
 
-            LoadProfileReader lpr = builder.getLoadProfileReader();
+            LoadProfileReader lpr = constructDateTimeCorrectdLoadProfileReader(builder.getLoadProfileReader());
             final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
             final List<ProfileData> profileDatas = this.protocol.getLoadProfileData(Arrays.asList(lpr));
 
@@ -223,9 +223,9 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                 }
             }
 
-            if(mrd.getRegisterValues().size() != pd.getNumberOfChannels()){
-                return MessageResult.createFailed(msgEntry, "Did not receive a LoadProfile interval for all required channels, probably RtuRegisterMappings not correct.");
-            }
+//            if(mrd.getRegisterValues().size() != pd.getNumberOfChannels()){
+//                return MessageResult.createFailed(msgEntry, "Did not receive a LoadProfile interval for all required channels, probably RtuRegisterMappings not correct.");
+//            }
 
             MeterData md = new MeterData();
             md.setMeterReadingData(mrd);
@@ -237,6 +237,12 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         } catch (IOException e) {
             return MessageResult.createFailed(msgEntry, "Failed while fetching the LoadProfile data.");
         }
+    }
+
+    private LoadProfileReader constructDateTimeCorrectdLoadProfileReader(final LoadProfileReader loadProfileReader) {
+        Date from = new Date(loadProfileReader.getStartReadingTime().getTime() - 5000);
+        Date to = new Date(loadProfileReader.getEndReadingTime().getTime() + 5000);
+        return new LoadProfileReader(loadProfileReader.getProfileObisCode(), from, to, loadProfileReader.getLoadProfileId(), loadProfileReader.getMeterSerialNumber(), loadProfileReader.getChannelInfos());
     }
 
     private MessageResult doReadPartialLoadProfile(final MessageEntry msgEntry) {
