@@ -303,6 +303,9 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
             builder = (PartialLoadProfileMessageBuilder) builder.fromXml(msgEntry.getContent());
 
             LoadProfileReader lpr = builder.getLoadProfileReader();
+
+            lpr = checkLoadProfileReader(lpr, msgEntry);
+
             final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
             final List<ProfileData> profileData = this.protocol.getLoadProfileData(Arrays.asList(lpr));
 
@@ -327,6 +330,14 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
             return MessageResult.createFailed(msgEntry, "Could not parse the content of the xml message, probably incorrect message.");
         } catch (IOException e) {
             return MessageResult.createFailed(msgEntry, "Failed while fetching the LoadProfile data.");
+        }
+    }
+
+    private LoadProfileReader checkLoadProfileReader(final LoadProfileReader lpr, final MessageEntry msgEntry) {
+        if(lpr.getProfileObisCode().equalsIgnoreBChannel(ObisCode.fromString("0.x.24.3.0.255"))){
+            return new LoadProfileReader(lpr.getProfileObisCode(), lpr.getStartReadingTime(), lpr.getEndReadingTime(), lpr.getLoadProfileId(), msgEntry.getSerialNumber(), lpr.getChannelInfos());
+        } else {
+            return lpr;
         }
     }
 
