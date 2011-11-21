@@ -16,6 +16,7 @@ public class RadioCommandFactory {
     private FirmwareVersion firmwareVersion = null;
     EncoderModelDetection encoderModel = null;
     private ExtendedDataloggingTable cachedExtendedDataloggingTable = null;
+    private CurrentRegisterReading registerReading = null;
 
     public RadioCommandFactory(RTM rtm) {
         this.rtm = rtm;
@@ -49,8 +50,10 @@ public class RadioCommandFactory {
     }
 
     public CurrentRegisterReading readCurrentRegister() throws IOException {
-        CurrentRegisterReading registerReading = new CurrentRegisterReading(rtm);
-        registerReading.set();
+        if (registerReading == null) {
+            registerReading = new CurrentRegisterReading(rtm);
+            registerReading.set();
+        }
         return registerReading;
     }
 
