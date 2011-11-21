@@ -184,7 +184,7 @@ public class CommonObisCodeMapper {
         try {
             OperatingMode operatingMode = waveFlow.getParameterFactory().readOperatingMode();
             if (obisCode.equals(OBISCODE_REMAINING_BATTERY)) {
-                int level = waveFlow.getParameterFactory().readBatteryLifeDurationCounter().remainingBatteryLife();
+                double level = waveFlow.getParameterFactory().readBatteryLifeDurationCounter().remainingBatteryLife();
                 return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(level), Unit.get("")), new Date());
             } else if (obisCode.equals(OBISCODE_APPLICATION_STATUS)) {
                 int status = waveFlow.getParameterFactory().readApplicationStatus();
