@@ -94,10 +94,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink 
 
 	@Override
 	public String getProtocolVersion() {
-		String rev = "$Revision: 43219 $" + " - " + "$Date: 2010-09-21 10:31:34 +0100 (tu, 21 sep 2010) $";
-		String manipulated = "Revision " + rev.substring(rev.indexOf("$Revision: ") + "$Revision: ".length(), rev.indexOf("$ -")) + "at "
-				+ rev.substring(rev.indexOf("$Date: ") + "$Date: ".length(), rev.indexOf("$Date: ") + "$Date: ".length() + 19);
-    	return manipulated;
+        return "$Date$";
 	}
 
 	@Override
