@@ -32,7 +32,8 @@ public class ModuleType extends AbstractRadioCommand {
     A percentage representing the saturation. 100% = full saturation = 48 dB
      */
     public double getRssiLevel() {
-        return (((double) rssiLevel) / MAX) * 100;
+        double value = (((double) rssiLevel) / MAX) * 100;
+        return Math.round(value * 100.0) / 100.0;
     }
 
     @Override

@@ -64,8 +64,11 @@ public class BubbleUpFrameParser {
 
         double qos = ProtocolTools.getUnsignedIntFromBytes(data, 12, 1);
         qos = (qos / MAX) * 100;
+        qos = Math.round(qos * 100.0) / 100.0;
+
         double shortLifeCounter = ProtocolTools.getUnsignedIntFromBytes(data, 13, 2);
         shortLifeCounter = 100 - (((INITIAL_BATTERY_LIFE_COUNT * 100) - (shortLifeCounter * 100)) / INITIAL_BATTERY_LIFE_COUNT);
+        shortLifeCounter = Math.round(shortLifeCounter * 100.0) / 100.0;
 
         RegisterValue reg = new RegisterValue(ObisCode.fromString("0.0.96.6.0.255"), new Quantity(shortLifeCounter, Unit.get("")), new Date());
         registerValues.add(reg);
