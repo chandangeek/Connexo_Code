@@ -122,7 +122,7 @@ public class EventStatusAndDescription {
         switch (bit) {
             case 0x02:
                 if (deviceType == 0) {
-                    return "Tamper (wire cut)";
+                    return "Tamper (wirecut A)";
                 } else if (deviceType == 3) {
                     return "Tamper (removal)";
                 } else {
@@ -130,7 +130,7 @@ public class EventStatusAndDescription {
                 }
             case 0x20:
                 if (deviceType == 1 || deviceType == 3) {
-                    return "Tamper (magnet)";
+                    return "Tamper (magnetic)";
                 }
                 break;
         }

@@ -236,10 +236,10 @@ public class ProfileDataReaderV1 {
                     String leakageType = leakageEvent.getLeakageType();
                     String inputChannel = leakageEvent.getCorrespondingInputChannel();
                     if (leakageEvent.getLeakageType().equals(LeakageEvent.LEAKAGETYPE_EXTREME)) {
-                        meterEvents.add(new MeterEvent(leakageEvent.getDate(), MeterEvent.OTHER, translator.getProtocolCodeForLeakage(startOrEnd, leakageType, inputChannel), startOrEnd + " of " + leakageType + " leakage event on input channel " + inputChannel + ": flow-rate = " + leakageEvent.getConsumptionRate()));
+                        meterEvents.add(new MeterEvent(leakageEvent.getDate(), MeterEvent.OTHER, translator.getProtocolCodeForLeakage(startOrEnd, leakageType, inputChannel), startOrEnd + " of " + leakageEvent.getEventDescription() + " on input " + inputChannel + ": flow-rate = " + leakageEvent.getConsumptionRate()));
                     }
                     if (leakageEvent.getLeakageType().equals(LeakageEvent.LEAKAGETYPE_RESIDUAL)) {
-                        meterEvents.add(new MeterEvent(leakageEvent.getDate(), MeterEvent.OTHER, translator.getProtocolCodeForLeakage(startOrEnd, leakageType, inputChannel), startOrEnd + " of " + leakageType + " leakage event on input channel " + inputChannel + ": flow-rate = " + leakageEvent.getConsumptionRate()));
+                        meterEvents.add(new MeterEvent(leakageEvent.getDate(), MeterEvent.OTHER, translator.getProtocolCodeForLeakage(startOrEnd, leakageType, inputChannel), startOrEnd + " of " + leakageEvent.getEventDescription() + " on input " + inputChannel + ": flow-rate = " + leakageEvent.getConsumptionRate()));
                     }
                 }
             }
@@ -265,17 +265,17 @@ public class ProfileDataReaderV1 {
             if (!useExtendedIndexReading) {
                 eventDate = waveFlowV1.getParameterFactory().readWireCutDetectionDate(1);
             }
-            meterEvents.add(new MeterEvent(eventDate, MeterEvent.TAMPER, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_B, "Wirecut input B"));
+            meterEvents.add(new MeterEvent(eventDate, MeterEvent.TAMPER, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_B, "Tamper (wirecut B)"));
         }
 
         if (useExtendedIndexReading) {
             if ((applicationStatus & 0x08) == 0x08) {
                 Date eventDate = new Date();
-                meterEvents.add(new MeterEvent(eventDate, MeterEvent.OTHER, translator.getProtocolCodeForLeakage(LeakageEvent.START, LeakageEvent.LEAKAGETYPE_RESIDUAL, LeakageEvent.A), "Low leakage detected"));
+                meterEvents.add(new MeterEvent(eventDate, MeterEvent.OTHER, translator.getProtocolCodeForLeakage(LeakageEvent.START, LeakageEvent.LEAKAGETYPE_RESIDUAL, LeakageEvent.A), "Leak"));
             }
             if ((applicationStatus & 0x10) == 0x10) {
                 Date eventDate = new Date();
-                meterEvents.add(new MeterEvent(eventDate, MeterEvent.OTHER, translator.getProtocolCodeForLeakage(LeakageEvent.START, LeakageEvent.LEAKAGETYPE_EXTREME, LeakageEvent.A), "Burst (high leakage) detected"));
+                meterEvents.add(new MeterEvent(eventDate, MeterEvent.OTHER, translator.getProtocolCodeForLeakage(LeakageEvent.START, LeakageEvent.LEAKAGETYPE_EXTREME, LeakageEvent.A), "Burst"));
             }
         }
 
@@ -292,7 +292,7 @@ public class ProfileDataReaderV1 {
             if (!useExtendedIndexReading) {
                 eventDate = waveFlowV1.getParameterFactory().readWireCutDetectionDate(3);
             }
-            meterEvents.add(new MeterEvent(eventDate, MeterEvent.TAMPER, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_D, "Wirecut input D"));
+            meterEvents.add(new MeterEvent(eventDate, MeterEvent.TAMPER, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_D, "Tamper (wirecut D"));
         }
 
         if (useExtendedIndexReading) {

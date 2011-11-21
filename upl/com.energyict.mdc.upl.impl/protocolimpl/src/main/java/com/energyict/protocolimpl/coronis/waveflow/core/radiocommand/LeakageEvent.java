@@ -111,6 +111,13 @@ public class LeakageEvent {
         }
     }
 
+    public String getEventDescription() {
+        if (getLeakageType().equals(LEAKAGETYPE_EXTREME)) {
+            return "burst";
+        }
+        return "leak";
+    }
+
     /**
      * Bit7 and bit6 represent the corresponding input channel (00 = A, 10 = B, 01 = C, 11 = D)
      * If there's only 2 input channels used, only bit7 is important.

@@ -122,13 +122,13 @@ public class AlarmFrameParser {
             events.add(new MeterEvent(date, MeterEvent.OTHER, EventStatusAndDescription.EVENTCODE_BATTERY_LOW, "End of battery life"));
         }
         if ((status & 0x20) == 0x20) {
-            events.add(new MeterEvent(date, MeterEvent.OTHER, translator.getProtocolCodeForWireCut(status & 0x03) , "Wirecut detection on input " + input));
+            events.add(new MeterEvent(date, MeterEvent.OTHER, translator.getProtocolCodeForWireCut(status & 0x03) , "Tamper (wirecut " + input + ")"));
         }
         if ((status & 0x40) == 0x40) {
-            events.add(new MeterEvent(date, MeterEvent.OTHER, translator.getProtocolCodeForLeakage(LeakageEvent.END, LeakageEvent.LEAKAGETYPE_RESIDUAL, input), "Residual leak detection (low threshold) on input " + input + ". Flow is " + flow + "."));
+            events.add(new MeterEvent(date, MeterEvent.OTHER, translator.getProtocolCodeForLeakage(LeakageEvent.END, LeakageEvent.LEAKAGETYPE_RESIDUAL, input), "Leak on input " + input + ". Flow is " + flow + "."));
         }
         if ((status & 0x80) == 0x80) {
-            events.add(new MeterEvent(date, MeterEvent.OTHER, translator.getProtocolCodeForLeakage(LeakageEvent.END, LeakageEvent.LEAKAGETYPE_EXTREME, input), "Extreme leak detection (high threshold) on input " + input + ". Flow is " + flow + "."));
+            events.add(new MeterEvent(date, MeterEvent.OTHER, translator.getProtocolCodeForLeakage(LeakageEvent.END, LeakageEvent.LEAKAGETYPE_EXTREME, input), "Burst on input " + input + ". Flow is " + flow + "."));
         }
         return events;
     }
