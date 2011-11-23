@@ -29,9 +29,14 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     private int bubbleUpStartMoment;
     private int bubbleUpEndHour;
     private int initialRFCommand = 0;
+    private boolean roundDownToNearestInterval = false;
 
     public ObisCodeMapper getObisCodeMapper() {
         return obisCodeMapper;
+    }
+
+    public boolean isRoundDownToNearestInterval() {
+        return roundDownToNearestInterval;
     }
 
     public int getInitialRFCommand() {
@@ -147,6 +152,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
         // e.g. USED,4,28740,28800,1,0e514a401f25
         bubbleUpEndHour = Integer.parseInt(properties.getProperty("WavenisBubbleUpInfo", "USED,1,-1,-1,1,000000000000").split(",")[3]);
         initialRFCommand = Integer.parseInt(properties.getProperty("InitialRFCommand", "0").trim());
+        roundDownToNearestInterval = Integer.parseInt(properties.getProperty("RoundDownToNearestInterval", "0").trim()) == 1;
     }
 
     @Override
@@ -233,6 +239,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
         result.add("EnableMultiFrameMode");
         result.add("verifyProfileInterval");
         result.add("InitialRFCommand");
+        result.add("RoundDownToNearestInterval");
         return result;
     }
 

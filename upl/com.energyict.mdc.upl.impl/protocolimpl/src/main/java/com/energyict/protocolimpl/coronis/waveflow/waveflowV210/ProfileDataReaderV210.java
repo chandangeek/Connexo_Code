@@ -121,8 +121,10 @@ public class ProfileDataReaderV210 {
 
         // initialize calendar
         calendar.setTime(lastLoggedValueDate);
-        if (!ParseUtils.isOnIntervalBoundary(calendar, getProfileIntervalInSeconds())) {
-            ParseUtils.roundDown2nearestInterval(calendar, getProfileIntervalInSeconds());
+        if (monthly || (getProfileIntervalInSeconds() == WEEKLY)) {
+            calendar = roundTimeStamps(calendar, HOURLY);
+        } else {
+            calendar = roundTimeStamps(calendar, getProfileIntervalInSeconds());
         }
 
         int nrOfReadings = 4;     //When using the extended index reading, only 4 LP entries are available.
@@ -161,6 +163,15 @@ public class ProfileDataReaderV210 {
         }
 
         return profileData;
+    }
+
+    private Calendar roundTimeStamps(Calendar calendar, int profileIntervalInSeconds) throws IOException {
+        if (waveFlowV1.isRoundDownToNearestInterval()) {
+            if (!ParseUtils.isOnIntervalBoundary(calendar, profileIntervalInSeconds)) {
+                ParseUtils.roundDown2nearestInterval(calendar, profileIntervalInSeconds);
+            }
+        }
+        return calendar;
     }
 
     private int getNumberOfInputsUsed() throws IOException {

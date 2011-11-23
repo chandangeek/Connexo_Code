@@ -32,6 +32,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
 
     private boolean multiFrame;         //Custom property enabling multiframe mode. This mode is not available when using repeaters to reach the waveflow module.
     private boolean verifyProfileInterval = true;
+    private boolean roundDownToNearestInterval = false;
     private int initialRFCommand = 0;
     private boolean isV1 = false;
     private int bubbleUpStartMoment;
@@ -42,6 +43,10 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
 
     public boolean usesInitialRFCommand() {
         return getInitialRFCommand() == 0x06 || getInitialRFCommand() == 0x27;
+    }
+
+    public boolean isRoundDownToNearestInterval() {
+        return roundDownToNearestInterval;
     }
 
     public boolean isV1() {
@@ -201,6 +206,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
         PulseWeight pulseWeightC = new PulseWeight(waveFlow, scaleC, multiplierC, 3);
         PulseWeight pulseWeightD = new PulseWeight(waveFlow, scaleD, multiplierD, 4);
         initialRFCommand = Integer.parseInt(properties.getProperty("InitialRFCommand", "0").trim());
+        roundDownToNearestInterval = Integer.parseInt(properties.getProperty("RoundDownToNearestInterval", "0").trim()) == 1;
 
         pulseWeights = new PulseWeight[]{pulseWeightA, pulseWeightB, pulseWeightC, pulseWeightD};
     }
@@ -271,7 +277,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
 
     public final void forceSetTime() throws IOException {
         Calendar now = Calendar.getInstance();
-        GregorianCalendar cal = new GregorianCalendar(getTimeZone());
+        Calendar cal = Calendar.getInstance(getTimeZone());
         cal.set(Calendar.YEAR, now.get(Calendar.YEAR));
         cal.set(Calendar.MONTH, now.get(Calendar.MONTH));
         cal.set(Calendar.DATE, now.get(Calendar.DATE));
@@ -342,6 +348,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
         result.add("EnableMultiFrameMode");
         result.add("verifyProfileInterval");
         result.add("InitialRFCommand");
+        result.add("RoundDownToNearestInterval");
         result.add("LoadProfileObisCode");
         result.add("ApplicationStatusVariant");
         result.add(PROP_SCALE_A);

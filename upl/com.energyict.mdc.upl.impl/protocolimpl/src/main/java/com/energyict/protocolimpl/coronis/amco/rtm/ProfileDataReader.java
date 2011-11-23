@@ -192,15 +192,18 @@ public class ProfileDataReader {
         if (rtm.usesInitialRFCommand()) {
             calendar.setTime(lastLoggedValue);
         } else {
-        if (!monthly) {
-            calendar.setTime(getTimeStampOfNewestRecord(lastLoggedValue, initialOffset));
-            if (!ParseUtils.isOnIntervalBoundary(calendar, getProfileIntervalInSeconds())) {
-                ParseUtils.roundDown2nearestInterval(calendar, getProfileIntervalInSeconds());
+            if (!monthly) {
+                calendar.setTime(getTimeStampOfNewestRecord(lastLoggedValue, initialOffset));
+            } else {
+                calendar.setTime(getTimeStampOfNewestRecordMonthly(toDate, lastLoggedValue));
             }
+        }
+        if (monthly || (getProfileIntervalInSeconds() == WEEKLY)) {
+            calendar = roundTimeStamps(calendar, HOURLY);
         } else {
-            calendar.setTime(getTimeStampOfNewestRecordMonthly(toDate, lastLoggedValue));
+            calendar = roundTimeStamps(calendar, getProfileIntervalInSeconds());
         }
-        }
+
 
         if (daily) {
             calendar.add(Calendar.SECOND, -1 * (getProfileIntervalInSeconds() * 4));          //Daily consumption contains every 4th value of the table
@@ -236,9 +239,16 @@ public class ProfileDataReader {
         }
         profileData.setIntervalDatas(intervalDatas);
         return profileData;
-
     }
 
+    private Calendar roundTimeStamps(Calendar calendar, int profileIntervalInSeconds) throws IOException {
+        if (rtm.isRoundDownToNearestInterval()) {
+            if (!ParseUtils.isOnIntervalBoundary(calendar, profileIntervalInSeconds)) {
+                ParseUtils.roundDown2nearestInterval(calendar, profileIntervalInSeconds);
+            }
+        }
+        return calendar;
+    }
 
     /**
      * If multiframe mode is enabled, there's no need to request data in steps.
@@ -277,13 +287,13 @@ public class ProfileDataReader {
         }
 
         if (!usesInitialRFCommand) {
-        meterEvents.addAll(rtm.getRadioCommandFactory().readLeakageEventTable().getMeterEvents());
+            meterEvents.addAll(rtm.getRadioCommandFactory().readLeakageEventTable().getMeterEvents());
         }
 
         if (!usesInitialRFCommand) {
-        for (int input = 0; input < numberOfPorts; input++) {
-            meterEvents.addAll(rtm.getParameterFactory().readSimpleBackflowDetectionFlags(input + 1).getMeterEvents());
-        }
+            for (int input = 0; input < numberOfPorts; input++) {
+                meterEvents.addAll(rtm.getParameterFactory().readSimpleBackflowDetectionFlags(input + 1).getMeterEvents());
+            }
         }
 
         if (profileType.isPulse()) {
@@ -319,7 +329,7 @@ public class ProfileDataReader {
 
         if (profileType.isValve()) {
             if (!usesInitialRFCommand) {
-            meterEvents.addAll(rtm.getParameterFactory().readLeakageDetectionStatus().getMeterEvents());
+                meterEvents.addAll(rtm.getParameterFactory().readLeakageDetectionStatus().getMeterEvents());
             }
             if (status.isValveFault()) {
                 Date eventDate = new Date();

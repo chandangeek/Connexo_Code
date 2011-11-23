@@ -146,14 +146,17 @@ public class ProfileDataReader {
         } else {
             if (!daily & !monthly) {
                 calendar.setTime(getTimeStampOfNewestRecord(lastLoggedValue, (initialOffset == 0 ? 0 : indexFirst - initialOffset)));
-                if (!ParseUtils.isOnIntervalBoundary(calendar, getProfileIntervalInSeconds())) {
-                    ParseUtils.roundDown2nearestInterval(calendar, getProfileIntervalInSeconds());
-                }
             } else if (daily) {
                 calendar.setTime(dailyConsumption.getLastLoggedReading());
             } else if (monthly) {
                 calendar.setTime(getTimeStampOfNewestRecordMonthly(toDate, lastLoggedValue));
             }
+        }
+
+        if (monthly || (getProfileIntervalInSeconds() == WEEKLY)) {
+            calendar = roundTimeStamps(calendar, HOURLY);
+        } else {
+            calendar = roundTimeStamps(calendar, getProfileIntervalInSeconds());
         }
 
         int nrOfReadings;
@@ -199,6 +202,15 @@ public class ProfileDataReader {
         }
 
         return profileData;
+    }
+
+    private Calendar roundTimeStamps(Calendar calendar, int profileIntervalInSeconds) throws IOException {
+        if (waveFlowV2.isRoundDownToNearestInterval()) {
+            if (!ParseUtils.isOnIntervalBoundary(calendar, profileIntervalInSeconds)) {
+                ParseUtils.roundDown2nearestInterval(calendar, profileIntervalInSeconds);
+            }
+        }
+        return calendar;
     }
 
     /**
