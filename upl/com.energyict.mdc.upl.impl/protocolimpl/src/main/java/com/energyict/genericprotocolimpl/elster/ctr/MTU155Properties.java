@@ -197,6 +197,13 @@ public class MTU155Properties extends AbstractProtocolProperties {
         return getStringValue(RTU_TYPE, DEFAULT_RTU_TYPE);
     }
 
+    /**
+     * Number of days we are expected to be able read from the meter. The MTU155 can only store 90 days of data.
+     * This is used to determine a last reading date in discovery that actually makes sense instead of a ridiculous old date.
+     * It is also used to determine the last reading date on each channel after receiving data by SMS
+     *
+     * @return int value describing the number of days.
+     */
     @ProtocolProperty
     public int getChannelBacklog() {
         return getIntProperty(CHANNEL_BACKLOG, DEFAULT_CHANNEL_BACKLOG);

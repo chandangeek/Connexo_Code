@@ -28,9 +28,18 @@ import java.util.*;
 public class DummyRtu implements Rtu {
 
     private TimeZone timeZone;
+    private DummyChannel channel;
 
     public DummyRtu(TimeZone timeZone) {
+        this(timeZone, null);
+    }
+
+    public DummyRtu(TimeZone timeZone, DummyChannel channel) {
         this.timeZone = timeZone;
+        this.channel = channel;
+        if (channel != null) {
+            this.channel.setRtu(this);
+    }
     }
 
     public void setTimeZone(TimeZone timeZone) {
@@ -212,11 +221,28 @@ public class DummyRtu implements Rtu {
     }
 
     public void store(ProfileData profileData) throws SQLException, BusinessException {
-
+        store(profileData, true);
     }
 
     public void store(ProfileData profileData, boolean checkLastReading) throws SQLException, BusinessException {
+        if (channel != null) {
+            Date lastIntervalTime = getLastIntervalTime(profileData);
+            if (checkLastReading) {
+                channel.updateLastReadingIfLater(lastIntervalTime);
+            } else {
+                channel.updateLastReading(lastIntervalTime);
+            }
+        }
+    }
 
+    private Date getLastIntervalTime(ProfileData profileData) {
+        profileData.sort();
+        List<IntervalData> intervalDatas = profileData.getIntervalDatas();
+        if ((intervalDatas == null) || intervalDatas.isEmpty()) {
+            return null;
+        } else {
+            return intervalDatas.get(intervalDatas.size() - 1).getEndTime();
+        }
     }
 
     public void store(MeterReadingData meterReadingData) throws SQLException, BusinessException {

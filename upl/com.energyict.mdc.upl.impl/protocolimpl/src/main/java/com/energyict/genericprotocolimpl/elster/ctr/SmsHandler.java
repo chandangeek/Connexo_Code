@@ -4,7 +4,6 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Sms;
 import com.energyict.dialer.core.LinkException;
 import com.energyict.genericprotocolimpl.common.CommonUtils;
-import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.elster.ctr.encryption.CTREncryption;
 import com.energyict.genericprotocolimpl.elster.ctr.events.CTRMeterEvent;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.*;
@@ -43,7 +42,7 @@ public class SmsHandler implements MessageHandler {
     private Logger logger;
     private MeterAmrLogging meterAmrLogging;
     private final Date now = new Date();
-    private StoreObject storeObject;
+    private CtrSmsStoreObject storeObject;
     private ObisCodeMapper obisCodeMapper;
     private Sms sms;
 
@@ -55,9 +54,9 @@ public class SmsHandler implements MessageHandler {
         return properties;
     }
 
-    public StoreObject getStoreObject() {
+    public CtrSmsStoreObject getStoreObject() {
         if (storeObject == null) {
-            storeObject = new StoreObject();
+            storeObject = new CtrSmsStoreObject(getProtocolProperties().getChannelBacklog());
         }
         return storeObject;
     }

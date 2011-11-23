@@ -5,15 +5,13 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cpo.Transaction;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterReadingStorer;
-import com.energyict.mdw.amrimpl.RtuRegisterImpl;
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.coreimpl.ChannelImpl;
-import com.energyict.mdw.coreimpl.RtuImpl;
 import com.energyict.mdw.shadow.amr.RtuRegisterReadingShadow;
 import com.energyict.protocol.*;
 
 import java.sql.SQLException;
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * <pre>
@@ -24,85 +22,118 @@ import java.util.*;
  *  - registerData -> use the RtuRegister as the key
  *  Changes:
  *  GNA|09022009| You can use profileData as the key because you can only have the same key once.
- *  If you store the 15min values with the RTU and the daily/monthly values with the
+ *  If you store the 15min values with the RTU and the daily/monthly values witht the
  * 	RTU then you overwrite the previous value of it. ProfileData will be unique
+ * 	JME|Replaced map of storeObjects with a list of StoreObjectItem's. Now duplicate keys can be used,
+ * 	without replacing earlier data that already was in the storeObject
  * </pre>
  *
  * @author gna
  */
 public class StoreObject implements Transaction {
 
-    private HashMap storeObjects;
+    private final List<StoreObjectItem> storeObjectItems;
+    private Logger logger = null;
 
     public StoreObject() {
-        this.storeObjects = new HashMap();
+        this.storeObjectItems = new ArrayList<StoreObjectItem>();
+    }
+
+    public List<StoreObjectItem> getStoreObjectItems() {
+        return storeObjectItems;
+    }
+
+    private Logger getLogger() {
+        if (logger == null) {
+            logger = Logger.getLogger(getClass().getName());
+        }
+        return logger;
     }
 
     public Object doExecute() throws BusinessException, SQLException {
-
-        Iterator keyit = storeObjects.entrySet().iterator();
-        while (keyit.hasNext()) {
-            Map.Entry entry = (Map.Entry) keyit.next();
-            Object key = entry.getKey();
-            if (key instanceof RtuImpl) {
-                ((Rtu) key).store((ProfileData) entry.getValue(), false);
-            } else if (key instanceof ChannelImpl) {
-                (((Channel) key).getRtu()).store((ProfileData) entry.getValue(), false);
-            } else if (key instanceof RtuRegisterImpl) {
-                ((RtuRegister) key).store((RegisterValue) entry.getValue());
+        for (StoreObjectItem storeObjectItem : getStoreObjectItems()) {
+            Object key = storeObjectItem.getKey();
+            if (key instanceof Rtu) {
+                Rtu rtu = (Rtu) key;
+                ProfileData profileData = (ProfileData) storeObjectItem.getValue();
+                store(rtu, profileData);
+            } else if (key instanceof Channel) {
+                Channel channel = (Channel) key;
+                ProfileData profileData = (ProfileData) storeObjectItem.getValue();
+                store(channel, profileData);
+            } else if (key instanceof RtuRegister) {
+                RtuRegister rtuRegister = (RtuRegister) key;
+                RegisterValue registerValue = (RegisterValue) storeObjectItem.getValue();
+                store(rtuRegister, registerValue);
             } else if (key instanceof ProfileData) {
-                ((Rtu) entry.getValue()).store((ProfileData) key, false);
+                Rtu rtu = (Rtu) storeObjectItem.getValue();
+                ProfileData profileData = (ProfileData) key;
+                store(rtu, profileData);
             } else if (key instanceof MeterReadingData) {
-                store(((Rtu) entry.getValue()), (MeterReadingData) key);
+                Rtu rtu = (Rtu) storeObjectItem.getValue();
+                MeterReadingData meterReadingData = (MeterReadingData) key;
+                store(rtu, meterReadingData);
             } else if (key instanceof MeterData) {
-                ((Rtu) entry.getValue()).store((MeterData) key, false);
+                Rtu rtu = (Rtu) storeObjectItem.getValue();
+                MeterData meterReadingData = (MeterData) key;
+                store(meterReadingData, rtu);
+            } else {
+                getLogger().severe("StoreObject cannot store item! Key/Value combination incorrect: key=" + key.getClass().getName() + ", value=" + storeObjectItem.getValue().getClass().getName());
             }
         }
-
         return null;
     }
 
-    /**
-     * @param key
-     * @param value
-     */
-    public void add(Object key, Object value) {
-        storeObjects.put(key, value);
+    public void add(MeterReadingData meterReadingData, Rtu rtu) {
+        getStoreObjectItems().add(new StoreObjectItem(meterReadingData, rtu));
     }
 
     public void add(Rtu rtu, ProfileData pd) {
-        storeObjects.put(rtu, pd);
+        getStoreObjectItems().add(new StoreObjectItem(rtu, pd));
     }
 
     public void add(Channel channel, ProfileData pd) {
-        storeObjects.put(channel, pd);
+        getStoreObjectItems().add(new StoreObjectItem(channel, pd));
     }
 
-    public void add(RtuRegisterImpl registerImpl, RegisterValue registerValue) {
-        storeObjects.put(registerImpl, registerValue);
+    public void add(RtuRegister rtuRegister, RegisterValue registerValue) {
+        getStoreObjectItems().add(new StoreObjectItem(rtuRegister, registerValue));
     }
 
     public void add(ProfileData pd, Rtu rtu) {
-        storeObjects.put(pd, rtu);
+        getStoreObjectItems().add(new StoreObjectItem(pd, rtu));
     }
 
     public void add(MeterData meterdata, Rtu rtu){
-        storeObjects.put(meterdata, rtu);
+        getStoreObjectItems().add(new StoreObjectItem(meterdata, rtu));
     }
 
     public void addAll(Map map) {
-        storeObjects.putAll(map);
+        if (map != null) {
+            for (Object key : map.keySet()) {
+                Object value = map.get(key);
+                if ((key instanceof Rtu) && (value instanceof ProfileData)) {
+                    add((Rtu) key, (ProfileData) value);
+                } else if ((key instanceof Channel) && (value instanceof ProfileData)) {
+                    add((Channel) key, (ProfileData) value);
+                } else if ((key instanceof RtuRegister) && (value instanceof RegisterValue)) {
+                    add((RtuRegister) key, (RegisterValue) value);
+                } else if ((key instanceof ProfileData) && (value instanceof Rtu)) {
+                    add((ProfileData) key, (Rtu) value);
+                } else if ((key instanceof MeterReadingData) && (value instanceof Rtu)) {
+                    add((MeterReadingData) key, (Rtu) value);
+                } else {
+                    getLogger().severe("StoreObject cannot store item! Key/Value combination incorrect: key=" + key.getClass().getName() + ", value=" + value.getClass().getName());
+                }
+            }
+        }
     }
 
-    public HashMap getMap() {
-        return this.storeObjects;
-    }
-
-    private void store(Rtu rtu, MeterReadingData meterReadingData) throws SQLException, BusinessException {
+    protected void store(Rtu rtu, MeterReadingData meterReadingData) throws SQLException, BusinessException {
         Map<RtuRegister, Date> lastReadings = new HashMap<RtuRegister, Date>();
         Map<RtuRegister, Date> lastCheckeds = new HashMap<RtuRegister, Date>();
         RtuRegisterReadingStorer storer = new RtuRegisterReadingStorer();
-        for (RegisterValue registerValue : (List<RegisterValue>) meterReadingData.getRegisterValues()) {
+        for (RegisterValue registerValue : meterReadingData.getRegisterValues()) {
             RtuRegister rtuRegister = getRtuRegister(rtu, registerValue.getRtuRegisterId());
             if (registerValue.isSupported()) {
                 RtuRegisterReadingShadow shadow = new RtuRegisterReadingShadow();
@@ -153,5 +184,32 @@ public class StoreObject implements Transaction {
             }
         }
         throw new BusinessException("RtuImpl, getRtuRegister(id), no RtuRegister for id " + id);
+    }
+
+    protected void store(Rtu rtu, ProfileData profileData) throws BusinessException, SQLException {
+        rtu.store(profileData, false);
+    }
+
+    protected void store(MeterData meterData, Rtu rtu) throws BusinessException, SQLException {
+        rtu.store(meterData, false);
+    }
+
+    protected void store(RtuRegister rtuRegister, RegisterValue registerValue) throws SQLException, BusinessException {
+        rtuRegister.store(registerValue);
+    }
+
+    protected void store(Channel channel, ProfileData profileData) throws BusinessException, SQLException {
+        channel.getRtu().store(profileData, false);
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("StoreObject{/n");
+        for (StoreObjectItem storeObjectItem : getStoreObjectItems()) {
+            sb.append(" > ").append(storeObjectItem).append('\n');
+        }
+        sb.append("}/n");
+        return sb.toString();
     }
 }

@@ -31,13 +31,17 @@ import java.util.*;
  */
 public class DummyChannel implements Channel {
 
-    private final int loadProfileIndex;
+    private int loadProfileIndex;
     private final int intervalInSeconds;
-    private final Calendar lastReading;
-    private final Rtu rtu;
+    private Calendar lastReading;
+    private Rtu rtu;
     
+    public DummyChannel(int loadProfileIndex, int intervalInSeconds, Calendar lastReading) {
+        this(loadProfileIndex, intervalInSeconds, lastReading, null);
+    }
+
     public ChannelShadow getShadow() {
-        return null;
+        return new ChannelShadow(this);
     }
 
     public DummyChannel(int loadProfileIndex, int intervalInSeconds, Calendar lastReading, Rtu rtu) {
@@ -51,8 +55,41 @@ public class DummyChannel implements Channel {
         return rtu;
     }
 
-    public void update(ChannelShadow shadow) throws SQLException, BusinessException {
+    public void setRtu(Rtu rtu) {
+        this.rtu = rtu;
+    }
 
+    public void update(ChannelShadow shadow) throws SQLException, BusinessException {
+        //setName(shadow.getName());
+        //rtuId = shadow.getRtuId();
+        //ordinal = shadow.getOrdinal();
+        if (lastReading == null) {
+            lastReading = Calendar.getInstance();
+        }
+        lastReading.setTime(shadow.getLastReading());
+
+        //validation = shadow.getValidation();
+        //validationLastCheckedValue = shadow.getValidationLastCheckedValue();
+        //validationLastRunOfValidation = shadow.getValidationLastRunOfValidation();
+        //validateOnStore = shadow.getValidateOnStore();
+        //multiplier = shadow.getMultiplier();
+        //externalName = trim(shadow.getExternalName());
+        //phenomenonId = shadow.getPhenomenonId();
+        //rawPhenomenonId = shadow.getRawPhenomenonId();
+        //numberOfFractionDigits = shadow.getNumberOfFractionDigits();
+        //autoFillPowerDown = shadow.getAutoFillPowerDown();
+        loadProfileIndex = shadow.getLoadProfileIndex();
+        //cumulative = shadow.getCumulative();
+        //basic = shadow.getBasic();
+        //lockDate = shadow.getLockDate();
+        //interval = shadow.getInterval();
+        //this.validationLastValidDate = shadow.getValidationLastValidDate();
+        //this.overflowValue = shadow.getOverflowValue();
+        //this.validationWindowStart = shadow.getValidationWindowStart();
+        //this.validationWindowEnd = shadow.getValidationWindowEnd();
+        //loadProfileId = shadow.getLoadProfileId();
+        //defaultEstimationProcedureId = shadow.getDefaultEstimationProcedureId();
+        // clear derived fields
     }
 
     public String getName() {
@@ -353,11 +390,25 @@ public class DummyChannel implements Channel {
     }
 
     public void updateLastReadingIfLater(Date execDate) throws SQLException, BusinessException {
-
+        if (execDate != null) {
+            if (lastReading == null) {
+                lastReading = Calendar.getInstance(getTimeZone());
+                lastReading.setTime(execDate);
+            } else {
+                if (execDate.after(lastReading.getTime())) {
+                    lastReading.setTime(execDate);
+                }
+            }
+        }
     }
 
     public void updateLastReading(Date execDate) throws SQLException, BusinessException {
-
+        if (execDate != null) {
+            if (lastReading == null) {
+                lastReading = Calendar.getInstance(getTimeZone());
+            }
+            lastReading.setTime(execDate);
+        }
     }
 
     public void dataAdded(Date lastChecked, Date lastReading) throws SQLException, BusinessException {
@@ -589,7 +640,7 @@ public class DummyChannel implements Channel {
     }
 
     public List<ValidationRule> getValidationRules() {
-        return null;
+        return Collections.EMPTY_LIST;
     }
 
     public RtuRegister getPrimeRegister() {
@@ -601,7 +652,7 @@ public class DummyChannel implements Channel {
     }
 
     public List<IntervalRecord> getIntervalDataAt(Date from, Date to, Date when) {
-        return null;
+        return Collections.EMPTY_LIST;
     }
 
     public IntervalRecord getIntervalRecord(Date date) {
@@ -613,7 +664,7 @@ public class DummyChannel implements Channel {
     }
 
     public Set<Channel> referencedChannels(TimePeriod period) {
-        return null;
+        return Collections.EMPTY_SET;
     }
 
     public String getViewName() {
@@ -621,11 +672,11 @@ public class DummyChannel implements Channel {
     }
 
     public List<? extends IntervalRecord> getIntervalDataWithFill(Date from, Date to, boolean includeValidationStatus, Date when) {
-        return null;
+        return Collections.EMPTY_LIST;
     }
 
     public List<IntervalRecord> getIntervalDataWithFillAt(Date from, Date to, Date when) {
-        return null;
+        return Collections.EMPTY_LIST;
     }
 
     public boolean getValidateOnStore() {
@@ -641,7 +692,7 @@ public class DummyChannel implements Channel {
     }
 
     public List<MeterRegister> getReferencingMeterRegisters() {
-        return null;
+        return Collections.EMPTY_LIST;
     }
 
     public void startBulk() {
@@ -669,7 +720,7 @@ public class DummyChannel implements Channel {
     }
 
     public List<ValidationRule> getAllReferencingValidationRules() {
-        return null;
+        return Collections.EMPTY_LIST;
     }
 
     public void updateValidationRules(List<Integer> removed, List<Integer> added, ChannelShadow shadow, Map<Integer, ValidationRuleShadow> shadowsToUpdate) throws SQLException, BusinessException {
@@ -681,7 +732,7 @@ public class DummyChannel implements Channel {
     }
 
     public List<Channel> getReferencingChannels() {
-        return null;
+        return Collections.EMPTY_LIST;
     }
 
     public int getLoadProfileIndex() {
@@ -713,7 +764,7 @@ public class DummyChannel implements Channel {
     }
 
     public List<RtuRegister> getTouRegisters() {
-        return null;
+        return Collections.EMPTY_LIST;
     }
 
     public boolean hasTouRegisters() {
@@ -721,11 +772,11 @@ public class DummyChannel implements Channel {
     }
 
     public List<RtuRegister> getReferencingRtuRegisters() {
-        return null;
+        return Collections.EMPTY_LIST;
     }
 
     public List<IntervalRecord> getFailedRecords(ValidationSession session, List<IntervalRecord> transactions) throws BusinessException, SQLException {
-        return null;
+        return Collections.EMPTY_LIST;
     }
 
     public ChannelType getChannelType() {
