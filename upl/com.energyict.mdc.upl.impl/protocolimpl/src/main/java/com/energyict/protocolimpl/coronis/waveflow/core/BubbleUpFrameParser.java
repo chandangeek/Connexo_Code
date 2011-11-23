@@ -189,7 +189,12 @@ public class BubbleUpFrameParser {
         BubbleUpObject result = new BubbleUpObject();
         List<ProfileData> profileDatas = new ArrayList<ProfileData>();
         Date lastLogged;
-        OperatingMode operatingMode = new OperatingMode(waveflow, data[0] & 0xFF);
+        int firstByte = data[0] & 0xFF;
+        if (firstByte == 0xFF && data.length == 1) {
+            return new BubbleUpObject();                    //Data logging table is empty
+        }
+
+        OperatingMode operatingMode = new OperatingMode(waveflow, firstByte);
 
         int channels = 0;
         int numberOfInputsUsed = operatingMode.getNumberOfInputsUsed();

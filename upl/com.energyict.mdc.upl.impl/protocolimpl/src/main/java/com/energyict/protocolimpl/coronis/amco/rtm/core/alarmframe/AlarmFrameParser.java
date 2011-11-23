@@ -39,7 +39,7 @@ public class AlarmFrameParser {
         offset++;
 
         GenericHeader header = new GenericHeader(rtm);
-        header.parse(data);
+        header.parse(ProtocolTools.getSubArray(data, offset));
         profileType = header.getProfileType();
 
         offset += 23; //Skip the generic header
