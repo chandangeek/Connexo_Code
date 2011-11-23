@@ -506,7 +506,7 @@ public class SmsHandler implements MessageHandler {
     }
 
     public String getVersion() {
-        return "1.0";
+        return "$Date$";
     }
 
     /**
