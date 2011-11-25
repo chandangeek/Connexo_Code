@@ -4,10 +4,10 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Utils;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.*;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.sun.xml.ws.client.ClientTransportException;
 import com.vodafone.gdsp.ws.*;
 
 import javax.xml.namespace.QName;
@@ -54,11 +54,13 @@ public class SmsWakeup {
     private String updatedIpAddress = "";
     private long pollTimeout;
     private int pollFreq;
+    private int wakeUpRequestTimeOut;
     private boolean requestSuccess = false;
     private String endpointAddress;
 
     private String soapAction;
     private Rtu meter;
+    private CommunicationScheduler scheduler;
 
     private Logger logger;
     private static final String VF_ENDPOINT_ADDRESS_PROPERTY = "vfEndpointAddress";
@@ -120,7 +122,7 @@ public class SmsWakeup {
     private void updateProperties() {
         this.pollTimeout = Integer.parseInt(this.meter.getProperties().getProperty("PollTimeOut", "900000"));
         this.pollFreq = Integer.parseInt(this.meter.getProperties().getProperty("PollFrequency", "15000"));
-
+        this.wakeUpRequestTimeOut = Integer.parseInt(this.meter.getProperties().getProperty("WakeUpRequestTimeOut", "30000"));
         String host = mw().getSystemProperty(VF_ENDPOINT_ADDRESS_PROPERTY);
         if (host == null) {
             endpointAddress = Environment.getDefault().getProperty(VF_ENDPOINT_ADDRESS_PROPERTY, "http://localhost:4423/SharedResources/COMM_DEVICE/WUTriggerService.serviceagent/WUTriggerPort");
@@ -201,7 +203,13 @@ public class SmsWakeup {
         log(5, "Ready for takeoff");
         SubmitWUTriggerResponse swuTriggerResponse;
 
-        swuTriggerResponse = wuTrigger.submitWUTrigger(parameters, gdspHeader);
+        try {
+            swuTriggerResponse = wuTrigger.submitWUTrigger(parameters, gdspHeader);
+        } catch (ClientTransportException e) {
+            throw new ConnectionException("Could not send the WakeUp request, request timed out!");
+        } catch (Exception e) {
+            throw new ConnectionException("Could not send the WakeUp request. " + e.getMessage());
+        }
         log(5, "Took off ...");
         analyseRespsonse(swuTriggerResponse);
 
@@ -297,7 +305,7 @@ public class SmsWakeup {
      * @return
      */
     private Object getAttributeValue(String attribute) throws UnsupportedException {
-        if(this.meter.getDefaultRelation() == null){
+        if (this.meter.getDefaultRelation() == null) {
             throw new UnsupportedException("Meter has no default relation, wakeup related attributes can not be fetched.");
         }
         return this.meter.getDefaultRelation().get(attribute);
@@ -309,9 +317,10 @@ public class SmsWakeup {
         WUTrigger proxy = wuService.getWUTriggerPort();
         ((BindingProvider) proxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
         ((BindingProvider) proxy).getRequestContext().put(BindingProvider.SOAPACTION_URI_PROPERTY, soapAction);
+        ((BindingProvider) proxy).getRequestContext().put("com.sun.xml.ws.request.timeout", wakeUpRequestTimeOut);
+        ((BindingProvider) proxy).getRequestContext().put("com.sun.xml.ws.connect.timeout", wakeUpRequestTimeOut);
 
         return proxy;
-
     }
 
     public boolean isRequestSuccess() {
