@@ -50,26 +50,33 @@ public class BubbleUpFrameParser {
         BubbleUpObject result = new BubbleUpObject();
         List<ProfileData> profileDatas = new ArrayList<ProfileData>();
         ExtendedDataloggingTable table = new ExtendedDataloggingTable(rtm);
-        table.parseBubbleUpData(data, radioAddress);
-        List<List<Integer[]>> rawValues = table.getProfileDataForAllPorts();
-        ProfileDataReader profileDataReader = new ProfileDataReader(rtm);
+
+        try {
+            table.parseBubbleUpData(data, radioAddress);
+            List<List<Integer[]>> rawValues = table.getProfileDataForAllPorts();
+            ProfileDataReader profileDataReader = new ProfileDataReader(rtm);
+
+            int numberOfPorts = 0;
+            for (List<Integer[]> values : rawValues) {
+                if (values.size() > 0) {
+                    numberOfPorts++;
+                }
+            }
+
+            OperatingMode operatingMode = new OperatingMode(rtm, table.getOperationMode());
+            boolean monthly = operatingMode.isMonthlyLogging();
+            profileDataReader.setNumberOfInputs(numberOfPorts);
+            profileDataReader.setProfileInterval(table.getProfileInterval());
+
+            profileDatas.add(profileDataReader.parseProfileData(genericHeader, false, rawValues, new ProfileData(), monthly, false, new Date(), new Date(0), table.getLastLoggedTimeStamp(), 0));
+            result.setProfileDatas(profileDatas);
+        } catch (WaveFlowException e) {
+            //No profile data available, skip
+        }
+
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
         registerValues.addAll(getGenericHeaderRegisters(rtm, data, radioAddress));
 
-        int numberOfPorts = 0;
-        for (List<Integer[]> values : rawValues) {
-            if (values.size() > 0) {
-                numberOfPorts++;
-            }
-        }
-
-        OperatingMode operatingMode = new OperatingMode(rtm, table.getOperationMode());
-        boolean monthly = operatingMode.isMonthlyLogging();
-        profileDataReader.setNumberOfInputs(numberOfPorts);
-        profileDataReader.setProfileInterval(table.getProfileInterval());
-
-        profileDatas.add(profileDataReader.parseProfileData(genericHeader, false, rawValues, new ProfileData(), monthly, false, new Date(), new Date(0), table.getLastLoggedTimeStamp(), 0));
-        result.setProfileDatas(profileDatas);
         result.setRegisterValues(registerValues);
         return result;
     }
