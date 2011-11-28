@@ -192,7 +192,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             LoadProfileRegisterMessageBuilder builder = this.protocol.getLoadProfileRegisterMessageBuilder();
             builder = (LoadProfileRegisterMessageBuilder) builder.fromXml(msgEntry.getContent());
 
-            LoadProfileReader lpr = constructDateTimeCorrectdLoadProfileReader(builder.getLoadProfileReader());
+            LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectdLoadProfileReader(builder.getLoadProfileReader()), msgEntry);
             final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
             final List<ProfileData> profileDatas = this.protocol.getLoadProfileData(Arrays.asList(lpr));
 
@@ -235,12 +235,6 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private LoadProfileReader constructDateTimeCorrectdLoadProfileReader(final LoadProfileReader loadProfileReader) {
-        Date from = new Date(loadProfileReader.getStartReadingTime().getTime() - 5000);
-        Date to = new Date(loadProfileReader.getEndReadingTime().getTime() + 5000);
-        return new LoadProfileReader(loadProfileReader.getProfileObisCode(), from, to, loadProfileReader.getLoadProfileId(), loadProfileReader.getMeterSerialNumber(), loadProfileReader.getChannelInfos());
-    }
-
     private MessageResult doReadPartialLoadProfile(final MessageEntry msgEntry) {
         try {
             log(Level.INFO, "Handling message Read Partial LoadProfile.");
@@ -248,6 +242,8 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             builder = (PartialLoadProfileMessageBuilder) builder.fromXml(msgEntry.getContent());
 
             LoadProfileReader lpr = builder.getLoadProfileReader();
+
+            lpr = checkLoadProfileReader(lpr, msgEntry);
             final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
             final List<ProfileData> profileData = this.protocol.getLoadProfileData(Arrays.asList(lpr));
 
@@ -272,6 +268,21 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             return MessageResult.createFailed(msgEntry, "Could not parse the content of the xml message, probably incorrect message.");
         } catch (IOException e) {
             return MessageResult.createFailed(msgEntry, "Failed while fetching the LoadProfile data.");
+        }
+    }
+
+    /**
+     * The Mbus Hourly gasProfile needs to change the B-field in the ObisCode to readout the correct profile. Herefor we use the serialNumber of the Message.
+     *
+     * @param lpr      the reader to change
+     * @param msgEntry the message which was triggered
+     * @return the addapted LoadProfileReader
+     */
+    private LoadProfileReader checkLoadProfileReader(final LoadProfileReader lpr, final MessageEntry msgEntry) {
+        if (lpr.getProfileObisCode().equalsIgnoreBChannel(ObisCode.fromString("0.x.24.3.0.255"))) {
+            return new LoadProfileReader(lpr.getProfileObisCode(), lpr.getStartReadingTime(), lpr.getEndReadingTime(), lpr.getLoadProfileId(), msgEntry.getSerialNumber(), lpr.getChannelInfos());
+        } else {
+            return lpr;
         }
     }
 
