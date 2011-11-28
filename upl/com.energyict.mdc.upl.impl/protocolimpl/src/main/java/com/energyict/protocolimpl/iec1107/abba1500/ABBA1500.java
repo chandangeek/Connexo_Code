@@ -1,42 +1,19 @@
 package com.energyict.protocolimpl.iec1107.abba1500;
 
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.*;
-import java.util.logging.Logger;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.NestedIOException;
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.cbo.*;
+import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimpl.base.DataDumpParser;
-import com.energyict.protocolimpl.base.DataParseException;
-import com.energyict.protocolimpl.base.DataParser;
-import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import com.energyict.protocolimpl.iec1107.ChannelMap;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
-import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.iec1107.*;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
+import com.energyict.protocolimpl.utils.ProtocolTools;
+
+import java.io.*;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * @version  1.0
@@ -632,6 +609,7 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
             if ("".compareTo(dateStr)==0) {
 				return null;
 			}
+            vts.setStrDateFormat(strDateFormat);
             vts.parse(dateStr);
             date = vts.getCalendar().getTime();
             return date;
@@ -645,33 +623,34 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
     private RegisterValue doTheReadRegister(ObisCode obisCode) throws IOException {
        try {
 
-          byte[] data = readRegisterData(obisCode);
+           byte[] data = readRegisterData(obisCode);
 
-          if (obisCode.equals(serialNumbObisCode)){
-        	  String text = parseText(data);
-        	  return new RegisterValue(obisCode,null,null,null,null,null,0,text);
-          }
+           if (obisCode.equals(serialNumbObisCode)) {
+               String text = parseText(data);
+               return new RegisterValue(obisCode, null, null, null, null, null, 0, text);
+           }
 
-          Quantity quantity = parseQuantity(data);
-          Date date = parseDate(data,1);
-          Date billlingDate = null;
+           Quantity quantity = parseQuantity(data);
+           Date date = parseDate(data, 1);
+           Date billlingDate = null;
+           RegisterValue registerValue;
 
-          // in case of unitless AND billing register
-          // find the non billing register and use that unit if the non billing register exist
-          // also find the timestamp for that billingpoint and add it to the registervalue
-          if ((quantity.getBaseUnit().getDlmsCode()==BaseUnit.UNITLESS) && (obisCode.getF() != 255)) {
+           // in case of unitless AND billing register
+           // find the non billing register and use that unit if the non billing register exist
+           // also find the timestamp for that billingpoint and add it to the registervalue
+           if (quantity.getBaseUnit().getDlmsCode() == BaseUnit.UNITLESS && obisCode.getF() != 255) {
+               registerValue = findRegisterValue(ProtocolTools.setObisCodeField(obisCode, 5, (byte) 255));
+               if (registerValue != null) {
+                   quantity = new Quantity(quantity.getAmount(), registerValue.getQuantity().getUnit());
+               }
 
-
-              RegisterValue registerValue =  findRegisterValue(new ObisCode(obisCode.getA(),obisCode.getB(),obisCode.getC(),obisCode.getD(),obisCode.getE(),255));
-              if (registerValue != null) {
-                  quantity = new Quantity(quantity.getAmount(),registerValue.getQuantity().getUnit());
-              }
-
-              registerValue =  findRegisterValue(new ObisCode(1,1,0,1,2,obisCode.getF()));
-              if (registerValue != null) {
-                  billlingDate = registerValue.getToTime();
-              }
-          }
+           }
+           if (obisCode.getF() != 255) {
+               registerValue = findRegisterValue(new ObisCode(1, 1, 0, 1, 2, obisCode.getF()));
+               if (registerValue != null) {
+                   billlingDate = registerValue.getToTime();
+               }
+           }
 
           return new RegisterValue(obisCode,quantity,date,billlingDate);
        }

@@ -6,15 +6,15 @@
 
 package com.energyict.protocolimpl.iec1107.vdew;
 
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.TimeZone;
-
-import com.energyict.protocol.ProtocolUtils;
 /**
  *
  * @author  Koen
- * 
+ *
  * 02/11/2009	JME Parse two character years as follows:
  * 						year 00 -> 50 = 2000 -> 2050
  * 						year 51 -> 99 = 1951 -> 2099
@@ -26,6 +26,10 @@ public class VDEWTimeStamp {
 	static public final int MODE_UTCTIME=2;
 
 	private static final int MAXYEAR = 2050;
+    private static final String YEAR = "yy";
+    private static final String MONTH = "MM";
+    private static final String DAY = "dd";
+    private String strDateFormat = "yy/MM/dd";
 
 	int mode;
 	TimeZone timeZone;
@@ -35,7 +39,11 @@ public class VDEWTimeStamp {
 		this.timeZone=timeZone;
 	}
 
-	public void parse(String data) throws IOException {
+    public void setStrDateFormat(String strDateFormat) {
+        this.strDateFormat = strDateFormat;
+    }
+
+    public void parse(String data) throws IOException {
 		parse(data.getBytes());
 	}
 
@@ -71,11 +79,18 @@ public class VDEWTimeStamp {
 			offset = 1;
 		}
 
-		calendar.set(calendar.YEAR,(getYear1900_2000(ProtocolUtils.bcd2byte(datePart,offset))));
-		calendar.set(calendar.MONTH,(ProtocolUtils.bcd2byte(datePart,2+offset)-1));
-		calendar.set(calendar.DAY_OF_MONTH,ProtocolUtils.bcd2byte(datePart,4+offset));
+        int value1 = ProtocolUtils.bcd2byte(datePart, offset) & 0xFF;
+        int value2 = ProtocolUtils.bcd2byte(datePart, 2 + offset) & 0xFF;
+        int value3 = ProtocolUtils.bcd2byte(datePart, 4 + offset) & 0xFF;
+        int[] time = new int[]{value1, value2, value3};
 
+        int yearIndex = getDateIndex(YEAR);
+        int monthIndex = getDateIndex(MONTH);
+        int dayIndex = getDateIndex(DAY);
 
+        calendar.set(calendar.YEAR, (getYear1900_2000(time[yearIndex])));
+        calendar.set(calendar.MONTH, (time[monthIndex] - 1));
+        calendar.set(calendar.DAY_OF_MONTH, time[dayIndex]);
 		calendar.set(calendar.HOUR_OF_DAY,ProtocolUtils.bcd2byte(timePart,offset));
 		calendar.set(calendar.MINUTE,ProtocolUtils.bcd2byte(timePart,2+offset));
 		if ((timePart.length == 6) || (timePart.length == 7)) {
@@ -87,7 +102,13 @@ public class VDEWTimeStamp {
 	public void parse(byte[] data) throws IOException {
 		int offset=0;
 		TimeZone tz=getTimeZone();
-		if ((data.length == 10) || (data.length == 12)) {
+
+        if (data.length == 6) {
+            parse(data, "000000".getBytes());
+            return;
+        }
+
+        if ((data.length == 10) || (data.length == 12)) {
 			offset = 0;
 		}
 		if ((data.length == 11) || (data.length == 13)) {
@@ -101,18 +122,38 @@ public class VDEWTimeStamp {
 			}
 		}
 
-		calendar = ProtocolUtils.getCleanCalendar(tz);
-		calendar.set(calendar.YEAR,(getYear1900_2000(ProtocolUtils.bcd2byte(data,offset))));
-		calendar.set(calendar.MONTH,(ProtocolUtils.bcd2byte(data,2+offset)-1));
-		calendar.set(calendar.DAY_OF_MONTH,ProtocolUtils.bcd2byte(data,4+offset));
-		calendar.set(calendar.HOUR_OF_DAY,ProtocolUtils.bcd2byte(data,6+offset));
-		calendar.set(calendar.MINUTE,ProtocolUtils.bcd2byte(data,8+offset));
-		if ((data.length == 12) || (data.length == 13)) {
-			calendar.set(calendar.SECOND,ProtocolUtils.bcd2byte(data,10+offset));
-		}
-	}
+        int value1 = ProtocolUtils.bcd2byte(data, offset) & 0xFF;
+        int value2 = ProtocolUtils.bcd2byte(data, 2 + offset) & 0xFF;
+        int value3 = ProtocolUtils.bcd2byte(data, 4 + offset) & 0xFF;
+        int[] time = new int[] {value1, value2, value3};
 
-	/**
+        int yearIndex = getDateIndex(YEAR);
+        int monthIndex = getDateIndex(MONTH);
+        int dayIndex = getDateIndex(DAY);
+
+        calendar = ProtocolUtils.getCleanCalendar(tz);
+        calendar.set(calendar.YEAR, (getYear1900_2000(time[yearIndex])));
+        calendar.set(calendar.MONTH, (time[monthIndex] - 1));
+        calendar.set(calendar.DAY_OF_MONTH, time[dayIndex]);
+        calendar.set(calendar.HOUR_OF_DAY, ProtocolUtils.bcd2byte(data, 6 + offset));
+        calendar.set(calendar.MINUTE, ProtocolUtils.bcd2byte(data, 8 + offset));
+        if ((data.length == 12) || (data.length == 13)) {
+            calendar.set(calendar.SECOND, ProtocolUtils.bcd2byte(data, 10 + offset));
+        }
+    }
+
+    private int getDateIndex(String datePart) {
+        String[] parts = strDateFormat.split("/");
+        for (int i = 0; i < parts.length; i++) {
+            String part = parts[i];
+            if (part.equalsIgnoreCase(datePart)) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
+    /**
 	 * Getter for property mode.
 	 * @return Value of property mode.
 	 */
@@ -166,7 +207,7 @@ public class VDEWTimeStamp {
 	 * Parse two character years as follows:
 	 * 		year 00 -> 50 = 2000 -> 2050
 	 * 		year 51 -> 99 = 1951 -> 2099
-	 * 
+	 *
 	 * @param year
 	 * @return The correct year in the range of 1951 - 2050
 	 */
