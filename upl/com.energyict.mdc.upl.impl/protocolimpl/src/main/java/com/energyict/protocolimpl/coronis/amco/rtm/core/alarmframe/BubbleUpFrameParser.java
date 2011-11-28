@@ -51,6 +51,10 @@ public class BubbleUpFrameParser {
         List<ProfileData> profileDatas = new ArrayList<ProfileData>();
         ExtendedDataloggingTable table = new ExtendedDataloggingTable(rtm);
 
+        List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
+        registerValues.addAll(getGenericHeaderRegisters(rtm, data, radioAddress));
+        result.setRegisterValues(registerValues);
+
         try {
             table.parseBubbleUpData(data, radioAddress);
             List<List<Integer[]>> rawValues = table.getProfileDataForAllPorts();
@@ -73,11 +77,6 @@ public class BubbleUpFrameParser {
         } catch (WaveFlowException e) {
             //No profile data available, skip
         }
-
-        List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
-        registerValues.addAll(getGenericHeaderRegisters(rtm, data, radioAddress));
-
-        result.setRegisterValues(registerValues);
         return result;
     }
 
