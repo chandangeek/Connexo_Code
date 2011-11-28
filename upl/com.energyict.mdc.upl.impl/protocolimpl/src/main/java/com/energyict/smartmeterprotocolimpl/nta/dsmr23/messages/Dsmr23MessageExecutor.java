@@ -223,10 +223,6 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                 }
             }
 
-//            if(mrd.getRegisterValues().size() != pd.getNumberOfChannels()){
-//                return MessageResult.createFailed(msgEntry, "Did not receive a LoadProfile interval for all required channels, probably RtuRegisterMappings not correct.");
-//            }
-
             MeterData md = new MeterData();
             md.setMeterReadingData(mrd);
 

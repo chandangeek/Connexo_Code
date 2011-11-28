@@ -2,7 +2,6 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.Environment;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
@@ -315,7 +314,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
             final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
             final List<ProfileData> profileData = this.protocol.getLoadProfileData(Arrays.asList(lpr));
 
-            if(profileData.size() == 0){
+            if (profileData.size() == 0) {
                 return MessageResult.createFailed(msgEntry, "LoadProfile returned no data.");
             } else {
                 for (ProfileData data : profileData) {
@@ -339,8 +338,15 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         }
     }
 
+    /**
+     * The Mbus Hourly gasProfile needs to change the B-field in the ObisCode to readout the correct profile. Herefor we use the serialNumber of the Message.
+     *
+     * @param lpr      the reader to change
+     * @param msgEntry the message which was triggered
+     * @return the addapted LoadProfileReader
+     */
     private LoadProfileReader checkLoadProfileReader(final LoadProfileReader lpr, final MessageEntry msgEntry) {
-        if(lpr.getProfileObisCode().equalsIgnoreBChannel(ObisCode.fromString("0.x.24.3.0.255"))){
+        if (lpr.getProfileObisCode().equalsIgnoreBChannel(ObisCode.fromString("0.x.24.3.0.255"))) {
             return new LoadProfileReader(lpr.getProfileObisCode(), lpr.getStartReadingTime(), lpr.getEndReadingTime(), lpr.getLoadProfileId(), msgEntry.getSerialNumber(), lpr.getChannelInfos());
         } else {
             return lpr;
