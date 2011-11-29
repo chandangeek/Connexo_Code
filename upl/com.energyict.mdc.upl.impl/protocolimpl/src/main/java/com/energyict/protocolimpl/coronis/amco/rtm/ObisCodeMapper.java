@@ -190,6 +190,7 @@ public class ObisCodeMapper {
                 return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, description);
             } else if (isCurrentIndexReading(obisCode)) {
                 int port = obisCode.getB();
+                CurrentRegisterReading currentRegister = rtm.getRadioCommandFactory().readCurrentRegister();
                 if (rtm.getParameterFactory().readProfileType().isEvoHop()) {
                     rtm.getLogger().log(Level.WARNING, "Reading of current indexes is not supported by the EvoHop module");
                     throw new NoSuchRegisterException("Reading of current indexes is not supported by the EvoHop module");
@@ -198,7 +199,6 @@ public class ObisCodeMapper {
                     rtm.getLogger().log(Level.WARNING, "Port " + port + " is not supported by the module");
                     throw new NoSuchRegisterException("Port " + port + " is not supported by the module");
                 }
-                CurrentRegisterReading currentRegister = rtm.getRadioCommandFactory().readCurrentRegister();
                 if (Integer.MAX_VALUE == currentRegister.getCurrentReading(port)) {
                     rtm.getLogger().log(Level.WARNING, "No index logged yet for port " + port);
                     throw new NoSuchRegisterException("No index logged yet for port " + port);      //Indicated by value 0x7FFFFFFF

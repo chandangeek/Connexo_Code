@@ -44,7 +44,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     }
 
     public boolean usesInitialRFCommand() {
-        return initialRFCommand == 0x07;
+        return initialRFCommand == 0x07 ||initialRFCommand == 0x01;
     }
 
     public ParameterFactory getParameterFactory() {
@@ -77,6 +77,9 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
         if (getInitialRFCommand() == 0x07) {
             getRadioCommandFactory().readExtendedDataloggingTable(((int) Math.pow(2, super.getNumberOfChannels())) - 1, 24 / super.getNumberOfChannels());
         }
+        if (getInitialRFCommand() == 0x01) {
+            getRadioCommandFactory().readCurrentRegister();
+    }
     }
 
     public int getNumberOfChannels() throws IOException {
