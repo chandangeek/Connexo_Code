@@ -38,8 +38,6 @@ public class MeterTopology implements MasterMeter {
 
     private final AbstractSmartNtaProtocol protocol;
 
-    private List<DeviceMapping> ghostMbusDevices = new ArrayList<DeviceMapping>();    // GhostMbusDevices are Mbus meters that are connected with their gateway in EIServer, but not on the physical device anymore
-
     /**
      * The <CODE>ComposedCosemObject</CODE> for requesting all serialNumbers in 1 request
      */
@@ -100,13 +98,13 @@ public class MeterTopology implements MasterMeter {
         // get an MbusDeviceMap
         this.mbusMap = getMbusMapper();
 
-        try {
-            // check if the current mbus slaves are still on the meter disappeared
-            checkForDisappearedMbusMeters(mbusMap);
-            // check if all the mbus devices are configured in EIServer
-            checkToUpdateMbusMeters(mbusMap);
-        } finally {
-            ProtocolTools.closeConnection();
+        if(this.mbusMap.size() > 0){
+            try {
+                // check if all the mbus devices are configured in EIServer
+                checkToUpdateMbusMeters(mbusMap);
+            } finally {
+                ProtocolTools.closeConnection();
+            }
         }
 
         StringBuilder sb = new StringBuilder();
@@ -218,42 +216,6 @@ public class MeterTopology implements MasterMeter {
     }
 
     /**
-     * Check if the devices configured in EIServer are still configured on the physical device
-     *
-     * @param mbusDeviceMappings the list of Mbus DeviceMappings
-     */
-    private void checkForDisappearedMbusMeters(List<DeviceMapping> mbusDeviceMappings) {
-
-        Rtu rtu = getRtuFromDatabaseBySerialNumber();
-
-        List<Rtu> mbusSlaves = rtu.getDownstreamRtus();
-
-        for (Rtu mbusSlave : mbusSlaves) {
-            Class device;
-            try {
-                device = Class.forName(mbusSlave.getRtuType().getShadow().getCommunicationProtocolShadow().getJavaClassName());
-                if ((device != null) && (device.newInstance() instanceof AbstractNtaMbusDevice)) {
-                    for (DeviceMapping deviceMapping : mbusDeviceMappings) {
-                        if (deviceMapping.getSerialNumber().equalsIgnoreCase(mbusSlave.getSerialNumber())) {
-                            log(Level.INFO, "MbusDevice " + mbusSlave.getSerialNumber() + " is not installed on the physical device.");
-                            ghostMbusDevices.add(deviceMapping);
-                        }
-                    }
-                }
-            } catch (ClassNotFoundException e) {
-                log(Level.FINE, e.getMessage());
-                // should never come here because if the rtuType has the className, then you should be able to create a class for it...
-            } catch (InstantiationException e) {
-                log(Level.FINEST, e.getMessage());
-                log(Level.INFO, "Could not check if the mbusDevice " + mbusSlave.getSerialNumber() + " exists.");
-            } catch (IllegalAccessException e) {
-                log(Level.FINEST, e.getMessage());
-                log(Level.INFO, "Could not check if the mbusDevice " + mbusSlave.getSerialNumber() + " exists.");
-            }
-        }
-    }
-
-    /**
      * Check the ghostMbusDevices and create the mbusDevices.
      * Also check if the zombie MBus device is in the list (@@@0000000000000), this should be ignored as wel.
      *
@@ -262,7 +224,7 @@ public class MeterTopology implements MasterMeter {
     private void checkToUpdateMbusMeters(List<DeviceMapping> mbusDeviceMap) {
 
         for (DeviceMapping deviceMapping : mbusDeviceMap) {
-            if (!ghostMbusDevices.contains(deviceMapping) && !ignoreZombieMbusDevice.equals(deviceMapping.getSerialNumber())) {
+            if (!ignoreZombieMbusDevice.equals(deviceMapping.getSerialNumber())) {
                 try {
                     findOrCreateMbusDevice(deviceMapping.getSerialNumber());
                 } catch (SQLException e) {
