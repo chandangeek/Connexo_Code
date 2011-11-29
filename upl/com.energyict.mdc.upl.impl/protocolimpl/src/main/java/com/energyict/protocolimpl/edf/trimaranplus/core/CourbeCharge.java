@@ -10,28 +10,12 @@
 
 package com.energyict.protocolimpl.edf.trimaranplus.core;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TimeZone;
-
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.IntervalValue;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.MagicNumberConstants;
+
+import java.io.*;
+import java.util.*;
 
 /**
  *
@@ -52,7 +36,7 @@ public class CourbeCharge {
     private TrimaranObjectFactory trimaranObjectFactory;
     private List elements;
     
-    private Date now;
+    public Date now;
     private ProfileData profileData=null;
     private int elementId,previousElementId;
     private long currentMillis;
@@ -63,7 +47,8 @@ public class CourbeCharge {
      * loop over a decennium.
      */
     private int[] decenniumYears = new int[10];
-    
+    private boolean once = false;
+
     /** Creates a new instance of CourbeCharge */
     public CourbeCharge(TrimaranObjectFactory trimaranObjectFactory) {
     	this.trimaranObjectFactory = trimaranObjectFactory;
@@ -236,7 +221,7 @@ public class CourbeCharge {
     } // public void collect(int range) throws IOException
     
     
-    private void addValues(int[] values) throws IOException {
+    protected void addValues(int[] values) throws IOException {
         List temp = new ArrayList();
         for (int i = 0; i< values.length; i++) {
             temp.add(new Integer(values[i]));   
@@ -313,6 +298,10 @@ public class CourbeCharge {
 					System.out.println(debugStartString + +i+", val="+val);
 				}
                 if (cal != null) {
+                    if (isDSTGreyZone(intervalDatas)) {
+                        cal.add(Calendar.SECOND, 3600);
+                    }
+
                     cal.add(Calendar.SECOND,getProfileInterval());
                     currentElement=elementPuissance;
                     state = statePuissance;
@@ -332,6 +321,10 @@ public class CourbeCharge {
 					System.out.println(debugStartString +i+", shortlong, val="+val);
 				}
                 if (cal != null) {
+                    if (isDSTGreyZone(intervalDatas)) {
+                        cal.add(Calendar.SECOND, 3600);
+                    }
+
                     cal.add(Calendar.SECOND,getProfileInterval());
                     currentElement=elementPuissanceTronque;
                     state = statePuissance;
@@ -384,10 +377,16 @@ public class CourbeCharge {
                 int minutes = (val & 0x000F)*(getProfileInterval()/MagicNumberConstants.sixty.getValue());
                 //if (((previousElement == ELEMENT_BEGIN) || (previousElement == ELEMENT_DATATION_DATE)) && (cal != null)) {
                 if (cal != null) {
-                    cal.set(Calendar.HOUR_OF_DAY,hour);
-                    cal.set(Calendar.MINUTE,minutes);
+                    long temp = cal.get(Calendar.HOUR_OF_DAY) * 3600 + cal.get(Calendar.MINUTE) * 60 + cal.get(Calendar.SECOND);
+                    long temp2 = hour * 3600 + minutes * 60;
+                    if (temp != temp2) {
+                        cal.set(Calendar.HOUR_OF_DAY, 0);
+                        cal.set(Calendar.MINUTE, 0);
+                        cal.add(Calendar.HOUR_OF_DAY, hour);
+                        cal.add(Calendar.MINUTE, minutes);
+                    }
                 }
-                
+
                 if (debug>=2) {
 					System.out.println(debugStartString +i+", type=0x"+Integer.toHexString(type)+", cal="+(cal!=null?""+cal.getTime():"no start calendar"));
 				}
@@ -602,6 +601,26 @@ public class CourbeCharge {
         
     } // public void doParse() throws IOException
     
+    private boolean isDSTGreyZone(List intervalDatas) {
+        int index1 = intervalDatas.size() - 1;
+        int index2 = intervalDatas.size() - 2;
+        if (index1 < 0 || index2 < 0) {
+            return false;
+        }
+
+        IntervalData intervalDataNew = (IntervalData) (intervalDatas.get(index1));
+        IntervalData intervalDataOld = (IntervalData) (intervalDatas.get(index2));
+
+        boolean newDst = getTimeZone().inDaylightTime(intervalDataNew.getEndTime());
+        boolean oldDst = getTimeZone().inDaylightTime(intervalDataOld.getEndTime());
+
+        boolean result = (oldDst) && (!newDst);
+        if (result && !once) {
+            once = true;
+            return result;
+        }
+        return result && !once;           //True when new interval is no longer in DST
+    }
 
     public List getElements() {
         return elements;
