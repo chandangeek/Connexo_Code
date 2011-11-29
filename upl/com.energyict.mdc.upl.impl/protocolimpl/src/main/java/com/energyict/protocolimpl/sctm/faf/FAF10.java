@@ -48,6 +48,7 @@ public class FAF10 extends Metcom3FAF implements RegisterProtocol {
         result.add("LogBookReadCommand");
         result.add("ForcedDelay");
         result.add("TimeSetMethod");
+        result.add("Software7E1");
         return result;
     }    
     

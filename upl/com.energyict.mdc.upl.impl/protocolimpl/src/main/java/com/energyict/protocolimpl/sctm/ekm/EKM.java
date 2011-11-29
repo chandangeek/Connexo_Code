@@ -56,6 +56,7 @@ public class EKM extends Metcom2 implements RegisterProtocol {
         result.add("IntervalStatusBehaviour");
         result.add("AutoBillingPointNrOfDigits");
         result.add("TimeSetMethod");
+        result.add("Software7E1");
         return result;
     }
     

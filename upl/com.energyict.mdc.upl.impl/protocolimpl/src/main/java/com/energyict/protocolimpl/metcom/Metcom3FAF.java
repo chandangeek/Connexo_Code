@@ -21,7 +21,7 @@ import com.energyict.cbo.*;
  */
 public class Metcom3FAF extends Metcom3 {
     
-    private static final int DEBUG = 2;
+    private static final int DEBUG = 0;
     //protected final String[] REG_NR_OF_CHANNELS8={"62300","63300"}; Can be used but i prefer the channelmap entry for nr of channels with the buffer id
     //protected final String[] REG_NR_OF_CHANNELS16={"62308","63308"}; Can be used but i prefer the channelmap entry for nr of channels with the buffer id
     protected final String REG_PROFILEINTERVAL="70300";

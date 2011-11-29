@@ -56,6 +56,7 @@ public class FCL extends Metcom3FCL implements RegisterProtocol {
         result.add("LogBookReadCommand");
         result.add("ForcedDelay");
         result.add("TimeSetMethod");
+        result.add("Software7E1");
         return result;
     }    
     /*******************************************************************************************

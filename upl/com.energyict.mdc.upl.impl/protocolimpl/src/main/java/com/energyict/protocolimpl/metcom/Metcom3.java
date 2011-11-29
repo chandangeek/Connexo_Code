@@ -133,12 +133,13 @@ public class Metcom3 extends Metcom {
         result.add("RemovePowerOutageIntervals");
         result.add("LogBookReadCommand");
         result.add("TimeSetMethod");
+        result.add("Software7E1");
         return result;
     }
       
     
     public String getProtocolVersion() {
-        return "$Revision: 1.22 $";
+        return "$Date$";
     }
     
     public String getRegistersInfo(int extendedLogging) throws IOException {

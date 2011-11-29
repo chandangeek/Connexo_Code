@@ -59,6 +59,7 @@ public class MTT3A extends Metcom3 implements RegisterProtocol {
         result.add("ForcedDelay");
         result.add("AutoBillingPointNrOfDigits");
         result.add("TimeSetMethod");
+        result.add("Software7E1");
         return result;
     }
     

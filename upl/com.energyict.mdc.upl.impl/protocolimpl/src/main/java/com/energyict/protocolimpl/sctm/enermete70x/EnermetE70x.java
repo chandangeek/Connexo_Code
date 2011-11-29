@@ -56,6 +56,7 @@ public class EnermetE70x extends Metcom2 implements RegisterProtocol {
         result.add("LogBookReadCommand");
         result.add("ForcedDelay");
         result.add("TimeSetMethod");
+        result.add("Software7E1");
         return result;
     }
     

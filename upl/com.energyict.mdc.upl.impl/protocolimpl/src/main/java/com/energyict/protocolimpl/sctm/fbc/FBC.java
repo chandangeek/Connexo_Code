@@ -43,8 +43,7 @@ public class FBC extends Metcom3FBC implements RegisterProtocol {
         return "$Date$";
     }    
     
-    
-    public List getOptionalKeys() { 
+    public List getOptionalKeys() {
         List result = new ArrayList(); 
         result.add("Timeout");
         result.add("Retries");
@@ -55,6 +54,7 @@ public class FBC extends Metcom3FBC implements RegisterProtocol {
         result.add("LogBookReadCommand");
         result.add("ForcedDelay");
         result.add("TimeSetMethod");
+        result.add("Software7E1");
         return result;
     }        
     
@@ -77,4 +77,5 @@ public class FBC extends Metcom3FBC implements RegisterProtocol {
     }   
 
     
+
 }

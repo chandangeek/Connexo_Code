@@ -6,6 +6,8 @@
 
 package com.energyict.protocolimpl.metcom;
 
+import com.energyict.protocolimpl.iec1107.Software7E1InputStream;
+import com.energyict.protocolimpl.iec1107.Software7E1OutputStream;
 import com.energyict.protocolimpl.siemens7ED62.*;
 import java.io.*;
 import java.util.*;
@@ -67,7 +69,8 @@ abstract public class Metcom implements MeterProtocol, HalfDuplexEnabler {
     private int forcedDelay;
     private int intervalStatusBehaviour;
     private int maxDelay = 30;
-    
+    private boolean software7E1 = false;
+
     //SCTMDumpData dumpData=null;
     List dumpDatas=null; // of type SCTMDumpData
     private int autoBillingPointNrOfDigits;
@@ -461,6 +464,9 @@ abstract public class Metcom implements MeterProtocol, HalfDuplexEnabler {
             setAutoBillingPointNrOfDigits(Integer.parseInt(properties.getProperty("AutoBillingPointNrOfDigits","1")));  
             
             timeSetMethod = Integer.parseInt(properties.getProperty("TimeSetMethod","0").trim());
+
+            software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+
         }
         catch (NumberFormatException e) {
            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());    
@@ -483,7 +489,17 @@ abstract public class Metcom implements MeterProtocol, HalfDuplexEnabler {
         
         try {
             // KV 16022004 STA changed from 0x6X to 0x3X
-            siemensSCTM=new SiemensSCTM(inputStream,outputStream,iSCTMTimeoutProperty,iProtocolRetriesProperty,strPassword,nodeId,iEchoCancelling,halfDuplex != 0 ? halfDuplexController:null,forcedDelay);
+            siemensSCTM = new SiemensSCTM(
+                    isSoftware7E1() ? new Software7E1InputStream(inputStream) : inputStream,
+                    isSoftware7E1() ? new Software7E1OutputStream(outputStream) : outputStream,
+                    iSCTMTimeoutProperty,
+                    iProtocolRetriesProperty,
+                    strPassword,
+                    nodeId,
+                    iEchoCancelling,
+                    halfDuplex != 0 ? halfDuplexController : null,
+                    forcedDelay
+            );
         }
         catch(SiemensSCTMException e) {
            logger.severe ("SiemensSCTM: init(...), "+e.getMessage());
@@ -602,6 +618,10 @@ abstract public class Metcom implements MeterProtocol, HalfDuplexEnabler {
 		return TESTING;
 	}
  
+    public boolean isSoftware7E1() {
+        return software7E1;
+    }
+
 	public static void main(String args[]){
 //		30	30	32	30	30	35	36	37	30	31	37	30	2	30	38	30	39	30	39	20	32	31	34	31	35	31	39	3	10
 		byte[] b = {0x30	,0x38	,0x30	,0x39	,0x31	,0x30	,0x20	,0x33	,0x31	,0x34	,0x33	,0x35	,0x35	,0x35};
