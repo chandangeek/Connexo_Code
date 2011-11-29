@@ -6,21 +6,17 @@
 
 package com.energyict.protocolimpl.sctm.ekm;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.util.Date;
-import java.util.TimeZone;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.siemens7ED62.SCTMDumpData;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.util.*;
 /**
  *
  * @author  Koen
@@ -48,6 +44,25 @@ public class ObisCodeMapper {
         return (RegisterValue)doGetRegister(obisCode,true);
     }
     
+    public Date getBillingPointTimestamp(String register, int billingPoint) throws IOException {
+        try {
+            return getBillingPointTimestamp(register);
+        } catch (NoSuchRegisterException e) {
+            return getMonthlyBillingTimeStamp(billingPoint);        //Return a monthly billing timestamp if it was not found in the data dump
+        }
+    }
+
+    public Date getMonthlyBillingTimeStamp(int billingPoint) {
+        Calendar calendar = Calendar.getInstance(timeZone);
+        calendar.add(Calendar.MONTH,(-1)*billingPoint);
+        calendar.set(Calendar.DAY_OF_MONTH,1);
+        calendar.set(Calendar.HOUR_OF_DAY,0);
+        calendar.set(Calendar.MINUTE,0);
+        calendar.set(Calendar.SECOND,0);
+        calendar.set(Calendar.MILLISECOND,0);
+        return calendar.getTime();
+    }
+
     /**
      * Fetch the BillingPoint timeStamp.
      * 
@@ -138,7 +153,7 @@ public class ObisCodeMapper {
                     }
                     billingDate = dump.getRegisterDateTime(strReg, timeZone);
                     if(billingDate == null){
-                    	billingDate = getBillingPointTimestamp(strReg); 
+                    	billingDate = getBillingPointTimestamp(strReg, billingPoint);
                     }
                 }
                 
