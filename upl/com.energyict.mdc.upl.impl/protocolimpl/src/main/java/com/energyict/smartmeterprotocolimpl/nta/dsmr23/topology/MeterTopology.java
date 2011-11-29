@@ -1,19 +1,25 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology;
 
+import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.Utils;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.mdw.core.*;
+import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
+import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23Properties;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMbusSerialNumber;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -27,10 +33,12 @@ public class MeterTopology implements MasterMeter {
 
     private static final ObisCode MbusClientObisCode = ObisCode.fromString("0.0.24.1.0.255");
     private static final int ObisCodeBFieldIndex = 1;
-
     public static final int MaxMbusDevices = 4;
+    private static String ignoreZombieMbusDevice = "@@@0000000000000";
 
     private final AbstractSmartNtaProtocol protocol;
+
+    private List<DeviceMapping> ghostMbusDevices = new ArrayList<DeviceMapping>();    // GhostMbusDevices are Mbus meters that are connected with their gateway in EIServer, but not on the physical device anymore
 
     /**
      * The <CODE>ComposedCosemObject</CODE> for requesting all serialNumbers in 1 request
@@ -46,6 +54,8 @@ public class MeterTopology implements MasterMeter {
      * A list of MbusMeter <CODE>DeviceMappings</CODE>
      */
     private List<DeviceMapping> mbusMap = new ArrayList<DeviceMapping>();
+
+    private Rtu rtu;
 
     public MeterTopology(final AbstractSmartNtaProtocol protocol) {
         this.protocol = protocol;
@@ -86,22 +96,25 @@ public class MeterTopology implements MasterMeter {
     }
 
     private void discoverMbusDevices() throws ConnectionException {
-        this.protocol.getLogger().log(Level.FINE, "Starting discovery of MBusDevices");
+        log(Level.FINE, "Starting discovery of MBusDevices");
         // get an MbusDeviceMap
         this.mbusMap = getMbusMapper();
 
-        //TODO check if we can still check this !
-//        // check if the current mbus slaves are still on the meter disappeared
-//        checkForDisappearedMbusMeters(mbusMap);
-//        // check if all the mbus devices are configured in EIServer
-//        checkToUpdateMbusMeters(mbusMap);
+        try {
+            // check if the current mbus slaves are still on the meter disappeared
+            checkForDisappearedMbusMeters(mbusMap);
+            // check if all the mbus devices are configured in EIServer
+            checkToUpdateMbusMeters(mbusMap);
+        } finally {
+            ProtocolTools.closeConnection();
+        }
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("Found ").append(this.mbusMap.size()).append(" MBus devices: ").append("\r\n");
         for (DeviceMapping deviceMapping : this.mbusMap) {
             sb.append(deviceMapping).append("\r\n");
         }
-        this.protocol.getLogger().log(Level.INFO, sb.toString());
+        log(Level.INFO, sb.toString());
     }
 
     /**
@@ -119,10 +132,10 @@ public class MeterTopology implements MasterMeter {
             ObisCode serialObisCode = ProtocolTools.setObisCodeField(MbusClientObisCode, ObisCodeBFieldIndex, (byte) i);
             if (this.protocol.getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
                 try {
-                    Unsigned16 manufacturer = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i-1).getManufacturerId()).getUnsigned16();
-                    Unsigned32 identification = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i-1).getIdentificationNumber()).getUnsigned32();
-                    Unsigned8 version = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i-1).getVersion()).getUnsigned8();
-                    Unsigned8 deviceType = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i-1).getDeviceType()).getUnsigned8();
+                    Unsigned16 manufacturer = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getManufacturerId()).getUnsigned16();
+                    Unsigned32 identification = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getIdentificationNumber()).getUnsigned32();
+                    Unsigned8 version = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getVersion()).getUnsigned8();
+                    Unsigned8 deviceType = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getDeviceType()).getUnsigned8();
                     mbusSerial = constructShortId(manufacturer, identification, version, deviceType);
                     if ((mbusSerial != null) && (!mbusSerial.equalsIgnoreCase(""))) {
                         mbusMap.add(new DeviceMapping(mbusSerial, i));
@@ -153,7 +166,7 @@ public class MeterTopology implements MasterMeter {
         strBuilder.append((char) (((manufacturer.getValue() & 0x03E0) / 32) + 64));
         strBuilder.append((char) ((manufacturer.getValue() & 0x001F) + 64));
 
-        strBuilder.append(String.format((((Dsmr23Properties)this.protocol.getProperties()).getFixMbusHexShortId()) ? "%08d" : "%08x", identification.getValue()));    // 8 Hex digits with leading zeros
+        strBuilder.append(String.format((((Dsmr23Properties) this.protocol.getProperties()).getFixMbusHexShortId()) ? "%08d" : "%08x", identification.getValue()));    // 8 Hex digits with leading zeros
         strBuilder.append(String.format("%03d", version.getValue()));            // 3 Dec digits with leading zeros
         strBuilder.append(String.format("%02d", deviceType.getValue()));        // 2 Dec digits with leading zeros
 
@@ -201,7 +214,164 @@ public class MeterTopology implements MasterMeter {
                 return dm.getSerialNumber();
             }
         }
-
         return "";
+    }
+
+    /**
+     * Check if the devices configured in EIServer are still configured on the physical device
+     *
+     * @param mbusDeviceMappings the list of Mbus DeviceMappings
+     */
+    private void checkForDisappearedMbusMeters(List<DeviceMapping> mbusDeviceMappings) {
+
+        Rtu rtu = getRtuFromDatabaseBySerialNumber();
+
+        List<Rtu> mbusSlaves = rtu.getDownstreamRtus();
+
+        for (Rtu mbusSlave : mbusSlaves) {
+            Class device;
+            try {
+                device = Class.forName(mbusSlave.getRtuType().getShadow().getCommunicationProtocolShadow().getJavaClassName());
+                if ((device != null) && (device.newInstance() instanceof AbstractNtaMbusDevice)) {
+                    for (DeviceMapping deviceMapping : mbusDeviceMappings) {
+                        if (deviceMapping.getSerialNumber().equalsIgnoreCase(mbusSlave.getSerialNumber())) {
+                            log(Level.INFO, "MbusDevice " + mbusSlave.getSerialNumber() + " is not installed on the physical device.");
+                            ghostMbusDevices.add(deviceMapping);
+                        }
+                    }
+                }
+            } catch (ClassNotFoundException e) {
+                log(Level.FINE, e.getMessage());
+                // should never come here because if the rtuType has the className, then you should be able to create a class for it...
+            } catch (InstantiationException e) {
+                log(Level.FINEST, e.getMessage());
+                log(Level.INFO, "Could not check if the mbusDevice " + mbusSlave.getSerialNumber() + " exists.");
+            } catch (IllegalAccessException e) {
+                log(Level.FINEST, e.getMessage());
+                log(Level.INFO, "Could not check if the mbusDevice " + mbusSlave.getSerialNumber() + " exists.");
+            }
+        }
+    }
+
+    /**
+     * Check the ghostMbusDevices and create the mbusDevices.
+     * Also check if the zombie MBus device is in the list (@@@0000000000000), this should be ignored as wel.
+     *
+     * @param mbusDeviceMap a List of Mbus DeviceMappings
+     */
+    private void checkToUpdateMbusMeters(List<DeviceMapping> mbusDeviceMap) {
+
+        for (DeviceMapping deviceMapping : mbusDeviceMap) {
+            if (!ghostMbusDevices.contains(deviceMapping) && !ignoreZombieMbusDevice.equals(deviceMapping.getSerialNumber())) {
+                try {
+                    findOrCreateMbusDevice(deviceMapping.getSerialNumber());
+                } catch (SQLException e) {
+                    log(Level.SEVERE, "Could not create MbusDevice - " + e.getMessage());
+                } catch (BusinessException e) {
+                    log(Level.SEVERE, "Could not create MbusDevice - " + e.getMessage());
+                }
+            }
+        }
+    }
+
+    /**
+     * Find or create the MbusDevice based on his serialNumber
+     *
+     * @param serialNumber the serialnumber of the MbusDevice
+     * @return the requested Mbus Rtu
+     * @throws SQLException      if a database error occurs
+     * @throws BusinessException when a business related error occurs
+     */
+    private Rtu findOrCreateMbusDevice(String serialNumber) throws SQLException, BusinessException {
+        List<Rtu> mbusList = ProtocolTools.mw().getRtuFactory().findBySerialNumber(serialNumber);
+        if (mbusList.size() == 1) {
+            Rtu mbusRtu = mbusList.get(0);
+            // Check if gateway has changed, and update if it has
+            if ((mbusRtu.getGateway() == null) || (mbusRtu.getGateway().getId() != getRtuFromDatabaseBySerialNumber().getId())) {
+                mbusRtu.updateGateway(getRtuFromDatabaseBySerialNumber());
+            }
+            return mbusRtu;
+        } else if (mbusList.size() > 1) {
+            log(Level.SEVERE, "Multiple meters where found with serial: " + serialNumber + ". Meter will not be handled.");
+            return null;
+        }
+
+        RtuType rtuType = getRtuType();
+        if (rtuType == null) {
+            return null;
+        } else {
+            return createMeter(rtuType, serialNumber);
+        }
+    }
+
+    /**
+     * Create a new Rtu based on the given RtuType and SerialNumber
+     *
+     * @param rtuType      the RtuType to create a new mete from
+     * @param serialNumber the name/serialnumber to give to the new Rtu
+     * @return the new Rtu
+     * @throws SQLException      when a database exception occurs
+     * @throws BusinessException when a business related error occurs
+     */
+    private Rtu createMeter(RtuType rtuType, String serialNumber) throws SQLException, BusinessException {
+        RtuShadow shadow = rtuType.newRtuShadow();
+
+        shadow.setName(serialNumber);
+        shadow.setSerialNumber(serialNumber);
+
+        String folderExtName = (String) this.protocol.getProperties().getProtocolProperties().get("FolderExtName");
+        if (folderExtName != null) {
+            Folder result = ProtocolTools.mw().getFolderFactory().findByExternalName(folderExtName);
+            if (result != null) {
+                shadow.setFolderId(result.getId());
+            } else {
+                log(Level.INFO, "No folder found with external name: " + folderExtName + ", new meter will be placed in prototype folder.");
+            }
+        } else {
+            log(Level.INFO, "New meter will be placed in prototype folder.");
+        }
+
+        shadow.setGatewayId(getRtuFromDatabaseBySerialNumber().getId());
+        return ProtocolTools.mw().getRtuFactory().create(shadow);
+    }
+
+    /**
+     * Create an RtuType based on the custom property RtuType
+     *
+     * @return the requested RtuType
+     */
+    private RtuType getRtuType() {
+        String type = (String) this.protocol.getProperties().getProtocolProperties().get("RtuType");
+        if (Utils.isNull(type)) {
+            log(Level.WARNING, "No automatic meter creation: no property RtuType defined.");
+            return null;
+        } else {
+            RtuType rtuType = ProtocolTools.mw().getRtuTypeFactory().find(type);
+            if (rtuType == null) {
+                log(Level.INFO, "No rtutype defined with name '" + type + "'");
+                return null;
+            } else if (rtuType.getPrototypeRtu() == null) {
+                log(Level.INFO, "Rtutype '" + type + "' has not prototype rtu");
+                return null;
+            }
+            return rtuType;
+        }
+    }
+
+    /**
+     * Get the Rtu from the Database based on his SerialNumber
+     *
+     * @return the Rtu
+     */
+    private Rtu getRtuFromDatabaseBySerialNumber() {
+        if (rtu == null) {
+            String serial = this.protocol.getSerialNumber();
+            this.rtu = ProtocolTools.mw().getRtuFactory().findBySerialNumber(serial).get(0);
+        }
+        return rtu;
+    }
+
+    private final void log(Level level, String message) {
+        this.protocol.getLogger().log(level, message);
     }
 }

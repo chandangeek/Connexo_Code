@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.utils;
 
+import com.energyict.cpo.Environment;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
@@ -1195,6 +1196,13 @@ public final class ProtocolTools {
         } else {
             return result;
         }
+    }
+
+    /**
+     * Close the databaseConnection when it is not needed so optimal database pooling can be used
+     */
+    public static void closeConnection(){
+        Environment.getDefault().closeConnection();
     }
 
     public static boolean isCorrectIntervalBoundary(Calendar toDate, int intervalInSeconds) {

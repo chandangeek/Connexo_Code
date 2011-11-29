@@ -162,10 +162,10 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                 }
 
                 // Some message create their own messageResult
-                if(msgResult == null){
+                if (msgResult == null) {
                     msgResult = MessageResult.createSuccess(msgEntry);
                     log(Level.INFO, "Message has finished.");
-                } else if(msgResult.isFailed()){
+                } else if (msgResult.isFailed()) {
                     log(Level.SEVERE, "Message failed : " + msgResult.getInfo());
                 }
 
@@ -226,7 +226,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             MeterData md = new MeterData();
             md.setMeterReadingData(mrd);
 
-           log(Level.INFO, "Message Read LoadProfile Registers Finished.");
+            log(Level.INFO, "Message Read LoadProfile Registers Finished.");
             return MeterDataMessageResult.createSuccess(msgEntry, "", md);
         } catch (SAXException e) {
             return MessageResult.createFailed(msgEntry, "Could not parse the content of the xml message, probably incorrect message.");
@@ -247,7 +247,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
             final List<ProfileData> profileData = this.protocol.getLoadProfileData(Arrays.asList(lpr));
 
-            if(profileData.size() == 0){
+            if (profileData.size() == 0) {
                 return MessageResult.createFailed(msgEntry, "LoadProfile returned no data.");
             } else {
                 for (ProfileData data : profileData) {
@@ -286,7 +286,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private MessageResult changeAuthenticationLevel(MessageEntry  msgEntry, MessageHandler messageHandler) throws IOException {
+    private MessageResult changeAuthenticationLevel(MessageEntry msgEntry, MessageHandler messageHandler) throws IOException {
         int newAuthLevel = messageHandler.getAuthenticationLevel();
         MessageResult msgResult;
         if (newAuthLevel != -1) {
@@ -305,12 +305,12 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                         log(Level.INFO, msgResult.getInfo());
                         return msgResult;
                     }
-                } else if(adt.isStructure()){
+                } else if (adt.isStructure()) {
                     Structure struct = (Structure) adt;
-                    Unsigned8 u8 = (Unsigned8) struct.getDataType(struct.nrOfDataTypes()-1);
-                    if(u8.intValue() != newAuthLevel){
+                    Unsigned8 u8 = (Unsigned8) struct.getDataType(struct.nrOfDataTypes() - 1);
+                    if (u8.intValue() != newAuthLevel) {
                         u8 = new Unsigned8(newAuthLevel);
-                        struct.setDataType(struct.nrOfDataTypes()-1, u8);
+                        struct.setDataType(struct.nrOfDataTypes() - 1, u8);
                         aln.writeAuthenticationMechanismName(struct);
                         return MessageResult.createSuccess(msgEntry);
                     } else {
@@ -323,7 +323,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                     msgResult = MessageResult.createFailed(msgEntry, "Returned AuthenticationMechanismName is not of the type OctetString, nor Structure.");
                 }
             } else {
-                msgResult =  MessageResult.createFailed(msgEntry, "Changing authenticationLevel using ShortName referencing is not supported.");
+                msgResult = MessageResult.createFailed(msgEntry, "Changing authenticationLevel using ShortName referencing is not supported.");
                 log(Level.WARNING, msgResult.getInfo());
             }
 
@@ -1182,18 +1182,20 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private MeteringWarehouse mw() {
-        return ProtocolTools.mw();
-    }
-
-
     /**
      * *************************************************************************
      */
     /* These methods require database access ...
     /*****************************************************************************/
+
     private Rtu getRtuFromDatabaseBySerialNumber() {
         String serial = this.protocol.getSerialNumber();
-        return mw().getRtuFactory().findBySerialNumber(serial).get(0);
+        Rtu rtu = mw().getRtuFactory().findBySerialNumber(serial).get(0);
+        ProtocolTools.closeConnection();
+        return rtu;
+    }
+
+    private MeteringWarehouse mw() {
+        return ProtocolTools.mw();
     }
 }
