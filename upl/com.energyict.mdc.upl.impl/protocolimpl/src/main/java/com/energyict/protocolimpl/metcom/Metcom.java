@@ -6,17 +6,18 @@
 
 package com.energyict.protocolimpl.metcom;
 
+import com.energyict.cbo.NestedIOException;
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.iec1107.Software7E1InputStream;
 import com.energyict.protocolimpl.iec1107.Software7E1OutputStream;
 import com.energyict.protocolimpl.siemens7ED62.*;
+
 import java.io.*;
 import java.util.*;
-
-import com.energyict.protocol.*;  
-import java.util.logging.*;
-import com.energyict.cbo.*;
-import com.energyict.protocol.HalfDuplexEnabler;
-import com.energyict.dialer.core.HalfDuplexController;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -415,7 +416,7 @@ abstract public class Metcom implements MeterProtocol, HalfDuplexEnabler {
         throw new UnsupportedException();
     }
     
-    private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException
+    protected void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException
     {
         try {
             Iterator iterator= getRequiredKeys().iterator();

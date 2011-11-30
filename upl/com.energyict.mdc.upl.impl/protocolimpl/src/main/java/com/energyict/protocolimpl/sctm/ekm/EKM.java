@@ -6,18 +6,16 @@
 
 package com.energyict.protocolimpl.sctm.ekm;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.customerconfig.EDPRegisterConfig;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.metcom.Metcom2;
 import com.energyict.protocolimpl.sctm.base.GenericRegisters;
+
+import java.io.IOException;
+import java.util.*;
+
 /**
  *
  * @author  Koen
@@ -36,15 +34,24 @@ KV|06042006|Add IntervalStatusBehaviour custom property to correct power fail st
 public class EKM extends Metcom2 implements RegisterProtocol {
     
 
+    private static final String BILLING_TIME_STAMP_ID = "BillingTimeStampID";
+    private static final String BILLINGPOINT_TIMESTAMP_ID_DEFAULT = "40*";
     private RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
     private GenericRegisters genericRegisters;
-    
+    private String billingTimeStampId = BILLINGPOINT_TIMESTAMP_ID_DEFAULT;
+
     /** Creates a new instance of Metcom2 */
     public EKM() {
         genericRegisters = new GenericRegisters(this);
     }
  
-    public List getOptionalKeys() { 
+    @Override
+    protected void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+        billingTimeStampId = properties.getProperty(BILLING_TIME_STAMP_ID);
+        super.validateProperties(properties);
+    }
+
+    public List getOptionalKeys() {
         List result = new ArrayList();
         result.add("Timeout");
         result.add("Retries");
@@ -57,6 +64,7 @@ public class EKM extends Metcom2 implements RegisterProtocol {
         result.add("AutoBillingPointNrOfDigits");
         result.add("TimeSetMethod");
         result.add("Software7E1");
+        result.add(BILLING_TIME_STAMP_ID);
         return result;
     }
     
@@ -80,10 +88,18 @@ public class EKM extends Metcom2 implements RegisterProtocol {
         }
         else {
             ObisCodeMapper ocm = new ObisCodeMapper(getDumpData(obisCode.getB()-1),getTimeZone(),regs,getAutoBillingPointNrOfDigits());
+            ocm.setBillingTimeStampId(getBillingTimeStampId());
             return ocm.getRegisterValue(obisCode);
         }
     }
     
+    public String getBillingTimeStampId() {
+        if (billingTimeStampId == null) {
+            billingTimeStampId = BILLINGPOINT_TIMESTAMP_ID_DEFAULT;
+        }
+        return billingTimeStampId;
+    }
+
     public String getRegistersInfo(int extendedLogging) throws IOException {
         return regs.getRegisterInfo()+"\n"+genericRegisters.getRegisterInfo();
     }

@@ -26,7 +26,8 @@ public class ObisCodeMapper {
     TimeZone timeZone;
     RegisterConfig regs;
     int autoBillingPointNrOfDigits;
-            
+    private String billingTimeStampId = "40*";
+
     /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(SCTMDumpData dump,TimeZone timeZone, RegisterConfig regs,int autoBillingPointNrOfDigits) {
         this.dump=dump;
@@ -35,6 +36,10 @@ public class ObisCodeMapper {
         this.autoBillingPointNrOfDigits=autoBillingPointNrOfDigits;
     }    
     
+    public void setBillingTimeStampId(String billingTimeStampId) {
+        this.billingTimeStampId = billingTimeStampId;
+    }
+
     static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(null,null,null,-1);
         return (RegisterInfo)ocm.doGetRegister(obisCode,false);
@@ -44,14 +49,6 @@ public class ObisCodeMapper {
         return (RegisterValue)doGetRegister(obisCode,true);
     }
     
-    public Date getBillingPointTimestamp(String register, int billingPoint) throws IOException {
-        try {
-            return getBillingPointTimestamp(register);
-        } catch (NoSuchRegisterException e) {
-            return getMonthlyBillingTimeStamp(billingPoint);        //Return a monthly billing timestamp if it was not found in the data dump
-        }
-    }
-
     public Date getMonthlyBillingTimeStamp(int billingPoint) {
         Calendar calendar = Calendar.getInstance(timeZone);
         calendar.add(Calendar.MONTH,(-1)*billingPoint);
@@ -73,8 +70,29 @@ public class ObisCodeMapper {
     public Date getBillingPointTimestamp(String register) throws IOException {
     	
     	try {
-			String reg = "40*"+register.substring(register.indexOf('*') +1);
-			
+            int billingPoint = Integer.parseInt(register.substring(register.indexOf('*') + 1));
+            try {
+                if (Integer.parseInt(billingTimeStampId) == -1) {
+                    return getMonthlyBillingTimeStamp(billingPoint);   //Create a monthly billing time stamp
+                }
+            } catch (NumberFormatException e) {
+                //Move on
+            }
+
+            boolean isStar = billingTimeStampId.contains("*");
+            if (billingPoint != dump.getBillingCounter() && !isStar) {
+                throw new NoSuchRegisterException("No timestamp for billing point " + billingPoint + " found.");
+            }
+
+            if (!isStar) {
+                try {
+                    return dump.getRegisterDateTime(billingTimeStampId, timeZone);
+                } catch (IOException e) {
+                    throw new NoSuchRegisterException("No timestamp for billing point " + billingPoint + " found.");
+                }
+            }
+
+            String reg = billingTimeStampId + register.substring(register.indexOf('*') + 1);
 			String searchReg = dump.searchRegister(reg);
 			int index1 = searchReg.indexOf(reg) + reg.length() +1;
 			int index2 = searchReg.indexOf(")", index1);
@@ -153,7 +171,7 @@ public class ObisCodeMapper {
                     }
                     billingDate = dump.getRegisterDateTime(strReg, timeZone);
                     if(billingDate == null){
-                    	billingDate = getBillingPointTimestamp(strReg, billingPoint);
+                    	billingDate = getBillingPointTimestamp(strReg);
                     }
                 }
                 
