@@ -73,7 +73,7 @@ public class ObisCodeMapper {
             int billingPoint = Integer.parseInt(register.substring(register.indexOf('*') + 1));
             try {
                 if (Integer.parseInt(billingTimeStampId) == -1) {
-                    return getMonthlyBillingTimeStamp(billingPoint);   //Create a monthly billing time stamp
+                    return getMonthlyBillingTimeStamp(dump.getBillingCounter() - billingPoint);   //Create a monthly billing time stamp
                 }
             } catch (NumberFormatException e) {
                 //Move on
