@@ -5,6 +5,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.DSMRProfileIntervalStatusBits;
 
 import java.io.IOException;
 import java.util.*;
@@ -65,7 +66,7 @@ public class LGLoadProfileBuilder extends LoadProfileBuilder {
 
                 //TODO it is possible that we need to check for the masks ...
                 LGDLMSProfileIntervals intervals = new LGDLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), LGDLMSProfileIntervals.DefaultClockMask,
-                        getStatusMasksMap().get(lpr), -1, null);
+                        getStatusMasksMap().get(lpr), -1, new DSMRProfileIntervalStatusBits());
                 profileData.setIntervalDatas(intervals.parseIntervals(lpc.getProfileInterval()));
 
                 profileDataList.add(profileData);

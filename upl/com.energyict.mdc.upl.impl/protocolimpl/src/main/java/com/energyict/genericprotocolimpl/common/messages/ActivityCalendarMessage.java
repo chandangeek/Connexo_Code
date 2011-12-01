@@ -212,6 +212,7 @@ public class ActivityCalendarMessage {
 		if(this.seasonArray.nrOfDataTypes() == 1){
 			SeasonProfiles sp = (SeasonProfiles)this.seasonArray.getDataType(0);
 			byte[] startTime = sp.getSeasonStart().getOctetStr();
+            startTime[2] = 1;	// set the startTime to the first of the month
 			startTime[3] = 1;	// set the startTime to the first of the month
 			sp.setSeasonStart(new OctetString(startTime));
 			//TODO check if you need to add it again.

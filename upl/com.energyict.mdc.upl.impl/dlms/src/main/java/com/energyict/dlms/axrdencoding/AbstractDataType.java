@@ -176,6 +176,10 @@ abstract public class AbstractDataType implements Field {
 		return this instanceof VisibleString;
 	}
 
+    public boolean isNumerical(){
+        return isInteger16()||isInteger32()||isInteger64()||isInteger8()||isUnsigned8()||isUnsigned16()||isUnsigned32();
+    }
+
 	public void setLevel(int level) {
 		this.level = level;
 	}

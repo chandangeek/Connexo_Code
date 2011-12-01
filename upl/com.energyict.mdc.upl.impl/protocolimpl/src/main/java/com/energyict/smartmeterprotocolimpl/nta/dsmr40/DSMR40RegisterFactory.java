@@ -89,7 +89,7 @@ public class DSMR40RegisterFactory extends Dsmr23RegisterFactory {
     }
 
     @Override
-    protected RegisterValue convertCustomAbstractObjectsToRegisterValues(final Register register, final AbstractDataType abstractDataType) throws IOException {
+    protected RegisterValue convertCustomAbstractObjectsToRegisterValues(final Register register, AbstractDataType abstractDataType) throws IOException {
         ObisCode rObisCode = getCorrectedRegisterObisCode(register);
         if (rObisCode.equals(MbusEncryptionStatus_New) || rObisCode.equalsIgnoreBChannel(MbusEncryptionStatus)) {     // if they still use the old obiscode, then read the new object
             long encryptionValue = abstractDataType.longValue();
@@ -115,6 +115,8 @@ public class DSMR40RegisterFactory extends Dsmr23RegisterFactory {
         } else if (rObisCode.equals(AdministrativeStatusObisCode)) {
             int adminStatus = abstractDataType.intValue();
             return new RegisterValue(register, new Quantity(BigDecimal.valueOf(adminStatus), Unit.getUndefined()), null, null, null, new Date(), 0, AdministrativeStatus.getDescriptionForValue(adminStatus));
+        } else if (rObisCode.equals(CORE_FIRMWARE_SIGNATURE) || rObisCode.equals(MODULE_FIRMWARE_SIGNATURE)) {
+            return new RegisterValue(register, null, null, null, null, new Date(), 0, new String(abstractDataType.toByteArray()));
         }
 
         return super.convertCustomAbstractObjectsToRegisterValues(register, abstractDataType);

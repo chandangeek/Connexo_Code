@@ -24,7 +24,8 @@ public class Dsmr40Messaging extends Dsmr23Messaging{
     @Override
     public List getMessageCategories() {
         List<MessageCategorySpec> messages = super.getMessageCategories();
-        messages.add(ProtocolMessageCategories.getChangeAdministrativeStatusCategory());
+        //TODO enable once it is required
+//        messages.add(ProtocolMessageCategories.getChangeAdministrativeStatusCategory());
         return messages;
     }
 }

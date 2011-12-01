@@ -1,7 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr;
 
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocolimpl.dlms.DLMSCache;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RegisterFactory;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.AbstractSmartDSMR40NtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
@@ -52,5 +55,18 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol {
             this.loadProfileBuilder = new LGLoadProfileBuilder(this);
         }
         return loadProfileBuilder;
+    }
+
+    @Override
+    public BulkRegisterProtocol getRegisterFactory() {
+        if (this.registerFactory == null) {
+            this.registerFactory = new DSMR40RegisterFactory(this);
+        }
+        return this.registerFactory;
+    }
+
+    @Override
+    public void searchForSlaveDevices() throws ConnectionException {
+        //TODO don't search slaves during current TESTING
     }
 }

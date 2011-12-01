@@ -29,6 +29,7 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
     private static final String[] possibleConnectStates = {"Disconnected", "Connected", "Ready for Reconnection"};
 
     public static final ObisCode ACTIVITY_CALENDAR = ObisCode.fromString("0.0.13.0.0.255");
+    public static final ObisCode ACTIVITY_CALENDAR_NAME = ObisCode.fromString("0.0.13.0.0.2");
     public static final ObisCode CORE_FIRMWARE = ObisCode.fromString("1.0.0.2.0.255");
     public static final ObisCode MODULE_FIRMWARE = ObisCode.fromString("1.1.0.2.0.255");
     public static final ObisCode CORE_FIRMWARE_SIGNATURE = ObisCode.fromString("1.0.0.2.8.255");
@@ -140,7 +141,7 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
                         dlmsAttributes.add(composedRegister.getRegisterUnitAttribute());
                         this.composedRegisterMap.put(register, composedRegister);
                     } else {
-                        if (rObisCode.equals(ACTIVITY_CALENDAR)) {
+                        if (ACTIVITY_CALENDAR.equals(rObisCode) || ACTIVITY_CALENDAR_NAME.equals(rObisCode)) {
                             this.registerMap.put(register, new DLMSAttribute(ACTIVITY_CALENDAR, ActivityCalendarAttributes.CALENDAR_NAME_ACTIVE.getAttributeNumber(), DLMSClassId.ACTIVITY_CALENDAR.getClassId()));
                         } else if (rObisCode.equals(GSM_SIGNAL_STRENGTH)) {
                             this.registerMap.put(register, new DLMSAttribute(rObisCode, RegisterAttributes.Register_Value.getAttributeNumber(), DLMSClassId.REGISTER.getClassId()));
@@ -148,7 +149,7 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
                             this.registerMap.put(register, new DLMSAttribute(rObisCode, DLMSCOSEMGlobals.ATTR_DATA_VALUE, DLMSClassId.DATA.getClassId()));
 
                             // We can't add this for the SecuritySetup or the AssociationLN object, the DSMR4.0 uses these
-                        } else if(!(uo.getObisCode().equals(SecuritySetup.getDefaultObisCode()) || (uo.getObisCode().equals(AssociationLN.getDefaultObisCode())))) {
+                        } else if (!(uo.getObisCode().equals(SecuritySetup.getDefaultObisCode()) || (uo.getObisCode().equals(AssociationLN.getDefaultObisCode())))) {
                             // We get the default 'Value' attribute (2), mostly Data objects
                             this.registerMap.put(register, new DLMSAttribute(uo.getObisCode(), DLMSCOSEMGlobals.ATTR_DATA_VALUE, uo.getClassID()));
                         }
@@ -249,6 +250,10 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
             state = ((BooleanObject) abstractDataType).getState();
             Quantity quantity = new Quantity(state ? "1" : "0", Unit.getUndefined());
             return new RegisterValue(register, quantity, null, null, null, new Date(), 0, "State: " + state);
+        } else if (abstractDataType.isOctetString()) {
+            return new RegisterValue(register, null, null, null, null, new Date(), 0, new String(abstractDataType.toByteArray()));
+        } else if (abstractDataType.isNumerical()) {
+            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.getUndefined()));
         } else {
             throw new UnsupportedException("Register with obisCode " + rObisCode + " is not supported.");
         }

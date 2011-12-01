@@ -79,4 +79,9 @@ public class Dsmr23Properties extends DlmsProtocolProperties {
     public SecurityProvider getSecurityProvider() {
         return new NTASecurityProvider(getProtocolProperties());
     }
+
+    @ProtocolProperty
+    public boolean isBulkRequest() {
+        return getBooleanProperty(BULK_REQUEST, "1");
+    }
 }
