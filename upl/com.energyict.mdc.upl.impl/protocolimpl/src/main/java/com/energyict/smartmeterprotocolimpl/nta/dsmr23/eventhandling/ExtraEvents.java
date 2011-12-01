@@ -62,6 +62,6 @@ public class ExtraEvents {
     public static MeterEvent getExtraEvent(Date eventTimeStamp, int eventId) {
         return new MeterEvent(eventTimeStamp, Integer.parseInt(extraEvents
                 .get(new Integer(eventId))[CODE]), eventId, (extraEvents
-                .get(new Integer(eventId))[TEXT]), EventLogbookId.UnknownEventLogook.eventLogId(), 0);
+                .get(new Integer(eventId))[TEXT]), EventLogbookId.UnknownEventLogbook.eventLogId(), 0);
     }
 }

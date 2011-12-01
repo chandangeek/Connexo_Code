@@ -5,13 +5,13 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling;
  */
 public enum EventLogbookId {
 
-    StandardEventLogbook(0),
-    DisconnectControlLogbook(1),
-    PowerFailureEventLogbook(2),
-    FraudDetectionEventLogbook(3),
-    MbusEventLogbook(4),
-    MbusControlLogbook(5),
-    UnknownEventLogook(-1);
+    StandardEventLogbook(1),
+    DisconnectControlLogbook(2),
+    PowerFailureEventLogbook(3),
+    FraudDetectionEventLogbook(4),
+    MbusEventLogbook(5),
+    MbusControlLogbook(6),
+    UnknownEventLogbook(0);
 
     /**
      * The logbook ID of the different EventLogBooks
