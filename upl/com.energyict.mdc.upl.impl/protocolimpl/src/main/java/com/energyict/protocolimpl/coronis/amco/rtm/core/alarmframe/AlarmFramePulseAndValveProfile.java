@@ -31,7 +31,7 @@ public class AlarmFramePulseAndValveProfile extends AbstractAlarmFrame {
             events.add(new MeterEvent(date, MeterEvent.BATTERY_VOLTAGE_LOW, EventStatusAndDescription.EVENTCODE_BATTERY_LOW,  "Low battery warning"));
         }
         if (isBitSet(9)) {
-            events.add(new MeterEvent(date, 0, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_A, "Tamper detection on port A"));
+            events.add(new MeterEvent(date, MeterEvent.TAMPER, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_A, "Tamper detection on port A"));
         }
         if (isBitSet(17)) {
             events.add(new MeterEvent(date, 0, EventStatusAndDescription.EVENTCODE_VALVE_FAULT, "Valve communication error"));

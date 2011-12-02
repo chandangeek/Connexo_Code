@@ -319,7 +319,7 @@ public class ProfileDataReaderV210 {
             }
         }
 
-        return checkValid(checkDates(meterEvents), lastReading, toDate);
+        return checkValid(meterEvents, lastReading, toDate);
     }
 
     private List<MeterEvent> checkValid(List<MeterEvent> meterEvents, Date lastReading, Date toDate) {
@@ -334,6 +334,7 @@ public class ProfileDataReaderV210 {
 
     /**
      * Check the timestamps for the meter events, add a second to make the stamps different (if necessary)
+     * Method is no longer used, it happens in the RTU+Server
      *
      * @param meterEvents the events
      * @return the fixed events

@@ -417,7 +417,7 @@ public class ProfileDataReader {
             }
         }
 
-        meterEvents = shiftDates(meterEvents);
+        //meterEvents = shiftDates(meterEvents);      //Don't use this, it happens in the RTU+server
         return checkValid(meterEvents, lastReading, toDate);
     }
 

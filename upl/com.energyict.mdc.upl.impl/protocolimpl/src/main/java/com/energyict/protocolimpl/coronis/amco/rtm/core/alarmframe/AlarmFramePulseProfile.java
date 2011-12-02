@@ -48,16 +48,16 @@ public class AlarmFramePulseProfile extends AbstractAlarmFrame {
             events.add(new MeterEvent(date, MeterEvent.BATTERY_VOLTAGE_LOW, EventStatusAndDescription.EVENTCODE_BATTERY_LOW, "Low battery warning"));
         }
         if (isBitSet(9)) {
-            events.add(new MeterEvent(date, 0, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_A, "Tamper on port A"));
+            events.add(new MeterEvent(date, MeterEvent.TAMPER, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_A, "Tamper on port A"));
         }
         if (isBitSet(10)) {
-            events.add(new MeterEvent(date, 0, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_B, "Tamper on port B"));
+            events.add(new MeterEvent(date, MeterEvent.TAMPER, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_B, "Tamper on port B"));
         }
         if (isBitSet(11)) {
-            events.add(new MeterEvent(date, 0, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_C, "Tamper on port C"));
+            events.add(new MeterEvent(date, MeterEvent.TAMPER, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_C, "Tamper on port C"));
         }
         if (isBitSet(12)) {
-            events.add(new MeterEvent(date, 0, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_D, "Tamper on port D"));
+            events.add(new MeterEvent(date, MeterEvent.TAMPER, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_D, "Tamper on port D"));
         }
         return events;
     }
