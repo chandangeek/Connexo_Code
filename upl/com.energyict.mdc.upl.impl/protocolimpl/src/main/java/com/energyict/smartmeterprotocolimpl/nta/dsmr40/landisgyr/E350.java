@@ -58,14 +58,6 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol {
     }
 
     @Override
-    public BulkRegisterProtocol getRegisterFactory() {
-        if (this.registerFactory == null) {
-            this.registerFactory = new DSMR40RegisterFactory(this);
-        }
-        return this.registerFactory;
-    }
-
-    @Override
     public void searchForSlaveDevices() throws ConnectionException {
         //TODO don't search slaves during current TESTING
     }
