@@ -65,33 +65,37 @@ public class ProfileDataReaderV210 {
             rawValues = extendedIndexReading.getLast4LoggedIndexes();
             lastLoggedValueDate = extendedIndexReading.getDateOfLastLoggedValue();
         } else {
+            DataloggingTable dataloggingTable = null;
             if (getNumberOfInputsUsed() == 1) {
-                DataloggingTable dataloggingTableA = waveFlowV1.getRadioCommandFactory().readDataloggingTable(1);
-                rawValues.add(dataloggingTableA.getProfileDataA());
-                lastLoggedValueDate = dataloggingTableA.getLastLoggedIndexDate();
+                dataloggingTable = waveFlowV1.getRadioCommandFactory().readDataloggingTable(1);
+                rawValues.add(dataloggingTable.getProfileDataA());
+                lastLoggedValueDate = dataloggingTable.getLastLoggedIndexDate();
             }
             if (getNumberOfInputsUsed() == 2) {
-                DataloggingTable dataloggingTableAB = waveFlowV1.getRadioCommandFactory().readDataloggingTable(12);
-                rawValues.add(dataloggingTableAB.getProfileDataA());
-                rawValues.add(dataloggingTableAB.getProfileDataB());
-                lastLoggedValueDate = dataloggingTableAB.getLastLoggedIndexDate();
+                dataloggingTable = waveFlowV1.getRadioCommandFactory().readDataloggingTable(12);
+                rawValues.add(dataloggingTable.getProfileDataA());
+                rawValues.add(dataloggingTable.getProfileDataB());
+                lastLoggedValueDate = dataloggingTable.getLastLoggedIndexDate();
             }
             if (getNumberOfInputsUsed() == 3) {
-                DataloggingTable dataloggingTableAB = waveFlowV1.getRadioCommandFactory().readDataloggingTable(12);
-                rawValues.add(dataloggingTableAB.getProfileDataA());
-                rawValues.add(dataloggingTableAB.getProfileDataB());
+                dataloggingTable = waveFlowV1.getRadioCommandFactory().readDataloggingTable(12);
+                rawValues.add(dataloggingTable.getProfileDataA());
+                rawValues.add(dataloggingTable.getProfileDataB());
                 DataloggingTable dataloggingTableC = waveFlowV1.getRadioCommandFactory().readDataloggingTable(3);
                 rawValues.add(dataloggingTableC.getProfileDataC());
                 lastLoggedValueDate = dataloggingTableC.getLastLoggedIndexDate();
             }
             if (getNumberOfInputsUsed() == 4) {
-                DataloggingTable dataloggingTableAB = waveFlowV1.getRadioCommandFactory().readDataloggingTable(12);
-                rawValues.add(dataloggingTableAB.getProfileDataA());
-                rawValues.add(dataloggingTableAB.getProfileDataB());
+                dataloggingTable = waveFlowV1.getRadioCommandFactory().readDataloggingTable(12);
+                rawValues.add(dataloggingTable.getProfileDataA());
+                rawValues.add(dataloggingTable.getProfileDataB());
                 DataloggingTable dataloggingTableCD = waveFlowV1.getRadioCommandFactory().readDataloggingTable(34);
                 rawValues.add(dataloggingTableCD.getProfileDataC());
                 rawValues.add(dataloggingTableCD.getProfileDataD());
                 lastLoggedValueDate = dataloggingTableCD.getLastLoggedIndexDate();
+            }
+            if (dataloggingTable != null) {
+                setProfileInterval(dataloggingTable.getDataloggingMeasurementPeriod().getSamplingPeriodInSeconds());
             }
         }
 
