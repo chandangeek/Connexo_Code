@@ -2,12 +2,14 @@ package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
 import com.energyict.cbo.*;
 import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedRegister;
 
 import java.io.IOException;
@@ -23,6 +25,7 @@ public class RegisterReader {
 
     public static final ObisCode ActivityCalendarNameObisCode = ObisCode.fromString("0.0.13.0.1.255");
     public static final ObisCode ChangeOfSupplierNameObisCode = ObisCode.fromString("1.0.1.64.0.255");
+    public static final ObisCode OwnPublicKeysObisCode = ObisCode.fromString("0.128.0.2.0.2");
 
     private final AS300 meterProtocol;
 
@@ -40,7 +43,15 @@ public class RegisterReader {
         for (Register register : registers) {
             RegisterValue registerValue = null;
             try {
-                if (this.composedRegisterMap.containsKey(register)) {
+                if (register.getObisCode().equals(OwnPublicKeysObisCode)) {
+                    ObisCode publicKeysObisCode = ProtocolTools.setObisCodeField(OwnPublicKeysObisCode, 5, (byte) 255);
+                    PrivacyEnhancingDataAggregation privacyEnhancingDataAggregation = meterProtocol.getDlmsSession().getCosemObjectFactory().getPrivacyEnhancingDataAggregation(publicKeysObisCode);
+                    Structure ownPublicKey = privacyEnhancingDataAggregation.getOwnPublicKey();
+
+                    OctetString public_x = (OctetString) ownPublicKey.getDataType(0);
+                    OctetString public_y = (OctetString) ownPublicKey.getDataType(1);
+                    registerValue = new RegisterValue(OwnPublicKeysObisCode, public_x.stringValue() + "," + public_y.stringValue());
+                } else if (this.composedRegisterMap.containsKey(register)) {
                     ScalerUnit su = new ScalerUnit(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterUnitAttribute()));
                     if (su.getUnitCode() != 0) {
                         Unit unit = su.getUnitCode() == 56 ? Unit.get(BaseUnit.PERCENT, su.getScaler()) : su.getUnit();    //Replace dlms % by our %

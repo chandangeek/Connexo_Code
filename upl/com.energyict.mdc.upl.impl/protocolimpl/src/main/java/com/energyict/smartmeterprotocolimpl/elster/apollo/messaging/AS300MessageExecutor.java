@@ -43,9 +43,9 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
     private static final ObisCode ChangeOfSupplierIdObisCode = ObisCode.fromString("1.0.1.64.1.255");
     private static final ObisCode ChangeOfTennantObisCode = ObisCode.fromString("0.128.128.0.0.255");
 
-    private final AbstractSmartDlmsProtocol protocol;
+    protected final AbstractSmartDlmsProtocol protocol;
 
-    private boolean success;
+    protected boolean success;
 
     public AS300MessageExecutor(final AbstractSmartDlmsProtocol protocol) {
         this.protocol = protocol;
@@ -251,7 +251,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private void log(Level level, String message) {
+    protected void log(Level level, String message) {
         getLogger().log(level, message);
     }
 

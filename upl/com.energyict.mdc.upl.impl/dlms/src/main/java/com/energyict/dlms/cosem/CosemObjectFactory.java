@@ -176,6 +176,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new Data(protocolLink,getObjectReference(obisCode));
     }
 
+    public PrivacyEnhancingDataAggregation getPrivacyEnhancingDataAggregation(ObisCode obisCode) throws IOException {
+        return new PrivacyEnhancingDataAggregation(protocolLink,getObjectReference(obisCode));
+    }
+
     public Data getData(int baseObject) throws IOException {
         return new Data(protocolLink,new ObjectReference(baseObject));
     }
