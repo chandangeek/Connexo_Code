@@ -50,13 +50,6 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
 
     private JanzStoredValues storedValues;
 
-//    @Override
-//    protected void validateProperties() throws MissingPropertyException, InvalidPropertyException {
-//        super.validateProperties();
-//        this.forcedToReadCache = !properties.getProperty(PROPERTY_FORCEDTOREADCACHE, "0").equalsIgnoreCase("0");
-//        iiapServiceClass = Integer.parseInt(properties.getProperty(PROPNAME_IIAP_SERVICE_CLASS, "0"));
-//    }
-
     @Override
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         this.forcedToReadCache = !properties.getProperty(PROPERTY_FORCEDTOREADCACHE, "0").equalsIgnoreCase("0");
