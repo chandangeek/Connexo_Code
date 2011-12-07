@@ -508,3 +508,5 @@
 -keep public class com.energyict.genericprotocolimpl.common.DLMSProtocol{
     public *;
 }
+
+-keepnames com.energyict.protocolimpl.dlms.JanzC280.JanzC280

@@ -117,6 +117,11 @@ public final class DLMSUtils implements DLMSCOSEMGlobals {
     }
 
     public static long parseValue2long(byte[] byteBuffer, int iOffset) throws IOException {
+        int signBit;
+        float exponent, fraction;
+        long fractionDigits;
+        String fractionPart;
+
         switch (byteBuffer[iOffset]) {
             case TYPEDESC_NULL:
                 return 0;
@@ -147,6 +152,52 @@ public final class DLMSUtils implements DLMSCOSEMGlobals {
             case TYPEDESC_LONG_UNSIGNED:
             case TYPEDESC_LONG:
                 return ProtocolUtils.getShort(byteBuffer, iOffset + 1);
+
+            case TYPEDESC_FLOAT64:
+                signBit = (((int) byteBuffer[iOffset+1] >> 7) & 0xFF);
+                exponent = (((((long) byteBuffer[iOffset+1]) << 4) & 0x07FF) |
+                        ((((long) byteBuffer[iOffset + 2]) >> 4) & 0x0F));
+
+                fractionDigits = ((((long) byteBuffer[iOffset + 2] & 0x0F) << 48) |
+                        ((((long) byteBuffer[iOffset + 3]) & 0xFF) << 40) |
+                        ((((long) byteBuffer[iOffset + 4]) & 0xFF) << 32) |
+                        ((((long) byteBuffer[iOffset + 5]) & 0xFF) << 24) |
+                        ((((long) byteBuffer[iOffset + 6]) & 0xFF) << 16) |
+                        ((((long) byteBuffer[iOffset + 7]) & 0xFF) << 8) |
+                        ((((long) byteBuffer[iOffset + 8]) & 0xFF)));
+                fractionPart = Long.toBinaryString(fractionDigits);
+
+                // fractionPart should be length 52 -- the leading 0's should be present in the string!
+                while (fractionPart.length() < 52) {
+                    fractionPart = "0" + fractionPart;
+                }
+
+                fraction = 1;
+                for (int i = 0; i < 52; i++) {
+                    fraction += Integer.parseInt(fractionPart.substring(i, i + 1)) * Math.pow(2, -1 - i);
+                }
+                return (exponent > 0) ? ((long) (((Math.pow(-1, signBit)) * Math.pow(2, exponent - 1023)) * new Float(fraction))) : 0;
+
+            case TYPEDESC_FLOAT32:
+                signBit = (((int) byteBuffer[iOffset+1] >> 7) & 0xFF);
+                exponent = (((((int) byteBuffer[iOffset+1]) << 1) & 0xFF) |
+                        ((((int) byteBuffer[iOffset + 2]) >> 7) & 0x01));
+
+                fractionDigits = ((((long) byteBuffer[iOffset + 2] << 16) & 0x7F0000) |
+                        (((long) byteBuffer[iOffset + 3] << 8) & 0x00FF00) |
+                        (((long) byteBuffer[iOffset + 4]) & 0x0000FF));
+                fractionPart = Long.toBinaryString(fractionDigits);
+
+                // fractionPart should be length 23 -- the leading 0's should be present in the string!
+                while (fractionPart.length() < 23) {
+                    fractionPart = "0" + fractionPart;
+                }
+
+                fraction = 1;
+                for (int i = 0; i < 23; i++) {
+                    fraction += Integer.parseInt(fractionPart.substring(i, i + 1)) * Math.pow(2, -1 - i);
+                }
+                return (exponent > 0) ? ((long) (((Math.pow(-1, signBit)) * Math.pow(2, exponent - 127)) * fraction)) : 0;
 
             case TYPEDESC_LONG64:
                 return ProtocolUtils.getLong(byteBuffer, iOffset + 1);

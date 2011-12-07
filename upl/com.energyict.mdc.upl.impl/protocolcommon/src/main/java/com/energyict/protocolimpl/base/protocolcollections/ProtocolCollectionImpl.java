@@ -322,6 +322,9 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         this.protocolClasses.add("com.energyict.protocolimpl.modbus.northerndesign.eimeterflex.EIMeterFlexSM352"); 
         this.protocolNames.add("EIMeter Flex SM352 submetering module");
 
+        this.protocolClasses.add("com.energyict.protocolimpl.dlms.JanzC280.JanzC280");
+        this.protocolNames.add("DLMS Janz C280");
+        
         this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350");
         this.protocolNames.add("DSMR 4.0 Landis & Gyr E350 DLMS meter");
 

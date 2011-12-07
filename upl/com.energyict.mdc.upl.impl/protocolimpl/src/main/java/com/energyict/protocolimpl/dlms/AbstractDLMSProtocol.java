@@ -8,6 +8,7 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 
 import java.io.*;
 import java.sql.SQLException;
@@ -86,6 +87,8 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     protected static final String PROPNAME_FORCE_DELAY = "ForceDelay";
     protected static final String PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES = "MaximumNumberOfClockSetTries";
     protected static final String PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD = "ClockSetRoundtripCorrectionTreshold";
+
+    protected int maxRecPduSize;
 
     @Override
     protected void doConnect() throws IOException {
@@ -232,7 +235,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
             }
         }
 
-        XdlmsAse xdlmsAse = new XdlmsAse(isCiphered() ? localSecurityProvider.getDedicatedKey() : null, true, PROPOSED_QOS, PROPOSED_DLMS_VERSION, this.conformanceBlock, MAX_PDU_SIZE);
+        XdlmsAse xdlmsAse = new XdlmsAse(isCiphered() ? localSecurityProvider.getDedicatedKey() : null, true, PROPOSED_QOS, PROPOSED_DLMS_VERSION, this.conformanceBlock, maxRecPduSize);
         aso = new ApplicationServiceObject(xdlmsAse, this, securityContext, getContextId());
         dlmsConnection = new SecureConnection(aso, connection);
         InvokeIdAndPriority iiap = buildInvokeIdAndPriority();
@@ -345,6 +348,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
 			logger.log(Level.SEVERE, "Cannot parse the number of roundtrip correction probes to be done, setting to default value of [" + DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD + "]", e);
 			this.clockSetRoundtripTreshold = DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD;
 		}
+        this.maxRecPduSize = Integer.parseInt(properties.getProperty(DlmsProtocolProperties.MAX_REC_PDU_SIZE,Integer.toString(MAX_PDU_SIZE)));
     }
 
     /**

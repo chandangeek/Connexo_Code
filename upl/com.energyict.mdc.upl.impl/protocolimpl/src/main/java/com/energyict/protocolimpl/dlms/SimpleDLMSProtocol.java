@@ -1,4 +1,4 @@
-package com.energyict.protocolimpl.dlms;
+ package com.energyict.protocolimpl.dlms;
 
 import com.energyict.cbo.*;
 import com.energyict.dialer.connection.*;
@@ -370,34 +370,41 @@ public class SimpleDLMSProtocol implements MeterProtocol, ProtocolLink, HHUEnabl
     private void checkCacheObjects() throws IOException {
         try { // conf program change and object list stuff
             int iConf;
+
+            if (dlmsCache == null) {
+                dlmsCache = new DLMSCache();
+            }
+
             if (dlmsCache.getObjectList() != null) {
                 dlmsMeterConfig.setInstantiatedObjectList(dlmsCache.getObjectList());
-                try {
-                    iConf = requestConfigurationProgramChanges();
-                }
-                catch (IOException e) {
-                    iConf = -1;
-                    logger.severe("SimpleDLMSProtocol Configuration change count not accessible, request object list.");
-                    requestObjectList();
-                    dlmsCache.saveObjectList(dlmsMeterConfig.getInstantiatedObjectList());  // save object list in cache
-                }
+//                try {
+//                    iConf = requestConfigurationProgramChanges();
+//                }
+//                catch (IOException e) {
+//                    iConf = -1;
+//                    logger.severe("SimpleDLMSProtocol Configuration change count not accessible, request object list.");
+//                    requestObjectList();
+//                    dlmsCache.saveObjectList(dlmsMeterConfig.getInstantiatedObjectList());  // save object list in cache
+//                }
 
-                if (iConf != dlmsCache.getConfProgChange()) {
-                    logger.severe("SimpleDLMSProtocol Configuration changed, request object list.");
-                    requestObjectList();           // request object list again from rtu
-                    dlmsCache.saveObjectList(dlmsMeterConfig.getInstantiatedObjectList());  // save object list in cache
-                    dlmsCache.setConfProgChange(iConf);  // set new configuration program change
-                }
+//                if (iConf != dlmsCache.getConfProgChange()) {
+//                    logger.severe("SimpleDLMSProtocol Configuration changed, request object list.");
+//                    requestObjectList();           // request object list again from rtu
+//                    dlmsCache.saveObjectList(dlmsMeterConfig.getInstantiatedObjectList());  // save object list in cache
+//                    dlmsCache.setConfProgChange(iConf);  // set new configuration program change
+//                }
             } else { // Cache not exist
                 logger.info("SimpleDLMSProtocol Cache does not exist, request object list.");
                 requestObjectList();
                 try {
                     iConf = requestConfigurationProgramChanges();
                     dlmsCache.saveObjectList(dlmsMeterConfig.getInstantiatedObjectList());  // save object list in cache
-                    dlmsCache.setConfProgChange(iConf);  // set new configuration program change
+                    dlmsCache.setConfProgChange(iConf);  // set new configuration program change                    dlmsCache.saveObjectList(dlmsMeterConfig.getInstantiatedObjectList());  // save object list in cache
                 }
                 catch (IOException e) {
                     iConf = -1;
+                    dlmsCache.saveObjectList(dlmsMeterConfig.getInstantiatedObjectList());  // save object list in cache
+                    dlmsCache.setConfProgChange(iConf);  // set new configuration program change
                 }
             }
 

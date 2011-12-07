@@ -412,6 +412,28 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		}
 	}
 
+	protected byte[] getResponseData(int attribute, long from, long to) throws IOException {
+		try {
+			byte[] responseData = null;
+			byte[] request = null;
+			if (this.objectReference.isLNReference()) {
+				byte[] selectiveBuffer = (from == 0 ? null : getBufferRangeDescriptor(from, to));
+				request = buildGetRequest(getClassId(), this.objectReference.getLn(), DLMSUtils.attrSN2LN(attribute), selectiveBuffer);
+			} else if (this.objectReference.isSNReference()) {
+				byte[] selectiveBuffer = (from == 0 ? null : getBufferRangeDescriptor(from, to));
+				request = buildReadRequest((short) this.objectReference.getSn(), attribute, selectiveBuffer);
+			}
+			responseData = this.protocolLink.getDLMSConnection().sendRequest(request);
+			return checkCosemPDUResponseHeader(responseData);
+		} catch (DataAccessResultException e) {
+			throw (e);
+		} catch (IOException e) {
+			throw new NestedIOException(e);
+        } catch (IndexOutOfBoundsException e) {
+            throw new NestedIOException(e, "Received partial response or invalid packet from device!");
+		}
+	}
+
 	/**
 	 * Build up the request, send it to the device and return the checked
 	 * response data as byte[]
@@ -432,6 +454,32 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 				request = buildGetRequest(getClassId(), this.objectReference.getLn(), DLMSUtils.attrSN2LN(attribute), selectiveBuffer);
 			} else if (this.objectReference.isSNReference()) {
 				byte[] selectiveBuffer = (from == null ? null : getBufferRangeDescriptor(from, to, channels));
+				request = buildReadRequest((short) this.objectReference.getSn(), attribute, selectiveBuffer);
+			}
+			responseData = this.protocolLink.getDLMSConnection().sendRequest(request);
+			return checkCosemPDUResponseHeader(responseData);
+		} catch (DataAccessResultException e) {
+			throw (e);
+		} catch (IOException e) {
+			throw new NestedIOException(e);
+        } catch (IndexOutOfBoundsException e) {
+            throw new NestedIOException(e, "Received partial response or invalid packet from device!");
+		}
+	}
+
+    /**
+	 * Build up the request, send it to the device and return the checked
+	 * response data as byte[]
+	 */
+	protected byte[] getResponseData(int attribute, int fromEntry, int toEntry, int fromValue, int toValue) throws IOException {
+		try {
+			byte[] responseData = null;
+			byte[] request = null;
+			if (this.objectReference.isLNReference()) {
+				byte[] selectiveBuffer = (fromEntry == 0 ? null : getBufferEntryDescriptor(fromEntry, toEntry, fromValue, toValue));
+				request = buildGetRequest(getClassId(), this.objectReference.getLn(), DLMSUtils.attrSN2LN(attribute), selectiveBuffer);
+			} else if (this.objectReference.isSNReference()) {
+				byte[] selectiveBuffer = (fromEntry == 0 ? null : getBufferEntryDescriptor(fromEntry, toEntry, fromValue, toValue));
 				request = buildReadRequest((short) this.objectReference.getSn(), attribute, selectiveBuffer);
 			}
 			responseData = this.protocolLink.getDLMSConnection().sendRequest(request);
@@ -1292,6 +1340,10 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		}
 
 	}
+
+	private byte[] getBufferRangeDescriptor(long fromCalendar, long toCalendar) {
+        return getBufferRangeDescriptorDefault(fromCalendar, toCalendar);
+	}
 	private byte[] getBufferRangeDescriptor(Calendar fromCalendar, Calendar toCalendar, List<CapturedObject> channels) {
 		if ((toCalendar == null) && this.protocolLink.getMeterConfig().isSL7000()) {
 			return getBufferRangeDescriptorSL7000(fromCalendar);
@@ -1300,6 +1352,10 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		} else {
 			return getBufferRangeDescriptorDefault(fromCalendar, toCalendar, channels);
 		}
+	}
+
+    private byte[] getBufferEntryDescriptor(int fromEntry, int toEntry, int fromValue, int toValue) {
+        return getBufferEntryDescriptorDefault(fromEntry, toEntry, fromValue, toValue);
 	}
 
 	/**
@@ -1494,6 +1550,92 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
         } else {
             intreq[CAPTURE_TO_OFFSET + 13] = 0x00;
         }
+
+        return intreq;
+	}
+
+	private byte[] getBufferRangeDescriptorDefault(long fromCalendar, long toCalendar) {
+
+		byte[] intreq = {
+				(byte) 0x01, // range descriptor
+				(byte) 0x02, // structure
+				(byte) 0x04, // 4 items in structure
+				// capture object definition
+				(byte) 0x02, (byte) 0x04, (byte) 0x12, (byte) 0x00, (byte) 0x08, (byte) 0x09, (byte) 0x06, (byte) 0x00, (byte) 0x00, (byte) 0x01, (byte) 0x00,
+				(byte) 0x00, (byte) 0xFF, (byte) 0x0F, (byte) 0x02, (byte) 0x12, (byte) 0x00,
+				(byte) 0x00,
+				// from value
+				(byte) 0x06, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+				// to value
+                (byte) 0x06, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                // selected values
+                  (byte) 0x01, (byte) 0x00};
+
+        int CAPTURE_FROM_OFFSET = 21;
+
+        intreq[CAPTURE_FROM_OFFSET] = TYPEDESC_DOUBLE_LONG_UNSIGNED;
+        byte[] bytesFromCal = ProtocolTools.getBytesFromInt((int) fromCalendar, 4);
+        intreq[CAPTURE_FROM_OFFSET + 1] = bytesFromCal[0];
+        intreq[CAPTURE_FROM_OFFSET + 2] = bytesFromCal[1];
+        intreq[CAPTURE_FROM_OFFSET + 3] = bytesFromCal[2];
+        intreq[CAPTURE_FROM_OFFSET + 4] = bytesFromCal[3];
+
+        intreq[CAPTURE_FROM_OFFSET + 5] = TYPEDESC_DOUBLE_LONG_UNSIGNED;
+        byte[] bytesToCal = ProtocolTools.getBytesFromInt((int) toCalendar, 4);
+        intreq[CAPTURE_FROM_OFFSET + 6] = toCalendar != 0 ? bytesToCal[0] : (byte) 0xFF;
+        intreq[CAPTURE_FROM_OFFSET + 7] = toCalendar != 0 ? bytesToCal[1] : (byte) 0xFF;
+        intreq[CAPTURE_FROM_OFFSET + 8] = toCalendar != 0 ? bytesToCal[2] : (byte) 0xFF;
+        intreq[CAPTURE_FROM_OFFSET + 9] = toCalendar != 0 ? bytesToCal[3] : (byte) 0xFF;
+
+        return intreq;
+	}
+
+    private byte[] getBufferEntryDescriptorDefault(int fromEntry, int toEntry, int fromValue, int toValue) {
+
+        byte[] intreq = {
+                (byte) 0x02, // entry descriptor
+                (byte) 0x02, // structure
+                (byte) 0x04, // 4 items in structure
+
+
+                // from_entry - double-long-unsigned --> first entry to retrieve
+                (byte) 0xFF, (byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03,
+
+                //to_entry - double-long-unsigned --> last entry to retrieve
+                (byte) 0xFF, (byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03,
+
+                //from_selected_value - long-unsigned --> index of first value to retrieve
+                (byte) 0xFF, (byte) 0x00, (byte) 0x01,
+
+                //to_selected_value - long-unsigned --> index of last value to retrieve
+                (byte) 0xFF, (byte) 0x00, (byte) 0x01,
+        };
+
+        int FROM_ENTRY_OFFSET = 3;
+
+        intreq[FROM_ENTRY_OFFSET] = TYPEDESC_DOUBLE_LONG_UNSIGNED;
+        byte[] bytesFromEntry = ProtocolTools.getBytesFromInt(fromEntry, 4);
+        intreq[FROM_ENTRY_OFFSET + 1] = bytesFromEntry[0];
+        intreq[FROM_ENTRY_OFFSET + 2] = bytesFromEntry[1];
+        intreq[FROM_ENTRY_OFFSET + 3] = bytesFromEntry[2];
+        intreq[FROM_ENTRY_OFFSET + 4] = bytesFromEntry[3];
+
+        intreq[FROM_ENTRY_OFFSET + 5] = TYPEDESC_DOUBLE_LONG_UNSIGNED;
+        byte[] bytesToEntry = ProtocolTools.getBytesFromInt(toEntry, 4);
+        intreq[FROM_ENTRY_OFFSET + 6] = bytesToEntry[0];
+        intreq[FROM_ENTRY_OFFSET + 7] = bytesToEntry[1];
+        intreq[FROM_ENTRY_OFFSET + 8] = bytesToEntry[2];
+        intreq[FROM_ENTRY_OFFSET + 9] = bytesToEntry[3];
+
+        intreq[FROM_ENTRY_OFFSET + 10] = TYPEDESC_LONG_UNSIGNED;
+        byte[] bytesFromSelectedValue = ProtocolTools.getBytesFromInt(fromValue, 2);
+        intreq[FROM_ENTRY_OFFSET + 11] = bytesFromSelectedValue[0];
+        intreq[FROM_ENTRY_OFFSET + 12] = bytesFromSelectedValue[1];
+
+        intreq[FROM_ENTRY_OFFSET + 13] = TYPEDESC_LONG_UNSIGNED;
+        byte[] bytesToSelectedValue = ProtocolTools.getBytesFromInt(toValue, 2);
+        intreq[FROM_ENTRY_OFFSET + 14] = bytesToSelectedValue[0];
+        intreq[FROM_ENTRY_OFFSET + 15] = bytesToSelectedValue[1];
 
         return intreq;
 	}

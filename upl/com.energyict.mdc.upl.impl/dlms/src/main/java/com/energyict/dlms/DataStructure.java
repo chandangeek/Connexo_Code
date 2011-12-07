@@ -9,10 +9,11 @@
  */
 
 package com.energyict.dlms;
-import java.io.IOException;
-import java.io.Serializable;
 
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.io.Serializable;
 /**
  *
  * @author  Koen
@@ -137,6 +138,12 @@ public class DataStructure implements Serializable {
 	}
 	public long getLong(int index) {
 		return ((Long)this.element[index]).longValue();
+	}
+    public void addFloat(int index,float value) {
+		this.element[index] = new Float(value);
+	}
+	public float getFloat(int index) {
+		return ((Float)this.element[index]).floatValue();
 	}
 
 	public Long convert2Long(int index) throws IOException {

@@ -5,13 +5,13 @@
  */
 
 package com.energyict.dlms;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.TimeZone;
-import java.util.logging.Logger;
 
 import com.energyict.cbo.Utils;
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.logging.Logger;
 /**
  *
  * @author  Koen
@@ -268,6 +268,11 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
 		this.dataStructure.element[this.iIndex++] = new Integer(iValue);
 	}
 
+    public void addFloat(float Value) throws DataContainerException {
+		prepare();
+		this.dataStructure.element[this.iIndex++] = new Float(Value);
+	}
+
 	public void addString(String str) throws DataContainerException {
 		prepare();
 		this.dataStructure.element[this.iIndex++] = str;
@@ -278,7 +283,55 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
 		this.dataStructure.element[this.iIndex++] = new OctetString(array);
 	}
 
-	public void addStructure(int iNROfElements) throws DataContainerException {
+    public float getFloat32(byte[] byteBuffer, int iOffset) throws DataContainerException {
+        int signBit = (((int) byteBuffer[iOffset] >> 7) & 0xFF);
+        int exponent = (((((int) byteBuffer[iOffset]) << 1) & 0xFF) |
+                ((((int) byteBuffer[iOffset + 1]) >> 7) & 0x01));
+
+        int fractionDigits = ((((int) byteBuffer[iOffset + 1] << 16) & 0x7F0000) |
+                (((int) byteBuffer[iOffset + 2] << 8) & 0x00FF00) |
+                (((int) byteBuffer[iOffset + 3]) & 0x0000FF));
+        String fractionPart = Integer.toBinaryString(fractionDigits);
+
+        // fractionPart should be length 23 -- the leading 0's should be present in the string!
+        while (fractionPart.length() < 23) {
+            fractionPart = "0" + fractionPart;
+        }
+
+        float fraction = 1;
+        for (int i = 0; i < 23; i++) {
+            fraction += Integer.parseInt(fractionPart.substring(i, i + 1)) * Math.pow(2, -1 - i);
+        }
+        return (exponent > 0) ? ((float) ((Math.pow(-1, signBit)) * Math.pow(2, exponent - 127)) * fraction) : 0;
+    }
+
+    public float getFloat64(byte[] byteBuffer, int iOffset) throws DataContainerException {
+        int signBit = (((int) byteBuffer[iOffset] >> 7) & 0xFF);
+        long exponent = (((((long) byteBuffer[iOffset]) << 4) & 0x07FF) |
+                ((((long) byteBuffer[iOffset + 1]) >> 4) & 0x0F));
+
+        long fractionDigits = ((((long) byteBuffer[iOffset + 1] & 0x0F) << 48) |
+                ((((long) byteBuffer[iOffset + 2]) & 0xFF) << 40) |
+                ((((long) byteBuffer[iOffset + 3]) & 0xFF) << 32) |
+                ((((long) byteBuffer[iOffset + 4]) & 0xFF) << 24) |
+                ((((long) byteBuffer[iOffset + 5]) & 0xFF) << 16) |
+                ((((long) byteBuffer[iOffset + 6]) & 0xFF) << 8) |
+                ((((long) byteBuffer[iOffset + 7]) & 0xFF)));
+        String fractionPart = Long.toBinaryString(fractionDigits);
+
+        // fractionPart should be length 52 -- the leading 0's should be present in the string!
+        while (fractionPart.length() < 52) {
+            fractionPart = "0" + fractionPart;
+        }
+
+        float fraction = 1;
+        for (int i = 0; i < 52; i++) {
+            fraction += Integer.parseInt(fractionPart.substring(i, i + 1)) * Math.pow(2, -1 - i);
+        }
+        return (exponent > 0) ? ((float) ((Math.pow(-1, signBit)) * Math.pow(2, exponent - 1023)) * new Float(fraction)) : 0;
+    }
+
+    public void addStructure(int iNROfElements) throws DataContainerException {
 		if (this.dataStructure == null)
 		{
 			this.dataStructure = new DataStructure(iNROfElements);
@@ -313,7 +366,7 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
 	}
 
 	private static final int MAX_LEVELS=20;
-	private void doParseObjectList(byte[] responseData, Logger logger) throws IOException {
+	protected void doParseObjectList(byte[] responseData, Logger logger) throws IOException {
 		int i=0,temp;
 		int iLevel=0;
 		int[] LevelNROfElements = new int[MAX_LEVELS];
@@ -456,7 +509,21 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
 						i++;
 						addInteger(0); // TODO
 					} break; // TYPEDESC_COMPACT_ARRAY
-					
+
+                    case TYPEDESC_FLOAT32:
+                    {
+                        i++;
+                        addFloat(getFloat32(responseData, i));
+                        i += 4;
+                    } break;
+
+                    case TYPEDESC_FLOAT64:
+                    {
+                        i++;
+                        addFloat(getFloat64(responseData, i));
+                        i += 8;
+                    } break;
+
 					default:
 					{
 						i++;

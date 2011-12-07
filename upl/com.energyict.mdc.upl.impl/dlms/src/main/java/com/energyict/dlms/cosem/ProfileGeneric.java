@@ -67,6 +67,44 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
         return dataContainer;
     }
 
+    public DataContainer getBuffer(long fromCalendar, long toCalendar) throws IOException {
+        DataContainer dataContainer = new DataContainer();
+        byte[] responseData = getBufferResponseData(fromCalendar, toCalendar);
+
+        // KV_DEBUG
+        if (DEBUG >= 2) {
+            File file = new File("responseData.bin");
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(responseData);
+            fos.close();
+        }
+
+        dataContainer.parseObjectList(responseData, protocolLink.getLogger());
+        if (DEBUG >= 1) {
+            dataContainer.printDataContainer();
+        }
+        return dataContainer;
+    }
+
+    public DataContainer getBuffer(int fromEntry, int toEntry, int fromValue, int toValue) throws IOException {
+        DataContainer dataContainer = new DataContainer();
+        byte[] responseData = getBufferResponseData(fromEntry, toEntry, fromValue, toValue);
+
+        // KV_DEBUG
+        if (DEBUG >= 2) {
+            File file = new File("responseData.bin");
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(responseData);
+            fos.close();
+        }
+
+        dataContainer.parseObjectList(responseData, protocolLink.getLogger());
+        if (DEBUG >= 1) {
+            dataContainer.printDataContainer();
+        }
+        return dataContainer;
+    }
+
     public byte[] getBufferData() throws IOException {
         return getBufferData(null, null);
     }
@@ -103,9 +141,23 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
         return bufferResponseData;
     }
 
+    private byte[] getBufferResponseData(long fromCalendar, long toCalendar) throws IOException {
+        if (bufferResponseData == null) {
+            bufferResponseData = getResponseData(PROFILE_GENERIC_BUFFER, fromCalendar, toCalendar);
+        }
+        return bufferResponseData;
+    }
+
     private byte[] getBufferResponseData(Calendar fromCalendar, Calendar toCalendar, List<CapturedObject> channels) throws IOException {
         if (bufferResponseData == null) {
             bufferResponseData = getResponseData(PROFILE_GENERIC_BUFFER, fromCalendar, toCalendar, channels);
+        }
+        return bufferResponseData;
+    }
+
+    private byte[] getBufferResponseData(int fromEntry, int toEntry, int fromValue, int toValue) throws IOException {
+        if (bufferResponseData == null) {
+            bufferResponseData = getResponseData(PROFILE_GENERIC_BUFFER, fromEntry, toEntry, fromValue, toValue);
         }
         return bufferResponseData;
     }
