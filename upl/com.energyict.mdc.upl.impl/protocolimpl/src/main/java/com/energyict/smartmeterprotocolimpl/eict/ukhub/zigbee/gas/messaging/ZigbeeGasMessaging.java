@@ -1,11 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
-import com.energyict.mdw.core.*;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.messages.*;
+import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,11 +36,26 @@ public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMes
 
     public List getMessageCategories() {
         List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
-        categories.add(ProtocolMessageCategories.getPricingInformationCategory());
+        MessageCategorySpec pricingInformationCategory = ProtocolMessageCategories.getPricingInformationCategory();
+
+        categories.add(pricingInformationCategory);
         categories.add(ProtocolMessageCategories.getChangeOfTenancyCategory());
         categories.add(ProtocolMessageCategories.getChangeOfSupplierCategory());
         categories.add(getTestCategory());
         return categories;
+    }
+
+    protected MessageSpec addMsgWithValues(final String keyId, final String tagName, final boolean advanced, boolean required, String... attr) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        for (String attribute : attr) {
+            tagSpec.add(new MessageAttributeSpec(attribute, required));
+        }
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" "); //Disable this field
+        tagSpec.add(msgVal);
+        msgSpec.add(tagSpec);
+        return msgSpec;
     }
 
     public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
