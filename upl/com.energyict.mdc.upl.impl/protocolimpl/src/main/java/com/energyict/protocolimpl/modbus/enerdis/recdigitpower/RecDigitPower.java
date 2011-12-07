@@ -161,7 +161,10 @@ public class RecDigitPower extends Modbus {
     	}
     	
     	profileData = dubbelCheck(profileData);
-    	
+
+        if (includeEvents) {
+                profileData.applyEvents(getProfileInterval());
+        }
         return profileData;
     }
     
