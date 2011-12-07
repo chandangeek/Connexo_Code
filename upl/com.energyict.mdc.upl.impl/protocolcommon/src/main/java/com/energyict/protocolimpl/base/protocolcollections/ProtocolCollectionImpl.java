@@ -157,6 +157,8 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         this.protocolNames.add("IEC1107 CEWE Prometer");
         this.protocolClasses.add("com.energyict.protocolimpl.edf.trimaranplus.TrimaranPlus");
         this.protocolNames.add("Trimaran ICE meter");
+        this.protocolClasses.add("com.energyict.protocolimpl.edf.trimaranplus.pmepmi.TrimaranPMEPMI");
+        this.protocolNames.add("Trimaran PME PMI meter");
         this.protocolClasses.add("com.energyict.protocolimpl.iec1107.abba1350.ABBA1350");
         this.protocolNames.add("IEC1107 FLAG VDEW ABB A1350");
         this.protocolClasses.add("com.energyict.protocolimpl.iec1107.zmd.Zmd");
@@ -271,6 +273,8 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         this.protocolNames.add("Poreg 2P");
         this.protocolClasses.add("com.energyict.protocolimpl.dlms.idis.IDIS");
         this.protocolNames.add("IDIS");
+        this.protocolClasses.add("com.energyict.protocolimpl.dlms.idis.IDISMBus");
+        this.protocolNames.add("IDISMbus");
         this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.elster.apollo.AS300");
         this.protocolNames.add("Smart AS300");
 

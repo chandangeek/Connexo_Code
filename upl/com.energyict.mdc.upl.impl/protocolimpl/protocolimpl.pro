@@ -231,6 +231,8 @@
 
 -keepnames class com.energyict.protocolimpl.dlms.idis.IDIS
 
+-keepnames class com.energyict.protocolimpl.dlms.idis.IDISMbus
+
 # Moved it to the commons package
 #-keepnames class SDKSampleProtocol
 
