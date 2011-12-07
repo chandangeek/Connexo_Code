@@ -67,7 +67,6 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
 	/**
 	 * Method that requests a MAC connection for the TCPIP layer. this request negotiates some parameters
 	 * for the buffersizes and windowsizes.
-	 * @exception TCPIPConnectionException
 	 */
 	public void connectMAC() throws IOException {
 		if (this.boolTCPIPConnected==false) {
@@ -80,7 +79,6 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
 
 	/**
 	 * Method that requests a MAC disconnect for the TCPIP layer.
-	 * @exception TCPIPConnectionException
 	 */
 	public void disconnectMAC() throws IOException {
 		if (this.boolTCPIPConnected==true) {
@@ -249,14 +247,10 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
 
 	/**
 	 * Method that sends an information data field and receives an information field.
-	 * @param Data with the information field.
+	 * @param data with the information field.
 	 * @return Response data with the information field.
-	 * @exception TCPIPConnectionException
 	 */
 	public byte[] sendRequest(byte[] data) throws IOException {
-
-        //TODO test for connectionPooling
-        Environment.getDefault().closeConnection();
 
 		int retry=0;
 
