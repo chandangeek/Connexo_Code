@@ -334,27 +334,27 @@ class RegisterFactory extends AbstractRegisterFactory {
         avg_st     = add( "1.1.9.5.0.255", 0x0074, "average St", VA, type);
         
         d = "average FP1";
-        avg_fp_1   = add( "1.1.33.55.0.255",  0x0076, d, fpUnit, type);
+        avg_fp_1   = add( "1.1.33.5.0.255",  0x0076, d, fpUnit, type);
         d = "average FP2";
-        avg_fp_2   = add( "1.1.53.55.0.255",  0x0078, d, fpUnit, type);
+        avg_fp_2   = add( "1.1.53.5.0.255",  0x0078, d, fpUnit, type);
         d = "average FP3";
-        avg_fp_3   = add( "1.1.73.55.0.255",  0x007A, d, fpUnit, type);
+        avg_fp_3   = add( "1.1.73.5.0.255",  0x007A, d, fpUnit, type);
         d = "average FPt";
-        avg_fpt    = add( "1.1.13.55.0.255",  0x007C, d, fpUnit, type);
+        avg_fpt    = add( "1.1.13.5.0.255",  0x007C, d, fpUnit, type);
         
         d = "average THD U1";
-        avg_thd_u1 = add( "1.1.157.55.0.255", 0x007E, d, percent, type);
+        avg_thd_u1 = add( "1.1.157.5.0.255", 0x007E, d, percent, type);
         d = "average THD U2";
-        avg_thd_u2 = add( "1.1.158.55.0.255", 0x0080, d, percent, type);
+        avg_thd_u2 = add( "1.1.158.5.0.255", 0x0080, d, percent, type);
         d = "average THD U3";
-        avg_thd_u3 = add( "1.1.159.55.0.255", 0x0082, d, percent, type);
+        avg_thd_u3 = add( "1.1.159.5.0.255", 0x0082, d, percent, type);
         
         d = "average THD I1";
-        avg_thd_i1 = add( "1.1.160.55.0.255", 0x0084, d, percent, type);
+        avg_thd_i1 = add( "1.1.160.5.0.255", 0x0084, d, percent, type);
         d = "average THD I2";
-        avg_thd_i2 = add( "1.1.161.55.0.255", 0x0086, d, percent, type);
+        avg_thd_i2 = add( "1.1.161.5.0.255", 0x0086, d, percent, type);
         d = "average THD I3";
-        avg_thd_i3 = add( "1.1.162.55.0.255", 0x0088, d, percent, type);
+        avg_thd_i3 = add( "1.1.162.5.0.255", 0x0088, d, percent, type);
 
         
         /* Energy meters  */
