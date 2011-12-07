@@ -509,4 +509,4 @@
     public *;
 }
 
--keepnames com.energyict.protocolimpl.dlms.JanzC280.JanzC280
+-keepnames class com.energyict.protocolimpl.dlms.JanzC280.JanzC280
