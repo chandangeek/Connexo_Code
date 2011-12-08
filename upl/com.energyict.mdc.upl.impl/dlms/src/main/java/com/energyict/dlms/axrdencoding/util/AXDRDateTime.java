@@ -138,7 +138,7 @@ public class AXDRDateTime extends AbstractDataType {
             deviation = tOffset / SECONDS_PER_MINUTE;
         }
 
-        TimeZone tz = new SimpleTimeZone(deviation * 3600 * 1000, deviationType.getGmtNotation(deviation));
+        TimeZone tz = new SimpleTimeZone(deviationType.getGmtOffset(deviation) * 3600 * 1000, deviationType.getGmtNotation(deviation));
         dateTime = Calendar.getInstance(tz);
 
         int year = ProtocolUtils.getShort(berEncodedData, ptr);

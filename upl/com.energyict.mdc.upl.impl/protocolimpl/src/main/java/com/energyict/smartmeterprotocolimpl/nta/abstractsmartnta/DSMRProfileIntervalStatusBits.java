@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common;
+package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;

@@ -55,7 +55,7 @@ public abstract class AbstractEvent {
         for (int i = 0; i <= (size - 1); i++) {
             int eventId = (int) this.dcEvents.getRoot().getStructure(i).getValue(1) & 0xFF; // To prevent negative values
             if (isOctetString(this.dcEvents.getRoot().getStructure(i).getElement(0))) {
-                eventTimeStamp = new AXDRDateTime(new OctetString(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray()), AXDRDateTimeDeviationType.Negative).getValue().getTime();
+                eventTimeStamp = new AXDRDateTime(new OctetString(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray()), AXDRDateTimeDeviationType.Positive).getValue().getTime();
             }
             if (eventTimeStamp != null) {
                 buildMeterEvent(meterEvents, eventTimeStamp, eventId);

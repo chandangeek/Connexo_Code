@@ -4,7 +4,6 @@ import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
-import com.energyict.genericprotocolimpl.nta.eventhandling.AbstractEvent;
 import com.energyict.genericprotocolimpl.nta.eventhandling.ExtraEvents;
 import com.energyict.protocol.MeterEvent;
 
@@ -50,7 +49,7 @@ public class DisconnectControlLog extends AbstractEvent {
                 threshold = Integer.toString(this.dcEvents.getRoot().getStructure(i).getInteger(2));
             }
             if (isOctetString(this.dcEvents.getRoot().getStructure(i).getElement(0))) {
-                eventTimeStamp = new AXDRDateTime(new OctetString(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray()), AXDRDateTimeDeviationType.Negative).getValue().getTime();
+                eventTimeStamp = new AXDRDateTime(new OctetString(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray()), AXDRDateTimeDeviationType.Positive).getValue().getTime();
             }
             if (eventTimeStamp != null) {
                 buildMeterEvent(meterEvents, eventTimeStamp, eventId, threshold);

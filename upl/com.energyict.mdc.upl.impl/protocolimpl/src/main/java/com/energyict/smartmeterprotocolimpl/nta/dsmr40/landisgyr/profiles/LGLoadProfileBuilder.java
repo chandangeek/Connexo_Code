@@ -4,8 +4,8 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
+import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.DSMRProfileIntervalStatusBits;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.DSMRProfileIntervalStatusBits;
 
 import java.io.IOException;
 import java.util.*;

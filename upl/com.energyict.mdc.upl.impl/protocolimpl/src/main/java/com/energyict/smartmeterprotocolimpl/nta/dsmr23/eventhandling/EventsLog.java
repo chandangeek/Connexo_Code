@@ -1,7 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling;
 
 import com.energyict.dlms.DataContainer;
-import com.energyict.genericprotocolimpl.nta.eventhandling.AbstractEvent;
 import com.energyict.genericprotocolimpl.nta.eventhandling.ExtraEvents;
 import com.energyict.protocol.MeterEvent;
 

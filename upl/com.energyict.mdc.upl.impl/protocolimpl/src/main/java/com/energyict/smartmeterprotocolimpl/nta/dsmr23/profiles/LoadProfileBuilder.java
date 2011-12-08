@@ -9,6 +9,7 @@ import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
+import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.DSMRProfileIntervalStatusBits;
 
 
 import java.io.IOException;
@@ -372,7 +373,7 @@ public class LoadProfileBuilder {
 
                 //TODO it is possible that we need to check for the masks ...
                 DLMSProfileIntervals intervals = new DLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), DLMSProfileIntervals.DefaultClockMask,
-                        this.statusMasksMap.get(lpr), -1, null);
+                        this.statusMasksMap.get(lpr), -1, new DSMRProfileIntervalStatusBits());
                 profileData.setIntervalDatas(intervals.parseIntervals(lpc.getProfileInterval()));
 
                 profileDataList.add(profileData);
