@@ -2,8 +2,7 @@ package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.ParseUtils;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.xmlparsing.GenericDataToWrite;
@@ -28,6 +27,8 @@ import sun.misc.BASE64Decoder;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,6 +43,14 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
     private static final ObisCode ChangeOfSupplierNameObisCode = ObisCode.fromString("1.0.1.64.0.255");
     private static final ObisCode ChangeOfSupplierIdObisCode = ObisCode.fromString("1.0.1.64.1.255");
     private static final ObisCode ChangeOfTennantObisCode = ObisCode.fromString("0.128.128.0.0.255");
+    private static final String STANDING_CHARGE = "Standing charge";
+    private static final String SET_STANDING_CHARGE = "SetStandingCharge";
+    private static final String SET_PRICE_PER_UNIT = "SetPricePerUnit";
+    private static final String COMMA_SEPARATED_PRICES = "CommaSeparatedPrices";
+    private static final String ACTIVATION_DATE_TAG = "ActivationDate";
+    private static final String ACTIVATION_DATE = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";
+    private static final ObisCode PRICE_MATRIX_OBISCODE = ObisCode.fromString("0.0.1.61.0.255");
+    private static final ObisCode STANDING_CHARGE_OBISCODE = ObisCode.fromString("0.0.0.61.2.255");
 
     protected final AbstractSmartDlmsProtocol protocol;
 
@@ -74,6 +83,10 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
                 updateTimeOfUse(content);
             } else if (isUpdatePricingInformationMessage(content)) {
                 updatePricingInformation(content);
+            } else if (isSetPricePerUnit(content)) {
+                setPricePerUnit(content);
+            } else if (isSetStandingCharge(content)) {
+                setStandingCharge(content);
             } else {
 
                 MessageHandler messageHandler = new NTAMessageHandler();
@@ -102,6 +115,78 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         } else {
             log(Level.INFO, "Message has FAILED.");
             return MessageResult.createFailed(messageEntry);
+        }
+    }
+
+    private void setStandingCharge(String content) throws IOException {
+        int standingChargeValue;
+        try {
+            standingChargeValue = Integer.parseInt(getValueFromXML(STANDING_CHARGE, content));
+        } catch (NumberFormatException e) {
+            throw new IOException(e.getMessage());
+        }
+
+        Date activationDate = null;
+        String activationDateString = getValueFromXML(ACTIVATION_DATE, content);
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        try {
+            if (!activationDateString.equalsIgnoreCase("")) {
+                activationDate = formatter.parse(activationDateString);
+            }
+        } catch (ParseException e) {
+            protocol.getLogger().log(Level.SEVERE, "Error parsing the given date: " + e.getMessage());
+            throw new IOException(e.getMessage());
+        }
+
+        ActivePassive standingCharge = getCosemObjectFactory().getActivePassive(STANDING_CHARGE_OBISCODE);
+        standingCharge.writePassiveValue(new Integer32(standingChargeValue));         //Double long, signed
+        if (activationDate != null) {
+            Calendar cal = Calendar.getInstance(protocol.getTimeZone());
+            cal.setTime(activationDate);
+            standingCharge.writeActivationDate(new DateTime(cal));
+        } else {
+            standingCharge.activate();
+        }
+    }
+
+    private String getValueFromXML(String tag, String content) {
+        int startIndex = content.indexOf("<" + tag);
+        int endIndex = content.indexOf("</" + tag);
+        return content.substring(startIndex + tag.length() + 2, endIndex);
+    }
+
+    private void setPricePerUnit(String content) throws IOException {
+        ActivePassive priceInformation = getCosemObjectFactory().getActivePassive(PRICE_MATRIX_OBISCODE);
+        String[] prices = getValueFromXML(COMMA_SEPARATED_PRICES, content).split(",");
+        String activationDateString = getValueFromXML(ACTIVATION_DATE_TAG, content);
+
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        Date activationDate = null;
+        try {
+            if (!activationDateString.equalsIgnoreCase("0")) {
+                activationDate = formatter.parse(activationDateString);
+            }
+        } catch (ParseException e) {
+            protocol.getLogger().log(Level.SEVERE, "Error parsing the given date: " + e.getMessage());
+            throw new IOException(e.getMessage());
+        }
+
+        Array priceArray = new Array();
+        for (String price : prices) {
+            try {
+                priceArray.addDataType(new Unsigned32(Integer.valueOf(price)));    //Double long unsigned
+            } catch (NumberFormatException e) {
+                throw new IOException("Invalid price integer: " + price);
+            }
+        }
+        priceInformation.writePassiveValue(priceArray);
+
+        if (activationDate != null) {
+            Calendar cal = Calendar.getInstance(protocol.getTimeZone());
+            cal.setTime(activationDate);
+            priceInformation.writeActivationDate(new DateTime(cal));
+        } else {
+            priceInformation.activate();
         }
     }
 
@@ -270,6 +355,15 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
     private boolean isChangeOfSupplierMessage(final MessageHandler messageHandler) {
         return (messageHandler != null) && RtuMessageConstant.CHANGE_OF_SUPPLIER.equalsIgnoreCase(messageHandler.getType());
     }
+
+    private boolean isSetPricePerUnit(final String messageContent) {
+        return (messageContent != null) && messageContent.contains(SET_PRICE_PER_UNIT);
+    }
+
+    private boolean isSetStandingCharge(final String messageContent) {
+        return (messageContent != null) && messageContent.contains(SET_STANDING_CHARGE);
+    }
+
 
     private boolean isChangeOfTenantMessage(final MessageHandler messageHandler) {
         return (messageHandler != null) && RtuMessageConstant.CHANGE_OF_TENANT.equalsIgnoreCase(messageHandler.getType());
