@@ -739,5 +739,12 @@ public class ProtocolToolsTest {
 
     }
 
+    @Test
+    public void testGetFormattedDate() {
+        Date dateToFormat = new Date(1234567890123L);
+        assertNotNull(ProtocolTools.getFormattedDate("yyyy-MM-dd#HH:mm:ss", dateToFormat));
+        assertEquals("2009-02-14#00:31:30", ProtocolTools.getFormattedDate("yyyy-MM-dd#HH:mm:ss", dateToFormat));
+        assertEquals("2009-02-14#00:31:30,123", ProtocolTools.getFormattedDate("yyyy-MM-dd#HH:mm:ss,SSS", dateToFormat));
+    }
 
 }

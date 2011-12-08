@@ -158,6 +158,8 @@ public class MessageHandler extends DefaultHandler{
         } else if(RtuMessageConstant.CHANGE_OF_TENANT.equalsIgnoreCase(qName)) {
             setType(RtuMessageConstant.CHANGE_OF_TENANT);
             handleChangeOfTenantParameters(attrbs);
+        } else if(RtuMessageConstant.READ_ZIGBEE_STATUS.equalsIgnoreCase(qName)) {
+            setType(RtuMessageConstant.READ_ZIGBEE_STATUS);
         } else if(RtuMessageConstant.CHANGE_OF_SUPPLIER.equalsIgnoreCase(qName)) {
             setType(RtuMessageConstant.CHANGE_OF_SUPPLIER);
             handleChangeOfSupplierParameters(attrbs);

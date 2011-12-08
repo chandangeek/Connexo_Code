@@ -34,6 +34,7 @@ public class ProtocolMessageCategories {
         hanManagement.addMessageSpec(ProtocolMessageSpecifications.getRemoveAllZigBeeSlavesSpecification());
         hanManagement.addMessageSpec(ProtocolMessageSpecifications.getBackupZigBeeHanKeyMessageSpecification());
         hanManagement.addMessageSpec(ProtocolMessageSpecifications.getRestoreZigBeeParametersMessageSpecification());
+        hanManagement.addMessageSpec(ProtocolMessageSpecifications.getReadZigBeeStatusMessageSpecification());
         return hanManagement;
     }
 

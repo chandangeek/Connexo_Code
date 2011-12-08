@@ -1219,4 +1219,13 @@ public final class ProtocolTools {
         }
         return false;
     }
+
+    public static String getFormattedDate(String format, Date dateToFormat) {
+        return new SimpleDateFormat(format).format((dateToFormat == null) ? new Date() : dateToFormat);
+    }
+
+    public static String getFormattedDate(String format) {
+        return getFormattedDate(format, null);
+    }
+
 }

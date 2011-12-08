@@ -19,7 +19,7 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
 
     public static final byte[] LN = new byte[]{0, 0, 35, 5, 0, (byte) 255};
 
-    private Structure blackList;
+    private Array blackList;
     private Array activeDevices;
     private Structure backupData;
 
@@ -48,8 +48,8 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      * @return the up-to-date blackList
      * @throws IOException if for some reason you could not read the attribute
      */
-    public Structure readBlackList() throws IOException {
-        this.blackList = new Structure(getResponseData(ZigbeeHanManagementAttributes.BLACK_LIST), 0, 0);
+    public Array readBlackList() throws IOException {
+        this.blackList = new Array(getResponseData(ZigbeeHanManagementAttributes.BLACK_LIST), 0, 0);
         return this.blackList;
     }
 
@@ -59,7 +59,7 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      * @param blackList the blackList to write
      * @throws IOException if for some reason you could not write the attribute
      */
-    public void writeBlackList(Structure blackList) throws IOException {
+    public void writeBlackList(Array blackList) throws IOException {
         write(ZigbeeHanManagementAttributes.BLACK_LIST, blackList.getBEREncodedByteArray());
         this.blackList = blackList;
     }
@@ -70,7 +70,7 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      * @return the 'cached' blackList attribute
      * @throws IOException if for some reason the attribute could not be read from the device
      */
-    public Structure getBlackList() throws IOException {
+    public Array getBlackList() throws IOException {
         if (this.blackList == null) {
             readBlackList();
         }
@@ -167,7 +167,15 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      * @throws IOException if for some reason the invocation did not succeed
      */
     public byte[] backup() throws IOException {
-        return methodInvoke(ZigbeeHanManagementMethods.BACKUP, new Integer8(0));
+        byte[] bytes = new byte[0];
+        try {
+            bytes = methodInvoke(ZigbeeHanManagementMethods.BACKUP, new NullData());
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        return bytes;
     }
 
     /**

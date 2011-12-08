@@ -5,7 +5,7 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.debug.AbstractSmartDebuggingMain;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
 
@@ -56,7 +56,7 @@ public class UkHubMain extends AbstractSmartDebuggingMain<UkHub> {
     public static void main(String[] args) {
         UkHubMain main = new UkHubMain();
         main.setTimeZone(TimeZone.getTimeZone("GMT"));
-        main.setPhoneNumber("10.113.0.21:4059");
+        main.setPhoneNumber("10.113.0.20:4059");
         main.setShowCommunication(false);
         main.run();
     }
@@ -66,7 +66,7 @@ public class UkHubMain extends AbstractSmartDebuggingMain<UkHub> {
     }
 
     public void doDebug() throws LinkException, IOException {
-
+        System.out.println("Message result = " + getMeterProtocol().queryMessage(new MessageEntry("<Read_ZigBee_Status/>", "")).isSuccess());
     }
 
 }

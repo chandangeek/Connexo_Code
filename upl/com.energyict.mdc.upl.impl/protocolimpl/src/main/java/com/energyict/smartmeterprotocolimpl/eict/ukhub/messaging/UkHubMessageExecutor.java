@@ -25,6 +25,7 @@ import com.energyict.protocolimpl.dlms.common.DlmsSession;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.ObisCodeProvider;
+import com.sun.rowset.JoinRowSetImpl;
 import sun.misc.BASE64Decoder;
 
 import java.io.IOException;
@@ -35,6 +36,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.energyict.protocolimpl.utils.ProtocolTools.getBytesFromHexString;
+import static com.energyict.protocolimpl.utils.ProtocolTools.isOdd;
 
 /**
  * Copyrights EnergyICT
@@ -79,6 +81,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
             boolean removeAllZigBeeSlaves = messageHandler.getType().equals(RtuMessageConstant.REMOVE_ALL_ZIGBEE_SLAVES);
             boolean backupZigBeeHanParameters = messageHandler.getType().equals(RtuMessageConstant.BACKUP_ZIGBEE_HAN_PARAMETERS);
             boolean restoreZigBeeParameters = messageHandler.getType().equals(RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS);
+            boolean readZigBeeStatus = messageHandler.getType().equals(RtuMessageConstant.READ_ZIGBEE_STATUS);
             boolean firmwareUpdate = messageHandler.getType().equals(RtuMessageConstant.FIRMWARE_UPDATE);
             boolean testMessage = messageHandler.getType().equals(RtuMessageConstant.TEST_MESSAGE);
             boolean xmlCOnfig = messageHandler.getType().equals(RtuMessageConstant.XMLCONFIG);
@@ -101,6 +104,8 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
                 backupZigBeeHanParameters(messageHandler);
             } else if (restoreZigBeeParameters) {
                 restoreZigBeeHanParameters(messageHandler);
+            } else if (readZigBeeStatus) {
+                readZigBeeStatus();
             } else if (firmwareUpdate) {
                 firmwareUpdate(messageHandler, content);
             } else if (testMessage) {
@@ -255,6 +260,20 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
             zigBeeSASStartup.writeUseInsecureJoin(insecureJoinObject);
         }
 
+    }
+
+    private void readZigBeeStatus() throws IOException, BusinessException, SQLException {
+        ZigBeeStatus zigBeeStatus = new ZigBeeStatus(getCosemObjectFactory());
+        String status = zigBeeStatus.readStatus();
+        String fileName = "ZigBeeStatus_" + protocol.getDlmsSession().getProperties().getSerialNumber() + "_" + ProtocolTools.getFormattedDate("yyyy-MM-dd#HH:mm:ss");
+        System.out.println("\n");
+        System.out.println(status);
+        System.out.println("\n");
+
+        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName, status.getBytes("UTF-8"), getFolderIdFromHub(), "txt");
+        mw().getUserFileFactory().create(ufs);
+
+        log(Level.INFO, "Stored ZigBee status parameters in userFile: " + fileName);
     }
 
     private void restoreZigBeeHanParameters(final MessageHandler messageHandler) throws IOException {

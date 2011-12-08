@@ -139,6 +139,18 @@ public class ProtocolMessageSpecifications {
     }
 
     /**
+     * Creates a MessageSpecification for reading the ZigBee status parameters and storing it in a user file
+     *
+     * @return the requested messageSpecification
+     */
+    public static MessageSpec getReadZigBeeStatusMessageSpecification() {
+        MessageSpec msgSpec = new MessageSpec(RtuMessageKeyIdConstants.READ_ZIGBEE_STATUS);
+        MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.READ_ZIGBEE_STATUS);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
+    /**
      * Creates a MessageSpecification for updating the Pricing Information message
      *
      * @return the requested messageSpecification
