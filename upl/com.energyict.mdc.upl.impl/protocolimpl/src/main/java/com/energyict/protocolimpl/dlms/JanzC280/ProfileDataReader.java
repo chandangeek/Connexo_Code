@@ -36,66 +36,76 @@ public class ProfileDataReader {
      *
      */
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
-        if (to == null) {
-            to = new Date();
-        }
+        ProfileData profileData;
+        try {
+            if (to == null) {
+                to = new Date();
+            }
 
-        // from and to date should be transformed to number of seconds since 1 jan 2000.
-        Calendar fromCal = Calendar.getInstance(janzC280.getTimeZone());
-        fromCal.setTime(from);
-        Calendar toCal = Calendar.getInstance(janzC280.getTimeZone());
-        toCal.setTime(to);
+            // from and to date should be transformed to number of seconds since 1 jan 2000.
+            Calendar fromCal = Calendar.getInstance(janzC280.getTimeZone());
+            fromCal.setTime(from);
+            Calendar toCal = Calendar.getInstance(janzC280.getTimeZone());
+            toCal.setTime(to);
 
-        long fromDateStamp = ((fromCal.getTime().getTime() / 1000) - 946684800);
-        long toDateStamp = ((toCal.getTime().getTime() / 1000) - 946684800);
+            long fromDateStamp = ((fromCal.getTime().getTime() / 1000) - 946684800);
+            long toDateStamp = ((toCal.getTime().getTime() / 1000) - 946684800);
 
-        int length = janzC280.getLoadProfileObisCodes().length;
-        ProfileGeneric[] profileGenerics = new ProfileGeneric[length];
-        ProfileData profileData = new ProfileData();
-        List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
+            int length = janzC280.getLoadProfileObisCodes().length;
+            ProfileGeneric[] profileGenerics = new ProfileGeneric[length];
+            profileData = new ProfileData();
+            List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
 
-        for (int i = 0; i < length; i++) {
-            profileGenerics[i] = janzC280.getCosemObjectFactory().getProfileGeneric(janzC280.getLoadProfileObisCodes()[i]);
-            profileData.addChannel(getChannelInfo(i));
-            DataContainer buffer = profileGenerics[i].getBuffer(fromDateStamp, toDateStamp);
-            Object[] loadProfileEntries = buffer.getRoot().getElements();
+            for (int i = 0; i < length; i++) {
+                profileGenerics[i] = janzC280.getCosemObjectFactory().getProfileGeneric(janzC280.getLoadProfileObisCodes()[i]);
+                profileData.addChannel(getChannelInfo(i));
+                DataContainer buffer = profileGenerics[i].getBuffer(fromDateStamp, toDateStamp);
+                Object[] loadProfileEntries = buffer.getRoot().getElements();
 
-            for (int index = 0; index < loadProfileEntries.length; index++) {
-                DataStructure structure = buffer.getRoot().getStructure(index);
+                for (int index = 0; index < loadProfileEntries.length; index++) {
+                    DataStructure structure = buffer.getRoot().getStructure(index);
 
-                byte[] eventDef = new byte[]{(byte) structure.getInteger(0), (byte) structure.getInteger(1)};
-                // The timestamp received from the meter is the number of seconds since 1 jan 2000.
-                Calendar cal = Calendar.getInstance(janzC280.getTimeZone());         // Received timestamp is in the device timezone, not GMT!
-                cal.setTimeInMillis((946684800 + structure.getValue(2)) * 1000);    // Number of seconds [1970 - 2000] + number of seconds [2000 - meter time]
+                    byte[] eventDef = new byte[]{(byte) structure.getInteger(0), (byte) structure.getInteger(1)};
+                    // The timestamp received from the meter is the number of seconds since 1 jan 2000.
+                    Calendar cal = Calendar.getInstance(janzC280.getTimeZone());         // Received timestamp is in the device timezone, not GMT!
+                    cal.setTimeInMillis((946684800 + structure.getValue(2)) * 1000);    // Number of seconds [1970 - 2000] + number of seconds [2000 - meter time]
 
-                int protocolStatus = Integer.parseInt(String.valueOf(structure.getValue(0))
-                        + (structure.getValue(1) < 10 ? "0" : "")
-                        + String.valueOf(structure.getValue(1)));
+                    int protocolStatus = Integer.parseInt(String.valueOf(structure.getValue(0))
+                            + (structure.getValue(1) < 10 ? "0" : "")
+                            + String.valueOf(structure.getValue(1)));
 
-                float value = structure.getFloat(4);
+                    float value = structure.getFloat(4);
 
-                // Construct an intervalData object
-                // The first iteration, a new intervalData object should be created.
-                // All following iterations should inject their values into to the existing object.
-                if (i == 0) {
-                    List<IntervalValue> values = new ArrayList<IntervalValue>();
-                    values.add(new IntervalValue(value, 0, 0));
-                    intervalDatas.add(new IntervalData(cal.getTime(), getEiServerStatus(eventDef), protocolStatus, 0, values));
-                } else {
-                    IntervalData intervalData = intervalDatas.get(index);
-                    if (intervalData.getEndTime().equals(cal.getTime())) {
-                        intervalData.getIntervalValues().add(new IntervalValue(value, protocolStatus, getEiServerStatus(eventDef)));
+                    // Construct an intervalData object
+                    // The first iteration, a new intervalData object should be created.
+                    // All following iterations should inject their values into to the existing object.
+                    if (i == 0) {
+                        List<IntervalValue> values = new ArrayList<IntervalValue>();
+                        values.add(new IntervalValue(value, 0, 0));
+                        intervalDatas.add(new IntervalData(cal.getTime(), getEiServerStatus(eventDef), protocolStatus, 0, values));
                     } else {
-                        throw new IOException("Error while constructing the profile data - The interval periods of the different channels do not match!");
+                        IntervalData intervalData = intervalDatas.get(index);
+                        if (intervalData.getEndTime().equals(cal.getTime())) {
+                            intervalData.getIntervalValues().add(new IntervalValue(value, protocolStatus, getEiServerStatus(eventDef)));
+                        } else {
+                            throw new IOException("Error while constructing the profile data - The interval periods of the different channels do not match!");
+                        }
                     }
                 }
+                profileData.setIntervalDatas(intervalDatas);
             }
-            profileData.setIntervalDatas(intervalDatas);
-        }
 
-        if (includeEvents) {
-            List<MeterEvent> meterEvents = getMeterEvents(fromDateStamp, toDateStamp);
-            profileData.setMeterEvents(meterEvents);
+            if (includeEvents) {
+                List<MeterEvent> meterEvents = getMeterEvents(fromDateStamp, toDateStamp);
+                profileData.setMeterEvents(meterEvents);
+            }
+
+        } catch (DataAccessResultException dataBlockUnavailable) {
+            // When data is searched by entry or by dates, but the EB has no data to satisfy the search,
+            // it will return the error 'data block unavailable'.
+            // Here we just absorb the error and return an empty dataContainer.
+            profileData = new ProfileData();
+            janzC280.getLogger().warning("Warning: The meter contains no profile data for the given period!");
         }
 
         return profileData;
