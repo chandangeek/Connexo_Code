@@ -1,13 +1,12 @@
 package com.energyict.genericprotocolimpl.nta.messagehandling;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
-import com.energyict.protocolimpl.messages.*;
-import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocolimpl.messages.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Protocol implementation of which messages should be used.
@@ -30,7 +29,7 @@ public class MeterMessages extends GenericMessaging {
 		MessageCategorySpec catGlobalDisc = getGlobalResetCategory();
 		MessageCategorySpec catAuthEncrypt = getAuthEncryptCategory();
 		MessageCategorySpec catConnectivity = getConnectivityCategory();
-		
+        MessageCategorySpec catResetParameters = getResetParametersCategory();
 		
 		// MessageCategorySpec catWakeUp = getWakeupCategory();
 		// MessageCategorySpec catGPRSModemSetup = getGPRSModemSetupCategory();
@@ -52,6 +51,7 @@ public class MeterMessages extends GenericMessaging {
 		// categories.add(catWakeUp);
 
 		categories.add(catAuthEncrypt);
+        categories.add(catResetParameters);
 
 		return categories;
 	}
@@ -77,6 +77,21 @@ public class MeterMessages extends GenericMessaging {
 		catGPRSModemSetup.addMessageSpec(msgSpec);
 		return catGPRSModemSetup;
 	}
+
+    private MessageCategorySpec getResetParametersCategory() {
+        MessageCategorySpec catResetParameters = new MessageCategorySpec(
+                RtuMessageCategoryConstants.RESET_PARAMETERS);
+        MessageSpec msgSpec = addNoValueMsg(
+                RtuMessageKeyIdConstants.RESETALARMREGISTER,
+                RtuMessageConstant.RESET_ALARM_REGISTER, false);
+        catResetParameters.addMessageSpec(msgSpec);
+
+        msgSpec = addChangeDefaultResetWindowMsg(
+                RtuMessageKeyIdConstants.CHANGEDEFAULTRESETWINDOW,
+                RtuMessageConstant.CHANGE_DEFAULT_RESET_WINDOW, false);
+        catResetParameters.addMessageSpec(msgSpec);
+        return catResetParameters;
+    }
 
 	/**
 	 * Create three messages, one to change the <b>globalKey</b>, one to change the

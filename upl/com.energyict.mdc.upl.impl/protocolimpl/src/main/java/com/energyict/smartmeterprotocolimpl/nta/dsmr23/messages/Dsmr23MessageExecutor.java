@@ -94,6 +94,8 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                 boolean changeAuthLevel = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL);
                 boolean partialLoadProfile = messageHandler.getType().equals(PartialLoadProfileMessageBuilder.getMessageNodeTag());
                 boolean loadProfileRegisterRequest = messageHandler.getType().equals(LoadProfileRegisterMessageBuilder.getMessageNodeTag());
+                boolean resetAlarmRegisterRequest = messageHandler.getType().equals(RtuMessageConstant.RESET_ALARM_REGISTER);
+                boolean isChangeDefaultResetWindow = messageHandler.getType().equals(RtuMessageConstant.CHANGE_DEFAULT_RESET_WINDOW);
 
                 /* All MbusMeter related messages */
                 if (xmlConfig) {
@@ -156,6 +158,10 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                     msgResult = doReadPartialLoadProfile(msgEntry);
                 } else if (loadProfileRegisterRequest) {
                     msgResult = doReadLoadProfileRegisters(msgEntry);
+                } else if (resetAlarmRegisterRequest) {
+                    resetAlarmRegister();
+                } else if(isChangeDefaultResetWindow) {
+                    changeDefaultResetWindow(messageHandler);
                 } else {
                     msgResult = MessageResult.createFailed(msgEntry, "Message not supported by the protocol.");
                     log(Level.INFO, "Message not supported : " + content);
@@ -974,6 +980,16 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             Array dateArray = convertUnixToDateTimeArray(strDate);
             sas.writeExecutionTime(dateArray);
         }
+    }
+
+    private void resetAlarmRegister() throws IOException {
+        log(Level.INFO, "Handling message Reset Alarm register.");
+        getCosemObjectFactory().getData(ObisCode.fromString("0.0.97.98.0.255")).setValueAttr(new Unsigned32(0));
+    }
+
+    private void changeDefaultResetWindow(MessageHandler messageHandler) throws IOException {
+        log(Level.INFO, "Handling message Change default reset window.");
+        getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.5.255")).setValueAttr(new Unsigned32(messageHandler.getDefaultResetWindow()));
     }
 
     private void log(final Level level, final String msg) {

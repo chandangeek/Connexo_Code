@@ -39,7 +39,9 @@ public class DlmsSession implements ProtocolLink {
     public void init() throws IOException {
         this.cosemObjectFactory = new CosemObjectFactory(this, getProperties().isBulkRequest());
         this.aso = buildAso();
-        this.dlmsConnection = new SecureConnection(this.aso, defineTransportDLMSConnection());
+        if(dlmsConnection == null){
+            this.dlmsConnection = new SecureConnection(this.aso, defineTransportDLMSConnection());
+        }
         this.dlmsConnection.setInvokeIdAndPriority(getProperties().getInvokeIdAndPriority());
         this.dlmsConnection.setIskraWrapper(getProperties().getIskraWrapper());
         this.dlmsMeterConfig = DLMSMeterConfig.getInstance(getProperties().getManufacturer());

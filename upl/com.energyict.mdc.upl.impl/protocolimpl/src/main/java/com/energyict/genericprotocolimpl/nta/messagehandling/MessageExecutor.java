@@ -3,11 +3,9 @@ package com.energyict.genericprotocolimpl.nta.messagehandling;
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.Limiter.ValueDefinitionType;
@@ -16,12 +14,13 @@ import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.messages.ActivityCalendarMessage;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
-import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.RtuMessageShadow;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -92,6 +91,8 @@ public class MessageExecutor extends GenericMessageExecutor{
 			boolean deActivateSMS 	= messageHandler.getType().equals(RtuMessageConstant.WAKEUP_DEACTIVATE);
 			boolean actSecuritLevel = messageHandler.getType().equals(RtuMessageConstant.AEE_ACTIVATE_SECURITY);
             boolean changeAuthLevel = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL);
+            boolean resetAlarmRegisterRequest = messageHandler.getType().equals(RtuMessageConstant.RESET_ALARM_REGISTER);
+                boolean isChangeDefaultResetWindow = messageHandler.getType().equals(RtuMessageConstant.CHANGE_DEFAULT_RESET_WINDOW);
 			
 			if(xmlConfig){
 				
@@ -822,8 +823,16 @@ public class MessageExecutor extends GenericMessageExecutor{
                     log(Level.WARNING, "Message " + rtuMessage.displayString() + " contained an invalid authenticationLevel.");
                     success = false;
                 }
-			} else {
-				success = false;
+            } else if (resetAlarmRegisterRequest) {
+                log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Reset Alarm register.");
+                getCosemObjectFactory().getData(ObisCode.fromString("0.0.97.98.0.255")).setValueAttr(new Unsigned32(0));
+                success = true;
+            } else if (isChangeDefaultResetWindow) {
+                log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Change default reset window");
+                getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.5.255")).setValueAttr(new Unsigned32(messageHandler.getDefaultResetWindow()));
+                success = true;
+            } else {
+                success = false;
 			}
 			
 		} catch (BusinessException e) {

@@ -169,6 +169,9 @@ public class MessageHandler extends DefaultHandler{
         } else if(LoadProfileRegisterMessageBuilder.getMessageNodeTag().equalsIgnoreCase(qName)){
             setType(LoadProfileRegisterMessageBuilder.getMessageNodeTag());
             isXmlInContent = true;
+        } else if(RtuMessageConstant.CHANGE_DEFAULT_RESET_WINDOW.equalsIgnoreCase(qName)) {
+            setType(RtuMessageConstant.CHANGE_DEFAULT_RESET_WINDOW);
+            handleChangeOfDefaultResetWindowParameters(attrbs);
 		} else {
 			if(!isXmlInContent){ // If there is XML in the content, then the protocol will parse it himself ...
 				throw new SAXException("Unknown messageContent : " + qName);
@@ -742,5 +745,22 @@ public class MessageHandler extends DefaultHandler{
 
     public String getSupplierActivationDate() {
         return supplierActivationDate;
+    }
+
+
+    private int defaultResetWindow = 0;
+
+    private void handleChangeOfDefaultResetWindowParameters(final Attributes attrbs) throws SAXException {
+        String defaultResetWindowStr = attrbs.getValue(RtuMessageConstant.CHANGE_DEFAULT_RESET_WINDOW);
+      		try {
+			defaultResetWindow = Integer.parseInt(defaultResetWindowStr);
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			throw new SAXException("Default reset window attribute contains a non numeric value: " + defaultResetWindowStr);
+		}
+    }
+
+    public int getDefaultResetWindow() {
+        return defaultResetWindow;
     }
 }

@@ -67,4 +67,7 @@ public class RtuMessageKeyIdConstants {
     public static final String CHANGE_OF_SUPPLIER = "Change Of Supplier";
 
     public static final String CHANGE_ADMINISTRATIVE_STATUS = "Change Administrative status";
+
+    public static final String RESETALARMREGISTER = "Reset Alarm register";
+    public static final String CHANGEDEFAULTRESETWINDOW = "Change default reset window";
 }

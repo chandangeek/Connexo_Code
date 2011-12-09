@@ -29,6 +29,7 @@ public class RtuMessageCategoryConstants {
     public static final String PRICING_INFORMATION = "Pricing Information";
     public static final String CHANGE_OF_TENANCY = "Change of Tenancy";
     public static final String CHANGE_OF_SUPPLIER = "Change of Supplier";
+    public static final String RESET_PARAMETERS = "Reset";
 
     public static final String CHANGE_ADMINISTRATIVE_STATUS = "Change administrative status";
 }

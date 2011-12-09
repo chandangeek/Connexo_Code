@@ -6,13 +6,13 @@ import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
 import com.energyict.protocolimpl.messages.*;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MessageExecutor;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Copyrights EnergyICT
  * Copyrights EnergyICT
  * Date: 15-jul-2011
  * Time: 13:17:46
@@ -63,6 +63,7 @@ public class Dsmr23Messaging extends GenericMessaging implements MessageProtocol
 		MessageCategorySpec catGlobalDisc = getGlobalResetCategory();
 		MessageCategorySpec catAuthEncrypt = getAuthEncryptCategory();
 		MessageCategorySpec catConnectivity = getConnectivityCategory();
+        MessageCategorySpec catResetParameters = getResetParametersCategory();
 
 		categories.add(catXMLConfig);
 		categories.add(catFirmware);
@@ -76,6 +77,7 @@ public class Dsmr23Messaging extends GenericMessaging implements MessageProtocol
 		categories.add(catGlobalDisc);
 		categories.add(catConnectivity);
 		categories.add(catAuthEncrypt);
+        categories.add(catResetParameters);
 
 		return categories;
 	}
@@ -102,9 +104,24 @@ public class Dsmr23Messaging extends GenericMessaging implements MessageProtocol
 		return catGPRSModemSetup;
 	}
 
-	/**
-	 * Create three messages, one to change the <b>globalKey</b>, one to change the
-	 * <b>AuthenticationKey</b>, and the other one to change
+    private MessageCategorySpec getResetParametersCategory() {
+        MessageCategorySpec catResetParameters = new MessageCategorySpec(
+                RtuMessageCategoryConstants.RESET_PARAMETERS);
+        MessageSpec msgSpec = addNoValueMsg(
+                RtuMessageKeyIdConstants.RESETALARMREGISTER,
+                RtuMessageConstant.RESET_ALARM_REGISTER, false);
+        catResetParameters.addMessageSpec(msgSpec);
+
+        msgSpec = addChangeDefaultResetWindowMsg(
+                RtuMessageKeyIdConstants.CHANGEDEFAULTRESETWINDOW,
+                RtuMessageConstant.CHANGE_DEFAULT_RESET_WINDOW, false);
+        catResetParameters.addMessageSpec(msgSpec);
+        return catResetParameters;
+    }
+
+    /**
+     * Create three messages, one to change the <b>globalKey</b>, one to change the
+     * <b>AuthenticationKey</b>, and the other one to change
 	 * the <b>HLSSecret</b>
 	 *
 	 * @return a category with four MessageSpecs for Authenticate/Encrypt functionality
@@ -131,5 +148,4 @@ public class Dsmr23Messaging extends GenericMessaging implements MessageProtocol
         catAuthEncrypt.addMessageSpec(msgSpec);
 		return catAuthEncrypt;
 	}
-
 }
