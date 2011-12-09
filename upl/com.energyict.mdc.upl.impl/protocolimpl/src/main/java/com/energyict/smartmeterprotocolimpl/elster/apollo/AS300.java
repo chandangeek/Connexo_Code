@@ -274,7 +274,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
             String ipAddress = link.getStreamConnection().getSocket().getInetAddress().getHostAddress();
 
             link.getStreamConnection().serverClose();
-            link.setStreamConnection(new SocketStreamConnection(ipAddress + ":4059"));
+            link.updateStreamConnection(new SocketStreamConnection(ipAddress + ":4059"));
             link.getStreamConnection().serverOpen();
             reInitDlmsSession(link);
 

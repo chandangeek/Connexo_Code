@@ -177,11 +177,17 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
             String ipAddress = "";
             getLogger().info("In Wakeup");
             SmsWakeup smsWakeup = new SmsWakeup(getCommunicationScheduler().getRtu(), getLogger());
-            smsWakeup.doWakeUp();
+            try {
+                smsWakeup.doWakeUp();
+            } catch (SQLException e) {
+                getLogger().severe("WakeUp failed - " + e.getMessage());
+                Environment.getDefault().closeConnection();
+                throw new BusinessException("Failed during the WakeUp",e);
+            }
 
             ipAddress = ProtocolTools.checkIPAddressForPortNumber(smsWakeup.getIpAddress(), getPortNumber());
 
-            this.link.setStreamConnection(new SocketStreamConnection(ipAddress));
+            this.link.updateStreamConnection(new SocketStreamConnection(ipAddress));
             this.link.getStreamConnection().open();
             getLogger().log(Level.INFO, "Connected to " + ipAddress);
         }
@@ -335,9 +341,8 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
         if ((getFullShadow() != null) && (this.password != null)) {    //MeterTool already has the password as a property
             this.properties.put(MeterProtocol.PASSWORD, this.password);
         }
-        NTASecurityProvider lsp = new NTASecurityProvider(this.properties);
 
-        return lsp;
+        return new NTASecurityProvider(this.properties);
     }
 
     /**
@@ -415,7 +420,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
      * @throws IOException       - caused by an invalid reference type or invalid datatype
      */
     protected String getTheMeterHisIpAddress() throws SQLException, BusinessException, IOException {
-        StringBuffer ipAddress = new StringBuffer();
+        StringBuilder ipAddress = new StringBuilder();
         try {
             IPv4Setup ipv4Setup = getCosemObjectFactory().getIPv4Setup();
             ipAddress.append(ipv4Setup.getIPAddress());
@@ -1259,7 +1264,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
     }
 
     public boolean isRequestTimeZone() {
-        return (this.requestTimeZone == 1) ? true : false;
+        return (this.requestTimeZone == 1);
     }
 
     public CosemObjectFactory getCosemObjectFactory() {
