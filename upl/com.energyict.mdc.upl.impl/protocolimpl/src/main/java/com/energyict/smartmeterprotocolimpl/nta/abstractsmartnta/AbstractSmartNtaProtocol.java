@@ -399,7 +399,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
 
                 ipAddress = ProtocolTools.checkIPAddressForPortNumber(smsWakeup.getIpAddress(), "4059");
 
-                link.updateStreamConnection(new SocketStreamConnection(ipAddress));
+                link.setStreamConnection(new SocketStreamConnection(ipAddress));
                 link.getStreamConnection().open();
                 logger.log(Level.INFO, "Connected to " + ipAddress);
             } else {

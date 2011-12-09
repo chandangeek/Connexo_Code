@@ -187,7 +187,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
 
             ipAddress = ProtocolTools.checkIPAddressForPortNumber(smsWakeup.getIpAddress(), getPortNumber());
 
-            this.link.updateStreamConnection(new SocketStreamConnection(ipAddress));
+            this.link.setStreamConnection(new SocketStreamConnection(ipAddress));
             this.link.getStreamConnection().open();
             getLogger().log(Level.INFO, "Connected to " + ipAddress);
         }
