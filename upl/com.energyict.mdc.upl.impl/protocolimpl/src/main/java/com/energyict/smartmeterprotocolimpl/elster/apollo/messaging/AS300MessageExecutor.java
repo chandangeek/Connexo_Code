@@ -51,6 +51,8 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
     private static final String ACTIVATION_DATE = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";
     private static final ObisCode PRICE_MATRIX_OBISCODE = ObisCode.fromString("0.0.1.61.0.255");
     private static final ObisCode STANDING_CHARGE_OBISCODE = ObisCode.fromString("0.0.0.61.2.255");
+    private static final ObisCode METER_MESSAGE_CONTROL = ObisCode.fromString("1.0.35.3.8.255");
+    private static final ObisCode DISCONNECTOR = ObisCode.fromString("0.0.96.3.10.255");
 
     protected final AbstractSmartDlmsProtocol protocol;
 
@@ -83,6 +85,12 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
                 updateTimeOfUse(content);
             } else if (isUpdatePricingInformationMessage(content)) {
                 updatePricingInformation(content);
+            } else if (isConnectControlMessage(content)) {
+                doConnect(content);
+            } else if (isDisconnectControlMessage(content)) {
+                doDisconnect(content);
+            } else if (isTextToDisplayMessage(content)) {
+                sendTextToDisplay(content);
             } else if (isSetPricePerUnit(content)) {
                 setPricePerUnit(content);
             } else if (isSetStandingCharge(content)) {
@@ -278,6 +286,59 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         }
     }
 
+    private void doConnect(final String content) throws IOException {
+        log(Level.INFO, "Received Remote Connect message.");
+        Disconnector connector = getCosemObjectFactory().getDisconnector(DISCONNECTOR);
+        connector.remoteReconnect();
+    }
+
+    private void doDisconnect(final String content) throws IOException {
+        log(Level.INFO, "Received Disconnect Control - Disonnect message.");
+        Disconnector connector = getCosemObjectFactory().getDisconnector(DISCONNECTOR);
+        connector.remoteDisconnect();
+    }
+
+    private void sendTextToDisplay(final String content) throws IOException {
+        log(Level.INFO, "Send text message to display message received.");
+        ActivePassive meterMessageControl = getCosemObjectFactory().getActivePassive(METER_MESSAGE_CONTROL);
+
+        String[] parts = content.split("=");
+        String message = parts[1].substring(1).split("\"")[0];
+        int duration = 0;
+        Date date = null;
+
+        try {
+            duration = Integer.parseInt(parts[2].substring(1).split("\"")[0]);
+            if (parts.length > 3) {
+                String dateString = parts[3].substring(1).split("\"")[0];
+
+                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                date = formatter.parse(dateString);
+            }
+        } catch (ParseException e) {
+            log(Level.SEVERE, "Error while parsing the activation date: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            log(Level.SEVERE, "Error while parsing the time duration: " + e.getMessage());
+        }
+
+        Structure structure = new Structure();
+        structure.addDataType(new Unsigned32((int) Calendar.getInstance().getTimeInMillis()));
+        OctetString octetString = OctetString.fromString((message.length() > 128 ? message.substring(0, 127) : message), 128);
+        structure.addDataType(octetString);
+        structure.addDataType(new Unsigned16(duration));
+        structure.addDataType(new BitString(0x0F, 8));
+        structure.addDataType(new Unsigned16(0));
+
+        meterMessageControl.writePassiveValue(structure);
+        if (date != null) {
+            Calendar cal = Calendar.getInstance(protocol.getTimeZone());
+            cal.setTime(date);
+            meterMessageControl.writeActivationDate(new DateTime(cal));
+        } else {
+            meterMessageControl.activate();
+        }
+    }
+
     private String getIncludedContent(final String content) {
         int begin = content.indexOf(GenericMessaging.INCLUDED_USERFILE_TAG) + GenericMessaging.INCLUDED_USERFILE_TAG.length() + 1;
         int end = content.indexOf(GenericMessaging.INCLUDED_USERFILE_TAG, begin) - 2;
@@ -367,6 +428,18 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
 
     private boolean isChangeOfTenantMessage(final MessageHandler messageHandler) {
         return (messageHandler != null) && RtuMessageConstant.CHANGE_OF_TENANT.equalsIgnoreCase(messageHandler.getType());
+    }
+
+    private boolean isConnectControlMessage(final String messageContent) {
+        return (messageContent != null) && messageContent.contains(AS300Messaging.DISCONNECT_CONTROL_RECONNECT);
+    }
+
+    private boolean isDisconnectControlMessage(final String messageContent) {
+        return (messageContent != null) && messageContent.contains(AS300Messaging.DISCONNECT_CONTROL_DISCONNECT);
+    }
+
+    private boolean isTextToDisplayMessage(final String messageContent) {
+        return (messageContent != null) && messageContent.contains(AS300Messaging.TEXT_TO_DISPLAY);
     }
 
     @Override

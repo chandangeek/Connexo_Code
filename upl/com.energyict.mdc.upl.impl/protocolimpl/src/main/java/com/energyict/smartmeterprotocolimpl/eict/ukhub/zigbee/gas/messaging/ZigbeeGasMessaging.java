@@ -20,6 +20,9 @@ public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMes
 
     private final ZigbeeMessageExecutor messageExecutor;
 
+    protected static final String REMOTECONNECT = "RemoteConnect";
+    protected static final String REMOTEDISCONNECT = "RemoteDisconnect";
+
     public ZigbeeGasMessaging(final ZigbeeMessageExecutor messageExecutor) {
         this.messageExecutor = messageExecutor;
     }
@@ -41,6 +44,12 @@ public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMes
         categories.add(pricingInformationCategory);
         categories.add(ProtocolMessageCategories.getChangeOfTenancyCategory());
         categories.add(ProtocolMessageCategories.getChangeOfSupplierCategory());
+
+        MessageCategorySpec connectDisconnectCat = new MessageCategorySpec("Connect/disconnect");
+        connectDisconnectCat.addMessageSpec(addMsgWithValues("Remote connect", REMOTECONNECT, false, false));
+        connectDisconnectCat.addMessageSpec(addMsgWithValues("Remote disconnect",  REMOTEDISCONNECT, false, false));
+        categories.add(connectDisconnectCat);
+
         categories.add(getTestCategory());
         return categories;
     }

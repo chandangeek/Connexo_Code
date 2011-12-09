@@ -28,6 +28,11 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol,
     private static final String ACTIVATION_DATE_TAG = "ActivationDate";
     private static final String ACTIVATION_DATE = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";
     private static final String STANDING_CHARGE = "Standing charge";
+    protected static final String DISCONNECT_CONTROL_RECONNECT = "DisconnectControlReconnect";
+    protected static final String DISCONNECT_CONTROL_DISCONNECT = "DisconnectControlDisonnect";
+    protected static final String TEXT_TO_DISPLAY = "TextToDisplay";
+    protected static final String MESSAGE = "Message";
+    protected static final String DURATION = "Duration of message";
 
     public AS300Messaging(final AS300MessageExecutor messageExecutor) {
         this.messageExecutor = messageExecutor;
@@ -47,6 +52,15 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol,
         categories.add(pricingInformationCategory);
         categories.add(ProtocolMessageCategories.getChangeOfTenancyCategory());
         categories.add(ProtocolMessageCategories.getChangeOfSupplierCategory());
+
+        MessageCategorySpec connectDisconnectCat = new MessageCategorySpec("Connect/disconnect");
+        connectDisconnectCat.addMessageSpec(addMsgWithValues("Disconnect Control - Reconnect", DISCONNECT_CONTROL_RECONNECT, false, false));
+        connectDisconnectCat.addMessageSpec(addMsgWithValues("Disconnect Control - Disconnect", DISCONNECT_CONTROL_DISCONNECT, false, false));
+        categories.add(connectDisconnectCat);
+
+        MessageCategorySpec textMessagesCat = new MessageCategorySpec("Display");
+        textMessagesCat.addMessageSpec(addMsgWithValuesAndOptionalValue("Send text message to display", TEXT_TO_DISPLAY, false, ACTIVATION_DATE, MESSAGE, DURATION));
+        categories.add(textMessagesCat);
         return categories;
     }
 

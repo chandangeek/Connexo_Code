@@ -27,8 +27,10 @@ import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsSession;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ObisCodeProvider;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300TimeOfUseMessageBuilder;
 import org.xml.sax.SAXException;
+import sun.misc.BASE64Decoder;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -44,6 +46,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
 
     private static final ObisCode ChangeOfSupplierNameObisCode = ObisCode.fromString("1.0.1.64.0.255");
     private static final ObisCode ChangeOfSupplierIdObisCode = ObisCode.fromString("1.0.1.64.1.255");
+    private static final ObisCode DISCONNECTOR = ObisCode.fromString("0.0.96.3.10.255");
 
     private final AbstractSmartDlmsProtocol protocol;
     private ActivityCalendarController activityCalendarController;
@@ -75,7 +78,13 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
                 updateTimeOfUse(content);
             } else if (isUpdatePricingInformationMessage(content)) {
                 updatePricingInformation(content);
-            } else {
+            } else if (isConnectControlMessage(content))   {
+                doConnect(content);
+            } else if (isDisconnectControlMessage(content))   {
+                doDisconnect(content);
+            } else if (isFirmwareUpgradeMessage(content)) {
+                doFirmwareUpgrade(content);
+            }else {
 
                 MessageHandler messageHandler = new NTAMessageHandler();
                 importMessage(content, messageHandler);
@@ -172,6 +181,33 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
         }
     }
 
+    private void doConnect(final String content) throws IOException {
+        log(Level.INFO, "Received Remote Connect message.");
+        Disconnector connector = getCosemObjectFactory().getDisconnector(DISCONNECTOR);
+        connector.remoteReconnect();
+    }
+
+    private void doDisconnect(final String content) throws IOException {
+        log(Level.INFO, "Received Remote Disconnect message.");
+         Disconnector connector = getCosemObjectFactory().getDisconnector(DISCONNECTOR);
+		connector.remoteDisconnect();
+    }
+
+    private void doFirmwareUpgrade(final String content) throws IOException {
+        log(Level.INFO, "Executing firmware update message");
+        try {
+            String base64Encoded = getIncludedContent(content);
+            byte[] imageData = new BASE64Decoder().decodeBuffer(base64Encoded);
+            ImageTransfer it = getCosemObjectFactory().getImageTransfer(ObisCodeProvider.FIRMWARE_UPDATE);
+            it.upgrade(imageData);
+            it.imageActivation();
+        } catch (InterruptedException e) {
+            String msg = "Firmware upgrade failed! " + e.getClass().getName() + " : " + e.getMessage();
+            log(Level.SEVERE, msg);
+            throw new IOException(msg);
+        }
+    }
+
     private String getIncludedContent(final String content) {
         int begin = content.indexOf(GenericMessaging.INCLUDED_USERFILE_TAG) + GenericMessaging.INCLUDED_USERFILE_TAG.length() + 1;
         int end = content.indexOf(GenericMessaging.INCLUDED_USERFILE_TAG, begin) - 2;
@@ -251,6 +287,17 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
         return (messageHandler != null) && RtuMessageConstant.CHANGE_OF_TENANT.equalsIgnoreCase(messageHandler.getType());
     }
 
+    private boolean isConnectControlMessage(final String messageContent) {
+        return (messageContent != null) && messageContent.contains(ZigbeeGasMessaging.REMOTECONNECT);
+    }
+
+    private boolean isDisconnectControlMessage(final String messageContent) {
+        return (messageContent != null) && messageContent.contains(ZigbeeGasMessaging.REMOTEDISCONNECT);
+    }
+
+    private boolean isFirmwareUpgradeMessage(final String messageContent) {
+        return (messageContent != null) && messageContent.contains("FirmwareUpgrade");
+    }
     public ActivityCalendarController getActivityCalendarController() {
         if (this.activityCalendarController == null) {
             this.activityCalendarController = new ZigbeeActivityCalendarController(this.protocol);

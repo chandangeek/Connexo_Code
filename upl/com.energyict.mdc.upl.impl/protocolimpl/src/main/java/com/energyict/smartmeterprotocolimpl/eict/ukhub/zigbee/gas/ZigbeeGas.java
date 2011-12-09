@@ -4,7 +4,6 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
-import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
@@ -14,8 +13,7 @@ import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.MultipleClientRelatedObisCodes;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.events.ZigbeeGasEventProfiles;
-import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging.ZigbeeGasMessaging;
-import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging.ZigbeeMessageExecutor;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging.*;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.profile.ZigbeeGasLoadProfile;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.registers.ZigbeeGasRegisterFactory;
 
@@ -26,7 +24,7 @@ import java.util.logging.Logger;
 /**
  * The ZigbeeGas logical device has the same protocolBase as the WebRTUZ3. Additional functionality is added for SSE.
  */
-public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, TimeOfUseMessaging, WakeUpProtocolSupport {
+public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, TimeOfUseMessaging, WakeUpProtocolSupport, FirmwareUpdateMessaging {
 
     /**
      * The properties to use for this protocol
@@ -332,5 +330,26 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
 
     private void reInitDlmsSession(final Link link) {
         this.dlmsSession = new DlmsSession(link.getInputStream(), link.getOutputStream(), getLogger(), getProperties(), getTimeZone());
+    }
+
+    /**
+     * This method is needed to describe the capabilities supported by the protocol,
+     * and is used to create a fitting interface in EIServer.
+     *
+     * @return The {@link com.energyict.protocol.messaging.FirmwareUpdateMessagingConfig} containing all the capabillities of the protocol.
+     */
+    public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
+        FirmwareUpdateMessagingConfig config = new FirmwareUpdateMessagingConfig();
+        config.setSupportsUserFiles(true);
+        return config;
+    }
+
+    /**
+     * Returns the message builder capable of generating and parsing messages.
+     *
+     * @return The {@link com.energyict.protocol.messaging.MessageBuilder} capable of generating and parsing messages.
+     */
+    public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
+        return new ZigbeeGasFirmwareUpdateMessageBuilder();
     }
 }
