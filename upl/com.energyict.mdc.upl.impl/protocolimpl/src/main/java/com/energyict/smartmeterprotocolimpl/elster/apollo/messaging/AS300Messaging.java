@@ -22,6 +22,7 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol,
 
     private final AS300MessageExecutor messageExecutor;
     private static final String SET_PRICE_PER_UNIT = "SetPricePerUnit";
+    private static final String READ_PRICE_PER_UNIT = "ReadPricePerUnit";
     private static final String SET_STANDING_CHARGE = "SetStandingCharge";
     private static final String ID_OF_USER_FILE = "ID of user file containing the price information";
     private static final String COMMA_SEPARATED_PRICES = "CommaSeparatedPrices";
@@ -48,6 +49,7 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol,
         MessageCategorySpec pricingInformationCategory = ProtocolMessageCategories.getPricingInformationCategory();
         pricingInformationCategory.addMessageSpec(addMsgWithValuesAndOptionalValue("Set price per unit (p/kWh)", SET_PRICE_PER_UNIT, false, ACTIVATION_DATE, ID_OF_USER_FILE));
         pricingInformationCategory.addMessageSpec(addMsgWithValuesAndOptionalValue("Set standing charge", SET_STANDING_CHARGE, false, ACTIVATION_DATE, STANDING_CHARGE));
+        pricingInformationCategory.addMessageSpec(addMsgWithValues("Read price per unit costs (p/kWh)", READ_PRICE_PER_UNIT, false, true));
 
         categories.add(pricingInformationCategory);
         categories.add(ProtocolMessageCategories.getChangeOfTenancyCategory());

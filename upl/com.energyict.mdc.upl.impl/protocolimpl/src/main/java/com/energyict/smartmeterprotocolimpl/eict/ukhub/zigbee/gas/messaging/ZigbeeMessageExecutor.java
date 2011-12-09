@@ -2,10 +2,9 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.ParseUtils;
+import com.energyict.dlms.*;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.xmlparsing.GenericDataToWrite;
@@ -18,6 +17,7 @@ import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.RtuMessageShadow;
+import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
@@ -34,6 +34,8 @@ import sun.misc.BASE64Decoder;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -46,6 +48,21 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
 
     private static final ObisCode ChangeOfSupplierNameObisCode = ObisCode.fromString("1.0.1.64.0.255");
     private static final ObisCode ChangeOfSupplierIdObisCode = ObisCode.fromString("1.0.1.64.1.255");
+    private static final String STANDING_CHARGE = "Standing charge";
+    private static final String SET_STANDING_CHARGE = "SetStandingCharge";
+    private static final String SET_CALORIFIC_VALUE = "SetCalorificValue";
+    private static final String READ_PRICE_PER_UNIT = "ReadPricePerUnit";
+    private static final String SET_CONVERSION_FACTOR = "SetConversionFactor";
+    private static final String SET_PRICE_PER_UNIT = "SetPricePerUnit";
+    private static final String COMMA_SEPARATED_PRICES = "CommaSeparatedPrices";
+    private static final String ACTIVATION_DATE_TAG = "ActivationDate";
+    private static final String ACTIVATION_DATE = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";
+    private static final ObisCode PRICE_MATRIX_OBISCODE = ObisCode.fromString("0.0.1.61.0.255");   //TODO C field, 1 or 2? (A+ or A-)
+    private static final ObisCode STANDING_CHARGE_OBISCODE = ObisCode.fromString("0.0.0.61.2.255");
+    private static final ObisCode CALORIFIC_VALUE_OBISCODE = ObisCode.fromString("7.0.54.0.0.255");
+    private static final ObisCode CONVERSION_FACTOR_OBISCODE = ObisCode.fromString("7.0.52.0.0.255");
+    private static final String CALORIFIC_VALUE = "Calorific value";
+    private static final String CONVERSION_FACTOR = "Conversion factor";
     private static final ObisCode DISCONNECTOR = ObisCode.fromString("0.0.96.3.10.255");
 
     private final AbstractSmartDlmsProtocol protocol;
@@ -78,13 +95,23 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
                 updateTimeOfUse(content);
             } else if (isUpdatePricingInformationMessage(content)) {
                 updatePricingInformation(content);
-            } else if (isConnectControlMessage(content))   {
+            } else if (isSetPricePerUnit(content)) {
+                setPricePerUnit(content);
+            } else if (isSetStandingCharge(content)) {
+                setStandingCharge(content);
+            } else if (isSetCF(content)) {
+                setCF(content);
+            } else if (isSetCV(content)) {
+                setCV(content);
+            } else if (isReadPricePerUnit(content)) {
+                readPricePerUnit();
+            } else if (isConnectControlMessage(content)) {
                 doConnect(content);
-            } else if (isDisconnectControlMessage(content))   {
+            } else if (isDisconnectControlMessage(content)) {
                 doDisconnect(content);
             } else if (isFirmwareUpgradeMessage(content)) {
                 doFirmwareUpgrade(content);
-            }else {
+            } else {
 
                 MessageHandler messageHandler = new NTAMessageHandler();
                 importMessage(content, messageHandler);
@@ -119,6 +146,192 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
         }
     }
 
+    private String getValueFromXMLAttribute(String tag, String content) throws IOException {
+        int startIndex = content.indexOf(tag + "=\"");
+        int endIndex = content.indexOf("\"", startIndex + tag.length() + 2);
+        try {
+            return content.substring(startIndex + tag.length() + 2, endIndex);
+        } catch (IndexOutOfBoundsException e) {
+            return "";  //optional value is empty
+        }
+    }
+
+    private String getValueFromXML(String tag, String content) throws IOException {
+        int startIndex = content.indexOf(tag + ">");
+        int endIndex = content.indexOf("</" + tag);
+        try {
+            return content.substring(startIndex + tag.length() + 1, endIndex);
+        } catch (IndexOutOfBoundsException e) {
+            throw new IOException(e.getMessage());
+        }
+    }
+
+    private void setPricePerUnit(String content) throws IOException {
+        ActivePassive priceInformation = getCosemObjectFactory().getActivePassive(PRICE_MATRIX_OBISCODE);
+        String[] prices = getValueFromXML(COMMA_SEPARATED_PRICES, content).split(",");
+        String activationDateString = getValueFromXML(ACTIVATION_DATE_TAG, content);
+
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        Date activationDate = null;
+        try {
+            if (!activationDateString.equalsIgnoreCase("0") && !activationDateString.equals("")) {
+                activationDate = formatter.parse(activationDateString);
+            }
+        } catch (ParseException e) {
+            protocol.getLogger().log(Level.SEVERE, "Error parsing the given date: " + e.getMessage());
+            throw new IOException(e.getMessage());
+        }
+
+        Array priceArray = new Array(64);
+        for (int index = 0; index < 64; index++) {
+            if (index < prices.length) {
+                try {
+                    priceArray.setDataType(index, new Unsigned32(Integer.valueOf(prices[index])));    //Double long unsigned
+                } catch (NumberFormatException e) {
+                    throw new IOException("Invalid price integer: " + prices[index]);
+                }
+            } else {
+                priceArray.setDataType(index, new Unsigned32(0));
+            }
+        }
+
+        priceInformation.writePassiveValue(priceArray);
+
+        if (activationDate != null) {
+            Calendar cal = Calendar.getInstance(protocol.getTimeZone());
+            cal.setTime(activationDate);
+            priceInformation.writeActivationDate(new DateTime(cal));
+        } else {
+            priceInformation.activate();
+        }
+    }
+
+    private void setCF(String content) throws IOException {
+        int conversionFactorValue;
+        try {
+            conversionFactorValue = Integer.parseInt(getValueFromXMLAttribute(CONVERSION_FACTOR, content));
+        } catch (NumberFormatException e) {
+            throw new IOException(e.getMessage());
+        }
+
+        Date activationDate = null;
+        String activationDateString = getValueFromXMLAttribute(ACTIVATION_DATE, content);
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        try {
+            if (!activationDateString.equalsIgnoreCase("")) {
+                activationDate = formatter.parse(activationDateString);
+            }
+        } catch (ParseException e) {
+            protocol.getLogger().log(Level.SEVERE, "Error parsing the given date: " + e.getMessage());
+            throw new IOException(e.getMessage());
+        }
+
+        ActivePassive conversionFactor = getCosemObjectFactory().getActivePassive(CONVERSION_FACTOR_OBISCODE);
+        conversionFactor.writePassiveValue(new Unsigned32(conversionFactorValue));         //Double long, signed
+        if (activationDate != null) {
+            Calendar cal = Calendar.getInstance(protocol.getTimeZone());
+            cal.setTime(activationDate);
+            conversionFactor.writeActivationDate(new DateTime(cal));
+        } else {
+            conversionFactor.activate();
+        }
+    }
+
+    private void readPricePerUnit() throws IOException, BusinessException, SQLException {
+        ActivePassive priceInformation = getCosemObjectFactory().getActivePassive(PRICE_MATRIX_OBISCODE);
+        Array array = priceInformation.getValue().getArray();
+        String priceInfo = "Pricing information unavailable: empty array";
+        String fileName = "PriceInformation_" + protocol.getDlmsSession().getProperties().getSerialNumber() + "_" + ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss");
+        if (array != null && array.nrOfDataTypes() > 0) {
+            StringBuilder sb = new StringBuilder();
+
+            String unit;
+            try {
+                ScalerUnit scalerUnit = priceInformation.getScalerUnit();
+                unit = scalerUnit.toString();
+            } catch (IOException e) {
+                unit = "Error reading unit_scaler: " + e.getMessage();
+            } catch (ApplicationException e) {
+                unit = "(no valid unit specified)";
+            }
+            sb.append(unit).append("\n");
+            for (int i = 0; i < array.nrOfDataTypes(); i++) {
+                sb.append("Value ").append(i + 1).append(": ").append(array.getDataType(i));
+            }
+            priceInfo = sb.toString();
+        }
+
+        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName, priceInfo.getBytes("UTF-8"), getFolderIdFromHub(), "txt");
+        mw().getUserFileFactory().create(ufs);
+
+        log(Level.INFO, "Stored price information in userFile: " + fileName);
+    }
+
+    private int getFolderIdFromHub() throws IOException {
+        return getRtuFromDatabaseBySerialNumber().getFolderId();
+    }
+
+    private void setCV(String content) throws IOException {
+        int calorificValue;
+        try {
+            calorificValue = Integer.parseInt(getValueFromXMLAttribute(CALORIFIC_VALUE, content));
+        } catch (NumberFormatException e) {
+            throw new IOException(e.getMessage());
+        }
+
+        Date activationDate = null;
+        String activationDateString = getValueFromXMLAttribute(ACTIVATION_DATE, content);
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        try {
+            if (!activationDateString.equalsIgnoreCase("")) {
+                activationDate = formatter.parse(activationDateString);
+            }
+        } catch (ParseException e) {
+            protocol.getLogger().log(Level.SEVERE, "Error parsing the given date: " + e.getMessage());
+            throw new IOException(e.getMessage());
+        }
+
+        ActivePassive calorificValueObject = getCosemObjectFactory().getActivePassive(CALORIFIC_VALUE_OBISCODE);
+        calorificValueObject.writePassiveValue(new Unsigned32(calorificValue));         //Double long, signed
+        if (activationDate != null) {
+            Calendar cal = Calendar.getInstance(protocol.getTimeZone());
+            cal.setTime(activationDate);
+            calorificValueObject.writeActivationDate(new DateTime(cal));
+        } else {
+            calorificValueObject.activate();
+        }
+    }
+
+    private void setStandingCharge(String content) throws IOException {
+        int standingChargeValue;
+        try {
+            standingChargeValue = Integer.parseInt(getValueFromXMLAttribute(STANDING_CHARGE, content));
+        } catch (NumberFormatException e) {
+            throw new IOException(e.getMessage());
+        }
+
+        Date activationDate = null;
+        String activationDateString = getValueFromXMLAttribute(ACTIVATION_DATE, content);
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        try {
+            if (!activationDateString.equalsIgnoreCase("")) {
+                activationDate = formatter.parse(activationDateString);
+            }
+        } catch (ParseException e) {
+            protocol.getLogger().log(Level.SEVERE, "Error parsing the given date: " + e.getMessage());
+            throw new IOException(e.getMessage());
+        }
+
+        ActivePassive standingCharge = getCosemObjectFactory().getActivePassive(STANDING_CHARGE_OBISCODE);
+        standingCharge.writePassiveValue(new Unsigned32(standingChargeValue));         //Double long, signed
+        if (activationDate != null) {
+            Calendar cal = Calendar.getInstance(protocol.getTimeZone());
+            cal.setTime(activationDate);
+            standingCharge.writeActivationDate(new DateTime(cal));
+        } else {
+            standingCharge.activate();
+        }
+    }
 
     private void changeOfSupplier(final MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Received Change of Supplier message.");
@@ -189,8 +402,8 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
 
     private void doDisconnect(final String content) throws IOException {
         log(Level.INFO, "Received Remote Disconnect message.");
-         Disconnector connector = getCosemObjectFactory().getDisconnector(DISCONNECTOR);
-		connector.remoteDisconnect();
+        Disconnector connector = getCosemObjectFactory().getDisconnector(DISCONNECTOR);
+        connector.remoteDisconnect();
     }
 
     private void doFirmwareUpgrade(final String content) throws IOException {
@@ -275,6 +488,26 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
         return (messageContent != null) && messageContent.contains(RtuMessageConstant.UPDATE_PRICING_INFORMATION);
     }
 
+    private boolean isSetPricePerUnit(final String messageContent) {
+        return (messageContent != null) && messageContent.contains(SET_PRICE_PER_UNIT);
+    }
+
+    private boolean isSetStandingCharge(final String messageContent) {
+        return (messageContent != null) && messageContent.contains(SET_STANDING_CHARGE);
+    }
+
+    private boolean isSetCF(final String messageContent) {
+        return (messageContent != null) && messageContent.contains(SET_CONVERSION_FACTOR);
+    }
+
+    private boolean isSetCV(final String messageContent) {
+        return (messageContent != null) && messageContent.contains(SET_CALORIFIC_VALUE);
+    }
+
+    private boolean isReadPricePerUnit(final String messageContent) {
+        return (messageContent != null) && messageContent.contains(READ_PRICE_PER_UNIT);
+    }
+
     private boolean isChangeOfSupplierMessage(final MessageHandler messageHandler) {
         return (messageHandler != null) && RtuMessageConstant.CHANGE_OF_SUPPLIER.equalsIgnoreCase(messageHandler.getType());
     }
@@ -298,6 +531,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
     private boolean isFirmwareUpgradeMessage(final String messageContent) {
         return (messageContent != null) && messageContent.contains("FirmwareUpgrade");
     }
+
     public ActivityCalendarController getActivityCalendarController() {
         if (this.activityCalendarController == null) {
             this.activityCalendarController = new ZigbeeActivityCalendarController(this.protocol);
@@ -469,7 +703,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
     private Rtu getRtuFromDatabaseBySerialNumber() throws IOException {
         String serial = this.protocol.getDlmsSession().getProperties().getSerialNumber();
         List<Rtu> rtus = mw().getRtuFactory().findBySerialNumber(serial);
-        if(rtus.size() != 0){
+        if (rtus.size() != 0) {
             return rtus.get(0);
         } else {
             throw new IOException("No meter found, serialNumber probably not correct.");
@@ -484,6 +718,4 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
             return result;
         }
     }
-
 }
-

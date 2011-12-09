@@ -25,7 +25,6 @@ import com.energyict.protocolimpl.dlms.common.DlmsSession;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.ObisCodeProvider;
-import com.sun.rowset.JoinRowSetImpl;
 import sun.misc.BASE64Decoder;
 
 import java.io.IOException;
@@ -36,7 +35,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.energyict.protocolimpl.utils.ProtocolTools.getBytesFromHexString;
-import static com.energyict.protocolimpl.utils.ProtocolTools.isOdd;
 
 /**
  * Copyrights EnergyICT
@@ -265,7 +263,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
     private void readZigBeeStatus() throws IOException, BusinessException, SQLException {
         ZigBeeStatus zigBeeStatus = new ZigBeeStatus(getCosemObjectFactory());
         String status = zigBeeStatus.readStatus();
-        String fileName = "ZigBeeStatus_" + protocol.getDlmsSession().getProperties().getSerialNumber() + "_" + ProtocolTools.getFormattedDate("yyyy-MM-dd#HH:mm:ss");
+        String fileName = "ZigBeeStatus_" + protocol.getDlmsSession().getProperties().getSerialNumber() + "_" + ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss");
         System.out.println("\n");
         System.out.println(status);
         System.out.println("\n");

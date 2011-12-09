@@ -1,7 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
+import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.ParseUtils;
+import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.*;
@@ -11,7 +13,8 @@ import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
-import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.*;
+import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
@@ -44,6 +47,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
     private static final ObisCode ChangeOfSupplierIdObisCode = ObisCode.fromString("1.0.1.64.1.255");
     private static final ObisCode ChangeOfTennantObisCode = ObisCode.fromString("0.128.128.0.0.255");
     private static final String STANDING_CHARGE = "Standing charge";
+    private static final String READ_PRICE_PER_UNIT = "ReadPricePerUnit";
     private static final String SET_STANDING_CHARGE = "SetStandingCharge";
     private static final String SET_PRICE_PER_UNIT = "SetPricePerUnit";
     private static final String COMMA_SEPARATED_PRICES = "CommaSeparatedPrices";
@@ -95,6 +99,8 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
                 setPricePerUnit(content);
             } else if (isSetStandingCharge(content)) {
                 setStandingCharge(content);
+            } else if (isReadPricePerUnit(content)) {
+                readPricePerUnit();
             } else {
 
                 MessageHandler messageHandler = new NTAMessageHandler();
@@ -115,6 +121,9 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         } catch (BusinessException e) {
             log(Level.SEVERE, "Message failed : " + e.getMessage());
             success = false;
+        } catch (SQLException e) {
+            log(Level.SEVERE, "Message failed : " + e.getMessage());
+            success = false;
         }
 
         if (success) {
@@ -126,16 +135,67 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         }
     }
 
+    private void readPricePerUnit() throws IOException, BusinessException, SQLException {
+        ActivePassive priceInformation = getCosemObjectFactory().getActivePassive(PRICE_MATRIX_OBISCODE);
+        Array array = priceInformation.getValue().getArray();
+        String priceInfo = "Pricing information unavailable: empty array";
+        String fileName = "PriceInformation_" + protocol.getDlmsSession().getProperties().getSerialNumber() + "_" + ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss");
+        if (array != null && array.nrOfDataTypes() > 0) {
+            StringBuilder sb = new StringBuilder();
+
+            String unit;
+            try {
+                ScalerUnit scalerUnit = priceInformation.getScalerUnit();
+                unit = scalerUnit.toString();
+            } catch (IOException e) {
+                unit = "Error reading unit_scaler: " + e.getMessage();
+            } catch (ApplicationException e) {
+                unit = "(no valid unit specified)";
+            }
+            sb.append(unit).append("\n");
+            for (int i = 0; i < array.nrOfDataTypes(); i++) {
+                sb.append("Value ").append(i + 1).append(": ").append(array.getDataType(i));
+            }
+            priceInfo = sb.toString();
+        }
+
+        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName, priceInfo.getBytes("UTF-8"), getFolderIdFromHub(), "txt");
+        mw().getUserFileFactory().create(ufs);
+
+        log(Level.INFO, "Stored price information in userFile: " + fileName);
+    }
+
+    /**
+     * Short notation for MeteringWarehouse.getCurrent()
+     */
+    public MeteringWarehouse mw() {
+        MeteringWarehouse result = MeteringWarehouse.getCurrent();
+        if (result == null) {
+            return new MeteringWarehouseFactory().getBatch(false);
+        } else {
+            return result;
+        }
+    }
+
+    private int getFolderIdFromHub() {
+        return getRtuFromDatabaseBySerialNumber().getFolderId();
+    }
+
+    private Rtu getRtuFromDatabaseBySerialNumber() {
+        String serial = this.protocol.getDlmsSession().getProperties().getSerialNumber();
+        return mw().getRtuFactory().findBySerialNumber(serial).get(0);
+    }
+
     private void setStandingCharge(String content) throws IOException {
         int standingChargeValue;
         try {
-            standingChargeValue = Integer.parseInt(getValueFromXML(STANDING_CHARGE, content));
+            standingChargeValue = Integer.parseInt(getValueFromXMLAttribute(STANDING_CHARGE, content));
         } catch (NumberFormatException e) {
             throw new IOException(e.getMessage());
         }
 
         Date activationDate = null;
-        String activationDateString = getValueFromXML(ACTIVATION_DATE, content);
+        String activationDateString = getValueFromXMLAttribute(ACTIVATION_DATE, content);
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         try {
             if (!activationDateString.equalsIgnoreCase("")) {
@@ -147,7 +207,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         }
 
         ActivePassive standingCharge = getCosemObjectFactory().getActivePassive(STANDING_CHARGE_OBISCODE);
-        standingCharge.writePassiveValue(new Integer32(standingChargeValue));         //Double long, signed
+        standingCharge.writePassiveValue(new Unsigned32(standingChargeValue));         //Double long, signed
         if (activationDate != null) {
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());
             cal.setTime(activationDate);
@@ -163,6 +223,16 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         return content.substring(startIndex + tag.length() + 2, endIndex);
     }
 
+    private String getValueFromXMLAttribute(String tag, String content) throws IOException {
+        int startIndex = content.indexOf(tag + "=\"");
+        int endIndex = content.indexOf("\"", startIndex + tag.length() + 2);
+        try {
+            return content.substring(startIndex + tag.length() + 2, endIndex);
+        } catch (IndexOutOfBoundsException e) {
+            return "";  //optional value is empty
+        }
+    }
+
     private void setPricePerUnit(String content) throws IOException {
         ActivePassive priceInformation = getCosemObjectFactory().getActivePassive(PRICE_MATRIX_OBISCODE);
         String[] prices = getValueFromXML(COMMA_SEPARATED_PRICES, content).split(",");
@@ -171,7 +241,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date activationDate = null;
         try {
-            if (!activationDateString.equalsIgnoreCase("0")) {
+            if (!activationDateString.equalsIgnoreCase("0") && !activationDateString.equals("")) {
                 activationDate = formatter.parse(activationDateString);
             }
         } catch (ParseException e) {
@@ -179,14 +249,19 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
             throw new IOException(e.getMessage());
         }
 
-        Array priceArray = new Array();
-        for (String price : prices) {
-            try {
-                priceArray.addDataType(new Unsigned32(Integer.valueOf(price)));    //Double long unsigned
-            } catch (NumberFormatException e) {
-                throw new IOException("Invalid price integer: " + price);
+        Array priceArray = new Array(64);
+        for (int index = 0; index < 64; index++) {
+            if (index < prices.length) {
+                try {
+                    priceArray.setDataType(index, new Unsigned32(Integer.valueOf(prices[index])));    //Double long unsigned
+                } catch (NumberFormatException e) {
+                    throw new IOException("Invalid price integer: " + prices[index]);
+                }
+            } else {
+                priceArray.setDataType(index, new Unsigned32(0));
             }
         }
+
         priceInformation.writePassiveValue(priceArray);
 
         if (activationDate != null) {
@@ -229,7 +304,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
             log(Level.SEVERE, "Incorrect SupplierID : " + messageHandler.getTenantValue() + " - Message will fail.");
             success = false;
         }
-        if(success) {
+        if (success) {
             log(Level.FINEST, "Writing new Supplier ActivationDates");
             try {
                 getCosemObjectFactory().getSupplierName(ChangeOfSupplierNameObisCode).writeActivationDate(new DateTime(new Date(Long.valueOf(messageHandler.getSupplierActivationDate()))));
@@ -250,14 +325,14 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         } catch (NumberFormatException e) {
             log(Level.SEVERE, "Incorrect TenantValue : " + messageHandler.getTenantValue() + " - Message will fail.");
             success = false;
-        } catch (IOException e){
-            if(e.getMessage().indexOf("Cosem Data-Access-Result exception R/W denied") >= 0){
+        } catch (IOException e) {
+            if (e.getMessage().indexOf("Cosem Data-Access-Result exception R/W denied") >= 0) {
                 log(Level.SEVERE, "Could not write the new tenant value, still try to update the activationDate");
             } else {
                 throw e;
             }
         }
-        if(success){ // if the previous failed, then we don't try to write the activationDate
+        if (success) { // if the previous failed, then we don't try to write the activationDate
             log(Level.FINEST, "Writing new Tenant ActivationDate");
             try {
                 changeOfTenant.writeActivationDate(new DateTime(new Date(Long.valueOf(messageHandler.getTenantActivationDate()))));
@@ -425,6 +500,9 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         return (messageContent != null) && messageContent.contains(SET_STANDING_CHARGE);
     }
 
+    private boolean isReadPricePerUnit(final String messageContent) {
+        return (messageContent != null) && messageContent.contains(READ_PRICE_PER_UNIT);
+    }
 
     private boolean isChangeOfTenantMessage(final MessageHandler messageHandler) {
         return (messageHandler != null) && RtuMessageConstant.CHANGE_OF_TENANT.equalsIgnoreCase(messageHandler.getType());
