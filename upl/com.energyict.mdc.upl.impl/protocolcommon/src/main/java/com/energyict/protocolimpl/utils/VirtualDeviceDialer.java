@@ -119,4 +119,13 @@ public class VirtualDeviceDialer implements Dialer {
     public void connectDialer(Dialer dialer, String dialAddr1, String dialAddr2, int timeout) {
 
     }
+
+    /**
+     * Update the StreamConnection so proper monitoring can be performed by the ComServer
+     *
+     * @param streamConnection the <i>new</i> StreamConnection
+     */
+    public void updateStreamConnection(StreamConnection streamConnection) {
+        //
+    }
 }

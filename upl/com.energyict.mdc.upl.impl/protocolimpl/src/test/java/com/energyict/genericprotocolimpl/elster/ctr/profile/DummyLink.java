@@ -70,4 +70,13 @@ public class DummyLink implements Link {
     public void connect() throws IOException, LinkException {
         //To change body of implemented methods use File | Settings | File Templates.
     }
+
+    /**
+     * Update the StreamConnection so proper monitoring can be performed by the ComServer
+     *
+     * @param streamConnection the <i>new</i> StreamConnection
+     */
+    public void updateStreamConnection(StreamConnection streamConnection) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
 }
