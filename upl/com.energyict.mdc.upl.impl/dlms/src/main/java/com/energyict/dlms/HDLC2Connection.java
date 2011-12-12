@@ -271,7 +271,7 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
        sMaxRXIFSize=0x00F8;
        sMaxTXIFSize=0x00F8;
        calcCRC(macFrame);
-       for (int i=0; i<iMaxRetries; i++) {
+       for (int i=0; i<=iMaxRetries; i++) {
            sendFrame(macFrame);
            bResult = waitForHDLCFrameStateMachine(iProtocolTimeout,rxFrame);
            if (bResult == HDLC_RX_OK) {

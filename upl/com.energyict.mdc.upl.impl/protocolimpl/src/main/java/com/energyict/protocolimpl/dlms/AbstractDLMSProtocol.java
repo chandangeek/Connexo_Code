@@ -65,6 +65,8 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
 
     protected static final int CONNECTION_MODE_HDLC = 0;
     protected static final int CONNECTION_MODE_TCPIP = 1;
+    protected static final int CONNECTION_MODE_COSEM_PDU = 2;
+    protected static final int CONNECTION_MODE_LLC = 3;
     protected static final int PROPOSED_QOS = -1;
     protected static final int PROPOSED_DLMS_VERSION = 6;
     protected static final int MAX_PDU_SIZE = 200;
@@ -214,6 +216,12 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
                     break;
                 case CONNECTION_MODE_TCPIP:
                     connection = new TCPIPConnection(inputStream, outputStream, timeOut, forceDelay, retries, clientMacAddress, serverLowerMacAddress);
+                    break;
+                case CONNECTION_MODE_COSEM_PDU:
+                    connection = new CosemPDUConnection(inputStream, outputStream, timeOut, forceDelay, retries, clientMacAddress, serverLowerMacAddress);
+                    break;
+                case CONNECTION_MODE_LLC:
+                    connection = new LLCConnection(inputStream, outputStream, timeOut, forceDelay, retries, clientMacAddress, serverLowerMacAddress);
                     break;
                 default:
                     throw new IOException("Unable to initialize dlmsConnection, connection property unknown: " + connectionMode);
