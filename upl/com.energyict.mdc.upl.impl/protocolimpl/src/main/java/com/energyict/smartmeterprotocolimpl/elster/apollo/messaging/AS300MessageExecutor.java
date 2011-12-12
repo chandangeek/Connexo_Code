@@ -49,11 +49,13 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
     private static final String STANDING_CHARGE = "Standing charge";
     private static final String READ_PRICE_PER_UNIT = "ReadPricePerUnit";
     private static final String SET_STANDING_CHARGE = "SetStandingCharge";
+    private static final String READ_ACTIVITY_CALENDAR = "ReadActivityCalendar";
     private static final String SET_PRICE_PER_UNIT = "SetPricePerUnit";
     private static final String COMMA_SEPARATED_PRICES = "CommaSeparatedPrices";
     private static final String ACTIVATION_DATE_TAG = "ActivationDate";
     private static final String ACTIVATION_DATE = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";
     private static final ObisCode PRICE_MATRIX_OBISCODE = ObisCode.fromString("0.0.1.61.0.255");
+    private static final ObisCode ACTIVITY_CALENDAR_OBISCODE = ObisCode.fromString("0.0.13.0.1.255");
     private static final ObisCode STANDING_CHARGE_OBISCODE = ObisCode.fromString("0.0.0.61.2.255");
     private static final ObisCode METER_MESSAGE_CONTROL = ObisCode.fromString("1.0.35.3.8.255");
     private static final ObisCode DISCONNECTOR = ObisCode.fromString("0.0.96.3.10.255");
@@ -101,6 +103,8 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
                 setStandingCharge(content);
             } else if (isReadPricePerUnit(content)) {
                 readPricePerUnit();
+            } else if (isReadActivityCalendar(content)) {
+                readActivityCalendar();
             } else {
 
                 MessageHandler messageHandler = new NTAMessageHandler();
@@ -160,6 +164,80 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         }
 
         UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName, priceInfo.getBytes("UTF-8"), getFolderIdFromHub(), "txt");
+        mw().getUserFileFactory().create(ufs);
+
+        log(Level.INFO, "Stored price information in userFile: " + fileName);
+    }
+
+    private void readActivityCalendar() throws IOException, BusinessException, SQLException {
+        ActivityCalendar activityCalendar = getCosemObjectFactory().getActivityCalendar(ACTIVITY_CALENDAR_OBISCODE);
+
+        StringBuilder sb = new StringBuilder();
+        String name = activityCalendar.readCalendarNameActive().getOctetString().stringValue();
+        sb.append("Activity calendar: ").append(name).append('\n');
+
+        Array seasonProfile = activityCalendar.readSeasonProfileActive();
+        sb.append("    Active season profile:").append('\n');
+        for (int i = 0; i < seasonProfile.nrOfDataTypes(); i++) {
+            AbstractDataType dataType = seasonProfile.getDataType(i);
+            if (dataType == null) {
+                break;
+            }
+            Structure season = dataType.getStructure();
+            sb.append("        Season ").append(i).append(":").append('\n');
+            sb.append("          Name: ").append(season.getDataType(0));
+            sb.append("          Start: ").append(season.getDataType(1));
+            sb.append("          Week name: ").append(season.getDataType(2));
+        }
+
+        Array weekProfile = activityCalendar.readWeekProfileTableActive();
+        sb.append("    Active week profile:").append('\n');
+        for (int i = 0; i < weekProfile.nrOfDataTypes(); i++) {
+            AbstractDataType dataType = weekProfile.getDataType(i);
+            if (dataType == null) {
+                break;
+            }
+            Structure week = dataType.getStructure();
+            sb.append("        Week ").append(i).append(":").append('\n');
+            sb.append("          Name: ").append(week.getDataType(0));
+            sb.append("          Monday: day ID = ").append(week.getDataType(1));
+            sb.append("          Tuesday: day ID = ").append(week.getDataType(2));
+            sb.append("          Wednesday: day ID = ").append(week.getDataType(3));
+            sb.append("          Thursday: day ID = ").append(week.getDataType(4));
+            sb.append("          Friday: day ID = ").append(week.getDataType(5));
+            sb.append("          Saturday: day ID = ").append(week.getDataType(6));
+            sb.append("          Sunday: day ID = ").append(week.getDataType(7));
+        }
+
+        Array dayProfile = activityCalendar.readDayProfileTableActive();
+        sb.append("    Active day profile:").append('\n');
+        for (int i = 0; i < dayProfile.nrOfDataTypes(); i++) {
+            AbstractDataType dataType = dayProfile.getDataType(i);
+            if (dataType == null) {
+                break;
+            }
+            Structure day = dataType.getStructure();
+            sb.append("        Day ").append(i).append(":").append('\n');
+            sb.append("          Day ID: ").append(day.getDataType(0));
+
+            Array dayProfileActions = day.getDataType(1).getArray();
+            if (dayProfileActions != null) {
+                sb.append("          Day schedule: ").append('\n');
+                for (int j = 0; j < dayProfileActions.nrOfDataTypes(); j++) {
+                    Structure action = dayProfileActions.getDataType(j).getStructure();
+                    if (action == null) {
+                        break;
+                    }
+                    sb.append("              Day profile action ").append(j).append(":").append('\n');
+                    sb.append("                Start time: ").append(action.getDataType(0));
+                    sb.append("                Script logical name: ").append(action.getDataType(1));
+                    sb.append("                Script selector: ").append(action.getDataType(2));
+                }
+            }
+        }
+
+        String fileName = "ActivityCalendar_" + protocol.getDlmsSession().getProperties().getSerialNumber() + "_" + ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss");
+        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName, sb.toString().getBytes("UTF-8"), getFolderIdFromHub(), "txt");
         mw().getUserFileFactory().create(ufs);
 
         log(Level.INFO, "Stored price information in userFile: " + fileName);
@@ -502,6 +580,10 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
 
     private boolean isReadPricePerUnit(final String messageContent) {
         return (messageContent != null) && messageContent.contains(READ_PRICE_PER_UNIT);
+    }
+
+    private boolean isReadActivityCalendar(final String messageContent) {
+        return (messageContent != null) && messageContent.contains(READ_ACTIVITY_CALENDAR);
     }
 
     private boolean isChangeOfTenantMessage(final MessageHandler messageHandler) {
