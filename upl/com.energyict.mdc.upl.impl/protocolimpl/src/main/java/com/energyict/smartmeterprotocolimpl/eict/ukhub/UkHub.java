@@ -4,6 +4,7 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
+import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
@@ -363,11 +364,12 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
             int backupClientId = getDlmsSession().getProperties().getClientMacAddress();
             String backupSecurityLevel = getDlmsSession().getProperties().getSecurityLevel();
             String password = getDlmsSession().getProperties().getPassword();
-
+            CipheringType backUpCipheringType = getDlmsSession().getProperties().getCipheringType();
             Properties pClientProps = getDlmsSession().getProperties().getProtocolProperties();
 
             pClientProps.setProperty(UkHubProperties.CLIENT_MAC_ADDRESS, "16");
             pClientProps.setProperty(UkHubProperties.SECURITY_LEVEL, "0:0");
+            pClientProps.setProperty(UkHubProperties.CIPHERING_TYPE, "0");
             getDlmsSession().getProperties().addProperties(pClientProps);
 
             getDlmsSession().connect();
@@ -378,6 +380,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
             restoredProperties.setProperty(UkHubProperties.CLIENT_MAC_ADDRESS, Integer.toString(backupClientId));
             restoredProperties.setProperty(UkHubProperties.SECURITY_LEVEL, backupSecurityLevel);
             restoredProperties.setProperty(SmartMeterProtocol.PASSWORD, password);
+            restoredProperties.setProperty(UkHubProperties.CIPHERING_TYPE, backUpCipheringType.getTypeString());
 
             String ipAddress = link.getStreamConnection().getSocket().getInetAddress().getHostAddress();
 

@@ -78,6 +78,11 @@ public class SecurityContext {
     private static int DLMS_AUTH_TAG_SIZE = 12;    // 12 bytes is specified for DLMS using GCM
 
     /**
+     * Indicates whether the FrameCounter needs to be validated with a +1
+     */
+    private boolean frameCounterInitialized = false;
+
+    /**
      * Creates a new instance of the securityContext.
      * Note: the frameCounter can't always start from zero for security reasons. The FC is used in the
      * initializationVector and this one should be unique.
@@ -331,7 +336,7 @@ public class SecurityContext {
         plainArray.add(plainText);
         byte[] associatedData = DLMSUtils.concatListOfByteArrays(plainArray);
 
-        AesGcm128 ag128 = new AesGcm128(isGlobalCiphering() ? getSecurityProvider().getGlobalKey() : getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
+        AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getGlobalKey(), DLMS_AUTH_TAG_SIZE);
         ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
         ag128.setInitializationVector(new BitVector(getInitializationVector()));
 
@@ -357,6 +362,7 @@ public class SecurityContext {
      * This way you can check if the meter has calculated the same one and both systems are then authenticated
      *
      * @param clientChallenge our challenge we originally send to the meter
+     * @param cipheredFrame the ciphered frame we received from the meter
      * @return the encrypted packet
      * @throws IOException
      */
@@ -369,7 +375,7 @@ public class SecurityContext {
         plainArray.add(clientChallenge);
         byte[] associatedData = DLMSUtils.concatListOfByteArrays(plainArray);
 
-        AesGcm128 ag128 = new AesGcm128(isGlobalCiphering() ? getSecurityProvider().getGlobalKey() : getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
+        AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getGlobalKey(), DLMS_AUTH_TAG_SIZE);
         ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
         ag128.setInitializationVector(new BitVector(ProtocolUtils.concatByteArrays(getResponseSystemTitle(), fc)));
 
@@ -395,9 +401,9 @@ public class SecurityContext {
      * The securityControlByte is a byte of the securityHeader that is sent the
      * authenticated message.
      * <pre>
-     * Bit 3…0: Security_Suite_Id;
-     * Bit 4: “A” subfield: indicate that the APDU is authenticated; [should be set for HLS]
-     * Bit 5: “E” subfield: indicates that the APDU is encrypted;
+     * Bit 3ï¿½0: Security_Suite_Id;
+     * Bit 4: ï¿½Aï¿½ subfield: indicate that the APDU is authenticated; [should be set for HLS]
+     * Bit 5: ï¿½Eï¿½ subfield: indicates that the APDU is encrypted;
      * Bit 6: Key_set subfield 0 = Unicast; 1 = Broadcast,
      * Bit 7: Reserved, must be set to 0.
      * </pre>
@@ -505,9 +511,9 @@ public class SecurityContext {
      * The securityControlByte is a byte of the securityHeader that is sent with
      * every encrypted/authenticated message.
      * <pre>
-     * Bit 3…0: Security_Suite_Id;
-     * Bit 4: “A” subfield: indicate that the APDU is authenticated;
-     * Bit 5: “E” subfield: indicates that the APDU is encrypted;
+     * Bit 3ï¿½0: Security_Suite_Id;
+     * Bit 4: ï¿½Aï¿½ subfield: indicate that the APDU is authenticated;
+     * Bit 5: ï¿½Eï¿½ subfield: indicates that the APDU is encrypted;
      * Bit 6: Key_set subfield 0 = Unicast; 1 = Broadcast,
      * Bit 7: Reserved, must be set to 0.
      * </pre>
@@ -630,10 +636,8 @@ public class SecurityContext {
      *          if the FrameCounter was not incremented in a proper way
      */
     public void setResponseFrameCounter(int frameCounter) throws DLMSConnectionException {
-        if (this.responseFrameCounter == null) {
-            this.responseFrameCounter = frameCounter;
-        } else {
-            if (this.responseFrameCounter == -1 && frameCounter == 0) {
+        if (isFrameCounterInitialized()) {
+            if (this.responseFrameCounter == -1 && frameCounter == 0) { // rollover
                 this.responseFrameCounter = frameCounter;
             } else if (this.responseFrameCounter == -1 && frameCounter != 0) {
                 throw new DLMSConnectionException("Received incorrect overFlow FrameCounter.", DLMSConnectionException.REASON_SECURITY);
@@ -642,6 +646,9 @@ public class SecurityContext {
             } else {
                 this.responseFrameCounter = frameCounter;
             }
+        } else {
+            this.responseFrameCounter = frameCounter;
+            setFrameCounterInitialized(true);
         }
     }
 
@@ -706,12 +713,28 @@ public class SecurityContext {
     }
 
     /**
-     * Checks whether global ciphering is used (#cipheringType equals 0)
+     * Checks whether Global ciphering is used ({@link #cipheringType} equals {@link #CIPHERING_TYPE_GLOBAL})
      *
      * @return true if it is, false otherwise
      */
     public boolean isGlobalCiphering() {
-        return cipheringType == CIPHERING_TYPE_GLOBAL;
+        return this.cipheringType == CIPHERING_TYPE_GLOBAL;
     }
 
+    /**
+     * Checks whether Dedicated ciphering is used ({@link #cipheringType} equals {@link #CIPHERING_TYPE_DEDICATED})
+     *
+     * @return true if it is, false otherwise
+     */
+    public boolean isDedicatedCiphering(){
+        return this.cipheringType == CIPHERING_TYPE_DEDICATED;
+    }
+    
+    public boolean isFrameCounterInitialized() {
+        return frameCounterInitialized;
+    }
+
+    public void setFrameCounterInitialized(boolean frameCounterInitialized) {
+        this.frameCounterInitialized = frameCounterInitialized;
+    }
 }

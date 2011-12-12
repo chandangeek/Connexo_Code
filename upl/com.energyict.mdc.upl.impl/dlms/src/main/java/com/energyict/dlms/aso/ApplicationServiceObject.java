@@ -102,6 +102,10 @@ public class ApplicationServiceObject {
             this.associationStatus = ASSOCIATION_CONNECTED;
         }
 
+        if(getSecurityContext().isDedicatedCiphering()){
+            // if dedicated ciphering is used, then a new FrameCounter is used for each session
+            getSecurityContext().setFrameCounterInitialized(false);
+        }
         handleHighLevelSecurityAuthentication();
     }
 
