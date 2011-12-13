@@ -130,6 +130,18 @@ public class ObisCodeMapper {
         return dlmsAttributes;
     }
 
+    public boolean isStandingChargeRegister(ObisCode obisCode) {
+        return obisCode.equals(ObisCodeProvider.STANDING_CHARGE);
+    }
+
+    public boolean isCalorificValueRegister(ObisCode obisCode) {
+        return obisCode.equals(ObisCodeProvider.CALORIFIC_VALUE);
+    }
+
+    public boolean isConversionFactorRegister(ObisCode obisCode) {
+        return obisCode.equals(ObisCodeProvider.CONVERSION_FACTOR);
+    }
+
     public static void main(String[] args) throws IOException {
         byte[] bytesFromHexString = ProtocolTools.getBytesFromHexString("01020203090c07db0717060e12000000000012000006000000000203090c07db0717060e1100000000001200140600000000", "");
         AbstractDataType decode = AXDRDecoder.decode(bytesFromHexString);

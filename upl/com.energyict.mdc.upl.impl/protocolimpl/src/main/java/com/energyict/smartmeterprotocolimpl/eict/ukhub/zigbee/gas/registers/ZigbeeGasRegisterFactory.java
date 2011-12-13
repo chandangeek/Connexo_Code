@@ -2,7 +2,8 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.registers;
 
 import com.energyict.cbo.*;
 import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
 import com.energyict.obis.ObisCode;
@@ -12,7 +13,6 @@ import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ZigbeeGas;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.*;
 
 /**
@@ -51,7 +51,49 @@ public class ZigbeeGasRegisterFactory implements BulkRegisterProtocol {
 
     private RegisterValue readSingleRegister(Register register) throws IOException {
         ObisCode obisCode = register.getObisCode();
-        if (getObisCodeMapper().isAbstractRegister(obisCode)) {
+        if (getObisCodeMapper().isStandingChargeRegister(obisCode)) {
+            ActivePassive information = getCosemObjectFactory().getActivePassive(obisCode);
+            Unsigned32 value = information.getValue().getUnsigned32();
+            ScalerUnit scalerUnit = information.getScalerUnit();
+            if (scalerUnit.getUnitCode() == 10) {
+                scalerUnit = new ScalerUnit(scalerUnit.getScaler(), 255);
+            }
+            Quantity quantity;
+            try {
+                quantity = new Quantity(value.getValue(), scalerUnit.getUnit());
+            } catch (ApplicationException e) {  // The BasUnit code is not found (not yet present in our code base)
+                quantity = new Quantity(value.getValue(), Unit.get(255, scalerUnit.getScaler()));
+            }
+            return new RegisterValue(register, quantity);
+        } else if (getObisCodeMapper().isCalorificValueRegister(obisCode)) {
+            ActivePassive information = getCosemObjectFactory().getActivePassive(obisCode);
+            Unsigned32 value = information.getValue().getUnsigned32();
+            ScalerUnit scalerUnit = information.getScalerUnit();
+            if (scalerUnit.getUnitCode() == 10) {
+                scalerUnit = new ScalerUnit(scalerUnit.getScaler(), 255);
+            }
+            Quantity quantity;
+            try {
+                quantity = new Quantity(value.getValue(), scalerUnit.getUnit());
+            } catch (ApplicationException e) {
+                quantity = new Quantity(value.getValue(), Unit.get(255, scalerUnit.getScaler()));
+            }
+            return new RegisterValue(register, quantity);
+        } else if (getObisCodeMapper().isConversionFactorRegister(obisCode)) {
+            ActivePassive information = getCosemObjectFactory().getActivePassive(obisCode);
+            Unsigned32 value = information.getValue().getUnsigned32();
+            ScalerUnit scalerUnit = information.getScalerUnit();
+            if (scalerUnit.getUnitCode() == 10) {
+                scalerUnit = new ScalerUnit(scalerUnit.getScaler(), 255);
+            }
+            Quantity quantity;
+            try {
+                quantity = new Quantity(value.getValue(), scalerUnit.getUnit());
+            } catch (ApplicationException e) {
+                quantity = new Quantity(value.getValue(), Unit.get(255, scalerUnit.getScaler()));
+            }
+            return new RegisterValue(register, quantity);
+        } else if (getObisCodeMapper().isAbstractRegister(obisCode)) {
             DLMSAttribute attribute = getObisCodeMapper().getAbstractRegisterDLMSAttribute(obisCode);
             if (attribute.getDLMSClassId().isRegister()) {
                 com.energyict.dlms.cosem.Register registerObject = getCosemObjectFactory().getRegister(obisCode);

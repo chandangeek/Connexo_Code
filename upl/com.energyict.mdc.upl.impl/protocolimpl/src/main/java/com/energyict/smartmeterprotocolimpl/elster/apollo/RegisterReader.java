@@ -26,6 +26,7 @@ public class RegisterReader {
     public static final ObisCode ActivityCalendarNameObisCode = ObisCode.fromString("0.0.13.0.1.255");
     public static final ObisCode ChangeOfSupplierNameObisCode = ObisCode.fromString("1.0.1.64.0.255");
     public static final ObisCode OwnPublicKeysObisCode = ObisCode.fromString("0.128.0.2.0.2");
+    public static final ObisCode StandingChargeObisCode = ObisCode.fromString("0.0.0.61.2.255");
 
     private final AS300 meterProtocol;
 
@@ -51,6 +52,20 @@ public class RegisterReader {
                     OctetString public_x = (OctetString) ownPublicKey.getDataType(0);
                     OctetString public_y = (OctetString) ownPublicKey.getDataType(1);
                     registerValue = new RegisterValue(OwnPublicKeysObisCode, public_x.stringValue() + "," + public_y.stringValue());
+                } else if (register.getObisCode().equals(StandingChargeObisCode)) {
+                    ActivePassive information = meterProtocol.getDlmsSession().getCosemObjectFactory().getActivePassive(register.getObisCode());
+                    Unsigned32 value = information.getValue().getUnsigned32();
+                    ScalerUnit scalerUnit = information.getScalerUnit();
+                    if (scalerUnit.getUnitCode() == 10) {
+                        scalerUnit = new ScalerUnit(scalerUnit.getScaler(), 255);
+                    }
+                    Quantity quantity;
+                    try {
+                        quantity = new Quantity(value.getValue(), scalerUnit.getUnit());
+                    } catch (ApplicationException e) {  // The BasUnit code is not found (not yet present)
+                        quantity = new Quantity(value.getValue(), Unit.get(255, scalerUnit.getScaler()));
+                    }
+                    registerValue = new RegisterValue(register, quantity);
                 } else if (this.composedRegisterMap.containsKey(register)) {
                     ScalerUnit su = new ScalerUnit(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterUnitAttribute()));
                     if (su.getUnitCode() != 0) {
