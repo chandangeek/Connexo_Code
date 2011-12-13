@@ -6,14 +6,13 @@
 
 package com.energyict.protocolimpl.iec1107.abba1500;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocolimpl.iec1107.vdew.*;
-import java.text.*;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
+
+import java.io.IOException;
+import java.util.*;
 /**
  *
  * @author  Koen
@@ -35,7 +34,12 @@ public class ABBA1500Profile extends VDEWProfile {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
         fromCalendar.setTime(lastReading);
         
-        ProfileData profileData =  doGetProfileData(fromCalendar,ProtocolUtils.getCalendar(getProtocolLink().getTimeZone()),1);
+        int readMode = 6;
+        if (Float.parseFloat(getFirmwareVersion()) < 3.02) {
+            readMode = 5;
+        }
+
+        ProfileData profileData = doGetProfileData(fromCalendar, ProtocolUtils.getCalendar(getProtocolLink().getTimeZone()), 1, readMode);
         if (includeEvents) {
            List meterEvents = doGetLogBook(fromCalendar,ProtocolUtils.getCalendar(getProtocolLink().getTimeZone())); 
            profileData.getMeterEvents().addAll(meterEvents);
@@ -58,7 +62,11 @@ public class ABBA1500Profile extends VDEWProfile {
         Calendar toCalendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
         toCalendar.setTime(toReading);
         
-        ProfileData profileData =  doGetProfileData(fromCalendar,toCalendar,1);
+        int readMode = 6;
+        if (Float.parseFloat(getFirmwareVersion()) < 3.02) {
+            readMode = 5;
+        }
+        ProfileData profileData = doGetProfileData(fromCalendar, toCalendar, 1, readMode);
         if (includeEvents) {
            List meterEvents = doGetLogBook(fromCalendar,toCalendar); 
            profileData.getMeterEvents().addAll(meterEvents);

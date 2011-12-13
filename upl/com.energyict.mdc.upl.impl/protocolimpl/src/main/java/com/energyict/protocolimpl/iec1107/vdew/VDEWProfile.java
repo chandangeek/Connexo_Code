@@ -6,27 +6,16 @@
 
 package com.energyict.protocolimpl.iec1107.vdew;
 
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.DataParser;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.iec1107.*;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.base.DataParser;
-import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
-import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import java.util.*;
 /**
  *
  * @author  Koen
@@ -43,6 +32,9 @@ abstract public class VDEWProfile {
     private MeterExceptionInfo meterExceptionInfo=null; // KV 17022004
     protected boolean keepStatus;
     
+    // COMMUNICATION-665 - On ABBA1500 protocol, old devices with outdated firmware (< 3.02) require R5 mode instead of R6
+    private int readMode = 0;
+
     /** Creates a new instance of VDEWProfile */
     public VDEWProfile(MeterExceptionInfo meterExceptionInfo,ProtocolLink protocolLink,AbstractVDEWRegistry abstractVDEWRegistry) {
         this(meterExceptionInfo, protocolLink, abstractVDEWRegistry, true);
@@ -101,6 +93,17 @@ abstract public class VDEWProfile {
         }
     }
     
+    protected byte[] vdewReadR5(byte[] data) throws IOException {
+        try {
+            protocolLink.getFlagIEC1107Connection().sendRawCommandFrame(FlagIEC1107Connection.READ5, data);
+            byte[] rawprofile = protocolLink.getFlagIEC1107Connection().receiveRawData();
+            abstractVDEWRegistry.validateData(rawprofile);
+            return rawprofile;
+        }
+        catch(FlagIEC1107ConnectionException e) {
+            throw new IOException("VDEWProfile, readRawProfile, FlagIEC1107ConnectionException, "+e.getMessage());
+        }
+    }
 
     protected byte[] readRawData(Calendar fromCalendar, Calendar toCalendar) throws IOException {
         return readRawData(fromCalendar,toCalendar,0);
@@ -169,11 +172,46 @@ abstract public class VDEWProfile {
 
         return profileData;
 
+    } // protcted ProfileData doGetProfileData(Calendar fromCalendar,Calendar toCalendar, byte bNROfChannels) throws IOException
+
+    protected ProfileData doGetProfileData(Calendar fromCalendar, Calendar toCalendar, int profileId, int readMode) throws IOException {
+        byte[] responseData = null;
+        ProfileData profileData = new ProfileData();
+        this.readMode = readMode;
+
+        try {
+            responseData = readRawData(fromCalendar, toCalendar, profileId);
+            if (DEBUG >= 1) {
+                System.out.println("length = " + responseData.length);
+                System.out.println(new String(responseData));
+            }
+
+//            File file = new File("C:\\LZQJProfile.bin");
+//            FileOutputStream fos = new FileOutputStream(file);
+//            fos.write(responseData);
+//            fos.close();
+
+            profileData = buildProfileData(responseData);
+        } catch (VDEWException e) {
+            //absorb
+            getProtocolLink().getLogger().warning("VDEWException, ERROR received when requesting profile data, probably no profile data available");
+        } catch (FlagIEC1107ConnectionException e) {
+            throw new IOException("doGetProfileData> " + e.getMessage());
+        } catch (IOException e) {
+            throw new IOException("doGetProfileData> " + e.getMessage());
+        }
+
+        if (DEBUG >= 2) {
+            ProtocolUtils.printResponseData(responseData);
+        }
+
+        return profileData;
+
     } // protected ProfileData doGetProfileData(Calendar fromCalendar,Calendar toCalendar, byte bNROfChannels) throws IOException
     
     protected List doGetLogBook(Calendar fromCalendar,Calendar toCalendar) throws IOException {
         byte[] responseData=null;
-        List meterEvents=new ArrayList();;
+        List meterEvents=new ArrayList();
         try {
             responseData = readRawData(fromCalendar,toCalendar,98);
             if (DEBUG >= 1) {
@@ -209,9 +247,16 @@ abstract public class VDEWProfile {
 //    }
     
     private byte[] doReadRawProfile(String data,int profileid) throws IOException {
-        String cmd = "P."+ProtocolUtils.buildStringDecimal(profileid, 2)+"("+data+";8)";
+        String cmd;
+        if (this.readMode == 5) {
+            cmd = "P."+ProtocolUtils.buildStringDecimal(profileid, 2)+"("+data+")";
+            return vdewReadR5(cmd.getBytes());
+        } else {
+            // vdewReadR6 is the normal and preferred method - only for devices with very old firmware vdewReadR5 is needed.
+            cmd = "P."+ProtocolUtils.buildStringDecimal(profileid, 2)+"("+data+";8)";
         return vdewReadR6(cmd.getBytes());
-    } // private byte[] doReadRawProfile()    
+        }
+    } // private byte[] doReadRawProfile()
     
     private int getLogical0BasedChannelId(String[] edisCodes,int fysical0BasedChannelId) throws IOException {
         for (int i=0;i<edisCodes.length;i++) {

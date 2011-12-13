@@ -204,9 +204,6 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
             iFirmwareVersion = properties.getProperty("FirmwareVersion", "3.03").trim();
             this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
 
-            if (!iFirmwareVersion.equalsIgnoreCase("3.03") && !iFirmwareVersion.equalsIgnoreCase("3.02")) {
-				throw new InvalidPropertyException("Invalid value for FirmwareVersion: " + iFirmwareVersion + "! Valid FirmwareVersion values are '3.02' and '3.03'.");
-			}
             strDateFormat = properties.getProperty("DateFormat","yy/MM/dd").trim().toLowerCase();
             // Check for valid DateFormat
             StringTokenizer tokenizer = new StringTokenizer(strDateFormat,"/");
@@ -220,7 +217,6 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
         catch (NumberFormatException e) {
            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());
         }
-
     }
 
 //    private boolean isDataReadout() {
