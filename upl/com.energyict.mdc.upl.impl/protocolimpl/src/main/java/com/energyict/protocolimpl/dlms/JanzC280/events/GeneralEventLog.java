@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.dlms.JanzC280.events;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocolimpl.dlms.idis.events.AbstractEvent;
 
 import java.io.IOException;
 import java.util.*;

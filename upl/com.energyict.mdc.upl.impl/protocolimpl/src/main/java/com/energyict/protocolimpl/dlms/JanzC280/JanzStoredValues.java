@@ -6,7 +6,6 @@ import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocolimpl.dlms.elgama.HistoricalRegister;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
