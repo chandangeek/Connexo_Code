@@ -23,8 +23,8 @@ public class DisconnectControlLog extends AbstractEvent {
     private static final int EVENT_LIMITER_THRESHOLD_OK = 66;
     private static final int EVENT_LIMITER_THRESHOLD_CHANGED = 67;
 
-    public DisconnectControlLog(TimeZone timeZone, DataContainer dc) {
-        super(dc, timeZone);
+    public DisconnectControlLog(DataContainer dc, final AXDRDateTimeDeviationType deviationType) {
+        super(dc, deviationType);
     }
 
     /**
@@ -49,7 +49,7 @@ public class DisconnectControlLog extends AbstractEvent {
                 threshold = Integer.toString(this.dcEvents.getRoot().getStructure(i).getInteger(2));
             }
             if (isOctetString(this.dcEvents.getRoot().getStructure(i).getElement(0))) {
-                eventTimeStamp = new AXDRDateTime(new OctetString(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray()), AXDRDateTimeDeviationType.Positive).getValue().getTime();
+                eventTimeStamp = new AXDRDateTime(new OctetString(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray()), this.deviationType).getValue().getTime();
             }
             if (eventTimeStamp != null) {
                 buildMeterEvent(meterEvents, eventTimeStamp, eventId, threshold);

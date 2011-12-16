@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling;
 
 import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.genericprotocolimpl.nta.eventhandling.ExtraEvents;
 import com.energyict.protocol.MeterEvent;
 
@@ -18,8 +19,8 @@ public class FraudDetectionLog extends AbstractEvent {
     private static final int EVENT_METER_COVER_CLOSED = 45;
     private static final int EVENT_TIMES_WRONG_PASSWORD = 46;
 
-    public FraudDetectionLog(TimeZone timeZone, DataContainer dc) {
-        super(dc, timeZone);
+    public FraudDetectionLog(DataContainer dc, final AXDRDateTimeDeviationType deviationType) {
+        super(dc, deviationType);
     }
 
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {

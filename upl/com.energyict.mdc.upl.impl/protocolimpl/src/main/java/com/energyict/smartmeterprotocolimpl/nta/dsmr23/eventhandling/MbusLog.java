@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling;
 
 import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.genericprotocolimpl.nta.eventhandling.ExtraEvents;
 import com.energyict.protocol.MeterEvent;
 
@@ -34,8 +35,8 @@ public class MbusLog extends AbstractEvent {
     private static final int EVENT_FRAUD_ATTEMPT_MBUS4 = 133;
     private static final int EVENT_CLOCK_ADJUSTED_MBUS4 = 134;
 
-    public MbusLog(TimeZone timeZone, DataContainer dc) {
-        super(dc, timeZone);
+    public MbusLog(DataContainer dc, final AXDRDateTimeDeviationType deviationType) {
+        super(dc, deviationType);
     }
 
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {

@@ -3,7 +3,7 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.genericprotocolimpl.nta.eventhandling.AbstractEvent;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.protocol.MeterEvent;
 
 import java.io.IOException;
@@ -19,8 +19,8 @@ public class PowerFailureLog extends AbstractEvent {
 
     // Power failure log
 
-    public PowerFailureLog(TimeZone timeZone, DataContainer dc) {
-        super(dc, timeZone);
+    public PowerFailureLog(DataContainer dc, final AXDRDateTimeDeviationType deviationType) {
+        super(dc, deviationType);
     }
 
     /**
@@ -44,7 +44,7 @@ public class PowerFailureLog extends AbstractEvent {
                 duration++;
             }
             if (isOctetString(this.dcEvents.getRoot().getStructure(i).getElement(0))) {
-                eventTimeStamp = new AXDRDateTime(new OctetString(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray())).getValue().getTime();
+                eventTimeStamp = new AXDRDateTime(new OctetString(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray()), this.deviationType).getValue().getTime();
             }
             if (eventTimeStamp != null) {
                 buildMeterEvent(meterEvents, eventTimeStamp, duration);

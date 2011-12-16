@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling;
 
 import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.genericprotocolimpl.nta.eventhandling.ExtraEvents;
 import com.energyict.protocol.MeterEvent;
 
@@ -29,8 +30,8 @@ public class EventsLog extends AbstractEvent {
     private static final int EVENT_FIRMWARE_READY_ACTIVATION = 17;
     private static final int EVENT_FIRMWARE_ACTIVATED = 18;
 
-    public EventsLog(TimeZone timeZone, DataContainer dc) {
-        super(dc, timeZone);
+    public EventsLog(DataContainer dc, final AXDRDateTimeDeviationType deviationType) {
+        super(dc, deviationType);
     }
 
     /**

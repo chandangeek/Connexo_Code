@@ -135,7 +135,7 @@ public class MeterTopology implements MasterMeter {
                     Unsigned8 version = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getVersion()).getUnsigned8();
                     Unsigned8 deviceType = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getDeviceType()).getUnsigned8();
                     mbusSerial = constructShortId(manufacturer, identification, version, deviceType);
-                    if ((mbusSerial != null) && (!mbusSerial.equalsIgnoreCase(""))) {
+                    if ((mbusSerial != null) && (!mbusSerial.equalsIgnoreCase("")) && !mbusSerial.equalsIgnoreCase(ignoreZombieMbusDevice)) {
                         mbusMap.add(new DeviceMapping(mbusSerial, i));
                     }
                 } catch (IOException e) {

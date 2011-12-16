@@ -55,7 +55,7 @@ public abstract class AbstractSmartDSMR40NtaProtocol extends AbstractSmartNtaPro
      */
     @Override
     public EventProfile getEventProfile() {
-        if(this.eventProfile == null){
+        if (this.eventProfile == null) {
             this.eventProfile = new DSMR40EventProfile(this);
         }
         return this.eventProfile;

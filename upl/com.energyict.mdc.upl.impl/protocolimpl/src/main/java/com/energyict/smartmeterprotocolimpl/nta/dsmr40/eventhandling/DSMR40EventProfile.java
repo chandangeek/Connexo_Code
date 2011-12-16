@@ -37,11 +37,11 @@ public class DSMR40EventProfile extends EventProfile {
         DataContainer dcFraudDetection = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getFraudDetectionLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
         DataContainer dcMbusEventLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusEventLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
 
-        StandardEventLog standardEvents = new StandardEventLog(getTimeZone(), dcEvent);
-        FraudDetectionLog fraudDetectionEvents = new FraudDetectionLog(getTimeZone(), dcFraudDetection);
-        DisconnectControlLog disconnectControl = new DisconnectControlLog(getTimeZone(), dcControlLog);
-        MbusEventLog mbusLogs = new MbusEventLog(getTimeZone(), dcMbusEventLog);
-        PowerFailureLog powerFailure = new PowerFailureLog(getTimeZone(), dcPowerFailure);
+        StandardEventLog standardEvents = new StandardEventLog(dcEvent, this.protocol.getDateTimeDeviationType());
+        FraudDetectionLog fraudDetectionEvents = new FraudDetectionLog(dcFraudDetection, this.protocol.getDateTimeDeviationType());
+        DisconnectControlLog disconnectControl = new DisconnectControlLog(dcControlLog, this.protocol.getDateTimeDeviationType());
+        MbusEventLog mbusLogs = new MbusEventLog(dcMbusEventLog, this.protocol.getDateTimeDeviationType());
+        PowerFailureLog powerFailure = new PowerFailureLog(dcPowerFailure, this.protocol.getDateTimeDeviationType());
 
         eventList.addAll(standardEvents.getMeterEvents());
         eventList.addAll(fraudDetectionEvents.getMeterEvents());
@@ -54,7 +54,7 @@ public class DSMR40EventProfile extends EventProfile {
         try {
             for (DeviceMapping mbusDevices : this.protocol.getMeterTopology().getMbusMeterMap()) {
                 dcMbusControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusControlLog(mbusDevices.getPhysicalAddress()).getObisCode()).getBuffer(fromCal, getToCalendar());
-                mbusControlLog = new MbusControlLog(getTimeZone(), dcMbusControlLog);
+                mbusControlLog = new MbusControlLog(dcMbusControlLog, this.protocol.getDateTimeDeviationType());
                 eventList.addAll(mbusControlLog.getMeterEvents());
             }
         } catch (IOException e) {

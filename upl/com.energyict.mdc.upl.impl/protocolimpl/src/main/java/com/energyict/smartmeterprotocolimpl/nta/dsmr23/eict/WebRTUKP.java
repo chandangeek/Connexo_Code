@@ -2,6 +2,7 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict;
 
 import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.messaging.LoadProfileRegisterMessaging;
@@ -22,6 +23,16 @@ public class WebRTUKP extends AbstractSmartNtaProtocol implements PartialLoadPro
     @Override
     public MessageProtocol getMessageProtocol() {
         return new Dsmr23Messaging(new Dsmr23MessageExecutor(this));
+    }
+
+    /**
+     * Get the AXDRDateTimeDeviationType for this DeviceType
+     *
+     * @return the requested type
+     */
+    @Override
+    public AXDRDateTimeDeviationType getDateTimeDeviationType() {
+        return AXDRDateTimeDeviationType.Negative;
     }
 
     /**

@@ -20,8 +20,6 @@ import java.util.*;
  */
 public abstract class AbstractEvent {
 
-    protected TimeZone timeZone;
-
     /**
      * Build a list of MeterEvents
      * @param meterEvents
@@ -33,15 +31,17 @@ public abstract class AbstractEvent {
     /**
      * Container containing raw events
      */
-    protected DataContainer dcEvents;
+    protected final DataContainer dcEvents;
+
+    protected final AXDRDateTimeDeviationType deviationType;
 
     /**
-     * Constructor
-     * @param dc
+     * @param dc the DataContainer, containing all the eventData
+     * @param deviationType the interpretation type of the DataTime
      */
-    public AbstractEvent(DataContainer dc, TimeZone timeZone) {
+    public AbstractEvent(DataContainer dc, final AXDRDateTimeDeviationType deviationType) {
         this.dcEvents = dc;
-        this.timeZone = timeZone;
+        this.deviationType = deviationType;
     }
 
     /**
@@ -55,7 +55,7 @@ public abstract class AbstractEvent {
         for (int i = 0; i <= (size - 1); i++) {
             int eventId = (int) this.dcEvents.getRoot().getStructure(i).getValue(1) & 0xFF; // To prevent negative values
             if (isOctetString(this.dcEvents.getRoot().getStructure(i).getElement(0))) {
-                eventTimeStamp = new AXDRDateTime(new OctetString(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray()), AXDRDateTimeDeviationType.Positive).getValue().getTime();
+                eventTimeStamp = new AXDRDateTime(new OctetString(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray()), this.deviationType).getValue().getTime();
             }
             if (eventTimeStamp != null) {
                 buildMeterEvent(meterEvents, eventTimeStamp, eventId);

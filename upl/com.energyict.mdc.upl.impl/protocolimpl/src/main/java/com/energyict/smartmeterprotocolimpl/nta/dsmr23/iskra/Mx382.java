@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra;
 
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.messaging.LoadProfileRegisterMessaging;
 import com.energyict.protocol.messaging.PartialLoadProfileMessaging;
@@ -17,6 +18,16 @@ public class Mx382 extends AbstractSmartNtaProtocol implements PartialLoadProfil
     @Override
     public MessageProtocol getMessageProtocol() {
         return new Dsmr23Messaging(new Dsmr23MessageExecutor(this));
+    }
+
+    /**
+     * Get the AXDRDateTimeDeviationType for this DeviceType
+     *
+     * @return the requested type
+     */
+    @Override
+    public AXDRDateTimeDeviationType getDateTimeDeviationType() {
+        return AXDRDateTimeDeviationType.Negative;
     }
 
     /**

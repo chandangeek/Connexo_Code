@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.eict;
 
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocolimpl.dlms.DLMSCache;
@@ -22,6 +23,16 @@ public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
     @Override
     public MessageProtocol getMessageProtocol() {
         return new Dsmr40Messaging(new Dsmr40MessageExecutor(this));
+    }
+
+    /**
+     * Get the AXDRDateTimeDeviationType for this DeviceType
+     *
+     * @return the requested type
+     */
+    @Override
+    public AXDRDateTimeDeviationType getDateTimeDeviationType() {
+        return AXDRDateTimeDeviationType.Negative;
     }
 
     /**

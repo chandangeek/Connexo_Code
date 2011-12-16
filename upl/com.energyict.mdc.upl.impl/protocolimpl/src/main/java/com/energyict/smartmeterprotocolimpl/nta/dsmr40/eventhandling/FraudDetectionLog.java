@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.eventhandling;
 
 import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.protocol.MeterEvent;
 
 import java.util.*;
@@ -12,8 +13,8 @@ public class FraudDetectionLog extends com.energyict.smartmeterprotocolimpl.nta.
 
     private static final int EVENT_CONFIGURATION_CHANGE = 47;
 
-    public FraudDetectionLog(TimeZone timeZone, DataContainer dc) {
-        super(timeZone, dc);
+    public FraudDetectionLog(DataContainer dc, AXDRDateTimeDeviationType deviationType) {
+        super(dc, deviationType);
     }
 
     /**

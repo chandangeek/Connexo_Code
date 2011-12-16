@@ -5,9 +5,8 @@ import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
-import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.genericprotocolimpl.common.wakeup.SmsWakeup;
-import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -39,6 +38,13 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
     private static final int ObisCodeBFieldIndex = 1;
 
     public abstract MessageProtocol getMessageProtocol();
+
+    /**
+     * Get the AXDRDateTimeDeviationType for this DeviceType
+     *
+     * @return the requested type
+     */
+    public abstract AXDRDateTimeDeviationType getDateTimeDeviationType();
 
     /**
      * The <code>Properties</code> used for this protocol

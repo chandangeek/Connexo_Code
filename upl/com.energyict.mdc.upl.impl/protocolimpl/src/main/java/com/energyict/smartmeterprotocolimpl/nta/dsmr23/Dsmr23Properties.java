@@ -21,6 +21,8 @@ public class Dsmr23Properties extends DlmsProtocolProperties {
     public static final String OLD_MBUS_DISCOVERY = "OldMbusDiscovery";
     public static final String FIX_MBUS_HEX_SHORT_ID = "FixMbusHexShortId";
 
+    public static final String DEFAULT_CLIENT_MAC_ADDRESS = "1";
+
     @Override
     public DLMSReference getReference() {
         return DLMSReference.LN;
@@ -83,5 +85,10 @@ public class Dsmr23Properties extends DlmsProtocolProperties {
     @ProtocolProperty
     public boolean isBulkRequest() {
         return getBooleanProperty(BULK_REQUEST, "1");
+    }
+
+    @ProtocolProperty
+    public int getClientMacAddress() {
+        return getIntProperty(CLIENT_MAC_ADDRESS, DEFAULT_CLIENT_MAC_ADDRESS);
     }
 }

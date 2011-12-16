@@ -89,7 +89,6 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
                                 new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
                                         su.getUnit()));
                     } else {
-                        //TODO check if this is the right way of doing
                         throw new NoSuchRegisterException("Register with ObisCode: " + register.getObisCode() + " does not provide a proper Unit.");
                     }
 
@@ -177,6 +176,9 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
                     } else if (rObisCode.equalsIgnoreBChannel(MbusDisconnectOutputState)) {
                         this.registerMap.put(register, new DLMSAttribute(adjustToMbusDisconnectOC(rObisCode), DisconnectControlAttribute.OUTPUT_STATE.getAttributeNumber(), DLMSClassId.DISCONNECT_CONTROL));
                         dlmsAttributes.add(this.registerMap.get(register));
+                    } else if (rObisCode.equals(CORE_FIRMWARE_SIGNATURE)){
+                        this.registerMap.put(register, new DLMSAttribute(CORE_FIRMWARE_SIGNATURE, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA));
+                        dlmsAttributes.add(this.registerMap.get(register));
                     } else {
                         this.protocol.getLogger().log(Level.INFO, "Register with ObisCode " + rObisCode + " is not supported.");
                     }
@@ -210,8 +212,8 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
         } else if (rObisCode.equals(CORE_FIRMWARE) || rObisCode.equals(MODULE_FIRMWARE)) {
             return new RegisterValue(register, null, null, null, null, new Date(), 0, new String(abstractDataType.toByteArray()));
         } else if (rObisCode.equals(CORE_FIRMWARE_SIGNATURE) || rObisCode.equals(MODULE_FIRMWARE_SIGNATURE)) {
-            OctetString os = new OctetString(abstractDataType.toByteArray(), 0);
-            return new RegisterValue(register, null, null, null, null, new Date(), 0, com.energyict.genericprotocolimpl.common.ParseUtils.decimalByteToString(os.getOctetStr()));
+            OctetString os = new OctetString(abstractDataType.toByteArray());
+            return new RegisterValue(register, null, null, null, null, new Date(), 0, com.energyict.genericprotocolimpl.common.ParseUtils.decimalByteToString(os.getOctetStr()).toUpperCase());
         } else if (rObisCode.equals(CONNECT_CONTROL_MODE)) {
             int mode = ((TypeEnum) abstractDataType).getValue();
             return new RegisterValue(register, new Quantity(BigDecimal.valueOf(mode), Unit.getUndefined()), null, null, null, new Date(), 0, new String("ConnectControl mode: " + mode));

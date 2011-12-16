@@ -1,10 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.BulkRegisterProtocol;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.protocolimpl.dlms.DLMSCache;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RegisterFactory;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.AbstractSmartDSMR40NtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
@@ -60,5 +59,15 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol {
     @Override
     public void searchForSlaveDevices() throws ConnectionException {
         //TODO don't search slaves during current TESTING
+    }
+
+    /**
+     * Get the AXDRDateTimeDeviationType for this DeviceType
+     *
+     * @return the requested type
+     */
+    @Override
+    public AXDRDateTimeDeviationType getDateTimeDeviationType() {
+        return AXDRDateTimeDeviationType.Positive;
     }
 }

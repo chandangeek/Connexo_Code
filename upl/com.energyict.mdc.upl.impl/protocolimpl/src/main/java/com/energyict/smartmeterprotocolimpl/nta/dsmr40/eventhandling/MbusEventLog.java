@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.eventhandling;
 
 import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.MbusLog;
 
@@ -16,8 +17,8 @@ public class MbusEventLog extends MbusLog{
     private static final int EVENT_NEW_MBUS_DISCOVERED_3 = 125;
     private static final int EVENT_NEW_MBUS_DISCOVERED_4 = 135;
 
-    public MbusEventLog(TimeZone timeZone, DataContainer dc) {
-        super(timeZone, dc);
+    public MbusEventLog(DataContainer dc, AXDRDateTimeDeviationType deviationType) {
+        super(dc, deviationType);
     }
 
     /**

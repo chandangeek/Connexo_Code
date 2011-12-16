@@ -187,14 +187,16 @@ public class LoadProfileBuilder {
                     List<CapturedRegisterObject> coRegisters = new ArrayList<CapturedRegisterObject>();
                     for (CapturedObject co : capturedObjects) {
                         String deviceSerialNumber = this.meterProtocol.getSerialNumberFromCorrectObisCode(co.getLogicalName().getObisCode());
-                        DLMSAttribute dlmsAttribute = new DLMSAttribute(co.getLogicalName().getObisCode(), co.getAttributeIndex(), co.getClassId());
-                        CapturedRegisterObject reg = new CapturedRegisterObject(dlmsAttribute, deviceSerialNumber);
+                        if ((deviceSerialNumber != null) && (!deviceSerialNumber.equals(""))) {
+                            DLMSAttribute dlmsAttribute = new DLMSAttribute(co.getLogicalName().getObisCode(), co.getAttributeIndex(), co.getClassId());
+                            CapturedRegisterObject reg = new CapturedRegisterObject(dlmsAttribute, deviceSerialNumber);
 
-                        // Prepare each register only once. This way we don't get duplicate registerRequests in one getWithList
-                        if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode(), reg.getSerialNumber())) {
-                            channelRegisters.add(reg);
+                            // Prepare each register only once. This way we don't get duplicate registerRequests in one getWithList
+                            if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode(), reg.getSerialNumber())) {
+                                channelRegisters.add(reg);
+                            }
+                            coRegisters.add(reg); // we always add it to the list of registers for this CapturedObject
                         }
-                        coRegisters.add(reg); // we always add it to the list of registers for this CapturedObject
                     }
                     this.capturedObjectRegisterListMap.put(lpr, coRegisters);
                 } //TODO should we log this if we didn't get it???
@@ -255,7 +257,7 @@ public class LoadProfileBuilder {
     private List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
         for (CapturedRegisterObject registerUnit : registers) {
-            if (isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
+            if (!registerUnit.getSerialNumber().equalsIgnoreCase("") && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
                 if (this.registerUnitMap.containsKey(registerUnit)) {
                     ScalerUnit su = new ScalerUnit(ccoRegisterUnits.getAttribute(this.registerUnitMap.get(registerUnit)));
                     if (su.getUnitCode() != 0) {
