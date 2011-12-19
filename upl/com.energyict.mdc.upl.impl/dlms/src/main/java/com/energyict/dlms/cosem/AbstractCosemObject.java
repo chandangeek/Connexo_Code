@@ -324,7 +324,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
      * @return
      * @throws IOException
      */
-    protected byte[][] getLNResponseDataWithList(DLMSAttribute[] attributes) throws IOException {
+    protected byte[][] getResponseDataWithList(DLMSAttribute[] attributes) throws IOException {
         byte[][] result = new byte[attributes.length][];
         byte[] request = buildGetWithListRequest(attributes);
         byte[] responseData = this.protocolLink.getDLMSConnection().sendRequest(request);
@@ -629,11 +629,21 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 	}
 
-    private byte[] buildGetWithListRequest(DLMSAttribute... attributes) {
+    private byte[] buildGetWithListRequest(DLMSAttribute... attributes) throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         buffer.write(0xE6); // Destination_LSAP
         buffer.write(0xE6); // Source_LSAP
         buffer.write(0x00);
+        if (getObjectReference().isLNReference()) {
+            buffer.write(getLnGetWithListRequest(attributes));
+        } else {
+            buffer.write(getSnGetWithListRequest(attributes));
+        }
+        return buffer.toByteArray();
+    }
+
+    private byte[] getLnGetWithListRequest(DLMSAttribute... attributes) {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         buffer.write(COSEM_GETREQUEST);
         buffer.write(COSEM_GETREQUEST_WITH_LIST);
         buffer.write(this.invokeIdAndPriority);
@@ -651,6 +661,29 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
             }
         }
         return buffer.toByteArray();
+    }
+
+    private byte[] getSnGetWithListRequest(DLMSAttribute... attributes) {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        buffer.write(COSEM_READREQUEST);
+        buffer.write(attributes.length); // Number of items
+        for (DLMSAttribute dlmsAttribute : attributes) {
+            buffer.write(0x02); // implicit objectName
+            int shortName = getShortNameFromObjectList(dlmsAttribute.getObisCode());
+            buffer.write((byte) ((shortName + dlmsAttribute.getSnAttribute()) >> 8) & 0x00FF);
+            buffer.write((byte) (shortName + dlmsAttribute.getSnAttribute()) & 0x00FF);
+        }
+        return buffer.toByteArray();
+    }
+    
+    protected int getShortNameFromObjectList(ObisCode logicalName){
+        UniversalObject[] uos = getProtocolLink().getMeterConfig().getInstantiatedObjectList();
+        for (UniversalObject uo : uos) {
+            if(uo.getObisCode().equals(logicalName)){
+                return uo.getBaseName();
+            }
+        }
+        return -1;
     }
 
 	/**

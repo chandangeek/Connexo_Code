@@ -12,6 +12,7 @@ public class MockProtocolLink implements ProtocolLink{
 	
 	private DLMSConnection connection;
 	private DLMSMeterConfig meterConfig;
+    private int reference;
 	
 	public MockProtocolLink(DLMSConnection dlmsConnection){
 		this(dlmsConnection, null);
@@ -20,6 +21,7 @@ public class MockProtocolLink implements ProtocolLink{
 	public MockProtocolLink(DLMSConnection dlmsConnection, DLMSMeterConfig meterConfig){
 		this.connection = dlmsConnection;
 		this.meterConfig = meterConfig;
+        this.reference = ProtocolLink.LN_REFERENCE;
 	}
 
 	public DLMSConnection getDLMSConnection() {
@@ -36,7 +38,7 @@ public class MockProtocolLink implements ProtocolLink{
 	}
 
 	public int getReference() {
-		return ProtocolLink.LN_REFERENCE;
+		return reference;
 	}
 
 	public int getRoundTripCorrection() {
@@ -59,4 +61,7 @@ public class MockProtocolLink implements ProtocolLink{
 		return false;
 	}
 
+    public void setReference(int reference){
+        this.reference = reference;
+    }
 }

@@ -11,11 +11,12 @@ import java.util.*;
  * @author jme
  *
  */
-public class DLMSAttribute {
+public class DLMSAttribute{
 
 	private final ObisCode	obisCode;
 	private final int		attribute;
 	private final int		classId;
+    private final int       snAttribute;
 
     /**
      *
@@ -27,6 +28,7 @@ public class DLMSAttribute {
         this.obisCode = obisCode;
         this.attribute = attribute;
         this.classId = classId;
+        this.snAttribute = DLMSUtils.attrLN2SN(attribute);
     }
 
     /**
@@ -35,7 +37,10 @@ public class DLMSAttribute {
      * @param attribute
      */
     public DLMSAttribute(ObisCode obisCode, DLMSClassAttributes attribute) {
-        this(obisCode, attribute.getAttributeNumber(), attribute.getDlmsClassId());
+        this.obisCode = obisCode;
+        this.attribute = attribute.getAttributeNumber();
+        this.classId = attribute.getDlmsClassId().getClassId();
+        this.snAttribute = attribute.getShortName();
     }
 
     /**
@@ -146,6 +151,10 @@ public class DLMSAttribute {
      */
     public int getClassId() {
         return classId;
+    }
+
+    public int getSnAttribute() {
+        return snAttribute;
     }
 
     @Override

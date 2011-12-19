@@ -7,6 +7,7 @@ import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.cosem.attributes.GenericDlmsClassAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -36,6 +37,9 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
 
     public ComposedCosemObject(ProtocolLink protocolLink, boolean useGetWithList, DLMSAttribute... dlmsAttributes) {
         super(protocolLink, new ObjectReference(ObisCode.fromString("0.0.0.0.0.0").getLN()));
+        if(protocolLink.getReference() == ProtocolLink.SN_REFERENCE){
+            setObjectReference(new ObjectReference(0));
+        }
         for (int i = 0; i < dlmsAttributes.length; i++) {
             DLMSAttribute da = dlmsAttributes[i];
             dlmsAttributes[i] = getCorrectedClassId(da, protocolLink);
@@ -100,7 +104,7 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
         if (dataResult[index] == null) {
             this.lastAttributeReadTime = new Date();
             if (isGetWithListSupported()) {
-                byte[][] dataWithList = getLNResponseDataWithList(attributes);
+                byte[][] dataWithList = getResponseDataWithList(attributes);
                 for (int i = 0; i < dataWithList.length; i++) {
                     switch (dataWithList[i][0]) {
                         case 0x00: // Data
@@ -115,9 +119,14 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
                 }
             } else {
                 try {
-                    setObjectReference(new ObjectReference(attribute.getObisCode().getLN(), attribute.getClassId()));
-                    byte[] reponseData = getLNResponseData(attribute.getAttribute());
-                    AbstractDataType abstractData = AXDRDecoder.decode(reponseData);
+                    byte[] responseData;
+                    if(getObjectReference().isLNReference()){
+                        setObjectReference(new ObjectReference(attribute.getObisCode().getLN(), attribute.getClassId()));
+                    } else {
+                        setObjectReference(new ObjectReference(getShortNameFromObjectList(attribute.getObisCode())));
+                    }
+                    responseData = getResponseData(new GenericDlmsClassAttribute(getShortNameFromObjectList(attribute.getObisCode()), attribute));
+                    AbstractDataType abstractData = AXDRDecoder.decode(responseData);
                     dataResult[index] = abstractData;
                 } catch (DataAccessResultException e) {
                     dataResult[index] = new DataAccessResultType(e.getCode());
