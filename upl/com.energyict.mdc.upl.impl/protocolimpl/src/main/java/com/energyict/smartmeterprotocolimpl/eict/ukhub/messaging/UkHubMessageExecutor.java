@@ -146,39 +146,10 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         ObisCode obisCode = ObisCode.fromString("0.129.0.0.0.255");
         Data data = getCosemObjectFactory().getData(obisCode);
 
-        String apn = "instantenergy.com";
-        String user = "orange";
-        String password = "54ghd67s&";
-
-/*
-        String apn = "apn.energyict.com";
-        String user = "EICTSMQ010";
-        String password = "2465282";
-*/
-
         getLogger().severe("[" + content + "]");
-
-        if (content.equalsIgnoreCase("Logica")) {
-            getLogger().severe("WARNING! Writing special config to device (APN & gprs settings for LOGICA)");
-            String userAndPasswordXML = "<Configuration><Config><PPP><UserName>" + user + "</UserName><Password>" + password + "</Password></PPP></Config></Configuration>";
-            String apnXML = "<Configuration><Config><Modem><APN>" + apn + "</APN></Modem></Config></Configuration>";
-
-            OctetString userNameAndPasswordValue = OctetString.fromString(userAndPasswordXML);
-            OctetString apnValue = OctetString.fromString(apnXML);
-
-            getLogger().severe("Sending XMLConfig [" + userAndPasswordXML + "]");
-            data.setValueAttr(userNameAndPasswordValue);
-
-            getLogger().severe("Sending XMLConfig [" + apnXML + "]");
-            data.setValueAttr(apnValue);
-
-        } else {
-            getLogger().severe("Writing plain XML to device [" + content + "]...");
-
-            OctetString plainXML = OctetString.fromString(content);
-            data.setValueAttr(plainXML);
-
-        }
+        getLogger().severe("Writing plain XML to device [" + content + "]...");
+        OctetString plainXML = OctetString.fromString(content);
+        data.setValueAttr(plainXML);
 
     }
 
