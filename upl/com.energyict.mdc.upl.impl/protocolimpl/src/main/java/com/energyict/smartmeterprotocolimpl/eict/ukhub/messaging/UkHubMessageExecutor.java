@@ -246,7 +246,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
     }
 
     private void restoreZigBeeHanParameters(final MessageHandler messageHandler) throws IOException {
-        log(Level.INFO, "Sending message : Backup ZigBee Han Keys");
+        log(Level.INFO, "Sending message : Restore ZigBee Han Keys");
         int userFileId = messageHandler.getRestoreHanParametersUserFileId();
         if (userFileId == -1) {
             throw new IOException("Invalid UserFileId value : " + userFileId);
@@ -269,6 +269,15 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         ZigbeeHanManagement hanManagement = getCosemObjectFactory().getZigbeeHanManagement();
         log(Level.FINE, "Writing : RestoreData Structure");
         hanManagement.restore(hanBackUpData.getRestoreData());
+
+        log(Level.INFO, "Create HAN Network");
+        hanManagement.createHan();
+
+        getLogger().info("Enable joining");
+        ZigBeeSETCControl zigBeeSETCControl = getCosemObjectFactory().getZigBeeSETCControl();
+        zigBeeSETCControl.writeEnableDisableJoining(true);
+
+        log(Level.INFO, "Restore ZigBee Han Keys successful");
     }
 
     private void backupZigBeeHanParameters(final MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
