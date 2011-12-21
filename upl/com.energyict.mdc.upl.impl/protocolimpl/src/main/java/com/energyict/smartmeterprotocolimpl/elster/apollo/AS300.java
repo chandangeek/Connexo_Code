@@ -122,6 +122,8 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
     @Override
     public void connect() throws IOException {
         getDlmsSession().connect();
+        checkCacheObjects();
+        initAfterConnect();
     }
 
     public List<RegisterValue> readRegisters(List<Register> registers) throws IOException {
