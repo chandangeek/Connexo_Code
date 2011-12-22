@@ -377,13 +377,17 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
      */
     private String getRFFirmwareVersion() {
         try {
-            if (getMeterConfig().isObisCodeInObjectList(ComposedMeterInfo.RF_FIRMWAREVERSION.getObisCode())) {
+            if (hasRfFirmwareVersion()) {
                 return getMeterInfo().getRFFirmwareVersion();
             }
         } catch (IOException e) {
             log(Level.FINEST, "Unable to read the RFFirmwareVersion: " + e.getMessage());
         }
         return "";
+    }
+
+    public boolean hasRfFirmwareVersion() {
+        return getMeterConfig().isObisCodeInObjectList(ComposedMeterInfo.RF_FIRMWAREVERSION.getObisCode());
     }
 
     /**
@@ -1246,7 +1250,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 
     public ComposedMeterInfo getMeterInfo() {
         if (meterInfo == null) {
-            meterInfo = new ComposedMeterInfo(getProtocolLink(), isBulkRequest());
+            meterInfo = new ComposedMeterInfo(getProtocolLink(), isBulkRequest(), hasRfFirmwareVersion());
         }
         return meterInfo;
     }

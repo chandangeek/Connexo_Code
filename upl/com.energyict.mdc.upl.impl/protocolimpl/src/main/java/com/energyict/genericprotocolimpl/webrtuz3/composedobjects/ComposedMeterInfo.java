@@ -19,27 +19,29 @@ public class ComposedMeterInfo extends ComposedCosemObject {
     public static final DLMSAttribute RF_FIRMWAREVERSION = DLMSAttribute.fromString("1:1.129.0.2.0.255:2");
     public static final DLMSAttribute FIRMWARE_VERSION = DLMSAttribute.fromString("1:1.0.0.2.0.255:2");
     public static final DLMSAttribute CONFIG_NUMBER = DLMSAttribute.fromString("1:0.0.96.2.0.255:2");
+    private final boolean readRfFirmwareVersion;
 
-    public ComposedMeterInfo(ProtocolLink protocolLink, boolean useGetWithList) {
-        super(protocolLink, useGetWithList, getDlmsAttributes());
+    public ComposedMeterInfo(ProtocolLink protocolLink, boolean useGetWithList, boolean readRfFirmwareVersion) {
+        super(protocolLink, useGetWithList, getDlmsAttributes(readRfFirmwareVersion));
+        this.readRfFirmwareVersion = readRfFirmwareVersion;
     }
 
-    private static DLMSAttribute[] getDlmsAttributes() {
-        return new DLMSAttribute[] {
-                SERIALNR,
-                FIRMWARE_VERSION,
-                RF_FIRMWAREVERSION,
-                CONFIG_NUMBER
-        };
+    private static DLMSAttribute[] getDlmsAttributes(boolean readRfFirmwareVersion) {
+        DLMSAttribute[] withRF = {SERIALNR, FIRMWARE_VERSION, RF_FIRMWAREVERSION, CONFIG_NUMBER};
+        DLMSAttribute[] withoutRF = {SERIALNR, FIRMWARE_VERSION, CONFIG_NUMBER};
+        return readRfFirmwareVersion ? withRF : withoutRF;
     }
 
     public String getRFFirmwareVersion() throws IOException {
-        AbstractDataType attribute = getAttribute(RF_FIRMWAREVERSION);
-        if (attribute instanceof OctetString) {
-            return attribute.getOctetString().stringValue();
-        } else {
-            throw new IOException("Expected OctetString but was " + attribute.getClass().getSimpleName());
+        if (readRfFirmwareVersion) {
+            AbstractDataType attribute = getAttribute(RF_FIRMWAREVERSION);
+            if (attribute instanceof OctetString) {
+                return attribute.getOctetString().stringValue();
+            } else {
+                throw new IOException("Expected OctetString but was " + attribute.getClass().getSimpleName());
+            }
         }
+        return "";
     }
 
     public String getFirmwareVersion() throws IOException {
