@@ -480,7 +480,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         structure.addDataType(octetString);
         structure.addDataType(new Unsigned16(duration));
         structure.addDataType(new BitString(0x0F, 8));
-        structure.addDataType(new Unsigned16(0));
+        structure.addDataType(new Unsigned16(0x0FFFF));
 
         meterMessageControl.writePassiveValue(structure);
         if (date != null) {

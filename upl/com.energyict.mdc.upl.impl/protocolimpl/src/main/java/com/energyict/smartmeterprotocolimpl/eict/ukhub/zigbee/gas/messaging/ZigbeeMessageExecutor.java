@@ -64,6 +64,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
     private static final String CALORIFIC_VALUE = "Calorific value";
     private static final String CONVERSION_FACTOR = "Conversion factor";
     private static final ObisCode DISCONNECTOR = ObisCode.fromString("0.0.96.3.10.255");
+    private static final ObisCode IPD_MESSAGE_CONTROL = ObisCode.fromString("7.0.35.3.7.255");
 
     private final AbstractSmartDlmsProtocol protocol;
     private ActivityCalendarController activityCalendarController;
@@ -105,6 +106,8 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
                 setCV(content);
             } else if (isReadPricePerUnit(content)) {
                 readPricePerUnit();
+            } else if (isTextToDisplayMessage(content)) {
+                sendTextToDisplay(content);
             } else if (isConnectControlMessage(content)) {
                 doConnect(content);
             } else if (isDisconnectControlMessage(content)) {
@@ -163,6 +166,47 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
             return content.substring(startIndex + tag.length() + 1, endIndex);
         } catch (IndexOutOfBoundsException e) {
             throw new IOException(e.getMessage());
+        }
+    }
+
+    private void sendTextToDisplay(final String content) throws IOException {
+        log(Level.INFO, "Send text message to display message received.");
+        ActivePassive meterMessageControl = getCosemObjectFactory().getActivePassive(IPD_MESSAGE_CONTROL);
+
+        String[] parts = content.split("=");
+        String message = parts[1].substring(1).split("\"")[0];
+        int duration = 0;
+        Date date = null;
+
+        try {
+            duration = Integer.parseInt(parts[2].substring(1).split("\"")[0]);
+            if (parts.length > 3) {
+                String dateString = parts[3].substring(1).split("\"")[0];
+
+                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                date = formatter.parse(dateString);
+            }
+        } catch (ParseException e) {
+            log(Level.SEVERE, "Error while parsing the activation date: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            log(Level.SEVERE, "Error while parsing the time duration: " + e.getMessage());
+        }
+
+        Structure structure = new Structure();
+        structure.addDataType(new Unsigned32((int) Calendar.getInstance().getTimeInMillis()));
+        OctetString octetString = OctetString.fromString((message.length() > 128 ? message.substring(0, 127) : message), 128);
+        structure.addDataType(octetString);
+        structure.addDataType(new Unsigned16(duration));
+        structure.addDataType(new BitString(0x0F, 8));
+        structure.addDataType(new Unsigned16(0x0FFFF));
+
+        meterMessageControl.writePassiveValue(structure);
+        if (date != null) {
+            Calendar cal = Calendar.getInstance(protocol.getTimeZone());
+            cal.setTime(date);
+            meterMessageControl.writeActivationDate(new DateTime(cal));
+        } else {
+            meterMessageControl.activate();
         }
     }
 
@@ -506,6 +550,10 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
 
     private boolean isReadPricePerUnit(final String messageContent) {
         return (messageContent != null) && messageContent.contains(READ_PRICE_PER_UNIT);
+    }
+
+    private boolean isTextToDisplayMessage(final String messageContent) {
+        return (messageContent != null) && messageContent.contains(ZigbeeGasMessaging.TEXT_TO_DISPLAY);
     }
 
     private boolean isChangeOfSupplierMessage(final MessageHandler messageHandler) {
