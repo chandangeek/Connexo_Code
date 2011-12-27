@@ -635,7 +635,7 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
         			RegisterValue scalerRegister = readRegister(capturedObjects.getProfileDataChannel(channelId));
         				demandScalerUnits[0] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),
         						scalerRegister.getQuantity().getUnit());
-        				ChannelInfo ci = new ChannelInfo(channelId, "IskraME37x_channel_"+channelId, demandScalerUnits[0].getUnit());
+        				ChannelInfo ci = new ChannelInfo(channelId, "IskraME37x_channel_"+channelId, demandScalerUnits[0].getEisUnit());
         				if(isObisCodeCumulative(capturedObjects.getProfileDataChannel(channelId))){
         					ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
         				}
@@ -652,7 +652,7 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
             		RegisterValue scalerRegister = readRegister(capturedObjects.getProfileDataChannel(channelId));
     				demandScalerUnits[1] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),
     						scalerRegister.getQuantity().getUnit());
-    				ChannelInfo ci2 = new ChannelInfo(channelId, "IskraME37x_channel_"+channelId, demandScalerUnits[1].getUnit());
+    				ChannelInfo ci2 = new ChannelInfo(channelId, "IskraME37x_channel_"+channelId, demandScalerUnits[1].getEisUnit());
     				ci2.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
     	            profileData.addChannel(ci2);
             	}

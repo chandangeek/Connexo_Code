@@ -85,7 +85,7 @@ public class ProfileBuilder {
 	public List<ChannelInfo> buildChannelInfos(ScalerUnit[] scalerunit){
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
 		for (int i = 0; i < scalerunit.length; i++) {
-			ChannelInfo channelInfo = new ChannelInfo(i, "dlms" + getAs220().getDeviceID() + "_channel_" + i, scalerunit[i].getUnit());
+			ChannelInfo channelInfo = new ChannelInfo(i, "dlms" + getAs220().getDeviceID() + "_channel_" + i, scalerunit[i].getEisUnit());
 			channelInfos.add(channelInfo);
 		}
 		return channelInfos;

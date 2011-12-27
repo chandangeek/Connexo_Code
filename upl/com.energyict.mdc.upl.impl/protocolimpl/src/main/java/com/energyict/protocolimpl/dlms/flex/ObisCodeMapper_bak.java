@@ -124,9 +124,9 @@ public class ObisCodeMapper_bak {
                     if (billingPoint != -1) {
                         // get Billing timestamp
                         Data data = cof.getData(new ObisCode(1,0,0,1,2,billingPoint));
-                        return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(register.getValue()),register.getScalerUnit().getUnit()),null,data.getBillingDate());
+                        return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(register.getValue()),register.getScalerUnit().getEisUnit()),null,data.getBillingDate());
                     } else {
-                        return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(register.getValue()),register.getScalerUnit().getUnit()));
+                        return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(register.getValue()),register.getScalerUnit().getEisUnit()));
                     }
                 } // if (obisCode.getD() == 8) { // cumulative values, indexes
                 else if (obisCode.getD() == 4) { // current average
@@ -134,9 +134,9 @@ public class ObisCodeMapper_bak {
                     if (billingPoint != -1) {
                         // get Billing timestamp
                         Data data = cof.getData(new ObisCode(1,0,0,1,2,billingPoint));
-                        return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(register.getValue()),register.getScalerUnit().getUnit()),null,data.getBillingDate());
+                        return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(register.getValue()),register.getScalerUnit().getEisUnit()),null,data.getBillingDate());
                     } else {
-                        return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(register.getValue()),register.getScalerUnit().getUnit()));
+                        return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(register.getValue()),register.getScalerUnit().getEisUnit()));
                     }
                 } // if (obisCode.getD() == 4) { // current average
                 else if (obisCode.getD() == 5) { // last average
@@ -144,9 +144,9 @@ public class ObisCodeMapper_bak {
                     if (billingPoint != -1) {
                         // get Billing timestamp
                         Data data = cof.getData(new ObisCode(1,0,0,1,2,billingPoint));
-                        return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(register.getValue()),register.getScalerUnit().getUnit()),null,data.getBillingDate());
+                        return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(register.getValue()),register.getScalerUnit().getEisUnit()),null,data.getBillingDate());
                     } else {
-                        return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(register.getValue()),register.getScalerUnit().getUnit()));
+                        return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(register.getValue()),register.getScalerUnit().getEisUnit()));
                     }
                 } // if (obisCode.getD() == 5) { // last average
                 else if (obisCode.getD() == 6) { // maximum demand values
@@ -154,9 +154,9 @@ public class ObisCodeMapper_bak {
                     if (billingPoint != -1) {
                         // get Billing timestamp
                         Data data = cof.getData(new ObisCode(1,0,0,1,2,billingPoint));
-                        return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(register.getValue()),register.getScalerUnit().getUnit()),register.getCaptureTime(),data.getBillingDate());
+                        return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(register.getValue()),register.getScalerUnit().getEisUnit()),register.getCaptureTime(),data.getBillingDate());
                     } else {
-                        return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(register.getValue()),register.getScalerUnit().getUnit()),register.getCaptureTime());
+                        return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(register.getValue()),register.getScalerUnit().getEisUnit()),register.getCaptureTime());
                     }
                 } // maximum demand values
             } // if ((obisCode.getA() == 1) && (obisCode.getB() == 0)) {

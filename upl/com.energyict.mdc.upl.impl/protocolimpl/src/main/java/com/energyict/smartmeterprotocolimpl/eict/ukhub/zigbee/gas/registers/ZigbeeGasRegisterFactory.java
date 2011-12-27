@@ -60,7 +60,7 @@ public class ZigbeeGasRegisterFactory implements BulkRegisterProtocol {
             }
             Quantity quantity;
             try {
-                quantity = new Quantity(value.getValue(), scalerUnit.getUnit());
+                quantity = new Quantity(value.getValue(), scalerUnit.getEisUnit());
             } catch (ApplicationException e) {  // The BasUnit code is not found (not yet present in our code base)
                 quantity = new Quantity(value.getValue(), Unit.get(255, scalerUnit.getScaler()));
             }
@@ -74,7 +74,7 @@ public class ZigbeeGasRegisterFactory implements BulkRegisterProtocol {
             }
             Quantity quantity;
             try {
-                quantity = new Quantity(value.getValue(), scalerUnit.getUnit());
+                quantity = new Quantity(value.getValue(), scalerUnit.getEisUnit());
             } catch (ApplicationException e) {
                 quantity = new Quantity(value.getValue(), Unit.get(255, scalerUnit.getScaler()));
             }
@@ -88,7 +88,7 @@ public class ZigbeeGasRegisterFactory implements BulkRegisterProtocol {
             }
             Quantity quantity;
             try {
-                quantity = new Quantity(value.getValue(), scalerUnit.getUnit());
+                quantity = new Quantity(value.getValue(), scalerUnit.getEisUnit());
             } catch (ApplicationException e) {
                 quantity = new Quantity(value.getValue(), Unit.get(255, scalerUnit.getScaler()));
             }

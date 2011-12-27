@@ -237,7 +237,7 @@ public class ParseUtils {
                     if(register.getScalerUnit().getUnitCode() == 56){
                         return new Quantity(BigDecimal.valueOf(register.getValue()), Unit.get(BaseUnit.PERCENT));
                     } else {
-                        return new Quantity(BigDecimal.valueOf(register.getValue()), register.getScalerUnit().getUnit());
+                        return new Quantity(BigDecimal.valueOf(register.getValue()), register.getScalerUnit().getEisUnit());
                     }
 				} else {
 					return new Quantity(BigDecimal.valueOf(register.getValue()), Unit.get(BaseUnit.UNITLESS));
@@ -262,7 +262,7 @@ public class ParseUtils {
 		try {
 			if(cosemObject.getScalerUnit() != null){
 				if(cosemObject.getScalerUnit().getUnitCode() != 0){
-					return new Quantity(BigDecimal.valueOf(cosemObject.getValue()), cosemObject.getScalerUnit().getUnit());
+					return new Quantity(BigDecimal.valueOf(cosemObject.getValue()), cosemObject.getScalerUnit().getEisUnit());
 				} else {
 					return new Quantity(BigDecimal.valueOf(cosemObject.getValue()), Unit.get(BaseUnit.UNITLESS));
 				}

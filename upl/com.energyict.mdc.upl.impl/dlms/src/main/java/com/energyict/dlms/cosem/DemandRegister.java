@@ -151,7 +151,7 @@ public class DemandRegister extends AbstractCosemObject implements CosemObject {
     }
 
     public com.energyict.cbo.Quantity getQuantityValue() throws IOException {
-        return new Quantity(new BigDecimal(getValue()),getScalerUnit().getUnit());
+        return new Quantity(new BigDecimal(getValue()),getScalerUnit().getEisUnit());
     }
 
     public long getValue() throws IOException {

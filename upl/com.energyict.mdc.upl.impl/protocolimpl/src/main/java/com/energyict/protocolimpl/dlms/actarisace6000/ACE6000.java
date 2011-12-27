@@ -571,7 +571,7 @@ public class ACE6000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Pro
                scalerunit[channelIndex] = getMeterDemandRegisterScalerUnit(i);
                profileData.addChannel(new ChannelInfo(i,
                                                   "dlmsACE6000_channel_"+i,
-                                                  scalerunit[i].getUnit()));
+                                                  scalerunit[i].getEisUnit()));
                channelIndex++;
            }
         }

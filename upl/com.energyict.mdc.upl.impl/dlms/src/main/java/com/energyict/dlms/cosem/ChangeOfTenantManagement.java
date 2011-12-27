@@ -117,7 +117,7 @@ public class ChangeOfTenantManagement extends AbstractCosemObject {
      * @throws IOException if for some reason you could not write the attribute
      */
     public void writeScalerUnit(final ScalerUnit scalerUnit) throws IOException {
-        write(ChangeOfTenantManagementAttributes.SCALER_UNIT, scalerUnit.getAbstractDataType().getBEREncodedByteArray());
+        write(ChangeOfTenantManagementAttributes.SCALER_UNIT, scalerUnit.getScalerUnitStructure().getBEREncodedByteArray());
         this.scalerUnit = scalerUnit;
     }
 
@@ -188,7 +188,7 @@ public class ChangeOfTenantManagement extends AbstractCosemObject {
      * @throws IOException if for some reason you could not write the attribute
      */
     public void writePassiveScalerUnit(final ScalerUnit passiveScalerUnit) throws IOException {
-        write(ChangeOfTenantManagementAttributes.PASSIVE_SCALER_UNIT, passiveScalerUnit.getAbstractDataType().getBEREncodedByteArray());
+        write(ChangeOfTenantManagementAttributes.PASSIVE_SCALER_UNIT, passiveScalerUnit.getScalerUnitStructure().getBEREncodedByteArray());
         this.passiveScalerUnit = passiveScalerUnit;
     }
 

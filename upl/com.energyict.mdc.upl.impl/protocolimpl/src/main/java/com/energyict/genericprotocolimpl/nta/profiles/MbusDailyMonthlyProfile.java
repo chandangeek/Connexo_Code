@@ -179,7 +179,7 @@ public class MbusDailyMonthlyProfile extends AbstractNTAProfile {
 
                     if (channelIndex != -1) {
                         if ((su != null) && (su.getUnitCode() != 0)) {
-                            ci = new ChannelInfo(index, channelIndex, "WebRtuKP_Mbus_DayMonth_" + index, su.getUnit());
+                            ci = new ChannelInfo(index, channelIndex, "WebRtuKP_Mbus_DayMonth_" + index, su.getEisUnit());
                         } else {
                             throw new ProtocolException("Meter does not report a proper scalerUnit for all channels of his Mbus DailyMonthly LoadProfile, data can not be interpreted correctly.");
                         }

@@ -114,13 +114,13 @@ public class ApolloProfileBuilder {
         if (this.profileConfig.getNrOfChannels() != 0) {
             CapturedObject co = profileGeneric.getCaptureObjects().get(this.profileConfig.getCapturedObjectIndexForChannel(index));
             try {
-                return this.meterProtocol.getApolloObjectFactory().getCosemObject(co.getLogicalName().getObisCode(), co.getClassId()).getScalerUnit().getUnit();
+                return this.meterProtocol.getApolloObjectFactory().getCosemObject(co.getLogicalName().getObisCode(), co.getClassId()).getScalerUnit().getEisUnit();
             } catch (IOException e) {
                 this.meterProtocol.getLogger().info("Could not fetch the scalerUnit from channel [" + co + "]. Data can not be correctly constructed.");
                 throw e;
             }
         } else {
-            return getScalerUnits()[index].getUnit();
+            return getScalerUnits()[index].getEisUnit();
         }
     }
 

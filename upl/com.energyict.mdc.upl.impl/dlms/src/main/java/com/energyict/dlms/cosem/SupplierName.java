@@ -111,7 +111,7 @@ public class SupplierName extends AbstractCosemObject {
      * @throws java.io.IOException if for some reason you could not write the attribute
      */
     public void writeScalerUnit(final ScalerUnit scalerUnit) throws IOException {
-        write(SupplierNameAttributes.SCALER_UNIT, scalerUnit.getAbstractDataType().getBEREncodedByteArray());
+        write(SupplierNameAttributes.SCALER_UNIT, scalerUnit.getScalerUnitStructure().getBEREncodedByteArray());
         this.scalerUnit = scalerUnit;
     }
 
@@ -182,7 +182,7 @@ public class SupplierName extends AbstractCosemObject {
      * @throws java.io.IOException if for some reason you could not write the attribute
      */
     public void writePassiveScalerUnit(final ScalerUnit passiveScalerUnit) throws IOException {
-        write(SupplierNameAttributes.PASSIVE_SCALER_UNIT, passiveScalerUnit.getAbstractDataType().getBEREncodedByteArray());
+        write(SupplierNameAttributes.PASSIVE_SCALER_UNIT, passiveScalerUnit.getScalerUnitStructure().getBEREncodedByteArray());
         this.passiveScalerUnit = passiveScalerUnit;
     }
 

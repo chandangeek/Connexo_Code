@@ -116,7 +116,7 @@ public class ElectricityProfile {
 					final CapturedObject co = ((CapturedObject)profile.getCaptureObjects().get(i));
 					final ScalerUnit su = getMeterDemandRegisterScalerUnit(co.getLogicalName().getObisCode());
 					if(su != null){
-						ci = new ChannelInfo(index, getProfileChannelNumber(index+1), "IskraMx372_"+index, su.getUnit());
+						ci = new ChannelInfo(index, getProfileChannelNumber(index+1), "IskraMx372_"+index, su.getEisUnit());
 					} else {
 						ci = new ChannelInfo(index, getProfileChannelNumber(index+1), "IskraMx372_"+index, Unit.get(BaseUnit.UNITLESS));
 					}

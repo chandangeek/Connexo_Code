@@ -97,9 +97,9 @@ public class MbusDailyMonthly {
 					final CapturedObject co = ((CapturedObject)profile.getCaptureObjects().get(i));
 					final ScalerUnit su = getMeterDemandRegisterScalerUnit(co.getLogicalName().getObisCode());
 					if(timeDuration == TimeDuration.DAYS){
-						ci = new ChannelInfo(index, getDailyChannelNumber(index+1), "IskraMx372_Mbus_Daily_"+index, su.getUnit());
+						ci = new ChannelInfo(index, getDailyChannelNumber(index+1), "IskraMx372_Mbus_Daily_"+index, su.getEisUnit());
 					} else if(timeDuration == TimeDuration.MONTHS){
-						ci = new ChannelInfo(index, getMonthlyChannelNumber(index+1), "IskraMx372_Mbus_Montly_"+index, su.getUnit());
+						ci = new ChannelInfo(index, getMonthlyChannelNumber(index+1), "IskraMx372_Mbus_Montly_"+index, su.getEisUnit());
 					}
 					
 					index++;

@@ -115,7 +115,7 @@ public class ElectricityProfile extends AbstractNTAProfile{
 					channelIndex = getProfileChannelNumber(index+1);
 					if(channelIndex != -1){
 						if((su != null) && (su.getUnitCode() != 0)){
-							ci = new ChannelInfo(index, channelIndex, "NTA_"+index, su.getUnit());
+							ci = new ChannelInfo(index, channelIndex, "NTA_"+index, su.getEisUnit());
 						} else {
 							throw new ProtocolException("Meter does not report a proper scalerUnit for all channels of his Electricity LoadProfile, data can not be interpreted correctly.");
 						}

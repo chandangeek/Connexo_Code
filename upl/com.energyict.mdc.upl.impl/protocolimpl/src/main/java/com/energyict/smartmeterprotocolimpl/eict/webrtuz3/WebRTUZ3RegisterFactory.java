@@ -74,7 +74,7 @@ public class WebRTUZ3RegisterFactory implements BulkRegisterProtocol {
                     if (su.getUnitCode() != 0) {
                         rv = new RegisterValue(register,
                                 new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
-                                        su.getUnit()));
+                                        su.getEisUnit()));
                     } else { // TODO don't do this, we should throw an exception because we will report incorrect data. (keeping it here for testing with dump meter)
                         rv = new RegisterValue(register,
                                 new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),

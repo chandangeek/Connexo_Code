@@ -30,7 +30,7 @@ public abstract class AbstractDLMSProfile {
         try {
             CosemObject capturedObject = getCosemObjectFactory().getCosemObject(oc);
             ScalerUnit scalerUnit = capturedObject != null ? capturedObject.getScalerUnit() : null;
-            unit = scalerUnit != null ? scalerUnit.getUnit() : null;
+            unit = scalerUnit != null ? scalerUnit.getEisUnit() : null;
         } catch (IOException e) {
             throw new IOException("Unable to read the scaler and/or unit for channel with obiscode [" + oc + "]. " + e.getMessage());
         } catch (ApplicationException e) {

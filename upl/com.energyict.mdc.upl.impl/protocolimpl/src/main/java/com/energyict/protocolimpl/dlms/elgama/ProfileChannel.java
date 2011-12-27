@@ -263,7 +263,7 @@ public class ProfileChannel {
         for (int i = 0; i < this.getNumberOfChannels(); i++) {
             final ScalerUnit scalerUnit = this.getScalerUnit(i);
             logger.info("Scaler unit for channel [" + i + "] is [" + scalerUnit + "]");
-            final ChannelInfo channelInfo = new ChannelInfo(i, "G3B_" + i, scalerUnit.getUnit());
+            final ChannelInfo channelInfo = new ChannelInfo(i, "G3B_" + i, scalerUnit.getEisUnit());
             final CapturedObject channelCapturedObject = getCapturedObjectsHelper().getProfileDataChannelCapturedObject(i);
             if (ParseUtils.isObisCodeCumulative(channelCapturedObject.getLogicalName().getObisCode())) {
                 logger.info("Indicating that channel [" + i + "] is cumulative...");

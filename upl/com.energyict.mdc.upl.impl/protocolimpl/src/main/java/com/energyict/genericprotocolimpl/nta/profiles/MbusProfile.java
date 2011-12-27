@@ -99,7 +99,7 @@ public class MbusProfile extends AbstractNTAProfile{
 						CapturedObject co = ((CapturedObject)profile.getCaptureObjects().get(i));
 						ScalerUnit su = getMeterDemandRegisterScalerUnit(co.getLogicalName().getObisCode(), co.getClassId());
 						if((su != null) && (su.getUnitCode() != 0)) {
-							ci = new ChannelInfo(index, channelIndex, "WebRtuKP_MBus_"+index, su.getUnit());
+							ci = new ChannelInfo(index, channelIndex, "WebRtuKP_MBus_"+index, su.getEisUnit());
 						} else {
                             throw new ProtocolException("Meter does not report a proper scalerUnit for all channels of his MBus Hourly LoadProfile, data can not be interpreted correctly.");
 						}

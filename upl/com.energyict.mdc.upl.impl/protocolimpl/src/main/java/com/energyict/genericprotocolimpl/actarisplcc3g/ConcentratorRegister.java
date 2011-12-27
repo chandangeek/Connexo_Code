@@ -66,7 +66,7 @@ public class ConcentratorRegister {
                     return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(207),Unit.get(BaseUnit.VOLT)));
                 else {
                     PLCCMeterThresholdForSag o = concentrator.getPLCCObjectFactory().getPLCCMeterThresholdForSag();
-                    return new RegisterValue(obisCode,new Quantity(o.getValue(),o.getScalerUnit().getUnit()));
+                    return new RegisterValue(obisCode,new Quantity(o.getValue(),o.getScalerUnit().getEisUnit()));
                 }
             }
             else if (obisCode.equals(ObisCode.fromString("1.0.12.35.0.255"))) { //2
@@ -74,7 +74,7 @@ public class ConcentratorRegister {
                     return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(257),Unit.get(BaseUnit.VOLT)));
                 else {    
                     PLCCMeterThresholdForSwell o = concentrator.getPLCCObjectFactory().getPLCCMeterThresholdForSwell();
-                    return new RegisterValue(obisCode,new Quantity(o.getValue(),o.getScalerUnit().getUnit()));
+                    return new RegisterValue(obisCode,new Quantity(o.getValue(),o.getScalerUnit().getEisUnit()));
                 }
             }
             else if (obisCode.equals(ObisCode.fromString("1.0.12.31.129.255"))) { //3
@@ -82,7 +82,7 @@ public class ConcentratorRegister {
                     return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(1),Unit.get(BaseUnit.SECOND)));
                 else {
                     PLCCMeterTimeIntegralForSagMeasurement o = concentrator.getPLCCObjectFactory().getPLCCMeterTimeIntegralForSagMeasurement();
-                    return new RegisterValue(obisCode,new Quantity(o.getValue(),o.getScalerUnit().getUnit()));
+                    return new RegisterValue(obisCode,new Quantity(o.getValue(),o.getScalerUnit().getEisUnit()));
                 }
             }
             else if (obisCode.equals(ObisCode.fromString("0.0.96.7.20.255"))) { //4
@@ -90,7 +90,7 @@ public class ConcentratorRegister {
                     return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(180),Unit.get(BaseUnit.SECOND)));
                 else {
                     PLCCMeterTimeThresholdForLongPowerFailure o = concentrator.getPLCCObjectFactory().getPLCCMeterTimeThresholdForLongPowerFailure();
-                    return new RegisterValue(obisCode,new Quantity(o.getValue(),o.getScalerUnit().getUnit()));
+                    return new RegisterValue(obisCode,new Quantity(o.getValue(),o.getScalerUnit().getEisUnit()));
                 }
             }
             else if (obisCode.equals(ObisCode.fromString("1.0.0.8.2.255"))) { //5
@@ -98,7 +98,7 @@ public class ConcentratorRegister {
                     return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(1),Unit.get(BaseUnit.SECOND)));
                 else {
                     PLCCMeterTimeIntegralForInstantaneousDemand o = concentrator.getPLCCObjectFactory().getPLCCMeterTimeIntegralForInstantaneousDemand();
-                    return new RegisterValue(obisCode,new Quantity(o.getValue(),o.getScalerUnit().getUnit()));
+                    return new RegisterValue(obisCode,new Quantity(o.getValue(),o.getScalerUnit().getEisUnit()));
                 }
             }
             else if (obisCode.equals(ObisCode.fromString("1.0.12.35.129.255"))) {//6
@@ -106,7 +106,7 @@ public class ConcentratorRegister {
                     return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(1),Unit.get(BaseUnit.SECOND)));
                 else {
                     PLCCMeterTimeIntegralForSwellMeasurement o = concentrator.getPLCCObjectFactory().getPLCCMeterTimeIntegralForSwellMeasurement();
-                    return new RegisterValue(obisCode,new Quantity(o.getValue(),o.getScalerUnit().getUnit()));
+                    return new RegisterValue(obisCode,new Quantity(o.getValue(),o.getScalerUnit().getEisUnit()));
                 }
             }
             else if (obisCode.equals(ObisCode.fromString("0.0.96.7.0.255"))) {
@@ -127,15 +127,15 @@ public class ConcentratorRegister {
             }
             else if (obisCode.equals(ObisCode.fromString("1.0.12.38.0.255"))) {
                 PLCCMeterMaximumVoltage o = concentrator.getPLCCObjectFactory().getPLCCMeterMaximumVoltage();
-                return new RegisterValue(obisCode,new Quantity(o.getValue(),o.getScalerUnit().getUnit()));
+                return new RegisterValue(obisCode,new Quantity(o.getValue(),o.getScalerUnit().getEisUnit()));
             }
             else if (obisCode.equals(ObisCode.fromString("1.0.12.34.0.255"))) {
                 PLCCMeterMinimumVoltage o = concentrator.getPLCCObjectFactory().getPLCCMeterMinimumVoltage();
-                return new RegisterValue(obisCode,new Quantity(o.getValue(),o.getScalerUnit().getUnit()));
+                return new RegisterValue(obisCode,new Quantity(o.getValue(),o.getScalerUnit().getEisUnit()));
             }
             else if (obisCode.equals(ObisCode.fromString("1.0.1.7.0.255"))) {
                 PLCCMeterInstantaneousDemand o = concentrator.getPLCCObjectFactory().getPLCCMeterInstantaneousDemand();
-                return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(o.getValue()),o.getScalerUnit().getUnit()));
+                return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(o.getValue()),o.getScalerUnit().getEisUnit()));
             }
             // ftpServerId object
             else if (obisCode.equals(ObisCode.fromString("0.0.25.5.0.255"))) {
@@ -198,7 +198,7 @@ public class ConcentratorRegister {
         if ((obisCode.getA() == 1) && (obisCode.getB() == 0) &&  (obisCode.getC() == 1) && (obisCode.getD() == 8) && (obisCode.getF() == 255) &&
             (obisCode.getE() >=0) && (obisCode.getE()<=6)) {
             PLCCMeterEnergyRegister o = concentrator.getPLCCObjectFactory().getPLCCMeterEnergyRegister(obisCode.getE());
-            return new RegisterValue(obisCode,new Quantity(o.getValue(),o.getScalerUnit().getUnit()));
+            return new RegisterValue(obisCode,new Quantity(o.getValue(),o.getScalerUnit().getEisUnit()));
         }
         throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
     }

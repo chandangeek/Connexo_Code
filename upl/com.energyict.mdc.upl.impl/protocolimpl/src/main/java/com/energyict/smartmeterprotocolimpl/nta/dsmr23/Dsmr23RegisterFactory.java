@@ -87,7 +87,7 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
                     if (su.getUnitCode() != 0) {
                         rv = new RegisterValue(register,
                                 new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
-                                        su.getUnit()));
+                                        su.getEisUnit()));
                     } else {
                         throw new NoSuchRegisterException("Register with ObisCode: " + register.getObisCode() + " does not provide a proper Unit.");
                     }

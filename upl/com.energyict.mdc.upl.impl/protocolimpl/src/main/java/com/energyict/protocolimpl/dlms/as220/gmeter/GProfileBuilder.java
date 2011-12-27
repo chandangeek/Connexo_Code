@@ -74,7 +74,7 @@ public class GProfileBuilder {
 	public List<ChannelInfo> buildChannelInfos(ScalerUnit[] scalerunit){
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
 		for (int i = 0; i < scalerunit.length; i++) {
-			ChannelInfo channelInfo = new ChannelInfo(i, "dlms" + getGasDevice().getDeviceID() + "_channel_" + i, scalerunit[i].getUnit());
+			ChannelInfo channelInfo = new ChannelInfo(i, "dlms" + getGasDevice().getDeviceID() + "_channel_" + i, scalerunit[i].getEisUnit());
 			
 			// Setting the cumulative value is the old way of doing, Eandis has an old way of doing so ...
 			channelInfo.setCumulativeWrapValue(new BigDecimal(100000000));

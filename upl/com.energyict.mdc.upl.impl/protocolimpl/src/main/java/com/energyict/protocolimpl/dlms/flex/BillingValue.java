@@ -50,10 +50,10 @@ public class BillingValue {
     	//unit is the same, eg. WattHour
     	scalerUnit = new ScalerUnit(0,30);
     	this.captureDateTime = captureDateTime;
-    	this.quantityR1 = new Quantity(BigDecimal.valueOf(R1), scalerUnit.getUnit());
-    	this.quantityR2 = new Quantity(BigDecimal.valueOf(R2), scalerUnit.getUnit());
-    	this.quantityTotalPlus = new Quantity(BigDecimal.valueOf(plus), scalerUnit.getUnit());
-    	this.quantityTotalMinus = new Quantity(BigDecimal.valueOf(minus), scalerUnit.getUnit());
+    	this.quantityR1 = new Quantity(BigDecimal.valueOf(R1), scalerUnit.getEisUnit());
+    	this.quantityR2 = new Quantity(BigDecimal.valueOf(R2), scalerUnit.getEisUnit());
+    	this.quantityTotalPlus = new Quantity(BigDecimal.valueOf(plus), scalerUnit.getEisUnit());
+    	this.quantityTotalMinus = new Quantity(BigDecimal.valueOf(minus), scalerUnit.getEisUnit());
     	this.status = state;
     }
     

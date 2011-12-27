@@ -638,7 +638,7 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
         scalerunit = new ScalerUnit[bNROfChannels];
         for (int i = 0; i < bNROfChannels; i++) {
             scalerunit[i] = getMeterDemandRegisterScalerUnit(i);
-            ChannelInfo channelInfo = new ChannelInfo(i, "dlms" + getDeviceID() + "_channel_" + i, scalerunit[i].getUnit());
+            ChannelInfo channelInfo = new ChannelInfo(i, "dlms" + getDeviceID() + "_channel_" + i, scalerunit[i].getEisUnit());
 
             if (DEBUG >= 1) {
                 System.out.println("KV_DEBUG> " + meterConfig.getChannelObject(i).toStringCo());

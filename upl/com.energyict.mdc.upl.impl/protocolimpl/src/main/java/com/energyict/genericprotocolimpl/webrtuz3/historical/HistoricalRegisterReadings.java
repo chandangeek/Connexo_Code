@@ -162,7 +162,7 @@ public class HistoricalRegisterReadings {
             if (scalerUnit == null) {
                 throw new IOException("Scaler unit was 'null'");
             }
-            return scalerUnit.getUnit();
+            return scalerUnit.getEisUnit();
         } catch (IOException e) {
             StringBuilder sb = new StringBuilder();
             sb.append("Unable to get the unit and the scaler for profile channel with obisCode [");

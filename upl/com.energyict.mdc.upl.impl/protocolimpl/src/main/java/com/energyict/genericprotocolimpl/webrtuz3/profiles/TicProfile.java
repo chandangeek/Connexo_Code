@@ -187,7 +187,7 @@ public class TicProfile {
 					if(channelIndex != -1){
 						final ScalerUnit su = getScalerUnit(co);
 						if((su != null) && (su.getUnitCode() != 0)){
-							ci = new ChannelInfo(index, channelIndex, "TicDevice_"+index, su.getUnit());
+							ci = new ChannelInfo(index, channelIndex, "TicDevice_"+index, su.getEisUnit());
 						} else {
 							ci = new ChannelInfo(index, channelIndex, "TicDevice_"+index, Unit.get(BaseUnit.UNITLESS));
 						}

@@ -577,7 +577,7 @@ public class DLMSLNSL7000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
            scalerunit[i] = getMeterDemandRegisterScalerUnit(i);
            profileData.addChannel(new ChannelInfo(i,
                                                   "dlmsSL7000_channel_"+i,
-                                                  scalerunit[i].getUnit()));
+                                                  scalerunit[i].getEisUnit()));
         }
         buildProfileData(bNROfChannels,dataContainer,profileData,scalerunit);
 

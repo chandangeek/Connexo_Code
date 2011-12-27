@@ -38,7 +38,7 @@ public class Register extends AbstractCosemObject implements CosemObject {
 
     public String toString() {
         try {
-           return "value="+getValue()+", scalerUnit="+getScalerUnit().getUnit().toString();
+           return "value="+getValue()+", scalerUnit="+getScalerUnit().getEisUnit().toString();
         }
         catch(IOException e) {
            return "register retrieving error!";
@@ -95,7 +95,7 @@ public class Register extends AbstractCosemObject implements CosemObject {
     }
 
     public Quantity getQuantityValue() throws IOException {
-       return new Quantity(new BigDecimal(getValue()),getScalerUnit().getUnit());
+       return new Quantity(new BigDecimal(getValue()),getScalerUnit().getEisUnit());
     }
 
     public Date getCaptureTime() throws IOException {
@@ -120,7 +120,7 @@ public class Register extends AbstractCosemObject implements CosemObject {
 
     public void setScalerUnitAttr(Unit unit) throws IOException {
     	ScalerUnit scalerUnit = new ScalerUnit(unit);
-        write(3, scalerUnit.getAbstractDataType().getBEREncodedByteArray());
+        write(3, scalerUnit.getScalerUnitStructure().getBEREncodedByteArray());
     }
     public void setValueAttr(AbstractDataType dataType) throws IOException {
         write(2, dataType.getBEREncodedByteArray());

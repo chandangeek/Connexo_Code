@@ -513,7 +513,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 			logger.info("Scaler unit for channel [" + i + "] is [" + scalerUnit + "]");
 
-			final ChannelInfo channelInfo = new ChannelInfo(i, "EICTZ3_CH_" + i, scalerUnit.getUnit());
+			final ChannelInfo channelInfo = new ChannelInfo(i, "EICTZ3_CH_" + i, scalerUnit.getEisUnit());
 
 			final CapturedObject channelCapturedObject = getCapturedObjectsHelper().getProfileDataChannelCapturedObject(i);
 

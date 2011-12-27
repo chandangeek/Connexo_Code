@@ -105,7 +105,7 @@ public class UkHubRegisterFactory implements BulkRegisterProtocol {
                     if (su.getUnitCode() == 0) {
                         throw new NoSuchRegisterException("Register with ObisCode: " + register.getObisCode() + " does not provide a proper Unit.");
                     }
-                    rv = new RegisterValue(register, new Quantity(value, su.getUnit()));
+                    rv = new RegisterValue(register, new Quantity(value, su.getEisUnit()));
                 } else if (this.registerMap.containsKey(register)) {
                     rv = convertCustomAbstractObjectsToRegisterValues(register, registerComposedCosemObject.getAttribute(this.registerMap.get(register)));
                 }

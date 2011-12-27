@@ -74,7 +74,7 @@ public class PowerQualityProfileBuilder {
     public List<ChannelInfo> buildChannelInfos(ScalerUnit[] scalerunit) throws IOException {
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
         for (int i = 0; i < scalerunit.length; i++) {
-            ChannelInfo channelInfo = new ChannelInfo(i, "dlms" + this.powerQuality.getAs220().getDeviceID() + "_PQ-channel_" + i, scalerunit[i].getUnit());
+            ChannelInfo channelInfo = new ChannelInfo(i, "dlms" + this.powerQuality.getAs220().getDeviceID() + "_PQ-channel_" + i, scalerunit[i].getEisUnit());
             channelInfos.add(channelInfo);
         }
         return channelInfos;

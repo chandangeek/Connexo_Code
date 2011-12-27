@@ -32,7 +32,7 @@ public class BillingValue {
         this.obisCode=obisCode;
         this.value=value;
         this.scalerUnit=scalerUnit;
-        quantity = new Quantity(BigDecimal.valueOf(value),scalerUnit.getUnit());
+        quantity = new Quantity(BigDecimal.valueOf(value),scalerUnit.getEisUnit());
     }
 
     

@@ -61,7 +61,7 @@ public class RegisterReader {
                     }
                     Quantity quantity;
                     try {
-                        quantity = new Quantity(value.getValue(), scalerUnit.getUnit());
+                        quantity = new Quantity(value.getValue(), scalerUnit.getEisUnit());
                     } catch (ApplicationException e) {  // The BasUnit code is not found (not yet present)
                         quantity = new Quantity(value.getValue(), Unit.get(255, scalerUnit.getScaler()));
                     }
@@ -69,7 +69,7 @@ public class RegisterReader {
                 } else if (this.composedRegisterMap.containsKey(register)) {
                     ScalerUnit su = new ScalerUnit(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterUnitAttribute()));
                     if (su.getUnitCode() != 0) {
-                        Unit unit = su.getUnitCode() == 56 ? Unit.get(BaseUnit.PERCENT, su.getScaler()) : su.getUnit();    //Replace dlms % by our %
+                        Unit unit = su.getUnitCode() == 56 ? Unit.get(BaseUnit.PERCENT, su.getScaler()) : su.getEisUnit();    //Replace dlms % by our %
                         AbstractDataType value = registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute());
                         registerValue = new RegisterValue(register, new Quantity(value.toBigDecimal(), unit));
                     }

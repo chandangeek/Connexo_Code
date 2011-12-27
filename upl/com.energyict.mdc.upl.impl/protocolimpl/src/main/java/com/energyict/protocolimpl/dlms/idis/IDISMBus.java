@@ -81,7 +81,7 @@ public class IDISMBus extends IDIS {
                 ExtendedRegister register = getCosemObjectFactory().getExtendedRegister(obisCode);
                 AbstractDataType value = register.getAttrbAbstractDataType(2);
                 if (value instanceof Unsigned32) {
-                    return new RegisterValue(obisCode, new Quantity(value.getUnsigned32().intValue(), register.getScalerUnit().getUnit()));
+                    return new RegisterValue(obisCode, new Quantity(value.getUnsigned32().intValue(), register.getScalerUnit().getEisUnit()));
                 } else if (value instanceof OctetString) {
                     return new RegisterValue(obisCode, ((OctetString) value).stringValue());
                 } else {

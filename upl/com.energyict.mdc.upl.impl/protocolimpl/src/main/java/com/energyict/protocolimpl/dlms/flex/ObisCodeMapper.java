@@ -114,11 +114,11 @@ public class ObisCodeMapper {
             if ((obisCode.getA() == 1) && (obisCode.getB() == 1)) {
                 Register register = cof.getRegister(obisCode);
                 if (obisCode.getD() == 8) { // cumulative values, indexes
-                    return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(register.getValue()),register.getScalerUnit().getUnit()));
+                    return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(register.getValue()),register.getScalerUnit().getEisUnit()));
                 } // if (obisCode.getD() == 8) { // cumulative values, indexes
                 
                 else if ( obisCode.getD() == 7 ){   	//Quality registers
-                    return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(register.getValue()),register.getScalerUnit().getUnit()));	
+                    return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(register.getValue()),register.getScalerUnit().getEisUnit()));
                 }                
             } // if ((obisCode.getA() == 1) && (obisCode.getB() == 1)) {
         } catch(IOException e) {

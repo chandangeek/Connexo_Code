@@ -229,7 +229,7 @@ public class ZigbeeGasLoadProfile {
                 if (this.registerUnitMap.containsKey(registerUnit)) {
                     ScalerUnit su = new ScalerUnit(ccoRegisterUnits.getAttribute(this.registerUnitMap.get(registerUnit)));
                     if (su.getUnitCode() != 0) {
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getUnit(), registerUnit.getSerialNumber(), true);
+                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getEisUnit(), registerUnit.getSerialNumber(), true);
                         channelInfos.add(ci);
                     } else {
                         //TODO CHECK if this is still correct!
