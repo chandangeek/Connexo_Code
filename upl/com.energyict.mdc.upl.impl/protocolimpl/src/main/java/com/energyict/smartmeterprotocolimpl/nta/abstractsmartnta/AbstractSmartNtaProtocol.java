@@ -36,6 +36,10 @@ import java.util.logging.Logger;
 public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol, WakeUpProtocolSupport, PartialLoadProfileMessaging, LoadProfileRegisterMessaging {
 
     private static final int ObisCodeBFieldIndex = 1;
+    
+    private static final ObisCode dailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
+    private static final ObisCode monthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
+
 
     public abstract MessageProtocol getMessageProtocol();
 
@@ -273,7 +277,13 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
      * @return the corrected ObisCode
      */
     public ObisCode getPhysicalAddressCorrectedObisCode(final ObisCode obisCode, final String serialNumber) {
-        int address = getPhysicalAddressFromSerialNumber(serialNumber);
+        int address;
+
+        if (obisCode.equalsIgnoreBChannel(dailyObisCode) || obisCode.equalsIgnoreBChannel(monthlyObisCode)) {
+            address = 0;
+        } else {
+            address = getPhysicalAddressFromSerialNumber(serialNumber);
+        }
         if((address == 0 && obisCode.getB() != -1) || obisCode.getB() == 128) { // then don't correct the obisCode
             return obisCode;
         }
