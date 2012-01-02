@@ -417,7 +417,7 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	    				}
 	    				else if (WaveflowProtocolUtils.toInt(pairingResponse[PAIRING_RESULT_OFFFSET]) == 0) {
 	    					getLogger().warning("Pairing failed, no answer to GET Meter Serial Number, result code [0], leave loop!");
-	    					return true;
+	    					return false;
 	    				}
 	    				else if (WaveflowProtocolUtils.toInt(pairingResponse[PAIRING_RESULT_OFFFSET]) == 0xFD) {
 	    					getLogger().warning("Pairing with the meter was already done, result code [0xFD], leave loop!");
@@ -425,11 +425,11 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	    				}
 	    				else if (WaveflowProtocolUtils.toInt(pairingResponse[PAIRING_RESULT_OFFFSET]) == 0xFE) {
 	    					getLogger().warning("Pairing failed, no meter connected or connection rejected, result code [0xFE], leave loop!");
-	    					return true;
+	    					return false;
 	    				}
 	    				else if (WaveflowProtocolUtils.toInt(pairingResponse[PAIRING_RESULT_OFFFSET]) == 0xFF) {
 	    					getLogger().warning("Bad request format, result code [0xFF], leave loop!");
-	    					return true;
+	    					return false;
 	    				}
 	    			}
 				
