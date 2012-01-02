@@ -131,15 +131,15 @@ public class WaveFlow100mWMessages implements MessageProtocol {
        
        MessageCategorySpec cat1 = new MessageCategorySpec("Waveflow100mw messages");
        cat1.addMessageSpec(addBasicMsg("Restart datalogging", "RestartDataLogging", false));
-       cat1.addMessageSpec(addBasicMsgWithValue("Reset applicationstatus", "SetApplicationStatus", true,"0"));
-       cat1.addMessageSpec(addBasicMsgWithValue("Set operating mode (default [0x0008] 1/week on A)", "SetOperatingMode", false,"0x08"));
+       cat1.addMessageSpec(addBasicMsgWithValue("Reset applicationstatus (default [0])", "SetApplicationStatus", true));
+       cat1.addMessageSpec(addBasicMsgWithValue("Set operating mode (default [0x08] 1/week on A)", "SetOperatingMode", false));
        cat1.addMessageSpec(addBasicMsg("Set alarm configuration", "SetAlarmConfig", false));
        theCategories.add(cat1);
        
        MessageCategorySpec cat2 = new MessageCategorySpec("Waveflow100mw advanced messages");
-       cat2.addMessageSpec(addBasicMsgWithValue("Set day of week (default monday)", "SetDayOfWeek", true,"1"));
-       cat2.addMessageSpec(addBasicMsgWithValue("Set hour of measurement (default 00:00)", "SetHourOfMeasurement", true,"0"));
-       cat2.addMessageSpec(addBasicMsgWithValue("Set sampling period in seconds (default 1 uur)", "SetProfileInterval", true,"3600"));
+       cat2.addMessageSpec(addBasicMsgWithValue("Set day of week (default monday [1])", "SetDayOfWeek", true));
+       cat2.addMessageSpec(addBasicMsgWithValue("Set hour of measurement (default 00:00 [0])", "SetHourOfMeasurement", true));
+       cat2.addMessageSpec(addBasicMsgWithValue("Set sampling period in seconds (default 1 hour [3600])", "SetProfileInterval", true));
        cat2.addMessageSpec(addBasicMsg("Force to sync the time", "ForceTimeSync", true));
        cat2.addMessageSpec(addBasicMsg("Detect meter (pair)", "DetectMeter", true));
        theCategories.add(cat2);
@@ -153,18 +153,16 @@ public class WaveFlow100mWMessages implements MessageProtocol {
         msgSpec.add(tagSpec);
         return msgSpec;
     }
-    
-    protected MessageSpec addBasicMsgWithValue(final String keyId, final String tagName, final boolean advanced, final String initialValue) {
-       
+
+    private MessageSpec addBasicMsgWithValue(final String keyId, final String tagName, final boolean advanced) {
        MessageValueSpec messageValueSpec = new MessageValueSpec();
-       messageValueSpec.setValue(initialValue);
        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
        tagSpec.add(messageValueSpec);
        msgSpec.add(tagSpec);
        return msgSpec;
     }
-   
+
     public String writeMessage(Message msg) {
        return msg.write(this);
     }
