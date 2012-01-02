@@ -70,7 +70,7 @@ public class ProtocolCollectionImplTest {
                 sb.append("\r\n").append("    *  ").append(className);
             }
             sb.append("\r\n");
-            getLogger().warning(sb.toString());
+            fail(sb.toString());
         }
 
         if (wrongFormat.size() > 0) {
@@ -80,7 +80,7 @@ public class ProtocolCollectionImplTest {
                 sb.append("\r\n").append("    *  ").append(className);
             }
             sb.append("\r\n");
-            getLogger().warning(sb.toString());
+            fail(sb.toString());
         }
 
         if (missingVersion.size() > 0) {
@@ -90,7 +90,7 @@ public class ProtocolCollectionImplTest {
                 sb.append("\r\n").append("    *  ").append(className);
             }
             sb.append("\r\n");
-            getLogger().warning(sb.toString());
+            fail(sb.toString());
         }
 
         if (missingKeyWord.size() > 0) {
