@@ -44,7 +44,7 @@ public class Sdc extends SdcBase {
     }    
 
     public String getProtocolVersion() {
-        return "$Revision: 1.1 $";
+        return "$Date$";
     }
 
     

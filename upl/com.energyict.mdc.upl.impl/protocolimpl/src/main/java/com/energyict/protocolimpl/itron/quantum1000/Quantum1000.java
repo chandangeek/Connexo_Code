@@ -123,7 +123,7 @@ public class Quantum1000 extends AbstractProtocol implements ProtocolLink {
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.8 $";
+        return "$Date$";
     }
     
     public void setTime() throws IOException {

@@ -32,7 +32,7 @@ public class EnermetE60X extends EnermetBase {
     }    
     
     public String getProtocolVersion() {
-        return "$Revision: 1.7 $";
+        return "$Date$";
     }
     
 } // class EnermetE60X

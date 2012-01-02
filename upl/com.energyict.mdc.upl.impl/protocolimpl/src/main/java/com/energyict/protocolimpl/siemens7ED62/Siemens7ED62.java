@@ -395,7 +395,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.34 $";
+        return "$Date$";
     }
     
     public String getFirmwareVersion() throws IOException,UnsupportedException {

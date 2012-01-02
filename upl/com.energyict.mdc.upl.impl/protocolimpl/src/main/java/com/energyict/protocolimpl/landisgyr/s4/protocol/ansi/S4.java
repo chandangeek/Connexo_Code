@@ -198,7 +198,7 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink {
 
     
     public String getProtocolVersion() {
-        return "$Revision: 1.3 $";
+        return "$Date$";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {

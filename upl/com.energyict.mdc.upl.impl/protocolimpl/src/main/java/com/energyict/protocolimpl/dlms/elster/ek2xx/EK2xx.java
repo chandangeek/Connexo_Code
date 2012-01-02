@@ -364,7 +364,7 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
 	} // private CapturedObjects getCapturedObjects()  throws UnsupportedException, IOException
 
 	public String getProtocolVersion() {
-		return "$Revision: 1.0$";
+		return "$Date$";
 	}
 
 	public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {

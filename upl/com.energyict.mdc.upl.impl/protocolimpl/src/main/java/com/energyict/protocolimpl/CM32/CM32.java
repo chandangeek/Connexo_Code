@@ -131,7 +131,7 @@ public class CM32 extends AbstractProtocol {
 	}
 
 	public String getProtocolVersion() {
-		return "$Revision: 1.1 $";
+		return "$Date$";
 	}
 
 	public Date getTime() throws IOException {

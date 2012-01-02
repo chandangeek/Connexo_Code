@@ -231,7 +231,7 @@ public class EictRtuVdew implements MeterProtocol, HHUEnabler, ProtocolLink, Met
     }
 
     public String getProtocolVersion() {
-        return "$Revision: 1.14 $";
+        return "$Date$";
     }
     
     public String getFirmwareVersion() throws IOException,UnsupportedException {

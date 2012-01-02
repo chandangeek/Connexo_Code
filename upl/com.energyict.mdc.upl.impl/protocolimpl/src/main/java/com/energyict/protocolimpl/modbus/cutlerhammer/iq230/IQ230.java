@@ -64,7 +64,7 @@ public class IQ230 extends Modbus {
     }
 
     public String getProtocolVersion() {
-        return "$Revision: 1.1 $";
+        return "$Date$";
     }
 
     protected void initRegisterFactory() {

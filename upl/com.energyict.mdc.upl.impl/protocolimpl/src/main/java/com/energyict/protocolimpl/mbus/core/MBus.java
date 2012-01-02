@@ -121,9 +121,7 @@ abstract public class MBus extends AbstractProtocol implements Discover {
     public void setTime() throws IOException {
         
     }
-    public String getProtocolVersion() {
-        return "$Revision: 1.3 $";
-    }
+
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         return "YET UNKNOWN";
     }

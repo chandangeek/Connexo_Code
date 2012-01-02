@@ -124,7 +124,7 @@ public class Fulcrum extends SchlumbergerProtocol {
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.8 $";
+        return "$Date$";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {

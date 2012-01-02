@@ -156,7 +156,7 @@ public class Nexus1272 extends AbstractProtocol  {
 
 	@Override
 	public String getProtocolVersion() {
-		return "$Revision: 1.0 $";
+		return "$Date$";
 	}
 
 	@Override

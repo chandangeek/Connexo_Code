@@ -56,7 +56,7 @@ public class PQM2 extends Modbus  {
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.8 $";
+        return "$Date$";
     }
     
     protected void initRegisterFactory() {

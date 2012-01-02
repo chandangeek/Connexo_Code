@@ -18,6 +18,7 @@ import static org.junit.Assert.fail;
 public class ProtocolCollectionImplTest {
 
     public static final String EICT_PROTOCOL_CLASS = "com.energyict.protocolimpl.";
+    public static final String ELSTER_PROTOCOL_CLASS = "com.elster.protocolimpl.";
     public static Logger logger = null;
 
     public static Logger getLogger() {
@@ -38,7 +39,7 @@ public class ProtocolCollectionImplTest {
         List<String> missingVersion = new ArrayList<String>();
 
         for (String className : classNames) {
-            if (className.startsWith(EICT_PROTOCOL_CLASS)) {
+            if (className.startsWith(EICT_PROTOCOL_CLASS) || className.startsWith(ELSTER_PROTOCOL_CLASS)) {
                 try {
                     Object object = Class.forName(className).newInstance();
                     if (object instanceof MeterProtocol) {

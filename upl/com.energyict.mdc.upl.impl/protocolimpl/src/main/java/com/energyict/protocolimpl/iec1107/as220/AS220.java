@@ -288,7 +288,7 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
 	}
 
 	public String getProtocolVersion() {
-		return "$Revision: 1.1 $";
+		return "$Date$";
 	}
 
 	public String getFirmwareVersion() throws IOException, UnsupportedException {

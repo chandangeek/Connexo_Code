@@ -151,7 +151,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         	//PREFIXES:
         	//
         	//2 -> MSU Master
-        	//3 -> MSU Slave (maybe something for the EU, doesn’t work in US)
+        	//3 -> MSU Slave (maybe something for the EU, doesnï¿½t work in US)
         	//4 -> Modem 2400
         	//5 -> Slave (this allows us in the US to connect to the slave device)
         	//6 -> SM1 Modem
@@ -504,7 +504,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.12 $";
+        return "$Date$";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {

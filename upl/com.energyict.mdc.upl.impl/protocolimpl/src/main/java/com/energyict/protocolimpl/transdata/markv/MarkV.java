@@ -117,7 +117,7 @@ public class MarkV extends AbstractProtocol {
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.6 $";
+        return "$Date$";
     }
     
     public int getProfileInterval() throws UnsupportedException, IOException {

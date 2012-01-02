@@ -160,10 +160,6 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
         return 0; // KV_TO_DO
     }
     
-    public String getProtocolVersion() {
-        return "$Revision: 1.10 $";
-    }
-    
     /*
      * Override this method if the subclass wants to set a specific register 
      */

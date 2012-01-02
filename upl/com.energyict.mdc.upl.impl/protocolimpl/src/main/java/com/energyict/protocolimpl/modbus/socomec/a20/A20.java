@@ -68,7 +68,7 @@ public class A20 extends Modbus {
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.2 $";
+        return "$Date$";
     }
     
     protected void initRegisterFactory() {

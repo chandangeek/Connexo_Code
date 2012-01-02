@@ -269,7 +269,7 @@ public class Kamstrup implements MeterProtocol, ProtocolLink, RegisterProtocol {
     }
 
     public String getProtocolVersion() {
-        return "$Revision: 1.28 $";
+        return "$Date$";
     }
     
     public String getFirmwareVersion() throws IOException,UnsupportedException {

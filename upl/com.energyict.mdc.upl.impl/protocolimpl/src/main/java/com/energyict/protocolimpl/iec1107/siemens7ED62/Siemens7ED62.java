@@ -41,7 +41,11 @@ public class Siemens7ED62 extends AbstractIEC1107Protocol {
         siemens7ED62Registry = new Siemens7ED62Registry(this,this);
         siemens7ED62Profile = new Siemens7ED62Profile(this,this,siemens7ED62Registry);
     }
-    
+
+    public String getProtocolVersion() {
+        return "$Date$";
+    }
+
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCalendar(getTimeZone());
         fromCalendar.add(Calendar.YEAR,-10);

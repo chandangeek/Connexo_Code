@@ -189,7 +189,7 @@ public class GEKV extends AbstractProtocol implements C12ProtocolLink {
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.15 $";
+        return "$Date$";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {

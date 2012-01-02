@@ -61,7 +61,7 @@ public class EictModbusRtu extends Modbus {
     
     
     public String getProtocolVersion() {
-        return "$Revision: 1.6 $";
+        return "$Date$";
     }
 
     public DiscoverResult discover(DiscoverTools discoverTools) {

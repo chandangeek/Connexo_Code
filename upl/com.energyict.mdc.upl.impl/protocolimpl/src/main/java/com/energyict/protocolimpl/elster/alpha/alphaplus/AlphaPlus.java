@@ -133,7 +133,7 @@ public class AlphaPlus extends AbstractProtocol implements Alpha {
     }
 
     public String getProtocolVersion() {
-        return "$Revision: 1.12 $";
+        return "$Date$";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {

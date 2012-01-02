@@ -72,6 +72,10 @@ public class DLMSEICT extends DLMSSN
         return new ConformanceBlock(1573408L);
     }
 
+    public String getProtocolVersion() {
+        return "$Date$";
+    }
+
     protected void buildProfileData(byte bNROfChannels,ProfileData profileData,ScalerUnit[] scalerunit,UniversalObject[] intervalList)  throws IOException
     {
         byte bDOW;

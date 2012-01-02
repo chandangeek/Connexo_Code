@@ -269,7 +269,7 @@ RegisterProtocol, MessageProtocol {
 	}
 
 	public String getProtocolVersion() {
-		return "$Revision: 1.7 $";
+		return "$Date$";
 	}
 
 	public String getFirmwareVersion() throws IOException, UnsupportedException {

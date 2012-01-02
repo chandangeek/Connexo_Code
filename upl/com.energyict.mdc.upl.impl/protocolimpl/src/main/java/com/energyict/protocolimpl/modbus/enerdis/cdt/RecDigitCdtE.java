@@ -29,7 +29,7 @@ public class RecDigitCdtE extends RecDigitCdt {
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.7 $";
+        return "$Date$";
     }
 
     public DiscoverResult discover(DiscoverTools discoverTools) {

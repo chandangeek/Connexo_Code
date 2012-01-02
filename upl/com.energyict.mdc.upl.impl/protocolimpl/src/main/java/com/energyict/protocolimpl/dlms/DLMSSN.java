@@ -562,10 +562,6 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
     } // public void requestAttribute(int iBaseName,int iOffset) throws IOException
 
 
-    public String getProtocolVersion() {
-        return "$Revision$";
-    }
-
     /**
      * This method requests for the version string.
      *

@@ -273,7 +273,7 @@ public class Generic extends MBus {
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.5 $";
+        return "$Date$";
     }    
     
     protected void initRegisterFactory() {

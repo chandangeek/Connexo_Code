@@ -246,7 +246,7 @@ public class Ferranti implements MeterProtocol, ProtocolLink, MeterExceptionInfo
     }
 
     public String getProtocolVersion() {
-        return "$Revision: 1.10 $";
+        return "$Date$";
     }
     
     public String getFirmwareVersion() throws IOException,UnsupportedException {

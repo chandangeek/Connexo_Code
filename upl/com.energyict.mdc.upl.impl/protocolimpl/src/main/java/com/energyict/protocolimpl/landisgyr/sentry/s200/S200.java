@@ -119,7 +119,7 @@ public class S200 extends AbstractProtocol {
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.8 $";
+        return "$Date$";
     }
     
     

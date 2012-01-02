@@ -367,7 +367,7 @@ public class Ziv5Ctd implements MeterProtocol, SerialNumber, RegisterProtocol {
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.16 $";
+        return "$Date$";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {

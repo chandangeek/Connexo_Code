@@ -174,7 +174,7 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink {
         return new Date();
     }
     public String getProtocolVersion() {
-        return "$Revision: 1.10 $"; 
+        return "$Date$";
     }
     
     public void setTime() throws IOException {

@@ -168,6 +168,9 @@ public class DLMSEMO extends DLMSSN {
            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());    
         }
     }
-    
+
+    public String getProtocolVersion() {
+        return "$Date$";
+    }
 } // public class DLMSEMO
 

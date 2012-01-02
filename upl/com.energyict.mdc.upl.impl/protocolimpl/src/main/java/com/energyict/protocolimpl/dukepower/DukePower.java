@@ -769,7 +769,7 @@ public class DukePower implements MeterProtocol, SerialNumber {
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.26 $";
+        return "$Date$";
     }
     
     /** this implementation calls <code> validateProperties </code>

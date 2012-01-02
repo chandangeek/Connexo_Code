@@ -109,7 +109,7 @@ public class Datastar extends SchlumbergerProtocol {
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.4 $";
+        return "$Date$";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {

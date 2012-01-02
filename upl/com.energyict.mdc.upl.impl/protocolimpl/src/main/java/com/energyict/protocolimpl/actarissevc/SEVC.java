@@ -362,7 +362,7 @@ public class SEVC implements MeterProtocol,HHUEnabler,SerialNumber {
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.28 $";
+        return "$Date$";
     }
     
     public String getFirmwareVersion() throws IOException,UnsupportedException {

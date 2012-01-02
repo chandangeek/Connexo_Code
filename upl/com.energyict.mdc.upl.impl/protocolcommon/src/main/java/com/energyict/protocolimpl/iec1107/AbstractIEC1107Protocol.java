@@ -126,10 +126,6 @@ public abstract class AbstractIEC1107Protocol implements MeterProtocol, Protocol
 	// *******************************************************************************************
 	// M e t e r p r o t o c o l i n t e r f a c e
 	// *******************************************************************************************/
-	public String getProtocolVersion() {
-		return "$Revision: 1.12 $";
-	}
-
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
 		throw new UnsupportedException();
 	}

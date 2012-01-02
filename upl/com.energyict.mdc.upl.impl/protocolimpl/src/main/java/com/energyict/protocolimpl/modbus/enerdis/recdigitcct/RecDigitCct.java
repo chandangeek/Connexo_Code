@@ -118,7 +118,7 @@ public class RecDigitCct extends Modbus {
     }    
     
     public String getProtocolVersion() {
-        return "$Revision: 1.14 $";
+        return "$Date$";
     }
     
     protected void initRegisterFactory() {

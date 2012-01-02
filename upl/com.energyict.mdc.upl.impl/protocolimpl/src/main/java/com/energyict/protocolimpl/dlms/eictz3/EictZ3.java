@@ -1162,7 +1162,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	 * {@inheritDoc}
 	 */
 	public final String getProtocolVersion() {
-		return "$Revision$ $Date$";
+		return "$Date$";
 	}
 
 	/**

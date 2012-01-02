@@ -598,7 +598,7 @@ public class rtuplusbus implements  MeterProtocol, HalfDuplexEnabler {
     
     
     public String getProtocolVersion() {
-        return "$Revision: 1.32 $";
+        return "$Date$";
     }
     public String getFirmwareVersion() throws IOException,UnsupportedException {
         throw new UnsupportedException();

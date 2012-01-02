@@ -81,7 +81,6 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
         return calendar;
     }
 
-    @Override
     public String getProtocolVersion() {
         return "$Date$";
     }
@@ -379,7 +378,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
     }
 
     /**
-     * Execute a billing reset on the device. After receiving the “Demand Reset”
+     * Execute a billing reset on the device. After receiving the ï¿½Demand Resetï¿½
      * command the meter executes a demand reset by doing a snap shot of all
      * energy and demand registers.
      *

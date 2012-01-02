@@ -97,7 +97,7 @@ public class U1600 extends AbstractProtocol {
     }
      
     public String getProtocolVersion() {
-        return "$Revision: 1.14 $";
+        return "$Date$";
     }
     
     // KV 04122006

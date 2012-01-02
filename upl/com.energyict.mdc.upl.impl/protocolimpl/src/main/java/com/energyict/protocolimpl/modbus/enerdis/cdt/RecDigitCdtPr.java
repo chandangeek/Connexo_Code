@@ -363,7 +363,7 @@ public class RecDigitCdtPr extends RecDigitCdt {
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.9 $";
+        return "$Date$";
     }
 
     public DiscoverResult discover(DiscoverTools discoverTools) {

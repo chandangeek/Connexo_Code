@@ -268,7 +268,7 @@ public class IskraEmeco implements MeterProtocol, ProtocolLink, HHUEnabler, Mete
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.21 $";
+        return "$Date$";
     }
     
     public String getFirmwareVersion() throws IOException,UnsupportedException {

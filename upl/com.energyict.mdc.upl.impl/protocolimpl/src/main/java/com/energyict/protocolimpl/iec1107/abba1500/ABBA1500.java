@@ -292,7 +292,7 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
     }
 
     public String getProtocolVersion() {
-        return "$Revision: 1.38 $";
+        return "$Date$";
     }
 
     public String getFirmwareVersion() throws IOException,UnsupportedException {

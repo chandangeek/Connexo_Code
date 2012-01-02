@@ -58,7 +58,7 @@ public class PN16 extends MBus {
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.3 $";
+        return "$Date$";
     }    
     
     protected void initRegisterFactory() {

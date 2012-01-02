@@ -100,7 +100,7 @@ public class RecDigitPower extends Modbus {
     }
        
     public String getProtocolVersion() {
-        return "$Revision: 1.16 $";
+        return "$Date$";
     }
     
     protected void initRegisterFactory() {

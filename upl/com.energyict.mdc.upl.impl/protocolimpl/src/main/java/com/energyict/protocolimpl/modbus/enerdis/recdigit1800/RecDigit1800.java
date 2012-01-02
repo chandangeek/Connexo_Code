@@ -95,7 +95,7 @@ public class RecDigit1800 extends Modbus {
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.18 $";
+        return "$Date$";
     }
     
     protected void initRegisterFactory() {

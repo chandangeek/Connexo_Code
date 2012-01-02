@@ -47,7 +47,7 @@ public class UNIFLO1200 extends Modbus {
     }
 
     public String getProtocolVersion() {
-        return "$Revision: 1.2 $";
+        return "$Date$";
     }
 
 	public int getLoadProfileNumber() {

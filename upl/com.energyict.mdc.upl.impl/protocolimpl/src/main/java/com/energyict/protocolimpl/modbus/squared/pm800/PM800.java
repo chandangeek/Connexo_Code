@@ -65,7 +65,7 @@ public class PM800 extends Modbus  {
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.7 $";
+        return "$Date$";
     }
     
     protected void initRegisterFactory() {

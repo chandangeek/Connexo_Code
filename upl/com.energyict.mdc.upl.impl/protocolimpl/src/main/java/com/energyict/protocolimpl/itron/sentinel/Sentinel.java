@@ -175,7 +175,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink {
 
     
     public String getProtocolVersion() {
-        return "$Revision: 1.6 $";
+        return "$Date$";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {

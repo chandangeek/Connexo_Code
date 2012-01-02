@@ -160,7 +160,7 @@ public class Instromet555 extends InstrometProtocol {
 	}
 
 	public String getProtocolVersion() {
-		return "$Revision: 1.12 $";
+		return "$Date$";
 	}
 
 	public Date getTime() throws IOException {
