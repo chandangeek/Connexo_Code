@@ -1,10 +1,5 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
@@ -12,6 +7,9 @@ import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+
+import java.io.IOException;
+import java.util.*;
 
 /** @author fbo */
 
@@ -50,7 +48,7 @@ public class ABBA230RegisterFactory {
     private ABBA230Register historicalRegister;
     private ABBA230Register dailyHistoricalRegister;
     private ABBA230Register historicalSystemStatus;
-    private ABBA230Register integrationPeriod;
+
     private ABBA230Register loadProfile;
     private ABBA230Register loadProfile256Blocks;
     private ABBA230Register loadProfile64Blocks;
@@ -58,6 +56,19 @@ public class ABBA230RegisterFactory {
     private ABBA230Register loadProfileReadByDate;
     private ABBA230Register loadProfileByDate64Blocks;
     private ABBA230Register loadProfileSet;
+    private ABBA230Register loadProfileDSTConfig;
+    private ABBA230Register loadProfileIntegrationPeriod;
+
+    private ABBA230Register instrumentationProfile ;
+    private ABBA230Register instrumentationProfile256Blocks ;
+    private ABBA230Register instrumentationProfile64Blocks ;
+    private ABBA230Register instrumentationProfileConfiguration;
+    private ABBA230Register instrumentationProfileReadByDate ;
+    private ABBA230Register instrumentationProfileByDate64Blocks ;
+    private ABBA230Register instrumentationProfileSet ;
+    private ABBA230Register instrumentationProfileDSTConfig;
+    private ABBA230Register instrumentationProfileIntegrationPeriod;
+
     private ABBA230Register maximumDemandRegisters;
     private ABBA230Register maximumDemand0;
     private ABBA230Register maximumDemand1;
@@ -86,8 +97,6 @@ public class ABBA230RegisterFactory {
 
     private ABBA230Register resetRegister;
     private ABBA230Register endOfBillingPeriod;
-    
-    private ABBA230Register loadProfileDSTConfig;
     
     private ABBA230Register overVoltageEventLog;
     private ABBA230Register underVoltageEventLog;
@@ -124,12 +133,44 @@ public class ABBA230RegisterFactory {
     private static final String timeOfUseId = "508";
     private static final String cummulativeMaxDemandId = "509";
     
+    private static Unit instrumentationChannelUnitMapping[] = {Unit.get(BaseUnit.AMPERE, -1),
+            Unit.get(BaseUnit.VOLT, -1),
+            Unit.get(BaseUnit.UNITLESS, 0),
+            Unit.get(BaseUnit.WATT, 0),
+            Unit.get(BaseUnit.VOLTAMPEREREACTIVE, 0),
+            Unit.get(BaseUnit.VOLTAMPERE, 0),
+            Unit.get(BaseUnit.UNITLESS, 0),
+            Unit.get(BaseUnit.HERTZ, -1),
+            Unit.get(BaseUnit.UNITLESS, 0),
+            Unit.get(BaseUnit.AMPERE, -1),
+            Unit.get(BaseUnit.VOLT, -1),
+            Unit.get(BaseUnit.WATT, 0),
+            Unit.get(BaseUnit.VOLTAMPEREREACTIVE, 0),
+            Unit.get(BaseUnit.VOLTAMPERE, 0)
+    };
+
+    private static String instrumentationChannelNameMapping[] = {"RMS current (secondary)",
+            "RMS volts (secondary)",
+            "Power Factor",
+            "Active power (secondary)",
+            "Reactive power (secondary)",
+            "Apparant power (secondary)",
+            "Phase rotation",
+            "Frequency",
+            "Phase angle",
+            "RMS current (primary)",
+            "RMS volts (primary)",
+            "Active power (primary)",
+            "Reactive power (primary)",
+            "Apparant power (primary)"
+    };
+
     SystemStatus systemStatus=null;
     ABBA230 abba230;
     
     /**
      * Creates a new instance of ABBA230RegisterFactory
-     * @param protocolLink
+     * @param abba230
      * @param meterExceptionInfo
      */
     public ABBA230RegisterFactory(
@@ -245,8 +286,8 @@ public class ABBA230RegisterFactory {
         return historicalSystemStatus;
     }
 
-    public ABBA230Register getIntegrationPeriod() {
-        return integrationPeriod;
+    public ABBA230Register getLoadProfileIntegrationPeriod() {
+        return loadProfileIntegrationPeriod;
     }
 
     public ABBA230Register getLoadProfile() {
@@ -271,6 +312,43 @@ public class ABBA230RegisterFactory {
 
     public ABBA230Register getLoadProfileSet() {
         return loadProfileSet;
+    }
+
+    // Getters for InstrumentationProfile and settings
+    public ABBA230Register getInstrumentationProfile() {
+        return instrumentationProfile;
+    }
+
+    public ABBA230Register getInstrumentationProfile256Blocks() {
+        return instrumentationProfile256Blocks;
+    }
+
+    public ABBA230Register getInstrumentationProfile64Blocks() {
+        return instrumentationProfile64Blocks;
+    }
+
+    public ABBA230Register getInstrumentationProfileConfiguration() {
+        return instrumentationProfileConfiguration;
+    }
+
+    public ABBA230Register getInstrumentationProfileReadByDate() {
+        return instrumentationProfileReadByDate;
+    }
+
+    public ABBA230Register getInstrumentationProfileByDate64Blocks() {
+        return instrumentationProfileByDate64Blocks;
+    }
+
+    public ABBA230Register getInstrumentationProfileSet() {
+        return instrumentationProfileSet;
+    }
+
+    public ABBA230Register getInstrumentationProfileDSTConfig() {
+        return instrumentationProfileDSTConfig;
+    }
+
+    public ABBA230Register getInstrumentationProfileIntegrationPeriod() {
+        return instrumentationProfileIntegrationPeriod;
     }
 
     public ABBA230Register getMaximumDemand0() {
@@ -417,9 +495,8 @@ public class ABBA230RegisterFactory {
         meterErrorEventLog = cr("701", "MeterErrorEventLog", ABBA230RegisterData.ABBA_METERERROREVENTLOG,0,53, null);
         batteryVoltageLowEventLog = cr("705", "BatteryVoltageLowEventLog", ABBA230RegisterData.ABBA_BATTERYVOLTAGELOWEVENTLOG,0,43, null);
 
-        
+        /* Load Profile */
         loadProfile = cr("550", "LoadProfile", ABBA230RegisterData.ABBA_BYTEARRAY,0,-1, null);
-        
         /* The 2 ways to specifiy how much load profile data to retrieve:
          * 551: nr of days
          * 554: between from and to */
@@ -430,6 +507,11 @@ public class ABBA230RegisterFactory {
         loadProfileReadByDate = cr("554", "LoadProfileReadByDate", ABBA230RegisterData.ABBA_LOAD_PROFILE_BY_DATE,0, 2, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
         loadProfileByDate64Blocks = cr("554", "LoadProfileByDate64Blocks", ABBA230RegisterData.ABBA_HEX,0,2, null);
         
+        loadProfileConfiguration = cr("777", "LoadProfileConfiguration", ABBA230RegisterData.ABBA_LOAD_PROFILE_CONFIG,0,2, null);
+        loadProfileIntegrationPeriod = cr("878", "LoadProfileIntegrationPeriod", ABBA230RegisterData.ABBA_LOAD_PROFILE_INTEGRATION_PERIOD,0,1, null);
+        loadProfileDSTConfig = cr("778", "LoadProfileDSTConfig", ABBA230RegisterData.ABBA_HEX,0,1, null);
+        /* ------ */
+
         systemStatusDataIdentity = cr("724", "SystemStatus", ABBA230RegisterData.ABBA_SYSTEMSTATUS,0,13, null);
         
         custDefRegConfig = cr("600", "CustDefRegConfig", ABBA230RegisterData.ABBA_CUSTDEFREGCONFIG,0,4, null);
@@ -440,18 +522,28 @@ public class ABBA230RegisterFactory {
         cTPrimary = cr("616", "CTPrimary", ABBA230RegisterData.ABBA_BIGDECIMAL,0,4, Unit.get(BaseUnit.UNITLESS,-2));
         cTSecundary = cr("616", "CTSecundary", ABBA230RegisterData.ABBA_BIGDECIMAL,4,2, Unit.get(BaseUnit.UNITLESS,-2));
         
-        loadProfileConfiguration = cr("777", "LoadProfileConfiguration", ABBA230RegisterData.ABBA_LOAD_PROFILE_CONFIG,0,2, null);
-        integrationPeriod = cr("878", "IntegrationPeriod", ABBA230RegisterData.ABBA_INTEGRATION_PERIOD,0,1, null);
-        
         contactorStatus = cr("411", "ContactorStatus", ABBA230RegisterData.ABBA_HEX,0,1, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
         contactorCloser = cr("412", "ContactorCloser", ABBA230RegisterData.ABBA_HEX,0,1, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
 
         resetRegister = cr("099", "ResetRegister", ABBA230RegisterData.ABBA_HEX, 0, 1, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
         endOfBillingPeriod = cr("655", "EndOfBillingPeriod", ABBA230RegisterData.ABBA_HEX, 0, 1, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
         
-        loadProfileDSTConfig = cr("778", "LoadProfileDSTConfig", ABBA230RegisterData.ABBA_HEX,0,1, null);
-        
-        
+        /* Instrumentation Profile */
+        instrumentationProfile = cr("555", "InstrumentationProfile", ABBA230RegisterData.ABBA_BYTEARRAY, 0, -1, null);
+         /* The 2 ways to specify how much Instrumentation profile data to retrieve:
+         * 556: nr of days
+         * 558: between from and to */
+        instrumentationProfileSet = cr("556", "InstrumentationProfileSet", ABBA230RegisterData.ABBA_HEX_LE, 0, 2, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
+        instrumentationProfile64Blocks = cr("556", "InstrumentationProfile64Blocks", ABBA230RegisterData.ABBA_HEX, 0, 2, null);
+        instrumentationProfile256Blocks = cr("556", "InstrumentationProfile256Blocks", ABBA230RegisterData.ABBA_HEX, 2, 2, null);
+
+        instrumentationProfileReadByDate = cr("558", "InstrumentationProfileReadByDate", ABBA230RegisterData.ABBA_INSTRUMENTATION_PROFILE_BY_DATE, 0, 2, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
+        instrumentationProfileByDate64Blocks = cr("558", "InstrumentationProfileByDate64Blocks", ABBA230RegisterData.ABBA_HEX, 0, 2, null);
+
+        instrumentationProfileConfiguration = cr("775", "InstrumentationProfileConfiguration", ABBA230RegisterData.ABBA_INSTRUMENTATION_PROFILE_CONFIG, 0, 16, null);
+        instrumentationProfileIntegrationPeriod = cr("879", "InstrumentationProfileIntegrationPeriod", ABBA230RegisterData.ABBA_INSTUMENTATION_PROFILE_INTEGRATION_PERIOD, 0, 1, null);
+        instrumentationProfileDSTConfig = cr("776", "InstrumentationProfileDSTConfig", ABBA230RegisterData.ABBA_HEX, 0, 1, null);
+        /* ------ */
     }
     
     /** factory method for ABBARegisters */
@@ -629,6 +721,11 @@ public class ABBA230RegisterFactory {
             sb.append( value + " \n" );
         }
         return sb.toString();
+    }
+
+    public ABBA230Register getInstrumentationChannelRegister(int valueConfiguration, String phaseConfiguration, String storageConfiguration) {
+        String name = instrumentationChannelNameMapping[valueConfiguration - 1] + ": " + phaseConfiguration + " - " + storageConfiguration;
+        return cr("InstrumentationChannel" + valueConfiguration, name, ABBA230RegisterData.ABBA_REGISTER, 0, 8, instrumentationChannelUnitMapping[valueConfiguration - 1]);
     }
 
 	public ABBA230Register getCummMainvarhImport() {

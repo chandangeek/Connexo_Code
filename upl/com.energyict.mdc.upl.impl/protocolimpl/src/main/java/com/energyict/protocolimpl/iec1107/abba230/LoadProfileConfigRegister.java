@@ -7,13 +7,11 @@
 
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
+
+import java.io.IOException;
+import java.util.*;
 
 /** 29 may 2006 Bugfix
  * The load profile was being read with energy units.  The meter was actually
@@ -23,7 +21,7 @@ import com.energyict.protocol.ChannelInfo;
  * 
  * @author fbo */
 
-public class LoadProfileConfigRegister {
+public class LoadProfileConfigRegister implements ProfileConfigRegister {
     
     private ABBA230RegisterFactory rFactory;
     private byte [] channelMask = null;
@@ -40,36 +38,26 @@ public class LoadProfileConfigRegister {
     private boolean vah1 = false;
     private boolean vah2 = false;
     private boolean customerDefined1 = false;
-    private boolean customerDefined2 = false;    
-    
+    private boolean customerDefined2 = false;
+
     /** Creates new LoadProfileConfigRegister */
-    LoadProfileConfigRegister(ABBA230RegisterFactory rFactory, byte[] data) throws IOException {
-        
+    public void loadConfig(ABBA230RegisterFactory rFactory, byte[] data) throws IOException {
         this.rFactory = rFactory;
         this.channelMask = data.clone();
-        
-        init();      
-        
+        init();
     }
     
-    LoadProfileConfigRegister(ABBA230RegisterFactory rFactory, int data ) throws IOException {
-        
+    public void loadConfig(ABBA230RegisterFactory rFactory, int data ) throws IOException {
         this.rFactory = rFactory;
         byte b1 = (byte)((data&0xFF00)>>8);
         byte b2 = (byte)(data&0x00FF);
         byte [] ba = { b1, b2 };
         this.channelMask = ba;
-        
         init();
-        
     }
     
     private void init( ) throws IOException {
-        
         int i = 0;
-        
-        
-        //System.out.println("KV_DEBUG> 0x"+Integer.toHexString((int)channelMask[0]&0xff)+""+Integer.toHexString((int)channelMask[1]&0xff));
         
         if( ( channelMask[1] & 0x01 ) > 0 ) {
             importWh = true;
@@ -155,21 +143,28 @@ public class LoadProfileConfigRegister {
             customerDefined2 = true;
             ABBA230Register r = rFactory.getCummMainvarhExport();
             register.add( r );
-//            register.add( r );
             Unit u = r.getUnit().getFlowUnit();
             channelInfo.add( new ChannelInfo( i, "ELSTERAS230_channel_"+ i, u ) );
             i = i + 1;
         }
-      
     }
 
-    int getNumberRegisters() {
+    public int getNumberRegisters() {
         return register.size();
     }
     
     public Collection getRegisters(){
         return register;
-    } 
+    }
+
+    public byte[] getAllChannelMask(){
+        return channelMask;
+    }
+
+    public String getAllChannelMaskString(){
+        int x = (0x00FF00&(channelMask[0]<<8))|channelMask[1];
+        return Integer.toString(x);
+    }
 
     boolean isImportWh() {
         return importWh;
@@ -211,13 +206,7 @@ public class LoadProfileConfigRegister {
         return customerDefined2;
     }
     
-    
-    int getChannelMask(){
-        int x = (0x00FF00&(channelMask[0]<<8))|channelMask[1];
-        return x;
-    }
-    
-    Collection toChannelInfo() throws IOException {
+    public Collection toChannelInfo() throws IOException {
         return channelInfo;
     }
     
@@ -236,7 +225,7 @@ public class LoadProfileConfigRegister {
     public String toString( ){
         StringBuffer rslt = new StringBuffer();
         rslt.append( "LoadProfileConfigRegister [" );
-        rslt.append( " chn msk: " + getChannelMask() );
+        rslt.append( " chn msk: " + getAllChannelMaskString() );
         try {
             Iterator i = this.toChannelInfo().iterator();
             while( i.hasNext() ){
@@ -249,5 +238,4 @@ public class LoadProfileConfigRegister {
         rslt.append( "]" );
         return rslt.toString();
     }
-    
 }

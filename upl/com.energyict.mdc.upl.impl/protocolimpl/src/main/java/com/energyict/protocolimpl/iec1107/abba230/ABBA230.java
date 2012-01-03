@@ -19,9 +19,7 @@ package com.energyict.protocolimpl.iec1107.abba230;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -29,10 +27,7 @@ import com.energyict.protocol.messaging.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocolimpl.base.ContactorController;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import com.energyict.protocolimpl.iec1107.ChannelMap;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
-import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.*;
 
 import java.io.*;
 import java.util.*;
@@ -50,6 +45,8 @@ import java.util.logging.Logger;
  * JME	24032009	Added delay during close contactor message execution between the ARM and CLOSE command.
  * JME	27032009	Made extended logging more robust for meter configuration
  * JME	02042009	Moved contactor code to new class and fixed bug in close message (Mantis issue 4047)
+ * SVA  18102011    Extending the protocol to enable the collection of Instrumentation Channels
+ *                  If property 'InstrumentationProfileMode' is set, the Instrumentation Profiles will be read out instead of the Load Profiles.
  *
  */
 
@@ -87,6 +84,7 @@ RegisterProtocol, MessageProtocol, EventMapper {
 	static final String PK_ECHO_CANCELING = "EchoCancelling";
 
 	static final String PK_SCRIPTING_ENABLED = "ScriptingEnabled";
+    static final String INSTRUMENTATION_PROFILE_MODE = "InstrumentationProfileMode";
 
 	/** Property Default values */
 	static final String PD_NODE_ID = "";
@@ -133,7 +131,7 @@ RegisterProtocol, MessageProtocol, EventMapper {
 	private CacheMechanism cacheObject=null;
 	private boolean software7E1;
 	private int scriptingEnabled=0;
-	private int nrOfLoadProfileBlocks=0;
+	private int nrOfProfileBlocks =0;
 
 
     /** Indication whether to send a break command before a retry */
@@ -144,6 +142,11 @@ RegisterProtocol, MessageProtocol, EventMapper {
      */
     private boolean sendBreakBeforeDisconnect;
 
+    /**
+     * Indicate whether the normal Load Profile Data should be read out, or if the Instrumentation Profile Data must be read instead.
+     * By default (boolean false) the Load Profile Data will be read out.
+     */
+    private boolean instrumentationProfileMode;
 
 	public ABBA230() { }
 
@@ -245,14 +248,12 @@ RegisterProtocol, MessageProtocol, EventMapper {
             } else {
                 this.sendBreakBeforeDisconnect = true;
             }
+
+            this.instrumentationProfileMode = !p.getProperty(INSTRUMENTATION_PROFILE_MODE, "0").equalsIgnoreCase("0");
 		} catch (NumberFormatException e) {
 			throw new InvalidPropertyException("Elster A230, validateProperties, NumberFormatException, "+e.getMessage());
 		}
-
 	}
-
-
-
 
 	public List map2MeterEvent(String event) throws IOException {
 		EventMapperFactory emf = new EventMapperFactory();
@@ -264,12 +265,6 @@ RegisterProtocol, MessageProtocol, EventMapper {
 	 */
 	public List getRequiredKeys() {
 		List result = new ArrayList(0);
-
-
-
-
-
-
 		return result;
 	}
 
@@ -289,6 +284,7 @@ RegisterProtocol, MessageProtocol, EventMapper {
 		result.add("ScriptingEnabled");
 		result.add("ForcedDelay");
         result.add("DisableLogOffCommand");
+        result.add("InstrumentationProfileMode");
 		return result;
 	}
 
@@ -342,8 +338,6 @@ RegisterProtocol, MessageProtocol, EventMapper {
 		try {
 			getFlagIEC1107Connection().connectMAC(this.pAddress,this.pPassword,this.pSecurityLevel,this.pNodeId,baudrate);
 
-
-
 			executeDefaultScript();
 			executeRegisterScript();
 
@@ -395,8 +389,17 @@ RegisterProtocol, MessageProtocol, EventMapper {
 	 * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getNumberOfChannels()
 	 */
 	public int getNumberOfChannels() throws UnsupportedException, IOException {
-		ABBA230Register r = this.rFactory.getLoadProfileConfiguration();
-		LoadProfileConfigRegister lpcr = (LoadProfileConfigRegister) this.rFactory.getRegister( r );
+        ABBA230Register r;
+        ProfileConfigRegister lpcr;
+
+        if (instrumentationProfileMode) {
+            r = this.rFactory.getInstrumentationProfileConfiguration();
+            lpcr = (InstrumentationProfileConfigRegister) this.rFactory.getRegister(r);
+        } else {
+            r = this.rFactory.getLoadProfileConfiguration();
+            lpcr = (LoadProfileConfigRegister) this.rFactory.getRegister(r);
+        }
+
 		return lpcr.getNumberRegisters();
 	}
 
@@ -497,7 +500,9 @@ RegisterProtocol, MessageProtocol, EventMapper {
 	 * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getProfileInterval()
 	 */
 	public int getProfileInterval() throws UnsupportedException, IOException {
-		return ((Integer)this.rFactory.getRegister("IntegrationPeriod")).intValue();
+		return  instrumentationProfileMode
+                ? ((Integer)this.rFactory.getRegister("InstrumentationProfileIntegrationPeriod")).intValue()
+                : ((Integer)this.rFactory.getRegister("LoadProfileIntegrationPeriod")).intValue();
 	}
 
 	/* (non-Javadoc)
@@ -1306,14 +1311,16 @@ RegisterProtocol, MessageProtocol, EventMapper {
 	private void executeDefaultScript() throws IOException {
 		if ((getCache() != null) && (getCache() instanceof CacheMechanism) && (getScriptingEnabled() == 2)) {
 			((CacheMechanism)getCache()).setCache(new String[]{"0",null});
-			this.nrOfLoadProfileBlocks = ((Integer)((CacheMechanism)getCache()).getCache()).intValue();
+			this.nrOfProfileBlocks = ((Integer)((CacheMechanism)getCache()).getCache()).intValue();
 		}
 	}
 
 	private void executeRegisterScript() throws IOException {
 		if ((getCache() != null) && (getCache() instanceof CacheMechanism) && (getScriptingEnabled() == 1)) {
 			// call the scriptexecution  scriptId,script
-			String script = "778001(1),777001(2),878001(3),798001(10),507001(40),507002(40),508001(40),508002(40),510001(18)";
+			String script = instrumentationProfileMode
+                    ? "776001(1),775001(2),879001(3),798001(10),507001(40),507002(40),508001(40),508002(40),510001(18)"
+                    : "778001(1),777001(2),878001(3),798001(10),507001(40),507002(40),508001(40),508002(40),510001(18)";
 			((CacheMechanism)getCache()).setCache(new String[]{"2",script});
 		}
 	}
@@ -1322,7 +1329,15 @@ RegisterProtocol, MessageProtocol, EventMapper {
 		return this.scriptingEnabled;
 	}
 
-	public int getNrOfLoadProfileBlocks() {
-		return this.nrOfLoadProfileBlocks;
+	public int getNrOfProfileBlocks() {
+		return this.nrOfProfileBlocks;
 	}
+
+    /**
+     * Getter for boolean InstrumentationProfile
+     * @return true if the Instrumentation Profile data should be read out, instead of the normal Load Profile data
+     */
+    public boolean isInstrumentationProfileMode() {
+        return this.instrumentationProfileMode;
+    }
 }

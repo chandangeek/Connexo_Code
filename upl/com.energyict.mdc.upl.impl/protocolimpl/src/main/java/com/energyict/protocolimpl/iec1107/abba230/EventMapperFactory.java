@@ -1,12 +1,9 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
 import com.energyict.protocol.MeterEvent;
+
+import java.io.IOException;
+import java.util.*;
 
 public class EventMapperFactory {
 
@@ -100,7 +97,7 @@ public class EventMapperFactory {
 		entries.add(new MeterEventMapEntry(17,4,MeterEvent.HARDWARE_ERROR,"Error Invalid Instrumentation profile"));
 		entries.add(new MeterEventMapEntry(17,3,MeterEvent.HARDWARE_ERROR,"Error Estimated Battery Life Exceeded"));
 		entries.add(new MeterEventMapEntry(17,2,MeterEvent.HARDWARE_ERROR,"Error Invalid Demand Period Configuration"));
-		entries.add(new MeterEventMapEntry(17,1,MeterEvent.HARDWARE_ERROR,"Error Load PRofile"));
+		entries.add(new MeterEventMapEntry(17,1,MeterEvent.HARDWARE_ERROR,"Error Load Profile"));
 		entries.add(new MeterEventMapEntry(17,0,MeterEvent.HARDWARE_ERROR,"Error Backup"));
 
 

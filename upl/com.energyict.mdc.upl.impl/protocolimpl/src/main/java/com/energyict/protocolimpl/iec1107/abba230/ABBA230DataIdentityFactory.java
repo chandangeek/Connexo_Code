@@ -1,15 +1,13 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /** @author fbo */
 
@@ -139,18 +137,12 @@ public class ABBA230DataIdentityFactory {
         add("510", 24,ABBA230DataIdentity.NOT_STREAMEABLE);
         // ct primary and secundary current
         add("616", 6,ABBA230DataIdentity.NOT_STREAMEABLE);
-        // Load profile configuration
-        add("777", 2,ABBA230DataIdentity.NOT_STREAMEABLE);
-        // demand, subinterval period
-        add("878", 3,ABBA230DataIdentity.NOT_STREAMEABLE);
-        // Load profile configure data
-        add("551", 4,ABBA230DataIdentity.NOT_STREAMEABLE);
-        // Load profile read data
-        add("550", 0,ABBA230DataIdentity.STREAMEABLE);
-        // Historical events 
+
+//        //Historical events
 //        add("544", 5,  280,ABBA230DataIdentity.STREAMEABLE);
 //        // Historical events 
 //        add("545", 280,5,ABBA230DataIdentity.STREAMEABLE);
+
         // Meter current system status
         add("724", 13,ABBA230DataIdentity.NOT_STREAMEABLE);
         
@@ -166,12 +158,35 @@ public class ABBA230DataIdentityFactory {
         add("543", 302, 12,ABBA230DataIdentity.STREAMEABLE);
         // Daily historical values
         add("545", 302, 14,ABBA230DataIdentity.STREAMEABLE);
-        // Configure Load Profile Read By Date
+
+        // LOAD PROFILE CONFIG
+        // Load profile read data
+        add("550", 0,ABBA230DataIdentity.STREAMEABLE);
+        // Load profile configure data (Read By Day)
+        add("551", 4,ABBA230DataIdentity.NOT_STREAMEABLE);
+        // Load profile configure data (Read By Date)
         add("554", 8, ABBA230DataIdentity.NOT_STREAMEABLE );
-        
+        // Load profile configuration
+        add("777", 2,ABBA230DataIdentity.NOT_STREAMEABLE);
+        // Demand period
+        add("878", 3,ABBA230DataIdentity.NOT_STREAMEABLE);
+        // Load Profile Daylight Savings Configuration
         add("778", 1, ABBA230DataIdentity.NOT_STREAMEABLE );
         
-        
+        // INSTRUMENTATION PROFILE CONFIG
+        // Instrumentation profile read data
+        add("555", 0, ABBA230DataIdentity.STREAMEABLE);
+        // Instrumentation profile configure data (Read By Day)
+        add("556", 4, ABBA230DataIdentity.NOT_STREAMEABLE);
+        // Instrumentation profile configure data (Read By Date)
+        add("558", 8, ABBA230DataIdentity.NOT_STREAMEABLE);
+        // Instrumentation profile configuration
+        add("775", 16, ABBA230DataIdentity.NOT_STREAMEABLE);
+        // Instrumentation period
+        add("879", 3, ABBA230DataIdentity.NOT_STREAMEABLE);
+        // Instrumentation Profile Daylight Savings Configuration
+        add("776", 1, ABBA230DataIdentity.NOT_STREAMEABLE );
+
         // event logs
         add("678", 83,ABBA230DataIdentity.STREAMEABLE); // OverVoltageEventLog
         add("679", 83,ABBA230DataIdentity.STREAMEABLE); // UnderVoltageEventLog
@@ -249,12 +264,8 @@ public class ABBA230DataIdentityFactory {
                     rslt.append( ex.getMessage() );
                 }
             }
-            
         }
-        
         rslt.append( "]\n" );
-        
         return rslt.toString();
     }
-    
 }

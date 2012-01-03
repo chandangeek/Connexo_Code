@@ -1,39 +1,16 @@
 package com.energyict.protocolimpl.iec1107.abba230;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.BatteryVoltageLowEventLog;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ContactorArmDisconnectEventLog;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ContactorArmLoadMonitorEventLog;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ContactorArmModuleEventLog;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ContactorArmOpticalEventLog;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ContactorCloseButtonEventLog;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ContactorCloseModuleEventLog;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ContactorCloseOpticalEventLog;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ContactorOpenAutoDisconnectEventLog;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ContactorOpenLoadMonitorHighEventLog;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ContactorOpenLoadMonitorLowEventLog;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ContactorOpenModuleEventLog;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ContactorOpenOpticalEventLog;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.EndOfBillingEventLog;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.LongPowerFailEventLog;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.MagneticTamperEventLog;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.MainCoverEventLog;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.MeterErrorEventLog;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.OverVoltageEventLog;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.PowerFailEventLog;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ProgrammingEventLog;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ReverserunEventLog;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.TerminalCoverEventLog;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.TransientEventLog;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.UnderVoltageEventLog;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.*;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
 
 /** @author  Koen */
 
@@ -61,7 +38,7 @@ abstract public class ABBA230RegisterData {
     final static int ABBA_MDSOURCES=19;
     final static int ABBA_CUSTDEFREGCONFIG=20;
     final static int ABBA_INSTANTANEOUSVALUES=21;
-    final static int ABBA_INTEGRATION_PERIOD=22;
+    final static int ABBA_LOAD_PROFILE_INTEGRATION_PERIOD=22;
     final static int ABBA_LOAD_PROFILE_BY_DATE=23;
     final static int ABBA_LOAD_PROFILE_CONFIG=24;
     final static int ABBA_OVERVOLTAGEEVENTLOG=25;
@@ -92,7 +69,10 @@ abstract public class ABBA230RegisterData {
     final static int ABBA_CONTACTORCLOSEMODULELOG=48;
     final static int ABBA_CONTACTORCLOSEBUTTONLOG=49;
     
-    
+    final static int ABBA_INSTUMENTATION_PROFILE_INTEGRATION_PERIOD = 50;
+    final static int ABBA_INSTRUMENTATION_PROFILE_BY_DATE = 51;
+    final static int ABBA_INSTRUMENTATION_PROFILE_CONFIG = 52;
+
     abstract protected Unit getUnit();
     abstract protected int getType();
     abstract protected FlagIEC1107Connection getFlagIEC1107Connection();
@@ -135,14 +115,20 @@ abstract public class ABBA230RegisterData {
                 return buildHex((byte[])object);
                 
             case ABBA_HEX_LE:
-                return buildHexLE((Long)object);
+                return buildHexLE((Long) object);
                 
-            case ABBA_INTEGRATION_PERIOD:
+            case ABBA_LOAD_PROFILE_INTEGRATION_PERIOD:
                 return null;
                 
+            case ABBA_INSTUMENTATION_PROFILE_INTEGRATION_PERIOD:
+                return null;
+
             case ABBA_LOAD_PROFILE_BY_DATE:
-                return build((LoadProfileReadByDate)object);
+                return build((ProfileReadByDate)object);
                 
+            case ABBA_INSTRUMENTATION_PROFILE_BY_DATE:
+                return build((ProfileReadByDate)object);
+
             default:
                 throw new IOException("ABBA230RegisterData, parse , unknown type "+getType());
         }
@@ -183,18 +169,18 @@ abstract public class ABBA230RegisterData {
         return new String(data);
     }
     
-    private String build(LoadProfileReadByDate loadProfileReadByDate) {
+    private String build(ProfileReadByDate profileReadByDate) {
         
         byte [] ba = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
         
-        long shift = loadProfileReadByDate.getFrom().getTime() / 1000;
+        long shift = profileReadByDate.getFrom().getTime() / 1000;
         byte [] hex = ProtocolUtils.buildStringHex( shift, 8 ).getBytes(); 
         for( int i = 0; i < hex.length; i=i+2 ) {
             byte [] t = ProtocolUtils.getSubArray2(hex, 6-i, 2);
             System.arraycopy(t, 0, ba, i, 2);
         } 
         
-        shift = loadProfileReadByDate.getTo().getTime() / 1000;
+        shift = profileReadByDate.getTo().getTime() / 1000;
         hex = ProtocolUtils.buildStringHex( shift, 8 ).getBytes();
         for( int i = 0; i < hex.length; i=i+2 ) {
             byte [] t = ProtocolUtils.getSubArray2(hex, 6-i, 2);
@@ -269,18 +255,34 @@ abstract public class ABBA230RegisterData {
                 case ABBA_CUSTDEFREGCONFIG:
                     return new CustDefRegConfig(data);
                     
-                case ABBA_INTEGRATION_PERIOD:
+                case ABBA_LOAD_PROFILE_INTEGRATION_PERIOD:
                     return new Integer( getRegisterFactory().getDataType().integrationPeriod.parse(data[0]) );
                     
+                case ABBA_INSTUMENTATION_PROFILE_INTEGRATION_PERIOD:
+                    return new Integer( getRegisterFactory().getDataType().integrationPeriod.parse(data[0]) );
+
                 case ABBA_LOAD_PROFILE_BY_DATE: {
                     String msg = "ABBA230RegisterData, parse, "
                             + "type can only be read" + getType();
                     throw new IOException(msg);
                 }
                 
-                case ABBA_LOAD_PROFILE_CONFIG: 
-                    return new LoadProfileConfigRegister(getRegisterFactory(), data);
-                                        
+                case ABBA_INSTRUMENTATION_PROFILE_BY_DATE: {
+                    String msg = "ABBA230RegisterData, parse, "
+                            + "type can only be read" + getType();
+                    throw new IOException(msg);
+                }
+
+                case ABBA_LOAD_PROFILE_CONFIG:
+                    LoadProfileConfigRegister loadProfileConfigRegister = new LoadProfileConfigRegister();
+                    loadProfileConfigRegister.loadConfig(getRegisterFactory(), data);
+                    return loadProfileConfigRegister;
+
+                case ABBA_INSTRUMENTATION_PROFILE_CONFIG:
+                    InstrumentationProfileConfigRegister instrumentationProfileConfigRegister = new InstrumentationProfileConfigRegister();
+                    instrumentationProfileConfigRegister.loadConfig(getRegisterFactory(), data);
+                    return instrumentationProfileConfigRegister;
+
                 case ABBA_OVERVOLTAGEEVENTLOG: {
                 	OverVoltageEventLog o = new OverVoltageEventLog(getProtocolLink().getTimeZone());
                 	o.parse(data);
