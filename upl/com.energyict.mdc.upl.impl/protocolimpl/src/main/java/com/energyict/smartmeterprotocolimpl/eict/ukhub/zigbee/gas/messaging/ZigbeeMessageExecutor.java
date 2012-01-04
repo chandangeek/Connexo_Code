@@ -577,7 +577,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
     }
 
     private boolean isFirmwareUpgradeMessage(final String messageContent) {
-        return (messageContent != null) && messageContent.contains("FirmwareUpgrade");
+        return (messageContent != null) && messageContent.contains("FirmwareUpdate");
     }
 
     public ActivityCalendarController getActivityCalendarController() {
