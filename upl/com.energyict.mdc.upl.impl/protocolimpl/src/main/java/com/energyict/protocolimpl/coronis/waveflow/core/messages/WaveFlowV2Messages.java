@@ -27,7 +27,7 @@ public class WaveFlowV2Messages extends WaveFlowMessageParser {
         cat1.addMessageSpec(addBasicMsgWithValue("Restart data logging in 3 minutes. Mode: [periodic steps (1), weekly (2), monthly (3)]", "RestartDataLogging", false));
         cat1.addMessageSpec(addBasicMsgWithValue("Restart data logging, use start time parameters. Mode: [periodic steps (1), weekly (2), monthly (3)]", "SimpleRestartDataLogging", false));
         cat2.addMessageSpec(addBasicMsgWithValue("Set sampling period in seconds", "SetProfileInterval", true));
-        cat2.addMessageSpec(addBasicMsgWithValue("Set start hour of measurement (default 0)", "SetHourOfMeasurement", true));
+        cat2.addMessageSpec(addBasicMsgWithTwoAttr("Set start hour of measurement", "SetHourOfMeasurement", true, "Start hour (range: 0 - 23)", "Intended mode (1: periodic, 2: weekly, 3: monthly)"));
         cat2.addMessageSpec(addBasicMsgWithValue("Set day of week (or month) (not available for periodic step logging)", "SetDayOfWeek", true));
         cat2.addMessageSpec(addBasicMsg("Reset the indexes", "ResetIndexes", true));
         cat2.addMessageSpec(addBasicMsg("Stop the data logging", "StopDataLogging", true));

@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.waveflow.core.parameter;
 
+import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.TimeDateRTC;
@@ -91,7 +92,6 @@ public class ParameterFactory {
 
     final public void restartDataLogging(int mode) throws IOException {
         stopDataLogging();
-        setNumberOfInputsUsed(readOperatingMode().getNumberOfInputsUsed());
         if (waveFlow.isV1()) {
             writeSamplingActivationNextHour(mode);
 
@@ -119,7 +119,6 @@ public class ParameterFactory {
 
     final public void simpleRestartDataLogging(int mode) throws IOException {
         stopDataLogging();
-        setNumberOfInputsUsed(readOperatingMode().getNumberOfInputsUsed());
 
         //Now restart it
         switch (mode) {
@@ -446,14 +445,6 @@ public class ParameterFactory {
         return pulseWeights[inputChannelIndex - 1];
     }
 
-    public void writeStartHourOfMeasurement(int time) throws IOException {
-        if (readOperatingMode().isPeriodicMeasurement()) {
-            writeSamplingActivationType(time);
-        } else if (readOperatingMode().isMonthlyMeasurement() || readOperatingMode().isWeeklyMeasurement()) {
-            writeTimeOfMeasurement(time);
-        }
-    }
-
     public int readStartHourOfMeasurement() throws IOException {
         if (readOperatingMode().isMonthlyMeasurement() || readOperatingMode().isWeeklyMeasurement()) {
             return readTimeOfMeasurement();
@@ -549,7 +540,7 @@ public class ParameterFactory {
     public int readAdvancedBackflowThreshold(int inputChannel) throws IOException {
         boolean advanced = waveFlow.getParameterFactory().readProfileType().supportsAdvancedBackflowDetection();
         if (!advanced) {
-            throw new WaveFlowException("The module doesn't support advanced back flow detection.");
+            throw new NoSuchRegisterException("The module doesn't support advanced back flow detection.");
         }
         BackflowThreshold backflowThreshold = new BackflowThreshold(waveFlow, inputChannel, false, advanced);
         backflowThreshold.read();
@@ -569,7 +560,7 @@ public class ParameterFactory {
     public int readSimpleBackflowThreshold(int inputChannel) throws IOException {
         boolean simple = waveFlow.getParameterFactory().readProfileType().supportsSimpleBackflowDetection();
         if (!simple) {
-            throw new WaveFlowException("The module doesn't support simple back flow detection.");
+            throw new NoSuchRegisterException("The module doesn't support simple back flow detection.");
         }
         BackflowThreshold backflowThreshold = new BackflowThreshold(waveFlow, inputChannel, simple, false);
         backflowThreshold.read();
@@ -589,7 +580,7 @@ public class ParameterFactory {
     public int readSimpleBackflowDetectionPeriod(int inputChannel) throws IOException {
         boolean simple = waveFlow.getParameterFactory().readProfileType().supportsSimpleBackflowDetection();
         if (!simple) {
-            throw new WaveFlowException("The module doesn't support back flow detection.");
+            throw new NoSuchRegisterException("The module doesn't support back flow detection.");
         }
         BackflowDetectionPeriod detectionPeriod = new BackflowDetectionPeriod(waveFlow, inputChannel, simple, false);
         detectionPeriod.read();
@@ -610,7 +601,7 @@ public class ParameterFactory {
     public int readAdvancedBackflowDetectionPeriod(int inputChannel) throws IOException {
         boolean advanced = waveFlow.getParameterFactory().readProfileType().supportsAdvancedBackflowDetection();
         if (!advanced) {
-            throw new WaveFlowException("The module doesn't support back flow detection.");
+            throw new NoSuchRegisterException("The module doesn't support back flow detection.");
         }
         BackflowDetectionPeriod detectionPeriod = new BackflowDetectionPeriod(waveFlow, inputChannel, false, advanced);
         detectionPeriod.read();

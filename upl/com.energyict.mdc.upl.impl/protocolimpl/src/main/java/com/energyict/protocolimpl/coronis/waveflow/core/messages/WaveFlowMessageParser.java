@@ -1392,11 +1392,18 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
 
     private MessageResult setHourOfMeasurement(MessageEntry messageEntry) throws IOException {
         waveFlow.getLogger().info("************************* SetHourOfMeasurement *************************");
-        int time = Integer.parseInt(stripOffTag(messageEntry.getContent()));
+
+        String[] parts = messageEntry.getContent().split("=");
+        int time = Integer.parseInt(parts[1].substring(1).split("\"")[0]);
+        int mode = Integer.parseInt(parts[2].substring(1).split("\"")[0]);
+
         if (time < 0 || time > 23) {
             return MessageResult.createFailed(messageEntry);
         }
-        waveFlow.getParameterFactory().writeStartHourOfMeasurement(time);
+        if (mode < 1 || mode > 3) {
+            return MessageResult.createFailed(messageEntry);
+        }
+        waveFlow.getParameterFactory().writeStartHourOfMeasurement(time, mode);
         return MessageResult.createSuccess(messageEntry);
     }
 
