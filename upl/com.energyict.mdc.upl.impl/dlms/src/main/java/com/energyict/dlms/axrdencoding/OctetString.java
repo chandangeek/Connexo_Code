@@ -15,6 +15,7 @@ import java.util.TimeZone;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -60,7 +61,7 @@ public class OctetString extends AbstractDataType {
 		this.fixed = fixed;
 	}
 
-	public String toString() {
+    public String toString() {
 		StringBuffer strBuffTab = new StringBuffer();
 		for (int i = 0; i < getLevel(); i++) {
 			strBuffTab.append("  ");
@@ -98,6 +99,14 @@ public class OctetString extends AbstractDataType {
 	public static OctetString fromString(String string, int size) {
 		return new OctetString(string.getBytes(), size, 0);
 	}
+
+    public static OctetString fromObisCode(ObisCode obisCode) {
+        return new OctetString(obisCode.getLN());
+    }
+
+    public static OctetString fromObisCode(String obisCodeAsString) {
+        return new OctetString(ObisCode.fromString(obisCodeAsString).getLN());
+    }
 
 	public static OctetString fromByteArray(byte[] byteArray, int size) {
 		return new OctetString(byteArray, size, 0);

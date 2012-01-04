@@ -90,6 +90,8 @@ public class AS300ObisCodeProvider implements CommonObisCodeProvider {
 
     public static final ObisCode LoadProfileStatus30Min = ObisCode.fromString("0.0.96.10.1.255");
     public static final ObisCode LoadProfileStatusP2 = ObisCode.fromString("0.0.96.10.2.255");
+    public static final ObisCode SCRIPT_TABLE_OBIS = ObisCode.fromString("0.0.10.0.100.255");
+    public static final ObisCode SCRIPT_TABLE_PASSIVE_OBIS = ObisCode.fromString("0.0.10.1.100.255");
 
     /**
      * @return the {@link #ClockObisCode} for the {@link com.energyict.dlms.cosem.Clock}
@@ -184,6 +186,14 @@ public class AS300ObisCodeProvider implements CommonObisCodeProvider {
      */
     public ObisCode getPassiveSpecialDayContract1ObisCode() {
         return PassiveSpecialDayContract1ObisCode;
+    }
+
+    public ObisCode getScriptTablePassiveObisCode() {
+        return SCRIPT_TABLE_PASSIVE_OBIS;
+    }
+
+    public ObisCode getScriptTableObisCode() {
+        return SCRIPT_TABLE_OBIS;
     }
 
     /**

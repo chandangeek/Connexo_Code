@@ -2,8 +2,7 @@ package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.ActivityCalendar;
-import com.energyict.dlms.cosem.SpecialDaysTable;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributeobjects.*;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
@@ -276,30 +275,70 @@ public class AS300ActivityCalendarController implements ActivityCalendarControll
      * Write the complete ActivityCalendar to the device
      */
     public void writeCalendar() throws IOException {
+        protocol.getLogger().info("Writing script table ...");
+        ScriptTable st = getScriptTablePassive();
+        st.writeScripts(getPredefinedScripts());
+
         ActivityCalendar ac = getActivityCalendar();
+
+        protocol.getLogger().info("Writing passive season profile in ActivityCalendar [" + ac.getObisCode() + "] ...");
         ac.writeSeasonProfilePassive(getSeasonArray());
+
+        protocol.getLogger().info("Writing passive week profile in ActivityCalendar [" + ac.getObisCode() + "] ...");
         ac.writeWeekProfileTablePassive(getWeekArray());
+
+        protocol.getLogger().info("Writing passive day profile in ActivityCalendar [" + ac.getObisCode() + "]...");
         ac.writeDayProfileTablePassive(getDayArray());
 
-
-        /*Writing all special days separately seems to work*/
-
-
-//        getSpecialDayTable().writeSpecialDays(getSpecialDayArray());
+        protocol.getLogger().info("Writing special days in SpecialDayTable [" + getPassiveSpecialDayTable().getObisCode() + "] ...");
         getPassiveSpecialDayTable().writeSpecialDays(getSpecialDayArray());
 
-//        if (!"".equalsIgnoreCase(this.passiveCalendarName.stringValue())) {
-//            ac.writeCalendarNamePassive(this.passiveCalendarName);
-//        } else {
-//            logger.debug("No PassiveCalendarName will be written.");
-//        }
         if ("1".equalsIgnoreCase(this.activatePassiveCalendarTime.stringValue())) {
+            protocol.getLogger().info("Activating passive calendar.");
             ac.activateNow();
         } else if (!"0".equalsIgnoreCase(this.activatePassiveCalendarTime.stringValue())) {
+            protocol.getLogger().info("Writing activation time for passive calendar.");
             ac.writeActivatePassiveCalendarTime(this.activatePassiveCalendarTime);
         } else {
             logger.trace("No passiveCalendar activation date was given.");
         }
+
+        protocol.getLogger().info("WriteCalendar finished.");
+
+    }
+
+    /**
+     * Defines fixed tariff actions for Import kWh and Export kWh. Tarif 1 is on position 1, tariff 2 on pos 2 ...
+     * The daytype calendar should point to the same index as the required tariff code.
+     *
+     * @return the array of predefined scripts
+     */
+    private Array getPredefinedScripts() {
+        Array scripts = new Array();
+        for (int i = 1; i <= 48; i++) {
+            // Value = 01 up to 48 (HEX ASCII: 3031 - 3438)
+            OctetString tarifLabel = OctetString.fromString(i < 10 ? "0" + Integer.toString(i) : Integer.toString(i));
+
+            Structure writeActionActiveImport = new Structure(
+                    new TypeEnum(1), // Write action
+                    new Unsigned16(DLMSClassId.REGISTER_ACTIVATION.getClassId()),
+                    OctetString.fromObisCode("0.0.14.0.1.255"), // Registeractivation A+
+                    new Integer8(4), // Attribute 4
+                    tarifLabel
+            );
+
+            Structure writeActionActiveExport = new Structure(
+                    new TypeEnum(1), // Write action
+                    new Unsigned16(DLMSClassId.REGISTER_ACTIVATION.getClassId()),
+                    OctetString.fromObisCode("0.0.14.0.2.255"), // Registeractivation A-
+                    new Integer8(4), // Attribute 4
+                    tarifLabel
+            );
+
+            Structure script = new Structure(new Unsigned16(i), new Array(writeActionActiveImport, writeActionActiveExport));
+            scripts.addDataType(script);
+        }
+        return scripts;
     }
 
     /**
@@ -340,9 +379,12 @@ public class AS300ActivityCalendarController implements ActivityCalendarControll
         return this.protocol.getObjectFactory().getActivityCalendar();
     }
 
-
     protected SpecialDaysTable getSpecialDayTable() throws IOException {
         return this.protocol.getObjectFactory().getSpecialDayTable();
+    }
+
+    private ScriptTable getScriptTablePassive() throws IOException {
+        return this.protocol.getObjectFactory().getScriptTablePassive();
     }
 
     protected SpecialDaysTable getPassiveSpecialDayTable() throws IOException {

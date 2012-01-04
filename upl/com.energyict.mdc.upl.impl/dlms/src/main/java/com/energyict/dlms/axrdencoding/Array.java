@@ -31,8 +31,15 @@ public class Array extends AbstractDataType implements Iterable<AbstractDataType
 	 * Creates a new instance of Array
 	 */
 	public Array() {
-		dataTypes = new ArrayList<AbstractDataType>();
+        this(new AbstractDataType[0]);
 	}
+
+    public Array(AbstractDataType... dataTypes) {
+        this.dataTypes = new ArrayList<AbstractDataType>();
+        for (AbstractDataType dataType : dataTypes) {
+            addDataType(dataType);
+        }
+    }
 
     /**
      * Constructor with an initial number of dataTypes. The same amount of dataTypes are added as null objects to the List

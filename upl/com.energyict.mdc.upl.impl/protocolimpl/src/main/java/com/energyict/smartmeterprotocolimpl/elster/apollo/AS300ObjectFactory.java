@@ -257,4 +257,31 @@ public class AS300ObjectFactory {
         }
         return (SpecialDaysTable) objectMap.get(getObisCodeProvider().getPassiveSpecialDayContract1ObisCode());
     }
+
+    /**
+     * Get the passive script table, used for TOU switches
+     *
+     * @return the ScriptTable linked to the passive TOU
+     */
+    public ScriptTable getScriptTablePassive() {
+        if (!objectMap.containsKey(getObisCodeProvider().getScriptTablePassiveObisCode())) {
+            ObisCode obisCode = getObisCodeProvider().getScriptTablePassiveObisCode();
+            this.objectMap.put(obisCode, new ScriptTable(this.meterProtocol, new ObjectReference(obisCode.getLN())));
+        }
+        return (ScriptTable) objectMap.get(getObisCodeProvider().getScriptTablePassiveObisCode());
+    }
+
+    /**
+     * Get the active script table, used for TOU switches
+     *
+     * @return the ScriptTable linked to the TOU
+     */
+    public ScriptTable getScriptTable() {
+        if (!objectMap.containsKey(getObisCodeProvider().getScriptTableObisCode())) {
+            ObisCode obisCode = getObisCodeProvider().getScriptTableObisCode();
+            this.objectMap.put(obisCode, new ScriptTable(this.meterProtocol, new ObjectReference(obisCode.getLN())));
+        }
+        return (ScriptTable) objectMap.get(getObisCodeProvider().getScriptTableObisCode());
+    }
+
 }

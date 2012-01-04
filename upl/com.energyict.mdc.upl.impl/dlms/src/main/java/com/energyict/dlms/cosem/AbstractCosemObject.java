@@ -30,6 +30,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	private static final byte		READRESPONSE_DATA_TAG				= 0;
 	private static final byte		READRESPONSE_DATAACCESSERROR_TAG	= 1;
 	private static final byte		READRESPONSE_DATABLOCK_RESULT_TAG	= 2;
+    private static final int        ASSUMED_MAX_HEADER_LENGTH           = 60;
 
 	protected ProtocolLink			protocolLink						= null;
 	private ObjectReference			objectReference						= null;
@@ -136,7 +137,12 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 			byte[] responseData = null;
 			if (this.objectReference.isLNReference()) {
 				byte[] request = buildSetRequest(getClassId(), this.objectReference.getLn(), (byte) attribute, data);
-				responseData = this.protocolLink.getDLMSConnection().sendRequest(request);
+                // Server max receive pdu size exceeded: we should use write request with block transfer
+                if (request.length >= getMaxRecPduServer()) {
+                    responseData = sendSetRequestWithBlockTransfer(attribute, data);
+                } else {
+                    responseData = this.protocolLink.getDLMSConnection().sendRequest(request);
+                }
 			} else if (this.objectReference.isSNReference()) {
 
 				// very dirty trick because there is a lot of legacy code that passes the attribute as
@@ -169,6 +175,40 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		}
 	}
 
+    private byte[] sendSetRequestWithBlockTransfer(int attribute, byte[] request) throws IOException {
+
+        // Some calculations that can be useful further on ...
+        final int maxBlockSize = getMaxRecPduServer(); // Keep some space for the headers ...
+        final int numberOfFullSizedBlocks = request.length / maxBlockSize;
+        final int lastBlockSize = request.length % maxBlockSize;
+        final int numberOfBlocksToSend = lastBlockSize != 0 ? numberOfFullSizedBlocks + 1 : numberOfFullSizedBlocks;
+
+        int blockNumber = 1;
+        int offset = 0;
+
+        while (true) {
+            // Check if this is the last block
+            boolean firstBlock = (blockNumber == 1);
+            boolean lastBlock = (blockNumber == numberOfBlocksToSend);
+
+            // Get the length and the data to send for this particular block
+            byte[] dataToSend = new byte[lastBlock ? lastBlockSize : maxBlockSize];
+            System.arraycopy(request, offset, dataToSend, 0, dataToSend.length);
+
+            // Send the block to the device. Validate the response of the last block
+            if (lastBlock) {
+                return sendSetRequestBlock(dataToSend, attribute, blockNumber, lastBlock, firstBlock);
+            } else {
+                sendSetRequestBlock(dataToSend, attribute, blockNumber, lastBlock, firstBlock);
+            }
+
+            // And finally, set everything ready for the next block
+            offset += dataToSend.length;
+            blockNumber++;
+
+        }
+    }
+
     private byte[] sendWriteRequestWithBlockTransfer(byte[] requestToSend) throws IOException {
 
         // Strip the legacy bytes and the original write request tag (3 + 1 = total 4 bytes to strip)
@@ -176,8 +216,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
         System.arraycopy(requestToSend, 4, request, 0, request.length);
 
         // Some calculations that can be useful further on ...
-        // WriteRequest with data block has 3 legacy + 9 header = 12 bytes extra
-        final int maxBlockSize = getMaxRecPduServer() - 12;
+        final int maxBlockSize = getMaxRecPduServer(); // Keep some space for the headers
         final int numberOfFullSizedBlocks = request.length / maxBlockSize;
         final int lastBlockSize = request.length % maxBlockSize;
         final int numberOfBlocksToSend = lastBlockSize != 0 ? numberOfFullSizedBlocks + 1 : numberOfFullSizedBlocks;
@@ -206,6 +245,68 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
         }
 
+    }
+
+    private byte[] sendSetRequestBlock(byte[] dataToSend, int attribute, int blockNumber, boolean lastBlock, boolean firstBlock) throws IOException {
+        byte[] request = firstBlock ?
+                new byte[3 + 13 + 6 + dataToSend.length + (dataToSend.length > 127 ? 2 : 0)] :
+                new byte[3 + 3 + 6 + dataToSend.length + (dataToSend.length > 127 ? 2 : 0)];
+
+        int ptr = 0;
+        // As usual, add the 3 legacy bytes :)
+        request[ptr++] = (byte) 0xE6; // Destination_LSAP
+        request[ptr++] = (byte) 0xE6; // Source_LSAP
+        request[ptr++] = 0x00;        // LLC_Quality
+
+        if (firstBlock) {
+            // Create the SetRequest with first data block header (13 bytes)
+            request[ptr++] = COSEM_SETREQUEST;
+            request[ptr++] = COSEM_SETREQUEST_WITH_FIRST_DATABLOCK; // Set request with first data blocks
+            request[ptr++] = this.invokeIdAndPriority; //invoke id and priority
+
+            request[ptr++] = (byte) (getClassId() >> 8); // Dlms class id
+            request[ptr++] = (byte) getClassId();
+
+            request[ptr++] = getObisCode().getLN()[0]; // ObisCode
+            request[ptr++] = getObisCode().getLN()[1];
+            request[ptr++] = getObisCode().getLN()[2];
+            request[ptr++] = getObisCode().getLN()[3];
+            request[ptr++] = getObisCode().getLN()[4];
+            request[ptr++] = getObisCode().getLN()[5];
+
+            request[ptr++] = (byte) (attribute & 0x0FF); // AttributeId
+            request[ptr++] = 0; // No selective access field (OPTIONAL)
+        } else {
+            // Create the SetRequest with data block header (3 bytes)
+            request[ptr++] = COSEM_SETREQUEST;
+            request[ptr++] = COSEM_SETREQUEST_WITH_DATABLOCK; // Set request with data blocks
+            request[ptr++] = this.invokeIdAndPriority; //invoke id and priority
+        }
+        request[ptr++] = (byte) (lastBlock ? 1 : 0); // LastBlock value
+
+        // Block number
+        request[ptr++] = (byte) (blockNumber >> 24);
+        request[ptr++] = (byte) (blockNumber >> 16);
+        request[ptr++] = (byte) (blockNumber >> 8);
+        request[ptr++] = (byte) (blockNumber >> 0);
+
+        if (dataToSend.length > 127) {
+            request[ptr++] = (byte) 0x082;
+            request[ptr++] = (byte) ((dataToSend.length >> 8) & 0x0FF);
+            request[ptr++] = (byte) (dataToSend.length & 0x0FF);
+        } else {
+            request[ptr++] = (byte) (dataToSend.length & 0x0FF);
+        }
+
+        for (int i = 0; i < dataToSend.length; i++) {
+            request[ptr++] = dataToSend[i];
+        }
+
+        byte[] response = this.protocolLink.getDLMSConnection().sendRequest(request);
+        if (!lastBlock) {
+            checkCosemPDUResponseHeader(response);
+        }
+        return response;
     }
 
     private byte[] sendWriteRequestBlock(byte[] dataToSend, int blockNumber, boolean lastBlock) throws IOException {
@@ -243,7 +344,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
     }
 
     private int getMaxRecPduServer() {
-        return getProtocolLink().getDLMSConnection().getApplicationServiceObject().getAssociationControlServiceElement().getXdlmsAse().getMaxRecPDUServerSize();
+        return getProtocolLink().getDLMSConnection().getApplicationServiceObject().getAssociationControlServiceElement().getXdlmsAse().getMaxRecPDUServerSize() - ASSUMED_MAX_HEADER_LENGTH;
     }
 
     /**
@@ -1169,6 +1270,19 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
                     switch (responseData[i]) {
                         case COSEM_SETRESPONSE_NORMAL: {
                             i++; // skip COSEM_SETRESPONSE_NORMAL tag
+                            i++; // skip invoke id & priority
+                            evalDataAccessResult(responseData[i]);
+                            receiveBuffer.addArray(responseData, i+1);
+                            return receiveBuffer.getArray();
+                        }
+                        case COSEM_SETRESPONSE_FOR_DATABLOCK: {
+                            i++; // skip COSEM_SETRESPONSE_FOR_DATABLOCK tag
+                            i++; // skip invoke id & priority
+                            receiveBuffer.addArray(responseData, i);
+                            return receiveBuffer.getArray();
+                        }
+                        case COSEM_SETRESPONSE_FOR_LAST_DATABLOCK: {
+                            i++; // skip COSEM_SETRESPONSE_FOR_DATABLOCK tag
                             i++; // skip invoke id & priority
                             evalDataAccessResult(responseData[i]);
                             receiveBuffer.addArray(responseData, i+1);

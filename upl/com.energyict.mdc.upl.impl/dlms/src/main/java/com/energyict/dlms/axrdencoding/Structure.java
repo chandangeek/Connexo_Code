@@ -30,11 +30,11 @@ public class Structure extends AbstractDataType {
 
 	/** Creates a new instance of Structure */
 	public Structure() {
-		dataTypes = new ArrayList<AbstractDataType>();
+        this(new AbstractDataType[0]);
 	}
 
     public Structure(AbstractDataType... dataTypes) {
-        this();
+        this.dataTypes = new ArrayList<AbstractDataType>();
         for (AbstractDataType dataType : dataTypes) {
             addDataType(dataType);
         }
