@@ -56,6 +56,7 @@ abstract public class VDEWRegisterDataParse {
 	abstract protected ProtocolLink getProtocolLink();
 	abstract protected int getOffset();
 	abstract protected int getLength();
+    abstract protected String getDateFormat();
 
 	/** Creates a new instance of VDEWRegisterDataParse */
 	public VDEWRegisterDataParse() {
@@ -429,42 +430,35 @@ abstract public class VDEWRegisterDataParse {
 		return calendar.getTime();
 	}
 
-	private Date parseDate(byte[] rawdata) throws IOException {
-		Calendar calendar = null;
-		int mode = -1;
-		byte[] timedate = new byte[12];
+    private Date parseDate(byte[] rawdata) throws IOException {
+        Calendar calendar = null;
+        byte[] timedate = new byte[12];
 
-		if ((rawdata.length%2) != 0) {
-			throw new IOException("parseDate, rawdata wrong length ("+rawdata.length+")!");
-		}
-
-		if (rawdata.length == 14) {
-			timedate = new byte[12];
-			mode = ProtocolUtils.bcd2nibble(rawdata,0);
-			ProtocolUtils.arrayCopy(ProtocolUtils.getSubArray2(rawdata,1,6),timedate,0);
-			ProtocolUtils.arrayCopy(ProtocolUtils.getSubArray2(rawdata,8,6),timedate,6);
-			if (mode == MODE_UTCTIME) {
-				calendar = ProtocolUtils.getCleanCalendar(TimeZone.getTimeZone("GMT"));
-			} else {
-				calendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
-			}
-		}
-		else {
-			ProtocolUtils.arrayCopy(rawdata,timedate,0);
-			calendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
-		}
-
-        String dateFormat = "yy/mm/dd";
-        if (this instanceof VDEWRegister) {
-            dateFormat = ((VDEWRegister) this).getDateFormat();
+        if ((rawdata.length % 2) != 0) {
+            throw new IOException("parseDate, rawdata wrong length (" + rawdata.length + ")!");
         }
-    	StringTokenizer tokenizer = new StringTokenizer(dateFormat,"/");
 
-		byte[] data = ProtocolUtils.convert2ascii(timedate);
-		calendar.set(Calendar.HOUR_OF_DAY,ProtocolUtils.BCD2hex(data[0]));
-		calendar.set(Calendar.MINUTE,ProtocolUtils.BCD2hex(data[1]));
-		calendar.set(Calendar.SECOND,ProtocolUtils.BCD2hex(data[2]));
+        if (rawdata.length == 14) {
+            int mode = ProtocolUtils.bcd2nibble(rawdata, 0);
+            ProtocolUtils.arrayCopy(ProtocolUtils.getSubArray2(rawdata, 1, 6), timedate, 0);
+            ProtocolUtils.arrayCopy(ProtocolUtils.getSubArray2(rawdata, 8, 6), timedate, 6);
+            calendar = ProtocolUtils.getCleanCalendar((mode == MODE_UTCTIME) ? TimeZone.getTimeZone("GMT") : getProtocolLink().getTimeZone());
+        } else if (rawdata.length == 10) {
+            Arrays.fill(timedate, (byte) '0');
+            ProtocolUtils.arrayCopy(ProtocolUtils.getSubArray2(rawdata, 0, 4), timedate, 0);
+            ProtocolUtils.arrayCopy(ProtocolUtils.getSubArray2(rawdata, 4, 6), timedate, 6);
+            calendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
+        } else {
+            ProtocolUtils.arrayCopy(rawdata, timedate, 0);
+            calendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
+        }
 
+        byte[] data = ProtocolUtils.convert2ascii(timedate);
+        calendar.set(Calendar.HOUR_OF_DAY, ProtocolUtils.BCD2hex(data[0]));
+        calendar.set(Calendar.MINUTE, ProtocolUtils.BCD2hex(data[1]));
+        calendar.set(Calendar.SECOND, ProtocolUtils.BCD2hex(data[2]));
+
+        StringTokenizer tokenizer = new StringTokenizer(getDateFormat(), "/");
         for (int i = 3; i < 6; i++) {
             String token = tokenizer.nextToken();
             if (token.equals("yy")) {
@@ -477,7 +471,7 @@ abstract public class VDEWRegisterDataParse {
         }
 
         return calendar.getTime();
-	}
+    }
 
 	private Date parseSTimeSDate(byte[] rawdata) throws IOException {
 		if (rawdata.length != 14) {

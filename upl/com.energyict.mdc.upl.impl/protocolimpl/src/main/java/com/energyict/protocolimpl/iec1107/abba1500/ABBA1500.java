@@ -161,7 +161,6 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
      * @param properties <br>
      * @throws MissingPropertyException <br>
      * @throws InvalidPropertyException <br>
-     * @see AbstractMeterProtocol#validateProperties
      */
     public void setProperties(Properties properties) throws MissingPropertyException , InvalidPropertyException {
         validateProperties(properties);
@@ -204,17 +203,16 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
             iFirmwareVersion = properties.getProperty("FirmwareVersion", "3.03").trim();
             this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
 
-            strDateFormat = properties.getProperty("DateFormat","yy/MM/dd").trim().toLowerCase();
+            strDateFormat = properties.getProperty("DateFormat", "yy/MM/dd").trim().toLowerCase();
             // Check for valid DateFormat
-            StringTokenizer tokenizer = new StringTokenizer(strDateFormat,"/");
-            for (int i=0; i<3; i++){
+            StringTokenizer tokenizer = new StringTokenizer(strDateFormat, "/");
+            for (int i = 0; i < 3; i++) {
                 String token = tokenizer.nextToken();
                 if (!token.equals("mm") && !token.equals("yy") && !token.equals("dd")) {
                     throw new InvalidPropertyException("Invalid format of DateFormat property: " + strDateFormat + "! Valid formats should match pattern 'xx/xx/xx'.");
                 }
             }
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());
         }
     }
