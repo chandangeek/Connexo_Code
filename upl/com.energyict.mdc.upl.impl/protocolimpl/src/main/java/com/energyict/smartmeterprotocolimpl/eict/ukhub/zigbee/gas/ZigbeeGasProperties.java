@@ -19,6 +19,7 @@ import java.util.List;
 public class ZigbeeGasProperties extends DlmsProtocolProperties {
 
     public static final String DEFAULT_ZIGBEE_GAS_CLIENT_MAC_ADDRESS = "64";
+    public static final int FIRMWARE_CLIENT = 0x50;
 
     /**
      * Default it starts at 30, but if more devices are supported then it can go from 30 to 45
@@ -82,6 +83,10 @@ public class ZigbeeGasProperties extends DlmsProtocolProperties {
 
     public void setSecurityProvider(final NTASecurityProvider ntaSecurityProvider) {
         this.securityProvider = ntaSecurityProvider;
+    }
+
+    public boolean isFirmwareUpdateSession() {
+        return getClientMacAddress() == FIRMWARE_CLIENT;
     }
 
     @Override

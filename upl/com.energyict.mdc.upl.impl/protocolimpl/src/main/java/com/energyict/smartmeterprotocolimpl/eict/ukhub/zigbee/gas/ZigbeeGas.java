@@ -47,6 +47,15 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
         return this.zigbeeGasMessaging;
     }
 
+    public Date getTime() throws IOException {
+        if (getProperties().isFirmwareUpdateSession()) {
+            getLogger().severe("Using firmware update client. Skipping clock readout!");
+            return new Date();
+        } else {
+            return super.getTime();
+        }
+    }
+
     /**
      * Getter for the {@link com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties}
      *
@@ -82,13 +91,18 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
      * @throws java.io.IOException Thrown in case of an exception
      */
     public String getFirmwareVersion() throws IOException {
-        try {
-            StringBuilder firmware = new StringBuilder();
-            firmware.append(getMeterInfo().getFirmwareVersionMonolitic());
-            return firmware.toString();
-        } catch (IOException e) {
-            getLogger().finest("Could not fetch the firmwareVersion. " + e.getMessage());
-            return "UnKnown version";
+        if (getProperties().isFirmwareUpdateSession()) {
+            getLogger().severe("Using firmware update client. Skipping firmware version readout!");
+            return "";
+        } else {
+            try {
+                StringBuilder firmware = new StringBuilder();
+                firmware.append(getMeterInfo().getFirmwareVersionMonolitic());
+                return firmware.toString();
+            } catch (IOException e) {
+                getLogger().finest("Could not fetch the firmwareVersion. " + e.getMessage());
+                return "UnKnown version";
+            }
         }
     }
 
@@ -99,12 +113,17 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
      * @throws java.io.IOException thrown in case of an exception
      */
     public String getMeterSerialNumber() throws IOException {
-        try {
-            return getMeterInfo().getSerialNumber();
-        } catch (IOException e) {
-            String message = "Could not retrieve the SerialNumber of the meter. " + e.getMessage();
-            getLogger().finest(message);
-            throw new IOException(message);
+        if (getProperties().isFirmwareUpdateSession()) {
+            getLogger().severe("Using firmware update client. Skipping serial number check!");
+            return getSerialNumber();
+        } else {
+            try {
+                return getMeterInfo().getSerialNumber();
+            } catch (IOException e) {
+                String message = "Could not retrieve the SerialNumber of the meter. " + e.getMessage();
+                getLogger().finest(message);
+                throw new IOException(message);
+            }
         }
     }
 
