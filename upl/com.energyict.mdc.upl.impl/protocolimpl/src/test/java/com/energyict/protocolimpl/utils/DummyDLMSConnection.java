@@ -21,7 +21,7 @@ public class DummyDLMSConnection implements DLMSConnection {
 	private byte[] responseByte;
 	private byte[] sentBytes;
 
-    private ApplicationServiceObject aso = null;
+    private ApplicationServiceObject aso = new DummyApplicationServiceObject();
 
 	/**
 	 *
