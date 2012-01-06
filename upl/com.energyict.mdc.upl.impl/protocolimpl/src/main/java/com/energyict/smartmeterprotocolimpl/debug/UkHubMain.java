@@ -66,7 +66,7 @@ public class UkHubMain extends AbstractSmartDebuggingMain<UkHub> {
     }
 
     public void doDebug() throws LinkException, IOException {
-        System.out.println("Message result = " + getMeterProtocol().queryMessage(new MessageEntry("<Read_ZigBee_Status/>", "")).isSuccess());
+        System.out.println(getMeterProtocol().getFirmwareVersion());
     }
 
 }

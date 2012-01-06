@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.debug;
 
+import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.*;
 import com.energyict.dialer.coreimpl.OpticalDialer;
 import com.energyict.obis.ObisCode;
@@ -71,8 +72,18 @@ public abstract class AbstractSmartDebuggingMain<P extends SmartMeterProtocol> {
         }
     }
 
-    public void initAndConnectMeterProtocol() throws LinkException, IOException {
+    public void initAndConnectMeterProtocol() throws LinkException, IOException, BusinessException {
         getMeterProtocol().addProperties(getProperties());
+
+        boolean wakeUpSuccess = true;
+        if (getMeterProtocol() instanceof WakeUpProtocolSupport) {
+            wakeUpSuccess = ((WakeUpProtocolSupport) getMeterProtocol()).executeWakeUp(0, getDialer(), getLogger());
+        }
+
+        if (!wakeUpSuccess) {
+            throw new IOException("WakeUp failed!");
+        }
+
         getMeterProtocol().init(getDialer().getInputStream(), getDialer().getOutputStream(), getTimeZone(), getLogger());
         if (getDialer() instanceof OpticalDialer) {
             if (getMeterProtocol() instanceof HHUEnabler) {

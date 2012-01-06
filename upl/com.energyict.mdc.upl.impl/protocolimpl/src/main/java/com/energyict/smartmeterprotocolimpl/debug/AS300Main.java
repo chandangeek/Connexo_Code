@@ -104,7 +104,7 @@ public class AS300Main extends AbstractSmartDebuggingMain<AS300> {
     }
 
     private static void setIpSettings(AS300Main main) {
-        main.setPhoneNumber("10.113.0.21:4059");
+        main.setPhoneNumber("10.113.0.20:4059");
     }
 
     private static void setOpticalSettings(AS300Main main) {
@@ -116,7 +116,7 @@ public class AS300Main extends AbstractSmartDebuggingMain<AS300> {
     }
 
     public void doDebug() throws LinkException, IOException {
-
+        System.out.println(getMeterProtocol().getObjectFactory().getActivityCalendar().readCalendarNameActive());
     }
 
 }
