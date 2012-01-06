@@ -19,6 +19,8 @@ import org.apache.commons.logging.LogFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Logger;
+
 /**
  * @author Koen
  */
@@ -2130,6 +2132,17 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
     public ProtocolLink getProtocolLink() {
         return protocolLink;
+    }
+
+    /**
+     * Get the current logger from the protocol link. If there is no logger defined,
+     * create a new logger using the class name as logger name.
+     *
+     * @return The protocolLink logger or a new logger.
+     */
+    public Logger getLogger() {
+        Logger logger = getProtocolLink() != null ? getProtocolLink().getLogger() : null;
+        return logger != null ? logger : Logger.getLogger(getClass().getName());
     }
 
     public ObisCode getObisCode() {

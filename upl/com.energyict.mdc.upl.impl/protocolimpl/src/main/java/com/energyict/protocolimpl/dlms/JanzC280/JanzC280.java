@@ -128,7 +128,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         if (firmwareVersion == null) {
             Data data = getCosemObjectFactory().getData(OBISCODE_ACTIVE_FIRMWARE);
-            firmwareVersion = AXDRDecoder.decode(data.getData()).getVisibleString().getStr().trim();
+            firmwareVersion = AXDRDecoder.decode(data.getRawValueAttr()).getVisibleString().getStr().trim();
         }
         return firmwareVersion;
     }

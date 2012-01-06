@@ -6,7 +6,6 @@ import java.io.IOException;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.ObjectIdentification;
-import java.math.*;
 
 public class PLCCMeterContactorState extends AbstractPLCCObject {
 
@@ -35,7 +34,7 @@ public class PLCCMeterContactorState extends AbstractPLCCObject {
     }    
     
     public int readState() throws IOException {
-        value = (Unsigned8)AXDRDecoder.decode(data.getData());
+        value = (Unsigned8)AXDRDecoder.decode(data.getRawValueAttr());
         return value.getValue();
     }
     

@@ -37,7 +37,7 @@ public class PLCCCurrentDateTime extends AbstractPLCCObject {
             Data data = getCosemObjectFactory().getData( getObisCode() );
 
             TimeZone tz = getPLCCObjectFactory().getConcentrator().getTimeZone();
-            dateTime = new DateTime( data.getData(), 0, tz );
+            dateTime = new DateTime( data.getRawValueAttr(), 0, tz );
             dSTActive = (dateTime.getStatus()&0x80)==0x80;
 
         }

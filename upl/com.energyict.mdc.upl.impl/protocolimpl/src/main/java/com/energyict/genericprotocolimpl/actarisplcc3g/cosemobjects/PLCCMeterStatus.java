@@ -21,7 +21,7 @@ public class PLCCMeterStatus extends AbstractPLCCObject {
     }
 
     protected void doInvoke() throws IOException {
-        status = AXDRDecoder.decode(getCosemObjectFactory().getData(getId().getObisCode()).getData()).toBigDecimal();
+        status = AXDRDecoder.decode(getCosemObjectFactory().getData(getId().getObisCode()).getRawValueAttr()).toBigDecimal();
     }
 
     public BigDecimal getStatus() throws IOException {

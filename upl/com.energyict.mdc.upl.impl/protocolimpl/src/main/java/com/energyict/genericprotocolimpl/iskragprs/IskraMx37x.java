@@ -490,7 +490,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
     private Unit getMbusUnit(ObisCode obisCode) throws IOException {
         try {
-            String vifResult = Integer.toString((int) getCosemObjectFactory().getData(obisCode).getData()[2], 16);
+            String vifResult = Integer.toString((int) getCosemObjectFactory().getData(obisCode).getRawValueAttr()[2], 16);
             ValueInformationfieldCoding vif = ValueInformationfieldCoding.findPrimaryValueInformationfieldCoding(Integer.parseInt(vifResult, 16), -1);
             return vif.getUnit();
         } catch (IOException e) {
@@ -938,7 +938,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     protected String getMbusSerial(ObisCode oc) throws IOException {
         try {
             String str = "";
-            byte[] data = getCosemObjectFactory().getData(oc).getData();
+            byte[] data = getCosemObjectFactory().getData(oc).getRawValueAttr();
             byte[] parseStr = new byte[data.length - 2];
             System.arraycopy(data, 2, parseStr, 0, parseStr.length);
             if (com.energyict.genericprotocolimpl.common.ParseUtils.checkIfAllAreChars(parseStr)) {

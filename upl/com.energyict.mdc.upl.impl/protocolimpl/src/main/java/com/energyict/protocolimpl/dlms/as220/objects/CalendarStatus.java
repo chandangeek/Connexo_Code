@@ -45,7 +45,7 @@ public class CalendarStatus extends Data {
 
     private int getStatus() throws IOException {
         if (status == -1) {
-            byte[] rawData = getData();
+            byte[] rawData = getRawValueAttr();
             AbstractDataType dataType = AXDRDecoder.decode(rawData);
             if (dataType != null) {
                 this.status = dataType.intValue();

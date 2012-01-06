@@ -12,7 +12,6 @@ import com.energyict.dlms.cosem.Register;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.nta.eventhandling.*;
-import com.energyict.mdw.core.UserFile;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
@@ -1170,7 +1169,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	 */
 	public final String getFirmwareVersion() throws IOException {
 		if (this.firmwareVersion == null) {
-			this.firmwareVersion = AXDRDecoder.decode(this.getCosemObjectFactory().getData(OBISCODE_ACTIVE_FIRMWARE).getData()).getOctetString().stringValue();
+			this.firmwareVersion = AXDRDecoder.decode(this.getCosemObjectFactory().getData(OBISCODE_ACTIVE_FIRMWARE).getRawValueAttr()).getOctetString().stringValue();
 		}
 
 		return this.firmwareVersion;

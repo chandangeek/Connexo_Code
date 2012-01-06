@@ -47,7 +47,7 @@ public class PLCCMeterIdentification extends AbstractPLCCObject {
     }
 
     protected void doInvoke() throws IOException {
-        AbstractDataType o = AXDRDecoder.decode(getCosemObjectFactory().getData(getId().getObisCode()).getData());
+        AbstractDataType o = AXDRDecoder.decode(getCosemObjectFactory().getData(getId().getObisCode()).getRawValueAttr());
         if (o.isVisibleString()) {
             setIdentification(o.getVisibleString().getStr());
             constructorCode = Integer.parseInt(getIdentification().substring(0,2));

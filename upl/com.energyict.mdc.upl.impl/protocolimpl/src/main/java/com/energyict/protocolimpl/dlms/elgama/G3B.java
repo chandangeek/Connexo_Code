@@ -120,7 +120,7 @@ public class G3B extends AbstractDLMSProtocol {
     public final String getFirmwareVersion() throws IOException {
         if (firmwareVersion == null) {
             Data data = getCosemObjectFactory().getData(OBISCODE_ACTIVE_FIRMWARE);
-            firmwareVersion = AXDRDecoder.decode(data.getData()).getVisibleString().getStr();
+            firmwareVersion = AXDRDecoder.decode(data.getRawValueAttr()).getVisibleString().getStr();
         }
         return firmwareVersion;
     }
