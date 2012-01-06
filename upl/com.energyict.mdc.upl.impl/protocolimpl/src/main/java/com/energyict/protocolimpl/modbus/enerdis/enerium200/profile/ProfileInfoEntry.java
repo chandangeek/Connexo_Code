@@ -1,9 +1,5 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200.profile;
 
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
-
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
@@ -11,6 +7,10 @@ import com.energyict.protocolimpl.base.ToStringBuilder;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.Utils;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.TimeDateParser;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 public class ProfileInfoEntry {
 
@@ -64,8 +64,14 @@ public class ProfileInfoEntry {
 		TimeDateParser td_parser = new TimeDateParser(this.modBus.gettimeZone());
 		
 		this.entryID = ProtocolUtils.getShort(rawData, ENTRYID_OFFSET);
-		this.channels = (ProtocolUtils.getShort(rawData, CHANNELS_OFFSET) >> 4) & 0x000000FF;
-		
+//		this.channels = (ProtocolUtils.getShort(rawData, CHANNELS_OFFSET) >> 4) & 0x000000FF;
+        /** Communication-679:   Reading of load profiles was giving wrong results!
+         *
+         * ProtocolUtils.getShort(rawData, CHANNELS_OFFSET) = 0xFF00 (if all 8 channels are configured)
+         * > So the shift must be with 8 bits to right, not 4.
+         **/
+        this.channels = (ProtocolUtils.getShort(rawData, CHANNELS_OFFSET) >> 8) & 0x000000FF;
+
 		this.numberOfchannels = 0;
 		for (int i = 0; i < 8; i++) {
 			if ((this.channels & (0x01 << i)) != 0x00) {

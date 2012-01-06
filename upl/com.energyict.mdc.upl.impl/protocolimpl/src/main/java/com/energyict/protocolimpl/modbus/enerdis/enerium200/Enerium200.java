@@ -1,15 +1,6 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.Modbus;
@@ -17,6 +8,9 @@ import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.MeterInfo;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.Utils;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.TimeDateParser;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.profile.Profile;
+
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Class that implements the Enerdis Enerium200 modbus protocol.
@@ -53,7 +47,8 @@ public class Enerium200 extends Modbus {
 	protected void doTheDisConnect() throws IOException {}
 
 	protected List doTheGetOptionalKeys() {
-		List returnList = new ArrayList(0);
+		List returnList = new ArrayList();
+        returnList.add("Connection");
 		return returnList;
 	}
 

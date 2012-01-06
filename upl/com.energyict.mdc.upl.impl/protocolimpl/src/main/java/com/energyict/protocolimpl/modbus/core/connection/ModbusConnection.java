@@ -162,7 +162,7 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
      * @throws NestedIOException
      * @throws IOException
      */
-    private ResponseData receiveDataLength(RequestData requestData) throws NestedIOException, IOException {
+    protected ResponseData receiveDataLength(RequestData requestData) throws NestedIOException, IOException {
         long protocolTimeout;
         int kar;
         int state = STATE_WAIT_FOR_ADDRESS;
@@ -237,9 +237,9 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
                     }
                     break; // STATE_WAIT_FOR_LENGTH
 
-                    // we should not use the length to check if the vcomplete frame is received. However, the problem lays within java not behaving 
+                    // we should not use the length to check if the complete frame is received. However, the problem lays within java not behaving
                     // realtime enough to implement the correct Modbus Phy layer timing T = 3.5 kar
-                    // Gaps between receiving data from the underlaying serial logic can take up to 30 ms...
+                    // Gaps between receiving data from the underlying serial logic can take up to 30 ms...
                     case STATE_WAIT_FOR_DATA: {
                         resultDataArrayOutputStream.write(kar);
                         if (--len <= 0) {
@@ -302,7 +302,7 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
      * @throws NestedIOException
      * @throws IOException
      */
-    private ResponseData receiveDataModbus(RequestData requestData) throws NestedIOException, IOException {
+    protected ResponseData receiveDataModbus(RequestData requestData) throws NestedIOException, IOException {
         long protocolTimeout, interframe;
         int kar;
         int state = STATE_WAIT_FOR_ADDRESS;

@@ -10,43 +10,19 @@
 
 package com.energyict.protocolimpl.modbus.core;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.StringTokenizer;
-import java.util.TimeZone;
-
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.discover.Discover;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
-import com.energyict.protocolimpl.base.AbstractProtocol;
-import com.energyict.protocolimpl.base.Encryptor;
-import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
+import com.energyict.protocolimpl.modbus.core.connection.ModbusTCPConnection;
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.util.*;
+
 /**
  *
  * @author Koen
@@ -74,7 +50,9 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
     int physicalLayer;
     int firstTimeDelay;
     String meterFirmwareVersion;
-    
+    int connection;
+    int nodeAddress;
+
     private int registerOrderFixedPoint;
     private int registerOrderFloatingPoint;
     
@@ -128,6 +106,8 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
         setRegisterOrderFloatingPoint(Integer.parseInt(properties.getProperty("RegisterOrderFloatingPoint","1").trim()));
         firstTimeDelay = Integer.parseInt(properties.getProperty("FirstTimeDelay", "0").trim());
         meterFirmwareVersion = properties.getProperty("MeterFirmwareVersion", "");
+        this.connection = Integer.parseInt(properties.getProperty("Connection", "0").trim());
+        nodeAddress = Integer.parseInt(properties.getProperty("NodeAddress", "255").trim());    // Only used in Modbus TCP/IP mode
         doTheValidateProperties(properties);
     }
     
@@ -148,7 +128,11 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
     }
     
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
+        if (connection == 1) {  // 1: use Modbus TCP/IP Frame Format
+            modbusConnection = new ModbusTCPConnection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInterframeTimeout(), responseTimeout, physicalLayer, nodeAddress);
+        } else {                // use normal Modbus Frame Format
         modbusConnection = new ModbusConnection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInterframeTimeout(), responseTimeout, physicalLayer);
+        }
         return modbusConnection;
     }
     
