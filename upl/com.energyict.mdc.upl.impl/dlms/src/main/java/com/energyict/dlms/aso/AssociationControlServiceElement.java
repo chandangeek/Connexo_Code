@@ -216,9 +216,6 @@ public class AssociationControlServiceElement {
     protected byte[] buildAARQApdu() throws IOException {
         int t = 0;
         byte[] aarq = new byte[1024];
-        // byte
-        aarq[t++] = DLMSCOSEMGlobals.AARQ_TAG;
-        aarq[t++] = 0;
 
         if (getACSEProtocolVersion() != null) { // Optional parameter
             System.arraycopy(getACSEProtocolVersion(), 0, aarq, t,
@@ -282,8 +279,12 @@ public class AssociationControlServiceElement {
             t += getUserInformation().length;
         }
 
-        aarq[1] = (byte) (t - 2);
-        return ProtocolUtils.getSubArray(aarq, 0, t - 1);
+        byte[] size = DLMSUtils.getAXDRLengthEncoding(t);
+        byte[] completeAarq = new byte[1 + size.length + t];
+        completeAarq[0] = DLMSCOSEMGlobals.AARQ_TAG;
+        System.arraycopy(size, 0, completeAarq, 1, size.length);
+        System.arraycopy(aarq, 0, completeAarq, 1 + size.length, t);
+        return completeAarq;
     }
 
     /**
