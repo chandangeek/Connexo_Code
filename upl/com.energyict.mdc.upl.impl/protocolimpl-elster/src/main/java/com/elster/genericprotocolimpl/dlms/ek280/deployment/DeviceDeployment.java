@@ -12,7 +12,8 @@ import com.energyict.mdw.shadow.RtuShadow;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -82,17 +83,25 @@ public class DeviceDeployment {
 
         try {
             RtuShadow shadow = info.getRtuType().newRtuShadow();
-            shadow.setName(createDeviceName(info));
-            shadow.setExternalName(createExternalName(info));
-            shadow.setSerialNumber(createSerialNumber(info));
-            shadow.setDeviceId(createDeviceId(info));
-            shadow.setDialHomeId(createDialHomeId(info));
+            shadow.setName(createDeviceName(info)); // EK280 serial
+            shadow.setExternalName(createExternalName(info)); // "rtu/" + EK280serial
+            shadow.setDeviceId(createDeviceId(info)); // EK280 serial number
+            shadow.setDialHomeId(createDialHomeId(info)); // EK280 serial number
+
+            // The following values will be updated after we establish an association to the device
+            shadow.setNodeAddress(""); // Keep it empty for now. Should contain PDR number.
+            shadow.setNodeAddress(""); // Keep it empty for now. Should contain PDR number.
+            shadow.setPhoneNumber(""); // Keep it empty for now. Should contain device phone number.
+
+            // For now, enter (the calculated last reading. This will be updated after we sign on and fetch the installation date
+            Date channelBackLogDate = getProperties().getChannelBackLogDate();
+            shadow.setLastReading(channelBackLogDate);
+            shadow.setLastLogbook(channelBackLogDate);
             ShadowList<ChannelShadow> channelShadows = shadow.getChannelShadows();
-            shadow.setLastReading(getCalculatedLastReading());
-            shadow.setLastLogbook(getCalculatedLastReading());
             for (ChannelShadow channelShadow : channelShadows) {
-                channelShadow.setLastReading(getCalculatedLastReading());
+                channelShadow.setLastReading(channelBackLogDate);
             }
+
             if (info.getFolder() != null) {
                 shadow.setFolderId(info.getFolder().getId());
             }
@@ -112,25 +121,11 @@ public class DeviceDeployment {
         }
     }
 
-    private Date getCalculatedLastReading() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_YEAR, (getProperties().getChannelBackLog()) * (-1));
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        return calendar.getTime();
-    }
-
     private String createDialHomeId(DeviceDiscoverInfo info) {
         return info.getCallHomeId();
     }
 
     private String createDeviceId(DeviceDiscoverInfo info) {
-        return "";
-    }
-
-    private String createSerialNumber(DeviceDiscoverInfo info) {
         return info.getSerialNumber();
     }
 

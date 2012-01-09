@@ -1,16 +1,19 @@
 package com.elster.genericprotocolimpl.dlms.ek280;
 
+import com.elster.genericprotocolimpl.dlms.ek280.deployment.DeploymentDataFetcher;
 import com.elster.genericprotocolimpl.dlms.ek280.deployment.DeviceDeployment;
 import com.elster.genericprotocolimpl.dlms.ek280.discovery.DeviceDiscover;
 import com.elster.genericprotocolimpl.dlms.ek280.discovery.DeviceDiscoverInfo;
 import com.elster.genericprotocolimpl.dlms.ek280.executors.CommunicationScheduleExecutor;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.Environment;
+import com.energyict.cpo.ShadowList;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.core.StreamConnection;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.core.*;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdw.shadow.ChannelShadow;
+import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.RtuDiscoveredEvent;
@@ -29,7 +32,6 @@ public class EK280 implements GenericProtocol, MessageProtocol, FirmwareUpdateMe
 
     private static final String REQUEST_INVALIDDATA = "<REQUEST>INVALIDDATA</REQUEST>";
     private static final String REQUEST_OK = "<REQUEST>OK</REQUEST>";
-    private static final ObisCode INSTALLATION_DATE_OBIS = ObisCode.fromString("0.0.96.52.0.255");
 
     private Rtu rtu = null;
     private com.elster.protocolimpl.dlms.EK280 dlmsProtocol = null;
@@ -90,33 +92,59 @@ public class EK280 implements GenericProtocol, MessageProtocol, FirmwareUpdateMe
     }
 
     /**
-     * In this method we should read all the data that's available in the device and 
+     * In this method we should read all the data that's available in the device and
      * required by the customer code to finish the deployment process successfully.
      * We also fetch the installation date here and use it as last reading for the new rtu.
      */
     private void readDiscoveryData() {
         if (isDiscoverySession()) {
             getLogger().warning("Discovery session: Reading extra discovery data!");
+            DeploymentDataFetcher dataFetcher = new DeploymentDataFetcher(this);
+            Date installationDate = dataFetcher.readInstallationDate();
+            String pdr = dataFetcher.readPdr();
+            String phoneNumber = dataFetcher.readPhoneNumber();
+            String meterSerial = dataFetcher.readMeterSerial();
 
-            // Read the installation date if required
-            if (getProperties().isExtractInstallationDate()) {
-                try {
-                    RegisterValue registerValue = getDlmsProtocol().readRegister(INSTALLATION_DATE_OBIS);
-                    if ((registerValue.getText() == null) || (registerValue.getText().length() == 0)) {
-                        throw new IOException("Unable to get installation date from empty register text value!");
+            getLogger().warning("Discovery session: Installation date [" + installationDate + "]");
+            getLogger().warning("Discovery session: PDR [" + pdr + "]");
+            getLogger().warning("Discovery session: Phone number [" + phoneNumber + "]");
+            getLogger().warning("Discovery session: Gas meter serial [" + meterSerial + "]");
+
+            RtuShadow shadow = getRtu().getShadow();
+            shadow.setSerialNumber(meterSerial);
+            shadow.setNodeAddress(pdr);
+            shadow.setPhoneNumber(phoneNumber);
+
+            Date lastReading = shadow.getLastReading() == null ? getProperties().getChannelBackLogDate() : shadow.getLastReading();
+            if (installationDate != null) {
+                if (installationDate.after(lastReading)) {
+                    getLogger().warning("Discovery session: Updating last reading on rtu and channels to installation date [" + installationDate + "]");
+                    shadow.setLastReading(installationDate);
+                    shadow.setLastLogbook(installationDate);
+                    ShadowList<ChannelShadow> channelShadows = shadow.getChannelShadows();
+                    for (ChannelShadow channelShadow : channelShadows) {
+                        channelShadow.setLastReading(installationDate);
                     }
-
-                    // TODO: Add the actual implementation of the installation date
-
-                } catch (IOException e) {
-                    getLogger().severe("Discovery session: Unable to read installation date [" + INSTALLATION_DATE_OBIS + "]. Using ChannelBackLog property to calculate installation date.");
+                } else {
+                    getLogger().warning("Discovery session: Last reading limited by channel backlog property [" + getProperties().getChannelBackLog() + "].");
                 }
             } else {
-                getLogger().severe("Discovery session: Extract installation date from [" + INSTALLATION_DATE_OBIS + "] disabled. Using ChannelBackLog property to calculate installation date.");
+                getLogger().severe("Discovery session: Last reading of device is not supposed to be 'null'! Using installation date as last reading.");
+
             }
 
-            // TODO: Implement the other fields that are required by the customer code. Meter caliber, type, serial number, digits ...
+            // TODO: Implement the other fields that are required by the customer code. Meter caliber, type, digits ...
 
+            try {
+                rtu.update(shadow);
+            } catch (SQLException e) {
+                getLogger().severe("Discovery session: Received SQLException while updating rtu fields! [" + e.getMessage() + "]");
+            } catch (BusinessException e) {
+                getLogger().severe("Discovery session: Received BusinessException while updating rtu fields! [" + e.getMessage() + "]");
+            }
+
+            this.properties = null; // Re-init the properties with the new Rtu values
+            
         }
     }
 

@@ -5,8 +5,7 @@ import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocolimpl.base.AbstractProtocolProperties;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -52,10 +51,21 @@ public class EK280Properties extends AbstractProtocolProperties {
     public String getFolderExternalName() {
         return getStringValue(FOLDER_EXT_NAME, DEFAULT_FOLDER_EXT_NAME);
     }
-
+    
     @ProtocolProperty
     public int getChannelBackLog() {
         return getIntProperty(CHANNEL_BACKLOG, DEFAULT_CHANNEL_BACKLOG);
+    }
+
+    @ProtocolProperty
+    public Date getChannelBackLogDate() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_YEAR, (getChannelBackLog()) * (-1));
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
     }
 
     @ProtocolProperty

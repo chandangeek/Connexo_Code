@@ -64,7 +64,7 @@ public class DummyDlms extends Dlms {
 
     @Override
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2011-11-29 16:43:32 +0100 (di, 29 nov 2011) $";
     }
 
     @Override

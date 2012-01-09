@@ -32,14 +32,19 @@ public class PropertiesFetcher {
     private Properties getPropertiesFromRtu(Rtu rtu) {
         Properties properties = rtu.getProperties();
 
-        properties.setProperty(MeterProtocol.SERIALNUMBER, replaceNullValue(rtu.getSerialNumber()));
         properties.setProperty(MeterProtocol.PROFILEINTERVAL, replaceNullValue("" + rtu.getIntervalInSeconds()));
         properties.setProperty(MeterProtocol.NODEID, replaceNullValue(rtu.getNodeAddress()));
-        properties.setProperty(MeterProtocol.ADDRESS, replaceNullValue(rtu.getDeviceId()));
         properties.setProperty(MeterProtocol.PASSWORD, replaceNullValue(rtu.getPassword()));
         properties.setProperty("PhoneNumber", replaceNullValue(rtu.getPhoneNumber()));
         properties.setProperty("CallHomeId", replaceNullValue(rtu.getDialHomeId()));
         properties.setProperty("NetworkId", replaceNullValue(rtu.getNetworkId()));
+
+        // Some strange things to do here :P The EIServer model for italgas uses the gas serial number as rtu serial number
+        // The real EK280 serial number can be found in the device id. However, the non generic EK280 expects the EK280 serial in this field,
+        // so to make both parties happy we have to switch them here.
+        properties.setProperty(MeterProtocol.ADDRESS, replaceNullValue(rtu.getSerialNumber()));
+        properties.setProperty(MeterProtocol.SERIALNUMBER, replaceNullValue(rtu.getDeviceId()));
+
         return properties;
     }
 
