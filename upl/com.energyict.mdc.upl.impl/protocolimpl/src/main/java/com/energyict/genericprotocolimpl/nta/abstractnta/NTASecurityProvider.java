@@ -69,7 +69,7 @@ public class NTASecurityProvider implements SecurityProvider {
 	protected void generateClientToServerChallenge(){
 		if(this.cTOs == null){
 			Random generator = new Random();
-			this.cTOs = new byte[8];
+			this.cTOs = new byte[16];
 			generator.nextBytes(this.cTOs);
 		}
 	}
