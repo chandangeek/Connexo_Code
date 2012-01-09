@@ -10,8 +10,9 @@ public class ObjectReference {
 
 	public static final int LN_REFERENCE = 0;
 	public static final int SN_REFERENCE = 1;
+    public static final int LN_LENGTH = 6;
 
-	private byte[] ln = null;
+    private byte[] ln = null;
 	private int classId = -1;
 	private int sn = -1;
 	private int reference = -1;
@@ -102,7 +103,7 @@ public class ObjectReference {
 	}
 
     public ObisCode getObisCode() {
-        if ((getLn() != null) && (getLn().length == 6)) {
+        if ((getLn() != null) && (getLn().length == LN_LENGTH)) {
             return ObisCode.fromByteArray(getLn());
         }
         return null;

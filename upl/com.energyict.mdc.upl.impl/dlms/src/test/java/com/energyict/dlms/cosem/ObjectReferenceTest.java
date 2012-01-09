@@ -75,4 +75,30 @@ public class ObjectReferenceTest {
 		assertNotNull(new ObjectReference(SN).toString());
 	}
 
+	/**
+	 * Test method for {@link ObjectReference#getObisCode()}.
+	 */
+	@Test
+	public final void testGetObisCode() {
+        assertNull(new ObjectReference(SN).getObisCode());
+
+        assertNotNull(new ObjectReference(LN_ABSTRACT).getObisCode());
+        assertArrayEquals(new ObjectReference(LN_ABSTRACT).getObisCode().getLN(), LN_ABSTRACT);
+
+        assertNotNull(new ObjectReference(LN_REAL_1).getObisCode());
+        assertArrayEquals(new ObjectReference(LN_REAL_1).getObisCode().getLN(), LN_REAL_1);
+
+        assertNotNull(new ObjectReference(LN_REAL_2).getObisCode());
+        assertArrayEquals(new ObjectReference(LN_REAL_2).getObisCode().getLN(), LN_REAL_2);
+
+        assertNotNull(new ObjectReference(LN_REAL_3).getObisCode());
+        assertArrayEquals(new ObjectReference(LN_REAL_3).getObisCode().getLN(), LN_REAL_3);
+
+        assertNull(new ObjectReference(new byte[2]).getObisCode());
+        assertNull(new ObjectReference(new byte[7]).getObisCode());
+
+	}
+
+
+
 }
