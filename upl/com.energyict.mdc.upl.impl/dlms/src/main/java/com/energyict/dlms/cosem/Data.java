@@ -23,7 +23,11 @@ import java.util.Date;
 public class Data extends AbstractCosemObject implements CosemObject {
 
     /**
-     * The dlms Data class ID is 1
+     * The dlms Data class ID is 1. This is the same value as {@link DLMSClassId} returns for DATA.
+     * Because ALL the dlms class id's can be found centralized in one enum, {@link DLMSClassId},
+     * it's better to use that enum class.
+     *
+     * @deprecated The class id of every Dlms object is available using the {@link DLMSClassId} enum.
      */
     public static final int CLASSID = DLMSClassId.DATA.getClassId();
 
@@ -37,14 +41,35 @@ public class Data extends AbstractCosemObject implements CosemObject {
         super(protocolLink, objectReference);
     }
 
+    /**
+     * Get the dlms class id for this data object, as defined in the dlms bluebook.
+     *
+     * @return The dlms class id of a data object, as int value (DATA = 1)
+     */
     protected int getClassId() {
-        return CLASSID;
+        return DLMSClassId.DATA.getClassId();
     }
 
+    /**
+     * Get the value attribute as text value. The text is actually the value represented as a {@link DataContainer}.
+     *
+     * @return The attribute value as text.
+     * @throws IOException If there was an error during the readout of the value attribute
+     * @see com.energyict.dlms.DataContainer#getText(java.lang.String)
+     */
     public String getText() throws IOException {
         return getDataContainer().getText(",");
     }
 
+    /**
+     * Try to read the billing date from the value attribute. This method assumes that
+     * the value attribute contains a date, represented as an {@link OctetString}. If this
+     * is not the case, the method will throw an exception.
+     *
+     * @return The billing date
+     * @throws IOException If there was an error while reading the value or the value did not
+     *                     contain an date encoded as {@link OctetString}
+     */
     public Date getBillingDate() throws IOException {
         return getDataContainer().getRoot().getOctetString(0).toDate(protocolLink.getTimeZone());
 
@@ -75,6 +100,7 @@ public class Data extends AbstractCosemObject implements CosemObject {
 
     /**
      * The Data object has no scaler or unit. This will always return a unit less value with a scaler 0
+     *
      * @return
      * @throws IOException
      */
@@ -167,6 +193,7 @@ public class Data extends AbstractCosemObject implements CosemObject {
      *
      * @param value The new dlms {@link com.energyict.dlms.axrdencoding.AbstractDataType} to write to the value attribute. The value cannot be null.
      * @throws IOException if there was an error writing the data
+     * @see Data#getValueAttr()
      */
     public void setValueAttr(AbstractDataType value) throws IOException {
         write(DataAttributes.VALUE, value.getBEREncodedByteArray());
