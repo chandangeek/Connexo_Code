@@ -365,26 +365,11 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 		obisCodeMapper.cacheRegisters(obisCodes);
 	}
     
-    
     public boolean pairWithEMeter(int baudrate) throws IOException {
-    	try {
-//    		getEscapeCommandFactory().setAndVerifyWavecardAwakeningPeriod(1);
-//    		getEscapeCommandFactory().setAndVerifyWavecardRadiotimeout(20);
-//    		getEscapeCommandFactory().setAndVerifyWavecardWakeupLength(110);
-			return doPairWithEMeter(baudrate);
-    	}
-		finally {
-//			getEscapeCommandFactory().setAndVerifyWavecardRadiotimeout(2);
-//			getEscapeCommandFactory().setAndVerifyWavecardWakeupLength(1100);
-//			getEscapeCommandFactory().setAndVerifyWavecardAwakeningPeriod(10);
-		}    	
-    }
-    
-    private boolean doPairWithEMeter(int baudrate) throws IOException {
-    	
+
 			byte[] pairingframe = buildPairingFrame(baudrate);
 			if (pairingframe == null) {
-				getLogger().warning("Cannot pair with the meter again because password and/or meteraddress is not known... Wait 15 minutes for the waveflow to pair with the mater again...");
+				getLogger().warning("Cannot pair with the meter again because password and/or meteraddress is not known... Wait 15 minutes for the waveflow to pair with the meter again...");
 				return false;
 			}
 			else {

@@ -23,15 +23,16 @@ public class WaveFlowDLMSWMessages implements MessageProtocol {
 		try {
 			if (messageEntry.getContent().indexOf("<PairMeter")>=0) {
 				abstractDLMS.getLogger().info("************************* PairMeter *************************");
-				
-				int baudrate = WaveflowProtocolUtils.parseInt(getTagContents("PairMeter", messageEntry.getContent()));
-				if (abstractDLMS.pairWithEMeter(baudrate)) {
-					return MessageResult.createSuccess(messageEntry);
-				}
-				else {
-					return MessageResult.createFailed(messageEntry);
-				}
-			}
+
+                try {
+                    int baudrate = WaveflowProtocolUtils.parseInt(getTagContents("PairMeter", messageEntry.getContent()));
+                    return abstractDLMS.pairWithEMeter(baudrate) ? MessageResult.createSuccess(messageEntry) : MessageResult.createFailed(messageEntry);
+                } catch (IOException e) {
+                    abstractDLMS.getLogger().severe("Unable to pair meter: " + e.getMessage());
+                    return MessageResult.createFailed(messageEntry);
+                }
+
+            }
 			else if (messageEntry.getContent().indexOf("<ForceTimeSync")>=0) {
 				abstractDLMS.getLogger().info("************************* ForceTimeSync (e-meter time)*************************");
 				abstractDLMS.forceSetTime();
