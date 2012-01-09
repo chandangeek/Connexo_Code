@@ -38,12 +38,6 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	
 	
 	
-	static final ObisCode CLOCK_OBIS_CODE=ObisCode.fromString("0.0.1.0.0.255");
-	
-	
-	
-	
-	
 	abstract void doTheValidateProperties(Properties properties);
 	abstract ObisCode getSerialNumberObisCodeForPairingRequest();
 	abstract Map<ObisCode,ObjectEntry> getObjectEntries();
@@ -258,12 +252,16 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 		return list;
 	}
 	
+    protected ObisCode getClockObisCode() {
+        return ObisCode.fromString("0.0.1.0.0.255");
+    }
+
 	@Override
 	protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream, int timeoutProperty,int protocolRetriesProperty, int forcedDelay, int echoCancelling,
 			int protocolCompatible, Encryptor encryptor,
 			HalfDuplexController halfDuplexController) throws IOException {
 		
-		getObjectEntries().put(CLOCK_OBIS_CODE,new ObjectEntry("Clock",8));
+		getObjectEntries().put(getClockObisCode(), new ObjectEntry("Clock", 8));
 		
 	    waveFlowConnect = new WaveFlowConnect(inputStream,outputStream,timeoutProperty,getLogger(),forcedDelay,getInfoTypeProtocolRetriesProperty());
 	    radioCommandFactory = new RadioCommandFactory(this);
@@ -319,7 +317,7 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 	@Override
 	public Date getTime() throws IOException {
 		try {
-			AbstractDataType o = transparantObjectAccessFactory.readObjectAttribute(CLOCK_OBIS_CODE, 2);
+			AbstractDataType o = transparantObjectAccessFactory.readObjectAttribute(getClockObisCode(), 2);
 			DateTime dateTime = new DateTime(o.getOctetString(), getTimeZone());
 			return dateTime.getValue().getTime();
 		}
@@ -330,14 +328,14 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 
 	final void forceSetTime() throws IOException {
 		DateTime dateTime = new DateTime(getTimeZone());
-		transparantObjectAccessFactory.writeObjectAttribute(CLOCK_OBIS_CODE, 2, dateTime);
+		transparantObjectAccessFactory.writeObjectAttribute(getClockObisCode(), 2, dateTime);
 	}
 	
 	@Override
 	public void setTime() throws IOException {
 		if (correctTime>0) {
 			DateTime dateTime = new DateTime(getTimeZone());
-			transparantObjectAccessFactory.writeObjectAttribute(CLOCK_OBIS_CODE, 2, dateTime);
+			transparantObjectAccessFactory.writeObjectAttribute(getClockObisCode(), 2, dateTime);
 			if (correctWaveflowTime>0) {
 				parameterFactory.writeTimeDateRTC(new Date());
 			}
