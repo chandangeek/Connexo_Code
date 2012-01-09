@@ -5,6 +5,7 @@ import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.Date;
@@ -125,7 +126,9 @@ public class Data extends AbstractCosemObject implements CosemObject {
             try {
                 return Long.valueOf(root.getElement(0).toString().trim()).longValue();
             } catch (NumberFormatException e) {
-                throw new IOException("Data, getValue(), invalid data value type. " + e.getMessage());
+                IOException exception = new IOException("Data, getValue(), invalid data value type. " + e.getMessage());
+                exception.initCause(e);
+                throw exception;
             }
         } else {
             throw new IOException("Data, getValue(), invalid data value type...");
