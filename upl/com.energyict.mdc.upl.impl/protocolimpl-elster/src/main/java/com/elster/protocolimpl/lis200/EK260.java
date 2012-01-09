@@ -7,6 +7,8 @@ import com.elster.protocolimpl.lis200.utils.RawArchiveLineInfo;
 import com.elster.utils.lis200.events.Ek260EventInterpreter;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * driver class for EK260
@@ -19,14 +21,11 @@ import java.io.IOException;
 @SuppressWarnings({"unused"})
 public class EK260 extends LIS200 implements IRegisterReadable {
 
-    private RegisterDefinition[] registersE0N = {};
-
     private RegisterDefinition[] registersE1N = {
 
             /* status info */
             new StateRegisterDefinition(Lis200ObisCode.MOMENTARY_STATUS_TOTAL, 1, "100.0"),
             new SimpleRegisterDefinition(Lis200ObisCode.REMAINING_BATTERY_LIFE, 2, "404.0"),
-            new SimpleRegisterDefinition(Lis200ObisCode.GSM_RECEPTION_LEVEL, 2, "777.0"),
             /* master data */
             new SimpleRegisterDefinition(Lis200ObisCode.SOFTWARE_VERSION, 2, "190.0"),
             new SimpleRegisterDefinition(Lis200ObisCode.SERIAL_NUMBER_METER, 1, "222.0"),
@@ -39,7 +38,6 @@ public class EK260 extends LIS200 implements IRegisterReadable {
             new ValueRegisterDefinition(Lis200ObisCode.VOLUME_MEAS_COND_ORG_CURR, 1, "202.0"),
             new ValueRegisterDefinition(Lis200ObisCode.VOLUME_MEAS_COND_CORR_CURR, 4, "300.0"),
             new ValueRegisterDefinition(Lis200ObisCode.VOLUME_MEAS_COND_TOTAL_CURR, 4, "302.0"),
-            new ValueRegisterDefinition(Lis200ObisCode.ENERGY_TOTAL_CURR, 1, "302.0"),
 
             new ValueRegisterDefinition(Lis200ObisCode.PRESSURE_CURR, 7, "310.0"),
             new ValueRegisterDefinition(Lis200ObisCode.TEMPERATURE_CURR, 6, "310_1.0"),
@@ -91,31 +89,29 @@ public class EK260 extends LIS200 implements IRegisterReadable {
     // * I R e g i s t e r R e a d a b l e
     // *******************************************************************************************/
     public RegisterDefinition[] getRegisterDefinition() {
-        RegisterDefinition[] result;
-        int i = 0;
 
-        switch (getMeterIndex()) {
-            case 1:
-                if (getSoftwareVersion() < 200) {
-                    result = new RegisterDefinition[registersE1N.length + 1];
-                    for (RegisterDefinition rd: registersE1N) {
-                        result[i++] = rd;
-                    }
-                    result[i] = new HistoricRegisterDefinition(Lis200ObisCode.VOLUME_MEAS_COND_TOTAL_HIST, 1, "VAL2");
-                } else {
-                    result = new RegisterDefinition[registersE1N.length + 3];
-                    for (RegisterDefinition rd: registersE1N) {
-                        result[i++] = rd;
-                    }
-                    result[i++] = new HistoricRegisterDefinition(Lis200ObisCode.VOLUME_MEAS_COND_ORG_HIST, 1, "VAL2");
-                    result[i++] = new HistoricRegisterDefinition(Lis200ObisCode.VOLUME_BASE_COND_CORR_HIST, 1, "VAL3");
-                    result[i] = new HistoricRegisterDefinition(Lis200ObisCode.VOLUME_MEAS_COND_CORR_HIST, 1, "VAL4");
-                }
-                break;
-            default:
-                result = registersE0N;
+        ArrayList<RegisterDefinition> result = new ArrayList<RegisterDefinition>();
+
+        if (getMeterIndex() == 1) {
+            Collections.addAll(result, registersE1N);
+
+            int swVersion = getSoftwareVersion();
+            if (swVersion < 200) {
+                result.add(new HistoricRegisterDefinition(Lis200ObisCode.VOLUME_MEAS_COND_TOTAL_HIST, 1, "VAL2"));
+            } else {
+                result.add(new HistoricRegisterDefinition(Lis200ObisCode.VOLUME_MEAS_COND_ORG_HIST, 1, "VAL2"));
+                result.add(new HistoricRegisterDefinition(Lis200ObisCode.VOLUME_BASE_COND_CORR_HIST, 1, "VAL3"));
+                result.add(new HistoricRegisterDefinition(Lis200ObisCode.VOLUME_MEAS_COND_CORR_HIST, 1, "VAL4"));
+            }
+
+            if (swVersion >= 232) {
+                result.add(new SimpleRegisterDefinition(Lis200ObisCode.GSM_RECEPTION_LEVEL, 2, "777.0"));
+            }
+            if (swVersion >= 240) {
+                result.add(new ValueRegisterDefinition(Lis200ObisCode.ENERGY_TOTAL_CURR, 1, "302.0"));
+            }
         }
-        return result;
+        return result.toArray(new RegisterDefinition[result.size()]);
     }
 
     public int getBeginOfDay() throws IOException {
@@ -155,7 +151,6 @@ public class EK260 extends LIS200 implements IRegisterReadable {
         String archiveLineInfo = "";
 
         if (archive == 1) {
-            System.out.println("getArchiveLineInfo: SoftwareVersion=" + getSoftwareVersion());
             if (getSoftwareVersion() < 200) {
                 if (value.equals("VAL1")) {
                     archiveLineInfo = ",,TST,CHN00[C],,,,,,,,,,,,,,,,CHKSUM";

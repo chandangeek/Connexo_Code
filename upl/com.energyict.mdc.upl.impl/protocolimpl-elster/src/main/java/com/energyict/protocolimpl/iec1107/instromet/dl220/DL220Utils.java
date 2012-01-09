@@ -106,7 +106,7 @@ public class DL220Utils {
 	 * 
 	 * @return the number of objects
 	 * 
-	 * @throws java.io.IOException if the number of open- and closed brackets doesn't match
+	 * @throws IOException if the number of open- and closed brackets doesn't match
 	 */
 	public static int getNumberOfObjects(String capturedObjects) throws IOException {
 		int numberOfOpen = countNumberOfSameChars(capturedObjects, OPEN_BRACKET, 1);
@@ -120,29 +120,29 @@ public class DL220Utils {
 
 	/**
 	 * Count the number of occurrences of the regular expression in the given text
-	 *
+	 * 
 	 * @param text
 	 * 			- the text to search in
-	 *
+	 * 
 	 * @param regex
 	 * 			- the regular expression to match
-	 *
+	 * 
 	 * @param sizeOfRegex
 	 * 			- normally the size of the regex is <code>regex.Length()</code>, but in some cases the regex contains brackets to define the pattern (ex. <code>"[(]"</code>)
-	 *
+	 * 
 	 * @return the number of occurrences
 	 */
 	public static int countNumberOfSameChars(String text, String regex, int sizeOfRegex){
 		int numberOfOccurences = (text.length() - text.replaceAll(regex, "").length()) / sizeOfRegex;
 		return numberOfOccurences;
 	}
-
+	
 	/**
-	 * Convert the given String to the respective {@link com.energyict.cbo.Unit}.<br>
+	 * Convert the given String to the respective {@link Unit}.<br>
 	 * Implemented units:<br>
-	 * <li> {@link com.energyict.cbo.BaseUnit#CUBICMETER}
-	 * <li> {@link com.energyict.cbo.BaseUnit#WATTHOUR}
-	 * <li> {@link com.energyict.cbo.BaseUnit#WATT}
+	 * <li> {@link BaseUnit#CUBICMETER}
+	 * <li> {@link BaseUnit#WATTHOUR}
+	 * <li> {@link BaseUnit#WATT}
 	 * <br><br>
 	 * The last two can have a scaler of 3 when 'k' is added in the string
 	 *  

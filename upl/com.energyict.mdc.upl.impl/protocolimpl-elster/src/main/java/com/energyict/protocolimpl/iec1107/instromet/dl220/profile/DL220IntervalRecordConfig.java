@@ -47,9 +47,9 @@ public class DL220IntervalRecordConfig implements DL220RecordConfig {
 	
 	/**
 	 * Parse the configuration string with the representing indexes
-	 * @throws java.io.IOException
+	 * @throws IOException 
 	 */
-	protected void parse() throws IOException {
+	protected void parse() throws IOException{
 		int index = 0;
 		int beginIndex = 0;
 		int endIndex = 0;
@@ -86,7 +86,7 @@ public class DL220IntervalRecordConfig implements DL220RecordConfig {
 	/**
 	 * @return the number of channels 
 	 */
-	public int getNumberOfChannels() throws IOException {
+	public int getNumberOfChannels() throws IOException{
 		if(this.valueIndexes == null){
 			parse();
 		}
@@ -116,7 +116,7 @@ public class DL220IntervalRecordConfig implements DL220RecordConfig {
 	/**
 	 * {@inheritDoc}
 	 */
-	public int getStatusIndex() throws IOException {
+	public int getStatusIndex() throws IOException{
 		if(this.statusIndex == -1){
 			parse();
 		}
@@ -127,7 +127,7 @@ public class DL220IntervalRecordConfig implements DL220RecordConfig {
 	/**
 	 * {@inheritDoc}
 	 */
-	public int getEventIndex() throws IOException {
+	public int getEventIndex() throws IOException{
 		if(this.eventIndex == -1){
 			parse();
 		}

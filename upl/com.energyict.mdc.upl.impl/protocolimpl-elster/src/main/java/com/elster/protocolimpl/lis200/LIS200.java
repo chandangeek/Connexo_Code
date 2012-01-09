@@ -23,9 +23,41 @@ import java.util.logging.Logger;
  *         <p/>
  *         common protocol driver for LIS200
  *         <p/>
- *         settings to use: ProfileInterval > 0 SecurityLevel 0 DeviceId <empty>
  */
 public class LIS200 extends AbstractIEC1107Protocol {
+
+    private static final String PROFILE_REQUEST_BLOCK_SIZE = "ProfileRequestBlockSize";
+    /*
+    * controls usage of wakeup sequence (sequence of binary 0's
+    */
+    private static final String SUPPRESS_WAKEUP_SEQUENCE = "SuppressWakeupSequence";
+    /*
+    * Lock to open (there are more possible locks, default is customer
+    * lock)
+    */
+    private static final String USE_LOCK = "UseLock";
+    /*
+    * Normally we should use NodeAddress or DeviceId, but the framework
+    * uses these for the IEC1107Connection
+    */
+    private static final String METER_INDEX = "MeterIndex";
+    /*
+    * Archive to readout, but MeterIndex overrides archive ! if
+    * ArchiveToReadout and MeterIndex are empty, we assume MeterIndex = 1
+    */
+    private static final String ARCHIVE_TO_READOUT = "ArchiveToReadout";
+    /*
+    * external definition of archive structure
+    */
+    private static final String ARCHIVE_STRUCTURE = "ArchiveStructure";
+    /*
+    * address of interval object for archive
+    */
+    private static final String ARCHIVE_INTERVAL_ADDRESS = "ArchiveIntervalAddress";
+    /*
+    * try if end device is still "on line", and disable sending B0 at end
+    */
+    private static final String DISABLE_AUTO_LOGOFF = "DisableLogOff";
 
     private Lis200Profile profile;
 
@@ -74,10 +106,7 @@ public class LIS200 extends AbstractIEC1107Protocol {
      */
     private int profileRequestBlockSize;
 
-    /**
-     * Debug: all properties...
-     */
-    private String props;
+    private boolean disableAutoLogoff = false;
 
     /**
      * interpreter for events
@@ -110,41 +139,14 @@ public class LIS200 extends AbstractIEC1107Protocol {
     protected List doGetOptionalKeys() {
         List keys = new ArrayList();
         /* Define the Records in one requestBlock, default this is 10 */
-        keys.add("ProfileRequestBlockSize");
-
-        /*
-           * Lock to open (there are more possible locks, default is customer
-           * lock)
-           */
-        keys.add("UseLock");
-
-        /*
-           * Normally we should use NodeAddress or DeviceId, but the framework
-           * uses these for the IEC1107Connection
-           */
-        keys.add("MeterIndex");
-
-        /*
-           * Archive to readout, but MeterIndex overrides archive ! if
-           * ArchiveToReadout and MeterIndex are empty, we assume MeterIndex = 1
-           */
-        keys.add("ArchiveToReadout");
-
-        /*
-           * external definition of archive structure
-           */
-        keys.add("ArchiveStructure");
-
-        /*
-           * address of interval object for archive
-           */
-        keys.add("ArchiveIntervalAddress");
-
-        /*
-           * controls usage of wakeup sequence (sequence of binary 0's
-           */
-        keys.add("SuppressWakeupSequence");
-
+        keys.add(PROFILE_REQUEST_BLOCK_SIZE);
+        keys.add(USE_LOCK);
+        keys.add(METER_INDEX);
+        keys.add(ARCHIVE_TO_READOUT);
+        keys.add(ARCHIVE_STRUCTURE);
+        keys.add(ARCHIVE_INTERVAL_ADDRESS);
+        keys.add(SUPPRESS_WAKEUP_SEQUENCE);
+        keys.add(DISABLE_AUTO_LOGOFF);
         return keys;
     }
 
@@ -155,19 +157,29 @@ public class LIS200 extends AbstractIEC1107Protocol {
     protected void doValidateProperties(Properties properties)
             throws MissingPropertyException, InvalidPropertyException {
 
-        props = properties.toString();
-
-        this.profileRequestBlockSize = Integer.parseInt(properties.getProperty(
-                "ProfileRequestBlockSize", "10"));
+        try {
+            this.profileRequestBlockSize = Integer.parseInt(properties.getProperty(
+                    PROFILE_REQUEST_BLOCK_SIZE, "10"));
+        } catch (Exception e) {
+            throw new InvalidPropertyException(
+                    String.format("Incorrect %s property. If the value is not empty, then only numeric values greater 0 are allowed.", PROFILE_REQUEST_BLOCK_SIZE));
+        }
 
         try {
-            suppressWakeupSequence = Integer.parseInt(properties.getProperty("SuppressWakeupSequence", "0")) != 0;
+            this.disableAutoLogoff = Integer.parseInt(properties.getProperty(DISABLE_AUTO_LOGOFF, "0")) > 0;
+        } catch (Exception e) {
+            throw new InvalidPropertyException(
+                    String.format("Incorrect %s property. If the value is not empty, then only 0 and 1 is allowed.", DISABLE_AUTO_LOGOFF));
+        }
+
+        try {
+            suppressWakeupSequence = Integer.parseInt(properties.getProperty(SUPPRESS_WAKEUP_SEQUENCE, "0")) != 0;
         } catch (Exception ignored) {
         }
 
         /* check for lock to open... */
         usedLock = LockObject.CUSTOMERLOCK;
-        String lock = properties.getProperty("UseLock", "");
+        String lock = properties.getProperty(USE_LOCK, "");
         if (lock.length() > 0) {
             usedLock = -1;
             for (int i = 0; i < LockObject.MAXLOCKS; i++) {
@@ -187,8 +199,8 @@ public class LIS200 extends AbstractIEC1107Protocol {
         }
 
         /* check which archive to readout... */
-        String strMeterIndex = properties.getProperty("MeterIndex", "");
-        String strArchive = properties.getProperty("ArchiveToReadout", "");
+        String strMeterIndex = properties.getProperty(METER_INDEX, "");
+        String strArchive = properties.getProperty(ARCHIVE_TO_READOUT, "");
 
         /* property MeterIndex set ? */
         if ((strMeterIndex != null) && (strMeterIndex.length() > 0)) {
@@ -237,7 +249,7 @@ public class LIS200 extends AbstractIEC1107Protocol {
             flagIEC1107Connection = new Lis200Connection(inputStream,
                     outputStream, iec1107TimeoutProperty,
                     protocolRetriesProperty, forcedDelay, echoCancelling,
-                    iec1107Compatible, software7E1, suppressWakeupSequence);
+                    iec1107Compatible, software7E1, suppressWakeupSequence, disableAutoLogoff);
             flagIEC1107Connection
                     .setErrorSignature(AbstractCommand.ERROR_INDICATION);
         } catch (ConnectionException e) {
@@ -258,9 +270,6 @@ public class LIS200 extends AbstractIEC1107Protocol {
     @Override
     protected void doConnect() throws IOException {
         getLogger().info("--- entering doConnect....");
-
-        getLogger().info("--- given properties....");
-        getLogger().info(props);
 
         // if debug, list all locks
         LockObject lock;
@@ -357,7 +366,7 @@ public class LIS200 extends AbstractIEC1107Protocol {
     /**
      * Validate the serialNumber of the device.
      *
-     * @throws java.io.IOException if the serialNumber doesn't match the one from the Rtu
+     * @throws IOException if the serialNumber doesn't match the one from the Rtu
      */
     protected void validateSerialNumber() throws IOException {
         getLogger().info(
@@ -411,25 +420,21 @@ public class LIS200 extends AbstractIEC1107Protocol {
             if (lockState == LockObject.STATE.opened) {
                 getObjectFactory().getLock(usedLock).closeLock();
                 getLogger().info(
-                        "-- Lock "
-                                + getObjectFactory().getLock(usedLock)
-                                .getName() + " closed!");
-
+                        "-- Lock " + getObjectFactory().getLock(usedLock).getName() + " closed!");
             }
-
             // disconnect...
-            getFlagIEC1107Connection().disconnectMAC();
+            if (!disableAutoLogoff) {
+                getFlagIEC1107Connection().disconnectMAC();
+            }
 
         } catch (FlagIEC1107ConnectionException e) {
             getLogger().severe("disconnect() error, " + e.getMessage());
         } catch (ConnectionException e) {
             getLogger().severe(
-                    "disconnect() error - setLock ConnectionError, "
-                            + e.getMessage());
+                    "disconnect() error - setLock ConnectionError, " + e.getMessage());
         } catch (IOException e) {
             getLogger().severe(
-                    "disconnect() error - setLock IOException, "
-                            + e.getMessage());
+                    "disconnect() error - setLock IOException, " + e.getMessage());
         }
     }
 
@@ -488,8 +493,7 @@ public class LIS200 extends AbstractIEC1107Protocol {
 
         profileData.setChannelInfos(getProfileObject().buildChannelInfos());
 
-        profileData.setIntervalDatas(getProfileObject().getIntervalData(from,
-                to));
+        profileData.setIntervalDatas(getProfileObject().getIntervalData(from, to));
 
         if (includeEvents) {
 
@@ -807,8 +811,8 @@ public class LIS200 extends AbstractIEC1107Protocol {
      */
     protected RegisterReader getObisCodeMapper() {
         if ((this.obisCodeMapper == null) &&
-                (this instanceof IRegisterReadable)){
-            this.obisCodeMapper = new RegisterReader((IRegisterReadable)this, getRegisterMapN((IRegisterReadable)this));
+                (this instanceof IRegisterReadable)) {
+            this.obisCodeMapper = new RegisterReader((IRegisterReadable) this, getRegisterMapN((IRegisterReadable) this));
         }
         return this.obisCodeMapper;
     }

@@ -31,7 +31,7 @@ public class ClockObject extends AbstractObject implements IClockObject {
     }
 
     /**
-     * Construct a {@link java.util.Calendar} based on the raw input data and the given {@link java.util.TimeZone}
+     * Construct a {@link java.util.Calendar} based on the raw input data and the given {@link TimeZone}
      *
      * @param rawDateTime  - the raw Date and Time
      * @param isSummerTime - flag if given time is in DST
@@ -83,7 +83,7 @@ public class ClockObject extends AbstractObject implements IClockObject {
      * Write the current time to the meter
      *
      * @param date - date to set
-     * @throws java.io.IOException - when the write failed
+     * @throws IOException - when the write failed
      */
     public void setDate(Date date) throws IOException {
         writeValue(getRawDateTime(date, link.getTimeZone()));

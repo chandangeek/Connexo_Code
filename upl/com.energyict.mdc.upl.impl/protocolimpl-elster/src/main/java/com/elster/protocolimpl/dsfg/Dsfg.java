@@ -4,8 +4,10 @@ import com.elster.protocolimpl.dsfg.connection.DsfgConnection;
 import com.elster.protocolimpl.dsfg.objects.AbstractObject;
 import com.elster.protocolimpl.dsfg.profile.ArchiveRecordConfig;
 import com.elster.protocolimpl.dsfg.profile.DsfgProfile;
+import com.elster.protocolimpl.dsfg.register.DsfgRegisterReader;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 
 import java.io.*;
@@ -30,8 +32,8 @@ import java.util.logging.Logger;
  * @since 5-mai-2010
  * 
  */
-
-public class Dsfg implements MeterProtocol, ProtocolLink {
+@SuppressWarnings({"unused"})
+public class Dsfg implements MeterProtocol, RegisterProtocol, ProtocolLink {
 
 	/** time zone of device */
 	private TimeZone timeZone;
@@ -42,20 +44,13 @@ public class Dsfg implements MeterProtocol, ProtocolLink {
 	/** profile class */
 	private DsfgProfile profile = null;
 
+    private DsfgRegisterReader dsfgRegisterReader = null;
+
 	/** password from given properties */
 	private String strPassword;
 
 	/** compatibility properties..., currently not used */
 	private int protocolRetriesProperty;
-	@SuppressWarnings("unused")
-	private int extendedLogging;
-	@SuppressWarnings("unused")
-	private int profileInterval;
-	@SuppressWarnings("unused")
-	private int requestHeader;
-	@SuppressWarnings("unused")
-	private int scaler;
-
 	/** instance letter off registration instance */
 	private String registrationInstance = "";
 	/** instance letter of archive (in registration instance) */
@@ -65,13 +60,10 @@ public class Dsfg implements MeterProtocol, ProtocolLink {
 	/** factory for common data objects */
 	private DsfgObjectFactory objectFactory = null;
 
-	/** type of meter */
-	private String meterType;
-
-	/** archive structure definition */
+    /** archive structure definition */
 	private ArchiveRecordConfig archiveStructure = null;
 
-	/**
+    /**
 	 * initialization -> create connection class
 	 */
 	public void init(InputStream inputStream, OutputStream outputStream,
@@ -116,17 +108,7 @@ public class Dsfg implements MeterProtocol, ProtocolLink {
 		List result = new ArrayList();
 		result.add("Timeout");
 		result.add("Retries");
-		// result.add("SecurityLevel");
-		// result.add("EchoCancelling");
-		// result.add("IEC1107Compatible");
-		// result.add("ExtendedLogging");
-		// result.add("ChannelMap");
-		// result.add("ForcedDelay");
-		// result.add("Software7E1");
-		// if needed, add following code lines into the overridden
-		// doGetOptionalKeys() method
-		// result.add("RequestHeader"));
-		// result.add("Scaler"));
+
 		List result2 = doGetOptionalKeys();
 		if (result2 != null) {
 			result.addAll(result2);
@@ -161,7 +143,7 @@ public class Dsfg implements MeterProtocol, ProtocolLink {
 
 		// verify device type
 		AbstractObject meterTypeObj = getObjectFactory().getMeterTypeObject();
-		meterType = meterTypeObj.getValue();
+        String meterType = meterTypeObj.getValue();
 		getLogger().info("-- Type of device: " + meterType);
 
 		// DataBlock db = new DataBlock(getRegistrationInstance(),
@@ -171,7 +153,6 @@ public class Dsfg implements MeterProtocol, ProtocolLink {
 	}
 
 	public void disconnect() throws IOException {
-		// TODO Auto-generated method stub
 	}
 
 	public String getFirmwareVersion() throws IOException {
@@ -214,33 +195,14 @@ public class Dsfg implements MeterProtocol, ProtocolLink {
 		return 3600;
 	}
 
-	public String getRegister(String arg0) throws IOException,
-			NoSuchRegisterException {
-		/* dsfg register instances have no register values ! */
-		throw new NoSuchRegisterException(
-				"Dsfg devices have no register to read out!");
-	}
-
 	public Date getTime() throws IOException {
 		return getObjectFactory().getClockObject().getDateTime();
 	}
 
 	public void initializeDevice() throws IOException {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void release() throws IOException {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void setRegister(String arg0, String arg1) throws IOException,
-			NoSuchRegisterException {
-		/* dsfg register instances have no register values ! */
-		throw new NoSuchRegisterException(
-				"Dsfg devices have no register to set!");
-
 	}
 
 	public void setTime() throws IOException {
@@ -257,36 +219,27 @@ public class Dsfg implements MeterProtocol, ProtocolLink {
 	 * 
 	 * @param properties
 	 *            - The properties fetched from the Rtu
-	 * @throws MissingPropertyException
-	 * @throws InvalidPropertyException
+	 * @throws MissingPropertyException - in case of an error
+	 * @throws InvalidPropertyException - in case of an error
 	 */
 	@SuppressWarnings( { "unchecked" })
 	private void validateProperties(Properties properties)
 			throws MissingPropertyException, InvalidPropertyException {
 		try {
-			Iterator iterator = getRequiredKeys().iterator();
-			while (iterator.hasNext()) {
-				String key = (String) iterator.next();
-				if (properties.getProperty(key) == null) {
-					throw new MissingPropertyException(key + " key missing");
-				}
-			}
+            for (Object o : getRequiredKeys()) {
+                String key = (String) o;
+                if (properties.getProperty(key) == null) {
+                    throw new MissingPropertyException(key + " key missing");
+                }
+            }
 			strPassword = properties.getProperty(MeterProtocol.PASSWORD);
 			protocolRetriesProperty = Integer.parseInt(properties.getProperty(
-                    "Retries", "5").trim());
-			extendedLogging = Integer.parseInt(properties.getProperty(
-                    "ExtendedLogging", "0").trim());
-			profileInterval = Integer.parseInt(properties.getProperty(
-                    "ProfileInterval", "900").trim());
-			requestHeader = Integer.parseInt(properties.getProperty(
-                    "RequestHeader", "0").trim());
-			scaler = Integer.parseInt(properties.getProperty("Scaler", "0")
-                    .trim());
+					"Retries", "5").trim());
 
 			/* DSfG specific properties */
 			registrationInstance = properties.getProperty(
 					"RegistrationInstance", "0").toUpperCase().substring(0, 1);
-			if ("ABCDEFGHIJKLMNOPQRSTUVWXYZ[^".indexOf(registrationInstance) < 0) {
+			if (!"ABCDEFGHIJKLMNOPQRSTUVWXYZ[^".contains(registrationInstance)) {
 				throw new InvalidPropertyException(
 						" validateProperties, RegistrationInstance ("
 								+ registrationInstance
@@ -295,7 +248,7 @@ public class Dsfg implements MeterProtocol, ProtocolLink {
 
 			archiveInstance = properties.getProperty("ArchiveInstance", "0")
 					.toLowerCase().substring(0, 1);
-			if ("abcdefghijklmnopqrstuvwxyz".indexOf(archiveInstance) < 0) {
+			if (!"abcdefghijklmnopqrstuvwxyz".contains(archiveInstance)) {
 				throw new InvalidPropertyException(
 						" validateProperties, ArchiveInstance ("
 								+ archiveInstance + ") out of Range (a-y).");
@@ -346,13 +299,42 @@ public class Dsfg implements MeterProtocol, ProtocolLink {
 	public void doValidateProperties(Properties properties) {
 	}
 
-	// *******************************************************************************************
+
+    public String getRegister(String arg0) throws IOException {
+        /* dsfg register instances have no register values ! */
+        throw new NoSuchRegisterException(
+                "Dsfg devices have no register to read out!");
+    }
+
+    public void setRegister(String arg0, String arg1) throws IOException {
+        /* dsfg register instances have no register values ! */
+        throw new NoSuchRegisterException(
+                "Register setting currently not supported!");
+
+    }
+
+    public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
+        return new RegisterInfo("");
+    }
+
+    public RegisterValue readRegister(com.energyict.obis.ObisCode obisCode) throws IOException {
+        return getRegisterReader().getRegisterValue(obisCode, new Date());
+    }
+
+    private DsfgRegisterReader getRegisterReader() {
+        if (dsfgRegisterReader == null) {
+            dsfgRegisterReader = new DsfgRegisterReader(this);
+        }
+        return this.dsfgRegisterReader;
+    }
+
+
+    // *******************************************************************************************
 	// *
 	// * Interface ProtocolLink
 	// *
 	// *******************************************************************************************/
 	public byte[] getDataReadout() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -381,7 +363,6 @@ public class Dsfg implements MeterProtocol, ProtocolLink {
 	}
 
 	public boolean isRequestHeader() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 

@@ -27,14 +27,14 @@ import static org.junit.Assert.fail;
 public class DL220ProfileTest {
 
 	/**
-	 * @throws Exception
+	 * @throws java.lang.Exception
 	 */
 	@Before
 	public void setUp() throws Exception {
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws java.lang.Exception
 	 */
 	@After
 	public void tearDown() throws Exception {
@@ -43,13 +43,12 @@ public class DL220ProfileTest {
 	/**
 	 * Test the construction of the intervalData
 	 */
-    @Ignore
 	@Test
 	public final void buildIntervalDataTest(){
 		try {
 			DL220 link = new DL220();
 			link.init(null, null, TimeZone.getTimeZone("GMT"), Logger.getAnonymousLogger());
-			File file = new File(DL220ProfileTest.class.getResource("DL220Profile.bin").getFile());
+			File file = new File(DL220ProfileTest.class.getResource("/com/energyict/protocolimpl/iec1107/instromet/dl220/profile/DL220Profile.bin").getFile());
 			FileInputStream fis = new FileInputStream(file);
 			byte[] content = new byte[(int) file.length()];
 			fis.read(content);
@@ -73,7 +72,7 @@ public class DL220ProfileTest {
 			
 			cal.setTimeInMillis(Long.valueOf("1268039100000"));
 			assertEquals(cal.getTime(), intervalData.get(292).getEndTime());
-			assertEquals(new BigDecimal(159), ((IntervalValue)intervalData.get(292).getIntervalValues().get(0)).getNumber());
+			assertEquals(new BigDecimal(159), ((IntervalValue)intervalData.get(292).getIntervalValues().get(0)).getNumber());			
 			
 			
 		} catch (FileNotFoundException e) {
@@ -129,14 +128,14 @@ public class DL220ProfileTest {
 		}
 	}
 	
-    @Ignore
 	@Test
 	public final void buildMeterEventListTest(){
 		try {
 			String capturedObjects = "(GONr)(AONr)(Zeit)(Er)(Check)";
 			DL220 link = new DL220();
 			link.init(null, null, TimeZone.getTimeZone("GMT"), Logger.getAnonymousLogger());
-			File file = new File(DL220Profile.class.getClassLoader().getResource("DL220EventProfile.bin").getFile());
+			File file = new File(DL220Profile.class.getClassLoader().getResource(
+			"com/energyict/protocolimpl/iec1107/instromet/dl220/profile/DL220EventProfile.bin").getFile());
 			FileInputStream fis = new FileInputStream(file);
 			byte[] content = new byte[(int) file.length()];
 			fis.read(content);
@@ -168,13 +167,13 @@ public class DL220ProfileTest {
 	/**
 	 * Test intervals with a float value (I call it float values because they have a comma or dot in the value)
 	 */
-    @Ignore
 	@Test
-    public final void buildFloatProfileTest(){
+	public final void buildFloatProfileTest(){
 		try {
 			DL220 link = new DL220();
 			link.init(null, null, TimeZone.getTimeZone("GMT"), Logger.getAnonymousLogger());
-			File file = new File(DL220Profile.class.getClassLoader().getResource("DL220FloatProfile.bin").getFile());
+			File file = new File(DL220Profile.class.getClassLoader().getResource(
+			"com/energyict/protocolimpl/iec1107/instromet/dl220/profile/DL220FloatProfile.bin").getFile());
 			FileInputStream fis = new FileInputStream(file);
 			byte[] content = new byte[(int) file.length()];
 			fis.read(content);

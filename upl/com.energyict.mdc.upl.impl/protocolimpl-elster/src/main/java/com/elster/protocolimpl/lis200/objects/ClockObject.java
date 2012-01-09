@@ -88,7 +88,7 @@ public class ClockObject extends AbstractObject {
 	 * 
 	 * @return the dateTime
 	 * 
-	 * @throws java.io.IOException
+	 * @throws IOException
 	 */
 	public Calendar getDateTime() throws IOException {
 		startAddressIndex = startAddressDateTime;
@@ -96,7 +96,7 @@ public class ClockObject extends AbstractObject {
 		link.getLogger().info("Date read from device (raw data):" + rawDate);
 		Calendar c = parseCalendar(rawDate, false, link.getTimeZone());
 		link.getLogger().info("Date read from device (calendar):" + c);
-
+		
 		Calendar currentCalendar = Calendar.getInstance(link.getTimeZone());
         link.getLogger().info("Current Date (raw format)       :" + getRawData(currentCalendar));
 		return c;
@@ -104,8 +104,8 @@ public class ClockObject extends AbstractObject {
 
 	/**
 	 * Write the current time to the meter
-	 *
-	 * @throws java.io.IOException
+	 * 
+	 * @throws IOException
 	 *             when the write failed
 	 */
 	public void writeClock() throws IOException {
@@ -114,14 +114,14 @@ public class ClockObject extends AbstractObject {
 	}
 
 	/**
-	 * Construct a {@link java.util.Calendar} based on the raw input data. The used
+	 * Construct a {@link Calendar} based on the raw input data. The used
 	 * timeZone is GMT
-	 *
+	 * 
 	 * @param rawDateTime
 	 *            - the raw Date and Time
-	 *
+	 * 
 	 * @return a calendar with the meter time
-	 *
+	 * 
 	 * @deprecated since 08/03/10, use the
 	 *             parseCalendar(String, TimeZone) instead
 	 */
@@ -131,16 +131,16 @@ public class ClockObject extends AbstractObject {
 	}
 
 	/**
-	 * Construct a {@link java.util.Calendar} based on the raw input data and the given
-	 * {@link java.util.TimeZone}
-	 *
+	 * Construct a {@link Calendar} based on the raw input data and the given
+	 * {@link TimeZone}
+	 * 
 	 * @param rawDateTime
 	 *            - the raw Date and Time
 	 * @param isSummerTime
 	 *            - flag to define if given rawDateTime is summer time
 	 * @param timeZone
 	 *            - the timeZone the rawDateTime is written in
-	 *
+	 * 
 	 * @return a calendar with the meter time
 	 */
 	public static Calendar parseCalendar(String rawDateTime,
@@ -169,9 +169,9 @@ public class ClockObject extends AbstractObject {
 
 	/**
 	 * Construct a string in the <i>yyyy-MM-DD,HH:mm:ss</i> format
-	 *
+	 * 
 	 * @param newCalendar
-	 *            - the {@link java.util.Calendar} to convert
+	 *            - the {@link Calendar} to convert
 	 * 
 	 * @return the new calendar string for the meter
 	 */

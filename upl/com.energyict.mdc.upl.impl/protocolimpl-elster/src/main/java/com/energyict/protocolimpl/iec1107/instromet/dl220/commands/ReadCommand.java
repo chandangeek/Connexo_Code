@@ -55,7 +55,7 @@ public class ReadCommand extends AbstractCommand {
 	 * 
 	 * @return the response
 	 * 
-	 * @throws java.io.IOException
+	 * @throws IOException
 	 *             when a logical exception occurred
 	 */
 	public String invoke() throws IOException {

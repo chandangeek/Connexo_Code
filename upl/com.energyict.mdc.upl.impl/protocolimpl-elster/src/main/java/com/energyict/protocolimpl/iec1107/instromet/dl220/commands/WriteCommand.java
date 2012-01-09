@@ -22,6 +22,8 @@ public class WriteCommand extends AbstractCommand {
 
 	/**
 	 * Default constructor
+     *
+     * @param protocolLink - reference to protocol
 	 */
 	public WriteCommand(ProtocolLink protocolLink) {
 		super(protocolLink);
@@ -53,7 +55,7 @@ public class WriteCommand extends AbstractCommand {
 	 * 
 	 * @return the response
 	 * 
-	 * @throws java.io.IOException
+	 * @throws IOException
 	 *             when a logical exception occurred
 	 */
 	public String invoke() throws IOException {

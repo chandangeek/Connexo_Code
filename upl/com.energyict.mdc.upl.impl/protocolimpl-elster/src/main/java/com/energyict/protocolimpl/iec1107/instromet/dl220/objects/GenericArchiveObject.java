@@ -45,17 +45,17 @@ public class GenericArchiveObject extends AbstractObject {
 	/** The instance of the object */
 	private int instance = 0;
 	
-	/** The used {@link com.energyict.protocolimpl.iec1107.instromet.dl220.Archives}*/
+	/** The used {@link Archives}*/
 	private final Archives archive;
-
+	
 	/**
 	 * Initial constructor
-	 *
+	 * 
 	 * @param link
-	 * 			- the {@link com.energyict.protocolimpl.iec1107.ProtocolLink}
-	 *
-	 * @param archive
-	 * 			- the referred {@link com.energyict.protocolimpl.iec1107.instromet.dl220.Archives}
+	 * 			- the {@link ProtocolLink}
+	 * 
+	 * @param archive 
+	 * 			- the referred {@link Archives}
 	 */
 	public GenericArchiveObject(ProtocolLink link, Archives archive) {
 
@@ -82,23 +82,23 @@ public class GenericArchiveObject extends AbstractObject {
 	protected int getObjectInstance() {
 		return instance;
 	}
-
+	
 	/**
 	 * Unsupported getter for the default value
-	 *
-	 * @throws java.io.IOException because it is not supported
+	 * 
+	 * @throws IOException because it is not supported
 	 */
 	@Override
 	public String getValue() throws IOException {
 		throw new UnsupportedException("The default getValue() is not supported by the archiveObjects");
 	}
-
+	
 	/**
 	 * Get the capturedObjects form the device
-	 *
+	 * 
 	 * @return a string with the captured objects
-	 *
-	 * @throws java.io.IOException if a read exception occurred
+	 * 
+	 * @throws IOException if a read exception occurred
 	 */
 	public String getCapturedObjects() throws IOException {
 		return getEmptyRequest(constructStartAddress(ATTRB_DESCRIPTION));
@@ -106,49 +106,49 @@ public class GenericArchiveObject extends AbstractObject {
 
 	/**
 	 * Get the Units from the device
-	 *
+	 * 
 	 * @return a String of units
-	 * @throws java.io.IOException if something happened during the read
+	 * @throws IOException if something happened during the read
 	 */
 	public String getUnits() throws IOException {
 		return getEmptyRequest(constructStartAddress(ATTRB_UNITS_TEXT));
 	}
-
+	
 	/**
 	 * Default empty request
-	 *
+	 * 
 	 * @param startAddress
 	 * 			- the startAddress for the request
-	 *
+	 * 
 	 * @return the response string from the device
-	 *
-	 * @throws java.io.IOException if something happened during the read
+	 * 
+	 * @throws IOException if something happened during the read
 	 */
-	private String getEmptyRequest(String startAddress) throws IOException {
+	private String getEmptyRequest(String startAddress) throws IOException{
 		this.startAddress = startAddress;
 		ReadArchiveCommand rac = new ReadArchiveCommand(link);
 		rac.setStartAddress(getStartAddress());
 		return rac.invokeForOneTransaction(EMPTY_REQUEST);
 	}
-
+	
 	/**
 	 * Construct the startAddress
-	 *
-	 * @param attrbDescription
+	 * 
+	 * @param attrbDescription 
 	 * 			- the attribute number to read
-	 *
+	 * 
 	 * @return the constructed startAddress
 	 */
 	private String constructStartAddress(int attrbDescription) {
 		return constructStartAddress(Integer.toString(attrbDescription));
 	}
-
+	
 	/**
 	 * Construct the startAddress
-	 *
-	 * @param attrbDescription
+	 * 
+	 * @param attrbDescription 
 	 * 			- the attribute number to read
-	 *
+	 * 
 	 * @return the constructed startAddress
 	 */
 
@@ -158,20 +158,20 @@ public class GenericArchiveObject extends AbstractObject {
 		strBuilder.append(DOT);
 		strBuilder.append(attrbDescription);
 		return strBuilder.toString();
-
+		
 	}
-
+	
 
 	/**
-	 * Request the number of intervals
-	 *
-	 * @param from
+	 * Request the number of intervals 
+	 * 
+	 * @param from 
 	 * 			- the date from where to start reading
-	 *
+	 * 
 	 * @return
 	 * 			a number representing the available intervals starting from the from date
-	 *
-	 * @throws java.io.IOException if something freaky happened during the read
+	 * 
+	 * @throws IOException if something freaky happened during the read 
 	 */
 	public String getNumberOfIntervals(Date from) throws IOException {
 		String rawFrom = getDLFormatDate(from);
@@ -181,39 +181,39 @@ public class GenericArchiveObject extends AbstractObject {
 		rac.setStartAddress(getStartAddress());
 		return ProtocolUtils.stripBrackets(rac.invokeForOneTransaction(requestString));
 	}
-
+	
 	/**
 	 * Request the raw intervals from the device
-	 *
+	 * 
 	 * @param from
 	 * 			- the date to start reading from
-	 *
+	 * 
 	 * @param blockSize
 	 * 			- the size of the blocks to read
-	 *
+	 * 
 	 * @return a string containing one or multiple interval records
-	 *
-	 * @throws java.io.IOException when an error occurred during the read
+	 * 
+	 * @throws IOException when an error occurred during the read 
 	 */
 	public String getIntervals(Date from, int blockSize) throws IOException {
 		return getIntervals(from, null, blockSize);
 	}
-
+	
 	/**
 	 * Request the raw intervals from the device
-	 *
+	 * 
 	 * @param from
 	 * 			- the date to start reading from
-	 *
+	 * 
 	 * @param to
-	 * 			- the date to read to
-	 *
+	 * 			- the date to read to 
+	 *  
 	 * @param blockSize
 	 * 			- the size of the blocks to read
-	 *
+	 * 
 	 * @return a string containing one or multiple interval records
-	 *
-	 * @throws java.io.IOException when an error occurred during the read
+	 * 
+	 * @throws IOException when an error occurred during the read 
 	 */
 	public String getIntervals(Date from, Date to, int blockSize) throws IOException {
 		String requestString = buildRequestString(3, getDLFormatDate(from),(to==null)?null:getDLFormatDate(to), blockSize);

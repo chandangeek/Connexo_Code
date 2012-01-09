@@ -46,7 +46,7 @@ public class ArchiveRecordConfig {
 	 * 
 	 * @throws Exception
 	 * 
-	 * @throws java.io.IOException
+	 * @throws IOException
 	 */
 	protected void parse(String archiveAddress) throws Exception {
 

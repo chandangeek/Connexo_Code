@@ -72,7 +72,7 @@ public class LIS100 implements MeterProtocol, ProtocolLink, RegisterProtocol {
     }
 
     public String getProtocolVersion() {
-        return "$Date: 2011-09-01 14:08:36 +0200 (do, 01 sep 2011) $";
+        return "$Date: 2012-01-09 15:06:09 +0100 (ma, 09 jan 2012) $";
     }
 
     /**

@@ -55,7 +55,7 @@ public abstract class AbstractObject {
 	 * 
 	 * @return the raw value
 	 * 
-	 * @throws java.io.IOException if an error occurred during the read
+	 * @throws IOException if an error occurred during the read
 	 */
 	public String readRawValue() throws IOException {
 		ReadCommand rc = new ReadCommand(link);
@@ -65,9 +65,9 @@ public abstract class AbstractObject {
 
 	/**
 	 * Getter for the default value of this object
-	 *
+	 * 
 	 * @return the value from the readCommand of this object
-	 * @throws java.io.IOException - in case of an error
+	 * @throws IOException - in case of an error
 	 */
 	public String getValue() throws IOException {
 		ReadCommand rc = new ReadCommand(link);
@@ -79,7 +79,7 @@ public abstract class AbstractObject {
 	 * Setter for the default value of this object
 	 * @param setValue - array of bytes to write
      *
-     * @throws java.io.IOException - in case of an error
+     * @throws IOException - in case of an error
 	 */
 	public void setValue(byte[] setValue) throws IOException {
 		WriteCommand wc = new WriteCommand(link);

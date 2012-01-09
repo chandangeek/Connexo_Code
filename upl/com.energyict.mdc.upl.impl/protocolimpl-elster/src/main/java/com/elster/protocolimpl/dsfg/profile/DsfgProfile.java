@@ -86,7 +86,7 @@ public class DsfgProfile {
 
 	/**
 	 * @return the number of channels
-	 * @throws java.io.IOException
+	 * @throws IOException
 	 */
 	public int getNumberOfChannels() throws IOException {
 		return archiveStructure.getNumberOfChannels();
@@ -94,8 +94,8 @@ public class DsfgProfile {
 
 	/**
 	 * @return the interval of the Profile
-	 *
-	 * @throws java.io.IOException
+	 * 
+	 * @throws IOException
 	 *             when something happens during the read
 	 */
 	public int getInterval() throws IOException {
@@ -104,7 +104,7 @@ public class DsfgProfile {
 
 	/**
 	 * Setter for the interval
-	 *
+	 * 
 	 * @param interval
 	 *            - the interval to set
 	 */
@@ -114,10 +114,10 @@ public class DsfgProfile {
 
 	/**
 	 * Construct the channelInfos
-	 *
+	 * 
 	 * @return a list of {@link ChannelInfo}s
-	 *
-	 * @throws java.io.IOException
+	 * 
+	 * @throws IOException
 	 *             if an error occurred during the read of the
 	 *             {@link ChannelInfo}s
 	 */
@@ -154,10 +154,10 @@ public class DsfgProfile {
 
 	/**
 	 * Get the Unit list from the device and return the {@link Unit}
-	 *
+	 * 
 	 * @return the {@link Unit} for the channel
-	 *
-	 * @throws java.io.IOException
+	 * 
+	 * @throws IOException
 	 *             when reading the unit failed
 	 */
 	public Unit getValueUnit(String unit) throws IOException {
@@ -166,16 +166,16 @@ public class DsfgProfile {
 
 	/**
 	 * Get interval data within the request period
-	 *
+	 * 
 	 * @param from
 	 *            - the initial date for the interval data
-	 *
+	 * 
 	 * @param to
 	 *            - the end date for the interval data
-	 *
+	 * 
 	 * @return the requested interval data
-	 *
-	 * @throws java.io.IOException
+	 * 
+	 * @throws IOException
 	 *             when reading of the data failed
 	 */
 	public List<IntervalData> getIntervalData(Date from, Date to)
@@ -187,7 +187,7 @@ public class DsfgProfile {
 
 		for (int i = 0; i < getNumberOfChannels(); i++) {
 			readChannelArchiveData(i, data, roi);
-
+			
 			/* be sure that there is data for the requested date range... */
 			/* 06/30/2010 gh */
 			if (roi.getOnoFrom() < 0) {
@@ -200,14 +200,14 @@ public class DsfgProfile {
 
 	/**
 	 * read out data of one archive channel and put data in map
-	 *
+	 * 
 	 * @param index
 	 *            - channel to readout
 	 * @param data
 	 *            - map to add the data to
 	 * @param roi
 	 *            - readout info
-	 * @throws java.io.IOException
+	 * @throws IOException
 	 */
 	private void readChannelArchiveData(int index, IntervalDataMap data,
 			ReadoutInfo roi) throws IOException {
@@ -240,7 +240,7 @@ public class DsfgProfile {
 
 				c++;
 				link.getLogger().info(String.format("Box %d - Date read %d: %s - %s", index, c, flRead.getFirst().getDate().toString(),
-                        flTotal.getLast().getDate().toString()));
+						flTotal.getLast().getDate().toString()));
 				
 				request = new DataBlock(
 						registrationInstance,

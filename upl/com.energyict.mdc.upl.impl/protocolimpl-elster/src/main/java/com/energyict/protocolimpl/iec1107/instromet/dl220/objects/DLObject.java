@@ -45,8 +45,8 @@ public class DLObject extends AbstractObject {
 	 * Construct a basic DLxxx Object. 
 	 * 
 	 * @param link	
-	 * 			- the {@link com.energyict.protocolimpl.iec1107.ProtocolLink} to use
-	 *
+	 * 			- the {@link ProtocolLink} to use
+	 * 
 	 * @param startAddress
 	 * 			- the startAddress of the Object
 	 * @return
@@ -56,7 +56,7 @@ public class DLObject extends AbstractObject {
 		object.setInitialAddress(startAddress);
 		return object;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -72,10 +72,10 @@ public class DLObject extends AbstractObject {
 	protected int getObjectInstance() {
 		return instance;
 	}
-
+	
 	/**
 	 * Setter of the initialAddress
-	 *
+	 * 
 	 * @param initialAddress
 	 * 				- the initialAddress
 	 */
@@ -85,57 +85,57 @@ public class DLObject extends AbstractObject {
 
 	/**
 	 * Getter for the value
-	 *
+	 * 
 	 * @param instanceNumber
 	 *            - the number of the objects' instance which you want to read
-	 *
+	 *            
 	 * @return the value as a String
-	 * @throws java.io.IOException if read exception occurred
+	 * @throws IOException if read exception occurred
 	 */
 	public String getValue(int instanceNumber) throws IOException {
 		this.instance = instanceNumber;
 		return getValue();
 	}
-
+	
 	/**
 	 * Read the raw value form the device
-	 *
+	 * 
 	 * @param instanceNumber
 	 * 			- the number of the objects' instance which you want to rawread
-	 *
+	 * 
 	 * @return the raw value as a string
-	 *
-	 * @throws java.io.IOException if a read exception occurred
+	 * 
+	 * @throws IOException if a read exception occurred
 	 */
 	public String readRawValue(int instanceNumber) throws IOException {
 		this.instance = instanceNumber;
 		return readRawValue();
 	}
-
+	
 	/**
 	 * Getter for the value without the Unit
-	 *
+	 * 
 	 * @param instanceNumber
 	 * 			- the number of the objects' instance which you want to read
-	 *
+	 * 
 	 * @return the value as a String without the Unit
-	 *
-	 * @throws java.io.IOException if read exception occurred
+	 * 
+	 * @throws IOException if read exception occurred
 	 */
 	public String getValueWithoutUnit(int instanceNumber) throws IOException {
 		this.instance = instanceNumber;
 		return getValue().split(ASTERISK)[valueIndex];
 	}
-
+	
 	/**
 	 * Getter for the Unit without the value
-	 *
+	 * 
 	 * @param instanceNumber
 	 * 			- the number of the objects' instance which you want to read
-	 *
+	 * 
 	 * @return the unit as a String
-	 *
-	 * @throws java.io.IOException if a read exception occurred
+	 * 
+	 * @throws IOException if a read exception occurred
 	 */
 	public String getUnit(int instanceNumber) throws IOException {
 		this.instance = instanceNumber;

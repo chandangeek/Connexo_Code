@@ -94,7 +94,7 @@ public class GenericArchiveObject extends AbstractObject {
 	/**
 	 * Unsupported getter for the default value
 	 * 
-	 * @throws java.io.IOException
+	 * @throws IOException
 	 *             because it is not supported
 	 */
 	@Override
@@ -105,10 +105,10 @@ public class GenericArchiveObject extends AbstractObject {
 
 	/**
 	 * Get the capturedObjects form the device
-	 *
+	 * 
 	 * @return a string with the captured objects
-	 *
-	 * @throws java.io.IOException
+	 * 
+	 * @throws IOException
 	 *             if a read exception occurred
 	 */
 	public String getCapturedObjects() throws IOException {
@@ -117,9 +117,9 @@ public class GenericArchiveObject extends AbstractObject {
 
 	/**
 	 * Get the Units from the device
-	 *
+	 * 
 	 * @return a String of units
-	 * @throws java.io.IOException
+	 * @throws IOException
 	 *             if something happened during the read
 	 */
 	public String getUnits() throws IOException {
@@ -128,13 +128,13 @@ public class GenericArchiveObject extends AbstractObject {
 
 	/**
 	 * Default empty request
-	 *
+	 * 
 	 * @param startAddress
 	 *            - the startAddress for the request
-	 *
+	 * 
 	 * @return the response string from the device
-	 *
-	 * @throws java.io.IOException
+	 * 
+	 * @throws IOException
 	 *             if something happened during the read
 	 */
 	private String getEmptyRequest(String startAddress) throws IOException {
@@ -146,10 +146,10 @@ public class GenericArchiveObject extends AbstractObject {
 
 	/**
 	 * Construct the startAddress
-	 *
+	 * 
 	 * @param attrbDescription
 	 *            - the attribute number to read
-	 *
+	 * 
 	 * @return the constructed startAddress
 	 */
 	private String constructStartAddress(int attrbDescription) {
@@ -158,10 +158,10 @@ public class GenericArchiveObject extends AbstractObject {
 
 	/**
 	 * Construct the startAddress
-	 *
+	 * 
 	 * @param attrbDescription
 	 *            - the attribute number to read
-	 *
+	 * 
 	 * @return the constructed startAddress
 	 */
 
@@ -175,14 +175,14 @@ public class GenericArchiveObject extends AbstractObject {
 
 	/**
 	 * Request the number of intervals
-	 *
+	 * 
 	 * @param from
 	 *            - the date from where to start reading
-	 *
+	 * 
 	 * @return a number representing the available intervals starting from the
 	 *         from date
-	 *
-	 * @throws java.io.IOException
+	 * 
+	 * @throws IOException
 	 *             if something freaky happened during the read
 	 */
 	public String getNumberOfIntervals(Date from) throws IOException {
@@ -197,16 +197,16 @@ public class GenericArchiveObject extends AbstractObject {
 
 	/**
 	 * Request the raw intervals from the device
-	 *
+	 * 
 	 * @param from
 	 *            - the date to start reading from
-	 *
+	 * 
 	 * @param blockSize
 	 *            - the size of the blocks to read
-	 *
+	 * 
 	 * @return a string containing one or multiple interval records
-	 *
-	 * @throws java.io.IOException
+	 * 
+	 * @throws IOException
 	 *             when an error occurred during the read
 	 */
 	public String getIntervals(Date from, int blockSize) throws IOException {
@@ -215,19 +215,19 @@ public class GenericArchiveObject extends AbstractObject {
 
 	/**
 	 * Request the raw intervals from the device
-	 *
+	 * 
 	 * @param from
 	 *            - the date to start reading from
-	 *
+	 * 
 	 * @param to
 	 *            - the date to read to
-	 *
+	 * 
 	 * @param blockSize
 	 *            - the size of the blocks to read
-	 *
+	 * 
 	 * @return a string containing one or multiple interval records
-	 *
-	 * @throws java.io.IOException
+	 * 
+	 * @throws IOException
 	 *             when an error occurred during the read
 	 */
 	public String getIntervals(Date from, Date to, int blockSize)

@@ -51,9 +51,9 @@ public enum Lis200ObisCode {
     VOLUME_BASE_COND_TOTAL_HIST("(7\\.0\\.13\\.2\\.0\\.)(([1-9])|([1][0-5]))", "Volume at base conditions total (historic)"),
     VOLUME_BASE_COND_CORR_HIST("(7\\.0\\.11\\.2\\.0\\.)(([1-9])|([1][0-5]))", "Corrected volume at base conditions (historic)"),
 
-    VOLUME_MEAS_COND_ORG_HIST("(7\\.0\\.3\\.0\\.0\\.)(([1-9])|([1][0-5]))", "Original volume at measurement conditions (historic)"),
+    VOLUME_MEAS_COND_ORG_HIST("(7\\.1\\.13\\.0\\.0\\.)(([1-9])|([1][0-5]))", "Original volume at measurement conditions (historic)"),
     VOLUME_MEAS_COND_TOTAL_HIST("(7\\.0\\.13\\.0\\.0\\.)(([1-9])|([1][0-5]))", "Volume at measurement conditions total (historic)"),
-    VOLUME_MEAS_COND_CORR_HIST("(7\\.0\\.13\\.1\\.0\\.)(([1-9])|([1][0-5]))", "Corrected volume at measurement conditions (historic)"),
+    VOLUME_MEAS_COND_CORR_HIST("(7\\.0\\.11\\.0\\.0\\.)(([1-9])|([1][0-5]))", "Corrected volume at measurement conditions (historic)"),
 
     MAX_INT_VAL_MEAS_COND_HIST("(7\\.0\\.13\\.54\\.0\\.)(([1-9])|([1][0-5]))", "Maximum measurement period Vm (historic)"),
     MAX_DAY_VAL_MEAS_COND_HIST("(7\\.0\\.13\\.60\\.0\\.)(([1-9])|([1][0-5]))", "Maximum daily Vm (historic)"),

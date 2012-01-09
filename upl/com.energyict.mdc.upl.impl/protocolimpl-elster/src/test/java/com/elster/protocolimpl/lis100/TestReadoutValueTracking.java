@@ -37,7 +37,7 @@ public class TestReadoutValueTracking {
         TimeZone timeZone = TimeZone.getTimeZone("GMT+1");
         sdf.setTimeZone(timeZone);
 
-        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData();
+        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData(); 
 
         assertEquals(10.0, cd.getCpValue());
 
@@ -64,7 +64,7 @@ public class TestReadoutValueTracking {
         TimeZone timeZone = TimeZone.getTimeZone("GMT+1");
         sdf.setTimeZone(timeZone);
 
-        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData();
+        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData(); 
 
         assertEquals(0.1, cd.getCalcFactor());
 

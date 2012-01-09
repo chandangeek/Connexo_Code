@@ -26,7 +26,7 @@ public abstract class AbstractObject {
 	/** A static string dot */
 	protected static String DOT = ".";
 
-	/** The used {@link com.energyict.protocolimpl.iec1107.ProtocolLink} */
+	/** The used {@link ProtocolLink} */
 	protected ProtocolLink link;
 
 	/**
@@ -41,20 +41,20 @@ public abstract class AbstractObject {
 
 	/**
 	 * Initial Constructor
-	 *
+	 * 
 	 * @param link
-	 * 			- the {@link com.energyict.protocolimpl.iec1107.ProtocolLink}
+	 * 			- the {@link ProtocolLink}
 	 */
 	public AbstractObject(ProtocolLink link) {
 		this.link = link;
 	}
-
+	
 	/**
 	 * Read the raw Value from the device (including the brackets)
-	 *
+	 * 
 	 * @return the raw value
-	 *
-	 * @throws java.io.IOException if an error occurred during the read
+	 * 
+	 * @throws IOException if an error occurred during the read
 	 */
 	public String readRawValue() throws IOException {
 		ReadCommand rc = new ReadCommand(link);
@@ -64,9 +64,9 @@ public abstract class AbstractObject {
 
 	/**
 	 * Getter for the default value of this object
-	 *
+	 * 
 	 * @return the value from the readCommand of this object
-	 * @throws java.io.IOException
+	 * @throws IOException
 	 */
 	public String getValue() throws IOException {
 		ReadCommand rc = new ReadCommand(link);
@@ -76,8 +76,8 @@ public abstract class AbstractObject {
 
 	/**
 	 * Setter for the default value of this object
-	 *
-	 * @throws java.io.IOException
+	 * 
+	 * @throws IOException
 	 */
 	public void setValue(byte[] setValue) throws IOException {
 		WriteCommand wc = new WriteCommand(link);

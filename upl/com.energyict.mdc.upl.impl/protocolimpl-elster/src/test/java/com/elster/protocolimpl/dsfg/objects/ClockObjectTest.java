@@ -36,7 +36,7 @@ public class ClockObjectTest {
         
         Long diff = calculatedDate.getTime() - currentCalendar.getTimeInMillis();
 
-        if(Math.abs(diff / 1000) > 300){
+        if(Math.abs(diff/1000) > 300){
             fail("Test 1 FAILED :: TimeDifference is larger then 5 minutes: " + diff/1000 + " seconds.");
         } else {
             System.out.println("Test 1 was SUCCESSFUL TimeDifference is more or less acceptable : " + + diff/1000 + " seconds.");
@@ -64,7 +64,7 @@ public class ClockObjectTest {
 
         Long diff = calculatedDate.getTime() - currentCalendar.getTimeInMillis();
 
-        if(Math.abs(diff / 1000) > 300){
+        if(Math.abs(diff/1000) > 300){
             fail("Test 2 FAILED :: TimeDifference is larger then 5 minutes: " + diff/1000 + " seconds.");
         } else {
             System.out.println("Test 2 was SUCCESSFUL TimeDifference is more or less acceptable : " + diff/1000 + " seconds.");

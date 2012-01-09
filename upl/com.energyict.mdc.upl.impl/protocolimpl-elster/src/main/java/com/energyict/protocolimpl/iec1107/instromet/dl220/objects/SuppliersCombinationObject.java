@@ -49,7 +49,7 @@ public class SuppliersCombinationObject extends AbstractObject {
 	/**
 	 * Lock the object
 	 * 
-	 * @throws java.io.IOException
+	 * @throws IOException
 	 */
 	public void setLock() throws IOException {
 		this.lock = true;

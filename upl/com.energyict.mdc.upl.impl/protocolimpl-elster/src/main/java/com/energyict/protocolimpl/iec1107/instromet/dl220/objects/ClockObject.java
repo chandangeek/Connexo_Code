@@ -12,7 +12,7 @@ import java.util.TimeZone;
  * 
  * <b>Description of the DLSChangeOver value:</b><br>
  * "0" to "2" is displayed, corresponding to: <br>
- * <li>�0� = Daylight saving off <li>�1� = Daylight saving automatic according to PTB stipulation. <li>�2� = Daylight
+ * <li>0 = Daylight saving off <li>1 = Daylight saving automatic according to PTB stipulation. <li>2 = Daylight
  * saving changeover via adjustable times.<br>
  * In Mode "2" any times can be set which are needed to switch from summer to winter time and back again, because they,
  * for example, deviate from the PTB times. These must then be adjusted annually if required. The following details are
@@ -83,7 +83,7 @@ public class ClockObject extends AbstractObject {
 	 * 
 	 * @return the dateTime
 	 * 
-	 * @throws java.io.IOException
+	 * @throws IOException
 	 */
 	public Calendar getDateTime() throws IOException {
 		startAddressIndex = startAddressDateTime;
@@ -138,29 +138,29 @@ public class ClockObject extends AbstractObject {
 	private static final String DATE_TIME_SEPARATOR = ",";
 
 	/**
-	 * Construct a {@link java.util.Calendar} based on the raw input data.
+	 * Construct a {@link Calendar} based on the raw input data.
 	 * The used timeZone is GMT
-	 *
+	 * 
 	 * @param rawDateTime
 	 *            - the raw Date and Time
-	 *
+	 * 
 	 * @return a Calender with the metertime
-	 *
-	 * @deprecated since 08/03/10, use the {@link #parseCalendar(String, java.util.TimeZone)} instead
+	 * 
+	 * @deprecated since 08/03/10, use the {@link #parseCalendar(String, TimeZone)} instead
 	 */
 	@Deprecated
 	public static Calendar parseCalendar(String rawDateTime) {
 		return parseCalendar(rawDateTime, TimeZone.getTimeZone("GMT"));
 	}
-
+	
 	/**
-	 * Construct a {@link java.util.Calendar} based on the raw input data and the given {@link java.util.TimeZone}
-	 *
+	 * Construct a {@link Calendar} based on the raw input data and the given {@link TimeZone}
+	 * 
 	 * @param rawDateTime
 	 *          - the raw Date and Time
 	 * @param timeZone
 	 * 			- the timeZone the rawDateTime is written in
-	 *
+	 * 
 	 * @return a Calender with the metertime
 	 */
 	public static Calendar parseCalendar(String rawDateTime, TimeZone timeZone){
@@ -183,10 +183,10 @@ public class ClockObject extends AbstractObject {
 
 	/**
 	 * Construct a string in the <i>yyyy-MM-DD,HH:mm:ss</i> format
-	 *
+	 * 
 	 * @param newCalendar
-	 *            - the {@link java.util.Calendar} to convert
-	 *
+	 *            - the {@link Calendar} to convert
+	 * 
 	 * @return the new calendar string for the meter
 	 */
 	protected static String getRawData(Calendar newCalendar) {
@@ -207,7 +207,7 @@ public class ClockObject extends AbstractObject {
 
 	/**
 	 * Return a two digit string value
-	 *
+	 * 
 	 * @param possibleOneDigitValue
 	 *            - a string value with possibly 1 digit
 	 * @return a two digit string value
@@ -222,8 +222,8 @@ public class ClockObject extends AbstractObject {
 
 	/**
 	 * Write the current time to the meter
-	 *
-	 * @throws java.io.IOException when the write failed
+	 * 
+	 * @throws IOException when the write failed
 	 */
 	public void writeClock() throws IOException {
 		Calendar currentCalendar = Calendar.getInstance(link.getTimeZone());

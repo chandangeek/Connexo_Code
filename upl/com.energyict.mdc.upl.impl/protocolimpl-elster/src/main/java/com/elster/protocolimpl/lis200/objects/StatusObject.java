@@ -32,7 +32,7 @@ public class StatusObject extends SimpleObject {
 	 * numbers)
 	 * 
 	 * @return status as an integer
-	 * @throws java.io.IOException
+	 * @throws IOException
 	 */
 	public int getStatusInt() throws IOException {
 		//String status = getValue(); 

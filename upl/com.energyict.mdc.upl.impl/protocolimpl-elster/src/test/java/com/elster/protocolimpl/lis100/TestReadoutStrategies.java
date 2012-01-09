@@ -37,7 +37,7 @@ public class TestReadoutStrategies {
         TimeZone timeZone = TimeZone.getTimeZone("GMT+1");
         sdf.setTimeZone(timeZone);
 
-        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData();
+        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData(); 
 
         Date dateTo = sdf.parse("30.10.2007 11:17:02");
 
@@ -60,7 +60,7 @@ public class TestReadoutStrategies {
         TimeZone timeZone = TimeZone.getTimeZone("GMT+1");
         sdf.setTimeZone(timeZone);
 
-        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData();
+        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData(); 
 
         Date dateTo = sdf.parse("30.09.2007 11:17:02");
 
@@ -83,7 +83,7 @@ public class TestReadoutStrategies {
         TimeZone timeZone = TimeZone.getTimeZone("GMT+1");
         sdf.setTimeZone(timeZone);
 
-        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData();
+        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData(); 
 
         Date dateTo = sdf.parse("30.10.2007 11:17:02");
 
@@ -106,7 +106,7 @@ public class TestReadoutStrategies {
         TimeZone timeZone = TimeZone.getTimeZone("GMT+1");
         sdf.setTimeZone(timeZone);
 
-        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData();
+        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData(); 
 
         Date dateTo = sdf.parse("30.09.2007 11:17:02");
 
@@ -129,7 +129,7 @@ public class TestReadoutStrategies {
         TimeZone timeZone = TimeZone.getTimeZone("GMT+1");
         sdf.setTimeZone(timeZone);
 
-        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData();
+        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData(); 
 
         Date dateTo = sdf.parse("30.10.2007 11:17:02");
 
@@ -152,7 +152,7 @@ public class TestReadoutStrategies {
         TimeZone timeZone = TimeZone.getTimeZone("GMT+1");
         sdf.setTimeZone(timeZone);
 
-        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData();
+        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData(); 
 
         Date dateTo = sdf.parse("30.09.2007 11:17:02");
 
@@ -175,7 +175,7 @@ public class TestReadoutStrategies {
         TimeZone timeZone = TimeZone.getTimeZone("GMT+1");
         sdf.setTimeZone(timeZone);
 
-        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData();
+        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData(); 
 
         Date dateTo = sdf.parse("30.09.2007 11:17:02");
 
@@ -198,7 +198,7 @@ public class TestReadoutStrategies {
         TimeZone timeZone = TimeZone.getTimeZone("GMT+1");
         sdf.setTimeZone(timeZone);
 
-        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData();
+        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData(); 
 
         Date dateTo = sdf.parse("30.09.2007 11:17:02");
 
@@ -222,7 +222,7 @@ public class TestReadoutStrategies {
         TimeZone timeZone = TimeZone.getTimeZone("GMT+1");
         sdf.setTimeZone(timeZone);
 
-        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData();
+        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData(); 
 
         Date dateTo = sdf.parse("30.09.2007 11:17:02");
 
@@ -245,7 +245,7 @@ public class TestReadoutStrategies {
         TimeZone timeZone = TimeZone.getTimeZone("GMT+1");
         sdf.setTimeZone(timeZone);
 
-        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData();
+        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData(); 
 
         Date dateTo = sdf.parse("30.1.1993 06:00:00");
 
@@ -269,7 +269,7 @@ public class TestReadoutStrategies {
         TimeZone timeZone = TimeZone.getTimeZone("GMT+1");
         sdf.setTimeZone(timeZone);
 
-        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData();
+        DeviceData deviceData = new DeviceData(factory, timeZone);         deviceData.prepareDeviceData();         ChannelData cd = new ChannelData(deviceData);         cd.readChannelData(); 
 
         Date dateTo = sdf.parse("30.1.1993 06:00:00");
 

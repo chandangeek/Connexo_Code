@@ -23,9 +23,9 @@ public class DL220Connection extends FlagIEC1107Connection {
 	 * Default constructor for the DL220 protocol
 	 * 
 	 * @param inputStream
-	 *            - the {@link java.io.InputStream} to use
+	 *            - the {@link InputStream} to use
 	 * @param outputStream
-	 *            - the {@link java.io.OutputStream} to use
+	 *            - the {@link OutputStream} to use
 	 * @param timeout
 	 *            - Time in ms. for a request to wait for a response before returning an timeout error.
 	 * @param maxRetries
@@ -38,7 +38,7 @@ public class DL220Connection extends FlagIEC1107Connection {
 	 *            - behave full compatible or use protocol special features
 	 * @param software7E1
 	 *            - property to dial with a GSM modem using 7 databits, even parity, 1 stopbit
-	 * @throws com.energyict.dialer.connection.ConnectionException
+	 * @throws ConnectionException
 	 */
 	public DL220Connection(InputStream inputStream, OutputStream outputStream, int timeout, int maxRetries,
 			long forceDelay, int echoCancelling, int compatible, boolean software7E1) throws ConnectionException {

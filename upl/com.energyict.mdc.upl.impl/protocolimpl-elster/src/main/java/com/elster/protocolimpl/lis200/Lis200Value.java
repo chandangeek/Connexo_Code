@@ -2,7 +2,6 @@ package com.elster.protocolimpl.lis200;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-
 /**
  * helper class for lis200 values that are in the form <value>"*"<unit>
  *  

@@ -98,7 +98,7 @@ public class LockObject extends AbstractObject {
 	 * checks, if the lock is open
 	 *
 	 * @return true if lock is open
-	 * @throws java.io.IOException
+	 * @throws IOException
 	 */
 	public boolean isLockOpen() throws IOException {
 	    String val = getValue();
@@ -124,11 +124,11 @@ public class LockObject extends AbstractObject {
      * Is lock is opened correctly has to checked with isLockOpen (after openLock)
      *
      * @param key
-     * @throws java.io.IOException
+     * @throws IOException
      */
 	public void openLock(String key) throws IOException {
 		WriteCommand wc = new WriteCommand(link);
-
+		
 		wc.setStartAddress(getStartAddress(keyAddress));
 		byte[] setValue = key.getBytes();
 		wc.setDataValue(setValue);
@@ -138,7 +138,7 @@ public class LockObject extends AbstractObject {
 	/**
 	 * Closes the lock
 	 *
-	 * @throws java.io.IOException
+	 * @throws IOException
 	 */
 	public void closeLock() throws IOException {
 		this.setValue(new byte[] { 0x30 });
@@ -148,7 +148,7 @@ public class LockObject extends AbstractObject {
 	 * Changes the key for an open lock
 	 *
 	 * @param key
-	 * @throws java.io.IOException
+	 * @throws IOException
 	 */
 	public void changeKey(String key) throws IOException {
 		WriteCommand wc = new WriteCommand(link);

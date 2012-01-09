@@ -6,6 +6,7 @@ package com.energyict.protocolimpl.iec1107.instromet.dl220.registers;
 import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.*;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.ClockObject;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.DLObject;
@@ -24,29 +25,29 @@ import java.util.*;
  */
 public class DL220ObisCodeMapper {
 
-	/** The used {@link com.energyict.protocolimpl.iec1107.instromet.dl220.DL220} */
+	/** The used {@link DL220} */
 	private final DL220 dl220;
 	/** The billingProfile */
 	private DL220Profile profile;
 
 	/**
-	 * Constructor with the {@link com.energyict.protocolimpl.iec1107.ProtocolLink}
-	 *
+	 * Constructor with the {@link ProtocolLink}
+	 * 
 	 * @param dl220
-	 *            - the used {@link com.energyict.protocolimpl.iec1107.instromet.dl220.DL220}
+	 *            - the used {@link DL220}
 	 */
 	public DL220ObisCodeMapper(DL220 dl220) {
 		this.dl220 = dl220;
 	}
 
 	/**
-	 * Read the {@link com.energyict.protocol.RegisterValue} from the device
-	 *
+	 * Read the {@link RegisterValue} from the device
+	 * 
 	 * @param obisCode
 	 *            - the obisCode to read
-	 *
-	 * @return the {@link com.energyict.protocol.RegisterValue}
-	 * @throws java.io.IOException
+	 * 
+	 * @return the {@link RegisterValue}
+	 * @throws IOException
 	 */
 	public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
 		ObisCode original = obisCode;
@@ -65,12 +66,12 @@ public class DL220ObisCodeMapper {
 		} else {
 			throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported by the protocol");
 		}
-
+		
 		ObisCode adjustedOC = convertObisCodeToValidWithMeterIndex(obisCode);
 		RegisterValue rv;
 
 		if(billingPoint == -1){
-
+			
 			if(DL220Registers.containsMaxDemandRegister(adjustedOC)){
 				try {
 					DL220Registers dlRegister = DL220Registers.forObisCode(adjustedOC);
@@ -90,7 +91,7 @@ public class DL220ObisCodeMapper {
 					String valueWithUnit = object.getValue(dlRegister.getInstanceID());
 					BigDecimal bd = new BigDecimal(valueWithUnit.split(DLObject.ASTERISK)[DLObject.valueIndex]);
 					rv = new RegisterValue(original, new Quantity(bd, DL220Utils.getUnitFromString(valueWithUnit
-                            .split(DLObject.ASTERISK)[DLObject.unitIndex])), new Date());
+							.split(DLObject.ASTERISK)[DLObject.unitIndex])), new Date());
 				} catch (IOException e) {
 					throw new NoSuchRegisterException("Failed while reading register with ObisCode " + obisCode);
 				}
@@ -98,7 +99,7 @@ public class DL220ObisCodeMapper {
 				dl220.getLogger().info("ObisCode " + obisCode.toString() + " is not supported by the PROTOCOL.");
 				throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported by the protocol.");
 			}
-
+			
 		}else {
 			/*
 			 * The BillingPoints are daily values
@@ -122,34 +123,34 @@ public class DL220ObisCodeMapper {
 		}
 		return rv;
 	}
-
+	
 	/**
-	 * Get the {@link com.energyict.protocol.IntervalData} record that contains the billingValue
-	 *
-	 * @param from
+	 * Get the {@link IntervalData} record that contains the billingValue
+	 * 
+	 * @param from 
 	 * 			- the FromDate to read the profile
-	 *
+	 * 
 	 * @param to
 	 * 			- the Date to end the billingPeriod
-	 *
+	 * 
 	 * @param billingPoint
 	 * 			- the requested billingpoint
-	 *
+	 * 
 	 * @param obisCode
 	 * 			- the handling obisCode (just for logging)
-	 *
-	 * @return the {@link com.energyict.protocol.IntervalData} with the requested billingValue
-	 *
-	 * @throws java.io.IOException if the billingValue doesn't exist yet or something went wrong during the read of the profile
+	 * 
+	 * @return the {@link IntervalData} with the requested billingValue
+	 * 
+	 * @throws IOException if the billingValue doesn't exist yet or something went wrong during the read of the profile
 	 */
-	private IntervalData getBillingInterval(Date from, Date to, int billingPoint, ObisCode obisCode) throws IOException {
+	private IntervalData getBillingInterval(Date from, Date to, int billingPoint, ObisCode obisCode) throws IOException{
 		IntervalData id = intervalListAlreadyContainsBillingPoint(from, to);
-
+		
 		if(id != null){
 			return id;
 		} else {
 			List<IntervalData> intervalList = getProfileObject().getIntervalData(from, new Date());
-
+			
 			if(intervalList.size() != 0){
 				if(billingPoint > intervalList.size()){
 					dl220.getLogger().info("Register with ObisCode " + obisCode + " is not yet available in the meter.(Billingpoint does not exist yet)");
@@ -162,17 +163,17 @@ public class DL220ObisCodeMapper {
 			}
 		}
 	}
-
+	
 	/**
 	 * Check if the intervalList already contains the billingPoint between the requested date
-	 *
+	 * 
 	 * @param from
 	 * 			- the start of the billingPeriod
-	 *
+	 * 
 	 * @param to
 	 * 			- the end of the billingPeriod
-	 *
-	 * @return null if the billingPeriod doesn't exist yet, or the {@link com.energyict.protocol.IntervalData} containing the billingPeriod
+	 * 
+	 * @return null if the billingPeriod doesn't exist yet, or the {@link IntervalData} containing the billingPeriod
 	 */
 	private IntervalData intervalListAlreadyContainsBillingPoint(Date from, Date to){
 		for(IntervalData id : getProfileObject().getIntervalList()){
@@ -184,14 +185,14 @@ public class DL220ObisCodeMapper {
 	}
 
 	/**
-	 * Change the B-channel of the {@link com.energyict.obis.ObisCode} to the meterIndex.<br>
+	 * Change the B-channel of the {@link ObisCode} to the meterIndex.<br>
 	 * Also change the A field to a 'cold-water-obiscode', meaning 8
-	 *
+	 * 
 	 * @param oc
 	 *            - the given ObisCode
-	 *
+	 * 
 	 * @return the <i>obiscode</i> with an adjusted A-/B-channel (1 or 2)
-	 * @throws com.energyict.protocol.NoSuchRegisterException
+	 * @throws NoSuchRegisterException
 	 *             if the obiscode is not a Hot- or ColdWater ObisCode
 	 */
 	private ObisCode convertObisCodeToValidWithMeterIndex(ObisCode oc) throws NoSuchRegisterException {
@@ -206,7 +207,7 @@ public class DL220ObisCodeMapper {
 	}
 
 	/**
-	 * @return the {@link com.energyict.protocolimpl.iec1107.instromet.dl220.profile.DL220Profile}
+	 * @return the {@link DL220Profile}
 	 */
 	protected DL220Profile getProfileObject() {
 		if (this.profile == null) {

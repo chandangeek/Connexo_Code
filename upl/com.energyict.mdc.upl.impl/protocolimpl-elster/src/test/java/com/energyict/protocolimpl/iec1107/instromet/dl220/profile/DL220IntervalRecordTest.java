@@ -23,14 +23,14 @@ import static org.junit.Assert.fail;
 public class DL220IntervalRecordTest {
 
 	/**
-	 * @throws Exception
+	 * @throws java.lang.Exception
 	 */
 	@Before
 	public void setUp() throws Exception {
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws java.lang.Exception
 	 */
 	@After
 	public void tearDown() throws Exception {

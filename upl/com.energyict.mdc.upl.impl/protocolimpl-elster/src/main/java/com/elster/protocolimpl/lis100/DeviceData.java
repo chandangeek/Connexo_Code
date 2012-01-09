@@ -50,7 +50,7 @@ public class DeviceData {
     /**
      * prepare class by reading first command data and evaluate them
      *
-     * @throws java.io.IOException - in case of an error
+     * @throws IOException - in case of an error
      */
     public void prepareDeviceData() throws IOException {
         if (!initialized) {
@@ -109,7 +109,7 @@ public class DeviceData {
      * gets type of device as string
      *
      * @return type of device
-     * @throws java.io.IOException - in case of an error
+     * @throws IOException - in case of an error
      */
     public String getMeterType() throws IOException {
         prepareDeviceData();
@@ -133,7 +133,7 @@ public class DeviceData {
      * @param reader - with reader object...
      *
      * @return channel data
-     * @throws java.io.IOException - in case of an error
+     * @throws IOException - in case of an error
      */
     public ChannelData getChannelData(int channelNo, Date until, IIntervalDataStreamReader reader) throws IOException {
 

@@ -118,7 +118,7 @@ public class Lis100Connection extends Connection {
      *
      * @param order - order letter
      * @param data  - data to send (as a string)
-     * @throws java.io.IOException         - in case of io error
+     * @throws IOException         - in case of io error
      * @throws ConnectionException - in case of connection problems
      */
     public void sendTelegram(byte order, String data) throws IOException {
@@ -130,7 +130,7 @@ public class Lis100Connection extends Connection {
      *
      * @param order - order letter
      * @param data  - data to send (as byte array)
-     * @throws java.io.IOException         - in case of io error
+     * @throws IOException         - in case of io error
      * @throws ConnectionException - in case of connection problems
      */
     public void sendTelegram(byte order, byte[] data) throws IOException {

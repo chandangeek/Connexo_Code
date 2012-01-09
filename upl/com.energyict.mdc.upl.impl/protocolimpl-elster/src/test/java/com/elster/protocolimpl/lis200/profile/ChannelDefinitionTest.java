@@ -40,6 +40,6 @@ public class ChannelDefinitionTest {
 	@Test(expected=NumberFormatException.class)
     public void testNumberFormatException() {
 		@SuppressWarnings("unused")
-        ChannelDefinition ci = new ChannelDefinition("CHN", 0);
+		ChannelDefinition ci = new ChannelDefinition("CHN", 0);
     }	
 }

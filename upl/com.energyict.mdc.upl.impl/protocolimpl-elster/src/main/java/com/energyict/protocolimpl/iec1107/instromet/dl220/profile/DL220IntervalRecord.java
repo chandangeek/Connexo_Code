@@ -37,34 +37,34 @@ public class DL220IntervalRecord implements DL220Record {
 	
 	/**
 	 * {@inheritDoc}
-	 * @throws java.io.IOException if parsing the raw object configuration failed
+	 * @throws IOException if parsing the raw object configuration failed
 	 */
-	public Date getEndTime() throws IOException {
+	public Date getEndTime() throws IOException{
 		return ClockObject.parseCalendar(DL220Utils.getTextBetweenBracketsFromIndex(this.record, dirc.getTimeIndex()), timeZone).getTime();
 	}
-
+	
 	/**
 	 * {@inheritDoc}
-	 * @param index
-	 * @throws java.io.IOException if parsing the raw object configuration failed
+	 * @param index 
+	 * @throws IOException if parsing the raw object configuration failed
 	 */
-	public String getValue(int index) throws IOException {
+	public String getValue(int index) throws IOException{
 		return DL220Utils.getTextBetweenBracketsFromIndex(this.record, dirc.getValueIndex(index));
 	}
-
+	
 	/**
 	 * {@inheritDoc}
-	 * @throws java.io.IOException if parsing the raw object configuration failed
+	 * @throws IOException if parsing the raw object configuration failed
 	 */
-	public String getStatus() throws IOException {
+	public String getStatus() throws IOException{
 		return DL220Utils.getTextBetweenBracketsFromIndex(this.record, dirc.getStatusIndex());
 	}
-
+	
 	/**
 	 * {@inheritDoc}
-	 * @throws java.io.IOException if parsing the raw object configuration failed
+	 * @throws IOException if parsing the raw object configuration failed
 	 */
-	public String getEvent() throws IOException {
+	public String getEvent() throws IOException{
 		return DL220Utils.getTextBetweenBracketsFromIndex(this.record, dirc.getEventIndex());
 	}
 }	

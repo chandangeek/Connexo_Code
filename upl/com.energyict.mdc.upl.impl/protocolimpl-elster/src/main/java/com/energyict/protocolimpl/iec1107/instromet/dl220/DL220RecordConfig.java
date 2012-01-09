@@ -39,7 +39,7 @@ public interface DL220RecordConfig {
 
 	/**
 	 * @return the number of objects per record
-	 * @throws java.io.IOException
+	 * @throws IOException 
 	 */
 	public abstract int getNumberOfObjectsPerRecord() throws IOException;
 

@@ -57,7 +57,7 @@ public class MyDl210MonthlyArchive extends GenericArchiveObject {
 
         StringBuilder s = new StringBuilder();
         Date[] dates = archiveData.keySet().toArray(new Date[0]);
-        Arrays.sort(dates);
+        java.util.Arrays.sort(dates);
         for (Date d: dates) {
             if ((d.getTime() >= from.getTime()) &&
                     (d.getTime() < to.getTime())) {

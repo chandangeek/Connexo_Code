@@ -36,7 +36,7 @@ public class SimpleObisCodeMapper {
      *
      * @param obisCode - the obisCode to read
      * @return the {@link com.energyict.protocol.RegisterValue}
-     * @throws java.io.IOException - in case of an error
+     * @throws IOException - in case of an error
      */
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
 

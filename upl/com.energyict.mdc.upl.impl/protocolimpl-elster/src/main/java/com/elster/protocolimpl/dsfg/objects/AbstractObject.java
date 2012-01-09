@@ -43,10 +43,10 @@ public abstract class AbstractObject {
 	 * 
 	 * @return the raw value
 	 * 
-	 * @throws java.io.IOException if an error occurred during the read
+	 * @throws IOException if an error occurred during the read
 	 */
 	public String readRawValue() throws IOException {
-		DataBlock db = new DataBlock(link.getRegistrationInstance(),
+		DataBlock db = new DataBlock(link.getRegistrationInstance(), 
 				                     'A', 'J', 'M', getStartAddress());
 		DataBlock in = link.getDsfgConnection().sendRequest(db);
 		return in.getElementAt(0).getValue().toString();
@@ -54,9 +54,9 @@ public abstract class AbstractObject {
 
 	/**
 	 * Getter for the default value of this object
-	 *
+	 * 
 	 * @return the value from the readCommand of this object
-	 * @throws java.io.IOException
+	 * @throws IOException
 	 */
 	public String getValue() throws IOException {
 		return readRawValue();
@@ -64,8 +64,8 @@ public abstract class AbstractObject {
 
 	/**
 	 * Setter for the default value of this object
-	 *
-	 * @throws java.io.IOException
+	 * 
+	 * @throws IOException
 	 */
 	public void setValue(byte[] setValue) throws IOException {
 		throw new IOException("setValue in DSfG not possible");

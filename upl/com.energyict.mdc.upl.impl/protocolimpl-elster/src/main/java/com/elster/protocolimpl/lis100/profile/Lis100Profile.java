@@ -39,7 +39,7 @@ public class Lis100Profile {
      * build channel infos of read channel data
      *
      * @return list of channel infos
-     * @throws java.io.IOException - in case of an error
+     * @throws IOException - in case of an error
      */
     public List<ChannelInfo> buildChannelInfo() throws IOException {
 
@@ -61,7 +61,7 @@ public class Lis100Profile {
      *
      * @return list of interval data of all channels
      *
-     * @throws java.io.IOException in case of errors
+     * @throws IOException in case of errors
      */
     public List<IntervalData> getIntervalData(Date from, Date to) throws IOException {
 

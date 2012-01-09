@@ -23,6 +23,12 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdw</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster</groupId>
+            <artifactId>ElsterDlmsLibrary</artifactId>
+            <version>1.0.7</version>
+        </dependency>
+
     </dependencies>
 
     <build>

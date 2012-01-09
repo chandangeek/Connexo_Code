@@ -34,7 +34,7 @@ public class TestEk260_V252 extends EK260 {
 
         /* volume */
         for (int i = 1; i <= 15; i++) {
-            rv = this.readRegister(new ObisCode(7, 0, 3, 0, 0, i));
+            rv = this.readRegister(new ObisCode(7, 1, 13, 0, 0, i));
             sb.append(rv);
             sb.append("\n");
             rv = this.readRegister(new ObisCode(7, 0, 11, 2, 0, i));
@@ -43,7 +43,7 @@ public class TestEk260_V252 extends EK260 {
             rv = this.readRegister(new ObisCode(7, 0, 13, 2, 0, i));
             sb.append(rv);
             sb.append("\n");
-            rv = this.readRegister(new ObisCode(7, 0, 13, 1, 0, i));
+            rv = this.readRegister(new ObisCode(7, 0, 11, 0, 0, i));
             sb.append(rv);
             sb.append("\n");
             rv = this.readRegister(new ObisCode(7, 0, 13, 54, 0, i));
@@ -200,7 +200,7 @@ public class TestEk260_V252 extends EK260 {
 
             if (archiveInstance == 2) {
                 // (GONr)(AONr)(Zeit)(Qn [m3|h])(Zeit)(Stat)(Qn [m3|h])(Zeit)(Stat)(Qb [m3|h])(Zeit)(Stat)(Qb [m3|h])(Zeit)(Stat)(p.Mon [ bar])(p.Mon [ bar])(Zeit)(Stat)(p.Mon [ bar])(Zeit)(Stat)(T.Mon [{C])(T.Mon [{C])(Zeit)(Stat)(T.Mon [{C])(Zeit)(Stat)(K.Mon)(Z.Mon)(St.7)(St.6)(St.8)(St.5)(Check)
-                units = "()()()(m3/h)()()(m3/h)()()(m3/h)()()(m3/h)()()(bar)(bar)()()(bar)()()°C)(°C)()()(°C)()()()()()()()()()";
+                units = "()()()(m3/h)()()(m3/h)()()(m3/h)()()(m3/h)()()(bar)(bar)()()(bar)()()\u00B0C)(\u00B0C)()()(\u00B0C)()()()()()()()()()";
 
                 archiveData.put(makeDate("2010-03-01,06:00:00"), "(17650)(20)(2010-03-01,06:00:00)(120.99)(2010-02-01,20:43:34)(0)(0)(2010-02-27,17:16:10)(0)(126)(2010-02-01,20:43:46)(0)(0)(2010-02-27,17:16:10)(0)(1.06295)(1.07169)(2010-02-02,04:19:54)(0)(1.02374)(2010-02-28,11:04:56)(0)(27.38)(31.29)(2010-02-26,02:42:10)(0)(17.78)(2010-02-02,13:02:38)(0)(0.98774)(0.94759)(0)(0)(0)(0)(CRC Ok)");
                 archiveData.put(makeDate("2010-04-01,06:00:00"), "(18627)(21)(2010-04-01,06:00:00)(123.55)(2010-03-06,20:34:32)(0)(0)(2010-03-31,14:11:52)(0)(126)(2010-03-07,23:39:38)(0)(0)(2010-03-31,14:11:52)(0)(1.06206)(1.08724)(2010-03-07,10:31:12)(0)(1.03998)(2010-03-30,14:50:04)(0)(27.97)(36.73)(2010-03-29,20:21:06)(0)(15.91)(2010-03-13,17:14:38)(0)(0.98728)(0.94775)(0)(0)(0)(0)(CRC Ok)");
@@ -230,7 +230,7 @@ public class TestEk260_V252 extends EK260 {
 
             StringBuilder s = new StringBuilder();
             Date[] dates = archiveData.keySet().toArray(new Date[archiveData.keySet().size()]);
-            Arrays.sort(dates);
+            java.util.Arrays.sort(dates);
             for (Date d : dates) {
                 if ((d.getTime() >= from.getTime()) &&
                         (d.getTime() < to.getTime())) {

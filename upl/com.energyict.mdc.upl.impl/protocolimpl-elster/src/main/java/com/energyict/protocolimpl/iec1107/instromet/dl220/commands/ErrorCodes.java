@@ -49,7 +49,7 @@ public enum ErrorCodes {
 	/** The errorMessage from the doc */
 	private final String errorMessage;
 	
-	/** Contains a list of possible {@link com.energyict.protocolimpl.iec1107.instromet.dl220.commands.ErrorCodes} */
+	/** Contains a list of possible {@link ErrorCodes} */
 	private static Map<Integer, String> instances;
 	
 	/**

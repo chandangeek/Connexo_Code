@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 public class DataElementTest {
 
 	private Long newDateLong() {
-		return (new Date().getTime() / 1000) * 1000;
+		return (new Date().getTime() / 1000) * 1000; 
 	}
 	
 	@Test

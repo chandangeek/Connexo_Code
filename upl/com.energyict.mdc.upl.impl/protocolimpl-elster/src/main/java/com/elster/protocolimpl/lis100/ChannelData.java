@@ -59,7 +59,7 @@ public class ChannelData {
     /**
      * reads all the needed data of a channel
      *
-     * @throws java.io.IOException - in case of io errors
+     * @throws IOException - in case of io errors
      */
     public void readChannelData() throws IOException {
 

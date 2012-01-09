@@ -19,7 +19,6 @@ import java.util.*;
  * 
  * <B>Changes :</B><BR>
  */
-
 /**
  * This defines the class for a dsfg data block
  * 
@@ -249,7 +248,7 @@ public class DataBlock {
 	 * 
 	 * @return array of bytes containing a "ready to send" data block
 	 * 
-	 * @throws java.io.IOException
+	 * @throws IOException
 	 */
 	public byte[] toBytes() throws IOException {
 		ByteArrayOutputStream buffer = new ByteArrayOutputStream();

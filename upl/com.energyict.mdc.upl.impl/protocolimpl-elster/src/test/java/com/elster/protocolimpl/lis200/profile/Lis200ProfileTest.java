@@ -99,8 +99,8 @@ public class Lis200ProfileTest implements ProtocolLink {
         assertEquals(result.toString(), compareData);
     }
 
-    @Ignore
     @Test
+    @Ignore("This test only seems to be working locally. It keeps failing on the build server (TimeZone issue)")
     public void ek260ProcessingTest() throws IOException {
 
         System.out.println("testEk260processing()");
@@ -114,6 +114,8 @@ public class Lis200ProfileTest implements ProtocolLink {
                 null, 0, 0, new Ek260EventInterpreter());
 
         List<IntervalData> id = profile.buildIntervalData(intervalRawData);
+
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Berlin"));
 
         StringBuilder result = new StringBuilder();
         for (IntervalData i : id) {

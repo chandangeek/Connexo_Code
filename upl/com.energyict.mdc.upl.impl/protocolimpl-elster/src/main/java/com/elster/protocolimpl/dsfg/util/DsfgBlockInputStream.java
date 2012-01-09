@@ -49,7 +49,7 @@ public class DsfgBlockInputStream extends ByteArrayInputStream {
 	 * @param delim
 	 *            - array of allowed delimiter
 	 * @return the read char
-	 * @throws java.io.IOException
+	 * @throws IOException
 	 *             if stream is empty or the byte after the char is not a valid
 	 *             delimiter
 	 */
@@ -70,11 +70,11 @@ public class DsfgBlockInputStream extends ByteArrayInputStream {
 
 	/**
 	 * reads a string from stream
-	 *
+	 * 
 	 * @param delim
 	 *            - array of allowed delimiter
 	 * @return read String
-	 * @throws java.io.IOException
+	 * @throws IOException
 	 *             if stream is empty
 	 */
 	public String readString(byte[] delim) throws IOException {
@@ -97,11 +97,11 @@ public class DsfgBlockInputStream extends ByteArrayInputStream {
 
 	/**
 	 * reads an int from stream
-	 *
+	 * 
 	 * @param delim
 	 *            - array of allowed delimiter
 	 * @return read int
-	 * @throws java.io.IOException
+	 * @throws IOException
 	 *             if stream is empty
 	 */
 	public int readInt(byte[] delim) throws IOException {

@@ -41,7 +41,7 @@ public class IntervalObject extends SimpleObject {
 	 * get stored names for date units
 	 * If device has no register for date units, set defaults...
 	 * 
-	 * @throws java.io.IOException - in case of an error
+	 * @throws IOException - in case of an error
 	 */
 	private void getTimeUnits() throws IOException {
 		if (timeUnits == null) {

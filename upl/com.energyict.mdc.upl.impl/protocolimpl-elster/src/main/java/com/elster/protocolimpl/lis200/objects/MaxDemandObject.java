@@ -30,7 +30,7 @@ public class MaxDemandObject extends SimpleObject {
 	/**
 	 * private function to fill a string with the data
 	 * 
-	 * @throws java.io.IOException - in case of an error
+	 * @throws IOException - in case of an error
 	 */
 	private void doReadValue() throws IOException {
 		readData = readRawValue();
@@ -39,9 +39,9 @@ public class MaxDemandObject extends SimpleObject {
 	/**
 	 * getMaxValue reads the max demand value and gives back the read value. The
 	 * according time stamp has to be read with getMaxDate.
-	 *
+	 * 
 	 * @return value - string with read max demand value
-     * @throws java.io.IOException - in case of an error
+     * @throws IOException - in case of an error
 	 */
 	public String getMaxValue() throws IOException {
 		doReadValue();
@@ -55,9 +55,9 @@ public class MaxDemandObject extends SimpleObject {
 	/**
 	 * getMaxValueUnit reads the max demand value and gives back the read unit
 	 * of the value. The according time stamp has to be read with getMaxDate.
-	 *
+	 * 
 	 * @return value - string with unit of value
-     * @throws java.io.IOException - in case of an error
+     * @throws IOException - in case of an error
 	 */
 	public String getMaxValueUnit() throws IOException {
 		if (readData.length() == 0)
@@ -71,9 +71,9 @@ public class MaxDemandObject extends SimpleObject {
 
 	/**
 	 * Getter for value as Lis200Value
-	 *
+	 * 
 	 * @return lis200Value
-     * @throws java.io.IOException - in case of an error
+     * @throws IOException - in case of an error
 	 */
 	public Lis200Value getLis200Value() throws IOException {
 		if (readData.length() == 0)
@@ -85,9 +85,9 @@ public class MaxDemandObject extends SimpleObject {
 
 	/**
 	 * private function to get max date as calendar...
-	 *
+	 * 
 	 * @return date of max value
-     * @throws java.io.IOException - in case of an error
+     * @throws IOException - in case of an error
 	 */
 	public Calendar getMaxCalendar() throws IOException {
 		if (readData.length() == 0)
@@ -101,9 +101,9 @@ public class MaxDemandObject extends SimpleObject {
 
 	/**
 	 * getMaxDate gets the time stamp for the read max demand value
-	 *
+	 * 
 	 * @return date
-     * @throws java.io.IOException - in case of an error
+     * @throws IOException - in case of an error
 	 */
 	public Date getMaxDate() throws IOException {
 		return getMaxCalendar().getTime();

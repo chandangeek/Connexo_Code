@@ -17,14 +17,14 @@ import static org.junit.Assert.assertEquals;
 public class DL220IntervalStateBitsTest {
 
 	/**
-	 * @throws Exception
+	 * @throws java.lang.Exception
 	 */
 	@Before
 	public void setUp() throws Exception {
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws java.lang.Exception
 	 */
 	@After
 	public void tearDown() throws Exception {
@@ -38,7 +38,7 @@ public class DL220IntervalStateBitsTest {
 		String status = "14";
 		assertEquals(IntervalStateBits.SHORTLONG, DL220IntervalStateBits.intervalStateBits(status));
 		status = "7;8;9";
-		assertEquals(IntervalStateBits.DEVICE_ERROR| IntervalStateBits.CONFIGURATIONCHANGE| IntervalStateBits.BATTERY_LOW, DL220IntervalStateBits.intervalStateBits(status));
+		assertEquals(IntervalStateBits.DEVICE_ERROR|IntervalStateBits.CONFIGURATIONCHANGE|IntervalStateBits.BATTERY_LOW, DL220IntervalStateBits.intervalStateBits(status));
 		
 	}
 

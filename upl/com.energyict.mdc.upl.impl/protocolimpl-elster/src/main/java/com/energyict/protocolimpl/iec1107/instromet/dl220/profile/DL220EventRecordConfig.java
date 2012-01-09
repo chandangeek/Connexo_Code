@@ -39,9 +39,9 @@ public class DL220EventRecordConfig {
 	/**
 	 * Parse the configuration string with the representing indexes
 	 * 
-	 * @throws java.io.IOException if the number of open- and closed brackets doesn't match
+	 * @throws IOException if the number of open- and closed brackets doesn't match
 	 */
-	protected void parse() throws IOException {
+	protected void parse() throws IOException{
 		int index = 0;
 		int beginIndex = 0;
 		int endIndex = 0;
@@ -55,20 +55,20 @@ public class DL220EventRecordConfig {
 			} else if ((str.indexOf(STR_EVENT) > -1) && this.eventIndex ==-1){
 				setErrorIndex(index);
 			}
-
+			
 			index++;
 		} while(index < getNumberOfObjectsPerRecord());
 	}
-
+	
 	/**
 	 * @return the number of objects in a record
-	 *
-	 * @throws java.io.IOException if the number of open- and closed brackets doesn't match
+	 * 
+	 * @throws IOException if the number of open- and closed brackets doesn't match
 	 */
-	public int getNumberOfObjectsPerRecord() throws IOException {
+	public int getNumberOfObjectsPerRecord() throws IOException{
 		return DL220Utils.getNumberOfObjects(this.recordConfig);
 	}
-
+	
 	/**
 	 * @param index
 	 */
@@ -85,8 +85,8 @@ public class DL220EventRecordConfig {
 
 	/**
 	 * @return the timeIndex
-	 *
-	 * @throws java.io.IOException if parsing the raw object configuration failed
+	 * 
+	 * @throws IOException if parsing the raw object configuration failed
 	 */
 	public int getTimeIndex() throws IOException {
 		if(this.timeIndex == -1){
@@ -97,8 +97,8 @@ public class DL220EventRecordConfig {
 
 	/**
 	 * @return the eventIndex
-	 *
-	 * @throws java.io.IOException if parsing the raw object configuration failed
+	 * 
+	 * @throws IOException if parsing the raw object configuration failed
 	 */
 	public int getEventIndex() throws IOException {
 		if(this.eventIndex == -1){

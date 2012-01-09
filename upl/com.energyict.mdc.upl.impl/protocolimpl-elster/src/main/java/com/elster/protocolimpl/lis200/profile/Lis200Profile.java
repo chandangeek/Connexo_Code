@@ -114,7 +114,7 @@ public class Lis200Profile implements IArchiveRawData {
 
     /**
      * @return the interval of the Profile
-     * @throws java.io.IOException when something happens during the read
+     * @throws IOException when something happens during the read
      */
     public int getInterval() throws IOException {
         if (this.interval == -1) {
@@ -137,7 +137,7 @@ public class Lis200Profile implements IArchiveRawData {
      * Construct the channelInfos
      *
      * @return a list of {@link ChannelInfo}s
-     * @throws java.io.IOException if an error occurred during the read of the
+     * @throws IOException if an error occurred during the read of the
      *                     {@link ChannelInfo}s
      */
     @SuppressWarnings("deprecation")
@@ -170,7 +170,7 @@ public class Lis200Profile implements IArchiveRawData {
      *
      * @param index - index of value in the list
      * @return the {@link Unit} for the channel
-     * @throws java.io.IOException when reading the unit failed
+     * @throws IOException when reading the unit failed
      */
     public Unit getValueUnit(int index) throws IOException {
         if (this.unit == null) {
@@ -191,7 +191,7 @@ public class Lis200Profile implements IArchiveRawData {
      * @param from - the initial date for the interval data
      * @param to   - the end date for the interval data
      * @return the requested interval data
-     * @throws java.io.IOException when reading of the data failed
+     * @throws IOException when reading of the data failed
      */
     public List<IntervalData> getIntervalData(Date from, Date to)
             throws IOException {
@@ -207,7 +207,7 @@ public class Lis200Profile implements IArchiveRawData {
      *
      * @param rawData - the raw data returned from the device
      * @return a list of {@link IntervalData}
-     * @throws java.io.IOException if an exception occurred during on of the read requests
+     * @throws IOException if an exception occurred during on of the read requests
      */
     protected List<IntervalData> buildIntervalData(String rawData)
             throws IOException {
@@ -289,7 +289,7 @@ public class Lis200Profile implements IArchiveRawData {
      *
      * @param from - the date to start reading from
      * @return a list of MeterEvents
-     * @throws java.io.IOException if somethings happens dureing readout
+     * @throws IOException if somethings happens dureing readout
      */
     public List<MeterEvent> getMeterEvents(Date from) throws IOException {
 

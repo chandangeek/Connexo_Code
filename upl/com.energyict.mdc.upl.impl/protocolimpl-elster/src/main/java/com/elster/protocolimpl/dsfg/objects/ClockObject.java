@@ -28,7 +28,7 @@ public class ClockObject extends SimpleObject {
      * Return the actual dateTime of the meter
      *
      * @return the dateTime
-     * @throws java.io.IOException
+     * @throws IOException
      */
     public Date getDateTime() throws IOException {
         return parseClockValue(getValue(), link.getTimeZone());
@@ -37,7 +37,7 @@ public class ClockObject extends SimpleObject {
     /**
      * Write the current time to the meter
      *
-     * @throws java.io.IOException when the write failed
+     * @throws IOException when the write failed
      */
     public void writeClock() throws IOException {
         throw new IOException("writeClock not possible on DSfG clock object");
@@ -45,7 +45,7 @@ public class ClockObject extends SimpleObject {
 
 
     /**
-     * Construct a {@link java.util.Calendar} based on the raw input data and the given {@link java.util.TimeZone}
+     * Construct a {@link Calendar} based on the raw input data and the given {@link TimeZone}
      *
      * @param rawDateTime - the raw Date and Time
      * @param timeZone    - the timeZone the rawDateTime is written in

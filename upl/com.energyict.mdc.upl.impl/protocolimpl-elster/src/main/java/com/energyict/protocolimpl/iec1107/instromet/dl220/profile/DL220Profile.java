@@ -30,7 +30,7 @@ public class DL220Profile {
 	
 	/** The index of the measurement */
 	private final int index;
-	/** The used {@link com.energyict.protocolimpl.iec1107.ProtocolLink}*/
+	/** The used {@link ProtocolLink}*/
 	private final ProtocolLink link;
 	/** The used {@link Archives} */
 	private final Archives archive;
@@ -40,35 +40,35 @@ public class DL220Profile {
 
 	/** The used {@link DL200MeterEventList} */
 	private DL220MeterEventList meterEventList;
-
+	
 	/** The {@link DL220IntervalRecordConfig} from the meter*/
 	private DL220IntervalRecordConfig dirc;
 
-	/** The List containing all {@link com.energyict.protocol.IntervalData}s */
+	/** The List containing all {@link IntervalData}s */
 	private List<IntervalData> intervalList = new ArrayList<IntervalData>();
-
-	/** The used {@link com.energyict.cbo.Unit} (the unit is the same for each channel) */
+	
+	/** The used {@link Unit} (the unit is the same for each channel) */
 	private Unit unit;
-
+	
 	private int interval = -1;
 	private int profileRequestBlockSize;
 
 	private String capturedObjects = "";
-
+	
 	/**
 	 * Default constructor
-	 *
+	 * 
 	 * @param link
-	 * 			- the use {@link com.energyict.protocolimpl.iec1107.ProtocolLink}
-	 *
+	 * 			- the use {@link ProtocolLink}
+	 * 
 	 * @param meterIndex
 	 * 			- indicates which input is used
-	 *
+	 * 
 	 * @param archive
 	 * 			- indicates which {@link Archives} is used
-	 *
+	 * 
 	 * @param profileRequestBlockSize
-	 * 			- the size of the profileRequestBlocks
+	 * 			- the size of the profileRequestBlocks 
 	 */
 	public DL220Profile(ProtocolLink link, int meterIndex, Archives archive, int profileRequestBlockSize){
 		this.index = meterIndex;
@@ -79,7 +79,7 @@ public class DL220Profile {
 
 	/**
 	 * @return the Number of channels
-	 * @throws java.io.IOException
+	 * @throws IOException 
 	 */
 	public int getNumberOfChannels() throws IOException {
 		return getIntervalRecordConfig().getNumberOfChannels();
@@ -87,8 +87,8 @@ public class DL220Profile {
 
 	/**
 	 * @return the interval of the Profile
-	 *
-	 * @throws java.io.IOException when something happens during the read
+	 * 
+	 * @throws IOException when something happens during the read 
 	 */
 	public int getInterval() throws IOException {
 		if(this.interval == -1){
@@ -98,10 +98,10 @@ public class DL220Profile {
 		}
 		return this.interval;
 	}
-
+	
 	/**
 	 * Setter for the interval
-	 *
+	 * 
 	 * @param interval
 	 * 			- the interval to set
 	 */
@@ -110,14 +110,14 @@ public class DL220Profile {
 	}
 
 	/**
-	 * Construct the channelInfos
-	 *
-	 * @return a list of {@link com.energyict.protocol.ChannelInfo}s
-	 *
-	 * @throws java.io.IOException if an error occurred during the read of the {@link com.energyict.protocol.ChannelInfo}s
+	 * Construct the channelInfos 
+	 * 
+	 * @return a list of {@link ChannelInfo}s
+	 * 
+	 * @throws IOException if an error occurred during the read of the {@link ChannelInfo}s 
 	 */
 	@SuppressWarnings("deprecation")
-	public List<ChannelInfo> buildChannelInfos() throws IOException {
+	public List<ChannelInfo> buildChannelInfos() throws IOException{
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
 		for(int i = 0; i < getNumberOfChannels(); i++){
 			ChannelInfo ci = new ChannelInfo(i, "Channel " + i, getValueUnit());
@@ -128,105 +128,105 @@ public class DL220Profile {
 		}
 		return channelInfos;
 	}
-
+	
 	/**
 	 * Initialized getter for the {@link DL220IntervalRecordConfig}
-	 *
+	 * 
 	 * @return the meters configuration
-	 *
-	 * @throws java.io.IOException if something happened during the read
+	 * 
+	 * @throws IOException if something happened during the read
 	 */
-	public DL220IntervalRecordConfig getIntervalRecordConfig() throws IOException {
+	public DL220IntervalRecordConfig getIntervalRecordConfig() throws IOException{
 		if(this.dirc == null){
 			this.dirc = new DL220IntervalRecordConfig(getCapturedObjects());
 		}
 		return this.dirc;
 	}
-
+	
 	/**
 	 * Setter for the {@link DL220IntervalRecordConfig}
-	 *
+	 * 
 	 * @param dirc
 	 * 			- the {@link DL220IntervalRecordConfig} to set
 	 */
 	protected void setDirc(DL220IntervalRecordConfig dirc){
 		this.dirc = dirc;
 	}
-
+	
 	/**
 	 * @return the capturedObject String
-	 *
-	 * @throws java.io.IOException if we could not read the objects from the meter
+	 * 
+	 * @throws IOException if we could not read the objects from the meter
 	 */
-	private String getCapturedObjects() throws IOException {
+	private String getCapturedObjects() throws IOException{
 		if(this.capturedObjects.equalsIgnoreCase("")){
 			this.capturedObjects = getArchive().getCapturedObjects();
 		}
 		return this.capturedObjects;
 	}
-
+	
 	/**
 	 * Setter for the capturedObjects
-	 *
+	 * 
 	 * @param capturedObjects
 	 * 				- the capturedObjects to set
 	 */
 	protected void setCapturedObjects(String capturedObjects) {
 		this.capturedObjects = capturedObjects;
 	}
-
+	
 	/**
-	 * Get the Unit list from the device and return the {@link com.energyict.cbo.Unit}
-	 *
-	 * @return the {@link com.energyict.cbo.Unit} for the channel
-	 *
-	 * @throws java.io.IOException when reading the unit failed
+	 * Get the Unit list from the device and return the {@link Unit}
+	 * 
+	 * @return the {@link Unit} for the channel
+	 * 
+	 * @throws IOException when reading the unit failed
 	 */
-	public Unit getValueUnit() throws IOException {
+	public Unit getValueUnit() throws IOException{
 		if(this.unit ==null){
 			String units = getArchive().getUnits();
 			String[] splittedUnits = units.split("[(]");
 			String correctUnit = splittedUnits[4].substring(0, splittedUnits[4].indexOf(")"));
-			this.unit = DL220Utils.getUnitFromString(correctUnit);
+			this.unit = DL220Utils.getUnitFromString(correctUnit); 
 		}
 		return this.unit;
 	}
 
 	/**
 	 * Get interval data within the request period
-	 *
+	 * 
 	 * @param from
 	 * 			- the initial date for the intervaldata
-	 *
+	 * 
 	 * @param to
 	 * 			- the end date for the intervaldata
-	 *
+	 * 
 	 * @return the requested intervaldata
-	 *
-	 * @throws java.io.IOException when reading of the data failed
+	 * 
+	 * @throws IOException when reading of the data failed 
 	 */
 	public List<IntervalData> getIntervalData(Date from, Date to) throws IOException {
 		return buildIntervalData(getArchive().getIntervals(from, to, profileRequestBlockSize));
 	}
-
+	
 	/**
 	 * Build the list of IntervalData
-	 *
+	 * 
 	 * @param rawData
 	 * 			- the raw data returned from the device
 	 * @return
-	 * 			a list of {@link com.energyict.protocol.IntervalData}
-	 *
-	 * @throws java.io.IOException if an exception occurred during on of the read requests
+	 * 			a list of {@link IntervalData}
+	 * 
+	 * @throws IOException if an exception occurred during on of the read requests
 	 */
-	protected List<IntervalData> buildIntervalData(String rawData) throws IOException {
+	protected List<IntervalData> buildIntervalData(String rawData) throws IOException{
 		List<IntervalData> iList = new ArrayList<IntervalData>();
 		int offset = 0;
 		DL220IntervalRecord dir;
 		String recordX;
 		IntervalData id;
 		int numberOfCapturedObjects = getIntervalRecordConfig().getNumberOfObjectsPerRecord();
-
+		
 		do{
 			recordX = DL220Utils.getNextRecord(rawData, offset, numberOfCapturedObjects);
 			offset = rawData.indexOf(recordX) + recordX.length();
@@ -242,22 +242,22 @@ public class DL220Profile {
 			}
 			iList.add(id);
 		}while(offset < rawData.length());
-
+		
 		return sortOutIntervalList(iList);
 	}
-
+	
 	/**
 	 * Remove intervals that are not on the interval boundary. <br>
 	 * We check if the interval-endTime is a multiple of the interval in seconds, if not delete it.
 	 * (They are all cumulative values so deletion, or not adding to the new list, is allowed)
-	 *
+	 * 
 	 * @param intervalList
 	 * 				- the list to shift
-	 *
-	 * @throws java.io.IOException can occur when the interval needs to be read
+	 * 
+	 * @throws IOException can occur when the interval needs to be read
 	 */
 	@SuppressWarnings("unchecked")
-	protected List<IntervalData> sortOutIntervalList(List<IntervalData> intervalList) throws IOException {
+	protected List<IntervalData> sortOutIntervalList(List<IntervalData> intervalList) throws IOException{
 		for(IntervalData intervalData : intervalList){
 			long endTime = intervalData.getEndTime().getTime();
 			if(endTime%(getInterval()*1000) == 0){
@@ -268,7 +268,7 @@ public class DL220Profile {
 		removeDubbles();
 		return this.intervalList;
 	}
-
+	
 	/**
 	 * Removes duplicate intervals from the list.
 	 */
@@ -284,7 +284,7 @@ public class DL220Profile {
 		this.intervalList.clear();
 		this.intervalList.addAll(templist);
 	}
-
+	
 	/**
 	 * Getter for the {@link #intervalList}
 	 * @return the {@link #intervalList}
@@ -295,7 +295,7 @@ public class DL220Profile {
 
 	/**
 	 * Getter for the {@link DL200MeterEventList}
-	 *
+	 * 
 	 * @return the MeterEventList
 	 */
 	public DL220MeterEventList getMeterEventList(){
@@ -304,10 +304,10 @@ public class DL220Profile {
 		}
 		return this.meterEventList;
 	}
-
+	
 	/**
 	 * Getter for the {@link GenericArchiveObject}
-	 *
+	 * 
 	 * @return the genericArchiveObject
 	 */
 	protected GenericArchiveObject getArchive(){
@@ -319,41 +319,41 @@ public class DL220Profile {
 
 	/**
 	 * Get a list of meterEvents starting from the given fromDate
-	 *
+	 * 
 	 * @param from
 	 * 			- the date to start reading from
-	 *
+	 * 
 	 * @return
-	 * @throws java.io.IOException
+	 * @throws IOException 
 	 */
 	public List<MeterEvent> getMeterEvents(Date from) throws IOException {
-
+		
 		GenericArchiveObject gaoEvents = new GenericArchiveObject(link, Archives.LOGBOOK);
 		String capturedObjects = gaoEvents.getCapturedObjects();
 		String rawEvents = gaoEvents.getIntervals(from, profileRequestBlockSize);
 		buildMeterEventList(rawEvents, capturedObjects);
-
+			
 		return getMeterEventList().getEventList();
 	}
-
+	
 	/**
-	 * Build the list of {@link com.energyict.protocol.MeterEvent}s
-	 *
+	 * Build the list of {@link MeterEvent}s
+	 * 
 	 * @param rawEvents
 	 * 			- the raw data from the meter
-	 *
+	 * 
 	 * @param capturedObjects
 	 * 			- the raw capturedObjects from the meter
-	 *
-	 * @throws java.io.IOException if the captured objects aren't correct
+	 * 
+	 * @throws IOException if the captured objects aren't correct
 	 */
-	protected void buildMeterEventList(String rawEvents, String capturedObjects) throws IOException {
+	protected void buildMeterEventList(String rawEvents, String capturedObjects) throws IOException{
 		DL220EventRecordConfig derc = new DL220EventRecordConfig(capturedObjects);
 		int numberOfCapturedObjects = derc.getNumberOfObjectsPerRecord();
 		int offset = 0;
 		DL220EventRecord der;
 		String recordX;
-
+		
 		do{
 			recordX = DL220Utils.getNextRecord(rawEvents, offset, numberOfCapturedObjects);
 			offset = rawEvents.indexOf(recordX) + recordX.length();
@@ -361,16 +361,16 @@ public class DL220Profile {
 			getMeterEventList().addRawEvent(der);
 		}while(offset < rawEvents.length());
 	}
-
-    /**
-     * Set the interval status based on the {@link com.energyict.protocol.MeterEvent}s form the meter.
-     *
+	
+    /** 
+     * Set the interval status based on the {@link MeterEvent}s form the meter.
+     * 
      * @param list
      * 			- the list of meterEvents
-     *
-     * @throws java.io.IOException
-     * @throws com.energyict.protocol.UnsupportedException
-     */
+     * 
+     * @throws IOException 
+     * @throws UnsupportedException 
+     */    
     @SuppressWarnings("unchecked")
 	public void applyEvents(ProfileData profileData) throws UnsupportedException, IOException {
         Iterator<MeterEvent> eventIterator = profileData.getEventIterator();
@@ -378,18 +378,18 @@ public class DL220Profile {
             applyEvent(eventIterator.next(), profileData.getIntervalDatas());
         }
     }
-
-    /**
+    
+    /** 
      * Updates the interval status based on the information of a single event.
-     *
-     * @param event
+     * 
+     * @param event 
      * 			- the event to convert to intervalStatus
-     *
+     * 
      * @param list
      * 			- the list of intervalDatas
-     *
-     * @throws java.io.IOException
-     * @throws com.energyict.protocol.UnsupportedException
+     *  
+     * @throws IOException 
+     * @throws UnsupportedException 
      */    
     private void applyEvent(MeterEvent event, List<IntervalData> list) throws UnsupportedException, IOException {
         Iterator<IntervalData> intervalIterator = list.iterator();

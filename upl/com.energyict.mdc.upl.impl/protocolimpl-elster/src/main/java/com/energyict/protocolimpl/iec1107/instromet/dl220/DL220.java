@@ -130,7 +130,7 @@ public class DL220 extends AbstractIEC1107Protocol {
 	 */
 	@Override
 	protected void doValidateProperties(Properties properties) throws MissingPropertyException,
-            InvalidPropertyException {
+			InvalidPropertyException {
 
 		/* The NodeAddress is used to indicate which input is connected */
 
@@ -167,7 +167,7 @@ public class DL220 extends AbstractIEC1107Protocol {
 	/**
 	 * Validate the serialNumber of the device.
 	 * 
-	 * @throws java.io.IOException
+	 * @throws IOException
 	 *             if the serialNumber doesn't match the one from the Rtu
 	 */
 	protected void validateSerialNumber() throws IOException {
@@ -219,7 +219,7 @@ public class DL220 extends AbstractIEC1107Protocol {
 	 * {@inheritDoc}
 	 */
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException,
-            UnsupportedException {
+			UnsupportedException {
 		ProfileData profileData = new ProfileData();
 
 		profileData.setChannelInfos(getProfileObject().buildChannelInfos());

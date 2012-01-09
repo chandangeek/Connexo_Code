@@ -20,7 +20,7 @@ public class ManufacturerObject extends AbstractObject {
 
 	/**
 	 * @param link
-	 *            - the used {@link com.energyict.protocolimpl.iec1107.ProtocolLink}
+	 *            - the used {@link ProtocolLink}
 	 */
 	public ManufacturerObject(ProtocolLink link) {
 		super(link);

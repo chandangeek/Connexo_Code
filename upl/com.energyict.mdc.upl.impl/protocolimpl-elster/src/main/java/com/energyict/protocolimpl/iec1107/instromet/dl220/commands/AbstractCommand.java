@@ -21,7 +21,7 @@ public abstract class AbstractCommand {
 	 * Default constructor
 	 * 
 	 * @param link
-	 *            - The {@link com.energyict.protocolimpl.iec1107.ProtocolLink}
+	 *            - The {@link ProtocolLink}
 	 */
 	public AbstractCommand(ProtocolLink link) {
 		this.link = link;
@@ -34,25 +34,25 @@ public abstract class AbstractCommand {
 
 	/**
 	 * Prepare a command for execution
-	 *
+	 * 
 	 * @return a prepared command
 	 */
 	protected abstract Command prepareBuild();
 
 	/**
 	 * Implementation for executing the command
-	 *
+	 * 
 	 * @return a String if a response was needed
-	 *
-	 * @throws java.io.IOException
+	 * 
+	 * @throws IOException
 	 *             when a logical exception occurred
 	 */
 	protected abstract String invoke() throws IOException;
 
 	/**
 	 * Getter for the protocolConnection
-	 *
-	 * @return the {@link com.energyict.protocolimpl.iec1107.FlagIEC1107Connection}
+	 * 
+	 * @return the {@link FlagIEC1107Connection}
 	 */
 	protected FlagIEC1107Connection getConnection() {
 		return this.link.getFlagIEC1107Connection();
@@ -60,13 +60,13 @@ public abstract class AbstractCommand {
 
 	/**
 	 * Check if an error was returned in the response (indicated by an '#')
-	 *
+	 * 
 	 * @param response
 	 * 			- the response to check
-	 *
+	 * 
 	 * @return the given String if it contains no error
-	 *
-	 * @throws java.io.IOException with the proper message if an error was returned
+	 * 
+	 * @throws IOException with the proper message if an error was returned
 	 */
 	protected String checkResponseForErrors(String response) throws IOException {
 		if(response != null && response.indexOf(ERROR_INDICATION) > -1){

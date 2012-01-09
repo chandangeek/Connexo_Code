@@ -198,7 +198,7 @@ public class DsfgConnection extends Connection {
 	 * 
 	 * @param data
 	 * @return answer of device (ACK, NAK, ENQ, CAN)
-	 * @throws java.io.IOException
+	 * @throws IOException
 	 */
 	public int sendDataAcknowledged(byte[] data) throws IOException {
 		sendTelegram(data, true);
@@ -233,10 +233,10 @@ public class DsfgConnection extends Connection {
 
 	/**
 	 * starting communication by sending the K command to the dsfg device
-	 *
+	 * 
 	 * @return name of dfue instance
-	 *
-	 * @throws java.io.IOException
+	 * 
+	 * @throws IOException
 	 */
 	public String connect() throws IOException {
 		sendTelegram("K", "", false);
@@ -247,11 +247,11 @@ public class DsfgConnection extends Connection {
 	 * tries to sign on to a dsfg device (has to be done directly after
 	 * connection) if the login was successful, the instance address of the dfue
 	 * unit is stored
-	 *
+	 * 
 	 * @param password
 	 *            (has to be of a length of 16 char)
-	 *
-	 * @throws java.io.IOException
+	 * 
+	 * @throws IOException
 	 */
 	public void signon(String password) throws IOException {
 		

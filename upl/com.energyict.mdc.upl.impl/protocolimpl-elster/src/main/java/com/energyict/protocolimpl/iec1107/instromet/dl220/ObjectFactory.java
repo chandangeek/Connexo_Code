@@ -15,21 +15,21 @@ import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.*;
  */
 public class ObjectFactory {
 
-	/** The {@link com.energyict.protocolimpl.iec1107.ProtocolLink} used */
+	/** The {@link ProtocolLink} used */
 	private ProtocolLink link;
 
 	/** The used {@link ManufacturerObject} */
 	private AbstractObject manufacurerObject;
 	/** The used {@link com.energyict.protocolimpl.iec1107.instromet.dl220.objects.MeterTypeObject} */
 	private AbstractObject meterTypeObject;
-	/** The used {@link com.energyict.protocolimpl.iec1107.instromet.dl220.objects.SuppliersCombinationObject} */
+	/** The used {@link SuppliersCombinationObject} */
 	private SuppliersCombinationObject suppliersCombination;
 	/** The used {@link com.energyict.protocolimpl.iec1107.instromet.dl220.objects.SoftwareVersionObject} */
 	private SoftwareVersionObject softwareVersionObject;
 
 	/**
 	 * Default constructor
-	 *
+	 * 
 	 * @param link
 	 */
 	public ObjectFactory(ProtocolLink link) {
@@ -38,7 +38,7 @@ public class ObjectFactory {
 
 	/**
 	 * Getter for the {@link ManufacturerObject}
-	 *
+	 * 
 	 * @return the ManufacturerObject
 	 */
 	public AbstractObject getManufacturerObject() {
@@ -50,7 +50,7 @@ public class ObjectFactory {
 
 	/**
 	 * Getter for the {@link com.energyict.protocolimpl.iec1107.instromet.dl220.objects.MeterTypeObject}
-	 *
+	 * 
 	 * @return the MeterTypeObject
 	 */
 	public AbstractObject getMeterTypeObject() {
@@ -61,8 +61,8 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Getter for the {@link com.energyict.protocolimpl.iec1107.instromet.dl220.objects.SuppliersCombinationObject}
-	 *
+	 * Getter for the {@link SuppliersCombinationObject}
+	 * 
 	 * @return the SuppliersCombinationObject
 	 */
 	public SuppliersCombinationObject getSuppliersCombination() {
@@ -73,7 +73,7 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Getter for the {@link com.energyict.protocolimpl.iec1107.instromet.dl220.objects.SoftwareVersionObject}
+	 * Getter for the {@link SoftwareVersionObject}
 	 * 
 	 * @return the SoftwareVersionObject
 	 */

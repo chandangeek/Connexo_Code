@@ -49,7 +49,7 @@ public class SoftwareVersionObject extends AbstractObject {
 	 * @param instanceNumber
 	 *            - the number of the objects' instance which you want to read
 	 * @return the value as a String
-	 * @throws java.io.IOException
+	 * @throws IOException
 	 */
 	public String getValue(int instanceNumber) throws IOException {
 		this.instance = instanceNumber;

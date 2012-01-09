@@ -10,27 +10,27 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * Functionality to create and maintain {@link com.energyict.protocol.MeterEvent}s for the DL220
- *
+ * Functionality to create and maintain {@link MeterEvent}s for the DL220
+ * 
  * @author gna
  * @since 10-mrt-2010
- *
+ * 
  */
 public class DL220MeterEventList {
 
 	private static final String EVENT_PREFIX = "0x";
 
-
+	
 	/* Events used to determine a timeShift */
 	private static final String VALUE_ARCHIVE1_CHANGED_AFTER = "0x8202";
 	private static final String VALUE_ARCHIVE2_CHANGED_AFTER = "0x8204";
-
+	
 	private static final String VALUE_ARCHIVE1_CHANGED_BEFORE = "0x8302";
 	private static final String VALUE_ARCHIVE2_CHANGED_BEFORE = "0x8304";
-
+	
 	private static final String[] VALUE_ARCHIVE_X_CHANGED_AFTER = {VALUE_ARCHIVE1_CHANGED_AFTER, VALUE_ARCHIVE2_CHANGED_AFTER};
 	private static final String[] VALUE_ARCHIVE_X_CHANGED_BEFORE = {VALUE_ARCHIVE1_CHANGED_BEFORE, VALUE_ARCHIVE2_CHANGED_BEFORE};
-
+	
 	/* Other events */
 	private static final String VALUE_OUTPUT1_OVERLOAD_START = "0x0301";
 	private static final String VALUE_OUTPUT1_OVERLOAD_END = "0x2301";
@@ -48,7 +48,7 @@ public class DL220MeterEventList {
 	private static final String VALUE_I1_WARNING_SIGNAL_ACTIVE_END = "0x0701";
 	private static final String VALUE_I2_WARNING_SIGNAL_ACTIVE_START = "0x2702";
 	private static final String VALUE_I2_WARNING_SIGNAL_ACTIVE_END = "0x0702";
-	private static final String VALUE_WARNING_MODEM_BATTERY_START = "0x2804";
+	private static final String VALUE_WARNING_MODEM_BATTERY_START = "0x2804"; 
 	private static final String VALUE_WARNING_MODEM_BATTERY_END = "0x0804";
 	private static final String VALUE_I1_LIMIT_VIOLATED_START = "0x2B01";
 	private static final String VALUE_I1_LIMIT_VIOLATED_END = "0x0B01";
@@ -124,25 +124,25 @@ public class DL220MeterEventList {
 	private List<DL220Record> measurementChangeEvents = new ArrayList<DL220Record>();
 
 	private List<MeterEvent> eventList = new ArrayList<MeterEvent>();
-
+	
 	private final int meterIndex;
 
 	/**
 	 * Constructor with a given meterIndex
-	 *
+	 * 
 	 * @param index
 	 * 			- the index of the meter
 	 */
 	public DL220MeterEventList(int index) {
 		this.meterIndex = index;
-	}
+	}	
 
 	/**
 	 * Create an event entry with from the given intervalrecord
-	 *
+	 * 
 	 * @param dir
 	 *            - the {@link DL220Record}
-	 * @throws java.io.IOException
+	 * @throws IOException 
 	 */
 	public void addRawEvent(DL220Record dir) throws IOException {
 		if (VALUE_ARCHIVE_X_CHANGED_BEFORE[this.meterIndex].equalsIgnoreCase(dir.getEvent())) {
@@ -157,17 +157,17 @@ public class DL220MeterEventList {
 	}
 
 	/**
-	 * Add/Create a {@link com.energyict.protocol.MeterEvent} from the given input
-	 *
+	 * Add/Create a {@link MeterEvent} from the given input
+	 * 
 	 * @param eventTimeStamp
 	 *            - the event timeStamp
-	 *
+	 * 
 	 * @param eventId
 	 *            - the eventId
 	 */
 	protected void addMeterEventToList(Date eventTimeStamp, String eventId) {
 		if(VALUE_OUTPUT1_OVERLOAD_START.equalsIgnoreCase(eventId)){
-			eventList.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, convertStringEventIdToInteger(eventId), "O1: Error(overload) Started"));
+			eventList.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, convertStringEventIdToInteger(eventId), "O1: Error(overload) Started"));			
 		} else if (VALUE_OUTPUT1_OVERLOAD_END.equals(eventId)){
 			eventList.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, convertStringEventIdToInteger(eventId), "O1: Error(overload) Ended"));
 		} else if (VALUE_OUTPUT2_OVERLOAD_START.equalsIgnoreCase(eventId)) {
@@ -345,10 +345,10 @@ public class DL220MeterEventList {
 
 	/**
 	 * Convert the Hexadecimal eventId to an {@link Integer}
-	 *
+	 * 
 	 * @param eventId
 	 *            - the eventId as a String
-	 *
+	 * 
 	 * @return the same eventId as an Integer
 	 */
 	protected static int convertStringEventIdToInteger(String eventId) {
@@ -358,9 +358,9 @@ public class DL220MeterEventList {
 
 	/**
 	 * There is no specific clock event, only an indication that the record has been changed.
-	 *
+	 * 
 	 * Check what type of measurement change event occurred. It can either be a value change or a clock change.
-	 * @throws java.io.IOException
+	 * @throws IOException 
 	 */
 	protected void checkMeasurementChangeEvents() throws IOException {
 		if (this.measurementChangeEvents.get(BEFORE_EVENT_INDEX).getEndTime().compareTo(

@@ -31,7 +31,7 @@ public class IVDataStreamReader implements IIntervalDataStreamReader {
     /**
      * Prepare interval data reading
      *
-     * @throws java.io.IOException - in case of io errors
+     * @throws IOException - in case of io errors
      * @throws ConnectionException - in case of io errors
      */
     public void prepareRead() throws IOException {

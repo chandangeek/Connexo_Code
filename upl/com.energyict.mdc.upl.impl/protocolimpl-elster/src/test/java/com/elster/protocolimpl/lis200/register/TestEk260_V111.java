@@ -95,6 +95,7 @@ public class TestEk260_V111 extends EK260 {
         }
 
         String compareData = getResourceAsString("/com/elster/protocolimpl/lis200/register/ek260_1V11_registertest.txt");
+
         assertEquals(compareData, sb.toString());
     }
 
@@ -193,7 +194,7 @@ public class TestEk260_V111 extends EK260 {
 
             if (archiveInstance == 2) {
                 // (GO.Nr)(AONr)(Zeit)(Qn [m3|h])(Zeit)(Stat)(Qn [m3|h])(Zeit)(Stat)(Qb [m3|h])(Zeit)(Stat)(Qb [m3|h])(Zeit)(Stat)(p.Mon [ bar])(p.Mon [ bar])(Zeit)(Stat)(p.Mon [ bar])(Zeit)(Stat)(T.Mon [{C])(T.Mon [{C])(Zeit)(Stat)(T.Mon [{C])(Zeit)(Stat)(K.Mon)(Z.Mon)(St.7)(St.6)(St.8)(St.5)(Er.Ch)
-                units = "()()()(m3/h)()()(m3/h)()()(m3/h)()()(m3/h)()()(bar)(bar)()()(bar)()()(°C)(°C)()()(°C)()()()()()()()()()";
+                units = "()()()(m3/h)()()(m3/h)()()(m3/h)()()(m3/h)()()(bar)(bar)()()(bar)()()(\u00B0C)(\u00B0C)()()(\u00B0C)()()()()()()()()()";
 
                 archiveData.put(makeDate("2010-03-01,06:00:00"), "(99431)(108)(2010-03-01,06:00:00)(111.1)(2010-03-11,11:00:00)(0)(22.2)(2010-03-22,22:00:00)(0)(110.0)(2010-03-11,11:00:00)(0)(22.0)(2010-03-22,22:00:00)(0)(0.99176)(1.00777)(2010-02-07,11:25:00)(0)(0.97162)(2010-02-28,11:35:00)(0)(17.50)(20.46)(2010-02-26,17:25:00)(0)(15.10)(2010-02-11,06:15:00)(0)(1.00045)(0.91938)(0)(0)(0)(0)(63867)");
                 archiveData.put(makeDate("2010-04-01,06:00:00"), "(100175)(109)(2010-04-01,06:00:00)(0.0)(2010-04-01,06:00:00)(0)(0.0)(2010-04-01,06:00:00)(0)(0.0)(2010-04-01,06:00:00)(0)(0.0)(2010-04-01,06:00:00)(0)(1.00419)(1.01905)(2010-03-07,11:55:00)(0)(0.98042)(2010-03-30,16:40:00)(0)(18.81)(22.32)(2010-03-25,00:15:00)(0)(14.97)(2010-03-07,07:15:00)(0)(1.00046)(0.92674)(0)(0)(0)(0)(34582)");
@@ -223,7 +224,7 @@ public class TestEk260_V111 extends EK260 {
 
             StringBuilder s = new StringBuilder();
             Date[] dates = archiveData.keySet().toArray(new Date[archiveData.keySet().size()]);
-            Arrays.sort(dates);
+            java.util.Arrays.sort(dates);
             for (Date d : dates) {
                 if ((d.getTime() >= from.getTime()) &&
                         (d.getTime() < to.getTime())) {
