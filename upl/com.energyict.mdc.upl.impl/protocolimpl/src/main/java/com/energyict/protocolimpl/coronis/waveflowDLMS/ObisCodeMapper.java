@@ -11,6 +11,7 @@ import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -198,6 +199,14 @@ public class ObisCodeMapper {
 			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, ""+date);
     	}
     	
+        boolean timeRegister = obisCode.equals(ObisCode.fromString("1.1.0.9.1.255"));
+        boolean dateRegister = obisCode.equals(ObisCode.fromString("1.1.0.9.2.255"));
+        if (timeRegister || dateRegister) {
+            Date time = abstractDLMS.getTime();
+            SimpleDateFormat formatter = new SimpleDateFormat(dateRegister ? "yyyy-MM-dd" : "HH:mm:ss");
+            return new RegisterValue(obisCode, formatter.format(time));
+        }
+
     	ObjectEntry objectEntry = abstractDLMS.findObjectByObiscode(obisCode);
     	
     	RegisterValue registerValue = cachedRegisterValues.get(obisCode);
