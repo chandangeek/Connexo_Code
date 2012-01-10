@@ -103,7 +103,6 @@ public class ABBA230InstrumentationProfileEntry implements ABBA230ProfileEntry {
                 /* In the normal case, the sign number indicates the sign of the value.
                  * 'Power Factor' channels are an exception to this rule.
                  *  In this case, the sign number indicates the quadrant of the Power Factor angle.
-                 *  We save all sign numbers in an array, this array will be used to correct the Power Factor angles.
                 */
                 signOrQuadrant[i] = sign;
             }
@@ -113,16 +112,15 @@ public class ABBA230InstrumentationProfileEntry implements ABBA230ProfileEntry {
     /**
      * This function will take into account the 'sign digit' of all channels who measure the 'Power factor'.
      * Those channels do not have a sign - the sign digit indicates the quadrant.
-     * The quadrant info is used to update the value:
-     * Quadrant Q1 (sign digit: 1)  0° to 90°
-     * Quadrant Q2 (sign digit: 2)  90° to 180° (= value retrieved + 90°).
      *
      * @param channelValueConfigurations    the value configuration of the channels in use.
      */
     public void updatePowerFactorChannels(int[] channelValueConfigurations) {
         for (int i = 0; i< channelValueConfigurations.length; i++){
             if (channelValueConfigurations[i] == 3) {
-                values[i] = Math.abs(values[i] + ((signOrQuadrant[i] - 1) * 90));
+                values[i] = Math.abs(values[i]) / 1000;
+            } else {
+                signOrQuadrant[i] = 0;
             }
         }
     }

@@ -141,7 +141,7 @@ public class ABBA230RegisterFactory {
             Unit.get(BaseUnit.VOLTAMPERE, 0),
             Unit.get(BaseUnit.UNITLESS, 0),
             Unit.get(BaseUnit.HERTZ, -1),
-            Unit.get(BaseUnit.UNITLESS, 0),
+            Unit.get(BaseUnit.DEGREE, -1),
             Unit.get(BaseUnit.AMPERE, -1),
             Unit.get(BaseUnit.VOLT, -1),
             Unit.get(BaseUnit.WATT, 0),

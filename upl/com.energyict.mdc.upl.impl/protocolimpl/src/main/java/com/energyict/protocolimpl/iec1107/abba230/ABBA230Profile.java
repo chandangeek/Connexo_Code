@@ -705,6 +705,17 @@ public class ABBA230Profile {
                 }
                 }
 
+                // If measuring the instrumentation channels, the protocol status should be set for all Power Factor channels
+                // Protocol status will contain the quadrant info for the Power Factor channels, else it will be 0.
+                if (abba230.isInstrumentationProfileMode()) {
+                    for (Object each : entries) {
+                        int[] signOrQuadrant = ((ABBA230InstrumentationProfileEntry) each).getSignOrQuadrant();
+                        for (int chnIndex = 0; chnIndex < signOrQuadrant.length; chnIndex++) {
+                            intervalData.setProtocolStatus(chnIndex, signOrQuadrant[chnIndex]);
+                        }
+                    }
+                }
+
                 if( timeChange || entries.size() > 1 ) {
 					intervalData.addEiStatus(IntervalStateBits.SHORTLONG);
 				}
