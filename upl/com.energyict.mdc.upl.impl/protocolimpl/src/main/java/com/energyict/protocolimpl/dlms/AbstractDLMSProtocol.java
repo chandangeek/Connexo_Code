@@ -93,6 +93,9 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     protected int maxRecPduSize;
 
     @Override
+    public abstract void validateSerialNumber() throws IOException;
+
+    @Override
     protected void doConnect() throws IOException {
         connect();
     }
@@ -109,8 +112,6 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
 
     @Override
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        this.properties = properties;
-        validateProperties();
     }
 
     @Override
@@ -357,6 +358,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
 			this.clockSetRoundtripTreshold = DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD;
 		}
         this.maxRecPduSize = Integer.parseInt(properties.getProperty(DlmsProtocolProperties.MAX_REC_PDU_SIZE,Integer.toString(MAX_PDU_SIZE)));
+        doValidateProperties(properties);
     }
 
     /**
@@ -368,6 +370,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
             if (this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
                 getDLMSConnection().connectMAC();
                 this.aso.createAssociation();
+                validateSerialNumber();
                 checkCacheObjects();
             }
 

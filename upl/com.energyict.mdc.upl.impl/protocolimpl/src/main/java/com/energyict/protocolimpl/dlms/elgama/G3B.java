@@ -344,4 +344,9 @@ public class G3B extends AbstractDLMSProtocol {
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
         enableHHUSignOn(commChannel, false);
     }
+
+    @Override
+    public void validateSerialNumber() throws IOException {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
 }

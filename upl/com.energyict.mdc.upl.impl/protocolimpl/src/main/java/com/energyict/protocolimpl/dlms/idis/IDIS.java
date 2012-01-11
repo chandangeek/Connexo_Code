@@ -249,4 +249,9 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
     public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
         return new FirmwareUpdateMessageBuilder();
     }
+
+    @Override
+    public void validateSerialNumber() throws IOException {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
 }

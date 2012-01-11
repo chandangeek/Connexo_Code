@@ -30,6 +30,16 @@ import java.util.logging.Level;
 public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
 
     private static final ObisCode OBISCODE_ACTIVE_FIRMWARE = ObisCode.fromString("0.0.128.0.1.255");
+    private static final ObisCode OBISCODE_SERIAL_NUMBER =  ObisCode.fromString("0.0.96.1.0.255");
+
+    private static final int DEFAULT_FORCED_TO_READ_CACHE = 0;
+    private static final int DEFAULT_MAX_PDU_SIZE = 512;
+    private static final int DEFAULT_SERVER_LOWER_MAC_ADDRESS = 32;
+    private static final int DEFAULT_SERVER_UPPER_MAC_ADDRESS = 1;
+    private static final int DEFAULT_CLIENT_MAC_ADDRESS = 16;
+    private static final int DEFAULT_INFORMATION_FIELD_SIZE = 96;
+    private static final int DEFAULT_CONNECTION_MODE = 0;
+    private static final String HHUSIGNON_METERID = "CTR_EBOX";
 
     /**
      * Fixed static string for the forcedToReadCache property
@@ -51,9 +61,27 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
     private JanzStoredValues storedValues;
 
     @Override
+    public void validateSerialNumber() throws IOException {
+        if ((serialNumber == null) || ("".compareTo(serialNumber) == 0)) {
+            return;
+        }
+        Data data = getCosemObjectFactory().getData(OBISCODE_SERIAL_NUMBER);
+        String meterSerialNumber = AXDRDecoder.decode(data.getRawValueAttr()).getVisibleString().getStr().trim();
+        if (meterSerialNumber.compareTo(serialNumber) == 0) {
+            return;
+        }
+        throw new IOException("SerialNumber mismatch! meter sn=" + meterSerialNumber + ", configured sn=" + serialNumber);
+    }
+
+    @Override
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        this.forcedToReadCache = !properties.getProperty(PROPERTY_FORCEDTOREADCACHE, "0").equalsIgnoreCase("0");
-        this.maxRecPduSize = Integer.parseInt(properties.getProperty(DlmsProtocolProperties.MAX_REC_PDU_SIZE, Integer.toString(MAX_PDU_SIZE)));   // MAX_PDU_SIZE = 200 (default value)
+        this.forcedToReadCache = !properties.getProperty(PROPERTY_FORCEDTOREADCACHE, "0").equalsIgnoreCase(Integer.toString(DEFAULT_FORCED_TO_READ_CACHE));
+        this.maxRecPduSize = Integer.parseInt(properties.getProperty(DlmsProtocolProperties.MAX_REC_PDU_SIZE, Integer.toString(DEFAULT_MAX_PDU_SIZE)));
+        this.serverLowerMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, Integer.toString(DEFAULT_SERVER_LOWER_MAC_ADDRESS)));
+        this.serverUpperMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, Integer.toString(DEFAULT_SERVER_UPPER_MAC_ADDRESS)));
+        this.clientMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_CLIENT_MAC_ADDRESS, Integer.toString(DEFAULT_CLIENT_MAC_ADDRESS)));
+        this.informationFieldSize = Integer.parseInt(properties.getProperty(PROPNAME_INFORMATION_FIELD_SIZE, Integer.toString(DEFAULT_INFORMATION_FIELD_SIZE)));
+        this.connectionMode = Integer.parseInt(properties.getProperty(PROPNAME_CONNECTION, Integer.toString(DEFAULT_CONNECTION_MODE)));
     }
 
     /**
@@ -256,7 +284,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);
-        getDLMSConnection().setHHUSignOn(hhuSignOn, this.deviceId);
+        getDLMSConnection().setHHUSignOn(hhuSignOn, HHUSIGNON_METERID);
     }
 
     /**
@@ -362,11 +390,9 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
         result.add(DlmsProtocolProperties.ADDRESSING_MODE);
         result.add(DlmsProtocolProperties.CLIENT_MAC_ADDRESS);
         result.add(DlmsProtocolProperties.CONNECTION);
-        result.add(DlmsProtocolProperties.INFORMATION_FIELD_SIZE);
         result.add(PROPNAME_SERVER_LOWER_MAC_ADDRESS);
         result.add(PROPNAME_SERVER_UPPER_MAC_ADDRESS);
         result.add(PROPERTY_FORCEDTOREADCACHE);
-        result.add(DlmsProtocolProperties.MAX_REC_PDU_SIZE);
 
         result.add(DlmsProtocolProperties.TIMEOUT);
         result.add(DlmsProtocolProperties.RETRIES);
