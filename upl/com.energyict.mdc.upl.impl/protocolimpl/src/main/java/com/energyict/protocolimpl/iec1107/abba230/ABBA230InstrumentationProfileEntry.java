@@ -118,14 +118,9 @@ public class ABBA230InstrumentationProfileEntry implements ABBA230ProfileEntry {
     public void updatePowerFactorChannels(int[] channelValueConfigurations) {
         for (int i = 0; i< channelValueConfigurations.length; i++){
             if (channelValueConfigurations[i] == 3) {
-                // If the power factor is in quadrant 2 or 3, then the value should be negative.
-                if (signOrQuadrant[i]==2 || signOrQuadrant[i]==3) {
-                    values[i] = - Math.abs(values[i]) / 1000;
-                } else {
                 values[i] = Math.abs(values[i]) / 1000;
-                }
             } else {
-                signOrQuadrant[i] = 0;  //For non Power Factor channels, this field is irrelevant.
+                signOrQuadrant[i] = 0;
             }
         }
     }
