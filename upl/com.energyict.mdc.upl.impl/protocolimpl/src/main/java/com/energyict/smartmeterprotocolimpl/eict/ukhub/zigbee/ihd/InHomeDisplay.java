@@ -56,7 +56,10 @@ public class InHomeDisplay extends AbstractSmartDlmsProtocol implements SimpleMe
      */
     @Override
     protected void initAfterConnect() throws ConnectionException {
-        // nothing to do
+        if(this.dlmsSession != null){
+            // We need to update the correct TimeZone!!
+            this.dlmsSession.updateTimeZone(getTimeZone());
+        }
     }
 
     /**

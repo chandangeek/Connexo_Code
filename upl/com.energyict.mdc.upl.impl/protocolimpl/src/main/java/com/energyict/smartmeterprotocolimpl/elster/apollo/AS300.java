@@ -63,7 +63,10 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
 
     @Override
     protected void initAfterConnect() throws ConnectionException {
-        //Nothing, no topology available.
+        if(this.dlmsSession != null){
+            // We need to update the correct TimeZone!!
+            this.dlmsSession.updateTimeZone(getTimeZone());
+        }
     }
 
     public String getFirmwareVersion() throws IOException {

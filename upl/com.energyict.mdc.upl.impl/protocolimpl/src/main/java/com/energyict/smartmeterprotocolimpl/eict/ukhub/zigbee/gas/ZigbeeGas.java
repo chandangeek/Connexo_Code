@@ -81,7 +81,10 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
      */
     @Override
     protected void initAfterConnect() throws ConnectionException {
-        //Currently nothing to implement
+        if(this.dlmsSession != null){
+            // We need to update the correct TimeZone!!
+            this.dlmsSession.updateTimeZone(getTimeZone());
+        }
     }
 
     /**

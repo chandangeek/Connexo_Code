@@ -39,7 +39,7 @@ public class DlmsSession implements ProtocolLink {
     public void init() throws IOException {
         this.cosemObjectFactory = new CosemObjectFactory(this, getProperties().isBulkRequest());
         this.aso = buildAso();
-        if(dlmsConnection == null){
+        if (dlmsConnection == null) {
             this.dlmsConnection = new SecureConnection(this.aso, defineTransportDLMSConnection());
         }
         this.dlmsConnection.setInvokeIdAndPriority(getProperties().getInvokeIdAndPriority());
@@ -234,5 +234,14 @@ public class DlmsSession implements ProtocolLink {
      */
     public void setDlmsConnection(DLMSConnection dlmsConnection) {
         this.dlmsConnection = dlmsConnection;
+    }
+
+    /**
+     * Update the used TimeZone
+     *
+     * @param timeZone the new TimeZone to use
+     */
+    public void updateTimeZone(final TimeZone timeZone) {
+        this.timeZone = timeZone;
     }
 }
