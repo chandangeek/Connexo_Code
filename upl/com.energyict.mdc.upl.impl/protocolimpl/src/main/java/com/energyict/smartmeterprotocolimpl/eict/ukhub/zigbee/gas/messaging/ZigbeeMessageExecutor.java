@@ -241,7 +241,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
 
         priceInformation.writePassiveValue(priceArray);
 
-        if (activationDate != null) {
+        if (activationDate != null && activationDate.after(new Date())) {
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());
             cal.setTime(activationDate);
             priceInformation.writeActivationDate(new DateTime(cal));
@@ -272,7 +272,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
 
         ActivePassive conversionFactor = getCosemObjectFactory().getActivePassive(CONVERSION_FACTOR_OBISCODE);
         conversionFactor.writePassiveValue(new Unsigned32(conversionFactorValue));         //Double long, signed
-        if (activationDate != null) {
+        if (activationDate != null && activationDate.after(new Date())) {
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());
             cal.setTime(activationDate);
             conversionFactor.writeActivationDate(new DateTime(cal));
@@ -337,7 +337,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
 
         ActivePassive calorificValueObject = getCosemObjectFactory().getActivePassive(CALORIFIC_VALUE_OBISCODE);
         calorificValueObject.writePassiveValue(new Unsigned32(calorificValue));         //Double long, signed
-        if (activationDate != null) {
+        if (activationDate != null && activationDate.after(new Date())) {
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());
             cal.setTime(activationDate);
             calorificValueObject.writeActivationDate(new DateTime(cal));
@@ -368,7 +368,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
 
         ActivePassive standingCharge = getCosemObjectFactory().getActivePassive(STANDING_CHARGE_OBISCODE);
         standingCharge.writePassiveValue(new Unsigned32(standingChargeValue));         //Double long, signed
-        if (activationDate != null) {
+        if (activationDate != null && activationDate.after(new Date())) {
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());
             cal.setTime(activationDate);
             standingCharge.writeActivationDate(new DateTime(cal));

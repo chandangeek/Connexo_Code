@@ -286,7 +286,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
 
         ActivePassive standingCharge = getCosemObjectFactory().getActivePassive(STANDING_CHARGE_OBISCODE);
         standingCharge.writePassiveValue(new Unsigned32(standingChargeValue));         //Double long, signed
-        if (activationDate != null) {
+        if (activationDate != null && activationDate.after(new Date())) {
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());
             cal.setTime(activationDate);
             standingCharge.writeActivationDate(new DateTime(cal));
@@ -342,7 +342,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
 
         priceInformation.writePassiveValue(priceArray);
 
-        if (activationDate != null) {
+        if (activationDate != null && activationDate.after(new Date())) {
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());
             cal.setTime(activationDate);
             priceInformation.writeActivationDate(new DateTime(cal));
