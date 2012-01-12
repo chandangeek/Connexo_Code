@@ -4,17 +4,19 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.cosem.attributes.ChangeOfSupplierManagementAttributes;
 import com.energyict.dlms.cosem.attributes.ChangeOfTenantManagementAttributes;
-import com.energyict.dlms.cosem.methods.ChangeOfTenantManagementMethods;
+import com.energyict.dlms.cosem.methods.ChangeOfSupplierManagementMethods;
 
 import java.io.IOException;
 
 /**
- * Contains functionality to adjust/handle the ChangeOfTenant Management object
+ * Contains functionality to adjust/handle the ChangeOfSupplier Management object
  */
-public class ChangeOfTenantManagement extends AbstractCosemObject {
 
-    public static final byte[] LN = new byte[]{0, 0, 35, 10, 0, (byte) 255};
+public class ChangeOfSupplierManagement extends AbstractCosemObject {
+
+    public static final byte[] LN = new byte[]{0, (byte) 128, (byte) 128, 1, 0, (byte) 255};
 
     private DateTime value;
     private ScalerUnit scalerUnit;
@@ -29,11 +31,11 @@ public class ChangeOfTenantManagement extends AbstractCosemObject {
      *
      * @param protocolLink
      */
-    public ChangeOfTenantManagement(ProtocolLink protocolLink) {
+    public ChangeOfSupplierManagement(ProtocolLink protocolLink) {
         super(protocolLink, new ObjectReference(LN));
     }
 
-    public ChangeOfTenantManagement(final ProtocolLink protocolLink, final ObjectReference objectReference) {
+    public ChangeOfSupplierManagement(final ProtocolLink protocolLink, final ObjectReference objectReference) {
         super(protocolLink, objectReference);
     }
 
@@ -79,7 +81,7 @@ public class ChangeOfTenantManagement extends AbstractCosemObject {
      * @throws IOException if for some reason you could not write the attribute
      */
     public void writeValue(final DateTime value) throws IOException {
-        write(ChangeOfTenantManagementAttributes.VALUE, value.getBEREncodedByteArray());
+        write(ChangeOfSupplierManagementAttributes.VALUE, value.getBEREncodedByteArray());
         this.value = value;
     }
 
@@ -91,7 +93,7 @@ public class ChangeOfTenantManagement extends AbstractCosemObject {
      * @throws IOException if for some reason you could not read the attribute
      */
     public ScalerUnit readScalerUnit() throws IOException {
-        this.scalerUnit = new ScalerUnit(getResponseData(ChangeOfTenantManagementAttributes.SCALER_UNIT), 0);
+        this.scalerUnit = new ScalerUnit(getResponseData(ChangeOfSupplierManagementAttributes.SCALER_UNIT), 0);
         return scalerUnit;
     }
 
@@ -116,7 +118,7 @@ public class ChangeOfTenantManagement extends AbstractCosemObject {
      * @throws IOException if for some reason you could not write the attribute
      */
     public void writeScalerUnit(final ScalerUnit scalerUnit) throws IOException {
-        write(ChangeOfTenantManagementAttributes.SCALER_UNIT, scalerUnit.getScalerUnitStructure().getBEREncodedByteArray());
+        write(ChangeOfSupplierManagementAttributes.SCALER_UNIT, scalerUnit.getScalerUnitStructure().getBEREncodedByteArray());
         this.scalerUnit = scalerUnit;
     }
 
@@ -128,7 +130,7 @@ public class ChangeOfTenantManagement extends AbstractCosemObject {
      * @throws IOException if for some reason you could not read the attribute
      */
     public DateTime readPassiveValue() throws IOException {
-        this.passiveValue =new DateTime(getResponseData(ChangeOfTenantManagementAttributes.PASSIVE_VALUE));
+        this.passiveValue =new DateTime(getResponseData(ChangeOfSupplierManagementAttributes.PASSIVE_VALUE));
         return passiveValue;
     }
 
@@ -152,7 +154,7 @@ public class ChangeOfTenantManagement extends AbstractCosemObject {
      * @throws IOException if for some reason you could not write the attribute
      */
     public void writePassiveValue(final DateTime passiveValue) throws IOException {
-        write(ChangeOfTenantManagementAttributes.PASSIVE_VALUE, passiveValue.getBEREncodedByteArray());
+        write(ChangeOfSupplierManagementAttributes.PASSIVE_VALUE, passiveValue.getBEREncodedByteArray());
         this.passiveValue = passiveValue;
     }
 
@@ -163,7 +165,7 @@ public class ChangeOfTenantManagement extends AbstractCosemObject {
      * @throws IOException if for some reason you could not read the attribute
      */
     public ScalerUnit readPassiveScalerUnit() throws IOException {
-        this.passiveScalerUnit = new ScalerUnit(getResponseData(ChangeOfTenantManagementAttributes.PASSIVE_SCALER_UNIT), 0);
+        this.passiveScalerUnit = new ScalerUnit(getResponseData(ChangeOfSupplierManagementAttributes.PASSIVE_SCALER_UNIT), 0);
         return this.passiveScalerUnit;
     }
 
@@ -187,7 +189,7 @@ public class ChangeOfTenantManagement extends AbstractCosemObject {
      * @throws IOException if for some reason you could not write the attribute
      */
     public void writePassiveScalerUnit(final ScalerUnit passiveScalerUnit) throws IOException {
-        write(ChangeOfTenantManagementAttributes.PASSIVE_SCALER_UNIT, passiveScalerUnit.getScalerUnitStructure().getBEREncodedByteArray());
+        write(ChangeOfSupplierManagementAttributes.PASSIVE_SCALER_UNIT, passiveScalerUnit.getScalerUnitStructure().getBEREncodedByteArray());
         this.passiveScalerUnit = passiveScalerUnit;
     }
 
@@ -198,7 +200,7 @@ public class ChangeOfTenantManagement extends AbstractCosemObject {
      * @throws IOException if for some reason you could not read the attribute
      */
     public DateTime readActivationDate() throws IOException {
-        this.activationDate = new DateTime(getResponseData(ChangeOfTenantManagementAttributes.ACTIVATION_TIME));
+        this.activationDate = new DateTime(getResponseData(ChangeOfSupplierManagementAttributes.ACTIVATION_TIME));
         return this.activationDate;
     }
 
@@ -222,7 +224,7 @@ public class ChangeOfTenantManagement extends AbstractCosemObject {
      * @throws IOException if for some reason you could not write the attribute
      */
     public void writeActivationDate(final DateTime activationDate) throws IOException {
-        write(ChangeOfTenantManagementAttributes.ACTIVATION_TIME, activationDate.getBEREncodedByteArray());
+        write(ChangeOfSupplierManagementAttributes.ACTIVATION_TIME, activationDate.getBEREncodedByteArray());
         this.activationDate = activationDate;
     }
 
@@ -233,7 +235,7 @@ public class ChangeOfTenantManagement extends AbstractCosemObject {
      * @throws IOException if for some reason the invocation did not succeed
      */
     public byte[] reset() throws IOException {
-        return methodInvoke(ChangeOfTenantManagementMethods.RESET, new Integer8(0));
+        return methodInvoke(ChangeOfSupplierManagementMethods.RESET, new Integer8(0));
     }
 
     /**
@@ -243,6 +245,6 @@ public class ChangeOfTenantManagement extends AbstractCosemObject {
      * @throws IOException if for some reason the invocation did not succeed
      */
     public byte[] activate() throws IOException {
-        return methodInvoke(ChangeOfTenantManagementMethods.ACTIVATE, new Integer8(0));
+        return methodInvoke(ChangeOfSupplierManagementMethods.ACTIVATE, new Integer8(0));
     }
 }

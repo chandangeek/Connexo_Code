@@ -476,6 +476,14 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new ChangeOfTenantManagement(protocolLink, getObjectReference(obisCode));
     }
 
+    public ChangeOfSupplierManagement getChangeOfSupplierManagement() throws IOException {
+        return new ChangeOfSupplierManagement(protocolLink);
+    }
+
+    public ChangeOfSupplierManagement getChangeOfSupplierManagement(ObisCode obisCode) throws IOException {
+        return new ChangeOfSupplierManagement(protocolLink, getObjectReference(obisCode));
+    }
+
     public SupplierName getSupplierName(ObisCode obisCode) throws IOException {
         return new SupplierName(protocolLink, getObjectReference(obisCode));
     }

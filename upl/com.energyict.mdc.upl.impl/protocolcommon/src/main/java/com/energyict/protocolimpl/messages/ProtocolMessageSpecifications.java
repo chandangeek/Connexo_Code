@@ -171,8 +171,7 @@ public class ProtocolMessageSpecifications {
     public static MessageSpec getChangeOfTenancyMessageSpecification() {
         MessageSpec msgSpec = new MessageSpec(RtuMessageKeyIdConstants.CHANGE_OF_TENANT);
         MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.CHANGE_OF_TENANT);
-        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.CHANGE_OF_TENANT_VALUE, true));
-        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.CHANGE_OF_TENANT_ACTIATION_DATE, true));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.CHANGE_OF_TENANT_ACTIATION_DATE, false));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -187,7 +186,7 @@ public class ProtocolMessageSpecifications {
         MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.CHANGE_OF_SUPPLIER);
         tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.CHANGE_OF_SUPPLIER_NAME, true));
         tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.CHANGE_OF_SUPPLIER_ID, true));
-        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.CHANGE_OF_SUPPLIER_ACTIATION_DATE, true));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.CHANGE_OF_SUPPLIER_ACTIATION_DATE, false));
         msgSpec.add(tagSpec);
         return msgSpec;
     }

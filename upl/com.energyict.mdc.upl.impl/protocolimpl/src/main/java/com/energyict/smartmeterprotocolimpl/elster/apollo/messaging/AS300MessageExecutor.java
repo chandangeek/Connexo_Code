@@ -43,9 +43,10 @@ import java.util.logging.Logger;
  */
 public class AS300MessageExecutor extends GenericMessageExecutor {
 
+    private static final ObisCode ChangeOfSupplierObisCode = ObisCode.fromString("0.128.128.1.0.255");
     private static final ObisCode ChangeOfSupplierNameObisCode = ObisCode.fromString("1.0.1.64.0.255");
     private static final ObisCode ChangeOfSupplierIdObisCode = ObisCode.fromString("1.0.1.64.1.255");
-    private static final ObisCode ChangeOfTennantObisCode = ObisCode.fromString("0.128.128.0.0.255");
+    private static final ObisCode ChangeOfTennantObisCode = ObisCode.fromString("0.0.35.10.0.255");
     private static final String STANDING_CHARGE = "Standing charge";
     private static final String READ_PRICE_PER_UNIT = "ReadPricePerUnit";
     private static final String SET_STANDING_CHARGE = "SetStandingCharge";
@@ -374,6 +375,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
     private void changeOfSupplier(final MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Received Change of Supplier message.");
         log(Level.FINEST, "Writing new SupplierName Value");
+        ChangeOfSupplierManagement changeOfSupplier = getCosemObjectFactory().getChangeOfSupplierManagement(ChangeOfSupplierObisCode);
         getCosemObjectFactory().getSupplierName(ChangeOfSupplierNameObisCode).writePassiveValue(OctetString.fromString(messageHandler.getSupplierName()));
         try {
             log(Level.FINEST, "Writing new SupplierId Value");
@@ -383,12 +385,37 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
             success = false;
         }
         if (success) {
-            log(Level.FINEST, "Writing new Supplier ActivationDates");
             try {
-                getCosemObjectFactory().getSupplierName(ChangeOfSupplierNameObisCode).writeActivationDate(new DateTime(new Date(Long.valueOf(messageHandler.getSupplierActivationDate()))));
-                getCosemObjectFactory().getSupplierId(ChangeOfSupplierIdObisCode).writeActivationDate(new DateTime(new Date(Long.valueOf(messageHandler.getSupplierActivationDate()))));
-            } catch (NumberFormatException e) {
-                log(Level.SEVERE, "Incorrect ActivationDate : " + messageHandler.getSupplierActivationDate() + " - Message will fail.");
+                Calendar cal = Calendar.getInstance(protocol.getTimeZone());
+                if (messageHandler.getSupplierActivationDate() != null) {
+                    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                    Date date = formatter.parse(messageHandler.getSupplierActivationDate());
+                    if (!date.before(new Date())) {
+                        log(Level.FINEST, "Writing new Supplier ActivationDates");
+                        cal.setTime(date);
+
+                        changeOfSupplier.writePassiveValue(new DateTime(new Date(cal.getTimeInMillis())));
+                        changeOfSupplier.writeActivationDate(new DateTime(new Date(cal.getTimeInMillis())));
+                        getCosemObjectFactory().getSupplierName(ChangeOfSupplierNameObisCode).writeActivationDate(new DateTime(cal));
+                        getCosemObjectFactory().getSupplierId(ChangeOfSupplierIdObisCode).writeActivationDate(new DateTime(cal));
+                    } else {
+                        log(Level.FINEST, "Activation date was in the past. The changes will be activated immediately.");
+                        cal.setTime(new Date());
+                        changeOfSupplier.writePassiveValue(new DateTime(new Date(cal.getTimeInMillis())));
+                        changeOfSupplier.activate();
+                        getCosemObjectFactory().getSupplierName(ChangeOfSupplierNameObisCode).activate();
+                        getCosemObjectFactory().getSupplierId(ChangeOfSupplierIdObisCode).activate();
+                    }
+                } else {
+                    log(Level.FINEST, "No activation date specified, the changes will be activated immediately.");
+                    cal.setTime(new Date());
+                    changeOfSupplier.writePassiveValue(new DateTime(new Date(cal.getTimeInMillis())));
+                    changeOfSupplier.activate();
+                    getCosemObjectFactory().getSupplierName(ChangeOfSupplierNameObisCode).activate();
+                    getCosemObjectFactory().getSupplierId(ChangeOfSupplierIdObisCode).activate();
+                }
+            } catch (ParseException e) {
+                log(Level.SEVERE, "Error while parsing the activation date: " + e.getMessage());
                 success = false;
             }
         }
@@ -396,28 +423,34 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
 
     private void changeOfTenantMessage(final MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Received Change of Tenant message.");
-        log(Level.FINEST, "Writing new Tenant Value");
         ChangeOfTenantManagement changeOfTenant = getCosemObjectFactory().getChangeOfTenantManagement(ChangeOfTennantObisCode);
+
         try {
-            changeOfTenant.writePassiveValue(new Unsigned32(Long.valueOf(messageHandler.getTenantValue())));
-        } catch (NumberFormatException e) {
-            log(Level.SEVERE, "Incorrect TenantValue : " + messageHandler.getTenantValue() + " - Message will fail.");
-            success = false;
-        } catch (IOException e) {
-            if (e.getMessage().indexOf("Cosem Data-Access-Result exception R/W denied") >= 0) {
-                log(Level.SEVERE, "Could not write the new tenant value, still try to update the activationDate");
+            Calendar cal = Calendar.getInstance(protocol.getTimeZone());
+            if (messageHandler.getTenantActivationDate() != null) {
+                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                Date date = formatter.parse(messageHandler.getTenantActivationDate());
+                if (!date.before(new Date())) {
+                    log(Level.FINEST, "Writing new Tenant ActivationDates");
+
+                    cal.setTime(date);
+                    changeOfTenant.writePassiveValue(new DateTime(new Date(cal.getTimeInMillis())));
+                    changeOfTenant.writeActivationDate(new DateTime(new Date(cal.getTimeInMillis())));
+                } else {
+                    log(Level.FINEST, "Activation date was in the past. The changes will be activated immediately.");
+                    cal.setTime(new Date());
+                    changeOfTenant.writePassiveValue(new DateTime(new Date(cal.getTimeInMillis())));
+                    changeOfTenant.activate();
+                }
             } else {
-                throw e;
+                log(Level.FINEST, "No activation date specified, the changes will be activated immediately.");
+                cal.setTime(new Date());
+                changeOfTenant.writePassiveValue(new DateTime(new Date(cal.getTimeInMillis())));
+                changeOfTenant.activate();
             }
-        }
-        if (success) { // if the previous failed, then we don't try to write the activationDate
-            log(Level.FINEST, "Writing new Tenant ActivationDate");
-            try {
-                changeOfTenant.writeActivationDate(new DateTime(new Date(Long.valueOf(messageHandler.getTenantActivationDate()))));
-            } catch (NumberFormatException e) {
-                log(Level.SEVERE, "Incorrect ActivationDate : " + messageHandler.getTenantActivationDate() + " - Message will fail.");
-                success = false;
-            }
+        } catch (ParseException e) {
+            log(Level.SEVERE, "Error while parsing the activation date: " + e.getMessage());
+            success = false;
         }
     }
 
