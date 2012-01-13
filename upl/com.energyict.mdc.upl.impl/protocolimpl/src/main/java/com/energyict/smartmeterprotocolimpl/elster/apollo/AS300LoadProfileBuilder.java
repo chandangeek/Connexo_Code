@@ -20,7 +20,7 @@ import java.util.logging.Level;
  * Date: 30/06/11
  * Time: 13:49
  */
-public class LoadProfileBuilder {
+public class AS300LoadProfileBuilder {
 
     private List<LoadProfileReader> expectedLoadProfileReaders;
     private List<LoadProfileConfiguration> loadProfileConfigurationList;
@@ -33,7 +33,7 @@ public class LoadProfileBuilder {
     private Map<LoadProfileReader, ProfileMasks> masks = new HashMap<LoadProfileReader, ProfileMasks>();
 
 
-    public LoadProfileBuilder(AS300 meterProtocol) {
+    public AS300LoadProfileBuilder(AS300 meterProtocol) {
         this.meterProtocol = meterProtocol;
     }
 
@@ -145,7 +145,7 @@ public class LoadProfileBuilder {
                 if (channels == null) {
                     continue;
                 }
-                DLMSProfileIntervals intervals = new DLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar, channels), masks.get(lpr).getClockMask(), masks.get(lpr).getStatusMask(), -1, null);
+                DLMSProfileIntervals intervals = new DLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar, channels), masks.get(lpr).getClockMask(), masks.get(lpr).getStatusMask(), -1, new AS300ProfileIntervalStatusBits());
                 profileData.setIntervalDatas(intervals.parseIntervals(lpc.getProfileInterval()));
 
                 profileDataList.add(profileData);

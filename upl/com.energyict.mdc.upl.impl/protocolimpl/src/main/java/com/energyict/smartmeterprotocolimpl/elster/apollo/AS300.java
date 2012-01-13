@@ -29,7 +29,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
     private AS300Properties properties;
     private AS300ObjectFactory objectFactory;
     private RegisterReader registerReader;
-    private LoadProfileBuilder loadProfileBuilder;
+    private AS300LoadProfileBuilder loadProfileBuilder;
     protected AS300Messaging messageProtocol;
 
     @Override
@@ -54,9 +54,9 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
         return registerReader;
     }
 
-    private LoadProfileBuilder getLoadProfileBuilder() {
+    private AS300LoadProfileBuilder getLoadProfileBuilder() {
         if (loadProfileBuilder == null) {
-            loadProfileBuilder = new LoadProfileBuilder(this);
+            loadProfileBuilder = new AS300LoadProfileBuilder(this);
         }
         return loadProfileBuilder;
     }
