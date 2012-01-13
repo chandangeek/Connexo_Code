@@ -2,7 +2,6 @@ package com.energyict.smartmeterprotocolimpl.elster.apollo.eventhandling;
 
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.BasicEventLog;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.EventUtils;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300ObisCodeProvider;
@@ -59,8 +58,7 @@ public class ApolloEventProfiles {
      * @return the List of meterEvents
      */
     private List<MeterEvent> getPrepaymentEvents(Calendar from) throws IOException {
-        // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
-        BasicEventLog basicEventLog = new BasicEventLog(
+        AS300EventLog basicEventLog = new AS300EventLog(
                 AS300ObisCodeProvider.PREPAYMENT_EVENTLOG_OBISCODE,
                 getCosemObjectFactory(),
                 getLogger()
@@ -75,8 +73,7 @@ public class ApolloEventProfiles {
      * @return the List of meterEvents
      */
     private List<MeterEvent> getPowerFailureEvents(Calendar from) throws IOException {
-        // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
-        BasicEventLog basicEventLog = new BasicEventLog(
+        AS300EventLog basicEventLog = new AS300EventLog(
                 AS300ObisCodeProvider.POWER_FAILURE_EVENTLOG_OBISCODE,
                 getCosemObjectFactory(),
                 getLogger()
@@ -92,8 +89,7 @@ public class ApolloEventProfiles {
      * @return the List of meterEvents
      */
     private List<MeterEvent> getPowerQualityEvents(Calendar from) throws IOException {
-        // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
-        BasicEventLog basicEventLog = new BasicEventLog(
+        AS300EventLog basicEventLog = new AS300EventLog(
                 AS300ObisCodeProvider.POWER_QUALITY_EVENTLOG_OBISCODE,
                 getCosemObjectFactory(),
                 getLogger()
@@ -108,8 +104,7 @@ public class ApolloEventProfiles {
      * @return the List of meterEvents
      */
     private List<MeterEvent> getFirmwareEvents(Calendar from) throws IOException {
-        // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
-        BasicEventLog basicEventLog = new BasicEventLog(
+        AS300EventLog basicEventLog = new AS300EventLog(
                 AS300ObisCodeProvider.FIRMWARE_EVENTLOG_OBISCODE,
                 getCosemObjectFactory(),
                 getLogger()
@@ -124,8 +119,7 @@ public class ApolloEventProfiles {
      * @return the List of meterEvents
      */
     private List<MeterEvent> getCommunicationFailureEvents(Calendar from) throws IOException {
-        // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
-        BasicEventLog basicEventLog = new BasicEventLog(
+        AS300EventLog basicEventLog = new AS300EventLog(
                 AS300ObisCodeProvider.COMMUNICATION_FAILURE_EVENTLOG_OBISCODE,
                 getCosemObjectFactory(),
                 getLogger()
@@ -140,8 +134,7 @@ public class ApolloEventProfiles {
      * @return the List of meterEvents
      */
     private List<MeterEvent> getDisconnectControlEvents(Calendar from) throws IOException {
-        // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
-        BasicEventLog basicEventLog = new BasicEventLog(
+        AS300EventLog basicEventLog = new AS300EventLog(
                 AS300ObisCodeProvider.DISCONNECT_CONTROL_EVENTLOG_OBISCODE,
                 getCosemObjectFactory(),
                 getLogger()
@@ -156,8 +149,7 @@ public class ApolloEventProfiles {
      * @return the List of meterEvents
      */
     private List<MeterEvent> getFraudEvents(Calendar from) throws IOException {
-        // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
-        BasicEventLog basicEventLog = new BasicEventLog(
+        AS300EventLog basicEventLog = new AS300EventLog(
                 AS300ObisCodeProvider.FRAUD_DETECTION_EVENTLOG_OBISCODE,
                 getCosemObjectFactory(),
                 getLogger()
@@ -172,8 +164,7 @@ public class ApolloEventProfiles {
      * @return the List of meterEvents
      */
     protected List<MeterEvent> getStandardEvents(Calendar from) throws IOException {
-        // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
-        BasicEventLog basicEventLog = new BasicEventLog(
+        AS300EventLog basicEventLog = new AS300EventLog(
                 AS300ObisCodeProvider.STANDARD_EVENTLOG_OBISCODE,
                 getCosemObjectFactory(),
                 getLogger()
@@ -188,8 +179,7 @@ public class ApolloEventProfiles {
      * @return the List of meterEvents
      */
     protected List<MeterEvent> getClockSyncEvents(Calendar from) throws IOException {
-        // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
-        BasicEventLog basicEventLog = new BasicEventLog(
+        AS300EventLog basicEventLog = new AS300EventLog(
                 AS300ObisCodeProvider.CLOCK_SYNC_EVENTLOG_OBISCODE,
                 getCosemObjectFactory(),
                 getLogger()
