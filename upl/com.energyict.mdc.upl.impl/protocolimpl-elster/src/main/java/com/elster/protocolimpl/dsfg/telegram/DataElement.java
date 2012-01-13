@@ -64,6 +64,7 @@ public class DataElement {
 			} catch (Exception e1) {
 				try {
 					Double d = new Double(Double.parseDouble(de[1]));
+                    d = Math.round(d * 1000000.) / 1000000.;
 					setValue(d);
 				} catch (Exception e2) {
 					setValue(de[1]);

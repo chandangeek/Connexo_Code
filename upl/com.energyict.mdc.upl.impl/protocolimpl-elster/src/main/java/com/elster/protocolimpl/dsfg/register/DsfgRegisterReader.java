@@ -71,10 +71,10 @@ public class DsfgRegisterReader {
                 BigDecimal v = null;
                 if (o != null) {
                     if (o instanceof Double) {
-                        v = new BigDecimal((Double)o);
+                        v = new BigDecimal((Double) o);
                     }
                     if (o instanceof Long) {
-                        v = new BigDecimal((Long)o);
+                        v = new BigDecimal((Long) o);
                     }
                 }
                 if (v == null) {
@@ -87,7 +87,8 @@ public class DsfgRegisterReader {
                 Unit unit = DsfgUtils.getUnitFromString(unitString);
 
                 // combine value and unit to a register value
-                Quantity val = new Quantity(v, unit);
+                BigDecimal v2 = v.setScale(6, BigDecimal.ROUND_HALF_UP);
+                Quantity val = new Quantity(v2, unit);
                 result = new RegisterValue(obisCode,
                         val,
                         date,
@@ -97,14 +98,16 @@ public class DsfgRegisterReader {
             } else {
                 DataBlock db = new DataBlock(instance, 'A', 'J', 'M', address);
                 DataBlock in = dsfg.getDsfgConnection().sendRequest(db);
-                String value = in.getElementAt(0).getValue().toString();
-//            try {
-//                Lis200Value val = new Lis200Value(value);
-//                result = new RegisterValue(obisCode, val.toQuantity(), null, tst); //, null, tst, 0);
-//            } catch (Exception e) {
-                result = new RegisterValue(obisCode, null, null, null, null,
-                        tst, 0, value);
-//            }
+
+                Object value = in.getElementAt(0).getValue();
+                if (value instanceof Number) {
+                    Quantity val = new Quantity((Number) value, Unit.getUndefined());
+                    result = new RegisterValue(obisCode, val, null, tst);
+                } else {
+                    String v = value.toString();
+                    result = new RegisterValue(obisCode, null, null, null, null,
+                            tst, 0, v);
+                }
             }
         } catch (IOException ignore) {
         }

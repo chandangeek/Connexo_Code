@@ -189,7 +189,7 @@ public class DsfgConnection extends Connection {
 			}
 		}
 
-		System.out.println("receiveTelegram:" + result);
+		//System.out.println("receiveTelegram:" + result);
 		return result;
 	}
 

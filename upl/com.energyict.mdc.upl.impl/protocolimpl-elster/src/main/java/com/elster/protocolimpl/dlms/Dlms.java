@@ -288,7 +288,7 @@ public class Dlms implements MeterProtocol, ProtocolLink, RegisterProtocol, Mess
                         getMeterEvents(from, to);
                 profileData.setMeterEvents(mel);
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             getLogger().severe(e.getMessage());
         }
 
