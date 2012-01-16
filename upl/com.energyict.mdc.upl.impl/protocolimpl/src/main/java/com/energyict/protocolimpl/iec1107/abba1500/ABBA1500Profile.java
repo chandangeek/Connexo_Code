@@ -17,23 +17,23 @@ import java.util.logging.Level;
 
 /**
  *
- * @author Koen
- *         Changes:
- *         KV 20012005 Initial version
+ * @author  Koen
+ * Changes:
+ * KV 20012005 Initial version
  */
 public class ABBA1500Profile extends VDEWProfile {
 
-    private static final int DEBUG = 0;
+    private static final int DEBUG=0;
     private String fwVersion = "";
 
     /** Creates a new instance of ABBA1500Profile */
     public ABBA1500Profile(MeterExceptionInfo meterExceptionInfo, ProtocolLink protocolLink, AbstractVDEWRegistry abstractVDEWRegistry) {
-        super(meterExceptionInfo, protocolLink, abstractVDEWRegistry, false);
+        super(meterExceptionInfo,protocolLink,abstractVDEWRegistry,false);
     }
 
 
-    public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-        return getProfileData(lastReading, ProtocolUtils.getCalendar(getProtocolLink().getTimeZone()).getTime(), includeEvents);
+    public ProfileData getProfileData(Date lastReading,boolean includeEvents) throws IOException {
+        return  getProfileData(lastReading, ProtocolUtils.getCalendar(getProtocolLink().getTimeZone()).getTime(), includeEvents);
     }
 
     public ProfileData getProfileData(Date fromReading, Date toReading, boolean includeEvents) throws IOException {
@@ -59,7 +59,7 @@ public class ABBA1500Profile extends VDEWProfile {
                 long[] period = iterator.next();
                 fromWorkingCalendar.setTimeInMillis(period[0]);
                 toWorkingCalendar.setTimeInMillis(period[1]);
-                getProtocolLink().getLogger().log(Level.FINEST, "Retrieving profile data for interval: " + fromWorkingCalendar.getTime() + " to " + toWorkingCalendar.getTime());
+                getProtocolLink().getLogger().log(Level.FINEST,"Retrieving profile data for interval: " + fromWorkingCalendar.getTime() + " to " + toWorkingCalendar.getTime());
                 ProfileData profileDataPart = doGetProfileData(fromWorkingCalendar, toWorkingCalendar, 1, readMode);
                 profileData = mergeProfileData(profileData, profileDataPart);
 
@@ -77,6 +77,7 @@ public class ABBA1500Profile extends VDEWProfile {
         }
 
         profileData.sort();
+        removeDuplicateIntervals(profileData.getIntervalDatas());
         profileData.applyEvents(getProtocolLink().getProfileInterval() / 60);
 
         // JME: filter flags for firmware 3.02
@@ -91,11 +92,11 @@ public class ABBA1500Profile extends VDEWProfile {
         long toWorkingCalTime = fromWorkingCalTime + getMaxNrOfMilliSecProfileData();
 
         ArrayList<long[]> periodListing = new ArrayList<long[]>();
-        while (toWorkingCalTime <= toCal.getTimeInMillis()) {
+        while (toWorkingCalTime  <= toCal.getTimeInMillis()) {
             long[] period = new long[]{fromWorkingCalTime, toWorkingCalTime};
             periodListing.add(period);
 
-            fromWorkingCalTime = fromWorkingCalTime + getMaxNrOfMilliSecProfileData();
+            fromWorkingCalTime =  fromWorkingCalTime + getMaxNrOfMilliSecProfileData();
             toWorkingCalTime = toWorkingCalTime + getMaxNrOfMilliSecProfileData();
         }
 
@@ -131,48 +132,71 @@ public class ABBA1500Profile extends VDEWProfile {
         return profileData;
     }
 
+    /**
+     * @param intervals The list of IntervalData to check for duplicates. If found, duplicate intervals will be removed.
+     * @return
+     */
+    private List<IntervalData> removeDuplicateIntervals(List<IntervalData> intervals) {
+        List<IntervalData> returnList = new ArrayList<IntervalData>();
+        Collections.sort(intervals);
+
+        for (int i = 0; i < (intervals.size() - 1); i++) {
+            IntervalData leftInterval = intervals.get(i);
+            IntervalData rightInterval = intervals.get(i + 1);
+
+            if (!leftInterval.getEndTime().equals(rightInterval.getEndTime()) || leftInterval.getEiStatus() != rightInterval.getEiStatus() ||
+                    leftInterval.getProtocolStatus() != rightInterval.getProtocolStatus() || leftInterval.getTariffCode() != rightInterval.getTariffCode() ||
+                    leftInterval.getIntervalValues().size() != rightInterval.getIntervalValues().size()) {
+                returnList.add(leftInterval);
+            }
+        }
+        returnList.add(intervals.get(intervals.size() - 1));
+        return returnList;
+    }
+
+
     // Returns the maximum time period (in ms) that can be read out as one block.
     private long getMaxNrOfMilliSecProfileData() {
         return (((ABBA1500) getMeterExceptionInfo()).getMaxNrOfDaysProfileData() * 24 * 3600 * 1000);
     }
 
-    public void setFirmwareVersion(String firmwareVersion) {
-        this.fwVersion = firmwareVersion;
-    }
+	public void setFirmwareVersion(String firmwareVersion) {
+		this.fwVersion  = firmwareVersion;
+	}
 
-    private String getFirmwareVersion() {
-        return this.fwVersion;
-    }
+	private String getFirmwareVersion() {
+		return this.fwVersion;
+	}
 
-    private ProfileData filterDisturbedIntervalFlag(ProfileData profileData) {
-        ProfileData pd = profileData;
-        int numberOfIntervals = pd.getNumberOfIntervals();
-        int numberOfChannels = pd.getNumberOfChannels();
+	private ProfileData filterDisturbedIntervalFlag(ProfileData profileData) {
+		ProfileData pd = profileData;
+		int numberOfIntervals = pd.getNumberOfIntervals();
+		int numberOfChannels = pd.getNumberOfChannels();
 
-        for (int i = 0; i < numberOfIntervals; i++) {
+		for (int i = 0; i < numberOfIntervals; i++) {
 
-            //General statusFlags for all channels
-            int statusFlags = pd.getIntervalData(i).getEiStatus();
-            if (isEiStatusFlagSet(statusFlags, IntervalData.CORRUPTED) && (isEiStatusFlagSet(statusFlags, IntervalData.POWERUP) || isEiStatusFlagSet(statusFlags, IntervalData.POWERDOWN))) {
-                pd.getIntervalData(i).setEiStatus(statusFlags & (~IntervalData.CORRUPTED));
-            }
+			//General statusFlags for all channels
+			int statusFlags = pd.getIntervalData(i).getEiStatus();
+			if (isEiStatusFlagSet(statusFlags, IntervalData.CORRUPTED) && (isEiStatusFlagSet(statusFlags, IntervalData.POWERUP) || isEiStatusFlagSet(statusFlags, IntervalData.POWERDOWN))) {
+				pd.getIntervalData(i).setEiStatus(statusFlags & (~IntervalData.CORRUPTED));
+			}
 
-            //statusFlags for all specific channel
-            for (int j = 0; j < numberOfChannels; j++) {
-                statusFlags = pd.getIntervalData(i).getEiStatus(j);
-                if (isEiStatusFlagSet(statusFlags, IntervalData.CORRUPTED) && (isEiStatusFlagSet(statusFlags, IntervalData.POWERUP) || isEiStatusFlagSet(statusFlags, IntervalData.POWERDOWN))) {
-                    pd.getIntervalData(i).setEiStatus(j, statusFlags & (~IntervalData.CORRUPTED));
-                }
-            }
+			//statusFlags for all specific channel
+			for (int j = 0; j < numberOfChannels; j++) {
+				statusFlags = pd.getIntervalData(i).getEiStatus(j);
+				if (isEiStatusFlagSet(statusFlags, IntervalData.CORRUPTED) && (isEiStatusFlagSet(statusFlags, IntervalData.POWERUP) || isEiStatusFlagSet(statusFlags, IntervalData.POWERDOWN))) {
+					pd.getIntervalData(i).setEiStatus(j, statusFlags & (~IntervalData.CORRUPTED));
+				}
+			}
 
-        }
+		}
 
-        return profileData;
-    }
+		return profileData;
+	}
 
-    private boolean isEiStatusFlagSet(int statusFlags, int eiFlag) {
-        return ((statusFlags & eiFlag) == eiFlag);
-    }
+	private boolean isEiStatusFlagSet(int statusFlags, int eiFlag) {
+		return ((statusFlags & eiFlag) == eiFlag);
+	}
 
 } // ABBA1500Profile
 
