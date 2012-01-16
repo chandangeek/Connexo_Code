@@ -1,25 +1,13 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200.profile;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalValue;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.Utils;
+
+import java.io.IOException;
+import java.util.*;
 
 public class Profile {
 
@@ -141,7 +129,7 @@ public class Profile {
 				}
 
 				if (!matchedStatus) {
-					eventMessage = "Unknown event: 0x" + ProtocolUtils.buildStringHex(id.getProtocolStatus(i), 8);
+					eventMessage = "Unknown event: 0x" + ProtocolUtils.buildStringHex(id.getProtocolStatus(), 8);
 					eisCode = MeterEvent.OTHER;
 					id.setEiStatus(IntervalData.OTHER);
 					me = new MeterEvent(id.getEndTime(), eisCode, protocolStatus, eventMessage);
