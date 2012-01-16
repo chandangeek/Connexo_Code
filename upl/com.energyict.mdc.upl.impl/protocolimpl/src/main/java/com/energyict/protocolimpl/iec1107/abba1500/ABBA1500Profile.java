@@ -13,113 +13,166 @@ import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
+
 /**
  *
- * @author  Koen
- * Changes:
- * KV 20012005 Initial version
+ * @author Koen
+ *         Changes:
+ *         KV 20012005 Initial version
  */
 public class ABBA1500Profile extends VDEWProfile {
-    
-    private static final int DEBUG=0;
-	private String fwVersion = "";
-    
+
+    private static final int DEBUG = 0;
+    private String fwVersion = "";
+
     /** Creates a new instance of ABBA1500Profile */
     public ABBA1500Profile(MeterExceptionInfo meterExceptionInfo, ProtocolLink protocolLink, AbstractVDEWRegistry abstractVDEWRegistry) {
-        super(meterExceptionInfo,protocolLink,abstractVDEWRegistry,false);
+        super(meterExceptionInfo, protocolLink, abstractVDEWRegistry, false);
     }
-    
-    
-    public ProfileData getProfileData(Date lastReading,boolean includeEvents) throws IOException {
-        Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
-        fromCalendar.setTime(lastReading);
-        
-        int readMode = 6;
-        if (Float.parseFloat(getFirmwareVersion()) < 3.02) {
-            readMode = 5;
-        }
 
-        ProfileData profileData = doGetProfileData(fromCalendar, ProtocolUtils.getCalendar(getProtocolLink().getTimeZone()), 1, readMode);
-        if (includeEvents) {
-           List meterEvents = doGetLogBook(fromCalendar,ProtocolUtils.getCalendar(getProtocolLink().getTimeZone())); 
-           profileData.getMeterEvents().addAll(meterEvents);
-           profileData.sort();
-        }
-                
-        profileData.applyEvents(getProtocolLink().getProfileInterval()/60);
-        
-        // JME: filter flags for firmware 3.02
-        if (getFirmwareVersion().equalsIgnoreCase("3.02")) {
-            profileData = filterDisturbedIntervalFlag(profileData);
-        }
 
-        return profileData;
+    public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
+        return getProfileData(lastReading, ProtocolUtils.getCalendar(getProtocolLink().getTimeZone()).getTime(), includeEvents);
     }
-    
+
     public ProfileData getProfileData(Date fromReading, Date toReading, boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
         fromCalendar.setTime(fromReading);
         Calendar toCalendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
         toCalendar.setTime(toReading);
-        
+
         int readMode = 6;
-        if (Float.parseFloat(getFirmwareVersion()) < 3.02) {
+        ProfileData profileData = new ProfileData();
+        if (Float.parseFloat(getFirmwareVersion()) < (float) 3.02) {
             readMode = 5;
         }
-        ProfileData profileData = doGetProfileData(fromCalendar, toCalendar, 1, readMode);
-        if (includeEvents) {
-           List meterEvents = doGetLogBook(fromCalendar,toCalendar); 
-           profileData.getMeterEvents().addAll(meterEvents);
-           profileData.sort();
+
+        if ((getMaxNrOfMilliSecProfileData() != 0) && (toCalendar.getTimeInMillis() - fromCalendar.getTimeInMillis()) > getMaxNrOfMilliSecProfileData()) {
+            Calendar fromWorkingCalendar = (Calendar) fromCalendar.clone();
+            Calendar toWorkingCalendar = (Calendar) toCalendar.clone();
+
+            ArrayList<long[]> periods = splitUpInterval(fromCalendar, toCalendar);
+            getProtocolLink().getLogger().log(Level.INFO, "Reading of profile data for a period larger than the configured maximum period (" + (getMaxNrOfMilliSecProfileData() / (1000 * 3600 * 24)) + " days). The read wll be split up in " + periods.size() + " separate readings.");
+            Iterator<long[]> iterator = periods.iterator();
+            while (iterator.hasNext()) {
+                long[] period = iterator.next();
+                fromWorkingCalendar.setTimeInMillis(period[0]);
+                toWorkingCalendar.setTimeInMillis(period[1]);
+                getProtocolLink().getLogger().log(Level.FINEST, "Retrieving profile data for interval: " + fromWorkingCalendar.getTime() + " to " + toWorkingCalendar.getTime());
+                ProfileData profileDataPart = doGetProfileData(fromWorkingCalendar, toWorkingCalendar, 1, readMode);
+                profileData = mergeProfileData(profileData, profileDataPart);
+
+                if (includeEvents) {
+                    List meterEvents = doGetLogBook(fromWorkingCalendar, toWorkingCalendar);
+                    profileData.getMeterEvents().addAll(meterEvents);
+                }
+            }
+        } else {
+            profileData = doGetProfileData(fromCalendar, toCalendar, 1, readMode);
+            if (includeEvents) {
+                List meterEvents = doGetLogBook(fromCalendar, toCalendar);
+                profileData.getMeterEvents().addAll(meterEvents);
+            }
         }
-                        
-        profileData.applyEvents(getProtocolLink().getProfileInterval()/60);
+
+        profileData.sort();
+        profileData.applyEvents(getProtocolLink().getProfileInterval() / 60);
 
         // JME: filter flags for firmware 3.02
         if (getFirmwareVersion().equalsIgnoreCase("3.02")) {
             profileData = filterDisturbedIntervalFlag(profileData);
         }
-        
         return profileData;
     }
 
-	public void setFirmwareVersion(String firmwareVersion) {
-		this.fwVersion  = firmwareVersion;
-	}
+    private ArrayList<long[]> splitUpInterval(Calendar fromCal, Calendar toCal) {
+        long fromWorkingCalTime = fromCal.getTimeInMillis();
+        long toWorkingCalTime = fromWorkingCalTime + getMaxNrOfMilliSecProfileData();
 
-	private String getFirmwareVersion() {
-		return this.fwVersion;
-	}
-	
-	private ProfileData filterDisturbedIntervalFlag(ProfileData profileData) {
-		ProfileData pd = profileData; 
-		int numberOfIntervals = pd.getNumberOfIntervals();
-		int numberOfChannels = pd.getNumberOfChannels();
-		
-		for (int i = 0; i < numberOfIntervals; i++) {
+        ArrayList<long[]> periodListing = new ArrayList<long[]>();
+        while (toWorkingCalTime <= toCal.getTimeInMillis()) {
+            long[] period = new long[]{fromWorkingCalTime, toWorkingCalTime};
+            periodListing.add(period);
 
-			//General statusFlags for all channels
-			int statusFlags = pd.getIntervalData(i).getEiStatus();
-			if (isEiStatusFlagSet(statusFlags, IntervalData.CORRUPTED) && (isEiStatusFlagSet(statusFlags, IntervalData.POWERUP) || isEiStatusFlagSet(statusFlags, IntervalData.POWERDOWN))) {
-				pd.getIntervalData(i).setEiStatus(statusFlags & (~IntervalData.CORRUPTED));
-			}
+            fromWorkingCalTime = fromWorkingCalTime + getMaxNrOfMilliSecProfileData();
+            toWorkingCalTime = toWorkingCalTime + getMaxNrOfMilliSecProfileData();
+        }
 
-			//statusFlags for all specific channel
-			for (int j = 0; j < numberOfChannels; j++) {
-				statusFlags = pd.getIntervalData(i).getEiStatus(j);
-				if (isEiStatusFlagSet(statusFlags, IntervalData.CORRUPTED) && (isEiStatusFlagSet(statusFlags, IntervalData.POWERUP) || isEiStatusFlagSet(statusFlags, IntervalData.POWERDOWN))) {
-					pd.getIntervalData(i).setEiStatus(j, statusFlags & (~IntervalData.CORRUPTED));
-				}
-			}
-			
-		}
-		
-		return profileData;
-	}
-	
-	private boolean isEiStatusFlagSet(int statusFlags, int eiFlag) {
-		return ((statusFlags & eiFlag) == eiFlag);
-	}
-		
+        if ((toCal.getTimeInMillis() - fromWorkingCalTime) > 0) {
+            long[] lastPeriod = {fromWorkingCalTime, toCal.getTimeInMillis()};
+            periodListing.add(lastPeriod);
+        }
+        return periodListing;
+    }
+
+    // Merge the 2 given ProfileData objects.
+    private ProfileData mergeProfileData(ProfileData profileData, ProfileData profileDataPart) throws IOException {
+        /** If profileData is empty, set the ChannelInfo of the profileDataPart.
+         else use the existing ChannelInfo of profileData, just add the IntervalData (but do a check to be sure profilData and profileDataPart have the same ChannelInfo set). **/
+        if (profileData.getChannelInfos().size() == 0) {
+            profileData.getChannelInfos().addAll(profileDataPart.getChannelInfos());
+        } else {
+            for (int i = 0; i < profileData.getChannelInfos().size(); i++) {
+                ChannelInfo info = (ChannelInfo) profileData.getChannelInfos().get(i);
+                ChannelInfo partInfo = (ChannelInfo) profileDataPart.getChannelInfos().get(i);
+
+                if (!info.getName().equals(partInfo.getName()) ||
+                        !info.getUnit().equals(partInfo.getUnit()) ||
+                        info.getChannelId() != partInfo.getChannelId() ||
+                        !info.getMultiplier().equals(partInfo.getMultiplier())) {
+                    throw new IOException("ChannelInfo of profilePart doesn't match the ChannelInfo of the previous retrieved profile data.");
+
+                }
+            }
+        }
+
+        profileData.getIntervalDatas().addAll(profileDataPart.getIntervalDatas());
+        return profileData;
+    }
+
+    // Returns the maximum time period (in ms) that can be read out as one block.
+    private long getMaxNrOfMilliSecProfileData() {
+        return (((ABBA1500) getMeterExceptionInfo()).getMaxNrOfDaysProfileData() * 24 * 3600 * 1000);
+    }
+
+    public void setFirmwareVersion(String firmwareVersion) {
+        this.fwVersion = firmwareVersion;
+    }
+
+    private String getFirmwareVersion() {
+        return this.fwVersion;
+    }
+
+    private ProfileData filterDisturbedIntervalFlag(ProfileData profileData) {
+        ProfileData pd = profileData;
+        int numberOfIntervals = pd.getNumberOfIntervals();
+        int numberOfChannels = pd.getNumberOfChannels();
+
+        for (int i = 0; i < numberOfIntervals; i++) {
+
+            //General statusFlags for all channels
+            int statusFlags = pd.getIntervalData(i).getEiStatus();
+            if (isEiStatusFlagSet(statusFlags, IntervalData.CORRUPTED) && (isEiStatusFlagSet(statusFlags, IntervalData.POWERUP) || isEiStatusFlagSet(statusFlags, IntervalData.POWERDOWN))) {
+                pd.getIntervalData(i).setEiStatus(statusFlags & (~IntervalData.CORRUPTED));
+            }
+
+            //statusFlags for all specific channel
+            for (int j = 0; j < numberOfChannels; j++) {
+                statusFlags = pd.getIntervalData(i).getEiStatus(j);
+                if (isEiStatusFlagSet(statusFlags, IntervalData.CORRUPTED) && (isEiStatusFlagSet(statusFlags, IntervalData.POWERUP) || isEiStatusFlagSet(statusFlags, IntervalData.POWERDOWN))) {
+                    pd.getIntervalData(i).setEiStatus(j, statusFlags & (~IntervalData.CORRUPTED));
+                }
+            }
+
+        }
+
+        return profileData;
+    }
+
+    private boolean isEiStatusFlagSet(int statusFlags, int eiFlag) {
+        return ((statusFlags & eiFlag) == eiFlag);
+    }
+
 } // ABBA1500Profile
 

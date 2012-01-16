@@ -78,6 +78,7 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
     boolean software7E1;
 
     int forcedDelay;
+    int MaxNrOfDaysProfileData;
 
     /** Creates a new instance of Abba1500, empty constructor*/
     public ABBA1500() {
@@ -202,6 +203,7 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
             serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
             iFirmwareVersion = properties.getProperty("FirmwareVersion", "3.03").trim();
             this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+            this.MaxNrOfDaysProfileData = Integer.parseInt(properties.getProperty("MaxNrOfDaysProfileData","0").trim());
 
             strDateFormat = properties.getProperty("DateFormat", "yy/MM/dd").trim().toLowerCase();
             // Check for valid DateFormat
@@ -286,6 +288,7 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
         result.add("FirmwareVersion");
         result.add("Software7E1");
         result.add("DateFormat");
+        result.add("MaxNrOfDaysProfileData");
         return result;
     }
 
@@ -768,4 +771,7 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
 		return iFirmwareVersion;
 	}
 
+    public int getMaxNrOfDaysProfileData() {
+        return MaxNrOfDaysProfileData;
+    }
 } // public class ABBA1500 implements MeterProtocol {
