@@ -53,7 +53,8 @@ public class SmsWakeup {
     private int logLevel = -2;
     private String updatedIpAddress = "";
     private long pollTimeout;
-    private int pollFreq;
+    private int firstPoll;
+    private int secondPollFrequency;
     private int wakeUpRequestTimeOut;
     private boolean requestSuccess = false;
     private String endpointAddress;
@@ -121,7 +122,20 @@ public class SmsWakeup {
      */
     private void updateProperties() {
         this.pollTimeout = Integer.parseInt(this.meter.getProperties().getProperty("PollTimeOut", "900000"));
-        this.pollFreq = Integer.parseInt(this.meter.getProperties().getProperty("PollFrequency", "15000"));
+        String pollFreqProp = this.meter.getProperties().getProperty("PollFrequency", "20:5");
+        String[] freqs = pollFreqProp.split(":");
+        this.firstPoll = Integer.parseInt(freqs[0]);
+        if(freqs.length == 1){
+            this.secondPollFrequency = 5;
+        } else {
+            this.secondPollFrequency = Integer.parseInt(freqs[1]);
+        }
+
+        // We check if the values are below 1000, then they are given in seconds so we should convert them to milliseconds
+        // else, then we should just keep them in milliseconds
+        this.firstPoll = (this.firstPoll < 1000) ? (this.firstPoll * 1000) : this.firstPoll;
+        this.secondPollFrequency = (this.secondPollFrequency < 1000) ? (this.secondPollFrequency * 1000) : this.secondPollFrequency;
+
         this.wakeUpRequestTimeOut = Integer.parseInt(this.meter.getProperties().getProperty("WakeUpRequestTimeOut", "30000"));
         String host = mw().getSystemProperty(VF_ENDPOINT_ADDRESS_PROPERTY);
         if (host == null) {
@@ -243,11 +257,15 @@ public class SmsWakeup {
      */
     private void waitForIpUpdate() throws BusinessException, IOException {
         long protocolTimeout = System.currentTimeMillis() + this.pollTimeout;
+
+        sleep(this.firstPoll);
+        updatedIpAddress = getRefreshedMeter().getIpAddress();
+
         while (updatedIpAddress.equals("")) {
-            if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+            if ((System.currentTimeMillis() - protocolTimeout) > 0) {
                 throw new BusinessException("Could not update the meters IP-address");
             }
-            sleep(this.pollFreq);
+            sleep(this.secondPollFrequency);
             updatedIpAddress = getRefreshedMeter().getIpAddress();
         }
         String error = "";
