@@ -1,12 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd;
 
 import com.energyict.dlms.DLMSReference;
+import com.energyict.dlms.DlmsProtocolProperties;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocolimpl.base.ProtocolProperty;
-import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,10 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects;
 
 import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.ComposedCosemObject;
-import com.energyict.protocolimpl.dlms.common.DlmsSession;
 
 import java.io.IOException;
 

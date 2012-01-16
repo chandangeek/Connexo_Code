@@ -1,6 +1,5 @@
-package com.energyict.protocolimpl.dlms.common;
+package com.energyict.dlms;
 
-import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
 import com.energyict.protocolimpl.base.AbstractProtocolProperties;
 import com.energyict.protocolimpl.base.ProtocolProperty;

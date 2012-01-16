@@ -5,6 +5,7 @@ import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
+import com.energyict.dlms.DlmsProtocolProperties;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.genericprotocolimpl.common.wakeup.SmsWakeup;
 import com.energyict.mdw.core.CommunicationScheduler;
@@ -12,11 +13,11 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
-import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.*;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23Properties;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23RegisterFactory;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
@@ -86,7 +87,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
     private List<AbstractNtaMbusDevice> mbusDevices = new ArrayList<AbstractNtaMbusDevice>();
 
     /**
-     * Getter for the {@link com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties}
+     * Getter for the {@link com.energyict.dlms.DlmsProtocolProperties}
      *
      * @return the requested Properties
      */

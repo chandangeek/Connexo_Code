@@ -4,14 +4,12 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
-import com.energyict.protocolimpl.dlms.common.DlmsSession;
 import com.energyict.smartmeterprotocolimpl.common.*;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.MultipleClientRelatedObisCodes;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.composedobjects.ComposedMeterInfo;
@@ -54,7 +52,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
     }
 
     /**
-     * Getter for the {@link com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties}
+     * Getter for the {@link com.energyict.dlms.DlmsProtocolProperties}
      *
      * @return the requested Properties
      */

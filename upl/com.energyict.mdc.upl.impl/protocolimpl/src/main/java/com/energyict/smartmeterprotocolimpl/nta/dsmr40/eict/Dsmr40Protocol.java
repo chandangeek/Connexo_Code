@@ -1,10 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.eict;
 
+import com.energyict.dlms.DlmsProtocolProperties;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocolimpl.dlms.DLMSCache;
-import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RegisterFactory;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
@@ -36,7 +36,7 @@ public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
     }
 
     /**
-     * Getter for the {@link com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties}
+     * Getter for the {@link com.energyict.dlms.DlmsProtocolProperties}
      *
      * @return the requested Properties
      */

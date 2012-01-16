@@ -1,7 +1,6 @@
-package com.energyict.protocolimpl.dlms.common;
+package com.energyict.dlms;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;

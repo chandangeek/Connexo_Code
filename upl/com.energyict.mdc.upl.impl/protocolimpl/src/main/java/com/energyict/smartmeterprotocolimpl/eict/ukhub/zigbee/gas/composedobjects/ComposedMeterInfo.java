@@ -1,11 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.composedobjects;
 
 import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
-import com.energyict.protocolimpl.dlms.common.DlmsSession;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ObisCodeProvider;
 
 import java.io.IOException;

@@ -1,12 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.topology;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.SmartMeterProtocol;
-import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.DummyDLMSConnection;
 import com.energyict.protocolimpl.utils.MockSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
@@ -17,9 +15,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Copyrights EnergyICT

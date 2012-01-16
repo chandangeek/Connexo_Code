@@ -4,13 +4,10 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cpo.Transaction;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocolimpl.base.CachedMeterTime;
 import com.energyict.protocolimpl.base.ProtocolProperties;
 import com.energyict.protocolimpl.dlms.*;
 import com.energyict.smartmeterprotocolimpl.common.AbstractSmartMeterProtocol;
@@ -27,7 +24,7 @@ import java.util.logging.Level;
 public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtocol implements CacheMechanism {
 
     /**
-     * The used {@link com.energyict.protocolimpl.dlms.common.DlmsSession}
+     * The used {@link com.energyict.dlms.DlmsSession}
      */
     protected DlmsSession dlmsSession;
 

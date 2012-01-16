@@ -1,10 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common;
 
+import com.energyict.dlms.DlmsProtocolProperties;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23RegisterFactory;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RegisterFactory;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
@@ -28,7 +27,7 @@ public abstract class AbstractSmartDSMR40NtaProtocol extends AbstractSmartNtaPro
     }
 
     /**
-     * Getter for the {@link com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties}
+     * Getter for the {@link com.energyict.dlms.DlmsProtocolProperties}
      *
      * @return the requested Properties
      */
