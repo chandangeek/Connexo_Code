@@ -508,11 +508,11 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
 
         Structure structure = new Structure();
         structure.addDataType(new Unsigned32((int) Calendar.getInstance().getTimeInMillis()));
-        OctetString octetString = OctetString.fromString((message.length() > 128 ? message.substring(0, 127) : message), 128);
+        OctetString octetString = OctetString.fromString((message.length() > 128 ? message.substring(0, 127) : message));
         structure.addDataType(octetString);
         structure.addDataType(new Unsigned16(duration));
         structure.addDataType(new BitString(0x0F, 8));
-        structure.addDataType(new Unsigned16(0x0FFFF));
+        structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString("FFFFFFFFFFFFFFFF", ""), 8));
 
         meterMessageControl.writePassiveValue(structure);
         if (date != null) {

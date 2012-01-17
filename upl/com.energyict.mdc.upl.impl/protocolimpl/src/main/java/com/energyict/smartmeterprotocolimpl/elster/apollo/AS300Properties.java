@@ -18,8 +18,6 @@ import java.util.List;
  */
 public class AS300Properties extends DlmsProtocolProperties {
 
-    private SecurityProvider securityProvider;
-
     public static final String DEFAULT_AS300_CLIENT_MAC_ADDRESS = "64";
     public static final String DEFAULT_AS300_LOGICAL_DEVICE_ADDRESS = "45";
 
@@ -85,14 +83,14 @@ public class AS300Properties extends DlmsProtocolProperties {
 
     @Override
     public SecurityProvider getSecurityProvider() {
-        if(this.securityProvider == null){
-            this.securityProvider = new NTASecurityProvider(getProtocolProperties());
+        if(super.securityProvider == null){
+            setSecurityProvider(new NTASecurityProvider(getProtocolProperties()));
         }
-        return this.securityProvider;
+        return super.securityProvider;
     }
 
     public void setSecurityProvider(SecurityProvider securityProvider){
-        this.securityProvider = securityProvider;
+        super.securityProvider = securityProvider;
     }
 
     @ProtocolProperty

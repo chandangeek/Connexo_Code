@@ -62,6 +62,8 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
     public static final String DEFAULT_ROUND_TRIP_CORRECTION = "0";
     public static final String DEFAULT_ISKRA_WRAPPER = "1";
 
+    protected SecurityProvider securityProvider;
+
     @ProtocolProperty
     public abstract DLMSReference getReference();
 
@@ -253,7 +255,14 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
     }
 
     public SecurityProvider getSecurityProvider() {
-        return new LocalSecurityProvider(getProtocolProperties());
+        if (securityProvider == null) {
+            securityProvider = new LocalSecurityProvider(getProtocolProperties());
+        }
+        return securityProvider;
+    }
+
+    public void setSecurityProvider(SecurityProvider securityProvider) {
+        this.securityProvider = securityProvider;
     }
 
 }
