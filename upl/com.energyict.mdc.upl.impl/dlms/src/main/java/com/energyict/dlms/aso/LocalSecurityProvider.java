@@ -18,7 +18,7 @@ import java.util.Random;
  */
 public class LocalSecurityProvider implements SecurityProvider {
 
-	private int securityLevel;
+    private int securityLevel;
 	private byte[] cTOs;
 	private byte[] authenticationPassword;
 	private byte[] dataTransportPassword;
@@ -26,6 +26,7 @@ public class LocalSecurityProvider implements SecurityProvider {
 	private byte[] masterKey;
 	private String hlsSecret;
 	private Properties properties;
+    private Long initialFrameCounter;
 
 	/** Property name of the new AuthenticationKey */
 	public static final String NEW_AUTHENTICATION_KEY = "NewAuthenticationKey";
@@ -41,6 +42,10 @@ public class LocalSecurityProvider implements SecurityProvider {
 	public static final String DATATRANSPORT_AUTHENTICATIONKEY = "DataTransportAuthenticationKey";
 	/** Property name of the new LowLevel security Secret */
 	public static final String NEW_LLS_SECRET = "NewLLSSecret";
+    /** Property name of the initial frame counter */
+    public static final String INITIAL_FRAME_COUNTER = "InitialFrameCounter";
+
+    private static final Random RANDOM = new Random();
 
 	/**
 	 * Create a new instance of LocalSecurityProvider
@@ -57,7 +62,8 @@ public class LocalSecurityProvider implements SecurityProvider {
 		this.dataTransportPassword = DLMSUtils.hexStringToByteArray(properties.getProperty(DATATRANSPORTKEY, ""));
 		this.masterKey = DLMSUtils.hexStringToByteArray(properties.getProperty(MASTERKEY, ""));
 		this.authenticationPassword = DLMSUtils.hexStringToByteArray(properties.getProperty(DATATRANSPORT_AUTHENTICATIONKEY,""));
-		this.hlsSecret = properties.getProperty(MeterProtocol.PASSWORD,"");
+		this.hlsSecret = properties.getProperty(MeterProtocol.PASSWORD, "");
+		this.initialFrameCounter = properties.getProperty(INITIAL_FRAME_COUNTER) != null ? Long.parseLong(properties.getProperty(INITIAL_FRAME_COUNTER)) : null;
 	}
 
 	/**
@@ -65,9 +71,8 @@ public class LocalSecurityProvider implements SecurityProvider {
 	 */
 	private void generateClientToServerChallenge(){
 		if(this.cTOs == null){
-			Random generator = new Random();
 			this.cTOs = new byte[8];
-			generator.nextBytes(this.cTOs);
+			RANDOM.nextBytes(this.cTOs);
 		}
 	}
 
@@ -150,8 +155,7 @@ public class LocalSecurityProvider implements SecurityProvider {
      * @return the initial frameCounter
      */
     public long getInitialFrameCounter() {
-        Random generator = new Random();
-        return generator.nextLong();
+        return initialFrameCounter != null ? initialFrameCounter : RANDOM.nextLong();
     }
 
     //********** Return new keys for KeyChange functionality **********/
@@ -206,8 +210,7 @@ public class LocalSecurityProvider implements SecurityProvider {
 	public byte[] getDedicatedKey() {
 		if (dedicatedKey == null) {
 			dedicatedKey = new byte[16];
-			Random rnd = new Random();
-			rnd.nextBytes(dedicatedKey);
+			RANDOM.nextBytes(dedicatedKey);
 		}
 		return dedicatedKey;
 	}
