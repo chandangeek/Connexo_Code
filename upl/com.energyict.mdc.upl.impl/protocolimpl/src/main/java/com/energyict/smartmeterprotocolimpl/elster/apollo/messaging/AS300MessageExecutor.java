@@ -386,21 +386,21 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         if (success) {
             try {
                 Calendar cal = Calendar.getInstance(protocol.getTimeZone());
-                if (messageHandler.getSupplierActivationDate() != null) {
+                if (messageHandler.getSupplierActivationDate() != null && !messageHandler.getSupplierActivationDate().equals("")) {
                     SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
                     Date date = formatter.parse(messageHandler.getSupplierActivationDate());
                     if (!date.before(new Date())) {
                         log(Level.FINEST, "Writing new Supplier ActivationDates");
                         cal.setTime(date);
 
-                        changeOfSupplier.writePassiveValue(new DateTime(new Date(cal.getTimeInMillis())));
-                        changeOfSupplier.writeActivationDate(new DateTime(new Date(cal.getTimeInMillis())));
+                        changeOfSupplier.writePassiveValue(new DateTime(cal));
+                        changeOfSupplier.writeActivationDate(new DateTime(cal));
                         getCosemObjectFactory().getSupplierName(ChangeOfSupplierNameObisCode).writeActivationDate(new DateTime(cal));
                         getCosemObjectFactory().getSupplierId(ChangeOfSupplierIdObisCode).writeActivationDate(new DateTime(cal));
                     } else {
                         log(Level.FINEST, "Activation date was in the past. The changes will be activated immediately.");
                         cal.setTime(new Date());
-                        changeOfSupplier.writePassiveValue(new DateTime(new Date(cal.getTimeInMillis())));
+                        changeOfSupplier.writePassiveValue(new DateTime(cal));
                         changeOfSupplier.activate();
                         getCosemObjectFactory().getSupplierName(ChangeOfSupplierNameObisCode).activate();
                         getCosemObjectFactory().getSupplierId(ChangeOfSupplierIdObisCode).activate();
@@ -408,7 +408,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
                 } else {
                     log(Level.FINEST, "No activation date specified, the changes will be activated immediately.");
                     cal.setTime(new Date());
-                    changeOfSupplier.writePassiveValue(new DateTime(new Date(cal.getTimeInMillis())));
+                    changeOfSupplier.writePassiveValue(new DateTime(cal));
                     changeOfSupplier.activate();
                     getCosemObjectFactory().getSupplierName(ChangeOfSupplierNameObisCode).activate();
                     getCosemObjectFactory().getSupplierId(ChangeOfSupplierIdObisCode).activate();
@@ -426,25 +426,25 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
 
         try {
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());
-            if (messageHandler.getTenantActivationDate() != null) {
+            if (messageHandler.getTenantActivationDate() != null && !messageHandler.getTenantActivationDate().equals("")) {
                 SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
                 Date date = formatter.parse(messageHandler.getTenantActivationDate());
                 if (!date.before(new Date())) {
                     log(Level.FINEST, "Writing new Tenant ActivationDates");
 
                     cal.setTime(date);
-                    changeOfTenant.writePassiveValue(new DateTime(new Date(cal.getTimeInMillis())));
-                    changeOfTenant.writeActivationDate(new DateTime(new Date(cal.getTimeInMillis())));
+                    changeOfTenant.writePassiveValue(new DateTime(cal));
+                    changeOfTenant.writeActivationDate(new DateTime(cal));
                 } else {
                     log(Level.FINEST, "Activation date was in the past. The changes will be activated immediately.");
                     cal.setTime(new Date());
-                    changeOfTenant.writePassiveValue(new DateTime(new Date(cal.getTimeInMillis())));
+                    changeOfTenant.writePassiveValue(new DateTime(cal));
                     changeOfTenant.activate();
                 }
             } else {
                 log(Level.FINEST, "No activation date specified, the changes will be activated immediately.");
                 cal.setTime(new Date());
-                changeOfTenant.writePassiveValue(new DateTime(new Date(cal.getTimeInMillis())));
+                changeOfTenant.writePassiveValue(new DateTime(cal));
                 changeOfTenant.activate();
             }
         } catch (ParseException e) {
