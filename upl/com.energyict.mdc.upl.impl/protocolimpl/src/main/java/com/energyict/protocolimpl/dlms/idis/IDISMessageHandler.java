@@ -11,7 +11,7 @@ import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import org.apache.axis.encoding.Base64;
+import sun.misc.BASE64Decoder;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
@@ -60,6 +60,10 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
                 return firmwareUpgrade(messageEntry);
             } else if (messageEntry.getContent().contains("<LoadControlledConnect")) {
                 return loadControlledConnect(messageEntry);
+            } else if (messageEntry.getContent().contains("<ConfigureLoadProfile1CapturedObjects")) {
+                return writeLoadProfileCapturedObjects(messageEntry);
+            } else if (messageEntry.getContent().contains("<ConfigureLoadProfile2CapturedObjects")) {
+                return writeLoadProfileCapturedObjects(messageEntry);
             } else if (messageEntry.getContent().contains("<SuperVision")) {
                 return superVision(messageEntry);
             } else if (messageEntry.getContent().contains(RtuMessageConstant.TOU_ACTIVITY_CAL)) {
@@ -134,7 +138,8 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
 
     protected MessageResult firmwareUpgrade(MessageEntry messageEntry) throws IOException, InterruptedException {
         String imageData = getIncludedContent(messageEntry.getContent());
-        byte[] binaryImage = Base64.decode(imageData);
+        BASE64Decoder decoder = new BASE64Decoder();
+        byte[] binaryImage = decoder.decodeBuffer(imageData);
         String firmwareIdentifier;
         int length = binaryImage[0];
         firmwareIdentifier = new String(ProtocolTools.getSubArray(binaryImage, 1, 1 + length));   //The image_identifier is included in the header of the bin file
@@ -214,6 +219,55 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
         writeActions(actionUnderThreshold, limiter);
 
         idis.getLogger().log(Level.INFO, "Load controlled connect message was successful");
+        return MessageResult.createSuccess(messageEntry);
+    }
+
+    private MessageResult writeLoadProfileCapturedObjects(MessageEntry messageEntry) throws IOException {
+        String[] parts = messageEntry.getContent().split("=");
+        String loadProfileObisCode = parts[1].substring(1).split("\"")[0];
+        List<String> capturedObjectDefinitions = new ArrayList<String>();
+        int index = 2;
+        while (true) {
+            try {
+                capturedObjectDefinitions.add(parts[index].substring(1).split("\"")[0]);
+                index++;
+            } catch (IndexOutOfBoundsException e) {
+                break;
+            }
+        }
+        ProfileGeneric profileGeneric = idis.getCosemObjectFactory().getProfileGeneric(ObisCode.fromString(loadProfileObisCode));
+        if (profileGeneric == null) {
+            idis.getLogger().log(Level.SEVERE, "Profile for obis code " + loadProfileObisCode + " is null");
+            MessageResult.createFailed(messageEntry);
+        }
+
+        Array capturedObjects = new Array();
+        for (String capturedObjectDefinition : capturedObjectDefinitions) {
+            String[] definitionParts = capturedObjectDefinition.split(",");
+            try {
+                int dlmsClassId = Integer.parseInt(definitionParts[0]);
+                ObisCode obisCode = ObisCode.fromString(definitionParts[1]);
+                int attribute = Integer.parseInt(definitionParts[2]);
+                int dataIndex = Integer.parseInt(definitionParts[3]);
+                Structure definition = new Structure();
+                definition.addDataType(new Unsigned16(dlmsClassId));
+                definition.addDataType(OctetString.fromObisCode(obisCode));
+                definition.addDataType(new Integer8(attribute));
+                definition.addDataType(new Unsigned16(dataIndex));
+                capturedObjects.addDataType(definition);
+            } catch (IndexOutOfBoundsException e) {
+                idis.getLogger().log(Level.SEVERE, e.getMessage());
+                MessageResult.createFailed(messageEntry);
+            } catch (NumberFormatException e) {
+                idis.getLogger().log(Level.SEVERE, e.getMessage());
+                MessageResult.createFailed(messageEntry);
+            } catch (IllegalArgumentException e) {
+                idis.getLogger().log(Level.SEVERE, e.getMessage());
+                MessageResult.createFailed(messageEntry);
+            }
+        }
+        profileGeneric.setCaptureObjectsAttr(capturedObjects);
+
         return MessageResult.createSuccess(messageEntry);
     }
 
@@ -341,9 +395,14 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
         cat1.addMessageSpec(addBasicMsgWithAttributes("Supervision monitor", "SuperVision", false, "Phase (1, 2 or 3)", "Threshold (ampere)"));
         cat1.addMessageSpec(addBasicMsgWithAttributes("Time controlled reconnection", "TimedReconnect", false, "Date (dd/mm/yyyy hh:mm)"));
         cat1.addMessageSpec(addBasicMsgWithAttributes("Time controlled disconnection", "TimedDisconnect", false, "Date (dd/mm/yyyy hh:mm)"));
+        theCategories.add(cat1);
+
+        MessageCategorySpec cat2 = new MessageCategorySpec("Load profile configuration");
+        cat2.addMessageSpec(addBasicMsgWithOptionalAttributes(1, "Write captured objects for LP1", "ConfigureLoadProfile1CapturedObjects", true, "Load profile obis code", "Captured object definition 1", "Captured object definition 2", "Captured object definition 3", "Captured object definition 4", "Captured object definition 5", "Captured object definition 6", "Captured object definition 7", "Captured object definition 8"));
+        cat2.addMessageSpec(addBasicMsgWithOptionalAttributes(2, "Write captured objects for LP2", "ConfigureLoadProfile2CapturedObjects", true, "Load profile obis code", "Captured object definition 1", "Captured object definition 2", "Captured object definition 3", "Captured object definition 4", "Captured object definition 5", "Captured object definition 6", "Captured object definition 7", "Captured object definition 8"));
+        theCategories.add(cat2);
 
         theCategories.add(getActivityCalendarCategory());
-        theCategories.add(cat1);
 
         return theCategories;
     }
@@ -360,6 +419,31 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
         for (String attribute : attr) {
             tagSpec.add(new MessageAttributeSpec(attribute, true));
+        }
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" "); //Disable this field
+        tagSpec.add(msgVal);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
+    protected MessageSpec addBasicMsgWithOptionalAttributes(int loadProfileIndex, final String keyId, final String tagName, final boolean advanced, String... attr) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        int index = 0;
+        for (String attribute : attr) {
+            MessageAttributeSpec attributeSpec = new MessageAttributeSpec(attribute, false);
+            if (index == 0) {
+                attributeSpec.setValue("1.0.99." + String.valueOf(loadProfileIndex) + ".0.255");
+            }
+            if (index == 1) {
+                attributeSpec.setValue("8,0.0.1.0.0.255,2,0");
+            }
+            if (index == 2) {
+                attributeSpec.setValue("1,0.0.96.10." + String.valueOf(loadProfileIndex) + ".255,2,0");
+            }
+            tagSpec.add(attributeSpec);
+            index++;
         }
         MessageValueSpec msgVal = new MessageValueSpec();
         msgVal.setValue(" "); //Disable this field
