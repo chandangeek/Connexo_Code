@@ -37,7 +37,7 @@ public class IDISMBus extends IDIS {
             try {
                 obisCode = ProtocolTools.setObisCodeField(obisCode, 1, (byte) i);
                 serial = String.valueOf(getCosemObjectFactory().getData(obisCode).getAttrbAbstractDataType(6).getInteger32().longValue());
-                if (serial.contains(new String(getSystemIdentifier()))) {
+                if (serial.contains(new String(getCalledAPTitle()))) {
                     setGasSlotId(i);
                 }
             } catch (IOException e) {

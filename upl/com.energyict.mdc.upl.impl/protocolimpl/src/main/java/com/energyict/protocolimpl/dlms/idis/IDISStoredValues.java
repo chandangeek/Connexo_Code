@@ -53,7 +53,7 @@ public class IDISStoredValues implements com.energyict.dlms.cosem.StoredValues {
         if (!isValidBillingPoint(billingPoint)) {
             throw new NoSuchRegisterException("Billing point " + obisCode.getF() + " doesn't exist for obiscode " + baseObisCode + ".");
         }
-        int value = ((IntervalValue) getProfileData().getIntervalData(getReversedBillingPoint(billingPoint)).getIntervalValues().get(channelIndex)).getNumber().intValue();
+        int value = ((IntervalValue) getProfileData().getIntervalData(getReversedBillingPoint(billingPoint)).getIntervalValues().get(channelIndex - 1)).getNumber().intValue();
         HistoricalRegister cosemValue = new HistoricalRegister();
         cosemValue.setQuantityValue(BigDecimal.valueOf(value), getUnit(baseObisCode));
 

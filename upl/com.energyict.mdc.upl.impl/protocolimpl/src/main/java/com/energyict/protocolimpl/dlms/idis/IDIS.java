@@ -19,11 +19,13 @@ import java.util.*;
  * Date: 5/09/11
  * Time: 9:37
  */
-public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, FirmwareUpdateMessaging {
+public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, FirmwareUpdateMessaging, CacheMechanism {
 
     private static final ObisCode FIRMWARE_VERSION = ObisCode.fromString("1.0.0.2.0.255");
     private static final String READ_CACHE_DEFAULT_VALUE = "0";
+    private static final String CALLING_AP_TITLE_DEFAULT = "0000000000000000";
     private static final String READCACHE_PROPERTY = "ReadCache";
+    private static final String CALLING_AP_TITLE = "CallingAPTitle";
     private static final String LOAD_PROFILE_OBIS_CODE_PROPERTY = "LoadProfileObisCode";
     public static final String OBISCODE_LOAD_PROFILE1 = "1.0.99.1.0.255";   //Quarterly
 
@@ -100,8 +102,15 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
     }
 
     @Override
+    public void validateSerialNumber() throws IOException {
+        //Not used.
+    }
+
+    @Override
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         readCache = Integer.parseInt(properties.getProperty(READCACHE_PROPERTY, READ_CACHE_DEFAULT_VALUE).trim()) == 1;
+        String callingAPTitle = properties.getProperty(CALLING_AP_TITLE, CALLING_AP_TITLE_DEFAULT).trim();
+        setCallingAPTitle(callingAPTitle);
         loadProfileObisCode = ObisCode.fromString(properties.getProperty(LOAD_PROFILE_OBIS_CODE_PROPERTY, OBISCODE_LOAD_PROFILE1).trim());
     }
 
@@ -158,6 +167,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
         optional.add(DlmsProtocolProperties.RETRIES);
         optional.add(READCACHE_PROPERTY);
         optional.add(LOAD_PROFILE_OBIS_CODE_PROPERTY);
+        optional.add(CALLING_AP_TITLE);
         return optional;
     }
 
@@ -237,19 +247,19 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
     }
 
     public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
-        FirmwareUpdateMessagingConfig config = new FirmwareUpdateMessagingConfig();
-        config.setSupportsUrls(false);
-        config.setSupportsUserFileReferences(false);
-        config.setSupportsUserFiles(true);
-        return config;
+        FirmwareUpdateMessagingConfig firmwareUpdateMessagingConfig = new FirmwareUpdateMessagingConfig();
+        firmwareUpdateMessagingConfig.setSupportsUserFiles(true);
+        firmwareUpdateMessagingConfig.setSupportsUrls(false);
+        firmwareUpdateMessagingConfig.setSupportsUserFileReferences(false);
+        return firmwareUpdateMessagingConfig;
     }
 
     public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
         return new FirmwareUpdateMessageBuilder();
     }
 
-    @Override
-    public void validateSerialNumber() throws IOException {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public String getFileName() {
+        final Calendar calendar = Calendar.getInstance();
+        return calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + "_" + calendar.get(Calendar.DAY_OF_MONTH) + "_" + this.deviceId + "_" + this.serialNumber + "_" + serverUpperMacAddress + "_IDIS.cache";
     }
 }

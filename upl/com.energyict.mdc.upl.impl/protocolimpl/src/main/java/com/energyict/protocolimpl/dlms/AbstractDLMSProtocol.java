@@ -8,6 +8,7 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.*;
 import java.sql.SQLException;
@@ -54,6 +55,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     protected int cipheringType;
     protected String manufacturer;
     protected int opticalBaudrate;
+    protected String callingAPTitle = "";
     protected String serialNumber;
     protected String nodeId;
     protected String deviceId;
@@ -198,7 +200,24 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         initDLMSConnection(inputStream, outputStream);
     }
 
-    protected byte[] getSystemIdentifier() {
+    /**
+     * Identifier of the system calling a meter (e.g. the RTU+Server)
+     * @return callingAPTitle
+     */
+    protected byte[] getCallingAPTitle() {
+        return ProtocolTools.getBytesFromHexString(callingAPTitle, "");
+    }
+
+    public void setCallingAPTitle(String callingAPTitle) {
+        this.callingAPTitle = callingAPTitle;
+    }
+
+    /**
+     * This should be the serial number of the called meter.
+     * Subclasses can override and change behaviour.
+     * @return serial number of the called meter
+     */
+    protected byte[] getCalledAPTitle() {
         return serialNumber.getBytes();
     }
 
@@ -231,7 +250,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         }
 
         NTASecurityProvider localSecurityProvider = new NTASecurityProvider(this.properties);
-        securityContext = new SecurityContext(datatransportSecurityLevel, authenticationSecurityLevel, 0, getSystemIdentifier(), localSecurityProvider, this.cipheringType);
+        securityContext = new SecurityContext(datatransportSecurityLevel, authenticationSecurityLevel, 0, getCallingAPTitle(), localSecurityProvider, this.cipheringType);
 
         if (this.conformanceBlock == null) {
             if (getReference() == ProtocolLink.SN_REFERENCE) {
@@ -244,7 +263,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         }
 
         XdlmsAse xdlmsAse = new XdlmsAse(isCiphered() ? localSecurityProvider.getDedicatedKey() : null, true, PROPOSED_QOS, PROPOSED_DLMS_VERSION, this.conformanceBlock, maxRecPduSize);
-        aso = new ApplicationServiceObject(xdlmsAse, this, securityContext, getContextId());
+        aso = new ApplicationServiceObject(xdlmsAse, this, securityContext, getContextId(), getCalledAPTitle(), null);
         dlmsConnection = new SecureConnection(aso, connection);
         InvokeIdAndPriority iiap = buildInvokeIdAndPriority();
         this.dlmsConnection.setInvokeIdAndPriority(iiap);
