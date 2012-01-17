@@ -240,7 +240,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName, sb.toString().getBytes("UTF-8"), getFolderIdFromHub(), "txt");
         mw().getUserFileFactory().create(ufs);
 
-        log(Level.INFO, "Stored price information in userFile: " + fileName);
+        log(Level.INFO, "Stored activity calendar information in user file: " + fileName);
     }
 
     /**
