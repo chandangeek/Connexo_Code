@@ -260,7 +260,7 @@ public class ZMDActivityCalendarController implements ActivityCalendarController
     }
 
     /**
-     * Construct the calendarName, which should be 8 bytes long
+     * Construct the calendarName, which should be 8 bytes
      *
      * @param name the name to convert to a Calendar.
      * @return a byte Array containing the CalendarName

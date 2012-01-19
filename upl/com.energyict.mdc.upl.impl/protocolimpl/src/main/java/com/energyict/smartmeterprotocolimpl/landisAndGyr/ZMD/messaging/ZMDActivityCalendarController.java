@@ -201,7 +201,7 @@ public class ZMDActivityCalendarController implements ActivityCalendarController
             }
 
             NodeList passiveNameList = doc.getElementsByTagName(CALENDAR_NAME);
-            passiveCalendarName = new OctetString(constructSixByteCalendarName(passiveNameList.item(0).getTextContent()));
+            passiveCalendarName = new OctetString(constructEightByteCalendarName(passiveNameList.item(0).getTextContent()));
 
             NodeList dayProfileList = doc.getElementsByTagName(CodeTableXml.dayProfile);
             createShiftedDayIdMap(dayProfileList);
@@ -260,14 +260,14 @@ public class ZMDActivityCalendarController implements ActivityCalendarController
     }
 
     /**
-     * Construct the calendarName, which should be 6 bytes
+     * Construct the calendarName, which should be 8 bytes
      *
      * @param name the name to convert to a Calendar.
      * @return a byte Array containing the CalendarName
      */
-    protected byte[] constructSixByteCalendarName(String name) {
-        byte[] calName = new byte[]{0x20, 0x20, 0x20, 0x20, 0x20, 0x20};
-        System.arraycopy(name.getBytes(), 0, calName, 0, (name.getBytes().length > 6) ? 6 : name.getBytes().length);
+    protected byte[] constructEightByteCalendarName(String name) {
+        byte[] calName = new byte[]{0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20};
+        System.arraycopy(name.getBytes(), 0, calName, 0, (name.getBytes().length > 8) ? 8 : name.getBytes().length);
         return calName;
     }
 
