@@ -6,7 +6,10 @@ import com.energyict.protocol.ProtocolUtils;
 
 public class XdlmsAse {
 
-	private static final Object	CRLF	= "\r\n";
+	/** Indicates that set with datablock is disabled. */
+	public static final int SET_WITH_DATABLOCK_DISABLED = -1;
+
+	private static final String	CRLF	= "\r\n";
     /** Contains the dedicatedKey (sessionkey) to use in this association */
 	private byte[] dedicatedKey;
 	private boolean responseAllowed = true; // default
@@ -19,7 +22,7 @@ public class XdlmsAse {
 	private int negotiatedQOS;
 	private int negotiatedDLMSVersion;
 	private ConformanceBlock negotiatedConformanceBlock;
-	private int maxRecPDUServerSize;
+	private int maxRecPDUServerSize = SET_WITH_DATABLOCK_DISABLED;
 	private short vaaName;
 
 	public XdlmsAse() {
@@ -277,7 +280,7 @@ public class XdlmsAse {
 	 * Set the server his maximum receive PDU size
 	 * @param maxPDUServer
 	 */
-	public void setMaxRecPDUServerSize(short maxPDUServer) {
+	public final void setMaxRecPDUServerSize(final int maxPDUServer) {
 		this.maxRecPDUServerSize = maxPDUServer;
 	}
 
