@@ -415,7 +415,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
      * @return a version string
      */
     public String getVersion() {
-        return "$Revision$";
+        return "$Date$";
     }
 
     /**
