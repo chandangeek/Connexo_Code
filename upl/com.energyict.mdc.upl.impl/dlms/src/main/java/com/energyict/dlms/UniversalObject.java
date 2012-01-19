@@ -1,13 +1,13 @@
 package com.energyict.dlms;
 
 
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.obis.ObisCode;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.StringTokenizer;
-
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.obis.ObisCode;
 
 
 public class UniversalObject implements DLMSCOSEMGlobals,Serializable {
@@ -370,13 +370,14 @@ public class UniversalObject implements DLMSCOSEMGlobals,Serializable {
 
 	@Override
 	public String toString() {
-		return this.getLNA()+"."+
-		this.getLNB()+"."+
-		this.getLNC()+"."+
-		this.getLND()+"."+
-		this.getLNE()+"."+
-		this.getLNF()+"."+
-		this.getClassID();
+        return this.getBaseName() + "-" +
+                this.getLNA() + "." +
+                this.getLNB() + "." +
+                this.getLNC() + "." +
+                this.getLND() + "." +
+                this.getLNE() + "." +
+                this.getLNF() + "." +
+                this.getClassID();
 	}
 
 	public String toStringCo() {

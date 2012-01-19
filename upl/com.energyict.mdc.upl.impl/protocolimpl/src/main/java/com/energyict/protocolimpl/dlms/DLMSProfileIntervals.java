@@ -89,13 +89,25 @@ public class DLMSProfileIntervals extends Array {
         }
     }
 
-    /**
+   /**
      * Parse the content to a list of IntervalData objects
      *
      * @param profileInterval the interval of the profile
      * @return a list of intervalData
      */
-    public List<IntervalData> parseIntervals(int profileInterval) throws IOException {
+     public List<IntervalData> parseIntervals(int profileInterval) throws IOException {
+         return this.parseIntervals(profileInterval, null);
+     }
+
+    /**
+     * Parse the content to a list of IntervalData objects
+     *
+     * @param profileInterval the interval of the profile
+     * @param timeZone the TimeZone to be used to construct the intervalCalendar
+     *          - use this when the deviation information is not present in the octet string, otherwise leave this parameter null.
+     * @return a list of intervalData
+     */
+     public List<IntervalData> parseIntervals(int profileInterval, TimeZone timeZone) throws IOException {
         this.profileInterval = profileInterval;
         List<IntervalData> intervalList = new ArrayList<IntervalData>();
         Calendar cal = null;
@@ -111,7 +123,7 @@ public class DLMSProfileIntervals extends Array {
                     for (int d = 0; d < element.nrOfDataTypes(); d++) {
                         if (isClockIndex(d)) {
                             try {
-                                cal = constructIntervalCalendar(cal, element.getDataType(d));
+                                cal = constructIntervalCalendar(cal, element.getDataType(d), timeZone);
                             } catch (IOException e) {
                                 throw new IOException("IntervalStructure: \r\n" + element + "\r\n" + e.getMessage());
                             }
@@ -132,7 +144,7 @@ public class DLMSProfileIntervals extends Array {
                     for (int d = 0; d < element.nrOfDataTypes(); d++) {
                         if (isClockIndex(d)) {
                             try {
-                                cal = constructIntervalCalendar(cal, element.getDataType(d));
+                                cal = constructIntervalCalendar(cal, element.getDataType(d), timeZone);
                             } catch (IOException e) {
                                 throw new IOException("IntervalStructure: \r\n" + element + "\r\n" + e.getMessage());
                             }
@@ -161,7 +173,7 @@ public class DLMSProfileIntervals extends Array {
         return intervalList;
     }
 
-    /**
+     /**
      * Construct the calendar depending on the type of the dataType
      *
      * @param cal      the working Calender in the parser
@@ -170,11 +182,28 @@ public class DLMSProfileIntervals extends Array {
      * @throws IOException when the dataType is not as expected or the calendar could not be constructed
      */
     protected Calendar constructIntervalCalendar(Calendar cal, AbstractDataType dataType) throws IOException {
+        return this.constructIntervalCalendar(cal, dataType, null);
+    }
+
+    /**
+     * Construct the calendar depending on the type of the dataType
+     *
+     * @param cal      the working Calender in the parser
+     * @param dataType the dataType from the rawData
+     * @param timeZone the timezone to be used for constructing the AXDRDateTime object - leave null when the deviation information is present in the octetString
+     * @return the new Calendar object
+     * @throws IOException when the dataType is not as expected or the calendar could not be constructed
+     */
+    protected Calendar constructIntervalCalendar(Calendar cal, AbstractDataType dataType, TimeZone timeZone) throws IOException {
         if (dataType instanceof OctetString) {
             OctetString os = (OctetString) dataType;
             // check if the OctetString contains a date, otherwise just add the profileInterval to the current calendar
             if (os.getOctetStr().length == 12) {
-                cal = new AXDRDateTime(os, AXDRDateTimeDeviationType.Negative).getValue();
+                if (timeZone == null) {
+                    cal = new AXDRDateTime(os, AXDRDateTimeDeviationType.Negative).getValue();
+                } else {
+                    cal = new AXDRDateTime(os.getBEREncodedByteArray(), 0, timeZone).getValue();
+                }
             } else if (cal != null) {
                 cal.add(Calendar.SECOND, profileInterval);
             } else {
