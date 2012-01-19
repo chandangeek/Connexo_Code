@@ -37,7 +37,7 @@ import com.energyict.protocolimpl.dlms.siemenszmd.*;
 import java.io.IOException;
 import java.util.*;
 
-public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProtocol, MessageProtocol {
+public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProtocol, MessageProtocol, TimeOfUseMessaging {
     private static final byte DEBUG=0;
 
     private final MessageProtocol messageProtocol;
@@ -329,6 +329,20 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
         } // switch(lLogCode)
     } // private void mapLogCodes(long lLogCode)
 
+    /**
+     * Return the serialNumber of the device.
+     *
+     * @return the serialNumber of the device.
+     * @throws java.io.IOException if an error occurs during the read
+     */
+    @Override
+    public String getSerialNumber() throws IOException {
+        /** The serial number is present in a reserved object: COSEM Logical device name object
+         * In order to facilitate access using SN referencing, this object has a reserved short name by DLMS/COSEM convention: 0xFD00.
+         * See topic 'Reserved base_names for special COSEM objects' in the DLMS Blue Book.
+         **/
+        return getCosemObjectFactory().getGenericRead(0xFD00, DLMSUtils.attrLN2SN(2)).getString();
+    }
 
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
@@ -427,5 +441,23 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
 
     public String writeValue(final MessageValue value) {
         return this.messageProtocol.writeValue(value);
+    }
+
+    /**
+     * Returns the message builder capable of generating and parsing 'time of use' messages.
+     *
+     * @return The {@link com.energyict.protocol.messaging.MessageBuilder} capable of generating and parsing 'time of use' messages.
+     */
+    public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
+        return ((ZmdMessages) this.messageProtocol).getTimeOfUseMessageBuilder();
+    }
+
+    /**
+     * Get the TimeOfUseMessagingConfig object that contains all the capabilities for the current protocol
+     *
+     * @return the config object
+     */
+    public TimeOfUseMessagingConfig getTimeOfUseMessagingConfig() {
+        return ((ZmdMessages) this.messageProtocol).getTimeOfUseMessagingConfig();
     }
 }
