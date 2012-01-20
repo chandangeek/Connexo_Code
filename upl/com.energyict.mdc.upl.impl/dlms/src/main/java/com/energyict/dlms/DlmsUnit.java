@@ -159,7 +159,7 @@ public enum DlmsUnit {
                 return dlmsUnit;
             }
         }
-        throw new ApplicationException("Invalid code");
+        throw new ApplicationException("Invalid DLMS unit code [" + dlmsUnitCode + "]");
     }
 
     /**
