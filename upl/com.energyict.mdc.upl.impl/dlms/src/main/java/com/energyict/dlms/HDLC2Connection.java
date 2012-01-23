@@ -558,60 +558,60 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
         throw new DLMSConnectionException("receiveReceiveReady > Retry count exceeded when receiving data");
     }
 
-    private static final byte STATE_WAIT_FOR_I_FRAME=0;
-    private static final byte STATE_WAIT_FOR_RR_FRAME=1;
-
-    private byte[] receiveInformationField(ReceiveBuffer receiveBuffer) throws DLMSConnectionException,IOException {
+    private byte[] receiveInformationField(ReceiveBuffer receiveBuffer) throws DLMSConnectionException, IOException {
         if (!boolHDLCConnected) {
-			throw new DLMSConnectionException("HDLC connection not established!");
-		}
-        for (int retryCount = 1 ; retryCount <= (iMaxRetries+1) ; retryCount++) {
-        	byte bResult = waitForHDLCFrameStateMachine(iProtocolTimeout,rxFrame);
-            if (bResult == HDLC_RX_OK) {
-                HDLCFrame hdlcFrame = decodeFrame(rxFrame);
-                updateNS(hdlcFrame);
-                if (hdlcFrame.bControl == I) {
-                    if (NR == hdlcFrame.NS) {
-                    	if (hdlcFrame.informationBuffer != null) {
-							receiveBuffer.addArray(hdlcFrame.informationBuffer);
-						}
-                    	NR = (byte) nextSequence(NR);
-                    	if ((hdlcFrame.sFrameFormat & HDLC_FRAME_S_BIT) != 0) {
-                    		if (hdlcFrame.boolControlPFBit) {
-								sendReceiveReady();
-							}
-                    		retryCount = 0;
-                    	} else {
-                    		return receiveBuffer.getArray();
-                    	}
+            throw new DLMSConnectionException("HDLC connection not established!");
+        }
+
+        for (int retryCount = 1; retryCount <= (iMaxRetries + 1); retryCount++) {
+            long timeOut = System.currentTimeMillis() + iProtocolTimeout;
+            while (timeOut >= System.currentTimeMillis()) {
+                byte bResult = waitForHDLCFrameStateMachine(iProtocolTimeout, rxFrame);
+                if (bResult == HDLC_RX_OK) {
+                    HDLCFrame hdlcFrame = decodeFrame(rxFrame);
+                    updateNS(hdlcFrame);
+                    if (hdlcFrame.bControl == I) {
+                        if (NR == hdlcFrame.NS) {
+                            if (hdlcFrame.informationBuffer != null) {
+                                receiveBuffer.addArray(hdlcFrame.informationBuffer);
+                            }
+                            NR = (byte) nextSequence(NR);
+                            if ((hdlcFrame.sFrameFormat & HDLC_FRAME_S_BIT) != 0) {
+                                if (hdlcFrame.boolControlPFBit) {
+                                    sendReceiveReady();
+                                }
+                            } else {
+                                return receiveBuffer.getArray();
+                            }
+                        } else {
+                            // send correct sequence number to
+                            if (hdlcFrame.boolControlPFBit) {
+                                if (NS == hdlcFrame.NR) {
+                                    sendFrame(txFrame); // resend last I frame
+                                } else {
+                                    sendReceiveReady();
+                                }
+                            }
+                        }
+                    } else if (hdlcFrame.bControl == RR) {
+                        // received RR frame , expected I frame
+                        if (hdlcFrame.boolControlPFBit) {
+                            if (NS == hdlcFrame.NR) {
+                                sendFrame(txFrame); // resend last I frame
+                            } else {
+                                sendReceiveReady();
+                            }
+                        }
                     } else {
-                    	// send correct sequence number to
-                    	if (hdlcFrame.boolControlPFBit) {
-                    		if (NS == hdlcFrame.NR) {
-								sendFrame(txFrame); // resend last I frame
-							} else {
-								sendReceiveReady();
-							}
-                    	}
-                          }
-                } else if (hdlcFrame.bControl == RR) {
-                    // received RR frame , expected I frame
-                	if (hdlcFrame.boolControlPFBit) {
-                		if (NS == hdlcFrame.NR) {
-							sendFrame(txFrame); // resend last I frame
-						} else {
-							sendReceiveReady();
-						}
-                	}
+                        // invalid frame type
+                        throw new DLMSConnectionException("ERROR receiving data, should receive an I or RR frame.");
+                    }
                 } else {
-                	// invalid frame type
-                    throw new DLMSConnectionException("ERROR receiving data, should receive an I or RR frame.");
+                    sendFrame(txFrame);
                 }
-            } else {
-                sendFrame(txFrame);
             }
         }
-        throw new DLMSConnectionException("receiveInformationField> Retry count exceeded when receiving data");
+        throw new DLMSConnectionException("receiveInformationField> Timeout and retry count exceeded when receiving data [" + iMaxRetries + " x " + iProtocolTimeout + " ms]");
     }
 
     private boolean updateNS(HDLCFrame frame) {
