@@ -25,7 +25,6 @@ import java.util.logging.Level;
 
 public class ImageTransfer extends AbstractCosemObject{
 
-	public static boolean DEBUG = true;
 	private static int delay = 3000;
     public static final int REPORT_STATUS_EVERY_X_BLOCKS = 1;
     public static final String DEFAULT_IMAGE_NAME = "NewImage";
@@ -33,6 +32,7 @@ public class ImageTransfer extends AbstractCosemObject{
 	private int maxTotalRetryCount = 500;
 	
 	private ProtocolLink protocolLink;
+    private ImageTransferCallBack callBack;
 
 	/* Attributes */
 	private Unsigned32 imageMaxBlockSize = null; // holds the max size of the imageblocks to be sent to the server(meter)
@@ -135,32 +135,21 @@ public class ImageTransfer extends AbstractCosemObject{
 		this.size = new Unsigned32(data.length);
 
 		// Set the imageTransferEnabledState to true (otherwise the upgrade can not be performed)
-		writeImageTransferEnabledState(true);
+		updateState(ImageTransferCallBack.ImageTransferState.ENABLE_IMAGE_TRANSFER, imageIdentifier, 0, data.length, 0);
+        writeImageTransferEnabledState(true);
 
 		if(getImageTransferEnabledState().getState()){
-
-			if(DEBUG) {
-				System.out.println("ImageTrans: Enabled state is true.");
-			}
 
 			// Step1: Get the maximum image block size
 			// and calculate the amount of blocks in one step
 			this.blockCount = (int)(this.size.getValue()/readImageBlockSize().getValue()) + (((this.size.getValue()%readImageBlockSize().getValue())==0)?0:1);
-			if(DEBUG) {
-				System.out.println("ImageTrans: Maximum block size is: " + readImageBlockSize() +
-						", Number of blocks: " + blockCount + ".");
-			}
 
 			// Step2: Initiate the image transfer
+            updateState(ImageTransferCallBack.ImageTransferState.INITIATE, imageIdentifier, blockCount, size.intValue(), 0);
 			Structure imageInitiateStructure = new Structure();
 			imageInitiateStructure.addDataType(OctetString.fromString(imageIdentifier));
 			imageInitiateStructure.addDataType(this.size);
-
 			imageTransferInitiate(imageInitiateStructure);
-			if(DEBUG) {
-				System.out.println("ImageTrans: Initialize success.");
-			}
-
 
 			// Step3: Transfer image blocks
 			transferImageBlocks(additionalZeros);
@@ -169,10 +158,12 @@ public class ImageTransfer extends AbstractCosemObject{
 			// Step4: Check completeness of the image and transfer missing blocks
 			// Every block is confirmed by the meter
             if (checkForMissingBlocks) {
+                updateState(ImageTransferCallBack.ImageTransferState.CHECK_MISSING_BLOCKS, imageIdentifier, blockCount, data.length, 0);
     			checkAndSendMissingBlocks();
             }
 
 			// Step5: Verify image
+            updateState(ImageTransferCallBack.ImageTransferState.VERIFY_IMAGE, imageIdentifier, blockCount, data.length, 0);
 			verifyAndRetryImage();
 			this.protocolLink.getLogger().log(Level.INFO, "Verification of the image was successful at : " + new Date(System.currentTimeMillis()));
 
@@ -202,17 +193,9 @@ public class ImageTransfer extends AbstractCosemObject{
 
 		if(getImageTransferEnabledState().getState()){
 
-			if(DEBUG) {
-				System.out.println("ImageTrans: Enabled state is true.");
-    }
-
 			// Step1: Get the maximum image block size
 			// and calculate the amount of blocks in one step
 			this.blockCount = (int)(this.size.getValue()/readImageBlockSize().getValue()) + (((this.size.getValue()%readImageBlockSize().getValue())==0)?0:1);
-			if(DEBUG) {
-				System.out.println("ImageTrans: Maximum block size is: " + readImageBlockSize() +
-						", Number of blocks: " + blockCount + ".");
-			}
 
 			// Step2: Initiate the image transfer
 			Structure imageInitiateStructure = new Structure();
@@ -220,9 +203,6 @@ public class ImageTransfer extends AbstractCosemObject{
 			imageInitiateStructure.addDataType(this.size);
 
 			imageTransferInitiate(imageInitiateStructure);
-			if(DEBUG) {
-				System.out.println("ImageTrans: Initialize success.");
-			}
 		} else {
 			throw new IOException("Could not perform the upgrade because meter does not allow it.");
 		}
@@ -297,6 +277,7 @@ public class ImageTransfer extends AbstractCosemObject{
 //			//******************************************************************//
 			
 			// without retries
+            updateState(ImageTransferCallBack.ImageTransferState.TRANSFER_BLOCKS, "", blockCount, size.intValue(), i);
 			imageBlockTransfer(imageBlockTransfer);
 
 			if(i % REPORT_STATUS_EVERY_X_BLOCKS == 0){ // i is multiple of 50
@@ -661,6 +642,7 @@ public class ImageTransfer extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public void imageActivation() throws IOException {
+        updateState(ImageTransferCallBack.ImageTransferState.ACTIVATE, "", blockCount, size.intValue(), 0);
 		try{
 			if (getObjectReference().isLNReference()) {
 				invoke(IMAGE_ACTIVATION, new Integer8(0).getBEREncodedByteArray());
@@ -685,4 +667,51 @@ public class ImageTransfer extends AbstractCosemObject{
 	public Unsigned32 getImageFirstNotTransferedBlockNumber() {
 		return imageFirstNotTransferedBlockNumber;
 	}
+
+    /**
+     * Use this method to register your callBack to receive status updates while the image transfer is in progress.
+     *
+     * @param callBack The callBack class that implements {@link com.energyict.dlms.cosem.ImageTransfer.ImageTransferCallBack}
+     */
+    public void setCallBack(ImageTransferCallBack callBack) {
+        this.callBack = callBack;
+    }
+
+    /**
+     * Post the new state of the image transfer if there is a callBack object available
+     *
+     * @param state        The new state
+     * @param imageName    The firmware image name
+     * @param blockCount   The number of blocks to send to the device (could be 0 if unknown)
+     * @param dataSize     The number of bytes to send to the device (complete firmware size)
+     * @param currentBlock The block number we're sending to the device (could be 0 if unknown, or if we're not sending blocks)
+     * @throws IOException
+     */
+    private void updateState(ImageTransferCallBack.ImageTransferState state, String imageName, int blockCount, int dataSize, int currentBlock) throws IOException {
+        if (callBack != null) {
+            callBack.updateState(state, imageName, blockCount, dataSize, currentBlock);
+        }
+    }
+
+    /**
+     * Implement this class and use the {@link ImageTransfer#setCallBack(com.energyict.dlms.cosem.ImageTransfer.ImageTransferCallBack)} method
+     * to register your callBack to receive status updates while the image transfer is in progress.
+     */
+    public interface ImageTransferCallBack {
+
+        /**
+         * The different states the image transfer uses
+         */
+        enum ImageTransferState {
+            ENABLE_IMAGE_TRANSFER,
+            INITIATE,
+            TRANSFER_BLOCKS,
+            CHECK_MISSING_BLOCKS,
+            VERIFY_IMAGE,
+            ACTIVATE
+        };
+
+        void updateState(ImageTransferState state, String imageName, int blockCount, int imageSize, int currentBlock) throws IOException;
+    }
+
 }
