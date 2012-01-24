@@ -6,7 +6,6 @@
 
 package com.energyict.dlms.cosem;
 
-import com.energyict.dlms.OctetString;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
@@ -63,10 +62,27 @@ public class Clock extends AbstractCosemObject {
         return getDefaultObisCode().equals(obisCode);
     }
 
-    public void setDateTime(OctetString octetString) throws IOException {
-        byte[] data = {0x09,0x0C};
-        dateTime = getDateTime(ProtocolUtils.concatByteArrays(data,octetString.getArray()));
-        dateTimeCached=true;
+    /**
+     * Set the cached date time object, using the old OctetString object
+     *
+     * @param dateTime The date and time, encoded in an old {@link com.energyict.dlms.OctetString} object.
+     * @throws IOException
+     * @deprecated Please use the correct OctetString: {@link Clock#setDateTime(com.energyict.dlms.axrdencoding.OctetString)}
+     */
+    @Deprecated
+    public void setDateTime(com.energyict.dlms.OctetString dateTime) throws IOException {
+        setDateTime(OctetString.fromOldOctetString(dateTime));
+    }
+
+    /**
+     * Set the cached date time object, encoded as a 12 byte {@link com.energyict.dlms.axrdencoding.OctetString}
+     *
+     * @param dateTime The date time, encoded as a 12 byte OctetString as described in the DLMS blue book
+     * @throws IOException
+     */
+    public void setDateTime(OctetString dateTime) throws IOException {
+        this.dateTime = getDateTime(dateTime.getBEREncodedByteArray());
+        dateTimeCached = true;
     }
 
     /**
@@ -74,7 +90,7 @@ public class Clock extends AbstractCosemObject {
      * Apply roundTripCorrection
      * @return Value of property dateTime.
      */
-    public java.util.Date getDateTime() throws IOException {
+    public Date getDateTime() throws IOException {
         if (dateTimeCached) {
 			return dateTime;
 		} else {
@@ -94,11 +110,11 @@ public class Clock extends AbstractCosemObject {
      * @param responseData to parse
      * @return Value of property dateTime.
      */
-    public java.util.Date getDateTime(byte[] responseData) throws IOException {
+    public Date getDateTime(byte[] responseData) throws IOException {
         return getDateTime(responseData,-1);
     }
 
-    private java.util.Date getDateTime(byte[] responseData,int roundtripCorrection) throws IOException {
+    private Date getDateTime(byte[] responseData,int roundtripCorrection) throws IOException {
         Calendar gcalendarMeter=null;
 
         if ((responseData[13]&(byte)0x80)==(byte)0x80) {
@@ -195,7 +211,7 @@ public class Clock extends AbstractCosemObject {
      * Getter for property dsDateTimeBegin.
      * @return Value of property dsDateTimeBegin.
      */
-    public java.util.Date getDsDateTimeBegin() throws IOException {
+    public Date getDsDateTimeBegin() throws IOException {
         if (dsDateTimeBegin == null) {
             byte[] responseData = getResponseData(TIME_DS_BEGIN);
             dsDateTimeBegin = buildCalendar(responseData).getTime();
@@ -208,7 +224,7 @@ public class Clock extends AbstractCosemObject {
      * Getter for property dsDateTimeEnd.
      * @return Value of property dsDateTimeEnd.
      */
-    public java.util.Date getDsDateTimeEnd() throws IOException {
+    public Date getDsDateTimeEnd() throws IOException {
         if (dsDateTimeEnd == null) {
             byte[] responseData = getResponseData(TIME_DS_END);
             dsDateTimeEnd = buildCalendar(responseData).getTime();

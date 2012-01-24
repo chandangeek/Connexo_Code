@@ -17,6 +17,7 @@ import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
  * @author kvds
@@ -31,54 +32,60 @@ public class OctetString extends AbstractDataType {
 	private int		offsetBegin, offsetEnd;
 	private boolean	fixed;
 
-	/** Creates a new instance of OctetString */
-	public OctetString(byte[] berEncodedData, int offset) throws IOException {
-		int workingOffset = offset;
-		offsetBegin = workingOffset;
-		if (berEncodedData[workingOffset] != DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING) {
-			throw new IOException("OctetString, invalid identifier " + berEncodedData[workingOffset]);
-		}
-		workingOffset++;
-		size = (int) DLMSUtils.getAXDRLength(berEncodedData, workingOffset);
-		workingOffset += DLMSUtils.getAXDRLengthOffset(berEncodedData, workingOffset);
-		octetStr = ProtocolUtils.getSubArray2(berEncodedData, workingOffset, size);
-		workingOffset += size;
-		offsetEnd = workingOffset;
-		this.fixed = false;
-	}
+    /**
+     * Creates a new instance of OctetString from the raw BER encoded bytes
+     *
+     * @param berEncodedData the raw BER encoded byte array
+     * @param offset         The offset in the BER bytes
+     * @throws IOException If the berEncoded data is not an octetString
+     */
+    public OctetString(byte[] berEncodedData, int offset) throws IOException {
+        int workingOffset = offset;
+        offsetBegin = workingOffset;
+        if (berEncodedData[workingOffset] != DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING) {
+            throw new IOException("OctetString, invalid identifier " + berEncodedData[workingOffset]);
+        }
+        workingOffset++;
+        size = (int) DLMSUtils.getAXDRLength(berEncodedData, workingOffset);
+        workingOffset += DLMSUtils.getAXDRLengthOffset(berEncodedData, workingOffset);
+        octetStr = ProtocolUtils.getSubArray2(berEncodedData, workingOffset, size);
+        workingOffset += size;
+        offsetEnd = workingOffset;
+        this.fixed = false;
+    }
 
-	/** Create a new instance of a fixed OctetString */
-	public OctetString(byte[] berEncodedData, int offset, boolean fixed) throws IOException {
-		offsetBegin = offset;
-		if (berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING) {
-			throw new IOException("OctetString, invalid identifier " + berEncodedData[offset]);
-		}
-		size = berEncodedData.length - 1;
-		offset += DLMSUtils.getAXDRLengthOffset(berEncodedData, offset);
-		octetStr = ProtocolUtils.getSubArray2(berEncodedData, offset, size);
-		offset += size;
-		offsetEnd = offset;
-		this.fixed = fixed;
-	}
+    /**
+     * Creates a new instance of a fixed length OctetString from the raw BER encoded bytes
+     *
+     * @param berEncodedData the raw BER encoded byte array
+     * @param offset         The offset in the BER bytes
+     * @param fixed          The length of the OctetString
+     * @throws IOException If the berEncoded data is not an octetString
+     */
+    public OctetString(byte[] berEncodedData, int offset, boolean fixed) throws IOException {
+        offsetBegin = offset;
+        if (berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING) {
+            throw new IOException("OctetString, invalid identifier " + berEncodedData[offset]);
+        }
+        size = berEncodedData.length - 1;
+        offset += DLMSUtils.getAXDRLengthOffset(berEncodedData, offset);
+        octetStr = ProtocolUtils.getSubArray2(berEncodedData, offset, size);
+        offset += size;
+        offsetEnd = offset;
+        this.fixed = fixed;
+    }
 
-    public String toString() {
-		StringBuffer strBuffTab = new StringBuffer();
-		for (int i = 0; i < getLevel(); i++) {
-			strBuffTab.append("  ");
-		}
-		return strBuffTab.toString() + "OctetString=" + ProtocolUtils.outputHexString(getOctetStr()) + "\n";
-	}
+    /**
+     * Create a new OctetString with the given bytes as content
+     * Ex: 01020304050607 -> 090701020304050607
+     *
+     * @param stringBytes The raw bytes as content of the OctetString
+     */
+    public OctetString(byte[] stringBytes) {
+        this(stringBytes, stringBytes.length, 0);
+    }
 
-	/**
-	 * Create a variable length OctetString
-	 *
-	 * @param octetStr
-	 */
-	public OctetString(byte[] octetStr) {
-		this(octetStr, octetStr.length, 0);
-	}
-
-	/**
+    /**
 	 * It is possible to create a fixed length OctetString
 	 *
 	 * @param octetStr
@@ -87,49 +94,6 @@ public class OctetString extends AbstractDataType {
 	public OctetString(byte[] octetStr, boolean fixed) {
 		this(octetStr, octetStr.length, (fixed ? 1 : 0));
 	}
-
-	public static OctetString fromString(String string) {
-		if (string == null) {
-			return new OctetString(new byte[] {});
-		} else {
-			return new OctetString(string.getBytes());
-		}
-	}
-
-	public static OctetString fromString(String string, int size) {
-		return new OctetString(string.getBytes(), size, 0);
-	}
-
-    public static OctetString fromObisCode(ObisCode obisCode) {
-        return new OctetString(obisCode.getLN());
-    }
-
-    public static OctetString fromObisCode(String obisCodeAsString) {
-        return new OctetString(ObisCode.fromString(obisCodeAsString).getLN());
-    }
-
-	public static OctetString fromByteArray(byte[] byteArray, int size) {
-		return new OctetString(byteArray, size, 0);
-	}
-
-	public static OctetString fromString(String string, int size, boolean fixed) {
-		return new OctetString(string.getBytes(), size, (fixed ? 1 : 0));
-	}
-
-    /**
-     * Create an OctetString with the content of an IP-address
-     *
-     * @param ipAddress the IP-address to parse
-     * @return a new OctetString with 6 fields
-     */
-    public static OctetString fromIpAddressString(String ipAddress) {
-        String[] ipFields = ipAddress.split("\\.");
-        byte[] ipBytes = new byte[ipFields.length];
-        for (int i = 0; i < ipBytes.length; i++) {
-            ipBytes[i] = (byte) Integer.parseInt(ipFields[i]);
-        }
-        return new OctetString(ipBytes);
-    }
 
 	private OctetString(byte[] octetStr, int size, int dummy) {
 		this.setOctetStr(octetStr);
@@ -227,4 +191,109 @@ public class OctetString extends AbstractDataType {
 		}
 	}
 
+    /**
+     * Create a new OctetString from a given String.
+     * If the string is 'null' you'll get an empty string.
+     *
+     * @param string The String that should be used to construct the OctetString
+     * @return The new com.energyict.dlms.axrdencoding.OctetString
+     */
+    public static OctetString fromString(String string) {
+        if (string == null) {
+            return new OctetString(new byte[]{});
+        } else {
+            return new OctetString(string.getBytes());
+        }
     }
+
+    /**
+     * Create a new OctetString from a given String.
+     * If the string is 'null' you'll get an empty string.
+     *
+     * @param string The String that should be used to construct the OctetString
+     * @param size
+     * @return The new com.energyict.dlms.axrdencoding.OctetString
+     */
+    public static OctetString fromString(String string, int size) {
+        return new OctetString(string.getBytes(), size, 0);
+    }
+
+    /**
+     *
+     * @param string
+     * @param size
+     * @param fixed
+     * @return
+     */
+    public static OctetString fromString(String string, int size, boolean fixed) {
+        return new OctetString(string.getBytes(), size, (fixed ? 1 : 0));
+    }
+
+    /**
+     * Create an OctetString with the content of an IP-address
+     *
+     * @param ipAddress the IP-address to parse
+     * @return a new OctetString with 6 fields
+     */
+    public static OctetString fromIpAddressString(String ipAddress) {
+        String[] ipFields = ipAddress.split("\\.");
+        byte[] ipBytes = new byte[ipFields.length];
+        for (int i = 0; i < ipBytes.length; i++) {
+            ipBytes[i] = (byte) Integer.parseInt(ipFields[i]);
+        }
+        return new OctetString(ipBytes);
+    }
+
+    /**
+     * Create a new OctetString from a given ObisCode.
+     * Ex: 1.2.3.4.5.255 -> 09060102030405FF
+     *
+     * @param obisCode
+     * @return a new OctetString with 6 fields (A.B.C.D.E.F)
+     */
+    public static OctetString fromObisCode(ObisCode obisCode) {
+        return new OctetString(obisCode.getLN());
+    }
+
+    /**
+     * Create a new OctetString from a given string that represents a valid obisCode.
+     * Ex: "1.2.3.4.5.255" -> 09060102030405FF
+     *
+     * @param obisCodeAsString The obiscode as string (for example "1.2.3.4.5.255")
+     * @return a new OctetString with 6 fields (A.B.C.D.E.F)
+     */
+    public static OctetString fromObisCode(String obisCodeAsString) {
+        return new OctetString(ObisCode.fromString(obisCodeAsString).getLN());
+    }
+
+    /**
+     *
+     * @param byteArray
+     * @param size
+     * @return
+     */
+    public static OctetString fromByteArray(byte[] byteArray, int size) {
+        return new OctetString(byteArray, size, 0);
+    }
+
+    /**
+     * Convert the old {@link com.energyict.dlms.OctetString} to the new AXDR version.
+     * This method simply takes the content of the old octet string as byte array, and creates a new
+     * one using the same bytes.
+     *
+     * @param oldOctetString The old com.energyict.dlms.OctetString
+     * @return The new com.energyict.dlms.axrdencoding.OctetString
+     */
+    public static OctetString fromOldOctetString(com.energyict.dlms.OctetString oldOctetString) {
+        return new OctetString(oldOctetString.getArray());
+    }
+
+    public String toString() {
+        StringBuffer strBuffTab = new StringBuffer();
+        for (int i = 0; i < getLevel(); i++) {
+            strBuffTab.append("  ");
+        }
+        return strBuffTab.toString() + "OctetString=" + ProtocolUtils.outputHexString(getOctetStr()) + "\n";
+    }
+
+}
