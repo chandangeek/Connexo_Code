@@ -370,6 +370,10 @@
 	*;
 }
 
+-keep public class com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging.* {
+	*;
+}
+
 -keepnames class com.energyict.genericprotocolimpl.webrtuz3.TicDevice
 
 -keepnames class com.energyict.protocolimpl.modbus.socomec.countis.ci.Ci
