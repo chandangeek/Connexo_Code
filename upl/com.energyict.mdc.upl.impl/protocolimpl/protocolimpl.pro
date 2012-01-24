@@ -366,7 +366,7 @@
 	*;
 }
 
--keep public class com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub {
+-keep public class com.energyict.smartmeterprotocolimpl.eict.ukhub.* {
 	*;
 }
 
