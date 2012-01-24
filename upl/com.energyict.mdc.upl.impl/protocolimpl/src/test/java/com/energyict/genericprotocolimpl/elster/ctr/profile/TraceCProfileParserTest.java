@@ -134,7 +134,11 @@ public class TraceCProfileParserTest {
     }
 
     private TraceCProfileParser getParser(byte[] rawBytes) {
-        return getParser(rawBytes, TimeZone.getTimeZone("Europe/Paris"));
+        return getParser(rawBytes, TimeZone.getTimeZone("Europe/Paris"), false);
+    }
+
+    private TraceCProfileParser getParser(byte[] rawBytes, boolean remove) {
+        return getParser(rawBytes, TimeZone.getTimeZone("Europe/Paris"), remove);
     }
 
     @Test
@@ -202,13 +206,13 @@ public class TraceCProfileParserTest {
         return new ReferenceDate().parse(createCalendar(year, month, day, 0, 0, 0, 0));
     }
 
-    private static TraceCProfileParser getParser(byte[] rawFrame, TimeZone timeZone) {
+    private static TraceCProfileParser getParser(byte[] rawFrame, TimeZone timeZone, boolean remove) {
         try {
             GPRSFrame frame = new GPRSFrame();
             frame.parse(rawFrame, 0);
             Data data = frame.getData();
             if (data instanceof Trace_CQueryResponseStructure) {
-                return new TraceCProfileParser((Trace_CQueryResponseStructure) data, timeZone);
+                return new TraceCProfileParser((Trace_CQueryResponseStructure) data, timeZone, remove);
             } else {
                 throw new IllegalArgumentException("rawFrame does not contain Trace_CQueryResponseStructure! [" + getHexStringFromBytes(rawFrame) + "]");
             }
@@ -223,6 +227,7 @@ public class TraceCProfileParserTest {
 
         assertEquals(createCalendar(2011, 3, 25, 7, 0, 0, 0).getTime(), getParser(RAW_HOURLY_BEFORE_DST).getFromCalendar().getTime());
         assertEquals(createCalendar(2011, 3, 26, 6, 0, 0, 0).getTime(), getParser(RAW_HOURLY_BEFORE_DST).getToCalendar().getTime());
+        assertEquals(createCalendar(2011, 3, 26, 6, 0, 0, 0).getTime(), getParser(RAW_HOURLY_BEFORE_DST, true).getToCalendar().getTime());
 
         assertEquals(createCalendar(2011, 3, 26, 7, 0, 0, 0).getTime(), getParser(RAW_HOURLY_DST).getFromCalendar().getTime());
         assertEquals(createCalendar(2011, 3, 27, 7, 0, 0, 0).getTime(), getParser(RAW_HOURLY_DST).getToCalendar().getTime());
@@ -235,9 +240,13 @@ public class TraceCProfileParserTest {
 
         assertEquals(createCalendar(2011, 1, 11, 6, 0, 0, 0).getTime(), getParser(RAW_DAILY_1).getFromCalendar().getTime());
         assertEquals(createCalendar(2011, 1, 25, 6, 0, 0, 0).getTime(), getParser(RAW_DAILY_1).getToCalendar().getTime());
+        assertEquals(createCalendar(2011, 1, 25, 6, 0, 0, 0).getTime(), getParser(RAW_DAILY_1, false).getToCalendar().getTime());
+        assertEquals(createCalendar(2011, 1, 25, 0, 0, 0, 0).getTime(), getParser(RAW_DAILY_1, true).getToCalendar().getTime());
 
         assertEquals(createCalendar(2011, 1, 12, 6, 0, 0, 0).getTime(), getParser(RAW_DAILY_2).getFromCalendar().getTime());
         assertEquals(createCalendar(2011, 1, 26, 6, 0, 0, 0).getTime(), getParser(RAW_DAILY_2).getToCalendar().getTime());
+        assertEquals(createCalendar(2011, 1, 26, 6, 0, 0, 0).getTime(), getParser(RAW_DAILY_2, false).getToCalendar().getTime());
+        assertEquals(createCalendar(2011, 1, 26, 0, 0, 0, 0).getTime(), getParser(RAW_DAILY_2, true).getToCalendar().getTime());
 
     }
 

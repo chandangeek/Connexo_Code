@@ -27,6 +27,7 @@ public class TraceCProfileParser {
     private final TimeZone deviceTimeZone;
     private Calendar fromCalendar = null;
     private Calendar toCalendar = null;
+    private boolean removeDailyProfileOffset = false;
 
     /**
      * This class parses the content from a Trace_CQueryResponseStructure to a list of intervalData items
@@ -60,12 +61,13 @@ public class TraceCProfileParser {
      * @param response       The Trace_CQueryResponseStructure, received from the meter
      * @param deviceTimeZone The device timezone, used to calculate the timeStamps of the intervals
      */
-    public TraceCProfileParser(Trace_CQueryResponseStructure response, TimeZone deviceTimeZone) {
+    public TraceCProfileParser(Trace_CQueryResponseStructure response, TimeZone deviceTimeZone, boolean removeDailyProfileOffset) {
         if (response == null) {
             throw new IllegalArgumentException("Parameter [Trace_CQueryResponseStructure response] cannot be null!");
         }
         this.response = response;
         this.deviceTimeZone = (deviceTimeZone == null ? TimeZone.getDefault() : deviceTimeZone);
+        this.removeDailyProfileOffset = removeDailyProfileOffset;
     }
 
     /**
@@ -210,6 +212,10 @@ public class TraceCProfileParser {
                 }
             }
         }
+        if (getPeriod().isDaily() && removeDailyProfileOffset) {
+            fromCalendar.set(Calendar.HOUR_OF_DAY, 0);
+        }
+
         return fromCalendar;
     }
 

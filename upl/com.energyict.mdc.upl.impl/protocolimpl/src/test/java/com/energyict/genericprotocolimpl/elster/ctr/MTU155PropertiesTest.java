@@ -48,7 +48,7 @@ public class MTU155PropertiesTest {
     public void testGetExtractInstallationDate() {
         MTU155Properties properties = new MTU155Properties();
         for (int i = 0; i < TEST_ROUNDS; i++) {
-            properties.addProperty(MTU155Properties.EXTRACTINSTALLATIONDATE, String.valueOf(i));
+            properties.addProperty(MTU155Properties.EXTRACT_INSTALLATION_DATE, String.valueOf(i));
             assertEquals(i, properties.getExtractInstallationDate());
         }
     }

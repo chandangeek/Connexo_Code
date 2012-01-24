@@ -152,9 +152,9 @@ public class ProfileChannelForSms {
         ProfileData pd = new ProfileData();
         pd.setChannelInfos(getChannelInfos());
         if (isFetchTotals()) {
-            pd.setIntervalDatas(new TraceCProfileParser(response, getDeviceTimeZone()).getIntervalDataForTotalizer());
+            pd.setIntervalDatas(new TraceCProfileParser(response, getDeviceTimeZone(), properties.removeDayProfileOffset()).getIntervalDataForTotalizer());
         } else {
-            pd.setIntervalDatas(new TraceCProfileParser(response, getDeviceTimeZone()).getIntervalData());
+        pd.setIntervalDatas(new TraceCProfileParser(response, getDeviceTimeZone(), properties.removeDayProfileOffset()).getIntervalData());
         }
 
         return pd;

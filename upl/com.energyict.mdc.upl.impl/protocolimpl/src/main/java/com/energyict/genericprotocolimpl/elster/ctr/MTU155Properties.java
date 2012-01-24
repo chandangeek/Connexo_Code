@@ -34,6 +34,8 @@ public class MTU155Properties extends AbstractProtocolProperties {
     public static final String GENERATE_RANDOM_MTU_SERIAL = "GenerateRandomMTUSerial";
     public static final String MAX_ALLOWED_INVALID_PROFILE_RESPONSES = "MaxAllowedInvalidProfileResponses";
     public static final String DISABLE_DST_FOR_KNOCKING_DEVICES = "DisableDSTForKnockingDevices";
+    public static final String EXTRACT_INSTALLATION_DATE = "ExtractInstallationDate";
+    public static final String REMOVE_DAY_PROFILE_OFFSET = "RemoveDayProfileOffset";
 
     public static final String DEFAULT_TIMEOUT = "10000";
     public static final String DEFAULT_RETRIES = "3";
@@ -55,9 +57,8 @@ public class MTU155Properties extends AbstractProtocolProperties {
     public static final String DEFAULT_GENERATE_RANDOM_MTU_SERIAL = "0";
     public static final String DEFAULT_MAX_ALLOWED_INVALID_PROFILE_RESPONSES = "5";
     public static final String DEFAULT_DISABLE_DST_FOR_KNOCKING_DEVICES = "0";
-
-    public static final String EXTRACTINSTALLATIONDATE = "ExtractInstallationDate";
-    public static final String DEFAULT_EXTRACTINSTALLATIONDATE = "1";
+    public static final String DEFAULT_EXTRACT_INSTALLATION_DATE = "1";
+    public static final String DEFAULT_REMOVE_DAY_PROFILE_OFFSET = "0";
 
     public MTU155Properties() {
         this(new Properties());
@@ -90,7 +91,8 @@ public class MTU155Properties extends AbstractProtocolProperties {
         optional.add(GENERATE_RANDOM_MTU_SERIAL);
         optional.add(MAX_ALLOWED_INVALID_PROFILE_RESPONSES);
         optional.add(DISABLE_DST_FOR_KNOCKING_DEVICES);
-        optional.add(EXTRACTINSTALLATIONDATE);
+        optional.add(EXTRACT_INSTALLATION_DATE);
+        optional.add(REMOVE_DAY_PROFILE_OFFSET);
         return optional;
     }
 
@@ -118,6 +120,11 @@ public class MTU155Properties extends AbstractProtocolProperties {
     }
 
     @ProtocolProperty
+    public boolean removeDayProfileOffset() {
+        return getBooleanProperty(REMOVE_DAY_PROFILE_OFFSET, DEFAULT_REMOVE_DAY_PROFILE_OFFSET);
+    }
+
+    @ProtocolProperty
     public int getDelayAfterError() {
         return getIntProperty(DELAY_AFTER_ERROR, DEFAULT_DELAY_AFTER_ERROR);
     }
@@ -127,8 +134,9 @@ public class MTU155Properties extends AbstractProtocolProperties {
         return getIntProperty(FORCED_DELAY, DEFAULT_FORCED_DELAY);
     }
 
+    @ProtocolProperty
     public int getExtractInstallationDate() {
-        return getIntProperty(EXTRACTINSTALLATIONDATE, DEFAULT_EXTRACTINSTALLATIONDATE);
+        return getIntProperty(EXTRACT_INSTALLATION_DATE, DEFAULT_EXTRACT_INSTALLATION_DATE);
     }
 
     @ProtocolProperty

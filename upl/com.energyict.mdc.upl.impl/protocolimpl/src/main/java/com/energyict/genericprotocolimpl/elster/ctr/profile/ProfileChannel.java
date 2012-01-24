@@ -216,7 +216,7 @@ public class ProfileChannel {
                 ReferenceDate referenceDate = calcRefDate(ptrDate, getPeriod());
                 Trace_CQueryResponseStructure traceCStructure = getRequestFactory().queryTrace_C(getChannelObjectId(), getPeriod(), referenceDate);
                 if (isValidResponse(traceCStructure, referenceDate)) {
-                    TraceCProfileParser parser = new TraceCProfileParser(traceCStructure, getDeviceTimeZone());
+                    TraceCProfileParser parser = new TraceCProfileParser(traceCStructure, getDeviceTimeZone(), getProperties().removeDayProfileOffset());
                     intervalDatas.addAll(parser.getIntervalData(fromCalendar, toCalendar));
                     ptrDate = (Calendar) parser.getToCalendar().clone();
                 } else {
