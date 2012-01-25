@@ -463,9 +463,6 @@ RegisterProtocol, MessageProtocol, EventMapper {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see com.energyict.protocol.MeterProtocol#getProtocolVersion()
-	 */
 	public String getProtocolVersion() {
         return "$Date$";
 	}
