@@ -116,11 +116,13 @@ public class ABBA230InstrumentationProfileEntry implements ABBA230ProfileEntry {
      * @param channelValueConfigurations    the value configuration of the channels in use.
      */
     public void updatePowerFactorChannels(int[] channelValueConfigurations) {
-        for (int i = 0; i< channelValueConfigurations.length; i++){
-            if (channelValueConfigurations[i] == 3) {
-                values[i] = Math.abs(values[i]) / 1000;
-            } else {
-                signOrQuadrant[i] = 0;
+        for (int i = 0; i< channelValueConfigurations.length; i++) {
+            if (channelValueConfigurations[i] != 0) {   // 0 = the channel is not in use.
+                if (channelValueConfigurations[i] == 3) {
+                    values[i] = Math.abs(values[i]) / 1000;
+                } else {
+                    signOrQuadrant[i] = 0;
+                }
             }
         }
     }
