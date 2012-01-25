@@ -4,17 +4,21 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.*;
+import com.energyict.genericprotocolimpl.common.CommonUtils;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
+import com.energyict.genericprotocolimpl.common.messages.ActivityCalendarMessage;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
-import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.webrtuz3.MbusDevice;
-import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,7 +58,9 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 			boolean mbusEncryption 	= messageHandler.getType().equals(RtuMessageConstant.MBUS_ENCRYPTION_KEYS);
 			boolean mbusCorrected 	= messageHandler.getType().equals(RtuMessageConstant.MBUS_CORRECTED_VALUES);
 			boolean mbusUnCorrected = messageHandler.getType().equals(RtuMessageConstant.MBUS_UNCORRECTED_VALUES);
-			
+            boolean touCalendar = messageHandler.getType().equals(RtuMessageConstant.TOU_ACTIVITY_CAL);
+            boolean touSpecialDays = messageHandler.getType().equals(RtuMessageConstant.TOU_SPECIAL_DAYS);
+
 			if(connect){
 				
 				getLogger().log(Level.INFO, "Handling MbusMessage " + rtuMessage.displayString() + ": Connect");
@@ -190,6 +196,110 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 				mc.writeCaptureDefinition(capDef);
 				
 				success = true;
+            } else if (touCalendar) {
+
+                getLogger().log(Level.INFO, "Handling message: Set Activity calendar for MBus device");
+
+                String name = messageHandler.getTOUCalendarName();
+                String activateDate = messageHandler.getTOUActivationDate();
+                String codeTable = messageHandler.getTOUCodeTable();
+                String userFile = messageHandler.getTOUUserFile();
+
+                boolean activateNow = (activateDate != null) && (activateDate.equalsIgnoreCase("0"));
+
+                if ((codeTable == null) && (userFile == null)) {
+                    throw new IOException("CodeTable-ID AND UserFile-ID can not be both empty.");
+                } else if ((codeTable != null) && (userFile != null)) {
+                    throw new IOException("CodeTable-ID AND UserFile-ID can not be both filled in.");
+                }
+
+                if (codeTable != null) {
+
+                    Code ct = CommonUtils.mw().getCodeFactory().find(Integer.parseInt(codeTable));
+                    if (ct == null) {
+                        throw new IOException("No CodeTable defined with id '" + codeTable + "'");
+                    } else {
+
+                        ActivityCalendarMessage acm = new ActivityCalendarMessage(ct, getMeterConfig());
+                        acm.parse();
+
+                        ObisCode acObisCode = getCorrectedObisCode(getMeterConfig().getActivityCalendar().getObisCode());
+                        ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(acObisCode);
+                        ac.writeSeasonProfilePassive(acm.getSeasonProfile());
+                        ac.writeWeekProfileTablePassive(acm.getWeekProfile());
+                        ac.writeDayProfileTablePassive(acm.getDayProfile());
+
+                        if (name != null) {
+                            if (name.length() > 8) {
+                                name = name.substring(0, 8);
+                            }
+                            ac.writeCalendarNamePassive(OctetString.fromString(name));
+                        }
+
+                        if (activateNow) {
+                            ac.activateNow();
+                        } else if (activateDate != null) {
+                            ac.writeActivatePassiveCalendarTime(new OctetString(convertUnixToGMTDateTime(activateDate).getBEREncodedByteArray(), 0));
+                        }
+
+                    }
+
+                } else if (userFile != null) {
+                    throw new IOException("ActivityCalendar by userfile is not supported yet.");
+                } else {
+                    // should never get here
+                    throw new IOException("CodeTable-ID AND UserFile-ID can not be both empty.");
+                }
+
+                success = true;
+
+            } else if (touSpecialDays) {
+
+                getLogger().log(Level.INFO, "Handling message: Set Special Days table for MBus device");
+
+                String codeTable = messageHandler.getSpecialDaysCodeTable();
+
+                if (codeTable == null) {
+                    throw new IOException("CodeTable-ID can not be empty.");
+                } else {
+
+                    Code ct = CommonUtils.mw().getCodeFactory().find(Integer.parseInt(codeTable));
+                    if (ct == null) {
+                        throw new IOException("No CodeTable defined with id '" + codeTable + "'");
+                    } else {
+
+                        List calendars = ct.getCalendars();
+                        Array sdArray = new Array();
+
+                        ObisCode sdtObis = getCorrectedObisCode(getMeterConfig().getSpecialDaysTable().getObisCode());
+                        SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(sdtObis);
+
+                        for (int i = 0; i < calendars.size(); i++) {
+                            CodeCalendar cc = (CodeCalendar) calendars.get(i);
+                            if (cc.getSeason() == 0) {
+                                OctetString os = new OctetString(new byte[]{(byte) ((cc.getYear() == -1) ? 0xff : ((cc.getYear() >> 8) & 0xFF)), (byte) ((cc.getYear() == -1) ? 0xff : (cc.getYear()) & 0xFF),
+                                        (byte) ((cc.getMonth() == -1) ? 0xFF : cc.getMonth()), (byte) ((cc.getDay() == -1) ? 0xFF : cc.getDay()),
+                                        (byte) ((cc.getDayOfWeek() == -1) ? 0xFF : cc.getDayOfWeek())});
+                                Unsigned8 dayType = new Unsigned8(cc.getDayType().getId());
+                                Structure struct = new Structure();
+                                AXDRDateTime dt = new AXDRDateTime(new byte[]{(byte) 0x09, (byte) 0x0C, (byte) ((cc.getYear() == -1) ? 0x07 : ((cc.getYear() >> 8) & 0xFF)), (byte) ((cc.getYear() == -1) ? 0xB2 : (cc.getYear()) & 0xFF),
+                                        (byte) ((cc.getMonth() == -1) ? 0xFF : cc.getMonth()), (byte) ((cc.getDay() == -1) ? 0xFF : cc.getDay()),
+                                        (byte) ((cc.getDayOfWeek() == -1) ? 0xFF : cc.getDayOfWeek()), 0, 0, 0, 0, 0, 0, 0});
+                                long days = dt.getValue().getTimeInMillis() / 1000 / 60 / 60 / 24;
+                                struct.addDataType(new Unsigned16((int) days));
+                                struct.addDataType(os);
+                                struct.addDataType(dayType);
+                                sdArray.addDataType(struct);
+                            }
+                        }
+
+                        if (sdArray.nrOfDataTypes() != 0) {
+                            sdt.writeSpecialDays(sdArray);
+                        }
+
+                        success = true;
+                    }
+                }
 			}
 			else {	// unknown message
 				success = false;

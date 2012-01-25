@@ -15,8 +15,8 @@ public class EmeterMessages extends GenericMessaging {
 
     public List getMessageCategories() {
         List<MessageCategorySpec> categories = new ArrayList();
-        MessageCategorySpec catDisconnect = getConnectControlCategory();
-        categories.add(catDisconnect);
+        categories.add(getConnectControlCategory());
+        categories.add(getActivityCalendarCategory());
         return categories;
     }
 

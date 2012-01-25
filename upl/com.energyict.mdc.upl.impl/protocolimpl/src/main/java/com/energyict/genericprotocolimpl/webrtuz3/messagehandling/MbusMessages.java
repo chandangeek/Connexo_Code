@@ -14,11 +14,9 @@ public class MbusMessages extends GenericMessaging{
 
 	public List getMessageCategories() {
 		List<MessageCategorySpec> categories = new ArrayList();
-		MessageCategorySpec catDisconnect = getConnectControlCategory();
-		MessageCategorySpec catMbusSetup = getMbusSetupCategory();
-		
-		categories.add(catDisconnect);
-		categories.add(catMbusSetup);
+		categories.add(getConnectControlCategory());
+		categories.add(getMbusSetupCategory());
+		categories.add(getActivityCalendarCategory());
 		return categories;
 	}
 
