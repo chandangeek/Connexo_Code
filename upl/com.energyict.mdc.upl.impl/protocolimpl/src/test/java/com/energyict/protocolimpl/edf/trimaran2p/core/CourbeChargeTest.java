@@ -4,26 +4,17 @@
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.energyict.cbo.Utils;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocolimpl.edf.trimaran2p.Trimaran2P;
-import com.energyict.protocolimpl.edf.trimarandlms.axdr.OctetString;
+import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranOctetString;
+import org.junit.*;
+
+import java.io.*;
+import java.util.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author gna
@@ -32,25 +23,25 @@ import com.energyict.protocolimpl.edf.trimarandlms.axdr.OctetString;
 public class CourbeChargeTest {
 	
 	private Trimaran2P deuxP;
-	private OctetString interval160 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x01, (byte)0xFF, (byte)0x02, (byte)0x32, (byte)0x00});
-	private OctetString interval304 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x02, (byte)0xFF, (byte)0x02, (byte)0x32, (byte)0x00});
-	private OctetString interval448 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x03, (byte)0xFF, (byte)0x02, (byte)0x32, (byte)0x00});
-	private OctetString interval592 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x04, (byte)0xFF, (byte)0x02, (byte)0x32, (byte)0x00});
-	private OctetString interval736 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x05, (byte)0xFF, (byte)0x02, (byte)0x32, (byte)0x00});
-	private OctetString interval767 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x05, (byte)0xFF, (byte)0x08, (byte)0x00, (byte)0x00});
+	private TrimaranOctetString interval160 = new TrimaranOctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x01, (byte)0xFF, (byte)0x02, (byte)0x32, (byte)0x00});
+	private TrimaranOctetString interval304 = new TrimaranOctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x02, (byte)0xFF, (byte)0x02, (byte)0x32, (byte)0x00});
+	private TrimaranOctetString interval448 = new TrimaranOctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x03, (byte)0xFF, (byte)0x02, (byte)0x32, (byte)0x00});
+	private TrimaranOctetString interval592 = new TrimaranOctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x04, (byte)0xFF, (byte)0x02, (byte)0x32, (byte)0x00});
+	private TrimaranOctetString interval736 = new TrimaranOctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x05, (byte)0xFF, (byte)0x02, (byte)0x32, (byte)0x00});
+	private TrimaranOctetString interval767 = new TrimaranOctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x05, (byte)0xFF, (byte)0x08, (byte)0x00, (byte)0x00});
 	
-	private OctetString interval704 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x09, (byte)0x1E, (byte)0x00});
-	private OctetString interval706 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x09, (byte)0x32, (byte)0x00});
-	private OctetString interval707 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x0A, (byte)0x00, (byte)0x00});
-	private OctetString interval733 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x0E, (byte)0x14, (byte)0x00});
-	private OctetString interval751 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x11, (byte)0x14, (byte)0x00});
+	private TrimaranOctetString interval704 = new TrimaranOctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x09, (byte)0x1E, (byte)0x00});
+	private TrimaranOctetString interval706 = new TrimaranOctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x09, (byte)0x32, (byte)0x00});
+	private TrimaranOctetString interval707 = new TrimaranOctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x0A, (byte)0x00, (byte)0x00});
+	private TrimaranOctetString interval733 = new TrimaranOctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x0E, (byte)0x14, (byte)0x00});
+	private TrimaranOctetString interval751 = new TrimaranOctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x11, (byte)0x14, (byte)0x00});
 
-	private OctetString interval540 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x09, (byte)0x28, (byte)0x00});
-	private OctetString interval542 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x0A, (byte)0x00, (byte)0x00});
-	private OctetString interval555 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x0C, (byte)0x0A, (byte)0x00});
-	private OctetString interval568 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x0E, (byte)0x14, (byte)0x00});
-	private OctetString interval569 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x0E, (byte)0x1E, (byte)0x00});
-	private OctetString interval586 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x11, (byte)0x14, (byte)0x00});
+	private TrimaranOctetString interval540 = new TrimaranOctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x09, (byte)0x28, (byte)0x00});
+	private TrimaranOctetString interval542 = new TrimaranOctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x0A, (byte)0x00, (byte)0x00});
+	private TrimaranOctetString interval555 = new TrimaranOctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x0C, (byte)0x0A, (byte)0x00});
+	private TrimaranOctetString interval568 = new TrimaranOctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x0E, (byte)0x14, (byte)0x00});
+	private TrimaranOctetString interval569 = new TrimaranOctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x0E, (byte)0x1E, (byte)0x00});
+	private TrimaranOctetString interval586 = new TrimaranOctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x11, (byte)0x14, (byte)0x00});
 	
 	/**
 	 * @throws java.lang.Exception

@@ -10,11 +10,9 @@
 
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 
-import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
+import java.io.IOException;
 
 
 /**
@@ -49,7 +47,7 @@ public class EnergieIndexReader extends AbstractTrimaranObject {
     }
     
     protected void parse(byte[] data) throws IOException {
-        DataContainer dc = new DataContainer();
+        TrimaranDataContainer dc = new TrimaranDataContainer();
         
 //    	System.out.println("GN_DEBUG> write to file");
 //    	File file = new File("c://TEST_FILES/EnergieIndexes.bin");

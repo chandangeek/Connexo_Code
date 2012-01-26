@@ -1,10 +1,10 @@
 package com.energyict.genericprotocolimpl.lgadvantis.encoder;
 
-import java.util.Iterator;
-
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.edf.messages.objects.ActivityCalendar;
-import com.energyict.edf.messages.objects.WeekProfile;
+import com.energyict.protocolimpl.edf.messages.objects.ActivityCalendar;
+import com.energyict.protocolimpl.edf.messages.objects.WeekProfile;
+
+import java.util.Iterator;
 
 public class WeekProfileEncoder implements Encoder {
     

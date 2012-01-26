@@ -10,12 +10,12 @@
 
 package com.energyict.protocolimpl.edf.trimaranplus.core;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
+import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
@@ -91,7 +91,7 @@ public class ParametresPplus1 extends AbstractTrimaranObject {
     
     protected void parse(byte[] data) throws IOException {
         int offset=0;
-        DataContainer dc = new DataContainer();
+        TrimaranDataContainer dc = new TrimaranDataContainer();
         dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
         
         structureLength = dc.getRoot().getNrOfElements(); // 12 for VDEType BASE and EJP, 8 for VDEType MODULABLE

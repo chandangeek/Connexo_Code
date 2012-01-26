@@ -3,14 +3,14 @@
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
+import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.TimeZone;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
-import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
 /**
  * @author gna
@@ -32,7 +32,7 @@ public class Programmables{
 	 * @throws IOException 
 	 * 
 	 */
-	public Programmables(DataContainer dc, TimeZone timeZone, int variableName) throws IOException {
+	public Programmables(TrimaranDataContainer dc, TimeZone timeZone, int variableName) throws IOException {
 		int offset = 0;
 		setVariableName(variableName);
 		

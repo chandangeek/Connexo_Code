@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 
-public class UniversalObject implements DLMSCOSEMGlobals,Serializable {
+public class UniversalObject implements Serializable {
 
 	/**
 	 *

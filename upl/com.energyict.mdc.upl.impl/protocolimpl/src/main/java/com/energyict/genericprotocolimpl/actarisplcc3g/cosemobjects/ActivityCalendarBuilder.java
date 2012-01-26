@@ -10,17 +10,11 @@
 
 package com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects;
 
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.*;
-import com.energyict.edf.messages.objects.ActivityCalendar;
-import com.energyict.edf.messages.objects.SeasonProfile;
-import com.energyict.edf.messages.objects.CosemCalendar;
-import com.energyict.edf.messages.objects.WeekProfile;
-import com.energyict.edf.messages.objects.DayProfile;
-import com.energyict.edf.messages.objects.DayProfileSegment;
-import com.energyict.edf.messages.objects.ActionItem;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.protocolimpl.edf.messages.objects.*;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.*;
 /**
  *
@@ -51,7 +45,7 @@ public class ActivityCalendarBuilder {
     }
     
     private void buildActivatePassiveCalendarTime() throws IOException {
-        com.energyict.edf.messages.objects.OctetString o = new com.energyict.edf.messages.objects.OctetString(pLCCMeterActivityCalendar.getActivityCalendar().readActivatePassiveCalendarTime().getOctetStr());
+        com.energyict.protocolimpl.edf.messages.objects.OctetString o = new com.energyict.protocolimpl.edf.messages.objects.OctetString(pLCCMeterActivityCalendar.getActivityCalendar().readActivatePassiveCalendarTime().getOctetStr());
         activityCalendar.setActivatePassiveCalendarTime(new CosemCalendar(o));
     }
     
@@ -68,7 +62,7 @@ public class ActivityCalendarBuilder {
             SeasonProfile seasonProfile = new SeasonProfile();
             seasonProfile.setName(structure.getDataType(0).getOctetString().getOctetStr()[0]);
             TimeZone timeZone = pLCCMeterActivityCalendar.getPLCCObjectFactory().getConcentrator().getTimeZone();       
-            com.energyict.edf.messages.objects.OctetString o = new com.energyict.edf.messages.objects.OctetString(structure.getDataType(1).getOctetString().getOctetStr());
+            com.energyict.protocolimpl.edf.messages.objects.OctetString o = new com.energyict.protocolimpl.edf.messages.objects.OctetString(structure.getDataType(1).getOctetString().getOctetStr());
             seasonProfile.setStart(new CosemCalendar(o));
             seasonProfile.setWeek(structure.getDataType(2).getOctetString().getOctetStr()[0]);
             seasonProfiles.add(seasonProfile);

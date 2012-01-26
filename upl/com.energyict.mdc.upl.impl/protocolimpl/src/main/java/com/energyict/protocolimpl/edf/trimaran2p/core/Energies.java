@@ -3,17 +3,14 @@
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.math.BigDecimal;
-import java.util.TimeZone;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
+import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.TimeZone;
 
 /**
  * @author gna
@@ -33,7 +30,7 @@ public class Energies{
 	private Quantity[] nRJcap_Reste = {null, null};		// seq of 2 - reste des Energies Q+ Erb2, Q- Erb4 exprimés en kvarh
 
 
-	public Energies(DataContainer dc, TimeZone timeZone, int variableName) throws IOException {
+	public Energies(TrimaranDataContainer dc, TimeZone timeZone, int variableName) throws IOException {
 		
 		
 //    	System.out.println("GN_DEBUG> write to file");

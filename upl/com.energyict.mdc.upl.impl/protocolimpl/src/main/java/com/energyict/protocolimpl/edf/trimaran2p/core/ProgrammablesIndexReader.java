@@ -3,9 +3,9 @@
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import java.io.IOException;
+import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 
-import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
+import java.io.IOException;
 
 /**
  * @author gna
@@ -55,7 +55,7 @@ public class ProgrammablesIndexReader extends AbstractTrimaranObject{
 	}
 
 	protected void parse(byte[] data) throws IOException {
-        DataContainer dc = new DataContainer();
+        TrimaranDataContainer dc = new TrimaranDataContainer();
         dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
         setProgrammables(new Programmables(dc, getTrimaranObjectFactory().getTrimaran().getTimeZone(), getVariableName()));
 	}

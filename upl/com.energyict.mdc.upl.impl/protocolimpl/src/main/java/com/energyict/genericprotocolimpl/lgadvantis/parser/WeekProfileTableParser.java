@@ -1,11 +1,11 @@
 package com.energyict.genericprotocolimpl.lgadvantis.parser;
 
-import java.io.IOException;
-
 import com.energyict.dlms.axrdencoding.*;
+import com.energyict.genericprotocolimpl.lgadvantis.CosemFactory;
+import com.energyict.genericprotocolimpl.lgadvantis.Task;
+import com.energyict.protocolimpl.edf.messages.objects.WeekProfile;
 
-import com.energyict.edf.messages.objects.WeekProfile;
-import com.energyict.genericprotocolimpl.lgadvantis.*;
+import java.io.IOException;
 
 public class WeekProfileTableParser extends AbstractParser implements Parser {
 

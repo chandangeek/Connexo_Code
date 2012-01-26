@@ -1,13 +1,13 @@
 package com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects;
 
-import java.io.IOException;
-
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.ObjectIdentification;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 public class PLCCMeterIdentification extends AbstractPLCCObject {
 
@@ -105,8 +105,8 @@ public class PLCCMeterIdentification extends AbstractPLCCObject {
         this.identification = identification;
     }
 
-    public com.energyict.edf.messages.objects.MeterIdentification toMeterIdentification() throws IOException {
-        com.energyict.edf.messages.objects.MeterIdentification meterIdentification = new com.energyict.edf.messages.objects.MeterIdentification();
+    public com.energyict.protocolimpl.edf.messages.objects.MeterIdentification toMeterIdentification() throws IOException {
+        com.energyict.protocolimpl.edf.messages.objects.MeterIdentification meterIdentification = new com.energyict.protocolimpl.edf.messages.objects.MeterIdentification();
         byte[] data = new byte[6];
         data[0] = ProtocolUtils.hex2BCD(getConstructorCode());
         data[1] = ProtocolUtils.hex2BCD(getYear()-2000);

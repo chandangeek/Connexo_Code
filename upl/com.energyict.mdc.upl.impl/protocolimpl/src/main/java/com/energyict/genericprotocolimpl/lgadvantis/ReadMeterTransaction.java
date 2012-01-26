@@ -1,13 +1,7 @@
 package com.energyict.genericprotocolimpl.lgadvantis;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.util.*;
-
 import com.energyict.cbo.*;
 import com.energyict.cpo.Transaction;
-import com.energyict.edf.messages.*;
 import com.energyict.genericprotocolimpl.actarisplcc3g.MessagePair;
 import com.energyict.genericprotocolimpl.lgadvantis.collector.Collector;
 import com.energyict.genericprotocolimpl.lgadvantis.encoder.Encoder;
@@ -15,6 +9,12 @@ import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.edf.messages.*;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  *  

@@ -1,11 +1,11 @@
 package com.energyict.genericprotocolimpl.lgadvantis;
 
+import com.energyict.cbo.BusinessException;
+import com.energyict.mdw.core.RtuMessage;
+import com.energyict.protocolimpl.edf.messages.MessageContent;
+
 import java.sql.SQLException;
 import java.util.*;
-
-import com.energyict.cbo.BusinessException;
-import com.energyict.edf.messages.*;
-import com.energyict.mdw.core.RtuMessage;
 
 public class RtuMessageLink {
     

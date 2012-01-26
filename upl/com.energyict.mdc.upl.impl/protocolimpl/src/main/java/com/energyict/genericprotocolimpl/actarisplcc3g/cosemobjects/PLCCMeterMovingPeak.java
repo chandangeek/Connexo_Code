@@ -1,12 +1,10 @@
 package com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects;
 
-import java.io.IOException;
-
 import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.ObjectIdentification;
-import com.energyict.dlms.cosem.ScriptTable;
+import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
+
+import java.io.IOException;
 
 /**
  *
@@ -42,13 +40,13 @@ public class PLCCMeterMovingPeak extends AbstractPLCCObject {
     }
 
     // returns R/W denied
-    public com.energyict.edf.messages.objects.MovingPeak readMovingPeak() throws IOException {
+    public com.energyict.protocolimpl.edf.messages.objects.MovingPeak readMovingPeak() throws IOException {
         // convert to message cosem object to write into a register...
         MovingPeakBuilder movingPeakBuilder = new MovingPeakBuilder(this);
         return movingPeakBuilder.toMovingPeak();
     }
 
-    public void writeMovingPeak(com.energyict.edf.messages.objects.MovingPeak mp) throws IOException {
+    public void writeMovingPeak(com.energyict.protocolimpl.edf.messages.objects.MovingPeak mp) throws IOException {
         CosemMovingPeakScriptTableBuilder cosemMovingPeakScriptTableBuilder = new CosemMovingPeakScriptTableBuilder(mp);
         scriptTable.writeScripts(cosemMovingPeakScriptTableBuilder.scripts());
     }

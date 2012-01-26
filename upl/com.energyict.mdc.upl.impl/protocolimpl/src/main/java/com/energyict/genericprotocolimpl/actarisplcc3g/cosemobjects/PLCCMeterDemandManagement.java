@@ -1,13 +1,11 @@
 package com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects;
 
-import java.io.IOException;
-
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.ObjectIdentification;
-import com.energyict.dlms.cosem.RegisterMonitor;
+import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
+
+import java.io.IOException;
 
 /**
  *
@@ -29,14 +27,14 @@ public class PLCCMeterDemandManagement extends AbstractPLCCObject {
         registerMonitor = getCosemObjectFactory().getRegisterMonitor(getId().getObisCode());
     }
 
-    public com.energyict.edf.messages.objects.DemandManagement readDemandManagement() throws IOException {
-        com.energyict.edf.messages.objects.DemandManagement demandManagement = new com.energyict.edf.messages.objects.DemandManagement();
+    public com.energyict.protocolimpl.edf.messages.objects.DemandManagement readDemandManagement() throws IOException {
+        com.energyict.protocolimpl.edf.messages.objects.DemandManagement demandManagement = new com.energyict.protocolimpl.edf.messages.objects.DemandManagement();
         demandManagement.setMaxloadThreshold(registerMonitor.readThresholds().getDataType(0).intValue());
         demandManagement.setSubscribedThreshold(registerMonitor.readThresholds().getDataType(1).intValue());
         return demandManagement;
     }
 
-    public void writeDemandManagement(com.energyict.edf.messages.objects.DemandManagement demandManagement) throws IOException {
+    public void writeDemandManagement(com.energyict.protocolimpl.edf.messages.objects.DemandManagement demandManagement) throws IOException {
         Array array = new Array();
         array.addDataType(new Unsigned16(demandManagement.getMaxloadThreshold()));
         array.addDataType(new Unsigned16(demandManagement.getSubscribedThreshold()));

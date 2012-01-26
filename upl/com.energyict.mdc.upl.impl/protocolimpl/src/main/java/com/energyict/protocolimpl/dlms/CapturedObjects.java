@@ -17,8 +17,7 @@ import java.io.IOException;
  * com.energyict.dlms.cosem.CaptureObjectsHelper
  *
  */
-public class CapturedObjects implements DLMSCOSEMGlobals
-{
+public class CapturedObjects {
    LNObject[] lnObject;
    int iNROfChannels;
 
@@ -41,7 +40,7 @@ public class CapturedObjects implements DLMSCOSEMGlobals
    }
    public boolean isChannelData(int iIndex)
    {
-       return (lnObject[iIndex].getType()==CHANNEL_DATA);
+       return (lnObject[iIndex].getType()==DLMSCOSEMGlobals.CHANNEL_DATA);
    }
    public byte[] getLN(int iIndex)
    {
@@ -100,28 +99,28 @@ public class CapturedObjects implements DLMSCOSEMGlobals
        if (iIndex < lnObject.length)
        {
           // Changed KV 22052003 to read also gas puls channels!
-          if ((ln[LN_A]  != 0) && //== LN_A_ELECTRICITY_RELATED_OBJECTS) &&
-              (ln[LN_B] >= 0) && // was 1 (KV 06032007)
-              (ln[LN_B] <= 64) &&
+          if ((ln[DLMSCOSEMGlobals.LN_A]  != 0) && //== LN_A_ELECTRICITY_RELATED_OBJECTS) &&
+              (ln[DLMSCOSEMGlobals.LN_B] >= 0) && // was 1 (KV 06032007)
+              (ln[DLMSCOSEMGlobals.LN_B] <= 64) &&
               ((iIC == DLMSClassId.REGISTER.getClassId()) || (iIC == DLMSClassId.DEMAND_REGISTER.getClassId()))) {
-              lnObject[iIndex] = new LNObject(iIC,ln,iAttr,CHANNEL_DATA, iNROfChannels);
+              lnObject[iIndex] = new LNObject(iIC,ln,iAttr,DLMSCOSEMGlobals.CHANNEL_DATA, iNROfChannels);
               iNROfChannels++;
           }
 
 
           // Changed GN 29022008 to add the extended register for the Iskra MBus meter
-          else if( ((ln[LN_A] == 0)||((ln[LN_A]) == 7)) &&
-        		  (ln[LN_B] == 1) &&
-        		  (ln[LN_C] == (byte)0x80) &&
-        		  (ln[LN_D] == 50) &&
-        		  (ln[LN_E] >= 0) && (ln[LN_E] <= 3) &&
+          else if( ((ln[DLMSCOSEMGlobals.LN_A] == 0)||((ln[DLMSCOSEMGlobals.LN_A]) == 7)) &&
+        		  (ln[DLMSCOSEMGlobals.LN_B] == 1) &&
+        		  (ln[DLMSCOSEMGlobals.LN_C] == (byte)0x80) &&
+        		  (ln[DLMSCOSEMGlobals.LN_D] == 50) &&
+        		  (ln[DLMSCOSEMGlobals.LN_E] >= 0) && (ln[DLMSCOSEMGlobals.LN_E] <= 3) &&
         		  (iIC == DLMSClassId.EXTENDED_REGISTER.getClassId())){
-              lnObject[iIndex] = new LNObject(iIC,ln,iAttr,CHANNEL_DATA, iNROfChannels);
+              lnObject[iIndex] = new LNObject(iIC,ln,iAttr,DLMSCOSEMGlobals.CHANNEL_DATA, iNROfChannels);
               iNROfChannels++;
           }
 
           else {
-              lnObject[iIndex] = new LNObject(iIC,ln,iAttr,MANUFACTURER_SPECIFIC_DATA, -1);
+              lnObject[iIndex] = new LNObject(iIC,ln,iAttr,DLMSCOSEMGlobals.MANUFACTURER_SPECIFIC_DATA, -1);
           }
        } else {
 		throw new java.lang.ArrayIndexOutOfBoundsException("CaptureObjects class add error!");

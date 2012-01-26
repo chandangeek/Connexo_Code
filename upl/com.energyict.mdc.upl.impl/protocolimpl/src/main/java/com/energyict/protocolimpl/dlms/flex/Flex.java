@@ -29,7 +29,7 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class Flex implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol {
+public class Flex implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol {
     private static final byte DEBUG=0;  // KV 16012004 changed all DEBUG values
 
     ObisCode loadProfileObisCode1 = ObisCode.fromString("1.0.99.1.0.255");
@@ -869,7 +869,7 @@ public class Flex implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Protoc
     {
        byte[] byteTimeBuffer = new byte[14];
 
-       byteTimeBuffer[0]=TYPEDESC_OCTET_STRING;
+       byteTimeBuffer[0]=DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
        byteTimeBuffer[1]=12; // length
        byteTimeBuffer[2]=(byte)(calendar.get(calendar.YEAR) >> 8);
        byteTimeBuffer[3]=(byte)calendar.get(calendar.YEAR);
@@ -1168,7 +1168,6 @@ public class Flex implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Protoc
      * @param properties <br>
      * @throws MissingPropertyException <br>
      * @throws InvalidPropertyException <br>
-     * @see AbstractMeterProtocol#validateProperties
      */
     public void setProperties(Properties properties) throws MissingPropertyException , InvalidPropertyException {
         validateProperties(properties);

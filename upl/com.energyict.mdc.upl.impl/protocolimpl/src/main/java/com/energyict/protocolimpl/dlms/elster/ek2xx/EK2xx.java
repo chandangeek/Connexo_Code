@@ -16,7 +16,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, RegisterProtocol {
+public class EK2xx implements MeterProtocol, HHUEnabler, ProtocolLink, RegisterProtocol {
 
 	private static final int DEBUG 			= 0;
 	private static final String DEVICE_ID 	= "ELS";
@@ -427,7 +427,7 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
 		byte[] byteTimeBuffer = new byte[15];
 
 		byteTimeBuffer[0]=1;
-		byteTimeBuffer[1]=TYPEDESC_OCTET_STRING;
+		byteTimeBuffer[1]=DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
 		byteTimeBuffer[2]=12; // length
 		byteTimeBuffer[3]=(byte)(calendar.get(calendar.YEAR) >> 8);
 		byteTimeBuffer[4]=(byte)calendar.get(calendar.YEAR);
@@ -459,7 +459,7 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
 			}
 		}
 
-		getCosemObjectFactory().getGenericWrite((short)this.meterConfig.getClockSN(),TIME_TIME).write(byteTimeBuffer);
+		getCosemObjectFactory().getGenericWrite((short)this.meterConfig.getClockSN(),DLMSCOSEMGlobals.TIME_TIME).write(byteTimeBuffer);
 
 	} // private void doSetTime(Calendar calendar)
 

@@ -1,11 +1,12 @@
 package com.energyict.genericprotocolimpl.lgadvantis.parser;
 
-import java.io.IOException;
-
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.edf.messages.objects.DayProfile;
-import com.energyict.edf.messages.objects.DayProfileSegment;
-import com.energyict.genericprotocolimpl.lgadvantis.*;
+import com.energyict.genericprotocolimpl.lgadvantis.CosemFactory;
+import com.energyict.genericprotocolimpl.lgadvantis.Task;
+import com.energyict.protocolimpl.edf.messages.objects.DayProfile;
+import com.energyict.protocolimpl.edf.messages.objects.DayProfileSegment;
+
+import java.io.IOException;
 
 public class DayProfileParser extends AbstractParser implements Parser {
     

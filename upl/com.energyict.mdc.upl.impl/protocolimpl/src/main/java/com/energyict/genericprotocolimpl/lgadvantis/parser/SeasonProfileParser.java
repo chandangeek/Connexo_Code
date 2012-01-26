@@ -1,15 +1,11 @@
 package com.energyict.genericprotocolimpl.lgadvantis.parser;
 
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.genericprotocolimpl.lgadvantis.CosemFactory;
+import com.energyict.genericprotocolimpl.lgadvantis.Task;
+import com.energyict.protocolimpl.edf.messages.objects.SeasonProfile;
+
 import java.io.IOException;
-
-
-import com.energyict.edf.messages.objects.SeasonProfile;
-import com.energyict.genericprotocolimpl.lgadvantis.*;
-
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.OctetString;
 
 public class SeasonProfileParser extends AbstractParser implements Parser {
     

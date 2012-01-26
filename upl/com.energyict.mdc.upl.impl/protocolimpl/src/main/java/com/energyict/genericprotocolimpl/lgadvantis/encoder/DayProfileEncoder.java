@@ -1,10 +1,10 @@
 package com.energyict.genericprotocolimpl.lgadvantis.encoder;
 
-import java.util.Iterator;
-
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.edf.messages.objects.*;
+import com.energyict.protocolimpl.edf.messages.objects.*;
+
+import java.util.Iterator;
 
 public class DayProfileEncoder implements Encoder {
     

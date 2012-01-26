@@ -10,9 +10,9 @@
 
 package com.energyict.protocolimpl.edf.trimaranplus.core;
 
-import java.io.IOException;
+import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 
-import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
+import java.io.IOException;
 
 
 /**
@@ -45,7 +45,7 @@ public class TemplateVariableName extends AbstractTrimaranObject {
     
     protected void parse(byte[] data) throws IOException {
         int offset=0;
-        DataContainer dc = new DataContainer();
+        TrimaranDataContainer dc = new TrimaranDataContainer();
         dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
     }
     

@@ -1,25 +1,18 @@
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import com.energyict.cbo.*;
+import com.energyict.protocolimpl.edf.trimaran2p.Trimaran2P;
+import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
+import org.junit.*;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.TimeZone;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.cbo.Utils;
-import com.energyict.protocolimpl.edf.trimaran2p.Trimaran2P;
-import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class TrimaranObjectFactoryTest {
 	
@@ -68,7 +61,7 @@ public class TrimaranObjectFactoryTest {
 	public void readEnergyIndexTest() {
 		File file;
 		FileInputStream fis;
-		DataContainer dc = new DataContainer();
+		TrimaranDataContainer dc = new TrimaranDataContainer();
 		try {
 			
 			file = new File(Utils.class.getResource("/offlineFiles/trimaran/EnergieIndexes.bin").getFile());

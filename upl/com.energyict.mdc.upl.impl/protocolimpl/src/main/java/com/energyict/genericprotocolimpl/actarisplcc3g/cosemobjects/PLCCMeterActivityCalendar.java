@@ -1,11 +1,9 @@
 package com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects;
 
-import java.io.IOException;
-
-import com.energyict.dlms.cosem.ActivityCalendar;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.ObjectIdentification;
+import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
+
+import java.io.IOException;
 
 /**
  *
@@ -35,13 +33,13 @@ public class PLCCMeterActivityCalendar extends AbstractPLCCObject {
         return activityCalendar;
     }
 
-    public com.energyict.edf.messages.objects.ActivityCalendar readActivityCalendar() throws IOException {
+    public com.energyict.protocolimpl.edf.messages.objects.ActivityCalendar readActivityCalendar() throws IOException {
         // convert to message cosem object to write into a register...
         ActivityCalendarBuilder activityCalendarBuilder = new ActivityCalendarBuilder(this);
         return activityCalendarBuilder.toActivityCalendar();
     }
 
-    public void writeActivityCalendar(com.energyict.edf.messages.objects.ActivityCalendar ac) throws IOException {
+    public void writeActivityCalendar(com.energyict.protocolimpl.edf.messages.objects.ActivityCalendar ac) throws IOException {
         CosemActivityCalendarBuilder cosemActivityCalendarBuilder = new CosemActivityCalendarBuilder(ac);
         //activityCalendar.writeCalendarNameActive(cosemActivityCalendarBuilder.calendarNameActive());
         activityCalendar.writeCalendarNamePassive(cosemActivityCalendarBuilder.calendarNamePassive());

@@ -11,15 +11,12 @@
 package com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects;
 
 
-import com.energyict.edf.messages.objects.DayProfile;
-import com.energyict.edf.messages.objects.DayProfileSegment;
-import com.energyict.edf.messages.objects.WeekProfile;
-import java.io.*;
-import java.util.*;
-
-import com.energyict.edf.messages.objects.ActivityCalendar;
-import com.energyict.edf.messages.objects.SeasonProfile;
 import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.protocolimpl.edf.messages.objects.*;
+
+import java.util.Iterator;
+import java.util.List;
 /**
  *
  * @author kvds

@@ -2,26 +2,17 @@ package com.energyict.genericprotocolimpl.lgadvantis;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.Transaction;
-import com.energyict.edf.messages.MessageContent;
-import com.energyict.edf.messages.MessageContentFactory;
-import com.energyict.edf.messages.MessageDiscoverMeters;
-import com.energyict.edf.messages.MessagePerformanceTest;
-import com.energyict.edf.messages.MessagePostXmlFile;
-import com.energyict.mdw.core.CommunicationProfile;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.RtuShadow;
+import com.energyict.protocolimpl.edf.messages.*;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
 
 public class ReadConcentratorTransaction implements Transaction {
 

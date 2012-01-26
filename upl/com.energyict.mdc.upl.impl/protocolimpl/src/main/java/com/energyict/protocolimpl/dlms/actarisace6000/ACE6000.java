@@ -25,7 +25,7 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class ACE6000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol {
+public class ACE6000 implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol {
     private static final byte DEBUG=0;  // KV 16012004 changed all DEBUG values
 
     private static final byte[] profileLN={0,0,99,1,0,(byte)255};
@@ -591,7 +591,7 @@ public class ACE6000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Pro
 
     private List getLogbookData() throws IOException {
         Logbook logbook = new Logbook(timeZone);
-        return logbook.getMeterEvents(getCosemObjectFactory().getProfileGeneric(ObisCode.fromByteArray(LOGBOOK_PROFILE_LN)).getBuffer());
+        return logbook.getMeterEvents(getCosemObjectFactory().getProfileGeneric(ObisCode.fromByteArray(DLMSCOSEMGlobals.LOGBOOK_PROFILE_LN)).getBuffer());
     }
 
 
@@ -971,7 +971,7 @@ public class ACE6000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Pro
     {
        byte[] byteTimeBuffer = new byte[14];
 
-       byteTimeBuffer[0]=TYPEDESC_OCTET_STRING;
+       byteTimeBuffer[0]=DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
        byteTimeBuffer[1]=12; // length
        byteTimeBuffer[2]=(byte)(calendar.get(calendar.YEAR) >> 8);
        byteTimeBuffer[3]=(byte)calendar.get(calendar.YEAR);

@@ -3,13 +3,13 @@
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
+import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  * @author gna
@@ -53,7 +53,7 @@ public class ArreteJournalier extends AbstractTrimaranObject{
 
 	protected void parse(byte[] data) throws IOException {
 		int offset = 0;
-		DataContainer dc = new DataContainer();
+		TrimaranDataContainer dc = new TrimaranDataContainer();
 		dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
 		
 		setDernierHoroDate(new DateType(dc.getRoot().getLong(offset++), getTrimaranObjectFactory().getTrimaran().getTimeZone()));

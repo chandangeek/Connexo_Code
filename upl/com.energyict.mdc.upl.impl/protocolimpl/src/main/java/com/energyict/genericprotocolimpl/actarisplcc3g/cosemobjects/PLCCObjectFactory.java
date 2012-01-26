@@ -10,12 +10,11 @@
 
 package com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects;
 
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.genericprotocolimpl.actarisplcc3g.Concentrator;
+
 import java.io.IOException;
-
-
-import com.energyict.genericprotocolimpl.actarisplcc3g.Concentrator;  
-import com.energyict.dlms.cosem.CosemObjectFactory; 
-import java.util.*;
+import java.util.Date;
 
 /**
  * @author kvds
@@ -102,7 +101,7 @@ public class PLCCObjectFactory {
         return o;
     }
     
-    public PLCCMeterActivityCalendar writePLCCMeterActivityCalendar(com.energyict.edf.messages.objects.ActivityCalendar ac) throws IOException {
+    public PLCCMeterActivityCalendar writePLCCMeterActivityCalendar(com.energyict.protocolimpl.edf.messages.objects.ActivityCalendar ac) throws IOException {
         PLCCMeterActivityCalendar o = new PLCCMeterActivityCalendar(this);
         o.invoke();
         o.writeActivityCalendar(ac);         
@@ -115,7 +114,7 @@ public class PLCCObjectFactory {
         return o;
     }
     
-    public PLCCMeterMovingPeak writePLCCMeterMovingPeak(com.energyict.edf.messages.objects.MovingPeak mp) throws IOException {
+    public PLCCMeterMovingPeak writePLCCMeterMovingPeak(com.energyict.protocolimpl.edf.messages.objects.MovingPeak mp) throws IOException {
         PLCCMeterMovingPeak o = new PLCCMeterMovingPeak(this);
         o.invoke();
         o.writeMovingPeak(mp);  

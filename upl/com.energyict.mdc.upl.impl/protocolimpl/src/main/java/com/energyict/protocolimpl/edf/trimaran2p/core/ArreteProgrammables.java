@@ -3,10 +3,10 @@
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import java.io.IOException;
-
-import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
+import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
+
+import java.io.IOException;
 
 /**
  * @author gna
@@ -41,7 +41,7 @@ public class ArreteProgrammables extends AbstractTrimaranObject{
 
 	protected void parse(byte[] data) throws IOException {
 		int offset = 0;
-		DataContainer dc = new DataContainer();
+		TrimaranDataContainer dc = new TrimaranDataContainer();
 		
 		dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
 		

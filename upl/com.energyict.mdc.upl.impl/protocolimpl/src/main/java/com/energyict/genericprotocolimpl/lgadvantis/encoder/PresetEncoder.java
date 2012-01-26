@@ -1,7 +1,7 @@
 package com.energyict.genericprotocolimpl.lgadvantis.encoder;
 
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.edf.messages.objects.DemandManagement;
+import com.energyict.protocolimpl.edf.messages.objects.DemandManagement;
 
 public class PresetEncoder implements Encoder {
     

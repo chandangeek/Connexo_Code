@@ -1,13 +1,13 @@
 package com.energyict.genericprotocolimpl.lgadvantis.parser;
 
-import java.io.IOException;
-
-import com.energyict.obis.*;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.edf.messages.objects.DemandManagement;
-import com.energyict.genericprotocolimpl.lgadvantis.*;
+import com.energyict.genericprotocolimpl.lgadvantis.Task;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.edf.messages.objects.DemandManagement;
+
+import java.io.IOException;
 
 public class PresetParser extends AbstractParser implements Parser {
     

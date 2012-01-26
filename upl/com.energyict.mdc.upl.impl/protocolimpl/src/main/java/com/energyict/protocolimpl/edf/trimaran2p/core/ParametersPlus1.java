@@ -3,12 +3,12 @@
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
+import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  * @author gna
@@ -42,7 +42,7 @@ public class ParametersPlus1 extends AbstractTrimaranObject{
 
 	protected void parse(byte[] data) throws IOException {
 		int offset = 0;
-		DataContainer dc = new DataContainer();
+		TrimaranDataContainer dc = new TrimaranDataContainer();
 		dc.parseObjectList(data, null);
 		setKJ_plus1(dc.getRoot().getInteger(offset++));
 		setKPr_plus1(dc.getRoot().getInteger(offset++));

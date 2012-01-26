@@ -4,29 +4,22 @@
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.TimeZone;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.edf.trimaran2p.ObisCodeMapper;
 import com.energyict.protocolimpl.edf.trimaran2p.Trimaran2P;
-import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
+import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
+import org.junit.*;
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.TimeZone;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author gna
@@ -51,7 +44,7 @@ public class EnergiesTest {
 	FileInputStream fis;
 	ObjectInputStream ois;
 	File file;
-	DataContainer dc;
+	TrimaranDataContainer dc;
 
 	/**
 	 * @throws java.lang.Exception
@@ -83,7 +76,7 @@ public class EnergiesTest {
 			fis = new FileInputStream(file);
 			ois = new ObjectInputStream(fis);
 			
-			dc = (DataContainer)ois.readObject();
+			dc = (TrimaranDataContainer)ois.readObject();
 			
 			Energies energies = new Energies(dc, TimeZone.getTimeZone("ECT"), 56);
 			

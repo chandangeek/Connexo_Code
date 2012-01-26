@@ -10,9 +10,9 @@
 
 package com.energyict.protocolimpl.edf.trimaranplus.core;
 
-import java.io.IOException;
+import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 
-import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
+import java.io.IOException;
 
 
 /**
@@ -47,7 +47,7 @@ public class DureeDepassementReader extends AbstractTrimaranObject {
     }
     
     protected void parse(byte[] data) throws IOException {
-        DataContainer dc = new DataContainer();
+        TrimaranDataContainer dc = new TrimaranDataContainer();
         dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
         setDureeDepassement(new DureeDepassement(dc, getTrimaranObjectFactory().getTrimaran().getTimeZone(), getVariableName()));
     }

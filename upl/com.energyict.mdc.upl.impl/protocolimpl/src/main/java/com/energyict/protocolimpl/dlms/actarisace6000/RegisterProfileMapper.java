@@ -6,27 +6,18 @@
 
 package com.energyict.protocolimpl.dlms.actarisace6000;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
-import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.CosemObject;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.dlms.cosem.ObjectReference;
-import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
+
+import java.io.IOException;
+import java.util.*;
 /**
  *
  * @author  Koen
  */
-public class RegisterProfileMapper implements DLMSCOSEMGlobals {
+public class RegisterProfileMapper {
 
     final ObisCode ALLDEMANDS_PROFILE=ObisCode.fromString("0.0.98.133.5.255");
     final ObisCode ALLMAXIMUMDEMANDS_PROFILE=ObisCode.fromString("0.0.98.133.6.255");

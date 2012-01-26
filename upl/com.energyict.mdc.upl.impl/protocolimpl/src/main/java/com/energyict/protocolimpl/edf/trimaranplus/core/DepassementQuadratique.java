@@ -10,13 +10,13 @@
 
 package com.energyict.protocolimpl.edf.trimaranplus.core;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
+import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.TimeZone;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
-import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
 /**
  *
@@ -32,7 +32,7 @@ public class DepassementQuadratique {
     private Quantity EnergiesDepassement; // volume van de unit
     
     /** Creates a new instance of DepassementQuadratique */
-    public DepassementQuadratique(DataContainer dc, TimeZone timezone, int variableName) throws IOException {
+    public DepassementQuadratique(TrimaranDataContainer dc, TimeZone timezone, int variableName) throws IOException {
         int offset = 0;
         setVariableName(variableName);
         setDateDebutPeriode(new DateType(dc.getRoot().getLong(offset++), timezone));

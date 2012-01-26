@@ -1,15 +1,15 @@
 package com.energyict.genericprotocolimpl.lgadvantis.parser;
 
-import java.io.IOException;
-import java.util.TimeZone;
-
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.edf.messages.objects.MeterClock;
 import com.energyict.genericprotocolimpl.lgadvantis.Task;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.edf.messages.objects.MeterClock;
+
+import java.io.IOException;
+import java.util.TimeZone;
 
 public class DateTimeParser extends AbstractParser implements Parser {
     

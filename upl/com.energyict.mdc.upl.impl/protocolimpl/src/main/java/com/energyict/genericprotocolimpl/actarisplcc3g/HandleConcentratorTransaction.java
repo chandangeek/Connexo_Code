@@ -10,24 +10,19 @@
 
 package com.energyict.genericprotocolimpl.actarisplcc3g;
 
-import com.energyict.edf.messages.*;
-import com.energyict.edf.messages.objects.*;
-import com.energyict.genericprotocolimpl.common.*;
-import com.energyict.mdw.amr.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import com.energyict.protocol.MeterReadingData;
-import java.io.*;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.Iterator;
-import java.util.List;
-
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.Transaction;
-import com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects.PLCCMeterListBlocData;
-import com.energyict.mdw.core.*;
 import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects.PLCCMeterListBlocData;
+import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.core.*;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.edf.messages.*;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  *
@@ -299,13 +294,13 @@ public class HandleConcentratorTransaction implements Transaction {
         if (obisCode.equals(ObisCode.fromString("0.0.25.5.0.255"))) {
             if (messageWriteRegister.getValue() instanceof String)
                 throw new HandleMessageException("Write data for object "+messageWriteRegister.getObisCode()+" should not contain a String as data!");                    
-            com.energyict.edf.messages.objects.FtpServerId ftpServerId = (com.energyict.edf.messages.objects.FtpServerId)messageWriteRegister.getValue();
+            com.energyict.protocolimpl.edf.messages.objects.FtpServerId ftpServerId = (com.energyict.protocolimpl.edf.messages.objects.FtpServerId)messageWriteRegister.getValue();
             handleConcentrator.getConcentrator().getPLCCObjectFactory().getPLCCFTPServerId().writeFtpServerId(ftpServerId);
         }
         else if (obisCode.equals(ObisCode.fromString("0.1.1.0.0.255"))) {
             if (messageWriteRegister.getValue() instanceof String)
                 throw new HandleMessageException("Write data for object "+messageWriteRegister.getObisCode()+" should not contain a String as data!");                    
-            com.energyict.edf.messages.objects.MeterClock meterClock = (com.energyict.edf.messages.objects.MeterClock)messageWriteRegister.getValue();
+            com.energyict.protocolimpl.edf.messages.objects.MeterClock meterClock = (com.energyict.protocolimpl.edf.messages.objects.MeterClock)messageWriteRegister.getValue();
             
             if (handleConcentrator.getConcentratorScheduler().getCommunicationProfile().getWriteClock())
                  handleConcentrator.getConcentrator().getPLCCObjectFactory().getPLCCCurrentDateTime().writeMeterClock(meterClock);

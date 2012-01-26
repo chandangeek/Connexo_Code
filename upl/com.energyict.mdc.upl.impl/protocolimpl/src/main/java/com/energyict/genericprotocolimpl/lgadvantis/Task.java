@@ -1,17 +1,18 @@
 package com.energyict.genericprotocolimpl.lgadvantis;
 
-import java.io.IOException;
-import java.util.*;
-
+import com.energyict.cbo.TimePeriod;
+import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.RtuMessage;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.edf.messages.MessageContent;
+import com.energyict.protocolimpl.edf.messages.objects.ActivityCalendar;
+import com.energyict.xml.xmlhelper.DomHelper;
 import org.w3c.dom.Element;
 
-import com.energyict.cbo.TimePeriod;
-import com.energyict.edf.messages.MessageContent;
-import com.energyict.edf.messages.objects.ActivityCalendar;
-import com.energyict.mdw.core.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.xml.xmlhelper.DomHelper;
+import java.io.IOException;
+import java.util.*;
 
 public class Task {
 

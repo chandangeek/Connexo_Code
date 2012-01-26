@@ -19,16 +19,12 @@ import java.util.List;
  *         <p/>
  *         |GNA| 19012009 - Added a valid description for Abstract objects that have no description, otherwise these are not stored correctly in database
  */
-public final class DLMSUtils implements DLMSCOSEMGlobals {
+public final class DLMSUtils {
 
     /**
      * Creates a new instance of DLMSUtils
      */
     private DLMSUtils() {
-    }
-
-    public static byte attrSN2LN(short snAttr) {
-        return attrSN2LN(snAttr & 0xFFFF);
     }
 
     public static byte attrSN2LN(int snAttr) {
@@ -46,42 +42,32 @@ public final class DLMSUtils implements DLMSCOSEMGlobals {
      * @return a byteArray containing the AXDR encoded length
      */
     public static byte[] getAXDRLengthEncoding(int length) {
+        byte[] encodedLength;
         if (length < 128) {
-            return new byte[]{(byte) length};
+            encodedLength = new byte[1];
+            encodedLength[0] = (byte) length;
         } else {
-
-            int val2Check = 1;
-            int count = 0;
-            while (true) {
-                if ((val2Check << (8 * count)) > length) {
-                    break;
-                }
-                count++;
+            int bytes = 0;
+            while (length > (1 << (bytes * 8))) {
+                bytes++;
             }
-            byte[] lengthEncoding = new byte[1 + count];
-            lengthEncoding[0] = (byte) (0x80 | (lengthEncoding.length - 1));
-            for (int i = 0; i < (lengthEncoding.length - 1); i++) {
-                lengthEncoding[(lengthEncoding.length - 1) - i] = (byte) (length >> (8 * i));
+            encodedLength = new byte[bytes + 1];
+            encodedLength[0] = (byte) (0x80 | bytes);
+            for (int i = 0; i < bytes; i++) {
+                encodedLength[(bytes) - i] = (byte) (length >> (8 * i));
             }
-            return lengthEncoding;
         }
-    }
-
-
-    static public void main(String[] args) {
-        byte[] data = new byte[]{(byte) 0x21, (byte) 0xFF};
-        System.out.println(getAXDRLengthOffset(data, 0));
-        System.out.println(getAXDRLength(data, 0));
+        return encodedLength;
     }
 
     /**
-     * @param byteBuffer
-     * @param iOffset
+     * @param axdrLength
+     * @param offset
      * @return
      */
-    public static int getAXDRLengthOffset(byte[] byteBuffer, int iOffset) {
-        if ((byteBuffer[iOffset] & (byte) 0x80) != 0) {
-            return ((byteBuffer[iOffset] & 0x7f) + 1);
+    public static int getAXDRLengthOffset(byte[] axdrLength, int offset) {
+        if ((axdrLength[offset] & (byte) 0x80) != 0) {
+            return ((axdrLength[offset] & 0x7f) + 1);
         } else {
             return 1;
         }
@@ -90,21 +76,21 @@ public final class DLMSUtils implements DLMSCOSEMGlobals {
     /**
      * Decode an AXDR encoded length
      *
-     * @param byteBuffer The byteArray containing the length
-     * @param iOffset    The offset in the byteArray from which to start reading the length
+     * @param bytes The byteArray containing the length
+     * @param offset    The offset in the byteArray from which to start reading the length
      * @return the decimal converted length
      */
-    public static long getAXDRLength(byte[] byteBuffer, int iOffset) {
-        long lLength = 0;
-        if ((byteBuffer[iOffset] & (byte) 0x80) != 0) {
-            int iNROfBytes = (byteBuffer[iOffset] & 0x7F);
-            for (int i = 0; i < iNROfBytes; i++) {
-                lLength |= (((long) byteBuffer[iOffset + i + 1] & 0xFF) << (8 * ((iNROfBytes - 1) - i)));
+    public static long getAXDRLength(byte[] bytes, int offset) {
+        long length = 0;
+        if ((bytes[offset] & (byte) 0x80) != 0) {
+            int nrOfBytes = (bytes[offset] & 0x7F);
+            for (int i = 0; i < nrOfBytes; i++) {
+                length |= (((long) bytes[offset + i + 1] & 0xFF) << (8 * ((nrOfBytes - 1) - i)));
             }
         } else {
-            lLength = ((long) byteBuffer[iOffset] & 0xFF);
+            length = ((long) bytes[offset] & 0xFF);
         }
-        return lLength;
+        return length;
     }
 
     /**
@@ -123,37 +109,37 @@ public final class DLMSUtils implements DLMSCOSEMGlobals {
         String fractionPart;
 
         switch (byteBuffer[iOffset]) {
-            case TYPEDESC_NULL:
+            case DLMSCOSEMGlobals.TYPEDESC_NULL:
                 return 0;
 
-            case TYPEDESC_FLOATING_POINT:
-            case TYPEDESC_OCTET_STRING:
-            case TYPEDESC_VISIBLE_STRING:
-            case TYPEDESC_TIME:
-            case TYPEDESC_BCD:
-            case TYPEDESC_BITSTRING:
-            case TYPEDESC_STRUCTURE:
-            case TYPEDESC_ARRAY:
-            case TYPEDESC_COMPACT_ARRAY:
+            case DLMSCOSEMGlobals.TYPEDESC_FLOATING_POINT:
+            case DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING:
+            case DLMSCOSEMGlobals.TYPEDESC_VISIBLE_STRING:
+            case DLMSCOSEMGlobals.TYPEDESC_TIME:
+            case DLMSCOSEMGlobals.TYPEDESC_BCD:
+            case DLMSCOSEMGlobals.TYPEDESC_BITSTRING:
+            case DLMSCOSEMGlobals.TYPEDESC_STRUCTURE:
+            case DLMSCOSEMGlobals.TYPEDESC_ARRAY:
+            case DLMSCOSEMGlobals.TYPEDESC_COMPACT_ARRAY:
                 throw new IOException("parseValue2int() error");
 
-            case TYPEDESC_ENUM:
-            case TYPEDESC_BOOLEAN:
+            case DLMSCOSEMGlobals.TYPEDESC_ENUM:
+            case DLMSCOSEMGlobals.TYPEDESC_BOOLEAN:
                 return (long) byteBuffer[iOffset + 1] & 0xff;
 
-            case TYPEDESC_DOUBLE_LONG:
-            case TYPEDESC_DOUBLE_LONG_UNSIGNED:
+            case DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG:
+            case DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED:
                 return ProtocolUtils.getInt(byteBuffer, iOffset + 1);
 
-            case TYPEDESC_UNSIGNED:
-            case TYPEDESC_INTEGER:
+            case DLMSCOSEMGlobals.TYPEDESC_UNSIGNED:
+            case DLMSCOSEMGlobals.TYPEDESC_INTEGER:
                 return (long) byteBuffer[iOffset + 1] & 0xff;
 
-            case TYPEDESC_LONG_UNSIGNED:
-            case TYPEDESC_LONG:
+            case DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED:
+            case DLMSCOSEMGlobals.TYPEDESC_LONG:
                 return ProtocolUtils.getShort(byteBuffer, iOffset + 1);
 
-            case TYPEDESC_FLOAT64:
+            case DLMSCOSEMGlobals.TYPEDESC_FLOAT64:
                 signBit = (((int) byteBuffer[iOffset+1] >> 7) & 0xFF);
                 exponent = (((((long) byteBuffer[iOffset+1]) << 4) & 0x07FF) |
                         ((((long) byteBuffer[iOffset + 2]) >> 4) & 0x0F));
@@ -178,7 +164,7 @@ public final class DLMSUtils implements DLMSCOSEMGlobals {
                 }
                 return (exponent > 0) ? ((long) (((Math.pow(-1, signBit)) * Math.pow(2, exponent - 1023)) * new Float(fraction))) : 0;
 
-            case TYPEDESC_FLOAT32:
+            case DLMSCOSEMGlobals.TYPEDESC_FLOAT32:
                 signBit = (((int) byteBuffer[iOffset+1] >> 7) & 0xFF);
                 exponent = (((((int) byteBuffer[iOffset+1]) << 1) & 0xFF) |
                         ((((int) byteBuffer[iOffset + 2]) >> 7) & 0x01));
@@ -199,9 +185,9 @@ public final class DLMSUtils implements DLMSCOSEMGlobals {
                 }
                 return (exponent > 0) ? ((long) (((Math.pow(-1, signBit)) * Math.pow(2, exponent - 127)) * fraction)) : 0;
 
-            case TYPEDESC_LONG64:
+            case DLMSCOSEMGlobals.TYPEDESC_LONG64:
                 return ProtocolUtils.getLong(byteBuffer, iOffset + 1);
-            case TYPEDESC_LONG64_UNSIGNED:
+            case DLMSCOSEMGlobals.TYPEDESC_LONG64_UNSIGNED:
                 return ProtocolTools.getUnsignedIntFromBytes(byteBuffer, iOffset + 1, Integer64.LENGTH);
 
             default:
@@ -212,44 +198,44 @@ public final class DLMSUtils implements DLMSCOSEMGlobals {
 
     public static String parseValue2String(byte[] byteBuffer, int iOffset) throws IOException {
         switch (byteBuffer[iOffset]) {
-            case TYPEDESC_NULL:
+            case DLMSCOSEMGlobals.TYPEDESC_NULL:
                 return String.valueOf(0);
 
-            case TYPEDESC_FLOATING_POINT:
-            case TYPEDESC_TIME:
-            case TYPEDESC_BCD:
-            case TYPEDESC_BITSTRING:
-            case TYPEDESC_STRUCTURE:
-            case TYPEDESC_ARRAY:
-            case TYPEDESC_COMPACT_ARRAY:
+            case DLMSCOSEMGlobals.TYPEDESC_FLOATING_POINT:
+            case DLMSCOSEMGlobals.TYPEDESC_TIME:
+            case DLMSCOSEMGlobals.TYPEDESC_BCD:
+            case DLMSCOSEMGlobals.TYPEDESC_BITSTRING:
+            case DLMSCOSEMGlobals.TYPEDESC_STRUCTURE:
+            case DLMSCOSEMGlobals.TYPEDESC_ARRAY:
+            case DLMSCOSEMGlobals.TYPEDESC_COMPACT_ARRAY:
                 throw new IOException("parseValue2int() error");
 
 
-            case TYPEDESC_OCTET_STRING:
-            case TYPEDESC_VISIBLE_STRING:
+            case DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING:
+            case DLMSCOSEMGlobals.TYPEDESC_VISIBLE_STRING:
                 byte[] bstr = new byte[byteBuffer[iOffset + 1]];
                 for (int i = 0; i < bstr.length; i++) {
                     bstr[i] = byteBuffer[iOffset + 2 + i];
                 }
                 return new String(bstr);
 
-            case TYPEDESC_ENUM:
-            case TYPEDESC_BOOLEAN:
+            case DLMSCOSEMGlobals.TYPEDESC_ENUM:
+            case DLMSCOSEMGlobals.TYPEDESC_BOOLEAN:
                 return String.valueOf((long) byteBuffer[iOffset + 1] & 0xff);
 
-            case TYPEDESC_DOUBLE_LONG:
-            case TYPEDESC_DOUBLE_LONG_UNSIGNED:
+            case DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG:
+            case DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED:
                 return String.valueOf((long) ProtocolUtils.getInt(byteBuffer, iOffset + 1));
 
-            case TYPEDESC_UNSIGNED:
-            case TYPEDESC_INTEGER:
+            case DLMSCOSEMGlobals.TYPEDESC_UNSIGNED:
+            case DLMSCOSEMGlobals.TYPEDESC_INTEGER:
                 return String.valueOf((long) byteBuffer[iOffset + 1] & 0xff);
 
-            case TYPEDESC_LONG_UNSIGNED:
-            case TYPEDESC_LONG:
+            case DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED:
+            case DLMSCOSEMGlobals.TYPEDESC_LONG:
                 return String.valueOf((long) ProtocolUtils.getShort(byteBuffer, iOffset + 1));
 
-            case TYPEDESC_LONG64:
+            case DLMSCOSEMGlobals.TYPEDESC_LONG64:
                 return String.valueOf(ProtocolUtils.getLong(byteBuffer, iOffset + 1));
 
             default:

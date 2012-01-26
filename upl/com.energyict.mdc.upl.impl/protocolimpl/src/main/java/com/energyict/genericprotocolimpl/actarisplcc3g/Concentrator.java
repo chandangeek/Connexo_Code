@@ -1,44 +1,21 @@
-package com.energyict.genericprotocolimpl.actarisplcc3g;  
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
+package com.energyict.genericprotocolimpl.actarisplcc3g;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.Link;
-import com.energyict.dialer.core.LinkException;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.TCPIPConnection;
+import com.energyict.dialer.core.*;
+import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.edf.messages.objects.ActivityCalendar;
 import com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects.PLCCMeterListBlocData;
 import com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects.PLCCObjectFactory;
 import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.core.CommunicationProfile;
-import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.MeteringWarehouseFactory;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.Messaging;
+import com.energyict.mdw.core.*;
+import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.edf.messages.objects.ActivityCalendar;
+
+import java.io.*;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * 
@@ -298,7 +275,7 @@ public class Concentrator implements GenericProtocol, ProtocolLink, Messaging {
 //                    //concentrator.getPLCCObjectFactory().getPLCCMeterMovingPeak().execute(1);
 //                    //System.out.println(concentrator.getConcentratorRegister().readRegister(ObisCode.fromString("1.1.0.4.2.255")));
 //                //System.out.println("Request meter Demand management...");
-//                //com.energyict.edf.messages.objects.DemandManagement demandManagement = concentrator.getPLCCObjectFactory().getPLCCMeterDemandManagement().readDemandManagement();
+//                //com.energyict.protocolimpl.edf.messages.objects.DemandManagement demandManagement = concentrator.getPLCCObjectFactory().getPLCCMeterDemandManagement().readDemandManagement();
 //                //demandManagement.setMaxloadThreshold(6000);
 //                //demandManagement.setSubscribedThreshold(6000);
 //                //System.out.println(demandManagement);
@@ -363,7 +340,7 @@ public class Concentrator implements GenericProtocol, ProtocolLink, Messaging {
             //concentrator.getPLCCObjectFactory().getPLCCMeterMovingPeak().execute(3);
             
             //System.out.println("Request meter Demand management...");
-            //com.energyict.edf.messages.objects.DemandManagement demandManagement = concentrator.getPLCCObjectFactory().getPLCCMeterDemandManagement().readDemandManagement();
+            //com.energyict.protocolimpl.edf.messages.objects.DemandManagement demandManagement = concentrator.getPLCCObjectFactory().getPLCCMeterDemandManagement().readDemandManagement();
             //System.out.println(demandManagement);
             //concentrator.getPLCCObjectFactory().getPLCCMeterDemandManagement().writeDemandManagement(demandManagement);
   

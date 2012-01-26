@@ -3,15 +3,13 @@
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.math.BigDecimal;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
+import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
+
+import java.io.*;
+import java.math.BigDecimal;
 
 
 /**
@@ -81,7 +79,7 @@ public class Parameters extends AbstractTrimaranObject {
 //    	fos.close();
 		
 		int offset = 0;
-		DataContainer dc = new DataContainer();
+		TrimaranDataContainer dc = new TrimaranDataContainer();
 		dc.parseObjectList(data, null);
 		
 		setDebutPeriode_48(new DateType(dc.getRoot().getLong(offset++), getTrimaranObjectFactory().getTrimaran().getTimeZone()));

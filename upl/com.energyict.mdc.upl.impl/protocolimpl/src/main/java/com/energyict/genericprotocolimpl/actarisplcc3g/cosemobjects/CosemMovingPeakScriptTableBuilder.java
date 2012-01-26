@@ -11,13 +11,11 @@
 package com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects;
 
 
-
-import com.energyict.edf.messages.objects.MovingPeak;
-import com.energyict.edf.messages.objects.MovingPeakScript;
-import java.io.*;
-import java.util.*;
-
 import com.energyict.dlms.axrdencoding.*;
+import com.energyict.protocolimpl.edf.messages.objects.MovingPeak;
+import com.energyict.protocolimpl.edf.messages.objects.MovingPeakScript;
+
+import java.util.Iterator;
 
 /**
  *

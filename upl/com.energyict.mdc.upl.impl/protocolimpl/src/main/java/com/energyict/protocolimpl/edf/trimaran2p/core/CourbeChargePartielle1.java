@@ -10,13 +10,10 @@
 
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
+import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
+
+import java.io.*;
 
 
 /**
@@ -62,7 +59,7 @@ public class CourbeChargePartielle1 extends AbstractTrimaranObject {
 //      	fos.close();
     	
         int offset=0;
-        DataContainer dc = new DataContainer();
+        TrimaranDataContainer dc = new TrimaranDataContainer();
 //        dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
         dc.parseObjectList(data, null);
         

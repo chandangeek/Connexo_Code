@@ -10,8 +10,8 @@
 
 package com.energyict.genericprotocolimpl.actarisplcc3g;
 
-import com.energyict.edf.messages.*;
-import com.energyict.mdw.core.*; 
+import com.energyict.mdw.core.RtuMessage;
+import com.energyict.protocolimpl.edf.messages.MessageContent;
 
 /**
  *

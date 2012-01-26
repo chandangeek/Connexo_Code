@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 /**
  * @author Koen
  */
-public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
+public abstract class AbstractCosemObject {
 
 	private static final boolean	DEBUG								= false;
     private static final boolean    WRITE_WITH_BLOCK_ENABLED            = false;
@@ -262,8 +262,8 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
         if (firstBlock) {
             // Create the SetRequest with first data block header (13 bytes)
-            request[ptr++] = COSEM_SETREQUEST;
-            request[ptr++] = COSEM_SETREQUEST_WITH_FIRST_DATABLOCK; // Set request with first data blocks
+            request[ptr++] = DLMSCOSEMGlobals.COSEM_SETREQUEST;
+            request[ptr++] = DLMSCOSEMGlobals.COSEM_SETREQUEST_WITH_FIRST_DATABLOCK; // Set request with first data blocks
             request[ptr++] = this.invokeIdAndPriority; //invoke id and priority
 
             request[ptr++] = (byte) (getClassId() >> 8); // Dlms class id
@@ -280,8 +280,8 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
             request[ptr++] = 0; // No selective access field (OPTIONAL)
         } else {
             // Create the SetRequest with data block header (3 bytes)
-            request[ptr++] = COSEM_SETREQUEST;
-            request[ptr++] = COSEM_SETREQUEST_WITH_DATABLOCK; // Set request with data blocks
+            request[ptr++] = DLMSCOSEMGlobals.COSEM_SETREQUEST;
+            request[ptr++] = DLMSCOSEMGlobals.COSEM_SETREQUEST_WITH_DATABLOCK; // Set request with data blocks
             request[ptr++] = this.invokeIdAndPriority; //invoke id and priority
         }
         request[ptr++] = (byte) (lastBlock ? 1 : 0); // LastBlock value
@@ -321,7 +321,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
         request[ptr++] = 0x00;        // LLC_Quality
 
         // Create the WriteRequest with data blocks header (9 bytes)
-        request[ptr++] = COSEM_WRITEREQUEST;
+        request[ptr++] = DLMSCOSEMGlobals.COSEM_WRITEREQUEST;
         request[ptr++] = 0x01; // One 'VariableDataSpec'
         request[ptr++] = 0x07; // Write data block access tag
         request[ptr++] = (byte) (lastBlock ? 0x01 : 0x00);  // Last block bool
@@ -602,15 +602,15 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	 */
 	private byte[] buildReadRequestNext(int blockNr) {
 		// KV 06052009
-		byte[] readRequestArray = new byte[READREQUEST_DATA_SIZE];
+		byte[] readRequestArray = new byte[DLMSCOSEMGlobals.READREQUEST_DATA_SIZE];
 		readRequestArray[0] = (byte) 0xE6; // Destination_LSAP
 		readRequestArray[1] = (byte) 0xE6; // Source_LSAP
 		readRequestArray[2] = 0x00; // LLC_Quality
-		readRequestArray[DL_COSEMPDU_OFFSET] = COSEM_READREQUEST;
-		readRequestArray[DL_COSEMPDU_LENGTH_OFFSET] = 0x01; // length of the variable length SEQUENCE OF
-		readRequestArray[DL_COSEMPDU_TAG_OFFSET] = 0x05; // block-number-access
-		readRequestArray[READREQUEST_BLOCKNR_MSB] = (byte) (((blockNr) >> 8) & 0x00FF);
-		readRequestArray[READREQUEST_BLOCKNR_LSB] = (byte) ((blockNr) & 0x00FF);
+		readRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET] = DLMSCOSEMGlobals.COSEM_READREQUEST;
+		readRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_LENGTH_OFFSET] = 0x01; // length of the variable length SEQUENCE OF
+		readRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_TAG_OFFSET] = 0x05; // block-number-access
+		readRequestArray[DLMSCOSEMGlobals.READREQUEST_BLOCKNR_MSB] = (byte) (((blockNr) >> 8) & 0x00FF);
+		readRequestArray[DLMSCOSEMGlobals.READREQUEST_BLOCKNR_LSB] = (byte) ((blockNr) & 0x00FF);
 		return readRequestArray;
 	}
 
@@ -621,30 +621,30 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	 * @return
 	 */
 	private byte[] buildReadRequest(int iObj, int iAttr, byte[] byteSelectiveBuffer) {
-		byte[] readRequestArray = new byte[READREQUEST_DATA_SIZE];
+		byte[] readRequestArray = new byte[DLMSCOSEMGlobals.READREQUEST_DATA_SIZE];
 
 		readRequestArray[0] = (byte) 0xE6; // Destination_LSAP
 		readRequestArray[1] = (byte) 0xE6; // Source_LSAP
 		readRequestArray[2] = 0x00; // LLC_Quality
-		readRequestArray[DL_COSEMPDU_OFFSET] = COSEM_READREQUEST;
-		readRequestArray[DL_COSEMPDU_LENGTH_OFFSET] = 0x01; // length of the variable length SEQUENCE OF
+		readRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET] = DLMSCOSEMGlobals.COSEM_READREQUEST;
+		readRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_LENGTH_OFFSET] = 0x01; // length of the variable length SEQUENCE OF
 		if (byteSelectiveBuffer == null) {
-			readRequestArray[DL_COSEMPDU_TAG_OFFSET] = 0x02; // implicit objectname
+			readRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_TAG_OFFSET] = 0x02; // implicit objectname
 		} else {
-			readRequestArray[DL_COSEMPDU_TAG_OFFSET] = 0x04; // object name integer data
+			readRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_TAG_OFFSET] = 0x04; // object name integer data
 		}
 
-		readRequestArray[READREQUEST_SN_MSB] = (byte) (((iObj + iAttr) >> 8) & 0x00FF);
-		readRequestArray[READREQUEST_SN_LSB] = (byte) ((iObj + iAttr) & 0x00FF);
+		readRequestArray[DLMSCOSEMGlobals.READREQUEST_SN_MSB] = (byte) (((iObj + iAttr) >> 8) & 0x00FF);
+		readRequestArray[DLMSCOSEMGlobals.READREQUEST_SN_LSB] = (byte) ((iObj + iAttr) & 0x00FF);
 
 		if (byteSelectiveBuffer != null) {
 			// Concatenate 2 byte arrays into requestData.
 			byte[] requestData = new byte[readRequestArray.length + byteSelectiveBuffer.length];
-			for (int i = 0; i < READREQUEST_DATA_SIZE; i++) {
+			for (int i = 0; i < DLMSCOSEMGlobals.READREQUEST_DATA_SIZE; i++) {
 				requestData[i] = readRequestArray[i];
 			}
-			for (int i = READREQUEST_DATA_SIZE; i < requestData.length; i++) {
-				requestData[i] = byteSelectiveBuffer[i - READREQUEST_DATA_SIZE];
+			for (int i = DLMSCOSEMGlobals.READREQUEST_DATA_SIZE; i < requestData.length; i++) {
+				requestData[i] = byteSelectiveBuffer[i - DLMSCOSEMGlobals.READREQUEST_DATA_SIZE];
 			}
 			return requestData;
 		} else {
@@ -660,27 +660,27 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	 * @throws IOException
 	 */
 	private byte[] buildWriteRequest(int iObj, int iAttr, byte[] byteSelectiveBuffer) throws IOException {
-		byte[] writeRequestArray = new byte[WRITEREQUEST_DATA_SIZE];
+		byte[] writeRequestArray = new byte[DLMSCOSEMGlobals.WRITEREQUEST_DATA_SIZE];
 
 		writeRequestArray[0] = (byte) 0xE6; // Destination_LSAP
 		writeRequestArray[1] = (byte) 0xE6; // Source_LSAP
 		writeRequestArray[2] = 0x00; // LLC_Quality
 
-		writeRequestArray[DL_COSEMPDU_OFFSET] = COSEM_WRITEREQUEST;
-		writeRequestArray[DL_COSEMPDU_LENGTH_OFFSET] = 0x01; // length of the variable length SEQUENCE OF
-		writeRequestArray[DL_COSEMPDU_TAG_OFFSET] = 0x02; // implicit objectname
-		writeRequestArray[READREQUEST_SN_MSB] = (byte) (((iObj + iAttr) >> 8) & 0x00FF);
-		writeRequestArray[READREQUEST_SN_LSB] = (byte) ((iObj + iAttr) & 0x00FF);
-		writeRequestArray[WRITEREQUEST_NR_OF_OBJECTS] = 0x01; // one object
+		writeRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET] = DLMSCOSEMGlobals.COSEM_WRITEREQUEST;
+		writeRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_LENGTH_OFFSET] = 0x01; // length of the variable length SEQUENCE OF
+		writeRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_TAG_OFFSET] = 0x02; // implicit objectname
+		writeRequestArray[DLMSCOSEMGlobals.READREQUEST_SN_MSB] = (byte) (((iObj + iAttr) >> 8) & 0x00FF);
+		writeRequestArray[DLMSCOSEMGlobals.READREQUEST_SN_LSB] = (byte) ((iObj + iAttr) & 0x00FF);
+		writeRequestArray[DLMSCOSEMGlobals.WRITEREQUEST_NR_OF_OBJECTS] = 0x01; // one object
 
 		if (byteSelectiveBuffer != null) {
 			// Concatenate 2 byte arrays into requestData.
 			byte[] requestData = new byte[writeRequestArray.length + byteSelectiveBuffer.length];
-			for (int i = 0; i < WRITEREQUEST_DATA_SIZE; i++) {
+			for (int i = 0; i < DLMSCOSEMGlobals.WRITEREQUEST_DATA_SIZE; i++) {
 				requestData[i] = writeRequestArray[i];
 			}
-			for (int i = WRITEREQUEST_DATA_SIZE; i < requestData.length; i++) {
-				requestData[i] = byteSelectiveBuffer[i - WRITEREQUEST_DATA_SIZE];
+			for (int i = DLMSCOSEMGlobals.WRITEREQUEST_DATA_SIZE; i < requestData.length; i++) {
+				requestData[i] = byteSelectiveBuffer[i - DLMSCOSEMGlobals.WRITEREQUEST_DATA_SIZE];
 			}
 			return requestData;
 		} else {
@@ -696,36 +696,36 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	 * @return
 	 */
 	private byte[] buildGetRequest(int classId, byte[] LN, byte bAttr, byte[] byteSelectiveBuffer) {
-		byte[] readRequestArray = new byte[GETREQUEST_DATA_SIZE];
+		byte[] readRequestArray = new byte[DLMSCOSEMGlobals.GETREQUEST_DATA_SIZE];
 
 		readRequestArray[0] = (byte) 0xE6; // Destination_LSAP
 		readRequestArray[1] = (byte) 0xE6; // Source_LSAP
 		readRequestArray[2] = 0x00; // LLC_Quality
-		readRequestArray[DL_COSEMPDU_OFFSET] = COSEM_GETREQUEST;
-		readRequestArray[DL_COSEMPDU_OFFSET + 1] = COSEM_GETREQUEST_NORMAL; // get request normal
-		readRequestArray[DL_COSEMPDU_OFFSET + 2] = this.invokeIdAndPriority; //invoke id and priority
-		readRequestArray[DL_COSEMPDU_OFFSET_CID] = (byte) (classId >> 8);
-		readRequestArray[DL_COSEMPDU_OFFSET_CID + 1] = (byte) classId;
+		readRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET] = DLMSCOSEMGlobals.COSEM_GETREQUEST;
+		readRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 1] = DLMSCOSEMGlobals.COSEM_GETREQUEST_NORMAL; // get request normal
+		readRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2] = this.invokeIdAndPriority; //invoke id and priority
+		readRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET_CID] = (byte) (classId >> 8);
+		readRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET_CID + 1] = (byte) classId;
 
 		for (int i = 0; i < 6; i++) {
-			readRequestArray[DL_COSEMPDU_OFFSET_LN + i] = LN[i];
+			readRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET_LN + i] = LN[i];
 		}
 
-		readRequestArray[DL_COSEMPDU_OFFSET_ATTR] = bAttr;
+		readRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET_ATTR] = bAttr;
 
 		if (byteSelectiveBuffer == null) {
-			readRequestArray[DL_COSEMPDU_OFFSET_ACCESS_SELECTOR] = 0; // Selective access descriptor NOT present
+			readRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET_ACCESS_SELECTOR] = 0; // Selective access descriptor NOT present
 			return readRequestArray;
 		} else {
-			readRequestArray[DL_COSEMPDU_OFFSET_ACCESS_SELECTOR] = 1; // Selective access descriptor present
+			readRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET_ACCESS_SELECTOR] = 1; // Selective access descriptor present
 
 			// Concatenate 2 byte arrays into requestData.
 			byte[] requestData = new byte[readRequestArray.length + byteSelectiveBuffer.length];
-			for (int i = 0; i < GETREQUEST_DATA_SIZE; i++) {
+			for (int i = 0; i < DLMSCOSEMGlobals.GETREQUEST_DATA_SIZE; i++) {
 				requestData[i] = readRequestArray[i];
 			}
-			for (int i = GETREQUEST_DATA_SIZE; i < requestData.length; i++) {
-				requestData[i] = byteSelectiveBuffer[i - (GETREQUEST_DATA_SIZE)];
+			for (int i = DLMSCOSEMGlobals.GETREQUEST_DATA_SIZE; i < requestData.length; i++) {
+				requestData[i] = byteSelectiveBuffer[i - (DLMSCOSEMGlobals.GETREQUEST_DATA_SIZE)];
 			}
 			return requestData;
 		}
@@ -747,8 +747,8 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
     private byte[] getLnGetWithListRequest(DLMSAttribute... attributes) {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        buffer.write(COSEM_GETREQUEST);
-        buffer.write(COSEM_GETREQUEST_WITH_LIST);
+        buffer.write(DLMSCOSEMGlobals.COSEM_GETREQUEST);
+        buffer.write(DLMSCOSEMGlobals.COSEM_GETREQUEST_WITH_LIST);
         buffer.write(this.invokeIdAndPriority);
         buffer.write(attributes.length); // Number of items
         for (DLMSAttribute dlmsAttribute : attributes) {
@@ -768,7 +768,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
     private byte[] getSnGetWithListRequest(DLMSAttribute... attributes) {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        buffer.write(COSEM_READREQUEST);
+        buffer.write(DLMSCOSEMGlobals.COSEM_READREQUEST);
         buffer.write(attributes.length); // Number of items
         for (DLMSAttribute dlmsAttribute : attributes) {
             buffer.write(0x02); // implicit objectName
@@ -794,17 +794,17 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	 * @return
 	 */
 	private byte[] buildGetRequestNext(int iBlockNumber) {
-		byte[] readRequestArray = new byte[GETREQUESTNEXT_DATA_SIZE];
+		byte[] readRequestArray = new byte[DLMSCOSEMGlobals.GETREQUESTNEXT_DATA_SIZE];
 		readRequestArray[0] = (byte) 0xE6; // Destination_LSAP
 		readRequestArray[1] = (byte) 0xE6; // Source_LSAP
 		readRequestArray[2] = 0x00; // LLC_Quality
-		readRequestArray[DL_COSEMPDU_OFFSET] = COSEM_GETREQUEST;
-		readRequestArray[DL_COSEMPDU_OFFSET + 1] = COSEM_GETREQUEST_NEXT; // get request next
-		readRequestArray[DL_COSEMPDU_OFFSET + 2] = this.invokeIdAndPriority; //invoke id and priority
-		readRequestArray[DL_COSEMPDU_OFFSET + 3] = (byte) (iBlockNumber >> 24);
-		readRequestArray[DL_COSEMPDU_OFFSET + 4] = (byte) (iBlockNumber >> 16);
-		readRequestArray[DL_COSEMPDU_OFFSET + 5] = (byte) (iBlockNumber >> 8);
-		readRequestArray[DL_COSEMPDU_OFFSET + 6] = (byte) iBlockNumber;
+		readRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET] = DLMSCOSEMGlobals.COSEM_GETREQUEST;
+		readRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 1] = DLMSCOSEMGlobals.COSEM_GETREQUEST_NEXT; // get request next
+		readRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2] = this.invokeIdAndPriority; //invoke id and priority
+		readRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3] = (byte) (iBlockNumber >> 24);
+		readRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 4] = (byte) (iBlockNumber >> 16);
+		readRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 5] = (byte) (iBlockNumber >> 8);
+		readRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 6] = (byte) iBlockNumber;
 		return readRequestArray;
 	}
 
@@ -816,35 +816,35 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	 * @return
 	 */
 	private byte[] buildSetRequest(int classId, byte[] LN, byte bAttr, byte[] byteSelectiveBuffer) {
-		byte[] writeRequestArray = new byte[SETREQUEST_DATA_SIZE];
+		byte[] writeRequestArray = new byte[DLMSCOSEMGlobals.SETREQUEST_DATA_SIZE];
 		int i;
 
 		writeRequestArray[0] = (byte) 0xE6; // Destination_LSAP
 		writeRequestArray[1] = (byte) 0xE6; // Source_LSAP
 		writeRequestArray[2] = 0x00; // LLC_Quality
-		writeRequestArray[DL_COSEMPDU_OFFSET] = COSEM_SETREQUEST;
-		writeRequestArray[DL_COSEMPDU_OFFSET + 1] = COSEM_SETREQUEST_NORMAL; // get request normal
-		writeRequestArray[DL_COSEMPDU_OFFSET + 2] = this.invokeIdAndPriority; //invoke id and priority
-		writeRequestArray[DL_COSEMPDU_OFFSET_CID] = (byte) (classId >> 8);
-		writeRequestArray[DL_COSEMPDU_OFFSET_CID + 1] = (byte) classId;
+		writeRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET] = DLMSCOSEMGlobals.COSEM_SETREQUEST;
+		writeRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 1] = DLMSCOSEMGlobals.COSEM_SETREQUEST_NORMAL; // get request normal
+		writeRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2] = this.invokeIdAndPriority; //invoke id and priority
+		writeRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET_CID] = (byte) (classId >> 8);
+		writeRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET_CID + 1] = (byte) classId;
 
 		for (i = 0; i < 6; i++) {
-			writeRequestArray[DL_COSEMPDU_OFFSET_LN + i] = LN[i];
+			writeRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET_LN + i] = LN[i];
 		}
-		writeRequestArray[DL_COSEMPDU_OFFSET_ATTR] = bAttr;
+		writeRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET_ATTR] = bAttr;
 
 		if (byteSelectiveBuffer == null) {
-			writeRequestArray[DL_COSEMPDU_OFFSET_ACCESS_SELECTOR] = 0;
+			writeRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET_ACCESS_SELECTOR] = 0;
 			return writeRequestArray;
 		} else {
-			writeRequestArray[DL_COSEMPDU_OFFSET_ACCESS_SELECTOR] = 0;
+			writeRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET_ACCESS_SELECTOR] = 0;
 			// Concatenate 2 byte arrays into requestData.
 			byte[] requestData = new byte[writeRequestArray.length + byteSelectiveBuffer.length];
-			for (i = 0; i < GETREQUEST_DATA_SIZE; i++) {
+			for (i = 0; i < DLMSCOSEMGlobals.GETREQUEST_DATA_SIZE; i++) {
 				requestData[i] = writeRequestArray[i];
 			}
-			for (i = GETREQUEST_DATA_SIZE; i < requestData.length; i++) {
-				requestData[i] = byteSelectiveBuffer[i - (GETREQUEST_DATA_SIZE)];
+			for (i = DLMSCOSEMGlobals.GETREQUEST_DATA_SIZE; i < requestData.length; i++) {
+				requestData[i] = byteSelectiveBuffer[i - (DLMSCOSEMGlobals.GETREQUEST_DATA_SIZE)];
 			}
 			return requestData;
 		}
@@ -858,34 +858,34 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	 * @return
 	 */
 	private byte[] buildActionRequest(int classId, byte[] LN, int methodId, byte[] data) {
-		byte[] writeRequestArray = new byte[ACTIONREQUEST_DATA_SIZE];
+		byte[] writeRequestArray = new byte[DLMSCOSEMGlobals.ACTIONREQUEST_DATA_SIZE];
 
 		writeRequestArray[0] = (byte) 0xE6; // Destination_LSAP
 		writeRequestArray[1] = (byte) 0xE6; // Source_LSAP
 		writeRequestArray[2] = 0x00; // LLC_Quality
-		writeRequestArray[DL_COSEMPDU_OFFSET] = COSEM_ACTIONREQUEST;
-		writeRequestArray[DL_COSEMPDU_OFFSET + 1] = COSEM_ACTIONREQUEST_NORMAL; // get request normal
-		writeRequestArray[DL_COSEMPDU_OFFSET + 2] = this.invokeIdAndPriority; //invoke id and priority
-		writeRequestArray[DL_COSEMPDU_OFFSET_CID] = (byte) (classId >> 8);
-		writeRequestArray[DL_COSEMPDU_OFFSET_CID + 1] = (byte) classId;
+		writeRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET] = DLMSCOSEMGlobals.COSEM_ACTIONREQUEST;
+		writeRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 1] = DLMSCOSEMGlobals.COSEM_ACTIONREQUEST_NORMAL; // get request normal
+		writeRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2] = this.invokeIdAndPriority; //invoke id and priority
+		writeRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET_CID] = (byte) (classId >> 8);
+		writeRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET_CID + 1] = (byte) classId;
 
 		for (int i = 0; i < 6; i++) {
-			writeRequestArray[DL_COSEMPDU_OFFSET_LN + i] = LN[i];
+			writeRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET_LN + i] = LN[i];
 		}
-		writeRequestArray[DL_COSEMPDU_OFFSET_ATTR] = (byte) methodId;
+		writeRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET_ATTR] = (byte) methodId;
 
 		if (data == null) {
-			writeRequestArray[DL_COSEMPDU_OFFSET_ACCESS_SELECTOR] = 0;
+			writeRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET_ACCESS_SELECTOR] = 0;
 			return writeRequestArray;
 		} else {
-			writeRequestArray[DL_COSEMPDU_OFFSET_ACCESS_SELECTOR] = 1;
+			writeRequestArray[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET_ACCESS_SELECTOR] = 1;
 			// Concatenate 2 byte arrays into requestData.
 			byte[] requestData = new byte[writeRequestArray.length + data.length];
-			for (int i = 0; i < ACTIONREQUEST_DATA_SIZE; i++) {
+			for (int i = 0; i < DLMSCOSEMGlobals.ACTIONREQUEST_DATA_SIZE; i++) {
 				requestData[i] = writeRequestArray[i];
 			}
-			for (int i = ACTIONREQUEST_DATA_SIZE; i < requestData.length; i++) {
-				requestData[i] = data[i - (ACTIONREQUEST_DATA_SIZE)];
+			for (int i = DLMSCOSEMGlobals.ACTIONREQUEST_DATA_SIZE; i < requestData.length; i++) {
+				requestData[i] = data[i - (DLMSCOSEMGlobals.ACTIONREQUEST_DATA_SIZE)];
 			}
 			return requestData;
 		}
@@ -911,23 +911,23 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		ReceiveBuffer receiveBuffer = new ReceiveBuffer();
 
 		do {
-			i = DL_COSEMPDU_OFFSET;
+			i = DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET;
 
 			switch (responseData[i]) {
-				case COSEM_READRESPONSE: {
-					switch (responseData[DL_COSEMPDU_OFFSET + 2]) {
+				case DLMSCOSEMGlobals.COSEM_READRESPONSE: {
+					switch (responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2]) {
 
 						case READRESPONSE_DATA_TAG:
-							receiveBuffer.addArray(responseData, DL_COSEMPDU_OFFSET + 3);
+							receiveBuffer.addArray(responseData, DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3);
 							return receiveBuffer.getArray();
 
 						case READRESPONSE_DATAACCESSERROR_TAG:
-							evalDataAccessResult(responseData[DL_COSEMPDU_OFFSET + 3]);
-							receiveBuffer.addArray(responseData, DL_COSEMPDU_OFFSET + 3);
+							evalDataAccessResult(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]);
+							receiveBuffer.addArray(responseData, DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3);
 							return receiveBuffer.getArray();
 
 						case READRESPONSE_DATABLOCK_RESULT_TAG: {
-							i = DL_COSEMPDU_OFFSET + 3; // to point to the block last
+							i = DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3; // to point to the block last
 
 							boolLastBlock = (responseData[i] != 0x00);
 							i++; // skip lastblock
@@ -952,7 +952,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 									responseData = this.protocolLink.getDLMSConnection().sendRequest(buildReadRequestNext(iBlockNumber));
 //									debug("next response data = " + ProtocolUtils.outputHexString(responseData));
 								} catch (IOException e) {
-									throw new NestedIOException(e, "Error in COSEM_GETRESPONSE_WITH_DATABLOCK");
+									throw new NestedIOException(e, "Error in DLMSCOSEMGlobals.COSEM_GETRESPONSE_WITH_DATABLOCK");
 								}
 							} else {
 								return (receiveBuffer.getArray());
@@ -961,115 +961,115 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 						}
 							break; // READRESPONSE_DATABLOCK_RESULT_TAG
 
-					} // switch(responseData[DL_COSEMPDU_OFFSET+2])
+					} // switch(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET+2])
 
 				}
 					break; //COSEM_READRESPONSE
 
-				case COSEM_WRITERESPONSE: {
-					if (responseData[DL_COSEMPDU_OFFSET + 2] == READRESPONSE_DATAACCESSERROR_TAG) {
-						evalDataAccessResult(responseData[DL_COSEMPDU_OFFSET + 3]);
+				case DLMSCOSEMGlobals.COSEM_WRITERESPONSE: {
+					if (responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2] == READRESPONSE_DATAACCESSERROR_TAG) {
+						evalDataAccessResult(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]);
 					}
-					receiveBuffer.addArray(responseData, DL_COSEMPDU_OFFSET + 3);
+					receiveBuffer.addArray(responseData, DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3);
 					return receiveBuffer.getArray();
-				} // COSEM_WRITERESPONSE
+				} // DLMSCOSEMGlobals.COSEM_WRITERESPONSE
 
-				case COSEM_CONFIRMEDSERVICEERROR: {
-					//                    if ((responseData[DL_COSEMPDU_OFFSET+1] == CONFIRMEDSERVICEERROR_READ_TAG) &&
-					//                    (responseData[DL_COSEMPDU_OFFSET+2] == SERVICEERROR_ACCESS_TAG) &&
-					//                    (responseData[DL_COSEMPDU_OFFSET+3] == ACCESS_AUTHORIZATION)) {
+				case DLMSCOSEMGlobals.COSEM_CONFIRMEDSERVICEERROR: {
+					//                    if ((responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET+1] == DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_READ_TAG) &&
+					//                    (responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET+2] == SERVICEERROR_ACCESS_TAG) &&
+					//                    (responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET+3] == ACCESS_AUTHORIZATION)) {
 					//                        throw new IOException("Access denied through authorization!");
 					//                    }
 					//                    else {
-					//                        throw new IOException("Unknown service error, "+responseData[DL_COSEMPDU_OFFSET+1]+
-					//                        responseData[DL_COSEMPDU_OFFSET+2]+
-					//                        responseData[DL_COSEMPDU_OFFSET+3]);
+					//                        throw new IOException("Unknown service error, "+responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET+1]+
+					//                        responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET+2]+
+					//                        responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET+3]);
 					//                    }
 
-                    switch (responseData[DL_COSEMPDU_OFFSET + 1]) {
-                        case CONFIRMEDSERVICEERROR_INITIATEERROR_TAG: {
+                    switch (responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 1]) {
+                        case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_INITIATEERROR_TAG: {
                             throw new IOException("Confirmed Service Error - 'Initiate error' - Reason: "
-                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                                    + getServiceError(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]));
                         }
-                        case CONFIRMEDSERVICEERROR_GETSTATUS_TAG: {
+                        case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_GETSTATUS_TAG: {
                             throw new IOException("Confirmed Sercie Error - 'GetStatus error' - Reason: "
-                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                                    + getServiceError(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]));
                         }
-                        case CONFIRMEDSERVICEERROR_GETNAMELIST_TAG: {
+                        case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_GETNAMELIST_TAG: {
                             throw new IOException("Confirmed Service Error - 'GetNameList error' - Reason: "
-                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                                    + getServiceError(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]));
                         }
-                        case CONFIRMEDSERVICEERROR_GETVARIABLEATTRIBUTE_TAG: {
+                        case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_GETVARIABLEATTRIBUTE_TAG: {
                             throw new IOException("Confirmed Service Error - 'GetVariableAttribute error' - Reason: "
-                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                                    + getServiceError(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]));
                         }
-                        case CONFIRMEDSERVICEERROR_READ_TAG: {
+                        case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_READ_TAG: {
                             throw new IOException("Confirmed Service Error - 'Read error' - Reason: "
-                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                                    + getServiceError(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]));
                         }
-                        case CONFIRMEDSERVICEERROR_WRITE_TAG: {
+                        case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_WRITE_TAG: {
                             throw new IOException("Confirmed Service Error - 'Write error' - Reason: "
-                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                                    + getServiceError(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]));
                         }
-                        case CONFIRMEDSERVICEERROR_GETDATASETATTRIBUTE_TAG: {
+                        case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_GETDATASETATTRIBUTE_TAG: {
                             throw new IOException("Confirmed Service Error - 'GetDataSetAttribute' - Reason: "
-                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                                    + getServiceError(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]));
                         }
-                        case CONFIRMEDSERVICEERROR_GETTIATTRIBUTE_TAG: {
+                        case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_GETTIATTRIBUTE_TAG: {
                             throw new IOException("Confirmed Service Error - 'GetTIAttribute error' - Reason: "
-                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                                    + getServiceError(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]));
                         }
-                        case CONFIRMEDSERVICEERROR_CHANGESCOPE_TAG: {
+                        case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_CHANGESCOPE_TAG: {
                             throw new IOException("Confirmed Service Error - 'ChangeScope error' - Reason: "
-                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                                    + getServiceError(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]));
                         }
-                        case CONFIRMEDSERVICEERROR_START_TAG: {
+                        case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_START_TAG: {
                             throw new IOException("Confirmed Service Error - 'Start error' - Reason: "
-                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                                    + getServiceError(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]));
                         }
-                        case CONFIRMEDSERVICEERROR_RESUME_TAG: {
+                        case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_RESUME_TAG: {
                             throw new IOException("Confirmed Service Error - 'Resume error' - Reason: "
-                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                                    + getServiceError(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]));
                         }
-                        case CONFIRMEDSERVICEERROR_MAKEUSABLE_TAG: {
+                        case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_MAKEUSABLE_TAG: {
                             throw new IOException("Confirmed Service Error - 'MakeUsable error' - Reason: "
-                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                                    + getServiceError(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]));
                         }
-                        case CONFIRMEDSERVICEERROR_INITIATELOAD_TAG: {
+                        case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_INITIATELOAD_TAG: {
                             throw new IOException("Confirmed Service Error - 'InitiateLoad error' - Reason: "
-                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                                    + getServiceError(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]));
                         }
-                        case CONFIRMEDSERVICEERROR_LOADSEGMENT_TAG: {
+                        case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_LOADSEGMENT_TAG: {
                             throw new IOException("Confirmed Service Error - 'LoadSegment error' - Reason: "
-                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                                    + getServiceError(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]));
                         }
-                        case CONFIRMEDSERVICEERROR_TERMINATELOAD_TAG: {
+                        case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_TERMINATELOAD_TAG: {
                             throw new IOException("Confirmed Service Error - 'TerminateLoad error' - Reason: "
-                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                                    + getServiceError(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]));
                         }
-                        case CONFIRMEDSERVICEERROR_INITIATEUPLOAD_TAG: {
+                        case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_INITIATEUPLOAD_TAG: {
                             throw new IOException("Confirmed Service Error - 'InitiateUpload error' - Reason: "
-                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                                    + getServiceError(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]));
                         }
-                        case CONFIRMEDSERVICEERROR_UPLOADSEGMENT_TAG: {
+                        case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_UPLOADSEGMENT_TAG: {
                             throw new IOException("Confirmed Service Error - 'UploadSegment error' - Reason: "
-                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                                    + getServiceError(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]));
                         }
-                        case CONFIRMEDSERVICEERROR_TERMINATEUPLOAD_TAG: {
+                        case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_TERMINATEUPLOAD_TAG: {
                             throw new IOException("Confirmed Service Error - 'TerminateUpload error' - Reason: "
-                                    + getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+                                    + getServiceError(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]));
                         }
                         default: {
-                            throw new IOException("Unknown service error, " + responseData[DL_COSEMPDU_OFFSET + 1] + responseData[DL_COSEMPDU_OFFSET + 2]
-                                    + responseData[DL_COSEMPDU_OFFSET + 3]);
+                            throw new IOException("Unknown service error, " + responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 1] + responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2]
+                                    + responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]);
                         }
                     }
-                } // !!! break !!! COSEM_CONFIRMEDSERVICEERROR
+                } // !!! break !!! DLMSCOSEMGlobals.COSEM_CONFIRMEDSERVICEERROR
 
-				case COSEM_GETRESPONSE: {
+				case DLMSCOSEMGlobals.COSEM_GETRESPONSE: {
 					i++; // skip tag
 					switch (responseData[i]) {
-						case COSEM_GETRESPONSE_NORMAL: {
+						case DLMSCOSEMGlobals.COSEM_GETRESPONSE_NORMAL: {
 							i++; // skip tag
 							i++; // skip invoke id & priority
 							switch (responseData[i]) {
@@ -1088,14 +1088,14 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 									break; // data-access-result
 
 								default:
-									throw new IOException("unknown COSEM_GETRESPONSE_NORMAL,  " + responseData[i]);
+									throw new IOException("unknown DLMSCOSEMGlobals.COSEM_GETRESPONSE_NORMAL,  " + responseData[i]);
 
 							} // switch(responseData[i])
 
 						}
-							break; // case COSEM_GETRESPONSE_NORMAL:
+							break; // case DLMSCOSEMGlobals.COSEM_GETRESPONSE_NORMAL:
 
-						case COSEM_GETRESPONSE_WITH_DATABLOCK: {
+						case DLMSCOSEMGlobals.COSEM_GETRESPONSE_WITH_DATABLOCK: {
 							i++; // skip tag
 							i++; // skip invoke id & priority
 
@@ -1125,7 +1125,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 										try {
 											responseData = this.protocolLink.getDLMSConnection().sendRequest(buildGetRequestNext(iBlockNumber));
 										} catch (IOException e) {
-											throw new NestedIOException(e, "Error in COSEM_GETRESPONSE_WITH_DATABLOCK");
+											throw new NestedIOException(e, "Error in DLMSCOSEMGlobals.COSEM_GETRESPONSE_WITH_DATABLOCK");
 										}
 									} else {
 										return (receiveBuffer.getArray());
@@ -1144,13 +1144,13 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 									break; // data-access-result
 
 								default:
-									throw new IOException("unknown COSEM_GETRESPONSE_WITH_DATABLOCK,  " + responseData[i]);
+									throw new IOException("unknown DLMSCOSEMGlobals.COSEM_GETRESPONSE_WITH_DATABLOCK,  " + responseData[i]);
 							}
 
 						}
-							break; // case COSEM_GETRESPONSE_WITH_DATABLOCK:
+							break; // case DLMSCOSEMGlobals.COSEM_GETRESPONSE_WITH_DATABLOCK:
 
-                        case COSEM_GETRESPONSE_WITH_LIST: {
+                        case DLMSCOSEMGlobals.COSEM_GETRESPONSE_WITH_LIST: {
                             i++; // skip tag
                             i++; // skip invoke id & priority
                             i++; // nr of items
@@ -1159,14 +1159,14 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
                         }
 
 						default:
-							throw new IOException("Unknown/unimplemented COSEM_GETRESPONSE, " + responseData[i]);
+							throw new IOException("Unknown/unimplemented DLMSCOSEMGlobals.COSEM_GETRESPONSE, " + responseData[i]);
 
 					} // switch(responseData[i])
 
 				}
-					break; // case COSEM_GETRESPONSE:
+					break; // case DLMSCOSEMGlobals.COSEM_GETRESPONSE:
 
-				case COSEM_ACTIONRESPONSE: {
+				case DLMSCOSEMGlobals.COSEM_ACTIONRESPONSE: {
 
 					/* Implementation as from 28/01/2010 */
 
@@ -1180,7 +1180,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 						i++; // skip tag
 						switch (responseData[i]) {
-							case COSEM_ACTIONRESPONSE_NORMAL: {
+							case DLMSCOSEMGlobals.COSEM_ACTIONRESPONSE_NORMAL: {
 								i++; // skip tag
 								i++; // skip invoke id & priority
 								//                            evalDataAccessResult(responseData[i]);
@@ -1200,14 +1200,14 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 										break; // data-access-result
 
 									default:
-										throw new IOException("unknown COSEM_ACTIONRESPONSE_NORMAL,  " + responseData[i]);
+										throw new IOException("unknown DLMSCOSEMGlobals.COSEM_ACTIONRESPONSE_NORMAL,  " + responseData[i]);
 
 								} // switch(responseData[i])
 							}
-								break; // case COSEM_ACTIONRESPONSE_NORMAL:
+								break; // case DLMSCOSEMGlobals.COSEM_ACTIONRESPONSE_NORMAL:
 
 							default:
-								throw new IOException("Unknown/unimplemented COSEM_ACTIONRESPONSE, " + responseData[i]);
+								throw new IOException("Unknown/unimplemented DLMSCOSEMGlobals.COSEM_ACTIONRESPONSE, " + responseData[i]);
 
 						} // switch(responseData[i])
 
@@ -1221,7 +1221,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 						i++; // skipping the tag
 						switch (responseData[i]) { // ACTION-Response ::= choice
 
-							case COSEM_ACTIONRESPONSE_NORMAL: {
+							case DLMSCOSEMGlobals.COSEM_ACTIONRESPONSE_NORMAL: {
 								i++; // skip tag [1]
 								i++; // Skip InvokeIdAndPriority
 
@@ -1249,62 +1249,62 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 							}
 								break;
 
-							case COSEM_ACTIONRESPONSE_WITH_PBLOCK: {
-								throw new IOException("Unimplemented COSEM_ACTIONRESPONSE, " + responseData[i]);
+							case DLMSCOSEMGlobals.COSEM_ACTIONRESPONSE_WITH_PBLOCK: {
+								throw new IOException("Unimplemented DLMSCOSEMGlobals.COSEM_ACTIONRESPONSE, " + responseData[i]);
 							}
 
-							case COSEM_ACTIONRESPONSE_WITH_LIST: {
-								throw new IOException("Unimplemented COSEM_ACTIONRESPONSE, " + responseData[i]);
+							case DLMSCOSEMGlobals.COSEM_ACTIONRESPONSE_WITH_LIST: {
+								throw new IOException("Unimplemented DLMSCOSEMGlobals.COSEM_ACTIONRESPONSE, " + responseData[i]);
 							}
 
-							case COSEM_ACTIONRESPONSE_NEXT_PBLOCK: {
-								throw new IOException("Unimplemented COSEM_ACTIONRESPONSE, " + responseData[i]);
+							case DLMSCOSEMGlobals.COSEM_ACTIONRESPONSE_NEXT_PBLOCK: {
+								throw new IOException("Unimplemented DLMSCOSEMGlobals.COSEM_ACTIONRESPONSE, " + responseData[i]);
 							}
 							default:
-								throw new IOException("Unimplemented COSEM_ACTIONRESPONSE, " + responseData[i]);
+								throw new IOException("Unimplemented DLMSCOSEMGlobals.COSEM_ACTIONRESPONSE, " + responseData[i]);
 						}
 					}
 				}
-					break; // case COSEM_ACTIONRESPONSE:
+					break; // case DLMSCOSEMGlobals.COSEM_ACTIONRESPONSE:
 
-				case COSEM_SETRESPONSE: {
+				case DLMSCOSEMGlobals.COSEM_SETRESPONSE: {
 					i++; // skip tag
                     switch (responseData[i]) {
-                        case COSEM_SETRESPONSE_NORMAL: {
-                            i++; // skip COSEM_SETRESPONSE_NORMAL tag
+                        case DLMSCOSEMGlobals.COSEM_SETRESPONSE_NORMAL: {
+                            i++; // skip DLMSCOSEMGlobals.COSEM_SETRESPONSE_NORMAL tag
                             i++; // skip invoke id & priority
                             evalDataAccessResult(responseData[i]);
                             receiveBuffer.addArray(responseData, i+1);
                             return receiveBuffer.getArray();
                         }
-                        case COSEM_SETRESPONSE_FOR_DATABLOCK: {
-                            i++; // skip COSEM_SETRESPONSE_FOR_DATABLOCK tag
+                        case DLMSCOSEMGlobals.COSEM_SETRESPONSE_FOR_DATABLOCK: {
+                            i++; // skip DLMSCOSEMGlobals.COSEM_SETRESPONSE_FOR_DATABLOCK tag
                             i++; // skip invoke id & priority
                             receiveBuffer.addArray(responseData, i);
                             return receiveBuffer.getArray();
                         }
-                        case COSEM_SETRESPONSE_FOR_LAST_DATABLOCK: {
-                            i++; // skip COSEM_SETRESPONSE_FOR_DATABLOCK tag
+                        case DLMSCOSEMGlobals.COSEM_SETRESPONSE_FOR_LAST_DATABLOCK: {
+                            i++; // skip DLMSCOSEMGlobals.COSEM_SETRESPONSE_FOR_DATABLOCK tag
                             i++; // skip invoke id & priority
                             evalDataAccessResult(responseData[i]);
                             receiveBuffer.addArray(responseData, i+1);
                             return receiveBuffer.getArray();
                         }
                         default: {
-                            throw new IOException("Unknown/unimplemented COSEM_SETRESPONSE, " + responseData[i]);
+                            throw new IOException("Unknown/unimplemented DLMSCOSEMGlobals.COSEM_SETRESPONSE, " + responseData[i]);
                         }
                     } // switch(responseData[i])
                 }
 
-                case COSEM_EXCEPTION_RESPONSE: {
+                case DLMSCOSEMGlobals.COSEM_EXCEPTION_RESPONSE: {
                     throw new ExceptionResponseException(responseData[i+1], responseData[i+2]);
                 }
 
 				default: {
-					throw new IOException("Unknown COSEM PDU, " + " 0x" + Integer.toHexString(ProtocolUtils.byte2int(responseData[DL_COSEMPDU_OFFSET])) + " 0x"
-							+ Integer.toHexString(ProtocolUtils.byte2int(responseData[DL_COSEMPDU_OFFSET + 1])) + " 0x"
-							+ Integer.toHexString(ProtocolUtils.byte2int(responseData[DL_COSEMPDU_OFFSET + 2])) + " 0x"
-							+ Integer.toHexString(ProtocolUtils.byte2int(responseData[DL_COSEMPDU_OFFSET + 3])));
+					throw new IOException("Unknown COSEM PDU, " + " 0x" + Integer.toHexString(ProtocolUtils.byte2int(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET])) + " 0x"
+							+ Integer.toHexString(ProtocolUtils.byte2int(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 1])) + " 0x"
+							+ Integer.toHexString(ProtocolUtils.byte2int(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2])) + " 0x"
+							+ Integer.toHexString(ProtocolUtils.byte2int(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3])));
 				} // !!! break !!! default
 
 			} // switch(responseData[i])
@@ -1533,7 +1533,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		final int CAPTURE_FROM_OFFSET = 5; // was 4
 		final int CAPTURE_TO_OFFSET = 19; // was 18
 
-		intreq[CAPTURE_FROM_OFFSET] = TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_FROM_OFFSET] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
 		intreq[CAPTURE_FROM_OFFSET + 1] = 12; // length
 		intreq[CAPTURE_FROM_OFFSET + 2] = (byte) (fromCalendar.get(Calendar.YEAR) >> 8);
 		intreq[CAPTURE_FROM_OFFSET + 3] = (byte) fromCalendar.get(Calendar.YEAR);
@@ -1548,7 +1548,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		intreq[CAPTURE_FROM_OFFSET + 12] = 0x00;
 		intreq[CAPTURE_FROM_OFFSET + 13] = 0x00;
 
-		intreq[CAPTURE_TO_OFFSET] = TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_TO_OFFSET] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
 		intreq[CAPTURE_TO_OFFSET + 1] = 12; // length
 		intreq[CAPTURE_TO_OFFSET + 2] = toCalendar != null ? (byte) (toCalendar.get(Calendar.YEAR) >> 8) : (byte) 0xFF;
 		intreq[CAPTURE_TO_OFFSET + 3] = toCalendar != null ? (byte) (toCalendar.get(Calendar.YEAR)) : (byte) 0xFF;
@@ -1591,7 +1591,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		final int CAPTURE_FROM_OFFSET = 4;
 		final int CAPTURE_TO_OFFSET = 18;
 
-		intreq[CAPTURE_FROM_OFFSET] = TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_FROM_OFFSET] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
 		intreq[CAPTURE_FROM_OFFSET + 1] = 12; // length
 		intreq[CAPTURE_FROM_OFFSET + 2] = (byte) (fromCalendar.get(Calendar.YEAR) >> 8);
 		intreq[CAPTURE_FROM_OFFSET + 3] = (byte) fromCalendar.get(Calendar.YEAR);
@@ -1606,7 +1606,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		intreq[CAPTURE_FROM_OFFSET + 12] = 0x00;
 		intreq[CAPTURE_FROM_OFFSET + 13] = 0x00;
 
-		intreq[CAPTURE_TO_OFFSET] = TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_TO_OFFSET] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
 		intreq[CAPTURE_TO_OFFSET + 1] = 12; // length
 		intreq[CAPTURE_TO_OFFSET + 2] = (byte) 0xff; //(toCalendar.get(Calendar.YEAR) >> 8);
 		intreq[CAPTURE_TO_OFFSET + 3] = (byte) 0xff; //toCalendar.get(Calendar.YEAR);
@@ -1651,7 +1651,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		int CAPTURE_FROM_OFFSET = 21;
 		int CAPTURE_TO_OFFSET = 35;
 
-		intreq[CAPTURE_FROM_OFFSET] = TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_FROM_OFFSET] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
 		intreq[CAPTURE_FROM_OFFSET + 1] = 12; // length
 		intreq[CAPTURE_FROM_OFFSET + 2] = (byte) (fromCalendar.get(Calendar.YEAR) >> 8);
 		intreq[CAPTURE_FROM_OFFSET + 3] = (byte) fromCalendar.get(Calendar.YEAR);
@@ -1680,7 +1680,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 			intreq[CAPTURE_FROM_OFFSET + 13] = 0x00;
 		}
 
-		intreq[CAPTURE_TO_OFFSET] = TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_TO_OFFSET] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
 		intreq[CAPTURE_TO_OFFSET + 1] = 12; // length
 		intreq[CAPTURE_TO_OFFSET + 2] = toCalendar != null ? (byte) (toCalendar.get(Calendar.YEAR) >> 8) : (byte) 0xFF;
 		intreq[CAPTURE_TO_OFFSET + 3] = toCalendar != null ? (byte) toCalendar.get(Calendar.YEAR) : (byte) 0xFF;
@@ -1722,14 +1722,14 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
         int CAPTURE_FROM_OFFSET = 21;
 
-        intreq[CAPTURE_FROM_OFFSET] = TYPEDESC_DOUBLE_LONG_UNSIGNED;
+        intreq[CAPTURE_FROM_OFFSET] = DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED;
         byte[] bytesFromCal = ProtocolTools.getBytesFromInt((int) fromCalendar, 4);
         intreq[CAPTURE_FROM_OFFSET + 1] = bytesFromCal[0];
         intreq[CAPTURE_FROM_OFFSET + 2] = bytesFromCal[1];
         intreq[CAPTURE_FROM_OFFSET + 3] = bytesFromCal[2];
         intreq[CAPTURE_FROM_OFFSET + 4] = bytesFromCal[3];
 
-        intreq[CAPTURE_FROM_OFFSET + 5] = TYPEDESC_DOUBLE_LONG_UNSIGNED;
+        intreq[CAPTURE_FROM_OFFSET + 5] = DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED;
         byte[] bytesToCal = ProtocolTools.getBytesFromInt((int) toCalendar, 4);
         intreq[CAPTURE_FROM_OFFSET + 6] = toCalendar != 0 ? bytesToCal[0] : (byte) 0xFF;
         intreq[CAPTURE_FROM_OFFSET + 7] = toCalendar != 0 ? bytesToCal[1] : (byte) 0xFF;
@@ -1762,26 +1762,26 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
         int FROM_ENTRY_OFFSET = 3;
 
-        intreq[FROM_ENTRY_OFFSET] = TYPEDESC_DOUBLE_LONG_UNSIGNED;
+        intreq[FROM_ENTRY_OFFSET] = DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED;
         byte[] bytesFromEntry = ProtocolTools.getBytesFromInt(fromEntry, 4);
         intreq[FROM_ENTRY_OFFSET + 1] = bytesFromEntry[0];
         intreq[FROM_ENTRY_OFFSET + 2] = bytesFromEntry[1];
         intreq[FROM_ENTRY_OFFSET + 3] = bytesFromEntry[2];
         intreq[FROM_ENTRY_OFFSET + 4] = bytesFromEntry[3];
 
-        intreq[FROM_ENTRY_OFFSET + 5] = TYPEDESC_DOUBLE_LONG_UNSIGNED;
+        intreq[FROM_ENTRY_OFFSET + 5] = DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED;
         byte[] bytesToEntry = ProtocolTools.getBytesFromInt(toEntry, 4);
         intreq[FROM_ENTRY_OFFSET + 6] = bytesToEntry[0];
         intreq[FROM_ENTRY_OFFSET + 7] = bytesToEntry[1];
         intreq[FROM_ENTRY_OFFSET + 8] = bytesToEntry[2];
         intreq[FROM_ENTRY_OFFSET + 9] = bytesToEntry[3];
 
-        intreq[FROM_ENTRY_OFFSET + 10] = TYPEDESC_LONG_UNSIGNED;
+        intreq[FROM_ENTRY_OFFSET + 10] = DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED;
         byte[] bytesFromSelectedValue = ProtocolTools.getBytesFromInt(fromValue, 2);
         intreq[FROM_ENTRY_OFFSET + 11] = bytesFromSelectedValue[0];
         intreq[FROM_ENTRY_OFFSET + 12] = bytesFromSelectedValue[1];
 
-        intreq[FROM_ENTRY_OFFSET + 13] = TYPEDESC_LONG_UNSIGNED;
+        intreq[FROM_ENTRY_OFFSET + 13] = DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED;
         byte[] bytesToSelectedValue = ProtocolTools.getBytesFromInt(toValue, 2);
         intreq[FROM_ENTRY_OFFSET + 14] = bytesToSelectedValue[0];
         intreq[FROM_ENTRY_OFFSET + 15] = bytesToSelectedValue[1];
@@ -1827,7 +1827,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		int CAPTURE_FROM_OFFSET = 21;
 		int CAPTURE_TO_OFFSET = 35;
 
-		intreq[CAPTURE_FROM_OFFSET] = TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_FROM_OFFSET] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
 		intreq[CAPTURE_FROM_OFFSET + 1] = 12; // length
 		intreq[CAPTURE_FROM_OFFSET + 2] = (byte) (fromCalendar.get(Calendar.YEAR) >> 8);
 		intreq[CAPTURE_FROM_OFFSET + 3] = (byte) fromCalendar.get(Calendar.YEAR);
@@ -1856,7 +1856,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 			intreq[CAPTURE_FROM_OFFSET + 13] = 0x00;
 		}
 
-		intreq[CAPTURE_TO_OFFSET] = TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_TO_OFFSET] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
 		intreq[CAPTURE_TO_OFFSET + 1] = 12; // length
 		intreq[CAPTURE_TO_OFFSET + 2] = toCalendar != null ? (byte) (toCalendar.get(Calendar.YEAR) >> 8) : (byte) 0xFF;
 		intreq[CAPTURE_TO_OFFSET + 3] = toCalendar != null ? (byte) toCalendar.get(Calendar.YEAR) : (byte) 0xFF;
@@ -1897,7 +1897,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		List values = new ArrayList();
 		try {
 
-			if (responseData[0] == TYPEDESC_ARRAY) {
+			if (responseData[0] == DLMSCOSEMGlobals.TYPEDESC_ARRAY) {
 				if ((responseData[1] & 0x80) != 0) {
 					bOffset = (byte) (responseData[1] & (byte) 0x7F);
 					for (int i = 0; i < bOffset; i++) {
@@ -1918,8 +1918,8 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 					debug("KV_DEBUG> itemInArray=" + itemInArray);
 
-					if (responseData[t] == TYPEDESC_STRUCTURE) {
-						debug("KV_DEBUG> TYPEDESC_STRUCTURE");
+					if (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_STRUCTURE) {
+						debug("KV_DEBUG> DLMSCOSEMGlobals.TYPEDESC_STRUCTURE");
 						int iNROfItems;
 						int iIndex = 0;
 
@@ -1931,13 +1931,13 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 						for (iFieldIndex = 0; iFieldIndex < iNROfItems; iFieldIndex++) {
 							debug("KV_DEBUG> iFieldIndex=" + iFieldIndex);
-							if ((responseData[t] == TYPEDESC_LONG) || (responseData[t] == TYPEDESC_LONG_UNSIGNED)) {
-								debug("KV_DEBUG> TYPEDESC_LONG | TYPEDESC_LONG_UNSIGNED");
+							if ((responseData[t] == DLMSCOSEMGlobals.TYPEDESC_LONG) || (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED)) {
+								debug("KV_DEBUG> DLMSCOSEMGlobals.TYPEDESC_LONG | DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED");
 								t++; // skip tag
 								values.add(new Long((long) ProtocolUtils.getShort(responseData, t) & 0x0000FFFF));
 								t += 2; // skip (unsigned) long (2byte) value
-							} else if ((responseData[t] == TYPEDESC_OCTET_STRING) || (responseData[t] == TYPEDESC_VISIBLE_STRING)) {
-								debug("KV_DEBUG> TYPEDESC_OCTET_STRING | TYPEDESC_VISIBLE_STRING");
+							} else if ((responseData[t] == DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING) || (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_VISIBLE_STRING)) {
+								debug("KV_DEBUG> DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING | DLMSCOSEMGlobals.TYPEDESC_VISIBLE_STRING");
 								t++; // skip tag
 								int iLength = responseData[t];
 								t++; // skip length byte
@@ -1946,25 +1946,25 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 									values.add(new Long((long) responseData[t + temp] & 0x000000FF));
 								}
 								t += iLength; // skip string, iLength bytes
-							} else if ((responseData[t] == TYPEDESC_DOUBLE_LONG_UNSIGNED) || (responseData[t] == TYPEDESC_DOUBLE_LONG)) {
-								debug("KV_DEBUG> TYPEDESC_DOUBLE_LONG_UNSIGNED | TYPEDESC_DOUBLE_LONG");
+							} else if ((responseData[t] == DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED) || (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG)) {
+								debug("KV_DEBUG> DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED | DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG");
 								t++; // skip tag
 								values.add(new Long(ProtocolUtils.getInt(responseData, t)));
 								t += 4; // skip double unsigned long (4byte) value
-							} else if ((responseData[t] == TYPEDESC_BOOLEAN) || (responseData[t] == TYPEDESC_INTEGER) || (responseData[t] == TYPEDESC_UNSIGNED)) {
-								debug("KV_DEBUG> TYPEDESC_BOOLEAN | TYPEDESC_INTEGER | TYPEDESC_UNSIGNED");
+							} else if ((responseData[t] == DLMSCOSEMGlobals.TYPEDESC_BOOLEAN) || (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_INTEGER) || (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_UNSIGNED)) {
+								debug("KV_DEBUG> DLMSCOSEMGlobals.TYPEDESC_BOOLEAN | DLMSCOSEMGlobals.TYPEDESC_INTEGER | DLMSCOSEMGlobals.TYPEDESC_UNSIGNED");
 								t++; // skip tag
 								values.add(new Long((long) responseData[t] & 0x000000FF));
 								t++; // skip (1byte) value
 							}
 							// KV 29072004
-							else if (responseData[t] == TYPEDESC_LONG64) {
-								debug("KV_DEBUG> TYPEDESC_LONG64");
+							else if (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_LONG64) {
+								debug("KV_DEBUG> DLMSCOSEMGlobals.TYPEDESC_LONG64");
 								t++; // skip tag
 								values.add(new Long(ProtocolUtils.getLong(responseData, t))); // KV 09/10/2006
 								t += 8; // skip double unsigned long (8byte) value
-							} else if (responseData[t] == TYPEDESC_STRUCTURE) {
-								debug("KV_DEBUG> TYPEDESC_STRUCTURE");
+							} else if (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_STRUCTURE) {
+								debug("KV_DEBUG> DLMSCOSEMGlobals.TYPEDESC_STRUCTURE");
 								t = skipStructure(responseData, t);
 							} else {
 								throw new IOException("Error parsing objectlistdata, unknown type.");
@@ -1974,14 +1974,14 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 						universalObject[itemInArray] = new UniversalObject(values, this.protocolLink.getReference());
 
-					} // if (responseData[t] == TYPEDESC_STRUCTURE)  // structure
+					} // if (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_STRUCTURE)  // structure
 					else {
 						throw new IOException("Error parsing objectlistdata, no structure found.");
 					}
 
 				} // for (i=0; i<lNrOfItemsInArray;i++)
 
-			} // if (responseData[0] == TYPEDESC_ARRAY)
+			} // if (responseData[0] == DLMSCOSEMGlobals.TYPEDESC_ARRAY)
 			else {
 				throw new IOException("Error parsing objectlistdata, no array found.");
 			}
@@ -2008,43 +2008,43 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		membersInStructure[level] = responseData[t];
 		t++; // skip structure nr of members
 		while ((level > 0) || ((level == 0) && (membersInStructure[level] > 0))) {
-			if ((responseData[t] == TYPEDESC_LONG) || (responseData[t] == TYPEDESC_LONG_UNSIGNED)) {
+			if ((responseData[t] == DLMSCOSEMGlobals.TYPEDESC_LONG) || (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED)) {
 				t++; // skip tag
 				t += 2; // skip (unsigned) long (2byte) value
 				membersInStructure[level]--;
-				debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_LONG | TYPEDESC_LONG_UNSIGNED, level=" + level);
-			} else if ((responseData[t] == TYPEDESC_OCTET_STRING) || (responseData[t] == TYPEDESC_VISIBLE_STRING)) {
+				debug("KV_DEBUG> skipStructure (t=" + t + "), DLMSCOSEMGlobals.TYPEDESC_LONG | DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED, level=" + level);
+			} else if ((responseData[t] == DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING) || (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_VISIBLE_STRING)) {
 				t++; // skip tag
 				t += (responseData[t] + 1); // skip string, iLength bytes
 				membersInStructure[level]--;
-				debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_OCTET_STRING | TYPEDESC_VISIBLE_STRING, level=" + level);
-			} else if ((responseData[t] == TYPEDESC_DOUBLE_LONG_UNSIGNED) || (responseData[t] == TYPEDESC_DOUBLE_LONG)) {
+				debug("KV_DEBUG> skipStructure (t=" + t + "), DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING | DLMSCOSEMGlobals.TYPEDESC_VISIBLE_STRING, level=" + level);
+			} else if ((responseData[t] == DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED) || (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG)) {
 				t++; // skip tag
 				t += 4; // skip double unsigned long (4byte) value
 				membersInStructure[level]--;
-				debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_DOUBLE_LONG_UNSIGNED | TYPEDESC_DOUBLE_LONG, level=" + level);
-			} else if ((responseData[t] == TYPEDESC_BOOLEAN) || (responseData[t] == TYPEDESC_INTEGER) || (responseData[t] == TYPEDESC_UNSIGNED)) {
+				debug("KV_DEBUG> skipStructure (t=" + t + "), DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED | DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG, level=" + level);
+			} else if ((responseData[t] == DLMSCOSEMGlobals.TYPEDESC_BOOLEAN) || (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_INTEGER) || (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_UNSIGNED)) {
 				t++; // skip tag
 				t++; // skip (1byte) value
 				membersInStructure[level]--;
-				debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_BOOLEAN | TYPEDESC_INTEGER | TYPEDESC_UNSIGNED, level=" + level);
+				debug("KV_DEBUG> skipStructure (t=" + t + "), DLMSCOSEMGlobals.TYPEDESC_BOOLEAN | DLMSCOSEMGlobals.TYPEDESC_INTEGER | DLMSCOSEMGlobals.TYPEDESC_UNSIGNED, level=" + level);
 			}
 			// KV 28072004
-			else if (responseData[t] == TYPEDESC_LONG64) {
+			else if (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_LONG64) {
 				t++; // skip tag
 				t += 8; // skip (8byte) value
 				membersInStructure[level]--;
-				debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_LONG64, level=" + level);
+				debug("KV_DEBUG> skipStructure (t=" + t + "), DLMSCOSEMGlobals.TYPEDESC_LONG64, level=" + level);
 			}
 			// Skip the access rights structure in case of long name referencing...
-			else if (responseData[t] == TYPEDESC_STRUCTURE) {
+			else if (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_STRUCTURE) {
 				t++; // skip structure tag
 				membersInStructure[level]--;
 				level++;
 				membersInStructure[level] = responseData[t];
 				t++; // skip nr of members
-				debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_STRUCTURE, level=" + level);
-			} else if (responseData[t] == TYPEDESC_ARRAY) {
+				debug("KV_DEBUG> skipStructure (t=" + t + "), DLMSCOSEMGlobals.TYPEDESC_STRUCTURE, level=" + level);
+			} else if (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_ARRAY) {
 				t++; // skip array tag
 				int offset = 0;
 				if ((responseData[t] & 0x80) != 0) {
@@ -2062,18 +2062,18 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 				level++;
 				membersInStructure[level] = (int) elementsInArray;
 
-				debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_ARRAY, level=" + level + ", elementsInArray=" + elementsInArray);
-			} else if (responseData[t] == TYPEDESC_NULL) {
+				debug("KV_DEBUG> skipStructure (t=" + t + "), DLMSCOSEMGlobals.TYPEDESC_ARRAY, level=" + level + ", elementsInArray=" + elementsInArray);
+			} else if (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_NULL) {
 				t++; // skip tag
 				membersInStructure[level]--;
-				debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_NULL, level=" + level);
+				debug("KV_DEBUG> skipStructure (t=" + t + "), DLMSCOSEMGlobals.TYPEDESC_NULL, level=" + level);
 			}
 			// KV 05042007
-			else if (responseData[t] == TYPEDESC_ENUM) {
+			else if (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_ENUM) {
 				t++; // skip tag
 				t++; // skip (1byte) value
 				membersInStructure[level]--;
-				debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_ENUM, level=" + level);
+				debug("KV_DEBUG> skipStructure (t=" + t + "), DLMSCOSEMGlobals.TYPEDESC_ENUM, level=" + level);
 			} else {
 				throw new IOException("AbsrtactCosemObject, skipStructure, Error parsing objectlistdata, unknown response tag " + responseData[t]);
 			}

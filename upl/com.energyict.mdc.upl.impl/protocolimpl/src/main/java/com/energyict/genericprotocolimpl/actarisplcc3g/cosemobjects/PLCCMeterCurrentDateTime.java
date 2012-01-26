@@ -1,15 +1,13 @@
 package com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects;
 
+import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.cosem.*;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
-
-import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.ObjectIdentification;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolUtils;
 
 
 public class PLCCMeterCurrentDateTime extends AbstractPLCCObject {
@@ -59,7 +57,7 @@ public class PLCCMeterCurrentDateTime extends AbstractPLCCObject {
         getCosemObjectFactory().writeObject(ObisCode.fromString("0.0.1.0.0.255"),8,2, dt.getBEREncodedByteArray());
     }
 
-    public void writeMeterClock(com.energyict.edf.messages.objects.MeterClock meterClock) throws IOException {
+    public void writeMeterClock(com.energyict.protocolimpl.edf.messages.objects.MeterClock meterClock) throws IOException {
         Calendar now = meterClock.getCosemCalendar().getCalendar();
         Clock clock = getCosemObjectFactory().getClock(getId().getObisCode());
         DateTime dt = new DateTime();
@@ -68,10 +66,10 @@ public class PLCCMeterCurrentDateTime extends AbstractPLCCObject {
     }
 
 
-    public com.energyict.edf.messages.objects.MeterClock readMeterClock() throws IOException {
+    public com.energyict.protocolimpl.edf.messages.objects.MeterClock readMeterClock() throws IOException {
         Calendar calendar = ProtocolUtils.getCleanCalendar(getPLCCObjectFactory().getConcentrator().getTimeZone());
         calendar.setTime(getDate());
-        com.energyict.edf.messages.objects.MeterClock meterClock = new com.energyict.edf.messages.objects.MeterClock(calendar, dSTActive);
+        com.energyict.protocolimpl.edf.messages.objects.MeterClock meterClock = new com.energyict.protocolimpl.edf.messages.objects.MeterClock(calendar, dSTActive);
         return meterClock;
     }
 

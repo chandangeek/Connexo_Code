@@ -10,13 +10,13 @@
 
 package com.energyict.protocolimpl.edf.trimaranplus.core;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
+import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.TimeZone;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
-import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
 /**
  *
@@ -31,7 +31,7 @@ public class Energie {
     private Quantity[] indexEnergie;     
     
     /** Creates a new instance of Energie */
-    public Energie(DataContainer dc, TimeZone timezone, int variableName) throws IOException {
+    public Energie(TrimaranDataContainer dc, TimeZone timezone, int variableName) throws IOException {
         int offset = 0;
         setVariableName(variableName);
         setDateDebutPeriode(new DateType(dc.getRoot().getLong(offset++), timezone));

@@ -10,13 +10,13 @@
 
 package com.energyict.protocolimpl.edf.trimaranplus.core;
 
+import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
+import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
-
-import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
-import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
 /**
  *
@@ -69,7 +69,7 @@ public class AccessPartiel extends AbstractTrimaranObject {
     
     protected void parse(byte[] data) throws IOException {
         int offset=0;
-        DataContainer dc = new DataContainer();
+        TrimaranDataContainer dc = new TrimaranDataContainer();
         dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
         setNomAccess(dc.getRoot().getInteger(0));
         DateType dt = new DateType(dc.getRoot().getLong(1), getTrimaranObjectFactory().getTrimaran().getTimeZone());

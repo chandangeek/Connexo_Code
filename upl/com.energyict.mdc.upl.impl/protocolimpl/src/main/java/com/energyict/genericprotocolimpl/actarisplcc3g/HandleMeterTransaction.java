@@ -3,8 +3,6 @@ package com.energyict.genericprotocolimpl.actarisplcc3g;
 import com.energyict.cbo.*;
 import com.energyict.cpo.Transaction;
 import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.edf.messages.*;
-import com.energyict.edf.messages.objects.ComplexCosemObject;
 import com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects.PLCCMeterDailyEnergyValueProfile;
 import com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects.PLCCMeterListBlocData;
 import com.energyict.genericprotocolimpl.common.DailyBillingEntry;
@@ -12,6 +10,8 @@ import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.edf.messages.*;
+import com.energyict.protocolimpl.edf.messages.objects.ComplexCosemObject;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 
 import java.io.IOException;
@@ -477,14 +477,14 @@ public class HandleMeterTransaction implements Transaction {
         
         // meter current date time
         if (obisCode.equals(ObisCode.fromString("0.0.1.0.0.255"))) {
-            com.energyict.edf.messages.objects.MeterClock meterClock;
+            com.energyict.protocolimpl.edf.messages.objects.MeterClock meterClock;
             if (messageWriteRegister.getValue() instanceof String) {
                 Calendar cal = ProtocolUtils.getCalendar(handleMeter.getConcentrator().getTimeZone());
                 
-                meterClock = new com.energyict.edf.messages.objects.MeterClock(cal, handleMeter.getConcentrator().getTimeZone().inDaylightTime(cal.getTime()));
+                meterClock = new com.energyict.protocolimpl.edf.messages.objects.MeterClock(cal, handleMeter.getConcentrator().getTimeZone().inDaylightTime(cal.getTime()));
             }
             else {
-                meterClock = (com.energyict.edf.messages.objects.MeterClock)messageWriteRegister.getValue();
+                meterClock = (com.energyict.protocolimpl.edf.messages.objects.MeterClock)messageWriteRegister.getValue();
             }
             
             if (handleMeter.getConcentratorScheduler().getCommunicationProfile().getWriteClock())
@@ -494,14 +494,14 @@ public class HandleMeterTransaction implements Transaction {
         else if (obisCode.equals(ObisCode.fromString("0.0.13.0.0.255"))) {
             if (messageWriteRegister.getValue() instanceof String)
                 throw new IOException("Write data for object "+messageWriteRegister.getObisCode()+" should not contain a String as data!");                    
-            com.energyict.edf.messages.objects.ActivityCalendar activityCalendar = (com.energyict.edf.messages.objects.ActivityCalendar)messageWriteRegister.getValue();
+            com.energyict.protocolimpl.edf.messages.objects.ActivityCalendar activityCalendar = (com.energyict.protocolimpl.edf.messages.objects.ActivityCalendar)messageWriteRegister.getValue();
             handleMeter.getConcentrator().getPLCCObjectFactory().getPLCCMeterActivityCalendar().writeActivityCalendar(activityCalendar);
         }
         // demand management
         else if (obisCode.equals(ObisCode.fromString("0.0.16.0.1.255"))) {
             if (messageWriteRegister.getValue() instanceof String)
                 throw new HandleMessageException("Write data for object "+messageWriteRegister.getObisCode()+" should not contain a String as data!");                    
-            com.energyict.edf.messages.objects.DemandManagement demandManagement = (com.energyict.edf.messages.objects.DemandManagement)messageWriteRegister.getValue();
+            com.energyict.protocolimpl.edf.messages.objects.DemandManagement demandManagement = (com.energyict.protocolimpl.edf.messages.objects.DemandManagement)messageWriteRegister.getValue();
             handleMeter.getConcentrator().getPLCCObjectFactory().getPLCCMeterDemandManagement().writeDemandManagement(demandManagement);
         }
         // capture period load profile

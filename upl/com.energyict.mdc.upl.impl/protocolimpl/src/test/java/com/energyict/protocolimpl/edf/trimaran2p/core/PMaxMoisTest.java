@@ -4,22 +4,16 @@
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.TimeZone;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.energyict.cbo.Utils;
 import com.energyict.protocolimpl.edf.trimaran2p.Trimaran2P;
-import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
+import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
+import org.junit.*;
+
+import java.io.*;
+import java.util.TimeZone;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author gna
@@ -30,7 +24,7 @@ public class PMaxMoisTest {
 	private Trimaran2P deuxP;
 	FileInputStream fis;
 	File file;
-	DataContainer dc;
+	TrimaranDataContainer dc;
 
 	/**
 	 * @throws java.lang.Exception

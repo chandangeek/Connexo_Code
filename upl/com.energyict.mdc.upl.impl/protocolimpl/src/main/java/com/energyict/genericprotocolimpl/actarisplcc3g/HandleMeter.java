@@ -10,23 +10,15 @@
 
 package com.energyict.genericprotocolimpl.actarisplcc3g;
 
-import com.energyict.cpo.*;
-import com.energyict.edf.messages.*;
-import com.energyict.genericprotocolimpl.common.*;
-import com.energyict.mdw.amr.*;
-import com.energyict.protocol.*;
-import com.energyict.protocol.MeterReadingData;
-import java.io.*;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.Iterator;
-import java.util.List;
-
 import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.Transaction;
+import com.energyict.cpo.Environment;
 import com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects.PLCCMeterListBlocData;
+import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.mdw.core.*;
-import java.util.logging.*;
+
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *

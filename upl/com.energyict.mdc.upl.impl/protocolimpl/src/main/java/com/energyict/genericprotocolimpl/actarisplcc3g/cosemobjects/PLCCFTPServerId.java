@@ -11,15 +11,12 @@
 package com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects;
 
 
-
-import java.io.IOException;
-
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.ObjectIdentification;
-import com.energyict.dlms.cosem.SMTPSetup;
+import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
+
+import java.io.IOException;
 
 /**
  *
@@ -47,7 +44,7 @@ public class PLCCFTPServerId extends AbstractPLCCObject {
     }
 
 
-    public void writeFtpServerId(com.energyict.edf.messages.objects.FtpServerId ftpServerId) throws IOException {
+    public void writeFtpServerId(com.energyict.protocolimpl.edf.messages.objects.FtpServerId ftpServerId) throws IOException {
         smtpSetup.writeServerPort(new Unsigned16(ftpServerId.getPortNumber()));
         smtpSetup.writeUserName(OctetString.fromString(ftpServerId.getUsername(),32));
         smtpSetup.writeLoginPassword(OctetString.fromString(ftpServerId.getPassword(),32));
@@ -56,8 +53,8 @@ public class PLCCFTPServerId extends AbstractPLCCObject {
     }
 
 
-    public com.energyict.edf.messages.objects.FtpServerId readFtpServerId() throws IOException {
-        com.energyict.edf.messages.objects.FtpServerId ftpServerId = new com.energyict.edf.messages.objects.FtpServerId();
+    public com.energyict.protocolimpl.edf.messages.objects.FtpServerId readFtpServerId() throws IOException {
+        com.energyict.protocolimpl.edf.messages.objects.FtpServerId ftpServerId = new com.energyict.protocolimpl.edf.messages.objects.FtpServerId();
         ftpServerId.setPortNumber(smtpSetup.readServerPort().intValue());
         ftpServerId.setUsername(smtpSetup.readUserName().stringValue());
         ftpServerId.setPassword(smtpSetup.readLoginPassword().stringValue());

@@ -1,11 +1,11 @@
 package com.energyict.genericprotocolimpl.lgadvantis.parser;
 
-import java.io.IOException;
-
 import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.edf.messages.objects.CosemCalendar;
-import com.energyict.edf.messages.objects.OctetString;
-import com.energyict.genericprotocolimpl.lgadvantis.*;
+import com.energyict.genericprotocolimpl.lgadvantis.Task;
+import com.energyict.protocolimpl.edf.messages.objects.CosemCalendar;
+import com.energyict.protocolimpl.edf.messages.objects.OctetString;
+
+import java.io.IOException;
 
 public class ActivatePassiveCalendarTimeParser extends AbstractParser implements Parser {
     

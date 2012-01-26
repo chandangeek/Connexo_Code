@@ -11,14 +11,15 @@
 package com.energyict.genericprotocolimpl.actarisplcc3g;
 
 import com.energyict.cbo.*;
-import com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects.*;
-import com.energyict.genericprotocolimpl.common.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import java.math.*;
-import java.util.*;
-import java.io.*;
 import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects.*;
+import com.energyict.genericprotocolimpl.common.DailyBillingEntry;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.*;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
 /**
  *
  * @author kvds
@@ -139,37 +140,37 @@ public class ConcentratorRegister {
             }
             // ftpServerId object
             else if (obisCode.equals(ObisCode.fromString("0.0.25.5.0.255"))) {
-                com.energyict.edf.messages.objects.FtpServerId o = concentrator.getPLCCObjectFactory().getPLCCFTPServerId().readFtpServerId();
+                com.energyict.protocolimpl.edf.messages.objects.FtpServerId o = concentrator.getPLCCObjectFactory().getPLCCFTPServerId().readFtpServerId();
                 return new RegisterValue(obisCode,o.xmlEncode());
             }
             // meterclockobject
             else if (obisCode.equals(ObisCode.fromString("0.0.1.0.0.255"))) {
-                com.energyict.edf.messages.objects.MeterClock o = concentrator.getPLCCObjectFactory().getPLCCMeterCurrentDateTime().readMeterClock();
+                com.energyict.protocolimpl.edf.messages.objects.MeterClock o = concentrator.getPLCCObjectFactory().getPLCCMeterCurrentDateTime().readMeterClock();
                 return new RegisterValue(obisCode,o.xmlEncode());
             }
             // meterclockobject
             else if (obisCode.equals(ObisCode.fromString("0.1.1.0.0.255"))) {
-                com.energyict.edf.messages.objects.MeterClock o = concentrator.getPLCCObjectFactory().getPLCCCurrentDateTime().readMeterClock();
+                com.energyict.protocolimpl.edf.messages.objects.MeterClock o = concentrator.getPLCCObjectFactory().getPLCCCurrentDateTime().readMeterClock();
                 return new RegisterValue(obisCode,o.xmlEncode());
             }
             // activity calendar object
             else if (obisCode.equals(ObisCode.fromString("0.0.13.0.0.255"))) {
-                com.energyict.edf.messages.objects.ActivityCalendar o = concentrator.getPLCCObjectFactory().getPLCCMeterActivityCalendar().readActivityCalendar();
+                com.energyict.protocolimpl.edf.messages.objects.ActivityCalendar o = concentrator.getPLCCObjectFactory().getPLCCMeterActivityCalendar().readActivityCalendar();
                 return new RegisterValue(obisCode,o.xmlEncode());
             }
             // moving peak object
             else if (obisCode.equals(ObisCode.fromString("0.0.10.0.125.255"))) {
-                com.energyict.edf.messages.objects.MovingPeak o = concentrator.getPLCCObjectFactory().getPLCCMeterMovingPeak().readMovingPeak();
+                com.energyict.protocolimpl.edf.messages.objects.MovingPeak o = concentrator.getPLCCObjectFactory().getPLCCMeterMovingPeak().readMovingPeak();
                 return new RegisterValue(obisCode,o.xmlEncode());
             }
             // demand management object
             else if (obisCode.equals(ObisCode.fromString("0.0.16.0.1.255"))) {
-                com.energyict.edf.messages.objects.DemandManagement o = concentrator.getPLCCObjectFactory().getPLCCMeterDemandManagement().readDemandManagement();
+                com.energyict.protocolimpl.edf.messages.objects.DemandManagement o = concentrator.getPLCCObjectFactory().getPLCCMeterDemandManagement().readDemandManagement();
                 return new RegisterValue(obisCode,o.xmlEncode());
             }
             // meter identification object
             else if (obisCode.equals(ObisCode.fromString("0.0.96.2.0.255"))) {
-                com.energyict.edf.messages.objects.MeterIdentification o = concentrator.getPLCCObjectFactory().getPLCCMeterIdentification().toMeterIdentification();
+                com.energyict.protocolimpl.edf.messages.objects.MeterIdentification o = concentrator.getPLCCObjectFactory().getPLCCMeterIdentification().toMeterIdentification();
                 return new RegisterValue(obisCode,o.xmlEncode());
             }
         }

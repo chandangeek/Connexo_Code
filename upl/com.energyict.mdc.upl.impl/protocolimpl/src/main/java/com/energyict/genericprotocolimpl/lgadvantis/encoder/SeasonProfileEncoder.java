@@ -1,10 +1,10 @@
 package com.energyict.genericprotocolimpl.lgadvantis.encoder;
 
-import java.util.Iterator;
-
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.edf.messages.objects.ActivityCalendar;
-import com.energyict.edf.messages.objects.SeasonProfile;
+import com.energyict.protocolimpl.edf.messages.objects.ActivityCalendar;
+import com.energyict.protocolimpl.edf.messages.objects.SeasonProfile;
+
+import java.util.Iterator;
 
 public class SeasonProfileEncoder implements Encoder {
     

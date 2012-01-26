@@ -30,7 +30,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol {
+public class IskraME37X implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol {
    
 	private static final byte DEBUG=0;  // KV 16012004 changed all DEBUG values  
     private static final byte DL_COSEMPDU_DATA_OFFSET=0x07;
@@ -948,7 +948,7 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
     {
        byte[] byteTimeBuffer = new byte[14];
 
-       byteTimeBuffer[0]=TYPEDESC_OCTET_STRING;
+       byteTimeBuffer[0]=DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
        byteTimeBuffer[1]=12; // length
        byteTimeBuffer[2]=(byte)(calendar.get(calendar.YEAR) >> 8);
        byteTimeBuffer[3]=(byte)calendar.get(calendar.YEAR);

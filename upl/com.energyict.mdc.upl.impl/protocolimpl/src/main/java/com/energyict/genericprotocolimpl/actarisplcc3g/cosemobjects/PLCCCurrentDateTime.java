@@ -1,14 +1,12 @@
 package com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects;
 
+import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.cosem.*;
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.TimeZone;
-
-import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.ObjectIdentification;
-import com.energyict.protocol.ProtocolUtils;
 
 
 public class PLCCCurrentDateTime extends AbstractPLCCObject {
@@ -53,7 +51,7 @@ public class PLCCCurrentDateTime extends AbstractPLCCObject {
         getCosemObjectFactory().writeObject(getObisCode(), getClassId(), 2, ber);
     }
 
-    public void writeMeterClock(com.energyict.edf.messages.objects.MeterClock meterClock) throws IOException {
+    public void writeMeterClock(com.energyict.protocolimpl.edf.messages.objects.MeterClock meterClock) throws IOException {
         Calendar now = meterClock.getCosemCalendar().getCalendar();
         dateTime = new DateTime();
         dateTime.setValue(now, (byte)(dSTActive?128:0));
@@ -63,10 +61,10 @@ public class PLCCCurrentDateTime extends AbstractPLCCObject {
     }
 
 
-    public com.energyict.edf.messages.objects.MeterClock readMeterClock() throws IOException {
+    public com.energyict.protocolimpl.edf.messages.objects.MeterClock readMeterClock() throws IOException {
         Calendar calendar = ProtocolUtils.getCleanCalendar(getPLCCObjectFactory().getConcentrator().getTimeZone());
         calendar = getDateTime();
-        com.energyict.edf.messages.objects.MeterClock meterClock = new com.energyict.edf.messages.objects.MeterClock(calendar, dSTActive);
+        com.energyict.protocolimpl.edf.messages.objects.MeterClock meterClock = new com.energyict.protocolimpl.edf.messages.objects.MeterClock(calendar, dSTActive);
         return meterClock;
     }
 

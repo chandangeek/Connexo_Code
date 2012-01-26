@@ -10,13 +10,14 @@
 
 package com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects;
 
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.*;
-import com.energyict.edf.messages.objects.MovingPeak;
-import com.energyict.edf.messages.objects.MovingPeakScript;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.protocolimpl.edf.messages.objects.MovingPeak;
+import com.energyict.protocolimpl.edf.messages.objects.MovingPeakScript;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
