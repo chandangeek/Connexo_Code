@@ -18,7 +18,6 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.*;
 import java.io.IOException;
 import java.io.StringReader;
-import java.text.DateFormat;
 import java.util.*;
 
 /**
@@ -478,7 +477,7 @@ public class AS220ActivityCalendarController implements ActivityCalendarControll
                                 dpa.setScriptSelector(new Unsigned16(Integer.valueOf(schedule.getTextContent())));
                             }
                         }
-                        dpa.setScriptLogicalName(OctetString.fromIpAddressString("0.0.10.0.100.255"));
+                        dpa.setScriptLogicalName(OctetString.fromObisCode("0.0.10.0.100.255"));
                         dpsArray.addDataType(dpa);
                     }
                     dp.setDayProfileActions(dpsArray);

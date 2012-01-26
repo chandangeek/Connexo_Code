@@ -498,7 +498,7 @@ public class IDISActivityCalendarController implements ActivityCalendarControlle
                                 dpa.setScriptSelector(new Unsigned16(Integer.valueOf(schedule.getTextContent())));
                             }
                         }
-                        dpa.setScriptLogicalName(OctetString.fromIpAddressString("0.0.10.0.100.255"));
+                        dpa.setScriptLogicalName(OctetString.fromObisCode("0.0.10.0.100.255"));
                         dpsArray.addDataType(dpa);
                     }
                     dp.setDayProfileActions(dpsArray);

@@ -8,16 +8,15 @@
 
 package com.energyict.dlms.axrdencoding;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.TimeZone;
-
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.utils.ProtocolTools;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.TimeZone;
 
 /**
  * @author kvds
@@ -231,15 +230,24 @@ public class OctetString extends AbstractDataType {
 
     /**
      * Create an OctetString with the content of an IP-address
+     * The IP address should have the standard dotted format for example "192.168.1.20"
      *
      * @param ipAddress the IP-address to parse
      * @return a new OctetString with 6 fields
+     * @throws IllegalArgumentException If the IPv4 address is invalid
      */
-    public static OctetString fromIpAddressString(String ipAddress) {
+    public static OctetString fromIPv4Address(String ipAddress) throws IllegalArgumentException {
         String[] ipFields = ipAddress.split("\\.");
+        if (ipFields.length != 4) {
+            throw new IllegalArgumentException("Invalid IPv4 address [" + ipAddress + "]");
+        }
         byte[] ipBytes = new byte[ipFields.length];
         for (int i = 0; i < ipBytes.length; i++) {
-            ipBytes[i] = (byte) Integer.parseInt(ipFields[i]);
+            int ipField = Integer.parseInt(ipFields[i]);
+            if (ipField > 255) {
+                throw new IllegalArgumentException("Invalid IPv4 address [" + ipAddress + "]");
+            }
+            ipBytes[i] = (byte) ipField;
         }
         return new OctetString(ipBytes);
     }
