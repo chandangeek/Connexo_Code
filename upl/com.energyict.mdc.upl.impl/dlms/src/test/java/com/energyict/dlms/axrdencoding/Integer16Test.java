@@ -3,20 +3,13 @@
  */
 package com.energyict.dlms.axrdencoding;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 
-import org.junit.Test;
-
-import com.energyict.dlms.DLMSCOSEMGlobals;
+import static org.junit.Assert.*;
 
 /**
  * @author jme
@@ -165,7 +158,7 @@ public class Integer16Test {
 	}
 
 	/**
-	 * Test method for {@link com.energyict.dlms.axrdencoding.Integer16#setValue(int)}.
+	 * Test method for {@link com.energyict.dlms.axrdencoding.Integer16#setValue(short)}.
 	 */
 	@Test
 	public final void testSetValue() {

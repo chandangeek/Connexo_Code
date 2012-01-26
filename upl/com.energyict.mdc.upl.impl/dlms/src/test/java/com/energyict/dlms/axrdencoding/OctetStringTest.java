@@ -1,11 +1,8 @@
 /**
  *
  */
-package com.energyict.dlms;
+package com.energyict.dlms.axrdencoding;
 
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.util.LogFactory;
-import org.apache.commons.logging.Log;
 import org.junit.Test;
 
 import static com.energyict.protocolimpl.utils.ProtocolTools.getBytesFromHexString;
@@ -15,8 +12,6 @@ import static org.junit.Assert.*;
  * @author jme
  */
 public class OctetStringTest {
-
-    static Log logger = LogFactory.getLog(OctetStringTest.class);
 
     /**
      * Test method for {@link com.energyict.dlms.axrdencoding.OctetString#fromString(java.lang.String)}.
@@ -42,6 +37,7 @@ public class OctetStringTest {
         assertArrayEquals(getBytesFromHexString("$C0$A8$12$FF"), oc.toByteArray());
         assertArrayEquals(getBytesFromHexString("$12$FF"), oc.getContentBytes());
         assertEquals(6, oc.getDecodedSize());
+        assertEquals(6, oc.size());
     }
 
     /**
