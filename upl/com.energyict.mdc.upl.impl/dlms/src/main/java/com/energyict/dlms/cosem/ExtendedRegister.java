@@ -5,15 +5,14 @@
  */
 
 package com.energyict.dlms.cosem;
+
+import com.energyict.dlms.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+
 import java.io.IOException;
 import java.util.Date;
 
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.OctetString;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
+import static com.energyict.dlms.DLMSCOSEMGlobals.*;
 
 /**
  *

@@ -6,14 +6,13 @@
 
 package com.energyict.dlms.cosem;
 
+import com.energyict.dlms.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.OctetString;
-import com.energyict.dlms.ProtocolLink;
+import static com.energyict.dlms.DLMSCOSEMGlobals.*;
 
 /**
  *

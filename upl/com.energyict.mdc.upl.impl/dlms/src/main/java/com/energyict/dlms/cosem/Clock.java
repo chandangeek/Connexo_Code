@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
+import static com.energyict.dlms.DLMSCOSEMGlobals.*;
+
 /**
  *
  * @author  Koen

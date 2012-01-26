@@ -12,6 +12,8 @@ import com.energyict.dlms.axrdencoding.*;
 import java.io.*;
 import java.util.*;
 
+import static com.energyict.dlms.DLMSCOSEMGlobals.*;
+
 /**
  * @author Koen
  */

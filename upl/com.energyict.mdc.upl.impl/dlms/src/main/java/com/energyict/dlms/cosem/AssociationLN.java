@@ -5,18 +5,16 @@
  */
 
 package com.energyict.dlms.cosem;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.attributes.AssociationLNAttributes;
 import com.energyict.obis.ObisCode;
+
+import java.io.*;
+
+import static com.energyict.dlms.DLMSCOSEMGlobals.*;
 /**
  *
  * @author  Koen

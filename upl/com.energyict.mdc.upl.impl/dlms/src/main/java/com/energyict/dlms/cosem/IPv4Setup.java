@@ -10,6 +10,8 @@ import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 
+import static com.energyict.dlms.DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED;
+
 /**
  * <p>
  * This allows modelling the setup of the IPv4 layer, handling all information is related to the IP

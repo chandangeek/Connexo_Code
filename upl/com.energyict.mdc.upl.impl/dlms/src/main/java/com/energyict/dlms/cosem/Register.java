@@ -5,17 +5,19 @@
  */
 
 package com.energyict.dlms.cosem;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.dlms.*;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
+import static com.energyict.dlms.DLMSCOSEMGlobals.REGISTER_SCALER_UNIT;
+import static com.energyict.dlms.DLMSCOSEMGlobals.REGISTER_VALUE;
 
 /**
  *
