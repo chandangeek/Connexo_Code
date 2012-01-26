@@ -1,31 +1,24 @@
 package com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu;
 
 
-import static org.junit.Assert.*;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.TimeZone;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.energyict.cbo.Utils;
 import com.energyict.protocolimpl.edf.trimaran2p.Trimaran2P;
-import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu.StatusResponse;
+import org.junit.*;
+
+import java.io.*;
+import java.util.TimeZone;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class StatusResponseTest {
 	
 	private Trimaran2P deuxP;
 	private FileInputStream fis;
 	private File file;
-	private String[] firm = {"/offlineFiles/trimaran/080307000201StatusResponce.bin", 
-				"/offlineFiles/trimaran/080735000184StatusResponce.bin",
-				"/offlineFiles/trimaran/089807000857StatusResponce.bin"};
+	private String[] firm = {"/com/energyict/protocolimpl/edf/trimaran/080307000201StatusResponce.bin",
+            "/com/energyict/protocolimpl/edf/trimaran/080735000184StatusResponce.bin",
+            "/com/energyict/protocolimpl/edf/trimaran/089807000857StatusResponce.bin"};
 	private String[] model = {"TRIMARAN 2", "TRIMARAN 2 M 4Q", "TRIMARAN 2"};
 	private String[] resources = {"TEC_V1", "TEC_V12     ", "TEP"};
 	private String[] vendor = {"CHAUVIN ARNOUX  MATRA COMMUNICATION", "CHAUVIN ARNOUX  MATRA COMMUNICATION", "CHAUVIN ARNOUX  MATRA COMMUNICATION"};

@@ -91,7 +91,7 @@ public class CourbeChargeTest {
 			assertEquals(6, cc.getProfileData().getChannelInfos().size());
 			
 			for(int i = 0; i < 6; i++){
-				file = new File(Utils.class.getResource("/offlineFiles/trimaran/Object_Values_0406_long" + i + ".bin").getFile());
+				file = new File(Utils.class.getResource("/com/energyict/protocolimpl/edf/trimaran/Object_Values_0406_long" + i + ".bin").getFile());
 				fis = new FileInputStream(file);
 				ois = new ObjectInputStream(fis);
 				values = (int[])ois.readObject();
@@ -170,7 +170,7 @@ public class CourbeChargeTest {
 			cc.setNow(new Date(System.currentTimeMillis()));
 			
 			for(int i = 1; i < 6; i++){
-				file = new File(Utils.class.getResource("/offlineFiles/trimaran/deuxp857/089807000857Profile_" + i + ".bin").getFile());
+				file = new File(Utils.class.getResource("/com/energyict/protocolimpl/edf/trimaran/deuxp857/089807000857Profile_" + i + ".bin").getFile());
 				fis = new FileInputStream(file);
 				ois = new ObjectInputStream(fis);
 				values = (int[])ois.readObject();
@@ -240,7 +240,7 @@ public class CourbeChargeTest {
 			cc.setNow(new Date(System.currentTimeMillis()));
 			
 			for(int i = 1; i < 6; i++){
-				file = new File(Utils.class.getResource("/offlineFiles/trimaran/deuxp201/080307000201Profile_" + i + ".bin").getFile());
+				file = new File(Utils.class.getResource("/com/energyict/protocolimpl/edf/trimaran/deuxp201/080307000201Profile_" + i + ".bin").getFile());
 				fis = new FileInputStream(file);
 				ois = new ObjectInputStream(fis);
 				values = (int[])ois.readObject();

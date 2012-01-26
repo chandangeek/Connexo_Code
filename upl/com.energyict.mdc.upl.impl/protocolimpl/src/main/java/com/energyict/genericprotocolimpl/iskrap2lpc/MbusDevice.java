@@ -3,52 +3,28 @@
  */
 package com.energyict.genericprotocolimpl.iskrap2lpc;
 
-import java.io.IOException;
-import java.rmi.RemoteException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.xml.rpc.ServiceException;
-
-import com.energyict.protocolimpl.messages.RtuMessageConstant;
-import org.apache.axis.types.UnsignedInt;
-
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cbo.Unit;
+import com.energyict.cbo.*;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.amr.RtuRegister;
-import com.energyict.mdw.amr.RtuRegisterSpec;
-import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.CommunicationProfile;
-import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.amr.*;
+import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.Messaging;
+import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.ProtocolChannel;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import org.apache.axis.types.UnsignedInt;
+
+import javax.xml.rpc.ServiceException;
+import java.io.IOException;
+import java.rmi.RemoteException;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author gna 
@@ -231,7 +207,7 @@ public class MbusDevice implements Messaging, GenericProtocol{
 						getLogger().log(Level.INFO, "Reading Daily values with registername: " + pc.getRegister() + " from " + from + " to " + to);
 //						if(mrt.TESTING){
 ////		            		FileReader inFile = new FileReader(Utils.class.getResource(mrt.getBillingDaily()).getFile());
-////							FileReader inFile = new FileReader(Utils.class.getResource("/offlineFiles/iskrap2lpc/nullpointerstuff.xml").getFile());
+////							FileReader inFile = new FileReader(Utils.class.getResource("/com/energyict/genericprotocolimpl/iskrap2lpc/nullpointerstuff.xml").getFile());
 ////		            		xml = getConcentrator().readWithStringBuffer(inFile);
 //						} else {
 							xml = mrt.getConnection().getMeterProfile(mrt.getMeter().getSerialNumber(), daily, register, from, to);

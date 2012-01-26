@@ -64,7 +64,7 @@ public class TrimaranObjectFactoryTest {
 		TrimaranDataContainer dc = new TrimaranDataContainer();
 		try {
 			
-			file = new File(Utils.class.getResource("/offlineFiles/trimaran/EnergieIndexes.bin").getFile());
+			file = new File(Utils.class.getResource("/com/energyict/protocolimpl/edf/trimaran/EnergieIndexes.bin").getFile());
 			fis = new FileInputStream(file);
 			byte[] data=new byte[(int)file.length()];
 			fis.read(data);

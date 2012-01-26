@@ -4,21 +4,17 @@
 package com.energyict.protocolimpl.edf.trimaran2p;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.TimeZone;
-
-import org.junit.*;
-
 import com.energyict.cbo.Utils;
 import com.energyict.protocolimpl.edf.trimaran2p.core.TrimaranObjectFactory;
 import com.energyict.protocolimpl.edf.trimarandlms.common.Register;
+import org.junit.*;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.TimeZone;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author gna
@@ -64,7 +60,7 @@ public class RegisterFactoryTest {
 		try {
 			rf = new RegisterFactory(deuxP);
 			
-			file = new File(Utils.class.getResource("/offlineFiles/trimaran/BuildedRegisters.bin").getFile());
+			file = new File(Utils.class.getResource("/com/energyict/protocolimpl/edf/trimaran/BuildedRegisters.bin").getFile());
 			fis = new FileInputStream(file);
 			ois = new ObjectInputStream(fis);
 			buildedRegisters = (ArrayList)ois.readObject();

@@ -1,38 +1,32 @@
 package com.energyict.protocolimpl.edf.trimarancje;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.TimeZone;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.energyict.cbo.Unit;
 import com.energyict.cbo.Utils;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.edf.trimarancje.core.DataFactory;
 import com.energyict.protocolimpl.edf.trimarancje.core.DemandData;
+import org.junit.*;
+
+import java.io.*;
+import java.util.TimeZone;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class TrimaranTest {
 	
 	private Trimaran cje;
-	private String trimaranProfile = "/offlineFiles/trimaran/TrimaranProfile.bin";
-	private String[] profile = {"/offlineFiles/trimaran/cje/Profile1.bin", "/offlineFiles/trimaran/cje/Profile2.bin",
-								"/offlineFiles/trimaran/cje/Profile3.bin", "/offlineFiles/trimaran/cje/Profile4.bin",
-								"/offlineFiles/trimaran/cje/Profile5.bin", "/offlineFiles/trimaran/cje/Profile6.bin",
-								"/offlineFiles/trimaran/cje/Profile7.bin", "/offlineFiles/trimaran/cje/Profile8.bin",
-								"/offlineFiles/trimaran/cje/Profile9.bin", "/offlineFiles/trimaran/cje/Profile10.bin",
-								"/offlineFiles/trimaran/cje/Profile11.bin", "/offlineFiles/trimaran/cje/Profile12.bin",
-								"/offlineFiles/trimaran/cje/Profile13.bin", "/offlineFiles/trimaran/cje/Profile14.bin",
-								"/offlineFiles/trimaran/cje/Profile15.bin", "/offlineFiles/trimaran/cje/Profile16.bin",};
-	private String test = "/offlineFiles/trimaran/Profile1.bin";
+	private String trimaranProfile = "/com/energyict/protocolimpl/edf/trimaran/TrimaranProfile.bin";
+	private String[] profile = {"/com/energyict/protocolimpl/edf/trimaran/cje/Profile1.bin", "/com/energyict/protocolimpl/edf/trimaran/cje/Profile2.bin",
+            "/com/energyict/protocolimpl/edf/trimaran/cje/Profile3.bin", "/com/energyict/protocolimpl/edf/trimaran/cje/Profile4.bin",
+            "/com/energyict/protocolimpl/edf/trimaran/cje/Profile5.bin", "/com/energyict/protocolimpl/edf/trimaran/cje/Profile6.bin",
+            "/com/energyict/protocolimpl/edf/trimaran/cje/Profile7.bin", "/com/energyict/protocolimpl/edf/trimaran/cje/Profile8.bin",
+            "/com/energyict/protocolimpl/edf/trimaran/cje/Profile9.bin", "/com/energyict/protocolimpl/edf/trimaran/cje/Profile10.bin",
+            "/com/energyict/protocolimpl/edf/trimaran/cje/Profile11.bin", "/com/energyict/protocolimpl/edf/trimaran/cje/Profile12.bin",
+            "/com/energyict/protocolimpl/edf/trimaran/cje/Profile13.bin", "/com/energyict/protocolimpl/edf/trimaran/cje/Profile14.bin",
+            "/com/energyict/protocolimpl/edf/trimaran/cje/Profile15.bin", "/com/energyict/protocolimpl/edf/trimaran/cje/Profile16.bin",};
+	private String test = "/com/energyict/protocolimpl/edf/trimaran/Profile1.bin";
 	@Before
 	public void setUp() throws Exception {
 		cje = new Trimaran();

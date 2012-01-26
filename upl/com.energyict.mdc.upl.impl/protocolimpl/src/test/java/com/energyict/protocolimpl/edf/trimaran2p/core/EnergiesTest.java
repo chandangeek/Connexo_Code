@@ -72,7 +72,7 @@ public class EnergiesTest {
 		deuxP.setMeterVersion("TEC");
 		
 		try {
-			file = new File(EnergiesTest.class.getResource("/offlineFiles/trimaran/deuxp184/Energies184.bin").getFile());
+			file = new File(EnergiesTest.class.getResource("/com/energyict/protocolimpl/edf/trimaran/deuxp184/Energies184.bin").getFile());
 			fis = new FileInputStream(file);
 			ois = new ObjectInputStream(fis);
 			

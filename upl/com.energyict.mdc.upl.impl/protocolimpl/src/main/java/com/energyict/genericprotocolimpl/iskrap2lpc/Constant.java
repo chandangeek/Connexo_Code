@@ -1,10 +1,10 @@
 package com.energyict.genericprotocolimpl.iskrap2lpc;
 
+import com.energyict.obis.ObisCode;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
-
-import com.energyict.obis.ObisCode;
 
 public class Constant {
     
@@ -149,34 +149,34 @@ public class Constant {
 	public static final int EVENT_METER_COVER_OPENED=0x8010;
 	public static final int EVENT_TERMINAL_COVER_OPENED=0x8011;
     
-    static final String conSerialFile 	= "/offlineFiles/iskrap2lpc/ConcentratorSerial.bin";
-    static final String profileConfig1 	= "/offlineFiles/iskrap2lpc/ObjectDefFile1.xml";
-    static final String profileConfig2 	= "/offlineFiles/iskrap2lpc/ObjectDefFile2.xml";
-    static final String[] profileFiles1	= {"/offlineFiles/iskrap2lpc/profile0.xml", "/offlineFiles/iskrap2lpc/profile1.xml"};
-    static final String[] profileFiles2	= {"/offlineFiles/iskrap2lpc/lp0.xml", "/offlineFiles/iskrap2lpc/lp1.xml"};
-    static final String mbusProfile 	= "/offlineFiles/iskrap2lpc/mbus.xml";
-    static final String eventsFile 		= "/offlineFiles/iskrap2lpc/events.xml";
-    static final String powerDownFile 	= "/offlineFiles/iskrap2lpc/powerFailures.xml";
-    static final String dateTimeFile 	= "/offlineFiles/iskrap2lpc/cosemDateTime.xml";
-    static final String conEventFile 	= "/offlineFiles/iskrap2lpc/conEvent.xml";
-    static final String mbusSerialFile 	= "/offlineFiles/iskrap2lpc/mbusSerial.bin";
-    static final String testFile 		= "/offlineFiles/iskrap2lpc/test.xml";
-    static final String billingDaily 	= "/offlineFiles/iskrap2lpc/daily.xml";
-    static final String billingMonthly  = "/offlineFiles/iskrap2lpc/monthly.xml";
-    static final String[] billingDailyMonthly = {"/offlineFiles/iskrap2lpc/daily.xml","/offlineFiles/iskrap2lpc/monthly.xml"};
-    static final String dailyfrom0509 	= "/offlineFiles/iskrap2lpc/dailyfrom0509.xml";
-    static final String monthlyfrom0509 = "/offlineFiles/iskrap2lpc/monthlyfrom0509.xml";
-    static final String[] dailyMonthly0509_1 = {"/offlineFiles/iskrap2lpc/dailyfrom0509.xml", "/offlineFiles/iskrap2lpc/monthlyfrom0509.xml"};
-    static final String dailyto0509 	= "/offlineFiles/iskrap2lpc/dailyto0509.xml";
-    static final String monthlyto0509 = "/offlineFiles/iskrap2lpc/monthlyto0509.xml";
-    static final String[] dailyMonthly0509_2 = {"/offlineFiles/iskrap2lpc/dailyto0509.xml", "/offlineFiles/iskrap2lpc/monthlyto0509.xml"};
-    static final String nullp1 = "/offlineFiles/iskrap2lpc/nullpointerstuff.xml";
-    static final String nullp2 = "/offlineFiles/iskrap2lpc/nullpointerstuff2.xml";
-    static final String[] nullPointerProfile = {"/offlineFiles/iskrap2lpc/NullPointer38547358_0.xml", "/offlineFiles/iskrap2lpc/NullPointer38547358_1.xml"};
-    static final String dailyResult		= "/offlineFiles/iskrap2lpc/dailyfromPLR.xml";
-    static final String monthlyResult	= "/offlineFiles/iskrap2lpc/monthlyfromPLR.xml";
-    static final String[] dailyMonthlyResult = {"/offlineFiles/iskrap2lpc/dailyfromPLR.xml", "/offlineFiles/iskrap2lpc/monthlyfromPLR.xml"};
-    static final String oneMonthlyValue = "/offlineFiles/iskrap2lpc/oneMonthlyValue.xml";
+    static final String conSerialFile 	= "/com/energyict/genericprotocolimpl/iskrap2lpc/ConcentratorSerial.bin";
+    static final String profileConfig1 	= "/com/energyict/genericprotocolimpl/iskrap2lpc/ObjectDefFile1.xml";
+    static final String profileConfig2 	= "/com/energyict/genericprotocolimpl/iskrap2lpc/ObjectDefFile2.xml";
+    static final String[] profileFiles1	= {"/com/energyict/genericprotocolimpl/iskrap2lpc/profile0.xml", "/com/energyict/genericprotocolimpl/iskrap2lpc/profile1.xml"};
+    static final String[] profileFiles2	= {"/com/energyict/genericprotocolimpl/iskrap2lpc/lp0.xml", "/com/energyict/genericprotocolimpl/iskrap2lpc/lp1.xml"};
+    static final String mbusProfile 	= "/com/energyict/genericprotocolimpl/iskrap2lpc/mbus.xml";
+    static final String eventsFile 		= "/com/energyict/genericprotocolimpl/iskrap2lpc/events.xml";
+    static final String powerDownFile 	= "/com/energyict/genericprotocolimpl/iskrap2lpc/powerFailures.xml";
+    static final String dateTimeFile 	= "/com/energyict/genericprotocolimpl/iskrap2lpc/cosemDateTime.xml";
+    static final String conEventFile 	= "/com/energyict/genericprotocolimpl/iskrap2lpc/conEvent.xml";
+    static final String mbusSerialFile 	= "/com/energyict/genericprotocolimpl/iskrap2lpc/mbusSerial.bin";
+    static final String testFile 		= "/com/energyict/genericprotocolimpl/iskrap2lpc/test.xml";
+    static final String billingDaily 	= "/com/energyict/genericprotocolimpl/iskrap2lpc/daily.xml";
+    static final String billingMonthly  = "/com/energyict/genericprotocolimpl/iskrap2lpc/monthly.xml";
+    static final String[] billingDailyMonthly = {"/com/energyict/genericprotocolimpl/iskrap2lpc/daily.xml","/com/energyict/genericprotocolimpl/iskrap2lpc/monthly.xml"};
+    static final String dailyfrom0509 	= "/com/energyict/genericprotocolimpl/iskrap2lpc/dailyfrom0509.xml";
+    static final String monthlyfrom0509 = "/com/energyict/genericprotocolimpl/iskrap2lpc/monthlyfrom0509.xml";
+    static final String[] dailyMonthly0509_1 = {"/com/energyict/genericprotocolimpl/iskrap2lpc/dailyfrom0509.xml", "/com/energyict/genericprotocolimpl/iskrap2lpc/monthlyfrom0509.xml"};
+    static final String dailyto0509 	= "/com/energyict/genericprotocolimpl/iskrap2lpc/dailyto0509.xml";
+    static final String monthlyto0509 = "/com/energyict/genericprotocolimpl/iskrap2lpc/monthlyto0509.xml";
+    static final String[] dailyMonthly0509_2 = {"/com/energyict/genericprotocolimpl/iskrap2lpc/dailyto0509.xml", "/com/energyict/genericprotocolimpl/iskrap2lpc/monthlyto0509.xml"};
+    static final String nullp1 = "/com/energyict/genericprotocolimpl/iskrap2lpc/nullpointerstuff.xml";
+    static final String nullp2 = "/com/energyict/genericprotocolimpl/iskrap2lpc/nullpointerstuff2.xml";
+    static final String[] nullPointerProfile = {"/com/energyict/genericprotocolimpl/iskrap2lpc/NullPointer38547358_0.xml", "/com/energyict/genericprotocolimpl/iskrap2lpc/NullPointer38547358_1.xml"};
+    static final String dailyResult		= "/com/energyict/genericprotocolimpl/iskrap2lpc/dailyfromPLR.xml";
+    static final String monthlyResult	= "/com/energyict/genericprotocolimpl/iskrap2lpc/monthlyfromPLR.xml";
+    static final String[] dailyMonthlyResult = {"/com/energyict/genericprotocolimpl/iskrap2lpc/dailyfromPLR.xml", "/com/energyict/genericprotocolimpl/iskrap2lpc/monthlyfromPLR.xml"};
+    static final String oneMonthlyValue = "/com/energyict/genericprotocolimpl/iskrap2lpc/oneMonthlyValue.xml";
     
     static final String NON_Unknown = "NON.Unknown";
     static final String SYS_Startup = "SYS.Startup";

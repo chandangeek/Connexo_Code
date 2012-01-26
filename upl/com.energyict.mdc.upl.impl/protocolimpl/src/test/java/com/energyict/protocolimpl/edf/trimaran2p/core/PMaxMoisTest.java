@@ -49,7 +49,7 @@ public class PMaxMoisTest {
 		PMaxMois pmaxMois = new PMaxMois(deuxP.getTrimaranObjectFactory());
 		
 		try {
-			file = new File(Utils.class.getResource("/offlineFiles/trimaran/deuxp857/089807000857PMaxMois.bin").getFile());
+			file = new File(Utils.class.getResource("/com/energyict/protocolimpl/edf/trimaran/deuxp857/089807000857PMaxMois.bin").getFile());
 			fis = new FileInputStream(file);
 			byte[] data=new byte[(int)file.length()];
 	        fis.read(data);
