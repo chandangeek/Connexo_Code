@@ -22,8 +22,14 @@ abstract public class AbstractDataType implements Field {
 
 	protected abstract byte[] doGetBEREncodedByteArray();
 
-	protected abstract int size();
-	public abstract int intValue();
+    /**
+     * This method should return the COMPLETE size of the AbstractDataType, including the TYPE tag and the length if available
+     *
+     * @return the length of the BER encoded bytes of this AbstractDataType
+     */
+    protected abstract int size();
+
+    public abstract int intValue();
 	public abstract BigDecimal toBigDecimal();
 	public abstract long longValue();
 
