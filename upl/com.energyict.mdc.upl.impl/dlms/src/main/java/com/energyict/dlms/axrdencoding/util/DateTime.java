@@ -1,15 +1,13 @@
 package com.energyict.dlms.axrdencoding.util;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  *
@@ -184,8 +182,8 @@ public class DateTime extends AbstractDataType {
     }
 
 	protected int size() {
-		return SIZE;
-	}
+        return 1 + 1 + SIZE; // Tag + size byte + actual data (12 bytes)
+    }
 
 	public void setValue(Calendar dateTime) {
 		setValue(dateTime, (byte) 0);
