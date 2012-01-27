@@ -53,6 +53,8 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         this.protocolNames.add("Dukepower EnergyICT WebRTU & RTU V5");
         this.protocolClasses.add("com.energyict.protocolimpl.dlms.DLMSZMD");
         this.protocolNames.add("DLMS Siemens ZMD");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.ZMD");
+        this.protocolNames.add("SmartMeter DLMS Siemens ZMD");
         this.protocolClasses.add("com.energyict.protocolimpl.actarissevc.SEVC");
         this.protocolNames.add("IEC1107 Actaris SEVC-D gascorrector");
         this.protocolClasses.add("com.energyict.protocolimpl.dlms.DLMSLNSL7000");

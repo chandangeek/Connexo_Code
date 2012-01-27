@@ -65,6 +65,8 @@
 
 -keepnames class com.energyict.protocolimpl.dlms.DLMSZMD
 
+-keepnames class com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.ZMD
+
 -keepnames class com.energyict.protocolimpl.actarissevc.SEVC
 
 -keepnames class com.energyict.protocolimpl.dlms.DLMSLNSL7000
