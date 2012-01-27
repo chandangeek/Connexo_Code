@@ -240,6 +240,8 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         this.protocolClasses.add("com.energyict.protocolimpl.dlms.elster.ek2xx.EK2xx");
         this.protocolNames.add("DLMS Elster Instromet EK2xx");
         this.protocolClasses.add("com.energyict.protocolimpl.modbus.enerdis.enerium200.Enerium200");
+        this.protocolClasses.add("com.energyict.protocolimpl.modbus.enerdis.enerium150.Enerium150");
+        this.protocolClasses.add("com.energyict.protocolimpl.modbus.enerdis.enerium50.Enerium50");
         this.protocolNames.add("Enerdis Enerium 200 modbus meter");
         this.protocolClasses.add("com.energyict.protocolimpl.modbus.schneider.compactnsx.CompactNSX");
         this.protocolNames.add("Schneider Compact NSX Modbus meter");
