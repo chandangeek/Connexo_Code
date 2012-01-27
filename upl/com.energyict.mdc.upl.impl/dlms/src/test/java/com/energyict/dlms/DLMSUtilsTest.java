@@ -117,6 +117,7 @@ public class DLMSUtilsTest {
         assertEquals(4194303, getAXDRLength(getBytesFromHexString("$83$3F$FF$FF"), 0));
         assertEquals(8388607, getAXDRLength(getBytesFromHexString("$83$7F$FF$FF"), 0));
         assertEquals(16777215, getAXDRLength(getBytesFromHexString("$83$FF$FF$FF"), 0));
+        assertEquals(2147483647, getAXDRLength(getBytesFromHexString("$84$7F$FF$FF$FF"), 0));
     }
 
     @Test

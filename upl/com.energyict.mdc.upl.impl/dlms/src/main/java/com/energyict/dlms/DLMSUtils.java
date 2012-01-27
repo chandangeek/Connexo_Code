@@ -80,15 +80,15 @@ public final class DLMSUtils {
      * @param offset    The offset in the byteArray from which to start reading the length
      * @return the decimal converted length
      */
-    public static long getAXDRLength(byte[] bytes, int offset) {
-        long length = 0;
+    public static int getAXDRLength(byte[] bytes, int offset) {
+        int length = 0;
         if ((bytes[offset] & (byte) 0x80) != 0) {
             int nrOfBytes = (bytes[offset] & 0x7F);
             for (int i = 0; i < nrOfBytes; i++) {
-                length |= (((long) bytes[offset + i + 1] & 0xFF) << (8 * ((nrOfBytes - 1) - i)));
+                length |= ((bytes[offset + i + 1] & 0xFF) << (8 * ((nrOfBytes - 1) - i)));
             }
         } else {
-            length = ((long) bytes[offset] & 0xFF);
+            length = bytes[offset] & 0xFF;
         }
         return length;
     }
