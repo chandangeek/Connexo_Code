@@ -149,4 +149,33 @@ public class DLMSUtilsTest {
         assertEquals(4, getAXDRLengthOffset(getBytesFromHexString("$83$FF$FF$FF"), 0));
     }
 
+    @Test
+    public void testGetAXDRLengthOffsetInt() throws Exception {
+        assertEquals(1, getAXDRLengthOffset(0));
+        assertEquals(1, getAXDRLengthOffset(1));
+        assertEquals(1, getAXDRLengthOffset(3));
+        assertEquals(1, getAXDRLengthOffset(7));
+        assertEquals(1, getAXDRLengthOffset(15));
+        assertEquals(1, getAXDRLengthOffset(31));
+        assertEquals(1, getAXDRLengthOffset(63));
+        assertEquals(1, getAXDRLengthOffset(127));
+        assertEquals(2, getAXDRLengthOffset(255));
+        assertEquals(3, getAXDRLengthOffset(511));
+        assertEquals(3, getAXDRLengthOffset(1023));
+        assertEquals(3, getAXDRLengthOffset(2047));
+        assertEquals(3, getAXDRLengthOffset(4095));
+        assertEquals(3, getAXDRLengthOffset(8191));
+        assertEquals(3, getAXDRLengthOffset(16383));
+        assertEquals(3, getAXDRLengthOffset(32767));
+        assertEquals(3, getAXDRLengthOffset(65535));
+        assertEquals(4, getAXDRLengthOffset(131071));
+        assertEquals(4, getAXDRLengthOffset(262143));
+        assertEquals(4, getAXDRLengthOffset(524287));
+        assertEquals(4, getAXDRLengthOffset(1048575));
+        assertEquals(4, getAXDRLengthOffset(2097151));
+        assertEquals(4, getAXDRLengthOffset(4194303));
+        assertEquals(4, getAXDRLengthOffset(8388607));
+        assertEquals(4, getAXDRLengthOffset(16777215));
+    }
+
 }

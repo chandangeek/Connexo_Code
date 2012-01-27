@@ -22,9 +22,10 @@ import java.util.List;
 public final class DLMSUtils {
 
     /**
-     * Creates a new instance of DLMSUtils
+     * DLMSUtils is a static util class that never should be instantiated.
      */
     private DLMSUtils() {
+        // Hide the default constructor
     }
 
     public static byte attrSN2LN(int snAttr) {
@@ -70,6 +71,23 @@ public final class DLMSUtils {
             return ((axdrLength[offset] & 0x7f) + 1);
         } else {
             return 1;
+        }
+    }
+
+    /**
+     *
+     * @param contentLength
+     * @return
+     */
+    public static int getAXDRLengthOffset(int contentLength) {
+        if (contentLength < 128) {
+            return 1;
+        } else {
+            int bytes = 0;
+            while (contentLength > (1 << (bytes * 8))) {
+                bytes++;
+            }
+            return bytes + 1;
         }
     }
 
