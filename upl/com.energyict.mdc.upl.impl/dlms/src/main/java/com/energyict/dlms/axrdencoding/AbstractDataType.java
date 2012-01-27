@@ -8,7 +8,6 @@
 
 package com.energyict.dlms.axrdencoding;
 
-import com.energyict.dlms.cosem.Field;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.math.BigDecimal;
@@ -16,7 +15,7 @@ import java.math.BigDecimal;
 /**
  * @author kvds
  */
-abstract public class AbstractDataType implements Field {
+abstract public class AbstractDataType {
 
 	private int	level;
 
@@ -41,20 +40,18 @@ abstract public class AbstractDataType implements Field {
 		return doGetBEREncodedByteArray();
 	}
 
-	public byte[] toByteArray() {
-		return getContentByteArray();
-	}
+    public byte[] getContentByteArray() {
+        byte[] berEncoded = getBEREncodedByteArray();
+        if (isBitString()) {
+            return ProtocolTools.getSubArray(berEncoded, 2);
+        } else if (isOctetString()) {
+            return ((OctetString) this).getOctetStr();
+        } else {
+            return ProtocolTools.getSubArray(berEncoded, 1);
+        }
+    }
 
-	public byte[] getContentByteArray() {
-		byte[] berEncoded = getBEREncodedByteArray();
-		if (isBitString()) {
-			return ProtocolTools.getSubArray(berEncoded, 2);
-		} else {
-			return ProtocolTools.getSubArray(berEncoded, 1);
-		}
-	}
-
-	public BitString getBitString() {
+    public BitString getBitString() {
 		return isBitString() ? (BitString) this : null;
 	}
 

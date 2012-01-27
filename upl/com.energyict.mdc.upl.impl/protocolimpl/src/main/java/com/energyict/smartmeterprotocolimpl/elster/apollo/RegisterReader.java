@@ -104,7 +104,7 @@ public class RegisterReader {
 
     private RegisterValue convertCustomAbstractObjectsToRegisterValues(Register register, AbstractDataType abstractDataType) throws UnsupportedException {
         if (register.getObisCode().equals(ActivityCalendarNameObisCode) || register.getObisCode().equals(ChangeOfSupplierNameObisCode)) {
-            return new RegisterValue(register, null, null, null, null, new Date(), 0, new String(abstractDataType.toByteArray()));
+            return new RegisterValue(register, null, null, null, null, new Date(), 0, new String(abstractDataType.getContentByteArray()));
         }
         return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.getUndefined()), null, null, null, new Date(), 0, String.valueOf(abstractDataType.longValue()));
     }

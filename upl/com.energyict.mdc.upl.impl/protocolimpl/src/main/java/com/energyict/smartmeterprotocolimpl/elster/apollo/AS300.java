@@ -78,7 +78,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
             strBuilder.append(getObjectFactory().getFirmwareVersion().getString());
             strBuilder.append("(");
             try {
-                strBuilder.append(new String(getObjectFactory().getActiveFirmwareIdACOR().getAttrbAbstractDataType(-1).toByteArray()));
+                strBuilder.append(new String(getObjectFactory().getActiveFirmwareIdACOR().getAttrbAbstractDataType(-1).getContentByteArray()));
             } catch (IOException e) {
                 strBuilder.append("unknown");
             }

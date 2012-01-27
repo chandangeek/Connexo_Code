@@ -185,7 +185,7 @@ public class UkHubRegisterFactory implements BulkRegisterProtocol {
                 || rObisCode.equals(DeviceId7) || rObisCode.equals(DeviceId8) || rObisCode.equals(DeviceId10)
                 || rObisCode.equals(DeviceId50) || rObisCode.equals(DeviceId51) || rObisCode.equals(DeviceId52)
                 || rObisCode.equals(MeteringPointId)) {
-            return new RegisterValue(register, null, null, null, null, new Date(), 0, new String(abstractDataType.toByteArray()));
+            return new RegisterValue(register, null, null, null, null, new Date(), 0, new String(abstractDataType.getContentByteArray()));
         } else if(rObisCode.equals(ERROR_REGISTER) || rObisCode.equals(ALARM_REGISTER)){
             return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.getUndefined()), null, null, null, new Date(), 0, String.valueOf(abstractDataType.longValue()));
         } else {

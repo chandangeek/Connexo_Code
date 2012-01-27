@@ -120,7 +120,7 @@ public class ZigbeeGasRegisterFactory implements BulkRegisterProtocol {
             DLMSAttribute attribute = getObisCodeMapper().getAbstractTextDLMSAttribute(obisCode);
             Data data = getCosemObjectFactory().getData(obisCode);
 //            GenericRead genericRead = getCosemObjectFactory().getGenericRead(attribute);
-            return new RegisterValue(register, new String(data.getAttrbAbstractDataType(DataAttributes.VALUE.getAttributeNumber()).toByteArray()));
+            return new RegisterValue(register, new String(data.getAttrbAbstractDataType(DataAttributes.VALUE.getAttributeNumber()).getContentByteArray()));
         } else if (getObisCodeMapper().isAbstractValueRegister(obisCode)) {
             DLMSAttribute attribute = getObisCodeMapper().getAbstractValueDLMSAttribute(obisCode);
             GenericRead genericRead = getCosemObjectFactory().getGenericRead(attribute);

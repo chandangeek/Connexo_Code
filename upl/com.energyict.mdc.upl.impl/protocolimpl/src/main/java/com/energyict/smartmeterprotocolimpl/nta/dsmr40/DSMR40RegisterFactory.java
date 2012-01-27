@@ -116,7 +116,7 @@ public class DSMR40RegisterFactory extends Dsmr23RegisterFactory {
             int adminStatus = abstractDataType.intValue();
             return new RegisterValue(register, new Quantity(BigDecimal.valueOf(adminStatus), Unit.getUndefined()), null, null, null, new Date(), 0, AdministrativeStatus.getDescriptionForValue(adminStatus));
         } else if (rObisCode.equals(CORE_FIRMWARE_SIGNATURE) || rObisCode.equals(MODULE_FIRMWARE_SIGNATURE)) {
-            return new RegisterValue(register, null, null, null, null, new Date(), 0, new String(abstractDataType.toByteArray()));
+            return new RegisterValue(register, null, null, null, null, new Date(), 0, new String(abstractDataType.getContentByteArray()));
         }
 
         return super.convertCustomAbstractObjectsToRegisterValues(register, abstractDataType);

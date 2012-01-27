@@ -139,11 +139,6 @@ public class OctetString extends AbstractDataType {
 		return content;
 	}
 
-	@Override
-	public byte[] toByteArray() {
-		return getOctetStr();
-	}
-
 	public byte[] getOctetStr() {
 		return octetStr;
 	}

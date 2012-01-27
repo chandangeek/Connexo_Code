@@ -151,7 +151,7 @@ public class G3BStoredValues implements StoredValues {
      * @return
      */
     private boolean isValidOctetString(OctetString octetString) {
-        byte[] octetBytes = octetString.toByteArray();
+        byte[] octetBytes = octetString.getContentByteArray();
         return (octetBytes[0] != -1) || (octetBytes[1] != -1) || (octetBytes[2] != -1) || (octetBytes[3] != -1) || (octetBytes[4] != -1);
     }
 
