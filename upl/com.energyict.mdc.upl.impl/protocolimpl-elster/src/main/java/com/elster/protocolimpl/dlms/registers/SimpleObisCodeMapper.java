@@ -8,6 +8,7 @@ import com.elster.dlms.types.data.DlmsData;
 import com.elster.dlms.types.data.DlmsDataVisibleString;
 import com.elster.protocolimpl.dlms.util.DlmsUtils;
 import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
@@ -41,6 +42,17 @@ public class SimpleObisCodeMapper {
         }
 
         Date tst = new Date();
+
+        // special handling of "DST enabled"
+        if (obisCode.toString().equals("0.0.96.53.0.255")) {
+
+            SimpleClockObject clockObject = (SimpleClockObject) getObjectManager().getSimpleCosemObject(Ek280Defs.CLOCK_OBJECT);
+
+            String v = clockObject.isDaylightSavingsEnabled() ? "1" : "0";
+                Quantity val = new Quantity(v, Unit.getUndefined());
+                //System.out.println("OBIS(sro):" + obisCode.toString() + "=" + ((SimpleRegisterObject) vm).getValueAsString() + " <" + u + ">");
+                return new RegisterValue(obisCode, val, null, tst);
+        }
 
         // special handling of meter location (should be later in ElsterDlmsLibrary)
         if (obisCode.toString().equals("7.128.0.0.6.255")) {

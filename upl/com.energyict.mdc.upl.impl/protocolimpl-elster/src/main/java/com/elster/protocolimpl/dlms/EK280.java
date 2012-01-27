@@ -1,6 +1,7 @@
 package com.elster.protocolimpl.dlms;
 
 import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
+import com.elster.dlms.types.basic.ObisCode;
 import com.elster.protocolimpl.dlms.registers.DlmsRegisterMapping;
 import com.elster.protocolimpl.dlms.registers.RegisterMap;
 
@@ -22,6 +23,15 @@ public class EK280 extends Dlms {
             new DlmsRegisterMapping(new com.energyict.obis.ObisCode(0, 3, 96, 12, 6, 255), Ek280Defs.GSM_PHONE_NUMBER),
             new DlmsRegisterMapping(new com.energyict.obis.ObisCode(0, 0, 96, 6, 6, 255), Ek280Defs.BATTERY_REMAINING),
             new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 9, 4, 255), Ek280Defs.REMAINING_SHIFT_TIME),
+
+            // new since 27/01/2012
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(0, 0, 96, 53, 0, 255), new ObisCode("0.0.96.53.0.255")),
+            // new since 27/01/2012
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 0, 9, 255), Ek280Defs.EQUIPMENT_CLASS),
+            // new since 27/01/2012
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 96, 99, 5, 255), Ek280Defs.NUMBER_OF_PRE_DECIMAL_PLACES),
+            // new since 27/01/2012
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 1, 0, 7, 2, 255), Ek280Defs.CP_VALUE),
 
             new DlmsRegisterMapping(new com.energyict.obis.ObisCode(0, 0, 96, 52, 0, 255), Ek280Defs.INSTALLATION_DATE),
             new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 2, 0, 255), Ek280Defs.EQUIPMENT_CONFIG),
