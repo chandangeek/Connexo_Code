@@ -315,7 +315,7 @@
     </dependencyManagement>
 
     <scm>
-        <developerConnection>scm:svn:http://linux2/svn/labo/protocols/trunk</developerConnection>
+        <developerConnection>scm:svn:http://source.eict.vpdc/svn/labo/protocols/trunk</developerConnection>
     </scm>
 
     <modules>
