@@ -63,7 +63,8 @@ public class AS300ObisCodeProvider implements CommonObisCodeProvider {
     public static final ObisCode POWER_FAILURE_EVENTLOG_OBISCODE = ObisCode.fromString("0.0.99.98.5.255");
     public static final ObisCode COMMUNICATION_FAILURE_EVENTLOG_OBISCODE = ObisCode.fromString("0.0.99.98.6.255");
     public static final ObisCode PREPAYMENT_EVENTLOG_OBISCODE = ObisCode.fromString("0.0.99.98.7.255");
-    public static final ObisCode CLOCK_SYNC_EVENTLOG_OBISCODE = ObisCode.fromString("0.0.99.98.30.255");    
+    public static final ObisCode TARIFF_UPDATE_EVENTLOG_OBISCODE = ObisCode.fromString("0.0.99.98.9.255");
+    public static final ObisCode CLOCK_SYNC_EVENTLOG_OBISCODE = ObisCode.fromString("0.0.99.98.30.255");
 
     public static final ObisCode InstantaneousEnergyValuesObisCode = ObisCode.fromString("0.0.21.0.6.255");
     public static final ObisCode RefVoltagePQObisCode = ObisCode.fromString("1.0.0.6.4.255");

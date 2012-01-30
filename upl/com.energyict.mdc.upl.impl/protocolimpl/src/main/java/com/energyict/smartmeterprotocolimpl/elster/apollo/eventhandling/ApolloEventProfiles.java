@@ -44,6 +44,7 @@ public class ApolloEventProfiles {
         meterEvents.addAll(getPowerQualityEvents(fromCalendar));
         meterEvents.addAll(getPowerFailureEvents(fromCalendar));
         meterEvents.addAll(getCommunicationFailureEvents(fromCalendar));
+        meterEvents.addAll(getTariffUpdateEvents(fromCalendar));
         meterEvents.addAll(getPrepaymentEvents(fromCalendar));
         meterEvents.addAll(getClockSyncEvents(fromCalendar));
         EventUtils.removeDuplicateEvents(meterEvents);
@@ -60,6 +61,21 @@ public class ApolloEventProfiles {
     private List<MeterEvent> getPrepaymentEvents(Calendar from) throws IOException {
         AS300EventLog basicEventLog = new AS300EventLog(
                 AS300ObisCodeProvider.PREPAYMENT_EVENTLOG_OBISCODE,
+                getCosemObjectFactory(),
+                getLogger()
+        );
+        return basicEventLog.getEvents(from);
+    }
+
+    /**
+     * Collect the events from the SynchronizationEvents logbook
+     *
+     * @param from the time to start collecting events from
+     * @return the List of meterEvents
+     */
+    private List<MeterEvent> getTariffUpdateEvents(Calendar from) throws IOException {
+        AS300EventLog basicEventLog = new AS300EventLog(
+                AS300ObisCodeProvider.TARIFF_UPDATE_EVENTLOG_OBISCODE,
                 getCosemObjectFactory(),
                 getLogger()
         );
