@@ -80,11 +80,14 @@ public class AlphaA3LoadProfile {
     }
 
     private void buildPQMLog(ProfileData profileData, Date from, Date to) throws IOException {
-
-        List<MeterEvent> meterEvents = alphaA3.getManufacturerTableFactory().getPowerQualityMonitorLog().getMeterEvents();
-        meterEvents = filterEvents(meterEvents, from, to);
-        if (meterEvents.size() > 0) {
-            profileData.getMeterEvents().addAll(meterEvents);
+        if (alphaA3.getManufacturerTableFactory().getPowerQualityMonitorTests().hasPQMFunctionality()) {
+            List<MeterEvent> meterEvents = alphaA3.getManufacturerTableFactory().getPowerQualityMonitorLog().getMeterEvents();
+            meterEvents = filterEvents(meterEvents, from, to);
+            if (meterEvents.size() > 0) {
+                profileData.getMeterEvents().addAll(meterEvents);
+            }
+        } else {
+            alphaA3.getLogger().info("PQM functionality is disabled in device. Skipping readout of PQM logbook.");
         }
     }
 
