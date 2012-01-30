@@ -43,10 +43,10 @@ import java.util.logging.Logger;
  * Class that implements Elster A3 ANSI C12 meter. 
  * <BR>
  * <B>@beginchanges</B><BR>
-KV|04072007|Add additional multipliers
-KV|24072007|Allow null password
-KV|26072007|Add UOM codes 4 & 5
-KV|08102007|Bugfix load profile interval end time
+ * KV|04072007|Add additional multipliers
+ * KV|24072007|Allow null password
+ * KV|26072007|Add UOM codes 4 & 5
+ * KV|08102007|Bugfix load profile interval end time
  * @endchanges
  */
 
