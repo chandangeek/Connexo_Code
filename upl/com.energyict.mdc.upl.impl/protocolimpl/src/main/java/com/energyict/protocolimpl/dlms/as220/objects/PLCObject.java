@@ -53,7 +53,7 @@ public class PLCObject extends AbstractCosemObject {
      */
     public OctetString getLogicalName() {
         try {
-            return new OctetString(getResponseData(PLCObjectAttribute.LOGICAL_NAME));
+            return new OctetString(getResponseData(PLCObjectAttribute.LOGICAL_NAME), 0);
         } catch (IOException e) {
             return null;
         }

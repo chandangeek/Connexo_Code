@@ -1,17 +1,15 @@
 package com.energyict.dlms.cosem;
 
-import java.io.IOException;
-
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.RegisterReadable;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributeobjects.DesynchronizationListing;
 import com.energyict.dlms.cosem.attributeobjects.MacUnsigned32Couples;
 import com.energyict.dlms.cosem.attributes.SFSKMacCountersAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+
+import java.io.IOException;
 
 /**
  * @author jme
@@ -47,7 +45,7 @@ public class SFSKMacCounters extends AbstractCosemObject implements RegisterRead
 	 */
 	public OctetString getLogicalName() {
 		try {
-			return new OctetString(getResponseData(SFSKMacCountersAttribute.LOGICAL_NAME));
+			return new OctetString(getResponseData(SFSKMacCountersAttribute.LOGICAL_NAME), 0);
 		} catch (IOException e) {
 			return null;
 		}
@@ -147,7 +145,7 @@ public class SFSKMacCounters extends AbstractCosemObject implements RegisterRead
 			switch (attribute) {
 				case LOGICAL_NAME:
 					OctetString ln = getLogicalName();
-					return new RegisterValue(getDefaultObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
+					return new RegisterValue(getDefaultObisCode(), ln != null ? ObisCode.fromByteArray(ln.getOctetStr()).toString() : "null");
 				case SYNCHRONIZATION_REGISTER:
 					MacUnsigned32Couples sync = getSynchronizationRegister();
 					return new RegisterValue(getDefaultObisCode(), sync != null ? sync.toString() : "null");

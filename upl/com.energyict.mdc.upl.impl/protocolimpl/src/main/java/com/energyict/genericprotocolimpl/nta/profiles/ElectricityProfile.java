@@ -183,7 +183,7 @@ public class ElectricityProfile extends AbstractNTAProfile{
 				
 				if(dc.getRoot().getStructure(i).isOctetString(0)){
 //					cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getTimeZone());
-					cal = new AXDRDateTime(new OctetString(dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).getArray())).getValue();
+					cal = new AXDRDateTime(OctetString.fromByteArray(dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).getArray())).getValue();
 				} else {
 					if(cal != null){
 						cal.add(Calendar.SECOND, pg.getCapturePeriod());

@@ -1,7 +1,5 @@
 package com.energyict.dlms.cosem;
 
-import java.io.IOException;
-
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.RegisterReadable;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -9,6 +7,8 @@ import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.attributes.SFSKSyncTimeoutsAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+
+import java.io.IOException;
 
 /**
  * @author jme
@@ -37,7 +37,7 @@ public class SFSKSyncTimeouts extends AbstractCosemObject implements RegisterRea
 	 */
 	public OctetString getLogicalName() {
 		try {
-			return new OctetString(getResponseData(SFSKSyncTimeoutsAttribute.LOGICAL_NAME));
+			return new OctetString(getResponseData(SFSKSyncTimeoutsAttribute.LOGICAL_NAME), 0);
 		} catch (IOException e) {
 			return null;
 		}
@@ -119,7 +119,7 @@ public class SFSKSyncTimeouts extends AbstractCosemObject implements RegisterRea
 			switch (attribute) {
 				case LOGICAL_NAME:
 					OctetString ln = getLogicalName();
-					return new RegisterValue(getDefaultObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
+					return new RegisterValue(getDefaultObisCode(), ln != null ? ObisCode.fromByteArray(ln.getOctetStr()).toString() : "null");
 				case SEARCH_INITIATOR_TIMEOUT:
 					Unsigned16 search = getSearchInitiatorTimeout();
 					return new RegisterValue(getDefaultObisCode(), search != null ? String.valueOf(search.getValue()) : "null");

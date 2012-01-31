@@ -10,8 +10,8 @@ public class ActivatePassiveCalendarEncoder implements Encoder {
         
         ActivityCalendar ac = (ActivityCalendar) value;
         
-        return 
-            new OctetString( 
+        return
+                OctetString.fromByteArray(
                     ac.getActivatePassiveCalendarTime()
                         .getOctetString().getOctets() );
         

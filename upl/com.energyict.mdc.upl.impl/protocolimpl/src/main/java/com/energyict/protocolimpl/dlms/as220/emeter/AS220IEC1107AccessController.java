@@ -54,7 +54,7 @@ public class AS220IEC1107AccessController {
             Structure sequence = new Structure(
                     new Unsigned8(classId),
                     new Unsigned16(offset),
-                    new OctetString(rawData)
+                    OctetString.fromByteArray(rawData)
             );
             data.setValueAttr(sequence);
             getAs220().getLogger().severe("Successfully send RawData to IEC class ["+classId+"] with offset ["+offset+"].");

@@ -7,10 +7,10 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
-import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.mdw.shadow.RtuShadow;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -60,7 +60,7 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 					ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getPhysicalAddress()).getObisCode());
 					byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn(); 
 					Structure scriptStruct = new Structure();
-					scriptStruct.addDataType(new OctetString(scriptLogicalName));
+					scriptStruct.addDataType(OctetString.fromByteArray(scriptLogicalName));
 					scriptStruct.addDataType(new Unsigned16(2)); 	// method '2' is the 'remote_connect' method
 					
 					sasConnect.writeExecutedScript(scriptStruct);
@@ -85,7 +85,7 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 					ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getPhysicalAddress()).getObisCode());
 					byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn(); 
 					Structure scriptStruct = new Structure();
-					scriptStruct.addDataType(new OctetString(scriptLogicalName));
+					scriptStruct.addDataType(OctetString.fromByteArray(scriptLogicalName));
 					scriptStruct.addDataType(new Unsigned16(1));	// method '1' is the 'remote_disconnect' method
 					
 					sasDisconnect.writeExecutedScript(scriptStruct);
@@ -169,9 +169,9 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 				MBusClient mc = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getPhysicalAddress()).getObisCode());
 				Array capDef = new Array();
 				Structure struct = new Structure();
-				OctetString dib = new OctetString(new byte[]{0x0C});
+				OctetString dib = OctetString.fromByteArray(new byte[]{0x0C});
 				struct.addDataType(dib);
-				OctetString vib = new OctetString(new byte[]{0x13});
+				OctetString vib = OctetString.fromByteArray(new byte[]{0x13});
 				struct.addDataType(vib);
 				capDef.addDataType(struct);
 				mc.writeCaptureDefinition(capDef);
@@ -184,9 +184,9 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 				MBusClient mc = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getPhysicalAddress()).getObisCode());
 				Array capDef = new Array();
 				Structure struct = new Structure();
-				OctetString dib = new OctetString(new byte[]{(byte)0x0C});
+				OctetString dib = OctetString.fromByteArray(new byte[]{(byte)0x0C});
 				struct.addDataType(dib);
-				OctetString vib = new OctetString(new byte[]{(byte)0x93, (byte)0x3A});
+				OctetString vib = OctetString.fromByteArray(new byte[]{(byte)0x93, (byte)0x3A});
 				struct.addDataType(vib);
 				capDef.addDataType(struct);
 				mc.writeCaptureDefinition(capDef);

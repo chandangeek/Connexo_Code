@@ -1,22 +1,14 @@
 package com.energyict.genericprotocolimpl.iskragprs.imagetransfer;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.logging.Level;
-
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.TCPIPConnection;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.ScriptTable;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.iskragprs.IskraMx37x;
 import com.energyict.obis.ObisCode;
+
+import java.io.IOException;
+import java.util.logging.Level;
 
 /**
  * 
@@ -343,8 +335,8 @@ public class ImageTransfer {
 				Array imgArray = new Array();
 				blockOffset = (int)(getFirstMissingBlocks() * getImageBlockSize());
 				transferBlockOffset = getByteBlockOffset(blockOffset);
-				imgArray.addDataType(new OctetString(transferBlockOffset));
-				imgArray.addDataType(new OctetString(sendImageData));
+				imgArray.addDataType(OctetString.fromByteArray(transferBlockOffset));
+				imgArray.addDataType(OctetString.fromByteArray(sendImageData));
 				
 				this.iskraMx37x.getLogger().log(Level.INFO, "ImageTransfer: Retransmitting imageblock nr. " + getFirstMissingBlocks());
 				

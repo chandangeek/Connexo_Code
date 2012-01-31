@@ -85,7 +85,7 @@ public class MbusDailyMonthlyProfile extends AbstractNTAProfile {
         if (dc.getRoot().getElements().length != 0) {
             for (int i = 0; i < dc.getRoot().getElements().length; i++) {
                 if (dc.getRoot().getStructure(i).isOctetString(0)) {
-                    cal = new AXDRDateTime(new OctetString(dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).getArray())).getValue();
+                    cal = new AXDRDateTime(OctetString.fromByteArray(dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).getArray())).getValue();
                 } else {
                     if (cal != null) {
                         if (timeDuration == TimeDuration.DAYS) { //the daily profile is constructed from the hourly profile so only add 1 hour to the calendar

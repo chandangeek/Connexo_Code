@@ -1,14 +1,12 @@
 package com.energyict.protocolimpl.dlms.as220.gmeter;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.protocol.MeterEvent;
+
+import java.io.IOException;
+import java.util.*;
 
 public class GMetersLog {
 
@@ -44,7 +42,6 @@ public class GMetersLog {
 	/**
 	 * Default constructor
 	 * @param dc 
-	 * 			- a {@link DataConstainer} containing the events and there timeStamp
 	 */
 	public GMetersLog(DataContainer dc){
 		this.dcEvents = dc;
@@ -64,7 +61,7 @@ public class GMetersLog {
 		for(int i = 0; i <= (size-1); i++){
 			int eventId = (int)this.dcEvents.getRoot().getStructure(i).getValue(1)&0xFF; // To prevent negative values
 			if(isOctetString(this.dcEvents.getRoot().getStructure(i).getElement(0))){
-				eventTimeStamp = new AXDRDateTime(new OctetString(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray())).getValue().getTime();
+				eventTimeStamp = new AXDRDateTime(OctetString.fromByteArray(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray())).getValue().getTime();
 			}
 			if(eventTimeStamp != null){
 				buildMeterEvent(meterEvents, eventTimeStamp, eventId);

@@ -3,10 +3,10 @@ package com.energyict.protocolimpl.dlms.as220.gmeter;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 
 import java.io.IOException;
 import java.util.*;
@@ -193,8 +193,8 @@ public class GMeterMessaging implements MessageProtocol {
 	 */
     private void enableEncryption(MessageEntry messageEntry) throws IOException{
     	Structure rawData = new Structure();
-    	rawData.addDataType(new OctetString(DLMSUtils.hexStringToByteArray(getMessageValue(messageEntry.getContent(), RtuMessageConstant.MBUS_OPEN_KEY))));
-    	rawData.addDataType(new OctetString(DLMSUtils.hexStringToByteArray(getMessageValue(messageEntry.getContent(), RtuMessageConstant.MBUS_TRANSFER_KEY))));
+    	rawData.addDataType(OctetString.fromByteArray(DLMSUtils.hexStringToByteArray(getMessageValue(messageEntry.getContent(), RtuMessageConstant.MBUS_OPEN_KEY))));
+    	rawData.addDataType(OctetString.fromByteArray(DLMSUtils.hexStringToByteArray(getMessageValue(messageEntry.getContent(), RtuMessageConstant.MBUS_TRANSFER_KEY))));
     	getGasDevice().getgMeter().getGasInstallController().setBothKeysAtOnce(rawData.getBEREncodedByteArray());
     }
     

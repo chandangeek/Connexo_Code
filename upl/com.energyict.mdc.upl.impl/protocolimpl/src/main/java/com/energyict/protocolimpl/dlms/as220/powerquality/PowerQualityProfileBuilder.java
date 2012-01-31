@@ -89,7 +89,7 @@ public class PowerQualityProfileBuilder {
 
             for (int i = 0; i < dc.getRoot().getElements().length; i++) {
                 if (dc.getRoot().getStructure(i).isOctetString(0)) {
-                    OctetString octetString = new OctetString(dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex()).getArray());
+                    OctetString octetString = OctetString.fromByteArray(dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex()).getArray());
                     cal = new AXDRDateTime(octetString.getBEREncodedByteArray(), 0, as220.getTimeZone()).getValue();
                 } else {
                     if (cal != null) {

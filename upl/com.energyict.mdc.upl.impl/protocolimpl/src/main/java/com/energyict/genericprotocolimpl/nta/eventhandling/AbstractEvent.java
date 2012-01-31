@@ -6,10 +6,7 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.protocol.MeterEvent;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * The Abstract Event class contains common functionality for the NTA event profiles
@@ -57,7 +54,7 @@ public abstract class AbstractEvent {
         for (int i = 0; i <= (size - 1); i++) {
             int eventId = (int) this.dcEvents.getRoot().getStructure(i).getValue(1) & 0xFF; // To prevent negative values
             if (isOctetString(this.dcEvents.getRoot().getStructure(i).getElement(0))) {
-                eventTimeStamp = new AXDRDateTime(new OctetString(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray())).getValue().getTime();
+                eventTimeStamp = new AXDRDateTime(OctetString.fromByteArray(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray())).getValue().getTime();
             }
             if (eventTimeStamp != null) {
                 buildMeterEvent(meterEvents, eventTimeStamp, eventId);

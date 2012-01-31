@@ -255,7 +255,7 @@ public class AssociationLN extends AbstractCosemObject {
     	if(response[0] == TYPEDESC_STRUCTURE){ // Structure
     		this.authenticationMechanismName = new Structure(response, 0, 0);
     	} else if(response[0] == TYPEDESC_OCTET_STRING){
-    		this.authenticationMechanismName = new OctetString(response);
+    		this.authenticationMechanismName = OctetString.fromByteArray(response);
     	} else {
     		throw new IOException("Response is doesn't contain a valid type");
     	}
@@ -291,7 +291,7 @@ public class AssociationLN extends AbstractCosemObject {
     	if(response[0] == TYPEDESC_STRUCTURE){ // Structure
     		this.applicationContextName = new Structure(response, 0, 0);
     	} else if(response[0] == TYPEDESC_OCTET_STRING){
-    		this.applicationContextName = new OctetString(response);
+    		this.applicationContextName = OctetString.fromByteArray(response);
     	} else {
     		throw new IOException("Response is doesn't contain a valid type");
     	}
@@ -350,7 +350,7 @@ public class AssociationLN extends AbstractCosemObject {
      * @throws IOException when invoking the method fails or when decoding the object failed
      */
     public byte[] replyToHLSAuthentication(byte[] encryptedChallenge) throws IOException{
-    	return invoke(METHOD_REPLY_TO_HLS_AUTHENTICATION, new OctetString(encryptedChallenge).getBEREncodedByteArray());
+    	return invoke(METHOD_REPLY_TO_HLS_AUTHENTICATION, OctetString.fromByteArray(encryptedChallenge).getBEREncodedByteArray());
     }
 
     /**
@@ -361,7 +361,7 @@ public class AssociationLN extends AbstractCosemObject {
      * @throws IOException
      */
     public byte[] changeHLSSecret(byte[] hlsSecret)throws IOException {
-    	return invoke(METHOD_CHANGE_HLS_SECRET, new OctetString(hlsSecret).getBEREncodedByteArray());
+    	return invoke(METHOD_CHANGE_HLS_SECRET, OctetString.fromByteArray(hlsSecret).getBEREncodedByteArray());
     }
 
     /**

@@ -243,7 +243,7 @@ public class FileTransfer extends AbstractCosemObject{
 			    }
 
 			}
-			os = new OctetString(octetStringData);
+			os = OctetString.fromByteArray(octetStringData);
 			imageBlockTransfer = new Structure();
 			imageBlockTransfer.addDataType(new Unsigned32(i));
 			imageBlockTransfer.addDataType(os);
@@ -318,7 +318,7 @@ public class FileTransfer extends AbstractCosemObject{
 						(int)blockSize);
 			}
 
-			os = new OctetString(octetStringData);
+			os = OctetString.fromByteArray(octetStringData);
 			imageBlockTransfer = new Structure();
 			imageBlockTransfer.addDataType(new Unsigned32((int)this.getImageFirstNotTransferedBlockNumber().getValue()));
 			imageBlockTransfer.addDataType(os);

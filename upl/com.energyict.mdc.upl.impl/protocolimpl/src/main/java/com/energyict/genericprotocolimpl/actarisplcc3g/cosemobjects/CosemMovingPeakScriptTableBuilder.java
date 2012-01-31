@@ -39,7 +39,7 @@ public class CosemMovingPeakScriptTableBuilder {
             structureScript.addDataType(new Unsigned16(mps.getScriptId()));
             structureScript.addDataType(new TypeEnum(mps.getServiceId()));
             structureScript.addDataType(new Unsigned16(mps.getClassId()));
-            structureScript.addDataType(new OctetString(mps.getLogicalNameOctets()));
+            structureScript.addDataType(OctetString.fromByteArray(mps.getLogicalNameOctets()));
             structureScript.addDataType(new Integer16(mps.getIndex()));
             structureScript.addDataType(new NullData());
         }

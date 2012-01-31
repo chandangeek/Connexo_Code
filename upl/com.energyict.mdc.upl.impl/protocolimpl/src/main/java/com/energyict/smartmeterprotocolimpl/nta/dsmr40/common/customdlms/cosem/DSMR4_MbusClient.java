@@ -85,7 +85,7 @@ public class DSMR4_MbusClient extends MBusClient {
      * @throws IOException if for some reason you could not read the attribute
      */
     public OctetString readDsmrCompliancyLevel() throws IOException {
-        this.dsmrCompliancyLevel = new OctetString(getResponseData(DSMR4_MbusClientAttributes.DSMR_COMPLIANCY_LEVEL));
+        this.dsmrCompliancyLevel = new OctetString(getResponseData(DSMR4_MbusClientAttributes.DSMR_COMPLIANCY_LEVEL), 0);
         return this.dsmrCompliancyLevel;
     }
 

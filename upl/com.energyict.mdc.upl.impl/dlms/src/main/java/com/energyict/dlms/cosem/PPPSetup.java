@@ -3,17 +3,11 @@
  */
 package com.energyict.dlms.cosem;
 
-import java.io.IOException;
-
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.NullData;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.*;
+
+import java.io.IOException;
 
 /**
  * @author gna
@@ -173,12 +167,12 @@ public class PPPSetup extends AbstractCosemObject {
 					case LCPOptionsType.AUTH_NO_AUTHENTICATION : {this.authentication = LCPOptionsType.AUTH_NO_AUTHENTICATION;}break;
 					case LCPOptionsType.AUTH_PAP : {
 						this.authentication = LCPOptionsType.AUTH_PAP;
-						this.username = new OctetString(this.dataContainer.getRoot().getOctetString(0).getArray());	// conversion from one octetString to the other ...
-						this.password = new OctetString(this.dataContainer.getRoot().getOctetString(1).getArray());	// conversion from one octetString to the other ...
+						this.username = OctetString.fromByteArray(this.dataContainer.getRoot().getOctetString(0).getArray());	// conversion from one octetString to the other ...
+						this.password = OctetString.fromByteArray(this.dataContainer.getRoot().getOctetString(1).getArray());	// conversion from one octetString to the other ...
 						}break;
 					case LCPOptionsType.AUTH_CHAP : {
 						this.authentication = LCPOptionsType.AUTH_CHAP;
-						this.username = new OctetString(this.dataContainer.getRoot().getOctetString(0).getArray());	// conversion from one octetString to the other ...
+						this.username = OctetString.fromByteArray(this.dataContainer.getRoot().getOctetString(0).getArray());	// conversion from one octetString to the other ...
 						this.algorithmId = new Unsigned8(this.dataContainer.getRoot().getInteger(1));
 						}break;
 					case LCPOptionsType.AUTH_EAP : {

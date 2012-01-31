@@ -109,7 +109,7 @@ public class IDISMBusMessageHandler extends IDISMessageHandler {
         SingleActionSchedule singleActionSchedule = idis.getCosemObjectFactory().getSingleActionSchedule(TIMED_CONNECTOR_ACTION_MBUS_OBISCODE);
 
         Structure scriptStruct = new Structure();
-        scriptStruct.addDataType(new OctetString(DISCONNECTOR_SCRIPT_MBUS_OBISCODE.getLN()));
+        scriptStruct.addDataType(OctetString.fromByteArray(DISCONNECTOR_SCRIPT_MBUS_OBISCODE.getLN()));
         scriptStruct.addDataType(new Unsigned16(action + (2 * (idis.getGasSlotId() - 1))));     // 1 = disconnect MBus 1, 2 = reconnect MBus 1, 3 = disconnect MBus 2,...
 
         singleActionSchedule.writeExecutedScript(scriptStruct);

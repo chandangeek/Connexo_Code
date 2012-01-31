@@ -37,7 +37,7 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 	 */
 	public OctetString getLogicalName() {
 		try {
-			return new OctetString(getResponseData(SFSKPhyMacSetupAttribute.LOGICAL_NAME));
+			return new OctetString(getResponseData(SFSKPhyMacSetupAttribute.LOGICAL_NAME), 0);
 		} catch (IOException e) {
 			return null;
 		}
@@ -350,7 +350,7 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 			switch (attribute) {
 				case LOGICAL_NAME:
 					OctetString ln = getLogicalName();
-					return new RegisterValue(getDefaultObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
+					return new RegisterValue(getDefaultObisCode(), ln != null ? ObisCode.fromByteArray(ln.getOctetStr()).toString() : "null");
 				case INITIATOR_ELECTRICAL_PHASE:
 					ElectricalPhase phase = getInitiatorElectricalPhase();
 					return new RegisterValue(getDefaultObisCode(), phase != null ? phase.toString() : "null");

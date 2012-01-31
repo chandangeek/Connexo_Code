@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.dlms.as220.plc.events;
 
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import org.apache.axis.types.UnsignedInt;
 import org.junit.Test;
 
 import java.util.TimeZone;
@@ -34,7 +33,7 @@ public class PLCEventTest {
     public void testGetDescription() throws Exception {
         // 1. Test of "Start of plc scan" Event
         Structure structure = new Structure(
-                new OctetString(ProtocolTools.getBytesFromHexString("07DB0607020B192F00800000", "")),
+                OctetString.fromByteArray(ProtocolTools.getBytesFromHexString("07DB0607020B192F00800000", "")),
                 new Unsigned8(0),
                 new Unsigned16(0),
                 new BooleanObject(false),
@@ -53,7 +52,7 @@ public class PLCEventTest {
 
         // 2. Test of "End of plc scan. Selected [masterid] on channel [channelid]" Event
         structure = new Structure(
-                new OctetString(ProtocolTools.getBytesFromHexString("07DB0607020B192F00800000", "")),
+                OctetString.fromByteArray(ProtocolTools.getBytesFromHexString("07DB0607020B192F00800000", "")),
                 new Unsigned8(1),       // !=0
                 new Unsigned16(5),      // !=0
                 new BooleanObject(false),

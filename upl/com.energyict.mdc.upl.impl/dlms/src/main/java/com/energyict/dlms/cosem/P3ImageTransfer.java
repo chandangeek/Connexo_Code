@@ -144,7 +144,7 @@ public class P3ImageTransfer extends AbstractCosemObject{
 				System.arraycopy(this.data, (int)(i*getMaxImageBlockSize().getValue()), octetStringData, 0, 
 						(int)blockSize);
 			}
-			os = new OctetString(trimByteArray(octetStringData));
+			os = OctetString.fromByteArray(trimByteArray(octetStringData));
 			this.imageBlockTransfer = new Structure();
 			this.imageBlockTransfer.addDataType(new Unsigned32(i));
 			this.imageBlockTransfer.addDataType(os);
@@ -214,7 +214,7 @@ public class P3ImageTransfer extends AbstractCosemObject{
 						(int)blockSize);
 			}
 			
-			os = new OctetString(trimByteArray(octetStringData));
+			os = OctetString.fromByteArray(trimByteArray(octetStringData));
 			this.imageBlockTransfer = new Structure();
 			this.imageBlockTransfer.addDataType(new Unsigned32((int)getFirstMissingBlock().getValue()));
 			this.imageBlockTransfer.addDataType(os);

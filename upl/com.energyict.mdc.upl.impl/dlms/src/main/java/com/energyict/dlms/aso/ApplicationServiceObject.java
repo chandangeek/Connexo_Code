@@ -211,18 +211,18 @@ public class ApplicationServiceObject {
         if ((this.acse.getContextId() == AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING)
                 || (this.acse.getContextId() == AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_WITH_CIPHERING)) {            // reply with AssociationLN
             AssociationLN aln = new AssociationLN(this.protocolLink);
-            decryptedResponse = new OctetString(aln.replyToHLSAuthentication(digest));
+            decryptedResponse = new OctetString(aln.replyToHLSAuthentication(digest), 0);
         } else if ((this.acse.getContextId() == AssociationControlServiceElement.SHORT_NAME_REFERENCING_NO_CIPHERING)
                 || (this.acse.getContextId() == AssociationControlServiceElement.SHORT_NAME_REFERENCING_WITH_CIPHERING)) {    // reply with AssociationSN
             AssociationSN asn = new CosemObjectFactory(this.protocolLink).getAssociationSN();
-            decryptedResponse = new OctetString(asn.replyToHLSAuthentication(digest));
+            decryptedResponse = new OctetString(asn.replyToHLSAuthentication(digest), 0);
         } else {
             throw new IllegalArgumentException("Invalid ContextId: " + this.acse.getContextId());
         }
         if (decryptedResponse.getOctetStr().length == 0) {
             return new byte[0];
         }
-        return decryptedResponse.getContentBytes();
+        return decryptedResponse.getOctetStr();
     }
 
     /**

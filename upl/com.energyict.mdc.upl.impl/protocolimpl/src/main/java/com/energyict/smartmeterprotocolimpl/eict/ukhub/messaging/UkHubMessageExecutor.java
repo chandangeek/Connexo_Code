@@ -193,7 +193,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
                 throw new IOException("Invalid value for extended Pan ID:" + extendedPanId + ", length should be equal or less than 8 bytes");
             }
             extendedPanIdValue = ProtocolTools.concatByteArrays(new byte[8 - extendedPanIdValue.length], extendedPanIdValue);
-            OctetString extendedPanIdObject = new OctetString(extendedPanIdValue);
+            OctetString extendedPanIdObject = OctetString.fromByteArray(extendedPanIdValue);
             zigBeeSASStartup.writeExtendedPanId(extendedPanIdObject);
         }
 

@@ -108,7 +108,7 @@ public class GProfileBuilder {
 
                 if(dc.getRoot().getStructure(i) != null){
                     if(dc.getRoot().getStructure(i).isOctetString(0)){	// it is a date
-                        cal = new DateTime(new OctetString(dc.getRoot().getStructure(i).getOctetString(0).getArray()), getGasDevice().getTimeZone()).getValue();
+                        cal = new DateTime(OctetString.fromByteArray(dc.getRoot().getStructure(i).getOctetString(0).getArray()), getGasDevice().getTimeZone()).getValue();
                     } else {
                         if(cal != null){
                             cal.add(Calendar.SECOND, capturePeriod);

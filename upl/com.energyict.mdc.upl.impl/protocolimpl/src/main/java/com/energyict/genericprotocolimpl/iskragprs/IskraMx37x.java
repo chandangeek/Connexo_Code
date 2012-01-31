@@ -1394,7 +1394,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
             byte[] b = new byte[]{(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff
                     , (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff};
-            getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.0.128.20.20.255"), 2, 1).write(new OctetString(b).getBEREncodedByteArray());
+            getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.0.128.20.20.255"), 2, 1).write(OctetString.fromByteArray(b).getBEREncodedByteArray());
 
             msg.confirm();
         } catch (Exception e) {
@@ -1501,7 +1501,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
                 }
             }
             autoConnect.writeDestinationList(newList);
-            getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.0.128.20.20.255"), 2, 1).write(new OctetString(restrictions).getBEREncodedByteArray());
+            getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.0.128.20.20.255"), 2, 1).write(OctetString.fromByteArray(restrictions).getBEREncodedByteArray());
 
             msg.confirm();
         } catch (Exception e) {
@@ -1541,7 +1541,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         }
 
         autoConnect.writeDestinationList(newList);
-        getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.0.128.20.20.255"), 2, 1).write(new OctetString(restrictions).getBEREncodedByteArray());
+        getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.0.128.20.20.255"), 2, 1).write(OctetString.fromByteArray(restrictions).getBEREncodedByteArray());
 
         msg.confirm();
     }

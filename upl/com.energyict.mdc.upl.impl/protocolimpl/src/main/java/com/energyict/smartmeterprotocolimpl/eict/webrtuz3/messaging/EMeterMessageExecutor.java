@@ -13,7 +13,6 @@ import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.EMeter;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.SlaveMeter;
 
 import java.io.IOException;
@@ -70,7 +69,7 @@ public class EMeterMessageExecutor extends GenericMessageExecutor {
                     SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getCorrectedObisCode(DISCONNECTOR_CTR_SCHEDULE_OBIS));
 
                     Structure scriptStruct = new Structure();
-                    scriptStruct.addDataType(new OctetString(getCorrectedObisCode(DISCONNECTOR_SCRIPT_TABLE_OBIS).getLN()));
+                    scriptStruct.addDataType(OctetString.fromByteArray(getCorrectedObisCode(DISCONNECTOR_SCRIPT_TABLE_OBIS).getLN()));
                     scriptStruct.addDataType(new Unsigned16(2));     // method '2' is the 'remote_connect' method
 
                     sasConnect.writeExecutedScript(scriptStruct);
@@ -92,7 +91,7 @@ public class EMeterMessageExecutor extends GenericMessageExecutor {
                     SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getCorrectedObisCode(DISCONNECTOR_CTR_SCHEDULE_OBIS));
 
                     Structure scriptStruct = new Structure();
-                    scriptStruct.addDataType(new OctetString(getCorrectedObisCode(DISCONNECTOR_SCRIPT_TABLE_OBIS).getLN()));
+                    scriptStruct.addDataType(OctetString.fromByteArray(getCorrectedObisCode(DISCONNECTOR_SCRIPT_TABLE_OBIS).getLN()));
                     scriptStruct.addDataType(new Unsigned16(1));    // method '1' is the 'remote_disconnect' method
 
                     sasDisconnect.writeExecutedScript(scriptStruct);

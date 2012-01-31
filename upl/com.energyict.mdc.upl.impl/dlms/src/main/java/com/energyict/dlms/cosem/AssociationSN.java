@@ -77,7 +77,7 @@ public class AssociationSN extends AbstractCosemObject {
 	 * the HLSKey
 	 */
 	public byte[] replyToHLSAuthentication(byte[] encryptedChallenge) throws IOException {
-        return methodInvoke(AssociationSNMethods.REPLY_TO_HLS_AUTHENTICATION, new OctetString(encryptedChallenge));
+        return methodInvoke(AssociationSNMethods.REPLY_TO_HLS_AUTHENTICATION, OctetString.fromByteArray(encryptedChallenge));
 	}
 
 	/**
@@ -90,6 +90,6 @@ public class AssociationSN extends AbstractCosemObject {
 	 * don't have the proper permissions
 	 */
 	public byte[] changeSecret(byte[] secret) throws IOException {
-		return methodInvoke(AssociationSNMethods.CHANGE_SECRET, new OctetString(secret));
+		return methodInvoke(AssociationSNMethods.CHANGE_SECRET, OctetString.fromByteArray(secret));
 	}
 }

@@ -3,22 +3,13 @@
  */
 package com.energyict.dlms.axrdencoding.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import com.energyict.dlms.axrdencoding.*;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Properties;
 
-import org.junit.Test;
-
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Integer16;
-import com.energyict.dlms.axrdencoding.Integer32;
-import com.energyict.dlms.axrdencoding.NullData;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
+import static org.junit.Assert.*;
 
 /**
  * @author jme
@@ -59,22 +50,22 @@ public class AXDRPropertiesTest {
 
 		Structure invalidKey = new Structure();
 		invalidKey.addDataType(new Integer16(INTEGER_KEY));
-		invalidKey.addDataType(new OctetString(VALUE1.getBytes()));
+		invalidKey.addDataType(OctetString.fromByteArray(VALUE1.getBytes()));
 		INVALID_KEY_ARRAY.addDataType(invalidKey);
 
 		Structure invalidValue = new Structure();
-		invalidValue.addDataType(new OctetString(STRING_KEY.getBytes()));
+		invalidValue.addDataType(OctetString.fromByteArray(STRING_KEY.getBytes()));
 		invalidValue.addDataType(new Integer16(INTEGER_KEY));
 		INVALID_VALUE_ARRAY.addDataType(invalidValue);
 
 		Structure stringKey = new Structure();
-		stringKey.addDataType(new OctetString(STRING_KEY.getBytes()));
-		stringKey.addDataType(new OctetString(VALUE1.getBytes()));
+		stringKey.addDataType(OctetString.fromByteArray(STRING_KEY.getBytes()));
+		stringKey.addDataType(OctetString.fromByteArray(VALUE1.getBytes()));
 		STRING_KEY_ARRAY.addDataType(stringKey);
 
 		Structure integerKey = new Structure();
 		integerKey.addDataType(new Integer32(INTEGER_KEY));
-		integerKey.addDataType(new OctetString(VALUE2.getBytes()));
+		integerKey.addDataType(OctetString.fromByteArray(VALUE2.getBytes()));
 		INTEGER_KEY_ARRAY.addDataType(integerKey);
 
 	}

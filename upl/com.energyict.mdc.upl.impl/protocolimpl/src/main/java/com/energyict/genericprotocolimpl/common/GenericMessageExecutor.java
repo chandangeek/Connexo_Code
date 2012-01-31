@@ -64,13 +64,13 @@ public abstract class GenericMessageExecutor {
             dateBytes[2] = (byte) ((cal.get(Calendar.MONTH) & 0xFF) + 1);
             dateBytes[3] = (byte) (cal.get(Calendar.DAY_OF_MONTH) & 0xFF);
             dateBytes[4] = getDLMSDayOfWeek(cal);
-            OctetString date = new OctetString(dateBytes);
+            OctetString date = OctetString.fromByteArray(dateBytes);
             byte[] timeBytes = new byte[4];
             timeBytes[0] = (byte) cal.get(Calendar.HOUR_OF_DAY);
             timeBytes[1] = (byte) cal.get(Calendar.MINUTE);
             timeBytes[2] = (byte) 0x00;
             timeBytes[3] = (byte) 0x00;
-            OctetString time = new OctetString(timeBytes);
+            OctetString time = OctetString.fromByteArray(timeBytes);
 
             Array dateTimeArray = new Array();
             Structure strDateTime = new Structure();

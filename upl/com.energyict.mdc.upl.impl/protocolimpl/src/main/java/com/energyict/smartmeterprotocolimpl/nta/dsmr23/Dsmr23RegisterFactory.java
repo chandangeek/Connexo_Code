@@ -212,7 +212,7 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
         } else if (rObisCode.equals(CORE_FIRMWARE) || rObisCode.equals(MODULE_FIRMWARE)) {
             return new RegisterValue(register, null, null, null, null, new Date(), 0, new String(abstractDataType.getContentByteArray()));
         } else if (rObisCode.equals(CORE_FIRMWARE_SIGNATURE) || rObisCode.equals(MODULE_FIRMWARE_SIGNATURE)) {
-            OctetString os = new OctetString(abstractDataType.getContentByteArray());
+            OctetString os = OctetString.fromByteArray(abstractDataType.getContentByteArray());
             return new RegisterValue(register, null, null, null, null, new Date(), 0, com.energyict.genericprotocolimpl.common.ParseUtils.decimalByteToString(os.getOctetStr()).toUpperCase());
         } else if (rObisCode.equals(CONNECT_CONTROL_MODE)) {
             int mode = ((TypeEnum) abstractDataType).getValue();

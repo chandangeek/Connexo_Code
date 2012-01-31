@@ -24,7 +24,7 @@ public class FirmwareVersionAttribute extends Array {
     }
 
     public String getId() {
-        return ProtocolTools.getHexStringFromBytes(getDataType(0).getOctetString().getContentBytes()).replace("$", "");
+        return ProtocolTools.getHexStringFromBytes(getDataType(0).getOctetString().getOctetStr()).replace("$", "");
     }
 
     public int getType() {

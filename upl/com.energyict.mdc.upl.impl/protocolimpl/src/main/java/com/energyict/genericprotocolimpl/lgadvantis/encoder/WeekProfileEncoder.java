@@ -21,7 +21,7 @@ public class WeekProfileEncoder implements Encoder {
             Structure struct = new Structure( );
             array.addDataType(struct);
             
-            struct.addDataType( new OctetString( new byte[] { week.getName() } ) );
+            struct.addDataType( OctetString.fromByteArray( new byte[] { week.getName() } ) );
             
             struct.addDataType( new Unsigned8( week.getMonday()     ) );
             struct.addDataType( new Unsigned8( week.getTuesday()    ) );

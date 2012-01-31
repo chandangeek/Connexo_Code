@@ -2,7 +2,7 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.attributes.*;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.cosem.methods.MbusClientMethods;
 
 import java.io.IOException;
@@ -113,7 +113,7 @@ public class MBusClient extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public void setEncryptionKey(byte[] openKey) throws IOException {
-        methodInvoke(MbusClientMethods.SET_ENCRYPTION_KEY.forVersion(getUsedVersion()), new OctetString(openKey));
+        methodInvoke(MbusClientMethods.SET_ENCRYPTION_KEY.forVersion(getUsedVersion()), OctetString.fromByteArray(openKey));
  		}
 
 	/**
@@ -135,7 +135,7 @@ public class MBusClient extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public void setTransportKey(byte[] encryptedkey) throws IOException {
-        methodInvoke(MbusClientMethods.TRANSFER_KEY.forVersion(getUsedVersion()), new OctetString(encryptedkey));
+        methodInvoke(MbusClientMethods.TRANSFER_KEY.forVersion(getUsedVersion()), OctetString.fromByteArray(encryptedkey));
 		}
 
 	/**

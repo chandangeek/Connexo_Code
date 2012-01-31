@@ -3,15 +3,6 @@
  */
 package com.energyict.genericprotocolimpl.iskragprs;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.Link;
@@ -19,30 +10,18 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.protocolimpl.messages.RtuMessageConstant;
-import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.amr.RtuRegister;
-import com.energyict.mdw.amr.RtuRegisterSpec;
-import com.energyict.mdw.core.AmrJournalEntry;
-import com.energyict.mdw.core.CommunicationProfile;
-import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.amr.*;
+import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterReadingData;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
-import com.energyict.protocol.messaging.Messaging;
+import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author gna
@@ -307,7 +286,7 @@ public class MbusDevice implements Messaging, GenericProtocol{
 					if(vif.length() != 16){
 						throw new IOException("VIF must be 8 characters long.");
 					}
-					iskra.getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0."+ (getPhysicalAddress()+1) +".128.50.30.255"), 2, 1).write(new OctetString(ParseUtils.hexStringToByteArray(vif)).getBEREncodedByteArray());
+					iskra.getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0."+ (getPhysicalAddress()+1) +".128.50.30.255"), 2, 1).write(OctetString.fromByteArray(ParseUtils.hexStringToByteArray(vif)).getBEREncodedByteArray());
 					msg.confirm();
 	            }
 				else {

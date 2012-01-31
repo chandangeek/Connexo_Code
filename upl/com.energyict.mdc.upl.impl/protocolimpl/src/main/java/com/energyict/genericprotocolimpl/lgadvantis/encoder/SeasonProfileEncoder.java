@@ -20,9 +20,9 @@ public class SeasonProfileEncoder implements Encoder {
             Structure struct = new Structure();
             array.addDataType(struct);
             
-            struct.addDataType( new OctetString( new byte [] { sp.getName() } ) );
-            struct.addDataType( new OctetString( sp.getStart().getOctetString().getOctets() ) );
-            struct.addDataType( new OctetString( new byte [] { sp.getWeek() } ) );
+            struct.addDataType( OctetString.fromByteArray( new byte [] { sp.getName() } ) );
+            struct.addDataType( OctetString.fromByteArray( sp.getStart().getOctetString().getOctets() ) );
+            struct.addDataType( OctetString.fromByteArray( new byte [] { sp.getWeek() } ) );
             
         }
         

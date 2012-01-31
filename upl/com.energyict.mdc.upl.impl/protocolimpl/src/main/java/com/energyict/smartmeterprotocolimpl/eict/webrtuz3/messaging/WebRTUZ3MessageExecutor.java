@@ -220,7 +220,7 @@ public class WebRTUZ3MessageExecutor extends GenericMessageExecutor {
                         ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getDisconnectorScriptTableObis(messageHandler.getOutputId()));
                         byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn();
                         Structure scriptStruct = new Structure();
-                        scriptStruct.addDataType(new OctetString(scriptLogicalName));
+                        scriptStruct.addDataType(OctetString.fromByteArray(scriptLogicalName));
                         scriptStruct.addDataType(new Unsigned16(2));     // method '2' is the 'remote_connect' method
 
                         sasConnect.writeExecutedScript(scriptStruct);
@@ -244,7 +244,7 @@ public class WebRTUZ3MessageExecutor extends GenericMessageExecutor {
                         ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getDisconnectorScriptTableObis(messageHandler.getOutputId()));
                         byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn();
                         Structure scriptStruct = new Structure();
-                        scriptStruct.addDataType(new OctetString(scriptLogicalName));
+                        scriptStruct.addDataType(OctetString.fromByteArray(scriptLogicalName));
                         scriptStruct.addDataType(new Unsigned16(1));    // method '1' is the 'remote_disconnect' method
 
                         sasDisconnect.writeExecutedScript(scriptStruct);
@@ -293,7 +293,7 @@ public class WebRTUZ3MessageExecutor extends GenericMessageExecutor {
 
                     Structure emptyStruct = new Structure();
                     emptyStruct.addDataType(new Unsigned16(0));
-                    emptyStruct.addDataType(new OctetString(new byte[14]));
+                    emptyStruct.addDataType(OctetString.fromByteArray(new byte[14]));
                     emptyStruct.addDataType(new Unsigned32(0));
                     try {
                         clearLLimiter.writeEmergencyProfile(clearLLimiter.new EmergencyProfile(emptyStruct.getBEREncodedByteArray(), 0, 0));
@@ -502,7 +502,7 @@ public class WebRTUZ3MessageExecutor extends GenericMessageExecutor {
                             for (int i = 0; i < calendars.size(); i++) {
                                 CodeCalendar cc = (CodeCalendar) calendars.get(i);
                                 if (cc.getSeason() == 0) {
-                                    OctetString os = new OctetString(new byte[]{(byte) ((cc.getYear() == -1) ? 0xff : ((cc.getYear() >> 8) & 0xFF)), (byte) ((cc.getYear() == -1) ? 0xff : (cc.getYear()) & 0xFF),
+                                    OctetString os = OctetString.fromByteArray(new byte[]{(byte) ((cc.getYear() == -1) ? 0xff : ((cc.getYear() >> 8) & 0xFF)), (byte) ((cc.getYear() == -1) ? 0xff : (cc.getYear()) & 0xFF),
                                             (byte) ((cc.getMonth() == -1) ? 0xFF : cc.getMonth()), (byte) ((cc.getDay() == -1) ? 0xFF : cc.getDay()),
                                             (byte) ((cc.getDayOfWeek() == -1) ? 0xFF : cc.getDayOfWeek())});
                                     Unsigned8 dayType = new Unsigned8(cc.getDayType().getId());
@@ -753,7 +753,7 @@ public class WebRTUZ3MessageExecutor extends GenericMessageExecutor {
                     Array globalKeyArray = new Array();
                     Structure keyData = new Structure();
                     keyData.addDataType(new TypeEnum(0));    // 0 means keyType: global unicast encryption key
-                    keyData.addDataType(new OctetString(this.protocol.getDlmsSession().getProperties().getSecurityProvider().getNEWGlobalKey()));
+                    keyData.addDataType(OctetString.fromByteArray(this.protocol.getDlmsSession().getProperties().getSecurityProvider().getNEWGlobalKey()));
                     globalKeyArray.addDataType(keyData);
 
                     SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
@@ -765,7 +765,7 @@ public class WebRTUZ3MessageExecutor extends GenericMessageExecutor {
                     Array globalKeyArray = new Array();
                     Structure keyData = new Structure();
                     keyData.addDataType(new TypeEnum(2));    // 2 means keyType: authenticationKey
-                    keyData.addDataType(new OctetString(this.protocol.getDlmsSession().getProperties().getSecurityProvider().getNEWAuthenticationKey()));
+                    keyData.addDataType(OctetString.fromByteArray(this.protocol.getDlmsSession().getProperties().getSecurityProvider().getNEWAuthenticationKey()));
                     globalKeyArray.addDataType(keyData);
 
                     SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
@@ -893,7 +893,7 @@ public class WebRTUZ3MessageExecutor extends GenericMessageExecutor {
     private void setMonitoredValue(Limiter loadLimiter) throws IOException {
         Limiter.ValueDefinitionType vdt = loadLimiter.new ValueDefinitionType();
         vdt.addDataType(new Unsigned16(3));
-        OctetString os = new OctetString(defaultMonitoredAttribute);
+        OctetString os = OctetString.fromByteArray(defaultMonitoredAttribute);
         vdt.addDataType(os);
         vdt.addDataType(new Integer8(2));
         loadLimiter.writeMonitoredValue(vdt);

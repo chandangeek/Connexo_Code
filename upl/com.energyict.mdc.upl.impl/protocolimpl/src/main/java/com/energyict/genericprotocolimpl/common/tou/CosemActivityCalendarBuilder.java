@@ -1,11 +1,10 @@
 package com.energyict.genericprotocolimpl.common.tou;
 
-import java.io.*;
-import java.util.*;
-
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.protocol.ProtocolUtils;
+
+import java.util.Iterator;
+import java.util.List;
 
 public class CosemActivityCalendarBuilder {
     
@@ -17,7 +16,7 @@ public class CosemActivityCalendarBuilder {
     }
     
     public OctetString calendarNameActive() {
-        return new OctetString(new byte[]{messageActivityCalendar.getActiveCalendarName()}); 
+        return OctetString.fromByteArray(new byte[]{messageActivityCalendar.getActiveCalendarName()});
     }
     public Array seasonProfileActive() {
         Array array = new Array();
@@ -26,9 +25,9 @@ public class CosemActivityCalendarBuilder {
         while(it.hasNext()) {
             Structure structure = new Structure();
             SeasonProfile sp = (SeasonProfile)it.next();
-            structure.addDataType(new OctetString(new byte[]{sp.getName()}));
-            structure.addDataType(new OctetString(sp.getStart().getOctetString().getOctets())); 
-            structure.addDataType(new OctetString(new byte[]{sp.getWeek()}));
+            structure.addDataType(OctetString.fromByteArray(new byte[]{sp.getName()}));
+            structure.addDataType(OctetString.fromByteArray(sp.getStart().getOctetString().getOctets()));
+            structure.addDataType(OctetString.fromByteArray(new byte[]{sp.getWeek()}));
             array.addDataType(structure);
         }
         return array;
@@ -41,7 +40,7 @@ public class CosemActivityCalendarBuilder {
         while(it.hasNext()) {
             Structure structure = new Structure();
             WeekProfile wp = (WeekProfile)it.next();
-            structure.addDataType(new OctetString(new byte[]{wp.getName()}));
+            structure.addDataType(OctetString.fromByteArray(new byte[]{wp.getName()}));
             structure.addDataType(new Unsigned8(wp.getMonday()));
             structure.addDataType(new Unsigned8(wp.getTuesday()));
             structure.addDataType(new Unsigned8(wp.getWednesday()));
@@ -67,8 +66,8 @@ public class CosemActivityCalendarBuilder {
             while(itSegments.hasNext()) {
                 DayProfileSegment dps = (DayProfileSegment)itSegments.next();
                 Structure structure = new Structure();
-                structure.addDataType(new OctetString(dps.getStartTimeOctets()));
-                structure.addDataType(new OctetString(dps.getAction().getLogicalNameOctets()));
+                structure.addDataType(OctetString.fromByteArray(dps.getStartTimeOctets()));
+                structure.addDataType(OctetString.fromByteArray(dps.getAction().getLogicalNameOctets()));
                 structure.addDataType(new Unsigned16(dps.getAction().getSelector()));
                 array.addDataType(structure);
             }
@@ -79,7 +78,7 @@ public class CosemActivityCalendarBuilder {
     }
     
     public OctetString calendarNamePassive() {
-        return new OctetString(new byte[]{messageActivityCalendar.getPassiveCalendarName()});         
+        return OctetString.fromByteArray(new byte[]{messageActivityCalendar.getPassiveCalendarName()});
     }
     public Array seasonProfilePassive() {
         Array array = new Array();
@@ -88,9 +87,9 @@ public class CosemActivityCalendarBuilder {
         while(it.hasNext()) {
             Structure structure = new Structure();
             SeasonProfile sp = (SeasonProfile)it.next();
-            structure.addDataType(new OctetString(new byte[]{sp.getName()}));
-            structure.addDataType(new OctetString(sp.getStart().getOctetString().getOctets()));
-            structure.addDataType(new OctetString(new byte[]{sp.getWeek()}));
+            structure.addDataType(OctetString.fromByteArray(new byte[]{sp.getName()}));
+            structure.addDataType(OctetString.fromByteArray(sp.getStart().getOctetString().getOctets()));
+            structure.addDataType(OctetString.fromByteArray(new byte[]{sp.getWeek()}));
             array.addDataType(structure);
         }
         return array;        
@@ -102,7 +101,7 @@ public class CosemActivityCalendarBuilder {
         while(it.hasNext()) {
             Structure structure = new Structure();
             WeekProfile wp = (WeekProfile)it.next();
-            structure.addDataType(new OctetString(new byte[]{wp.getName()}));
+            structure.addDataType(OctetString.fromByteArray(new byte[]{wp.getName()}));
             structure.addDataType(new Unsigned8(wp.getMonday()));
             structure.addDataType(new Unsigned8(wp.getTuesday()));
             structure.addDataType(new Unsigned8(wp.getWednesday()));
@@ -123,7 +122,7 @@ public class CosemActivityCalendarBuilder {
     		SpecialDay specialDay = (SpecialDay) it.next();
     		Structure specialDayStructure = new Structure();
     		specialDayStructure.addDataType(new Unsigned16(specialDay.getIndex()));
-    		specialDayStructure.addDataType(new OctetString(specialDay.getDateOctets()));
+    		specialDayStructure.addDataType(OctetString.fromByteArray(specialDay.getDateOctets()));
     		specialDayStructure.addDataType(new Unsigned8(specialDay.getDayId()));
     		specialDaysArray.addDataType(specialDayStructure);
     	}
@@ -144,8 +143,8 @@ public class CosemActivityCalendarBuilder {
             while(itSegments.hasNext()) {
                 DayProfileSegment dps = (DayProfileSegment)itSegments.next();
                 Structure segmentStructure = new Structure();
-                segmentStructure.addDataType(new OctetString(dps.getStartTimeOctets()));
-                segmentStructure.addDataType(new OctetString(dps.getAction().getLogicalNameOctets()));
+                segmentStructure.addDataType(OctetString.fromByteArray(dps.getStartTimeOctets()));
+                segmentStructure.addDataType(OctetString.fromByteArray(dps.getAction().getLogicalNameOctets()));
                 segmentStructure.addDataType(new Unsigned16(dps.getAction().getSelector()));
                 segmentsArray.addDataType(segmentStructure);
             }
@@ -156,7 +155,7 @@ public class CosemActivityCalendarBuilder {
     }
             
     public OctetString activatePassiveCalendarTime() {
-        return new OctetString(messageActivityCalendar.getActivatePassiveCalendarTime().getOctetString().getOctets());     
+        return OctetString.fromByteArray(messageActivityCalendar.getActivatePassiveCalendarTime().getOctetString().getOctets());
     }
     
 }

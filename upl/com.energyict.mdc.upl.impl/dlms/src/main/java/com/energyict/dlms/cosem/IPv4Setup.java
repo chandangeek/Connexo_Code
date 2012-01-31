@@ -70,7 +70,7 @@ public class IPv4Setup extends AbstractCosemObject{
 
     /** Read the {@link #dl_Reference} from the device */
 	public OctetString readDLReference() throws IOException {
-        this.dl_Reference = new OctetString(getResponseData(Ipv4SetupAttributes.DL_REFERENCE));
+        this.dl_Reference = OctetString.fromByteArray(getResponseData(Ipv4SetupAttributes.DL_REFERENCE));
 		return this.dl_Reference;
 	}
 

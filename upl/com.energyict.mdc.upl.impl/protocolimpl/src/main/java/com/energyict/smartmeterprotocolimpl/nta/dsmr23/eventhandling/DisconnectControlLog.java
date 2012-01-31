@@ -49,7 +49,7 @@ public class DisconnectControlLog extends AbstractEvent {
                 threshold = Integer.toString(this.dcEvents.getRoot().getStructure(i).getInteger(2));
             }
             if (isOctetString(this.dcEvents.getRoot().getStructure(i).getElement(0))) {
-                eventTimeStamp = new AXDRDateTime(new OctetString(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray()), this.deviationType).getValue().getTime();
+                eventTimeStamp = new AXDRDateTime(OctetString.fromByteArray(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray()), this.deviationType).getValue().getTime();
             }
             if (eventTimeStamp != null) {
                 buildMeterEvent(meterEvents, eventTimeStamp, eventId, threshold);

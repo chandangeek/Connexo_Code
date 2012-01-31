@@ -33,7 +33,7 @@ public class EventsLog {
             Date eventTimeStamp = null;
             int eventId = (int) dataStructureRoot.getStructure(i).getValue(1) & 0xFF; // To prevent negative values
             if (isOctetString(dataStructureRoot.getStructure(i).getElement(0))) {
-                eventTimeStamp = new AXDRDateTime(new OctetString(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray())).getValue().getTime();
+                eventTimeStamp = new AXDRDateTime(OctetString.fromByteArray(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray())).getValue().getTime();
             }
             if (eventTimeStamp != null) {
                 MeterEvent event;

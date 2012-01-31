@@ -191,7 +191,7 @@ public class AS300ActivityCalendarController implements ActivityCalendarControll
             }
 
             NodeList passiveNameList = doc.getElementsByTagName(AS220Messaging.CALENDAR_NAME);
-            passiveCalendarName = new OctetString(constructSixByteCalendarName(passiveNameList.item(0).getTextContent()));
+            passiveCalendarName = OctetString.fromByteArray(constructSixByteCalendarName(passiveNameList.item(0).getTextContent()));
 
             NodeList dayProfileList = doc.getElementsByTagName(CodeTableXml.dayProfile);
             createShiftedDayIdMap(dayProfileList);
@@ -435,7 +435,7 @@ public class AS300ActivityCalendarController implements ActivityCalendarControll
                             startTime[indexDtDayOfMonth] = (byte) (Integer.valueOf(startTimeElement.getTextContent()) & 0xFF);
                         }
                     }
-                    sp.setSeasonStart(new OctetString(startTime));
+                    sp.setSeasonStart(OctetString.fromByteArray(startTime));
                 } else if (seasonNode.getNodeName().equalsIgnoreCase(CodeTableXml.seasonWeekName)) {
                     logger.debug("SeasonWeekName : " + seasonNode.getTextContent());
                     sp.setWeekName(createWeekName(seasonNode.getTextContent()));
@@ -555,7 +555,7 @@ public class AS300ActivityCalendarController implements ActivityCalendarControll
                                         dayTariffStartTime[indexTSeconds] = (byte) (Integer.valueOf(timeElement.getTextContent()) & 0xFF);
                                     }
                                 }
-                                dpa.setStartTime(new OctetString(dayTariffStartTime));
+                                dpa.setStartTime(OctetString.fromByteArray(dayTariffStartTime));
 
                             } else if (schedule.getNodeName().equalsIgnoreCase(CodeTableXml.dayTariffId)) {
                                 logger.debug("DayScheduleScriptSelector : " + schedule.getTextContent());
@@ -649,7 +649,7 @@ public class AS300ActivityCalendarController implements ActivityCalendarControll
                             }
                         }
                         logger.debug("SpecialDayEntryDate : " + specialDayEntry.getTextContent());
-                        sds.addDataType(new OctetString(sdDate));
+                        sds.addDataType(OctetString.fromByteArray(sdDate));
                     } else if (specialDayEntry.getNodeName().equalsIgnoreCase(CodeTableXml.specialDayEntryDayId)) {
                         logger.debug("SpecialDayEntryDayId : " + specialDayEntry.getTextContent());
                         sds.addDataType(new Unsigned8(this.tempShiftedDayIdMap.get(specialDayEntry.getTextContent())));
@@ -700,7 +700,7 @@ public class AS300ActivityCalendarController implements ActivityCalendarControll
             logger.warn(errors[type]);
             throw new IOException(errors[type]);
         }
-        return new OctetString(content);
+        return OctetString.fromByteArray(content);
     }
 
     /**

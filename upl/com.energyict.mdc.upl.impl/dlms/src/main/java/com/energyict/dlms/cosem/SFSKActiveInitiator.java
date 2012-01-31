@@ -1,7 +1,5 @@
 package com.energyict.dlms.cosem;
 
-import java.io.IOException;
-
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.RegisterReadable;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -11,6 +9,8 @@ import com.energyict.dlms.cosem.attributes.SFSKActiveInitiatorAttribute;
 import com.energyict.dlms.cosem.attributes.SFSKPhyMacSetupAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+
+import java.io.IOException;
 
 /**
  * @author jme
@@ -42,7 +42,7 @@ public class SFSKActiveInitiator extends AbstractCosemObject implements Register
 	 */
 	public OctetString getLogicalName() {
 		try {
-			return new OctetString(getResponseData(SFSKActiveInitiatorAttribute.LOGICAL_NAME));
+			return new OctetString(getResponseData(SFSKActiveInitiatorAttribute.LOGICAL_NAME), 0);
 		} catch (IOException e) {
 			return null;
 		}
@@ -82,7 +82,7 @@ public class SFSKActiveInitiator extends AbstractCosemObject implements Register
 			switch (attribute) {
 				case LOGICAL_NAME:
 					OctetString ln = getLogicalName();
-					return new RegisterValue(getDefaultObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
+					return new RegisterValue(getDefaultObisCode(), ln != null ? ObisCode.fromByteArray(ln.getOctetStr()).toString() : "null");
 				case INITIATOR_ELECTRICAL_PHASE:
 					InitiatorDescriptor initiator = getActiveInitiator();
 					return new RegisterValue(getDefaultObisCode(), initiator != null ? initiator.toString() : "null");

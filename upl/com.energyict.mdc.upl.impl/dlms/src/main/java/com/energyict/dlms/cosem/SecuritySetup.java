@@ -127,7 +127,7 @@ public class SecuritySetup extends AbstractCosemObject{
 	 */
 	public OctetString readClientSystemTitle() throws IOException {
 		try{
-			this.clientSystemTitle = new OctetString(getLNResponseData(ATTRB_CLIENT_SYSTEM_TITLE));
+			this.clientSystemTitle = new OctetString(getLNResponseData(ATTRB_CLIENT_SYSTEM_TITLE), 0);
 			return this.clientSystemTitle;
 		} catch(IOException e) {
 			e.printStackTrace();
@@ -141,7 +141,7 @@ public class SecuritySetup extends AbstractCosemObject{
 	 */
 	public OctetString readServerSystemTitle() throws IOException {
 		try{
-			this.serverSystemTitle = new OctetString(getLNResponseData(ATTRB_SERVER_SYSTEM_TITLE));
+			this.serverSystemTitle = new OctetString(getLNResponseData(ATTRB_SERVER_SYSTEM_TITLE), 0);
 			return this.serverSystemTitle;
 		} catch(IOException e){
 			e.printStackTrace();

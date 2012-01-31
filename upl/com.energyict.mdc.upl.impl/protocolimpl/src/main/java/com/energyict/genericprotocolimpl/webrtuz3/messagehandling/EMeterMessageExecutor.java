@@ -69,7 +69,7 @@ public class EMeterMessageExecutor extends GenericMessageExecutor {
                     SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getCorrectedObisCode(DISCONNECTOR_CTR_SCHEDULE_OBIS));
 
                     Structure scriptStruct = new Structure();
-                    scriptStruct.addDataType(new OctetString(getCorrectedObisCode(DISCONNECTOR_SCRIPT_TABLE_OBIS).getLN()));
+                    scriptStruct.addDataType(OctetString.fromByteArray(getCorrectedObisCode(DISCONNECTOR_SCRIPT_TABLE_OBIS).getLN()));
                     scriptStruct.addDataType(new Unsigned16(2));     // method '2' is the 'remote_connect' method
 
                     sasConnect.writeExecutedScript(scriptStruct);
@@ -91,7 +91,7 @@ public class EMeterMessageExecutor extends GenericMessageExecutor {
                     SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getCorrectedObisCode(DISCONNECTOR_CTR_SCHEDULE_OBIS));
 
                     Structure scriptStruct = new Structure();
-                    scriptStruct.addDataType(new OctetString(getCorrectedObisCode(DISCONNECTOR_SCRIPT_TABLE_OBIS).getLN()));
+                    scriptStruct.addDataType(OctetString.fromByteArray(getCorrectedObisCode(DISCONNECTOR_SCRIPT_TABLE_OBIS).getLN()));
                     scriptStruct.addDataType(new Unsigned16(1));    // method '1' is the 'remote_disconnect' method
 
                     sasDisconnect.writeExecutedScript(scriptStruct);
@@ -184,7 +184,7 @@ public class EMeterMessageExecutor extends GenericMessageExecutor {
                         for (int i = 0; i < calendars.size(); i++) {
                             CodeCalendar cc = (CodeCalendar) calendars.get(i);
                             if (cc.getSeason() == 0) {
-                                OctetString os = new OctetString(new byte[]{(byte) ((cc.getYear() == -1) ? 0xff : ((cc.getYear() >> 8) & 0xFF)), (byte) ((cc.getYear() == -1) ? 0xff : (cc.getYear()) & 0xFF),
+                                OctetString os = OctetString.fromByteArray(new byte[]{(byte) ((cc.getYear() == -1) ? 0xff : ((cc.getYear() >> 8) & 0xFF)), (byte) ((cc.getYear() == -1) ? 0xff : (cc.getYear()) & 0xFF),
                                         (byte) ((cc.getMonth() == -1) ? 0xFF : cc.getMonth()), (byte) ((cc.getDay() == -1) ? 0xFF : cc.getDay()),
                                         (byte) ((cc.getDayOfWeek() == -1) ? 0xFF : cc.getDayOfWeek())});
                                 Unsigned8 dayType = new Unsigned8(cc.getDayType().getId());

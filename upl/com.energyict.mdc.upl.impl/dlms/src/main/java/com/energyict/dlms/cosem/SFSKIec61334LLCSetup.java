@@ -1,16 +1,14 @@
 package com.energyict.dlms.cosem;
 
-import java.io.IOException;
-
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.RegisterReadable;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributeobjects.ReplyStatusList;
 import com.energyict.dlms.cosem.attributes.SFSKIec61334LLCSetupAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+
+import java.io.IOException;
 
 /**
  * @author jme
@@ -46,7 +44,7 @@ public class SFSKIec61334LLCSetup extends AbstractCosemObject implements Registe
 	 */
 	public OctetString getLogicalName() {
 		try {
-			return new OctetString(getResponseData(SFSKIec61334LLCSetupAttribute.LOGICAL_NAME));
+			return OctetString.fromByteArray(getResponseData(SFSKIec61334LLCSetupAttribute.LOGICAL_NAME));
 		} catch (IOException e) {
 			return null;
 		}
@@ -106,7 +104,7 @@ public class SFSKIec61334LLCSetup extends AbstractCosemObject implements Registe
 			switch (attribute) {
 				case LOGICAL_NAME:
 					OctetString ln = getLogicalName();
-					return new RegisterValue(getDefaultObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
+					return new RegisterValue(getDefaultObisCode(), ln != null ? ObisCode.fromByteArray(ln.getOctetStr()).toString() : "null");
 				case MAX_FRAME_LENGTH:
 					Unsigned8 maxFrameLen = getMaxFrameLength();
 					return new RegisterValue(getDefaultObisCode(), maxFrameLen != null ? String.valueOf(maxFrameLen.getValue()) : "null");

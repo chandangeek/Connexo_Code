@@ -15,7 +15,7 @@ import static com.energyict.protocolimpl.utils.ProtocolTools.getBytesFromHexStri
 public class RegisterZigbeeDeviceData extends Structure {
 
     public RegisterZigbeeDeviceData(String address, String linkKey) throws IOException {
-        this(new ZigBeeIEEEAddress(getBytesFromHexString(address, "")), new OctetString(getBytesFromHexString(linkKey, "")));
+        this(new ZigBeeIEEEAddress(getBytesFromHexString(address, "")), OctetString.fromByteArray(getBytesFromHexString(linkKey, "")));
     }
 
     public RegisterZigbeeDeviceData(ZigBeeIEEEAddress address, OctetString linkKey) throws IOException {

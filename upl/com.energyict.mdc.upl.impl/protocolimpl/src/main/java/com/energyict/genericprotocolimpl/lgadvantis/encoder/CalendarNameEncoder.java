@@ -12,7 +12,7 @@ public class CalendarNameEncoder implements Encoder {
         
         byte [] ba = new byte [] { ac.getPassiveCalendarName() };
         
-        return new OctetString( ba );
+        return OctetString.fromByteArray( ba );
         
     } 
     

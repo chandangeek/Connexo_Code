@@ -73,7 +73,7 @@ public class TicProfile {
 			for(int i = 0; i < dc.getRoot().getElements().length; i++){
 				
 				if(dc.getRoot().getStructure(i).isOctetString(0)){
-					cal = new AXDRDateTime(new OctetString(dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).getArray())).getValue();
+					cal = new AXDRDateTime(OctetString.fromByteArray(dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).getArray())).getValue();
 				} else {
 					if(cal != null){
 						cal.add(Calendar.SECOND, this.ticDevice.getWebRTU().getMeter().getIntervalInSeconds());

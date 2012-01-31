@@ -5,26 +5,18 @@
  */
 
 package com.energyict.genericprotocolimpl.iskragprs;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Date;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.VisibleString;
-import com.energyict.dlms.cosem.CosemObject;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.cbo.*;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Date;
 /**
  *
  * @author  Koen
@@ -119,13 +111,13 @@ public class ObisCodeMapper {
 	            	return registerValue;
 	            } else if(obisCode.toString().equalsIgnoreCase("0.0.128.20.20.255")){
 	            	registerValue = new RegisterValue(obisCode, null,
-	            			null, null, null, new Date(), 0, ParseUtils.decimalByteToString(new OctetString(cof[DAILY].getData(obisCode).getAttrbAbstractDataType(2).getBEREncodedByteArray()).getContentBytes()));
+	            			null, null, null, new Date(), 0, ParseUtils.decimalByteToString(new OctetString(cof[DAILY].getData(obisCode).getAttrbAbstractDataType(2).getBEREncodedByteArray(), 0).getOctetStr()));
 	            	return registerValue;
 	            } else if(obisCode.toString().equalsIgnoreCase(cof[DAILY].getAutoConnect().getObisCode().toString())){
 	            	Array phoneList = cof[DAILY].getAutoConnect().readDestinationList();
 	            	StringBuffer numbers = new StringBuffer();
 	            	for(int i = 0; i < phoneList.nrOfDataTypes(); i++){
-	            		numbers.append(new String(new OctetString(phoneList.getDataType(i).getBEREncodedByteArray()).getContentBytes()));
+	            		numbers.append(new String(new OctetString(phoneList.getDataType(i).getBEREncodedByteArray(), 0).getOctetStr()));
 	            		if(i < phoneList.nrOfDataTypes() - 1){
 	            			numbers.append(";");
 	            		}

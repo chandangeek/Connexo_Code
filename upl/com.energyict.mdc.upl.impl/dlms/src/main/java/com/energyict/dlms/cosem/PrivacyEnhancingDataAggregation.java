@@ -93,8 +93,8 @@ public class PrivacyEnhancingDataAggregation extends AbstractCosemObject impleme
         for (String keyPair : keysOfAggregationGroup) {
             String[] keys = keyPair.split(",");
             structure = new Structure();
-            structure.addDataType(new OctetString(ProtocolTools.getBytesFromHexString(keys[0], "")));
-            structure.addDataType(new OctetString(ProtocolTools.getBytesFromHexString(keys[1], "")));
+            structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(keys[0], "")));
+            structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(keys[1], "")));
             keyPairs.add(structure);
         }
         Array array = new Array();
@@ -128,6 +128,6 @@ public class PrivacyEnhancingDataAggregation extends AbstractCosemObject impleme
             SecureRandom secureRandom = new SecureRandom();
             randomNumber = secureRandom.generateSeed(32);
         }
-        methodInvoke(PrivacyEnhancingDataAggregationMethods.GENERATE_NEW_KEYPAIR, new OctetString(randomNumber));
+        methodInvoke(PrivacyEnhancingDataAggregationMethods.GENERATE_NEW_KEYPAIR, OctetString.fromByteArray(randomNumber));
     }
 }

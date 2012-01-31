@@ -1,24 +1,12 @@
 package com.energyict.genericprotocolimpl.common.messages;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.cosem.attributeobjects.DayProfileActions;
-import com.energyict.dlms.cosem.attributeobjects.DayProfiles;
-import com.energyict.dlms.cosem.attributeobjects.SeasonProfiles;
-import com.energyict.dlms.cosem.attributeobjects.WeekProfiles;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.CodeCalendar;
-import com.energyict.mdw.core.CodeDayType;
-import com.energyict.mdw.core.CodeDayTypeDef;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.attributeobjects.*;
+import com.energyict.mdw.core.*;
+
+import java.io.IOException;
+import java.util.*;
 
 public class ActivityCalendarMessage {
 	
@@ -49,7 +37,7 @@ public class ActivityCalendarMessage {
 			CodeCalendar cc = (CodeCalendar)itr.next();
 			int seasonId = cc.getSeason();
 			if(seasonId != 0){
-				OctetString os = new OctetString(new byte[]{(byte) ((cc.getYear()==-1)?0xff:((cc.getYear()>>8)&0xFF)), (byte) ((cc.getYear()==-1)?0xff:(cc.getYear())&0xFF), 
+				OctetString os = OctetString.fromByteArray(new byte[]{(byte) ((cc.getYear()==-1)?0xff:((cc.getYear()>>8)&0xFF)), (byte) ((cc.getYear()==-1)?0xff:(cc.getYear())&0xFF),
 						(byte) ((cc.getMonth()==-1)?0xFF:cc.getMonth()), (byte) ((cc.getDay()==-1)?0xFF:cc.getDay()), (byte) 0xFF, 0, 0, 0, 0, (byte) 0x80, 0, 0});
 				seasonsProfile.put(os, seasonId);
 			}
@@ -147,13 +135,13 @@ public class ActivityCalendarMessage {
 				int hour = tStamp/10000;
 				int min = (tStamp-hour*10000)/100;
 				int sec = tStamp-(hour*10000)-(min*100);
-				OctetString tstampOs = new OctetString(new byte[]{(byte)hour, (byte)min, (byte)sec, 0});
+				OctetString tstampOs = OctetString.fromByteArray(new byte[]{(byte)hour, (byte)min, (byte)sec, 0});
 				Unsigned16 selector = new Unsigned16(cdtd.getCodeValue());
 				dpa.setStartTime(tstampOs);
                 if(this.meterConfig == null){
                     dpa.setScriptLogicalName(OctetString.fromString("0.0.10.0.100.255"));
                 } else {
-                    dpa.setScriptLogicalName(new OctetString(this.meterConfig.getTariffScriptTable().getLNArray()));
+                    dpa.setScriptLogicalName(OctetString.fromByteArray(this.meterConfig.getTariffScriptTable().getLNArray()));
                 }
 				dpa.setScriptSelector(selector);
 				daySchedules.addDataType(dpa);
@@ -214,7 +202,7 @@ public class ActivityCalendarMessage {
 			byte[] startTime = sp.getSeasonStart().getOctetStr();
             startTime[2] = 1;	// set the startTime to the first of the month
 			startTime[3] = 1;	// set the startTime to the first of the month
-			sp.setSeasonStart(new OctetString(startTime));
+			sp.setSeasonStart(OctetString.fromByteArray(startTime));
 			//TODO check if you need to add it again.
 		}
 	}

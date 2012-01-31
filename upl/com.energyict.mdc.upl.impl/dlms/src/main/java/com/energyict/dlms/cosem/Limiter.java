@@ -3,23 +3,15 @@
  */
 package com.energyict.dlms.cosem;
 
-import java.io.IOException;
-import java.util.logging.Level;
-
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.RegisterReadable;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributes.LimiterAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+
+import java.io.IOException;
+import java.util.logging.Level;
 
 /**
  * @author gna
@@ -560,7 +552,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
      */
     public OctetString getLogicalName() {
         try {
-            return new OctetString(getResponseData(LimiterAttributes.LOGICAL_NAME));
+            return OctetString.fromByteArray(getResponseData(LimiterAttributes.LOGICAL_NAME));
         } catch (IOException e) {
             return null;
         }
@@ -592,10 +584,10 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
                 switch (limiterAttribute){
                     case LOGICAL_NAME :
                         OctetString ln = getLogicalName();
-                        return new RegisterValue(getDefaultObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
+                        return new RegisterValue(getDefaultObisCode(), ln != null ? ObisCode.fromByteArray(ln.getOctetStr()).toString() : "null");
                     case MONITORED_VALUE :
                         ValueDefinitionType monitoredValue = getMonitoredValue();
-                        return new RegisterValue(getDefaultObisCode(), monitoredValue != null ? ObisCode.fromByteArray(monitoredValue.getLogicalName().getContentBytes()).toString() : "null");
+                        return new RegisterValue(getDefaultObisCode(), monitoredValue != null ? ObisCode.fromByteArray(monitoredValue.getLogicalName().getOctetStr()).toString() : "null");
                     case THRESHOLD_ACTIVE :
                         AbstractDataType active = readThresholdActive();
                         return new RegisterValue(getDefaultObisCode(), active != null ? String.valueOf(active.intValue()) : "null");

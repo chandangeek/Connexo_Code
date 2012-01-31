@@ -74,15 +74,11 @@ public class OctetString extends AbstractDataType {
         this.fixed = fixed;
     }
 
-    /**
-     * Create a new OctetString with the given bytes as content
-     * Ex: 01020304050607 -> 090701020304050607
-     *
-     * @param stringBytes The raw bytes as content of the OctetString
-     */
+/*
     public OctetString(byte[] stringBytes) {
         this(stringBytes, stringBytes.length, 0);
     }
+*/
 
     /**
 	 * It is possible to create a fixed length OctetString
@@ -94,7 +90,7 @@ public class OctetString extends AbstractDataType {
 		this(octetStr, octetStr.length, (fixed ? 1 : 0));
 	}
 
-	private OctetString(byte[] octetStr, int size, int dummy) {
+	protected OctetString(byte[] octetStr, int size, int dummy) {
 		this.setOctetStr(octetStr);
 		this.size = size;
 		this.fixed = (dummy == 1);
@@ -194,9 +190,9 @@ public class OctetString extends AbstractDataType {
      */
     public static OctetString fromString(String string) {
         if (string == null) {
-            return new OctetString(new byte[]{});
+            return OctetString.fromByteArray(new byte[0]);
         } else {
-            return new OctetString(string.getBytes());
+            return OctetString.fromByteArray(string.getBytes());
         }
     }
 
@@ -244,7 +240,7 @@ public class OctetString extends AbstractDataType {
             }
             ipBytes[i] = (byte) ipField;
         }
-        return new OctetString(ipBytes);
+        return OctetString.fromByteArray(ipBytes);
     }
 
     /**
@@ -255,7 +251,7 @@ public class OctetString extends AbstractDataType {
      * @return a new OctetString with 6 fields (A.B.C.D.E.F)
      */
     public static OctetString fromObisCode(ObisCode obisCode) {
-        return new OctetString(obisCode.getLN());
+        return OctetString.fromByteArray(obisCode.getLN());
     }
 
     /**
@@ -266,17 +262,32 @@ public class OctetString extends AbstractDataType {
      * @return a new OctetString with 6 fields (A.B.C.D.E.F)
      */
     public static OctetString fromObisCode(String obisCodeAsString) {
-        return new OctetString(ObisCode.fromString(obisCodeAsString).getLN());
+        return OctetString.fromByteArray(ObisCode.fromString(obisCodeAsString).getLN());
     }
 
     /**
+     * Create a new OctetString with the given bytes as content,
+     * from contentBytes[0] up to contentBytes[length-1]
+     * <p/>
+     * Ex: 01020304050607, with length 4 -> 090401020304
      *
-     * @param byteArray
-     * @param size
-     * @return
+     * @param contentBytes The raw bytes as content of the OctetString
+     * @param length       The number of bytes to use from the contentBytes.
+     * @return new OctetString with the given bytes as content
      */
-    public static OctetString fromByteArray(byte[] byteArray, int size) {
-        return new OctetString(byteArray, size, 0);
+    public static OctetString fromByteArray(byte[] contentBytes, int length) {
+        return new OctetString(contentBytes, length, 0);
+    }
+
+    /**
+     * Create a new OctetString with the given bytes as content
+     * Ex: 01020304050607 -> 090701020304050607
+     *
+     * @param contentBytes The raw bytes as content of the OctetString
+     * @return new OctetString with the given bytes as content
+     */
+    public static OctetString fromByteArray(byte[] contentBytes) {
+        return OctetString.fromByteArray(contentBytes, contentBytes.length);
     }
 
     /**
@@ -288,7 +299,7 @@ public class OctetString extends AbstractDataType {
      * @return The new com.energyict.dlms.axrdencoding.OctetString
      */
     public static OctetString fromOldOctetString(com.energyict.dlms.OctetString oldOctetString) {
-        return new OctetString(oldOctetString.getArray());
+        return OctetString.fromByteArray(oldOctetString.getArray());
     }
 
     public String toString() {

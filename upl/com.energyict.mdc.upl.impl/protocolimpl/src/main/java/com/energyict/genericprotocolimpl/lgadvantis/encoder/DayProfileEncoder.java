@@ -32,8 +32,8 @@ public class DayProfileEncoder implements Encoder {
                 DayProfileSegment segment = (DayProfileSegment) si.next();
                 ActionItem action = segment.getAction();
                 
-                OctetString osStartTime = new OctetString( segment.getStartTimeOctets() );
-                OctetString osScriptLn  = new OctetString( action.getLogicalNameOctets() );
+                OctetString osStartTime = OctetString.fromByteArray( segment.getStartTimeOctets() );
+                OctetString osScriptLn  = OctetString.fromByteArray( action.getLogicalNameOctets() );
                 Unsigned16  osScript    = new Unsigned16( action.getSelector() );
                 
                 Structure segmentStruct = new Structure();

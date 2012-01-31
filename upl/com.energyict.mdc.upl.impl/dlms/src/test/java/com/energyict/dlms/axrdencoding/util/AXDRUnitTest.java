@@ -1,14 +1,11 @@
 package com.energyict.dlms.axrdencoding.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
-import org.junit.Test;
-
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.NullData;
 import com.energyict.dlms.axrdencoding.OctetString;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * @author jme
@@ -40,10 +37,10 @@ public class AXDRUnitTest {
 	public final void testDecode() {
 		assertNull(AXDRUnit.decode(null));
 		assertNull(AXDRUnit.decode(new NullData()));
-		assertNull(AXDRUnit.decode(new OctetString("".getBytes())));
-		assertNotNull(AXDRUnit.decode(new OctetString(EXISTING_UNIT_STRING.getBytes())));
-		assertEquals(EXISTING_UNIT, AXDRUnit.decode(new OctetString(EXISTING_UNIT_STRING.getBytes())));
-		assertEquals(NO_UNIT, AXDRUnit.decode(new OctetString(NO_UNIT_STRING.getBytes())));
+		assertNull(AXDRUnit.decode(OctetString.fromByteArray("".getBytes())));
+		assertNotNull(AXDRUnit.decode(OctetString.fromByteArray(EXISTING_UNIT_STRING.getBytes())));
+		assertEquals(EXISTING_UNIT, AXDRUnit.decode(OctetString.fromByteArray(EXISTING_UNIT_STRING.getBytes())));
+		assertEquals(NO_UNIT, AXDRUnit.decode(OctetString.fromByteArray(NO_UNIT_STRING.getBytes())));
 	}
 
 }

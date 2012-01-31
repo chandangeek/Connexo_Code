@@ -1797,7 +1797,7 @@ public abstract class AbstractCosemObject {
             for (CapturedObject channel : channels) {
                 Structure structure = new Structure();
                 structure.addDataType(new Unsigned16(channel.getClassId()));
-                structure.addDataType(new OctetString(channel.getLogicalName().getObisCode().getLN()));
+                structure.addDataType(OctetString.fromByteArray(channel.getLogicalName().getObisCode().getLN()));
                 structure.addDataType(new Integer8(channel.getAttributeIndex()));
                 structure.addDataType(new Unsigned16(channel.getDataIndex()));
                 array.addDataType(structure);

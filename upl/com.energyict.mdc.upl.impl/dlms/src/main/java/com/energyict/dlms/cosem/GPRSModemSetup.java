@@ -3,12 +3,10 @@
  */
 package com.energyict.dlms.cosem;
 
-import java.io.IOException;
-
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.*;
+
+import java.io.IOException;
 
 /**
  * @author gna
@@ -51,7 +49,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
 	 */
 	public OctetString readAPN() throws IOException{
 		try{
-			this.apn = new OctetString(getLNResponseData(ATTRB_APN));
+			this.apn = new OctetString(getLNResponseData(ATTRB_APN), 0);
 			return this.apn;
 		} catch (IOException e){
 			e.printStackTrace();

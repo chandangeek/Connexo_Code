@@ -165,7 +165,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
         SingleActionSchedule singleActionSchedule = idis.getCosemObjectFactory().getSingleActionSchedule(TIMED_CONNECTOR_ACTION_OBISCODE);
 
         Structure scriptStruct = new Structure();
-        scriptStruct.addDataType(new OctetString(DISCONNECTOR_SCRIPT_OBISCODE.getLN()));
+        scriptStruct.addDataType(OctetString.fromByteArray(DISCONNECTOR_SCRIPT_OBISCODE.getLN()));
         scriptStruct.addDataType(new Unsigned16(action));     // 1 = disconnect, 2 = connect
 
         singleActionSchedule.writeExecutedScript(scriptStruct);
@@ -274,7 +274,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
     private void writeEmergencyProfile(int emergencyProfileId, Date date, int emergencyDuration, Limiter limiter) throws IOException {
         Limiter.EmergencyProfile emergencyProfile = limiter.new EmergencyProfile();
         emergencyProfile.addDataType(new Unsigned16(emergencyProfileId));
-        emergencyProfile.addDataType(new OctetString(ProtocolTools.getSubArray(new AXDRDateTime(date).getBEREncodedByteArray(), 2)));
+        emergencyProfile.addDataType(OctetString.fromByteArray(ProtocolTools.getSubArray(new AXDRDateTime(date).getBEREncodedByteArray(), 2)));
         emergencyProfile.addDataType(new Unsigned32(emergencyDuration));
         limiter.writeEmergencyProfile(emergencyProfile);
     }
@@ -344,7 +344,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
 
         Limiter.ValueDefinitionType vdt = limiter.new ValueDefinitionType();
         vdt.addDataType(new Unsigned16(classId));
-        OctetString os = new OctetString(monitoredAttribute);
+        OctetString os = OctetString.fromByteArray(monitoredAttribute);
         vdt.addDataType(os);
         vdt.addDataType(new Integer8(2));
         limiter.writeMonitoredValue(vdt);
@@ -368,13 +368,13 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
         dateBytes[2] = (byte) ((cal.get(Calendar.MONTH) & 0xFF) + 1);
         dateBytes[3] = (byte) (cal.get(Calendar.DAY_OF_MONTH) & 0xFF);
         dateBytes[4] = getDLMSDayOfWeek(cal);
-        OctetString date = new OctetString(dateBytes);
+        OctetString date = OctetString.fromByteArray(dateBytes);
         byte[] timeBytes = new byte[4];
         timeBytes[0] = (byte) cal.get(Calendar.HOUR_OF_DAY);
         timeBytes[1] = (byte) cal.get(Calendar.MINUTE);
         timeBytes[2] = (byte) 0x00;
         timeBytes[3] = (byte) 0x00;
-        OctetString time = new OctetString(timeBytes);
+        OctetString time = OctetString.fromByteArray(timeBytes);
 
         Array dateTimeArray = new Array();
         Structure strDateTime = new Structure();

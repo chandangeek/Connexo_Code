@@ -75,7 +75,7 @@ public class MbusDeviceMessageExecutor extends GenericMessageExecutor {
                     SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getCorrectedObisCode(MBUS_DISCONNECT_CONTROL_SCHEDULE_OBIS));
 
                     Structure scriptStruct = new Structure();
-                    scriptStruct.addDataType(new OctetString(getCorrectedObisCode(MBUS_DISCONNECT_SCRIPT_TABLE_OBIS).getLN()));
+                    scriptStruct.addDataType(OctetString.fromByteArray(getCorrectedObisCode(MBUS_DISCONNECT_SCRIPT_TABLE_OBIS).getLN()));
                     scriptStruct.addDataType(new Unsigned16(2));     // method '2' is the 'remote_connect' method
 
                     sasConnect.writeExecutedScript(scriptStruct);
@@ -98,7 +98,7 @@ public class MbusDeviceMessageExecutor extends GenericMessageExecutor {
                     SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getCorrectedObisCode(MBUS_DISCONNECT_CONTROL_SCHEDULE_OBIS));
 
                     Structure scriptStruct = new Structure();
-                    scriptStruct.addDataType(new OctetString(getCorrectedObisCode(MBUS_DISCONNECT_SCRIPT_TABLE_OBIS).getLN()));
+                    scriptStruct.addDataType(OctetString.fromByteArray(getCorrectedObisCode(MBUS_DISCONNECT_SCRIPT_TABLE_OBIS).getLN()));
                     scriptStruct.addDataType(new Unsigned16(1));    // method '1' is the 'remote_disconnect' method
 
                     sasDisconnect.writeExecutedScript(scriptStruct);
@@ -177,9 +177,9 @@ public class MbusDeviceMessageExecutor extends GenericMessageExecutor {
                 MBusClient mc = getCosemObjectFactory().getMbusClient(getCorrectedObisCode(MBUS_CLIENT_OBIS));
                 Array capDef = new Array();
                 Structure struct = new Structure();
-                OctetString dib = new OctetString(new byte[]{0x0C});
+                OctetString dib = OctetString.fromByteArray(new byte[]{0x0C});
                 struct.addDataType(dib);
-                OctetString vib = new OctetString(new byte[]{0x13});
+                OctetString vib = OctetString.fromByteArray(new byte[]{0x13});
                 struct.addDataType(vib);
                 capDef.addDataType(struct);
                 mc.writeCaptureDefinition(capDef);
@@ -192,9 +192,9 @@ public class MbusDeviceMessageExecutor extends GenericMessageExecutor {
                 MBusClient mc = getCosemObjectFactory().getMbusClient(getCorrectedObisCode(MBUS_CLIENT_OBIS));
                 Array capDef = new Array();
                 Structure struct = new Structure();
-                OctetString dib = new OctetString(new byte[]{(byte) 0x0C});
+                OctetString dib = OctetString.fromByteArray(new byte[]{(byte) 0x0C});
                 struct.addDataType(dib);
-                OctetString vib = new OctetString(new byte[]{(byte) 0x93, (byte) 0x3A});
+                OctetString vib = OctetString.fromByteArray(new byte[]{(byte) 0x93, (byte) 0x3A});
                 struct.addDataType(vib);
                 capDef.addDataType(struct);
                 mc.writeCaptureDefinition(capDef);

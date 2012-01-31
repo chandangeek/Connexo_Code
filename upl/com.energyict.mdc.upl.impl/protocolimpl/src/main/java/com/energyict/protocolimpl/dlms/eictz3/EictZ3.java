@@ -10,13 +10,13 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
-import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.nta.eventhandling.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.DLMSCache;
 import com.energyict.protocolimpl.dlms.Z3.AARQ;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 import sun.misc.BASE64Decoder;
@@ -1809,13 +1809,13 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 			dateBytes[2] = (byte) ((cal.get(Calendar.MONTH) & 0xFF) + 1);
 			dateBytes[3] = (byte) (cal.get(Calendar.DAY_OF_MONTH) & 0xFF);
 			dateBytes[4] = (byte) 0xFF;
-			final OctetString date = new OctetString(dateBytes);
+			final OctetString date = OctetString.fromByteArray(dateBytes);
 			final byte[] timeBytes = new byte[4];
 			timeBytes[0] = (byte) cal.get(Calendar.HOUR_OF_DAY);
 			timeBytes[1] = (byte) cal.get(Calendar.MINUTE);
 			timeBytes[2] = (byte) 0x00;
 			timeBytes[3] = (byte) 0x00;
-			final OctetString time = new OctetString(timeBytes);
+			final OctetString time = OctetString.fromByteArray(timeBytes);
 
 			final Array dateTimeArray = new Array();
 			dateTimeArray.addDataType(time);
@@ -1965,7 +1965,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 						final ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getMBusPhysicalAddress()).getObisCode());
 						final byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn();
 						final Structure scriptStruct = new Structure();
-						scriptStruct.addDataType(new OctetString(scriptLogicalName));
+						scriptStruct.addDataType(OctetString.fromByteArray(scriptLogicalName));
 						scriptStruct.addDataType(new Unsigned16(2)); // method '2'
 						// is the
 						// 'remote_connect'
@@ -1994,7 +1994,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 						final ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getMBusPhysicalAddress()).getObisCode());
 						final byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn();
 						final Structure scriptStruct = new Structure();
-						scriptStruct.addDataType(new OctetString(scriptLogicalName));
+						scriptStruct.addDataType(OctetString.fromByteArray(scriptLogicalName));
 						scriptStruct.addDataType(new Unsigned16(1)); // method '1'
 						// is the
 						// 'remote_disconnect'

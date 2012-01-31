@@ -6,10 +6,7 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.protocol.MeterEvent;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 public class DisconnectControlLog extends AbstractEvent{
 	
@@ -50,7 +47,7 @@ public class DisconnectControlLog extends AbstractEvent{
 				threshold = Integer.toString(this.dcEvents.getRoot().getStructure(i).getInteger(2));
 			}
 			if(isOctetString(this.dcEvents.getRoot().getStructure(i).getElement(0))){
-				eventTimeStamp = new AXDRDateTime(new OctetString(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray())).getValue().getTime();
+				eventTimeStamp = new AXDRDateTime(OctetString.fromByteArray(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray())).getValue().getTime();
 			}
 			if(eventTimeStamp != null){
 				buildMeterEvent(meterEvents, eventTimeStamp, eventId, threshold);

@@ -3,14 +3,14 @@
  */
 package com.energyict.dlms.cosem;
 
-import java.io.IOException;
-
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.RegisterReadable;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+
+import java.io.IOException;
 
 /**
  * @author gna
@@ -86,7 +86,7 @@ public class Disconnector extends AbstractCosemObject implements RegisterReadabl
 	 */
 	public OctetString getLogicalName() {
 		try {
-			return new OctetString(getResponseData(DisconnectControlAttribute.LOGICAL_NAME));
+			return new OctetString(getResponseData(DisconnectControlAttribute.LOGICAL_NAME), 0);
 		} catch (IOException e) {
 			return null;
 		}
@@ -253,7 +253,7 @@ public class Disconnector extends AbstractCosemObject implements RegisterReadabl
 			switch (attribute) {
 				case LOGICAL_NAME:
 					OctetString ln = getLogicalName();
-					return new RegisterValue(getDefaultObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
+					return new RegisterValue(getDefaultObisCode(), ln != null ? ObisCode.fromByteArray(ln.getOctetStr()).toString() : "null");
 				case OUTPUT_STATE:
                     BooleanObject output = null;
                     try {
