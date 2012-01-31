@@ -74,12 +74,6 @@ public class OctetString extends AbstractDataType {
         this.fixed = fixed;
     }
 
-/*
-    public OctetString(byte[] stringBytes) {
-        this(stringBytes, stringBytes.length, 0);
-    }
-*/
-
     /**
 	 * It is possible to create a fixed length OctetString
 	 *
