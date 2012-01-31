@@ -7,8 +7,8 @@ import com.energyict.obis.ObisCode;
 public enum PrivacyEnhancingDataAggregationAttributes implements DLMSClassAttributes {
 
     LOGICAL_NAME(1, 0x00),
-    OWN_PUBLIC_KEY(2, 0x00),
-    PUBLIC_KEYS_OF_AGGREGATION_GROUP(3, 0x00);
+    OWN_PUBLIC_KEY(2, 0x08),
+    PUBLIC_KEYS_OF_AGGREGATION_GROUP(3, 0x10);
 
     /**
      * The number of this attribute

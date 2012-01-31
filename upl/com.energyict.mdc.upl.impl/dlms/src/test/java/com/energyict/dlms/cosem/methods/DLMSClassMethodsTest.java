@@ -31,11 +31,11 @@ public class DLMSClassMethodsTest {
     @Test
     public void testDlmsClassMethod() throws Exception {
         for (Enum[] dlmsClassMethods : DLMS_CLASS_METHODS) {
-            validateUniqueMethodId(dlmsClassMethods);
+            validateUniqueMethods(dlmsClassMethods);
         }
     }
 
-    private void validateUniqueMethodId(Enum[] dlmsClassMethods) {
+    private void validateUniqueMethods(Enum[] dlmsClassMethods) {
         for (Enum dlmsClassMethod : dlmsClassMethods) {
 
             assertTrue(
