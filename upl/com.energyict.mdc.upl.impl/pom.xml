@@ -315,8 +315,19 @@
     </dependencyManagement>
 
     <scm>
+        <connection>scm:svn:http://source.eict.vpdc/svn/labo/protocols/trunk</connection>
         <developerConnection>scm:svn:http://source.eict.vpdc/svn/labo/protocols/trunk</developerConnection>
     </scm>
+
+    <issueManagement>
+        <system>Jira</system>
+        <url>http://jira.eict.vpdc/browse/COMMUNICATION</url>
+    </issueManagement>
+
+    <ciManagement>
+        <system>Bamboo</system>
+        <url>http://build.eict.vpdc/browse/PROT</url>
+    </ciManagement>
 
     <modules>
         <module>protocolimpl</module>
