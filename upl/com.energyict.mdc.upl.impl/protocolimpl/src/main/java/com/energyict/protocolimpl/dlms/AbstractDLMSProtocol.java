@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.dlms;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
@@ -391,11 +392,8 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
                 validateSerialNumber();
                 checkCacheObjects();
             }
-
         } catch (DLMSConnectionException e) {
-            IOException exception = new IOException(e.getMessage());
-            exception.initCause(e);
-            throw exception;
+            throw new NestedIOException(e);
         }
     }
 

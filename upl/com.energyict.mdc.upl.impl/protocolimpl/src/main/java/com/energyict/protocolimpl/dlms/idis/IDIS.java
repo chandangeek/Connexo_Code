@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.dlms.idis;
 
+import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.*;
+import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.*;
@@ -13,6 +15,7 @@ import com.energyict.protocolimpl.dlms.DLMSCache;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
 
 /**
  * Copyrights EnergyICT
@@ -62,6 +65,49 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
     public void setTime() throws IOException {
         final Calendar newTimeToSet = Calendar.getInstance(getTimeZone());
         getCosemObjectFactory().getClock().setTimeAttr(new DateTime(newTimeToSet));
+    }
+
+    @Override
+    public void connect() throws IOException {
+        try {
+            getDLMSConnection().connectMAC();
+            connectWithRetries();
+        } catch (DLMSConnectionException e) {
+            throw new NestedIOException(e);
+        }
+        validateSerialNumber();
+        checkCacheObjects();
+    }
+
+    private void connectWithRetries() throws IOException {
+        int tries = 0;
+        while (true) {
+            Exception exception = null;
+            try {
+                if (this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
+                    this.aso.createAssociation();
+                }
+                return;
+            } catch (IOException e) {
+                exception = e;
+            } catch (DLMSConnectionException e) {
+                exception = e;
+            }
+
+            if (exception != null) {
+                if (++tries > retries) {
+                    getLogger().severe("Unable to establish association after [" + tries + "/" + retries + "] tries.");
+                    throw new NestedIOException(exception);
+                } else if (getLogger().isLoggable(Level.INFO)) {
+                    getLogger().info("Unable to establish association after [" + tries + "/" + retries + "] tries. Sending RLRQ and retry ...");
+                    try {
+                        this.aso.releaseAssociation();
+                    } catch (IOException e) {
+                        // Absorb exception: in 99% of the cases we expect an exception here ...
+                    }
+                }
+            }
+        }
     }
 
     @Override
