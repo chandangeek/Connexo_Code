@@ -5,13 +5,11 @@ package com.energyict.dlms.cosem.attributeobjects;
 
 import java.io.IOException;
 
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-
 /**
  * @author jme
  *
  */
-public class MacAddressList extends AbstractPrintableArray {
+public class MacAddressList extends AbstractPrintableArray<MacAddress> {
 
 	/**
 	 * @param berEncodedData
@@ -24,7 +22,7 @@ public class MacAddressList extends AbstractPrintableArray {
 	}
 
 	@Override
-	protected AbstractDataType getArrayItem(int itemNumber) {
+	protected MacAddress getArrayItem(int itemNumber) {
 		try {
 			return new MacAddress(getDataType(itemNumber).getBEREncodedByteArray(), 0);
 		} catch (IOException e) {
