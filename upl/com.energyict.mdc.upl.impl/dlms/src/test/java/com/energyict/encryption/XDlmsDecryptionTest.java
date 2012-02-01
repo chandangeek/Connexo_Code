@@ -26,6 +26,13 @@ public class XDlmsDecryptionTest {
             (byte) 0x1F, (byte) 0x86
     };
 
+    private static byte[] CIPHERED_INVALID = new byte[]{
+            (byte) 0x00, (byte) 0x86, (byte) 0x00, (byte) 0x77,
+            (byte) 0x00, (byte) 0x65, (byte) 0x00, (byte) 0x3B,
+            (byte) 0x00, (byte) 0x5A, (byte) 0x00, (byte) 0xEE,
+            (byte) 0x00, (byte) 0x86
+    };
+
     private static byte[] TAG = new byte[]{
             (byte) 0xD1, (byte) 0xEE, (byte) 0x28, (byte) 0xA7,
             (byte) 0xD4, (byte) 0xAC, (byte) 0x27, (byte) 0xC1,
@@ -289,6 +296,19 @@ public class XDlmsDecryptionTest {
         }
     }
 
+    @Test(expected = ConnectionException.class)
+    public final void testGeneratePlainTextFromInvalid() throws ConnectionException {
+        XDlmsDecryption xdlms = new XDlmsDecryption();
+        xdlms.setCipheredText(CIPHERED_INVALID);
+        xdlms.setSystemTitle(SYSTEMTITLE);
+        xdlms.setFrameCounter(FRAME_COUNTER);
+        xdlms.setGlobalKey(GLOBALKEY);
+        xdlms.setAuthenticationKey(AUTHKEY);
+        xdlms.setSecurityControlByte(CONTROL_BYTE);
+        xdlms.setAuthenticationTag(TAG);
+        assertArrayEquals(PLAINTEXT, xdlms.generatePlainText());
+    }
+
     /**
      * Test method for {@link com.energyict.encryption.XDlmsDecryption#toString()}.
      */
@@ -309,6 +329,8 @@ public class XDlmsDecryptionTest {
         xdlms.setSecurityControlByte(CONTROL_BYTE);
         assertNotNull(xdlms.toString());
         xdlms.setAuthenticationTag(TAG);
+        xdlms.setCipheredText(CIPHERED_INVALID);
+        assertNotNull(xdlms.toString());
     }
 
 }

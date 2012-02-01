@@ -3,13 +3,9 @@
  */
 package com.energyict.encryption;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import org.junit.Ignore;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * @author jme
@@ -93,46 +89,6 @@ public class XDlmsEncryptionTest {
 		}
 
 
-	}
-
-	/**
-	 * Test method for {@link com.energyict.encryption.XDlmsEncryption#setFrameCounter(byte[])}.
-	 */
-	@Test @Ignore
-	public final void testSetFrameCounter() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	/**
-	 * Test method for {@link com.energyict.encryption.XDlmsEncryption#setGlobalKey(byte[])}.
-	 */
-	@Test @Ignore
-	public final void testSetGlobalKey() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	/**
-	 * Test method for {@link com.energyict.encryption.XDlmsEncryption#setAuthenticationKey(byte[])}.
-	 */
-	@Test @Ignore
-	public final void testSetAuthenticationKey() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	/**
-	 * Test method for {@link com.energyict.encryption.XDlmsEncryption#setPlainText(byte[])}.
-	 */
-	@Test @Ignore
-	public final void testSetPlainText() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	/**
-	 * Test method for {@link com.energyict.encryption.XDlmsEncryption#setSecurityControlByte(byte)}.
-	 */
-	@Test @Ignore
-	public final void testSetSecurityControlByte() {
-		fail("Not yet implemented"); // TODO
 	}
 
 	/**
