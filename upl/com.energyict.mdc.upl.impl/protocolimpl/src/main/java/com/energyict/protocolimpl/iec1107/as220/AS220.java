@@ -103,16 +103,20 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
         Calendar to = ProtocolUtils.getCleanCalendar(getTimeZone());
         to.setTime(limiter.getToDate());
 
+        if (to.before(from)) {
+            return new ProfileData();
+        }
+
         // Read the profile data, and take the limitMaxNrOfDays property in account.
         ProfileData profileData = getAS220Profile().getProfileData(from, to, includeEvents, this.loadProfileNumber);
 
-        // If there are no intervals in the profile, read the profile data again, but now with the limitMaxNrOfDays property disabled
+        // If there are no intervals in the profile, read the profile data again, but now with twice the limitMaxNrOfDays property
         // This way we can prevent the profile to be stuck an a certain date if there is a gap in the profile bigger than the limitMaxNrOfDays.
         if ((profileData.getIntervalDatas().size() == 0) && (getLimitMaxNrOfDays() > 0)) {
-            profileData = getProfileWithLimiter(new ProfileLimiter(limiter.getOldFromDate(), limiter.getOldToDate(), 0), includeEvents);
+            profileData = getProfileWithLimiter(new ProfileLimiter(limiter.getOldFromDate(), limiter.getOldToDate(), limiter.getLimitMaxNrOfDays() + getLimitMaxNrOfDays()), includeEvents);
         }
-
         return profileData;
+
     }
     
 	public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
