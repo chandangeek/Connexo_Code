@@ -1,63 +1,22 @@
 package com.energyict.protocolimpl.iec1107.as220;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.cbo.*;
+import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.DemandResetProtocol;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.HalfDuplexEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocolimpl.base.DataDumpParser;
-import com.energyict.protocolimpl.base.DataParseException;
-import com.energyict.protocolimpl.base.DataParser;
-import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import com.energyict.protocolimpl.base.RtuPlusServerHalfDuplexController;
-import com.energyict.protocolimpl.iec1107.ChannelMap;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
-import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
+import com.energyict.protocolimpl.iec1107.*;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * @author jme
@@ -69,8 +28,9 @@ import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
 public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol, MessageProtocol, DemandResetProtocol {
 
 	private final static int DEBUG = 0;
+    private static final String PR_LIMIT_MAX_NR_OF_DAYS = "LimitMaxNrOfDays";
 
-	private static final int MIN_LOADPROFILE = 1;
+    private static final int MIN_LOADPROFILE = 1;
 	private static final int MAX_LOADPROFILE = 2;
 
 	private String strID;
@@ -116,8 +76,9 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
 	private int halfDuplex;
 
 	private int rs485RtuPlusServer = 0;
+    private int limitMaxNrOfDays = 0;
 
-	/** Creates a new instance of AS220, empty constructor */
+    /** Creates a new instance of AS220, empty constructor */
 	public AS220() {
 	}
 
@@ -127,14 +88,33 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
 		return getProfileData(calendar.getTime(), includeEvents);
 	}
 
-	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-		return getAS220Profile().getProfileData(lastReading, includeEvents, this.loadProfileNumber);
+	public ProfileData getProfileData(Date from, boolean includeEvents) throws IOException {
+		return getProfileData(from, new Date(), includeEvents);
 	}
 
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
-		return getAS220Profile().getProfileData(from, to, includeEvents, this.loadProfileNumber);
+        return getProfileWithLimiter(new ProfileLimiter(from, to, getLimitMaxNrOfDays()), includeEvents);
 	}
 
+    private ProfileData getProfileWithLimiter(ProfileLimiter limiter, boolean includeEvents) throws IOException {
+        Calendar from = ProtocolUtils.getCleanCalendar(getTimeZone());
+        from.setTime(limiter.getFromDate());
+
+        Calendar to = ProtocolUtils.getCleanCalendar(getTimeZone());
+        to.setTime(limiter.getToDate());
+
+        // Read the profile data, and take the limitMaxNrOfDays property in account.
+        ProfileData profileData = getAS220Profile().getProfileData(from, to, includeEvents, this.loadProfileNumber);
+
+        // If there are no intervals in the profile, read the profile data again, but now with the limitMaxNrOfDays property disabled
+        // This way we can prevent the profile to be stuck an a certain date if there is a gap in the profile bigger than the limitMaxNrOfDays.
+        if ((profileData.getIntervalDatas().size() == 0) && (getLimitMaxNrOfDays() > 0)) {
+            profileData = getProfileWithLimiter(new ProfileLimiter(limiter.getOldFromDate(), limiter.getOldToDate(), 0), includeEvents);
+        }
+
+        return profileData;
+    }
+    
 	public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
 		throw new UnsupportedException();
 	}
@@ -217,6 +197,7 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
 			this.failOnUnitMismatch = Integer.parseInt(properties.getProperty("FailOnUnitMismatch", "0"));
 			this.halfDuplex=Integer.parseInt(properties.getProperty("HalfDuplex","0").trim());
 			this.rs485RtuPlusServer=Integer.parseInt(properties.getProperty("RS485RtuPlusServer","0").trim());
+            this.limitMaxNrOfDays = Integer.parseInt(properties.getProperty(PR_LIMIT_MAX_NR_OF_DAYS, "0"));
 		} catch (NumberFormatException e) {
 			throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, " + e.getMessage());
 		}
@@ -284,6 +265,7 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
 		result.add("HalfDuplex");
 		result.add("FailOnUnitMismatch");
 		result.add("RS485RtuPlusServer");
+        result.add(PR_LIMIT_MAX_NR_OF_DAYS);
 		return result;
 	}
 
@@ -885,4 +867,7 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
 		this.halfDuplexController.setDelay(this.halfDuplex);
 	}
 
+    public int getLimitMaxNrOfDays() {
+        return limitMaxNrOfDays;
+    }
 }

@@ -5,31 +5,16 @@
 
 package com.energyict.protocolimpl.iec1107.a1440;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.DataParser;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
-import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
-import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
-import com.energyict.protocolimpl.iec1107.vdew.VDEWProfileHeader;
-import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
+import com.energyict.protocolimpl.iec1107.vdew.*;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  *
@@ -65,36 +50,6 @@ public class A1440Profile extends VDEWProfile {
 		super(meterExceptionInfo,protocolLink,abstractVDEWRegistry,KEEPSTATUS);
 	}
 
-	public ProfileData getProfileData(Date lastReading,boolean includeEvents, int profileNumber) throws IOException {
-		this.loadProfileNumber = profileNumber;
-		Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
-		fromCalendar.setTime(lastReading);
-
-		ProfileData profileData =  doGetProfileData(fromCalendar,ProtocolUtils.getCalendar(getProtocolLink().getTimeZone()), this.loadProfileNumber);
-		if (includeEvents) {
-			List meterEvents = doGetLogBook(fromCalendar,ProtocolUtils.getCalendar(getProtocolLink().getTimeZone()));
-			for (Iterator iterator = meterEvents.iterator(); iterator.hasNext();) {
-				MeterEvent meterEventItem = (MeterEvent) iterator.next();
-				int deviceCode = meterEventItem.getProtocolCode();
-				int eiServerCode = mapEvent2EiEvent(deviceCode);
-				String message = mapEvent2Message(deviceCode);
-				MeterEvent newMeterEvent =
-					new MeterEvent(
-							meterEventItem.getTime(),
-							eiServerCode,
-							deviceCode,
-							message
-					);
-				meterEvents = checkOnOverlappingEvents(meterEvents);
-				profileData.getMeterEvents().add(newMeterEvent);
-			}
-			profileData.sort();
-		}
-
-		profileData.applyEvents(getProtocolLink().getProfileInterval()/60);
-		return profileData;
-	}
-
 	public static List checkOnOverlappingEvents(List meterEvents) {
 		Map eventsMap = new HashMap();
 		int size = meterEvents.size();
@@ -119,12 +74,8 @@ public class A1440Profile extends VDEWProfile {
 	}
 
 
-	public ProfileData getProfileData(Date fromReading, Date toReading, boolean includeEvents, int profileNumber) throws IOException {
+	public ProfileData getProfileData(Calendar fromCalendar, Calendar toCalendar, boolean includeEvents, int profileNumber) throws IOException {
 		this.loadProfileNumber = profileNumber;
-		Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
-		fromCalendar.setTime(fromReading);
-		Calendar toCalendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
-		toCalendar.setTime(toReading);
 
 		ProfileData profileData =  doGetProfileData(fromCalendar,toCalendar, this.loadProfileNumber);
 		if (includeEvents) {
