@@ -37,6 +37,7 @@ import com.energyict.protocolimpl.dlms.siemenszmd.*;
 import java.io.IOException;
 import java.util.*;
 
+@Deprecated /** Deprecated as of jan 2012 - please use the new SmartMeter protocol (com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.ZMD) instead. **/
 public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProtocol, MessageProtocol, TimeOfUseMessaging {
     private static final byte DEBUG=0;
 

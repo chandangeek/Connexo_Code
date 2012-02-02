@@ -516,3 +516,7 @@
 }
 
 -keepnames class com.energyict.protocolimpl.dlms.JanzC280.JanzC280
+
+-keepnames class com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372
+
+-keepnames class com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.MbusDevice

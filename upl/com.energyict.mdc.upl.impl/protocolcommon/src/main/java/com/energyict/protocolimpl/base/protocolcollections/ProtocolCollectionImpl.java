@@ -334,6 +334,9 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350");
         this.protocolNames.add("DSMR 4.0 Landis & Gyr E350 DLMS meter");
 
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372");
+        this.protocolNames.add("SmartMeter IskraMx372");
+
     }
 
     public String getProtocolName(int index) throws IOException {

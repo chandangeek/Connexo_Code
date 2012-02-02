@@ -179,7 +179,7 @@ public class DlmsSession implements ProtocolLink {
                 getProperties().getDataTransportSecurityLevel(),
                 getProperties().getAuthenticationSecurityLevel(),
                 0, // TODO: check what this means
-                getProperties().getSystemIdentifier().getBytes(),
+                (getProperties().getSystemIdentifier() == null) ? null : getProperties().getSystemIdentifier().getBytes(),
                 getProperties().getSecurityProvider(),
                 getProperties().getCipheringType().getType()
         );

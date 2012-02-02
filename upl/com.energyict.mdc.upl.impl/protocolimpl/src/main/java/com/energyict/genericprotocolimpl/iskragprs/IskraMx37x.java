@@ -51,6 +51,8 @@ import java.util.logging.Logger;
  *         GNA |28052009| Deleted the 'DeleteNumberFromWhiteList' message and adjusted the set message to a limit of 5 numbers
  *         GNA |28092009| Added 4 custom properties to allow setting the 4 profiles
  */
+
+@Deprecated /** Deprecated as of jan 2012 - please use the new SmartMeter protocol (com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372) instead. **/
 public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism, Messaging, HHUEnabler {
 
     private static final String DUPLICATE_SERIALS =
