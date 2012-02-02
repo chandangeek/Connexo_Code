@@ -636,20 +636,7 @@ public class SecurityContext {
      *          if the FrameCounter was not incremented in a proper way
      */
     public void setResponseFrameCounter(int frameCounter) throws DLMSConnectionException {
-        if (isFrameCounterInitialized()) {
-            if (this.responseFrameCounter == -1 && frameCounter == 0) { // rollover
-                this.responseFrameCounter = frameCounter;
-            } else if (this.responseFrameCounter == -1 && frameCounter != 0) {
-                throw new DLMSConnectionException("Received incorrect overFlow FrameCounter.", DLMSConnectionException.REASON_SECURITY);
-            } else if (frameCounter != this.responseFrameCounter + 1) {
-                throw new DLMSConnectionException("Received incorrect FrameCounter.", DLMSConnectionException.REASON_SECURITY);
-            } else {
-                this.responseFrameCounter = frameCounter;
-            }
-        } else {
-            this.responseFrameCounter = frameCounter;
-            setFrameCounterInitialized(true);
-        }
+        this.responseFrameCounter = this.securityProvider.getRespondingFrameCounterHandler().checkRespondingFrameCounter(frameCounter);
     }
 
     /**

@@ -5,12 +5,12 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DlmsSession;
-import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.MultipleClientRelatedObisCodes;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.UkHubSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.events.ZigbeeGasEventProfiles;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging.*;
@@ -341,9 +341,9 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
             reInitDlmsSession(link);
 
             getDlmsSession().getProperties().addProperties(restoredProperties);
-            ((ZigbeeGasProperties) getDlmsSession().getProperties()).setSecurityProvider(new NTASecurityProvider(getDlmsSession().getProperties().getProtocolProperties()));
+            ((ZigbeeGasProperties) getDlmsSession().getProperties()).setSecurityProvider(new UkHubSecurityProvider(getDlmsSession().getProperties().getProtocolProperties()));
 
-            ((NTASecurityProvider) (getDlmsSession().getProperties().getSecurityProvider())).setInitialFrameCounter(initialFrameCounter + 1);
+            ((UkHubSecurityProvider) (getDlmsSession().getProperties().getSecurityProvider())).setInitialFrameCounter(initialFrameCounter + 1);
         } else {
             this.dlmsSession = null;
         }

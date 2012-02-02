@@ -3,10 +3,10 @@ package com.energyict.smartmeterprotocolimpl.elster.apollo;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.DlmsProtocolProperties;
 import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocolimpl.base.ProtocolProperty;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.UkHubSecurityProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,8 +39,8 @@ public class AS300Properties extends DlmsProtocolProperties {
         optional.add(DlmsProtocolProperties.TIMEOUT);
         optional.add(DlmsProtocolProperties.BULK_REQUEST);
         optional.add(DlmsProtocolProperties.ROUND_TRIP_CORRECTION);
-        optional.add(NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
-        optional.add(NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY);
+        optional.add(UkHubSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
+        optional.add(UkHubSecurityProvider.DATATRANSPORT_ENCRYPTIONKEY);
         return optional;
     }
 
@@ -84,7 +84,7 @@ public class AS300Properties extends DlmsProtocolProperties {
     @Override
     public SecurityProvider getSecurityProvider() {
         if(super.securityProvider == null){
-            setSecurityProvider(new NTASecurityProvider(getProtocolProperties()));
+            setSecurityProvider(new UkHubSecurityProvider(getProtocolProperties()));
         }
         return super.securityProvider;
     }

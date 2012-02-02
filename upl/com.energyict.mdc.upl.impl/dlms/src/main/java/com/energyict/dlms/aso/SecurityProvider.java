@@ -1,5 +1,7 @@
 package com.energyict.dlms.aso;
 
+import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
+
 import java.io.IOException;
 
 /**
@@ -107,4 +109,16 @@ public interface SecurityProvider {
      * @return the initial frameCounter
      */
     long getInitialFrameCounter();
+
+    /**
+     * Provide the handler for the receiving frameCounter
+     *
+     * @param respondingFrameCounterHandler the object which will handle the received frameCounter
+     */
+    public void setRespondingFrameCounterHandling(RespondingFrameCounterHandler respondingFrameCounterHandler);
+
+    /**
+     * @return the used handler for the responding frameCounter
+     */
+    public RespondingFrameCounterHandler getRespondingFrameCounterHandler();
 }

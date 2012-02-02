@@ -3,10 +3,10 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.DlmsProtocolProperties;
 import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocolimpl.base.ProtocolProperty;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.UkHubSecurityProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,11 +55,11 @@ public class ZigbeeGasProperties extends DlmsProtocolProperties {
         optional.add(DlmsProtocolProperties.BULK_REQUEST);
         optional.add(DlmsProtocolProperties.CIPHERING_TYPE);
         optional.add(DlmsProtocolProperties.NTA_SIMULATION_TOOL);
-        optional.add(NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
-        optional.add(NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY);
-        optional.add(NTASecurityProvider.NEW_DATATRANSPORT_ENCRYPTION_KEY);
-        optional.add(NTASecurityProvider.NEW_DATATRANSPORT_AUTHENTICATION_KEY);
-        optional.add(NTASecurityProvider.NEW_HLS_SECRET);
+        optional.add(UkHubSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
+        optional.add(UkHubSecurityProvider.DATATRANSPORT_ENCRYPTIONKEY);
+        optional.add(UkHubSecurityProvider.NEW_DATATRANSPORT_ENCRYPTION_KEY);
+        optional.add(UkHubSecurityProvider.NEW_DATATRANSPORT_AUTHENTICATION_KEY);
+        optional.add(UkHubSecurityProvider.NEW_HLS_SECRET);
         return optional;
     }
 
@@ -81,8 +81,8 @@ public class ZigbeeGasProperties extends DlmsProtocolProperties {
         return getStringValue(SERVER_MAC_ADDRESS, DEFAULT_ZIGBEE_GAS_LOGICAL_DEVICE_ADDRESS);
     }
 
-    public void setSecurityProvider(final NTASecurityProvider ntaSecurityProvider) {
-        this.securityProvider = ntaSecurityProvider;
+    public void setSecurityProvider(final UkHubSecurityProvider ukHubSecurityProvider) {
+        this.securityProvider = ukHubSecurityProvider;
     }
 
     public boolean isFirmwareUpdateSession() {
@@ -92,7 +92,7 @@ public class ZigbeeGasProperties extends DlmsProtocolProperties {
     @Override
     public SecurityProvider getSecurityProvider() {
         if (this.securityProvider == null) {
-            this.securityProvider = new NTASecurityProvider(getProtocolProperties());
+            this.securityProvider = new UkHubSecurityProvider(getProtocolProperties());
         }
         return this.securityProvider;
     }

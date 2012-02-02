@@ -2,6 +2,8 @@ package com.energyict.genericprotocolimpl.nta.abstractnta;
 
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
+import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.base.SecurityLevelException;
 
@@ -12,7 +14,9 @@ import java.util.Random;
 /**
  * Default implementation of the securityProvider.
  * Provides all the securityKeys, just for LOCAL purpose
- * Functionality is implemented according to the NTA specification
+ * Functionality is implemented according to the NTA specification.
+ * <p/>
+ * The RespondingFrameCounterHandler is the default one which will not verify or check the received frameCounter.
  *
  * @author gna
  *
@@ -27,6 +31,7 @@ public class NTASecurityProvider implements SecurityProvider {
 	protected byte[] masterKey;
 	protected String hlsSecret;
 	protected Properties properties;
+    private RespondingFrameCounterHandler respondingFrameCounterHandler = new DefaultRespondingFrameCounterHandler();
 
 	/** Property name of the new AuthenticationKey */
 	public static final String NEW_DATATRANSPORT_AUTHENTICATION_KEY = "NewDataTransportAuthenticationKey";
@@ -159,6 +164,22 @@ public class NTASecurityProvider implements SecurityProvider {
             Random generator = new Random();
             return generator.nextLong();
         }
+    }
+
+    /**
+     * Provide the handler for the receiving frameCounter
+     *
+     * @param respondingFrameCounterHandler the object which will handle the received frameCounter
+     */
+    public void setRespondingFrameCounterHandling(final RespondingFrameCounterHandler respondingFrameCounterHandler) {
+        this.respondingFrameCounterHandler = respondingFrameCounterHandler;
+    }
+
+    /**
+     * @return the used handler for the responding frameCounter
+     */
+    public RespondingFrameCounterHandler getRespondingFrameCounterHandler() {
+        return this.respondingFrameCounterHandler;
     }
 
     public void setInitialFrameCounter(long frameCounter){

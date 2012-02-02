@@ -6,12 +6,12 @@ import com.energyict.dialer.core.Link;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.common.*;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.MultipleClientRelatedObisCodes;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.UkHubSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.events.UkHubEventProfiles;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging.*;
@@ -391,9 +391,9 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
             reInitDlmsSession(link);
 
             getDlmsSession().getProperties().addProperties(restoredProperties);
-            ((UkHubProperties) getDlmsSession().getProperties()).setSecurityProvider(new NTASecurityProvider(getDlmsSession().getProperties().getProtocolProperties()));
+            ((UkHubProperties) getDlmsSession().getProperties()).setSecurityProvider(new UkHubSecurityProvider(getDlmsSession().getProperties().getProtocolProperties()));
 
-            ((NTASecurityProvider) (getDlmsSession().getProperties().getSecurityProvider())).setInitialFrameCounter(initialFrameCounter + 1);
+            ((UkHubSecurityProvider) (getDlmsSession().getProperties().getSecurityProvider())).setInitialFrameCounter(initialFrameCounter + 1);
         } else {
             this.dlmsSession = null;
         }

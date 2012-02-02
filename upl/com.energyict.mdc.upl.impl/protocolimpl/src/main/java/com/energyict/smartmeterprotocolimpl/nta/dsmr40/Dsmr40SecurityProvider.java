@@ -20,6 +20,7 @@ public class Dsmr40SecurityProvider extends NTASecurityProvider {
      */
     public Dsmr40SecurityProvider(Properties properties) {
         super(properties);
+        setRespondingFrameCounterHandling(new DSMR40RespondingFrameCounterHandler());
     }
 
     /**

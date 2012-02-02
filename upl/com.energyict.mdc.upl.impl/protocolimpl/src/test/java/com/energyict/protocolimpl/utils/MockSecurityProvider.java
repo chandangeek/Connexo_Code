@@ -2,6 +2,8 @@ package com.energyict.protocolimpl.utils;
 
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
+import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -19,6 +21,7 @@ public class MockSecurityProvider implements SecurityProvider{
 	private byte[] globalKey;
 	private byte[] hlsSecret;
 	private byte[] callingAuthenticationValue;
+    private RespondingFrameCounterHandler respondingFrameCounterHandler = new DefaultRespondingFrameCounterHandler();
 	
 	public MockSecurityProvider(){
 		
@@ -189,6 +192,22 @@ public class MockSecurityProvider implements SecurityProvider{
     public long getInitialFrameCounter() {
         Random generator = new Random();
         return generator.nextLong();
+    }
+
+    /**
+     * Provide the handler for the receiving frameCounter
+     *
+     * @param respondingFrameCounterHandler the object which will handle the received frameCounter
+     */
+    public void setRespondingFrameCounterHandling(final RespondingFrameCounterHandler respondingFrameCounterHandler) {
+        this.respondingFrameCounterHandler = respondingFrameCounterHandler;
+    }
+
+    /**
+     * @return the used handler for the responding frameCounter
+     */
+    public RespondingFrameCounterHandler getRespondingFrameCounterHandler() {
+        return this.respondingFrameCounterHandler;
     }
 
     public byte[] getNEWAuthenticationKey() throws IOException {

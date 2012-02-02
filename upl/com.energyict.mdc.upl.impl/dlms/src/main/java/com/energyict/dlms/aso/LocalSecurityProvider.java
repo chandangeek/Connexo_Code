@@ -1,6 +1,9 @@
 package com.energyict.dlms.aso;
 
+import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
+import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.base.SecurityLevelException;
 
@@ -27,6 +30,7 @@ public class LocalSecurityProvider implements SecurityProvider {
 	private String hlsSecret;
 	private Properties properties;
     private Long initialFrameCounter;
+    private RespondingFrameCounterHandler respondingFrameCounterHandler = new DefaultRespondingFrameCounterHandler();
 
 	/** Property name of the new AuthenticationKey */
 	public static final String NEW_AUTHENTICATION_KEY = "NewAuthenticationKey";
@@ -156,6 +160,22 @@ public class LocalSecurityProvider implements SecurityProvider {
      */
     public long getInitialFrameCounter() {
         return initialFrameCounter != null ? initialFrameCounter : RANDOM.nextLong();
+    }
+
+    /**
+     * Provide the handler for the receiving frameCounter
+     *
+     * @param respondingFrameCounterHandler the object which will handle the received frameCounter
+     */
+    public void setRespondingFrameCounterHandling(final RespondingFrameCounterHandler respondingFrameCounterHandler) {
+        this.respondingFrameCounterHandler = respondingFrameCounterHandler;
+    }
+
+    /**
+     * @return the used handler for the responding frameCounter
+     */
+    public RespondingFrameCounterHandler getRespondingFrameCounterHandler() {
+        return this.respondingFrameCounterHandler;
     }
 
     //********** Return new keys for KeyChange functionality **********/

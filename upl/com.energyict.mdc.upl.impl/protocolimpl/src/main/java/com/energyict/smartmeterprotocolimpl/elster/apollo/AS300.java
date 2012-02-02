@@ -6,11 +6,11 @@ import com.energyict.dialer.core.Link;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.UkHubSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.eventhandling.ApolloEventProfiles;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300MessageExecutor;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300Messaging;
@@ -284,9 +284,9 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
             reInitDlmsSession(link);
 
             getDlmsSession().getProperties().addProperties(restoredProperties);
-            ((AS300Properties) getDlmsSession().getProperties()).setSecurityProvider(new NTASecurityProvider(getDlmsSession().getProperties().getProtocolProperties()));
+            ((AS300Properties) getDlmsSession().getProperties()).setSecurityProvider(new UkHubSecurityProvider(getDlmsSession().getProperties().getProtocolProperties()));
 
-            ((NTASecurityProvider) (getDlmsSession().getProperties().getSecurityProvider())).setInitialFrameCounter(initialFrameCounter + 1);
+            ((UkHubSecurityProvider) (getDlmsSession().getProperties().getSecurityProvider())).setInitialFrameCounter(initialFrameCounter + 1);
             this.objectFactory = null;
         } else {
             this.dlmsSession = null;

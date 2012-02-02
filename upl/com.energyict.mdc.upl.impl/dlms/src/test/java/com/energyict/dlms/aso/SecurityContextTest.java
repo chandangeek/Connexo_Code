@@ -3,6 +3,7 @@ package com.energyict.dlms.aso;
 import java.io.IOException;
 
 import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.mocks.MockRespondingFrameCounterHandler;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -225,6 +226,7 @@ public class SecurityContextTest {
     @Test
     public void incorrectFrameCounterTest() throws IOException, DLMSConnectionException {
         MockSecurityProvider msp = new MockSecurityProvider();
+        msp.setRespondingFrameCounterHandling(new MockRespondingFrameCounterHandler());
         SecurityContext sc = new SecurityContext(SecurityContext.SECURITYPOLICY_AUTHENTICATION, 0, 0, systemTitle, msp, SecurityContext.CIPHERING_TYPE_GLOBAL);
         sc.setResponseFrameCounter(0);
         assertEquals(0, sc.getResponseFrameCounter());
@@ -239,6 +241,7 @@ public class SecurityContextTest {
         sc.setResponseFrameCounter(2);
         assertEquals(2, sc.getResponseFrameCounter());
 
+        msp.setRespondingFrameCounterHandling(new MockRespondingFrameCounterHandler());
         sc = new SecurityContext(SecurityContext.SECURITYPOLICY_AUTHENTICATION, 0, 0, systemTitle, msp, SecurityContext.CIPHERING_TYPE_GLOBAL);
         sc.setResponseFrameCounter(0xFFFFFFFF);
         assertEquals(0xFFFFFFFF, sc.getResponseFrameCounter());
