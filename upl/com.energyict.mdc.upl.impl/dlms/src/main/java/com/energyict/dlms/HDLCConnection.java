@@ -4,7 +4,6 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.*;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
 import java.io.*;
 /**
@@ -194,14 +193,12 @@ public class HDLCConnection extends Connection implements DLMSConnection {
      * @param inputStream InputStream for the active connection, e.g. established with ATDialer.
      * @param outputStream OutputStream for the active connection, e.g. established with ATDialer.
      * @param iTimeout Time in ms. for a request to wait for a response before returning an timeout error.
-     * @param bAddressingMode Client addressing mode used by HDLC (1=1-byte addressing, 4=4-byte addressing).
      * @param lForceDelay Force delay (in ms) before each frame send (e.g. SL7000 meter needs at lease 100 ms.).
      * @exception DLMSConnectionException
      */
     public HDLCConnection(InputStream inputStream,
                           OutputStream outputStream,
                           int iTimeout,
-                          //byte bAddressingMode,
                           long lForceDelay,
                           int iMaxRetries,
                           int iClientMacAddress,
@@ -732,61 +729,54 @@ public class HDLCConnection extends Connection implements DLMSConnection {
      * @exception DLMSConnectionException
      */
     private static final int TOO_MANY_RETRIES=500;
+
     public byte[] sendRequest(byte[] byteRequestBuffer) throws IOException {
         byte[] receivedArray;
-        int retryCount,tooManyRetries;
+        int retryCount, tooManyRetries;
         int bufferLength;
         // KV 19092003 bugfix, after retry, data was truncated cause receiveBuffer was constructed in receiveInformationField()
-        ReceiveBuffer receiveBuffer=new ReceiveBuffer();
-        retryCount=tooManyRetries=0;
-        bufferLength=0;
-        while(true) {
+        ReceiveBuffer receiveBuffer = new ReceiveBuffer();
+        retryCount = tooManyRetries = 0;
+        bufferLength = 0;
+        while (true) {
             try {
                 sendInformationField(byteRequestBuffer);
-// KV_DEBUG 09122004
-//System.out.println("KV_DEBUG> hdlcconnection "+receiveBuffer.bytesReceived());
                 receivedArray = receiveInformationField(receiveBuffer); // KV 19092003 bugfix, after retry, data was truncated cause receiveBuffer was constructed in receiveInformationField()
                 // If successfull send , adjust S
                 if (NS++ > 6) {
-					NS=0; // Sequence counter
-				}
+                    NS = 0; // Sequence counter
+                }
 
                 if (receivedArray.length != 0) {
-					return receivedArray;
-				} else {
+                    return receivedArray;
+                } else {
                     // if retryCount grows over the configuration's max retries parameter, throw exception
-                    if (retryCount++ >= (iMaxRetries-1)) {
-						throw new DLMSConnectionException("sendRequest, max retries!");
-					}
+                    if (retryCount++ >= (iMaxRetries - 1)) {
+                        throw new DLMSConnectionException("sendRequest, max retries!");
+                    }
                 }
-            }
-            catch(DLMSConnectionException e) {
-// KV_DEBUG 09122004
-//System.out.println("KV_DEBUG> hdlcconnection "+e.toString());
-//System.out.println("KV_DEBUG> hdlcconnection "+bufferLength+", "+receiveBuffer.bytesReceived());
-
+            } catch (DLMSConnectionException e) {
 
                 // Test if length of receivebuffer has changed since previous error. If so,
                 // reset retrycount and save length for!
                 if (bufferLength < receiveBuffer.bytesReceived()) {
-                    retryCount=0;
+                    retryCount = 0;
                     bufferLength = receiveBuffer.bytesReceived();
                 }
-               // if retryCount grows over the configuration's max retries parameter, throw exception
-               if (retryCount++ >= (iMaxRetries-1)) {
-				throw new ProtocolConnectionException("sendRequest, max retries exceeded, "+e.getMessage()+", reason="+getReason(e.getReason()),e.getReason());
-			}
-               // for safety purposes. I line is so bad that tooManyRetries exceeds 500 retries, throw exception
-               if (tooManyRetries++ >= (TOO_MANY_RETRIES-1)) {
-				throw new ProtocolConnectionException("sendRequest, too many retries exceeded, "+e.getMessage()+", reason="+getReason(e.getReason()),e.getReason());
-			}
-               // KV 17112004
-               if (NS++ > 6) {
-				NS=0; // Sequence counter
-			}
-            }
-            catch (IOException e) {
-               throw new ProtocolConnectionException("sendRequest, IOException, "+e.getMessage());
+                // if retryCount grows over the configuration's max retries parameter, throw exception
+                if (retryCount++ >= (iMaxRetries - 1)) {
+                    throw new ConnectionException("sendRequest, max retries exceeded, " + e.getMessage() + ", reason=" + getReason(e.getReason()), e.getReason());
+                }
+                // for safety purposes. I line is so bad that tooManyRetries exceeds 500 retries, throw exception
+                if (tooManyRetries++ >= (TOO_MANY_RETRIES - 1)) {
+                    throw new ConnectionException("sendRequest, too many retries exceeded, " + e.getMessage() + ", reason=" + getReason(e.getReason()), e.getReason());
+                }
+                // KV 17112004
+                if (NS++ > 6) {
+                    NS = 0; // Sequence counter
+                }
+            } catch (IOException e) {
+                throw new ConnectionException("sendRequest, IOException, " + e.getMessage());
             }
         } // while(true)
 
