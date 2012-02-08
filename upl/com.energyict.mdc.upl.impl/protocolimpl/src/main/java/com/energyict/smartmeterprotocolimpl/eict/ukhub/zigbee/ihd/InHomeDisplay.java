@@ -4,10 +4,12 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
-import com.energyict.dlms.*;
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.dlms.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.MultipleClientRelatedObisCodes;
@@ -38,7 +40,7 @@ public class InHomeDisplay extends AbstractSmartDlmsProtocol implements SimpleMe
     }
 
     /**
-     * Getter for the {@link com.energyict.dlms.DlmsProtocolProperties}
+     * Getter for the {@link com.energyict.protocolimpl.dlms.DlmsProtocolProperties}
      *
      * @return the requested Properties
      */

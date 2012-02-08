@@ -1,11 +1,9 @@
 package com.energyict.dlms.aso;
 
-import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
 import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocolimpl.base.SecurityLevelException;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -87,14 +85,14 @@ public class LocalSecurityProvider implements SecurityProvider {
 		return this.authenticationPassword;
 	}
 
-	public byte[] getCallingAuthenticationValue() throws SecurityLevelException {
+	public byte[] getCallingAuthenticationValue() throws IOException {
 
 		switch(this.securityLevel){
 		case 0: return new byte[0];
 		case 1: {
 			return getHLSSecret();
 		}
-		case 2: throw new SecurityLevelException("SecurityLevel 2 is not implemented.");
+		case 2: throw new IOException("SecurityLevel 2 is not implemented.");
 		case 3: {	// this is a ClientToServer challenge for MD5
 			generateClientToServerChallenge();
 			return this.cTOs;

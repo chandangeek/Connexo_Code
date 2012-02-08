@@ -1,11 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
 import com.energyict.dlms.DLMSReference;
-import com.energyict.dlms.DlmsProtocolProperties;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocolimpl.base.ProtocolProperty;
+import com.energyict.protocolimpl.dlms.DlmsProtocolProperties;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.UkHubSecurityProvider;
 
 import java.util.ArrayList;
@@ -72,7 +72,6 @@ public class AS300Properties extends DlmsProtocolProperties {
         return getBooleanProperty(BULK_REQUEST, "1");
     }
 
-    @Override
     public DLMSReference getReference() {
         return DLMSReference.LN;
     }

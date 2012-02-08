@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  */
 public class DlmsSession implements ProtocolLink {
 
-    private DlmsProtocolProperties properties;
+    private DlmsSessionProperties properties;
     private ApplicationServiceObject aso;
     private DLMSMeterConfig dlmsMeterConfig;
     private Logger logger;
@@ -27,7 +27,7 @@ public class DlmsSession implements ProtocolLink {
     private OutputStream out;
     private CosemObjectFactory cosemObjectFactory;
 
-    public DlmsSession(InputStream in, OutputStream out, Logger logger, DlmsProtocolProperties properties, TimeZone timeZone) {
+    public DlmsSession(InputStream in, OutputStream out, Logger logger, DlmsSessionProperties properties, TimeZone timeZone) {
         this.in = in;
         this.out = out;
         this.logger = logger;
@@ -186,7 +186,7 @@ public class DlmsSession implements ProtocolLink {
     }
 
 
-    public DlmsProtocolProperties getProperties() {
+    public DlmsSessionProperties getProperties() {
         return properties;
     }
 

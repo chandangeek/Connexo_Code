@@ -9,6 +9,7 @@ import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.dlms.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.IskraMx372Messaging;
 
@@ -41,7 +42,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     private static final int MBUS = 0x01;
 
     /**
-     * Getter for the {@link com.energyict.dlms.DlmsProtocolProperties}
+     * Getter for the {@link com.energyict.protocolimpl.dlms.DlmsProtocolProperties}
      *
      * @return the requested Properties
      */

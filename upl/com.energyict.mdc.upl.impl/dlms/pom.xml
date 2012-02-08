@@ -17,17 +17,9 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdw</artifactId>
         </dependency>
-
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>protocolcommon</artifactId>
-            <version>${project.version}</version>
-            <optional>true</optional>
         </dependency>
     </dependencies>
 

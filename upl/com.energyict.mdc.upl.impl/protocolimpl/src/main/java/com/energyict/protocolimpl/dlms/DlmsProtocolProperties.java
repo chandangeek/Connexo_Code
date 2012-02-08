@@ -1,5 +1,6 @@
-package com.energyict.dlms;
+package com.energyict.protocolimpl.dlms;
 
+import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
 import com.energyict.protocolimpl.base.AbstractProtocolProperties;
 import com.energyict.protocolimpl.base.ProtocolProperty;
@@ -9,7 +10,7 @@ import com.energyict.protocolimpl.base.ProtocolProperty;
  * Date: 11-feb-2011
  * Time: 13:27:58
  */
-public abstract class DlmsProtocolProperties extends AbstractProtocolProperties {
+public abstract class DlmsProtocolProperties extends AbstractProtocolProperties implements DlmsSessionProperties {
 
     public static final int INVALID = -1;
     public static final int DEFAULT_LOWER_HDLC_ADDRESS = 0;
@@ -63,9 +64,6 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
     public static final String DEFAULT_ISKRA_WRAPPER = "1";
 
     protected SecurityProvider securityProvider;
-
-    @ProtocolProperty
-    public abstract DLMSReference getReference();
 
     @ProtocolProperty
     public ConnectionMode getConnectionMode() {

@@ -2,7 +2,6 @@ package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
 import com.energyict.cbo.Utils;
 import com.energyict.dlms.DLMSReference;
-import com.energyict.dlms.DlmsProtocolProperties;
 import com.energyict.dlms.aso.LocalSecurityProvider;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.mdw.core.MeteringWarehouse;
@@ -10,6 +9,7 @@ import com.energyict.mdw.core.RtuType;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocolimpl.base.ProtocolProperty;
+import com.energyict.protocolimpl.dlms.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -37,7 +37,6 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
     private RtuType rtuType;
     private boolean bCSDCall = false;
 
-    @Override
     public DLMSReference getReference() {
         return DLMSReference.LN;
     }

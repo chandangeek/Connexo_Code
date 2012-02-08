@@ -1,12 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23;
 
 import com.energyict.dlms.DLMSReference;
-import com.energyict.dlms.DlmsProtocolProperties;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocolimpl.base.ProtocolProperty;
+import com.energyict.protocolimpl.dlms.DlmsProtocolProperties;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,6 @@ public class Dsmr23Properties extends DlmsProtocolProperties {
 
     public static final String DEFAULT_CLIENT_MAC_ADDRESS = "1";
 
-    @Override
     public DLMSReference getReference() {
         return DLMSReference.LN;
     }
