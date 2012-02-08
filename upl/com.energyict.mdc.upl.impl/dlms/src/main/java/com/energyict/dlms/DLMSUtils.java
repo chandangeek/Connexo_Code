@@ -9,9 +9,9 @@ package com.energyict.dlms;
 import com.energyict.dlms.axrdencoding.Integer64;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -75,7 +75,6 @@ public final class DLMSUtils {
     }
 
     /**
-     *
      * @param contentLength
      * @return
      */
@@ -94,8 +93,8 @@ public final class DLMSUtils {
     /**
      * Decode an AXDR encoded length
      *
-     * @param bytes The byteArray containing the length
-     * @param offset    The offset in the byteArray from which to start reading the length
+     * @param bytes  The byteArray containing the length
+     * @param offset The offset in the byteArray from which to start reading the length
      * @return the decimal converted length
      */
     public static int getAXDRLength(byte[] bytes, int offset) {
@@ -158,8 +157,8 @@ public final class DLMSUtils {
                 return ProtocolUtils.getShort(byteBuffer, iOffset + 1);
 
             case DLMSCOSEMGlobals.TYPEDESC_FLOAT64:
-                signBit = (((int) byteBuffer[iOffset+1] >> 7) & 0xFF);
-                exponent = (((((long) byteBuffer[iOffset+1]) << 4) & 0x07FF) |
+                signBit = (((int) byteBuffer[iOffset + 1] >> 7) & 0xFF);
+                exponent = (((((long) byteBuffer[iOffset + 1]) << 4) & 0x07FF) |
                         ((((long) byteBuffer[iOffset + 2]) >> 4) & 0x0F));
 
                 fractionDigits = ((((long) byteBuffer[iOffset + 2] & 0x0F) << 48) |
@@ -183,8 +182,8 @@ public final class DLMSUtils {
                 return (exponent > 0) ? ((long) (((Math.pow(-1, signBit)) * Math.pow(2, exponent - 1023)) * new Float(fraction))) : 0;
 
             case DLMSCOSEMGlobals.TYPEDESC_FLOAT32:
-                signBit = (((int) byteBuffer[iOffset+1] >> 7) & 0xFF);
-                exponent = (((((int) byteBuffer[iOffset+1]) << 1) & 0xFF) |
+                signBit = (((int) byteBuffer[iOffset + 1] >> 7) & 0xFF);
+                exponent = (((((int) byteBuffer[iOffset + 1]) << 1) & 0xFF) |
                         ((((int) byteBuffer[iOffset + 2]) >> 7) & 0x01));
 
                 fractionDigits = ((((long) byteBuffer[iOffset + 2] << 16) & 0x7F0000) |
@@ -206,13 +205,111 @@ public final class DLMSUtils {
             case DLMSCOSEMGlobals.TYPEDESC_LONG64:
                 return ProtocolUtils.getLong(byteBuffer, iOffset + 1);
             case DLMSCOSEMGlobals.TYPEDESC_LONG64_UNSIGNED:
-                return ProtocolTools.getUnsignedIntFromBytes(byteBuffer, iOffset + 1, Integer64.LENGTH);
+                return getUnsignedIntFromBytes(byteBuffer, iOffset + 1, Integer64.LENGTH);
 
             default:
                 throw new IOException("parseValue2long() error, unknown type " + byteBuffer[iOffset]);
         } // switch (byteBuffer[iOffset])
 
     } // public long parseValue2long(byte[] byteBuffer,int iOffset) throws IOException
+
+    /**
+     * Creates an unsigned int value that represents a given byte array
+     *
+     * @param value: the given byte array
+     * @return the resulting BigDecimal
+     */
+    public static int getUnsignedIntFromBytes(byte[] value) {
+        value = concatByteArrays(new byte[]{0x00}, value);
+        BigInteger convertedValue = new BigInteger(value);
+        return convertedValue.intValue();
+    }
+
+    /**
+     * Creates an unsigned int value that represents a given byte array.
+     * Takes an offset (where to start in the byte array), and a length.
+     *
+     * @param value: the given byte array
+     * @return the resulting BigDecimal
+     */
+    public static int getUnsignedIntFromBytes(byte[] value, int offset, int length) {
+        value = getSubArray(value, offset, offset + length);
+        value = concatByteArrays(new byte[]{0x00}, value);
+        BigInteger convertedValue = new BigInteger(value);
+        return convertedValue.intValue();
+    }
+
+    /*
+    Same but for Little Endian order.
+     */
+    public static int getUnsignedIntFromBytesLE(byte[] value, int offset, int length) {
+        value = getSubArray(value, offset, offset + length);
+        value = getReverseByteArray(value);
+        return getUnsignedIntFromBytes(value);
+    }
+
+    public static byte[] getReverseByteArray(byte[] bytes) {
+        byte[] reverseBytes = new byte[bytes != null ? bytes.length : 0];
+        for (int i = 0; i < reverseBytes.length; i++) {
+            reverseBytes[i] = bytes[bytes.length - (i + 1)];
+        }
+        return reverseBytes;
+    }
+
+    /**
+     * Convert a given byte array into an integer
+     *
+     * @param byteArray a given byte array
+     * @return the suiting integer
+     */
+    public static int getIntFromBytes(byte[] byteArray) {
+        int value = 0;
+        for (int i = 0; i < byteArray.length; i++) {
+            int intByte = byteArray[i] & 0x0FF;
+            value += intByte << ((byteArray.length - (i + 1)) * 8);
+        }
+        return value;
+    }
+
+    /**
+     * Convert a given byte array into an integer
+     */
+    public static int getIntFromBytes(byte[] bytes, int offset, int length) {
+        byte[] byteArray = getSubArray(bytes, offset, offset + length);
+        int value = 0;
+        for (int i = 0; i < byteArray.length; i++) {
+            int intByte = byteArray[i] & 0x0FF;
+            value += intByte << ((byteArray.length - (i + 1)) * 8);
+        }
+        return value;
+    }
+
+    public static byte[] getSubArray(final byte[] bytes, final int from, final int to) {
+        byte[] subBytes;
+        if (isArrayIndexInRange(bytes, from) && isArrayIndexInRange(bytes, to - 1) && (from < to)) {
+            subBytes = new byte[to - from];
+            for (int i = 0; i < subBytes.length; i++) {
+                subBytes[i] = bytes[i + from];
+            }
+        } else {
+            subBytes = new byte[0];
+        }
+        return subBytes;
+    }
+
+    /**
+     * @param bytes
+     * @param from
+     * @return
+     */
+    public static byte[] getSubArray(final byte[] bytes, final int from) {
+        int to = (bytes != null) ? (bytes.length) : -1;
+        return getSubArray(bytes, from, to);
+    }
+
+    public static boolean isArrayIndexInRange(final byte[] array, final int index) {
+        return (array != null) && (index >= 0) && (array.length > index);
+    }
 
     public static String parseValue2String(byte[] byteBuffer, int iOffset) throws IOException {
         switch (byteBuffer[iOffset]) {

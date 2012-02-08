@@ -6,8 +6,6 @@ import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.encryption.XDlmsDecryption;
 import com.energyict.encryption.XDlmsEncryption;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.base.UnexpectedEndOfArrayException;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -457,7 +455,7 @@ public class AssociationControlServiceElement {
                                     baseAddress += (responseData[baseAddress] & 0x0FF) - 3; // Conformance block is parsed as int (4 bytes) but normally only 3 are used.
                                     getXdlmsAse().setNegotiatedConformance((ProtocolUtils.getInt(responseData, baseAddress) & 0x00FFFFFF)); // conformance has only 3 bytes, 24 bit
                                     baseAddress += 4; // Jump over conformance block (just pased this)
-                                    this.getXdlmsAse().setMaxRecPDUServerSize(ProtocolTools.getIntFromBytes(responseData, baseAddress, 2));
+                                    this.getXdlmsAse().setMaxRecPDUServerSize(DLMSUtils.getIntFromBytes(responseData, baseAddress, 2));
                                     baseAddress += 2; // Jump over maxPDU size (two bytes)
                                     getXdlmsAse().setVAAName(ProtocolUtils.getShort(responseData, baseAddress));
                                     return;
@@ -529,7 +527,7 @@ public class AssociationControlServiceElement {
                 }
             } // while(true)
         } catch (ArrayIndexOutOfBoundsException e) {
-            throw new UnexpectedEndOfArrayException("Unexpected end of AARE response", e, responseData);
+            throw new ACSEParsingException("Unexpected end of AARE response", e, responseData);
         } catch (DLMSConnectionException e) {
             throw new IOException(e.getMessage());
         }
@@ -564,7 +562,7 @@ public class AssociationControlServiceElement {
                 at[j] = encryptedUserInformation[ptr++];
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            throw new UnexpectedEndOfArrayException("Unexpected end of encryptedUserInformation", e, encryptedUserInformation);
+            throw new ACSEParsingException("Unexpected end of encryptedUserInformation", e, encryptedUserInformation);
         }
 
         XDlmsDecryption decryption = new XDlmsDecryption();
@@ -668,7 +666,7 @@ public class AssociationControlServiceElement {
                 }
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            throw new UnexpectedEndOfArrayException("Unexpected end of RLRE response", e, responseData);
+            throw new ACSEParsingException("Unexpected end of RLRE response", e, responseData);
         }
     }
 
@@ -921,4 +919,19 @@ public class AssociationControlServiceElement {
     public boolean hlsChallengeMatch() {
         return Arrays.equals(getCallingAuthenticationValue(), getRespondingAuthenticationValue());
     }
+
+    private class ACSEParsingException extends IOException {
+
+        public ACSEParsingException(String s, Exception e) {
+            super(s);
+            initCause(e);
+        }
+
+        public ACSEParsingException(String s, Exception e, byte[] array) {
+            super(new StringBuffer().append(s).append(" [").append(ProtocolUtils.getResponseData(array)).append("]").toString());
+            initCause(e);
+        }
+
+    }
+
 }
