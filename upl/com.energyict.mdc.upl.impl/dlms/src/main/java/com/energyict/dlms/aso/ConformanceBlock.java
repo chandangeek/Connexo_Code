@@ -1,7 +1,6 @@
 package com.energyict.dlms.aso;
 
-import com.energyict.protocolimpl.utils.ProtocolTools;
-
+import com.energyict.dlms.DLMSUtils;
 
 /**
  * Information from GreenBook:
@@ -321,11 +320,11 @@ public class ConformanceBlock{
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
-        sb.append("ConformanceBlock{ rawValue = " + ProtocolTools.getHexStringFromBytes(getByteValue())).append(CRLF);
+        sb.append("ConformanceBlock{ rawValue = " + DLMSUtils.getHexStringFromBytes(getByteValue())).append(CRLF);
         for (int i = 0; i < NAMES.length; i++) {
             String name = NAMES[i];
-            sb.append(block[i] ? "  * " : "    ").append("[").append(ProtocolTools.addPadding(String.valueOf(i), '0', 2, false)).append("] ");
-            sb.append(ProtocolTools.addPadding(name, ' ', 33, true)).append(" = ").append(block[i]).append(CRLF);
+            sb.append(block[i] ? "  * " : "    ").append("[").append(DLMSUtils.addPadding(String.valueOf(i), '0', 2, false)).append("] ");
+            sb.append(DLMSUtils.addPadding(name, ' ', 33, true)).append(" = ").append(block[i]).append(CRLF);
         }
         sb.append("}");
         return sb.toString();

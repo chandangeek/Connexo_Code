@@ -29,7 +29,6 @@ public final class ProtocolTools {
     private static final int HEX = 16;
     private static final int MILLIS = 1000;
     private static final int SECONDS = 60;
-    private static final int HEX_PRESENTATION = HEX;
     private static final String CRLF = "\r\n";
 
     private ProtocolTools() {
@@ -336,7 +335,7 @@ public final class ProtocolTools {
         int charsPerByte = prefixLength + 2;
         ByteArrayOutputStream bb = new ByteArrayOutputStream();
         for (int i = 0; i < hexString.length(); i += charsPerByte) {
-            bb.write(Integer.parseInt(hexString.substring(i + prefixLength, i + charsPerByte), HEX_PRESENTATION));
+            bb.write(Integer.parseInt(hexString.substring(i + prefixLength, i + charsPerByte), HEX));
         }
         return bb.toByteArray();
     }

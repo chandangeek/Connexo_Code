@@ -1,6 +1,6 @@
 package com.energyict.dlms.axrdencoding;
 
-import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.dlms.DLMSUtils;
 import org.junit.Test;
 
 import static junit.framework.Assert.*;
@@ -14,7 +14,7 @@ public class BitStringTest {
 
     @Test
     public void testLargeBitString() {
-        byte[] rawValue = ProtocolTools.getBytesFromHexString("$04$82$02$00$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF");
+        byte[] rawValue = DLMSUtils.getBytesFromHexString("$04$82$02$00$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF$FF");
         try {
             BitString bitString = new BitString(rawValue, 0);
             assertNotNull(bitString);

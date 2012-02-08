@@ -8,7 +8,7 @@
 
 package com.energyict.dlms.axrdencoding;
 
-import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.dlms.DLMSUtils;
 
 import java.math.BigDecimal;
 
@@ -43,11 +43,11 @@ abstract public class AbstractDataType {
     public byte[] getContentByteArray() {
         byte[] berEncoded = getBEREncodedByteArray();
         if (isBitString()) {
-            return ProtocolTools.getSubArray(berEncoded, 2);
+            return DLMSUtils.getSubArray(berEncoded, 2);
         } else if (isOctetString()) {
             return ((OctetString) this).getOctetStr();
         } else {
-            return ProtocolTools.getSubArray(berEncoded, 1);
+            return DLMSUtils.getSubArray(berEncoded, 1);
         }
     }
 

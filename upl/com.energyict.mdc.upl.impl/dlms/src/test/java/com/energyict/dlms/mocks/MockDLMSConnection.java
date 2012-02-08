@@ -6,7 +6,6 @@ package com.energyict.dlms.mocks;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -50,15 +49,15 @@ public class MockDLMSConnection implements DLMSConnection {
 	 * Doesn't send anything, just returns the response you have to set before the send. If you didn't set anything, then your requestBuffer is returned
 	 */
 	public byte[] sendRequest(byte[] byteRequestBuffer) throws IOException {
-		String requestAsHexString = ProtocolTools.getHexStringFromBytes(byteRequestBuffer);
+		String requestAsHexString = DLMSUtils.getHexStringFromBytes(byteRequestBuffer);
 		String responseAsHexString = requestResponsePairs.get(requestAsHexString);
 		if (responseAsHexString != null) {
-			return ProtocolTools.getBytesFromHexString(responseAsHexString);
+			return DLMSUtils.getBytesFromHexString(responseAsHexString);
 		} else {
 			if (this.responseByte != null) {
 				return this.responseByte;
 			} else {
-				System.out.println(ProtocolTools.getHexStringFromBytes(byteRequestBuffer));
+				System.out.println(DLMSUtils.getHexStringFromBytes(byteRequestBuffer));
 				return byteRequestBuffer;
 			}
 		}

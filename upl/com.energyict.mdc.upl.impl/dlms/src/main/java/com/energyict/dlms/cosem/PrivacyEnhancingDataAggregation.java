@@ -1,12 +1,11 @@
 package com.energyict.dlms.cosem;
 
 import com.energyict.cbo.Quantity;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.attributes.PrivacyEnhancingDataAggregationAttributes;
 import com.energyict.dlms.cosem.methods.PrivacyEnhancingDataAggregationMethods;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -93,8 +92,8 @@ public class PrivacyEnhancingDataAggregation extends AbstractCosemObject impleme
         for (String keyPair : keysOfAggregationGroup) {
             String[] keys = keyPair.split(",");
             structure = new Structure();
-            structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(keys[0], "")));
-            structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(keys[1], "")));
+            structure.addDataType(OctetString.fromByteArray(DLMSUtils.getBytesFromHexString(keys[0], "")));
+            structure.addDataType(OctetString.fromByteArray(DLMSUtils.getBytesFromHexString(keys[1], "")));
             keyPairs.add(structure);
         }
         Array array = new Array();

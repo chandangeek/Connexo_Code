@@ -3,7 +3,6 @@ package com.energyict.dlms.aso;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.mocks.MockSecurityProvider;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -209,7 +208,7 @@ public class AssociationControlServiceElementTest {
      */
     @Test
     public void analyzeCorrectRLRE() {
-        byte[] rlre = ProtocolTools.getBytesFromHexString("$00$00$00$63$28$80$01$00$BE$23$04$21$28$1F$30$00$00$10$24$8E$6B$96$CA$25$EA$66$DC$3C$5A$F0$65$FD$57$5B$19$FC$42$B8$36$68$AA$7F$B7$D1$80");
+        byte[] rlre = DLMSUtils.getBytesFromHexString("$00$00$00$63$28$80$01$00$BE$23$04$21$28$1F$30$00$00$10$24$8E$6B$96$CA$25$EA$66$DC$3C$5A$F0$65$FD$57$5B$19$FC$42$B8$36$68$AA$7F$B7$D1$80");
         try {
             SecurityContext sc = new SecurityContext(2, 2, 2, new MockSecurityProvider(), SecurityContext.CIPHERING_TYPE_GLOBAL);
             AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
@@ -224,7 +223,7 @@ public class AssociationControlServiceElementTest {
      */
     @Test
     public void analyzeCorrectNoReasonRLRE() {
-        byte[] rlre = ProtocolTools.getBytesFromHexString("$00$00$00$63$28$80$00$BE$23$04$21$28$1F$30$00$00$10$24$8E$6B$96$CA$25$EA$66$DC$3C$5A$F0$65$FD$57$5B$19$FC$42$B8$36$68$AA$7F$B7$D1$80");
+        byte[] rlre = DLMSUtils.getBytesFromHexString("$00$00$00$63$28$80$00$BE$23$04$21$28$1F$30$00$00$10$24$8E$6B$96$CA$25$EA$66$DC$3C$5A$F0$65$FD$57$5B$19$FC$42$B8$36$68$AA$7F$B7$D1$80");
         try {
             SecurityContext sc = new SecurityContext(2, 2, 2, new MockSecurityProvider(), SecurityContext.CIPHERING_TYPE_GLOBAL);
             AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
@@ -256,7 +255,7 @@ public class AssociationControlServiceElementTest {
      */
     @Test
     public void analyzeUserDefinedRLRE() {
-        byte[] rlre = ProtocolTools.getBytesFromHexString("$00$00$00$63$28$80$01$30$BE$23$04$21$28$1F$30$00$00$10$24$8E$6B$96$CA$25$EA$66$DC$3C$5A$F0$65$FD$57$5B$19$FC$42$B8$36$68$AA$7F$B7$D1$80");
+        byte[] rlre = DLMSUtils.getBytesFromHexString("$00$00$00$63$28$80$01$30$BE$23$04$21$28$1F$30$00$00$10$24$8E$6B$96$CA$25$EA$66$DC$3C$5A$F0$65$FD$57$5B$19$FC$42$B8$36$68$AA$7F$B7$D1$80");
         SecurityContext sc = new SecurityContext(2, 2, 2, new MockSecurityProvider(), SecurityContext.CIPHERING_TYPE_GLOBAL);
         AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
         try {
@@ -271,7 +270,7 @@ public class AssociationControlServiceElementTest {
      */
     @Test
     public void analyzeNotFinishedRLRE() {
-        byte[] rlre = ProtocolTools.getBytesFromHexString("$00$00$00$63$28$80$01$01$BE$23$04$21$28$1F$30$00$00$10$24$8E$6B$96$CA$25$EA$66$DC$3C$5A$F0$65$FD$57$5B$19$FC$42$B8$36$68$AA$7F$B7$D1$80");
+        byte[] rlre = DLMSUtils.getBytesFromHexString("$00$00$00$63$28$80$01$01$BE$23$04$21$28$1F$30$00$00$10$24$8E$6B$96$CA$25$EA$66$DC$3C$5A$F0$65$FD$57$5B$19$FC$42$B8$36$68$AA$7F$B7$D1$80");
         SecurityContext sc = new SecurityContext(2, 2, 2, new MockSecurityProvider(), SecurityContext.CIPHERING_TYPE_GLOBAL);
         AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
         try {
@@ -286,7 +285,7 @@ public class AssociationControlServiceElementTest {
      */
     @Test
     public void analyzeUnknownRLRE() {
-        byte[] rlre = ProtocolTools.getBytesFromHexString("$00$00$00$63$28$80$01$22$BE$23$04$21$28$1F$30$00$00$10$24$8E$6B$96$CA$25$EA$66$DC$3C$5A$F0$65$FD$57$5B$19$FC$42$B8$36$68$AA$7F$B7$D1$80");
+        byte[] rlre = DLMSUtils.getBytesFromHexString("$00$00$00$63$28$80$01$22$BE$23$04$21$28$1F$30$00$00$10$24$8E$6B$96$CA$25$EA$66$DC$3C$5A$F0$65$FD$57$5B$19$FC$42$B8$36$68$AA$7F$B7$D1$80");
         SecurityContext sc = new SecurityContext(2, 2, 2, new MockSecurityProvider(), SecurityContext.CIPHERING_TYPE_GLOBAL);
         AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
         try {
@@ -298,7 +297,7 @@ public class AssociationControlServiceElementTest {
 
     @Test
     public void analyzeAS1440RLRE() {
-        byte[] rlre = ProtocolTools.getBytesFromHexString("$00$00$00$63$28$80$01$00$BE$23$04$21$28$1F$30$00$00$00$62$AE$4B$17$8A$8C$55$31$DC$A7$46$1C$F8$B6$4C$BB$9F$7A$0F$7D$9B$3C$1C$E2$A6$4B$80");
+        byte[] rlre = DLMSUtils.getBytesFromHexString("$00$00$00$63$28$80$01$00$BE$23$04$21$28$1F$30$00$00$00$62$AE$4B$17$8A$8C$55$31$DC$A7$46$1C$F8$B6$4C$BB$9F$7A$0F$7D$9B$3C$1C$E2$A6$4B$80");
         SecurityContext sc = new SecurityContext(2, 2, 2, new MockSecurityProvider(), SecurityContext.CIPHERING_TYPE_GLOBAL);
         AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
         try {
@@ -308,14 +307,4 @@ public class AssociationControlServiceElementTest {
         }
     }
 
-//    0001002d0030009c618199a109060760857405080103a203020100a305a103020100a40a0408454c53303030303088020780890760857405080205aa428040713a35673f232a624f293e35656c355b57276575542e76467e395b5b5d527b79797726772f642c227d74623a71296575296b784257577e6b312a6a37326b6b51be230421281f3000000001bf8c78b1336f8f1123128cd74dc14dea3824011801954a9ecfa1
-//
-//    @Test
-//    public void as300Test() throws IOException {
-//        AssociationControlServiceElement acse;
-//
-//            acse = new AssociationControlServiceElement(null, 1, new SecurityContext(3, 5, 2, new MockSecurityProvider(), SecurityContext.CIPHERING_TYPE_GLOBAL));
-//            String hlSecurityResponse = "618199a109060760857405080103a203020100a305a103020100a40a0408454c53303030303088020780890760857405080205aa428040713a35673f232a624f293e35656c355b57276575542e76467e395b5b5d527b79797726772f642c227d74623a71296575296b784257577e6b312a6a37326b6b51be230421281f3000000001bf8c78b1336f8f1123128cd74dc14dea3824011801954a9ecfa1";
-//            acse.analyzeAARE(DLMSUtils.hexStringToByteArray(hlSecurityResponse));
-//    }
 }

@@ -9,7 +9,6 @@ import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.attributes.GenericDlmsClassAttribute;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.*;
@@ -181,7 +180,7 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
         sb.append("ComposedCosemObject").append(crlf);
         for (int i = 0; i < attributes.length; i++) {
             DLMSAttribute attribute = attributes[i];
-            sb.append("  [").append(ProtocolTools.addPadding(String.valueOf(i), '0', 2, false)).append("] ").append(attribute).append(crlf);
+            sb.append("  [").append(DLMSUtils.addPadding(String.valueOf(i), '0', 2, false)).append("] ").append(attribute).append(crlf);
         }
         sb.append('}');
         return sb.toString();

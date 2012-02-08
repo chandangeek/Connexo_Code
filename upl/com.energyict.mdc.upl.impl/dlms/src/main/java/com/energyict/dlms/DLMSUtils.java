@@ -6,12 +6,15 @@
 
 package com.energyict.dlms;
 
+import com.energyict.cbo.ApplicationException;
 import com.energyict.dlms.axrdencoding.Integer64;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolUtils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -20,6 +23,9 @@ import java.util.List;
  *         |GNA| 19012009 - Added a valid description for Abstract objects that have no description, otherwise these are not stored correctly in database
  */
 public final class DLMSUtils {
+
+    private static final int PREFIX_AND_HEX_LENGTH = 3;
+    private static final int HEX = 16;
 
     /**
      * DLMSUtils is a static util class that never should be instantiated.
@@ -1171,6 +1177,80 @@ public final class DLMSUtils {
             }
         }
         return null;
+    }
+
+    /**
+     * Build a String with the data representation using $ before each byte
+     *
+     * @param bytes data to build string from
+     * @return String with representation of the data
+     */
+    public static String getHexStringFromBytes(final byte[] bytes) {
+        return ProtocolUtils.getResponseData(bytes);
+    }
+
+    /**
+     * Build a String with the data representation using $ before each byte
+     *
+     * @param bytes data to build string from
+     * @return String with representation of the data
+     */
+    public static String getHexStringFromBytes(final byte[] bytes, String prefix) {
+        return ProtocolUtils.getResponseData(bytes).replace("$", prefix);
+    }
+
+    public static String addPadding(final String stringToPad, final char character, final int length, final boolean addToEnd) {
+        String paddedString = null;
+        if (stringToPad != null) {
+            int charactersToAdd = length - stringToPad.length();
+            if (charactersToAdd > 0) {
+                char[] charArray = new char[charactersToAdd];
+                Arrays.fill(charArray, character);
+                if (addToEnd) {
+                    paddedString = stringToPad + new String(charArray);
+                } else {
+                    paddedString = new String(charArray) + stringToPad;
+                }
+            } else {
+                paddedString = stringToPad;
+            }
+        }
+        return paddedString;
+    }
+
+    public static byte[] getBytesFromInt(int value, int length) {
+        byte[] bytes = new byte[length];
+        for (int i = 0; i < bytes.length; i++) {
+            int ptr = (bytes.length - (i + 1));
+            bytes[ptr] = (i < 4) ? (byte) ((value >> (i * 8))) : 0x00;
+        }
+        return bytes;
+    }
+
+    public static void delay(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            throw new ApplicationException("Delay interrupted!", e);
+        }
+    }
+
+    public static byte[] getBytesFromHexString(final String hexString) {
+        ByteArrayOutputStream bb = new ByteArrayOutputStream();
+        for (int i = 0; i < hexString.length(); i += PREFIX_AND_HEX_LENGTH) {
+            bb.write(Integer.parseInt(hexString.substring(i + 1, i + PREFIX_AND_HEX_LENGTH), HEX));
+        }
+        return bb.toByteArray();
+    }
+
+    public static byte[] getBytesFromHexString(final String hexString, final String prefix) {
+        int prefixLength = (prefix == null) ? 0 : prefix.length();
+        int charsPerByte = prefixLength + 2;
+        ByteArrayOutputStream bb = new ByteArrayOutputStream();
+        for (int i = 0; i < hexString.length(); i += charsPerByte) {
+            bb.write(Integer.parseInt(hexString.substring(i + prefixLength, i + charsPerByte), HEX));
+        }
+        return bb.toByteArray();
     }
 
 }

@@ -1,11 +1,10 @@
 package com.energyict.dlms.cosem.attributeobjects;
 
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 
 import java.io.IOException;
-
-import static com.energyict.protocolimpl.utils.ProtocolTools.getBytesFromHexString;
 
 /**
  * Copyrights EnergyICT
@@ -15,7 +14,7 @@ import static com.energyict.protocolimpl.utils.ProtocolTools.getBytesFromHexStri
 public class RegisterZigbeeDeviceData extends Structure {
 
     public RegisterZigbeeDeviceData(String address, String linkKey) throws IOException {
-        this(new ZigBeeIEEEAddress(getBytesFromHexString(address, "")), OctetString.fromByteArray(getBytesFromHexString(linkKey, "")));
+        this(new ZigBeeIEEEAddress(DLMSUtils.getBytesFromHexString(address, "")), OctetString.fromByteArray(DLMSUtils.getBytesFromHexString(linkKey, "")));
     }
 
     public RegisterZigbeeDeviceData(ZigBeeIEEEAddress address, OctetString linkKey) throws IOException {

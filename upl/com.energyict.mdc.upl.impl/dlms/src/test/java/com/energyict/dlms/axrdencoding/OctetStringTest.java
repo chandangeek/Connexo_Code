@@ -3,15 +3,16 @@
  */
 package com.energyict.dlms.axrdencoding;
 
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.TimeZone;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
-import static com.energyict.protocolimpl.utils.ProtocolTools.getBytesFromHexString;
+import static com.energyict.dlms.DLMSUtils.getBytesFromHexString;
 import static org.junit.Assert.*;
 
 /**
@@ -93,12 +94,12 @@ public class OctetStringTest {
     @Test
     public final void fromDateTime() throws IOException {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        cal.setTime(ProtocolTools.getDateFromYYYYMMddhhmmss("2010-05-07 15:30:45"));
+        cal.setTime(getDateFromYYYYMMddhhmmss("2010-05-07 15:30:45"));
         AXDRDateTime dateTime = new AXDRDateTime(cal);
-        System.out.println(ProtocolTools.getHexStringFromBytes(dateTime.getBEREncodedByteArray()));
+        System.out.println(DLMSUtils.getHexStringFromBytes(dateTime.getBEREncodedByteArray()));
 
         OctetString oc = new OctetString(dateTime.getBEREncodedByteArray(), 0, false);
-        System.out.println(ProtocolTools.getHexStringFromBytes(oc.getBEREncodedByteArray()));
+        System.out.println(DLMSUtils.getHexStringFromBytes(oc.getBEREncodedByteArray()));
 
         assertNotNull(oc);
         assertArrayEquals(getBytesFromHexString("$09$0D$0C$07$DA$05$07$05$0D$1E$2D$00$00$00$00"), oc.getBEREncodedByteArray());
@@ -110,5 +111,27 @@ public class OctetStringTest {
         assertEquals(14, oc.size());
     }
 
+    /**
+     * Generate a new date object, derived from the given string.
+     * This string should allways have the following format: yyyy-MM-dd hh:mm:ss
+     *
+     * @param yyyyMMddhhmmss the date in string format (yyyy-MM-dd hh:mm:ss) or null if the string vas invalid
+     * @return The new date object
+     */
+    private static Date getDateFromYYYYMMddhhmmss(String yyyyMMddhhmmss) {
+        try {
+            if (yyyyMMddhhmmss != null) {
+                Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(yyyyMMddhhmmss);
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                cal.set(Calendar.MILLISECOND, 0);
+                return cal.getTime();
+            } else {
+                return null;
+            }
+        } catch (ParseException e) {
+            return null;
+        }
+    }
 
 }

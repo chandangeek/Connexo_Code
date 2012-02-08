@@ -13,7 +13,6 @@ import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
 import com.energyict.dlms.cosem.methods.DLMSClassMethods;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.ByteArrayOutputStream;
@@ -439,11 +438,11 @@ public abstract class AbstractCosemObject {
                 case 0x00: // Data
                     AbstractDataType dataType = AXDRDecoder.decode(responseData, ptr + 1);
                     int objectLength = dataType.getBEREncodedByteArray().length;
-                    result[i] = ProtocolTools.getSubArray(responseData, ptr, ptr + objectLength + 1);
+                    result[i] = DLMSUtils.getSubArray(responseData, ptr, ptr + objectLength + 1);
                     ptr += objectLength + 1;
                     break;
                 case 0x01: // Data-access-result
-                    result[i] = ProtocolTools.getSubArray(responseData, ptr, ptr + 2);
+                    result[i] = DLMSUtils.getSubArray(responseData, ptr, ptr + 2);
                     ptr += 2;
                     break;
                 default:
@@ -1723,14 +1722,14 @@ public abstract class AbstractCosemObject {
         int CAPTURE_FROM_OFFSET = 21;
 
         intreq[CAPTURE_FROM_OFFSET] = DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED;
-        byte[] bytesFromCal = ProtocolTools.getBytesFromInt((int) fromCalendar, 4);
+        byte[] bytesFromCal = DLMSUtils.getBytesFromInt((int) fromCalendar, 4);
         intreq[CAPTURE_FROM_OFFSET + 1] = bytesFromCal[0];
         intreq[CAPTURE_FROM_OFFSET + 2] = bytesFromCal[1];
         intreq[CAPTURE_FROM_OFFSET + 3] = bytesFromCal[2];
         intreq[CAPTURE_FROM_OFFSET + 4] = bytesFromCal[3];
 
         intreq[CAPTURE_FROM_OFFSET + 5] = DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED;
-        byte[] bytesToCal = ProtocolTools.getBytesFromInt((int) toCalendar, 4);
+        byte[] bytesToCal = DLMSUtils.getBytesFromInt((int) toCalendar, 4);
         intreq[CAPTURE_FROM_OFFSET + 6] = toCalendar != 0 ? bytesToCal[0] : (byte) 0xFF;
         intreq[CAPTURE_FROM_OFFSET + 7] = toCalendar != 0 ? bytesToCal[1] : (byte) 0xFF;
         intreq[CAPTURE_FROM_OFFSET + 8] = toCalendar != 0 ? bytesToCal[2] : (byte) 0xFF;
@@ -1763,26 +1762,26 @@ public abstract class AbstractCosemObject {
         int FROM_ENTRY_OFFSET = 3;
 
         intreq[FROM_ENTRY_OFFSET] = DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED;
-        byte[] bytesFromEntry = ProtocolTools.getBytesFromInt(fromEntry, 4);
+        byte[] bytesFromEntry = DLMSUtils.getBytesFromInt(fromEntry, 4);
         intreq[FROM_ENTRY_OFFSET + 1] = bytesFromEntry[0];
         intreq[FROM_ENTRY_OFFSET + 2] = bytesFromEntry[1];
         intreq[FROM_ENTRY_OFFSET + 3] = bytesFromEntry[2];
         intreq[FROM_ENTRY_OFFSET + 4] = bytesFromEntry[3];
 
         intreq[FROM_ENTRY_OFFSET + 5] = DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED;
-        byte[] bytesToEntry = ProtocolTools.getBytesFromInt(toEntry, 4);
+        byte[] bytesToEntry = DLMSUtils.getBytesFromInt(toEntry, 4);
         intreq[FROM_ENTRY_OFFSET + 6] = bytesToEntry[0];
         intreq[FROM_ENTRY_OFFSET + 7] = bytesToEntry[1];
         intreq[FROM_ENTRY_OFFSET + 8] = bytesToEntry[2];
         intreq[FROM_ENTRY_OFFSET + 9] = bytesToEntry[3];
 
         intreq[FROM_ENTRY_OFFSET + 10] = DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED;
-        byte[] bytesFromSelectedValue = ProtocolTools.getBytesFromInt(fromValue, 2);
+        byte[] bytesFromSelectedValue = DLMSUtils.getBytesFromInt(fromValue, 2);
         intreq[FROM_ENTRY_OFFSET + 11] = bytesFromSelectedValue[0];
         intreq[FROM_ENTRY_OFFSET + 12] = bytesFromSelectedValue[1];
 
         intreq[FROM_ENTRY_OFFSET + 13] = DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED;
-        byte[] bytesToSelectedValue = ProtocolTools.getBytesFromInt(toValue, 2);
+        byte[] bytesToSelectedValue = DLMSUtils.getBytesFromInt(toValue, 2);
         intreq[FROM_ENTRY_OFFSET + 14] = bytesToSelectedValue[0];
         intreq[FROM_ENTRY_OFFSET + 15] = bytesToSelectedValue[1];
 
@@ -1822,7 +1821,7 @@ public abstract class AbstractCosemObject {
                 };
 
         // selected values
-        intreq = ProtocolTools.concatByteArrays(intreq, selectedValues);
+        intreq = DLMSUtils.concatByteArrays(intreq, selectedValues);
 
 		int CAPTURE_FROM_OFFSET = 21;
 		int CAPTURE_TO_OFFSET = 35;

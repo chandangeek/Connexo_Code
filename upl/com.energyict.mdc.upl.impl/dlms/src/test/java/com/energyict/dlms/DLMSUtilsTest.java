@@ -3,7 +3,6 @@ package com.energyict.dlms;
 import org.junit.Test;
 
 import static com.energyict.dlms.DLMSUtils.*;
-import static com.energyict.protocolimpl.utils.ProtocolTools.getBytesFromHexString;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 

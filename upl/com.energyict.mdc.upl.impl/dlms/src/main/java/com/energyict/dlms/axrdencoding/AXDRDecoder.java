@@ -11,7 +11,7 @@
 package com.energyict.dlms.axrdencoding;
 
 import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.dlms.DLMSUtils;
 
 import java.io.IOException;
 
@@ -86,7 +86,7 @@ public final class AXDRDecoder {
 			case DLMSCOSEMGlobals.TYPEDESC_LONG64:
                 return new Integer64(data, offset);
             case DLMSCOSEMGlobals.TYPEDESC_LONG64_UNSIGNED:
-                return new Integer64(ProtocolTools.getUnsignedIntFromBytes(data, offset + 1, Integer64.LENGTH));  //+1 to skip the data type byte
+                return new Integer64(DLMSUtils.getUnsignedIntFromBytes(data, offset + 1, Integer64.LENGTH));  //+1 to skip the data type byte
             case DLMSCOSEMGlobals.TYPEDESC_BOOLEAN:
                 return new BooleanObject(data, offset);
             case DLMSCOSEMGlobals.TYPEDESC_FLOAT32:

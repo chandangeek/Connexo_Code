@@ -1,8 +1,8 @@
 package com.energyict.dlms.cosem;
 
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -314,7 +314,7 @@ public class P3ImageTransfer extends AbstractCosemObject{
 				} catch (DataAccessResultException e) {
 					if(e.getDataAccessResult() == 2){ //"Temporary failure"
 						retry--;
-						ProtocolTools.delay(delay);
+						DLMSUtils.delay(delay);
 					} else {
 						throw new IOException("Could not verify the image." + e.getMessage());
 					}
@@ -354,7 +354,7 @@ public class P3ImageTransfer extends AbstractCosemObject{
 				} catch (DataAccessResultException e) {
 					if(e.getDataAccessResult() == 2){ //"Temporary failure"
 						retry--;
-						ProtocolTools.delay(delay);
+                        DLMSUtils.delay(delay);
 					} else {
 						throw new IOException("Could not verify the image." + e.getMessage());
 					}

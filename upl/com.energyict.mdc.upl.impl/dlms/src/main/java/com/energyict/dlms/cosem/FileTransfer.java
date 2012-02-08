@@ -1,9 +1,9 @@
 package com.energyict.dlms.cosem;
 
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.Date;
@@ -343,7 +343,7 @@ public class FileTransfer extends AbstractCosemObject{
 					if((e.getDataAccessResult() == 2) && retry >= 1){ //"Temporary failure"
 						this.protocolLink.getLogger().log(Level.INFO, "Received a temporary failure during verification, will retry.");
 						retry--;
-                        ProtocolTools.delay(delay);
+                        DLMSUtils.delay(delay);
 					} else {
 						throw new IOException("Could not verify the image." + e.getMessage());
 					}
