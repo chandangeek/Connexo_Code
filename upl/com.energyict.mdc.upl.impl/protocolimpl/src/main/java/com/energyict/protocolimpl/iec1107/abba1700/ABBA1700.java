@@ -16,7 +16,8 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
 
-import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.*;
+import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.BillingResetKey;
+import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.TimeDateKey;
 
 /**
  * @author  Koen
@@ -233,7 +234,7 @@ public class ABBA1700 implements MeterProtocol, ProtocolLink, HHUEnabler, Serial
 		this.logger = log;
 
 		try {
-			connection = new FlagIEC1107Connection(in, out, iTimeout, iProtocolRetries, forcedDelay, iEchoCancelling, iIEC1107Compatible, new CAI700(), soft7E1);
+			connection = new FlagIEC1107Connection(in, out, iTimeout, iProtocolRetries, forcedDelay, iEchoCancelling, iIEC1107Compatible, new CAI700(), soft7E1, logger);
 		} catch (ConnectionException e) {
 			log.severe("ABBA1500: init(...), " + e.getMessage());
 		}

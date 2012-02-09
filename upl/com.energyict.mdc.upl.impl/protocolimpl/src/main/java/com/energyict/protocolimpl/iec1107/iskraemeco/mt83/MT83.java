@@ -4,7 +4,6 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.DLMSUtils;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
@@ -286,7 +285,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
         this.timeZone = timeZone;
         this.logger = logger;
         try {
-            flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible,software7E1);
+            flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible,software7E1, logger);
             flagIEC1107Connection.setErrorSignature("ER");
             mt83Registry = new MT83Registry(this,this);
             mt83Profile = new MT83Profile(this,this,mt83Registry);
@@ -505,7 +504,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     }
 
     /**
-     * Execute a billing reset on the device. After receiving the “Demand Reset”
+     * Execute a billing reset on the device. After receiving the ï¿½Demand Resetï¿½
      * command the meter executes a demand reset by doing a snap shot of all
      * energy and demand registers.
      *

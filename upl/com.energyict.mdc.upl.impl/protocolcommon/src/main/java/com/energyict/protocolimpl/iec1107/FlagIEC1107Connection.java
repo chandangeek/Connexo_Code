@@ -1,19 +1,16 @@
 package com.energyict.protocolimpl.iec1107;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.Encryptor;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Koenraad Vanderschaeve
@@ -56,6 +53,8 @@ public class FlagIEC1107Connection extends Connection {
 
     private int iMaxRetries;
 
+    protected Logger logger;
+
     // General attributes
     private int iProtocolTimeout;
     private int iIEC1107Compatible;
@@ -96,7 +95,6 @@ public class FlagIEC1107Connection extends Connection {
 
     private boolean dontSendLogOffCommand = true;
 
-
     public FlagIEC1107Connection(InputStream inputStream,
                                  OutputStream outputStream,
                                  int iTimeout,
@@ -105,7 +103,19 @@ public class FlagIEC1107Connection extends Connection {
                                  int iEchoCancelling,
                                  int iIEC1107Compatible,
                                  boolean software7E1) throws ConnectionException {
-        this(inputStream, outputStream, iTimeout, iMaxRetries, lForceDelay, iEchoCancelling, iIEC1107Compatible, null, software7E1);
+        this(inputStream, outputStream, iTimeout, iMaxRetries, lForceDelay, iEchoCancelling, iIEC1107Compatible, software7E1, null);
+    }
+
+    public FlagIEC1107Connection(InputStream inputStream,
+                                 OutputStream outputStream,
+                                 int iTimeout,
+                                 int iMaxRetries,
+                                 long lForceDelay,
+                                 int iEchoCancelling,
+                                 int iIEC1107Compatible,
+                                 boolean software7E1,
+                                 Logger logger) throws ConnectionException {
+        this(inputStream, outputStream, iTimeout, iMaxRetries, lForceDelay, iEchoCancelling, iIEC1107Compatible, null, software7E1, logger);
     }
 
     /**
@@ -130,8 +140,20 @@ public class FlagIEC1107Connection extends Connection {
                                  int iIEC1107Compatible,
                                  Encryptor encryptor,
                                  boolean software7E1) throws ConnectionException {
-        this(inputStream, outputStream, iTimeout, iMaxRetries, lForceDelay, iEchoCancelling, iIEC1107Compatible, encryptor, null, software7E1);
+        this(inputStream, outputStream, iTimeout, iMaxRetries, lForceDelay, iEchoCancelling, iIEC1107Compatible, encryptor, software7E1, null);
+    }
 
+    public FlagIEC1107Connection(InputStream inputStream,
+                                 OutputStream outputStream,
+                                 int iTimeout,
+                                 int iMaxRetries,
+                                 long lForceDelay,
+                                 int iEchoCancelling,
+                                 int iIEC1107Compatible,
+                                 Encryptor encryptor,
+                                 boolean software7E1,
+                                 Logger logger) throws ConnectionException {
+        this(inputStream, outputStream, iTimeout, iMaxRetries, lForceDelay, iEchoCancelling, iIEC1107Compatible, encryptor, null, software7E1, logger);
     }
 
     public FlagIEC1107Connection(InputStream inputStream,
@@ -144,6 +166,20 @@ public class FlagIEC1107Connection extends Connection {
                                  Encryptor encryptor,
                                  HalfDuplexController halfDuplexController,
                                  boolean software7E1) throws ConnectionException {
+        this(inputStream, outputStream, iTimeout, iMaxRetries, lForceDelay, iEchoCancelling, iIEC1107Compatible, encryptor, halfDuplexController, software7E1, null);
+    }
+
+    public FlagIEC1107Connection(InputStream inputStream,
+                                 OutputStream outputStream,
+                                 int iTimeout,
+                                 int iMaxRetries,
+                                 long lForceDelay,
+                                 int iEchoCancelling,
+                                 int iIEC1107Compatible,
+                                 Encryptor encryptor,
+                                 HalfDuplexController halfDuplexController,
+                                 boolean software7E1,
+                                 Logger logger) throws ConnectionException {
         super((software7E1 ? new Software7E1InputStream(inputStream) : inputStream),
                 (software7E1 ? new Software7E1OutputStream(outputStream) : outputStream), lForceDelay, iEchoCancelling, halfDuplexController);
         this.iMaxRetries = iMaxRetries;
@@ -154,6 +190,7 @@ public class FlagIEC1107Connection extends Connection {
         this.software7E1 = software7E1;
         iProtocolTimeout = iTimeout;
         boolFlagIEC1107Connected = false;
+        this.logger = logger;
     } // public FlagIEC1107Connection(...)
 
     /**
@@ -206,7 +243,22 @@ public class FlagIEC1107Connection extends Connection {
                                  HalfDuplexController halfDuplexController,
                                  boolean software7E1,
                                  boolean dontSendBreakCommand) throws ConnectionException {
-        this(inputStream, outputStream, iTimeout, iMaxRetries,lForceDelay,iEchoCancelling,iIEC1107Compatible,encryptor, halfDuplexController, software7E1);
+        this(inputStream, outputStream, iTimeout, iMaxRetries,lForceDelay,iEchoCancelling,iIEC1107Compatible,encryptor, halfDuplexController, software7E1, dontSendBreakCommand, null);
+    }
+
+    public FlagIEC1107Connection(InputStream inputStream,
+                                 OutputStream outputStream,
+                                 int iTimeout,
+                                 int iMaxRetries,
+                                 long lForceDelay,
+                                 int iEchoCancelling,
+                                 int iIEC1107Compatible,
+                                 Encryptor encryptor,
+                                 HalfDuplexController halfDuplexController,
+                                 boolean software7E1,
+                                 boolean dontSendBreakCommand,
+                                 Logger logger) throws ConnectionException {
+        this(inputStream, outputStream, iTimeout, iMaxRetries,lForceDelay,iEchoCancelling,iIEC1107Compatible,encryptor, halfDuplexController, software7E1, logger);
         this.dontSendLogOffCommand = dontSendBreakCommand;
     }
 
@@ -367,6 +419,7 @@ public class FlagIEC1107Connection extends Connection {
                 if (retries++ >= iMaxRetries) {
                     throw new FlagIEC1107ConnectionException("signOn() error iMaxRetries, possibly meter not responding or wrong nodeaddress, " + e.getMessage());
                 } else {
+                    logErrorMessage(Level.INFO, "signOn() error [try " + retries + " of " + iMaxRetries + "], " + e.getMessage());
                     if (!dontSendLogOffCommand) {
                         sendBreak();
                     }
@@ -436,6 +489,7 @@ public class FlagIEC1107Connection extends Connection {
                 } else if (iRetries++ >= iMaxRetries) {
                     throw new FlagIEC1107ConnectionException("Authentication error after (" + iMaxRetries + ") retries! Possibly wrong password!, " + e.getMessage());
                 } else {
+                    logErrorMessage(Level.INFO, "Authentication error [try " + iRetries + " of " + iMaxRetries + "], " + e.getMessage());
                     if (!dontSendLogOffCommand) {
                         sendBreak();
                     }
@@ -468,12 +522,9 @@ public class FlagIEC1107Connection extends Connection {
                     } else if (resp.indexOf("(ER") != -1) { // IskraEmeco errors...
                         throw new IOException(resp + " received");
                     }
-                    if (iRetries++ >= iMaxRetries) {
-                        throw new FlagIEC1107ConnectionException("Authentication error! Possibly wrong password! (error iRetries)");
                     }
                 }
             }
-        }
         catch (FlagIEC1107ConnectionException e) {
             if (e.getReason() == SECURITYLEVEL_ERROR) {
                 throw e;
@@ -482,6 +533,7 @@ public class FlagIEC1107Connection extends Connection {
             } else if (iRetries++ >= iMaxRetries) {
                 throw new FlagIEC1107ConnectionException("Authentication error! Possibly wrong password! (error iMaxRetries), " + e.getMessage());
             } else {
+                logErrorMessage(Level.INFO, "Authentication error [try " + iRetries + " of " + iMaxRetries + "], " + e.getMessage());
                 if (!dontSendLogOffCommand) {
                     sendBreak();
                 }
@@ -533,6 +585,7 @@ public class FlagIEC1107Connection extends Connection {
                 if (iRetries++ >= iMaxRetries) {
                     throw new FlagIEC1107ConnectionException("doDataReadout() error iMaxRetries, " + e.getMessage());
                 } else {
+                    logErrorMessage(Level.INFO, "doDataReadout() error [try " + iRetries + " of " + iMaxRetries + "], " + e.getMessage());
                     if (!dontSendLogOffCommand) {
                         sendBreak();
                     }
@@ -646,6 +699,8 @@ public class FlagIEC1107Connection extends Connection {
 
                 if (iRetries++ >= iMaxRetries) {
                     throw new FlagIEC1107ConnectionException("doSendCommandFrame() error iMaxRetries!");
+                } else {
+                    logErrorMessage(Level.INFO, "doSendCommandFrame() error [try " + iRetries + " of " + iMaxRetries + "]");
                 }
             }
         } else if ((command[0] == 'R') || (command[0] == 'P')) {
@@ -732,6 +787,7 @@ public class FlagIEC1107Connection extends Connection {
             catch (FlagIEC1107ConnectionException e) {
                 if ((retries++ < iMaxRetries) && (getTxBuffer() != null) && ((e.getReason() == CRC_ERROR) || (e.getReason() == NAK_RECEIVED) || (e.getReason() == TIMEOUT_ERROR) || (e.getReason() == RECONNECT_ERROR))) {
                     //System.out.println("KV_DEBUG> RETRY "+e.getReason()+", txBuffer="+new String(getTxBuffer()));
+                    logErrorMessage(Level.INFO, "Authentication error [try " + retries + " of " + iMaxRetries + "], " + e.getMessage());
                     delayAndFlush(1000);
                     sendTxBuffer();
 //                    sendOut(NAK);
@@ -1075,6 +1131,12 @@ public class FlagIEC1107Connection extends Connection {
         } // while(true)
 
     } // public void receiveIdent(String str) throws FlagIEC1107ConnectionException
+
+    protected void logErrorMessage(Level level, String msg) {
+        if (logger != null) {
+            logger.log(level, msg);
+        }
+    }
 
     public static void main(String[] args) {
         try {

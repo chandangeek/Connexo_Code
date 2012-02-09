@@ -6,23 +6,16 @@
 
 package com.energyict.protocolimpl.iec1107.kamstrup;
 
-import com.energyict.obis.*;
-import java.io.*; 
-import java.util.*;
-import java.math.*;
-
-import com.energyict.protocol.*;
-import com.energyict.protocol.tools.InputStreamDecorator;
-
-import java.util.logging.*;
-import com.energyict.cbo.*;
-
-
-import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocolimpl.iec1107.vdew.*;
+import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import com.energyict.dialer.core.*;
+import com.energyict.protocolimpl.iec1107.*;
+
+import java.io.*;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * @version  1.0
@@ -301,7 +294,7 @@ public class Kamstrup implements MeterProtocol, ProtocolLink, RegisterProtocol {
 //        	} else {
 //            	flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible);
 //        	}
-        	flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible,software7E1);
+        	flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible,software7E1, logger);
         	kamstrupRegistry = new KamstrupRegistry(this);
            kamstrupProfile = new KamstrupProfile(this,kamstrupRegistry);
         }

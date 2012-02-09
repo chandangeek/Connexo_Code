@@ -67,7 +67,7 @@ public class Unigas300 extends AbstractUnigas300 {
         setLogger(logger);
 
         try {
-            flagIEC1107Connection = new FlagIEC1107Connection(inputStream, outputStream, iIEC1107TimeoutProperty, iProtocolRetriesProperty, 0, iEchoCancelling, iIEC1107Compatible, software7E1);
+            flagIEC1107Connection = new FlagIEC1107Connection(inputStream, outputStream, iIEC1107TimeoutProperty, iProtocolRetriesProperty, 0, iEchoCancelling, iIEC1107Compatible, software7E1, logger);
             unigas300Registry = new Unigas300Registry(this);
             unigas300Profile = new Unigas300Profile(this, unigas300Registry);
         } catch (ConnectionException e) {

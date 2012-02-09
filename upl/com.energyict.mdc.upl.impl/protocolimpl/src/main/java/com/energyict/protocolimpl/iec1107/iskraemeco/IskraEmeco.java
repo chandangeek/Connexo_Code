@@ -10,25 +10,20 @@
  */
 package com.energyict.protocolimpl.iec1107.iskraemeco;
 
+import com.energyict.cbo.NestedIOException;
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.*;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.customerconfig.EDPRegisterConfig;
+import com.energyict.protocolimpl.customerconfig.RegisterConfig;
+import com.energyict.protocolimpl.iec1107.*;
+
 import java.io.*;
 import java.util.*;
-import java.math.*;
-
-import com.energyict.protocol.*;
-import java.util.logging.*;
-import com.energyict.cbo.*;
-
-import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocolimpl.iec1107.vdew.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dialer.core.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocolimpl.customerconfig.*;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dialer.connection.HHUSignOn;
+import java.util.logging.Logger;
 
 /**
  * @version  1.0
@@ -290,7 +285,7 @@ public class IskraEmeco implements MeterProtocol, ProtocolLink, HHUEnabler, Mete
         this.timeZone = timeZone;
         this.logger = logger;
         try {
-            flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible,software7E1);
+            flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible,software7E1, logger);
             iskraEmecoRegistry = new IskraEmecoRegistry(this,this);
             iskraEmecoProfile = new IskraEmecoProfile(this,this,iskraEmecoRegistry);
         }

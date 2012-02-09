@@ -227,7 +227,7 @@ public class Zmd implements  MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
             flagIEC1107Connection = 
                 new FlagIEC1107Connection(  inputStream, outputStream, 
                     iIEC1107TimeoutProperty, iProtocolRetriesProperty, 0, 
-                    iEchoCancelling, iIEC1107Compatible,software7E1);
+                    iEchoCancelling, iIEC1107Compatible,software7E1, logger);
             
             flagIEC1107Connection.setErrorSignature( "ER" );
             

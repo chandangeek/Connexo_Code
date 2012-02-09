@@ -198,7 +198,7 @@ public class Unilog extends AbstractUnilog {
         setTimeZone(timeZone);
         setLogger(logger);
         try {
-            flagIEC1107Connection = new FlagIEC1107Connection(inputStream, outputStream, pTimeout, pRetries, pForceDelay, pEchoCanceling, pIec1107Compatible, software7E1);
+            flagIEC1107Connection = new FlagIEC1107Connection(inputStream, outputStream, pTimeout, pRetries, pForceDelay, pEchoCanceling, pIec1107Compatible, software7E1, logger);
             registry = new UnilogRegistry(this, this);
             profile = new UnilogProfile(this, registry);
         } catch (ConnectionException e) {

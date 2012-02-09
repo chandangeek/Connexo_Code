@@ -2,9 +2,7 @@ package com.energyict.protocolimpl.iec1107.abba1140;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -12,14 +10,9 @@ import com.energyict.protocol.messaging.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import com.energyict.protocolimpl.iec1107.ChannelMap;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
-import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.*;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -281,7 +274,7 @@ public class ABBA1140 implements MeterProtocol, ProtocolLink, HHUEnabler, Serial
 				new FlagIEC1107Connection(
 						inputStream,outputStream,pTimeout,pRetries,
 						FORCE_DELAY,pEchoCancelling,pIEC1107Compatible,
-						new CAI700(), null, software7E1, dontSendBreakCommand);
+						new CAI700(), null, software7E1, dontSendBreakCommand, logger);
 		} catch(ConnectionException e) {
 			logger.severe("ABBA1140: init(...), " + e.getMessage());
 		}

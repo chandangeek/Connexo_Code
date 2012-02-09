@@ -318,7 +318,7 @@ RegisterProtocol, MessageProtocol, EventMapper {
 				new FlagIEC1107Connection(
 						inputStream,outputStream,this.pTimeout,this.pRetries,
 						this.forcedDelay,this.pEchoCancelling,this.pIEC1107Compatible,
-						new CAI700(),null,this.software7E1, this.dontSendBreakCommand);
+						new CAI700(),null,this.software7E1, this.dontSendBreakCommand, logger);
 
 		} catch(ConnectionException e) {
 			logger.severe("Elster A230: init(...), " + e.getMessage());

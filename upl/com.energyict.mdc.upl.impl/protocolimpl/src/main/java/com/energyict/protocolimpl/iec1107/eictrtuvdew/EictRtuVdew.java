@@ -6,24 +6,19 @@
 
 package com.energyict.protocolimpl.iec1107.eictrtuvdew;
 
-import java.io.*; 
-import java.util.*;
-import java.math.*;
-
-import com.energyict.protocol.*;
-import java.util.logging.*;
-import com.energyict.cbo.*;
-
-
-import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocolimpl.iec1107.vdew.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.DataParser;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.iec1107.*;
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * @version  1.0
@@ -250,7 +245,7 @@ public class EictRtuVdew implements MeterProtocol, HHUEnabler, ProtocolLink, Met
         this.logger = logger;     
         
         try {
-           flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,forcedDelay,iEchoCancelling,iIEC1107Compatible,null,halfDuplex != 0 ? halfDuplexController:null,software7E1);
+           flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,forcedDelay,iEchoCancelling,iIEC1107Compatible,null,halfDuplex != 0 ? halfDuplexController:null,software7E1, logger);
            eictRtuVdewRegistry = new EictRtuVdewRegistry(this,this);
            eictRtuVdewProfile = new EictRtuVdewProfile(this,this,eictRtuVdewRegistry);
         }

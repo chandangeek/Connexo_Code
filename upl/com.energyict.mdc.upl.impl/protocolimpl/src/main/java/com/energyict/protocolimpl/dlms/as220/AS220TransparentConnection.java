@@ -1,22 +1,21 @@
 package com.energyict.protocolimpl.dlms.as220;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Logger;
+
 /**
  * This connection sets the AS220 device into Transparent Communication Mode
  * between the optical and electrical communication ports. While the meter is in
- * transparent mode, it shows the message ‘TRANSCO’ on the LCD. The command
+ * transparent mode, it shows the message ï¿½TRANSCOï¿½ on the LCD. The command
  * defines a time period this mode is active for and the required communication
  * settings like baud rate and data format. Pressing the push button for more
  * than 4 seconds will cancel the transparent mode manually. The maximum baud
@@ -91,8 +90,18 @@ public class AS220TransparentConnection extends FlagIEC1107Connection implements
 			int transparentDataBits, int transparentStopbits,
 			int transparentParity, int securityLevel, String password)
 			throws ConnectionException {
+        this(commChannel, transparentConnectTime, transparentBaudrate, transparentDataBits, transparentStopbits, transparentParity, securityLevel, password, null);
+
+	}
+
+    public AS220TransparentConnection(SerialCommunicationChannel commChannel,
+			int transparentConnectTime, int transparentBaudrate,
+			int transparentDataBits, int transparentStopbits,
+			int transparentParity, int securityLevel, String password,
+            Logger logger)
+			throws ConnectionException {
 		super(commChannel.getInputStream(), commChannel.getOutputStream(),
-				TIMEOUT, MAX_RETRIES, 0, 0, 0, false);
+				TIMEOUT, MAX_RETRIES, 0, 0, 0, false, logger);
 		this.transparentConnectTime = transparentConnectTime;
 		this.transparentBaudrate = transparentBaudrate;
 		this.transparentDatabits = transparentDataBits;
@@ -101,6 +110,7 @@ public class AS220TransparentConnection extends FlagIEC1107Connection implements
 		this.password = password;
 		this.securityLevel = securityLevel;
 		this.commChannel = commChannel;
+        this.logger = logger;
 		enableHHUSignOn(commChannel);
 	}
 

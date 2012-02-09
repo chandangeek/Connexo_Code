@@ -307,7 +307,8 @@ public class PPM extends AbstractPPM {
 						0,
 						0,
 						new com.energyict.protocolimpl.iec1107.ppmi1.Encryption(),
-						this.software7E1
+						this.software7E1,
+                        logger
 				);
 			} catch (ConnectionException e) {
 				logger.severe("PPM: init(...), " + e.getMessage());

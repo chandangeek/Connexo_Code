@@ -8,9 +8,7 @@ package com.energyict.protocolimpl.iec1107;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -19,9 +17,7 @@ import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -270,7 +266,7 @@ public abstract class AbstractIEC1107Protocol implements MeterProtocol, Protocol
 		this.logger = logger;
 		try {
 			flagIEC1107Connection = new FlagIEC1107Connection(inputStream, outputStream, iec1107TimeoutProperty,
-					protocolRetriesProperty, forcedDelay, echoCancelling, iec1107Compatible, encryptor, software7E1);
+					protocolRetriesProperty, forcedDelay, echoCancelling, iec1107Compatible, encryptor, software7E1, logger);
 		} catch (ConnectionException e) {
 			logger.severe("IndigoPlus, init, " + e.getMessage());
 		}

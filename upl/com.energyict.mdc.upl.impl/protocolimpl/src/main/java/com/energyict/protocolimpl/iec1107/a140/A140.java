@@ -188,7 +188,7 @@ public class A140 implements MeterProtocol, ProtocolLink, HHUEnabler,
         try {
             flagConnection = new FlagIEC1107Connection(inputStream,
                     outputStream, pTimeout, pRetries, FORCE_DELAY, 0, 1,
-                    new CAI700(), software7E1 );
+                    new CAI700(), software7E1, logger);
         } catch (ConnectionException e) {
             logger.severe("A140: init(...), " + e.getMessage());
         }

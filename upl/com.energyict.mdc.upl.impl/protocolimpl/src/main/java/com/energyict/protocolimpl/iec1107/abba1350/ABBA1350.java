@@ -1,20 +1,20 @@
 package com.energyict.protocolimpl.iec1107.abba1350;
 
-import java.io.*;
-import java.math.*;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.logging.*;
-
 import com.energyict.cbo.*;
 import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.*;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocolimpl.iec1107.vdew.*;
-import com.energyict.protocol.messaging.*;
-import com.energyict.obis.ObisCode;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * @version 1.0
@@ -289,7 +289,7 @@ RegisterProtocol, MessageProtocol {
 
 		try {
 			flagIEC1107Connection = new FlagIEC1107Connection(inputStream, outputStream, iIEC1107TimeoutProperty,
-					iProtocolRetriesProperty, iForceDelay, iEchoCancelling, 1, software7E1);
+					iProtocolRetriesProperty, iForceDelay, iEchoCancelling, 1, software7E1, logger);
 			abba1350Registry = new ABBA1350Registry(this, this);
 			abba1350Profile = new ABBA1350Profile(this, this, abba1350Registry);
 

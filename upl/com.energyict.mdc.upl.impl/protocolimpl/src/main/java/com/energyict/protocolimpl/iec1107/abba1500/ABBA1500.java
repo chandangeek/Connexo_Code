@@ -312,7 +312,7 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
         this.logger = logger;
 
         try {
-           flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,forcedDelay,iEchoCancelling,iIEC1107Compatible,software7E1);
+           flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,forcedDelay,iEchoCancelling,iIEC1107Compatible,software7E1, logger);
            abba1500Registry = new ABBA1500Registry(this,this, getDateFormat());
            abba1500Profile = new ABBA1500Profile(this,this,abba1500Registry);
            abba1500Profile.setFirmwareVersion(getIFirmwareVersion());
