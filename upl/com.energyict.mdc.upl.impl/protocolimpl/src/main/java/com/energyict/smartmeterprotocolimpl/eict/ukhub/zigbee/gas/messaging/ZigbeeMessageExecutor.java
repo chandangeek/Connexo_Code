@@ -45,8 +45,8 @@ import java.util.logging.Level;
  */
 public class ZigbeeMessageExecutor extends GenericMessageExecutor {
 
-    private static final ObisCode ChangeOfSupplierNameObisCode = ObisCode.fromString("1.0.1.64.0.255");
-    private static final ObisCode ChangeOfSupplierIdObisCode = ObisCode.fromString("1.0.1.64.1.255");
+    private static final ObisCode ChangeOfSupplierNameObisCode = ObisCode.fromString("7.0.1.64.0.255");
+    private static final ObisCode ChangeOfSupplierIdObisCode = ObisCode.fromString("7.0.1.64.1.255");
     private static final String STANDING_CHARGE = "Standing charge";
     private static final String SET_STANDING_CHARGE = "SetStandingCharge";
     private static final String SET_CALORIFIC_VALUE = "SetCalorificValue";
