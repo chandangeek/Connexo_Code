@@ -27,6 +27,8 @@ public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMes
     private static final String SET_CALORIFIC_VALUE = "SetCalorificValue";
     private static final String SET_CONVERSION_FACTOR = "SetConversionFactor";
     private static final String ID_OF_USER_FILE = "ID of user file containing the price information";
+    private static final String TARIFF_LABEL = "Tariff label (optional)";
+    private static final String TARIFF_LABEL_TAG = "TariffLabel";
     private static final String COMMA_SEPARATED_PRICES = "CommaSeparatedPrices";
     private static final String ACTIVATION_DATE_TAG = "ActivationDate";
     private static final String ACTIVATION_DATE = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";
@@ -59,7 +61,7 @@ public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMes
     public List getMessageCategories() {
         List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
         MessageCategorySpec pricingInformationCategory = ProtocolMessageCategories.getPricingInformationCategory();
-        pricingInformationCategory.addMessageSpec(addMsgWithValuesAndOptionalValue("Set price per unit (p/kWh)", SET_PRICE_PER_UNIT, false, ACTIVATION_DATE, ID_OF_USER_FILE));
+        pricingInformationCategory.addMessageSpec(addMsgWithValuesAndRequiredValue("Set price per unit (p/kWh)", SET_PRICE_PER_UNIT, false, ID_OF_USER_FILE, TARIFF_LABEL, ACTIVATION_DATE));
         pricingInformationCategory.addMessageSpec(addMsgWithValuesAndOptionalValue("Set standing charge", SET_STANDING_CHARGE, false, ACTIVATION_DATE, STANDING_CHARGE));
         pricingInformationCategory.addMessageSpec(addMsgWithValues("Read price per unit costs (p/kWh)", READ_PRICE_PER_UNIT, false, true));
         categories.add(pricingInformationCategory);
@@ -112,6 +114,21 @@ public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMes
         return msgSpec;
     }
 
+    // One attribute is set required - all others are optional
+    protected MessageSpec addMsgWithValuesAndRequiredValue(final String description, final String tagName, final boolean advanced, String requiredAttribute, String... attr) {
+        MessageSpec msgSpec = new MessageSpec(description, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        tagSpec.add(new MessageAttributeSpec(requiredAttribute, true));
+        for (String attribute : attr) {
+            tagSpec.add(new MessageAttributeSpec(attribute, false));
+        }
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" "); //Disable this field
+        tagSpec.add(msgVal);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
     public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
         if (messageBuilder == null) {
             this.messageBuilder = new ZigbeeTimeOfUseMessageBuilder();
@@ -139,6 +156,7 @@ public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMes
 
             int userFileID = -1;
             String activationDate = "0";
+            String tariffLabel = "";
 
             // b. Attributes
             for (Object o1 : msgTag.getAttributes()) {
@@ -154,6 +172,10 @@ public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMes
                 } else if (ACTIVATION_DATE.equalsIgnoreCase(att.getSpec().getName())) {
                     if (att.getValue() != null) {
                         activationDate = att.getValue();
+                    }
+                } else if (TARIFF_LABEL.equalsIgnoreCase(att.getSpec().getName())) {
+                    if (att.getValue() != null) {
+                        tariffLabel = att.getValue();
                     }
                 }
             }
@@ -185,6 +207,7 @@ public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMes
             }
             commaSeparatedPrices = commaSeparatedPrices.substring(0, commaSeparatedPrices.lastIndexOf(","));      //Remove the last comma
             addChildTag(builder, COMMA_SEPARATED_PRICES, commaSeparatedPrices);
+            addChildTag(builder, TARIFF_LABEL_TAG, tariffLabel);
             addChildTag(builder, ACTIVATION_DATE_TAG, activationDate);
 
             // d. Closing tag

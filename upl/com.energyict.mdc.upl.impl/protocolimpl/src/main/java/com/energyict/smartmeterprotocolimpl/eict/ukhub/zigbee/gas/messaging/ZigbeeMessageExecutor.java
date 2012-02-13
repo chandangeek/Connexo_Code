@@ -27,6 +27,7 @@ import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ObisCodeProvider;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ZigbeeGas;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300TimeOfUseMessageBuilder;
 import org.xml.sax.SAXException;
 import sun.misc.BASE64Decoder;
@@ -55,11 +56,13 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
     private static final String SET_PRICE_PER_UNIT = "SetPricePerUnit";
     private static final String COMMA_SEPARATED_PRICES = "CommaSeparatedPrices";
     private static final String ACTIVATION_DATE_TAG = "ActivationDate";
+    private static final String TARIFF_LABEL = "TariffLabel";
     private static final String ACTIVATION_DATE = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";
     private static final ObisCode PRICE_MATRIX_OBISCODE = ObisCode.fromString("0.0.1.61.0.255");   //TODO C field, 1 or 2? (A+ or A-)
     private static final ObisCode STANDING_CHARGE_OBISCODE = ObisCode.fromString("0.0.0.61.2.255");
     private static final ObisCode CALORIFIC_VALUE_OBISCODE = ObisCode.fromString("7.0.54.0.0.255");
     private static final ObisCode CONVERSION_FACTOR_OBISCODE = ObisCode.fromString("7.0.52.0.0.255");
+    private static final ObisCode TARIFF_LABEL_OBISCODE = ObisCode.fromString("0.0.1.63.1.255");
     private static final String CALORIFIC_VALUE = "Calorific value";
     private static final String CONVERSION_FACTOR = "Conversion factor";
     private static final ObisCode DISCONNECTOR = ObisCode.fromString("0.0.96.3.10.255");
@@ -211,6 +214,12 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
 
     private void setPricePerUnit(String content) throws IOException {
         ActivePassive priceInformation = getCosemObjectFactory().getActivePassive(PRICE_MATRIX_OBISCODE);
+        ActivePassive tariffLabel = getCosemObjectFactory().getActivePassive(TARIFF_LABEL_OBISCODE);
+        String label = "";
+        if (! content.contains(TARIFF_LABEL + "</")) {
+            label = getValueFromXML(TARIFF_LABEL, content);
+        }
+
         String[] prices = getValueFromXML(COMMA_SEPARATED_PRICES, content).split(",");
         String activationDateString = getValueFromXML(ACTIVATION_DATE_TAG, content);
 
@@ -238,14 +247,18 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
             }
         }
 
+        tariffLabel.writePassiveValue(OctetString.fromString(label));
         priceInformation.writePassiveValue(priceArray);
 
         if (activationDate != null && activationDate.after(new Date())) {
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());
             cal.setTime(activationDate);
             priceInformation.writeActivationDate(new DateTime(cal));
+            cal.setTimeInMillis(cal.getTimeInMillis() + 1000);  // Activate tariff Label 1 second after the price information, to be sure the pricing information object is updated.
+            tariffLabel.writeActivationDate(new DateTime(cal));
         } else {
             priceInformation.activate();
+            tariffLabel.activate();
         }
     }
 
@@ -377,7 +390,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
     }
 
     private void changeOfSupplier(final MessageHandler messageHandler) throws IOException {
-         log(Level.INFO, "Received Change of Supplier message.");
+        log(Level.INFO, "Received Change of Supplier message.");
         log(Level.FINEST, "Writing new SupplierName Value");
         ChangeOfSupplierManagement changeOfSupplier = getCosemObjectFactory().getChangeOfSupplierManagement();
         getCosemObjectFactory().getSupplierName(ChangeOfSupplierNameObisCode).writePassiveValue(OctetString.fromString(messageHandler.getSupplierName()));
@@ -621,7 +634,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
 
     public ActivityCalendarController getActivityCalendarController() {
         if (this.activityCalendarController == null) {
-            this.activityCalendarController = new ZigbeeActivityCalendarController(this.protocol);
+            this.activityCalendarController = new ZigbeeActivityCalendarController((ZigbeeGas) this.protocol);
         }
         return activityCalendarController;
     }
