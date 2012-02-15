@@ -8,8 +8,6 @@ package com.energyict.protocolimpl.dlms.actarisace6000;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.obis.ObisCode;
@@ -25,12 +23,10 @@ public class ObisCodeMapper {
     
     CosemObjectFactory cof;
     RegisterProfileMapper registerProfileMapper=null;
-    private DLMSMeterConfig meterConfig = null;
 
 
     /** Creates a new instance of ObisCodeMapper */
-    public ObisCodeMapper(CosemObjectFactory cof, DLMSMeterConfig meterConfig) {
-        this.meterConfig = meterConfig;
+    public ObisCodeMapper(CosemObjectFactory cof) {
         this.cof=cof;
         registerProfileMapper = new RegisterProfileMapper(cof);
 
@@ -72,16 +68,10 @@ public class ObisCodeMapper {
             }
             else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
         } // // billing point timestamp
-        else if ((obisCode.toString().indexOf("1.1.0.2.8.255") != -1) || (obisCode.toString().indexOf("1.0.0.2.8.255") != -1)) { // firmware version
-            DataContainer dataContainer = cof.getGenericRead(meterConfig.getVersionObject()).getDataContainer();
-            String version = dataContainer.getRoot().getOctetString(0).toString();
-            registerValue = new RegisterValue(obisCode, version);
-            return registerValue;
-        } // firmware version
 
         // *********************************************************************************
         // Abstract ObisRegisters
-        if ((obisCode.getA() == 0) && (obisCode.getB() == 0)) {
+        try {
             CosemObject cosemObject = cof.getCosemObject(obisCode);
             
             if (cosemObject==null)
@@ -89,28 +79,27 @@ public class ObisCodeMapper {
 
             Date captureTime = null;
             Date billingDate = null;
+            String text = null;
             Quantity quantityValue = null;
-            String textValue = null;
-            
+
             try {captureTime = cosemObject.getCaptureTime();} catch (Exception e) {}
             try {billingDate = cosemObject.getBillingDate();} catch (Exception e) {}
             try {quantityValue = cosemObject.getQuantityValue();} catch (Exception e) {}
-            try {textValue = cosemObject.getText();} catch (Exception e) {}
+			try {text = cosemObject.getText();} catch (Exception e) {}
 
-			registerValue = new RegisterValue(obisCode,
-                                              quantityValue,
-                                              captureTime==null?billingDate:captureTime,
-                                              null,
-                                              billingDate,
-                                              new Date(),
-                                              0,
-                                              textValue);
+			registerValue = new RegisterValue(obisCode, quantityValue,
+					captureTime == null ? billingDate : captureTime, null,
+					billingDate, new Date(), 0, text
+			);
+
             return registerValue;
+        } catch (NoSuchRegisterException e) {
+            // Absorb the exception and continue.
+            // This indicates the register should be mapped to a registerProfile.
         }
         
-
         // *********************************************************************************
-        // Electricity related ObisRegisters
+        // Electricity related ObisRegisters mapped to a registerProfile
         if ((obisCode.getA() == 1) && (obisCode.getB() == 1)) {
             CosemObject cosemObject=null;
             if (obisCode.getF() != 255) {

@@ -5,19 +5,16 @@
  */
 
 package com.energyict.protocolimpl.dlms.actarissl7000;
-import java.util.*;
-import java.io.*;
-import java.math.BigDecimal;
 
-import com.energyict.obis.*;
-import com.energyict.protocol.ProtocolException;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.*;
+
+import java.io.IOException;
+import java.util.Date;
 /**
  *
  * @author  Koen
@@ -84,7 +81,7 @@ public class ObisCodeMapper {
       
         // *********************************************************************************
         // Abstract ObisRegisters
-        if ((obisCode.getA() == 0) && (obisCode.getB() == 0)) {
+        try {
             CosemObject cosemObject = cof.getCosemObject(obisCode);
             
             if (cosemObject==null)
@@ -106,11 +103,13 @@ public class ObisCodeMapper {
 			);
 
 			return registerValue;      
+        } catch (NoSuchRegisterException e) {
+            // Absorb the exception and continue.
+            // This indicates the register should be mapped to a registerProfile.
         }
         
-
         // *********************************************************************************
-        // Electricity related ObisRegisters
+        // Electricity related ObisRegisters mapped to a registerProfile
         if ((obisCode.getA() == 1) && (obisCode.getB() == 1)) {
             CosemObject cosemObject=null;
             if (obisCode.getF() != 255) {

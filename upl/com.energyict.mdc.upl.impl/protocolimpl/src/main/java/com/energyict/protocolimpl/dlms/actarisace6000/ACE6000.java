@@ -1551,7 +1551,7 @@ public class ACE6000 implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMe
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
 			if (ocm == null)
-			    ocm = new ObisCodeMapper(getCosemObjectFactory(), meterConfig);
+			    ocm = new ObisCodeMapper(getCosemObjectFactory());
 			return ocm.getRegisterValue(obisCode);
 		} catch (Exception e) {
 			throw new NoSuchRegisterException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());
