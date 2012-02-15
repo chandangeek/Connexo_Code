@@ -36,6 +36,8 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      */
     private ComposedMeterInfo meterInfo;
 
+    protected MessageProtocol messageProtocol;
+
     /**
      * The used <code>UkHubRegisterFactory</code> to read and manage the HUB registers
      */
@@ -48,7 +50,10 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      * @return the UkHubMessaging implementation
      */
     public MessageProtocol getMessageProtocol() {
-        return new UkHubMessaging(new UkHubMessageExecutor(this));
+        if (messageProtocol == null) {
+            messageProtocol = new UkHubMessaging(new UkHubMessageExecutor(this));
+        }
+        return messageProtocol;
     }
 
     /**
@@ -64,7 +69,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
         return this.properties;
     }
 
-    private ComposedMeterInfo getMeterInfo() {
+    protected ComposedMeterInfo getMeterInfo() {
         if (this.meterInfo == null) {
             this.meterInfo = new ComposedMeterInfo(getDlmsSession(), getProperties().isBulkRequest());
         }

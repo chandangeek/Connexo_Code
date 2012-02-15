@@ -164,4 +164,7 @@ public enum DLMSClassId {
         return getClassId() == CLOCK.getClassId();
     }
 
+    public boolean isMacAddressSetup() {
+        return getClassId() == MAC_ADDRESS_SETUP.getClassId();
+    }
 }

@@ -199,6 +199,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     	return new IPv4Setup(protocolLink, getObjectReference(IPV4_SETUP, protocolLink.getMeterConfig().getIPv4SetupSN()));
     }
 
+    public MacAddressSetup getMacAddressSetup(ObisCode obisCode) throws IOException {
+        return new MacAddressSetup(protocolLink, getObjectReference(obisCode, DLMSClassId.MAC_ADDRESS_SETUP.getClassId()));
+    }
+
     public IPv4Setup getIPv4Setup(ObisCode obisCode) throws IOException {
     	return new IPv4Setup(protocolLink, getObjectReference(obisCode));
     }
