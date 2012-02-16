@@ -220,12 +220,15 @@ public class ObisCodeMapper {
 			AbstractDataType adt = abstractDLMS.getTransparantObjectAccessFactory().readObjectValue(obisCode);
 			
 			if (adt.isOctetString()) {
-				return new RegisterValue(obisCode, adt.getOctetString().stringValue()+" ["+ProtocolUtils.outputHexString(adt.getOctetString().getOctetStr())+"]");
-			}
-			else if (adt.isVisibleString()) {
-				return new RegisterValue(obisCode, adt.getVisibleString().getStr());
-			}
-			else {
+                if (obisCode.equals(obisCode.fromString("1.1.97.97.1.255")) || obisCode.equals(obisCode.fromString("1.1.97.97.2.255")) ||
+                        obisCode.equals(obisCode.fromString("1.1.97.97.255.255")) || obisCode.equals(obisCode.fromString("1.1.97.97.3.255"))) {
+                    return new RegisterValue(obisCode, ProtocolUtils.outputHexString(adt.getOctetString().getOctetStr()));
+                } else {
+                    return new RegisterValue(obisCode, adt.getOctetString().stringValue() + " [" + ProtocolUtils.outputHexString(adt.getOctetString().getOctetStr()) + "]");
+                }
+            } else if (adt.isVisibleString()) {
+                return new RegisterValue(obisCode, adt.getVisibleString().getStr());
+            } else {
 				return new RegisterValue(obisCode, new Quantity(adt.toBigDecimal(),Unit.get("")));
 			}
 		}
