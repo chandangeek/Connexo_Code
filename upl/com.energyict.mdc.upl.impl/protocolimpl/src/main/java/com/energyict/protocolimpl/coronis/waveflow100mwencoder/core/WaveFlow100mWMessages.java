@@ -133,7 +133,7 @@ public class WaveFlow100mWMessages implements MessageProtocol {
        cat1.addMessageSpec(addBasicMsg("Restart datalogging", "RestartDataLogging", false));
        cat1.addMessageSpec(addBasicMsgWithValue("Reset applicationstatus (default [0])", "SetApplicationStatus", true));
        cat1.addMessageSpec(addBasicMsgWithValue("Set operating mode (default [0x08] 1/week on A)", "SetOperatingMode", false));
-       cat1.addMessageSpec(addBasicMsg("Set alarm configuration", "SetAlarmConfig", false));
+       cat1.addMessageSpec(addBasicMsgWithValue("Set alarm configuration", "SetAlarmConfig", false));
        theCategories.add(cat1);
        
        MessageCategorySpec cat2 = new MessageCategorySpec("Waveflow100mw advanced messages");
