@@ -23,6 +23,7 @@ import com.energyict.protocolimpl.base.RtuDiscoveredEvent;
 import com.energyict.protocolimpl.debug.DebugUtils;
 import com.energyict.protocolimpl.messages.*;
 import com.energyict.protocolimpl.utils.MeterEventUtils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import javax.crypto.*;
 import java.io.IOException;
@@ -450,9 +451,17 @@ public class MTU155 extends AbstractGenericProtocol {
             try {
                 RtuRegister rtuRegister = rtuRegisterIterator.next();
                 if (CommonUtils.isInRegisterGroup(groups, rtuRegister)) {
-                    obisCode = rtuRegister.getRtuRegisterSpec().getObisCode();
+                    obisCode = rtuRegister.getRtuRegisterSpec().getDeviceObisCode();
+                    ObisCode obisToRead;
+                    if (obisCode == null) {
+                        obisCode = rtuRegister.getRegisterMapping().getObisCode();
+                        obisToRead = ProtocolTools.setObisCodeField(obisCode, 1, (byte) (rtuRegister.getRtuRegisterSpec().getDeviceChannelIndex() & 0x0FF));
+                    } else {
+                        obisToRead = ObisCode.fromByteArray(obisCode.getLN());
+                    }
+
                     try {
-                        RegisterValue registerValue = getObisCodeMapper().readRegister(obisCode);
+                        RegisterValue registerValue = getObisCodeMapper().readRegister(obisToRead);
                         registerValue.setRtuRegisterId(rtuRegister.getId());
                         if (rtuRegister.getReadingAt(registerValue.getReadTime()) == null) {
                             regValueMap.put(rtuRegister, registerValue);
