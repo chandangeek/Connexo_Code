@@ -36,8 +36,8 @@ public class IdentificationResponseStructure extends AbstractTableQueryResponseS
         CAPTURED_OBJECTS.add("10.1.0");
         CAPTURED_OBJECTS.add("10.2.0");
         CAPTURED_OBJECTS.add("10.3.0");
-        CAPTURED_OBJECTS.add("D.6.3");
         CAPTURED_OBJECTS.add("12.0.0");
+        CAPTURED_OBJECTS.add("D.6.3");
     }
 
     private AbstractCTRObject pdr;
@@ -54,8 +54,8 @@ public class IdentificationResponseStructure extends AbstractTableQueryResponseS
     private AbstractCTRObject nem;
     private AbstractCTRObject nea;
     private AbstractCTRObject net;
-    private AbstractCTRObject pukS;
     private AbstractCTRObject sd;
+    private AbstractCTRObject pukS;
 
     public IdentificationResponseStructure(boolean longFrame) {
         super(longFrame);
@@ -166,11 +166,11 @@ public class IdentificationResponseStructure extends AbstractTableQueryResponseS
         this.net = factory.parse(rawData, ptr, valueAttributeType, "10.3.0");
         ptr += net.getLength();
 
-        this.pukS = factory.parse(rawData, ptr, valueAttributeType, "D.6.3");
-        ptr += pukS.getLength();
-
         this.sd = factory.parse(rawData, ptr, valueAttributeType, "12.0.0");
         ptr += sd.getLength();
+
+        this.pukS = factory.parse(rawData, ptr, valueAttributeType, "D.6.3");
+        ptr += pukS.getLength();
 
         return this;
     }
@@ -265,8 +265,8 @@ public class IdentificationResponseStructure extends AbstractTableQueryResponseS
         sb.append(", nem=").append(nem).append('\n');
         sb.append(", nea=").append(nea).append('\n');
         sb.append(", net=").append(net).append('\n');
-        sb.append(", pukS=").append(pukS).append('\n');
         sb.append(", sd=").append(sd).append('\n');
+        sb.append(", pukS=").append(pukS).append('\n');
         sb.append('}');
         return sb.toString();
     }
