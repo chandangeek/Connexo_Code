@@ -829,7 +829,7 @@ public class MessageExecutor extends GenericMessageExecutor{
                 success = true;
             } else if (isChangeDefaultResetWindow) {
                 log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Change default reset window");
-                getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.5.255")).setValueAttr(new Unsigned32(messageHandler.getDefaultResetWindow()));
+                getCosemObjectFactory().getRegister(ObisCode.fromString("0.0.96.50.5.255")).setValueAttr(new Unsigned32(messageHandler.getDefaultResetWindow()));
                 success = true;
             } else {
                 success = false;
