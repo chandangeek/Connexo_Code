@@ -493,6 +493,10 @@
 
 -keepnames class com.energyict.smartmeterprotocolimpl.webrtuz3.WebRTUZ3
 
+-keepnames class com.energyict.smartmeterprotocolimpl.webrtuz3.EMeter
+
+-keepnames class com.energyict.smartmeterprotocolimpl.webrtuz3.MbusDevice
+
 -keepnames class com.energyict.smartmeterprotocolimpl.elster.apollo.AS300
 
 -keepnames class com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub
