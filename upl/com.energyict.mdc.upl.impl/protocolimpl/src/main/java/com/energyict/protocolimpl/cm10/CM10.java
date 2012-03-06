@@ -9,10 +9,11 @@ import java.io.*;
 import java.util.*;
 
 public class CM10 extends AbstractProtocol {
-	
-	final static String IS_C10_METER = "CM_10_meter";
-	
-	private CM10Connection cm10Connection = null;
+
+    final static String IS_C10_METER = "CM_10_meter";
+    private static final int MAX_CLOCK_DEVIATION = 59;  // max 59 sec deviation
+
+    private CM10Connection cm10Connection = null;
 	private CM10Profile cm10Profile = null;
     private CommandFactory commandFactory=null;
     private ObisCodeMapper obisCodeMapper = new ObisCodeMapper(this);
@@ -23,12 +24,12 @@ public class CM10 extends AbstractProtocol {
     private CurrentDialReadingsTable currentDialReadingsTable;
     private PowerFailDetailsTable powerFailDetailsTable;
     
-    private int outstationID, retry, timeout, delayAfterConnect;
-    
+    private int outstationID;
+    private int delayAfterConnect;
+
     private boolean isCM10Meter;
 
-    
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return getCM10Profile().getProfileData(from, to, includeEvents);
     }
     
@@ -37,7 +38,7 @@ public class CM10 extends AbstractProtocol {
 		return getProfileData(lastReading, cal.getTime(), includeEvents);
     }
     
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
 		return 60 * getFullPersonalityTable().getIntervalInMinutes();
     }
     
@@ -53,7 +54,7 @@ public class CM10 extends AbstractProtocol {
         return obisCodeMapper.getRegisterValue(obisCode);
     } 
     
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return getStatusTable().getNumberOfChannels();
     }
     
@@ -62,27 +63,26 @@ public class CM10 extends AbstractProtocol {
     }
     
 	protected void doConnect() throws IOException {
-		//getLogger().info("doConnect");
 		ProtocolUtils.delayProtocol(delayAfterConnect);
-		//getLogger().info("endConnect");
-	}
-	
-	public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
-		try{
-			this.outstationID = Integer.parseInt(properties.getProperty("SerialNumber"));
-		} catch (NumberFormatException e) {
-			throw new NumberFormatException("The node address field has not been filled in");
-		}	
-		this.timeout=Integer.parseInt(properties.getProperty("TimeOut","5000"));
-		this.retry=Integer.parseInt(properties.getProperty("Retry", "3"));
-		this.delayAfterConnect = Integer.parseInt(properties.getProperty("DelayAfterConnect", "1000"));
-		this.isCM10Meter = !"0".equals(properties.getProperty("CM_10_meter"));
 	}
 
-	public List getOptionalKeys() {
+    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+        try {
+            this.outstationID = Integer.parseInt(properties.getProperty("SerialNumber"));
+        } catch (NumberFormatException e) {
+            throw new NumberFormatException("The node address field has not been filled in");
+        }
+
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, "5000").trim()));
+        setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty(PROP_RETRIES, "3").trim()));
+        this.delayAfterConnect = Integer.parseInt(properties.getProperty("DelayAfterConnect", "1000"));
+        this.isCM10Meter = !"0".equals(properties.getProperty("CM_10_meter"));
+    }
+
+    public List getOptionalKeys() {
 		ArrayList list = new ArrayList();
-		list.add("TimeOut");
-		list.add("Retry");
+		list.add("Timeout");
+		list.add("Retries");
 		list.add("DelayAfterConnect");
 		list.add(IS_C10_METER);
 		return list;
@@ -91,14 +91,9 @@ public class CM10 extends AbstractProtocol {
 	public PowerFailDetailsTable getPowerFailDetailsTable() throws IOException {
 		if (powerFailDetailsTable == null) {
 			getLogger().info("read power fail details");
-			CommandFactory commandFactory = getCommandFactory();
-			Response response = 
-				commandFactory.getReadPowerFailDetailsCommand().invoke();
-			//getLogger().info("EVENTS: " + ProtocolUtils.outputHexString(response.getData()));
+			Response response = commandFactory.getReadPowerFailDetailsCommand().invoke();
 			powerFailDetailsTable = new PowerFailDetailsTable(this);
 			powerFailDetailsTable.parse(response.getData());
-			//getLogger().info(powerFailDetailsTable.toString());
-			//getLogger().info("end EVENTS");
 		}
 		return powerFailDetailsTable;
 	}
@@ -106,13 +101,9 @@ public class CM10 extends AbstractProtocol {
 	public CurrentDialReadingsTable getCurrentDialReadingsTable() throws IOException {
 		if (currentDialReadingsTable == null) {
 			getLogger().info("read current dial readings");
-			CommandFactory commandFactory = getCommandFactory();
-			Response response = 
-				commandFactory.getReadCurrentDialReadingsCommand().invoke();
+			Response response = commandFactory.getReadCurrentDialReadingsCommand().invoke();
 			currentDialReadingsTable = new CurrentDialReadingsTable(this);
 			currentDialReadingsTable.parse(response.getData());
-			//getLogger().info(currentDialReadingsTable.toString());
-			//getLogger().info("end currentDialReadingsTable");
 		}
 		return currentDialReadingsTable;
 	}
@@ -120,13 +111,9 @@ public class CM10 extends AbstractProtocol {
 	public FullPersonalityTable getFullPersonalityTable() throws IOException {
 		if (fullPersonalityTable == null) {
 			getLogger().info("read full personality table");
-			CommandFactory commandFactory = getCommandFactory();
-			Response response = 
-				commandFactory.getReadFullPersonalityTableCommand().invoke();
+			Response response = commandFactory.getReadFullPersonalityTableCommand().invoke();
 			fullPersonalityTable = new FullPersonalityTable(this);
 			fullPersonalityTable.parse(response.getData());
-			//getLogger().info(fullPersonalityTable.toString());
-			//getLogger().info("end full personality table");
 		}
 		return fullPersonalityTable;
 	}
@@ -134,25 +121,18 @@ public class CM10 extends AbstractProtocol {
 	public StatusTable getStatusTable() throws IOException {
 		if (statusTable == null) {
 			getLogger().info("read status");
-			CommandFactory commandFactory = getCommandFactory();
-			Response response = 
-				commandFactory.getReadStatusCommand().invoke();
+			Response response = commandFactory.getReadStatusCommand().invoke();
 			statusTable = new StatusTable(this);
 			statusTable.parse(response.getData());
-			//getLogger().info(statusTable.toString());
-			//getLogger().info("end getStatus");
 		}
 		return statusTable;
 	}
 	
 	public TimeTable getTimeTable() throws IOException {
 		getLogger().info("read meter time");
-		CommandFactory commandFactory = getCommandFactory();
-		Response response = 
-			commandFactory.getReadTimeCommand().invoke();
+		Response response = commandFactory.getReadTimeCommand().invoke();
 		TimeTable timeTable = new TimeTable(this);
 		timeTable.parse(response.getData());
-		//getLogger().info("end getTime");
 		return timeTable;
 	}
 	
@@ -171,63 +151,42 @@ public class CM10 extends AbstractProtocol {
         return registerFactory;
     }
 
-	protected ProtocolConnection doInit(InputStream inputStream,
-			OutputStream outputStream, int timeoutProperty,
-			int protocolRetriesProperty, int forcedDelay, int echoCancelling,
-			int protocolCompatible, Encryptor encryptor,
-			HalfDuplexController halfDuplexController) throws IOException {
-		setCM10Connection(
-    			new CM10Connection(
-    					inputStream, 
-    					outputStream, 
-    					timeoutProperty, 
-    					protocolRetriesProperty, 
-    					forcedDelay, 
-    					echoCancelling, 
-    					halfDuplexController));
-		getCM10Connection().setCM10(this);
-        setCommandFactory(new CommandFactory(this));
-    	setCM10Profile(new CM10Profile(this));
-    	return this.getCM10Connection();
-	}
-	
-	public CM10Profile getCM10Profile() {
+    protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling,
+                                        int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
+        this.cm10Connection = new CM10Connection(
+                inputStream,
+                outputStream,
+                timeoutProperty,
+                protocolRetriesProperty,
+                forcedDelay,
+                echoCancelling,
+                halfDuplexController,
+                this
+        );
+        this.commandFactory = new CommandFactory(this);
+        this.cm10Profile = new CM10Profile(this);
+        return this.cm10Connection;
+    }
+
+    public CM10Profile getCM10Profile() {
         return cm10Profile;
     }
 
-    public void setCM10Profile(CM10Profile cm10Profile) {
-        this.cm10Profile = cm10Profile;
-    }
-    
-    public CommandFactory getCommandFactory() {
-        return commandFactory;
+    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+
     }
 
-    private void setCommandFactory(CommandFactory commandFactory) {
-        this.commandFactory = commandFactory;
-    }  
-
-	protected void doValidateProperties(Properties properties)
-			throws MissingPropertyException, InvalidPropertyException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
 		if (!isCM10Meter) {
 			return "CM32 (firmware version not available)";
-		}
-		else {
+		} else {
 			try {
 				getLogger().info("read memory direct");
-				CommandFactory commandFactory = getCommandFactory();
-				Response response = 
-					commandFactory.getReadMemoryDirectCommand().invoke();
+				Response response = commandFactory.getReadMemoryDirectCommand().invoke();
 				this.getLogger().info("memory direct: " + ProtocolUtils.outputHexString(response.getData()));
 				getLogger().info("end read mem direct");
 				return "CM10_" + new String(response.getData());
-			}
-			catch (InvalidCommandException e) {
+			} catch (InvalidCommandException e) {
 				throw new IOException("Check property '" + IS_C10_METER + "'!, This meter is no CM10 meter.");
 			}
 		}
@@ -238,118 +197,42 @@ public class CM10 extends AbstractProtocol {
 	}
 
 	public Date getTime() throws IOException {
-		Date time = getTimeTable().getTime();
-		//getLogger().info("meter time: " + time);
-		//getLogger().info("system time: " + new Date());
-		return time;
+		return getTimeTable().getTime();
 	}
 
-	public void setTime() throws IOException {
-		// set time is only possible on commissioning or after loading a new personality table 
-		// use only trimmer. 
-		// the value sent to the meter is added on the RTC value in the meter
-		byte result=0;
-		Calendar systemTimeCal=Calendar.getInstance(getTimeZone());
-		Calendar meterTimeCal=Calendar.getInstance(getTimeZone());
-		meterTimeCal.setTime(getTime());
-		long meterTimeInMillis = meterTimeCal.getTimeInMillis();
-		long systemTimeInMilis = systemTimeCal.getTimeInMillis();
-		if(Math.abs((meterTimeInMillis - systemTimeInMilis) / 1000) < 59){
-			// max 59 sec deviation
-			result=(byte) ((int) ((systemTimeInMilis - meterTimeInMillis)/1000)& 0x000000FF);
-		}
-		else{
-			result=59;
-			if(meterTimeInMillis > systemTimeInMilis){
-				result=-59;
-			}
-		}
-		
-		getLogger().info("send trim time");
-		CommandFactory commandFactory = getCommandFactory();
-		Response response = 
-			commandFactory.getTrimClockCommand(result).invoke();
-		//getLogger().info("end Trim Time");
-		
-	}
-	
-	public static void main(String[] args) {
-		/*Calendar cal = Calendar.getInstance(TimeZoneManager.getTimeZone("GMT"));
-		cal.set(Calendar.MONTH, Calendar.JANUARY);
-		cal.set(Calendar.DATE, 1);
-		cal.set(Calendar.HOUR_OF_DAY, 0);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);
-		Date start = cal.getTime();
-		cal = Calendar.getInstance(TimeZoneManager.getTimeZone("GMT"));
-		Date end = cal.getTime();
-		System.out.println((end.getTime() - start.getTime()) / (1000 ));
-		System.out.println((end.getTime() - start.getTime()) / (1000d * 1800d));*/
-		
-		int value = 70;
-		System.out.println(Integer.toHexString(value));
+    /**
+     * Set time is only possible on commissioning or after loading a new personality table
+     * Use only trimmer.
+     * The value sent to the meter is added on the RTC value in the meter
+     *
+     * @throws IOException
+     */
+    public void setTime() throws IOException {
+        byte result = 0;
+        Calendar systemTimeCal = Calendar.getInstance(getTimeZone());
+        Calendar meterTimeCal = Calendar.getInstance(getTimeZone());
+        meterTimeCal.setTime(getTime());
+        long meterTimeInMillis = meterTimeCal.getTimeInMillis();
+        long systemTimeInMilis = systemTimeCal.getTimeInMillis();
+        if (Math.abs((meterTimeInMillis - systemTimeInMilis) / 1000) < MAX_CLOCK_DEVIATION) {
+            result = (byte) ((int) ((systemTimeInMilis - meterTimeInMillis) / 1000) & 0x000000FF);
+        } else {
+            result = MAX_CLOCK_DEVIATION;
+            if (meterTimeInMillis > systemTimeInMilis) {
+                result = -MAX_CLOCK_DEVIATION;
+            }
+        }
 
-		ProtocolUtils.outputHex(value & 0xFF);
-		ProtocolUtils.outputHex((value>>8)&0xFF);
-		
-		/*try {
-	           int count=0;
-	           System.out.println("start DialerTest");
-	           Dialer dialer = new ATDialer();
-	           dialer.init("COM1");
-	           dialer.connect("000441908257417",60000);
-	           dialer.getSerialCommunicationChannel().setParamsAndFlush(1200,
-	                   SerialCommunicationChannel.DATABITS_8,
-	                   SerialCommunicationChannel.PARITY_NONE,
-	                   SerialCommunicationChannel.STOPBITS_1);
-	           
-	           try {
-	               System.out.println("connected, start sending");
-	               byte[] data = {0x65, 0x0B, 0x00, 0x00, 0x00, 0x21, 0x00, 0x00, 0x00, 0x00, 0x6F};
-	               dialer.getOutputStream().write(data);
-	               
-	               
-	               while(true) {
-	                  if (dialer.getInputStream().available() != 0) {
-	                      
-	                      int kar = dialer.getInputStream().read();
-	                      System.out.print((char)kar); 
-	                      count=0;
-	                  }
-	                  else {
-	                      Thread.sleep(100);
-	                      if (count++ >= 100) {
-	                          System.out.println();
-	                          System.out.println("KV_DEBUG> connection timeout DialerTest");
-	                          break;
-	                      }
-	                  }
-	               }
-	           }
-	           catch(Exception e){
-	               e.printStackTrace();   
-	           }
-	           dialer.disConnect();
-	           System.out.println("end DialerTest");
-	        }
-	        catch(NestedIOException e) {
-	            e.printStackTrace();  
-	        }
-	        catch(LinkException e) {
-	            e.printStackTrace();  
-	        }
-	        catch(IOException e) {
-	            e.printStackTrace();
-	        }*/
-	}
-	
-	public CM10Connection getCM10Connection() {
-        return cm10Connection;
+        getLogger().info("send trim time");
+        commandFactory.getTrimClockCommand(result).invoke();
     }
 
-    protected void setCM10Connection(CM10Connection cm10Connection) {
-        this.cm10Connection = cm10Connection;
+    protected final CommandFactory getCommandFactory() {
+        return commandFactory;
+    }
+
+    protected  final CM10Connection getCM10Connection() {
+        return cm10Connection;
     }
 
 }

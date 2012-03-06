@@ -1,10 +1,10 @@
 package com.energyict.protocolimpl.cm10;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class ResponseReceiver {
 	
@@ -59,7 +59,7 @@ public class ResponseReceiver {
 		if (command.isAck())
 			return new Response(new byte[0]);
 		int expectedTable = getTable(command.getCM10Identifier());
-        long protocolTimeout = System.currentTimeMillis() + TIMEOUT;
+        long protocolTimeout = System.currentTimeMillis() + cm10Connection.getTimeout();
         ByteArrayOutputStream allDataArrayOutputStream = new ByteArrayOutputStream();
         allDataArrayOutputStream.reset();
 		ByteArrayOutputStream resultDataArrayOutputStream = new ByteArrayOutputStream();
@@ -75,6 +75,7 @@ public class ResponseReceiver {
         int state = WAIT_FOR_CM10_ID;
         while (true) {
         	if ((kar = cm10Connection.readNext()) != -1) {
+                protocolTimeout = System.currentTimeMillis() + cm10Connection.getTimeout();
             	//logState(state, kar, currentBlockByteCount);
         		if (state != WAIT_FOR_CM10_ID) {
         			allDataArrayOutputStream.write((byte) kar);
@@ -152,7 +153,7 @@ public class ResponseReceiver {
         	if (command != null) {
 	        	if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
 	                throw new ProtocolConnectionException(
-	                		"receiveResponse() response timeout error", 
+	                		"receiveResponse() response timeout error",
 	                		cm10Connection.getTimeoutError());
 	            }
         	}

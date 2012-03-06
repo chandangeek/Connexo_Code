@@ -1,19 +1,12 @@
 package com.energyict.protocolimpl.cm10;
 
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.*;
+
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.TimeZoneManager;
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
+import java.util.*;
 
 public class CM10Profile {
 	
@@ -128,8 +121,15 @@ public class CM10Profile {
 		//cm10Protocol.getLogger().info("stPeriod: " + stPeriod);
 		//cm10Protocol.getLogger().info("noHHours: " + noHHours);
 		int numberOfChannels = cm10Protocol.getNumberOfChannels();
-		int numberOfHHoursToRequestPerBlock = (256 - 11) / numberOfChannels / 2; //(2 bytes per value)
-		int noHHoursRequested = 0;
+
+        /*
+        It's not exactly clear whats the cause, but the meter does NOT respond when we request a value with reference around $0B$60
+        We could fix this temporary by reading all the data at once. This reduces the risk of using a 'bad' reference timestamp.
+         */
+        int numberOfHHoursToRequestPerBlock = noHHours;
+        //int numberOfHHoursToRequestPerBlock = (255 - 10) / numberOfChannels / 2; //(2 bytes per value)
+
+        int noHHoursRequested = 0;
 		int myStPeriod = stPeriod;
 		int myNoHHours = numberOfHHoursToRequestPerBlock;
 		CommandFactory commandFactory = cm10Protocol.getCommandFactory();
