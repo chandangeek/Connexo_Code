@@ -6,10 +6,9 @@
 
 package com.energyict.protocolimpl.dlms.siemenszmd;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.MeterEvent;
 
-import com.energyict.protocol.*;
+import java.util.*;
 
 
 /**
@@ -69,6 +68,7 @@ public class EventNumber {
         events.add(new EventNumber(93,"GeneralSystemError","FF 00000010 error (see 16.3.4 Other Errors)",ERROR));
         events.add(new EventNumber(94,"CommunicationLocked","FF 00000020 locked (see 16.3.4 Other Errors)",ERRORALERT));
         events.add(new EventNumber(106,"AlertOccurred","Indicates that an alert has occurred.",UNDEF));
+        events.add(new EventNumber(524288, "FatalErrorOccurred", "Indicates that an fatal error has occurred.", ERROR));
     }
     
     
@@ -258,8 +258,10 @@ public class EventNumber {
         }
         else if (idDescr.compareTo("AlertOccurred") == 0) {
             eiCode=MeterEvent.METER_ALARM;
+        } else if (idDescr.compareTo("FatalErrorOccurred") == 0) {
+            eiCode = MeterEvent.FATAL_ERROR;
         }
-        
+
         return new MeterEvent(dateTime,eiCode,id,eventNumber.getEventDescription());
     }
     
