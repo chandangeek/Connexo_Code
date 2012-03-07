@@ -1,9 +1,8 @@
-package com.energyict.protocolimpl.dlms.elgama;
+package com.energyict.dlms.cosem;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.cosem.CosemObject;
 
 import java.io.IOException;
 import java.math.BigDecimal;
