@@ -40,13 +40,6 @@ public class CTREncryption {
         );
     }
 
-    public void update(MTU155Properties properties) {
-        this.keyC = properties.getKeyCBytes();
-        this.keyT = properties.getKeyTBytes();
-        this.keyF = properties.getKeyFBytes();
-        this.securityLevel = properties.getSecurityLevel();
-    }
-
     /**
      * @param keyC
      * @param keyT
@@ -59,6 +52,13 @@ public class CTREncryption {
                 ProtocolTools.getBytesFromHexString(keyF, ""),
                 securityLevel
         );
+    }
+
+    public void update(MTU155Properties properties) {
+        this.keyC = properties.getKeyCBytes();
+        this.keyT = properties.getKeyTBytes();
+        this.keyF = properties.getKeyFBytes();
+        this.securityLevel = properties.getSecurityLevel();
     }
 
     /**
@@ -157,6 +157,11 @@ public class CTREncryption {
             case IDENTIFICATION_REQUEST:
             case ACK:
                 return frame;
+        }
+
+        if (frame.getFunctionCode().getFunction().equals(Function.DOWNLOAD)) {
+            frame.generateAndSetCpa(getEncryptionKey());
+            return frame;
         }
 
         if (!eStatus.isEncrypted()) {

@@ -38,7 +38,7 @@ import java.util.logging.Logger;
  * Date: 12-may-2011
  * Time: 13:16:45
  */
-public class MTU155 extends AbstractGenericProtocol {
+public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMessaging {
 
     private final StoreObject storeObject = new StoreObject();
     private final MTU155Properties properties = new MTU155Properties();
@@ -860,5 +860,28 @@ public class MTU155 extends AbstractGenericProtocol {
             return super.writeTag(msgTag);
         }
 
+    }
+
+    /*
+     * This method is needed to describe the capabilities supported by the protocol,
+     * and is used to create a fitting interface in EIServer.
+     *
+     * @return The {@link com.energyict.protocol.messaging.FirmwareUpdateMessagingConfig} containing all the capabillities of the protocol.
+     */
+    public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
+        FirmwareUpdateMessagingConfig firmwareUpdateMessagingConfig = new FirmwareUpdateMessagingConfig();
+        firmwareUpdateMessagingConfig.setSupportsUserFiles(true);
+        firmwareUpdateMessagingConfig.setSupportsUrls(false);
+        firmwareUpdateMessagingConfig.setSupportsUserFileReferences(false);
+        return firmwareUpdateMessagingConfig;
+    }
+
+    /**
+     * Returns the message builder capable of generating and parsing messages.
+     *
+     * @return The {@link com.energyict.protocol.messaging.MessageBuilder} capable of generating and parsing messages.
+     */
+    public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
+        return new FirmwareUpdateMessageBuilder();  //To change body of implemented methods use File | Settings | File Templates.
     }
 }

@@ -42,6 +42,7 @@ public class GprsRequestFactory {
     private Link link;
 
     private static final int REF_DATE_DAYS_AHEAD = 0;
+    public static final int LENGTH_CODE_PER_REQUEST = 1000; //Each Firmware upgrade request can contain up to 1000 bytes code.
 
     /**
      * @param link
@@ -475,6 +476,154 @@ public class GprsRequestFactory {
             }
         }
     }
+
+    /** ****** SECTION 'FIRMWARE UPGRADING' ****** **/
+    /**
+     * Abort any previous ongoing download + initialize all download parameters with info of the new firmware image.
+     * @param newSoftwareIdentifier Firmware version of the image
+     * @param activationDate        Activation date of the image
+     * @param size                  Total number of bytes of the image
+     * @return
+     * @throws CTRException
+     */
+    public void doInitFirmwareUpgrade(Identify newSoftwareIdentifier, Calendar activationDate, int size) throws CTRException {
+        // 1. Abort previous download progress and re-initializes all download parameters.
+        //Not needed - in some cases this doesn't work -- executing Step 2 contains an implicit re-init.
+
+        // 2. Send initialization command with new identify and all init parameters in formatted code field.
+        GPRSFrame response = getConnection().sendFrameGetResponse(getInitDownloadParametersRequest(newSoftwareIdentifier, activationDate, size));
+        response.doParse();
+
+        //Check if the response is an ACK
+        if (response.getData() instanceof AckStructure) {
+            AckAdditionalDownloadData downloadData = new AckAdditionalDownloadData().parse(((AckStructure) response.getData()).getAdditionalData().getBytes(), 0);
+            if (!downloadData.getIdentify().equals(newSoftwareIdentifier)) {
+                throw new CTRException("Could not initialize the firmware upgrade parameters.");
+            }
+        } else {
+            // MTU155 responded with NACK
+            throw new CTRException("Expected AckStructure but was " + response.getData().getClass().getSimpleName() + " - failed to initialize the Firmware Upgrade.");
+        }
+    }
+
+    /**
+     * Send out 1 segment of the firmware image code. The response is analysed to see if the segment gets acked.
+     **/
+   public boolean doSendFirmwareSegment(Identify newSoftwareIdentifier, byte[] firmwareUpgradeFile, Segment lastAckedSegment) throws CTRException {
+
+       GPRSFrame response = getConnection().sendFrameGetResponse(getFirmwareCodeTransferRequest(newSoftwareIdentifier, firmwareUpgradeFile, lastAckedSegment));
+       response.doParse();
+
+       //Check if the response is an ACK
+       Data downloadResponse;
+       if (response.getData() instanceof AckStructure) {
+           downloadResponse = response.getData();
+           AckAdditionalDownloadData ackAdditionalDownloadData = new AckAdditionalDownloadData().parse(((AckStructure) downloadResponse).getAdditionalData().getBytes(), 0);
+
+           // If The AckAdditionalDownloadData contains the segment number, we have guarantee the segment (and all previous ones) is correct received.
+           int segmentSend = lastAckedSegment.getSegment() + 1;
+           // System.out.println("Send out segment "+segmentSend +" to the meter. Meter acked segment :"+ ackAdditionalDownloadData.getSegment().getSegment()+".");
+
+           if (ackAdditionalDownloadData.getSegment().getSegment() != segmentSend) {
+               return false;
+           }
+       } else {
+           return false;
+       }
+       return true;
+   }
+
+   /** ****** SECTION 'REQUEST MESSAGES SPECIFIC FOR FIRMWARE UPGRADING' ****** **/
+    /**
+     * FASE 1 [initialization step] of firmware upgrade process. This request will initialize the firmware upgrade procces.
+     * This request will set the download parameters object in the MTU1555 corresponding to the information of the new firmware.
+     * In FASE 2 [code transfer step] the actual firmware code will be sent.
+     */
+    private GPRSFrame getInitDownloadParametersRequest(Identify newSoftwareIdentifier, Calendar activationDate, int size) throws CTRException {
+        Identify identify = newSoftwareIdentifier;
+        identify.setIdentify(identify.getIdentify());
+        Group group_s = new Group(25);      // Not meaningful for MTU155
+        Group group_c = new Group(1);       // Different from 0
+        Segment segment = new Segment(0);   //This will be the first segment
+
+        // Construct special "Initialization code" field with all information of the new firmware
+        AbstractCTRObject info = queryRegister("9.0.2");    // Equipment Identification Code object
+        String CIA = info.getValue(0).getStringValue();     // CIA must be the Equipment Identification code
+
+//        String VF = "R0." + ((newSoftwareIdentifier.getIdentify() < 0x100)    // E.g.: "R0.075"
+//                ? "0" + ProtocolTools.getHexStringFromInt(newSoftwareIdentifier.getIdentify())
+//                : ProtocolTools.getHexStringFromInt(newSoftwareIdentifier.getIdentify()));
+
+//        String VF = "R0." + ((newSoftwareIdentifier.getIdentify() < 0x100)    // E.g.: "R0.075"
+//                ? "0" + newSoftwareIdentifier.getHexIdentify()
+//                : newSoftwareIdentifier.getHexIdentify());
+
+        String VF = newSoftwareIdentifier.getHexIdentify();
+        while (VF.length() < 6) {
+            VF = "0" + VF;
+        }
+
+        InitialisationCode initialisationCode = new InitialisationCode(activationDate, CIA, VF, size);
+
+        byte[] downloadRequest = ProtocolTools.concatByteArrays(
+                ReferenceDate.getReferenceDate(REF_DATE_DAYS_AHEAD).getBytes(),
+                WriteDataBlock.getRandomWDB().getBytes(),
+                identify.getBytes(),
+                group_s.getBytes(),
+                group_c.getBytes(),
+                segment.getBytes(),
+                initialisationCode.getBytes()
+        );
+        GPRSFrame request = new GPRSFrame();
+        request.setAddress(getAddress());
+        request.getFunctionCode().setEncryptionStatus(EncryptionStatus.NO_ENCRYPTION);
+        request.getProfi().setLongFrame(false);
+
+        request.getFunctionCode().setFunction(Function.DOWNLOAD);
+        request.getStructureCode().setStructureCode(0);
+        request.setChannel(new Channel(0));
+        request.setData(new DownloadRequestStructure(false).parse(downloadRequest, 0));
+        return request;
+    }
+
+    /**
+     * FASE 2 [code transfer step] request, which is used to send the actual code segments to the MTU155.
+     **/
+    private GPRSFrame getFirmwareCodeTransferRequest(Identify softwareIdentifier, byte[] firmwareUpgradeFile, Segment lastAckedSegment) throws CTRParsingException {
+
+        Group group_s = new Group(25);  // Not used for MTU155 - set to 25
+        Group group_c = new Group(1);   // Not used for MTU155 - set to 1
+
+        byte[] code = new byte[LENGTH_CODE_PER_REQUEST];
+        int i = firmwareUpgradeFile.length - lastAckedSegment.getSegment() * LENGTH_CODE_PER_REQUEST;
+        System.arraycopy(firmwareUpgradeFile, lastAckedSegment.getSegment() * LENGTH_CODE_PER_REQUEST, code, 0, (i > LENGTH_CODE_PER_REQUEST) ? LENGTH_CODE_PER_REQUEST : i);
+        // E.g.: lastAckedSegment = 0 -> code will contain image bytes 0 to 999.
+        //       lastAckedSegment = 1 -> code will contain image bytes 1000 -> 1999.
+
+        Segment newSegmentNumber = new Segment(lastAckedSegment.getSegment() +1);   // Segment numbers are 1 based - 0 is reserved for special initialization segment.
+
+        byte[] downloadRequest = ProtocolTools.concatByteArrays(
+                ReferenceDate.getReferenceDate(REF_DATE_DAYS_AHEAD).getBytes(),
+                WriteDataBlock.getRandomWDB().getBytes(),
+                softwareIdentifier.getBytes(),
+                group_s.getBytes(),
+                group_c.getBytes(),
+                newSegmentNumber.getBytes(),
+                code
+        );
+        GPRSFrame request = new GPRSFrame(true);
+        request.setAddress(getAddress());
+        request.getFunctionCode().setEncryptionStatus(EncryptionStatus.NO_ENCRYPTION);
+        request.getProfi().setLongFrame(true);
+
+        request.getFunctionCode().setFunction(Function.DOWNLOAD);
+        request.getStructureCode().setStructureCode(0);
+        request.setChannel(new Channel(0));
+        request.setData(new DownloadRequestStructure(true).parse(downloadRequest, 0));
+        return request;
+    }
+    /** ****** END OF SECTION 'REQUEST MESSAGES SPECIFIC FOR FIRMWARE UPGRADING' ****** **/
+    /** ****** END OF SECTION 'FIRMWARE UPGRADING' ****** **/
 
     /**
      * Queries for a decf table. Returns the meter response.

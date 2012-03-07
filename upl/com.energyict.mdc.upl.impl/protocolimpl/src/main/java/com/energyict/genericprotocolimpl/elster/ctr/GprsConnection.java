@@ -190,10 +190,13 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
     private CtrConnectionState readMinLength(ByteArrayOutputStream rawBytes, CtrConnectionState state, int readByte) throws CTRParsingException, CTRConnectionException {
         rawBytes.write(readByte);
         if (rawBytes.size() >= GPRSFrame.LENGTH_SHORT) {
-            GPRSFrame gprsFrame = new GPRSFrame().parse(rawBytes.toByteArray(), 0);
-            if (gprsFrame.getProfi().isLongFrame()) {
-                state = CtrConnectionState.READ_EXTENDED_LENGTH;
-            } else {
+            // Note: When sending firmware upgrade frames (which are LONG frames), the meter responds with a SHORT frame - but incorrectly states it is a LONG frame!
+            // --> Dirty solution: skip the check if Profi().isLongFrame() - as we know we always receive a short frame.
+
+//            GPRSFrame gprsFrame = new GPRSFrame().parse(rawBytes.toByteArray(), 0);
+//            if (gprsFrame.getProfi().isLongFrame()) {
+//                state = CtrConnectionState.READ_EXTENDED_LENGTH;
+//            } else {
                 if (readByte != GPRSFrame.ETX) {
                     String fromBytes = ProtocolTools.getHexStringFromBytes(new byte[]{(byte) (readByte & 0x0FF)});
                     throw new CTRConnectionException("Expected ETX, but received " + fromBytes);
@@ -201,7 +204,7 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
                     state = CtrConnectionState.FRAME_RECEIVED;
                 }
             }
-        }
+//        }
         return state;
     }
 

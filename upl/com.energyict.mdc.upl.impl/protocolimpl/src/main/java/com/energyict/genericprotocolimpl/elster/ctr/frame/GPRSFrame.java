@@ -18,8 +18,14 @@ public class GPRSFrame extends AbstractCTRFrame<GPRSFrame> {
     private int etx;
 
     public static final int LENGTH_SHORT = 142;
+    public static final int LENGTH_LONG = 1026;
 
     public GPRSFrame() {
+        this(false);
+    }
+
+    public GPRSFrame(boolean longFrame) {
+        super(longFrame);
         this.stx  = STX;
         this.etx = ETX;
     }

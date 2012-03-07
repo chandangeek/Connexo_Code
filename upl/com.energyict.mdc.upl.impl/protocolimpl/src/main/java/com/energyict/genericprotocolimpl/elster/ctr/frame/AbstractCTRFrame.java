@@ -24,12 +24,16 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
     private Crc crc;
 
     public AbstractCTRFrame() {
+        this(false);
+    }
+
+    public AbstractCTRFrame(boolean longFrame) {
         this.address = new Address();
         this.profi = new Profi();
         this.functionCode = new FunctionCode();
         this.structureCode = new StructureCode();
         this.channel = new Channel();
-        this.data = new Data(false);
+        this.data = new Data(longFrame);
         this.cpa = new Cpa();
         this.crc = new Crc();
     }
@@ -73,7 +77,7 @@ public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<
         ptr += channel.getLength();
 
         if (getFunctionCode().getEncryptionStatus().isEncrypted()) {
-            data = new Data(false).parse(rawData, ptr);
+            data = new Data(getProfi().isLongFrame()).parse(rawData, ptr);
         } else {
             parseDataField(rawData, ptr);
         }

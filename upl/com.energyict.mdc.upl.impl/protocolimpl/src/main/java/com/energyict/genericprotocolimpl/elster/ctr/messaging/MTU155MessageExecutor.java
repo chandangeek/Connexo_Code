@@ -4,12 +4,15 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.elster.ctr.GprsRequestFactory;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRFirmwareUpgradeTimeOutException;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.shadow.RtuMessageShadow;
 import com.energyict.protocol.MessageEntry;
 
 import java.sql.SQLException;
 import java.util.TimeZone;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -34,6 +37,8 @@ public class MTU155MessageExecutor extends GenericMessageExecutor {
     @Override
     public void doMessage(RtuMessage rtuMessage) throws BusinessException, SQLException {
         boolean success = false;
+        boolean pending = false;
+        String timeOutMsg = "";
         try {
             String content = rtuMessage.getContents();
             String trackingId = rtuMessage.getTrackingId();
@@ -68,8 +73,10 @@ public class MTU155MessageExecutor extends GenericMessageExecutor {
                     // Maintenance group
                     new WakeUpFrequency(this),
                     new ForceSyncClockMessage(this),
-                    new ReadPartialProfileDataMessage(this)
+                    new ReadPartialProfileDataMessage(this),
 
+                    // Firmware Upgrade
+                    new MTU155FirmwareUpgradeMessage(this)
             };
 
             boolean messageFound = false;
@@ -84,16 +91,28 @@ public class MTU155MessageExecutor extends GenericMessageExecutor {
             if (!messageFound) {
                 throw new BusinessException("Received unknown message: " + rtuMessage.toString());
             }
+        } catch(CTRFirmwareUpgradeTimeOutException timeOut) {
+            timeOutMsg = timeOut.getMessage();
+            pending = true;
         } finally {
             if (success) {
                 rtuMessage.confirm();
                 getLogger().info("Message " + rtuMessage.displayString() + " has finished successfully.");
-            } else {
+            } else if (pending) {
+                // Add "PendingUpgrade" to the message TrackingId.
+                // This to ensure next time the message is executed, we can easily recontinue the pending firmware instead of starting a new one.
+                RtuMessageShadow shadow = rtuMessage.getShadow();
+                if (!shadow.getTrackingId().contains("PendingUpgrade")) {
+                    shadow.setTrackingId(shadow.getTrackingId() + " PendingUpgrade");
+                    rtuMessage.update(shadow);
+                }
+                getLogger().log(Level.INFO, timeOutMsg + " - The firmware upgrade process will continue next communication session.");
+                rtuMessage.setPending();
+            } else{
                 rtuMessage.setFailed();
                 getLogger().info("Message " + rtuMessage.displayString() + " has failed.");
             }
         }
-
     }
 
 

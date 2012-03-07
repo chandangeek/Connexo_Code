@@ -3,6 +3,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.messaging;
 import com.energyict.cbo.BusinessException;
 import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.elster.ctr.GprsRequestFactory;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRFirmwareUpgradeTimeOutException;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.protocol.MessageEntry;
 
@@ -22,7 +23,7 @@ public abstract class AbstractMTU155Message {
 
     public abstract boolean canExecuteThisMessage(MessageEntry messageEntry);
 
-    public abstract void executeMessage(MessageEntry messageEntry) throws BusinessException;
+    public abstract void executeMessage(MessageEntry messageEntry) throws BusinessException, CTRFirmwareUpgradeTimeOutException;
 
     public AbstractMTU155Message(MTU155MessageExecutor messageExecutor) {
         this(messageExecutor.getFactory(), messageExecutor.getLogger(), messageExecutor.getRtu(), messageExecutor.getStoreObject());

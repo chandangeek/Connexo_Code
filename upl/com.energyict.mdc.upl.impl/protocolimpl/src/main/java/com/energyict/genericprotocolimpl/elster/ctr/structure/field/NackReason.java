@@ -57,7 +57,8 @@ public class NackReason extends AbstractField<NackReason> {
             case 0x04D: reasonDescription += "Function D-Down Loading One DL segment not received correctly."; break;
             case 0x04E: reasonDescription += "Response to Write The Write cannot be accepted because the date of validity has expired."; break;
             case 0x04F: reasonDescription += "Response to The Execute cannot be accepted."; break;
-            case 0x050: reasonDescription += "Response to Write or Execute. The Write or Execute cannot be executed because the condition is ‘under maintenance’."; break;
+            case 0x050: reasonDescription += "Response to Write or Execute. The Write or Execute cannot be executed because the condition is 'under maintenance'."; break;
+            case 0x052: reasonDescription += "Response to Write or Execute. The Write or Execute cannot be executed because there is a seal preventing it."; break;
             default: reasonDescription += "Unknown NACK reason code."; break;
         }
         return reasonDescription;
