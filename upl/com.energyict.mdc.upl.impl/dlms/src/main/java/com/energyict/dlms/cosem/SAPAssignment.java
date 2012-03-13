@@ -6,13 +6,21 @@
 
 package com.energyict.dlms.cosem;
 
-import com.energyict.dlms.*;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.OctetString;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.dlms.DLMSCOSEMGlobals.*;
+import static com.energyict.dlms.DLMSCOSEMGlobals.SAP_ATTR_ASSIGNMENT_LIST;
+import static com.energyict.dlms.DLMSCOSEMGlobals.SAP_OBJECT_LN;
+import static com.energyict.dlms.DLMSCOSEMGlobals.SAP_OBJECT_SN;
 
 /**
  *
@@ -29,7 +37,24 @@ public class SAPAssignment extends AbstractCosemObject {
     protected int getClassId() {
         return DLMSClassId.SAP_ASSIGNMENT.getClassId();
     }
-    
+
+    public List<SAPAssignmentItem> getSapAssignmentList() throws IOException {
+        final byte[] rawData = getResponseData(SAP_ATTR_ASSIGNMENT_LIST);
+        final AbstractDataType abstractSapList = AXDRDecoder.decode(rawData);
+        if (!(abstractSapList instanceof Array)) {
+            throw new IOException("Expected [" + Array.class.getName() + "] type for SapAssignmentList but was [" + abstractSapList.getClass().getName() + "]");
+        }
+
+        Array sapList = (Array) abstractSapList;
+        List<SAPAssignmentItem> sapAssignmentItems = new ArrayList<SAPAssignmentItem>(sapList.nrOfDataTypes());
+        for (int i = 0; i < sapList.nrOfDataTypes(); i++) {
+            final byte[] rawSapItem = sapList.getDataType(i).getBEREncodedByteArray();
+            final SAPAssignmentItem sapAssignmentItem = SAPAssignmentItem.fromAxdrBytes(rawSapItem);
+            sapAssignmentItems.add(sapAssignmentItem);
+        }
+        return sapAssignmentItems;
+    }
+
     public List getLogicalDeviceNames() throws IOException {
         if (logicalDeviceNames==null) {
             logicalDeviceNames = new ArrayList();

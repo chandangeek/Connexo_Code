@@ -1,9 +1,17 @@
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.dlms.*;
-import com.energyict.dlms.aso.*;
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.ConnectionMode;
+import com.energyict.dlms.DLMSReference;
+import com.energyict.dlms.DlmsSessionProperties;
+import com.energyict.dlms.InvokeIdAndPriority;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.LocalSecurityProvider;
+import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.base.AbstractProtocolProperties;
 import com.energyict.protocolimpl.base.ProtocolProperty;
+
+import java.util.Properties;
 
 /**
  * Copyrights EnergyICT
@@ -64,6 +72,14 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
     public static final String DEFAULT_ISKRA_WRAPPER = "1";
 
     protected SecurityProvider securityProvider;
+
+    public DlmsProtocolProperties() {
+        super(new Properties());
+    }
+
+    public DlmsProtocolProperties(Properties properties) {
+        super(properties);
+    }
 
     @ProtocolProperty
     public ConnectionMode getConnectionMode() {
@@ -254,7 +270,7 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
 
     public SecurityProvider getSecurityProvider() {
         if (securityProvider == null) {
-            securityProvider = new LocalSecurityProvider(getProtocolProperties());
+            securityProvider = new LocalSecurityProvider(this);
         }
         return securityProvider;
     }

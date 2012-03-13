@@ -524,3 +524,7 @@
 -keepnames class com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372
 
 -keepnames class com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.MbusDevice
+
+-keepnames class com.energyict.protocolimpl.dlms.elster.as300d.AS300D
+
+-keepnames class com.energyict.genericprotocolimpl.rtuplusserver.g3.RtuPlusServer

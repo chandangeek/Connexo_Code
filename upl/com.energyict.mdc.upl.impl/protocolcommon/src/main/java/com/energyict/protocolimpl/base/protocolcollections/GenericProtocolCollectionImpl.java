@@ -1,7 +1,9 @@
 package com.energyict.protocolimpl.base.protocolcollections;
 
 import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolCollection;
+import com.energyict.protocol.ProtocolImplFactory;
+import com.energyict.protocol.ProtocolInstantiator;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,6 +42,8 @@ public class GenericProtocolCollectionImpl implements ProtocolCollection{
         this.protocolclasses.add("com.energyict.genericprotocolimpl.webrtuz3.WebRTUZ3");this.protocolnames.add("WebRTU Z3 / MUC");
         this.protocolclasses.add("com.energyict.genericprotocolimpl.elster.ctr.MTU155");this.protocolnames.add("Elster MTU155 (CTR)");
         this.protocolclasses.add("com.energyict.genericprotocolimpl.ace4000.ACE4000");this.protocolnames.add("ACE4000");
+        this.protocolclasses.add("com.energyict.genericprotocolimpl.rtuplusserver.g3.RtuPlusServer");this.protocolnames.add("Rtu+Server G3");
+
     }
 
     public String getProtocolName(int index) throws IOException {

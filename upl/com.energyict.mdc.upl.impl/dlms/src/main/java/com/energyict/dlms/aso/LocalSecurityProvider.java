@@ -1,6 +1,7 @@
 package com.energyict.dlms.aso;
 
 import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DlmsSessionProperties;
 import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
 import com.energyict.protocol.MeterProtocol;
@@ -69,6 +70,21 @@ public class LocalSecurityProvider implements SecurityProvider {
 	}
 
 	/**
+     * This constructor takes the defaults of the DlmsSessionProperties class in account.
+     *
+     * @param sessionProperties
+     */
+    public LocalSecurityProvider(DlmsSessionProperties sessionProperties) {
+        this.properties = sessionProperties.getProtocolProperties();
+        this.securityLevel = sessionProperties.getAuthenticationSecurityLevel();
+        this.dataTransportPassword = DLMSUtils.hexStringToByteArray(properties.getProperty(DATATRANSPORTKEY, ""));
+        this.masterKey = DLMSUtils.hexStringToByteArray(properties.getProperty(MASTERKEY, ""));
+        this.authenticationPassword = DLMSUtils.hexStringToByteArray(properties.getProperty(DATATRANSPORT_AUTHENTICATIONKEY, ""));
+        this.hlsSecret = properties.getProperty(MeterProtocol.PASSWORD, "");
+        this.initialFrameCounter = properties.getProperty(INITIAL_FRAME_COUNTER) != null ? Long.parseLong(properties.getProperty(INITIAL_FRAME_COUNTER)) : null;
+    }
+
+    /**
 	 * Generate a random challenge of 8 bytes long
 	 */
 	private void generateClientToServerChallenge(){

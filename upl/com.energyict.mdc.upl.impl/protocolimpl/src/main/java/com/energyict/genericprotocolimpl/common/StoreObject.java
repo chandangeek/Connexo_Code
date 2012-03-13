@@ -5,12 +5,23 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cpo.Transaction;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterReadingStorer;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.Channel;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.Phenomenon;
+import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.shadow.amr.RtuRegisterReadingShadow;
-import com.energyict.protocol.*;
+import com.energyict.protocol.MeterData;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterReadingData;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterValue;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -90,6 +101,12 @@ public class StoreObject implements Transaction {
 
     public void add(Rtu rtu, ProfileData pd) {
         getStoreObjectItems().add(new StoreObjectItem(rtu, pd));
+    }
+
+    public void add(Rtu rtu, List<MeterEvent> meterEvents) {
+        final ProfileData eventProfile = new ProfileData();
+        eventProfile.setMeterEvents(meterEvents);
+        getStoreObjectItems().add(new StoreObjectItem(rtu, eventProfile));
     }
 
     public void add(Channel channel, ProfileData pd) {
