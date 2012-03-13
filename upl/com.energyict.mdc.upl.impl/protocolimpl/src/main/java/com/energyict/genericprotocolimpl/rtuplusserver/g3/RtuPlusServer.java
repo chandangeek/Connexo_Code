@@ -53,7 +53,7 @@ public class RtuPlusServer implements GenericProtocol {
     }
 
     public String getVersion() {
-        return "$Date: 2012-03-13 11:45:38 +0100 (di, 13 mrt 2012) $";
+        return "$Date$";
     }
 
     public void addProperties(Properties properties) {
