@@ -127,7 +127,7 @@ public class BubbleUpFrameParser {
      *
      * @param data         the generic header
      * @param radioAddress indicates the RTM type, important to know the initial battery level
-     * @return 2 registers
+     * @return 4 registers
      */
     private static List<RegisterValue> getGenericHeaderRegisters(RTM rtm, byte[] data, byte[] radioAddress) throws IOException {
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
@@ -135,12 +135,19 @@ public class BubbleUpFrameParser {
         genericHeader = new GenericHeader(rtm, radioAddress);
         genericHeader.parse(data);
 
-        RegisterValue reg = new RegisterValue(ObisCode.fromString("0.0.96.6.0.255"), new Quantity(genericHeader.getShortLifeCounter(), Unit.get("")), new Date());
-        registerValues.add(reg);
+        RegisterValue batteryRegister = new RegisterValue(ObisCode.fromString("0.0.96.6.0.255"), new Quantity(genericHeader.getShortLifeCounter(), Unit.get("")), new Date());
+        registerValues.add(batteryRegister);
 
         double qos = genericHeader.getQos();
-        reg = new RegisterValue(ObisCode.fromString("0.0.96.0.63.255"), new Quantity(qos > 100 ? 100 : qos, Unit.get("")), new Date());
-        registerValues.add(reg);
+        RegisterValue rssiRegister = new RegisterValue(ObisCode.fromString("0.0.96.0.63.255"), new Quantity(qos > 100 ? 100 : qos, Unit.get("")), new Date());
+        registerValues.add(rssiRegister);
+
+        RegisterValue applicationStatusRegister = new RegisterValue(ObisCode.fromString("0.0.96.5.2.255"), new Quantity(genericHeader.getApplicationStatus().getStatus(), Unit.get("")), new Date());
+        registerValues.add(applicationStatusRegister);
+
+        RegisterValue operationModeRegister = new RegisterValue(ObisCode.fromString("0.0.96.5.1.255"), new Quantity(genericHeader.getOperationMode().getOperationMode(), Unit.get("")), new Date());
+        registerValues.add(operationModeRegister);
+
         return registerValues;
     }
 
