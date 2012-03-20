@@ -1,28 +1,14 @@
 
 package com.energyict.protocolimpl.ametek;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.cbo.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ParseUtils;
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  *
@@ -91,6 +77,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 		int eventIndicator = 0x8000;
 		int intervalIndicator = 0x4000;
 		int powerOutEvent = 0x800;
+        int testModeEvent = 0x100;
 		Date startDate = cal.getTime();
 		Date now = calTo.getTime();
 		cal.setTimeInMillis(0);
@@ -139,9 +126,12 @@ public class JemStar extends Jem implements MessageProtocol  {
 				}
 				
 				long endTime = convertHexToLongLE(byteStream, 4);
+                endTime *= 1000l;
+                endTime -= getTimeZone().getOffset(endTime);
+
 				//endTime not used
 				//byteStream.skip(4);//used to be eaten in endTime
-				if ((eventCode & powerOutEvent) == powerOutEvent) //powerOutage
+                if (((eventCode & powerOutEvent) == powerOutEvent) || ((eventCode & testModeEvent) == testModeEvent)) //powerOutage
 				{			
 					if(endTime < cal.getTimeInMillis()){
 						//Power up power down happens inside the interval
@@ -153,7 +143,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 						eiStatus = IntervalStateBits.POWERDOWN;
 						IntervalData id = new IntervalData(cal.getTime(), eiStatus);
 						id.addValues(values);
-						pd.addInterval(id);
+                        addInterval(cal, id, startDate, now);
 						partialVals = new ArrayList();
 						cal.setTimeInMillis(endTime);
 						ParseUtils.roundUp2nearestInterval(cal, getProfileInterval());
@@ -165,12 +155,9 @@ public class JemStar extends Jem implements MessageProtocol  {
 				else if((eventCode & eventIndicator) == eventIndicator) //midnight
 				{
 					partialVals = new ArrayList();
-				}
-				else{
+				} else {
 						continue;
 				}
-				
-
 			}
 
 			if(noDate){
@@ -187,16 +174,20 @@ public class JemStar extends Jem implements MessageProtocol  {
 				{
 					IntervalData id = new IntervalData(cal.getTime(), eiStatus);
 					id.addValues(values);
-					pd.addInterval(id);
+                    addInterval(cal, id, startDate, now);
 				}
 				lastDate = cal.getTime();
 				cal.add(Calendar.SECOND, getProfileInterval());
 				eiStatus=0;
 			}
 		}
-
-
 	}
+
+    private void addInterval(Calendar cal, IntervalData id, Date startDate, Date now) {
+        if (cal.getTime().after(startDate) && cal.getTime().before(now)) {
+            pd.addInterval(id);
+	    }
+    }
 
 	private void processHeader(InputStream byteStream) throws IOException
 	{

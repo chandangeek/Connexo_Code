@@ -10,17 +10,16 @@
 
 package com.energyict.protocolimpl.ametek;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.*;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.meteridentification.*;
+import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.itron.protocol.schlumberger.Response;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.*;
+import java.util.logging.Logger;
 
 /**
  *
@@ -234,7 +233,7 @@ public class JemProtocolConnection extends Connection implements ProtocolConnect
 	{
 		List sendList = new ArrayList();
 		//from 3 b\c we skip DLE(1) and SOH(1) and ADR(1)
-		System.out.println();
+//		System.out.println();
 		for(int i=0; i<length;i++)
 		{
 			if(send[i]!=0x10){
@@ -248,7 +247,7 @@ public class JemProtocolConnection extends Connection implements ProtocolConnect
 //				System.out.print(Integer.toHexString((byte)send[i]) + "X, ");
 			}
 		}
-		System.out.println();
+//		System.out.println();
 
 		Byte[] crcArr = new Byte[sendList.size()];
 		sendList.toArray(crcArr);
