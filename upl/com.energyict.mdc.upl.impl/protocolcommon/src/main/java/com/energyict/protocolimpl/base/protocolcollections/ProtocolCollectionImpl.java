@@ -337,6 +337,8 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372");
         this.protocolNames.add("SmartMeter IskraMx372");
 
+        this.protocolClasses.add("com.energyict.protocolimpl.EMCO.FP93");
+        this.protocolNames.add("FP93 Flow Processor");
     }
 
     public String getProtocolName(int index) throws IOException {

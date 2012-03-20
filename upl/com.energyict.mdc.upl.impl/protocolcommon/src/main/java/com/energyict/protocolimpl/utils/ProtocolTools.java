@@ -195,9 +195,10 @@ public final class ProtocolTools {
     }
 
     /**
+     * retrieve the subArray [from, to[  out of the given array
      * @param bytes
-     * @param from
-     * @param to
+     * @param from  Inclusive from
+     * @param to    Exclusive to
      * @return
      */
     public static byte[] getSubArray(final byte[] bytes, final int from, final int to) {
