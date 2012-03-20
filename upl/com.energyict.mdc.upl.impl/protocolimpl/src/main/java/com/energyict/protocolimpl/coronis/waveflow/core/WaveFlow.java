@@ -208,7 +208,10 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
         initialRFCommand = Integer.parseInt(properties.getProperty("InitialRFCommand", "0").trim());
         roundDownToNearestInterval = Integer.parseInt(properties.getProperty("RoundDownToNearestInterval", "0").trim()) == 1;
 
-        pulseWeights = new PulseWeight[]{pulseWeightA, pulseWeightB, pulseWeightC, pulseWeightD};
+        pulseWeights[0] = pulseWeights[0] == null ? pulseWeightA : pulseWeights[0];             //Don't override cached pulse weights!
+        pulseWeights[1] = pulseWeights[1] == null ? pulseWeightB : pulseWeights[1];
+        pulseWeights[2] = pulseWeights[2] == null ? pulseWeightC : pulseWeights[2];
+        pulseWeights[3] = pulseWeights[3] == null ? pulseWeightD : pulseWeights[3];
     }
 
     /**
@@ -252,7 +255,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2011-10-25 16:18:44 +0200 (di, 25 okt 2011) $";
+        return "$Date: 2012-01-10 15:56:36 +0100 (di, 10 jan 2012) $";
     }
 
     @Override

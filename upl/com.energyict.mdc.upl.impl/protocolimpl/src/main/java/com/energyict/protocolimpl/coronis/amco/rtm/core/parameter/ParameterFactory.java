@@ -22,7 +22,7 @@ public class ParameterFactory {
 
     private static final int DAILY = 60 * 60 * 24;
     private static final int WEEKLY = DAILY * 7;
-    private static final int MONTHLY = (WEEKLY * 4) - 1;
+    private static final int MONTHLY = DAILY * 31;
 
     private static final int PERIODIC_STEPS = 1;
     private static final int WEEKLY_LOGGING = 2;
@@ -91,6 +91,12 @@ public class ParameterFactory {
         hourOfMeasurement.write();
     }
 
+    public int readTimeOfMeasurement() throws IOException {
+        HourOfMeasurement hourOfMeasurement = new HourOfMeasurement(rtm);
+        hourOfMeasurement.read();
+        return hourOfMeasurement.getStartHour();
+    }
+
     final public void writeSamplingActivationType(final int startHour) throws IOException {
         SamplingActivationType samplingActivationType = new SamplingActivationType(rtm);
         samplingActivationType.setStartHour(startHour);
@@ -114,6 +120,12 @@ public class ParameterFactory {
         DayOfWeekOrMonth dayOfWeek = new DayOfWeekOrMonth(rtm);
         dayOfWeek.setDay(day);
         dayOfWeek.write();
+    }
+
+    public int readDayOfWeek() throws IOException {
+        DayOfWeekOrMonth dayOfWeek = new DayOfWeekOrMonth(rtm);
+        dayOfWeek.read();
+        return dayOfWeek.getDay();
     }
 
     public void restartDataLogging(int mode) throws IOException {

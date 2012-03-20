@@ -83,6 +83,15 @@ public class CommonObisCodeMapper {
     private static final ObisCode OBISCODE_SIMPLEBACKFLOW_ENABLED = ObisCode.fromString("8.0.96.57.0.255");
     private static final ObisCode OBISCODE_ADVANCED_BACKFLOW_ENABLED = ObisCode.fromString("8.0.96.57.1.255");
 
+    private static final ObisCode OBISCODE_WakeUpSystemStatusWord = ObisCode.fromString("0.0.96.0.103.255");
+    private static final ObisCode OBISCODE_DefaultWakeUpPeriod = ObisCode.fromString("0.0.96.0.104.255");
+    private static final ObisCode OBISCODE_StartTimeForTimeWindow1 = ObisCode.fromString("0.0.96.0.105.255");
+    private static final ObisCode OBISCODE_WakeUpPeriodForTimeWindow1 = ObisCode.fromString("0.0.96.0.106.255");
+    private static final ObisCode OBISCODE_StartTimeForTimeWindow2 = ObisCode.fromString("0.0.96.0.107.255");
+    private static final ObisCode OBISCODE_WakeUpPeriodForTimeWindow2 = ObisCode.fromString("0.0.96.0.108.255");
+    private static final ObisCode OBISCODE_EnableTimeWindowsByDayOfWeek = ObisCode.fromString("0.0.96.0.109.255");
+    private static final ObisCode OBISCODE_EnableWakeUpPeriodsByDayOfWeek = ObisCode.fromString("0.0.96.0.110.255");
+
     static {
         registerMaps.put(OBISCODE_REMAINING_BATTERY, "Available battery power in %");
         registerMaps.put(OBISCODE_RSSI_LEVEL, "Received signal strength indication");
@@ -147,6 +156,15 @@ public class CommonObisCodeMapper {
         registerMaps.put(OBISCODE_SIMPLEBACKFLOW_ENABLED, "Simple backflow detection enabled");
         registerMaps.put(OBISCODE_ADVANCED_BACKFLOW_ENABLED, "Advanced backflow detection enabled");
         registerMaps.put(OBISCODE_WIRECUTDETECTION_ENABLED, "Wirecut detection enabled");
+
+        registerMaps.put(OBISCODE_WakeUpSystemStatusWord, "WakeUp system status word");
+        registerMaps.put(OBISCODE_DefaultWakeUpPeriod, "Default WakeUp period (in second)");
+        registerMaps.put(OBISCODE_StartTimeForTimeWindow1, "Start time for 1st time window ");
+        registerMaps.put(OBISCODE_WakeUpPeriodForTimeWindow1, "WakeUp period for 1st time window (in second) ");
+        registerMaps.put(OBISCODE_StartTimeForTimeWindow2, "Start time for 2nd time window");
+        registerMaps.put(OBISCODE_WakeUpPeriodForTimeWindow2, "WakeUp period for 2nd time window (in second) ");
+        registerMaps.put(OBISCODE_EnableTimeWindowsByDayOfWeek, "Enable time windows by day of the week ");
+        registerMaps.put(OBISCODE_EnableWakeUpPeriodsByDayOfWeek, "Enable WakeUp periods by day of the week");
     }
 
     private WaveFlow waveFlow;
@@ -208,6 +226,30 @@ public class CommonObisCodeMapper {
             } else if (obisCode.equals(OBISCODE_LEAKAGE_MEASUREMENTSTEP)) {
                 int step = waveFlow.getParameterFactory().readMeasurementStep();
                 return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(step), Unit.get(BaseUnit.MINUTE)), new Date());
+            } else if (obisCode.equals(OBISCODE_WakeUpSystemStatusWord)) {
+                int value = waveFlow.getParameterFactory().getWakeUpSystemStatusWord();
+                return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date());
+            } else if (obisCode.equals(OBISCODE_DefaultWakeUpPeriod)) {
+                int value = waveFlow.getParameterFactory().getDefaultWakeUpPeriod();
+                return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date());
+            } else if (obisCode.equals(OBISCODE_StartTimeForTimeWindow1)) {
+                int value = waveFlow.getParameterFactory().getStartTimeForTimeWindow1();
+                return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date());
+            } else if (obisCode.equals(OBISCODE_WakeUpPeriodForTimeWindow1)) {
+                int value = waveFlow.getParameterFactory().getWakeUpPeriodForTimeWindow1();
+                return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date());
+            } else if (obisCode.equals(OBISCODE_StartTimeForTimeWindow2)) {
+                int value = waveFlow.getParameterFactory().getStartTimeForTimeWindow2();
+                return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date());
+            } else if (obisCode.equals(OBISCODE_WakeUpPeriodForTimeWindow2)) {
+                int value = waveFlow.getParameterFactory().getWakeUpPeriodForTimeWindow2();
+                return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date());
+            } else if (obisCode.equals(OBISCODE_EnableTimeWindowsByDayOfWeek)) {
+                int value = waveFlow.getParameterFactory().getEnableTimeWindowsByDayOfWeek();
+                return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date());
+            } else if (obisCode.equals(OBISCODE_EnableWakeUpPeriodsByDayOfWeek)) {
+                int value = waveFlow.getParameterFactory().getEnableWakeUpPeriodsByDayOfWeek();
+                return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date());
             } else if (obisCode.equals(OBISCODE_RESIDUAL_LEAKAGE_THRESHOLD1)) {
                 int threshold = waveFlow.getParameterFactory().readResidualLeakageThreshold(1);
                 return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(threshold), Unit.get("")), new Date());
@@ -337,7 +379,7 @@ public class CommonObisCodeMapper {
                 return new RegisterValue(obisCode, new Quantity(value > 100 ? 100 : value, Unit.get("")), new Date());      //A percentage representing the saturation
             } else if (isPulseWeightReadout(obisCode)) {
                 int inputChannel = (obisCode.getB());
-                PulseWeight pulseWeight = waveFlow.getPulseWeight(inputChannel, true);
+                PulseWeight pulseWeight = waveFlow.getPulseWeight(inputChannel - 1, true);
                 return new RegisterValue(obisCode, new Quantity(new BigDecimal(pulseWeight.getWeight()), pulseWeight.getUnit()));
             }
             waveFlow.getLogger().log(Level.SEVERE, "Register with obis code [" + obisCode + "] does not exist!");

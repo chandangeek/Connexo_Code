@@ -63,6 +63,102 @@ public class ParameterFactory {
         return numberOfFrameInRxAndTx.getNumberOfFrameTx();
     }
 
+    public int getWakeUpSystemStatusWord() throws IOException {
+        WakeUpSystemStatusWord wakeUpSystemStatusWord = new WakeUpSystemStatusWord(waveFlow);
+        wakeUpSystemStatusWord.read();
+        return wakeUpSystemStatusWord.getValue();
+    }
+
+    public int getDefaultWakeUpPeriod() throws IOException {
+        DefaultWakeUpPeriod parameter = new DefaultWakeUpPeriod(waveFlow);
+        parameter.read();
+        return parameter.getValue();
+    }
+
+    public int getStartTimeForTimeWindow1() throws IOException {
+        StartTimeForTimeWindow1 parameter = new StartTimeForTimeWindow1(waveFlow);
+        parameter.read();
+        return parameter.getValue();
+    }
+
+    public int getWakeUpPeriodForTimeWindow1() throws IOException {
+        WakeUpPeriodForTimeWindow1 parameter = new WakeUpPeriodForTimeWindow1(waveFlow);
+        parameter.read();
+        return parameter.getValue();
+    }
+
+    public int getStartTimeForTimeWindow2() throws IOException {
+        StartTimeForTimeWindow2 parameter = new StartTimeForTimeWindow2(waveFlow);
+        parameter.read();
+        return parameter.getValue();
+    }
+
+    public int getWakeUpPeriodForTimeWindow2() throws IOException {
+        WakeUpPeriodForTimeWindow2 parameter = new WakeUpPeriodForTimeWindow2(waveFlow);
+        parameter.read();
+        return parameter.getValue();
+    }
+
+    public int getEnableTimeWindowsByDayOfWeek() throws IOException {
+        EnableTimeWindowsByDayOfWeek parameter = new EnableTimeWindowsByDayOfWeek(waveFlow);
+        parameter.read();
+        return parameter.getValue();
+    }
+
+    public int getEnableWakeUpPeriodsByDayOfWeek() throws IOException {
+        EnableWakeUpPeriodsByDayOfWeek parameter = new EnableWakeUpPeriodsByDayOfWeek(waveFlow);
+        parameter.read();
+        return parameter.getValue();
+    }
+
+    public void setEnableWakeUpPeriodsByDayOfWeek(int value) throws IOException {
+        EnableWakeUpPeriodsByDayOfWeek parameter = new EnableWakeUpPeriodsByDayOfWeek(waveFlow);
+        parameter.setValue(value);
+        parameter.write();
+    }
+
+    public void setEnableTimeWindowsByDayOfWeek(int value) throws IOException {
+        EnableTimeWindowsByDayOfWeek parameter = new EnableTimeWindowsByDayOfWeek(waveFlow);
+        parameter.setValue(value);
+        parameter.write();
+    }
+
+    public void setWakeUpPeriodForTimeWindow2(int value) throws IOException {
+        WakeUpPeriodForTimeWindow2 parameter = new WakeUpPeriodForTimeWindow2(waveFlow);
+        parameter.setValue(value);
+        parameter.write();
+    }
+
+    public void setStartTimeForTimeWindow2(int value) throws IOException {
+        StartTimeForTimeWindow2 parameter = new StartTimeForTimeWindow2(waveFlow);
+        parameter.setValue(value);
+        parameter.write();
+    }
+
+    public void setWakeUpPeriodForTimeWindow1(int value) throws IOException {
+        WakeUpPeriodForTimeWindow1 parameter = new WakeUpPeriodForTimeWindow1(waveFlow);
+        parameter.setValue(value);
+        parameter.write();
+    }
+
+    public void setStartTimeForTimeWindow1(int value) throws IOException {
+        StartTimeForTimeWindow1 parameter = new StartTimeForTimeWindow1(waveFlow);
+        parameter.setValue(value);
+        parameter.write();
+    }
+
+    public void setDefaultWakeUpPeriod(int value) throws IOException {
+        DefaultWakeUpPeriod parameter = new DefaultWakeUpPeriod(waveFlow);
+        parameter.setValue(value);
+        parameter.write();
+    }
+
+    public void setWakeUpSystemStatusWord(int value) throws IOException {
+        WakeUpSystemStatusWord parameter = new WakeUpSystemStatusWord(waveFlow);
+        parameter.setValue(value);
+        parameter.write();
+    }
+
     final public int readApplicationStatus() throws IOException {
         if (applicationStatus == null) {
             applicationStatus = new ApplicationStatus(waveFlow);

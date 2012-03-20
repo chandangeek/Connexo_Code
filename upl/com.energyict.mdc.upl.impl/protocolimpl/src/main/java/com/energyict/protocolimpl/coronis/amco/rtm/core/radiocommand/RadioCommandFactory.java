@@ -80,7 +80,7 @@ public class RadioCommandFactory {
     /**
      * Depending on the number of configured channels (in EiServer), the port mask is either 0x01, 0x03, 0x07 or 0x0F.
      *
-     * @param portMask indicates which channels should be read out. E.g. 3 first channels = 0x07 (00000111)
+     * @param portMask         indicates which channels should be read out. E.g. 3 first channels = 0x07 (00000111)
      * @param numberOfReadings how many LP entries per port (total max is 24, aka 8 entries for 3 ports, or 6 entries for 4 ports, etc..)
      * @return a table containing the requested profile data entries
      * @throws IOException timeout errors etc
@@ -153,8 +153,8 @@ public class RadioCommandFactory {
     public RSSILevel readRSSI() throws IOException {
         if (rssiLevel == null) {
             rssiLevel = new RSSILevel(rtm);
-        rssiLevel.set();
-    }
+            rssiLevel.set();
+        }
         return rssiLevel;
     }
 

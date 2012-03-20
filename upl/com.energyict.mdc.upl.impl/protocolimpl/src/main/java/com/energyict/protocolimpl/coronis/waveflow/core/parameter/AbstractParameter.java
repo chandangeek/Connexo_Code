@@ -9,8 +9,8 @@ import java.io.*;
 
 abstract public class AbstractParameter extends AbstractRadioCommand {
 
-	static final int PARAM_UPDATE_OK=0x00;
-	static final int PARAM_UPDATE_ERROR=0xFF;
+    static final int PARAM_UPDATE_OK = 0x00;
+    static final int PARAM_UPDATE_ERROR = 0xFF;
 
     enum ParameterId {
 
@@ -37,6 +37,8 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
         OperationMode(0x01, 1, "Operation mode"),
         WireCutDetectionDateInputA(0x91, 6, "Date of the wirecut detection on input A"),
         WireCutDetectionDateInputB(0x92, 6, "Date of the wirecut detection on input B"),
+        ReedFaultDetectionDateInputA(0x93, 6, "Date of the reed fault detection on input A"),
+        ReedFaultDetectionDateInputB(0x94, 6, "Date of the reed fault detection on input B"),
         WireCutDetectionDateInputC(0x95, 6, "Date of the wirecut detection on input C"),
         WireCutDetectionDateInputD(0x96, 6, "Date of the wirecut detection on input D"),
         DayOfWeek(0x82, 1, "Day of week for the weekly datalogging"),
@@ -46,11 +48,18 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
         DefinePulseWeightC(0xA5, 1, "Define pulse weight for input channel C"),
         DefinePulseWeightD(0xA6, 1, "Define pulse weight for input channel D"),
 
-        ReedFaultDetectionDateInputA(0x93, 6, "Date of the reed fault detection on input A"),
-        ReedFaultDetectionDateInputB(0x94, 6, "Date of the reed fault detection on input B"),
-
         ExtendedOperationMode(0x0A, 1, "Extended Operation Mode"),
         NrOfLoggedRecords(0x0B, 2, "Number of records in the datalogging table"),
+
+        //Wake up parameters
+        WakeUpSystemStatusWord(0x02, 1, "WakeUp system status word"),
+        DefaultWakeUpPeriod(0x03, 1, "Default WakeUp period (in second)"),
+        StartTimeForTimeWindow1(0x04, 1, "Start time for 1st time window "),
+        WakeUpPeriodForTimeWindow1(0x05, 1, "WakeUp period for 1st time window (in second) "),
+        StartTimeForTimeWindow2(0x06, 1, "Start time for 2nd time window"),
+        WakeUpPeriodForTimeWindow2(0x07, 1, "WakeUp period for 2nd time window (in second) "),
+        EnableTimeWindowsByDayOfWeek(0x08, 1, "Enable time windows by day of the week "),
+        EnableWakeUpPeriodsByDayOfWeek(0x09, 1, "Enable WakeUp periods by day of the week"),
 
         //Hidden parameters
         ProfileType(0xE7, 1, "Profile type indicating the functionality supported by the module"),
@@ -94,236 +103,224 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
         SimpleBackflowDetectionFlagsPortB(0xCA, 2, "Simple backflow detection flags port B");    //Flag indicating simple backflow detections per month, for input B
 
         private int id;
-		private int length;
-		private String description;
+        private int length;
+        private String description;
 
-		ParameterId(final int id, final int length, final String description) {
-			this.id=id;
-			this.length=length;
-			this.description=description;
-		}
+        ParameterId(final int id, final int length, final String description) {
+            this.id = id;
+            this.length = length;
+            this.description = description;
+        }
 
-		public String toString() {
-			return WaveflowProtocolUtils.toHexString(id)+", "+description;
-		}
+        public String toString() {
+            return WaveflowProtocolUtils.toHexString(id) + ", " + description;
+        }
 
-		static ParameterId fromId(final int id) {
-			for (ParameterId pid : values()) {
-				if (pid.id == id) {
-					return pid;
-				}
-			}
-			return null;
-		}
+        static ParameterId fromId(final int id) {
+            for (ParameterId pid : values()) {
+                if (pid.id == id) {
+                    return pid;
+                }
+            }
+            return null;
+        }
 
-	} // enum ParameterId
+    } // enum ParameterId
 
-	/**
-	 * The working mode of the waveflow device is implicit to the write and read command
+    /**
+     * The working mode of the waveflow device is implicit to the write and read command
      * This is a concatenation of the extended operation mode byte and the operation mode byte
-	 */
-	private int workingMode;
+     */
+    private int workingMode;
 
-	/**
-	 * Working mode write mask
-	 */
-	private int mask=0xffff;
+    /**
+     * Working mode write mask
+     */
+    private int mask = 0xffff;
 
-	final void setMask(int mask) {
-		this.mask = mask;
-	}
+    final void setMask(int mask) {
+        this.mask = mask;
+    }
 
-	public final int getWorkingMode() {
-		return workingMode;
-	}
+    public final int getWorkingMode() {
+        return workingMode;
+    }
 
-	final void setWorkingMode(int workingMode) {
-		this.workingMode = workingMode;
-	}
+    final void setWorkingMode(int workingMode) {
+        this.workingMode = workingMode;
+    }
 
 
-	AbstractParameter(WaveFlow waveFlow) {
-		super(waveFlow);
-	}
+    AbstractParameter(WaveFlow waveFlow) {
+        super(waveFlow);
+    }
 
-	abstract ParameterId getParameterId() throws WaveFlowException;
+    abstract ParameterId getParameterId() throws WaveFlowException;
 
-	void write() throws IOException {
-		ByteArrayOutputStream baos = null;
-		try {
-			baos = new ByteArrayOutputStream();
-			DataOutputStream daos = new DataOutputStream(baos);
+    void write() throws IOException {
+        ByteArrayOutputStream baos = null;
+        try {
+            baos = new ByteArrayOutputStream();
+            DataOutputStream daos = new DataOutputStream(baos);
             int writeId = RadioCommandId.WriteParameter.getCommandId();
             if (getWaveFlow().isV1()) {
                 writeId = RadioCommandId.WriteParameterLegacy.getCommandId(); //Use the legacy parameter in case of the V1 module
             }
             daos.writeByte(writeId);
-			if (getParameterId()==null) {
-				daos.writeShort(workingMode); // update the working mode
-				daos.writeShort(mask); // mask to update the working mode
-				daos.writeByte(0); // write 0 parameter, only update the working mode
-			}
-			else {
+            if (getParameterId() == null) {
+                daos.writeShort(workingMode); // update the working mode
+                daos.writeShort(mask); // mask to update the working mode
+                daos.writeByte(0); // write 0 parameter, only update the working mode
+            } else {
                 if (!getWaveFlow().isV1()) {
-				    daos.writeShort(0);     //V2 modules need to send the working mode and its mask first.
-				    daos.writeShort(0);     //This is skipped in case of V1 module.
+                    daos.writeShort(0);     //V2 modules need to send the working mode and its mask first.
+                    daos.writeShort(0);     //This is skipped in case of V1 module.
                 }
-				daos.writeByte(1);  // write 1 parameter
-				daos.writeByte(getParameterId().id);
-				daos.writeByte(getParameterId().length);
-				daos.write(prepare());
-			}
+                daos.writeByte(1);  // write 1 parameter
+                daos.writeByte(getParameterId().id);
+                daos.writeByte(getParameterId().length);
+                daos.write(prepare());
+            }
 
-			parseWriteResponse(getWaveFlow().getWaveFlowConnect().sendData(baos.toByteArray()));
+            parseWriteResponse(getWaveFlow().getWaveFlowConnect().sendData(baos.toByteArray()));
 
-		}
-		finally {
-			if (baos != null) {
-				try {
-					baos.close();
-				}
-				catch(IOException e) {
-					getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
-				}
-			}
-		}
-	}
+        } finally {
+            if (baos != null) {
+                try {
+                    baos.close();
+                } catch (IOException e) {
+                    getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                }
+            }
+        }
+    }
 
-	private final void parseWriteResponse(final byte[] data) throws IOException {
-		DataInputStream dais = null;
-		try {
-			dais = new DataInputStream(new ByteArrayInputStream(data));
+    private final void parseWriteResponse(final byte[] data) throws IOException {
+        DataInputStream dais = null;
+        try {
+            dais = new DataInputStream(new ByteArrayInputStream(data));
 
-			int commandIdAck = WaveflowProtocolUtils.toInt(dais.readByte());
+            int commandIdAck = WaveflowProtocolUtils.toInt(dais.readByte());
             int writeId = RadioCommandId.WriteParameter.getCommandId();
             if (getWaveFlow().isV1()) {
                 writeId = RadioCommandId.WriteParameterLegacy.getCommandId(); //Use the legacy parameter in case of the V1 module
             }
             if (commandIdAck != (0x80 | writeId)) {
-				throw new WaveFlowException("Invalid response tag ["+WaveflowProtocolUtils.toHexString(commandIdAck)+"]");
-			}
-			else {
+                throw new WaveFlowException("Invalid response tag [" + WaveflowProtocolUtils.toHexString(commandIdAck) + "]");
+            } else {
                 if (!getWaveFlow().isV1()) {
                     workingMode = dais.readShort();     //Only V2 modules send the workingmode in the response.                    
                 }
-				if (getParameterId()!=null) {
-					int nrOfParameters = WaveflowProtocolUtils.toInt(dais.readByte());
-					if (nrOfParameters != 1) {
-						throw new WaveFlowException("Writing only 1 parameter at a time allowed, returned ["+nrOfParameters+"] parameters!");
-					}
+                if (getParameterId() != null) {
+                    int nrOfParameters = WaveflowProtocolUtils.toInt(dais.readByte());
+                    if (nrOfParameters != 1) {
+                        throw new WaveFlowException("Writing only 1 parameter at a time allowed, returned [" + nrOfParameters + "] parameters!");
+                    }
 
-					ParameterId pid = ParameterId.fromId(WaveflowProtocolUtils.toInt(dais.readByte()));
-					if (pid != getParameterId()) {
-						throw new WaveFlowException("Invalid parameter returned expected ["+getParameterId()+"], returned ["+pid+"]");
-					}
-				}
+                    ParameterId pid = ParameterId.fromId(WaveflowProtocolUtils.toInt(dais.readByte()));
+                    if (pid != getParameterId()) {
+                        throw new WaveFlowException("Invalid parameter returned expected [" + getParameterId() + "], returned [" + pid + "]");
+                    }
+                }
 
-				int result = WaveflowProtocolUtils.toInt(dais.readByte());
-				if (result != PARAM_UPDATE_OK) {
-					throw new WaveFlowException("Update parameter ["+getParameterId()+"] failed. Result code ["+WaveflowProtocolUtils.toHexString(result)+"]");
-				}
-			}
-		}
-		finally {
-			if (dais != null) {
-				try {
-					dais.close();
-				}
-				catch(IOException e) {
-					getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
-				}
-			}
-		}
-	}
+                int result = WaveflowProtocolUtils.toInt(dais.readByte());
+                if (result != PARAM_UPDATE_OK) {
+                    throw new WaveFlowException("Update parameter [" + getParameterId() + "] failed. Result code [" + WaveflowProtocolUtils.toHexString(result) + "]");
+                }
+            }
+        } finally {
+            if (dais != null) {
+                try {
+                    dais.close();
+                } catch (IOException e) {
+                    getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                }
+            }
+        }
+    }
 
-	public void read() throws IOException {
-		ByteArrayOutputStream baos = null;
-		try {
-			baos = new ByteArrayOutputStream();
-			DataOutputStream daos = new DataOutputStream(baos);
+    public void read() throws IOException {
+        ByteArrayOutputStream baos = null;
+        try {
+            baos = new ByteArrayOutputStream();
+            DataOutputStream daos = new DataOutputStream(baos);
             int readId = RadioCommandId.ReadParameter.getCommandId();
             if (getWaveFlow().isV1()) {
                 readId = RadioCommandId.ReadParameterLegacy.getCommandId();    //In case of communication with an old V1 module, the legacy read parameter has to be used
             }
             daos.writeByte(readId);
-			if (getParameterId()==null) {
-				daos.writeByte(0); // write 0 parameter, only update the operating mode
-			}
-			else {
-				daos.writeByte(1); // write 1 parameter
-				daos.writeByte(getParameterId().id);
-				daos.writeByte(getParameterId().length);
-			}
-			parseReadResponse(getWaveFlow().getWaveFlowConnect().sendData(baos.toByteArray()));
-		}
-		finally {
-			if (baos != null) {
-				try {
-					baos.close();
-				}
-				catch(IOException e) {
-					getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
-				}
-			}
-		}
-	}
+            if (getParameterId() == null) {
+                daos.writeByte(0); // write 0 parameter, only update the operating mode
+            } else {
+                daos.writeByte(1); // write 1 parameter
+                daos.writeByte(getParameterId().id);
+                daos.writeByte(getParameterId().length);
+            }
+            parseReadResponse(getWaveFlow().getWaveFlowConnect().sendData(baos.toByteArray()));
+        } finally {
+            if (baos != null) {
+                try {
+                    baos.close();
+                } catch (IOException e) {
+                    getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                }
+            }
+        }
+    }
 
-	private void parseReadResponse(final byte[] data) throws IOException {
-		DataInputStream dais = null;
-		try {
-			dais = new DataInputStream(new ByteArrayInputStream(data));
-			int commandIdAck = WaveflowProtocolUtils.toInt(dais.readByte());
+    private void parseReadResponse(final byte[] data) throws IOException {
+        DataInputStream dais = null;
+        try {
+            dais = new DataInputStream(new ByteArrayInputStream(data));
+            int commandIdAck = WaveflowProtocolUtils.toInt(dais.readByte());
             int readId = RadioCommandId.ReadParameter.getCommandId();
             if (getWaveFlow().isV1()) {
                 readId = RadioCommandId.ReadParameterLegacy.getCommandId();    //In case of communication with an old V1 module, the legacy read parameter has to be used
             }
             if (commandIdAck != (0x80 | readId)) {
-				throw new WaveFlowException("Invalid response tag ["+WaveflowProtocolUtils.toHexString(commandIdAck)+"]");
-			}
-			else {
+                throw new WaveFlowException("Invalid response tag [" + WaveflowProtocolUtils.toHexString(commandIdAck) + "]");
+            } else {
                 if (!getWaveFlow().isV1()) {
                     workingMode = dais.readShort(); //The working mode is only received from V2 modules.                    
                 }
-				if (getParameterId()!=null) {
-					int nrOfParameters = WaveflowProtocolUtils.toInt(dais.readByte());
-					if (nrOfParameters != 1) {
-						throw new WaveFlowException("Reading only 1 parameter at a time allowed, returned ["+nrOfParameters+"] parameters!");
-					}
+                if (getParameterId() != null) {
+                    int nrOfParameters = WaveflowProtocolUtils.toInt(dais.readByte());
+                    if (nrOfParameters != 1) {
+                        throw new WaveFlowException("Reading only 1 parameter at a time allowed, returned [" + nrOfParameters + "] parameters!");
+                    }
 
-					ParameterId pid = ParameterId.fromId(WaveflowProtocolUtils.toInt(dais.readByte()));
-					if (pid != getParameterId()) {
-						throw new WaveFlowException("Invalid parameter returned expected ["+getParameterId()+"], returned ["+pid+"]");
-					}
+                    ParameterId pid = ParameterId.fromId(WaveflowProtocolUtils.toInt(dais.readByte()));
+                    if (pid != getParameterId()) {
+                        throw new WaveFlowException("Invalid parameter returned expected [" + getParameterId() + "], returned [" + pid + "]");
+                    }
 
-					int length = WaveflowProtocolUtils.toInt(dais.readByte());
-					if (length != getParameterId().length) {
-						throw new WaveFlowException("Error reading parameter [" + getParameterId().toString() + "]. Invalid length returned: expected ["+getParameterId().length+"], returned ["+length+"]");
-					}
+                    int length = WaveflowProtocolUtils.toInt(dais.readByte());
+                    if (length != getParameterId().length) {
+                        throw new WaveFlowException("Error reading parameter [" + getParameterId().toString() + "]. Invalid length returned: expected [" + getParameterId().length + "], returned [" + length + "]");
+                    }
 
-					byte[] resultData = new byte[dais.available()];
-					dais.read(resultData);
-					parse(resultData);
-				}
-			}
-		}
-		finally {
-			if (dais != null) {
-				try {
-					dais.close();
-				}
-				catch(IOException e) {
-					getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
-				}
-			}
-		}
-	}
+                    byte[] resultData = new byte[dais.available()];
+                    dais.read(resultData);
+                    parse(resultData);
+                }
+            }
+        } finally {
+            if (dais != null) {
+                try {
+                    dais.close();
+                } catch (IOException e) {
+                    getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                }
+            }
+        }
+    }
 
-	/**
-	 * Because we have implement a abstract parameter read/write class, we don't use this method...
-	 */
+    /**
+     * Because we have implement a abstract parameter read/write class, we don't use this method...
+     */
     protected RadioCommandId getRadioCommandId() {
-		return null;
-	}
+        return null;
+    }
 
 
     void writeBubbleUpConfiguration(int command, int transmissionPeriod) throws IOException {
@@ -331,13 +328,11 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
         try {
             baos = getWriteBubbleUpConfigCommand(command, transmissionPeriod);
             parseBubbleUpConfigResponse(getWaveFlow().getWaveFlowConnect().sendData(baos.toByteArray()));
-        }
-        finally {
+        } finally {
             if (baos != null) {
                 try {
                     baos.close();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
                 }
             }
@@ -408,13 +403,11 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
                     }
                 }
             }
-        }
-        finally {
+        } finally {
             if (dais != null) {
                 try {
                     dais.close();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
                 }
             }

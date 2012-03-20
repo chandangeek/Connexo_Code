@@ -93,7 +93,7 @@ public class DateTime extends AbstractDataType {
     	this(octetString.getBEREncodedByteArray());
     }
 
-    public DateTime(OctetString octetString, TimeZone tz) throws IOException {
+    public DateTime(OctetString octetString, TimeZone tz) {
     	this(octetString.getBEREncodedByteArray(),0,tz);
     }
 

@@ -16,9 +16,9 @@ public class AS253 extends AbstractDLMS {
 	public static final ObisCode LOG_PROFILE = ObisCode.fromString("1.1.99.98.0.255");
 	public static final ObisCode OBJECT_LIST = ObisCode.fromString("0.0.40.0.0.255");
 	public static final ObisCode METER_SERIAL_NUMBER = ObisCode.fromString("1.1.96.1.0.255");
-	
+
 	private Map<ObisCode,ObjectEntry> objectEntries = null;
-	
+
     /**
      * Override this method to request the load profile from the meter starting at lastreading until now.
      * @param lastReading request from
@@ -53,16 +53,6 @@ public class AS253 extends AbstractDLMS {
 	}
 
     @Override
-    public Date getTime() throws IOException {
-        return new Date();
-    }
-
-    @Override
-    protected ObisCode getClockObisCode() {
-        return ObisCode.fromString("1.1.1.0.0.255");
-    }
-
-	@Override
 	Map<ObisCode, ObjectEntry> getObjectEntries() {
 		
 		/**
@@ -79,7 +69,7 @@ public class AS253 extends AbstractDLMS {
 			objectEntries.put(ObisCode.fromString("1.1.1.8.2.255"),new ObjectEntry("Import active energy tarif 2",3));
 			objectEntries.put(ObisCode.fromString("1.1.1.8.3.255"),new ObjectEntry("Import active energy tarif 3",3));
 			objectEntries.put(ObisCode.fromString("1.1.1.8.4.255"),new ObjectEntry("Import active energy tarif 4",3));
-			objectEntries.put(ObisCode.fromString("1.1.2.8.0.255"),new ObjectEntry("Export active energy tarif 0",3));
+            objectEntries.put(ObisCode.fromString("1.1.2.8.0.255"),new ObjectEntry("Export active energy tarif 0",3));
 			objectEntries.put(ObisCode.fromString("1.1.3.8.0.255"),new ObjectEntry("Import reactive energy tarif 0",3));
 			objectEntries.put(ObisCode.fromString("1.1.9.6.1.255"),new ObjectEntry("Apparent maximum 1",4));
 			objectEntries.put(ObisCode.fromString("1.1.32.7.0.255"),new ObjectEntry("Phase 1 instantaneous voltage",3));

@@ -75,6 +75,15 @@ public class OctetString extends AbstractDataType {
     }
 
     /**
+	 * Create a variable length OctetString
+	 *
+	 * @param octetStr
+	 */
+	public OctetString(byte[] octetStr) {
+		this(octetStr, octetStr.length, 0);
+	}
+
+	/**
 	 * It is possible to create a fixed length OctetString
 	 *
 	 * @param octetStr
@@ -127,6 +136,10 @@ public class OctetString extends AbstractDataType {
 		byte[] content = new byte[getOctetStr().length - 2];
 		System.arraycopy(getOctetStr(), fixed ? 1 : 2, content, 0, content.length);
 		return content;
+	}
+
+	public byte[] toByteArray() {
+		return getOctetStr();
 	}
 
 	public byte[] getOctetStr() {

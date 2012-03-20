@@ -39,7 +39,7 @@ public class BatteryLifeDurationCounter extends AbstractParameter {
 		return 100-(((INITIAL_BATTERY_LIFE_COUNT*100)-(getBatteryLifeCounter()*100))/INITIAL_BATTERY_LIFE_COUNT);
 	}
 	
-	BatteryLifeDurationCounter(WaveFlow waveFlow) {
+	BatteryLifeDurationCounter(AbstractWaveTalk waveFlow) {
 		super(waveFlow);
 	}
 	

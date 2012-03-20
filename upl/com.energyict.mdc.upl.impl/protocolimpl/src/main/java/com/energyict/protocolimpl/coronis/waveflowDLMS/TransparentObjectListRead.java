@@ -172,8 +172,8 @@ public class TransparentObjectListRead {
 	private final void validateResultCode(int resultCode) throws WaveFlowException {
 		switch(resultCode) {
 			case 0xFF: throw new WaveFlowDLMSException("Transparant object list read error. No data in buffer!");
-			case 0xFE: throw new WaveFlowDLMSException("Transparant object list read error. Bad request format!");
-			default: return;
+            case 0xFE: throw new WaveFlowExceptionNotPaired("Transparant object list read error. Pairing request never sent!");
+            default: return;
 		}
 	}
 	

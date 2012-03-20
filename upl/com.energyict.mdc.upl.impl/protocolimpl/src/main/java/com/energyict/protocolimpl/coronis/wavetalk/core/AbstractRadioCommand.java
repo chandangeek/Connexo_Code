@@ -16,11 +16,12 @@ abstract public class AbstractRadioCommand {
 		ReadParameter(0x18,true),
 		WriteParameter(0x19),
 		ExtendedDataloggingTable(0x09), // page 62 waveflow V2 document
-		ReadCurrentRTC(0x14), // page 38 waveflow V2 document
-		WriteCurrentRTC(0x15), // page 38 waveflow V2 document
+		ReadCurrentRTC(0x12), // page 38 waveflow V2 document
+		WriteCurrentRTC(0x13), // page 38 waveflow V2 document
 		GlobalIndexReading(0x05,true), // page 42 waveflow V2 document
 		LeakageEventTable(0x04),
-		
+		RssiLevel(0x20),
+
 //		EncoderReadLeakageEventTable(0x04,true),
 		FirmwareVersion(0x28);
 		
@@ -68,7 +69,7 @@ abstract public class AbstractRadioCommand {
 	/**
 	 * The reference to the Waveflow protocol implementation class
 	 */
-	private WaveFlow waveFlow;
+	private AbstractWaveTalk waveFlow;
 	
 	/**
 	 * the 1 byte operation mode send together with some of the radio command responses 
@@ -88,11 +89,11 @@ abstract public class AbstractRadioCommand {
 		return applicationStatus;
 	}
 	
-	final WaveFlow getWaveFlow() {
+	final AbstractWaveTalk getWaveFlow() {
 		return waveFlow;
 	}
 	
-	AbstractRadioCommand(WaveFlow waveFlow) {
+	AbstractRadioCommand(AbstractWaveTalk waveFlow) {
 		this.waveFlow = waveFlow;
 	}
 

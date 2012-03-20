@@ -488,7 +488,7 @@ public class WaveThermMessages implements MessageProtocol {
         MessageAttributeSpec addAttribute = new MessageAttributeSpec(attr, true);
         tagSpec.add(addAttribute);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
+        msgVal.setValue(""); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -502,7 +502,7 @@ public class WaveThermMessages implements MessageProtocol {
         MessageAttributeSpec addAttribute2 = new MessageAttributeSpec(attr2, true);
         tagSpec.add(addAttribute2);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
+        msgVal.setValue(""); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;

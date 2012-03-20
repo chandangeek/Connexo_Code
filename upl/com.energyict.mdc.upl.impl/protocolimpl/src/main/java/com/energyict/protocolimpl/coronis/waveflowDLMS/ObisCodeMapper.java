@@ -198,7 +198,7 @@ public class ObisCodeMapper {
 			Date date = abstractDLMS.getParameterFactory().readTimeDateRTC();
 			return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, ""+date);
     	}
-    	
+
         boolean timeRegister = obisCode.equals(ObisCode.fromString("1.1.0.9.1.255"));
         boolean dateRegister = obisCode.equals(ObisCode.fromString("1.1.0.9.2.255"));
         if (timeRegister || dateRegister) {
@@ -218,17 +218,19 @@ public class ObisCodeMapper {
     	try {
 		if (objectEntry.getClassId() == CLASS_DATA) {
 			AbstractDataType adt = abstractDLMS.getTransparantObjectAccessFactory().readObjectValue(obisCode);
-			
-			if (adt.isOctetString()) {
+
+            if (adt.isOctetString()) {
                 if (obisCode.equals(obisCode.fromString("1.1.97.97.1.255")) || obisCode.equals(obisCode.fromString("1.1.97.97.2.255")) ||
                         obisCode.equals(obisCode.fromString("1.1.97.97.255.255")) || obisCode.equals(obisCode.fromString("1.1.97.97.3.255"))) {
                     return new RegisterValue(obisCode, ProtocolUtils.outputHexString(adt.getOctetString().getOctetStr()));
                 } else {
                     return new RegisterValue(obisCode, adt.getOctetString().stringValue() + " [" + ProtocolUtils.outputHexString(adt.getOctetString().getOctetStr()) + "]");
                 }
-            } else if (adt.isVisibleString()) {
-                return new RegisterValue(obisCode, adt.getVisibleString().getStr());
-            } else {
+			}
+			else if (adt.isVisibleString()) {
+				return new RegisterValue(obisCode, adt.getVisibleString().getStr());
+			}
+			else {
 				return new RegisterValue(obisCode, new Quantity(adt.toBigDecimal(),Unit.get("")));
 			}
 		}

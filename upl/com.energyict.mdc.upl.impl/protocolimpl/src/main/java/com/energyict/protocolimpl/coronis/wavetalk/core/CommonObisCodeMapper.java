@@ -11,65 +11,64 @@ import java.util.*;
 import java.util.Map.Entry;
 
 public class CommonObisCodeMapper extends AbstractCommonObisCodeMapper {
-	
-	static Map<ObisCode,String> registerMaps = new HashMap<ObisCode, String>();
-	
-	static {
-		registerMaps.put(ObisCode.fromString("0.0.96.6.0.255"), "Available battery power in %");
-		registerMaps.put(ObisCode.fromString("0.0.96.6.3.255"), "Application status");
-		// specific waveflow registers start with E-field 50
-		
 
-	}
-	
-	private WaveFlow waveFlow;
-	
-    /** Creates a new instance of ObisCodeMapper */
-    public CommonObisCodeMapper(final WaveFlow waveFlow) {
-        this.waveFlow=waveFlow;
+    static Map<ObisCode, String> registerMaps = new HashMap<ObisCode, String>();
+
+    private static final ObisCode OBISCODE_FIRMWARE = ObisCode.fromString("1.0.0.2.0.255");
+    private static final ObisCode OBISCODE_APPLICATION_STATUS = ObisCode.fromString("0.0.96.6.3.255");
+    private static final ObisCode OBISCODE_RSSI_LEVEL = ObisCode.fromString("0.0.96.0.63.255");
+    private static final ObisCode OBISCODE_BATTERY = ObisCode.fromString("0.0.96.6.0.255");
+
+    static {
+        registerMaps.put(OBISCODE_BATTERY, "Available battery power in %");
+        registerMaps.put(OBISCODE_APPLICATION_STATUS, "Application status");
+        registerMaps.put(OBISCODE_FIRMWARE, "Firmware version");
+        registerMaps.put(OBISCODE_RSSI_LEVEL, "RSSI level");
     }
-    
+
+    private AbstractWaveTalk waveTalk;
+
+    /**
+     * Creates a new instance of ObisCodeMapper
+     */
+    public CommonObisCodeMapper(final AbstractWaveTalk waveTalk) {
+        this.waveTalk = waveTalk;
+    }
+
     final public String getRegisterExtendedLogging() {
-    	
-    	StringBuilder strBuilder=new StringBuilder();
-    	
-    	Iterator<Entry<ObisCode,String>> it = registerMaps.entrySet().iterator();
-    	while(it.hasNext()) {
-    		Entry<ObisCode,String> o = it.next();
-    		waveFlow.getLogger().info(o.getKey().toString()+", "+o.getValue());
-    	}
-    	
-    	return strBuilder.toString();
-    }
-    
-    public static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-    	String info = registerMaps.get(obisCode);
-    	if (info !=null) {
-    		return new RegisterInfo(info);
-    	}
-    	else {
-    		throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] does not exist!");
-    	}
-    }
-    
-    public RegisterValue getRegisterValue(ObisCode obisCode) throws NoSuchRegisterException,IOException {
-		//try {
-	    	if (obisCode.equals(ObisCode.fromString("0.0.96.6.0.255"))) {
-	    		// battery counter
-				return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(waveFlow.getParameterFactory().readBatteryLifeDurationCounter().remainingBatteryLife()), Unit.get("")),new Date());
-	   		}
-	    	else if (obisCode.equals(ObisCode.fromString("0.0.96.6.3.255"))) {
-	    		// application status
-	    		return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(waveFlow.getParameterFactory().readApplicationStatus()), Unit.get("")),new Date());
-	    	}
-	    	
-			throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] does not exist!");
-			
-//		} catch (IOException e) {
-//			throw e; //new NoSuchRegisterException("Register with obis code ["+obisCode+"] has an error ["+e.getMessage()+"]!");
-//			
-//		}
+        StringBuilder strBuilder = new StringBuilder();
 
+        for (Entry<ObisCode, String> o : registerMaps.entrySet()) {
+            waveTalk.getLogger().info(o.getKey().toString() + ", " + o.getValue());
+        }
+
+        return strBuilder.toString();
     }
-	
+
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
+        String info = registerMaps.get(obisCode);
+        if (info != null) {
+            return new RegisterInfo(info);
+        } else {
+            throw new NoSuchRegisterException("Register with obis code [" + obisCode + "] does not exist!");
+        }
+    }
+
+    public RegisterValue getRegisterValue(ObisCode obisCode) throws NoSuchRegisterException, IOException {
+        if (obisCode.equals(OBISCODE_BATTERY)) {
+            int battery = waveTalk.getParameterFactory().readBatteryLifeDurationCounter().remainingBatteryLife();
+            return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(battery), Unit.get("")), new Date());
+        } else if (obisCode.equals(OBISCODE_APPLICATION_STATUS)) {
+            int status = waveTalk.getParameterFactory().readApplicationStatus();
+            return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(status), Unit.get("")), new Date());
+        } else if (obisCode.equals(OBISCODE_RSSI_LEVEL)) {
+            double rssiLevel = waveTalk.getRadioCommandFactory().readRSSI();
+            return new RegisterValue(obisCode, new Quantity(rssiLevel, Unit.get("")), new Date());
+        } else if (obisCode.equals(OBISCODE_FIRMWARE)) {
+            String firmwareVerison = waveTalk.readFirmwareVersion();
+            return new RegisterValue(obisCode, firmwareVerison);
+        }
+
+        throw new NoSuchRegisterException("Register with obis code [" + obisCode + "] does not exist!");
+    }
 }

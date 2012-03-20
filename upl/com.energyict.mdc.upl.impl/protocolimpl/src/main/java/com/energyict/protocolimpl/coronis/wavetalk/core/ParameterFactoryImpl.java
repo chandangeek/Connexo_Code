@@ -6,13 +6,13 @@ import java.util.Date;
 
 public class ParameterFactoryImpl implements ParameterFactory {
 	
-	private WaveFlow waveFlow;
+	private AbstractWaveTalk waveFlow;
 
 	// cached
 	private ApplicationStatus applicationStatus=null;
 	private OperatingMode operatingMode=null;
 	
-	public ParameterFactoryImpl(final WaveFlow waveFlow) {
+	public ParameterFactoryImpl(final AbstractWaveTalk waveFlow) {
 		this.waveFlow = waveFlow;
 	}
 	

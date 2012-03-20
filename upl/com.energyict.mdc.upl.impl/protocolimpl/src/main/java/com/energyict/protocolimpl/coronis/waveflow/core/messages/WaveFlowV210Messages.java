@@ -110,6 +110,17 @@ public class WaveFlowV210Messages extends WaveFlowMessageParser {
         cat11.addMessageSpec(addBasicMsg("Reset backflow flag", "ResetApplicationStatusBit7", true));
         theCategories.add(cat11);
 
+        MessageCategorySpec cat12 = new MessageCategorySpec("Waveflow wakeup configuration");
+        cat12.addMessageSpec(addBasicMsgWithValue("Write wakeup system status word", "SetWakeUpSystemStatusWord", true));
+        cat12.addMessageSpec(addBasicMsgWithValue("Write default wakeup period (in seconds) ", "SetDefaultWakeUpPeriod", true));
+        cat12.addMessageSpec(addBasicMsgWithValue("Write start time (hour) for 1st time window", "SetStartTimeForTimeWindow1", true));
+        cat12.addMessageSpec(addBasicMsgWithValue("Write wakeup period for 1st time window (in seconds)", "SetWakeUpPeriodForTimeWindow1", true));
+        cat12.addMessageSpec(addBasicMsgWithValue("Write start time (hour) for 2nd time window", "SetStartTimeForTimeWindow2", true));
+        cat12.addMessageSpec(addBasicMsgWithValue("Write wakeup period for 2nd time window (in seconds)", "SetWakeUpPeriodForTimeWindow2", true));
+        cat12.addMessageSpec(addBasicMsgWithValue("Enable/disable time windows, by day of the week ", "SetEnableTimeWindowsByDayOfWeek", true));
+        cat12.addMessageSpec(addBasicMsgWithValue("Enable/disable wakeup periods, by day of the week", "SetEnableWakeUpPeriodsByDayOfWeek", true));
+        theCategories.add(cat12);
+
         return theCategories;
     }
 }

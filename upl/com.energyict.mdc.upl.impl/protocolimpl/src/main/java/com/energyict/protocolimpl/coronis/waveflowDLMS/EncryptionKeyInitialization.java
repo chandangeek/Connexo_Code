@@ -194,7 +194,7 @@ public class EncryptionKeyInitialization {
 	private final void validateResultCode(int resultCode) throws WaveFlowException {
 		switch(resultCode) {
 			case 0xFF: throw new WaveFlowDLMSException("Encryption key initialization error. Bad request format!");
-			default: return;
+            default: return;
 		}
 	}
 	

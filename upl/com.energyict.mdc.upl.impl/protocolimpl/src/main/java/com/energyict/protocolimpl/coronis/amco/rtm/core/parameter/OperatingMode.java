@@ -94,6 +94,20 @@ public class OperatingMode extends AbstractParameter {
         operationMode = operationMode | mode << 2;
     }
 
+    public int getDataLoggingMode() {
+        return (operationMode & 0x0C) >> 2;
+    }
+
+    public String getLoggingDescription() {
+        switch (getDataLoggingMode()) {
+            case 0: return "Data logging is stopped";
+            case 1: return "Logging in periodic time steps";
+            case 2: return "Weekly data logging";
+            case 3: return "Monthly data logging";
+            default: return "";
+        }
+    }
+
     public void setTamperDetection(int enable) {
         operationMode = operationMode & 0xFFEF;
         this.setMask(~0xFFEF);

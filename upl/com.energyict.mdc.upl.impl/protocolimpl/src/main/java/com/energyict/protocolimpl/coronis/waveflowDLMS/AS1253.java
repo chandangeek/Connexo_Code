@@ -66,7 +66,11 @@ public class AS1253 extends AbstractDLMS {
 		
 			objectEntries.put(METER_SERIAL_NUMBER,new ObjectEntry("Meter serial number",1));
 			objectEntries.put(ObisCode.fromString("1.1.1.8.0.255"),new ObjectEntry("Import active energy tarif 0",3));
-			objectEntries.put(ObisCode.fromString("1.1.2.8.0.255"),new ObjectEntry("Export active energy tarif 0",3));
+            objectEntries.put(ObisCode.fromString("1.1.1.8.1.255"),new ObjectEntry("Import active energy tarif 1",3));
+			objectEntries.put(ObisCode.fromString("1.1.1.8.2.255"),new ObjectEntry("Import active energy tarif 2",3));
+			objectEntries.put(ObisCode.fromString("1.1.1.8.3.255"),new ObjectEntry("Import active energy tarif 3",3));
+			objectEntries.put(ObisCode.fromString("1.1.1.8.4.255"),new ObjectEntry("Import active energy tarif 4",3));
+            objectEntries.put(ObisCode.fromString("1.1.2.8.0.255"),new ObjectEntry("Export active energy tarif 0",3));
 			objectEntries.put(ObisCode.fromString("1.1.3.8.0.255"),new ObjectEntry("Import reactive energy tarif 0",3));
 			objectEntries.put(ObisCode.fromString("1.1.9.6.1.255"),new ObjectEntry("Apparent maximum 1",4));
 			objectEntries.put(ObisCode.fromString("1.1.32.7.0.255"),new ObjectEntry("Phase 1 instantaneous voltage",3));

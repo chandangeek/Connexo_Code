@@ -63,12 +63,23 @@ public class ObisCodeMapper {
     private static final ObisCode OBISCODE_COMMAND_BUFFER = ObisCode.fromString("0.0.96.0.101.255");
     private static final ObisCode OBISCODE_BUBBLE_UP_START_HOUR = ObisCode.fromString("0.0.96.0.102.255");
     private static final ObisCode OBISCODE_RSSI = ObisCode.fromString("0.0.96.0.63.255");
+
     private static final String OBISCODE_PORT1 = "1.1.82.8.0.255";
     private static final String OBISCODE_PORT2 = "1.2.82.8.0.255";
     private static final String OBISCODE_PORT3 = "1.3.82.8.0.255";
     private static final String OBISCODE_PORT4 = "1.4.82.8.0.255";
 
+    private static final ObisCode OBISCODE_PROFILEDATA_INTERVAL = ObisCode.fromString("8.0.0.8.1.255");
+    private static final ObisCode OBISCODE_LOGGING_MODE = ObisCode.fromString("0.0.96.0.55.255");
+    private static final ObisCode OBISCODE_DATALOGGING_STARTHOUR = ObisCode.fromString("0.0.96.0.56.255");
+    private static final ObisCode OBISCODE_DATALOGGING_DAYOFWEEK = ObisCode.fromString("0.0.96.0.58.255");
+
     static {
+        registerMaps.put(OBISCODE_PROFILEDATA_INTERVAL, "Profile data interval");
+        registerMaps.put(OBISCODE_LOGGING_MODE, "Data logging mode");
+        registerMaps.put(OBISCODE_DATALOGGING_STARTHOUR, "Data logging start hour");
+        registerMaps.put(OBISCODE_DATALOGGING_DAYOFWEEK, "Data logging day of week/month");
+
         registerMaps.put(OBISCODE_REMAINING_BATTERY, "Available battery power in %");
         registerMaps.put(OBISCODE_APPLICATION_STATUS, "Application status");
         registerMaps.put(OBISCODE_OPERATION_MODE, "Operation mode");
@@ -158,6 +169,19 @@ public class ObisCodeMapper {
             } else if (obisCode.equals(OBISCODE_RSSI)) {
                 double value = rtm.getRadioCommandFactory().readRSSI().getRssiLevel();
                 return new RegisterValue(obisCode, new Quantity(value > 100 ? 100 : value, Unit.get("")), new Date());
+            } else if (obisCode.equals(OBISCODE_PROFILEDATA_INTERVAL)) {
+                int profileIntervalInSeconds = rtm.getParameterFactory().getProfileIntervalInSeconds();
+                return new RegisterValue(obisCode, new Quantity(profileIntervalInSeconds, Unit.get(BaseUnit.SECOND)), new Date());
+            } else if (obisCode.equals(OBISCODE_LOGGING_MODE)) {
+                OperatingMode operatingMode = rtm.getParameterFactory().readOperatingMode();
+                int mode = operatingMode.getDataLoggingMode();
+                return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(mode), Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, operatingMode.getLoggingDescription());
+            } else if (obisCode.equals(OBISCODE_DATALOGGING_STARTHOUR)) {
+                int hour = rtm.getParameterFactory().readTimeOfMeasurement();
+                return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(hour), Unit.get(BaseUnit.HOUR)), new Date());
+            } else if (obisCode.equals(OBISCODE_DATALOGGING_DAYOFWEEK)) {
+                int day = rtm.getParameterFactory().readDayOfWeek();
+                return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(day), Unit.get(BaseUnit.DAY)), new Date());
             } else if (obisCode.equals(OBISCODE_COMMAND_BUFFER)) {
                 String cmdBuffer = rtm.getParameterFactory().readPushCommandBuffer().getBuffer();
                 int cmd;

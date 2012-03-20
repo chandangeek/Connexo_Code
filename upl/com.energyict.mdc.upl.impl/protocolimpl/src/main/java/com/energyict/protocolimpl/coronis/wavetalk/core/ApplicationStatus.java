@@ -8,7 +8,7 @@ public class ApplicationStatus extends AbstractApplicationStatus {
 	
 	int status;
 	
-	ApplicationStatus(WaveFlow waveFlow) {
+	ApplicationStatus(AbstractWaveTalk waveFlow) {
 		super(waveFlow);
 	}
 	

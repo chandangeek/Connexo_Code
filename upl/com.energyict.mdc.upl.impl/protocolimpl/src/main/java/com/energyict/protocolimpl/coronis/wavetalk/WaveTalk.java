@@ -5,11 +5,10 @@ import com.energyict.protocol.*;
 import com.energyict.protocolimpl.coronis.wavetalk.core.*;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.Properties;
 
 
-public class WaveTalk extends WaveFlow {
+public class WaveTalk extends AbstractWaveTalk {
 
 	
 	/**
@@ -32,7 +31,7 @@ public class WaveTalk extends WaveFlow {
 	@Override
 	protected void doTheConnect() throws IOException {
 
-		getWaveFlowConnect().getEscapeCommandFactory().setAndVerifyWavecardWakeupLength(1100);
+		
 	}
 
 	@Override
@@ -43,16 +42,8 @@ public class WaveTalk extends WaveFlow {
 	}	
 	
 	@Override
-	public Date getTime() throws IOException {
-		//FIXME: use the correct way to readout time from a wavetalk
-		return new Date();
-	}
-	
-	
-	@Override
 	protected void doTheDisConnect() throws IOException {
-		getWaveFlowConnect().getEscapeCommandFactory().setAndVerifyWavecardWakeupLength(110);
-		
+
 	}
 
 	@Override

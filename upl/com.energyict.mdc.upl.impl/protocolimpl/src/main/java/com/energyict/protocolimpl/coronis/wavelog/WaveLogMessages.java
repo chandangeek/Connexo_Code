@@ -327,7 +327,7 @@ public class WaveLogMessages implements MessageProtocol {
         MessageAttributeSpec addAttribute = new MessageAttributeSpec(attr, true);
         tagSpec.add(addAttribute);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
+        msgVal.setValue(""); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -341,7 +341,7 @@ public class WaveLogMessages implements MessageProtocol {
         MessageAttributeSpec addAttribute2 = new MessageAttributeSpec(attr2, true);
         tagSpec.add(addAttribute2);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
+        msgVal.setValue(""); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -359,7 +359,7 @@ public class WaveLogMessages implements MessageProtocol {
         MessageAttributeSpec addAttribute4 = new MessageAttributeSpec(attr4, true);
         tagSpec.add(addAttribute4);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
+        msgVal.setValue(""); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -375,7 +375,7 @@ public class WaveLogMessages implements MessageProtocol {
         MessageAttributeSpec addAttribute3 = new MessageAttributeSpec(attr3, true);
         tagSpec.add(addAttribute3);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
+        msgVal.setValue(""); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;

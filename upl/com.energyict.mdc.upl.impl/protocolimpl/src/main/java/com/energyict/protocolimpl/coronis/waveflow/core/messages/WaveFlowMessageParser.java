@@ -32,7 +32,7 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
         MessageAttributeSpec addAttribute2 = new MessageAttributeSpec(attr2, true);
         tagSpec.add(addAttribute2);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
+        msgVal.setValue(""); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -59,7 +59,7 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
         MessageAttributeSpec addAttribute = new MessageAttributeSpec(attr, true);
         tagSpec.add(addAttribute);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
+        msgVal.setValue(""); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -88,7 +88,7 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
         MessageAttributeSpec thirdAttribute = new MessageAttributeSpec(attr3, true);
         tagSpec.add(thirdAttribute);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
+        msgVal.setValue(""); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -112,7 +112,7 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
         MessageAttributeSpec attrSpec7 = new MessageAttributeSpec(attr7, true);
         tagSpec.add(attrSpec7);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
+        msgVal.setValue(""); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -150,7 +150,7 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
         MessageAttributeSpec attrSpec14 = new MessageAttributeSpec(attr14, true);
         tagSpec.add(attrSpec14);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
+        msgVal.setValue(""); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -190,7 +190,7 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
         MessageAttributeSpec attrSpec15 = new MessageAttributeSpec(attr15, true);
         tagSpec.add(attrSpec15);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
+        msgVal.setValue(""); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -206,7 +206,7 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
         MessageAttributeSpec attrSpec3 = new MessageAttributeSpec(attr3, true);
         tagSpec.add(attrSpec3);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
+        msgVal.setValue(""); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -224,7 +224,7 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
         MessageAttributeSpec attrSpec4 = new MessageAttributeSpec(attr4, true);
         tagSpec.add(attrSpec4);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
+        msgVal.setValue(""); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -473,6 +473,22 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
                 return enableRisingBlockTariffs(messageEntry);
             } else if (messageEntry.getContent().indexOf("<EnableTimeOfUseTariffs") >= 0) {
                 return enableTimeOfUseTariffs(messageEntry);
+            } else if (messageEntry.getContent().indexOf("<SetWakeUpSystemStatusWord") >= 0) {
+                return setWakeUpSystemStatusWord(messageEntry);
+            } else if (messageEntry.getContent().indexOf("<SetDefaultWakeUpPeriod") >= 0) {
+                return setDefaultWakeUpPeriod(messageEntry);
+            } else if (messageEntry.getContent().indexOf("<SetStartTimeForTimeWindow1") >= 0) {
+                return setStartTimeForTimeWindow1(messageEntry);
+            } else if (messageEntry.getContent().indexOf("<SetWakeUpPeriodForTimeWindow1") >= 0) {
+                return setWakeUpPeriodForTimeWindow1(messageEntry);
+            } else if (messageEntry.getContent().indexOf("<SetStartTimeForTimeWindow2") >= 0) {
+                return setStartTimeForTimeWindow2(messageEntry);
+            } else if (messageEntry.getContent().indexOf("<SetWakeUpPeriodForTimeWindow2") >= 0) {
+                return setWakeUpPeriodForTimeWindow2(messageEntry);
+            } else if (messageEntry.getContent().indexOf("<SetEnableTimeWindowsByDayOfWeek") >= 0) {
+                return setEnableTimeWindowsByDayOfWeek(messageEntry);
+            } else if (messageEntry.getContent().indexOf("<SetEnableWakeUpPeriodsByDayOfWeek") >= 0) {
+                return setEnableWakeUpPeriodsByDayOfWeek(messageEntry);
             } else {
                 waveFlow.getLogger().severe("Unknown message, cannot execute");
                 return MessageResult.createFailed(messageEntry);
@@ -484,6 +500,92 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
             waveFlow.getLogger().severe("Message failed, " + e.getMessage());
             return MessageResult.createFailed(messageEntry);
         }
+    }
+
+    private MessageResult setWakeUpSystemStatusWord(MessageEntry messageEntry) throws IOException {
+        waveFlow.getLogger().info("************************* setWakeUpSystemStatusWord *************************");
+        int value = Integer.parseInt(stripOffTag(messageEntry.getContent()));
+        if (value > 3 || value < 0) {        //Range: 0, 1, 2 or 3
+            waveFlow.getLogger().severe("Error writing the wakeup system status word, should be in range 0 - 3");
+            return MessageResult.createFailed(messageEntry);
+        }
+        waveFlow.getParameterFactory().setWakeUpSystemStatusWord(value);
+        return MessageResult.createSuccess(messageEntry);
+    }
+
+    private MessageResult setStartTimeForTimeWindow2(MessageEntry messageEntry) throws IOException {
+        waveFlow.getLogger().info("************************* setStartTimeForTimeWindow2 *************************");
+        int value = Integer.parseInt(stripOffTag(messageEntry.getContent()));
+        if (value > 23 || value < 0) {
+            waveFlow.getLogger().severe("Error writing the start time for window 2, range is 0 - 23");
+            return MessageResult.createFailed(messageEntry);
+        }
+        waveFlow.getParameterFactory().setStartTimeForTimeWindow2(value);
+        return MessageResult.createSuccess(messageEntry);
+    }
+
+    private MessageResult setEnableWakeUpPeriodsByDayOfWeek(MessageEntry messageEntry) throws IOException {
+        waveFlow.getLogger().info("************************* setEnableWakeUpPeriodsByDayOfWeek *************************");
+        int value = Integer.parseInt(stripOffTag(messageEntry.getContent()));
+        if (value > 0xFF || value < 0) {
+            return MessageResult.createFailed(messageEntry);
+        }
+        waveFlow.getParameterFactory().setEnableWakeUpPeriodsByDayOfWeek(value);
+        return MessageResult.createSuccess(messageEntry);
+    }
+
+    private MessageResult setEnableTimeWindowsByDayOfWeek(MessageEntry messageEntry) throws IOException {
+        waveFlow.getLogger().info("************************* setEnableTimeWindowsByDayOfWeek *************************");
+        int value = Integer.parseInt(stripOffTag(messageEntry.getContent()));
+        if (value > 0xFF || value < 0) {
+            return MessageResult.createFailed(messageEntry);
+        }
+        waveFlow.getParameterFactory().setEnableTimeWindowsByDayOfWeek(value);
+        return MessageResult.createSuccess(messageEntry);
+    }
+
+    private MessageResult setWakeUpPeriodForTimeWindow2(MessageEntry messageEntry) throws IOException {
+        waveFlow.getLogger().info("************************* setWakeUpPeriodForTimeWindow2 *************************");
+        int value = Integer.parseInt(stripOffTag(messageEntry.getContent()));
+        if (value > 10 || value < 0) {
+            waveFlow.getLogger().severe("Error writing the wake up period for window 2, maximum is 10 seconds");
+            return MessageResult.createFailed(messageEntry);
+        }
+        waveFlow.getParameterFactory().setWakeUpPeriodForTimeWindow2(value);
+        return MessageResult.createSuccess(messageEntry);
+    }
+
+    private MessageResult setWakeUpPeriodForTimeWindow1(MessageEntry messageEntry) throws IOException {
+        waveFlow.getLogger().info("************************* setWakeUpPeriodForTimeWindow1 *************************");
+        int value = Integer.parseInt(stripOffTag(messageEntry.getContent()));
+        if (value > 10 || value < 0) {
+            waveFlow.getLogger().severe("Error writing the wake up period for window 1, maximum is 10 seconds");
+            return MessageResult.createFailed(messageEntry);
+        }
+        waveFlow.getParameterFactory().setWakeUpPeriodForTimeWindow1(value);
+        return MessageResult.createSuccess(messageEntry);
+    }
+
+    private MessageResult setDefaultWakeUpPeriod(MessageEntry messageEntry) throws IOException {
+        waveFlow.getLogger().info("************************* setDefaultWakeUpPeriod *************************");
+        int value = Integer.parseInt(stripOffTag(messageEntry.getContent()));
+        if (value > 10 || value < 0) {    //Range: max 10 seconds
+            waveFlow.getLogger().severe("Error writing the default wake up period, maximum is 10 seconds");
+            return MessageResult.createFailed(messageEntry);
+        }
+        waveFlow.getParameterFactory().setDefaultWakeUpPeriod(value);
+        return MessageResult.createSuccess(messageEntry);
+    }
+
+    private MessageResult setStartTimeForTimeWindow1(MessageEntry messageEntry) throws IOException {
+        waveFlow.getLogger().info("************************* setStartTimeForTimeWindow1 *************************");
+        int value = Integer.parseInt(stripOffTag(messageEntry.getContent()));
+        if (value > 23 || value < 0) {
+            waveFlow.getLogger().severe("Error writing the start time for window 1, range is 0 - 23");
+            return MessageResult.createFailed(messageEntry);
+        }
+        waveFlow.getParameterFactory().setStartTimeForTimeWindow1(value);
+        return MessageResult.createSuccess(messageEntry);
     }
 
     private MessageResult simpleRestartDataLogging(MessageEntry messageEntry) throws IOException {

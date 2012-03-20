@@ -64,6 +64,7 @@ public class ProfileDataReaderV210 {
             ExtendedIndexReading extendedIndexReading = waveFlowV1.getRadioCommandFactory().readExtendedIndexConfiguration();
             rawValues = extendedIndexReading.getLast4LoggedIndexes();
             lastLoggedValueDate = extendedIndexReading.getDateOfLastLoggedValue();
+            setProfileInterval(extendedIndexReading.getDataloggingMeasurementPeriod().getSamplingPeriodInSeconds());
         } else {
             DataloggingTable dataloggingTable = null;
             if (getNumberOfInputsUsed() == 1) {
@@ -197,8 +198,8 @@ public class ProfileDataReaderV210 {
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         EventStatusAndDescription translator = new EventStatusAndDescription(waveFlowV1);
 
-        boolean useExtendedIndexReading = waveFlowV1.usesInitialRFCommand();
-        if (!useExtendedIndexReading) {
+        boolean usesInitialRFCommand = waveFlowV1.usesInitialRFCommand();
+        if (!usesInitialRFCommand) {
             //Check the profile type. This defines the module's extra functionality, eg. backflow and reed fault detection, and thus the events to read out!
             ProfileType profileType = waveFlowV1.getParameterFactory().readProfileType();
 
@@ -270,27 +271,27 @@ public class ProfileDataReaderV210 {
         int applicationStatus = waveFlowV1.getParameterFactory().readApplicationStatus();
         if ((applicationStatus & 0x01) == 0x01) {
             Date eventDate = new Date();
-            if (!useExtendedIndexReading) {
+            if (!usesInitialRFCommand) {
                 eventDate = waveFlowV1.getParameterFactory().readBatteryLifeDateEnd();
             }
             meterEvents.add(new MeterEvent(eventDate, MeterEvent.BATTERY_VOLTAGE_LOW, EventStatusAndDescription.EVENTCODE_BATTERY_LOW, "Low battery warning"));
         }
         if ((applicationStatus & 0x02) == 0x02) {
             Date eventDate = new Date();
-            if (!useExtendedIndexReading) {
+            if (!usesInitialRFCommand) {
                 eventDate = waveFlowV1.getParameterFactory().readWireCutDetectionDate(0);
             }
             meterEvents.add(new MeterEvent(eventDate, translator.getEventCode(0x02), translator.getProtocolCodeForStatus(0x02), translator.getEventDescription(0x02)));
         }
         if ((applicationStatus & 0x04) == 0x04) {
             Date eventDate = new Date();
-            if (!useExtendedIndexReading) {
+            if (!usesInitialRFCommand) {
                 eventDate = waveFlowV1.getParameterFactory().readWireCutDetectionDate(1);
             }
             meterEvents.add(new MeterEvent(eventDate, MeterEvent.TAMPER, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_B, "Tamper (wirecut B)"));
         }
 
-        if (useExtendedIndexReading) {
+        if (usesInitialRFCommand) {
             if ((applicationStatus & 0x08) == 0x08) {
                 Date eventDate = new Date();
                 meterEvents.add(new MeterEvent(eventDate, MeterEvent.OTHER, translator.getProtocolCodeForLeakage(LeakageEvent.START, LeakageEvent.LEAKAGETYPE_RESIDUAL, LeakageEvent.A), "Leak"));
@@ -303,20 +304,31 @@ public class ProfileDataReaderV210 {
 
         if ((applicationStatus & 0x20) == 0x20) {
             Date eventDate = new Date();
-            if (!useExtendedIndexReading) {
-                eventDate = waveFlowV1.getParameterFactory().readWireCutDetectionDate(2);
+            if (!usesInitialRFCommand) {
+                ProfileType profileType = waveFlowV1.getParameterFactory().readProfileType();
+                if (profileType.isOfType4Iputs()) {
+                    eventDate = waveFlowV1.getParameterFactory().readWireCutDetectionDate(2);
+                } else {
+                    eventDate = waveFlowV1.getParameterFactory().readReedFaultDetectionDate(0);
+                }
             }
             meterEvents.add(new MeterEvent(eventDate, translator.getEventCode(0x20), translator.getProtocolCodeForStatus(0x20), translator.getEventDescription(0x20)));
         }
+
         if ((applicationStatus & 0x40) == 0x40) {
             Date eventDate = new Date();
-            if (!useExtendedIndexReading) {
-                eventDate = waveFlowV1.getParameterFactory().readWireCutDetectionDate(3);
+            if (!usesInitialRFCommand) {
+                ProfileType profileType = waveFlowV1.getParameterFactory().readProfileType();
+                if (profileType.isOfType4Iputs()) {
+                    eventDate = waveFlowV1.getParameterFactory().readWireCutDetectionDate(3);
+                } else {
+                    eventDate = waveFlowV1.getParameterFactory().readReedFaultDetectionDate(1);
+                }
             }
-            meterEvents.add(new MeterEvent(eventDate, MeterEvent.TAMPER, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_D, "Tamper (wirecut D)"));
+            meterEvents.add(new MeterEvent(eventDate, MeterEvent.TAMPER, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_D, "Tamper (wirecut D"));
         }
 
-        if (useExtendedIndexReading) {
+        if (usesInitialRFCommand) {
             if ((applicationStatus & 0x80) == 0x80) {
                 Date eventDate = new Date();
                 meterEvents.add(new MeterEvent(eventDate, MeterEvent.OTHER, translator.getProtocolCodeForSimpleBackflow(0), "Backflow detected"));
@@ -329,7 +341,7 @@ public class ProfileDataReaderV210 {
     private List<MeterEvent> checkValid(List<MeterEvent> meterEvents, Date lastReading, Date toDate) {
         List<MeterEvent> result = new ArrayList<MeterEvent>();
         for (MeterEvent meterEvent : meterEvents) {
-            if (meterEvent.getTime().after(lastReading) && (meterEvent.getTime().before(toDate)  || waveFlowV1.usesInitialRFCommand())) {
+            if (meterEvent.getTime().after(lastReading) && (meterEvent.getTime().before(toDate) || waveFlowV1.usesInitialRFCommand())) {
                 result.add(meterEvent);
             }
         }

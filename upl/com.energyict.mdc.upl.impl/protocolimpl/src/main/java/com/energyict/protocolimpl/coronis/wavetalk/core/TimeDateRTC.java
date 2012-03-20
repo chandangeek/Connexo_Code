@@ -23,7 +23,7 @@ public class TimeDateRTC extends AbstractRadioCommand {
 		this.calendar = calendar;
 	}
 
-	TimeDateRTC(WaveFlow waveFlow) {
+	TimeDateRTC(AbstractWaveTalk waveFlow) {
 		super(waveFlow);
 	}
 
@@ -46,7 +46,7 @@ public class TimeDateRTC extends AbstractRadioCommand {
 			return new byte[0];
 		}
 		else {
-			return TimeDateRTCParser.prepare(calendar);
+			return TimeDateRTCParser.prepare6(calendar);
 		}
 	}
 

@@ -1,7 +1,8 @@
 package com.energyict.protocolimpl.coronis.wavetalk;
 
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.coronis.wavetalk.core.CommonObisCodeMapper;
 
 import java.io.IOException;
@@ -53,28 +54,7 @@ public class ObisCodeMapper {
     }
     
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
-    	try {
-/*	    	if ((obisCode.equals(ObisCode.fromString("1.1.82.8.0.255"))) || 
-	    		(obisCode.equals(ObisCode.fromString("1.2.82.8.0.255"))) ||
-	    		(obisCode.equals(ObisCode.fromString("1.3.82.8.0.255"))) ||
-	    		(obisCode.equals(ObisCode.fromString("1.4.82.8.0.255")))) { // Input A..D
-	    		
-	    		
-	    		int inputId = obisCode.getB()-1;
-	    		BigDecimal bd = new BigDecimal(waveTalk.getRadioCommandFactory().readCurrentReading().getReadings()[inputId]);
-	    		return new RegisterValue(obisCode,new Quantity(bd, Unit.get("")),new Date());
-	    	}	    	
-	    	else */
-    		{
-	    		return waveTalk.getCommonObisCodeMapper().getRegisterValue(obisCode);
-	    	}
-	    	
-		} catch (IOException e) {
-			
-			throw new NoSuchRegisterException("Register with obis code ["+obisCode+"] has an error ["+e.getMessage()+"]!");
-			
-		}
-
+        return waveTalk.getCommonObisCodeMapper().getRegisterValue(obisCode);
     }
-	
+
 }

@@ -64,7 +64,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 	}
 
 
-	AbstractParameter(WaveFlow waveFlow) {
+	AbstractParameter(AbstractWaveTalk waveFlow) {
 		super(waveFlow);
 	}
 	

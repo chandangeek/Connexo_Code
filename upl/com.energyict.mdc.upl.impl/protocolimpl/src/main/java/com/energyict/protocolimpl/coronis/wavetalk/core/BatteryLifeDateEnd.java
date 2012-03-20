@@ -16,7 +16,7 @@ public class BatteryLifeDateEnd extends AbstractParameter {
 		return calendar;
 	}
 
-	BatteryLifeDateEnd(WaveFlow waveFlow) {
+	BatteryLifeDateEnd(AbstractWaveTalk waveFlow) {
 		super(waveFlow);
 	}
 

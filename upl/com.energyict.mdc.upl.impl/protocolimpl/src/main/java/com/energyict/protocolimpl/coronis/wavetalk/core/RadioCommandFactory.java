@@ -5,17 +5,21 @@ import java.io.IOException;
 public class RadioCommandFactory {
 
 	
-	private WaveFlow waveFlow;
+	private AbstractWaveTalk waveFlow;
 
 	// cached
 	private FirmwareVersion firmwareVersion=null;
 	
-	RadioCommandFactory(WaveFlow waveFlow) {
+	RadioCommandFactory(AbstractWaveTalk waveFlow) {
 		this.waveFlow = waveFlow;
 	}
 
+    public double readRSSI() throws IOException {
+        RSSILevel rssiLevel = new RSSILevel(waveFlow);
+        rssiLevel.set();
+        return rssiLevel.getRssiLevel();
+    }
 
-	
 	final FirmwareVersion readFirmwareVersion() throws IOException {
 		if (firmwareVersion == null) {
 			firmwareVersion = new FirmwareVersion(waveFlow);

@@ -6,7 +6,7 @@ import java.io.*;
 
 public class FirmwareVersion extends AbstractRadioCommand {
 
-	FirmwareVersion(WaveFlow waveFlow) {
+	FirmwareVersion(AbstractWaveTalk waveFlow) {
 		super(waveFlow);
 	}
 

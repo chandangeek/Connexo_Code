@@ -49,7 +49,7 @@ public class OperatingMode extends AbstractParameter {
 	}
 
 	
-	OperatingMode(WaveFlow waveFlow) {
+	OperatingMode(AbstractWaveTalk waveFlow) {
 		super(waveFlow);
 	}
 	

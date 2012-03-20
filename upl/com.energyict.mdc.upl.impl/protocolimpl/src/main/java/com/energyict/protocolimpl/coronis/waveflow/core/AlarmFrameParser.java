@@ -122,7 +122,7 @@ public class AlarmFrameParser {
             events.add(new MeterEvent(date, MeterEvent.BATTERY_VOLTAGE_LOW, EventStatusAndDescription.EVENTCODE_BATTERY_LOW, "End of battery life"));
         }
         if ((status & 0x20) == 0x20) {
-            events.add(new MeterEvent(date, MeterEvent.TAMPER, translator.getProtocolCodeForWireCut(status & 0x03) , "Tamper (wirecut " + input + ")"));
+            events.add(new MeterEvent(date, translator.getEventCode(0x20), translator.getProtocolCodeForStatus(0x20), translator.getEventDescription(0x20)));
         }
         if ((status & 0x40) == 0x40) {
             events.add(new MeterEvent(date, MeterEvent.OTHER, translator.getProtocolCodeForLeakage(LeakageEvent.END, LeakageEvent.LEAKAGETYPE_RESIDUAL, input), "Leak on input " + input + ". Flow is " + flow + "."));

@@ -9,7 +9,7 @@ import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import java.io.*;
 import java.util.*;
 
-public class TransparentGet extends AbstractTransparentObjectAccess {
+public class TransparentGet extends AbstractTransparentObjectAccess implements DLMSCOSEMGlobals {
 	
 	private final ObjectInfo objectInfo;
 	
@@ -316,7 +316,7 @@ public class TransparentGet extends AbstractTransparentObjectAccess {
 		int CAPTURE_FROM_OFFSET = 21;
 		int CAPTURE_TO_OFFSET = 35;
 
-		intreq[CAPTURE_FROM_OFFSET] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_FROM_OFFSET] = TYPEDESC_OCTET_STRING;
 		intreq[CAPTURE_FROM_OFFSET + 1] = 12; // length
 		intreq[CAPTURE_FROM_OFFSET + 2] = (byte) (fromCalendar.get(Calendar.YEAR) >> 8);
 		intreq[CAPTURE_FROM_OFFSET + 3] = (byte) fromCalendar.get(Calendar.YEAR);
@@ -340,7 +340,7 @@ public class TransparentGet extends AbstractTransparentObjectAccess {
 			intreq[CAPTURE_FROM_OFFSET + 13] = 0x00;
 		}
 
-		intreq[CAPTURE_TO_OFFSET] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_TO_OFFSET] = TYPEDESC_OCTET_STRING;
 		intreq[CAPTURE_TO_OFFSET + 1] = 12; // length
 		intreq[CAPTURE_TO_OFFSET + 2] = toCalendar != null ? (byte) (toCalendar.get(Calendar.YEAR) >> 8) : (byte) 0xFF;
 		intreq[CAPTURE_TO_OFFSET + 3] = toCalendar != null ? (byte) toCalendar.get(Calendar.YEAR) : (byte) 0xFF;
