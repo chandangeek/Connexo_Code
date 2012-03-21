@@ -184,7 +184,7 @@ public class IdentificationResponseStructure extends AbstractTableQueryResponseS
      * @return
      */
     public String getMeterSerialNumber() {
-        return getAnCont().getValue(2).getStringValue();
+        return getAnCont().getValue(2).getStringValue().trim();
     }
 
     public AbstractCTRObject getCcode() {

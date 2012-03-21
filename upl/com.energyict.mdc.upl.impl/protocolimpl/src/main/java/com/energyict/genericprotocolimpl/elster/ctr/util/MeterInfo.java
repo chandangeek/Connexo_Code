@@ -174,7 +174,7 @@ public class MeterInfo extends AbstractUtilObject {
                 if ((values != null) && (values.length > 0)) {
                     Object value = values[0].getValue();
                     if (value != null) {
-                        return value.toString();
+                        return value.toString().trim();
                     }
                 }
             }
@@ -200,7 +200,7 @@ public class MeterInfo extends AbstractUtilObject {
                     if ((values != null) && (values.length > 1)) {
                         Object value = values[1].getValue();
                         if (value != null) {
-                            return value.toString();
+                            return value.toString().trim();
                         }
                     }
                 }
