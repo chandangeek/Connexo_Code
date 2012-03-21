@@ -3,7 +3,8 @@ package com.energyict.genericprotocolimpl.elster.ctr.messaging;
 import com.energyict.cbo.BusinessException;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.StoreObject;
-import com.energyict.genericprotocolimpl.elster.ctr.GprsRequestFactory;
+import com.energyict.genericprotocolimpl.elster.ctr.RequestFactory;
+import com.energyict.genericprotocolimpl.elster.ctr.SmsRequestFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRFirmwareUpgradeTimeOutException;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
@@ -23,11 +24,11 @@ import java.util.logging.Logger;
 public class MTU155MessageExecutor extends GenericMessageExecutor {
 
     private Logger logger;
-    private GprsRequestFactory factory;
+    private RequestFactory factory;
     private Rtu rtu;
     private StoreObject storeObject;
 
-    public MTU155MessageExecutor(Logger logger, GprsRequestFactory factory, Rtu rtu, StoreObject storeObject) {
+    public MTU155MessageExecutor(Logger logger, RequestFactory factory, Rtu rtu, StoreObject storeObject) {
         this.factory = factory;
         this.logger = logger;
         this.rtu = rtu;
@@ -96,7 +97,11 @@ public class MTU155MessageExecutor extends GenericMessageExecutor {
             pending = true;
         } finally {
             if (success) {
-                rtuMessage.confirm();
+                if (getFactory() instanceof SmsRequestFactory) {
+                    rtuMessage.setSent();
+                } else {
+                    rtuMessage.confirm();
+                }
                 getLogger().info("Message " + rtuMessage.displayString() + " has finished successfully.");
             } else if (pending) {
                 // Add "PendingUpgrade" to the message TrackingId.
@@ -121,7 +126,7 @@ public class MTU155MessageExecutor extends GenericMessageExecutor {
         return getFactory().getTimeZone();
     }
 
-    public GprsRequestFactory getFactory() {
+    public RequestFactory getFactory() {
         return factory;
     }
 

@@ -191,6 +191,7 @@ public class MTU155Discover {
             shadow.setExternalName(createExternalName());
             shadow.setSerialNumber(meterSerial);
             shadow.setDeviceId(mtuSerial);
+            shadow.setNodeAddress(pdr);
             shadow.setDialHomeId(pdr);
             shadow.setIpAddress(getRequestFactory().getIPAddress());
             shadow.getProperties().setProperty(PULSE_WEIGHT_VM, weightVm.getAmount().toString());
@@ -462,7 +463,7 @@ public class MTU155Discover {
      *
      * @return the GprsRequestFactory from the mtu155 protocol
      */
-    private GprsRequestFactory getRequestFactory() {
+    private RequestFactory getRequestFactory() {
         return mtu155.getRequestFactory();
     }
 

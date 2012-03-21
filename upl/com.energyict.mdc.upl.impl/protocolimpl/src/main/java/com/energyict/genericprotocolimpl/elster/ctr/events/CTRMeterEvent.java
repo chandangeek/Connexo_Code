@@ -1,6 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr.events;
 
-import com.energyict.genericprotocolimpl.elster.ctr.GprsRequestFactory;
+import com.energyict.genericprotocolimpl.elster.ctr.RequestFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
 import com.energyict.genericprotocolimpl.elster.ctr.info.DeviceStatus;
@@ -26,12 +26,12 @@ import static com.energyict.protocolimpl.utils.ProtocolTools.getIntFromByte;
  */
 public class CTRMeterEvent {
 
-    private final GprsRequestFactory requestFactory;
+    private final RequestFactory requestFactory;
     private CTRAbstractValue[][] eventRecords;
     private List<CTRAbstractValue[]> allEventRecords = new ArrayList();
     private final TimeZone timeZone;
 
-    public CTRMeterEvent(GprsRequestFactory requestFactory) {
+    public CTRMeterEvent(RequestFactory requestFactory) {
         this.requestFactory = requestFactory;
         this.timeZone = requestFactory.getTimeZone();
     }
@@ -41,7 +41,7 @@ public class CTRMeterEvent {
         this.timeZone = timeZone;
     }
 
-    public GprsRequestFactory getRequestFactory() {
+    public RequestFactory getRequestFactory() {
         return requestFactory;
     }
 

@@ -29,7 +29,7 @@ public class ObisCodeMapper {
 
     private Logger logger;
     private List<CTRRegisterMapping> registerMapping = new ArrayList<CTRRegisterMapping>();
-    private final GprsRequestFactory requestFactory;
+    private final RequestFactory requestFactory;
     private MeterAmrLogging meterAmrLogging;
 
     private TableDECFQueryResponseStructure tableDECF;
@@ -52,7 +52,7 @@ public class ObisCodeMapper {
         return registerMapping;
     }
 
-    public ObisCodeMapper(GprsRequestFactory requestFactory, MeterAmrLogging meterAmrLogging) {
+    public ObisCodeMapper(RequestFactory requestFactory, MeterAmrLogging meterAmrLogging) {
         this.requestFactory = requestFactory;
         this.meterAmrLogging = meterAmrLogging;
         initRegisterMapping();
@@ -525,7 +525,7 @@ public class ObisCodeMapper {
      *
      * @return the request factory
      */
-    private GprsRequestFactory getRequestFactory() {
+    private RequestFactory getRequestFactory() {
         return requestFactory;
     }
 

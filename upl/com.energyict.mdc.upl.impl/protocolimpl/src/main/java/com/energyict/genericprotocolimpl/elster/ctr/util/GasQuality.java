@@ -1,6 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr.util;
 
-import com.energyict.genericprotocolimpl.elster.ctr.GprsRequestFactory;
+import com.energyict.genericprotocolimpl.elster.ctr.RequestFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
@@ -52,7 +52,7 @@ public class GasQuality extends AbstractUtilObject {
 
     private List<AbstractCTRObject> ctrObjectList;
 
-    public GasQuality(GprsRequestFactory requestFactory, Logger logger) {
+    public GasQuality(RequestFactory requestFactory, Logger logger) {
         super(requestFactory, logger);
     }
 

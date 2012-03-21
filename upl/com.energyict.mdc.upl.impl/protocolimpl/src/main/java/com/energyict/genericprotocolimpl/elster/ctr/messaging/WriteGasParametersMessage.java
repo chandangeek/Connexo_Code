@@ -76,7 +76,7 @@ public class WriteGasParametersMessage extends AbstractMTU155Message {
             SealConfig sealConfig = new SealConfig(getFactory());
             sealConfig.breakAndRestoreSeal(SealStatusBit.REMOTE_CONFIG_ANALYSIS);
             Data data = getFactory().writeRegister(AttributeType.getQualifierAndValue(), 7, getRawData(gasDensity, airDensity, relDensity, n2Percentage, co2Percentage, h2Percentage, hcv));
-            if (data instanceof NackStructure) {
+            if ((data != null) && data instanceof NackStructure) {
                 throw new CTRException("Received NACK from device.");
             }
         } catch (CTRException e) {

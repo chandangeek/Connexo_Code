@@ -16,6 +16,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.util.MeterInfo;
 import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.*;
+import com.energyict.mdw.shadow.CommunicationSchedulerShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
@@ -42,7 +43,9 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
 
     private final StoreObject storeObject = new StoreObject();
     private final MTU155Properties properties = new MTU155Properties();
-    private GprsRequestFactory requestFactory;
+    private RequestFactory requestFactory;
+    private boolean isOutboundSmsProfile;
+    private OutboundSmsHandler outboundSmsHandler;
     private ObisCodeMapper obisCodeMapper;
     private Rtu rtu;
     private MeterAmrLogging meterAmrLogging;
@@ -95,19 +98,25 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
     protected void doExecute() throws BusinessException, SQLException {
 
         try {
-            getProtocolProperties().addProperties(getPropertiesFromProtocolClass());
-            log("Incomming TCP connection from: " + getRequestFactory().getIPAddress());
-            updateRequestFactory();
+            isOutboundSmsProfile = getOutboundSmsHandler().isOutboundSmsProfile(getCommunicationScheduler());
+            if (isOutboundSmsProfile) {
+                getOutboundSmsHandler().doExecute(getCommunicationScheduler());
+            } else {
 
-            logMeterInfo();
+                getProtocolProperties().addProperties(getPropertiesFromProtocolClass());
+                log("Incomming TCP connection from: " + getRequestFactory().getIPAddress());
+                updateRequestFactory();
 
-            this.rtu = identifyAndGetRtu();
-            log("Rtu with name '" + getRtu().getName() + "' connected successfully.");
-            getProtocolProperties().addProperties(rtu.getProtocol().getProperties());
-            getProtocolProperties().addProperties(rtu.getProperties());
-            updateRequestFactory();
-            checkSerialNumbers();
-            readDevice();
+                logMeterInfo();
+
+                this.rtu = identifyAndGetRtu();
+                log("Rtu with name '" + getRtu().getName() + "' connected successfully.");
+                getProtocolProperties().addProperties(rtu.getProtocol().getProperties());
+                getProtocolProperties().addProperties(rtu.getProperties());
+                updateRequestFactory();
+                checkSerialNumbers();
+                readDevice();
+            }
         } catch (CTRException e) {
             severe(e.getMessage());
         } finally {
@@ -143,8 +152,8 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
 
         log("MTU155 with pdr='" + pdr + "'");
         log("Serial number of the MTU155='" + meterInfo.getMTUSerialNumber() + "'");
-        log("Serial number of the converter='"+ meterInfo.getConverterSerialNumber() +"'");
-        log("Serial number of the gas meter='" + structure.getMeterSerialNumber() +"'");
+        log("Serial number of the converter='" + meterInfo.getConverterSerialNumber() + "'");
+        log("Serial number of the gas meter='" + (structure != null ? structure.getMeterSerialNumber() : null) + "'");
     }
 
     /**
@@ -227,7 +236,7 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
         boolean connectionOk = true;
         for (CommunicationScheduler cs : communicationSchedulers) {
             String csName = cs.displayString();
-            if (!SmsHandler.isSmsProfile(cs)) {
+            if (!SmsHandler.isSmsProfile(cs)) {  //If schedule contains sms in the name (both for outbound / inbound) the schedule will be skipped.
                 meterAmrLogging = null;
                 if (cs.getNextCommunication() == null) {
                     log("CommunicationScheduler '" + csName + "' nextCommunication is 'null'. Skipping.");
@@ -269,7 +278,7 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
         }
     }
 
-    private void storeStartTime() {
+    public void storeStartTime() {
         this.startTime = System.currentTimeMillis();
     }
 
@@ -515,7 +524,7 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
      *
      * @return
      */
-    private String getMeterSerialNumberFromRtu() {
+    public String getMeterSerialNumberFromRtu() {
         if ((getRtu() != null) && (getRtu().getSerialNumber() != null)) {
             return getRtu().getSerialNumber().trim();
         } else {
@@ -605,11 +614,15 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
 
     }
 
-    private Rtu getRtu() {
+    public Rtu getRtu() {
         return rtu;
     }
 
-    private StoreObject getStoreObject() {
+    public void setRtu(Rtu rtu) {
+        this.rtu = rtu;
+    }
+
+    public StoreObject getStoreObject() {
         return storeObject;
     }
 
@@ -622,7 +635,7 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
      *
      * @param commSchedule
      */
-    private void logSuccess(CommunicationScheduler commSchedule) {
+    public void logSuccess(CommunicationScheduler commSchedule) {
         List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
         journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, getConnectTime()));
         journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + getRtu().toString() + "]"));
@@ -663,8 +676,16 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
         journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + getRtu().toString() + "]"));
         journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "" + getTimeDifference()));
         journal.add(new AmrJournalEntry(AmrJournalEntry.CC_PROTOCOLERROR));
-        journal.addAll(getMeterAmrLogging().getJournalEntries());
         try {
+            // If the schedule has an SMS fallback schedule set, we should trigger it - for SMS schedules no fallback is possible
+            if (commSchedule.getFallback() != null && !SmsHandler.isSmsProfile(commSchedule)) {
+                severe("The fallback schedule " + commSchedule.getFallback().getCommunicationProfile().getName() + " will be triggered.");
+                CommunicationSchedulerShadow shadow = commSchedule.getFallback().getShadow();
+                commSchedule.getFallback().update(shadow);
+                shadow.setNextCommunication(new Date());
+            }
+
+            journal.addAll(getMeterAmrLogging().getJournalEntries());
             commSchedule.journal(journal);
             commSchedule.logFailure(new Date(), "");
         } catch (SQLException e) {
@@ -719,21 +740,36 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
     /**
      * @return
      */
-    public GprsRequestFactory getRequestFactory() {
+    public RequestFactory getRequestFactory() {
         if (requestFactory == null) {
-            requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties(), getTimeZone());
+            if (isOutboundSmsProfile) {
+                requestFactory = new SmsRequestFactory(getLink(),  getLogger(),  getProtocolProperties(),  getTimeZone(), getPhoneNumber());
+            }  else {
+                requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties(), getTimeZone());
+            }
         }
         return requestFactory;
+    }
+
+    public OutboundSmsHandler getOutboundSmsHandler() {
+        if (outboundSmsHandler == null) {
+            outboundSmsHandler = new OutboundSmsHandler(this);
+        }
+        return outboundSmsHandler;
     }
 
     /**
      * @return the meter's {@link TimeZone}
      */
-    private TimeZone getTimeZone() {
+    public TimeZone getTimeZone() {
         if (getRtu() == null) {
             return TimeZone.getDefault();
         }
         return getRtu().getDeviceTimeZone();
+    }
+
+    public String getPhoneNumber() {
+        return getRtu().getPhoneNumber();
     }
 
     @Override
@@ -862,18 +898,14 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
 
     }
 
-    /*
+    /**
      * This method is needed to describe the capabilities supported by the protocol,
      * and is used to create a fitting interface in EIServer.
      *
      * @return The {@link com.energyict.protocol.messaging.FirmwareUpdateMessagingConfig} containing all the capabillities of the protocol.
      */
     public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
-        FirmwareUpdateMessagingConfig firmwareUpdateMessagingConfig = new FirmwareUpdateMessagingConfig();
-        firmwareUpdateMessagingConfig.setSupportsUserFiles(true);
-        firmwareUpdateMessagingConfig.setSupportsUrls(false);
-        firmwareUpdateMessagingConfig.setSupportsUserFileReferences(false);
-        return firmwareUpdateMessagingConfig;
+        return new FirmwareUpdateMessagingConfig(false, true, true);
     }
 
     /**

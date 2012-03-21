@@ -94,7 +94,6 @@ public class SmsHandler implements MessageHandler {
      * @throws SQLException
      */
     public void processMessage(Sms sms) throws JMSException, BusinessException, SQLException {
-        long curMil = System.currentTimeMillis();
         this.sms = sms;
         doExecute();
         storeObject = null; //reset
@@ -157,20 +156,24 @@ public class SmsHandler implements MessageHandler {
      * @throws SQLException
      * @throws LinkException
      */
-    private void processSmsFrame(SMSFrame smsFrame) throws BusinessException, SQLException, LinkException {
+    private boolean processSmsFrame(SMSFrame smsFrame) throws BusinessException, SQLException, LinkException {
         List<CommunicationScheduler> communicationSchedulers = getRtu().getCommunicationSchedulers();
         if (communicationSchedulers.size() == 0) {
             log("Rtu '" + getRtu().getName() + "' has no CommunicationSchedulers. Skipping.");
         } else {
             for (CommunicationScheduler cs : communicationSchedulers) {
-                processSMSFrameSingleSchedule(smsFrame, cs);
+                if (processSMSFrameSingleSchedule(smsFrame, cs)) {
+                    return true;
             }
         }
     }
+        return false;
+    }
 
-    private void processSMSFrameSingleSchedule(SMSFrame smsFrame, CommunicationScheduler cs) {
+    private boolean processSMSFrameSingleSchedule(SMSFrame smsFrame, CommunicationScheduler cs) {
+        boolean csExecuted = false;
         String csName = cs.displayString();
-        if (isSmsProfile(cs)) {
+        if (isInboundSmsProfile(cs)) {
             meterAmrLogging = null;
             if (cs.getNextCommunication() == null) {
                 log("CommunicationScheduler '" + csName + "' nextCommunication is 'null'. Skipping.");
@@ -179,6 +182,7 @@ public class SmsHandler implements MessageHandler {
                 try {
                     cs.startCommunication();
                     cs.startReadingNow();
+                    csExecuted = true;
                     processSchedule(smsFrame, cs.getCommunicationProfile());
                     logSuccess(cs);
                 } catch (CTRException e) {
@@ -201,6 +205,7 @@ public class SmsHandler implements MessageHandler {
         } else {
             log("CommunicationScheduler '" + csName + "' is no SMS communication profile. The name should contain '" + SMS + "'. Skipping.");
         }
+        return csExecuted;
     }
 
     /**
@@ -247,6 +252,16 @@ public class SmsHandler implements MessageHandler {
         } else if (smsFrame.getData() instanceof TableDECQueryResponseStructure) {
             TableDECQueryResponseStructure data = (TableDECQueryResponseStructure) smsFrame.getData();
             parseAndStoreDECTableData(communicationProfile, pdr, data);
+        } else if (smsFrame.getData() instanceof AckStructure) {
+            AckStructure data = (AckStructure) smsFrame.getData();
+            String message = "Received ACK for rtu with id " +getRtu().getId() + " - ACK of function " + data.getFunctionCode().getFunction();
+            log(message);
+            getMeterAmrLogging().logInfo(message);
+        } else if (smsFrame.getData() instanceof NackStructure) {
+            NackStructure data = (NackStructure) smsFrame.getData();
+            String message = "Received NACK for rtu with id " +getRtu().getId() + " - NACK of function " + data.getFunctionCode().getFunction() + " - Reason: " + data.getReason();
+            logWarning(message);
+            getMeterAmrLogging().logInfo(message);
         } else {
             String message = "Unrecognized data structure in SMS. Expected array of event records, trace_C response or tableDEC(F) response.";
             logWarning(message);
@@ -524,7 +539,7 @@ public class SmsHandler implements MessageHandler {
             try {
                 rtu = CommonUtils.findDeviceByPhoneNumber(checkFormat(sms.getFrom()));     //try again, with other phone number format
             } catch (IOException e1) {
-                String message = "Failed to find a unique RTU with phone number " + sms.getFrom() + ". Process stopped.";
+                String message = "Failed to find a unique RTU with phone number " + sms.getFrom() + ". Process stopped. SMS message [from " + sms.getFrom() + "] will be dropped.";
                 logWarning(message);
                 getMeterAmrLogging().logInfo(message);
                 rtu = null;
@@ -536,7 +551,10 @@ public class SmsHandler implements MessageHandler {
             getProtocolProperties().addProperties(rtu.getProperties());
 
             try {
-                processSmsFrame(parseAndDecryptSms(this.sms));
+                if (!processSmsFrame(parseAndDecryptSms(this.sms))) {
+                    String message = "No active Inbound SMS CommunicationScheduler found. SMS message [from " + sms.getFrom() + "] will be dropped.";
+                    logWarning(message);
+                }
             } catch (LinkException e) {
                 String message = "An error occurred in the connection!"  + e.getMessage();
                 log(message);
@@ -585,5 +603,10 @@ public class SmsHandler implements MessageHandler {
     public static boolean isSmsProfile(CommunicationScheduler cs) {
         String displayName = cs != null ? cs.displayString() : null;
         return (displayName != null) && displayName.contains(SMS);
+    }
+
+    public static boolean isInboundSmsProfile(CommunicationScheduler cs) {
+        String displayName = cs != null ? cs.displayString() : null;
+        return (displayName != null) && displayName.contains(SMS) && cs.getModemPool().getInbound();
     }
 }

@@ -46,7 +46,7 @@ public class TariffDisablePassiveMessage extends AbstractMTU155Message {
         RawTariffScheme rawTariffScheme = new RawTariffScheme();
         byte[] rawData = ProtocolTools.concatByteArrays(new CTRObjectID(OBJECT_ID_FUTURE).getBytes(), rawTariffScheme.getBytes());
         Data ackOrNack = getFactory().executeRequest(ReferenceDate.getReferenceDate(2), WriteDataBlock.getRandomWDB(), new CTRObjectID(OBJECT_ID), rawData);
-        if (ackOrNack instanceof NackStructure) {
+        if ((ackOrNack != null) && ackOrNack instanceof NackStructure) {
             NackReason reason = ((NackStructure) ackOrNack).getReason();
             throw new CTRException("Unable to disable the tariff! Received NACK: " + (reason != null ? reason.getDescription() : "NACK reason was 'null'."));
         }

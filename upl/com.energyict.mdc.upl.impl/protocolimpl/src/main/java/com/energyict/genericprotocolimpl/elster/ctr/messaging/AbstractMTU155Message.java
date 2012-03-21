@@ -2,7 +2,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.messaging;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.genericprotocolimpl.common.StoreObject;
-import com.energyict.genericprotocolimpl.elster.ctr.GprsRequestFactory;
+import com.energyict.genericprotocolimpl.elster.ctr.RequestFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRFirmwareUpgradeTimeOutException;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.protocol.MessageEntry;
@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractMTU155Message {
 
-    private final GprsRequestFactory factory;
+    private final RequestFactory factory;
     private final Logger logger;
     private final Rtu rtu;
     private final StoreObject storeObject;
@@ -29,7 +29,7 @@ public abstract class AbstractMTU155Message {
         this(messageExecutor.getFactory(), messageExecutor.getLogger(), messageExecutor.getRtu(), messageExecutor.getStoreObject());
     }
 
-    public AbstractMTU155Message(GprsRequestFactory factory, Logger logger, Rtu rtu, StoreObject storeObject) {
+    public AbstractMTU155Message(RequestFactory factory, Logger logger, Rtu rtu, StoreObject storeObject) {
         this.factory = factory;
         this.logger = logger == null ? Logger.getLogger(getClass().getName()) : logger;
         this.rtu = rtu;
@@ -40,7 +40,7 @@ public abstract class AbstractMTU155Message {
         return (content.indexOf("<" + tag) >= 0);
     }
 
-    public GprsRequestFactory getFactory() {
+    public RequestFactory getFactory() {
         return factory;
     }
 

@@ -47,10 +47,6 @@ public class SecureGprsConnection extends GprsConnection {
         this(in, out, properties, null);
     }
 
-    public CTREncryption getCtrEncryption() {
-        return ctrEncryption;
-    }
-
     /**
      * Sends a given frame, and returns the meter response frame.
      * @param requestFrame: the given frame to send

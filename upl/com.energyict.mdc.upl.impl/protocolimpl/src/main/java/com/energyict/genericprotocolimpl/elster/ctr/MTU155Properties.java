@@ -28,6 +28,7 @@ public class MTU155Properties extends AbstractProtocolProperties {
     public static final String DEBUG = "Debug";
     public static final String FOLDER_EXTERNAL_NAME = "FolderExtName";
     public static final String RTU_TYPE = "RtuType";
+    public static final String SMS_QUEUE = "SmsQueue";
     public static final String CHANNEL_BACKLOG = "ChannelBacklog";
     public static final String FAST_DEPLOYMENT = "FastDeployment";
     public static final String SEND_END_OF_SESSION = "SendEndOfSession";
@@ -51,6 +52,7 @@ public class MTU155Properties extends AbstractProtocolProperties {
     public static final String DEFAULT_DEBUG = "0";
     public static final String DEFAULT_FOLDER_EXTERNAL_NAME = null;
     public static final String DEFAULT_RTU_TYPE = null;
+    public static final String DEFAULT_SMS_QUEUE = null;
     public static final String DEFAULT_CHANNEL_BACKLOG = "85";
     public static final String DEFAULT_FAST_DEPLOYMENT = "0";
     public static final String DEFAULT_SEND_END_OF_SESSION = "1";
@@ -64,13 +66,13 @@ public class MTU155Properties extends AbstractProtocolProperties {
         this(new Properties());
     }
 
-    public MTU155Properties(Properties properties) {
-        super(properties);
-    }
-
     @Override
     protected void doValidateProperties() throws MissingPropertyException, InvalidPropertyException {
 
+    }
+
+    public MTU155Properties(Properties properties) {
+        super(properties);
     }
 
     public List<String> getOptionalKeys() {
@@ -102,6 +104,7 @@ public class MTU155Properties extends AbstractProtocolProperties {
         required.add(KEYF);
         required.add(KEYT);
         required.add(RTU_TYPE);
+        required.add(SMS_QUEUE);
         return required;
     }
 
@@ -203,6 +206,11 @@ public class MTU155Properties extends AbstractProtocolProperties {
     @ProtocolProperty
     public String getRtuType() {
         return getStringValue(RTU_TYPE, DEFAULT_RTU_TYPE);
+    }
+
+    @ProtocolProperty
+    public String getSmsQueue() {
+        return getStringValue(SMS_QUEUE, DEFAULT_SMS_QUEUE);
     }
 
     /**

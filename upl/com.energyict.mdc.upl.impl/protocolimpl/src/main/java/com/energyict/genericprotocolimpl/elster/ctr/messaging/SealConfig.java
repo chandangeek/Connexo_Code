@@ -1,6 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr.messaging;
 
-import com.energyict.genericprotocolimpl.elster.ctr.GprsRequestFactory;
+import com.energyict.genericprotocolimpl.elster.ctr.*;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
@@ -23,12 +23,14 @@ public class SealConfig {
     private static final String BREAK_SEAL_STATUS = "11.0.6";
     private static final String RESTORE_SEAL_STATUS = "11.0.7";
 
-    private static final int DEACTIVATE_TIME = 1;
+    private static final int DEACTIVATE_TIME_GPRS = 1;
+    private static final int DEACTIVATE_TIME_SMS = 48;  // An sms can be delayed up to 48 hours.
+
     private static final int MAX_BREAK_TIME = 255;
-    private final GprsRequestFactory factory;
+    private final RequestFactory factory;
     private int sealStatus = -1;
 
-    public SealConfig(GprsRequestFactory factory) {
+    public SealConfig(RequestFactory factory) {
         this.factory = factory;
     }
 
@@ -47,7 +49,7 @@ public class SealConfig {
         return sealStatus;
     }
 
-    public GprsRequestFactory getFactory() {
+    public RequestFactory getFactory() {
         return factory;
     }
 
@@ -57,7 +59,9 @@ public class SealConfig {
      */
     public void breakAndRestoreSeal(SealStatusBit statusBit) throws CTRException {
         validateSealStatusBit(statusBit);
-        if (statusBit.isSealInteger(getSealStatus())) {
+        if (getFactory() instanceof SmsRequestFactory) {
+            breakSealTemporary(statusBit);
+        } else if (statusBit.isSealInteger(getSealStatus())) {
             breakSealTemporary(statusBit);
         }
     }
@@ -67,7 +71,7 @@ public class SealConfig {
      * @throws CTRException
      */
     public void breakSealTemporary(SealStatusBit statusBit) throws CTRException {
-        breakSealTemporary(statusBit, DEACTIVATE_TIME);
+        breakSealTemporary(statusBit, (getFactory() instanceof GprsRequestFactory) ? DEACTIVATE_TIME_GPRS : DEACTIVATE_TIME_SMS);
     }
 
     /**
@@ -78,7 +82,7 @@ public class SealConfig {
         validateSealStatusBit(statusBit);
         validateBreakTime(breakForThisTime);
         Data data = getFactory().executeRequest(new CTRObjectID(BREAK_SEAL_STATUS), new byte[]{(byte) statusBit.getBitNumber(), (byte) breakForThisTime});
-        if (!(data instanceof AckStructure)) {
+        if ((data != null) &&  !(data instanceof AckStructure)) {
             throw new CTRException("Unable to deactivateSealTemporary [" + statusBit + "]. Did not receive AckStructure but [" + data.getClass().getName() + "]");
         }
     }
@@ -90,7 +94,7 @@ public class SealConfig {
     public void breakSealPermanent(SealStatusBit statusBit) throws CTRException {
         validateSealStatusBit(statusBit);
         Data data = getFactory().executeRequest(new CTRObjectID(BREAK_SEAL_STATUS), new byte[]{(byte) statusBit.getBitNumber(), 0});
-        if (!(data instanceof AckStructure)) {
+        if ((data != null) &&  !(data instanceof AckStructure)) {
             throw new CTRException("Unable to deactivateSealPermanent [" + statusBit + "]. Did not receive AckStructure but [" + data.getClass().getName() + "]");
         }
     }
@@ -103,7 +107,7 @@ public class SealConfig {
     public void restoreSeal(SealStatusBit statusBit) throws CTRException {
         validateSealStatusBit(statusBit);
         Data data = getFactory().executeRequest(new CTRObjectID(RESTORE_SEAL_STATUS), new byte[]{(byte) statusBit.getBitNumber()});
-        if (!(data instanceof AckStructure)) {
+        if ((data != null) &&  !(data instanceof AckStructure)) {
             throw new CTRException("Unable to activateSeal [" + statusBit + "]. Did not receive AckStructure but [" + data.getClass().getName() + "]");
         }
     }

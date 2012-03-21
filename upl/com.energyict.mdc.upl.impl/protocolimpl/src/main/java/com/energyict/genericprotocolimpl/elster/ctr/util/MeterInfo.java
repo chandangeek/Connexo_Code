@@ -2,7 +2,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.util;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.genericprotocolimpl.elster.ctr.GprsRequestFactory;
+import com.energyict.genericprotocolimpl.elster.ctr.RequestFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
@@ -51,7 +51,7 @@ public class MeterInfo extends AbstractUtilObject {
     private long time;
     private int wdbCounter = 0x05;
 
-    public MeterInfo(GprsRequestFactory requestFactory, Logger logger, TimeZone timeZone) {
+    public MeterInfo(RequestFactory requestFactory, Logger logger, TimeZone timeZone) {
         super(requestFactory, logger);
         if (timeZone == null) {
             this.timeZone = TimeZone.getDefault();
@@ -61,7 +61,7 @@ public class MeterInfo extends AbstractUtilObject {
         }
     }
 
-    public MeterInfo(GprsRequestFactory requestFactory, Logger logger) {
+    public MeterInfo(RequestFactory requestFactory, Logger logger) {
         super(requestFactory, logger);
         this.timeZone = TimeZone.getDefault();
         getLogger().warning("No timezone given. Using default timeZone: [" + this.timeZone.getID() + "]");
@@ -133,7 +133,7 @@ public class MeterInfo extends AbstractUtilObject {
 
         try {
             Data ackOrNack = getRequestFactory().executeRequest(refDate, wdb, new CTRObjectID("11.0.1"), data);
-            if (ackOrNack instanceof NackStructure) {
+            if ((ackOrNack != null) && ackOrNack instanceof NackStructure) {
                 throw new CTRException("Unable to set the clock to ["+cal.getTime()+"]. Received NACK.");
             }
         } catch (CTRException e) {

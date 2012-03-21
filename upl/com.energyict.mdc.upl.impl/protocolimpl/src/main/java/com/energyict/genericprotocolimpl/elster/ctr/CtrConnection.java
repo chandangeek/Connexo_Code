@@ -1,5 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr;
 
+import com.energyict.genericprotocolimpl.elster.ctr.encryption.CTREncryption;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRConnectionException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.Frame;
 
@@ -11,5 +12,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.frame.Frame;
 public interface CtrConnection<F extends Frame> {
 
     F sendFrameGetResponse(F frame) throws CTRConnectionException;
+
+    CTREncryption getCTREncryption();
 
 }

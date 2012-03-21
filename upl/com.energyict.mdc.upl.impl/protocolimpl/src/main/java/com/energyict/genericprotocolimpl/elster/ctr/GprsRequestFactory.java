@@ -30,7 +30,7 @@ import static com.energyict.genericprotocolimpl.elster.ctr.structure.field.Write
  * Date: 12-okt-2010
  * Time: 11:04:01
  */
-public class GprsRequestFactory {
+public class GprsRequestFactory implements RequestFactory {
 
     private MeterInfo meterInfo;
     private GasQuality gasQuality;
@@ -78,7 +78,7 @@ public class GprsRequestFactory {
     }
 
     /**
-     * 
+     *
      * @param inputStream
      * @param outputStream
      * @param logger
@@ -143,7 +143,7 @@ public class GprsRequestFactory {
     }
 
     /**
-     * Reads a meter for identification 
+     * Reads a meter for identification
      * @return the meter's response
      * @throws CTRException
      */
@@ -211,7 +211,7 @@ public class GprsRequestFactory {
      * @param objectId: the id of the requested object
      * @param period: the interval period (e.g. 15 minutes)
      * @param startDate: the start date
-     * @param numberOfElements: the number of interval records that should be returned 
+     * @param numberOfElements: the number of interval records that should be returned
      * @return a request structure
      * @throws CTRParsingException
      */
@@ -627,7 +627,7 @@ public class GprsRequestFactory {
 
     /**
      * Queries for a decf table. Returns the meter response.
-     * @return the meter response, being a decf table 
+     * @return the meter response, being a decf table
      * @throws CTRException, if the meter's answer was not a decf table
      */
     public TableDECFQueryResponseStructure queryTableDECF() throws CTRException {

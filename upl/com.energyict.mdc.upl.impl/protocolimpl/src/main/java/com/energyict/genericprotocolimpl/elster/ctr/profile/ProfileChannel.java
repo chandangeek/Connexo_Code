@@ -1,8 +1,8 @@
 package com.energyict.genericprotocolimpl.elster.ctr.profile;
 
 import com.energyict.cbo.Unit;
-import com.energyict.genericprotocolimpl.elster.ctr.GprsRequestFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.MTU155Properties;
+import com.energyict.genericprotocolimpl.elster.ctr.RequestFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.*;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRObjectID;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.Trace_CQueryResponseStructure;
@@ -27,7 +27,7 @@ import static com.energyict.genericprotocolimpl.elster.ctr.profile.TraceCProfile
  */
 public class ProfileChannel {
 
-    private final GprsRequestFactory requestFactory;
+    private final RequestFactory requestFactory;
     private final Channel meterChannel;
 
     private TimeZone deviceTimeZone = null;
@@ -38,15 +38,15 @@ public class ProfileChannel {
     private final Calendar toCalendar;
     private final Calendar fromCalendar;
 
-    public ProfileChannel(GprsRequestFactory requestFactory, Channel meterChannel) {
+    public ProfileChannel(RequestFactory requestFactory, Channel meterChannel) {
         this(requestFactory, meterChannel, null);
     }
 
-    public ProfileChannel(GprsRequestFactory requestFactory, Channel meterChannel, Calendar forcedToCalendar) {
+    public ProfileChannel(RequestFactory requestFactory, Channel meterChannel, Calendar forcedToCalendar) {
         this(requestFactory, meterChannel, null, forcedToCalendar);
     }
 
-    public ProfileChannel(GprsRequestFactory requestFactory, Channel meterChannel, Calendar forcedFromCalendar, Calendar forcedToCalendar) {
+    public ProfileChannel(RequestFactory requestFactory, Channel meterChannel, Calendar forcedFromCalendar, Calendar forcedToCalendar) {
         this.requestFactory = requestFactory;
         this.meterChannel = meterChannel;
         this.fromCalendar = forcedFromCalendar == null ? getLastChannelInterval() : (Calendar) forcedFromCalendar.clone();
@@ -96,7 +96,7 @@ public class ProfileChannel {
      *
      * @return
      */
-    private GprsRequestFactory getRequestFactory() {
+    private RequestFactory getRequestFactory() {
         return requestFactory;
     }
 

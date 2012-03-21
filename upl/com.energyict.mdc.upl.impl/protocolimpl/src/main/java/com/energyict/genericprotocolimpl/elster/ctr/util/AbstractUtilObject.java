@@ -1,6 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.ctr.util;
 
-import com.energyict.genericprotocolimpl.elster.ctr.GprsRequestFactory;
+import com.energyict.genericprotocolimpl.elster.ctr.RequestFactory;
 
 import java.util.logging.Logger;
 
@@ -11,15 +11,15 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractUtilObject {
 
-    private final GprsRequestFactory requestFactory;
+    private final RequestFactory requestFactory;
     private Logger logger;
 
-    public AbstractUtilObject(GprsRequestFactory requestFactory, Logger logger) {
+    public AbstractUtilObject(RequestFactory requestFactory, Logger logger) {
         this.requestFactory = requestFactory;
         this.logger = logger;
     }
 
-    public GprsRequestFactory getRequestFactory() {
+    public RequestFactory getRequestFactory() {
         return requestFactory;
     }
 
