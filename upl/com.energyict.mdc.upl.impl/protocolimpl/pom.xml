@@ -30,6 +30,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bouncycastle-mod</artifactId>
+            <version>1.47b20.0-mod1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>xmodem</artifactId>
             <version>1.0.0</version>
