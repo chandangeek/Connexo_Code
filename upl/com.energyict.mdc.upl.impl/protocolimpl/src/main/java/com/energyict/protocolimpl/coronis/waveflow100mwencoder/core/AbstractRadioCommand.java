@@ -97,7 +97,7 @@ abstract public class AbstractRadioCommand {
 			}
 			else {
 				
-				if ((commandIdAck == (0x80 | EncoderRadioCommandId.EncoderDataloggingTable.getCommandId())) && 
+				if ((commandIdAck == (0x80 | EncoderRadioCommandId.EncoderDataloggingTable.getCommandId())) &&
 					(data.length == 2) && 
 					(WaveflowProtocolUtils.toInt(data[1]) == 0xff)) {
 					throw new WaveFlow100mwEncoderException("Datalogging not yet available...");

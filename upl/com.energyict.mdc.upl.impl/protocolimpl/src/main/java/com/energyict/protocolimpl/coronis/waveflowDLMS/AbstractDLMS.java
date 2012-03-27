@@ -384,7 +384,7 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
                 int PAIRING_RESULT_DATA_LENGTH = 2;
                 int PAIRING_RESULT_DATA_OFFSET = 3;
                 if (pairingResponse.length < 2) {
-                    getLogger().warning("Pairing result length is anvalid. Expected [9], received [" + pairingResponse.length + "], try [" + retry + "]...");
+                    getLogger().warning("Pairing result length is invalid. Expected [9], received [" + pairingResponse.length + "], try [" + retry + "]...");
                 } else {
                     if ((pairingResponse[PAIRING_RESULT_OFFFSET] > 0) && (WaveflowProtocolUtils.toInt(pairingResponse[PAIRING_RESULT_OFFFSET]) < 0xFD)) {
                         int length = pairingResponse[PAIRING_RESULT_DATA_LENGTH];

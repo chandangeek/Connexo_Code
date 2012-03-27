@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
@@ -69,6 +70,11 @@ public class TransparantObjectAccessFactory {
     	ts.setDataType(dataType);
     	invoke(ts);
 	}
-	
-	
+
+    public final void executeObjectAction(ObisCode obisCode, int methodNumber) throws IOException {
+        ObjectEntry disconnectControl = abstractDLMS.findObjectByObiscode(obisCode);
+        TransparentAction action = new TransparentAction(abstractDLMS, new ObjectInfo(methodNumber, disconnectControl.getClassId(), obisCode));
+        action.setDataType(new Integer8(0));
+        invoke(action);
+    }
 }

@@ -220,8 +220,8 @@ public class ObisCodeMapper {
 			AbstractDataType adt = abstractDLMS.getTransparantObjectAccessFactory().readObjectValue(obisCode);
 
             if (adt.isOctetString()) {
-                if (obisCode.equals(obisCode.fromString("1.1.97.97.1.255")) || obisCode.equals(obisCode.fromString("1.1.97.97.2.255")) ||
-                        obisCode.equals(obisCode.fromString("1.1.97.97.255.255")) || obisCode.equals(obisCode.fromString("1.1.97.97.3.255"))) {
+                if (obisCode.equals(ObisCode.fromString("1.1.96.3.0.255")) || obisCode.equals(ObisCode.fromString("1.1.97.97.1.255")) || obisCode.equals(ObisCode.fromString("1.1.97.97.2.255")) ||
+                        obisCode.equals(ObisCode.fromString("1.1.97.97.255.255")) || obisCode.equals(ObisCode.fromString("1.1.97.97.3.255"))) {
                     return new RegisterValue(obisCode, ProtocolUtils.outputHexString(adt.getOctetString().getOctetStr()));
                 } else {
                     return new RegisterValue(obisCode, adt.getOctetString().stringValue() + " [" + ProtocolUtils.outputHexString(adt.getOctetString().getOctetStr()) + "]");

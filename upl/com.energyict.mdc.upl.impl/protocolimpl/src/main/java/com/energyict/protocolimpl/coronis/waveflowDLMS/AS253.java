@@ -96,7 +96,9 @@ public class AS253 extends AbstractDLMS {
 			objectEntries.put(ObisCode.fromString("1.1.0.9.2.255"),new ObjectEntry("Meter date",1));
 			objectEntries.put(ObisCode.fromString("1.1.0.9.1.255"),new ObjectEntry("Meter time",1));
 			objectEntries.put(ObisCode.fromString("1.1.0.0.0.255"),new ObjectEntry("Utility Id",1));
-			
+
+			objectEntries.put(ObisCode.fromString("0.0.96.3.10.255"),new ObjectEntry("Disconnect control", 70));
+
 			objectEntries.put(LOG_PROFILE,new ObjectEntry("Logbook",7));
 			objectEntries.put(LOAD_PROFILE_PULSE_VALUES,new ObjectEntry("Load profile non cumulative engineering values",7));
 			objectEntries.put(OBJECT_LIST,new ObjectEntry("Object list",15));

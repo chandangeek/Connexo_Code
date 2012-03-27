@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
@@ -8,17 +9,14 @@ import java.io.IOException;
 import java.util.*;
 
 public class WaveFlowDLMSWMessages implements MessageProtocol {
-	
-	 AbstractDLMS abstractDLMS;
+
+    private static final ObisCode DISCONNECT_OBISCODE = ObisCode.fromString("0.0.96.3.10.255");
+    AbstractDLMS abstractDLMS;
 	
      WaveFlowDLMSWMessages(AbstractDLMS abstractDLMS) {
 	   this.abstractDLMS = abstractDLMS;
 	 }
 
-     private final String stripOffTag(String content) {
- 	   return content.substring(content.indexOf(">")+1,content.lastIndexOf("<"));
-     }
-    
 	 public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
 		try {
 			if (messageEntry.getContent().indexOf("<PairMeter")>=0) {
@@ -36,6 +34,16 @@ public class WaveFlowDLMSWMessages implements MessageProtocol {
 			else if (messageEntry.getContent().indexOf("<ForceTimeSync")>=0) {
 				abstractDLMS.getLogger().info("************************* ForceTimeSync (e-meter time)*************************");
 				abstractDLMS.forceSetTime();
+				return MessageResult.createSuccess(messageEntry);
+			}
+			else if (messageEntry.getContent().indexOf("<RemoteDisconnect")>=0) {
+				abstractDLMS.getLogger().info("************************* RemoteDisconnect *************************");
+                abstractDLMS.getTransparantObjectAccessFactory().executeObjectAction(DISCONNECT_OBISCODE, 1);
+				return MessageResult.createSuccess(messageEntry);
+			}
+			else if (messageEntry.getContent().indexOf("<RemoteConnect")>=0) {
+				abstractDLMS.getLogger().info("************************* RemoteConnect *************************");
+                abstractDLMS.getTransparantObjectAccessFactory().executeObjectAction(DISCONNECT_OBISCODE, 2);
 				return MessageResult.createSuccess(messageEntry);
 			}
 			else if (messageEntry.getContent().indexOf("<SyncWaveFlowRTC")>=0) {
@@ -98,27 +106,29 @@ public class WaveFlowDLMSWMessages implements MessageProtocol {
 			return MessageResult.createFailed(messageEntry);
 		}
     }
-	 
-    public List getMessageCategories() {
-       List theCategories = new ArrayList();
-       
-       MessageCategorySpec cat1 = new MessageCategorySpec("WaveflowDLMS messages");
-       cat1.addMessageSpec(addBasicMsgWithValue("Set the applicationstatus (0 to reset)", "SetApplicationStatus", false,"0"));
-       cat1.addMessageSpec(addBasicMsg("Force sync the e-meter time", "ForceTimeSync", false));
-       theCategories.add(cat1);
 
-       MessageCategorySpec cat2 = new MessageCategorySpec("WaveflowDLMS advanced messages");
-       cat2.addMessageSpec(addBasicMsgWithValue("Set alarm configuration (0..7)", "SetAlarmConfig", true,"7"));
-       cat2.addMessageSpec(addBasicMsgWithValue("Set the operating mode (0..7)", "SetOperatingMode", true,"7"));
-       cat2.addMessageSpec(addBasicMsgWithValue("Detect e-meter (pair) (9600 or 19200 (default) baud)", "PairMeter", true, "19200"));
-       cat2.addMessageSpec(addBasicMsg("Force sync the waveflow time", "SyncWaveFlowRTC", true));
-       cat2.addMessageSpec(addBasicMsgWithValue("Initialize key (new 128 bit key) ", "InitializeKey", true, "new 128 bit key in hex notation"));
-       cat2.addMessageSpec(addBasicMsgWithValue("Renew key (old 128 bit key, new 128 bit key)", "RenewKey", true,"old 128 bit key in hex notation,new 128 bit key in hex notation"));
-       theCategories.add(cat2);
-       
-       return theCategories;
+    public List getMessageCategories() {
+        List theCategories = new ArrayList();
+
+        MessageCategorySpec cat1 = new MessageCategorySpec("WaveflowDLMS messages");
+        cat1.addMessageSpec(addBasicMsgWithValue("Set the applicationstatus (0 to reset)", "SetApplicationStatus", false, "0"));
+        cat1.addMessageSpec(addBasicMsg("Force sync the e-meter time", "ForceTimeSync", false));
+        theCategories.add(cat1);
+
+        MessageCategorySpec cat2 = new MessageCategorySpec("WaveflowDLMS advanced messages");
+        cat2.addMessageSpec(addBasicMsg("Remote disconnect", "RemoteDisconnect", true));
+        cat2.addMessageSpec(addBasicMsg("Remote connect", "RemoteConnect", true));
+        cat2.addMessageSpec(addBasicMsgWithValue("Set alarm configuration (0..7)", "SetAlarmConfig", true, "7"));
+        cat2.addMessageSpec(addBasicMsgWithValue("Set the operating mode (0..7)", "SetOperatingMode", true, "7"));
+        cat2.addMessageSpec(addBasicMsgWithValue("Detect e-meter (pair) (9600 or 19200 (default) baud)", "PairMeter", true, "19200"));
+        cat2.addMessageSpec(addBasicMsg("Force sync the waveflow time", "SyncWaveFlowRTC", true));
+        cat2.addMessageSpec(addBasicMsgWithValue("Initialize key (new 128 bit key) ", "InitializeKey", true, "new 128 bit key in hex notation"));
+        cat2.addMessageSpec(addBasicMsgWithValue("Renew key (old 128 bit key, new 128 bit key)", "RenewKey", true, "old 128 bit key in hex notation,new 128 bit key in hex notation"));
+        theCategories.add(cat2);
+
+        return theCategories;
     }
-   
+
     private MessageSpec addBasicMsg(final String keyId, final String tagName, final boolean advanced) {
         final MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         final MessageTagSpec tagSpec = new MessageTagSpec(tagName);
