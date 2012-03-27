@@ -10,14 +10,14 @@
 
 package com.energyict.protocolimpl.modbus.core.discover;
 
-import com.energyict.cbo.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.modbus.core.*;
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
+import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
+import com.energyict.protocolimpl.modbus.core.HoldingRegister;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+import com.energyict.protocolimpl.modbus.core.Parser;
 
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
@@ -32,7 +32,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
     
     protected void init() {
         setZeroBased(false); // this means that reg2read = reg-1
-        getRegisters().add(new HoldingRegister(3590,1,"PNP Northerndesign EnergyICT"));
+        getRegisters().add(new HoldingRegister(3590,1,"PNP EIMeter"));
         getRegisters().add(new HoldingRegister(0x186e,2,"PNP Cutler Hammer IQ200").setParser("PNP Cutler Hammer IQ200"));
         getRegisters().add(new HoldingRegister(0x186e,2,"PNP Cutler Hammer IQ230").setParser("PNP Cutler Hammer IQ230"));
         getRegisters().add(new HoldingRegister(257,1,"PNP Socomec Diris A20"));

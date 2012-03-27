@@ -191,8 +191,8 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         this.protocolNames.add("EMH 4 quadrant combi meter LZQJ VDEW");
         this.protocolClasses.add("com.energyict.protocolimpl.instromet.v555.Instromet555");
         this.protocolNames.add("Instromet 555 meter");
-        this.protocolClasses.add("com.energyict.protocolimpl.modbus.northerndesign.cube350.Cube350");
-        this.protocolNames.add("EIMeter Northern Design meter (Cube350) Modbus");
+        this.protocolClasses.add("com.energyict.protocolimpl.modbus.eimeter.EIMeter");
+        this.protocolNames.add("EIMeter modbus");
         this.protocolClasses.add("com.energyict.protocolimpl.modbus.squared.pm750.PM750");
         this.protocolNames.add("Merlin Gerin PM750 Power Meter Modbus");
         this.protocolClasses.add("com.energyict.protocolimpl.modbus.cutlerhammer.iq200.IQ200");
