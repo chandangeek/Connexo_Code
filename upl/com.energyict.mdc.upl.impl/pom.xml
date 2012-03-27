@@ -10,7 +10,7 @@
     <groupId>com.energyict</groupId>
     <artifactId>protocols</artifactId>
     <packaging>pom</packaging>
-    <version>8.11.7-SNAPSHOT</version>
+    <version>8.11.7</version>
     <name>protocols</name>
     <dependencies>
         <dependency>
@@ -315,8 +315,8 @@
     </dependencyManagement>
 
     <scm>
-        <connection>scm:svn:http://source.eict.vpdc/svn/labo/protocols/trunk</connection>
-        <developerConnection>scm:svn:http://source.eict.vpdc/svn/labo/protocols/trunk</developerConnection>
+        <connection>scm:svn:http://source.eict.vpdc/svn/labo/protocols/tags/8.11.7</connection>
+        <developerConnection>scm:svn:http://source.eict.vpdc/svn/labo/protocols/tags/8.11.7</developerConnection>
     </scm>
 
     <issueManagement>
