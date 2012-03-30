@@ -3,8 +3,7 @@ package com.energyict.protocolimpl.dlms.as220;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -57,6 +56,8 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 
     public static final ObisCode        ACTIVITY_CALENDAR_NAME      = ObisCode.fromString("0.0.13.0.0.255");
     public static final ObisCode        CALENDAR_STATUS_OBIS        = ObisCode.fromString("0.130.26.32.0.255");
+
+    public static final ObisCode        VITELEC_VERSION_OBIS        = ObisCode.fromString("0.0.96.50.0.255");
 
 	private static final ObisCode[] SIMPLE_DATA_REGISTERS = new ObisCode[] {
 		NR_CONFIGCHANGES_OBISCODE,
@@ -197,6 +198,12 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 		} else if ( obisCode.equals(CALENDAR_STATUS_OBIS)) {
             CalendarStatus status = new CalendarStatus(getCosemObjectFactory(), CALENDAR_STATUS_OBIS);
             return new RegisterValue(CALENDAR_STATUS_OBIS, status.getCalendarStatus());
+        } else if (obisCode.equals(VITELEC_VERSION_OBIS)) {
+            final Data register = getCosemObjectFactory().getData(obisCode);
+            Unsigned8 major = (Unsigned8) register.getValueAttr().getStructure().getDataType(0);
+            Unsigned8 minor = (Unsigned8) register.getValueAttr().getStructure().getDataType(1);
+            String version = "Vitilec Version (major:minor) " + major.getValue() + ":" + minor.getValue();
+            return new RegisterValue(obisCode, version);
         }
 
         // *********************************************************************************
