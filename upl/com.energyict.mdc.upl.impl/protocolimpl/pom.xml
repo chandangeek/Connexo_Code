@@ -181,6 +181,34 @@
         </dependency>
 
         <dependency>
+            <groupId>com.energyict.rtuplusserver</groupId>
+            <artifactId>communication-driver-impl-eictwavenis</artifactId>
+            <version>2.5.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.energyict</groupId>
+                    <artifactId>mdw</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.energyict</groupId>
+                    <artifactId>mdwimpl</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.energyict.rtuplusserver.dialers</groupId>
+            <artifactId>dialer-impl-wavenis</artifactId>
+            <version>2.5.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.energyict</groupId>
+                    <artifactId>mdw</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
             <groupId>com.sun.xml.ws</groupId>
             <artifactId>jaxws-rt</artifactId>
             <version>2.1.4</version>
@@ -269,6 +297,10 @@
                         <exclusion>
                             <groupId>javax.mail</groupId>
                             <artifactId>mail</artifactId>
+                        </exclusion>
+                        <exclusion>
+                            <groupId>com.energyict.rtuplusserver</groupId>
+                            <artifactId>communication-driver-impl-eictwavenis</artifactId>
                         </exclusion>
                         <exclusion>
                             <groupId>jfree</groupId>
