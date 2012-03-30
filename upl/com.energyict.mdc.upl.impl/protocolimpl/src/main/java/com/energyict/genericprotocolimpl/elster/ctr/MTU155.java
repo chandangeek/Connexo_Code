@@ -17,6 +17,7 @@ import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.CommunicationSchedulerShadow;
+import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
@@ -622,6 +623,25 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
         this.rtu = rtu;
     }
 
+    public int getNetworkID() {
+        try {
+            if (rtu != null) {
+                return Integer.parseInt(getRtu().getNetworkId());
+
+            } else {
+                return 0;
+            }
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    public void setNetworkID(int ID) throws BusinessException, SQLException {
+         RtuShadow shadow = getRtu().getShadow();
+        shadow.setNetworkId(Integer.toString(ID));
+        getRtu().update(shadow);
+    }
+
     public StoreObject getStoreObject() {
         return storeObject;
     }
@@ -743,9 +763,9 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
     public RequestFactory getRequestFactory() {
         if (requestFactory == null) {
             if (isOutboundSmsProfile) {
-                requestFactory = new SmsRequestFactory(getLink(),  getLogger(),  getProtocolProperties(),  getTimeZone(), getPhoneNumber());
+                requestFactory = new SmsRequestFactory(getLink(),  getLogger(),  getProtocolProperties(),  getTimeZone(), getPhoneNumber(), getNetworkID());
             }  else {
-                requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties(), getTimeZone());
+            requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties(), getTimeZone());
             }
         }
         return requestFactory;

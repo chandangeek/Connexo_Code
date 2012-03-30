@@ -53,12 +53,6 @@ public class ValidationProperties extends AbstractProtocolProperties {
         }
     }
 
-
-    @Override
-    protected void doValidateProperties() throws MissingPropertyException, InvalidPropertyException {
-
-    }
-
     public List<String> getOptionalKeys() {
         return new ArrayList<String>();
     }
@@ -170,5 +164,9 @@ public class ValidationProperties extends AbstractProtocolProperties {
             ValidationUtils.log(Level.SEVERE, "Unable to parse [" + getListDevicesInstalledAfterString() + "] as date. Should have this format [" + ValidationUtils.DATE_FORMAT + "]");
             return null;
         }
+    }
+
+    @Override
+    protected void doValidateProperties() throws MissingPropertyException, InvalidPropertyException {
     }
 }

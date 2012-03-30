@@ -21,7 +21,6 @@ import java.util.logging.Logger;
 import static com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType.getValueAndObjectId;
 import static com.energyict.genericprotocolimpl.elster.ctr.structure.field.P_Session.getOpenAndClosePSession;
 import static com.energyict.genericprotocolimpl.elster.ctr.structure.field.ReferenceDate.getReferenceDate;
-import static com.energyict.genericprotocolimpl.elster.ctr.structure.field.WriteDataBlock.getRandomWDB;
 
 /**
  * Copyrights EnergyICT
@@ -39,19 +38,12 @@ public class SmsRequestFactory implements RequestFactory{
 
     private static final int REF_DATE_DAYS_AHEAD = 0;
     private MeterInfo meterInfo;
+    private int writeDataBlockID;
 
-    /**
-     * @param link
-     * @param logger
-     * @param properties
-     */
-    public SmsRequestFactory(Link link, Logger logger, MTU155Properties properties, TimeZone timeZone) {
-        this(link, logger, properties, timeZone, null);
-    }
-
-    public SmsRequestFactory(Link link, Logger logger, MTU155Properties properties, TimeZone timeZone, String phoneNumber) {
+    public SmsRequestFactory(Link link, Logger logger, MTU155Properties properties, TimeZone timeZone, String phoneNumber, int writeDataBlockID) {
         this(logger, properties, timeZone, phoneNumber);
         this.link = link;
+        this.writeDataBlockID = writeDataBlockID;
     }
 
     /**
@@ -77,7 +69,7 @@ public class SmsRequestFactory implements RequestFactory{
      * @throws com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException, if the meter's response was not recognized
      */
     public Data writeRegister(ReferenceDate validityDate, WriteDataBlock wdb, P_Session p_Session, AttributeType attributeType, AbstractCTRObject... objects) throws CTRException {
-        getConnection().sendFrameGetResponse(getRegisterWriteRequest(validityDate, wdb, p_Session, attributeType, objects));
+        getConnection().sendFrameGetResponse(getRegisterWriteRequest(validityDate, getNewWriteDataBlock(), p_Session, attributeType, objects));
         return null;
     }
 
@@ -94,7 +86,7 @@ public class SmsRequestFactory implements RequestFactory{
      * @return: the meter's response (ack or nack)
      */
     public Data writeRegister(AbstractCTRObject... objects) throws CTRException {
-         return writeRegister(getReferenceDate(REF_DATE_DAYS_AHEAD), getRandomWDB(), getOpenAndClosePSession(), getValueAndObjectId(), objects);
+         return writeRegister(getReferenceDate(REF_DATE_DAYS_AHEAD), null, getOpenAndClosePSession(), getValueAndObjectId(), objects);
     }
 
 
@@ -132,6 +124,7 @@ public class SmsRequestFactory implements RequestFactory{
         request.getProfi().setLongFrame(false);
         request.getStructureCode().setStructureCode(StructureCode.REGISTER);
         request.setData(new RegisterWriteRequestStructure(false).parse(writeRequest, 0));
+        request.setWriteDataBlock(wdb);
         return request;
     }
 
@@ -147,12 +140,12 @@ public class SmsRequestFactory implements RequestFactory{
      *          when the meter's response was unexpected.
      */
     public Data executeRequest(ReferenceDate validityDate, WriteDataBlock wdb, CTRObjectID id, byte[] data) throws CTRException {
-        getConnection().sendFrameGetResponse(getExecuteRequest(validityDate, wdb, id, data));
+        getConnection().sendFrameGetResponse(getExecuteRequest(validityDate, getNewWriteDataBlock(), id, data));
         return null;
     }
 
     public Data executeRequest(CTRObjectID id, byte[] data) throws CTRException {
-        return executeRequest(getReferenceDate(REF_DATE_DAYS_AHEAD), getRandomWDB(), id, data);
+        return executeRequest(getReferenceDate(REF_DATE_DAYS_AHEAD), null, id, data);
     }
 
     /**
@@ -180,6 +173,7 @@ public class SmsRequestFactory implements RequestFactory{
         request.getProfi().setLongFrame(false);
         request.getStructureCode().setStructureCode(0);
         request.setData(new ExecuteRequestStructure(false).parse(executeRequest, 0));
+        request.setWriteDataBlock(wdb);
         return request;
     }
 
@@ -210,7 +204,7 @@ public class SmsRequestFactory implements RequestFactory{
     public Data writeRegister(AttributeType attributeType, int numberOfObjects, byte[] rawData) throws CTRException {
         SMSFrame registerWriteRequest = getRegisterWriteRequest(
                 ReferenceDate.getReferenceDate(REF_DATE_DAYS_AHEAD),
-                WriteDataBlock.getRandomWDB(),
+                getNewWriteDataBlock(),
                 P_Session.getOpenAndClosePSession(),
                 attributeType,
                 numberOfObjects,
@@ -251,6 +245,7 @@ public class SmsRequestFactory implements RequestFactory{
         request.getProfi().setLongFrame(false);
         request.getStructureCode().setStructureCode(StructureCode.REGISTER);
         request.setData(new RegisterWriteRequestStructure(false).parse(writeRequest, 0));
+        request.setWriteDataBlock(wdb);
         return request;
     }
 
@@ -322,6 +317,15 @@ public class SmsRequestFactory implements RequestFactory{
 
     public Link getLink() {
         return link;
+    }
+
+    public WriteDataBlock getNewWriteDataBlock() {
+        writeDataBlockID = (writeDataBlockID + 1) % 256;
+        return new WriteDataBlock(writeDataBlockID);
+    }
+
+    public int getWriteDataBlockID() {
+        return writeDataBlockID;
     }
 
     /****************** GETTER AND SETTERS ******************/

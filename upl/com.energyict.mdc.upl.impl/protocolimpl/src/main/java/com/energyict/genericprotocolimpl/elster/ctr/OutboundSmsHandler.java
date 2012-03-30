@@ -16,7 +16,6 @@ public class OutboundSmsHandler{
     private static final String SMS = "SMS";
 
     private MTU155 meterProtocol;
-    public static int MESSAGE_ID;   // The Id of the message currently being parsed.
 
     public OutboundSmsHandler(MTU155 meterProtocol) {
         this.meterProtocol = meterProtocol;
@@ -44,6 +43,7 @@ public class OutboundSmsHandler{
         cs.startCommunication();
         cs.startReadingNow();
         executeCommunicationSchedule(cs);
+        updateWriteDataBlockID(((SmsRequestFactory) meterProtocol.getRequestFactory()).getWriteDataBlockID());
         meterProtocol.logSuccess(cs);
     }
 
@@ -74,7 +74,7 @@ public class OutboundSmsHandler{
         while (it.hasNext()) {
             rm = it.next();
             try {
-                MESSAGE_ID = rm.getId();
+                ((SecureSmsConnection) meterProtocol.getRequestFactory().getConnection()).setRtuMessageID(rm.getId());
                 messageExecutor.doMessage(rm);
                 ((SecureSmsConnection) meterProtocol.getRequestFactory().getConnection()).postPendingSmsToQueue();
                 meterProtocol.warning("Message [" + rm.displayString() + "] executed successfully.");
@@ -84,6 +84,10 @@ public class OutboundSmsHandler{
                 meterProtocol.severe("Unable to send message [" + rm.displayString() + "]! " + e.getMessage());
             }
         }
+    }
+
+    private void updateWriteDataBlockID(int ID) throws BusinessException, SQLException {
+        meterProtocol.setNetworkID(ID);
     }
 
     public MTU155MessageExecutor getMessageExecuter() {

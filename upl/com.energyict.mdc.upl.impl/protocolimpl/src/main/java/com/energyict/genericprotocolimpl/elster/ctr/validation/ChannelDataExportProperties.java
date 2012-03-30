@@ -31,11 +31,6 @@ public class ChannelDataExportProperties extends AbstractProtocolProperties {
         initProperties(propertiesFileName);
     }
 
-    @Override
-    protected void doValidateProperties() throws MissingPropertyException, InvalidPropertyException {
-
-    }
-
     private void initProperties(String propertiesFileName) {
         try {
             FileInputStream fileInputStream = new FileInputStream(propertiesFileName);
@@ -158,5 +153,10 @@ public class ChannelDataExportProperties extends AbstractProtocolProperties {
             }
         }
         return false;
+    }
+
+    @Override
+    protected void doValidateProperties() throws MissingPropertyException, InvalidPropertyException {
+
     }
 }

@@ -9,6 +9,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.events.CTRMeterEvent;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.*;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.Frame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.SMSFrame;
+import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Function;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
 import com.energyict.genericprotocolimpl.elster.ctr.profile.ProfileChannelForSms;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.*;
@@ -17,6 +18,7 @@ import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.messaging.MessageHandler;
+import com.energyict.mdw.shadow.RtuMessageShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 
@@ -26,6 +28,8 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -132,8 +136,8 @@ public class SmsHandler implements MessageHandler {
         journal.add(new AmrJournalEntry(AmrJournalEntry.CC_OK));
         journal.addAll(getMeterAmrLogging().getJournalEntries());
         try {
-            commSchedule.journal(journal);
             commSchedule.logSuccess(new Date());
+            commSchedule.journal(journal);
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (BusinessException e) {
@@ -164,9 +168,9 @@ public class SmsHandler implements MessageHandler {
             for (CommunicationScheduler cs : communicationSchedulers) {
                 if (processSMSFrameSingleSchedule(smsFrame, cs)) {
                     return true;
+                }
             }
         }
-    }
         return false;
     }
 
@@ -203,7 +207,7 @@ public class SmsHandler implements MessageHandler {
                 }
             }
         } else {
-            log("CommunicationScheduler '" + csName + "' is no SMS communication profile. The name should contain '" + SMS + "'. Skipping.");
+            log(Level.FINE, "CommunicationScheduler '" + csName + "' is no SMS communication profile. The name should contain '" + SMS + "'. Skipping.");
         }
         return csExecuted;
     }
@@ -254,12 +258,12 @@ public class SmsHandler implements MessageHandler {
             parseAndStoreDECTableData(communicationProfile, pdr, data);
         } else if (smsFrame.getData() instanceof AckStructure) {
             AckStructure data = (AckStructure) smsFrame.getData();
-            String message = "Received ACK for rtu with id " +getRtu().getId() + " - ACK of function " + data.getFunctionCode().getFunction();
+            String message = handleACK(data);
             log(message);
             getMeterAmrLogging().logInfo(message);
         } else if (smsFrame.getData() instanceof NackStructure) {
             NackStructure data = (NackStructure) smsFrame.getData();
-            String message = "Received NACK for rtu with id " +getRtu().getId() + " - NACK of function " + data.getFunctionCode().getFunction() + " - Reason: " + data.getReason();
+            String message = handleNACK(data);
             logWarning(message);
             getMeterAmrLogging().logInfo(message);
         } else {
@@ -270,6 +274,120 @@ public class SmsHandler implements MessageHandler {
         }
 
         storeDataToEIServer();
+    }
+
+    private String handleACK(AckStructure data) {
+        String message;
+        int wdb = -1;
+        if (data.getFunctionCode().getFunction().equals(Function.WRITE) || data.getFunctionCode().getFunction().equals(Function.SECRET)) {
+            wdb = data.getAdditionalData().getBytes()[0];
+        } else if (data.getFunctionCode().getFunction().equals(Function.EXECUTE)) {
+            wdb = data.getAdditionalData().getBytes()[2];
+        }
+
+        if (wdb != -1) {
+            RtuMessageFilter filter = new RtuMessageFilter();
+            filter.setTrackingIdMask("*#" + wdb + "*");
+            Set aSet = new HashSet();
+            aSet.add(RtuMessageState.SENT);
+            aSet.add(RtuMessageState.FAILED);
+            filter.setStates(aSet);
+
+            List<RtuMessage> rtuMessageList = mw().getRtuMessageFactory().findByRtuAndFilter(getRtu(), filter);
+            if (rtuMessageList.size() != 0) {
+                RtuMessage rtuMessage = rtuMessageList.get(0);
+                String trackingId = rtuMessage.getTrackingId();
+
+                Pattern p = Pattern.compile("#");
+                Matcher m = p.matcher(trackingId);
+                int count = 0;
+                while (m.find()) {
+                    count += 1;
+                }
+
+                RtuMessageShadow shadow = rtuMessage.getShadow();
+                message = "Received ACK for rtu with id " + getRtu().getId() + " - ACK of function " + data.getFunctionCode().getFunction();
+                shadow.setTrackingId(trackingId.replace("#" + wdb, ""));
+                if (count > 1) {
+                    message += " - rtuMessage with ID " + rtuMessage.getId() + " still has " + (count - 1) + " SMS messages pending.";
+                } else {
+                    if (shadow.getState() != RtuMessageState.FAILED) {
+                        shadow.setState(RtuMessageState.CONFIRMED);
+                        message += " - rtuMessage with ID " + rtuMessage.getId() + " will be set Confirmed.";
+                    } else {
+                        message += " - rtuMessage with ID " + rtuMessage.getId() + " already in state Failed.";
+                    }
+                }
+                try {
+                    rtuMessage.update(shadow);
+                } catch (SQLException e) {
+                    message += " - Failed to update rtuMessage with ID " + rtuMessage.getId() + ".";
+                } catch (BusinessException e) {
+                    message += " - Failed to update rtuMessage with ID " + rtuMessage.getId() + ".";
+                }
+            } else {
+                message = "Received ACK for rtu with id " + getRtu().getId() + " - ACK of function " + data.getFunctionCode().getFunction() +
+                        " - Could not find the corresponding rtuMessage.";
+            }
+        } else {
+            message = "Received ACK for rtu with id " + getRtu().getId() + " - ACK of function " + data.getFunctionCode().getFunction() +
+                    " - Could not parse the WriteDataBlock identifier from the response.";
+        }
+        return message;
+    }
+
+    private String handleNACK(NackStructure data) {
+        String message;
+        int wdb = -1;
+        if (((data.getReason().getReason() == 0x42) && (data.getFunctionCode().getFunction() == Function.EXECUTE)) ||
+                ((data.getReason().getReason() == 0x47) && (data.getFunctionCode().getFunction() == Function.EXECUTE)) ||
+                ((data.getReason().getReason() == 0x47) && (data.getFunctionCode().getFunction() == Function.WRITE)) ||
+                data.getReason().getReason() == 0x43 ||
+                data.getReason().getReason() == 0x4B ||
+                data.getReason().getReason() == 0x4F) {
+            wdb = data.getAdditionalData().getBytes()[2];
+        }
+        if (data.getReason().getReason() == 0x4A ||
+                data.getReason().getReason() == 0x4E) {
+            wdb = data.getAdditionalData().getBytes()[0];
+        }
+        if (data.getReason().getReason() == 0x50 ||
+                data.getReason().getReason() == 0x51 ||
+                data.getReason().getReason() == 0x52) {
+            wdb = data.getAdditionalData().getBytes()[1];
+        }
+
+        if (wdb != -1) {
+            RtuMessageFilter filter = new RtuMessageFilter();
+            filter.setTrackingIdMask("*#" + wdb + "*");
+            Set aSet = new HashSet();
+            aSet.add(RtuMessageState.SENT);
+            filter.setStates(aSet);
+
+            List<RtuMessage> rtuMessageList = mw().getRtuMessageFactory().findByRtuAndFilter(getRtu(), filter);
+            if (rtuMessageList.size() != 0) {
+                RtuMessage rtuMessage = rtuMessageList.get(0);
+                message = "Received NACK for rtu with id " + getRtu().getId() + " - NACK of function " + data.getFunctionCode().getFunction()+ " for reason: " + data.getReason() +
+                            " - rtuMessage with ID " + rtuMessage.getId() + " will be set Failed.";
+                RtuMessageShadow shadow = rtuMessage.getShadow();
+                shadow.setTrackingId(rtuMessage.getTrackingId().replace("#" + wdb, ""));
+                shadow.setState(RtuMessageState.FAILED);
+                try {
+                    rtuMessage.update(shadow);
+                } catch (SQLException e) {
+                    message += " - Failed to update rtuMessage with ID " + rtuMessage.getId() + ".";
+                } catch (BusinessException e) {
+                    message += " - Failed to update rtuMessage with ID " + rtuMessage.getId() + ".";
+                }
+            } else {
+                message = "Received NACK for rtu with id " + getRtu().getId() + " - NACK of function " + data.getFunctionCode().getFunction()+ " for reason: " + data.getReason() +
+                        " - Could not find the corresponding rtuMessage.";
+            }
+        } else {
+            message = "Received ACK for rtu with id " + getRtu().getId() + " - ACK of function " + data.getFunctionCode().getFunction() + " -for reason: " + data.getReason() +
+                    " - Could not parse the WriteDataBlock identifier from the response.";
+        }
+        return message;
     }
 
     /**
@@ -598,6 +716,16 @@ public class SmsHandler implements MessageHandler {
 
     public List getOptionalKeys() {
         return new ArrayList();
+    }
+
+    /**
+     * Short notation for MeteringWarehouse.getCurrent()
+     *
+     * @return the current metering warehouse
+     */
+    private MeteringWarehouse mw() {
+        MeteringWarehouse result = MeteringWarehouse.getCurrent();
+        return (result == null) ? new MeteringWarehouseFactory().getBatch() : result;
     }
 
     public static boolean isSmsProfile(CommunicationScheduler cs) {

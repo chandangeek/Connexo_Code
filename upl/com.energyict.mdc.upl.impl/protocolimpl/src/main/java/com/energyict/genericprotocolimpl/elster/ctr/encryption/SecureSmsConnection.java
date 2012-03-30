@@ -2,12 +2,14 @@ package com.energyict.genericprotocolimpl.elster.ctr.encryption;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Sms;
-import com.energyict.genericprotocolimpl.elster.ctr.*;
+import com.energyict.genericprotocolimpl.elster.ctr.CtrConnection;
+import com.energyict.genericprotocolimpl.elster.ctr.MTU155Properties;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRConnectionException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CtrCipheringException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.SMSFrame;
-import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.messaging.MessageService;
+import com.energyict.mdw.shadow.RtuMessageShadow;
 
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
@@ -33,8 +35,10 @@ public class SecureSmsConnection implements CtrConnection<SMSFrame> {
     private CTREncryption ctrEncryption;
 
     private MessageService messageService;
-     ArrayList<Sms> smsesReadyToSend = new ArrayList<Sms>();    // Backlog of smses still to be send out
+    ArrayList<Sms> smsesReadyToSend = new ArrayList<Sms>();     // Backlog of smses still to be send out
+    String trackingID = "";                                     // The tracking ID of the deviceMessage - this string will contain all the WriteDataBlocks of all smses
     private String phoneNumber;
+    private int rtuMessageID;
 
     /**
      * @param properties
@@ -58,8 +62,9 @@ public class SecureSmsConnection implements CtrConnection<SMSFrame> {
             SMSFrame encryptedFrame = (SMSFrame) ctrEncryption.encryptFrame(frame);
             encryptedFrame.setCrc();
 
-            Sms sms = new Sms("", phoneNumber, new Date(), "", Integer.toString(OutboundSmsHandler.MESSAGE_ID), 0, encryptedFrame.getBytes());
+            Sms sms = new Sms("", phoneNumber, new Date(), "", Integer.toString(getRtuMessageID()), 0, encryptedFrame.getBytes());
             smsesReadyToSend.add(sms);
+            trackingID += "#" + frame.getWdb().getWdb();
             return null;
         } catch (CtrCipheringException e) {
             throw new CTRConnectionException("An error occurred in the secure connection!", e);
@@ -75,6 +80,7 @@ public class SecureSmsConnection implements CtrConnection<SMSFrame> {
      */
     public void postPendingSmsToQueue() {
         postSmsesToQueue();
+        updateAndClearTrackingID();
         smsesReadyToSend.clear();
     }
 
@@ -100,6 +106,27 @@ public class SecureSmsConnection implements CtrConnection<SMSFrame> {
         }
     }
 
+    /**
+     * Update the tracking ID of the message to contain all the WriteDataBlockID's of the individual SMS frames.
+     */
+    private void updateAndClearTrackingID() {
+        try {
+            RtuMessage rtuMessage = mw().getRtuMessageFactory().find(rtuMessageID);
+            if (rtuMessage != null) {
+                RtuMessageShadow messageShadow = rtuMessage.getShadow();
+                messageShadow.setTrackingId(trackingID);
+                rtuMessage.update(messageShadow);
+            } else {
+                logger.log(Level.WARNING, "Could not find the rtuMessage with id " + rtuMessageID + ".");
+            }
+        } catch (SQLException e) {
+            logger.log(Level.WARNING, "Failed to update the TrackingID of rtuMessage with id " + rtuMessageID + ".");
+        } catch (BusinessException e) {
+            logger.log(Level.WARNING, "Failed to update the TrackingID of rtuMessage with id " + rtuMessageID + ".");
+        }
+        trackingID = "";
+    }
+
     private MessageService getMessageService() throws BusinessException {
         if (messageService == null) {
             MeteringWarehouse mw = MeteringWarehouse.getCurrent();
@@ -117,5 +144,23 @@ public class SecureSmsConnection implements CtrConnection<SMSFrame> {
             }
         }
         return messageService;
+    }
+
+    public int getRtuMessageID() {
+        return rtuMessageID;
+    }
+
+    public void setRtuMessageID(int messageID) {
+        this.rtuMessageID = messageID;
+    }
+
+    /**
+     * Short notation for MeteringWarehouse.getCurrent()
+     *
+     * @return the current metering warehouse
+     */
+    private MeteringWarehouse mw() {
+        MeteringWarehouse result = MeteringWarehouse.getCurrent();
+        return (result == null) ? new MeteringWarehouseFactory().getBatch() : result;
     }
 }
