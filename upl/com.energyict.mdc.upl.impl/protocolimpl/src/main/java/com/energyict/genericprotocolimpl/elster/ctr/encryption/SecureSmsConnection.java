@@ -94,9 +94,11 @@ public class SecureSmsConnection implements CtrConnection<SMSFrame> {
      */
     private void postSmsesToQueue() {
         try {
-            ObjectMessage objectMessage = getMessageService().createObjectMessage();
-            objectMessage.setObject(smsesReadyToSend);
-            getMessageService().send(objectMessage);
+            if (smsesReadyToSend.size() != 0) {
+                ObjectMessage objectMessage = getMessageService().createObjectMessage();
+                objectMessage.setObject(smsesReadyToSend);
+                getMessageService().send(objectMessage);
+            }
         } catch (BusinessException e) {
             logger.log(Level.SEVERE, e.getMessage());
         } catch (SQLException e) {
