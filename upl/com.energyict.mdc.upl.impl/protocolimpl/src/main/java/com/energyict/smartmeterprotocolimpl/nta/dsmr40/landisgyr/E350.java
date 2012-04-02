@@ -68,6 +68,6 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol {
      */
     @Override
     public AXDRDateTimeDeviationType getDateTimeDeviationType() {
-        return AXDRDateTimeDeviationType.Positive;
+        return AXDRDateTimeDeviationType.Negative;
     }
 }

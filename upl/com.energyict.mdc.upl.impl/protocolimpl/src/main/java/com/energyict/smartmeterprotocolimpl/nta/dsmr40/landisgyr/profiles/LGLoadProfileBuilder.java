@@ -67,7 +67,7 @@ public class LGLoadProfileBuilder extends LoadProfileBuilder {
                 //TODO it is possible that we need to check for the masks ...
                 LGDLMSProfileIntervals intervals = new LGDLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), LGDLMSProfileIntervals.DefaultClockMask,
                         getStatusMasksMap().get(lpr), -1, new DSMRProfileIntervalStatusBits());
-                profileData.setIntervalDatas(intervals.parseIntervals(lpc.getProfileInterval()));
+                profileData.setIntervalDatas(intervals.parseIntervals(lpc.getProfileInterval(), getMeterProtocol().getTimeZone()));
 
                 profileDataList.add(profileData);
             }

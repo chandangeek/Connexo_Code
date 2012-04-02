@@ -599,7 +599,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             startTime = getFirstDate(startTime, type);
             while (entries > 0) {
                 log(Level.INFO, "Setting meterTime to: " + startTime);
-                getCosemObjectFactory().getClock().setAXDRDateTimeAttr(convertUnixToGMTDateTime(String.valueOf(startTime.getTime())));
+                this.protocol.setTime(startTime);
                 waitForCrossingBoundry();
                 startTime = setBeforeNextInterval(startTime, type);
                 entries--;
@@ -609,7 +609,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         if (messageHandler.getMESyncAtEnd()) {
             Date currentTime = Calendar.getInstance(getTimeZone()).getTime();
             log(Level.INFO, "Synced clock to: " + currentTime);
-            getCosemObjectFactory().getClock().setAXDRDateTimeAttr(convertUnixToGMTDateTime(String.valueOf(currentTime.getTime())));
+            this.protocol.setTime(currentTime);
         }
     }
 
