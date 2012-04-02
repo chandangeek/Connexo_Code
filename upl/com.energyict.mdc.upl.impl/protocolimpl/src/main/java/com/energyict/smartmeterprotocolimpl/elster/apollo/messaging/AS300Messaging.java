@@ -32,7 +32,8 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol,
     private static final String STANDING_CHARGE = "Standing charge";
     protected static final String DISCONNECT_CONTROL_RECONNECT = "DisconnectControlReconnect";
     protected static final String DISCONNECT_CONTROL_DISCONNECT = "DisconnectControlDisonnect";
-    protected static final String TEXT_TO_DISPLAY = "TextToDisplay";
+    protected static final String TEXT_TO_EMETER_DISPLAY = "TextToEmeterDisplay";
+    protected static final String TEXT_TO_IHD = "TextToInHomeDisplay";
     protected static final String MESSAGE = "Message";
     protected static final String DURATION = "Duration of message";
 
@@ -66,7 +67,8 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol,
         categories.add(connectDisconnectCat);
 
         MessageCategorySpec textMessagesCat = new MessageCategorySpec("Display");
-        textMessagesCat.addMessageSpec(addMsgWithValuesAndOptionalValue("Send text message to display", TEXT_TO_DISPLAY, false, ACTIVATION_DATE, MESSAGE, DURATION));
+        textMessagesCat.addMessageSpec(addMsgWithValuesAndOptionalValue("Send text message to E-meter display", TEXT_TO_EMETER_DISPLAY, false, ACTIVATION_DATE, MESSAGE, DURATION));
+        textMessagesCat.addMessageSpec(addMsgWithValuesAndOptionalValue("Send text message to IHD display", TEXT_TO_IHD, false, ACTIVATION_DATE, MESSAGE, DURATION));
         categories.add(textMessagesCat);
         return categories;
     }

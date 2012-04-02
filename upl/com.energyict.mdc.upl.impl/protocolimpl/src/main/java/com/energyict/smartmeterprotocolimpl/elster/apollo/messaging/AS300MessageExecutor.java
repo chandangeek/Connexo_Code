@@ -57,7 +57,8 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
     private static final ObisCode PRICE_MATRIX_OBISCODE = ObisCode.fromString("0.0.1.61.0.255");
     private static final ObisCode ACTIVITY_CALENDAR_OBISCODE = ObisCode.fromString("0.0.13.0.1.255");
     private static final ObisCode STANDING_CHARGE_OBISCODE = ObisCode.fromString("0.0.0.61.2.255");
-    private static final ObisCode METER_MESSAGE_CONTROL = ObisCode.fromString("1.0.35.3.8.255");
+    private static final ObisCode METER_MESSAGE_EMETER_CONTROL = ObisCode.fromString("1.0.35.3.8.255");
+    private static final ObisCode METER_MESSAGE_IHD_CONTROL = ObisCode.fromString("1.0.35.3.7.255");
     private static final ObisCode DISCONNECTOR = ObisCode.fromString("0.0.96.3.10.255");
 
     protected final AbstractSmartDlmsProtocol protocol;
@@ -95,8 +96,10 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
                 doConnect(content);
             } else if (isDisconnectControlMessage(content)) {
                 doDisconnect(content);
-            } else if (isTextToDisplayMessage(content)) {
-                sendTextToDisplay(content);
+            } else if (isTextToEMeterDisplayMessage(content)) {
+                sendTextToDisplay(content, true);
+            } else if (isTextToIHDMessage(content)) {
+                sendTextToDisplay(content, false);
             } else if (isSetPricePerUnit(content)) {
                 setPricePerUnit(content);
             } else if (isSetStandingCharge(content)) {
@@ -483,9 +486,9 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         connector.remoteDisconnect();
     }
 
-    private void sendTextToDisplay(final String content) throws IOException {
-        log(Level.INFO, "Send text message to display message received.");
-        ActivePassive meterMessageControl = getCosemObjectFactory().getActivePassive(METER_MESSAGE_CONTROL);
+    private void sendTextToDisplay(final String content, final boolean sendToEMeter) throws IOException {
+        log(Level.INFO,  sendToEMeter ? "Send text message to E-meter display message received." : "Send text message to InHomeDisplay message received.");
+        ActivePassive meterMessageControl = getCosemObjectFactory().getActivePassive(sendToEMeter ? METER_MESSAGE_EMETER_CONTROL : METER_MESSAGE_IHD_CONTROL);
 
         String[] parts = content.split("=");
         String message = parts[1].substring(1).split("\"")[0];
@@ -630,8 +633,12 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         return (messageContent != null) && messageContent.contains(AS300Messaging.DISCONNECT_CONTROL_DISCONNECT);
     }
 
-    private boolean isTextToDisplayMessage(final String messageContent) {
-        return (messageContent != null) && messageContent.contains(AS300Messaging.TEXT_TO_DISPLAY);
+    private boolean isTextToEMeterDisplayMessage(final String messageContent) {
+        return (messageContent != null) && messageContent.contains(AS300Messaging.TEXT_TO_EMETER_DISPLAY);
+    }
+
+    private boolean isTextToIHDMessage(final String messageContent) {
+        return (messageContent != null) && messageContent.contains(AS300Messaging.TEXT_TO_IHD);
     }
 
     @Override
