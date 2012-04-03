@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.base;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.lang.reflect.InvocationTargetException;
@@ -20,11 +22,13 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
     public static final String RETRIES = "Retries";
     public static final String FORCED_DELAY = "ForcedDelay";
     public static final String DELAY_AFTER_ERROR = "DelayAfterError";
+    public static final String PROFILE_INTERVAL = MeterProtocol.PROFILEINTERVAL;
 
     public static final String DEFAULT_TIMEOUT = "10000";
     public static final String DEFAULT_RETRIES = "3";
     public static final String DEFAULT_FORCED_DELAY = "0";
     public static final String DEFAULT_DELAY_AFTER_ERROR = "100";
+    public static final String DEFAULT_PROFILE_INTERVAL = "900";
 
     protected abstract void doValidateProperties() throws MissingPropertyException, InvalidPropertyException;
 
@@ -58,26 +62,30 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
 
     @ProtocolProperty
     public int getTimeout() {
-        return getIntProperty(TIMEOUT,  DEFAULT_TIMEOUT);
+        return getIntProperty(TIMEOUT, DEFAULT_TIMEOUT);
     }
 
     @ProtocolProperty
     public int getRetries() {
-        return getIntProperty(RETRIES,  DEFAULT_RETRIES);
+        return getIntProperty(RETRIES, DEFAULT_RETRIES);
     }
 
     @ProtocolProperty
     public int getForcedDelay() {
-        return getIntProperty(FORCED_DELAY,  DEFAULT_FORCED_DELAY);
+        return getIntProperty(FORCED_DELAY, DEFAULT_FORCED_DELAY);
     }
 
     @ProtocolProperty
     public int getDelayAfterError() {
-        return getIntProperty(DELAY_AFTER_ERROR,  DEFAULT_DELAY_AFTER_ERROR);
+        return getIntProperty(DELAY_AFTER_ERROR, DEFAULT_DELAY_AFTER_ERROR);
+    }
+
+    @ProtocolProperty
+    public int getProfileInterval() {
+        return getIntProperty(PROFILE_INTERVAL, DEFAULT_PROFILE_INTERVAL);
     }
 
     /**
-     *
      * @param propertyName
      * @param defaultValue
      * @return
@@ -111,7 +119,6 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
     }
 
     /**
-     *
      * @param properties
      */
     public void addProperties(Properties properties) {

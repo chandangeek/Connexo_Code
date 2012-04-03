@@ -17,6 +17,11 @@
             <artifactId>mdw</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdwimpl</artifactId>
+        </dependency>
+
     	<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
@@ -45,7 +50,12 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdwutil</artifactId>
-            <version>${eiserver.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.jms</groupId>
+            <artifactId>jms</artifactId>
+            <version>1.1</version>
             <scope>provided</scope>
         </dependency>
 
@@ -505,10 +515,6 @@
                         <exclusion>
                             <groupId>avalon-framework</groupId>
                             <artifactId>avalon-framework</artifactId>
-                        </exclusion>
-                        <exclusion>
-                            <groupId>javax.jms</groupId>
-                            <artifactId>jms</artifactId>
                         </exclusion>
                         <exclusion>
                             <groupId>batik</groupId>
