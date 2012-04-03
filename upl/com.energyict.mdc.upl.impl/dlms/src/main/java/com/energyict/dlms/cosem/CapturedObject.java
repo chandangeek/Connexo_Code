@@ -7,6 +7,8 @@
 package com.energyict.dlms.cosem;
 
 
+import com.energyict.obis.ObisCode;
+
 /**
  *
  * @author  Koen
@@ -24,6 +26,10 @@ public class CapturedObject {
         this.logicalName=logicalName;
         this.attributeIndex=attributeIndex;
         this.dataIndex=dataIndex;
+    }
+
+    public ObisCode getObisCode() {
+        return logicalName.getObisCode();
     }
 
     public String toString() {
