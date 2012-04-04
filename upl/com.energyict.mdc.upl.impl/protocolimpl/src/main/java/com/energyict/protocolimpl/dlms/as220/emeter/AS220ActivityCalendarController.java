@@ -8,7 +8,7 @@ import com.energyict.dlms.cosem.attributeobjects.*;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.as220.AS220;
-import com.energyict.protocolimpl.dlms.as220.parsing.CodeTableXml;
+import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXml;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.*;

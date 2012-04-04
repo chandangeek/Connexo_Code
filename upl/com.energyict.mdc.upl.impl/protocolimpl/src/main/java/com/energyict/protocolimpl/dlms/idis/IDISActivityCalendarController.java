@@ -9,7 +9,7 @@ import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
-import com.energyict.protocolimpl.dlms.as220.parsing.CodeTableXml;
+import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXml;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -226,7 +226,7 @@ public class IDISActivityCalendarController implements ActivityCalendarControlle
     }
 
     /**
-     * Construct a map of shifted dayProfile ID's. We are reusing the {@link com.energyict.protocolimpl.dlms.as220.parsing.CodeTableXml}, but this results
+     * Construct a map of shifted dayProfile ID's. We are reusing the {@link com.energyict.protocolimpl.messages.codetableparsing.CodeTableXml}, but this results
      * in dayIds with values of 0, which the ApolloMeter does not allow ...
      * This method will most likely result in a shift of all the dayProfileId's
      *
