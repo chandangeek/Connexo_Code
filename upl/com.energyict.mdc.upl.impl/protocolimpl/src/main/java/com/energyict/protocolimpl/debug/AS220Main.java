@@ -5,22 +5,41 @@ import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.LocalSecurityProvider;
 import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.GenericRead;
+import com.energyict.dlms.cosem.Limiter;
+import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.EventNumber;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
 import com.energyict.protocolimpl.dlms.as220.plc.PLCMessaging;
 import com.energyict.protocolimpl.dlms.as220.plc.events.PLCLog;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import sun.misc.BASE64Encoder;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 
 /**
  * @author jme
@@ -499,7 +518,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
             fis.close();
         }
 
-        BASE64Encoder base64Encoder = new BASE64Encoder();
+        Base64EncoderDecoder base64Encoder = new Base64EncoderDecoder();
         return base64Encoder.encode(content);
     }
     

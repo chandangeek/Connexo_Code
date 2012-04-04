@@ -1,19 +1,43 @@
 package com.energyict.protocolimpl.utils;
 
 import com.energyict.cpo.Environment;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.CommunicationProtocol;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.MeteringWarehouseFactory;
+import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -1091,7 +1115,7 @@ public final class ProtocolTools {
         objectOutputStream.writeObject(uncompressedContent);
         objectOutputStream.flush();
         objectOutputStream.close();
-        return new BASE64Encoder().encode(byteArrayOutputStream.toByteArray());
+        return new Base64EncoderDecoder().encode(byteArrayOutputStream.toByteArray());
     }
 
     /**
@@ -1104,7 +1128,7 @@ public final class ProtocolTools {
      */
     public static String decompress(String compressedBase64Content) throws IOException {
         try {
-            byte[] compressedContent = new BASE64Decoder().decodeBuffer(compressedBase64Content);
+            byte[] compressedContent = new Base64EncoderDecoder().decode(compressedBase64Content);
             ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(compressedContent);
             GZIPInputStream gzipInputStream = new GZIPInputStream(byteArrayInputStream);
             ObjectInputStream objectInputStream = new ObjectInputStream(gzipInputStream);
@@ -1129,7 +1153,7 @@ public final class ProtocolTools {
      */
     public static byte[] decompressBytes(String compressedBase64Content) throws IOException {
         try {
-            byte[] compressedContent = new BASE64Decoder().decodeBuffer(compressedBase64Content);
+            byte[] compressedContent = new Base64EncoderDecoder().decode(compressedBase64Content);
             ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(compressedContent);
             GZIPInputStream gzipInputStream = new GZIPInputStream(byteArrayInputStream);
             ObjectInputStream objectInputStream = new ObjectInputStream(gzipInputStream);

@@ -3,14 +3,16 @@
  */
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
+import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import org.xml.sax.SAXException;
-import sun.misc.BASE64Decoder;
 
 import java.io.IOException;
 import java.util.Date;
@@ -93,8 +95,8 @@ public class AS220ImageTransfer {
 		}
 		
 		getAs220().getLogger().info("Converting received image to binary using a Base64 decoder...");
-		final BASE64Decoder decoder = new BASE64Decoder();
-		this.data = decoder.decodeBuffer(new String(this.data));
+		final Base64EncoderDecoder decoder = new Base64EncoderDecoder();
+		this.data = decoder.decode(new String(this.data));
 		
 	}
 	

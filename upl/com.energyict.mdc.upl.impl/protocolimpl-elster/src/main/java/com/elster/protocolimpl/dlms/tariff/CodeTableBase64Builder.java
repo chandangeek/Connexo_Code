@@ -4,10 +4,12 @@ import com.elster.protocolimpl.dlms.tariff.objects.CodeObject;
 import com.energyict.cbo.ApplicationException;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import sun.misc.BASE64Encoder;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.zip.GZIPOutputStream;
 
 /**
@@ -49,7 +51,7 @@ public class CodeTableBase64Builder {
             oos.flush();
             oos.close();
 
-            return new BASE64Encoder().encode(out.toByteArray()).getBytes();
+            return new Base64EncoderDecoder().encode(out.toByteArray()).getBytes();
         } catch (Exception e) {
             throw new ApplicationException("Unable to get xml from code table: " + e.getMessage(), e);
         }

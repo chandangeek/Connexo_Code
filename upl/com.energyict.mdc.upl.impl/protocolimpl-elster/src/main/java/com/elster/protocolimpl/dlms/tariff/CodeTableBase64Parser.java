@@ -1,10 +1,13 @@
 package com.elster.protocolimpl.dlms.tariff;
 
 import com.elster.protocolimpl.dlms.tariff.objects.CodeObject;
+import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import sun.misc.BASE64Decoder;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -20,7 +23,7 @@ public class CodeTableBase64Parser {
 
     public static CodeObject getCodeTableFromBase64(String content) throws IOException {
         try {
-            byte[] decodedContent = new BASE64Decoder().decodeBuffer(content);
+            byte[] decodedContent = new Base64EncoderDecoder().decode(content);
             ByteArrayInputStream in = new ByteArrayInputStream(decodedContent);
             ObjectInputStream ois = new ObjectInputStream(new GZIPInputStream(in));
             Object object = ois.readObject();

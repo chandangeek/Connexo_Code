@@ -288,17 +288,6 @@
                         <lib>${java.home}/lib/rt.jar</lib>
                     </libs>
 
-                    <!-- Use this to add certain jars (like the elster-protocols)
-                    <assembly>
-                        <inclusions>
-                            <inclusion>
-                                <groupId>com.energyict</groupId>
-                                <artifactId>dlms</artifactId>
-                                
-                            </inclusion>
-                        </inclusions>
-                    </assembly>
-                    -->
                     <exclusions>
                         <exclusion>
                             <groupId>com.energyict</groupId>

@@ -1,12 +1,16 @@
 package com.elster.protocolimpl.dlms.messaging;
 
-import com.elster.dlms.cosem.simpleobjectmodel.*;
+import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
+import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
+import com.elster.dlms.cosem.simpleobjectmodel.SimpleImageTransferObject;
 import com.elster.protocols.streams.TimeoutIOException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.protocol.MessageEntry;
-import sun.misc.BASE64Decoder;
+import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.SocketException;
 import java.security.MessageDigest;
@@ -39,8 +43,8 @@ public class FirmwareUpdateMessage extends AbstractDlmsMessage {
         String firmwareFile = messageEntry.getContent().substring(start + 2 + ATTR_CODE_FIRMWAREFILE.length(), end);
 
         try {
-            BASE64Decoder decoder = new BASE64Decoder();
-            byte[] decodedBytes = decoder.decodeBuffer(firmwareFile);
+            Base64EncoderDecoder decoder = new Base64EncoderDecoder();
+            byte[] decodedBytes = decoder.decode(firmwareFile);
 
             MessageDigest md5 = MessageDigest.getInstance("MD5");
             md5.update(decodedBytes, 0, decodedBytes.length);

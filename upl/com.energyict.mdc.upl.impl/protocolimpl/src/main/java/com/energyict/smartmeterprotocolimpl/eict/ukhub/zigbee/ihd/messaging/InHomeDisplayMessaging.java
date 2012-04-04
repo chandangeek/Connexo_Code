@@ -3,9 +3,11 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.messaging;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.InHomeDisplay;
-import sun.misc.BASE64Decoder;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -94,7 +96,7 @@ public class InHomeDisplayMessaging extends GenericMessaging implements MessageP
         getLogger().info("Executing firmware update message");
         try {
             String base64Encoded = getIncludedContent(content);
-            byte[] imageData = new BASE64Decoder().decodeBuffer(base64Encoded);
+            byte[] imageData = new Base64EncoderDecoder().decode(base64Encoded);
             ImageTransfer it = ((InHomeDisplay) protocol).getDlmsSession().getCosemObjectFactory().getImageTransfer(IMAGE_TRANSFER_OBIS);
             it.upgrade(imageData);
             it.imageActivation();

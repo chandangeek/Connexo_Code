@@ -233,7 +233,7 @@
 
 -keepnames class com.energyict.protocolimpl.dlms.idis.IDIS
 
--keepnames class com.energyict.protocolimpl.dlms.idis.IDISMbus
+-keepnames class com.energyict.protocolimpl.dlms.idis.IDISMBus
 
 # Moved it to the commons package
 #-keepnames class SDKSampleProtocol
@@ -243,8 +243,6 @@
 -keepnames class com.energyict.genericprotocolimpl.webrtukp.WebRTUKP
 
 -keepnames class com.energyict.genericprotocolimpl.webrtukp.MbusDevice
-
--keepnames class com.energyict.genericprotocolimpl.webrtukp.TicDevice
 
 -keepnames class com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging
 
@@ -372,6 +370,8 @@
 	*;
 }
 
+-keep public class com.energyict.genericprotocolimpl.common.messages.MessageHandler
+
 -keep public class com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging.* {
 	*;
 }
@@ -491,11 +491,11 @@
 
 -keepnames class com.energyict.smartmeterprotocolimpl.sdksample.SDKSmartMeterProtocol
 
--keepnames class com.energyict.smartmeterprotocolimpl.webrtuz3.WebRTUZ3
+-keepnames class com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3
 
--keepnames class com.energyict.smartmeterprotocolimpl.webrtuz3.EMeter
+-keepnames class com.energyict.smartmeterprotocolimpl.eict.webrtuz3.EMeter
 
--keepnames class com.energyict.smartmeterprotocolimpl.webrtuz3.MbusDevice
+-keepnames class com.energyict.smartmeterprotocolimpl.eict.webrtuz3.MbusDevice
 
 -keepnames class com.energyict.smartmeterprotocolimpl.elster.apollo.AS300
 
