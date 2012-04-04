@@ -15,6 +15,7 @@ import com.energyict.dlms.cosem.attributeobjects.*;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
+import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXml;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.ZMD;
 import org.apache.commons.logging.Log;
@@ -239,7 +240,7 @@ public class ZMDActivityCalendarController implements ActivityCalendarController
     }
 
     /**
-     * Construct a map of shifted dayProfile ID's. We are reusing the {@link com.energyict.protocolimpl.dlms.as220.parsing.CodeTableXml}, but this results
+     * Construct a map of shifted dayProfile ID's. We are reusing the {@link com.energyict.protocolimpl.messages.codetableparsing.CodeTableXml}, but this results
      * in dayIds with values of 0, which the device does not allow ...
      * This method will most likely result in a shift of all the dayProfileId's (all ID's +1)
      *
