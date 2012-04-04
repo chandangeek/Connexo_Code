@@ -568,6 +568,7 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
             while (timeOut >= System.currentTimeMillis()) {
                 byte bResult = waitForHDLCFrameStateMachine(iProtocolTimeout, rxFrame);
                 if (bResult == HDLC_RX_OK) {
+                    timeOut = System.currentTimeMillis() + iProtocolTimeout;    // Recalculate the timeout
                     HDLCFrame hdlcFrame = decodeFrame(rxFrame);
                     updateNS(hdlcFrame);
                     if (hdlcFrame.bControl == I) {
