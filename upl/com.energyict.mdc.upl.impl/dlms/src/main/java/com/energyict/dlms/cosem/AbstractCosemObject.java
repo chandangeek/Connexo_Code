@@ -7,6 +7,7 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.*;
+import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
@@ -27,6 +28,7 @@ public abstract class AbstractCosemObject {
 
 	private static final boolean	DEBUG								= false;
     private static final boolean    WRITE_WITH_BLOCK_ENABLED            = false;
+    private static final int        DEFAULT_MAX_REC_PDU_SERVER          = 1024;
 
 	private static final byte		READRESPONSE_DATA_TAG				= 0;
 	private static final byte		READRESPONSE_DATAACCESSERROR_TAG	= 1;
@@ -35,9 +37,10 @@ public abstract class AbstractCosemObject {
 
 	protected ProtocolLink			protocolLink						= null;
 	private ObjectReference			objectReference						= null;
-	private byte					invokeIdAndPriority;
+    private byte					invokeIdAndPriority;
 
-	/**
+
+    /**
 	 * Getter for the dlms class id
 	 *
 	 * @return the id of the dlms class
@@ -345,7 +348,12 @@ public abstract class AbstractCosemObject {
     }
 
     private int getMaxRecPduServer() {
-        return getProtocolLink().getDLMSConnection().getApplicationServiceObject().getAssociationControlServiceElement().getXdlmsAse().getMaxRecPDUServerSize() - ASSUMED_MAX_HEADER_LENGTH;
+        ApplicationServiceObject applicationServiceObject = getProtocolLink().getDLMSConnection().getApplicationServiceObject();
+        if (applicationServiceObject != null) {
+            return applicationServiceObject.getAssociationControlServiceElement().getXdlmsAse().getMaxRecPDUServerSize() - ASSUMED_MAX_HEADER_LENGTH;
+        } else {
+            return DEFAULT_MAX_REC_PDU_SERVER;
+        }
     }
 
     /**
