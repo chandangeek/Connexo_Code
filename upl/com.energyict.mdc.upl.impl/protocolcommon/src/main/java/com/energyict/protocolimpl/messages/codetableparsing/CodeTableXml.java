@@ -1,8 +1,13 @@
-package com.energyict.protocolimpl.dlms.as220.parsing;
+package com.energyict.protocolimpl.messages.codetableparsing;
+
+/**
+ * Copyrights EnergyICT
+ * User: sva
+ * Date: 21/12/11
+ * Time: 10:30
+ */
 
 import com.energyict.mdw.core.Code;
-import com.energyict.protocolimpl.messages.codetableparsing.CodeTableParser;
-import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -26,14 +31,13 @@ public class CodeTableXml extends CodeTableXmlParsing {
      *                       <li> correct epoch time : time is written
      *                       </ul>
      * @return the complete xml for the RTUMessage
-     * @throws ParserConfigurationException if a DocumentBuilder cannot be created which satisfies the configuration requested.
+     * @throws javax.xml.parsers.ParserConfigurationException if a DocumentBuilder cannot be created which satisfies the configuration requested.
      */
     public static String parseActivityCalendarAndSpecialDayTable(int id, long activationTime) throws ParserConfigurationException {
         Code codeTable = getCode(id);
 
         CodeTableParser ctp = new CodeTableParser(codeTable);
         try {
-
             ctp.parse();
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -72,5 +76,4 @@ public class CodeTableXml extends CodeTableXmlParsing {
             throw e;
         }
     }
-
 }
