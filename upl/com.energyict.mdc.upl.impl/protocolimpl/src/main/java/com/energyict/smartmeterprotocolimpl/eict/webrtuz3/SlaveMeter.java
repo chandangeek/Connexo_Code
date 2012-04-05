@@ -2,13 +2,10 @@ package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.mdw.core.Pluggable;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -16,9 +13,7 @@ import java.util.logging.Logger;
  * Date: 3-mrt-2011
  * Time: 16:32:09
  */
-public abstract class SlaveMeter implements SimpleMeter, MessageProtocol{
-
-    public abstract MessageProtocol getMessageProtocol();
+public class SlaveMeter implements SimpleMeter, Pluggable{
 
     private final WebRTUZ3 meterProtocol;
     private final String serialNumber;
@@ -35,6 +30,42 @@ public abstract class SlaveMeter implements SimpleMeter, MessageProtocol{
         this.meterProtocol = meterProtocol;
         this.serialNumber = serialNumber;
         this.physicalAddress = physicalAddress;
+    }
+
+    /**
+     * Returns the implementation version
+     *
+     * @return a version string
+     */
+    public String getVersion() {
+        return "$Date$";
+    }
+
+    /**
+     * add the properties
+     *
+     * @param properties properties to add
+     */
+    public void addProperties(final Properties properties) {
+        // currently nothing to do
+    }
+
+    /**
+     * Returns a list of required property keys
+     *
+     * @return a List of String objects
+     */
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
+    }
+
+    /**
+     * Returns a list of optional property keys
+     *
+     * @return a List of String objects
+     */
+    public List<String> getOptionalKeys() {
+        return Collections.emptyList();
     }
 
     /**
@@ -64,6 +95,10 @@ public abstract class SlaveMeter implements SimpleMeter, MessageProtocol{
         return this.serialNumber;
     }
 
+    public WebRTUZ3 getMeterProtocol() {
+        return meterProtocol;
+    }
+
     /**
      * Get the physical address of the Meter. Mostly this will be an index of the meterList
      *
@@ -71,46 +106,6 @@ public abstract class SlaveMeter implements SimpleMeter, MessageProtocol{
      */
     public int getPhysicalAddress() {
         return this.physicalAddress;
-    }
-
-    /**
-     * Provides the full list of outstanding messages to the protocol.
-     * If for any reason certain messages have to be grouped before they are sent to a device, then this is the place to do it.
-     * At a later timestamp the framework will query each {@link com.energyict.protocol.MessageEntry} (see {@link #queryMessage(com.energyict.protocol.MessageEntry)}) to actually
-     * perform the message.
-     *
-     * @param messageEntries a list of {@link com.energyict.protocol.MessageEntry}s
-     * @throws java.io.IOException if a logical error occurs
-     */
-    public void applyMessages(final List messageEntries) throws IOException {
-        // nothing to do
-    }
-
-    /**
-     * Indicates that each message has to be executed by the protocol.
-     *
-     * @param messageEntry a definition of which message needs to be sent
-     * @return a state of the message which was just sent
-     * @throws java.io.IOException if a logical error occurs
-     */
-    public MessageResult queryMessage(final MessageEntry messageEntry) throws IOException {
-        return this.meterProtocol.queryMessage(messageEntry);
-    }
-
-    public String writeMessage(final Message msg) {
-        return getMessageProtocol().writeMessage(msg);
-    }
-
-    public String writeTag(final MessageTag tag) {
-        return getMessageProtocol().writeTag(tag);
-    }
-
-    public String writeValue(final MessageValue value) {
-        return getMessageProtocol().writeValue(value);
-    }
-
-    public List getMessageCategories() {
-        return getMessageProtocol().getMessageCategories();
     }
 
     public CosemObjectFactory getCosemObjectFactory(){

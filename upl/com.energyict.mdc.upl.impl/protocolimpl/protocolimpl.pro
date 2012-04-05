@@ -493,6 +493,8 @@
 
 -keepnames class com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3
 
+-keepnames class com.energyict.smartmeterprotocolimpl.eict.webrtuz3.SlaveMeter
+
 -keepnames class com.energyict.smartmeterprotocolimpl.eict.webrtuz3.EMeter
 
 -keepnames class com.energyict.smartmeterprotocolimpl.eict.webrtuz3.MbusDevice
