@@ -787,7 +787,7 @@ public class FlagIEC1107Connection extends Connection {
             catch (FlagIEC1107ConnectionException e) {
                 if ((retries++ < iMaxRetries) && (getTxBuffer() != null) && ((e.getReason() == CRC_ERROR) || (e.getReason() == NAK_RECEIVED) || (e.getReason() == TIMEOUT_ERROR) || (e.getReason() == RECONNECT_ERROR))) {
                     //System.out.println("KV_DEBUG> RETRY "+e.getReason()+", txBuffer="+new String(getTxBuffer()));
-                    logErrorMessage(Level.INFO, "Authentication error [try " + retries + " of " + iMaxRetries + "], " + e.getMessage());
+                    logErrorMessage(Level.INFO, "doReceiveDataRetry error [try " + retries + " of " + iMaxRetries + "], " + e.getMessage());
                     delayAndFlush(1000);
                     sendTxBuffer();
 //                    sendOut(NAK);

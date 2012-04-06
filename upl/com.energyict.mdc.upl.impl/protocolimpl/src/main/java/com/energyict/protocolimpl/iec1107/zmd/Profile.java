@@ -1,16 +1,21 @@
 
 package com.energyict.protocolimpl.iec1107.zmd;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.NestedIOException;
+import com.energyict.cbo.Unit;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocolimpl.iec1107.vdew.*;
+import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
 
 import java.io.*;
 import java.math.BigDecimal;
-import java.text.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -49,8 +54,10 @@ class Profile extends VDEWProfile {
     
     private List channelInfos;
     private List channelEdis;
-    
-    public Profile( 
+
+    private ArrayList<Date> intervalsWithRecordsNotOnBoundaries = new ArrayList<Date>();
+
+    public Profile(
             MeterExceptionInfo meterExceptionInfo, ProtocolLink protocolLink, 
             AbstractVDEWRegistry abstractVDEWRegistry) throws IOException {
         
@@ -166,14 +173,35 @@ class Profile extends VDEWProfile {
                     nrChannelCheck( values.length );
                     
                     Interval interval = iMap.get( intervalDate );
-                    interval.addEntry( new IntervalRow(eiCode, values) );
-                    
+                    IntervalRow ir = new IntervalRow(eiCode, values);
+
+                    if (!isOnIntervalBoundary(intervalDate)) {
+                        getProtocolLink().getLogger().log(Level.INFO, "Timestamp of interval record [" + intervalDate + "]was not on interval boundaries - Interval record: " + ir);
+                        intervalsWithRecordsNotOnBoundaries.add(interval.asIntervalData().getEndTime());
+                    }
+
+                    boolean addEntry = true;
+                    if (!interval.entries.isEmpty()) {
+                        if (!intervalsWithRecordsNotOnBoundaries.contains(interval.asIntervalData().getEndTime())) {
+                            for (Object each : interval.entries) {
+                                IntervalRow row = (IntervalRow) each;
+                                if (row.values.equals(ir.values) && row.eiStatus == ir.eiStatus) {
+                                    addEntry = false;
+                                    break;
+                                }
+                            }
+                        }
+                        getProtocolLink().getLogger().log(Level.INFO, addEntry ? "Merging interval record [" + intervalDate + " - " + ir + "] with the existing interval [" + interval.toString() + "]."
+                                : "Interval record [" + intervalDate + " - " + ir + "] clashes with the existing interval records [" + interval.toString() + "]. The interval record will not be added.");
+                    }
+
+                    if (addEntry) {
+                        interval.addEntry(ir);
+                    }
                     dbg( interval.toString() + " " + assembly.dbgString() );
                     
                     intervalDate = interval.next();
-                    
                 }
-                
             };
             
             iMap.addToProfile(profileData);
@@ -189,6 +217,12 @@ class Profile extends VDEWProfile {
             throw new NestedIOException(t, msg );
         }
     
+    }
+
+    private boolean isOnIntervalBoundary(Date intervalDate) {
+        Calendar c = Calendar.getInstance(pTimeZone);
+        c.setTime(intervalDate);
+        return ParseUtils.isOnIntervalBoundary(c, pInterval);
     }
 
     private Date asDate(String string) throws IOException{
@@ -310,9 +344,11 @@ class Profile extends VDEWProfile {
             eiCode |= MeterEvent.METER_ALARM;
         if( (status & VARIABLE_SET) > 0 )         
             eiCode |= MeterEvent.CONFIGURATIONCHANGE;
-        if( (status & DEVICE_CLOCK_SET_INCORRECT) > 0 )         
+        if( (status & DEVICE_CLOCK_SET_INCORRECT) > 0 ) {
+            getProtocolLink().getLogger().log(Level.INFO, "Applying SETCLOCK flag - Meter Event: DEVICE_CLOCK_SET_INCORRECT.");
             eiCode |= MeterEvent.SETCLOCK;
-        if( (status & SEASONAL_SWITCHOVER) > 0 )         
+        }
+        if( (status & SEASONAL_SWITCHOVER) > 0 )
             eiCode |= MeterEvent.OTHER;
         if( (status & FATAL_DEVICE_ERROR) > 0 )         
             eiCode |= MeterEvent.FATAL_ERROR;
@@ -349,13 +385,17 @@ class Profile extends VDEWProfile {
             eiCode |= IntervalStateBits.OTHER;
         if( (status & VARIABLE_SET) > 0 )              
             eiCode |=  IntervalStateBits.CONFIGURATIONCHANGE;
-        if( (status & DEVICE_CLOCK_SET_INCORRECT) > 0 )
-            eiCode |=  IntervalStateBits.SHORTLONG;
-        if( (status & FATAL_DEVICE_ERROR) > 0 )        
+        if ((status & DEVICE_CLOCK_SET_INCORRECT) > 0) {
+            getProtocolLink().getLogger().log(Level.INFO, "Applying ShortLong flag - Device status flag: DEVICE_CLOCK_SET_INCORRECT.");
+            eiCode |= IntervalStateBits.SHORTLONG;
+        }
+        if( (status & FATAL_DEVICE_ERROR) > 0 )
             eiCode |= IntervalStateBits.OTHER;
-        if( (status & DISTURBED_MEASURE) > 0 )         
-            eiCode |=  IntervalStateBits.SHORTLONG;
-        if( (status & POWER_FAILURE) > 0 )             
+        if ((status & DISTURBED_MEASURE) > 0) {
+            getProtocolLink().getLogger().log(Level.INFO, "Applying ShortLong flag - Device status flag: DISTURBED_MEASURE.");
+            eiCode |= IntervalStateBits.SHORTLONG;
+        }
+        if( (status & POWER_FAILURE) > 0 )
             eiCode |=  IntervalStateBits.POWERDOWN;
         if( (status & POWER_RECOVERY) > 0 )            
             eiCode |= IntervalStateBits.POWERUP;
@@ -514,10 +554,12 @@ class Profile extends VDEWProfile {
                 IntervalRow ir = (IntervalRow)i.next();
                 eiCode |= ir.getEiStatus();
             }
-            
-            if( entries.size() > 1 )
+
+            if (entries.size() > 1) {
+                getProtocolLink().getLogger().log(Level.INFO, "Applying ShortLong flag - The interval has multiple entries, interval: " + this.toString());
                 eiCode |= IntervalStateBits.SHORTLONG;
-                
+            }
+
             IntervalData id = new IntervalData(key.getTime(),eiCode);
 
             for( int channel=0; channel<pNrChannels; channel++) {
