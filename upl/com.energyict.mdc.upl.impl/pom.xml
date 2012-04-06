@@ -100,9 +100,7 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.3</version>
                 <configuration>
                     <descriptors>
                         <descriptor>assembly/assembly.xml</descriptor>
