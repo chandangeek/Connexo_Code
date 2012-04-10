@@ -63,7 +63,8 @@ public class EventNumber {
         events.add(new EventNumber(93,"GeneralSystemError","FF 00000010 error (see 16.3.4 Other Errors)",ERROR));
         events.add(new EventNumber(94,"CommunicationLocked","FF 00000020 locked (see 16.3.4 Other Errors)",ERRORALERT));
         events.add(new EventNumber(106,"AlertOccurred","Indicates that an alert has occurred.",UNDEF));
-        events.add(new EventNumber(524288, "FatalErrorOccurred", "Indicates that an fatal error has occurred.", ERROR));
+        events.add(new EventNumber(1024, "FatalErrorOccurred", "Indicates that a fatal error occurred.", ERROR));
+        events.add(new EventNumber(524288, "FatalErrorOccurred", "Indicates that a fatal error occurred.", ERROR));
     }
 
 
