@@ -475,6 +475,10 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
         return this.messageProtocol.writeValue(value);
     }
 
+    public int getDstFlag() {
+        return dstFlag;
+    }
+
     /**
      * Getter for property {@link com.energyict.dlms.DLMSConnection}.
      *
