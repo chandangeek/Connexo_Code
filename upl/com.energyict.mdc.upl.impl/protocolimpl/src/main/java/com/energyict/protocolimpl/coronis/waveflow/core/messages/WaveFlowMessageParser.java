@@ -32,7 +32,7 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
         MessageAttributeSpec addAttribute2 = new MessageAttributeSpec(attr2, true);
         tagSpec.add(addAttribute2);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(""); //Disable this field
+        msgVal.setValue(" "); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -59,7 +59,7 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
         MessageAttributeSpec addAttribute = new MessageAttributeSpec(attr, true);
         tagSpec.add(addAttribute);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(""); //Disable this field
+        msgVal.setValue(" "); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -88,7 +88,7 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
         MessageAttributeSpec thirdAttribute = new MessageAttributeSpec(attr3, true);
         tagSpec.add(thirdAttribute);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(""); //Disable this field
+        msgVal.setValue(" "); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -112,7 +112,7 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
         MessageAttributeSpec attrSpec7 = new MessageAttributeSpec(attr7, true);
         tagSpec.add(attrSpec7);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(""); //Disable this field
+        msgVal.setValue(" "); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -150,7 +150,7 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
         MessageAttributeSpec attrSpec14 = new MessageAttributeSpec(attr14, true);
         tagSpec.add(attrSpec14);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(""); //Disable this field
+        msgVal.setValue(" "); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -190,7 +190,7 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
         MessageAttributeSpec attrSpec15 = new MessageAttributeSpec(attr15, true);
         tagSpec.add(attrSpec15);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(""); //Disable this field
+        msgVal.setValue(" "); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -206,7 +206,7 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
         MessageAttributeSpec attrSpec3 = new MessageAttributeSpec(attr3, true);
         tagSpec.add(attrSpec3);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(""); //Disable this field
+        msgVal.setValue(" "); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -224,7 +224,7 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
         MessageAttributeSpec attrSpec4 = new MessageAttributeSpec(attr4, true);
         tagSpec.add(attrSpec4);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(""); //Disable this field
+        msgVal.setValue(" "); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;

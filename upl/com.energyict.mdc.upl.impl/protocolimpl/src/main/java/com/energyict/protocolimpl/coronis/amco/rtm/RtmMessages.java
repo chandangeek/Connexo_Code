@@ -1111,7 +1111,7 @@ public class RtmMessages implements MessageProtocol {
         MessageAttributeSpec addAttribute = new MessageAttributeSpec(attr, true);
         tagSpec.add(addAttribute);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(""); //Disable this field
+        msgVal.setValue(" "); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -1125,7 +1125,7 @@ public class RtmMessages implements MessageProtocol {
         MessageAttributeSpec addAttribute2 = new MessageAttributeSpec(attr2, true);
         tagSpec.add(addAttribute2);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(""); //Disable this field
+        msgVal.setValue(" "); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -1141,7 +1141,7 @@ public class RtmMessages implements MessageProtocol {
         MessageAttributeSpec addAttribute3 = new MessageAttributeSpec(attr3, true);
         tagSpec.add(addAttribute3);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(""); //Disable this field
+        msgVal.setValue(" "); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -1159,7 +1159,7 @@ public class RtmMessages implements MessageProtocol {
         MessageAttributeSpec addAttribute4 = new MessageAttributeSpec(attr4, true);
         tagSpec.add(addAttribute4);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(""); //Disable this field
+        msgVal.setValue(" "); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -1176,7 +1176,7 @@ public class RtmMessages implements MessageProtocol {
         MessageAttributeSpec addAttribute3 = new MessageAttributeSpec(attr3, false);
         tagSpec.add(addAttribute3);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(""); //Disable this field
+        msgVal.setValue(" "); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -1197,7 +1197,7 @@ public class RtmMessages implements MessageProtocol {
         MessageAttributeSpec addAttribute5 = new MessageAttributeSpec(attr5, true);
         tagSpec.add(addAttribute5);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(""); //Disable this field
+        msgVal.setValue(" "); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -1221,7 +1221,7 @@ public class RtmMessages implements MessageProtocol {
         MessageAttributeSpec addAttribute7 = new MessageAttributeSpec(attr7, false);
         tagSpec.add(addAttribute7);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(""); //Disable this field
+        msgVal.setValue(" "); //Disable this field
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
