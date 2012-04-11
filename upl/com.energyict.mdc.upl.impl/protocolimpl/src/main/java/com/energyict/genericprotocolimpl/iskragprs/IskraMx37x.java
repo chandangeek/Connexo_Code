@@ -239,13 +239,13 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
             try {
                 connect();
+                checkTimeDifference(communicationProfile.getCollectOutsideBoundary());
 
                 // Set clock or Force clock... if necessary
                 if (communicationProfile.getForceClock()) {
                     Date cTime = getTime();
                     Date now = Calendar.getInstance(getTimeZone()).getTime();
                     this.timeDifference = (now.getTime() - cTime.getTime());
-                    getLogger().info("Difference between metertime and systemtime is " + this.timeDifference + " ms");
                     getLogger().log(Level.INFO, "Forced to set meterClock to systemTime: " + now);
                     setTimeClock();
                 } else if (communicationProfile.getWriteClock()) {
@@ -316,6 +316,9 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
                 e.printStackTrace();
                 disConnect();
                 throw new BusinessException(e);
+            } catch (TimeDifferenceException e) {
+                disConnect();
+                throw new IOException(e.getMessage());
             } finally {
                 if (dlmsCache.getObjectList() != null) {
                     GenericCache.stopCacheMechanism(rtu, dlmsCache);
@@ -774,14 +777,29 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         this.timeDifference = (now.getTime() - cTime.getTime());
         long sAbsDiff = Math.abs(this.timeDifference) / 1000;
 
-        getLogger().info("Difference between metertime and systemtime is " + this.timeDifference + " ms");
-
         long max = communicationProfile.getMaximumClockDifference();
         long min = communicationProfile.getMinimumClockDifference();
 
         if ((sAbsDiff < max) && (sAbsDiff > min)) {
             getLogger().log(Level.INFO, "Setting meterTime");
             setTimeClock();
+        }
+    }
+
+    private void checkTimeDifference(boolean collectOutsideBoundary) throws IOException {
+        Date cTime = getTime();
+        Date now = new Date();
+
+        this.timeDifference = (now.getTime() - cTime.getTime());
+        long sAbsDiff = Math.abs(this.timeDifference);
+
+        getLogger().info("Difference between metertime and systemtime is " + this.timeDifference + " ms");
+        long max = communicationProfile.getMaximumClockDifference();
+
+        if ((!collectOutsideBoundary) && (sAbsDiff > max)) {
+            String msg = "Time difference exceeds configured maximum: (" + Math.abs(sAbsDiff / 1000) + " s >" + Math.abs(max / 1000) + " s )";
+            getLogger().log(Level.INFO, msg);
+            throw new TimeDifferenceException(msg);
         }
     }
 
@@ -994,8 +1012,8 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             iRequestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0").trim());
             iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
             iClientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "100").trim());
-            iServerUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "17").trim());
-            iServerLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "1").trim());
+            iServerUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "1").trim());
+            iServerLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "17").trim());
             firmwareVersion = properties.getProperty("FirmwareVersion", "ANY");
             nodeId = rtu.getNodeAddress();
             serialNumber = rtu.getSerialNumber();
@@ -2227,6 +2245,14 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
      */
     public byte[] getHHUDataReadout() {
         return getDLMSConnection().getHhuSignOn().getDataReadout();
+    }
+
+}
+
+class TimeDifferenceException extends IOException {
+
+    TimeDifferenceException(String msg) {
+        super(msg);
     }
 
 }
