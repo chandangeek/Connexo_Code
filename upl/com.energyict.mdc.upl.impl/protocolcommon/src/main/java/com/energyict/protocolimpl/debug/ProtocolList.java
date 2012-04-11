@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.debug;
 
-import com.energyict.protocolimpl.base.protocolcollections.GenericProtocolCollectionImpl;
 import com.energyict.protocol.ProtocolCollection;
+import com.energyict.protocolimpl.base.protocolcollections.GenericProtocolCollectionImpl;
 import com.energyict.protocolimpl.base.protocolcollections.ProtocolCollectionImpl;
 
 import java.io.*;
@@ -32,24 +32,24 @@ public class ProtocolList {
     private static String getProtocolInfo(ProtocolCollection collection) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < collection.getSize(); i++) {
-            sb.append(i).append(" = ");
+            sb.append(i).append(";");
 
             try {
-                sb.append(collection.getProtocolClassName(i)).append("; ");
+                sb.append(collection.getProtocolClassName(i)).append(";");
             } catch (IOException e) {
-                sb.append("???").append("; ");
+                sb.append("???").append(";");
             }
 
             try {
-                sb.append(collection.getProtocolName(i)).append("; ");
+                sb.append(collection.getProtocolName(i)).append(";");
             } catch (IOException e) {
-                sb.append("???").append("; ");
+                sb.append("???").append(";");
             }
 
             try {
                 sb.append(collection.getProtocolRevision(i)).append("; ");
             } catch (IOException e) {
-                sb.append("???").append("; ");
+                sb.append("???").append(";");
             }
 
             sb.append("\r\n");
