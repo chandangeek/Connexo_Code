@@ -12,7 +12,7 @@ public class RSSILevel extends AbstractRadioCommand {
 	}
 
 	private int rssiLevel;
-	
+    private static final double MAX = 0x20;
 
 	@Override
 	RadioCommandId getRadioCommandId() {
@@ -48,9 +48,10 @@ public class RSSILevel extends AbstractRadioCommand {
 		
 	}
 
-	final int getRssiLevel() {
-		return rssiLevel;
-	}
+    public double getRssiLevelInPercents() {
+        double value = (((double) rssiLevel) / MAX) * 100;
+        return Math.round(value * 100.0) / 100.0;
+    }
 
 	@Override
 	byte[] prepare() throws IOException {

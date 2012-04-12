@@ -166,7 +166,7 @@ public class CommonObisCodeMapper {
 	    	}
 	    	else if (obisCode.equals(ObisCode.fromString("0.0.96.6.15.255"))) {
 	    		// QOS (RSSI) level
-	    		return new RegisterValue(obisCode,new Quantity(new BigDecimal(waveFlow100mW.getCachedGenericHeader().getQos()), Unit.get("")),new Date());
+	    		return new RegisterValue(obisCode,new Quantity(new BigDecimal(waveFlow100mW.getCachedGenericHeader().getRssiLevel()), Unit.get("")),new Date());
 	    	}
 	    	else if (obisCode.equals(ObisCode.fromString("0.0.96.6.16.255"))) {
 	    		// Alarm configuration

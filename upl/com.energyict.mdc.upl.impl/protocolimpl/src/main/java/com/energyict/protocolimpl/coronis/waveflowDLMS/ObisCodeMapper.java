@@ -181,7 +181,7 @@ public class ObisCodeMapper {
     	}
     	
     	if (obisCode.equals(ObisCode.fromString("0.0.96.5.0.255"))) { //RSSI level
-    		return new RegisterValue(obisCode,new Quantity(""+abstractDLMS.getRadioCommandFactory().readRSSILevel(),Unit.get("")));
+    		return new RegisterValue(obisCode,new Quantity(abstractDLMS.getRadioCommandFactory().readRSSILevel(),Unit.get("")));
     	}
     	
     	if (obisCode.equals(ObisCode.fromString("0.0.96.6.200.255"))) {

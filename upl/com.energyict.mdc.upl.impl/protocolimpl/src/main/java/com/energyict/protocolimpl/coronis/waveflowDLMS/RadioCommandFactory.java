@@ -30,12 +30,12 @@ public class RadioCommandFactory {
 		}
 		return firmwareVersion;
 	}
-	final int readRSSILevel() throws IOException {
+	final double readRSSILevel() throws IOException {
 		if (rssiLevel==null) {
 			rssiLevel = new RSSILevel(protocolLink);
 			rssiLevel.invoke();
 		}
-		return rssiLevel.getRssiLevel();
+		return rssiLevel.getRssiLevelInPercents();
 	}
 	/**
 	 * Set the alarmconfiguration and implicit the alarm route path with the sender's address and path.

@@ -17,12 +17,13 @@ abstract public class GenericHeader<T> {
 	abstract public int getApplicationStatus();
 	
 	private static final int GENERIC_STRUCTURE_SIZE = 23;
+    private static final double MAX = 0x20;
 
 
-	/**
-	 * 23 bytes generic header. 
-	 * first byte is unused
-	 */
+    /**
+      * 23 bytes generic header.
+      * first byte is unused
+      */
 	
 	/**
 	 * The "Operating Mode" is used to activate/deactivate each Waveflow 100mW Encoder feature. This
@@ -136,6 +137,10 @@ abstract public class GenericHeader<T> {
 		return qos;
 	}
 
+    public double getRssiLevel() {
+        double value = (((double) qos) / MAX) * 100;
+        return Math.round(value * 100.0) / 100.0;
+    }
 
 	final int getShortLiftCounter() {
 		return shortLiftCounter;
