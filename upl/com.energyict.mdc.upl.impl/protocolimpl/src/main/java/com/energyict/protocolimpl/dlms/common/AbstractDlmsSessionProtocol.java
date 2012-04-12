@@ -52,8 +52,9 @@ public abstract class AbstractDlmsSessionProtocol implements MeterProtocol, Mess
 
     private void validateSerialNumber() throws IOException {
         String eisSerial = getProperties().getSerialNumber().trim();
+        String meterSerialNumber = readSerialNumber().trim();
+        getLogger().info("Meter serial number [" + meterSerialNumber + "]");
         if (eisSerial.length() != 0) {
-            String meterSerialNumber = readSerialNumber().trim();
             if (!eisSerial.equalsIgnoreCase(meterSerialNumber)) {
                 String message = "Configured serial number [" + eisSerial + "] does not match with the meter serial number [" + meterSerialNumber + "]!";
                 getLogger().severe(message);
