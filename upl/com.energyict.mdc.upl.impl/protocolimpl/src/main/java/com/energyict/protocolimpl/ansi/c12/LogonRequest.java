@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  *
@@ -34,6 +35,16 @@ public class LogonRequest extends AbstractRequest {
         return requestData;
     }
     
+    public void logon(String password) throws IOException
+    {
+    	ByteArrayOutputStream result = new ByteArrayOutputStream();
+
+   		result.write(C1222Layer.encodeInteger(password.length()+1));
+   		result.write(0x51);
+   		result.write(password.getBytes());
+        requestData.setData(result.toByteArray());
+    }
+
     public void logon(int userId, byte[] user) throws IOException {
         if (user.length > 10) 
             throw new IOException("LogonRequest, logon, user name is too long (max 10 characters)!");
@@ -46,5 +57,5 @@ public class LogonRequest extends AbstractRequest {
         data[1] = (byte)(userId);
         requestData.setData(data);
     }
-    
+
 }

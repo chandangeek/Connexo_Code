@@ -10,15 +10,14 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import java.io.*;
-import java.util.*;
-
+import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.*;
-import com.energyict.dialer.core.*;
-import com.energyict.cbo.*;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.*;
-import com.energyict.protocol.meteridentification.*;
-import com.energyict.protocol.*;
+
+import java.io.*;
 
 /**
  *
@@ -26,24 +25,24 @@ import com.energyict.protocol.*;
  */
 public class C12Layer2 extends Connection  implements ProtocolConnection {
     
-    private static final int DEBUG=0;
-    private static final long TIMEOUT=600000;
+    protected static final int DEBUG=1;
+    protected static final long TIMEOUT=600000;
 
-    private static final int MULTIPLE_PACKET_TRANSMISSION = 0x80;
-    private static final int MULTIPLE_PACKET_FIRST_PACKET = 0x40;
-    private static final int TOGGLE_BIT = 0x20;
+    protected static final int MULTIPLE_PACKET_TRANSMISSION = 0x80;
+    protected static final int MULTIPLE_PACKET_FIRST_PACKET = 0x40;
+    protected static final int TOGGLE_BIT = 0x20;
     
     
-    private int identity;
+    protected int identity;
     
-    private int timeout;
-    private int maxRetries;
+    protected int timeout;
+    protected int maxRetries;
     
-    private byte[] previousPacket,packet;
+    protected byte[] previousPacket,packet;
     // layer2 specific locals
-    private int previousControl,control;
-    private int previousSequence,sequence;
-    private boolean multiplePacket;
+    protected int previousControl,control;
+    protected int previousSequence,sequence;
+    protected boolean multiplePacket;
     
     int receivedIdentity;
     int receivedControl,previousReceivedControl;
@@ -51,7 +50,7 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
     int receivedLength;
     
     // KV_TO_DO gebruik nog implementeren...
-    private NegotiateResponse negotiateResponse=null;
+    protected NegotiateResponse negotiateResponse=null;
     
     /** Creates a new instance of C12Connection */
     public C12Layer2(InputStream inputStream,
@@ -100,15 +99,15 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
         }
     }
     
-    static private final int STATE_WAIT_FOR_START_OF_PACKET=0;
-    static private final int STATE_WAIT_FOR_IDENTITY=1;
-    static private final int STATE_WAIT_FOR_CONTROL=2;
-    static private final int STATE_WAIT_FOR_SEQUENCE_NUMBER=3;
-    static private final int STATE_WAIT_FOR_LENGTH=4;
-    static private final int STATE_WAIT_FOR_DATA=5;
-    static private final int STATE_WAIT_FOR_CRC=6;
+    static protected final int STATE_WAIT_FOR_START_OF_PACKET=0;
+    static protected final int STATE_WAIT_FOR_IDENTITY=1;
+    static protected final int STATE_WAIT_FOR_CONTROL=2;
+    static protected final int STATE_WAIT_FOR_SEQUENCE_NUMBER=3;
+    static protected final int STATE_WAIT_FOR_LENGTH=4;
+    static protected final int STATE_WAIT_FOR_DATA=5;
+    static protected final int STATE_WAIT_FOR_CRC=6;
     
-    private ResponseData receiveResponseData() throws NestedIOException, IOException {
+    protected ResponseData receiveResponseData() throws NestedIOException, IOException {
         long protocolTimeout,interFrameTimeout;
         int kar;
         int state=STATE_WAIT_FOR_START_OF_PACKET;
@@ -276,15 +275,14 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
         return null;
     }
     
-    
-    
+
     /*******************************************************************************************
      * Private methods
      ******************************************************************************************/
-    static private final int HEADER_LENGTH=6;
-    static private final int CRC_LENGTH=2;
-    static private final int LENGTH_OFFSET=4;
-    private void buildPacket(RequestData requestData) {
+    static protected final int HEADER_LENGTH=6;
+    static protected final int CRC_LENGTH=2;
+    static protected final int LENGTH_OFFSET=4;
+    protected void buildPacket(RequestData requestData) {
         byte[] data = requestData.getAssembledData();
         packet = new byte[data.length+HEADER_LENGTH+CRC_LENGTH];
         System.arraycopy(data,0,packet,HEADER_LENGTH,data.length);
@@ -312,14 +310,14 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
      * bit 5: should toggle for each new packet send... retransmitted packets keep the same state as
      *        the original packet sent
      */
-    private int getControl() {
+    protected int getControl() {
         return control;
     }
     
     
     
 
-    private void buildControl(boolean firstMultipleTransmissionPacket) {
+    protected void buildControl(boolean firstMultipleTransmissionPacket) {
        if (isMultiplePacket())
            control |= MULTIPLE_PACKET_TRANSMISSION;
        else
@@ -341,20 +339,20 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
      * Decremented for each new packet sent. The first packet of a multiple packet transmission have
      * total number of packets - 1. 0 means the last packet or a single  packet to send.
      */
-    private int getSequence() {
+    protected int getSequence() {
         return sequence;
     }
 
-    private void buildSequence() {
+    protected void buildSequence() {
         if (sequence--<1)
             sequence=0;
     }
 
-    private byte[] getPreviousPacket() {
+    protected byte[] getPreviousPacket() {
         return previousPacket;
     }
 
-    private int getPreviousControl() {
+    protected int getPreviousControl() {
         return previousControl;
     }
 
@@ -391,7 +389,7 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
         return identity;
     }
 
-    private void setIdentity(int identity) {
+    protected void setIdentity(int identity) {
         this.identity = identity;
     }
         

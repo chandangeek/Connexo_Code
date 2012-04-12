@@ -9,8 +9,9 @@
  */
 
 package com.energyict.protocolimpl.ansi.c12;
-import java.io.*;
-import com.energyict.protocol.*;
+
+import java.io.IOException;
+
 /**
  *
  * @author Koen
@@ -37,5 +38,17 @@ public class LogonResponse extends AbstractResponse {
         this.logon = logon;
     }
 
+    public void build(ResponseData responseData) throws IOException
+    {
+    	if (getPSEMServiceFactory().c1222) {
+    		parseC1222();
+        } else {
+    		super.build(responseData);
+        }
+    }
 
+    private void parseC1222()
+    {
+
+    }
 }

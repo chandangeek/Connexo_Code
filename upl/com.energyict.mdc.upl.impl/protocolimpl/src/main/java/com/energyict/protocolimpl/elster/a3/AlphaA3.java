@@ -16,6 +16,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocolimpl.ansi.c12.*;
+import com.energyict.protocolimpl.ansi.c12.C1222Layer.SecurityModeEnum;
 import com.energyict.protocolimpl.ansi.c12.procedures.StandardProcedureFactory;
 import com.energyict.protocolimpl.ansi.c12.tables.LoadProfileSet;
 import com.energyict.protocolimpl.ansi.c12.tables.StandardTableFactory;
@@ -52,6 +53,10 @@ import java.util.logging.Logger;
 
 // changed
 public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
+
+    public static String SECURITY_MODE = "SecurityMode";
+	public static String CALLED_AP_TITLE = "CalledAPTitle";
+    public static String SECURITY_KEY = "SecurityKey";
     
 	protected C12Layer2 c12Layer2;
     protected PSEMServiceFactory psemServiceFactory;
@@ -66,12 +71,16 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
     private int retrieveExtraIntervals;
     
     protected String c12User;
-    protected int c12UserId;    
-    
+    protected int c12UserId;
+    protected boolean c1222 = false;
+    protected String securityMode;
+    protected String calledAPTitle;
+    protected String securityKey;
+
     /** Creates a new instance of AlphaA3 */
     public AlphaA3() {
     }
-    
+
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getProfileData(lastReading,new Date(),includeEvents);
     }
@@ -98,7 +107,6 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
     }
     
     protected void validateSerialNumber() throws IOException {
-         boolean check = true;
         if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) return;
         String sn = getStandardTableFactory().getManufacturerIdentificationTable().getManufacturerSerialNumber();
         if (sn.compareTo(getInfoTypeSerialNumber()) == 0) return;
@@ -134,7 +142,7 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
             if ((getInfoTypeSecurityLevel()!=2) && ((getInfoTypePassword()==null) || (getInfoTypePassword().compareTo("")==0)))
                 setInfoTypePassword(new String(new byte[]{0}));        
             String pw=null;
-            if (getInfoTypePassword()!=null)    
+            if (getInfoTypePassword()!=null)
                pw = new String(ParseUtils.extendWithChar0(getInfoTypePassword().getBytes(), 20));
             getPSEMServiceFactory().logOn(c12UserId,c12User,pw,getInfoTypeSecurityLevel(),PSEMServiceFactory.PASSWORD_ASCII);
         }
@@ -142,7 +150,7 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
             if ((getInfoTypeSecurityLevel()!=2) && ((getInfoTypePassword()==null) || (getInfoTypePassword().compareTo("")==0)))
                 setInfoTypePassword(new String(new byte[]{0,0}));        
             String pw=null;
-            if (getInfoTypePassword()!=null)    
+            if (getInfoTypePassword()!=null)
                pw = new String(ParseUtils.extendWithBinary0(getInfoTypePassword().getBytes(), 20));
             getPSEMServiceFactory().logOn(c12UserId,c12User,pw,getInfoTypeSecurityLevel(),PSEMServiceFactory.PASSWORD_BINARY);
         }
@@ -151,16 +159,27 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
     }
     
     protected void doDisConnect() throws IOException {  
-        getPSEMServiceFactory().logOff();        
+    	if (c1222)
+    		getPSEMServiceFactory().terminate();
+    	else
+    		getPSEMServiceFactory().logOff();
     }
     
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","10").trim()));
+        setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay", "10").trim()));
         setInfoTypeNodeAddress(properties.getProperty(MeterProtocol.NODEID,"0"));
-        c12User = properties.getProperty("C12User","");
-        c12UserId = Integer.parseInt(properties.getProperty("C12UserId","0").trim());
+        c12User = properties.getProperty("C12User", "");
+        c12UserId = Integer.parseInt(properties.getProperty("C12UserId", "0").trim());
         passwordBinary = Integer.parseInt(properties.getProperty("PasswordBinary","0").trim());
         setRetrieveExtraIntervals(Integer.parseInt(properties.getProperty("RetrieveExtraIntervals","0").trim()));
+        calledAPTitle = properties.getProperty(CALLED_AP_TITLE, "");
+    	securityKey = properties.getProperty(SECURITY_KEY, "");
+    	securityMode = properties.getProperty(SECURITY_MODE, "");
+
+        if (getInfoTypePassword().length() > 20) {
+            throw new InvalidPropertyException("Length of password cannot be higher than 20. Please correct this first.");
+
+        }
     }
     
     protected List doGetOptionalKeys() {
@@ -170,14 +189,55 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
         result.add("C12UserId");
         result.add("PasswordBinary"); 
         result.add("RetrieveExtraIntervals");
+        result.add(CALLED_AP_TITLE);
+        result.add(SECURITY_KEY);
+        result.add(SECURITY_MODE);
         
         return result;
     }
     
+    protected C1222Buffer checkForC1222()
+    {
+    	C1222Buffer result = null;
+
+    	if (securityMode != null)
+    	{
+	    	if (securityMode.compareToIgnoreCase("1") == 0)         // C1222Authenticate
+	    	{
+	    		result = new C1222Buffer();
+	    		result.setSecurityMode(SecurityModeEnum.SecurityClearTextWithAuthentication);
+	    	}
+	    	else if (securityMode.compareToIgnoreCase("2") == 0)    // C1222Encrypt
+	    	{
+	    		result = new C1222Buffer();
+	    		result.setSecurityMode(SecurityModeEnum.SecurityCipherTextWithAuthentication);
+	    	}
+			}
+
+    	if (result != null)
+    	{
+    		c1222 = true;
+    		result.setCalledApTitle(calledAPTitle);
+    		result.setSecurityKey(securityKey);
+            result.setPassword(getInfoTypePassword());
+    	}
+
+    	return result;
+    }
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
-        c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController);
-        c12Layer2.initStates();
         psemServiceFactory = new PSEMServiceFactory(this);
+
+        C1222Buffer c1222Buffer = checkForC1222();
+    	if (c1222Buffer != null) {
+    		c12Layer2 = new C1222Layer(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController);
+            ((C1222Layer) c12Layer2).setC1222Buffer(c1222Buffer);
+            psemServiceFactory.setC1222(c1222);
+            psemServiceFactory.setC1222Buffer(c1222Buffer);
+    	} else{
+            c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController);
+        }
+
+        c12Layer2.initStates();
         standardTableFactory = new StandardTableFactory(this);
         manufacturerTableFactory = new ManufacturerTableFactory(this);
         standardProcedureFactory = new StandardProcedureFactory(this);
@@ -185,7 +245,7 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
         alphaA3LoadProfile = new AlphaA3LoadProfile(this);
         return c12Layer2;
     }
-    
+
     public void setTime() throws IOException {
         getStandardProcedureFactory().setDateTime();
     }    

@@ -10,10 +10,11 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import com.energyict.protocolimpl.base.*;
-import java.io.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.IdentificationFeature;
+import com.energyict.protocolimpl.base.ParseUtils;
+
+import java.io.IOException;
 /**
  *
  * @author Koen
@@ -32,7 +33,17 @@ public class PSEMServiceFactory {
     
     int state=STATE_BASE;
     private int tableId; // only for debugging purposes
-    
+    public boolean c1222 = false;
+    protected C1222Buffer c1222Buffer = null;
+
+    public C1222Buffer getC1222Buffer() {
+		return c1222Buffer;
+	}
+
+	public void setC1222Buffer(C1222Buffer c1222Buffer) {
+		this.c1222Buffer = c1222Buffer;
+	}
+
     /** Creates a new instance of PSEMServiceFactory */
     public PSEMServiceFactory(C12ProtocolLink c12ProtocolLink) {
         this.c12ProtocolLink=c12ProtocolLink;
@@ -70,11 +81,25 @@ public class PSEMServiceFactory {
     
     private void doLogon(int userId, String user) throws IOException {
         this.setTableId(-1);
-        if (state != STATE_ID)
-            throw new IOException("PSEMServiceFactory, logon, wrong state for logon. Should be in ID STATE...");
-        LogonRequest logonRequest = new LogonRequest(this);
-        logonRequest.logon(userId, user.getBytes());
-        logonRequest.build();
+
+        if (c1222)
+        {
+	        ConnectRequest connectRequest = new ConnectRequest(this);
+	        connectRequest.connect(userId, user.getBytes());
+	        connectRequest.build();
+
+	        LogonRequest logonRequest = new LogonRequest(this);
+	        logonRequest.logon(c1222Buffer.getPassword());
+	        logonRequest.build();
+        }
+        else
+        {
+	        if (state != STATE_ID)
+	            throw new IOException("PSEMServiceFactory, logon, wrong state for logon. Should be in ID STATE...");
+	        LogonRequest logonRequest = new LogonRequest(this);
+	        logonRequest.logon(userId, user.getBytes());
+	        logonRequest.build();
+        }
         state=STATE_SESSION;
     }
     
@@ -195,40 +220,52 @@ public class PSEMServiceFactory {
     }
     
     public void logOn(int c12UserId, String c12User, String password, int securityLevel, int passwordFormat) throws IOException {
-        logOn(c12UserId, c12User, password, securityLevel, passwordFormat, 80, 3);
+    	if (c1222) {
+    		logOnC1222(c12UserId, c12User, password, securityLevel, passwordFormat, 80, 3);
+        } else {
+    		logOn(c12UserId, c12User, password, securityLevel, passwordFormat, 80, 3);
+        }
     }
-    
-    public void logOn(int c12UserId, String c12User, String password, int securityLevel, int passwordFormat, int packetSize, int nrOfPackets) throws IOException {
-        IdentificationFeature  identificationFeature = getIdentificationResponse().getIdentificationFeature0(); // BASE -> ID
-        if (DEBUG>=1) System.out.println("KV_DEBUG> PSEMServiceFactory, logon, identificationFeature="+identificationFeature);
-        getNegotiateResponse(packetSize, nrOfPackets);  // 80 x 3 is 240 (must be < 256)!
-        doLogon(c12UserId,c12User); // ID -> SESSION
-        if ((password != null) && ("".compareTo(password) != 0)) {
-            if (DEBUG>=1) System.out.println("KV_DEBUG> PSEMServiceFactory, logon, password="+password);
-            if (identificationFeature != null) {
-                if (DEBUG>=1) System.out.println("KV_DEBUG> PSEMServiceFactory, logon, authenticate("+securityLevel+","+password+","+identificationFeature.getTicket()+")");
-                // Use authenticate service 
-                authenticate(securityLevel, password.getBytes(), identificationFeature.getTicket());
-            }
-            else {
-                if (DEBUG>=1) System.out.println("KV_DEBUG> PSEMServiceFactory, logon, secure("+password+")");
-                // use secure service
-                if (passwordFormat==PASSWORD_BINARY) 
-                    secure(ProtocolUtils.convert2ascii(password.getBytes()));    
-                else if (passwordFormat==PASSWORD_ASCII) 
-                    secure(ParseUtils.extendWithNULL(password.getBytes(),20));
-            }
-            
-        } // if ((password != null) && ("".compareTo(password) != 0))
-        
-    } // public void logOn(int c12UserId, String c12User, String password, int securityLevel, int passwordFormat, int packetSize, int nrOfPackets) throws IOException
-    
-    
 
-    
+    public void logOnC1222(int c12UserId, String c12User, String password, int securityLevel, int passwordFormat, int packetSize, int nrOfPackets) throws IOException {
+        doLogon(c12UserId,c12User); // ID -> SESSION
+    }
+
+    public void logOn(int c12UserId, String c12User, String password, int securityLevel, int passwordFormat, int packetSize, int nrOfPackets) throws IOException {
+	        IdentificationFeature  identificationFeature = getIdentificationResponse().getIdentificationFeature0(); // BASE -> ID
+	        if (DEBUG>=1) System.out.println("KV_DEBUG> PSEMServiceFactory, logon, identificationFeature="+identificationFeature);
+	        getNegotiateResponse(packetSize, nrOfPackets);  // 80 x 3 is 240 (must be < 256)!
+	        doLogon(c12UserId,c12User); // ID -> SESSION
+	        if ((password != null) && ("".compareTo(password) != 0)) {
+	            if (DEBUG>=1) System.out.println("KV_DEBUG> PSEMServiceFactory, logon, password="+password);
+	            if (identificationFeature != null) {
+	                if (DEBUG>=1) System.out.println("KV_DEBUG> PSEMServiceFactory, logon, authenticate("+securityLevel+","+password+","+identificationFeature.getTicket()+")");
+	                // Use authenticate service
+	                authenticate(securityLevel, password.getBytes(), identificationFeature.getTicket());
+	            }
+	            else {
+	                if (DEBUG>=1) System.out.println("KV_DEBUG> PSEMServiceFactory, logon, secure("+password+")");
+	                // use secure service
+	                if (passwordFormat==PASSWORD_BINARY)
+	                    secure(ProtocolUtils.convert2ascii(password.getBytes()));
+	                else if (passwordFormat==PASSWORD_ASCII)
+	                    secure(ParseUtils.extendWithNULL(password.getBytes(),20));
+	            }
+
+	        } // if ((password != null) && ("".compareTo(password) != 0))
+
+    } // public void logOn(int c12UserId, String c12User, String password, int securityLevel, int passwordFormat, int packetSize, int nrOfPackets) throws IOException
+
     public void logOff() throws IOException {
         doLogoff(); // SESSION -> ID
         terminate(); // SESSION/ID -> BASE
     }
-    
+
+    public boolean isC1222() {
+        return c1222;
+    }
+
+    public void setC1222(boolean c1222) {
+        this.c1222 = c1222;
+    }
 }
