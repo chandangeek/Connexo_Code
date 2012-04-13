@@ -165,7 +165,7 @@ public class ObisCodeMapper {
                 int mode = rtm.getParameterFactory().readOperatingMode().getOperationMode();
                 return new RegisterValue(obisCode, new Quantity(mode, Unit.get("")), new Date());
             } else if (obisCode.equals(OBISCODE_FIRMWARE)) {
-                return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, rtm.readFirmwareVersion());
+                return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), null, new Date(), new Date(), 0, rtm.readFirmwareVersion());
             } else if (obisCode.equals(OBISCODE_RSSI)) {
                 double value = rtm.getRadioCommandFactory().readRSSI().getRssiLevel();
                 return new RegisterValue(obisCode, new Quantity(value > 100 ? 100 : value, Unit.get("")), new Date());
@@ -175,7 +175,7 @@ public class ObisCodeMapper {
             } else if (obisCode.equals(OBISCODE_LOGGING_MODE)) {
                 OperatingMode operatingMode = rtm.getParameterFactory().readOperatingMode();
                 int mode = operatingMode.getDataLoggingMode();
-                return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(mode), Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, operatingMode.getLoggingDescription());
+                return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(mode), Unit.get("")), new Date(), null, new Date(), new Date(), 0, operatingMode.getLoggingDescription());
             } else if (obisCode.equals(OBISCODE_DATALOGGING_STARTHOUR)) {
                 int hour = rtm.getParameterFactory().readTimeOfMeasurement();
                 return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(hour), Unit.get(BaseUnit.HOUR)), new Date());
@@ -192,26 +192,26 @@ public class ObisCodeMapper {
                     throw new IOException("Could not parse command buffer: " + cmdBuffer);
                 }
                 String additionalText = "Full buffer content (hex): " + cmdBuffer.substring(2);
-                return new RegisterValue(obisCode, new Quantity(cmd, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, additionalText);
+                return new RegisterValue(obisCode, new Quantity(cmd, Unit.get("")), new Date(), null, new Date(), new Date(), 0, additionalText);
             } else if (obisCode.equals(OBISCODE_VALVE_STATUS)) {
                 if (!rtm.getParameterFactory().readProfileType().isValve()) {
                     rtm.getLogger().log(Level.WARNING, "Module doesn't support valve control");
                     throw new NoSuchRegisterException("Module doesn't support valve control");
                 }
                 ValveStatus valveStatus = rtm.getRadioCommandFactory().readValveStatus();
-                return new RegisterValue(obisCode, new Quantity(valveStatus.getState(), Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, valveStatus.getDescription());
+                return new RegisterValue(obisCode, new Quantity(valveStatus.getState(), Unit.get("")), new Date(), null, new Date(), new Date(), 0, valveStatus.getDescription());
             } else if (obisCode.equals(OBISCODE_BUBBLE_UP_START_HOUR)) {
                 String startHour = rtm.getParameterFactory().readStartOfPushFrameMechanism();
-                return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, startHour);
+                return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), null, new Date(), new Date(), 0, startHour);
             } else if (obisCode.equals(OBISCODE_PROFILE_TYPE)) {
                 ProfileType profileType = rtm.getParameterFactory().readProfileType();
-                return new RegisterValue(obisCode, new Quantity(profileType.getProfile(), Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, profileType.getDescription());
+                return new RegisterValue(obisCode, new Quantity(profileType.getProfile(), Unit.get("")), new Date(), null, new Date(), new Date(), 0, profileType.getDescription());
             } else if (obisCode.equals(OBISCODE_ENCODER_MODEL_TYPE_A)) {
                 String description = rtm.getRadioCommandFactory().readEncoderModelTypeA();
-                return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, description);
+                return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), null, new Date(), new Date(), 0, description);
             } else if (obisCode.equals(OBISCODE_ENCODER_MODEL_TYPE_B)) {
                 String description = rtm.getRadioCommandFactory().readEncoderModelTypeB();
-                return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, description);
+                return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), null, new Date(), new Date(), 0, description);
             } else if (isCurrentIndexReading(obisCode)) {
                 int port = obisCode.getB();
                 CurrentRegisterReading currentRegister = rtm.getRadioCommandFactory().readCurrentRegister();

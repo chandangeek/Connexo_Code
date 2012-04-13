@@ -60,7 +60,7 @@ public class ObisCodeMapper {
 
                 //Firmware version
             } else if (obisCode.equals(OBISCODE_FIRMWARE)) {
-                return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, waveSense.getFirmwareVersion());
+                return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), null, new Date(), new Date(), 0, waveSense.getFirmwareVersion());
 
                 //Current value
             } else if (obisCode.equals(OBISCODE_CURRENT_VALUE)) {

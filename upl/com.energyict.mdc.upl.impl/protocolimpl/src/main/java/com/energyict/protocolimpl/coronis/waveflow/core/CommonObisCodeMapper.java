@@ -324,32 +324,32 @@ public class CommonObisCodeMapper {
                 return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(threshold), Unit.get(BaseUnit.MINUTE)), new Date());
             } else if (obisCode.equals(OBISCODE_RESIDUAL_LEAKDETECTION_ENABLED)) {
                 int enabled = operatingMode.residualLeakDetectionIsEnabled() ? 1 : 0;
-                return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(enabled), Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, enabled == 1 ? "Enabled" : "Disabled");
+                return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(enabled), Unit.get("")), new Date(), null, new Date(), new Date(), 0, enabled == 1 ? "Enabled" : "Disabled");
             } else if (obisCode.equals(OBISCODE_EXTREME_LEAKDETECTION_ENABLED)) {
                 int enabled = operatingMode.extremeLeakDetectionIsEnabled() ? 1 : 0;
-                return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(enabled), Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, enabled == 1 ? "Enabled" : "Disabled");
+                return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(enabled), Unit.get("")), new Date(), null, new Date(), new Date(), 0, enabled == 1 ? "Enabled" : "Disabled");
             } else if (obisCode.equals(OBISCODE_REEDFAULTDETECTION_ENABLED)) {
                 int enabled = operatingMode.reedFaultDetectionIsEnabled() ? 1 : 0;
-                return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(enabled), Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, enabled == 1 ? "Enabled" : "Disabled");
+                return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(enabled), Unit.get("")), new Date(), null, new Date(), new Date(), 0, enabled == 1 ? "Enabled" : "Disabled");
             } else if (obisCode.equals(OBISCODE_WIRECUTDETECTION_ENABLED)) {
                 int enabled = operatingMode.wireCutDetectionIsEnabled() ? 1 : 0;
-                return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(enabled), Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, enabled == 1 ? "Enabled" : "Disabled");
+                return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(enabled), Unit.get("")), new Date(), null, new Date(), new Date(), 0, enabled == 1 ? "Enabled" : "Disabled");
             } else if (obisCode.equals(OBISCODE_SIMPLEBACKFLOW_ENABLED)) {
                 ProfileType profileType = waveFlow.getParameterFactory().readProfileType();
                 int enabled = profileType.supportsSimpleBackflowDetection() ? 1 : 0;
-                return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(enabled), Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, enabled == 1 ? "Enabled" : "Disabled");
+                return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(enabled), Unit.get("")), new Date(), null, new Date(), new Date(), 0, enabled == 1 ? "Enabled" : "Disabled");
             } else if (obisCode.equals(OBISCODE_ADVANCED_BACKFLOW_ENABLED)) {
                 ProfileType profileType = waveFlow.getParameterFactory().readProfileType();
                 int enabled = profileType.supportsAdvancedBackflowDetection() ? 1 : 0;
-                return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(enabled), Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, enabled == 1 ? "Enabled" : "Disabled");
+                return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(enabled), Unit.get("")), new Date(), null, new Date(), new Date(), 0, enabled == 1 ? "Enabled" : "Disabled");
             } else if (obisCode.equals(OBISCODE_LOGGING_MODE)) {
                 int steps = operatingMode.dataLoggingSteps();
-                return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(steps), Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, operatingMode.getLoggingDescription());
+                return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(steps), Unit.get("")), new Date(), null, new Date(), new Date(), 0, operatingMode.getLoggingDescription());
             } else if (obisCode.equals(OBISCODE_OPERATION_MODE)) {
                 int mode = operatingMode.getOperationMode();
                 return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(mode), Unit.get("")), new Date());
             } else if (obisCode.equals(OBISCODE_FIRMWARE)) {
-                return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, waveFlow.readFirmwareVersion());
+                return new RegisterValue(obisCode, waveFlow.readFirmwareVersion());
             } else if (obisCode.equals(OBISCODE_ELAPSED_DAYS)) {
                 int nr = waveFlow.getParameterFactory().readElapsedDays();
                 return new RegisterValue(obisCode, new Quantity(new BigDecimal(nr), Unit.get(BaseUnit.DAY)), new Date());
@@ -361,7 +361,7 @@ public class CommonObisCodeMapper {
                 return new RegisterValue(obisCode, new Quantity(nr * MULTIPLIER, Unit.get("")), new Date());
             } else if (obisCode.equals(OBISCODE_PROFILE_TYPE)) {
                 ProfileType profileType = waveFlow.getParameterFactory().readProfileType();
-                return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(profileType.getType()), Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, profileType.getDescription());
+                return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(profileType.getType()), Unit.get("")), new Date(), null, new Date(), new Date(), 0, profileType.getDescription());
             } else if (obisCode.equals(OBISCODE_TIME_DURATION_RX)) {
                 int value = waveFlow.getParameterFactory().getTimeDurationRX();
                 return new RegisterValue(obisCode, new Quantity(value, Unit.get(BaseUnit.SECOND, -3)), new Date());

@@ -74,7 +74,7 @@ public class ObisCodeMapper {
             int mode = waveLog.getParameterFactory().readOperatingMode().getOperationMode();
             return new RegisterValue(obisCode, new Quantity(mode, Unit.get("")), new Date());
         } else if (obisCode.equals(OBISCODE_FIRMWARE)) {
-            return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, waveLog.getFirmwareVersion());
+            return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), null, new Date(), new Date(), 0, waveLog.getFirmwareVersion());
         } else if (obisCode.equals(OBISCODE_RSSI)) {
             double value = waveLog.getRadioCommandFactory().readRSSI();
             return new RegisterValue(obisCode, new Quantity(value > 100 ? 100 : value, Unit.get("")), new Date());

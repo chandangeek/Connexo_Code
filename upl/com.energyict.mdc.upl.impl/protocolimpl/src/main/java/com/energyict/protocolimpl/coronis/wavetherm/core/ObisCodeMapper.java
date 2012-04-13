@@ -92,7 +92,7 @@ public class ObisCodeMapper {
             double value = waveTherm.getRadioCommandFactory().readRSSI();
             return new RegisterValue(obisCode, new Quantity(value > 100 ? 100 : value, Unit.get("")), new Date());
         } else if (obisCode.equals(OBISCODE_FIRMWARE)) {
-            return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, waveTherm.getFirmwareVersion());
+            return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), null, new Date(), new Date(), 0, waveTherm.getFirmwareVersion());
         } else if (obisCode.equals(OBISCODE_APPLICATION_STATUS)) {
             return new RegisterValue(obisCode, new Quantity(waveTherm.getParameterFactory().readApplicationStatus().getStatus(), Unit.get("")), new Date());
         } else if (obisCode.equals(OBISCODE_OPERATION_MODE)) {

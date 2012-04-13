@@ -306,10 +306,10 @@ public class ObisCodeMapper {
                 return new RegisterValue(obisCode, period, new Date());
             } else if (OBISCODE_DAILY_SEGMENT_START_MOMENT.equals(obisCode)) {
                 Read4DailySegmentsParameters segmentsParameters = waveFlowV1.getRadioCommandFactory().readDailySegmentsParameters();
-                return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), segmentsParameters.getDate(), new Date(), new Date(), new Date(), 0, segmentsParameters.getDescription());
+                return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), segmentsParameters.getDate(), null, new Date(), new Date(), 0, segmentsParameters.getDescription());
             } else if (OBISCODE_CUMULATIVE_VOLUME_BAND_START_MOMENT.equals(obisCode)) {
                 ReadCumulativeFlowVolumeParameters parameters = waveFlowV1.getRadioCommandFactory().readBandParameters();
-                return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), parameters.getDate(), new Date(), new Date(), new Date(), 0, parameters.getDescription());
+                return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), parameters.getDate(), null, new Date(), new Date(), 0, parameters.getDescription());
 
             } else if (OBISCODE_DAILY_SEGMENT_1_STARTHOUR.equals(obisCode)) {
                 int value = waveFlowV1.getRadioCommandFactory().readDailySegmentsParameters().getStartHour(0);
@@ -501,10 +501,10 @@ public class ObisCodeMapper {
                 return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date());
             } else if (OBISCODE_CUSTOMERNUMBER.equals(obisCode)) {
                 String number = waveFlowV1.getRadioCommandFactory().readCustomerNumber();
-                return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, number);
+                return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), null, new Date(), new Date(), 0, number);
             } else if (OBISCODE_DATE_OF_INSTALLATION.equals(obisCode)) {
                 ReadDateOfInstallation dateOfInstallation = waveFlowV1.getRadioCommandFactory().readInstallationDate();
-                return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), dateOfInstallation.getDate(), new Date(), new Date(), new Date(), 0, dateOfInstallation.getDescription());
+                return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), dateOfInstallation.getDate(), null, new Date(), new Date(), 0, dateOfInstallation.getDescription());
             } else if (OBISCODE_PEAKFLOW.equals(obisCode)) {
                 ReadPeakFlowData peakFlowData = waveFlowV1.getRadioCommandFactory().readPeakFlowData();
                 if (peakFlowData.getCurrentPeriodPeakFlow() == -1) {
@@ -565,7 +565,7 @@ public class ObisCodeMapper {
             } else if (OBISCODE_TARIFF_PERIOD_MODE.equals(obisCode)) {
                 int mode = waveFlowV1.getRadioCommandFactory().readTariffSettings().getTariffMode() >> 7;
                 int value = (waveFlowV1.getRadioCommandFactory().readTariffSettings().getTariffMode() & 0x03);
-                return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, getTariffModeDescription(value, mode));
+                return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date(), null, new Date(), new Date(), 0, getTariffModeDescription(value, mode));
             } else if (OBISCODE_STARTDAY.equals(obisCode)) {
                 int mode = waveFlowV1.getRadioCommandFactory().readTariffSettings().getTariffMode() >> 7;
                 int value;
