@@ -234,23 +234,24 @@ public class AXDRDecoderTest {
 	 * @return true if this typeId can be parsed by the {@link AXDRDecoder}
 	 */
 	private boolean isTypeIdSupportedByAXDRDecoder(int typeId) {
-		switch (typeId) {
-			case AxdrType.NULL.getTag():
-			case AxdrType.ARRAY.getTag():
-			case AxdrType.STRUCTURE.getTag():
-			case AxdrType.INTEGER.getTag():
-			case AxdrType.LONG.getTag():
-			case AxdrType.DOUBLE_LONG.getTag():
-			case AxdrType.UNSIGNED.getTag():
-			case AxdrType.LONG_UNSIGNED.getTag():
-			case AxdrType.ENUM.getTag():
-			case AxdrType.BIT_STRING.getTag():
-			case AxdrType.VISIBLE_STRING.getTag():
-			case AxdrType.OCTET_STRING.getTag():
-			case AxdrType.DOUBLE_LONG_UNSIGNED.getTag():
-			case AxdrType.LONG64.getTag():
-			case AxdrType.LONG64_UNSIGNED.getTag():
-			case AxdrType.BOOLEAN.getTag():
+        final AxdrType axdrType = AxdrType.fromTag((byte) (typeId & 0x0FF));
+        switch (axdrType) {
+			case NULL:
+			case ARRAY:
+			case STRUCTURE:
+            case INTEGER:
+            case LONG:
+            case DOUBLE_LONG:
+            case UNSIGNED:
+            case LONG_UNSIGNED:
+            case ENUM:
+            case BIT_STRING:
+            case VISIBLE_STRING:
+            case OCTET_STRING:
+            case DOUBLE_LONG_UNSIGNED:
+            case LONG64:
+            case LONG64_UNSIGNED:
+            case BOOLEAN:
 				return true;
 			default:
 				return false;
