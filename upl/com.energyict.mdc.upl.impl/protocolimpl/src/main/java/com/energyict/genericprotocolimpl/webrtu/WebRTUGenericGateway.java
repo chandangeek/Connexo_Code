@@ -244,7 +244,7 @@ public class WebRTUGenericGateway implements GenericProtocol {
                 //Send messages
                 if (fullSlaveSchedule.getSendRtuMessage()) {
                     if (messageProtocol != null) {
-                        List<RtuMessage> messages = slave.getMessages();
+                        List<RtuMessage> messages = getPendingMessages(slave);
                         try {
                             messageProtocol.applyMessages(messages);
                             for (RtuMessage message : messages) {
@@ -291,6 +291,16 @@ public class WebRTUGenericGateway implements GenericProtocol {
         }
         stopWavenisStack();
         timeDiff = 0;
+    }
+
+    private List<RtuMessage> getPendingMessages(Rtu slave) {
+        List<RtuMessage> newMessages = new ArrayList<RtuMessage>();
+        for (RtuMessage rtuMessage : slave.getMessages()) {
+            if (rtuMessage.isPending()) {
+                newMessages.add(rtuMessage);
+            }
+        }
+        return newMessages;
     }
 
     /**
