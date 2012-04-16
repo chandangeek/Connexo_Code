@@ -40,7 +40,7 @@ public class ABBA1700Profile {
         this.protocolLink = protocolLink;
         this.abba1700RegisterFactory = abba1700RegisterFactory;
     }
-    
+
     public ProfileData getProfileData() throws IOException {
         getABBA1700RegisterFactory().setRegister("LoadProfileSet",new Long(0xFFFF));
         return doGetProfileData();
@@ -460,14 +460,14 @@ public class ABBA1700Profile {
              else {
                  IntervalData lastEntry = profileData.getIntervalData(profileData.getIntervalDatas().size()-1);
                  calendar.setTime(lastEntry.getEndTime()); // restore calendar to last interval
-                 IntervalData entry2add = getIntervalData(profileEntryResult.getValues(index), profileEntryResult.getStatus(), calendar);
+                 IntervalData entry2add = getIntervalData(profileData,  profileEntryResult.getValues(index), profileEntryResult.getStatus(), calendar);
                  result = addIntervalData(lastEntry,entry2add);
                  profileData.getIntervalDatas().remove(profileData.getIntervalDatas().size()-1);
              }
           }
           else {
              calendar = incCalendar(calendar,integrationTime);
-             result = getIntervalData(profileEntryResult.getValues(index), profileEntryResult.getStatus(), calendar);
+             result = getIntervalData(profileData,  profileEntryResult.getValues(index), profileEntryResult.getStatus(), calendar);
           }
           if (result!=null) {
               if (result.getValueCount() == profileData.getNumberOfChannels())
@@ -500,24 +500,31 @@ public class ABBA1700Profile {
     private static final int PHASE_FAILURE=0x40;
     
     
-    private IntervalData getIntervalData(long[] values, int status, Calendar calendar) throws UnsupportedException, IOException {
+    private IntervalData getIntervalData(ProfileData profileData, long[] values, int status, Calendar calendar) throws UnsupportedException, IOException {
         // Add interval data...
         IntervalData intervalData = new IntervalData(new Date(calendar.getTime().getTime()));
 
         // KV 11062004
-        if ((status & METER_TRANSIENT_RESET) == METER_TRANSIENT_RESET)
-             intervalData.addEiStatus(IntervalStateBits.OTHER);
-        if ((status & TIME_SYNC) == TIME_SYNC)
-             intervalData.addEiStatus(IntervalStateBits.SHORTLONG);
-        if ((status & DATA_CHANGE) == DATA_CHANGE)
-             intervalData.addEiStatus(IntervalStateBits.CONFIGURATIONCHANGE);
-        if ((status & BATTERY_FAIL) == BATTERY_FAIL)
-             intervalData.addEiStatus(IntervalStateBits.BATTERY_LOW);
-        if ((status & REVERSE_RUN) == REVERSE_RUN)
-             intervalData.addEiStatus(IntervalStateBits.REVERSERUN);
-        if ((status & PHASE_FAILURE) == PHASE_FAILURE)
-             intervalData.addEiStatus(IntervalStateBits.PHASEFAILURE);
-        
+        if ((status & METER_TRANSIENT_RESET) == METER_TRANSIENT_RESET) {
+            intervalData.addEiStatus(IntervalStateBits.OTHER);
+        }
+        if ((status & TIME_SYNC) == TIME_SYNC) {
+            intervalData.addEiStatus(IntervalStateBits.SHORTLONG);
+        }
+        if ((status & DATA_CHANGE) == DATA_CHANGE) {
+            intervalData.addEiStatus(IntervalStateBits.CONFIGURATIONCHANGE);
+        }
+        if ((status & BATTERY_FAIL) == BATTERY_FAIL) {
+            intervalData.addEiStatus(IntervalStateBits.BATTERY_LOW);
+            profileData.addEvent(new MeterEvent(new Date(calendar.getTime().getTime()), MeterEvent.BATTERY_VOLTAGE_LOW, BATTERY_FAIL));
+        }
+        if ((status & REVERSE_RUN) == REVERSE_RUN) {
+            intervalData.addEiStatus(IntervalStateBits.REVERSERUN);
+        }
+        if ((status & PHASE_FAILURE) == PHASE_FAILURE) {
+            intervalData.addEiStatus(IntervalStateBits.PHASEFAILURE);
+        }
+
         // KV 20072005
         if (values != null) {
             for (int t=0;t<values.length;t++)  
