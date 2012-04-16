@@ -7,6 +7,7 @@
 package com.energyict.dlms;
 
 import com.energyict.cbo.ApplicationException;
+import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.axrdencoding.Integer64;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolUtils;
@@ -132,37 +133,37 @@ public final class DLMSUtils {
         String fractionPart;
 
         switch (byteBuffer[iOffset]) {
-            case DLMSCOSEMGlobals.TYPEDESC_NULL:
+            case AxdrType.NULL.getTag():
                 return 0;
 
-            case DLMSCOSEMGlobals.TYPEDESC_FLOATING_POINT:
-            case DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING:
-            case DLMSCOSEMGlobals.TYPEDESC_VISIBLE_STRING:
-            case DLMSCOSEMGlobals.TYPEDESC_TIME:
-            case DLMSCOSEMGlobals.TYPEDESC_BCD:
-            case DLMSCOSEMGlobals.TYPEDESC_BITSTRING:
-            case DLMSCOSEMGlobals.TYPEDESC_STRUCTURE:
-            case DLMSCOSEMGlobals.TYPEDESC_ARRAY:
-            case DLMSCOSEMGlobals.TYPEDESC_COMPACT_ARRAY:
+            case AxdrType.FLOATING_POINT.getTag():
+            case AxdrType.OCTET_STRING.getTag():
+            case AxdrType.VISIBLE_STRING.getTag():
+            case AxdrType.TIME.getTag():
+            case AxdrType.BCD.getTag():
+            case AxdrType.BIT_STRING.getTag():
+            case AxdrType.STRUCTURE.getTag():
+            case AxdrType.ARRAY.getTag():
+            case AxdrType.COMPACT_ARRAY.getTag():
                 throw new IOException("parseValue2int() error");
 
-            case DLMSCOSEMGlobals.TYPEDESC_ENUM:
-            case DLMSCOSEMGlobals.TYPEDESC_BOOLEAN:
+            case AxdrType.ENUM.getTag():
+            case AxdrType.BOOLEAN.getTag():
                 return (long) byteBuffer[iOffset + 1] & 0xff;
 
-            case DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG:
-            case DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED:
+            case AxdrType.DOUBLE_LONG.getTag():
+            case AxdrType.DOUBLE_LONG_UNSIGNED.getTag():
                 return ProtocolUtils.getInt(byteBuffer, iOffset + 1);
 
-            case DLMSCOSEMGlobals.TYPEDESC_UNSIGNED:
-            case DLMSCOSEMGlobals.TYPEDESC_INTEGER:
+            case AxdrType.UNSIGNED.getTag():
+            case AxdrType.INTEGER.getTag():
                 return (long) byteBuffer[iOffset + 1] & 0xff;
 
-            case DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED:
-            case DLMSCOSEMGlobals.TYPEDESC_LONG:
+            case AxdrType.LONG_UNSIGNED.getTag():
+            case AxdrType.LONG.getTag():
                 return ProtocolUtils.getShort(byteBuffer, iOffset + 1);
 
-            case DLMSCOSEMGlobals.TYPEDESC_FLOAT64:
+            case AxdrType.FLOAT64.getTag():
                 signBit = (((int) byteBuffer[iOffset + 1] >> 7) & 0xFF);
                 exponent = (((((long) byteBuffer[iOffset + 1]) << 4) & 0x07FF) |
                         ((((long) byteBuffer[iOffset + 2]) >> 4) & 0x0F));
@@ -187,7 +188,7 @@ public final class DLMSUtils {
                 }
                 return (exponent > 0) ? ((long) (((Math.pow(-1, signBit)) * Math.pow(2, exponent - 1023)) * new Float(fraction))) : 0;
 
-            case DLMSCOSEMGlobals.TYPEDESC_FLOAT32:
+            case AxdrType.FLOAT32.getTag():
                 signBit = (((int) byteBuffer[iOffset + 1] >> 7) & 0xFF);
                 exponent = (((((int) byteBuffer[iOffset + 1]) << 1) & 0xFF) |
                         ((((int) byteBuffer[iOffset + 2]) >> 7) & 0x01));
@@ -208,9 +209,9 @@ public final class DLMSUtils {
                 }
                 return (exponent > 0) ? ((long) (((Math.pow(-1, signBit)) * Math.pow(2, exponent - 127)) * fraction)) : 0;
 
-            case DLMSCOSEMGlobals.TYPEDESC_LONG64:
+            case AxdrType.LONG64.getTag():
                 return ProtocolUtils.getLong(byteBuffer, iOffset + 1);
-            case DLMSCOSEMGlobals.TYPEDESC_LONG64_UNSIGNED:
+            case AxdrType.LONG64_UNSIGNED.getTag():
                 return getUnsignedIntFromBytes(byteBuffer, iOffset + 1, Integer64.LENGTH);
 
             default:
@@ -319,44 +320,44 @@ public final class DLMSUtils {
 
     public static String parseValue2String(byte[] byteBuffer, int iOffset) throws IOException {
         switch (byteBuffer[iOffset]) {
-            case DLMSCOSEMGlobals.TYPEDESC_NULL:
+            case AxdrType.NULL.getTag():
                 return String.valueOf(0);
 
-            case DLMSCOSEMGlobals.TYPEDESC_FLOATING_POINT:
-            case DLMSCOSEMGlobals.TYPEDESC_TIME:
-            case DLMSCOSEMGlobals.TYPEDESC_BCD:
-            case DLMSCOSEMGlobals.TYPEDESC_BITSTRING:
-            case DLMSCOSEMGlobals.TYPEDESC_STRUCTURE:
-            case DLMSCOSEMGlobals.TYPEDESC_ARRAY:
-            case DLMSCOSEMGlobals.TYPEDESC_COMPACT_ARRAY:
+            case AxdrType.FLOATING_POINT.getTag():
+            case AxdrType.TIME.getTag():
+            case AxdrType.BCD.getTag():
+            case AxdrType.BIT_STRING.getTag():
+            case AxdrType.STRUCTURE.getTag():
+            case AxdrType.ARRAY.getTag():
+            case AxdrType.COMPACT_ARRAY.getTag():
                 throw new IOException("parseValue2int() error");
 
 
-            case DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING:
-            case DLMSCOSEMGlobals.TYPEDESC_VISIBLE_STRING:
+            case AxdrType.OCTET_STRING.getTag():
+            case AxdrType.VISIBLE_STRING.getTag():
                 byte[] bstr = new byte[byteBuffer[iOffset + 1]];
                 for (int i = 0; i < bstr.length; i++) {
                     bstr[i] = byteBuffer[iOffset + 2 + i];
                 }
                 return new String(bstr);
 
-            case DLMSCOSEMGlobals.TYPEDESC_ENUM:
-            case DLMSCOSEMGlobals.TYPEDESC_BOOLEAN:
+            case AxdrType.ENUM.getTag():
+            case AxdrType.BOOLEAN.getTag():
                 return String.valueOf((long) byteBuffer[iOffset + 1] & 0xff);
 
-            case DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG:
-            case DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED:
+            case AxdrType.DOUBLE_LONG.getTag():
+            case AxdrType.DOUBLE_LONG_UNSIGNED.getTag():
                 return String.valueOf((long) ProtocolUtils.getInt(byteBuffer, iOffset + 1));
 
-            case DLMSCOSEMGlobals.TYPEDESC_UNSIGNED:
-            case DLMSCOSEMGlobals.TYPEDESC_INTEGER:
+            case AxdrType.UNSIGNED.getTag():
+            case AxdrType.INTEGER.getTag():
                 return String.valueOf((long) byteBuffer[iOffset + 1] & 0xff);
 
-            case DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED:
-            case DLMSCOSEMGlobals.TYPEDESC_LONG:
+            case AxdrType.LONG_UNSIGNED.getTag():
+            case AxdrType.LONG.getTag():
                 return String.valueOf((long) ProtocolUtils.getShort(byteBuffer, iOffset + 1));
 
-            case DLMSCOSEMGlobals.TYPEDESC_LONG64:
+            case AxdrType.LONG64.getTag():
                 return String.valueOf(ProtocolUtils.getLong(byteBuffer, iOffset + 1));
 
             default:

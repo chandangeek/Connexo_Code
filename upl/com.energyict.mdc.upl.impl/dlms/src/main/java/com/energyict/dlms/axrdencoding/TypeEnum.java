@@ -13,8 +13,6 @@ package com.energyict.dlms.axrdencoding;
 import java.io.IOException;
 import java.math.BigDecimal;
 
-import com.energyict.dlms.DLMSCOSEMGlobals;
-
 /**
  *
  * @author kvds
@@ -28,7 +26,7 @@ public class TypeEnum extends AbstractDataType {
      * Creates a new instance of TypeEnum
      */
     public TypeEnum(byte[] berEncodedData, int offset) throws IOException {
-        if (berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_ENUM) {
+        if (berEncodedData[offset] != AxdrType.ENUM.getTag()) {
 			throw new IOException("Enum, invalid identifier "+berEncodedData[offset]);
 		}
         offset++;
@@ -50,7 +48,7 @@ public class TypeEnum extends AbstractDataType {
 
     protected byte[] doGetBEREncodedByteArray() {
         byte[] data = new byte[2];
-        data[0] = DLMSCOSEMGlobals.TYPEDESC_ENUM;
+        data[0] = AxdrType.ENUM.getTag();
         data[1] = (byte)getValue();
         return data;
     }

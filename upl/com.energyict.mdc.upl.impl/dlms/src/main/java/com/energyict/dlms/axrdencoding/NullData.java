@@ -13,8 +13,6 @@ package com.energyict.dlms.axrdencoding;
 import java.io.IOException;
 import java.math.BigDecimal;
 
-import com.energyict.dlms.DLMSCOSEMGlobals;
-
 /**
  *
  * @author kvds
@@ -52,7 +50,7 @@ public class NullData extends AbstractDataType {
 
     static public void main(String[]  artgs) {
         try {
-           NullData v = new NullData(new byte[]{DLMSCOSEMGlobals.TYPEDESC_NULL,(byte)0x81}, 0);
+           NullData v = new NullData(new byte[]{AxdrType.NULL.getTag(),(byte)0x81}, 0);
            System.out.println(v);
         }
         catch(IOException e) {

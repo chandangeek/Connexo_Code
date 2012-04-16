@@ -10,13 +10,15 @@
 
 package com.energyict.dlms.axrdencoding;
 
+import com.energyict.dlms.DLMSUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
-
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSUtils;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  *
@@ -55,7 +57,7 @@ public class Array extends AbstractDataType implements Iterable<AbstractDataType
 
 	public Array(byte[] berEncodedData, int offset, int level) throws IOException {
 		offsetBegin = offset;
-		if (berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_ARRAY) {
+		if (berEncodedData[offset] != AxdrType.ARRAY.getTag()) {
 			throw new IOException("Array, invalid identifier " + berEncodedData[offset]);
 		}
 		offset++;
@@ -94,7 +96,7 @@ public class Array extends AbstractDataType implements Iterable<AbstractDataType
 	protected byte[] doGetBEREncodedByteArray() {
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			baos.write(DLMSCOSEMGlobals.TYPEDESC_ARRAY);
+			baos.write(AxdrType.ARRAY.getTag());
 			baos.write(DLMSUtils.getAXDRLengthEncoding(dataTypes.size()));
 			Iterator<AbstractDataType> it = dataTypes.iterator();
 			while (it.hasNext()) {

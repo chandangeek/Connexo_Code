@@ -1,23 +1,79 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
-import com.energyict.cbo.*;
-import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.cbo.ApplicationException;
+import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.Quantity;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.Integer16;
+import com.energyict.dlms.axrdencoding.Integer32;
+import com.energyict.dlms.axrdencoding.Integer64;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.NullData;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.VisibleString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.AssociationLN;
+import com.energyict.dlms.cosem.AssociationSN;
+import com.energyict.dlms.cosem.AutoConnect;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.GenericInvoke;
+import com.energyict.dlms.cosem.GenericRead;
+import com.energyict.dlms.cosem.GenericWrite;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.Limiter;
+import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.Register;
-import com.energyict.genericprotocolimpl.common.*;
+import com.energyict.dlms.cosem.ScriptTable;
+import com.energyict.dlms.cosem.SecuritySetup;
+import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.cosem.SpecialDaysTable;
+import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
+import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.common.messages.ActivityCalendarMessage;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.Code;
+import com.energyict.mdw.core.CodeCalendar;
+import com.energyict.mdw.core.Lookup;
+import com.energyict.mdw.core.LookupEntry;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.RtuMessageShadow;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterData;
+import com.energyict.protocol.MeterDataMessageResult;
+import com.energyict.protocol.MeterReadingData;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.LoadProfileRegisterMessageBuilder;
 import com.energyict.protocol.messaging.PartialLoadProfileMessageBuilder;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
@@ -27,7 +83,12 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 
 /**
@@ -1056,43 +1117,43 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
     private AbstractDataType convertToMonitoredType(byte theMonitoredAttributeType, String value) throws IOException {
 
         switch (theMonitoredAttributeType) {
-            case DLMSCOSEMGlobals.TYPEDESC_NULL: {
+            case AxdrType.NULL.getTag(): {
                 return new NullData();
             }
-            case DLMSCOSEMGlobals.TYPEDESC_BOOLEAN: {
+            case AxdrType.BOOLEAN.getTag(): {
                 return new BooleanObject(value.equalsIgnoreCase("1"));
             }
-            case DLMSCOSEMGlobals.TYPEDESC_BITSTRING: {
+            case AxdrType.BIT_STRING.getTag(): {
                 return new BitString(Integer.parseInt(value));
             }
-            case DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG: {
+            case AxdrType.DOUBLE_LONG.getTag(): {
                 return new Integer32(Integer.parseInt(value));
             }
-            case DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED: {
+            case AxdrType.DOUBLE_LONG_UNSIGNED.getTag(): {
                 return new Unsigned32(Integer.parseInt(value));
             }
-            case DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING: {
+            case AxdrType.OCTET_STRING.getTag(): {
                 return OctetString.fromString(value);
             }
-            case DLMSCOSEMGlobals.TYPEDESC_VISIBLE_STRING: {
+            case AxdrType.VISIBLE_STRING.getTag(): {
                 return new VisibleString(value);
             }
-            case DLMSCOSEMGlobals.TYPEDESC_INTEGER: {
+            case AxdrType.INTEGER.getTag(): {
                 return new Integer8(Integer.parseInt(value));
             }
-            case DLMSCOSEMGlobals.TYPEDESC_LONG: {
+            case AxdrType.LONG.getTag(): {
                 return new Integer16(Integer.parseInt(value));
             }
-            case DLMSCOSEMGlobals.TYPEDESC_UNSIGNED: {
+            case AxdrType.UNSIGNED.getTag(): {
                 return new Unsigned8(Integer.parseInt(value));
             }
-            case DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED: {
+            case AxdrType.LONG_UNSIGNED.getTag(): {
                 return new Unsigned16(Integer.parseInt(value));
             }
-            case DLMSCOSEMGlobals.TYPEDESC_LONG64: {
+            case AxdrType.LONG64.getTag(): {
                 return new Integer64(Integer.parseInt(value));
             }
-            case DLMSCOSEMGlobals.TYPEDESC_ENUM: {
+            case AxdrType.ENUM.getTag(): {
                 return new TypeEnum(Integer.parseInt(value));
             }
             default:

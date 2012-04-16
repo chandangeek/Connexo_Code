@@ -4,13 +4,16 @@
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.attributes.Ipv4SetupAttributes;
 import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
-
-import static com.energyict.dlms.DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED;
 
 /**
  * <p>
@@ -131,7 +134,7 @@ public class IPv4Setup extends AbstractCosemObject{
 	public void setIPAddress(String newIp) throws IOException{
 		int pointer = 0;
 		byte[] ipByte = new byte[5];
-		ipByte[0] = TYPEDESC_DOUBLE_LONG_UNSIGNED;
+		ipByte[0] = AxdrType.DOUBLE_LONG_UNSIGNED.getTag();
 		for(int i = 1; i < ipByte.length; i++){
 			ipByte[i] = (byte)Integer.parseInt(newIp.substring(pointer, (newIp.indexOf(".", pointer) == -1)?newIp.length():newIp.indexOf(".", pointer)));
 			pointer = newIp.indexOf(".", pointer) + 1;
@@ -275,7 +278,7 @@ public class IPv4Setup extends AbstractCosemObject{
 	public void setSubnetMask(String subnetMask) throws IOException {
 		int pointer = 0;
 		byte[] subnetByte = new byte[5];
-		subnetByte[0] = TYPEDESC_DOUBLE_LONG_UNSIGNED;
+		subnetByte[0] = AxdrType.DOUBLE_LONG_UNSIGNED.getTag();
 		for(int i = 1; i < subnetByte.length; i++){
 			subnetByte[i] = (byte)Integer.parseInt(subnetMask.substring(pointer, (subnetMask.indexOf(".", pointer) == -1)?subnetMask.length():subnetMask.indexOf(".", pointer)));
 			pointer = subnetMask.indexOf(".", pointer) + 1;
@@ -334,7 +337,7 @@ public class IPv4Setup extends AbstractCosemObject{
 	public void setGatewayIPAddress(String gatewayIPAddress) throws IOException {
 		int pointer = 0;
 		byte[] gatewayByte = new byte[5];
-		gatewayByte[0] = TYPEDESC_DOUBLE_LONG_UNSIGNED;
+		gatewayByte[0] = AxdrType.DOUBLE_LONG_UNSIGNED.getTag();
 		for(int i = 1; i < gatewayByte.length; i++){
 			gatewayByte[i] = (byte)Integer.parseInt(gatewayIPAddress.substring(pointer, (gatewayIPAddress.indexOf(".", pointer) == -1)?gatewayIPAddress.length():gatewayIPAddress.indexOf(".", pointer)));
 			pointer = gatewayIPAddress.indexOf(".", pointer) + 1;
@@ -393,7 +396,7 @@ public class IPv4Setup extends AbstractCosemObject{
 	public void setPrimaryDNSAddress(String primaryDNSAddress) throws IOException {
 		int pointer = 0;
 		byte[] primaryDNSByte = new byte[5];
-		primaryDNSByte[0] = TYPEDESC_DOUBLE_LONG_UNSIGNED;
+		primaryDNSByte[0] = AxdrType.DOUBLE_LONG_UNSIGNED.getTag();
 		for(int i = 1; i < primaryDNSByte.length; i++){
 			primaryDNSByte[i] = (byte)Integer.parseInt(primaryDNSAddress.substring(pointer, (primaryDNSAddress.indexOf(".", pointer) == -1)?primaryDNSAddress.length():primaryDNSAddress.indexOf(".", pointer)));
 			pointer = primaryDNSAddress.indexOf(".", pointer) + 1;
@@ -452,7 +455,7 @@ public class IPv4Setup extends AbstractCosemObject{
 	public void setSecondaryDNSAddress(String secondaryDNSAddress) throws IOException {
 		int pointer = 0;
 		byte[] secondaryDNSByte = new byte[5];
-		secondaryDNSByte[0] = TYPEDESC_DOUBLE_LONG_UNSIGNED;
+		secondaryDNSByte[0] = AxdrType.DOUBLE_LONG_UNSIGNED.getTag();
 		for(int i = 1; i < secondaryDNSByte.length; i++){
 			secondaryDNSByte[i] = (byte)Integer.parseInt(secondaryDNSAddress.substring(pointer, (secondaryDNSAddress.indexOf(".", pointer) == -1)?secondaryDNSAddress.length():secondaryDNSAddress.indexOf(".", pointer)));
 			pointer = secondaryDNSAddress.indexOf(".", pointer) + 1;

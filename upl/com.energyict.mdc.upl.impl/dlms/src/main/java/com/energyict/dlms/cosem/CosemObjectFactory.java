@@ -6,7 +6,10 @@
 
 package com.energyict.dlms.cosem;
 
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.obis.ObisCode;
 
@@ -17,7 +20,7 @@ import java.util.List;
  *
  * @author  Koen
  */
-public class CosemObjectFactory implements DLMSCOSEMGlobals {
+public class CosemObjectFactory {
 
     private ProtocolLink protocolLink;
     private StoredValues storedValues=null; // cached
@@ -63,7 +66,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     }
 
     public Clock getClock() throws IOException {
-        return new Clock(protocolLink,getObjectReference(CLOCK_OBJECT_LN,protocolLink.getMeterConfig().getClockSN()));
+        return new Clock(protocolLink,getObjectReference(DLMSCOSEMGlobals.CLOCK_OBJECT_LN,protocolLink.getMeterConfig().getClockSN()));
     }
 
     public Clock getClock(ObisCode obisCode) throws IOException {
@@ -189,14 +192,14 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     }
 
     public AssociationLN getAssociationLN() {
-        return new AssociationLN(protocolLink,new ObjectReference(ASSOC_LN_OBJECT_LN));
+        return new AssociationLN(protocolLink,new ObjectReference(DLMSCOSEMGlobals.ASSOC_LN_OBJECT_LN));
     }
     public AssociationSN getAssociationSN() {
-        return new AssociationSN(protocolLink,new ObjectReference(ASSOC_SN_OBJECT));
+        return new AssociationSN(protocolLink,new ObjectReference(DLMSCOSEMGlobals.ASSOC_SN_OBJECT));
     }
 
     public IPv4Setup getIPv4Setup() throws IOException {
-    	return new IPv4Setup(protocolLink, getObjectReference(IPV4_SETUP, protocolLink.getMeterConfig().getIPv4SetupSN()));
+    	return new IPv4Setup(protocolLink, getObjectReference(DLMSCOSEMGlobals.IPV4_SETUP, protocolLink.getMeterConfig().getIPv4SetupSN()));
     }
 
     public MacAddressSetup getMacAddressSetup(ObisCode obisCode) throws IOException {
@@ -208,7 +211,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     }
 
     public P3ImageTransfer getP3ImageTransfer() throws IOException {
-    	return new P3ImageTransfer(protocolLink, getObjectReference(P3IMAGE_TRANSFER, protocolLink.getMeterConfig().getP3ImageTransferSN()));
+    	return new P3ImageTransfer(protocolLink, getObjectReference(DLMSCOSEMGlobals.P3IMAGE_TRANSFER, protocolLink.getMeterConfig().getP3ImageTransferSN()));
     }
 
     public P3ImageTransfer getP3ImageTransfer(ObisCode obisCode) throws IOException{
@@ -216,7 +219,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     }
 
     public Disconnector getDisconnector() throws IOException {
-    	return new Disconnector(protocolLink, getObjectReference(DISCONNECTOR, protocolLink.getMeterConfig().getDisconnectorSN()));
+    	return new Disconnector(protocolLink, getObjectReference(DLMSCOSEMGlobals.DISCONNECTOR, protocolLink.getMeterConfig().getDisconnectorSN()));
     }
 
     public Disconnector getDisconnector(ObisCode obisCode) throws IOException{
@@ -248,15 +251,15 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     }
 
 	public Limiter getLimiter() throws IOException{
-		return new Limiter(protocolLink, getObjectReference(LIMITER, protocolLink.getMeterConfig().getLimiterSN()));
+		return new Limiter(protocolLink, getObjectReference(DLMSCOSEMGlobals.LIMITER, protocolLink.getMeterConfig().getLimiterSN()));
 	}
 
 	public PPPSetup getPPPSetup() throws IOException{
-		return new PPPSetup(protocolLink, getObjectReference(PPPSETUP, protocolLink.getMeterConfig().getPPPSetupSN()));
+		return new PPPSetup(protocolLink, getObjectReference(DLMSCOSEMGlobals.PPPSETUP, protocolLink.getMeterConfig().getPPPSetupSN()));
 	}
 
 	public GPRSModemSetup getGPRSModemSetup() throws IOException{
-		return new GPRSModemSetup(protocolLink, getObjectReference(GPRSMODEMSETUP, protocolLink.getMeterConfig().getGPRSModemSetupSN()));
+		return new GPRSModemSetup(protocolLink, getObjectReference(DLMSCOSEMGlobals.GPRSMODEMSETUP, protocolLink.getMeterConfig().getGPRSModemSetupSN()));
 	}
 
 	public SFSKPhyMacSetup getSFSKPhyMacSetup() throws IOException {

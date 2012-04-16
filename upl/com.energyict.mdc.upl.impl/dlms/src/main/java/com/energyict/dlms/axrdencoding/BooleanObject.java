@@ -3,8 +3,6 @@ package com.energyict.dlms.axrdencoding;
 import java.io.IOException;
 import java.math.BigDecimal;
 
-import com.energyict.dlms.DLMSCOSEMGlobals;
-
 public class BooleanObject extends AbstractDataType {
 
 	private static final int SIZE = 2;
@@ -16,7 +14,7 @@ public class BooleanObject extends AbstractDataType {
 
 	/** Creates a new instance of Enum */
 	public BooleanObject(byte[] berEncodedData, int offset) throws IOException {
-		if (berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_BOOLEAN) {
+		if (berEncodedData[offset] != AxdrType.BOOLEAN.getTag()) {
 			throw new IOException("BooleanObject, invalid identifier " + berEncodedData[offset]);
 		}
 		offset++;
@@ -41,7 +39,7 @@ public class BooleanObject extends AbstractDataType {
 
 	protected byte[] doGetBEREncodedByteArray() {
 		byte[] data = new byte[2];
-		data[0] = DLMSCOSEMGlobals.TYPEDESC_BOOLEAN;
+		data[0] = AxdrType.BOOLEAN.getTag();
 		data[1] = (byte) (state ? 0xff : 0x00);
 		return data;
 	}

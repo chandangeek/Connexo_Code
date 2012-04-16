@@ -10,11 +10,10 @@
 
 package com.energyict.dlms.axrdencoding;
 
+import com.energyict.dlms.DLMSUtils;
+
 import java.io.IOException;
 import java.math.BigDecimal;
-
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSUtils;
 
 /**
  *
@@ -30,7 +29,7 @@ public class BitString extends AbstractDataType {
 	public BitString(byte[] berEncodedData, int offset) throws IOException {
 		offsetBegin = offset;
 
-		if (berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_BITSTRING) {
+		if (berEncodedData[offset] != AxdrType.BIT_STRING.getTag()) {
 			throw new IOException("BitString, invalid identifier " + berEncodedData[offset]);
 		}
 
@@ -88,7 +87,7 @@ public class BitString extends AbstractDataType {
 
 		byte[] encodedLength = DLMSUtils.getAXDRLengthEncoding(size);
 		byte[] data = new byte[(size / 8) + ((size % 8) > 0 ? 1 : 0) + 1 + encodedLength.length];
-		data[0] = DLMSCOSEMGlobals.TYPEDESC_BITSTRING;
+		data[0] = AxdrType.BIT_STRING.getTag();
 		for (int i = 0; i < encodedLength.length; i++) {
 			data[1 + i] = encodedLength[i];
 		}

@@ -10,11 +10,10 @@
 
 package com.energyict.dlms.axrdencoding;
 
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.IOException;
 import java.math.BigDecimal;
-
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
@@ -26,7 +25,7 @@ public class Integer16 extends AbstractDataType {
 
 	/** Creates a new instance of Enum */
 	public Integer16(byte[] berEncodedData, int offset) throws IOException {
-		if (berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_LONG) {
+		if (berEncodedData[offset] != AxdrType.LONG.getTag()) {
 			throw new IOException("Integer16, invalid identifier " + berEncodedData[offset]);
 		}
 		offset++;
@@ -44,7 +43,7 @@ public class Integer16 extends AbstractDataType {
 
 	protected byte[] doGetBEREncodedByteArray() {
 		byte[] data = new byte[3];
-		data[0] = DLMSCOSEMGlobals.TYPEDESC_LONG;
+		data[0] = AxdrType.LONG.getTag();
 		data[1] = (byte) ((value & 0xffff) / 256);
 		data[2] = (byte) ((value & 0xffff) % 256);
 		return data;

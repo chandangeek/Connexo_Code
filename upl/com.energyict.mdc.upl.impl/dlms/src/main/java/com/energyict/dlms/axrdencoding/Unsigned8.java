@@ -13,8 +13,6 @@ package com.energyict.dlms.axrdencoding;
 import java.io.IOException;
 import java.math.BigDecimal;
 
-import com.energyict.dlms.DLMSCOSEMGlobals;
-
 /**
  *
  * @author kvds
@@ -26,7 +24,7 @@ public class Unsigned8 extends AbstractDataType {
 
     /** Creates a new instance of Enum */
     public Unsigned8(byte[] berEncodedData, int offset) throws IOException {
-        if (berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_UNSIGNED) {
+        if (berEncodedData[offset] != AxdrType.UNSIGNED.getTag()) {
 			throw new IOException("Unsigned8, invalid identifier "+berEncodedData[offset]);
 		}
         offset++;
@@ -48,7 +46,7 @@ public class Unsigned8 extends AbstractDataType {
 
     protected byte[] doGetBEREncodedByteArray() {
         byte[] data = new byte[2];
-        data[0] = DLMSCOSEMGlobals.TYPEDESC_UNSIGNED;
+        data[0] = AxdrType.UNSIGNED.getTag();
         data[1] = (byte)getValue();
         return data;
     }

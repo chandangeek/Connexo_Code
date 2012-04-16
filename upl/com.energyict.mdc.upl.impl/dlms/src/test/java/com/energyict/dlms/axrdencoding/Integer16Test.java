@@ -3,13 +3,18 @@
  */
 package com.energyict.dlms.axrdencoding;
 
-import com.energyict.dlms.DLMSCOSEMGlobals;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author jme
@@ -28,15 +33,15 @@ public class Integer16Test {
 	private static final short VALUE3 = 0x1111;
 	private static final short VALUE4 = 0x7F7F;
 
-	private static final byte[] VALUE1_BYTES = new byte[] {DLMSCOSEMGlobals.TYPEDESC_LONG, (VALUE1 >> BYTE_LENGTH) & BYTE_MASK, VALUE1 & BYTE_MASK};
-	private static final byte[] VALUE2_BYTES = new byte[] {DLMSCOSEMGlobals.TYPEDESC_LONG, (VALUE2 >> BYTE_LENGTH) & BYTE_MASK, VALUE2 & BYTE_MASK};
-	private static final byte[] VALUE3_BYTES = new byte[] {DLMSCOSEMGlobals.TYPEDESC_LONG, (VALUE3 >> BYTE_LENGTH) & BYTE_MASK, VALUE3 & BYTE_MASK};
-	private static final byte[] VALUE4_BYTES = new byte[] {DLMSCOSEMGlobals.TYPEDESC_LONG, (VALUE4 >> BYTE_LENGTH) & BYTE_MASK, VALUE4 & BYTE_MASK};
+	private static final byte[] VALUE1_BYTES = new byte[] {AxdrType.LONG.getTag(), (VALUE1 >> BYTE_LENGTH) & BYTE_MASK, VALUE1 & BYTE_MASK};
+	private static final byte[] VALUE2_BYTES = new byte[] {AxdrType.LONG.getTag(), (VALUE2 >> BYTE_LENGTH) & BYTE_MASK, VALUE2 & BYTE_MASK};
+	private static final byte[] VALUE3_BYTES = new byte[] {AxdrType.LONG.getTag(), (VALUE3 >> BYTE_LENGTH) & BYTE_MASK, VALUE3 & BYTE_MASK};
+	private static final byte[] VALUE4_BYTES = new byte[] {AxdrType.LONG.getTag(), (VALUE4 >> BYTE_LENGTH) & BYTE_MASK, VALUE4 & BYTE_MASK};
 
-	private static final byte[] VALUE1_BYTES_OFFSET = new byte[] {0, DLMSCOSEMGlobals.TYPEDESC_LONG, (VALUE1 >> BYTE_LENGTH) & BYTE_MASK, VALUE1 & BYTE_MASK};
-	private static final byte[] VALUE2_BYTES_OFFSET = new byte[] {0, DLMSCOSEMGlobals.TYPEDESC_LONG, (VALUE2 >> BYTE_LENGTH) & BYTE_MASK, VALUE2 & BYTE_MASK};
-	private static final byte[] VALUE3_BYTES_OFFSET = new byte[] {0, DLMSCOSEMGlobals.TYPEDESC_LONG, (VALUE3 >> BYTE_LENGTH) & BYTE_MASK, VALUE3 & BYTE_MASK};
-	private static final byte[] VALUE4_BYTES_OFFSET = new byte[] {0, DLMSCOSEMGlobals.TYPEDESC_LONG, (VALUE4 >> BYTE_LENGTH) & BYTE_MASK, VALUE4 & BYTE_MASK};
+	private static final byte[] VALUE1_BYTES_OFFSET = new byte[] {0, AxdrType.LONG.getTag(), (VALUE1 >> BYTE_LENGTH) & BYTE_MASK, VALUE1 & BYTE_MASK};
+	private static final byte[] VALUE2_BYTES_OFFSET = new byte[] {0, AxdrType.LONG.getTag(), (VALUE2 >> BYTE_LENGTH) & BYTE_MASK, VALUE2 & BYTE_MASK};
+	private static final byte[] VALUE3_BYTES_OFFSET = new byte[] {0, AxdrType.LONG.getTag(), (VALUE3 >> BYTE_LENGTH) & BYTE_MASK, VALUE3 & BYTE_MASK};
+	private static final byte[] VALUE4_BYTES_OFFSET = new byte[] {0, AxdrType.LONG.getTag(), (VALUE4 >> BYTE_LENGTH) & BYTE_MASK, VALUE4 & BYTE_MASK};
 
 	/**
 	 * Test method for {@link com.energyict.dlms.axrdencoding.Integer16#doGetBEREncodedByteArray()}.
@@ -46,7 +51,7 @@ public class Integer16Test {
 		Integer16 integer16 = new Integer16(VALUE1);
 		assertNotNull(integer16.doGetBEREncodedByteArray());
 		assertEquals(INTEGER16_SIZE, integer16.doGetBEREncodedByteArray().length);
-		assertEquals(DLMSCOSEMGlobals.TYPEDESC_LONG, integer16.doGetBEREncodedByteArray()[0]);
+		assertEquals(AxdrType.LONG.getTag(), integer16.doGetBEREncodedByteArray()[0]);
 		assertEquals((VALUE1 >> BYTE_LENGTH) & BYTE_MASK, integer16.doGetBEREncodedByteArray()[1]);
 		assertEquals(VALUE1 & BYTE_MASK, integer16.doGetBEREncodedByteArray()[2]);
 

@@ -6,10 +6,22 @@
 package com.energyict.dlms.cosem;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.dlms.*;
+import com.energyict.dlms.AdaptorConnection;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.ReceiveBuffer;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
 import com.energyict.dlms.cosem.methods.DLMSClassMethods;
 import com.energyict.obis.ObisCode;
@@ -18,7 +30,9 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -1540,7 +1554,7 @@ public abstract class AbstractCosemObject {
 		final int CAPTURE_FROM_OFFSET = 5; // was 4
 		final int CAPTURE_TO_OFFSET = 19; // was 18
 
-		intreq[CAPTURE_FROM_OFFSET] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_FROM_OFFSET] = AxdrType.OCTET_STRING.getTag();
 		intreq[CAPTURE_FROM_OFFSET + 1] = 12; // length
 		intreq[CAPTURE_FROM_OFFSET + 2] = (byte) (fromCalendar.get(Calendar.YEAR) >> 8);
 		intreq[CAPTURE_FROM_OFFSET + 3] = (byte) fromCalendar.get(Calendar.YEAR);
@@ -1555,7 +1569,7 @@ public abstract class AbstractCosemObject {
 		intreq[CAPTURE_FROM_OFFSET + 12] = 0x00;
 		intreq[CAPTURE_FROM_OFFSET + 13] = 0x00;
 
-		intreq[CAPTURE_TO_OFFSET] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_TO_OFFSET] = AxdrType.OCTET_STRING.getTag();
 		intreq[CAPTURE_TO_OFFSET + 1] = 12; // length
 		intreq[CAPTURE_TO_OFFSET + 2] = toCalendar != null ? (byte) (toCalendar.get(Calendar.YEAR) >> 8) : (byte) 0xFF;
 		intreq[CAPTURE_TO_OFFSET + 3] = toCalendar != null ? (byte) (toCalendar.get(Calendar.YEAR)) : (byte) 0xFF;
@@ -1598,7 +1612,7 @@ public abstract class AbstractCosemObject {
 		final int CAPTURE_FROM_OFFSET = 4;
 		final int CAPTURE_TO_OFFSET = 18;
 
-		intreq[CAPTURE_FROM_OFFSET] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_FROM_OFFSET] = AxdrType.OCTET_STRING.getTag();
 		intreq[CAPTURE_FROM_OFFSET + 1] = 12; // length
 		intreq[CAPTURE_FROM_OFFSET + 2] = (byte) (fromCalendar.get(Calendar.YEAR) >> 8);
 		intreq[CAPTURE_FROM_OFFSET + 3] = (byte) fromCalendar.get(Calendar.YEAR);
@@ -1613,7 +1627,7 @@ public abstract class AbstractCosemObject {
 		intreq[CAPTURE_FROM_OFFSET + 12] = 0x00;
 		intreq[CAPTURE_FROM_OFFSET + 13] = 0x00;
 
-		intreq[CAPTURE_TO_OFFSET] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_TO_OFFSET] = AxdrType.OCTET_STRING.getTag();
 		intreq[CAPTURE_TO_OFFSET + 1] = 12; // length
 		intreq[CAPTURE_TO_OFFSET + 2] = (byte) 0xff; //(toCalendar.get(Calendar.YEAR) >> 8);
 		intreq[CAPTURE_TO_OFFSET + 3] = (byte) 0xff; //toCalendar.get(Calendar.YEAR);
@@ -1658,7 +1672,7 @@ public abstract class AbstractCosemObject {
 		int CAPTURE_FROM_OFFSET = 21;
 		int CAPTURE_TO_OFFSET = 35;
 
-		intreq[CAPTURE_FROM_OFFSET] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_FROM_OFFSET] = AxdrType.OCTET_STRING.getTag();
 		intreq[CAPTURE_FROM_OFFSET + 1] = 12; // length
 		intreq[CAPTURE_FROM_OFFSET + 2] = (byte) (fromCalendar.get(Calendar.YEAR) >> 8);
 		intreq[CAPTURE_FROM_OFFSET + 3] = (byte) fromCalendar.get(Calendar.YEAR);
@@ -1687,7 +1701,7 @@ public abstract class AbstractCosemObject {
 			intreq[CAPTURE_FROM_OFFSET + 13] = 0x00;
 		}
 
-		intreq[CAPTURE_TO_OFFSET] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_TO_OFFSET] = AxdrType.OCTET_STRING.getTag();
 		intreq[CAPTURE_TO_OFFSET + 1] = 12; // length
 		intreq[CAPTURE_TO_OFFSET + 2] = toCalendar != null ? (byte) (toCalendar.get(Calendar.YEAR) >> 8) : (byte) 0xFF;
 		intreq[CAPTURE_TO_OFFSET + 3] = toCalendar != null ? (byte) toCalendar.get(Calendar.YEAR) : (byte) 0xFF;
@@ -1729,14 +1743,14 @@ public abstract class AbstractCosemObject {
 
         int CAPTURE_FROM_OFFSET = 21;
 
-        intreq[CAPTURE_FROM_OFFSET] = DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED;
+        intreq[CAPTURE_FROM_OFFSET] = AxdrType.DOUBLE_LONG_UNSIGNED.getTag();
         byte[] bytesFromCal = DLMSUtils.getBytesFromInt((int) fromCalendar, 4);
         intreq[CAPTURE_FROM_OFFSET + 1] = bytesFromCal[0];
         intreq[CAPTURE_FROM_OFFSET + 2] = bytesFromCal[1];
         intreq[CAPTURE_FROM_OFFSET + 3] = bytesFromCal[2];
         intreq[CAPTURE_FROM_OFFSET + 4] = bytesFromCal[3];
 
-        intreq[CAPTURE_FROM_OFFSET + 5] = DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED;
+        intreq[CAPTURE_FROM_OFFSET + 5] = AxdrType.DOUBLE_LONG_UNSIGNED.getTag();
         byte[] bytesToCal = DLMSUtils.getBytesFromInt((int) toCalendar, 4);
         intreq[CAPTURE_FROM_OFFSET + 6] = toCalendar != 0 ? bytesToCal[0] : (byte) 0xFF;
         intreq[CAPTURE_FROM_OFFSET + 7] = toCalendar != 0 ? bytesToCal[1] : (byte) 0xFF;
@@ -1769,26 +1783,26 @@ public abstract class AbstractCosemObject {
 
         int FROM_ENTRY_OFFSET = 3;
 
-        intreq[FROM_ENTRY_OFFSET] = DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED;
+        intreq[FROM_ENTRY_OFFSET] = AxdrType.DOUBLE_LONG_UNSIGNED.getTag();
         byte[] bytesFromEntry = DLMSUtils.getBytesFromInt(fromEntry, 4);
         intreq[FROM_ENTRY_OFFSET + 1] = bytesFromEntry[0];
         intreq[FROM_ENTRY_OFFSET + 2] = bytesFromEntry[1];
         intreq[FROM_ENTRY_OFFSET + 3] = bytesFromEntry[2];
         intreq[FROM_ENTRY_OFFSET + 4] = bytesFromEntry[3];
 
-        intreq[FROM_ENTRY_OFFSET + 5] = DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED;
+        intreq[FROM_ENTRY_OFFSET + 5] = AxdrType.DOUBLE_LONG_UNSIGNED.getTag();
         byte[] bytesToEntry = DLMSUtils.getBytesFromInt(toEntry, 4);
         intreq[FROM_ENTRY_OFFSET + 6] = bytesToEntry[0];
         intreq[FROM_ENTRY_OFFSET + 7] = bytesToEntry[1];
         intreq[FROM_ENTRY_OFFSET + 8] = bytesToEntry[2];
         intreq[FROM_ENTRY_OFFSET + 9] = bytesToEntry[3];
 
-        intreq[FROM_ENTRY_OFFSET + 10] = DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED;
+        intreq[FROM_ENTRY_OFFSET + 10] = AxdrType.LONG_UNSIGNED.getTag();
         byte[] bytesFromSelectedValue = DLMSUtils.getBytesFromInt(fromValue, 2);
         intreq[FROM_ENTRY_OFFSET + 11] = bytesFromSelectedValue[0];
         intreq[FROM_ENTRY_OFFSET + 12] = bytesFromSelectedValue[1];
 
-        intreq[FROM_ENTRY_OFFSET + 13] = DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED;
+        intreq[FROM_ENTRY_OFFSET + 13] = AxdrType.LONG_UNSIGNED.getTag();
         byte[] bytesToSelectedValue = DLMSUtils.getBytesFromInt(toValue, 2);
         intreq[FROM_ENTRY_OFFSET + 14] = bytesToSelectedValue[0];
         intreq[FROM_ENTRY_OFFSET + 15] = bytesToSelectedValue[1];
@@ -1834,7 +1848,7 @@ public abstract class AbstractCosemObject {
 		int CAPTURE_FROM_OFFSET = 21;
 		int CAPTURE_TO_OFFSET = 35;
 
-		intreq[CAPTURE_FROM_OFFSET] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_FROM_OFFSET] = AxdrType.OCTET_STRING.getTag();
 		intreq[CAPTURE_FROM_OFFSET + 1] = 12; // length
 		intreq[CAPTURE_FROM_OFFSET + 2] = (byte) (fromCalendar.get(Calendar.YEAR) >> 8);
 		intreq[CAPTURE_FROM_OFFSET + 3] = (byte) fromCalendar.get(Calendar.YEAR);
@@ -1863,7 +1877,7 @@ public abstract class AbstractCosemObject {
 			intreq[CAPTURE_FROM_OFFSET + 13] = 0x00;
 		}
 
-		intreq[CAPTURE_TO_OFFSET] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_TO_OFFSET] = AxdrType.OCTET_STRING.getTag();
 		intreq[CAPTURE_TO_OFFSET + 1] = 12; // length
 		intreq[CAPTURE_TO_OFFSET + 2] = toCalendar != null ? (byte) (toCalendar.get(Calendar.YEAR) >> 8) : (byte) 0xFF;
 		intreq[CAPTURE_TO_OFFSET + 3] = toCalendar != null ? (byte) toCalendar.get(Calendar.YEAR) : (byte) 0xFF;
@@ -1904,7 +1918,7 @@ public abstract class AbstractCosemObject {
 		List values = new ArrayList();
 		try {
 
-			if (responseData[0] == DLMSCOSEMGlobals.TYPEDESC_ARRAY) {
+			if (responseData[0] == AxdrType.ARRAY.getTag()) {
 				if ((responseData[1] & 0x80) != 0) {
 					bOffset = (byte) (responseData[1] & (byte) 0x7F);
 					for (int i = 0; i < bOffset; i++) {
@@ -1925,7 +1939,7 @@ public abstract class AbstractCosemObject {
 
 					debug("KV_DEBUG> itemInArray=" + itemInArray);
 
-					if (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_STRUCTURE) {
+					if (responseData[t] == AxdrType.STRUCTURE.getTag()) {
 						debug("KV_DEBUG> DLMSCOSEMGlobals.TYPEDESC_STRUCTURE");
 						int iNROfItems;
 						int iIndex = 0;
@@ -1938,12 +1952,12 @@ public abstract class AbstractCosemObject {
 
 						for (iFieldIndex = 0; iFieldIndex < iNROfItems; iFieldIndex++) {
 							debug("KV_DEBUG> iFieldIndex=" + iFieldIndex);
-							if ((responseData[t] == DLMSCOSEMGlobals.TYPEDESC_LONG) || (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED)) {
+							if ((responseData[t] == AxdrType.LONG.getTag()) || (responseData[t] == AxdrType.LONG_UNSIGNED.getTag())) {
 								debug("KV_DEBUG> DLMSCOSEMGlobals.TYPEDESC_LONG | DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED");
 								t++; // skip tag
 								values.add(new Long((long) ProtocolUtils.getShort(responseData, t) & 0x0000FFFF));
 								t += 2; // skip (unsigned) long (2byte) value
-							} else if ((responseData[t] == DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING) || (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_VISIBLE_STRING)) {
+							} else if ((responseData[t] == AxdrType.OCTET_STRING.getTag()) || (responseData[t] == AxdrType.VISIBLE_STRING.getTag())) {
 								debug("KV_DEBUG> DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING | DLMSCOSEMGlobals.TYPEDESC_VISIBLE_STRING");
 								t++; // skip tag
 								int iLength = responseData[t];
@@ -1953,24 +1967,24 @@ public abstract class AbstractCosemObject {
 									values.add(new Long((long) responseData[t + temp] & 0x000000FF));
 								}
 								t += iLength; // skip string, iLength bytes
-							} else if ((responseData[t] == DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED) || (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG)) {
+							} else if ((responseData[t] == AxdrType.DOUBLE_LONG_UNSIGNED.getTag()) || (responseData[t] == AxdrType.DOUBLE_LONG.getTag())) {
 								debug("KV_DEBUG> DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED | DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG");
 								t++; // skip tag
 								values.add(new Long(ProtocolUtils.getInt(responseData, t)));
 								t += 4; // skip double unsigned long (4byte) value
-							} else if ((responseData[t] == DLMSCOSEMGlobals.TYPEDESC_BOOLEAN) || (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_INTEGER) || (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_UNSIGNED)) {
+							} else if ((responseData[t] == AxdrType.BOOLEAN.getTag()) || (responseData[t] == AxdrType.INTEGER.getTag()) || (responseData[t] == AxdrType.UNSIGNED.getTag())) {
 								debug("KV_DEBUG> DLMSCOSEMGlobals.TYPEDESC_BOOLEAN | DLMSCOSEMGlobals.TYPEDESC_INTEGER | DLMSCOSEMGlobals.TYPEDESC_UNSIGNED");
 								t++; // skip tag
 								values.add(new Long((long) responseData[t] & 0x000000FF));
 								t++; // skip (1byte) value
 							}
 							// KV 29072004
-							else if (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_LONG64) {
+							else if (responseData[t] == AxdrType.LONG64.getTag()) {
 								debug("KV_DEBUG> DLMSCOSEMGlobals.TYPEDESC_LONG64");
 								t++; // skip tag
 								values.add(new Long(ProtocolUtils.getLong(responseData, t))); // KV 09/10/2006
 								t += 8; // skip double unsigned long (8byte) value
-							} else if (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_STRUCTURE) {
+							} else if (responseData[t] == AxdrType.STRUCTURE.getTag()) {
 								debug("KV_DEBUG> DLMSCOSEMGlobals.TYPEDESC_STRUCTURE");
 								t = skipStructure(responseData, t);
 							} else {
@@ -2015,43 +2029,43 @@ public abstract class AbstractCosemObject {
 		membersInStructure[level] = responseData[t];
 		t++; // skip structure nr of members
 		while ((level > 0) || ((level == 0) && (membersInStructure[level] > 0))) {
-			if ((responseData[t] == DLMSCOSEMGlobals.TYPEDESC_LONG) || (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED)) {
+			if ((responseData[t] == AxdrType.LONG.getTag()) || (responseData[t] == AxdrType.LONG_UNSIGNED.getTag())) {
 				t++; // skip tag
 				t += 2; // skip (unsigned) long (2byte) value
 				membersInStructure[level]--;
 				debug("KV_DEBUG> skipStructure (t=" + t + "), DLMSCOSEMGlobals.TYPEDESC_LONG | DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED, level=" + level);
-			} else if ((responseData[t] == DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING) || (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_VISIBLE_STRING)) {
+			} else if ((responseData[t] == AxdrType.OCTET_STRING.getTag()) || (responseData[t] == AxdrType.VISIBLE_STRING.getTag())) {
 				t++; // skip tag
 				t += (responseData[t] + 1); // skip string, iLength bytes
 				membersInStructure[level]--;
 				debug("KV_DEBUG> skipStructure (t=" + t + "), DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING | DLMSCOSEMGlobals.TYPEDESC_VISIBLE_STRING, level=" + level);
-			} else if ((responseData[t] == DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED) || (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG)) {
+			} else if ((responseData[t] == AxdrType.DOUBLE_LONG_UNSIGNED.getTag()) || (responseData[t] == AxdrType.DOUBLE_LONG.getTag())) {
 				t++; // skip tag
 				t += 4; // skip double unsigned long (4byte) value
 				membersInStructure[level]--;
 				debug("KV_DEBUG> skipStructure (t=" + t + "), DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED | DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG, level=" + level);
-			} else if ((responseData[t] == DLMSCOSEMGlobals.TYPEDESC_BOOLEAN) || (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_INTEGER) || (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_UNSIGNED)) {
+			} else if ((responseData[t] == AxdrType.BOOLEAN.getTag()) || (responseData[t] == AxdrType.INTEGER.getTag()) || (responseData[t] == AxdrType.UNSIGNED.getTag())) {
 				t++; // skip tag
 				t++; // skip (1byte) value
 				membersInStructure[level]--;
 				debug("KV_DEBUG> skipStructure (t=" + t + "), DLMSCOSEMGlobals.TYPEDESC_BOOLEAN | DLMSCOSEMGlobals.TYPEDESC_INTEGER | DLMSCOSEMGlobals.TYPEDESC_UNSIGNED, level=" + level);
 			}
 			// KV 28072004
-			else if (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_LONG64) {
+			else if (responseData[t] == AxdrType.LONG64.getTag()) {
 				t++; // skip tag
 				t += 8; // skip (8byte) value
 				membersInStructure[level]--;
 				debug("KV_DEBUG> skipStructure (t=" + t + "), DLMSCOSEMGlobals.TYPEDESC_LONG64, level=" + level);
 			}
 			// Skip the access rights structure in case of long name referencing...
-			else if (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_STRUCTURE) {
+			else if (responseData[t] == AxdrType.STRUCTURE.getTag()) {
 				t++; // skip structure tag
 				membersInStructure[level]--;
 				level++;
 				membersInStructure[level] = responseData[t];
 				t++; // skip nr of members
 				debug("KV_DEBUG> skipStructure (t=" + t + "), DLMSCOSEMGlobals.TYPEDESC_STRUCTURE, level=" + level);
-			} else if (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_ARRAY) {
+			} else if (responseData[t] == AxdrType.ARRAY.getTag()) {
 				t++; // skip array tag
 				int offset = 0;
 				if ((responseData[t] & 0x80) != 0) {
@@ -2070,13 +2084,13 @@ public abstract class AbstractCosemObject {
 				membersInStructure[level] = (int) elementsInArray;
 
 				debug("KV_DEBUG> skipStructure (t=" + t + "), DLMSCOSEMGlobals.TYPEDESC_ARRAY, level=" + level + ", elementsInArray=" + elementsInArray);
-			} else if (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_NULL) {
+			} else if (responseData[t] == AxdrType.NULL.getTag()) {
 				t++; // skip tag
 				membersInStructure[level]--;
 				debug("KV_DEBUG> skipStructure (t=" + t + "), DLMSCOSEMGlobals.TYPEDESC_NULL, level=" + level);
 			}
 			// KV 05042007
-			else if (responseData[t] == DLMSCOSEMGlobals.TYPEDESC_ENUM) {
+			else if (responseData[t] == AxdrType.ENUM.getTag()) {
 				t++; // skip tag
 				t++; // skip (1byte) value
 				membersInStructure[level]--;

@@ -6,27 +6,25 @@
 
 package com.energyict.protocolimpl.dlms.siemenszmd;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
-import com.energyict.protocolimpl.dlms.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.cbo.Quantity;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.Register;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.HistoricalValue;
-import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.OctetString;
-import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.HistoricalValue;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.NoSuchRegisterException;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.Iterator;
 
 /**
  *
@@ -51,7 +49,7 @@ public class StoredValuesImpl implements StoredValues {
     }
     
     public void retrieve() throws IOException {
-        profileGeneric = new ProfileGeneric(protocolLink,cof.getObjectReference(cof.HISTORIC_VALUES_OBJECT_LN,protocolLink.getMeterConfig().getHistoricValuesSN()));
+        profileGeneric = new ProfileGeneric(protocolLink,cof.getObjectReference(DLMSCOSEMGlobals.HISTORIC_VALUES_OBJECT_LN,protocolLink.getMeterConfig().getHistoricValuesSN()));
     }
     
     /**
@@ -80,7 +78,7 @@ public class StoredValuesImpl implements StoredValues {
         for (int i=0;i<getBuffer().getRoot().getNrOfElements();i++) {
             DataStructure ds = (DataStructure)buffer.getRoot().getElement(i);
              if (((Integer)ds.getElement(INDEX_RESET_COUNTER)).intValue() == resetCounter) {
-                Clock clock = new Clock(protocolLink,cof.getObjectReference(cof.CLOCK_OBJECT_LN,protocolLink.getMeterConfig().getClockSN()));
+                Clock clock = new Clock(protocolLink,cof.getObjectReference(DLMSCOSEMGlobals.CLOCK_OBJECT_LN,protocolLink.getMeterConfig().getClockSN()));
                 clock.setDateTime((OctetString)ds.getElement(INDEX_CLOCK));
                 return clock.getDateTime();
              }
@@ -106,7 +104,7 @@ public class StoredValuesImpl implements StoredValues {
             // if the obiscode F field contains the right resetcounter historical value
             if (((Integer)ds.getElement(INDEX_RESET_COUNTER)).intValue() == resetCounter) {
                 historicalValue.setResetCounter(((Integer)ds.getElement(INDEX_RESET_COUNTER)).intValue());
-                Clock clock = new Clock(protocolLink,cof.getObjectReference(cof.CLOCK_OBJECT_LN,protocolLink.getMeterConfig().getClockSN()));
+                Clock clock = new Clock(protocolLink,cof.getObjectReference(DLMSCOSEMGlobals.CLOCK_OBJECT_LN,protocolLink.getMeterConfig().getClockSN()));
                 clock.setDateTime((OctetString)ds.getElement(INDEX_CLOCK));
                 historicalValue.setBillingDate(clock.getDateTime());
                 

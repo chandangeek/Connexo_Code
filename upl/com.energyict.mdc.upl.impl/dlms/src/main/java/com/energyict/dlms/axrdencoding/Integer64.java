@@ -1,6 +1,5 @@
 package com.energyict.dlms.axrdencoding;
 
-import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -13,7 +12,7 @@ public class Integer64 extends AbstractDataType {
 
     /** Creates a new instance of Enum */
     public Integer64(byte[] berEncodedData, int offset) throws IOException {
-        if ((berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_LONG64) && ((berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_LONG64_UNSIGNED))) {
+        if ((berEncodedData[offset] != AxdrType.LONG64.getTag()) && ((berEncodedData[offset] != AxdrType.LONG64_UNSIGNED.getTag()))) {
 			throw new IOException("Integer64, invalid identifier "+berEncodedData[offset]);
 		}
         offset++;
@@ -39,7 +38,7 @@ public class Integer64 extends AbstractDataType {
 
     protected byte[] doGetBEREncodedByteArray() {
         byte[] data = new byte[9];
-        data[0] = DLMSCOSEMGlobals.TYPEDESC_LONG64;
+        data[0] = AxdrType.LONG64.getTag();
         for (int i=0;i<8;i++) {
            data[i+1] = (byte)(getValue()>>((7-i)*8));
         }

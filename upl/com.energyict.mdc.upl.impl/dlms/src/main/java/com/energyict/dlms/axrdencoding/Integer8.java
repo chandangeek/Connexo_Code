@@ -3,8 +3,6 @@ package com.energyict.dlms.axrdencoding;
 import java.io.IOException;
 import java.math.BigDecimal;
 
-import com.energyict.dlms.DLMSCOSEMGlobals;
-
 /**
  *
  * @author kvds
@@ -19,7 +17,7 @@ public class Integer8 extends AbstractDataType {
      * @throws IOException
      */
     public Integer8(byte[] berEncodedData, int offset) throws IOException {
-        if (berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_INTEGER) {
+        if (berEncodedData[offset] != AxdrType.INTEGER.getTag()) {
 			throw new IOException("Integer8, invalid identifier "+berEncodedData[offset]);
 		}
         offset++;
@@ -38,7 +36,7 @@ public class Integer8 extends AbstractDataType {
     @Override
 	protected byte[] doGetBEREncodedByteArray() {
         byte[] data = new byte[size()];
-        data[0] = DLMSCOSEMGlobals.TYPEDESC_INTEGER;
+        data[0] = AxdrType.INTEGER.getTag();
         data[1] = (byte)getValue();
         return data;
     }

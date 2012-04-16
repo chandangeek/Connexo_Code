@@ -6,16 +6,16 @@
 
 package com.energyict.dlms;
 
+import com.energyict.dlms.cosem.DLMSClassId;
+
 import java.io.IOException;
 import java.util.StringTokenizer;
-
-import com.energyict.dlms.cosem.DLMSClassId;
 
 /**
  *
  * @author  Koen
  */
-public class DLMSObis implements DLMSCOSEMGlobals {
+public class DLMSObis {
 
     byte[] tokens=null;
     String str;
@@ -98,22 +98,27 @@ public class DLMSObis implements DLMSCOSEMGlobals {
     }
 
     public int getLNA() throws IOException {
-        return getVal(LN_A);
+        return getVal(0);
     }
+
     public int getLNB() throws IOException {
-        return getVal(LN_B);
+        return getVal(1);
     }
+
     public int getLNC() throws IOException {
-        return getVal(LN_C);
+        return getVal(2);
     }
+
     public int getLND() throws IOException {
-        return getVal(LN_D);
+        return getVal(3);
     }
+
     public int getLNE() throws IOException {
-        return getVal(LN_E);
+        return getVal(4);
     }
+
     public int getLNF() throws IOException {
-        return getVal(LN_F);
+        return getVal(5);
     }
 
     public int getValueAttributeOffset() throws IOException {

@@ -3,18 +3,47 @@
  */
 package com.energyict.genericprotocolimpl.iskragprs;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.ApplicationException;
+import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.Unit;
+import com.energyict.cbo.Utils;
 import com.energyict.cpo.Environment;
-import com.energyict.dialer.connection.*;
-import com.energyict.dialer.core.*;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.core.DialerMarker;
+import com.energyict.dialer.core.Link;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
-import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.HDLCConnection;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.TCPIPConnection;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.AutoConnect;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.PPPSetup.PPPAuthenticationType;
-import com.energyict.genericprotocolimpl.common.*;
+import com.energyict.dlms.cosem.SpecialDaysTable;
+import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.cosem.TCPUDPSetup;
+import com.energyict.genericprotocolimpl.common.AMRJournalManager;
+import com.energyict.genericprotocolimpl.common.GenericCache;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.tou.ActivityCalendarReader;
 import com.energyict.genericprotocolimpl.common.tou.CosemActivityCalendarBuilder;
@@ -22,21 +51,60 @@ import com.energyict.genericprotocolimpl.iskragprs.csd.CSDCall;
 import com.energyict.genericprotocolimpl.iskragprs.csd.CSDCaller;
 import com.energyict.genericprotocolimpl.iskragprs.imagetransfer.ImageTransfer;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
-import com.energyict.mdw.amr.*;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.amr.GenericProtocol;
+import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.RtuRegisterSpec;
+import com.energyict.mdw.core.AmrJournalEntry;
+import com.energyict.mdw.core.Channel;
+import com.energyict.mdw.core.CommunicationProfile;
+import com.energyict.mdw.core.CommunicationScheduler;
+import com.energyict.mdw.core.Folder;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.RtuType;
+import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.CacheMechanism;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterReadingData;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageAttributeSpec;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.MessageValueSpec;
+import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
-import com.energyict.protocolimpl.messages.*;
+import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -166,13 +234,13 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
     private ArrayList monthlyProfilConfig = new ArrayList(20);
 
-    private byte[] connectMsg = new byte[]{DLMSCOSEMGlobals.TYPEDESC_UNSIGNED, 0x01};
-    private byte[] disconnectMsg = new byte[]{DLMSCOSEMGlobals.TYPEDESC_UNSIGNED, 0x00};
-    private byte[] contractPowerLimitMsg = new byte[]{DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED, 0, 0, 0, 0};
-    private byte[] crPowerLimitMsg = new byte[]{DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED, 0, 0, 0, 0};
-    private byte[] crDurationMsg = new byte[]{DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED, 0, 0, 0, 0};
-    private byte[] crMeterGroupIDMsg = new byte[]{DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED, 0, 0};
-    private byte[] crGroupIDMsg = new byte[]{DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED, 0, 0};
+    private byte[] connectMsg = new byte[]{AxdrType.UNSIGNED.getTag(), 0x01};
+    private byte[] disconnectMsg = new byte[]{AxdrType.UNSIGNED.getTag(), 0x00};
+    private byte[] contractPowerLimitMsg = new byte[]{AxdrType.DOUBLE_LONG_UNSIGNED.getTag(), 0, 0, 0, 0};
+    private byte[] crPowerLimitMsg = new byte[]{AxdrType.DOUBLE_LONG_UNSIGNED.getTag(), 0, 0, 0, 0};
+    private byte[] crDurationMsg = new byte[]{AxdrType.DOUBLE_LONG_UNSIGNED.getTag(), 0, 0, 0, 0};
+    private byte[] crMeterGroupIDMsg = new byte[]{AxdrType.LONG_UNSIGNED.getTag(), 0, 0};
+    private byte[] crGroupIDMsg = new byte[]{AxdrType.LONG_UNSIGNED.getTag(), 0, 0};
 
 
     /**
@@ -814,7 +882,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     private byte[] createByteDate(Calendar calendar) {
         byte[] byteStartDateBuffer = new byte[14];
 
-        byteStartDateBuffer[0] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
+        byteStartDateBuffer[0] = AxdrType.OCTET_STRING.getTag();
         byteStartDateBuffer[1] = 12; // length
         byteStartDateBuffer[2] = (byte) (calendar.get(calendar.YEAR) >> 8);
         byteStartDateBuffer[3] = (byte) calendar.get(calendar.YEAR);

@@ -10,7 +10,6 @@
 
 package com.energyict.dlms.axrdencoding;
 
-import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSUtils;
 
 import java.io.IOException;
@@ -57,39 +56,39 @@ public final class AXDRDecoder {
 	 */
 	public static AbstractDataType decode(byte[] data, int offset, int level) throws IOException {
 		switch (data[offset]) {
-			case DLMSCOSEMGlobals.TYPEDESC_NULL:
+			case AxdrType.NULL.getTag():
 				return new NullData(data, offset);
-			case DLMSCOSEMGlobals.TYPEDESC_ARRAY:
+			case AxdrType.ARRAY.getTag():
 				return new Array(data, offset, level);
-			case DLMSCOSEMGlobals.TYPEDESC_STRUCTURE:
+			case AxdrType.STRUCTURE.getTag():
 				return new Structure(data, offset, level);
-			case DLMSCOSEMGlobals.TYPEDESC_INTEGER:
+			case AxdrType.INTEGER.getTag():
 				return new Integer8(data, offset);
-			case DLMSCOSEMGlobals.TYPEDESC_LONG:
+			case AxdrType.LONG.getTag():
 				return new Integer16(data, offset);
-			case DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG:
+			case AxdrType.DOUBLE_LONG.getTag():
 				return new Integer32(data, offset);
-			case DLMSCOSEMGlobals.TYPEDESC_UNSIGNED:
+			case AxdrType.UNSIGNED.getTag():
 				return new Unsigned8(data, offset);
-			case DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED:
+			case AxdrType.LONG_UNSIGNED.getTag():
 				return new Unsigned16(data, offset);
-			case DLMSCOSEMGlobals.TYPEDESC_ENUM:
+			case AxdrType.ENUM.getTag():
 				return new TypeEnum(data, offset);
-			case DLMSCOSEMGlobals.TYPEDESC_BITSTRING:
+			case AxdrType.BIT_STRING.getTag():
 				return new BitString(data, offset);
-			case DLMSCOSEMGlobals.TYPEDESC_VISIBLE_STRING:
+			case AxdrType.VISIBLE_STRING.getTag():
 				return new VisibleString(data, offset);
-			case DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING:
+			case AxdrType.OCTET_STRING.getTag():
 				return new OctetString(data, offset);
-			case DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED:
+			case AxdrType.DOUBLE_LONG_UNSIGNED.getTag():
 				return new Unsigned32(data, offset);
-			case DLMSCOSEMGlobals.TYPEDESC_LONG64:
+			case AxdrType.LONG64.getTag():
                 return new Integer64(data, offset);
-            case DLMSCOSEMGlobals.TYPEDESC_LONG64_UNSIGNED:
+            case AxdrType.LONG64_UNSIGNED.getTag():
                 return new Integer64(DLMSUtils.getUnsignedIntFromBytes(data, offset + 1, Integer64.LENGTH));  //+1 to skip the data type byte
-            case DLMSCOSEMGlobals.TYPEDESC_BOOLEAN:
+            case AxdrType.BOOLEAN.getTag():
                 return new BooleanObject(data, offset);
-            case DLMSCOSEMGlobals.TYPEDESC_FLOAT32:
+            case AxdrType.FLOAT32.getTag():
                 return new Float32(data, offset);
 			default:
 				throw new IOException("AXDRDecoder, unknown datatype " + data[offset]);

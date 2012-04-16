@@ -7,6 +7,7 @@
 package com.energyict.dlms;
 
 import com.energyict.cbo.Utils;
+import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -16,7 +17,7 @@ import java.util.logging.Logger;
  *
  * @author  Koen
  */
-public class DataContainer implements DLMSCOSEMGlobals, Serializable {
+public class DataContainer implements Serializable {
 	private int iLevel=0;
 	private int iMaxLevel=0;
 	private int iIndex=0;
@@ -381,7 +382,7 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
 					
 					switch (responseData[i])
 					{
-					case TYPEDESC_ARRAY:
+					case AxdrType.ARRAY.getTag():
 					{
 						i++;
 						if (iLevel++ >= (MAX_LEVELS-1)) {
@@ -395,7 +396,7 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
 						
 					} break; // TYPEDESC_ARRAY
 					
-					case TYPEDESC_STRUCTURE:
+					case AxdrType.STRUCTURE.getTag():
 					{
 						i++;
 						if (iLevel++ >= (MAX_LEVELS-1)) {
@@ -407,14 +408,14 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
 						
 					} break; // TYPEDESC_STRUCTURE
 					
-					case TYPEDESC_NULL:
+					case AxdrType.NULL.getTag():
 					{
 						i++;
 						addInteger(0);
 					} break;
 					
-					case TYPEDESC_LONG:
-					case TYPEDESC_LONG_UNSIGNED:
+					case AxdrType.LONG.getTag():
+					case AxdrType.LONG_UNSIGNED.getTag():
 					{
 						i++;
 						addInteger(ProtocolUtils.getShort(responseData,i));
@@ -422,8 +423,8 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
 						
 					} break;
 					
-					case TYPEDESC_VISIBLE_STRING:
-					case TYPEDESC_OCTET_STRING:
+					case AxdrType.VISIBLE_STRING.getTag():
+					case AxdrType.OCTET_STRING.getTag():
 					{
 						int t,s;
 						i++;
@@ -437,19 +438,19 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
 						i += t;
 					} break;
 					
-					case TYPEDESC_DOUBLE_LONG:
-					case TYPEDESC_DOUBLE_LONG_UNSIGNED:
+					case AxdrType.DOUBLE_LONG.getTag():
+					case AxdrType.DOUBLE_LONG_UNSIGNED.getTag():
 					{
 						i++;
 						addInteger(ProtocolUtils.getInt(responseData,i));
 						i+=4;
 					} break;
 					
-					case TYPEDESC_BCD:
-					case TYPEDESC_ENUM:
-					case TYPEDESC_INTEGER:
-					case TYPEDESC_BOOLEAN:
-					case TYPEDESC_UNSIGNED:
+					case AxdrType.BCD.getTag():
+					case AxdrType.ENUM.getTag():
+					case AxdrType.INTEGER.getTag():
+					case AxdrType.BOOLEAN.getTag():
+					case AxdrType.UNSIGNED.getTag():
 					{
 						i++;
 						addInteger(responseData[i]&0xFF);
@@ -457,14 +458,14 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
 					} break;
 					
 					
-					case TYPEDESC_LONG64:
+					case AxdrType.LONG64.getTag():
 					{
 						i++;
 						addLong(ProtocolUtils.getLong(responseData,i));
 						i+=8;
 					} break;
 					
-					case TYPEDESC_BITSTRING:
+					case AxdrType.BIT_STRING.getTag():
 					{
 						int t,s;
 						i++;
@@ -488,7 +489,7 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
 						
 					} break; // TYPEDESC_BITSTRING
 					
-					case TYPEDESC_FLOATING_POINT:
+					case AxdrType.FLOATING_POINT.getTag():
 					{
 						i++;
 						addInteger(0); // TODO
@@ -496,7 +497,7 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
 						
 					} break; // TYPEDESC_FLOATING_POINT
 					
-					case TYPEDESC_TIME:
+					case AxdrType.TIME.getTag():
 					{
 						i++;
 						addInteger(0); // TODO
@@ -504,20 +505,20 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
 						
 					} break; // TYPEDESC_TIME
 					
-					case TYPEDESC_COMPACT_ARRAY:
+					case AxdrType.COMPACT_ARRAY.getTag():
 					{
 						i++;
 						addInteger(0); // TODO
 					} break; // TYPEDESC_COMPACT_ARRAY
 
-                    case TYPEDESC_FLOAT32:
+                    case AxdrType.FLOAT32.getTag():
                     {
                         i++;
                         addFloat(getFloat32(responseData, i));
                         i += 4;
                     } break;
 
-                    case TYPEDESC_FLOAT64:
+                    case AxdrType.FLOAT64.getTag():
                     {
                         i++;
                         addFloat(getFloat64(responseData, i));

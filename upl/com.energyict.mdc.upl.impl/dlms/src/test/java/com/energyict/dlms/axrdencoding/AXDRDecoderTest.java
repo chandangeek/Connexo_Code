@@ -1,12 +1,13 @@
 package com.energyict.dlms.axrdencoding;
 
-import com.energyict.dlms.DLMSCOSEMGlobals;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author jme
@@ -19,21 +20,21 @@ public class AXDRDecoderTest {
 	private static final int	OFFSET	= 2;
 	private static final int	VALUE	= 123;
 
-	private static final byte[]	NULLDATA_BYTES						= new byte[] { DLMSCOSEMGlobals.TYPEDESC_NULL };
-	private static final byte[]	INTEGER_BYTES						= new byte[] { DLMSCOSEMGlobals.TYPEDESC_INTEGER, VALUE };
-	private static final byte[]	LONG_BYTES							= new byte[] { DLMSCOSEMGlobals.TYPEDESC_LONG, VALUE, VALUE };
-	private static final byte[]	DOUBLE_LONG_BYTES					= new byte[] { DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG, VALUE, VALUE, VALUE, VALUE };
-	private static final byte[]	UNSIGNED_BYTES						= new byte[] { DLMSCOSEMGlobals.TYPEDESC_UNSIGNED, VALUE };
-	private static final byte[]	LONG_UNSIGNED_BYTES					= new byte[] { DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED, VALUE, VALUE };
-	private static final byte[]	DOUBLE_LONG_UNSIGNED_BYTES			= new byte[] { DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED, VALUE, VALUE, VALUE, VALUE };
-	private static final byte[]	LONG64_BYTES						= new byte[] { DLMSCOSEMGlobals.TYPEDESC_LONG64, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE };
-	private static final byte[]	BOOLEAN_BYTES						= new byte[] { DLMSCOSEMGlobals.TYPEDESC_BOOLEAN, VALUE };
-	private static final byte[]	ENUM_BYTES							= new byte[] { DLMSCOSEMGlobals.TYPEDESC_ENUM, VALUE };
-	private static final byte[]	BITSTRING_BYTES						= new byte[] { DLMSCOSEMGlobals.TYPEDESC_BITSTRING, 1, VALUE };
-	private static final byte[]	OCTET_STRING_BYTES					= new byte[] { DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING, 1, VALUE };
-	private static final byte[]	VISIBLE_STRING_BYTES				= new byte[] { DLMSCOSEMGlobals.TYPEDESC_VISIBLE_STRING, 1, VALUE };
-	private static final byte[]	ARRAY_BYTES							= new byte[] { DLMSCOSEMGlobals.TYPEDESC_ARRAY, 0 };
-	private static final byte[]	STRUCTURE_BYTES						= new byte[] { DLMSCOSEMGlobals.TYPEDESC_STRUCTURE, 0 };
+	private static final byte[]	NULLDATA_BYTES						= new byte[] {AxdrType.NULL.getTag()};
+	private static final byte[]	INTEGER_BYTES						= new byte[] {AxdrType.INTEGER.getTag(), VALUE };
+	private static final byte[]	LONG_BYTES							= new byte[] {AxdrType.LONG.getTag(), VALUE, VALUE };
+	private static final byte[]	DOUBLE_LONG_BYTES					= new byte[] {AxdrType.DOUBLE_LONG.getTag(), VALUE, VALUE, VALUE, VALUE };
+	private static final byte[]	UNSIGNED_BYTES						= new byte[] {AxdrType.UNSIGNED.getTag(), VALUE };
+	private static final byte[]	LONG_UNSIGNED_BYTES					= new byte[] {AxdrType.LONG_UNSIGNED.getTag(), VALUE, VALUE };
+	private static final byte[]	DOUBLE_LONG_UNSIGNED_BYTES			= new byte[] {AxdrType.DOUBLE_LONG_UNSIGNED.getTag(), VALUE, VALUE, VALUE, VALUE };
+	private static final byte[]	LONG64_BYTES						= new byte[] {AxdrType.LONG64.getTag(), VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE };
+	private static final byte[]	BOOLEAN_BYTES						= new byte[] {AxdrType.BOOLEAN.getTag(), VALUE };
+	private static final byte[]	ENUM_BYTES							= new byte[] {AxdrType.ENUM.getTag(), VALUE };
+	private static final byte[]	BITSTRING_BYTES						= new byte[] {AxdrType.BIT_STRING.getTag(), 1, VALUE };
+	private static final byte[]	OCTET_STRING_BYTES					= new byte[] {AxdrType.OCTET_STRING.getTag(), 1, VALUE };
+	private static final byte[]	VISIBLE_STRING_BYTES				= new byte[] {AxdrType.VISIBLE_STRING.getTag(), 1, VALUE };
+	private static final byte[]	ARRAY_BYTES							= new byte[] {AxdrType.ARRAY.getTag(), 0 };
+	private static final byte[]	STRUCTURE_BYTES						= new byte[] {AxdrType.STRUCTURE.getTag(), 0 };
 
 	private static final byte[]	NULLDATA_BYTES_OFFSET				= new byte[NULLDATA_BYTES.length + OFFSET];
 	private static final byte[]	INTEGER_BYTES_OFFSET				= new byte[INTEGER_BYTES.length + OFFSET];
@@ -234,22 +235,22 @@ public class AXDRDecoderTest {
 	 */
 	private boolean isTypeIdSupportedByAXDRDecoder(int typeId) {
 		switch (typeId) {
-			case DLMSCOSEMGlobals.TYPEDESC_NULL:
-			case DLMSCOSEMGlobals.TYPEDESC_ARRAY:
-			case DLMSCOSEMGlobals.TYPEDESC_STRUCTURE:
-			case DLMSCOSEMGlobals.TYPEDESC_INTEGER:
-			case DLMSCOSEMGlobals.TYPEDESC_LONG:
-			case DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG:
-			case DLMSCOSEMGlobals.TYPEDESC_UNSIGNED:
-			case DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED:
-			case DLMSCOSEMGlobals.TYPEDESC_ENUM:
-			case DLMSCOSEMGlobals.TYPEDESC_BITSTRING:
-			case DLMSCOSEMGlobals.TYPEDESC_VISIBLE_STRING:
-			case DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING:
-			case DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED:
-			case DLMSCOSEMGlobals.TYPEDESC_LONG64:
-			case DLMSCOSEMGlobals.TYPEDESC_LONG64_UNSIGNED:
-			case DLMSCOSEMGlobals.TYPEDESC_BOOLEAN:
+			case AxdrType.NULL.getTag():
+			case AxdrType.ARRAY.getTag():
+			case AxdrType.STRUCTURE.getTag():
+			case AxdrType.INTEGER.getTag():
+			case AxdrType.LONG.getTag():
+			case AxdrType.DOUBLE_LONG.getTag():
+			case AxdrType.UNSIGNED.getTag():
+			case AxdrType.LONG_UNSIGNED.getTag():
+			case AxdrType.ENUM.getTag():
+			case AxdrType.BIT_STRING.getTag():
+			case AxdrType.VISIBLE_STRING.getTag():
+			case AxdrType.OCTET_STRING.getTag():
+			case AxdrType.DOUBLE_LONG_UNSIGNED.getTag():
+			case AxdrType.LONG64.getTag():
+			case AxdrType.LONG64_UNSIGNED.getTag():
+			case AxdrType.BOOLEAN.getTag():
 				return true;
 			default:
 				return false;

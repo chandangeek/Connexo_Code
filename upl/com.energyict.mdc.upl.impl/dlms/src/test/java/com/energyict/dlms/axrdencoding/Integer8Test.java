@@ -3,6 +3,11 @@
  */
 package com.energyict.dlms.axrdencoding;
 
+import org.junit.Test;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -10,13 +15,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-
-import org.junit.Test;
-
-import com.energyict.dlms.DLMSCOSEMGlobals;
 
 /**
  * @author jme
@@ -32,15 +30,15 @@ public class Integer8Test {
 	private static final int VALUE3 = -1;
 	private static final int VALUE4 = 0x7F;
 
-	private static final byte[] VALUE1_BYTES = new byte[] {DLMSCOSEMGlobals.TYPEDESC_INTEGER, VALUE1};
-	private static final byte[] VALUE2_BYTES = new byte[] {DLMSCOSEMGlobals.TYPEDESC_INTEGER, VALUE2};
-	private static final byte[] VALUE3_BYTES = new byte[] {DLMSCOSEMGlobals.TYPEDESC_INTEGER, VALUE3};
-	private static final byte[] VALUE4_BYTES = new byte[] {DLMSCOSEMGlobals.TYPEDESC_INTEGER, VALUE4};
+	private static final byte[] VALUE1_BYTES = new byte[] {AxdrType.INTEGER.getTag(), VALUE1};
+	private static final byte[] VALUE2_BYTES = new byte[] {AxdrType.INTEGER.getTag(), VALUE2};
+	private static final byte[] VALUE3_BYTES = new byte[] {AxdrType.INTEGER.getTag(), VALUE3};
+	private static final byte[] VALUE4_BYTES = new byte[] {AxdrType.INTEGER.getTag(), VALUE4};
 
-	private static final byte[] VALUE1_BYTES_OFFSET = new byte[] {0, DLMSCOSEMGlobals.TYPEDESC_INTEGER, VALUE1};
-	private static final byte[] VALUE2_BYTES_OFFSET = new byte[] {0, DLMSCOSEMGlobals.TYPEDESC_INTEGER, VALUE2};
-	private static final byte[] VALUE3_BYTES_OFFSET = new byte[] {0, DLMSCOSEMGlobals.TYPEDESC_INTEGER, VALUE3};
-	private static final byte[] VALUE4_BYTES_OFFSET = new byte[] {0, DLMSCOSEMGlobals.TYPEDESC_INTEGER, VALUE4};
+	private static final byte[] VALUE1_BYTES_OFFSET = new byte[] {0, AxdrType.INTEGER.getTag(), VALUE1};
+	private static final byte[] VALUE2_BYTES_OFFSET = new byte[] {0, AxdrType.INTEGER.getTag(), VALUE2};
+	private static final byte[] VALUE3_BYTES_OFFSET = new byte[] {0, AxdrType.INTEGER.getTag(), VALUE3};
+	private static final byte[] VALUE4_BYTES_OFFSET = new byte[] {0, AxdrType.INTEGER.getTag(), VALUE4};
 
 	/**
 	 * Test method for {@link com.energyict.dlms.axrdencoding.Integer8#doGetBEREncodedByteArray()}.
@@ -50,7 +48,7 @@ public class Integer8Test {
 		Integer8 integer8 = new Integer8(VALUE1);
 		assertNotNull(integer8.doGetBEREncodedByteArray());
 		assertEquals(INTEGER8_SIZE, integer8.doGetBEREncodedByteArray().length);
-		assertEquals(DLMSCOSEMGlobals.TYPEDESC_INTEGER, integer8.doGetBEREncodedByteArray()[0]);
+		assertEquals(AxdrType.INTEGER.getTag(), integer8.doGetBEREncodedByteArray()[0]);
 		assertEquals(VALUE1, integer8.doGetBEREncodedByteArray()[1]);
 
 		integer8.setValue(VALUE2);

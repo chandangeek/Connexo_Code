@@ -1,25 +1,66 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.ApplicationException;
+import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.AutoConnect;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.PPPSetup;
+import com.energyict.dlms.cosem.SpecialDaysTable;
+import com.energyict.dlms.cosem.TCPUDPSetup;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.tou.ActivityCalendarReader;
 import com.energyict.genericprotocolimpl.common.tou.CosemActivityCalendarBuilder;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.CommunicationScheduler;
+import com.energyict.mdw.core.Folder;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.RtuType;
+import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterData;
+import com.energyict.protocol.MeterDataMessageResult;
+import com.energyict.protocol.MeterReadingData;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.WakeUpProtocolSupport;
+import com.energyict.protocol.messaging.LoadProfileRegisterMessageBuilder;
+import com.energyict.protocol.messaging.LoadProfileRegisterMessaging;
+import com.energyict.protocol.messaging.MessageAttributeSpec;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValueSpec;
+import com.energyict.protocol.messaging.PartialLoadProfileMessageBuilder;
+import com.energyict.protocol.messaging.PartialLoadProfileMessaging;
 import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
-import com.energyict.protocolimpl.messages.*;
+import com.energyict.protocolimpl.messages.ProtocolMessages;
+import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.*;
+import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMX372Properties;
+import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372;
+import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.MbusDevice;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.csd.CSDCall;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.csd.CSDCaller;
 import org.xml.sax.SAXException;
@@ -29,7 +70,12 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -78,13 +124,13 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
             ObisCode.fromString("0.3.128.50.23.255"),
             ObisCode.fromString("0.4.128.50.23.255")};
 
-    private byte[] connectMsg = new byte[]{DLMSCOSEMGlobals.TYPEDESC_UNSIGNED, 0x01};
-    private byte[] disconnectMsg = new byte[]{DLMSCOSEMGlobals.TYPEDESC_UNSIGNED, 0x00};
-    private byte[] contractPowerLimitMsg = new byte[]{DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED, 0, 0, 0, 0};
-    private byte[] crPowerLimitMsg = new byte[]{DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED, 0, 0, 0, 0};
-    private byte[] crDurationMsg = new byte[]{DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED, 0, 0, 0, 0};
-    private byte[] crMeterGroupIDMsg = new byte[]{DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED, 0, 0};
-    private byte[] crGroupIDMsg = new byte[]{DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED, 0, 0};
+    private byte[] connectMsg = new byte[]{AxdrType.UNSIGNED.getTag(), 0x01};
+    private byte[] disconnectMsg = new byte[]{AxdrType.UNSIGNED.getTag(), 0x00};
+    private byte[] contractPowerLimitMsg = new byte[]{AxdrType.DOUBLE_LONG_UNSIGNED.getTag(), 0, 0, 0, 0};
+    private byte[] crPowerLimitMsg = new byte[]{AxdrType.DOUBLE_LONG_UNSIGNED.getTag(), 0, 0, 0, 0};
+    private byte[] crDurationMsg = new byte[]{AxdrType.DOUBLE_LONG_UNSIGNED.getTag(), 0, 0, 0, 0};
+    private byte[] crMeterGroupIDMsg = new byte[]{AxdrType.LONG_UNSIGNED.getTag(), 0, 0};
+    private byte[] crGroupIDMsg = new byte[]{AxdrType.LONG_UNSIGNED.getTag(), 0, 0};
 
      /**
      * The maximum allowed number of phoneNumbers to make a CSD call to the device
@@ -715,7 +761,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
     private byte[] createByteDate(Calendar calendar) {
         byte[] byteStartDateBuffer = new byte[14];
 
-        byteStartDateBuffer[0] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
+        byteStartDateBuffer[0] = AxdrType.OCTET_STRING.getTag();
         byteStartDateBuffer[1] = 12; // length
         byteStartDateBuffer[2] = (byte) (calendar.get(calendar.YEAR) >> 8);
         byteStartDateBuffer[3] = (byte) calendar.get(calendar.YEAR);

@@ -8,7 +8,6 @@
 
 package com.energyict.dlms.axrdencoding;
 
-import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.obis.ObisCode;
@@ -41,7 +40,7 @@ public class OctetString extends AbstractDataType {
     public OctetString(byte[] berEncodedData, int offset) throws IOException {
         int workingOffset = offset;
         offsetBegin = workingOffset;
-        if (berEncodedData[workingOffset] != DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING) {
+        if (berEncodedData[workingOffset] != AxdrType.OCTET_STRING.getTag()) {
             throw new IOException("OctetString, invalid identifier " + berEncodedData[workingOffset]);
         }
         workingOffset++;
@@ -63,7 +62,7 @@ public class OctetString extends AbstractDataType {
      */
     public OctetString(byte[] berEncodedData, int offset, boolean fixed) throws IOException {
         offsetBegin = offset;
-        if (berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING) {
+        if (berEncodedData[offset] != AxdrType.OCTET_STRING.getTag()) {
             throw new IOException("OctetString, invalid identifier " + berEncodedData[offset]);
         }
         size = berEncodedData.length - 1;
@@ -114,7 +113,7 @@ public class OctetString extends AbstractDataType {
 			encodedLength = DLMSUtils.getAXDRLengthEncoding(size);
 		}
 		byte[] data = new byte[size + 1 + encodedLength.length];
-		data[0] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
+		data[0] = AxdrType.OCTET_STRING.getTag();
 		for (int i = 0; i < encodedLength.length; i++) {
 			data[1 + i] = encodedLength[i];
 		}

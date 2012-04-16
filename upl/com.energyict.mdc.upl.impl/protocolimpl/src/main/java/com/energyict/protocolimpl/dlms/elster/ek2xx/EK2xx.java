@@ -1,19 +1,57 @@
 package com.energyict.protocolimpl.dlms.elster.ek2xx;
 
-import com.energyict.cbo.*;
-import com.energyict.dialer.connection.*;
+import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.NotFoundException;
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.HDLCConnection;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.TCPIPConnection;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.dlms.*;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.dlms.CapturedObjects;
+import com.energyict.protocolimpl.dlms.DLMSCache;
+import com.energyict.protocolimpl.dlms.RtuDLMS;
+import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 public class EK2xx implements MeterProtocol, HHUEnabler, ProtocolLink, RegisterProtocol {
@@ -427,7 +465,7 @@ public class EK2xx implements MeterProtocol, HHUEnabler, ProtocolLink, RegisterP
 		byte[] byteTimeBuffer = new byte[15];
 
 		byteTimeBuffer[0]=1;
-		byteTimeBuffer[1]=DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
+		byteTimeBuffer[1]= AxdrType.OCTET_STRING.getTag();
 		byteTimeBuffer[2]=12; // length
 		byteTimeBuffer[3]=(byte)(calendar.get(calendar.YEAR) >> 8);
 		byteTimeBuffer[4]=(byte)calendar.get(calendar.YEAR);

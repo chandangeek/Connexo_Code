@@ -1,24 +1,43 @@
 package com.energyict.genericprotocolimpl.iskrap2lpc;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.TimeDuration;
+import com.energyict.cbo.Unit;
 import com.energyict.cpo.Environment;
-import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.genericprotocolimpl.common.GenericCache;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.iskrap2lpc.Concentrator.XmlException;
-import com.energyict.genericprotocolimpl.iskrap2lpc.stub.*;
+import com.energyict.genericprotocolimpl.iskrap2lpc.stub.CosemDateTime;
+import com.energyict.genericprotocolimpl.iskrap2lpc.stub.ObjectDef;
+import com.energyict.genericprotocolimpl.iskrap2lpc.stub.PeriodicProfileType;
+import com.energyict.genericprotocolimpl.iskrap2lpc.stub.ProfileType;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterSpec;
 import com.energyict.mdw.amrimpl.RtuRegisterReadingImpl;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.Channel;
+import com.energyict.mdw.core.CommunicationProfile;
+import com.energyict.mdw.core.Folder;
+import com.energyict.mdw.core.Lookup;
+import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.CacheMechanism;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.ProtocolChannel;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
-import org.apache.axis.types.*;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import org.apache.axis.types.UnsignedByte;
+import org.apache.axis.types.UnsignedInt;
+import org.apache.axis.types.UnsignedShort;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -28,7 +47,11 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -1180,7 +1203,7 @@ public class MeterReadTransaction implements CacheMechanism {
                 	                	
                 	UnsignedInt uiGrId = new UnsignedInt();
                 	UnsignedInt crPl = new UnsignedInt();
-                	byte[] contractPowerLimit	= new byte[]{DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED,0, 0, 0, 0};
+                	byte[] contractPowerLimit	= new byte[]{AxdrType.DOUBLE_LONG_UNSIGNED.getTag(),0, 0, 0, 0};
 
                 	if (thresholdPL.equalsIgnoreCase("")){
                 		msg.setFailed();
@@ -1229,7 +1252,7 @@ public class MeterReadTransaction implements CacheMechanism {
                 		msg.setFailed();
                 		getLogger().log(Level.INFO, value + " is not a valid entry for the current message (" + contents + ").");
                 	} else {
-                		byte[] mode = new byte[]{DLMSCOSEMGlobals.TYPEDESC_UNSIGNED, 0};
+                		byte[] mode = new byte[]{AxdrType.UNSIGNED.getTag(), 0};
                 		mode[1] = (byte)Integer.parseInt(value);
                 		String[] times = prepareCosemGetRequest();		// it is a setRequest, but its the same 
                 		getConnection().cosemSetRequest(serial, times[0], times[1], Constant.dlcRepeaterMode.toString(), new UnsignedInt(1), new UnsignedInt(2), mode);
@@ -1244,7 +1267,7 @@ public class MeterReadTransaction implements CacheMechanism {
                 		msg.setFailed();
                 		getLogger().log(Level.INFO, value + " is not a valid entry for the current message (" + contents + ").");
                 	} else {
-                		byte[] freq = new byte[]{DLMSCOSEMGlobals.TYPEDESC_UNSIGNED, 0};
+                		byte[] freq = new byte[]{AxdrType.UNSIGNED.getTag(), 0};
                 		freq[1] = (byte)Integer.parseInt(value);
                 		String[] times = prepareCosemGetRequest();		// it is a setRequest, but its the same 
                 		getConnection().cosemSetRequest(serial, times[0], times[1], Constant.dlcCarrierFrequency.toString(), new UnsignedInt(1), new UnsignedInt(2), freq);

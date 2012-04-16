@@ -10,12 +10,11 @@
 
 package com.energyict.dlms.axrdencoding;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-
-import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
@@ -30,7 +29,7 @@ public class VisibleString extends AbstractDataType {
 	/** Creates a new instance of VisibleString */
 	public VisibleString(byte[] berEncodedData, int offset) throws IOException {
 		offsetBegin = offset;
-		if (berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_VISIBLE_STRING) {
+		if (berEncodedData[offset] != AxdrType.VISIBLE_STRING.getTag()) {
 			throw new IOException("VisibleString, invalid identifier " + berEncodedData[offset]);
 		}
 		offset++;
@@ -62,7 +61,7 @@ public class VisibleString extends AbstractDataType {
 	protected byte[] doGetBEREncodedByteArray() {
 		byte[] encodedLength = DLMSUtils.getAXDRLengthEncoding(size);
 		byte[] data = new byte[size + 1 + encodedLength.length];
-		data[0] = DLMSCOSEMGlobals.TYPEDESC_VISIBLE_STRING;
+		data[0] = AxdrType.VISIBLE_STRING.getTag();
 		for (int i = 0; i < encodedLength.length; i++) {
 			data[1 + i] = encodedLength[i];
 		}

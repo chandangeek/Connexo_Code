@@ -6,15 +6,27 @@
 
 package com.energyict.dlms.cosem;
 
-import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.attributes.AssociationLNAttributes;
 import com.energyict.obis.ObisCode;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
-import static com.energyict.dlms.DLMSCOSEMGlobals.*;
+import static com.energyict.dlms.DLMSCOSEMGlobals.ASSOC_SN_ATTR_OBJ_LST;
 /**
  *
  * @author  Koen
@@ -252,9 +264,9 @@ public class AssociationLN extends AbstractCosemObject {
      */
     public AbstractDataType readAuthenticationMechanismName() throws IOException{
     	byte[] response = getLNResponseData(ATTRB_AUTHENTICATION_MECH_NAME);
-    	if(response[0] == TYPEDESC_STRUCTURE){ // Structure
+    	if(response[0] == AxdrType.STRUCTURE.getTag()){ // Structure
     		this.authenticationMechanismName = new Structure(response, 0, 0);
-    	} else if(response[0] == TYPEDESC_OCTET_STRING){
+    	} else if(response[0] == AxdrType.OCTET_STRING.getTag()){
     		this.authenticationMechanismName = OctetString.fromByteArray(response);
     	} else {
     		throw new IOException("Response is doesn't contain a valid type");
@@ -288,9 +300,9 @@ public class AssociationLN extends AbstractCosemObject {
      */
     public AbstractDataType readApplicationContextName() throws IOException{
     	byte[] response = getLNResponseData(ATTRB_APPLICATION_CONTEXT_NAME);
-    	if(response[0] == TYPEDESC_STRUCTURE){ // Structure
+    	if(response[0] == AxdrType.STRUCTURE.getTag()){ // Structure
     		this.applicationContextName = new Structure(response, 0, 0);
-    	} else if(response[0] == TYPEDESC_OCTET_STRING){
+    	} else if(response[0] == AxdrType.OCTET_STRING.getTag()){
     		this.applicationContextName = OctetString.fromByteArray(response);
     	} else {
     		throw new IOException("Response is doesn't contain a valid type");

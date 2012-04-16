@@ -1,10 +1,9 @@
 package com.energyict.dlms.axrdencoding;
 
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.IOException;
 import java.math.BigDecimal;
-
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.protocol.ProtocolUtils;
 
 public class Unsigned32 extends AbstractDataType {
 
@@ -13,7 +12,7 @@ public class Unsigned32 extends AbstractDataType {
 
     /** Creates a new instance of Enum */
     public Unsigned32(byte[] berEncodedData, int offset) throws IOException {
-        if (berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED) {
+        if (berEncodedData[offset] != AxdrType.DOUBLE_LONG_UNSIGNED.getTag()) {
 			throw new IOException("Unsigned32, invalid identifier "+berEncodedData[offset]);
 		}
         offset++;
@@ -39,7 +38,7 @@ public class Unsigned32 extends AbstractDataType {
 
     protected byte[] doGetBEREncodedByteArray() {
         byte[] data = new byte[5];
-        data[0] = DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED;
+        data[0] = AxdrType.DOUBLE_LONG_UNSIGNED.getTag();
         data[1] = (byte)(getValue() >> 24 );
         data[2] = (byte)(getValue() >> 16 );
         data[3] = (byte)(getValue() >> 8 );

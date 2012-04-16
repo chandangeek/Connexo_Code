@@ -6,20 +6,24 @@
 
 package com.energyict.protocolimpl.dlms.actarisace6000;
 
-import java.io.*;
-import java.util.*;
-
-import com.energyict.obis.ObisCode;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.HistoricalValue;
-import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.ProtocolLink;
+import com.energyict.obis.ObisCode;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  *
@@ -59,7 +63,7 @@ public class StoredValuesImpl implements StoredValues {
     public int getBillingPointCounter() throws IOException {   
         if (billingSets.size() == 0) {
             // retrieve billingset
-            profileGeneric = new ProfileGeneric(protocolLink,cof.getObjectReference(cof.HISTORIC_VALUES_OBJECT_LN,protocolLink.getMeterConfig().getHistoricValuesSN()));
+            profileGeneric = new ProfileGeneric(protocolLink,cof.getObjectReference(DLMSCOSEMGlobals.HISTORIC_VALUES_OBJECT_LN,protocolLink.getMeterConfig().getHistoricValuesSN()));
             processDataContainer(profileGeneric.getBuffer());
         }
         return ((BillingSet)billingSets.get(0)).getNrOfResets();
@@ -69,7 +73,7 @@ public class StoredValuesImpl implements StoredValues {
         // did we retrieve the billingset?
         if ((billingPoint+1) > billingSets.size()) {
             // retrieve billingset
-            byte[] ln = cof.HISTORIC_VALUES_OBJECT_LN;
+            byte[] ln = DLMSCOSEMGlobals.HISTORIC_VALUES_OBJECT_LN;
             ln[5] = (byte)(101+billingPoint);
             profileGeneric = new ProfileGeneric(protocolLink,cof.getObjectReference(ln,protocolLink.getMeterConfig().getHistoricValuesSN()));
             processDataContainer(profileGeneric.getBuffer());
@@ -89,7 +93,7 @@ public class StoredValuesImpl implements StoredValues {
             billingPoint = obisCode.getF()*-1;
         
         if ((billingPoint+1) > billingSets.size()) {
-            byte[] ln = cof.HISTORIC_VALUES_OBJECT_LN;
+            byte[] ln = DLMSCOSEMGlobals.HISTORIC_VALUES_OBJECT_LN;
             ln[5] = (byte)(101+billingPoint);
             // retrieve billingset
             profileGeneric = new ProfileGeneric(protocolLink,cof.getObjectReference(ln,protocolLink.getMeterConfig().getHistoricValuesSN()));

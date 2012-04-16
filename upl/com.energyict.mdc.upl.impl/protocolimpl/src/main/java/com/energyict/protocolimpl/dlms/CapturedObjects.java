@@ -99,9 +99,9 @@ public class CapturedObjects {
        if (iIndex < lnObject.length)
        {
           // Changed KV 22052003 to read also gas puls channels!
-          if ((ln[DLMSCOSEMGlobals.LN_A]  != 0) && //== LN_A_ELECTRICITY_RELATED_OBJECTS) &&
-              (ln[DLMSCOSEMGlobals.LN_B] >= 0) && // was 1 (KV 06032007)
-              (ln[DLMSCOSEMGlobals.LN_B] <= 64) &&
+          if ((ln[0]  != 0) && //== LN_A_ELECTRICITY_RELATED_OBJECTS) &&
+              (ln[1] >= 0) && // was 1 (KV 06032007)
+              (ln[1] <= 64) &&
               ((iIC == DLMSClassId.REGISTER.getClassId()) || (iIC == DLMSClassId.DEMAND_REGISTER.getClassId()))) {
               lnObject[iIndex] = new LNObject(iIC,ln,iAttr,DLMSCOSEMGlobals.CHANNEL_DATA, iNROfChannels);
               iNROfChannels++;
@@ -109,11 +109,11 @@ public class CapturedObjects {
 
 
           // Changed GN 29022008 to add the extended register for the Iskra MBus meter
-          else if( ((ln[DLMSCOSEMGlobals.LN_A] == 0)||((ln[DLMSCOSEMGlobals.LN_A]) == 7)) &&
-        		  (ln[DLMSCOSEMGlobals.LN_B] == 1) &&
-        		  (ln[DLMSCOSEMGlobals.LN_C] == (byte)0x80) &&
-        		  (ln[DLMSCOSEMGlobals.LN_D] == 50) &&
-        		  (ln[DLMSCOSEMGlobals.LN_E] >= 0) && (ln[DLMSCOSEMGlobals.LN_E] <= 3) &&
+          else if( ((ln[0] == 0)||((ln[0]) == 7)) &&
+        		  (ln[1] == 1) &&
+        		  (ln[2] == (byte)0x80) &&
+        		  (ln[3] == 50) &&
+        		  (ln[4] >= 0) && (ln[4] <= 3) &&
         		  (iIC == DLMSClassId.EXTENDED_REGISTER.getClassId())){
               lnObject[iIndex] = new LNObject(iIC,ln,iAttr,DLMSCOSEMGlobals.CHANNEL_DATA, iNROfChannels);
               iNROfChannels++;

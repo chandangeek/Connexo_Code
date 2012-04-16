@@ -1,6 +1,5 @@
 package com.energyict.dlms.axrdencoding;
 
-import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -17,7 +16,7 @@ public class Float32 extends AbstractDataType {
     private float value;
 
     public Float32(byte[] berEncodedData, int offset) throws IOException {
-        if (berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_FLOAT32) {
+        if (berEncodedData[offset] != AxdrType.FLOAT32.getTag()) {
 			throw new IOException("Float32, invalid identifier "+berEncodedData[offset]);
 		}
         int intBits = ProtocolUtils.getInt(berEncodedData, offset + 1, 4);
@@ -36,7 +35,7 @@ public class Float32 extends AbstractDataType {
     protected byte[] doGetBEREncodedByteArray() {
         int intBits = Float.floatToIntBits(value);
         byte[] data = new byte[SIZE];
-        data[0] = DLMSCOSEMGlobals.TYPEDESC_FLOAT32;
+        data[0] = AxdrType.FLOAT32.getTag();
         data[1] = (byte) ((intBits >> 24) & 0x0FF);
         data[2] = (byte) ((intBits >> 16) & 0x0FF);
         data[3] = (byte) ((intBits >> 8) & 0x0FF);

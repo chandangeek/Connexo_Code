@@ -11,27 +11,76 @@ package com.energyict.protocolimpl.dlms.Z3;
  *
  */
 
-import com.energyict.cbo.*;
-import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.HDLCConnection;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.TCPIPConnection;
+import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.Integer16;
+import com.energyict.dlms.axrdencoding.Integer32;
+import com.energyict.dlms.axrdencoding.Integer64;
+import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Register;
-import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageAttributeSpec;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.MessageValueSpec;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import javax.xml.parsers.*;
-import java.io.*;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -190,7 +239,7 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 			throw new IOException("Type is not correct.");
 		}
 		
-		if(typeInt != DLMSCOSEMGlobals.TYPEDESC_NULL){
+		if(typeInt != AxdrType.NULL.getTag()){
 			
 			switch(typeInt){
 			
@@ -200,52 +249,52 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 //				
 //			};break;
 			
-			case DLMSCOSEMGlobals.TYPEDESC_BOOLEAN:{
-				byte[] data = new byte[]{DLMSCOSEMGlobals.TYPEDESC_BOOLEAN, (byte)Integer.parseInt(dataStr)};
+			case AxdrType.BOOLEAN.getTag():{
+				byte[] data = new byte[]{AxdrType.BOOLEAN.getTag(), (byte)Integer.parseInt(dataStr)};
 				getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(data);
 			};break;
 			
-			case DLMSCOSEMGlobals.TYPEDESC_INTEGER:{
+			case AxdrType.INTEGER.getTag():{
 				Integer8 integer = new Integer8(Integer.parseInt(dataStr));
 				getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
 			};break;
 			
-			case DLMSCOSEMGlobals.TYPEDESC_LONG:{
+			case AxdrType.LONG.getTag():{
 				Integer16 integer = new Integer16(Integer.parseInt(dataStr));
 				getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
 			};break;
 			
-			case DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG:{
+			case AxdrType.DOUBLE_LONG.getTag():{
 				Integer32 integer = new Integer32(Integer.parseInt(dataStr));
 				getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
 			};break;
 			
-			case DLMSCOSEMGlobals.TYPEDESC_LONG64:{
+			case AxdrType.LONG64.getTag():{
 				Integer64 integer = new Integer64(Integer.parseInt(dataStr));
 				getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
 			};break;
 			
-			case DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED:{
+			case AxdrType.LONG_UNSIGNED.getTag():{
 				Unsigned16 integer = new Unsigned16(Integer.parseInt(dataStr));
 				getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
 			};break;
 			
-			case DLMSCOSEMGlobals.TYPEDESC_UNSIGNED:{
+			case AxdrType.UNSIGNED.getTag():{
 				Unsigned8 integer = new Unsigned8(Integer.parseInt(dataStr));
 				getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
 			};break;
 			
-			case DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED:{
+			case AxdrType.DOUBLE_LONG_UNSIGNED.getTag():{
 				Unsigned32 integer = new Unsigned32(Integer.parseInt(dataStr));
 				getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
 			};break;
 			
-			case DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING:{
+			case AxdrType.OCTET_STRING.getTag():{
 				OctetString  octString = OctetString.fromString(dataStr);
 				getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(octString.getBEREncodedByteArray());
 			};break;
 			
-			case DLMSCOSEMGlobals.TYPEDESC_TIME:{
+			case AxdrType.TIME.getTag():{
 				
 			};break;
 				

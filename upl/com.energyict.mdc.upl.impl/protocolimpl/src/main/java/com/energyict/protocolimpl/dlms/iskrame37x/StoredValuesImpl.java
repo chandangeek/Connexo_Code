@@ -6,14 +6,7 @@
 
 package com.energyict.protocolimpl.dlms.iskrame37x;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
+import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.ProtocolLink;
@@ -27,6 +20,12 @@ import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocolimpl.dlms.CapturedObjects;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -107,7 +106,7 @@ public class StoredValuesImpl implements StoredValues {
     public int getBillingPointCounter() throws IOException {   
         if (billingSets.size() == 0) {
             // retrieve billingset
-            profileGeneric = new ProfileGeneric(protocolLink,cof.getObjectReference(cof.HISTORIC_VALUES_OBJECT_LN,protocolLink.getMeterConfig().getHistoricValuesSN()));
+            profileGeneric = new ProfileGeneric(protocolLink,cof.getObjectReference(DLMSCOSEMGlobals.HISTORIC_VALUES_OBJECT_LN,protocolLink.getMeterConfig().getHistoricValuesSN()));
             processDataContainer(profileGeneric.getBuffer());
         }
         return ((BillingSet)billingSets.get(0)).getNrOfResets();
@@ -117,7 +116,7 @@ public class StoredValuesImpl implements StoredValues {
         // did we retrieve the billingset?
         if ((billingPoint+1) > billingSets.size()) {
             // retrieve billingset
-            byte[] ln = cof.HISTORIC_VALUES_OBJECT_LN;
+            byte[] ln = DLMSCOSEMGlobals.HISTORIC_VALUES_OBJECT_LN;
             ln[5] = (byte)(101+billingPoint);
             profileGeneric = new ProfileGeneric(protocolLink,cof.getObjectReference(ln,protocolLink.getMeterConfig().getHistoricValuesSN()));
             processDataContainer(profileGeneric.getBuffer());

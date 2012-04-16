@@ -1,18 +1,18 @@
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
-
-import org.apache.commons.logging.LogFactory;
-
 import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ClockController;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.DLMSSNAS220;
+import org.apache.commons.logging.LogFactory;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * @author jme
@@ -86,7 +86,7 @@ public class AS220ClockController implements ClockController {
 		byte dayOfWeek = (byte) calendar.get(Calendar.DAY_OF_WEEK);
 		int ptr = 0;
 
-		byteTimeBuffer[ptr++] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
+		byteTimeBuffer[ptr++] = AxdrType.OCTET_STRING.getTag();
 		byteTimeBuffer[ptr++] = DATA_LENGTH; // length
 		byteTimeBuffer[ptr++] = (byte) (calendar.get(Calendar.YEAR) >> BYTE_LENGTH);
 		byteTimeBuffer[ptr++] = (byte) calendar.get(Calendar.YEAR);

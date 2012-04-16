@@ -1,13 +1,12 @@
 package com.energyict.dlms.cosem;
 
-import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-public class CapturedObjectsHelper implements DLMSCOSEMGlobals {
+public class CapturedObjectsHelper {
 
 	List<CapturedObject> capturedObjects;
 

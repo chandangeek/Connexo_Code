@@ -19,25 +19,64 @@ package com.energyict.protocolimpl.dlms;
 
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.*;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.*;
-import com.energyict.dlms.aso.*;
-import com.energyict.dlms.cosem.*;
-import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
+import com.energyict.dlms.CosemPDUConnection;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DLMSObis;
+import com.energyict.dlms.HDLC2Connection;
+import com.energyict.dlms.InvokeIdAndPriority;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.SecureConnection;
+import com.energyict.dlms.TCPIPConnection;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.aso.AssociationControlServiceElement;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.CacheMechanism;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.dlms.siemenszmd.StoredValuesImpl;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism {
+abstract public class DLMSSN implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism {
 
     protected abstract String getDeviceID();
 
@@ -467,7 +506,7 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
 //        byteTimeBuffer[0]=1;  This caused an extra 0x01 in the requestBuffer
 //      DLMS code has changed (read -> corrected) which causes this to be obsolete
 
-        byteTimeBuffer[0] = TYPEDESC_OCTET_STRING;
+        byteTimeBuffer[0] = AxdrType.OCTET_STRING.getTag();
         byteTimeBuffer[1] = 12; // length
         byteTimeBuffer[2] = (byte) (calendar.get(calendar.YEAR) >> 8);
         byteTimeBuffer[3] = (byte) calendar.get(calendar.YEAR);
@@ -498,7 +537,7 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
             }
         }
 
-        getCosemObjectFactory().getGenericWrite((short) meterConfig.getClockSN(), TIME_TIME).write(byteTimeBuffer);
+        getCosemObjectFactory().getGenericWrite((short) meterConfig.getClockSN(), DLMSCOSEMGlobals.TIME_TIME).write(byteTimeBuffer);
 
     } // private void doSetTime(Calendar calendar)
 
@@ -548,7 +587,7 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
      * @throws IOException
      */
     private String requestLNREG() throws IOException {
-        return getCosemObjectFactory().getData(LNREG_OBJECT_SN).getString();
+        return getCosemObjectFactory().getData(DLMSCOSEMGlobals.LNREG_OBJECT_SN).getString();
     } // public String requestLNREG() throws IOException
 
 
@@ -850,27 +889,27 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
             }
             //try{logger.severe ("DLMSSN Clock time_zone                  : "+requestTimeZone());}catch(IOException e){logger.severe ("time_zone attribute error");}
             try {
-                logger.severe("DLMSSN Clock time_zone                  : " + requestAttributeLong(meterConfig.getClockSN(), TIME_TIME_ZONE));
+                logger.severe("DLMSSN Clock time_zone                  : " + requestAttributeLong(meterConfig.getClockSN(), DLMSCOSEMGlobals.TIME_TIME_ZONE));
             } catch (IOException e) {
                 logger.severe("time_zone attribute error");
             }
             try {
-                logger.severe("DLMSSN Clock status                     : " + requestAttributeLong(meterConfig.getClockSN(), TIME_STATUS));
+                logger.severe("DLMSSN Clock status                     : " + requestAttributeLong(meterConfig.getClockSN(), DLMSCOSEMGlobals.TIME_STATUS));
             } catch (IOException e) {
                 logger.severe("status attribute error");
             }
             try {
-                logger.severe("DLMSSN Clock daylight_savings_begin     : " + requestAttributeString(meterConfig.getClockSN(), TIME_DS_BEGIN));
+                logger.severe("DLMSSN Clock daylight_savings_begin     : " + requestAttributeString(meterConfig.getClockSN(), DLMSCOSEMGlobals.TIME_DS_BEGIN));
             } catch (IOException e) {
                 logger.severe("DS begin attribute error");
             }
             try {
-                logger.severe("DLMSSN Clock daylight_savings_end       : " + requestAttributeString(meterConfig.getClockSN(), TIME_DS_END));
+                logger.severe("DLMSSN Clock daylight_savings_end       : " + requestAttributeString(meterConfig.getClockSN(), DLMSCOSEMGlobals.TIME_DS_END));
             } catch (IOException e) {
                 logger.severe("DS end attribute error");
             }
             try {
-                logger.severe("DLMSSN Clock daylight_savings_deviation : " + requestAttributeLong(meterConfig.getClockSN(), TIME_DS_DEVIATION));
+                logger.severe("DLMSSN Clock daylight_savings_deviation : " + requestAttributeLong(meterConfig.getClockSN(), DLMSCOSEMGlobals.TIME_DS_DEVIATION));
             } catch (IOException e) {
                 logger.severe("DS deviation attribute error");
             }

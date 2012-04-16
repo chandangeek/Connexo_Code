@@ -10,17 +10,17 @@
 
 package com.energyict.genericprotocolimpl.common;
 
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
-
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.protocol.ProtocolUtils;
 /**
  *
  * @author kvds
@@ -48,7 +48,7 @@ public class LoadProfileDecompressor {
         Calendar cal = dateTime.getValue();
         offset+=2; // skip octet string 12
         offset+=12; // skip octet string
-        if (data[offset] != DLMSCOSEMGlobals.TYPEDESC_COMPACT_ARRAY) {
+        if (data[offset] != AxdrType.COMPACT_ARRAY.getTag()) {
 			throw new IOException("LoadProfileDecompressor, invalid identifier for compact array! ("+data[offset]+")");
 		}
         offset++; // skip compact array id

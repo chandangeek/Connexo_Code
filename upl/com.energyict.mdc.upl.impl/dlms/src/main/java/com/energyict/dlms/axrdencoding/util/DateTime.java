@@ -1,13 +1,15 @@
 package com.energyict.dlms.axrdencoding.util;
 
-import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
@@ -163,7 +165,7 @@ public class DateTime extends AbstractDataType {
 
         return
             new byte [] {
-                DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING,
+                    AxdrType.OCTET_STRING.getTag(),
                 (byte) SIZE,
                 (byte) ((year & INT_HIGH_MASK ) >> BYTE_SIZE),
                 (byte) (year & INT_LOW_MASK),

@@ -1,13 +1,16 @@
 package com.energyict.dlms.axrdencoding.util;
 
-import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.SimpleTimeZone;
+import java.util.TimeZone;
 
 /**
  * @author gna
@@ -127,7 +130,7 @@ public class AXDRDateTime extends AbstractDataType {
     public AXDRDateTime(byte[] berEncodedData, int offset, AXDRDateTimeDeviationType deviationType) throws IOException {
         int ptr = offset;
 
-        if (berEncodedData[ptr] != DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING) {
+        if (berEncodedData[ptr] != AxdrType.OCTET_STRING.getTag()) {
             throw new IOException("AXDRDateTime, invalid identifier " + berEncodedData[ptr]);
         }
         ptr = ptr + 2;
@@ -189,7 +192,7 @@ public class AXDRDateTime extends AbstractDataType {
     public AXDRDateTime(byte[] berEncodedData, int offset, TimeZone tz) throws IOException {
     	int ptr = offset;
 
-    	if (berEncodedData[ptr] != DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING){
+    	if (berEncodedData[ptr] != AxdrType.OCTET_STRING.getTag()){
             throw new IOException("AXDRDateTime, invalid identifier "+berEncodedData[ptr]);
     	}
     	ptr = ptr + 2;
@@ -255,7 +258,7 @@ public class AXDRDateTime extends AbstractDataType {
 
         return
                 new byte[]{
-                        DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING,
+                        AxdrType.OCTET_STRING.getTag(),
                         (byte) SIZE,    // fixed octetString, no need for giving the length
                         (byte) ((year & INT_HIGH_MASK) >> BITS_PER_BYTE),
                         (byte) (year & INT_LOW_MASK),

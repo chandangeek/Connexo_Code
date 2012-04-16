@@ -8,7 +8,6 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
@@ -31,6 +30,7 @@ import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
@@ -935,7 +935,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 		newTime.add(Calendar.MILLISECOND, roundtripCorrection);
 		final byte[] byteTimeBuffer = new byte[14];
 
-		byteTimeBuffer[0] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
+		byteTimeBuffer[0] = AxdrType.OCTET_STRING.getTag();
 		byteTimeBuffer[1] = 12; // length
 		byteTimeBuffer[2] = (byte) (newTime.get(Calendar.YEAR) >> 8);
 		byteTimeBuffer[3] = (byte) newTime.get(Calendar.YEAR);
