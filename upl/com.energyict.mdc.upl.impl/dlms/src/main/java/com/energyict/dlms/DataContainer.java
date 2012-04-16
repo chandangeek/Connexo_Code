@@ -379,10 +379,11 @@ public class DataContainer implements Serializable {
 
 		while(true) {
 			try {
-					
-					switch (responseData[i])
+
+                AxdrType axdrType = AxdrType.fromTag(responseData[i]);
+                switch (axdrType)
 					{
-					case AxdrType.ARRAY.getTag():
+					case ARRAY:
 					{
 						i++;
 						if (iLevel++ >= (MAX_LEVELS-1)) {
@@ -396,7 +397,7 @@ public class DataContainer implements Serializable {
 						
 					} break; // TYPEDESC_ARRAY
 					
-					case AxdrType.STRUCTURE.getTag():
+					case STRUCTURE:
 					{
 						i++;
 						if (iLevel++ >= (MAX_LEVELS-1)) {
@@ -408,14 +409,14 @@ public class DataContainer implements Serializable {
 						
 					} break; // TYPEDESC_STRUCTURE
 					
-					case AxdrType.NULL.getTag():
+					case NULL:
 					{
 						i++;
 						addInteger(0);
 					} break;
 					
-					case AxdrType.LONG.getTag():
-					case AxdrType.LONG_UNSIGNED.getTag():
+					case LONG:
+					case LONG_UNSIGNED:
 					{
 						i++;
 						addInteger(ProtocolUtils.getShort(responseData,i));
@@ -423,8 +424,8 @@ public class DataContainer implements Serializable {
 						
 					} break;
 					
-					case AxdrType.VISIBLE_STRING.getTag():
-					case AxdrType.OCTET_STRING.getTag():
+					case VISIBLE_STRING:
+					case OCTET_STRING:
 					{
 						int t,s;
 						i++;
@@ -438,19 +439,19 @@ public class DataContainer implements Serializable {
 						i += t;
 					} break;
 					
-					case AxdrType.DOUBLE_LONG.getTag():
-					case AxdrType.DOUBLE_LONG_UNSIGNED.getTag():
+					case DOUBLE_LONG:
+					case DOUBLE_LONG_UNSIGNED:
 					{
 						i++;
 						addInteger(ProtocolUtils.getInt(responseData,i));
 						i+=4;
 					} break;
 					
-					case AxdrType.BCD.getTag():
-					case AxdrType.ENUM.getTag():
-					case AxdrType.INTEGER.getTag():
-					case AxdrType.BOOLEAN.getTag():
-					case AxdrType.UNSIGNED.getTag():
+					case BCD:
+					case ENUM:
+					case INTEGER:
+					case BOOLEAN:
+					case UNSIGNED:
 					{
 						i++;
 						addInteger(responseData[i]&0xFF);
@@ -458,14 +459,14 @@ public class DataContainer implements Serializable {
 					} break;
 					
 					
-					case AxdrType.LONG64.getTag():
+					case LONG64:
 					{
 						i++;
 						addLong(ProtocolUtils.getLong(responseData,i));
 						i+=8;
 					} break;
 					
-					case AxdrType.BIT_STRING.getTag():
+					case BIT_STRING:
 					{
 						int t,s;
 						i++;
@@ -489,7 +490,7 @@ public class DataContainer implements Serializable {
 						
 					} break; // TYPEDESC_BITSTRING
 					
-					case AxdrType.FLOATING_POINT.getTag():
+					case FLOATING_POINT:
 					{
 						i++;
 						addInteger(0); // TODO
@@ -497,7 +498,7 @@ public class DataContainer implements Serializable {
 						
 					} break; // TYPEDESC_FLOATING_POINT
 					
-					case AxdrType.TIME.getTag():
+					case TIME:
 					{
 						i++;
 						addInteger(0); // TODO
@@ -505,20 +506,20 @@ public class DataContainer implements Serializable {
 						
 					} break; // TYPEDESC_TIME
 					
-					case AxdrType.COMPACT_ARRAY.getTag():
+					case COMPACT_ARRAY:
 					{
 						i++;
 						addInteger(0); // TODO
 					} break; // TYPEDESC_COMPACT_ARRAY
 
-                    case AxdrType.FLOAT32.getTag():
+                    case FLOAT32:
                     {
                         i++;
                         addFloat(getFloat32(responseData, i));
                         i += 4;
                     } break;
 
-                    case AxdrType.FLOAT64.getTag():
+                    case FLOAT64:
                     {
                         i++;
                         addFloat(getFloat64(responseData, i));

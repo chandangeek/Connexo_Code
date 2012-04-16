@@ -132,38 +132,39 @@ public final class DLMSUtils {
         long fractionDigits;
         String fractionPart;
 
-        switch (byteBuffer[iOffset]) {
-            case AxdrType.NULL.getTag():
+        final AxdrType axdrType = AxdrType.fromTag(byteBuffer[iOffset]);
+        switch (axdrType) {
+            case NULL:
                 return 0;
 
-            case AxdrType.FLOATING_POINT.getTag():
-            case AxdrType.OCTET_STRING.getTag():
-            case AxdrType.VISIBLE_STRING.getTag():
-            case AxdrType.TIME.getTag():
-            case AxdrType.BCD.getTag():
-            case AxdrType.BIT_STRING.getTag():
-            case AxdrType.STRUCTURE.getTag():
-            case AxdrType.ARRAY.getTag():
-            case AxdrType.COMPACT_ARRAY.getTag():
+            case FLOATING_POINT:
+            case OCTET_STRING:
+            case VISIBLE_STRING:
+            case TIME:
+            case BCD:
+            case BIT_STRING:
+            case STRUCTURE:
+            case ARRAY:
+            case COMPACT_ARRAY:
                 throw new IOException("parseValue2int() error");
 
-            case AxdrType.ENUM.getTag():
-            case AxdrType.BOOLEAN.getTag():
+            case ENUM:
+            case BOOLEAN:
                 return (long) byteBuffer[iOffset + 1] & 0xff;
 
-            case AxdrType.DOUBLE_LONG.getTag():
-            case AxdrType.DOUBLE_LONG_UNSIGNED.getTag():
+            case DOUBLE_LONG:
+            case DOUBLE_LONG_UNSIGNED:
                 return ProtocolUtils.getInt(byteBuffer, iOffset + 1);
 
-            case AxdrType.UNSIGNED.getTag():
-            case AxdrType.INTEGER.getTag():
+            case UNSIGNED:
+            case INTEGER:
                 return (long) byteBuffer[iOffset + 1] & 0xff;
 
-            case AxdrType.LONG_UNSIGNED.getTag():
-            case AxdrType.LONG.getTag():
+            case LONG_UNSIGNED:
+            case LONG:
                 return ProtocolUtils.getShort(byteBuffer, iOffset + 1);
 
-            case AxdrType.FLOAT64.getTag():
+            case FLOAT64:
                 signBit = (((int) byteBuffer[iOffset + 1] >> 7) & 0xFF);
                 exponent = (((((long) byteBuffer[iOffset + 1]) << 4) & 0x07FF) |
                         ((((long) byteBuffer[iOffset + 2]) >> 4) & 0x0F));
@@ -188,7 +189,7 @@ public final class DLMSUtils {
                 }
                 return (exponent > 0) ? ((long) (((Math.pow(-1, signBit)) * Math.pow(2, exponent - 1023)) * new Float(fraction))) : 0;
 
-            case AxdrType.FLOAT32.getTag():
+            case FLOAT32:
                 signBit = (((int) byteBuffer[iOffset + 1] >> 7) & 0xFF);
                 exponent = (((((int) byteBuffer[iOffset + 1]) << 1) & 0xFF) |
                         ((((int) byteBuffer[iOffset + 2]) >> 7) & 0x01));
@@ -209,9 +210,9 @@ public final class DLMSUtils {
                 }
                 return (exponent > 0) ? ((long) (((Math.pow(-1, signBit)) * Math.pow(2, exponent - 127)) * fraction)) : 0;
 
-            case AxdrType.LONG64.getTag():
+            case LONG64:
                 return ProtocolUtils.getLong(byteBuffer, iOffset + 1);
-            case AxdrType.LONG64_UNSIGNED.getTag():
+            case LONG64_UNSIGNED:
                 return getUnsignedIntFromBytes(byteBuffer, iOffset + 1, Integer64.LENGTH);
 
             default:
@@ -319,45 +320,47 @@ public final class DLMSUtils {
     }
 
     public static String parseValue2String(byte[] byteBuffer, int iOffset) throws IOException {
-        switch (byteBuffer[iOffset]) {
-            case AxdrType.NULL.getTag():
+
+        AxdrType axdrType = AxdrType.fromTag(byteBuffer[iOffset]);
+        switch (axdrType) {
+            case NULL:
                 return String.valueOf(0);
 
-            case AxdrType.FLOATING_POINT.getTag():
-            case AxdrType.TIME.getTag():
-            case AxdrType.BCD.getTag():
-            case AxdrType.BIT_STRING.getTag():
-            case AxdrType.STRUCTURE.getTag():
-            case AxdrType.ARRAY.getTag():
-            case AxdrType.COMPACT_ARRAY.getTag():
+            case FLOATING_POINT:
+            case TIME:
+            case BCD:
+            case BIT_STRING:
+            case STRUCTURE:
+            case ARRAY:
+            case COMPACT_ARRAY:
                 throw new IOException("parseValue2int() error");
 
 
-            case AxdrType.OCTET_STRING.getTag():
-            case AxdrType.VISIBLE_STRING.getTag():
+            case OCTET_STRING:
+            case VISIBLE_STRING:
                 byte[] bstr = new byte[byteBuffer[iOffset + 1]];
                 for (int i = 0; i < bstr.length; i++) {
                     bstr[i] = byteBuffer[iOffset + 2 + i];
                 }
                 return new String(bstr);
 
-            case AxdrType.ENUM.getTag():
-            case AxdrType.BOOLEAN.getTag():
+            case ENUM:
+            case BOOLEAN:
                 return String.valueOf((long) byteBuffer[iOffset + 1] & 0xff);
 
-            case AxdrType.DOUBLE_LONG.getTag():
-            case AxdrType.DOUBLE_LONG_UNSIGNED.getTag():
+            case DOUBLE_LONG:
+            case DOUBLE_LONG_UNSIGNED:
                 return String.valueOf((long) ProtocolUtils.getInt(byteBuffer, iOffset + 1));
 
-            case AxdrType.UNSIGNED.getTag():
-            case AxdrType.INTEGER.getTag():
+            case UNSIGNED:
+            case INTEGER:
                 return String.valueOf((long) byteBuffer[iOffset + 1] & 0xff);
 
-            case AxdrType.LONG_UNSIGNED.getTag():
-            case AxdrType.LONG.getTag():
+            case LONG_UNSIGNED:
+            case LONG:
                 return String.valueOf((long) ProtocolUtils.getShort(byteBuffer, iOffset + 1));
 
-            case AxdrType.LONG64.getTag():
+            case LONG64:
                 return String.valueOf(ProtocolUtils.getLong(byteBuffer, iOffset + 1));
 
             default:

@@ -959,20 +959,21 @@ public class MessageExecutor extends GenericMessageExecutor{
 	 */
 	private AbstractDataType convertToMonitoredType(byte theMonitoredAttributeType, String value) throws IOException {
 		try {
-			switch(theMonitoredAttributeType){
-			case AxdrType.NULL.getTag():{return new NullData();}
-			case AxdrType.BOOLEAN.getTag():{return new BooleanObject(value.equalsIgnoreCase("1"));}
-			case AxdrType.BIT_STRING.getTag():{return new BitString(Integer.parseInt(value));}
-			case AxdrType.DOUBLE_LONG.getTag():{return new Integer32(Integer.parseInt(value));}
-			case AxdrType.DOUBLE_LONG_UNSIGNED.getTag():{return new Unsigned32(Integer.parseInt(value));}
-			case AxdrType.OCTET_STRING.getTag():{return OctetString.fromString(value);}
-			case AxdrType.VISIBLE_STRING.getTag():{return new VisibleString(value);}
-			case AxdrType.INTEGER.getTag():{return new Integer8(Integer.parseInt(value));}
-			case AxdrType.LONG.getTag():{return new Integer16(Integer.parseInt(value));}
-			case AxdrType.UNSIGNED.getTag():{return new Unsigned8(Integer.parseInt(value));}
-			case AxdrType.LONG_UNSIGNED.getTag():{return new Unsigned16(Integer.parseInt(value));}
-			case AxdrType.LONG64.getTag():{return new Integer64(Integer.parseInt(value));}
-			case AxdrType.ENUM.getTag():{return new TypeEnum(Integer.parseInt(value));}
+            final AxdrType axdrType = AxdrType.fromTag(theMonitoredAttributeType);
+            switch(axdrType){
+			case NULL:{return new NullData();}
+			case BOOLEAN:{return new BooleanObject(value.equalsIgnoreCase("1"));}
+			case BIT_STRING:{return new BitString(Integer.parseInt(value));}
+			case DOUBLE_LONG:{return new Integer32(Integer.parseInt(value));}
+			case DOUBLE_LONG_UNSIGNED:{return new Unsigned32(Integer.parseInt(value));}
+			case OCTET_STRING:{return OctetString.fromString(value);}
+			case VISIBLE_STRING:{return new VisibleString(value);}
+			case INTEGER:{return new Integer8(Integer.parseInt(value));}
+			case LONG:{return new Integer16(Integer.parseInt(value));}
+			case UNSIGNED:{return new Unsigned8(Integer.parseInt(value));}
+			case LONG_UNSIGNED:{return new Unsigned16(Integer.parseInt(value));}
+			case LONG64:{return new Integer64(Integer.parseInt(value));}
+			case ENUM:{return new TypeEnum(Integer.parseInt(value));}
 			default:    
 			    throw new IOException("convertToMonitoredtype error, unknown type.");
 			}

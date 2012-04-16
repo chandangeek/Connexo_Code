@@ -240,8 +240,9 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 		}
 		
 		if(typeInt != AxdrType.NULL.getTag()){
-			
-			switch(typeInt){
+
+            final AxdrType axdrType = AxdrType.fromTag((byte) (typeInt & 0x0FF));
+            switch(axdrType){
 			
 //			case DLMSCOSEMGlobals.TYPEDESC_ARRAY:{
 //				Array array = new Array();
@@ -249,52 +250,52 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 //				
 //			};break;
 			
-			case AxdrType.BOOLEAN.getTag():{
-				byte[] data = new byte[]{AxdrType.BOOLEAN.getTag(), (byte)Integer.parseInt(dataStr)};
+			case BOOLEAN:{
+				byte[] data = new byte[]{axdrType.getTag(), (byte)Integer.parseInt(dataStr)};
 				getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(data);
 			};break;
 			
-			case AxdrType.INTEGER.getTag():{
+			case INTEGER:{
 				Integer8 integer = new Integer8(Integer.parseInt(dataStr));
 				getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
 			};break;
 			
-			case AxdrType.LONG.getTag():{
+			case LONG:{
 				Integer16 integer = new Integer16(Integer.parseInt(dataStr));
 				getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
 			};break;
 			
-			case AxdrType.DOUBLE_LONG.getTag():{
+			case DOUBLE_LONG:{
 				Integer32 integer = new Integer32(Integer.parseInt(dataStr));
 				getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
 			};break;
 			
-			case AxdrType.LONG64.getTag():{
+			case LONG64:{
 				Integer64 integer = new Integer64(Integer.parseInt(dataStr));
 				getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
 			};break;
 			
-			case AxdrType.LONG_UNSIGNED.getTag():{
+			case LONG_UNSIGNED:{
 				Unsigned16 integer = new Unsigned16(Integer.parseInt(dataStr));
 				getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
 			};break;
 			
-			case AxdrType.UNSIGNED.getTag():{
+			case UNSIGNED:{
 				Unsigned8 integer = new Unsigned8(Integer.parseInt(dataStr));
 				getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
 			};break;
 			
-			case AxdrType.DOUBLE_LONG_UNSIGNED.getTag():{
+			case DOUBLE_LONG_UNSIGNED:{
 				Unsigned32 integer = new Unsigned32(Integer.parseInt(dataStr));
 				getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
 			};break;
 			
-			case AxdrType.OCTET_STRING.getTag():{
+			case OCTET_STRING:{
 				OctetString  octString = OctetString.fromString(dataStr);
 				getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(octString.getBEREncodedByteArray());
 			};break;
 			
-			case AxdrType.TIME.getTag():{
+			case TIME:{
 				
 			};break;
 				
