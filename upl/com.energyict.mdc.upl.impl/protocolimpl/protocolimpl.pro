@@ -452,6 +452,8 @@
 
 -keepnames class com.energyict.protocolimpl.coronis.waveflowDLMS.AS253
 
+-keepnames class com.energyict.genericprotocolimpl.webrtu.WebRTUGenericGateway
+
 -keepnames class com.energyict.protocolimpl.coronis.waveflow.waveflowV2.WaveFlowV2
 
 -keepnames class com.energyict.protocolimpl.coronis.waveflow.waveflowV210.WaveFlowV210

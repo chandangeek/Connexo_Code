@@ -1,9 +1,7 @@
 package com.energyict.protocolimpl.base.protocolcollections;
 
 import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.protocol.ProtocolCollection;
-import com.energyict.protocol.ProtocolImplFactory;
-import com.energyict.protocol.ProtocolInstantiator;
+import com.energyict.protocol.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,6 +41,7 @@ public class GenericProtocolCollectionImpl implements ProtocolCollection{
         this.protocolclasses.add("com.energyict.genericprotocolimpl.elster.ctr.MTU155");this.protocolnames.add("Elster MTU155 (CTR)");
         this.protocolclasses.add("com.energyict.genericprotocolimpl.ace4000.ACE4000");this.protocolnames.add("ACE4000");
         this.protocolclasses.add("com.energyict.genericprotocolimpl.rtuplusserver.g3.RtuPlusServer");this.protocolnames.add("Rtu+Server G3");
+        this.protocolclasses.add("com.energyict.genericprotocolimpl.webrtu.WebRTUGenericGateway");this.protocolnames.add("WebRTU Generic Gateway");
 
     }
 
