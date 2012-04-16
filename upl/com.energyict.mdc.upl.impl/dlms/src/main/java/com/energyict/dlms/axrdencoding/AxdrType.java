@@ -30,7 +30,8 @@ public enum AxdrType {
     FLOAT32(0x17),
     FLOAT64(0x18),
     DATE_TIME(0x19),
-    DATE(0x1A);
+    DATE(0x1A),
+    INVALID(0xFF);
 
     private final byte tag;
 
@@ -40,6 +41,21 @@ public enum AxdrType {
 
     public byte getTag() {
         return this.tag;
+    }
+
+    /**
+     * Find an AxdrType by tag, or return INVALID if not found.
+     *
+     * @param tag The tag to search for
+     * @return The matching AxdrType or AxdrType.INVALID
+     */
+    public static AxdrType fromTag(byte tag) {
+        for (AxdrType axdrType : values()) {
+            if (axdrType.getTag() == tag) {
+                return axdrType;
+            }
+        }
+        return INVALID;
     }
 
 }

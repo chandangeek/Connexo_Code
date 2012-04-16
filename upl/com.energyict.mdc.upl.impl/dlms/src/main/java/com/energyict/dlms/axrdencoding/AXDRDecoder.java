@@ -55,40 +55,41 @@ public final class AXDRDecoder {
 	 * @throws IOException
 	 */
 	public static AbstractDataType decode(byte[] data, int offset, int level) throws IOException {
-		switch (data[offset]) {
-			case AxdrType.NULL.getTag():
+        final AxdrType axdrType = AxdrType.fromTag(data[offset]);
+        switch (axdrType) {
+			case NULL:
 				return new NullData(data, offset);
-			case AxdrType.ARRAY.getTag():
+			case ARRAY:
 				return new Array(data, offset, level);
-			case AxdrType.STRUCTURE.getTag():
+			case STRUCTURE:
 				return new Structure(data, offset, level);
-			case AxdrType.INTEGER.getTag():
+			case INTEGER:
 				return new Integer8(data, offset);
-			case AxdrType.LONG.getTag():
+			case LONG:
 				return new Integer16(data, offset);
-			case AxdrType.DOUBLE_LONG.getTag():
+			case DOUBLE_LONG:
 				return new Integer32(data, offset);
-			case AxdrType.UNSIGNED.getTag():
+			case UNSIGNED:
 				return new Unsigned8(data, offset);
-			case AxdrType.LONG_UNSIGNED.getTag():
+			case LONG_UNSIGNED:
 				return new Unsigned16(data, offset);
-			case AxdrType.ENUM.getTag():
+			case ENUM:
 				return new TypeEnum(data, offset);
-			case AxdrType.BIT_STRING.getTag():
+			case BIT_STRING:
 				return new BitString(data, offset);
-			case AxdrType.VISIBLE_STRING.getTag():
+			case VISIBLE_STRING:
 				return new VisibleString(data, offset);
-			case AxdrType.OCTET_STRING.getTag():
+			case OCTET_STRING:
 				return new OctetString(data, offset);
-			case AxdrType.DOUBLE_LONG_UNSIGNED.getTag():
+			case DOUBLE_LONG_UNSIGNED:
 				return new Unsigned32(data, offset);
-			case AxdrType.LONG64.getTag():
+			case LONG64:
                 return new Integer64(data, offset);
-            case AxdrType.LONG64_UNSIGNED.getTag():
+            case LONG64_UNSIGNED:
                 return new Integer64(DLMSUtils.getUnsignedIntFromBytes(data, offset + 1, Integer64.LENGTH));  //+1 to skip the data type byte
-            case AxdrType.BOOLEAN.getTag():
+            case BOOLEAN:
                 return new BooleanObject(data, offset);
-            case AxdrType.FLOAT32.getTag():
+            case FLOAT32:
                 return new Float32(data, offset);
 			default:
 				throw new IOException("AXDRDecoder, unknown datatype " + data[offset]);
