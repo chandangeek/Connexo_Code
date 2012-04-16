@@ -4,11 +4,13 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.*;
 import com.energyict.dialer.core.Link;
-import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.genericprotocolimpl.common.CommonUtils;
+import com.energyict.mdw.amr.*;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.CommunicationProfileShadow;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.*;
 import java.sql.SQLException;
@@ -38,6 +40,7 @@ public class WebRTUGenericGateway implements GenericProtocol {
     private WaveModuleLinkAdaptor waveModuleLinkAdaptor;
     private List<Integer> failedSchedulesIds = new ArrayList<Integer>();
     private List<Integer> successfulSchedulesIds = new ArrayList<Integer>();
+    private List<RtuRegisterGroup> rtuRegisterGroups;
 
     /**
      * Necessary to know which communication schedules should be journal'ed
@@ -179,18 +182,18 @@ public class WebRTUGenericGateway implements GenericProtocol {
                 //Registers
                 if (fullSlaveSchedule.getReadMeterReadings()) {
                     if (registerProtocol != null) {
-                        List<RtuRegister> registers = slave.getRegisters();
+                        List<RtuRegister> registers = getScheduledRegisters(slave.getRegisters());
                         meterReadingData = new MeterReadingData();
                         StringBuilder sb = new StringBuilder();
                         String separator = "";
                         try {
                             for (RtuRegister register : registers) {
                                 try {
-                                    RegisterValue registerValue = registerProtocol.readRegister(register.getRtuRegisterSpec().getObisCode());
+                                    RegisterValue registerValue = registerProtocol.readRegister(getCorrectedObisCode(register));
                                     registerValue.setRtuRegisterId(register.getId());
                                     meterReadingData.add(registerValue);
                                 } catch (NoSuchRegisterException e) {
-                                    String obisCode = register.getRtuRegisterSpec().getObisCode().toString();
+                                    String obisCode = getCorrectedObisCode(register).toString();
                                     getLogger().severe("Register with obiscode " + obisCode + " is not supported: " + e.getMessage());
                                     sb.append(separator).append(obisCode);
                                     separator = ", ";
@@ -288,6 +291,32 @@ public class WebRTUGenericGateway implements GenericProtocol {
         }
         stopWavenisStack();
         timeDiff = 0;
+    }
+
+    /**
+     * Returns a list of the slave registers that are meant to be read on this communication schedule
+     *
+     * @param allSlaveRegisters list of all slave registers
+     * @return list of the relevant registers
+     */
+    private List<RtuRegister> getScheduledRegisters(List<RtuRegister> allSlaveRegisters) {
+        List<RtuRegister> relevantRegisters = new ArrayList<RtuRegister>();
+        for (RtuRegister slaveRegister : allSlaveRegisters) {
+            if (CommonUtils.isInRegisterGroup(rtuRegisterGroups, slaveRegister)) {
+                relevantRegisters.add(slaveRegister);
+            }
+        }
+        return relevantRegisters;
+    }
+
+    private ObisCode getCorrectedObisCode(RtuRegister slaveRegister) {
+        ObisCode obisCode = slaveRegister.getRtuRegisterSpec().getDeviceObisCode();
+        if (obisCode == null) {
+            obisCode = slaveRegister.getRegisterMapping().getObisCode();
+            return ProtocolTools.setObisCodeField(obisCode, 1, (byte) (slaveRegister.getRtuRegisterSpec().getDeviceChannelIndex() & 0x0FF));
+        } else {
+            return obisCode;
+        }
     }
 
     private void stopWavenisStack() {
@@ -479,6 +508,7 @@ public class WebRTUGenericGateway implements GenericProtocol {
     }
 
     private CommunicationProfileShadow createFullSlaveSchedule(List<CommunicationScheduler> inboundSlaveSchedules) throws BusinessException, SQLException {
+        rtuRegisterGroups = new ArrayList<RtuRegisterGroup>();
         infosForSlaveSchedules = new ArrayList<List<CommunicationProfileAction>>();
         if (inboundSlaveSchedules.size() == 0) {
             return null;
@@ -500,6 +530,7 @@ public class WebRTUGenericGateway implements GenericProtocol {
                 }
                 if (communicationProfile.getReadMeterReadings()) {    //Registers
                     infoForSlaveSchedule.add(CommunicationProfileAction.REGISTERS);
+                    rtuRegisterGroups.addAll(communicationProfile.getRtuRegisterGroups());           //Remember which registers are on this schedule
                     shadow.setReadMeterReadings(true);
                 }
                 if (communicationProfile.getReadMeterEvents()) {      //Events
