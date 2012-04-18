@@ -22,7 +22,7 @@ public class SDKSmartMeterRegister {
     private final String description;
 
     public SDKSmartMeterRegister(String obisCode, String serialNumber, String unit, int divider, int digits, String description) {
-        this.register = new Register(ObisCode.fromString(obisCode), serialNumber);
+        this.register = new Register(-1, ObisCode.fromString(obisCode), serialNumber);
         this.description = description;
         this.divider = divider;
         this.digits = digits;
@@ -30,7 +30,7 @@ public class SDKSmartMeterRegister {
     }
 
     public SDKSmartMeterRegister(String obisCode, String serialNumber, String unit, int divider, int digits) {
-        this.register = new Register(ObisCode.fromString(obisCode), serialNumber);
+        this.register = new Register(-1, ObisCode.fromString(obisCode), serialNumber);
         this.description = register.getObisCode().getDescription();
         this.divider = divider;
         this.digits = digits;
@@ -38,7 +38,7 @@ public class SDKSmartMeterRegister {
     }
 
     public SDKSmartMeterRegister(String obisCode, String serialNumber, String unit, int divider) {
-        this.register = new Register(ObisCode.fromString(obisCode), serialNumber);
+        this.register = new Register(-1, ObisCode.fromString(obisCode), serialNumber);
         this.description = register.getObisCode().getDescription();
         this.divider = divider;
         this.digits = 2;
