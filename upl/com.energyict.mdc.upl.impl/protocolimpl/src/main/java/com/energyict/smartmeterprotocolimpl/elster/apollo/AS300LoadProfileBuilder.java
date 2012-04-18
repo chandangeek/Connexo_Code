@@ -203,7 +203,7 @@ public class AS300LoadProfileBuilder {
                     for (CapturedObject co : capturedObjects) {
                         if (loadProfileContains(lpr, co.getLogicalName().getObisCode())) {
                             relevantObjects.add(co);
-                            Register reg = new Register(co.getLogicalName().getObisCode(), meterProtocol.getSerialNumber());
+                            Register reg = new Register(-1, co.getLogicalName().getObisCode(), meterProtocol.getSerialNumber());
                             if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode())) {// this way we don't get duplicate registerRequests in one getWithList
                                 channelRegisters.add(reg);
                             }

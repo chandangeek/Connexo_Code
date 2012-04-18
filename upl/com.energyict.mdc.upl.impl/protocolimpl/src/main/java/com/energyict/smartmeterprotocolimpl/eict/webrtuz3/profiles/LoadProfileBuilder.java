@@ -164,7 +164,7 @@ public class LoadProfileBuilder {
                     List<CapturedObject> capturedObjects = pg.getCapturedObjectsFromDataContainter(dc);
                     List<Register> coRegisters = new ArrayList<Register>();
                     for (CapturedObject co : capturedObjects) {
-                        Register reg = new Register(co.getLogicalName().getObisCode(), this.meterProtocol.getSerialNumberFromCorrectObisCode(co.getLogicalName().getObisCode()));
+                        Register reg = new Register(-1, co.getLogicalName().getObisCode(), this.meterProtocol.getSerialNumberFromCorrectObisCode(co.getLogicalName().getObisCode()));
                         if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode(), reg.getSerialNumber())) {// this way we don't get duplicate registerRequests in one getWithList
                             channelRegisters.add(reg);
                         }

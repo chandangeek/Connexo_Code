@@ -158,7 +158,7 @@ public class ZigbeeGasLoadProfile {
                     List<Register> coRegisters = new ArrayList<Register>();
                     for (CapturedObject co : capturedObjects) {
                         if (loadProfileContains(lpr, co.getLogicalName().getObisCode())) {
-                            Register reg = new Register(co.getLogicalName().getObisCode(), this.zigbeeGas.getSerialNumber());
+                            Register reg = new Register(-1, co.getLogicalName().getObisCode(), this.zigbeeGas.getSerialNumber());
                             if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode())) {// this way we don't get duplicate registerRequests in one getWithList
                                 channelRegisters.add(reg);
                             }

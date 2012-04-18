@@ -96,7 +96,7 @@ public class LoadProfileBuilder {
                 // DO nothing
             } else {
                 String registerObisCodeString = capturedObject.getLogicalName().toString();
-                registerList.add(new Register(ObisCode.fromString(registerObisCodeString), meterProtocol.getSerialNumber()));
+                registerList.add(new Register(-1, ObisCode.fromString(registerObisCodeString), meterProtocol.getSerialNumber()));
             }
         }
 

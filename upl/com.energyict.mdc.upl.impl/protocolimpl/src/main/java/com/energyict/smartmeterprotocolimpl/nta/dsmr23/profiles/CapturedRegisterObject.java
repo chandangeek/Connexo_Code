@@ -18,10 +18,10 @@ public class CapturedRegisterObject extends Register {
      * This class identifies a register in an smart meter by its obis code and serial number of the (slave)device
      * It also contains the attribute that is captured and the DLMS class id
      *
-     * @param obisCode
-     * @param serialNumber
-     * @param attribute
-     * @param classId
+     * @param obisCode     the ObisCode for this Captured Register
+     * @param serialNumber the serialNumber of the device
+     * @param attribute    the DLMS attribute for this Captured Register
+     * @param classId      the ClassId of this Captured Register
      */
     public CapturedRegisterObject(ObisCode obisCode, String serialNumber, int attribute, DLMSClassId classId) {
         this(new DLMSAttribute(obisCode, attribute, classId), serialNumber);
@@ -30,11 +30,20 @@ public class CapturedRegisterObject extends Register {
     /**
      * This class identifies a register in an smart meter by its DLMSAttribute and serial number of the (slave)device
      *
-     * @param dlmsAttribute
-     * @param serialNumber
+     * @param dlmsAttribute the dlms Attribute for this capturedRegister
+     * @param serialNumber  the serialNumber of the device
      */
     public CapturedRegisterObject(DLMSAttribute dlmsAttribute, String serialNumber) {
-        super(dlmsAttribute.getObisCode(), serialNumber);
+        this(dlmsAttribute, serialNumber, -1);
+    }
+
+    /**
+     * @param dlmsAttribute the dlms Attribute for this capturedRegister
+     * @param serialNumber  the serialNumber of the device
+     * @param rtuRegisterId the rtuRegisterId (if not present, set to -1)
+     */
+    public CapturedRegisterObject(DLMSAttribute dlmsAttribute, String serialNumber, int rtuRegisterId) {
+        super(rtuRegisterId, dlmsAttribute.getObisCode(), serialNumber);
         this.dlmsAttribute = dlmsAttribute;
     }
 

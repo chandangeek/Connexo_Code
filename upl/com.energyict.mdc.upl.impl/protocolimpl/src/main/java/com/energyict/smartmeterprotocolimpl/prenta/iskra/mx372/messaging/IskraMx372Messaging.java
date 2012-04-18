@@ -589,7 +589,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
         }
         protocol.getCosemObjectFactory().writeObject(breakerObisCode, 1, 2, connect ? connectMsg : disconnectMsg);
         List<Register> list = new ArrayList<Register>();
-        list.add(new Register(breakerObisCode, messageEntry.getSerialNumber()));
+        list.add(new Register(-1, breakerObisCode, messageEntry.getSerialNumber()));
 
         breakerState = protocol.readRegisters(list).get(0).getQuantity().getAmount();
          switch (breakerState.intValue()) {
