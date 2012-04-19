@@ -265,9 +265,9 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         log(Level.INFO, "Create HAN Network");
         hanManagement.createHan();
 
-        getLogger().info("Enable joining");
-        ZigBeeSETCControl zigBeeSETCControl = getCosemObjectFactory().getZigBeeSETCControl();
-        zigBeeSETCControl.writeEnableDisableJoining(true);
+//        getLogger().info("Enable joining");
+//        ZigBeeSETCControl zigBeeSETCControl = getCosemObjectFactory().getZigBeeSETCControl();
+//        zigBeeSETCControl.writeEnableDisableJoining(true);
 
         log(Level.INFO, "Restore ZigBee Han Keys successful");
     }
