@@ -10,6 +10,7 @@ import com.energyict.interval.IntervalRecord;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterMapping;
 import com.energyict.mdw.core.*;
+import com.energyict.mdw.datacollection.DataCollectionMonitor;
 import com.energyict.mdw.estimation.EstimationProcedure;
 import com.energyict.mdw.relation.*;
 import com.energyict.mdw.shadow.ChannelShadow;
@@ -823,6 +824,31 @@ public class DummyChannel implements Channel {
         return null;
     }
 
+    /**
+     * Returns the id of the <CODE>DataCollectionMonitor</CODE> associated with this channel, 0 if none is associated
+     *
+     * @return the id of the <CODE>DataCollectionMonitor</CODE>
+     */
+    public int getDataCollectionMonitorId() {
+        return 0;
+    }
+
+    /**
+     * Returns the <CODE>DataCollectionMonitor</CODE> associated with this channel, null if none is associated
+     *
+     * @return the <CODE>DataCollectionMonitor</CODE>
+     */
+    public DataCollectionMonitor getDataCollectionMonitor() {
+        return null;
+    }
+
+    /**
+     * @return true if a <CODE>DataCollectionMonitor</CODE> was defined for the channel, false if not
+     */
+    public boolean hasDataCollectionMonitor() {
+        return false;
+    }
+
     public void updateInterval(TimeDuration interval) throws SQLException, BusinessException {
 
     }
@@ -849,6 +875,18 @@ public class DummyChannel implements Channel {
 
     public boolean isStoreData() {
         return true;
+    }
+
+    /**
+     * updates the <CODE>DataCollectionMonitor</CODE> for this channel to the specified one
+     *
+     * @param monitor the new <CODE>DataCollectionMonitor</CODE>
+     * @throws com.energyict.cbo.BusinessException
+     *                               if a business exception occurred
+     * @throws java.sql.SQLException if a database error occurred
+     */
+    public void updateDataCollectionMonitor(final DataCollectionMonitor monitor) throws SQLException, BusinessException {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public IntervalRecord getLastIntervalRecord(Date from, Date to, Code code, Integer codeValue, Integer mask) {

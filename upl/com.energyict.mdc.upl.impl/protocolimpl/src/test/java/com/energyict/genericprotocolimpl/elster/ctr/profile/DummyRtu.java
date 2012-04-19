@@ -8,6 +8,7 @@ import com.energyict.dynamicattributes.BusinessObjectType;
 import com.energyict.interval.DateTime;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.*;
+import com.energyict.mdw.offline.OfflineRtu;
 import com.energyict.mdw.relation.*;
 import com.energyict.mdw.sdp.ServiceDeliveryPoint;
 import com.energyict.mdw.shadow.*;
@@ -681,5 +682,16 @@ public class DummyRtu implements Rtu {
 
     public boolean isAuthorized(UserAction action) {
         return false;
+    }
+
+    /**
+     * Triggers the capability to go offline and will copy all information
+     * from the database into memory so that normal business operations can continue.<br>
+     * Note that this may cause recursive calls to other objects that can go offline.
+     *
+     * @return The Offline version of this object
+     */
+    public OfflineRtu goOffline() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 }
