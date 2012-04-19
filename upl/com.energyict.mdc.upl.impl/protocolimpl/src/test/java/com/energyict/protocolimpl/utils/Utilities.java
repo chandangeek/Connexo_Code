@@ -1,41 +1,15 @@
 package com.energyict.protocolimpl.utils;
 
+import com.energyict.cbo.*;
+import com.energyict.cpo.Environment;
+import com.energyict.dialer.core.*;
+import com.energyict.mdw.core.*;
+import com.energyict.mdw.shadow.*;
+import com.energyict.protocolimpl.siemens7ED62.SCTMDumpData;
+
 import java.io.*;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-
-import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cbo.Utils;
-import com.energyict.cpo.Environment;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.LinkException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.CommunicationProfile;
-import com.energyict.mdw.core.CommunicationProtocol;
-import com.energyict.mdw.core.Group;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.ModemPool;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.core.RtuType;
-import com.energyict.mdw.core.UserFile;
-import com.energyict.mdw.shadow.ChannelShadow;
-import com.energyict.mdw.shadow.CommunicationProfileShadow;
-import com.energyict.mdw.shadow.CommunicationProtocolShadow;
-import com.energyict.mdw.shadow.CommunicationSchedulerShadow;
-import com.energyict.mdw.shadow.GroupShadow;
-import com.energyict.mdw.shadow.ModemPoolShadow;
-import com.energyict.mdw.shadow.RtuShadow;
-import com.energyict.mdw.shadow.RtuTypeShadow;
-import com.energyict.mdw.shadow.UserFileShadow;
-import com.energyict.protocolimpl.siemens7ED62.SCTMDumpData;
+import java.util.*;
 
 public class Utilities {
 
@@ -299,6 +273,7 @@ public class Utilities {
     public static Group createEmptyRtuGroup() throws SQLException, BusinessException {
         GroupShadow grs = new GroupShadow();
         grs.setName(emptyGroup);
+        grs.setObjectType(MeteringWarehouse.FACTORYID_RTU);
 //		grs.setObjectType(mw().getRtuFactory().getId());
         grs.getSearchFilter().setUseMaxResults(false);
         return mw().getGroupFactory().create(grs);
