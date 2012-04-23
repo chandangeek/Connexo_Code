@@ -253,7 +253,18 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         NTASecurityProvider localSecurityProvider = new NTASecurityProvider(this.properties);
         securityContext = new SecurityContext(datatransportSecurityLevel, authenticationSecurityLevel, 0, getCallingAPTitle(), localSecurityProvider, this.cipheringType);
 
-        if (this.conformanceBlock == null) {
+        updateConformanceBlock();
+
+        XdlmsAse xdlmsAse = new XdlmsAse(isCiphered() ? localSecurityProvider.getDedicatedKey() : null, true, PROPOSED_QOS, PROPOSED_DLMS_VERSION, this.conformanceBlock, maxRecPduSize);
+        aso = new ApplicationServiceObject(xdlmsAse, this, securityContext, getContextId(), getCalledAPTitle(), null);
+        dlmsConnection = new SecureConnection(aso, connection);
+        InvokeIdAndPriority iiap = buildInvokeIdAndPriority();
+        this.dlmsConnection.setInvokeIdAndPriority(iiap);
+    }
+
+    protected void updateConformanceBlock() throws InvalidPropertyException {
+        if (this.conformanceBlock == null)
+        {
             if (getReference() == ProtocolLink.SN_REFERENCE) {
                 this.conformanceBlock = new ConformanceBlock(ConformanceBlock.DEFAULT_SN_CONFORMANCE_BLOCK);
             } else if (getReference() == ProtocolLink.LN_REFERENCE) {
@@ -262,12 +273,6 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
                 throw new InvalidPropertyException("Invalid reference method, only 0 and 1 are allowed.");
             }
         }
-
-        XdlmsAse xdlmsAse = new XdlmsAse(isCiphered() ? localSecurityProvider.getDedicatedKey() : null, true, PROPOSED_QOS, PROPOSED_DLMS_VERSION, this.conformanceBlock, maxRecPduSize);
-        aso = new ApplicationServiceObject(xdlmsAse, this, securityContext, getContextId(), getCalledAPTitle(), null);
-        dlmsConnection = new SecureConnection(aso, connection);
-        InvokeIdAndPriority iiap = buildInvokeIdAndPriority();
-        this.dlmsConnection.setInvokeIdAndPriority(iiap);
     }
 
     protected InvokeIdAndPriority buildInvokeIdAndPriority() throws IOException {
