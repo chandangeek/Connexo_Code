@@ -1,15 +1,16 @@
 package com.energyict.protocolimpl.dlms.elster.as300d;
 
 import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -55,6 +56,36 @@ public class AS300DRegisters {
         }
 
         CosemObjectFactory cof = session.getCosemObjectFactory();
+        if (obisCode.equals(ObisCode.fromString("1.1.94.34.100.255"))) {
+            Data data = cof.getData(obisCode);
+            long value = data.getValue();
+            String text = "Active Quadrant: " + (value != 0 ? value : "No quadrant detected");
+            return new RegisterValue(obisCode, new Quantity(value, Unit.getUndefined()), null, null, null, new Date(), 0, text);
+        } else if (obisCode.equals(ObisCode.fromString("1.1.94.34.104.255"))) {
+            Data data = cof.getData(obisCode);
+            long value = data.getValue();
+            String text = "Phase undefined";
+            if ((value & 0x01) == 0x01) {
+                text = "Phase 1";
+            } else if ((value & 0x02) == 0x02) {
+                text = "Phase 2";
+            } else if ((value & 0x04) == 0x04) {
+                text = "Phase 3";
+            }
+            return new RegisterValue(obisCode, new Quantity(value, Unit.getUndefined()), null, null, null, new Date(), 0, text);
+        } else if (obisCode.equals(ObisCode.fromString("0.0.96.3.10.255")) || obisCode.equals(ObisCode.fromString("0.1.94.34.20.255")))  {
+            final Disconnector disconnector = cof.getDisconnector(obisCode);
+            TypeEnum controlState = disconnector.getControlState();
+            String text = "Unknown control state: " + controlState.getValue();
+            if (controlState.getValue() == 0) {
+                text = "Disconnected";
+            } else  if (controlState.getValue() == 1) {
+                text = "Connected";
+            } else  if (controlState.getValue() == 2) {
+                text = "Ready for Re-connection";
+            }
+            return new RegisterValue(obisCode, new Quantity(controlState.getValue(), Unit.getUndefined()), null, null, null, new Date(), 0, text);
+        }
         Register register = cof.getRegister(obisCode);
         Quantity value = register.getQuantityValue();
         return new RegisterValue(obisCode, value);
