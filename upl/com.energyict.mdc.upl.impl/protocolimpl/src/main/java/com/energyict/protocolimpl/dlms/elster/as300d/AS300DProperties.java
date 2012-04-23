@@ -1,14 +1,13 @@
 package com.energyict.protocolimpl.dlms.elster.as300d;
 
 import com.energyict.dlms.DLMSReference;
+import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocolimpl.dlms.DlmsProtocolProperties;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -18,7 +17,7 @@ import java.util.Properties;
 public class AS300DProperties extends DlmsProtocolProperties {
 
     public AS300DProperties() {
-        super(new Properties());
+        this(new Properties());
     }
 
     @Override
@@ -26,6 +25,11 @@ public class AS300DProperties extends DlmsProtocolProperties {
 
     }
 
+    public AS300DProperties(Properties properties) {
+        super(properties);
+    }
+
+    @Override
     public DLMSReference getReference() {
         return DLMSReference.LN;
     }
@@ -61,6 +65,11 @@ public class AS300DProperties extends DlmsProtocolProperties {
     @Override
     public String getSecurityLevel() {
         return getStringValue(SECURITY_LEVEL, "1:0");
+    }
+
+    @Override
+    public SecurityProvider getSecurityProvider() {
+        return new NTASecurityProvider(getProtocolProperties());
     }
 
 }

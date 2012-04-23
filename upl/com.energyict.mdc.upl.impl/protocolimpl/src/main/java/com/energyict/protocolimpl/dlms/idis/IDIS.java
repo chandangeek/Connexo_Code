@@ -10,7 +10,9 @@ import com.energyict.dlms.cosem.Register;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.dlms.*;
+import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
+import com.energyict.protocolimpl.dlms.DLMSCache;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 
 import java.io.IOException;
 import java.util.*;

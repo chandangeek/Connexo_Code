@@ -4,9 +4,7 @@ import com.energyict.dlms.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.*;
 
 import java.io.IOException;
 import java.util.logging.Logger;

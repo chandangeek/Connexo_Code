@@ -6,7 +6,7 @@ import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.SmartMeterProtocol;
-import com.energyict.protocolimpl.dlms.DlmsProtocolProperties;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.DummyDLMSConnection;
 import com.energyict.protocolimpl.utils.MockSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;

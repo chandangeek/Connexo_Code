@@ -57,7 +57,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
     }
 
     /**
-     * Getter for the {@link com.energyict.protocolimpl.dlms.DlmsProtocolProperties}
+     * Getter for the {@link com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties}
      *
      * @return the requested Properties
      */

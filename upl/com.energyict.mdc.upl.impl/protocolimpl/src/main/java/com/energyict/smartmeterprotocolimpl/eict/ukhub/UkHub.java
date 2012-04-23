@@ -57,7 +57,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
     }
 
     /**
-     * Getter for the {@link com.energyict.protocolimpl.dlms.DlmsProtocolProperties}
+     * Getter for the {@link com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties}
      *
      * @return the requested Properties
      */

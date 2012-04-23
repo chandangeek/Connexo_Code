@@ -11,8 +11,8 @@ import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.dlms.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
@@ -87,7 +87,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
     private List<AbstractNtaMbusDevice> mbusDevices = new ArrayList<AbstractNtaMbusDevice>();
 
     /**
-     * Getter for the {@link com.energyict.protocolimpl.dlms.DlmsProtocolProperties}
+     * Getter for the {@link com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties}
      *
      * @return the requested Properties
      */
