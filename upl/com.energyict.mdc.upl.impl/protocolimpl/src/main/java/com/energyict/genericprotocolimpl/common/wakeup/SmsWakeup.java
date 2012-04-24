@@ -4,14 +4,16 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Utils;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.CommunicationScheduler;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.Rtu;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.sun.xml.ws.client.ClientTransportException;
 import com.vodafone.gdsp.ws.*;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.WebServiceException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -219,7 +221,7 @@ public class SmsWakeup {
 
         try {
             swuTriggerResponse = wuTrigger.submitWUTrigger(parameters, gdspHeader);
-        } catch (ClientTransportException e) {
+        } catch (WebServiceException e) { // TODO: We should not use an internal class like ClientTransportException. Maybe just catch a WebServiceException?
             throw new ConnectionException("Could not send the WakeUp request, request timed out!");
         } catch (Exception e) {
             throw new ConnectionException("Could not send the WakeUp request. " + e.getMessage());
