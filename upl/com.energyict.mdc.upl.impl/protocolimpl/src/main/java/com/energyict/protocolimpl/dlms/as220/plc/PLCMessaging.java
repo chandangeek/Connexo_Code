@@ -2,12 +2,22 @@ package com.energyict.protocolimpl.dlms.as220.plc;
 
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.attributeobjects.*;
-import com.energyict.dlms.cosem.attributes.*;
+import com.energyict.dlms.cosem.attributeobjects.ElectricalPhase;
+import com.energyict.dlms.cosem.attributeobjects.Frequencies;
+import com.energyict.dlms.cosem.attributeobjects.FrequencyGroup;
+import com.energyict.dlms.cosem.attributeobjects.MacAddress;
+import com.energyict.dlms.cosem.attributeobjects.Repeater;
+import com.energyict.dlms.cosem.attributes.SFSKIec61334LLCSetupAttribute;
+import com.energyict.dlms.cosem.attributes.SFSKPhyMacSetupAttribute;
+import com.energyict.dlms.cosem.attributes.SFSKSyncTimeoutsAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.messaging.MessageAttributeSpec;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.base.AbstractSubMessageProtocol;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.objects.PLCObject;
@@ -446,7 +456,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
     }
 
     /**
-     * Allows a client system to “reset” the server system. The submitted value corresponds to a client MAC address. 
+     * Allows a client system to 'reset' the server system. The submitted value corresponds to a client MAC address.
      * The writing is refused if the value does not correspond to a valid client MAC address or the predefined NO-BODY address.
      * 
      * @throws IOException

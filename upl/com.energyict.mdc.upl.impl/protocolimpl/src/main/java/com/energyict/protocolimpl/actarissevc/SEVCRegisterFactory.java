@@ -6,11 +6,14 @@
 
 package com.energyict.protocolimpl.actarissevc;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ProtocolException;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  *
@@ -42,7 +45,7 @@ public class SEVCRegisterFactory {
        registers.put("CVC", new SEVCRegister("PVN",7,32,16,SEVCDataParse.SEVC_VOLUME,Unit.get("m3"))); 
        registers.put("PIM", new SEVCRegister("PVN",7,48,2,SEVCDataParse.SEVC_INTEGER_BINARY,null)); 
        
-       registers.put("Ttest", new SEVCRegister("PTE",1,0,8,SEVCDataParse.SEVC_FLOATING_POINT,Unit.get("°C"))); 
+       registers.put("Ttest", new SEVCRegister("PTE",1,0,8,SEVCDataParse.SEVC_FLOATING_POINT,Unit.get("Â°C")));
        registers.put("Ptest", new SEVCRegister("PTE",1,8,8,SEVCDataParse.SEVC_FLOATING_POINT,Unit.get("bar"))); 
        registers.put("Ctest", new SEVCRegister("PTE",1,16,8,SEVCDataParse.SEVC_FLOATING_POINT,null)); 
        registers.put("Ztest", new SEVCRegister("PTE",1,24,8,SEVCDataParse.SEVC_FLOATING_POINT,null)); 

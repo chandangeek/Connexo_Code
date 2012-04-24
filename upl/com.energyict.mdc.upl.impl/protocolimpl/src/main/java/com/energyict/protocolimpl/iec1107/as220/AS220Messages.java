@@ -6,12 +6,6 @@
  */
 package com.energyict.protocolimpl.iec1107.as220;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.logging.Logger;
-
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
@@ -24,6 +18,12 @@ import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageTagSpec;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.base.ContactorController;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * @author jme
@@ -266,7 +266,7 @@ public class AS220Messages implements MessageProtocol {
 	}
 
 	/**
-	 * After receiving the “Demand Reset” command the meter executes a demand
+	 * After receiving the 'Demand Reset' command the meter executes a demand
 	 * reset by doing a snap shot of all energy and demand registers.
 	 * @throws IOException
 	 */

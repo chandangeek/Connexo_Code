@@ -5,18 +5,22 @@
  */
 
 package com.energyict.protocolimpl.gmc.base;
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
 
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocol.meteridentification.MeterType;
-
-import com.energyict.protocol.*;
 import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Calendar;
+import java.util.Date;
 /**
  *
  * @author  weinert
@@ -171,7 +175,6 @@ public class EclConnection extends Connection implements ProtocolConnection {
                 // KV 16122003
                 byBuf = receiveRawData();
                 
-                /* Telegramm-Plausibilität, Überprüfung der Semikolons */
 		sChannelCount = 0;
                 byStat = strID.getBytes();
                 
@@ -187,12 +190,11 @@ public class EclConnection extends Connection implements ProtocolConnection {
 			throw new ProtocolConnectionException("FlagECLConnection: invalid SecurityLevel",SECURITYLEVEL_ERROR);
                 
 
-		/* Überprüfung der Stationskennung */
 		if(byStat[0] != byBuf[2])
 			throw new ProtocolConnectionException("FlagECLConnection: invalid SecurityLevel",SECURITYLEVEL_ERROR);
                 
 
-		// Station mit Kennungslänge 1
+		// Station mit Kennungslnge 1
 		if(strID.length() == 1)
 		{
 			iStartByte = 4;
@@ -200,7 +202,7 @@ public class EclConnection extends Connection implements ProtocolConnection {
 				throw new ProtocolConnectionException("FlagECLConnection: invalid SecurityLevel",SECURITYLEVEL_ERROR);
                 
 		}
-		// Station mit Kennungslänge 2
+		// Station mit Kennungslnge 2
 		else
 		{
 			iStartByte = 5;
@@ -262,7 +264,7 @@ public class EclConnection extends Connection implements ProtocolConnection {
                 // KV 16122003
                 byBuf = receiveRawData();
                 
-                /* Telegramm-Plausibilität, Überprüfung der Semikolons */
+                /* Telegramm-Plausibilitt, berprfung der Semikolons */
 		sChannelCount = 0;
                 byStat = strID.getBytes();
                 
@@ -278,12 +280,12 @@ public class EclConnection extends Connection implements ProtocolConnection {
 			throw new ProtocolConnectionException("FlagECLConnection: invalid SecurityLevel",SECURITYLEVEL_ERROR);
                 
 
-		/* Überprüfung der Stationskennung */
+		/* berprfung der Stationskennung */
 		if(byStat[0] != byBuf[2])
 			throw new ProtocolConnectionException("FlagECLConnection: invalid SecurityLevel",SECURITYLEVEL_ERROR);
                 
 
-		// Station mit Kennungslänge 1
+		// Station mit Kennungslnge 1
 		if(strID.length() == 1)
 		{
 			iStartByte = 4;
@@ -291,7 +293,7 @@ public class EclConnection extends Connection implements ProtocolConnection {
 				throw new ProtocolConnectionException("FlagECLConnection: invalid SecurityLevel",SECURITYLEVEL_ERROR);
                 
 		}
-		// Station mit Kennungslänge 2
+		// Station mit Kennungslnge 2
 		else
 		{
 			iStartByte = 5;
@@ -410,7 +412,6 @@ public class EclConnection extends Connection implements ProtocolConnection {
 
     
     /** Translate byte to string
-     * @param byBuf 
      * @param iPos Startoffset
      * @param iLen count of Bytes
      */

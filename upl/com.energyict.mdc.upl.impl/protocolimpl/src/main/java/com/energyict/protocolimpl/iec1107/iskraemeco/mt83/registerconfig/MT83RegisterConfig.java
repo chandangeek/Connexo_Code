@@ -5,10 +5,10 @@
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.registerconfig;
 
-import java.util.Map;
-
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
+
+import java.util.Map;
 
 /**
  *
@@ -42,9 +42,9 @@ public class MT83RegisterConfig extends RegisterConfig {
     	addToMap("1.1.71.7.0.255", "Current phase 3 Instantaneous value", null);
 
     	// Phi phase x Instantaneous value 
-    	addToMap("1.1.81.7.40.255", "Phi (°) phase 1 Instantaneous value", null);
-    	addToMap("1.1.81.7.51.255", "Phi (°) phase 2 Instantaneous value", null);
-    	addToMap("1.1.81.7.62.255", "Phi (°) phase 3 Instantaneous value", null);
+    	addToMap("1.1.81.7.40.255", "Phi (Â°) phase 1 Instantaneous value", null);
+    	addToMap("1.1.81.7.51.255", "Phi (Â°) phase 2 Instantaneous value", null);
+    	addToMap("1.1.81.7.62.255", "Phi (Â°) phase 3 Instantaneous value", null);
 
     	// Powerfactor phase x Instantaneous value 
     	addToMap("1.1.33.7.0.255", "Powerfactor phase 1 Instantaneous value", null);

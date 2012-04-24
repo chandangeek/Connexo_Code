@@ -7,13 +7,21 @@
 package com.energyict.protocolimpl.gmc.u1600;
 
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.cbo.NestedIOException;
+import com.energyict.cbo.Unit;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 //import com.energyict.protocolimpl.myprotocol.*;
 /**
  *
@@ -79,7 +87,7 @@ public class U1600Profile {
         , Integer.parseInt(telegram.substring(iStartByte+9,iStartByte+11)),
                 Integer.parseInt(telegram.substring(iStartByte+12,iStartByte+14)),0);
         //oldestda  = calendar.getTime();
-        // System.out.println(oldestda  + "  Date§");
+        // System.out.println(oldestda  + "  Date");
         
         Calendar calendar_la = ProtocolUtils.getCleanCalendar(getU1600().getTimeZone());
         Date latestda = new Date();
@@ -92,7 +100,7 @@ public class U1600Profile {
         , Integer.parseInt(telegram.substring(iStartByte+9,iStartByte+11)),
                 Integer.parseInt(telegram.substring(iStartByte+12,iStartByte+14)),0);
         //   latestda  = calendar_la.getTime();
-        //     System.out.println(latestda  + " latest Date§" + calendar.MONTH + "  " + calendar.DAY_OF_WEEK );
+        //     System.out.println(latestda  + " latest Date" + calendar.MONTH + "  " + calendar.DAY_OF_WEEK );
         
         boolean noProfileData = true;
         /* calculate UCT-Time   */
@@ -286,12 +294,12 @@ public class U1600Profile {
     }
     
     /**
-     * Auswertung einer Periode mit anschließender Speicherung in die
+     * Auswertung einer Periode mit anschlie ender Speicherung in die
      * Datenbank
      * @param TI_Start , Startzeitpunkt des Periodenbereiches
      * @param TI_Stop  , Stopzeitpunkt des Periodenbereiches
      * @param Telegram , ASCII-String der U1600
-     * @param Flags, Zusatzinformationen für die Datenbank
+     * @param Flags, Zusatzinformationen f r die Datenbank
      */
     // 28.09.00 RW
     private IntervalData  evaluateOnePeriod(Calendar ti_Start, Calendar ti_Stop,String telegram, long flags, int iNumChannels)throws IOException, NestedIOException, ProtocolConnectionException{
@@ -325,7 +333,7 @@ public class U1600Profile {
         byBuf  = telegram.getBytes();
         String strID =   u1600.getEclConnection().getStrID();
         byStat = strID.getBytes();
-        /* Telegramm-Plausibilität, Überprüfung der Semikolons */
+        /* Telegramm-Plausibilit t,  berpr fung der Semikolons */
         sChannelCount = 0;
         for(int i=0;i < telegram.length();i++)
             if(byBuf[i] == 0x3B)
@@ -336,23 +344,23 @@ public class U1600Profile {
         /* Startkennung */
         if((byBuf[0] != 0x0D) || (byBuf[1] != 0x0A))
             throw new ProtocolConnectionException("Wrong Profil Frame");
-        /* Überprüfung der Stationskennung */
+        /*  berpr fung der Stationskennung */
         if(byStat[0] != byBuf[2])
             throw new ProtocolConnectionException("Wrong Profil Frame");
-// Station mit Kennungslänge 1
+// Station mit Kennungsl nge 1
         if(strID.length() == 1) {
             if(byBuf[3] != 0x3A)
                 throw new ProtocolConnectionException("Device Error");
         }
-// Station mit Kennungslänge 2
+// Station mit Kennungsl nge 2
         else {
             if((byBuf[3] != byStat[1]) || (byBuf[4] != 0x3A))
                 throw new ProtocolConnectionException("Device Error");
         }
-        /* Überprüfung Datum und Uhrzeit */
+        /*  berpr fung Datum und Uhrzeit */
         int iStartByte = 0;
         
-        /* Startbyte für Datum und Zeit suchen */
+        /* Startbyte f r Datum und Zeit suchen */
         while((byBuf[iStartByte] != 0x3A) && (iStartByte < telegram.length()))
             iStartByte++;
         iStartByte++;

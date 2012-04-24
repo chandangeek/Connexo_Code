@@ -10,12 +10,13 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.RDate;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
+import java.util.Date;
 
 /**
  *
@@ -45,7 +46,7 @@ public class OriginateSchedulingTablesforRemotePorts extends AbstractTable {
     private int originateControlRecurring; // 1 byte b0-2: Primary_phone_number Select the ST-93 or MT-93 phone to use for the call. (0-2)
                                                              // b3: unused = 0
                                                              // b4-6: Secondary_phone_number The meter ignores this field and only uses the Primary phone number.
-                                                             // b7: USE_WINDOWS If set to ‘1’ the meter will check the originate windows (ST-93/MT-93). If outside a window, the meter waits until the start of the next window. If set to ‘0’, the meter will ignore call windows and attempt to call immediately.
+                                                             // b7: USE_WINDOWS If set to  1  the meter will check the originate windows (ST-93/MT-93). If outside a window, the meter waits until the start of the next window. If set to  0 , the meter will ignore call windows and attempt to call immediately.
 
     // ****************************************************************************************************
     // The meter supports 1 non-recurring date for each port. Each non-recurring date requires 6 bytes.							 
@@ -54,10 +55,10 @@ public class OriginateSchedulingTablesforRemotePorts extends AbstractTable {
     private int originateControlNonRecurring; // 1 byte b0-2: Primary_phone_number Select the ST-93 or MT-93 phone to use for the call. (0-2)
                                                              // b3: unused = 0
                                                              // b4-6: Secondary_phone_number The meter ignores this field and only uses the Primary phone number.
-                                                             // b7: USE_WINDOWS If set to ‘1’ the meter will check the originate windows (ST- 93/MT-93). If outside a window, the meter waits until the start of the next window. If set to ‘0’, the meter will ignore call windows and attempt to call immediately.     
+                                                             // b7: USE_WINDOWS If set to  1  the meter will check the originate windows (ST- 93/MT-93). If outside a window, the meter waits until the start of the next window. If set to  0 , the meter will ignore call windows and attempt to call immediately.
     /*
      Identify the events that can trigger a call (alarm call). There is a control flag for
-     each status bit (standard and manufacturer’s) in ST-3. If the flag is set, an alarm
+     each status bit (standard and manufacturer s) in ST-3. If the flag is set, an alarm
      call will be made when the corresponding status flag is set in ST-3. The meter
      supports 2 event records in ST-94 so that different phone numbers can be
      used for restoration and alarm events.

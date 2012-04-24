@@ -1,20 +1,43 @@
 package com.elster.protocolimpl.dlms.messaging;
 
 import com.elster.dlms.cosem.classes.class11.SpecialDayEntry;
-import com.elster.dlms.cosem.classes.class20.*;
-import com.elster.dlms.cosem.simpleobjectmodel.*;
-import com.elster.dlms.types.basic.*;
+import com.elster.dlms.cosem.classes.class20.DayProfile;
+import com.elster.dlms.cosem.classes.class20.Season;
+import com.elster.dlms.cosem.classes.class20.WeekProfile;
+import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
+import com.elster.dlms.cosem.simpleobjectmodel.SimpleActivityCalendarObject;
+import com.elster.dlms.cosem.simpleobjectmodel.SimpleActivityCalendarProfiles;
+import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
+import com.elster.dlms.cosem.simpleobjectmodel.SimpleSpecialDaysTable;
+import com.elster.dlms.types.basic.DlmsDate;
+import com.elster.dlms.types.basic.DlmsDateTime;
+import com.elster.dlms.types.basic.DlmsTime;
+import com.elster.dlms.types.basic.ObisCode;
 import com.elster.protocolimpl.dlms.tariff.CodeObjectValidator;
 import com.elster.protocolimpl.dlms.tariff.CodeTableBase64Parser;
-import com.elster.protocolimpl.dlms.tariff.objects.*;
+import com.elster.protocolimpl.dlms.tariff.objects.CodeCalendarObject;
+import com.elster.protocolimpl.dlms.tariff.objects.CodeDayTypeDefObject;
+import com.elster.protocolimpl.dlms.tariff.objects.CodeDayTypeObject;
+import com.elster.protocolimpl.dlms.tariff.objects.CodeObject;
+import com.elster.protocolimpl.dlms.tariff.objects.SeasonObject;
+import com.elster.protocolimpl.dlms.tariff.objects.SeasonTransitionObject;
 import com.energyict.cbo.BusinessException;
 import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.messaging.MessageAttributeSpec;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.utils.MessagingTools;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class TariffUploadPassiveMessage extends AbstractDlmsMessage {
 
@@ -109,7 +132,7 @@ public class TariffUploadPassiveMessage extends AbstractDlmsMessage {
         // only one season setable
         profilesPassive.setSeasons(new Season[]{s1});
 
-        WeekProfile w1 = new WeekProfile("Profile_1", 1, 1, 1, 1, 1, 2, 3); //Nur genau das Profil scheint m�glich zu sein.
+        WeekProfile w1 = new WeekProfile("Profile_1", 1, 1, 1, 1, 1, 2, 3); //Nur genau das Profil scheint moglich zu sein.
         profilesPassive.setWeekProfiles(new WeekProfile[]{w1}); //Genau 1 Profil möglich
 
         profilesPassive.setDayProfiles(new DayProfile[]{d1, d2, d3});

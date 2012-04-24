@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.edf.trimaran.registermapping;
 
-import com.energyict.obis.*;
+import com.energyict.obis.ObisCode;
+
 import java.util.HashMap;
 
 /**
@@ -29,17 +30,17 @@ public class RegisterNameFactory {
     
     static public void buildRegisterNames(int fField) {
         for (int eField=1;eField<=3;eField++) {
-            map.put(ObisCode.fromString("1.1.1.38."+eField+"."+fField), "Dépassement Quadratique");
+            map.put(ObisCode.fromString("1.1.1.38."+eField+"."+fField), "DÃ©passement Quadratique");
             map.put(ObisCode.fromString("0.1.96.8."+eField+"."+fField), "Temps de fonctionnement");
-            map.put(ObisCode.fromString("1.1.1.128."+eField+"."+fField), "Nombre de dépassements");
+            map.put(ObisCode.fromString("1.1.1.128."+eField+"."+fField), "Nombre de dÃ©passements");
             
         }
         map.put(ObisCode.fromString("1.1.1.10.1."+fField), "Energie de depassement, SUM(dP) (en option EJP)");
         map.put(ObisCode.fromString("1.1.1.129.1."+fField), "Puissances Souscrites, PSP (Heures de Pointe)");
         map.put(ObisCode.fromString("1.1.1.130.1."+fField), "Puissances Souscrites, PS HPH (Heures Pleines d'Hiver)");
         map.put(ObisCode.fromString("1.1.1.131.1."+fField), "Puissances Souscrites, PS HCH (Heures Creuses d'Hiver");
-        map.put(ObisCode.fromString("1.1.1.132.1."+fField), "Puissances Souscrites, PS HPE (Heures Pleines d'Eté");
-        map.put(ObisCode.fromString("1.1.1.133.1."+fField), "Puissances Souscrites, PS HCE (Heures Creuses d'Eté");
+        map.put(ObisCode.fromString("1.1.1.132.1."+fField), "Puissances Souscrites, PS HPE (Heures Pleines d'EtÃ©");
+        map.put(ObisCode.fromString("1.1.1.133.1."+fField), "Puissances Souscrites, PS HCE (Heures Creuses d'EtÃ©");
         map.put(ObisCode.fromString("1.1.1.134.1."+fField), "Puissances Souscrites, PS PM (Heures de Pointe Mobile)");
         map.put(ObisCode.fromString("1.1.1.135.1."+fField), "Puissances Souscrites, PS HPD (Heures Pleines de Demi-Saison)");
         map.put(ObisCode.fromString("1.1.1.136.1."+fField), "Puissances Souscrites, PS HCD (Heures Creuses de Demi-Saison)");

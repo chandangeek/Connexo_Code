@@ -1,12 +1,12 @@
 package com.energyict.dlms.cosem;
 
-import java.io.IOException;
-
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.obis.ObisCode;
+
+import java.io.IOException;
 
 /**
  * @author gna
@@ -18,8 +18,8 @@ import com.energyict.obis.ObisCode;
  *         application processes and a physical device hosting one or more COSEM
  *         server application processes rely on a single TCP or UDP connection.
  *         The TCP or UDP entity is wrapped in the COSEM TCP-UDP based transport
- *         layer. Within a physical device, each application process � client
- *         application process or server logical device � is bound to a Wrapper
+ *         layer. Within a physical device, each application process client
+ *         application process or server logical device is bound to a Wrapper
  *         Port (WPort). The binding is done with the help of the SAP Assignment
  *         object. See 4.4.3. On the other hand, a COSEM TCP or UDP based
  *         transport layer may be capable to support more than one TCP or UDP
@@ -27,7 +27,7 @@ import com.energyict.obis.ObisCode;
  *         devices hosting COSEM application processes.
  *
  *         NOTE: When a COSEM physical device supports various data link layers
- *         � for example Ethernet and PPP � an instance of the TCP-UDP setup
+ *         for example Ethernet and PPP an instance of the TCP-UDP setup
  *         object is necessary for each of them.
  */
 public class TCPUDPSetup extends AbstractCosemObject {

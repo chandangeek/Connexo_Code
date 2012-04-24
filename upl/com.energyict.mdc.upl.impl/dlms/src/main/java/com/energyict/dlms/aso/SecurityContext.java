@@ -12,7 +12,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * The securityContext manages the different securityLevels for establishing
@@ -401,9 +400,9 @@ public class SecurityContext {
      * The securityControlByte is a byte of the securityHeader that is sent the
      * authenticated message.
      * <pre>
-     * Bit 3�0: Security_Suite_Id;
-     * Bit 4: �A� subfield: indicate that the APDU is authenticated; [should be set for HLS]
-     * Bit 5: �E� subfield: indicates that the APDU is encrypted;
+     * Bit 3-0: Security_Suite_Id;
+     * Bit 4: 'A' subfield: indicate that the APDU is authenticated; [should be set for HLS]
+     * Bit 5: 'E' subfield: indicates that the APDU is encrypted;
      * Bit 6: Key_set subfield 0 = Unicast; 1 = Broadcast,
      * Bit 7: Reserved, must be set to 0.
      * </pre>
@@ -511,9 +510,9 @@ public class SecurityContext {
      * The securityControlByte is a byte of the securityHeader that is sent with
      * every encrypted/authenticated message.
      * <pre>
-     * Bit 3�0: Security_Suite_Id;
-     * Bit 4: �A� subfield: indicate that the APDU is authenticated;
-     * Bit 5: �E� subfield: indicates that the APDU is encrypted;
+     * Bit 3-0: Security_Suite_Id;
+     * Bit 4: 'A' subfield: indicate that the APDU is authenticated;
+     * Bit 5: 'E' subfield: indicates that the APDU is encrypted;
      * Bit 6: Key_set subfield 0 = Unicast; 1 = Broadcast,
      * Bit 7: Reserved, must be set to 0.
      * </pre>

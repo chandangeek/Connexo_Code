@@ -21,7 +21,7 @@ public class EquipmentClassInfoTest extends TestCase {
         String s5 = "[BVO] " + "Equipment of class B TYPE 1 (Volumetric)";
         String s6 = "[CVO] " + "Equipment of class C TYPE 2 (Volumetric)";
         String s7 = "[CVE] " + "Equipment of class C TYPE 2 (Venturi meter)";
-        String s8 = "[CEM] " + "Equipment of class C – Energy Meter";
+        String s8 = "[CEM] " + "Equipment of class C Energy Meter";
         String s9 = "[AA1] " + "Equipment of type A1";
         String s10 ="[AA2] " + "Equipment of type A2";
 

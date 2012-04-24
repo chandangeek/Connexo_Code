@@ -10,13 +10,10 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.TableFactory;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
@@ -28,7 +25,7 @@ public class PortStatus {
                 // b6: Initialization Status 1 = Device on port has been successfully initialized
                 // b7: Outage Modem Present 1 = outage modem is present 
     private int currentSessionSecurityLevel; // 1 byte Group permission bits (refer to ST-42) for the session per the C12.18 Security Service or the C12.21 Authenticate Service. For the shared remote port, this field will be used to show the optical session security level during optical sessions. 
-    private long actualConnectBitRate; // 4 bytes UINT32. Bit rate of the connection. Only can be different form Actual_Init_Rate if the remote port is connected to a modem that doesn’t support speed buffering (i.e. outage modem.) 
+    private long actualConnectBitRate; // 4 bytes UINT32. Bit rate of the connection. Only can be different form Actual_Init_Rate if the remote port is connected to a modem that doesn't support speed buffering (i.e. outage modem.)
     private long actualInitRate; // 4 bytes Actual meter to modem successful initialization bit rate.
     private int nextNumbertoDial; // 1 byte The index into XT-93 to select the next phone number to be dialed for this port. Valid range = 0-2.
     private int retryTimer; // 2 bytes There is one retry timer per port. The retry attempts are kept per phone number

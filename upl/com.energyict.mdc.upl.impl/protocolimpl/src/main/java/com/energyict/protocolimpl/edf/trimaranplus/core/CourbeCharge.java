@@ -11,11 +11,27 @@
 package com.energyict.protocolimpl.edf.trimaranplus.core;
 
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.IntervalValue;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.MagicNumberConstants;
 
-import java.io.*;
-import java.util.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  *
@@ -315,7 +331,7 @@ public class CourbeCharge {
                 }
             }
             else if ((val & 0xC000) == MagicNumberConstants.h8000.getValue()) {
-                // bit 13..0 Valeur de la puissance avec coupure (� tronqu�e �)
+                // bit 13..0 Valeur de la puissance avec coupure (e tronquee e)
                 val &= 0x3FFF;
                 if (debug>=2) {
 					System.out.println(debugStartString +i+", shortlong, val="+val);
@@ -344,7 +360,7 @@ public class CourbeCharge {
                 
                 currentElement=elementDatationDate;
                 // element date
-                // bit 12..9 chiffre des unit�s de l'ann�e bit 8..5 mois bit 4..0 jour
+                // bit 12..9 chiffre des unites de l'annee bit 8..5 mois bit 4..0 jour
                 int year = (val & 0x1E00) >> MagicNumberConstants.nine.getValue();
                 int month = (val & 0x01E0) >> MagicNumberConstants.five.getValue();
                 int day = (val & 0x001F);
@@ -393,44 +409,44 @@ public class CourbeCharge {
                 
 /* All empty If - statments                 
                 if (type == 0) { // every hour
-                    // heure ronde ou changement de jour tarifaire ; dans le cas d'une heure ronde seule, l'�l�ment-date n'est pas
-                    // ins�r� ; ce type de marquage n'est fait que s'il n'y a pas d'autre marquage � faire � la m�me date
+                    // heure ronde ou changement de jour tarifaire ; dans le cas d'une heure ronde seule, l'element-date n'est pas
+                    // insere ; ce type de marquage n'est fait que s'il n'y a pas d'autre marquage e faire e la meme date
                 }
                 else if (type == 1) { // timeset
-                    // remise � l'heure ou changement d'heure l�gale ; dans ce cas, deux marquages sont effectu�s, un avec
-                    // l'ancienne heure et un avec la nouvelle heure (�l�ment-date et �l�ment-heure � chaque fois) ; pour chacun
-                    // un enregistrement compl�mentaire est effectu� pour donner la valeur des minutes et des secondes de la date
-                    // marqu�e (�l�ment-minute/seconde)
+                    // remise e l'heure ou changement d'heure legale ; dans ce cas, deux marquages sont effectues, un avec
+                    // l'ancienne heure et un avec la nouvelle heure (element-date et element-heure e chaque fois) ; pour chacun
+                    // un enregistrement complementaire est effectue pour donner la valeur des minutes et des secondes de la date
+                    // marquee (element-minute/seconde)
                     
                 }
                 else if (type == 2) {
-                    // prise d'effet de changement des valeurs d'une table journali�re (�l�ment-date et �l�ment-heure)
+                    // prise d'effet de changement des valeurs d'une table journaliere (element-date et element-heure)
                 }
                 else if (type == 3) {
-                    // changement de structure annuelle ou de poste horaire (en option Base ou EJP), entr�e ou sortie de la
-                    // p�riode tarifaire pointe mobile ou changement de saison mobile (en option MODULABLE), changement
-                    // de mode (toutes options) ; l'�l�ment-date n'est ins�r� que dans le cas de changement de structure annuelle
-                    // ou de mode ; un enregistrement compl�mentaire est effectu� pour pr�ciser la saison, le poste, la structure
-                    // ou le mode suivant le cas (�l�ment-poste/structure/mode)
+                    // changement de structure annuelle ou de poste horaire (en option Base ou EJP), entree ou sortie de la
+                    // periode tarifaire pointe mobile ou changement de saison mobile (en option MODULABLE), changement
+                    // de mode (toutes options) ; l'element-date n'est insere que dans le cas de changement de structure annuelle
+                    // ou de mode ; un enregistrement complementaire est effectue pour preciser la saison, le poste, la structure
+                    // ou le mode suivant le cas (element-poste/structure/mode)
                 }
                 else if (type == 4) {
-                    // prise d'effet de nouvelles valeurs de puissances souscrites (�l�ment-date et �l�ment-heure)
+                    // prise d'effet de nouvelles valeurs de puissances souscrites (element-date et element-heure)
                 }
                 else if (type == 5) {
-                    // changement de la valeur de la dur�e de la p�riode d�int�gration Tc (�l�ment-date et �l�ment-heure)
+                    // changement de la valeur de la duree de la periode deintegration Tc (element-date et element-heure)
                 }
                 */
                 if (type == MagicNumberConstants.six.getValue()) {
                     
                     intervalData.addEiStatus(IntervalStateBits.POWERDOWN);
                     meterEvents.add(new MeterEvent(cal.getTime(),MeterEvent.POWERUP));
-                    // retour de l�alimentation r�seau apr�s une coupure ; si la dur�e de la coupure exc�de la r�serve de marche, la
-                    // date enregistr�e correspond au 1er Janvier 1992, et l'heure enregistr�e est 00h00    
+                    // retour de lealimentation reseau apres une coupure ; si la duree de la coupure excede la reserve de marche, la
+                    // date enregistree correspond au 1er Janvier 1992, et l'heure enregistree est 00h00
                 }
 //                else if (type == MagicNumberConstants.seven.getValue()) {
-                    // multi-marquage. Dans ce cas, un enregistrement compl�mentaire est effectu� pour pr�ciser les marquages.
-                    // Le multi-marquage ne concerne pas le marquage de � remise � l'heure � ou de � changement d'heure
-                    // l�gale � qui est effectu� ind�pendamment du reste.
+                    // multi-marquage. Dans ce cas, un enregistrement complementaire est effectue pour preciser les marquages.
+                    // Le multi-marquage ne concerne pas le marquage de e remise e l'heure e ou de e changement d'heure
+                    // legale e qui est effectue independamment du reste.
 //                }
             }
             // ************************************************************************************************************************ 
@@ -439,8 +455,8 @@ public class CourbeCharge {
             else if ((val & 0xF000) == 0xF000) {
                 if (previousElement == elementDatationHeure) {
 //                    if (type == 0) {
-                        // heure ronde ou changement de jour tarifaire ; dans le cas d'une heure ronde seule, l'�l�ment-date n'est pas
-                        // ins�r� ; ce type de marquage n'est fait que s'il n'y a pas d'autre marquage � faire � la m�me date ;
+                        // heure ronde ou changement de jour tarifaire ; dans le cas d'une heure ronde seule, l'element-date n'est pas
+                        // insere ; ce type de marquage n'est fait que s'il n'y a pas d'autre marquage e faire e la meme date ;
 //                    }
                     if (type == 1) {
                         

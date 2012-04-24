@@ -2,8 +2,17 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.RegisterReadable;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.attributeobjects.*;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.attributeobjects.DeltaElectricalPhase;
+import com.energyict.dlms.cosem.attributeobjects.ElectricalPhase;
+import com.energyict.dlms.cosem.attributeobjects.Frequencies;
+import com.energyict.dlms.cosem.attributeobjects.FrequencyGroup;
+import com.energyict.dlms.cosem.attributeobjects.MacAddress;
+import com.energyict.dlms.cosem.attributeobjects.MacAddressList;
+import com.energyict.dlms.cosem.attributeobjects.Repeater;
 import com.energyict.dlms.cosem.attributes.SFSKPhyMacSetupAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
@@ -214,14 +223,14 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 	 * NOTE MAC addresses are expressed on 12 bits.
 	 *
 	 * Contains the value of the address of the physical attachment (MAC address)
-	 * associated to the local system. In the unconfigured state, the MAC address is �NEW-address�.
+	 * associated to the local system. In the unconfigured state, the MAC address is NEW-address.
 	 * This attribute is locally written by the CIASE when the system is registered
 	 * (with a Register service). The value is used in each outgoing or incoming
 	 * frame. The default value is "NEW-address".
 	 *
 	 * This attribute is set to NEW:
 	 * - by the MAC sub-layer, once the time-out-not-addressed delay is exceeded;
-	 * - when a client system �resets� the server system.
+	 * - when a client system 'resets' the server system.
 	 *
 	 * When this attribute is set to NEW:
 	 * - the system loses its synchronization (function of the MAC-sublayer);

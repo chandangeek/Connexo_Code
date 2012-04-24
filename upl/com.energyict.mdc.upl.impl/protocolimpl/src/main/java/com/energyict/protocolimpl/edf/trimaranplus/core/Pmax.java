@@ -36,7 +36,7 @@ public class Pmax {
         setVariableName(variableName);
         setDateDebutPeriode(new DateType(dc.getRoot().getLong(offset++), timezone));
         setCodeAF(dc.getRoot().getInteger(offset++));
-        setDateFinPeriode(new DateType(dc.getRoot().getLong(offset++), timezone)); // DateType, -- champ sans signification, date par d�faut
+        setDateFinPeriode(new DateType(dc.getRoot().getLong(offset++), timezone)); // DateType, -- champ sans signification, date par defaut
         setValuePmax(new Quantity[dc.getRoot().getStructure(offset).getNrOfElements()]);
         for (int i=0;i<getValuePmax().length;i++) {
             getValuePmax()[i] = new Quantity(BigDecimal.valueOf(dc.getRoot().getStructure(offset).getLong(i)),VariableNameFactory.getVariableName(variableName).getUnit());

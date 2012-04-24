@@ -10,10 +10,12 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import java.util.*;
-import java.io.*;
+import com.energyict.protocol.ProtocolUtils;
 
-import com.energyict.protocol.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 
@@ -31,7 +33,7 @@ public class SelfReadDataUpload {
     // selfread header
     
     /* This indicates whether or not the last self read was interrupted by an EPF. If this
-    flag is cleared, then the most recent self read’s data record will most likely be
+    flag is cleared, then the most recent self reads data record will most likely be
     corrupted. It would be wise to ignore the most recent self read if this flag is
     cleared.*/
     private boolean commitFlag; // BOOLEAN,
@@ -39,7 +41,7 @@ public class SelfReadDataUpload {
     /* Let n = the programmed number of records per file, according to the self read
     configuration. If numSelfReads > n, then only the most recent n self read records are
     present, due to the nature of the circular self read file; in order to find the chronologically
-    first occurring record’s (absolute) starting byte, use the modulo function as such:
+    first occurring records (absolute) starting byte, use the modulo function as such:
     Starting byte = 3 + [ (numSelfReads % n) * blockSize ] The variables in the above
     equation can easily be obtained from SelfReadGeneralInfo DLMS Object.
     If numSelfReads < n, then this is the actual number of self reads in the file. In this case,

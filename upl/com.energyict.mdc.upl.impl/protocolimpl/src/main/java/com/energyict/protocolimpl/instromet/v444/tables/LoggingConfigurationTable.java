@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.instromet.v444.tables;
 
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ChannelInfo;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.ChannelInfo;
 
 
 public class LoggingConfigurationTable extends AbstractTable {
@@ -23,7 +23,7 @@ public class LoggingConfigurationTable extends AbstractTable {
 
 	protected void setChannelInfos() {
 		addChannelInfo(0, "Status", Unit.getUndefined());
-		addChannelInfo(1, "Temperature", Unit.get("°C"));
+		addChannelInfo(1, "Temperature", Unit.get("Â°C"));
 		addChannelInfo(2, "Pressure", Unit.get("bar"));
 		addChannelInfo(3, "VE", Unit.getUndefined()); // errormeldingen
 		addChannelInfo(4, "Vu", Unit.get("m3")); // gasmeterstand

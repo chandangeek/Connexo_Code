@@ -10,11 +10,9 @@
 
 package com.energyict.protocolimpl.itron.sentinel.logicalid;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.ansi.c12.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
 
 
 /**
@@ -24,13 +22,13 @@ import java.util.*;
 public class CapabilitiesDataRead extends AbstractDataRead {
     
     
-    private int numberOfTOURates; // (0 – 7)
+    private int numberOfTOURates; // (0 - 7)
     private boolean meterHasAClock; // (True/False)
     private boolean meterHasValidSelfReadData; // (True/False)
-    private int numberOfLoadProfileChannels; // (0 – 8)
-    private int numberOfEnergies; // (1 – 8)
-    private int numberOfDemands; // (1 – 10)
-    private int numberOfCumulativeDemands; // (1 – 8)
+    private int numberOfLoadProfileChannels; // (0 - 8)
+    private int numberOfEnergies; // (1 - 8)
+    private int numberOfDemands; // (1 - 10)
+    private int numberOfCumulativeDemands; // (1 - 8)
     private int pFAvgBillingPeriodAvailable; // (0 or 1)
     
     /** Creates a new instance of ConstantsDataRead */
@@ -57,13 +55,13 @@ public class CapabilitiesDataRead extends AbstractDataRead {
         
         int offset=0;
         
-        setNumberOfTOURates(C12ParseUtils.getInt(data,offset++)); // (0 – 7)
+        setNumberOfTOURates(C12ParseUtils.getInt(data,offset++)); // (0 - 7)
         setMeterHasAClock(C12ParseUtils.getInt(data,offset++)==1); // (True/False)
         setMeterHasValidSelfReadData(C12ParseUtils.getInt(data,offset++)==1); // (True/False)
-        setNumberOfLoadProfileChannels(C12ParseUtils.getInt(data,offset++)); // (0 – 8)
-        setNumberOfEnergies(C12ParseUtils.getInt(data,offset++)); // (1 – 8)
-        setNumberOfDemands(C12ParseUtils.getInt(data,offset++)); // (1 – 10)
-        setNumberOfCumulativeDemands(C12ParseUtils.getInt(data,offset++)); // (1 – 8)
+        setNumberOfLoadProfileChannels(C12ParseUtils.getInt(data,offset++)); // (0 - 8)
+        setNumberOfEnergies(C12ParseUtils.getInt(data,offset++)); // (1 - 8)
+        setNumberOfDemands(C12ParseUtils.getInt(data,offset++)); // (1 - 10)
+        setNumberOfCumulativeDemands(C12ParseUtils.getInt(data,offset++)); // (1 - 8)
         setPFAvgBillingPeriodAvailable(C12ParseUtils.getInt(data,offset++)); // (0 or 1)        
         
         

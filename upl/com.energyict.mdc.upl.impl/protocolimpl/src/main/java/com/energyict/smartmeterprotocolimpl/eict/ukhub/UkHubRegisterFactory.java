@@ -2,19 +2,32 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.BulkRegisterProtocol;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.Register;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedRegister;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -33,8 +46,8 @@ public class UkHubRegisterFactory implements BulkRegisterProtocol {
     public static final ObisCode DeviceId1 = ObisCode.fromString("0.0.96.1.0.255");     // HUB SerialNumber
     public static final ObisCode DeviceId2 = ObisCode.fromString("0.0.96.1.1.255");     // UtilitySpecified EquipmentID
     public static final ObisCode DeviceId3 = ObisCode.fromString("0.0.96.1.2.255");     //E-Function location details, e.g. 48 chars (maybe need removing)
-    public static final ObisCode DeviceId4 = ObisCode.fromString("0.0.96.1.3.255");     //E-location information � 48 chars
-    public static final ObisCode DeviceId5 = ObisCode.fromString("0.0.96.1.4.255");     //E-configuration information � 16 chars
+    public static final ObisCode DeviceId4 = ObisCode.fromString("0.0.96.1.3.255");     //E-location information - 48 chars
+    public static final ObisCode DeviceId5 = ObisCode.fromString("0.0.96.1.4.255");     //E-configuration information - 16 chars
     public static final ObisCode DeviceId6 = ObisCode.fromString("0.0.96.1.5.255");     //Manufacturer Name
     public static final ObisCode DeviceId7 = ObisCode.fromString("0.0.96.1.6.255");     //Manufacture ID (ZigBee MSP ID [SSWG code for Clusters])
     public static final ObisCode DeviceId8 = ObisCode.fromString("0.0.96.1.7.255");     //PAYG ID

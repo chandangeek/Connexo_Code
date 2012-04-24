@@ -10,15 +10,12 @@
 
 package com.energyict.protocolimpl.ge.kv2.tables;
 
-import java.io.*;
-import java.math.*;
-
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import com.energyict.cbo.*;
+import com.energyict.cbo.Unit;
+import com.energyict.protocolimpl.ansi.c12.tables.UOMEntryBitField;
 import com.energyict.protocolimpl.ge.kv2.GEKV2;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 /**
  *
  * @author Koen
@@ -119,7 +116,7 @@ public class SourceInfo {
                     return bd;
                 }
 
-                case 10: { // RMS volts squared V²
+                case 10: { // RMS volts squared VÂ²
                     if (uomEntryBitField.getSegmentation() == 4)
                         bd = bd.multiply(BigDecimal.valueOf(voltageL2NScaleFactor));
                     else
@@ -141,7 +138,7 @@ public class SourceInfo {
                     return bd;
                 }
 
-                case 14: { // RMS amps squared A²
+                case 14: { // RMS amps squared AÂ²
                     if (uomEntryBitField.getSegmentation() == 4)
                         bd = bd.multiply(BigDecimal.valueOf(currentNeutralScaleFactor));
                     else
@@ -238,7 +235,7 @@ public class SourceInfo {
                     return bd;
                 }
 
-                case 10: { // RMS volts squared V²
+                case 10: { // RMS volts squared VÂ²
                     if (uomEntryBitField.getSegmentation() == 4)
                         bd = bd.multiply(BigDecimal.valueOf(voltageL2NScaleFactor));
                     else
@@ -260,7 +257,7 @@ public class SourceInfo {
                     return bd;
                 }
 
-                case 14: { // RMS amps squared A²
+                case 14: { // RMS amps squared AÂ²
                     if (uomEntryBitField.getSegmentation() == 4)
                         bd = bd.multiply(BigDecimal.valueOf(currentNeutralScaleFactor));
                     else

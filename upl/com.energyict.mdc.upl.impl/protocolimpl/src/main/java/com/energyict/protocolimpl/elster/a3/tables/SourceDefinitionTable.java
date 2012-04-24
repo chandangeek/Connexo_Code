@@ -10,12 +10,10 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
 
 /**
  *
@@ -41,7 +39,7 @@ public class SourceDefinitionTable extends AbstractTable {
     MT-17 does not dictate the time base, thereby not limiting a source to a summation or a demand. 
     This allows the same pulse source listed in MT-17 to be used for summations, demands, and load profile data. 
     Note that the divisor to be applied to pulse counts prior to storing load profile interval data is specified in ST-62.  
-    The first 50 sources are pulse sources. The first 8 sources listed in MT-17 must be defined as the “raw” pulse sources consistent with the meter type. 
+    The first 50 sources are pulse sources. The first 8 sources listed in MT-17 must be defined as the 'raw' pulse sources consistent with the meter type.
     The next 4 sources are reserved for relay pulse inputs. The remaining 38 pulse sources are calculated. 
     To support the different pulse sources required based on meter type, there are 3 different versions of MT-17.  
             * watt only meter (used for A3D and A3T meters)  

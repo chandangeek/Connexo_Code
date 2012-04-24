@@ -6,16 +6,16 @@
 
 package com.energyict.protocolimpl.pact.core.instant;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocolimpl.pact.core.common.PACTConnection;
 import com.energyict.protocolimpl.pact.core.common.ProtocolLink;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 /**
  *
  * @author  Koen
@@ -46,12 +46,12 @@ public class InstantaneousFactory {
         map.put("L0",new Instantaneous("Residual / neutral current",Unit.get("A"),INSTANTANEOUS_QUANTITY));
         
         // Phase angles and power factors
-        map.put("A1",new Instantaneous("Phase angle, V1",Unit.get("°"),INSTANTANEOUS_QUANTITY));
-        map.put("A2",new Instantaneous("Phase angle, V2",Unit.get("°"),INSTANTANEOUS_QUANTITY));
-        map.put("A3",new Instantaneous("Phase angle, V3",Unit.get("°"),INSTANTANEOUS_QUANTITY));
-        map.put("AA",new Instantaneous("Phase angle, V2 to V3",Unit.get("°"),INSTANTANEOUS_QUANTITY));
-        map.put("AB",new Instantaneous("Phase angle, V3 to V1",Unit.get("°"),INSTANTANEOUS_QUANTITY));
-        map.put("AC",new Instantaneous("Phase angle, V1 to V2",Unit.get("°"),INSTANTANEOUS_QUANTITY));
+        map.put("A1",new Instantaneous("Phase angle, V1",Unit.get("Â°"),INSTANTANEOUS_QUANTITY));
+        map.put("A2",new Instantaneous("Phase angle, V2",Unit.get("Â°"),INSTANTANEOUS_QUANTITY));
+        map.put("A3",new Instantaneous("Phase angle, V3",Unit.get("Â°"),INSTANTANEOUS_QUANTITY));
+        map.put("AA",new Instantaneous("Phase angle, V2 to V3",Unit.get("Â°"),INSTANTANEOUS_QUANTITY));
+        map.put("AB",new Instantaneous("Phase angle, V3 to V1",Unit.get("Â°"),INSTANTANEOUS_QUANTITY));
+        map.put("AC",new Instantaneous("Phase angle, V1 to V2",Unit.get("Â°"),INSTANTANEOUS_QUANTITY));
         map.put("Q1",new Instantaneous("Power factor, Phase 1",Unit.get(""),INSTANTANEOUS_QUANTITY));
         map.put("Q2",new Instantaneous("Power factor, Phase 2",Unit.get(""),INSTANTANEOUS_QUANTITY));
         map.put("Q3",new Instantaneous("Power factor, Phase 3",Unit.get(""),INSTANTANEOUS_QUANTITY));

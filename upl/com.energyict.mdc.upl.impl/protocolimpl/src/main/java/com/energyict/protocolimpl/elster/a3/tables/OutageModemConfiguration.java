@@ -10,12 +10,12 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
 
 /**
  *
@@ -34,31 +34,31 @@ public class OutageModemConfiguration extends AbstractTable {
     ALPHA Plus meter Class 28. Data is downloaded to the outage modem using the IIC bus.
     There are 4 parts to the initialization of the outage modem:
     1 Write MT-88 (ALPHA Plus Class 28)
-    2 Write a 14–byte account number to MT-89 storage location in the outage modem.
-    3 Write a 5–byte serial number to MT-89 storage location in the outage modem.
+    2 Write a 14-byte account number to MT-89 storage location in the outage modem.
+    3 Write a 5-byte serial number to MT-89 storage location in the outage modem.
     4 Write the time (hh:mm:ss) to MT-89 storage location in the outage modem.
     The initial call delay and the retry delay for the outage calls is calculated as follows:
-      Initial call delay = PFDLY + rand(AVGDLY × 2)
-      Delay between retries = CALLDLY + rand(AVGDLY × 2)
-    Only the fields marked with “(*FW)” are used by the meter firmware. The other fields are
+      Initial call delay = PFDLY + rand(AVGDLY   2)
+      Delay between retries = CALLDLY + rand(AVGDLY   2)
+    Only the fields marked with  (*FW)  are used by the meter firmware. The other fields are
     All retry parameters in MT-88 are only used for outage calls. The retry strategy for
     restoration, alarm, and billing calls is specified in MT-90.
     */
 
     private String outageModemDialString; // 36 bytes The phone number for outage calls. 
-    private int powerFailDelay; // 1 byte Qualification time for outage and restoration calls. 0 – 255 seconds. When the outage exceeds this time, the outage modem can attempt to make an outage call (if enabled) and ModemCommunication sets the power_failure flag in ST-3 which can then trigger a restoration call (if enabled.) 
+    private int powerFailDelay; // 1 byte Qualification time for outage and restoration calls. 0 - 255 seconds. When the outage exceeds this time, the outage modem can attempt to make an outage call (if enabled) and ModemCommunication sets the power_failure flag in ST-3 which can then trigger a restoration call (if enabled.) 
     private int averageDelayTime; // 1 byte Average delay time (0-255 seconds.) Used by the internal modem (in conjunction with PFDLY and CALLDLY) to cause a random average delay before attempting to place an outage call. 
                           // The internal modem randomizes the value of AVGDLY times 2, then adds the result to PFDLY (initial call attempt) or CALLDLY (subsequent call attempts) to use as a delay before making an outage call. 
                                                              // Initial call delay = PFDLY + RAND(AVGDLY * 2) 
                                                              // Subsequent call delay = CALLDLY + RAND(AVGDLY * 2) 
-    private int callRetryDelay; // 1 byte Call retry delay. 0 – 255 in 5 second increments. Used by the internal modem in conjunction with AVGDLY when an outage call is not successful. A value of zero is interpreted as 2 seconds. 
+    private int callRetryDelay; // 1 byte Call retry delay. 0 - 255 in 5 second increments. Used by the internal modem in conjunction with AVGDLY when an outage call is not successful. A value of zero is interpreted as 2 seconds. 
     private int answerDelay; // 1 byte The maximum length of time (in seconds) the outage modem remains off-hook in an attempt to place an outage call. If the call is not successful within this length of time, the modem hangs up and schedules another call. When power is restored, the meter waits for this period of time before forcing the modem to release the phone line and attempting to place a restoration call. 
     private int powerUpDelay; // 1 byte Minimum time period (in seconds) between power outages required to trigger an outage call by the internal modem. A value of zero causes the internal modem to make an outage call for every outage. 
     private int maxOutageCallRetries; // 1 byte The max number of times to attempt an outage call. Restoration call retries are controlled by MT-90. 
     private int outageFlags; // 1 byte 
                                               // b0: Outage Flag 
                      //      1 = place a call to report power outages 
-                                              //      0 = don’t call to report power outages 
+                                              //      0 = don t call to report power outages 
                                               // b1: RXC_IS_ROUTED (OMM only) 
                                               //    	 0 = RXC is driven such that U1-C is connected to Cx 
                                               //      1 = RXC is driven based on the WAN routing algorithm 
@@ -68,13 +68,13 @@ public class OutageModemConfiguration extends AbstractTable {
                                               // b3-4: Outage Call Baud Rate 
                                               //	    0 = 2400 1 = 1200 2 = 300 
                                               //      3 = no outage calls 
-                                              // b5 UseMT88Constants. Defines which diode constants are used to calculate thresholds for intrusion and off–hook detection. 
+                                              // b5 UseMT88Constants. Defines which diode constants are used to calculate thresholds for intrusion and off hook detection. 
                                               //      This bit is only used for rev 51 of PIC firmware and higher. 
-                                              //      Revisions 40, 49, and 47 of PIC firmware consider this bit a “don’t care” bit. 
+                                              //      Revisions 40, 49, and 47 of PIC firmware consider this bit a  don t care  bit. 
                                               //      0 = for rev 51 and higher, use constants defined in alternate field. This is MT-89 offset 64. 
                                               //      1 = for rev 51 and higher, use constants defined by MT-88.EX_TIME_CONST. 
                                               // b6 TXC_IS_AyBy (OMM only) 
-                                              //      0 = TXC is driven such that U1-A is connected to Ax and U1-B is connected to Bx. Echo SPHS2 to P5:17. (A3 ALPHA meter’s RX/TX2 is connected to Option Board #2). 
+                                              //      0 = TXC is driven such that U1-A is connected to Ax and U1-B is connected to Bx. Echo SPHS2 to P5:17. (A3 ALPHA meter s RX/TX2 is connected to Option Board #2). 
                                               //      1 = TXC is driven such that U1-A is connected to Ay and U1-B is connected to By. Echo RXC to P5:17. 
                                               // b7: Outage Protocol. This is for future use with a new internal modem in development at Elster Electricity. Existing internal modems only support Elster Electricity protocol for outage calls. 
                                               //      1 = ANSI C12.21 (A3 ALPHA meter) 
@@ -82,7 +82,7 @@ public class OutageModemConfiguration extends AbstractTable {
     private int callTimeout; // 1 byte The number of minutes the internal modem remains off-hook during a non-outage call (any call initiated by the meter or by a remote modem) when no data is being sent or received. 
     private int initialWait; // 1 byte Unconditional time delay before sending the modem initialization string (INITSTR) over the remote port. Default value of zero means no wait. This field is primarily intended for communication with devices other than a modem. For example, a radio transmitter might require time to charge up after a power outage before it can transmit. 
     // RESERVED 16 bytes
-    private int checkSum; // 1 byte One’s complement checksum for MT-88. 
+    private int checkSum; // 1 byte One s complement checksum for MT-88. 
     
     /** Creates a new instance of OptionBoardScratchPad */
     public OutageModemConfiguration(ManufacturerTableFactory manufacturerTableFactory) {

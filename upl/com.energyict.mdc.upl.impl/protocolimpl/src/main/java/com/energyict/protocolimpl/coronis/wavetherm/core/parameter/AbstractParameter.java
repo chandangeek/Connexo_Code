@@ -5,7 +5,11 @@ import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.wavetherm.WaveTherm;
 import com.energyict.protocolimpl.coronis.wavetherm.core.radiocommand.AbstractRadioCommand;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 abstract public class AbstractParameter extends AbstractRadioCommand {
 
@@ -32,13 +36,13 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 
         DetectionMeasurementPeriod(0x23, 1, "Measurement period for threshold detection (in minutes)"),
 
-        HighThresholdSensor1(0x15, 2, "High threshold on sensor 1 (in 캜)"),
-        LowThresholdSensor1(0x16, 2, "Low threshold on sensor 1 (in 캜)"),
+        HighThresholdSensor1(0x15, 2, "High threshold on sensor 1 (in 째C)"),
+        LowThresholdSensor1(0x16, 2, "Low threshold on sensor 1 (in 째C)"),
         HighThresholdAlarmDurationSensor1(0x17, 1, "High threshold alarm duration, for sensor 1"),
         LowThresholdAlarmDurationSensor1(0x18, 1, "Low threshold alarm duration, for sensor 1"),
 
-        HighThresholdSensor2(0x2B, 2, "High threshold on sensor 2  (in 캜)"),
-        LowThresholdSensor2(0x2C, 2, "Low threshold on sensor 2 (in 캜)"),
+        HighThresholdSensor2(0x2B, 2, "High threshold on sensor 2  (in 째C)"),
+        LowThresholdSensor2(0x2C, 2, "Low threshold on sensor 2 (in 째C)"),
         HighThresholdAlarmDurationSensor2(0x2D, 1, "High threshold alarm duration, for sensor 2"),
         LowThresholdAlarmDurationSensor2(0x2E, 1, "Low threshold alarm duration, for sensor 1"),
 

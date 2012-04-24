@@ -10,10 +10,12 @@
 
 package com.energyict.protocolimpl.elster.a3.procedures;
 
-import java.io.*;
-import com.energyict.protocolimpl.ansi.c12.procedures.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.procedures.AbstractProcedure;
+import com.energyict.protocolimpl.ansi.c12.procedures.ProcedureFactory;
+import com.energyict.protocolimpl.ansi.c12.procedures.ProcedureIdentification;
+
+import java.io.IOException;
 /**
  *
  * @author Koen
@@ -21,7 +23,7 @@ import com.energyict.protocolimpl.base.*;
 public class CallIdentification extends AbstractProcedure {
 
     /*
-       Allows a meter reading system to identify the meter’s remote
+       Allows a meter reading system to identify the meters remote
        port that the call has been placed on and the reason for the call.
        byte 1 port (1 = dedicated remote port, 2 = shared remote port)
        byte 2-3 copy of XT-96 call purpose for the associated port.

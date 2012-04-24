@@ -10,8 +10,7 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import java.io.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
@@ -57,7 +56,7 @@ abstract public class AbstractResponse {
         // send and get response
         byte[] response=responseData.getData();
         
-        // op één of andere manier moeten we hier de response data terug krijgen van de requset...
+        // op Ã©Ã©n of andere manier moeten we hier de response data terug krijgen van de requset...
         
         setResponseCode(C12ParseUtils.getInt(response,0));
         if (getResponseCode() == OK)

@@ -1,7 +1,5 @@
 package com.energyict.dlms.cosem;
 
-import java.io.IOException;
-
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.RegisterReadable;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -10,9 +8,11 @@ import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 
+import java.io.IOException;
+
 /**
  * This {@link AbstractCosemObject} with class_id 25 allows to model and
- * configure communication channels according to EN13757-2 �M-Bus� Several
+ * configure communication channels according to EN13757-2 'M-Bus' Several
  * communication channels can be configured.
  *
  * @author jme
@@ -57,7 +57,7 @@ public class MBusSlavePortSetup extends AbstractCosemObject implements RegisterR
 	}
 
 	/**
-	 * Identifies the �M-Bus Port setup object instance.
+	 * Identifies the 'M-Bus Port setup object instance.
 	 *
 	 * @return the logical name as {@link OctetString}
 	 */

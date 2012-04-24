@@ -6,17 +6,17 @@
 
 package com.energyict.protocolimpl.pact.core.survey.discrete;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.TimeZone;
-
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
 import com.energyict.protocolimpl.pact.core.meterreading.MeterReadingsInterpreter;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.TimeZone;
 /**
  *
  * @author  Koen
@@ -36,7 +36,7 @@ public class SurveyDay {
     // statusflags channel (eType from 0xC0 to 0xCF)
     
     // KV 29082006 We have added two new flags for compliance with UK Codes of Practice 2, 3 and 5.  
-    //             The flags are ‘battery monitoring/clock fail’ and ‘outstation error’.  
+    //             The flags are 'battery monitoring/clock fail' and 'outstation error'.
     //             These will be supported in Premier CLEM C5G8GR08 and any subsequent variants.
     public static final int OUTSTATION_ERROR = 0x0010;
     public static final int BATTERY_FAIL = 0x0008;

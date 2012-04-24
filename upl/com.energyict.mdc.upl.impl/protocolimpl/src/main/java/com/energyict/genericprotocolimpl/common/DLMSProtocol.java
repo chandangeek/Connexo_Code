@@ -6,24 +6,59 @@ import com.energyict.cpo.Transaction;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
-import com.energyict.dlms.*;
-import com.energyict.dlms.aso.*;
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.HDLC2Connection;
+import com.energyict.dlms.InvokeIdAndPriority;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.SecureConnection;
+import com.energyict.dlms.TCPIPConnection;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.aso.AssociationControlServiceElement;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.LocalSecurityProvider;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.genericprotocolimpl.common.wakeup.SmsWakeup;
 import com.energyict.genericprotocolimpl.webrtuz3.Z3MeterToolProtocol;
-import com.energyict.mdw.amr.*;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.amr.GenericProtocol;
+import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.RtuRegisterGroup;
+import com.energyict.mdw.core.Channel;
+import com.energyict.mdw.core.CommunicationProfile;
+import com.energyict.mdw.core.CommunicationScheduler;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.dlms.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.dlms.DLMSCache;
+import com.energyict.protocolimpl.dlms.RtuDLMS;
+import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -126,8 +161,8 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 
     /**
      * The ServerMacAddress:<br>
-     * In case of <i>HDLC</i>, the server address � to enable addressing more than one logical device within a single physical
-     * device and to support the multi-drop configuration � <b>may</b> be divided into two parts.
+     * In case of <i>HDLC</i>, the server address to enable addressing more than one logical device within a single physical
+     * device and to support the multi-drop configuration <b>may</b> be divided into two parts.
      * <ul>
      * <li> The {@link #upperHDLCAddress}
      * <li> The {@link #lowerHDLCAddress}

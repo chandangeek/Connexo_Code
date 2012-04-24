@@ -10,15 +10,15 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.elster.alpha.core.classes.BillingDataRegisterFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -162,7 +162,7 @@ public class BillingDataRegisterFactoryImpl implements BillingDataRegisterFactor
 		int captureFieldC = this.classFactory.getClass14LoadProfileConfiguration().getTOUObisCField(captureTOUBlock);
 
 		// KV_TO_DO Coincident taken from COIN block...
-		// Coïncident demand taken from the other block...
+		// Coincident demand taken from the other block...
 		// We can also use cbd.getKW(captureTOUBlock, fieldE) instead of cbd.getAK(block-6, fieldE) ?????
 		quantity = new Quantity(cbd.getAK(block-6, fieldE),this.classFactory.getClass14LoadProfileConfiguration().getTOUUnit(captureTOUBlock, false));
 		obisCode = ObisCode.fromByteArray(new byte[]{1,1,(byte)captureFieldC,(byte)128,(byte)(fieldEOffset+fieldE),(byte)fieldF});

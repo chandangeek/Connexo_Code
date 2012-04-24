@@ -10,13 +10,10 @@
 
 package com.energyict.protocolimpl.itron.sentinel.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
-import com.energyict.protocolimpl.ansi.c12.tables.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.cbo.*;
+import com.energyict.protocolimpl.ansi.c12.tables.UOMEntryBitField;
+
+import java.io.IOException;
 
 /**
  *
@@ -264,7 +261,7 @@ public class UOM2ObisTranslator {
                 cField=12;
             } break;
             
-            case 10: { // RMS volts squared V²
+            case 10: { // RMS volts squared VÂ²
                 strBuff.append("RMS volts squared");
                 cField=144;
             } break;
@@ -274,7 +271,7 @@ public class UOM2ObisTranslator {
                 cField=11;
             } break;
             
-            case 14: { // RMS amps squared A²
+            case 14: { // RMS amps squared AÂ²
                 strBuff.append("RMS amps squared");
                 cField=145;
             } break;

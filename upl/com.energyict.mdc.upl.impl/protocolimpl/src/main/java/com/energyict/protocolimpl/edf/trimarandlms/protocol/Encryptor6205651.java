@@ -10,8 +10,7 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.edf.trimaranplus.*;
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
@@ -20,7 +19,7 @@ import com.energyict.protocolimpl.edf.trimaranplus.*;
 public class Encryptor6205651 {
     
     
-    private final int POLY_CRYPTAGE=0xD008; /* 4 bits � 1 ==> 16 sommes possibles */
+    private final int POLY_CRYPTAGE=0xD008; /* 4 bits - 1 ==> 16 sommes possibles */
     
     private final int ENTREE = 0;
     private final int SORTIE = 1;
@@ -58,7 +57,7 @@ public class Encryptor6205651 {
     
     public byte[] getEncryptedData(byte[] data,int key) {
         byte[] encryptedData = new byte[data.length];
-        // Tantque (il reste au moins deux octets � crypter) Faire Former une s�quence de 16 bits � crypter Crypter cette s�quence (XOR avec la cl� = somme bit � bit) Ranger la s�quence crypt�e � la place de la s�quence source 
+        // Tantque (il reste au moins deux octets e crypter) Faire Former une sequence de 16 bits e crypter Crypter cette sequence (XOR avec la cle = somme bit e bit) Ranger la sequence cryptee e la place de la sequence source
         int pointer=0,encryptedDataPointer=0;
         int i;
         int tmp;
@@ -71,7 +70,7 @@ public class Encryptor6205651 {
             tmp = (int)(tmp ^ (key & 0x00FF));
             encryptedData[encryptedDataPointer++] = (byte)(tmp & 0xFF);
             
-            // Mettre � jour la cl� de cryptage F tantque
+            // Mettre e jour la cle de cryptage F tantque
             tmp = (int)(key << 1)&0xffff; /* a'(i) = a(i+1) */
             key = (int)(key & POLY_CRYPTAGE); /* AB = a1b1 a2b2 a3b3 ... anbn */
             int j = 0;
@@ -82,7 +81,7 @@ public class Encryptor6205651 {
 
         }
         
-        // Si (il reste un octet � crypter) Alors Former la s�quence de 16 bits � crypter Crypter cette s�quence Ranger la s�quence de 8 bits crypt�e Fsi
+        // Si (il reste un octet e crypter) Alors Former la sequence de 16 bits e crypter Crypter cette sequence Ranger la sequence de 8 bits cryptee Fsi
         
         if (i == 1) {
             tmp = ((int)data[pointer++]&0xff) << 8;

@@ -6,16 +6,27 @@
  */
 package com.energyict.protocolimpl.iec1107.a1440;
 
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.MessageValueSpec;
+import com.energyict.protocolimpl.base.ContactorController;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
-
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.base.ContactorController;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 
 /**
  * @author jme
@@ -254,7 +265,7 @@ public class A1440Messages implements MessageProtocol {
     }
 
     /**
-     * After receiving the “Demand Reset” command the meter executes a demand
+     * After receiving the 'Demand Reset' command the meter executes a demand
      * reset by doing a snap shot of all energy and demand registers.
      *
      * @throws IOException

@@ -10,15 +10,6 @@
 
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TimeZone;
-
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -27,6 +18,15 @@ import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  *
@@ -274,7 +274,7 @@ public class CourbeCharge {
                 type = 0;
             }
             else if ((val & 0xC000) == 0x8000) {
-                // bit 13..0 Valeur de la puissance avec coupure (� tronqu�e �)
+                // bit 13..0 Valeur de la puissance avec coupure (é tronquée )
                 val = getValue(val);
                 if (DEBUG>=2) System.out.println("KV_DEBUG> "+i+", shortlong, val="+val);
                 if (cal != null) {
@@ -321,7 +321,7 @@ public class CourbeCharge {
                 
                 currentElement=ELEMENT_DATATION_DATE;
                 // element date
-                // bit 12..9 chiffre des unit�s de l'ann�e bit 8..5 mois bit 4..0 jour
+                // bit 12..9 chiffre des unités de l'année bit 8..5 mois bit 4..0 jour
                 int year = (val & 0x1E00) >> 9;
                 int month = (val & 0x01E0) >> 5;
                 int day = (val & 0x001F);
@@ -361,14 +361,14 @@ public class CourbeCharge {
                 if (DEBUG>=2) System.out.println("GN_DEBUG> "+i+", type=0x"+Integer.toHexString(type)+", cal="+(cal!=null?""+cal.getTime():"no start calendar"));
                 
                 if (type == 0) { // every hour
-                    // heure ronde ou changement de jour tarifaire ; dans le cas d'une heure ronde seule, l'�l�ment-date n'est pas
-                    // ins�r� ; ce type de marquage n'est fait que s'il n'y a pas d'autre marquage � faire � la m�me date
+                    // heure ronde ou changement de jour tarifaire ; dans le cas d'une heure ronde seule, l'élément-date n'est pas
+                    // inséré ; ce type de marquage n'est fait que s'il n'y a pas d'autre marquage faire la méme date
                 }
                 else if (type == 1) { // timeset
-                    // remise � l'heure ou changement d'heure l�gale ; dans ce cas, deux marquages sont effectu�s, un avec
-                    // l'ancienne heure et un avec la nouvelle heure (�l�ment-date et �l�ment-heure � chaque fois) ; pour chacun
-                    // un enregistrement compl�mentaire est effectu� pour donner la valeur des minutes et des secondes de la date
-                    // marqu�e (�l�ment-minute/seconde)
+                    // remise e l'heure ou changement d'heure legale ; dans ce cas, deux marquages sont effectues, un avec
+                    // l'ancienne heure et un avec la nouvelle heure (element-date et element-heure e chaque fois) ; pour chacun
+                    // un enregistrement complementaire est effectue pour donner la valeur des minutes et des secondes de la date
+                    // marquee (element-minute/seconde)
                 }
                 else if (type == 2) {
                     // suppressions des puissances réactives
@@ -407,13 +407,13 @@ public class CourbeCharge {
                             	dontAdd = false;
                         }
                 		
-                    // retour de l�alimentation r�seau apr�s une coupure ; si la dur�e de la coupure exc�de la r�serve de marche, la
-                    // date enregistr�e correspond au 1er Janvier 1992, et l'heure enregistr�e est 00h00    
+                    // retour de lealimentation reseau apres une coupure ; si la duree de la coupure excede la reserve de marche, la
+                    // date enregistree correspond au 1er Janvier 1992, et l'heure enregistree est 00h00
                 }
                 else if (type == 7) {
-                    // multi-marquage. Dans ce cas, un enregistrement compl�mentaire est effectu� pour pr�ciser les marquages.
-                    // Le multi-marquage ne concerne pas le marquage de � remise � l'heure � ou de � changement d'heure
-                    // l�gale � qui est effectu� ind�pendamment du reste.
+                    // multi-marquage. Dans ce cas, un enregistrement complementaire est effectue pour preciser les marquages.
+                    // Le multi-marquage ne concerne pas le marquage de e remise e l'heure e ou de e changement d'heure
+                    // legale e qui est effectue independamment du reste.
                 }
             }
             // ************************************************************************************************************************ 
@@ -422,8 +422,8 @@ public class CourbeCharge {
             else if ((val & 0xF000) == 0xF000) {
                 if (previousElement == ELEMENT_DATATION_HEURE) {
                     if (type == 0) {
-                        // heure ronde ou changement de jour tarifaire ; dans le cas d'une heure ronde seule, l'�l�ment-date n'est pas
-                        // ins�r� ; ce type de marquage n'est fait que s'il n'y a pas d'autre marquage � faire � la m�me date ;
+                        // heure ronde ou changement de jour tarifaire ; dans le cas d'une heure ronde seule, l'element-date n'est pas
+                        // insere ; ce type de marquage n'est fait que s'il n'y a pas d'autre marquage e faire e la meme date ;
                     }
                     else if (type == 1) {
                         

@@ -1,15 +1,15 @@
 package com.energyict.protocolimpl.instromet.v555.tables;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.instromet.connection.Response;
 import com.energyict.protocolimpl.instromet.v555.CommandFactory;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LoggingConfigurationTable extends AbstractTable {
 	
@@ -133,7 +133,7 @@ public class LoggingConfigurationTable extends AbstractTable {
 	protected Unit getUnit(int value) throws IOException {
         switch (value) {
             case PRESSURE:  return Unit.get("bar");
-            case TEMPERATURE:  return Unit.get("°C");
+            case TEMPERATURE:  return Unit.get("Â°C");
             //case Z:  break;
             //case K:  break;
             //case CF:  break;

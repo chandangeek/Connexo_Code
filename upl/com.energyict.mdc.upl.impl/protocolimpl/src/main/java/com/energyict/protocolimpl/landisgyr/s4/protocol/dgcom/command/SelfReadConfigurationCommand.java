@@ -10,11 +10,10 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
 
 
 /**
@@ -47,7 +46,7 @@ public class SelfReadConfigurationCommand extends AbstractCommand {
     
      private int autoSelfReadConfig; // Not used when no automatic self reads or daily self reads are used
      /* byte 2 is day of month for day of month self reads Byte 3 is not used in this case (BCD).
-      * bytes 2 – 3 is number of hours past the last demand reset for self read on hours past last one (Hex).
+      * bytes 2 - 3 is number of hours past the last demand reset for self read on hours past last one (Hex).
       */
     
     

@@ -1,20 +1,5 @@
 package com.energyict.protocolimpl.landisgyr.us.maxsys2510;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
@@ -30,6 +15,21 @@ import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.ParseUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @beginchanges
@@ -151,7 +151,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         	//PREFIXES:
         	//
         	//2 -> MSU Master
-        	//3 -> MSU Slave (maybe something for the EU, doesn�t work in US)
+        	//3 -> MSU Slave (maybe something for the EU, doesn'tt work in US)
         	//4 -> Modem 2400
         	//5 -> Slave (this allows us in the US to connect to the slave device)
         	//6 -> SM1 Modem

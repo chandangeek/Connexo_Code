@@ -1,12 +1,5 @@
 package com.energyict.protocolimpl.modbus.socomec.countis.ci;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.UnsupportedException;
@@ -15,12 +8,19 @@ import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+
 /**
  * 
  * ProtocolImplementation for the Socomec Countis Ci protocol
  * <p>
  * <b>Manufacturor description:</b> The COUNTIS Ci is a pulse collector,
- * communicating via an RS485 link using JBUS/MODBUS protocol®. Through 7
+ * communicating via an RS485 link using JBUS/MODBUS protocol. Through 7
  * insulated on/off inputs, it counts the number of pulses from different energy
  * meters (water, air, gas, electricity,...)
  * </p>

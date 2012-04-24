@@ -1,13 +1,13 @@
 package com.energyict.genericprotocolimpl.webrtu.common;
 
-import java.io.IOException;
-
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.obis.ObisCode;
+
+import java.io.IOException;
 
 /**
  * Provider for the Mbus serialNumber
@@ -38,7 +38,7 @@ public class MbusProvider {
 	
 	/**
 	 * Construct the serialNumber for the given Mbus channel The serialNumber is constructed according to:
-	 * "RFC13 of Enexis’ NTA 2009 meter project and RFC037 of Enexis’ Gridfield II project"
+	 * "RFC13 of Enexis NTA 2009 meter project and RFC037 of Enexis Gridfield II project"
 	 * 
 	 * @param mbusChannel
 	 *            - the given Mbus channel

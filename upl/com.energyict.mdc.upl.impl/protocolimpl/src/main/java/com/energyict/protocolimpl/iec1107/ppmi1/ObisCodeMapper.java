@@ -1,12 +1,5 @@
 package com.energyict.protocolimpl.iec1107.ppmi1;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -18,6 +11,13 @@ import com.energyict.protocolimpl.iec1107.ppmi1.register.HistoricalData;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.MainRegister;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.MaximumDemand;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.RegisterInformation;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <pre>
@@ -66,7 +66,7 @@ import com.energyict.protocolimpl.iec1107.ppmi1.register.RegisterInformation;
  * part of the load, where the current is in phase with the voltage.
  * - Reactive power
  * The time avergage of the instantaneous product of the voltage and current,
- * with current phasshifted by 90°.  Expressed in Volt-Amps reactive (VAr).
+ * with current phasshifted by 90Â°.  Expressed in Volt-Amps reactive (VAr).
  * Reactive power, while still drawing a current from the supply, is not
  * actually consuming any power at all - one way of describing reactive power
  * is to use the term  &quot;wattless watts&quot; since it can draw 1A of

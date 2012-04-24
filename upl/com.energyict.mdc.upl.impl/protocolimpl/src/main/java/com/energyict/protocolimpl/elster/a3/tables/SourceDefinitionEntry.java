@@ -10,13 +10,11 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.TableFactory;
+import com.energyict.protocolimpl.ansi.c12.tables.UOMEntryBitField;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
@@ -34,7 +32,7 @@ public class SourceDefinitionEntry {
                              // b1: Q2_ACCOUNTABILITY Set indicates that source lies in Quadrant 2. (WHr, VARHd)
                              // b2: Q3_ACCOUNTABILITY Set indicates that source lies in Quadrant 3. (WHr, VARHr)
                              // b3: Q4_ACCOUNTABILITY Set indicates that source lies in Quadrant 4. (WHd, VARHr)
-                             // b4: NET_FLOW_ACCOUNTABILITY 1 = delivered – received, 0 = delivered + received
+                             // b4: NET_FLOW_ACCOUNTABILITY 1 = delivered + received, 0 = delivered + received
                              // b5-7: SEGMENTATION
               // Define the phase related information for the source. For instrumentation sources, 
               // the meter uses this field to determine the phase to request from the DSP.
@@ -58,7 +56,7 @@ public class SourceDefinitionEntry {
     private int harmonicInformation; // 1 byte b0-5: HARMONIC_DEF
                              // 0 = entire signal unfiltered
                              // 1 = 1st harmonic (fundamental)
-                             // 2 = 2nd harmonic …
+                             // 2 = 2nd harmonic
                              // 15 = 15th harmonic
                              // 63 = non-specific harmonic related information. (Example: %THD)
                              // b6: CONSTANT_TO_BE_APPLIED = 0  0 = The multiplier entry in ST-15 has been applied to the source 
@@ -67,7 +65,7 @@ public class SourceDefinitionEntry {
     private int scale; // 1 byte b0-4 SCALE_FACTOR
                               // The scale factor to be applied to the reported value after delivery of the item. 
                               // For example, if the scale factor is set to 10-6, and the source is a WH summation, the value contained
-                              // In ST-23 has units of µWH. This is a 5 bit signed number.
+                              // In ST-23 has units of ?WH. This is a 5 bit signed number.
                               // Yielding the 10x exponent in the range 10-16 to 1015.
                               // For non-power factor pulse sources, when MT-15 is written, the meter sets the scale factor using MT-15.
                               // Adjusted_Ke_Scale_Factor.

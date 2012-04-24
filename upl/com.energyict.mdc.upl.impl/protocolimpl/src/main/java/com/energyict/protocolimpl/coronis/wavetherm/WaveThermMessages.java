@@ -1,7 +1,18 @@
 package com.energyict.protocolimpl.coronis.wavetherm;
 
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageAttributeSpec;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.MessageValueSpec;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -448,10 +459,10 @@ public class WaveThermMessages implements MessageProtocol {
         cat3.addMessageSpec(addBasicMsg("Disable low threshold detection", "DisableLowThresholdDetection", true));
         cat3.addMessageSpec(addBasicMsgWithTwoAttr("Set low threshold alarm duration", "SetLowThresholdAlarmDuration", true, "Duration in multiples of the measurement period", "Sensor id (1 or 2)"));
         cat3.addMessageSpec(addBasicMsgWithTwoAttr("Set high threshold alarm duration", "SetHighThresholdAlarmDuration", true, "Duration in multiples of the measurement period", "Sensor id (1 or 2)"));
-        cat3.addMessageSpec(addBasicMsgWithValue("Set low temperature threshold on sensor 1 (between -127 and 127 �C), floating point allowed", "SetLowThresholdSensor1", true));
-        cat3.addMessageSpec(addBasicMsgWithValue("Set low temperature threshold on sensor 2 (between -127 and 127 �C), floating point allowed", "SetLowThresholdSensor2", true));
-        cat3.addMessageSpec(addBasicMsgWithValue("Set high temperature threshold on sensor 1 (between -127 and 127 �C), floating point allowed", "SetHighThresholdSensor1", true));
-        cat3.addMessageSpec(addBasicMsgWithValue("Set high temperature threshold on sensor 2 (between -127 and 127 �C), floating point allowed", "SetHighThresholdSensor2", true));
+        cat3.addMessageSpec(addBasicMsgWithValue("Set low temperature threshold on sensor 1 (between -127 and 127 °C), floating point allowed", "SetLowThresholdSensor1", true));
+        cat3.addMessageSpec(addBasicMsgWithValue("Set low temperature threshold on sensor 2 (between -127 and 127 °C), floating point allowed", "SetLowThresholdSensor2", true));
+        cat3.addMessageSpec(addBasicMsgWithValue("Set high temperature threshold on sensor 1 (between -127 and 127 °C), floating point allowed", "SetHighThresholdSensor1", true));
+        cat3.addMessageSpec(addBasicMsgWithValue("Set high temperature threshold on sensor 2 (between -127 and 127 °C), floating point allowed", "SetHighThresholdSensor2", true));
         theCategories.add(cat3);
 
         MessageCategorySpec cat4 = new MessageCategorySpec("Wavetherm enable alarm frames");

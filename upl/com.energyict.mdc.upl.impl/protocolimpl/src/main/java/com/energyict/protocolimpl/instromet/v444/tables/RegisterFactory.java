@@ -1,12 +1,11 @@
 package com.energyict.protocolimpl.instromet.v444.tables;
 
+import com.energyict.obis.ObisCode;
+import com.energyict.protocolimpl.instromet.v444.Instromet444;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import com.energyict.protocolimpl.instromet.v444.Instromet444;
-import com.energyict.protocolimpl.instromet.v555.Instromet555;
-import com.energyict.obis.*;
 
 public class RegisterFactory {
 	
@@ -34,11 +33,11 @@ public class RegisterFactory {
 	protected void buildRegisters() {
 		registers = new ArrayList();
 		Register unCorrectedVolume = new Register(new ObisCode(7,0,11,10,0,55));
-		unCorrectedVolume.setDescription("Uncorrected gas volume (m³)");
+		unCorrectedVolume.setDescription("Uncorrected gas volume (mÂ³)");
 		Register correctedVolume = new Register(new ObisCode(  7,0,11,1 ,0,55));
-		correctedVolume.setDescription("Uncorrected gas volume (m³)");
+		correctedVolume.setDescription("Uncorrected gas volume (mÂ³)");
 		Register peak = new Register(new ObisCode(  7,0,11,5 ,0,55));
-		peak.setDescription("peak day (m³/h)");
+		peak.setDescription("peak day (mÂ³/h)");
 		registers.add(unCorrectedVolume);
 		registers.add(correctedVolume);
 		registers.add(peak);

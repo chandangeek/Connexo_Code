@@ -15,7 +15,7 @@ public class EquipmentClassInfo {
             new String[]{"BVO", "Equipment of class B TYPE 1 (Volumetric)"},
             new String[]{"CVO", "Equipment of class C TYPE 2 (Volumetric)"},
             new String[]{"CVE", "Equipment of class C TYPE 2 (Venturi meter)"},
-            new String[]{"CEM", "Equipment of class C – Energy Meter"},
+            new String[]{"CEM", "Equipment of class C Energy Meter"},
             new String[]{"AA1", "Equipment of type A1"},
             new String[]{"AA2", "Equipment of type A2"},
     };

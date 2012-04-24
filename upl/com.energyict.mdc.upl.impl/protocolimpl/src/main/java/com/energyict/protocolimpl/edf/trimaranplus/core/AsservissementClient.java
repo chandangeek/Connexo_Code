@@ -22,9 +22,9 @@ import java.io.IOException;
 public class AsservissementClient extends AbstractTrimaranObject {
     
    
-    private int KDC; // Integer8, - le coefficient de pr�avis de d�passement KDC, exprim� en %, avec une valeur entre 80 et 100 ;
-    private int KDCD; // Integer8, - le coefficient de d�gagement de pr�avis de d�passement KDCD, exprim� en %, avec une valeur entre 70 et 100
-    private int Sorcli; // Integer8 - le num�ro permettant de choisir le type de programmation des contacts de sortie Clients C2 � C10, avec une valeur entre 1 et 4.    
+    private int KDC; // Integer8, - le coefficient de preavis de depassement KDC, exprime en %, avec une valeur entre 80 et 100 ;
+    private int KDCD; // Integer8, - le coefficient de degagement de preavis de depassement KDCD, exprime en %, avec une valeur entre 70 et 100
+    private int Sorcli; // Integer8 - le numero permettant de choisir le type de programmation des contacts de sortie Clients C2 e C10, avec une valeur entre 1 et 4.
     
     /** Creates a new instance of AsservissementClient */
     public AsservissementClient(TrimaranObjectFactory trimaranObjectFactory) {

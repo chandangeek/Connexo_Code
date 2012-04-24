@@ -10,13 +10,12 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.ConfigurationTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
 
 /**
  *
@@ -32,7 +31,7 @@ public class SummationSnapshotTable extends AbstractTable {
 
     This table is provided for AMR applications that want to use summation data to calculate load profile data. 
     The meter will snap-shot the ST-23 summations at the end of each demand subinterval.
-    This table is sized for the maximum number of summations. Disabled summations will report a summation value of ‘0’.
+    This table is sized for the maximum number of summations. Disabled summations will report a summation value of '0'.
     */
 
     int sequenceNumber; // 1 byte This number will be incremented each time a snapshot is taken of the summations.

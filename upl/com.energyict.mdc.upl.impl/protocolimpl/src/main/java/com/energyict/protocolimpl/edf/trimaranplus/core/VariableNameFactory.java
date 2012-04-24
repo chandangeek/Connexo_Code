@@ -10,13 +10,13 @@
 
 package com.energyict.protocolimpl.edf.trimaranplus.core;
 
+import com.energyict.cbo.Unit;
+import com.energyict.protocolimpl.edf.trimarandlms.common.VariableName;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import com.energyict.cbo.Unit;
-import com.energyict.protocolimpl.edf.trimarandlms.common.VariableName;
 
 /**
  *
@@ -52,7 +52,7 @@ public class VariableNameFactory {
         
         list.add(new VariableName("EnergieActivePeriodePmoins1",176, Unit.get("kWh"),1,8,0,VariableName.ENERGIE)); 
         list.add(new VariableName("EnergieReactivePositivePeriodePmoins1",184, Unit.get("kvarh"),3,8,0,VariableName.ENERGIE));
-        list.add(new VariableName("EnergieR�activeNegativePeriodePmoins1",192, Unit.get("kvarh"),4,8,0,VariableName.ENERGIE));
+        list.add(new VariableName("EnergieReactiveNegativePeriodePmoins1",192, Unit.get("kvarh"),4,8,0,VariableName.ENERGIE));
         list.add(new VariableName("EnergieActivePostePmoins1",200, Unit.get("kWh"),1,8,0,VariableName.ENERGIE));
         list.add(new VariableName("EnergieReactivePositivePostePmoins1",208, Unit.get("kvarh"),3,8,0,VariableName.ENERGIE));
         list.add(new VariableName("EnergieReactiveNegativePostePmoins1",216, Unit.get("kvarh"),4,8,0,VariableName.ENERGIE));
@@ -69,7 +69,7 @@ public class VariableNameFactory {
         
         list.add(new VariableName("EnergieActivePeriodePmoins2",296, Unit.get("kWh"),1,8,1,VariableName.ENERGIE)); 
         list.add(new VariableName("EnergieReactivePositivePeriodePmoins2",304, Unit.get("kvarh"),3,8,1,VariableName.ENERGIE));
-        list.add(new VariableName("EnergieR�activeNegativePeriodePmoins2",312, Unit.get("kvarh"),4,8,1,VariableName.ENERGIE));
+        list.add(new VariableName("EnergieReactiveNegativePeriodePmoins2",312, Unit.get("kvarh"),4,8,1,VariableName.ENERGIE));
         list.add(new VariableName("EnergieActivePostePmoins2",320, Unit.get("kWh"),1,8,1,VariableName.ENERGIE));
         list.add(new VariableName("EnergieReactivePositivePostePmoins2",328, Unit.get("kvarh"),3,8,1,VariableName.ENERGIE));
         list.add(new VariableName("EnergieReactiveNegativePostePmoins2",336, Unit.get("kvarh"),4,8,1,VariableName.ENERGIE));

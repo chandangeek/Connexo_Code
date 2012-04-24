@@ -1,10 +1,10 @@
 package com.energyict.protocolimpl.landisgyr.us.maxsys2510;
 
-import java.util.Iterator;
-import java.util.TreeMap;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
+
+import java.util.Iterator;
+import java.util.TreeMap;
 
 class UnitOfMeasureCode {
 
@@ -118,7 +118,7 @@ class UnitOfMeasureCode {
         cr(119, "SQRT_PERCNT_RATIO_ST 2-second update sqrt percent ratio ", Unit.getUndefined());
         cr(120, "Volt hours (square root of V2H)", Unit.getUndefined());
         cr(121, "Amp hours (square root of I2H)", Unit.getUndefined());
-        cr(122, "Difference transforms (A � B)", Unit.getUndefined());
+        cr(122, "Difference transforms (A - B)", Unit.getUndefined());
         cr(123, "Product transform (A * B)", Unit.getUndefined());
         cr(124, "Quotient transform (A / B)", Unit.getUndefined());
         cr(125, "Data Gates transform", Unit.getUndefined());

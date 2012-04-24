@@ -7,9 +7,9 @@
 
 package com.energyict.protocolimpl.iec870.ziv5ctd;
 
-import java.util.Date;
-
 import com.energyict.protocol.MeterEvent;
+
+import java.util.Date;
 
 /** @author fbo */
 
@@ -72,7 +72,7 @@ public class InformationObject1Event extends InformationObject {
             return new MeterEvent( getDate(), MeterEvent.SETCLOCK, d );
         }
         if(spa==7 && spq==2) {
-            d= "desincronización manufacturer documentation spa=7, spq=2";
+            d= "desincronizacion manufacturer documentation spa=7, spq=2";
             return new MeterEvent( getDate(), MeterEvent.OTHER, d );
         }
         if(spa==15 && spq==0) { 

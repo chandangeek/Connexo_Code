@@ -5,13 +5,18 @@
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.MT83;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
@@ -263,7 +268,7 @@ abstract public class VDEWRegisterDataParse {
                                 String unitacronym = strBuff.toString().substring(strBuff.toString().indexOf(" "));
                                 if (unitacronym != null){
                                 	unitacronym = unitacronym.trim();
-                                	if (unitacronym.equalsIgnoreCase("deg")) unitacronym = "°";
+                                	if (unitacronym.equalsIgnoreCase("deg")) unitacronym = "Â°";
                                 	unit = Unit.get(unitacronym);
                                 	MT83.sendDebug("VDEWRegisterDataParse(): unitacronym = " + unitacronym + " Unit.get() = " + unit, DEBUG);
                                 	if (unit == null) unit = Unit.getUndefined(); 
@@ -330,7 +335,7 @@ abstract public class VDEWRegisterDataParse {
                                 String unitacronym = strBuff.toString().substring(strBuff.toString().indexOf(" "));
                                 if (unitacronym != null){
                                 	unitacronym = unitacronym.trim();
-                                	if (unitacronym.equalsIgnoreCase("deg")) unitacronym = "°";
+                                	if (unitacronym.equalsIgnoreCase("deg")) unitacronym = "Â°";
                                 	unit = Unit.get(unitacronym);
                                 	MT83.sendDebug("VDEWRegisterDataParse(): unitacronym = " + unitacronym + " Unit.get() = " + unit, DEBUG);
                                 	if (unit == null) unit = Unit.getUndefined(); 

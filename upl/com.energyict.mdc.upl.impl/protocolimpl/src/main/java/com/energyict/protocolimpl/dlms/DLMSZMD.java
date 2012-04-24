@@ -24,18 +24,51 @@ KV|10102006|fix to support 64 bit values in load profile
 package com.energyict.protocolimpl.dlms;
 
 
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSObis;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.GenericInvoke;
+import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.dlms.siemenszmd.*;
+import com.energyict.protocol.DemandResetProtocol;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
+import com.energyict.protocol.messaging.TimeOfUseMessaging;
+import com.energyict.protocol.messaging.TimeOfUseMessagingConfig;
+import com.energyict.protocolimpl.dlms.siemenszmd.EventNumber;
+import com.energyict.protocolimpl.dlms.siemenszmd.ObisCodeMapper;
+import com.energyict.protocolimpl.dlms.siemenszmd.ZMDSecurityProvider;
+import com.energyict.protocolimpl.dlms.siemenszmd.ZmdMessages;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 
 @Deprecated /** Deprecated as of jan 2012 - please use the new SmartMeter protocol (com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.ZMD) instead. **/
 public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProtocol, MessageProtocol, TimeOfUseMessaging {
@@ -393,7 +426,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
     }
 
     /**
-     * Execute a billing reset on the device. After receiving the �Demand Reset�
+     * Execute a billing reset on the device. After receiving the 'Demand Reset'
      * command the meter executes a demand reset by doing a snap shot of all
      * energy and demand registers.
      *

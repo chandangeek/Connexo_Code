@@ -1,14 +1,13 @@
 package com.energyict.dlms.cosem;
 
-import java.io.IOException;
-
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.obis.ObisCode;
+
+import java.io.IOException;
 
 /**
  *
@@ -104,7 +103,7 @@ public class AutoConnect extends AbstractCosemObject {
 	 * (0)  no auto dialling,
 	 * (1)  auto dialling allowed anytime,
 	 * (2)  auto dialling allowed within the validity time of the calling window,
-	 * (3)  �regular� auto dialling allowed within the validity time of the calling window; �alarm� initiated auto dialling allowed anytime,
+	 * (3)  'regular' auto dialling allowed within the validity time of the calling window; 'alarm' initiated auto dialling allowed anytime,
 	 * (4)  SMS sending via Public Land Mobile Network (PLMN),
 	 * (5)  SMS sending via PSTN,
 	 * (6)  email  sending,

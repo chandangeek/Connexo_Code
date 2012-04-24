@@ -24,24 +24,24 @@ import java.math.BigDecimal;
  */
 public class ParametresP extends AbstractTrimaranObject {
     
-    private DateType DateDebutPeriode; // -- date de d�but de la p�riode de facturation P
-    private int CodeAF; // Integer16, - code de l'action facturation � l'origine de la p�riode - bits
-    // 0 � 7 : code action, bits 8 � 15 : commentaire
-    private DateType DateFinPeriode; // DateType, - champ sans signification, date par d�faut
-    private int TC; // Integer16, -- rapport de transformation de puissance, de 1 � 400
-    private int TT; // Integer16, -- rapport de transformation de puissance, de 1 � 450
-    private Quantity[] PS; // SEQUENCE OF Integer16, -- puissances souscrites par p�riode tarifaire, exprim�es en kW
-    private int KJ; // Integer16, -- valeur du coefficient de pertes joules, multipli� par 1000
-    private int KPr; // Integer8, -- valeur du coefficient utilis� pour le calcul de l'�nergie r�active positive en kvarh ramen�s au primaire multipli� par 100
-    private Quantity KF; // Integer16, -- valeur du param�tre pertes Fer, exprim� en W
-    private boolean A5; // BOOLEAN, -- � VRAI si le tarif est A5, � FAUX si le tarif est A8
-    private int TCourbeCharge; // Integer8, -- p�riode d'int�gration Tc pour le suivi de la courbe de charge en nombre de fois 5 min.
-    private int[] TableauHeureJour1; // SEQUENCE OF Integer8, -- champ heure, de 0 � 23, des �l�ments de la table journali�re 1
-    private int[] TableauMinuteJour1; // SEQUENCE OF Integer8, -- champ minute des �l�ments de la table journali�re 1, exprim� en nombre de fois Td
-    private int[] TableauPosteJour1; // SEQUENCE OF Integer8, -- champ poste horaire, des �l�ments de la table journali�re 1
-    private int[] TableauHeureJour2; // SEQUENCE OF Integer8, -- champ heure, de 0 � 23, des �l�ments de la table journali�re 2
-    private int[] TableauMinuteJour2; // SEQUENCE OF Integer8, -- champ minute des �l�ments de la table journali�re 2, exprim� en nombre de fois Td
-    private int[] TableauPosteJour2; // SEQUENCE OF Integer8 } -- champ poste horaire, des �l�ments de la table journali�re 2
+    private DateType DateDebutPeriode; // -- date de debut de la periode de facturation P
+    private int CodeAF; // Integer16, - code de l'action facturation e l'origine de la periode - bits
+    // 0 e 7 : code action, bits 8 e 15 : commentaire
+    private DateType DateFinPeriode; // DateType, - champ sans signification, date par defaut
+    private int TC; // Integer16, -- rapport de transformation de puissance, de 1 e 400
+    private int TT; // Integer16, -- rapport de transformation de puissance, de 1 e 450
+    private Quantity[] PS; // SEQUENCE OF Integer16, -- puissances souscrites par periode tarifaire, exprimees en kW
+    private int KJ; // Integer16, -- valeur du coefficient de pertes joules, multiplie par 1000
+    private int KPr; // Integer8, -- valeur du coefficient utilise pour le calcul de l'energie reactive positive en kvarh ramenes au primaire multiplie par 100
+    private Quantity KF; // Integer16, -- valeur du parametre pertes Fer, exprime en W
+    private boolean A5; // BOOLEAN, -- e VRAI si le tarif est A5, e FAUX si le tarif est A8
+    private int TCourbeCharge; // Integer8, -- periode d'integration Tc pour le suivi de la courbe de charge en nombre de fois 5 min.
+    private int[] TableauHeureJour1; // SEQUENCE OF Integer8, -- champ heure, de 0 e 23, des elements de la table journaliere 1
+    private int[] TableauMinuteJour1; // SEQUENCE OF Integer8, -- champ minute des elements de la table journaliere 1, exprime en nombre de fois Td
+    private int[] TableauPosteJour1; // SEQUENCE OF Integer8, -- champ poste horaire, des elements de la table journaliere 1
+    private int[] TableauHeureJour2; // SEQUENCE OF Integer8, -- champ heure, de 0 e 23, des elements de la table journaliere 2
+    private int[] TableauMinuteJour2; // SEQUENCE OF Integer8, -- champ minute des elements de la table journaliere 2, exprime en nombre de fois Td
+    private int[] TableauPosteJour2; // SEQUENCE OF Integer8 } -- champ poste horaire, des elements de la table journaliere 2
     
     private int variableName;
             

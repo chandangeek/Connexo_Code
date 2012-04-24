@@ -5,7 +5,11 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.RegisterReadable;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.InvalidBooleanStateException;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
@@ -19,7 +23,7 @@ import java.io.IOException;
  *
  * 					** States **
  * ------------------------------------------------
- * StateN�	|	StateName	|	State Description
+ * StateN	|	StateName	|	State Description
  * __________________________________________________________________________________________________________
  * 	0		| Disconnected	| The outputState is set to FALSE and the consumer is disconnected
  * 	1		| Connected		| The outputState is set to TRUE and the consumer is connected

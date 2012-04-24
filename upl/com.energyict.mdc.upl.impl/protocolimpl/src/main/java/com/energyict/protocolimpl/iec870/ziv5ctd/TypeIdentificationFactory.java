@@ -6,11 +6,11 @@
 
 package com.energyict.protocolimpl.iec870.ziv5ctd;
 
+import com.energyict.cbo.NotFoundException;
+
 import java.util.Iterator;
 import java.util.TimeZone;
 import java.util.TreeMap;
-
-import com.energyict.cbo.NotFoundException;
 
 /** @author fbo */
 
@@ -72,9 +72,9 @@ public class TypeIdentificationFactory {
         map(142, "M_RM_NA_2");
         map(150, "");
         map(151, "", new Type97Parser() );
-        //Grup. Instantáneos. Resquesta.
+        //Grup. Instantaneous. Resquesta.
         map(162, "");
-        //Grup. Instantáneos. Resquesta.
+        //Grup. Instantaneous. Resquesta.
         map(163, "", new TypeA3Parser(timeZone));
         //Change date and hour
         map(181, "C_CS_TA_2" );

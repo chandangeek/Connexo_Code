@@ -15,7 +15,9 @@ import com.energyict.cbo.Unit;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -187,14 +189,14 @@ public class ValueInformationfieldCoding {
         
         // record error codes
         combinableVIFEs.add(addValueInformationfieldCoding(0x00,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"None",null));
-        combinableVIFEs.add(addValueInformationfieldCoding(0x01,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Too many DIFE´s",null));
+        combinableVIFEs.add(addValueInformationfieldCoding(0x01,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Too many DIFE's",null));
         combinableVIFEs.add(addValueInformationfieldCoding(0x02,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Storage number not implemented",null));
         combinableVIFEs.add(addValueInformationfieldCoding(0x03,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Unit number not implemented",null));
         combinableVIFEs.add(addValueInformationfieldCoding(0x04,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Tariff number not implemented",null));
         combinableVIFEs.add(addValueInformationfieldCoding(0x05,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Function not implemented",null));
         combinableVIFEs.add(addValueInformationfieldCoding(0x06,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Data class not implemented",null));
         combinableVIFEs.add(addValueInformationfieldCoding(0x07,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Data size not implemented",null));
-        combinableVIFEs.add(addValueInformationfieldCoding(0x0b,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Too many VIFE´s",null));
+        combinableVIFEs.add(addValueInformationfieldCoding(0x0b,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Too many VIFE's",null));
         combinableVIFEs.add(addValueInformationfieldCoding(0x0c,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Illegal VIF-Group",null));
         combinableVIFEs.add(addValueInformationfieldCoding(0x0d,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"Illegal VIF-Exponent",null));
         combinableVIFEs.add(addValueInformationfieldCoding(0x0e,0x7F,Unit.get(BaseUnit.UNITLESS),TYPE_UNIT,"VIF/DIF mismatch",null));

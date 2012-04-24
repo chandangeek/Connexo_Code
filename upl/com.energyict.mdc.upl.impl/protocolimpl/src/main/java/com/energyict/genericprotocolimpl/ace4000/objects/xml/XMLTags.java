@@ -77,7 +77,7 @@ public class XMLTags {
     public final static String EM_CLM_THRESHOLD = "ThV";		// Threshold Value: the consumption limitation fixed threshold
     public final static String EM_CLM_DURATION  = "DurM";		// Duration of emergency consumption limitation mode (min)
 
-    public final static String CONSLIMITCONFIG  = "CLM";		// Consumption limitation mode parent tag with optional attribute ‘t’ – activation timestamp.
+    public final static String CONSLIMITCONFIG  = "CLM";		// Consumption limitation mode parent tag with optional attribute 't' activation timestamp.
     public final static String SUBINTERVALS     = "ADCF";		// Concatenation of number of sub intervals and duration of a sub interval
     public final static String CONSRATE         = "OvL";		// Override Limitation: Is consumption limitation override allowed and which rate is applied.
     public final static String CONSTOLERANCE    = "ThT";		// Threshold Tolerance: Allowed excess tolerance.

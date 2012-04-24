@@ -10,10 +10,9 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
@@ -21,8 +20,8 @@ import com.energyict.protocolimpl.base.*;
  */
 public class ViewConfigType {
     
-    private ViewableFileId viewableFileID; // “VIEWABLE_FILE_ID”,
-    private int[] restrictions = new int[12]; // array(“MAX_RESTRICTION_BYTES=12”)of unsigned8,
+    private ViewableFileId viewableFileID; // 'VIEWABLE_FILE_ID',
+    private int[] restrictions = new int[12]; // array('MAX_RESTRICTION_BYTES=12')of unsigned8,
     private long currentRecord; // unsigned32,
     private long recsPerRead; // unsigned32
             

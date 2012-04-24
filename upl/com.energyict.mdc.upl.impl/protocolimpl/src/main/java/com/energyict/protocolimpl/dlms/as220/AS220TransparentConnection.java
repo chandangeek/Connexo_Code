@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.dlms.as220;
 
-import com.energyict.dialer.connection.*;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.ProtocolUtils;
@@ -15,7 +17,7 @@ import java.util.logging.Logger;
 /**
  * This connection sets the AS220 device into Transparent Communication Mode
  * between the optical and electrical communication ports. While the meter is in
- * transparent mode, it shows the message �TRANSCO� on the LCD. The command
+ * transparent mode, it shows the message 'TRANSCO' on the LCD. The command
  * defines a time period this mode is active for and the required communication
  * settings like baud rate and data format. Pressing the push button for more
  * than 4 seconds will cancel the transparent mode manually. The maximum baud

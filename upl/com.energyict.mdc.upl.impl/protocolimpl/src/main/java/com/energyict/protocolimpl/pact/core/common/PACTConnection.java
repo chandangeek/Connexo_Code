@@ -9,16 +9,16 @@
 
 package com.energyict.protocolimpl.pact.core.common;
 
+import com.energyict.cbo.NestedIOException;
+import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Calendar;
-
-import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.ProtocolUtils;
 
 /**
  * 
@@ -41,31 +41,31 @@ public class PACTConnection extends Connection {
 
 	// *************************************************************************
 	// Control codes
-	public static final int CFM = 0xFC; // �Confirm� The action implicit in the previous exchange(s) was taken.
-	public static final int TRM = 0xFF; // �Terminate transaction� - sender has ended or abandoned the current
+	public static final int CFM = 0xFC; // 'Confirm' The action implicit in the previous exchange(s) was taken.
+	public static final int TRM = 0xFF; // 'Terminate transaction' - sender has ended or abandoned the current
 	// transaction.
-	public static final int NXT = 0xF1; // �Next block� - request next block in sequence of block transfer. This
+	public static final int NXT = 0xF1; // 'Next block' - request next block in sequence of block transfer. This
 	// also provides an implicit acknowledge that the previous block has been
 	// accepted.
-	public static final int PRE = 0xF0; // �Repeat block� - request re-sending of previous block, either for
+	public static final int PRE = 0xF0; // 'Repeat block' - request re-sending of previous block, either for
 	// confirmation, or because of data corruption.
-	public static final int MBH = 0x8A; // �Meter block header� - Header prefix character to 8-byte data block sent
+	public static final int MBH = 0x8A; // 'Meter block header' - Header prefix character to 8-byte data block sent
 	// to HHU from meter.
-	public static final int HBH = 0x9A; // �HHU block header� - Header prefix character to 8-byte data block sent to
+	public static final int HBH = 0x9A; // 'HHU block header' - Header prefix character to 8-byte data block sent to
 	// meter from HHU.
-	public static final int CHK = 0x00; // �Checksum� - Suffix to 8-byte data blocks consisting of exclusive-or of
+	public static final int CHK = 0x00; // 'Checksum' - Suffix to 8-byte data blocks consisting of exclusive-or of
 	// the prefix byte and the 8 bytes of data.
-	public static final int RDM = 0x80; // �Read meter� - Transaction initiation code for reading a meter.
-	public static final int RDL = 0xA0; // �Read log� - Transaction initiation code for reading load survey
+	public static final int RDM = 0x80; // 'Read meter' - Transaction initiation code for reading a meter.
+	public static final int RDL = 0xA0; // 'Read log' - Transaction initiation code for reading load survey
 	// information from a meter.
-	public static final int DLT = 0x90; // �Download Tariff� - Transaction initiation code for downloading tariff or
+	public static final int DLT = 0x90; // 'Download Tariff' - Transaction initiation code for downloading tariff or
 	// other program information to a meter.
-	public static final int MDR = 0xE0; // �Reset Max Demand� - Transaction initiation code for Max Demand
+	public static final int MDR = 0xE0; // 'Reset Max Demand' - Transaction initiation code for Max Demand
 	// resetting.
-	public static final int MB6 = 0x87; // �Meter block header 6� - Header prefix character to 6-byte data block
+	public static final int MB6 = 0x87; // 'Meter block header 6' - Header prefix character to 6-byte data block
 	// sent to HHU from meter.
-	public static final int RTC = 0xA1; // �Read time and code� - Request to read meter time and time access code.
-	public static final int WTC = 0xA9; // �Write time and code� - Prefix to 8-byte data block containing time,
+	public static final int RTC = 0xA1; // 'Read time and code' - Request to read meter time and time access code.
+	public static final int WTC = 0xA9; // 'Write time and code' - Prefix to 8-byte data block containing time,
 	// date, access authenticator, and new time access block.
 	public static final int RQ3 = 0xBC; // Request Baud rate change to 300 Baud.
 	public static final int RQ1 = 0xBD; // Request Baud rate change to 1200 Baud.

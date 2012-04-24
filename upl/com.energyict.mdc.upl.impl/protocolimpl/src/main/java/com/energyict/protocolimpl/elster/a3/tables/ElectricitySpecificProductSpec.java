@@ -10,11 +10,13 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import java.io.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.ManufacturerIdentificationTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
 
 /**
  *
@@ -32,7 +34,7 @@ public class ElectricitySpecificProductSpec extends AbstractTable {
     This table provides storage for Elster Electricity specific version and revision information
     required to identify the meter.
     The meter will set the Option Board 1 and Option Board 2 fields for the XMB and the outage
-    modem. These are the only “smart” boards; other option board information may be set by
+    modem. These are the only 'smart' boards; other option board information may be set by
     Elster Electricity software. When an XMB is present, the meter will set the Option Board 1
     fields using information read from the XMB. When an outage modem is present, the meter
     will set Option Board 2 fields using information read from the outage modem.
@@ -53,7 +55,7 @@ public class ElectricitySpecificProductSpec extends AbstractTable {
             12 XMB, SSPEC = 000224 00 02
             13 Modem interface adapter board
             14 Pulse input board
-    At this time, Elster Electricity software is not populating option board fields for non–smart boards.
+    At this time, Elster Electricity software is not populating option board fields for non-smart boards.
 */
     
     private String mfgSmartStyle; // 11 bytes Reserved for the smart style number as manufactured. Set by manufacturing; not used by the meter. 

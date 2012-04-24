@@ -10,13 +10,11 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.TableFactory;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
+import java.util.Date;
 
 /**
  *
@@ -29,7 +27,7 @@ public class Window {
     Define the originate windows. The A3 supports 2 windows per port. A window
     defines the time periods when a call is allowed. One entry can be used to
     specify a window that wraps around midnight. For example, if there are 2 call
-    windows, one from 10 PM – 2AM and one from 10AM – 2 PM, the windows
+    windows, one from 10 PM - 2AM and one from 10AM - 2 PM, the windows
     would be entered as:
     WINDOWS[0].BEGIN_WINDOW_TIME = 22 00
     WINDOWS[0].DURATION = 04 00
@@ -38,7 +36,7 @@ public class Window {
     */
     private Date beginWindowTime; // 2 bytes The time of day the window starts (STIME). Byte 1 = binary hours (0-23), byte 2= binary minutes (0-59).
     private int windowDuration; // 2 bytes Size of the window, HH MM (binary hours followed by binary minutes.)
-    private int windowDay; // 1 byte This field allows the window to be defined for specific days (Sunday – Saturday). The A3 will not support specific limits and sets this field to 0x7F..    
+    private int windowDay; // 1 byte This field allows the window to be defined for specific days (Sunday - Saturday). The A3 will not support specific limits and sets this field to 0x7F..
 
     
 

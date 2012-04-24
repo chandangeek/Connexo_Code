@@ -10,12 +10,11 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
 
 /**
  *
@@ -39,7 +38,7 @@ public class PrimaryMeteringInformation extends AbstractTable {
     private int externalMultiplierScaleFactor; // 1 byte INT8. The scale factor applied to External Multiplier. This is set by Elster FACTOR      Electricity programming software. It is a power of 10, so the scale factor applied is 10^EXT_MULT_SCALE_FACTOR. Default = 0 
     private long externalMultiplier; // 4 bytes INT32. Binary with an implied scale factor of 10^EXT_MULT_SCALE_FACTOR. Applied externally to metered quantities to convert to engineering units. The external multiplier is NOT USED by the firmware. This is set by Elster Electricity programming software. The Adjusted Ke in ST-15 must already have been scaled to reflect the external multiplier (also done by Elster Electricity programming software).  
                              //Actual billing data value = billing data * external multiplier with a scale factor represented by Adjusted Ke Scale Factor.  
-    private int adjustedKeScaleFactor; // 1 byte INT8. Implied power of 10 scale factor for all sources that use the ST-15 Adjusted Ke multiplier. This is set by Elster Electricity programming software. When MT-15 is written, this scale factor will be copied to the scale factor field for each MT-17 entry that points to the Adjusted Ke multiplier in ST-15. For example, a value of –3 indicates that all pulse source billing numbers will have units of milli (e.g. (mWH.) Example –4 =0xFC. 
+    private int adjustedKeScaleFactor; // 1 byte INT8. Implied power of 10 scale factor for all sources that use the ST-15 Adjusted Ke multiplier. This is set by Elster Electricity programming software. When MT-15 is written, this scale factor will be copied to the scale factor field for each MT-17 entry that points to the Adjusted Ke multiplier in ST-15. For example, a value of 3 indicates that all pulse source billing numbers will have units of milli (e.g. (mWH.) Example 4 =0xFC.
     private int adjustedKhScaleFactor; // 1 byte INT8. The scale factor applied to MT-15.Adjusted Kh. This is set by Elster Electricity programming software. It is a power of 10, so the scale factor applied is 10^ Adjusted Kh Scale Factor. 
     private long adjustedKh; // 6 bytes INT48. The actual Kh. This is set by Elster Electricity programming software. Adjusted Kh Scale Factor must be applied to this field to convert it to engineering units. This field can be displayed but is otherwise not used by the meter. 
     private int adjustedpr; // 1 byte INT8. The actual p/r. This is set by Elster Electricity programming software. This field is an integer and MT15_SCALE_FACTOR is not applied. This field can be displayed but is otherwise not used by the meter. Configuration software uses this value in other configuration fields in the meter. Typically: Reverse Power Test Threshold = 2 * Adjusted p/r Divisor for pulse block annunciator =  Adjusted p/r divided by 2. Test/Alt/Normal Optical Output Divisor =  Adjusted p/r divided by 2. 
