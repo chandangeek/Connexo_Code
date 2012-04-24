@@ -6,14 +6,12 @@
  */
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200Parsers;
+
+import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * @author jme
@@ -538,12 +536,12 @@ public class UNIFLO1200Registers {
 			"Temperature Correction table",   		// 4    TempCorrTabel        112                     Temperatur correction tabel
 			"Battery remaining",     				// 5    Bat                  Days      U        1    Battery remaining                                                           Bat. remaining
 			"Interval log power average",    		// 6    IEnergyFAvg          MJ        U0        R1  Average power.
-			"Interval log temperature average",		// 7    ITempAvg             캜         0        R1  Average temp.
+			"Interval log temperature average",		// 7    ITempAvg             째C         0        R1  Average temp.
 			"Interval log pressure average",   		// 8    ITrykAvg             BarA      U0        R1  Average Press.
 			"Interval log corrected flow average",  // 9    IFlowUAvg            m3/h       0        R1  Avg. flow corr.
 			"Interval log converted flow average", 	// 10   IFlowKAvg            Nm3/h     U0        R1  Avg. flow conv.
 			"Daily log power average",    			// 11   DEnergyFAvg          MJ        U0        R2  Average power.
-			"Daily log temperature average",    	// 12   DTempAvg             캜         0        R2  Average temp.
+			"Daily log temperature average",    	// 12   DTempAvg             째C         0        R2  Average temp.
 			"Daily log pressure average",   		// 13   DTrykAvg             BarA      U0        R2  Average Press.
 			"Daily log corrected flow average",  	// 14   DFlowUAvg            m3/h       0        R2  Avg. flow corr.
 			"Daily log converted flow average", 	// 15   DFlowKAvg            Nm3/h     U0        R2  Avg. flow conv.
@@ -568,7 +566,7 @@ public class UNIFLO1200Registers {
 			"Pulse check every",      				// 34   PulsCheckPulser      pulses    UR            Pulse check every
 			"Alarm log",     						// 35   AlarmLog                                     Alarmlog (100 logninger)
 			"Pressure",   							// 36   Pressure             bar A     U        1R0 1Pressure                                                                    Pressure
-			"Temperature",    						// 37   Temperature          캜                 1R0 1Temperature                                                                 Temperature
+			"Temperature",    						// 37   Temperature          째C                 1R0 1Temperature                                                                 Temperature
 			"Conversion factor",      				// 38   Korr                                    1R0 1Conversion factor                                                           Conv. factor
 			"Pulse value",    						// 39   Pulsvalue            m3/pulse  UR       1    Value of pulse                                      0           99999999    Pulse Value
 			"Flow corrected",  						// 40   FlowCorr             m3/h               1R0 1Flow corrected                                                              Flow corr.
@@ -583,20 +581,20 @@ public class UNIFLO1200Registers {
 			"Flowstop after",     					// 49   Flowstop             seconds   UR            Flowstop after                                      10          600
 			"Pressure low limit",   				// 50   TrykMin              BarA      UR       1    Pressure low limit                                  0.6         80          Press. low limit
 			"Pressure high limit",   				// 51   TrykMax              BarA      UR       1    Pressure high limit                                 0.6         80          Press. high limit
-			"Temperature low limit",    			// 52   TempMin              캜         R       1    Temperature low limit                               -40         70          Temp. low limit
-			"Temperature high limit",    			// 53   TempMax              캜         R       1    Temperature high limit                              -40         70          Temp. high limit
+			"Temperature low limit",    			// 52   TempMin              째C         R       1    Temperature low limit                               -40         70          Temp. low limit
+			"Temperature high limit",    			// 53   TempMax              째C         R       1    Temperature high limit                              -40         70          Temp. high limit
 			"Flow corrected high limit",  			// 54   FlowCorrMax          m3/h       R       1    Flow high limit                                     0           99999999    Flow high limit
 			"Flow converted high limit", 			// 55   FlowConvMax          Nm3/h     UR       1    Conv. flow high limit                               0           99999999    Conv. flow high limit
 			"Power high limit",  					// 56   EnergiMax            MJ/h      UR       1    Power high limit                                    0           99999999    Power high limit
 			"Fallback pressure",  					// 57   TrykVFejl            BarA      UR            Fallback press. used on error                       0.6         80
-			"Fallback temperature",    				// 58   TempVFejl            캜         R            Fallback temp. used on error                        -40         70
+			"Fallback temperature",    				// 58   TempVFejl            째C         R            Fallback temp. used on error                        -40         70
 			"Turn off display after",     			// 59   DispOffTime          Sec.      UR            Turn off display after                              4           240
 			"Base pressure",  					 	// 60   Pb                   BarA      UR       1 1  Base pressure                                       0.6         80          Base press.
-			"Base temperature",    					// 61   Tb                   캜         R       1 1  Base temperature                                    -40         70          Base temp.
+			"Base temperature",    					// 61   Tb                   째C         R       1 1  Base temperature                                    -40         70          Base temp.
 			"Max pressure",   						// 62   MaxPress             BarA      UR            Pressure range                                      0.6         80
 			"Min pressure",   						// 63   MinPress             BarA      UR            Pressure range                                      0.6         80
-			"Max temperature",    					// 64   MaxTemp              캜         R            Temperature range                                   -40         70
-			"Min temperature",    					// 65   MinTemp              캜         R            Temperature range                                   -40         70
+			"Max temperature",    					// 64   MaxTemp              째C         R            Temperature range                                   -40         70
+			"Min temperature",    					// 65   MinTemp              째C         R            Temperature range                                   -40         70
 			"Alarm status table",    				// 66   AlarmTable           12                      Alarm table
 			"Alarm count table",    				// 67   AlarmCntTable        96         0            Alarm cnt table
 			"Power",  								// 68   EnergiFlow           MJ/h      U        1R0 1Power                                                                       Power
@@ -701,16 +699,16 @@ public class UNIFLO1200Registers {
 			"HF Card type",      					// 167  HFCard                                   R   HF/Puls subtype
 			"SN Table",    							// 168  SNTabel              40                  R   I/O - tabel
 			"Temperature code",      				// 169  TempStregkode                           1    Temperture code                                                             Temperture code
-			"Interval log temperature min.",    	// 170  ITempMin             캜         0        R1  Min. temp.
-			"Interval log temperature max.",    	// 171  ITempMax             캜         0        R1  Max. temp.
+			"Interval log temperature min.",    	// 170  ITempMin             째C         0        R1  Min. temp.
+			"Interval log temperature max.",    	// 171  ITempMax             째C         0        R1  Max. temp.
 			"Interval log pressure min.",   		// 172  ITrykMin             BarA      U0        R1  Min. Press.
 			"Interval log pressure max.",   		// 173  ITrykMax             BarA      U0        R1  Max. Press.
 			"Interval log Flow corrected min.",  	// 174  IFlowUMin            m3/h       0        R1  Min. flow corr.
 			"Interval log Flow corrected max.",  	// 175  IFlowUMax            m3/h       0        R1  Max. flow corr.
 			"Interval log Flow converted min.", 	// 176  IFlowKMin            Nm3/h     U0        R1  Min. flow conv.
 			"Interval log Flow converted max.", 	// 177  IFlowKMax            Nm3/h     U0        R1  Max. flow conv.
-			"Daily log temperature min.",    		// 178  DTempMin             캜         0        R2  Min. temp.
-			"Daily log temperature max.",    		// 179  DTempMax             캜         0        R2  Max. temp.
+			"Daily log temperature min.",    		// 178  DTempMin             째C         0        R2  Min. temp.
+			"Daily log temperature max.",    		// 179  DTempMax             째C         0        R2  Max. temp.
 			"Daily log pressure min.",   			// 180  DTrykMin             BarA      U0        R2  Min. Press.
 			"Daily log pressure max.",   			// 181  DTrykMax             BarA      U0        R2  Max. Press.
 			"Daily log Flow corrected max",  		// 182  DFlowUMin            m3/h       0        R2  Min. flow corr.
@@ -818,12 +816,12 @@ public class UNIFLO1200Registers {
 			0x0BF01B0C,   // 4    TempCorrTabel        112                     Temperatur correction tabel
 			0x011000F6,   // 5    Bat                  Days      U        1    Battery remaining                                                           Bat. remaining
 			0x23300200,   // 6    IEnergyFAvg          MJ        U0        R1  Average power.
-			0x23300204,   // 7    ITempAvg             캜         0        R1  Average temp.
+			0x23300204,   // 7    ITempAvg             째C         0        R1  Average temp.
 			0x43300208,   // 8    ITrykAvg             BarA      U0        R1  Average Press.
 			0x2330020C,   // 9    IFlowUAvg            m3/h       0        R1  Avg. flow corr.
 			0x23300210,   // 10   IFlowKAvg            Nm3/h     U0        R1  Avg. flow conv.
 			0x23300214,   // 11   DEnergyFAvg          MJ        U0        R2  Average power.
-			0x23300218,   // 12   DTempAvg             캜         0        R2  Average temp.
+			0x23300218,   // 12   DTempAvg             째C         0        R2  Average temp.
 			0x4330021C,   // 13   DTrykAvg             BarA      U0        R2  Average Press.
 			0x23300220,   // 14   DFlowUAvg            m3/h       0        R2  Avg. flow corr.
 			0x23300224,   // 15   DFlowKAvg            Nm3/h     U0        R2  Avg. flow conv.
@@ -848,7 +846,7 @@ public class UNIFLO1200Registers {
 			0x09100124,   // 34   PulsCheckPulser      pulses    UR            Pulse check every
 			0x07F011A0,   // 35   AlarmLog                                     Alarmlog (100 logninger)
 			0x47300080,   // 36   Pressure             bar A     U        1R0 1Pressure                                                                    Pressure
-			0x27300084,   // 37   Temperature          캜                 1R0 1Temperature                                                                 Temperature
+			0x27300084,   // 37   Temperature          째C                 1R0 1Temperature                                                                 Temperature
 			0x57300088,   // 38   Korr                                    1R0 1Conversion factor                                                           Conv. factor
 			0xDB3000F8,   // 39   Pulsvalue            m3/pulse  UR       1    Value of pulse                                      0           99999999    Pulse Value
 			0x27300078,   // 40   FlowCorr             m3/h               1R0 1Flow corrected                                                              Flow corr.
@@ -863,20 +861,20 @@ public class UNIFLO1200Registers {
 			0x09100126,   // 49   Flowstop             seconds   UR            Flowstop after                                      10          600
 			0x493000FC,   // 50   TrykMin              BarA      UR       1    Pressure low limit                                  0.6         80          Press. low limit
 			0x49300100,   // 51   TrykMax              BarA      UR       1    Pressure high limit                                 0.6         80          Press. high limit
-			0x29300104,   // 52   TempMin              캜         R       1    Temperature low limit                               -40         70          Temp. low limit
-			0x29300108,   // 53   TempMax              캜         R       1    Temperature high limit                              -40         70          Temp. high limit
+			0x29300104,   // 52   TempMin              째C         R       1    Temperature low limit                               -40         70          Temp. low limit
+			0x29300108,   // 53   TempMax              째C         R       1    Temperature high limit                              -40         70          Temp. high limit
 			0x2930010C,   // 54   FlowCorrMax          m3/h       R       1    Flow high limit                                     0           99999999    Flow high limit
 			0x29300110,   // 55   FlowConvMax          Nm3/h     UR       1    Conv. flow high limit                               0           99999999    Conv. flow high limit
 			0x29300114,   // 56   EnergiMax            MJ/h      UR       1    Power high limit                                    0           99999999    Power high limit
 			0xDB300118,   // 57   TrykVFejl            BarA      UR            Fallback press. used on error                       0.6         80
-			0xAB30011C,   // 58   TempVFejl            캜         R            Fallback temp. used on error                        -40         70
+			0xAB30011C,   // 58   TempVFejl            째C         R            Fallback temp. used on error                        -40         70
 			0x0B0000C1,   // 59   DispOffTime          Sec.      UR            Turn off display after                              4           240
 			0xDB300128,   // 60   Pb                   BarA      UR       1 1  Base pressure                                       0.6         80          Base press.
-			0xAB30012C,   // 61   Tb                   캜         R       1 1  Base temperature                                    -40         70          Base temp.
+			0xAB30012C,   // 61   Tb                   째C         R       1 1  Base temperature                                    -40         70          Base temp.
 			0x9B3000DC,   // 62   MaxPress             BarA      UR            Pressure range                                      0.6         80
 			0x9B3000E0,   // 63   MinPress             BarA      UR            Pressure range                                      0.6         80
-			0x9B3000E4,   // 64   MaxTemp              캜         R            Temperature range                                   -40         70
-			0x9B300130,   // 65   MinTemp              캜         R            Temperature range                                   -40         70
+			0x9B3000E4,   // 64   MaxTemp              째C         R            Temperature range                                   -40         70
+			0x9B300130,   // 65   MinTemp              째C         R            Temperature range                                   -40         70
 			0x07F00234,   // 66   AlarmTable           12                      Alarm table
 			0x03F01BE4,   // 67   AlarmCntTable        96         0            Alarm cnt table
 			0x2730008C,   // 68   EnergiFlow           MJ/h      U        1R0 1Power                                                                       Power
@@ -981,16 +979,16 @@ public class UNIFLO1200Registers {
 			0x07130300,   // 167  HFCard                                   R   HF/Puls subtype
 			0x07F00200,   // 168  SNTabel              40                  R   I/O - tabel
 			0xFB601B7C,   // 169  TempStregkode                           1    Temperture code                                                             Temperture code
-			0x23300020,   // 170  ITempMin             캜         0        R1  Min. temp.
-			0x23300024,   // 171  ITempMax             캜         0        R1  Max. temp.
+			0x23300020,   // 170  ITempMin             째C         0        R1  Min. temp.
+			0x23300024,   // 171  ITempMax             째C         0        R1  Max. temp.
 			0x43300028,   // 172  ITrykMin             BarA      U0        R1  Min. Press.
 			0x4330002C,   // 173  ITrykMax             BarA      U0        R1  Max. Press.
 			0x23300030,   // 174  IFlowUMin            m3/h       0        R1  Min. flow corr.
 			0x23300034,   // 175  IFlowUMax            m3/h       0        R1  Max. flow corr.
 			0x23300038,   // 176  IFlowKMin            Nm3/h     U0        R1  Min. flow conv.
 			0x2330003C,   // 177  IFlowKMax            Nm3/h     U0        R1  Max. flow conv.
-			0x23300040,   // 178  DTempMin             캜         0        R2  Min. temp.
-			0x23300044,   // 179  DTempMax             캜         0        R2  Max. temp.
+			0x23300040,   // 178  DTempMin             째C         0        R2  Min. temp.
+			0x23300044,   // 179  DTempMax             째C         0        R2  Max. temp.
 			0x43300048,   // 180  DTrykMin             BarA      U0        R2  Min. Press.
 			0x4330004C,   // 181  DTrykMax             BarA      U0        R2  Max. Press.
 			0x23300050,   // 182  DFlowUMin            m3/h       0        R2  Min. flow corr.
@@ -1098,12 +1096,12 @@ public class UNIFLO1200Registers {
 			"112",   // 4    TempCorrTabel        112                     Temperatur correction tabel
 			"d",     // 5    Bat                  Days      U        1    Battery remaining                                                           Bat. remaining
 			"MJ",    // 6    IEnergyFAvg          MJ        U0        R1  Average power.
-			"캜",    // 7    ITempAvg             캜         0        R1  Average temp.
+			"째C",    // 7    ITempAvg             째C         0        R1  Average temp.
 			"bar",   // 8    ITrykAvg             BarA      U0        R1  Average Press.
 			"m3/h",  // 9    IFlowUAvg            m3/h       0        R1  Avg. flow corr.
 			"Nm3/h", // 10   IFlowKAvg            Nm3/h     U0        R1  Avg. flow conv.
 			"MJ",    // 11   DEnergyFAvg          MJ        U0        R2  Average power.
-			"캜",    // 12   DTempAvg             캜         0        R2  Average temp.
+			"째C",    // 12   DTempAvg             째C         0        R2  Average temp.
 			"bar",   // 13   DTrykAvg             BarA      U0        R2  Average Press.
 			"m3/h",  // 14   DFlowUAvg            m3/h       0        R2  Avg. flow corr.
 			"Nm3/h", // 15   DFlowKAvg            Nm3/h     U0        R2  Avg. flow conv.
@@ -1128,7 +1126,7 @@ public class UNIFLO1200Registers {
 			"",      // 34   PulsCheckPulser      pulses    UR            Pulse check every
 			"",      // 35   AlarmLog                                     Alarmlog (100 logninger)
 			"bar",   // 36   Pressure             bar A     U        1R0 1Pressure                                                                    Pressure
-			"캜",    // 37   Temperature          캜                 1R0 1Temperature                                                                 Temperature
+			"째C",    // 37   Temperature          째C                 1R0 1Temperature                                                                 Temperature
 			"",      // 38   Korr                                    1R0 1Conversion factor                                                           Conv. factor
 			
 			//FIXME: Onderstaande unit (m3/pulse) onbekend
@@ -1146,20 +1144,20 @@ public class UNIFLO1200Registers {
 			"s",     // 49   Flowstop             seconds   UR            Flowstop after                                      10          600
 			"bar",   // 50   TrykMin              BarA      UR       1    Pressure low limit                                  0.6         80          Press. low limit
 			"bar",   // 51   TrykMax              BarA      UR       1    Pressure high limit                                 0.6         80          Press. high limit
-			"캜",    // 52   TempMin              캜         R       1    Temperature low limit                               -40         70          Temp. low limit
-			"캜",    // 53   TempMax              캜         R       1    Temperature high limit                              -40         70          Temp. high limit
+			"째C",    // 52   TempMin              째C         R       1    Temperature low limit                               -40         70          Temp. low limit
+			"째C",    // 53   TempMax              째C         R       1    Temperature high limit                              -40         70          Temp. high limit
 			"m3/h",  // 54   FlowCorrMax          m3/h       R       1    Flow high limit                                     0           99999999    Flow high limit
 			"Nm3/h", // 55   FlowConvMax          Nm3/h     UR       1    Conv. flow high limit                               0           99999999    Conv. flow high limit
 			"MJ/h",  // 56   EnergiMax            MJ/h      UR       1    Power high limit                                    0           99999999    Power high limit
 			"bar",   // 57   TrykVFejl            BarA      UR            Fallback press. used on error                       0.6         80
-			"캜",    // 58   TempVFejl            캜         R            Fallback temp. used on error                        -40         70
+			"째C",    // 58   TempVFejl            째C         R            Fallback temp. used on error                        -40         70
 			"s",     // 59   DispOffTime          Sec.      UR            Turn off display after                              4           240
 			"bar",   // 60   Pb                   BarA      UR       1 1  Base pressure                                       0.6         80          Base press.
-			"캜",    // 61   Tb                   캜         R       1 1  Base temperature                                    -40         70          Base temp.
+			"째C",    // 61   Tb                   째C         R       1 1  Base temperature                                    -40         70          Base temp.
 			"bar",   // 62   MaxPress             BarA      UR            Pressure range                                      0.6         80
 			"bar",   // 63   MinPress             BarA      UR            Pressure range                                      0.6         80
-			"캜",    // 64   MaxTemp              캜         R            Temperature range                                   -40         70
-			"캜",    // 65   MinTemp              캜         R            Temperature range                                   -40         70
+			"째C",    // 64   MaxTemp              째C         R            Temperature range                                   -40         70
+			"째C",    // 65   MinTemp              째C         R            Temperature range                                   -40         70
 			"12",    // 66   AlarmTable           12                      Alarm table
 			"96",    // 67   AlarmCntTable        96         0            Alarm cnt table
 			"MJ/h",  // 68   EnergiFlow           MJ/h      U        1R0 1Power                                                                       Power
@@ -1264,16 +1262,16 @@ public class UNIFLO1200Registers {
 			"",      // 167  HFCard                                   R   HF/Puls subtype
 			"40",    // 168  SNTabel              40                  R   I/O - tabel
 			"",      // 169  TempStregkode                           1    Temperture code                                                             Temperture code
-			"캜",    // 170  ITempMin             캜         0        R1  Min. temp.
-			"캜",    // 171  ITempMax             캜         0        R1  Max. temp.
+			"째C",    // 170  ITempMin             째C         0        R1  Min. temp.
+			"째C",    // 171  ITempMax             째C         0        R1  Max. temp.
 			"bar",   // 172  ITrykMin             BarA      U0        R1  Min. Press.
 			"bar",   // 173  ITrykMax             BarA      U0        R1  Max. Press.
 			"m3/h",  // 174  IFlowUMin            m3/h       0        R1  Min. flow corr.
 			"m3/h",  // 175  IFlowUMax            m3/h       0        R1  Max. flow corr.
 			"Nm3/h", // 176  IFlowKMin            Nm3/h     U0        R1  Min. flow conv.
 			"Nm3/h", // 177  IFlowKMax            Nm3/h     U0        R1  Max. flow conv.
-			"캜",    // 178  DTempMin             캜         0        R2  Min. temp.
-			"캜",    // 179  DTempMax             캜         0        R2  Max. temp.
+			"째C",    // 178  DTempMin             째C         0        R2  Min. temp.
+			"째C",    // 179  DTempMax             째C         0        R2  Max. temp.
 			"bar",   // 180  DTrykMin             BarA      U0        R2  Min. Press.
 			"bar",   // 181  DTrykMax             BarA      U0        R2  Max. Press.
 			"m3/h",  // 182  DFlowUMin            m3/h       0        R2  Min. flow corr.

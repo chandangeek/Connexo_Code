@@ -10,10 +10,10 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Date;
 
 /**
  *
@@ -24,32 +24,32 @@ public class SelfReadGeneralInformation extends AbstractDataDefinition {
     private Date nextScheduledSelfRead; // DATE_AND_TIME,
     private int actionForNextScheduledSR; // 0 = No Action, 1 = Demand Reset, 2 = Digital State Output, 3 = Demand Reset & Digital State Output
     private Date timeOfLastSelfRead; // DATE_AND_TIME,
-    
-    /*
-    • 0 = None
-    • 1 = Scheduled Date And Time
-    • 2 = Scheduled Minute
-    • 4 = Scheduled Monthly
-    • 8 = Scheduled Weekly
-    • 16 = Digital State Input Active
-    • 32 = On Line Serial Command
-    • 64 = Demand Reset
-    • 128 = Season Change
-    • 256 = Entered Test Mode
-    • 512 = Exited Test Mode
-    • 1024 = TOU Current to Latent Switch
-    • 32768 = Delayed by EPF
-    • ALL OTHERS = Multiple Scheduled Triggers
+
+    /**
+     * 0 = None
+     * 1 = Scheduled Date And Time
+     * 2 = Scheduled Minute
+     * 4 = Scheduled Monthly
+     * 8 = Scheduled Weekly
+     * 16 = Digital State Input Active
+     * 32 = On Line Serial Command
+     * 64 = Demand Reset
+     * 128 = Season Change
+     * 256 = Entered Test Mode
+     * 512 = Exited Test Mode
+     * 1024 = TOU Current to Latent Switch
+     * 32768 = Delayed by EPF
+     * ALL OTHERS = Multiple Scheduled Triggers
      */
     private int reasonOfLastSelfRead; // UNSIGNED16,
-    
-    /*
-    • 0 = No Action
-    • 1 = Demand Reset
-    • 2 = Digital State Output
-    • 3 = Demand Reset & Digital State Output
-    • ALL OTHERS = Reserved
-    */
+
+    /**
+     * 0 = No Action
+     * 1 = Demand Reset
+     * 2 = Digital State Output
+     * 3 = Demand Reset & Digital State Output
+     * ALL OTHERS = Reserved
+     */
     private int  actionCodeOfLastSelfRead; // UNSIGNED8,
     private int numberOfSelfRead; // UNSIGNED16,
     private long blockSize; // UNSIGNED32,

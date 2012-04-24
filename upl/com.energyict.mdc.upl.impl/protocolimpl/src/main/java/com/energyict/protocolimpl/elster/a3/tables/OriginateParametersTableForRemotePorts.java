@@ -10,12 +10,12 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
 
 /**
  *
@@ -30,7 +30,7 @@ public class OriginateParametersTableForRemotePorts extends AbstractTable {
     Write access: 3
     */
 
-    private int dialDelay; // 1 byte This field will be forced to zero by the meter. Commas in the dial string can be used to force a delay between going off-hook and dialing of the phone number. For example, ATDT,1,9192505418 would insert a delay between going offhook and dialing the ‘1’ and between the ‘1’ and the 919. 
+    private int dialDelay; // 1 byte This field will be forced to zero by the meter. Commas in the dial string can be used to force a delay between going off-hook and dialing of the phone number. For example, ATDT,1,9192505418 would insert a delay between going offhook and dialing the '1' and between the '1' and the 919.
     private String[] phoneNumbers; // 3 phone numbers of 64 bytes long 
     private Window[] windows; // 2 windows
 

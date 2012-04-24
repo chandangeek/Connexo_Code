@@ -10,17 +10,15 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
-import com.energyict.protocolimpl.elster.alpha.core.classes.BillingDataRegisterFactory;
-import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.cbo.*;
+import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.elster.alpha.core.classes.BillingDataRegisterFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -119,7 +117,7 @@ public class BillingDataRegisterFactoryImpl implements BillingDataRegisterFactor
                         //1.1.82.2.fieldE.fieldF // cumulmative maximum demand
                         //1.1.82.6.fieldE.fieldF // maximum demand
                         //1.1.82.8.fieldE.fieldF // time integral 1, energy
-                        //1.1.82.128.fieldE.fieldF // coïncident
+                        //1.1.82.128.fieldE.fieldF // coincident
                         buildBillingDataRegisters(cbd, 82, fieldE, fieldF, fieldEOffset, block, maxBlocks, set);
                     } break; // Class8FirmwareConfiguration.PHENOMENON_UNDEFINED
                     
@@ -128,13 +126,13 @@ public class BillingDataRegisterFactoryImpl implements BillingDataRegisterFactor
                             //1.1.1.2.fieldE.fieldF // cumulmative maximum demand
                             //1.1.1.6.fieldE.fieldF // maximum demand
                             //1.1.1.8.fieldE.fieldF // time integral 1, energy
-                            //1.1.1.128.fieldE.fieldF // coïncident
+                            //1.1.1.128.fieldE.fieldF // coincident
                             buildBillingDataRegisters(cbd, 1, fieldE, fieldF, fieldEOffset, block, maxBlocks, set);
                         else if (classFactory.getClass2IdentificationAndDemandData().getDirection(block) == Class2IdentificationAndDemandData.EXPORT)
                             //1.1.2.2.fieldE.fieldF // cumulmative maximum demand
                             //1.1.2.6.fieldE.fieldF // maximum demand
                             //1.1.2.8.fieldE.fieldF // time integral 1, energy
-                            //1.1.2.128.fieldE.fieldF // coïncident
+                            //1.1.2.128.fieldE.fieldF // coincident
                             buildBillingDataRegisters(cbd, 2, fieldE, fieldF, fieldEOffset, block, maxBlocks, set);
                         else throw new IOException("BillingDataQuantities, build(), wrong quadrant configuration, CLASS2 EBLKCF"+block+"="+classFactory.getClass2IdentificationAndDemandData().getEBLKCF(block));
                     } break; // Class8FirmwareConfiguration.PHENOMENON_ACTIVE
@@ -145,37 +143,37 @@ public class BillingDataRegisterFactoryImpl implements BillingDataRegisterFactor
                             //1.1.9.2.fieldE.fieldF // cumulmative maximum demand
                             //1.1.9.6.fieldE.fieldF // maximum demand
                             //1.1.9.8.fieldE.fieldF // time integral 1, energy
-                            //1.1.9.128.fieldE.fieldF // coïncident
+                            //1.1.9.128.fieldE.fieldF // coincident
                             buildBillingDataRegisters(cbd, 9, fieldE, fieldF, fieldEOffset, block, maxBlocks, set);
                         else if (classFactory.getClass2IdentificationAndDemandData().isVAExport(block)) 
                             //1.1.10.2.fieldE.fieldF // cumulmative maximum demand
                             //1.1.10.6.fieldE.fieldF // maximum demand
                             //1.1.10.8.fieldE.fieldF // time integral 1, energy
-                            //1.1.10.128.fieldE.fieldF // coïncident
+                            //1.1.10.128.fieldE.fieldF // coincident
                             buildBillingDataRegisters(cbd, 10, fieldE, fieldF, fieldEOffset, block, maxBlocks, set);
                         else if (classFactory.getClass2IdentificationAndDemandData().isOnlyQ1(block))
                             //1.1.128.2.fieldE.fieldF // cumulmative maximum demand
                             //1.1.128.6.fieldE.fieldF // maximum demand
                             //1.1.128.8.fieldE.fieldF // time integral 1, energy
-                            //1.1.128.128.fieldE.fieldF // coïncident
+                            //1.1.128.128.fieldE.fieldF // coincident
                             buildBillingDataRegisters(cbd, 128, fieldE, fieldF, fieldEOffset, block, maxBlocks, set);
                         else if (classFactory.getClass2IdentificationAndDemandData().isOnlyQ2(block))
                             //1.1.129.2.fieldE.fieldF // cumulmative maximum demand
                             //1.1.129.6.fieldE.fieldF // maximum demand
                             //1.1.129.8.fieldE.fieldF // time integral 1, energy
-                            //1.1.129.128.fieldE.fieldF // coïncident
+                            //1.1.129.128.fieldE.fieldF // coincident
                             buildBillingDataRegisters(cbd, 129, fieldE, fieldF, fieldEOffset, block, maxBlocks, set);
                         else if (classFactory.getClass2IdentificationAndDemandData().isOnlyQ3(block))
                             //1.1.130.2.fieldE.fieldF // cumulmative maximum demand
                             //1.1.130.6.fieldE.fieldF // maximum demand
                             //1.1.130.8.fieldE.fieldF // time integral 1, energy
-                            //1.1.130.128.fieldE.fieldF // coïncident
+                            //1.1.130.128.fieldE.fieldF // coincident
                             buildBillingDataRegisters(cbd, 130, fieldE, fieldF, fieldEOffset, block, maxBlocks, set);
                         else if (classFactory.getClass2IdentificationAndDemandData().isOnlyQ4(block))
                             //1.1.131.2.fieldE.fieldF // cumulmative maximum demand
                             //1.1.131.6.fieldE.fieldF // maximum demand
                             //1.1.131.8.fieldE.fieldF // time integral 1, energy
-                            //1.1.131.128.fieldE.fieldF // coïncident
+                            //1.1.131.128.fieldE.fieldF // coincident
                             buildBillingDataRegisters(cbd, 131, fieldE, fieldF, fieldEOffset, block, maxBlocks, set);
                         else throw new IOException("BillingDataQuantities, build(), wrong quadrant configuration, CLASS2 EBLKCF"+block+"="+classFactory.getClass2IdentificationAndDemandData().getEBLKCF(block));
                     } break; // Class8FirmwareConfiguration.PHENOMENON_APPARENT
@@ -185,55 +183,55 @@ public class BillingDataRegisterFactoryImpl implements BillingDataRegisterFactor
                             //1.1.3.2.fieldE.fieldF // cumulmative maximum demand
                             //1.1.3.6.fieldE.fieldF // maximum demand
                             //1.1.3.8.fieldE.fieldF // time integral 1, energy
-                            //1.1.3.128.fieldE.fieldF // coïncident
+                            //1.1.3.128.fieldE.fieldF // coincident
                             buildBillingDataRegisters(cbd, 3, fieldE, fieldF, fieldEOffset, block, maxBlocks, set);
                         else if (classFactory.getClass2IdentificationAndDemandData().isvarExport(block)) 
                             //1.1.4.2.fieldE.fieldF // cumulmative maximum demand
                             //1.1.4.6.fieldE.fieldF // maximum demand
                             //1.1.4.8.fieldE.fieldF // time integral 1, energy
-                            //1.1.4.128.fieldE.fieldF // coïncident
+                            //1.1.4.128.fieldE.fieldF // coincident
                             buildBillingDataRegisters(cbd, 4, fieldE, fieldF, fieldEOffset, block, maxBlocks, set);
                         else if (classFactory.getClass2IdentificationAndDemandData().isOnlyQ1(block))
                             //1.1.5.2.fieldE.fieldF // cumulmative maximum demand
                             //1.1.5.6.fieldE.fieldF // maximum demand
                             //1.1.5.8.fieldE.fieldF // time integral 1, energy
-                            //1.1.5.128.fieldE.fieldF // coïncident
+                            //1.1.5.128.fieldE.fieldF // coincident
                             buildBillingDataRegisters(cbd, 5, fieldE, fieldF, fieldEOffset, block, maxBlocks, set);
                         else if (classFactory.getClass2IdentificationAndDemandData().isOnlyQ2(block))
                             //1.1.6.2.fieldE.fieldF // cumulmative maximum demand
                             //1.1.6.6.fieldE.fieldF // maximum demand
                             //1.1.6.8.fieldE.fieldF // time integral 1, energy
-                            //1.1.6.128.fieldE.fieldF // coïncident
+                            //1.1.6.128.fieldE.fieldF // coincident
                             buildBillingDataRegisters(cbd, 6, fieldE, fieldF, fieldEOffset, block, maxBlocks, set);
                         else if (classFactory.getClass2IdentificationAndDemandData().isOnlyQ3(block))
                             //1.1.7.2.fieldE.fieldF // cumulmative maximum demand
                             //1.1.7.6.fieldE.fieldF // maximum demand
                             //1.1.7.8.fieldE.fieldF // time integral 1, energy
-                            //1.1.7.128.fieldE.fieldF // coïncident
+                            //1.1.7.128.fieldE.fieldF // coincident
                             buildBillingDataRegisters(cbd, 7, fieldE, fieldF, fieldEOffset, block, maxBlocks, set);
                         else if (classFactory.getClass2IdentificationAndDemandData().isOnlyQ4(block))
                             //1.1.8.2.fieldE.fieldF // cumulmative maximum demand
                             //1.1.8.6.fieldE.fieldF // maximum demand
                             //1.1.8.8.fieldE.fieldF // time integral 1, energy
-                            //1.1.8.128.fieldE.fieldF // coïncident
+                            //1.1.8.128.fieldE.fieldF // coincident
                             buildBillingDataRegisters(cbd, 8, fieldE, fieldF, fieldEOffset, block, maxBlocks, set);
 //                        else if (classFactory.getClass2IdentificationAndDemandData().isOnlyQ1Q4(block))
 //                            //1.1.8.2.fieldE.fieldF // cumulmative maximum demand
 //                            //1.1.8.6.fieldE.fieldF // maximum demand
 //                            //1.1.8.8.fieldE.fieldF // time integral 1, energy
-//                            //1.1.8.128.fieldE.fieldF // coïncident
+//                            //1.1.8.128.fieldE.fieldF // coincident
 //                            buildBillingDataRegisters(cbd, 3, fieldE, fieldF, fieldEOffset, block, maxBlocks, set);
                         else if (classFactory.getClass2IdentificationAndDemandData().isvarSum(block))
                             //1.1.132.2.fieldE.fieldF // cumulmative maximum demand
                             //1.1.132.6.fieldE.fieldF // maximum demand
                             //1.1.132.8.fieldE.fieldF // time integral 1, energy
-                            //1.1.132.128.fieldE.fieldF // coïncident
+                            //1.1.132.128.fieldE.fieldF // coincident
                             buildBillingDataRegisters(cbd, 132, fieldE, fieldF, fieldEOffset, block, maxBlocks, set);
                         else if (classFactory.getClass2IdentificationAndDemandData().isNoQuadrants(block))
                             //1.1.133.2.fieldE.fieldF // cumulmative maximum demand
                             //1.1.133.6.fieldE.fieldF // maximum demand
                             //1.1.133.8.fieldE.fieldF // time integral 1, energy
-                            //1.1.133.128.fieldE.fieldF // coïncident
+                            //1.1.133.128.fieldE.fieldF // coincident
                             buildBillingDataRegisters(cbd, 133, fieldE, fieldF, fieldEOffset, block, maxBlocks, set);
                         else throw new IOException("BillingDataQuantities, build(), wrong quadrant configuration, CLASS2 EBLKCF"+block+"="+classFactory.getClass2IdentificationAndDemandData().getEBLKCF(block));
                     } break; // Class8FirmwareConfiguration.PHENOMENON_REACTIVE
@@ -306,11 +304,11 @@ public class BillingDataRegisterFactoryImpl implements BillingDataRegisterFactor
         billingDataRegisters[set].add(new BillingDataRegister(obisCode, description, registerValue));
 
         if (maxBlocks == 2) {
-            // Coïncident demand taken from the other block...
+            // coincident demand taken from the other block...
             quantity = new Quantity(cbd.getKWC(block==1?0:1, fieldE),classFactory.getClass8FirmwareConfiguration().getBlockPhenomenonUnit(block==1?0:1, false));
             obisCode = ObisCode.fromByteArray(new byte[]{1,1,(byte)fieldC,(byte)128,(byte)(fieldEOffset+fieldE),(byte)fieldF});
             registerValue = new RegisterValue(obisCode,quantity,cbd.getTD(block==1?0:1, fieldE));
-            billingDataRegisters[set].add(new BillingDataRegister(obisCode, (block==0?"Primary":"Alternate")+"metering block coïncident demand value", registerValue));
+            billingDataRegisters[set].add(new BillingDataRegister(obisCode, (block==0?"Primary":"Alternate")+"metering block coincident demand value", registerValue));
         } // if (maxBlocks == 2)
     } // buildBillingDataRegisters
 

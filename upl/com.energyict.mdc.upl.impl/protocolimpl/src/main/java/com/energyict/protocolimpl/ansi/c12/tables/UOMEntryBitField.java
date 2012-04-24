@@ -10,13 +10,10 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.cbo.Unit;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
-import com.energyict.cbo.*;
+import java.io.IOException;
 
 
 /**
@@ -47,10 +44,10 @@ public class UOMEntryBitField {
                                          Unit.get("THDVIC"),  // 18 total harminic distortion Volt (IC)        
                                          Unit.get("THDIIC"),  // 19 total harminic distortion Current (IC)        
                                          //  phase angles
-                                         Unit.get("°"),     // 20 V-VA, voltage phase angle
-                                         Unit.get("°"),     // 21 Vx-Vy, where x and y are phases in phase
-                                         Unit.get("°"),     // 22 I-VA, current phase angle
-                                         Unit.get("°"),     // 23 Ix-Iy, where x and y are phases defined in phase
+                                         Unit.get("Â°"),     // 20 V-VA, voltage phase angle
+                                         Unit.get("Â°"),     // 21 Vx-Vy, where x and y are phases in phase
+                                         Unit.get("Â°"),     // 22 I-VA, current phase angle
+                                         Unit.get("Â°"),     // 23 Ix-Iy, where x and y are phases defined in phase
                                          Unit.get(""),      // 24 Power factor computed using apparent power
                                          Unit.get(""),      // 25 Power factor computed using phasor power
                                          Unit.get(""),      // 26 reserved
@@ -89,12 +86,12 @@ public class UOMEntryBitField {
                                          Unit.get("ft3/h"),  // 67 cubic feet gas (volume uncorrected meter index reading) per hour
                                          Unit.get("ft3/h"),  // 68 cor cubic feet gas (volume corrected to base conditions) per hour             
                                          Unit.get("ft3/h"),  // 69 cor cubic feet gas (volume corrected to pressure base, without supercompressibility) per hour         
-                                         Unit.get("°C"), // 70 dry bulb temp 
-                                         Unit.get("°C"), // 71 wet bulb temp
-                                         Unit.get("°F"), // 72 dry bulb temp 
-                                         Unit.get("°F"), // 73 wet bulb temp
-                                         Unit.get("°K"), // 74 dry bulb temp 
-                                         Unit.get("°K"), // 75 wet bulb temp
+                                         Unit.get("Â°C"), // 70 dry bulb temp
+                                         Unit.get("Â°C"), // 71 wet bulb temp
+                                         Unit.get("Â°F"), // 72 dry bulb temp
+                                         Unit.get("Â°F"), // 73 wet bulb temp
+                                         Unit.get("Â°K"), // 74 dry bulb temp
+                                         Unit.get("Â°K"), // 75 wet bulb temp
                                          Unit.get("J/h"), // 76 joules per hour
                                          Unit.get(""),   // 77 Therm per hour
                                          Unit.get("Pa"),   // 78 static Pascal

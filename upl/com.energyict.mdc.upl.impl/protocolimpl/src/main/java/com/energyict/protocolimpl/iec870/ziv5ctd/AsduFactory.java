@@ -41,7 +41,7 @@ public class AsduFactory {
         return asdu;
     }
     
-    /** One will be used to read the information of Tarificación (Memorizados 
+    /** One will be used to read the information of Tarificacion (Memorizados
      * Values) selected by time interval. (src.babelfish)*/    
     Asdu create0x086( int contract, Date start, Date end ){
         Asdu asdu = new Asdu();

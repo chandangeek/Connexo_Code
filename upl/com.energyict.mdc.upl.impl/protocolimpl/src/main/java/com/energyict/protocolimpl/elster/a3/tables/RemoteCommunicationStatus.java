@@ -10,12 +10,10 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
 
 /**
  *
@@ -31,7 +29,7 @@ public class RemoteCommunicationStatus extends AbstractTable {
     Write access: N/A
 
     This table provides communication status information. When a call is triggered to a phone
-    number the meter ‘ORs’ the call purpose into the corresponding Call Purpose field, and resets
+    number the meter "ORs" the call purpose into the corresponding Call Purpose field, and resets
     the retry attempts to the larger of the remaining retry counts or the number of retries for the
     new call.
     For calls initiated by the meter, the Call Complete procedure only clears call status for the

@@ -10,10 +10,10 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Date;
 
 /**
  *
@@ -22,7 +22,7 @@ import com.energyict.protocolimpl.base.*;
 public class ViewInformation extends AbstractDataDefinition {
     
     
-    private int currentViewID; // “VIEW_ID”,
+    private int currentViewID; // VIEW_ID,
     /*
     view ids
     1: 89
@@ -39,9 +39,9 @@ public class ViewInformation extends AbstractDataDefinition {
     
     private int currentObjectIndex; // unsigned16,
     private int numberOfObjects; // unsigned16,
-    private ViewableFileId currentObjectID; // “VIEWABLE_FILE_ID”, 2 bytes
+    private ViewableFileId currentObjectID; // VIEWABLE_FILE_ID, 2 bytes
     
-    private int currentObjectType; // “VIEWABLE_FILE_OBJECT_TYPE”, 2 bytes
+    private int currentObjectType; // VIEWABLE_FILE_OBJECT_TYPE, 2 bytes
     /*
     OBJTYPE_MASSMEMORY 1
     OBJTYPE_HARMONICS 2
@@ -58,7 +58,7 @@ public class ViewInformation extends AbstractDataDefinition {
     private Date currentRecordDateTime; // EXTENDED_DATE_TIME,
     private Date lastWrittenRecordDateTime; // EXTENDED_DATE_TIME,
     private Date firstRecordDateTime; // EXTENDED_DATE_TIME,
-    private int[] restrictions = new int[12]; // restrictions array(“MAX_RESTRICTION_BYTES=12”)of unsigned8,
+    private int[] restrictions = new int[12]; // restrictions array(MAX_RESTRICTION_BYTES=12)of unsigned8,
     private long recsPerRead; // unsigned32
     
     /**

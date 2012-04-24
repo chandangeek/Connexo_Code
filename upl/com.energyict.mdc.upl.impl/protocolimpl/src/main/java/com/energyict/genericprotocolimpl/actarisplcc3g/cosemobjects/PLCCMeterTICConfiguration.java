@@ -1,15 +1,15 @@
 package com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects;
 
-import java.io.IOException;
-
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.ObjectIdentification;
 
+import java.io.IOException;
+
 public class PLCCMeterTICConfiguration extends AbstractPLCCObject {
 
-    // 0=veille, 1=métrologie, 2=standard, 3=téléinfo client
+    // 0=veille, 1=metrologie, 2=standard, 3=teleinfo client
     Data data=null;
     int mode;
 

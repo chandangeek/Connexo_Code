@@ -6,12 +6,12 @@
 
 package com.energyict.protocolimpl.pact.core.common;
 
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
 
 /**
  *
@@ -36,32 +36,32 @@ public class EnergyTypeCode {
        /*
        list.add(new EnergyTypeCode(148,0x81,ACTIVE,"export, fundamental")); 
        list.add(new EnergyTypeCode(149,0x82,ACTIVE,"import, fundamental"));
-       list.add(new EnergyTypeCode(150,0x83,ACTIVE,"import – export, fundamental"));
+       list.add(new EnergyTypeCode(150,0x83,ACTIVE,"import + export, fundamental"));
        list.add(new EnergyTypeCode(151,0x84,ACTIVE,"import + export, fundamental")); 
        */
        list.add(new EnergyTypeCode(02,0x81,ACTIVE,"export, fundamental")); 
        list.add(new EnergyTypeCode(01,0x82,ACTIVE,"import, fundamental"));
-       list.add(new EnergyTypeCode(16,0x83,ACTIVE,"import – export, fundamental"));
+       list.add(new EnergyTypeCode(16,0x83,ACTIVE,"import + export, fundamental"));
        list.add(new EnergyTypeCode(15,0x84,ACTIVE,"import + export, fundamental"));
        /*
        list.add(new EnergyTypeCode(02,0x85,ACTIVE,"export, net"));
        list.add(new EnergyTypeCode(01,0x86,ACTIVE,"import, net"));
-       list.add(new EnergyTypeCode(16,0x87,ACTIVE,"import – export, net"));
+       list.add(new EnergyTypeCode(16,0x87,ACTIVE,"import + export, net"));
        list.add(new EnergyTypeCode(15,0x88,ACTIVE,"import + export, net")); 
        */
        list.add(new EnergyTypeCode(148,0x85,ACTIVE,"export, net"));
        list.add(new EnergyTypeCode(149,0x86,ACTIVE,"import, net"));
-       list.add(new EnergyTypeCode(150,0x87,ACTIVE,"import – export, net"));
+       list.add(new EnergyTypeCode(150,0x87,ACTIVE,"import + export, net"));
        list.add(new EnergyTypeCode(151,0x88,ACTIVE,"import + export, net"));
        
        
-       list.add(new EnergyTypeCode(129,0x89,ACTIVE,"export – import, fundamental"));
-       list.add(new EnergyTypeCode(130,0x8A,ACTIVE,"export – import, net"));
+       list.add(new EnergyTypeCode(129,0x89,ACTIVE,"export + import, fundamental"));
+       list.add(new EnergyTypeCode(130,0x8A,ACTIVE,"export + import, net"));
        
        list.add(new EnergyTypeCode(131,0x90,REACTIVE,"Non-specific"));
        list.add(new EnergyTypeCode(4,0x91,REACTIVE,"export."));
        list.add(new EnergyTypeCode(3,0x92,REACTIVE,"import."));
-       list.add(new EnergyTypeCode(132,0x93,REACTIVE,"import – export"));       
+       list.add(new EnergyTypeCode(132,0x93,REACTIVE,"import + export"));
        list.add(new EnergyTypeCode(133,0x94,REACTIVE,"import + export"));       
        list.add(new EnergyTypeCode(8,0x95,REACTIVE,"export while active import"));
        list.add(new EnergyTypeCode(5,0x96,REACTIVE,"import while active import"));
@@ -71,9 +71,9 @@ public class EnergyTypeCode {
        list.add(new EnergyTypeCode(135,0x9A,REACTIVE,"lag + lead while active export"));
        list.add(new EnergyTypeCode(136,0x9B,REACTIVE,"lag - lead while active import"));
        list.add(new EnergyTypeCode(137,0x9C,REACTIVE,"lead - lag while active import"));
-       list.add(new EnergyTypeCode(138,0x9D,REACTIVE,"lag – lead while active export"));
-       list.add(new EnergyTypeCode(139,0x9E,REACTIVE,"lead – lag while active export"));
-       list.add(new EnergyTypeCode(140,0x9F,REACTIVE,"export – import"));
+       list.add(new EnergyTypeCode(138,0x9D,REACTIVE,"lag + lead while active export"));
+       list.add(new EnergyTypeCode(139,0x9E,REACTIVE,"lead + lag while active export"));
+       list.add(new EnergyTypeCode(140,0x9F,REACTIVE,"export + import"));
 
        list.add(new EnergyTypeCode(141,0xA0,APPARENT,"type 1, all quadrants"));
        list.add(new EnergyTypeCode(9,0xA1,APPARENT,"type 2, while active import"));

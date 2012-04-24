@@ -10,12 +10,12 @@
 
 package com.energyict.protocolimpl.edmi.mk6.loadsurvey;
 
+import com.energyict.protocolimpl.edmi.mk6.command.CommandFactory;
+import com.energyict.protocolimpl.edmi.mk6.core.RegisterUnitParser;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
-
-import com.energyict.protocolimpl.edmi.mk6.command.CommandFactory;
-import com.energyict.protocolimpl.edmi.mk6.core.RegisterUnitParser;
 /**
  *
  * @author koen
@@ -70,11 +70,11 @@ public class LoadSurvey implements Serializable {
         setEntryWidth(getCommandFactory().getReadCommand((registerId<<16)|0x5F018).getRegister().getBigDecimal().intValue()); // The total entry width (including checksum/status word). This is the sum of the channel widths plus 2.
         setLoadSurveyChannels(new LoadSurveyChannel[getNrOfChannels()]);
         storedEntries = getCommandFactory().getReadCommand((registerId<<16)|0x5F021).getRegister().getBigDecimal().intValue();  // Holds the number of entries in the load survey. This is
-                                                                                                                                //stored as a long, and MOD can be used with ‘number of
-                                                                                                                                //entries’ to find the current pointer into the load survey. This
+                                                                                                                                //stored as a long, and MOD can be used with number of
+                                                                                                                                //entries to find the current pointer into the load survey. This
                                                                                                                                 //gives a continuous register number, useful when reading non
                                                                                                                                 //fixed interval load surveys. If the number is bigger than
-                                                                                                                                //‘number of entries’ the load survey is full and is wrapping.
+                                                                                                                                //number of entries the load survey is full and is wrapping.
         startTime =  getCommandFactory().getReadCommand((registerId<<16)|0x5F020).getRegister().getDate(); // The first time that was stored in the survey ever.
        
         for (int channel = 0; channel <  getLoadSurveyChannels().length; channel++) {

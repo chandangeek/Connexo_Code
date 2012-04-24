@@ -10,9 +10,11 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
@@ -20,7 +22,7 @@ import java.util.*;
  */
 public class EventLogSummariesType {
     
-    private EventId event; //‘ EVENT_ID, // 16 bit
+    private EventId event; // EVENT_ID, // 16 bit
     private Date firstOccurence; // DATE_AND_TIME,
     private Date lastOccurence; // DATE_AND_TIME,
     private long numOccurences; // UNSIGNED32,
