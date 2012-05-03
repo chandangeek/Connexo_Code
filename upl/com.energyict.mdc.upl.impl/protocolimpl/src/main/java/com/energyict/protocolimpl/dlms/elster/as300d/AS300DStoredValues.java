@@ -1,7 +1,17 @@
 package com.energyict.protocolimpl.dlms.elster.as300d;
 
-import com.energyict.dlms.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.OctetString;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.HistoricalValue;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -13,8 +23,8 @@ import java.util.List;
 /**
  * Copyrights EnergyICT
  * User: sva
- * Date: 20/04/12
- * Time: 17:17
+ * Date: 23/04/12
+ * Time: 9:12
  */
 public class AS300DStoredValues implements StoredValues {
 

@@ -39,7 +39,7 @@ public class AS300D extends AbstractDlmsSessionProtocol {
 
     @Override
     protected void doInit() {
-        this.hourlyProfile = new AS300DProfile(getSession());
+        this.hourlyProfile = new AS300DProfile(getSession(), getProperties().getLoadProfileObiscode());
         this.eventLogs = new AS300DEventLogs(getSession());
         this.clock = new AS300DClock(getSession());
         this.registers = new AS300DRegisters(getSession());
