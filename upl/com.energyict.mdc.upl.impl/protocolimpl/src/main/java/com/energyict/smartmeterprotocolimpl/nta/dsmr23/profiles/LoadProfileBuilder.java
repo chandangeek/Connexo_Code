@@ -1,19 +1,36 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles;
 
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.*;
-import com.energyict.dlms.cosem.*;
-import com.energyict.dlms.cosem.attributes.*;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
+import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
+import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileConfigurationException;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.DSMRProfileIntervalStatusBits;
 
-
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -228,11 +245,11 @@ public class LoadProfileBuilder {
                         dlmsAttributes.add(unitAttribute);
                         this.registerUnitMap.put(register, unitAttribute);
                     } else if (uo.getDLMSClassId().isExtendedRegister()) {
-                        DLMSAttribute unitAttribute = new DLMSAttribute(rObisCode, ExtendedRegisterAttributes.Register_Unit.getAttributeNumber(), uo.getClassID());
+                        DLMSAttribute unitAttribute = new DLMSAttribute(rObisCode, ExtendedRegisterAttributes.UNIT.getAttributeNumber(), uo.getClassID());
                         dlmsAttributes.add(unitAttribute);
                         this.registerUnitMap.put(register, unitAttribute);
                     } else if (uo.getDLMSClassId().isDemandRegister()) {
-                        DLMSAttribute unitAttribute = new DLMSAttribute(rObisCode, DemandRegisterAttributes.Register_Unit.getAttributeNumber(), uo.getClassID());
+                        DLMSAttribute unitAttribute = new DLMSAttribute(rObisCode, DemandRegisterAttributes.UNIT.getAttributeNumber(), uo.getClassID());
                         dlmsAttributes.add(unitAttribute);
                         this.registerUnitMap.put(register, unitAttribute);
                     }

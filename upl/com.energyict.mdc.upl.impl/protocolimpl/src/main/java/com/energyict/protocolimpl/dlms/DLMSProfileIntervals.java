@@ -1,14 +1,24 @@
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.NullData;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
+import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * A default DLMS {@link com.energyict.dlms.cosem.ProfileGeneric} buffer parser to a list of {@link com.energyict.protocol.IntervalData}.
@@ -117,7 +127,7 @@ public class DLMSProfileIntervals extends Array {
 
             for (int i = 0; i < nrOfDataTypes(); i++) {
                 Structure element = (Structure) getDataType(i);
-                List<Integer> values = new ArrayList<Integer>();
+                List<Number> values = new ArrayList<Number>();
 
                 if (getNrOfStatusIndexes() <= 1) {
                     for (int d = 0; d < element.nrOfDataTypes(); d++) {
@@ -130,7 +140,9 @@ public class DLMSProfileIntervals extends Array {
                         } else if (isStatusIndex(d)) {
                             profileStatus = profileStatusBits.getEisStatusCode(element.getDataType(d).intValue());
                         } else if (isChannelIndex(d)) {
-                            values.add(element.getDataType(d).intValue());
+                            final AbstractDataType dataType = element.getDataType(d);
+                            final Number value = getValueFromDataType(dataType, timeZone);
+                            values.add(value);
                         }
                     }
                     if (cal != null) {
@@ -153,7 +165,9 @@ public class DLMSProfileIntervals extends Array {
                             // we add all the statuses on the 'main' profileStatus
                             profileStatus |= profileStatusBits.getEisStatusCode(element.getDataType(d).intValue());
                         } else if (isChannelIndex(d)) {
-                            values.add(element.getDataType(d).intValue());
+                            final AbstractDataType dataType = element.getDataType(d);
+                            final Number value = getValueFromDataType(dataType, timeZone);
+                            values.add(value);
                         }
                     }
 
@@ -173,7 +187,26 @@ public class DLMSProfileIntervals extends Array {
         return intervalList;
     }
 
-     /**
+    /**
+     * Get the numerical value of a given data type.
+     *
+     * @param dataType The data type to get the value from
+     * @param tz       The timezone to use if there are dates involved
+     * @return The numerical value of the data type
+     */
+    private final Number getValueFromDataType(AbstractDataType dataType, TimeZone tz) {
+        if ((dataType instanceof OctetString) && (dataType.getOctetString() != null)) {
+            final DateTime dateTime = dataType.getOctetString().getDateTime(tz);
+            if (dateTime == null) {
+                return dataType.intValue();
+            } else {
+                return dateTime.getValue().getTimeInMillis();
+            }
+        }
+        return dataType.intValue();
+    }
+
+    /**
      * Construct the calendar depending on the type of the dataType
      *
      * @param cal      the working Calender in the parser

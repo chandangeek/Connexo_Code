@@ -9,9 +9,11 @@ import com.energyict.obis.ObisCode;
  */
 public enum ExtendedRegisterAttributes implements DLMSClassAttributes {
 
-    Logical_Name(1, 0x00),
-    Register_Value(2, 0x08),
-    Register_Unit(3, 0x10);
+    LOGICAL_NAME(1, 0x00),
+    VALUE(2, 0x08),
+    UNIT(3, 0x10),
+    STATUS(4, 0x18),
+    CAPTURE_TIME(5, 0x20);
 
     private final int attributeNumber;
     private final int shortName;

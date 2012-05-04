@@ -10,9 +10,15 @@ import com.energyict.obis.ObisCode;
  */
 public enum DemandRegisterAttributes implements DLMSClassAttributes {
 
-    Logical_Name(1, 0x00),
-    Register_Value(2, 0x08),
-    Register_Unit(4, 0x18);
+    LOGICAL_NAME(1, 0x00),
+    CURRENT_AVG_VALUE(2, 0x08),
+    LAST_AVG_VALUE(3, 0x10),
+    UNIT(4, 0x18),
+    STATUS(5, 0x20),
+    CAPTURE_TIME(6, 0x28),
+    START_TIME_CURRENT(7, 0x30),
+    PERIOD(8, 0x38),
+    NUMBER_OF_PERIODS(9, 0x40);
 
     private final int attributeNumber;
     private final int shortName;

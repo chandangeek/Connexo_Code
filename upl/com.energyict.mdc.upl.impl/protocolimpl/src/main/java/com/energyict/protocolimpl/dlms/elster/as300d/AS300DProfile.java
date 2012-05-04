@@ -7,6 +7,8 @@ import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
+import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.profile.ApolloProfileIntervalStatusBits;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
@@ -108,13 +110,28 @@ public class AS300DProfile {
     private Unit getUnit(CapturedObject capturedObject) throws IOException {
         ObisCode obis = capturedObject.getObisCode();
         DLMSClassId classId = DLMSClassId.findById(capturedObject.getClassId());
+        final int attr = capturedObject.getAttributeIndex();
         switch (classId) {
             case REGISTER:
                 return session.getCosemObjectFactory().getRegister(obis).getScalerUnit().getEisUnit();
-            case EXTENDED_REGISTER:
-                return session.getCosemObjectFactory().getExtendedRegister(obis).getScalerUnit().getEisUnit();
-            case DEMAND_REGISTER:
-                return session.getCosemObjectFactory().getDemandRegister(obis).getScalerUnit().getEisUnit();
+            case EXTENDED_REGISTER: {
+                if (attr == ExtendedRegisterAttributes.VALUE.getAttributeNumber()) {
+                    return session.getCosemObjectFactory().getExtendedRegister(obis).getScalerUnit().getEisUnit();
+                } else if (attr == ExtendedRegisterAttributes.CAPTURE_TIME.getAttributeNumber()) {
+                    return Unit.get("ms");
+                }
+                return Unit.getUndefined();
+            }
+            case DEMAND_REGISTER: {
+                if (attr == DemandRegisterAttributes.CURRENT_AVG_VALUE.getAttributeNumber()) {
+                    return session.getCosemObjectFactory().getDemandRegister(obis).getScalerUnit().getEisUnit();
+                } else if (attr == DemandRegisterAttributes.LAST_AVG_VALUE.getAttributeNumber()) {
+                    return session.getCosemObjectFactory().getDemandRegister(obis).getScalerUnit().getEisUnit();
+                } else if (attr == DemandRegisterAttributes.LAST_AVG_VALUE.getAttributeNumber()) {
+                    return Unit.get("ms");
+                }
+                return Unit.getUndefined();
+            }
             default:
                 return Unit.getUndefined();
         }

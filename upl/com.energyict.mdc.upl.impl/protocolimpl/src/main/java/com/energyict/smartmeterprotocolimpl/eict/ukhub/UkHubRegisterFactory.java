@@ -163,8 +163,8 @@ public class UkHubRegisterFactory implements BulkRegisterProtocol {
 
                         // All Demand registers will be supported
                     } else if (uo.getClassID() == DLMSClassId.DEMAND_REGISTER.getClassId()) {
-                        ComposedRegister composedRegister = new ComposedRegister(new DLMSAttribute(rObisCode, DemandRegisterAttributes.Register_Value.getAttributeNumber(), uo.getClassID()),
-                                new DLMSAttribute(rObisCode, DemandRegisterAttributes.Register_Unit.getAttributeNumber(), uo.getClassID()));
+                        ComposedRegister composedRegister = new ComposedRegister(new DLMSAttribute(rObisCode, DemandRegisterAttributes.CURRENT_AVG_VALUE.getAttributeNumber(), uo.getClassID()),
+                                new DLMSAttribute(rObisCode, DemandRegisterAttributes.UNIT.getAttributeNumber(), uo.getClassID()));
                         dlmsAttributes.add(composedRegister.getRegisterValueAttribute());
                         dlmsAttributes.add(composedRegister.getRegisterUnitAttribute());
                         this.composedRegisterMap.put(register, composedRegister);

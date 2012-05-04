@@ -3,14 +3,20 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.registers;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.cosem.attributes.*;
+import com.energyict.dlms.cosem.attributes.DataAttributes;
+import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
+import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
+import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.Register;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ObisCodeProvider;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Copyrights EnergyICT
@@ -40,8 +46,8 @@ public class ObisCodeMapper {
         ABSTRACT_REGISTER.put(ObisCodeProvider.REG_GAS_VOLUME_TOU_8, new DLMSAttribute(ObisCodeProvider.REG_GAS_VOLUME_TOU_8, RegisterAttributes.Register_Value));
 
         ABSTRACT_REGISTER.put(ObisCodeProvider.REG_PROFILE_DEMAND, new DLMSAttribute(ObisCodeProvider.REG_PROFILE_DEMAND, RegisterAttributes.Register_Value));
-        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_DEMAND_TOTAL, new DLMSAttribute(ObisCodeProvider.REG_DEMAND_TOTAL, DemandRegisterAttributes.Register_Value));
-        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_MAXIMUM_DEMAND_ENERGY_IMPORT, new DLMSAttribute(ObisCodeProvider.REG_MAXIMUM_DEMAND_ENERGY_IMPORT, ExtendedRegisterAttributes.Register_Value));
+        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_DEMAND_TOTAL, new DLMSAttribute(ObisCodeProvider.REG_DEMAND_TOTAL, DemandRegisterAttributes.CURRENT_AVG_VALUE));
+        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_MAXIMUM_DEMAND_ENERGY_IMPORT, new DLMSAttribute(ObisCodeProvider.REG_MAXIMUM_DEMAND_ENERGY_IMPORT, ExtendedRegisterAttributes.VALUE));
 
         ABSTRACT_REGISTER.put(ObisCodeProvider.DeviceId9, new DLMSAttribute(ObisCodeProvider.DeviceId9, DataAttributes.VALUE));
         ABSTRACT_REGISTER.put(ObisCodeProvider.DeviceId50, new DLMSAttribute(ObisCodeProvider.DeviceId50, DataAttributes.VALUE));
