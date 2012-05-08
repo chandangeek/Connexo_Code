@@ -483,10 +483,10 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
      */
     public String getSerialNumberFromPhysicalAddress(int physicalAddress) throws IOException {
         for (MbusDevice mbusDevice : messageProtocol.getMbusDevices()) {
-            if (mbusDevice.getPhysicalAddress() == physicalAddress) {
+            if ((mbusDevice != null) && (mbusDevice.getPhysicalAddress() == physicalAddress)) {
                 return mbusDevice.getCustomerID();
             }
         }
-        throw new IOException("No slave device with physical address " + physicalAddress + " attached!");
+        return null;
     }
 }

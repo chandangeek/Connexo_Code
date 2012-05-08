@@ -134,9 +134,11 @@ public class LoadProfileBuilder {
         //2. No match found --> this obiscode belongs to a Mbus slave meter. Based on the physical address, we can retrieve the serial number of the slave.
         int physicalAddress = registerObisCode.getB() - 1;
         String serialNumberFromPhysicalAddress = meterProtocol.getSerialNumberFromPhysicalAddress(physicalAddress);
-        for (ChannelInfo channelInfo : channelInfos) {
-            if (channelInfo.getMeterIdentifier().equals(serialNumberFromPhysicalAddress)) {
+        if (serialNumberFromPhysicalAddress != null) {
+            for (ChannelInfo channelInfo : channelInfos) {
+                if (channelInfo.getMeterIdentifier().equals(serialNumberFromPhysicalAddress)) {
                 return new Register(-1, registerObisCode, serialNumberFromPhysicalAddress); // Construct register with obiscode B-field 'x'.
+                }
             }
         }
         return null;
