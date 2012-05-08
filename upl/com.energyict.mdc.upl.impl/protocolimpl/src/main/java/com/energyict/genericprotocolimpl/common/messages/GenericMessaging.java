@@ -264,7 +264,7 @@ public abstract class GenericMessaging implements Messaging {
 	/**
 	 * Creates a message without a value, <b>meterReset</b> must be handled after this
 	 * message
-	 * 
+	 *
 	 * @return a category with one MessageSpec for globalMeterReset functionality
 	 */
 	public MessageCategorySpec getGlobalResetCategory() {
@@ -276,6 +276,35 @@ public abstract class GenericMessaging implements Messaging {
 		catGlobalDisc.addMessageSpec(msgSpec);
 		return catGlobalDisc;
 	}
+
+	/**
+     * Creates a message without a value,
+     *
+     * @return a category with one MessageSpec for webserverEnable functionality
+     */
+    public MessageCategorySpec getWebserverCategory() {
+        MessageCategorySpec catWebserver = new MessageCategorySpec(
+                RtuMessageCategoryConstants.WEBSERVER);
+        MessageSpec msgSpec = addNoValueMsg(
+                RtuMessageKeyIdConstants.WEBSERVER_DISABLE,
+                RtuMessageConstant.WEBSERVER_DISABLE, false);
+        catWebserver.addMessageSpec(msgSpec);
+        msgSpec = addNoValueMsg(
+                RtuMessageKeyIdConstants.WEBSERVER_ENABLE,
+                RtuMessageConstant.WEBSERVER_ENABLE, false);
+        catWebserver.addMessageSpec(msgSpec);
+        return catWebserver;
+    }
+
+    public MessageCategorySpec getRebootCategory() {
+        MessageCategorySpec catReboot = new MessageCategorySpec(
+                RtuMessageCategoryConstants.REBOOT);
+        MessageSpec msgSpec = addNoValueMsg(
+                RtuMessageKeyIdConstants.REBOOT,
+                RtuMessageConstant.REBOOT, false);
+        catReboot.addMessageSpec(msgSpec);
+        return catReboot;
+    }
 
 	/**
 	 * Create one message to set <b>phoneNumbers to the whiteList</b>

@@ -149,6 +149,8 @@ public class RtuMessageConstant {
      */
     public static final String XMLCONFIG = "XMLConfig";
 
+    public static final String USE_EXTERNAL_ANTENNA = "Use_external_antenna";
+
     /**
      * RtuMessage tags for P1 port messages
      */
@@ -224,6 +226,13 @@ public class RtuMessageConstant {
      * RtuMessage tags for GlobalMeterReset
      */
     public static final String GLOBAL_METER_RESET = "Global_Meter_Reset";
+
+    /**
+     * RtuMessage tags for Webserver activate/deactivate
+     */
+    public static final String WEBSERVER_ENABLE = "Enable_Webserver";
+    public static final String WEBSERVER_DISABLE = "Disable_Webserver";
+    public static final String REBOOT = "Reboot";
 
     /**
      * RtuMessage tags for Corrected/UnCorrected values in Gas profile

@@ -150,6 +150,13 @@ public class ProtocolMessageSpecifications {
         return msgSpec;
     }
 
+    public static MessageSpec getAntennaInUseSpecification() {
+        MessageSpec msgSpec = addDefaultValueMsg(
+                RtuMessageKeyIdConstants.USE_EXTERNAL_ANTENNA,
+                RtuMessageConstant.USE_EXTERNAL_ANTENNA, false);
+        return msgSpec;
+    }
+
     /**
      * Creates a MessageSpecification for updating the Pricing Information message
      *
@@ -202,4 +209,21 @@ public class ProtocolMessageSpecifications {
         msgSpec.add(tagSpec);
         return msgSpec;
     }
+
+    /**
+	 * Creates a MessageSpec to add one value to the message
+	 * @param keyId - id for the MessageSpec
+	 * @param tagName - name for the MessageSpec
+	 * @param advanced - indicates whether it's an advanced message or not
+	 * @return the newly created MessageSpec
+	 */
+	public static MessageSpec addDefaultValueMsg(String keyId, String tagName,
+			boolean advanced) {
+		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+		MessageValueSpec msgVal = new MessageValueSpec();
+		tagSpec.add(msgVal);
+		msgSpec.add(tagSpec);
+		return msgSpec;
+	}
 }

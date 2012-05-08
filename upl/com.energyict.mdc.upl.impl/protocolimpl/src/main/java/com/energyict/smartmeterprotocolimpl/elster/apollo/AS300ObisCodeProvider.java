@@ -30,6 +30,7 @@ public class AS300ObisCodeProvider implements CommonObisCodeProvider {
     public static final ObisCode AssociationLnExtDataCollectionClient = ObisCode.fromString("0.0.40.0.3.255");
     public static final ObisCode AssociationLnManagementClient = ObisCode.fromString("0.0.40.0.4.255");
     public static final ObisCode AssociationLnFirmwareClient = ObisCode.fromString("0.0.40.0.5.255");
+    public static final ObisCode AssociationLnManufactureClient = ObisCode.fromString("0.0.40.0.0.255");
     public static final ObisCode FirmwareVersionObisCode = ObisCode.fromString("1.0.0.2.0.255");
     public static final ObisCode MIDCheckSumObisCode = ObisCode.fromString("1.0.0.2.8.255");
     public static final ObisCode FormerFirmwareVersionObisCode = ObisCode.fromString("1.0.0.1.0.255");
@@ -42,6 +43,7 @@ public class AS300ObisCodeProvider implements CommonObisCodeProvider {
     public static final ObisCode FrameCounterExtDataCollectionClient = ObisCode.fromString("0.0.43.1.3.255");
     public static final ObisCode FrameCounterManagementClient = ObisCode.fromString("0.0.43.1.4.255");
     public static final ObisCode FrameCounterFirmwareClient = ObisCode.fromString("0.0.43.1.5.255");
+    public static final ObisCode FrameCounterManufactureClient = ObisCode.fromString("0.0.43.1.255.255");
 
     public static final ObisCode clockShiftEventLimit = ObisCode.fromString("1.0.0.9.11.255");
     public static final ObisCode clockShiftInvalidLimit = ObisCode.fromString("1.1.94.34.1.255");

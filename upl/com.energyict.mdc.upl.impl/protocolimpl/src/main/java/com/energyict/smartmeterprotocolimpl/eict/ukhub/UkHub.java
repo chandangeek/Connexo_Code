@@ -6,6 +6,7 @@ import com.energyict.dialer.core.Link;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
@@ -43,6 +44,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      */
     private UkHubRegisterFactory registerFactory = null;
     private UkHubEventProfiles ukHubEventProfiles = null;
+    private boolean reboot = false;
 
     /**
      * Getter for the MessageProtocol implementation
@@ -340,6 +342,22 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
 
     public void disConnect() throws IOException {
         super.disconnect();
+    }
+
+    /**
+     * Disconnect from the physical device.
+     * Close the association and check if we need to close the underlying connection
+     */
+    public void disconnect() throws IOException {
+        if (reboot) {
+            getCosemObjectFactory().getGenericInvoke(ObisCodeProvider.REBOOT_OBISCODE, DLMSClassId.SCRIPT_TABLE.getClassId(), 1).invoke();
+        } else {
+            getDlmsSession().disconnect();
+        }
+    }
+
+    public void setReboot(boolean reboot) {
+        this.reboot = reboot;
     }
 
     public DLMSMeterConfig getMeterConfig() {

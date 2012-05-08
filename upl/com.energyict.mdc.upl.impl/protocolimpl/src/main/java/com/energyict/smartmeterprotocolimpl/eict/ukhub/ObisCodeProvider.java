@@ -19,6 +19,8 @@ public class ObisCodeProvider {
     public static final ObisCode COMM_FAILURE_EVENT_LOG = ObisCode.fromString("0.0.99.98.6.255");
     public static final ObisCode HAN_MANAGEMENT_FAILURE_EVENT_LOG = ObisCode.fromString("0.0.99.98.15.255");
 
+    public static final ObisCode REBOOT_OBISCODE = ObisCode.fromString("0.0.10.0.0.255");
+
     public static final ObisCode HanManagementEventObject = ObisCode.fromString("0.0.96.11.15.255");
 
     public static final ObisCode FIRMWARE_UPDATE = ObisCode.fromString("0.0.44.0.0.255");

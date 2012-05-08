@@ -2,8 +2,8 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.messages.*;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,6 +31,8 @@ public class UkHubMessaging extends GenericMessaging implements MessageProtocol 
         categories.add(ProtocolMessageCategories.getHanManagementCategory());
         categories.add(getTestCategory());
         categories.add(getXmlConfigCategory());
+        categories.add(getWebserverCategory());
+        categories.add(getRebootCategory());
         return categories;
     }
 

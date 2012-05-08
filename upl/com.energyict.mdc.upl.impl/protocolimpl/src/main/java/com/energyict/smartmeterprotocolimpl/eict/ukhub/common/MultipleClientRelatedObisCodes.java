@@ -12,7 +12,7 @@ public enum MultipleClientRelatedObisCodes {
     /**
      * The current_client
      */
-    CURRENT_CLIENT(0, AS300ObisCodeProvider.AssociationLnCurrentClient, AS300ObisCodeProvider.FrameCounterPublicClient),
+    MANUFACTURING_CLIENT(0, AS300ObisCodeProvider.AssociationLnManufactureClient, AS300ObisCodeProvider.FrameCounterManufactureClient),
     /**
     * The public client has limited read access
     */

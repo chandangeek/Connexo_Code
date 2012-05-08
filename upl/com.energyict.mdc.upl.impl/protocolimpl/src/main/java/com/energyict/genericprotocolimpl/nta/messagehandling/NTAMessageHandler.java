@@ -23,6 +23,14 @@ public class NTAMessageHandler extends MessageHandler {
             setType(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_ENCRYPTION_KEY);
         } else if (RtuMessageConstant.RESET_ALARM_REGISTER.equals(qName)) {
             setType(RtuMessageConstant.RESET_ALARM_REGISTER);
+        } else if (RtuMessageConstant.WEBSERVER_DISABLE.equals(qName)) {
+            setType(RtuMessageConstant.WEBSERVER_DISABLE);
+        } else if (RtuMessageConstant.WEBSERVER_ENABLE.equals(qName)) {
+            setType(RtuMessageConstant.WEBSERVER_ENABLE);
+        } else if (RtuMessageConstant.USE_EXTERNAL_ANTENNA.equals(qName)) {
+            setType(RtuMessageConstant.USE_EXTERNAL_ANTENNA);
+        } else if (RtuMessageConstant.REBOOT.equals(qName)) {
+            setType(RtuMessageConstant.REBOOT);
         } else {
             super.startElement(uri, lName, qName, attrbs);
         }

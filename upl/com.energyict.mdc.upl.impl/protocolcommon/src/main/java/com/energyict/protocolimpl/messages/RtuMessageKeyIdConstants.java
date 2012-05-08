@@ -47,6 +47,7 @@ public class RtuMessageKeyIdConstants {
     public static final String SMS_CHANGE_SMSC = "Change SMS Center number";
     public static final String CHANGE_DEVICE_PHONE_NUMBER = "Change device phone number";
     public static final String DEMANDRESET = "Demand Reset";
+    public static final String USE_EXTERNAL_ANTENNA = "Use external antenna";
 
     // changed the naming of certain messages for Enexis
     public static final String NTA_CHANGEDATATRANSPORTENCRYPTIONKEY = "Change DataTransportEncryptionKey";
@@ -65,6 +66,9 @@ public class RtuMessageKeyIdConstants {
     public static final String UPDATE_PRICING_INFORMATION = "Update Pricing Information";
     public static final String CHANGE_OF_TENANT = "Change Of Tenant";
     public static final String CHANGE_OF_SUPPLIER = "Change Of Supplier";
+    public static final String WEBSERVER_ENABLE = "Enable webserver";
+    public static final String WEBSERVER_DISABLE = "Disable webserver";
+    public static final String REBOOT = "Reboot device";
 
     public static final String CHANGE_ADMINISTRATIVE_STATUS = "Change Administrative status";
 
