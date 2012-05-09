@@ -1,66 +1,24 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging;
 
-import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.cbo.*;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.cosem.ActivityCalendar;
-import com.energyict.dlms.cosem.AutoConnect;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.PPPSetup;
-import com.energyict.dlms.cosem.SpecialDaysTable;
-import com.energyict.dlms.cosem.TCPUDPSetup;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.tou.ActivityCalendarReader;
 import com.energyict.genericprotocolimpl.common.tou.CosemActivityCalendarBuilder;
-import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.Folder;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.core.RtuType;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterData;
-import com.energyict.protocol.MeterDataMessageResult;
-import com.energyict.protocol.MeterReadingData;
-import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.*;
 import com.energyict.protocol.Register;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.WakeUpProtocolSupport;
-import com.energyict.protocol.messaging.LoadProfileRegisterMessageBuilder;
-import com.energyict.protocol.messaging.LoadProfileRegisterMessaging;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValueSpec;
-import com.energyict.protocol.messaging.PartialLoadProfileMessageBuilder;
-import com.energyict.protocol.messaging.PartialLoadProfileMessaging;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
-import com.energyict.protocolimpl.messages.ProtocolMessages;
-import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
-import com.energyict.protocolimpl.messages.RtuMessageConstant;
-import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
+import com.energyict.protocolimpl.messages.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMX372Properties;
-import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372;
-import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.MbusDevice;
+import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.*;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.csd.CSDCall;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.csd.CSDCaller;
 import org.xml.sax.SAXException;
@@ -70,12 +28,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -85,7 +38,7 @@ import java.util.logging.Logger;
  * Date: 20/01/12
  * Time: 11:19
  */
-public class IskraMx372Messaging extends ProtocolMessages implements PartialLoadProfileMessaging, LoadProfileRegisterMessaging, WakeUpProtocolSupport{
+public class IskraMx372Messaging extends ProtocolMessages implements PartialLoadProfileMessaging, LoadProfileRegisterMessaging, WakeUpProtocolSupport {
 
     private IskraMx372 protocol;
     private Rtu rtu;
@@ -107,7 +60,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
     public static final int MBUS_MAX = 0x04;
 
     private MbusDevice[] mbusDevices = {null, null, null, null};                // max. 4 MBus meters
-     private ObisCode[] mbusPrimaryAddress = {ObisCode.fromString("0.1.128.50.20.255"),
+    private ObisCode[] mbusPrimaryAddress = {ObisCode.fromString("0.1.128.50.20.255"),
             ObisCode.fromString("0.2.128.50.20.255"),
             ObisCode.fromString("0.3.128.50.20.255"),
             ObisCode.fromString("0.4.128.50.20.255")};
@@ -132,7 +85,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
     private byte[] crMeterGroupIDMsg = new byte[]{AxdrType.LONG_UNSIGNED.getTag(), 0, 0};
     private byte[] crGroupIDMsg = new byte[]{AxdrType.LONG_UNSIGNED.getTag(), 0, 0};
 
-     /**
+    /**
      * The maximum allowed number of phoneNumbers to make a CSD call to the device
      */
     private static final int maxNumbersCSDWhiteList = 8;
@@ -140,7 +93,6 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
      * The maximum allowed number of managed calls to be put in the whiteList
      */
     private static final int maxNumbersManagedWhiteList = 8;
-
 
 
     public IskraMx372Messaging(IskraMx372 protocol) {
@@ -218,7 +170,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
     private MessageCategorySpec getBasicMessagesCategory() {
         MessageCategorySpec catBasicMessages = new MessageCategorySpec(RtuMessageCategoryConstants.BASICMESSAGES_DESCRIPTION);
         catBasicMessages.addMessageSpec(addMsgWithAttributes("Change GPRS Modem credentials", RtuMessageConstant.GPRS_MODEM_CREDENTIALS, false, false, RtuMessageConstant.GPRS_USERNAME, RtuMessageConstant.GPRS_PASSWORD));
-        catBasicMessages.addMessageSpec(addMsgWithTags("Change GPRS Modem setup",false, RtuMessageConstant.GPRS_APN, RtuMessageConstant.GPRS_USERNAME, RtuMessageConstant.GPRS_PASSWORD));
+        catBasicMessages.addMessageSpec(addMsgWithTags("Change GPRS Modem setup", false, RtuMessageConstant.GPRS_APN, RtuMessageConstant.GPRS_USERNAME, RtuMessageConstant.GPRS_PASSWORD));
         catBasicMessages.addMessageSpec(addMsgWithAttributes("Connect meter", RtuMessageConstant.CONNECT_LOAD, false, false));
         catBasicMessages.addMessageSpec(addMessageWithValue("Connect Control mode", RtuMessageConstant.CONNECT_MODE, false));
         catBasicMessages.addMessageSpec(addBasicMsg("Disconnect meter", RtuMessageConstant.DISCONNECT_LOAD, false));
@@ -251,11 +203,11 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
         return catWakeUp;
     }
 
-   private MessageCategorySpec getFirmwareCategory() {
-       MessageCategorySpec catFirmware = new MessageCategorySpec(RtuMessageCategoryConstants.FIRMWARE);
-       catFirmware.addMessageSpec(addMessageWithValue("Upgrade Firmware", RtuMessageConstant.FIRMWARE, false));
-       return catFirmware;
-   }
+    private MessageCategorySpec getFirmwareCategory() {
+        MessageCategorySpec catFirmware = new MessageCategorySpec(RtuMessageCategoryConstants.FIRMWARE);
+        catFirmware.addMessageSpec(addMessageWithValue("Upgrade Firmware", RtuMessageConstant.FIRMWARE, false));
+        return catFirmware;
+    }
 
     private MessageSpec addMsgWithPhoneNumbers(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
@@ -302,114 +254,100 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
             IskraMx372MbusMessageExecutor mbusMessageExecutor = new IskraMx372MbusMessageExecutor(protocol);
             return mbusMessageExecutor.queryMessage(messageEntry);
         } else {
+            MessageResult msgResult = null;
             try {
                 if (isItThisMessage(messageEntry, RtuMessageConstant.AEE_CHANGE_LLS_SECRET)) {
-                    infoLog("Sending Change_LLS_Secret message for meter with serialnumber: "+messageEntry.getSerialNumber());
+                    infoLog("Sending Change_LLS_Secret message for meter with serialnumber: " + messageEntry.getSerialNumber());
                     changeLLSSecret();
                     infoLog("Change_LLS_Secret message successful.");
-                    return MessageResult.createSuccess(messageEntry);
                 } else if (isItThisMessage(messageEntry, RtuMessageConstant.GPRS_MODEM_CREDENTIALS)) {
-                    infoLog("Sending GPRS_modem_credentials message for meter with serialnumber: "+messageEntry.getSerialNumber());
+                    infoLog("Sending GPRS_modem_credentials message for meter with serialnumber: " + messageEntry.getSerialNumber());
                     changeGprsCredentials(messageEntry);
                     infoLog("GPRS_modem_credentials successful.");
-                    return MessageResult.createSuccess(messageEntry);
                 } else if (isItThisMessage(messageEntry, RtuMessageConstant.GPRS_APN) || isItThisMessage(messageEntry, RtuMessageConstant.GPRS_USERNAME) || isItThisMessage(messageEntry, RtuMessageConstant.GPRS_PASSWORD)) {
-                    infoLog("Sending GPRS_modem_setup message for meter with serialnumber: "+messageEntry.getSerialNumber());
+                    infoLog("Sending GPRS_modem_setup message for meter with serialnumber: " + messageEntry.getSerialNumber());
                     changeGprsSetup(messageEntry);
                     infoLog("GPRS_modem_setup message successful.");
-                    return MessageResult.createSuccess(messageEntry);
                 } else if (isItThisMessage(messageEntry, RtuMessageConstant.DISCONNECT_LOAD)) {
-                    infoLog("Sending disconnectLoad message for meter with serialnumber: "+messageEntry.getSerialNumber());;
+                    infoLog("Sending disconnectLoad message for meter with serialnumber: " + messageEntry.getSerialNumber());
                     connectDisconnectDevice(messageEntry, false);
                     infoLog("DisconnectLoad message successful.");
-                    return MessageResult.createSuccess(messageEntry);
                 } else if (isItThisMessage(messageEntry, RtuMessageConstant.CONNECT_LOAD)) {
-                    infoLog("Sending connectLoad message for meter with serialnumber: "+messageEntry.getSerialNumber());
+                    infoLog("Sending connectLoad message for meter with serialnumber: " + messageEntry.getSerialNumber());
                     connectDisconnectDevice(messageEntry, true);
                     infoLog("ConnectLoad message successful.");
-                    return MessageResult.createSuccess(messageEntry);
                 } else if (isItThisMessage(messageEntry, RtuMessageConstant.CONNECT_MODE)) {
-                    infoLog("Sending Connect_control_mode message for meter with serialnumber: "+messageEntry.getSerialNumber());
+                    infoLog("Sending Connect_control_mode message for meter with serialnumber: " + messageEntry.getSerialNumber());
                     changeConnectorMode(messageEntry);
                     infoLog("Connect_control_mode message successful.");
-                    return MessageResult.createSuccess(messageEntry);
                 } else if (isItThisMessage(messageEntry, RtuMessageConstant.TOU_SCHEDULE)) {
-                    infoLog("Sending SetNewTariffProgram message for meter with serialnumber: "+messageEntry.getSerialNumber());
+                    infoLog("Sending SetNewTariffProgram message for meter with serialnumber: " + messageEntry.getSerialNumber());
                     sendActivityCalendar(messageEntry);
                     infoLog("SetNewTariffProgram message successful.");
-                    return MessageResult.createSuccess(messageEntry);
                 } else if (isItThisMessage(messageEntry, RtuMessageConstant.THRESHOLD_GROUPID) ||
                         isItThisMessage(messageEntry, RtuMessageConstant.THRESHOLD_STARTDT) || isItThisMessage(messageEntry, RtuMessageConstant.THRESHOLD_STOPDT)) {
-                    infoLog("Sending ApplyLoadLimiting message for meter with serialnumber: "+messageEntry.getSerialNumber());
+                    infoLog("Sending ApplyLoadLimiting message for meter with serialnumber: " + messageEntry.getSerialNumber());
                     applyLoadLimit(messageEntry);
                     infoLog("ApplyLoadLimiting message successful.");
-                    return MessageResult.createSuccess(messageEntry);
                 } else if (isItThisMessage(messageEntry, RtuMessageConstant.CLEAR_THRESHOLD)) {
-                    infoLog("Sending ClearLoadLimitConfiguration message for meter with serialnumber: "+messageEntry.getSerialNumber());
+                    infoLog("Sending ClearLoadLimitConfiguration message for meter with serialnumber: " + messageEntry.getSerialNumber());
                     clearLoadLimit(messageEntry);
                     infoLog("ClearLoadLimitConfiguration message successful.");
-                    return MessageResult.createSuccess(messageEntry);
                 } else if (isItThisMessage(messageEntry, RtuMessageConstant.PARAMETER_GROUPID)
                         || isItThisMessage(messageEntry, RtuMessageConstant.THRESHOLD_POWERLIMIT) || isItThisMessage(messageEntry, RtuMessageConstant.CONTRACT_POWERLIMIT)) {
-                    infoLog("Sending ConfigureLoadLimitParameters message for meter with serialnumber: "+messageEntry.getSerialNumber());
+                    infoLog("Sending ConfigureLoadLimitParameters message for meter with serialnumber: " + messageEntry.getSerialNumber());
                     configureLoadLimit(messageEntry);
                     infoLog("ConfigureLoadLimitParameters message successful.");
-                    return MessageResult.createSuccess(messageEntry);
                 } else if (isItThisMessage(messageEntry, RtuMessageConstant.MBUS_INSTALL)) {
-                    infoLog("Sending Mbus_Install message for meter with serialnumber: "+messageEntry.getSerialNumber());
-                    protocol.getCosemObjectFactory().getGenericInvoke(ObisCode.fromString("0.0.10.50.128.255"), 9, 1).invoke(new Unsigned16(0).getBEREncodedByteArray());
+                    infoLog("Sending Mbus_Install message for meter with serialnumber: " + messageEntry.getSerialNumber());
+                    protocol.getCosemObjectFactory().getGenericInvoke(ObisCode.fromString("0.0.10.50.128.255"), DLMSClassId.SCRIPT_TABLE.getClassId(), 1).invoke(new Unsigned16(0).getBEREncodedByteArray());
                     infoLog("Mbus_Install message successful.");
-                    return MessageResult.createSuccess(messageEntry);
                 } else if (isItThisMessage(messageEntry, RtuMessageConstant.MBUS_INSTALL_DATAREADOUT)) {
-                    infoLog("Sending Mbus_DataReadout message for meter with serialnumber: "+messageEntry.getSerialNumber());
-                    protocol.getCosemObjectFactory().getGenericInvoke(ObisCode.fromString("0.0.10.50.130.255"), 9, 1).invoke(new Unsigned16(0).getBEREncodedByteArray());
+                    infoLog("Sending Mbus_DataReadout message for meter with serialnumber: " + messageEntry.getSerialNumber());
+                    protocol.getCosemObjectFactory().getGenericInvoke(ObisCode.fromString("0.0.10.50.130.255"), DLMSClassId.SCRIPT_TABLE.getClassId(), 1).invoke(new Unsigned16(0).getBEREncodedByteArray());
                     checkMbusDevices();    // we do this to update the ConcentratorGateway
                     infoLog("Mbus_DataReadout message successful.");
-                    return MessageResult.createSuccess(messageEntry);
                 } else if (isItThisMessage(messageEntry, RtuMessageConstant.MBUS_REMOVE)) {
-                    infoLog("Sending Mbus_Remove message for meter with serialnumber: "+messageEntry.getSerialNumber());
-                    protocol.getCosemObjectFactory().getGenericInvoke(ObisCode.fromString("0.0.10.50.129.255"), 9, 1).invoke(new Unsigned16(0).getBEREncodedByteArray());
+                    infoLog("Sending Mbus_Remove message for meter with serialnumber: " + messageEntry.getSerialNumber());
+                    protocol.getCosemObjectFactory().getGenericInvoke(ObisCode.fromString("0.0.10.50.129.255"), DLMSClassId.SCRIPT_TABLE.getClassId(), 1).invoke(new Unsigned16(0).getBEREncodedByteArray());
                     clearMbusGateWays();
                     infoLog("Mbus_Remove message successful.");
-                    return MessageResult.createSuccess(messageEntry);
                 } else if (isItThisMessage(messageEntry, RtuMessageConstant.WAKEUP_ACTIVATE)) {
-                    infoLog("Sending Activate_the_wakeup_mechanism message for meter with serialnumber: "+messageEntry.getSerialNumber());
+                    infoLog("Sending Activate_the_wakeup_mechanism message for meter with serialnumber: " + messageEntry.getSerialNumber());
                     activateWakeUp();
                     infoLog("Activate_the_wakeup_mechanism message successful.");
-                    return MessageResult.createSuccess(messageEntry);
                 } else if (isItThisMessage(messageEntry, RtuMessageConstant.WAKEUP_INACT_TIMEOUT)) {
-                    infoLog("Sending WakeUp_Inactivity_timeout message for meter with serialnumber: "+messageEntry.getSerialNumber());
+                    infoLog("Sending WakeUp_Inactivity_timeout message for meter with serialnumber: " + messageEntry.getSerialNumber());
                     changeWakeUpInactivityTimeOut(messageEntry);
                     infoLog("WakeUp_Inactivity_timeout message successful.");
-                    return MessageResult.createSuccess(messageEntry);
                 } else if (isItThisMessage(messageEntry, RtuMessageConstant.WAKEUP_MANAGED_NR)) {
-                    infoLog("Sending WakeUpAddManagedNumbers message for meter with serialnumber: "+messageEntry.getSerialNumber());
+                    infoLog("Sending WakeUpAddManagedNumbers message for meter with serialnumber: " + messageEntry.getSerialNumber());
                     addPhoneToManagedList(messageEntry);
                     infoLog("WakeUpAddManagedNumbers message successful.");
-                    return MessageResult.createSuccess(messageEntry);
                 } else if (isItThisMessage(messageEntry, RtuMessageConstant.WAKEUP_NR)) {
-                    infoLog("Sending WakeUpAddNumbers message for meter with serialnumber: "+messageEntry.getSerialNumber());
+                    infoLog("Sending WakeUpAddNumbers message for meter with serialnumber: " + messageEntry.getSerialNumber());
                     addPhoneToWhiteList(messageEntry);
                     infoLog("WakeUpAddNumbers message successful.");
-                    return MessageResult.createSuccess(messageEntry);
-                } else if (isItThisMessage(messageEntry,  LoadProfileRegisterMessageBuilder.getMessageNodeTag())) {
-                    infoLog("Sending LoadProfileRegister message for meter with serialnumber: "+messageEntry.getSerialNumber());
-                    MessageResult messageResult = doReadLoadProfileRegisters(messageEntry);
-                    infoLog("LoadProfileRegister message successful.");
-                    return messageResult;
-                } else if (isItThisMessage(messageEntry,  PartialLoadProfileMessageBuilder.getMessageNodeTag()))  {
-                    infoLog("Sending PartialLoadProfile message. for meter with serialnumber: "+messageEntry.getSerialNumber());
-                    MessageResult messageResult = doReadPartialLoadProfile(messageEntry);
-                    infoLog("PartialLoadProfile message successful.");
-                    return messageResult;
+                } else if (isItThisMessage(messageEntry, LoadProfileRegisterMessageBuilder.getMessageNodeTag())) {
+                    infoLog("Sending LoadProfileRegister message for meter with serialnumber: " + messageEntry.getSerialNumber());
+                    msgResult = doReadLoadProfileRegisters(messageEntry);
+                } else if (isItThisMessage(messageEntry, PartialLoadProfileMessageBuilder.getMessageNodeTag())) {
+                    infoLog("Sending PartialLoadProfile message. for meter with serialnumber: " + messageEntry.getSerialNumber());
+                    msgResult = doReadPartialLoadProfile(messageEntry);
                 } else {
-                    infoLog("Unknown message received for meter with serialnumber: "+messageEntry.getSerialNumber());
-                    return MessageResult.createUnknown(messageEntry);
+                    msgResult = MessageResult.createFailed(messageEntry, "Message not supported by the protocol.");
+                }
+
+                if (msgResult == null) {
+                    msgResult = MessageResult.createSuccess(messageEntry);
+                } else if (msgResult.isFailed()) {
+                    protocol.getLogger().severe("Message failed : " + msgResult.getInfo());
                 }
             } catch (Exception e) {
-                infoLog("Message failed : " + e.getMessage());
+                msgResult = MessageResult.createFailed(messageEntry, e.getMessage());
+                protocol.getLogger().severe("Message failed : " + e.getMessage());
             }
-            return MessageResult.createFailed(messageEntry);
+            return msgResult;
         }
     }
 
@@ -474,14 +412,13 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
         return true;
     }
 
-
     /**
      * Log the given message to the logger with the INFO level
      *
      * @param messageToLog
      */
     private void infoLog(String messageToLog) {
-        ((IskraMx372) this.protocol).getLogger().info(messageToLog);
+        protocol.getLogger().info(messageToLog);
     }
 
     private String getMessageValue(String msgStr, String str) {
@@ -534,7 +471,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
                 authKeyData.setValueAttr(OctetString.fromString(newLLSSecret));
                 authKeyData = protocol.getCosemObjectFactory().getData(llsSecretObisCode1);
                 authKeyData.setValueAttr(OctetString.fromString(newLLSSecret));
-            } catch (Exception e) {
+            } catch (IOException e) {
                 throw new IOException("Could not write all the necessary LLS keys.");
             }
         }
@@ -552,13 +489,13 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
             pppat.setUserName(userName);
             pppat.setPassWord(pass);
             protocol.getCosemObjectFactory().getPPPSetup().writePPPAuthenticationType(pppat);
-        } catch (Exception e) {
-            throw new IOException(e.getMessage());
+        } catch (IOException e) {
+            throw new IOException("IOException while loading the PPPSetup - " + e.getMessage());
         }
     }
 
     private void changeGprsSetup(MessageEntry messageEntry) throws IOException {
-        String description = "Changing apn/username/password for meter with serialnumber: " + getProperties() .getSerialNumber();
+        String description = "Changing apn/username/password for meter with serialnumber: " + getProperties().getSerialNumber();
         try {
             infoLog(description);
             String apn = getMessageValue(messageEntry.getContent(), RtuMessageConstant.GPRS_APN);
@@ -575,8 +512,8 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
 
             protocol.getCosemObjectFactory().getPPPSetup().writePPPAuthenticationType(pppat);
             protocol.getCosemObjectFactory().getGPRSModemSetup().writeAPN(apn);
-        } catch (Exception e) {
-            throw new IOException(e.getMessage());
+        } catch (IOException e) {
+            throw new IOException("IOException while loading the PPPSetup or GPRSModemSetup - " + e.getMessage());
         }
     }
 
@@ -587,84 +524,86 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
         } else {
             infoLog("Sending disconnect message for meter with serialnumber: " + messageEntry.getSerialNumber());
         }
-        protocol.getCosemObjectFactory().writeObject(breakerObisCode, 1, 2, connect ? connectMsg : disconnectMsg);
-        List<Register> list = new ArrayList<Register>();
-        list.add(new Register(-1, breakerObisCode, messageEntry.getSerialNumber()));
+        try {
+            protocol.getCosemObjectFactory().writeObject(breakerObisCode, 1, 2, connect ? connectMsg : disconnectMsg);
+            List<Register> list = new ArrayList<Register>();
+            list.add(new Register(-1, breakerObisCode, messageEntry.getSerialNumber()));
 
-        breakerState = protocol.readRegisters(list).get(0).getQuantity().getAmount();
-         switch (breakerState.intValue()) {
-             case 0: {
-                 if (messageEntry.getContent().indexOf(RtuMessageConstant.DISCONNECT_LOAD) == -1) {
-                     throw new IOException();
-                 }
-             }
-             break;
+            breakerState = protocol.readRegisters(list).get(0).getQuantity().getAmount();
+        } catch (IOException e) {
+            throw new IOException("IOException while writing to/reading the breaker state - " + e.getMessage());
+        }
+        switch (breakerState.intValue()) {
+            case 0: {
+                if (messageEntry.getContent().indexOf(RtuMessageConstant.DISCONNECT_LOAD) == -1) {
+                    throw new IOException("Invalid breaker state, load is not disconnected.");
+                }
+            }
+            break;
 
-             case 1: {
-                 if (messageEntry.getContent().indexOf(RtuMessageConstant.CONNECT_LOAD) == -1) {
-                     throw new IOException();
-                 }
-             }
-             break;
+            case 1: {
+                if (messageEntry.getContent().indexOf(RtuMessageConstant.CONNECT_LOAD) == -1) {
+                    throw new IOException("Invalid breaker state, load is not connected.");
+                }
+            }
+            break;
 
-             default: {
-                 throw new IOException();
-             }
-         }
+            default: {
+                throw new IOException("Invalid breaker state.");
+            }
+        }
     }
 
-    private void changeConnectorMode(MessageEntry messageEntry) throws IOException {
+    private void changeConnectorMode(MessageEntry messageEntry) throws IOException, NumberFormatException {
         String description = "Changing the connectorMode for meter with serialnumber: " + messageEntry.getSerialNumber();
         infoLog(description);
         String mode = getMessageValue(messageEntry.getContent(), RtuMessageConstant.CONNECT_MODE);
-        if (ParseUtils.isInteger(mode)) {
+        try {
+            int iMode = Integer.parseInt(mode);
             Data dataMode = protocol.getCosemObjectFactory().getData(ObisCode.fromString("0.0.128.30.22.255"));
-            dataMode.setValueAttr(new Unsigned8(Integer.parseInt(mode)));
-        } else {
+            dataMode.setValueAttr(new Unsigned8(iMode));
+        } catch (NumberFormatException e) {
             throw new NumberFormatException("The connect control mode must be an integer value.");
+        } catch (IOException e) {
+            throw new IOException("IOException while setting the new connector mode - " + e.getMessage());
         }
     }
 
-    private void sendActivityCalendar(MessageEntry messageEntry) throws IOException{
+    private void sendActivityCalendar(MessageEntry messageEntry) throws IOException {
         infoLog("Sending new Tariff Program message to meter with serialnumber: " + messageEntry.getSerialNumber());
-        try {
-            UserFile userFile = getUserFile(messageEntry.getContent());
-            ActivityCalendar activityCalendar =
-                    protocol.getCosemObjectFactory().getActivityCalendar(ObisCode.fromString("0.0.13.0.0.255"));
+        UserFile userFile = getUserFile(messageEntry.getContent());
+        ActivityCalendar activityCalendar =
+                protocol.getCosemObjectFactory().getActivityCalendar(ObisCode.fromString("0.0.13.0.0.255"));
 
-            com.energyict.genericprotocolimpl.common.tou.ActivityCalendar calendarData =
-                    new com.energyict.genericprotocolimpl.common.tou.ActivityCalendar();
-            ActivityCalendarReader reader = new IskraActivityCalendarReader(calendarData, protocol.getTimeZone(), getRtuFromDatabaseBySerialNumber().getTimeZone());
-            calendarData.setReader(reader);
-            calendarData.read(new ByteArrayInputStream(userFile.loadFileInByteArray()));
-            CosemActivityCalendarBuilder builder = new
-                    CosemActivityCalendarBuilder(calendarData);
+        com.energyict.genericprotocolimpl.common.tou.ActivityCalendar calendarData =
+                new com.energyict.genericprotocolimpl.common.tou.ActivityCalendar();
+        ActivityCalendarReader reader = new IskraActivityCalendarReader(calendarData, protocol.getTimeZone(), getRtuFromDatabaseBySerialNumber().getTimeZone());
+        calendarData.setReader(reader);
+        calendarData.read(new ByteArrayInputStream(userFile.loadFileInByteArray()));
+        CosemActivityCalendarBuilder builder = new
+                CosemActivityCalendarBuilder(calendarData);
 
-            activityCalendar.writeCalendarNamePassive(builder.calendarNamePassive());
-            activityCalendar.writeSeasonProfilePassive(builder.seasonProfilePassive());
-            activityCalendar.writeWeekProfileTablePassive(builder.weekProfileTablePassive());
-            activityCalendar.writeDayProfileTablePassive(builder.dayProfileTablePassive());
-            if (calendarData.getActivatePassiveCalendarTime() != null) {
-                activityCalendar.writeActivatePassiveCalendarTime(builder.activatePassiveCalendarTime());
-            } else {
-                activityCalendar.activateNow();
-            }
-
-            // check if xml file contains special days
-            int newSpecialDays = calendarData.getSpecialDays().size();
-            if (newSpecialDays > 0) {
-                SpecialDaysTable specialDaysTable = protocol.getCosemObjectFactory().getSpecialDaysTable(ObisCode.fromString("0.0.11.0.0.255"));
-                // delete old special days
-                Array array = specialDaysTable.readSpecialDays();
-                int currentMaxSpecialDayIndex = array.nrOfDataTypes();
-                for (int i = newSpecialDays; i < currentMaxSpecialDayIndex; i++) {
-                    calendarData.addDummyDay(i);
-                }
-                specialDaysTable.writeSpecialDays(builder.specialDays());
-            }
+        activityCalendar.writeCalendarNamePassive(builder.calendarNamePassive());
+        activityCalendar.writeSeasonProfilePassive(builder.seasonProfilePassive());
+        activityCalendar.writeWeekProfileTablePassive(builder.weekProfileTablePassive());
+        activityCalendar.writeDayProfileTablePassive(builder.dayProfileTablePassive());
+        if (calendarData.getActivatePassiveCalendarTime() != null) {
+            activityCalendar.writeActivatePassiveCalendarTime(builder.activatePassiveCalendarTime());
+        } else {
+            activityCalendar.activateNow();
         }
-        catch (Exception e) {
-           throw new IOException(e.getMessage());
+
+        // check if xml file contains special days
+        int newSpecialDays = calendarData.getSpecialDays().size();
+        if (newSpecialDays > 0) {
+            SpecialDaysTable specialDaysTable = protocol.getCosemObjectFactory().getSpecialDaysTable(ObisCode.fromString("0.0.11.0.0.255"));
+            // delete old special days
+            Array array = specialDaysTable.readSpecialDays();
+            int currentMaxSpecialDayIndex = array.nrOfDataTypes();
+            for (int i = newSpecialDays; i < currentMaxSpecialDayIndex; i++) {
+                calendarData.addDummyDay(i);
+            }
+            specialDaysTable.writeSpecialDays(builder.specialDays());
         }
     }
 
@@ -684,59 +623,53 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
         String value = contents.substring(startIndex, endIndex);
         try {
             return Integer.parseInt(value);
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new IOException("Invalid userfile id: " + value);
         }
     }
 
-     private void applyLoadLimit(MessageEntry messageEntry) throws BusinessException, SQLException, IOException {
+    private void applyLoadLimit(MessageEntry messageEntry) throws BusinessException, SQLException, IOException {
         infoLog("Setting threshold value for meter with serialnumber: " + messageEntry.getSerialNumber());
-        try {
-            String groupID = getMessageValue(messageEntry.getContent(), RtuMessageConstant.THRESHOLD_GROUPID);
-            if (groupID.equalsIgnoreCase("")) {
-                throw new BusinessException("No groupID was entered.");
-            }
-            int grID = 0;
-
-            try {
-                grID = Integer.parseInt(groupID);
-                crGroupIDMsg[1] = (byte) (grID >> 8);
-                crGroupIDMsg[2] = (byte) grID;
-            } catch (NumberFormatException e) {
-                throw new BusinessException("Invalid groupID");
-            }
-
-            String startDate = "";
-            String stopDate = "";
-            Calendar startCal = null;
-            Calendar stopCal = null;
-
-            startDate = getMessageValue(messageEntry.getContent(), RtuMessageConstant.THRESHOLD_STARTDT);
-            stopDate = getMessageValue(messageEntry.getContent(), RtuMessageConstant.THRESHOLD_STOPDT);
-            startCal = (startDate.equalsIgnoreCase("")) ? Calendar.getInstance(protocol.getTimeZone()) : getCalendarFromString(startDate);
-            if (stopDate.equalsIgnoreCase("")) {
-                stopCal = Calendar.getInstance();
-                stopCal.setTime(startCal.getTime());
-                stopCal.add(Calendar.YEAR, 1);
-            } else {
-                stopCal = getCalendarFromString(stopDate);
-            }
-
-            long crDur = (Math.abs(stopCal.getTimeInMillis() - startCal.getTimeInMillis())) / 1000;
-            crDurationMsg[1] = (byte) (crDur >> 24);
-            crDurationMsg[2] = (byte) (crDur >> 16);
-            crDurationMsg[3] = (byte) (crDur >> 8);
-            crDurationMsg[4] = (byte) crDur;
-            byte[] byteDate = createByteDate(startCal);
-
-            protocol.getCosemObjectFactory().writeObject(crGroupID, 1, 2, crGroupIDMsg);
-            protocol.getCosemObjectFactory().writeObject(crStartDate, 1, 2, byteDate);
-            protocol.getCosemObjectFactory().writeObject(crDuration, 3, 2, crDurationMsg);
-
-        } catch (Exception e) {
-            throw new IOException(e.getMessage());
+        String groupID = getMessageValue(messageEntry.getContent(), RtuMessageConstant.THRESHOLD_GROUPID);
+        if (groupID.equalsIgnoreCase("")) {
+            throw new BusinessException("No groupID was entered.");
         }
+        int grID = 0;
+
+        try {
+            grID = Integer.parseInt(groupID);
+            crGroupIDMsg[1] = (byte) (grID >> 8);
+            crGroupIDMsg[2] = (byte) grID;
+        } catch (NumberFormatException e) {
+            throw new BusinessException("Invalid groupID");
+        }
+
+        String startDate = "";
+        String stopDate = "";
+        Calendar startCal = null;
+        Calendar stopCal = null;
+
+        startDate = getMessageValue(messageEntry.getContent(), RtuMessageConstant.THRESHOLD_STARTDT);
+        stopDate = getMessageValue(messageEntry.getContent(), RtuMessageConstant.THRESHOLD_STOPDT);
+        startCal = (startDate.equalsIgnoreCase("")) ? Calendar.getInstance(protocol.getTimeZone()) : getCalendarFromString(startDate);
+        if (stopDate.equalsIgnoreCase("")) {
+            stopCal = Calendar.getInstance();
+            stopCal.setTime(startCal.getTime());
+            stopCal.add(Calendar.YEAR, 1);
+        } else {
+            stopCal = getCalendarFromString(stopDate);
+        }
+
+        long crDur = (Math.abs(stopCal.getTimeInMillis() - startCal.getTimeInMillis())) / 1000;
+        crDurationMsg[1] = (byte) (crDur >> 24);
+        crDurationMsg[2] = (byte) (crDur >> 16);
+        crDurationMsg[3] = (byte) (crDur >> 8);
+        crDurationMsg[4] = (byte) crDur;
+        byte[] byteDate = createByteDate(startCal);
+
+        protocol.getCosemObjectFactory().writeObject(crGroupID, 1, 2, crGroupIDMsg);
+        protocol.getCosemObjectFactory().writeObject(crStartDate, 1, 2, byteDate);
+        protocol.getCosemObjectFactory().writeObject(crDuration, 3, 2, crDurationMsg);
     }
 
     private Calendar getCalendarFromString(String strDate) throws IOException {
@@ -751,11 +684,9 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
             cal.set(Calendar.SECOND, Integer.parseInt(strDate.substring(strDate.lastIndexOf(":") + 1, strDate.length())));
             cal.clear(Calendar.MILLISECOND);
             return cal;
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new IOException("Invalid dateTime format for the applyThreshold message.");
         }
-
     }
 
     private byte[] createByteDate(Calendar calendar) {
@@ -788,94 +719,83 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
 
     private void clearLoadLimit(MessageEntry messageEntry) throws BusinessException, SQLException, IOException {
         infoLog("Clear threshold for meter with serialnumber: " + messageEntry.getSerialNumber());
-        try {
-            String groupID = getMessageValue(messageEntry.getContent(), RtuMessageConstant.CLEAR_THRESHOLD);
-            if (groupID.equalsIgnoreCase("")) {
-                throw new BusinessException("No groupID was entered.");
-            }
-            int grID = 0;
-
-            try {
-                grID = Integer.parseInt(groupID);
-                crGroupIDMsg[1] = (byte) (grID >> 8);
-                crGroupIDMsg[2] = (byte) grID;
-
-            } catch (NumberFormatException e) {
-                throw new BusinessException("Invalid groupID");
-            }
-            Calendar startCal;
-            startCal = Calendar.getInstance(protocol.getTimeZone());
-
-            long crDur = 0;
-            crDurationMsg[1] = (byte) (crDur >> 24);
-            crDurationMsg[2] = (byte) (crDur >> 16);
-            crDurationMsg[3] = (byte) (crDur >> 8);
-            crDurationMsg[4] = (byte) crDur;
-            byte[] byteDate = createByteDate(startCal);
-
-            protocol.getCosemObjectFactory().writeObject(crGroupID, 1, 2, crGroupIDMsg);
-            protocol.getCosemObjectFactory().writeObject(crStartDate, 1, 2, byteDate);
-            protocol.getCosemObjectFactory().writeObject(crDuration, 3, 2, crDurationMsg);
-        } catch (Exception e) {
-            throw new IOException(e.getMessage());
+        String groupID = getMessageValue(messageEntry.getContent(), RtuMessageConstant.CLEAR_THRESHOLD);
+        if (groupID.equalsIgnoreCase("")) {
+            throw new BusinessException("No groupID was entered.");
         }
+        int grID = 0;
+
+        try {
+            grID = Integer.parseInt(groupID);
+            crGroupIDMsg[1] = (byte) (grID >> 8);
+            crGroupIDMsg[2] = (byte) grID;
+
+        } catch (NumberFormatException e) {
+            throw new BusinessException("Invalid groupID");
+        }
+        Calendar startCal;
+        startCal = Calendar.getInstance(protocol.getTimeZone());
+
+        long crDur = 0;
+        crDurationMsg[1] = (byte) (crDur >> 24);
+        crDurationMsg[2] = (byte) (crDur >> 16);
+        crDurationMsg[3] = (byte) (crDur >> 8);
+        crDurationMsg[4] = (byte) crDur;
+        byte[] byteDate = createByteDate(startCal);
+
+        protocol.getCosemObjectFactory().writeObject(crGroupID, 1, 2, crGroupIDMsg);
+        protocol.getCosemObjectFactory().writeObject(crStartDate, 1, 2, byteDate);
+        protocol.getCosemObjectFactory().writeObject(crDuration, 3, 2, crDurationMsg);
     }
 
     private void configureLoadLimit(MessageEntry messageEntry) throws BusinessException, SQLException, IOException {
         infoLog("Sending threshold configuration for meter with serialnumber: " + messageEntry.getSerialNumber());
+        String groupID = getMessageValue(messageEntry.getContent(), RtuMessageConstant.PARAMETER_GROUPID);
+        if (groupID.equalsIgnoreCase("")) {
+            throw new BusinessException("No groupID was entered.");
+        }
+
+        String thresholdPL = getMessageValue(messageEntry.getContent(), RtuMessageConstant.THRESHOLD_POWERLIMIT);
+        String contractPL = getMessageValue(messageEntry.getContent(), RtuMessageConstant.CONTRACT_POWERLIMIT);
+        if ((thresholdPL.equalsIgnoreCase("")) && (contractPL.equalsIgnoreCase(""))) {
+            throw new BusinessException("Neighter contractual nor threshold limit was given.");
+        }
+
+        long conPL = 0;
+        long limit = 0;
+        int grID = -1;
         try {
-            String groupID = getMessageValue(messageEntry.getContent(), RtuMessageConstant.PARAMETER_GROUPID);
-            if (groupID.equalsIgnoreCase("")) {
-                throw new BusinessException("No groupID was entered.");
-            }
+            grID = Integer.parseInt(groupID);
+            crMeterGroupIDMsg[1] = (byte) (grID >> 8);
+            crMeterGroupIDMsg[2] = (byte) grID;
 
-            String thresholdPL = getMessageValue(messageEntry.getContent(), RtuMessageConstant.THRESHOLD_POWERLIMIT);
-            String contractPL = getMessageValue(messageEntry.getContent(), RtuMessageConstant.CONTRACT_POWERLIMIT);
-            if ((thresholdPL.equalsIgnoreCase("")) && (contractPL.equalsIgnoreCase(""))) {
-                throw new BusinessException("Neighter contractual nor threshold limit was given.");
-            }
-
-            long conPL = 0;
-            long limit = 0;
-            int grID = -1;
-
-            try {
-                grID = Integer.parseInt(groupID);
-                crMeterGroupIDMsg[1] = (byte) (grID >> 8);
-                crMeterGroupIDMsg[2] = (byte) grID;
-
-                if (!contractPL.equalsIgnoreCase("")) {
-                    conPL = Integer.parseInt(contractPL);
-                    contractPowerLimitMsg[1] = (byte) (conPL >> 24);
-                    contractPowerLimitMsg[2] = (byte) (conPL >> 16);
-                    contractPowerLimitMsg[3] = (byte) (conPL >> 8);
-                    contractPowerLimitMsg[4] = (byte) conPL;
-                }
-
-                if (!thresholdPL.equalsIgnoreCase("")) {
-                    limit = Integer.parseInt(thresholdPL);
-                    crPowerLimitMsg[1] = (byte) (limit >> 24);
-                    crPowerLimitMsg[2] = (byte) (limit >> 16);
-                    crPowerLimitMsg[3] = (byte) (limit >> 8);
-                    crPowerLimitMsg[4] = (byte) limit;
-                }
-
-            } catch (NumberFormatException e) {
-                throw new BusinessException("Invalid groupID");
-            }
-            protocol.getCosemObjectFactory().writeObject(crMeterGroupID, 1, 2, crMeterGroupIDMsg);
             if (!contractPL.equalsIgnoreCase("")) {
-                protocol.getCosemObjectFactory().writeObject(contractPowerLimit, 3, 2, contractPowerLimitMsg);
+                conPL = Integer.parseInt(contractPL);
+                contractPowerLimitMsg[1] = (byte) (conPL >> 24);
+                contractPowerLimitMsg[2] = (byte) (conPL >> 16);
+                contractPowerLimitMsg[3] = (byte) (conPL >> 8);
+                contractPowerLimitMsg[4] = (byte) conPL;
             }
             if (!thresholdPL.equalsIgnoreCase("")) {
-                protocol.getCosemObjectFactory().writeObject(crPowerLimit, 3, 2, crPowerLimitMsg);
+                limit = Integer.parseInt(thresholdPL);
+                crPowerLimitMsg[1] = (byte) (limit >> 24);
+                crPowerLimitMsg[2] = (byte) (limit >> 16);
+                crPowerLimitMsg[3] = (byte) (limit >> 8);
+                crPowerLimitMsg[4] = (byte) limit;
             }
-        } catch (Exception e) {
-            throw new IOException(e.getMessage());
+        } catch (NumberFormatException e) {
+            throw new BusinessException("Invalid groupID");
+        }
+        protocol.getCosemObjectFactory().writeObject(crMeterGroupID, 1, 2, crMeterGroupIDMsg);
+        if (!contractPL.equalsIgnoreCase("")) {
+            protocol.getCosemObjectFactory().writeObject(contractPowerLimit, 3, 2, contractPowerLimitMsg);
+        }
+        if (!thresholdPL.equalsIgnoreCase("")) {
+            protocol.getCosemObjectFactory().writeObject(crPowerLimit, 3, 2, crPowerLimitMsg);
         }
     }
 
-    public MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) throws SAXException, IOException {
+    public MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) {
         try {
             LoadProfileRegisterMessageBuilder builder = getLoadProfileRegisterMessageBuilder();
             builder = (LoadProfileRegisterMessageBuilder) builder.fromXml(msgEntry.getContent());
@@ -894,7 +814,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
             final List<ProfileData> profileDatas = this.protocol.getLoadProfileData(Arrays.asList(lpr));
 
             if (profileDatas.size() != 1) {
-                throw new IOException("We are supposed to receive 1 LoadProfile configuration in this message, but we received " + profileDatas.size());
+                return MessageResult.createFailed(msgEntry, "We are supposed to receive 1 LoadProfile configuration in this message, but we received " + profileDatas.size());
             }
 
             ProfileData pd = profileDatas.get(0);
@@ -906,7 +826,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
             }
 
             if (id == null) {
-                throw new IOException("Didn't receive data for requested interval (" + builder.getStartReadingTime() + ")");
+                return MessageResult.createFailed(msgEntry, "Didn't receive data for requested interval (" + builder.getStartReadingTime() + ")");
             }
 
             MeterReadingData mrd = new MeterReadingData();
@@ -922,9 +842,12 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
             MeterData md = new MeterData();
             md.setMeterReadingData(mrd);
 
+            infoLog("LoadProfileRegister message successful.");
             return MeterDataMessageResult.createSuccess(msgEntry, "", md);
         } catch (SAXException e) {
-            throw new SAXException("Could not parse the content of the xml message, probably incorrect message.");
+            return MessageResult.createFailed(msgEntry, "Could not parse the content of the xml message, probably incorrect message.");
+        } catch (IOException e) {
+            return MessageResult.createFailed(msgEntry, "Failed while fetching the LoadProfile data.");
         }
     }
 
@@ -940,7 +863,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
         return new LoadProfileReader(loadProfileReader.getProfileObisCode(), from, to, loadProfileReader.getLoadProfileId(), loadProfileReader.getMeterSerialNumber(), loadProfileReader.getChannelInfos());
     }
 
-    public MessageResult doReadPartialLoadProfile(final MessageEntry msgEntry) throws SAXException, IOException {
+    public MessageResult doReadPartialLoadProfile(final MessageEntry msgEntry) {
         try {
             PartialLoadProfileMessageBuilder builder = getPartialLoadProfileMessageBuilder();
             builder = (PartialLoadProfileMessageBuilder) builder.fromXml(msgEntry.getContent());
@@ -950,11 +873,11 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
             final List<ProfileData> profileData = this.protocol.getLoadProfileData(Arrays.asList(lpr));
 
             if (profileData.size() == 0) {
-                throw new IOException("LoadProfile returned no data.");
+                return MessageResult.createFailed(msgEntry, "LoadProfile returned no data.");
             } else {
                 for (ProfileData data : profileData) {
                     if (data.getIntervalDatas().size() == 0) {
-                       throw new IOException("LoadProfile returned no interval data.");
+                        return MessageResult.createFailed(msgEntry, "LoadProfile returned no interval data.");
                     }
                 }
             }
@@ -963,9 +886,12 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
                 data.sort();
                 md.addProfileData(data);
             }
+            infoLog("PartialLoadProfile message successful.");
             return MeterDataMessageResult.createSuccess(msgEntry, "", md);
         } catch (SAXException e) {
-            throw new SAXException("Could not parse the content of the xml message, probably incorrect message.");
+            return MessageResult.createFailed(msgEntry, "Could not parse the content of the xml message, probably incorrect message.");
+        } catch (IOException e) {
+            return MessageResult.createFailed(msgEntry, "Failed while fetching the LoadProfile data.");
         }
     }
 
@@ -1019,12 +945,11 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
             }
             return str;
         } catch (IOException e) {
-            e.printStackTrace();
             throw new IOException("Could not retrieve the MBus serialNumber");
         }
     }
 
-     private Unit getMbusUnit(ObisCode obisCode) throws IOException {
+    private Unit getMbusUnit(ObisCode obisCode) throws IOException {
         try {
             String vifResult = Integer.toString((int) protocol.getCosemObjectFactory().getData(obisCode).getRawValueAttr()[2], 16);
             ValueInformationfieldCoding vif = ValueInformationfieldCoding.findPrimaryValueInformationfieldCoding(Integer.parseInt(vifResult, 16), -1);
@@ -1048,7 +973,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
         }
         if (mbusList.size() > 1) {
             String pattern = "Multiple meters where found with serial: {0}.  Data will not be read.";
-            protocol.getLogger().severe( new MessageFormat(pattern).format(new Object[]{customerID}));
+            protocol.getLogger().severe(new MessageFormat(pattern).format(new Object[]{customerID}));
             return null;
         }
         RtuType rtuType = getProperties().getRtuType();
@@ -1076,7 +1001,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
                 infoLog("No folder found with external name: " + folderExtName + ", new meter will be placed in prototype folder.");
             }
         } else {
-           infoLog("New meter will be placed in prototype folder.");
+            infoLog("New meter will be placed in prototype folder.");
         }
 
         shadow.setGatewayId(getRtuFromDatabaseBySerialNumber().getId());
@@ -1139,7 +1064,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
      * @throws SQLException
      * @throws BusinessException
      */
-    private void activateWakeUp() throws IOException, BusinessException, SQLException {
+    private void activateWakeUp() throws IOException {
         try {
             Unsigned8 gsmMode = new Unsigned8(0);
             protocol.getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.0.128.20.10.255"), 2, 1).write(gsmMode.getBEREncodedByteArray());
@@ -1148,19 +1073,15 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
         }
     }
 
-    private void changeWakeUpInactivityTimeOut(MessageEntry messageEntry) throws BusinessException, SQLException, IOException {
-       infoLog("Changing inactivity timeout for meter with serialnumber: " + messageEntry.getSerialNumber());
+    private void changeWakeUpInactivityTimeOut(MessageEntry messageEntry) throws IOException, NumberFormatException {
+        infoLog("Changing inactivity timeout for meter with serialnumber: " + messageEntry.getSerialNumber());
 
-        try {
-            String timeout = getMessageValue(messageEntry.getContent(), RtuMessageConstant.WAKEUP_INACT_TIMEOUT);
-            if (!ParseUtils.isInteger(timeout)) {
-                throw new NumberFormatException("Value for timeout is not a number.");
-            } else {
-                TCPUDPSetup tcpUdpSetup = protocol.getCosemObjectFactory().getTCPUDPSetup();
-                tcpUdpSetup.writeInactivityTimeout(Integer.parseInt(timeout));
-            }
-        } catch (Exception e) {
-            throw new IOException(e.getMessage());
+        String timeout = getMessageValue(messageEntry.getContent(), RtuMessageConstant.WAKEUP_INACT_TIMEOUT);
+        if (!ParseUtils.isInteger(timeout)) {
+            throw new NumberFormatException("Value for timeout is not a number.");
+        } else {
+            TCPUDPSetup tcpUdpSetup = protocol.getCosemObjectFactory().getTCPUDPSetup();
+            tcpUdpSetup.writeInactivityTimeout(Integer.parseInt(timeout));
         }
     }
 
@@ -1172,41 +1093,37 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
      * @throws BusinessException if we failed to create an AMR journal entry
      * @throws SQLException      if we failed to create an AMR journal entry
      */
-    private void addPhoneToManagedList(MessageEntry messageEntry) throws BusinessException, SQLException, IOException {
+    private void addPhoneToManagedList(MessageEntry messageEntry) throws IOException {
         infoLog("Adding Managed numbers to whitelist for meter with serialnumber: " + messageEntry.getSerialNumber());
 
-        try {
-            AutoConnect autoConnect = protocol.getCosemObjectFactory().getAutoConnect();
-            byte[] restrictions = protocol.getCosemObjectFactory().getData(ObisCode.fromString("0.0.128.20.20.255")).getValueAttr().getOctetString().getOctetStr();
-            Array list = protocol.getCosemObjectFactory().getAutoConnect().readDestinationList();    // the list from the meter
-            Array newList = new Array();                                                    // the new list
+        AutoConnect autoConnect = protocol.getCosemObjectFactory().getAutoConnect();
+        byte[] restrictions = protocol.getCosemObjectFactory().getData(ObisCode.fromString("0.0.128.20.20.255")).getValueAttr().getOctetString().getOctetStr();
+        Array list = protocol.getCosemObjectFactory().getAutoConnect().readDestinationList();    // the list from the meter
+        Array newList = new Array();                                                            // the new list
 
-            // copy the CSD numbers to the new list
-            for (int i = 0; i < maxNumbersCSDWhiteList; i++) {
-                if (i < list.nrOfDataTypes()) {
-                    newList.addDataType(list.getDataType(i));
-                } else {
-                    newList.addDataType(OctetString.fromString(""));
-                }
+        // copy the CSD numbers to the new list
+        for (int i = 0; i < maxNumbersCSDWhiteList; i++) {
+            if (i < list.nrOfDataTypes()) {
+                newList.addDataType(list.getDataType(i));
+            } else {
+                newList.addDataType(OctetString.fromString(""));
             }
-            int offset = maxNumbersCSDWhiteList; //offset for managed numbers in the restriction list
-            for (int i = 0; i < maxNumbersManagedWhiteList; i++) {
-                if (!"".equalsIgnoreCase(getMessageValue(messageEntry.getContent(), RtuMessageConstant.WAKEUP_MANAGED_NR + (i + 1)))) {
-                    newList.addDataType(OctetString.fromString(getMessageValue(messageEntry.getContent(), RtuMessageConstant.WAKEUP_MANAGED_NR + (i + 1))));
-                    restrictions[i + offset] = (byte) 0x02;
-                } else {
-                    newList.addDataType(OctetString.fromString(""));
-                    restrictions[i + offset] = (byte) 0x00;
-                }
-            }
-            autoConnect.writeDestinationList(newList);
-            protocol.getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.0.128.20.20.255"), 2, 1).write(OctetString.fromByteArray(restrictions).getBEREncodedByteArray());
-        } catch (Exception e) {
-            throw new IOException(e.getMessage());
         }
+        int offset = maxNumbersCSDWhiteList; //offset for managed numbers in the restriction list
+        for (int i = 0; i < maxNumbersManagedWhiteList; i++) {
+            if (!"".equalsIgnoreCase(getMessageValue(messageEntry.getContent(), RtuMessageConstant.WAKEUP_MANAGED_NR + (i + 1)))) {
+                newList.addDataType(OctetString.fromString(getMessageValue(messageEntry.getContent(), RtuMessageConstant.WAKEUP_MANAGED_NR + (i + 1))));
+                restrictions[i + offset] = (byte) 0x02;
+            } else {
+                newList.addDataType(OctetString.fromString(""));
+                restrictions[i + offset] = (byte) 0x00;
+            }
+        }
+        autoConnect.writeDestinationList(newList);
+        protocol.getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.0.128.20.20.255"), 2, 1).write(OctetString.fromByteArray(restrictions).getBEREncodedByteArray());
     }
 
-/**
+    /**
      * Set the numbers from the whitelist to the meter.
      * These numbers are allowed to make a CSD call to the meter
      *
@@ -1216,7 +1133,6 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
      */
     protected void addPhoneToWhiteList(MessageEntry messageEntry) throws IOException {
         infoLog("Adding numbers to whitelist for meter with serialnumber: " + messageEntry.getSerialNumber());
-        try {
         AutoConnect autoConnect = protocol.getCosemObjectFactory().getAutoConnect();
         byte[] restrictions = protocol.getCosemObjectFactory().getData(ObisCode.fromString("0.0.128.20.20.255")).getValueAttr().getOctetString().getOctetStr();
         Array list = protocol.getCosemObjectFactory().getAutoConnect().readDestinationList();    // the list from the meter
@@ -1239,12 +1155,11 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
 
         autoConnect.writeDestinationList(newList);
         protocol.getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.0.128.20.20.255"), 2, 1).write(OctetString.fromByteArray(restrictions).getBEREncodedByteArray());
-        } catch (Exception e) {
-            throw new IOException(e.getMessage());
-        }
     }
 
-    /** END OF WAKEUP SECTION **/
+    /**
+     * END OF WAKEUP SECTION *
+     */
 
     private IskraMX372Properties getProperties() {
         return ((IskraMX372Properties) protocol.getProperties());
@@ -1252,9 +1167,10 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
 
     /**
      * *************************************************************************
-     *
+     * <p/>
      * These methods require database access ...
-    /*****************************************************************************/
+     * /****************************************************************************
+     */
 
     // Retrieved the master Rtu, based on its serial number.
     private Rtu getRtuFromDatabaseBySerialNumber() {
@@ -1262,7 +1178,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
             String serial = getProperties().getSerialNumber();
             List<Rtu> rtuList = mw().getRtuFactory().findBySerialNumber(serial);
             if (rtuList.size() > 1) {
-                infoLog("Warning: There are multiple devices configured with serial number: "+getProperties().getSerialNumber() +".");
+                infoLog("Warning: There are multiple devices configured with serial number: " + getProperties().getSerialNumber() + ".");
             }
             rtu = rtuList.get(0);
             ProtocolTools.closeConnection();

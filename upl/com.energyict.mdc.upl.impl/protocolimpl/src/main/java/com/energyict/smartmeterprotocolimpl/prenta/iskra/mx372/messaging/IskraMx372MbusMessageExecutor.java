@@ -53,41 +53,40 @@ public class IskraMx372MbusMessageExecutor extends GenericMessageExecutor implem
      * @throws java.io.IOException if a logical error occurs
      */
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
+        MessageResult msgResult = null;
         try {
             if (isItThisMessage(messageEntry, RtuMessageConstant.DISCONNECT_LOAD)) {
                 infoLog("Sending disconnectLoad message for meter with serialnumber: "+messageEntry.getSerialNumber());
                 connectDisconnectDevice(messageEntry,  false);
                 infoLog("DisconnectLoad message successful.");
-                return MessageResult.createSuccess(messageEntry);
             } else if (isItThisMessage(messageEntry, RtuMessageConstant.CONNECT_LOAD)) {
                 infoLog("Sending connectLoad message for meter with serialnumber: "+messageEntry.getSerialNumber());
                 connectDisconnectDevice(messageEntry,  true);
                 infoLog("ConnectLoad message successful.");
-                return MessageResult.createSuccess(messageEntry);
             } else if (isItThisMessage(messageEntry, RtuMessageConstant.MBUS_SET_VIF)) {
                 infoLog("Sending MbusSetVif message for meter with serialnumber: "+messageEntry.getSerialNumber());
                 mbusSetVif(messageEntry);
                 infoLog("MbusSetVif message successful.");
-                return MessageResult.createSuccess(messageEntry);
             } else if (isItThisMessage(messageEntry, LoadProfileRegisterMessageBuilder.getMessageNodeTag())) {
                 infoLog("Sending LoadProfileRegister message for meter with serialnumber: "+messageEntry.getSerialNumber());
-                MessageResult messageResult = doReadLoadProfileRegisters(messageEntry);
-                infoLog("LoadProfileRegister message successful.");
-                return messageResult;
+                msgResult = doReadLoadProfileRegisters(messageEntry);
             } else if (isItThisMessage(messageEntry, PartialLoadProfileMessageBuilder.getMessageNodeTag())) {
                 infoLog("Sending PartialLoadProfile message for meter with serialnumber: "+messageEntry.getSerialNumber());
-                MessageResult messageResult = doReadPartialLoadProfile(messageEntry);
-                infoLog("PartialLoadProfile message successful.");
-                return messageResult;
+                msgResult = doReadPartialLoadProfile(messageEntry);
             } else {
-                infoLog("Unknown message received.");
-                return MessageResult.createUnknown(messageEntry);
+                msgResult = MessageResult.createFailed(messageEntry, "Message not supported by the protocol.");
+            }
 
+            if (msgResult == null) {
+                msgResult = MessageResult.createSuccess(messageEntry);
+            } else if (msgResult.isFailed()) {
+                iskraMx372.getLogger().severe("Message failed : " + msgResult.getInfo());
             }
         } catch (Exception e) {
-            infoLog("Message failed : " + e.getMessage());
+             msgResult = MessageResult.createFailed(messageEntry, e.getMessage());
+            iskraMx372.getLogger().severe("Message failed : " + e.getMessage());
         }
-        return MessageResult.createFailed(messageEntry);
+        return msgResult;
     }
 
     /**
