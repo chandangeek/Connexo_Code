@@ -119,14 +119,14 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     }
 
      public String getSerialNumber() throws ConnectionException {
-        if (serialnr == null) {
-            try {
-            UniversalObject uo = getMeterConfig().getSerialNumberObject();
-            serialnr = getCosemObjectFactory().getGenericRead(uo).getString();
-            } catch (IOException e) {
-                throw new ConnectionException(e.getMessage());
-            }
-        }
+         if (serialnr == null) {
+             try {
+                 UniversalObject uo = getMeterConfig().getSerialNumberObject();
+                 serialnr = getCosemObjectFactory().getGenericRead(uo).getString();
+             } catch (IOException e) {
+                 throw new ConnectionException(e.getMessage());
+             }
+         }
          return serialnr;
      }
 
@@ -179,7 +179,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
             }
             return serialnr;
         } else {
-            return "";
+            return getProperties().getSerialNumber();
         }
     }
 
