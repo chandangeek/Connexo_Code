@@ -22,8 +22,7 @@ public class ExitCommand extends AbstractCommand {
 	}
 
 	protected byte[] prepareBuild() {
-		String data = "X";
-		return data.getBytes();
+        return new byte[]{'X'};
 	}
 
 	protected void parse(byte[] data) {

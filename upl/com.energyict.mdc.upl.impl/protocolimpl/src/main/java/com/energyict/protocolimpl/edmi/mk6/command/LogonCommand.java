@@ -10,6 +10,10 @@
 
 package com.energyict.protocolimpl.edmi.mk6.command;
 
+import com.energyict.protocolimpl.utils.ProtocolTools;
+
+import java.io.UnsupportedEncodingException;
+
 /**
  *
  * @author koen
@@ -26,8 +30,13 @@ public class LogonCommand extends AbstractCommand {
     }
     
     protected byte[] prepareBuild() {
-       String data = "L"+getLogon()+","+getPassword()+"\0";
-       return data.getBytes();         
+//       String data = "L"+getLogon()+","+getPassword()+"\0";
+        String data = "L" + getLogon() + "," + getPassword();
+        try {
+            return ProtocolTools.concatByteArrays(data.getBytes("US-ASCII"), new byte[]{0});
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException(e.getMessage(), e);
+        }
     }
     
     protected void parse(byte[] data) {
