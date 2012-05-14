@@ -8,8 +8,6 @@ import java.util.*;
 import java.util.logging.Logger;
 
 import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.*;
-import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.PhaseFailureCounterKey;
-import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.PowerDownCounterKey;
 
 /**
  * Copyrights EnergyICT
@@ -54,7 +52,7 @@ public class ABBA1700MeterEvents {
         List<MeterEvent> meterEventList = new ArrayList<MeterEvent>();
         try {
             HistoricalValueSetInfo hvsi = ((HistoricalValues) getABBA1700RegisterFactory().getRegister(HistoricalValuesKey)).getHistoricalValueSetInfo();
-            if (hvsi.getBillingStartDateTime().after(lastReading)) {
+            if ((hvsi.getBillingStartDateTime() != null) && (hvsi.getBillingStartDateTime().after(lastReading))) {
                 meterEventList.add(new MeterEvent(hvsi.getBillingStartDateTime(), MeterEvent.BILLING_ACTION, "Billing action source: " + ABBA1700MeterEvents.BillingEventTriggerSource.getTriggerReasonForValue(hvsi.getBillingTriggerSource())));
             }
         } catch (IOException e) {
