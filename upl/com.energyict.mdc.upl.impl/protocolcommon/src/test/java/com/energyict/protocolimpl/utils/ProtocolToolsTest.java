@@ -1,18 +1,30 @@
 package com.energyict.protocolimpl.utils;
 
-import antlr.Utils;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.RegisterValue;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.File;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author jme
@@ -327,7 +339,7 @@ public class ProtocolToolsTest {
      */
     @Test
     public final void testReadBytesFromFile() {
-        URL fileUrl = Utils.class.getResource(FILENAME_TO_READ);
+        URL fileUrl = getClass().getResource(FILENAME_TO_READ);
         assertNotNull("This test needs the following file: " + FILENAME_TO_READ + " but the fileUrl was null!", fileUrl);
         String fileName = fileUrl.getFile();
         byte[] fileContent = ProtocolTools.readBytesFromFile(fileName);
