@@ -27,8 +27,6 @@ public class NTAMessageHandler extends MessageHandler {
             setType(RtuMessageConstant.WEBSERVER_DISABLE);
         } else if (RtuMessageConstant.WEBSERVER_ENABLE.equals(qName)) {
             setType(RtuMessageConstant.WEBSERVER_ENABLE);
-        } else if (RtuMessageConstant.USE_EXTERNAL_ANTENNA.equals(qName)) {
-            setType(RtuMessageConstant.USE_EXTERNAL_ANTENNA);
         } else if (RtuMessageConstant.REBOOT.equals(qName)) {
             setType(RtuMessageConstant.REBOOT);
         } else {

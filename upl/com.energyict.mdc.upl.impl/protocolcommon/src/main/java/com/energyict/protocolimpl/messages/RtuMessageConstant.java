@@ -149,8 +149,6 @@ public class RtuMessageConstant {
      */
     public static final String XMLCONFIG = "XMLConfig";
 
-    public static final String USE_EXTERNAL_ANTENNA = "Use_external_antenna";
-
     /**
      * RtuMessage tags for P1 port messages
      */

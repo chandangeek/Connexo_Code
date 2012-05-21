@@ -45,7 +45,6 @@ import static com.energyict.protocolimpl.utils.ProtocolTools.getBytesFromHexStri
 public class UkHubMessageExecutor extends GenericMessageExecutor {
 
     public static ObisCode KEYS_LOCK_DOWN_SWITCH_OBIS = ObisCode.fromString("0.128.0.0.1.255");
-    public static ObisCode EXTERNAL_ANTENNA_IN_USE_OBIS = ObisCode.fromString("0.0.96.50.4.255");
     private final AbstractSmartDlmsProtocol protocol;
 
     private boolean success;
@@ -88,7 +87,6 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
             boolean xmlCOnfig = messageHandler.getType().equals(RtuMessageConstant.XMLCONFIG);
             boolean enableWebserver = messageHandler.getType().equals(RtuMessageConstant.WEBSERVER_ENABLE);
             boolean disableWebserver = messageHandler.getType().equals(RtuMessageConstant.WEBSERVER_DISABLE);
-            boolean useExternalAntenna = messageHandler.getType().endsWith(RtuMessageConstant.USE_EXTERNAL_ANTENNA);
             boolean reboot = messageHandler.getType().endsWith(RtuMessageConstant.REBOOT);
 
             if (changeHanSAS) {
@@ -121,8 +119,6 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
                 enableWebserver();
             } else if (disableWebserver) {
                 disableWebserver();
-            } else if (useExternalAntenna) {
-                 useExternalAntenna(content);
             } else if (reboot) {
                 reboot();
             } else {
@@ -190,26 +186,6 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         BooleanObject bool = new BooleanObject(true);
         genericWrite.write(bool.getBEREncodedByteArray());
         ((UkHub)protocol).setReboot(true);
-    }
-
-    private void useExternalAntenna(String fullContent) throws IOException {
-        String firstTag = "<Use_external_antenna>";
-        String lastTag = "</Use_external_antenna>";
-        int firstIndex = fullContent.indexOf(firstTag) + firstTag.length();
-        int lastIndex = fullContent.indexOf(lastTag);
-        String content = fullContent.substring(firstIndex, lastIndex);
-
-        boolean useExternalAntenna;
-        if (content.equals("0")) {
-            useExternalAntenna = false;
-        } else if (content.equals("1")) {
-            useExternalAntenna = true;
-        } else {
-            throw new IOException("Failed to parse the message content. The message will fail.");
-        }
-
-        Data data = getCosemObjectFactory().getData(EXTERNAL_ANTENNA_IN_USE_OBIS);
-        data.setValueAttr(new BooleanObject(useExternalAntenna));
     }
 
     private void firmwareUpdate(MessageHandler messageHandler, String content) throws IOException {
