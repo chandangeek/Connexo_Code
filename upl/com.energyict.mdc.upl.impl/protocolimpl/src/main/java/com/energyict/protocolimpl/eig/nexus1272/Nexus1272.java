@@ -292,7 +292,24 @@ public class Nexus1272 extends AbstractProtocol  {
 		if ((ndp.parseF51() & 0x8000) == 0x8000)
 			meterEvents.add(new MeterEvent(new Date(), MeterEvent.METER_ALARM, "Battery Low"));
 		
-		
+		//check Nexus Comm operation indicator
+		c = (ReadCommand) NexusCommandFactory.getFactory().getReadSingleRegisterCommand();
+		c.setStartAddress(AbstractCommand.intToByteArray(0xFF81));
+		c.setNumRegisters(AbstractCommand.intToByteArray(1));
+		outputStream.write(c.build());
+		ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
+		if ((ndp.parseF51() & 0x0001) == 0x0001)
+			meterEvents.add(new MeterEvent(new Date(), MeterEvent.METER_ALARM, "RAM Failure"));
+
+		//check Nexus DSP operation indicator
+		c = (ReadCommand) NexusCommandFactory.getFactory().getReadSingleRegisterCommand();
+		c.setStartAddress(AbstractCommand.intToByteArray(0xFF86));
+		c.setNumRegisters(AbstractCommand.intToByteArray(1));
+		outputStream.write(c.build());
+		ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
+		if ((ndp.parseF51() & 0x0001) == 0x0001)
+			meterEvents.add(new MeterEvent(new Date(), MeterEvent.METER_ALARM, "RAM Failure"));
+
 		profileData.setMeterEvents(meterEvents);
 	}
 
