@@ -389,7 +389,7 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
         return identity;
     }
 
-    protected void setIdentity(int identity) {
+    public void setIdentity(int identity) {
         this.identity = identity;
     }
         
