@@ -107,7 +107,15 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink {
         
         if ((getInfoTypeSecurityLevel()!=2) && ((getInfoTypePassword()==null) || (getInfoTypePassword().compareTo("")==0)))
             setInfoTypePassword(new String(new byte[]{0}));
-            
+           
+      //identify with node 1 before you can address other nodes
+        if (c12Layer2.getIdentity()!=1) {
+        	int targetIdentity = c12Layer2.getIdentity();
+        	c12Layer2.setIdentity(1); 
+        	getPSEMServiceFactory().getIdentificationResponse().getIdentificationFeature0();
+        	getPSEMServiceFactory().terminate();
+        	c12Layer2.setIdentity(targetIdentity);
+        }
         getPSEMServiceFactory().logOn(c12UserId,replaceSpaces(c12User),getInfoTypePassword(),getInfoTypeSecurityLevel(),PSEMServiceFactory.PASSWORD_ASCII, 128, maxNrPackets);
     }
     
