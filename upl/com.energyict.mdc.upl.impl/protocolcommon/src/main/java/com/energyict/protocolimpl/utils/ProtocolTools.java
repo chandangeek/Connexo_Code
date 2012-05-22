@@ -1,43 +1,18 @@
 package com.energyict.protocolimpl.utils;
 
 import com.energyict.cpo.Environment;
-import com.energyict.mdw.core.CommunicationProtocol;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.MeteringWarehouseFactory;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -105,7 +80,7 @@ public final class ProtocolTools {
      * Convert int value to a hexadecimal string with a given byte length.
      * The default separator '$' is used between each byte.
      *
-     * @param value The intValue to convert
+     * @param value  The intValue to convert
      * @param length The amount of bytes that should be shown in the hex string
      * @return The hex string
      */
@@ -220,6 +195,7 @@ public final class ProtocolTools {
 
     /**
      * retrieve the subArray [from, to[  out of the given array
+     *
      * @param bytes
      * @param from  Inclusive from
      * @param to    Exclusive to
@@ -286,7 +262,7 @@ public final class ProtocolTools {
         }
 
         Long[] longs = new Long[firstArray.length + secondArray.length];
-              System.arraycopy(firstArray, 0, longs, 0, firstArray.length);
+        System.arraycopy(firstArray, 0, longs, 0, firstArray.length);
         System.arraycopy(secondArray, 0, longs, firstArray.length, secondArray.length);
         return longs;
     }
@@ -297,7 +273,7 @@ public final class ProtocolTools {
                 return new BigDecimal[0];
             } else {
                 return secondArray.clone();
-    }
+            }
         } else {
             if (secondArray == null) {
                 return firstArray.clone();
@@ -433,6 +409,7 @@ public final class ProtocolTools {
         }
         return buffer;
     }
+
     /**
      * @param fileName
      * @return
@@ -586,7 +563,7 @@ public final class ProtocolTools {
         Date newest = null;
 
         List intervals = profileData.getIntervalDatas();
-        for (Iterator iterator = intervals.iterator(); iterator.hasNext();) {
+        for (Iterator iterator = intervals.iterator(); iterator.hasNext(); ) {
             IntervalData intervalData = (IntervalData) iterator.next();
             if ((oldest == null) || (newest == null)) {
                 oldest = intervalData.getEndTime();
@@ -770,7 +747,6 @@ public final class ProtocolTools {
     }
 
     /**
-     *
      * @param year
      * @param month
      * @param dayOfMonth
@@ -989,9 +965,9 @@ public final class ProtocolTools {
         if (rtu != null) {
             CommunicationProtocol protocol = rtu.getRtuType().getProtocol();
             if (protocol != null) {
-                properties.putAll(protocol.getProperties());
+                properties.putAll(protocol.getProperties().toStringProperties());
             }
-            properties.putAll(rtu.getProperties());
+            properties.putAll(rtu.getProperties().toStringProperties());
         }
         return properties;
     }
@@ -999,7 +975,7 @@ public final class ProtocolTools {
     public static byte[] getReverseByteArray(byte[] bytes) {
         byte[] reverseBytes = new byte[bytes != null ? bytes.length : 0];
         for (int i = 0; i < reverseBytes.length; i++) {
-            reverseBytes[i] = bytes[bytes.length - (i+1)];
+            reverseBytes[i] = bytes[bytes.length - (i + 1)];
         }
         return reverseBytes;
     }
@@ -1080,7 +1056,6 @@ public final class ProtocolTools {
     }
 
     /**
-     *
      * @param value
      * @return
      */
@@ -1089,7 +1064,6 @@ public final class ProtocolTools {
     }
 
     /**
-     *
      * @param value
      * @return
      */
@@ -1123,7 +1097,6 @@ public final class ProtocolTools {
      *
      * @param compressedBase64Content the Zipped and Base64 encoded String
      * @return the decompressed String
-     *
      * @throws IOException if decompression failed
      */
     public static String decompress(String compressedBase64Content) throws IOException {
@@ -1148,7 +1121,6 @@ public final class ProtocolTools {
      *
      * @param compressedBase64Content the Zipped and Base64 encoded String
      * @return the decompressed byte array
-     *
      * @throws IOException if decompression failed
      */
     public static byte[] decompressBytes(String compressedBase64Content) throws IOException {
@@ -1225,7 +1197,7 @@ public final class ProtocolTools {
     /**
      * Close the databaseConnection when it is not needed so optimal database pooling can be used
      */
-    public static void closeConnection(){
+    public static void closeConnection() {
         Environment.getDefault().closeConnection();
     }
 

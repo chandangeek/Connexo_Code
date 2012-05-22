@@ -3,47 +3,18 @@
  */
 package com.energyict.genericprotocolimpl.iskragprs;
 
-import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.Unit;
-import com.energyict.cbo.Utils;
-import com.energyict.cpo.Environment;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dialer.core.DialerMarker;
-import com.energyict.dialer.core.Link;
-import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.cbo.*;
+import com.energyict.cpo.*;
+import com.energyict.dialer.connection.*;
+import com.energyict.dialer.core.*;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.HDLCConnection;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.TCPIPConnection;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.*;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.ActivityCalendar;
-import com.energyict.dlms.cosem.AutoConnect;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.PPPSetup;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.PPPSetup.PPPAuthenticationType;
-import com.energyict.dlms.cosem.SpecialDaysTable;
-import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.dlms.cosem.TCPUDPSetup;
-import com.energyict.genericprotocolimpl.common.AMRJournalManager;
-import com.energyict.genericprotocolimpl.common.GenericCache;
+import com.energyict.genericprotocolimpl.common.*;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.tou.ActivityCalendarReader;
 import com.energyict.genericprotocolimpl.common.tou.CosemActivityCalendarBuilder;
@@ -51,60 +22,21 @@ import com.energyict.genericprotocolimpl.iskragprs.csd.CSDCall;
 import com.energyict.genericprotocolimpl.iskragprs.csd.CSDCaller;
 import com.energyict.genericprotocolimpl.iskragprs.imagetransfer.ImageTransfer;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
-import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.amr.RtuRegister;
-import com.energyict.mdw.amr.RtuRegisterSpec;
-import com.energyict.mdw.core.AmrJournalEntry;
-import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.CommunicationProfile;
-import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.Folder;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.core.RtuMessage;
-import com.energyict.mdw.core.RtuType;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.amr.*;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterReadingData;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
-import com.energyict.protocol.messaging.Messaging;
+import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
-import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
-import com.energyict.protocolimpl.messages.RtuMessageConstant;
-import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
+import com.energyict.protocolimpl.messages.*;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -120,7 +52,8 @@ import java.util.logging.Logger;
  *         GNA |28092009| Added 4 custom properties to allow setting the 4 profiles
  */
 
-@Deprecated /** Deprecated as of jan 2012 - please use the new SmartMeter protocol (com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372) instead. **/
+@Deprecated
+/** Deprecated as of jan 2012 - please use the new SmartMeter protocol (com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372) instead. **/
 public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism, Messaging, HHUEnabler {
 
     private static final String DUPLICATE_SERIALS =
@@ -418,7 +351,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
      * @return
      */
     private String getPortNumber() {
-        String port = getMeter().getProperties().getProperty("IpPortNumber");
+        String port = (String) getMeter().getProperties().getProperty("IpPortNumber");
         if (port != null) {
             return port;
         } else {
@@ -775,8 +708,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
                 try {
                     iConf = requestConfigurationProgramChanges();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                     iConf = -1;
                     logger.severe("Iskra Mx37x: Configuration change is not accessible, request object list...");
@@ -810,8 +742,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
                     if (DEBUG >= 1) {
                         System.out.println("after requesting objectlist... iConf=" + iConf + ", dlmsCache.getConfProgChange()=" + dlmsCache.getConfProgChange());
                     }
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     iConf = -1;
                 }
             }
@@ -1058,6 +989,21 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         this.properties = properties;
     }
 
+    @Override
+    public void addProperties(TypedProperties properties) {
+        addProperties(properties.toStringProperties());
+    }
+
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    }
+
     private void validateProperties() throws MissingPropertyException, InvalidPropertyException {
         try {
             Iterator iterator = getRequiredKeys().iterator();
@@ -1098,8 +1044,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             genericMonthlyProfile = ObisCode.fromString(properties.getProperty("MonthlyLoadProfile", "1.0.98.1.0.255"));
 
 
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
 
         }
     }
@@ -1883,8 +1828,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             }
             rtu.store(mrd);
             msg.confirm();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             fail(e, msg, description);
         }
     }
@@ -1942,8 +1886,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
                 specialDaysTable.writeSpecialDays(builder.specialDays());
             }
             msg.confirm();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             fail(e, msg, description);
         }
     }
@@ -1964,8 +1907,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         String value = contents.substring(startIndex, endIndex);
         try {
             return Integer.parseInt(value);
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new IOException("Invalid userfile id: " + value);
         }
     }
@@ -1982,8 +1924,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             cal.set(Calendar.SECOND, Integer.parseInt(strDate.substring(strDate.lastIndexOf(":") + 1, strDate.length())));
             cal.clear(Calendar.MILLISECOND);
             return cal;
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new IOException("Invalid dateTime format for the applyThreshold message.");
         }
 
@@ -2197,7 +2138,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         buf.append(msgTag.getName());
 
         // b. Attributes
-        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
+        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
             MessageAttribute att = (MessageAttribute) it.next();
             if (att.getValue() == null || att.getValue().length() == 0) {
                 continue;
@@ -2211,7 +2152,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         }
         buf.append(">");
         // c. sub elements
-        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
+        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext(); ) {
             MessageElement elt = (MessageElement) it.next();
             if (elt.isTag()) {
                 buf.append(writeTag((MessageTag) elt));

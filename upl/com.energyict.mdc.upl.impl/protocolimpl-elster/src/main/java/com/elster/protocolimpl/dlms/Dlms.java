@@ -17,6 +17,8 @@ import com.elster.protocolimpl.dlms.registers.*;
 import com.elster.protocolimpl.dlms.util.ProtocolLink;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 
@@ -133,7 +135,19 @@ public class Dlms implements MeterProtocol, ProtocolLink, RegisterProtocol, Mess
         return "$Date: 2011-06-10 16:05:38 +0200 (vr, 10 jun 2011) $";
     }
 
+
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    }
+
     /**
+     * /**
      * the implementation returns both the address and password key
      *
      * @return a list of strings

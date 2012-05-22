@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.iec1107.kamstrup.unigas300;
 
 import com.energyict.cbo.Quantity;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
@@ -94,6 +96,20 @@ public abstract class AbstractUnigas300 implements MeterProtocol, ProtocolLink, 
             }
         }
     }
+
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    }
+
+    protected abstract List<String> getOptionalKeys();
+
+    protected abstract List<String> getRequiredKeys();
 
     /**
      * Read the profiledata from now - 10 days until now.

@@ -3,6 +3,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.discover;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.ShadowList;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.genericprotocolimpl.elster.ctr.*;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRDiscoverException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
@@ -274,7 +275,9 @@ public class MTU155Discover {
         InfoTypeFactory factory = mw().getInfoTypeFactory();
         InfoTypeShadow shadow = new InfoTypeShadow();
         shadow.setName(infoTypeName);
-        shadow.setProperties(new Properties());
+        shadow.setProperties(new TypedProperties(
+
+        ));
         return factory.create(shadow);
     }
 

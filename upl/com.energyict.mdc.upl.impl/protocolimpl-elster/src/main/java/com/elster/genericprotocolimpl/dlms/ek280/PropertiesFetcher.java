@@ -30,7 +30,7 @@ public class PropertiesFetcher {
     }
 
     private Properties getPropertiesFromRtu(Rtu rtu) {
-        Properties properties = rtu.getProperties();
+        Properties properties = rtu.getProperties().toStringProperties();
 
         properties.setProperty(MeterProtocol.PROFILEINTERVAL, replaceNullValue("" + rtu.getIntervalInSeconds()));
         properties.setProperty(MeterProtocol.NODEID, replaceNullValue(rtu.getNodeAddress()));
@@ -55,7 +55,7 @@ public class PropertiesFetcher {
     private Properties getPropertiesFromProtocolClass() {
         CommunicationProtocol protocol = findCommunicationProtocol();
         if (protocol != null) {
-            return protocol.getProperties();
+            return protocol.getProperties().toStringProperties();
         }
         getLogger().warning("No protocol properties found. Device type has no protocol. Using defaults!");
         return new Properties();

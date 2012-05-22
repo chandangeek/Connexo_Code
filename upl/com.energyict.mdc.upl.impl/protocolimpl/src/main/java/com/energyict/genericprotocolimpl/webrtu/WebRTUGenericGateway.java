@@ -3,6 +3,8 @@ package com.energyict.genericprotocolimpl.webrtu;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.*;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.common.CommonUtils;
 import com.energyict.mdw.amr.*;
@@ -605,8 +607,8 @@ public class WebRTUGenericGateway implements GenericProtocol {
     }
 
     private Properties getProperties(Rtu slave) {
-        properties = slave.getProperties();
-        Properties protocolProperties = slave.getProtocol().getProperties();
+        properties = slave.getProperties().toStringProperties();
+        Properties protocolProperties = slave.getProtocol().getProperties().toStringProperties();
 
         for (Object keyObject : protocolProperties.keySet()) {
             String key;
@@ -790,15 +792,18 @@ public class WebRTUGenericGateway implements GenericProtocol {
         return "$Date: 2012-02-16 14:45:23 +0100 (do, 16 feb 2012) $";
     }
 
-    public void addProperties(Properties properties) {
+    @Override
+    public void addProperties(TypedProperties properties) {
     }
 
-    public List getRequiredKeys() {
-        return new ArrayList();
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return Collections.emptyList();
     }
 
-    public List getOptionalKeys() {
-        return new ArrayList();
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return Collections.emptyList();
     }
 
     public void setLogger(Logger logger) {

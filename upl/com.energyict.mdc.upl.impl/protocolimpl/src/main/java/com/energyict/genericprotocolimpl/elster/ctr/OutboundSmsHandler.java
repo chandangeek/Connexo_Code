@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Iterator;
 
-public class OutboundSmsHandler{
+public class OutboundSmsHandler {
 
     private static final String SMS = "SMS";
 
@@ -25,12 +25,13 @@ public class OutboundSmsHandler{
      * Execute all Otubound SMS schedules.
      *
      * @throws com.energyict.cbo.BusinessException
+     *
      * @throws java.sql.SQLException
      */
     public void doExecute(CommunicationScheduler cs) throws BusinessException, SQLException, CTRConfigurationException, CTRConnectionException {
 
         meterProtocol.setRtu(cs.getRtu());
-        meterProtocol.getProtocolProperties().addProperties(meterProtocol.getRtu().getProperties());
+        meterProtocol.getProtocolProperties().addProperties(meterProtocol.getRtu().getProperties().toStringProperties());
 
         String phoneNumber = meterProtocol.getRtu().getPhoneNumber();
         if ((phoneNumber == null) || ("".compareTo(phoneNumber) == 0)) {

@@ -1,12 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.common;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cpo.*;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ProtocolProperties;
 
 import java.io.*;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -23,8 +25,8 @@ public abstract class AbstractSmartMeterProtocol implements SmartMeterProtocol {
 
     protected abstract ProtocolProperties getProtocolProperties();
 
-    public void addProperties(Properties properties) {
-        getProtocolProperties().addProperties(properties);
+    public void addProperties(TypedProperties properties) {
+        getProtocolProperties().addProperties(properties.toStringProperties());
     }
 
     public void validateProperties() throws InvalidPropertyException, MissingPropertyException {
@@ -62,12 +64,14 @@ public abstract class AbstractSmartMeterProtocol implements SmartMeterProtocol {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public List<String> getRequiredKeys() {
-        return getProtocolProperties().getRequiredKeys();
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getProtocolProperties().getRequiredKeys());
     }
 
-    public List<String> getOptionalKeys() {
-        return getProtocolProperties().getOptionalKeys();
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getProtocolProperties().getOptionalKeys());
     }
 
     public InputStream getInputStream() {

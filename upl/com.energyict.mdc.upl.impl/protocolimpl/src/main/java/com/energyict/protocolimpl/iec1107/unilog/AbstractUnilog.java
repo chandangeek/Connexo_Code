@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.iec1107.unilog;
 
 import com.energyict.cbo.Quantity;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
@@ -92,6 +94,20 @@ public abstract class AbstractUnilog implements MeterProtocol, RegisterProtocol,
                 throw new MissingPropertyException(key + " key missing");
             }
         }
+    }
+
+    protected abstract List<String> getRequiredKeys();
+
+    protected abstract List<String> getOptionalKeys();
+
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
     }
 
     /**

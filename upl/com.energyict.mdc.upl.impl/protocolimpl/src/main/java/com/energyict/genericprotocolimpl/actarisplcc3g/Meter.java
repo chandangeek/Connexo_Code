@@ -1,62 +1,64 @@
 package com.energyict.genericprotocolimpl.actarisplcc3g;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.*; 
-import java.util.logging.Logger;
-
+import com.energyict.cbo.BusinessException;
+import com.energyict.cpo.*;
+import com.energyict.dialer.core.Link;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.cbo.BusinessException;
-import com.energyict.dialer.core.Link;
-import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 
-public class Meter implements GenericProtocol, Messaging { 
-    
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.logging.Logger;
+
+public class Meter implements GenericProtocol, Messaging {
+
     private final static boolean ADVANCED = true;
-    
+
     public List getMessageCategories() {
-        
+
         List theCategories = new ArrayList();
         // Action Parameters
         MessageCategorySpec cat = new MessageCategorySpec("Actions");
         MessageSpec msgSpec = null;
-        
+
         msgSpec = addBasicMsg("Connect", RtuMessageConstant.CONNECT_LOAD, !ADVANCED);
         cat.addMessageSpec(msgSpec);
-        
+
         msgSpec = addBasicMsg("Disconnect", RtuMessageConstant.DISCONNECT_LOAD, !ADVANCED);
         cat.addMessageSpec(msgSpec);
-        
+
         theCategories.add(cat);
         return theCategories;
-        
+
     }
-    
+
     public String writeMessage(Message msg) {
         return msg.write(this);
     }
-    
+
     private MessageSpec addBasicMsg(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
         msgSpec.add(tagSpec);
         return msgSpec;
     }
-    
+
     public String writeTag(MessageTag msgTag) {
         StringBuffer buf = new StringBuffer();
-        
+
         // a. Opening tag
         buf.append("<");
         buf.append(msgTag.getName());
-        
+
         // b. Attributes
-        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
+        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
             MessageAttribute att = (MessageAttribute) it.next();
-            if (att.getValue() == null || att.getValue().length() == 0)
+            if (att.getValue() == null || att.getValue().length() == 0) {
                 continue;
+            }
             buf.append(" ").append(att.getSpec().getName());
             buf.append("=").append('"').append(att.getValue()).append('"');
         }
@@ -66,43 +68,45 @@ public class Meter implements GenericProtocol, Messaging {
         }
         buf.append(">");
         // c. sub elements
-        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
+        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext(); ) {
             MessageElement elt = (MessageElement) it.next();
-            if (elt.isTag())
+            if (elt.isTag()) {
                 buf.append(writeTag((MessageTag) elt));
-            else if (elt.isValue()) {
+            } else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if (value == null || value.length() == 0)
+                if (value == null || value.length() == 0) {
                     return "";
+                }
                 buf.append(value);
             }
         }
-        
+
         // d. Closing tag
         buf.append("</");
         buf.append(msgTag.getName());
         buf.append(">");
-        
+
         return buf.toString();
     }
-    
+
     public String writeValue(MessageValue msgValue) {
         return msgValue.getValue();
     }
 
     public void execute(
-            CommunicationScheduler scheduler, Link link, Logger logger) 
+            CommunicationScheduler scheduler, Link link, Logger logger)
             throws BusinessException, SQLException, IOException {
-        
-        String msg = 
-            "Meter Protocol can not be executed directly," +
-    		"only by going through the concentrator.";
-        
-        throw new BusinessException( msg );
-        
+
+        String msg =
+                "Meter Protocol can not be executed directly," +
+                        "only by going through the concentrator.";
+
+        throw new BusinessException(msg);
+
     }
 
-    public void addProperties(Properties properties) { }
+    public void addProperties(Properties properties) {
+    }
 
     public String getVersion() {
         return "$Revision: 1.6 $";
@@ -116,11 +120,25 @@ public class Meter implements GenericProtocol, Messaging {
         return new ArrayList();
     }
 
-	public long getTimeDifference() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-    
-  
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    }
+
+    @Override
+    public void addProperties(TypedProperties properties) {
+        addProperties(properties.toStringProperties());
+    }
+
+    public long getTimeDifference() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
 
 }

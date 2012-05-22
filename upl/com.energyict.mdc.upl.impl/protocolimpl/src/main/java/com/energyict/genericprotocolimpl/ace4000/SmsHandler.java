@@ -2,6 +2,7 @@ package com.energyict.genericprotocolimpl.ace4000;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Sms;
+import com.energyict.cpo.*;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.MeteringWarehouseFactory;
 import com.energyict.mdw.imp.*;
@@ -117,5 +118,20 @@ public class SmsHandler implements MessageHandler {
     public List<String> getRequiredKeys() {
         List<String> required = new ArrayList<String>();
         return required;
+    }
+
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    }
+
+    @Override
+    public void addProperties(TypedProperties properties) {
+        addProperties(properties.toStringProperties());
     }
 }

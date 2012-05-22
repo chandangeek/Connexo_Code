@@ -2,37 +2,17 @@ package com.energyict.protocolimpl.dlms.common;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.DlmsSessionProperties;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -87,6 +67,16 @@ public abstract class AbstractDlmsSessionProtocol implements MeterProtocol, Mess
         this.session.disconnect();
     }
 
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    }
+
     public List<String> getRequiredKeys() {
         return getProperties().getRequiredKeys();
     }
@@ -98,7 +88,7 @@ public abstract class AbstractDlmsSessionProtocol implements MeterProtocol, Mess
     protected Logger getLogger() {
         return this.session.getLogger();
     }
-    
+
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Calendar lastReading = Calendar.getInstance();
         lastReading.add(Calendar.DAY_OF_MONTH, -1);
@@ -212,5 +202,5 @@ public abstract class AbstractDlmsSessionProtocol implements MeterProtocol, Mess
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return new RegisterInfo(obisCode.getDescription());
     }
-    
+
 }

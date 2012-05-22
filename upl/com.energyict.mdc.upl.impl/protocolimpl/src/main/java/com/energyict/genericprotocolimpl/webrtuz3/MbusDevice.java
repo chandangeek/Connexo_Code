@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.webrtuz3;
 
 import com.energyict.cbo.*;
+import com.energyict.cpo.*;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.UniversalObject;
@@ -29,13 +30,13 @@ import java.util.logging.Logger;
 
 /**
  * @author gna
- * Changes:
- * GNA |27012009| Instead of using the nodeAddress as channelnumber we search for the channelnumber by looking at the mbusSerialNumbers
- * GNA |28012009| Added the connect/disconnect messages. There is an option to enter an activationDate but there is no Object description for the
- * 					Mbus disconnect controller yet ...
- * GNA |04022009| Mbus connect/disconnect can be applied with a scheduler. We use 0.x.24.6.0.255 as the ControlScheduler and 0.x.24.7.0.255 as ScriptTable
- * GNA |19022009| Added a message to change to connectMode of the disconnectorObject;
- * 					Changed all messageEntrys in date-form to a UnixTime entry;
+ *         Changes:
+ *         GNA |27012009| Instead of using the nodeAddress as channelnumber we search for the channelnumber by looking at the mbusSerialNumbers
+ *         GNA |28012009| Added the connect/disconnect messages. There is an option to enter an activationDate but there is no Object description for the
+ *         Mbus disconnect controller yet ...
+ *         GNA |04022009| Mbus connect/disconnect can be applied with a scheduler. We use 0.x.24.6.0.255 as the ControlScheduler and 0.x.24.7.0.255 as ScriptTable
+ *         GNA |19022009| Added a message to change to connectMode of the disconnectorObject;
+ *         Changed all messageEntrys in date-form to a UnixTime entry;
  */
 
 public class MbusDevice extends MbusMessages implements GenericProtocol {
@@ -60,18 +61,18 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
     public static final ObisCode DAILY_PROFILE_OBIS = ObisCode.fromString("0.0.24.3.1.255");
     public static final ObisCode MONTHLY_PROFILE_OBIS = ObisCode.fromString("0.0.24.3.2.255");
 
-    private long mbusAddress	= -1;		// this is the address that was given by the E-meter or a hardcoded MBusAddress in the MBusMeter itself
-	private int physicalAddress = -1;		// this is the orderNumber of the MBus meters on the E-meter, we need this to compute the ObisRegisterValues
-	private int medium = 15;				// value of an unknown medium
-	private String customerID;
-	private boolean valid;
+    private long mbusAddress = -1;        // this is the address that was given by the E-meter or a hardcoded MBusAddress in the MBusMeter itself
+    private int physicalAddress = -1;        // this is the orderNumber of the MBus meters on the E-meter, we need this to compute the ObisRegisterValues
+    private int medium = 15;                // value of an unknown medium
+    private String customerID;
+    private boolean valid;
 
-	public Rtu	mbus;
-	public CommunicationProfile commProfile;
-	private WebRTUZ3 webRtu;
-	private Logger logger;
-	private Unit mbusUnit;
-	private MbusObisCodeMapper mocm = null;
+    public Rtu mbus;
+    public CommunicationProfile commProfile;
+    private WebRTUZ3 webRtu;
+    private Logger logger;
+    private Unit mbusUnit;
+    private MbusObisCodeMapper mocm = null;
 
     private HistoricalRegisterReadings historicalRegisters;
     private MeterAmrLogging meterAmrLogging;
@@ -82,63 +83,63 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
     private boolean readDaily;
     private boolean readMonthly;
 
-    public MbusDevice(){
-		this.valid = false;
-	}
+    public MbusDevice() {
+        this.valid = false;
+    }
 
-	public MbusDevice(String serial, Rtu mbusRtu, Logger logger){
-		this(0, 0, serial, 15, mbusRtu, Unit.get(BaseUnit.UNITLESS), logger);
-	}
+    public MbusDevice(String serial, Rtu mbusRtu, Logger logger) {
+        this(0, 0, serial, 15, mbusRtu, Unit.get(BaseUnit.UNITLESS), logger);
+    }
 
-	public MbusDevice(String serial, int physicalAddress, Rtu mbusRtu, Logger logger){
-		this(0, physicalAddress, serial, 15, mbusRtu, Unit.get(BaseUnit.UNITLESS), logger);
-	}
+    public MbusDevice(String serial, int physicalAddress, Rtu mbusRtu, Logger logger) {
+        this(0, physicalAddress, serial, 15, mbusRtu, Unit.get(BaseUnit.UNITLESS), logger);
+    }
 
-	public MbusDevice(long mbusAddress, int phyaddress, String serial, int medium, Rtu mbusRtu, Unit mbusUnit, Logger logger){
-		this.mbusAddress = mbusAddress;
-		this.physicalAddress = phyaddress;
-		this.medium = medium;
-		this.customerID = serial;
-		this.mbusUnit = mbusUnit;
-		this.mbus = mbusRtu;
-		this.logger = logger;
-		this.valid = true;
-	}
+    public MbusDevice(long mbusAddress, int phyaddress, String serial, int medium, Rtu mbusRtu, Unit mbusUnit, Logger logger) {
+        this.mbusAddress = mbusAddress;
+        this.physicalAddress = phyaddress;
+        this.medium = medium;
+        this.customerID = serial;
+        this.mbusUnit = mbusUnit;
+        this.mbus = mbusRtu;
+        this.logger = logger;
+        this.valid = true;
+    }
 
-	private void verifySerialNumber() throws IOException{
-		String serial;
-		String eiSerial = getMbus().getSerialNumber();
-		try {
-			Data serialDataObject = getCosemObjectFactory().getData(ProtocolTools.setObisCodeField(WebRTUZ3.SERIALNR_OBISCODE, 1, (byte) physicalAddress));
-			OctetString serialOctetString = serialDataObject.getAttrbAbstractDataType(2).getOctetString();
-			serial = serialOctetString != null ? serialOctetString.stringValue() : null;
-		} catch (IOException e) {
-			throw new IOException("Could not retrieve the serialnumber of meter " + eiSerial + ": " + e);
-		}
-		if(!eiSerial.equals(serial)){
-			throw new IOException("Wrong serialnumber, EIServer settings: " + eiSerial + " - Meter settings: " + serial);
-		}
-	}
+    private void verifySerialNumber() throws IOException {
+        String serial;
+        String eiSerial = getMbus().getSerialNumber();
+        try {
+            Data serialDataObject = getCosemObjectFactory().getData(ProtocolTools.setObisCodeField(WebRTUZ3.SERIALNR_OBISCODE, 1, (byte) physicalAddress));
+            OctetString serialOctetString = serialDataObject.getAttrbAbstractDataType(2).getOctetString();
+            serial = serialOctetString != null ? serialOctetString.stringValue() : null;
+        } catch (IOException e) {
+            throw new IOException("Could not retrieve the serialnumber of meter " + eiSerial + ": " + e);
+        }
+        if (!eiSerial.equals(serial)) {
+            throw new IOException("Wrong serialnumber, EIServer settings: " + eiSerial + " - Meter settings: " + serial);
+        }
+    }
 
-	private CosemObjectFactory getCosemObjectFactory(){
-		return getWebRTU().getCosemObjectFactory();
-	}
+    private CosemObjectFactory getCosemObjectFactory() {
+        return getWebRTU().getCosemObjectFactory();
+    }
 
-	private DLMSMeterConfig getMeterConfig(){
-		return getWebRTU().getMeterConfig();
-	}
+    private DLMSMeterConfig getMeterConfig() {
+        return getWebRTU().getMeterConfig();
+    }
 
-	public boolean isValid() {
-		return valid;
-	}
+    public boolean isValid() {
+        return valid;
+    }
 
-	public String getCustomerID() {
-		return this.customerID;
-	}
+    public String getCustomerID() {
+        return this.customerID;
+    }
 
-	public String getVersion() {
-		return "$Date$";
-	}
+    public String getVersion() {
+        return "$Date$";
+    }
 
     public void validateProperties() throws MissingPropertyException, InvalidPropertyException {
         this.readRegular = (ProtocolTools.getPropertyAsInt(getProperties(), PROPERTY_READ_REGULAR_DEMAND_VALUES, DEFAULT_READ_REGULAR_DEMAND_VALUES) == 1) ? true : false;
@@ -147,17 +148,17 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
         this.runTestMethod = (ProtocolTools.getPropertyAsInt(getProperties(), PROPERTY_RUNTESTMETHOD, DEFAULT_RUNTESTMETHOD) == 1) ? true : false;
     }
 
-	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
-		this.commProfile = scheduler.getCommunicationProfile();
+    public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
+        this.commProfile = scheduler.getCommunicationProfile();
         validateProperties();
 
         testMethod();
 
-		// Before reading data, check the serialnumber
-		verifySerialNumber();
+        // Before reading data, check the serialnumber
+        verifySerialNumber();
 
         // import profile
-        if(commProfile.getReadDemandValues() && isReadRegular()){
+        if (commProfile.getReadDemandValues() && isReadRegular()) {
             getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + getMbus().getSerialNumber());
             MbusProfile mp = new MbusProfile(this);
             ProfileData pd = mp.getProfile(getProfileObisCode());
@@ -167,12 +168,12 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
             this.webRtu.getStoreObject().add(pd, getMbus());
         }
 
-        if(commProfile.getReadMeterEvents()){
-			getLogger().log(Level.INFO, "Getting events for meter with serialnumber: " + getMbus().getSerialNumber());
-			MbusEventProfile mep = new MbusEventProfile(this);
-			ProfileData eventPd = mep.getEvents();
-			this.webRtu.getStoreObject().add(eventPd, getMbus());
-		}
+        if (commProfile.getReadMeterEvents()) {
+            getLogger().log(Level.INFO, "Getting events for meter with serialnumber: " + getMbus().getSerialNumber());
+            MbusEventProfile mep = new MbusEventProfile(this);
+            ProfileData eventPd = mep.getEvents();
+            this.webRtu.getStoreObject().add(eventPd, getMbus());
+        }
 
         // import daily/monthly
         if (commProfile.getReadDemandValues()) {
@@ -199,10 +200,10 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
         }
 
         //send rtuMessages
-        if(commProfile.getSendRtuMessage()){
-			sendMeterMessages();
-		}
-	}
+        if (commProfile.getSendRtuMessage()) {
+            sendMeterMessages();
+        }
+    }
 
     private void testMethod() {
         if (isRunTestMethod()) {
@@ -224,51 +225,51 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
         }
     }
 
-	/**
-	 * We don't use the {@link DLMSProtocol#doReadRegisters()} method because we need to adjust the mbusChannel
-	 */
+    /**
+     * We don't use the {@link DLMSProtocol#doReadRegisters()} method because we need to adjust the mbusChannel
+     */
     private void doReadRegisters() {
-		Iterator registerIterator = getMbus().getRegisters().iterator();
-		List rtuRegisterGroups = this.commProfile.getRtuRegisterGroups();
+        Iterator registerIterator = getMbus().getRegisters().iterator();
+        List rtuRegisterGroups = this.commProfile.getRtuRegisterGroups();
 
-		while(registerIterator.hasNext()){
+        while (registerIterator.hasNext()) {
             ObisCode obisCode = null;
-			try {
-				RtuRegister rtuRegister = (RtuRegister)registerIterator.next();
-				if (CommonUtils.isInRegisterGroup(rtuRegisterGroups, rtuRegister)) {
-					obisCode = rtuRegister.getRtuRegisterSpec().getObisCode();
-					try{
-						RegisterValue registerValue = readRegister(obisCode);
-						if(registerValue != null){
-							registerValue.setRtuRegisterId(rtuRegister.getId());
-							if(rtuRegister.getReadingAt(registerValue.getReadTime()) == null){
-								getWebRTU().getStoreObject().add(rtuRegister, registerValue);
-							}
-						} else {
+            try {
+                RtuRegister rtuRegister = (RtuRegister) registerIterator.next();
+                if (CommonUtils.isInRegisterGroup(rtuRegisterGroups, rtuRegister)) {
+                    obisCode = rtuRegister.getRtuRegisterSpec().getObisCode();
+                    try {
+                        RegisterValue registerValue = readRegister(obisCode);
+                        if (registerValue != null) {
+                            registerValue.setRtuRegisterId(rtuRegister.getId());
+                            if (rtuRegister.getReadingAt(registerValue.getReadTime()) == null) {
+                                getWebRTU().getStoreObject().add(rtuRegister, registerValue);
+                            }
+                        } else {
                             throw new NoSuchRegisterException("Register returned null");
-						}
-					} catch (NoSuchRegisterException e) {
+                        }
+                    } catch (NoSuchRegisterException e) {
                         getMeterAmrLogging().logRegisterFailure(e, obisCode);
                         getLogger().log(Level.INFO, "ObisCode " + obisCode + " is not supported by the meter. [" + e.getMessage() + "]");
-					}
-				}
-			} catch (IOException e) {
+                    }
+                }
+            } catch (IOException e) {
                 getMeterAmrLogging().logRegisterFailure(e, obisCode);
                 getLogger().log(Level.INFO, "Reading register with obisCode " + obisCode + " FAILED. [" + e.getMessage() + "]");
-			}
-		}
-	}
+            }
+        }
+    }
 
-	private void sendMeterMessages() throws BusinessException, SQLException {
-		MbusMessageExecutor messageExecutor = new MbusMessageExecutor(this);
+    private void sendMeterMessages() throws BusinessException, SQLException {
+        MbusMessageExecutor messageExecutor = new MbusMessageExecutor(this);
         List<RtuMessage> pendingMessages = getMbus().getPendingMessages();
         for (int i = 0; i < pendingMessages.size(); i++) {
-            RtuMessage rtuMessage =  pendingMessages.get(i);
+            RtuMessage rtuMessage = pendingMessages.get(i);
             messageExecutor.doMessage(rtuMessage);
-		}
-	}
+        }
+    }
 
-	private RegisterValue readRegister(ObisCode obisCode) throws IOException{
+    private RegisterValue readRegister(ObisCode obisCode) throws IOException {
         RegisterValue registerValue = null;
 
         try {
@@ -279,11 +280,11 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
                 physicalObisCode = ProtocolTools.setObisCodeField(physicalObisCode, 5, (byte) (physicalObisCode.getF() - 12));
                 registerValue = getHistoricalRegisters().readHistoricalDailyRegister(physicalObisCode);
             } else { //Another register
-		if(this.mocm == null){
-			this.mocm = new MbusObisCodeMapper(getCosemObjectFactory());
-		}
-		        registerValue = mocm.getRegisterValue(physicalObisCode);
-	}
+                if (this.mocm == null) {
+                    this.mocm = new MbusObisCodeMapper(getCosemObjectFactory());
+                }
+                registerValue = mocm.getRegisterValue(physicalObisCode);
+            }
         } catch (Exception e) {
             throw new NoSuchRegisterException(e.getMessage());
         }
@@ -293,21 +294,36 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
         }
 
         return ProtocolTools.setRegisterValueObisCode(registerValue, obisCode);
-	}
+    }
 
-	public Rtu getMbus(){
-		return this.mbus;
-	}
+    public Rtu getMbus() {
+        return this.mbus;
+    }
 
-	public int getPhysicalAddress(){
-		return this.physicalAddress;
-	}
+    public int getPhysicalAddress() {
+        return this.physicalAddress;
+    }
 
-	public void addProperties(Properties properties) {
+    @Override
+    public void addProperties(TypedProperties properties) {
+        addProperties(properties.toStringProperties());
+    }
+
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    }
+
+    public void addProperties(Properties properties) {
         if (properties != null) {
             getProperties().putAll(properties);
         }
-	}
+    }
 
     public List<String> getOptionalKeys() {
         List<String> optionalKeys = new ArrayList<String>();
@@ -323,40 +339,39 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
         return requiredKeys;
     }
 
-	public Logger getLogger() {
-		return this.logger;
-	}
+    public Logger getLogger() {
+        return this.logger;
+    }
 
-	public void setWebRtu(WebRTUZ3 webRTUKP) {
-		this.webRtu = webRTUKP;
-	}
+    public void setWebRtu(WebRTUZ3 webRTUKP) {
+        this.webRtu = webRTUKP;
+    }
 
-	public WebRTUZ3 getWebRTU(){
-		return this.webRtu;
-	}
+    public WebRTUZ3 getWebRTU() {
+        return this.webRtu;
+    }
 
-	public long getTimeDifference() {
-		return 0;
-	}
+    public long getTimeDifference() {
+        return 0;
+    }
 
-	public ObisCode getProfileObisCode() {
-		return ProtocolTools.setObisCodeField(PROFILE_OBISCODE, 1, (byte) physicalAddress);
-	}
+    public ObisCode getProfileObisCode() {
+        return ProtocolTools.setObisCodeField(PROFILE_OBISCODE, 1, (byte) physicalAddress);
+    }
 
-	@Override
-	public String toString() {
-		return "[" + physicalAddress + "] " + customerID;
-	}
+    @Override
+    public String toString() {
+        return "[" + physicalAddress + "] " + customerID;
+    }
 
     /**
-     *
-      * @param baseObisCode
+     * @param baseObisCode
      * @return
      */
     public ObisCode getCorrectedObisCode(ObisCode baseObisCode) {
-		return ProtocolTools.setObisCodeField(baseObisCode, 1, (byte) physicalAddress);
-	}
-    
+        return ProtocolTools.setObisCodeField(baseObisCode, 1, (byte) physicalAddress);
+    }
+
     public HistoricalRegisterReadings getHistoricalRegisters() {
         if (historicalRegisters == null) {
             historicalRegisters = new HistoricalRegisterReadings(getCosemObjectFactory(), getCorrectedObisCode(DAILY_PROFILE_OBIS), getCorrectedObisCode(MONTHLY_PROFILE_OBIS), getLogger());
@@ -365,13 +380,12 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
     }
 
     /**
-     *
      * @return
      */
     public MeterAmrLogging getMeterAmrLogging() {
         if (meterAmrLogging == null) {
             meterAmrLogging = new MeterAmrLogging();
-}
+        }
         return meterAmrLogging;
     }
 

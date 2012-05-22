@@ -2,6 +2,8 @@ package com.energyict.protocolimpl.iec1107.a140;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
@@ -18,37 +20,40 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * @beginchanges
-  FBL |03112005| bugfix for DST transition, timechange in past and serialnr
-  || DST transition, a single value was lost. 
-  || (due to generation of bad unique id for entry)
-  || timechange in past, overwrite behaviour for bad values.
-  || the newest value is now saved, unless it is an init value
-  || serialnr does not take dashes into account like the other Elster protocols.
-  FBL |24112005| bugfix TimeDate was buffered by protocol.  Must be 
-  || reloaded every time.
-  FBL |24112006| bugfix for 0xE4 byte in date field.  A new day in Load
-  || Profile starts with "0xE4-date-demand period".  Within such a date 
-  || an 0xE4 character can occur again.  Solution: when an 0xE4 byte is 
-  || found, skip next 5 bytes (date=4 bytes and demand period = 1 byte).
- * @endchanges
  * @author fbo
+ * @beginchanges FBL |03112005| bugfix for DST transition, timechange in past and serialnr
+ * || DST transition, a single value was lost.
+ * || (due to generation of bad unique id for entry)
+ * || timechange in past, overwrite behaviour for bad values.
+ * || the newest value is now saved, unless it is an init value
+ * || serialnr does not take dashes into account like the other Elster protocols.
+ * FBL |24112005| bugfix TimeDate was buffered by protocol.  Must be
+ * || reloaded every time.
+ * FBL |24112006| bugfix for 0xE4 byte in date field.  A new day in Load
+ * || Profile starts with "0xE4-date-demand period".  Within such a date
+ * || an 0xE4 character can occur again.  Solution: when an 0xE4 byte is
+ * || found, skip next 5 bytes (date=4 bytes and demand period = 1 byte).
+ * @endchanges
  */
 
 public class A140 implements MeterProtocol, ProtocolLink, HHUEnabler,
         SerialNumber, MeterExceptionInfo, RegisterProtocol {
 
     private int dbg = 0;
-    
+
     final static long FORCE_DELAY = 350;
-    
-    /** Property keys specific for A140 protocol. */
+
+    /**
+     * Property keys specific for A140 protocol.
+     */
     final static String PK_TIMEOUT = "Timeout";
     final static String PK_RETRIES = "Retries";
     final static String PK_SECURITY_LEVEL = "SecurityLevel";
     final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
 
-    /** Property Default values */
+    /**
+     * Property Default values
+     */
     final static String PD_NODE_ID = "";
     final static int PD_TIMEOUT = 10000;
     final static int PD_RETRIES = 5;
@@ -76,7 +81,7 @@ public class A140 implements MeterProtocol, ProtocolLink, HHUEnabler,
     int pCorrectTime = 0;
 
     String pExtendedLogging = PD_EXTENDED_LOGGING;
-    
+
     private MeterType meterType = null;
     private RegisterFactory rFactory = null;
     private ObisCodeMapper obisCodeMapper = null;
@@ -84,9 +89,9 @@ public class A140 implements MeterProtocol, ProtocolLink, HHUEnabler,
     private TimeZone timeZone = null;
     private Logger logger = null;
     private DataType dataType = null;
-    
+
     private boolean software7E1;
-    
+
 
     public A140() {
     }
@@ -102,55 +107,78 @@ public class A140 implements MeterProtocol, ProtocolLink, HHUEnabler,
     public void setProperties(Properties p) throws InvalidPropertyException,
             MissingPropertyException {
 
-        if (p.getProperty(MeterProtocol.ADDRESS) != null)
+        if (p.getProperty(MeterProtocol.ADDRESS) != null) {
             pAddress = p.getProperty(MeterProtocol.ADDRESS);
+        }
 
-        if (p.getProperty(MeterProtocol.NODEID) != null)
+        if (p.getProperty(MeterProtocol.NODEID) != null) {
             pNodeId = p.getProperty(MeterProtocol.NODEID);
+        }
 
-        if (p.getProperty(MeterProtocol.SERIALNUMBER) != null)
+        if (p.getProperty(MeterProtocol.SERIALNUMBER) != null) {
             pSerialNumber = p.getProperty(MeterProtocol.SERIALNUMBER);
+        }
 
-        if (p.getProperty(MeterProtocol.PASSWORD) != null)
+        if (p.getProperty(MeterProtocol.PASSWORD) != null) {
             pPassword = p.getProperty(MeterProtocol.PASSWORD);
+        }
 
-        if (p.getProperty(PK_TIMEOUT) != null)
-            pTimeout = new Integer( p.getProperty(PK_TIMEOUT) ).intValue(); 
+        if (p.getProperty(PK_TIMEOUT) != null) {
+            pTimeout = new Integer(p.getProperty(PK_TIMEOUT)).intValue();
+        }
 
-        if (p.getProperty(PK_RETRIES) != null)
-            pRetries = new Integer(p.getProperty(PK_RETRIES) ).intValue();
+        if (p.getProperty(PK_RETRIES) != null) {
+            pRetries = new Integer(p.getProperty(PK_RETRIES)).intValue();
+        }
 
-        if (p.getProperty(MeterProtocol.ROUNDTRIPCORR) != null)
-            pRountTripCorrection = new Integer(p.getProperty(MeterProtocol.ROUNDTRIPCORR) ).intValue();
+        if (p.getProperty(MeterProtocol.ROUNDTRIPCORR) != null) {
+            pRountTripCorrection = new Integer(p.getProperty(MeterProtocol.ROUNDTRIPCORR)).intValue();
+        }
 
-        if (p.getProperty(MeterProtocol.CORRECTTIME) != null)
+        if (p.getProperty(MeterProtocol.CORRECTTIME) != null) {
             pCorrectTime = Integer.parseInt(p.getProperty(MeterProtocol.CORRECTTIME));
+        }
 
-        if (p.getProperty(PK_EXTENDED_LOGGING) != null)
+        if (p.getProperty(PK_EXTENDED_LOGGING) != null) {
             pExtendedLogging = p.getProperty(PK_EXTENDED_LOGGING);
-        
+        }
+
         this.software7E1 = !p.getProperty("Software7E1", "0").equalsIgnoreCase("0");
         validateProperties();
 
     }
-    
-    /** the implementation returns both the address and password key
+
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    }
+
+    /**
+     * the implementation returns both the address and password key
+     *
      * @return a list of strings
      */
     public List getRequiredKeys() {
         List result = new ArrayList(0);
         return result;
     }
-    
-    /** this implementation returns an empty list
+
+    /**
+     * this implementation returns an empty list
+     *
      * @return a list of strings
      */
     public List getOptionalKeys() {
         List result = new ArrayList();
-        result.add( MeterProtocol.ADDRESS );
-        result.add( PK_TIMEOUT );
-        result.add( PK_RETRIES );
-        result.add( PK_EXTENDED_LOGGING );
+        result.add(MeterProtocol.ADDRESS);
+        result.add(PK_TIMEOUT);
+        result.add(PK_RETRIES);
+        result.add(PK_EXTENDED_LOGGING);
         result.add("Software7E1");
         return result;
     }
@@ -162,27 +190,27 @@ public class A140 implements MeterProtocol, ProtocolLink, HHUEnabler,
      *      java.io.OutputStream, java.util.TimeZone, java.util.logging.Logger)
      */
     public void init(InputStream inputStream, OutputStream outputStream,
-            TimeZone timeZone, Logger logger) throws IOException {
+                     TimeZone timeZone, Logger logger) throws IOException {
 
         this.timeZone = timeZone;
         this.logger = logger;
 
         if (logger.isLoggable(Level.INFO)) {
-            String infoMsg = 
-                "A140 protocol init \n" 
-                    + " Address = " + pAddress + ","
-                    + " Node Id = " + pNodeId + ","
-                    + " SerialNr = " + pSerialNumber + "," 
-                    + " Psswd = " + pPassword + ","
-                    + " Timeout = " + pTimeout + ","
-                    + " Retries = " + pRetries + ","
-                    + " Ext. Logging = " + pExtendedLogging + ","
-                    + " RoundTripCorr = " + pRountTripCorrection + ","
-                    + " Correct Time = " + pCorrectTime + ","
-                    + " TimeZone = " + timeZone.getID();
+            String infoMsg =
+                    "A140 protocol init \n"
+                            + " Address = " + pAddress + ","
+                            + " Node Id = " + pNodeId + ","
+                            + " SerialNr = " + pSerialNumber + ","
+                            + " Psswd = " + pPassword + ","
+                            + " Timeout = " + pTimeout + ","
+                            + " Retries = " + pRetries + ","
+                            + " Ext. Logging = " + pExtendedLogging + ","
+                            + " RoundTripCorr = " + pRountTripCorrection + ","
+                            + " Correct Time = " + pCorrectTime + ","
+                            + " TimeZone = " + timeZone.getID();
 
             logger.info(infoMsg);
-            
+
         }
 
         try {
@@ -194,27 +222,27 @@ public class A140 implements MeterProtocol, ProtocolLink, HHUEnabler,
         }
 
     }
-    
+
     /*
-     * (non-Javadoc)
-     * 
-     * @see com.energyict.protocol.MeterProtocol#connect()
-     */
+    * (non-Javadoc)
+    *
+    * @see com.energyict.protocol.MeterProtocol#connect()
+    */
     public void connect() throws IOException {
         connect(0);
     }
-    
-    void connect( int baudRate ) throws IOException {
+
+    void connect(int baudRate) throws IOException {
         try {
 
             meterType = flagConnection.connectMAC(pAddress, pPassword,
-                    pSecurityLevel, pNodeId, baudRate );
+                    pSecurityLevel, pNodeId, baudRate);
 
             logger.log(Level.INFO, "Meter " + meterType.getReceivedIdent());
             rFactory = new RegisterFactory(this);
-            dataType = new DataType( timeZone );
-            obisCodeMapper = new ObisCodeMapper(this,rFactory);
-            
+            dataType = new DataType(timeZone);
+            obisCodeMapper = new ObisCodeMapper(this, rFactory);
+
             validateSerialNumber();
             doExtendedLogging();
 
@@ -223,7 +251,7 @@ public class A140 implements MeterProtocol, ProtocolLink, HHUEnabler,
             throw new IOException(e.getMessage());
         } catch (NumberFormatException nex) {
             throw new IOException(nex.getMessage());
-        }        
+        }
     }
 
     public void disconnect() throws IOException {
@@ -232,16 +260,16 @@ public class A140 implements MeterProtocol, ProtocolLink, HHUEnabler,
         obisCodeMapper = null;
         flagConnection.disconnectMAC();
     }
-    
+
     public int getNumberOfChannels() throws UnsupportedException, IOException {
         return 1;
     }
-    
+
     /* (non-Javadoc)
-     * @see com.energyict.protocol.MeterProtocol#getProfileData(boolean)
-     */
+    * @see com.energyict.protocol.MeterProtocol#getProfileData(boolean)
+    */
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
-        return rFactory.getLoadProfile().getProfileData( );
+        return rFactory.getLoadProfile().getProfileData();
     }
 
     /* (non-Javadoc)
@@ -257,7 +285,7 @@ public class A140 implements MeterProtocol, ProtocolLink, HHUEnabler,
      */
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents)
             throws IOException {
-        return rFactory.getLoadProfile().getProfileData( from, to );
+        return rFactory.getLoadProfile().getProfileData(from, to);
     }
 
     public int getProfileInterval() throws UnsupportedException, IOException {
@@ -302,10 +330,10 @@ public class A140 implements MeterProtocol, ProtocolLink, HHUEnabler,
     public TimeZone getTimeZone() {
         return timeZone;
     }
-    
+
     /* (non-Javadoc)
-     * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getNrOfRetries()
-     */
+    * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getNrOfRetries()
+    */
     public int getNrOfRetries() {
         return pRetries;
     }
@@ -319,7 +347,7 @@ public class A140 implements MeterProtocol, ProtocolLink, HHUEnabler,
      *      boolean)
      */
     public void enableHHUSignOn(SerialCommunicationChannel commChannel,
-            boolean enableDataReadout) throws ConnectionException {
+                                boolean enableDataReadout) throws ConnectionException {
         HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel,
                 pTimeout, pRetries, FORCE_DELAY, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
@@ -357,14 +385,14 @@ public class A140 implements MeterProtocol, ProtocolLink, HHUEnabler,
         SerialCommunicationChannel cChannel = discoverInfo.getCommChannel();
         String nodeId = discoverInfo.getNodeId();
         int baudrate = discoverInfo.getBaudrate();
-        
+
         Properties p = new Properties();
-        p.setProperty("SecurityLevel","0");
-        p.setProperty(MeterProtocol.NODEID,nodeId==null?"":nodeId);
-        p.setProperty("IEC1107Compatible","1");
+        p.setProperty("SecurityLevel", "0");
+        p.setProperty(MeterProtocol.NODEID, nodeId == null ? "" : nodeId);
+        p.setProperty("IEC1107Compatible", "1");
         setProperties(p);
-        
-        init(cChannel.getInputStream(),cChannel.getOutputStream(),null,null);
+
+        init(cChannel.getInputStream(), cChannel.getOutputStream(), null, null);
         enableHHUSignOn(cChannel);
         connect(baudrate);
         String serialNumber = rFactory.getSerialNumber().getSerialNumber();
@@ -395,10 +423,11 @@ public class A140 implements MeterProtocol, ProtocolLink, HHUEnabler,
      */
     public String getExceptionInfo(String id) {
         String exceptionInfo = (String) exception.get(id);
-        if (exceptionInfo != null)
+        if (exceptionInfo != null) {
             return id + ", " + exceptionInfo;
-        else
+        } else {
             return "No meter specific exception info for " + id;
+        }
     }
 
     /* ___ Implement interface RegisterProtocol ___ */
@@ -431,10 +460,11 @@ public class A140 implements MeterProtocol, ProtocolLink, HHUEnabler,
      * @throws IOException
      */
     public void doExtendedLogging() throws IOException {
-        if( "1".equals(pExtendedLogging ) ) {
-            logger.log( Level.INFO, obisCodeMapper.getExtendedLogging() + "\n" );
-            if( dbg > 0)
-                logger.log(Level.INFO, obisCodeMapper.getDebugLogging()+"\n");
+        if ("1".equals(pExtendedLogging)) {
+            logger.log(Level.INFO, obisCodeMapper.getExtendedLogging() + "\n");
+            if (dbg > 0) {
+                logger.log(Level.INFO, obisCodeMapper.getDebugLogging() + "\n");
+            }
         }
     }
 
@@ -466,10 +496,10 @@ public class A140 implements MeterProtocol, ProtocolLink, HHUEnabler,
 
     public void setTime() throws IOException {
         getFlagIEC1107Connection().authenticate();
-        Calendar calendar=null;
+        Calendar calendar = null;
         calendar = ProtocolUtils.getCalendar(timeZone);
-        calendar.add(Calendar.MILLISECOND, pRountTripCorrection );
-        rFactory.getTimeAndDate().setTime( calendar.getTime() );
+        calendar.add(Calendar.MILLISECOND, pRountTripCorrection);
+        rFactory.getTimeAndDate().setTime(calendar.getTime());
         rFactory.getTimeAndDate().write();
     }
 
@@ -506,40 +536,42 @@ public class A140 implements MeterProtocol, ProtocolLink, HHUEnabler,
         // TODO Auto-generated method stub
         return false;
     }
-    
-    public DataType getDataType( ){
+
+    public DataType getDataType() {
         return dataType;
     }
-    
+
     /* ___ Private property checking ___ */
-    
-    private void validateSerialNumber( ) throws IOException {
-        if ((pSerialNumber == null) || ("".equals(pSerialNumber)))
+
+    private void validateSerialNumber() throws IOException {
+        if ((pSerialNumber == null) || ("".equals(pSerialNumber))) {
             return;
-        // at this point pSerialNumber can not be null any more
-        
-        String sn = (String) rFactory.getSerialNumber().getSerialNumber();
-        if( sn!= null ) {
-            
-            String snNoDash = sn.replaceAll( "-+", "" );
-            
-            String pSerialNumberNoDash = pSerialNumber.replaceAll( "-+", "" );
-            
-            if( pSerialNumberNoDash.equals( snNoDash ) )
-                return;
         }
-        
+        // at this point pSerialNumber can not be null any more
+
+        String sn = (String) rFactory.getSerialNumber().getSerialNumber();
+        if (sn != null) {
+
+            String snNoDash = sn.replaceAll("-+", "");
+
+            String pSerialNumberNoDash = pSerialNumber.replaceAll("-+", "");
+
+            if (pSerialNumberNoDash.equals(snNoDash)) {
+                return;
+            }
+        }
+
         throw new IOException("SerialNumber mismatch! meter sn=" + sn
-        + ", configured sn=" + pSerialNumber);
-    }    
-    
+                + ", configured sn=" + pSerialNumber);
+    }
+
     private void validateProperties() throws MissingPropertyException,
             InvalidPropertyException {
-    	
+
     }
 
     /* ___ Unsupported methods ___ */
-    
+
     public void setCache(Object cacheObject) {
     }
 
@@ -554,12 +586,12 @@ public class A140 implements MeterProtocol, ProtocolLink, HHUEnabler,
     public void updateCache(int rtuid, Object cacheObject) throws SQLException,
             BusinessException {
     }
-    
+
     /*
-     * (non-Javadoc)
-     * 
-     * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getChannelMap()
-     */
+    * (non-Javadoc)
+    *
+    * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getChannelMap()
+    */
     public ChannelMap getChannelMap() {
         return null;
     }
@@ -572,15 +604,19 @@ public class A140 implements MeterProtocol, ProtocolLink, HHUEnabler,
     public byte[] getDataReadout() {
         return null;
     }
-    
-    /** for easy debugging */
-    void setTimeZone( TimeZone timeZone ){
+
+    /**
+     * for easy debugging
+     */
+    void setTimeZone(TimeZone timeZone) {
         this.timeZone = timeZone;
     }
-    
-    /** for easy debugging */
-    void setLogger( Logger logger ){
+
+    /**
+     * for easy debugging
+     */
+    void setLogger(Logger logger) {
         this.logger = logger;
     }
-    
+
 }

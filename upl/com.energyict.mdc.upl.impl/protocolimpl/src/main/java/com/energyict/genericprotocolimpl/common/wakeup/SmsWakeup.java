@@ -4,9 +4,7 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Utils;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.*;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.vodafone.gdsp.ws.*;
@@ -123,11 +121,11 @@ public class SmsWakeup {
      * Set some polling properties
      */
     private void updateProperties() {
-        this.pollTimeout = Integer.parseInt(this.meter.getProperties().getProperty("PollTimeOut", "900000"));
-        String pollFreqProp = this.meter.getProperties().getProperty("PollFrequency", "20:5");
+        this.pollTimeout = Integer.parseInt((String) this.meter.getProperties().getProperty("PollTimeOut", "900000"));
+        String pollFreqProp = (String) this.meter.getProperties().getProperty("PollFrequency", "20:5");
         String[] freqs = pollFreqProp.split(":");
         this.firstPoll = Integer.parseInt(freqs[0]);
-        if(freqs.length == 1){
+        if (freqs.length == 1) {
             this.secondPollFrequency = 5;
         } else {
             this.secondPollFrequency = Integer.parseInt(freqs[1]);
@@ -138,7 +136,7 @@ public class SmsWakeup {
         this.firstPoll = (this.firstPoll < 1000) ? (this.firstPoll * 1000) : this.firstPoll;
         this.secondPollFrequency = (this.secondPollFrequency < 1000) ? (this.secondPollFrequency * 1000) : this.secondPollFrequency;
 
-        this.wakeUpRequestTimeOut = Integer.parseInt(this.meter.getProperties().getProperty("WakeUpRequestTimeOut", "30000"));
+        this.wakeUpRequestTimeOut = Integer.parseInt((String) this.meter.getProperties().getProperty("WakeUpRequestTimeOut", "30000"));
         String host = mw().getSystemProperty(VF_ENDPOINT_ADDRESS_PROPERTY);
         if (host == null) {
             endpointAddress = Environment.getDefault().getProperty(VF_ENDPOINT_ADDRESS_PROPERTY, "http://localhost:4423/SharedResources/COMM_DEVICE/WUTriggerService.serviceagent/WUTriggerPort");
@@ -349,7 +347,7 @@ public class SmsWakeup {
 
     private void log(int level, String msg) {
         if (this.logLevel == -2) {
-            this.logLevel = Integer.parseInt(this.meter.getProperties().getProperty("TestLogging", "-1"));
+            this.logLevel = Integer.parseInt((String) this.meter.getProperties().getProperty("TestLogging", "-1"));
         }
         if (level <= this.logLevel) {
             this.logger.info(msg);

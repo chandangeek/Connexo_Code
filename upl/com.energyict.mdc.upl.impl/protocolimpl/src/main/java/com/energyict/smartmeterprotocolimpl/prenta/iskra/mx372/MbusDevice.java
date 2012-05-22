@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
 import com.energyict.cbo.Unit;
+import com.energyict.cpo.*;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
@@ -19,33 +20,33 @@ import java.util.logging.Logger;
 public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProfileMessaging, LoadProfileRegisterMessaging {
 
     private int mbusAddress = -1;        // this is the address that was given by the E-meter or a hardcoded MBusAddress in the MBusMeter itself
-    private int physicalAddress = -1;	// this is the orderNumber of the MBus meters on the E-meter, we need this to compute the ObisRegisterValues
-	private int medium = 15;
+    private int physicalAddress = -1;    // this is the orderNumber of the MBus meters on the E-meter, we need this to compute the ObisRegisterValues
+    private int medium = 15;
 
-	private String customerID;
-	private String rtuType;
-	private Unit mbusUnit;
+    private String customerID;
+    private String rtuType;
+    private Unit mbusUnit;
 
     private IskraMx372 iskra;
-	public Rtu	mbus;
-	private Logger logger;
+    public Rtu mbus;
+    private Logger logger;
 
     public MbusDevice() {
-	}
+    }
 
-	public MbusDevice(int mbusAddress, int phyAddress, String serial, int mbusMedium, Rtu rtu, Unit unit, IskraMx372 protocol) throws InvalidPropertyException, MissingPropertyException {
-		this.mbusAddress = mbusAddress;
-		this.physicalAddress = phyAddress;
-		this.customerID = serial;
-		this.medium = mbusMedium;
-		this.mbus = rtu;
-		this.mbusUnit = unit;
-		this.logger = protocol.getLogger();
+    public MbusDevice(int mbusAddress, int phyAddress, String serial, int mbusMedium, Rtu rtu, Unit unit, IskraMx372 protocol) throws InvalidPropertyException, MissingPropertyException {
+        this.mbusAddress = mbusAddress;
+        this.physicalAddress = phyAddress;
+        this.customerID = serial;
+        this.medium = mbusMedium;
+        this.mbus = rtu;
+        this.mbusUnit = unit;
+        this.logger = protocol.getLogger();
         this.iskra = protocol;
-		if(mbus != null){
-			setProperties(mbus.getProperties());
-		}
-	}
+        if (mbus != null) {
+            setProperties(mbus.getProperties().toStringProperties());
+        }
+    }
 
     @Override
     public MessageProtocol getMessageProtocol() {
@@ -57,7 +58,7 @@ public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
     }
 
     public PartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return ((IskraMx372MbusMessaging)getMessageProtocol()).getPartialLoadProfileMessageBuilder();
+        return ((IskraMx372MbusMessaging) getMessageProtocol()).getPartialLoadProfileMessageBuilder();
     }
 
     /**
@@ -69,6 +70,21 @@ public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
         return "$Date$";
     }
 
+    @Override
+    public void addProperties(TypedProperties properties) {
+        addProperties(properties.toStringProperties());
+    }
+
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    }
+
     /**
      * add the properties
      *
@@ -76,17 +92,17 @@ public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
      */
     public void addProperties(Properties properties) {
         try {
-			setProperties(properties);
-		} catch (InvalidPropertyException e) {
-			e.printStackTrace();
-		} catch (MissingPropertyException e) {
-			e.printStackTrace();
-		}
+            setProperties(properties);
+        } catch (InvalidPropertyException e) {
+            e.printStackTrace();
+        } catch (MissingPropertyException e) {
+            e.printStackTrace();
+        }
     }
 
     public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
-		rtuType = properties.getProperty("RtuType","mbus");
-	}
+        rtuType = properties.getProperty("RtuType", "mbus");
+    }
 
     /**
      * Returns a list of required property keys

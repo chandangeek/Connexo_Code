@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.common;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.mdw.amr.GenericProtocol;
@@ -78,6 +79,13 @@ public abstract class AbstractGenericProtocol extends GenericMessaging implement
     public void addProperties(Properties properties) {
         this.properties = properties;
     }
+
+
+    @Override
+    public void addProperties(TypedProperties properties) {
+        addProperties(properties.toStringProperties());
+    }
+
 
     /**
      * Lazy getter for the generic protocol properties

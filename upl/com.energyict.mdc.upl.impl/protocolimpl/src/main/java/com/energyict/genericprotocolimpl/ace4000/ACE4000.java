@@ -2,7 +2,7 @@ package com.energyict.genericprotocolimpl.ace4000;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.Environment;
+import com.energyict.cpo.*;
 import com.energyict.genericprotocolimpl.ace4000.objects.ObjectFactory;
 import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.genericprotocolimpl.common.AbstractGenericProtocol;
@@ -503,6 +503,16 @@ public class ACE4000 extends AbstractGenericProtocol {
         return properties.getRequiredKeys();
     }
 
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    }
+
     public void initProperties(Properties properties) {
         this.properties.addProperties(properties);
     }
@@ -538,10 +548,10 @@ public class ACE4000 extends AbstractGenericProtocol {
             if (masterMeter == null) {    // Find the concerning RTU in the database, load the properties
 
                 if (isMasterMeter(getPushedSerialNumber())) {
-                    initProperties(getMasterMeter().getProperties());
+                    initProperties(getMasterMeter().getProperties().toStringProperties());
                     findAllSlaveMeters();
                 } else if (isSlaveMeter(getPushedSerialNumber())) {
-                    initProperties(getMBusMetersMap().get(getPushedSerialNumber()).getProperties());
+                    initProperties(getMBusMetersMap().get(getPushedSerialNumber()).getProperties().toStringProperties());
                     findMasterMeter();
                     findAllSlaveMeters();
                 } else {

@@ -1,35 +1,23 @@
 package com.energyict.genericprotocolimpl.nta.abstractnta;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.Unit;
-import com.energyict.dialer.core.Link;
+import com.energyict.cbo.*;
+import com.energyict.cpo.*;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.common.pooling.*;
 import com.energyict.genericprotocolimpl.nta.messagehandling.MbusMessageExecutor;
-import com.energyict.genericprotocolimpl.nta.messagehandling.MbusMessages;
-import com.energyict.genericprotocolimpl.nta.profiles.MbusDailyMonthlyProfile;
-import com.energyict.genericprotocolimpl.nta.profiles.MbusEventProfile;
-import com.energyict.genericprotocolimpl.nta.profiles.MbusProfile;
+import com.energyict.genericprotocolimpl.nta.profiles.*;
 import com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers.MbusObisCodeMapper;
 import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.amr.RtuRegister;
-import com.energyict.mdw.core.CommunicationProfile;
-import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.ProtocolChannelMap;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -178,11 +166,26 @@ public abstract class AbstractMbusDevice extends AbstractGenericMbusPoolingProto
         return this.physicalAddress;
     }
 
+    @Override
+    public void addProperties(TypedProperties properties) {
+        addProperties(properties.toStringProperties());
+    }
+
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    }
+
     public void addProperties(Properties properties) {
         this.properties = properties;
     }
 
-    public List getOptionalKeys() {
+    public List<String> getOptionalKeys() {
         List<String> result = new ArrayList(30);
         List<String> protocolKeys = doGetOptionalKeys();
         if (protocolKeys != null) {
@@ -191,7 +194,7 @@ public abstract class AbstractMbusDevice extends AbstractGenericMbusPoolingProto
         return result;
     }
 
-    public List getRequiredKeys() {
+    public List<String> getRequiredKeys() {
         List<String> result = new ArrayList(30);
         List<String> protocolKeys = doGetRequiredKeys();
         if (protocolKeys != null) {
@@ -252,7 +255,7 @@ public abstract class AbstractMbusDevice extends AbstractGenericMbusPoolingProto
      * so proper connectionPooling can take place.
      */
     @Override
-    protected void init() throws IOException, DLMSConnectionException{
+    protected void init() throws IOException, DLMSConnectionException {
         // nothing to do
     }
 
@@ -262,7 +265,7 @@ public abstract class AbstractMbusDevice extends AbstractGenericMbusPoolingProto
      * @return the mbusProfile
      */
     @Override
-    protected ProfileData getMbusProfile() throws IOException{
+    protected ProfileData getMbusProfile() throws IOException {
         getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + getFullShadow().getRtuShadow().getSerialNumber());
         MbusProfile mp = new MbusProfile(this);
         return mp.getProfile(getWebRTU().getMeterConfig().getMbusProfile(getPhysicalAddress()).getObisCode());
@@ -284,7 +287,7 @@ public abstract class AbstractMbusDevice extends AbstractGenericMbusPoolingProto
      * Fetch and construct the dailyProfile
      */
     @Override
-    protected ProfileData readDailyProfiles() throws IOException{
+    protected ProfileData readDailyProfiles() throws IOException {
 
         if (getWebRTU().isReadDaily()) {
             MbusDailyMonthlyProfile mdm = new MbusDailyMonthlyProfile(this);

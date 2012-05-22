@@ -2,6 +2,8 @@ package com.energyict.genericprotocolimpl.elster.ctr;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Sms;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.core.LinkException;
 import com.energyict.genericprotocolimpl.common.CommonUtils;
 import com.energyict.genericprotocolimpl.elster.ctr.encryption.CTREncryption;
@@ -78,8 +80,9 @@ public class SmsHandler implements MessageHandler {
 
     /**
      * processes a given message containing an sms object
+     *
      * @param message: the given message
-     * @param logger: the logger
+     * @param logger:  the logger
      * @throws JMSException
      * @throws BusinessException
      * @throws SQLException
@@ -92,6 +95,7 @@ public class SmsHandler implements MessageHandler {
 
     /**
      * Processes a given Sms
+     *
      * @param sms: the given sms
      * @throws JMSException
      * @throws BusinessException
@@ -105,6 +109,7 @@ public class SmsHandler implements MessageHandler {
 
     /**
      * Log a failed event
+     *
      * @param commSchedule
      */
     private void logFailure(CommunicationScheduler commSchedule) {
@@ -123,9 +128,10 @@ public class SmsHandler implements MessageHandler {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * Log a successful event
+     *
      * @param commSchedule
      */
     private void logSuccess(CommunicationScheduler commSchedule) {
@@ -214,6 +220,7 @@ public class SmsHandler implements MessageHandler {
 
     /**
      * Decrypt and parse the sms data using the rtu properties
+     *
      * @param sms: the sms that needs to be decrypted
      * @return the decrypted and parsed sms frame
      * @throws CTRParsingException
@@ -231,7 +238,8 @@ public class SmsHandler implements MessageHandler {
 
     /**
      * Check out the communication profile, see what to do with a given sms
-     * @param smsFrame: the given sms frame
+     *
+     * @param smsFrame:             the given sms frame
      * @param communicationProfile: the meter's communication profile
      * @throws CTRException
      */
@@ -367,8 +375,8 @@ public class SmsHandler implements MessageHandler {
             List<RtuMessage> rtuMessageList = mw().getRtuMessageFactory().findByRtuAndFilter(getRtu(), filter);
             if (rtuMessageList.size() != 0) {
                 RtuMessage rtuMessage = rtuMessageList.get(0);
-                message = "Received NACK for rtu with id " + getRtu().getId() + " - NACK of function " + data.getFunctionCode().getFunction()+ " for reason: " + data.getReason() +
-                            " - rtuMessage with ID " + rtuMessage.getId() + " will be set Failed.";
+                message = "Received NACK for rtu with id " + getRtu().getId() + " - NACK of function " + data.getFunctionCode().getFunction() + " for reason: " + data.getReason() +
+                        " - rtuMessage with ID " + rtuMessage.getId() + " will be set Failed.";
                 RtuMessageShadow shadow = rtuMessage.getShadow();
                 shadow.setTrackingId(rtuMessage.getTrackingId().replace("#" + wdb, ""));
                 shadow.setState(RtuMessageState.FAILED);
@@ -380,7 +388,7 @@ public class SmsHandler implements MessageHandler {
                     message += " - Failed to update rtuMessage with ID " + rtuMessage.getId() + ".";
                 }
             } else {
-                message = "Received NACK for rtu with id " + getRtu().getId() + " - NACK of function " + data.getFunctionCode().getFunction()+ " for reason: " + data.getReason() +
+                message = "Received NACK for rtu with id " + getRtu().getId() + " - NACK of function " + data.getFunctionCode().getFunction() + " for reason: " + data.getReason() +
                         " - Could not find the corresponding rtuMessage.";
             }
         } else {
@@ -392,9 +400,10 @@ public class SmsHandler implements MessageHandler {
 
     /**
      * Parse and store the data in the dec table (received via sms)
+     *
      * @param communicationProfile: the meter's communication profile
-     * @param pdr: the meter's pdr number
-     * @param data: sent by the meter via sms
+     * @param pdr:                  the meter's pdr number
+     * @param data:                 sent by the meter via sms
      * @throws CTRException
      */
     private void parseAndStoreDECTableData(CommunicationProfile communicationProfile, String pdr, TableDECQueryResponseStructure data) throws CTRException {
@@ -416,9 +425,10 @@ public class SmsHandler implements MessageHandler {
 
     /**
      * Parse and store the data in the decf table (received via sms)
+     *
      * @param communicationProfile: the meter's communication profile
-     * @param pdr: the meter's pdr number
-     * @param data: sent by the meter via sms
+     * @param pdr:                  the meter's pdr number
+     * @param data:                 sent by the meter via sms
      * @throws CTRException
      */
     private void parseAndStoreDECFTableData(CommunicationProfile communicationProfile, String pdr, TableDECFQueryResponseStructure data) throws CTRException {
@@ -457,9 +467,10 @@ public class SmsHandler implements MessageHandler {
 
     /**
      * parse and store the trace_c data (received via sms)
+     *
      * @param communicationProfile: the meter's communication profile
-     * @param pdr: the meter's pdr number
-     * @param data: sent by the meter via sms
+     * @param pdr:                  the meter's pdr number
+     * @param data:                 sent by the meter via sms
      * @throws CTRException
      */
     private void parseAndStoreTrace_C(String pdr, Trace_CQueryResponseStructure data, CommunicationProfile communicationProfile) throws CTRException {
@@ -540,9 +551,10 @@ public class SmsHandler implements MessageHandler {
 
     /**
      * parse and store the event data (received via sms)
+     *
      * @param communicationProfile: the meter's communication profile
-     * @param pdr: the meter's pdr number
-     * @param data: sent by the meter via sms
+     * @param pdr:                  the meter's pdr number
+     * @param data:                 sent by the meter via sms
      * @throws CTRException
      */
     private void parseAndStoreEventArray(CommunicationProfile communicationProfile, String pdr, ArrayEventsQueryResponseStructure data) throws CTRException {
@@ -578,10 +590,11 @@ public class SmsHandler implements MessageHandler {
 
     /**
      * Read the register data from a received DEC(F) table
-     * @param cp: the meter's communication profile
+     *
+     * @param cp:       the meter's communication profile
      * @param response: the table containing register data
-     * @return: register values
      * @throws CTRException
+     * @return: register values
      */
     private MeterReadingData doReadRegisters(CommunicationProfile cp, AbstractTableQueryResponseStructure response) throws CTRException {
 
@@ -665,8 +678,8 @@ public class SmsHandler implements MessageHandler {
         }
 
         if (rtu != null) {
-            getProtocolProperties().addProperties(rtu.getProtocol().getProperties());
-            getProtocolProperties().addProperties(rtu.getProperties());
+            getProtocolProperties().addProperties(rtu.getProtocol().getProperties().toStringProperties());
+            getProtocolProperties().addProperties(rtu.getProperties().toStringProperties());
 
             try {
                 if (!processSmsFrame(parseAndDecryptSms(this.sms))) {
@@ -674,7 +687,7 @@ public class SmsHandler implements MessageHandler {
                     logWarning(message);
                 }
             } catch (LinkException e) {
-                String message = "An error occurred in the connection!"  + e.getMessage();
+                String message = "An error occurred in the connection!" + e.getMessage();
                 log(message);
                 getMeterAmrLogging().logInfo(message);
             } catch (CTRParsingException e) {
@@ -691,13 +704,14 @@ public class SmsHandler implements MessageHandler {
 
     /**
      * Replace +XY by 0, e.g. +32 = 0, +39 = 0
+     *
      * @param from: a given telephone number
      * @return the modified telephone number
      * @throws IOException
      */
     private String checkFormat(String from) throws IOException {
 
-        if ("".equals(sms.getFrom())){
+        if ("".equals(sms.getFrom())) {
             throw new IOException("Invalid (empty) phone number!");
         }
         if ("+".equals(Character.toString(from.charAt(0)))) {
@@ -706,17 +720,21 @@ public class SmsHandler implements MessageHandler {
         return from;
     }
 
-    public void addProperties(Properties properties) {
-
+    @Override
+    public void addProperties(TypedProperties properties) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public List getRequiredKeys() {
-        return new ArrayList();
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return Collections.emptyList();
     }
 
-    public List getOptionalKeys() {
-        return new ArrayList();
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return Collections.emptyList();
     }
+
 
     /**
      * Short notation for MeteringWarehouse.getCurrent()

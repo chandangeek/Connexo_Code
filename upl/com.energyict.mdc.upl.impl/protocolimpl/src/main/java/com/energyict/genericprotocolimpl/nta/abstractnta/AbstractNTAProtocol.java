@@ -1,7 +1,7 @@
 package com.energyict.genericprotocolimpl.nta.abstractnta;
 
 import com.energyict.cbo.*;
-import com.energyict.cpo.Environment;
+import com.energyict.cpo.*;
 import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.*;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
@@ -46,7 +46,7 @@ import java.util.logging.Logger;
  *  	- Registers E-meter
  *  	- LoadProfile Mbus-meter
  *  	- Registers Mbus-meter
- * <p/>
+ *
  *  Changes:
  *  GNA |20012009| Added the imageTransfer message, here we use the P3ImageTransfer object
  *  GNA |22012009| Added the Consumer messages over the P1 port
@@ -182,7 +182,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
             } catch (SQLException e) {
                 getLogger().severe("WakeUp failed - " + e.getMessage());
                 Environment.getDefault().closeConnection();
-                throw new BusinessException("Failed during the WakeUp",e);
+                throw new BusinessException("Failed during the WakeUp", e);
             }
 
             ipAddress = ProtocolTools.checkIPAddressForPortNumber(smsWakeup.getIpAddress(), getPortNumber());
@@ -246,7 +246,6 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
         getLogger().log(Level.INFO, "Forced to set meterClock to systemTime: " + currentTime);
         forceClock(currentTime);
     }
-
 
 
     public long getTimeDifference() {
@@ -1116,7 +1115,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
         this.informationFieldSize = Integer.parseInt(properties.getProperty("InformationFieldSize", "-1"));
         this.readDaily = !properties.getProperty("ReadDailyValues", "1").equalsIgnoreCase("0");
         this.readMonthly = !properties.getProperty("ReadMonthlyValues", "1").equalsIgnoreCase("0");
-        this.requestOneDay = !properties .getProperty("RequestOneDay", "0").equalsIgnoreCase("0");
+        this.requestOneDay = !properties.getProperty("RequestOneDay", "0").equalsIgnoreCase("0");
         this.roundTripCorrection = Long.parseLong(properties.getProperty("RoundTripCorrection", "0"));
 
         this.iiapInvokeId = Integer.parseInt(properties.getProperty("IIAPInvokeId", "0"));
@@ -1137,6 +1136,21 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
         this.maxRecPduSize = Integer.parseInt(properties.getProperty(DlmsProtocolProperties.MAX_REC_PDU_SIZE, DlmsProtocolProperties.DEFAULT_MAX_REC_PDU_SIZE));
 
         doValidateProperties();
+    }
+
+    @Override
+    public void addProperties(TypedProperties properties) {
+        addProperties(properties.toStringProperties());
+    }
+
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
     }
 
     public void addProperties(Properties properties) {

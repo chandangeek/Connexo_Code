@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.topology;
 
+import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.UniversalObject;
@@ -15,7 +16,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Properties;
 
 import static org.junit.Assert.*;
 
@@ -30,8 +30,8 @@ public class MeterTopologyTest {
 
     @Test
     public void getSerialNumberTest() {
-        Properties props = new Properties();
-        props.put(SmartMeterProtocol.SERIALNUMBER, "MasterSerialNumber");
+        TypedProperties props = new TypedProperties();
+        props.setProperty(SmartMeterProtocol.SERIALNUMBER, "MasterSerialNumber");
         WebRTUZ3 meterProtocol = new WebRTUZ3();
         meterProtocol.addProperties(props);
         MeterTopology mt = new MeterTopology(meterProtocol);
@@ -53,8 +53,8 @@ public class MeterTopologyTest {
 
     @Test
     public void getPhysicalAddressTest() {
-        Properties props = new Properties();
-        props.put(SmartMeterProtocol.SERIALNUMBER, "MasterSerialNumber");
+        TypedProperties props = new TypedProperties();
+        props.setProperty(SmartMeterProtocol.SERIALNUMBER, "MasterSerialNumber");
         WebRTUZ3 meterProtocol = new WebRTUZ3();
         meterProtocol.addProperties(props);
         MeterTopology mt = new MeterTopology(meterProtocol);
@@ -76,8 +76,8 @@ public class MeterTopologyTest {
 
     @Test
     public void constructDiscoveryComposedCosemObjectTest() {
-        Properties props = new Properties();
-        props.put(SmartMeterProtocol.SERIALNUMBER, "MasterSerialNumber");
+        TypedProperties props = new TypedProperties();
+        props.setProperty(SmartMeterProtocol.SERIALNUMBER, "MasterSerialNumber");
         WebRTUZ3 meterProtocol = new WebRTUZ3();
         meterProtocol.addProperties(props);
         try {
@@ -103,9 +103,9 @@ public class MeterTopologyTest {
 
         String expectedResponse1 = "01001BC40342020009093132333435363738390009083335303232393638";
 
-        Properties props = new Properties();
-        props.put(SmartMeterProtocol.SERIALNUMBER, "MasterSerialNumber");
-        props.put(DlmsProtocolProperties.BULK_REQUEST, "1");
+        TypedProperties props = new TypedProperties();
+        props.setProperty(SmartMeterProtocol.SERIALNUMBER, "MasterSerialNumber");
+        props.setProperty(DlmsProtocolProperties.BULK_REQUEST, "1");
         WebRTUZ3 meterProtocol = new WebRTUZ3();
         meterProtocol.addProperties(props);
 

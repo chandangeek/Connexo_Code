@@ -40,7 +40,7 @@ public class DummyRtu implements Rtu {
         this.channel = channel;
         if (channel != null) {
             this.channel.setRtu(this);
-    }
+        }
     }
 
     public void setTimeZone(TimeZone timeZone) {
@@ -576,7 +576,7 @@ public class DummyRtu implements Rtu {
         return null;
     }
 
-    public Properties getProperties() {
+    public TypedProperties getProperties() {
         return null;
     }
 

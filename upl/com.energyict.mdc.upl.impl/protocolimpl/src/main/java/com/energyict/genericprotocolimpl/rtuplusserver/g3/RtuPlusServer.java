@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.rtuplusserver.g3;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cpo.*;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.cosem.SAPAssignment;
@@ -56,15 +57,30 @@ public class RtuPlusServer implements GenericProtocol {
         return "$Date$";
     }
 
+    @Override
+    public void addProperties(TypedProperties properties) {
+        addProperties(properties.toStringProperties());
+    }
+
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    }
+
     public void addProperties(Properties properties) {
         this.properties.addProperties(properties);
     }
 
-    public List getRequiredKeys() {
+    public List<String> getRequiredKeys() {
         return this.properties.getRequiredKeys();
     }
 
-    public List getOptionalKeys() {
+    public List<String> getOptionalKeys() {
         return this.properties.getOptionalKeys();
     }
 

@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.iec1107.a1440;
 
 import com.energyict.cbo.*;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
@@ -89,8 +91,8 @@ public class A1440 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
         return getProfileData(calendar.getTime(), includeEvents);
     }
 
-	public ProfileData getProfileData(Date from, boolean includeEvents) throws IOException {
-		return getProfileData(from, new Date(), includeEvents);
+    public ProfileData getProfileData(Date from, boolean includeEvents) throws IOException {
+        return getProfileData(from, new Date(), includeEvents);
     }
 
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
@@ -235,6 +237,16 @@ public class A1440 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
      */
     public void initializeDevice() throws IOException, UnsupportedException {
         throw new UnsupportedException();
+    }
+
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
     }
 
     /**
@@ -825,7 +837,7 @@ public class A1440 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
         if (registerName.equals(A1440ObisCodeMapper.FIRMWAREID)) {
             return getFirmwareVersion();
         }
-        if(registerName.equals(A1440ObisCodeMapper.ERROR_REGISTER)){
+        if (registerName.equals(A1440ObisCodeMapper.ERROR_REGISTER)) {
             return new String((String) getA1440Registry().getRegister(A1440Registry.ERROR_REGISTER));
         }
 

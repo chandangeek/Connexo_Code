@@ -5,6 +5,8 @@ import com.elster.protocolimpl.lis100.profile.Lis100Profile;
 import com.elster.protocolimpl.lis100.registers.*;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 
@@ -75,7 +77,18 @@ public class LIS100 implements MeterProtocol, ProtocolLink, RegisterProtocol {
         return "$Date: 2012-01-09 15:06:09 +0100 (ma, 09 jan 2012) $";
     }
 
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    }
+
     /**
+     * /**
      * the implementation returns both the address and password key
      *
      * @return a list of strings
@@ -322,6 +335,7 @@ public class LIS100 implements MeterProtocol, ProtocolLink, RegisterProtocol {
     // * Interface RegisterProtocol
     // *
     // *******************************************************************************************/
+
     /**
      * Gets a description for the obis code
      *

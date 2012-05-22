@@ -46,6 +46,11 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
     private UkHubEventProfiles ukHubEventProfiles = null;
     private boolean reboot = false;
 
+    @Override
+    public void addProperties(Properties properties) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     /**
      * Getter for the MessageProtocol implementation
      *
@@ -96,7 +101,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      */
     @Override
     protected void initAfterConnect() throws ConnectionException {
-        if(this.dlmsSession != null){
+        if (this.dlmsSession != null) {
             // We need to update the correct TimeZone!!
             this.dlmsSession.updateTimeZone(getTimeZone());
         }
@@ -317,7 +322,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
     }
 
     public UkHubRegisterFactory getRegisterFactory() {
-        if(this.registerFactory == null) {
+        if (this.registerFactory == null) {
             this.registerFactory = new UkHubRegisterFactory(this);
         }
         return registerFactory;
@@ -385,7 +390,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
         boolean success = true;
 
         init(link.getInputStream(), link.getOutputStream(), TimeZone.getDefault(), logger);
-        if(getDlmsSession().getProperties().getDataTransportSecurityLevel() != 0 || getDlmsSession().getProperties().getAuthenticationSecurityLevel() == 5){
+        if (getDlmsSession().getProperties().getDataTransportSecurityLevel() != 0 || getDlmsSession().getProperties().getAuthenticationSecurityLevel() == 5) {
             int backupClientId = getDlmsSession().getProperties().getClientMacAddress();
             String backupSecurityLevel = getDlmsSession().getProperties().getSecurityLevel();
             String password = getDlmsSession().getProperties().getPassword();

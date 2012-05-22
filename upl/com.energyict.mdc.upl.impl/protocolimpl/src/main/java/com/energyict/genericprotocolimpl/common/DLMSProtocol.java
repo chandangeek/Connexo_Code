@@ -2,63 +2,28 @@ package com.energyict.genericprotocolimpl.common;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
-import com.energyict.cpo.Transaction;
+import com.energyict.cpo.*;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.HDLC2Connection;
-import com.energyict.dlms.InvokeIdAndPriority;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.SecureConnection;
-import com.energyict.dlms.TCPIPConnection;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.aso.AssociationControlServiceElement;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.aso.LocalSecurityProvider;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.*;
+import com.energyict.dlms.aso.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.genericprotocolimpl.common.wakeup.SmsWakeup;
 import com.energyict.genericprotocolimpl.webrtuz3.Z3MeterToolProtocol;
-import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.amr.RtuRegister;
-import com.energyict.mdw.amr.RtuRegisterGroup;
-import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.CommunicationProfile;
-import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.amr.*;
+import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.dlms.DLMSCache;
-import com.energyict.protocolimpl.dlms.RtuDLMS;
-import com.energyict.protocolimpl.dlms.RtuDLMSCache;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.dlms.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -299,12 +264,12 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 
     /**
      * @param scheduler Task to execute
-     * @param link Link created by the comserver, can be null if a NullDialer is
-     * configured
-     * @param logger Loggger object - when using a level of warning or higher
-     * message will be stored in the communication session's database log,
-     * messages with a level lower than warning will only be logged in the file
-     * log if active.
+     * @param link      Link created by the comserver, can be null if a NullDialer is
+     *                  configured
+     * @param logger    Loggger object - when using a level of warning or higher
+     *                  message will be stored in the communication session's database log,
+     *                  messages with a level lower than warning will only be logged in the file
+     *                  log if active.
      * @throws BusinessException
      * @throws SQLException
      * @throws IOException
@@ -410,7 +375,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
         if (this.securityProvider == null) {
             if ((getMeter() != null) && (password != null)) {
                 getProperties().put(MeterProtocol.PASSWORD, password);
-        }
+            }
             this.securityProvider = new LocalSecurityProvider(getProperties());
         }
 
@@ -457,12 +422,12 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 
         this.serverMacAddress = properties.getProperty("ServerMacAddress", "1").split(":");
 
-        if(this.connectionMode == 0){ // HDLC is used as the transport layer
+        if (this.connectionMode == 0) { // HDLC is used as the transport layer
             try {
                 this.upperHDLCAddress = Integer.parseInt(this.serverMacAddress[0]);
-                if(this.serverMacAddress.length == 2){
+                if (this.serverMacAddress.length == 2) {
                     this.lowerHDLCAddress = Integer.parseInt(this.serverMacAddress[1]);
-                } else if(this.serverMacAddress.length == 1){
+                } else if (this.serverMacAddress.length == 1) {
                     this.lowerHDLCAddress = 0;
                 } else {
                     throw new InvalidPropertyException("ServerMacAddress property contains an illegal value " + properties.getProperty("ServerMacAddress", "1"));
@@ -560,14 +525,14 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
     }
 
     /**
-	 * Return the SystemTitle to be used in the DLMS association request.
-	 * Override this method to give a custom value
-	 *
-	 * @return the SystemTitle
-	 */
-	protected byte[] getSystemIdentifier(){
-		return "EIT12345".getBytes();
-	}
+     * Return the SystemTitle to be used in the DLMS association request.
+     * Override this method to give a custom value
+     *
+     * @return the SystemTitle
+     */
+    protected byte[] getSystemIdentifier() {
+        return "EIT12345".getBytes();
+    }
 
     /**
      * Retrieve the Rtu back from the database.
@@ -669,7 +634,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
     protected void checkCacheObjects() throws IOException {
 
         int configNumber;
-		if (dlmsCache != null && dlmsCache.getObjectList() != null) { // the dlmsCache exists
+        if (dlmsCache != null && dlmsCache.getObjectList() != null) { // the dlmsCache exists
             getMeterConfig().setInstantiatedObjectList(this.dlmsCache.getObjectList());
 
             this.logger.info("Checking the configuration parameters.");
@@ -873,6 +838,21 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
         this.properties = properties;
     }
 
+    @Override
+    public void addProperties(TypedProperties properties) {
+        addProperties(properties.toStringProperties());
+    }
+
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    }
+
     /**
      * Getter for the Properties object
      *
@@ -978,10 +958,10 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
         if (rtuid != 0) {
             Transaction tr = new Transaction() {
                 public Object doExecute() throws BusinessException, SQLException {
-            DLMSCache dc = (DLMSCache) cacheObject;
-            if (dc.isChanged()) {
+                    DLMSCache dc = (DLMSCache) cacheObject;
+                    if (dc.isChanged()) {
                         new RtuDLMS(rtuid).saveObjectList(dc.getConfProgChange(), dc.getObjectList());
-            }
+                    }
                     return null;
                 }
             };
@@ -1221,9 +1201,9 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
      *
      * @return the current connectionMode
      */
-    protected int getConnectionMode(){
-		return this.connectionMode;
-	}
+    protected int getConnectionMode() {
+        return this.connectionMode;
+    }
 
     public boolean isBulkRequest() {
         return bulkRequest;

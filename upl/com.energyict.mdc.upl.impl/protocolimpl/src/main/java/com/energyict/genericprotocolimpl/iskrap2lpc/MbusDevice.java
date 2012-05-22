@@ -1,10 +1,10 @@
 /**
- * 
+ *
  */
 package com.energyict.genericprotocolimpl.iskrap2lpc;
 
 import com.energyict.cbo.*;
-import com.energyict.cpo.Environment;
+import com.energyict.cpo.*;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
@@ -27,102 +27,102 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * @author gna 
- *
- * Changes:
- * GNA |23022009| Added connect/Disconnect mbus device messages
+ * @author gna
+ *         <p/>
+ *         Changes:
+ *         GNA |23022009| Added connect/Disconnect mbus device messages
  */
-public class MbusDevice implements Messaging, GenericProtocol{
-	
-	private long mbusAddress	= -1;		// this is the address that was given by the E-meter or a hardcoded MBusAddress in the MBusMeter itself
-	private int physicalAddress = -1;		// this is the orderNumber of the MBus meters on the E-meter, we need this to compute the ObisRegisterValues
-	private int medium = 15;				// value of an unknown medium
-	
-	private String customerID;
-	
-	private ObisCode valveState = ObisCode.fromString("0.0.128.30.31.255");
-	private ObisCode valveControl = ObisCode.fromString("0.0.128.30.30.255");
-	
-	public Rtu	mbus;
-	private Logger logger;
-	private ProtocolChannelMap channelMap = null;
-	private Unit mbusUnit;
-	private MeterReadTransaction mrt = null;
-	private XmlHandler dataHandler;
+public class MbusDevice implements Messaging, GenericProtocol {
 
-	/**
-	 * 
-	 */
-	public MbusDevice() {
-	}
+    private long mbusAddress = -1;        // this is the address that was given by the E-meter or a hardcoded MBusAddress in the MBusMeter itself
+    private int physicalAddress = -1;        // this is the orderNumber of the MBus meters on the E-meter, we need this to compute the ObisRegisterValues
+    private int medium = 15;                // value of an unknown medium
 
-	public MbusDevice(long mbusAddress, int phyAddress, String serial, int mbusMedium, Rtu rtu, Unit unit, Logger logger) {
-		this.mbusAddress = mbusAddress;
-		this.physicalAddress = phyAddress;
-		this.customerID = serial;
-		this.medium = mbusMedium;
-		this.mbus = rtu;
-		this.mbusUnit = unit;
-		this.logger = logger;
-	}
+    private String customerID;
 
-	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
-		CommunicationProfile commProfile = scheduler.getCommunicationProfile();
-		try {
-			// import profile
-			if(commProfile.getReadDemandValues()){
-				dataHandler = initDatahandler();
-				dataHandler.setChannelUnit(getMbusUnit());
-				importProfiles();
-			}
-			
-			// import Daily/Monthly registers
-			if(commProfile.getReadMeterReadings()){
-				dataHandler = initDatahandler();
-				dataHandler.setDailyMonthlyProfile(true);
-				dataHandler.setChannelUnit(getMbusUnit());
-				importDailyMonthly();
-				dataHandler.setDailyMonthlyProfile(false);
-			}
-			
-			// send RtuMessages
-			if(commProfile.getSendRtuMessage()){
-				dataHandler = initDatahandler();
-				if ( getRtu().getMessages().size() != 0 ){
-    				sendMeterMessages(mrt.getMeter());
-    			}
-			}
-		} catch (ServiceException e) {
-			e.printStackTrace();
-			throw new BusinessException(e);
-		}
-	}
-	
-	private XmlHandler initDatahandler() throws InvalidPropertyException, BusinessException{
-		return new XmlHandler(getLogger(), getChannelMap());
-	}
-	
-	private void importProfiles() throws BusinessException, RemoteException, ServiceException, IOException{
-		String profile = "";
-		String xml = "";
-		String from = "";
-		Date toDate = new Date();
-		String to = Constant.getInstance().format(toDate);
-		String register = "";
-		
+    private ObisCode valveState = ObisCode.fromString("0.0.128.30.31.255");
+    private ObisCode valveControl = ObisCode.fromString("0.0.128.30.30.255");
+
+    public Rtu mbus;
+    private Logger logger;
+    private ProtocolChannelMap channelMap = null;
+    private Unit mbusUnit;
+    private MeterReadTransaction mrt = null;
+    private XmlHandler dataHandler;
+
+    /**
+     *
+     */
+    public MbusDevice() {
+    }
+
+    public MbusDevice(long mbusAddress, int phyAddress, String serial, int mbusMedium, Rtu rtu, Unit unit, Logger logger) {
+        this.mbusAddress = mbusAddress;
+        this.physicalAddress = phyAddress;
+        this.customerID = serial;
+        this.medium = mbusMedium;
+        this.mbus = rtu;
+        this.mbusUnit = unit;
+        this.logger = logger;
+    }
+
+    public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
+        CommunicationProfile commProfile = scheduler.getCommunicationProfile();
+        try {
+            // import profile
+            if (commProfile.getReadDemandValues()) {
+                dataHandler = initDatahandler();
+                dataHandler.setChannelUnit(getMbusUnit());
+                importProfiles();
+            }
+
+            // import Daily/Monthly registers
+            if (commProfile.getReadMeterReadings()) {
+                dataHandler = initDatahandler();
+                dataHandler.setDailyMonthlyProfile(true);
+                dataHandler.setChannelUnit(getMbusUnit());
+                importDailyMonthly();
+                dataHandler.setDailyMonthlyProfile(false);
+            }
+
+            // send RtuMessages
+            if (commProfile.getSendRtuMessage()) {
+                dataHandler = initDatahandler();
+                if (getRtu().getMessages().size() != 0) {
+                    sendMeterMessages(mrt.getMeter());
+                }
+            }
+        } catch (ServiceException e) {
+            e.printStackTrace();
+            throw new BusinessException(e);
+        }
+    }
+
+    private XmlHandler initDatahandler() throws InvalidPropertyException, BusinessException {
+        return new XmlHandler(getLogger(), getChannelMap());
+    }
+
+    private void importProfiles() throws BusinessException, RemoteException, ServiceException, IOException {
+        String profile = "";
+        String xml = "";
+        String from = "";
+        Date toDate = new Date();
+        String to = Constant.getInstance().format(toDate);
+        String register = "";
+
         Channel chn;
-        for( int i = 0; i < dataHandler.getChannelMap().getNrOfProtocolChannels(); i ++ ) {
-        
+        for (int i = 0; i < dataHandler.getChannelMap().getNrOfProtocolChannels(); i++) {
+
             ProtocolChannel pc = dataHandler.getChannelMap().getProtocolChannel(i);
             xml = "";
             register = modifyObisCodeToChannelNumber(pc.getRegister());
-            chn = mrt.getMeterChannelWithIndex(getRtu(), i+1);
-            if(chn != null){
-            	from = Constant.getInstance().format( mrt.getLastChannelReading(chn) );
-            	if(!pc.containsDailyValues() && !pc.containsMonthlyValues()){
-            		
+            chn = mrt.getMeterChannelWithIndex(getRtu(), i + 1);
+            if (chn != null) {
+                from = Constant.getInstance().format(mrt.getLastChannelReading(chn));
+                if (!pc.containsDailyValues() && !pc.containsMonthlyValues()) {
+
 //            		if(mrt.useParameters()){
-            			profile = mrt.getConcentrator().getLpMbus();
+                    profile = mrt.getConcentrator().getLpMbus();
 //            		} else {
 //            			
 //            			if(chn.getIntervalInSeconds() == mrt.loadProfilePeriod1){
@@ -136,43 +136,43 @@ public class MbusDevice implements Messaging, GenericProtocol{
 //            			}
 //            			
 //            		}
-            		
-            		dataHandler.setProfileChannelIndex(i);
+
+                    dataHandler.setProfileChannelIndex(i);
 //                	if(mrt.TESTING){
 ////                		FileReader inFile = new FileReader(Utils.class.getResource(getProfileTestName()[i]).getFile());
 ////                		xml = getConcentrator().readWithStringBuffer(inFile);
 //                	} else{
-                		getLogger().log(Level.INFO, "Retrieving profiledata from " + from + " to " + to);
-                		xml = mrt.getConnection().getMeterProfile(mrt.getMeter().getSerialNumber(), profile, register, from, to);
+                    getLogger().log(Level.INFO, "Retrieving profiledata from " + from + " to " + to);
+                    xml = mrt.getConnection().getMeterProfile(mrt.getMeter().getSerialNumber(), profile, register, from, to);
 //                	}
-            	}
+                }
             }
-            if(!xml.equalsIgnoreCase("")){
-            	dataHandler.setChannelIndex( i );
-            	mrt.getConcentrator().importData(xml, dataHandler);
+            if (!xml.equalsIgnoreCase("")) {
+                dataHandler.setChannelIndex(i);
+                mrt.getConcentrator().importData(xml, dataHandler);
             }
         }
-        
+
         getLogger().log(Level.INFO, "Done reading PROFILE.");
-	    // if complete profile is read, check if there are values in the future and then store it.
+        // if complete profile is read, check if there are values in the future and then store it.
         ProfileData pd = dataHandler.getProfileData();
         ParseUtils.validateProfileData(pd, toDate);
         mrt.getStoreObjects().add(getRtu(), dataHandler.getProfileData());
-	}
-	
-	private void importDailyMonthly() throws RemoteException, ServiceException, IOException, BusinessException{
-		String daily = "";
-		String monthly = "";
-		String xml = "";
-		String register = "";
-		String from = "";
-		Date toDate = new Date();
-		String to = Constant.getInstance().format(toDate);
-		
+    }
+
+    private void importDailyMonthly() throws RemoteException, ServiceException, IOException, BusinessException {
+        String daily = "";
+        String monthly = "";
+        String xml = "";
+        String register = "";
+        String from = "";
+        Date toDate = new Date();
+        String to = Constant.getInstance().format(toDate);
+
 //		if (mrt.useParameters()) {
 //			
-			daily = mrt.getConcentrator().getLpDaily();
-			monthly = mrt.getConcentrator().getLpMonthly();
+        daily = mrt.getConcentrator().getLpDaily();
+        monthly = mrt.getConcentrator().getLpMonthly();
 //			
 //		} else {
 //			
@@ -190,231 +190,229 @@ public class MbusDevice implements Messaging, GenericProtocol{
 //			}
 //			
 //		}
-		
-		Channel chn;
-		ProtocolChannel pc;
-		dataHandler.setChannelIndex(0);		// we will add channel per channel
-		for(int i = 0; i < dataHandler.getChannelMap().getNrOfProtocolChannels(); i++){
-			pc = dataHandler.getChannelMap().getProtocolChannel(i);
-			xml = "";
-			register = modifyObisCodeToChannelNumber(pc.getRegister());
-			chn = mrt.getMeterChannelWithIndex(getRtu(), i+1);
-			dataHandler.setProfileChannelIndex(i);
-			if(chn != null){
-				from = Constant.getInstance().format( mrt.getLastChannelReading(chn) );
-				if(pc.containsDailyValues()){
-					if(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS){
-						getLogger().log(Level.INFO, "Reading Daily values with registername: " + pc.getRegister() + " from " + from + " to " + to);
+
+        Channel chn;
+        ProtocolChannel pc;
+        dataHandler.setChannelIndex(0);        // we will add channel per channel
+        for (int i = 0; i < dataHandler.getChannelMap().getNrOfProtocolChannels(); i++) {
+            pc = dataHandler.getChannelMap().getProtocolChannel(i);
+            xml = "";
+            register = modifyObisCodeToChannelNumber(pc.getRegister());
+            chn = mrt.getMeterChannelWithIndex(getRtu(), i + 1);
+            dataHandler.setProfileChannelIndex(i);
+            if (chn != null) {
+                from = Constant.getInstance().format(mrt.getLastChannelReading(chn));
+                if (pc.containsDailyValues()) {
+                    if (chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS) {
+                        getLogger().log(Level.INFO, "Reading Daily values with registername: " + pc.getRegister() + " from " + from + " to " + to);
 //						if(mrt.TESTING){
 ////		            		FileReader inFile = new FileReader(Utils.class.getResource(mrt.getBillingDaily()).getFile());
 ////							FileReader inFile = new FileReader(Utils.class.getResource("/com/energyict/genericprotocolimpl/iskrap2lpc/nullpointerstuff.xml").getFile());
 ////		            		xml = getConcentrator().readWithStringBuffer(inFile);
 //						} else {
-							xml = mrt.getConnection().getMeterProfile(mrt.getMeter().getSerialNumber(), daily, register, from, to);
+                        xml = mrt.getConnection().getMeterProfile(mrt.getMeter().getSerialNumber(), daily, register, from, to);
 //						}
-					} else {
-						throw new IOException("Channelconfiguration of channel \"" + chn + "\" is different from the channelMap");
-					}
-				}
-				else if(pc.containsMonthlyValues()){
-					if(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS){
-						getLogger().log(Level.INFO, "Reading Monthly values with registername: " + pc.getRegister()  + " from " + from + " to " + to);
+                    } else {
+                        throw new IOException("Channelconfiguration of channel \"" + chn + "\" is different from the channelMap");
+                    }
+                } else if (pc.containsMonthlyValues()) {
+                    if (chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS) {
+                        getLogger().log(Level.INFO, "Reading Monthly values with registername: " + pc.getRegister() + " from " + from + " to " + to);
 //						if(mrt.TESTING){
 ////		            		FileReader inFile = new FileReader(Utils.class.getResource(mrt.getBillingMonthly()).getFile());
 ////		            		xml = getConcentrator().readWithStringBuffer(inFile);
 //						} else {
-							xml = mrt.getConnection().getMeterProfile(mrt.getMeter().getSerialNumber(), monthly, register, from, to);
+                        xml = mrt.getConnection().getMeterProfile(mrt.getMeter().getSerialNumber(), monthly, register, from, to);
 //						}
-					} else {
-						throw new IOException("Channelconfiguration of channel \"" + chn + "\" is different from the channelMap");
-					}
-				}
-			} else {
-				throw new IOException("Channel out of bound exception: no channel with profileIndex " + i+1 + " is configured on the meter.");
-			}
+                    } else {
+                        throw new IOException("Channelconfiguration of channel \"" + chn + "\" is different from the channelMap");
+                    }
+                }
+            } else {
+                throw new IOException("Channel out of bound exception: no channel with profileIndex " + i + 1 + " is configured on the meter.");
+            }
 
-			if(!xml.equalsIgnoreCase("")){
-				
-				mrt.getConcentrator().importData(xml, dataHandler);
-				ProfileData pd = dataHandler.getDailyMonthlyProfile();
-				pd = mrt.sortOutProfileData(pd, pc);
-		        ParseUtils.validateProfileData(pd, toDate);
-				mrt.getStoreObjects().add(chn, pd);
-				dataHandler.clearDailyMonthlyProfile();
-			}
-		}
-	}
-	
-	private void sendMeterMessages(Rtu eMeter) throws BusinessException, SQLException{
-		Iterator messageIt = getRtu().getPendingMessages().iterator();
-		if(messageIt.hasNext()) {
-			getLogger().log(Level.INFO, "Handling MESSAGES from meter with serialnumber " + getCustomerID());
-		}
-		
-		while(messageIt.hasNext()){
-			RtuMessage msg = (RtuMessage) messageIt.next();
-			String contents = msg.getContents();
-			
-			boolean doReadOnDemand = (contents.toLowerCase()).indexOf(RtuMessageConstant.READ_ON_DEMAND.toLowerCase()) != -1;
-			boolean doDisconnect = contents.toLowerCase().indexOf(RtuMessageConstant.DISCONNECT_LOAD.toLowerCase()) != -1;
-			boolean doConnect       = (contents.toLowerCase().indexOf(RtuMessageConstant.CONNECT_LOAD.toLowerCase()) != -1) && !doDisconnect;
-			
-			try {
-				if(doReadOnDemand){
-					
-					dataHandler = initDatahandler();
-					List registerList = new ArrayList();
-					Iterator it = getRtu().getRtuType().getRtuRegisterSpecs().iterator();
-					
-					while(it.hasNext()){
-						RtuRegisterSpec spec = (RtuRegisterSpec) it.next();
-						ObisCode oc = ObisCode.fromString(modifyObisCodeToChannelNumber(spec.getRegisterMapping().getObisCode().toString()));
-						if(oc.getF() == 255){
-							if((oc.getA() == 0) && ((oc.getB() > 0) && (oc.getB() <= 4)) && (oc.getC() == 128) && (oc.getD() == 50) && (oc.getE() == 0)){
-								registerList.add(oc.toString());
-							} else {
-								getLogger().log(Level.INFO, "Register with obisCode " + oc.toString() + " is not supported.");
-							}
-							
-							dataHandler.checkOnDemands(true);
-							dataHandler.setProfileDuration(-1);
-						}
-					}
-					
-					String registers[] = (String[])registerList.toArray(new String[0]);
-					String r = mrt.getConnection().getMeterOnDemandResultsList(eMeter.toString(), registers);
-					
-					mrt.getConcentrator().importData(r, dataHandler);
-					handleRegisters();
-					
-					msg.confirm();
-					getLogger().log(Level.INFO, "Current message " + contents + " has finished.");
-				} else if(doDisconnect){
-					String[] times = mrt.prepareCosemGetRequest();
-					
-					Unsigned8 channel = new Unsigned8(getPhysicalAddress()+1);
-					mrt.getConnection().cosemSetRequest(eMeter.toString(), times[0], times[1], valveControl.toString(), new UnsignedInt(1), new UnsignedInt(2), channel.getBEREncodedByteArray());
-					
-					Unsigned8 state = new Unsigned8(0);
-					mrt.getConnection().cosemSetRequest(eMeter.toString(), times[0], times[1], valveState.toString(), new UnsignedInt(1), new UnsignedInt(2), state.getBEREncodedByteArray());
-					
-					msg.confirm();
-					getLogger().log(Level.INFO, "Current message" + contents + " has finished.");
-				} else if(doConnect){
-					String[] times = mrt.prepareCosemGetRequest();
-					
-					Unsigned8 channel = new Unsigned8(getPhysicalAddress()+1);
-					mrt.getConnection().cosemSetRequest(eMeter.toString(), times[0], times[1], valveControl.toString(), new UnsignedInt(1), new UnsignedInt(2), channel.getBEREncodedByteArray());
-					
-					Unsigned8 state = new Unsigned8(1);
-					mrt.getConnection().cosemSetRequest(eMeter.toString(), times[0], times[1], valveState.toString(), new UnsignedInt(1), new UnsignedInt(2), state.getBEREncodedByteArray());
-					
-					msg.confirm();
-					getLogger().log(Level.INFO, "Current message" + contents + " has finished.");
-				} else {
-					msg.setFailed();
-				}
-			} catch (BusinessException e) {
-				/** should go to the next message */
-				getLogger().log(Level.INFO, "Message " + contents + " has failed.");
-				e.printStackTrace();
-				msg.setFailed();
-			} catch (SQLException e) {
-				/** should go to the next message */
-				getLogger().log(Level.INFO, "Message " + contents + " has failed.");
-				e.printStackTrace();
-				msg.setFailed();
-				
-	        	/** Close the connection after an SQL exception, connection will startup again if requested */
-	        	Environment.getDefault().closeConnection();
-				
-			} catch (InvalidPropertyException e) {
-				/** should go to the next message */
-				getLogger().log(Level.INFO, "Message " + contents + " has failed. Failure is caused by an invalid property.");
-				e.printStackTrace();
-				msg.setFailed();
-			} catch (RemoteException e) {
-				/** should go to the next message */
-				getLogger().log(Level.INFO, "Message " + contents + " has failed.");
-				e.printStackTrace();
-				msg.setFailed();
-			} catch (ServiceException e) {
-				/** should go to the next message */
-				getLogger().log(Level.INFO, "Message " + contents + " has failed.");
-				e.printStackTrace();
-				msg.setFailed();
-			} catch (IOException e) {
-				/** should go to the next message */
-				getLogger().log(Level.INFO, "Message " + contents + " has failed.");
-				e.printStackTrace();
-				msg.setFailed();
-			}
-		}
-	}
-	
-	private void handleRegisters(){
-		Iterator it = dataHandler.getMeterReadingData().getRegisterValues().iterator();
-		while(it.hasNext()){
-			RegisterValue registerValue = (RegisterValue)it.next();
-			RtuRegister register = getRtu().getRegister(revertModifyObisCodeToChannelNumber(registerValue.getObisCode()));
-			
-			if(register != null){
-				if(register.getReadingAt(registerValue.getReadTime()) == null){
-					mrt.getStoreObjects().add(register, registerValue);
-				}
-			}
-            else {
+            if (!xml.equalsIgnoreCase("")) {
+
+                mrt.getConcentrator().importData(xml, dataHandler);
+                ProfileData pd = dataHandler.getDailyMonthlyProfile();
+                pd = mrt.sortOutProfileData(pd, pc);
+                ParseUtils.validateProfileData(pd, toDate);
+                mrt.getStoreObjects().add(chn, pd);
+                dataHandler.clearDailyMonthlyProfile();
+            }
+        }
+    }
+
+    private void sendMeterMessages(Rtu eMeter) throws BusinessException, SQLException {
+        Iterator messageIt = getRtu().getPendingMessages().iterator();
+        if (messageIt.hasNext()) {
+            getLogger().log(Level.INFO, "Handling MESSAGES from meter with serialnumber " + getCustomerID());
+        }
+
+        while (messageIt.hasNext()) {
+            RtuMessage msg = (RtuMessage) messageIt.next();
+            String contents = msg.getContents();
+
+            boolean doReadOnDemand = (contents.toLowerCase()).indexOf(RtuMessageConstant.READ_ON_DEMAND.toLowerCase()) != -1;
+            boolean doDisconnect = contents.toLowerCase().indexOf(RtuMessageConstant.DISCONNECT_LOAD.toLowerCase()) != -1;
+            boolean doConnect = (contents.toLowerCase().indexOf(RtuMessageConstant.CONNECT_LOAD.toLowerCase()) != -1) && !doDisconnect;
+
+            try {
+                if (doReadOnDemand) {
+
+                    dataHandler = initDatahandler();
+                    List registerList = new ArrayList();
+                    Iterator it = getRtu().getRtuType().getRtuRegisterSpecs().iterator();
+
+                    while (it.hasNext()) {
+                        RtuRegisterSpec spec = (RtuRegisterSpec) it.next();
+                        ObisCode oc = ObisCode.fromString(modifyObisCodeToChannelNumber(spec.getRegisterMapping().getObisCode().toString()));
+                        if (oc.getF() == 255) {
+                            if ((oc.getA() == 0) && ((oc.getB() > 0) && (oc.getB() <= 4)) && (oc.getC() == 128) && (oc.getD() == 50) && (oc.getE() == 0)) {
+                                registerList.add(oc.toString());
+                            } else {
+                                getLogger().log(Level.INFO, "Register with obisCode " + oc.toString() + " is not supported.");
+                            }
+
+                            dataHandler.checkOnDemands(true);
+                            dataHandler.setProfileDuration(-1);
+                        }
+                    }
+
+                    String registers[] = (String[]) registerList.toArray(new String[0]);
+                    String r = mrt.getConnection().getMeterOnDemandResultsList(eMeter.toString(), registers);
+
+                    mrt.getConcentrator().importData(r, dataHandler);
+                    handleRegisters();
+
+                    msg.confirm();
+                    getLogger().log(Level.INFO, "Current message " + contents + " has finished.");
+                } else if (doDisconnect) {
+                    String[] times = mrt.prepareCosemGetRequest();
+
+                    Unsigned8 channel = new Unsigned8(getPhysicalAddress() + 1);
+                    mrt.getConnection().cosemSetRequest(eMeter.toString(), times[0], times[1], valveControl.toString(), new UnsignedInt(1), new UnsignedInt(2), channel.getBEREncodedByteArray());
+
+                    Unsigned8 state = new Unsigned8(0);
+                    mrt.getConnection().cosemSetRequest(eMeter.toString(), times[0], times[1], valveState.toString(), new UnsignedInt(1), new UnsignedInt(2), state.getBEREncodedByteArray());
+
+                    msg.confirm();
+                    getLogger().log(Level.INFO, "Current message" + contents + " has finished.");
+                } else if (doConnect) {
+                    String[] times = mrt.prepareCosemGetRequest();
+
+                    Unsigned8 channel = new Unsigned8(getPhysicalAddress() + 1);
+                    mrt.getConnection().cosemSetRequest(eMeter.toString(), times[0], times[1], valveControl.toString(), new UnsignedInt(1), new UnsignedInt(2), channel.getBEREncodedByteArray());
+
+                    Unsigned8 state = new Unsigned8(1);
+                    mrt.getConnection().cosemSetRequest(eMeter.toString(), times[0], times[1], valveState.toString(), new UnsignedInt(1), new UnsignedInt(2), state.getBEREncodedByteArray());
+
+                    msg.confirm();
+                    getLogger().log(Level.INFO, "Current message" + contents + " has finished.");
+                } else {
+                    msg.setFailed();
+                }
+            } catch (BusinessException e) {
+                /** should go to the next message */
+                getLogger().log(Level.INFO, "Message " + contents + " has failed.");
+                e.printStackTrace();
+                msg.setFailed();
+            } catch (SQLException e) {
+                /** should go to the next message */
+                getLogger().log(Level.INFO, "Message " + contents + " has failed.");
+                e.printStackTrace();
+                msg.setFailed();
+
+                /** Close the connection after an SQL exception, connection will startup again if requested */
+                Environment.getDefault().closeConnection();
+
+            } catch (InvalidPropertyException e) {
+                /** should go to the next message */
+                getLogger().log(Level.INFO, "Message " + contents + " has failed. Failure is caused by an invalid property.");
+                e.printStackTrace();
+                msg.setFailed();
+            } catch (RemoteException e) {
+                /** should go to the next message */
+                getLogger().log(Level.INFO, "Message " + contents + " has failed.");
+                e.printStackTrace();
+                msg.setFailed();
+            } catch (ServiceException e) {
+                /** should go to the next message */
+                getLogger().log(Level.INFO, "Message " + contents + " has failed.");
+                e.printStackTrace();
+                msg.setFailed();
+            } catch (IOException e) {
+                /** should go to the next message */
+                getLogger().log(Level.INFO, "Message " + contents + " has failed.");
+                e.printStackTrace();
+                msg.setFailed();
+            }
+        }
+    }
+
+    private void handleRegisters() {
+        Iterator it = dataHandler.getMeterReadingData().getRegisterValues().iterator();
+        while (it.hasNext()) {
+            RegisterValue registerValue = (RegisterValue) it.next();
+            RtuRegister register = getRtu().getRegister(revertModifyObisCodeToChannelNumber(registerValue.getObisCode()));
+
+            if (register != null) {
+                if (register.getReadingAt(registerValue.getReadTime()) == null) {
+                    mrt.getStoreObjects().add(register, registerValue);
+                }
+            } else {
                 String obis = registerValue.getObisCode().toString();
                 String msg = "Register " + obis + " not defined on device";
-                getLogger().info( msg );
+                getLogger().info(msg);
             }
-		}
-	}
-	
-	private String modifyObisCodeToChannelNumber(String register){
-		String str = register.substring(0, 2)+(getPhysicalAddress()+1)+register.substring(3);
-		return str;
-	}
-	
-	private ObisCode revertModifyObisCodeToChannelNumber(ObisCode oc){
-		String chObisCode = oc.toString();
-		chObisCode = chObisCode.substring(0 ,2)+"1"+chObisCode.substring(3);
-		return ObisCode.fromString(chObisCode);
-	}
-	
-	public List getMessageCategories() {
+        }
+    }
+
+    private String modifyObisCodeToChannelNumber(String register) {
+        String str = register.substring(0, 2) + (getPhysicalAddress() + 1) + register.substring(3);
+        return str;
+    }
+
+    private ObisCode revertModifyObisCodeToChannelNumber(ObisCode oc) {
+        String chObisCode = oc.toString();
+        chObisCode = chObisCode.substring(0, 2) + "1" + chObisCode.substring(3);
+        return ObisCode.fromString(chObisCode);
+    }
+
+    public List getMessageCategories() {
         List theCategories = new ArrayList();
         MessageCategorySpec cat = new MessageCategorySpec("BasicMessages");
-        
+
         MessageSpec msgSpec = addBasicMsg("ReadOnDemand", RtuMessageConstant.READ_ON_DEMAND, false);
         cat.addMessageSpec(msgSpec);
         msgSpec = addBasicMsg("Disconnect meter", RtuMessageConstant.DISCONNECT_LOAD, false);
         cat.addMessageSpec(msgSpec);
         msgSpec = addBasicMsg("Connect meter", RtuMessageConstant.CONNECT_LOAD, false);
         cat.addMessageSpec(msgSpec);
-        
+
         theCategories.add(cat);
-        
-		return theCategories;
-	}
 
-	public String writeMessage(Message msg) {
-		return msg.write(this);
-	}
+        return theCategories;
+    }
 
-	public String writeTag(MessageTag msgTag) {
+    public String writeMessage(Message msg) {
+        return msg.write(this);
+    }
+
+    public String writeTag(MessageTag msgTag) {
         StringBuffer buf = new StringBuffer();
-        
+
         // a. Opening tag
         buf.append("<");
         buf.append(msgTag.getName());
-        
+
         // b. Attributes
-        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
+        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
             MessageAttribute att = (MessageAttribute) it.next();
             if (att.getValue() == null || att.getValue().length() == 0) {
-				continue;
-			}
+                continue;
+            }
             buf.append(" ").append(att.getSpec().getName());
             buf.append("=").append('"').append(att.getValue()).append('"');
         }
@@ -424,31 +422,31 @@ public class MbusDevice implements Messaging, GenericProtocol{
         }
         buf.append(">");
         // c. sub elements
-        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
+        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext(); ) {
             MessageElement elt = (MessageElement) it.next();
             if (elt.isTag()) {
-				buf.append(writeTag((MessageTag) elt));
-			} else if (elt.isValue()) {
+                buf.append(writeTag((MessageTag) elt));
+            } else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
                 if (value == null || value.length() == 0) {
-					return "";
-				}
+                    return "";
+                }
                 buf.append(value);
             }
         }
-        
+
         // d. Closing tag
         buf.append("</");
         buf.append(msgTag.getName());
         buf.append(">");
-        
-        return buf.toString();
-	}
 
-	public String writeValue(MessageValue msgValue) {
-		return msgValue.getValue();
-	}
-	
+        return buf.toString();
+    }
+
+    public String writeValue(MessageValue msgValue) {
+        return msgValue.getValue();
+    }
+
     private MessageSpec addBasicMsg(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
@@ -456,77 +454,92 @@ public class MbusDevice implements Messaging, GenericProtocol{
         return msgSpec;
     }
 
-	public Rtu getRtu() {
-		return mbus;
-	}
+    public Rtu getRtu() {
+        return mbus;
+    }
 
-	public Logger getLogger() {
-		return logger;
-	}
+    public Logger getLogger() {
+        return logger;
+    }
 
-	public ProtocolChannelMap getChannelMap() throws InvalidPropertyException, BusinessException {
-    	if (channelMap == null){
-    		String sChannelMap = getRtu().getProperties().getProperty( Constant.CHANNEL_MAP );
-    		if(sChannelMap != null) {
-				channelMap = new ProtocolChannelMap( sChannelMap ); 
-			} else {
-				throw new BusinessException("No channelmap configured on the meter, meter will not be handled.");
-			}
-    	}
+    public ProtocolChannelMap getChannelMap() throws InvalidPropertyException, BusinessException {
+        if (channelMap == null) {
+            String sChannelMap = (String) getRtu().getProperties().getProperty(Constant.CHANNEL_MAP);
+            if (sChannelMap != null) {
+                channelMap = new ProtocolChannelMap(sChannelMap);
+            } else {
+                throw new BusinessException("No channelmap configured on the meter, meter will not be handled.");
+            }
+        }
         return channelMap;
-	}
+    }
 
-	public Unit getMbusUnit(){
-		return mbusUnit;
-	}
-	
-	public int getMbusMedium(){
-		return medium;
-	}
-	
-	public int getPhysicalAddress(){
-		return this.physicalAddress;
-	}
-	
-	public long getMbusAddress(){
-		return this.mbusAddress;
-	}
-	
-	public String getCustomerID(){
-		return this.customerID;
-	}
+    public Unit getMbusUnit() {
+        return mbusUnit;
+    }
 
-	public void addProperties(Properties properties) {
-		// TODO Auto-generated method stub
-		
-	}
+    public int getMbusMedium() {
+        return medium;
+    }
 
-	public String getVersion() {
-		return "$Date$";
-	}
+    public int getPhysicalAddress() {
+        return this.physicalAddress;
+    }
 
-	public List getOptionalKeys() {
-		ArrayList result = new ArrayList();
-		result.add(Constant.CHANNEL_MAP);
-		return result;
-	}
+    public long getMbusAddress() {
+        return this.mbusAddress;
+    }
 
-	public List getRequiredKeys() {
-		ArrayList result = new ArrayList();
-		return result;
-	}
+    public String getCustomerID() {
+        return this.customerID;
+    }
 
-	public void setMeterReadTransaction(MeterReadTransaction meterReadTransaction) {
-		this.mrt = meterReadTransaction;
-	}
+    @Override
+    public void addProperties(TypedProperties properties) {
+        addProperties(properties.toStringProperties());
+    }
 
-	public long getTimeDifference() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-	
-	public static void main(String args[]) throws InvalidPropertyException{
-		ProtocolChannelMap pcm = new ProtocolChannelMap("");
-		System.out.println(pcm);
-	}
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    }
+
+    public void addProperties(Properties properties) {
+        // TODO Auto-generated method stub
+
+    }
+
+    public String getVersion() {
+        return "$Date$";
+    }
+
+    public List getOptionalKeys() {
+        ArrayList result = new ArrayList();
+        result.add(Constant.CHANNEL_MAP);
+        return result;
+    }
+
+    public List getRequiredKeys() {
+        ArrayList result = new ArrayList();
+        return result;
+    }
+
+    public void setMeterReadTransaction(MeterReadTransaction meterReadTransaction) {
+        this.mrt = meterReadTransaction;
+    }
+
+    public long getTimeDifference() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    public static void main(String args[]) throws InvalidPropertyException {
+        ProtocolChannelMap pcm = new ProtocolChannelMap("");
+        System.out.println(pcm);
+    }
 }

@@ -22,64 +22,63 @@ import java.util.logging.Logger;
 
 /**
  * @author jme
- *
  */
 public class MK10ProtocolExecuter {
 
-	private static final int		DEBUG					= 0;
-	public static final byte		STATUS_OK				= 0;
-	public static final byte		STATUS_PROTOCOLERROR	= 1;
-	public static final byte		STATUS_COMMERROR		= 2;
-	public static final String		NO_ERROR				= "no error";
+    private static final int DEBUG = 0;
+    public static final byte STATUS_OK = 0;
+    public static final byte STATUS_PROTOCOLERROR = 1;
+    public static final byte STATUS_COMMERROR = 2;
+    public static final String NO_ERROR = "no error";
 
-	private Rtu						meter					= null;
-	private MK10Push				mk10Push				= null;
-	private MK10					mk10Protocol			= new MK10();
-	private Properties				properties				= new Properties();
-	private List<AmrJournalEntry>	journal					= new ArrayList<AmrJournalEntry>();
+    private Rtu meter = null;
+    private MK10Push mk10Push = null;
+    private MK10 mk10Protocol = new MK10();
+    private Properties properties = new Properties();
+    private List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
 
-	private int						completionCode			= AmrJournalEntry.CC_OK;
-	private String					completionErrorString	= "";
+    private int completionCode = AmrJournalEntry.CC_OK;
+    private String completionErrorString = "";
 
-	private MeterReadingData		meterReadingData		= null;
-	private ProfileData				meterProfileData		= null;
-	private MeterUsageData			meterUsageData			= null;
+    private MeterReadingData meterReadingData = null;
+    private ProfileData meterProfileData = null;
+    private MeterUsageData meterUsageData = null;
 
-	/*
-	 * Constructors
-	 */
+    /*
+      * Constructors
+      */
 
-	public MK10ProtocolExecuter(MK10Push mk10Push) {
-		this.mk10Push = mk10Push;
-	}
+    public MK10ProtocolExecuter(MK10Push mk10Push) {
+        this.mk10Push = mk10Push;
+    }
 
-	/*
-	 * Private getters, setters and methods
-	 */
+    /*
+      * Private getters, setters and methods
+      */
 
     private MeteringWarehouse mw() {
         return MeteringWarehouse.getCurrent();
     }
 
-	private MK10Push getMk10Push() {
-		return mk10Push;
-	}
+    private MK10Push getMk10Push() {
+        return mk10Push;
+    }
 
-	private Link getLink() {
-		return getMk10Push().getLink();
-	}
+    private Link getLink() {
+        return getMk10Push().getLink();
+    }
 
-	/*
-	 * AMR and logging methods
-	 */
+    /*
+      * AMR and logging methods
+      */
 
-	private Logger getLogger() {
-		return getMk10Push().getLogger();
-	}
+    private Logger getLogger() {
+        return getMk10Push().getLogger();
+    }
 
-	protected void log(Level level, String msg){
-		getLogger().log(level, msg);
-	}
+    protected void log(Level level, String msg) {
+        getLogger().log(level, msg);
+    }
 
     protected void setAmrJournalOutOfBoundary(long timeDiff) {
         journal(new AmrJournalEntry(AmrJournalEntry.TIME_OUT_OF_BOUNDARY, "Time difference " + timeDiff + " ms is out of boundary."));
@@ -90,75 +89,75 @@ public class MK10ProtocolExecuter {
     }
 
     public void adjustCompletionCode(int cc) {
-    	if (DEBUG >= 1) {
-			System.out.println(" ### adjustCompletionCode(), CC = " + cc);
-		}
-    	if (this.completionCode == AmrJournalEntry.CC_OK) {
-			this.completionCode = cc;
-		}
+        if (DEBUG >= 1) {
+            System.out.println(" ### adjustCompletionCode(), CC = " + cc);
+        }
+        if (this.completionCode == AmrJournalEntry.CC_OK) {
+            this.completionCode = cc;
+        }
     }
 
     public void setCompletionCodeTimeError(String msg) {
         if (msg != null) {
-			completionErrorString = msg;
-		}
+            completionErrorString = msg;
+        }
         adjustCompletionCode(AmrJournalEntry.CC_TIME_ERROR);
     }
 
 
-	private void readMeterProperties() {
-		if (this.properties == null) {
-			this.properties = new Properties();
-		}
+    private void readMeterProperties() {
+        if (this.properties == null) {
+            this.properties = new Properties();
+        }
 
-		CommunicationProtocol protocol = getMeter().getProtocol();
-		if (protocol != null) {
-			if (protocol.getProperties() != null) {
-				this.properties.putAll(protocol.getProperties());
-			}
-		}
-		if (getMeter().getProperties() != null) {
-			this.properties.putAll(getMeter().getProperties());
-		}
+        CommunicationProtocol protocol = getMeter().getProtocol();
+        if (protocol != null) {
+            if (protocol.getProperties() != null) {
+                this.properties.putAll(protocol.getProperties().toStringProperties());
+            }
+        }
+        if (getMeter().getProperties() != null) {
+            this.properties.putAll(getMeter().getProperties().toStringProperties());
+        }
 
-		if (getMeter().getSerialNumber() != null) {
-			this.properties.put(MeterProtocol.SERIALNUMBER, getMeter().getSerialNumber());
-		}
-		if (getMeter().getNodeAddress() != null) {
-			this.properties.put(MeterProtocol.NODEID, getMeter().getNodeAddress());
-		}
-		if (getMeter().getDeviceId() != null) {
-			this.properties.put(MeterProtocol.ADDRESS, getMeter().getDeviceId());
-		}
-		if (getMeter().getPassword() != null) {
-			this.properties.put(MeterProtocol.PASSWORD, getMeter().getPassword());
-		}
-		if (String.valueOf(getMeter().getIntervalInSeconds()) != null) {
-			this.properties.put(MeterProtocol.PROFILEINTERVAL, String.valueOf(getMeter().getIntervalInSeconds()));
-		}
+        if (getMeter().getSerialNumber() != null) {
+            this.properties.put(MeterProtocol.SERIALNUMBER, getMeter().getSerialNumber());
+        }
+        if (getMeter().getNodeAddress() != null) {
+            this.properties.put(MeterProtocol.NODEID, getMeter().getNodeAddress());
+        }
+        if (getMeter().getDeviceId() != null) {
+            this.properties.put(MeterProtocol.ADDRESS, getMeter().getDeviceId());
+        }
+        if (getMeter().getPassword() != null) {
+            this.properties.put(MeterProtocol.PASSWORD, getMeter().getPassword());
+        }
+        if (String.valueOf(getMeter().getIntervalInSeconds()) != null) {
+            this.properties.put(MeterProtocol.PROFILEINTERVAL, String.valueOf(getMeter().getIntervalInSeconds()));
+        }
 
-            getMk10Push().setFullDebugLogging(this.properties.getProperty("FullDebug", "0").equalsIgnoreCase("1"));
+        getMk10Push().setFullDebugLogging(this.properties.getProperty("FullDebug", "0").equalsIgnoreCase("1"));
 
 
-		if (DEBUG >= 2) {
-			properties.list(System.out);
-		}
+        if (DEBUG >= 2) {
+            properties.list(System.out);
+        }
 
-	}
+    }
 
     private void doLogMeterDataCollection(MeterReadingData meterReadingData) {
-    	if (meterReadingData == null) {
-    		log(Level.INFO, "meterReadingData is null, probably meterreadings not supported by meter.");
-    		return;
-    	}
+        if (meterReadingData == null) {
+            log(Level.INFO, "meterReadingData is null, probably meterreadings not supported by meter.");
+            return;
+        }
 
-    	List registerValues = meterReadingData.getRegisterValues();
-    	Iterator it = registerValues.iterator();
+        List registerValues = meterReadingData.getRegisterValues();
+        Iterator it = registerValues.iterator();
 
-    	while (it.hasNext()) {
-    		RegisterValue each = (RegisterValue) it.next();
-    		log(Level.INFO, each.toString());
-    	}
+        while (it.hasNext()) {
+            RegisterValue each = (RegisterValue) it.next();
+            log(Level.INFO, each.toString());
+        }
 
     } // private void doLogMeterDataCollection(List readingsData)  throws ProtocolReaderException
 
@@ -204,57 +203,58 @@ public class MK10ProtocolExecuter {
         }
     }
 
-	/*
-	 * Public methods
-	 */
+    /*
+      * Public methods
+      */
 
-	public void doMeterProtocol() throws IOException, BusinessException {
+    public void doMeterProtocol() throws IOException, BusinessException {
 
-		// Let the MK10 protocol know that it's been used as generic Push protocol
-		getMk10Protocol().setPushProtocol(true);
+        // Let the MK10 protocol know that it's been used as generic Push protocol
+        getMk10Protocol().setPushProtocol(true);
 
-		// Read the properties from the Rtu and the Protocol in EIServer and apply them to the MK10Protocol.
-		readMeterProperties();
-		getMk10Protocol().setProperties(this.properties);
-		if (DEBUG >= 2) {
-			properties.list(System.out);
-		}
+        // Read the properties from the Rtu and the Protocol in EIServer and apply them to the MK10Protocol.
+        readMeterProperties();
+        getMk10Protocol().setProperties(this.properties);
+        if (DEBUG >= 2) {
+            properties.list(System.out);
+        }
 
-		// Create new streams and pass them to the MK10 protocol
-		getMk10Protocol().init(
-				new MK10PushInputStream(getLink().getInputStream(), getMk10Push().isFullDebugLogging() ? getLogger() : null),
-				new MK10PushOutputStream(getLink().getOutputStream(), getMk10Push().isFullDebugLogging() ? getLogger() : null),
-				getMeter().getTimeZone(),
-				getLogger()
-		);
+        // Create new streams and pass them to the MK10 protocol
+        getMk10Protocol().init(
+                new MK10PushInputStream(getLink().getInputStream(), getMk10Push().isFullDebugLogging() ? getLogger() : null),
+                new MK10PushOutputStream(getLink().getOutputStream(), getMk10Push().isFullDebugLogging() ? getLogger() : null),
+                getMeter().getTimeZone(),
+                getLogger()
+        );
 
-		// Try to connect to the meter ...
-		getMk10Protocol().connect();
+        // Try to connect to the meter ...
+        getMk10Protocol().connect();
 
         // Before continuing with reading the meter's data, check some basic
         // things to be sure that we can continue...
         if (getCommunicationProfile().getReadDemandValues()) {
-			verifyMeterProfileInterval();
-		}
+            verifyMeterProfileInterval();
+        }
 
         MK10ClockExecuter clockExec = new MK10ClockExecuter(this);
         boolean markAsBadTime = clockExec.verifyMeterMaxTimeDiff(getCommunicationProfile().getCollectOutsideBoundary());
 
         if (getCommunicationProfile().getReadDemandValues()) {
-        	MK10DemandValuesExecuter demandValuesExec = new MK10DemandValuesExecuter(this);
-        	demandValuesExec.validateChannels();
+            MK10DemandValuesExecuter demandValuesExec = new MK10DemandValuesExecuter(this);
+            demandValuesExec.validateChannels();
         }
 
         if (getCommunicationProfile().getReadMeterReadings()) {
-        	MK10MeterReadingExecuter meterReadingExec = new MK10MeterReadingExecuter(this);
-        	meterReadingData = meterReadingExec.getMeterReadings();
+            MK10MeterReadingExecuter meterReadingExec = new MK10MeterReadingExecuter(this);
+            meterReadingData = meterReadingExec.getMeterReadings();
         }
 
         // Get the version of the meterfirmware
         try {
             String strVersion = getMk10Protocol().getFirmwareVersion();
             log(Level.FINE, "meter firmware: " + strVersion);
-        } catch (UnsupportedException e) {}
+        } catch (UnsupportedException e) {
+        }
 
         // Get the version of the MK10 protocol
         String strVersion = getMk10Protocol().getProtocolVersion();
@@ -262,11 +262,11 @@ public class MK10ProtocolExecuter {
 
 
         // Get the meter profile
-    	MK10DemandValuesExecuter demandValuesExec = new MK10DemandValuesExecuter(this);
+        MK10DemandValuesExecuter demandValuesExec = new MK10DemandValuesExecuter(this);
         if (getCommunicationProfile().getReadDemandValues()) {
-        	meterProfileData = demandValuesExec.getReadDemandValues();
+            meterProfileData = demandValuesExec.getReadDemandValues();
         } else if (getCommunicationProfile().getReadAllDemandValues()) {
-        	meterProfileData = demandValuesExec.getReadAllDemandValues();
+            meterProfileData = demandValuesExec.getReadAllDemandValues();
         }
 
         // Sort the received profile
@@ -274,45 +274,44 @@ public class MK10ProtocolExecuter {
             meterProfileData = demandValuesExec.validateProfileData(meterProfileData, demandValuesExec.getNow());
             meterProfileData.sort();
             if (markAsBadTime) {
-				meterProfileData.markIntervalsAsBadTime();
-			}
+                meterProfileData.markIntervalsAsBadTime();
+            }
         }
 
         // Try to read or set the clock in the meter
-		long timeDiff = clockExec.verifyAndSetMeterTime(getMeter().getTimeZone());
+        long timeDiff = clockExec.verifyAndSetMeterTime(getMeter().getTimeZone());
         journal(new AmrJournalEntry(AmrJournalEntry.TIMEDIFF, timeDiff));
 
 
-
-		// Disconnect the meter ...
-		getMk10Protocol().disconnect();
+        // Disconnect the meter ...
+        getMk10Protocol().disconnect();
 
         meterUsageData = new MeterUsageData(meterReadingData, meterProfileData);
 
-		// Show data from meter in loggings
-		doLogMeterDataCollection(meterProfileData);
-		doLogMeterDataCollection(meterReadingData);
+        // Show data from meter in loggings
+        doLogMeterDataCollection(meterProfileData);
+        doLogMeterDataCollection(meterReadingData);
 
-	}
+    }
 
-	/*
-	 * Public getters and setters
-	 */
+    /*
+      * Public getters and setters
+      */
 
-	public CommunicationProfile getCommunicationProfile() throws BusinessException {
-		CommunicationProfile cp =  getInboundCommunicationScheduler().getCommunicationProfile();
-		if (cp == null) {
-			throw new BusinessException("No CommunicationProfile found for Rtu.");
-		}
-		return cp;
-	}
+    public CommunicationProfile getCommunicationProfile() throws BusinessException {
+        CommunicationProfile cp = getInboundCommunicationScheduler().getCommunicationProfile();
+        if (cp == null) {
+            throw new BusinessException("No CommunicationProfile found for Rtu.");
+        }
+        return cp;
+    }
 
     public CommunicationScheduler getInboundCommunicationScheduler() throws BusinessException {
         List<CommunicationScheduler> schedulerList = getInboundSchedulers(getMeter().getCommunicationSchedulers());
         if (schedulerList.size() != 1) {
             throw new BusinessException(
                     "Rtu MUST have one and only one CommunicationScheduler with an INBOUND modem pool when using push protocol. " +
-                    "CommunicationSchedulers found for Rtu: " + schedulerList.size()
+                            "CommunicationSchedulers found for Rtu: " + schedulerList.size()
             );
         }
         return schedulerList.get(0);
@@ -330,34 +329,34 @@ public class MK10ProtocolExecuter {
     }
 
     public Rtu getMeter() {
-		return meter;
-	}
+        return meter;
+    }
 
-	public void setMeter(Rtu meter) {
-		this.meter = meter;
-	}
+    public void setMeter(Rtu meter) {
+        this.meter = meter;
+    }
 
-	public MK10 getMk10Protocol() {
-		return mk10Protocol;
-	}
+    public MK10 getMk10Protocol() {
+        return mk10Protocol;
+    }
 
-	public void addProperties(Properties properties) {
-		this.properties.putAll(properties);
-	}
+    public void addProperties(Properties properties) {
+        this.properties.putAll(properties);
+    }
 
-	@SuppressWarnings("unchecked")
-	public List<String> getOptionalKeys() {
-		List<String> list = new ArrayList<String>();
-		list.addAll(getMk10Protocol().getOptionalKeys());
-		return list;
-	}
+    @SuppressWarnings("unchecked")
+    public List<String> getOptionalKeys() {
+        List<String> list = new ArrayList<String>();
+        list.addAll(getMk10Protocol().getOptionalKeys());
+        return list;
+    }
 
-	@SuppressWarnings("unchecked")
-	public List<String> getRequiredKeys() {
-		List<String> list = new ArrayList<String>();
-		list.addAll(getMk10Protocol().getRequiredKeys());
-		return list;
-	}
+    @SuppressWarnings("unchecked")
+    public List<String> getRequiredKeys() {
+        List<String> list = new ArrayList<String>();
+        list.addAll(getMk10Protocol().getRequiredKeys());
+        return list;
+    }
 
     public List<AmrJournalEntry> getJournal() {
         return journal;
@@ -372,27 +371,27 @@ public class MK10ProtocolExecuter {
     }
 
     public Properties getProperties() {
-		return properties;
-	}
+        return properties;
+    }
 
     public ProfileData getMeterProfileData() {
-		return meterProfileData;
-	}
+        return meterProfileData;
+    }
 
     public MeterReadingData getMeterReadingData() {
-		return meterReadingData;
-	}
+        return meterReadingData;
+    }
 
     public int getCompletionCode() {
-		return completionCode;
-	}
+        return completionCode;
+    }
 
     public String getCompletionErrorString() {
-		return completionErrorString;
-	}
+        return completionErrorString;
+    }
 
     public MeterUsageData getMeterUsageData() {
-		return meterUsageData;
-	}
+        return meterUsageData;
+    }
 
 }

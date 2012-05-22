@@ -2,6 +2,8 @@ package com.energyict.protocolimpl.landisgyr.maxsys2510;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -14,42 +16,41 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * @author fbo
  * @beginchanges
- * @endchanges
- * 
- * Table 15 contains all the register values.  It has 2 + x nr of places in
- * memory to make a copy of all register data.  
+ * @endchanges Table 15 contains all the register values.  It has 2 + x nr of places in
+ * memory to make a copy of all register data.
  * It is divided:
- *  - current season:   registers currently updated 
- *  - previous season:  registers from previous season
- *  - self read data:   registers copy from previous rate reset.  
- * 
+ * - current season:   registers currently updated
+ * - previous season:  registers from previous season
+ * - self read data:   registers copy from previous rate reset.
+ * <p/>
  * From the (S4)manual:
- * "When actuated, the self-read function will save a copy of all energy and 
- * demand information, including TOU metrics, and mark the current date and 
- * time." 
- * 
+ * "When actuated, the self-read function will save a copy of all energy and
+ * demand information, including TOU metrics, and mark the current date and
+ * time."
+ * <p/>
  * And
- * 
- * "The S4 is capable of storing up to six sets of self-read data. A self-read 
- * initiates the transfer of current data into the next available self-read 
- * memory block, followed by a demand reset. Only the most recent six self-reads 
- * are retained. The oldest self-read is replaced by the most recent when the 
+ * <p/>
+ * "The S4 is capable of storing up to six sets of self-read data. A self-read
+ * initiates the transfer of current data into the next available self-read
+ * memory block, followed by a demand reset. Only the most recent six self-reads
+ * are retained. The oldest self-read is replaced by the most recent when the
  * programmable number has been reached."
- * 
+ * <p/>
  * There are 2 (independent) types of billing periods:
- *  - Seasons
- *  - Rate resets
- * 
+ * - Seasons
+ * - Rate resets
+ * <p/>
  * A season has a week schedule.  For every day there are several time of uses
  * defined.  A time of use defines which datablocks are active.
- * 
- * @author fbo
  */
 
 public class MaxSys implements MeterProtocol, RegisterProtocol {
 
-    /** Property keys */
+    /**
+     * Property keys
+     */
     final static String PK_TIMEOUT = "Timeout";
     final static String PK_RETRIES = "Retries";
     final static String PK_SECURITY_LEVEL = "SecurityLevel";
@@ -58,7 +59,9 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     final static String PK_READ_UNIT1_SERIALNUMBER = "ReadUnit1SerialNumber";
     final static String PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE = "ReadProfileDataBeforeConfigChange";
 
-    /** Property Default values */
+    /**
+     * Property Default values
+     */
     final static String PD_NODE_ID = "";
     final static int PD_TIMEOUT = 10000;
     final static int PD_RETRIES = 5;
@@ -66,9 +69,9 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     final static int PD_SECURITY_LEVEL = 2;
     final static String PD_EXTENDED_LOGGING = "0";
     final static int PD_FORCE_DELAY = 250;
-    
+
     /**
-     * Property values Required properties will have NO default value Optional 
+     * Property values Required properties will have NO default value Optional
      * properties make use of default value
      */
     String pAddress = null;
@@ -87,12 +90,12 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     int pSecurityLevel = PD_SECURITY_LEVEL;
     int pCorrectTime = 0;
     int pForceDelay = PD_FORCE_DELAY;
-    
+
     String pExtendedLogging = PD_EXTENDED_LOGGING;
 
     LinkLayer linkLayer;
     CommandFactory commandFactory;
-    
+
     private ObisCodeMapper obisCodeMapper = null;
     private TimeZone timeZone = null;
     private Logger logger = null;
@@ -100,12 +103,13 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     private Firmware firmware;
     private boolean readUnit1SerialNumber = false;
     private boolean readProfileDataBeforeConfigChange = true;
-    
 
-    public MaxSys() { }
-    
+
+    public MaxSys() {
+    }
+
     public Logger getLogger() {
-    	return this.logger;
+        return this.logger;
     }
 
     /* ___ Implement interface MeterProtocol ___ */
@@ -117,107 +121,124 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
      */
     public void setProperties(Properties p) throws InvalidPropertyException, MissingPropertyException {
 
-        if (p.getProperty(MeterProtocol.SERIALNUMBER) != null)
+        if (p.getProperty(MeterProtocol.SERIALNUMBER) != null) {
             pSerialNumber = p.getProperty(MeterProtocol.SERIALNUMBER);
-        
+        }
+
         if (p.getProperty(MeterProtocol.NODEID) != null) {
-        	pNodeId = p.getProperty(MeterProtocol.NODEID);
-        	if (pNodeId.length() == 7)
-        		pNodeId = "3" + pNodeId;
-        	if (pNodeId.length() != 8)
-        		throw new InvalidPropertyException( "NodeId must be a string of 7 or 8 numbers long");
-        	try {
-        		Integer.parseInt(pNodeId);
-        	}
-        	catch (NumberFormatException e) {
-        		throw new InvalidPropertyException( "NodeId: only numbers allowed");
-        	}
+            pNodeId = p.getProperty(MeterProtocol.NODEID);
+            if (pNodeId.length() == 7) {
+                pNodeId = "3" + pNodeId;
+            }
+            if (pNodeId.length() != 8) {
+                throw new InvalidPropertyException("NodeId must be a string of 7 or 8 numbers long");
+            }
+            try {
+                Integer.parseInt(pNodeId);
+            } catch (NumberFormatException e) {
+                throw new InvalidPropertyException("NodeId: only numbers allowed");
+            }
         }
 
 
-        if (p.getProperty(MeterProtocol.PROFILEINTERVAL) != null)
+        if (p.getProperty(MeterProtocol.PROFILEINTERVAL) != null) {
             pProfileInterval = Integer.parseInt(p.getProperty(MeterProtocol.PROFILEINTERVAL));
+        }
 
         if (p.getProperty(MeterProtocol.PASSWORD) != null) {
-            
+
             String pwd = p.getProperty(MeterProtocol.PASSWORD);
-            if( pwd == null ) {
+            if (pwd == null) {
                 pwd = "    ";
             }
-            
-            if( pwd.length() != 4 ) {
-                String msg = "Password must be a string of 4 characters long. eg 0000";
-                throw new InvalidPropertyException( msg );
-            }
-            
-            for( int i = pwd.length(); i < 4; i ++ )
-                pwd += " ";
 
-            pPassword = new byte [4];
-            pPassword[0] = pwd.getBytes()[0]; 
-            pPassword[1] = pwd.getBytes()[1]; 
+            if (pwd.length() != 4) {
+                String msg = "Password must be a string of 4 characters long. eg 0000";
+                throw new InvalidPropertyException(msg);
+            }
+
+            for (int i = pwd.length(); i < 4; i++) {
+                pwd += " ";
+            }
+
+            pPassword = new byte[4];
+            pPassword[0] = pwd.getBytes()[0];
+            pPassword[1] = pwd.getBytes()[1];
             pPassword[2] = pwd.getBytes()[2];
             pPassword[3] = pwd.getBytes()[3];
-            
+
         }
 
-        if (p.getProperty(PK_TIMEOUT) != null)
+        if (p.getProperty(PK_TIMEOUT) != null) {
             pTimeout = new Integer(p.getProperty(PK_TIMEOUT)).intValue();
+        }
 
-        if (p.getProperty(PK_RETRIES) != null)
+        if (p.getProperty(PK_RETRIES) != null) {
             pRetries = new Integer(p.getProperty(PK_RETRIES)).intValue();
+        }
 
-        if (p.getProperty(MeterProtocol.ROUNDTRIPCORR) != null)
+        if (p.getProperty(MeterProtocol.ROUNDTRIPCORR) != null) {
             pRountTripCorrection = Integer.parseInt(p.getProperty(MeterProtocol.ROUNDTRIPCORR));
+        }
 
-        if (p.getProperty(MeterProtocol.CORRECTTIME) != null)
+        if (p.getProperty(MeterProtocol.CORRECTTIME) != null) {
             pCorrectTime = Integer.parseInt(p.getProperty(MeterProtocol.CORRECTTIME));
+        }
 
-        if (p.getProperty(PK_FORCE_DELAY) != null)
-            pForceDelay = Integer.parseInt(p.getProperty(PK_FORCE_DELAY));        
-        
-        if (p.getProperty(PK_EXTENDED_LOGGING) != null)
+        if (p.getProperty(PK_FORCE_DELAY) != null) {
+            pForceDelay = Integer.parseInt(p.getProperty(PK_FORCE_DELAY));
+        }
+
+        if (p.getProperty(PK_EXTENDED_LOGGING) != null) {
             pExtendedLogging = p.getProperty(PK_EXTENDED_LOGGING);
-        
-         readUnit1SerialNumber = 
-        	"1".equals(p.getProperty(PK_READ_UNIT1_SERIALNUMBER));
-         readProfileDataBeforeConfigChange = 
-         	!"0".equals(p.getProperty(this.PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE));
-         
+        }
 
-         
+        readUnit1SerialNumber =
+                "1".equals(p.getProperty(PK_READ_UNIT1_SERIALNUMBER));
+        readProfileDataBeforeConfigChange =
+                !"0".equals(p.getProperty(this.PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE));
+
 
     }
-    
+
 
     public Date getBeginningOfRecording() throws IOException {
-    	TableAddress ta = new TableAddress( this, 2, 30 );
-    	byte[] values = ta.readBytes(6);
-    	return TypeDateTimeRcd.parse(new Assembly(this, new ByteArray(values))).toDate();
+        TableAddress ta = new TableAddress(this, 2, 30);
+        byte[] values = ta.readBytes(6);
+        return TypeDateTimeRcd.parse(new Assembly(this, new ByteArray(values))).toDate();
     }
 
     protected void sendNodeId() throws IOException {
-    	try {
-	    	if ((this.pNodeId != null) && !"".equals(pNodeId)) {
-	        	XCommand xCommand = commandFactory.createX( nextCrn(), 0x00, 0x0b ); // 0b => slave
-	    		byte arg1 = (byte) Integer.parseInt(pNodeId.substring(0, 2), 16);
-	    		byte arg2 = (byte) Integer.parseInt(pNodeId.substring(2, 4), 16);
-	    		byte arg3 = (byte) Integer.parseInt(pNodeId.substring(4, 6), 16);
-		        byte arg4 = (byte) Integer.parseInt(pNodeId.substring(6, 8), 16);
-	    		byte[] arg = {arg1, arg2, arg3, arg4};
-	    		xCommand.setArgumnt(arg);
-	            linkLayer.send( xCommand );
-	    	}
-    	}
-    	catch (NumberFormatException e) {
-    		throw new IOException("Invalid node address: " + pNodeId);
-    	}
+        try {
+            if ((this.pNodeId != null) && !"".equals(pNodeId)) {
+                XCommand xCommand = commandFactory.createX(nextCrn(), 0x00, 0x0b); // 0b => slave
+                byte arg1 = (byte) Integer.parseInt(pNodeId.substring(0, 2), 16);
+                byte arg2 = (byte) Integer.parseInt(pNodeId.substring(2, 4), 16);
+                byte arg3 = (byte) Integer.parseInt(pNodeId.substring(4, 6), 16);
+                byte arg4 = (byte) Integer.parseInt(pNodeId.substring(6, 8), 16);
+                byte[] arg = {arg1, arg2, arg3, arg4};
+                xCommand.setArgumnt(arg);
+                linkLayer.send(xCommand);
+            }
+        } catch (NumberFormatException e) {
+            throw new IOException("Invalid node address: " + pNodeId);
+        }
     }
 
 
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    }
+
     /**
      * the implementation returns both the address and password key
-     * 
+     *
      * @return a list of strings
      */
     public List getRequiredKeys() {
@@ -227,7 +248,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
 
     /**
      * this implementation returns an empty list
-     * 
+     *
      * @return a list of strings
      */
     public List getOptionalKeys() {
@@ -240,13 +261,13 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         result.add(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE);
         return result;
     }
-    
+
     /*
-     * (non-Javadoc)
-     * 
-     * @see com.energyict.protocol.MeterProtocol#init( java.io.InputStream, java.io.OutputStream, java.util.TimeZone,
-     *      java.util.logging.Logger)
-     */
+    * (non-Javadoc)
+    *
+    * @see com.energyict.protocol.MeterProtocol#init( java.io.InputStream, java.io.OutputStream, java.util.TimeZone,
+    *      java.util.logging.Logger)
+    */
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger)
             throws IOException {
 
@@ -256,8 +277,8 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         try {
 
             commandFactory = new CommandFactory();
-            linkLayer = 
-                new LinkLayer( inputStream, outputStream, 0, 0, pRetries, pForceDelay, this);
+            linkLayer =
+                    new LinkLayer(inputStream, outputStream, 0, 0, pRetries, pForceDelay, this);
             sendNodeId();
             obisCodeMapper = new ObisCodeMapper(this);
 
@@ -269,7 +290,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         if (logger.isLoggable(Level.INFO)) {
             String infoMsg = "MaxSys protocol init \n";
             infoMsg += " SerialNr = " + pSerialNumber + ",";
-            infoMsg += " Psswd = " + new String(pPassword) + ","; 
+            infoMsg += " Psswd = " + new String(pPassword) + ",";
             infoMsg += " Timeout = " + pTimeout + ",";
             infoMsg += " Retries = " + pRetries + ",";
             infoMsg += " Ext. Logging = " + pExtendedLogging + ",";
@@ -293,17 +314,17 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     void connect(int baudRate) throws IOException {
         try {
 
-        	linkLayer.send( commandFactory.createX( nextCrn(), 0x00, 0x0e ) ); // 0e: return unit id
+            linkLayer.send(commandFactory.createX(nextCrn(), 0x00, 0x0e)); // 0e: return unit id
             getTable0();
-            
+
             doExtendedLogging();
-            validateSerialNumber( );
-            
+            validateSerialNumber();
+
         } catch (NumberFormatException nex) {
             throw new IOException(nex.getMessage());
         }
     }
-    
+
     public void disconnect() throws IOException {
         ProtocolTools.delay(4000);
     }
@@ -333,10 +354,10 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
      * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date, boolean)
      */
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-        
+
         ProfileData pd = getTable12(lastReading, includeEvents).getProfile();
         return pd;
-        
+
     }
 
     /*
@@ -347,7 +368,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
 
         throw new UnsupportedException();
-        
+
     }
 
     /* 
@@ -356,9 +377,9 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
      * @see com.energyict.protocol.MeterProtocol#getProfileInterval()
      */
     public int getProfileInterval() throws UnsupportedException, IOException {
-        
+
         return getTable11().getTypeStoreCntrlRcd().getIntvlInMins() * 60;
-    
+
     }
 
     /* ___ Implement interface RegisterProtocol ___ */
@@ -392,46 +413,47 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
             logger.log(Level.INFO, obisCodeMapper.getDebugLogging() + "\n");
         }
     }
-    
-    private void validateSerialNumber( ) throws IOException {
-        if ((pSerialNumber == null) || ("".equals(pSerialNumber)))
+
+    private void validateSerialNumber() throws IOException {
+        if ((pSerialNumber == null) || ("".equals(pSerialNumber))) {
             return;
-     
+        }
+
         String sn = null;
-        
+
         // initial implementataion: serialnumber = unit_id3 (this is the default!)
         // implementation for Imserv: serialnumber = unit_id1
         if (!readUnit1SerialNumber) {
-        	TableAddress ta = new TableAddress( this, 2, 19 );
-        	sn = ta.readString(11);
+            TableAddress ta = new TableAddress(this, 2, 19);
+            sn = ta.readString(11);
+        } else {
+            TableAddress ta = new TableAddress(this, 2, 0);
+            byte[] values = ta.readBytes(4);
+            sn = getSerialNumber(values).substring(1);
         }
-        else {
-        	TableAddress ta = new TableAddress( this, 2, 0 );
-        	byte[] values = ta.readBytes(4);
-        	sn = getSerialNumber(values).substring(1);
-        }
-        
 
-        if( sn!= null ) {
-            if( pSerialNumber.equals( sn ) )
+
+        if (sn != null) {
+            if (pSerialNumber.equals(sn)) {
                 return;
+            }
         }
         String msg =
                 "SerialNumber mismatch! meter sn=" + sn +
-                ", configured sn=" + pSerialNumber;
+                        ", configured sn=" + pSerialNumber;
         throw new IOException(msg);
     }
-    
+
     protected String getSerialNumber(byte[] data) {
-    	StringBuffer strBuff=new StringBuffer(); 
-        for (int i=0;i<data.length;i++) {
-        	int bKar = data[i]&0xFF;
-        	strBuff.append(String.valueOf((char) ProtocolUtils.convertHexLSB(bKar)));
-        	strBuff.append(String.valueOf((char) ProtocolUtils.convertHexMSB(bKar)));
+        StringBuffer strBuff = new StringBuffer();
+        for (int i = 0; i < data.length; i++) {
+            int bKar = data[i] & 0xFF;
+            strBuff.append(String.valueOf((char) ProtocolUtils.convertHexLSB(bKar)));
+            strBuff.append(String.valueOf((char) ProtocolUtils.convertHexMSB(bKar)));
         }
         return strBuff.toString();
     }
-    
+
 
     public String getProtocolVersion() {
         return "$Date$";
@@ -439,9 +461,9 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         StringBuffer rslt = new StringBuffer();
-        rslt.append( getTable0().getTypeMaximumValues().getVersionNumber() );
-        rslt.append( " " );
-        rslt.append( getTable0().getTypeMaximumValues().getRevisionNumber() );
+        rslt.append(getTable0().getTypeMaximumValues().getVersionNumber());
+        rslt.append(" ");
+        rslt.append(getTable0().getTypeMaximumValues().getRevisionNumber());
         return rslt.toString();
     }
 
@@ -460,28 +482,29 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     /**
      * Send the time delta in milliseconds.
      * (non-Javadoc)
+     *
      * @see com.energyict.protocol.MeterProtocol#setTime()
      */
     public void setTime() throws IOException {
-        
+
         Calendar calendar = null;
         calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.MILLISECOND, pRountTripCorrection);
 
         long nowMilli = calendar.getTimeInMillis();
-        
+
         /* meterDate */
         Date mDate = getTable1().getTypeMaximumValues().getClockCalendar().toDate();
         long mMilli = mDate.getTime();
-        
-        short secondsDelta = (short)((nowMilli-mMilli)/1000);
-        byte b1 = (byte)(secondsDelta&0x00FF);
-        byte b2 = (byte)((secondsDelta&0xFF00)>>8);
 
-        XCommand xCommand = commandFactory.createX( nextCrn(), 0x00, 0x0d );
-        xCommand.setArgumnt( new byte [] { 0, 0, b2, b1  } );
-        linkLayer.send( xCommand );
-        
+        short secondsDelta = (short) ((nowMilli - mMilli) / 1000);
+        byte b1 = (byte) (secondsDelta & 0x00FF);
+        byte b2 = (byte) ((secondsDelta & 0xFF00) >> 8);
+
+        XCommand xCommand = commandFactory.createX(nextCrn(), 0x00, 0x0d);
+        xCommand.setArgumnt(new byte[]{0, 0, b2, b1});
+        linkLayer.send(xCommand);
+
     }
 
     public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
@@ -506,8 +529,8 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         // TODO Auto-generated method stub
         return false;
     }
-    
-    public byte [] getPassword( ){
+
+    public byte[] getPassword() {
         return pPassword;
     }
 
@@ -536,7 +559,9 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         return null;
     }
 
-    /** for easy debugging */
+    /**
+     * for easy debugging
+     */
     void setTimeZone(TimeZone timeZone) {
         this.timeZone = timeZone;
     }
@@ -545,11 +570,13 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         return timeZone;
     }
 
-    /** for easy debugging */
+    /**
+     * for easy debugging
+     */
     void setLogger(Logger logger) {
         this.logger = logger;
     }
-    
+
     LinkLayer getLinkLayer() {
         return linkLayer;
     }
@@ -558,7 +585,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         return firmware;
     }
 
-    
+
     int crn = 0;
 
     int nextCrn() {
@@ -577,144 +604,142 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     Table15 table15;
     Table16 table16;
     Table18 table18;
-    
-    
+
+
     Table0 getTable0() throws IOException {
-        if (table0== null) {
+        if (table0 == null) {
             StandardCommand command = commandFactory.createY(nextCrn(), 0);
-            ByteArray ba = linkLayer.send( command );
-            table0 = Table0.parse( new Assembly( this, ba ) );
+            ByteArray ba = linkLayer.send(command);
+            table0 = Table0.parse(new Assembly(this, ba));
         }
         return table0;
     }
-    
+
     Table1 getTable1() throws IOException {
         //if (table1 == null) {
-            StandardCommand command = commandFactory.createY(nextCrn(), 1);
-            ByteArray ba = linkLayer.send( command );
-            table1 = Table1.parse( new Assembly( this, ba));
+        StandardCommand command = commandFactory.createY(nextCrn(), 1);
+        ByteArray ba = linkLayer.send(command);
+        table1 = Table1.parse(new Assembly(this, ba));
         //}
         return table1;
     }
-    
+
     Table3 getTable3() throws IOException {
-        if( table3 == null ){
+        if (table3 == null) {
             StandardCommand command = commandFactory.createY(nextCrn(), 3);
-            ByteArray ba = linkLayer.send( command );
-            table3 = Table3.parse( this, new Assembly( this, ba ) );
+            ByteArray ba = linkLayer.send(command);
+            table3 = Table3.parse(this, new Assembly(this, ba));
         }
         return table3;
     }
-    
+
     Table4 getTable4() throws IOException {
-        if( table4 == null ){
+        if (table4 == null) {
             StandardCommand command = commandFactory.createY(nextCrn(), 4);
-            ByteArray ba = linkLayer.send( command );
-            table4 = Table4.parse( this, new Assembly( this, ba ) );
+            ByteArray ba = linkLayer.send(command);
+            table4 = Table4.parse(this, new Assembly(this, ba));
         }
         return table4;
     }
-    
+
     Table8 getTable8() throws IOException {
-        if( table8 == null ){
+        if (table8 == null) {
             StandardCommand command = commandFactory.createY(nextCrn(), 8);
-            ByteArray ba = linkLayer.send( command );
-            table8 = Table8.parse( new Assembly( this, ba ) );            
+            ByteArray ba = linkLayer.send(command);
+            table8 = Table8.parse(new Assembly(this, ba));
         }
         return table8;
     }
-    
+
     Table11 getTable11() throws IOException {
-        if( table11 == null ){
+        if (table11 == null) {
             StandardCommand command = commandFactory.createY(nextCrn(), 11);
-            ByteArray ba = linkLayer.send( command );
-            table11 = Table11.parse( this, new Assembly( this, ba ) );
+            ByteArray ba = linkLayer.send(command);
+            table11 = Table11.parse(this, new Assembly(this, ba));
         }
         return table11;
-    }    
-    
-    Table12 getTable12( Date from, boolean includeEvents ) throws IOException {
+    }
+
+    Table12 getTable12(Date from, boolean includeEvents) throws IOException {
         int noOfChnls = getTable11().getTypeStoreCntrlRcd().getNoOfChnls();
         int dataSize = getTable11().getTypeStoreCntrlRcd().getDataSize();
         int intervalMinutes = getTable11().getTypeStoreCntrlRcd().getIntvlInMins();
         int headerSize = (noOfChnls * 2) + 6;
         int intervalSize = dataSize * noOfChnls;
-        
+
         Calendar fCal = Calendar.getInstance(timeZone);
         fCal.setTime(from);
-        
-        Calendar tCal = Calendar.getInstance(timeZone);
-        tCal.setTime( getTime() );
-        
-        int nrIntervals = 0;
-        while( fCal.before(tCal) ) {
-            fCal.add( Calendar.MINUTE, intervalMinutes );
-            nrIntervals = nrIntervals + 1;
-        }    
-        int totalSize = (( headerSize + ( nrIntervals * intervalSize ) ) / 256)+1; // KV_CHANGED, add +1 to avoid 0, that is what the doc tells...
-                                                                                   // If bytes 7 and 8 are both
-                                                                                   // zero then the SMD will transmit the number of bytes
-                                                                                   // remaining in the specified table starting from the
-                                                                                   // specified displacement
 
-        
-        
-        
+        Calendar tCal = Calendar.getInstance(timeZone);
+        tCal.setTime(getTime());
+
+        int nrIntervals = 0;
+        while (fCal.before(tCal)) {
+            fCal.add(Calendar.MINUTE, intervalMinutes);
+            nrIntervals = nrIntervals + 1;
+        }
+        int totalSize = ((headerSize + (nrIntervals * intervalSize)) / 256) + 1; // KV_CHANGED, add +1 to avoid 0, that is what the doc tells...
+        // If bytes 7 and 8 are both
+        // zero then the SMD will transmit the number of bytes
+        // remaining in the specified table starting from the
+        // specified displacement
+
+
         StandardCommand command = commandFactory.createY(nextCrn(), 12);
-        command.setNbls( totalSize & 0x000000FF );
-        command.setNbms( totalSize & 0x0000FF00 );
-        ByteArray ba = linkLayer.send( command );
-        return Table12.parse( new Assembly( this, ba ), includeEvents, nrIntervals, readProfileDataBeforeConfigChange );
+        command.setNbls(totalSize & 0x000000FF);
+        command.setNbms(totalSize & 0x0000FF00);
+        ByteArray ba = linkLayer.send(command);
+        return Table12.parse(new Assembly(this, ba), includeEvents, nrIntervals, readProfileDataBeforeConfigChange);
     }
-    
+
     Table13 getTable13() throws IOException {
-        if( table13 == null ) {
+        if (table13 == null) {
             StandardCommand command = commandFactory.createY(nextCrn(), 13);
-            ByteArray ba = linkLayer.send( command );
-            table13 = Table13.parse( new Assembly( this, ba ) );
+            ByteArray ba = linkLayer.send(command);
+            table13 = Table13.parse(new Assembly(this, ba));
         }
         return table13;
     }
-    
+
     Table14 getTable14() throws IOException {
-        if( table14 == null ){
+        if (table14 == null) {
             StandardCommand command = commandFactory.createY(nextCrn(), 14);
-            ByteArray ba = linkLayer.send( command );
-            table14 = Table14.parse( new Assembly( this, ba ) );            
+            ByteArray ba = linkLayer.send(command);
+            table14 = Table14.parse(new Assembly(this, ba));
         }
         return table14;
     }
-    
-    Table15 getTable15( ) throws IOException {
-        if( table15 == null ) {
+
+    Table15 getTable15() throws IOException {
+        if (table15 == null) {
             StandardCommand command = commandFactory.createY(nextCrn(), 15);
-            ByteArray ba = linkLayer.send( command );
-            table15 = Table15.parse( new Assembly( this, ba ) );
+            ByteArray ba = linkLayer.send(command);
+            table15 = Table15.parse(new Assembly(this, ba));
         }
         return table15;
     }
 
     Table16 getTable16() throws IOException {
-        if( table16 == null ){
+        if (table16 == null) {
             StandardCommand command = commandFactory.createY(nextCrn(), 16);
-            ByteArray ba = linkLayer.send( command );
-            table16 = Table16.parse( new Assembly( this, ba ) );
-        } 
+            ByteArray ba = linkLayer.send(command);
+            table16 = Table16.parse(new Assembly(this, ba));
+        }
         return table16;
     }
-    
-    Table18 getTable18() throws IOException {
-        if( table18 == null ){
-            StandardCommand command = commandFactory.createY(nextCrn(), 18);
-            ByteArray ba = linkLayer.send( command );
-            table18 = Table18.parse( new Assembly( this, ba ) );
-        } 
-        return table18;
-    } 
 
-    ByteArray read( TableAddress tableAddress ) throws IOException {
-        StandardCommand command = commandFactory.createY(nextCrn(), tableAddress); 
-        return linkLayer.send( command ); 
+    Table18 getTable18() throws IOException {
+        if (table18 == null) {
+            StandardCommand command = commandFactory.createY(nextCrn(), 18);
+            ByteArray ba = linkLayer.send(command);
+            table18 = Table18.parse(new Assembly(this, ba));
+        }
+        return table18;
+    }
+
+    ByteArray read(TableAddress tableAddress) throws IOException {
+        StandardCommand command = commandFactory.createY(nextCrn(), tableAddress);
+        return linkLayer.send(command);
     }
 
 }

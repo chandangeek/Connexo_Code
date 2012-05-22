@@ -19,59 +19,22 @@ package com.energyict.protocolimpl.dlms;
 
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.CosemPDUConnection;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DLMSObis;
-import com.energyict.dlms.HDLC2Connection;
-import com.energyict.dlms.InvokeIdAndPriority;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.SecureConnection;
-import com.energyict.dlms.TCPIPConnection;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.aso.AssociationControlServiceElement;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.*;
+import com.energyict.dlms.aso.*;
 import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.dlms.siemenszmd.StoredValuesImpl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -158,7 +121,8 @@ abstract public class DLMSSN implements MeterProtocol, HHUEnabler, ProtocolLink,
     /**
      * Contains the Configuration of a DLMS meter
      */
-    private DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance();;
+    private DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance();
+    ;
 
     // Added for MeterProtocol interface implementation
     private Logger logger = null;
@@ -381,8 +345,7 @@ abstract public class DLMSSN implements MeterProtocol, HHUEnabler, ProtocolLink,
                 meterConfig.setInstantiatedObjectList(dlmsCache.getObjectList());
                 try {
                     iConf = requestConfigurationProgramChanges();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     iConf = -1;
                     logger.severe("DLMSSN Configuration change count not accessible, request object list.");
                     requestObjectList();
@@ -402,8 +365,7 @@ abstract public class DLMSSN implements MeterProtocol, HHUEnabler, ProtocolLink,
                     iConf = requestConfigurationProgramChanges();
                     dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
                     dlmsCache.setConfProgChange(iConf);  // set new configuration program change
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     iConf = -1;
                 }
             }
@@ -783,8 +745,7 @@ abstract public class DLMSSN implements MeterProtocol, HHUEnabler, ProtocolLink,
             maxPduSize = Integer.parseInt(properties.getProperty(PROPNAME_MAX_PDU_SIZE, MAX_PDU_SIZE));
             iForceDelay = Integer.parseInt(properties.getProperty(PROPNAME_IFORCEDELAY_BEFORE_SEND, "100"));
             doValidateProperties(properties);
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new InvalidPropertyException(" validateProperties, NumberFormatException, " + e.getMessage());
         }
 
@@ -838,6 +799,16 @@ abstract public class DLMSSN implements MeterProtocol, HHUEnabler, ProtocolLink,
      */
     public void initializeDevice() throws IOException, UnsupportedException {
         throw new UnsupportedException();
+    }
+
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
     }
 
     /**
@@ -967,8 +938,7 @@ abstract public class DLMSSN implements MeterProtocol, HHUEnabler, ProtocolLink,
             RtuDLMS rtu = new RtuDLMS(rtuid);
             try {
                 return new DLMSCache(rtuCache.getObjectList(), rtu.getConfProgChange());
-            }
-            catch (NotFoundException e) {
+            } catch (NotFoundException e) {
                 return new DLMSCache(null, -1);
             }
         } else {

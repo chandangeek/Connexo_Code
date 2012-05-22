@@ -1,11 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.profiles;
 
+import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
+import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.topology.MeterTopology;
 import org.junit.Test;
 
@@ -13,7 +14,6 @@ import java.io.IOException;
 import java.util.*;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 /**
  * Copyrights EnergyICT
@@ -24,8 +24,8 @@ public class LoadProfileBuilderTest {
 
     @Test
     public void isDataObisCodeTest() {
-        Properties props = new Properties();
-        props.put(SmartMeterProtocol.SERIALNUMBER, "MasterSerialNumber");
+        TypedProperties props = new TypedProperties();
+        props.setProperty(SmartMeterProtocol.SERIALNUMBER, "MasterSerialNumber");
         WebRTUZ3 meterProtocol = new WebRTUZ3();
         meterProtocol.addProperties(props);
         LoadProfileBuilder lpb = new LoadProfileBuilder(meterProtocol);
@@ -41,8 +41,8 @@ public class LoadProfileBuilderTest {
 
     @Test
     public void constructLoadProfileConfigComposedCosemObjectTest() {
-        Properties props = new Properties();
-        props.put(SmartMeterProtocol.SERIALNUMBER, "MasterSerialNumber");
+        TypedProperties props = new TypedProperties();
+        props.setProperty(SmartMeterProtocol.SERIALNUMBER, "MasterSerialNumber");
         WebRTUZ3 meterProtocol = new WebRTUZ3();
         meterProtocol.addProperties(props);
         try {

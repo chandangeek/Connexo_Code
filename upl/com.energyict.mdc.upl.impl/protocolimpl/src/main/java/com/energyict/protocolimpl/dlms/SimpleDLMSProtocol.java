@@ -1,6 +1,8 @@
- package com.energyict.protocolimpl.dlms;
+package com.energyict.protocolimpl.dlms;
 
 import com.energyict.cbo.*;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.*;
@@ -176,9 +178,9 @@ public class SimpleDLMSProtocol implements MeterProtocol, ProtocolLink, HHUEnabl
             throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + properties.getProperty("SecurityLevel", "0"));
         }
 
-		this.nodeId = properties.getProperty(MeterProtocol.NODEID, "");
-        this.deviceId = properties.getProperty(MeterProtocol.ADDRESS,"");
-		this.serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER, "");
+        this.nodeId = properties.getProperty(MeterProtocol.NODEID, "");
+        this.deviceId = properties.getProperty(MeterProtocol.ADDRESS, "");
+        this.serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER, "");
         this.connectionMode = Integer.parseInt(properties.getProperty("Connection", "1"));
         this.clientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "16"));
         this.serverLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "1"));
@@ -290,18 +292,18 @@ public class SimpleDLMSProtocol implements MeterProtocol, ProtocolLink, HHUEnabl
         this.dlmsConnection.setInvokeIdAndPriority(iiap);
     }
 
-    	private InvokeIdAndPriority buildInvokeIdAndPriority() throws IOException {
-            try {
-                InvokeIdAndPriority iiap = new InvokeIdAndPriority();
-                iiap.setPriority(this.iiapPriority);
-                iiap.setServiceClass(this.iiapServiceClass);
-                iiap.setTheInvokeId(this.iiapInvokeId);
-                return iiap;
-            } catch (DLMSConnectionException e) {
-                getLogger().info("Some configured properties are invalid. " + e.getMessage());
-                throw new IOException(e.getMessage());
-            }
+    private InvokeIdAndPriority buildInvokeIdAndPriority() throws IOException {
+        try {
+            InvokeIdAndPriority iiap = new InvokeIdAndPriority();
+            iiap.setPriority(this.iiapPriority);
+            iiap.setServiceClass(this.iiapServiceClass);
+            iiap.setTheInvokeId(this.iiapInvokeId);
+            return iiap;
+        } catch (DLMSConnectionException e) {
+            getLogger().info("Some configured properties are invalid. " + e.getMessage());
+            throw new IOException(e.getMessage());
         }
+    }
 
     /**
      * Define the contextID of the associationServiceObject.
@@ -400,8 +402,7 @@ public class SimpleDLMSProtocol implements MeterProtocol, ProtocolLink, HHUEnabl
                     iConf = requestConfigurationProgramChanges();
                     dlmsCache.saveObjectList(dlmsMeterConfig.getInstantiatedObjectList());  // save object list in cache
                     dlmsCache.setConfProgChange(iConf);  // set new configuration program change                    dlmsCache.saveObjectList(dlmsMeterConfig.getInstantiatedObjectList());  // save object list in cache
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     iConf = -1;
                     dlmsCache.saveObjectList(dlmsMeterConfig.getInstantiatedObjectList());  // save object list in cache
                     dlmsCache.setConfProgChange(iConf);  // set new configuration program change
@@ -416,13 +417,13 @@ public class SimpleDLMSProtocol implements MeterProtocol, ProtocolLink, HHUEnabl
 
     }
 
-	/**
-	 * This method requests for the COSEM object list in the remote meter. A
-	 * list is byuild with LN and SN references.
-	 * This method must be executed before other request methods.
-	 *
-	 * @exception IOException
-	 */
+    /**
+     * This method requests for the COSEM object list in the remote meter. A
+     * list is byuild with LN and SN references.
+     * This method must be executed before other request methods.
+     *
+     * @throws IOException
+     */
     private void requestObjectList() throws IOException {
 
         try {
@@ -441,6 +442,7 @@ public class SimpleDLMSProtocol implements MeterProtocol, ProtocolLink, HHUEnabl
 
     /**
      * Getter for property cosemObjectFactory.
+     *
      * @return Value of property cosemObjectFactory.
      */
     public com.energyict.dlms.cosem.CosemObjectFactory getCosemObjectFactory() {
@@ -720,56 +722,56 @@ public class SimpleDLMSProtocol implements MeterProtocol, ProtocolLink, HHUEnabl
      *                             if the device does not support the specified register
      */
     public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
-		return doGetRegister(name);
+        return doGetRegister(name);
     }
 
-	private String doGetRegister(final String name) throws IOException {
-		boolean classSpecified = false;
-		if (name.indexOf(':') >= 0) {
-			classSpecified = true;
-		}
-		final DLMSObis ln = new DLMSObis(name);
-		if (ln.isLogicalName()) {
-			if (classSpecified) {
-				return requestAttribute(ln.getDLMSClass(), ln.getLN(), (byte) ln.getOffset());
-			} else {
-				final UniversalObject uo = getMeterConfig().getObject(ln);
-				return getCosemObjectFactory().getGenericRead(uo).getDataContainer().print2strDataContainer();
-			}
-		} else if (name.indexOf("-") >= 0) { // you get a from/to
-			final DLMSObis ln2 = new DLMSObis(name.substring(0, name.indexOf("-")));
-			if (ln2.isLogicalName()) {
-				final String from = name.substring(name.indexOf("-") + 1, name.indexOf("-", name.indexOf("-") + 1));
-				final String to = name.substring(name.indexOf(from) + from.length() + 1);
-				if (ln2.getDLMSClass() == 7) {
-					return getCosemObjectFactory().getProfileGeneric(getMeterConfig().getObject(ln2).getObisCode()).getBuffer(convertStringToCalendar(from), convertStringToCalendar(to)).print2strDataContainer();
-				} else {
-					throw new NoSuchRegisterException("GenericGetSet,getRegister, register " + name + " is not a profile.");
-				}
-			} else {
-				throw new NoSuchRegisterException("GenericGetSet,getRegister, register " + name + " does not exist.");
-			}
-		} else {
-			throw new NoSuchRegisterException("GenericGetSet,getRegister, register " + name + " does not exist.");
-		}
-	}
+    private String doGetRegister(final String name) throws IOException {
+        boolean classSpecified = false;
+        if (name.indexOf(':') >= 0) {
+            classSpecified = true;
+        }
+        final DLMSObis ln = new DLMSObis(name);
+        if (ln.isLogicalName()) {
+            if (classSpecified) {
+                return requestAttribute(ln.getDLMSClass(), ln.getLN(), (byte) ln.getOffset());
+            } else {
+                final UniversalObject uo = getMeterConfig().getObject(ln);
+                return getCosemObjectFactory().getGenericRead(uo).getDataContainer().print2strDataContainer();
+            }
+        } else if (name.indexOf("-") >= 0) { // you get a from/to
+            final DLMSObis ln2 = new DLMSObis(name.substring(0, name.indexOf("-")));
+            if (ln2.isLogicalName()) {
+                final String from = name.substring(name.indexOf("-") + 1, name.indexOf("-", name.indexOf("-") + 1));
+                final String to = name.substring(name.indexOf(from) + from.length() + 1);
+                if (ln2.getDLMSClass() == 7) {
+                    return getCosemObjectFactory().getProfileGeneric(getMeterConfig().getObject(ln2).getObisCode()).getBuffer(convertStringToCalendar(from), convertStringToCalendar(to)).print2strDataContainer();
+                } else {
+                    throw new NoSuchRegisterException("GenericGetSet,getRegister, register " + name + " is not a profile.");
+                }
+            } else {
+                throw new NoSuchRegisterException("GenericGetSet,getRegister, register " + name + " does not exist.");
+            }
+        } else {
+            throw new NoSuchRegisterException("GenericGetSet,getRegister, register " + name + " does not exist.");
+        }
+    }
 
-    	private final String requestAttribute(final short sIC, final byte[] LN, final byte bAttr) throws IOException {
-		return this.doRequestAttribute(sIC, LN, bAttr).print2strDataContainer();
-	}
+    private final String requestAttribute(final short sIC, final byte[] LN, final byte bAttr) throws IOException {
+        return this.doRequestAttribute(sIC, LN, bAttr).print2strDataContainer();
+    }
 
-	// IOException
+    // IOException
 
-	private final DataContainer doRequestAttribute(final int classId, final byte[] ln, final int lnAttr) throws IOException {
-		final DataContainer dc = getCosemObjectFactory().getGenericRead(ObisCode.fromByteArray(ln), DLMSUtils.attrLN2SN(lnAttr), classId).getDataContainer();
-		return dc;
-	}
+    private final DataContainer doRequestAttribute(final int classId, final byte[] ln, final int lnAttr) throws IOException {
+        final DataContainer dc = getCosemObjectFactory().getGenericRead(ObisCode.fromByteArray(ln), DLMSUtils.attrLN2SN(lnAttr), classId).getDataContainer();
+        return dc;
+    }
 
-	private Calendar convertStringToCalendar(final String strDate) {
-		final Calendar cal = Calendar.getInstance(getTimeZone());
-		cal.set(Integer.parseInt(strDate.substring(strDate.lastIndexOf("/") + 1, strDate.indexOf(" "))) & 0xFFFF, (Integer.parseInt(strDate.substring(strDate.indexOf("/") + 1, strDate.lastIndexOf("/"))) & 0xFF) - 1, Integer.parseInt(strDate.substring(0, strDate.indexOf("/"))) & 0xFF, Integer.parseInt(strDate.substring(strDate.indexOf(" ") + 1, strDate.indexOf(":"))) & 0xFF, Integer.parseInt(strDate.substring(strDate.indexOf(":") + 1, strDate.lastIndexOf(":"))) & 0xFF, Integer.parseInt(strDate.substring(strDate.lastIndexOf(":") + 1, strDate.length())) & 0xFF);
-		return cal;
-	}
+    private Calendar convertStringToCalendar(final String strDate) {
+        final Calendar cal = Calendar.getInstance(getTimeZone());
+        cal.set(Integer.parseInt(strDate.substring(strDate.lastIndexOf("/") + 1, strDate.indexOf(" "))) & 0xFFFF, (Integer.parseInt(strDate.substring(strDate.indexOf("/") + 1, strDate.lastIndexOf("/"))) & 0xFF) - 1, Integer.parseInt(strDate.substring(0, strDate.indexOf("/"))) & 0xFF, Integer.parseInt(strDate.substring(strDate.indexOf(" ") + 1, strDate.indexOf(":"))) & 0xFF, Integer.parseInt(strDate.substring(strDate.indexOf(":") + 1, strDate.lastIndexOf(":"))) & 0xFF, Integer.parseInt(strDate.substring(strDate.lastIndexOf(":") + 1, strDate.length())) & 0xFF);
+        return cal;
+    }
 
     /**
      * <p>
@@ -787,39 +789,37 @@ public class SimpleDLMSProtocol implements MeterProtocol, ProtocolLink, HHUEnabl
      *                             if the device does not support the specified register
      */
     public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
-		boolean classSpecified = false;
-		if (name.indexOf(':') >= 0) {
-			classSpecified = true;
-		}
-		final DLMSObis ln = new DLMSObis(name);
-		if ((ln.isLogicalName()) && (classSpecified)) {
-			getCosemObjectFactory().getGenericWrite(ObisCode.fromByteArray(ln.getLN()), ln.getOffset(), ln.getDLMSClass()).write(convert(value));
-		} else {
-			throw new NoSuchRegisterException("GenericGetSet, setRegister, register " + name + " does not exist.");
-		}
+        boolean classSpecified = false;
+        if (name.indexOf(':') >= 0) {
+            classSpecified = true;
+        }
+        final DLMSObis ln = new DLMSObis(name);
+        if ((ln.isLogicalName()) && (classSpecified)) {
+            getCosemObjectFactory().getGenericWrite(ObisCode.fromByteArray(ln.getLN()), ln.getOffset(), ln.getDLMSClass()).write(convert(value));
+        } else {
+            throw new NoSuchRegisterException("GenericGetSet, setRegister, register " + name + " does not exist.");
+        }
     }
 
-	/**
-	 * Converts the given string.
-	 *
-	 * @param s
-	 *            The string.
-	 *
-	 * @return
-	 */
-	private final byte[] convert(final String s) {
-		if ((s.length() % 2) != 0) {
-			throw new IllegalArgumentException("String length is not a modulo 2 hex representation!");
-		} else {
-			final byte[] data = new byte[s.length() / 2];
+    /**
+     * Converts the given string.
+     *
+     * @param s The string.
+     * @return
+     */
+    private final byte[] convert(final String s) {
+        if ((s.length() % 2) != 0) {
+            throw new IllegalArgumentException("String length is not a modulo 2 hex representation!");
+        } else {
+            final byte[] data = new byte[s.length() / 2];
 
-			for (int i = 0; i < (s.length() / 2); i++) {
-				data[i] = (byte) Integer.parseInt(s.substring(i * 2, (i * 2) + 2), 16);
-			}
+            for (int i = 0; i < (s.length() / 2); i++) {
+                data[i] = (byte) Integer.parseInt(s.substring(i * 2, (i * 2) + 2), 16);
+            }
 
-			return data;
-		}
-	}
+            return data;
+        }
+    }
 
     /**
      * <p>
@@ -852,7 +852,7 @@ public class SimpleDLMSProtocol implements MeterProtocol, ProtocolLink, HHUEnabl
      * @param cacheObject a protocol specific cache object
      */
     public void setCache(Object cacheObject) {
-        this.dlmsCache=(DLMSCache)cacheObject;
+        this.dlmsCache = (DLMSCache) cacheObject;
     }
 
     /**
@@ -866,7 +866,7 @@ public class SimpleDLMSProtocol implements MeterProtocol, ProtocolLink, HHUEnabl
 
     public String getFileName() {
         final Calendar calendar = Calendar.getInstance();
-		return calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + "_" + calendar.get(Calendar.DAY_OF_MONTH) + "_" + this.deviceId  + "_" + this.serialNumber + "_" + serverUpperMacAddress + "_SimpleDLMS.cache";
+        return calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + "_" + calendar.get(Calendar.DAY_OF_MONTH) + "_" + this.deviceId + "_" + this.serialNumber + "_" + serverUpperMacAddress + "_SimpleDLMS.cache";
     }
 
     /**
@@ -883,14 +883,13 @@ public class SimpleDLMSProtocol implements MeterProtocol, ProtocolLink, HHUEnabl
             RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
             RtuDLMS rtu = new RtuDLMS(rtuid);
             try {
-               return new DLMSCache(rtuCache.getObjectList(), rtu.getConfProgChange());
-            }
-            catch(NotFoundException e) {
-               return new DLMSCache(null,-1);
+                return new DLMSCache(rtuCache.getObjectList(), rtu.getConfProgChange());
+            } catch (NotFoundException e) {
+                return new DLMSCache(null, -1);
             }
         } else {
-			throw new com.energyict.cbo.BusinessException("invalid RtuId!");
-		}
+            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+        }
     }
 
     /**
@@ -904,7 +903,7 @@ public class SimpleDLMSProtocol implements MeterProtocol, ProtocolLink, HHUEnabl
      */
     public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
         if (rtuid != 0) {
-            DLMSCache dc = (DLMSCache)cacheObject;
+            DLMSCache dc = (DLMSCache) cacheObject;
             if (dc.isChanged()) {
                 RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
                 RtuDLMS rtu = new RtuDLMS(rtuid);
@@ -912,8 +911,8 @@ public class SimpleDLMSProtocol implements MeterProtocol, ProtocolLink, HHUEnabl
                 rtu.setConfProgChange(dc.getConfProgChange());
             }
         } else {
-			throw new com.energyict.cbo.BusinessException("invalid RtuId!");
-		}
+            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+        }
     }
 
     /**
@@ -925,6 +924,16 @@ public class SimpleDLMSProtocol implements MeterProtocol, ProtocolLink, HHUEnabl
      */
     public void release() throws IOException {
         // do nothing
+    }
+
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
     }
 
     /**
@@ -965,25 +974,25 @@ public class SimpleDLMSProtocol implements MeterProtocol, ProtocolLink, HHUEnabl
         optionalKeys.add("IpPortNumber");
         optionalKeys.add("WakeUp");
         optionalKeys.add("CipheringType");
-		optionalKeys.add(NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY);
-		optionalKeys.add(NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
-		optionalKeys.add(NTASecurityProvider.MASTERKEY);
-		optionalKeys.add(NTASecurityProvider.NEW_DATATRANSPORT_ENCRYPTION_KEY);
-		optionalKeys.add(NTASecurityProvider.NEW_DATATRANSPORT_AUTHENTICATION_KEY);
-		optionalKeys.add(NTASecurityProvider.NEW_HLS_SECRET);
+        optionalKeys.add(NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY);
+        optionalKeys.add(NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
+        optionalKeys.add(NTASecurityProvider.MASTERKEY);
+        optionalKeys.add(NTASecurityProvider.NEW_DATATRANSPORT_ENCRYPTION_KEY);
+        optionalKeys.add(NTASecurityProvider.NEW_DATATRANSPORT_AUTHENTICATION_KEY);
+        optionalKeys.add(NTASecurityProvider.NEW_HLS_SECRET);
         return optionalKeys;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
-        enableHHUSignOn(commChannel,false);
+        enableHHUSignOn(commChannel, false);
     }
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean enableDataReadout) throws ConnectionException {
-		HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel, this.timeOut, this.retries, 300, 0);
-		hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
-		hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
-		hhuSignOn.enableDataReadout(enableDataReadout);
-		getDLMSConnection().setHHUSignOn(hhuSignOn, this.deviceId);
+        HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel, this.timeOut, this.retries, 300, 0);
+        hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
+        hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
+        hhuSignOn.enableDataReadout(enableDataReadout);
+        getDLMSConnection().setHHUSignOn(hhuSignOn, this.deviceId);
     }
 
     public byte[] getHHUDataReadout() {

@@ -1,21 +1,17 @@
 package com.energyict.protocolimpl.powermeasurement.ion;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Utils;
+import com.energyict.cbo.*;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import com.energyict.protocolimpl.iec1107.ChannelMap;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
-import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.*;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
@@ -139,53 +135,77 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
             throw new InvalidPropertyException(msg);
         }
 
-        if (p.getProperty(PK_USER_ID) != null)
+        if (p.getProperty(PK_USER_ID) != null) {
             pUserId = p.getProperty(PK_USER_ID);
+        }
 
-        if (p.getProperty(MeterProtocol.PASSWORD) != null)
+        if (p.getProperty(MeterProtocol.PASSWORD) != null) {
             pPassword = p.getProperty(MeterProtocol.PASSWORD);
+        }
 
         try {
-            if (!Utils.isNull(pPassword) && !Utils.isNull(pUserId))
+            if (!Utils.isNull(pPassword) && !Utils.isNull(pUserId)) {
                 this.authentication = new Authentication(pPassword, pUserId);
+            }
         } catch (InvalidPasswordException e) {
             throw new InvalidPropertyException(e.getMessage());
         }
 
-        if (p.getProperty(MeterProtocol.SERIALNUMBER) != null)
+        if (p.getProperty(MeterProtocol.SERIALNUMBER) != null) {
             pSerialNumber = p.getProperty(MeterProtocol.SERIALNUMBER);
+        }
 
-        if (p.getProperty(MeterProtocol.PROFILEINTERVAL) != null)
+        if (p.getProperty(MeterProtocol.PROFILEINTERVAL) != null) {
             pProfileInterval = Integer.parseInt(p.getProperty(MeterProtocol.PROFILEINTERVAL));
+        }
 
-        if (p.getProperty(PK_TIMEOUT) != null)
+        if (p.getProperty(PK_TIMEOUT) != null) {
             pTimeout = new Integer(p.getProperty(PK_TIMEOUT)).intValue();
+        }
 
-        if (p.getProperty(PK_RETRIES) != null)
+        if (p.getProperty(PK_RETRIES) != null) {
             pRetries = new Integer(p.getProperty(PK_RETRIES)).intValue();
+        }
 
-        if (p.getProperty(MeterProtocol.ROUNDTRIPCORR) != null)
+        if (p.getProperty(MeterProtocol.ROUNDTRIPCORR) != null) {
             pRountTripCorrection = Integer.parseInt(p.getProperty(MeterProtocol.ROUNDTRIPCORR));
+        }
 
-        if (p.getProperty(MeterProtocol.CORRECTTIME) != null)
+        if (p.getProperty(MeterProtocol.CORRECTTIME) != null) {
             pCorrectTime = Integer.parseInt(p.getProperty(MeterProtocol.CORRECTTIME));
+        }
 
-        if (p.getProperty(PK_EXTENDED_LOGGING) != null)
+        if (p.getProperty(PK_EXTENDED_LOGGING) != null) {
             pExtendedLogging = p.getProperty(PK_EXTENDED_LOGGING);
+        }
 
-        if (p.getProperty(PK_DATA_RECORDER_NAME) != null)
+        if (p.getProperty(PK_DATA_RECORDER_NAME) != null) {
             pDataRecorderName = p.getProperty(PK_DATA_RECORDER_NAME);
+        }
 
-        if (p.getProperty(PK_DTR_BEHAVIOUR) != null)
+        if (p.getProperty(PK_DTR_BEHAVIOUR) != null) {
             dtrBehaviour = new Integer(p.getProperty(PK_DTR_BEHAVIOUR)).intValue();
+        }
 
-        if (p.getProperty(PK_FORCE_DELAY) != null)
+        if (p.getProperty(PK_FORCE_DELAY) != null) {
             pForceDelay = new Integer(p.getProperty(PK_FORCE_DELAY)).intValue();
+        }
 
-        if (p.getProperty(PK_CHANNEL_MAP) != null)
+        if (p.getProperty(PK_CHANNEL_MAP) != null) {
             pChannelMap = new ProtocolChannelMap(p.getProperty(PK_CHANNEL_MAP));
+        }
 
 
+    }
+
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
     }
 
     /**
@@ -266,10 +286,11 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
         this.applicationLayer = new ApplicationLayer(this, authentication);
         if (commChannel != null) {
             commChannel.setBaudrate(9600);
-            if (dtrBehaviour == 0)
+            if (dtrBehaviour == 0) {
                 commChannel.setDTR(false);
-            else if (dtrBehaviour == 1)
+            } else if (dtrBehaviour == 1) {
                 commChannel.setDTR(true);
+            }
         }
         connect(0);
     }
@@ -394,8 +415,9 @@ public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
 
     private void validateSerialNumber() throws IOException {
 
-        if (Utils.isNull(pSerialNumber))
+        if (Utils.isNull(pSerialNumber)) {
             return;
+        }
 
         Command c = toCmd(IonHandle.FAC_1_SERIAL_NUMBER_SR, IonMethod.READ_REGISTER_VALUE);
         applicationLayer.read(c);

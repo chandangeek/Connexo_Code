@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.webrtuz3;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cpo.*;
 import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.TicEventProfile;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.TicProfile;
@@ -17,72 +18,87 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class TicDevice implements GenericProtocol {
-	
-	private Rtu tic;
-	private Logger logger;
-	private WebRTUZ3 webRtu;
-	
-	public TicDevice(){
-	}
-	
-	public TicDevice(Rtu tic) {
-		this.tic = tic;
-	}
 
-	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
-		this.logger = logger;
-		String profileOc = this.tic.getProperties().getProperty("LoadProfileObiscode", "1.0.99.2.0.255");
-		String eventOc = this.tic.getProperties().getProperty("EventProfileObisCode","0.0.99.98.50.255");
-		
-		if(scheduler.getCommunicationProfile().getReadDemandValues()){
-			this.logger.log(Level.INFO, "Getting loadProfile from TicDevice");
-			TicProfile tp = new TicProfile(this);
-			ProfileData pd = tp.getProfileData(ObisCode.fromString(profileOc));
-			getWebRTU().getStoreObject().add(pd, tic);
-		}
-		
-		if(scheduler.getCommunicationProfile().getReadMeterEvents()){
-			this.logger.log(Level.INFO, "Getting events from TicDevice");
-			TicEventProfile tep = new TicEventProfile(this);
-			ProfileData epd = tep.getEvents(ObisCode.fromString(eventOc));
-			getWebRTU().getStoreObject().add(epd, tic);
-		}
-		
-	}
+    private Rtu tic;
+    private Logger logger;
+    private WebRTUZ3 webRtu;
 
-	public long getTimeDifference() {
-		return 0;
-	}
+    public TicDevice() {
+    }
 
-	public void addProperties(Properties properties) {
-		
-	}
+    public TicDevice(Rtu tic) {
+        this.tic = tic;
+    }
 
-	public String getVersion() {
-		return "$Revision";
-	}
+    public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
+        this.logger = logger;
+        String profileOc = (String) this.tic.getProperties().getProperty("LoadProfileObiscode", "1.0.99.2.0.255");
+        String eventOc = (String) this.tic.getProperties().getProperty("EventProfileObisCode", "0.0.99.98.50.255");
 
-	public List getOptionalKeys() {
-		List result = new ArrayList(2);
-		result.add("LoadProfileObisCode");
-		result.add("EventProfileObisCode");
-		return result;
-	}
+        if (scheduler.getCommunicationProfile().getReadDemandValues()) {
+            this.logger.log(Level.INFO, "Getting loadProfile from TicDevice");
+            TicProfile tp = new TicProfile(this);
+            ProfileData pd = tp.getProfileData(ObisCode.fromString(profileOc));
+            getWebRTU().getStoreObject().add(pd, tic);
+        }
 
-	public List getRequiredKeys() {
-		return new ArrayList(0);
-	}
+        if (scheduler.getCommunicationProfile().getReadMeterEvents()) {
+            this.logger.log(Level.INFO, "Getting events from TicDevice");
+            TicEventProfile tep = new TicEventProfile(this);
+            ProfileData epd = tep.getEvents(ObisCode.fromString(eventOc));
+            getWebRTU().getStoreObject().add(epd, tic);
+        }
 
-	public void setWebRTU(WebRTUZ3 webRTUKP) {
-		this.webRtu = webRTUKP;
-	}
-	
-	public WebRTUZ3 getWebRTU(){
-		return this.webRtu;
-	}
-	
-	public Rtu getMeter(){
-		return this.tic;
-	}
+    }
+
+    public long getTimeDifference() {
+        return 0;
+    }
+
+    @Override
+    public void addProperties(TypedProperties properties) {
+        addProperties(properties.toStringProperties());
+    }
+
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    }
+
+    public void addProperties(Properties properties) {
+
+    }
+
+    public String getVersion() {
+        return "$Revision";
+    }
+
+    public List<String> getOptionalKeys() {
+        List<String> result = new ArrayList<String>(2);
+        result.add("LoadProfileObisCode");
+        result.add("EventProfileObisCode");
+        return result;
+    }
+
+    public List<String> getRequiredKeys() {
+        return new ArrayList<String>(0);
+    }
+
+    public void setWebRTU(WebRTUZ3 webRTUKP) {
+        this.webRtu = webRTUKP;
+    }
+
+    public WebRTUZ3 getWebRTU() {
+        return this.webRtu;
+    }
+
+    public Rtu getMeter() {
+        return this.tic;
+    }
 
 }

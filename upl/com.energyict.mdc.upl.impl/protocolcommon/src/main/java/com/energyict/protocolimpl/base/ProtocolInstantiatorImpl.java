@@ -6,12 +6,13 @@
 
 package com.energyict.protocolimpl.base;
 
+import com.energyict.cbo.ConfigurationSupport;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.protocol.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.protocol.*;
 
 /**
  * @author Koen
@@ -40,15 +41,13 @@ public class ProtocolInstantiatorImpl implements ProtocolInstantiator {
 
         try {
             eventMapper = (EventMapper) protocolInstance;
-        }
-        catch (ClassCastException e) {
+        } catch (ClassCastException e) {
             eventMapper = null;
         }
 
         try {
             meterProtocol = (MeterProtocol) protocolInstance;
-        }
-        catch (ClassCastException e) {
+        } catch (ClassCastException e) {
             meterProtocol = null;
         }
         try {
@@ -58,54 +57,47 @@ public class ProtocolInstantiatorImpl implements ProtocolInstantiator {
         }
         try {
             configurationSupport = (ConfigurationSupport) protocolInstance;
-        } catch (ClassCastException e){
+        } catch (ClassCastException e) {
             configurationSupport = null;
         }
         try {
             hhuEnabler = (HHUEnabler) protocolInstance;
-        }
-        catch (ClassCastException e) {
+        } catch (ClassCastException e) {
             hhuEnabler = null;
         }
         try {
             halfDuplexEnabler = (HalfDuplexEnabler) protocolInstance;
-        }
-        catch (ClassCastException e) {
+        } catch (ClassCastException e) {
             halfDuplexEnabler = null;
         }
         try {
             registerProtocol = (RegisterProtocol) protocolInstance;
-        }
-        catch (ClassCastException e) {
+        } catch (ClassCastException e) {
             registerProtocol = null;
         }
         try {
             dialinScheduleProtocol = (DialinScheduleProtocol) protocolInstance;
-        }
-        catch (ClassCastException e) {
+        } catch (ClassCastException e) {
             dialinScheduleProtocol = null;
         }
         try {
             demandResetProtocol = (DemandResetProtocol) protocolInstance;
-        }
-        catch (ClassCastException e) {
+        } catch (ClassCastException e) {
             demandResetProtocol = null;
         }
         try {
             serialNumber = (SerialNumber) protocolInstance;
-        }
-        catch (ClassCastException e) {
+        } catch (ClassCastException e) {
             serialNumber = null;
         }
         try {
             cacheMechanism = (CacheMechanism) protocolInstance;
-        }
-        catch (ClassCastException e) {
+        } catch (ClassCastException e) {
             cacheMechanism = null;
         }
-        try{
+        try {
             bulkRegisterProtocol = (BulkRegisterProtocol) protocolInstance;
-        } catch (ClassCastException e){
+        } catch (ClassCastException e) {
             bulkRegisterProtocol = null;
         }
         try {
@@ -196,35 +188,35 @@ public class ProtocolInstantiatorImpl implements ProtocolInstantiator {
     }
 
     public List getOptionalKeys() {
-        if(this.configurationSupport == null){
-            return new ArrayList();
-        } else {
-            return this.configurationSupport.getOptionalKeys();
+        List<String> result = new ArrayList<String>();
+        if (this.configurationSupport != null) {
+            for (PropertySpec propertySpec : this.configurationSupport.getOptionalProperties()) {
+                result.add(propertySpec.getKey());
+            }
         }
+        return result;
     }
 
     public List getRequiredKeys() {
-        if(this.configurationSupport == null){
-            return new ArrayList();
-        }else {
-            return this.configurationSupport.getRequiredKeys();
+        List<String> result = new ArrayList<String>();
+        if (this.configurationSupport != null) {
+            for (PropertySpec propertySpec : this.configurationSupport.getRequiredProperties()) {
+                result.add(propertySpec.getKey());
+            }
         }
+        return result;
     }
 
     private Object getInstance(String className) throws IOException {
         try {
             return (Class.forName(className).newInstance());
-        }
-        catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
             throw new IOException("instantiateProtocol(), ClassNotFoundException, " + e.getMessage());
-        }
-        catch (InstantiationException e) {
+        } catch (InstantiationException e) {
             throw new IOException("instantiateProtocol(), InstantiationException, " + e.getMessage());
-        }
-        catch (IllegalAccessException e) {
+        } catch (IllegalAccessException e) {
             throw new IOException("instantiateProtocol(), IllegalAccessException, " + e.getMessage());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new IOException("instantiateProtocol(), Exception, " + e.getMessage());
         }
 

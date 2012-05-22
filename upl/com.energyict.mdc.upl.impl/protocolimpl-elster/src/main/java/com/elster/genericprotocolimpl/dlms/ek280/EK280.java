@@ -6,35 +6,20 @@ import com.elster.genericprotocolimpl.dlms.ek280.discovery.DeviceDiscover;
 import com.elster.genericprotocolimpl.dlms.ek280.discovery.DeviceDiscoverInfo;
 import com.elster.genericprotocolimpl.dlms.ek280.executors.CommunicationScheduleExecutor;
 import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.Environment;
-import com.energyict.cpo.ShadowList;
+import com.energyict.cpo.*;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.core.StreamConnection;
 import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.core.AmrJournalEntry;
-import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.ChannelShadow;
 import com.energyict.mdw.shadow.RtuShadow;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
-import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
-import com.energyict.protocol.messaging.FirmwareUpdateMessagingConfig;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.RtuDiscoveredEvent;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -159,7 +144,7 @@ public class EK280 implements GenericProtocol, MessageProtocol, FirmwareUpdateMe
             }
 
             this.properties = null; // Re-init the properties with the new Rtu values
-            
+
         }
     }
 
@@ -380,6 +365,21 @@ public class EK280 implements GenericProtocol, MessageProtocol, FirmwareUpdateMe
      */
     public String getVersion() {
         return "$Date: 2011-12-14 14:17:02 +0100 (wo, 14 dec 2011) $";
+    }
+
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    }
+
+    @Override
+    public void addProperties(TypedProperties properties) {
+        addProperties(properties.toStringProperties());
     }
 
     public void addProperties(Properties properties) {

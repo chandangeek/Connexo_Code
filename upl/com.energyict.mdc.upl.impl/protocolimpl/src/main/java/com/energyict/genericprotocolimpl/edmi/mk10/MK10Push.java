@@ -7,7 +7,7 @@
 package com.energyict.genericprotocolimpl.edmi.mk10;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.Environment;
+import com.energyict.cpo.*;
 import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.genericprotocolimpl.edmi.mk10.executer.MK10ProtocolExecuter;
@@ -25,11 +25,10 @@ import java.util.logging.Logger;
 
 /**
  * @author jme
- *
- * JME|14102009|Quick fix for ImServ. They have a meter with a different discovery packet. (See MK10InputStreamParser.java)
- * JME|09072010|COMMUNICATION-59 Fixed timeouts when udp packets were > 1024 bytes.
- * JME|15072010|COMMUNICATION-59 Refactored MK10Push input stream
- *
+ *         <p/>
+ *         JME|14102009|Quick fix for ImServ. They have a meter with a different discovery packet. (See MK10InputStreamParser.java)
+ *         JME|09072010|COMMUNICATION-59 Fixed timeouts when udp packets were > 1024 bytes.
+ *         JME|15072010|COMMUNICATION-59 Refactored MK10Push input stream
  */
 public class MK10Push implements GenericProtocol {
 
@@ -53,60 +52,60 @@ public class MK10Push implements GenericProtocol {
       * Constructors
       */
 
-	public MK10Push() {
-	}
+    public MK10Push() {
+    }
 
-	/*
-	 * Private getters, setters and methods
-	 */
+    /*
+      * Private getters, setters and methods
+      */
 
-	private long getConnectTime() {
-		return connectTime;
-	}
+    private long getConnectTime() {
+        return connectTime;
+    }
 
-	public void setConnectTime(long connectTime) {
-		this.connectTime = connectTime;
-	}
+    public void setConnectTime(long connectTime) {
+        this.connectTime = connectTime;
+    }
 
-	private long getDisconnectTime() {
-		return disconnectTime;
-	}
+    private long getDisconnectTime() {
+        return disconnectTime;
+    }
 
-	private void setDisconnectTime(long disconnectTime) {
-		this.disconnectTime = disconnectTime;
-	}
+    private void setDisconnectTime(long disconnectTime) {
+        this.disconnectTime = disconnectTime;
+    }
 
-	private InputStream getInputStream() {
-		return inputStream;
-	}
+    private InputStream getInputStream() {
+        return inputStream;
+    }
 
-	private OutputStream getOutputStream() {
-		return outputStream;
-	}
+    private OutputStream getOutputStream() {
+        return outputStream;
+    }
 
-	private Rtu getMeter() {
-		return getMK10Executor().getMeter();
-	}
+    private Rtu getMeter() {
+        return getMK10Executor().getMeter();
+    }
 
-	public MK10ProtocolExecuter getMK10Executor() {
-		return MK10Executor;
-	}
+    public MK10ProtocolExecuter getMK10Executor() {
+        return MK10Executor;
+    }
 
-	public MeteringWarehouse mw() {
-		MeteringWarehouse result = MeteringWarehouse.getCurrent();
-		return (result == null) ? new MeteringWarehouseFactory().getBatch() : result;
-	}
+    public MeteringWarehouse mw() {
+        MeteringWarehouse result = MeteringWarehouse.getCurrent();
+        return (result == null) ? new MeteringWarehouseFactory().getBatch() : result;
+    }
 
-	public String getErrorString() {
-		if (errorString == null) {
-			return "";
-		}
-		String returnValue = errorString.toString();
-		if (returnValue == null) {
-			return "";
-		}
-		return returnValue;
-	}
+    public String getErrorString() {
+        if (errorString == null) {
+            return "";
+        }
+        String returnValue = errorString.toString();
+        if (returnValue == null) {
+            return "";
+        }
+        return returnValue;
+    }
 
     private void addLogging(CommunicationScheduler cs, int completionCode, String completionMessage, List<AmrJournalEntry> journal, boolean success, Exception exception) throws SQLException, BusinessException {
         sendDebug("** addLogging **", 2);
@@ -156,11 +155,11 @@ public class MK10Push implements GenericProtocol {
         }
     }
 
-	private void clearNextCommunicationDate(CommunicationScheduler cs) throws SQLException, BusinessException {
-		CommunicationSchedulerShadow shadow = cs.getShadow();
-		shadow.setNextCommunication(null);
-		cs.update(shadow);
-	}
+    private void clearNextCommunicationDate(CommunicationScheduler cs) throws SQLException, BusinessException {
+        CommunicationSchedulerShadow shadow = cs.getShadow();
+        shadow.setNextCommunication(null);
+        cs.update(shadow);
+    }
 
     private void startCommunication(CommunicationScheduler cs) throws SQLException, BusinessException {
         if ((cs != null) && (!cs.getActive())) {
@@ -169,227 +168,247 @@ public class MK10Push implements GenericProtocol {
     }
 
     private Rtu findMatchingMeter(String serial) {
-		if (serial == null) {
-			return null;
-		}
-		List meterList = mw().getRtuFactory().findBySerialNumber(serial);
+        if (serial == null) {
+            return null;
+        }
+        List meterList = mw().getRtuFactory().findBySerialNumber(serial);
 
-		for (int i = 0; i < meterList.size(); i++) {
-			Rtu tempMeter = (Rtu) meterList.get(i);
-			if (tempMeter.getDialHomeId() != null){
-				if (tempMeter.getDialHomeId().trim().equalsIgnoreCase(serial.trim())) {
-					return (Rtu) meterList.get(i);
-				}
-			}
-		}
+        for (int i = 0; i < meterList.size(); i++) {
+            Rtu tempMeter = (Rtu) meterList.get(i);
+            if (tempMeter.getDialHomeId() != null) {
+                if (tempMeter.getDialHomeId().trim().equalsIgnoreCase(serial.trim())) {
+                    return (Rtu) meterList.get(i);
+                }
+            }
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	private Rtu waitForPushMeter() throws IOException, BusinessException {
-		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-		Rtu pushDevice = null;
-		while(inputStream.available() > 0) {
-			buffer.write(inputStream.read() & BYTE_MASK);
-		}
+    private Rtu waitForPushMeter() throws IOException, BusinessException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        Rtu pushDevice = null;
+        while (inputStream.available() > 0) {
+            buffer.write(inputStream.read() & BYTE_MASK);
+        }
 
-		PushPacket packet = PushPacket.getPushPacket(buffer.toByteArray());
-		sendDebug("** Received packet: "+ packet.getPushPacketType() + " **", 0);
-		switch (packet.getPushPacketType()) {
-		case README:
-		case HEARTBEAT:
-			pushDevice = findMatchingMeter(packet.getSerial());
-			break;
-		case COMMISSIONING:
-			sendDebug(packet.toString(), 0);
-		default:
-			throw new BusinessException("Received wrong packet [" + packet.getPushPacketType()+ "].");
-		}
+        PushPacket packet = PushPacket.getPushPacket(buffer.toByteArray());
+        sendDebug("** Received packet: " + packet.getPushPacketType() + " **", 0);
+        switch (packet.getPushPacketType()) {
+            case README:
+            case HEARTBEAT:
+                pushDevice = findMatchingMeter(packet.getSerial());
+                break;
+            case COMMISSIONING:
+                sendDebug(packet.toString(), 0);
+            default:
+                throw new BusinessException("Received wrong packet [" + packet.getPushPacketType() + "].");
+        }
 
-		if (pushDevice == null) {
-			throw new BusinessException("RTU with callerID [" + packet.getSerial() + "] not found.");
-		}
+        if (pushDevice == null) {
+            throw new BusinessException("RTU with callerID [" + packet.getSerial() + "] not found.");
+        }
 
-		return pushDevice;
-	}
+        return pushDevice;
+    }
 
-	private void storeMeterData(MeterReadingData meterReadingData, ProfileData meterProfileData) throws SQLException, BusinessException {
+    private void storeMeterData(MeterReadingData meterReadingData, ProfileData meterProfileData) throws SQLException, BusinessException {
 
-		if (DEBUG >= 2) {
-			System.out.println("storeMeterData()");
-			System.out.println(" meterReadingData = " + meterReadingData);
-			System.out.println(" meterProfileData = " + meterProfileData);
-		}
+        if (DEBUG >= 2) {
+            System.out.println("storeMeterData()");
+            System.out.println(" meterReadingData = " + meterReadingData);
+            System.out.println(" meterProfileData = " + meterProfileData);
+        }
 
-		if (meterReadingData != null) {
-			getMeter().store(meterReadingData);
-		}
-		if (meterProfileData != null) {
-			getMeter().store(meterProfileData);
-		}
-	}
+        if (meterReadingData != null) {
+            getMeter().store(meterReadingData);
+        }
+        if (meterProfileData != null) {
+            getMeter().store(meterProfileData);
+        }
+    }
 
-	/*
-	 * Public methods
-	 */
+    /*
+      * Public methods
+      */
 
-	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
-		boolean success = true;
-		Exception exception = null;
+    public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
+        boolean success = true;
+        Exception exception = null;
 
-		this.link = link;
-		this.logger = logger;
-		this.inputStream = getLink().getInputStream();
-		this.outputStream = getLink().getOutputStream();
-		setConnectTime(System.currentTimeMillis());
+        this.link = link;
+        this.logger = logger;
+        this.inputStream = getLink().getInputStream();
+        this.outputStream = getLink().getOutputStream();
+        setConnectTime(System.currentTimeMillis());
 
-		try {
+        try {
 
-			// Check if we got a message from the COMMSERVER UDP Listener
-			if(scheduler != null) {
-				throw new ProtocolException("scheduler != null. Execute must be triggered by UDP listener.");
-			}
+            // Check if we got a message from the COMMSERVER UDP Listener
+            if (scheduler != null) {
+                throw new ProtocolException("scheduler != null. Execute must be triggered by UDP listener.");
+            }
 
-			sendDebug("** A new UDP session is started **", 0);
-			sendDebug("** ConnectionTime: [" + getConnectTime() + "] **", 0);
+            sendDebug("** A new UDP session is started **", 0);
+            sendDebug("** ConnectionTime: [" + getConnectTime() + "] **", 0);
 
-			Rtu pushDevice = waitForPushMeter();
-			getMK10Executor().setMeter(pushDevice);
+            Rtu pushDevice = waitForPushMeter();
+            getMK10Executor().setMeter(pushDevice);
 
-			startCommunication(getMK10Executor().getInboundCommunicationScheduler());
-			getMK10Executor().doMeterProtocol();
-			storeMeterData(getMK10Executor().getMeterReadingData(), getMK10Executor().getMeterProfileData());
+            startCommunication(getMK10Executor().getInboundCommunicationScheduler());
+            getMK10Executor().doMeterProtocol();
+            storeMeterData(getMK10Executor().getMeterReadingData(), getMK10Executor().getMeterProfileData());
 
-		} catch (ProtocolException e) {
-			sendDebug("** EXCEPTION: " + e.getMessage() + " **", 1);
-			errorString += e.getMessage();
-			success = false;
-			exception = e;
-			e.printStackTrace();
-			throw new BusinessException(e.getMessage());
-		} catch (IOException e) {
-			sendDebug("** EXCEPTION: " + e.getMessage() + " **", 1);
-			errorString += e.getMessage();
-			success = false;
-			exception = e;
-			e.printStackTrace();
-			throw new BusinessException(e.getMessage());
-		} catch (SQLException e) {
-			sendDebug("** EXCEPTION: " + e.getMessage() + " **", 1);
-			errorString += e.getMessage();
-			success = false;
-			exception = e;
-			e.printStackTrace();
-			throw new BusinessException(e.getMessage());
-		} catch (BusinessException e) {
-			sendDebug("** EXCEPTION: " + e.getMessage() + " **", 1);
-			errorString += e.getMessage();
-			success = false;
-			exception = e;
-			e.printStackTrace();
-			throw new BusinessException(e.getMessage());
-		} catch (Exception e) {
-			sendDebug("** EXCEPTION: " + e.getMessage() + " **", 1);
-			errorString += e.getMessage();
-			success = false;
-			exception = e;
-			e.printStackTrace();
-			throw new BusinessException(e.getMessage());
-		} finally {
+        } catch (ProtocolException e) {
+            sendDebug("** EXCEPTION: " + e.getMessage() + " **", 1);
+            errorString += e.getMessage();
+            success = false;
+            exception = e;
+            e.printStackTrace();
+            throw new BusinessException(e.getMessage());
+        } catch (IOException e) {
+            sendDebug("** EXCEPTION: " + e.getMessage() + " **", 1);
+            errorString += e.getMessage();
+            success = false;
+            exception = e;
+            e.printStackTrace();
+            throw new BusinessException(e.getMessage());
+        } catch (SQLException e) {
+            sendDebug("** EXCEPTION: " + e.getMessage() + " **", 1);
+            errorString += e.getMessage();
+            success = false;
+            exception = e;
+            e.printStackTrace();
+            throw new BusinessException(e.getMessage());
+        } catch (BusinessException e) {
+            sendDebug("** EXCEPTION: " + e.getMessage() + " **", 1);
+            errorString += e.getMessage();
+            success = false;
+            exception = e;
+            e.printStackTrace();
+            throw new BusinessException(e.getMessage());
+        } catch (Exception e) {
+            sendDebug("** EXCEPTION: " + e.getMessage() + " **", 1);
+            errorString += e.getMessage();
+            success = false;
+            exception = e;
+            e.printStackTrace();
+            throw new BusinessException(e.getMessage());
+        } finally {
 
-			setDisconnectTime(System.currentTimeMillis());
+            setDisconnectTime(System.currentTimeMillis());
 
-			sendDebug("** DisconnectTime: [" + getDisconnectTime() + "] **", 0);
-			sendDebug("** Connection ended after " + (getDisconnectTime() - getConnectTime()) + " ms **", 0);
-			sendDebug("** Closing the UDP session **", 0);
+            sendDebug("** DisconnectTime: [" + getDisconnectTime() + "] **", 0);
+            sendDebug("** Connection ended after " + (getDisconnectTime() - getConnectTime()) + " ms **", 0);
+            sendDebug("** Closing the UDP session **", 0);
 
-			try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();};
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            ;
 
-			try {
-				addLogging(
+            try {
+                addLogging(
                         getMK10Executor().getInboundCommunicationScheduler(),
                         getMK10Executor().getCompletionCode(),
-						getMK10Executor().getCompletionErrorString(),
-						getMK10Executor().getJournal(),
-						success,
-						exception
-				);
+                        getMK10Executor().getCompletionErrorString(),
+                        getMK10Executor().getJournal(),
+                        success,
+                        exception
+                );
             } catch (BusinessException e) {
                 sendDebug("** BusinessException **", 1);
                 e.printStackTrace();
                 throw e;
             } catch (SQLException e) {
-				sendDebug("** SQLException **", 1);
-				e.printStackTrace();
-				// Close the connection after an SQL exception, connection will startup again if requested
-				Environment.getDefault().closeConnection();
-				throw e;
-			}
-		}
+                sendDebug("** SQLException **", 1);
+                e.printStackTrace();
+                // Close the connection after an SQL exception, connection will startup again if requested
+                Environment.getDefault().closeConnection();
+                throw e;
+            }
+        }
 
-	}
+    }
 
-	/*
-	 * Public getters and setters
-	 */
+    /*
+      * Public getters and setters
+      */
 
-	public Logger getLogger() {
-		if (logger == null) {
+    public Logger getLogger() {
+        if (logger == null) {
             logger = Logger.getLogger(getClass().getName());
         }
         return logger;
-	}
+    }
 
-	public Link getLink() {
-		return link;
-	}
+    public Link getLink() {
+        return link;
+    }
 
-	public String getVersion() {
-		return "$Date$";
-	}
+    public String getVersion() {
+        return "$Date$";
+    }
 
-	public void addProperties(Properties properties) {
-		sendDebug("** addProperties **", 2);
-		getMK10Executor().addProperties(properties);
-	}
+    public void addProperties(Properties properties) {
+        sendDebug("** addProperties **", 2);
+        getMK10Executor().addProperties(properties);
+    }
 
-	/*
-	 * Private debugging methods
-	 */
+    @Override
+    public void addProperties(TypedProperties properties) {
+        addProperties(properties.toStringProperties());
+    }
 
-	public void sendDebug(String message, int debuglvl) {
-		String returnMessage = "";
-		if (DEBUG == 0) {
-			returnMessage += " [MK10Push] > " + message;
-		} else {
-			returnMessage += " ##### DEBUG [";
-			returnMessage += new Date().getTime();
-			returnMessage += "] ######## > ";
-			returnMessage += message;
-		}
-		if ((debuglvl <= DEBUG) && (getLogger() != null)) {
-			getLogger().log(Level.INFO, returnMessage);
-			System.out.print(returnMessage + "\n");
-		}
-	}
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
 
-	public List<String> getOptionalKeys() {
-		List<String> list = new ArrayList<String>();
-		list.addAll(getMK10Executor().getOptionalKeys());
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    }
+
+    /*
+      * Private debugging methods
+      */
+
+    public void sendDebug(String message, int debuglvl) {
+        String returnMessage = "";
+        if (DEBUG == 0) {
+            returnMessage += " [MK10Push] > " + message;
+        } else {
+            returnMessage += " ##### DEBUG [";
+            returnMessage += new Date().getTime();
+            returnMessage += "] ######## > ";
+            returnMessage += message;
+        }
+        if ((debuglvl <= DEBUG) && (getLogger() != null)) {
+            getLogger().log(Level.INFO, returnMessage);
+            System.out.print(returnMessage + "\n");
+        }
+    }
+
+    public List<String> getOptionalKeys() {
+        List<String> list = new ArrayList<String>();
+        list.addAll(getMK10Executor().getOptionalKeys());
         list.add("FullDebug");
-		return list;
-	}
+        return list;
+    }
 
-	public List<String> getRequiredKeys() {
-		List<String> list = new ArrayList<String>();
-		list.addAll(getMK10Executor().getRequiredKeys());
-		return list;
-	}
+    public List<String> getRequiredKeys() {
+        List<String> list = new ArrayList<String>();
+        list.addAll(getMK10Executor().getRequiredKeys());
+        return list;
+    }
 
-	public long getTimeDifference() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    public long getTimeDifference() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
     public boolean isFullDebugLogging() {
         return fullDebugLogging;

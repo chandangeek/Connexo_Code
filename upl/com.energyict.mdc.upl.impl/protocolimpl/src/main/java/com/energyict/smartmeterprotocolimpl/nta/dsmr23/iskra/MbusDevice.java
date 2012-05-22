@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra;
 
+import com.energyict.cpo.*;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
@@ -34,6 +35,21 @@ public class MbusDevice extends AbstractNtaMbusDevice {
      */
     public String getVersion() {
         return "$Date$";
+    }
+
+    @Override
+    public void addProperties(TypedProperties properties) {
+        addProperties(properties.toStringProperties());
+    }
+
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
     }
 
     /**

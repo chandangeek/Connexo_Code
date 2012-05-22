@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
+import com.energyict.cpo.*;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.mdw.core.Pluggable;
@@ -13,7 +14,7 @@ import java.util.logging.Logger;
  * Date: 3-mrt-2011
  * Time: 16:32:09
  */
-public class SlaveMeter implements SimpleMeter, Pluggable{
+public class SlaveMeter implements SimpleMeter, Pluggable {
 
     private final WebRTUZ3 meterProtocol;
     private final String serialNumber;
@@ -22,7 +23,7 @@ public class SlaveMeter implements SimpleMeter, Pluggable{
     /**
      * Default constructor for EIServer instantiations
      */
-    public SlaveMeter(){
+    public SlaveMeter() {
         this(null, null, -1);
     }
 
@@ -39,6 +40,21 @@ public class SlaveMeter implements SimpleMeter, Pluggable{
      */
     public String getVersion() {
         return "$Date$";
+    }
+
+    @Override
+    public void addProperties(TypedProperties properties) {
+        addProperties(properties.toStringProperties());
+    }
+
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
     }
 
     /**
@@ -108,11 +124,11 @@ public class SlaveMeter implements SimpleMeter, Pluggable{
         return this.physicalAddress;
     }
 
-    public CosemObjectFactory getCosemObjectFactory(){
+    public CosemObjectFactory getCosemObjectFactory() {
         return this.meterProtocol.getDlmsSession().getCosemObjectFactory();
     }
 
-    public DLMSMeterConfig getMeterConfig(){
+    public DLMSMeterConfig getMeterConfig() {
         return this.meterProtocol.getDlmsSession().getMeterConfig();
     }
 }

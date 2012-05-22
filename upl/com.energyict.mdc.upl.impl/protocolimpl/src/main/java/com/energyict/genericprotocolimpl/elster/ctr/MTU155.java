@@ -1,6 +1,8 @@
 package com.energyict.genericprotocolimpl.elster.ctr;
 
 import com.energyict.cbo.*;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.core.*;
 import com.energyict.genericprotocolimpl.common.*;
 import com.energyict.genericprotocolimpl.elster.ctr.discover.InstallationDateDiscover;
@@ -84,6 +86,16 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
         return properties.getOptionalKeys();
     }
 
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    }
+
     /**
      *
      */
@@ -112,8 +124,8 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
 
                 this.rtu = identifyAndGetRtu();
                 log("Rtu with name '" + getRtu().getName() + "' connected successfully.");
-                getProtocolProperties().addProperties(rtu.getProtocol().getProperties());
-                getProtocolProperties().addProperties(rtu.getProperties());
+                getProtocolProperties().addProperties(rtu.getProtocol().getProperties().toStringProperties());
+                getProtocolProperties().addProperties(rtu.getProperties().toStringProperties());
                 updateRequestFactory();
                 checkSerialNumbers();
                 readDevice();
@@ -212,7 +224,7 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
         for (CommunicationProtocol protocol : protocols) {
             if (protocol.getJavaClassName().equalsIgnoreCase(getClass().getName())) {
                 getLogger().info("Using properties from protocol only, because RTU is not discovered yet. " + protocol);
-                return protocol.getProperties();
+                return protocol.getProperties().toStringProperties();
             }
         }
         warning("No protocol properties found for this protocol. Using defaults!");
@@ -637,7 +649,7 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
     }
 
     public void setNetworkID(int ID) throws BusinessException, SQLException {
-         RtuShadow shadow = getRtu().getShadow();
+        RtuShadow shadow = getRtu().getShadow();
         shadow.setNetworkId(Integer.toString(ID));
         getRtu().update(shadow);
     }
@@ -763,9 +775,9 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
     public RequestFactory getRequestFactory() {
         if (requestFactory == null) {
             if (isOutboundSmsProfile) {
-                requestFactory = new SmsRequestFactory(getLink(),  getLogger(),  getProtocolProperties(),  getTimeZone(), getPhoneNumber(), getNetworkID());
-            }  else {
-            requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties(), getTimeZone());
+                requestFactory = new SmsRequestFactory(getLink(), getLogger(), getProtocolProperties(), getTimeZone(), getPhoneNumber(), getNetworkID());
+            } else {
+                requestFactory = new GprsRequestFactory(getLink(), getLogger(), getProtocolProperties(), getTimeZone());
             }
         }
         return requestFactory;
