@@ -24,9 +24,12 @@ public class EK280 extends Dlms {
             new DlmsRegisterMapping(new com.energyict.obis.ObisCode(0, 0, 96, 6, 6, 255), Ek280Defs.BATTERY_REMAINING),
             new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 9, 4, 255), Ek280Defs.REMAINING_SHIFT_TIME),
 
+            // new since 24/2/2012
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(0, 2, 96, 6, 3, 255), Ek280Defs.MODEM_BATTERY_VOLTAGE),
             // new since 27/01/2012
             new DlmsRegisterMapping(new com.energyict.obis.ObisCode(0, 0, 96, 53, 0, 255), new ObisCode("0.0.96.53.0.255")),
             // new since 27/01/2012
+
             new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 0, 9, 255), Ek280Defs.EQUIPMENT_CLASS),
             // new since 27/01/2012
             new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 96, 99, 5, 255), Ek280Defs.NUMBER_OF_PRE_DECIMAL_PLACES),
@@ -68,9 +71,14 @@ public class EK280 extends Dlms {
             new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 43, 0, 0, 255), Ek280Defs.FLOWRATE_VM_CURR),
             new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 43, 2, 0, 255), Ek280Defs.FLOWRATE_VB_CURR),
 
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 43, 153, 0, 255), Ek280Defs.FLOWRATE_CONV_MAX_CURR_DAY),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 43, 153, 0, 101), Ek280Defs.FLOWRATE_CONV_MAX_PREV_DAY),
+
             new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 52, 0, 0, 255), Ek280Defs.COEFFICIENT_C_CURR),
             new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 53, 0, 0, 255), Ek280Defs.COEFFICIENT_Z_CURR),
             new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 53, 12, 0, 255), Ek280Defs.Z_CALC_METHOD),
+            // new since 24/2/2012
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 4, 2, 255), Ek280Defs.Z_CALC_METHOD_CODE),
             new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 4, 0, 255), Ek280Defs.VOLUME_CALC_METHOD),
 
             new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 12, 45, 255), Ek280Defs.DENSITY_GAS_BASE_COND),

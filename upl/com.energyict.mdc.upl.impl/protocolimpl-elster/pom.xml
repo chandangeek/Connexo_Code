@@ -26,12 +26,12 @@
         <dependency>
             <groupId>com.elster</groupId>
             <artifactId>ElsterDlmsLibrary</artifactId>
-            <version>1.0.8</version>
+          <version>1.0.10.4567</version>
         </dependency>
         <dependency>
             <groupId>com.elster</groupId>
             <artifactId>elsterutils</artifactId>
-            <version>1.1.7</version>
+            <version>1.2.0</version>
         </dependency>
 
     </dependencies>

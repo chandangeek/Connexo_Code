@@ -62,5 +62,7 @@
 
 -keepnames class com.elster.protocolimpl.dlms.Dlms
 
+-keepnames class com.elster.protocolimpl.dlms.EK280
+
 # LIS100 drivers
 -keepnames class com.elster.protocolimpl.lis100.EK88

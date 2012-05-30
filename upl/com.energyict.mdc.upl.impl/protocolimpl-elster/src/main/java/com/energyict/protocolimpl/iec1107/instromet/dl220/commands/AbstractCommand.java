@@ -71,7 +71,12 @@ public abstract class AbstractCommand {
 	protected String checkResponseForErrors(String response) throws IOException {
 		if(response != null && response.indexOf(ERROR_INDICATION) > -1){
 			int errorCode = Integer.parseInt(response.substring(response.indexOf(ERROR_INDICATION) + 1, response.indexOf(")")));
-			throw new IOException("Error received during read : " + ErrorCodes.getMessageForCode(errorCode));
+            if (errorCode != 103) {
+			    throw new IOException("Error received during read : " + ErrorCodes.getMessageForCode(errorCode));
+            }
+            else {
+                throw new ArchiveEmptyException(ErrorCodes.getMessageForCode(103));
+            }
 		} else {
 			return response;
 		}

@@ -85,7 +85,7 @@ public class LIS200Utils {
      * @return the Unit
      */
     public static Unit getUnitFromString(String strUnit) {
-        int scaler;
+        int scaler = 0;
         if (strUnit.equalsIgnoreCase("m3")) {
             return Unit.get(BaseUnit.CUBICMETER);
         } else if (strUnit.equalsIgnoreCase("bar")) {
@@ -95,10 +95,20 @@ public class LIS200Utils {
                 strUnit.equalsIgnoreCase("F")) {
             return Unit.get(BaseUnit.FAHRENHEIT);
         } else if (strUnit.contains("Wh")) {
-            scaler = (strUnit.contains("k")) ? 3 : 0;
+            if (strUnit.contains("k")) {
+                scaler = 3;
+            }
+            if (strUnit.contains("M")) {
+                scaler = 6;
+            }
             return Unit.get(BaseUnit.WATTHOUR, scaler);
         } else if (strUnit.contains("W")) {
-            scaler = (strUnit.contains("k")) ? 3 : 0;
+            if (strUnit.contains("k")) {
+                scaler = 3;
+            }
+            if (strUnit.contains("M")) {
+                scaler = 6;
+            }
             return Unit.get(BaseUnit.WATT, scaler);
         } else if ((strUnit.contains("m3|h")) ||
                 (strUnit.contains("m3/h")) ||

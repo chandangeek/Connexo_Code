@@ -13,12 +13,17 @@ import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * User: Gunter
  * Date: 17.11.11
  * Time: 10:15
+ *
+ * 23/2/2012  gh  corrected: same behaviour as lis200 driver when calculating obis code by date
+ *
  */
 public class DsfgRegisterReader {
 
@@ -160,9 +165,11 @@ public class DsfgRegisterReader {
 
         if (obisCode.getF() < 100) {
             cDate.set(Calendar.DAY_OF_MONTH, 1);
-            cDate.add(Calendar.MONTH, -obisCode.getF());
+            /* corrected: same behaviour as lis200 driver */
+            cDate.add(Calendar.MONTH, -obisCode.getF() + 1);
         } else {
-            cDate.add(Calendar.DAY_OF_MONTH, -(obisCode.getF() - 100));
+            /* corrected: same behaviour as lis200 driver */
+            cDate.add(Calendar.DAY_OF_MONTH, -(obisCode.getF() - 100 + 1));
         }
 
         return cDate.getTime();

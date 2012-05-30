@@ -4,6 +4,7 @@ import com.elster.dlms.cosem.application.services.common.DataAccessResult;
 import com.elster.dlms.cosem.application.services.get.GetDataResult;
 import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
 import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
+import com.elster.dlms.cosem.simpleobjectmodel.SimpleClockObject;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
 import com.elster.dlms.types.basic.DlmsDateTime;
 import com.elster.dlms.types.basic.ObisCode;
@@ -13,18 +14,45 @@ import com.elster.protocolimpl.dlms.messaging.DlmsMessageExecutor;
 import com.elster.protocolimpl.dlms.messaging.XmlMessageWriter;
 import com.elster.protocolimpl.dlms.profile.DlmsConsumptionProfile;
 import com.elster.protocolimpl.dlms.profile.DlmsLogProfile;
-import com.elster.protocolimpl.dlms.registers.*;
+import com.elster.protocolimpl.dlms.registers.DlmsRegisterMapping;
+import com.elster.protocolimpl.dlms.registers.RegisterMap;
+import com.elster.protocolimpl.dlms.registers.SimpleObisCodeMapper;
 import com.elster.protocolimpl.dlms.util.ProtocolLink;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
+import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
+import com.energyict.protocol.messaging.FirmwareUpdateMessagingConfig;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -147,7 +175,6 @@ public class Dlms implements MeterProtocol, ProtocolLink, RegisterProtocol, Mess
     }
 
     /**
-     * /**
      * the implementation returns both the address and password key
      *
      * @return a list of strings
@@ -344,8 +371,11 @@ public class Dlms implements MeterProtocol, ProtocolLink, RegisterProtocol, Mess
     }
 
     public void setTime() throws IOException {
-        /* It is not possible to set clock ! */
-        throw new IOException("Clock setting currently not supported!");
+
+        SimpleCosemObjectManager objectManager = getObjectManager();
+        SimpleClockObject clockObject =
+                objectManager.getSimpleCosemObject(Ek280Defs.CLOCK_OBJECT, SimpleClockObject.class);
+        clockObject.shiftTimeToSystemTime();
     }
 
     public String getRegister(String s) throws IOException {
@@ -354,9 +384,7 @@ public class Dlms implements MeterProtocol, ProtocolLink, RegisterProtocol, Mess
 
     public void setRegister(String arg0, String arg1) throws IOException {
         /* dsfg register instances have no register values ! */
-        throw new NoSuchRegisterException(
-                "Register setting currently not supported!");
-
+        throw new NoSuchRegisterException("Register setting currently not supported!");
     }
 
     public RegisterValue readRegister(com.energyict.obis.ObisCode obisCode) throws IOException {
@@ -450,9 +478,8 @@ public class Dlms implements MeterProtocol, ProtocolLink, RegisterProtocol, Mess
             tryDoubleConnTo = getPropertyAsInteger(properties.getProperty(Dlms.TRYDOUBLECONN, "0"));
             doValidateProperties(properties);
         } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(
-                    " validateProperties, NumberFormatException, "
-                            + e.getMessage());
+            throw new InvalidPropertyException(" validateProperties, NumberFormatException, "
+                    + e.getMessage());
         }
     }
 

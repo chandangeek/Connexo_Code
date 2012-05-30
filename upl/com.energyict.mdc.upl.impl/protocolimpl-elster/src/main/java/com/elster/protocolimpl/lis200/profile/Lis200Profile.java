@@ -9,15 +9,22 @@ import com.elster.protocolimpl.lis200.objects.IntervalObject;
 import com.elster.protocolimpl.lis200.utils.RawArchiveLine;
 import com.elster.protocolimpl.lis200.utils.RawArchiveLineInfo;
 import com.elster.utils.lis200.events.EventInterpreter;
-import com.elster.utils.lis200.profile.*;
+import com.elster.utils.lis200.profile.IArchiveLineData;
+import com.elster.utils.lis200.profile.IArchiveRawData;
+import com.elster.utils.lis200.profile.ProcessArchiveData;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.instromet.dl220.commands.ArchiveEmptyException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import static com.elster.protocolimpl.lis200.utils.utils.splitLine;
 
@@ -187,6 +194,7 @@ public class Lis200Profile implements IArchiveRawData {
 
     /**
      * Get interval data within the request period
+     * return empty list in case of archive is empty
      *
      * @param from - the initial date for the interval data
      * @param to   - the end date for the interval data
@@ -195,8 +203,14 @@ public class Lis200Profile implements IArchiveRawData {
      */
     public List<IntervalData> getIntervalData(Date from, Date to)
             throws IOException {
-        return buildIntervalData(getArchive().getIntervals(from, to,
+        
+        try {
+            return buildIntervalData(getArchive().getIntervals(from, to,
                 profileRequestBlockSize));
+        } catch (ArchiveEmptyException archiveEmptyException) {
+            return new ArrayList<IntervalData>();
+        }
+        
     }
 
     /**
@@ -216,7 +230,7 @@ public class Lis200Profile implements IArchiveRawData {
         archiveData = splitRawDataInLines(rawData, archiveLineInfo.getNumberOfValuesPerLine());
 
         // process lines
-        List<IntervalData> lid = pad.processArchiveData();
+        List<IntervalData> lid = pad.processArchiveData(true);
 
         // after processing, archiveData can be cleared
         archiveData.clear();
@@ -299,11 +313,7 @@ public class Lis200Profile implements IArchiveRawData {
             String rawEvents = gaoEvents
                     .getIntervals(from, profileRequestBlockSize);
             return buildEventData(rawEvents);
-        } catch (IOException ioe) {
-            /* if only log book is empty, it's ok.... */
-            if (!ioe.getMessage().contains("Archive empty")) {
-                throw ioe;
-            }
+        } catch (ArchiveEmptyException aee) {
             return new ArrayList<MeterEvent>();
         }
     }

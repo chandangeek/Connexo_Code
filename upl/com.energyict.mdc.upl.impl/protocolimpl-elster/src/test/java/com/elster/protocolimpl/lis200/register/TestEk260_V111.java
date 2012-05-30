@@ -9,8 +9,15 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import org.junit.Test;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -24,6 +31,8 @@ public class TestEk260_V111 extends EK260 {
 
     @Test
     public void RegisterReaderTestWithDLData() throws IOException {
+
+        Locale.setDefault(Locale.ENGLISH);
 
         StringBuilder sb = new StringBuilder();
 

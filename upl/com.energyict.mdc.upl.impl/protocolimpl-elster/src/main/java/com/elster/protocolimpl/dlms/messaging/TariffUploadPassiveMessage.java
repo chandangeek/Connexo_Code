@@ -8,11 +8,14 @@ import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleActivityCalendarObject;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleActivityCalendarProfiles;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
+import com.elster.dlms.cosem.simpleobjectmodel.SimpleDataObject;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleSpecialDaysTable;
 import com.elster.dlms.types.basic.DlmsDate;
 import com.elster.dlms.types.basic.DlmsDateTime;
 import com.elster.dlms.types.basic.DlmsTime;
 import com.elster.dlms.types.basic.ObisCode;
+import com.elster.dlms.types.data.DlmsData;
+import com.elster.dlms.types.data.DlmsDataUnsigned;
 import com.elster.protocolimpl.dlms.tariff.CodeObjectValidator;
 import com.elster.protocolimpl.dlms.tariff.CodeTableBase64Parser;
 import com.elster.protocolimpl.dlms.tariff.objects.CodeCalendarObject;
@@ -46,6 +49,7 @@ public class TariffUploadPassiveMessage extends AbstractDlmsMessage {
     public static final String MESSAGE_TAG = "UploadPassiveTariff";
     public static final String ATTR_ACTIVATION_TIME = "ActivationTime";
     public static final String ATTR_CODE_TABLE_ID = "CodeTableId";
+    public static final String ATTR_DEFAULT_TARIFF = "DefaultTariff";
 
     public TariffUploadPassiveMessage(DlmsMessageExecutor messageExecutor) {
         super(messageExecutor);
@@ -61,11 +65,25 @@ public class TariffUploadPassiveMessage extends AbstractDlmsMessage {
         try {
             String activationTimeAttr = MessagingTools.getContentOfAttribute(messageEntry, ATTR_ACTIVATION_TIME);
             String codeTableBase64Attr = MessagingTools.getContentOfAttribute(messageEntry, ATTR_CODE_TABLE_ID);
+            String defaultTariffStr = MessagingTools.getContentOfAttribute(messageEntry, ATTR_DEFAULT_TARIFF);
             Date activationTime = validateAndGetActivationTime(activationTimeAttr);
             CodeObject codeObject = validateAndGetCodeObject(codeTableBase64Attr);
-            writeCodeTable(codeObject, activationTime);
+            int defaultTariff = validateDefaultTariffString(defaultTariffStr);
+            writeCodeTable(codeObject, activationTime, defaultTariff);
         } catch (IOException e) {
             throw new BusinessException("Unable to write new tariff to device: " + e.getMessage(), e);
+        }
+    }
+
+    private int validateDefaultTariffString(String defaultTariffStr) throws BusinessException {
+        try {
+            int i = Integer.parseInt(defaultTariffStr);
+            if ((i < 1) || (i > 3)) {
+                throw new IOException("value is out of range (1..3)");
+            }
+            return i;
+        } catch (Exception ex) {
+            throw new BusinessException("Default tariff: " + ex.getMessage());
         }
     }
 
@@ -90,7 +108,7 @@ public class TariffUploadPassiveMessage extends AbstractDlmsMessage {
         return activationDate;
     }
 
-    private void writeCodeTable(CodeObject codeObject, Date activationDate) throws BusinessException, IOException {
+    private void writeCodeTable(CodeObject codeObject, Date activationDate, int defaultTariff) throws BusinessException, IOException {
 
         Calendar activeDate = GregorianCalendar.getInstance(getExecutor().getDlms().getTimeZone());
         activeDate.setTime(activationDate);
@@ -132,12 +150,18 @@ public class TariffUploadPassiveMessage extends AbstractDlmsMessage {
         // only one season setable
         profilesPassive.setSeasons(new Season[]{s1});
 
-        WeekProfile w1 = new WeekProfile("Profile_1", 1, 1, 1, 1, 1, 2, 3); //Nur genau das Profil scheint moglich zu sein.
+        WeekProfile w1 = new WeekProfile("Profile_1", 1, 1, 1, 1, 1, 2, 3); //Nur genau das Profil scheint möglich zu sein.
         profilesPassive.setWeekProfiles(new WeekProfile[]{w1}); //Genau 1 Profil möglich
 
         profilesPassive.setDayProfiles(new DayProfile[]{d1, d2, d3});
 
         activityCalendar.setActivatePassiveCalendarTime(new DlmsDateTime(dd, dt));
+
+        SimpleDataObject defaultTariffObj = (SimpleDataObject) objectManager.getSimpleCosemObject(Ek280Defs.DEFAULT_TARIF_REGISTER);
+        DlmsData data = new DlmsDataUnsigned(defaultTariff);
+        defaultTariffObj.setValue(data);
+
+        activityCalendar.activatePassiveCalendar();
     }
 
     private void writeSpecialDaysTable(List<CodeCalendarObject> calendars, Calendar activeDate) throws IOException {
@@ -256,6 +280,7 @@ public class TariffUploadPassiveMessage extends AbstractDlmsMessage {
         msgVal.setValue(" ");
         tagSpec.add(new MessageAttributeSpec(ATTR_CODE_TABLE_ID, true));
         tagSpec.add(new MessageAttributeSpec(ATTR_ACTIVATION_TIME, true));
+        tagSpec.add(new MessageAttributeSpec(ATTR_DEFAULT_TARIFF, true));
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;

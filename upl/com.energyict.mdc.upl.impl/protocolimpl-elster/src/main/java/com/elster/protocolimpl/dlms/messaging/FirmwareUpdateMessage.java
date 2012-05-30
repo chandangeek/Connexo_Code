@@ -6,9 +6,10 @@ import com.elster.dlms.cosem.simpleobjectmodel.SimpleImageTransferObject;
 import com.elster.protocols.streams.TimeoutIOException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.protocol.MessageEntry;
-import com.energyict.protocolimpl.base.Base64EncoderDecoder;
+import sun.misc.BASE64Decoder;
 
 import java.io.ByteArrayInputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -43,8 +44,8 @@ public class FirmwareUpdateMessage extends AbstractDlmsMessage {
         String firmwareFile = messageEntry.getContent().substring(start + 2 + ATTR_CODE_FIRMWAREFILE.length(), end);
 
         try {
-            Base64EncoderDecoder decoder = new Base64EncoderDecoder();
-            byte[] decodedBytes = decoder.decode(firmwareFile);
+            BASE64Decoder decoder = new BASE64Decoder();
+            byte[] decodedBytes = decoder.decodeBuffer(firmwareFile);
 
             MessageDigest md5 = MessageDigest.getInstance("MD5");
             md5.update(decodedBytes, 0, decodedBytes.length);
@@ -56,7 +57,12 @@ public class FirmwareUpdateMessage extends AbstractDlmsMessage {
         } catch (FWUpdateTimeoutException te) {
             throw new FirmwareUpdateTimeoutException(te.getMessage());
         } catch (Exception e) {
-            throw new BusinessException("Firmwareupdate: " + e.getMessage());
+            String msg = e.getMessage();
+            if (msg == null) {
+                msg = ((Object)e).getClass().getSimpleName();
+                e.printStackTrace();
+            }
+            throw new BusinessException("Firmwareupdate: " + msg);
         }
     }
 
@@ -119,8 +125,16 @@ public class FirmwareUpdateMessage extends AbstractDlmsMessage {
                         } catch (SocketException se) {
                             System.out.println(se.getMessage());
                             throw new FWUpdateTimeoutException("Socket error during firmware update");
+                        } catch (EOFException eofe) {
+                            String s = "Eof of file exception during firmware update";
+                            System.out.println(s);
+                            throw new FWUpdateTimeoutException(s);
                         } catch (Exception ex) {
-                            System.out.println(ex.getMessage());
+                            String s = ex.getMessage();
+                            if ((s == null) || (s.length() == 0)) {
+                                s = "Exception by class " + ex.getClass().getCanonicalName();
+                            }
+                            System.out.println(s);
                             throw new IOException(ex.getMessage());
                         }
                     }
@@ -147,8 +161,16 @@ public class FirmwareUpdateMessage extends AbstractDlmsMessage {
             } catch (SocketException se) {
                 System.out.println(se.getMessage());
                 throw new FWUpdateTimeoutException("Socket error during firmware update");
+            } catch (EOFException eofe) {
+                String s = "Eof of file exception during firmware update";
+                System.out.println(s);
+                throw new FWUpdateTimeoutException(s);
             } catch (Exception ex) {
-                System.out.println(ex.getMessage());
+                String s = ex.getMessage();
+                if ((s == null) || (s.length() == 0)) {
+                    s = "Exception by class " + ex.getClass().getCanonicalName();
+                }
+                System.out.println(s);
                 throw new IOException(ex.getMessage());
             }
         }
