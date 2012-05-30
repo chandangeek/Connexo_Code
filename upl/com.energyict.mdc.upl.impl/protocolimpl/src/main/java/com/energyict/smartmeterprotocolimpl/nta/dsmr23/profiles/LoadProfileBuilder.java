@@ -1,36 +1,18 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles;
 
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.ComposedCosemObject;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.dlms.*;
+import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.attributes.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileConfigurationException;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.DSMRProfileIntervalStatusBits;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -84,6 +66,11 @@ public class LoadProfileBuilder {
     private Map<LoadProfileReader, Integer> statusMasksMap = new HashMap<LoadProfileReader, Integer>();
 
     /**
+     * Keep track of a list of channelMask per LoadProfileReader
+     */
+    private Map<LoadProfileReader, Integer> channelMaskMap = new HashMap<LoadProfileReader, Integer>();
+
+    /**
      * Keeps track of the link between a {@link com.energyict.protocol.Register} and his {@link com.energyict.dlms.DLMSAttribute} for ComposedCosemObject reads ...
      */
     private Map<CapturedRegisterObject, DLMSAttribute> registerUnitMap = new HashMap<CapturedRegisterObject, DLMSAttribute>();
@@ -132,9 +119,11 @@ public class LoadProfileBuilder {
                     lpc.setProfileInterval(ccoLpConfigs.getAttribute(cpc.getLoadProfileInterval()).intValue());
                     List<ChannelInfo> channelInfos = constructChannelInfos(capturedObjectRegisterListMap.get(lpr), ccoCapturedObjectRegisterUnits);
                     int statusMask = constructStatusMask(capturedObjectRegisterListMap.get(lpr));
+                    int channelMask = constructChannelMask(capturedObjectRegisterListMap.get(lpr));
                     lpc.setChannelInfos(channelInfos);
                     this.channelInfoMap.put(lpr, channelInfos);
                     this.statusMasksMap.put(lpr, statusMask);
+                    this.channelMaskMap.put(lpr, channelMask);
                 } catch (IOException e) {
                     lpc.setSupportedByMeter(false);
                 }
@@ -204,7 +193,7 @@ public class LoadProfileBuilder {
                     List<CapturedRegisterObject> coRegisters = new ArrayList<CapturedRegisterObject>();
                     for (CapturedObject co : capturedObjects) {
                         String deviceSerialNumber = this.meterProtocol.getSerialNumberFromCorrectObisCode(co.getLogicalName().getObisCode());
-                        if ((deviceSerialNumber != null) && (!deviceSerialNumber.equals(""))) {
+//                        if ((deviceSerialNumber != null) && (!deviceSerialNumber.equals(""))) {
                             DLMSAttribute dlmsAttribute = new DLMSAttribute(co.getLogicalName().getObisCode(), co.getAttributeIndex(), co.getClassId());
                             CapturedRegisterObject reg = new CapturedRegisterObject(dlmsAttribute, deviceSerialNumber);
 
@@ -213,7 +202,7 @@ public class LoadProfileBuilder {
                                 channelRegisters.add(reg);
                             }
                             coRegisters.add(reg); // we always add it to the list of registers for this CapturedObject
-                        }
+//                        }
                     }
                     this.capturedObjectRegisterListMap.put(lpr, coRegisters);
                 } //TODO should we log this if we didn't get it???
@@ -306,6 +295,17 @@ public class LoadProfileBuilder {
         return statusMask;
     }
 
+    private int constructChannelMask(List<CapturedRegisterObject> registers) {
+        int channelMask = 0;
+        int counter = 0;
+        for (CapturedRegisterObject registerUnit : registers) {
+            if (!registerUnit.getSerialNumber().equals("") && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
+                channelMask |= (int) Math.pow(2, counter);
+            }
+            counter++;
+        }
+        return channelMask;
+    }
 
     /**
      * Checks if the given ObisCode/Serialnumber combination is a valid profileChannel. Checks are done based on the the StatusObisCodes and ClockObisCode
@@ -392,7 +392,7 @@ public class LoadProfileBuilder {
 
                 //TODO it is possible that we need to check for the masks ...
                 DLMSProfileIntervals intervals = new DLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), DLMSProfileIntervals.DefaultClockMask,
-                        this.statusMasksMap.get(lpr), -1, new DSMRProfileIntervalStatusBits());
+                        this.statusMasksMap.get(lpr), this.channelMaskMap.get(lpr), new DSMRProfileIntervalStatusBits());
                 profileData.setIntervalDatas(intervals.parseIntervals(lpc.getProfileInterval()));
 
                 profileDataList.add(profileData);
