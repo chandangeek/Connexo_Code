@@ -10,16 +10,17 @@
 
 package com.energyict.protocolimpl.elster.a3;
 
-import java.util.*;
-import java.io.*;
-import java.math.*;
-
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import com.energyict.protocolimpl.elster.a3.tables.*;
+import com.energyict.cbo.NestedIOException;
+import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
-import com.energyict.cbo.*;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.elster.a3.tables.ObisCodeDescriptor;
+import com.energyict.protocolimpl.elster.a3.tables.SourceInfo;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.*;
 /**
  *
  * @author Koen
@@ -96,14 +97,18 @@ public class ObisCodeInfoFactory {
 		if (fField == CURRENT) {
 			for (int index=0; index<art.getNrOfPresentValues(); index++) {
 				int dataControlEntryIndex = alphaA3.getStandardTableFactory().getPresentRegisterSelectionTable().getPresentValueSelect()[index];
-				if (dataControlEntryIndex != 255) {
-					ObisCodeDescriptor obisCodeDescriptor;
-					try {
-						obisCodeDescriptor  = si.getObisCodeDescriptor(dataControlEntryIndex); 
-						} catch (IOException e) {
-							continue;
-						}
-					if (obisCodeDescriptor != null) {
+                if (dataControlEntryIndex != 255) {
+                    ObisCodeDescriptor obisCodeDescriptor;
+                    try {
+                        obisCodeDescriptor = si.getObisCodeDescriptor(dataControlEntryIndex);
+                    } catch (IOException e) {
+                        if (e.getMessage().equalsIgnoreCase("ReadResponse, parse, checksum failure in table data!")) {
+                            throw new NestedIOException(e); // In this case, it is not useful to continue, as we will run into other exceptions...
+                        } else {
+                            continue;
+                        }
+                    }
+                    if (obisCodeDescriptor != null) {
 						try {
 						si.getUnit(dataControlEntryIndex);
 						} catch (IOException e) {

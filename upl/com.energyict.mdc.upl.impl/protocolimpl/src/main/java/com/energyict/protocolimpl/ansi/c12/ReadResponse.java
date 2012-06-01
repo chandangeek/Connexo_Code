@@ -10,8 +10,9 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import java.io.*;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 /**
  *
  * @author Koen
@@ -44,8 +45,14 @@ public class ReadResponse extends AbstractResponse {
             checkSum = ProtocolUtils.getInt(data,3+count, 1);
             // calculate checksum...
             int check = TableData.calcCheckSum(tableData);
-            if (check != checkSum)
-                throw new IOException("ReadResponse, parse, checksum failure in table data!");
+            if (check != checkSum) {
+                if (psemServiceFactory.getC12ProtocolLink().ignoreChecksumFaults()) {
+                    psemServiceFactory.getC12ProtocolLink().getLogger().warning("ReadResponse, parse, checksum failure in table data - custom property 'IgnoreChecksumFaults' is set, so this will be ignored.");
+                } else {
+                    psemServiceFactory.getC12ProtocolLink().getLogger().warning("ReadResponse, parse, checksum failure in table data!");
+                    throw new IOException("ReadResponse, parse, checksum failure in table data!");
+                }
+            }
         }
         else throw new ResponseIOException("ReadResponse, parse, data length = 0!", AbstractResponse.SNAPSHOT_ERROR);
     }

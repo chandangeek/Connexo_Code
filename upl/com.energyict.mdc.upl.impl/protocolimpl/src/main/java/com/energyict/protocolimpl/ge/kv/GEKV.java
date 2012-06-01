@@ -10,22 +10,23 @@
 
 package com.energyict.protocolimpl.ge.kv;
 
-import com.energyict.protocolimpl.ansi.c12.procedures.*;
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
-import com.energyict.protocol.HalfDuplexEnabler;  
-import com.energyict.protocolimpl.base.*;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.*;
-import com.energyict.protocol.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import com.energyict.protocolimpl.ge.kv.tables.*;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocolimpl.meteridentification.*;
+import com.energyict.protocolimpl.ansi.c12.procedures.StandardProcedureFactory;
+import com.energyict.protocolimpl.ansi.c12.tables.LoadProfileSet;
+import com.energyict.protocolimpl.ansi.c12.tables.StandardTableFactory;
+import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.ge.kv.tables.ManufacturerTableFactory;
+import com.energyict.protocolimpl.meteridentification.AbstractManufacturer;
+import com.energyict.protocolimpl.meteridentification.KV;
+
+import java.io.*;
+import java.util.*;
+import java.util.logging.Logger;
 /**
  *
  * @author  Koen
@@ -459,6 +460,16 @@ if (skip<=28) { skip+=2;strBuff.append("----------------------------------------
     }
     public int getMeterConfig() throws IOException {
         return getManufacturerTableFactory().getGEDeviceTable().getMeterMode();
+    }
+
+    /**
+     * Custom property to indicate if a non-matching checksum in an com.energyict.protocolimpl.ansi.c12.ReadResponse should be ignored.
+     * If false, the non-matching checksum will generate an IOException.
+     * If true, the non-matching checksum will be silently ignored.
+     * @return
+     */
+    public boolean ignoreChecksumFaults() {
+        return false;
     }
 
     public long getTimeStampAtLogon() {

@@ -77,6 +77,8 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
     protected String calledAPTitle;
     protected String securityKey;
 
+    public boolean ignoreChecksumFaults;
+
     /** Creates a new instance of AlphaA3 */
     public AlphaA3() {
     }
@@ -175,10 +177,10 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
         calledAPTitle = properties.getProperty(CALLED_AP_TITLE, "");
     	securityKey = properties.getProperty(SECURITY_KEY, "");
     	securityMode = properties.getProperty(SECURITY_MODE, "");
+        ignoreChecksumFaults = Integer.parseInt(properties.getProperty("IgnoreChecksumFaults", "0").trim()) == 1 ? true : false;
 
         if (getInfoTypePassword().length() > 20) {
             throw new InvalidPropertyException("Length of password cannot be higher than 20. Please correct this first.");
-
         }
     }
     
@@ -189,6 +191,7 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
         result.add("C12UserId");
         result.add("PasswordBinary"); 
         result.add("RetrieveExtraIntervals");
+        result.add("IgnoreChecksumFaults");
         result.add(CALLED_AP_TITLE);
         result.add(SECURITY_KEY);
         result.add(SECURITY_MODE);
@@ -582,6 +585,10 @@ if (skip<=29) { skip+=2;strBuff.append("----------------------------------------
 
     public int getMeterConfig() throws IOException {
         return 0; //getManufacturerTableFactory().getGEDeviceTable().getMeterMode();
+    }
+
+    public boolean ignoreChecksumFaults() {
+        return ignoreChecksumFaults;
     }
 
     public ObisCodeInfoFactory getObisCodeInfoFactory() throws IOException {
