@@ -55,10 +55,57 @@ public class RequestFactory {
         return firmware.getFirmware();
     }
 
+    /**
+     * When a ProtocolConnectionException (CRC error, corrupt frame,...) occurs, a retry mechanism is used.
+     * This means, a new LP data request is sent, with a new from date, being the timestamp of the most recently received LP entry.
+     */
     public List<ProfileDataEntry> readProfileData(int length, ProfileDescription description, int registerAddress, int fieldAddress, Date lastReading, Date toDate) throws IOException {
-        ProfileData profileData = new ProfileData(length, description.getGid(), poreg, registerAddress, fieldAddress, 1, 1, description.getProfileId(), lastReading, toDate);
-        profileData.doRequest();
-        return profileData.getProfileDataEntries();
+        List<ProfileDataEntry> profileDataEntries = new ArrayList<ProfileDataEntry>();
+
+        ProfileData profileData;
+        boolean isCorruptResponse = true;
+        int count = 0;
+        boolean firstBlockFirstAttempt = false;
+        while (isCorruptResponse) {
+            profileData = new ProfileData(length, description.getGid(), poreg, registerAddress, fieldAddress, 1, 1, description.getProfileId(), lastReading, toDate);
+            profileData.doRequest();
+            profileDataEntries.addAll(profileData.getProfileDataEntries());
+            isCorruptResponse = profileData.isCorruptFrame();
+            Date newLastReading = updateLastReading(profileDataEntries, lastReading);
+            if (profileDataEntries.size() == 0 && newLastReading.equals(lastReading) && !firstBlockFirstAttempt && count == 0) {
+                firstBlockFirstAttempt = true;       //Necessary to indicate this because a failed first block always has the same newLastReading as the original request
+            } else {
+                firstBlockFirstAttempt = false;
+            }
+
+            if (isCorruptResponse) {
+                poreg.getLogger().warning("Received corrupted frame while requesting LP data");
+                poreg.getLogger().warning("Cause: " + profileData.getCorruptCause());
+
+                if (newLastReading.equals(lastReading) && !firstBlockFirstAttempt) {       //It's a retry
+                    count++;     //Retry counter
+                    if (count >= poreg.getConnection().getRetries()) {  //Stop retrying after X retries
+                        String msg = "Still received a corrupt frame (" + "after " + poreg.getConnection().getRetries() + " retries) while trying to request LP data with fromDate = " + lastReading + ". Aborting.";
+                        poreg.getLogger().severe(msg);
+                        throw new IOException(msg);
+                    }
+                    poreg.getLogger().warning("Sending new request (retry " + count + "/" + poreg.getConnection().getRetries() + ") with fromDate = timestamp of the last received LP entry (" + newLastReading + ")");
+                } else {                                        //It's a first attempt
+                    count = 0;
+                    poreg.getLogger().warning("Sending new profile data request for the remaining LP data. From date = timestamp of the last received LP entry (" + newLastReading + ")");
+                }
+            }
+            lastReading = newLastReading;
+        }
+        return profileDataEntries;
+    }
+
+    private Date updateLastReading(List<ProfileDataEntry> profileDataEntries, Date lastReading) {
+        if (profileDataEntries == null || profileDataEntries.size() == 0) {
+            return lastReading;
+        }
+        int lastEntryIndex = profileDataEntries.size() - 1;
+        return (Date) profileDataEntries.get(lastEntryIndex).getDate().clone();
     }
 
     public void setTime() throws IOException {

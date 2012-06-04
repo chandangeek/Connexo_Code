@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.din19244.poreg2;
 import com.energyict.cbo.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.din19244.poreg2.request.register.DstSettings;
 
 import java.io.IOException;
 import java.util.*;
@@ -166,6 +167,34 @@ public class ObisCodeMapper {
             long totalTotalActiveEnergyCurrentBillingPeriod = poreg.getRegisterFactory().readCurrentData(obisCode.getE(), 0, obisCode.getD());
             Date timeStamp = poreg.getRegisterFactory().readBillingDataCurrentPeriodTimeStamp();
             return new RegisterValue(obisCode, new Quantity(totalTotalActiveEnergyCurrentBillingPeriod, Unit.get(BaseUnit.WATTHOUR, 3)), new Date(), timeStamp);
+        } else if (isDSTSwitchSummer(obisCode)) {
+            DstSettings dstSettings = poreg.getRegisterFactory().readDst();
+
+            String text = "";
+            text += "month: " + dstSettings.getStartMonth();
+            text += " - ";
+            text += "day of month: " + dstSettings.getStartDay();
+            text += " - ";
+            text += "day of week: " + dstSettings.getStartWDay();
+            text += " - ";
+            text += "hour: " + dstSettings.getStartHour();
+            text += " - ";
+            text += "algorithm: " + dstSettings.getStartAlgorithm().toString();
+            return new RegisterValue(obisCode, text);
+        } else if (isDSTSwitchWinter(obisCode)) {
+            DstSettings dstSettings = poreg.getRegisterFactory().readDst();
+
+            String text = "";
+            text += "month: " + dstSettings.getEndMonth();
+            text += " - ";
+            text += "day of month: " + dstSettings.getEndDay();
+            text += " - ";
+            text += "day of week: " + dstSettings.getEndWDay();
+            text += " - ";
+            text += "hour: " + dstSettings.getEndHour();
+            text += " - ";
+            text += "algorithm: " + dstSettings.getEndAlgorithm().toString();
+            return new RegisterValue(obisCode, text);
         } else {
             throw new NoSuchRegisterException("Register with obiscode [" + obisCode + "] is not supported");
         }
@@ -193,5 +222,13 @@ public class ObisCodeMapper {
 
     private boolean isActiveEnergy(ObisCode obisCode) {
         return (obisCode.getA() == 1) && (obisCode.getB() == 0) && (obisCode.getC() == 1) && (obisCode.getD() == 8 || obisCode.getD() == 6);
+    }
+
+    private boolean isDSTSwitchSummer(ObisCode obisCode) {
+        return obisCode.equals(ObisCode.fromString("0.0.131.0.6.255"));
+    }
+
+    private boolean isDSTSwitchWinter(ObisCode obisCode) {
+        return obisCode.equals(ObisCode.fromString("0.0.131.0.7.255"));
     }
 }

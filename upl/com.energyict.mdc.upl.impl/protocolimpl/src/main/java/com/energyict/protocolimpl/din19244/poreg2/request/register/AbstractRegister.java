@@ -10,32 +10,20 @@ import java.io.IOException;
 
 /**
  * Parent class containing methods common for all registers, e.g. the doRequest()
- *
  * Copyrights EnergyICT
  * Date: 20-apr-2011
  * Time: 14:10:38
  */
 abstract public class AbstractRegister extends AbstractRequest {
 
-    private int registerAddress;
-    private int fieldAddress;
-    private int numberOfRegisters;
-    private int numberOfFields;
-
-    private int receivedRegisterAddress;
-    private int receivedFieldAddress;
-    private int receivedNumberOfRegisters;
-    private int previouslyReceivedNumberOfRegisters = 0;
-    private int totalReceivedNumberOfRegisters = 0;
-    private int receivedNumberOfFields;
-
     /**
      * Constructor common for all registers.
-     * @param poreg the protocol instance
-     * @param registerAddress register row address to start with in the register group
-     * @param fieldAddress column address to start with
+     *
+     * @param poreg             the protocol instance
+     * @param registerAddress   register row address to start with in the register group
+     * @param fieldAddress      column address to start with
      * @param numberOfRegisters the number of registers (starting from registerAddress)
-     * @param numberOfFields the number of fields (starting from fieldAddress)
+     * @param numberOfFields    the number of fields (starting from fieldAddress)
      */
     public AbstractRegister(Poreg poreg, int registerAddress, int fieldAddress, int numberOfRegisters, int numberOfFields) {
         super(poreg);
@@ -45,83 +33,39 @@ abstract public class AbstractRegister extends AbstractRequest {
         this.numberOfFields = numberOfFields;
     }
 
-    public int getReceivedNumberOfFields() {
-        return receivedNumberOfFields;
-    }
-
-    public int getReceivedFieldAddress() {
-        return receivedFieldAddress;
-    }
-
-    public int getFieldAddress() {
-        return fieldAddress;
-    }
-
-    public int getRegisterAddress() {
-        return registerAddress;
-    }
-
-    public int getReceivedRegisterAddress() {
-        return receivedRegisterAddress;
-    }
-
-    public int getReceivedNumberOfRegisters() {
-        return receivedNumberOfRegisters;
-    }
-
-    public int getNumberOfFields() {
-        return numberOfFields;
-    }
-
-    public int getNumberOfRegisters() {
-        return numberOfRegisters;
-    }
-
-    public int getTotalReceivedNumberOfRegisters() {
-        return totalReceivedNumberOfRegisters;
-    }
-
     /**
      * Requests the registers contents based on the number of fields and registers defined in the constructor.
      * Parses the received data into relevant content.
+     * Retry the full request when a corrupt frame (ProtocolConnectionException) is received.
+     *
      * @throws IOException in case of timeout
      */
     @Override
     public void doRequest() throws IOException {
-        byte[] result = new byte[0];
-        byte[] response = poreg.getConnection().doRequest(getRequestASDU(), getAdditionalBytes(), getExpectedResponseType(), getResponseASDU());
+        corruptFrame = true;
+        int count = 0;
+        while (corruptFrame) {
+            doTheRequest();      //First attempt
 
-        while (true) {
-            validateAdditionalBytes(response);
-            response = ProtocolTools.getSubArray(response, getLengthOfReceivedAdditionalBytes());
-            result = ProtocolTools.concatByteArrays(result, response);
-            if (isCompleted() || isEndOfTable()) {
-                break;
+            if (corruptFrame) {
+                poreg.getLogger().warning("Received corrupted frame while requesting register data (GID = " + getRegisterGroupID() + ")");
+                poreg.getLogger().warning("Cause: " + corruptCause);
+
+                count++;     //Retry counter
+                if (count > poreg.getConnection().getRetries()) {  //Stop retrying after X retries
+                    String msg = "Still received a corrupt frame (" + "after " + poreg.getConnection().getRetries() + " retries) while trying to request register data (GID = " + getRegisterGroupID() + "). Aborting.";
+                    poreg.getLogger().severe(msg);
+                    throw new IOException(msg);
+                }
+                poreg.getLogger().warning("Resending request for register data (GID = " + getRegisterGroupID() + ") (retry " + count + "/" + poreg.getConnection().getRetries() + ")");
             }
-            previouslyReceivedNumberOfRegisters = getReceivedNumberOfRegisters();
-            response = poreg.getConnection().doContinue(getExpectedResponseType(), getResponseASDU());
         }
-
-        //Parse the rest
-        parse(result);
-    }
-
-    private boolean isEndOfTable() {
-        return (getReceivedNumberOfRegisters() < previouslyReceivedNumberOfRegisters);
-    }
-
-    private boolean isCompleted() {
-        int receivedRegisters = getReceivedRegisterAddress() + getReceivedNumberOfRegisters();
-        int receivedFields = getReceivedFieldAddress() + getReceivedNumberOfFields();
-        int expectedRegisters = getRegisterAddress() + getNumberOfRegisters();
-        int expectedFields = getFieldAddress() + getNumberOfFields();
-
-        return (expectedRegisters == receivedRegisters) && (receivedFields == expectedFields);
     }
 
     /**
      * Checks the received additional bytes.
      * They should contain the same values as the info given in the constructor.
+     *
      * @param response the received bytes
      * @return the remaining bytes (without the additional data)
      * @throws IOException
@@ -145,6 +89,7 @@ abstract public class AbstractRegister extends AbstractRequest {
 
     /**
      * Puts the constructor info into a byte array
+     *
      * @return byte array
      */
     @Override

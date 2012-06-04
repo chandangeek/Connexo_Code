@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.din19244.poreg2.request;
 
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
 import com.energyict.protocolimpl.din19244.poreg2.core.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -27,10 +28,6 @@ public class ProfileData extends AbstractRequest {
     private List<ProfileDataEntry> profileDataEntries = new ArrayList<ProfileDataEntry>();
     private int length;
 
-    private int receivedRegisterAddress;
-    private int receivedFieldAddress;
-    private int receivedNumberOfRegisters;
-    private int receivedNumberOfFields;
     private int receivedNumberOfRecords;
     private int receivedProfileInterval;
 
@@ -45,6 +42,14 @@ public class ProfileData extends AbstractRequest {
         this.profileId = profileId;
         this.from = from;
         this.to = to;
+    }
+
+    public String getCorruptCause() {
+        return corruptCause;
+    }
+
+    public boolean isCorruptFrame() {
+        return corruptFrame;
     }
 
     @Override
@@ -62,7 +67,7 @@ public class ProfileData extends AbstractRequest {
             offset += 2;
 
             extendedValue = RegisterDataParser.parseData(data, offset, getReceivedNumberOfRegisters(), getReceivedNumberOfFields()).get(0);
-            offset += (!extendedValue.isValid()) ? 1 : extendedValue.getType().getLength() +1;
+            offset += (!extendedValue.isValid()) ? 1 : extendedValue.getType().getLength() + 1;
 
             profileDataEntries.add(new ProfileDataEntry(length, gid, registerAddress, fieldAddress, recordingDate, status, extendedValue));
         }
@@ -70,28 +75,26 @@ public class ProfileData extends AbstractRequest {
 
     @Override
     public void doRequest() throws IOException {
-        byte[] response = poreg.getConnection().doRequest(getRequestASDU(), getAdditionalBytes(), getExpectedResponseType(), getResponseASDU());
-
-        while (true) {
-            response = validateAdditionalBytes(response);
-            parse(response);
-            if (!poreg.getConnection().isDoContinue()) {
-                break;
+        corruptFrame = false;
+        corruptCause = "";
+        try {
+            byte[] response = poreg.getConnection().doRequest(getRequestASDU(), getAdditionalBytes(), getExpectedResponseType(), getResponseASDU());
+            while (true) {
+                response = validateAdditionalBytes(response);
+                parse(response);
+                if (!poreg.getConnection().isDoContinue()) {
+                    break;
+                }
+                response = poreg.getConnection().doContinue(getExpectedResponseType(), getResponseASDU());
             }
-            response = poreg.getConnection().doContinue(getExpectedResponseType(), getResponseASDU());
+        } catch (ProtocolConnectionException e) { //E.g. crc error. Do not catch severe IOExceptions
+             corruptFrame = true;
+             corruptCause = e.getMessage();
         }
     }
 
     public List<ProfileDataEntry> getProfileDataEntries() {
         return profileDataEntries;
-    }
-
-    public int getReceivedNumberOfFields() {
-        return receivedNumberOfFields;
-    }
-
-    public int getReceivedNumberOfRegisters() {
-        return receivedNumberOfRegisters;
     }
 
     public int getReceivedNumberOfRecords() {

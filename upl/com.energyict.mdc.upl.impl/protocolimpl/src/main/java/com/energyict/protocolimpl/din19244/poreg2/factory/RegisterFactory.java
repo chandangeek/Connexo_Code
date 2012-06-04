@@ -35,6 +35,14 @@ public class RegisterFactory {
         this.poreg = poreg;
     }
 
+    public DstSettings readDst() throws IOException {
+        if (settings == null) {
+            settings = new DstSettings(poreg, 0, 0, 2, 5);
+            settings.doRequest();
+        }
+        return settings;
+    }
+
     public Date readDstStart() throws IOException {
         if (settings == null) {
             settings = new DstSettings(poreg, 0, 0, 2, 5);
@@ -49,6 +57,24 @@ public class RegisterFactory {
             settings.doRequest();
         }
         return settings.getEnd();
+    }
+
+    public void writeDstStart(int startMonth, int startDay, int startWDay) throws IOException {
+        DstSettings dstSettings = new DstSettings(poreg, 0, 1, 1, 3);
+        dstSettings.setStart(startMonth, startDay, startWDay);
+        dstSettings.write();
+    }
+
+    public void writeDstEnd(int endMonth, int endDay, int endWDay) throws IOException {
+        DstSettings dstSettings = new DstSettings(poreg, 1, 1, 1, 3);
+        dstSettings.setStart(endMonth, endDay, endWDay);
+        dstSettings.write();
+    }
+
+    public void writeDstAlgorithms(DaylightAlgorithm startAlgorithm, DaylightAlgorithm endAlgorithm) throws IOException {
+        DstSettings dstSettings = new DstSettings(poreg, 0, 4, 2, 1);
+        dstSettings.setAlgorithms(startAlgorithm, endAlgorithm);
+        dstSettings.write();
     }
 
     public Date readTime() throws IOException {

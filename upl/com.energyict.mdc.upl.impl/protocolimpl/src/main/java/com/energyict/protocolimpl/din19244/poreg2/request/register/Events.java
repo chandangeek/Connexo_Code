@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.din19244.poreg2.request.register;
 
 import com.energyict.protocol.MeterEvent;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
 import com.energyict.protocolimpl.din19244.poreg2.core.*;
 
@@ -10,7 +11,6 @@ import java.util.*;
 /**
  * Class to read out the events table.
  * Can generate a proper list of meter events based on the received data.
- *
  * Copyrights EnergyICT
  * Date: 20-apr-2011
  * Time: 14:10:28
@@ -33,13 +33,22 @@ public class Events extends AbstractRegister {
         super(poreg, registerAddress, fieldAddress, numberOfRegisters, numberOfFields);
     }
 
-    @Override
-    public void doRequest() throws IOException {
-        byte[] response = poreg.getConnection().doRequest(getRequestASDU(), getAdditionalBytes(), getExpectedResponseType(), getResponseASDU());
-        response = validateAdditionalBytes(response);
+    //Don't send continue commands for this!
+    protected void doTheRequest() throws IOException {
+        totalReceivedNumberOfRegisters = 0;
+        corruptFrame = false;
+        corruptCause = "";
 
-        //Parse the rest
-        parse(response);
+        try {
+            byte[] response = poreg.getConnection().doRequest(getRequestASDU(), getAdditionalBytes(), getExpectedResponseType(), getResponseASDU());
+            response = validateAdditionalBytes(response);
+
+            //Parse the rest
+            parse(response);
+        } catch (ProtocolConnectionException e) { //E.g. crc error. Do not catch severe IOExceptions
+            corruptFrame = true;
+            corruptCause = e.getMessage();
+        }
     }
 
     public void parse(byte[] data) throws IOException {

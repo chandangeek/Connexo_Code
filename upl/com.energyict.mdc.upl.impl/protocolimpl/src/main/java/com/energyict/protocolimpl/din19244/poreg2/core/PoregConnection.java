@@ -21,6 +21,8 @@ import java.util.Arrays;
  */
 public class PoregConnection implements ProtocolConnection {
 
+    private static final int MAX_FRAME_LENGTH = 0xFD + 5; //Max user data length is 252. Header = 4 + 2 - 1 (1 is the first byte char that is always read)
+    private static final int MAX_FRAME_LENGTH_NO_LENGTH_HEADER = MAX_FRAME_LENGTH - 2;  //Same but without the 2 length bytes in the header
     private InputStream inputStream;
     private OutputStream outputStream;
     private int timeout;
@@ -41,6 +43,10 @@ public class PoregConnection implements ProtocolConnection {
         this.timeout = timeoutProperty;
         this.retries = protocolRetriesProperty;
         this.poreg = poreg;
+    }
+
+    public int getRetries() {
+        return retries;
     }
 
     public void setHHUSignOn(HHUSignOn hhuSignOn) {
@@ -73,27 +79,34 @@ public class PoregConnection implements ProtocolConnection {
             throw new IOException("Error disconnecting, expected ACK, received " + response);
         }
         byte[] address = ProtocolTools.getSubArray(result, 1, 3);
-        if (!Arrays.equals(getAddressBytes(poreg.getStrID()), address)) {
-            throw new IOException("Error disconnecting, received wrong address");
+        if (!Arrays.equals(getAddressBytes(poreg.getSystemAddress()), address)) {
+            throw new IOException("Error disconnecting, unexpected system address");
         }
     }
 
     /**
      * Try to read one byte, timeout if nothing is received for a defined amount of time.
      *
-     * @param retryRequest: the request to be executed when retrying.
      * @return the read byte
      * @throws java.io.IOException when there's a communication problem
      */
+    public int readByte() throws IOException {
+        return readByte(null);
+    }
+
     public int readByte(byte[] retryRequest) throws IOException {
         return readBytes(1, retryRequest)[0] & 0xFF;
-            }
+    }
+
+    public byte[] readBytes(int length) throws IOException {
+        return readBytes(length, null);
+    }
 
     /**
      * Try to read a number of bytes, timeout if nothing is received for a defined amount of time.
      *
-     * @param length the number of bytes to be read
-     * @param retryRequest: the request to be executed when retrying.
+     * @param length        the number of bytes to be read
+     * @param retryRequest: the request to be executed when retrying. No retries are done when this request is set to null.
      * @return the read byte
      * @throws java.io.IOException when there's a communication problem
      */
@@ -104,29 +117,33 @@ public class PoregConnection implements ProtocolConnection {
 
         while (true) {
 
-        try {
+            try {
                 if (inputStream.available() >= length) {
-                byte[] result = new byte[length];
-                inputStream.read(result);
-                return result;
-            } else {
-                Thread.sleep(1);
+                    byte[] result = new byte[length];
+                    inputStream.read(result);
+                    return result;
+                } else {
+                    Thread.sleep(1);
+                }
+            } catch (InterruptedException e) {
+                throw new NestedIOException(e);
+            } catch (IOException e) {
+                throw new ConnectionException("Connection, readBytes() error " + e.getMessage());
             }
-        } catch (InterruptedException e) {
-            throw new NestedIOException(e);
-        } catch (IOException e) {
-            throw new ConnectionException("Connection, readBytes() error " + e.getMessage());
-        }
 
             // in case of a response timeout
             if (System.currentTimeMillis() > endMillis) {
-                if (counter == retries) {
-                    throw new ProtocolConnectionException("Response timeout error, after " + retries + " retries");
+                if (retryRequest == null) {
+                    throw new ProtocolConnectionException("Received incomplete frame... (1 or more bytes missing)");
                 } else {
-                    sendData(retryRequest);
-                    endMillis = System.currentTimeMillis() + timeout;
-                    counter++;
-    }
+                    if (counter == retries) {
+                        throw new IOException("Response timeout error, after " + retries + " retries");
+                    } else {
+                        sendData(retryRequest);
+                        endMillis = System.currentTimeMillis() + timeout;
+                        counter++;
+                    }
+                }
             }
         }
     }
@@ -136,56 +153,83 @@ public class PoregConnection implements ProtocolConnection {
         ByteArrayOutputStream result = new ByteArrayOutputStream();
 
         int kar = readByte(data);
-                switch (kar) {
-                    case START_FIXED:
-                readFixedFrame(result, data);
-                        return result.toByteArray();
-                    case START_VARIABLE:
-                readVariableFrame(result, data);
-                        return result.toByteArray();
-                    case START_CONNECT:
-                        result.write(kar);
-                readConnectionFrame(result, data);
-                        return result.toByteArray();
-                }
+        switch (kar) {
+            case START_FIXED:
+                readFixedFrame(result);
+                return result.toByteArray();
+            case START_VARIABLE:
+                readVariableFrame(result);
+                return result.toByteArray();
+            case START_CONNECT:
+                result.write(kar);
+                readConnectionFrame(result);
+                return result.toByteArray();
+        }
+        flushInput(MAX_FRAME_LENGTH);
         throw new ProtocolConnectionException("Unexpected first byte: " + kar + ". Expected: 0x10 (fixed frame), 0x68 (variable frame) or 0x43 (connecting)");
+    }
 
+    /**
+     * When the header of a received frame is corrupt, flush the input stream and retry the request.
+     */
+    private void flushInput(int length) {
+        long timeOutMillis = System.currentTimeMillis() + timeout;
+        int count = 0;
+        while (count < length) {         //Stop when the full length frame was read
+            try {
+                if (inputStream.available() > 0) {
+                    count += inputStream.read(new byte[1]);
+                } else {
+                    Thread.sleep(1);
                 }
+            } catch (IOException e) {
+                break;
+            } catch (InterruptedException e) {
+                //Ignore
+            }
+            if (System.currentTimeMillis() > timeOutMillis) {
+                break;              //Stop when timeout occurs
+            }
+        }
+        poreg.getLogger().info("Flushed the input stream after receiving a corrupt frame header.");
+    }
 
     private void sendData(byte[] data) throws IOException {
         outputStream.write(data);
     }
 
-    private void readConnectionFrame(ByteArrayOutputStream result, byte[] retryRequest) throws IOException {
+    private void readConnectionFrame(ByteArrayOutputStream result) throws IOException {
         byte[] userData;
-        userData = readBytes(9, retryRequest);
+        userData = readBytes(9);
         result.write(userData);
     }
 
-    private void readVariableFrame(ByteArrayOutputStream result, byte[] retryRequest) throws IOException {
+    private void readVariableFrame(ByteArrayOutputStream result) throws IOException {
         byte[] userData;
-        int length = readByte(retryRequest);
-        int length2 = readByte(retryRequest);
+        int length = readByte();
+        int length2 = readByte();
         if (length != length2) {
+            flushInput(MAX_FRAME_LENGTH_NO_LENGTH_HEADER);
             throw new ProtocolConnectionException("Connection frame error: expected " + length + " as length confirmer, received " + length2);
         }
-        int start2 = readByte(retryRequest);
+        int start2 = readByte();
         if (START_VARIABLE != start2) {
+            flushInput(length + 2);
             throw new ProtocolConnectionException("Connection frame error: expected " + START_VARIABLE + " as start confirmer, received " + start2);
         }
         if (length > 0) {
-            userData = readBytes(length, retryRequest);
+            userData = readBytes(length);  //Don't send request to retry in this case
         } else {
             return;
         }
-        int crc = readByte(retryRequest);
+        int crc = readByte();
+        int end = readByte();
         int calcedCRC = calcCRC(userData);
         if (crc != calcedCRC) {
             throw new ProtocolConnectionException("CRC error: expected " + calcedCRC + ", received " + crc);
         }
-        int end = readByte(retryRequest);
         if (end != END) {
-            throw new ProtocolConnectionException("Connection error: expected " + END + "at the end, received " + end);
+            throw new ProtocolConnectionException("Connection error: expected " + END + " at the end, received " + end);
         }
         result.write(userData);
     }
@@ -194,14 +238,14 @@ public class PoregConnection implements ProtocolConnection {
         return CRCGenerator.getModulo256(userData);
     }
 
-    private void readFixedFrame(ByteArrayOutputStream result, byte[] retryRequest) throws IOException {
-        byte[] userData = readBytes(3, retryRequest);
-        int crc = readByte(retryRequest);
+    private void readFixedFrame(ByteArrayOutputStream result) throws IOException {
+        byte[] userData = readBytes(3);
+        int crc = readByte();
+        int end = readByte();
         int calcedCRC = calcCRC(userData);
         if (crc != calcedCRC) {
             throw new ProtocolConnectionException("CRC error: expected " + calcedCRC + ", received " + crc);
         }
-        int end = readByte(retryRequest);
         if (end != END) {
             throw new ProtocolConnectionException("Connection frame error: expected " + END + " at the end, received " + end);
         }
@@ -255,24 +299,24 @@ public class PoregConnection implements ProtocolConnection {
         offset++;
 
         byte[] address = ProtocolTools.getSubArray(response, offset, offset + 2);
-        if (!Arrays.equals(address, getAddressBytes(poreg.getStrID()))) {
-            throw new IOException("Error receiving register group, unexpected device address");
+        if (!Arrays.equals(address, getAddressBytes(poreg.getSystemAddress()))) {
+            throw new IOException("Error receiving register group, unexpected system address");
         }
         offset += 2;
 
         int asdu = response[offset] & 0xFF;
         if (asdu == 0) {
-            throw new IOException("Error requesting data. Wrong password?");
+            throw new IOException("Error receiving data. Received ASDU was type 0.");
         }
 
         if (asdu != expectedASDUType) {
-            throw new IOException("Error receiving register group, expected ASDU type " + expectedASDUType + "in the response, got " + asdu);
+            throw new IOException("Error receiving data, expected ASDU type " + expectedASDUType + " in the response, got " + asdu);
         }
         offset++;
 
         int length = response[offset] & 0xFF;
         if (length != (response.length - 3)) {
-            throw new IOException("Error receiving register group, length mismatch. Expected " + (response.length - 3) + ", received " + length);
+            throw new IOException("Error receiving data, length mismatch. Expected " + (response.length - 3) + ", received " + length);
         }
         offset++;
 

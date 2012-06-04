@@ -28,14 +28,20 @@ public class DateTime extends AbstractRegister {
     }
 
     private Date time;
+    private boolean isInDst;
 
     public Date getTime() {
         return time;
     }
 
+    public boolean isInDst() {
+        return isInDst;
+    }
+
     public void parse(byte[] data) throws IOException {
         List<ExtendedValue> values = RegisterDataParser.parseData(data, getTotalReceivedNumberOfRegisters(), getReceivedNumberOfFields());
         this.time = DinTimeParser.parseValues(poreg, values);
+        this.isInDst = (values.get(7).getValue() == 1) ? true : false;
     }
 
     public int getRegisterGroupID() {

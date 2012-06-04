@@ -26,7 +26,20 @@ public class DstSettings extends AbstractRegister {
     }
 
     private Date start;
+    private int startMonth;
+    private int startDay;
+    private int startWDay;
+    private int startHour;
+    private DaylightAlgorithm startAlgorithm;
+
     private Date end;
+    private int endMonth;
+    private int endDay;
+    private int endWDay;
+    private int endHour;
+    private DaylightAlgorithm endAlgorithm;
+
+    private int writeMode;  // 0:  start date - 1: end date - 2: algorithms to use
 
     public Date getEnd() {
         return end;
@@ -36,29 +49,139 @@ public class DstSettings extends AbstractRegister {
         return start;
     }
 
+    public DaylightAlgorithm getStartAlgorithm() {
+        return startAlgorithm;
+    }
+
+    public DaylightAlgorithm getEndAlgorithm() {
+        return endAlgorithm;
+    }
+
+    public int getStartMonth() {
+        return startMonth;
+    }
+
+    public int getStartDay() {
+        return startDay;
+    }
+
+    public int getStartWDay() {
+        return startWDay;
+    }
+
+    public int getStartHour() {
+        return startHour;
+    }
+
+    public int getEndMonth() {
+        return endMonth;
+    }
+
+    public int getEndDay() {
+        return endDay;
+    }
+
+    public int getEndWDay() {
+        return endWDay;
+    }
+
+    public int getEndHour() {
+        return endHour;
+    }
+
     @Override
     protected void parse(byte[] data) throws IOException {
         List<ExtendedValue> values = RegisterDataParser.parseData(data, getTotalReceivedNumberOfRegisters(), getReceivedNumberOfFields());
         Calendar start = Calendar.getInstance();
         Calendar end = Calendar.getInstance();
 
-        start.set(Calendar.MONTH, values.get(1).getValue() - 1);
-        start.set(Calendar.DAY_OF_WEEK, values.get(3).getValue() + 1);
-        start.set(Calendar.DAY_OF_MONTH, values.get(2).getValue());
-        start.set(Calendar.HOUR_OF_DAY, 2);
+        startMonth = values.get(1).getValue();
+        startDay = values.get(2).getValue();
+        startWDay = values.get(3).getValue() == 0 ? 7 : values.get(3).getValue();
+        startHour = 2;
+
+        start.set(Calendar.MONTH, startMonth -1);
+        start.set(Calendar.DAY_OF_WEEK, startWDay);
+        start.set(Calendar.DAY_OF_MONTH, startDay);
+        start.set(Calendar.HOUR_OF_DAY, startHour);
         start.set(Calendar.MINUTE, 0);
         start.set(Calendar.SECOND, 0);
         start.set(Calendar.MILLISECOND, 0);
+        startAlgorithm = DaylightAlgorithm.valueFromOrdinal(values.get(4).getValue());
 
-        end.set(Calendar.MONTH, values.get(6).getValue() - 1);
-        end.set(Calendar.DAY_OF_WEEK, values.get(8).getValue() + 1);
-        end.set(Calendar.DAY_OF_MONTH, values.get(7).getValue());
-        end.set(Calendar.HOUR_OF_DAY, 3);
+        endMonth = values.get(6).getValue();
+        endDay = values.get(7).getValue();
+        endWDay = values.get(8).getValue() == 0 ? 7 : values.get(8).getValue();
+        endHour = 3;
+
+        end.set(Calendar.MONTH, endMonth -1);
+        end.set(Calendar.DAY_OF_WEEK, endWDay);
+        end.set(Calendar.DAY_OF_MONTH, endDay);
+        end.set(Calendar.HOUR_OF_DAY, endHour);
         end.set(Calendar.MINUTE, 0);
         end.set(Calendar.SECOND, 0);
         end.set(Calendar.MILLISECOND, 0);
+        endAlgorithm = DaylightAlgorithm.valueFromOrdinal(values.get(9).getValue());
 
         this.start = start.getTime();
         this.end = end.getTime();
+    }
+
+    @Override
+    protected byte[] getWriteASDU() {
+        return ASDU.WriteRegister.getIdBytes();
+    }
+
+    @Override
+    protected byte[] getWriteBytes() {
+        byte[] request = null;
+        int index = 0;
+
+        if (writeMode == 0 ) {
+            request = new byte[6];
+            request[index++] = (byte) DataType.Byte.getId();
+            request[index++] = (byte) startMonth;
+            request[index++] = (byte) DataType.Byte.getId();
+            request[index++] = (byte) startDay;
+            request[index++] = (byte) DataType.Byte.getId();
+            request[index++] = (byte) startWDay;
+        }   else if (writeMode == 1) {
+            request = new byte[6];
+            request[index++] = (byte) DataType.Byte.getId();
+            request[index++] = (byte) endMonth;
+            request[index++] = (byte) DataType.Byte.getId();
+            request[index++] = (byte) endDay;
+            request[index++] = (byte) DataType.Byte.getId();
+            request[index++] = (byte) endWDay;
+        }   else if (writeMode == 2) {
+            request = new byte[4];
+            request[index++] = (byte) DataType.Byte.getId();
+            request[index++] = (byte) startAlgorithm.ordinal();
+            request[index++] = (byte) DataType.Byte.getId();
+            request[index++] = (byte) endAlgorithm.ordinal();
+        }  else {
+            request = new byte[0];
+        }
+        return request;
+    }
+
+    public void setStart(int startMonth, int startDay, int startWDay) {
+        this.startMonth = startMonth;
+        this.startDay = startDay;
+        this.startWDay = startWDay;
+        this.writeMode = 0;
+    }
+
+    public void setEnd(int endMonth, int endDay, int endWDay) {
+        this.endMonth = endMonth;
+        this.endDay = endDay;
+        this.endMonth = endWDay;
+        this.writeMode = 1;
+    }
+
+    public void setAlgorithms(DaylightAlgorithm startAlgorithm, DaylightAlgorithm endAlgorithm) throws IOException {
+        this.startAlgorithm =  startAlgorithm;
+        this.endAlgorithm = endAlgorithm;
+        this.writeMode = 2;
     }
 }

@@ -28,12 +28,13 @@ public abstract class Poreg extends AbstractProtocol implements MessageProtocol 
     protected MeterType meterType;
     protected boolean isPoreg2;
     private int apparentEnergyResultLevel;
+    private String systemAddress = "00000000";
 
     @Override
     protected void doDisConnect() throws IOException {
     }
 
-    abstract protected PoregMessages getMessageHandler();    
+    abstract protected PoregMessages getMessageHandler();
 
     public PoregConnection getConnection() {
         return connection;
@@ -98,15 +99,21 @@ public abstract class Poreg extends AbstractProtocol implements MessageProtocol 
         return apparentEnergyResultLevel;
     }
 
+    public String getSystemAddress() {
+        return systemAddress;
+    }
+
     @Override
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         apparentEnergyResultLevel = Integer.parseInt(properties.getProperty("ApparentEnergyResultLevel", "0").trim());
+        systemAddress = properties.getProperty("SystemAddress", "00000000").trim();
     }
 
     @Override
     protected List doGetOptionalKeys() {
         ArrayList arrayList = new ArrayList();
         arrayList.add("ApparentEnergyResultLevel");
+        arrayList.add("SystemAddress");
         return arrayList;
     }
 
