@@ -12,6 +12,7 @@ import com.energyict.mdw.amr.RtuRegisterMapping;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.datacollection.DataCollectionMonitor;
 import com.energyict.mdw.estimation.EstimationProcedure;
+import com.energyict.mdw.offline.OfflineLoadProfileChannel;
 import com.energyict.mdw.relation.*;
 import com.energyict.mdw.shadow.ChannelShadow;
 import com.energyict.mdw.shadow.validation.ValidationRuleShadow;
@@ -1055,5 +1056,17 @@ public class DummyChannel implements Channel {
 
     public List<Relation> getRelations(RelationAttributeType attrib, TimePeriod period, boolean includeObsolete) {
         return null;
+    }
+
+    /**
+     * Triggers the capability to go offline and will copy all information
+     * from the database into memory so that normal business operations can continue.<br>
+     * Note that this may cause recursive calls to other objects that can go offline.
+     *
+     * @return The Offline version of this object
+     */
+    @Override
+    public OfflineLoadProfileChannel goOffline() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 }
