@@ -74,8 +74,14 @@ public class Logbook {
                     eventTimeStamp = dc.getRoot().getStructure(i).getOctetString(0).toDate(timeZone);
                     buildMeterEvent(meterEvents, eventTimeStamp, eventId);
                 } else {
-                    // if the time is not the correct structure, then we don't store it in the database
-                    this.logger.log(Level.INFO, "An event is returned with an invalid timestamp, eventcode is : " + eventId);
+                    // When 2 events have the same timestamp, the first one contains the eventTimeStamp.
+                    // The 2th one contains no OctetString, but an Integer 0 value, indicating the same eventTimeStamp as previous event has to be used.
+                    if ((dc.getRoot().getStructure(i).getElement(0).equals((int) 0)) && (eventTimeStamp != null)) {
+                        buildMeterEvent(meterEvents, eventTimeStamp, eventId);
+                    }   else {
+                            // we don't store it in the database
+                            this.logger.log(Level.INFO, "An event is returned with an invalid timestamp, eventcode is : " + eventId);
+                    }
                 }
 
                 if (DEBUG >= 1) {
