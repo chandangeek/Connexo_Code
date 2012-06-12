@@ -590,11 +590,14 @@ public class A1440 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
             try {
                 String dString = dp.parseBetweenBrackets(data, 0, 1);
                 if ("0000000000".equals(dString)) {
-                    throw new NoSuchRegisterException();
+                    // If timestamp is empty - return eventTime null, instead of throwing an error
+					// throw new NoSuchRegisterException();
+                    eventTime = null;
+                } else {
+                    VDEWTimeStamp vts = new VDEWTimeStamp(getTimeZone());
+                    vts.parse(dString);
+                    eventTime = vts.getCalendar().getTime();
                 }
-                VDEWTimeStamp vts = new VDEWTimeStamp(getTimeZone());
-                vts.parse(dString);
-                eventTime = vts.getCalendar().getTime();
             } catch (DataParseException e) {
                 if (DEBUG >= 3) {
                     e.printStackTrace();
