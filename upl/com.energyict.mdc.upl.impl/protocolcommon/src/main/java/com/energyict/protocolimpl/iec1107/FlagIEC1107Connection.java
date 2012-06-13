@@ -42,11 +42,11 @@ public class FlagIEC1107Connection extends Connection {
 
     private static final int TIMEOUT = 600000;
 
-    private static final byte UNKNOWN_ERROR = -1;
-    private static final byte TIMEOUT_ERROR = -2;
-    private static final byte SECURITYLEVEL_ERROR = -3; // KV 06072004
+    public static final byte UNKNOWN_ERROR = -1;
+    public static final byte TIMEOUT_ERROR = -2;
+    public static final byte SECURITYLEVEL_ERROR = -3; // KV 06072004
 
-    private static final byte RECONNECT_ERROR = -9; // KV 17012008
+     public static final byte RECONNECT_ERROR = -9; // KV 17012008
 
     private byte[] authenticationCommand = null;
     private byte[] authenticationData = null;
@@ -419,7 +419,7 @@ public class FlagIEC1107Connection extends Connection {
                 if (retries++ >= iMaxRetries) {
                     throw new FlagIEC1107ConnectionException("signOn() error iMaxRetries, possibly meter not responding or wrong nodeaddress, " + e.getMessage());
                 } else {
-                    logErrorMessage(Level.INFO, "signOn() error [try " + retries + " of " + iMaxRetries + "], " + e.getMessage());
+                    logErrorMessage(Level.INFO, "signOn() error [retry " + retries + " of " + iMaxRetries + "], " + e.getMessage());
                     if (!dontSendLogOffCommand) {
                         sendBreak();
                     }
@@ -489,7 +489,7 @@ public class FlagIEC1107Connection extends Connection {
                 } else if (iRetries++ >= iMaxRetries) {
                     throw new FlagIEC1107ConnectionException("Authentication error after (" + iMaxRetries + ") retries! Possibly wrong password!, " + e.getMessage());
                 } else {
-                    logErrorMessage(Level.INFO, "Authentication error [try " + iRetries + " of " + iMaxRetries + "], " + e.getMessage());
+                    logErrorMessage(Level.INFO, "Authentication error [retry " + iRetries + " of " + iMaxRetries + "], " + e.getMessage());
                     if (!dontSendLogOffCommand) {
                         sendBreak();
                     }
@@ -533,7 +533,7 @@ public class FlagIEC1107Connection extends Connection {
             } else if (iRetries++ >= iMaxRetries) {
                 throw new FlagIEC1107ConnectionException("Authentication error! Possibly wrong password! (error iMaxRetries), " + e.getMessage());
             } else {
-                logErrorMessage(Level.INFO, "Authentication error [try " + iRetries + " of " + iMaxRetries + "], " + e.getMessage());
+                logErrorMessage(Level.INFO, "Authentication error [retry " + iRetries + " of " + iMaxRetries + "], " + e.getMessage());
                 if (!dontSendLogOffCommand) {
                     sendBreak();
                 }
@@ -585,7 +585,7 @@ public class FlagIEC1107Connection extends Connection {
                 if (iRetries++ >= iMaxRetries) {
                     throw new FlagIEC1107ConnectionException("doDataReadout() error iMaxRetries, " + e.getMessage());
                 } else {
-                    logErrorMessage(Level.INFO, "doDataReadout() error [try " + iRetries + " of " + iMaxRetries + "], " + e.getMessage());
+                    logErrorMessage(Level.INFO, "doDataReadout() error [retry " + iRetries + " of " + iMaxRetries + "], " + e.getMessage());
                     if (!dontSendLogOffCommand) {
                         sendBreak();
                     }
@@ -700,7 +700,7 @@ public class FlagIEC1107Connection extends Connection {
                 if (iRetries++ >= iMaxRetries) {
                     throw new FlagIEC1107ConnectionException("doSendCommandFrame() error iMaxRetries!");
                 } else {
-                    logErrorMessage(Level.INFO, "doSendCommandFrame() error [try " + iRetries + " of " + iMaxRetries + "]");
+                    logErrorMessage(Level.INFO, "doSendCommandFrame() error [retry " + iRetries + " of " + iMaxRetries + "]");
                 }
             }
         } else if ((command[0] == 'R') || (command[0] == 'P')) {
@@ -787,7 +787,7 @@ public class FlagIEC1107Connection extends Connection {
             catch (FlagIEC1107ConnectionException e) {
                 if ((retries++ < iMaxRetries) && (getTxBuffer() != null) && ((e.getReason() == CRC_ERROR) || (e.getReason() == NAK_RECEIVED) || (e.getReason() == TIMEOUT_ERROR) || (e.getReason() == RECONNECT_ERROR))) {
                     //System.out.println("KV_DEBUG> RETRY "+e.getReason()+", txBuffer="+new String(getTxBuffer()));
-                    logErrorMessage(Level.INFO, "doReceiveDataRetry error [try " + retries + " of " + iMaxRetries + "], " + e.getMessage());
+                    logErrorMessage(Level.INFO, "doReceiveDataRetry error [retry " + retries + " of " + iMaxRetries + "], " + e.getMessage());
                     delayAndFlush(1000);
                     sendTxBuffer();
 //                    sendOut(NAK);

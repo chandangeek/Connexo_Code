@@ -565,6 +565,10 @@ public class A1440 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
                     vts.parse(toTimeString);
                     toTime = vts.getCalendar().getTime();
                 } catch (Exception e) {
+                    // If encountering a timeout, protocol session should fail immediately. It is not useful to continue.
+                    if (e instanceof FlagIEC1107ConnectionException && ((FlagIEC1107ConnectionException) e).getReason() == FlagIEC1107Connection.TIMEOUT_ERROR) {
+                        throw (FlagIEC1107ConnectionException) e;
+                    }
                 }
             }
 
@@ -609,7 +613,7 @@ public class A1440 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
                 return new RegisterValue(obis, null, null, null);
             }
 
-            Quantity q = null;
+			Quantity q;
             if (obis.getUnitElectricity(this.scaler).isUndefined()) {
                 q = new Quantity(bd, obis.getUnitElectricity(0));
             } else {
@@ -629,14 +633,22 @@ public class A1440 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
 
             return new RegisterValue(obis, q, eventTime, toTime);
 
+        } catch (NoSuchRegisterException e) {
+            String m = "getMeterReading() error, " + e.getMessage();
+            throw new NoSuchRegisterException(m);
         } catch (InvalidPropertyException e) {
             String m = "getMeterReading() error, " + e.getMessage();
             throw new InvalidPropertyException(m);
+        } catch (FlagIEC1107ConnectionException e) {
+            String m = "getMeterReading() error, " + e.getMessage();
+            throw new IOException(m);
         } catch (IOException e) {
+            String m = "getMeterReading() error, " + e.getMessage();
+            throw new IOException(m);
+        } catch (NumberFormatException e) {
             String m = "getMeterReading() error, " + e.getMessage();
             throw new NoSuchRegisterException(m);
         }
-
     }
 
     private byte[] read(String edisNotation) throws IOException {
