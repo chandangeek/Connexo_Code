@@ -1,12 +1,15 @@
 package com.energyict.protocolimpl.dlms.as220.gmeter;
 
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.MBusClient;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.*;
@@ -21,6 +24,7 @@ public class GMeterMessaging implements MessageProtocol {
 	public static final String 	DECOMISSION						= "Decommission";
 	public static final String  ENABLE_ENCRYPTION				= "EnableEncryption";
     public static final String 	DUMMY_MESSAGE				    = "DummyMessage";
+    public static final String WRITE_CAPTURE_DEFINITION = "WriteCaptureDefinition";
 
 	/*
 	 * Message descriptions
@@ -30,8 +34,10 @@ public class GMeterMessaging implements MessageProtocol {
 	private static final String DECOMMISSION_DISPLAY			= "Decommission meter";
 	private static final String ENABLE_ENCRYPTION_DISPLAY		= "Enable encryption";
     private static final String	DUMMY_MESSAGE_DISPLAY		    = "Dummy message";
+    private static final String WRITE_CAPTURE_DEF_DISPLAY = "Configure capture_definition of the MBus client";
 
 	private final GasDevice gasDevice;
+    protected static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
 
 	public GMeterMessaging(GasDevice gasDevice) {
 		this.gasDevice = gasDevice;
@@ -50,10 +56,30 @@ public class GMeterMessaging implements MessageProtocol {
         gMeterCat.addMessageSpec(createMessageSpec(DECOMMISSION_DISPLAY, DECOMISSION, true));
         gMeterCat.addMessageSpec(createMessageSpec(DUMMY_MESSAGE_DISPLAY, DUMMY_MESSAGE, false));
         gMeterCat.addMessageSpec(createEncryptionMessageSpec(ENABLE_ENCRYPTION_DISPLAY, ENABLE_ENCRYPTION, false));
+        gMeterCat.addMessageSpec(addBasicMsgWithAttributes(WRITE_CAPTURE_DEF_DISPLAY, WRITE_CAPTURE_DEFINITION, true, "DIB", "VIB"));
 
         theCategories.add(gMeterCat);
         return theCategories;
 	}
+
+    protected MessageSpec addBasicMsgWithAttributes(final String keyId, final String tagName, final boolean advanced, String... attr) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        for (String attribute : attr) {
+            if (attribute.equals("VIB")) {
+                MessageAttributeSpec attributeSpec = new MessageAttributeSpec(attribute, false);
+                attributeSpec.setValue("");
+                tagSpec.add(attributeSpec);
+            } else {
+                tagSpec.add(new MessageAttributeSpec(attribute, true));
+            }
+        }
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" "); //Disable this field
+        tagSpec.add(msgVal);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
 
 	public void applyMessages(List messageEntries) throws IOException {
 		// TODO Auto-generated method stub
@@ -70,6 +96,8 @@ public class GMeterMessaging implements MessageProtocol {
 				getGasDevice().getgMeter().getGasInstallController().deinstall();
             } else if (isMessageTag(ENABLE_ENCRYPTION, messageEntry)){
                 enableEncryption(messageEntry);
+            } else if (isMessageTag(WRITE_CAPTURE_DEFINITION, messageEntry)) {
+                writeCaptureDefinition(messageEntry);
             } else if (isMessageTag(DUMMY_MESSAGE, messageEntry)){
                 getGasDevice().getLogger().info("DUMMY_MESSAGE message received");
 			} else {
@@ -133,6 +161,7 @@ public class GMeterMessaging implements MessageProtocol {
 
     /**
      * Generate a {@link MessageSpec}, that can be added to the list of supported messages
+     *
      * @param keyId
      * @param tagName
      * @param advanced
@@ -148,13 +177,9 @@ public class GMeterMessaging implements MessageProtocol {
     /**
      * Generate a {@link MessageSpec} for the EncryptionMessage, that can be added to the list of supported messages
      * 
-     * @param keyId 
-     * 				- the ID of the message
-     * @param tagName 
-     * 				- the tag of the message
-     * @param advanced 
-     * 				- indicate whether the message is visible only if the 'advanced' checkbox is checked
-     * 
+     * @param keyId    - the ID of the message
+     * @param tagName  - the tag of the message
+     * @param advanced - indicate whether the message is visible only if the 'advanced' checkbox is checked
      * @return a generated MessageSpec for the encryption message
      */
     private MessageSpec createEncryptionMessageSpec(String keyId, String tagName, boolean advanced){
@@ -185,9 +210,8 @@ public class GMeterMessaging implements MessageProtocol {
 	 * 	} 
      * </code> </blockquote>
 	 * 
-	 * @param messageEntry
-	 *            - the messageContent from EIServer
-	 * 
+     * @param messageEntry - the messageContent from EIServer
+	 *
 	 * @throws IOException
 	 *             if something went wrong during setting of one of the keys
 	 */
@@ -198,11 +222,33 @@ public class GMeterMessaging implements MessageProtocol {
     	getGasDevice().getgMeter().getGasInstallController().setBothKeysAtOnce(rawData.getBEREncodedByteArray());
     }
     
+    private void writeCaptureDefinition(MessageEntry messageEntry) throws IOException {
+        String[] parts = messageEntry.getContent().split("=");
+        byte[] dib1Bytes = ProtocolTools.getBytesFromHexString(parts[1].substring(1).split("\"")[0], "$");
+        OctetString dib1 = OctetString.fromByteArray(dib1Bytes, dib1Bytes.length);
+        OctetString vib1 = OctetString.fromByteArray(new byte[0], 0);
+
+        Structure element1 = new Structure();
+        element1.addDataType(dib1);
+        element1.addDataType(vib1);
+
+        Array capture_definition = new Array();
+        capture_definition.addDataType(element1);
+        MBusClient mbusClient = gasDevice.getCosemObjectFactory().getMbusClient(getMBusClientObisCode(), MbusClientAttributes.VERSION10);
+        mbusClient.writeCaptureDefinition(capture_definition);
+    }
+
+    /**
+     * Returns the obiscode of the MBus-client object for a specific MBus meter.
+     */
+    private ObisCode getMBusClientObisCode() {
+        return ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) gasDevice.getGasSlotId());
+    }
+
     /**
      * Get a value from the messageContent
      * 
-     * @param elementTag 
-     * 					- the startingTag
+     * @param elementTag - the startingTag
      * @return the value
      */
     protected String getMessageValue(String content, String elementTag){
