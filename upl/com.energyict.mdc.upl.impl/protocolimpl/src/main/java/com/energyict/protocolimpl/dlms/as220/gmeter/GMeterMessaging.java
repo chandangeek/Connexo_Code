@@ -242,6 +242,7 @@ public class GMeterMessaging implements MessageProtocol {
         capture_definition.addDataType(element1);
         MBusClient mbusClient = gasDevice.getCosemObjectFactory().getMbusClient(getMBusClientObisCode(), MbusClientAttributes.VERSION10);
         mbusClient.writeCaptureDefinition(capture_definition);
+        getGasDevice().getLogger().info("MBus capture_definition was successfully written.");
     }
 
     /**
