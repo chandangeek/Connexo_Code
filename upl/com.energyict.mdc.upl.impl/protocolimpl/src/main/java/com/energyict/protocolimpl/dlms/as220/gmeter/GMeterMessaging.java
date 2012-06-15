@@ -105,6 +105,12 @@ public class GMeterMessaging implements MessageProtocol {
 				return MessageResult.createFailed(messageEntry);
 			}
 			return MessageResult.createSuccess(messageEntry);
+        } catch (NumberFormatException e) {
+            getGasDevice().getLogger().severe("Error parsing message argument(s): " + e.getMessage());
+            return MessageResult.createFailed(messageEntry);
+        } catch (StringIndexOutOfBoundsException e) {
+            getGasDevice().getLogger().severe("Error parsing message argument(s): " + e.getMessage());
+            return MessageResult.createFailed(messageEntry);
 		} catch (IOException e) {
 			getGasDevice().getLogger().severe("QueryMessage(), " + e.getMessage());
 			return MessageResult.createFailed(messageEntry);
