@@ -19,6 +19,7 @@ public class RtuMessageCategoryConstants {
 	public static final String TESTMESSAGE = "TestMessage";
 	public static final String GLOBALRESET = "Global Reset";
 	public static final String GPRSMODEMSETUP = "Change GPRS Modem Setup";
+    public static final String GPRS_MODEM_PING_SETUP = "GPRS Modem Ping Setup";
 	public static final String WAKEUPFUNCTIONALITY = "Wake up functionality";
 	public static final String AUTHENTICATEENCRYPT = "Authentication and encryption";
 	public static final String BASICMESSAGES = "BasicMessages";

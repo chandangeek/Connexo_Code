@@ -172,6 +172,9 @@ public class MessageHandler extends DefaultHandler{
         } else if(RtuMessageConstant.CHANGE_DEFAULT_RESET_WINDOW.equalsIgnoreCase(qName)) {
             setType(RtuMessageConstant.CHANGE_DEFAULT_RESET_WINDOW);
             handleChangeOfDefaultResetWindowParameters(attrbs);
+        } else if (RtuMessageConstant.GPRS_MODEM_PING_SETUP.equalsIgnoreCase(qName)) {
+             setType(RtuMessageConstant.GPRS_MODEM_PING_SETUP);
+            handleGPRSModemPingSetup(attrbs);
 		} else {
 			if(!isXmlInContent){ // If there is XML in the content, then the protocol will parse it himself ...
 				throw new SAXException("Unknown messageContent : " + qName);
@@ -747,6 +750,27 @@ public class MessageHandler extends DefaultHandler{
         return supplierActivationDate;
     }
 
+    private int pingInterval = 0;
+    private String pingIP = "";
+
+    private void handleGPRSModemPingSetup(final Attributes attrbs) {
+        try {
+            String pingIntervalStr = attrbs.getValue(RtuMessageConstant.PING_INTERVAl);
+            this.pingInterval = Integer.parseInt(pingIntervalStr);
+        } catch (NumberFormatException e) {
+            this.pingInterval = -1;
+        }
+
+        this.pingIP = attrbs.getValue(RtuMessageConstant.PING_IP);
+    }
+
+    public String getPingIP() {
+        return pingIP;
+    }
+
+    public int getPingInterval() {
+        return pingInterval;
+    }
 
     private int defaultResetWindow = 0;
 

@@ -151,6 +151,20 @@ public class ProtocolMessageSpecifications {
     }
 
     /**
+     * Creates a MessageSpecification for GPRS Modem Ping Setup Object settings.
+     *
+     * @return the requested messageSpecification
+     */
+    public static MessageSpec getModemPingSetupMessageSpecification() {
+        MessageSpec msgSpec = new MessageSpec(RtuMessageKeyIdConstants.GPRS_MODEM_PING_SETUP);
+        MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.GPRS_MODEM_PING_SETUP);
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.PING_INTERVAl, true));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.PING_IP, true));
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
+    /**
      * Creates a MessageSpecification for updating the Pricing Information message
      *
      * @return the requested messageSpecification

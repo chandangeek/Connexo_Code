@@ -3,6 +3,8 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.dialer.coreimpl.IPDialer;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.CosemObjectFactory;
@@ -101,7 +103,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      */
     @Override
     protected void initAfterConnect() throws ConnectionException {
-        if (this.dlmsSession != null) {
+        if(this.dlmsSession != null){
             // We need to update the correct TimeZone!!
             this.dlmsSession.updateTimeZone(getTimeZone());
         }
@@ -247,7 +249,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
     }
 
     /**
-     * Returns the implementation version
+     * Returns the version
      *
      * @return a version string
      */
@@ -299,8 +301,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      * Search for local slave devices so a general topology can be build up
      */
     public void searchForSlaveDevices() throws ConnectionException {
-        // TODO implement proper functionality.
-        // TODO not sure if we need this
+        // Not required for AM110R protocol
     }
 
     /**
@@ -322,7 +323,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
     }
 
     public UkHubRegisterFactory getRegisterFactory() {
-        if (this.registerFactory == null) {
+        if(this.registerFactory == null) {
             this.registerFactory = new UkHubRegisterFactory(this);
         }
         return registerFactory;
@@ -390,7 +391,9 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
         boolean success = true;
 
         init(link.getInputStream(), link.getOutputStream(), TimeZone.getDefault(), logger);
-        if (getDlmsSession().getProperties().getDataTransportSecurityLevel() != 0 || getDlmsSession().getProperties().getAuthenticationSecurityLevel() == 5) {
+        enableHHUSignOn(link.getSerialCommunicationChannel(), false);
+
+        if(getDlmsSession().getProperties().getDataTransportSecurityLevel() != 0 || getDlmsSession().getProperties().getAuthenticationSecurityLevel() == 5){
             int backupClientId = getDlmsSession().getProperties().getClientMacAddress();
             String backupSecurityLevel = getDlmsSession().getProperties().getSecurityLevel();
             String password = getDlmsSession().getProperties().getPassword();
@@ -412,11 +415,13 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
             restoredProperties.setProperty(SmartMeterProtocol.PASSWORD, password);
             restoredProperties.setProperty(UkHubProperties.CIPHERING_TYPE, backUpCipheringType.getTypeString());
 
-            String ipAddress = link.getStreamConnection().getSocket().getInetAddress().getHostAddress();
+            if (link instanceof IPDialer) {
+                String ipAddress = link.getStreamConnection().getSocket().getInetAddress().getHostAddress();
+                link.getStreamConnection().serverClose();
+                link.setStreamConnection(new SocketStreamConnection(ipAddress + ":4059"));
+                link.getStreamConnection().serverOpen();
+            }
 
-            link.getStreamConnection().serverClose();
-            link.setStreamConnection(new SocketStreamConnection(ipAddress + ":4059"));
-            link.getStreamConnection().serverOpen();
             reInitDlmsSession(link);
 
             getDlmsSession().getProperties().addProperties(restoredProperties);
@@ -429,7 +434,18 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
         return success;
     }
 
-    private void reInitDlmsSession(final Link link) {
+    private void reInitDlmsSession(final Link link) throws ConnectionException {
         this.dlmsSession = new DlmsSession(link.getInputStream(), link.getOutputStream(), getLogger(), getProperties(), getTimeZone());
+        enableHHUSignOn(link.getSerialCommunicationChannel(), false);
     }
+
+    @Override
+    public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean enableDataReadout) throws ConnectionException {
+        if (commChannel != null) {
+            if (getProperties().getConnectionMode() == ConnectionMode.IF2) {
+                getDlmsSession().setHhuSignOn(new IF2HHUSignon(commChannel, getLogger()));
+            }
+        }
+    }
+
 }

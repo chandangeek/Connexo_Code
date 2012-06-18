@@ -39,6 +39,17 @@ public class ProtocolMessageCategories {
     }
 
     /**
+     * MessageCategory containing the GPRS Modem Ping Setup message
+     *
+     * @return the newly created category
+     */
+    public static MessageCategorySpec getGPRSModemCategory() {
+        MessageCategorySpec categorySpec = new MessageCategorySpec(RtuMessageCategoryConstants.GPRS_MODEM_PING_SETUP);
+        categorySpec.addMessageSpec(ProtocolMessageSpecifications.getModemPingSetupMessageSpecification());
+        return categorySpec;
+    }
+
+    /**
      * MessageCategory containing relevant Pricing Information messages
      *
      * @return the newly created category

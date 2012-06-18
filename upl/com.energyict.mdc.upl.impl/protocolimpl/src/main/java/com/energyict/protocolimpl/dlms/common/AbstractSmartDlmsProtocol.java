@@ -4,10 +4,13 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cpo.Transaction;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.*;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.protocol.CacheMechanism;
+import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocolimpl.base.ProtocolProperties;
 import com.energyict.protocolimpl.dlms.*;
 import com.energyict.smartmeterprotocolimpl.common.AbstractSmartMeterProtocol;
@@ -21,7 +24,7 @@ import java.util.logging.Level;
 /**
  * Abstract Implementation of a DLMS SmartMeterProtocol.
  */
-public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtocol implements CacheMechanism {
+public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtocol implements CacheMechanism, HHUEnabler {
 
     /**
      * The used {@link com.energyict.dlms.DlmsSession}
@@ -256,6 +259,30 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
      */
     public boolean supportsBulkRequests() {
         return getProperties().isBulkRequest();
+    }
+
+    public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
+        enableHHUSignOn(commChannel, false);
+    }
+
+    /**
+     * This is an empty implementation, and you should override this method if you're using the HHUSignon
+     *
+     * @param commChannel       The SerialCommunicationChannel
+     * @param enableDataReadout enable or disable the data readout
+     * @throws ConnectionException
+     */
+    public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean enableDataReadout) throws ConnectionException {
+
+    }
+
+    /**
+     * Override this method to use the HHUData readout
+     *
+     * @return empty byte array (new byte[0])
+     */
+    public byte[] getHHUDataReadout() {
+        return new byte[0];
     }
 
 }

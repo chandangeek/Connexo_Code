@@ -1,16 +1,12 @@
 package com.energyict.dlms;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.aso.AssociationControlServiceElement;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dlms.aso.*;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,6 +27,7 @@ public class DlmsSession implements ProtocolLink {
     private InputStream in;
     private OutputStream out;
     private CosemObjectFactory cosemObjectFactory;
+    private HHUSignOn hhuSignOn = null;
 
     public DlmsSession(InputStream in, OutputStream out, Logger logger, DlmsSessionProperties properties, TimeZone timeZone) {
         this.in = in;
@@ -40,11 +37,18 @@ public class DlmsSession implements ProtocolLink {
         this.timeZone = timeZone;
     }
 
+    public void setHhuSignOn(HHUSignOn hhuSignOn) {
+        this.hhuSignOn = hhuSignOn;
+    }
+
     public void init() throws IOException {
         this.cosemObjectFactory = new CosemObjectFactory(this, getProperties().isBulkRequest());
         this.aso = buildAso();
         if (dlmsConnection == null) {
             this.dlmsConnection = new SecureConnection(this.aso, defineTransportDLMSConnection());
+            if (hhuSignOn != null) {
+                this.dlmsConnection.setHHUSignOn(this.hhuSignOn, "");
+            }
         }
         this.dlmsConnection.setInvokeIdAndPriority(getProperties().getInvokeIdAndPriority());
         this.dlmsConnection.setIskraWrapper(getProperties().getIskraWrapper());
@@ -134,6 +138,18 @@ public class DlmsSession implements ProtocolLink {
                         getProperties().getRetries(),
                         getProperties().getClientMacAddress(),
                         getProperties().getDestinationWPortNumber()
+                );
+                break;
+            case IF2:
+                transportConnection = new IF2Connection(
+                        in, out,
+                        getProperties().getTimeout(),
+                        getProperties().getRetries(),
+                        getProperties().getForcedDelay(),
+                        getProperties().getClientMacAddress(),
+                        getProperties().getDestinationWPortNumber(),
+                        getProperties().getLowerHDLCAddress(),
+                        getLogger()
                 );
                 break;
             default:

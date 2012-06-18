@@ -45,6 +45,7 @@ import static com.energyict.protocolimpl.utils.ProtocolTools.getBytesFromHexStri
 public class UkHubMessageExecutor extends GenericMessageExecutor {
 
     public static ObisCode KEYS_LOCK_DOWN_SWITCH_OBIS = ObisCode.fromString("0.128.0.0.1.255");
+    public static ObisCode GPRS_MODEM_PING_SETUP_OBIS = ObisCode.fromString("0.0.93.44.17.255");
     private final AbstractSmartDlmsProtocol protocol;
 
     private boolean success;
@@ -82,6 +83,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
             boolean backupZigBeeHanParameters = messageHandler.getType().equals(RtuMessageConstant.BACKUP_ZIGBEE_HAN_PARAMETERS);
             boolean restoreZigBeeParameters = messageHandler.getType().equals(RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS);
             boolean readZigBeeStatus = messageHandler.getType().equals(RtuMessageConstant.READ_ZIGBEE_STATUS);
+            boolean modemPingSetup = messageHandler.getType().equals(RtuMessageConstant.GPRS_MODEM_PING_SETUP);
             boolean firmwareUpdate = messageHandler.getType().equals(RtuMessageConstant.FIRMWARE_UPDATE);
             boolean testMessage = messageHandler.getType().equals(RtuMessageConstant.TEST_MESSAGE);
             boolean xmlCOnfig = messageHandler.getType().equals(RtuMessageConstant.XMLCONFIG);
@@ -109,6 +111,8 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
                 restoreZigBeeHanParameters(messageHandler);
             } else if (readZigBeeStatus) {
                 readZigBeeStatus();
+            } else if (modemPingSetup) {
+                modemPingSetup(messageHandler, content);
             } else if (firmwareUpdate) {
                 firmwareUpdate(messageHandler, content);
             } else if (testMessage) {
@@ -186,6 +190,28 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         BooleanObject bool = new BooleanObject(true);
         genericWrite.write(bool.getBEREncodedByteArray());
         ((UkHub)protocol).setReboot(true);
+    }
+
+    private void modemPingSetup(MessageHandler messageHandler, String content) throws IOException {
+        getLogger().info("Executing GPRS Modem Ping Setup message");
+
+        int pingInterval = messageHandler.getPingInterval();
+        if (pingInterval == -1) {
+            throw new IOException("Invalid Ping Interval: " + pingInterval);
+        }
+        String pingIP = messageHandler.getPingIP().trim();
+        if (pingIP.getBytes().length > 32) {
+            throw new IOException("Invalid Ping IP - the IP should be less than 32 characters.");
+        }
+
+        Data setupObject = getCosemObjectFactory().getData(GPRS_MODEM_PING_SETUP_OBIS);
+        Structure pingStruct = new Structure();
+        pingStruct.addDataType(new Unsigned32(pingInterval));
+        OctetString dataType = new OctetString(pingIP.getBytes());
+        pingStruct.addDataType(dataType);
+
+        setupObject.setValueAttr(pingStruct);
+        log(Level.INFO, "GPRS Modem Ping Setup message successful");
     }
 
     private void firmwareUpdate(MessageHandler messageHandler, String content) throws IOException {

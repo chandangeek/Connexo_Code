@@ -11,6 +11,7 @@ public enum ConnectionMode {
     TCPIP(1, "TCP/IP"),
     COSEM_APDU(2, "Cosem APDU"),
     LLC(3, "LLC"),
+    IF2(4, "IF2"),
     INVALID(-1, "Invalid");
 
     private final int mode;
