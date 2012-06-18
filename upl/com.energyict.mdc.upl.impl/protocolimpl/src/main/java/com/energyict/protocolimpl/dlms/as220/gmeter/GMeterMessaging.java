@@ -2,8 +2,6 @@ package com.energyict.protocolimpl.dlms.as220.gmeter;
 
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.MBusClient;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
@@ -240,16 +238,7 @@ public class GMeterMessaging implements MessageProtocol {
 
         Array capture_definition = new Array();
         capture_definition.addDataType(element1);
-        MBusClient mbusClient = gasDevice.getCosemObjectFactory().getMbusClient(getMBusClientObisCode(), MbusClientAttributes.VERSION10);
-        mbusClient.writeCaptureDefinition(capture_definition);
-        getGasDevice().getLogger().info("MBus capture_definition was successfully written.");
-    }
-
-    /**
-     * Returns the obiscode of the MBus-client object for a specific MBus meter.
-     */
-    private ObisCode getMBusClientObisCode() {
-        return ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) gasDevice.getGasSlotId());
+        getGasDevice().getgMeter().getGasInstallController().writeCaptureDefinition(capture_definition);
     }
 
     /**

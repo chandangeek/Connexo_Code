@@ -3,13 +3,14 @@
  */
 package com.energyict.protocolimpl.dlms.as220.gmeter;
 
-import java.io.IOException;
-
+import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.base.AbstractMbusInstallController;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
+
+import java.io.IOException;
 
 /**
  * AM500 specific implementation fo the installation/deinstallation of an Mbus(gas) device
@@ -84,5 +85,10 @@ public class GasInstallController extends AbstractMbusInstallController {
         } else {
             return getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(getGasDevice().getPhysicalAddress()).getObisCode(), MbusClientAttributes.VERSION9);
 }
+    }
+
+    public void writeCaptureDefinition(Array capture_definition) throws IOException {
+        getMbusClient().writeCaptureDefinition(capture_definition);
+        getGasDevice().getLogger().info("MBus capture_definition was successfully written.");
     }
 }
