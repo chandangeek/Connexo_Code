@@ -79,12 +79,12 @@ public class GasInstallController extends AbstractMbusInstallController {
      * @return the used MbusClient object
      * @throws IOException
      */
-    private MBusClient getMbusClient() throws IOException {
+    public MBusClient getMbusClient() throws IOException {
         if(getGasDevice().getActiveFirmwareVersion().isHigherOrEqualsThen("2")){
             return getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(getGasDevice().getPhysicalAddress()).getObisCode(), MbusClientAttributes.VERSION10);
         } else {
             return getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(getGasDevice().getPhysicalAddress()).getObisCode(), MbusClientAttributes.VERSION9);
-}
+        }
     }
 
     public void writeCaptureDefinition(Array capture_definition) throws IOException {

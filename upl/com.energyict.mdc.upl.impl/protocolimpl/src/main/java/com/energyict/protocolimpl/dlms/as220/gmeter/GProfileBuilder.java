@@ -8,7 +8,6 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.CapturedObjectsHelper;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -24,19 +23,19 @@ import java.util.logging.Logger;
  */
 public class GProfileBuilder {
 
-	private final AS220	as220;
+	private final GasDevice	as220;
 	private final CapturedObjectsHelper coh;
 	private static final long MASK_VALIDITY     = 0x80000000;
 	private static final long MASK_ENCRYPTED    = 0x40000000;
     private static final long MASK_VALUE        = 0x3FFFFFFF;
 
 
-	public GProfileBuilder(AS220 as220, CapturedObjectsHelper coh) {
+	public GProfileBuilder(GasDevice as220, CapturedObjectsHelper coh) {
 		this.as220 = as220;
 		this.coh = coh;
 	}
 
-	private AS220 getGasDevice() {
+	private GasDevice getGasDevice() {
 		return as220;
 	}
 
@@ -132,7 +131,7 @@ public class GProfileBuilder {
 
                         if (ProtocolTools.isCorrectIntervalBoundary(cal, capturePeriod)) {
                             IntervalData id = new IntervalData(cal.getTime(), profileStatus);
-                            id.addValue(value);
+                            id.addValue(MBusValueTranslator.interpret(value, getGasDevice().getDif()));
                             intervalDatas.add(id);
                         } else {
                             getGasDevice().getLogger().severe("Removing interval from profile data [" + cal.getTime() + " = " + value + "]. Not on interval boundary.");

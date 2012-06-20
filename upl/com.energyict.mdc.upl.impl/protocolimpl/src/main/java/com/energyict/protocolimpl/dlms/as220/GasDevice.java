@@ -4,6 +4,7 @@
 package com.energyict.protocolimpl.dlms.as220;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
@@ -31,6 +32,7 @@ public class GasDevice extends AS220 implements MessageProtocol{
 
     private final GMeter gMeter = new GMeter(this);
     private GMeterMessaging messaging;
+    private int dif = -1;
 
     /**
 	 * {@inheritDoc}
@@ -46,6 +48,10 @@ public class GasDevice extends AS220 implements MessageProtocol{
     public GMeter getgMeter() {
 		return gMeter;
 	}
+
+    public int getDif() {
+        return dif;
+    }
 
     /**
      * {@inheritDoc}
@@ -69,6 +75,7 @@ public class GasDevice extends AS220 implements MessageProtocol{
 				tempSerial = getCosemObjectFactory().getData(getMeterConfig().getMbusSerialNumber(i).getObisCode()).getString();
 				if(tempSerial.equalsIgnoreCase(gmeterSerialnumber)){
 					setGasSlotId(i + 1);
+                    dif = getMBusDIF();
 				}
 			} catch (IOException e) {
 				// fetch next
@@ -192,6 +199,28 @@ public class GasDevice extends AS220 implements MessageProtocol{
         else {
 			throw new NoSuchRegisterException(obisCode.toString() + " is not supported.");
 		}
+	}
+
+	/**
+     * Getter for the DIF value of the MBus capture_definition
+     *
+     * @return DIF value, or -1 if unknown
+     * @throws IOException
+     */
+    private int getMBusDIF() throws IOException {
+        Array captureDefinitionArray = getgMeter().getGasInstallController().getMbusClient().getCaptureDefiniton();
+        if (captureDefinitionArray != null) {
+            AbstractDataType abstractCaptureDefinition = captureDefinitionArray.getDataType(0);
+            Structure captureDefinition = abstractCaptureDefinition.getStructure();
+            if (captureDefinition != null) {
+                AbstractDataType abstractDib = captureDefinition.getDataType(0);
+                OctetString dib = abstractDib.getOctetString();
+                if (dib != null) {
+                    return dib.getOctetStr()[0] & 0xFF; //Return DIF (first byte of the DIB)
+                }
+            }
+        }
+        return -1;
 	}
 
 	/**
