@@ -24,51 +24,18 @@ KV|10102006|fix to support 64 bit values in load profile
 package com.energyict.protocolimpl.dlms;
 
 
-import com.energyict.dlms.DLMSObis;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.GenericInvoke;
-import com.energyict.dlms.cosem.ObjectReference;
+import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.DemandResetProtocol;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
-import com.energyict.protocol.messaging.TimeOfUseMessaging;
-import com.energyict.protocol.messaging.TimeOfUseMessagingConfig;
-import com.energyict.protocolimpl.dlms.siemenszmd.EventNumber;
-import com.energyict.protocolimpl.dlms.siemenszmd.ObisCodeMapper;
-import com.energyict.protocolimpl.dlms.siemenszmd.ZMDSecurityProvider;
-import com.energyict.protocolimpl.dlms.siemenszmd.ZmdMessages;
+import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.dlms.siemenszmd.*;
 
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 
 @Deprecated /** Deprecated as of jan 2012 - please use the new SmartMeter protocol (com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.ZMD) instead. **/
 public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProtocol, MessageProtocol, TimeOfUseMessaging {
@@ -233,7 +200,9 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
 
             // KV 12112002 following the Siemens integration handbook, only exclude profile entries where
             // status & EV_START_OF_INTERVAL is true
-            if ((intervalList[i].getField(IL_EVENT) & EV_START_OF_INTERVAL) == 0) {
+            // SVA Update: profile entries where status & EV_LOAD_PROFILE_CLEARED is true can also be left out.
+
+            if (((intervalList[i].getField(IL_EVENT) & EV_START_OF_INTERVAL) == 0) && ((intervalList[i].getField(IL_EVENT) & EV_LOAD_PROFILE_CLEARED) == 0)) {
 
                 // In case the EV_NORMAL_END_OF_INTERVAL bit is not set, calendar is possibly
                 // not aligned to interval boundary caused by an event
