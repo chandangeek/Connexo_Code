@@ -79,6 +79,8 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
     private int rs485RtuPlusServer = 0;
     private int limitMaxNrOfDays = 0;
 
+    private DataDumpParser dataDumpParser;
+
     /**
      * Creates a new instance of AS220, empty constructor
      */
@@ -197,6 +199,9 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
             this.protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap", "0:0:0:0:0:0"));
             this.scaler = Integer.parseInt(properties.getProperty("Scaler", "0").trim());
             this.dataReadoutRequest = Integer.parseInt(properties.getProperty("DataReadout", "0").trim());
+            if (this.dataReadoutRequest != 0 && this.dataReadoutRequest != 1 && dataReadoutRequest != 2) {
+                throw new InvalidPropertyException("AS220, validateProperties, Property dataReadOutRequest only supports values 0, 1 and 2");
+            }
             this.extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
             this.vdewCompatible = Integer.parseInt(properties.getProperty("VDEWCompatible", "0").trim());
             this.loadProfileNumber = Integer.parseInt(properties.getProperty("LoadProfileNumber", "1"));
@@ -217,7 +222,7 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
     }
 
     protected boolean isDataReadout() {
-        return (this.dataReadoutRequest == 1);
+		return (this.dataReadoutRequest == 1) || (this.dataReadoutRequest == 2);
     }
 
     public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
@@ -292,7 +297,17 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         if (this.firmwareVersion == null) {
-            this.firmwareVersion = (String) getAS220Registry().getRegister(this.aS220Registry.FIRMWAREID);
+            try {
+                this.firmwareVersion = (String) getAS220Registry().getRegister(this.aS220Registry.FIRMWAREID);
+            } catch (IOException e) {
+                // If we use 'DataReadOut' to retrieve registers, the firmware version is extracted from the datadump.
+                // If the datadump doesn't contain the firmware version register (0.2.0), then we get an IOException.
+                if (e.getMessage().contains("register 0.2.0 does not exist in datareadout")) {
+                    this.firmwareVersion = "N/A";
+                } else {
+                    throw new NestedIOException(e);
+                }
+            }
         }
         return this.firmwareVersion;
     }
@@ -541,9 +556,17 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
             }
 
             if (obis.getF() != 255) {
-                int f = getBillingCount() - Math.abs(obis.getF());
-                if (f < 0) {
-                    throw new NoSuchRegisterException("Billing count is only " + getBillingCount() + " so cannot read register with F = " + obis.getF());
+                int f = -1;
+                if (dataReadoutRequest == 2) {
+                    f = Math.abs(obis.getF());
+                    if (f >= getBillingCount()) {
+                        throw new NoSuchRegisterException("Billing count is only " + getBillingCount() + " so cannot read register with F = " + obis.getF());
+                    }
+                } else {
+                    f = getBillingCount() - Math.abs(obis.getF());
+                    if (f < 0) {
+                        throw new NoSuchRegisterException("Billing count is only " + getBillingCount() + " so cannot read register with F = " + obis.getF());
+                    }
                 }
                 fs = "*" + ProtocolUtils.buildStringDecimal(f, 2);
             }
@@ -646,8 +669,7 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
             this.flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5, byteArrayOutputStream.toByteArray());
             data = this.flagIEC1107Connection.receiveRawData();
         } else {
-            DataDumpParser ddp = new DataDumpParser(getDataReadout());
-            data = ddp.getRegisterStrValue(edisNotation).getBytes();
+			data = getDataDumpParser().getRegisterStrValue(edisNotation).getBytes();
         }
         return data;
     }
@@ -735,8 +757,7 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
         if (this.billingCount == null) {
 
             if (isDataReadout()) {
-                DataDumpParser ddp = new DataDumpParser(getDataReadout());
-                this.billingCount = new int[]{ddp.getBillingCounter()};
+				this.billingCount = new int[] { getDataDumpParser().getBillingCounter() };
             } else {
 
                 String data;
@@ -889,5 +910,16 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
 
     public int getLimitMaxNrOfDays() {
         return limitMaxNrOfDays;
+    }
+
+    public DataDumpParser getDataDumpParser() throws IOException {
+        if (dataDumpParser == null) {
+            if (dataReadoutRequest == 2) {
+                dataDumpParser = new AS220DataDumpParser(getDataReadout()); // Custom DataDumpParser, cause the parsing of historical billing registers is not-standard
+            } else {
+                dataDumpParser = new DataDumpParser(getDataReadout());
+            }
+        }
+        return dataDumpParser;
     }
 }

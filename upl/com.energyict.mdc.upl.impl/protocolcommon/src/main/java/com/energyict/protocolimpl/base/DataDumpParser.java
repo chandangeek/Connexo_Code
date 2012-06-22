@@ -11,9 +11,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProtocolUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.*;
@@ -355,5 +353,8 @@ public class DataDumpParser {
         
         
     }
-    
+
+    public String getStrFrame() {
+        return strFrame;
+    }
 }
