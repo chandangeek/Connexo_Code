@@ -335,7 +335,6 @@ public class LIS100 implements MeterProtocol, ProtocolLink, RegisterProtocol {
     // * Interface RegisterProtocol
     // *
     // *******************************************************************************************/
-
     /**
      * Gets a description for the obis code
      *

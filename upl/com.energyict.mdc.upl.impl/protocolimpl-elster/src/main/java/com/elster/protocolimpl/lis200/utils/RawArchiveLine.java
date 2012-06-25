@@ -122,8 +122,17 @@ public class RawArchiveLine
      */
     public BigDecimal getValue(int index) {
         int col = rali.getValueColumn(index);
-        if (col >= 0) {
-            return new BigDecimal(data[col]);
+        if ((col >= 0) && (data[col].length() > 0)) {
+            // remove unit [<value>*<unit>] (if there...)
+            String[] d = data[col].split("[*]");
+            try {
+                return new BigDecimal(d[0]);
+            }
+            catch (NumberFormatException nfe) {
+                System.out.println("NumberFormatException: index=" + index + "  col=" + col + "  data[col]=" + data[col]);
+                throw nfe;
+            }
+
         } else {
             return null;
         }

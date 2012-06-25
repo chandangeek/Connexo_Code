@@ -81,10 +81,11 @@ public class LIS200Utils {
      * <br>
      * The last two can have a scaler of 3 when 'k' is added in the string
      *
-     * @param strUnit - the given strUnit
+     * @param unitStr - the given strUnit
      * @return the Unit
      */
-    public static Unit getUnitFromString(String strUnit) {
+    public static Unit getUnitFromString(String unitStr) {
+        String strUnit = unitStr.trim();
         int scaler = 0;
         if (strUnit.equalsIgnoreCase("m3")) {
             return Unit.get(BaseUnit.CUBICMETER);
