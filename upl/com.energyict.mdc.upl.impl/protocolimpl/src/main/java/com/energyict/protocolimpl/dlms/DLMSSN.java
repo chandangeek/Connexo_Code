@@ -729,7 +729,7 @@ abstract public class DLMSSN implements MeterProtocol, HHUEnabler, ProtocolLink,
             } else {
                 channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap"));
             }
-            String[] securityLevel = properties.getProperty("SecurityLevel", "0").split(":");
+            String[] securityLevel = properties.getProperty("SecurityLevel", "1").split(":");
             this.authenticationSecurityLevel = Integer.parseInt(securityLevel[0]);
             if (securityLevel.length == 2) {
                 this.datatransportSecurityLevel = Integer.parseInt(securityLevel[1]);
