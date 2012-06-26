@@ -2,34 +2,18 @@ package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
-import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.ParseUtils;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.*;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.ActivePassive;
-import com.energyict.dlms.cosem.ActivityCalendar;
-import com.energyict.dlms.cosem.ChangeOfSupplierManagement;
-import com.energyict.dlms.cosem.ChangeOfTenantManagement;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.xmlparsing.GenericDataToWrite;
 import com.energyict.dlms.xmlparsing.XmlToDlms;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.MeteringWarehouseFactory;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
@@ -47,10 +31,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -74,6 +55,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
     private static final String ACTIVATION_DATE_TAG = "ActivationDate";
     private static final String ACTIVATION_DATE = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";
     private static final ObisCode PRICE_MATRIX_OBISCODE = ObisCode.fromString("0.0.1.61.0.255");
+    private static final ObisCode TARIFF_LABEL_OBISCODE = ObisCode.fromString("0.0.1.63.1.255");
     private static final ObisCode ACTIVITY_CALENDAR_OBISCODE = ObisCode.fromString("0.0.13.0.1.255");
     private static final ObisCode STANDING_CHARGE_OBISCODE = ObisCode.fromString("0.0.0.61.2.255");
     private static final ObisCode METER_MESSAGE_EMETER_CONTROL = ObisCode.fromString("1.0.35.3.8.255");
@@ -287,6 +269,9 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
     }
 
     private void setStandingCharge(String content) throws IOException {
+        ActivePassive standingCharge = getCosemObjectFactory().getActivePassive(STANDING_CHARGE_OBISCODE);
+        ActivePassive tariffLabel = getCosemObjectFactory().getActivePassive(TARIFF_LABEL_OBISCODE);
+
         int standingChargeValue;
         try {
             standingChargeValue = Integer.parseInt(getValueFromXMLAttribute(STANDING_CHARGE, content));
@@ -306,14 +291,17 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
             throw new IOException(e.getMessage());
         }
 
-        ActivePassive standingCharge = getCosemObjectFactory().getActivePassive(STANDING_CHARGE_OBISCODE);
         standingCharge.writePassiveValue(new Unsigned32(standingChargeValue));         //Double long, signed
+        String randomString = Double.toString(Math.random());
+        tariffLabel.writePassiveValue(OctetString.fromString(randomString, 6));
         if (activationDate != null && activationDate.after(new Date())) {
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());
             cal.setTime(activationDate);
             standingCharge.writeActivationDate(new DateTime(cal));
+            tariffLabel.writeActivationDate(new DateTime(cal));
         } else {
             standingCharge.activate();
+            tariffLabel.activate();
         }
     }
 
@@ -335,6 +323,8 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
 
     private void setPricePerUnit(String content) throws IOException {
         ActivePassive priceInformation = getCosemObjectFactory().getActivePassive(PRICE_MATRIX_OBISCODE);
+        ActivePassive tariffLabel = getCosemObjectFactory().getActivePassive(TARIFF_LABEL_OBISCODE);
+
         String[] prices = getValueFromXML(COMMA_SEPARATED_PRICES, content).split(",");
         String activationDateString = getValueFromXML(ACTIVATION_DATE_TAG, content);
 
@@ -363,13 +353,17 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         }
 
         priceInformation.writePassiveValue(priceArray);
+        String randomString = Double.toString(Math.random());
+        tariffLabel.writePassiveValue(OctetString.fromString(randomString, 6));
 
         if (activationDate != null && activationDate.after(new Date())) {
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());
             cal.setTime(activationDate);
             priceInformation.writeActivationDate(new DateTime(cal));
+            tariffLabel.writeActivationDate(new DateTime(cal));
         } else {
             priceInformation.activate();
+            tariffLabel.activate();
         }
     }
 

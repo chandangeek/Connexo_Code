@@ -2,26 +2,11 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.ParseUtils;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.*;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.ActivePassive;
-import com.energyict.dlms.cosem.ChangeOfSupplierManagement;
-import com.energyict.dlms.cosem.ChangeOfTenantManagement;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.GenericInvoke;
-import com.energyict.dlms.cosem.GenericRead;
-import com.energyict.dlms.cosem.GenericWrite;
-import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.xmlparsing.GenericDataToWrite;
 import com.energyict.dlms.xmlparsing.XmlToDlms;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
@@ -30,11 +15,7 @@ import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.MeteringWarehouseFactory;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.core.RtuMessage;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.RtuMessageShadow;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
@@ -55,10 +36,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -237,10 +215,6 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
     private void setPricePerUnit(String content) throws IOException {
         ActivePassive priceInformation = getCosemObjectFactory().getActivePassive(PRICE_MATRIX_OBISCODE);
         ActivePassive tariffLabel = getCosemObjectFactory().getActivePassive(TARIFF_LABEL_OBISCODE);
-        String label = "";
-        if (! content.contains(TARIFF_LABEL + "</")) {
-            label = getValueFromXML(TARIFF_LABEL, content);
-        }
 
         String[] prices = getValueFromXML(COMMA_SEPARATED_PRICES, content).split(",");
         String activationDateString = getValueFromXML(ACTIVATION_DATE_TAG, content);
@@ -269,14 +243,14 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
             }
         }
 
-        tariffLabel.writePassiveValue(OctetString.fromString(label));
+        String randomString = Double.toString(Math.random());
+        tariffLabel.writePassiveValue(OctetString.fromString(randomString, 6));
         priceInformation.writePassiveValue(priceArray);
 
         if (activationDate != null && activationDate.after(new Date())) {
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());
             cal.setTime(activationDate);
             priceInformation.writeActivationDate(new DateTime(cal));
-            cal.setTimeInMillis(cal.getTimeInMillis() + 1000);  // Activate tariff Label 1 second after the price information, to be sure the pricing information object is updated.
             tariffLabel.writeActivationDate(new DateTime(cal));
         } else {
             priceInformation.activate();
@@ -381,6 +355,9 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
     }
 
     private void setStandingCharge(String content) throws IOException {
+        ActivePassive standingCharge = getCosemObjectFactory().getActivePassive(STANDING_CHARGE_OBISCODE);
+        ActivePassive tariffLabel = getCosemObjectFactory().getActivePassive(TARIFF_LABEL_OBISCODE);
+
         int standingChargeValue;
         try {
             standingChargeValue = Integer.parseInt(getValueFromXMLAttribute(STANDING_CHARGE, content));
@@ -400,14 +377,17 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
             throw new IOException(e.getMessage());
         }
 
-        ActivePassive standingCharge = getCosemObjectFactory().getActivePassive(STANDING_CHARGE_OBISCODE);
         standingCharge.writePassiveValue(new Unsigned32(standingChargeValue));         //Double long, signed
+        String randomString = Double.toString(Math.random());
+        tariffLabel.writePassiveValue(OctetString.fromString(randomString, 6));
         if (activationDate != null && activationDate.after(new Date())) {
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());
             cal.setTime(activationDate);
             standingCharge.writeActivationDate(new DateTime(cal));
+            tariffLabel.writeActivationDate(new DateTime(cal));
         } else {
             standingCharge.activate();
+            tariffLabel.activate();
         }
     }
 

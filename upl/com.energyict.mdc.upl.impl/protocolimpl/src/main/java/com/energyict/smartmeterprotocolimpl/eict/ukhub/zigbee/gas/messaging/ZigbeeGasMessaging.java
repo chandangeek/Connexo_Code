@@ -27,7 +27,6 @@ public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMes
     private static final String SET_CALORIFIC_VALUE = "SetCalorificValue";
     private static final String SET_CONVERSION_FACTOR = "SetConversionFactor";
     private static final String ID_OF_USER_FILE = "ID of user file containing the price information";
-    private static final String TARIFF_LABEL = "Tariff label (optional)";
     private static final String TARIFF_LABEL_TAG = "TariffLabel";
     private static final String COMMA_SEPARATED_PRICES = "CommaSeparatedPrices";
     private static final String ACTIVATION_DATE_TAG = "ActivationDate";
@@ -61,7 +60,7 @@ public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMes
     public List getMessageCategories() {
         List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
         MessageCategorySpec pricingInformationCategory = ProtocolMessageCategories.getPricingInformationCategory();
-        pricingInformationCategory.addMessageSpec(addMsgWithValuesAndRequiredValue("Set price per unit (p/kWh)", SET_PRICE_PER_UNIT, false, ID_OF_USER_FILE, TARIFF_LABEL, ACTIVATION_DATE));
+        pricingInformationCategory.addMessageSpec(addMsgWithValuesAndRequiredValue("Set price per unit (p/kWh)", SET_PRICE_PER_UNIT, false, ID_OF_USER_FILE, ACTIVATION_DATE));
         pricingInformationCategory.addMessageSpec(addMsgWithValuesAndOptionalValue("Set standing charge", SET_STANDING_CHARGE, false, ACTIVATION_DATE, STANDING_CHARGE));
         pricingInformationCategory.addMessageSpec(addMsgWithValues("Read price per unit costs (p/kWh)", READ_PRICE_PER_UNIT, false, true));
         categories.add(pricingInformationCategory);
@@ -172,10 +171,6 @@ public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMes
                 } else if (ACTIVATION_DATE.equalsIgnoreCase(att.getSpec().getName())) {
                     if (att.getValue() != null) {
                         activationDate = att.getValue();
-                    }
-                } else if (TARIFF_LABEL.equalsIgnoreCase(att.getSpec().getName())) {
-                    if (att.getValue() != null) {
-                        tariffLabel = att.getValue();
                     }
                 }
             }
