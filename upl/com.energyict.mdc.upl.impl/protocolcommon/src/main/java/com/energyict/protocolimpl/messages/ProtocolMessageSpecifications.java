@@ -151,6 +151,18 @@ public class ProtocolMessageSpecifications {
     }
 
     /**
+     * Creates a MessageSpecification for firmware upgrade of the Zigbee NCP
+     * @return
+     */
+    public static MessageSpec getZigbeeNCPFirmwareUpgradeSpecification() {
+        MessageSpec msgSpec = new MessageSpec(RtuMessageKeyIdConstants.ZIGBEE_NCP_FIRMWARE_UPGRADE);
+        MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.ZIGBEE_NCP_FIRMWARE_UPGRADE);
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.ZIGBEE_NCP_FIRMWARE_USERFILE_ID, true));
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
+    /**
      * Creates a MessageSpecification for GPRS Modem Ping Setup Object settings.
      *
      * @return the requested messageSpecification

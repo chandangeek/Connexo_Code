@@ -26,7 +26,7 @@ public class MessageHandler extends DefaultHandler{
 	
 	/** Helper to indicate whether the RtuMessage content contains xml */
 	private boolean isXmlInContent = false;
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -155,6 +155,9 @@ public class MessageHandler extends DefaultHandler{
         } else if(RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS.equalsIgnoreCase(qName)){
             setType(RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS);
             handleRestoreHANParameters(attrbs);
+        } else if (RtuMessageConstant.ZIGBEE_NCP_FIRMWARE_UPGRADE.equals(qName)) {
+            setType(RtuMessageConstant.ZIGBEE_NCP_FIRMWARE_UPGRADE);
+            handleZigbeeNCPFirmwareUpgradeParameters(attrbs);
         } else if(RtuMessageConstant.CHANGE_OF_TENANT.equalsIgnoreCase(qName)) {
             setType(RtuMessageConstant.CHANGE_OF_TENANT);
             handleChangeOfTenantParameters(attrbs);
@@ -678,6 +681,19 @@ public class MessageHandler extends DefaultHandler{
     public int getRestoreHanParametersUserFileId(){
         try {
             return Integer.valueOf(this.restoreHanParametersUserFileID);
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
+
+    private String zigbeeNCPFirmwareUpgradeUserFileID = "";
+    private void handleZigbeeNCPFirmwareUpgradeParameters(final Attributes attrbs) {
+        this.zigbeeNCPFirmwareUpgradeUserFileID = attrbs.getValue(RtuMessageConstant.ZIGBEE_NCP_FIRMWARE_USERFILE_ID);
+    }
+
+    public int getZigbeeNCPFirmwareUpgradeUserFileId() {
+        try {
+            return Integer.valueOf(this.zigbeeNCPFirmwareUpgradeUserFileID);
         } catch (NumberFormatException e) {
             return -1;
         }

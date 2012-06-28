@@ -83,6 +83,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
             boolean backupZigBeeHanParameters = messageHandler.getType().equals(RtuMessageConstant.BACKUP_ZIGBEE_HAN_PARAMETERS);
             boolean restoreZigBeeParameters = messageHandler.getType().equals(RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS);
             boolean readZigBeeStatus = messageHandler.getType().equals(RtuMessageConstant.READ_ZIGBEE_STATUS);
+            boolean zigbeeNCPFirmwareUpgrade = messageHandler.getType().equals(RtuMessageConstant.ZIGBEE_NCP_FIRMWARE_UPGRADE);
             boolean modemPingSetup = messageHandler.getType().equals(RtuMessageConstant.GPRS_MODEM_PING_SETUP);
             boolean firmwareUpdate = messageHandler.getType().equals(RtuMessageConstant.FIRMWARE_UPDATE);
             boolean testMessage = messageHandler.getType().equals(RtuMessageConstant.TEST_MESSAGE);
@@ -115,6 +116,8 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
                 modemPingSetup(messageHandler, content);
             } else if (firmwareUpdate) {
                 firmwareUpdate(messageHandler, content);
+            } else if (zigbeeNCPFirmwareUpgrade) {
+                zigbeeNCPFirmwareUpdate(messageHandler, content);
             } else if (testMessage) {
                 testMessage(messageHandler);
             } else if (xmlCOnfig) {
@@ -224,6 +227,30 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
             it.imageActivation();
         } catch (InterruptedException e) {
             String msg = "Firmware upgrade failed! " + e.getClass().getName() + " : " + e.getMessage();
+            getLogger().severe(msg);
+            throw new IOException(msg);
+        }
+    }
+
+    private void zigbeeNCPFirmwareUpdate(MessageHandler messageHandler, String content) throws IOException {
+        getLogger().info("Executing Zigbee NCP firmware update message");
+        try {
+            int userFileId = messageHandler.getZigbeeNCPFirmwareUpgradeUserFileId();
+            if (userFileId == -1) {
+                throw new IOException("Invalid UserFileId value : " + userFileId);
+            }
+
+            UserFile uf = mw().getUserFileFactory().find(userFileId);
+            if (uf == null) {
+                throw new IOException("No UserFile found with ID : " + userFileId);
+            }
+
+            byte[] imageData = new Base64EncoderDecoder().decode(uf.loadFileInByteArray());
+            ImageTransfer it = getCosemObjectFactory().getImageTransfer(ObisCodeProvider.ZIGBEE_NCP_FIRMWARE_UPDATE);
+            it.upgrade(imageData);
+            it.imageActivation();
+        } catch (InterruptedException e) {
+            String msg = "Zigbee NCP firmware upgrade failed! " + e.getClass().getName() + " : " + e.getMessage();
             getLogger().severe(msg);
             throw new IOException(msg);
         }

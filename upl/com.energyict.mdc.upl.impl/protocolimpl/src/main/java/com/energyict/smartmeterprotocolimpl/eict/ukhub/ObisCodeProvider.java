@@ -24,6 +24,7 @@ public class ObisCodeProvider {
     public static final ObisCode HanManagementEventObject = ObisCode.fromString("0.0.96.11.15.255");
 
     public static final ObisCode FIRMWARE_UPDATE = ObisCode.fromString("0.0.44.0.0.255");
+    public static final ObisCode ZIGBEE_NCP_FIRMWARE_UPDATE = ObisCode.fromString("0.1.44.0.0.255");
 
     public static final UniversalObject[] OBJECT_LIST;
 

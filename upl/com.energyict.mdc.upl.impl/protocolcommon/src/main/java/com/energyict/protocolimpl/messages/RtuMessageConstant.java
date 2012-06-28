@@ -309,6 +309,9 @@ public class RtuMessageConstant {
 
     public static final String READ_ZIGBEE_STATUS = "Read_ZigBee_Status";
 
+    public static final String ZIGBEE_NCP_FIRMWARE_UPGRADE = "ZIGBEE_NCP_FIRMWARE_UPDATE";
+    public static final String ZIGBEE_NCP_FIRMWARE_USERFILE_ID = "UserFile_ID";
+
     // GPRS Modem Ping Setup
     public static final String GPRS_MODEM_PING_SETUP = "GPRS_Modem_Ping_Setup";
     public static final String PING_INTERVAl = "Ping_Interval";
