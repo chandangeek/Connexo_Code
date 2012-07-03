@@ -221,6 +221,11 @@ public class DummyRtu implements Rtu {
         //TODO implement proper functionality.
     }
 
+    @Override
+    public void updateNumberOfActiveAlarms() throws SQLException, BusinessException {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     public void store(ProfileData profileData) throws SQLException, BusinessException {
         store(profileData, true);
     }
