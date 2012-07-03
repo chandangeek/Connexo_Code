@@ -25,6 +25,7 @@ import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -37,7 +38,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, ProtocolLink, RegisterProtocol, Constant {
+public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessageProtocol, ProtocolLink, RegisterProtocol, Constant {
 
     /**
      * Properties

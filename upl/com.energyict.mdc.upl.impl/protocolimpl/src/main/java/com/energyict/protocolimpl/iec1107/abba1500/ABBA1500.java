@@ -40,7 +40,7 @@ import java.util.logging.Logger;
  * @version 1.0
  * @endchanges
  */
-public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol {
+public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol {
 
     private String strID;
     private String strPassword;

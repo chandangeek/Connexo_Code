@@ -3,9 +3,7 @@ package com.elster.protocolimpl.dlms;
 import com.elster.dlms.cosem.application.services.common.DataAccessResult;
 import com.elster.dlms.cosem.application.services.get.GetDataResult;
 import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
-import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
-import com.elster.dlms.cosem.simpleobjectmodel.SimpleClockObject;
-import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
+import com.elster.dlms.cosem.simpleobjectmodel.*;
 import com.elster.dlms.types.basic.DlmsDateTime;
 import com.elster.dlms.types.basic.ObisCode;
 import com.elster.genericprotocolimpl.dlms.ek280.EventProtocol;
@@ -14,45 +12,19 @@ import com.elster.protocolimpl.dlms.messaging.DlmsMessageExecutor;
 import com.elster.protocolimpl.dlms.messaging.XmlMessageWriter;
 import com.elster.protocolimpl.dlms.profile.DlmsConsumptionProfile;
 import com.elster.protocolimpl.dlms.profile.DlmsLogProfile;
-import com.elster.protocolimpl.dlms.registers.DlmsRegisterMapping;
-import com.elster.protocolimpl.dlms.registers.RegisterMap;
-import com.elster.protocolimpl.dlms.registers.SimpleObisCodeMapper;
+import com.elster.protocolimpl.dlms.registers.*;
 import com.elster.protocolimpl.dlms.util.ProtocolLink;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
-import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
-import com.energyict.protocol.messaging.FirmwareUpdateMessagingConfig;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -71,7 +43,7 @@ import java.util.logging.Logger;
  * @since 5-mai-2010
  */
 @SuppressWarnings("unused")
-public class Dlms implements MeterProtocol, ProtocolLink, RegisterProtocol, MessageProtocol, EventProtocol, HasSimpleObjectManager, FirmwareUpdateMessaging {
+public class Dlms extends PluggableMeterProtocol implements ProtocolLink, RegisterProtocol, MessageProtocol, EventProtocol, HasSimpleObjectManager, FirmwareUpdateMessaging {
 
     protected static String CLIENTID = "ClientID";
     protected static String SERVERADDRESS = "ServerAddress";

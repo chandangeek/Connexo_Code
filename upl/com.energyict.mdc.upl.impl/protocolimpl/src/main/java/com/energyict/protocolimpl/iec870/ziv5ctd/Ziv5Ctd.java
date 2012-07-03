@@ -9,6 +9,7 @@ import com.energyict.dialer.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -23,7 +24,7 @@ import java.util.logging.Logger;
  * @endchanges
  */
 
-public class Ziv5Ctd implements MeterProtocol, SerialNumber, RegisterProtocol {
+public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, RegisterProtocol {
 
     static final BigDecimal MAX_PROFILE_VALUE = new BigDecimal(9999999);
 

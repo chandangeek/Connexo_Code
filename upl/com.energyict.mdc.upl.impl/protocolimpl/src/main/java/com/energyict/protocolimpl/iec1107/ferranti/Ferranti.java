@@ -12,6 +12,7 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.*;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.iec1107.*;
 
@@ -32,7 +33,7 @@ import java.util.logging.Logger;
  * @version 1.0
  * @endchanges
  */
-public class Ferranti implements MeterProtocol, ProtocolLink, MeterExceptionInfo {
+public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, MeterExceptionInfo {
 
     private static final byte DEBUG = 0;
 

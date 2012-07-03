@@ -20,6 +20,7 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -27,7 +28,7 @@ import java.util.*;
 import java.util.logging.Logger;
 
 
-public class DukePower implements MeterProtocol, SerialNumber {
+public class DukePower extends PluggableMeterProtocol implements SerialNumber {
 
     private static final byte DUKEPOWERPROTOCOL_DEBUG = 0;
 

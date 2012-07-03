@@ -12,6 +12,7 @@ import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.*;
 
 import java.io.*;
@@ -19,7 +20,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class EK2xx implements MeterProtocol, HHUEnabler, ProtocolLink, RegisterProtocol {
+public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, RegisterProtocol {
 
     private static final int DEBUG = 0;
     private static final String DEVICE_ID = "ELS";

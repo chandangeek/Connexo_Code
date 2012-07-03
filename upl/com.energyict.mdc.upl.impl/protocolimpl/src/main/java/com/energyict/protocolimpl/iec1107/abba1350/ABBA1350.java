@@ -33,7 +33,7 @@ import java.util.logging.Logger;
  * @endchanges
  */
 public class ABBA1350
-        implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExceptionInfo,
+        extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, MeterExceptionInfo,
         RegisterProtocol, MessageProtocol {
 
     private final static int DEBUG = 0;

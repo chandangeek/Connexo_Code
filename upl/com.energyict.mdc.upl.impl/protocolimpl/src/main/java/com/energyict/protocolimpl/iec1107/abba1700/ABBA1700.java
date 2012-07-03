@@ -11,6 +11,7 @@ import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.iec1107.*;
 
@@ -24,7 +25,7 @@ import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactor
 /**
  * @author Koen
  */
-public class ABBA1700 implements MeterProtocol, ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol, DemandResetProtocol, MessageProtocol { // KV 19012004
+public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol, DemandResetProtocol, MessageProtocol { // KV 19012004
 
     private static final int BREAK_DELAY = 500;
     private static final int BREAK_BAUDRATE = 9600;

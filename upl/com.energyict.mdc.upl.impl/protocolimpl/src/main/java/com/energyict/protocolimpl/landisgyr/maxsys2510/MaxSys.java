@@ -7,6 +7,7 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.*;
@@ -46,7 +47,7 @@ import java.util.logging.Logger;
  * defined.  A time of use defines which datablocks are active.
  */
 
-public class MaxSys implements MeterProtocol, RegisterProtocol {
+public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
     /**
      * Property keys

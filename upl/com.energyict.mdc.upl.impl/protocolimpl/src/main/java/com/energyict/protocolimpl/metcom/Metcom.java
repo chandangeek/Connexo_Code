@@ -12,6 +12,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.iec1107.Software7E1InputStream;
 import com.energyict.protocolimpl.iec1107.Software7E1OutputStream;
 import com.energyict.protocolimpl.siemens7ED62.*;
@@ -31,7 +32,7 @@ import java.util.logging.Logger;
  *         GN 03042008 Added the MSYNC
  *         GN 17122008	Added timeSetMethod 3
  */
-abstract public class Metcom implements MeterProtocol, HalfDuplexEnabler {
+abstract public class Metcom extends PluggableMeterProtocol implements HalfDuplexEnabler {
 
 
     private static final int DEBUG = 0;

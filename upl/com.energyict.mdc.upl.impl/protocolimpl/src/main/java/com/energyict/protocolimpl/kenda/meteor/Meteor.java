@@ -7,6 +7,7 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.core.DialerCarrierException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 
 import java.io.*;
@@ -14,7 +15,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class Meteor implements MeterProtocol, RegisterProtocol {
+public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
 
     /**
      * ---------------------------------------------------------------------------------<p>

@@ -16,6 +16,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.sctm.base.GenericRegisters;
 
 import java.io.*;
@@ -34,7 +35,7 @@ import java.util.logging.Logger;
  * GN|03042008|Added the MSYNC
  * @endchanges
  */
-public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
+public class Siemens7ED62 extends PluggableMeterProtocol implements RegisterProtocol {
 
     // init
     private TimeZone timeZone;

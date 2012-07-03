@@ -12,6 +12,7 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.pact.core.common.*;
 import com.energyict.protocolimpl.pact.core.instant.InstantaneousFactory;
 import com.energyict.protocolimpl.pact.core.meterreading.MeterReadingIdentifier;
@@ -35,7 +36,7 @@ import java.util.logging.Logger;
  * old way; new way has a more fixed format to check if it is correct
  * @endchanges
  */
-public class PRIPact implements MeterProtocol, ProtocolLink, RegisterProtocol {
+public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, RegisterProtocol {
 
     private int DEBUG = 0;
 

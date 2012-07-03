@@ -9,6 +9,7 @@ import com.energyict.dlms.DlmsSessionProperties;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
 import java.io.*;
 import java.sql.SQLException;
@@ -20,7 +21,7 @@ import java.util.logging.Logger;
  * Date: 19/03/12
  * Time: 14:50
  */
-public abstract class AbstractDlmsSessionProtocol implements MeterProtocol, MessageProtocol, RegisterProtocol {
+public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol implements MessageProtocol, RegisterProtocol {
 
     private DlmsSession session = null;
 

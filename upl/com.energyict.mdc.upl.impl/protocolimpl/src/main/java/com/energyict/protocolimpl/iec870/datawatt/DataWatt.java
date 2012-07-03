@@ -12,6 +12,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.core.*;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.iec870.*;
 
 import java.io.*;
@@ -23,7 +24,7 @@ import java.util.logging.Logger;
  * @beginchanges KV|23032005|Changed header to be compatible with protocol version tool
  * @endchanges
  */
-public class DataWatt implements MeterProtocol, IEC870ProtocolLink {
+public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLink {
 
     static public final int MAX_COUNTER = 100000000; // = max counter + 1
 

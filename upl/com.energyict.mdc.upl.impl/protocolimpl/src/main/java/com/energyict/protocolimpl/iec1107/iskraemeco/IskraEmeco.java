@@ -18,6 +18,7 @@ import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.customerconfig.EDPRegisterConfig;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
@@ -42,7 +43,7 @@ import java.util.logging.Logger;
  * @version 1.0
  * @endchanges
  */
-public class IskraEmeco implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExceptionInfo, RegisterProtocol {
+public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, MeterExceptionInfo, RegisterProtocol {
 
     private static final byte DEBUG = 0;
 

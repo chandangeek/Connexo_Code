@@ -32,7 +32,7 @@ import java.util.logging.Logger;
  * @version 1.0
  * @endchanges
  */
-public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol {
+public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol {
 
     private String strID;
     private String strPassword;

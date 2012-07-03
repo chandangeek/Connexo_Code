@@ -9,8 +9,7 @@ import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.base.DataDumpParser;
-import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.iec1107.*;
 import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.registerconfig.MT83RegisterConfig;
 import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.registerconfig.MT83Registry;
@@ -31,7 +30,7 @@ import java.util.logging.Logger;
  *         JME	|14042009|	Removed channelmap property. The protocol now reads this data from the meter.
  *         JME	|20042009|	Fixed nullpointer exception when there is no profile data.
  */
-public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExceptionInfo, RegisterProtocol, DemandResetProtocol, MessageProtocol {
+public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, MeterExceptionInfo, RegisterProtocol, DemandResetProtocol, MessageProtocol {
 
     private static final byte DEBUG = 0;
 

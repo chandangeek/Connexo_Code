@@ -5,6 +5,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
@@ -17,7 +18,7 @@ import java.util.logging.Logger;
  * Date: 7-dec-2010
  * Time: 16:51:30
  */
-public abstract class AbstractUnilog implements MeterProtocol, RegisterProtocol, ProtocolLink, MeterExceptionInfo {
+public abstract class AbstractUnilog extends PluggableMeterProtocol implements RegisterProtocol, ProtocolLink, MeterExceptionInfo {
 
     private Logger logger;
     private TimeZone timeZone;

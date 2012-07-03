@@ -29,6 +29,7 @@ import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.cosem.*;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.dlms.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -37,7 +38,7 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
 
-public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, FirmwareUpdateMessaging {
+public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, FirmwareUpdateMessaging {
 
     private static final String PR_OPTICAL_BAUDRATE = "OpticalBaudrate";
     private static final String PR_PROFILE_TYPE = "ProfileType";

@@ -15,6 +15,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.iec1107.*;
 import com.energyict.protocolimpl.iec1107.ppm.opus.OpusConnection;
 import com.energyict.protocolimpl.iec1107.ppm.register.LoadProfileDefinition;
@@ -100,7 +101,7 @@ import java.util.logging.Logger;
  * JME|17122009| Changed method of setTime to do a adjust time. This method does not waste profiledata
  * @endchanges
  */
-public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol {
+public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol {
 
     /**
      * The minimum period of time that must be elapsed in order for an interval

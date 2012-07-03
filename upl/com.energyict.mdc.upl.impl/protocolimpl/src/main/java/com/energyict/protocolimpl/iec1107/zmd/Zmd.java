@@ -30,7 +30,7 @@ import java.util.logging.Logger;
  * @endchanges
  */
 
-public class Zmd implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol {
+public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol {
 
     private static final ObisCode BILLING_COUNTER = ObisCode.fromString("1.1.0.1.0.255");
     private static final ObisCode SERIAL_NUMBER = ObisCode.fromString("1.0.9.0.0.255");

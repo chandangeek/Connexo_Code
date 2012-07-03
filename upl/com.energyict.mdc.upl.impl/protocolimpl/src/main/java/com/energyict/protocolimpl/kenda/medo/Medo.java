@@ -6,6 +6,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 
 import java.io.*;
@@ -13,7 +14,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class Medo implements MeterProtocol, RegisterProtocol {
+public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
 
     /**
      * ---------------------------------------------------------------------------------<p>

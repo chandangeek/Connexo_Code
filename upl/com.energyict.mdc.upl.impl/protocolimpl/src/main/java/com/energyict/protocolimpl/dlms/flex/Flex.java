@@ -23,6 +23,7 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.*;
 import com.energyict.protocolimpl.dlms.iskrame37x.ObisCodeMapper;
 
@@ -30,7 +31,7 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class Flex implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol {
+public class Flex extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol {
 
     private static final byte DEBUG = 0;  // KV 16012004 changed all DEBUG values
 

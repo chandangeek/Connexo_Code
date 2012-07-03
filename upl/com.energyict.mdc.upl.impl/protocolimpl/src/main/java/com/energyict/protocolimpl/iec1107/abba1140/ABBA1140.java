@@ -11,6 +11,7 @@ import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.iec1107.*;
 
@@ -60,7 +61,7 @@ import java.util.logging.Logger;
  * @author fbo
  * @endchanges
  */
-public class ABBA1140 implements MeterProtocol, ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol, MessageProtocol {
+public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol, MessageProtocol {
 
     private static final long FORCE_DELAY = 300;
 

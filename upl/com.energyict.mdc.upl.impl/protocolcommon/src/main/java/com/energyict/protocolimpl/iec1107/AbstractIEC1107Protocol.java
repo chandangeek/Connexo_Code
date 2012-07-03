@@ -16,8 +16,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
-import com.energyict.protocolimpl.base.Encryptor;
-import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.base.*;
 
 import java.io.*;
 import java.util.*;
@@ -26,7 +25,7 @@ import java.util.logging.Logger;
 /**
  * @author Koen
  */
-public abstract class AbstractIEC1107Protocol implements MeterProtocol, ProtocolLink, HHUEnabler, SerialNumber,
+public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, SerialNumber,
         MeterExceptionInfo, RegisterProtocol {
 
     /**

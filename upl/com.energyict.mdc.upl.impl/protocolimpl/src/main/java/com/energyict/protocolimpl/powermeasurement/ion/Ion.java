@@ -8,6 +8,7 @@ import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.iec1107.*;
 
@@ -35,7 +36,7 @@ import java.util.logging.Logger;
  * @endchanges
  */
 
-public class Ion implements MeterProtocol, RegisterProtocol, ProtocolLink,
+public class Ion extends PluggableMeterProtocol implements RegisterProtocol, ProtocolLink,
         HHUEnabler, SerialNumber {
 
     /**

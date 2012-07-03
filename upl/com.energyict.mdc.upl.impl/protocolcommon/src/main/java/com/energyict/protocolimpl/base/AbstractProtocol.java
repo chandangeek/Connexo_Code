@@ -27,7 +27,7 @@ import java.util.logging.Logger;
  *
  * @author Koen
  */
-public abstract class AbstractProtocol implements MeterProtocol, HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol, HalfDuplexEnabler, DialinScheduleProtocol, DemandResetProtocol {
+public abstract class AbstractProtocol extends PluggableMeterProtocol implements HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol, HalfDuplexEnabler, DialinScheduleProtocol, DemandResetProtocol {
 
     public static final String PROP_TIMEOUT = "Timeout";
     public static final String PROP_RETRIES = "Retries";

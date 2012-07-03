@@ -10,6 +10,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.iec1107.*;
 
@@ -36,7 +37,7 @@ import java.util.logging.Logger;
  * @endchanges
  */
 
-public class A140 implements MeterProtocol, ProtocolLink, HHUEnabler,
+public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler,
         SerialNumber, MeterExceptionInfo, RegisterProtocol {
 
     private int dbg = 0;

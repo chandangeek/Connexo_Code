@@ -4,6 +4,7 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -16,7 +17,7 @@ import java.util.*;
  * Date: 23/02/12
  * Time: 14:40
  */
-public abstract class AbstractAS300D implements MeterProtocol, MessageProtocol {
+public abstract class AbstractAS300D extends PluggableMeterProtocol implements MessageProtocol {
 
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Calendar lastReading = Calendar.getInstance();

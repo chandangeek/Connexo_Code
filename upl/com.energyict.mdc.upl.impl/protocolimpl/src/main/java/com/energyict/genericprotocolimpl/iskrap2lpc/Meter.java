@@ -6,6 +6,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
 
@@ -14,7 +15,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class Meter implements Messaging, MeterProtocol {
+public class Meter extends PluggableMeterProtocol implements Messaging {
 
     private static final boolean ADVANCED = true;
 

@@ -22,13 +22,14 @@ import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.*;
 
 import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class ACE6000 implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol {
+public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol {
 
     private static final byte DEBUG = 0;  // KV 16012004 changed all DEBUG values
 

@@ -12,6 +12,7 @@ import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
 import java.io.*;
 import java.sql.SQLException;
@@ -26,7 +27,7 @@ import java.util.logging.Logger;
  * Time: 11:09:10
  * </p>
  */
-public class SimpleDLMSProtocol implements MeterProtocol, ProtocolLink, HHUEnabler, CacheMechanism {
+public class SimpleDLMSProtocol extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, CacheMechanism {
 
     /**
      * The {@link com.energyict.dlms.aso.ConformanceBlock} used

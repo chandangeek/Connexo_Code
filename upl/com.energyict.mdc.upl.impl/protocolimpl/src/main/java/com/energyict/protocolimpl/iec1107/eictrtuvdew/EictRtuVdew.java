@@ -13,8 +13,7 @@ import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.DataParser;
-import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.iec1107.*;
 
 import java.io.*;
@@ -36,7 +35,7 @@ import java.util.logging.Logger;
  * @version 1.0
  * @endchanges
  */
-public class EictRtuVdew implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol, HalfDuplexEnabler {
+public class EictRtuVdew extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol, HalfDuplexEnabler {
 
     private static final byte DEBUG = 0;
 

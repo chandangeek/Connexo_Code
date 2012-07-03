@@ -12,6 +12,7 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.iec1107.*;
 
@@ -34,7 +35,7 @@ import java.util.logging.Logger;
  * @version 1.0
  * @endchanges
  */
-public class Kamstrup implements MeterProtocol, ProtocolLink, RegisterProtocol { //,CommunicationParameters {
+public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, RegisterProtocol { //,CommunicationParameters {
 
     private static final byte DEBUG = 0;
 
@@ -172,7 +173,6 @@ public class Kamstrup implements MeterProtocol, ProtocolLink, RegisterProtocol {
      * @param properties <br>
      * @throws MissingPropertyException <br>
      * @throws InvalidPropertyException <br>
-     * @see AbstractMeterProtocol#validateProperties
      */
     public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         validateProperties(properties);

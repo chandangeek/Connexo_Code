@@ -8,6 +8,7 @@ import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.*;
 import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -31,7 +32,7 @@ KV|23032005|Changed header to be compatible with protocol version tool
 KV|07042006|Bugfix to correct read gross and corrected volume
  * @endchanges
  */
-public class SEVC implements MeterProtocol, HHUEnabler, SerialNumber {
+public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNumber {
 
     private static final byte DEBUG = 0;
 

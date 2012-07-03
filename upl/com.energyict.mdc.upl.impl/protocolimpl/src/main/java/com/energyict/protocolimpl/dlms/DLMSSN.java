@@ -29,6 +29,7 @@ import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.dlms.siemenszmd.StoredValuesImpl;
 
@@ -39,7 +40,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-abstract public class DLMSSN implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism {
+abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism {
 
     protected abstract String getDeviceID();
 

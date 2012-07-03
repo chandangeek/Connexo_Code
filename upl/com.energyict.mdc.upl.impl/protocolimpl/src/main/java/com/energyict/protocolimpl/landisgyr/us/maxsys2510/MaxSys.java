@@ -8,6 +8,7 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
 import java.io.*;
 import java.sql.SQLException;
@@ -48,7 +49,7 @@ import java.util.regex.Pattern;
  * defined.  A time of use defines which datablocks are active.
  */
 
-public class MaxSys implements MeterProtocol, RegisterProtocol {
+public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
     /**
      * Property keys

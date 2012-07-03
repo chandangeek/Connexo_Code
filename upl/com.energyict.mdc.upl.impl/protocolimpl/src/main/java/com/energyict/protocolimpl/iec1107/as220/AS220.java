@@ -26,7 +26,7 @@ import java.util.logging.Logger;
  *        <p/>
  *        19-08-2009 jme > Copied ABBA1350 protocol as base for new AS220 protocol
  */
-public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol, MessageProtocol, DemandResetProtocol {
+public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDuplexEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol, MessageProtocol, DemandResetProtocol {
 
     private final static int DEBUG = 0;
     private static final String PR_LIMIT_MAX_NR_OF_DAYS = "LimitMaxNrOfDays";

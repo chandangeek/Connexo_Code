@@ -5,6 +5,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
 import java.io.*;
 import java.util.*;
@@ -62,7 +63,7 @@ import java.util.logging.Logger;
  */
 
 
-public class rtuplusbus implements MeterProtocol, HalfDuplexEnabler {
+public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnabler {
 
     private static final int DEBUG = 0;
 

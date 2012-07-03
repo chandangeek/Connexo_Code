@@ -17,6 +17,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.DLMSCache;
 import com.energyict.protocolimpl.dlms.Z3.AARQ;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
@@ -35,7 +36,7 @@ import java.util.logging.Logger;
 /**
  * DLMS based {@link MeterProtocol} implementation for the Z3 and EpIO R2. There is also a generic protocol implementation {@link com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol}.
  */
-public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol, FirmwareUpdateMessaging {
+public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol, FirmwareUpdateMessaging {
 
     /**
      * The name of the property containing the information field size.

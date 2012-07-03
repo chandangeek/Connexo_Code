@@ -1,21 +1,15 @@
 package com.energyict.protocolimpl.iec1107.ppmi1;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Date;
-
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.SerialNumber;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Date;
 
 /**
  * This method is used to hide all the unused methods of MeterProtocol
@@ -23,7 +17,7 @@ import com.energyict.protocolimpl.iec1107.ChannelMap;
  * @author jme
  * 
  */
-public abstract class AbstractPPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol {
+public abstract class AbstractPPM extends PluggableMeterProtocol implements HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol {
 
 	/* (non-Javadoc)
 	 * @see com.energyict.protocol.MeterProtocol#setRegister(java.lang.String, java.lang.String)

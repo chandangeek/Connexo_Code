@@ -11,6 +11,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
 import java.io.*;
 import java.sql.SQLException;
@@ -33,7 +34,7 @@ import java.util.logging.Logger;
  * @since 5-mai-2010
  */
 @SuppressWarnings({"unused"})
-public class Dsfg implements MeterProtocol, RegisterProtocol, ProtocolLink {
+public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, ProtocolLink {
 
     /**
      * time zone of device

@@ -27,8 +27,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
-import com.energyict.protocolimpl.base.ContactorController;
-import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.iec1107.*;
 
 import java.io.*;
@@ -54,8 +53,7 @@ import java.util.logging.Logger;
  *
  */
 
-public class ABBA230 implements
-        MeterProtocol, ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo,
+public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo,
         RegisterProtocol, MessageProtocol, EventMapper {
 
     private static final int DEBUG = 0;

@@ -9,6 +9,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
 import java.io.*;
 import java.sql.SQLException;
@@ -26,7 +27,7 @@ import static com.energyict.protocolimpl.utils.ProtocolTools.delay;
  * @since 5-mai-2010
  */
 @SuppressWarnings({"unused"})
-public class LIS100 implements MeterProtocol, ProtocolLink, RegisterProtocol {
+public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, RegisterProtocol {
 
     private final Lis100Register[] registers = {};
 
