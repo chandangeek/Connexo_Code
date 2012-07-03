@@ -13,7 +13,6 @@ import com.energyict.protocol.*;
  */
 public abstract class PluggableMeterProtocol implements MeterProtocol {
 
-    @Override
     public void addProperties(TypedProperties properties) {
         try {
             setProperties(properties.toStringProperties());
@@ -24,7 +23,6 @@ public abstract class PluggableMeterProtocol implements MeterProtocol {
         }
     }
 
-    @Override
     public String getVersion() {
         return getProtocolVersion();
     }
