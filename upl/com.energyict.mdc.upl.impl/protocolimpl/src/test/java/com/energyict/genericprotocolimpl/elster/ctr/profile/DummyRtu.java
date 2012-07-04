@@ -222,7 +222,6 @@ public class DummyRtu implements Rtu {
         //TODO implement proper functionality.
     }
 
-    @Override
     public void updateNumberOfActiveAlarms() throws SQLException, BusinessException {
         //To change body of implemented methods use File | Settings | File Templates.
     }
@@ -570,7 +569,6 @@ public class DummyRtu implements Rtu {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    @Override
     public DeviceProtocolPluggableClass getDeviceProtocolPluggableClass() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
