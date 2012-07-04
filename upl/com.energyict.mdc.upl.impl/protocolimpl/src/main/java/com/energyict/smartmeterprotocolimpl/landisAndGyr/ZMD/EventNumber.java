@@ -27,7 +27,8 @@ public class EventNumber {
         events.add(new EventNumber(9,"DSTSwitched","Indicates the change from and to daylight saving time enabled or time. The time stamp shows the time before the disabled change.",UNDEF));
         events.add(new EventNumber(10,"ClockAdjustedOldDateTime","Indicates that the date/time has been adjusted. (old date/time) The time that is stored in the event log is the old time before adjusting the time.",UNDEF));
         events.add(new EventNumber(11,"ClockAdjustedNewDateTime","Indicates that the date/time has been adjusted. (new date/time) The time that is stored in the event log is the new time after adjusting the time.",UNDEF));
-        events.add(new EventNumber(13,"ControlInputStatusChanged","Indicates that the status of the input control signals inputs changed have changed (B21 and higher).",UNDEF));
+        events.add(new EventNumber(12,"ControlInputStatusChangedOFF", "Indicates that the status of the input control signals have changed to OFF.", ALERT));
+        events.add(new EventNumber(13,"ControlInputStatusChangedON","Indicates that the statue of the input control signals have changed to ON.",ALERT));
         events.add(new EventNumber(17,"UndervoltageL1","Indicates that an undervoltage on phase 1 occurred.",UNDEF));
         events.add(new EventNumber(18,"UndervoltageL2","Indicates that an undervoltage on phase 2 occurred.",UNDEF));
         events.add(new EventNumber(19,"UndervoltageL3","Indicates that an undervoltage on phase 3 occurred.",UNDEF));
@@ -63,6 +64,8 @@ public class EventNumber {
         events.add(new EventNumber(93,"GeneralSystemError","FF 00000010 error (see 16.3.4 Other Errors)",ERROR));
         events.add(new EventNumber(94,"CommunicationLocked","FF 00000020 locked (see 16.3.4 Other Errors)",ERRORALERT));
         events.add(new EventNumber(106,"AlertOccurred","Indicates that an alert has occurred.",UNDEF));
+        events.add(new EventNumber(134, "DcFieldDetectedON", "Indicates that a strong magnetic dc field has been detected.", ALERT));
+        events.add(new EventNumber(188, "DcFieldDetectedOFF", "Indicates that the dc field has been removed.", ALERT));
         events.add(new EventNumber(1024, "FatalErrorOccurred", "Indicates that a fatal error occurred.", ERROR));
         events.add(new EventNumber(524288, "FatalErrorOccurred", "Indicates that a fatal error occurred.", ERROR));
     }
@@ -127,8 +130,11 @@ public class EventNumber {
         else if (idDescr.compareTo("ClockAdjustedNewDateTime") == 0) {
             eiCode=MeterEvent.SETCLOCK_AFTER;
         }
-        else if (idDescr.compareTo("ControlInputStatusChanged") == 0) {
+        else if (idDescr.compareTo("ControlInputStatusChangedOFF") == 0) {
             eiCode=MeterEvent.OTHER;
+        }
+        else if (idDescr.compareTo("ControlInputStatusChangedON") == 0) {
+            eiCode = MeterEvent.OTHER;
         }
         else if (idDescr.compareTo("UndervoltageL1") == 0) {
             eiCode=MeterEvent.VOLTAGE_SAG;
@@ -234,7 +240,14 @@ public class EventNumber {
         }
         else if (idDescr.compareTo("AlertOccurred") == 0) {
             eiCode=MeterEvent.METER_ALARM;
-        } else if (idDescr.compareTo("FatalErrorOccurred") == 0) {
+        }
+        else if (idDescr.compareTo("DcFieldDetectedON") == 0) {
+            eiCode=MeterEvent.STRONG_DC_FIELD_DETECTED;
+        }
+        else if (idDescr.compareTo("DcFieldDetectedOFF") == 0) {
+            eiCode=MeterEvent.STRONG_DC_FIELD_DETECTED;
+        }
+        else if (idDescr.compareTo("FatalErrorOccurred") == 0) {
             eiCode = MeterEvent.FATAL_ERROR;
         }
 
